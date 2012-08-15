@@ -1,0 +1,105 @@
+<html>
+    <head>
+        <title>Example of Conditions Editor</title>
+        <link rel="stylesheet" href="/ext/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
+        <script type="text/javascript" src="/ext/jquery/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="/ext/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
+        <script type="text/javascript" src="/rexl/rexl.js"></script>
+        <link rel="stylesheet" href="/css/conditor.css" />
+        <script type="text/javascript" src="/js/conditor.js"></script>
+        <style>
+            body {
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+                font-family:verdana;
+                font-size: 12px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <script>
+
+            var identifiers = {
+                'first': {
+                    type: 'number',
+                    title: 'First Variable'
+                },
+                'second': {
+                    type: 'string',
+                    title: 'Second Variable'
+                },
+                'third': {
+                    type: 'enum',
+                    title: 'Third Variable',
+                    variants: [
+                        { code: 'yes', title: 'Yes' },
+                        { code: 'no', title: 'No' }
+                    ]
+                },
+                'fourth': {
+                    type: 'list',
+                    title: 'Fourth Variable',
+                    variants: [
+                        { code: 'pepsi', title: 'Pepsi Cola' },
+                        { code: 'coca', title: 'Coca Cola' },
+                        { code: 'fanta', title: 'Fanta' }
+                    ]
+                }
+            }
+        
+            var conditionEditor;
+            $(document).ready(function () {
+
+                conditionEditor = new ConditionEditor({
+                    manualEdit: true,
+
+                    onDescribeId: function (identifier) {
+                        var ret = null;
+                        if (identifiers[identifier]) {
+                            ret = {
+                                type: identifiers[identifier].type,
+                                variants: identifiers[identifier].variants || []
+                            };
+                        }
+                        return ret;
+                    },
+
+                    onSearchId: function (term) {
+                        var ret = [];
+                        var matcher =
+                            new RegExp($.ui.autocomplete.escapeRegex(term), "i");
+
+                        for (var id in identifiers) {
+                            if (id.search(matcher) !== -1 ||
+                                identifiers[id].title.search(matcher) !== -1) {
+
+                                ret.push({
+                                    "title": identifiers[id].title,
+                                    "value": id
+                                });
+                            }
+                        }
+
+                        return ret;
+                    }
+                });
+            });
+
+            function startEditor() {
+                conditionEditor.open({
+                    callback: function (newConditions) {
+                        $('input#conditions').val(newConditions);
+                    },
+                    conditions: $('input#conditions').val(),
+                });
+            }
+
+        </script>
+        <input id="conditions" value="first!=5 & third='yes'" />
+        <button onclick="startEditor();">Start Editor</button>
+    </body>
+</html>

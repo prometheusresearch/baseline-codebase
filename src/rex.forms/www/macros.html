@@ -1,0 +1,141 @@
+{% macro client_head() -%}
+        <meta name="Content-Type" content="text/html; charset=utf-8" />
+        <title>Smart ESAC</title>
+        <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
+        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/json/jquery.json-2.3.min.js"></script>
+
+        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/creole/creole.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/js/roads-client.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/rexl/rexl.js"></script>
+        <script type="text/javascript">
+            var roads;
+            $(document).ready(function () {
+                roads = new ROADS({
+                    instrument: {{ instrument }},
+                    state: {{ state }},
+                    instrument_id: '{{ instrument_id }}',
+                    package: '{{ package }}',
+                    prefix: "{{ PREFIX['rex.forms'] }}",
+                    place: '.page'
+                });
+            });
+        </script>
+    </head>
+    <style>
+        body { margin: 0px; padding: 0px; font-family: verdana, Arial, Helvetica, sans-serif; font-size: 13px; }
+
+        ul.rc-answer-variants {
+            list-style-type: none;
+            margin-left: 0px;
+            padding-left: 0px;
+        }
+
+        .rc-btn-survey-back {
+            display: inline-block;
+            cursor: pointer;
+            float: left;
+        }
+
+        .rc-btn-survey-next,
+        .rc-btn-survey-finish {
+            display: inline-block;
+            cursor: pointer;
+            float: right;
+        }
+
+        .rc-content {
+            background-color: white;
+            background-image: url('{{ PREFIX['rex.forms'] }}/img/background.png');
+            background-repeat: repeat-x;
+            overflow: hidden;
+            /* min-height: 600px; */
+            padding-bottom: 20px;
+        }
+
+        .rc-page-wrap {
+            width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .rc-page {
+            color: #40327a;
+            padding: 15px 5px 40px 5px;
+            font-size: 22px;
+        }
+
+        .rc-question-title {
+            font-weight: bold;
+        }
+        
+        .rc-question-title em {
+            font-weight: normal;
+        }
+
+        .rc-progress-bar { 
+            position: relative; 
+            text-align: center;
+            margin-left: auto; 
+            margin-right: auto;
+            width: 800px;
+            padding: 15px;
+            text-align: center;
+            color: #8e88a2;
+            font-size: 20px;
+        }
+
+        .disabled-question {
+            color: #bcbcbc;
+        }
+
+        .rc-progress-bar-fill-wrap { 
+            background-color: white; 
+            border: 1px solid black;
+            margin-bottom: 10px;
+        }
+        .rc-progress-bar-fill { 
+            height: 35px; 
+            width: 30%; 
+            background-color: #423177; 
+        }
+        .rc-progress-bar-pct { padding-top: 3px; display: inline-block; }
+
+        .rc-error { background-color: #fbcaca; }
+        .rc-question-error { background-color: #ffeaea; }
+
+        textarea.rc-answer-variant {
+            margin-top: 10px;
+            width: 600px;
+            height: 150px;
+        }
+
+        .rc-roads-rep-group {
+            margin-top: 10px;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 20px;
+            border: 1px dotted black;
+        }
+
+    </style>
+{% endmacro -%}
+
+
+{% macro client() -%}
+        <div class="rc-content">
+            <div class="rc-progress-bar">
+                <div class="rc-progress-bar-fill-wrap">
+                    <div class="rc-progress-bar-fill"></div>
+                </div>
+                <span class="rc-progress-bar-pct">30%</span> Completed
+            </div>
+            <div class="rc-page-wrap">
+                <div class="rc-page">
+                </div>
+                <div class="rc-btn-survey-back"><img src="{{ PREFIX['rex.forms'] }}/img/prev-question.png"></div>
+                <div class="rc-btn-survey-next"><img src="{{ PREFIX['rex.forms'] }}/img/next-question.png"></div>
+            </div>
+        </div>
+{% endmacro -%}

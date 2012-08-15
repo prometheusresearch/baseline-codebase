@@ -1,0 +1,5 @@
+deny:
+- uri: /base.html
+- uri: /roadsbuilder_macros.html
+- uri: /macros.html
+- uri: /index.html

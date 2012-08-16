@@ -196,6 +196,131 @@ $.RoadsBuilder.EditPageDialogF = function () {
     return Init;
 }
 
+$.RoadsBuilder.BeforeTestDialog = function () {
+
+    var dialogParams = null;
+
+    function closeDialog() {
+        dialogParams = null;
+        dialogObj.dialog('close');
+    }
+    
+    var dialogObj = $('#before_test_dialog').dialog({
+        autoOpen: false,
+        title: 'Set Input Parameters',
+        width: 300,
+        height: 230,
+        modal: true,
+        buttons: {
+            'Ok': function () {
+            
+                var paramDict = {};
+                var valid = true;
+                
+                paramTable.find('tr').each(function () {
+                    var jRow = $(this);
+                    var paramName = jRow.attr('data-param');
+                    var param = $.RoadsBuilder.context.findParamData(paramName);
+                    var value = jQuery.trim(jRow.find('input,select').val());
+
+                    if (value) {
+                        var realType = param.type;
+
+                        if (param.type !== 'STRING' &&
+                            param.type !== 'NUMBER') {
+                            
+                            if ($.RoadsBuilder.externalParamTypes) {
+                                typeDesc =
+                                    $.RoadsBuilder.externalParamTypes[param.type];
+                                if (typeDesc)
+                                    realType = typeDesc.type;
+                            }
+                        }
+
+                        switch(realType) {
+                        case 'NUMBER':
+                            if (!$.RoadsBuilder.isValidNumeric(value, 'float')) {
+                                valid = false;
+                                break;
+                            }
+                        default:
+                            paramDict[paramName] = value;
+                        }
+
+                    } else
+                        paramDict[paramName] = null;
+                });
+
+                if (valid) {
+                    if (dialogParams.callback)
+                        dialogParams.callback(paramDict);
+                    closeDialog();
+                }
+            },
+            'Cancel': function () {
+                closeDialog();
+            }
+        }
+    });
+
+    var paramTable = $('#before_test_parameters');
+
+    this.open = function (initParams) {
+        dialogParams = initParams || {};
+        params = $.RoadsBuilder.context.getIndexByType('parameter');
+        paramTable.contents().remove();
+        for (var idx in params) {
+            var param = params[idx];
+            var rowHTML = '<tr><td>' 
+                                + $.RoadsBuilder.escapeHTML(param.name) + '</td>' 
+                                + '<td class="rb_test_param_value"></td></tr>';
+
+            var row = $(rowHTML);
+            row.attr('data-param', param.name);
+            var isScalar = true;
+            var typeDesc;
+
+            if (param.type !== 'NUMBER' &&
+                param.type !== 'STRING') {
+                if ($.RoadsBuilder.externalParamTypes) {
+                    typeDesc =
+                        $.RoadsBuilder.externalParamTypes[param.type];
+                    console.log('typeDesc:', typeDesc);
+                    if (typeDesc && typeDesc.type === 'ENUM') {
+                        isScalar = false;
+                    }
+                }
+            }
+
+            var paramValuePlace = row.find('.rb_test_param_value:first');
+
+            if (isScalar) {
+                paramValuePlace.append('<input type="text" />');
+            } else {
+                var select = $('<select>');
+                $('<option>', {
+                    value: '',
+                    text: ''
+                }).appendTo(select);
+
+                for (var idx in typeDesc.variants) {
+                    var variant = typeDesc.variants[idx];
+                    $('<option>', {
+                        value: variant.code,
+                        text: variant.title || variant.code
+                    }).appendTo(select);
+                }
+                paramValuePlace.append(select);
+            }
+
+            paramTable.append(row);
+        }
+        dialogObj.dialog('open');
+    };
+    
+    this.closeDialog = closeDialog;
+};
+
 $.RoadsBuilder.EditParamDialogF = function () {
     var dialogObj = null;
     var dialogParams = null;
@@ -2112,6 +2237,7 @@ $.RoadsBuilder.showJSONDialog = null;
 $.RoadsBuilder.openDialog = null;
 $.RoadsBuilder.editPageDialog = null;
 $.RoadsBuilder.editParamDialog = null;
+$.RoadsBuilder.beforeTestDialog = null;
 $.RoadsBuilder.conditionsEditor = null;
 $.RoadsBuilder.questionDialog = null;
 $.RoadsBuilder.progressDialog = null;
@@ -2222,6 +2348,7 @@ $(document).ready(function () {
     $.RoadsBuilder.showJSONDialog = createObject($.RoadsBuilder.ShowJSONDialogF);
     $.RoadsBuilder.editPageDialog = createObject($.RoadsBuilder.EditPageDialogF);
     $.RoadsBuilder.editParamDialog = createObject($.RoadsBuilder.EditParamDialogF);
+    $.RoadsBuilder.beforeTestDialog = new $.RoadsBuilder.BeforeTestDialog();
     $.RoadsBuilder.questionDialog = createObject($.RoadsBuilder.QuestionDialogF);
 
     $.RoadsBuilder.conditionsEditor = new ConditionEditor({
@@ -2669,12 +2796,19 @@ $.RoadsBuilder.showInstrumentJSON = function() {
 }
 
 $.RoadsBuilder.testInstrument = function() {
-    $.RoadsBuilder.showProgress({
-        title: '<center>Preparing the form for a test...</center>',
-        pollCallback: function () { }
-    });
+    $.RoadsBuilder.beforeTestDialog.open({
+        paramValues: $.RoadsBuilder.savedParamValues || {},
+        callback: function (paramDict) {
 
-    $.RoadsBuilder.saveInstrument($.RoadsBuilder.testInstrumentStage4);
+            $.RoadsBuilder.showProgress({
+                title: '<center>Preparing the form for a test...</center>',
+                pollCallback: function () { }
+            });
+
+            $.RoadsBuilder.savedParamValues = paramDict;
+            $.RoadsBuilder.saveInstrument($.RoadsBuilder.testInstrumentStage4);
+        }
+    });
 }
 
 $.RoadsBuilder.testInstrumentStage2 = function() {
@@ -2696,6 +2830,16 @@ $.RoadsBuilder.testInstrumentStage2 = function() {
 
 $.RoadsBuilder.testInstrumentStage4 = function() {
     $.RoadsBuilder.closeProgress();
-    window.open($.RoadsBuilder.basePrefix + '/start_roads?test=1&instrument=' + $.RoadsBuilder.instrumentName, '_blank');
+    var paramStr = '';
+    if ($.RoadsBuilder.savedParamValues) {
+        for (var paramName in $.RoadsBuilder.savedParamValues) {
+            paramValue = $.RoadsBuilder.savedParamValues[paramName];
+            paramStr += '&' + encodeURIComponent(paramName) + '=' 
+                        + (paramValue ? encodeURIComponent(paramValue) : '');
+        }
+    }
+    window.open($.RoadsBuilder.basePrefix + '/start_roads?test=1&instrument=' 
+                                + $.RoadsBuilder.instrumentName
+                                + paramStr, '_blank');
 }
 

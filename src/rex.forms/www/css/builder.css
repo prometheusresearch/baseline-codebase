@@ -655,3 +655,19 @@ input.rb_identifier_input {
     font-family: monospace;
 }
 
+#before_test_parameters {
+    width: 100%;
+}
+
+#before_test_parameters input,
+#before_test_parameters select {
+    width: 100%;
+}
+
+#before_test_dialog h1 {
+    font-size: 14px;
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 10px;
+}
+

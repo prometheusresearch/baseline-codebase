@@ -89,22 +89,27 @@ function ROADS(o) {
     }
 
     function saveState(callback) {
-      var url = param.prefix + "/save_state";
+      if (param.package) {
+        var url = param.prefix + "/save_state";
         param.state['package'] = param.package;
         param.state['instrument'] = param.instrument_id;
         stateJSON = $.toJSON(param.state);
-        
+
         console.log('saving state:', stateJSON);
-        
+
         $.ajax({url : url,
-            success : function(content) {
-                /* alert('state saved!'); */
-                if (callback)
-                    callback()
-            },
-            data : 'data=' + stateJSON,
-            type: 'POST'
+              success : function(content) {
+                  /* alert('state saved!'); */
+                  if (callback)
+                      callback()
+              },
+              data : 'data=' + stateJSON,
+              type: 'POST'
         });
+      }
+      else
+        if (callback)
+          callback();
     }
 
     function getRandomStr(len) {
@@ -766,10 +771,12 @@ function ROADS(o) {
 
     function finishSurvey() {
         param.state.finish = true;
+        var message = param.package ? 'Survey finished!' : 
+             'Survey finished (data is not being stored to db due to test mode)';
 
         saveState(function () {
             updateProgressBar(currentPage, 100);
-            alert('Survey finished!');
+            alert(message);
             clearScreen();
         });
     }
@@ -988,6 +995,7 @@ function ROADS(o) {
     var pagesStack = [];
     var currentPage = null;
     var param = o;
+    console.debug(param.extra);
     var creoleParser = new Parse.Simple.Creole({
         linkFormat: ''
     });

@@ -116,13 +116,21 @@ class StartRoads(RoadsCommand):
     name = '/start_roads'
 
     def render(self, req):
+        extra = {}
+        for key in req.GET:
+            if not key in ['instrument', 'test', 'packet']:
+                extra[str(key)] = str(req.GET[key])
         instrument = req.GET.get('instrument')
+        test = req.GET.get('test')
         packet = req.GET.get('packet')
-        if not packet and not instrument:
-            return Response(status='401', body=('Mandatory package or'
-                                                ' instrument not filled in'))
+        if not test:
+            if not packet and not instrument:
+                return Response(status='401', body=('Mandatory package or'
+                                              ' instrument not filled in'))
+        else:
+            packet = None
         inst_json, version = self.parent.get_latest_instrument(instrument)
-        if not packet:
+        if not test and not packet:
             packet = self.parent.create_packet(instrument, version, req)
         state = self.parent.get_packet(instrument, version, packet)
         template = '/index.html'
@@ -130,7 +138,8 @@ class StartRoads(RoadsCommand):
                 'instrument' : inst_json,
                 'package' : packet,
                 'state' : state,
-                'instrument_id' : instrument
+                'instrument_id' : instrument,
+                'extra' : extra
         }
         body = self.app.render_template(template, req, 'rex.forms', **args)
         return Response(body=body)

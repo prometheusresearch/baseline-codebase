@@ -2696,6 +2696,6 @@ $.RoadsBuilder.testInstrumentStage2 = function() {
 
 $.RoadsBuilder.testInstrumentStage4 = function() {
     $.RoadsBuilder.closeProgress();
-    window.open($.RoadsBuilder.basePrefix + '/start_roads?instrument=' + $.RoadsBuilder.instrumentName, '_blank');
+    window.open($.RoadsBuilder.basePrefix + '/start_roads?test=1&instrument=' + $.RoadsBuilder.instrumentName, '_blank');
 }
 

@@ -16,9 +16,10 @@
                     instrument: {{ instrument }},
                     state: {{ state }},
                     instrument_id: '{{ instrument_id }}',
-                    package: '{{ package }}',
+                    package: '{{ package or '' }}',
                     prefix: "{{ PREFIX['rex.forms'] }}",
-                    place: '.page'
+                    place: '.page',
+                    extra : {{ extra }}
                 });
             });
         </script>

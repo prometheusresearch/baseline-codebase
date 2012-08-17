@@ -1,4 +1,4 @@
-from threading import Lock
+from threading import RLock
 
 
 from rexrunner.registry import register_parameter, register_handler
@@ -33,8 +33,7 @@ class EnvironUserKey(Parameter):
 class FormsPackageHandler(PackageHandler):
         
     def __init__(self, app, package):
-        self.lock = Lock()
-        print 'Custom handler'
+        self.lock = RLock()
         super(FormsPackageHandler, self).__init__(app, package)
 
     def get_latest_instrument(self, code):
@@ -111,6 +110,7 @@ class FormsPackageHandler(PackageHandler):
             f.close()
             return packet
 
+
     def get_packet(self, instrument, version, packet):
         with self.lock:
             folder = self.app.config.instrument_folder
@@ -140,4 +140,89 @@ class FormsPackageHandler(PackageHandler):
             f = open(fld, "w")
             f.write(simplejson.dumps(log, indent=1))
             f.close()
-            
+
+    def get_list_of_instruments(self):
+        folder = self.app.config.instrument_folder
+        if os.path.exists(folder):
+            return os.walk(folder).next()[1]
+        else:
+            return []
+
+    def set_packet_user_data(self, instrument, packet, user_data):
+        with self.lock:
+            folder = self.app.config.instrument_folder
+            _, version = self.get_latest_instrument(instrument)
+            file_name = "%s/%s/%s/packets_details/%s.js" % (folder,\
+                             instrument, version, packet)
+            data = simplejson.load(open(file_name, 'r'))
+            data['user_data'] = user_data
+            f = open(file_name, 'w')
+            f.write(simplejson.dumps(data, indent=1))
+            f.close()
+
+    def get_packet_data(self, instrument, packet):
+        with self.lock:
+            folder = self.app.config.instrument_folder
+            _, version = self.get_latest_instrument(instrument)
+            file_name = "%s/%s/%s/packets_details/%s.js" % (folder,\
+                             instrument, version, packet)
+            data = simplejson.load(open(file_name, 'r'))
+            return data
+
+    def set_instrument_user_data(self, instrument, user_data):
+        with self.lock:
+            folder = self.app.config.instrument_folder
+            folder = "%s/%s/user_data.js" % (folder, instrument)
+            if os.path.exists(folder):
+                data = simplejson.load(open(folder, 'r'))
+            else:
+                data = {}
+            for key in user_data:
+                data[key] = user_data[key]
+            f = open(folder, 'w')
+            f.write(simplejson.dumps(data, indent=1))
+            f.close()
+
+    def get_instrument_user_data(self, instrument):
+        with self.lock:
+            folder = self.app.config.instrument_folder
+            folder = "%s/%s/user_data.js" % (folder, instrument)
+            data = simplejson.load(open(folder, 'r'))
+            return data
+
+    def get_list_of_instrument_w_version(self):
+        with self.lock:
+            result = {}
+            instruments = self.get_list_of_instruments()
+            for instrument in instruments:
+                _, version = self.get_latest_instrument(instrument)
+                user_data = self.get_instrument_user_data(instrument)
+                result[instrument] = {'version' : version,
+                                      'user_data' : user_data}
+        return result
+
+    def get_packets(self, instrument, version):
+        folder = self.app.config.instrument_folder
+        folder = "%s/%s/%s/packets" % (folder, instrument, version)
+        if os.path.exists(folder):
+            return [i[:-3] for i in os.walk(folder).next()[2]]
+        return []
+
+    def get_instruments_w_packets(self, instr=None, **kwds):
+        instruments = self.get_list_of_instruments()
+        result = []
+        for instrument in instruments:
+            json, version = self.get_latest_instrument(instrument)
+            packets = self.get_packets(instrument, version)
+            packs = []
+            for packet in packets:
+                p_json = self.get_packet(instrument, version, packet)
+                data = self.get_packet_data(instrument, packet)
+                user_data = data.get('user_data', {})
+                if set(kwds).issubset(set(user_data)):
+                    packs.append({'packet' : packet, 'json' : p_json,\
+                                  'data' : data})
+            if not instr or instrument == instr:
+                result.append({'instrument' : instrument, 'json' : json,\
+                               'version' : version, 'packets': packs})
+        return result

@@ -8,8 +8,6 @@ from rexrunner.registry import register_command
 
 from generator import Instrument
 
-from threading import Lock
-
 OWNER = "/&meta_owner"
 
 class RoadsCommand(Command):
@@ -19,21 +17,13 @@ class RoadsCommand(Command):
         fld = "%s/%s/%s/packets" % (folder, code, version)
         return os.path.exists(fld)
 
-    def get_list_of_instruments(self):
-        folder = self.app.config.instrument_folder
-        if os.path.exists(folder):
-            return os.walk(folder).next()[1]
-        else:
-            return []
-
-
 @register_command
 class InstrumentList(RoadsCommand):
 
     name = '/instrument_list'
 
     def render(self, req):
-        res = self.get_list_of_instruments()
+        res = self.parent.get_list_of_instruments()
         return Response(body=simplejson.dumps(res))
 
 

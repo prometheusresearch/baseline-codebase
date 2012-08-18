@@ -2796,19 +2796,25 @@ $.RoadsBuilder.showInstrumentJSON = function() {
 }
 
 $.RoadsBuilder.testInstrument = function() {
-    $.RoadsBuilder.beforeTestDialog.open({
-        paramValues: $.RoadsBuilder.savedParamValues || {},
-        callback: function (paramDict) {
 
-            $.RoadsBuilder.showProgress({
-                title: '<center>Preparing the form for a test...</center>',
-                pollCallback: function () { }
-            });
+    var params = $.RoadsBuilder.context.getIndexByType('parameter');
+    var toBeContinued = function (paramDict) {
+        $.RoadsBuilder.showProgress({
+            title: '<center>Preparing the form for a test...</center>',
+            pollCallback: function () { }
+        });
 
-            $.RoadsBuilder.savedParamValues = paramDict;
-            $.RoadsBuilder.saveInstrument($.RoadsBuilder.testInstrumentStage4);
-        }
-    });
+        $.RoadsBuilder.savedParamValues = paramDict;
+        $.RoadsBuilder.saveInstrument($.RoadsBuilder.testInstrumentStage4);
+    } 
+
+    if (params.length) {
+        $.RoadsBuilder.beforeTestDialog.open({
+            paramValues: $.RoadsBuilder.savedParamValues || {},
+            callback: toBeContinued
+        });
+    } else
+        toBeContinued({});
 }
 
 $.RoadsBuilder.testInstrumentStage2 = function() {
@@ -2838,8 +2844,13 @@ $.RoadsBuilder.testInstrumentStage4 = function() {
                         + (paramValue ? encodeURIComponent(paramValue) : '');
         }
     }
-    window.open($.RoadsBuilder.basePrefix + '/start_roads?test=1&instrument=' 
-                                + $.RoadsBuilder.instrumentName
-                                + paramStr, '_blank');
+    var url = $.RoadsBuilder.urlStartTest || 
+            ($.RoadsBuilder.basePrefix + '/start_roads');
+
+    var query = 'test=1'
+              + 'instrument=' + encodeURIComponent($.RoadsBuilder.instrumentName)
+              + paramStr;
+
+    window.open(url + '?' + query, '_blank');
 }
 

@@ -12,26 +12,25 @@
         <link rel="stylesheet" href="{{ PREFIX['rex.forms'] }}/css/conditor.css" />
         <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/js/builder.js" data-rex-forms-prefix="{{ PREFIX['rex.forms'] }}"></script>
         <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/js/conditor.js"></script>
-        <script type="text/javascript">
-            {%- if instrument %}
-            $.RoadsBuilder.instrumentName = '{{ instrument }}';
-            {%- endif %}
-        </script>
 {% endmacro -%}
 
-{% macro roadsbuilder(manual_edit_conditions, ext_param_types) -%}
+{% macro roadsbuilder(instrument, manual_edit_conditions, ext_param_types, url_start_test) -%}
         <script type="text/javascript">
             $.RoadsBuilder.manualEditConditions = {%- if manual_edit_conditions %} true {%- else %} false {%- endif %};
             $.RoadsBuilder.externalParamTypes = {%- if ext_param_types %}{{ ext_param_types }}{%- else %}null{%- endif %};
         </script>
+        <script type="text/javascript">
+            $.RoadsBuilder.instrumentName = {% if instrument %}'{{ instrument }}'{% else %} null {% endif %};
+            {% if url_start_test %}
+                $.RoadsBuilder.urlStartTest = '{{ url_start_test }}';
+            {% endif %}
+        </script>
         <div class="rb_left_part">
-            <div class="rb_title">
-                ROADS Builder
-                <div class="rb_tools_button_wrapper">
-                    <button class="rb_tools_button" onclick="$.RoadsBuilder.saveInstrument()">Save</button>
-                    <button class="rb_tools_button" onclick="$.RoadsBuilder.testInstrument()">Test</button>
-                    <button class="rb_tools_button" onclick="$.RoadsBuilder.showJSONDialog.open()">JSON</button>
-                </div>
+            <div id="rb_instrument_name">{{ instrument|e }}</div>
+            <div class="rb_tools_button_wrapper">
+                <button class="rb_tools_button" onclick="$.RoadsBuilder.saveInstrument()">Save</button>
+                <button class="rb_tools_button" onclick="$.RoadsBuilder.testInstrument()">Test</button>
+                <button class="rb_tools_button" onclick="$.RoadsBuilder.showJSONDialog.open()">JSON</button>
             </div>
             <div class="rb_params_wrapper">
                 <button class="rb_small_button rb_right_aligned" onclick="$.RoadsBuilder.addParameter(null);">Add Parameter</button>

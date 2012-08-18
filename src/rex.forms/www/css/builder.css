@@ -326,7 +326,16 @@ body, p, div, td, input {
 }
 
 .rb_tools_button_wrapper {
-    margin-top: 5px;
+    margin: 5px 5px 5px 10px;
+}
+
+#rb_instrument_name {
+    height: 35px;
+    line-height: 35px;
+    overflow: hidden;
+    padding: 5px 5px 5px 15px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .rb_tools_button {

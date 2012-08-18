@@ -187,7 +187,10 @@ class FormsPackageHandler(PackageHandler):
         with self.lock:
             folder = self.app.config.instrument_folder
             folder = "%s/%s/user_data.js" % (folder, instrument)
-            data = simplejson.load(open(folder, 'r'))
+            try:
+                data = simplejson.load(open(folder, 'r'))
+            except IOError:
+                data = None
             return data
 
     def get_list_of_instrument_w_version(self):

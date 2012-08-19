@@ -2847,7 +2847,7 @@ $.RoadsBuilder.testInstrumentStage4 = function() {
     var url = $.RoadsBuilder.urlStartTest || 
             ($.RoadsBuilder.basePrefix + '/start_roads');
 
-    var query = 'test=1'
+    var query = 'test=1&'
               + 'instrument=' + encodeURIComponent($.RoadsBuilder.instrumentName)
               + paramStr;
 

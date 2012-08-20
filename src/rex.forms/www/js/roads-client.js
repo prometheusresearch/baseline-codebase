@@ -412,6 +412,7 @@ function ROADS(o) {
                 var answerVariant = jItem.find('.rc-answer-variant');
 
                 switch(questionData.questionType) {
+                case 'yes_no':
                 case 'radio':
                     var checked = answerVariant.is(':checked');
                     
@@ -426,7 +427,6 @@ function ROADS(o) {
 
                     break;
                 case 'list':
-                case 'yes_no':
 
                     if (collectedAnswers === undefined)
                         collectedAnswers = {};

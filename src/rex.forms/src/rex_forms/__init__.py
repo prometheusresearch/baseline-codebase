@@ -7,10 +7,20 @@ from rexrunner.parameter import Parameter
 from rexrunner.handler import PackageHandler
 from .command import *
 
+import os
+
+class FolderVal(StrVal):
+
+    def __call__(self, value):
+        super(FolderVal, self).__call__(value)
+        assert os.path.exists(value), "Folder does not exist"
+        assert os.access(value, os.W_OK), "Folder should have be writable"
+
+
 @register_parameter
 class Folder(Parameter):
     name = 'instrument_folder'
-    validator = StrVal(is_nullable=False)
+    validator = FolderVal(is_nullable=False)
 
 @register_parameter
 class DefaultBuilder(Parameter):
@@ -31,7 +41,7 @@ class EnvironUserKey(Parameter):
 
 @register_handler
 class FormsPackageHandler(PackageHandler):
-        
+
     def __init__(self, app, package):
         self.lock = RLock()
         super(FormsPackageHandler, self).__init__(app, package)
@@ -166,7 +176,10 @@ class FormsPackageHandler(PackageHandler):
             _, version = self.get_latest_instrument(instrument)
             file_name = "%s/%s/%s/packets_details/%s.js" % (folder,\
                              instrument, version, packet)
-            data = simplejson.load(open(file_name, 'r'))
+            if os.path.isfile(file_name):
+                data = simplejson.load(open(file_name, 'r'))
+            else:
+                data = {}
             return data
 
     def set_instrument_user_data(self, instrument, user_data):
@@ -190,7 +203,7 @@ class FormsPackageHandler(PackageHandler):
             try:
                 data = simplejson.load(open(folder, 'r'))
             except IOError:
-                data = None
+                data = {}
             return data
 
     def get_list_of_instrument_w_version(self):
@@ -211,21 +224,32 @@ class FormsPackageHandler(PackageHandler):
             return [i[:-3] for i in os.walk(folder).next()[2]]
         return []
 
-    def get_instruments_with_packets(self, instr=None, **kwds):
+    def get_instruments_with_packets(self, with_json=True,
+                                           instrument_filter=None,
+                                           packet_filter=None):
+        # TODO: optimize this, currently does too many of file operations
+        assert instrument_filter is None or callable(instrument_filter)
+        assert packet_filter is None or callable(packet_filter)
         instruments = self.get_list_of_instruments()
         result = []
         for instrument in instruments:
             json, version = self.get_latest_instrument(instrument)
+            user_data = self.get_instrument_user_data(instrument)
             packets = self.get_packets(instrument, version)
             packs = []
             for packet in packets:
                 p_json = self.get_packet(instrument, version, packet)
                 data = self.get_packet_data(instrument, packet)
-                user_data = data.get('user_data', {})
-                if set(kwds).issubset(set(user_data)):
-                    packs.append({'packet' : packet, 'json' : p_json,\
-                                  'data' : data})
-            if not instr or instrument == instr:
-                result.append({'instrument' : instrument, 'json' : json,\
-                               'version' : version, 'packets': packs})
+                if packet_filter is None or packet_filter(data):
+                    packs.append(packet)
+            instrument = {
+                'instrument' : instrument,
+                'version' : version,
+                'packets': packs,
+                'user_data': user_data,
+            }
+            if with_json:
+                instrument['json'] = json
+            if instrument_filter is None or instrument_filter(instrument):
+                result.append(instrument)
         return result

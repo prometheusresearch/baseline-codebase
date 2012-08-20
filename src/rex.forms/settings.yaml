@@ -1,7 +1,8 @@
 # file where you want to keep default settings for your package
 # or override settings for other packages
 
-instrument_folder: '/files/roads'
+# should not be specified here
+#instrument_folder: '/files/roads'
 default_builder: True
 manual_edit_conditions: True
 environ_user_key: 'REMOTE_USER'

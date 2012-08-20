@@ -115,12 +115,12 @@ class FormsPackageHandler(PackageHandler):
             f = open("%s/%s.js" % (fld, packet), "w")
             key = self.app.config.environ_user_key
             user = req.environ.get(key, '')
-            log = {'created-by' : user,  
-                    'date' : time.strftime("%Y-%m-%d %H:%M")}
+            log = {'created-by' : user,
+                   'data-entry-status' : 'not-started',
+                   'date' : time.strftime("%Y-%m-%d %H:%M")}
             f.write(simplejson.dumps(log, indent=1))
             f.close()
             return packet
-
 
     def get_packet(self, instrument, version, packet):
         with self.lock:
@@ -131,7 +131,6 @@ class FormsPackageHandler(PackageHandler):
             else:
                 f = open(fld, 'r')
                 return f.read()
-
 
     def save_packet(self, instrument, version, packet, data):
         with self.lock:
@@ -242,7 +241,14 @@ class FormsPackageHandler(PackageHandler):
                 p_json = self.get_packet(instrument, version, packet)
                 data = self.get_packet_data(instrument, packet)
                 if packet_filter is None or packet_filter(data):
-                    packs.append(packet)
+                    pack = {
+                        'id' : packet,
+                        'user_data' : data.get('user_data', {}),
+#temporary to support packets created before this changeset
+                        'data-entry-status' : data.get('data-entry-status', 'not-started'),
+                        'json' : p_json
+                    }
+                    packs.append(pack)
             instrument = {
                 'instrument' : instrument,
                 'version' : version,

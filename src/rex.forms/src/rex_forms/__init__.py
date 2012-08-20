@@ -15,6 +15,7 @@ class FolderVal(StrVal):
         super(FolderVal, self).__call__(value)
         assert os.path.exists(value), "Folder does not exist"
         assert os.access(value, os.W_OK), "Folder should have be writable"
+        return value
 
 
 @register_parameter

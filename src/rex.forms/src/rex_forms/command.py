@@ -129,8 +129,8 @@ class StartRoads(RoadsCommand):
         test = self.get_test_mode(req)
         packet = self.get_packet(req)
         if not test:
-            if not packet or not instrument:
-                raise BadRequestError('Mandatory package or'
+            if not instrument:
+                raise BadRequestError('Mandatory'
                                       ' instrument not filled in')
         else:
             packet = None

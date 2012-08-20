@@ -4,6 +4,7 @@ import simplejson
 import os, time
 
 from rexrunner.command import Command
+from rexrunner.response import BadRequestError
 from rexrunner.registry import register_command
 
 from generator import Instrument
@@ -104,20 +105,33 @@ class SaveState(RoadsCommand):
 class StartRoads(RoadsCommand):
 
     name = '/start_roads'
+    template = '/index.html'
 
-    def prepare_args(self, req):
+    def get_extra_params(self, req):
         extra = {}
         for key in req.GET:
-            if str(key)[0:2] == "p_":
-            # if not key in ['instrument', 'test', 'packet']:
+            if key.startwisth('p_'):
                 extra[str(key)[2:]] = str(req.GET[key])
-        instrument = req.GET.get('instrument')
-        test = req.GET.get('test')
-        packet = req.GET.get('packet')
+        return extra
+
+    def get_instrument(self, req):
+        return req.GET.get('instrument')
+
+    def get_test_mode(self, req):
+        return req.GET.get('test')
+
+    def get_packet(self, req):
+        return req.GET.get('packet')
+
+    def prepare_args(self, req):
+        extra = self.get_extra_params(req)
+        instrument = self.get_instrument(req)
+        test = self.get_test_mode(req)
+        packet = self.get_packet(req)
         if not test:
-            if not packet and not instrument:
-                return Response(status='401', body=('Mandatory package or'
-                                              ' instrument not filled in'))
+            if not packet or not instrument:
+                raise BadRequestError('Mandatory package or'
+                                      ' instrument not filled in')
         else:
             packet = None
         handler = self.app.handler_by_name['rex.forms']
@@ -125,20 +139,18 @@ class StartRoads(RoadsCommand):
         if not test and not packet:
             packet = handler.create_packet(instrument, version, req)
         state = handler.get_packet(instrument, version, packet)
-        template = '/index.html'
         args = {
-                'instrument' : inst_json,
-                'package' : packet,
-                'state' : state,
-                'instrument_id' : instrument,
-                'extra' : extra
+            'instrument' : inst_json,
+            'package' : packet,
+            'state' : state,
+            'instrument_id' : instrument,
+            'extra' : extra
         }
         return args
 
     def render(self, req):
         args = self.prepare_args(req)
-        body = self.app.render_template(template, req, 'rex.forms', **args)
-        return Response(body=body)
+        return self.render_to_response(self.template, **args)
 
 @register_command
 class MakePacket(RoadsCommand):

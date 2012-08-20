@@ -110,7 +110,7 @@ class StartRoads(RoadsCommand):
     def get_extra_params(self, req):
         extra = {}
         for key in req.GET:
-            if key.startwisth('p_'):
+            if key.startswith('p_'):
                 extra[str(key)[2:]] = str(req.GET[key])
         return extra
 

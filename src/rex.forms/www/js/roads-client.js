@@ -11,7 +11,10 @@ function ROADS(o) {
     }
 
     function checkConstraints(questionData, val) {
-        // console.log('checkConstraints: questionData=', questionData, 'val=', val);
+        if (questionData.constraints) {
+            var result = checkConditions(questionData.constraints, false);
+        }
+
         return true;
     }
 
@@ -414,7 +417,8 @@ function ROADS(o) {
                     
                     if (checked) {
                         var answerValue = answerVariant.attr('data-answer');
-                        if (!isValidAnswer(questionData, answerValue))
+                        if (!isValidAnswer(questionData, answerValue) ||
+                            !checkConstraints(questionData, answerValue))
                             answerValid = false;
                         else
                             collectedAnswers = answerValue;
@@ -429,7 +433,8 @@ function ROADS(o) {
                     var answerValue = answerVariant.attr('data-answer');
                     var checked = answerVariant.is(':checked');
 
-                    if (!isValidAnswer(questionData, answerValue))
+                    if (!isValidAnswer(questionData, answerValue) ||
+                        !checkConstraints(questionData, answerValue))
                         answerValid = false;
                     else {
                         collectedAnswers[answerValue] = checked;
@@ -641,10 +646,10 @@ function ROADS(o) {
     function checkIfQuestionDisabled(questionDiv) {
         var questionName = questionDiv.attr('data-question');
         var questionData = findQuestion(currentPage, questionName);
-        
-        var thisQuestionData = questionData;
+
+        // var thisQuestionData = questionData;
         var disabled = checkConditions(questionData.disableIf, false);
-        var thisQuestionData = null;
+        // var thisQuestionData = null;
 
         if (disabled) {
             questionDiv.addClass('disabled-question');

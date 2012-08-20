@@ -2353,6 +2353,7 @@ $(document).ready(function () {
     $.RoadsBuilder.questionDialog = createObject($.RoadsBuilder.QuestionDialogF);
 
     $.RoadsBuilder.conditionsEditor = new ConditionEditor({
+        urlPrefix: $.RoadsBuilder.basePrefix,
         manualEdit: $.RoadsBuilder.manualEditConditions,
         onDescribeId: function (identifier) {
 
@@ -2841,7 +2842,7 @@ $.RoadsBuilder.testInstrumentStage4 = function() {
     if ($.RoadsBuilder.savedParamValues) {
         for (var paramName in $.RoadsBuilder.savedParamValues) {
             paramValue = $.RoadsBuilder.savedParamValues[paramName];
-            paramStr += '&' + encodeURIComponent(paramName) + '=' 
+            paramStr += '&' + 'p_' + encodeURIComponent(paramName) + '=' 
                         + (paramValue ? encodeURIComponent(paramValue) : '');
         }
     }

@@ -108,8 +108,9 @@ class StartRoads(RoadsCommand):
     def prepare_args(self, req):
         extra = {}
         for key in req.GET:
-            if not key in ['instrument', 'test', 'packet']:
-                extra[str(key)] = str(req.GET[key])
+            if str(key)[0:2] == "p_":
+            # if not key in ['instrument', 'test', 'packet']:
+                extra[str(key)[2:]] = str(req.GET[key])
         instrument = req.GET.get('instrument')
         test = req.GET.get('test')
         packet = req.GET.get('packet')

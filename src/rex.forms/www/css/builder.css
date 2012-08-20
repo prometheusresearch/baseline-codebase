@@ -680,3 +680,7 @@ input.rb_identifier_input {
     margin-bottom: 10px;
 }
 
+.rb_subquestion_list .rb-disable-logic {
+    display: none;
+}
+

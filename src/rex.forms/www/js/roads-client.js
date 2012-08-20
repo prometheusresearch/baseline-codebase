@@ -173,6 +173,10 @@ function ROADS(o) {
             var btn = container.find('.roads-add-rep-group');
             btn.click(function () {
                 var jThis = $(this);
+                
+                if (jThis.parents('.disabled-question:first').size())
+                    return;
+                
                 var groups = jThis.siblings('.rc-roads-rep-groups');
                 var qItem = jThis.parents('.question-item:first');
                 var qName = qItem.attr('data-question');
@@ -306,7 +310,12 @@ function ROADS(o) {
             if (question.questionType !== "rep_group") {
                 span.find('.btn-clear-answers').click(function () {
                     console.log('clearing answers:', this);
-                    var questionDiv = $(this).parents('.question-item:first');
+
+                    var jThis = $(this);
+                    if (jThis.parents('.disabled-question:first').size())
+                        return;
+
+                    var questionDiv = jThis.parents('.question-item:first');
                     questionDiv.find('input.rc-answer-variant').removeAttr('checked');
                     collectAnswersFromQuestion(questionDiv);
                     checkDisabledQuestions();
@@ -548,12 +557,21 @@ function ROADS(o) {
 
     function rexlCallback(args) {
         // console.log('rexlCallback(', args, ')');
-        var ans = findAnswers(args[0]);
+        
+        var questionName = args[0];
+        
+        if (questionName === "this") {
+            if (thisQuestionData === null)
+                return null;
+            questionName = thisQuestionData.name;
+        }
+
+        var ans = findAnswers(questionName);
 
         if (ans) {
             var ansType = toType(ans);
             console.log('ansType=', ansType);
-            
+
             if (ansType === 'object') {
                 if (args.length === 1)
                     return rexl.Boolean.value(true);
@@ -587,6 +605,16 @@ function ROADS(o) {
             }
         }
         
+        if (param.extra[args[0]] !== undefined) {
+            var val = param.extra[args[0]];
+            if (val !== null) {
+                var type = toType(val);
+                if (type === "number")
+                    return rexl.Number.value(val);
+                return rexl.String.value(val);
+            }
+        }
+
         return rexl.String.value(null);
     }
 
@@ -594,7 +622,7 @@ function ROADS(o) {
         var ret = defaultValue;
         if (conditions && conditions.length > 0) {
             var node = rexl.parse(conditions);
-            
+
             try {
                 var value = node['evaluate'](rexlCallbackWrapper);
                 console.log('evaluated = ', value);
@@ -608,10 +636,15 @@ function ROADS(o) {
         return ret;
     }
 
+    var thisQuestionData = null;
+
     function checkIfQuestionDisabled(questionDiv) {
         var questionName = questionDiv.attr('data-question');
         var questionData = findQuestion(currentPage, questionName);
+        
+        var thisQuestionData = questionData;
         var disabled = checkConditions(questionData.disableIf, false);
+        var thisQuestionData = null;
 
         if (disabled) {
             questionDiv.addClass('disabled-question');
@@ -919,6 +952,39 @@ function ROADS(o) {
         return ret;
     }
 
+    function findParamDef(paramName) {
+        for (var idx in param.instrument.params) {
+            var paramDef = param.instrument.params[idx];
+            if (paramName === paramDef.name)
+                return paramDef;
+        }
+        return null;
+    }
+
+    function applyTypesToExtraParams() {
+        console.log('extra:', param.extra, 'instrument:', param.instrument);
+        var paramDefs = param.instrument.params;
+        for (var paramName in param.extra) {
+        
+            if (param.extra[paramName] === "") {
+                param.extra[paramName] = null;
+                continue;
+            }
+        
+            var paramDef = findParamDef(paramName);
+            if (!paramDef)
+                param.extra[paramName] = null;
+            else {
+                if (paramDef.type === "NUMBER")
+                    param.extra[paramName] = parseFloat(param.extra[paramName]);
+                else {
+                    // TODO: it's possible that paramDef.type could be also numeric
+                    //  so it's necessary check external domains
+                }
+            }
+        }
+    }
+
     function makeConnectionsAndOrds(parent, curOrd) {
         var pages = (!parent) ? param.instrument.pages : parent.pages;
 
@@ -1008,12 +1074,13 @@ function ROADS(o) {
     var pagesStack = [];
     var currentPage = null;
     var param = o;
-    console.debug(param.extra);
     var creoleParser = new Parse.Simple.Creole({
         linkFormat: ''
     });
 
     // TODO: validate param
+
+    applyTypesToExtraParams();
 
     var screen = $(param.place);
 

@@ -26,6 +26,8 @@ function ROADS(o) {
         'btnNext': '<button>Next Page</button>',
         'btnBack': '<button>Previous Page</button>',
         'btnFinish': '<button>Finish</button>',
+        'btnAddRepGroup': '<button class="roads-add-rep-group">Add group of answers</button>',
+        'btnClear': '<button class="btn-clear-answers">Clear</button>',
         'question':
             '<div class="question-item"><div><span class="rc-question-title" data-part="title"></span></div><span data-part="answers"></span></div>'
     };
@@ -158,7 +160,7 @@ function ROADS(o) {
         switch(question.questionType) {
         case 'rep_group':
             container.append('<div class="rc-roads-rep-groups"></div>'
-                + '<button class="roads-add-rep-group">Add group of answers</button>');
+                + getTemplate('btnAddRepGroup'));
 
             var savedGroups = findSavedAnswer(question, null, groupNum);
             if (savedGroups && savedGroups.length) {
@@ -168,7 +170,7 @@ function ROADS(o) {
                 }
             }
 
-            var btn = container.find('button.roads-add-rep-group');
+            var btn = container.find('.roads-add-rep-group');
             btn.click(function () {
                 var jThis = $(this);
                 var groups = jThis.siblings('.rc-roads-rep-groups');
@@ -249,7 +251,7 @@ function ROADS(o) {
 
             if (question.questionType === 'radio' || 
                 question.questionType === 'yes_no') {
-                ul.append('<li><button class="btn-clear-answers">Clear</button></li>');
+                ul.append('<li>' + getTemplate('btnClear') + '</li>');
             }
 
             break;

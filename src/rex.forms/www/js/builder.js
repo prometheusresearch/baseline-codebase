@@ -2114,7 +2114,7 @@ $.RoadsBuilder.evaluateMeta = function(meta) {
     
     if (meta && meta.content && meta.content.pages)
         rel = meta.content;
-    else if (!meta || !meta.pages || !meta.pages[0])
+    else if (!meta || !meta.pages)
         return;
     else
         rel = meta;
@@ -2123,6 +2123,7 @@ $.RoadsBuilder.evaluateMeta = function(meta) {
         var page = rel.pages[idx];
         $.RoadsBuilder.addPage(page, $.RoadsBuilder.pageListDiv);
     }
+
     for (var idx in rel.params) {
         var param = rel.params[idx];
         $.RoadsBuilder.addParameter(param);

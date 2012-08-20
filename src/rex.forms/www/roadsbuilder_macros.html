@@ -1,4 +1,4 @@
-{% macro roadsbuilder_head(instrument) -%}
+{% macro roadsbuilder_head() -%}
         <meta name="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="" />
         <meta name="description" content="" />
@@ -18,8 +18,6 @@
         <script type="text/javascript">
             $.RoadsBuilder.manualEditConditions = {%- if manual_edit_conditions %} true {%- else %} false {%- endif %};
             $.RoadsBuilder.externalParamTypes = {%- if ext_param_types %}{{ ext_param_types }}{%- else %}null{%- endif %};
-        </script>
-        <script type="text/javascript">
             $.RoadsBuilder.instrumentName = {% if instrument %}'{{ instrument }}'{% else %} null {% endif %};
             {% if url_start_test %}
                 $.RoadsBuilder.urlStartTest = '{{ url_start_test }}';

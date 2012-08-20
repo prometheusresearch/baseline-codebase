@@ -1,4 +1,4 @@
-{% macro client_head() -%}
+{% macro client_head(custom_data) -%}
         <meta name="Content-Type" content="text/html; charset=utf-8" />
         <title>Smart ESAC</title>
         <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
@@ -18,12 +18,38 @@
                     instrument_id: '{{ instrument_id }}',
                     package: '{{ package or '' }}',
                     prefix: "{{ PREFIX['rex.forms'] }}",
-                    place: '.page',
+                    {% if finish_url %}
+                    finishURL: '{{ finish_url }}',
+                    {% endif %}
+                    {% if custom_data %}
+                        {% if custom_data.place %}
+                        place: '{{ custom_data.place }}',
+                        {% endif %}
+                        {% if custom_data.questions %}
+                        questions: '{{ custom_data.questions }}',
+                        {% endif %}
+                        {% if custom_data.btn_next %}
+                        btnNext: '{{ custom_data.btn_next }}',
+                        {% endif %}
+                        {% if custom_data.btn_back %}
+                        btnBack: '{{ custom_data.btn_back }}',
+                        {% endif %}
+                        {% if custom_data.progress_bar %}
+                        progressBar: '{{ custom_data.progress_bar }}',
+                        {% endif %}
+                        {% if custom_data.templates %}
+                        templates: {{ custom_data.templates }},
+                        {% endif %}
+                    {% endif %}
+
                     extra : {{ extra }}
                 });
             });
         </script>
     </head>
+{% endmacro -%}
+
+{% macro client_default_styles() %}
     <style>
         body { margin: 0px; padding: 0px; font-family: verdana, Arial, Helvetica, sans-serif; font-size: 13px; }
 
@@ -121,10 +147,9 @@
         }
 
     </style>
-{% endmacro -%}
+{% endmacro %}
 
-
-{% macro client() -%}
+{% macro client_default_page() -%}
         <div class="rc-content">
             <div class="rc-progress-bar">
                 <div class="rc-progress-bar-fill-wrap">

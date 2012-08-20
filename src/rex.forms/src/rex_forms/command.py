@@ -105,7 +105,7 @@ class StartRoads(RoadsCommand):
 
     name = '/start_roads'
 
-    def render(self, req):
+    def prepare_args(self, req):
         extra = {}
         for key in req.GET:
             if not key in ['instrument', 'test', 'packet']:
@@ -119,10 +119,11 @@ class StartRoads(RoadsCommand):
                                               ' instrument not filled in'))
         else:
             packet = None
-        inst_json, version = self.parent.get_latest_instrument(instrument)
+        handler = self.app.handler_by_name['rex.forms']
+        inst_json, version = handler.get_latest_instrument(instrument)
         if not test and not packet:
-            packet = self.parent.create_packet(instrument, version, req)
-        state = self.parent.get_packet(instrument, version, packet)
+            packet = handler.create_packet(instrument, version, req)
+        state = handler.get_packet(instrument, version, packet)
         template = '/index.html'
         args = {
                 'instrument' : inst_json,
@@ -131,6 +132,10 @@ class StartRoads(RoadsCommand):
                 'instrument_id' : instrument,
                 'extra' : extra
         }
+        return args
+
+    def render(self, req):
+        args = self.prepare_args(req)
         body = self.app.render_template(template, req, 'rex.forms', **args)
         return Response(body=body)
 

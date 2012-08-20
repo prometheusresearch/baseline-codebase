@@ -16,17 +16,28 @@ function ROADS(o) {
     }
 
     function clearScreen() {
-        screen.contents().remove();
+        questions.contents().remove();
         screen.attr('class', initialScreenClasses);
     }
 
     var templates = {
-        'page': '<div class="roads-page-content"></div>',
+        'progressBar':
+            '<div class="survey-progress-bar-fill-wrap"><div class="rc-progress-bar-fill"></div></div><span class="rc-progress-bar-pct">30%</span>',
+        'btnNext': '<button>Next Page</button>',
+        'btnBack': '<button>Previous Page</button>',
+        'btnFinish': '<button>Finish</button>',
         'question':
             '<div class="question-item"><div><span class="rc-question-title" data-part="title"></span></div><span data-part="answers"></span></div>'
     };
 
     function getTemplate(type) {
+
+        if (param.templates && 
+            param.templates[type]) {
+
+            return param.templates[type];
+        }
+
         return templates[type];
     }
 
@@ -482,7 +493,7 @@ function ROADS(o) {
     }
 
     function processAnswers(answers) {
-        var qItem = screen.find('.question-item');
+        var qItem = questions.find('.question-item');
         var validated = true;
 
         qItem.each(function () {
@@ -621,7 +632,7 @@ function ROADS(o) {
 
     function checkDisabledQuestions() {
         // console.log('-> check disabled questions');
-        screen.find('.question-item').each(function () {
+        questions.find('.question-item').each(function () {
             var jThis = $(this);
             if (jThis.attr('data-subquestion') !== "1")
                 checkIfQuestionDisabled(jThis);
@@ -629,12 +640,14 @@ function ROADS(o) {
     }
 
     function updateProgressBar(page, forcePct) {
-        var progressBar = $('.rc-progress-bar');
         var pages = param.instrument.pages;
         var pct = forcePct !== undefined ? 
                         forcePct: 
                         Math.floor(page.ord * 100 / totalPages);
         progressBar.find('.rc-progress-bar-fill').css('width', pct  + '%');
+        
+        console.log('progress', progressBar, 'pct', progressBar.find('.rc-progress-bar-pct'));
+        
         progressBar.find('.rc-progress-bar-pct').html(pct + '%');
     }
 
@@ -647,23 +660,16 @@ function ROADS(o) {
         var pages = param.instrument.pages;
         var page = currentPage;
 
-        var pageTemplate = getTemplate('page');
         screen.addClass('roads-page-' + page.cId);
         console.log('***************',
             page.cId, ' [', page.ord,
             '] ***************');
-
-        screen.html(pageTemplate);
-
-        var pageContent = $('.roads-page-content', screen);
-        var btnNext = $('.rc-btn-survey-next');
 
         btnNext.unbind('click');
         btnNext.click(function () {
             stepNextPage(true);
         });
 
-        btnBack = $('.rc-btn-survey-back');
         btnBack.unbind('click');
         btnBack.click(function () {
             backwards();
@@ -684,7 +690,7 @@ function ROADS(o) {
                 var question = page.questions[idx];
                 if (!processed[question.name]) {
                     var newItem = $(getTemplate('question'));
-                    pageContent.append(newItem);
+                    questions.append(newItem);
                     processQuestionItem(newItem, question);
                 }
             }
@@ -778,6 +784,12 @@ function ROADS(o) {
             updateProgressBar(currentPage, 100);
             alert(message);
             clearScreen();
+            btnNext.css('display','none');
+            btnBack.css('display','none');
+            
+            if (param.finishURL) {
+                window.location.href = param.finishURL;
+            }
         });
     }
 
@@ -990,7 +1002,6 @@ function ROADS(o) {
             console.log('nextPageIdx is null!');
     }
 
-    var screen = null;
     var initialScreenClasses = '';
     var pagesStack = [];
     var currentPage = null;
@@ -1002,7 +1013,35 @@ function ROADS(o) {
 
     // TODO: validate param
 
-    screen = $(param.place);
+    var screen = $(param.place);
+
+    var defaultSelectors = {
+        'progressBar': '.rc-progress-bar',
+        'btnNext': '.rc-btn-survey-next',
+        'btnBack': '.rc-btn-survey-back',
+        'questions': '.rc-questions'
+    };
+
+    var questions;
+    if (param.questions)
+        questions = $( param.questions );
+    else
+        questions = $( defaultSelectors['questions'] );
+
+    function createElement(type) {
+        var place;
+        if (param[type])
+            place = $( param[type] );
+        else
+            place = $( defaultSelectors[type] );
+        var element = $( getTemplate(type) );
+        place.append(element);
+        return element;
+    }
+
+    var progressBar = createElement('progressBar');
+    var btnBack = createElement('btnBack');
+    var btnNext = createElement('btnNext');
     initialScreenClasses = screen.attr('class') || '';
 
     var totalPages = makeConnectionsAndOrds(null, 0);

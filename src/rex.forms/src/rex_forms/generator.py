@@ -48,7 +48,6 @@ class Question(object):
 
     def __init__(self, json):
         self.question_type = json['questionType']
-        print json
         self.name = json['name'].encode("utf-8")
         self.title = json['title'].encode("utf-8")
 #        self.hint = json['hint'].encode("utf-8")

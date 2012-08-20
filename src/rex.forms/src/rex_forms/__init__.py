@@ -244,7 +244,6 @@ class FormsPackageHandler(PackageHandler):
                     pack = {
                         'id' : packet,
                         'user_data' : data.get('user_data', {}),
-#temporary to support packets created before this changeset
                         'data-entry-status' : data.get('data-entry-status', 'not-started'),
                         'json' : p_json
                     }

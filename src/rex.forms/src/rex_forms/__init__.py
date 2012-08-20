@@ -211,7 +211,7 @@ class FormsPackageHandler(PackageHandler):
             return [i[:-3] for i in os.walk(folder).next()[2]]
         return []
 
-    def get_instruments_w_packets(self, instr=None, **kwds):
+    def get_instruments_with_packets(self, instr=None, **kwds):
         instruments = self.get_list_of_instruments()
         result = []
         for instrument in instruments:

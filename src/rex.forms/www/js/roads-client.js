@@ -10,12 +10,20 @@ function ROADS(o) {
         return null;
     }
 
+    var thisIdentifierVal = null;
+
     function checkConstraints(questionData, val) {
-        if (questionData.constraints) {
-            var result = checkConditions(questionData.constraints, false);
+        var result = true;
+
+        if (val !== null) {
+            thisIdentifierVal = val;
+            if (questionData.constraints) {
+                var result = checkConditions(questionData.constraints, false);
+            }
+            thisIdentifierVal = null;
         }
 
-        return true;
+        return result;
     }
 
     function clearScreen() {
@@ -433,14 +441,11 @@ function ROADS(o) {
                     var answerValue = answerVariant.attr('data-answer');
                     var checked = answerVariant.is(':checked');
 
-                    if (!isValidAnswer(questionData, answerValue) ||
-                        !checkConstraints(questionData, answerValue))
+                    if (!isValidAnswer(questionData, answerValue))
                         answerValid = false;
                     else {
                         collectedAnswers[answerValue] = checked;
                     }
-
-                    // TODO: check if required
 
                     break;
                 case 'integer':
@@ -465,8 +470,10 @@ function ROADS(o) {
 
                             if (checkConstraints(questionData, valNumeric)) {
                                 res = valNumeric;
-                            } else
+                            } else {
+                                console.log('Constraints check failed');
                                 answerValid = false;
+                            }
                         } else {
                             console.log('not valid numeric:', valStr);
                             answerValid = false;
@@ -480,6 +487,10 @@ function ROADS(o) {
 
                     break;
                 }
+
+                /*
+                    TODO: check constraints for list with whole collectedAnswers
+                */
 
                 if (answerValid)
                     jItem.removeClass('rc-error');
@@ -556,24 +567,44 @@ function ROADS(o) {
 
     function rexlCallbackWrapper(args) {
         var ret = rexlCallback(args);
-        console.log('rexlCallback(', args, ')=', ret ? ret.value : null);
+        console.log('rexlCallback(', args, ') =', ret ? ret.value : null);
         return ret;
     }
 
-    function rexlCallback(args) {
-        // console.log('rexlCallback(', args, ')');
-        
-        var questionName = args[0];
-        
-        if (questionName === "this") {
-            if (thisQuestionData === null)
+    function getRexlValue(val, valType) {
+        if (val !== undefined) {
+            if (valType === 'number')
+                return rexl.Number.value(val);
+            else if (valType === 'string')
+                return rexl.String.value(val);
+            else if (valType === 'boolean')
+                return rexl.Boolean.value(val);
+            else {
+                // TODO: throw an exception
+                console.log('Wrong type:', valType);
                 return null;
-            questionName = thisQuestionData.name;
+            }
         }
+        
+        return rexl.String.value(null);
+    }
 
-        var ans = findAnswers(questionName);
+    function rexlCallback(args) {
 
-        if (ans) {
+        var ans;
+
+        if (args[0] === "this") {
+
+            if (thisIdentifierVal !== null &&
+                thisIdentifierVal !== undefined) {
+
+                var valType = toType(thisIdentifierVal);
+                return getRexlValue(thisIdentifierVal, valType);
+
+            } else
+                rexl.String.value(null);
+
+        } else if (ans = findAnswers(args[0])) {
             var ansType = toType(ans);
             console.log('ansType=', ansType);
 
@@ -583,22 +614,8 @@ function ROADS(o) {
                 else if (args.length > 1) {
                     var val = ans[args[1]];
                     var valType = toType(val);
-                    if (val !== undefined) {
-                        if (valType === 'number')
-                            return rexl.Number.value(val);
-                        else if (valType === 'string')
-                            return rexl.String.value(val);
-                        else if (valType === 'boolean')
-                            return rexl.Boolean.value(val);
-                        else {
-                            // TODO: throw an exception
-                            console.log('Wrong type of ' 
-                                        + args[0] + '.' + args[1]
-                                        + ': ' + valType);
-                            return null;
-                        }
-                    } else
-                        return rexl.String.value(null);
+                    
+                    return getRexlValue(val, valType);
                 }
             } else if (ansType === 'string')
                 return rexl.String.value(ans);
@@ -608,9 +625,7 @@ function ROADS(o) {
                 console.log('Wrong type of ' + args[0] + ': ' + ansType);
                 return null;
             }
-        }
-        
-        if (param.extra[args[0]] !== undefined) {
+        } else if (param.extra[args[0]] !== undefined) {
             var val = param.extra[args[0]];
             if (val !== null) {
                 var type = toType(val);
@@ -1031,6 +1046,11 @@ function ROADS(o) {
         var nextPage = null;
 
         console.log('stepNextPage', isForward);
+
+        if (questions.find('.rc-error:first').size()) {
+            alert('Please correct wrong answers');
+            return;
+        }
 
         var processedAnswers = {};
 

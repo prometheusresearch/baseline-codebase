@@ -23,8 +23,6 @@ function ConditionEditor(initParams) {
     }
 
     function closeDialog() {
-        dialogParams = null;
-        conditionBuilderList.contents().remove();
         dialogObj.dialog('close');
     }
 
@@ -1146,6 +1144,13 @@ function ConditionEditor(initParams) {
             'Cancel': function () {
                 closeDialog();
             }
+        },
+        close: function () {
+            if (dialogParams.onClose)
+                dialogParams.onClose();
+
+            dialogParams = null;
+            conditionBuilderList.contents().remove();
         }
     });
 

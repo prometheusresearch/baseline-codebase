@@ -1454,6 +1454,7 @@ $.RoadsBuilder.saveQuestion = function(obj) {
                             jObj.parents('.rb_question:first');
 
     var questionData = question.data('data');
+    var questionDataUpdated = false;
 
     var inputTitle = $('textarea[name="question-title"]:first', question);
     var qTitle = jQuery.trim( inputTitle.val() );
@@ -1462,7 +1463,6 @@ $.RoadsBuilder.saveQuestion = function(obj) {
     var qQuestionType =
             $('select[name="question-type"]:first', question).val();
 
-    var questionDataUpdated = false;
     var validationError = false;
 
     if (!qTitle) {
@@ -2150,21 +2150,105 @@ $.RoadsBuilder.updateConstraintsDescription = function(questionEditor) {
         targetSpan.addClass('constraints_not_set')
                   .html('No constraints');
     }
+};
+
+/* TODO: rewrite this and saveQuestion functions to not repeat code */
+
+$.RoadsBuilder.collectQuestionData = function (editor) {
+
+    var inputTitle = $('textarea[name="question-title"]:first', editor);
+    var qTitle = jQuery.trim( inputTitle.val() );
+    var qRequired = $('input[name="question-required"]:first', editor)
+                        .attr('checked') ? true: false;
+    var qQuestionType =
+            $('select[name="question-type"]:first', editor).val();
+
+    var validationError = false;
+    var preloadedAnswers = [];
+
+    if (!qTitle) {
+        validationError = true;
+    }
+
+    if (!validationError) {
+
+        if ($.RoadsBuilder.isListType(qQuestionType)) {
+            var choicesList = $('.choices-list:first', editor)
+                                .find('.choices-list-items:first');
+            var items = $('.rb_choices_item', choicesList);
+            if (items.size() == 0)
+                validationError = true;
+            else {
+                for (var idx = 0; idx < items.size(); idx++) {
+                    var jItem = $(items[idx]);
+                    var answerCode = jQuery.trim(
+                            $('input[name="answer-code"]', jItem).val()
+                        );
+                    var answerTitle = jQuery.trim(
+                            $('input[name="answer-title"]', jItem).val()
+                        );
+                    var answerScore = '';
+
+                    if (answerCode === '' && answerTitle === '') {
+                        continue;
+                    } else if (answerCode === '' ||
+                                $.RoadsBuilder.nameRegExp.test(answerCode) ||
+
+                        $.RoadsBuilder.nameBeginRegExp.test(answerCode) ||
+                        $.RoadsBuilder.nameEndRegExp.test(answerCode)) {
+                        validationError = true;
+                        break;
+                    } else if (answerScore !== '' && 
+                                !/^[0-9]+$/.test(answerScore)) {
+                        validationEerror = true;
+                    } else if (preloadedAnswers[answerCode] !== undefined) {
+                        validationError = true;
+                        break;
+                    }
+
+                    preloadedAnswers.push ({
+                        'code': answerCode,
+                        'title': answerTitle
+                    });
+                }
+            }
+        }
+    }
+
+    if (!validationError) {
+        return {
+            'title': qTitle,
+            'questionType': qQuestionType,
+            'answers': preloadedAnswers
+        }
+    } else {
+        return null;
+    }
 }
 
 $.RoadsBuilder.changeConstraints = function(btn) {
     var jButton = $(btn);
     var questionEditor = jButton.parents('.rb_question_editor:first');
 
-    $.RoadsBuilder.conditionsEditor.open({
-        title: 'Edit Constraints',
-        callback: function (newValue) {
-            questionEditor[0].constraints = newValue;
-            $.RoadsBuilder.makeREXLCache(questionEditor[0], 'constraints');
-            $.RoadsBuilder.updateConstraintsDescription(questionEditor);
-        },
-        conditions: questionEditor[0].constraints
-    });
+    $.RoadsBuilder.constraintsThisQuestion =
+        $.RoadsBuilder.collectQuestionData(questionEditor);
+
+    if ($.RoadsBuilder.constraintsThisQuestion) {
+        $.RoadsBuilder.conditionsEditor.open({
+            title: 'Edit Constraints',
+            callback: function (newValue) {
+                questionEditor[0].constraints = newValue;
+                $.RoadsBuilder.makeREXLCache(questionEditor[0], 'constraints');
+                $.RoadsBuilder.updateConstraintsDescription(questionEditor);
+            },
+            onClose: function (newValue) {
+                $.RoadsBuilder.constraintsThisQuestion = null;
+            },
+            conditions: questionEditor[0].constraints
+        });
+    } else {
+        alert('Impossible: there are wrong values in the editor');
+    }
 }
 
 $.RoadsBuilder.getAnswersString = function(questionData) {
@@ -2364,14 +2448,23 @@ $(document).ready(function () {
     $.RoadsBuilder.beforeTestDialog = new $.RoadsBuilder.BeforeTestDialog();
     $.RoadsBuilder.questionDialog = createObject($.RoadsBuilder.QuestionDialogF);
 
+    $.RoadsBuilder.constraintsThisQuestion = null;
+
     $.RoadsBuilder.conditionsEditor = new ConditionEditor({
         urlPrefix: $.RoadsBuilder.basePrefix,
         manualEdit: $.RoadsBuilder.manualEditConditions,
         identifierTitle: 'Question or parameter',
         onDescribeId: function (identifier) {
 
-            var questionData = $.RoadsBuilder.context.findQuestionData(identifier);
             var ret = null;
+            var questionData = null;
+
+            if (identifier === "this") {
+                if ($.RoadsBuilder.constraintsThisQuestion)
+                    questionData = $.RoadsBuilder.constraintsThisQuestion;
+            } else
+                questionData = $.RoadsBuilder.context.findQuestionData(identifier);
+
             if (questionData) {
                 ret = {};
                 switch(questionData.questionType) {
@@ -2408,7 +2501,7 @@ $(document).ready(function () {
                     ret.type = 'string';
                     break;
                 }
-            } else {
+            } else if (identifier !== "this") {
                 var paramData = $.RoadsBuilder.context.findParamData(identifier);
                 if (paramData) {
                     ret = {};
@@ -2446,7 +2539,7 @@ $(document).ready(function () {
                     }
                 }
             }
-            
+
             console.log('onDescribeId', ret);
             
             return ret;
@@ -2457,11 +2550,22 @@ $(document).ready(function () {
             var matcher =
                 new RegExp($.ui.autocomplete.escapeRegex(term), "i");
 
+            if ($.RoadsBuilder.constraintsThisQuestion) {
+                var item = $.RoadsBuilder.constraintsThisQuestion;
+                if ("this".indexOf(term) != -1) {
+                    ret.push({
+                        "title": item.title ?
+                            $.RoadsBuilder.truncateText(item.title, 80) : '',
+                        "value": "this"
+                    });
+                }
+            }
+
             var qIndex = $.RoadsBuilder.context.getIndexByType('question');
             for (var pos in qIndex) {
                 var item = qIndex[pos];
                 
-                if (!item.slave) {
+                if (!item.slave && item.name) {
                     if (item.name.search(matcher) !== -1 ||
                         (item.title &&
                             item.title.search(matcher) !== -1)) {

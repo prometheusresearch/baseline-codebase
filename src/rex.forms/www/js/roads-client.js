@@ -862,6 +862,12 @@ function ROADS(o) {
         if (item.type === 'group') {
             var total = item.pages.length;
 
+            if (checkSkipConditions(item)) {
+                // TODO: log all questions of this group as skipped
+                console.log('skipping group:', item);
+                return null;
+            }
+
             if (total) {
                 var idx;
                 var step;
@@ -898,17 +904,21 @@ function ROADS(o) {
     function findNextPage(current) {
         var ret = null;
 
-        console.log('findNextPage');
+        console.log('findNextPage from', current);
 
         while (current !== null) {
             while (current !== null && current.next === null)
                 current = current.parent;
+
+            console.log('[1]', current);
 
             if (current === null)
                 break;
 
             while (current.next !== null) {
                 current = current.next;
+
+                console.log('[2]', current);
 
                 if (checkSkipConditions(current))
                     logQuestionsAsSkipped(current);
@@ -920,6 +930,13 @@ function ROADS(o) {
                     } else {
                         var page = findFirstPage(current, false);
                         if (page) {
+                        
+                            if (checkSkipConditions(page)) {
+                                logQuestionsAsSkipped(page);
+                                current = page;
+                                continue;
+                            }
+
                             ret = page;
                             break;
                         }
@@ -937,7 +954,7 @@ function ROADS(o) {
     function findPreviousPage(current) {
         var ret = null;
 
-        console.log('findPreviousPage');
+        console.log('findPreviousPage from', current);
 
         while (current !== null) {
             while (current !== null && current.prev === null)
@@ -957,7 +974,15 @@ function ROADS(o) {
                         break;
                     } else {
                         var page = findFirstPage(current, true);
+
                         if (page) {
+                        
+                            if (checkSkipConditions(page)) {
+                                logQuestionsAsSkipped(page);
+                                current = page;
+                                continue;
+                            }
+
                             ret = page;
                             break;
                         }
@@ -1069,6 +1094,14 @@ function ROADS(o) {
                         }
                     }
                 }
+            }
+
+            if (nextPage && checkSkipConditions(nextPage)) {
+                logQuestionsAsSkipped(nextPage);
+
+                nextPage = isForward ?
+                    findNextPage(nextPage):
+                    findPreviousPage(nextPage);
             }
         } else {
             nextPage = isForward ?

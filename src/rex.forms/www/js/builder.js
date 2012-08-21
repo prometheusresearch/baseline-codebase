@@ -2531,7 +2531,7 @@ $(document).ready(function () {
                             var typeDesc = 
                                 $.RoadsBuilder.externalParamTypes[paramData.type];
 
-                            console.log('typeDesc:', typeDesc);
+                            console.log('typeDesc[' + paramData.type +']:', typeDesc);
 
                             if (typeDesc) {
                                 switch(typeDesc.type) {
@@ -2547,6 +2547,8 @@ $(document).ready(function () {
                                     ret.type = 'string';
                                     break;
                                 }
+                            } else {
+                                ret.type = 'string';
                             }
                         } else
                             ret.type = 'string';
@@ -2555,8 +2557,8 @@ $(document).ready(function () {
                 }
             }
 
-            console.log('onDescribeId', ret);
-            
+            console.log('onDescribeId[' + identifier + ']', ret);
+
             return ret;
         },
         onSearchId: function (term) {

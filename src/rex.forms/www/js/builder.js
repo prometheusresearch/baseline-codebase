@@ -2157,6 +2157,7 @@ $.RoadsBuilder.changeConstraints = function(btn) {
     var questionEditor = jButton.parents('.rb_question_editor:first');
 
     $.RoadsBuilder.conditionsEditor.open({
+        title: 'Edit Constraints',
         callback: function (newValue) {
             questionEditor[0].constraints = newValue;
             $.RoadsBuilder.makeREXLCache(questionEditor[0], 'constraints');
@@ -2233,6 +2234,7 @@ $.RoadsBuilder.changeDisableLogic = function(btn) {
     var questionEditor = jButton.parents('.rb_question_editor:first');
 
     $.RoadsBuilder.conditionsEditor.open({
+        title: 'Edit Disable-Logic Conditions',
         callback: function (newValue) {
             questionEditor[0].disableIf = newValue;
             $.RoadsBuilder.makeREXLCache(questionEditor[0], 'constraints');
@@ -2279,6 +2281,7 @@ $.RoadsBuilder.editGroupSkipConditions = function(a) {
     var groupDiv = $(a).parents('.rb_page_group:first');
     var data = groupDiv.data('data');
     $.RoadsBuilder.conditionsEditor.open({
+        title: 'Edit Skip-Logic Conditions',
         callback: function (newValue) {
             data.skipIf = newValue;
             $.RoadsBuilder.makeREXLCache(data, 'skipIf');
@@ -2291,6 +2294,7 @@ $.RoadsBuilder.editGroupSkipConditions = function(a) {
 $.RoadsBuilder.editPageSkipConditions = function() {
     var data = $.RoadsBuilder.currentPage.data('data');
     $.RoadsBuilder.conditionsEditor.open({
+        title: 'Edit Skip-Logic Conditions',
         callback: function (newValue) {
             var data = $.RoadsBuilder.currentPage.data('data');
             data.skipIf = newValue;
@@ -2363,6 +2367,7 @@ $(document).ready(function () {
     $.RoadsBuilder.conditionsEditor = new ConditionEditor({
         urlPrefix: $.RoadsBuilder.basePrefix,
         manualEdit: $.RoadsBuilder.manualEditConditions,
+        identifierTitle: 'Question or parameter',
         onDescribeId: function (identifier) {
 
             var questionData = $.RoadsBuilder.context.findQuestionData(identifier);

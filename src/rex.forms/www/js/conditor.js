@@ -660,6 +660,14 @@ function ConditionEditor(initParams) {
         var newItem;
 
         if (!conditionItemProto) {
+
+            if (dialogParams.identifierTitle)
+                identifierTitle = dialogParams.identifierTitle;
+            else if (initParams.identifierTitle)
+                identifierTitle = initParams.identifierTitle;
+            else
+                identifierTitle = 'Identifier';
+        
             conditionItemProto =
                 $( '<li class="rb_condition_item">'
                     + '<div>'
@@ -674,7 +682,7 @@ function ConditionEditor(initParams) {
                                 + '<a href="javascript:void(0);" class="rb_condition_remove"><img src="' + prefix + '/img/close_small.png"></a>'
                             + '</div>'
                             + '<div style="white-space: nowrap;">'
-                                + '<span class="rb_condition_part_title">Question or parameter:</span> <input class="rb_identifier_input">'
+                                + '<span class="rb_condition_part_title">' + identifierTitle + ':</span> <input class="rb_identifier_input">'
                             + '</div>'
                             + '<div class="rb_condition_item_hidable">'
                                 + '<span class="rb_condition_part_title">is</span> '
@@ -1087,7 +1095,7 @@ function ConditionEditor(initParams) {
     }
 
     var condEditorTpl =
-        '<div class="rb_condition_editor">'
+        '<div class="rb_condition_editor' + ((manualEditConditions) ? '': ' rb_without_manual_editor') + '">'
             + '<div class="rb_condition_editor_header">'
                 + '<a href="javascript:void(0);" class="rb_condition_editor_switch" data-tab="builder">Condition Builder</a>'
                 + (
@@ -1190,6 +1198,10 @@ function ConditionEditor(initParams) {
         var conditionsStr = '';
         $('.rb_make_cond_group_btn', dialogObj).attr('disabled', 'disabled');
         conditionBuilderList.contents().remove();
+
+        var dialogTitle = (params.title) ? params.title : 'Set Conditions';
+
+        dialogObj.dialog('option', 'title', dialogTitle);
 
         if (dialogParams.conditions &&
             !(dialogParams.conditions instanceof Object))

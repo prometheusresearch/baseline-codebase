@@ -61,6 +61,10 @@
     padding-bottom: 5px;
 }
 
+.rb_without_manual_editor .rb_condition_editor_header {
+    display: none;
+}
+
 .rb_condition_editor_tab {
     position: absolute;
     top: 0px;
@@ -78,6 +82,10 @@
     right: 0px;
     bottom: 0px;
     margin: 5px 10px 0px 10px;
+}
+
+.rb_without_manual_editor .rb_condition_editor_body {
+    top: 5px;
 }
 
 .rb_condition_editor_header a {

@@ -1273,6 +1273,20 @@ $.RoadsBuilder.setChoicesSortable = function(c) {
     });
 }
 
+$.RoadsBuilder.removeChoicesItem = function (obj) {
+    var choicesDiv = $(obj).parents('.rb_choices_item:first');
+    choicesDiv.slideUp(300, function () {
+        $(this).remove();
+    });
+}
+
+$.RoadsBuilder.removeQuestion = function (obj) {
+    var questionDiv = $(obj).parents('.rb_question:first');
+    questionDiv.slideUp(300, function () {
+        $.RoadsBuilder.removeQuestionReal(questionDiv);
+    });
+}
+
 $.RoadsBuilder.removeQuestionReal = function(questionDiv) {
     var pageData = $.RoadsBuilder.currentPage.data('data');
     var questionData = questionDiv.data('data');
@@ -2241,6 +2255,7 @@ $.RoadsBuilder.changeConstraints = function(btn) {
                 $.RoadsBuilder.makeREXLCache(questionEditor[0], 'constraints');
                 $.RoadsBuilder.updateConstraintsDescription(questionEditor);
             },
+            defaultIdentifier: 'this',
             onClose: function (newValue) {
                 $.RoadsBuilder.constraintsThisQuestion = null;
             },

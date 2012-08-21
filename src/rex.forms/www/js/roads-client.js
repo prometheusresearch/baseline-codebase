@@ -1070,10 +1070,11 @@ function ROADS(o) {
                     }
                 }
             }
-        } else
+        } else {
             nextPage = isForward ?
                         findNextPage(currentPage):
                         findPreviousPage(currentPage);
+        }
 
         if (nextPage !== null) {
             mergeProcessedAnswers(processedAnswers);

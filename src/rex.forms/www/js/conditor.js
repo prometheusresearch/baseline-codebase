@@ -654,7 +654,7 @@ function ConditionEditor(initParams) {
         return $(document.createElement('div')).text(str).html();
     }
 
-    function addConditionItem(data, appendTo) {
+    function addConditionItem(data, appendTo, defaultIdentifier) {
         var newItem;
 
         if (!conditionItemProto) {
@@ -771,6 +771,8 @@ function ConditionEditor(initParams) {
 
             var hidablePart = $('.rb_condition_item_hidable:first', newItem);
             hidablePart.data('data', data);
+        } else if (defaultIdentifier) {
+            identifierInput.val(defaultIdentifier);
         }
 
         identifierInput.each(function () {
@@ -804,7 +806,7 @@ function ConditionEditor(initParams) {
                 this.triggerTimeout = setTimeout(triggerChange, 200, this);
         });
 
-        if (data)
+        if (data || defaultIdentifier)
             identifierInput.change();
     }
 
@@ -1171,7 +1173,12 @@ function ConditionEditor(initParams) {
     }
 
     $('button.rb_add_condition', dialogObj).click(function () {
-        addConditionItem(null);
+        addConditionItem(
+            null, 
+            null, 
+            (dialogParams.defaultIdentifier ?
+                dialogParams.defaultIdentifier : null)
+        );
     });
 
     $('button.rb_make_cond_group_btn', dialogObj).click(

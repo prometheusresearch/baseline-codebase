@@ -80,6 +80,9 @@
 
             <li id="tpl_question" class="rb_question">
                 <div>
+                    <div class="rb_question_actions">
+                        <a href="javascript:void(0);" onclick="$.RoadsBuilder.removeQuestion(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                    </div>
                     <div class="q_caption">
                         <div class="rb_question_title">
                             Question Title
@@ -229,6 +232,9 @@
                     <input type="text" name="answer-title" class="rb_choice_input_title" />
                 </div>
                 <div class="rb_choices_item_right">
+                    <div class="rb_choices_item_actions">
+                        <a href="javascript:void(0);" onclick="$.RoadsBuilder.removeChoicesItem(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                    </div>
                     <div class="restrict-drag">
                         <input type="text" name="answer-code" class="rb_choice_input rb_with_margin slave" />
                         <!--
@@ -255,7 +261,7 @@
                 <div>
                     <div>
                         <div class="rb_page_actions">
-                            <!-- <a href="javascript:void(0)" onclick="$.RoadsBuilder.editPage(this);">edit</a>&nbsp;&nbsp; --><a href="javascript:void(0);" onclick="$.RoadsBuilder.removePage(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                            <a href="javascript:void(0);" onclick="$.RoadsBuilder.removePage(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                         </div>
                         <div class="rb_div_page_title"></div>
                     </div>

@@ -86,6 +86,7 @@ class Answer(object):
     def __init__(self, json):
 #        self.userInput = json['userInput']
         self.code = json['code'].encode("utf-8")
+        print "Answer code:", self.code
 #        self.score = json['score']
         self.title = json['title'].encode("utf-8")
 

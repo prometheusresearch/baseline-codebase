@@ -21,11 +21,11 @@ $.RoadsBuilder.QTypes = {
 };
 
 $.RoadsBuilder.remCharsRegExp = new RegExp("[^a-zA-Z0-9\\s_\\-\\/]+", "g");
-$.RoadsBuilder.qNameRegExp = new RegExp("[^a-zA-Z0-9_]+", "g");
-$.RoadsBuilder.aNameRegExp = new RegExp("[^a-zA-Z0-9\\-]+", "g");
-$.RoadsBuilder.aNameBeginRegExp = new RegExp('^[^a-zA-Z0-9]');
-$.RoadsBuilder.cNameEndRegExp = new RegExp('[^a-zA-Z0-9]$');
-$.RoadsBuilder.cNameBeginRegExp = new RegExp('^[^a-zA-Z]');
+
+$.RoadsBuilder.nameRegExp = new RegExp("[^a-zA-Z0-9_]+", "g");
+
+$.RoadsBuilder.nameBeginRegExp = new RegExp('^[^a-zA-Z]');
+$.RoadsBuilder.nameEndRegExp   = new RegExp('[^a-zA-Z0-9]$');
 
 $.RoadsBuilder.QuestionDialogF = function () {
     var dialogObj = null;
@@ -371,8 +371,8 @@ $.RoadsBuilder.EditParamDialogF = function () {
             var jThis = $(this);
             var val = jThis.val();
 
-            var newVal = val.replace($.RoadsBuilder.qNameRegExp, '')
-                            .replace($.RoadsBuilder.cNameBeginRegExp, '');
+            var newVal = val.replace($.RoadsBuilder.nameRegExp, '')
+                            .replace($.RoadsBuilder.nameBeginRegExp, '');
 
             if (newVal !== val)
                 jThis.val( newVal );
@@ -691,9 +691,11 @@ $.RoadsBuilder.ContextF = function () {
 
             // console.log('removeFromIndex:', posIdx, object);
 
+            /*
             var temp = null;
             if (posIdx === null)
                 return temp['a'];
+            */
 
             if (posIdx !== null) {
                 var indexRef = getIndexByType(indexType);
@@ -827,7 +829,7 @@ $.RoadsBuilder.generateMetaJSON = function(instrumentName, doBeautify) {
     return $.toJSON(instrumentMeta);
 }
 
-$.RoadsBuilder.saveInstrument = function(callback) {
+$.RoadsBuilder.saveInstrumentReal = function(callback) {
     var instrumentName = $.RoadsBuilder.instrumentName;
 
     if (!instrumentName)
@@ -858,6 +860,12 @@ $.RoadsBuilder.saveInstrument = function(callback) {
             type: 'POST'
         });
     }
+};
+
+$.RoadsBuilder.saveInstrument = function(callback) {
+    $.RoadsBuilder.closeOpenedEditor(function () {
+        $.RoadsBuilder.saveInstrumentReal();
+    }, questionListDiv);
 }
 
 $.RoadsBuilder.evaluateMetaStr = function(metaStr) {
@@ -871,7 +879,7 @@ $.RoadsBuilder.hints = {
                       + 'They may contain letters, numbers, and '
                       + 'underscores, e.g. "q01_test".',
     dupQuestionId: 'There is another question with the same name. Question names should be unique in each group.',
-    wrongAnswerId: 'Choice identifiers are required. They may contain letters, numbers and dashes, e.g. "1-yes".',
+    wrongAnswerId: 'Choice identifiers are required. They may contain letters, numbers and dashes, e.g. "yes_1".',
     dupAnswerId: 'There are several answers with the same code. Answer codes should be unique in each question.',
     emptyAnswerId: 'Answer Id could not be empty!',
     noAnswers: 'Please add at least one choice',
@@ -1089,7 +1097,7 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                 jThis.removeClass('slave');
                 var val = jThis.val();
 
-                var newVal = val.replace($.RoadsBuilder.cNameEndRegExp, '');
+                var newVal = val.replace($.RoadsBuilder.nameEndRegExp, '');
                 if (newVal !== val) {
                     jThis.val( newVal );
                     $.RoadsBuilder.putHint(jThis, 'wrongQuestionId');
@@ -1100,8 +1108,8 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                 var jThis = $(this);
                 var val = jThis.val();
 
-                var newVal = val.replace($.RoadsBuilder.qNameRegExp, '')
-                                .replace($.RoadsBuilder.cNameBeginRegExp, '');
+                var newVal = val.replace($.RoadsBuilder.nameRegExp, '')
+                                .replace($.RoadsBuilder.nameBeginRegExp, '');
 
                 if (newVal !== val) {
                     jThis.val( newVal );
@@ -1207,7 +1215,7 @@ $.RoadsBuilder.addChoiceReal = function(choicesList, code, title,
         var title = jThis.val();
         var answerCode = jThis.data('answerCode');
         if (answerCode.hasClass('slave')) {
-            answerCode.val($.RoadsBuilder.getReadableId(title, false, '-', 45));
+            answerCode.val($.RoadsBuilder.getReadableId(title, false, '_', 45));
         }
     });
 
@@ -1216,7 +1224,7 @@ $.RoadsBuilder.addChoiceReal = function(choicesList, code, title,
         jThis.removeClass('slave');
         var val = jThis.val();
 
-        var newVal = val.replace($.RoadsBuilder.cNameEndRegExp, '');
+        var newVal = val.replace($.RoadsBuilder.nameEndRegExp, '');
         if (newVal !== val) {
             jThis.val( newVal );
         }
@@ -1225,8 +1233,8 @@ $.RoadsBuilder.addChoiceReal = function(choicesList, code, title,
     answerCode.keyup(function () {
         var jThis = $(this);
         var val = jThis.val();
-        var newVal = val.replace($.RoadsBuilder.aNameRegExp, '')
-                        .replace($.RoadsBuilder.aNameBeginRegExp, '');
+        var newVal = val.replace($.RoadsBuilder.nameRegExp, '')
+                        .replace($.RoadsBuilder.nameBeginRegExp, '');
 
         if (newVal !== val) {
             jThis.val( newVal );
@@ -1491,10 +1499,10 @@ $.RoadsBuilder.saveQuestion = function(obj) {
                 if (answerCode === '' && answerTitle === '') {
                     continue;
                 } else if (answerCode === '' ||
-                            $.RoadsBuilder.aNameRegExp.test(answerCode) ||
+                            $.RoadsBuilder.nameRegExp.test(answerCode) ||
 
-                    $.RoadsBuilder.aNameBeginRegExp.test(answerCode) ||
-                    $.RoadsBuilder.cNameEndRegExp.test(answerCode)) {
+                    $.RoadsBuilder.nameBeginRegExp.test(answerCode) ||
+                    $.RoadsBuilder.nameEndRegExp.test(answerCode)) {
                     $.RoadsBuilder.putHint(choicesList, 'wrongAnswerId');
                     validationError = true;
                     break;
@@ -1530,9 +1538,9 @@ $.RoadsBuilder.saveQuestion = function(obj) {
     var qName = jQuery.trim( inputName.val() );
 
     if (qName === '' ||
-        $.RoadsBuilder.qNameRegExp.test(qName) ||
-        $.RoadsBuilder.cNameBeginRegExp.test(qName) ||
-        $.RoadsBuilder.cNameEndRegExp.test(qName) ) {
+        $.RoadsBuilder.nameRegExp.test(qName) ||
+        $.RoadsBuilder.nameBeginRegExp.test(qName) ||
+        $.RoadsBuilder.nameEndRegExp.test(qName) ) {
         $.RoadsBuilder.putHint(inputName, 'wrongQuestionId');
         validationError = true;
     } else if ($.RoadsBuilder.findDuplicates(qName, questionData)) {
@@ -2805,14 +2813,16 @@ $.RoadsBuilder.testInstrument = function() {
 
     var params = $.RoadsBuilder.context.getIndexByType('parameter');
     var toBeContinued = function (paramDict) {
-        $.RoadsBuilder.showProgress({
-            title: '<center>Preparing the form for a test...</center>',
-            pollCallback: function () { }
-        });
+        $.RoadsBuilder.closeOpenedEditor(function () {
+            $.RoadsBuilder.showProgress({
+                title: '<center>Preparing the form for a test...</center>',
+                pollCallback: function () { }
+            });
 
-        $.RoadsBuilder.savedParamValues = paramDict;
-        $.RoadsBuilder.saveInstrument($.RoadsBuilder.testInstrumentStage4);
-    } 
+            $.RoadsBuilder.savedParamValues = paramDict;
+            $.RoadsBuilder.saveInstrumentReal($.RoadsBuilder.testInstrumentStage4);
+        }, questionListDiv);
+    }
 
     if (params.length) {
         $.RoadsBuilder.beforeTestDialog.open({

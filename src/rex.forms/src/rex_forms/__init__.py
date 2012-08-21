@@ -136,6 +136,7 @@ class FormsPackageHandler(PackageHandler):
         with self.lock:
             folder = self.app.config.instrument_folder
             fld = "%s/%s/%s/packets/%s.js" % (folder, instrument, version, packet)
+            user_data = data.pop('user_data', {})
             f = open(fld, 'w')
             f.write(simplejson.dumps(data, indent=1))
             f.close()
@@ -147,6 +148,10 @@ class FormsPackageHandler(PackageHandler):
                 log['data-entry-status'] = 'in-progress'
             else:
                 log['data-entry-status'] = 'complete'
+            if 'user_data' in log:
+                log['user_data'].update(user_data)
+            else:
+                log['user_data'] = user_data
             f = open(fld, "w")
             f.write(simplejson.dumps(log, indent=1))
             f.close()
@@ -165,7 +170,10 @@ class FormsPackageHandler(PackageHandler):
             file_name = "%s/%s/%s/packets_details/%s.js" % (folder,\
                              instrument, version, packet)
             data = simplejson.load(open(file_name, 'r'))
-            data['user_data'] = user_data
+            if 'user_data' in data:
+                data['user_data'].update(user_data)
+            else:
+                data['user_data'] = user_data
             f = open(file_name, 'w')
             f.write(simplejson.dumps(data, indent=1))
             f.close()

@@ -106,7 +106,7 @@ function ROADS(o) {
 
     function saveState(callback) {
       if (param.package) {
-        var url = param.prefix + "/save_state";
+        var url = param.save_url;
         param.state['package'] = param.package;
         param.state['instrument'] = param.instrument_id;
         stateJSON = $.toJSON(param.state);

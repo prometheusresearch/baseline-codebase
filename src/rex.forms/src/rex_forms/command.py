@@ -87,17 +87,22 @@ class SaveState(RoadsCommand):
 
     name = '/save_state'
 
+    def get_user_data(self, req):
+        return {}
+
     def render(self, req):
         post = req.POST.get('data')
         if not post:
             return Response(status='401', body='No POST data provided')
         data = simplejson.loads(post)
+        data['user_data'] = self.get_user_data(req)
         code = data.get('package')
         instrument = data.get('instrument')
         if not code and instrument:
             return Response(body='Wrong Json')
-        _, version = self.parent.get_latest_instrument(instrument)
-        self.parent.save_packet(instrument, version, code, data)
+        handler = self.app.handler_by_name['rex.forms']
+        _, version = handler.get_latest_instrument(instrument)
+        handler.save_packet(instrument, version, code, data)
         return Response(body='Saved!')
 
 

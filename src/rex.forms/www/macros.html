@@ -1,4 +1,4 @@
-{% macro client_head(custom_data) -%}
+{% macro client_head(custom_data, save_url='') -%}
         <meta name="Content-Type" content="text/html; charset=utf-8" />
         <title>Smart ESAC</title>
         <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
@@ -18,6 +18,13 @@
                     instrument_id: '{{ instrument_id }}',
                     package: '{{ package or '' }}',
                     prefix: "{{ PREFIX['rex.forms'] }}",
+                    
+                    {% if save_url %}
+                    save_url: {{ save_url|json }},
+                    {% else %}
+                    save_url: {{ (PREFIX['rex.forms'] + '/save_state')|json }},
+                    {% endif %}
+                    
                     {% if finish_url %}
                     finishURL: '{{ finish_url }}',
                     {% endif %}

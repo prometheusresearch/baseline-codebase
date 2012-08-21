@@ -2434,6 +2434,8 @@ $(document).ready(function () {
                 }
             }
             
+            console.log('onDescribeId', ret);
+            
             return ret;
         },
         onSearchId: function (term) {
@@ -2454,7 +2456,7 @@ $(document).ready(function () {
                         ret.push({
                             "title": item.title ?
                                 $.RoadsBuilder.truncateText(item.title, 80) : '',
-                            "id": item.name
+                            "value": item.name
                         });
                     }
                 }
@@ -2474,6 +2476,8 @@ $(document).ready(function () {
                     });
                 }
             }
+
+            console.log('onSearchId', ret);
             return ret;
         }
     });

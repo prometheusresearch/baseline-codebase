@@ -1,5 +1,16 @@
 
-function ROADS(o) {
+function RexForms(o) {
+
+    var yesNoAnswers = [
+        {
+            code: 'yes',
+            title: 'Yes'
+        },
+        {
+            code: 'no',
+            title: 'No'
+        }
+    ];
 
     function findQuestion(page, questionName) {
         for (var idx in page.questions) {
@@ -33,18 +44,26 @@ function ROADS(o) {
 
     var templates = {
         'progressBar':
-            '<div class="survey-progress-bar-fill-wrap"><div class="rc-progress-bar-fill"></div></div><span class="rc-progress-bar-pct">30%</span>',
+              '<div class="survey-progress-bar-fill-wrap">'
+                + '<div class="rc-progress-bar-fill"></div>'
+                + '<span class="rc-progress-bar-pct">40%</span>'
+            + '</div>',
         'btnNext': '<button>Next Page</button>',
         'btnBack': '<button>Previous Page</button>',
         'btnFinish': '<button>Finish</button>',
-        'btnAddRepGroup': '<button class="roads-add-rep-group">Add group of answers</button>',
+        'btnAddRepGroup':
+            '<button class="roads-add-rep-group">Add group of answers</button>',
         'btnClear': '<button class="btn-clear-answers">Clear</button>',
         'question':
-            '<div class="question-item"><div><span class="rc-question-title" data-part="title"></span></div><span data-part="answers"></span></div>'
+              '<div class="question-item">'
+                + '<div>'
+                    + '<span class="rc-question-title" data-part="title"></span>'
+                + '</div>'
+                + '<span data-part="answers"></span>'
+            + '</div>'
     };
 
     function getTemplate(type) {
-
         if (param.templates && 
             param.templates[type]) {
 
@@ -54,22 +73,9 @@ function ROADS(o) {
         return templates[type];
     }
 
-    var yesNoAnswers = [
-        {
-            code: 'yes',
-            title: 'Yes'
-        },
-        {
-            code: 'no',
-            title: 'No'
-        }
-    ];
-
     function findSavedAnswer(question, answerCode, groupNum) {
         var questionName = question.parent ? question.parent.name : question.name;
         var savedAnswers = param.state.answers;
-
-        console.log('findSavedAnswer', savedAnswers);
 
         if (savedAnswers &&
             savedAnswers[questionName] !== null &&
@@ -96,7 +102,6 @@ function ROADS(o) {
                 answers = savedAnswers[questionName];
 
             if (answers) {
-                console.log('answers:', answers);
                 if (answerCode) {
                     if (question.questionType === "radio" &&
                         answerCode === answers)
@@ -158,7 +163,6 @@ function ROADS(o) {
             group.append(newItem);
             processQuestionItem(newItem, subQuestion, groupNum);
         }
-        // group.append('<button>Remove group of answers</button>');
     }
 
     function renderAnswers(question, appendTo, groupNum) {
@@ -203,8 +207,6 @@ function ROADS(o) {
             var val = '';
             var savedAnswer = findSavedAnswer(question, null, groupNum);
             
-            console.log('findSavedAnswer(', question,',', null,',', groupNum, ')=', savedAnswer);
-            
             if (savedAnswer !== null) {
                 val += savedAnswer;
                 justOpened = false;
@@ -238,14 +240,12 @@ function ROADS(o) {
 
             for (var idx in answers) {
                 var answer = answers[idx];
-                // console.log('processing answer:', answer);
 
                 ul.append('<li class="answer-item"></li>');
                 var li = ul.children('li:last');
                 var id = getRandomStr(10);
 
                 var savedAnswer = findSavedAnswer(question, answer.code, groupNum);
-                console.log('[*] findSavedAnswers(', question, ',', answer.code, ',', groupNum, ')=', savedAnswer);
                 
                 if (savedAnswer !== null) {
                     checked = 'checked="checked"';
@@ -320,7 +320,6 @@ function ROADS(o) {
             renderAnswers(question, span, groupNum);
             if (question.questionType !== "rep_group") {
                 span.find('.btn-clear-answers').click(function () {
-                    console.log('clearing answers:', this);
 
                     var jThis = $(this);
                     if (jThis.parents('.disabled-question:first').size())
@@ -330,6 +329,7 @@ function ROADS(o) {
                     questionDiv.find('input.rc-answer-variant').removeAttr('checked');
                     collectAnswersFromQuestion(questionDiv);
                     checkDisabledQuestions();
+
                 });
                 span.find('input,textarea')
                     .change(onAnswerSet)
@@ -406,7 +406,6 @@ function ROADS(o) {
                 });
 
                 collectedAnswers[idx] = (groupValid) ? procAnswers : null;
-                                
                 ++idx;
             });
             
@@ -454,8 +453,6 @@ function ROADS(o) {
 
                     var valStr = jQuery.trim(answerVariant.val());
                     var res = null;
-
-                    // console.log('valStr = ', valStr, "|", answerVariant);
 
                     if (questionData.questionType === 'string') {
                         res = valStr;
@@ -513,7 +510,6 @@ function ROADS(o) {
         }
 
         retAnswers[questionData.name] = collectedAnswers;
-        // console.log('current retAnswers:', retAnswers);
         jQItem.removeClass('rc-question-error');
 
         return true;
@@ -606,7 +602,6 @@ function ROADS(o) {
 
         } else if (ans = findAnswers(args[0])) {
             var ansType = toType(ans);
-            console.log('ansType=', ansType);
 
             if (ansType === 'object') {
                 if (args.length === 1)
@@ -621,10 +616,9 @@ function ROADS(o) {
                 return rexl.String.value(ans);
             else if (ansType === 'number')
                 return rexl.String.value(ans);
-            else {
-                console.log('Wrong type of ' + args[0] + ': ' + ansType);
+            else
                 return null;
-            }
+
         } else if (param.extra[args[0]] !== undefined) {
             var val = param.extra[args[0]];
             if (val !== null) {
@@ -645,7 +639,7 @@ function ROADS(o) {
 
             try {
                 var value = node['evaluate'](rexlCallbackWrapper);
-                console.log('evaluated = ', value);
+                console.log(conditions, '=', value);
             } catch(err) {
                 value = false;
                 console.log('error evaluating rexl condition:', conditions);
@@ -662,9 +656,7 @@ function ROADS(o) {
         var questionName = questionDiv.attr('data-question');
         var questionData = findQuestion(currentPage, questionName);
 
-        // var thisQuestionData = questionData;
         var disabled = checkConditions(questionData.disableIf, false);
-        // var thisQuestionData = null;
 
         if (disabled) {
             questionDiv.addClass('disabled-question');
@@ -686,7 +678,6 @@ function ROADS(o) {
     }
 
     function checkDisabledQuestions() {
-        // console.log('-> check disabled questions');
         questions.find('.question-item').each(function () {
             var jThis = $(this);
             if (jThis.attr('data-subquestion') !== "1")
@@ -700,14 +691,7 @@ function ROADS(o) {
                         forcePct: 
                         Math.floor(page.ord * 100 / totalPages);
         progressBar.find('.rc-progress-bar-fill').css('width', pct  + '%');
-        
-        console.log('progress', progressBar, 'pct', progressBar.find('.rc-progress-bar-pct'));
-        
         progressBar.find('.rc-progress-bar-pct').html(pct + '%');
-    }
-
-    function showFinishPage() {
-        
     }
 
     function renderPage() {
@@ -716,9 +700,6 @@ function ROADS(o) {
         var page = currentPage;
 
         screen.addClass('roads-page-' + page.cId);
-        console.log('***************',
-            page.cId, ' [', page.ord,
-            '] ***************');
 
         btnNext.unbind('click');
         btnNext.click(function () {
@@ -736,9 +717,7 @@ function ROADS(o) {
         var totalQuestions = page.questions.length;
 
         if (totalQuestions === 0) {
-            screen
-                .find('.question-item')
-                .remove();
+            screen.find('.question-item').remove();
         } else {
             var processed = {};
             for (var idx = 0; idx < totalQuestions; idx++) {
@@ -764,7 +743,7 @@ function ROADS(o) {
     }
 
     function getPackageId() {
-        var fromURI = 
+        var fromURI =
             decodeURI(
                 (RegExp('package=(.+?)(&|$)').exec(location.search) || 
                     [,null])[1]
@@ -777,12 +756,6 @@ function ROADS(o) {
         stepNextPage(false);
     }
 
-    /*
-        OPENED
-        SKIPPED_BY_LOGIC
-        SKIPPED_BY_USER
-        ANSWERED
-    */
     function logQuestionsAsSkipped(page) {
         if (page.type === 'page') {
             for (var idx in page.questions)
@@ -849,7 +822,6 @@ function ROADS(o) {
     }
 
     function checkSkipConditions(page) {
-        console.log('checking skip conditions:', page.skipIf);
         if (page.skipIf)
             return checkConditions(page.skipIf, false);
         return false;
@@ -857,8 +829,6 @@ function ROADS(o) {
 
     function findFirstPage(item, fromEnd) {
 
-        console.log('findFirstPage:', item, fromEnd);
-    
         if (item.type === 'group') {
             var total = item.pages.length;
 
@@ -904,21 +874,15 @@ function ROADS(o) {
     function findNextPage(current) {
         var ret = null;
 
-        console.log('findNextPage from', current);
-
         while (current !== null) {
             while (current !== null && current.next === null)
                 current = current.parent;
-
-            console.log('[1]', current);
 
             if (current === null)
                 break;
 
             while (current.next !== null) {
                 current = current.next;
-
-                console.log('[2]', current);
 
                 if (checkSkipConditions(current))
                     logQuestionsAsSkipped(current);
@@ -953,8 +917,6 @@ function ROADS(o) {
 
     function findPreviousPage(current) {
         var ret = null;
-
-        console.log('findPreviousPage from', current);
 
         while (current !== null) {
             while (current !== null && current.prev === null)
@@ -1007,7 +969,6 @@ function ROADS(o) {
     }
 
     function applyTypesToExtraParams() {
-        console.log('extra:', param.extra, 'instrument:', param.instrument);
         var paramDefs = param.instrument.params;
         for (var paramName in param.extra) {
         
@@ -1069,8 +1030,6 @@ function ROADS(o) {
     function stepNextPage(isForward) {
         var pages = param.instrument.pages;
         var nextPage = null;
-
-        console.log('stepNextPage', isForward);
 
         if (questions.find('.rc-error:first').size()) {
             alert('Please correct wrong answers');
@@ -1173,7 +1132,6 @@ function ROADS(o) {
     initialScreenClasses = screen.attr('class') || '';
 
     var totalPages = makeConnectionsAndOrds(null, 0);
-    console.log('total pages = ', totalPages);
     stepNextPage(true);
 }
 

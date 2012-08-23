@@ -29,8 +29,16 @@ NumberDomain.prototype = new Domain();
 NumberDomain.prototype.constructor = Domain;
 
 domain = {
-    'number': new NumberDomain(),
-    'string': new StringDomain()
+    all: {
+        'integer': NumberDomain,
+        'float': NumberDomain,
+        'string': StringDomain
+    },
+
+    get: function(type, options) {
+        var cls = this.all[type];
+        return new cls(options);
+    } 
 };
 
 // }}}
@@ -170,30 +178,38 @@ Survey = function(config, data) {
     });
 
     // bind the change event on each question
-    $.each(this.change, function(key, value) {
+    $.each(this.change, function(key, list) {
         $(self.questions[key]).bind('change', function() {
-            var result = self.calculate(value),
-                methodKey = result ? 'ifTrue':'ifFalse';
+            $.each(list, function(_, value) {
+                var result = self.calculate(value.expr),
+                    methodKey = result ? 'ifTrue':'ifFalse';
 
-            // apply needed method to needed entity
-            $.each(value.actions, function(_, action) {
-                var method = action[methodKey];
-                action.obj[method]();
+                // apply needed method to needed entity
+                $.each(value.actions, function(_, action) {
+                    var method = action[methodKey];
+                    action.obj[method]();
+                });
             });
         });
     });
 
-    // finally trigger 'change' event on each question
-    $.each(this.change, function(key) {
-        $(self.questions[key]).trigger('change');
+    console.debug(this.change);
+
+    setTimeout(function() {
+        // finally trigger 'change' event on each question
+        $.each(self.change, function(key) {
+            $(self.questions[key]).trigger('change');
+        });
     });
 };
 
 Survey.prototype.calculate = function(expr) {
     var self = this;
+    console.debug(expr);
     return expr.evaluate(function(name) {
-        if(self.hasParam(name[0]))
-            return self.getRexlParamValue(name[0]);
+        // TODO: add params handling
+        //if(self.hasParam(name[0]))
+        //    return self.getRexlParamValue(name[0]);
         var question = self.questions[name[0]];
         if(!question)
             alert("Something very wrong here");
@@ -252,11 +268,18 @@ Question.prototype.setValue = function(value) {
     this.value = value;
     this.update();
 
-    // TODO: trigger change
+    $(this).trigger('change');
 };
 
 Question.prototype.getValue = function() {
-    return this.value;
+    return this.value || null;
+};
+
+Question.prototype.getRexlValue = function(name) {
+    if(this.domain instanceof NumberDomain)
+        return rexl.Number.value(this.value);
+    if(this.domain instanceof StringDomain)
+        return rexl.String.value(this.value);
 };
 
 Question.prototype.disable = function() {
@@ -279,14 +302,14 @@ Question.prototype.validate = function() {
     this.update();
 };
 
-$.fn.RexFormsClient = function (o) {
-    var self = this;
-
+$.RexFormsClient = function (o) {
     if (!o || !o.config) {
         // TODO: throw an exception
     }
 
-    self.survey = new Survey(o.config, o.data || null);
+    var survey = new Survey(o.config, o.data || null);
+    var client = new Client(o.element, survey);
+    return client;
 }
 
 })(jQuery);

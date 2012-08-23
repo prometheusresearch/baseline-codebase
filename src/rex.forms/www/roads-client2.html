@@ -2,6 +2,7 @@
     <head>
         <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
         <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/js/roads-client2.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/rexl/rexl.js"></script>
         <script type="text/javascript">
         var instrumentJSON = {
             "pages": [
@@ -20,7 +21,7 @@
                         },
                         {
                             "questionType": "string",
-                            "name": "your_name",
+                            "name": "name",
                             "title": "Your name",
                             "isMandatory": false,
                             "disableIf": "age >= 18",
@@ -47,8 +48,9 @@
         };
 
         $(document).ready(function () {
-            var rexFormsClient = $('#survey').RexFormsClient({
-                config: instrumentJSON
+            window.rexFormsClient = $.RexFormsClient({
+                config: instrumentJSON,
+                element: $('#survey')[0]
             });
         });
 

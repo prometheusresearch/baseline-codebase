@@ -1,5 +1,16 @@
 (function($) {
 
+function getRandomStr(len) {
+    var text = "";
+    var possible =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for(var i = 0; i < len; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+
 // {{{ domains
 Domain = function(name) {
     this.name = name;
@@ -28,6 +39,28 @@ NumberDomain.prototype.render = function() {
 NumberDomain.prototype = new Domain();
 NumberDomain.prototype.constructor = Domain;
 
+
+EnumDomain = function (variants) {
+    Domain.call(this, 'enum');
+    this.variants = variants;
+};
+EnumDomain.prototype.render = function () {
+    var html = '';
+    var randName = getRandomStr(10);
+    // TODO: check for uniqueness of randName
+    $(this.variants, function (_, variant) {
+        // TODO: do escaping 
+        html += '<label>'
+                + '<input type="radio" name="' + randName + '" ' 
+                                    + 'value="' + variant.code + '">'
+                                    + variant.title 
+                + '</label>';
+    });
+    return $(html);
+};
+EnumDomain.prototype = new Domain();
+EnumDomain.prototype.constructor = Domain;
+
 domain = {
     all: {
         'integer': NumberDomain,
@@ -38,7 +71,7 @@ domain = {
     get: function(type, options) {
         var cls = this.all[type];
         return new cls(options);
-    } 
+    }
 };
 
 // }}}
@@ -72,6 +105,8 @@ Client.prototype.finish = function() {
 
 };
 
+
+
 Survey = function(config, data) {
     var self = this;
 
@@ -92,11 +127,15 @@ Survey = function(config, data) {
                 var parts = $.grep([skipExpr, item.skipIf], function(item) {
                     return item;
                 });
+                
+                var newSkipExpr;
 
-                var newSkipExpr = parts.length == 0 ? '':
-                      parts.length == 1 ? parts[0]:
-                      '(' + parts[0] + ')|(' + parts[1] + ')';
-
+                if (0 == parts.length)
+                    newSkipExpr = '';
+                else if (1 == parts.length)
+                    newSkipExpr = parts[0];
+                else
+                    newSkipExpr = '(' + parts[0] + ')|(' + parts[1] + ')';
                     
                 group(item.pages, newSkipExpr); 
             }
@@ -232,6 +271,8 @@ Page.prototype.skip = function() {
 Page.prototype.unskip = function() {
     this.skipped = false;
 };
+
+
 
 Question = function(name, title, domain, disableExpr, validateExpr) {
     this.name = name;

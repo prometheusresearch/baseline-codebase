@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/js/roads-client2.js"></script>
+        <script type="text/javascript">
+        var instrumentJSON = {
+            "pages": [
+                {
+                    "type": "page",
+                    "cId": "page_29kRRTaBu0",
+                    "skipIf": "",
+                    "questions": [
+                        {
+                            "questionType": "integer",
+                            "name": "age",
+                            "title": "Your age",
+                            "disableIf": "",
+                            "isMandatory": false,
+                            "constraints": ""
+                        },
+                        {
+                            "questionType": "string",
+                            "name": "your_name",
+                            "title": "Your name",
+                            "isMandatory": false,
+                            "disableIf": "age >= 18",
+                            "constraints": ""
+                        }
+                    ]
+                },
+                {
+                    "type": "page",
+                    "cId": "page_SXA8aklJdD",
+                    "skipIf": "age<18 | name='Andrew'",
+                    "questions": [
+                        {
+                            "questionType": "string",
+                            "name": "how_are_things",
+                            "title": "How are you doing?",
+                            "isMandatory": false,
+                            "constraints": ""
+                        }
+                    ]
+                },
+            ],
+            "params": []
+        };
+
+        $(document).ready(function () {
+            var rexFormsClient = $('#survey').RexFormsClient({
+                config: instrumentJSON
+            });
+        });
+
+        </script>
+    </head>
+    <body>
+        <div id="survey"></div>
+    </body>
+</html>

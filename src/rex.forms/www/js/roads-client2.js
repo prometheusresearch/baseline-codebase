@@ -1,6 +1,5 @@
 (function($) {
 
-
 // {{{ domains
 Domain = function(name) {
     this.name = name;
@@ -65,8 +64,7 @@ Client.prototype.finish = function() {
 
 };
 
-
-Survey = function(config, data, paramDomains, paramValues) {
+Survey = function(config, data) {
     var self = this;
 
     // TODO: build flat list of Page objects here 
@@ -81,7 +79,7 @@ Survey = function(config, data, paramDomains, paramValues) {
     
     function group(list, skipExpr) {
         skipExpr = skipExpr || '';
-        $.each(list, function(item) {
+        $.each(list, function(_, item) {
             if(item.type == 'group') {
                 var parts = $.grep([skipExpr, item.skipIf], function(item) {
                     return item;
@@ -102,7 +100,7 @@ Survey = function(config, data, paramDomains, paramValues) {
     function page(item) {
         var questions = $.map(item.questions, function(question) {
             var question = new Question(question.name, 
-                                        question.title 
+                                        question.title,
                                         domain.get(question.questionType),
                                         question.disableIf || null,
                                         question.constraints || null
@@ -126,13 +124,13 @@ Survey = function(config, data, paramDomains, paramValues) {
     // as following
     // expr['a=1'].push({obj: page, ifTrue: 'skip', ifFalse: 'unskip'})
     // expr['a=1'].push({obj: question, ifTrue: 'disable', ifFalse: 'enable'})
-    $.each(this.pages, function(page) {
+    $.each(this.pages, function(_, page) {
         if(page.skipExpr) {
             e = expr[page.skipExpr] = expr[page.skipExpr] || [];
             e.push({
                 obj: page,
                 ifTrue: 'skip',
-                ifFalse: 'unskip' 
+                ifFalse: 'unskip'
             });
         }
     });
@@ -143,7 +141,7 @@ Survey = function(config, data, paramDomains, paramValues) {
             e.push({
                 obj: question,
                 ifTrue: 'disable',
-                ifFalse: 'enable' 
+                ifFalse: 'enable'
             });
         }
 
@@ -152,7 +150,7 @@ Survey = function(config, data, paramDomains, paramValues) {
             e.push({
                 obj: question,
                 ifTrue: 'validate',
-                ifFalse: 'invalidate' 
+                ifFalse: 'invalidate'
             });
         }
     });
@@ -161,7 +159,7 @@ Survey = function(config, data, paramDomains, paramValues) {
     this.change = {};
     $.each(expr, function(expr, actions) {
         var parsed = rexl.parse(expr);
-        $.each(parsed.getNames(), function(name) {
+        $.each(parsed.getNames(), function(_, name) {
             name = name[0];
             self.change[name] = self.change[name] || [];
             self.change[name].push({
@@ -178,7 +176,7 @@ Survey = function(config, data, paramDomains, paramValues) {
                 methodKey = result ? 'ifTrue':'ifFalse';
 
             // apply needed method to needed entity
-            $.each(value.actions, function(action) {
+            $.each(value.actions, function(_, action) {
                 var method = action[methodKey];
                 action.obj[method]();
             });
@@ -253,6 +251,8 @@ Question.prototype.update = function() {
 Question.prototype.setValue = function(value) {
     this.value = value;
     this.update();
+
+    // TODO: trigger change
 };
 
 Question.prototype.getValue = function() {
@@ -279,6 +279,15 @@ Question.prototype.validate = function() {
     this.update();
 };
 
+$.fn.RexFormsClient = function (o) {
+    var self = this;
+
+    if (!o || !o.config) {
+        // TODO: throw an exception
+    }
+
+    self.survey = new Survey(o.config, o.data || null);
+}
 
 })(jQuery);
 

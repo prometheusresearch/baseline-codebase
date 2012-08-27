@@ -12,7 +12,7 @@ function getRandomStr(len) {
 }
 
 // {{{ domains
-Domain = function(name) {
+var Domain = function(name) {
     this.name = name;
 };
 
@@ -20,7 +20,7 @@ Domain.prototype.render = function() {
     alert('Implement in subclasses');
 };
 
-StringDomain = function() {
+var StringDomain = function() {
     Domain.call(this, 'string');
 };
 StringDomain.prototype.render = function() {
@@ -29,7 +29,7 @@ StringDomain.prototype.render = function() {
 StringDomain.prototype = new Domain();
 StringDomain.prototype.constructor = Domain;
 
-NumberDomain = function() {
+var NumberDomain = function() {
     Domain.call(this, 'number');
 };
 NumberDomain.prototype.render = function() {
@@ -40,7 +40,7 @@ NumberDomain.prototype = new Domain();
 NumberDomain.prototype.constructor = Domain;
 
 
-EnumDomain = function (variants) {
+var EnumDomain = function (variants) {
     Domain.call(this, 'enum');
     this.variants = variants;
 };
@@ -61,7 +61,7 @@ EnumDomain.prototype.render = function () {
 EnumDomain.prototype = new Domain();
 EnumDomain.prototype.constructor = Domain;
 
-domain = {
+var domain = {
     all: {
         'integer': NumberDomain,
         'float': NumberDomain,
@@ -77,7 +77,7 @@ domain = {
 // }}}
 
 
-Client = function(element, survey, saveUrl, finishCallback) {
+var Client = function(element, survey, saveUrl, finishCallback) {
     this.element = element;
     this.survey = survey;
     this.saveUrl = saveUrl;
@@ -107,7 +107,7 @@ Client.prototype.finish = function() {
 
 
 
-Survey = function(config, data) {
+var Survey = function(config, data) {
     var self = this;
 
     // TODO: build flat list of Page objects here 
@@ -166,6 +166,9 @@ Survey = function(config, data) {
     group(config.pages);
 
 
+    // TODO: set initial values for questions
+
+
     var expr = {};
     // loop through all pages and questions and extract rexl expressions
     // as following
@@ -173,7 +176,7 @@ Survey = function(config, data) {
     // expr['a=1'].push({obj: question, ifTrue: 'disable', ifFalse: 'enable'})
     $.each(this.pages, function(_, page) {
         if(page.skipExpr) {
-            e = expr[page.skipExpr] = expr[page.skipExpr] || [];
+            var e = expr[page.skipExpr] = expr[page.skipExpr] || [];
             e.push({
                 obj: page,
                 ifTrue: 'skip',
@@ -184,7 +187,7 @@ Survey = function(config, data) {
 
     $.each(this.questions, function(_, question) {
         if(question.disableExpr) {
-            e = expr[question.disableExpr] = expr[question.disableExpr] || [];
+            var e = expr[question.disableExpr] = expr[question.disableExpr] || [];
             e.push({
                 obj: question,
                 ifTrue: 'disable',
@@ -193,7 +196,7 @@ Survey = function(config, data) {
         }
 
         if(question.validateExpr) {
-            e = expr[question.validateExpr] = expr[question.validateExpr] || [];
+            var e = expr[question.validateExpr] = expr[question.validateExpr] || [];
             e.push({
                 obj: question,
                 ifTrue: 'validate',
@@ -216,9 +219,15 @@ Survey = function(config, data) {
         });
     });
 
+};
+
+Survey.prototype.initState = function() {
+    var self = this;
+
     // bind the change event on each question
+    // and calculate the initial survey state
     $.each(this.change, function(key, list) {
-        $(self.questions[key]).bind('change', function() {
+        function changeQuestion() {
             $.each(list, function(_, value) {
                 var result = self.calculate(value.expr),
                     methodKey = result ? 'ifTrue':'ifFalse';
@@ -229,22 +238,14 @@ Survey = function(config, data) {
                     action.obj[method]();
                 });
             });
-        });
-    });
-
-    console.debug(this.change);
-
-    setTimeout(function() {
-        // finally trigger 'change' event on each question
-        $.each(self.change, function(key) {
-            $(self.questions[key]).trigger('change');
-        });
+        }
+        changeQuestion();
+        $(self.questions[key]).bind('change', changeQuestion);
     });
 };
 
 Survey.prototype.calculate = function(expr) {
     var self = this;
-    console.debug(expr);
     return expr.evaluate(function(name) {
         // TODO: add params handling
         //if(self.hasParam(name[0]))
@@ -257,8 +258,7 @@ Survey.prototype.calculate = function(expr) {
 };
 
 
-
-Page = function(questions, skipExpr) {
+var Page = function(questions, skipExpr) {
     var self = this;
     this.questions = questions;
     this.skipExpr = skipExpr;
@@ -274,7 +274,7 @@ Page.prototype.unskip = function() {
 
 
 
-Question = function(name, title, domain, disableExpr, validateExpr) {
+var Question = function(name, title, domain, disableExpr, validateExpr) {
     this.name = name;
     this.title = title;
     this.domain = domain;
@@ -348,7 +348,8 @@ $.RexFormsClient = function (o) {
         // TODO: throw an exception
     }
 
-    var survey = new Survey(o.config, o.data || null);
+    var survey = new Survey(o.config, o.data || {});
+    survey.initState();
     var client = new Client(o.element, survey);
     return client;
 }

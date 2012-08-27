@@ -12,6 +12,50 @@
                     "skipIf": "",
                     "questions": [
                         {
+                            "questionType": "enum",
+                            "name": "difficulty_eye_contact",
+                            "title": "Difficulty making eye contact?",
+                            "isMandatory": false,
+                            "disableIf": "",
+                            "answers": [
+                                {
+                                    "code": "never",
+                                    "title": "Never"
+                                },
+                                {
+                                    "code": "sometimes",
+                                    "title": "Sometimes"
+                                },
+                                {
+                                    "code": "often",
+                                    "title": "Often"
+                                }
+                            ],
+                            "constraints": ""
+                        },
+                        {
+                            "questionType": "set",
+                            "name": "test_set_question",
+                            "title": "Test set function",
+                            "isMandatory": false,
+                            "disableIf": "",
+                            "answers": [
+                                {
+                                    "code": "apple",
+                                    "title": "Apple"
+                                },
+                                {
+                                    "code": "pear",
+                                    "title": "Pear"
+                                },
+                                {
+                                    "code": "banana",
+                                    "title": "Banana"
+                                }
+                            ],
+                            "constraints": ""
+                        },
+                        {
                             "questionType": "integer",
                             "name": "age",
                             "title": "Your age",
@@ -47,16 +91,27 @@
             "params": []
         };
 
+        var rexFormsClient;
         $(document).ready(function () {
-            window.rexFormsClient = $.RexFormsClient({
-                config: instrumentJSON,
-                element: $('#survey')[0]
+            rexFormsClient = new $.RexFormsClient({
+                instrumentName: 'test',
+                instrumentData: instrumentJSON,
+                saveURL: '/save_instrument',
+                surveyArea: '#survey',
+                questionArea: '#questions',
+                btnPrev: '#btnPrev',
+                btnNext: '#btnNext',
             });
         });
 
         </script>
     </head>
     <body>
-        <div id="survey"></div>
+        <div id="survey">
+            <div id="questions">
+            </div>
+            <button id="btnPrev">Previous Page</button>
+            <button id="btnNext">Next Page</button>
+        </div>
     </body>
 </html>

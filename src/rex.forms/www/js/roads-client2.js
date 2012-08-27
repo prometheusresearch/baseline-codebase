@@ -1,5 +1,6 @@
 (function($) {
 
+// {{{ helper functions
 function getRandomStr(len) {
     var text = "";
     var possible =
@@ -11,6 +12,24 @@ function getRandomStr(len) {
     return text;
 }
 
+function extend(Child, Parent) {
+    var F = function() { };
+    F.prototype = Parent.prototype;
+    Child.prototype = new F();
+    Child.prototype.constructor = Child;
+    Child.superclass = Parent.prototype;
+}
+
+function isValidNumeric(val, condType) {
+    return (
+        (condType === 'integer' 
+            && /^[0-9]+$/.test(val)) ||
+        (condType === 'float' 
+            && /^([+-]?(((\d+(\.)?)|(\d*\.\d+))([eE][+-]?\d+)?))$/.test(val))
+    );
+}
+// }}}
+
 // {{{ domains
 var Domain = function(name) {
     this.name = name;
@@ -19,93 +38,125 @@ var Domain = function(name) {
 Domain.prototype.render = function() {
     alert('Implement in subclasses');
 };
+Domain.prototype.extractValue = function (node) {
+    alert('Implement in subclasses');
+};
+
 
 var StringDomain = function() {
     Domain.call(this, 'string');
 };
-StringDomain.prototype.render = function() {
+extend(StringDomain, Domain);
+StringDomain.prototype.render = function () {
     return $('<textarea></textarea>');
 };
-StringDomain.prototype = new Domain();
-StringDomain.prototype.constructor = Domain;
+StringDomain.prototype.extractValue = function (node) {
+    return $.trim( node.find('textarea').val() ) || null;
+}
+
 
 var NumberDomain = function() {
     Domain.call(this, 'number');
 };
+extend(NumberDomain, Domain);
 NumberDomain.prototype.render = function() {
-    //TODO: validate numbers
     return $('<input type="text">');
 };
-NumberDomain.prototype = new Domain();
-NumberDomain.prototype.constructor = Domain;
+NumberDomain.prototype.extractValue = function (node) {
+    var rawValue = node.find('input[type="text"]').val();
+    var value = $.trim( rawValue ) || null;
+
+    if (value !== null) {
+        if (isValidNumeric(value, 'float'))
+            value = parseFloat(value);
+        else
+            throw("InvalidNumeric");
+    }
+    return value;
+}
 
 
 var EnumDomain = function (variants) {
     Domain.call(this, 'enum');
     this.variants = variants;
 };
+extend(EnumDomain, Domain);
 EnumDomain.prototype.render = function () {
-    var html = '';
+    var ret = $();
     var randName = getRandomStr(10);
+
     // TODO: check for uniqueness of randName
-    $(this.variants, function (_, variant) {
-        // TODO: do escaping 
-        html += '<label>'
-                + '<input type="radio" name="' + randName + '" ' 
-                                    + 'value="' + variant.code + '">'
-                                    + variant.title 
-                + '</label>';
+    $.each(this.variants, function (_, variant) {
+        var label = $('<label>').text(variant.title);
+        label.prepend( 
+            $('<input type="radio">')
+                .attr('name', randName)
+                .attr('value', variant.code)
+        );
+        ret = ret.add(label);
     });
-    return $(html);
+    return ret;
 };
-EnumDomain.prototype = new Domain();
-EnumDomain.prototype.constructor = Domain;
+EnumDomain.prototype.extractValue = function (node) {
+    var input = node.find('input[type="radio"]:checked');
+    if (input.size())
+        return input.value();
+    return null;
+}
+
+
+var SetDomain = function (variants) {
+    Domain.call(this, 'set');
+    this.variants = variants;
+};
+extend(SetDomain, Domain);
+SetDomain.prototype.render = function () {
+    var ret = $();
+    $.each(this.variants, function (_, variant) {
+        var label = $('<label>').text(variant.title);
+        label.prepend(
+            $('<input type="checkbox">')
+                .attr('value', variant.code)
+        );
+        ret = ret.add(label);
+    });
+    return ret;
+};
+SetDomain.prototype.extractValue = function (node) {
+    var inputs = node.find('input[type="checkbox"]:checked');
+    var values = [];
+    inputs.each(function (_, input) {
+        values.push( $(input).val() );
+    });
+    return values.length ? values : null;
+}
+
 
 var domain = {
     all: {
         'integer': NumberDomain,
         'float': NumberDomain,
-        'string': StringDomain
+        'string': StringDomain,
+        'enum': EnumDomain,
+        'set': SetDomain
     },
 
     get: function(type, options) {
         var cls = this.all[type];
         return new cls(options);
+    },
+
+    getFromDef: function(def) {
+        if (def.questionType === "enum" ||
+            def.questionType === "set") {
+
+            return this.get(def.questionType, def.answers);
+        }
+
+        return this.get(def.questionType);
     }
 };
-
 // }}}
-
-
-var Client = function(element, survey, saveUrl, finishCallback) {
-    this.element = element;
-    this.survey = survey;
-    this.saveUrl = saveUrl;
-    this.finishCallback = finishCallback;
-    this.currentPage = -1;
-};
-
-Client.prototype.renderProgressBar = function() {
-
-};
-
-Client.prototype.nextPage = function() {
-     
-};
-
-Client.prototype.prevPage = function() {
-    
-};
-
-Client.prototype.save = function() {
-
-};
-
-Client.prototype.finish = function() {
-
-};
-
-
 
 var Survey = function(config, data) {
     var self = this;
@@ -117,6 +168,13 @@ var Survey = function(config, data) {
     // use += '<higher-level skip logic>' | (!<higher-level skip logic>) & own-skip-logic
     // while building pages list
     // loop through its questions on the each page and to this.questions[id] = question
+
+    this.finished = false;
+
+    this.finish = function () {
+        self.finished = true;
+    }
+
     this.pages = [];
     this.questions = {};
     
@@ -146,9 +204,9 @@ var Survey = function(config, data) {
 
     function page(item) {
         var questions = $.map(item.questions, function(question) {
-            var question = new Question(question.name, 
+            var question = new Question(question.name,
                                         question.title,
-                                        domain.get(question.questionType),
+                                        domain.getFromDef(question),
                                         question.disableIf || null,
                                         question.constraints || null
                                        );
@@ -273,7 +331,6 @@ Page.prototype.unskip = function() {
 };
 
 
-
 var Question = function(name, title, domain, disableExpr, validateExpr) {
     this.name = name;
     this.title = title;
@@ -284,12 +341,14 @@ var Question = function(name, title, domain, disableExpr, validateExpr) {
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 
-Question.prototype.edit = function() {
-    if(!this.node) {
-        var node = $('<div/>');
-        $('<div>').text(title).appendTo(node);
-        node.append(domain.render());
-        this.node = node;
+Question.prototype.edit = function(template) {
+    if (!this.node) {
+        var node = template.clone();
+        node.find('.rf-question-title')
+                .text(this.title)
+        node.find('.rf-question-answers')
+                .append(this.domain.render());
+        this.node = node;        
         this.update();
     }
     return this.node;
@@ -343,15 +402,178 @@ Question.prototype.validate = function() {
     this.update();
 };
 
+var defaultTemplates = {
+    'progressBar':
+          '<div class="survey-progress-bar-fill-wrap">' 
+            + '<div class="rc-progress-bar-fill"></div>' 
+            + '<span class="rc-progress-bar-pct">30%</span>'
+        + '</div>',
+    'btnAddRepGroup':
+        '<button class="roads-add-rep-group">Add group of answers</button>',
+    'btnClear':
+        '<button class="btn-clear-answers">Clear</button>',
+    'question':
+          '<div class="rf-question">'
+            + '<div class="rf-question-title"></div>'
+            + '<div class="rf-question-answers"></div>'
+        + '</div>'
+};
+
 $.RexFormsClient = function (o) {
-    if (!o || !o.config) {
-        // TODO: throw an exception
+    var self = this;
+
+    if (!o)
+        throw("RexFormsClient got no parameters");
+
+    var mandatoryParams = [
+        'instrumentData',
+        'instrumentName',
+        'saveURL'
+    ];
+
+    $.each(mandatoryParams, function (_, paramName) {
+        if (!o[paramName])
+            throw("Mandatory parameter '" + paramName + "' is not set");
+    });
+
+    // creating mandatory survey elements
+    function createSurveyElement (elemName, target) {
+        self[elemName] = $( target );
+        if (self[elemName].size() == 0)
+            throw("Couldn't create mandatory element '" + elemName + "'" );
     }
 
-    var survey = new Survey(o.config, o.data || {});
-    survey.initState();
-    var client = new Client(o.element, survey);
-    return client;
+    createSurveyElement( 'surveyArea', o.surveyArea || '#rf_survey_area' );
+    createSurveyElement( 'questionArea', o.questionArea || '#rf_question_area' );
+    createSurveyElement( 'btnNext', o.btnNext || '#rf_button_next' );
+    createSurveyElement( 'btnPrev', o.btnPrev || '#rf_button_prev' );
+
+    this.btnNext.click(function () {
+        self.nextPage();
+    });
+    this.btnPrev.click(function () {
+        self.prevPage();
+    });
+
+    // building template objects
+    var templates = this.templates = {};
+    $.each(defaultTemplates, function (key, value) {
+        var target;
+        if (o.templates && o.templates[key])
+            target = o.templates[key];
+        else
+            target = defaultTemplates[key];
+        templates[key] = $( target );
+    });
+
+    // creating optional survey elements
+    var progressBar = null;
+    var progressBarArea = $( o.progressBarArea ) || null;
+    if (progressBarArea) {
+        progressBar = this.templates['progressBar'];
+        progressBar.appendTo(progressBarArea);
+    }
+    this.progressBar = progressBar;
+
+    this.saveURL = o.saveURL;
+    this.finishCallback = o.finishCallback || null;
+    this.events = o.events || {};
+    this.survey = new Survey(o.instrumentData, o.instrumentState || {});
+    this.survey.initState();
+    this.currentPageIdx = -1;
+
+    var validateAndGo = function (step) {
+        if (self.survey.finished)
+            return;
+
+        // TODO: do validation
+
+        var idx = self.currentPageIdx + step;
+        var pages = self.survey.pages;
+        var total = pages.length;
+
+        while (idx >= 0 && idx < total) {
+            if (!pages[idx].skipped) {
+                self.renderPage(idx);
+                return;
+            }
+
+            self.raiseEvent('skipPage', idx);
+            idx += step;
+        }
+        if (step > 0)
+            self.finish();
+    };
+
+    this.clearQuestions = function () {
+        self.questionArea.children().detach();
+    }
+
+    this.renderPage = function (pageIdx) {
+
+        if (!self.raiseEvent('pageRendering', pageIdx)) {
+            // stop rendering if aborted
+            return;
+        }
+
+        self.currentPageIdx = pageIdx;
+        self.clearQuestions();
+        var page = self.survey.pages[pageIdx];
+
+        $.each(page.questions, function (_, question) {
+            console.log('question', question);
+            self.questionArea.append(
+                question.edit( self.templates['question'] )
+            );
+        });
+
+        self.raiseEvent('pageRendered', pageIdx);
+    };
+
+    this.raiseEvent = function(eventName, eventData) {
+        console.debug("event '" + eventName + "' (", eventData, ")" );
+        if (self.events[eventName])
+            return this.events[eventName](eventData);
+        return true;
+    };
+
+    this.nextPage = function() {
+        validateAndGo(1);
+    };
+
+    this.prevPage = function() {
+        validateAndGo(-1);
+    };
+
+    this.save = function() {
+        if (!self.raiseEvent('saving')) {
+            // stop if aborted
+            return;
+        }
+
+        // TODO
+
+        self.raiseEvent('saved');
+    };
+
+    this.finish = function() {
+        if (!self.raiseEvent('finishing')) {
+            // stop if aborted
+            return;
+        }
+
+        self.survey.finish();
+
+        // TODO
+
+        self.raiseEvent('finished');
+    };
+
+    this.renderProgressBar = function() {
+        // TODO
+    };
+
+    this.nextPage();
 }
 
 })(jQuery);

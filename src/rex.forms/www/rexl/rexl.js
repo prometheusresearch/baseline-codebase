@@ -330,7 +330,7 @@ rexl.Node.prototype.isOperation = function() {
 rexl.Node.prototype.getNames = function() {
     var dict = {};
     this._getNames(dict);
-    ret = [];
+    var ret = [];
     for(var key in dict) {
         ret.push(dict[key]);
     }
@@ -499,6 +499,7 @@ rexl._parse_power = function(tokens) {
  *       ('[' test ']' | '(' args? ')' | '.' identifier )*?
  */
 rexl._parse_atom = function(tokens) {
+    var literal, symbol;
 	if(literal = rexl._check(tokens, ['UNQUOTED_LITERAL', 'QUOTED_LITERAL', 'NUMERIC_LITERAL'])) {
 		var _parent = new rexl.Node(literal.name, literal.value, literal.start, literal.end);
 	}
@@ -744,7 +745,7 @@ rexl.EvalBase.prototype.ident = function(id) {
 }
 
 rexl.EvalBase.prototype.argList = function(args) {
-	ret = [];
+	var ret = [];
 	for(var i = 1, l = args.length; i < l; i++)
 		ret.push(args[i]);
 	return ret;

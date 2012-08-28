@@ -22,11 +22,15 @@ function extend(Child, Parent) {
 
 function isValidNumeric(val, condType) {
     return (
-        (condType === 'integer' 
+        (condType === 'integer'
             && /^[0-9]+$/.test(val)) ||
-        (condType === 'float' 
+        (condType === 'float'
             && /^([+-]?(((\d+(\.)?)|(\d*\.\d+))([eE][+-]?\d+)?))$/.test(val))
     );
+}
+
+function toType(obj) {
+    return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 }
 // }}}
 
@@ -38,6 +42,9 @@ var Domain = function(name) {
 Domain.prototype.render = function() {
     alert('Implement in subclasses');
 };
+Domain.prototype.setValue = function (node, value) {
+    alert('Implement in subclasses');
+};
 Domain.prototype.extractValue = function (node) {
     alert('Implement in subclasses');
 };
@@ -47,60 +54,142 @@ var StringDomain = function() {
     Domain.call(this, 'string');
 };
 extend(StringDomain, Domain);
-StringDomain.prototype.render = function () {
-    return $('<textarea></textarea>');
+StringDomain.prototype.render = function (value, onChange) {
+    var textarea = $('<textarea></textarea>');
+
+    if (onChange) {
+        textarea.focusin(function () {
+            this.initialValue = $(this).val();
+        });
+        textarea.focusout(function () {
+            var value = $(this).val();
+            if (value !== this.initialValue)
+                onChange();
+        });
+    }
+
+    this.setValue(textarea, value);
+    return textarea;
 };
+StringDomain.prototype.setValue = function (node, value) {
+    node.val( (value !== null && value !== undefined) ? value : '' );
+}
 StringDomain.prototype.extractValue = function (node) {
-    return $.trim( node.find('textarea').val() ) || null;
+    return $.trim( node.val() ) || null;
 }
 
+/*
+var RecordListDomain = function(recordDef) {
+    Domain.call(this, 'recordList');
+    var self = this;
+    this.columns = [];
+    $.each(recordDef, function (_, questionDef) {
+        self.columns.push( self.domain.getFromDef(questionDef) );
+    });
+}
+extend(RecordListDomain, Domain);
+RecordListDomain.prototype.renderRecord = function (recordValue, onChange) {
+    var record = $('<div>').addClass('rf-record');
+    $.each(this.columns, function (i, columnDomain) {
+        record.append( columnDomain.render(recordValue[i]), onChange );
+    });
+    return record;
+}
+RecordListDomain.prototype.render = function (value, onChange) {
+    var recordList = $('<div>').addClass('rf-record-list');
+    var thisDomain = this;
+    $.each(value, function (_, recordValue) {
+        thisDomain.renderRecord(recordValue);
+        recordList.append( thisDomain.renderRecord(recordValue) );
+    });
+    return recordList;
+};
+RecordListDomain.prototype.extractValue = function (node) {
+    var ret = [];
+    var thisDomain = this;
+    node.children('rf-record').each(function (i, recordNode) {
+        ret[i] = [];
+        $(recordNode).children().each(function (_, cellNode) {
+            var jCellNode = $(cellNode);
+            thisDomain.columns[i].extractValue(jCellNode);
+        });
+    });
+    return ret;
+}
+*/
 
-var NumberDomain = function() {
+var NumberDomain = function(isFloat) {
     Domain.call(this, 'number');
+    this.isFloat = isFloat;
 };
 extend(NumberDomain, Domain);
-NumberDomain.prototype.render = function() {
-    return $('<input type="text">');
+NumberDomain.prototype.render = function (value, onChange) {
+    var input = $('<input type="text">');
+    this.setValue(input, value);
+
+    if (onChange)
+        input.change(onChange);
+
+    return input;
 };
+NumberDomain.prototype.setValue = function (node, value) {
+    node.val( (value !== null && value !== undefined) ? value : '' );
+}
 NumberDomain.prototype.extractValue = function (node) {
-    var rawValue = node.find('input[type="text"]').val();
-    var value = $.trim( rawValue ) || null;
+    var value = $.trim( node.val() ) || null;
 
     if (value !== null) {
-        if (isValidNumeric(value, 'float'))
+        if (this.isFloat && isValidNumeric(value, 'float'))
             value = parseFloat(value);
+        else if (!this.isFloat && isValidNumeric(value, 'integer'))
+            value = parseInt(value);
         else
             throw("InvalidNumeric");
     }
+
     return value;
 }
-
 
 var EnumDomain = function (variants) {
     Domain.call(this, 'enum');
     this.variants = variants;
 };
 extend(EnumDomain, Domain);
-EnumDomain.prototype.render = function () {
+EnumDomain.prototype.render = function (value, onChange) {
     var ret = $();
     var randName = getRandomStr(10);
+    var thisDomain = this;
 
     // TODO: check for uniqueness of randName
     $.each(this.variants, function (_, variant) {
         var label = $('<label>').text(variant.title);
-        label.prepend( 
+
+        var input =
             $('<input type="radio">')
                 .attr('name', randName)
                 .attr('value', variant.code)
-        );
+                .change(onChange); 
+
+        label.prepend(input);
         ret = ret.add(label);
     });
+
+    this.setValue(ret, value);
     return ret;
 };
+EnumDomain.prototype.setValue = function (node, value) {
+    node.find('input[type="radio"]').each(function (idx, element) {
+        var input = $(element);
+        if (input.val() === value)
+            input.attr('checked', 'checked');
+        else
+            input.removeAttr('checked');
+    });
+}
 EnumDomain.prototype.extractValue = function (node) {
     var input = node.find('input[type="radio"]:checked');
     if (input.size())
-        return input.value();
+        return input.val();
     return null;
 }
 
@@ -110,25 +199,41 @@ var SetDomain = function (variants) {
     this.variants = variants;
 };
 extend(SetDomain, Domain);
-SetDomain.prototype.render = function () {
+SetDomain.prototype.render = function (value, onChange) {
     var ret = $();
+    var thisDomain = this;
+
     $.each(this.variants, function (_, variant) {
         var label = $('<label>').text(variant.title);
         label.prepend(
             $('<input type="checkbox">')
                 .attr('value', variant.code)
+                .change(onChange)
         );
         ret = ret.add(label);
     });
+
+    this.setValue(ret, value);
     return ret;
 };
-SetDomain.prototype.extractValue = function (node) {
-    var inputs = node.find('input[type="checkbox"]:checked');
-    var values = [];
-    inputs.each(function (_, input) {
-        values.push( $(input).val() );
+SetDomain.prototype.setValue = function (node, value) {
+    node.find('input[type="checkbox"]').each(function (idx, element) {
+        var input = $(element);
+        if (value && value[input.val()])
+            input.attr('checked', 'checked');
+        else
+            input.removeAttr('checked');
     });
-    return values.length ? values : null;
+}
+SetDomain.prototype.extractValue = function (node) {
+    var inputs = node.find('input[type="checkbox"]');
+    var values = {};
+    var total = 0;
+    inputs.each(function (_, input) {
+        values[$(input).val()] = $(input).is(':checked');
+        ++total;
+    });
+    return total ? values : null;
 }
 
 
@@ -147,10 +252,15 @@ var domain = {
     },
 
     getFromDef: function(def) {
-        if (def.questionType === "enum" ||
-            def.questionType === "set") {
 
+        switch(def.questionType) {
+        case "enum":
+        case "set":
             return this.get(def.questionType, def.answers);
+        case "integer":
+        case "float":
+            return this.get(def.questionType, 
+                            "float" === def.questionType);
         }
 
         return this.get(def.questionType);
@@ -207,6 +317,7 @@ var Survey = function(config, data) {
             var question = new Question(question.name,
                                         question.title,
                                         domain.getFromDef(question),
+                                        null, // value
                                         question.disableIf || null,
                                         question.constraints || null
                                        );
@@ -276,7 +387,6 @@ var Survey = function(config, data) {
             });
         });
     });
-
 };
 
 Survey.prototype.initState = function() {
@@ -311,7 +421,8 @@ Survey.prototype.calculate = function(expr) {
         var question = self.questions[name[0]];
         if(!question)
             alert("Something very wrong here");
-        return question.getRexlValue(name.slice(1, name.length));
+        var rexlValue = question.getRexlValue(name.slice(1, name.length));
+        return rexlValue;
     });
 };
 
@@ -330,12 +441,22 @@ Page.prototype.unskip = function() {
     this.skipped = false;
 };
 
+/*
+var ProtoQuestion = function (title, domain) {
+    this.title = title;
+    this.domain = domain;
+};
 
-var Question = function(name, title, domain, disableExpr, validateExpr) {
+ProtoQuestion.prototype.edit = function(template) {
+
+};
+*/
+
+var Question = function(name, title, domain, value, disableExpr, validateExpr) {
     this.name = name;
     this.title = title;
     this.domain = domain;
-
+    this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
     // TODO: convert validate expr to use this.id instead of 'this';
@@ -343,12 +464,24 @@ var Question = function(name, title, domain, disableExpr, validateExpr) {
 
 Question.prototype.edit = function(template) {
     if (!this.node) {
-        var node = template.clone();
-        node.find('.rf-question-title')
+        var self = this;
+
+        this.domainNode =
+            this.domain.render(
+                this.value,
+                function () {
+                    var extractedValue =
+                            self.domain.extractValue(self.domainNode);
+                    self.setValue(extractedValue);
+                }
+            );
+
+        this.node = template.clone();
+        this.node.find('.rf-question-title')
                 .text(this.title)
-        node.find('.rf-question-answers')
-                .append(this.domain.render());
-        this.node = node;        
+                .end()
+                .find('.rf-question-answers')
+                .append(this.domainNode);
         this.update();
     }
     return this.node;
@@ -361,10 +494,22 @@ Question.prototype.view = function() {
 Question.prototype.update = function() {
     if(!this.node)
         return;
+
+    var inputs = this.node.find('input,textarea');
+
+    if (this.disabled) {
+        this.node.addClass('rf-disabled');
+        inputs.attr('disabled', 'disabled');
+    } else {
+        this.node.removeClass('rf-disabled');
+        inputs.removeAttr('disabled');
+    }
     // update value visiblity, disable/enable inputs, show/hide error messages here
 };
 
 Question.prototype.setValue = function(value) {
+    console.log("Question '" + this.name + "':", value)
+
     this.value = value;
     this.update();
 
@@ -376,10 +521,32 @@ Question.prototype.getValue = function() {
 };
 
 Question.prototype.getRexlValue = function(name) {
-    if(this.domain instanceof NumberDomain)
-        return rexl.Number.value(this.value);
-    if(this.domain instanceof StringDomain)
-        return rexl.String.value(this.value);
+
+    function rexlize(val) {
+        if (null === val)
+            return rexl.String.value(null);
+
+        type = toType(val);
+
+        if ('number' === type)
+            return rexl.Number.value(val);
+        else if ('string' === type)
+            return rexl.String.value(val);
+        else if ('boolean' === type)
+            return rexl.Boolean.value(val);
+
+        throw ('RexlTypeError');
+    }
+
+    if (this.domain instanceof SetDomain) {
+        if (null === this.value)
+            return rexlize(null);
+        else if (name.length)
+            return rexlize(this.value[name[0]]);
+
+        return rexlize(true);
+    } else
+        return rexlize(this.value);
 };
 
 Question.prototype.disable = function() {
@@ -521,7 +688,6 @@ $.RexFormsClient = function (o) {
         var page = self.survey.pages[pageIdx];
 
         $.each(page.questions, function (_, question) {
-            console.log('question', question);
             self.questionArea.append(
                 question.edit( self.templates['question'] )
             );
@@ -563,6 +729,9 @@ $.RexFormsClient = function (o) {
         }
 
         self.survey.finish();
+
+        this.clearQuestions();
+        this.btnNext.add(this.btnPrev).css('display', 'none');
 
         // TODO
 

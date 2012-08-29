@@ -39,7 +39,7 @@ var Domain = function(name) {
     this.name = name;
 };
 
-Domain.prototype.render = function() {
+Domain.prototype.render = function(templates, value, onChange) {
     alert('Implement in subclasses');
 };
 Domain.prototype.setValue = function (node, value) {
@@ -54,7 +54,7 @@ var StringDomain = function() {
     Domain.call(this, 'string');
 };
 extend(StringDomain, Domain);
-StringDomain.prototype.render = function (value, onChange) {
+StringDomain.prototype.render = function (templates, value, onChange) {
     var textarea = $('<textarea></textarea>');
 
     if (onChange) {
@@ -73,57 +73,91 @@ StringDomain.prototype.render = function (value, onChange) {
 };
 StringDomain.prototype.setValue = function (node, value) {
     node.val( (value !== null && value !== undefined) ? value : '' );
-}
+};
 StringDomain.prototype.extractValue = function (node) {
     return $.trim( node.val() ) || null;
-}
+};
 
-/*
+
 var RecordListDomain = function(recordDef) {
     Domain.call(this, 'recordList');
     var self = this;
-    this.columns = [];
+    this.meta = [];
     $.each(recordDef, function (_, questionDef) {
-        self.columns.push( self.domain.getFromDef(questionDef) );
+        self.meta.push(
+            new MetaQuestion(
+                questionDef.name,
+                questionDef.title,
+                domain.getFromDef(questionDef)
+            )
+        );
     });
-}
+};
 extend(RecordListDomain, Domain);
-RecordListDomain.prototype.renderRecord = function (recordValue, onChange) {
+RecordListDomain.prototype.renderRecord = function (templates, recordValue, onChange) {
     var record = $('<div>').addClass('rf-record');
-    $.each(this.columns, function (i, columnDomain) {
-        record.append( columnDomain.render(recordValue[i]), onChange );
+    var self = this;
+
+    $.each(this.meta, function (i, metaQuestion) {
+        var cell = $('<div>').addClass('rf-cell');
+        cell.append(
+            metaQuestion.renderQuestion(
+                templates,
+                recordValue ? recordValue[metaQuestion.name] : null,
+                onChange
+            )
+        );
+        record.append(cell);
     });
+
+    var btnRemoveRecord = templates['btnRemoveRecord'].clone();
+    btnRemoveRecord.click(function () {
+        record.remove();
+        if (onChange)
+            onChange();
+    });
+    record.append(btnRemoveRecord);
+
     return record;
-}
-RecordListDomain.prototype.render = function (value, onChange) {
+};
+RecordListDomain.prototype.render = function (templates, value, onChange) {
     var recordList = $('<div>').addClass('rf-record-list');
     var thisDomain = this;
-    $.each(value, function (_, recordValue) {
-        thisDomain.renderRecord(recordValue);
-        recordList.append( thisDomain.renderRecord(recordValue) );
+
+    if (value) {
+        $.each(value, function (_, recordValue) {
+            recordList.append( thisDomain.renderRecord(templates, value, onChange) );
+        });
+    }
+
+    var btnAddRecord = templates['btnAddRecord'].clone();
+    btnAddRecord.click(function () {
+        recordList.append( thisDomain.renderRecord(templates, null, onChange) );
     });
-    return recordList;
+
+    return recordList.add(btnAddRecord);
 };
 RecordListDomain.prototype.extractValue = function (node) {
     var ret = [];
     var thisDomain = this;
-    node.children('rf-record').each(function (i, recordNode) {
-        ret[i] = [];
-        $(recordNode).children().each(function (_, cellNode) {
+    node.children('.rf-record').each(function (i, recordNode) {
+        ret[i] = {};
+        $(recordNode).children('.rf-cell').each(function (j, cellNode) {
             var jCellNode = $(cellNode);
-            thisDomain.columns[i].extractValue(jCellNode);
+            var thisMeta = thisDomain.meta[j];
+            ret[i][ thisMeta.name ] = thisMeta.extractValue(jCellNode.children());
         });
     });
     return ret;
-}
-*/
+};
+
 
 var NumberDomain = function(isFloat) {
     Domain.call(this, 'number');
     this.isFloat = isFloat;
 };
 extend(NumberDomain, Domain);
-NumberDomain.prototype.render = function (value, onChange) {
+NumberDomain.prototype.render = function (templates, value, onChange) {
     var input = $('<input type="text">');
     this.setValue(input, value);
 
@@ -134,7 +168,7 @@ NumberDomain.prototype.render = function (value, onChange) {
 };
 NumberDomain.prototype.setValue = function (node, value) {
     node.val( (value !== null && value !== undefined) ? value : '' );
-}
+};
 NumberDomain.prototype.extractValue = function (node) {
     var value = $.trim( node.val() ) || null;
 
@@ -148,14 +182,14 @@ NumberDomain.prototype.extractValue = function (node) {
     }
 
     return value;
-}
+};
 
 var EnumDomain = function (variants) {
     Domain.call(this, 'enum');
     this.variants = variants;
 };
 extend(EnumDomain, Domain);
-EnumDomain.prototype.render = function (value, onChange) {
+EnumDomain.prototype.render = function (templates, value, onChange) {
     var ret = $();
     var randName = getRandomStr(10);
     var thisDomain = this;
@@ -174,6 +208,14 @@ EnumDomain.prototype.render = function (value, onChange) {
         ret = ret.add(label);
     });
 
+    var btnClear = templates['btnClear'].clone();
+    btnClear.click(function () {
+        $(this).parent().find('input[type="radio"]')
+                        .removeAttr('checked');
+        onChange();
+    });
+    ret = ret.add( btnClear );
+
     this.setValue(ret, value);
     return ret;
 };
@@ -185,13 +227,13 @@ EnumDomain.prototype.setValue = function (node, value) {
         else
             input.removeAttr('checked');
     });
-}
+};
 EnumDomain.prototype.extractValue = function (node) {
     var input = node.find('input[type="radio"]:checked');
     if (input.size())
         return input.val();
     return null;
-}
+};
 
 
 var SetDomain = function (variants) {
@@ -199,7 +241,7 @@ var SetDomain = function (variants) {
     this.variants = variants;
 };
 extend(SetDomain, Domain);
-SetDomain.prototype.render = function (value, onChange) {
+SetDomain.prototype.render = function (templates, value, onChange) {
     var ret = $();
     var thisDomain = this;
 
@@ -224,7 +266,7 @@ SetDomain.prototype.setValue = function (node, value) {
         else
             input.removeAttr('checked');
     });
-}
+};
 SetDomain.prototype.extractValue = function (node) {
     var inputs = node.find('input[type="checkbox"]');
     var values = {};
@@ -234,7 +276,7 @@ SetDomain.prototype.extractValue = function (node) {
         ++total;
     });
     return total ? values : null;
-}
+};
 
 
 var domain = {
@@ -243,7 +285,8 @@ var domain = {
         'float': NumberDomain,
         'string': StringDomain,
         'enum': EnumDomain,
-        'set': SetDomain
+        'set': SetDomain,
+        'rep_group': RecordListDomain
     },
 
     get: function(type, options) {
@@ -261,6 +304,8 @@ var domain = {
         case "float":
             return this.get(def.questionType, 
                             "float" === def.questionType);
+        case "rep_group":
+            return this.get(def.questionType, def.repeatingGroup);
         }
 
         return this.get(def.questionType);
@@ -437,51 +482,59 @@ Page.prototype.skip = function() {
     this.skipped = true;
 };
 
-Page.prototype.unskip = function() {
+Page.prototype.unskip = function () {
     this.skipped = false;
 };
 
-/*
-var ProtoQuestion = function (title, domain) {
-    this.title = title;
-    this.domain = domain;
-};
-
-ProtoQuestion.prototype.edit = function(template) {
-
-};
-*/
-
-var Question = function(name, title, domain, value, disableExpr, validateExpr) {
+var MetaQuestion = function (name, title, domain) {
+    console.log('Name:', name, 'Title:', title, 'Domain:', domain);
     this.name = name;
     this.title = title;
     this.domain = domain;
+};
+
+MetaQuestion.prototype.renderDomain = function (templates, value, onChange) {
+    var domainNode = this.domain.render(templates, value, onChange);
+};
+
+MetaQuestion.prototype.extractValue = function (node) {
+    var domainNode = node.find('.rf-question-answers:first').children();
+    return this.domain.extractValue(domainNode);
+};
+
+MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
+    var domainNode = this.domain.render(templates, value, onChange);
+    var questionNode = templates['question'].clone();
+    questionNode.find('.rf-question-title')
+            .text(this.title)
+            .end()
+            .find('.rf-question-answers')
+            .append(domainNode);
+
+    return questionNode;
+};
+
+var Question = function(name, title, domain, value, disableExpr, validateExpr) {
+    MetaQuestion.call(this, name, title, domain);
     this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
     // TODO: convert validate expr to use this.id instead of 'this';
 };
-
-Question.prototype.edit = function(template) {
+extend(Question, MetaQuestion);
+Question.prototype.edit = function(templates) {
     if (!this.node) {
         var self = this;
-
-        this.domainNode =
-            this.domain.render(
+        this.node =
+            this.renderQuestion(
+                templates,
                 this.value,
                 function () {
                     var extractedValue =
-                            self.domain.extractValue(self.domainNode);
+                        self.extractValue(self.node);
                     self.setValue(extractedValue);
                 }
             );
-
-        this.node = template.clone();
-        this.node.find('.rf-question-title')
-                .text(this.title)
-                .end()
-                .find('.rf-question-answers')
-                .append(this.domainNode);
         this.update();
     }
     return this.node;
@@ -504,7 +557,7 @@ Question.prototype.update = function() {
         this.node.removeClass('rf-disabled');
         inputs.removeAttr('disabled');
     }
-    // update value visiblity, disable/enable inputs, show/hide error messages here
+    // update value visiblity, show/hide error messages here
 };
 
 Question.prototype.setValue = function(value) {
@@ -571,14 +624,16 @@ Question.prototype.validate = function() {
 
 var defaultTemplates = {
     'progressBar':
-          '<div class="survey-progress-bar-fill-wrap">' 
-            + '<div class="rc-progress-bar-fill"></div>' 
-            + '<span class="rc-progress-bar-pct">30%</span>'
+          '<div class="rf-progress-bar-fill-wrap">'
+            + '<div class="rf-progress-bar-fill"></div>'
+            + '<span class="rf-progress-bar-pct">30%</span>'
         + '</div>',
-    'btnAddRepGroup':
-        '<button class="roads-add-rep-group">Add group of answers</button>',
+    'btnRemoveRecord':
+        '<button class="rf-remove-record">Remove this group</button>',
+    'btnAddRecord':
+        '<button class="rf-add-record">Add group of answers</button>',
     'btnClear':
-        '<button class="btn-clear-answers">Clear</button>',
+        '<button class="rf-clear-answers">Clear</button>',
     'question':
           '<div class="rf-question">'
             + '<div class="rf-question-title"></div>'
@@ -689,7 +744,7 @@ $.RexFormsClient = function (o) {
 
         $.each(page.questions, function (_, question) {
             self.questionArea.append(
-                question.edit( self.templates['question'] )
+                question.edit( self.templates )
             );
         });
 

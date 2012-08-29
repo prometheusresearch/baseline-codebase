@@ -313,7 +313,7 @@ var domain = {
 };
 // }}}
 
-var Survey = function(config, data) {
+var Form = function(config, data) {
     var self = this;
 
     // TODO: build flat list of Page objects here 
@@ -434,7 +434,7 @@ var Survey = function(config, data) {
     });
 };
 
-Survey.prototype.initState = function() {
+Form.prototype.initState = function() {
     var self = this;
 
     // bind the change event on each question
@@ -457,7 +457,7 @@ Survey.prototype.initState = function() {
     });
 };
 
-Survey.prototype.calculate = function(expr) {
+Form.prototype.calculate = function(expr) {
     var self = this;
     return expr.evaluate(function(name) {
         // TODO: add params handling
@@ -648,8 +648,8 @@ $.RexFormsClient = function (o) {
         throw("RexFormsClient got no parameters");
 
     var mandatoryParams = [
-        'instrumentData',
-        'instrumentName',
+        'formMeta',
+        'formName',
         'saveURL'
     ];
 
@@ -659,16 +659,16 @@ $.RexFormsClient = function (o) {
     });
 
     // creating mandatory survey elements
-    function createSurveyElement (elemName, target) {
+    function createFormElement (elemName, target) {
         self[elemName] = $( target );
         if (self[elemName].size() == 0)
             throw("Couldn't create mandatory element '" + elemName + "'" );
     }
 
-    createSurveyElement( 'surveyArea', o.surveyArea || '#rf_survey_area' );
-    createSurveyElement( 'questionArea', o.questionArea || '#rf_question_area' );
-    createSurveyElement( 'btnNext', o.btnNext || '#rf_button_next' );
-    createSurveyElement( 'btnPrev', o.btnPrev || '#rf_button_prev' );
+    createFormElement( 'surveyArea', o.surveyArea || '#rf_survey_area' );
+    createFormElement( 'questionArea', o.questionArea || '#rf_question_area' );
+    createFormElement( 'btnNext', o.btnNext || '#rf_button_next' );
+    createFormElement( 'btnPrev', o.btnPrev || '#rf_button_prev' );
 
     this.btnNext.click(function () {
         self.nextPage();
@@ -700,7 +700,7 @@ $.RexFormsClient = function (o) {
     this.saveURL = o.saveURL;
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
-    this.survey = new Survey(o.instrumentData, o.instrumentState || {});
+    this.survey = new Form(o.formMeta, o.formData || {});
     this.survey.initState();
     this.currentPageIdx = -1;
 

@@ -147,8 +147,8 @@
         var rexFormsClient;
         $(document).ready(function () {
             rexFormsClient = new $.RexFormsClient({
-                instrumentName: 'test',
-                instrumentData: instrumentJSON,
+                formName: 'test',
+                formMeta: instrumentJSON,
                 saveURL: '/save_instrument',
                 surveyArea: '#survey',
                 questionArea: '#questions',

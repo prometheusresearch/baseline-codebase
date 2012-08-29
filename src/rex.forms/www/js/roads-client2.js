@@ -438,7 +438,7 @@ Form.prototype.initState = function() {
     var self = this;
 
     // bind the change event on each question
-    // and calculate the initial survey state
+    // and calculate the initial form state
     $.each(this.change, function(key, list) {
         function changeQuestion() {
             $.each(list, function(_, value) {
@@ -658,14 +658,14 @@ $.RexFormsClient = function (o) {
             throw("Mandatory parameter '" + paramName + "' is not set");
     });
 
-    // creating mandatory survey elements
+    // creating mandatory form elements
     function createFormElement (elemName, target) {
         self[elemName] = $( target );
         if (self[elemName].size() == 0)
             throw("Couldn't create mandatory element '" + elemName + "'" );
     }
 
-    createFormElement( 'surveyArea', o.surveyArea || '#rf_survey_area' );
+    createFormElement( 'formArea', o.formArea || '#rf_form_area' );
     createFormElement( 'questionArea', o.questionArea || '#rf_question_area' );
     createFormElement( 'btnNext', o.btnNext || '#rf_button_next' );
     createFormElement( 'btnPrev', o.btnPrev || '#rf_button_prev' );
@@ -688,7 +688,7 @@ $.RexFormsClient = function (o) {
         templates[key] = $( target );
     });
 
-    // creating optional survey elements
+    // creating optional form elements
     var progressBar = null;
     var progressBarArea = $( o.progressBarArea ) || null;
     if (progressBarArea) {
@@ -700,18 +700,18 @@ $.RexFormsClient = function (o) {
     this.saveURL = o.saveURL;
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
-    this.survey = new Form(o.formMeta, o.formData || {});
-    this.survey.initState();
+    this.form = new Form(o.formMeta, o.formData || {});
+    this.form.initState();
     this.currentPageIdx = -1;
 
     var validateAndGo = function (step) {
-        if (self.survey.finished)
+        if (self.form.finished)
             return;
 
         // TODO: do validation
 
         var idx = self.currentPageIdx + step;
-        var pages = self.survey.pages;
+        var pages = self.form.pages;
         var total = pages.length;
 
         while (idx >= 0 && idx < total) {
@@ -740,7 +740,7 @@ $.RexFormsClient = function (o) {
 
         self.currentPageIdx = pageIdx;
         self.clearQuestions();
-        var page = self.survey.pages[pageIdx];
+        var page = self.form.pages[pageIdx];
 
         $.each(page.questions, function (_, question) {
             self.questionArea.append(
@@ -783,7 +783,7 @@ $.RexFormsClient = function (o) {
             return;
         }
 
-        self.survey.finish();
+        self.form.finish();
 
         this.clearQuestions();
         this.btnNext.add(this.btnPrev).css('display', 'none');

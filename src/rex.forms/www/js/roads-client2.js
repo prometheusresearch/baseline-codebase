@@ -38,7 +38,6 @@ function toType(obj) {
 var Domain = function(name) {
     this.name = name;
 };
-
 Domain.prototype.render = function(templates, value, onChange) {
     alert('Implement in subclasses');
 };
@@ -183,6 +182,7 @@ NumberDomain.prototype.extractValue = function (node) {
 
     return value;
 };
+
 
 var EnumDomain = function (variants) {
     Domain.call(this, 'enum');
@@ -332,7 +332,7 @@ var Form = function(config, data) {
 
     this.pages = [];
     this.questions = {};
-    
+
     function group(list, skipExpr) {
         skipExpr = skipExpr || '';
         $.each(list, function(_, item) {
@@ -703,6 +703,8 @@ $.RexFormsClient = function (o) {
     this.form = new Form(o.formMeta, o.formData || {});
     this.form.initState();
     this.currentPageIdx = -1;
+    this.package = o.package || null;
+    this.formName = o.formName;
 
     var validateAndGo = function (step) {
         if (self.form.finished)
@@ -716,6 +718,8 @@ $.RexFormsClient = function (o) {
 
         while (idx >= 0 && idx < total) {
             if (!pages[idx].skipped) {
+                if (self.currentPageIdx != -1)
+                    self.save();
                 self.renderPage(idx);
                 return;
             }
@@ -732,8 +736,7 @@ $.RexFormsClient = function (o) {
     }
 
     this.renderPage = function (pageIdx) {
-
-        if (!self.raiseEvent('pageRendering', pageIdx)) {
+        if (!self.raiseEvent('beforePageRender', pageIdx)) {
             // stop rendering if aborted
             return;
         }
@@ -753,6 +756,7 @@ $.RexFormsClient = function (o) {
 
     this.raiseEvent = function(eventName, eventData) {
         console.debug("event '" + eventName + "' (", eventData, ")" );
+        $(this).trigger('rexforms:' + eventName);
         if (self.events[eventName])
             return this.events[eventName](eventData);
         return true;
@@ -766,25 +770,49 @@ $.RexFormsClient = function (o) {
         validateAndGo(-1);
     };
 
-    this.save = function() {
-        if (!self.raiseEvent('saving')) {
+    this.collectAnswers = function () {
+        var answers = {};
+        $.each(this.form.questions, function (_, question) {
+            answers[question.name] = question.getValue();
+        });
+        return answers;
+    }
+
+    this.save = function () {
+        if (null === self.package)
+            return;
+
+        if (!self.raiseEvent('beforeSave'))
             // stop if aborted
             return;
-        }
 
-        // TODO
+        var collectedData = {
+            answers: self.collectAnswers(),
+            finished: self.form.finished
+        };
 
-        self.raiseEvent('saved');
+        collectedData = $.toJSON(collectedData);
+        console.debug('saving data:', collectedData);
+
+        $.ajax({url : self.saveURL,
+            success : function(content) {
+                self.raiseEvent('saved');
+            },
+            data : 'data=' + encodeURIComponent(collectedData)
+                + '&form=' + encodeURIComponent(self.formName)
+                + '&package=' + encodeURIComponent(self.package),
+            type: 'POST'
+        });
     };
 
-    this.finish = function() {
-        if (!self.raiseEvent('finishing')) {
+    this.finish = function () {
+        if (!self.raiseEvent('beforeFinish')) {
             // stop if aborted
             return;
         }
 
         self.form.finish();
-
+        self.save();
         this.clearQuestions();
         this.btnNext.add(this.btnPrev).css('display', 'none');
 
@@ -793,7 +821,7 @@ $.RexFormsClient = function (o) {
         self.raiseEvent('finished');
     };
 
-    this.renderProgressBar = function() {
+    this.renderProgressBar = function () {
         // TODO
     };
 

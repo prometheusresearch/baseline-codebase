@@ -32,6 +32,23 @@ function isValidNumeric(val, condType) {
 function toType(obj) {
     return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 }
+
+function rexlize(val) {
+    if (null === val)
+        return rexl.String.value(null);
+
+    type = toType(val);
+
+    if ('number' === type)
+        return rexl.Number.value(val);
+    else if ('string' === type)
+        return rexl.String.value(val);
+    else if ('boolean' === type)
+        return rexl.Boolean.value(val);
+
+    console.debug('Unable to rexlize type:', type, 'val:', val);
+    throw('RexlTypeError');
+}
 // }}}
 
 // {{{ domains
@@ -278,7 +295,6 @@ SetDomain.prototype.extractValue = function (node) {
     return total ? values : null;
 };
 
-
 var domain = {
     all: {
         'integer': NumberDomain,
@@ -313,7 +329,7 @@ var domain = {
 };
 // }}}
 
-var Form = function(config, data) {
+var Form = function(config, data, paramValues) {
     var self = this;
 
     // TODO: build flat list of Page objects here 
@@ -332,6 +348,20 @@ var Form = function(config, data) {
 
     this.pages = [];
     this.questions = {};
+    this.params = {};
+
+    $.each(config.params, function (_, param) {
+        var forRexlize = null;
+        if (paramValues[param.name]) {
+            // TODO: convert string in paramValues[...] into domain value
+
+            if (paramValues[param.name] instanceof Object)
+                forRexlize = true;
+            else
+                forRexlize = rexlize( paramValues[param.name] );
+        }
+        self.params[param.name] = rexlize(forRexlize);
+    });
 
     function group(list, skipExpr) {
         skipExpr = skipExpr || '';
@@ -425,11 +455,16 @@ var Form = function(config, data) {
         var parsed = rexl.parse(expr);
         $.each(parsed.getNames(), function(_, name) {
             name = name[0];
-            self.change[name] = self.change[name] || [];
-            self.change[name].push({
-                expr: parsed,
-                actions: actions
-            });
+
+            // form external parameters will not change their value
+            // so we can exclude them from the change graph
+            if (undefined === self.params[name]) {
+                self.change[name] = self.change[name] || [];
+                self.change[name].push({
+                    expr: parsed,
+                    actions: actions
+                });
+            }
         });
     });
 };
@@ -463,9 +498,14 @@ Form.prototype.calculate = function(expr) {
         // TODO: add params handling
         //if(self.hasParam(name[0]))
         //    return self.getRexlParamValue(name[0]);
+        if (undefined !== self.params[name[0]])
+            return self.params[name[0]];
+
         var question = self.questions[name[0]];
-        if(!question)
-            alert("Something very wrong here");
+        if(!question) {
+            alert("No such question: " + name[0]);
+            console.log('params:', self.params);
+        }
         var rexlValue = question.getRexlValue(name.slice(1, name.length));
         return rexlValue;
     });
@@ -574,23 +614,6 @@ Question.prototype.getValue = function() {
 };
 
 Question.prototype.getRexlValue = function(name) {
-
-    function rexlize(val) {
-        if (null === val)
-            return rexl.String.value(null);
-
-        type = toType(val);
-
-        if ('number' === type)
-            return rexl.Number.value(val);
-        else if ('string' === type)
-            return rexl.String.value(val);
-        else if ('boolean' === type)
-            return rexl.Boolean.value(val);
-
-        throw ('RexlTypeError');
-    }
-
     if (this.domain instanceof SetDomain) {
         if (null === this.value)
             return rexlize(null);
@@ -649,9 +672,11 @@ $.RexFormsClient = function (o) {
 
     var mandatoryParams = [
         'formMeta',
-        'formName',
-        'saveURL'
+        'formName'
     ];
+
+    if (o.package)
+        mandatoryParams.push('saveURL');
 
     $.each(mandatoryParams, function (_, paramName) {
         if (!o[paramName])
@@ -700,7 +725,7 @@ $.RexFormsClient = function (o) {
     this.saveURL = o.saveURL;
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
-    this.form = new Form(o.formMeta, o.formData || {});
+    this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {});
     this.form.initState();
     this.currentPageIdx = -1;
     this.package = o.package || null;

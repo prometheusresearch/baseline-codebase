@@ -14,8 +14,8 @@ $.RoadsBuilder.QTypes = {
     'integer': 'Integer',
     'float': 'Float',
     'yes_no': 'Yes/No',
-    'radio': 'One-choice List',
-    'list': 'Multi-select List',
+    'enum': 'One-choice List',
+    'set': 'Multi-select List',
     'string': 'Text String',
     'rep_group': 'Repeating Group of Questions'
 };
@@ -913,7 +913,7 @@ $.RoadsBuilder.isNumericType = function(qType) {
 }
 
 $.RoadsBuilder.isListType = function(qType) {
-    return (qType === 'list' || qType == 'radio'); 
+    return (qType === 'set' || qType == 'enum'); 
 }
 
 $.RoadsBuilder.updateQuestionDiv = function(questionDiv) {
@@ -2064,8 +2064,30 @@ $.RoadsBuilder.addPage = function(page, to) {
     $.RoadsBuilder.makeREXLCache(page, 'skipIf');
     newPageDiv.data('data', page);
 
+    function fixQuestionData(qData) {
+        if (qData.questionType === "list")
+            qData.questionType = "set";
+        else if (qData.questionType === "radio")
+            qData.questionType = "enum";
+        else if (qData.questionType === "yes_no") {
+            qData.questionType = "enum";
+            qData.answers = [
+                {
+                    "code": "yes",
+                    "title": "Yes"
+                },
+                {
+                    "code": "no",
+                    "title": "No"
+                }
+            ];
+        }
+    }
+
     for (var idx in page.questions) {
         var qData = page.questions[idx];
+
+        fixQuestionData(qData);
 
         $.RoadsBuilder.makeREXLCache(qData, 'disableIf');
         $.RoadsBuilder.makeREXLCache(qData, 'constraints');
@@ -2074,6 +2096,8 @@ $.RoadsBuilder.addPage = function(page, to) {
         if (qData.repeatingGroup && qData.questionType === "rep_group") {
             for (var sIdx in qData.repeatingGroup) {
                 var subQuestion = qData.repeatingGroup[sIdx];
+                fixQuestionData(subQuestion);
+
                 subQuestion.slave = true;
 
                 $.RoadsBuilder.makeREXLCache(subQuestion, 'disableIf');
@@ -2487,12 +2511,12 @@ $(document).ready(function () {
                 case 'integer':
                     ret.type = 'number';
                     break;
-                case 'list':
-                case 'radio':
+                case 'set':
+                case 'enum':
                 case 'yes_no':
-                
-                    if (questionData.questionType === "list")
-                        ret.type = "list";
+
+                    if (questionData.questionType === "set")
+                        ret.type = "set";
                     else
                         ret.type = "enum";
 

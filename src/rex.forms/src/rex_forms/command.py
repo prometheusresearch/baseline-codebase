@@ -128,7 +128,7 @@ class StartRoads(RoadsCommand):
     def get_packet(self, req):
         return req.GET.get('packet')
 
-    def prepare_args(self, req):
+    def prepare_client_params(self, req):
         extra = self.get_extra_params(req)
         instrument = self.get_instrument(req)
         test = self.get_test_mode(req)
@@ -144,17 +144,19 @@ class StartRoads(RoadsCommand):
         if not test and not packet:
             packet = handler.create_packet(instrument, version, req)
         state = handler.get_packet(instrument, version, packet)
-        args = {
+        params = {
             'instrument' : inst_json,
             'package' : packet,
             'state' : state,
             'instrument_id' : instrument,
             'extra' : extra
         }
-        return args
+        return params
 
     def render(self, req):
-        args = self.prepare_args(req)
+        args = {
+            'client_params': self.prepare_client_params(req)
+        }
         return self.render_to_response(self.template, **args)
 
 @register_command

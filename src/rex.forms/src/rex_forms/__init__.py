@@ -20,23 +20,52 @@ class FolderVal(StrVal):
 
 @register_parameter
 class Folder(Parameter):
+    """
+    A path to folder where ROADS instruments and packets are stored.
+
+    Example:
+      instrument_folder: /files/roads
+    """
+
+
     name = 'instrument_folder'
     validator = FolderVal(is_nullable=False)
 
 @register_parameter
 class DefaultBuilder(Parameter):
+    """
+    Boolean parameter that specifies if default builder, that requires no
+    auth is available. Defaults to False.
+
+    Example:
+      default_builder: True
+    """
     name = 'default_builder'
     validator = BoolVal(is_nullable=False)
     default = False
 
 @register_parameter
 class ManualEditConditions(Parameter):
+    """
+    Boolean parameter that specifies if it is allowed to manually edit 
+    conditions in Roads builder. By default, user is allowed only to use
+    conditions wizard.
+
+    Example:
+      manual_edit_conditions: True
+    """
     name = 'manual_edit_conditions'
     validator = BoolVal(is_nullable=False)
     default = False
 
 @register_parameter
 class EnvironUserKey(Parameter):
+    """
+    Key in environ that ROADS expects to have logged in username
+
+    Example:
+      environ_user_key: REMOTE_USER
+    """
     name = 'environ_user_key'
     validator = StrVal(is_nullable=False)
 

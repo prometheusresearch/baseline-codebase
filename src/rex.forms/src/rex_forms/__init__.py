@@ -87,6 +87,7 @@ class FormsPackageHandler(PackageHandler):
             if not dirs:
                 #No instruments yet exist
                 return None, 0
+            dirs.sort()
             latest = dirs[-1]
             file_name = "%s/%s/instrument.js" % (fld, latest)
             if os.path.exists(file_name):

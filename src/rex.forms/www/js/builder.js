@@ -13,17 +13,15 @@ $.RoadsBuilder = {};
 $.RoadsBuilder.QTypes = {
     'integer': 'Integer',
     'float': 'Float',
-    'yes_no': 'Yes/No',
     'enum': 'One-choice List',
     'set': 'Multi-select List',
     'string': 'Text String',
+    'date': 'Date',
     'rep_group': 'Repeating Group of Questions'
 };
 
 $.RoadsBuilder.remCharsRegExp = new RegExp("[^a-zA-Z0-9\\s_\\-\\/]+", "g");
-
 $.RoadsBuilder.nameRegExp = new RegExp("[^a-zA-Z0-9_]+", "g");
-
 $.RoadsBuilder.nameBeginRegExp = new RegExp('^[^a-zA-Z]');
 $.RoadsBuilder.nameEndRegExp   = new RegExp('[^a-zA-Z0-9]$');
 
@@ -103,6 +101,14 @@ $.RoadsBuilder.isValidNumeric = function(val, condType) {
         (condType === 'float' 
             && /^([+-]?(((\d+(\.)?)|(\d*\.\d+))([eE][+-]?\d+)?))$/.test(val))
     );
+}
+
+$.RoadsBuilder.isValidDate = function (year, month, day) {
+    --month;
+    var d = new Date(year, month, day);
+    return (d.getDate() == day &&
+            d.getMonth() == month &&
+            d.getFullYear() == year);
 }
 
 $.RoadsBuilder.EditPageDialogF = function () {
@@ -213,10 +219,10 @@ $.RoadsBuilder.BeforeTestDialog = function () {
         modal: true,
         buttons: {
             'Ok': function () {
-            
+
                 var paramDict = {};
                 var valid = true;
-                
+
                 paramTable.find('tr').each(function () {
                     var jRow = $(this);
                     var paramName = jRow.attr('data-param');
@@ -227,7 +233,8 @@ $.RoadsBuilder.BeforeTestDialog = function () {
                         var realType = param.type;
 
                         if (param.type !== 'STRING' &&
-                            param.type !== 'NUMBER') {
+                            param.type !== 'NUMBER' &&
+                            param.type !== 'DATE') {
                             
                             if ($.RoadsBuilder.externalParamTypes) {
                                 typeDesc =
@@ -238,11 +245,22 @@ $.RoadsBuilder.BeforeTestDialog = function () {
                         }
 
                         switch(realType) {
+                        case 'DATE':
+                            var matches = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+                            if (!matches ||
+                                !$.RoadsBuilder.isValidDate(matches[1], matches[2], matches[3])) {
+                                valid = false;
+                                break;
+                            }
+                            paramDict[paramName] = value;
+                            break;
                         case 'NUMBER':
                             if (!$.RoadsBuilder.isValidNumeric(value, 'float')) {
                                 valid = false;
                                 break;
                             }
+                            paramDict[paramName] = value;
+                            break;
                         default:
                             paramDict[paramName] = value;
                         }
@@ -278,10 +296,12 @@ $.RoadsBuilder.BeforeTestDialog = function () {
             var row = $(rowHTML);
             row.attr('data-param', param.name);
             var isScalar = true;
+            var realType = param.type;
             var typeDesc;
 
             if (param.type !== 'NUMBER' &&
-                param.type !== 'STRING') {
+                param.type !== 'STRING' &&
+                param.type !== 'DATE') {
                 if ($.RoadsBuilder.externalParamTypes) {
                     typeDesc =
                         $.RoadsBuilder.externalParamTypes[param.type];
@@ -289,13 +309,25 @@ $.RoadsBuilder.BeforeTestDialog = function () {
                     if (typeDesc && typeDesc.type === 'ENUM') {
                         isScalar = false;
                     }
+                    realType = typeDesc;
                 }
             }
 
             var paramValuePlace = row.find('.rb_test_param_value:first');
 
             if (isScalar) {
-                paramValuePlace.append('<input type="text" />');
+                var input = $('<input type="text" />');
+                paramValuePlace.append(input);
+                if (realType === "DATE") {
+                    input.datepicker({
+                        dateFormat: 'yy-mm-dd'
+                    });
+                }
+                if (dialogParams.paramValues && 
+                    dialogParams.paramValues[param.name]) {
+
+                    input.val(dialogParams.paramValues[param.name]);
+                }
             } else {
                 var select = $('<select>');
                 $('<option>', {
@@ -311,6 +343,12 @@ $.RoadsBuilder.BeforeTestDialog = function () {
                     }).appendTo(select);
                 }
                 paramValuePlace.append(select);
+
+                if (dialogParams.paramValues && 
+                    dialogParams.paramValues[param.name]) {
+
+                    select.val(dialogParams.paramValues[param.name]);
+                }
             }
 
             paramTable.append(row);
@@ -631,10 +669,19 @@ $.RoadsBuilder.ContextF = function () {
         return null;
     }
 
-    function sortIndexReal(indexRef) {
-        indexRef.sort(function(a,b) {
-            return (a.title < b.title)? -1: 1;
-        });
+    function sortIndexReal(indexType, indexRef) {
+        var sortFunction;
+        
+        if (indexType === "parameter")
+            sortFunction = function(a,b) {
+                return (a.name < b.name)? -1: 1;
+            };
+        else
+            sortFunction = function(a,b) {
+                return (a.title < b.title)? -1: 1;
+            };
+
+        indexRef.sort(sortFunction);
     }
 
     function clearIndex(idxName) {
@@ -677,13 +724,13 @@ $.RoadsBuilder.ContextF = function () {
         },
         getIndexByType: getIndexByType,
         sortIndex: function (indexType) {
-            sortIndexReal(getIndexByType(indexType));
+            sortIndexReal(indexType, getIndexByType(indexType));
         },
         putToIndex: function (indexType, object) {
             if (inIndex(indexType, object) === null) {
                 var indexRef = getIndexByType(indexType);
                 indexRef.push(object);
-                sortIndexReal(indexRef);
+                sortIndexReal(indexType, indexRef);
             }
         },
         removeFromIndex: function (indexType, object) {
@@ -1811,6 +1858,8 @@ $.RoadsBuilder.getParamTitle = function(type) {
         return 'Number';
     case 'STRING':
         return 'String';
+    case 'DATE':
+        return 'Date';
     default:
         if ($.RoadsBuilder.externalParamTypes &&
             $.RoadsBuilder.externalParamTypes[type]) {
@@ -2535,6 +2584,9 @@ $(document).ready(function () {
                         ret.variants = questionData.answers;
 
                     break;
+                case 'date':
+                    ret.type = 'date';
+                    break;
                 case 'string':
                 default:
                     ret.type = 'string';
@@ -2565,6 +2617,9 @@ $(document).ready(function () {
                                 case 'ENUM':
                                     ret.type = 'enum';
                                     ret.variants = typeDesc.variants;
+                                    break;
+                                case 'DATE':
+                                    ret.type = 'date';
                                     break;
                                 default:
                                 case 'STRING':

@@ -31,6 +31,14 @@ function ConditionEditor(initParams) {
         return "'" + str.replace(quoteRegExp, '\\\'') + "'";
     }
 
+    function isValidDate(year, month, day) {
+        --month;
+        var d = new Date(year, month, day);
+        return (d.getDate() == day &&
+                d.getMonth() == month &&
+                d.getFullYear() == year);
+    }
+
     function isValidNumeric(val, condType) {
         return (
             (condType === 'integer' 
@@ -95,6 +103,15 @@ function ConditionEditor(initParams) {
                 var operation = $('.rb_select_answer_is', hidPart).val();
 
                 switch (identifierType) {
+                case 'date':
+                    if (operand) {
+                        var matches = operand.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+                        if (!matches ||
+                            !isValidDate(matches[1], matches[2], matches[3])) {
+                            noErrors = false;
+                            break;
+                        }
+                    }
                 case 'enum':
                 case 'string':
                     operand = rexlQuote(operand);
@@ -519,7 +536,7 @@ function ConditionEditor(initParams) {
                 'value': '=',
                 'title': 'having'
             }],
-            'number': [
+            'numeric': [
                 {
                     'value': '=',
                     'title': '='
@@ -560,9 +577,16 @@ function ConditionEditor(initParams) {
                 case 'string':
                     notEmptyValueContent = $('<input>');
                     break;
+                case 'date':
+                    notEmptyValueContent = $('<input>');
+                    notEmptyValueContent.datepicker({
+                        dateFormat: 'yy-mm-dd'
+                    });
+                    relations = selectRelations['numeric'];
+                    break;
                 case 'number':
                     notEmptyValueContent = $('<input>');
-                    relations = selectRelations['number'];
+                    relations = selectRelations['numeric'];
                     break;
                 case 'enum':
                 case 'list':

@@ -29,6 +29,14 @@ function isValidNumeric(val, condType) {
     );
 }
 
+function isValidDate(year, month, day) {
+    --month;
+    var d = new Date(year, month, day);
+    return (d.getDate() == day &&
+            d.getMonth() == month &&
+            d.getFullYear() == year);
+}
+
 function toType(obj) {
     return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 }
@@ -92,6 +100,41 @@ StringDomain.prototype.setValue = function (node, value) {
 };
 StringDomain.prototype.extractValue = function (node) {
     return $.trim( node.val() ) || null;
+};
+
+
+var DateDomain = function() {
+    Domain.call(this, 'date');
+};
+extend(DateDomain, Domain);
+DateDomain.prototype.render = function (templates, value, onChange) {
+    var input = $('<input type="text">');
+    this.setValue(input, value);
+
+    if (onChange)
+        input.change(onChange);
+
+    input.datepicker({
+        dateFormat: 'yy-mm-dd'
+    });
+
+    return input;
+};
+DateDomain.prototype.setValue = function (node, value) {
+    node.val( (value !== null && value !== undefined) ? value : '' );
+};
+DateDomain.prototype.extractValue = function (node) {
+    var value = $.trim( node.val() ) || null;
+
+    if (value !== null) {
+        var matches = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        if (!matches)
+            throw("InvalidDate");
+        if (!isValidDate(matches[1], matches[2], matches[3]))
+            throw("InvalidDate2");
+    }
+
+    return value;
 };
 
 
@@ -206,12 +249,17 @@ var EnumDomain = function (variants) {
     this.variants = variants;
 };
 extend(EnumDomain, Domain);
+var alreadyUsedNames = {};
 EnumDomain.prototype.render = function (templates, value, onChange) {
     var ret = $('<ul>').addClass('rf-answer-list');
+
     var randName = getRandomStr(10);
+    while(alreadyUsedNames[randName])
+        randName = getRandomStr(10);
+    alreadyUsedNames[randName] = true;
+
     var thisDomain = this;
 
-    // TODO: check for uniqueness of randName
     $.each(this.variants, function (_, variant) {
         var li = $('<li>');
         var label = $('<label>').text(variant.title);
@@ -309,6 +357,7 @@ var domain = {
         'string': StringDomain,
         'enum': EnumDomain,
         'set': SetDomain,
+        'date': DateDomain,
         'rep_group': RecordListDomain
     },
 
@@ -339,7 +388,6 @@ var domain = {
 var Form = function(config, data, paramValues) {
     var self = this;
 
-    // TODO: build flat list of Page objects here 
     // if pages is in group, set group skip logic to each page
     // of this group
     // if page/group in this group has the own skip logic 
@@ -363,7 +411,9 @@ var Form = function(config, data, paramValues) {
             // TODO: consider a way to provide info about external param types
             //  to do more accurate conversion here
 
-            if (paramValues[param.name] instanceof Array)
+            if (paramValues[param.name] instanceof Array ||
+                paramValues[param.name] instanceof Object)
+
                 throw('ComplexParamsNotSupported');
             else if (param.type === "NUMBER")
                 forRexlize = parseFloat(paramValues[param.name]);

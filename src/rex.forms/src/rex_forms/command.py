@@ -96,8 +96,8 @@ class SaveState(RoadsCommand):
             return Response(status='401', body='No POST data provided')
         data = simplejson.loads(post)
         data['user_data'] = self.get_user_data(req)
-        code = data.get('package')
-        instrument = data.get('instrument')
+        code = req.POST.get('package')
+        instrument = req.POST.get('form')
         if not code and instrument:
             return Response(body='Wrong Json')
         handler = self.app.handler_by_name['rex.forms']
@@ -115,7 +115,7 @@ class StartRoads(RoadsCommand):
     def get_extra_params(self, req):
         extra = {}
         for key in req.GET:
-            if key.startswith('p_'):
+            if key.startswith('p_') and req.GET[key] is not None:
                 extra[str(key)[2:]] = str(req.GET[key])
         return extra
 

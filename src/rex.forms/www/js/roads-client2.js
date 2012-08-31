@@ -207,31 +207,34 @@ var EnumDomain = function (variants) {
 };
 extend(EnumDomain, Domain);
 EnumDomain.prototype.render = function (templates, value, onChange) {
-    var ret = $();
+    var ret = $('<ul>').addClass('rf-answer-list');
     var randName = getRandomStr(10);
     var thisDomain = this;
 
     // TODO: check for uniqueness of randName
     $.each(this.variants, function (_, variant) {
+        var li = $('<li>');
         var label = $('<label>').text(variant.title);
+        li.append(label);
 
         var input =
             $('<input type="radio">')
                 .attr('name', randName)
                 .attr('value', variant.code)
-                .change(onChange); 
+                .change(onChange);
 
         label.prepend(input);
-        ret = ret.add(label);
+        ret.append(li);
     });
 
     var btnClear = templates['btnClear'].clone();
     btnClear.click(function () {
-        $(this).parent().find('input[type="radio"]')
-                        .removeAttr('checked');
+        $(this).parents('.rf-answer-list:first')
+                    .find('input[type="radio"]')
+                    .removeAttr('checked');
         onChange();
     });
-    ret = ret.add( btnClear );
+    ret = ret.append( $('<li>').append(btnClear) );
 
     this.setValue(ret, value);
     return ret;
@@ -259,17 +262,21 @@ var SetDomain = function (variants) {
 };
 extend(SetDomain, Domain);
 SetDomain.prototype.render = function (templates, value, onChange) {
-    var ret = $();
+    var ret = $('<ul>').addClass('rf-answer-list');
     var thisDomain = this;
 
     $.each(this.variants, function (_, variant) {
+        var li = $('<li>');
         var label = $('<label>').text(variant.title);
+        li.append(label);
+
         label.prepend(
             $('<input type="checkbox">')
                 .attr('value', variant.code)
                 .change(onChange)
         );
-        ret = ret.add(label);
+
+        ret.append(li);
     });
 
     this.setValue(ret, value);
@@ -530,7 +537,6 @@ Page.prototype.unskip = function () {
 };
 
 var MetaQuestion = function (name, title, domain) {
-    console.log('Name:', name, 'Title:', title, 'Domain:', domain);
     this.name = name;
     this.title = title;
     this.domain = domain;
@@ -734,6 +740,25 @@ $.RexFormsClient = function (o) {
     this.package = o.package || null;
     this.formName = o.formName;
 
+    var updateProgress = function (forcePct) {
+        var current = self.currentPageIdx;
+        console.log('current', current, 'self', self);
+        var total = self.form.pages.length;
+        var completed = current >= 0 ? current: 0;
+        var pct;
+
+        if (forcePct)
+            pct = forcePct;
+        else
+            pct = (total > 0) ? Math.floor(100 * completed/total) : 0;
+
+        self.raiseEvent('updateProgress', {
+            pct: pct,
+            completed: completed,
+            total: total
+        });
+    };
+
     var validateAndGo = function (step) {
         if (self.form.finished)
             return;
@@ -749,14 +774,17 @@ $.RexFormsClient = function (o) {
                 if (self.currentPageIdx != -1)
                     self.save();
                 self.renderPage(idx);
+                updateProgress();
                 return;
             }
 
             self.raiseEvent('skipPage', idx);
             idx += step;
         }
-        if (step > 0)
+        if (step > 0) {
+            updateProgress(100);
             self.finish();
+        }
     };
 
     this.clearQuestions = function () {

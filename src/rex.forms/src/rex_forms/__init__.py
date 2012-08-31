@@ -1,6 +1,5 @@
 from threading import RLock
 
-
 from rexrunner.registry import register_parameter, register_handler
 from htsql.core.validator import DBVal, MapVal, StrVal, AnyVal, BoolVal
 from rexrunner.parameter import Parameter
@@ -8,6 +7,7 @@ from rexrunner.handler import PackageHandler
 from .command import *
 
 import os
+import re
 
 class FolderVal(StrVal):
 
@@ -84,14 +84,19 @@ class FormsPackageHandler(PackageHandler):
                 os.makedirs(fld)
                 return None, 0
             dirs = os.walk(fld).next()[1]
-            if not dirs:
+            latest = -1
+            target_reg_exp = re.compile('^\d+$')
+            for dir_name in dirs:
+                if target_reg_exp.match(dir_name):
+                    dir_ver = int(dir_name)
+                    if dir_ver > latest:
+                        latest = dir_ver
+            if latest == -1:
                 #No instruments yet exist
                 return None, 0
-            dirs.sort()
-            latest = dirs[-1]
-            file_name = "%s/%s/instrument.js" % (fld, latest)
+            file_name = "%s/%d/instrument.js" % (fld, latest)
             if os.path.exists(file_name):
-                f = open("%s/%s/instrument.js" % (fld, latest), "r")
+                f = open("%s/%d/instrument.js" % (fld, latest), "r")
                 return f.read(), latest
             else:
                 return None, 0

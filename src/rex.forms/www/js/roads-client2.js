@@ -353,12 +353,15 @@ var Form = function(config, data, paramValues) {
     $.each(config.params, function (_, param) {
         var forRexlize = null;
         if (paramValues[param.name]) {
-            // TODO: convert string in paramValues[...] into domain value
+            // TODO: consider a way to provide info about external param types
+            //  to do more accurate conversion here
 
-            if (paramValues[param.name] instanceof Object)
-                forRexlize = true;
+            if (paramValues[param.name] instanceof Array)
+                throw('ComplexParamsNotSupported');
+            else if (param.type === "NUMBER")
+                forRexlize = parseFloat(paramValues[param.name]);
             else
-                forRexlize = rexlize( paramValues[param.name] );
+                forRexlize = paramValues[param.name];
         }
         self.params[param.name] = rexlize(forRexlize);
     });

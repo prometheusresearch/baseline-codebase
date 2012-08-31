@@ -3,8 +3,35 @@
 <html>
   <head>
     {{ macro.client_head() }}
+
+    <script type="text/javascript">
+    var rexFormsClient = null;
+    $(document).ready(function () {
+        rexFormsClient = new $.RexFormsClient({
+            formMeta: {{ client_params.instrument }},
+            formData: {{ client_params.state }},
+            formName: {{ client_params.instrument_id|json }},
+            paramValues: {{ client_params.extra }},
+
+            {% if client_params.package %}
+            package: {{ client_params.package }},
+            saveURL: '{{ MYPREFIX }}/save_state',
+            {% endif %}
+
+            formArea: '#form',
+            questionArea: '#questions',
+            btnPrev: '#btnPrev',
+            btnNext: '#btnNext'
+        });
+    });
+    </script>
   </head>
   <body>
-    {{ macro.client() }}
+    <div id="form">
+      <div id="questions">
+      </div>
+      <button id="btnPrev">Previous Page</button>
+      <button id="btnNext">Next Page</button>
+    </div>
   </body>
 </html>

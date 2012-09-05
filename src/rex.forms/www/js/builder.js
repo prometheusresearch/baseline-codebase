@@ -888,7 +888,8 @@ $.RoadsBuilder.saveInstrumentReal = function(callback) {
                     + encodeURIComponent(
                         $.RoadsBuilder.generateMetaJSON(instrumentName));
 
-        var url = $.RoadsBuilder.basePrefix + "/add_instrument";
+        var url = $.RoadsBuilder.urlSaveForm || 
+                 ($.RoadsBuilder.basePrefix + "/add_instrument");
         $.ajax({url : url,
             success : function(content) {
                 if (!$.RoadsBuilder.instrumentName)

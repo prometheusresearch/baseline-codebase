@@ -127,7 +127,7 @@ class FormsPackageHandler(PackageHandler):
             f = open("%s/instrument.js" % fld, "w")
             f.write(simplejson.dumps(json, indent=1))
 
-    def create_packet(self, code, version, req):
+    def create_packet(self, code, version, req, extra):
         with self.lock:
             folder = self.app.config.instrument_folder
             fld = "%s/%s/%s/packets_details" % (folder, code, version)
@@ -160,7 +160,8 @@ class FormsPackageHandler(PackageHandler):
     def get_packet(self, instrument, version, packet):
         with self.lock:
             folder = self.app.config.instrument_folder
-            fld = "%s/%s/%s/packets/%s.js" % (folder, instrument, version, packet)
+            fld = "%s/%s/%s/packets/%s.js" \
+                    % (folder, instrument, version, packet)
             if not os.path.exists(fld):
                 return '{}'
             else:
@@ -170,7 +171,8 @@ class FormsPackageHandler(PackageHandler):
     def save_packet(self, instrument, version, packet, data):
         with self.lock:
             folder = self.app.config.instrument_folder
-            fld = "%s/%s/%s/packets/%s.js" % (folder, instrument, version, packet)
+            fld = "%s/%s/%s/packets/%s.js"\
+                    % (folder, instrument, version, packet)
             user_data = data.pop('user_data', {})
             f = open(fld, 'w')
             f.write(simplejson.dumps(data, indent=1))
@@ -287,7 +289,8 @@ class FormsPackageHandler(PackageHandler):
                     pack = {
                         'id' : packet,
                         'user_data' : data.get('user_data', {}),
-                        'data-entry-status' : data.get('data-entry-status', 'not-started'),
+                        'data-entry-status' : data.get('data-entry-status',\
+                                                       'not-started'),
                         'json' : p_json
                     }
                     packs.append(pack)
@@ -302,3 +305,10 @@ class FormsPackageHandler(PackageHandler):
             if instrument_filter is None or instrument_filter(instrument):
                 result.append(instrument)
         return result
+
+
+    def check_packets(self, code, version):
+        folder = self.app.config.instrument_folder
+        fld = "%s/%s/%s/packets" % (folder, code, version)
+        return os.path.exists(fld)
+

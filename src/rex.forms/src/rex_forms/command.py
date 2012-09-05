@@ -13,10 +13,12 @@ OWNER = "/&meta_owner"
 
 class RoadsCommand(Command):
 
-    def check_packets(self, code, version):
-        folder = self.app.config.instrument_folder
-        fld = "%s/%s/%s/packets" % (folder, code, version)
-        return os.path.exists(fld)
+    def set_handler(self):
+        if 'client.speaks.oscr' in self.app.handler_by_name:
+            self.handler = self.app.handler_by_name['client.speaks.oscr']
+        else:
+            self.handler = self.parent
+
 
 @register_command
 class InstrumentList(RoadsCommand):
@@ -24,7 +26,8 @@ class InstrumentList(RoadsCommand):
     name = '/instrument_list'
 
     def render(self, req):
-        res = self.parent.get_list_of_instruments()
+        self.set_handler()
+        res = self.handler.get_list_of_instruments()
         return Response(body=simplejson.dumps(res))
 
 
@@ -34,10 +37,11 @@ class LoadInstrument(RoadsCommand):
     name = '/load_instrument'
 
     def render(self, req):
+        self.set_handler()
         code = req.GET.get('code')
         if not code:
             return Response(status='401', body='Code not provided')
-        instrument, _ = self.parent.get_latest_instrument(code)
+        instrument, _ = self.handler.get_latest_instrument(code)
         if not instrument:
             return Response(body='Instrument not found')
         return Response(body=instrument)
@@ -49,6 +53,7 @@ class AddInstrument(RoadsCommand):
     name = '/add_instrument'
 
     def render(self, req):
+        self.set_handler()
         post = req.POST.get('data')
         instrument_name = req.POST.get('instrument')
         if not post:
@@ -58,14 +63,14 @@ class AddInstrument(RoadsCommand):
         self.user = req.environ.get('REMOTE_USER')
         post = simplejson.loads(post)
         new_instr = Instrument(post, instrument_name)
-        old_instr, version = self.parent.get_latest_instrument(new_instr.code)
+        old_instr, version = self.handler.get_latest_instrument(new_instr.code)
         if not old_instr:
             #such instrument doesn't exist - adding it
-            self.parent.store_instrument(new_instr.code, post, '1', req)
+            self.handler.store_instrument(new_instr.code, post, '1', req)
             return Response(body='Saved!')
-        if not self.check_packets(new_instr.code, version):
+        if not self.handler.check_packets(new_instr.code, version):
             #no packets exist
-            self.parent.store_instrument(new_instr.code, post, version, req)
+            self.handler.store_instrument(new_instr.code, post, version, req)
             return Response(body='Saved!')
         old_instr = Instrument(simplejson.loads(old_instr), instrument_name)
         for que in new_instr.questions:
@@ -74,11 +79,11 @@ class AddInstrument(RoadsCommand):
             if not new_question.isEqual(old_question):
                 #new version is needed
                 version = str(int(version) + 1)
-                self.parent.store_instrument(new_instr.code, post,
+                self.handler.store_instrument(new_instr.code, post,
                                              version, req)
                 return Response(body='Saved!')
         #only minor changes - replacing instrument
-        self.parent.store_instrument(new_instr.code, post, version, req)
+        self.handler.store_instrument(new_instr.code, post, version, req)
         return Response(body='Saved!')
 
 
@@ -91,6 +96,7 @@ class SaveState(RoadsCommand):
         return {}
 
     def render(self, req):
+        self.set_handler()
         post = req.POST.get('data')
         if not post:
             return Response(status='401', body='No POST data provided')
@@ -125,25 +131,21 @@ class StartRoads(RoadsCommand):
     def get_test_mode(self, req):
         return req.GET.get('test')
 
-    def get_packet(self, req):
-        return req.GET.get('packet')
-
     def prepare_client_params(self, req):
         extra = self.get_extra_params(req)
         instrument = self.get_instrument(req)
         test = self.get_test_mode(req)
-        packet = self.get_packet(req)
+        packet = req.GET.get('packet')
         if not test:
             if not instrument:
                 raise BadRequestError('Mandatory'
                                       ' instrument not filled in')
         else:
             packet = None
-        handler = self.app.handler_by_name['rex.forms']
-        inst_json, version = handler.get_latest_instrument(instrument)
+        inst_json, version = self.handler.get_latest_instrument(instrument)
         if not test and not packet:
-            packet = handler.create_packet(instrument, version, req)
-        state = handler.get_packet(instrument, version, packet)
+            packet = self.handler.create_packet(instrument, version, req, extra)
+        state = self.handler.get_packet(instrument, version, packet)
         params = {
             'instrument' : inst_json,
             'package' : packet,
@@ -154,6 +156,7 @@ class StartRoads(RoadsCommand):
         return params
 
     def render(self, req):
+        self.set_handler()
         args = {
             'client_params': self.prepare_client_params(req)
         }
@@ -165,11 +168,12 @@ class MakePacket(RoadsCommand):
     name = '/make_packet'
 
     def render(self, req):
+        self.set_handler()
         code = req.GET.get('instrument')
         if not code:
             return Response(status='401', body='Code not provided')
-        _, version = self.parent.get_latest_instrument(code)
-        packet = self.parent.create_packet(code, version, req)
+        _, version = self.handler.get_latest_instrument(code)
+        packet = self.handler.create_packet(code, version, req)
         return Response(body=packet)
 
 @register_command
@@ -178,13 +182,14 @@ class RoadsBuilder(RoadsCommand):
     name = '/builder'
 
     def render(self, req):
+        self.set_handler()
         if not self.app.config.default_builder:
             return Response(status='403', body='Forbidden')
 
         code = req.GET.get('instrument')
         if not code:
             return Response(status='401', body='Code not provided')
-        instrument, _ = self.parent.get_latest_instrument(code)
+        instrument, _ = self.handler.get_latest_instrument(code)
 
         # if not instrument:
         #    return Response(body='Instrument not found')

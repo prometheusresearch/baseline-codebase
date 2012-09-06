@@ -21,14 +21,14 @@ class FolderVal(StrVal):
 @register_parameter
 class Folder(Parameter):
     """
-    A path to folder where ROADS instruments and packets are stored.
+    A path to folder where ROADS forms and packets are stored.
 
     Example:
-      instrument_folder: /files/roads
+      form_folder: /files/roads
     """
 
 
-    name = 'instrument_folder'
+    name = 'form_folder'
     validator = FolderVal(is_nullable=False)
 
 @register_parameter
@@ -76,8 +76,8 @@ class FormsPackageHandler(PackageHandler):
         self.lock = RLock()
         super(FormsPackageHandler, self).__init__(app, package)
 
-    def get_latest_instrument(self, code):
-        folder = self.app.config.instrument_folder
+    def get_latest_form(self, code):
+        folder = self.app.config.form_folder
         fld = "%s/%s" % (folder, code)
         with self.lock:
             if not os.path.exists(fld):
@@ -92,7 +92,7 @@ class FormsPackageHandler(PackageHandler):
                     if dir_ver > latest:
                         latest = dir_ver
             if latest == -1:
-                #No instruments yet exist
+                #No forms yet exist
                 return None, 0
             file_name = "%s/%d/instrument.js" % (fld, latest)
             if os.path.exists(file_name):
@@ -101,8 +101,8 @@ class FormsPackageHandler(PackageHandler):
             else:
                 return None, 0
 
-    def store_instrument(self, code, json, version, req):
-        folder = self.app.config.instrument_folder
+    def store_form(self, code, json, version, req):
+        folder = self.app.config.form_folder
         fld = "%s/%s/%s" % (folder, code, version)
         key = self.app.config.environ_user_key
         user = req.environ.get(key, '')
@@ -129,7 +129,7 @@ class FormsPackageHandler(PackageHandler):
 
     def create_packet(self, code, version, req, extra):
         with self.lock:
-            folder = self.app.config.instrument_folder
+            folder = self.app.config.form_folder
             fld = "%s/%s/%s/packets_details" % (folder, code, version)
             if not os.path.exists(fld):
                 os.makedirs(fld)
@@ -157,27 +157,27 @@ class FormsPackageHandler(PackageHandler):
             f.close()
             return packet
 
-    def get_packet(self, instrument, version, packet):
+    def get_packet(self, form, version, packet):
         with self.lock:
-            folder = self.app.config.instrument_folder
+            folder = self.app.config.form_folder
             fld = "%s/%s/%s/packets/%s.js" \
-                    % (folder, instrument, version, packet)
+                    % (folder, form, version, packet)
             if not os.path.exists(fld):
                 return '{}'
             else:
                 f = open(fld, 'r')
                 return f.read()
 
-    def save_packet(self, instrument, version, packet, data):
+    def save_packet(self, form, version, packet, data):
         with self.lock:
-            folder = self.app.config.instrument_folder
+            folder = self.app.config.form_folder
             fld = "%s/%s/%s/packets/%s.js"\
-                    % (folder, instrument, version, packet)
+                    % (folder, form, version, packet)
             user_data = data.pop('user_data', {})
             f = open(fld, 'w')
             f.write(simplejson.dumps(data, indent=1))
             f.close()
-            fld = "%s/%s/%s/packets_details/%s.js" % (folder, instrument,\
+            fld = "%s/%s/%s/packets_details/%s.js" % (folder, form,\
                                                       version, packet)
             log = simplejson.load(open(fld, 'r'))
             finished = data.get('finish')
@@ -193,19 +193,19 @@ class FormsPackageHandler(PackageHandler):
             f.write(simplejson.dumps(log, indent=1))
             f.close()
 
-    def get_list_of_instruments(self):
-        folder = self.app.config.instrument_folder
+    def get_list_of_forms(self):
+        folder = self.app.config.form_folder
         if os.path.exists(folder):
             return os.walk(folder).next()[1]
         else:
             return []
 
-    def set_packet_user_data(self, instrument, packet, user_data):
+    def set_packet_user_data(self, form, packet, user_data):
         with self.lock:
-            folder = self.app.config.instrument_folder
-            _, version = self.get_latest_instrument(instrument)
+            folder = self.app.config.form_folder
+            _, version = self.get_latest_form(form)
             file_name = "%s/%s/%s/packets_details/%s.js" % (folder,\
-                             instrument, version, packet)
+                            form, version, packet)
             data = simplejson.load(open(file_name, 'r'))
             if 'user_data' in data:
                 data['user_data'].update(user_data)
@@ -215,22 +215,22 @@ class FormsPackageHandler(PackageHandler):
             f.write(simplejson.dumps(data, indent=1))
             f.close()
 
-    def get_packet_data(self, instrument, packet):
+    def get_packet_data(self, form, packet):
         with self.lock:
-            folder = self.app.config.instrument_folder
-            _, version = self.get_latest_instrument(instrument)
+            folder = self.app.config.form_folder
+            _, version = self.get_latest_form(form)
             file_name = "%s/%s/%s/packets_details/%s.js" % (folder,\
-                             instrument, version, packet)
+                             form, version, packet)
             if os.path.isfile(file_name):
                 data = simplejson.load(open(file_name, 'r'))
             else:
                 data = {}
             return data
 
-    def set_instrument_user_data(self, instrument, user_data):
+    def set_form_user_data(self, form, user_data):
         with self.lock:
-            folder = self.app.config.instrument_folder
-            folder = "%s/%s/user_data.js" % (folder, instrument)
+            folder = self.app.config.form_folder
+            folder = "%s/%s/user_data.js" % (folder, form)
             if os.path.exists(folder):
                 data = simplejson.load(open(folder, 'r'))
             else:
@@ -241,50 +241,50 @@ class FormsPackageHandler(PackageHandler):
             f.write(simplejson.dumps(data, indent=1))
             f.close()
 
-    def get_instrument_user_data(self, instrument):
+    def get_form_user_data(self, form):
         with self.lock:
-            folder = self.app.config.instrument_folder
-            folder = "%s/%s/user_data.js" % (folder, instrument)
+            folder = self.app.config.form_folder
+            folder = "%s/%s/user_data.js" % (folder, form)
             try:
                 data = simplejson.load(open(folder, 'r'))
             except IOError:
                 data = {}
             return data
 
-    def get_list_of_instrument_w_version(self):
+    def get_list_of_forms_w_version(self):
         with self.lock:
             result = {}
-            instruments = self.get_list_of_instruments()
-            for instrument in instruments:
-                _, version = self.get_latest_instrument(instrument)
-                user_data = self.get_instrument_user_data(instrument)
-                result[instrument] = {'version' : version,
-                                      'user_data' : user_data}
+            forms = self.get_list_of_forms()
+            for form in forms:
+                _, version = self.get_latest_form(form)
+                user_data = self.get_form_user_data(form)
+                result[form] = {'version' : version,
+                                'user_data' : user_data}
         return result
 
-    def get_packets(self, instrument, version):
-        folder = self.app.config.instrument_folder
-        folder = "%s/%s/%s/packets" % (folder, instrument, version)
+    def get_packets(self, form, version):
+        folder = self.app.config.form_folder
+        folder = "%s/%s/%s/packets" % (folder, form, version)
         if os.path.exists(folder):
             return [i[:-3] for i in os.walk(folder).next()[2]]
         return []
 
-    def get_instruments_with_packets(self, with_json=True,
-                                           instrument_filter=None,
-                                           packet_filter=None):
-        # TODO: optimize this, currently does too many of file operations
-        assert instrument_filter is None or callable(instrument_filter)
+    def get_forms_with_packets(self, with_json=True,
+                               form_filter=None,
+                               packet_filter=None):
+        #TODO: optimize this, currently does too many of file operations
+        assert form_filter is None or callable(form_filter)
         assert packet_filter is None or callable(packet_filter)
-        instruments = self.get_list_of_instruments()
+        forms = self.get_list_of_forms()
         result = []
-        for instrument in instruments:
-            json, version = self.get_latest_instrument(instrument)
-            user_data = self.get_instrument_user_data(instrument)
-            packets = self.get_packets(instrument, version)
+        for form in forms:
+            json, version = self.get_latest_form(form)
+            user_data = self.get_form_user_data(form)
+            packets = self.get_packets(form, version)
             packs = []
             for packet in packets:
-                p_json = self.get_packet(instrument, version, packet)
-                data = self.get_packet_data(instrument, packet)
+                p_json = self.get_packet(form, version, packet)
+                data = self.get_packet_data(form, packet)
                 if packet_filter is None or packet_filter(data):
                     pack = {
                         'id' : packet,
@@ -294,21 +294,21 @@ class FormsPackageHandler(PackageHandler):
                         'json' : p_json
                     }
                     packs.append(pack)
-            instrument = {
-                'instrument' : instrument,
+            form = {
+                'instrument' : form,
                 'version' : version,
                 'packets': packs,
                 'user_data': user_data,
             }
             if with_json:
-                instrument['json'] = json
-            if instrument_filter is None or instrument_filter(instrument):
-                result.append(instrument)
+                form['json'] = json
+            if form_filter is None or form_filter(form):
+                result.append(form)
         return result
 
 
     def check_packets(self, code, version):
-        folder = self.app.config.instrument_folder
+        folder = self.app.config.form_folder
         fld = "%s/%s/%s/packets" % (folder, code, version)
         return os.path.exists(fld)
 

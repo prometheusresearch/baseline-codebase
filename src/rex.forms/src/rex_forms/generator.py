@@ -9,7 +9,7 @@ class JsonError(Exception):
         return self.message
 
 
-class Instrument(object):
+class Form(object):
 
     def process_item(self, json):
         if json['type'] == 'group':

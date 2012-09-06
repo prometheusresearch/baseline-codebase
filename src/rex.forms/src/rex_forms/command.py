@@ -7,8 +7,7 @@ from rexrunner.command import Command
 from rexrunner.response import BadRequestError
 from rexrunner.registry import register_command
 
-from generator import Instrument
-
+from generator import Form
 OWNER = "/&meta_owner"
 
 class RoadsCommand(Command):
@@ -21,18 +20,18 @@ class RoadsCommand(Command):
 
 
 @register_command
-class InstrumentList(RoadsCommand):
+class FormList(RoadsCommand):
 
     name = '/instrument_list'
 
     def render(self, req):
         self.set_handler()
-        res = self.handler.get_list_of_instruments()
+        res = self.handler.get_list_of_forms()
         return Response(body=simplejson.dumps(res))
 
 
 @register_command
-class LoadInstrument(RoadsCommand):
+class LoadForm(RoadsCommand):
 
     name = '/load_instrument'
 
@@ -41,49 +40,49 @@ class LoadInstrument(RoadsCommand):
         code = req.GET.get('code')
         if not code:
             return Response(status='401', body='Code not provided')
-        instrument, _ = self.handler.get_latest_instrument(code)
-        if not instrument:
-            return Response(body='Instrument not found')
-        return Response(body=instrument)
+        form, _ = self.handler.get_latest_form(code)
+        if not form:
+            return Response(body='Form not found')
+        return Response(body=form)
 
 
 @register_command
-class AddInstrument(RoadsCommand):
+class AddForm(RoadsCommand):
 
     name = '/add_instrument'
 
     def render(self, req):
         self.set_handler()
         post = req.POST.get('data')
-        instrument_name = req.POST.get('instrument')
+        form_name = req.POST.get('instrument')
         if not post:
             return Response(status='401', body='No POST data provided')
-        if not instrument_name:
-            return Response(status='401', body='Instrument code not provided')
+        if not form_name:
+            return Response(status='401', body='Form code not provided')
         self.user = req.environ.get('REMOTE_USER')
         post = simplejson.loads(post)
-        new_instr = Instrument(post, instrument_name)
-        old_instr, version = self.handler.get_latest_instrument(new_instr.code)
-        if not old_instr:
-            #such instrument doesn't exist - adding it
-            self.handler.store_instrument(new_instr.code, post, '1', req)
+        new = Form(post, form_name)
+        old, version = self.handler.get_latest_form(new.code)
+        if not old:
+            #such form doesn't exist - adding it
+            self.handler.store_form(new.code, post, '1', req)
             return Response(body='Saved!')
-        if not self.handler.check_packets(new_instr.code, version):
+        if not self.handler.check_packets(new.code, version):
             #no packets exist
-            self.handler.store_instrument(new_instr.code, post, version, req)
+            self.handler.store_form(new.code, post, version, req)
             return Response(body='Saved!')
-        old_instr = Instrument(simplejson.loads(old_instr), instrument_name)
+        old = Form(simplejson.loads(old), form_name)
         for que in new_instr.questions:
-            new_question = new_instr.questions[que]
-            old_question = old_instr.questions.get(que)
+            new_question = new.questions[que]
+            old_question = old.questions.get(que)
             if not new_question.isEqual(old_question):
                 #new version is needed
                 version = str(int(version) + 1)
-                self.handler.store_instrument(new_instr.code, post,
+                self.handler.store_form(new.code, post,
                                              version, req)
                 return Response(body='Saved!')
-        #only minor changes - replacing instrument
-        self.handler.store_instrument(new_instr.code, post, version, req)
+        #only minor changes - replacing form
+        self.handler.store_form(new.code, post, version, req)
         return Response(body='Saved!')
 
 
@@ -103,12 +102,12 @@ class SaveState(RoadsCommand):
         data = simplejson.loads(post)
         data['user_data'] = self.get_user_data(req)
         code = req.POST.get('package')
-        instrument = req.POST.get('form')
-        if not code and instrument:
+        form = req.POST.get('form')
+        if not code and form:
             return Response(body='Wrong Json')
         handler = self.app.handler_by_name['rex.forms']
-        _, version = handler.get_latest_instrument(instrument)
-        handler.save_packet(instrument, version, code, data)
+        _, version = handler.get_latest_form(form)
+        handler.save_packet(form, version, code, data)
         return Response(body='Saved!')
 
 
@@ -125,7 +124,7 @@ class StartRoads(RoadsCommand):
                 extra[str(key)[2:]] = str(req.GET[key])
         return extra
 
-    def get_instrument(self, req):
+    def get_form(self, req):
         return req.GET.get('instrument')
 
     def get_test_mode(self, req):
@@ -133,24 +132,23 @@ class StartRoads(RoadsCommand):
 
     def prepare_client_params(self, req):
         extra = self.get_extra_params(req)
-        instrument = self.get_instrument(req)
+        form = self.get_form(req)
         test = self.get_test_mode(req)
         packet = req.GET.get('packet')
         if not test:
-            if not instrument:
-                raise BadRequestError('Mandatory'
-                                      ' instrument not filled in')
+            if not form:
+                raise BadRequestError('Mandatory form not filled in')
         else:
             packet = None
-        inst_json, version = self.handler.get_latest_instrument(instrument)
+        form_json, version = self.handler.get_latest_form(form)
         if not test and not packet:
-            packet = self.handler.create_packet(instrument, version, req, extra)
-        state = self.handler.get_packet(instrument, version, packet)
+            packet = self.handler.create_packet(form, version, req, extra)
+        state = self.handler.get_packet(form, version, packet)
         params = {
-            'instrument' : inst_json,
+            'instrument' : form_json,
             'package' : packet,
             'state' : state,
-            'instrument_id' : instrument,
+            'instrument_id' : form,
             'extra' : extra
         }
         return params
@@ -172,7 +170,7 @@ class MakePacket(RoadsCommand):
         code = req.GET.get('instrument')
         if not code:
             return Response(status='401', body='Code not provided')
-        _, version = self.handler.get_latest_instrument(code)
+        _, version = self.handler.get_latest_form(code)
         packet = self.handler.create_packet(code, version, req)
         return Response(body=packet)
 
@@ -189,10 +187,10 @@ class RoadsBuilder(RoadsCommand):
         code = req.GET.get('instrument')
         if not code:
             return Response(status='401', body='Code not provided')
-        instrument, _ = self.handler.get_latest_instrument(code)
+        form, _ = self.handler.get_latest_form(code)
 
-        # if not instrument:
-        #    return Response(body='Instrument not found')
+        # if not form:
+        #    return Response(body='Form not found')
 
         args = {
             'instrument': code,

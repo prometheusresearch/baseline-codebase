@@ -72,7 +72,7 @@ class AddForm(RoadsCommand):
             self.handler.store_form(new.code, post, version, req)
             return Response(body='Saved!')
         old = Form(simplejson.loads(old), form_name)
-        for que in new_instr.questions:
+        for que in new.questions:
             new_question = new.questions[que]
             old_question = old.questions.get(que)
             if not new_question.isEqual(old_question):

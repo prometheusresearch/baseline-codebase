@@ -83,37 +83,33 @@ class FormsPackageHandler(PackageHandler):
             if not os.path.exists(fld):
                 os.makedirs(fld)
                 return None, 0
-            dirs = os.walk(fld).next()[1]
-            latest = -1
-            target_reg_exp = re.compile('^\d+$')
-            for dir_name in dirs:
-                if target_reg_exp.match(dir_name):
-                    dir_ver = int(dir_name)
-                    if dir_ver > latest:
-                        latest = dir_ver
-            if latest == -1:
+            files = os.walk(fld).next()[2]
+            files = [int(i[:-3]) for i in files]
+            if files:
+                latest = max(files)
+            else:
                 #No forms yet exist
                 return None, 0
-            file_name = "%s/%d/instrument.js" % (fld, latest)
+            file_name = "%s/%d.js" % (fld, latest)
             if os.path.exists(file_name):
-                f = open("%s/%d/instrument.js" % (fld, latest), "r")
+                f = open(file_name, "r")
                 return f.read(), latest
             else:
                 return None, 0
 
     def store_form(self, code, json, version, req):
         folder = self.app.config.form_folder
-        fld = "%s/%s/%s" % (folder, code, version)
+        fld = "%s/%s" % (folder, code)
         key = self.app.config.environ_user_key
-        user = req.environ.get(key, '')
+        if req:
+           user = req.environ.get(key, '')
+        else:
+            user = ''
         with self.lock:
             if not os.path.exists(fld):
                 os.makedirs(fld)
-            log_path = "%s/%s/change_log.yaml" % (folder, code)
-            if os.path.exists(log_path):
-                log = simplejson.load(open(log_path, 'r'))
-            else:
-                log = []
+            user_data = self.get_form_user_data(code)
+            log = user_data.get('log', [])
             if log:
                 log.append({'updated-by' : user,
                             'date' : time.strftime("%Y-%m-%d %H:%M"),
@@ -122,46 +118,47 @@ class FormsPackageHandler(PackageHandler):
                 log.append({'created-by' : user,
                             'date' : time.strftime("%Y-%m-%d %H:%M"),
                             'version' : version})
-            f = open(log_path, 'w')
-            f.write(simplejson.dumps(log, indent=1))
-            f = open("%s/instrument.js" % fld, "w")
+            user_data['log'] = log
+            if 'user_data' in json:
+                json['user_data'].update(user_data)
+            else:
+                json['user_data'] = user_data
+            f = open("%s/%s.js" % (fld, version), "w")
             f.write(simplejson.dumps(json, indent=1))
 
     def create_packet(self, code, version, req, extra):
         with self.lock:
             folder = self.app.config.form_folder
-            fld = "%s/%s/%s/packets_details" % (folder, code, version)
-            if not os.path.exists(fld):
-                os.makedirs(fld)
-            fld = "%s/%s/%s/packets" % (folder, code, version)
+            fld = "%s/%s/packets" % (folder, code)
             if not os.path.exists(fld):
                 os.makedirs(fld)
             packets = os.walk(fld).next()[2]
             if not packets:
                 packet = '1'
             else:
-                files = [int(i[:-3]) for i in packets]
+                files = [int(i.split('_')[0]) for i in packets]
                 final = max(files)
                 packet = str(final + 1)
-            f = open("%s/%s.js" % (fld, packet), "w")
-            f.write('{}')
-            f.close()
-            fld = "%s/%s/%s/packets_details" % (folder, code, version)
-            f = open("%s/%s.js" % (fld, packet), "w")
-            key = self.app.config.environ_user_key
-            user = req.environ.get(key, '')
+            if req:
+                key = self.app.config.environ_user_key
+                user = req.environ.get(key, '')
+            else:
+                user = ''
             log = {'created-by' : user,
                    'data-entry-status' : 'not-started',
                    'date' : time.strftime("%Y-%m-%d %H:%M")}
-            f.write(simplejson.dumps(log, indent=1))
+            data = {'version' : version,
+                    'user_data' : log}
+            f = open("%s/%s_%s.js" % (fld, packet, version), "w")
+            f.write(simplejson.dumps(data, indent=1))
             f.close()
             return packet
 
     def get_packet(self, form, version, packet):
         with self.lock:
             folder = self.app.config.form_folder
-            fld = "%s/%s/%s/packets/%s.js" \
-                    % (folder, form, version, packet)
+            fld = "%s/%s/packets/%s_%s.js" \
+                    % (folder, form, packet, version)
             if not os.path.exists(fld):
                 return '{}'
             else:
@@ -171,26 +168,22 @@ class FormsPackageHandler(PackageHandler):
     def save_packet(self, form, version, packet, data):
         with self.lock:
             folder = self.app.config.form_folder
-            fld = "%s/%s/%s/packets/%s.js"\
-                    % (folder, form, version, packet)
-            user_data = data.pop('user_data', {})
+            fld = "%s/%s/packets/%s_%s.js"\
+                    % (folder, form, packet, version)
+            user_data = data.get('user_data', {})
+            f = open(fld, 'r')
+            old = simplejson.load(f)
+            old_data = old.get('user_data')
+            old_data.update(user_data)
+            finished = data.get('finished')
+            if finished:
+                old_data['data-entry-status'] = 'complete'
+            else:
+                old_data['data-entry-status'] = 'in-progress'
+            data['user_data'] = old_data
+            f.close()
             f = open(fld, 'w')
             f.write(simplejson.dumps(data, indent=1))
-            f.close()
-            fld = "%s/%s/%s/packets_details/%s.js" % (folder, form,\
-                                                      version, packet)
-            log = simplejson.load(open(fld, 'r'))
-            finished = data.get('finish')
-            if not finished:
-                log['data-entry-status'] = 'in-progress'
-            else:
-                log['data-entry-status'] = 'complete'
-            if 'user_data' in log:
-                log['user_data'].update(user_data)
-            else:
-                log['user_data'] = user_data
-            f = open(fld, "w")
-            f.write(simplejson.dumps(log, indent=1))
             f.close()
 
     def get_list_of_forms(self):
@@ -204,8 +197,8 @@ class FormsPackageHandler(PackageHandler):
         with self.lock:
             folder = self.app.config.form_folder
             _, version = self.get_latest_form(form)
-            file_name = "%s/%s/%s/packets_details/%s.js" % (folder,\
-                            form, version, packet)
+            file_name = "%s/%s/packets/%s_%s.js" % (folder,\
+                            form, packet, version)
             data = simplejson.load(open(file_name, 'r'))
             if 'user_data' in data:
                 data['user_data'].update(user_data)
@@ -219,37 +212,32 @@ class FormsPackageHandler(PackageHandler):
         with self.lock:
             folder = self.app.config.form_folder
             _, version = self.get_latest_form(form)
-            file_name = "%s/%s/%s/packets_details/%s.js" % (folder,\
-                             form, version, packet)
+            file_name = "%s/%s/packets/%s_%s.js" % (folder,\
+                             form, packet, version)
             if os.path.isfile(file_name):
-                data = simplejson.load(open(file_name, 'r'))
+                return simplejson.load(open(file_name, 'r')).get('user_data', {})
             else:
-                data = {}
-            return data
+                return {}
 
     def set_form_user_data(self, form, user_data):
-        with self.lock:
-            folder = self.app.config.form_folder
-            folder = "%s/%s/user_data.js" % (folder, form)
-            if os.path.exists(folder):
-                data = simplejson.load(open(folder, 'r'))
-            else:
-                data = {}
+        old_data, version = self.get_latest_form(form)
+        if old_data:
+            old_u_data = old_data.get('user_data', {})
             for key in user_data:
-                data[key] = user_data[key]
-            f = open(folder, 'w')
-            f.write(simplejson.dumps(data, indent=1))
-            f.close()
+                old_u_data[key] = user_data[key]
+            old_data['user_data'] = old_u_data
+        else:
+            old_data = {'user_data': user_data}
+            version = 1
+        self.store_form(form, old_data, version, None, False)
 
     def get_form_user_data(self, form):
-        with self.lock:
-            folder = self.app.config.form_folder
-            folder = "%s/%s/user_data.js" % (folder, form)
-            try:
-                data = simplejson.load(open(folder, 'r'))
-            except IOError:
-                data = {}
-            return data
+        data, _ = self.get_latest_form(form)
+        if data:
+            data = simplejson.loads(data)
+            return data.get('user_data', {})
+        else:
+            return {}
 
     def get_list_of_forms_w_version(self):
         with self.lock:
@@ -264,9 +252,16 @@ class FormsPackageHandler(PackageHandler):
 
     def get_packets(self, form, version):
         folder = self.app.config.form_folder
-        folder = "%s/%s/%s/packets" % (folder, form, version)
+        folder = "%s/%s/packets" % (folder, form)
         if os.path.exists(folder):
-            return [i[:-3] for i in os.walk(folder).next()[2]]
+            lst = [str(i[:-3]) for i in os.walk(folder).next()[2]]
+            res = []
+            for l in lst:
+                name, ver = l.split('_')
+                ver = int(ver)
+                if ver == version:
+                    res.append(name)
+            return res
         return []
 
     def get_forms_with_packets(self, with_json=True,
@@ -288,7 +283,7 @@ class FormsPackageHandler(PackageHandler):
                 if packet_filter is None or packet_filter(data):
                     pack = {
                         'id' : packet,
-                        'user_data' : data.get('user_data', {}),
+                        'user_data' : data,
                         'data-entry-status' : data.get('data-entry-status',\
                                                        'not-started'),
                         'json' : p_json
@@ -308,7 +303,5 @@ class FormsPackageHandler(PackageHandler):
 
 
     def check_packets(self, code, version):
-        folder = self.app.config.form_folder
-        fld = "%s/%s/%s/packets" % (folder, code, version)
-        return os.path.exists(fld)
+        return self.get_packets(code, version)
 

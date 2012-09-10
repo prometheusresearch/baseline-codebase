@@ -16,6 +16,7 @@ $.RoadsBuilder.QTypes = {
     'enum': 'One-choice List',
     'set': 'Multi-select List',
     'string': 'Text String',
+    'text': 'Text',
     'date': 'Date',
     'rep_group': 'Repeating Group of Questions'
 };
@@ -1089,7 +1090,11 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                         for (var answerCode in choices) {
                             // console.log(choicesList);
                             var choice = choices[answerCode];
-                            $.RoadsBuilder.addChoiceReal(choicesList, answerCode, choice['title'], isFirst, false);
+                            $.RoadsBuilder.addChoiceReal(choicesList,
+                                                         answerCode,
+                                                         choice['title'],
+                                                         isFirst,
+                                                         false);
                             isFirst = false;
                         }
                     }
@@ -1136,7 +1141,9 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
             inputTitle.change(function () {
                 var title = $(this).val();
                 if (inputName.hasClass('slave')) {
-                    inputName.val($.RoadsBuilder.getReadableId(title, true, '_', 45));
+                    inputName.val(
+                        $.RoadsBuilder.getReadableId(title, true, '_', 45)
+                    );
                 }
             })
 
@@ -1168,7 +1175,8 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
             questionType = $('select[name="question-type"]', editor);
 
             if (parent[0] !== questionListDiv[0])
-                // currently we don't support repeating groups inside repeating groups
+                // currently we don't support repeating 
+                // groups inside repeating groups
                 questionType.find('option[value="rep_group"]').remove();
 
             questionType.val(question['questionType']);
@@ -1188,7 +1196,9 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
             $.RoadsBuilder.updateConstraintsDescription(editor);
             
             editor.find('.rb_small_button:first').click(function () {
-                $.RoadsBuilder.addNewSubQuestion(editor.find('.rb_subquestion_list:first'));
+                $.RoadsBuilder.addNewSubQuestion(
+                    editor.find('.rb_subquestion_list:first')
+                );
             });
 
             editorPlace.append(editor);
@@ -1200,7 +1210,10 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                 var listDiv = editor.find('.rb_subquestion_list');
 
                 for (var idx in question['repeatingGroup'])
-                    $.RoadsBuilder.addQuestionDiv(question['repeatingGroup'][idx], listDiv);
+                    $.RoadsBuilder.addQuestionDiv(
+                        question['repeatingGroup'][idx], 
+                        listDiv
+                    );
             }
 
         }, parent);
@@ -1712,7 +1725,9 @@ $.RoadsBuilder.updateDisableLogicDescription = function(questionEditor) {
     if (disableIf) {
         targetSpan.removeClass('disable_logic_not_set')
                   .html('Disabled if:&nbsp;&nbsp;' 
-                        + $.RoadsBuilder.escapeHTML($.RoadsBuilder.truncateText(disableIf, 30)));
+                        + $.RoadsBuilder.escapeHTML(
+                            $.RoadsBuilder.truncateText(disableIf, 30))
+                          );
     } else {
         targetSpan.addClass('disable_logic_not_set')
                   .html('Never disabled');
@@ -1914,12 +1929,18 @@ $.RoadsBuilder.processREXLObject = function (rexlObj, chCount, oldName, newName)
         if (rexlObj.type === "OPERATION" &&
             rexlObj.value === "." && rexlObj.args.length > 0) {
 
-            chCount += $.RoadsBuilder.processREXLObject(rexlObj.args[0], chCount, oldName, newName);
+            chCount += $.RoadsBuilder.processREXLObject(rexlObj.args[0],
+                                                        chCount,
+                                                        oldName,
+                                                        newName);
 
         } else {
 
             for (var idx in rexlObj.args) {
-                chCount += $.RoadsBuilder.processREXLObject(rexlObj.args[idx], chCount, oldName, newName);
+                chCount += $.RoadsBuilder.processREXLObject(rexlObj.args[idx],
+                                                            chCount,
+                                                            oldName,
+                                                            newName);
             }
         }
     }
@@ -1927,11 +1948,17 @@ $.RoadsBuilder.processREXLObject = function (rexlObj, chCount, oldName, newName)
     return chCount;
 }
 
-$.RoadsBuilder.renameREXLIdentifierIfExist = function (obj, condName, oldName, newName) {
+$.RoadsBuilder.renameREXLIdentifierIfExist = 
+        function (obj, condName, oldName, newName) {
+
     var chCounter = 0;
 
     if (obj[condName] && obj.cache && obj.cache[condName]) {
-        if (chCounter = $.RoadsBuilder.processREXLObject(obj.cache[condName], 0, oldName, newName)) {
+        if (chCounter = $.RoadsBuilder.processREXLObject(obj.cache[condName], 
+                                                         0, 
+                                                         oldName, 
+                                                         newName)) {
+
             obj[condName] = obj.cache[condName].toString();
             console.log('updated:', obj[condName]);
         }
@@ -1942,28 +1969,50 @@ $.RoadsBuilder.renameREXLIdentifierIfExist = function (obj, condName, oldName, n
 $.RoadsBuilder.renameREXLIdentifiers = function (oldName, newName) {
     var qIndex = $.RoadsBuilder.context.getIndexByType('question');
     for (var pos in qIndex) {
-        $.RoadsBuilder.renameREXLIdentifierIfExist(qIndex[pos], 'disableIf', oldName, newName);
-        $.RoadsBuilder.renameREXLIdentifierIfExist(qIndex[pos], 'constraints', oldName, newName);
+        $.RoadsBuilder.renameREXLIdentifierIfExist(qIndex[pos], 
+                                                   'disableIf',
+                                                   oldName,
+                                                   newName);
+        $.RoadsBuilder.renameREXLIdentifierIfExist(qIndex[pos],
+                                                   'constraints', 
+                                                   oldName, 
+                                                   newName);
     }
 
     $('.rb_question_editor', questionListDiv).each(function () {
         var editor = $(this);
 
-        if ($.RoadsBuilder.renameREXLIdentifierIfExist(this, 'disableIf', oldName, newName))
-            $.RoadsBuilder.updateDisableLogicDescription(editor);
+        if ($.RoadsBuilder.renameREXLIdentifierIfExist(this, 
+                                                       'disableIf',
+                                                       oldName,
+                                                       newName)) {
 
-        if ($.RoadsBuilder.renameREXLIdentifierIfExist(this, 'constraints', oldName, newName))
+            $.RoadsBuilder.updateDisableLogicDescription(editor);
+        }
+
+        if ($.RoadsBuilder.renameREXLIdentifierIfExist(this, 
+                                                       'constraints',
+                                                       oldName,
+                                                       newName)) {
+
             $.RoadsBuilder.updateConstraintsDescription(editor);
+        }
     });
 
     var pIndex = $.RoadsBuilder.context.getIndexByType('page');
     for (var pos in pIndex) {
-        $.RoadsBuilder.renameREXLIdentifierIfExist(pIndex[pos], 'skipIf', oldName, newName);
+        $.RoadsBuilder.renameREXLIdentifierIfExist(pIndex[pos],
+                                                   'skipIf',
+                                                   oldName,
+                                                   newName);
     }
 
     var pIndex = $.RoadsBuilder.context.getIndexByType('group');
     for (var pos in pIndex) {
-        $.RoadsBuilder.renameREXLIdentifierIfExist(pIndex[pos], 'skipIf', oldName, newName);
+        $.RoadsBuilder.renameREXLIdentifierIfExist(pIndex[pos],
+                                                   'skipIf',
+                                                   oldName,
+                                                   newName);
     }
 }
 
@@ -2051,7 +2100,9 @@ $.RoadsBuilder.getPageSummary = function(data, targetDiv) {
                         + '</strong>');
     else if (data.questions.length > 0) {
         var ret = '<strong>'
-                + $.RoadsBuilder.escapeHTML($.RoadsBuilder.truncateText(data.questions[0].title, 40))
+                + $.RoadsBuilder.escapeHTML(
+                      $.RoadsBuilder.truncateText(data.questions[0].title, 40)
+                  )
                 + '</strong>';
         if (data.questions.length > 1)
             ret += "<BR>and " + (data.questions.length - 1)
@@ -2091,7 +2142,9 @@ $.RoadsBuilder.addPage = function(page, to) {
         var newGroup = $.RoadsBuilder.createGroup('pageGroup');
         if (to) {
             to.append(newGroup);
-            $.RoadsBuilder.setPageListSortable(newGroup.find('.rb_class_pages_list'));
+            $.RoadsBuilder.setPageListSortable(
+                newGroup.find('.rb_class_pages_list')
+            );
         }
         
         $.RoadsBuilder.makeREXLCache(page, 'skipIf');
@@ -2099,7 +2152,9 @@ $.RoadsBuilder.addPage = function(page, to) {
         newGroup.data('data', page);
         $.RoadsBuilder.updateGroupDiv(newGroup);
         for (var idx in page.pages) {
-            $.RoadsBuilder.addPage(page.pages[idx], newGroup.children('.rb_class_pages_list'));
+            $.RoadsBuilder.addPage(
+                page.pages[idx], newGroup.children('.rb_class_pages_list')
+            );
         }
 
         return newGroup;
@@ -2589,6 +2644,7 @@ $(document).ready(function () {
                     ret.type = 'date';
                     break;
                 case 'string':
+                case 'text':
                 default:
                     ret.type = 'string';
                     break;
@@ -2910,7 +2966,8 @@ $.RoadsBuilder.createGroup = function(groupType) {
 
 $.RoadsBuilder.processSelectedPages = function(newGroupName) {
     var firstPage = $.RoadsBuilder.currentSelection[0];
-    var lastPage = $.RoadsBuilder.currentSelection[$.RoadsBuilder.currentSelection.length - 1];
+    var lastPage = 
+        $.RoadsBuilder.currentSelection[$.RoadsBuilder.currentSelection.length - 1];
     var pushToGroup = [];
 
     if (firstPage === lastPage) {
@@ -2940,7 +2997,8 @@ $.RoadsBuilder.processSelectedPages = function(newGroupName) {
         var total = $.RoadsBuilder.currentSelection.length;
 
         for (var idx = 1; idx < total; idx++) {
-            var currentCutoff = $.RoadsBuilder.getCutoff($.RoadsBuilder.currentSelection[idx], 
+            var currentCutoff = 
+                $.RoadsBuilder.getCutoff($.RoadsBuilder.currentSelection[idx], 
                                         'page');
             cutoff = $.RoadsBuilder.interceptCutoff(cutoff, currentCutoff);
             if (cutoff.length - 1 < lowestAllowedLevel) {
@@ -3003,7 +3061,8 @@ $.RoadsBuilder.stopPollingTimeout = function() {
 }
 
 $.RoadsBuilder.startPollingTimeout = function() {
-    $.RoadsBuilder.progressDialog.pollTimeout = setTimeout("$.RoadsBuilder.progressDialogPolling()", 1000);
+    $.RoadsBuilder.progressDialog.pollTimeout =
+        setTimeout("$.RoadsBuilder.progressDialogPolling()", 1000);
 }
 
 $.RoadsBuilder.progressDialogPolling = function() {

@@ -74,31 +74,39 @@ Domain.prototype.extractValue = function (node) {
 };
 
 
-var StringDomain = function() {
-    Domain.call(this, 'string');
+var TextDomain = function(multiLine) {
+    Domain.call(this, 'text');
+    this.multiLine = multiLine;
 };
-extend(StringDomain, Domain);
-StringDomain.prototype.render = function (templates, value, onChange) {
-    var textarea = $('<textarea></textarea>');
+extend(TextDomain, Domain);
+TextDomain.prototype.render = function (templates, value, onChange) {
+    var input;
 
-    if (onChange) {
-        textarea.focusin(function () {
-            this.initialValue = $(this).val();
-        });
-        textarea.focusout(function () {
-            var value = $(this).val();
-            if (value !== this.initialValue)
-                onChange();
-        });
+    if (this.multiLine) {
+        input = $('<textarea></textarea>');
+        if (onChange) {
+            input.focusin(function () {
+                this.initialValue = $(this).val();
+            });
+            input.focusout(function () {
+                var value = $(this).val();
+                if (value !== this.initialValue)
+                    onChange();
+            });
+        }
+    } else {
+        input = $('<input type="text">')
+        if (onChange)
+            input.change(onChange);
     }
 
-    this.setValue(textarea, value);
-    return textarea;
+    this.setValue(input, value);
+    return input;
 };
-StringDomain.prototype.setValue = function (node, value) {
+TextDomain.prototype.setValue = function (node, value) {
     node.val( (value !== null && value !== undefined) ? value : '' );
 };
-StringDomain.prototype.extractValue = function (node) {
+TextDomain.prototype.extractValue = function (node) {
     return $.trim( node.val() ) || null;
 };
 
@@ -354,7 +362,8 @@ var domain = {
     all: {
         'integer': NumberDomain,
         'float': NumberDomain,
-        'string': StringDomain,
+        'string': TextDomain,
+        'text': TextDomain,
         'enum': EnumDomain,
         'set': SetDomain,
         'date': DateDomain,
@@ -367,17 +376,22 @@ var domain = {
     },
 
     getFromDef: function(def) {
+        var questionType = def.questionType;
 
-        switch(def.questionType) {
+        switch(questionType) {
         case "enum":
         case "set":
-            return this.get(def.questionType, def.answers);
+            return this.get(questionType, def.answers);
         case "integer":
         case "float":
-            return this.get(def.questionType, 
-                            "float" === def.questionType);
+            return this.get(questionType, 
+                            "float" === questionType);
         case "rep_group":
-            return this.get(def.questionType, def.repeatingGroup);
+            return this.get(questionType, def.repeatingGroup);
+        case "string":
+        case "text":
+            return this.get(questionType,
+                            "text" === questionType);
         }
 
         return this.get(def.questionType);

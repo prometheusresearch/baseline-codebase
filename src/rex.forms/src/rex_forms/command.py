@@ -16,7 +16,7 @@ class RoadsCommand(Command):
         if 'client.speaks.oscr' in self.app.handler_by_name:
             self.handler = self.app.handler_by_name['client.speaks.oscr']
         else:
-            self.handler = self.parent
+            self.handler = self.app.handler_by_name['rex.forms']
 
 
 @register_command

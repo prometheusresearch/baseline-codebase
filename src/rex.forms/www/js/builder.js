@@ -853,6 +853,15 @@ $.RoadsBuilder.preparePageMeta = function(pageDiv, to) {
 }
 
 $.RoadsBuilder.generateMetaJSON = function(instrumentName, doBeautify) {
+    var instrumentMeta = $.RoadsBuilder.generateMeta(instrumentName);
+
+    if (doBeautify && JSON && JSON.stringify)
+        return JSON.stringify(instrumentMeta, null, 4);
+
+    return $.toJSON(instrumentMeta);
+}
+
+$.RoadsBuilder.generateMeta = function(instrumentName) {
     var instrumentMeta = {
         pages: [],
         params: [],
@@ -872,10 +881,7 @@ $.RoadsBuilder.generateMetaJSON = function(instrumentName, doBeautify) {
         root.push(jThis.data('data'));
     });
 
-    if (doBeautify && JSON && JSON.stringify)
-        return JSON.stringify(instrumentMeta, null, 4);
-
-    return $.toJSON(instrumentMeta);
+    return instrumentMeta;
 }
 
 $.RoadsBuilder.saveInstrumentReal = function(callback) {
@@ -885,12 +891,21 @@ $.RoadsBuilder.saveInstrumentReal = function(callback) {
         instrumentName = prompt("Please set instrument name:");
 
     if (instrumentName) {
-    
-        var schema = 'instrument=' + encodeURIComponent(instrumentName) + '&data=' 
-                    + encodeURIComponent(
-                        $.RoadsBuilder.generateMetaJSON(instrumentName));
+        var meta = $.RoadsBuilder.generateMeta(instrumentName);
 
-        var url = $.RoadsBuilder.urlSaveForm || 
+        console.log('meta:', meta, 'meta.pages', meta.pages);
+
+        if (!meta.pages.length ||
+            !meta.pages[0].questions.length) {
+            alert('A form should contain at least one question!');
+            return;
+        }
+
+        meta = $.toJSON(meta);
+        var schema = 'instrument=' + encodeURIComponent(instrumentName) 
+                    + '&data=' + encodeURIComponent( meta );
+
+        var url = $.RoadsBuilder.urlSaveForm ||
                  ($.RoadsBuilder.basePrefix + "/add_instrument");
         $.ajax({url : url,
             success : function(content) {

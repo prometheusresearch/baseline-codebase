@@ -855,7 +855,8 @@ $.RoadsBuilder.preparePageMeta = function(pageDiv, to) {
 $.RoadsBuilder.generateMetaJSON = function(instrumentName, doBeautify) {
     var instrumentMeta = {
         pages: [],
-        params: []
+        params: [],
+        title: $.RoadsBuilder.instrumentTitle
     };
 
     var root = instrumentMeta['pages'];
@@ -2279,6 +2280,8 @@ $.RoadsBuilder.evaluateMeta = function(meta) {
         var param = rel.params[idx];
         $.RoadsBuilder.addParameter(param);
     }
+
+    $.RoadsBuilder.setFormTitle( meta.title );
 }
 
 $.RoadsBuilder.updateConstraintsDescription = function(questionEditor) {
@@ -2420,6 +2423,7 @@ $.RoadsBuilder.getQuestionDescription = function(questionData) {
 $.RoadsBuilder.newInstrument = function() {
     $.RoadsBuilder.clearWorkspace();
     $.RoadsBuilder.instrumentName = null;
+    $.RoadsBuilder.instrumentTitle = '';
     $.RoadsBuilder.context.clearIndexes();
 }
 
@@ -2494,7 +2498,7 @@ $.RoadsBuilder.currentPositionIndex = null;
 
 $.RoadsBuilder.currentPage = null;
 
-$.RoadsBuilder.onPageTitleChanged = function() {
+$.RoadsBuilder.onPageTitleChanged = function () {
     var newTitle = $.RoadsBuilder.pageTitleInput.val();
     var data = $.RoadsBuilder.currentPage.data('data');
     data.title = newTitle;
@@ -2503,6 +2507,28 @@ $.RoadsBuilder.onPageTitleChanged = function() {
     // $.RoadsBuilder.pageTitleSpan.text(newTitle);
     $.RoadsBuilder.pageTitleInput.css('display', 'none');
     $('.rb_page_title_wrap').css('display', '');
+}
+
+$.RoadsBuilder.setFormTitle = function (newTitle) {
+    $.RoadsBuilder.instrumentTitle = newTitle;
+
+    var titleHolder = $('#rb_instrument_title');
+    if (newTitle) {
+        titleHolder
+            .removeClass('rb_instrument_title_not_set')
+            .text($.RoadsBuilder.truncateText(newTitle, 30));
+    } else {
+        titleHolder
+            .addClass('rb_instrument_title_not_set')
+            .text('Untitled form')
+    }
+}
+
+$.RoadsBuilder.onInstrumentTitleChanged = function() {
+    var newTitle = $.trim($.RoadsBuilder.instrumentTitleInput.val());
+    $.RoadsBuilder.setFormTitle(newTitle);
+    $.RoadsBuilder.instrumentTitleInput.css('display', 'none');
+    $('#rb_instrument_title_view').css('display', '');
 }
 
 $.RoadsBuilder.editGroupSkipConditions = function(a) {
@@ -2533,6 +2559,15 @@ $.RoadsBuilder.editPageSkipConditions = function() {
     });
 }
 
+$.RoadsBuilder.editInstrumentTitle = function() {
+    $('#rb_instrument_title_view').css('display', 'none');
+    $.RoadsBuilder.instrumentTitleInput.val(
+        $.RoadsBuilder.instrumentTitle
+    );
+    $.RoadsBuilder.instrumentTitleInput.css('display', '');
+    $.RoadsBuilder.instrumentTitleInput.focus();
+}
+
 $.RoadsBuilder.editPageTitle = function() {
     $('.rb_page_title_wrap').css('display', 'none');
     $.RoadsBuilder.pageTitleInput.css('display', '');
@@ -2559,6 +2594,7 @@ $(document).ready(function () {
     $.RoadsBuilder.pageSkipWhenSpan = $('#page_skip_when');
     $.RoadsBuilder.pageTitleInput = $('.rb_page_title_input');
     $.RoadsBuilder.mainPartContent = $('.rb_main_part_content');
+    $.RoadsBuilder.instrumentTitleInput = $('#rb_instrument_title_input');
 
     $.RoadsBuilder.pageTitleSpan.click(function () {
         $.RoadsBuilder.editPageTitle();
@@ -2566,6 +2602,15 @@ $(document).ready(function () {
 
     $.RoadsBuilder.pageTitleInput.change($.RoadsBuilder.onPageTitleChanged);
     $.RoadsBuilder.pageTitleInput.focusout($.RoadsBuilder.onPageTitleChanged);
+
+    $.RoadsBuilder.instrumentTitleInput.change($.RoadsBuilder.onInstrumentTitleChanged);
+    $.RoadsBuilder.instrumentTitleInput.focusout($.RoadsBuilder.onInstrumentTitleChanged);
+
+    $('#rb_instrument_title_view').children().click(
+        function () {
+            $.RoadsBuilder.editInstrumentTitle();
+        }
+    );
 
     $.RoadsBuilder.pageTitleInput.keypress(function (e) {
         if (e.keyCode == 13)

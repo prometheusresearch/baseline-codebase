@@ -26,6 +26,13 @@
         </script>
         <div class="rb_left_part">
             <div id="rb_instrument_name">{{ instrument|e }}</div>
+            <div id="rb_instrument_title_wrap">
+                <div id="rb_instrument_title_view">
+                    <span id="rb_instrument_title" class="rb_instrument_title_not_set"></span>
+                    <button id="rb_instrument_title_button" class="rb_small_button">Change Title</button>
+                </div>
+                <input type="text" id="rb_instrument_title_input" style="display: none;" />
+            </div>
             <div class="rb_tools_button_wrapper">
                 <button class="rb_tools_button" onclick="$.RoadsBuilder.saveInstrument()">Save</button>
                 <button class="rb_tools_button" onclick="$.RoadsBuilder.testInstrument()">Test</button>

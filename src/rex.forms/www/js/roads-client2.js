@@ -614,7 +614,7 @@ Page.prototype.edit = function(templates) {
     if (self.renderedPage)
         return self.renderedPage;
 
-    var page = $('<div>').addClass('page');
+    var page = $('<div>').addClass('rf-page');
     $.each(self.questions, function (_, question) {
         page.append(
             question.edit( templates )

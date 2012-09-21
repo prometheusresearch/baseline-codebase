@@ -590,14 +590,40 @@ var Page = function(questions, skipExpr) {
     var self = this;
     this.questions = questions;
     this.skipExpr = skipExpr;
+    this.renderedPage = null;
 };
+
+Page.prototype.update = function () {
+    if (this.renderedPage)
+        this.renderedPage.css('display', this.skipped ? 'none' : 'block');
+}
 
 Page.prototype.skip = function() {
     this.skipped = true;
+    this.update();
 };
 
 Page.prototype.unskip = function () {
     this.skipped = false;
+    this.update();
+};
+
+Page.prototype.edit = function(templates) {
+    var self = this;
+
+    if (self.renderedPage)
+        return self.renderedPage;
+
+    var page = $('<div>').addClass('page');
+    $.each(self.questions, function (_, question) {
+        page.append(
+            question.edit( templates )
+        );
+    });
+
+    self.renderedPage = page;
+    self.update();
+    return page;
 };
 
 var MetaQuestion = function (name, title, domain) {
@@ -795,6 +821,15 @@ $.RexFormsClient = function (o) {
     }
     this.progressBar = progressBar;
 
+    this.mode = o.mode ? o.mode : 'normal';
+
+    if (this.mode !== 'normal' &&
+        this.mode !== 'preview') {
+
+        throw("Wrong mode: " + this.mode);
+    }
+
+    this.previewURL = o.previewURL || null;
     this.saveURL = o.saveURL;
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
@@ -837,7 +872,7 @@ $.RexFormsClient = function (o) {
             if (!pages[idx].skipped) {
                 if (self.currentPageIdx != -1)
                     self.save();
-                self.renderPage(idx);
+                self.renderPage(idx, true);
                 updateProgress();
                 return;
             }
@@ -845,9 +880,12 @@ $.RexFormsClient = function (o) {
             self.raiseEvent('skipPage', idx);
             idx += step;
         }
+
         if (step > 0) {
             updateProgress(100);
-            self.finish();
+
+            if (!self.preview())
+                self.finish();
         }
     };
 
@@ -855,21 +893,34 @@ $.RexFormsClient = function (o) {
         self.questionArea.children().detach();
     }
 
-    this.renderPage = function (pageIdx) {
+    this.renderPreview = function () {
+        var self = this;
+        if (!self.raiseEvent('beforePreviewRender')) {
+            // stop rendering if aborted
+            return;
+        }
+
+        $.each(self.form.pages, function (idx, _) {
+            self.questionArea.append(
+                self.renderPage(idx, false)
+            );
+        });        
+    }
+
+    this.renderPage = function (pageIdx, clear) {
         if (!self.raiseEvent('beforePageRender', pageIdx)) {
             // stop rendering if aborted
             return;
         }
 
         self.currentPageIdx = pageIdx;
-        self.clearQuestions();
-        var page = self.form.pages[pageIdx];
 
-        $.each(page.questions, function (_, question) {
-            self.questionArea.append(
-                question.edit( self.templates )
-            );
-        });
+        if (clear)
+            self.clearQuestions();
+
+        self.questionArea.append(
+            self.form.pages[pageIdx].edit( self.templates )
+        );
 
         self.raiseEvent('pageRendered', pageIdx);
     };
@@ -925,11 +976,19 @@ $.RexFormsClient = function (o) {
         });
     };
 
+    this.preview = function () {
+        if (!self.raiseEvent('preview'))
+            return true;
+
+        if (this.previewURL)
+            window.location.href = this.previewURL;
+
+        return false;
+    }
+
     this.finish = function () {
-        if (!self.raiseEvent('beforeFinish')) {
-            // stop if aborted
+        if (!self.raiseEvent('beforeFinish'))
             return;
-        }
 
         self.form.finish();
         self.save();
@@ -941,11 +1000,11 @@ $.RexFormsClient = function (o) {
         self.raiseEvent('finished');
     };
 
-    this.renderProgressBar = function () {
-        // TODO
-    };
-
-    this.nextPage();
+    if (this.mode === 'preview')
+        this.renderPreview();
+    else
+        // 'normal' mode
+        this.nextPage();
 }
 
 })(jQuery);

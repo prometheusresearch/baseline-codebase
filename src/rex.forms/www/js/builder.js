@@ -141,7 +141,6 @@ $.RoadsBuilder.EditPageDialogF = function () {
                         var data = dialogParams.target.data('data');
                         data.title = newName;
                         // data.skipIf = skipConditions;
-
                         if (dialogParams.mode === 'group')
                             $.RoadsBuilder.updateGroupDiv(dialogParams.target);
                         else

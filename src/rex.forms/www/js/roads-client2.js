@@ -57,6 +57,24 @@ function rexlize(val) {
     console.debug('Unable to rexlize type:', type, 'val:', val);
     throw('RexlTypeError');
 }
+
+var creoleParser = new Parse.Simple.Creole({
+    linkFormat: ''
+});
+
+function renderCreole(srcText) {
+    var tempDiv = $(document.createElement('div'));
+    creoleParser.parse(tempDiv[0], srcText);
+    var children = tempDiv.children();
+
+    if (children.size() == 1 &&
+        children[0].tagName === 'P') {
+        // exclude paragraph wrapper if it's only one
+        return children.contents();
+    }
+
+    return children;
+}
 // }}}
 
 // {{{ domains
@@ -202,22 +220,36 @@ RecordListDomain.prototype.render = function (templates, value, onChange) {
         recordList.append( thisDomain.renderRecord(templates, null, onChange) );
     });
 
+    if (recordList.children().size() == 0)
+        btnAddRecord.click();
+
     return recordList.add(btnAddRecord);
 };
+
 RecordListDomain.prototype.extractValue = function (node) {
     var ret = [];
     var thisDomain = this;
     node.children('.rf-record').each(function (i, recordNode) {
-        ret[i] = {};
+        var record = {};
+        var hasAnswer = false;
+
         $(recordNode).children('.rf-cell').each(function (j, cellNode) {
             var jCellNode = $(cellNode);
             var thisMeta = thisDomain.meta[j];
-            ret[i][ thisMeta.name ] = thisMeta.extractValue(jCellNode.children());
-        });
-    });
-    return ret;
-};
+            var value = thisMeta.extractValue(jCellNode.children());
 
+            if (value !== null)
+                hasAnswer = true;
+
+            record[ thisMeta.name ] = value;
+        });
+
+        if (hasAnswer)
+            ret.push(record);
+    });
+
+    return ret.length ? ret : null;
+};
 
 var NumberDomain = function(isFloat) {
     Domain.call(this, 'number');
@@ -270,7 +302,13 @@ EnumDomain.prototype.render = function (templates, value, onChange) {
 
     $.each(this.variants, function (_, variant) {
         var li = $('<li>');
-        var label = $('<label>').text(variant.title);
+        var label = $('<label>');
+        
+        if (variant.title)
+            label.append( renderCreole(variant.title) );
+        else 
+            label.text(variant.code);
+
         li.append(label);
 
         var input =
@@ -415,6 +453,8 @@ var Form = function(config, data, paramValues) {
         self.finished = true;
     }
 
+    this.title = config.title || '';
+
     this.pages = [];
     this.questions = {};
     this.params = {};
@@ -468,7 +508,8 @@ var Form = function(config, data, paramValues) {
                                         domain.getFromDef(question),
                                         null, // value
                                         question.disableIf || null,
-                                        question.constraints || null
+                                        question.constraints || null,
+                                        question.isMandatory
                                        );
 
             if(self.questions[question.name])
@@ -477,7 +518,7 @@ var Form = function(config, data, paramValues) {
                 self.questions[question.name] = question;
             return question;
         });
-        var page = new Page(questions, item.skipIf || null);
+        var page = new Page(questions, item.title, item.skipIf || null);
         self.pages.push(page);
     }
 
@@ -586,9 +627,10 @@ Form.prototype.calculate = function(expr) {
 };
 
 
-var Page = function(questions, skipExpr) {
+var Page = function(questions, title, skipExpr) {
     var self = this;
     this.questions = questions;
+    this.title = title;
     this.skipExpr = skipExpr;
     this.renderedPage = null;
 };
@@ -596,6 +638,21 @@ var Page = function(questions, skipExpr) {
 Page.prototype.update = function () {
     if (this.renderedPage)
         this.renderedPage.css('display', this.skipped ? 'none' : 'block');
+}
+
+Page.prototype.conforming = function () {
+    var self = this;
+    var isConforming = true;
+
+    $.each(self.questions, function(id, question) {
+        if (question.invalid ||
+            question.required && question.getValue() === null) {
+
+            isConforming = false;
+        }
+    });
+
+    return isConforming;
 }
 
 Page.prototype.skip = function() {
@@ -645,7 +702,7 @@ MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
     var domainNode = this.domain.render(templates, value, onChange);
     var questionNode = templates['question'].clone();
     questionNode.find('.rf-question-title')
-            .text(this.title)
+            .append(renderCreole(this.title))
             .end()
             .find('.rf-question-answers')
             .append(domainNode);
@@ -653,11 +710,12 @@ MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
     return questionNode;
 };
 
-var Question = function(name, title, domain, value, disableExpr, validateExpr) {
+var Question = function(name, title, domain, value, disableExpr, validateExpr, required) {
     MetaQuestion.call(this, name, title, domain);
     this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
+    this.required = required;
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
@@ -700,7 +758,7 @@ Question.prototype.update = function() {
 };
 
 Question.prototype.setValue = function(value) {
-    console.log("Question '" + this.name + "':", value)
+    console.log("Question '" + this.name + "':", value);
 
     this.value = value;
     this.update();
@@ -709,7 +767,7 @@ Question.prototype.setValue = function(value) {
 };
 
 Question.prototype.getValue = function() {
-    return this.value || null;
+    return this.value;
 };
 
 Question.prototype.getRexlValue = function(name) {
@@ -794,6 +852,9 @@ $.RexFormsClient = function (o) {
     createFormElement( 'btnNext', o.btnNext || '#rf_button_next' );
     createFormElement( 'btnPrev', o.btnPrev || '#rf_button_prev' );
 
+    this.pageTitleArea = $( o.pageTitleArea || '#rf_page_title' );
+    this.formTitleArea = $( o.formTitleArea || '#rf_form_title' );
+
     this.btnNext.click(function () {
         self.nextPage();
     });
@@ -841,7 +902,6 @@ $.RexFormsClient = function (o) {
 
     var updateProgress = function (forcePct) {
         var current = self.currentPageIdx;
-        console.log('current', current, 'self', self);
         var total = self.form.pages.length;
         var completed = current >= 0 ? current: 0;
         var pct;
@@ -862,10 +922,18 @@ $.RexFormsClient = function (o) {
         if (self.form.finished)
             return;
 
-        // TODO: do validation
+        var pages = self.form.pages;
+        if (self.currentPageIdx >= 0) {
+            var page = pages[self.currentPageIdx];
+            if (!page.conforming()) {
+                console.log('not conforming');
+                // there are invalid answers or
+                //  missed answers for required questions
+                return;
+            }
+        }
 
         var idx = self.currentPageIdx + step;
-        var pages = self.form.pages;
         var total = pages.length;
 
         while (idx >= 0 && idx < total) {
@@ -918,8 +986,15 @@ $.RexFormsClient = function (o) {
         if (clear)
             self.clearQuestions();
 
+        var page = self.form.pages[pageIdx];
+
+        self.pageTitleArea.contents().remove();
+        console.log('new page', page, 'title:', page.title);
+        if (page.title)
+            self.pageTitleArea.append( renderCreole(page.title) );
+
         self.questionArea.append(
-            self.form.pages[pageIdx].edit( self.templates )
+            page.edit( self.templates )
         );
 
         self.raiseEvent('pageRendered', pageIdx);
@@ -953,16 +1028,16 @@ $.RexFormsClient = function (o) {
         if (null === self.package)
             return;
 
-        if (!self.raiseEvent('beforeSave'))
-            // stop if aborted
-            return;
-
         var collectedData = {
             answers: self.collectAnswers(),
             finished: self.form.finished
         };
-
         collectedData = $.toJSON(collectedData);
+
+        if (!self.raiseEvent('beforeSave', collectedData))
+            // stop if aborted
+            return;
+
         console.debug('saving data:', collectedData);
 
         $.ajax({url : self.saveURL,
@@ -999,6 +1074,8 @@ $.RexFormsClient = function (o) {
 
         self.raiseEvent('finished');
     };
+
+    this.formTitleArea.append( renderCreole(this.form.title) );
 
     if (this.mode === 'preview')
         this.renderPreview();

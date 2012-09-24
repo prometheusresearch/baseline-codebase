@@ -804,7 +804,7 @@ $.RoadsBuilder.preparePageMeta = function(pageDiv, to) {
         var thisGroupMeta = {
             type: 'group',
             skipIf: data.skipIf ? data.skipIf : null,
-            id: groupData.title,
+            title: groupData.title,
             pages: []
         }
 
@@ -824,7 +824,7 @@ $.RoadsBuilder.preparePageMeta = function(pageDiv, to) {
 
         var thisPageMeta = {
             type: 'page',
-            id: pageData.title,
+            title: pageData.title,
             cId: data.cId,
             skipIf: data.skipIf ? data.skipIf : null,
             questions: []
@@ -1803,6 +1803,9 @@ $.RoadsBuilder.isScrolledIntoView = function(elem, scrollable) {
 
 $.RoadsBuilder.selectPage = function(pageDiv) {
     $.RoadsBuilder.closeOpenedEditor(function () {
+        if ($.RoadsBuilder.pageTitleInput.is(':visible'))
+            $.RoadsBuilder.pageTitleInput.focusout();
+
         $.RoadsBuilder.mainPartContent.css('display', 'block');
         if ($.RoadsBuilder.currentPage)
             $.RoadsBuilder.currentPage.removeClass('rb_covered');
@@ -2584,6 +2587,10 @@ $.RoadsBuilder.editInstrumentTitle = function() {
 
 $.RoadsBuilder.editPageTitle = function() {
     $('.rb_page_title_wrap').css('display', 'none');
+
+    var title = $.RoadsBuilder.currentPage.data('data').title;
+
+    $.RoadsBuilder.pageTitleInput.val(title);
     $.RoadsBuilder.pageTitleInput.css('display', '');
     $.RoadsBuilder.pageTitleInput.focus();
 }

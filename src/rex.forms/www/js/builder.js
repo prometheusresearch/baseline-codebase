@@ -554,10 +554,11 @@ $.RoadsBuilder.ShowJSONDialogF = function () {
 
     Init.prototype = {
         open: function () {
-            var jsonTxt = $.RoadsBuilder.generateMetaJSON(
-                                $.RoadsBuilder.instrumentName || '',
-                                true
-                          );
+            var jsonTxt =
+                    $.RoadsBuilder.generateMetaJSON(
+                        $.RoadsBuilder.instrumentName || '',
+                        true
+                    );
 
             jsonTextDiv.val(jsonTxt);
             dialogObj.dialog('open');
@@ -676,6 +677,11 @@ $.RoadsBuilder.ContextF = function () {
             sortFunction = function(a,b) {
                 return (a.name < b.name)? -1: 1;
             };
+        else if (indexType === "page" ||
+                 indexType === "group")
+            sortFunction = function (a,b) {
+                return (a.cId < b.cId) ? -1: 1;
+            };
         else
             sortFunction = function(a,b) {
                 return (a.title < b.title)? -1: 1;
@@ -695,6 +701,13 @@ $.RoadsBuilder.ContextF = function () {
             clearIndex('page');
             clearIndex('group');
             clearIndex('parameter');
+        },
+        dumpIndexes: function () {
+            var indexTypes = ['question', 'page', 'group', 'parameter' ];
+            $.each(indexTypes, function (_, indexType) {
+                var index = getIndexByType(indexType);
+                console.log(indexType, 'index:', index);
+            });
         },
         clearIndex: clearIndex,
         inIndex: inIndex,
@@ -774,9 +787,10 @@ $.RoadsBuilder.ContextF = function () {
             $.RoadsBuilder.context.putToIndex('parameter', newParam);
             return newParam;
         },
-        createNewGroup: function (id) {
+        createNewGroup: function (title) {
             var newGroup = {
-                'id': id ? id : null,
+                'title': title ? title : null,
+                'cId': $.RoadsBuilder.getCId('group'),
             };
             $.RoadsBuilder.context.putToIndex('group', newGroup);
             return newGroup;
@@ -890,15 +904,12 @@ $.RoadsBuilder.saveInstrumentReal = function(callback) {
         instrumentName = prompt("Please set instrument name:");
 
     if (instrumentName) {
-        var meta = $.RoadsBuilder.generateMeta(instrumentName);
-
-        console.log('meta:', meta, 'meta.pages', meta.pages);
-
-        if (!meta.pages.length ||
-            !meta.pages[0].questions.length) {
+        if ($.RoadsBuilder.context.getIndexByType('question').length == 0) {
             alert('A form should contain at least one question!');
             return;
         }
+    
+        var meta = $.RoadsBuilder.generateMeta(instrumentName);
 
         meta = $.toJSON(meta);
         var schema = 'instrument=' + encodeURIComponent(instrumentName) 
@@ -2164,14 +2175,16 @@ $.RoadsBuilder.addPage = function(page, to) {
                 newGroup.find('.rb_class_pages_list')
             );
         }
-        
+
         $.RoadsBuilder.makeREXLCache(page, 'skipIf');
-        
+
         newGroup.data('data', page);
         $.RoadsBuilder.updateGroupDiv(newGroup);
         for (var idx in page.pages) {
+            var item = page.pages[idx];
+            $.RoadsBuilder.context.putToIndex(item.type, item);
             $.RoadsBuilder.addPage(
-                page.pages[idx], newGroup.children('.rb_class_pages_list')
+                item, newGroup.children('.rb_class_pages_list')
             );
         }
 
@@ -2290,6 +2303,11 @@ $.RoadsBuilder.evaluateMeta = function(meta) {
 
     for (var idx in rel.pages) {
         var page = rel.pages[idx];
+
+        if (!page.cId)
+            page.cId = $.RoadsBuilder.getCId('page');
+
+        $.RoadsBuilder.context.putToIndex(page.type, page);
         $.RoadsBuilder.addPage(page, $.RoadsBuilder.pageListDiv);
     }
 
@@ -2299,6 +2317,7 @@ $.RoadsBuilder.evaluateMeta = function(meta) {
     }
 
     $.RoadsBuilder.setFormTitle( meta.title );
+    $.RoadsBuilder.context.dumpIndexes();
 }
 
 $.RoadsBuilder.updateConstraintsDescription = function(questionEditor) {

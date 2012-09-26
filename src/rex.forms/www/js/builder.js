@@ -26,6 +26,8 @@ $.RoadsBuilder.nameRegExp = new RegExp("[^a-zA-Z0-9_]+", "g");
 $.RoadsBuilder.nameBeginRegExp = new RegExp('^[^a-zA-Z]');
 $.RoadsBuilder.nameEndRegExp   = new RegExp('[^a-zA-Z0-9]$');
 
+$.RoadsBuilder.predefinedLists = {};
+
 $.RoadsBuilder.QuestionDialogF = function () {
     var dialogObj = null;
     var dialogParams = null;
@@ -609,8 +611,15 @@ $.RoadsBuilder.TemplatesF = function () {
         return null;
     }
 
+    function getTemplate(tplName) {
+        if (templates[tplName])
+            return templates[tplName];
+        return null;
+    }
+
     Init.prototype = {
-        createObject: createObject
+        createObject: createObject,
+        getTemplate: getTemplate
     }
     
     return Init;
@@ -1079,6 +1088,29 @@ $.RoadsBuilder.closeOpenedEditor = function(callback, listDiv) {
         callback();
 }
 
+$.RoadsBuilder.onPredefinedChoicesChange = function () {
+    var val = $(this).val();
+    if (val) {
+        var choicesList =
+                $(this).parents('.choices-list:first')
+                       .children('.choices-list-items');
+
+        var choices = $.RoadsBuilder.predefinedLists[val];
+
+        var isFirst = true;
+        $.each(choices, function (_, choice) {
+            $.RoadsBuilder.addChoiceReal(
+                choicesList,
+                choice['code'],
+                choice['title'],
+                isFirst,
+                false
+            );
+            isFirst = false;
+        });
+    }
+}
+
 $.RoadsBuilder.showQuestionEditor = function(question) {
     var questionDiv = $(question);
 
@@ -1100,32 +1132,8 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
             questionDiv.find('.q_caption:first').css('display', 'none');
             questionDiv.find('.btn-page-answer').css('display', 'none');
 
-/*
-            // TODO: update it, when 'predefined choices' will be ready
-
             $('select[name="predefined-choice-list"]', editor)
-                .change(function () {
-                    var val = $(this).val();
-                    var choicesList = $(this).parent()
-                                        .siblings('.choices-list')
-                                        .children('.choices-list-items');
-                    if (val) {
-                        var choices = predefinedLists[val];
-                        var isFirst = true;
-                        var idx = 1;
-                        for (var answerCode in choices) {
-                            // console.log(choicesList);
-                            var choice = choices[answerCode];
-                            $.RoadsBuilder.addChoiceReal(choicesList,
-                                                         answerCode,
-                                                         choice['title'],
-                                                         isFirst,
-                                                         false);
-                            isFirst = false;
-                        }
-                    }
-                });
-*/
+                .change($.RoadsBuilder.onPredefinedChoicesChange);
 
             var questionName = question['name'];
             var inputTitle = $('textarea[name="question-title"]', editor);
@@ -1155,7 +1163,6 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                 $.RoadsBuilder.addChoiceReal(choicesList, 
                             answer['code'],  
                             answer['title'],
-                            answer['score'], 
                             isFirst, 
                             false);
                 isFirst = false;
@@ -1283,13 +1290,12 @@ $.RoadsBuilder.getConnectionLabel = function(conditions, defLabel) {
 }
 
 $.RoadsBuilder.addChoiceReal = function(choicesList, code, title,
-                       score, hideHeader, slave) {
+                                        hideHeader, slave) {
 
     var newChoice = $.RoadsBuilder.templates.createObject('choicesItem');
 
     var answerTitle = $('input[name="answer-title"]', newChoice);
     var answerCode = $('input[name="answer-code"]', newChoice);
-    var answerScore = $('input[name="answer-score"]', newChoice);
     newChoice.attr('data-code', code);
 
     if (!slave)
@@ -1331,7 +1337,6 @@ $.RoadsBuilder.addChoiceReal = function(choicesList, code, title,
     if (code !== null) {
         answerTitle.val(title);
         answerCode.val(code);
-        answerScore.val(score); 
     }
 
     if (hideHeader) {
@@ -1350,7 +1355,7 @@ $.RoadsBuilder.addChoice = function(button) {
     var choicesList = jButton.parent().siblings('.choices-list')
                                       .children('.choices-list-items');
     
-    $.RoadsBuilder.addChoiceReal(choicesList, null, null, '', true, true);
+    $.RoadsBuilder.addChoiceReal(choicesList, null, null, true, true);
 }
 
 $.RoadsBuilder.setChoicesSortable = function(c) {
@@ -1592,11 +1597,7 @@ $.RoadsBuilder.saveQuestion = function(obj) {
                         $('input[name="answer-title"]', jItem).val()
                     );
                 var answerScore = '';
-                /*
-                    jQuery.trim(
-                        $('input[name="answer-score"]', jItem).val()
-                    );
-                */
+
                 if (answerCode === '' && answerTitle === '') {
                     continue;
                 } else if (answerCode === '' ||
@@ -1621,8 +1622,7 @@ $.RoadsBuilder.saveQuestion = function(obj) {
 
                 preloadedAnswers[answerCode] = {
                     'bindedCode': bindedCode,
-                    'title': answerTitle,
-                    'score': answerScore
+                    'title': answerTitle
                 }
             }
         }
@@ -1712,22 +1712,55 @@ $.RoadsBuilder.saveQuestion = function(obj) {
             var answerTitle = preAnswer['title'];
             questionData['answers'].push({
                 'code': answerCode,
-                'title': answerTitle,
-                'score': preAnswer['score']
+                'title': answerTitle
             });
         }
         changes.push('answers');
     }
 
     $.RoadsBuilder.writeChanges(questionData, changes);
-    questionDataUpdated = true;
 
-    if (questionDataUpdated) {
-        $.RoadsBuilder.closeQuestionEditor(question);
-        $.RoadsBuilder.updateQuestionDiv(question);
-    }
-    
+    if ($.RoadsBuilder.isListType(qQuestionType))
+        $.RoadsBuilder.updatePredefinedChoices(questionData.answers);
+
+    $.RoadsBuilder.closeQuestionEditor(question);
+    $.RoadsBuilder.updateQuestionDiv(question);
+
     return true;
+}
+
+$.RoadsBuilder.updatePredefinedChoices = function(answers) {
+    var titles = [];
+
+    $.each(answers, function (_, answer) {
+        titles.push(answer['title'] || answer['code']);
+    });
+
+    if (!titles.length)
+        return;
+
+    var preList = [];
+    var titlesStr = titles.join(', ');
+
+    if ($.RoadsBuilder.predefinedLists[titlesStr])
+        // the same predefined set of choices exists already
+        return;
+
+    $.RoadsBuilder.predefinedLists[titlesStr] = preList;
+    $.each(answers, function (_, answer) {
+        preList.push({
+            'code': answer['code'],
+            'title': answer['title']
+        });
+    });
+
+    var tpl = $.RoadsBuilder.templates.getTemplate('questionEditor');
+    var selectChoiceList = tpl.find('select[name="predefined-choice-list"]:first');
+
+    $('<option>', {
+        value: titlesStr,
+        text: $.RoadsBuilder.truncateText(titlesStr, 50)
+    }).appendTo(selectChoiceList);
 }
 
 $.RoadsBuilder.closeQuestionEditor = function(questionDiv) {
@@ -2241,6 +2274,8 @@ $.RoadsBuilder.addPage = function(page, to) {
 
                 $.RoadsBuilder.context.putToIndex('question', subQuestion);
             }
+        } else if ($.RoadsBuilder.isListType(qData.questionType)) {
+            $.RoadsBuilder.updatePredefinedChoices(qData.answers);
         }
     }
 
@@ -2293,7 +2328,7 @@ $.RoadsBuilder.addPage = function(page, to) {
 
 $.RoadsBuilder.evaluateMeta = function(meta) {
     var rel;
-    
+
     if (meta && meta.content && meta.content.pages)
         rel = meta.content;
     else if (!meta || !meta.pages)
@@ -2847,6 +2882,17 @@ $(document).ready(function () {
         open: function () { },
         close: function () { }, 
     });
+
+    $.RoadsBuilder.updatePredefinedChoices([
+        {
+            code: 'yes',
+            title: 'Yes'
+        },
+        {
+            code: 'no',
+            title: 'No'
+        }
+    ]);
 
     if ($.RoadsBuilder.instrumentName)
         $.RoadsBuilder.loadInstrument($.RoadsBuilder.instrumentName);

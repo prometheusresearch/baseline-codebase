@@ -712,3 +712,7 @@ input.rb_identifier_input {
     display: none;
 }
 
+.rb-predefined-choices-div {
+    float: right;
+}
+

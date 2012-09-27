@@ -1092,9 +1092,10 @@ $.RoadsBuilder.onPredefinedChoicesChange = function () {
     var val = $(this).val();
     if (val) {
         var choicesList =
-                $(this).parents('.choices-list:first')
-                       .children('.choices-list-items');
+                $(this).parents('.rb_choices:first')
+                       .find('.choices-list-items');
 
+        choicesList.children().remove();
         var choices = $.RoadsBuilder.predefinedLists[val];
 
         var isFirst = true;

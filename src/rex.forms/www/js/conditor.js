@@ -589,7 +589,7 @@ function ConditionEditor(initParams) {
                     relations = selectRelations['numeric'];
                     break;
                 case 'enum':
-                case 'list':
+                case 'set':
                     notEmptyValueContent = $('<select>');
                     if (desc.type === 'list')
                         relations = selectRelations['variant'];

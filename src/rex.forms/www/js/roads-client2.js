@@ -413,6 +413,31 @@ var domain = {
         return new cls(options);
     },
 
+    valueFromData: function(def, data) {
+        var questionType = def.questionType;
+        
+        switch(questionType) {
+        case "set":
+            var value = {};
+            $.each(def.answers, function (_, answer) {
+                var property = def.name + '_' + answer.code;
+                if (data.answers.hasOwnProperty(property)) {
+                    value[answer.code] = data.answers[property];
+                }
+            });
+            // return value if it's not empty
+            for (item in value)
+                return value;
+            break;
+
+        default:
+            if (data.answers.hasOwnProperty(def.name))
+                return data.answers[def.name];
+        }
+
+        return null;
+    },
+
     getFromDef: function(def) {
         var questionType = def.questionType;
 
@@ -477,7 +502,7 @@ var Form = function(config, data, paramValues) {
         self.params[param.name] = rexlize(forRexlize);
     });
 
-    function group(list, skipExpr) {
+    function group(list, skipExpr, data) {
         skipExpr = skipExpr || '';
         $.each(list, function(_, item) {
             if(item.type == 'group') {
@@ -493,37 +518,37 @@ var Form = function(config, data, paramValues) {
                     newSkipExpr = parts[0];
                 else
                     newSkipExpr = '(' + parts[0] + ')|(' + parts[1] + ')';
-                    
-                group(item.pages, newSkipExpr); 
+
+                group(item.pages, newSkipExpr, data); 
             }
-            else 
-                page(item);
+            else
+                page(item, data);
         });
     }
 
-    function page(item) {
+    function page(item, data) {
         var questions = $.map(item.questions, function(question) {
             var question = new Question(question.name,
                                         question.title,
                                         domain.getFromDef(question),
-                                        null, // value
+                                        domain.valueFromData(question, data),
                                         question.disableIf || null,
                                         question.constraints || null,
                                         question.isMandatory
                                        );
 
             if(self.questions[question.name])
-                alert('duplicate question id'); // TODO: throw error here
+                alert('duplicated question id'); // TODO: throw error here
             else
                 self.questions[question.name] = question;
+
             return question;
         });
         var page = new Page(questions, item.title, item.skipIf || null);
         self.pages.push(page);
     }
 
-    group(config.pages);
-
+    group(config.pages, null, data);
 
     // TODO: set initial values for questions
 
@@ -894,7 +919,24 @@ $.RexFormsClient = function (o) {
     this.saveURL = o.saveURL;
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
-    this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {});
+
+    // TODO: remove it after test!!!
+    var formData = {
+        "answers": {
+            "test_question_first_choice": false,
+            "test_question_second_choice": true,
+            "test_repeating_group_0": {
+                "first_subquestion":"yes",
+                "second_subquestion":"no"
+            },
+            "first_question":null
+        },
+        "finished":false
+    };
+
+    this.form = new Form(o.formMeta, formData, o.paramValues || {});
+
+    //this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {});
     this.form.initState();
     this.currentPageIdx = -1;
     this.package = o.package || null;
@@ -1019,7 +1061,13 @@ $.RexFormsClient = function (o) {
     this.collectAnswers = function () {
         var answers = {};
         $.each(this.form.questions, function (_, question) {
-            answers[question.name] = question.getValue();
+            var value = question.getValue();
+            if (value instanceof Object) {
+                $.each(value, function (key, value) {
+                    answers[question.name + '_' + key] = value;
+                });
+            } else
+                answers[question.name] = value;
         });
         return answers;
     }

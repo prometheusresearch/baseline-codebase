@@ -820,6 +820,44 @@ $.RoadsBuilder.ContextF = function () {
     return Init;
 }
 
+$.RoadsBuilder.namesWhichBreaksConsistency = function (names, exclude) {
+    console.log('namesWhichBreaksConsistency(', names, ')');
+
+    var badNames = {};
+    var chkNames = {};
+    $.each(names, function (_, name) {
+        chkNames[name] = true;
+    });
+
+    questionIndex = $.RoadsBuilder.context.getIndexByType('question');
+
+    for (var idx in questionIndex) {
+        var question = questionIndex[idx];
+        
+        if (question === exclude)
+            continue;
+        
+        if (chkNames[question.name]) {
+
+            badNames[question.name] = true;
+            delete chkNames[question.name];
+
+        } else if (question.questionType === "set") {
+
+            for (var idx in question.answers) {
+                var fullName = question.name + '_'
+                               + question.answers[idx].code;
+                if (chkNames[fullName]) {
+                    badNames[fullName] = true;
+                    delete chkNames[fullName];
+                }
+            }
+        }
+    }
+
+    return Object.keys(badNames);
+}
+
 $.RoadsBuilder.preparePageMeta = function(pageDiv, to) {
     var data = pageDiv.data('data');
     if (pageDiv.hasClass('rb_page_group')) {
@@ -972,7 +1010,6 @@ $.RoadsBuilder.hints = {
 
 $.RoadsBuilder.dismissIt = function(a) {
     var p = $(a).parents('div:first').remove();
-    repaintAll();
 }
 
 $.RoadsBuilder.putHint = function(element, hintId) {
@@ -1542,7 +1579,7 @@ $.RoadsBuilder.getChangeStamp = function() {
 
 $.RoadsBuilder.findDuplicates = function(qName, origQuestionData) {
     var foundQuestionData = $.RoadsBuilder.context.findQuestionData(qName);
-    return (!foundQuestionData || 
+    return (!foundQuestionData ||
             foundQuestionData === origQuestionData) ? false : true;
 }
 
@@ -1633,7 +1670,7 @@ $.RoadsBuilder.saveQuestion = function(obj) {
         console.log('validationError');
         return false;
     }
-    
+
     validationError = false;
 
     var inputName = $('input[name="question-name"]:first', question);
@@ -1645,9 +1682,34 @@ $.RoadsBuilder.saveQuestion = function(obj) {
         $.RoadsBuilder.nameEndRegExp.test(qName) ) {
         $.RoadsBuilder.putHint(inputName, 'wrongQuestionId');
         validationError = true;
-    } else if ($.RoadsBuilder.findDuplicates(qName, questionData)) {
-        $.RoadsBuilder.putHint(inputName, 'dupQuestionId');
-        validationError = true;
+    } else {
+        var chkNames = { };
+
+        chkNames[qName] = function (name) {
+            $.RoadsBuilder.putHint(inputName, 'dupQuestionId');
+        }
+
+        if (qQuestionType === "set") {
+            for (code in preloadedAnswers) {
+                chkNames[qName + '_' + code] = function (name) {
+                    alert('Choice name \'' + name + '\' didn\'t pass the name consistency check');
+                }
+            }
+        }
+
+        var badNames = $.RoadsBuilder
+                            .namesWhichBreaksConsistency(
+                                Object.keys(chkNames), 
+                                questionData
+                             );
+
+        if (badNames.length) {
+            validationError = true;
+            $.each(badNames, function (_, badName) {
+                console.log('badName:', badName);
+                chkNames[badName](badName);
+            });
+        }
     }
 
     if (validationError)

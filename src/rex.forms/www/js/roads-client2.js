@@ -440,7 +440,7 @@ var domain = {
 var Form = function(config, data, paramValues) {
     var self = this;
 
-    // if pages is in group, set group skip logic to each page
+    // if pages are in group, set group skip logic to each page
     // of this group
     // if page/group in this group has the own skip logic 
     // use += '<higher-level skip logic>' | (!<higher-level skip logic>) & own-skip-logic
@@ -484,7 +484,7 @@ var Form = function(config, data, paramValues) {
                 var parts = $.grep([skipExpr, item.skipIf], function(item) {
                     return item;
                 });
-                
+
                 var newSkipExpr;
 
                 if (0 == parts.length)
@@ -1069,8 +1069,6 @@ $.RexFormsClient = function (o) {
         self.save();
         this.clearQuestions();
         this.btnNext.add(this.btnPrev).css('display', 'none');
-
-        // TODO
 
         self.raiseEvent('finished');
     };

@@ -414,8 +414,8 @@ var domain = {
     },
 
     valueFromData: function(def, data) {
-        var questionType = def.questionType;
-        
+        var questionType = def.type;
+
         switch(questionType) {
         case "set":
             var value = {};
@@ -439,7 +439,7 @@ var domain = {
     },
 
     getFromDef: function(def) {
-        var questionType = def.questionType;
+        var questionType = def.type;
 
         switch(questionType) {
         case "enum":
@@ -447,7 +447,7 @@ var domain = {
             return this.get(questionType, def.answers);
         case "integer":
         case "float":
-            return this.get(questionType, 
+            return this.get(questionType,
                             "float" === questionType);
         case "rep_group":
             return this.get(questionType, def.repeatingGroup);
@@ -457,7 +457,7 @@ var domain = {
                             "text" === questionType);
         }
 
-        return this.get(def.questionType);
+        return this.get(questionType);
     }
 };
 // }}}
@@ -534,7 +534,7 @@ var Form = function(config, data, paramValues) {
                                         domain.valueFromData(question, data),
                                         question.disableIf || null,
                                         question.constraints || null,
-                                        question.isMandatory
+                                        question.required
                                        );
 
             if(self.questions[question.name])

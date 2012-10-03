@@ -83,6 +83,7 @@ class FormsPackageHandler(PackageHandler):
             if not os.path.exists(fld):
                 os.makedirs(fld)
                 return None, 0
+
             files = os.walk(fld).next()[2]
             files = [int(i[:-3]) for i in files]
             if files:

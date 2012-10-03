@@ -488,7 +488,7 @@ div.rb_choices {
 }
 
 div.rb_choices_header, 
-div.rb_choices_item {
+li.rb_choices_item {
     position:relative;
 }
 
@@ -497,12 +497,12 @@ div.rb_choices_header {
     height: 35px;
 }
 
-div.rb_choices_item,
+li.rb_choices_item,
 div.rb_choices_item_right {
     padding: 3px;
 }
 
-div.rb_choices_item {
+li.rb_choices_item {
     border: 1px solid #d0d0d0;
     background-color: #dde8fd;
     margin: 3px;
@@ -716,3 +716,7 @@ input.rb_identifier_input {
     float: right;
 }
 
+.choices-list-items {
+    padding: 0px;
+    list-style-type: none;
+}

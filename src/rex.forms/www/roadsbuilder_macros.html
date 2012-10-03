@@ -7,7 +7,7 @@
         <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
         <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
         <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/json/jquery.json-2.3.min.js"></script>
-        <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/rexl/rexl.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.common'] }}/js/rexl/0.5.1/rexl.js"></script>
         <link rel="stylesheet" href="{{ PREFIX['rex.forms'] }}/css/builder.css" />
         <link rel="stylesheet" href="{{ PREFIX['rex.forms'] }}/css/conditor.css" />
         <script type="text/javascript" src="{{ PREFIX['rex.forms'] }}/js/builder.js" data-rex-forms-prefix="{{ PREFIX['rex.forms'] }}"></script>
@@ -162,10 +162,10 @@
                         <td class="rb_question_table_left" valign="top">
                             <div class="rb_question_table_left_inner">
                                 <h3>Title</h3>
-                                <textarea type="text" name="question-title" class="rb_question_input" tabindex="1"/></textarea>
+                                <textarea type="text" name="question-title" class="rb_question_input" /></textarea>
                                 <table class="question-selects">
                                     <h3 class="question-type-header rb_with_top_margin">Question type</h3>
-                                    <select name="question-type" tabindex="3"></select>
+                                    <select name="question-type"></select>
                                 </table>
                                 <!--
                                 <div class="constraints">
@@ -183,8 +183,8 @@
                                     </div>
                                     <div class="choices-list">
                                         <span class="choice-hint">Please add the first choice <!-- or select pre-defined choices: --></span>
-                                        <div class="choices-list-items">
-                                        </div>
+                                        <ul class="choices-list-items">
+                                        </ul>
                                     </div>
                                     <div class="rb-predefined-choices-div">
                                         <select name="predefined-choice-list">
@@ -200,8 +200,8 @@
                         <td class="rb_question_table_right" valign="top">
                             <div class="rb_question_table_right_div">
                                 <h3 class="unique-name">Unique name</h3>
-                                <input type="text" name="question-name" class="rb_question_input_short slave" tabindex="2"/><br>
-                                <input type="checkbox" name="question-required" tabindex="5" /> Required
+                                <input type="text" name="question-name" class="rb_question_input_short slave" /><br>
+                                <input type="checkbox" name="question-required" /> Required
                                 <h3>Constraints</h3>
                                 <a class="rb_constraint_descr" href="javascript:void(0);" onclick="$.RoadsBuilder.changeConstraints(this);">No constraints</a>
                                 <button onclick="$.RoadsBuilder.changeConstraints(this);">Change</button>
@@ -234,27 +234,29 @@
                 </table>
             </div>
 
-            <div id="tpl_choices_item" class="rb_choices_item">
-                <div class="restrict-drag">
-                    <input type="text" name="answer-title" class="rb_choice_input_title" />
-                </div>
-                <div class="rb_choices_item_right">
-                    <div class="rb_choices_item_actions">
-                        <a href="javascript:void(0);" onclick="$.RoadsBuilder.removeChoicesItem(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
-                    </div>
+            <li id="tpl_choices_item" class="rb_choices_item">
+                <div>
                     <div class="restrict-drag">
-                        <input type="text" name="answer-code" class="rb_choice_input rb_with_margin slave" />
-                        <!--
-                        <div>
-                            Score: <input type="text" name="answer-score" class="rb_choice_input_small" />
-                        </div>
-                        -->
+                        <input type="text" name="answer-title" class="rb_choice_input_title" />
                     </div>
-                    <div class="btn-remove-container">
-                        <a href="javascript:void(0)" onclick="removeChoice(this);" class="remove-choice"><span class="btn-remove"></span></a>
+                    <div class="rb_choices_item_right">
+                        <div class="rb_choices_item_actions">
+                            <a href="javascript:void(0);" onclick="$.RoadsBuilder.removeChoicesItem(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        </div>
+                        <div class="restrict-drag">
+                            <input type="text" name="answer-code" class="rb_choice_input rb_with_margin slave" />
+                            <!--
+                            <div>
+                                Score: <input type="text" name="answer-score" class="rb_choice_input_small" />
+                            </div>
+                            -->
+                        </div>
+                        <div class="btn-remove-container">
+                            <a href="javascript:void(0)" onclick="removeChoice(this);" class="remove-choice"><span class="btn-remove"></span></a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </li>
 
             <div id="tpl_parameter" class="rb_parameter">
                 <span class="param_name"></span> <span class="rb_param_type"></span>

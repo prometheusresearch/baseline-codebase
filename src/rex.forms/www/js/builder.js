@@ -442,13 +442,6 @@ $.RoadsBuilder.loadInstrument = function (instrumentName) {
             + "/load_instrument?code=" + instrumentName;
     $.ajax({url : url,
         success : function(content) {
-
-            // TODO: remove it (temporary solution)
-            if (content.substring(0,1) === '"')
-                content = content.substring(1, content.length - 1);
-
-            console.log('content:' + content);
-
             $.RoadsBuilder.loadInstrumentSchema(instrumentName, content);
         },
         type: 'GET'
@@ -468,13 +461,6 @@ $.RoadsBuilder.OpenDialogF = function () {
               + "/load_instrument?code=" + instrumentName;
         $.ajax({url : url,
             success : function(content) {
-            
-                // TODO: remove it (temporary solution)
-                if (content.substring(0,1) === '"')
-                    content = content.substring(1, content.length - 1);
-
-                console.log('content:' + content)
-
                 $.RoadsBuilder.loadInstrumentSchema(instrumentName, content);
             },
             type: 'GET'
@@ -715,7 +701,7 @@ $.RoadsBuilder.ContextF = function () {
             var indexTypes = ['question', 'page', 'group', 'parameter' ];
             $.each(indexTypes, function (_, indexType) {
                 var index = getIndexByType(indexType);
-                console.log(indexType, 'index:', index);
+                // console.log(indexType, 'index:', index);
             });
         },
         clearIndex: clearIndex,
@@ -808,8 +794,8 @@ $.RoadsBuilder.ContextF = function () {
             var newQuestion = {
                 'name': null,
                 'title': null,
-                'questionType': 'integer',
-                'isMandatory': false,
+                'type': 'integer',
+                'required': false,
                 'answers': [],
                 'changes': {}
             };
@@ -842,7 +828,7 @@ $.RoadsBuilder.namesWhichBreaksConsistency = function (names, exclude) {
             badNames[question.name] = true;
             delete chkNames[question.name];
 
-        } else if (question.questionType === "set") {
+        } else if (question.type === "set") {
 
             for (var idx in question.answers) {
                 var fullName = question.name + '_'
@@ -880,8 +866,8 @@ $.RoadsBuilder.preparePageMeta = function(pageDiv, to) {
 
         var pageData = pageDiv.data('data');
 
-        console.log('page', pageDiv);
-        console.log('pageData', pageData);
+        // console.log('page', pageDiv);
+        // console.log('pageData', pageData);
 
         var thisPageMeta = {
             type: 'page',
@@ -1066,6 +1052,7 @@ $.RoadsBuilder.setPageListSortable = function(list) {
 $.RoadsBuilder.setQuestionsSortable = function(list) {
     list.sortable({
         cursor: 'move',
+        // cancel: '.restrict-question-drag',
         toleranceElement: '> div',
         update: function () {
             $.RoadsBuilder.updateQuestionOrders();
@@ -1189,8 +1176,8 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                 inputName.removeClass('slave');
             }
 
-            var questionType = question['questionType'];
-            if (question['isMandatory'])
+            var questionType = question.type;
+            if (question['required'])
                 required.attr('checked', 'checked');
             else
                 required.removeAttr('checked');
@@ -1206,7 +1193,7 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                 isFirst = false;
             }
 
-            if ($.RoadsBuilder.isListType(question['questionType']))
+            if ($.RoadsBuilder.isListType(question.type))
                 $('.rb_choices', editor).css('display', 'block');
 
             inputTitle.change(function () {
@@ -1250,7 +1237,7 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                 // groups inside repeating groups
                 questionType.find('option[value="rep_group"]').remove();
 
-            questionType.val(question['questionType']);
+            questionType.val(question.type);
             questionType.change($.RoadsBuilder.onChangeQuestionType);
             questionType.change();
 
@@ -1274,7 +1261,7 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
 
             editorPlace.append(editor);
 
-            if (question['questionType'] === "rep_group" &&
+            if (question.type === "rep_group" &&
                 question['repeatingGroup'] &&
                 question['repeatingGroup'].length) {
 
@@ -1397,9 +1384,11 @@ $.RoadsBuilder.addChoice = function(button) {
 }
 
 $.RoadsBuilder.setChoicesSortable = function(c) {
+    console.log('setChoicesSortable', c);
     c.sortable({
         cursor: 'move',
-        cancel: '.restrict-drag',
+        toleranceElement: '> div'
+        // cancel: '.restrict-drag',
     });
 }
 
@@ -1750,14 +1739,14 @@ $.RoadsBuilder.saveQuestion = function(obj) {
         changes.push('title');
     }
 
-    if (questionData['isMandatory'] !== qRequired) {
-        questionData['isMandatory'] = qRequired;
-        changes.push('isMandatory');
+    if (questionData['required'] !== qRequired) {
+        questionData['required'] = qRequired;
+        changes.push('required');
     }
 
-    if (questionData['questionType'] !== qQuestionType) {
-        questionData['questionType'] = qQuestionType;
-        changes.push('questionType');
+    if (questionData.type !== qQuestionType) {
+        questionData.type = qQuestionType;
+        changes.push('type');
     }
 
     var qEditor = question.find('.rb_question_editor:first');
@@ -2297,12 +2286,22 @@ $.RoadsBuilder.addPage = function(page, to) {
     newPageDiv.data('data', page);
 
     function fixQuestionData(qData) {
-        if (qData.questionType === "list")
-            qData.questionType = "set";
-        else if (qData.questionType === "radio")
-            qData.questionType = "enum";
-        else if (qData.questionType === "yes_no") {
-            qData.questionType = "enum";
+        if (qData['questionType']) {
+            qData['type'] = qData['questionType'];
+            delete qData['questionType'];
+        }
+
+        if (qData['isMandatory'] !== undefined) {
+            qData['required'] = qData['isMandatory'];
+            delete qData['isMandatory'];
+        }
+
+        if (qData.type === "list")
+            qData.type = "set";
+        else if (qData.type === "radio")
+            qData.type = "enum";
+        else if (qData.type === "yes_no") {
+            qData.type = "enum";
             qData.answers = [
                 {
                     "code": "yes",
@@ -2314,6 +2313,10 @@ $.RoadsBuilder.addPage = function(page, to) {
                 }
             ];
         }
+
+        $.each(qData['answers'], function (_, answer) {
+            answer['code'] = answer['code'].replace(/\-/g, '_');
+        });
     }
 
     for (var idx in page.questions) {
@@ -2325,7 +2328,7 @@ $.RoadsBuilder.addPage = function(page, to) {
         $.RoadsBuilder.makeREXLCache(qData, 'constraints');
 
         $.RoadsBuilder.context.putToIndex('question', qData);
-        if (qData.repeatingGroup && qData.questionType === "rep_group") {
+        if (qData.repeatingGroup && qData.type === "rep_group") {
             for (var sIdx in qData.repeatingGroup) {
                 var subQuestion = qData.repeatingGroup[sIdx];
                 fixQuestionData(subQuestion);
@@ -2337,7 +2340,7 @@ $.RoadsBuilder.addPage = function(page, to) {
 
                 $.RoadsBuilder.context.putToIndex('question', subQuestion);
             }
-        } else if ($.RoadsBuilder.isListType(qData.questionType)) {
+        } else if ($.RoadsBuilder.isListType(qData.type)) {
             $.RoadsBuilder.updatePredefinedChoices(qData.answers);
         }
     }
@@ -2546,7 +2549,7 @@ $.RoadsBuilder.getAnswersString = function(questionData) {
 }
 
 $.RoadsBuilder.getQuestionDescription = function(questionData) {
-    var type = questionData['questionType'];
+    var type = questionData.type;
 
     if ($.RoadsBuilder.isListType(type))
         return $.RoadsBuilder.getAnswersString(questionData);
@@ -2794,7 +2797,7 @@ $(document).ready(function () {
 
             if (questionData) {
                 ret = {};
-                switch(questionData.questionType) {
+                switch(questionData.type) {
                 case 'float':
                 case 'integer':
                     ret.type = 'number';
@@ -2803,12 +2806,12 @@ $(document).ready(function () {
                 case 'enum':
                 case 'yes_no':
 
-                    if (questionData.questionType === "set")
+                    if (questionData.type === "set")
                         ret.type = "set";
                     else
                         ret.type = "enum";
 
-                    if (questionData.questionType === "yes_no")
+                    if (questionData.type === "yes_no")
                         ret.variants = [
                             {
                                 code: 'yes',

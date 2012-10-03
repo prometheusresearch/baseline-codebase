@@ -47,13 +47,13 @@ class Page(object):
 class Question(object):
 
     def __init__(self, json):
-        self.question_type = json['questionType']
+        self.question_type = json['type']
         self.name = json['name'].encode("utf-8")
         self.title = json['title'].encode("utf-8")
 #        self.hint = json['hint'].encode("utf-8")
         self.answers = []
         self.answers_lookup = {}
-        self.mandatory = json['isMandatory']
+        self.mandatory = json['required']
 #        self.disableIf = json['disableIf']
 #        self.constraints = json['constraints']
         if 'answers' in json:

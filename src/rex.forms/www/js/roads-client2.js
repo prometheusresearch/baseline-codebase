@@ -37,6 +37,16 @@ function isValidDate(year, month, day) {
             d.getFullYear() == year);
 }
 
+function objSize(obj) {
+    var size = 0,
+        key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key))
+            ++size;
+    }
+    return size;
+}
+
 function toType(obj) {
     return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 }
@@ -802,7 +812,12 @@ Question.prototype.getRexlValue = function(name) {
         else if (name.length)
             return rexlize(this.value[name[0]]);
 
-        return rexlize(true);
+        return rexlize(objSize(this.value));
+    } else if (this.domain instanceof RecordListDomain) {
+        if (null === this.value)
+            return rexlize(null);
+
+        return rexlize(this.value.length);
     } else
         return rexlize(this.value);
 };

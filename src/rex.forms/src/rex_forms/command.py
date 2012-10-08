@@ -105,9 +105,8 @@ class SaveState(RoadsCommand):
         form = req.POST.get('form')
         if not code and form:
             return Response(body='Wrong Json')
-        handler = self.app.handler_by_name['rex.forms']
-        _, version = handler.get_latest_form(form)
-        handler.save_packet(form, version, code, data)
+        _, version = self.handler.get_latest_form(form)
+        self.handler.save_packet(form, version, code, data)
         return Response(body='Saved!')
 
 

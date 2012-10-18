@@ -1077,7 +1077,7 @@ $.RexFormsClient = function (o) {
         var answers = {};
         $.each(this.form.questions, function (_, question) {
             var value = question.getValue();
-            if (value instanceof Object) {
+            if (value instanceof Object && !(value instanceof Array)) {
                 $.each(value, function (key, value) {
                     answers[question.name + '_' + key] = value;
                 });

@@ -20,12 +20,18 @@ class Form(object):
             self.pages.append(pg)
             for question in pg.questions:
                 self.questions[question.name] = question
+            for rep_group in pg.rep_groups:
+                self.rep_groups[rep_group.name] = rep_group
+                for question in rep_group.questions:
+                    self.questions[question.name] = question
 
 
-    def __init__(self, json, code):
+
+    def __init__(self, json, code=None):
         self.code = code
         self.pages = []
         self.questions = {}
+        self.rep_groups = {}
 
         if 'pages' in json:
             for page in json['pages']:
@@ -40,9 +46,25 @@ class Page(object):
 #        self.id = json['id']
         self.steps = []
         self.questions = []
+        self.rep_groups = []
         for question in json['questions']:
-            self.questions.append(Question(question))
+            if question['type'] == 'rep_group':
+                self.rep_groups.append(RepGroup(question))
+            else:
+                self.questions.append(Question(question))
 
+
+class RepGroup(object):
+
+    def __init__(self, json):
+        self.disableIf = json['disableIf']
+        self.name = json['name']
+        self.title = json['title']
+        self.constraints = json['constraints']
+        self.required = json['required']
+        self.questions = []
+        for question in json['repeatingGroup']:
+            self.questions.append(Question(question))
 
 class Question(object):
 

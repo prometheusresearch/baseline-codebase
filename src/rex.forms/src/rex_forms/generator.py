@@ -23,7 +23,8 @@ class Form(object):
             for rep_group in pg.rep_groups:
                 self.rep_groups[rep_group.name] = rep_group
                 for question in rep_group.questions:
-                    self.questions[question.name] = question
+                    self.questions[question] =\
+                            rep_group.questions[question]
 
 
 
@@ -62,9 +63,11 @@ class RepGroup(object):
         self.title = json['title']
         self.constraints = json['constraints']
         self.required = json['required']
-        self.questions = []
+        self.questions = {}
+        self.rep_groups = {}
         for question in json['repeatingGroup']:
-            self.questions.append(Question(question))
+            que = Question(question)
+            self.questions[que.name] = que
 
 class Question(object):
 

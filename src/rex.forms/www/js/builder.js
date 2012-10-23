@@ -2286,6 +2286,11 @@ $.RoadsBuilder.addPage = function(page, to) {
     newPageDiv.data('data', page);
 
     function fixQuestionData(qData) {
+        if (qData['name'].length > 40) {
+            qData['name'] = qData['name'].substring(0, 40);
+            alert('truncated question name: ' + qData['name'])
+        }
+
         if (qData['questionType']) {
             qData['type'] = qData['questionType'];
             delete qData['questionType'];
@@ -2316,6 +2321,10 @@ $.RoadsBuilder.addPage = function(page, to) {
 
         $.each(qData['answers'], function (_, answer) {
             answer['code'] = answer['code'].replace(/\-/g, '_');
+            if (answer['code'].length > 20) {
+                answer['code'] = answer['code'].substring(0, 20);
+                alert('truncated answer code: ' + answer['code']);
+            }
         });
     }
 

@@ -795,9 +795,7 @@ $.RoadsBuilder.ContextF = function () {
                 'name': null,
                 'title': null,
                 'type': 'integer',
-                'required': false,
-                'answers': [],
-                'changes': {}
+                'required': false
             };
             $.RoadsBuilder.context.putToIndex('question', newQuestion);
             return newQuestion;
@@ -1604,7 +1602,7 @@ $.RoadsBuilder.saveQuestion = function(obj) {
     }
 
     var preloadedAnswers = {};
-    var changes = [];
+    // var changes = [];
 
     if ($.RoadsBuilder.isListType(qQuestionType)) {
         var choicesList = $('.choices-list:first', question)
@@ -1731,22 +1729,22 @@ $.RoadsBuilder.saveQuestion = function(obj) {
 
     if (questionData['name'] !== qName) {
         questionData['name'] = qName;
-        changes.push('name');
+        // changes.push('name');
     }
 
     if (questionData['title'] !== qTitle) {
         questionData['title'] = qTitle;
-        changes.push('title');
+        // changes.push('title');
     }
 
     if (questionData['required'] !== qRequired) {
         questionData['required'] = qRequired;
-        changes.push('required');
+        // changes.push('required');
     }
 
     if (questionData.type !== qQuestionType) {
         questionData.type = qQuestionType;
-        changes.push('type');
+        // changes.push('type');
     }
 
     var qEditor = question.find('.rb_question_editor:first');
@@ -1767,10 +1765,9 @@ $.RoadsBuilder.saveQuestion = function(obj) {
                 'title': answerTitle
             });
         }
-        changes.push('answers');
     }
 
-    $.RoadsBuilder.writeChanges(questionData, changes);
+    // $.RoadsBuilder.writeChanges(questionData, changes);
 
     if ($.RoadsBuilder.isListType(qQuestionType))
         $.RoadsBuilder.updatePredefinedChoices(questionData.answers);
@@ -2319,13 +2316,15 @@ $.RoadsBuilder.addPage = function(page, to) {
             ];
         }
 
-        $.each(qData['answers'], function (_, answer) {
-            answer['code'] = answer['code'].replace(/\-/g, '_');
-            if (answer['code'].length > 20) {
-                answer['code'] = answer['code'].substring(0, 20);
-                alert('truncated answer code: ' + answer['code']);
-            }
-        });
+        if (qData['answers']) {
+            $.each(qData['answers'], function (_, answer) {
+                answer['code'] = answer['code'].replace(/\-/g, '_');
+                if (answer['code'].length > 20) {
+                    answer['code'] = answer['code'].substring(0, 20);
+                    alert('truncated answer code: ' + answer['code']);
+                }
+            });
+        }
     }
 
     for (var idx in page.questions) {
@@ -2548,10 +2547,10 @@ $.RoadsBuilder.getAnswersString = function(questionData) {
     var titles = [];
     for (var idx in questionData['answers']) {
         var title = questionData['answers'][idx]['title'];
-        
+
         if (!title)
             title = questionData['answers'][idx]['code']
-        
+
         titles.push(title);
     }
     return titles.join(', ');

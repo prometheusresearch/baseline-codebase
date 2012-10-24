@@ -22,10 +22,6 @@ class Form(object):
                 self.questions[question.name] = question
             for rep_group in pg.rep_groups:
                 self.rep_groups[rep_group.name] = rep_group
-                for question in rep_group.questions:
-                    self.questions[question] =\
-                            rep_group.questions[question]
-
 
 
     def __init__(self, json, code=None):

@@ -494,7 +494,7 @@ var Form = function(config, data, paramValues) {
     this.questions = {};
     this.params = {};
 
-    $.each(config.params, function (_, param) {
+    $.each(config.params || {}, function (_, param) {
         var forRexlize = null;
         if (paramValues[param.name]) {
             // TODO: consider a way to provide info about external param types
@@ -548,7 +548,7 @@ var Form = function(config, data, paramValues) {
                                        );
 
             if(self.questions[question.name])
-                alert('duplicated question id'); // TODO: throw error here
+                alert('duplicated question id:' + question.name); // TODO: throw error here
             else
                 self.questions[question.name] = question;
 

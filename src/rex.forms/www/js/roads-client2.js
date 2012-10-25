@@ -512,31 +512,34 @@ var Form = function(config, data, paramValues) {
         self.params[param.name] = rexlize(forRexlize);
     });
 
+    function mergeSkipExpr(first, second) {
+        var parts = $.grep([first, second], function(item) {
+            return item;
+        });
+
+        var newSkipExpr;
+
+        if (0 == parts.length)
+            newSkipExpr = '';
+        else if (1 == parts.length)
+            newSkipExpr = parts[0];
+        else
+            newSkipExpr = '(' + parts[0] + ')|(' + parts[1] + ')';
+
+        return newSkipExpr;
+    }
+
     function group(list, skipExpr, data) {
         skipExpr = skipExpr || '';
         $.each(list, function(_, item) {
-            if(item.type == 'group') {
-                var parts = $.grep([skipExpr, item.skipIf], function(item) {
-                    return item;
-                });
-
-                var newSkipExpr;
-
-                if (0 == parts.length)
-                    newSkipExpr = '';
-                else if (1 == parts.length)
-                    newSkipExpr = parts[0];
-                else
-                    newSkipExpr = '(' + parts[0] + ')|(' + parts[1] + ')';
-
-                group(item.pages, newSkipExpr, data); 
-            }
+            if(item.type == 'group')
+                group(item.pages, mergeSkipExpr(skipExpr, item.skipIf), data);
             else
-                page(item, data);
+                page(item, data, skipExpr);
         });
     }
 
-    function page(item, data) {
+    function page(item, data, skipExpr) {
         var questions = $.map(item.questions, function(question) {
             var question = new Question(question.name,
                                         question.title,
@@ -554,7 +557,7 @@ var Form = function(config, data, paramValues) {
 
             return question;
         });
-        var page = new Page(questions, item.title, item.skipIf || null);
+        var page = new Page(questions, item.title, mergeSkipExpr(skipExpr, item.skipIf) || null);
         self.pages.push(page);
     }
 
@@ -644,7 +647,7 @@ Form.prototype.initState = function() {
 
 Form.prototype.calculate = function(expr) {
     var self = this;
-    return expr.evaluate(function(name) {
+    var ret = expr.evaluate(function(name) {
         // TODO: add params handling
         //if(self.hasParam(name[0]))
         //    return self.getRexlParamValue(name[0]);
@@ -659,6 +662,8 @@ Form.prototype.calculate = function(expr) {
         var rexlValue = question.getRexlValue(name.slice(1, name.length));
         return rexlValue;
     });
+    // console.log('ret =', ret, 'of', expr.srcExpr.substring(0,60));
+    return ret;
 };
 
 

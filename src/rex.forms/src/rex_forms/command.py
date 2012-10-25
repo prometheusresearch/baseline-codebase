@@ -150,6 +150,9 @@ class StartRoads(RoadsCommand):
             'instrument_id' : form,
             'extra' : extra
         }
+        for key in params:
+            if (params[key] is not None) and isinstance(params[key], str):
+                params[key] = params[key].decode("utf-8")
         return params
 
     def render(self, req):

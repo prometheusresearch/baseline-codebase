@@ -11,7 +11,13 @@
             formMeta: {{ client_params.instrument }},
             formData: {{ client_params.state }},
             formName: {{ client_params.instrument_id|json }},
-            paramValues: {{ client_params.extra }},
+            paramValues: {
+                {% for param_name in client_params.extra %}
+                {% if client_params.extra[param_name] != None %}
+                {{ param_name }}: {{ client_params.extra[param_name]|json }},
+                {% endif %}
+                {% endfor %}
+            },
 
             {% if client_params.package %}
             package: {{ client_params.package }},

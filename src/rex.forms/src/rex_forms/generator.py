@@ -54,10 +54,16 @@ class Page(object):
 class RepGroup(object):
 
     def __init__(self, json):
-        self.disableIf = json['disableIf']
+        try:
+            self.disableIf = json['disableIf']
+        except KeyError:
+            self.disableIf = None
         self.name = json['name']
         self.title = json['title']
-        self.constraints = json['constraints']
+        try:
+            self.constraints = json['constraints']
+        except KeyError:
+            self.constraints = ""
         self.required = json['required']
         self.questions = {}
         self.rep_groups = {}

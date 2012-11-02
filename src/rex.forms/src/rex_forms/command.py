@@ -129,11 +129,14 @@ class StartRoads(RoadsCommand):
     def get_test_mode(self, req):
         return req.GET.get('test')
 
+    def get_packet(self, req):
+        return req.GET.get('packet')
+
     def prepare_client_params(self, req):
         extra = self.get_extra_params(req)
         form = self.get_form(req)
         test = self.get_test_mode(req)
-        packet = req.GET.get('packet')
+        packet = self.get_packet(req)
         if not test:
             if not form:
                 raise BadRequestError('Mandatory form not filled in')

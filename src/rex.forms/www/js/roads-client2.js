@@ -941,7 +941,7 @@ $.RexFormsClient = function (o) {
     this.events = o.events || {};
 
     // TODO: remove it after test!!!
-    var formData = {
+/*    var formData = {
         "answers": {
             "test_question_first_choice": false,
             "test_question_second_choice": true,
@@ -952,11 +952,11 @@ $.RexFormsClient = function (o) {
             "first_question":null
         },
         "finished":false
-    };
+    };*/
 
-    this.form = new Form(o.formMeta, formData, o.paramValues || {});
+//    this.form = new Form(o.formMeta, formData, o.paramValues || {});
 
-    //this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {});
+    this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {});
     this.form.initState();
     this.currentPageIdx = -1;
     this.package = o.package || null;

@@ -431,7 +431,7 @@ var domain = {
             var value = {};
             $.each(def.answers, function (_, answer) {
                 var property = def.name + '_' + answer.code;
-                if (data.answers.hasOwnProperty(property)) {
+                if (data.answers && data.answers.hasOwnProperty(property)) {
                     value[answer.code] = data.answers[property];
                 }
             });
@@ -441,7 +441,7 @@ var domain = {
             break;
 
         default:
-            if (data.answers.hasOwnProperty(def.name))
+            if (data.answers && data.answers.hasOwnProperty(def.name))
                 return data.answers[def.name];
         }
 

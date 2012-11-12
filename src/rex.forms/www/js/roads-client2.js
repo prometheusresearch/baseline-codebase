@@ -685,7 +685,7 @@ Page.prototype.conforming = function () {
     var isConforming = true;
 
     $.each(self.questions, function(id, question) {
-        if (question.invalid ||
+        if (question.invalid || question.wrong ||
             question.required && question.getValue() === null) {
 
             isConforming = false;
@@ -756,6 +756,7 @@ var Question = function(name, title, domain, value, disableExpr, validateExpr, r
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
     this.required = required;
+    this.markAsRight();
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
@@ -767,9 +768,15 @@ Question.prototype.edit = function(templates) {
                 templates,
                 this.value,
                 function () {
-                    var extractedValue =
-                        self.extractValue(self.node);
-                    self.setValue(extractedValue);
+                    try {
+                        var extractedValue =
+                            self.extractValue(self.node);
+                        self.setValue(extractedValue);
+                        self.markAsRight();
+                    } catch(err) {
+                        self.markAsWrong();
+                        console.debug('Question', self.name, 'has wrong answer');
+                    }
                 }
             );
         this.update();
@@ -793,6 +800,12 @@ Question.prototype.update = function() {
     } else {
         this.node.removeClass('rf-disabled');
         inputs.removeAttr('disabled');
+    }
+
+    if (this.wrong || this.invalid) {
+        this.node.addClass('rf-error');
+    } else {
+        this.node.removeClass('rf-error');
     }
     // update value visiblity, show/hide error messages here
 };
@@ -846,6 +859,16 @@ Question.prototype.validate = function() {
     this.invalid = false;
     this.update();
 };
+
+Question.prototype.markAsWrong = function() {
+    this.wrong = true;
+    this.update();
+}
+
+Question.prototype.markAsRight = function() {
+    this.wrong = false;
+    this.update();
+}
 
 var defaultTemplates = {
     'progressBar':

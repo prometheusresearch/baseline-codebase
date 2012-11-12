@@ -166,13 +166,16 @@ class FormsPackageHandler(PackageHandler):
                 f = open(fld, 'r')
                 return f.read()
 
+    def get_packet_file_name(self, base, form, version, packet):
+        return "%s/%s/packets/%s_%s.js" % (base, form, packet, version)
+
     def save_packet(self, form, version, packet, data):
         with self.lock:
-            folder = self.app.config.form_folder
-            fld = "%s/%s/packets/%s_%s.js"\
-                    % (folder, form, packet, version)
+            base_dir = self.app.config.form_folder
+            file_name = self.get_packet_file_name(base_dir, form, packet, version)
+            print "packet file name:", file_name
             user_data = data.get('user_data', {})
-            f = open(fld, 'r')
+            f = open(file_name, 'r')
             old = simplejson.load(f)
             old_data = old.get('user_data')
             old_data.update(user_data)

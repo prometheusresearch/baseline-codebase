@@ -109,7 +109,6 @@ class SaveState(RoadsCommand):
         self.handler.save_packet(form, version, code, data)
         return Response(body='Saved!')
 
-
 @register_command
 class StartRoads(RoadsCommand):
 

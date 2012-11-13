@@ -1003,6 +1003,12 @@ $.RexFormsClient = function (o) {
         });
     };
 
+    var updateButtons = function () {
+        // TODO: think how to do it better
+        console.log('updateButtons', self.btnPrev);
+        self.btnPrev.css('display', self.currentPageIdx ? '':'none');
+    }
+
     var validateAndGo = function (step) {
         if (self.form.finished)
             return;
@@ -1010,7 +1016,7 @@ $.RexFormsClient = function (o) {
         var pages = self.form.pages;
         if (self.currentPageIdx >= 0) {
             var page = pages[self.currentPageIdx];
-            if (!page.conforming()) {
+            if (step > 0 && !page.conforming()) {
                 console.log('not conforming');
                 // there are invalid answers or
                 //  missed answers for required questions
@@ -1027,6 +1033,7 @@ $.RexFormsClient = function (o) {
                     self.save();
                 self.renderPage(idx, true);
                 updateProgress();
+                updateButtons();
                 return;
             }
 
@@ -1036,6 +1043,7 @@ $.RexFormsClient = function (o) {
 
         if (step > 0) {
             updateProgress(100);
+            updateButtons();
 
             if (!self.preview())
                 self.finish();

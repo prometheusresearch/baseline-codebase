@@ -152,7 +152,8 @@ DateDomain.prototype.render = function (templates, value, onChange) {
 
     input.datepicker({
         dateFormat: 'yy-mm-dd',
-        changeYear: true
+        changeYear: true,
+        yearRange: "c-90:c+10",
     });
 
     return input;

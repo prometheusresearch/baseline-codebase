@@ -68,10 +68,12 @@ class RepGroup(object):
             self.constraints = ""
         self.required = json['required']
         self.questions = {}
+        self.questions_list = []
         self.rep_groups = {}
         for question in json['repeatingGroup']:
             que = Question(question)
             self.questions[que.name] = que
+            self.questions_list.append(que)
 
 class Question(object):
 

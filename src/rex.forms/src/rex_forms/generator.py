@@ -20,6 +20,7 @@ class Form(object):
             self.pages.append(pg)
             for question in pg.questions:
                 self.questions[question.name] = question
+                self.questions_list.append(question)
             for rep_group in pg.rep_groups:
                 self.rep_groups[rep_group.name] = rep_group
 
@@ -28,6 +29,7 @@ class Form(object):
         self.code = code
         self.pages = []
         self.questions = {}
+        self.questions_list = []
         self.rep_groups = {}
 
         if 'pages' in json:

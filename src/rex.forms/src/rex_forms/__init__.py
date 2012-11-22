@@ -166,7 +166,7 @@ class FormsPackageHandler(PackageHandler):
                 f = open(fld, 'r')
                 return f.read()
 
-    def get_packet_file_name(self, base, form, version, packet):
+    def get_packet_file_name(self, base, form, packet, version):
         return "%s/%s/packets/%s_%s.js" % (base, form, packet, version)
 
     def save_packet(self, form, version, packet, data):
@@ -186,7 +186,7 @@ class FormsPackageHandler(PackageHandler):
                 old_data['data-entry-status'] = 'in-progress'
             data['user_data'] = old_data
             f.close()
-            f = open(fld, 'w')
+            f = open(file_name, 'w')
             f.write(simplejson.dumps(data, indent=1))
             f.close()
 

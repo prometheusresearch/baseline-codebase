@@ -18,6 +18,9 @@ $.RoadsBuilder.QTypes = {
     'string': 'Text String',
     'text': 'Text',
     'date': 'Date',
+    'weight' : 'Weigth',
+    'time_week' : 'Time (weeks)',
+    'time_month' : 'Time (month)',
     'rep_group': 'Repeating Group of Questions'
 };
 

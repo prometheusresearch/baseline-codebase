@@ -408,6 +408,86 @@ SetDomain.prototype.extractValue = function (node) {
     return total ? values : null;
 };
 
+var DoubleDomain = function(firstName, secondName, size) {
+    this.firstName = firstName;
+    this.secondName = secondName;
+    this.size = size;
+};
+extend(DoubleDomain, Domain);
+DoubleDomain.prototype.render = function (templates, value, onChange) {
+    var ret = $('<div></div>');
+    var span = $('<span></span>');
+    span.html(this.firstName);
+    ret.append(span);
+    var input = $('<input type="text">');
+    input.attr("size", 10);
+    input.attr("name", "first");
+
+    if (onChange)
+        input.change(onChange);
+
+    ret.append(input);
+    var span = $('<span></span>');
+    span.html(this.secondName);
+    ret.append(span);
+    var input = $('<input type="text">');
+    input.attr("size", 10);
+    input.attr("name", "second");
+    ret.append(input);
+
+    if (value)
+        this.setValue(ret, value);
+
+    if (onChange)
+        input.change(onChange);
+
+    return ret;
+};
+DoubleDomain.prototype.setValue = function (node, value) {
+    var first = Math.floor(value / this.size);
+    var second = value % this.size;
+    $(node).children("input[name='first']").val(first);
+    $(node).children("input[name='second']").val(second);
+};
+DoubleDomain.prototype.extractValue = function (node) {
+    var first = $( node ).children("input[name='first']").val();
+    var second = $( node ).children("input[name='second']").val();
+    if (first) 
+        if (isValidNumeric(first, 'integer')) 
+            lbs = parseInt(first);
+        else
+            throw("InvalidNumeric");
+
+    if (second) 
+        if (isValidNumeric(second, 'float')) 
+            second = parseFloat(second);
+        else
+            throw("InvalidNumeric");
+
+    var value = first * this.size + second;
+
+    return value;
+};
+
+
+var WeightDomain = function() {
+    Domain.call(this, 'weight');
+    DoubleDomain.call(this, 'lbs', 'ounce', 16);
+};
+extend(WeightDomain, DoubleDomain);
+
+var TimeWDomain = function() {
+    Domain.call(this, 'time_week');
+    DoubleDomain.call(this, 'month', 'week', 4);
+};
+extend(TimeWDomain, DoubleDomain);
+
+var TimeDomain = function() {
+    Domain.call(this, 'time_month');
+    DoubleDomain.call(this, 'year', 'month', 12);
+};
+extend(TimeDomain, DoubleDomain);
+
 var domain = {
     all: {
         'integer': NumberDomain,
@@ -417,6 +497,9 @@ var domain = {
         'enum': EnumDomain,
         'set': SetDomain,
         'date': DateDomain,
+        'weight' : WeightDomain,
+        'time_week' : TimeWDomain,
+        'time_month' : TimeDomain,
         'rep_group': RecordListDomain
     },
 
@@ -472,6 +555,10 @@ var domain = {
         return this.get(questionType);
     }
 };
+
+
+
+
 // }}}
 
 var Form = function(config, data, paramValues) {

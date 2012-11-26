@@ -40,7 +40,7 @@ class Form(object):
 class Page(object):
 
     def __init__(self, json):
-        self.skipif = json['skipIf']
+#        self.skipif = json['skipIf']
         self.type = json['type']
 #        self.id = json['id']
         self.steps = []

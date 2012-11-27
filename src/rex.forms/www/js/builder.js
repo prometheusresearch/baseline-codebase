@@ -801,7 +801,8 @@ $.RoadsBuilder.ContextF = function () {
                 'name': null,
                 'title': null,
                 'type': 'integer',
-                'required': false
+                'required': false,
+                'reason': false
             };
             $.RoadsBuilder.context.putToIndex('question', newQuestion);
             return newQuestion;

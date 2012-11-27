@@ -657,7 +657,8 @@ var Form = function(config, data, paramValues) {
                                         domain.valueFromData(question, data),
                                         question.disableIf || null,
                                         question.constraints || null,
-                                        question.required
+                                        question.required || false,
+                                        question.reason || false
                                        );
 
             if(self.questions[question.name])
@@ -797,7 +798,6 @@ Page.prototype.conforming = function () {
     $.each(self.questions, function(id, question) {
         if (question.invalid || question.wrong ||
             question.required && question.getValue() === null) {
-
             isConforming = false;
         }
     });
@@ -854,18 +854,23 @@ MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
     questionNode.find('.rf-question-title')
             .append(renderCreole(this.title))
             .end()
+            .find('.rf-question-reason')
+            .css('display', 'none')
+            .end()
             .find('.rf-question-answers')
             .append(domainNode);
 
     return questionNode;
 };
 
-var Question = function(name, title, domain, value, disableExpr, validateExpr, required) {
+
+var Question = function(name, title, domain, value, disableExpr, validateExpr, required, reason) {
     MetaQuestion.call(this, name, title, domain);
     this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
     this.required = required;
+    this.reason = reason;
     this.markAsRight();
     // TODO: convert validate expr to use this.id instead of 'this';
 };
@@ -893,6 +898,22 @@ Question.prototype.edit = function(templates) {
     }
     return this.node;
 };
+
+Question.prototype.renderQuestion = function (templates, value, onChange) {
+    var questionNode = 
+        MetaQuestion.prototype.renderQuestion.call(this, templates, value, onChange);
+    if (this.reason) {
+        questionNode
+            .find('.rf-question-reason')
+            .css('display', '')
+            .find('a')
+            .click(function () {
+
+            });
+    }
+    return questionNode;
+}
+
 
 Question.prototype.view = function() {
     // read-only mode
@@ -996,6 +1017,7 @@ var defaultTemplates = {
           '<div class="rf-question">'
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
+            + '<div class="rf-question-reason"><a href="javascript:void(0);">I can\'t answer because...</a></div>'
         + '</div>'
 };
 

@@ -488,6 +488,24 @@ var TimeDomain = function() {
 };
 extend(TimeDomain, DoubleDomain);
 
+var TimeHDomain = function() {
+    Domain.call(this, 'time_hours');
+    DoubleDomain.call(this, 'days', 'hours', 24);
+};
+extend(TimeHDomain, DoubleDomain);
+
+var TimeMDomain = function() {
+    Domain.call(this, 'time_minutes');
+    DoubleDomain.call(this, 'hours', 'minutes', 60);
+};
+extend(TimeMDomain, DoubleDomain);
+
+var TimeDDomain = function() {
+    Domain.call(this, 'time_days');
+    DoubleDomain.call(this, 'weeks', 'days', 7);
+};
+extend(TimeDDomain, DoubleDomain);
+
 var domain = {
     all: {
         'integer': NumberDomain,
@@ -499,7 +517,10 @@ var domain = {
         'date': DateDomain,
         'weight' : WeightDomain,
         'time_week' : TimeWDomain,
+        'time_hours' : TimeHDomain,
         'time_month' : TimeDomain,
+        'time_minutes' : TimeMDomain,
+        'time_days' : TimeDDomain,
         'rep_group': RecordListDomain
     },
 

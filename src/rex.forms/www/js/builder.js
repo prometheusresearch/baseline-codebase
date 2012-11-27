@@ -21,6 +21,9 @@ $.RoadsBuilder.QTypes = {
     'weight' : 'Weigth',
     'time_week' : 'Time (weeks)',
     'time_month' : 'Time (month)',
+    'time_hours' : 'Time (hours)',
+    'time_minutes' : 'Time (minutes)',
+    'time_days' : 'Time (days)',
     'rep_group': 'Repeating Group of Questions'
 };
 

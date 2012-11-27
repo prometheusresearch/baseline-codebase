@@ -408,13 +408,13 @@ SetDomain.prototype.extractValue = function (node) {
     return total ? values : null;
 };
 
-var DoubleDomain = function(firstName, secondName, size) {
+var DualNumberDomain = function(firstName, secondName, size) {
     this.firstName = firstName;
     this.secondName = secondName;
     this.size = size;
 };
-extend(DoubleDomain, Domain);
-DoubleDomain.prototype.render = function (templates, value, onChange) {
+extend(DualNumberDomain, Domain);
+DualNumberDomain.prototype.render = function (templates, value, onChange) {
     var ret = $('<div></div>');
     var span = $('<span></span>');
     span.html(this.firstName);
@@ -443,13 +443,13 @@ DoubleDomain.prototype.render = function (templates, value, onChange) {
 
     return ret;
 };
-DoubleDomain.prototype.setValue = function (node, value) {
+DualNumberDomain.prototype.setValue = function (node, value) {
     var first = Math.floor(value / this.size);
     var second = value % this.size;
     $(node).children("input[name='first']").val(first);
     $(node).children("input[name='second']").val(second);
 };
-DoubleDomain.prototype.extractValue = function (node) {
+DualNumberDomain.prototype.extractValue = function (node) {
     var first = $( node ).children("input[name='first']").val();
     var second = $( node ).children("input[name='second']").val();
     if (first) 
@@ -472,39 +472,39 @@ DoubleDomain.prototype.extractValue = function (node) {
 
 var WeightDomain = function() {
     Domain.call(this, 'weight');
-    DoubleDomain.call(this, 'lbs', 'ounce', 16);
+    DualNumberDomain.call(this, 'lbs', 'ounce', 16);
 };
-extend(WeightDomain, DoubleDomain);
+extend(WeightDomain, DualNumberDomain);
 
 var TimeWDomain = function() {
     Domain.call(this, 'time_week');
-    DoubleDomain.call(this, 'month', 'week', 4);
+    DualNumberDomain.call(this, 'month', 'week', 4);
 };
-extend(TimeWDomain, DoubleDomain);
+extend(TimeWDomain, DualNumberDomain);
 
 var TimeDomain = function() {
     Domain.call(this, 'time_month');
-    DoubleDomain.call(this, 'year', 'month', 12);
+    DualNumberDomain.call(this, 'year', 'month', 12);
 };
-extend(TimeDomain, DoubleDomain);
+extend(TimeDomain, DualNumberDomain);
 
 var TimeHDomain = function() {
     Domain.call(this, 'time_hours');
-    DoubleDomain.call(this, 'days', 'hours', 24);
+    DualNumberDomain.call(this, 'days', 'hours', 24);
 };
-extend(TimeHDomain, DoubleDomain);
+extend(TimeHDomain, DualNumberDomain);
 
 var TimeMDomain = function() {
     Domain.call(this, 'time_minutes');
-    DoubleDomain.call(this, 'hours', 'minutes', 60);
+    DualNumberDomain.call(this, 'hours', 'minutes', 60);
 };
-extend(TimeMDomain, DoubleDomain);
+extend(TimeMDomain, DualNumberDomain);
 
 var TimeDDomain = function() {
     Domain.call(this, 'time_days');
-    DoubleDomain.call(this, 'weeks', 'days', 7);
+    DualNumberDomain.call(this, 'weeks', 'days', 7);
 };
-extend(TimeDDomain, DoubleDomain);
+extend(TimeDDomain, DualNumberDomain);
 
 var domain = {
     all: {

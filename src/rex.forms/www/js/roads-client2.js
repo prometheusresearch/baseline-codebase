@@ -201,7 +201,8 @@ RecordListDomain.prototype.renderRecord = function (templates, recordValue, onCh
             metaQuestion.renderQuestion(
                 templates,
                 recordValue ? recordValue[metaQuestion.name] : null,
-                onChange
+                onChange,
+                null
             )
         );
         record.append(cell);
@@ -777,6 +778,22 @@ Form.prototype.calculate = function(expr) {
     return ret;
 };
 
+var ReasonDialog = function(template) {
+    this.dialog = $(template).dialog({
+        autoOpen: false,
+        title: 'Question',
+        width: 400,
+        height: 200,
+        modal: true,
+        close: function () {
+            
+        }
+    })
+}
+
+ReasonDialog.prototype.askReason = function (questionName) {
+    this.dialog.dialog('open');
+}
 
 var Page = function(questions, title, skipExpr) {
     var self = this;
@@ -815,7 +832,7 @@ Page.prototype.unskip = function () {
     this.update();
 };
 
-Page.prototype.edit = function(templates) {
+Page.prototype.edit = function(templates, askReasonCallback) {
     var self = this;
 
     if (self.renderedPage)
@@ -824,7 +841,7 @@ Page.prototype.edit = function(templates) {
     var page = $('<div>').addClass('rf-page');
     $.each(self.questions, function (_, question) {
         page.append(
-            question.edit( templates )
+            question.edit( templates, askReasonCallback )
         );
     });
 
@@ -848,7 +865,7 @@ MetaQuestion.prototype.extractValue = function (node) {
     return this.domain.extractValue(domainNode);
 };
 
-MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
+MetaQuestion.prototype.renderQuestion = function (templates, value, onChange, reserved) {
     var domainNode = this.domain.render(templates, value, onChange);
     var questionNode = templates['question'].clone();
     questionNode.find('.rf-question-title')
@@ -875,7 +892,7 @@ var Question = function(name, title, domain, value, disableExpr, validateExpr, r
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
-Question.prototype.edit = function(templates) {
+Question.prototype.edit = function(templates, askReasonCallback) {
     if (!this.node) {
         var self = this;
         this.node =
@@ -892,28 +909,34 @@ Question.prototype.edit = function(templates) {
                         self.markAsWrong();
                         console.debug('Question', self.name, 'has wrong answer');
                     }
-                }
+                },
+                askReasonCallback
             );
         this.update();
     }
     return this.node;
 };
 
-Question.prototype.renderQuestion = function (templates, value, onChange) {
-    var questionNode = 
+Question.prototype.renderQuestion = function (templates, value, onChange, askReasonCallback) {
+    var questionNode =
         MetaQuestion.prototype.renderQuestion.call(this, templates, value, onChange);
+    var questionName = this.name;
     if (this.reason) {
         questionNode
             .find('.rf-question-reason')
             .css('display', '')
             .find('a')
             .click(function () {
-
+                if (askReasonCallback)
+                    askReasonCallback(questionName);
             });
     }
     return questionNode;
 }
 
+Question.prototype.askReason = function() {
+    
+}
 
 Question.prototype.view = function() {
     // read-only mode
@@ -1018,6 +1041,14 @@ var defaultTemplates = {
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
             + '<div class="rf-question-reason"><a href="javascript:void(0);">I can\'t answer because...</a></div>'
+        + '</div>',
+    'reasonDialog':
+          '<div class="rf-reason-dialog">'
+            + '<div class="rf-reason-dialog-title">I can\'t answer because ...</div>'
+            + '<div class="rf-reason-dialog-variants">'
+                + '<label class="rf-reason-dialog-variant"><input type="radio" name="reason" value="do_not_know" /> I don\'t know the answer</label>'
+                + '<label class="rf-reason-dialog-variant"><input type="radio" name="reason" value="do_not_want" /> I don\'t want to answer</label>'
+            + '</div>'
         + '</div>'
 };
 
@@ -1094,22 +1125,6 @@ $.RexFormsClient = function (o) {
     this.saveURL = o.saveURL;
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
-
-    // TODO: remove it after test!!!
-/*    var formData = {
-        "answers": {
-            "test_question_first_choice": false,
-            "test_question_second_choice": true,
-            "test_repeating_group_0": {
-                "first_subquestion":"yes",
-                "second_subquestion":"no"
-            },
-            "first_question":null
-        },
-        "finished":false
-    };*/
-
-//    this.form = new Form(o.formMeta, formData, o.paramValues || {});
 
     this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {});
     this.form.initState();
@@ -1202,8 +1217,12 @@ $.RexFormsClient = function (o) {
             self.questionArea.append(
                 self.renderPage(idx, false)
             );
-        });        
+        });
     }
+
+    var reasonDialogTemplate = defaultTemplates['reasonDialog'];
+
+    this.reasonDialog = new ReasonDialog(reasonDialogTemplate);
 
     this.renderPage = function (pageIdx, clear) {
         if (!self.raiseEvent('beforePageRender', pageIdx)) {
@@ -1224,7 +1243,9 @@ $.RexFormsClient = function (o) {
             self.pageTitleArea.append( renderCreole(page.title) );
 
         self.questionArea.append(
-            page.edit( self.templates )
+            page.edit( self.templates, function (questionName) {
+                self.reasonDialog.askReason(questionName);
+            })
         );
 
         self.raiseEvent('pageRendered', pageIdx);

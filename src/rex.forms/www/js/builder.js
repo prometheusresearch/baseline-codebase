@@ -802,7 +802,7 @@ $.RoadsBuilder.ContextF = function () {
                 'title': null,
                 'type': 'integer',
                 'required': false,
-                'reason': false
+                'annotation': false
             };
             $.RoadsBuilder.context.putToIndex('question', newQuestion);
             return newQuestion;

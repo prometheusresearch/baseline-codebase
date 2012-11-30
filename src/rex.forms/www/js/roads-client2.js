@@ -530,6 +530,12 @@ var domain = {
         return new cls(options);
     },
 
+    annotationFromData: function(def, data) {
+        if (data.annotations)
+            return data.annotations[def.name] || null;
+        return null;
+    },
+
     valueFromData: function(def, data) {
         var questionType = def.type;
 
@@ -659,7 +665,8 @@ var Form = function(config, data, paramValues) {
                                         question.disableIf || null,
                                         question.constraints || null,
                                         question.required || false,
-                                        question.reason || false
+                                        question.annotation || false,
+                                        domain.annotationFromData(question, data)
                                        );
 
             if(self.questions[question.name])
@@ -778,22 +785,61 @@ Form.prototype.calculate = function(expr) {
     return ret;
 };
 
-var ReasonDialog = function(template) {
-    this.dialog = $(template).dialog({
+/*
+var AnnotationDialog = function(template) {
+    var self = this;
+    self.question = null;
+    self.dialog = $(template).dialog({
         autoOpen: false,
-        title: 'Question',
-        width: 400,
-        height: 200,
+        title: "I can't answer because...",
         modal: true,
+        open: function () {
+            var annotation = self.question.getAnnotation();
+            if (annotation) {
+                $('input[name=annotation]', this).each(function (_, input) {
+                    input = $(input);
+                    if (input.val() === annotation.code) {
+                        input.attr('checked', 'checked');
+                    }
+                });
+            }
+        },
         close: function () {
-            
-        }
+            // cleanup
+            $('input[name=annotation]', this).removeAttr('checked');
+            self.question = null;
+        },
+        buttons: [
+            {
+                text: "Ok",
+                click: function () {
+                    var annotation = null;
+                    $('input[name=annotation]', this).each(function (_, input) {
+                        input = $(input);
+                        if (input.is(':checked'))
+                            annotation = new Annotation(input.val(), null);
+                    });
+                    if (annotation) {
+                        self.question.setAnnotation(annotation);
+                        $(this).dialog('close');
+                    }
+                }
+            },
+            {
+                text: "Cancel",
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+        ]
     })
 }
 
-ReasonDialog.prototype.askReason = function (questionName) {
+AnnotationDialog.prototype.askAnnotation = function (question) {
+    this.question = question;
     this.dialog.dialog('open');
 }
+*/
 
 var Page = function(questions, title, skipExpr) {
     var self = this;
@@ -814,7 +860,7 @@ Page.prototype.conforming = function () {
 
     $.each(self.questions, function(id, question) {
         if (question.invalid || question.wrong ||
-            question.required && question.getValue() === null) {
+            question.required && question.getValue() === null && question.annotation === null) {
             isConforming = false;
         }
     });
@@ -832,7 +878,7 @@ Page.prototype.unskip = function () {
     this.update();
 };
 
-Page.prototype.edit = function(templates, askReasonCallback) {
+Page.prototype.edit = function(templates) {
     var self = this;
 
     if (self.renderedPage)
@@ -841,7 +887,7 @@ Page.prototype.edit = function(templates, askReasonCallback) {
     var page = $('<div>').addClass('rf-page');
     $.each(self.questions, function (_, question) {
         page.append(
-            question.edit( templates, askReasonCallback )
+            question.edit( templates )
         );
     });
 
@@ -865,13 +911,13 @@ MetaQuestion.prototype.extractValue = function (node) {
     return this.domain.extractValue(domainNode);
 };
 
-MetaQuestion.prototype.renderQuestion = function (templates, value, onChange, reserved) {
+MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
     var domainNode = this.domain.render(templates, value, onChange);
     var questionNode = templates['question'].clone();
     questionNode.find('.rf-question-title')
             .append(renderCreole(this.title))
             .end()
-            .find('.rf-question-reason')
+            .find('.rf-question-annotation')
             .css('display', 'none')
             .end()
             .find('.rf-question-answers')
@@ -880,19 +926,19 @@ MetaQuestion.prototype.renderQuestion = function (templates, value, onChange, re
     return questionNode;
 };
 
-
-var Question = function(name, title, domain, value, disableExpr, validateExpr, required, reason) {
+var Question = function(name, title, domain, value, disableExpr, validateExpr, required, askAnnotation, annotation) {
     MetaQuestion.call(this, name, title, domain);
     this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
     this.required = required;
-    this.reason = reason;
+    this.askAnnotation = askAnnotation;
+    this.annotation = annotation;
     this.markAsRight();
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
-Question.prototype.edit = function(templates, askReasonCallback) {
+Question.prototype.edit = function(templates) {
     if (!this.node) {
         var self = this;
         this.node =
@@ -909,33 +955,39 @@ Question.prototype.edit = function(templates, askReasonCallback) {
                         self.markAsWrong();
                         console.debug('Question', self.name, 'has wrong answer');
                     }
-                },
-                askReasonCallback
+                }
             );
         this.update();
     }
     return this.node;
 };
 
-Question.prototype.renderQuestion = function (templates, value, onChange, askReasonCallback) {
+Question.prototype.renderQuestion = function (templates, value, onChange) {
     var questionNode =
         MetaQuestion.prototype.renderQuestion.call(this, templates, value, onChange);
-    var questionName = this.name;
-    if (this.reason) {
-        questionNode
-            .find('.rf-question-reason')
-            .css('display', '')
-            .find('a')
-            .click(function () {
-                if (askReasonCallback)
-                    askReasonCallback(questionName);
+    var self = this;
+    if (this.askAnnotation) {
+        var annotationNode = $(templates['annotation']);
+        annotationNode
+            .find('.rf-annotation-variants')
+            .val(self.annotation ? self.annotation : '')
+            .change(function () {
+                self.annotation = $(this).val() || null;
             });
+        questionNode
+            .find('.rf-question-annotation')
+            .append(annotationNode)
+            .css('display', '');
     }
     return questionNode;
 }
 
-Question.prototype.askReason = function() {
-    
+Question.prototype.getAnnotation = function() {
+    return this.annotation;
+}
+
+Question.prototype.setAnnotation = function(annotation) {
+    this.annotation = annotation;
 }
 
 Question.prototype.view = function() {
@@ -1040,15 +1092,16 @@ var defaultTemplates = {
           '<div class="rf-question">'
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
-            + '<div class="rf-question-reason"><a href="javascript:void(0);">I can\'t answer because...</a></div>'
+            + '<div class="rf-question-annotation"></div>'
         + '</div>',
-    'reasonDialog':
-          '<div class="rf-reason-dialog">'
-            + '<div class="rf-reason-dialog-title">I can\'t answer because ...</div>'
-            + '<div class="rf-reason-dialog-variants">'
-                + '<label class="rf-reason-dialog-variant"><input type="radio" name="reason" value="do_not_know" /> I don\'t know the answer</label>'
-                + '<label class="rf-reason-dialog-variant"><input type="radio" name="reason" value="do_not_want" /> I don\'t want to answer</label>'
-            + '</div>'
+    'annotation':
+          '<div class="rf-annotation">'
+            + '<span class="rf-annotation-title">I can\'t answer because:</span>'
+            + '<select class="rf-annotation-variants">'
+                + '<option value=""></option>'
+                + '<option value="do_not_know">I don\'t know the answer.</option>'
+                + '<option value="do_not_want">I don\'t want to answer.</option>'
+            + '</select>'
         + '</div>'
 };
 
@@ -1220,9 +1273,8 @@ $.RexFormsClient = function (o) {
         });
     }
 
-    var reasonDialogTemplate = defaultTemplates['reasonDialog'];
-
-    this.reasonDialog = new ReasonDialog(reasonDialogTemplate);
+    var annotationDialogTemplate = defaultTemplates['annotationDialog'];
+    // this.annotationDialog = new AnnotationDialog(annotationDialogTemplate);
 
     this.renderPage = function (pageIdx, clear) {
         if (!self.raiseEvent('beforePageRender', pageIdx)) {
@@ -1244,7 +1296,7 @@ $.RexFormsClient = function (o) {
 
         self.questionArea.append(
             page.edit( self.templates, function (questionName) {
-                self.reasonDialog.askReason(questionName);
+                self.annotationDialog.askAnnotation(questionName);
             })
         );
 
@@ -1267,6 +1319,16 @@ $.RexFormsClient = function (o) {
         validateAndGo(-1);
     };
 
+    this.collectAnnotations = function () {
+        var annotations = {};
+        $.each(this.form.questions, function (_, question) {
+            var annotation = question.getAnnotation();
+            if (annotation)
+                annotations[question.name] = annotation;
+        });
+        return annotations;
+    }
+
     this.collectAnswers = function () {
         var answers = {};
         $.each(this.form.questions, function (_, question) {
@@ -1286,7 +1348,9 @@ $.RexFormsClient = function (o) {
             return;
 
         var collectedData = {
+            version: null, // TODO
             answers: self.collectAnswers(),
+            annotations: self.collectAnnotations(),
             finished: self.form.finished
         };
         collectedData = $.toJSON(collectedData);

@@ -1217,7 +1217,8 @@ $.RexFormsClient = function (o) {
         if (self.currentPageIdx >= 0) {
             var page = pages[self.currentPageIdx];
             if (step > 0 && !page.conforming()) {
-                console.log('not conforming');
+                alert("Please correct the information you've provided (highlighted in red)");
+                //console.log('not conforming');
                 // there are invalid answers or
                 //  missed answers for required questions
                 return;

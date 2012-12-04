@@ -235,7 +235,7 @@ RecordListDomain.prototype.render = function (templates, value, onChange, custom
 
     if (value) {
         $.each(value, function (_, recordValue) {
-            recordList.append( thisDomain.renderRecord(templates, value, onChange, customTitles) );
+            recordList.append( thisDomain.renderRecord(templates, recordValue, onChange, customTitles) );
         });
     }
 
@@ -800,70 +800,12 @@ Form.prototype.calculate = function(expr) {
         var question = self.questions[name[0]];
         if(!question) {
             alert("No such question: " + name[0]);
-            console.log('params:', self.params);
         }
         var rexlValue = question.getRexlValue(name.slice(1, name.length));
         return rexlValue;
     });
-    // console.log('ret =', ret, 'of', expr.srcExpr.substring(0,60));
     return ret;
 };
-
-/*
-var AnnotationDialog = function(template) {
-    var self = this;
-    self.question = null;
-    self.dialog = $(template).dialog({
-        autoOpen: false,
-        title: "I can't answer because...",
-        modal: true,
-        open: function () {
-            var annotation = self.question.getAnnotation();
-            if (annotation) {
-                $('input[name=annotation]', this).each(function (_, input) {
-                    input = $(input);
-                    if (input.val() === annotation.code) {
-                        input.attr('checked', 'checked');
-                    }
-                });
-            }
-        },
-        close: function () {
-            // cleanup
-            $('input[name=annotation]', this).removeAttr('checked');
-            self.question = null;
-        },
-        buttons: [
-            {
-                text: "Ok",
-                click: function () {
-                    var annotation = null;
-                    $('input[name=annotation]', this).each(function (_, input) {
-                        input = $(input);
-                        if (input.is(':checked'))
-                            annotation = new Annotation(input.val(), null);
-                    });
-                    if (annotation) {
-                        self.question.setAnnotation(annotation);
-                        $(this).dialog('close');
-                    }
-                }
-            },
-            {
-                text: "Cancel",
-                click: function () {
-                    $(this).dialog('close');
-                }
-            }
-        ]
-    })
-}
-
-AnnotationDialog.prototype.askAnnotation = function (question) {
-    this.question = question;
-    this.dialog.dialog('open');
-}
-*/
 
 var Page = function(questions, title, skipExpr) {
     var self = this;
@@ -1244,7 +1186,6 @@ $.RexFormsClient = function (o) {
 
     var updateButtons = function () {
         // TODO: think how to do it better
-        console.log('updateButtons', self.btnPrev);
         self.btnPrev.css('display', self.currentPageIdx ? '':'none');
     }
 

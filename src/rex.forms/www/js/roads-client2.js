@@ -1128,7 +1128,7 @@ var defaultTemplates = {
         '<button class="rf-clear-answers">Clear</button>',
     'question':
           '<div class="rf-question">'
-            + '<div class="rf-question-required"><abbr title="This is question is mandatory">*</abbr></div>'
+            + '<div class="rf-question-required"><abbr title="This question is mandatory">*</abbr></div>'
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
             + '<div class="rf-question-annotation"></div>'

@@ -91,7 +91,7 @@ function renderCreole(srcText) {
 var Domain = function(name) {
     this.name = name;
 };
-Domain.prototype.render = function(templates, value, onChange) {
+Domain.prototype.render = function(templates, value, onChange, customTitles) {
     alert('Implement in subclasses');
 };
 Domain.prototype.setValue = function (node, value) {
@@ -107,7 +107,7 @@ var TextDomain = function(multiLine) {
     this.multiLine = multiLine;
 };
 extend(TextDomain, Domain);
-TextDomain.prototype.render = function (templates, value, onChange) {
+TextDomain.prototype.render = function (templates, value, onChange, customTitles) {
     var input;
 
     if (this.multiLine) {
@@ -143,7 +143,7 @@ var DateDomain = function() {
     Domain.call(this, 'date');
 };
 extend(DateDomain, Domain);
-DateDomain.prototype.render = function (templates, value, onChange) {
+DateDomain.prototype.render = function (templates, value, onChange, customTitles) {
     var input = $('<input type="text">');
     this.setValue(input, value);
 
@@ -191,7 +191,7 @@ var RecordListDomain = function(recordDef) {
     });
 };
 extend(RecordListDomain, Domain);
-RecordListDomain.prototype.renderRecord = function (templates, recordValue, onChange) {
+RecordListDomain.prototype.renderRecord = function (templates, recordValue, onChange, customTitles) {
     var record = $('<div>').addClass('rf-record');
     var self = this;
 
@@ -209,6 +209,17 @@ RecordListDomain.prototype.renderRecord = function (templates, recordValue, onCh
     });
 
     var btnRemoveRecord = templates['btnRemoveRecord'].clone();
+    var titleNode = btnRemoveRecord.filter('.rf-remove-record-title') 
+    if (!titleNode.size())
+        titleNode = btnRemoveRecord.find('.rf-remove-record-title');
+    if (titleNode.size()) {
+        var title = customTitles.removeRecord ?
+                    customTitles.removeRecord: 'Remove Group of Answers';
+        if (titleNode.prop("tagName") === 'A')
+            titleNode.attr('title', title);
+        else
+            titleNode.text(title);
+    }
     btnRemoveRecord.click(function () {
         record.remove();
         if (onChange)
@@ -218,19 +229,31 @@ RecordListDomain.prototype.renderRecord = function (templates, recordValue, onCh
 
     return record;
 };
-RecordListDomain.prototype.render = function (templates, value, onChange) {
+RecordListDomain.prototype.render = function (templates, value, onChange, customTitles) {
     var recordList = $('<div>').addClass('rf-record-list');
     var thisDomain = this;
 
     if (value) {
         $.each(value, function (_, recordValue) {
-            recordList.append( thisDomain.renderRecord(templates, value, onChange) );
+            recordList.append( thisDomain.renderRecord(templates, value, onChange, customTitles) );
         });
     }
 
     var btnAddRecord = templates['btnAddRecord'].clone();
+    var titleNode = btnAddRecord.filter('.rf-add-record-title') 
+    if (!titleNode.size())
+        titleNode = btnAddRecord.find('.rf-add-record-title');
+    if (titleNode.size()) {
+        var title = customTitles.addRecord ?
+                    customTitles.addRecord: 'Add Group of Answers';
+        if (titleNode.prop('tagName') === 'A')
+            titleNode.attr('title', title);
+        else
+            titleNode.text(title);
+    }
+
     btnAddRecord.click(function () {
-        recordList.append( thisDomain.renderRecord(templates, null, onChange) );
+        recordList.append( thisDomain.renderRecord(templates, null, onChange, customTitles) );
     });
 
     if (recordList.children().size() == 0)
@@ -269,7 +292,7 @@ var NumberDomain = function(isFloat) {
     this.isFloat = isFloat;
 };
 extend(NumberDomain, Domain);
-NumberDomain.prototype.render = function (templates, value, onChange) {
+NumberDomain.prototype.render = function (templates, value, onChange, customTitles) {
     var input = $('<input type="text">');
     this.setValue(input, value);
 
@@ -303,7 +326,7 @@ var EnumDomain = function (variants) {
 };
 extend(EnumDomain, Domain);
 var alreadyUsedNames = {};
-EnumDomain.prototype.render = function (templates, value, onChange) {
+EnumDomain.prototype.render = function (templates, value, onChange, customTitles) {
     var ret = $('<ul>').addClass('rf-answer-list');
 
     var randName = getRandomStr(10);
@@ -368,7 +391,7 @@ var SetDomain = function (variants) {
     this.variants = variants;
 };
 extend(SetDomain, Domain);
-SetDomain.prototype.render = function (templates, value, onChange) {
+SetDomain.prototype.render = function (templates, value, onChange, customTitles) {
     var ret = $('<ul>').addClass('rf-answer-list');
     var thisDomain = this;
 
@@ -415,7 +438,7 @@ var DualNumberDomain = function(firstName, secondName, size) {
     this.size = size;
 };
 extend(DualNumberDomain, Domain);
-DualNumberDomain.prototype.render = function (templates, value, onChange) {
+DualNumberDomain.prototype.render = function (templates, value, onChange, customTitles) {
     var ret = $('<div></div>');
     var span = $('<span></span>');
     span.html(this.firstName);
@@ -666,7 +689,8 @@ var Form = function(config, data, paramValues) {
                                         question.constraints || null,
                                         question.required || false,
                                         question.annotation || false,
-                                        domain.annotationFromData(question, data)
+                                        domain.annotationFromData(question, data),
+                                        question.customTitles || {}
                                        );
 
             if(self.questions[question.name])
@@ -900,10 +924,11 @@ var MetaQuestion = function (name, title, domain) {
     this.name = name;
     this.title = title;
     this.domain = domain;
+    this.customTitles = {};
 };
 
-MetaQuestion.prototype.renderDomain = function (templates, value, onChange) {
-    var domainNode = this.domain.render(templates, value, onChange);
+MetaQuestion.prototype.renderDomain = function (templates, value, onChange, customTitles) {
+    var domainNode = this.domain.render(templates, value, onChange, customTitles);
 };
 
 MetaQuestion.prototype.extractValue = function (node) {
@@ -912,12 +937,16 @@ MetaQuestion.prototype.extractValue = function (node) {
 };
 
 MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
-    var domainNode = this.domain.render(templates, value, onChange);
+    var domainNode = this.domain.render(templates, value, onChange, this.customTitles);
     var questionNode = templates['question'].clone();
+
     questionNode.find('.rf-question-title')
             .append(renderCreole(this.title))
             .end()
             .find('.rf-question-annotation')
+            .css('display', 'none')
+            .end()
+            .find('.rf-question-required')
             .css('display', 'none')
             .end()
             .find('.rf-question-answers')
@@ -926,7 +955,10 @@ MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
     return questionNode;
 };
 
-var Question = function(name, title, domain, value, disableExpr, validateExpr, required, askAnnotation, annotation) {
+// TODO: push all arguments as a dictionary
+var Question = function(name, title, domain, value, disableExpr,
+                        validateExpr, required, askAnnotation,
+                        annotation, customTitles) {
     MetaQuestion.call(this, name, title, domain);
     this.value = value;
     this.disableExpr = disableExpr;
@@ -935,6 +967,7 @@ var Question = function(name, title, domain, value, disableExpr, validateExpr, r
     this.askAnnotation = askAnnotation;
     this.annotation = annotation;
     this.markAsRight();
+    this.customTitles = customTitles;
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
@@ -977,6 +1010,11 @@ Question.prototype.renderQuestion = function (templates, value, onChange) {
         questionNode
             .find('.rf-question-annotation')
             .append(annotationNode)
+            .css('display', '');
+    }
+    if (self.required) {
+        questionNode
+            .find('.rf-question-required')
             .css('display', '');
     }
     return questionNode;
@@ -1083,13 +1121,14 @@ var defaultTemplates = {
             + '<span class="rf-progress-bar-pct">30%</span>'
         + '</div>',
     'btnRemoveRecord':
-        '<button class="rf-remove-record">Remove this group</button>',
+        '<button class="rf-remove-record"><span class="rf-remove-record-title">Remove this group</span></button>',
     'btnAddRecord':
-        '<button class="rf-add-record">Add group of answers</button>',
+        '<button class="rf-add-record"><span class="rf-add-record-title">Add group of answers</span></button>',
     'btnClear':
         '<button class="rf-clear-answers">Clear</button>',
     'question':
           '<div class="rf-question">'
+            + '<div class="rf-question-required"><abbr title="This is question is mandatory">*</abbr></div>'
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
             + '<div class="rf-question-annotation"></div>'
@@ -1217,8 +1256,8 @@ $.RexFormsClient = function (o) {
         if (self.currentPageIdx >= 0) {
             var page = pages[self.currentPageIdx];
             if (step > 0 && !page.conforming()) {
-                alert("Please correct the information you've provided (highlighted in red)");
-                //console.log('not conforming');
+                alert("There are missed required questions or wrong answers on this page. Please correct the information you provided.");
+                console.log('not conforming');
                 // there are invalid answers or
                 //  missed answers for required questions
                 return;

@@ -1215,11 +1215,14 @@ $.RexFormsClient = function (o) {
                 self.renderPage(idx, true);
                 updateProgress();
                 updateButtons();
+                /*
                 var formOffset = self.formArea.offset();
                 var scrollTop = formOffset ? formOffset.top : 0;
                 var doc = $("body");
                 if (doc.scrollTop() > scrollTop)
                     doc.animate({ scrollTop: scrollTop }, "slow");
+                */
+                window.scrollTo(0, 0);
                 return;
             }
 

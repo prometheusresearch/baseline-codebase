@@ -751,7 +751,6 @@ var Form = function(config, data, paramValues) {
         var parsed = rexl.parse(expr);
         $.each(parsed.getNames(), function(_, name) {
             name = name[0];
-
             // form external parameters will not change their value
             // so we can exclude them from the change graph
             if (undefined === self.params[name]) {
@@ -1190,7 +1189,7 @@ $.RexFormsClient = function (o) {
         self.btnPrev.css('display', self.currentPageIdx ? '':'none');
     }
 
-    var validateAndGo = function (step) {
+    var validateAndGo = function (step, startFrom) {
         if (self.form.finished)
             return;
 
@@ -1206,7 +1205,8 @@ $.RexFormsClient = function (o) {
             }
         }
 
-        var idx = self.currentPageIdx + step;
+        var idx = (startFrom !== undefined && startFrom !== null) ?
+                    startFrom : self.currentPageIdx + step;
         var total = pages.length;
 
         while (idx >= 0 && idx < total) {
@@ -1224,6 +1224,7 @@ $.RexFormsClient = function (o) {
                     doc.animate({ scrollTop: scrollTop }, "slow");
                 */
                 window.scrollTo(0, 0);
+                self.saveLastVisitPage(idx);
                 return;
             }
 
@@ -1379,13 +1380,28 @@ $.RexFormsClient = function (o) {
         self.raiseEvent('finished');
     };
 
+    this.getBookmarkName = function () {
+        return 'rf_' + this.formName + '_bookmark';
+    }
+
+    this.getLastVisitPage = function () {
+        return localStorage.getItem(this.getBookmarkName());
+    }
+
+    this.saveLastVisitPage = function (value) {
+        localStorage.setItem(this.getBookmarkName(), value);
+    }
+
     this.formTitleArea.append( renderCreole(this.form.title) );
 
     if (this.mode === 'preview')
         this.renderPreview();
-    else
+    else {
         // 'normal' mode
-        this.nextPage();
+        var lastVisitPage = this.getLastVisitPage();
+        console.log('lastVisitPage', lastVisitPage);
+        validateAndGo(1, lastVisitPage);
+    }
 }
 
 })(jQuery);

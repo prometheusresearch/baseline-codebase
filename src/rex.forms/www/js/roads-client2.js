@@ -1089,6 +1089,9 @@ var defaultTemplates = {
 $.RexFormsClient = function (o) {
     var self = this;
 
+    this.mode = o.mode ? o.mode : 'normal';
+    this.saveBeforeFinish = o.saveBeforeFinish || false;
+
     if (!o)
         throw("RexFormsClient got no parameters");
 
@@ -1123,6 +1126,7 @@ $.RexFormsClient = function (o) {
     this.btnNext.click(function () {
         self.nextPage();
     });
+
     this.btnPrev.click(function () {
         self.prevPage();
     });
@@ -1147,7 +1151,6 @@ $.RexFormsClient = function (o) {
     }
     this.progressBar = progressBar;
 
-    this.mode = o.mode ? o.mode : 'normal';
 
     if (this.mode !== 'normal' &&
         this.mode !== 'preview') {
@@ -1186,7 +1189,8 @@ $.RexFormsClient = function (o) {
 
     var updateButtons = function () {
         // TODO: think how to do it better
-        self.btnPrev.css('display', self.currentPageIdx ? '':'none');
+        var showButton = self.mode !== 'preview' && self.currentPageIdx;
+        self.btnPrev.css('display', showButton ? '':'none');
     }
 
     var validateAndGo = function (step, startFrom) {
@@ -1236,8 +1240,8 @@ $.RexFormsClient = function (o) {
             updateProgress(100);
             updateButtons();
 
-            if (!self.preview())
-                self.finish();
+            // if (!self.preview())
+            self.finish();
         }
     };
 
@@ -1256,6 +1260,7 @@ $.RexFormsClient = function (o) {
             self.questionArea.append(
                 self.renderPage(idx, false)
             );
+            updateButtons();
         });
     }
 
@@ -1291,9 +1296,10 @@ $.RexFormsClient = function (o) {
 
     this.raiseEvent = function(eventName, eventData) {
         console.debug("event '" + eventName + "' (", eventData, ")" );
-        $(this).trigger('rexforms:' + eventName);
+        $(this).trigger('rexforms:' + eventName, eventData);
         if (self.events[eventName])
             return this.events[eventName](eventData);
+
         return true;
     };
 
@@ -1329,7 +1335,7 @@ $.RexFormsClient = function (o) {
         return answers;
     }
 
-    this.save = function () {
+    this.save = function (callback) {
         if (null === self.package)
             return;
 
@@ -1350,6 +1356,8 @@ $.RexFormsClient = function (o) {
         $.ajax({url : self.saveURL,
             success : function(content) {
                 self.raiseEvent('saved');
+                if (callback)
+                    callback();
             },
             data : 'data=' + encodeURIComponent(collectedData)
                 + '&form=' + encodeURIComponent(self.formName)
@@ -1369,15 +1377,28 @@ $.RexFormsClient = function (o) {
     }
 
     this.finish = function () {
-        if (!self.raiseEvent('beforeFinish'))
-            return;
+        var realFinish = function () {
+            var eventRetData = {};
+            var retValue = self.raiseEvent('beforeFinish', eventRetData);
+            console.log('eventRetData', eventRetData);
+            if (!retValue || eventRetData.cancel)
+                return;
 
-        self.form.finish();
-        self.save();
-        this.clearQuestions();
-        this.btnNext.add(this.btnPrev).css('display', 'none');
+            self.btnNext.add(this.btnPrev).css('display', 'none');
+            self.clearQuestions();
 
-        self.raiseEvent('finished');
+            self.form.finish();
+            self.save(function () {
+                self.raiseEvent('finished');
+            });
+        }
+
+        if (self.saveBeforeFinish) {
+            self.save(function () {
+                realFinish();
+            });
+        } else
+            realFinish();
     };
 
     this.getBookmarkName = function () {
@@ -1385,8 +1406,12 @@ $.RexFormsClient = function (o) {
     }
 
     this.getLastVisitPage = function () {
-        if (this.package)
-            return localStorage.getItem(this.getBookmarkName());
+        if (this.package) {
+            value = localStorage.getItem(this.getBookmarkName());
+            if (value !== null && value !== undefined)
+                value = parseInt(value);
+            return value;
+        }
         return null;
     }
 
@@ -1402,7 +1427,6 @@ $.RexFormsClient = function (o) {
     else {
         // 'normal' mode
         var lastVisitPage = this.getLastVisitPage();
-        console.log('lastVisitPage', lastVisitPage);
         validateAndGo(1, lastVisitPage);
     }
 }

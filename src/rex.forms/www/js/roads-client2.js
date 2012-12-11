@@ -1381,15 +1381,18 @@ $.RexFormsClient = function (o) {
     };
 
     this.getBookmarkName = function () {
-        return 'rf_' + this.formName + '_bookmark';
+        return 'rf_' + this.formName + '_' + this.package + '_bookmark';
     }
 
     this.getLastVisitPage = function () {
-        return localStorage.getItem(this.getBookmarkName());
+        if (this.package)
+            return localStorage.getItem(this.getBookmarkName());
+        return null;
     }
 
     this.saveLastVisitPage = function (value) {
-        localStorage.setItem(this.getBookmarkName(), value);
+        if (this.package)
+            localStorage.setItem(this.getBookmarkName(), value);
     }
 
     this.formTitleArea.append( renderCreole(this.form.title) );

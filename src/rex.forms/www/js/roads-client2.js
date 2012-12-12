@@ -64,7 +64,6 @@ function rexlize(val) {
     else if ('boolean' === type)
         return rexl.Boolean.value(val);
 
-    console.debug('Unable to rexlize type:', type, 'val:', val);
     throw('RexlTypeError');
 }
 
@@ -928,7 +927,6 @@ Question.prototype.edit = function(templates) {
                         self.markAsRight();
                     } catch(err) {
                         self.markAsWrong();
-                        console.debug('Question', self.name, 'has wrong answer');
                     }
                 }
             );
@@ -997,7 +995,6 @@ Question.prototype.update = function() {
 };
 
 Question.prototype.setValue = function(value) {
-    console.log("Question '" + this.name + "':", value);
 
     this.value = value;
     this.update();
@@ -1202,7 +1199,6 @@ $.RexFormsClient = function (o) {
             var page = pages[self.currentPageIdx];
             if (step > 0 && !page.conforming()) {
                 alert("There are missed required questions or wrong answers on this page. Please correct the information you provided.");
-                console.log('not conforming');
                 // there are invalid answers or
                 //  missed answers for required questions
                 return;
@@ -1281,7 +1277,6 @@ $.RexFormsClient = function (o) {
         var page = self.form.pages[pageIdx];
 
         self.pageTitleArea.contents().remove();
-        console.log('new page', page, 'title:', page.title);
         if (page.title)
             self.pageTitleArea.append( renderCreole(page.title) );
 
@@ -1295,7 +1290,6 @@ $.RexFormsClient = function (o) {
     };
 
     this.raiseEvent = function(eventName, eventData) {
-        console.debug("event '" + eventName + "' (", eventData, ")" );
         $(this).trigger('rexforms:' + eventName, eventData);
         if (self.events[eventName])
             return this.events[eventName](eventData);
@@ -1351,7 +1345,6 @@ $.RexFormsClient = function (o) {
             // stop if aborted
             return;
 
-        console.debug('saving data:', collectedData);
 
         $.ajax({url : self.saveURL,
             success : function(content) {
@@ -1380,7 +1373,6 @@ $.RexFormsClient = function (o) {
         var realFinish = function () {
             var eventRetData = {};
             var retValue = self.raiseEvent('beforeFinish', eventRetData);
-            console.log('eventRetData', eventRetData);
             if (!retValue || eventRetData.cancel)
                 return;
 

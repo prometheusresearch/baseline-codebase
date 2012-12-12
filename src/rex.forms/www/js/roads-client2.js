@@ -823,7 +823,7 @@ Page.prototype.conforming = function () {
     var isConforming = true;
 
     $.each(self.questions, function(id, question) {
-        if (!question.disabled &&
+        if (!self.skipped && !question.disabled &&
                (question.invalid || question.wrong ||
                 question.required && question.getValue() === null && question.annotation === null)) {
             isConforming = false;

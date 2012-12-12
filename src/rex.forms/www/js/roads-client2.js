@@ -1352,7 +1352,8 @@ $.RexFormsClient = function (o) {
                 if (callback)
                     callback();
             },
-            data : 'data=' + encodeURIComponent(collectedData)
+            cache: false,
+            data: 'data=' + encodeURIComponent(collectedData)
                 + '&form=' + encodeURIComponent(self.formName)
                 + '&package=' + encodeURIComponent(self.package),
             type: 'POST'

@@ -29,6 +29,14 @@ function isValidNumeric(val, condType) {
     );
 }
 
+function objSize (obj) {
+    var size = 0, key;
+    for (key in obj)
+        if (obj.hasOwnProperty(key))
+            size++;
+    return size;
+};
+
 function isValidDate(year, month, day) {
     --month;
     var d = new Date(year, month, day);
@@ -99,7 +107,9 @@ Domain.prototype.setValue = function (node, value) {
 Domain.prototype.extractValue = function (node) {
     alert('Implement in subclasses');
 };
-
+Domain.prototype.conforming = function() {
+    return true; // default
+}
 
 var TextDomain = function(multiLine) {
     Domain.call(this, 'text');
@@ -136,7 +146,6 @@ TextDomain.prototype.setValue = function (node, value) {
 TextDomain.prototype.extractValue = function (node) {
     return $.trim( node.val() ) || null;
 };
-
 
 var DateDomain = function() {
     Domain.call(this, 'date');
@@ -184,6 +193,7 @@ var RecordListDomain = function(recordDef) {
             new MetaQuestion(
                 questionDef.name,
                 questionDef.title,
+                questionDef.required || false,
                 domain.getFromDef(questionDef)
             )
         );
@@ -260,6 +270,32 @@ RecordListDomain.prototype.render = function (templates, value, onChange, custom
 
     return recordList.add(btnAddRecord);
 };
+
+RecordListDomain.prototype.conforming = function (value) {
+    var complete = true;
+    var thisDomain = this;
+
+    function findMetaByName(name) {
+        for (var idx in thisDomain.meta) {
+            meta = thisDomain.meta[idx];
+            if (meta.name === name)
+                return meta;
+        }
+        return null;
+    }
+
+    if (value !== null) {
+        $.each(value, function (idx, group) {
+            $.each(group, function (itemName, itemValue) {
+                var thisMeta = findMetaByName(itemName);
+                if (thisMeta.required && itemValue === null)
+                    complete = false;
+            });
+        });
+    }
+
+    return complete;
+}
 
 RecordListDomain.prototype.extractValue = function (node) {
     var ret = [];
@@ -735,6 +771,8 @@ var Form = function(config, data, paramValues) {
         }
 
         if(question.validateExpr) {
+            // validate expression should not affect question until it is answered
+            question.validateExpr = question.name + '==null()|(' + question.validateExpr + ')';
             var e = expr[question.validateExpr] = expr[question.validateExpr] || [];
             e.push({
                 obj: question,
@@ -825,7 +863,8 @@ Page.prototype.conforming = function () {
     $.each(self.questions, function(id, question) {
         if (!self.skipped && !question.disabled &&
                (question.invalid || question.wrong ||
-                question.required && question.getValue() === null && question.annotation === null)) {
+                !question.conforming() /* question.getValue() === null */ && question.annotation === null)) {
+            question.markAsNotConforming();
             isConforming = false;
         }
     });
@@ -861,10 +900,11 @@ Page.prototype.edit = function(templates) {
     return page;
 };
 
-var MetaQuestion = function (name, title, domain) {
+var MetaQuestion = function (name, title, required, domain) {
     this.name = name;
     this.title = title;
     this.domain = domain;
+    this.required = required;
     this.customTitles = {};
 };
 
@@ -888,7 +928,7 @@ MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
             .css('display', 'none')
             .end()
             .find('.rf-question-required')
-            .css('display', 'none')
+            .css('display', this.required ? '' : 'none')
             .end()
             .find('.rf-question-answers')
             .append(domainNode);
@@ -900,15 +940,16 @@ MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
 var Question = function(name, title, domain, value, disableExpr,
                         validateExpr, required, askAnnotation,
                         annotation, customTitles) {
-    MetaQuestion.call(this, name, title, domain);
+    MetaQuestion.call(this, name, title, required, domain);
     this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
-    this.required = required;
     this.askAnnotation = askAnnotation;
     this.annotation = annotation;
     this.markAsRight();
     this.customTitles = customTitles;
+    this.wrong = false;
+    this.notConforming = false;
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
@@ -925,6 +966,7 @@ Question.prototype.edit = function(templates) {
                             self.extractValue(self.node);
                         self.setValue(extractedValue);
                         self.markAsRight();
+                        self.markAsConforming();
                     } catch(err) {
                         self.markAsWrong();
                     }
@@ -950,11 +992,6 @@ Question.prototype.renderQuestion = function (templates, value, onChange) {
         questionNode
             .find('.rf-question-annotation')
             .append(annotationNode)
-            .css('display', '');
-    }
-    if (self.required) {
-        questionNode
-            .find('.rf-question-required')
             .css('display', '');
     }
     return questionNode;
@@ -986,7 +1023,8 @@ Question.prototype.update = function() {
         inputs.removeAttr('disabled');
     }
 
-    if (this.wrong || this.invalid) {
+    if (this.wrong || this.invalid || this.notConforming) {
+        console.log('this.wrong=', this.wrong, ', this.invalid=', this.invalid, ', this.notConforming=', this.notConforming);
         this.node.addClass('rf-error');
     } else {
         this.node.removeClass('rf-error');
@@ -1005,6 +1043,10 @@ Question.prototype.setValue = function(value) {
 Question.prototype.getValue = function() {
     return this.value;
 };
+
+Question.prototype.conforming = function() {
+    return (this.required && this.value === null) ? false : this.domain.conforming(this.value);
+}
 
 Question.prototype.getRexlValue = function(name) {
     if (this.domain instanceof SetDomain) {
@@ -1043,14 +1085,32 @@ Question.prototype.validate = function() {
     this.update();
 };
 
+Question.prototype.markAsNotConforming = function () {
+    if (!this.notConforming) {
+        this.notConforming = true;
+        this.update();
+    }
+}
+
+Question.prototype.markAsConforming = function () {
+    if (this.notConforming) {
+        this.notConforming = false;
+        this.update();
+    }
+}
+
 Question.prototype.markAsWrong = function() {
-    this.wrong = true;
-    this.update();
+    if (!this.wrong) {
+        this.wrong = true;
+        this.update();
+    }
 }
 
 Question.prototype.markAsRight = function() {
-    this.wrong = false;
-    this.update();
+    if (this.wrong) {
+        this.wrong = false;
+        this.update();
+    }
 }
 
 var defaultTemplates = {
@@ -1199,6 +1259,9 @@ $.RexFormsClient = function (o) {
             var page = pages[self.currentPageIdx];
             if (step > 0 && !page.conforming()) {
                 alert("There are missed required questions or wrong answers on this page. Please correct the information you provided.");
+                var firstWrongQuestion = self.questionArea.find('.rf-error:first');
+                if (firstWrongQuestion.size())
+                    firstWrongQuestion[0].scrollIntoView();
                 // there are invalid answers or
                 //  missed answers for required questions
                 return;
@@ -1419,7 +1482,8 @@ $.RexFormsClient = function (o) {
         this.renderPreview();
     else {
         // 'normal' mode
-        var lastVisitPage = this.getLastVisitPage();
+        var lastVisitPage = o.formData && objSize(o.formData) ?
+                                this.getLastVisitPage() : null;
         validateAndGo(1, lastVisitPage);
     }
 }

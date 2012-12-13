@@ -81,9 +81,8 @@ class FormsPackageHandler(PackageHandler):
         fld = "%s/%s" % (folder, code)
         with self.lock:
             if not os.path.exists(fld):
-                os.makedirs(fld)
+#                os.makedirs(fld)
                 return None, 0
-
             files = os.walk(fld).next()[2]
             files = [int(i[:-3]) for i in files]
             if files:

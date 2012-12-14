@@ -400,7 +400,6 @@ EnumDomain.prototype.render = function (templates, value, onChange, customTitles
         onChange();
     });
     ret = ret.append( $('<li>').append(btnClear) );
-
     this.setValue(ret, value);
     return ret;
 };
@@ -809,9 +808,8 @@ Form.prototype.initState = function() {
     $.each(this.change, function(key, list) {
         function changeQuestion() {
             $.each(list, function(_, value) {
-                var result = self.calculate(value.expr),
-                    methodKey = result ? 'ifTrue':'ifFalse';
-
+                var result = self.calculate(value.expr);
+                methodKey = result ? 'ifTrue':'ifFalse';
                 // apply needed method to needed entity
                 $.each(value.actions, function(_, action) {
                     var method = action[methodKey];
@@ -1013,7 +1011,7 @@ Question.prototype.update = function() {
     if(!this.node)
         return;
 
-    var inputs = this.node.find('input,textarea');
+    var inputs = this.node.find('input,textarea,button');
 
     if (this.disabled) {
         this.node.addClass('rf-disabled');
@@ -1382,12 +1380,13 @@ $.RexFormsClient = function (o) {
         var answers = {};
         $.each(this.form.questions, function (_, question) {
             var value = question.getValue();
-            if (value instanceof Object && !(value instanceof Array)) {
-                $.each(value, function (key, value) {
-                    answers[question.name + '_' + key] = value;
-                });
-            } else
-                answers[question.name] = value;
+            if (!question.disabled)
+                if (value instanceof Object && !(value instanceof Array)) {
+                    $.each(value, function (key, value) {
+                        answers[question.name + '_' + key] = value;
+                    });
+                } else
+                    answers[question.name] = value;
         });
         return answers;
     }

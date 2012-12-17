@@ -210,8 +210,7 @@ RecordListDomain.prototype.renderRecord = function (templates, recordValue, onCh
             metaQuestion.renderQuestion(
                 templates,
                 recordValue ? recordValue[metaQuestion.name] : null,
-                onChange,
-                null
+                onChange
             )
         );
         record.append(cell);
@@ -300,7 +299,8 @@ RecordListDomain.prototype.conforming = function (value) {
 RecordListDomain.prototype.extractValue = function (node) {
     var ret = [];
     var thisDomain = this;
-    node.children('.rf-record').each(function (i, recordNode) {
+    var records = node.children('.rf-record');
+    records.each(function (i, recordNode) {
         var record = {};
         var hasAnswer = false;
 
@@ -309,11 +309,17 @@ RecordListDomain.prototype.extractValue = function (node) {
             var thisMeta = thisDomain.meta[j];
             var value = thisMeta.extractValue(jCellNode.children());
 
+            if (thisMeta.required && value === null)
+                jCellNode.addClass('rf-cell-error');
+            else
+                jCellNode.removeClass('rf-cell-error');
+
             if (value !== null)
                 hasAnswer = true;
 
             record[ thisMeta.name ] = value;
         });
+        console.log('hasAnswer', hasAnswer);
 
         if (hasAnswer)
             ret.push(record);
@@ -904,6 +910,7 @@ var MetaQuestion = function (name, title, required, domain) {
     this.domain = domain;
     this.required = required;
     this.customTitles = {};
+    this.attrIdName = 'attribute-name';
 };
 
 MetaQuestion.prototype.renderDomain = function (templates, value, onChange, customTitles) {
@@ -918,6 +925,8 @@ MetaQuestion.prototype.extractValue = function (node) {
 MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
     var domainNode = this.domain.render(templates, value, onChange, this.customTitles);
     var questionNode = templates['question'].clone();
+
+    questionNode.attr('data-' + this.attrIdName, this.name);
 
     questionNode.find('.rf-question-title')
             .append(renderCreole(this.title))
@@ -948,6 +957,7 @@ var Question = function(name, title, domain, value, disableExpr,
     this.customTitles = customTitles;
     this.wrong = false;
     this.notConforming = false;
+    this.attrIdName = 'question-name';
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
@@ -1064,6 +1074,7 @@ Question.prototype.getRexlValue = function(name) {
 };
 
 Question.prototype.disable = function() {
+    this.setValue(null);
     this.disabled = true;
     this.update();
 };
@@ -1258,8 +1269,13 @@ $.RexFormsClient = function (o) {
             if (step > 0 && !page.conforming()) {
                 alert("There are missed required questions or wrong answers on this page. Please correct the information you provided.");
                 var firstWrongQuestion = self.questionArea.find('.rf-error:first');
-                if (firstWrongQuestion.size())
-                    firstWrongQuestion[0].scrollIntoView();
+                if (firstWrongQuestion.size()) {
+                    var firstWrongCell = firstWrongQuestion.find('.rf-cell-error');
+                    if (firstWrongCell.size())
+                        firstWrongCell[0].scrollIntoView();
+                    else
+                        firstWrongQuestion[0].scrollIntoView();
+                }
                 // there are invalid answers or
                 //  missed answers for required questions
                 return;
@@ -1380,13 +1396,13 @@ $.RexFormsClient = function (o) {
         var answers = {};
         $.each(this.form.questions, function (_, question) {
             var value = question.getValue();
-            if (!question.disabled)
-                if (value instanceof Object && !(value instanceof Array)) {
-                    $.each(value, function (key, value) {
-                        answers[question.name + '_' + key] = value;
-                    });
-                } else
-                    answers[question.name] = value;
+
+            if (value instanceof Object && !(value instanceof Array)) {
+                $.each(value, function (key, value) {
+                    answers[question.name + '_' + key] = value;
+                });
+            } else
+                answers[question.name] = value;
         });
         return answers;
     }

@@ -361,67 +361,93 @@ NumberDomain.prototype.extractValue = function (node) {
 };
 
 
-var EnumDomain = function (variants) {
+var EnumDomain = function (options) {
     Domain.call(this, 'enum');
-    this.variants = variants;
+    this.variants = options.variants;
+    this.dropDown = options.dropDown;
 };
 extend(EnumDomain, Domain);
 var alreadyUsedNames = {};
 EnumDomain.prototype.render = function (templates, value, onChange, customTitles) {
-    var ret = $('<ul>').addClass('rf-answer-list');
-
-    var randName = getRandomStr(10);
-    while(alreadyUsedNames[randName])
-        randName = getRandomStr(10);
-    alreadyUsedNames[randName] = true;
-
+    var ret;
     var thisDomain = this;
 
-    $.each(this.variants, function (_, variant) {
-        var li = $('<li>');
-        var label = $('<label>');
+    if (this.dropDown) {
+        ret = $('<select>').addClass('rf-answer-select');
+        var option = $('<option>');
+        ret.append(option);
+
+        $.each(this.variants, function (_, variant) {
+            var option = $('<option>');
+            option.text(variant.title);
+            option.attr('value', variant.code);
+            ret.append(option);
+        });
         
-        if (variant.title)
-            label.append( renderCreole(variant.title) );
-        else 
-            label.text(variant.code);
+        ret.change(onChange);
+    } else {
+        ret = $('<ul>').addClass('rf-answer-list');
+        var randName = getRandomStr(10);
+        while(alreadyUsedNames[randName])
+            randName = getRandomStr(10);
+        alreadyUsedNames[randName] = true;
 
-        li.append(label);
+        $.each(this.variants, function (_, variant) {
+            var li = $('<li>');
+            var label = $('<label>');
 
-        var input =
-            $('<input type="radio">')
-                .attr('name', randName)
-                .attr('value', variant.code)
-                .change(onChange);
+            if (variant.title)
+                label.append( renderCreole(variant.title) );
+            else 
+                label.text(variant.code);
 
-        label.prepend(input);
-        ret.append(li);
-    });
+            li.append(label);
 
-    var btnClear = templates['btnClear'].clone();
-    btnClear.click(function () {
-        $(this).parents('.rf-answer-list:first')
-                    .find('input[type="radio"]')
-                    .removeAttr('checked');
-        onChange();
-    });
-    ret = ret.append( $('<li>').append(btnClear) );
+            var input =
+                $('<input type="radio">')
+                    .attr('name', randName)
+                    .attr('value', variant.code)
+                    .change(onChange);
+
+            label.prepend(input);
+            ret.append(li);
+        });
+
+        var btnClear = templates['btnClear'].clone();
+        btnClear.click(function () {
+            $(this).parents('.rf-answer-list:first')
+                        .find('input[type="radio"]')
+                        .removeAttr('checked');
+            onChange();
+        });
+        ret = ret.append( $('<li>').append(btnClear) );
+    }
+
     this.setValue(ret, value);
     return ret;
 };
 EnumDomain.prototype.setValue = function (node, value) {
-    node.find('input[type="radio"]').each(function (idx, element) {
-        var input = $(element);
-        if (input.val() === value)
-            input.attr('checked', 'checked');
-        else
-            input.removeAttr('checked');
-    });
+    if (!this.dropDown) {
+        node.find('input[type="radio"]').each(function (idx, element) {
+            var input = $(element);
+            if (input.val() === value)
+                input.attr('checked', 'checked');
+            else
+                input.removeAttr('checked');
+        });
+    } else
+        node.val(value);
 };
 EnumDomain.prototype.extractValue = function (node) {
-    var input = node.find('input[type="radio"]:checked');
-    if (input.size())
-        return input.val();
+    if (!this.dropDown) {
+        var input = node.find('input[type="radio"]:checked');
+        if (input.size())
+            return input.val();
+    } else {
+        var value = node.val();
+        if (value)
+            return value;
+    }
     return null;
 };
 
@@ -629,6 +655,10 @@ var domain = {
 
         switch(questionType) {
         case "enum":
+            return this.get(questionType, {
+                'variants': def.answers, 
+                'dropDown': def.dropDown || true
+            });
         case "set":
             return this.get(questionType, def.answers);
         case "integer":

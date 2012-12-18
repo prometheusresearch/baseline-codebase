@@ -229,9 +229,11 @@ RecordListDomain.prototype.renderRecord = function (templates, recordValue, onCh
             titleNode.text(title);
     }
     btnRemoveRecord.click(function () {
-        record.remove();
-        if (onChange)
-            onChange();
+        if ($(this).parents('.rf-disabled:first').size() == 0) {
+            record.remove();
+            if (onChange)
+                onChange();
+        }
     });
     record.append(btnRemoveRecord);
 
@@ -261,7 +263,8 @@ RecordListDomain.prototype.render = function (templates, value, onChange, custom
     }
 
     btnAddRecord.click(function () {
-        recordList.append( thisDomain.renderRecord(templates, null, onChange, customTitles) );
+        if ($(this).parents('.rf-disabled').size() == 0)
+            recordList.append( thisDomain.renderRecord(templates, null, onChange, customTitles) );
     });
 
     if (recordList.children().size() == 0)
@@ -415,10 +418,12 @@ EnumDomain.prototype.render = function (templates, value, onChange, customTitles
 
         var btnClear = templates['btnClear'].clone();
         btnClear.click(function () {
-            $(this).parents('.rf-answer-list:first')
-                        .find('input[type="radio"]')
-                        .removeAttr('checked');
-            onChange();
+            if ($(this).parents('.rf-disabled').size() == 0) {
+                $(this).parents('.rf-answer-list:first')
+                            .find('input[type="radio"]')
+                            .removeAttr('checked');
+                onChange();
+            }
         });
         ret = ret.append( $('<li>').append(btnClear) );
     }

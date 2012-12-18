@@ -1554,8 +1554,9 @@ $.RexFormsClient = function (o) {
         this.renderPreview();
     else {
         // 'normal' mode
-        var lastVisitPage = o.formData && objSize(o.formData) ?
-                                this.getLastVisitPage() : null;
+        var lastVisitPage = null;
+        if (!o.ignoreBookmark && o.formData && objSize(o.formData))
+            lastVisitPage = this.getLastVisitPage();
         validateAndGo(1, lastVisitPage);
     }
 }

@@ -322,7 +322,6 @@ RecordListDomain.prototype.extractValue = function (node) {
 
             record[ thisMeta.name ] = value;
         });
-        console.log('hasAnswer', hasAnswer);
 
         if (hasAnswer)
             ret.push(record);
@@ -921,7 +920,7 @@ Page.prototype.unskip = function () {
     this.update();
 };
 
-Page.prototype.edit = function(templates) {
+Page.prototype.edit = function(templates, onFormChange) {
     var self = this;
 
     if (self.renderedPage)
@@ -930,7 +929,7 @@ Page.prototype.edit = function(templates) {
     var page = $('<div>').addClass('rf-page');
     $.each(self.questions, function (_, question) {
         page.append(
-            question.edit( templates )
+            question.edit( templates, onFormChange )
         );
     });
 
@@ -996,7 +995,7 @@ var Question = function(name, title, domain, value, disableExpr,
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
-Question.prototype.edit = function(templates) {
+Question.prototype.edit = function(templates, onFormChange) {
     if (!this.node) {
         var self = this;
         this.node =
@@ -1010,6 +1009,8 @@ Question.prototype.edit = function(templates) {
                         self.setValue(extractedValue);
                         self.markAsRight();
                         self.markAsConforming();
+                        if (onFormChange)
+                            onFormChange();
                     } catch(err) {
                         self.markAsWrong();
                     }
@@ -1067,7 +1068,7 @@ Question.prototype.update = function() {
     }
 
     if (this.wrong || this.invalid || this.notConforming) {
-        console.log('this.wrong=', this.wrong, ', this.invalid=', this.invalid, ', this.notConforming=', this.notConforming);
+        // console.log('this.wrong=', this.wrong, ', this.invalid=', this.invalid, ', this.notConforming=', this.notConforming);
         this.node.addClass('rf-error');
     } else {
         this.node.removeClass('rf-error');
@@ -1268,6 +1269,8 @@ $.RexFormsClient = function (o) {
     this.currentPageIdx = -1;
     this.package = o.package || null;
     this.formName = o.formName;
+    this.changeStamp = 0;
+    this.savedChangeStamp = 0;
 
     var updateProgress = function (forcePct) {
         var current = self.currentPageIdx;
@@ -1351,7 +1354,7 @@ $.RexFormsClient = function (o) {
         while (idx >= 0 && idx < total) {
             if (!pages[idx].skipped) {
                 if (self.currentPageIdx != -1)
-                    self.save();
+                    self.save(null, false);
                 self.renderPage(idx, true);
                 updateProgress();
                 updateButtons();
@@ -1420,9 +1423,17 @@ $.RexFormsClient = function (o) {
             self.pageTitleArea.append( renderCreole(page.title) );
 
         self.questionArea.append(
-            page.edit( self.templates, function (questionName) {
-                self.annotationDialog.askAnnotation(questionName);
-            })
+            page.edit(
+                self.templates, 
+                /*
+                function (questionName) {
+                    self.annotationDialog.askAnnotation(questionName);
+                },
+                */
+                function () {
+                    ++self.changeStamp;
+                }
+            )
         );
 
         self.raiseEvent('pageRendered', pageIdx);
@@ -1469,7 +1480,7 @@ $.RexFormsClient = function (o) {
         return answers;
     }
 
-    this.save = function (callback) {
+    this.save = function (callback, sync) {
         if (null === self.package)
             return;
 
@@ -1479,25 +1490,32 @@ $.RexFormsClient = function (o) {
             annotations: self.collectAnnotations(),
             finished: self.form.finished
         };
+        // var changeStamp = self.changeStamp;
         collectedData = $.toJSON(collectedData);
 
         if (!self.raiseEvent('beforeSave', collectedData))
             // stop if aborted
             return;
 
-
-        $.ajax({url : self.saveURL,
-            success : function(content) {
-                self.raiseEvent('saved');
-                if (callback)
-                    callback();
-            },
-            cache: false,
-            data: 'data=' + encodeURIComponent(collectedData)
-                + '&form=' + encodeURIComponent(self.formName)
-                + '&package=' + encodeURIComponent(self.package),
-            type: 'POST'
-        });
+        new function () {
+            var changeStamp = self.changeStamp;
+            $.ajax({
+                url: self.saveURL,
+                success: function(content) {
+                    self.savedChangeStamp = changeStamp;
+                    self.raiseEvent('saved');
+                    // console.log('save: success');
+                    if (callback)
+                        callback();
+                },
+                async: sync ? false : true,
+                cache: false,
+                data: 'data=' + encodeURIComponent(collectedData)
+                    + '&form=' + encodeURIComponent(self.formName)
+                    + '&package=' + encodeURIComponent(self.package),
+                type: 'POST'
+            });
+        }
     };
 
     this.preview = function () {
@@ -1523,13 +1541,13 @@ $.RexFormsClient = function (o) {
             self.form.finish();
             self.save(function () {
                 self.raiseEvent('finished');
-            });
+            }, false);
         }
 
         if (self.saveBeforeFinish) {
             self.save(function () {
                 realFinish();
-            });
+            }, false);
         } else
             realFinish();
     };
@@ -1554,6 +1572,14 @@ $.RexFormsClient = function (o) {
     }
 
     this.formTitleArea.append( renderCreole(this.form.title) );
+
+    window.onbeforeunload = function (e) {
+        if (self.savedChangeStamp < self.changeStamp) {
+            // There are unsaved changes.
+            // Saving synchrounously.
+            self.save(null, true);
+        }
+    };
 
     if (this.mode === 'preview')
         this.renderPreview();

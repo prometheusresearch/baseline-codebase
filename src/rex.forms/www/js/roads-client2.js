@@ -1051,7 +1051,7 @@ Question.prototype.update = function() {
     if(!this.node)
         return;
 
-    var inputs = this.node.find('input,textarea,button');
+    var inputs = this.node.find('input,textarea,select,button');
 
     if (this.disabled) {
         this.node.addClass('rf-disabled');
@@ -1250,7 +1250,6 @@ $.RexFormsClient = function (o) {
 
     if (this.mode !== 'normal' &&
         this.mode !== 'preview') {
-
         throw("Wrong mode: " + this.mode);
     }
 
@@ -1293,7 +1292,35 @@ $.RexFormsClient = function (o) {
         if (self.form.finished)
             return;
 
+        var validateAndScroll = function (page) {
+            if (!page.conforming()) {
+                alert("There are missed required questions or wrong answers on this page. Please correct the information you provided.");
+                var firstWrongQuestion = self.questionArea.find('.rf-error:first');
+                if (firstWrongQuestion.size()) {
+                    var firstWrongCell = firstWrongQuestion.find('.rf-cell-error');
+                    if (firstWrongCell.size())
+                        firstWrongCell[0].scrollIntoView();
+                    else
+                        firstWrongQuestion[0].scrollIntoView();
+                }
+                // there are invalid answers or
+                //  missed answers for required questions
+                return false;
+            }
+            return true;
+        }
+
         var pages = self.form.pages;
+        
+        if (self.mode === "preview") {
+            for (var idx in pages)
+                if (!validateAndScroll(pages[idx]))
+                    return;
+        } else if (self.currentPageIdx >= 0 & step > 0) {
+            if (!validateAndScroll(pages[self.currentPageIdx]))
+                return;
+        }
+        /*
         if (self.currentPageIdx >= 0) {
             var page = pages[self.currentPageIdx];
             if (step > 0 && !page.conforming()) {
@@ -1311,7 +1338,7 @@ $.RexFormsClient = function (o) {
                 return;
             }
         }
-
+        */
         var idx = (startFrom !== undefined && startFrom !== null) ?
                     startFrom : self.currentPageIdx + step;
         var total = pages.length;

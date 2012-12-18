@@ -657,7 +657,7 @@ var domain = {
         case "enum":
             return this.get(questionType, {
                 'variants': def.answers, 
-                'dropDown': def.dropDown || true
+                'dropDown': def.dropDown || false
             });
         case "set":
             return this.get(questionType, def.answers);

@@ -367,6 +367,7 @@ var EnumDomain = function (options) {
     Domain.call(this, 'enum');
     this.variants = options.variants;
     this.dropDown = options.dropDown;
+    this.allowClear = options.allowClear;
 };
 extend(EnumDomain, Domain);
 var alreadyUsedNames = {};
@@ -385,7 +386,7 @@ EnumDomain.prototype.render = function (templates, value, onChange, customTitles
             option.attr('value', variant.code);
             ret.append(option);
         });
-        
+
         ret.change(onChange);
     } else {
         ret = $('<ul>').addClass('rf-answer-list');
@@ -415,16 +416,18 @@ EnumDomain.prototype.render = function (templates, value, onChange, customTitles
             ret.append(li);
         });
 
-        var btnClear = templates['btnClear'].clone();
-        btnClear.click(function () {
-            if ($(this).parents('.rf-disabled').size() == 0) {
-                $(this).parents('.rf-answer-list:first')
-                            .find('input[type="radio"]')
-                            .removeAttr('checked');
-                onChange();
-            }
-        });
-        ret = ret.append( $('<li>').append(btnClear) );
+        if (this.allowClear) {
+            var btnClear = templates['btnClear'].clone();
+            btnClear.click(function () {
+                if ($(this).parents('.rf-disabled').size() == 0) {
+                    $(this).parents('.rf-answer-list:first')
+                                .find('input[type="radio"]')
+                                .removeAttr('checked');
+                    onChange();
+                }
+            });
+            ret = ret.append( $('<li>').append(btnClear) );
+        }
     }
 
     this.setValue(ret, value);
@@ -660,8 +663,9 @@ var domain = {
         switch(questionType) {
         case "enum":
             return this.get(questionType, {
-                'variants': def.answers, 
-                'dropDown': def.dropDown || false
+                'variants': def.answers,
+                'dropDown': def.dropDown || false,
+                'allowClear': def.required ? false : true
             });
         case "set":
             return this.get(questionType, def.answers);

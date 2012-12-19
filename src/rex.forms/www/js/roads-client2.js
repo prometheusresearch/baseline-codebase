@@ -774,7 +774,7 @@ var Form = function(config, data, paramValues) {
 
             return question;
         });
-        var page = new Page(questions, item.title, mergeSkipExpr(skipExpr, item.skipIf) || null);
+        var page = new Page(questions, item.title, item.introduction || null, mergeSkipExpr(skipExpr, item.skipIf) || null);
         self.pages.push(page);
     }
 
@@ -881,11 +881,12 @@ Form.prototype.calculate = function(expr) {
     return ret;
 };
 
-var Page = function(questions, title, skipExpr) {
+var Page = function(questions, title, introduction, skipExpr) {
     var self = this;
     this.questions = questions;
     this.title = title;
     this.skipExpr = skipExpr;
+    this.introduction = introduction;
     this.renderedPage = null;
 };
 
@@ -1224,6 +1225,7 @@ $.RexFormsClient = function (o) {
 
     this.pageTitleArea = $( o.pageTitleArea || '#rf_page_title' );
     this.formTitleArea = $( o.formTitleArea || '#rf_form_title' );
+    this.pageIntroductionArea = $( o.pageIntroductionArea || '#rf_page_introduction' );
 
     this.btnNext.click(function () {
         self.nextPage();
@@ -1421,6 +1423,15 @@ $.RexFormsClient = function (o) {
         self.pageTitleArea.contents().remove();
         if (page.title)
             self.pageTitleArea.append( renderCreole(page.title) );
+        else
+            self.pageTitleArea.contents().remove();
+
+        if (self.mode !== "preview") {
+            if (page.introduction)
+                self.pageIntroductionArea.append( renderCreole(page.introduction) );
+            else
+                self.pageIntroductionArea.contents().remove();
+        }
 
         self.questionArea.append(
             page.edit(

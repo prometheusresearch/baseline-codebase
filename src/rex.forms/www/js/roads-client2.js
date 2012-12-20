@@ -362,10 +362,16 @@ NumberDomain.prototype.extractValue = function (node) {
     return value;
 };
 
-
+var EnumCodeRegExp = new RegExp("^[a-z0-9\\-]+$", "");
 var EnumDomain = function (options) {
     Domain.call(this, 'enum');
     this.variants = options.variants;
+    $.each(this.variants, function (_, variant) {
+        if (!EnumCodeRegExp.test(variant.code)) {
+            alert('Invalid enum-answer identifier: "' + variant.code + '"');
+            throw("InvalidIdentifier");
+        }
+    });
     this.dropDown = options.dropDown;
     this.allowClear = options.allowClear;
 };
@@ -459,9 +465,16 @@ EnumDomain.prototype.extractValue = function (node) {
 };
 
 
+var SetCodeRegExp = new RegExp("^[a-z0-9_]+$", "");
 var SetDomain = function (variants) {
     Domain.call(this, 'set');
     this.variants = variants;
+    $.each(this.variants, function (_, variant) {
+        if (!SetCodeRegExp.test(variant.code)) {
+            alert('Invalid set-answer identifier: ' + variant.code);
+            throw("InvalidIdentifier");
+        }
+    });
 };
 extend(SetDomain, Domain);
 SetDomain.prototype.render = function (templates, value, onChange, customTitles) {

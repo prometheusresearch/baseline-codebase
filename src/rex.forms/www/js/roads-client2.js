@@ -98,10 +98,18 @@ function renderCreole(srcText) {
 var Domain = function(name) {
     this.name = name;
 };
-Domain.prototype.render = function(templates, value, onChange, customTitles) {
+Domain.prototype.renderEdit = function(templates, value, onChange, customTitles) {
     alert('Implement in subclasses');
 };
-Domain.prototype.setValue = function (node, value) {
+Domain.prototype.renderView = function(templates, value, onChange, customTitles) {
+    var node = $('<div>');
+    this.setViewValue(node, value);
+    return node;
+};
+Domain.prototype.setEditValue = function (node, value) {
+    alert('Implement in subclasses');
+};
+Domain.prototype.setViewValue = function (node, value) {
     alert('Implement in subclasses');
 };
 Domain.prototype.extractValue = function (node) {
@@ -116,7 +124,7 @@ var TextDomain = function(multiLine) {
     this.multiLine = multiLine;
 };
 extend(TextDomain, Domain);
-TextDomain.prototype.render = function (templates, value, onChange, customTitles) {
+TextDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var input;
 
     if (this.multiLine) {
@@ -137,11 +145,14 @@ TextDomain.prototype.render = function (templates, value, onChange, customTitles
             input.change(onChange);
     }
 
-    this.setValue(input, value);
+    this.setEditValue(input, value);
     return input;
 };
-TextDomain.prototype.setValue = function (node, value) {
+TextDomain.prototype.setEditValue = function (node, value) {
     node.val( (value !== null && value !== undefined) ? value : '' );
+};
+TextDomain.prototype.setViewValue = function (node, value) {
+    node.text( (value !== null && value !== undefined) ? value : '' );
 };
 TextDomain.prototype.extractValue = function (node) {
     return $.trim( node.val() ) || null;
@@ -151,9 +162,9 @@ var DateDomain = function() {
     Domain.call(this, 'date');
 };
 extend(DateDomain, Domain);
-DateDomain.prototype.render = function (templates, value, onChange, customTitles) {
+DateDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var input = $('<input type="text">');
-    this.setValue(input, value);
+    this.setEditValue(input, value);
 
     if (onChange)
         input.change(onChange);
@@ -166,8 +177,11 @@ DateDomain.prototype.render = function (templates, value, onChange, customTitles
 
     return input;
 };
-DateDomain.prototype.setValue = function (node, value) {
+DateDomain.prototype.setEditValue = function (node, value) {
     node.val( (value !== null && value !== undefined) ? value : '' );
+};
+DateDomain.prototype.setViewValue = function (node, value) {
+    node.text( (value !== null && value !== undefined) ? value : '' );
 };
 DateDomain.prototype.extractValue = function (node) {
     var value = $.trim( node.val() ) || null;
@@ -200,20 +214,69 @@ var RecordListDomain = function(recordDef) {
     });
 };
 extend(RecordListDomain, Domain);
-RecordListDomain.prototype.renderRecord = function (templates, recordValue, onChange, customTitles) {
+RecordListDomain.prototype.renderViewRecord = function (templates, recordValue, customTitles) {
+    var record = $('<div>').addClass('rf-view-record');
+    var self = this;
+
+    $.each(this.meta, function (i, metaQuestion) {
+        var cell = $('<div>').addClass('rf-view-cell');
+        cell.append(
+            metaQuestion.renderView(
+                templates,
+                recordValue ? recordValue[metaQuestion.name] : null
+            )
+        );
+        record.append(cell);
+    });
+};
+RecordListDomain.prototype.renderCollapsedRecord = function (templates, recordValue, customTitles) {
+    var record = $('<div>').addClass('rf-collapsed-record');
+    var self = this;
+
+    var totalAnswers = 0;
+    var isFirst = true;
+    $.each(this.meta, function (i, metaQuestion) {
+        if (isFirst) {
+            record.append(
+                metaQuestion.renderView(
+                    templates,
+                    recordValue ? recordValue[metaQuestion.name] : null
+                )
+            );
+            record.append(cell);
+            isFirst = false;
+        }
+        if (recordValue) {
+            var answer = recordValue[metaQuestion.name];
+            if (answer !== null && answer !== undefined)
+                ++totalAnswers;
+        }
+    });
+    var rest = $('div').addClass('rf-collapsed-record-rest');
+    if (totalAnswers)
+        rest.text('Total Answers: ' + restAnswers);
+    else
+        rest.text('No Answers');
+    record.append(rest);
+};
+RecordListDomain.prototype.renderEditRecord = function (templates, recordValue, onChange, customTitles) {
     var record = $('<div>').addClass('rf-record');
+    var preview = $('<div>').addClass('rf-record-preview');
+    var cells = $('<div>').addClass('rf-cells');
+    record.append(preview);
+    record.append(cells);
     var self = this;
 
     $.each(this.meta, function (i, metaQuestion) {
         var cell = $('<div>').addClass('rf-cell');
         cell.append(
-            metaQuestion.renderQuestion(
+            metaQuestion.renderEdit(
                 templates,
                 recordValue ? recordValue[metaQuestion.name] : null,
                 onChange
             )
         );
-        record.append(cell);
+        cells.append(cell);
     });
 
     var btnRemoveRecord = templates['btnRemoveRecord'].clone();
@@ -239,18 +302,27 @@ RecordListDomain.prototype.renderRecord = function (templates, recordValue, onCh
 
     return record;
 };
-RecordListDomain.prototype.render = function (templates, value, onChange, customTitles) {
+RecordListDomain.prototype.renderView = function (templates, value, onChange, customTitles) {
+    var recordList = $('<div>').addClass('rf-record-list');
+    var thisDomain = this;
+    if (value) {
+        $.each(value, function (_, recordValue) {
+            recordList.append( thisDomain.renderViewRecord(templates, recordValue, customTitles) );
+        });
+    }
+};
+RecordListDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var recordList = $('<div>').addClass('rf-record-list');
     var thisDomain = this;
 
     if (value) {
         $.each(value, function (_, recordValue) {
-            recordList.append( thisDomain.renderRecord(templates, recordValue, onChange, customTitles) );
+            recordList.append( thisDomain.renderEditRecord(templates, recordValue, onChange, customTitles) );
         });
     }
 
     var btnAddRecord = templates['btnAddRecord'].clone();
-    var titleNode = btnAddRecord.filter('.rf-add-record-title') 
+    var titleNode = btnAddRecord.filter('.rf-add-record-title');
     if (!titleNode.size())
         titleNode = btnAddRecord.find('.rf-add-record-title');
     if (titleNode.size()) {
@@ -335,17 +407,20 @@ var NumberDomain = function(isFloat) {
     this.isFloat = isFloat;
 };
 extend(NumberDomain, Domain);
-NumberDomain.prototype.render = function (templates, value, onChange, customTitles) {
+NumberDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var input = $('<input type="text">');
-    this.setValue(input, value);
+    this.setEditValue(input, value);
 
     if (onChange)
         input.change(onChange);
 
     return input;
 };
-NumberDomain.prototype.setValue = function (node, value) {
+NumberDomain.prototype.setEditValue = function (node, value) {
     node.val( (value !== null && value !== undefined) ? value : '' );
+};
+NumberDomain.prototype.setViewValue = function (node, value) {
+    node.text( (value !== null && value !== undefined) ? value : '' );
 };
 NumberDomain.prototype.extractValue = function (node) {
     var value = $.trim( node.val() ) || null;
@@ -377,7 +452,7 @@ var EnumDomain = function (options) {
 };
 extend(EnumDomain, Domain);
 var alreadyUsedNames = {};
-EnumDomain.prototype.render = function (templates, value, onChange, customTitles) {
+EnumDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var ret;
     var thisDomain = this;
 
@@ -436,10 +511,21 @@ EnumDomain.prototype.render = function (templates, value, onChange, customTitles
         }
     }
 
-    this.setValue(ret, value);
+    this.setEditValue(ret, value);
     return ret;
 };
-EnumDomain.prototype.setValue = function (node, value) {
+EnumDomain.prototype.setViewValue = function (node, value) {
+    var title = null;
+    for (var idx in this.variants) {
+        var variant = this.variants[idx];
+        if (variant.code === value) {
+            title = variant.title || variant.code;
+            break;
+        }
+    }
+    node.text( (title !== null) ? title : '' );
+};
+EnumDomain.prototype.setEditValue = function (node, value) {
     if (!this.dropDown) {
         node.find('input[type="radio"]').each(function (idx, element) {
             var input = $(element);
@@ -477,7 +563,7 @@ var SetDomain = function (variants) {
     });
 };
 extend(SetDomain, Domain);
-SetDomain.prototype.render = function (templates, value, onChange, customTitles) {
+SetDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var ret = $('<ul>').addClass('rf-answer-list');
     var thisDomain = this;
 
@@ -495,10 +581,10 @@ SetDomain.prototype.render = function (templates, value, onChange, customTitles)
         ret.append(li);
     });
 
-    this.setValue(ret, value);
+    this.setEditValue(ret, value);
     return ret;
 };
-SetDomain.prototype.setValue = function (node, value) {
+SetDomain.prototype.setEditValue = function (node, value) {
     node.find('input[type="checkbox"]').each(function (idx, element) {
         var input = $(element);
         if (value && value[input.val()])
@@ -506,6 +592,17 @@ SetDomain.prototype.setValue = function (node, value) {
         else
             input.removeAttr('checked');
     });
+};
+SetDomain.prototype.setViewValue = function (node, value) {
+    var answers = [];
+    for (var idx in this.variants) {
+        var variant = this.variants[idx];
+        if (value[variant.code]) {
+            var answer = variant.title || variant.code;
+            answers.push(answer);
+        }
+    }
+    node.text(answers.join(', '));
 };
 SetDomain.prototype.extractValue = function (node) {
     var inputs = node.find('input[type="checkbox"]');
@@ -524,7 +621,7 @@ var DualNumberDomain = function(firstName, secondName, size) {
     this.size = size;
 };
 extend(DualNumberDomain, Domain);
-DualNumberDomain.prototype.render = function (templates, value, onChange, customTitles) {
+DualNumberDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var ret = $('<div></div>');
     var span = $('<span></span>');
     span.html(this.firstName);
@@ -546,14 +643,26 @@ DualNumberDomain.prototype.render = function (templates, value, onChange, custom
     ret.append(input);
 
     if (value)
-        this.setValue(ret, value);
+        this.setEditValue(ret, value);
 
     if (onChange)
         input.change(onChange);
 
     return ret;
 };
-DualNumberDomain.prototype.setValue = function (node, value) {
+DualNumberDomain.prototype.setViewValue = function (node, value) {
+    var displayValue = '';
+    if (value !== null) {
+        var first = Math.floor(value / this.size);
+        var second = value % this.size;
+        
+        displayValue = this.firstName + ': ' + first + ', ' +
+                       this.secondName + ': ' + second;
+    } else
+        displayValue = '';
+    node.text(displayValue);
+};
+DualNumberDomain.prototype.setEditValue = function (node, value) {
     var first = Math.floor(value / this.size);
     var second = value % this.size;
     $(node).children("input[name='first']").val(first);
@@ -938,7 +1047,7 @@ Page.prototype.unskip = function () {
     this.update();
 };
 
-Page.prototype.edit = function(templates, onFormChange) {
+Page.prototype.render = function(templates, onFormChange, mode) {
     var self = this;
 
     if (self.renderedPage)
@@ -946,9 +1055,12 @@ Page.prototype.edit = function(templates, onFormChange) {
 
     var page = $('<div>').addClass('rf-page');
     $.each(self.questions, function (_, question) {
-        page.append(
-            question.edit( templates, onFormChange )
-        );
+        var questionNode = null;
+        if (mode === "edit")
+            questionNode = question.edit( templates, onFormChange );
+        else
+            questionNode = question.view( templates, onFormChange );
+        page.append(questionNode);
     });
 
     self.renderedPage = page;
@@ -965,18 +1077,29 @@ var MetaQuestion = function (name, title, required, domain) {
     this.attrIdName = 'attribute-name';
 };
 
+/*
 MetaQuestion.prototype.renderDomain = function (templates, value, onChange, customTitles) {
     var domainNode = this.domain.render(templates, value, onChange, customTitles);
 };
+*/
 
 MetaQuestion.prototype.extractValue = function (node) {
     var domainNode = node.find('.rf-question-answers:first').children();
     return this.domain.extractValue(domainNode);
 };
 
-MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
-    var domainNode = this.domain.render(templates, value, onChange, this.customTitles);
-    var questionNode = templates['question'].clone();
+MetaQuestion.prototype.render = function (templates, value, onChange, mode) {
+    var domainNode = null,
+        templateName = null;
+
+    if (mode === "edit") {
+        domainNode = this.domain.renderEdit(templates, value, onChange, this.customTitles);
+        templateName = 'editQuestion';
+    } else {
+        domainNode = this.domain.renderView(templates, value, this.customTitles);
+        templateName = 'viewQuestion';
+    }
+    var questionNode = templates[templateName].clone();
 
     questionNode.attr('data-' + this.attrIdName, this.name);
 
@@ -993,6 +1116,14 @@ MetaQuestion.prototype.renderQuestion = function (templates, value, onChange) {
             .append(domainNode);
 
     return questionNode;
+}
+
+MetaQuestion.prototype.renderView = function (templates, value) {
+    this.render(templates, value, null, 'view');
+};
+
+MetaQuestion.prototype.renderEdit = function (templates, value, onChange) {
+    this.render(templates, value, onChange, 'edit');
 };
 
 // TODO: push all arguments as a dictionary
@@ -1013,18 +1144,28 @@ var Question = function(name, title, domain, value, disableExpr,
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
+
+Question.prototype.view = function() {
+    if (!this.viewNode) {
+        this.viewNode = this.renderView(templates, this.value);
+        this.update();
+    }
+    return this.viewNode;
+};
+
 Question.prototype.edit = function(templates, onFormChange) {
+    // TODO: rename .node to editNode
     if (!this.node) {
         var self = this;
         this.node =
-            this.renderQuestion(
+            this.renderEdit(
                 templates,
                 this.value,
                 function () {
                     try {
                         var extractedValue =
                             self.extractValue(self.node);
-                        self.setValue(extractedValue);
+                        self.setEditValue(extractedValue);
                         self.markAsRight();
                         self.markAsConforming();
                         if (onFormChange)
@@ -1039,9 +1180,9 @@ Question.prototype.edit = function(templates, onFormChange) {
     return this.node;
 };
 
-Question.prototype.renderQuestion = function (templates, value, onChange) {
+Question.prototype.renderEdit = function (templates, value, onChange) {
     var questionNode =
-        MetaQuestion.prototype.renderQuestion.call(this, templates, value, onChange);
+        MetaQuestion.prototype.renderEdit.call(this, templates, value, onChange);
     var self = this;
     if (this.askAnnotation) {
         var annotationNode = $(templates['annotation']);
@@ -1067,31 +1208,27 @@ Question.prototype.setAnnotation = function(annotation) {
     this.annotation = annotation;
 }
 
-Question.prototype.view = function() {
-    // read-only mode
-};
-
 Question.prototype.update = function() {
-    if(!this.node)
-        return;
+    var nodes = [this.node, this.viewNode];
+    var self = this;
+    $.each(nodes, function(_, node) {
+        if(node) {
+            var activeElements = node.find('input,textarea,select,button');
 
-    var inputs = this.node.find('input,textarea,select,button');
+            if (self.disabled) {
+                node.addClass('rf-disabled');
+                activeElements.attr('disabled', 'disabled');
+            } else {
+                node.removeClass('rf-disabled');
+                activeElements.removeAttr('disabled');
+            }
 
-    if (this.disabled) {
-        this.node.addClass('rf-disabled');
-        inputs.attr('disabled', 'disabled');
-    } else {
-        this.node.removeClass('rf-disabled');
-        inputs.removeAttr('disabled');
-    }
-
-    if (this.wrong || this.invalid || this.notConforming) {
-        // console.log('this.wrong=', this.wrong, ', this.invalid=', this.invalid, ', this.notConforming=', this.notConforming);
-        this.node.addClass('rf-error');
-    } else {
-        this.node.removeClass('rf-error');
-    }
-    // update value visiblity, show/hide error messages here
+            if (self.wrong || self.invalid || self.notConforming)
+                node.addClass('rf-error');
+            else
+                node.removeClass('rf-error');
+        }
+    });
 };
 
 Question.prototype.setValue = function(value) {
@@ -1188,8 +1325,15 @@ var defaultTemplates = {
         '<button class="rf-add-record"><span class="rf-add-record-title">Add group of answers</span></button>',
     'btnClear':
         '<button class="rf-clear-answers">Clear</button>',
-    'question':
-          '<div class="rf-question">'
+    'editQuestion':
+          '<div class="rf-question rf-question-edit">'
+            + '<div class="rf-question-required"><abbr title="This question is mandatory">*</abbr></div>'
+            + '<div class="rf-question-title"></div>'
+            + '<div class="rf-question-answers"></div>'
+            + '<div class="rf-question-annotation"></div>'
+        + '</div>',
+    'viewQuestion':
+          '<div class="rf-question rf-question-view">'
             + '<div class="rf-question-required"><abbr title="This question is mandatory">*</abbr></div>'
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
@@ -1451,7 +1595,7 @@ $.RexFormsClient = function (o) {
         }
 
         self.questionArea.append(
-            page.edit(
+            page.render(
                 self.templates, 
                 /*
                 function (questionName) {

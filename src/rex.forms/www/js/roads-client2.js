@@ -229,35 +229,30 @@ RecordListDomain.prototype.renderViewRecord = function (templates, recordValue, 
         record.append(cell);
     });
 };
-RecordListDomain.prototype.renderCollapsedRecord = function (templates, recordValue, customTitles) {
-    var record = $('<div>').addClass('rf-collapsed-record');
+RecordListDomain.prototype.renderRecordPreview = function (templates, recordValue, customTitles) {
+    var record = $('<div>').addClass('rf-preview-content');
+
     var self = this;
 
-    var totalAnswers = 0;
-    var isFirst = true;
-    $.each(this.meta, function (i, metaQuestion) {
-        if (isFirst) {
-            record.append(
-                metaQuestion.renderView(
-                    templates,
-                    recordValue ? recordValue[metaQuestion.name] : null
-                )
-            );
-            record.append(cell);
-            isFirst = false;
-        }
-        if (recordValue) {
-            var answer = recordValue[metaQuestion.name];
-            if (answer !== null && answer !== undefined)
-                ++totalAnswers;
-        }
-    });
-    var rest = $('div').addClass('rf-collapsed-record-rest');
-    if (totalAnswers)
-        rest.text('Total Answers: ' + restAnswers);
-    else
-        rest.text('No Answers');
+    var firstQuestionPreview = null;
+
+    if (this.meta.length) {
+        var metaQuestion = this.meta[0];
+        var answer = recordValue ? recordValue[metaQuestion.name] : null;
+        if (answer === undefined)
+            answer = null;
+        firstQuestionPreview = this.meta[0].renderView(templates, answer);
+        firstQuestionPreview.find('.rf-question-title:first').remove();
+    }
+
+    if (firstQuestionPreview)
+        record.append(firstQuestionPreview);
+
+    var rest = $('<div>').addClass('rf-collapsed-record-rest');
+    var expandHint = templates['expandHint'].clone();
+    rest.append(expandHint)
     record.append(rest);
+    return record;
 };
 RecordListDomain.prototype.renderEditRecord = function (templates, recordValue, onChange, customTitles) {
     var record = $('<div>').addClass('rf-record');
@@ -311,13 +306,49 @@ RecordListDomain.prototype.renderView = function (templates, value, onChange, cu
         });
     }
 };
+RecordListDomain.prototype.collapseRecord = function (templates, record, recordValue, customTitles) {
+    if (record.hasClass('rf-collapsed'))
+        return;
+
+    var previewNode = record.children('.rf-record-preview');
+    console.log('recordValue', recordValue);
+    var extractedValue = recordValue ? recordValue : this.extractRecordValue(record);
+    console.log('extractedValue', extractedValue);
+    var previewContent = this.renderRecordPreview(templates, extractedValue, customTitles);
+    record.addClass('rf-collapsed');
+    record.children('.rf-cells').css('display', 'none');
+    previewNode.append(previewContent);
+
+    var thisDomain = this;
+
+    record.bind('click.rfExpand', function () {
+        record.siblings('.rf-record').each(function (_, sibRecord) {
+            sibRecord = $(sibRecord);
+            thisDomain.collapseRecord(templates, sibRecord, null, customTitles);
+        });
+        thisDomain.expandRecord(record);
+    });
+};
+RecordListDomain.prototype.expandRecord = function (record) {
+    if (!record.hasClass('rf-collapsed'))
+        return;
+
+    var previewNode = record.children('.rf-record-preview');
+    previewNode.contents().remove();
+    record.removeClass('rf-collapsed');
+    record.children('.rf-cells').css('display', '');
+    record.unbind('click.rfExpand');
+};
 RecordListDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var recordList = $('<div>').addClass('rf-record-list');
     var thisDomain = this;
 
     if (value) {
-        $.each(value, function (_, recordValue) {
-            recordList.append( thisDomain.renderEditRecord(templates, recordValue, onChange, customTitles) );
+        $.each(value, function (i, recordValue) {
+            var newRecord = thisDomain.renderEditRecord(templates, recordValue, onChange, customTitles);
+            recordList.append( newRecord );
+            if (i < value.length - 1)
+                thisDomain.collapseRecord(templates, newRecord, recordValue, customTitles);
         });
     }
 
@@ -335,8 +366,15 @@ RecordListDomain.prototype.renderEdit = function (templates, value, onChange, cu
     }
 
     btnAddRecord.click(function () {
-        if ($(this).parents('.rf-disabled').size() == 0)
-            recordList.append( thisDomain.renderRecord(templates, null, onChange, customTitles) );
+        if ($(this).parents('.rf-disabled').size() == 0) {
+            recordList.children().each(function (_, record) {
+                record = $(record);
+                thisDomain.collapseRecord(templates, record, null, customTitles);
+            });
+            var newRecord = thisDomain.renderEditRecord(templates, null, onChange, customTitles);
+            recordList.append( newRecord );
+            newRecord[0].scrollIntoView();
+        }
     });
 
     if (recordList.children().size() == 0)
@@ -368,7 +406,35 @@ RecordListDomain.prototype.conforming = function (value) {
         });
     }
 
+    console.log('complete', complete);
+
     return complete;
+}
+
+RecordListDomain.prototype.extractRecordValue = function (node) {
+    var record = {};
+    var hasAnswer = false;
+    var thisDomain = this;
+
+    $(node).children('.rf-cells')
+           .children('.rf-cell').each(function (j, cellNode) {
+
+        var jCellNode = $(cellNode);
+        var thisMeta = thisDomain.meta[j];
+        var value = thisMeta.extractValue(jCellNode.children());
+
+        if (thisMeta.required && value === null)
+            jCellNode.addClass('rf-cell-error');
+        else
+            jCellNode.removeClass('rf-cell-error');
+
+        if (value !== null)
+            hasAnswer = true;
+
+        record[ thisMeta.name ] = value;
+    });
+
+    return record;
 }
 
 RecordListDomain.prototype.extractValue = function (node) {
@@ -376,28 +442,17 @@ RecordListDomain.prototype.extractValue = function (node) {
     var thisDomain = this;
     var records = node.children('.rf-record');
     records.each(function (i, recordNode) {
-        var record = {};
-        var hasAnswer = false;
-
-        $(recordNode).children('.rf-cell').each(function (j, cellNode) {
-            var jCellNode = $(cellNode);
-            var thisMeta = thisDomain.meta[j];
-            var value = thisMeta.extractValue(jCellNode.children());
-
-            if (thisMeta.required && value === null)
-                jCellNode.addClass('rf-cell-error');
-            else
-                jCellNode.removeClass('rf-cell-error');
-
-            if (value !== null)
-                hasAnswer = true;
-
-            record[ thisMeta.name ] = value;
-        });
-
-        if (hasAnswer)
-            ret.push(record);
+        recordNode = $(recordNode);
+        var record = thisDomain.extractRecordValue(recordNode);
+        for (var item in record) {
+            if (record[item] !== null) {
+                ret.push(record);
+                break;
+            }
+        }
     });
+
+    console.log('ret', ret);
 
     return ret.length ? ret : null;
 };
@@ -1059,7 +1114,7 @@ Page.prototype.render = function(templates, onFormChange, mode) {
         if (mode === "edit")
             questionNode = question.edit( templates, onFormChange );
         else
-            questionNode = question.view( templates, onFormChange );
+            questionNode = question.view( templates );
         page.append(questionNode);
     });
 
@@ -1119,11 +1174,11 @@ MetaQuestion.prototype.render = function (templates, value, onChange, mode) {
 }
 
 MetaQuestion.prototype.renderView = function (templates, value) {
-    this.render(templates, value, null, 'view');
+    return this.render(templates, value, null, 'view');
 };
 
 MetaQuestion.prototype.renderEdit = function (templates, value, onChange) {
-    this.render(templates, value, onChange, 'edit');
+    return this.render(templates, value, onChange, 'edit');
 };
 
 // TODO: push all arguments as a dictionary
@@ -1145,7 +1200,7 @@ var Question = function(name, title, domain, value, disableExpr,
 };
 extend(Question, MetaQuestion);
 
-Question.prototype.view = function() {
+Question.prototype.view = function(templates) {
     if (!this.viewNode) {
         this.viewNode = this.renderView(templates, this.value);
         this.update();
@@ -1165,7 +1220,7 @@ Question.prototype.edit = function(templates, onFormChange) {
                     try {
                         var extractedValue =
                             self.extractValue(self.node);
-                        self.setEditValue(extractedValue);
+                        self.setValue(extractedValue);
                         self.markAsRight();
                         self.markAsConforming();
                         if (onFormChange)
@@ -1325,6 +1380,8 @@ var defaultTemplates = {
         '<button class="rf-add-record"><span class="rf-add-record-title">Add group of answers</span></button>',
     'btnClear':
         '<button class="rf-clear-answers">Clear</button>',
+    'expandHint':
+        '<span class="rf-expand-hint">(Click to expand)</span>',
     'editQuestion':
           '<div class="rf-question rf-question-edit">'
             + '<div class="rf-question-required"><abbr title="This question is mandatory">*</abbr></div>'
@@ -1604,7 +1661,8 @@ $.RexFormsClient = function (o) {
                 */
                 function () {
                     ++self.changeStamp;
-                }
+                },
+                (self.mode === "preview") ? 'view' : 'edit' 
             )
         );
 

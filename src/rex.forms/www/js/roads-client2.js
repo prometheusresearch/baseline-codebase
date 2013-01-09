@@ -310,10 +310,21 @@ RecordListDomain.prototype.collapseRecord = function (templates, record, recordV
     if (record.hasClass('rf-collapsed'))
         return;
 
+    var extractedValue;
+    try {
+        extractedValue = recordValue ? recordValue : this.extractRecordValue(record);
+    } catch(err) {
+        alert('Can\'t collapse the group because it consists of wrong values');
+        var firstWrongCell = record.find('.rf-cell-error');
+        if (firstWrongCell.size())
+            firstWrongCell[0].scrollIntoView();
+        else
+            record[0].scrollIntoView();
+        throw("CollapseError");
+    };
     var previewNode = record.children('.rf-record-preview');
-    console.log('recordValue', recordValue);
-    var extractedValue = recordValue ? recordValue : this.extractRecordValue(record);
-    console.log('extractedValue', extractedValue);
+    // console.log('recordValue', recordValue);
+    // console.log('extractedValue', extractedValue);
     var previewContent = this.renderRecordPreview(templates, extractedValue, customTitles);
     record.addClass('rf-collapsed');
     record.children('.rf-cells').css('display', 'none');
@@ -322,10 +333,12 @@ RecordListDomain.prototype.collapseRecord = function (templates, record, recordV
     var thisDomain = this;
 
     record.bind('click.rfExpand', function () {
-        record.siblings('.rf-record').each(function (_, sibRecord) {
-            sibRecord = $(sibRecord);
-            thisDomain.collapseRecord(templates, sibRecord, null, customTitles);
-        });
+        /*
+            record.siblings('.rf-record').each(function (_, sibRecord) {
+                sibRecord = $(sibRecord);
+                thisDomain.collapseRecord(templates, sibRecord, null, customTitles);
+            });
+        */
         thisDomain.expandRecord(record);
     });
 };
@@ -406,7 +419,7 @@ RecordListDomain.prototype.conforming = function (value) {
         });
     }
 
-    console.log('complete', complete);
+    // console.log('complete', complete);
 
     return complete;
 }
@@ -452,7 +465,7 @@ RecordListDomain.prototype.extractValue = function (node) {
         }
     });
 
-    console.log('ret', ret);
+    // console.log('ret', ret);
 
     return ret.length ? ret : null;
 };
@@ -1526,9 +1539,15 @@ $.RexFormsClient = function (o) {
                 var firstWrongQuestion = self.questionArea.find('.rf-error:first');
                 if (firstWrongQuestion.size()) {
                     var firstWrongCell = firstWrongQuestion.find('.rf-cell-error');
-                    if (firstWrongCell.size())
+                    if (firstWrongCell.size()) {
+                        var collapsed = firstWrongCell.parents('.rf-collapsed:first');
+                        // console.log('collapsed:', collapsed);
+                        // console.log('firstWrongCell:', firstWrongCell);
+                        if (collapsed.size())
+                            // expand collapsed cell
+                            collapsed.click();
                         firstWrongCell[0].scrollIntoView();
-                    else
+                    } else
                         firstWrongQuestion[0].scrollIntoView();
                 }
                 // there are invalid answers or

@@ -1205,6 +1205,8 @@ MetaQuestion.prototype.render = function (templates, value, onChange, mode) {
 
     questionNode.attr('data-' + this.attrIdName, this.name);
 
+    questionNode.addClass('rf-type-' + this.domain.name);
+
     questionNode.find('.rf-question-title')
             .append(renderCreole(this.title))
             .end()
@@ -1216,6 +1218,9 @@ MetaQuestion.prototype.render = function (templates, value, onChange, mode) {
             .end()
             .find('.rf-question-answers')
             .append(domainNode);
+
+    if (this.required)
+        questionNode.addClass('rf-required');
 
     return questionNode;
 }

@@ -241,8 +241,9 @@ RecordListDomain.prototype.renderRecordPreview = function (templates, recordValu
         var answer = recordValue ? recordValue[metaQuestion.name] : null;
         if (answer === undefined)
             answer = null;
-        firstQuestionPreview = this.meta[0].renderView(templates, answer);
-        firstQuestionPreview.find('.rf-question-title:first').remove();
+        renderedQuestionView = this.meta[0].renderView(templates, answer);
+        firstQuestionPreview =
+            renderedQuestionView.find('.rf-question-answers:first');
     }
 
     if (firstQuestionPreview)
@@ -273,6 +274,15 @@ RecordListDomain.prototype.renderEditRecord = function (templates, recordValue, 
         );
         cells.append(cell);
     });
+
+    var btnCollapseRecord = templates['btnCollapseRecord'].clone();
+    if (!btnCollapseRecord.hasClass('rf-collapse-record'))
+        btnCollapseRecord.addClass('rf-collapse-record');
+    btnCollapseRecord.click(function (event) {
+        self.collapseRecord(templates, record, null, customTitles);
+        event.stopPropagation();
+    });
+    record.append(btnCollapseRecord);
 
     var btnRemoveRecord = templates['btnRemoveRecord'].clone();
     var titleNode = btnRemoveRecord.filter('.rf-remove-record-title') 
@@ -307,6 +317,7 @@ RecordListDomain.prototype.renderView = function (templates, value, onChange, cu
     }
 };
 RecordListDomain.prototype.collapseRecord = function (templates, record, recordValue, customTitles) {
+
     if (record.hasClass('rf-collapsed'))
         return;
 
@@ -322,6 +333,14 @@ RecordListDomain.prototype.collapseRecord = function (templates, record, recordV
             record[0].scrollIntoView();
         throw("CollapseError");
     };
+
+    var thisDomain = this;
+    if (!thisDomain.groupConforming(extractedValue)) {
+        // There are wrong or missed values in the group.
+        // We don't collapse a group in that case.
+        return;
+    }
+
     var previewNode = record.children('.rf-record-preview');
     // console.log('recordValue', recordValue);
     // console.log('extractedValue', extractedValue);
@@ -330,7 +349,6 @@ RecordListDomain.prototype.collapseRecord = function (templates, record, recordV
     record.children('.rf-cells').css('display', 'none');
     previewNode.append(previewContent);
 
-    var thisDomain = this;
 
     record.bind('click.rfExpand', function () {
         /*
@@ -341,6 +359,9 @@ RecordListDomain.prototype.collapseRecord = function (templates, record, recordV
         */
         thisDomain.expandRecord(record);
     });
+
+    // hide 'collapse' button
+    record.find('.rf-collapse-record:first').css('display', 'none');
 };
 RecordListDomain.prototype.expandRecord = function (record) {
     if (!record.hasClass('rf-collapsed'))
@@ -351,6 +372,9 @@ RecordListDomain.prototype.expandRecord = function (record) {
     record.removeClass('rf-collapsed');
     record.children('.rf-cells').css('display', '');
     record.unbind('click.rfExpand');
+
+    // show 'collapse' button
+    record.find('.rf-collapse-record:first').css('display', '');
 };
 RecordListDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var recordList = $('<div>').addClass('rf-record-list');
@@ -396,7 +420,7 @@ RecordListDomain.prototype.renderEdit = function (templates, value, onChange, cu
     return recordList.add(btnAddRecord);
 };
 
-RecordListDomain.prototype.conforming = function (value) {
+RecordListDomain.prototype.groupConforming = function (group) {
     var complete = true;
     var thisDomain = this;
 
@@ -409,17 +433,24 @@ RecordListDomain.prototype.conforming = function (value) {
         return null;
     }
 
+    $.each(group, function (itemName, itemValue) {
+        var thisMeta = findMetaByName(itemName);
+        if (thisMeta.required && itemValue === null)
+            complete = false;
+    });
+
+    return complete;
+}
+
+RecordListDomain.prototype.conforming = function (value) {
+    var complete = true;
+    var thisDomain = this;
+
     if (value !== null) {
         $.each(value, function (idx, group) {
-            $.each(group, function (itemName, itemValue) {
-                var thisMeta = findMetaByName(itemName);
-                if (thisMeta.required && itemValue === null)
-                    complete = false;
-            });
+            complete = complete && thisDomain.groupConforming(group);
         });
     }
-
-    // console.log('complete', complete);
 
     return complete;
 }
@@ -1392,6 +1423,8 @@ var defaultTemplates = {
         + '</div>',
     'btnRemoveRecord':
         '<button class="rf-remove-record"><span class="rf-remove-record-title">Remove this group</span></button>',
+    'btnCollapseRecord':
+        '<button class="rf-collapse-record"><span class="rf-collapse-record-title">Collapse</span></button>',
     'btnAddRecord':
         '<button class="rf-add-record"><span class="rf-add-record-title">Add group of answers</span></button>',
     'btnClear':

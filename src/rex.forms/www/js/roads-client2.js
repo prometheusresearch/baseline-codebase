@@ -434,7 +434,12 @@ RecordListDomain.prototype.extractRecordValue = function (node) {
 
         var jCellNode = $(cellNode);
         var thisMeta = thisDomain.meta[j];
-        var value = thisMeta.extractValue(jCellNode.children());
+        try {
+            var value = thisMeta.extractValue(jCellNode.children());
+        } catch(err) {
+            jCellNode.addClass('rf-cell-error');
+            throw(err);
+        }
 
         if (thisMeta.required && value === null)
             jCellNode.addClass('rf-cell-error');
@@ -464,8 +469,6 @@ RecordListDomain.prototype.extractValue = function (node) {
             }
         }
     });
-
-    // console.log('ret', ret);
 
     return ret.length ? ret : null;
 };

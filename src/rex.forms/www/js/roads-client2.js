@@ -1722,7 +1722,12 @@ $.RexFormsClient = function (o) {
                 function () {
                     ++self.changeStamp;
                 },
-                (self.mode === "preview") ? 'view' : 'edit' 
+                /* 
+                    TODO: restore this after implementing of "edit" button
+                    on question preview
+                     (self.mode === "preview") ? 'view' : 'edit'  
+                */
+                'edit'
             )
         );
 

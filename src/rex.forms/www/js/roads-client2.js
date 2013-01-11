@@ -106,7 +106,7 @@ Domain.prototype.renderView = function(templates, value, onChange, customTitles)
     this.setViewValue(node, value);
     return node;
 };
-Domain.prototype.setEditValue = function (node, value) {
+Domain.prototype.setEditValue = function (node, value, options) {
     alert('Implement in subclasses');
 };
 Domain.prototype.setViewValue = function (node, value) {
@@ -145,10 +145,10 @@ TextDomain.prototype.renderEdit = function (templates, value, onChange, customTi
             input.change(onChange);
     }
 
-    this.setEditValue(input, value);
+    this.setEditValue(input, value, null);
     return input;
 };
-TextDomain.prototype.setEditValue = function (node, value) {
+TextDomain.prototype.setEditValue = function (node, value, options) {
     node.val( (value !== null && value !== undefined) ? value : '' );
 };
 TextDomain.prototype.setViewValue = function (node, value) {
@@ -164,7 +164,7 @@ var DateDomain = function() {
 extend(DateDomain, Domain);
 DateDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var input = $('<input type="text">');
-    this.setEditValue(input, value);
+    this.setEditValue(input, value, null);
 
     if (onChange)
         input.change(onChange);
@@ -177,7 +177,7 @@ DateDomain.prototype.renderEdit = function (templates, value, onChange, customTi
 
     return input;
 };
-DateDomain.prototype.setEditValue = function (node, value) {
+DateDomain.prototype.setEditValue = function (node, value, options) {
     node.val( (value !== null && value !== undefined) ? value : '' );
 };
 DateDomain.prototype.setViewValue = function (node, value) {
@@ -348,8 +348,6 @@ RecordListDomain.prototype.collapseRecord = function (templates, record, recordV
     }
 
     var previewNode = record.children('.rf-record-preview');
-    // console.log('recordValue', recordValue);
-    // console.log('extractedValue', extractedValue);
     var previewContent = this.renderRecordPreview(templates, extractedValue, customTitles);
     record.addClass('rf-collapsed');
     record.children('.rf-cells').css('display', 'none');
@@ -357,12 +355,6 @@ RecordListDomain.prototype.collapseRecord = function (templates, record, recordV
 
 
     record.bind('click.rfExpand', function () {
-        /*
-            record.siblings('.rf-record').each(function (_, sibRecord) {
-                sibRecord = $(sibRecord);
-                thisDomain.collapseRecord(templates, sibRecord, null, customTitles);
-            });
-        */
         thisDomain.expandRecord(record);
     });
 
@@ -382,18 +374,51 @@ RecordListDomain.prototype.expandRecord = function (record) {
     // show 'collapse' button
     record.find('.rf-collapse-record:first').css('display', '');
 };
+RecordListDomain.prototype.setEditValue = function (node, value, options) {
+    var thisDomain = this;
+    node.children().remove();
+    if (value) {
+        $.each(value, function (i, recordValue) {
+            var newRecord = 
+                    thisDomain.renderEditRecord(
+                        options.templates, 
+                        recordValue, 
+                        options.onChange, 
+                        options.customTitles
+                    );
+            node.append( newRecord );
+            if (i < value.length - 1)
+                thisDomain.collapseRecord(
+                    options.templates,
+                    newRecord,
+                    recordValue,
+                    options.customTitles
+                );
+        });
+    }
+
+    if (node.children().size() == 0) {
+        thisDomain.addNewRecord(options.templates, node, options.onChange, options.customTitles);
+    }
+};
+RecordListDomain.prototype.addNewRecord = function (templates, node, onChange, customTitles) {
+    var thisDomain = this;
+    node.children().each(function (_, record) {
+        record = $(record);
+        thisDomain.collapseRecord(templates, record, null, customTitles);
+    });
+    var newRecord = thisDomain.renderEditRecord(templates, null, onChange, customTitles);
+    node.append( newRecord );
+    return newRecord;
+}
 RecordListDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var recordList = $('<div>').addClass('rf-record-list');
     var thisDomain = this;
-
-    if (value) {
-        $.each(value, function (i, recordValue) {
-            var newRecord = thisDomain.renderEditRecord(templates, recordValue, onChange, customTitles);
-            recordList.append( newRecord );
-            if (i < value.length - 1)
-                thisDomain.collapseRecord(templates, newRecord, recordValue, customTitles);
-        });
-    }
+    this.setEditValue(recordList, value, {
+        templates: templates,
+        onChange: onChange,
+        customTitles: customTitles
+    });
 
     var btnAddRecord = templates['btnAddRecord'].clone();
     var titleNode = btnAddRecord.filter('.rf-add-record-title');
@@ -410,18 +435,10 @@ RecordListDomain.prototype.renderEdit = function (templates, value, onChange, cu
 
     btnAddRecord.click(function () {
         if ($(this).parents('.rf-disabled').size() == 0) {
-            recordList.children().each(function (_, record) {
-                record = $(record);
-                thisDomain.collapseRecord(templates, record, null, customTitles);
-            });
-            var newRecord = thisDomain.renderEditRecord(templates, null, onChange, customTitles);
-            recordList.append( newRecord );
+            var newRecord = thisDomain.addNewRecord(templates, recordList, onChange, customTitles);
             newRecord[0].scrollIntoView();
         }
     });
-
-    if (recordList.children().size() == 0)
-        btnAddRecord.click();
 
     return recordList.add(btnAddRecord);
 };
@@ -517,14 +534,14 @@ var NumberDomain = function(isFloat) {
 extend(NumberDomain, Domain);
 NumberDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
     var input = $('<input type="text">');
-    this.setEditValue(input, value);
+    this.setEditValue(input, value, null);
 
     if (onChange)
         input.change(onChange);
 
     return input;
 };
-NumberDomain.prototype.setEditValue = function (node, value) {
+NumberDomain.prototype.setEditValue = function (node, value, options) {
     node.val( (value !== null && value !== undefined) ? value : '' );
 };
 NumberDomain.prototype.setViewValue = function (node, value) {
@@ -619,7 +636,7 @@ EnumDomain.prototype.renderEdit = function (templates, value, onChange, customTi
         }
     }
 
-    this.setEditValue(ret, value);
+    this.setEditValue(ret, value, null);
     return ret;
 };
 EnumDomain.prototype.setViewValue = function (node, value) {
@@ -633,7 +650,7 @@ EnumDomain.prototype.setViewValue = function (node, value) {
     }
     node.text( (title !== null) ? title : '' );
 };
-EnumDomain.prototype.setEditValue = function (node, value) {
+EnumDomain.prototype.setEditValue = function (node, value, options) {
     if (!this.dropDown) {
         node.find('input[type="radio"]').each(function (idx, element) {
             var input = $(element);
@@ -689,10 +706,10 @@ SetDomain.prototype.renderEdit = function (templates, value, onChange, customTit
         ret.append(li);
     });
 
-    this.setEditValue(ret, value);
+    this.setEditValue(ret, value, null);
     return ret;
 };
-SetDomain.prototype.setEditValue = function (node, value) {
+SetDomain.prototype.setEditValue = function (node, value, options) {
     node.find('input[type="checkbox"]').each(function (idx, element) {
         var input = $(element);
         if (value && value[input.val()])
@@ -751,7 +768,7 @@ DualNumberDomain.prototype.renderEdit = function (templates, value, onChange, cu
     ret.append(input);
 
     if (value)
-        this.setEditValue(ret, value);
+        this.setEditValue(ret, value, null);
 
     if (onChange)
         input.change(onChange);
@@ -770,7 +787,7 @@ DualNumberDomain.prototype.setViewValue = function (node, value) {
         displayValue = '';
     node.text(displayValue);
 };
-DualNumberDomain.prototype.setEditValue = function (node, value) {
+DualNumberDomain.prototype.setEditValue = function (node, value, options) {
     var first = Math.floor(value / this.size);
     var second = value % this.size;
     $(node).children("input[name='first']").val(first);
@@ -920,7 +937,7 @@ var domain = {
 
 // }}}
 
-var Form = function(config, data, paramValues) {
+var Form = function(config, data, paramValues, templates) {
     var self = this;
 
     // if pages are in group, set group skip logic to each page
@@ -931,6 +948,7 @@ var Form = function(config, data, paramValues) {
     // loop through its questions on the each page and to this.questions[id] = question
 
     this.finished = false;
+    this.templates = templates;
 
     this.finish = function () {
         self.finished = true;
@@ -941,6 +959,7 @@ var Form = function(config, data, paramValues) {
     this.pages = [];
     this.questions = {};
     this.params = {};
+    this.changeStamp = 0;
 
     $.each(config.params || {}, function (_, param) {
         var forRexlize = null;
@@ -977,17 +996,17 @@ var Form = function(config, data, paramValues) {
         return newSkipExpr;
     }
 
-    function group(list, skipExpr, data) {
+    function group(list, skipExpr, data, onFormChange) {
         skipExpr = skipExpr || '';
         $.each(list, function(_, item) {
             if(item.type == 'group')
-                group(item.pages, mergeSkipExpr(skipExpr, item.skipIf), data);
+                group(item.pages, mergeSkipExpr(skipExpr, item.skipIf), data, onFormChange);
             else
-                page(item, data, skipExpr);
+                page(item, data, skipExpr, onFormChange);
         });
     }
 
-    function page(item, data, skipExpr) {
+    function page(item, data, skipExpr, onFormChange) {
         var questions = $.map(item.questions, function(question) {
             var question = new Question(question.name,
                                         question.title,
@@ -998,7 +1017,9 @@ var Form = function(config, data, paramValues) {
                                         question.required || false,
                                         question.annotation || false,
                                         domain.annotationFromData(question, data),
-                                        question.customTitles || {}
+                                        question.customTitles || {},
+                                        onFormChange,
+                                        templates
                                        );
 
             if(self.questions[question.name])
@@ -1012,7 +1033,9 @@ var Form = function(config, data, paramValues) {
         self.pages.push(page);
     }
 
-    group(config.pages, null, data);
+    group(config.pages, null, data, function () {
+        ++self.changeStamp;
+    });
 
     // TODO: set initial values for questions
 
@@ -1155,7 +1178,7 @@ Page.prototype.unskip = function () {
     this.update();
 };
 
-Page.prototype.render = function(templates, onFormChange, mode) {
+Page.prototype.render = function(templates, mode) {
     var self = this;
 
     if (self.renderedPage)
@@ -1165,9 +1188,9 @@ Page.prototype.render = function(templates, onFormChange, mode) {
     $.each(self.questions, function (_, question) {
         var questionNode = null;
         if (mode === "edit")
-            questionNode = question.edit( templates, onFormChange );
+            questionNode = question.edit();
         else
-            questionNode = question.view( templates );
+            questionNode = question.view();
         page.append(questionNode);
     });
 
@@ -1176,20 +1199,15 @@ Page.prototype.render = function(templates, onFormChange, mode) {
     return page;
 };
 
-var MetaQuestion = function (name, title, required, domain) {
+var MetaQuestion = function (name, title, required, domain, templates) {
     this.name = name;
     this.title = title;
     this.domain = domain;
     this.required = required;
     this.customTitles = {};
     this.attrIdName = 'attribute-name';
+    this.templates = templates;
 };
-
-/*
-MetaQuestion.prototype.renderDomain = function (templates, value, onChange, customTitles) {
-    var domainNode = this.domain.render(templates, value, onChange, customTitles);
-};
-*/
 
 MetaQuestion.prototype.extractValue = function (node) {
     var domainNode = node.find('.rf-question-answers:first').children();
@@ -1242,8 +1260,8 @@ MetaQuestion.prototype.renderEdit = function (templates, value, onChange) {
 // TODO: push all arguments as a dictionary
 var Question = function(name, title, domain, value, disableExpr,
                         validateExpr, required, askAnnotation,
-                        annotation, customTitles) {
-    MetaQuestion.call(this, name, title, required, domain);
+                        annotation, customTitles, onFormChange, templates) {
+    MetaQuestion.call(this, name, title, required, domain, templates);
     this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
@@ -1254,39 +1272,45 @@ var Question = function(name, title, domain, value, disableExpr,
     this.wrong = false;
     this.notConforming = false;
     this.attrIdName = 'question-name';
+    this.node = null;
+    this.viewNode = null;
+    var self = this;
+    this.defaultOnChange = 
+        function () {
+            try {
+                var extractedValue =
+                    self.extractValue(self.node);
+                self.setValue(extractedValue, false);
+                self.markAsRight();
+                self.markAsConforming();
+                if (onFormChange)
+                    onFormChange();
+            } catch(err) {
+                self.markAsWrong();
+            }
+        }
+
     // TODO: convert validate expr to use this.id instead of 'this';
 };
 extend(Question, MetaQuestion);
 
-Question.prototype.view = function(templates) {
+Question.prototype.view = function() {
     if (!this.viewNode) {
-        this.viewNode = this.renderView(templates, this.value);
+        this.viewNode = this.renderView(this.templates, this.value);
         this.update();
     }
     return this.viewNode;
 };
 
-Question.prototype.edit = function(templates, onFormChange) {
+Question.prototype.edit = function() {
     // TODO: rename .node to editNode
     if (!this.node) {
         var self = this;
         this.node =
             this.renderEdit(
-                templates,
+                this.templates,
                 this.value,
-                function () {
-                    try {
-                        var extractedValue =
-                            self.extractValue(self.node);
-                        self.setValue(extractedValue);
-                        self.markAsRight();
-                        self.markAsConforming();
-                        if (onFormChange)
-                            onFormChange();
-                    } catch(err) {
-                        self.markAsWrong();
-                    }
-                }
+                this.defaultOnChange
             );
         this.update();
     }
@@ -1344,9 +1368,19 @@ Question.prototype.update = function() {
     });
 };
 
-Question.prototype.setValue = function(value) {
+Question.prototype.setValue = function(value, updateDomains) {
 
     this.value = value;
+    if (updateDomains) {
+        if (this.node)
+            this.domain.setEditValue(this.node, value, {
+                customTitles: this.customTitles,
+                templates: this.templates,
+                onChange: this.defaultOnChange
+            });
+        if (this.viewNode)
+            this.domain.setViewValue(this.node, value);
+    }
     this.update();
 
     $(this).trigger('change');
@@ -1380,7 +1414,7 @@ Question.prototype.getRexlValue = function(name) {
 };
 
 Question.prototype.disable = function() {
-    this.setValue(null);
+    this.setValue(null, true);
     this.disabled = true;
     this.update();
 };
@@ -1546,12 +1580,11 @@ $.RexFormsClient = function (o) {
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
 
-    this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {});
+    this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {}, templates);
     this.form.initState();
     this.currentPageIdx = -1;
     this.package = o.package || null;
     this.formName = o.formName;
-    this.changeStamp = 0;
     this.savedChangeStamp = 0;
 
     var updateProgress = function (forcePct) {
@@ -1590,8 +1623,6 @@ $.RexFormsClient = function (o) {
                     var firstWrongCell = firstWrongQuestion.find('.rf-cell-error');
                     if (firstWrongCell.size()) {
                         var collapsed = firstWrongCell.parents('.rf-collapsed:first');
-                        // console.log('collapsed:', collapsed);
-                        // console.log('firstWrongCell:', firstWrongCell);
                         if (collapsed.size())
                             // expand collapsed cell
                             collapsed.click();
@@ -1628,13 +1659,6 @@ $.RexFormsClient = function (o) {
                 self.renderPage(idx, true);
                 updateProgress();
                 updateButtons();
-                /*
-                var formOffset = self.formArea.offset();
-                var scrollTop = formOffset ? formOffset.top : 0;
-                var doc = $("body");
-                if (doc.scrollTop() > scrollTop)
-                    doc.animate({ scrollTop: scrollTop }, "slow");
-                */
                 window.scrollTo(0, 0);
                 self.saveLastVisitPage(idx);
                 return;
@@ -1705,14 +1729,6 @@ $.RexFormsClient = function (o) {
         self.questionArea.append(
             page.render(
                 self.templates,
-                /*
-                function (questionName) {
-                    self.annotationDialog.askAnnotation(questionName);
-                },
-                */
-                function () {
-                    ++self.changeStamp;
-                },
                 /* 
                     TODO: restore this after implementing of "edit" button
                     on question preview
@@ -1785,13 +1801,12 @@ $.RexFormsClient = function (o) {
             return;
 
         new function () {
-            var changeStamp = self.changeStamp;
+            var changeStamp = self.form.changeStamp;
             $.ajax({
                 url: self.saveURL,
                 success: function(content) {
-                    self.savedChangeStamp = changeStamp;
+                    self.savedChangeStamp = self.form.changeStamp;
                     self.raiseEvent('saved');
-                    // console.log('save: success');
                     if (callback)
                         callback();
                 },
@@ -1861,7 +1876,7 @@ $.RexFormsClient = function (o) {
     this.formTitleArea.append( renderCreole(this.form.title) );
 
     window.onbeforeunload = function (e) {
-        if (self.savedChangeStamp < self.changeStamp) {
+        if (self.savedChangeStamp < self.form.changeStamp) {
             // There are unsaved changes.
             // Saving synchrounously.
             self.save(null, true);

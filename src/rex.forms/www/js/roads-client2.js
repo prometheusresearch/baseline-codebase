@@ -265,13 +265,19 @@ RecordListDomain.prototype.renderEditRecord = function (templates, recordValue, 
 
     $.each(this.meta, function (i, metaQuestion) {
         var cell = $('<div>').addClass('rf-cell');
+        var questionValue =
+                recordValue ? recordValue[metaQuestion.name] : null;
         cell.append(
             metaQuestion.renderEdit(
                 templates,
-                recordValue ? recordValue[metaQuestion.name] : null,
+                questionValue,
                 onChange
             )
         );
+        if (metaQuestion.required &&
+            (questionValue === null || questionValue === undefined)) {
+            cell.addClass('rf-cell-error');
+        }
         cells.append(cell);
     });
 
@@ -1351,7 +1357,9 @@ Question.prototype.getValue = function() {
 };
 
 Question.prototype.conforming = function() {
-    return (this.required && this.value === null) ? false : this.domain.conforming(this.value);
+    return (this.required && this.value === null) ?
+                false:
+                this.domain.conforming(this.value);
 }
 
 Question.prototype.getRexlValue = function(name) {
@@ -1608,25 +1616,7 @@ $.RexFormsClient = function (o) {
             if (!validateAndScroll(pages[self.currentPageIdx]))
                 return;
         }
-        /*
-        if (self.currentPageIdx >= 0) {
-            var page = pages[self.currentPageIdx];
-            if (step > 0 && !page.conforming()) {
-                alert("There are missed required questions or wrong answers on this page. Please correct the information you provided.");
-                var firstWrongQuestion = self.questionArea.find('.rf-error:first');
-                if (firstWrongQuestion.size()) {
-                    var firstWrongCell = firstWrongQuestion.find('.rf-cell-error');
-                    if (firstWrongCell.size())
-                        firstWrongCell[0].scrollIntoView();
-                    else
-                        firstWrongQuestion[0].scrollIntoView();
-                }
-                // there are invalid answers or
-                //  missed answers for required questions
-                return;
-            }
-        }
-        */
+
         var idx = (startFrom !== undefined && startFrom !== null) ?
                     startFrom : self.currentPageIdx + step;
         var total = pages.length;
@@ -1686,6 +1676,7 @@ $.RexFormsClient = function (o) {
     // this.annotationDialog = new AnnotationDialog(annotationDialogTemplate);
 
     this.renderPage = function (pageIdx, clear) {
+    
         if (!self.raiseEvent('beforePageRender', pageIdx)) {
             // stop rendering if aborted
             return;
@@ -1713,7 +1704,7 @@ $.RexFormsClient = function (o) {
 
         self.questionArea.append(
             page.render(
-                self.templates, 
+                self.templates,
                 /*
                 function (questionName) {
                     self.annotationDialog.askAnnotation(questionName);
@@ -1725,12 +1716,13 @@ $.RexFormsClient = function (o) {
                 /* 
                     TODO: restore this after implementing of "edit" button
                     on question preview
-                     (self.mode === "preview") ? 'view' : 'edit'  
+                     (self.mode === "preview") ? 'view' : 'edit'
                 */
                 'edit'
             )
         );
 
+        page.conforming();
         self.raiseEvent('pageRendered', pageIdx);
     };
 

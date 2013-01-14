@@ -937,7 +937,7 @@ var domain = {
 
 // }}}
 
-var Form = function(config, data, paramValues, templates) {
+var Form = function(config, data, paramValues, templates, showNumbers) {
     var self = this;
 
     // if pages are in group, set group skip logic to each page
@@ -1007,6 +1007,7 @@ var Form = function(config, data, paramValues, templates) {
     }
 
     function page(item, data, skipExpr, onFormChange) {
+        var questionIndex = 1;
         var questions = $.map(item.questions, function(question) {
             var question = new Question(question.name,
                                         question.title,
@@ -1019,7 +1020,8 @@ var Form = function(config, data, paramValues, templates) {
                                         domain.annotationFromData(question, data),
                                         question.customTitles || {},
                                         onFormChange,
-                                        templates
+                                        templates,
+                                        showNumbers && questionIndex++
                                        );
 
             if(self.questions[question.name])
@@ -1199,9 +1201,12 @@ Page.prototype.render = function(templates, mode) {
     return page;
 };
 
-var MetaQuestion = function (name, title, required, domain, templates) {
+var MetaQuestion = function (name, title, required, domain, templates, index) {
     this.name = name;
-    this.title = title;
+    if (index)
+        this.title = index + '. ' + title;
+    else
+        this.title = title;
     this.domain = domain;
     this.required = required;
     this.customTitles = {};
@@ -1260,8 +1265,8 @@ MetaQuestion.prototype.renderEdit = function (templates, value, onChange) {
 // TODO: push all arguments as a dictionary
 var Question = function(name, title, domain, value, disableExpr,
                         validateExpr, required, askAnnotation,
-                        annotation, customTitles, onFormChange, templates) {
-    MetaQuestion.call(this, name, title, required, domain, templates);
+                        annotation, customTitles, onFormChange, templates, index) {
+    MetaQuestion.call(this, name, title, required, domain, templates, index);
     this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
@@ -1580,7 +1585,7 @@ $.RexFormsClient = function (o) {
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
 
-    this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {}, templates);
+    this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {}, templates, o.showNumbers);
     this.form.initState();
     this.currentPageIdx = -1;
     this.package = o.package || null;

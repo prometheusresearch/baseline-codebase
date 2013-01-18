@@ -1005,9 +1005,9 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
                 page(item, data, skipExpr, onFormChange);
         });
     }
+    var questionIndex = 1;
 
     function page(item, data, skipExpr, onFormChange) {
-        var questionIndex = 1;
         var questions = $.map(item.questions, function(question) {
             var question = new Question(question.name,
                                         question.title,

@@ -376,7 +376,7 @@ RecordListDomain.prototype.expandRecord = function (record) {
 };
 RecordListDomain.prototype.setEditValue = function (node, value, options) {
     var thisDomain = this;
-    node.children().remove();
+    node.children('.rf-record').remove();
     if (value) {
         $.each(value, function (i, recordValue) {
             var newRecord = 

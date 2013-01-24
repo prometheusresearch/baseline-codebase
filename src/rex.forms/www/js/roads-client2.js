@@ -208,7 +208,9 @@ var RecordListDomain = function(recordDef) {
                 questionDef.name,
                 questionDef.title,
                 questionDef.required || false,
-                domain.getFromDef(questionDef)
+                domain.getFromDef(questionDef),
+                null,
+                questionDef.slave || false
             )
         );
     });
@@ -960,6 +962,7 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
     this.questions = {};
     this.params = {};
     this.changeStamp = 0;
+    this.nextQuestionIndex = 1;
 
     $.each(config.params || {}, function (_, param) {
         var forRexlize = null;
@@ -1005,10 +1008,11 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
                 page(item, data, skipExpr, onFormChange);
         });
     }
-    var questionIndex = 1;
 
     function page(item, data, skipExpr, onFormChange) {
         var questions = $.map(item.questions, function(question) {
+            var slave = question.slave || false;
+            var index = (showNumbers && !slave) ? self.nextQuestionIndex++ : null;
             var question = new Question(question.name,
                                         question.title,
                                         domain.getFromDef(question),
@@ -1021,7 +1025,8 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
                                         question.customTitles || {},
                                         onFormChange,
                                         templates,
-                                        showNumbers && questionIndex++
+                                        slave,
+                                        index
                                        );
 
             if(self.questions[question.name])
@@ -1201,17 +1206,15 @@ Page.prototype.render = function(templates, mode) {
     return page;
 };
 
-var MetaQuestion = function (name, title, required, domain, templates, index) {
+var MetaQuestion = function (name, title, required, domain, templates, slave) {
     this.name = name;
-    if (index)
-        this.title = index + '. ' + title;
-    else
-        this.title = title;
+    this.title = title;
     this.domain = domain;
     this.required = required;
     this.customTitles = {};
     this.attrIdName = 'attribute-name';
     this.templates = templates;
+    this.slave = slave;
 };
 
 MetaQuestion.prototype.extractValue = function (node) {
@@ -1235,6 +1238,9 @@ MetaQuestion.prototype.render = function (templates, value, onChange, mode) {
     questionNode.attr('data-' + this.attrIdName, this.name);
 
     questionNode.addClass('rf-type-' + this.domain.name);
+
+    if (this.slave)
+        questionNode.addClass('rf-question-slave');
 
     questionNode.find('.rf-question-title')
             .append(renderCreole(this.title))
@@ -1265,8 +1271,10 @@ MetaQuestion.prototype.renderEdit = function (templates, value, onChange) {
 // TODO: push all arguments as a dictionary
 var Question = function(name, title, domain, value, disableExpr,
                         validateExpr, required, askAnnotation,
-                        annotation, customTitles, onFormChange, templates, index) {
-    MetaQuestion.call(this, name, title, required, domain, templates, index);
+                        annotation, customTitles, onFormChange, templates, slave, index) {
+    MetaQuestion.call(this, name, title, required, domain, templates, slave);
+    if (index !== null && index !== undefined)
+        this.title = index + '. ' + this.title;
     this.value = value;
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;

@@ -8,13 +8,7 @@ setup(name='rex.forms',
       # Uncomment next 2 lines if you are adding any python code
       packages=find_packages('src'),
       package_dir={'': 'src'},
-      install_requires=[
-          'rex.common>=0.1.0',
-          'rex.ext>=0.1.0',
-          # dependencies are listed as following:
-          # 'dep_pkg>=0.1.1',
-          # 'another_pkg>=10.10.20',
-      ],
+      include_package_data = True,
       # www_prefix is url prefix where other packages may find your files & commands.
       # It is ignored if your project is the main one served (root). 
       # In that case everything could be found just at root '/'.
@@ -29,10 +23,16 @@ setup(name='rex.forms',
       www_module='rex_forms',
       # www_settings is a Yaml file where you could store default parameters 
       # for you package or overriding values for other packages
-      www_settings='settings.yaml'
-)
+      www_settings='settings.yaml',
 
 # Please note, that any change to the setup() parameters requires you to 
 # re-install the package.
 # Use 'python setup.py develop' in development mode 
 # or 'python setup.py install' in deployment mode.
+
+      # Dependency information
+      install_requires = [
+          'REX.COMMON>=0.1.0',
+          'REX.EXT>=0.1.0',
+          ],
+)

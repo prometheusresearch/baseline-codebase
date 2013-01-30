@@ -1,0 +1,2 @@
+include settings.yaml
+recursive-include www *

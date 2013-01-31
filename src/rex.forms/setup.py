@@ -32,6 +32,7 @@ setup(name='rex.forms',
 
       # Dependency information
       install_requires = [
+          'HTSQL',
           'REX.COMMON>=0.1.0',
           'REX.EXT>=0.1.0',
           ],

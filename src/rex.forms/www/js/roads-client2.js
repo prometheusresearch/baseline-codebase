@@ -761,10 +761,10 @@ DualNumberDomain.prototype.renderEdit = function (templates, value, onChange, cu
         input.change(onChange);
 
     ret.append(input);
-    var span = $('<span></span>');
+    span = $('<span></span>');
     span.html(this.secondName);
     ret.append(span);
-    var input = $('<input type="text">');
+    input = $('<input type="text">');
     input.attr("size", 10);
     input.attr("name", "second");
     ret.append(input);
@@ -796,21 +796,29 @@ DualNumberDomain.prototype.setEditValue = function (node, value, options) {
     $(node).children("input[name='second']").val(second);
 };
 DualNumberDomain.prototype.extractValue = function (node) {
-    var first = $( node ).children("input[name='first']").val();
-    var second = $( node ).children("input[name='second']").val();
-    if (first) 
-        if (isValidNumeric(first, 'integer')) 
-            lbs = parseInt(first);
-        else
-            throw("InvalidNumeric");
+    var first = $.trim( $( node ).children("input[name='first']").val() ) || null;
+    var second = $.trim( $( node ).children("input[name='second']").val() ) || null;
+    var value = null;
 
-    if (second) 
-        if (isValidNumeric(second, 'float')) 
-            second = parseFloat(second);
-        else
-            throw("InvalidNumeric");
+    if (first !== null || second !== null) {
+        if (first !== null) {
+            if (isValidNumeric(first, 'integer')) 
+                lbs = parseInt(first);
+            else
+                throw("InvalidNumeric");
+        } else
+            first = 0;
 
-    var value = first * this.size + second;
+        if (second !== null) { 
+            if (isValidNumeric(second, 'float')) 
+                second = parseFloat(second);
+            else
+                throw("InvalidNumeric");
+        } else
+            second = 0;
+
+        value = first * this.size + second;
+    }
 
     return value;
 };
@@ -878,6 +886,12 @@ var domain = {
     annotationFromData: function(def, data) {
         if (data.annotations)
             return data.annotations[def.name] || null;
+        return null;
+    },
+
+    explanationFromData: function(def, data) {
+        if (data.explanations)
+            return data.explanations[def.name] || null;
         return null;
     },
 
@@ -1022,6 +1036,8 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
                                         question.required || false,
                                         question.annotation || false,
                                         domain.annotationFromData(question, data),
+                                        question.explain || false,
+                                        domain.explanationFromData(question, data),
                                         question.customTitles || {},
                                         onFormChange,
                                         templates,
@@ -1218,6 +1234,8 @@ var MetaQuestion = function (name, title, required, domain, templates, slave) {
 };
 
 MetaQuestion.prototype.extractValue = function (node) {
+    if (!node)
+        return null;
     var domainNode = node.find('.rf-question-answers:first').children();
     return this.domain.extractValue(domainNode);
 };
@@ -1248,6 +1266,9 @@ MetaQuestion.prototype.render = function (templates, value, onChange, mode) {
             .find('.rf-question-annotation')
             .css('display', 'none')
             .end()
+            .find('.rf-question-explanation')
+            .css('display', 'none')
+            .end()
             .find('.rf-question-required')
             .css('display', this.required ? '' : 'none')
             .end()
@@ -1271,7 +1292,8 @@ MetaQuestion.prototype.renderEdit = function (templates, value, onChange) {
 // TODO: push all arguments as a dictionary
 var Question = function(name, title, domain, value, disableExpr,
                         validateExpr, required, askAnnotation,
-                        annotation, customTitles, onFormChange, templates, slave, index) {
+                        annotation, askExplanation, explanation,
+                        customTitles, onFormChange, templates, slave, index) {
     MetaQuestion.call(this, name, title, required, domain, templates, slave);
     if (index !== null && index !== undefined)
         this.title = index + '. ' + this.title;
@@ -1279,6 +1301,8 @@ var Question = function(name, title, domain, value, disableExpr,
     this.disableExpr = disableExpr;
     this.validateExpr = validateExpr;
     this.askAnnotation = askAnnotation;
+    this.askExplanation = askExplanation;
+    this.explanation = explanation;
     this.annotation = annotation;
     this.markAsRight();
     this.customTitles = customTitles;
@@ -1288,7 +1312,7 @@ var Question = function(name, title, domain, value, disableExpr,
     this.node = null;
     this.viewNode = null;
     var self = this;
-    this.defaultOnChange = 
+    this.defaultOnChange =
         function () {
             try {
                 var extractedValue =
@@ -1341,10 +1365,60 @@ Question.prototype.renderEdit = function (templates, value, onChange) {
             .val(self.annotation ? self.annotation : '')
             .change(function () {
                 self.annotation = $(this).val() || null;
+                if (onChange)
+                    onChange();
             });
         questionNode
             .find('.rf-question-annotation')
             .append(annotationNode)
+            .css('display', '');
+    }
+    if (this.askExplanation) {
+        var explanationNode = $(templates['explanation']);
+        var hideBtn = explanationNode.find('.rf-explanation-hide');
+        var showBtn = explanationNode.find('.rf-explanation-show');
+        var text = explanationNode.find('.rf-explanation-text');
+
+        var show = function () {
+            hideBtn.css('display', '');
+            showBtn.css('display', 'none');
+            explanationNode.find('.rf-explanation-block').css('display', '');
+        };
+        var hide = function (skipChangeAction) {
+            self.explanation = null;
+            text.val('');
+            hideBtn.css('display', 'none');
+            showBtn.css('display', '');
+            explanationNode.find('.rf-explanation-block').css('display', 'none');
+            if (!skipChangeAction && onChange)
+                onChange();
+        };
+
+        showBtn.click(function () {
+            if ($(this).parents('.rf-disabled').size() == 0)
+                show();
+        });
+
+        hideBtn.click(function () {
+            if ($(this).parents('.rf-disabled').size() == 0)
+                hide();
+        });
+
+        if (self.explanation) {
+            text.val(self.explanation);
+            show();
+        } else
+            hide(true);
+
+        text.change(function () {
+            self.explanation = $(this).val() || null;
+            if (onChange)
+                onChange();
+        });
+
+        questionNode
+            .find('.rf-question-explanation')
+            .append(explanationNode)
             .css('display', '');
     }
     return questionNode;
@@ -1356,6 +1430,14 @@ Question.prototype.getAnnotation = function() {
 
 Question.prototype.setAnnotation = function(annotation) {
     this.annotation = annotation;
+}
+
+Question.prototype.getExplanation = function() {
+    return this.explanation;
+}
+
+Question.prototype.setExplanation = function(explanation) {
+    this.explanation = explanation;
 }
 
 Question.prototype.update = function() {
@@ -1497,6 +1579,7 @@ var defaultTemplates = {
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
             + '<div class="rf-question-annotation"></div>'
+            + '<div class="rf-question-explanation"></div>'
         + '</div>',
     'viewQuestion':
           '<div class="rf-question rf-question-view">'
@@ -1504,6 +1587,16 @@ var defaultTemplates = {
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
             + '<div class="rf-question-annotation"></div>'
+            + '<div class="rf-question-explanation"></div>'
+        + '</div>',
+    'explanation':
+          '<div class="rf-explanation">'
+            + '<div class="rf-explanation-show">I want to explain my answer</div>'
+            + '<div class="rf-explanation-hide">I don\'t want to explain my answer</div>'
+            + '<div class="rf-explanation-block">'
+                + '<div class="rf-explanation-title">Please explain your answer:</div>'
+                + '<textarea class="rf-explanation-text"></textarea>'
+            + '</div>'
         + '</div>',
     'annotation':
           '<div class="rf-annotation">'
@@ -1709,11 +1802,7 @@ $.RexFormsClient = function (o) {
         });
     }
 
-    var annotationDialogTemplate = defaultTemplates['annotationDialog'];
-    // this.annotationDialog = new AnnotationDialog(annotationDialogTemplate);
-
     this.renderPage = function (pageIdx, clear) {
-    
         if (!self.raiseEvent('beforePageRender', pageIdx)) {
             // stop rendering if aborted
             return;
@@ -1781,6 +1870,16 @@ $.RexFormsClient = function (o) {
         return annotations;
     }
 
+    this.collectExplanations = function () {
+        var explanations = {};
+        $.each(this.form.questions, function (_, question) {
+            var explanation = question.getExplanation();
+            if (explanation)
+                explanations[question.name] = explanation;
+        });
+        return explanations;
+    }
+
     this.collectAnswers = function () {
         var answers = {};
         $.each(this.form.questions, function (_, question) {
@@ -1804,6 +1903,7 @@ $.RexFormsClient = function (o) {
             version: null, // TODO
             answers: self.collectAnswers(),
             annotations: self.collectAnnotations(),
+            explanations: self.collectExplanations(),
             finished: self.form.finished
         };
         // var changeStamp = self.changeStamp;

@@ -1822,10 +1822,9 @@ $.RexFormsClient = function (o) {
             self.pageTitleArea.contents().remove();
 
         if (self.mode !== "preview") {
+            self.pageIntroductionArea.contents().remove();
             if (page.introduction)
                 self.pageIntroductionArea.append( renderCreole(page.introduction) );
-            else
-                self.pageIntroductionArea.contents().remove();
         }
 
         self.questionArea.append(

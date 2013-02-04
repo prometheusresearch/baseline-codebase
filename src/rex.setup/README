@@ -1,0 +1,32 @@
+*************************************************
+  REXSETUP - A distutils extension package for RexRunner applications
+*************************************************
+
+
+Distutils extensions
+====================
+
+RR defines a Distutils extensions for distributing static files
+together with Python packages.  To use, for every project with
+static files, add the following lines to ``setup.py``::
+
+    setup(
+        ...
+        setup_requires=['rexsetup'],
+        www_dir='...',
+        www_prefix='...',
+        www_module='...',
+        www_settings='...',
+        ...
+    )
+
+`www_dir`
+    A relative path to the directory with static files;
+`www_prefix`
+    The default URL root; if not set, use ``/project_name``.
+`www_module`
+    Python module or package which registers plugins and extensions.
+`www_settings`
+    A file containing default configuration parameters.
+
+

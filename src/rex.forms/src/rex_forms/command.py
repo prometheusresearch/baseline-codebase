@@ -94,6 +94,12 @@ class SaveState(RoadsCommand):
     def get_user_data(self, req):
         return {}
 
+    def get_packet(self, req):
+        code = req.POST.get('package')
+
+    def get_form(self, req):
+        form = req.POST.get('form')
+
     def render(self, req):
         self.set_handler()
         post = req.POST.get('data')
@@ -101,8 +107,8 @@ class SaveState(RoadsCommand):
             return Response(status='401', body='No POST data provided')
         data = simplejson.loads(post)
         data['user_data'] = self.get_user_data(req)
-        code = req.POST.get('package')
-        form = req.POST.get('form')
+        code = self.get_packet(req)
+        form = self.get_form(req)
         if not code and form:
             return Response(body='Wrong Json')
         _, version = self.handler.get_latest_form(form)

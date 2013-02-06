@@ -1,0 +1,6 @@
+# file where you want to keep default settings for your package
+# or override settings for other packages
+
+# should not be specified here
+#instrument_folder: '/files/roads'
+manual_edit_conditions: True

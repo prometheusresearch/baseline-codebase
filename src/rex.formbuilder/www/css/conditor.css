@@ -1,0 +1,253 @@
+
+.rb_condition_group {
+    margin: 5px;
+    position: relative;
+}
+
+.rb_condition_group_content {
+    border: 1px dashed black;
+}
+
+.rb_condition_item_content {
+    position: relative;
+}
+
+.rb_condition_text {
+    width: 99%;
+    margin-top: 10px;
+}
+
+.rb_condition_group_header:hover .rb_hidable_link {
+    display: inline;
+}
+
+.rb_condition_item_actions,
+.rb_condition_group_actions {
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    overflow: hidden;
+    display: none;
+}
+
+.rb_condition_group:hover .rb_condition_group_actions,
+.rb_condition_item:hover .rb_condition_item_actions {
+    display: block;
+}
+
+.rb_condition_builder_list,
+.rb_conditions_list {
+    margin: 0px;
+    padding-left: 0px;
+    list-style-type: none;
+    min-height: 30px;
+}
+
+.rb_condition_editor {
+    position: relative;
+}
+
+.rb_condition_editor,
+.rb_condition_editor div,
+.rb_condition_editor input,
+.rb_condition_editor select {
+    font-size: 12px;
+    font-family:verdana;
+}
+
+.rb_condition_editor_header {
+    text-align: right;
+    border-bottom: 1px solid #cccccc;
+    padding-bottom: 5px;
+}
+
+.rb_without_manual_editor .rb_condition_editor_header {
+    display: none;
+}
+
+.rb_condition_editor_tab {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.rb_condition_editor_body {
+    position: absolute;
+    top: 30px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    margin: 5px 10px 0px 10px;
+}
+
+.rb_without_manual_editor .rb_condition_editor_body {
+    top: 5px;
+}
+
+.rb_condition_editor_header a {
+    font-size: 13px;
+    color: #599f57;
+    outline: none;
+}
+
+.rb_condition_editor_header a.rb_cond_selected {
+    color: black;
+    text-decoration: none;
+}
+
+.rb_condition_builder_header {
+    text-align: right;
+}
+
+.rb_condition_item {
+    position: relative;
+}
+
+.rb_condition_item_logic_arrow {
+    display: inline-block;
+    border-left: 1px solid #de8318;
+    padding-left: 5px;
+}
+
+.rb_condition_item_logic_variants {
+    position:absolute;
+    overflow: hidden;
+    border-top: 1px solid #ffc888;
+    border-left: 1px solid #ffc888;
+    border-bottom: 1px solid #de8318;
+    border-right: 1px solid #de8318;
+    background-color: #fda134;
+}
+
+.rb_condition_item_logic_variants a {
+    text-decoration: none;
+    display: block;
+    padding: 2px 7px 2px 7px;
+    white-space: nowrap;
+    min-width: 100px;
+}
+
+.rb_condition_item_logic_variants a:hover {
+    background-color: #775834;
+    color: #fda134;
+}
+
+.rb_condition_item_logic_variants a.rb_cond_selected {
+    font-weight: bold;
+}
+
+.rb_condition_item_logic {
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    border: 1px solid black;
+    background-color: #fda134;
+    border-top: 1px solid #ffc888;
+    border-left: 1px solid #ffc888;
+    border-bottom: 1px solid #de8318;
+    border-right: 1px solid #de8318;
+    padding: 2px 5px 2px 5px;
+    overflow: visible;
+}
+
+.rb_condition_item > div > .rb_condition_item_logic {
+    margin: 5px 5px 0px 5px;
+}
+
+.rb_condition_builder_list {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    position: absolute;
+    top: 30px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.rb_condition_item_content {
+    white-space:nowrap;
+
+    border-top: 1px solid #e0e0e0;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #a0a0a0;
+    border-bottom: 1px solid #a0a0a0;
+
+
+    margin: 0px 5px 5px 5px;
+    overflow: hidden;
+    padding: 5px;
+    background-color: #fffddb;
+}
+
+.rb_condition_item_content > * {
+    white-space:normal;
+}
+
+.rb_condition_item_left {
+    float: left;
+    padding-right: 5px;
+}
+
+.rb_condition_item_right {
+    float: left;
+    /* border-left: 1px solid #e0e0e0; */
+    padding-left: 5px;
+}
+
+.rb_logic_wrap {
+    min-width: 30px;
+    display: inline-block;
+}
+
+.rb_condition_group:first-child > div > .rb_condition_item_logic .rb_operation,
+.rb_condition_item:first-child .rb_operation {
+    display: none;
+}
+
+.rb_condition_item_logic_first {
+    display: none;
+}
+
+.rb_condition_part_title {
+    display: inline-block;
+    min-width: 150px;
+    text-align: right;
+}
+
+.rb_not_empty_value input {
+    width: 100px;
+}
+
+.rb_not_empty_value input,
+.rb_not_empty_value select {
+    color: black;
+}
+
+.rb_not_empty_value input[disabled],
+.rb_not_empty_value select[disabled] {
+    color: #A0A0A0;
+}
+
+.rb_cond_covered,
+.rb_cond_covered:hover {
+    background-color: #b8d8f9;
+}
+
+input.rb_wrong {
+    background-color: #fdc6b1;
+}
+
+.rb_condition_item_hidable {
+    display: none;
+    margin-top: 10px;
+    white-space: nowrap;
+}
+

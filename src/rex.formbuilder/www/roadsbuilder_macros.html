@@ -1,0 +1,302 @@
+{% macro roadsbuilder_head(instrument) -%}
+        <meta name="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="" />
+        <meta name="description" content="" />
+        <title>{%- if instrument %} {{ instrument }} - {%- endif %}ROADS Builder</title>
+        <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
+        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/json/jquery.json-2.3.min.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.common'] }}/js/rexl/0.5.1/rexl.js"></script>
+        <link rel="stylesheet" href="{{ MYPREFIX }}/css/builder.css" />
+        <link rel="stylesheet" href="{{ MYPREFIX }}/css/conditor.css" />
+        <script type="text/javascript" src="{{ MYPREFIX }}/js/conditor.js"></script>
+        <script type="text/javascript" src="{{ MYPREFIX }}/js/builder.js" data-prefix="{{ MYPREFIX }}" data-forms-prefix="{{ PREFIX['rex.forms'] }}"></script>
+{% endmacro -%}
+
+{% macro roadsbuilder(instrument, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) -%}
+        <script type="text/javascript">
+            $.RoadsBuilder.manualEditConditions = {%- if manual_edit_conditions %} true {%- else %} false {%- endif %};
+            $.RoadsBuilder.externalParamTypes = {%- if ext_param_types %}{{ ext_param_types }}{%- else %}null{%- endif %};
+            $.RoadsBuilder.instrumentName = {% if instrument %}'{{ instrument }}'{% else %} null {% endif %};
+            {% if url_start_test %}
+                $.RoadsBuilder.urlStartTest = '{{ url_start_test }}';
+                $.RoadsBuilder.urlSaveForm = '{{ url_save_form }}';
+            {% endif %}
+        </script>
+        <div class="rb_left_part">
+            <div id="rb_instrument_name">{{ instrument|e }}</div>
+            <div id="rb_instrument_title_wrap">
+                <div id="rb_instrument_title_view">
+                    <span id="rb_instrument_title" class="rb_instrument_title_not_set"></span>
+                    <button id="rb_instrument_title_button" class="rb_small_button">Change Title</button>
+                </div>
+                <input type="text" id="rb_instrument_title_input" style="display: none;" />
+            </div>
+            <div class="rb_tools_button_wrapper">
+                <button class="rb_tools_button" onclick="$.RoadsBuilder.saveInstrument()">Save</button>
+                <button class="rb_tools_button" onclick="$.RoadsBuilder.testInstrument()">Test</button>
+                <button class="rb_tools_button" onclick="$.RoadsBuilder.showJSONDialog.open()">JSON</button>
+            </div>
+            <div class="rb_params_wrapper">
+                <button class="rb_small_button rb_right_aligned" onclick="$.RoadsBuilder.addParameter(null);">Add Parameter</button>
+                <span class="rb_small_title">Input parameters:</span>
+                <div class="rb_params_list">
+                </div>
+            </div>
+            <div class="rb_pages_list_wrapper">
+                <div class="rb_pages_list_header">
+                    <button class="rb_small_button rb_right_aligned" id="make_group_btn" onclick="$.RoadsBuilder.makePageGroupFromSelection();" disabled="1">Make Group</button>
+                    <button class="rb_small_button rb_right_aligned" id="add_new_page_btn" onclick="$.RoadsBuilder.addNewPage();">Add New Page</button>
+                    <span class="rb_small_title">Pages:</span>
+                </div>
+                <div class="rb_pages_scrollable">
+                    <ul class="rb_pages_list">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="rb_main_part">
+            <div class="rb_main_part_content" style="display: none;">
+                <div class="rb_main_part_header">
+                    <div class="rb_page_title_wrap">
+                        <span class="rb_page_title">Page Title</span> <button onclick="$.RoadsBuilder.editPageTitle();">Change</button>
+                    </div>
+                    <input type="text" class="rb_page_title_input" style="display: none;" />
+                    <div style="margin: 10px 0px 10px 0px;">
+                        <span id="page_skip_when"></span> <button class="rb_small_button" onclick="$.RoadsBuilder.editPageSkipConditions();">Change</button>
+                    </div>
+                </div>
+                <div class="rb_question_list_wrapper">
+                    <div class="rb_question_list_header">
+                        <span class="rb_small_title">Questions:</span>
+                        <button class="rb_add_question_button" onclick="$.RoadsBuilder.addNewQuestion();">
+                            Add Question
+                        </button>
+                    </div>
+                    <ul class="rb_question_list">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="rb_stuff">
+
+            <div class="rb_progress_dialog">
+                <p class="rb_progress_text">Constructing in progress</p>
+                <p><img src="{{ PREFIX['rex.forms'] }}/img/ajax-loader.gif" /></p>
+            </div>
+
+            <li id="tpl_question" class="rb_question">
+                <div>
+                    <div class="rb_question_actions">
+                        <a href="javascript:void(0);" onclick="$.RoadsBuilder.removeQuestion(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                    </div>
+                    <div class="q_caption">
+                        <div class="rb_question_title">
+                            Question Title
+                        </div>
+                        <div class="rb_question_name">
+                            question_name
+                        </div>
+                        <div class="rb_question_descr">
+                            question_descr
+                        </div>
+                    </div>
+                    <div class="q_editor">
+                    </div>
+                </div>
+            </li>
+
+            <div id="before_test_dialog">
+                <h1>Please, set values for parameters to start a test:</h1>
+                <table id="before_test_parameters">
+                </table>
+            </div>
+
+	        <div id="open_dialog">
+	            Choose instrument to load:
+	            <select id="open_dialog_list" style="width: 100%; margin-top: 10px;">
+	            </select>
+	        </div>
+
+	        <div id="rb_show_json_dialog">
+	            <div id="rb_json_text_wrap">
+	                <textarea id="rb_json_text" wrap="off" readonly="readonly"></textarea>
+	            </div>
+	        </div>
+
+            <div class="rb_edit_page_dialog">
+                <div>
+                    <h3>Title:</h3>
+                    <input type="text" class="rb_edit_page_name" />
+                </div>
+            </div>
+
+            <div class="rb_edit_param_dialog">
+                <div>
+                    Set identifier name:<br><input type="text" class="rb_edit_param_name" />
+                </div>
+                <div style="margin-top: 20px;">
+                    Type:<br>
+                    <select class="rb_select_param_type" >
+                        <option value="NUMBER">Number</option>
+                        <option value="STRING">String</option>
+                        <option value="DATE">Date</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="rb_edit_group_dialog">
+                Set group name:<br><input type="text" class="rb_edit_group_name" />
+            </div>
+
+            <div id="question_dialog">
+                <div id="question_dialog_text">
+                    Wazzzzzzzzzzzzzzup?
+                </div>
+            </div>
+
+            <div id="tpl_question_editor" class="rb_question_editor">
+                <table class="rb_question_table" cellspacing="0">
+                    <tr>
+                        <td class="rb_question_table_left" valign="top">
+                            <div class="rb_question_table_left_inner">
+                                <h3>Title</h3>
+                                <textarea type="text" name="question-title" class="rb_question_input" /></textarea>
+                                <table class="question-selects">
+                                    <h3 class="question-type-header rb_with_top_margin">Question type</h3>
+                                    <select name="question-type"></select>
+                                </table>
+                                <!--
+                                <div class="constraints">
+                                    <h3 class="rb_with_top_margin">Allowed Range</h3>
+                                    From: <input type="text" name="constraint-from" class="rb_constraint_input">
+                                    To: <input type="text" name="constraint-to" class="rb_constraint_input">
+                                </div>
+                                -->
+                                <div class="rb_choices" style="display: none;">
+                                    <div class="rb_choices_header" style="display:none;">
+                                        <h3>Choice</h3>
+                                        <div class="rb_choices_item_right">
+                                            <h3>Identifier</h3>
+                                        </div>
+                                    </div>
+                                    <div class="choices-list">
+                                        <span class="choice-hint">Please add the first choice <!-- or select pre-defined choices: --></span>
+                                        <ul class="choices-list-items">
+                                        </ul>
+                                    </div>
+                                    <div class="rb-predefined-choices-div">
+                                        <select name="predefined-choice-list">
+                                            <option value=""> - Select pre-defined choices - </option>
+                                        </select>
+                                    </div>
+                                    <div class="btn-add-div">
+                                        <button class="btn-add" onclick="$.RoadsBuilder.addChoice(this);return false;">Add choice</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="rb_question_table_right" valign="top">
+                            <div class="rb_question_table_right_div">
+                                <h3 class="unique-name">Unique name</h3>
+                                <input type="text" name="question-name" class="rb_question_input_short slave" maxlength="40" /><br>
+                                <input type="checkbox" name="question-required" /> Required
+                                <h3>Constraints</h3>
+                                <a class="rb_constraint_descr" href="javascript:void(0);" onclick="$.RoadsBuilder.changeConstraints(this);">No constraints</a>
+                                <button onclick="$.RoadsBuilder.changeConstraints(this);">Change</button>
+                                <div class="rb-disable-logic">
+                                <h3>Disable conditions</h3>
+                                <a class="rb_disable_logic_descr" href="javascript:void(0);" onclick="$.RoadsBuilder.changeDisableLogic(this);">Never disabled</a> 
+                                <button onclick="$.RoadsBuilder.changeDisableLogic(this);">Change</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="rb_question_table_long_row rb_question_table_subquestions" style="display: none;">
+                            <div class="rb_subquestions_wrap">
+                                <div class="rb_subquestion_actions">
+                                    <button class="rb_add_question_to_group rb_small_button">Add Question to Group</button>
+                                </div>
+                                <h3>Repeating Group of Questions:</h3>
+                                <ul class="rb_subquestion_list">
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="rb_question_table_long_row rb_question_table_bottom">
+                            <!-- <button class="btn-save" onclick="$.RoadsBuilder.stopEvent(arguments[0]);$.RoadsBuilder.saveQuestion(this);">Close</button> -->
+                            <button onclick="$.RoadsBuilder.stopEvent(arguments[0]);$.RoadsBuilder.cancelQuestionEdit(this);">Cancel</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <li id="tpl_choices_item" class="rb_choices_item">
+                <div>
+                    <div class="restrict-drag">
+                        <input type="text" name="answer-title" class="rb_choice_input_title" />
+                    </div>
+                    <div class="rb_choices_item_right">
+                        <div class="rb_choices_item_actions">
+                            <a href="javascript:void(0);" onclick="$.RoadsBuilder.removeChoicesItem(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        </div>
+                        <div class="restrict-drag">
+                            <input type="text" name="answer-code" class="rb_choice_input rb_with_margin slave" maxlength="20" />
+                            <!--
+                            <div>
+                                Score: <input type="text" name="answer-score" class="rb_choice_input_small" />
+                            </div>
+                            -->
+                        </div>
+                        <div class="btn-remove-container">
+                            <a href="javascript:void(0)" onclick="removeChoice(this);" class="remove-choice"><span class="btn-remove"></span></a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <div id="tpl_parameter" class="rb_parameter">
+                <span class="param_name"></span> <span class="rb_param_type"></span>
+                <div class="rb_param_actions">
+                    <a href="javascript:void(0)" onclick="$.RoadsBuilder.editParameter(this);">edit</a>&nbsp;&nbsp;
+                    <a href="javascript:void(0);" onclick="$.RoadsBuilder.removeParameter(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                </div>
+            </div>
+
+            <li id="tpl_page" class="rb_page">
+                <div>
+                    <div>
+                        <div class="rb_page_actions">
+                            <a href="javascript:void(0);" onclick="$.RoadsBuilder.removePage(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        </div>
+                        <div class="rb_div_page_title"></div>
+                    </div>
+                    <div style="overflow: hidden; position: relative;">
+                        <div class="step_list">
+                        </div>
+                        <button style="float: right;" onclick="$.RoadsBuilder.addNewPage(this);$.RoadsBuilder.stopEvent(arguments[0]);" class="rb_small_button">Add next page</button>
+                    </div>
+                </div>
+            </li>
+            
+            <li id="tpl_page_group" class="rb_page_group">
+                <div class="rb_page_group_header">
+                    <a href="javascript:void(0);" onclick="$.RoadsBuilder.editGroup(this);" class="rb_page_group_name"></a>
+                    <a class="rb_hidable_link" href="javascript:void(0);" onclick="$.RoadsBuilder.editGroup(this);">change</a>
+                    <div>
+                        <a class="rb_page_group_skip" href="javascript:void(0);" onclick="$.RoadsBuilder.editGroupSkipConditions(this);"></a>
+                        <a class="rb_hidable_link" href="javascript:void(0);" onclick="$.RoadsBuilder.editGroupSkipConditions(this);">change</a>
+                    </div>
+                    <div class="rb_page_group_actions">
+                      <!-- <a href="javascript:void(0)" onclick="$.RoadsBuilder.editGroup(this);">edit</a>&nbsp;&nbsp;--><a href="javascript:void(0);" onclick="$.RoadsBuilder.removeGroup(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                    </div>
+                </div>
+                <ul class="rb_class_pages_list">
+                </ul>
+            </li>
+
+        </div>
+{% endmacro -%}

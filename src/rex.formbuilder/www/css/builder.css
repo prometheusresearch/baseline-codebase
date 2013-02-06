@@ -1,0 +1,722 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: #465663;
+}
+
+body, p, div, td, input {
+    font-family:verdana;
+    font-size:12px;
+}
+
+.rb_page {
+    min-height: 30px;
+    line-height: 120%;
+    margin: 5px;
+    position: relative;
+    border-top: 1px solid #e0e0e0;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #a0a0a0;
+    border-bottom: 1px solid #a0a0a0;
+    padding: 0px 5px 5px 5px;
+    background-color: #fffddb;
+}
+
+.rb_page_group {
+    margin: 5px;
+    padding: 5px 5px 5px 5px;
+    position: relative;
+}
+
+.rb_hidable_link {
+    display: none;
+    font-size: 11px;
+}
+
+.rb_page_group_header:hover .rb_hidable_link {
+    display: inline;
+}
+
+.rb_parameter:hover .rb_param_actions {
+    display: block;
+}
+
+.rb_parameter {
+    min-height: 15px;
+    margin: 5px;
+    padding: 2px 5px 2px 5px;
+    position: relative;
+    border-top: 1px solid #e0e0e0;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #a0a0a0;
+    border-bottom: 1px solid #a0a0a0;
+    background-color: #f0f0f0;
+    font-size: 11px;
+}
+
+.rb_choices_item_actions,
+.rb_question_actions,
+.rb_page_actions,
+.rb_page_group_actions {
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    overflow: hidden;
+    display: none;
+}
+
+.rb_param_actions {
+    position: absolute;
+    top: 1px;
+    right: 3px;
+    overflow: hidden;
+    display: none;
+}
+
+.rb_page_group_header {
+    font-size: 11px;
+    padding: 0px 5px 0px 5px;
+}
+
+.rb_page_group_header > * {
+    font-size: 11px;
+}
+
+.rb_choices_item:hover .rb_choices_item_actions,
+.rb_question:hover .rb_question_actions,
+.rb_page:hover .rb_page_actions,
+.rb_page_group:hover .rb_page_group_actions {
+    display: block;
+}
+
+.q_caption {
+    margin: 10px 10px 10px 10px;
+}
+
+.rb_question {
+    line-height: 120%;
+    margin: 5px;
+    border-top: 1px solid #e0e0e0;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #a0a0a0;
+    border-bottom: 1px solid #a0a0a0;
+    position: relative;
+    background-color: white;
+    /* padding: 5px 10px 10px 10px; */
+}
+
+.rb_question:hover {
+    background-color: #f7f7f7;
+}
+
+.rb_page:hover {
+    background-color: #ffebc9;
+}
+
+.rb_current_page,
+.rb_current_page:hover {
+    background-color: #b8d8f9;
+    /* background-color: #f8d8a5; */
+}
+
+.rb_disable_logic_descr,
+.rb_page_group_skip,
+.rb_constraint_descr {
+    text-decoration: none;
+    color: black;
+}
+
+.rb_mark_conn_top, .rb_mark_conn_bottom {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
+.rb_page_group_name {
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+}
+
+.rb_has_prev .rb_mark_conn_top {
+    background-image: url('{{ PREFIX['rex.forms'] }}/img/conn_top.png');
+    background-repeat: no-repeat;
+    background-position: top right;
+}
+
+.rb_has_next .rb_mark_conn_bottom {
+    background-image: url('{{ PREFIX['rex.forms'] }}/img/conn_bottom.png');
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}
+
+.rb_left_part {
+    background-color: white;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 400px;
+    bottom: 0px;
+}
+
+.rb_main_part {
+    background-color: #f0f0f0;
+    position: absolute;
+    top: 0px;
+    left: 400px;
+    right: 0px;
+    bottom: 0px;
+    padding: 10px;
+}
+
+.rb_main_part_content {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+
+.rb_main_part_header {
+    margin: 10px 10px 10px 15px;
+}
+
+.rb_title {
+    margin: 15px 20px 5px 25px;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.rb_question_list_wrapper {
+    position: absolute;
+    top: 75px;
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+}
+
+.rb_question_list {
+    position: absolute;
+    top: 30px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-left: 0px;
+    list-style-type: none;
+}
+
+.rb_question_list_header {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.rb_params_wrapper {
+    padding-left: 15px;
+    padding-right: 10px;
+    border-top: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.rb_pages_list_wrapper {
+    position: absolute;
+    top: 210px;
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+}
+
+.rb_pages_list_header {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.rb_pages_scrollable {
+    position: absolute;
+    top: 30px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.rb_pages_list,
+.rb_class_pages_list {
+    margin: 0px;
+    padding-left: 0px;
+    list-style-type: none;
+    min-height: 30px;
+}
+
+.rb_small_title {
+    font-size: 100%;
+}
+
+.rb_page_title_wrap {
+    font-size: 20px;
+    line-height: 25px;
+}
+
+.rb_page_title_wrap a {
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.rb_page_title_wrap > * {
+    vertical-align: middle;
+}
+
+.rb_page_title {
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 25px;
+    min-height: 30px;
+    display: inline-block;
+    border: 1px solid #f0f0f0;
+}
+
+#rb_instrument_title_wrap {
+    white-space: nowrap;
+    margin-left: 15px;
+    margin-right: 10px;
+    height: 30px;
+}
+
+#rb_instrument_title {
+    font-size: 14px;
+    line-height: 25px;
+    margin-right: 5px;
+    min-height: 30px;
+    cursor: pointer;
+}
+
+.rb_instrument_title_not_set,
+.rb_page_title_not_set,
+.rb_page_skip_not_set,
+.rb_group_skip_not_set,
+.rb_group_title_not_set {
+    color: #c0c0c0;
+}
+
+#rb_instrument_title_input {
+    border: 1px solid #ababab;
+    line-height: 100%;
+    font-size: 14px;
+    width: 99%;
+    background-color: #fcfcfc;
+}
+
+.rb_page_title_input {
+    border: 1px solid #ababab;
+    line-height: 100%;
+    font-size: 20px;
+    width: 99%;
+    height: 30px;
+}
+
+.rb_div_page_title {
+    margin-top: 5px;
+    margin-left: 5px;
+    font-size: 85%;
+    color: #808080;
+}
+
+.rb_div_page_title strong {
+    color: black;
+    font-weight: normal;
+}
+
+.rb_question_title {
+    font-weight: bold;
+    font-size: 100%;
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+.rb_question_name {
+    margin-left: 5px;
+    margin-top: 5px;
+    font-size: 80%;
+    color: #808080;
+}
+
+.rb_question_descr {
+    margin-left: 10px;
+    margin-top: 5px;
+    font-size: 100%;
+    color: #505050;
+}
+
+.rb_tools_button_wrapper {
+    margin: 5px 5px 5px 10px;
+}
+
+#rb_instrument_name {
+    height: 25px;
+    line-height: 25px;
+    overflow: hidden;
+    padding: 5px 5px 0px 15px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.rb_tools_button {
+    width: 60px;
+}
+
+.rb_stuff {
+    display: none;
+}
+
+.rb_question_list > .rb_opened,
+.rb_question_list > .rb_opened:hover {
+    background-color: #ffe79d;
+}
+
+.rb_subquestion_list > .rb_opened,
+.rb_subquestion_list > .rb_opened:hover {
+    background-color: #daefff;
+}
+
+.rb_question_table {
+    width: 100%;
+}
+
+.rb_question_table_left {
+    width: 60%;
+    padding: 5px 10px 10px 10px;
+}
+
+.rb_question_table_left_inner {
+    margin-right: 10px;
+}
+
+.rb_question_table_left .rb_question_input {
+    width: 95%;
+}
+
+textarea.rb_question_input {
+    height: 80px;
+}
+
+.rb_question_table_subquestions {
+    background-color: #fff2c9;
+}
+
+.rb_subquestions_wrap {
+    position: relative;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 5px;
+}
+
+.rb_subquestion_actions {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    overflow: hidden;
+}
+
+.rb_subquestion_actions button {
+    color: black;
+}
+
+.rb_subquestion_list {
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    border-left: 1px solid #a0a0a0;
+    border-top: 1px solid #a0a0a0;
+    min-height: 100px;
+    margin-bottom: 5px;
+    padding-left: 0px;
+    list-style-type: none;
+}
+
+.rb_question_table_long_row {
+    border-top: 1px solid #d2ae42;
+}
+
+.rb_question_table_bottom {
+    text-align: right;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 5px;
+}
+
+.rb_question_table_right_div .rb_hint {
+    width: 200px;
+}
+
+.rb_hint {
+    font-size: 11px;
+}
+
+.rb_red_hint {
+    color: red;
+}
+
+div.rb_choices {
+    position:relative;
+    background-color: #fafafa;
+    border: 1px solid #d0d0d0;
+    padding: 5px;
+    overflow: hidden;
+}
+
+.rb_choice_input {
+    width: 120px;
+}
+
+.rb_choice_input_title {
+    width: 60%;
+}
+
+.rb_choice_input_small {
+    width: 30px;
+}
+
+div.rb_choices_header, 
+li.rb_choices_item {
+    position:relative;
+}
+
+div.rb_choices_header {
+    padding-top: 3px;
+    height: 35px;
+}
+
+li.rb_choices_item,
+div.rb_choices_item_right {
+    padding: 3px;
+}
+
+li.rb_choices_item {
+    border: 1px solid #d0d0d0;
+    background-color: #dde8fd;
+    margin: 3px;
+}
+
+div.rb_choices_item_right {
+    position:absolute;
+    padding-left: 10px;
+    top: 0px;
+    left: 60%;
+    bottom: 0px;
+    right: 0px;
+    overflow: hidden;
+}
+
+input.rb_with_margin {
+    margin-right: 10px;
+}
+
+.rb_question_input {
+    resize: none;
+}
+
+.rb_question_input_short {
+    width: 90%;
+}
+
+.rb_conn_label {
+    color: green;
+}
+
+.rb_constraint_input {
+    width: 30px;
+}
+
+.rb_with_right_margin {
+    margin-right: 10px;
+}
+
+.rb_question_editor h3 {
+    margin-top: 3px;
+    margin-bottom: 5px;
+    font-size: 100%;
+}
+
+.rb_question_editor h3.rb_with_top_margin {
+    margin-top: 5px;
+}
+
+.rb_choices {
+    margin-top: 5px;
+}
+
+.rb_progress_dialog {
+    text-align: center;
+}
+
+.rb_progress_text {
+    text-align: left;
+}
+
+.rb_progress_dialog p {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.rb_progress_dialog .ui-dialog-titlebar { 
+  display:none; 
+}
+
+.rb_add_question_button {
+    float: right;
+}
+
+.rb_step {
+    font-size: 80%;
+    border: 1px dotted #b0c19e;
+    background-color: #d0e9fb;
+    padding: 2px;
+    margin: 2px;
+}
+
+.rb_step_page_link {
+    text-decoration: none;
+    color: black;
+    outline: none;
+}
+
+.rb_stop_text_selection {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.rb_page_group {
+    border: 1px dashed black;
+}
+
+.rb_right_aligned {
+    float: right;
+}
+
+.rb_small_button {
+    font-size: 90%;
+}
+
+.rb_edit_group_name {
+    width: 99%;
+    margin-top: 10px;
+}
+
+.rb_select_param_type,
+.rb_edit_param_name,
+.rb_edit_page_name {
+    width: 99%;
+}
+
+.rb_select_param_type,
+.rb_edit_param_name {
+    margin-top: 5px;
+}
+
+.rb_edit_param_dialog,
+.rb_edit_page_dialog,
+.rb_edit_group_dialog {
+    overflow: hidden;
+}
+
+.rb_edit_page_dialog h3 {
+    margin: 5px 0px 3px 0px;
+    font-size: 100%;
+}
+
+.rb_ac_item {
+    font-size: 10px;
+}
+
+.ui-autocomplete {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+input.rb_identifier_input {
+    width: 250px;
+}
+
+.rb_params_list {
+    height: 70px;
+    clear: both;
+    margin-top: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.rb_param_type {
+    color: #909090;
+}
+
+.rb_select_answer_is {
+    color: black;
+}
+
+.rb_covered,
+.rb_covered:hover {
+    background-color: #b8d8f9;
+}
+
+#rb_json_text_wrap {
+    position: absolute;
+    top: 10px;
+    bottom: 20px;
+    left: 10px;
+    right: 10px;
+    overflow: visible;
+}
+
+#rb_json_text {
+    position: absolute;
+    border: 1px dotted #a0a0a0;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    font-family: monospace;
+}
+
+#before_test_parameters {
+    width: 100%;
+}
+
+#before_test_parameters input,
+#before_test_parameters select {
+    width: 100%;
+}
+
+#before_test_dialog h1 {
+    font-size: 14px;
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 10px;
+}
+
+.rb_subquestion_list .rb-disable-logic {
+    display: none;
+}
+
+.rb-predefined-choices-div {
+    float: right;
+}
+
+.choices-list-items {
+    padding: 0px;
+    list-style-type: none;
+}

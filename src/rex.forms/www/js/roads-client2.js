@@ -606,11 +606,14 @@ EnumDomain.prototype.renderEdit = function (templates, value, onChange, customTi
         $.each(this.variants, function (_, variant) {
             var li = $('<li>');
             var label = $('<label>');
+            var span = $('<span>');
+
+            label.append(span);
 
             if (variant.title)
-                label.append( renderCreole(variant.title) );
+                span.append( renderCreole(variant.title) );
             else 
-                label.text(variant.code);
+                span.text(variant.code);
 
             li.append(label);
 

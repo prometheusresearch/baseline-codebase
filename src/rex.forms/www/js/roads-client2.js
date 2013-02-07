@@ -1922,6 +1922,9 @@ $.RexFormsClient = function (o) {
                     if (callback)
                         callback();
                 },
+                error: function() {
+                    alert('Error saving your answers!');
+                },
                 async: sync ? false : true,
                 cache: false,
                 data: 'data=' + encodeURIComponent(collectedData)

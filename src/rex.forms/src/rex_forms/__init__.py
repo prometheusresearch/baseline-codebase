@@ -8,6 +8,7 @@ from .command import *
 
 import os
 import re
+import time
 
 class FolderVal(StrVal):
 
@@ -31,32 +32,6 @@ class Folder(Parameter):
     name = 'form_folder'
     validator = FolderVal(is_nullable=False)
 
-@register_parameter
-class DefaultBuilder(Parameter):
-    """
-    Boolean parameter that specifies if default builder, that requires no
-    auth is available. Defaults to False.
-
-    Example:
-      default_builder: True
-    """
-    name = 'default_builder'
-    validator = BoolVal(is_nullable=False)
-    default = False
-
-@register_parameter
-class ManualEditConditions(Parameter):
-    """
-    Boolean parameter that specifies if it is allowed to manually edit 
-    conditions in Roads builder. By default, user is allowed only to use
-    conditions wizard.
-
-    Example:
-      manual_edit_conditions: True
-    """
-    name = 'manual_edit_conditions'
-    validator = BoolVal(is_nullable=False)
-    default = False
 
 @register_parameter
 class EnvironUserKey(Parameter):

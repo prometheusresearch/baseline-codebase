@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(name='rex.forms',
       version='0.1.0',
       description="Your description here",
-      setup_requires=['rexrunner'],
+      setup_requires=['rexsetup'],
       # Uncomment next 2 lines if you are adding any python code
       packages=find_packages('src'),
       package_dir={'': 'src'},
@@ -31,9 +31,9 @@ setup(name='rex.forms',
 # or 'python setup.py install' in deployment mode.
 
       # Dependency information
-      install_requires = [
+      install_requires=['rexrunner', 
           'HTSQL>=2.3.3',
-          'REX.COMMON>=0.1.0',
-          'REX.EXT>=0.1.0',
+          'rex.common>=0.1.0',
+          'rex.ext>=0.1.0',
           ],
 )

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rexsetup',
-    version='0.1.0',
+    version = "0.1.0",
     description="Installation package for the RexRunner platform",
     long_description=open('README', 'r').read(),
     packages=find_packages('src'),

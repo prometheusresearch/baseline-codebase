@@ -1,32 +1,41 @@
-*************************************************
-  REXSETUP - A distutils extension package for RexRunner applications
-*************************************************
+********************************************************
+  REXSETUP -- Distutils extension for the Rex platform
+********************************************************
 
 
-Distutils extensions
-====================
-
-RR defines a Distutils extensions for distributing static files
-together with Python packages.  To use, for every project with
-static files, add the following lines to ``setup.py``::
+``rexsetup`` is a Distutils extension for distributing static files
+and providing additional metadata for Rex applications.  To use,
+add the following lines to ``setup.py``::
 
     setup(
         ...
         setup_requires=['rexsetup'],
-        www_dir='...',
-        www_prefix='...',
-        www_module='...',
-        www_settings='...',
+        rex_data=[...],
+        rex_prefix='...',
+        rex_load='...',
         ...
     )
 
-`www_dir`
-    A relative path to the directory with static files;
-`www_prefix`
-    The default URL root; if not set, use ``/project_name``.
-`www_module`
-    Python module or package which registers plugins and extensions.
-`www_settings`
-    A file containing default configuration parameters.
+``rex_data``
+    A list of files and directories which contain static data
+    and configuration to distribute and install with the package.
+``rex_prefix``
+    The default URL root under which the package is served by
+    the HTTP server; when not set, ``/<package>`` is used.
+``rex_load``
+    The name of the Python module to load when the application is
+    initialized.  The module should register package-specific plugins
+    and extensions.
+
+When the package is installed, static files are copyed to
+``<base>/share/rex/<package>``.  Additional metadata is stored in
+``*.egg-info`` in the following files:
+
+``rex_data.txt``
+    The directory where static files are stored.
+``rex_prefix.txt``
+    The value of ``rex_prefix`` parameter.
+``rex_load.txt``
+    The value of ``rex_load`` parameter.
 
 

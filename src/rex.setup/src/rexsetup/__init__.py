@@ -1,99 +1,81 @@
 #
-# Copyright (c) 2012, Prometheus Research, LLC
+# Copyright (c) 2012-2013, Prometheus Research, LLC
 #
 
 
-# Distutils extensions for distributing static files.
+# Distutils extension for distributing static files and providing
+# additional metadata.
 
 
 import sys
 import re
 import os, os.path
-import json
+import shutil
 import distutils.log, distutils.errors, distutils.dir_util
 import setuptools, setuptools.command.install, setuptools.command.develop, \
         setuptools.archive_util
 import pkg_resources
 
 
-def check_dir(dist, attr, value):
-    # Verify that the value is a valid directory.
-    try:
-        assert isinstance(value, str) and os.path.isdir(value)
-    except AssertionError:
-        raise distutils.errors.DistutilsSetupError(
-                "%s %r is not found or not a directory"
-                % (attr, value))
-
-
-def check_file(dist, attr, value):
-    try:
-        assert isinstance(value, str) and os.path.isfile(value)
-    except AssertionError:
-        raise distutils.errors.DistutilsSetupError(
-                "%s %r is not found or not a file"
-                % (attr, value))
+def check_data(dist, attr, value):
+    # Verify that the value is a list of files and directories.
+    if not isinstance(value, (list, tuple)):
+        raise distutils.errors.DistutilsSetupError("%s is not a list" % attr)
+    for item in value:
+        if not os.path.exists(item):
+            raise distutils.errors.DistutilsSetupError(
+                    "%s %r does not exist" % (attr, value))
 
 
 def check_prefix(dist, attr, value):
-    # Verify that the value has the form: `/prefix`.
-    try:
-        assert isinstance(value, str) and \
-                re.match(r'^/(?:[0-9A-Za-z._~@-]+/?)?$', value)
-    except AssertionError:
+    # Verify that the value has the form: `/<prefix>`.
+    if not isinstance(value, str) and \
+            re.match(r'^/(?:[0-9A-Za-z._~@-]+/?)?$', value):
         raise distutils.errors.DistutilsSetupError(
-                "%s %r is not a valid www prefix"
-                " (expected `/prefix`)" % (attr, value))
+                "%s %r is not a valid URL root"
+                " (expected `/<prefix>`)" % (attr, value))
 
 
-def check_module(dist, attr, value):
+def check_load(dist, attr, value):
     # Verify that the value is a valid module name.
-    try:
-        assert isinstance(value, str) and \
-                re.match(r'^[A-Za-z_][0-9A-Za-z_]*'
-                         r'(?:\.[A-Za-z_][0-9A-Za-z_]*)*$', value)
-    except AssertionError:
+    if not isinstance(value, str) and \
+            re.match(r'^[A-Za-z_][0-9A-Za-z_]*'
+                     r'(?:\.[A-Za-z_][0-9A-Za-z_]*)*$', value):
         raise distutils.errors.DistutilsSetupError(
-                "%s %r is not a valid www prefix"
-                " (expected `/prefix`)" % (attr, value))
+                "%s %r is not a valid module name" % (attr, value))
 
 
-def get_prefix(dist):
-    # Generate a www prefix from the name of a Python distribution.
-    prefix = dist.www_prefix
+def write_data_txt(cmd, basename, filename):
+    # Write the base directory for static files to `*.egg-info/rex_data.txt`.
+    install_cmd = cmd.get_finalized_command("install")
+    directory = os.path.join(install_cmd.install_data, 'share/rex')
+    if not cmd.distribution.rex_data:
+        directory = None
+    cmd.write_or_delete_file("rex_data", filename, directory)
+
+
+def write_prefix_txt(cmd, basename, filename):
+    # Write `rex_prefix` parameter to `*.egg-info/rex_prefix.txt`.
+    prefix = cmd.distribution.rex_prefix
     if prefix is None:
-        prefix = dist.get_name().lower()
+        # If not set, autogenerate from the package name.
+        prefix = cmd.distribution.get_name().lower()
         prefix = re.sub(r'[^0-9A-Za-z._-]', '-', prefix)
         prefix = '/'+prefix
-    return prefix
+    cmd.write_or_delete_file("rex_prefix", filename, prefix)
 
 
-def write_www_txt(cmd, basename, filename):
-    # Write a configuration to `*.egg-info/www.txt`.
-    value = None
-    if (cmd.distribution.www_dir or
-            cmd.distribution.www_module):
-        install_cmd = cmd.get_finalized_command("install")
-        root = os.path.join(install_cmd.install_data, 'share/rexrunner')
-        if not cmd.distribution.www_dir:
-            root = None
-        prefix = get_prefix(cmd.distribution)
-        module = cmd.distribution.www_module
-        settings = None
-        if cmd.distribution.www_settings is not None:
-            settings = open(cmd.distribution.www_settings, 'r').read()
-        value = json.dumps({'root': root,
-                            'prefix': prefix,
-                            'module': module,
-                            'settings': settings})
-    cmd.write_or_delete_file("www_dir", filename, value)
+def write_load_txt(cmd, basename, filename):
+    # Write `rex_load` parameter to `*.egg-info/rex_load.txt`.
+    module = cmd.distribution.rex_load
+    cmd.write_or_delete_file("rex_load", filename, module)
 
 
-class install_www(setuptools.Command):
-    # Copy static files from `www_dir` directory to
-    #   `$PREFIX/share/rexrunner/$NAME/`.
+class install_rex(setuptools.Command):
+    # Copy static files from `rex_data` list to
+    #   `$PREFIX/share/rex/$NAME/`.
 
-    description = "install www files"
+    description = "install static files"
 
     user_options = [('install-dir=', 'd',
                      "directory where to install the files")]
@@ -101,8 +83,8 @@ class install_www(setuptools.Command):
     def initialize_options(self):
         # The prefix for data files (typically, coincides with $PREFIX).
         self.install_dir = None
-        # The `www_dir` parameter of `setup()`.
-        self.www_dir = self.distribution.www_dir
+        # The `rex_data` parameter from `setup()`.
+        self.rex_data = self.distribution.rex_data
         # List of created files.
         self.outfiles = []
 
@@ -112,13 +94,13 @@ class install_www(setuptools.Command):
         self.set_undefined_options('install', ('install_data', 'install_dir'))
 
     def run(self):
-        # Skip if `www_dir` was not set in `setup.py`.
-        if not self.www_dir:
+        # Skip if `rex_data` is not set in `setup.py`.
+        if not self.rex_data:
             return
         # Get `egg_info` command (to get EGG name of the distribution).
         info_cmd = self.get_finalized_command('egg_info')
-        # `$PREFIX/share/rexrunner`.
-        target = os.path.join(self.install_dir, 'share/rexrunner')
+        # `$PREFIX/share/rex`.
+        target_base = os.path.join(self.install_dir, 'share/rex')
         # Check if the distribution is installed as an EGG; that is,
         # installed into a dedicated `*.egg` directory.  In this case,
         # create a dedicated subdirectory for static files as well.
@@ -126,26 +108,27 @@ class install_www(setuptools.Command):
         if caller.f_code.co_name == 'do_egg_install':
             basename = pkg_resources.Distribution(None, None,
                     info_cmd.egg_name, info_cmd.egg_version).egg_name()
-            target = os.path.join(target, basename)
+            target_base = os.path.join(target_base, basename)
         # Append the distribution name.
-        target = os.path.join(target, self.distribution.get_name())
+        target_base = os.path.join(target_base, self.distribution.get_name())
         # Delete old files if they are any.
-        if os.path.isdir(target) and not os.path.islink(target):
-            distutils.dir_util.remove_tree(target, dry_run=self.dry_run)
-        elif os.path.exists(target) or os.path.islink(target):
-            self.execute(os.unlink, (target,), "Removing "+target)
-        # Create the directory.
-        if not self.dry_run:
-            pkg_resources.ensure_directory(target)
-        # Copy all files from `www_dir`.
-        self.execute(self.copy_www, (self.www_dir, target),
-                "Copying %s to %s" % (self.www_dir, target))
+        if os.path.isdir(target_base) and not os.path.islink(target_base):
+            distutils.dir_util.remove_tree(target_base, dry_run=self.dry_run)
+        elif os.path.exists(target_base) or os.path.islink(target_base):
+            self.execute(os.unlink, (target_base,), "Removing "+target_base)
+        # Copy all files from `rex_data`.
+        for filename in self.rex_data:
+            target = os.path.join(target_base, filename)
+            if not self.dry_run:
+                pkg_resources.ensure_directory(target)
+            self.execute(self.copy_data, (filename, target),
+                    "Copying %s to %s" % (filename, target))
 
     def get_outputs(self):
         # Get a list of files that were created.
         return self.outfiles
 
-    def copy_www(self, source, target):
+    def copy_data(self, source, target):
         # Copy static files from `source` to `target`.
         def filter(src, dst):
             # Skip files starting from `.`.
@@ -154,14 +137,18 @@ class install_www(setuptools.Command):
             self.outfiles.append(dst)
             distutils.log.info("copying %s to %s", src, dst)
             return dst
-        setuptools.archive_util.unpack_archive(source, target, filter)
+        if os.path.isfile(source):
+            shutil.copyfile(source, target)
+            shutil.copystat(source, target)
+        else:
+            setuptools.archive_util.unpack_archive(source, target, filter)
 
 
-class develop_www(setuptools.Command):
-    # Create a symlink to `www_dir` directory at
+class develop_rex(setuptools.Command):
+    # For each entry in `rex_data` list, create a symlink at
     #   `$PREFIX/share/rexrunner/$NAME/`.
 
-    description = "install www files in development mode"
+    description = "install static files in development mode"
 
     user_options = [('install-dir=', 'd',
                      "directory where to install the files")]
@@ -169,8 +156,8 @@ class develop_www(setuptools.Command):
     def initialize_options(self):
         # The prefix for data files (typically, coincides with $PREFIX).
         self.install_dir = None
-        # The `www_dir` parameter of `setup()`.
-        self.www_dir = self.distribution.www_dir
+        # The `rex_data` parameter of `setup()`.
+        self.rex_data = self.distribution.rex_data
 
     def finalize_options(self):
         # Set `install_dir` to the value of parameter `install_data`
@@ -178,42 +165,44 @@ class develop_www(setuptools.Command):
         self.set_undefined_options('install', ('install_data', 'install_dir'))
 
     def run(self):
-        # Skip unless `www_dir` is set in `setup.py`.
-        if not self.www_dir:
+        # Skip unless `rex_data` is set in `setup.py`.
+        if not self.rex_data:
             return
-        # `$PREFIX/share/rexrunner/$NAME`.
-        target = os.path.join(self.install_dir, 'share/rexrunner',
-                              self.distribution.get_name())
-        # Delete old files if they are any.
-        if os.path.isdir(target) and not os.path.islink(target):
-            distutils.dir_util.remove_tree(target, dry_run=self.dry_run)
-        elif os.path.exists(target) or os.path.islink(target):
-            self.execute(os.unlink, (target,), "Removing "+target)
-        if not self.dry_run:
-            pkg_resources.ensure_directory(target)
-        # Create a link to  `www_dir` at `target`.
-        www_dir = os.path.abspath(self.www_dir)
-        self.execute(os.symlink, (www_dir, target),
-                "Linking %s to %s" % (www_dir, target))
+        # `$PREFIX/share/rex/$NAME`.
+        target_base = os.path.join(self.install_dir, 'share/rex',
+                                   self.distribution.get_name())
+        # Delete old files if there are any.
+        if os.path.isdir(target_base) and not os.path.islink(target_base):
+            distutils.dir_util.remove_tree(target_base, dry_run=self.dry_run)
+        elif os.path.exists(target_base) or os.path.islink(target_base):
+            self.execute(os.unlink, (target_base,), "Removing "+target_base)
+        # For each entry in `rex_data`, create a symlink.
+        for filename in self.rex_data:
+            target = os.path.join(target_base, filename)
+            if not self.dry_run:
+                pkg_resources.ensure_directory(target)
+            filename = os.path.abspath(filename)
+            self.execute(os.symlink, (filename, target),
+                    "Linking %s to %s" % (filename, target))
 
 
-# Patch `install` command to call `install_www`.
+# Patch `install` command to call `install_rex`.
 setuptools.command.install.install.sub_commands.insert(0,
-        ('install_www', lambda self: self.distribution.www_dir))
+        ('install_rex', lambda self: self.distribution.rex_data))
 
-# Patch `install` command to call `install_www` (in EGG mode).
+# Patch `install` command to call `install_rex` (in EGG mode).
 _do_egg_install = setuptools.command.install.install.do_egg_install
 def do_egg_install(self):
     _do_egg_install(self)
-    self.run_command('install_www')
+    self.run_command('install_rex')
 setuptools.command.install.install.do_egg_install = do_egg_install
 
-# Patch `develop` command to call `develop_www`.
+# Patch `develop` command to call `develop_rex`.
 _install_for_development = \
         setuptools.command.develop.develop.install_for_development
 def install_for_development(self):
     _install_for_development(self)
-    self.run_command('develop_www')
+    self.run_command('develop_rex')
 setuptools.command.develop.develop.install_for_development = \
         install_for_development
 

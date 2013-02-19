@@ -1,15 +1,15 @@
-********************************************************
-  REXSETUP -- Distutils extension for the Rex platform
-********************************************************
+*********************************************************
+  REX.SETUP -- Distutils extension for the Rex platform
+*********************************************************
 
 
-``rexsetup`` is a Distutils extension for distributing static files
+``rex.setup`` is a Distutils extension for distributing static files
 and providing additional metadata for Rex applications.  To use,
 add the following lines to ``setup.py``::
 
     setup(
         ...
-        setup_requires=['rexsetup'],
+        setup_requires=['rex.setup'],
         rex_data=[...],
         rex_prefix='...',
         rex_load='...',

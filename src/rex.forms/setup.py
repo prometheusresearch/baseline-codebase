@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='rex.forms',
-      version = "0.1.1",
+      version = "0.1.2",
       description="Your description here",
       setup_requires=['rexsetup'],
       # Uncomment next 2 lines if you are adding any python code

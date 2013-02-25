@@ -609,37 +609,37 @@ DualNumberDomain.prototype.extractValue = function (node) {
 
 var WeightDomain = function() {
     Domain.call(this, 'weight');
-    DualNumberDomain.call(this, 'lbs', 'ounce', 16);
+    DualNumberDomain.call(this, 'Lbs', 'Ounces', 16);
 };
 extend(WeightDomain, DualNumberDomain);
 
 var TimeWDomain = function() {
     Domain.call(this, 'time_week');
-    DualNumberDomain.call(this, 'month', 'week', 4);
+    DualNumberDomain.call(this, 'Months', 'Weeks', 4);
 };
 extend(TimeWDomain, DualNumberDomain);
 
 var TimeDomain = function() {
     Domain.call(this, 'time_month');
-    DualNumberDomain.call(this, 'year', 'month', 12);
+    DualNumberDomain.call(this, 'Years', 'Months', 12);
 };
 extend(TimeDomain, DualNumberDomain);
 
 var TimeHDomain = function() {
     Domain.call(this, 'time_hours');
-    DualNumberDomain.call(this, 'days', 'hours', 24);
+    DualNumberDomain.call(this, 'Days', 'Hours', 24);
 };
 extend(TimeHDomain, DualNumberDomain);
 
 var TimeMDomain = function() {
     Domain.call(this, 'time_minutes');
-    DualNumberDomain.call(this, 'hours', 'minutes', 60);
+    DualNumberDomain.call(this, 'Hours', 'Minutes', 60);
 };
 extend(TimeMDomain, DualNumberDomain);
 
 var TimeDDomain = function() {
     Domain.call(this, 'time_days');
-    DualNumberDomain.call(this, 'weeks', 'days', 7);
+    DualNumberDomain.call(this, 'Weeks', 'Days', 7);
 };
 extend(TimeDDomain, DualNumberDomain);
 
@@ -1287,6 +1287,7 @@ var Record = function (recordDef, values, options) {
     this.editNode = null;
     this.parent = options.parent;
     this.onRemove = options.onRemove;
+    this.collapsed = false;
     this.disabled = false;
     var self = this;
     $.each(recordDef, function (_, questionDef) {
@@ -1373,19 +1374,7 @@ Record.prototype.renderPreview = function () {
     return content;
 };
 
-Record.prototype.collapse = function () {
-    if (!this.editNode ||
-        this.editNode.hasClass('rf-collapsed'))
-        return;
-
-    if (this.isIncorrect()) {
-        alert("Can't collapse the group because it consists of wrong values");
-        var wrongQuestion = this.findWrongQuestion();
-        if (wrongQuestion && wrongQuestion.editNode)
-            wrongQuestion.editNode[0].scrollIntoView();
-        return;
-    }
-
+Record.prototype.renderCollapsed = function () {
     var previewNode = this.editNode.find('.rf-record-preview:first');
     previewNode.contents().remove();
     previewNode.append(this.renderPreview());
@@ -1398,13 +1387,33 @@ Record.prototype.collapse = function () {
     this.editNode.bind('click.rfExpand', function () {
         self.expand();
     });
+}
+
+Record.prototype.collapse = function (silent) {
+    if (this.collapsed)
+        return;
+    if (this.isIncorrect()) {
+        if (!silent && this.editNode) {
+            alert("Can't collapse the group because it consists of wrong values");
+            var wrongQuestion = this.findWrongQuestion();
+            if (wrongQuestion && wrongQuestion.editNode)
+                wrongQuestion.editNode[0].scrollIntoView();
+        }
+        return;
+    }
+    if (this.editNode)
+        this.renderCollapsed(silent);
+    this.collapsed = true;
 };
 
 Record.prototype.expand = function () {
+    if (!this.collapsed)
+        return;
+    /*
     if (!this.editNode ||
         !this.editNode.hasClass('rf-collapsed'))
         return;
-
+    */
     var previewNode = this.editNode.find('.rf-record-preview:first');
     previewNode.contents().remove();
     var questionNode = this.editNode.find('.rf-questions:first');
@@ -1413,6 +1422,8 @@ Record.prototype.expand = function () {
     btnCollapse.css('display', '');
     this.editNode.removeClass('rf-collapsed');
     this.editNode.unbind('click.rfExpand');
+
+    this.collapsed = false;
 }
 
 Record.prototype.renderEdit = function () {
@@ -1430,7 +1441,7 @@ Record.prototype.renderEdit = function () {
         if (!btnCollapseRecord.hasClass('rf-collapse-record'))
             btnCollapseRecord.addClass('rf-collapse-record');
         btnCollapseRecord.click(function (event) {
-            self.collapse();
+            self.collapse(false);
             event.stopPropagation();
         });
         this.editNode.append(btnCollapseRecord);
@@ -1461,6 +1472,8 @@ Record.prototype.renderEdit = function () {
             }
         });
         this.editNode.append(btnRemoveRecord);
+        if (this.collapsed)
+            this.renderCollapsed();
     }
     return this.editNode;
 };
@@ -1598,6 +1611,7 @@ RecordListQuestion.prototype.createRecordsFromValue = function (value) {
         viewRecords.contents().remove();
     if (value == null)
         value = [ null ]; // to create one empty record
+    var lastRecord = null;
     $.each(value, function (_, recordValue) {
         var record = self.createRecord(recordValue);
         self.records.push(record);
@@ -1605,7 +1619,9 @@ RecordListQuestion.prototype.createRecordsFromValue = function (value) {
             editRecords.append(record.renderEdit());
         if (viewRecords)
             viewRecords.append(record.renderView());
+        lastRecord = record;
     });
+    self.collapseRecords(lastRecord);
 }
 
 RecordListQuestion.prototype.setValue = function (value, internal) {
@@ -1652,6 +1668,15 @@ RecordListQuestion.prototype.enable = function() {
     });
 };
 
+RecordListQuestion.prototype.collapseRecords = function (except) {
+    console.log('collapsing records');
+    $.each(this.records, function (_, record) {
+        if (record !== except) {
+            record.collapse(true);
+        }
+    });
+};
+
 RecordListQuestion.prototype.edit = function () {
     if (!this.editNode) {
         this.editNode = BaseQuestion.prototype.edit.call(this);
@@ -1681,6 +1706,7 @@ RecordListQuestion.prototype.edit = function () {
                 var record = self.createRecord(null);
                 self.records.push(record);
                 var recordNode = record.renderEdit();
+                self.collapseRecords(record);
                 recordList.append(recordNode);
                 recordNode[0].scrollIntoView();
             }
@@ -2038,16 +2064,41 @@ $.RexFormsClient = function (o) {
 
         new function () {
             var changeStamp = self.form.changeStamp;
+            var onError = function (req, result) {
+                var eventRetData = { 
+                    'req': req,
+                    'result': result,
+                    'cancel': false
+                };
+                self.raiseEvent('saveError', eventRetData);
+                if (eventRetData.cancel) {
+                    console.log('saveError cancelled');
+                    return;
+                }
+                alert('Error saving your answers!');
+            };
             $.ajax({
                 url: self.saveURL,
-                success: function(content) {
-                    self.savedChangeStamp = self.form.changeStamp;
-                    self.raiseEvent('saved');
-                    if (callback)
-                        callback();
+                dataType: 'text',
+                success: function(content, textStatus, req) {
+                    var result = null;
+                    try {
+                        var result = $.parseJSON(content);
+                    } catch(err) {
+                        onError(req, null);
+                        return;
+                    }
+                    if (!result.result)
+                        onError(req, result);
+                    else {
+                        self.savedChangeStamp = self.form.changeStamp;
+                        self.raiseEvent('saved');
+                        if (callback)
+                            callback();
+                    }
                 },
-                error: function() {
-                    alert('Error saving your answers!');
+                error: function(req) {
+                    onError(req, null);
                 },
                 async: sync ? false : true,
                 cache: false,
@@ -2062,10 +2113,8 @@ $.RexFormsClient = function (o) {
     this.preview = function () {
         if (!self.raiseEvent('preview'))
             return true;
-
         if (this.previewURL)
             window.location.href = this.previewURL;
-
         return false;
     }
 

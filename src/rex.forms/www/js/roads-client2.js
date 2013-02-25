@@ -55,9 +55,105 @@ function objSize(obj) {
     return size;
 }
 
+function findParentWithClass(obj, cls) {
+    var form = null;
+    while (obj) {
+        if (obj instanceof cls) {
+            form = obj;
+            break;
+        }
+        obj = obj.parent;
+    }
+    return form;
+}
+
 function toType(obj) {
     return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 }
+
+function calculateRexlExpr(expr, context, params) {
+    var ret = expr.evaluate(function(name) {
+        if (undefined !== params[name[0]])
+            return params[name[0]];
+
+        var question = context[name[0]];
+        if(!question) {
+            alert("No such question: " + name[0]);
+        }
+        var rexlValue = question.getRexlValue(name.slice(1, name.length));
+        return rexlValue;
+    });
+    return ret;
+};
+
+function getChangeGraph(questions, params, context, initExpr) {
+    var expr = initExpr || {};
+
+    $.each(questions, function(_, question) {
+        if(question.disableExpr) {
+            var e = expr[question.disableExpr] = expr[question.disableExpr] || [];
+            e.push({
+                obj: question,
+                ifTrue: 'disable',
+                ifFalse: 'enable'
+            });
+        }
+
+        if(question.validateExpr) {
+            // validate expression should not affect question until it is answered
+            question.validateExpr = question.name
+                                    + '==null()|(' + question.validateExpr + ')';
+            var e = expr[question.validateExpr] = expr[question.validateExpr]
+                                                  || [];
+            e.push({
+                obj: question,
+                ifTrue: 'setValidByExpr',
+                ifFalse: 'setInvalidByExpr'
+            });
+        }
+    });
+
+    // building the change graph
+    var change = {};
+    $.each(expr, function(expr, actions) {
+        var parsed = rexl.parse(expr);
+        $.each(parsed.getNames(), function(_, name) {
+            name = name[0];
+            // form external parameters will not change their value
+            // so we can exclude them from the change graph
+            if (undefined === params[name]) {
+                change[name] = change[name] || [];
+                change[name].push({
+                    expr: parsed,
+                    actions: actions,
+                    context: context
+                });
+            }
+        });
+    });
+
+    return change;
+};
+
+function initGraphState(questions, params, changeGraph) {
+    // bind the change event on each question
+    // and calculate the initial graph state
+    $.each(changeGraph, function(key, list) {
+        function changeQuestion() {
+            $.each(list, function(_, value) {
+                var result = calculateRexlExpr(value.expr, value.context, params);
+                methodKey = result ? 'ifTrue':'ifFalse';
+                // apply needed method to needed entity
+                $.each(value.actions, function(_, action) {
+                    var method = action[methodKey];
+                    action.obj[method]();
+                });
+            });
+        }
+        changeQuestion();
+        $(questions[key]).bind('change', changeQuestion);
+    });
+};
 
 function rexlize(val) {
     if (null === val)
@@ -73,6 +169,20 @@ function rexlize(val) {
         return rexl.Boolean.value(val);
 
     throw('RexlTypeError');
+}
+
+function collectAnswers (questions) {
+    var answers = {};
+    $.each(questions, function (_, question) {
+        var value = question.getValue();
+        if (value instanceof Object && !(value instanceof Array)) {
+            $.each(value, function (key, value) {
+                answers[question.name + '_' + key] = value;
+            });
+        } else
+            answers[question.name] = value;
+    });
+    return answers;
 }
 
 var creoleParser = new Parse.Simple.Creole({
@@ -198,336 +308,6 @@ DateDomain.prototype.extractValue = function (node) {
 };
 
 
-var RecordListDomain = function(recordDef) {
-    Domain.call(this, 'recordList');
-    var self = this;
-    this.meta = [];
-    $.each(recordDef, function (_, questionDef) {
-        self.meta.push(
-            new MetaQuestion(
-                questionDef.name,
-                questionDef.title,
-                questionDef.required || false,
-                domain.getFromDef(questionDef),
-                null,
-                questionDef.slave || false
-            )
-        );
-    });
-};
-extend(RecordListDomain, Domain);
-RecordListDomain.prototype.renderViewRecord = function (templates, recordValue, customTitles) {
-    var record = $('<div>').addClass('rf-view-record');
-    var self = this;
-
-    $.each(this.meta, function (i, metaQuestion) {
-        var cell = $('<div>').addClass('rf-view-cell');
-        cell.append(
-            metaQuestion.renderView(
-                templates,
-                recordValue ? recordValue[metaQuestion.name] : null
-            )
-        );
-        record.append(cell);
-    });
-};
-RecordListDomain.prototype.renderRecordPreview = function (templates, recordValue, customTitles) {
-    var record = $('<div>').addClass('rf-preview-content');
-
-    var self = this;
-
-    var firstQuestionPreview = null;
-
-    if (this.meta.length) {
-        var metaQuestion = this.meta[0];
-        var answer = recordValue ? recordValue[metaQuestion.name] : null;
-        if (answer === undefined)
-            answer = null;
-        renderedQuestionView = this.meta[0].renderView(templates, answer);
-        firstQuestionPreview =
-            renderedQuestionView.find('.rf-question-answers:first');
-    }
-
-    if (firstQuestionPreview)
-        record.append(firstQuestionPreview);
-
-    var rest = $('<div>').addClass('rf-collapsed-record-rest');
-    var expandHint = templates['expandHint'].clone();
-    rest.append(expandHint)
-    record.append(rest);
-    return record;
-};
-RecordListDomain.prototype.renderEditRecord = function (templates, recordValue, onChange, customTitles) {
-    var record = $('<div>').addClass('rf-record');
-    var preview = $('<div>').addClass('rf-record-preview');
-    var cells = $('<div>').addClass('rf-cells');
-    record.append(preview);
-    record.append(cells);
-    var self = this;
-
-    $.each(this.meta, function (i, metaQuestion) {
-        var cell = $('<div>').addClass('rf-cell');
-        var questionValue =
-                recordValue ? recordValue[metaQuestion.name] : null;
-        cell.append(
-            metaQuestion.renderEdit(
-                templates,
-                questionValue,
-                onChange
-            )
-        );
-        if (metaQuestion.required &&
-            (questionValue === null || questionValue === undefined)) {
-            cell.addClass('rf-cell-error');
-        }
-        cells.append(cell);
-    });
-
-    var btnCollapseRecord = templates['btnCollapseRecord'].clone();
-    if (!btnCollapseRecord.hasClass('rf-collapse-record'))
-        btnCollapseRecord.addClass('rf-collapse-record');
-    btnCollapseRecord.click(function (event) {
-        self.collapseRecord(templates, record, null, customTitles);
-        event.stopPropagation();
-    });
-    record.append(btnCollapseRecord);
-
-    var btnRemoveRecord = templates['btnRemoveRecord'].clone();
-    var titleNode = btnRemoveRecord.filter('.rf-remove-record-title') 
-    if (!titleNode.size())
-        titleNode = btnRemoveRecord.find('.rf-remove-record-title');
-    if (titleNode.size()) {
-        var title = customTitles.removeRecord ?
-                    customTitles.removeRecord: 'Remove Group of Answers';
-        if (titleNode.prop("tagName") === 'A')
-            titleNode.attr('title', title);
-        else
-            titleNode.text(title);
-    }
-    btnRemoveRecord.click(function () {
-        if ($(this).parents('.rf-disabled:first').size() == 0) {
-            record.remove();
-            if (onChange)
-                onChange();
-        }
-    });
-    record.append(btnRemoveRecord);
-
-    return record;
-};
-RecordListDomain.prototype.renderView = function (templates, value, onChange, customTitles) {
-    var recordList = $('<div>').addClass('rf-record-list');
-    var thisDomain = this;
-    if (value) {
-        $.each(value, function (_, recordValue) {
-            recordList.append( thisDomain.renderViewRecord(templates, recordValue, customTitles) );
-        });
-    }
-};
-RecordListDomain.prototype.collapseRecord = function (templates, record, recordValue, customTitles) {
-
-    if (record.hasClass('rf-collapsed'))
-        return;
-
-    var extractedValue;
-    try {
-        extractedValue = recordValue ? recordValue : this.extractRecordValue(record);
-    } catch(err) {
-        alert('Can\'t collapse the group because it consists of wrong values');
-        var firstWrongCell = record.find('.rf-cell-error');
-        if (firstWrongCell.size())
-            firstWrongCell[0].scrollIntoView();
-        else
-            record[0].scrollIntoView();
-        throw("CollapseError");
-    };
-
-    var thisDomain = this;
-    if (!thisDomain.groupConforming(extractedValue)) {
-        // There are wrong or missed values in the group.
-        // We don't collapse a group in that case.
-        return;
-    }
-
-    var previewNode = record.children('.rf-record-preview');
-    var previewContent = this.renderRecordPreview(templates, extractedValue, customTitles);
-    record.addClass('rf-collapsed');
-    record.children('.rf-cells').css('display', 'none');
-    previewNode.append(previewContent);
-
-
-    record.bind('click.rfExpand', function () {
-        thisDomain.expandRecord(record);
-    });
-
-    // hide 'collapse' button
-    record.find('.rf-collapse-record:first').css('display', 'none');
-};
-RecordListDomain.prototype.expandRecord = function (record) {
-    if (!record.hasClass('rf-collapsed'))
-        return;
-
-    var previewNode = record.children('.rf-record-preview');
-    previewNode.contents().remove();
-    record.removeClass('rf-collapsed');
-    record.children('.rf-cells').css('display', '');
-    record.unbind('click.rfExpand');
-
-    // show 'collapse' button
-    record.find('.rf-collapse-record:first').css('display', '');
-};
-RecordListDomain.prototype.setEditValue = function (node, value, options) {
-    var thisDomain = this;
-    node.children('.rf-record').remove();
-    if (value) {
-        $.each(value, function (i, recordValue) {
-            var newRecord = 
-                    thisDomain.renderEditRecord(
-                        options.templates, 
-                        recordValue, 
-                        options.onChange, 
-                        options.customTitles
-                    );
-            node.append( newRecord );
-            if (i < value.length - 1)
-                thisDomain.collapseRecord(
-                    options.templates,
-                    newRecord,
-                    recordValue,
-                    options.customTitles
-                );
-        });
-    }
-
-    if (node.children().size() == 0) {
-        thisDomain.addNewRecord(options.templates, node, options.onChange, options.customTitles);
-    }
-};
-RecordListDomain.prototype.addNewRecord = function (templates, node, onChange, customTitles) {
-    var thisDomain = this;
-    node.children().each(function (_, record) {
-        record = $(record);
-        thisDomain.collapseRecord(templates, record, null, customTitles);
-    });
-    var newRecord = thisDomain.renderEditRecord(templates, null, onChange, customTitles);
-    node.append( newRecord );
-    return newRecord;
-}
-RecordListDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
-    var recordList = $('<div>').addClass('rf-record-list');
-    var thisDomain = this;
-    this.setEditValue(recordList, value, {
-        templates: templates,
-        onChange: onChange,
-        customTitles: customTitles
-    });
-
-    var btnAddRecord = templates['btnAddRecord'].clone();
-    var titleNode = btnAddRecord.filter('.rf-add-record-title');
-    if (!titleNode.size())
-        titleNode = btnAddRecord.find('.rf-add-record-title');
-    if (titleNode.size()) {
-        var title = customTitles.addRecord ?
-                    customTitles.addRecord: 'Add Group of Answers';
-        if (titleNode.prop('tagName') === 'A')
-            titleNode.attr('title', title);
-        else
-            titleNode.text(title);
-    }
-
-    btnAddRecord.click(function () {
-        if ($(this).parents('.rf-disabled').size() == 0) {
-            var newRecord = thisDomain.addNewRecord(templates, recordList, onChange, customTitles);
-            newRecord[0].scrollIntoView();
-        }
-    });
-
-    return recordList.add(btnAddRecord);
-};
-
-RecordListDomain.prototype.groupConforming = function (group) {
-    var complete = true;
-    var thisDomain = this;
-
-    function findMetaByName(name) {
-        for (var idx in thisDomain.meta) {
-            meta = thisDomain.meta[idx];
-            if (meta.name === name)
-                return meta;
-        }
-        return null;
-    }
-
-    $.each(group, function (itemName, itemValue) {
-        var thisMeta = findMetaByName(itemName);
-        if (thisMeta.required && itemValue === null)
-            complete = false;
-    });
-
-    return complete;
-}
-
-RecordListDomain.prototype.conforming = function (value) {
-    var complete = true;
-    var thisDomain = this;
-
-    if (value !== null) {
-        $.each(value, function (idx, group) {
-            complete = complete && thisDomain.groupConforming(group);
-        });
-    }
-
-    return complete;
-}
-
-RecordListDomain.prototype.extractRecordValue = function (node) {
-    var record = {};
-    var hasAnswer = false;
-    var thisDomain = this;
-
-    $(node).children('.rf-cells')
-           .children('.rf-cell').each(function (j, cellNode) {
-
-        var jCellNode = $(cellNode);
-        var thisMeta = thisDomain.meta[j];
-        try {
-            var value = thisMeta.extractValue(jCellNode.children());
-        } catch(err) {
-            jCellNode.addClass('rf-cell-error');
-            throw(err);
-        }
-
-        if (thisMeta.required && value === null)
-            jCellNode.addClass('rf-cell-error');
-        else
-            jCellNode.removeClass('rf-cell-error');
-
-        if (value !== null)
-            hasAnswer = true;
-
-        record[ thisMeta.name ] = value;
-    });
-
-    return record;
-}
-
-RecordListDomain.prototype.extractValue = function (node) {
-    var ret = [];
-    var thisDomain = this;
-    var records = node.children('.rf-record');
-    records.each(function (i, recordNode) {
-        recordNode = $(recordNode);
-        var record = thisDomain.extractRecordValue(recordNode);
-        for (var item in record) {
-            if (record[item] !== null) {
-                ret.push(record);
-                break;
-            }
-        }
-    });
-
-    return ret.length ? ret : null;
-};
 
 var NumberDomain = function(isFloat) {
     Domain.call(this, 'number');
@@ -878,24 +658,11 @@ var domain = {
         'time_month' : TimeDomain,
         'time_minutes' : TimeMDomain,
         'time_days' : TimeDDomain,
-        'rep_group': RecordListDomain
     },
 
     get: function(type, options) {
         var cls = this.all[type];
         return new cls(options);
-    },
-
-    annotationFromData: function(def, data) {
-        if (data.annotations)
-            return data.annotations[def.name] || null;
-        return null;
-    },
-
-    explanationFromData: function(def, data) {
-        if (data.explanations)
-            return data.explanations[def.name] || null;
-        return null;
     },
 
     valueFromData: function(def, data) {
@@ -906,8 +673,8 @@ var domain = {
             var value = {};
             $.each(def.answers, function (_, answer) {
                 var property = def.name + '_' + answer.code;
-                if (data.answers && data.answers.hasOwnProperty(property)) {
-                    value[answer.code] = data.answers[property];
+                if (data.hasOwnProperty(property)) {
+                    value[answer.code] = data[property];
                 }
             });
             // return value if it's not empty
@@ -916,8 +683,8 @@ var domain = {
             break;
 
         default:
-            if (data.answers && data.answers.hasOwnProperty(def.name))
-                return data.answers[def.name];
+            if (data.hasOwnProperty(def.name))
+                return data[def.name];
         }
 
         return null;
@@ -931,7 +698,7 @@ var domain = {
             return this.get(questionType, {
                 'variants': def.answers,
                 'dropDown': def.dropDown || false,
-                'allowClear': def.required ? false : true
+                'allowClear': def.required & !def.annotation ? false : true
             });
         case "set":
             return this.get(questionType, def.answers);
@@ -939,8 +706,6 @@ var domain = {
         case "float":
             return this.get(questionType,
                             "float" === questionType);
-        case "rep_group":
-            return this.get(questionType, def.repeatingGroup);
         case "string":
         case "text":
             return this.get(questionType,
@@ -1027,35 +792,56 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
     }
 
     function page(item, data, skipExpr, onFormChange) {
-        var questions = $.map(item.questions, function(question) {
-            var slave = question.slave || false;
-            var index = (showNumbers && !slave) ? self.nextQuestionIndex++ : null;
-            var question = new Question(question.name,
-                                        question.title,
-                                        domain.getFromDef(question),
-                                        domain.valueFromData(question, data),
-                                        question.disableIf || null,
-                                        question.constraints || null,
-                                        question.required || false,
-                                        question.annotation || false,
-                                        domain.annotationFromData(question, data),
-                                        question.explain || false,
-                                        domain.explanationFromData(question, data),
-                                        question.customTitles || {},
-                                        onFormChange,
-                                        templates,
-                                        slave,
-                                        index
-                                       );
-
-            if(self.questions[question.name])
-                alert('duplicated question id:' + question.name); // TODO: throw error here
-            else
+        var questions = $.map(item.questions, function(questionDef) {
+            var slave = questionDef.slave || false;
+            var questionName = questionDef.name;
+            var params = {
+                slave: slave,
+                index: (showNumbers && !slave) ? self.nextQuestionIndex++ : null,
+                name: questionName,
+                title: questionDef.title,
+                disableExpr: questionDef.disableIf || null,
+                validateExpr: questionDef.constraints || null,
+                required: questionDef.required || false,
+                askAnnotation: questionDef.annotation || false,
+                annotation: data.annotations ?
+                                data.annotations[questionName] || null:
+                                null,
+                explanation: data.explanations ?
+                                data.explanations[questionName] || null:
+                                null,
+                askExplanation: questionDef.explanation || false,
+                onFormChange: onFormChange,
+                templates: templates,
+                parent: self,
+                help: questionDef.help || null
+            };
+            // TODO: set data[value, annotation, explanation]
+            var question = null;
+            if (questionDef.type === "rep_group") {
+                if (data.answers && data.answers.hasOwnProperty(questionDef.name))
+                    params['value'] = data.answers[questionDef.name];
+                else
+                    params['value'] = null;
+                question = new RecordListQuestion(params, 
+                                                  questionDef.repeatingGroup);
+            } else {
+                var answers = data.answers || {};
+                params['value'] = domain.valueFromData(questionDef, answers);
+                question = new DomainQuestion(params,
+                                              domain.getFromDef(questionDef));
+            }
+            if(self.questions[question.name]) {
+                alert('duplicated question id:' + question.name); 
+                // TODO: throw error here
+            } else
                 self.questions[question.name] = question;
-
             return question;
         });
-        var page = new Page(questions, item.title, item.introduction || null, mergeSkipExpr(skipExpr, item.skipIf) || null);
+        var page = new Page(questions, 
+                            item.title,
+                            item.introduction || null,
+                            mergeSkipExpr(skipExpr, item.skipIf) || null);
         self.pages.push(page);
     }
 
@@ -1082,86 +868,8 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
         }
     });
 
-    $.each(this.questions, function(_, question) {
-        if(question.disableExpr) {
-            var e = expr[question.disableExpr] = expr[question.disableExpr] || [];
-            e.push({
-                obj: question,
-                ifTrue: 'disable',
-                ifFalse: 'enable'
-            });
-        }
-
-        if(question.validateExpr) {
-            // validate expression should not affect question until it is answered
-            question.validateExpr = question.name + '==null()|(' + question.validateExpr + ')';
-            var e = expr[question.validateExpr] = expr[question.validateExpr] || [];
-            e.push({
-                obj: question,
-                ifTrue: 'validate',
-                ifFalse: 'invalidate'
-            });
-        }
-    });
-
-    // building the change graph
-    this.change = {};
-    $.each(expr, function(expr, actions) {
-        var parsed = rexl.parse(expr);
-        $.each(parsed.getNames(), function(_, name) {
-            name = name[0];
-            // form external parameters will not change their value
-            // so we can exclude them from the change graph
-            if (undefined === self.params[name]) {
-                self.change[name] = self.change[name] || [];
-                self.change[name].push({
-                    expr: parsed,
-                    actions: actions
-                });
-            }
-        });
-    });
-};
-
-Form.prototype.initState = function() {
-    var self = this;
-
-    // bind the change event on each question
-    // and calculate the initial form state
-    $.each(this.change, function(key, list) {
-        function changeQuestion() {
-            $.each(list, function(_, value) {
-                var result = self.calculate(value.expr);
-                methodKey = result ? 'ifTrue':'ifFalse';
-                // apply needed method to needed entity
-                $.each(value.actions, function(_, action) {
-                    var method = action[methodKey];
-                    action.obj[method]();
-                });
-            });
-        }
-        changeQuestion();
-        $(self.questions[key]).bind('change', changeQuestion);
-    });
-};
-
-Form.prototype.calculate = function(expr) {
-    var self = this;
-    var ret = expr.evaluate(function(name) {
-        // TODO: add params handling
-        //if(self.hasParam(name[0]))
-        //    return self.getRexlParamValue(name[0]);
-        if (undefined !== self.params[name[0]])
-            return self.params[name[0]];
-
-        var question = self.questions[name[0]];
-        if(!question) {
-            alert("No such question: " + name[0]);
-        }
-        var rexlValue = question.getRexlValue(name.slice(1, name.length));
-        return rexlValue;
-    });
-    return ret;
+    this.change = getChangeGraph(this.questions, this.params,
+                                 this.questions, expr);
 };
 
 var Page = function(questions, title, introduction, skipExpr) {
@@ -1173,25 +881,46 @@ var Page = function(questions, title, introduction, skipExpr) {
     this.renderedPage = null;
 };
 
+Page.prototype.findWrongQuestion = function () {
+    var ret = null;
+    $.each(this.questions, function (_, question) {
+        if (ret === null && question.isIncorrect()) {
+            if (question instanceof RecordListQuestion) {
+                ret = question.findWrongItem() || question;
+            } else
+                ret = question;
+        }
+    });
+    return ret;
+}
+
 Page.prototype.update = function () {
     if (this.renderedPage)
         this.renderedPage.css('display', this.skipped ? 'none' : 'block');
 }
 
-Page.prototype.conforming = function () {
+Page.prototype.isIncorrect = function () {
     var self = this;
-    var isConforming = true;
+    var isIncorrect = false;
 
+    $.each(self.questions, function (_, question) {
+        if (!self.skipped && question.isIncorrect()) {
+            isIncorrect = true;
+        }
+    });
+
+/*
     $.each(self.questions, function(id, question) {
         if (!self.skipped && !question.disabled &&
                (question.invalid || question.wrong ||
-                !question.conforming() /* question.getValue() === null */ && question.annotation === null)) {
+                !question.conforming() /\* question.getValue() === null *\/ && question.annotation === null)) {
             question.markAsNotConforming();
             isConforming = false;
         }
     });
+*/
 
-    return isConforming;
+    return isIncorrect;
 }
 
 Page.prototype.skip = function() {
@@ -1225,163 +954,76 @@ Page.prototype.render = function(templates, mode) {
     return page;
 };
 
-var MetaQuestion = function (name, title, required, domain, templates, slave) {
-    this.name = name;
-    this.title = title;
-    this.domain = domain;
-    this.required = required;
-    this.customTitles = {};
-    this.attrIdName = 'attribute-name';
-    this.templates = templates;
-    this.slave = slave;
-};
-
-MetaQuestion.prototype.extractValue = function (node) {
-    if (!node)
-        return null;
-    var domainNode = node.find('.rf-question-answers:first').children();
-    return this.domain.extractValue(domainNode);
-};
-
-MetaQuestion.prototype.render = function (templates, value, onChange, mode) {
-    var domainNode = null,
-        templateName = null;
-
-    if (mode === "edit") {
-        domainNode = this.domain.renderEdit(templates, value, onChange, this.customTitles);
-        templateName = 'editQuestion';
-    } else {
-        domainNode = this.domain.renderView(templates, value, this.customTitles);
-        templateName = 'viewQuestion';
-    }
-    var questionNode = templates[templateName].clone();
-
-    questionNode.attr('data-' + this.attrIdName, this.name);
-
-    questionNode.addClass('rf-type-' + this.domain.name);
-
-    if (this.slave)
-        questionNode.addClass('rf-question-slave');
-
-    questionNode.find('.rf-question-title')
-            .append(renderCreole(this.title))
-            .end()
-            .find('.rf-question-annotation')
-            .css('display', 'none')
-            .end()
-            .find('.rf-question-explanation')
-            .css('display', 'none')
-            .end()
-            .find('.rf-question-required')
-            .css('display', this.required ? '' : 'none')
-            .end()
-            .find('.rf-question-answers')
-            .append(domainNode);
-
-    if (this.required)
-        questionNode.addClass('rf-required');
-
-    return questionNode;
-}
-
-MetaQuestion.prototype.renderView = function (templates, value) {
-    return this.render(templates, value, null, 'view');
-};
-
-MetaQuestion.prototype.renderEdit = function (templates, value, onChange) {
-    return this.render(templates, value, onChange, 'edit');
-};
-
-// TODO: push all arguments as a dictionary
-var Question = function(name, title, domain, value, disableExpr,
-                        validateExpr, required, askAnnotation,
-                        annotation, askExplanation, explanation,
-                        customTitles, onFormChange, templates, slave, index) {
-    MetaQuestion.call(this, name, title, required, domain, templates, slave);
-    if (index !== null && index !== undefined)
-        this.title = index + '. ' + this.title;
-    this.value = value;
-    this.disableExpr = disableExpr;
-    this.validateExpr = validateExpr;
-    this.askAnnotation = askAnnotation;
-    this.askExplanation = askExplanation;
-    this.explanation = explanation;
-    this.annotation = annotation;
-    this.markAsRight();
-    this.customTitles = customTitles;
-    this.wrong = false;
-    this.notConforming = false;
-    this.attrIdName = 'question-name';
-    this.node = null;
+// TODO: rename BaseQuestion -> Question
+var BaseQuestion = function(params) {
+    this.name = params.name;
+    this.title = params.title;
+    this.required = params.required;
+    this.slave = params.slave;
+    if (params.index !== null && params.index !== undefined)
+        this.title = params.index + '. ' + this.title;
+    this.value = params.value;
+    this.disableExpr = params.disableExpr || null;
+    this.validateExpr = params.validateExpr || null;
+    this.askAnnotation = params.askAnnotation || false;
+    this.askExplanation = params.askExplanation || false;
+    this.explanation = params.explanation || null;
+    this.annotation = params.annotation || null;
+    this.invalidByExpr = false;
+    this.invalidByType = false;
     this.viewNode = null;
+    this.editNode = null;
+    this.typeName = null;
+    this.onFormChange = params.onFormChange || null;
+    this.onValueError = params.onValueError || null;
+    this.disabled = false;
+    this.parent = params.parent || null;
     var self = this;
-    this.defaultOnChange =
+    this.onChange =
         function () {
             try {
                 var extractedValue =
-                    self.extractValue(self.node);
-                self.setValue(extractedValue, false);
-                self.markAsRight();
-                self.markAsConforming();
-                if (onFormChange)
-                    onFormChange();
+                        self.extractValue();
+                self.setValue(extractedValue, true);
+                self.setValidByType();
+                if (self.onFormChange)
+                    self.onFormChange();
             } catch(err) {
-                self.markAsWrong();
+                self.setInvalidByType();
+                if (self.onValueError)
+                    self.onValueError();
             }
-        }
+            self.update();
+        };
+    this.templates = params.templates || defaultTemplates;
+    this.customTitles = params.customTitles || {};
+    this.help = params.help || null;
+}
 
-    // TODO: convert validate expr to use this.id instead of 'this';
-};
-extend(Question, MetaQuestion);
-
-Question.prototype.view = function() {
-    if (!this.viewNode) {
-        this.viewNode = this.renderView(this.templates, this.value);
-        this.update();
-    }
-    return this.viewNode;
-};
-
-Question.prototype.edit = function() {
-    // TODO: rename .node to editNode
-    if (!this.node) {
-        var self = this;
-        this.node =
-            this.renderEdit(
-                this.templates,
-                this.value,
-                this.defaultOnChange
-            );
-        this.update();
-    }
-    return this.node;
-};
-
-Question.prototype.renderEdit = function (templates, value, onChange) {
-    var questionNode =
-        MetaQuestion.prototype.renderEdit.call(this, templates, value, onChange);
+BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
     var self = this;
-    if (this.askAnnotation) {
-        var annotationNode = $(templates['annotation']);
+
+    var annotationContainer = questionNode.find('.rf-question-annotation');
+    if (enable && this.askAnnotation) {
+        var annotationNode = self.templates['annotation'].clone();
         annotationNode
             .find('.rf-annotation-variants')
             .val(self.annotation ? self.annotation : '')
             .change(function () {
                 self.annotation = $(this).val() || null;
-                if (onChange)
-                    onChange();
+                if (self.onChange)
+                    self.onChange();
             });
-        questionNode
-            .find('.rf-question-annotation')
-            .append(annotationNode)
-            .css('display', '');
-    }
-    if (this.askExplanation) {
-        var explanationNode = $(templates['explanation']);
+            annotationContainer.append(annotationNode);
+    } else
+        annotationContainer.css('display', 'none');
+
+    var explanationContainer = questionNode.find('.rf-question-explanation');
+    if (enable && this.askExplanation) {
+        var explanationNode = self.templates['explanation'].clone();
         var hideBtn = explanationNode.find('.rf-explanation-hide');
         var showBtn = explanationNode.find('.rf-explanation-show');
         var text = explanationNode.find('.rf-explanation-text');
-
         var show = function () {
             hideBtn.css('display', '');
             showBtn.css('display', 'none');
@@ -1393,72 +1035,128 @@ Question.prototype.renderEdit = function (templates, value, onChange) {
             hideBtn.css('display', 'none');
             showBtn.css('display', '');
             explanationNode.find('.rf-explanation-block').css('display', 'none');
-            if (!skipChangeAction && onChange)
-                onChange();
+            if (!skipChangeAction && self.onFormChange)
+                self.onFormChange();
         };
-
         showBtn.click(function () {
             if ($(this).parents('.rf-disabled').size() == 0)
                 show();
         });
-
         hideBtn.click(function () {
             if ($(this).parents('.rf-disabled').size() == 0)
                 hide();
         });
-
         if (self.explanation) {
             text.val(self.explanation);
             show();
         } else
             hide(true);
-
         text.change(function () {
             self.explanation = $(this).val() || null;
-            if (onChange)
-                onChange();
+            if (self.onFormChange)
+                self.onFormChange();
         });
+        explanationContainer.append(explanationNode)
+    } else
+        explanationContainer.css('display', 'none');
+};
 
-        questionNode
-            .find('.rf-question-explanation')
-            .append(explanationNode)
-            .css('display', '');
-    }
+BaseQuestion.prototype.renderCommonPart = function (templateName) {
+    var questionNode = this.templates[templateName].clone();
+    questionNode.attr('data-question-name', this.name);
+    if (this.typeName)
+        questionNode.addClass('rf-type-' + this.typeName);
+    if (this.slave)
+        questionNode.addClass('rf-question-slave');
+    questionNode.find('.rf-question-title')
+            .append(renderCreole(this.title))
+            .end()
+            .find('.rf-question-help')
+            .append(this.help ? renderCreole(this.help) : null)
+            .end()
+            .find('.rf-question-required')
+            .css('display', this.required ? '' : 'none')
+            .end();
+    if (this.required)
+        questionNode.addClass('rf-required');
     return questionNode;
-}
+};
 
-Question.prototype.getAnnotation = function() {
+BaseQuestion.prototype.view = function () {
+    if (!this.viewNode) {
+        this.viewNode = this.renderCommonPart('viewQuestion');
+        this.renderAnnotations(this.viewNode, /* enable= */ false);
+    }
+    return this.viewNode;
+};
+
+BaseQuestion.prototype.edit = function () {
+    if (!this.editNode) {
+        this.editNode = this.renderCommonPart('editQuestion');
+        this.renderAnnotations(this.editNode, /* enable= */ true);
+    }
+    return this.editNode;
+};
+
+BaseQuestion.prototype.extractValue = function () {
+    return this.value;
+};
+
+BaseQuestion.prototype.getAnnotation = function () {
     return this.annotation;
-}
+};
 
-Question.prototype.setAnnotation = function(annotation) {
+BaseQuestion.prototype.setAnnotation = function (annotation) {
     this.annotation = annotation;
-}
+};
 
-Question.prototype.getExplanation = function() {
+BaseQuestion.prototype.getExplanation = function () {
     return this.explanation;
-}
+};
 
-Question.prototype.setExplanation = function(explanation) {
+BaseQuestion.prototype.setExplanation = function (explanation) {
     this.explanation = explanation;
-}
+};
 
-Question.prototype.update = function() {
-    var nodes = [this.node, this.viewNode];
+BaseQuestion.prototype.setValue = function (value, internal) {
+    this.value = value;
+    if (!internal) {
+        this.onChange.call(this);
+    }
+    $(this).trigger('change');
+};
+
+BaseQuestion.prototype.getValue = function (value) {
+    return this.value;
+};
+
+BaseQuestion.prototype.isIncorrect = function () {
+    return (!this.disabled && ((this.required && this.annotation === null && this.value === null) ||
+                               (this.invalidByExpr || this.invalidByType)));
+};
+
+BaseQuestion.prototype.updateActiveElements = function (node, disable) {
+    var activeElements = node.find('input,textarea,select,button');
+    if (disable)
+        activeElements.attr('disabled', 'disabled');
+    else
+        activeElements.removeAttr('disabled');
+};
+
+BaseQuestion.prototype.update = function () {
+    var nodes = [this.editNode, this.viewNode];
     var self = this;
+    var disabled = self.disabled;
+    if (this.parent && this.parent.disabled)
+        disabled = true;
     $.each(nodes, function(_, node) {
         if(node) {
-            var activeElements = node.find('input,textarea,select,button');
-
-            if (self.disabled) {
+            if (disabled)
                 node.addClass('rf-disabled');
-                activeElements.attr('disabled', 'disabled');
-            } else {
+            else
                 node.removeClass('rf-disabled');
-                activeElements.removeAttr('disabled');
-            }
-
-            if (self.wrong || self.invalid || self.notConforming)
+            self.updateActiveElements(node, disabled);
+            if (self.isIncorrect())
                 node.addClass('rf-error');
             else
                 node.removeClass('rf-error');
@@ -1466,99 +1164,535 @@ Question.prototype.update = function() {
     });
 };
 
-Question.prototype.setValue = function(value, updateDomains) {
+BaseQuestion.prototype.getRexlValue = function (itemName) {
+    return rexlize(this.value);
+};
 
-    this.value = value;
-    if (updateDomains) {
-        if (this.node)
-            this.domain.setEditValue(this.node, value, {
-                customTitles: this.customTitles,
-                templates: this.templates,
-                onChange: this.defaultOnChange
-            });
-        if (this.viewNode)
-            this.domain.setViewValue(this.node, value);
+BaseQuestion.prototype.disable = function() {
+    if (this.value !== null) {
+        this.setValue(null, false);
     }
-    this.update();
-
-    $(this).trigger('change');
-};
-
-Question.prototype.getValue = function() {
-    return this.value;
-};
-
-Question.prototype.conforming = function() {
-    return (this.required && this.value === null) ?
-                false:
-                this.domain.conforming(this.value);
-}
-
-Question.prototype.getRexlValue = function(name) {
-    if (this.domain instanceof SetDomain) {
-        if (null === this.value)
-            return rexlize(null);
-        else if (name.length)
-            return rexlize(this.value[name[0]]);
-
-        return rexlize(objSize(this.value));
-    } else if (this.domain instanceof RecordListDomain) {
-        if (null === this.value)
-            return rexlize(null);
-
-        return rexlize(this.value.length);
-    } else
-        return rexlize(this.value);
-};
-
-Question.prototype.disable = function() {
-    this.setValue(null, true);
     this.disabled = true;
     this.update();
 };
 
-Question.prototype.enable = function() {
+BaseQuestion.prototype.enable = function() {
     this.disabled = false;
     this.update();
 };
 
-Question.prototype.invalidate = function() {
-    this.invalid = true;
+BaseQuestion.prototype.setInvalidByExpr = function () {
+    if (!this.invalidByExpr) {
+        this.invalidByExpr = true;
+        this.update();
+    }
+};
+
+BaseQuestion.prototype.setValidByExpr = function () {
+    if (this.invalidByExpr) {
+        this.invalidByExpr = false;
+        this.update();
+    }
+};
+
+BaseQuestion.prototype.setInvalidByType = function() {
+    if (!this.invalidByType) {
+        this.invalidByType = true;
+    }
+};
+
+BaseQuestion.prototype.setValidByType = function() {
+    if (this.invalidByType) {
+        this.invalidByType = false;
+    }
+};
+
+var DomainQuestion = function (params, domain) {
+    BaseQuestion.call(this, params);
+    this.domain = domain;
+    this.typeName = domain.name;
+};
+extend(DomainQuestion, BaseQuestion);
+
+DomainQuestion.prototype.getAnswerPreview = function () {
+    return this.domain.renderView(this.templates,
+                                  this.value,
+                                  this.onChange,
+                                  this.customTitles);
+};
+
+DomainQuestion.prototype.edit = function () {
+    if (!this.editNode) {
+        this.editNode = BaseQuestion.prototype.edit.call(this);
+        var domainNode = this.domain.renderEdit(this.templates,
+                                                this.value,
+                                                this.onChange,
+                                                this.customTitles);
+        this.editNode.find('.rf-question-answers:first')
+                     .append(domainNode);
+        this.update();
+    }
+    return this.editNode;
+};
+
+DomainQuestion.prototype.getRexlValue = function (itemName) {
+    if (this.domain instanceof SetDomain) {
+        if (null === this.value)
+            return rexlize(null);
+        else if (itemName.length) {
+            return rexlize(this.value[itemName[0]]);
+        }
+
+        return rexlize(objSize(this.value));
+    } else
+        return rexlize(this.value);
+};
+
+DomainQuestion.prototype.extractValue = function () {
+    if (!this.editNode)
+        return null;
+    var domainNode = this.editNode.find('.rf-question-answers:first').children();
+    return this.domain.extractValue(domainNode);
+};
+
+DomainQuestion.prototype.setValue = function (value, internal) {
+    this.value = value;
+    if (!internal) {
+        if (this.editNode) {
+            var domainNode = this.editNode.find('.rf-question-answers:first')
+                                          .children();
+            this.domain.setEditValue(
+                            domainNode, this.value, {
+                                customTitles: this.customTitles,
+                                templates: this.templates,
+                                onChange: this.onChange
+                            });
+        }
+        if (this.viewNode) {
+            var domainNode = this.viewNode.find('.rf-question-answers:first')
+                                          .children();
+            this.domain.setViewValue(domainNode, this.value);
+        }
+        this.onChange.call(this);
+    }
+    $(this).trigger('change');
+};
+
+var Record = function (recordDef, values, options) {
+    this.node = null;
+    this.questions = [];
+    this.customTitles = options.customTitles;
+    this.templates = options.templates;
+    this.viewNode = null;
+    this.editNode = null;
+    this.parent = options.parent;
+    this.onRemove = options.onRemove;
+    this.disabled = false;
+    var self = this;
+    $.each(recordDef, function (_, questionDef) {
+        var slave = questionDef.slave || false;
+        var questionName = questionDef.name;
+        var params = {
+            slave: slave,
+            index: null,
+            name: questionName,
+            title: questionDef.title,
+            disableExpr: questionDef.disableIf || null,
+            validateExpr: questionDef.constraints || null,
+            required: questionDef.required || false,
+            /*
+            askAnnotation: questionDef.annotation || false,
+            annotation: data.annotation ?
+                            data.annotations[questionName] || null:
+                            null,
+            explanation: data.explanations ?
+                            data.explanations[questionName] || null:
+                            null,
+            askExplanation: questionDef.explanation || false,
+            */
+            onFormChange: options.onChange,
+            onValueError: options.onValueError,
+            templates: options.templates,
+            value: values !== null ? domain.valueFromData(questionDef, values): null,
+            parent: self,
+            help: questionDef.help || null
+        };
+        question = new DomainQuestion(params, domain.getFromDef(questionDef));
+        if(self.questions[question.name]) {
+            alert('duplicated question id="' + question.name + '" inside a group');
+            // TODO: throw error here
+        } else
+            self.questions.push(question);
+    });
+    var form = findParentWithClass(this.parent, Form);
+
+    var context = {};
+    $.each(this.questions, function (_, question) {
+        context[question.name] = question;
+    });
+    $.each(form.questions, function (_, question) {
+        if (!context[question.name])
+            context[question.name] = question;
+    });
+    this.change = getChangeGraph(this.questions, form.params, context, null);
+    initGraphState(context, form.params, this.change);
+};
+
+Record.prototype.findWrongQuestion = function () {
+    var ret = null;
+    $.each(this.questions, function (_, question) {
+        if (!ret && question.isIncorrect())
+            ret = question;
+    });
+    return ret;
+};
+
+Record.prototype.isIncorrect = function () {
+    var isIncorrect = false;
+    $.each(this.questions, function (_, question) {
+        if (!isIncorrect && question.isIncorrect())
+            isIncorrect = true;
+    });
+    return isIncorrect;
+};
+
+Record.prototype.renderPreview = function () {
+    var content = $('<div>').addClass('rf-preview-content');
+    var self = this;
+
+    if (this.questions.length) {
+        var question = this.questions[0];
+        if (question instanceof DomainQuestion)
+            content.append(question.domain.renderView());
+    }
+
+    var rest = $('<div>').addClass('rf-collapsed-record-rest');
+    var expandHint = this.templates['expandHint'].clone();
+    rest.append(expandHint)
+    content.append(rest);
+    return content;
+};
+
+Record.prototype.collapse = function () {
+    if (!this.editNode ||
+        this.editNode.hasClass('rf-collapsed'))
+        return;
+
+    if (this.isIncorrect()) {
+        alert("Can't collapse the group because it consists of wrong values");
+        var wrongQuestion = this.findWrongQuestion();
+        if (wrongQuestion && wrongQuestion.editNode)
+            wrongQuestion.editNode[0].scrollIntoView();
+        return;
+    }
+
+    var previewNode = this.editNode.find('.rf-record-preview:first');
+    previewNode.contents().remove();
+    previewNode.append(this.renderPreview());
+    var questionNode = this.editNode.find('.rf-questions:first');
+    questionNode.css('display', 'none');
+    var btnCollapse = this.editNode.find('.rf-collapse-record:first');
+    btnCollapse.css('display', 'none');
+    this.editNode.addClass('rf-collapsed');
+    var self = this;
+    this.editNode.bind('click.rfExpand', function () {
+        self.expand();
+    });
+};
+
+Record.prototype.expand = function () {
+    if (!this.editNode ||
+        !this.editNode.hasClass('rf-collapsed'))
+        return;
+
+    var previewNode = this.editNode.find('.rf-record-preview:first');
+    previewNode.contents().remove();
+    var questionNode = this.editNode.find('.rf-questions:first');
+    questionNode.css('display', '');
+    var btnCollapse = this.editNode.find('.rf-collapse-record:first');
+    btnCollapse.css('display', '');
+    this.editNode.removeClass('rf-collapsed');
+    this.editNode.unbind('click.rfExpand');
+}
+
+Record.prototype.renderEdit = function () {
+    if (!this.editNode) {
+        this.editNode = $('<div>').addClass('rf-record');
+        var preview = $('<div>').addClass('rf-record-preview');
+        var questions = $('<div>').addClass('rf-questions');
+        this.editNode.append(preview);
+        this.editNode.append(questions);
+        var self = this;
+        $.each(this.questions, function (_, question) {
+            questions.append(question.edit());
+        });
+        var btnCollapseRecord = this.templates['btnCollapseRecord'].clone();
+        if (!btnCollapseRecord.hasClass('rf-collapse-record'))
+            btnCollapseRecord.addClass('rf-collapse-record');
+        btnCollapseRecord.click(function (event) {
+            self.collapse();
+            event.stopPropagation();
+        });
+        this.editNode.append(btnCollapseRecord);
+        var btnRemoveRecord = this.templates['btnRemoveRecord'].clone();
+        var titleNode = btnRemoveRecord.filter('.rf-remove-record-title') 
+        if (!titleNode.size())
+            titleNode = btnRemoveRecord.find('.rf-remove-record-title');
+        if (titleNode.size()) {
+            var title = this.customTitles.removeRecord ?
+                        this.customTitles.removeRecord: 'Remove Group of Answers';
+            if (titleNode.prop("tagName") === 'A')
+                titleNode.attr('title', title);
+            else
+                titleNode.text(title);
+        }
+        btnRemoveRecord.click(function () {
+            if ($(this).parents('.rf-disabled:first').size() == 0) {
+                if (self.editNode)
+                    self.editNode.remove();
+                if (self.viewNode)
+                    self.viewNode.remove();
+                if (self.onRemove)
+                    self.onRemove(self);
+                /*
+                if (onChange)
+                    onChange();
+                */
+            }
+        });
+        this.editNode.append(btnRemoveRecord);
+    }
+    return this.editNode;
+};
+
+Record.prototype.renderView = function () {
+    if (!this.editNode) {
+        this.editNode = templates['editRecord'].clone();
+        var container = this.editNode.find('.rf-questions');
+        $.each(this.questions, function (_, question) {
+            container.append(question.edit());
+        });
+    }
+    return this.editNode;
+};
+
+Record.prototype.extractValue = function () {
+    var hasAnswer = false;
+    var collectedAnswers = collectAnswers(this.questions);
+    $.each(collectedAnswers, function (_, answer) {
+        if (answer !== null)
+            hasAnswer = true;
+    });
+/*
+    $.each(this.questions, function (_, question) {
+        if (question.value !== null)
+            hasAnswer = true;
+        if (question instanceof DomainQuestion &&
+            question.domain instanceof SetDomain) {
+
+
+        } else
+            ret[question.name] = question.value; // .extractValue(); 
+    });
+*/
+    return hasAnswer ? collectedAnswers : null;
+};
+
+Record.prototype.update = function () {
+    $.each(this.questions, function (_, question) {
+        question.update();
+    });
+};
+
+Record.prototype.enable = function () {
+    this.disabled = false;
     this.update();
 };
 
-Question.prototype.validate = function() {
-    this.invalid = false;
+Record.prototype.disable = function () {
+    this.disabled = true;
     this.update();
 };
 
-Question.prototype.markAsNotConforming = function () {
-    if (!this.notConforming) {
-        this.notConforming = true;
-        this.update();
+Record.prototype.release = function () {
+    $.each(this.questions, function(_, question) {
+        $(question).off();
+    });
+    this.questions = [];
+    this.change = null;
+    this.editNode = null;
+    this.viewNode = null;
+};
+
+var RecordListQuestion = function (params, recordDef) {
+    BaseQuestion.call(this, params);
+    this.typeName = 'rep_group';
+    this.records = [];
+    this.recordDef = recordDef;
+    this.createRecordsFromValue(this.value);
+};
+extend(RecordListQuestion, BaseQuestion);
+
+RecordListQuestion.prototype.findWrongItem = function () {
+    var ret = null;
+    $.each(this.records, function (_, record) {
+        if (!ret)
+            ret = record.findWrongQuestion();
+    });
+    return ret;
+};
+
+RecordListQuestion.prototype.isIncorrect = function () {
+    var isIncorrect = BaseQuestion.prototype.isIncorrect.call(this);
+    if (!isIncorrect) {
+        $.each(this.records, function (_, record) {
+            if (!isIncorrect && record.extractValue() !== null && 
+                                record.isIncorrect()) {
+                isIncorrect = true;
+            }
+        });
     }
+    return isIncorrect;
+};
+
+RecordListQuestion.prototype.createRecord = function (values) {
+    var self = this;
+    var options = {
+        customTitles: this.customTitles,
+        templates: this.templates,
+        onFormChange: this.onFormChange,
+        onRemove: function (removedRecord) {
+            // remove this record from the record list
+            self.records = $.grep(self.records, function (record) {
+                return (record != removedRecord);
+            });
+            if (self.onChange)
+                self.onChange.call(self);
+        },
+        onChange: function () {
+            if (self.onChange)
+                self.onChange.call(self);
+        },
+        onValueError: function () {
+            self.setInvalidByType();
+        },
+        parent: this
+    };
+    var record = new Record(this.recordDef, values || null, options);
+    return record;
+};
+
+RecordListQuestion.prototype.createRecordsFromValue = function (value) {
+    $.each(this.records, function (i, record) {
+        record.release();
+    });
+    this.records = [];
+    var self = this;
+    var editRecords = this.editNode ?
+                        this.editNode.find('.rf-records-list:first') : null;
+    var viewRecords = this.viewNode ?
+                        this.viewNode.find('.rf-records-list:first') : null;
+    if (editRecords)
+        editRecords.contents().remove();
+    if (viewRecords)
+        viewRecords.contents().remove();
+    if (value == null)
+        value = [ null ]; // to create one empty record
+    $.each(value, function (_, recordValue) {
+        var record = self.createRecord(recordValue);
+        self.records.push(record);
+        if (editRecords)
+            editRecords.append(record.renderEdit());
+        if (viewRecords)
+            viewRecords.append(record.renderView());
+    });
 }
 
-Question.prototype.markAsConforming = function () {
-    if (this.notConforming) {
-        this.notConforming = false;
-        this.update();
+RecordListQuestion.prototype.setValue = function (value, internal) {
+    this.value = value;
+    if (!internal) {
+        this.createRecordsFromValue(value);
+        this.onChange.call(this);
     }
-}
+    $(this).trigger('change');
+};
 
-Question.prototype.markAsWrong = function() {
-    if (!this.wrong) {
-        this.wrong = true;
-        this.update();
-    }
-}
+RecordListQuestion.prototype.extractValue = function () {
+    var ret = [];
+    $.each(this.records, function (_, record) {
+        var value = record.extractValue();
+        if (value)
+            ret.push(value);
+    });
+    return ret.length ? ret : null;
+};
 
-Question.prototype.markAsRight = function() {
-    if (this.wrong) {
-        this.wrong = false;
+RecordListQuestion.prototype.getRexlValue = function (itemName) {
+    if (null === this.value)
+        return rexlize(null);
+    return rexlize(this.value.length);
+};
+
+RecordListQuestion.prototype.updateActiveElements = function (node, disable) {
+    // nothing to do, since sub-questions should 
+    //  disable their active elements themselves
+};
+
+RecordListQuestion.prototype.disable = function() {
+    BaseQuestion.prototype.disable.call(this);
+    $.each(this.records, function (_, record) {
+        record.disable();
+    });
+};
+
+RecordListQuestion.prototype.enable = function() {
+    BaseQuestion.prototype.enable.call(this);
+    $.each(this.records, function (_, record) {
+        record.enable();
+    });
+};
+
+RecordListQuestion.prototype.edit = function () {
+    if (!this.editNode) {
+        this.editNode = BaseQuestion.prototype.edit.call(this);
+        var node = $('<div>').addClass('rf-records');
+        var recordList = $('<div>').addClass('rf-records-list');
+        node.append(recordList);
+
+        var btnAddRecord = this.templates['btnAddRecord'].clone();
+        var titleNode = btnAddRecord.filter('.rf-add-record-title');
+        if (!titleNode.size())
+            titleNode = btnAddRecord.find('.rf-add-record-title');
+        if (titleNode.size()) {
+            var title = this.customTitles.addRecord ?
+                        this.customTitles.addRecord: 'Add Group of Answers';
+            if (titleNode.prop('tagName') === 'A')
+                titleNode.attr('title', title);
+            else
+                titleNode.text(title);
+        }
+        $.each(this.records, function (_, record) {
+            var recordNode = record.renderEdit();
+            recordList.append(recordNode);
+        });
+        var self = this;
+        btnAddRecord.click(function () {
+            if ($(this).parents('.rf-disabled').size() == 0) {
+                var record = self.createRecord(null);
+                self.records.push(record);
+                var recordNode = record.renderEdit();
+                recordList.append(recordNode);
+                recordNode[0].scrollIntoView();
+            }
+        });
+
+        node.append(btnAddRecord);
+        this.editNode.find('.rf-question-answers')
+                     .append(node);
         this.update();
     }
-}
+    return this.editNode;
+};
 
 var defaultTemplates = {
     'progressBar':
@@ -1581,6 +1715,7 @@ var defaultTemplates = {
             + '<div class="rf-question-required"><abbr title="This question is mandatory">*</abbr></div>'
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
+            + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-annotation"></div>'
             + '<div class="rf-question-explanation"></div>'
         + '</div>',
@@ -1673,7 +1808,7 @@ $.RexFormsClient = function (o) {
     var progressBar = null;
     var progressBarArea = $( o.progressBarArea ) || null;
     if (progressBarArea) {
-        progressBar = this.templates['progressBar'];
+        progressBar = this.templates['progressBar'].clone();
         progressBar.appendTo(progressBarArea);
     }
     this.progressBar = progressBar;
@@ -1689,8 +1824,12 @@ $.RexFormsClient = function (o) {
     this.finishCallback = o.finishCallback || null;
     this.events = o.events || {};
 
-    this.form = new Form(o.formMeta, o.formData || {}, o.paramValues || {}, templates, o.showNumbers);
-    this.form.initState();
+    this.form = new Form(o.formMeta,
+                         o.formData || {},
+                         o.paramValues || {},
+                         templates,
+                         o.showNumbers || false);
+    initGraphState(this.form.questions, this.form.params, this.form.change);
     this.currentPageIdx = -1;
     this.package = o.package || null;
     this.formName = o.formName;
@@ -1725,22 +1864,33 @@ $.RexFormsClient = function (o) {
             return;
 
         var validateAndScroll = function (page) {
-            if (!page.conforming()) {
-                alert("There are missed required questions or wrong answers on this page. Please correct the information you provided.");
+            if (page.isIncorrect()) {
+                alert("There are missed required questions or wrong answers on " 
+                    + "this page. Please correct the information you provided.");
+                var wrongQuestion = page.findWrongQuestion();
+                if (wrongQuestion) {
+                    var scrollTo = null;
+                    if (wrongQuestion.editNode)
+                        scrollTo = wrongQuestion.editNode;
+                    else if (wrongQuestion.viewNode)
+                        scrollTo = wrongQuestion.viewNode;
+                    if (scrollTo)
+                        scrollTo[0].scrollIntoView();
+                }
+                /*
                 var firstWrongQuestion = self.questionArea.find('.rf-error:first');
                 if (firstWrongQuestion.size()) {
-                    var firstWrongCell = firstWrongQuestion.find('.rf-cell-error');
-                    if (firstWrongCell.size()) {
-                        var collapsed = firstWrongCell.parents('.rf-collapsed:first');
-                        if (collapsed.size())
-                            // expand collapsed cell
-                            collapsed.click();
-                        firstWrongCell[0].scrollIntoView();
+                    var firstWrongSubQuestion = 
+                            firstWrongQuestion.find('.rf-error:first');
+                    if (firstWrongSubQuestion.size()) {
+                        // expand if collapsed
+                        firstWrongSubQuestion.parents('.rf-collapsed:first')
+                                             .click();
+                        firstWrongSubQuestion[0].scrollIntoView();
                     } else
                         firstWrongQuestion[0].scrollIntoView();
                 }
-                // there are invalid answers or
-                //  missed answers for required questions
+                */
                 return false;
             }
             return true;
@@ -1772,7 +1922,6 @@ $.RexFormsClient = function (o) {
                 self.saveLastVisitPage(idx);
                 return;
             }
-
             self.raiseEvent('skipPage', idx);
             idx += step;
         }
@@ -1798,9 +1947,8 @@ $.RexFormsClient = function (o) {
         }
 
         $.each(self.form.pages, function (idx, _) {
-            self.questionArea.append(
-                self.renderPage(idx, false)
-            );
+            var renderedPage = self.renderPage(idx, false);
+            self.questionArea.append(renderedPage);
             updateButtons();
         });
     }
@@ -1830,27 +1978,15 @@ $.RexFormsClient = function (o) {
                 self.pageIntroductionArea.append( renderCreole(page.introduction) );
         }
 
-        self.questionArea.append(
-            page.render(
-                self.templates,
-                /* 
-                    TODO: restore this after implementing of "edit" button
-                    on question preview
-                     (self.mode === "preview") ? 'view' : 'edit'
-                */
-                'edit'
-            )
-        );
-
-        page.conforming();
+        var renderedPage = page.render(self.templates, 'edit');
+        self.questionArea.append(renderedPage);
         self.raiseEvent('pageRendered', pageIdx);
     };
 
     this.raiseEvent = function(eventName, eventData) {
-        $(this).trigger('rexforms:' + eventName, eventData);
+        $(self).trigger('rexforms:' + eventName, eventData);
         if (self.events[eventName])
             return this.events[eventName](eventData);
-
         return true;
     };
 
@@ -1882,28 +2018,13 @@ $.RexFormsClient = function (o) {
         return explanations;
     }
 
-    this.collectAnswers = function () {
-        var answers = {};
-        $.each(this.form.questions, function (_, question) {
-            var value = question.getValue();
-
-            if (value instanceof Object && !(value instanceof Array)) {
-                $.each(value, function (key, value) {
-                    answers[question.name + '_' + key] = value;
-                });
-            } else
-                answers[question.name] = value;
-        });
-        return answers;
-    }
-
     this.save = function (callback, sync) {
         if (null === self.package)
             return;
 
         var collectedData = {
             version: null, // TODO
-            answers: self.collectAnswers(),
+            answers: collectAnswers(self.form.questions),
             annotations: self.collectAnnotations(),
             explanations: self.collectExplanations(),
             finished: self.form.finished

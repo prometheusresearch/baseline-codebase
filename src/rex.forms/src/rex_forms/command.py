@@ -45,7 +45,7 @@ class SaveState(RoadsCommand):
             return Response(body='Wrong Json')
         _, version = self.handler.get_latest_form(form)
         self.handler.save_packet(form, version, code, data)
-        return Response(body='Saved!')
+        return Response(body='{"result" : true}')
 
 
 @register_command

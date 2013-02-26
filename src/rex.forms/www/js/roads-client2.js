@@ -1669,7 +1669,6 @@ RecordListQuestion.prototype.enable = function() {
 };
 
 RecordListQuestion.prototype.collapseRecords = function (except) {
-    console.log('collapsing records');
     $.each(this.records, function (_, record) {
         if (record !== except) {
             record.collapse(true);
@@ -2070,10 +2069,8 @@ $.RexFormsClient = function (o) {
                     'cancel': false
                 };
                 self.raiseEvent('saveError', eventRetData);
-                if (eventRetData.cancel) {
-                    console.log('saveError cancelled');
+                if (eventRetData.cancel)
                     return;
-                }
                 alert('Error saving your answers!');
             };
             $.ajax({

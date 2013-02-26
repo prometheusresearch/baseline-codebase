@@ -1741,7 +1741,6 @@ var defaultTemplates = {
             + '<div class="rf-question-required"><abbr title="This question is mandatory">*</abbr></div>'
             + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-answers"></div>'
-            + '<div class="rf-question-title"></div>'
             + '<div class="rf-question-annotation"></div>'
             + '<div class="rf-question-explanation"></div>'
         + '</div>',

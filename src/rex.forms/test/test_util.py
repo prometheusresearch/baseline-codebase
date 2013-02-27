@@ -1,7 +1,7 @@
 import os
 from testbase import TestCase 
 
-from rex.acquire_storage.file.lock import FileLock
+from rex.forms.model.util import FileLock
 
 class TestFileLock(TestCase):
 

@@ -15,7 +15,7 @@ class FolderVal(StrVal):
     def __call__(self, value):
         super(FolderVal, self).__call__(value)
         assert os.path.exists(value), "Folder does not exist"
-        assert os.access(value, os.W_OK), "Folder should have be writable"
+        assert os.access(value, os.W_OK), "Folder should be writable"
         return value
 
 

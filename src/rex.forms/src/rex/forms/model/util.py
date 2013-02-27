@@ -12,7 +12,7 @@ def savefile(filename, data):
     f.close()
     try:
         shutil.move(f.name, filename)
-    finally:
+    except IOError:
         os.unlink(f.name)
 
 

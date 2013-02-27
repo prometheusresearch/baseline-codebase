@@ -29,3 +29,9 @@ class TestAssessmentStorage(TestCase):
         self.storage.update_assessment(get.id, {'key': 'value'})
         get = self.storage.get_assessment(get.id)
         self.assertEqual(get.json, '{\n  "key": "value"\n}')
+
+    def test_complete(self):
+        a = self.storage.create_assessment('first')
+        self.storage.complete_assessment(a.id)
+        a = self.storage.get_assessment(a.id)
+        self.assertEqual(a.status, COMPLETED)

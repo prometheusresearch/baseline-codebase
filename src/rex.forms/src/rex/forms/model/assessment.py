@@ -3,6 +3,7 @@
 import os
 import glob
 import simplejson
+import shutil
 from .form_registry import FormRegistry, Form
 from .util import FileLock, savefile
 
@@ -151,6 +152,19 @@ class AssessmentStorage(BaseAssessmentStorage):
             assessment.update(data)
             filename = os.path.join(self.inprogress_dir, id) + '.js'
             savefile(filename, assessment.json)
+
+    def complete_assessment(self, id):
+        with self.get_assessment_lock(id):
+            assessment = self._get_assessment(id)
+            if assessment is None:
+                raise AssessmentStorageError("Assessment not found: %s" % id)
+            if assessment.status != IN_PROGRESS:
+                raise AssessmentStorageError("Assessment %s has "
+                         "invalid status: %s" % (id, assessment.status))
+            #TODO: assessment.complete()/validate
+            with open(os.path.join(self.completed_dir, id + '.js'), 'w') as f:
+                f.write(assessment.json)
+
 
     @classmethod
     def create(cls, directory):

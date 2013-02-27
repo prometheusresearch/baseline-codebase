@@ -29,3 +29,13 @@ class TestFormRegistry(TestCase):
         self.assertNotEqual(first_1.json, first_2.json)
         form = self.form_registry.get_form('first', version=100)
         self.assertIsNone(form)
+
+    def test_iterators(self):
+        all_forms = sorted([(f.id, f.version) 
+                            for f in self.form_registry.all_forms])
+        self.assertItemsEqual(tuple(all_forms), 
+                              (('first', 1), ('first', 2), ('second', 1)))
+        latest_forms = [(f.id, f.version) 
+                        for f in self.form_registry.latest_forms]
+        self.assertItemsEqual(tuple(latest_forms), 
+                              (('first', 2), ('second', 1)))

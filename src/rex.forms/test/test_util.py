@@ -30,7 +30,7 @@ class TestFileLock(TestCase):
         import sys
         import time
         line = '%s -c "%s"' % (sys.executable, """\
-from rex.acquire_storage.file.lock import FileLock
+from rex.forms.model.util import FileLock
 import time
 with FileLock('%s'):
     time.sleep(2)

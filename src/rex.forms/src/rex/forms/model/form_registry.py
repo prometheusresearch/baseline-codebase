@@ -2,6 +2,7 @@
 import os
 import re
 import simplejson
+import itertools
 
 class BaseFormRegistry(object):
     pass
@@ -9,7 +10,7 @@ class BaseFormRegistry(object):
 class FormRegistry(object):
 
     def __init__(self, directory):
-        self.forms = {}
+        self._forms = {}
         for id in os.listdir(directory):
             if id in ('.', '..'):
                 continue
@@ -24,10 +25,11 @@ class FormRegistry(object):
                                              json=open(form_path).read(),
                                              version=int(res.group(1))))
                 if versions:
-                    self.forms[id] = sorted(versions, key=lambda f: -f.version)
+                    self._forms[id] = sorted(versions, 
+                                             key=lambda f: -f.version)
 
     def get_form(self, id, version=None):
-        versions = self.forms.get(id)
+        versions = self._forms.get(id)
         if versions is None:
             return None
         if version is None:
@@ -36,6 +38,15 @@ class FormRegistry(object):
             if form.version == version:
                 return form
         return None
+
+    @property
+    def all_forms(self):
+        return itertools.chain(*(self._forms.values()))
+
+    @property
+    def latest_forms(self):
+        for key in sorted(self._forms.keys()):
+            yield self._forms[key][0]
 
 
 class Form(object):

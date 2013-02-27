@@ -165,6 +165,21 @@ class AssessmentStorage(BaseAssessmentStorage):
             with open(os.path.join(self.completed_dir, id + '.js'), 'w') as f:
                 f.write(assessment.json)
 
+    @property
+    def assessments(self):
+        pattern = os.path.join(self.assessment_lock_dir, '*') \
+                  + '_' + ('[0-9]' * self.V) \
+                  + '_' + ('[0-9]' * self.N)
+        names = sorted([os.path.basename(name) 
+                        for name in glob.glob(pattern)])
+        for name in names:
+            yield self.get_assessment(name)
+         
+    @property
+    def completed_assessments(self):
+        for assessment in self.assessments:
+            if assessment.status == COMPLETED:
+                yield assessment
 
     @classmethod
     def create(cls, directory):

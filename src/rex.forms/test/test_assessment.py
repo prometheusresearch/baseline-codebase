@@ -35,3 +35,19 @@ class TestAssessmentStorage(TestCase):
         self.storage.complete_assessment(a.id)
         a = self.storage.get_assessment(a.id)
         self.assertEqual(a.status, COMPLETED)
+
+    def test_iterators(self):
+        all = [None, None, None]
+        form = self.storage.form_registry.get_form('first', version=1)
+        all[0] = self.storage.create_assessment(form)
+        all[1] = self.storage.create_assessment('first')
+        all[2] = self.storage.create_assessment('second')        
+        self.assertEqual(len(list(self.storage.assessments)), 3)
+        for i, a in enumerate(self.storage.assessments):
+            self.assertEqual(all[i].id, a.id)
+        self.storage.complete_assessment(all[0].id)
+        self.storage.complete_assessment(all[2].id)
+        completed = [a for a in self.storage.completed_assessments]
+        self.assertEqual(completed[0].id, all[0].id)
+        self.assertEqual(completed[1].id, all[2].id)
+

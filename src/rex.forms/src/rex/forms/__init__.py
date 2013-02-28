@@ -5,7 +5,7 @@ from htsql.core.validator import DBVal, MapVal, StrVal, AnyVal, BoolVal
 from rexrunner.parameter import Parameter
 from rexrunner.handler import PackageHandler
 from .command import *
-from .model import FormRegistry, AssessmentStorage
+from .model import InstrumentRegistry, AssessmentStorage
 
 import os
 import re
@@ -29,16 +29,16 @@ class FolderVal(StrVal):
 
 
 @register_parameter
-class FormFolder(Parameter):
+class InstrumentFolder(Parameter):
     """
-    A path to folder where form meta data is stored
+    A path to folder where instrument meta data is stored
 
     Example:
-      rexforms_form_folder: /forms
+      rexinstruments_instrument_folder: /instruments
     """
 
 
-    name = 'rexforms_form_folder'
+    name = 'rexinstruments_instrument_folder'
     validator = FolderVal(is_nullable=False, is_writable=False)
     default = None
 
@@ -49,25 +49,25 @@ class AssessmentFolder(Parameter):
     A path to folder where assessment data is stored
 
     Example:
-      rexforms_assessment_folder: /assessments
+      rexinstruments_assessment_folder: /assessments
     """
 
 
-    name = 'rexforms_assessment_folder'
+    name = 'rexinstruments_assessment_folder'
     validator = FolderVal(is_nullable=False, is_writable=True)
     default = None
 
 
 @register_handler
-class FormsPackageHandler(PackageHandler):
+class InstrumentsPackageHandler(PackageHandler):
 
     def __init__(self, app, package):
-        super(FormsPackageHandler, self).__init__(app, package)
-        if app.config.rexforms_form_folder is not None \
-        and app.config.rexforms_assessment_folder is not None:
-            form_registry = FormRegistry(app.config.rexforms_form_folder) 
-            self.assessment_storage = AssessmentStorage(form_registry,
-                    app.config.rexforms_assessment_folder)
+        super(InstrumentsPackageHandler, self).__init__(app, package)
+        if app.config.rexinstruments_instrument_folder is not None \
+        and app.config.rexinstruments_assessment_folder is not None:
+            instruments = InstrumentRegistry(app.config.rexinstruments_instrument_folder) 
+            self.assessment_storage = AssessmentStorage(instruments,
+                    app.config.rexinstruments_assessment_folder)
         else:
             self.assessment_storage = None
 

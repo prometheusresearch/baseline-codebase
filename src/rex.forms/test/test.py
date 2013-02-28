@@ -1,6 +1,6 @@
 
 import unittest
-from test_form_registry import *
+from test_instruments import *
 from test_assessment import *
 from test_util import *
 

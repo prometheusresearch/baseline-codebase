@@ -6,7 +6,7 @@ from rexrunner.command import Command
 from rexrunner.response import BadRequestError
 from rexrunner.registry import register_command
 
-from generator import Form
+from generator import Instrument
 OWNER = "/&meta_owner"
 
 class RoadsCommand(Command):
@@ -29,8 +29,8 @@ class SaveState(RoadsCommand):
     def get_packet(self, req):
         code = req.POST.get('package')
 
-    def get_form(self, req):
-        form = req.POST.get('form')
+    def get_instrument(self, req):
+        instrument = req.POST.get('instrument')
 
     def render(self, req):
         self.set_handler()
@@ -40,11 +40,11 @@ class SaveState(RoadsCommand):
         data = simplejson.loads(post)
         data['user_data'] = self.get_user_data(req)
         code = self.get_packet(req)
-        form = self.get_form(req)
-        if not code and form:
+        instrument = self.get_instrument(req)
+        if not code and instrument:
             return Response(body='Wrong Json')
-        _, version = self.handler.get_latest_form(form)
-        self.handler.save_packet(form, version, code, data)
+        _, version = self.handler.get_latest_instrument(instrument)
+        self.handler.save_packet(instrument, version, code, data)
         return Response(body='{"result" : true}')
 
 
@@ -61,7 +61,7 @@ class StartRoads(RoadsCommand):
                 extra[str(key)[2:]] = str(req.GET[key])
         return extra
 
-    def get_form(self, req):
+    def get_instrument(self, req):
         return req.GET.get('instrument')
 
     def get_test_mode(self, req):
@@ -72,23 +72,23 @@ class StartRoads(RoadsCommand):
 
     def prepare_client_params(self, req):
         extra = self.get_extra_params(req)
-        form = self.get_form(req)
+        instrument = self.get_instrument(req)
         test = self.get_test_mode(req)
         packet = self.get_packet(req)
         if not test:
-            if not form:
-                raise BadRequestError('Mandatory form not filled in')
+            if not instrument:
+                raise BadRequestError('Mandatory instrument not filled in')
         else:
             packet = None
-        form_json, version = self.handler.get_latest_form(form)
+        instrument_json, version = self.handler.get_latest_instrument(instrument)
         if not test and not packet:
-            packet = self.handler.create_packet(form, version, req, extra)
-        state = self.handler.get_packet(form, version, packet)
+            packet = self.handler.create_packet(instrument, version, req, extra)
+        state = self.handler.get_packet(instrument, version, packet)
         params = {
-            'instrument' : form_json,
+            'instrument' : instrument_json,
             'package' : packet,
             'state' : state,
-            'instrument_id' : form,
+            'instrument_id' : instrument,
             'extra' : extra
         }
         for key in params:

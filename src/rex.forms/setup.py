@@ -15,7 +15,7 @@ setup(name='rex.forms',
           'rex.ext>=0.1.0',
       ],
 
-      www_prefix='/rex-forms',
+      www_prefix='/rex.forms',
       www_dir='www',
       www_module='rex.forms',
       www_settings='settings.yaml',

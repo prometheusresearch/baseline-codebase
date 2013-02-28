@@ -2,7 +2,7 @@
 import os
 from testbase import TestCase
 
-from rex.forms.model import FormRegistry, Form, AssessmentStorage, Assessment, \
+from rex.forms.model import InstrumentRegistry, Instrument, AssessmentStorage, Assessment, \
                             AssessmentStorageError, IN_PROGRESS, COMPLETED
 
 
@@ -11,19 +11,19 @@ class TestAssessmentStorage(TestCase):
     def setUp(self):
         super(TestAssessmentStorage, self).setUp()
         AssessmentStorage.create(self.data_dir)
-        form_dir = os.path.normpath(os.path.join(self.data_dir, '../forms'))
-        form_registry = FormRegistry(form_dir)
-        self.storage = AssessmentStorage(form_registry, self.data_dir)
+        instrument_dir = os.path.normpath(os.path.join(self.data_dir, '../instruments'))
+        instruments = InstrumentRegistry(instrument_dir)
+        self.storage = AssessmentStorage(instruments, self.data_dir)
 
     def test_basic(self):
         first = self.storage.create_assessment('first')
         self.assertEqual(first.id, 'first_00002_000000')
-        self.assertEqual(first.form.id, 'first')
+        self.assertEqual(first.instrument.id, 'first')
         self.assertEqual(first.json, "{}")
         self.assertEqual(first.status, IN_PROGRESS)
         get = self.storage.get_assessment(first.id)
         self.assertEqual(get.id, first.id)
-        self.assertEqual(get.form.id, first.form.id)
+        self.assertEqual(get.instrument.id, first.instrument.id)
         self.assertEqual(get.json, first.json)
         self.assertEqual(get.status, first.status)
         self.storage.update_assessment(get.id, {'key': 'value'})
@@ -38,8 +38,8 @@ class TestAssessmentStorage(TestCase):
 
     def test_iterators(self):
         all = [None, None, None]
-        form = self.storage.form_registry.get_form('first', version=1)
-        all[0] = self.storage.create_assessment(form)
+        instrument = self.storage.instruments.get_instrument('first', version=1)
+        all[0] = self.storage.create_assessment(instrument)
         all[1] = self.storage.create_assessment('first')
         all[2] = self.storage.create_assessment('second')        
         self.assertEqual(len(list(self.storage.assessments)), 3)

@@ -4,54 +4,54 @@ import re
 import simplejson
 import itertools
 
-class BaseFormRegistry(object):
+class BaseInstrumentRegistry(object):
     pass
 
-class FormRegistry(object):
+class InstrumentRegistry(object):
 
     def __init__(self, directory):
         assert os.path.isdir(directory)
         self.directory = directory
-        self._forms = {}
+        self._instruments = {}
         for id in os.listdir(directory):
             if id in ('.', '..'):
                 continue
             path = os.path.join(directory, id)
             if os.path.isdir(path):
                 versions = []
-                for form in os.listdir(path):
-                    res = re.search(r'^(\d+)\.js$', form)
+                for instrument in os.listdir(path):
+                    res = re.search(r'^(\d+)\.js$', instrument)
                     if res:
-                        form_path = os.path.join(path, form)
-                        versions.append(Form(id=id,
-                                             json=open(form_path).read(),
+                        instrument_path = os.path.join(path, instrument)
+                        versions.append(Instrument(id=id,
+                                             json=open(instrument_path).read(),
                                              version=int(res.group(1))))
                 if versions:
-                    self._forms[id] = sorted(versions, 
+                    self._instruments[id] = sorted(versions, 
                                              key=lambda f: -f.version)
 
-    def get_form(self, id, version=None):
-        versions = self._forms.get(id)
+    def get_instrument(self, id, version=None):
+        versions = self._instruments.get(id)
         if versions is None:
             return None
         if version is None:
             return versions[0]
-        for form in versions:
-            if form.version == version:
-                return form
+        for instrument in versions:
+            if instrument.version == version:
+                return instrument
         return None
 
     @property
-    def all_forms(self):
-        return itertools.chain(*(self._forms.values()))
+    def all_instruments(self):
+        return itertools.chain(*(self._instruments.values()))
 
     @property
-    def latest_forms(self):
-        for key in sorted(self._forms.keys()):
-            yield self._forms[key][0]
+    def latest_instruments(self):
+        for key in sorted(self._instruments.keys()):
+            yield self._instruments[key][0]
 
 
-class Form(object):
+class Instrument(object):
     
     def __init__(self, id, version, json=None, data=None):
         assert isinstance(id, (str, unicode))

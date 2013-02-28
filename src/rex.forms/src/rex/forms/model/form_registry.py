@@ -10,6 +10,8 @@ class BaseFormRegistry(object):
 class FormRegistry(object):
 
     def __init__(self, directory):
+        assert os.path.isdir(directory)
+        self.directory = directory
         self._forms = {}
         for id in os.listdir(directory):
             if id in ('.', '..'):

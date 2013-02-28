@@ -55,6 +55,7 @@ class AssessmentStorage(BaseAssessmentStorage):
         assert isinstance(form_registry, FormRegistry)
         assert os.path.isdir(directory)
         directory = os.path.abspath(directory)
+        self.directory = directory
         self.form_registry = form_registry
         self.main_lock = FileLock(os.path.join(directory, '.lock'))
         self.form_lock_dir = os.path.join(directory, self.LOCK_FORM_DIR)

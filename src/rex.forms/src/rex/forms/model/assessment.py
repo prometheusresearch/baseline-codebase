@@ -99,14 +99,11 @@ class AssessmentStorage(BaseAssessmentStorage):
             id = self.create_assessment_id(instrument.id, instrument.version, 0)
         instrument_id, _, n = self.parse_assessment_id(id)
         assert instrument_id == instrument.id
-        return self.create_assessment_id(instrument.id, instrument.version, n + 1)
+        return self.create_assessment_id(instrument.id, instrument.version, 
+                                         n + 1)
 
     def get_last_assessment_id(self, instrument):
-        pattern = os.path.join(self.assessment_lock_dir, instrument.id) \
-                  + '_' + ('[0-9]' * self.V) \
-                  + '_' + ('[0-9]' * self.N) + '.js'
-        names = list(reversed(sorted([os.path.basename(name) 
-                              for name in glob.glob(pattern)])))
+        names = list(reversed(self._list_assessments_by_instrument(instrument)))
         return names[0][0:-len('.js')] if names else None
 
     def _get_assessment(self, id):
@@ -114,7 +111,8 @@ class AssessmentStorage(BaseAssessmentStorage):
             filename = os.path.join(dir, id + '.js')
             if os.path.isfile(filename):
                 instrument, version, _ = self.parse_assessment_id(id)
-                instrument = self.instruments.get_instrument(instrument, version=version)
+                instrument = self.instruments.get_instrument(instrument, 
+                                                             version=version)
                 return Assessment(id=id, instrument=instrument, status=status,
                                   data=simplejson.load(open(filename)),
                                   last_modified=os.path.getmtime(filename))
@@ -126,6 +124,14 @@ class AssessmentStorage(BaseAssessmentStorage):
                 return self._get_assessment(id)
         except AssessmentStorageError:
             return None
+
+    def _list_assessments_by_instrument(self, instrument):
+        pattern = os.path.join(self.assessment_lock_dir, instrument.id) \
+                  + '_' + ('[0-9]' * self.V) \
+                  + '_' + ('[0-9]' * self.N) + '.js'
+        names = list(sorted([os.path.basename(name) 
+                              for name in glob.glob(pattern)]))
+        return names
 
     def _create_assessment(self, instrument):
         id = self.get_last_assessment_id(instrument)

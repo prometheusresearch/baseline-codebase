@@ -573,8 +573,13 @@ DualNumberDomain.prototype.setViewValue = function (node, value) {
     node.text(displayValue);
 };
 DualNumberDomain.prototype.setEditValue = function (node, value, options) {
-    var first = Math.floor(value / this.size);
-    var second = value % this.size;
+    var first = ''; 
+    var second = ''; 
+    if (value !== null) {
+        first = Math.floor(value / this.size);
+        second = value % this.size;
+    }
+
     $(node).children("input[name='first']").val(first);
     $(node).children("input[name='second']").val(second);
 };
@@ -698,7 +703,7 @@ var domain = {
             return this.get(questionType, {
                 'variants': def.answers,
                 'dropDown': def.dropDown || false,
-                'allowClear': def.required & !def.annotation ? false : true
+                'allowClear': def.required /* & !def.annotation */ ? false : true
             });
         case "set":
             return this.get(questionType, def.answers);
@@ -968,7 +973,8 @@ var BaseQuestion = function(params) {
     this.askAnnotation = params.askAnnotation || false;
     this.askExplanation = params.askExplanation || false;
     this.explanation = params.explanation || null;
-    this.annotation = params.annotation || null;
+    this.annotation = (params.value === null) ?
+                            params.annotation || null : null;
     this.invalidByExpr = false;
     this.invalidByType = false;
     this.viewNode = null;
@@ -986,6 +992,8 @@ var BaseQuestion = function(params) {
                         self.extractValue();
                 self.setValue(extractedValue, true);
                 self.setValidByType();
+                if (extractedValue !== null)
+                    self.annotation = null;
                 if (self.onFormChange)
                     self.onFormChange();
             } catch(err) {
@@ -1011,7 +1019,9 @@ BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
             .val(self.annotation ? self.annotation : '')
             .change(function () {
                 self.annotation = $(this).val() || null;
-                if (self.onChange)
+                if (self.annotation)
+                    self.setValue(null, false);
+                else if (self.onChange)
                     self.onChange();
             });
             annotationContainer.append(annotationNode);
@@ -1137,6 +1147,7 @@ BaseQuestion.prototype.isIncorrect = function () {
 
 BaseQuestion.prototype.updateActiveElements = function (node, disable) {
     var activeElements = node.find('input,textarea,select,button');
+    activeElements.filter('.rf-annotation-variants').val(this.annotation);
     if (disable)
         activeElements.attr('disabled', 'disabled');
     else
@@ -1363,8 +1374,14 @@ Record.prototype.renderPreview = function () {
 
     if (this.questions.length) {
         var question = this.questions[0];
-        if (question instanceof DomainQuestion)
-            content.append(question.domain.renderView());
+        if (question instanceof DomainQuestion) {
+            var domainPreview =
+                    question.domain.renderView(question.templates,
+                                  question.value,
+                                  question.onChange,
+                                  question.customTitles);
+            content.append(domainPreview);
+        }
     }
 
     var rest = $('<div>').addClass('rf-collapsed-record-rest');
@@ -1954,7 +1971,6 @@ $.RexFormsClient = function (o) {
             updateProgress(100);
             updateButtons();
 
-            // if (!self.preview())
             self.finish();
         }
     };
@@ -2172,8 +2188,11 @@ $.RexFormsClient = function (o) {
     else {
         // 'normal' mode
         var lastVisitPage = null;
-        if (!o.ignoreBookmark && o.formData && objSize(o.formData))
+        if (!o.ignoreBookmark && o.formData && objSize(o.formData)) {
             lastVisitPage = this.getLastVisitPage();
+            if (lastVisitPage >= this.form.pages.length)
+                lastVisitPage = null;
+        }
         validateAndGo(1, lastVisitPage);
     }
 }

@@ -127,17 +127,20 @@ class AssessmentStorage(BaseAssessmentStorage):
         except AssessmentStorageError:
             return None
 
+    def _create_assessment(self, instrument):
+        id = self.get_last_assessment_id(instrument)
+        id = self.increment_assessment_id(instrument, id)
+        self.get_assessment_lock(id, create=True)
+        self.update_assessment(id, {})
+        return self._get_assessment(id)
+
     def create_assessment(self, instrument):
         assert isinstance(instrument, (str, unicode, Instrument))
         if isinstance(instrument, (str, unicode)):
             instrument = self.instruments.get_instrument(instrument)
         assert instrument is not None
-        with self.get_instrument_lock(instrument): 
-            id = self.get_last_assessment_id(instrument)
-            id = self.increment_assessment_id(instrument, id)
-            self.get_assessment_lock(id, create=True)
-            self.update_assessment(id, {})
-        return self.get_assessment(id)
+        with self.get_instrument_lock(instrument):
+            return self._create_assessment(instrument)
 
     def update_assessment(self, id, data):
         with self.get_assessment_lock(id):

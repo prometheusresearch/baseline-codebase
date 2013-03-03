@@ -5,7 +5,7 @@ from htsql.core.validator import DBVal, MapVal, StrVal, AnyVal, BoolVal
 from rexrunner.parameter import Parameter
 from rexrunner.handler import PackageHandler
 from .command import *
-from .model import InstrumentRegistry, AssessmentStorage
+from rex.instrument import InstrumentRegistry, AssessmentStorage
 
 import os
 import re
@@ -38,7 +38,7 @@ class InstrumentFolder(Parameter):
     """
 
 
-    name = 'rexinstruments_instrument_folder'
+    name = 'rexforms_instrument_folder'
     validator = FolderVal(is_nullable=False, is_writable=False)
     default = None
 
@@ -53,7 +53,7 @@ class AssessmentFolder(Parameter):
     """
 
 
-    name = 'rexinstruments_assessment_folder'
+    name = 'rexforms_assessment_folder'
     validator = FolderVal(is_nullable=False, is_writable=True)
     default = None
 
@@ -63,11 +63,11 @@ class InstrumentsPackageHandler(PackageHandler):
 
     def __init__(self, app, package):
         super(InstrumentsPackageHandler, self).__init__(app, package)
-        if app.config.rexinstruments_instrument_folder is not None \
-        and app.config.rexinstruments_assessment_folder is not None:
-            instruments = InstrumentRegistry(app.config.rexinstruments_instrument_folder) 
+        if app.config.rexforms_instrument_folder is not None \
+        and app.config.rexforms_assessment_folder is not None:
+            instruments = InstrumentRegistry(app.config.rexforms_instrument_folder) 
             self.assessment_storage = AssessmentStorage(instruments,
-                    app.config.rexinstruments_assessment_folder)
+                    app.config.rexforms_assessment_folder)
         else:
             self.assessment_storage = None
 

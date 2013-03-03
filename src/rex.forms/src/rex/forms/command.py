@@ -6,8 +6,6 @@ from rexrunner.command import Command
 from rexrunner.response import BadRequestError
 from rexrunner.registry import register_command
 
-from generator import Instrument
-OWNER = "/&meta_owner"
 
 class RoadsCommand(Command):
 

@@ -13,6 +13,7 @@ setup(name='rex.forms',
       install_requires=['rexrunner', 
           'rex.common>=0.1.0',
           'rex.ext>=0.1.0',
+          'rex.instrument>=0.1.0',
       ],
 
       www_prefix='/rex.forms',

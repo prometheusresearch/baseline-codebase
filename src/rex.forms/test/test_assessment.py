@@ -45,7 +45,9 @@ class TestAssessmentStorage(TestCase):
         self.assertEqual(len(list(self.storage.assessments)), 3)
         for i, a in enumerate(self.storage.assessments):
             self.assertEqual(all[i].id, a.id)
+        self.assertFalse(self.storage.get_assessment(all[0].id).is_completed)
         self.storage.complete_assessment(all[0].id)
+        self.assertTrue(self.storage.get_assessment(all[0].id).is_completed)
         self.storage.complete_assessment(all[2].id)
         completed = [a for a in self.storage.completed_assessments]
         self.assertEqual(completed[0].id, all[0].id)

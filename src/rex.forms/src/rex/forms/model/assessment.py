@@ -31,6 +31,10 @@ class Assessment(object):
     @property
     def json(self):
         return simplejson.dumps(self.data, indent=2, sort_keys=True)
+
+    @property
+    def is_completed(self):
+        return self.status == COMPLETED
         
     def update(self, data):
         # TODO: validate
@@ -188,7 +192,7 @@ class AssessmentStorage(BaseAssessmentStorage):
     @property
     def completed_assessments(self):
         for assessment in self.assessments:
-            if assessment.status == COMPLETED:
+            if assessment.is_completed:
                 yield assessment
 
     @classmethod

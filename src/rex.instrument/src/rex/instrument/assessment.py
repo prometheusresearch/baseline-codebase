@@ -90,7 +90,7 @@ class AssessmentStorage(BaseAssessmentStorage):
     def create_assessment_id(self, instrument_id, version, n):
         return "%s_%s_%s" % (instrument_id, 
                            str(version).rjust(self.V, '0'),
-                           str(0).rjust(self.N, '0'))
+                           str(n).rjust(self.N, '0'))
     
     def parse_assessment_id(self, id):
         n = int(id[-self.N:])
@@ -108,7 +108,7 @@ class AssessmentStorage(BaseAssessmentStorage):
 
     def get_last_assessment_id(self, instrument):
         names = list(reversed(self._list_assessments_by_instrument(instrument)))
-        return names[0][0:-len('.js')] if names else None
+        return names[0] if names else None
 
     def _get_assessment(self, id):
         for status, dir in self.status_lookup:
@@ -132,7 +132,7 @@ class AssessmentStorage(BaseAssessmentStorage):
     def _list_assessments_by_instrument(self, instrument):
         pattern = os.path.join(self.assessment_lock_dir, instrument.id) \
                   + '_' + ('[0-9]' * self.V) \
-                  + '_' + ('[0-9]' * self.N) + '.js'
+                  + '_' + ('[0-9]' * self.N)
         names = list(sorted([os.path.basename(name) 
                               for name in glob.glob(pattern)]))
         return names

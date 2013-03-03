@@ -18,7 +18,7 @@ class TestAssessmentStorage(TestCase):
 
     def test_basic(self):
         first = self.storage.create_assessment('first')
-        self.assertEqual(first.id, 'first_00002_000000')
+        self.assertEqual(first.id, 'first_00002_000001')
         self.assertEqual(first.instrument.id, 'first')
         self.assertEqual(first.json, "{}")
         self.assertEqual(first.status, IN_PROGRESS)
@@ -30,6 +30,14 @@ class TestAssessmentStorage(TestCase):
         self.storage.update_assessment(get.id, {'key': 'value'})
         get = self.storage.get_assessment(get.id)
         self.assertEqual(get.json, '{\n  "key": "value"\n}')
+
+    def test_create_several(self):
+        f1 = self.storage.create_assessment('first')
+        f2 = self.storage.create_assessment('first')
+        f3 = self.storage.create_assessment('first')
+        self.assertNotEqual(f1.id, f2.id)
+        self.assertNotEqual(f2.id, f3.id)
+        self.assertNotEqual(f1.id, f2.id)
 
     def test_complete(self):
         a = self.storage.create_assessment('first')

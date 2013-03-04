@@ -818,6 +818,7 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
                 askExplanation: questionDef.explanation || false,
                 onFormChange: onFormChange,
                 templates: templates,
+                customTitles: questionDef.customTitles || null,
                 parent: self,
                 help: questionDef.help || null
             };
@@ -1325,6 +1326,7 @@ var Record = function (recordDef, values, options) {
             onFormChange: options.onChange,
             onValueError: options.onValueError,
             templates: options.templates,
+            customTitles: questionDef.customTitles || null,
             value: values !== null ? domain.valueFromData(questionDef, values): null,
             parent: self,
             help: questionDef.help || null

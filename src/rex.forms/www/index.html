@@ -10,7 +10,7 @@
         rexFormsClient = new $.RexFormsClient({
             formMeta: {{ client_params.instrument }},
             formData: {{ client_params.state }},
-            formName: {{ client_params.instrument_id|json }},
+            instrumentName: {{ client_params.instrument_id|json }},
             paramValues: {
                 {% for param_name in client_params.extra %}
                 {% if client_params.extra[param_name] != None %}

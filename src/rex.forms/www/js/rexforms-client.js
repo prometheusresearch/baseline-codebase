@@ -1805,10 +1805,10 @@ $.RexFormsClient = function (o) {
 
     var mandatoryParams = [
         'formMeta',
-        'formName'
+        'instrumentName'
     ];
 
-    if (o.package)
+    if (o.assessment)
         mandatoryParams.push('saveURL');
 
     $.each(mandatoryParams, function (_, paramName) {
@@ -1878,8 +1878,8 @@ $.RexFormsClient = function (o) {
                          o.showNumbers || false);
     initGraphState(this.form.questions, this.form.params, this.form.change);
     this.currentPageIdx = -1;
-    this.package = o.package || null;
-    this.formName = o.formName;
+    this.assessment = o.assessment || null;
+    this.instrumentName = o.instrumentName;
     this.savedChangeStamp = 0;
 
     var updateProgress = function (forcePct) {
@@ -2051,7 +2051,7 @@ $.RexFormsClient = function (o) {
     }
 
     this.save = function (callback, sync) {
-        if (null === self.package)
+        if (null === self.assessment)
             return;
 
         var collectedData = {
@@ -2107,8 +2107,8 @@ $.RexFormsClient = function (o) {
                 async: sync ? false : true,
                 cache: false,
                 data: 'data=' + encodeURIComponent(collectedData)
-                    + '&form=' + encodeURIComponent(self.formName)
-                    + '&package=' + encodeURIComponent(self.package),
+                    + '&form=' + encodeURIComponent(self.instrumentName)
+                    + '&assessment=' + encodeURIComponent(self.assessment),
                 type: 'POST'
             });
         }
@@ -2147,11 +2147,11 @@ $.RexFormsClient = function (o) {
     };
 
     this.getBookmarkName = function () {
-        return 'rf_' + this.formName + '_' + this.package + '_bookmark';
+        return 'rf_' + this.instrumentName + '_' + this.assessment + '_bookmark';
     }
 
     this.getLastVisitPage = function () {
-        if (this.package) {
+        if (this.assessment) {
             value = localStorage.getItem(this.getBookmarkName());
             if (value !== null && value !== undefined)
                 value = parseInt(value);
@@ -2161,7 +2161,7 @@ $.RexFormsClient = function (o) {
     }
 
     this.saveLastVisitPage = function (value) {
-        if (this.package)
+        if (this.assessment)
             localStorage.setItem(this.getBookmarkName(), value);
     }
 

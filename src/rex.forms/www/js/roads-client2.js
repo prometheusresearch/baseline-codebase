@@ -974,8 +974,7 @@ var BaseQuestion = function(params) {
     this.askAnnotation = params.askAnnotation || false;
     this.askExplanation = params.askExplanation || false;
     this.explanation = params.explanation || null;
-    this.annotation = (params.value === null) ?
-                            params.annotation || null : null;
+    this.initAnnotation(params.annotation);
     this.invalidByExpr = false;
     this.invalidByType = false;
     this.viewNode = null;
@@ -993,8 +992,7 @@ var BaseQuestion = function(params) {
                         self.extractValue();
                 self.setValue(extractedValue, true);
                 self.setValidByType();
-                if (extractedValue !== null)
-                    self.annotation = null;
+                self.specificOnChange();
                 if (self.onFormChange)
                     self.onFormChange();
             } catch(err) {
@@ -1007,6 +1005,15 @@ var BaseQuestion = function(params) {
     this.templates = params.templates || defaultTemplates;
     this.customTitles = params.customTitles || {};
     this.help = params.help || null;
+}
+
+BaseQuestion.prototype.initAnnotation = function (annotation) {
+    this.annotation = (this.value === null) ? annotation: null;
+}
+
+BaseQuestion.prototype.specificOnChange = function () {
+    if (this.value !== null)
+        this.annotation = null;
 }
 
 BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
@@ -1035,12 +1042,12 @@ BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
         var hideBtn = explanationNode.find('.rf-explanation-hide');
         var showBtn = explanationNode.find('.rf-explanation-show');
         var text = explanationNode.find('.rf-explanation-text');
-        var show = function () {
+        self.showExplanation = function () {
             hideBtn.css('display', '');
             showBtn.css('display', 'none');
             explanationNode.find('.rf-explanation-block').css('display', '');
         };
-        var hide = function (skipChangeAction) {
+        self.hideExplanation = function (skipChangeAction) {
             self.explanation = null;
             text.val('');
             hideBtn.css('display', 'none');
@@ -1051,17 +1058,17 @@ BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
         };
         showBtn.click(function () {
             if ($(this).parents('.rf-disabled').size() == 0)
-                show();
+                self.showExplanation();
         });
         hideBtn.click(function () {
             if ($(this).parents('.rf-disabled').size() == 0)
-                hide();
+                self.hideExplanation();
         });
         if (self.explanation) {
             text.val(self.explanation);
-            show();
+            self.showExplanation();
         } else
-            hide(true);
+            self.hideExplanation(true);
         text.change(function () {
             self.explanation = $(this).val() || null;
             if (self.onFormChange)
@@ -1182,6 +1189,9 @@ BaseQuestion.prototype.getRexlValue = function (itemName) {
 
 BaseQuestion.prototype.disable = function() {
     if (this.value !== null) {
+        this.explanation = null;
+        if (this.hideExplanation)
+            this.hideExplanation();
         this.setValue(null, false);
     }
     this.disabled = true;
@@ -1265,6 +1275,34 @@ DomainQuestion.prototype.extractValue = function () {
         return null;
     var domainNode = this.editNode.find('.rf-question-answers:first').children();
     return this.domain.extractValue(domainNode);
+};
+
+DomainQuestion.prototype.initAnnotation = function (annotation) {
+    var isEmpty = (this.value === null);
+    if (!isEmpty) {
+        var hasAnswer = false;
+        $.each(this.value, function (_, value) {
+            if (value)
+                hasAnswer = true;
+        });
+        isEmpty = !hasAnswer;
+    }
+    this.annotation = isEmpty ? annotation: null;
+};
+
+DomainQuestion.prototype.specificOnChange = function () {
+    if (this.domain instanceof SetDomain) {
+        if (this.value !== null) {
+            var hasAnswer = false;
+            $.each(this.value, function (_, value) {
+                if (value)
+                    hasAnswer = true;
+            });
+            if (hasAnswer)
+                this.annotation = null;
+        }
+    } else if (this.value !== null)
+        this.annotation = null;
 };
 
 DomainQuestion.prototype.setValue = function (value, internal) {

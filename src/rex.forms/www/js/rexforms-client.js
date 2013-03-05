@@ -855,8 +855,6 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
         ++self.changeStamp;
     });
 
-    // TODO: set initial values for questions
-
 
     var expr = {};
     // loop through all pages and questions and extract rexl expressions
@@ -914,17 +912,6 @@ Page.prototype.isIncorrect = function () {
             isIncorrect = true;
         }
     });
-
-/*
-    $.each(self.questions, function(id, question) {
-        if (!self.skipped && !question.disabled &&
-               (question.invalid || question.wrong ||
-                !question.conforming() /\* question.getValue() === null *\/ && question.annotation === null)) {
-            question.markAsNotConforming();
-            isConforming = false;
-        }
-    });
-*/
 
     return isIncorrect;
 }
@@ -1466,11 +1453,6 @@ Record.prototype.collapse = function (silent) {
 Record.prototype.expand = function () {
     if (!this.collapsed)
         return;
-    /*
-    if (!this.editNode ||
-        !this.editNode.hasClass('rf-collapsed'))
-        return;
-    */
     var previewNode = this.editNode.find('.rf-record-preview:first');
     previewNode.contents().remove();
     var questionNode = this.editNode.find('.rf-questions:first');
@@ -1522,10 +1504,6 @@ Record.prototype.renderEdit = function () {
                     self.viewNode.remove();
                 if (self.onRemove)
                     self.onRemove(self);
-                /*
-                if (onChange)
-                    onChange();
-                */
             }
         });
         this.editNode.append(btnRemoveRecord);
@@ -1553,18 +1531,6 @@ Record.prototype.extractValue = function () {
         if (answer !== null)
             hasAnswer = true;
     });
-/*
-    $.each(this.questions, function (_, question) {
-        if (question.value !== null)
-            hasAnswer = true;
-        if (question instanceof DomainQuestion &&
-            question.domain instanceof SetDomain) {
-
-
-        } else
-            ret[question.name] = question.value; // .extractValue(); 
-    });
-*/
     return hasAnswer ? collectedAnswers : null;
 };
 
@@ -1958,20 +1924,6 @@ $.RexFormsClient = function (o) {
                     if (scrollTo)
                         scrollTo[0].scrollIntoView();
                 }
-                /*
-                var firstWrongQuestion = self.questionArea.find('.rf-error:first');
-                if (firstWrongQuestion.size()) {
-                    var firstWrongSubQuestion = 
-                            firstWrongQuestion.find('.rf-error:first');
-                    if (firstWrongSubQuestion.size()) {
-                        // expand if collapsed
-                        firstWrongSubQuestion.parents('.rf-collapsed:first')
-                                             .click();
-                        firstWrongSubQuestion[0].scrollIntoView();
-                    } else
-                        firstWrongQuestion[0].scrollIntoView();
-                }
-                */
                 return false;
             }
             return true;

@@ -72,3 +72,50 @@ class TestAssessmentStorage(TestCase):
     def test_validation(self):
         instrument = self.storage.instruments.get_instrument('first')
         assessment = self.storage.create_assessment(instrument)
+        def right(key, value):
+            data = Assessment.empty_data()
+            data['answers'][key] = value
+            self.storage.update_assessment(assessment.id, data)
+        def wrong(key, value):
+            prev = self.storage.get_assessment(assessment.id)
+            with self.assertRaises(AssessmentStorageError):
+                right(key, value)
+            post = self.storage.get_assessment(assessment.id)
+            self.assertEqual(prev.json, post.json)
+        wrong('anykey', [])
+        # enum
+        right('first_enum', 'a')
+        wrong('first_enum', 'd')
+        right('first_enum', None)
+        # set
+        wrong('first_set', None)
+        wrong('first_set', ['a', 'b'])
+        right('first_set_a', True)
+        right('first_set_b', False)
+        wrong('first_set_b', None)
+        # integer
+        wrong('first_integer', '25')
+        wrong('first_integer', 25.5)
+        right('first_integer', 25)
+        right('first_integer', None)
+        # float
+        wrong('first_float', '25')
+        right('first_float', 25)
+        right('first_float', 25.5)
+        right('first_float', None)
+        # string
+        wrong('first_string', 25)
+        wrong('first_string', False)
+        right('first_string', '25')
+        right('first_string', None)
+        # text
+        wrong('first_text', 25)
+        wrong('first_text', False)
+        right('first_text', '25')
+        right('first_text', None)
+        # date
+        wrong('first_date', 25)
+        wrong('first_date', False)
+        right('first_date', '25i----')
+        right('first_date', None)
+

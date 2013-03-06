@@ -98,7 +98,7 @@ class TestAssessmentStorage(TestCase):
         wrong('first_integer', 25.5)
         right('first_integer', 25)
         right('first_integer', None)
-        # float
+        # float, all fun types should be here as well (weight, time_month etc.)
         wrong('first_float', '25')
         right('first_float', 25)
         right('first_float', 25.5)
@@ -116,6 +116,8 @@ class TestAssessmentStorage(TestCase):
         # date
         wrong('first_date', 25)
         wrong('first_date', False)
-        right('first_date', '25i----')
+        wrong('first_date', 'string')
+        wrong('first_date', '2000-40-40')
+        right('first_date', '2000-01-29')
         right('first_date', None)
 

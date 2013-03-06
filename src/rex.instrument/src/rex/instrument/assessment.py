@@ -6,10 +6,12 @@ import simplejson
 import shutil
 from .instrument import InstrumentRegistry, Instrument
 from .util import FileLock, savefile
+from rex.validate import ValidationError
 
 # do not change these values unless you know what you're doing
 IN_PROGRESS = 'in-progress'
 COMPLETED = 'completed'
+
 
 class AssessmentStorageError(Exception):
     pass
@@ -37,8 +39,30 @@ class Assessment(object):
         return self.status == COMPLETED
         
     def update(self, data):
-        # TODO: validate
+        try:
+            self.instrument.validate(data)
+        except ValidationError:
+            raise AssessmentStorageError("Assessment data is not valid: %s" 
+                                         % simplejson.dumps(data))
         self.data = data
+
+    @classmethod
+    def empty_data(cls):
+        return {
+            'answers': {},
+            'explanations': {},
+            'annotations': {},
+        }
+
+    #@classmethod
+    #def validate(cls, instrument, data):
+    #    assert isinstance(instrument, Instrument)
+    #    assert isinstance(data, dict)
+    #    try:
+    #        instrument.validate(data)
+    #    except ValidationError:
+    #        return False
+    #    return True
         
 
 class BaseAssessmentStorage(object):
@@ -141,7 +165,8 @@ class AssessmentStorage(BaseAssessmentStorage):
         id = self.get_last_assessment_id(instrument)
         id = self.increment_assessment_id(instrument, id)
         self.get_assessment_lock(id, create=True)
-        self.update_assessment(id, {})
+        data = Assessment.empty_data() 
+        self.update_assessment(id, data)
         return self._get_assessment(id)
 
     def create_assessment(self, instrument):

@@ -5,6 +5,7 @@ from testbase import TestCase
 from rex.instrument import InstrumentRegistry, Instrument, AssessmentStorage, \
                            Assessment, AssessmentStorageError, IN_PROGRESS, \
                            COMPLETED
+import simplejson
 
 
 class TestAssessmentStorage(TestCase):
@@ -17,19 +18,25 @@ class TestAssessmentStorage(TestCase):
         self.storage = AssessmentStorage(instruments, self.data_dir)
 
     def test_basic(self):
+        json = lambda x: simplejson.dumps(x, sort_keys=True, indent=2)
+        empty_data = json(Assessment.empty_data())
         first = self.storage.create_assessment('first')
         self.assertEqual(first.id, 'first_00002_000001')
         self.assertEqual(first.instrument.id, 'first')
-        self.assertEqual(first.json, "{}")
+        self.assertEqual(first.json, empty_data)
         self.assertEqual(first.status, IN_PROGRESS)
         get = self.storage.get_assessment(first.id)
         self.assertEqual(get.id, first.id)
         self.assertEqual(get.instrument.id, first.instrument.id)
         self.assertEqual(get.json, first.json)
         self.assertEqual(get.status, first.status)
-        self.storage.update_assessment(get.id, {'key': 'value'})
+        with self.assertRaises(AssessmentStorageError):
+            self.storage.update_assessment(get.id, {'key': 'value'})
+        data = Assessment.empty_data()
+        data['answers']['first_enum'] = 'a'
+        self.storage.update_assessment(get.id, data)
         get = self.storage.get_assessment(get.id)
-        self.assertEqual(get.json, '{\n  "key": "value"\n}')
+        self.assertEqual(get.json, json(data))
 
     def test_create_several(self):
         f1 = self.storage.create_assessment('first')
@@ -62,3 +69,6 @@ class TestAssessmentStorage(TestCase):
         self.assertEqual(completed[0].id, all[0].id)
         self.assertEqual(completed[1].id, all[2].id)
 
+    def test_validation(self):
+        instrument = self.storage.instruments.get_instrument('first')
+        assessment = self.storage.create_assessment(instrument)

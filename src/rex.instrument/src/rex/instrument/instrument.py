@@ -3,6 +3,7 @@ import os
 import re
 import simplejson
 import itertools
+from rex.validate import make_assessment_schema, ValidationError, validate
 
 class BaseInstrumentRegistry(object):
     pass
@@ -69,4 +70,7 @@ class Instrument(object):
             self.json = simplejson.dumps(data, sort_keys=True)
         self.id = id
         self.version = version
-        # TODO: validation
+        self.assessment_schema = make_assessment_schema(self.data)
+
+    def validate(self, data):
+        validate(self.assessment_schema, data) 

@@ -9,5 +9,6 @@ setup(name='rex.instrument',
       include_package_data = True,
       namespace_packages=['rex'],
       install_requires=[
+          'rex.validate>=0.1.0'
       ],
 )

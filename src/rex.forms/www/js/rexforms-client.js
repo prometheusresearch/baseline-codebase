@@ -736,11 +736,11 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
     // while building pages list
     // loop through its questions on the each page and to this.questions[id] = question
 
-    this.finished = false;
+    this.completed = false;
     this.templates = templates;
 
-    this.finish = function () {
-        self.finished = true;
+    this.complete = function () {
+        self.completed = true;
     }
 
     this.title = config.title || '';
@@ -1798,7 +1798,7 @@ $.RexFormsClient = function (o) {
     var self = this;
 
     this.mode = o.mode ? o.mode : 'normal';
-    this.saveBeforeFinish = o.saveBeforeFinish || false;
+    this.saveBeforeComplete = o.saveBeforeComplete || false;
 
     if (!o)
         throw("RexFormsClient got no parameters");
@@ -1868,7 +1868,7 @@ $.RexFormsClient = function (o) {
 
     this.previewURL = o.previewURL || null;
     this.saveURL = o.saveURL;
-    this.finishCallback = o.finishCallback || null;
+    this.completeCallback = o.completeCallback || null;
     this.events = o.events || {};
 
     this.form = new Form(o.formMeta,
@@ -1907,7 +1907,7 @@ $.RexFormsClient = function (o) {
     }
 
     var validateAndGo = function (step, startFrom) {
-        if (self.form.finished)
+        if (self.form.completed)
             return;
 
         var validateAndScroll = function (page) {
@@ -1963,7 +1963,7 @@ $.RexFormsClient = function (o) {
             updateProgress(100);
             updateButtons();
 
-            self.finish();
+            self.complete();
         }
     };
 
@@ -2059,7 +2059,6 @@ $.RexFormsClient = function (o) {
             answers: collectAnswers(self.form.questions),
             annotations: self.collectAnnotations(),
             explanations: self.collectExplanations(),
-            finished: self.form.finished
         };
         // var changeStamp = self.changeStamp;
         collectedData = $.toJSON(collectedData);
@@ -2108,7 +2107,8 @@ $.RexFormsClient = function (o) {
                 cache: false,
                 data: 'data=' + encodeURIComponent(collectedData)
                     + '&form=' + encodeURIComponent(self.instrumentName)
-                    + '&assessment=' + encodeURIComponent(self.assessment),
+                    + '&assessment=' + encodeURIComponent(self.assessment)
+                    + (self.form.completed ? '&completed=1' : ''),
                 type: 'POST'
             });
         }
@@ -2122,28 +2122,28 @@ $.RexFormsClient = function (o) {
         return false;
     }
 
-    this.finish = function () {
-        var realFinish = function () {
+    this.complete = function () {
+        var realComplete = function () {
             var eventRetData = {};
-            var retValue = self.raiseEvent('beforeFinish', eventRetData);
+            var retValue = self.raiseEvent('beforeComplete', eventRetData);
             if (!retValue || eventRetData.cancel)
                 return;
 
             self.btnNext.add(this.btnPrev).css('display', 'none');
             self.clearQuestions();
 
-            self.form.finish();
+            self.form.complete();
             self.save(function () {
-                self.raiseEvent('finished');
+                self.raiseEvent('completed');
             }, false);
         }
 
-        if (self.saveBeforeFinish) {
+        if (self.saveBeforeComplete) {
             self.save(function () {
-                realFinish();
+                realComplete();
             }, false);
         } else
-            realFinish();
+            realComplete();
     };
 
     this.getBookmarkName = function () {

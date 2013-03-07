@@ -524,6 +524,14 @@ SetDomain.prototype.extractValue = function (node) {
     });
     return total ? values : null;
 };
+SetDomain.prototype.getEmptyValue = function () {
+    var values = {};
+    for (var idx in this.variants) {
+        var variant = this.variants[idx];
+        values[variant.code] = false;
+    }
+    return values;
+}
 
 var DualNumberDomain = function(firstName, secondName, size) {
     this.firstName = firstName;
@@ -1217,6 +1225,11 @@ BaseQuestion.prototype.setValidByType = function() {
 };
 
 var DomainQuestion = function (params, domain) {
+    if (params.value === null &&
+        domain instanceof SetDomain) {
+        params.value = domain.getEmptyValue();
+    }
+
     BaseQuestion.call(this, params);
     this.domain = domain;
     this.typeName = domain.name;
@@ -1293,7 +1306,11 @@ DomainQuestion.prototype.specificOnChange = function () {
 };
 
 DomainQuestion.prototype.setValue = function (value, internal) {
-    this.value = value;
+    if (value === null && 
+        this.domain instanceof SetDomain)
+        this.value = this.domain.getEmptyValue();
+    else
+        this.value = value;
     if (!internal) {
         if (this.editNode) {
             var domainNode = this.editNode.find('.rf-question-answers:first')

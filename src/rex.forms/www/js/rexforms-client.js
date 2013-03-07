@@ -2179,7 +2179,11 @@ $.RexFormsClient = function (o) {
     else {
         // 'normal' mode
         var lastVisitPage = null;
-        if (!o.ignoreBookmark && o.formData && objSize(o.formData)) {
+        if (!o.ignoreBookmark &&
+            o.formData &&
+            o.formData.answers &&
+            objSize(o.formData.answers)) {
+
             lastVisitPage = this.getLastVisitPage();
             if (lastVisitPage >= this.form.pages.length)
                 lastVisitPage = null;

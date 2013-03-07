@@ -2055,7 +2055,6 @@ $.RexFormsClient = function (o) {
             return;
 
         var collectedData = {
-            version: null, // TODO
             answers: collectAnswers(self.form.questions),
             annotations: self.collectAnnotations(),
             explanations: self.collectExplanations(),

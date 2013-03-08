@@ -6,6 +6,7 @@ from rex.instrument import InstrumentRegistry, Instrument, AssessmentStorage, \
                            Assessment, AssessmentStorageError, IN_PROGRESS, \
                            COMPLETED
 import simplejson
+from copy import deepcopy
 
 
 class TestAssessmentStorage(TestCase):
@@ -19,7 +20,9 @@ class TestAssessmentStorage(TestCase):
 
     def test_basic(self):
         json = lambda x: simplejson.dumps(x, sort_keys=True, indent=2)
-        empty_data = json(Assessment.empty_data())
+        empty_data = Assessment.empty_data()
+        empty_data.update({'instrument': 'first', 'version': 2})
+        empty_data = json(empty_data)
         first = self.storage.create_assessment('first')
         self.assertEqual(first.id, 'first_00002_000001')
         self.assertEqual(first.instrument.id, 'first')
@@ -32,7 +35,7 @@ class TestAssessmentStorage(TestCase):
         self.assertEqual(get.status, first.status)
         with self.assertRaises(AssessmentStorageError):
             self.storage.update_assessment(get.id, {'key': 'value'})
-        data = Assessment.empty_data()
+        data = deepcopy(get.data) 
         data['answers']['first_enum'] = 'a'
         self.storage.update_assessment(get.id, data)
         get = self.storage.get_assessment(get.id)
@@ -73,7 +76,7 @@ class TestAssessmentStorage(TestCase):
         instrument = self.storage.instruments.get_instrument('first')
         assessment = self.storage.create_assessment(instrument)
         def right(key, value):
-            data = Assessment.empty_data()
+            data = deepcopy(assessment.data)
             data['answers'][key] = value
             self.storage.update_assessment(assessment.id, data)
         def wrong(key, value):

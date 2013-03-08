@@ -52,6 +52,8 @@ class Assessment(object):
             'answers': {},
             'explanations': {},
             'annotations': {},
+            'instrument': None,
+            'version': None,
         }
 
     #@classmethod
@@ -165,7 +167,9 @@ class AssessmentStorage(BaseAssessmentStorage):
         id = self.get_last_assessment_id(instrument)
         id = self.increment_assessment_id(instrument, id)
         self.get_assessment_lock(id, create=True)
-        data = Assessment.empty_data() 
+        data = Assessment.empty_data()
+        data['instrument'] = instrument.id
+        data['version'] = instrument.version
         self.update_assessment(id, data)
         return self._get_assessment(id)
 

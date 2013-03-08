@@ -40,6 +40,7 @@ class TestAssessmentStorage(TestCase):
         self.storage.update_assessment(get.id, data)
         get = self.storage.get_assessment(get.id)
         self.assertEqual(get.json, json(data))
+        self.assertIsNone(self.storage.get_assessment('non-existent'))
 
     def test_create_several(self):
         f1 = self.storage.create_assessment('first')

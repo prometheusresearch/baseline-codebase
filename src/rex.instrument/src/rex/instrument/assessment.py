@@ -16,6 +16,9 @@ COMPLETED = 'completed'
 class AssessmentStorageError(Exception):
     pass
 
+class AssessmentLockError(AssessmentStorageError):
+    pass
+
 
 class Assessment(object):
 
@@ -111,7 +114,7 @@ class AssessmentStorage(BaseAssessmentStorage):
         try:
             return FileLock(path, create=create)
         except IOError:
-            raise AssessmentStorageError("Assessment not found: %s" % id)
+            raise AssessmentLockError("Assessment not found: %s" % id)
 
     def create_assessment_id(self, instrument_id, version, n):
         return "%s_%s_%s" % (instrument_id, 
@@ -152,10 +155,11 @@ class AssessmentStorage(BaseAssessmentStorage):
 
     def get_assessment(self, id):
         try:
-            with self.get_assessment_lock(id):
-                return self._get_assessment(id)
-        except AssessmentStorageError:
+            lock = self.get_assessment_lock(id)
+        except AssessmentLockError:
             return None
+        with lock:
+            return self._get_assessment(id)
 
     def _list_assessments_by_instrument(self, instrument):
         pattern = os.path.join(self.assessment_lock_dir, instrument.id) \

@@ -21,8 +21,12 @@ class FileLock(object):
     def __init__(self, filename, create=False):
         self.filename = filename
         self.descriptor = None
-        if create and not os.path.isfile(self.filename):
-            open(self.filename, 'w').close()
+        if create:
+            if not os.path.isfile(self.filename):
+                open(self.filename, 'w').close()
+        else:
+            if not os.path.isfile(self.filename):
+                raise IOError("File %s does not exist" % self.filename)
 
     def __enter__(self):
         self.descriptor = open(self.filename, 'r')

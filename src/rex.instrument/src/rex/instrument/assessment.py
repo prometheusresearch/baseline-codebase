@@ -45,7 +45,7 @@ class Assessment(object):
         try:
             self.instrument.validate(data)
         except ValidationError:
-            raise AssessmentStorageError("Assessment data is not valid: %s" 
+            raise AssessmentStorageError("Assessment data is invalid: %s" 
                                          % simplejson.dumps(data))
         self.data = data
 
@@ -191,7 +191,11 @@ class AssessmentStorage(BaseAssessmentStorage):
             return self._create_assessment(instrument)
 
     def update_assessment(self, id, data):
-        with self.get_assessment_lock(id):
+        try:
+            lock = self.get_assessment_lock(id) 
+        except AssessmentLockError:
+            raise AssessmentStorageError("Assessment %s not found" % id)
+        with lock:
             assessment = self._get_assessment(id)
             if assessment is None:
                 version = data.get('version')
@@ -218,7 +222,11 @@ class AssessmentStorage(BaseAssessmentStorage):
             savefile(filename, assessment.json)
 
     def complete_assessment(self, id):
-        with self.get_assessment_lock(id):
+        try:
+            lock = self.get_assessment_lock(id) 
+        except AssessmentLockError:
+            raise AssessmentStorageError("Assessment %s not found" % id)
+        with lock:
             assessment = self._get_assessment(id)
             if assessment is None:
                 raise AssessmentStorageError("Assessment not found: %s" % id)

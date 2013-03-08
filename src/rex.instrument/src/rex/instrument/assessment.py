@@ -140,11 +140,13 @@ class AssessmentStorage(BaseAssessmentStorage):
         for status, dir in self.status_lookup:
             filename = os.path.join(dir, id + '.js')
             if os.path.isfile(filename):
-                instrument, version, _ = self.parse_assessment_id(id)
+                data = simplejson.load(open(filename))
+                instrument = data.get('instrument')
+                version = data.get('version')
                 instrument = self.instruments.get_instrument(instrument, 
                                                              version=version)
                 return Assessment(id=id, instrument=instrument, status=status,
-                                  data=simplejson.load(open(filename)),
+                                  data=data,
                                   last_modified=os.path.getmtime(filename))
         return None
 
@@ -175,9 +177,12 @@ class AssessmentStorage(BaseAssessmentStorage):
 
     def create_assessment(self, instrument):
         assert isinstance(instrument, (str, unicode, Instrument))
+        instrument_name = instrument
         if isinstance(instrument, (str, unicode)):
             instrument = self.instruments.get_instrument(instrument)
-        assert instrument is not None
+        if instrument is None:
+            raise AssessmentStorageError("Instrument %s not found" 
+                                         % instrument_name)
         with self.get_instrument_lock(instrument):
             return self._create_assessment(instrument)
 
@@ -185,8 +190,20 @@ class AssessmentStorage(BaseAssessmentStorage):
         with self.get_assessment_lock(id):
             assessment = self._get_assessment(id)
             if assessment is None:
-                instrument, version, _ = self.parse_assessment_id(id)
-                instrument = self.instruments.get_instrument(instrument, version=version)
+                version = data.get('version')
+                if version is None:
+                    raise AssessmentStorageError(("Assessment %s has "
+                                                  "invalid instrument "
+                                                  "version: %s") 
+                                                 % (id, version))
+                instrument_name = data.get('instrument')
+                instrument = self.instruments.get_instrument(instrument_name, 
+                                                             version=version)
+                if instrument is None:
+                    raise AssessmentStorageError(("Assessment %s has "
+                                                  "invalid instrument: %s "
+                                                  "with version: %s") 
+                                             % (id, instrument_name, version))
                 assessment = Assessment(id=id, instrument=instrument, data=data,
                                         status=IN_PROGRESS, last_modified=None)
             if assessment.status != IN_PROGRESS:

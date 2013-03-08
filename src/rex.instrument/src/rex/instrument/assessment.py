@@ -221,17 +221,13 @@ class AssessmentStorage(BaseAssessmentStorage):
             if assessment.status != IN_PROGRESS:
                 raise AssessmentStorageError("Assessment %s has "
                          "invalid status: %s" % (id, assessment.status))
-            #TODO: assessment.complete()/validate
             with open(os.path.join(self.completed_dir, id + '.js'), 'w') as f:
                 f.write(assessment.json)
 
     @property
     def assessments(self):
-        pattern = os.path.join(self.assessment_lock_dir, '*') \
-                  + '_' + ('[0-9]' * self.V) \
-                  + '_' + ('[0-9]' * self.N)
-        names = sorted([os.path.basename(name) 
-                        for name in glob.glob(pattern)])
+        names = sorted([name for name in os.listdir(self.assessment_lock_dir)
+                                 if not name.startswith('.') ])
         for name in names:
             yield self.get_assessment(name)
          

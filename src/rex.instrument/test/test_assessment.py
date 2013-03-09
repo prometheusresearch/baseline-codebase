@@ -42,6 +42,16 @@ class TestAssessmentStorage(TestCase):
         self.assertEqual(get.json, json(data))
         self.assertIsNone(self.storage.get_assessment('non-existent'))
 
+    def test_create_with_id(self):
+        f1 = self.storage.create_assessment('first', id='customid')
+        f2 = self.storage.create_assessment('first', id='customid')
+        self.assertEqual(f1.id, f2.id)
+        self.assertEqual(f1.id, 'customid')
+        self.assertEqual(f1.json, f2.json)
+        self.assertEqual(len(list(self.storage.assessments)), 1)
+        self.storage.create_assessment('first')
+        self.assertEqual(len(list(self.storage.assessments)), 2)
+
     def test_create_several(self):
         f1 = self.storage.create_assessment('first')
         f2 = self.storage.create_assessment('first')

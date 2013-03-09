@@ -169,9 +169,14 @@ class AssessmentStorage(BaseAssessmentStorage):
                               for name in glob.glob(pattern)]))
         return names
 
-    def _create_assessment(self, instrument):
-        id = self.get_last_assessment_id(instrument)
-        id = self.increment_assessment_id(instrument, id)
+    def _create_assessment(self, instrument, id):
+        if id is None:
+            id = self.get_last_assessment_id(instrument)
+            id = self.increment_assessment_id(instrument, id)
+        else:
+            assessment = self._get_assessment(id)
+            if assessment is not None:
+                return assessment
         self.get_assessment_lock(id, create=True)
         data = Assessment.empty_data()
         data['instrument'] = instrument.id
@@ -179,7 +184,7 @@ class AssessmentStorage(BaseAssessmentStorage):
         self.update_assessment(id, data)
         return self._get_assessment(id)
 
-    def create_assessment(self, instrument):
+    def create_assessment(self, instrument, id=None):
         assert isinstance(instrument, (str, unicode, Instrument))
         instrument_name = instrument
         if isinstance(instrument, (str, unicode)):
@@ -188,7 +193,7 @@ class AssessmentStorage(BaseAssessmentStorage):
             raise AssessmentStorageError("Instrument %s not found" 
                                          % instrument_name)
         with self.get_instrument_lock(instrument):
-            return self._create_assessment(instrument)
+            return self._create_assessment(instrument, id)
 
     def update_assessment(self, id, data):
         try:

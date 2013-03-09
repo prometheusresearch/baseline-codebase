@@ -1888,6 +1888,7 @@ $.RexFormsClient = function (o) {
     this.completeCallback = o.completeCallback || null;
     this.events = o.events || {};
 
+    this.formData = o.formData || {};
     this.form = new Form(o.formMeta,
                          o.formData || {},
                          o.paramValues || {},
@@ -2071,13 +2072,12 @@ $.RexFormsClient = function (o) {
         if (null === self.assessment)
             return;
 
-        var collectedData = {
-            answers: collectAnswers(self.form.questions),
-            annotations: self.collectAnnotations(),
-            explanations: self.collectExplanations(),
-        };
+        this.formData.answers = collectAnswers(self.form.questions);
+        this.formData.annotations = self.collectAnnotations();
+        this.formData.explanations = self.collectExplanations();
+
         // var changeStamp = self.changeStamp;
-        collectedData = $.toJSON(collectedData);
+        collectedData = $.toJSON(this.formData);
 
         if (!self.raiseEvent('beforeSave', collectedData))
             // stop if aborted

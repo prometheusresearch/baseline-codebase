@@ -196,7 +196,7 @@ class AssessmentStorage(BaseAssessmentStorage):
 
     def update_assessment(self, id, data):
         try:
-            lock = self.get_assessment_lock(id) 
+            lock = self.get_assessment_lock(id)
         except AssessmentLockError:
             raise AssessmentStorageError("Assessment %s not found" % id)
         with lock:

@@ -116,28 +116,35 @@ class AssessmentStorage(BaseAssessmentStorage):
         except IOError:
             raise AssessmentLockError("Assessment not found: %s" % id)
 
-    def create_assessment_id(self, instrument_id, version, n):
+    def _create_own_id(self, instrument_id, version, n):
         return "%s_%s_%s" % (instrument_id, 
                            str(version).rjust(self.V, '0'),
                            str(n).rjust(self.N, '0'))
     
-    def parse_assessment_id(self, id):
+    def _parse_own_id(self, id):
         n = int(id[-self.N:])
         version = int(id[-self.N - 1 - self.V:][:self.N - 1])
         instrument_id = id[:-self.V - self.N - 2]
         return (instrument_id, version, n)
 
-    def increment_assessment_id(self, instrument, id=None):
-        if id is None:
-            id = self.create_assessment_id(instrument.id, instrument.version, 0)
-        instrument_id, _, n = self.parse_assessment_id(id)
-        assert instrument_id == instrument.id
-        return self.create_assessment_id(instrument.id, instrument.version, 
-                                         n + 1)
-
-    def get_last_assessment_id(self, instrument):
-        names = list(reversed(self._list_assessments_by_instrument(instrument)))
+    def _get_last_own_id(self, instrument):
+        names = list(reversed(self._list_own_ids_by_instrument(instrument)))
         return names[0] if names else None
+
+    def _increment_own_id(self, instrument, id=None):
+        if id is None:
+            id = self._create_own_id(instrument.id, instrument.version, 0)
+        instrument_id, _, n = self._parse_own_id(id)
+        assert instrument_id == instrument.id
+        return self._create_own_id(instrument.id, instrument.version, n + 1)
+
+    def _list_own_ids_by_instrument(self, instrument):
+        pattern = os.path.join(self.assessment_lock_dir, instrument.id) \
+                  + '_' + ('[0-9]' * self.V) \
+                  + '_' + ('[0-9]' * self.N)
+        names = list(sorted([os.path.basename(name) 
+                              for name in glob.glob(pattern)]))
+        return names
 
     def _get_assessment(self, id):
         for status, dir in self.status_lookup:
@@ -161,18 +168,10 @@ class AssessmentStorage(BaseAssessmentStorage):
         with lock:
             return self._get_assessment(id)
 
-    def _list_assessments_by_instrument(self, instrument):
-        pattern = os.path.join(self.assessment_lock_dir, instrument.id) \
-                  + '_' + ('[0-9]' * self.V) \
-                  + '_' + ('[0-9]' * self.N)
-        names = list(sorted([os.path.basename(name) 
-                              for name in glob.glob(pattern)]))
-        return names
-
     def _create_assessment(self, instrument, id):
         if id is None:
-            id = self.get_last_assessment_id(instrument)
-            id = self.increment_assessment_id(instrument, id)
+            id = self._get_last_own_id(instrument)
+            id = self._increment_own_id(instrument, id)
         else:
             assessment = self._get_assessment(id)
             if assessment is not None:

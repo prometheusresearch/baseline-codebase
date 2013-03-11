@@ -1264,8 +1264,12 @@ DomainQuestion.prototype.getRexlValue = function (itemName) {
         else if (itemName.length) {
             return rexlize(this.value[itemName[0]]);
         }
-
-        return rexlize(objSize(this.value));
+        var totalAnswered = 0;
+        $.each(this.value, function (_, value) {
+            if (value)
+                ++totalAnswered;
+        });
+        return rexlize(totalAnswered);
     } else
         return rexlize(this.value);
 };

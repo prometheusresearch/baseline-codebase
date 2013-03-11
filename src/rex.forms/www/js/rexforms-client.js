@@ -1795,6 +1795,11 @@ var defaultTemplates = {
             + '<div class="rf-question-annotation"></div>'
             + '<div class="rf-question-explanation"></div>'
         + '</div>',
+    'errorDialog':
+          '<div class="rf-error-dialog">'
+            + '<div class="rf-error-message"></div>'
+            + '<div class="rf-error-content"></div>'
+        + '</div>',
     'explanation':
           '<div class="rf-explanation">'
             + '<div class="rf-explanation-show">I want to explain my answer</div>'
@@ -1934,7 +1939,9 @@ $.RexFormsClient = function (o) {
 
         var validateAndScroll = function (page) {
             if (page.isIncorrect()) {
-                alert("There are missed required questions or wrong answers on " 
+                self.showError(
+                      null, 
+                      "There are missed required questions or wrong answers on " 
                     + "this page. Please correct the information you provided.");
                 var wrongQuestion = page.findWrongQuestion();
                 if (wrongQuestion) {
@@ -2098,7 +2105,11 @@ $.RexFormsClient = function (o) {
                 self.raiseEvent('saveError', eventRetData);
                 if (eventRetData.cancel)
                     return;
-                alert('Error saving your answers!');
+                self.showError(
+                    null,
+                    'Error saving your answers!',
+                    req ? req.responseText : null
+                );
             };
             $.ajax({
                 url: self.saveURL,
@@ -2183,6 +2194,35 @@ $.RexFormsClient = function (o) {
     this.saveLastVisitPage = function (value) {
         if (this.assessment)
             localStorage.setItem(this.getBookmarkName(), value);
+    }
+
+
+    this.showError = function (title, message, iframeContent) {
+        var node = templates['errorDialog'].clone();
+        node.find('.rf-error-message:first').text(message);
+        node.dialog({
+            width: 500,
+            height: 150,
+            modal: true,
+            title: title || 'Error',
+            buttons: {
+                Ok: function () {
+                    $(this).dialog('close');
+                }
+            },
+            close: function () {
+                node.detach();
+            }
+        });
+        if (iframeContent) {
+            var iframeContainer = node.find('.rf-error-content:first');
+            var iframe = $('<iframe></iframe>');
+            iframeContainer.append(iframe);
+            var doc = iframe[0].contentWindow.document;
+            doc.write(iframeContent);
+            doc.close();
+            node.dialog('option', 'height', 300);
+        }
     }
 
     this.formTitleArea.append( renderCreole(this.form.title) );

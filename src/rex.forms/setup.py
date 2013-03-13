@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='rex.forms',
-      version="0.1.5rc2",
+      version="0.1.5rc3",
       description="Your description here",
       setup_requires=['rexsetup'],
       # Uncomment next 2 lines if you are adding any python code
@@ -14,7 +14,7 @@ setup(name='rex.forms',
                         'rex.common>=0.1.0',
                         'rex.ext>=0.1.0',
                         'rex.instrument>=0.1.0',
-                        'htsql>=2.3.4',
+                        'htsql>=2.3.3',
                         ],
 
       www_prefix='/rex.forms',

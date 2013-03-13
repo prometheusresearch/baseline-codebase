@@ -969,7 +969,7 @@ var BaseQuestion = function(params) {
     this.askAnnotation = params.askAnnotation || false;
     this.askExplanation = params.askExplanation || false;
     this.explanation = params.explanation || null;
-    this.initAnnotation(params.annotation);
+    this.initAnnotation(params.annotation || null);
     this.invalidByExpr = false;
     this.invalidByType = false;
     this.viewNode = null;
@@ -1939,20 +1939,24 @@ $.RexFormsClient = function (o) {
 
         var validateAndScroll = function (page) {
             if (page.isIncorrect()) {
-                self.showError(
-                      null, 
-                      "There are missed required questions or wrong answers on " 
-                    + "this page. Please correct the information you provided.");
-                var wrongQuestion = page.findWrongQuestion();
-                if (wrongQuestion) {
-                    var scrollTo = null;
-                    if (wrongQuestion.editNode)
-                        scrollTo = wrongQuestion.editNode;
-                    else if (wrongQuestion.viewNode)
-                        scrollTo = wrongQuestion.viewNode;
-                    if (scrollTo)
-                        scrollTo[0].scrollIntoView();
+                var onDialogClose = function () {
+                    var wrongQuestion = page.findWrongQuestion();
+                    if (wrongQuestion) {
+                        var scrollTo = null;
+                        if (wrongQuestion.editNode)
+                            scrollTo = wrongQuestion.editNode;
+                        else if (wrongQuestion.viewNode)
+                            scrollTo = wrongQuestion.viewNode;
+                        if (scrollTo)
+                            scrollTo[0].scrollIntoView();
+                    }
                 }
+                self.showError(
+                    null,
+                    "There are missed required questions or wrong answers on "
+                  + "this page. Please correct the information you provided.",
+                    null,
+                    onDialogClose);
                 return false;
             }
             return true;
@@ -2197,7 +2201,7 @@ $.RexFormsClient = function (o) {
     }
 
 
-    this.showError = function (title, message, iframeContent) {
+    this.showError = function (title, message, iframeContent, onClose) {
         var node = templates['errorDialog'].clone();
         node.find('.rf-error-message:first').text(message);
         node.dialog({
@@ -2212,6 +2216,8 @@ $.RexFormsClient = function (o) {
             },
             close: function () {
                 node.detach();
+                if (onClose)
+                    onClose();
             }
         });
         if (iframeContent) {

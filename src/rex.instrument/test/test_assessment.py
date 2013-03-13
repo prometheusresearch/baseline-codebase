@@ -1,4 +1,5 @@
 
+import sys
 import os
 from testbase import TestCase
 
@@ -135,3 +136,14 @@ class TestAssessmentStorage(TestCase):
         right('first_date', '2000-01-29')
         right('first_date', None)
 
+    def test_errors(self):
+        instrument = self.storage.instruments.get_instrument('first')
+        assessment = self.storage.create_assessment(instrument)
+        data = deepcopy(assessment.data)
+        data['instrument'] = 'second'
+        with self.assertRaises(AssessmentStorageError):
+            self.storage.update_assessment(assessment.id, data)
+        data = deepcopy(assessment.data)
+        data['version'] = sys.maxint
+        with self.assertRaises(AssessmentStorageError):
+            self.storage.update_assessment(assessment.id, data)

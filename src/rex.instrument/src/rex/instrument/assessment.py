@@ -201,14 +201,14 @@ class AssessmentStorage(BaseAssessmentStorage):
             raise AssessmentStorageError("Assessment %s not found" % id)
         with lock:
             assessment = self._get_assessment(id)
+            version = data.get('version')
+            instrument_name = data.get('instrument')
             if assessment is None:
-                version = data.get('version')
                 if version is None:
                     raise AssessmentStorageError(("Assessment %s has "
                                                   "invalid instrument "
                                                   "version: %s") 
                                                  % (id, version))
-                instrument_name = data.get('instrument')
                 instrument = self.instruments.get_instrument(instrument_name, 
                                                              version=version)
                 if instrument is None:
@@ -218,6 +218,10 @@ class AssessmentStorage(BaseAssessmentStorage):
                                              % (id, instrument_name, version))
                 assessment = Assessment(id=id, instrument=instrument, data=data,
                                         status=IN_PROGRESS, last_modified=None)
+            if assessment.instrument.id != instrument_name:
+                raise AssessmentStorageError("Instrument doesn't match")
+            if assessment.instrument.version != version:
+                raise AssessmentStorageError("Instrument version doesn't match")
             if assessment.status != IN_PROGRESS:
                 raise AssessmentStorageError("Assessment %s has "
                          "invalid status: %s" % (id, assessment.status))

@@ -3,7 +3,8 @@ import os
 import re
 import simplejson
 import itertools
-from rex.validate import make_assessment_schema, ValidationError, validate
+from rex.validate import make_assessment_schema, ValidationError, validate, \
+                         instrument_schema
 
 class BaseInstrumentRegistry(object):
     pass
@@ -71,6 +72,11 @@ class Instrument(object):
         self.id = id
         self.version = version
         self.assessment_schema = make_assessment_schema(self.data)
+        try:
+            validate(instrument_schema, self.data)
+        except ValidationError:
+            print 'Instrument %s of version %s is incorrect' % (id, version) 
+            raise
 
     def validate(self, data):
         validate(self.assessment_schema, data) 

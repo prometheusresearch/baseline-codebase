@@ -71,12 +71,12 @@ class Instrument(object):
             self.json = simplejson.dumps(data, sort_keys=True)
         self.id = id
         self.version = version
-        self.assessment_schema = make_assessment_schema(self.data)
         try:
             validate(instrument_schema, self.data)
         except ValidationError:
             print 'Instrument %s of version %s is incorrect' % (id, version) 
             raise
+        self.assessment_schema = make_assessment_schema(self.data)
 
     def validate(self, data):
         validate(self.assessment_schema, data) 

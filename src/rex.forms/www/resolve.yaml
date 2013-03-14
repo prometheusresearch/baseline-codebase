@@ -7,3 +7,5 @@ deny:
 skip_authentication:
 - uri: /roads-client2.html
 
+template_render:
+- uri: /test/common.js

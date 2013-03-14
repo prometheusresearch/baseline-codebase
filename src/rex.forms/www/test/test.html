@@ -1,0 +1,89 @@
+{% from 'files.html' import files with context %}
+{% import 'rex.forms:/macros.html' as macro with context %}
+<html>
+<head>
+    <title>Suite: {% if req.GET.run %}{{ req.GET.run|e }}{% else %}all{% endif %}</title>
+    {{ macro.client_head() }}
+    <script src="../js/rexforms-client.js"></script>
+    <script src="common.js"></script>
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        body {
+            position: relative;
+            font-family: "Helvetica Neue Light","HelveticaNeue-Light","Helvetica Neue",Calibri,Helvetica,Arial,sans-serif;
+            font-size: small;
+        }
+
+        #qunit {
+            position: absolute;
+            right: 5px;
+            top: 35px;
+            bottom: 5px;
+            width: 600px;
+        }
+
+        #qunit-fixture {
+            position: absolute;
+            left: 5px !important;
+            right: 610px !important;
+            top: 35px !important;
+            bottom: 5px !important;
+        }
+
+        #menu {
+            height: 30px;
+            background: #e3e3e3;
+        }
+
+        #menu a {
+            margin-top: 4px;
+            display: inline-block;
+            margin-left: 4px;
+            color: #555555; 
+        }
+
+        span#qunit-modulefilter-container>label {
+            display: none;
+        }
+
+    </style>
+    <script>
+        window.J = {
+            form: {% include 'json/form.json' %}
+        };
+    </script>
+
+    <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/qunit/1.10.0/qunit/qunit.css">
+    <script src="{{ PREFIX['rex.ext'] }}/qunit/1.10.0/qunit/qunit.js"></script>
+    <script src="{{ PREFIX['rex.common'] }}/js/qunit-addons/qunit-dom.js"></script>
+
+    {% if not req.GET.run %}
+        {% for file in files %}
+        <script src="suites/{{ file }}.js"></script>
+        {% endfor %}
+    {% else %}
+        <script src="suites/{{ req.GET.run }}.js"></script>
+    {% endif %}
+</head>
+<body>
+    <div id="menu" style="font-weight: bold;">
+        <a href="index.html">all</a>
+        {% for file in files %}
+        <a href="test.html?run={{ file }}">{{ file }}</a>
+        {% endfor %}
+    </div>
+    <div id="qunit-fixture"></div>
+    <div id="qunit"></div>
+</body>
+</html>
+
+<!--
+  vim: foldmethod=marker:
+-->

@@ -1,4 +1,12 @@
 
+function objSize (obj) {
+    var size = 0, key;
+    for (key in obj)
+        if (obj.hasOwnProperty(key))
+            size++;
+    return size;
+};
+
 function getPageTemplate(prefix) {
     if (prefix)
         prefix += '_';
@@ -20,6 +28,11 @@ function createRexFormsClient(o, prefix) {
         prefix += '_';
     else
         prefix = '';
+    var events = {
+        'saveError': function (retData) {
+            retData.cancel = true;
+        }
+    };
     var rexFormsClient = new $.RexFormsClient({
             mode: o.mode || 'normal',
             formMeta: o.formMeta || J.form,
@@ -38,7 +51,7 @@ function createRexFormsClient(o, prefix) {
             btnNext: o.btnNext || ('#' + prefix + 'btnNext'),
             ignoreBookmark: (o.ignoreBookmark === true || o.ignoreBookmark === false) ? o.ignoreBookmark : true,
             templates: o.templates || null,
-            events: o.events || null
+            events: o.events || events
         });
     return rexFormsClient;
 }

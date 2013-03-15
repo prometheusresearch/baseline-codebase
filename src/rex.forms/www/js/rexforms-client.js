@@ -2061,11 +2061,15 @@ $.RexFormsClient = function (o) {
         return true;
     };
 
-    this.nextPage = function() {
+    this.goToPage = function (pageIdx) {
+        validateAndGo(1, pageIdx);
+    };
+
+    this.nextPage = function () {
         validateAndGo(1);
     };
 
-    this.prevPage = function() {
+    this.prevPage = function () {
         validateAndGo(-1);
     };
 
@@ -2261,7 +2265,7 @@ $.RexFormsClient = function (o) {
             if (lastVisitPage >= this.form.pages.length)
                 lastVisitPage = null;
         }
-        validateAndGo(1, lastVisitPage);
+        this.goToPage(lastVisitPage);
     }
 }
 

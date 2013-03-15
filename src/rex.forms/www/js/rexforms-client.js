@@ -1599,17 +1599,23 @@ RecordListQuestion.prototype.findWrongItem = function () {
     return ret;
 };
 
-RecordListQuestion.prototype.isIncorrect = function () {
-    var isIncorrect = BaseQuestion.prototype.isIncorrect.call(this);
-    if (!isIncorrect) {
+RecordListQuestion.prototype.recordsAreIncorrect = function () {
+    var isIncorrect = false;
+    if (!isIncorrect && this.value !== null) {
         $.each(this.records, function (_, record) {
-            if (!isIncorrect && record.extractValue() !== null && 
+            if (!isIncorrect && record.extractValue() !== null &&
                                 record.isIncorrect()) {
                 isIncorrect = true;
             }
         });
     }
     return isIncorrect;
+};
+
+RecordListQuestion.prototype.isIncorrect = function () {
+    return (!this.disabled && ((this.required && this.annotation === null && this.value === null) ||
+                               (this.invalidByExpr || this.invalidByType) ||
+                               (this.value !== null && this.recordsAreIncorrect() )));
 };
 
 RecordListQuestion.prototype.createRecord = function (values) {

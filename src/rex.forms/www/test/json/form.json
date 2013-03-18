@@ -42,7 +42,39 @@
                                     "title": "Variant 3"
                                 }
                             ]
-                        }
+                        },
+                        {
+                            "name": "test_float",
+                            "type": "float",
+                            "title": "Test Float",
+                            "required": false
+                        },
+                        {
+                            "name": "test_string",
+                            "type": "string",
+                            "title": "Test String",
+                            "required": false
+                        },
+                        {
+                            "name": "test_set",
+                            "type": "set",
+                            "title": "Test Set",
+                            "required": false,
+                            "answers": [
+                                {
+                                    "code": "var1",
+                                    "title": "Variant 1"
+                                },
+                                {
+                                    "code": "var2",
+                                    "title": "Variant 2"
+                                },
+                                {
+                                    "code": "var3",
+                                    "title": "Variant 3"
+                                }
+                            ]
+                        },
                     ]
                 },
                 {

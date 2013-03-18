@@ -1261,7 +1261,7 @@ DomainQuestion.prototype.getRexlValue = function (itemName) {
     if (this.domain instanceof SetDomain) {
         if (null === this.value)
             return rexlize(null);
-        else if (itemName.length) {
+        else if (itemName && itemName.length) {
             return rexlize(this.value[itemName[0]]);
         }
         var totalAnswered = 0;

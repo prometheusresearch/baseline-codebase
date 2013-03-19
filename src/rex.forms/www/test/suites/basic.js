@@ -14,7 +14,7 @@ module("basic", {
 
 test('created properly', function () {
 	equal(rexFormsClient.form.pages.length, 4, "all pages are created");
-	equal(objSize(rexFormsClient.form.questions), 7, "all questions are created");
+	equal(objSize(rexFormsClient.form.questions), 9, "all questions are created");
 	equal(rexFormsClient.currentPageIdx, 0, "first page is current");
     text('#basic_form_title', 'Test Form');
     text('#basic_page_title', 'First Test Page');
@@ -150,6 +150,44 @@ test('test string question', function () {
     equal(questions['test_string'].getValue(), 'should be trimmed', 'extracting and trimming value succeeds');
 });
 
+test('test date question', function () {
+	var questions = rexFormsClient.form.questions;
+
+	throws(
+		function () {
+			questions['test_date'].setValue(1, false);
+		},
+		/InvalidValue/,
+		"setting non-string value is not allowed"
+	);
+
+	throws(
+		function () {
+			questions['test_date'].setValue('2013-13-30', false);
+		},
+		/InvalidValue/,
+		"invalid date is not allowed"
+	);
+
+	questions['test_date'].setValue('2013-03-19', false);
+	equal(questions['test_date'].getValue(), '2013-03-19', 'setting and getting value');
+
+	var rexlValue = questions['test_date'].getRexlValue();
+	equal(rexlValue.value, '2013-03-19', "right rexl value");
+
+	ok(!questions['test_date'].isIncorrect(), 'is correct');
+
+	var editNode = questions['test_date'].edit();
+	var input = editNode.find('.rf-question-answers input');
+	equal(input.size(), 1, 'edit node of string has input element');
+
+	input.val('  2013-03-20   ');
+	input.change();
+	ok(!questions['test_date'].isIncorrect(), 'string is acceptable');
+
+    equal(questions['test_date'].getValue(), '2013-03-20', 'extracting and trimming value succeeds');
+});
+
 test('test enum question', function () {
 	var questions = rexFormsClient.form.questions;
 
@@ -213,4 +251,52 @@ test('test set question', function () {
 
 	var value = questions['test_set'].getValue();
 	ok(value.var1 && !value.var2 && value.var3, 'extracting value succeeds');
+});
+
+test('test dual number question', function () {
+	var questions = rexFormsClient.form.questions;
+
+	throws(
+		function () {
+			questions['test_dual'].setValue('abc', false);
+		},
+		/InvalidValue/,
+		"setting non-numeric value is not allowed"
+	);
+
+	questions['test_dual'].setValue(5.1, false);
+	equal(questions['test_dual'].getValue(), 5.1, 'setting and getting value');
+
+	var rexlValue = questions['test_dual'].getRexlValue();
+	equal(rexlValue.value, 5.1, "right rexl value");
+
+	ok(!questions['test_dual'].isIncorrect(), 'is correct');
+
+	var editNode = questions['test_dual'].edit();
+	var input = editNode.find('.rf-question-answers input');
+	equal(input.size(), 2, 'edit node has two input elements');
+
+	var first = $(input.get(0));
+	var second = $(input.get(1));
+
+	first.val('a');
+	second.val('').change();
+	ok(questions['test_dual'].isIncorrect(), 'non-numeric numbers are not allowed in the first field');
+
+	first.val('');
+	second.val('a').change();
+	ok(questions['test_dual'].isIncorrect(), 'non-numeric numbers are not allowed in the second field');
+
+	first.val('9');
+	second.val('');
+	input.change();
+	ok(!questions['test_dual'].isIncorrect(), 'intger numbers are acceptable');
+
+	first.val('31');
+	second.val('5').change();
+	input.change();
+	ok(!questions['test_dual'].isIncorrect(), 'numbers are acceptable');
+
+	var question = questions['test_dual'];
+    equal(Math.floor(question.getValue()), 31 * question.domain.size + 5, 'extracting value succeeds');
 });

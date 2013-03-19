@@ -68,6 +68,18 @@
                             "required": false
                         },
                         {
+                            "name": "test_date",
+                            "type": "date",
+                            "title": "Test Date",
+                            "required": false
+                        },
+                        {
+                            "name": "test_dual",
+                            "type": "weight",
+                            "title": "Test Date",
+                            "required": false
+                        },
+                        {
                             "name": "test_set",
                             "type": "set",
                             "title": "Test Set",

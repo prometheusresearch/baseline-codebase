@@ -313,6 +313,8 @@ DateDomain.prototype.extractValue = function (node) {
 DateDomain.prototype.isValidValue = function(value) {
     if (value === null)
         return true;
+    if (typeof value !== "string")
+        return false;
     var matches = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
     if (!matches)
         return false;

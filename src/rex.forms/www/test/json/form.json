@@ -6,8 +6,20 @@
                 {
                     "cId": "1",
                     "introduction": "Test **Creole**",
-                    "type": "page",
                     "title": "First Test Page",
+                    "questions": [
+                        {
+                            "name": "test_required",
+                            "type": "integer",
+                            "title": "Test Required",
+                            "required": true,
+                        }
+                    ]
+                },
+                {
+                    "cId": "2",
+                    "type": "page",
+                    "title": "Second Test Page",
                     "questions": [
                         {
                             "name": "test_integer",
@@ -78,9 +90,8 @@
                     ]
                 },
                 {
-                    "cId": "2",
+                    "cId": "3",
                     "type": "page",
-                    "title": "Second Test Page",
                     "questions": [],
                     "skipIf": "test_integer>5"
                 }
@@ -90,7 +101,7 @@
             "type": "group",
             "pages": [
                 {
-                    "cId": "3",
+                    "cId": "4",
                     "type": "page",
                     "title": "Second Test Page",
                     "questions": [],

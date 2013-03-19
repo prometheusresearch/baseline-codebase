@@ -29,6 +29,10 @@ function isValidNumeric(val, condType) {
     );
 }
 
+function isInt(n) {
+   return typeof n === 'number' && parseFloat(n) == parseInt(n, 10) && !isNaN(n);
+}
+
 function objSize (obj) {
     var size = 0, key;
     for (key in obj)
@@ -227,7 +231,11 @@ Domain.prototype.extractValue = function (node) {
 };
 Domain.prototype.conforming = function() {
     return true; // default
-}
+};
+Domain.prototype.isValidValue = function(value) {
+    alert('Implement in subclasses');
+    return false;
+};
 
 var TextDomain = function(multiLine) {
     Domain.call(this, 'text');
@@ -267,6 +275,9 @@ TextDomain.prototype.setViewValue = function (node, value) {
 TextDomain.prototype.extractValue = function (node) {
     return $.trim( node.val() ) || null;
 };
+TextDomain.prototype.isValidValue = function(value) {
+    return (value === null || (typeof value === 'string'));
+};
 
 var DateDomain = function() {
     Domain.call(this, 'date');
@@ -295,19 +306,20 @@ DateDomain.prototype.setViewValue = function (node, value) {
 };
 DateDomain.prototype.extractValue = function (node) {
     var value = $.trim( node.val() ) || null;
-
-    if (value !== null) {
-        var matches = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-        if (!matches)
-            throw("InvalidDate");
-        if (!isValidDate(matches[1], matches[2], matches[3]))
-            throw("InvalidDate2");
-    }
-
+    if (!this.isValidValue(value))
+        throw("InvalidDate");
     return value;
 };
-
-
+DateDomain.prototype.isValidValue = function(value) {
+    if (value === null)
+        return true;
+    var matches = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (!matches)
+        return false;
+    if (!isValidDate(matches[1], matches[2], matches[3]))
+        return false;
+    return true;
+};
 
 var NumberDomain = function(isFloat) {
     Domain.call(this, 'number');
@@ -342,6 +354,14 @@ NumberDomain.prototype.extractValue = function (node) {
     }
 
     return value;
+};
+NumberDomain.prototype.isValidValue = function (value) {
+    if (value === null)
+        return true;
+    if (typeof value !== 'number' ||
+        !this.isFloat && !isInt(value))
+        return false;
+    return true;
 };
 
 var EnumCodeRegExp = new RegExp("^[a-z0-9\\-]+$", "");
@@ -450,8 +470,9 @@ EnumDomain.prototype.setEditValue = function (node, value, options) {
 EnumDomain.prototype.extractValue = function (node) {
     if (!this.dropDown) {
         var input = node.find('input[type="radio"]:checked');
-        if (input.size())
+        if (input.size()) {
             return input.val();
+        }
     } else {
         var value = node.val();
         if (value)
@@ -459,7 +480,22 @@ EnumDomain.prototype.extractValue = function (node) {
     }
     return null;
 };
-
+EnumDomain.prototype.isValidValue = function (value) {
+    if (value === null)
+        return true;
+    if (typeof value === "string") {
+        var found = false;
+        for (var idx in this.variants) {
+            var variant = this.variants[idx];
+            if (variant.code === value) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+    return false;
+};
 
 var SetCodeRegExp = new RegExp("^[a-z0-9_]+$", "");
 var SetDomain = function (variants) {
@@ -531,7 +567,24 @@ SetDomain.prototype.getEmptyValue = function () {
         values[variant.code] = false;
     }
     return values;
-}
+};
+SetDomain.prototype.isValidValue = function (value) {
+    if (value === null || value instanceof Object) {
+        var ok = true;
+        var self = this;
+        var names = {};
+        $.each(this.variants, function (idx, variant) {
+            names[variant.code] = true;
+        });
+        $.each(value, function (name, checked) {
+            if (checked !== true && checked !== false || !names[name])
+                ok = false;
+        });
+        return ok;
+    }
+    return false;
+};
+
 
 var DualNumberDomain = function(firstName, secondName, size) {
     this.firstName = firstName;
@@ -617,6 +670,13 @@ DualNumberDomain.prototype.extractValue = function (node) {
     }
 
     return value;
+};
+DualNumberDomain.prototype.isValidValue = function (value) {
+    if (value === null)
+        return true;
+    if (typeof value !== 'number')
+        return false;
+    return true;
 };
 
 
@@ -1276,7 +1336,7 @@ DomainQuestion.prototype.getRexlValue = function (itemName) {
 
 DomainQuestion.prototype.extractValue = function () {
     if (!this.editNode)
-        return null;
+        return this.value;
     var domainNode = this.editNode.find('.rf-question-answers:first').children();
     return this.domain.extractValue(domainNode);
 };
@@ -1313,8 +1373,13 @@ DomainQuestion.prototype.setValue = function (value, internal) {
     if (value === null && 
         this.domain instanceof SetDomain)
         this.value = this.domain.getEmptyValue();
-    else
-        this.value = value;
+    else {
+        if (this.domain.isValidValue(value)) {
+            this.value = value;
+        } else {
+            throw('InvalidValue');
+        }
+    }
     if (!internal) {
         if (this.editNode) {
             var domainNode = this.editNode.find('.rf-question-answers:first')

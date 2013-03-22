@@ -2,13 +2,16 @@ module("basic", {
     setup: function () {
         node().append(getPageTemplate('basic'));
         window.rexFormsClient = createRexFormsClient({}, 'basic');
+        $(window.rexFormsClient).bind('rexforms:forwardError', function (event, eventRetData) {
+        	eventRetData.cancel = true;
+        });
     },
     teardown: function () {
 		var questions = rexFormsClient.form.questions;
 		$.each(questions, function (_, question) {
 			question.setValue(null, false);
 		});
-        rexFormsClient.goToPage(0);
+        rexFormsClient.goToStart();
     }
 });
 

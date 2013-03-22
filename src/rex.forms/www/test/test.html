@@ -6,11 +6,14 @@
     {{ macro.client_head() }}
     <script type="text/javascript" src="jquery-mockjax/jquery.mockjax.js"></script>
     <script type="text/javascript">
+        window.customResponse = null;
         $.mockjax({
             url: '/test/*',
-            response: function () {
-                console.log('*********** request **************');
-                this.responseText = '{"result":"true"}';
+            response: function (req) {
+                if (window.customResponse)
+                    window.customResponse(req, this)
+                else
+                    this.responseText = '{"result":"true"}';
             }
         });
     </script>
@@ -67,7 +70,8 @@
     <script>
         window.J = {
             formBasic: {% include 'json/form.json' %},
-            formRequire: {% include 'json/require.json' %}
+            formRequire: {% include 'json/require.json' %},
+            formSaveLoad: {% include 'json/save_load.json' %}
         };
     </script>
 

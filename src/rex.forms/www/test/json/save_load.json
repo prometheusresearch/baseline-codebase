@@ -8,13 +8,13 @@
                     "name": "test_integer",
                     "type": "integer",
                     "title": "Test Integer",
-                    "required": true,
+                    "required": false,
                 },
                 {
                     "name": "test_enum",
                     "type": "enum",
                     "title": "Test Enum",
-                    "required": true,
+                    "required": false,
                     "answers": [
                         {
                             "code": "var1",
@@ -34,31 +34,31 @@
                     "name": "test_float",
                     "type": "float",
                     "title": "Test Float",
-                    "required": true
+                    "required": false
                 },
                 {
                     "name": "test_string",
                     "type": "string",
                     "title": "Test String",
-                    "required": true
+                    "required": false
                 },
                 {
                     "name": "test_date",
                     "type": "date",
                     "title": "Test Date",
-                    "required": true
+                    "required": false
                 },
                 {
                     "name": "test_dual",
                     "type": "weight",
                     "title": "Test Date",
-                    "required": true
+                    "required": false
                 },
                 {
                     "name": "test_set",
                     "type": "set",
                     "title": "Test Set",
-                    "required": true,
+                    "required": false,
                     "answers": [
                         {
                             "code": "var1",
@@ -90,27 +90,7 @@
                             "name": "required_item",
                             "type": "integer",
                             "title": "required item",
-                            "required": true
-                        }
-                    ]
-                },
-                {
-                    "name": "test_req_rep_group",
-                    "type": "rep_group",
-                    "title": "Required repeating group",
-                    "required": true,
-                    "repeatingGroup": [
-                        {
-                            "name": "non_required_item",
-                            "type": "integer",
-                            "title": "Non required item",
                             "required": false
-                        },
-                        {
-                            "name": "required_item",
-                            "type": "integer",
-                            "title": "required item",
-                            "required": true
                         }
                     ]
                 }

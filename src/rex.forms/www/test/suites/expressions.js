@@ -9,7 +9,7 @@ module("expressions", {
 		$.each(questions, function (_, question) {
 			question.setValue(null, false);
 		});
-		rexFormsClient.goToPage(0);
+		rexFormsClient.goToStart();
     }
 });
 

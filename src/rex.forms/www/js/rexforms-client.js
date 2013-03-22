@@ -2006,7 +2006,7 @@ $.RexFormsClient = function (o) {
         self.btnPrev.css('display', showButton ? '':'none');
     }
 
-    var validateAndGo = function (step, startFrom) {
+    var validateAndGo = function (step, startFrom, skipValidation) {
         if (self.form.completed)
             return;
 
@@ -2042,14 +2042,16 @@ $.RexFormsClient = function (o) {
         }
 
         var pages = self.form.pages;
-        
-        if (self.mode === "preview") {
-            for (var idx in pages)
-                if (!validateAndScroll(pages[idx]))
+
+        if (!skipValidation) {
+            if (self.mode === "preview") {
+                for (var idx in pages)
+                    if (!validateAndScroll(pages[idx]))
+                        return;
+            } else if (self.currentPageIdx >= 0 & step > 0) {
+                if (!validateAndScroll(pages[self.currentPageIdx]))
                     return;
-        } else if (self.currentPageIdx >= 0 & step > 0) {
-            if (!validateAndScroll(pages[self.currentPageIdx]))
-                return;
+            }
         }
 
         var idx = (startFrom !== undefined && startFrom !== null) ?
@@ -2134,8 +2136,8 @@ $.RexFormsClient = function (o) {
         return true;
     };
 
-    this.goToPage = function (pageIdx) {
-        validateAndGo(1, pageIdx);
+    this.goToStart = function (pageIdx) {
+        validateAndGo(1, 0, true);
     };
 
     this.nextPage = function () {
@@ -2338,7 +2340,9 @@ $.RexFormsClient = function (o) {
             if (lastVisitPage >= this.form.pages.length)
                 lastVisitPage = null;
         }
-        this.goToPage(lastVisitPage);
+        validateAndGo(1, lastVisitPage);
+        // this.validateAndGo(1, lastVisitPage);
+        // this.goToPage(lastVisitPage);
     }
 }
 

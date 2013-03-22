@@ -35,13 +35,13 @@ function createRexFormsClient(o, prefix) {
     };
     var rexFormsClient = new $.RexFormsClient({
             mode: o.mode || 'normal',
-            formMeta: o.formMeta || J.form,
+            formMeta: o.formMeta || J.formBasic,
             formData: o.formData || null,
             instrumentName: o.instrumentName || 'test',
             showNumbers: o.showNumbers || false,
             assessment: o.assessment || 'test-assessment',
             saveBeforeComplete: o.saveBeforeComplete || false,
-            saveURL: {{ (PREFIX['rex.forms'] + '/save_state')|json }},
+            saveURL: '/test/save_state',
             formArea: o.formArea || ('#' + prefix + 'survey'),
             questionArea: o.questionArea || ('#' + prefix + 'questions'),
             pageTitleArea: o.pageTitleArea || ('#' + prefix + 'page_title'),

@@ -4,8 +4,18 @@
 <head>
     <title>Suite: {% if req.GET.run %}{{ req.GET.run|e }}{% else %}all{% endif %}</title>
     {{ macro.client_head() }}
-    <script src="../js/rexforms-client.js"></script>
-    <script src="common.js"></script>
+    <script type="text/javascript" src="jquery-mockjax/jquery.mockjax.js"></script>
+    <script type="text/javascript">
+        $.mockjax({
+            url: '/test/*',
+            response: function () {
+                console.log('*********** request **************');
+                this.responseText = '{"result":"true"}';
+            }
+        });
+    </script>
+    <script type="text/javascript" src="../js/rexforms-client.js"></script>
+    <script type="text/javascript" src="common.js"></script>
 
     <style>
         html, body {
@@ -56,7 +66,8 @@
     </style>
     <script>
         window.J = {
-            form: {% include 'json/form.json' %}
+            formBasic: {% include 'json/form.json' %},
+            formRequire: {% include 'json/require.json' %}
         };
     </script>
 

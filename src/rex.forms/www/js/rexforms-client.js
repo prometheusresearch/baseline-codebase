@@ -2012,24 +2012,30 @@ $.RexFormsClient = function (o) {
 
         var validateAndScroll = function (page) {
             if (page.isIncorrect()) {
-                var onDialogClose = function () {
-                    var wrongQuestion = page.findWrongQuestion();
-                    if (wrongQuestion) {
-                        var scrollTo = null;
-                        if (wrongQuestion.editNode)
-                            scrollTo = wrongQuestion.editNode;
-                        else if (wrongQuestion.viewNode)
-                            scrollTo = wrongQuestion.viewNode;
-                        if (scrollTo)
-                            scrollTo[0].scrollIntoView();
+                var eventRetData = { 
+                    'cancel': false
+                };
+                self.raiseEvent('forwardError', eventRetData);
+                if (!eventRetData.cancel) {
+                    var onDialogClose = function () {
+                        var wrongQuestion = page.findWrongQuestion();
+                        if (wrongQuestion) {
+                            var scrollTo = null;
+                            if (wrongQuestion.editNode)
+                                scrollTo = wrongQuestion.editNode;
+                            else if (wrongQuestion.viewNode)
+                                scrollTo = wrongQuestion.viewNode;
+                            if (scrollTo)
+                                scrollTo[0].scrollIntoView();
+                        }
                     }
+                    self.showError(
+                        null,
+                        "There are missed required questions or wrong answers on "
+                      + "this page. Please correct the information you provided.",
+                        null,
+                        onDialogClose);
                 }
-                self.showError(
-                    null,
-                    "There are missed required questions or wrong answers on "
-                  + "this page. Please correct the information you provided.",
-                    null,
-                    onDialogClose);
                 return false;
             }
             return true;

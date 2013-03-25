@@ -18,13 +18,13 @@ import pkg_resources
 
 
 def check_data(dist, attr, value):
-    # Verify that the value is a list of files and directories.
-    if not isinstance(value, (list, tuple)):
-        raise distutils.errors.DistutilsSetupError("%s is not a list" % attr)
-    for item in value:
-        if not os.path.exists(item):
-            raise distutils.errors.DistutilsSetupError(
-                    "%s %r does not exist" % (attr, value))
+    # Verify that the value is a directory.
+    if not os.path.exists(value):
+        raise distutils.errors.DistutilsSetupError(
+                "%s %r does not exist" % (attr, value))
+    if not os.path.isdir(value):
+        raise distutils.errors.DistutilsSetupError(
+                "%s %r is not a directory" % (attr, value))
 
 
 def check_prefix(dist, attr, value):
@@ -48,7 +48,8 @@ def check_load(dist, attr, value):
 def write_data_txt(cmd, basename, filename):
     # Write the base directory for static files to `*.egg-info/rex_data.txt`.
     install_cmd = cmd.get_finalized_command("install")
-    directory = os.path.join(install_cmd.install_data, 'share/rex')
+    directory = os.path.join(install_cmd.install_data, 'share/rex',
+                             cmd.distribution.get_name())
     if not cmd.distribution.rex_data:
         directory = None
     cmd.write_or_delete_file("rex_data", filename, directory)
@@ -57,11 +58,6 @@ def write_data_txt(cmd, basename, filename):
 def write_prefix_txt(cmd, basename, filename):
     # Write `rex_prefix` parameter to `*.egg-info/rex_prefix.txt`.
     prefix = cmd.distribution.rex_prefix
-    if prefix is None:
-        # If not set, autogenerate from the package name.
-        prefix = cmd.distribution.get_name().lower()
-        prefix = re.sub(r'[^0-9A-Za-z._-]', '-', prefix)
-        prefix = '/'+prefix
     cmd.write_or_delete_file("rex_prefix", filename, prefix)
 
 
@@ -72,7 +68,7 @@ def write_load_txt(cmd, basename, filename):
 
 
 class install_rex(setuptools.Command):
-    # Copy static files from `rex_data` list to
+    # Copy static files from `rex_data` directory to
     #   `$PREFIX/share/rex/$NAME/`.
 
     description = "install static files"
@@ -99,30 +95,19 @@ class install_rex(setuptools.Command):
             return
         # Get `egg_info` command (to get EGG name of the distribution).
         info_cmd = self.get_finalized_command('egg_info')
-        # `$PREFIX/share/rex`.
-        target_base = os.path.join(self.install_dir, 'share/rex')
-        # Check if the distribution is installed as an EGG; that is,
-        # installed into a dedicated `*.egg` directory.  In this case,
-        # create a dedicated subdirectory for static files as well.
-        caller = sys._getframe(3)
-        if caller.f_code.co_name == 'do_egg_install':
-            basename = pkg_resources.Distribution(None, None,
-                    info_cmd.egg_name, info_cmd.egg_version).egg_name()
-            target_base = os.path.join(target_base, basename)
-        # Append the distribution name.
-        target_base = os.path.join(target_base, self.distribution.get_name())
-        # Delete old files if they are any.
-        if os.path.isdir(target_base) and not os.path.islink(target_base):
-            distutils.dir_util.remove_tree(target_base, dry_run=self.dry_run)
-        elif os.path.exists(target_base) or os.path.islink(target_base):
-            self.execute(os.unlink, (target_base,), "Removing "+target_base)
+        # `$PREFIX/share/rex/$NAME`.
+        target = os.path.join(self.install_dir, 'share/rex',
+                              self.distribution.get_name())
+        # Delete old files if any.
+        if os.path.isdir(target) and not os.path.islink(target):
+            distutils.dir_util.remove_tree(target, dry_run=self.dry_run)
+        elif os.path.exists(target) or os.path.islink(target):
+            self.execute(os.unlink, (target,), "Removing "+target)
         # Copy all files from `rex_data`.
-        for filename in self.rex_data:
-            target = os.path.join(target_base, filename)
-            if not self.dry_run:
-                pkg_resources.ensure_directory(target)
-            self.execute(self.copy_data, (filename, target),
-                    "Copying %s to %s" % (filename, target))
+        if not self.dry_run:
+            pkg_resources.ensure_directory(target)
+        self.execute(self.copy_data, (self.rex_data, target),
+                "Copying %s to %s" % (self.rex_data, target))
 
     def get_outputs(self):
         # Get a list of files that were created.
@@ -137,16 +122,12 @@ class install_rex(setuptools.Command):
             self.outfiles.append(dst)
             distutils.log.info("copying %s to %s", src, dst)
             return dst
-        if os.path.isfile(source):
-            shutil.copyfile(source, target)
-            shutil.copystat(source, target)
-        else:
-            setuptools.archive_util.unpack_archive(source, target, filter)
+        setuptools.archive_util.unpack_archive(source, target, filter)
 
 
 class develop_rex(setuptools.Command):
-    # For each entry in `rex_data` list, create a symlink at
-    #   `$PREFIX/share/rexrunner/$NAME/`.
+    # Create a symlink to `rex_data` directory from
+    #   `$PREFIX/share/rexrunner/$NAME`.
 
     description = "install static files in development mode"
 
@@ -169,21 +150,20 @@ class develop_rex(setuptools.Command):
         if not self.rex_data:
             return
         # `$PREFIX/share/rex/$NAME`.
-        target_base = os.path.join(self.install_dir, 'share/rex',
-                                   self.distribution.get_name())
+        target = os.path.join(self.install_dir, 'share/rex',
+                              self.distribution.get_name())
         # Delete old files if there are any.
-        if os.path.isdir(target_base) and not os.path.islink(target_base):
-            distutils.dir_util.remove_tree(target_base, dry_run=self.dry_run)
-        elif os.path.exists(target_base) or os.path.islink(target_base):
-            self.execute(os.unlink, (target_base,), "Removing "+target_base)
+        if os.path.isdir(target) and not os.path.islink(target):
+            distutils.dir_util.remove_tree(target, dry_run=self.dry_run)
+        elif os.path.exists(target) or os.path.islink(target):
+            self.execute(os.unlink, (target,), "Removing "+target)
+        # Create a symlink.
         # For each entry in `rex_data`, create a symlink.
-        for filename in self.rex_data:
-            target = os.path.join(target_base, filename)
-            if not self.dry_run:
-                pkg_resources.ensure_directory(target)
-            filename = os.path.abspath(filename)
-            self.execute(os.symlink, (filename, target),
-                    "Linking %s to %s" % (filename, target))
+        if not self.dry_run:
+            pkg_resources.ensure_directory(target)
+        filename = os.path.abspath(self.rex_data)
+        self.execute(os.symlink, (filename, target),
+                "Linking %s to %s" % (filename, target))
 
 
 # Patch `install` command to call `install_rex`.
@@ -205,5 +185,15 @@ def install_for_development(self):
     self.run_command('develop_rex')
 setuptools.command.develop.develop.install_for_development = \
         install_for_development
+
+# Patch `sdist` to include static files.
+_add_defaults = setuptools.command.sdist.sdist.add_defaults
+def add_defaults(self):
+    _add_defaults(self)
+    if self.distribution.rex_data:
+        for path, directories, files in os.walk(self.distribution.rex_data):
+            for file in files:
+                self.filelist.append(os.path.join(path, file))
+setuptools.command.sdist.sdist.add_defaults = add_defaults
 
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.setup',
-    version = "0.1.1",
+    version = "0.5.1",
     description="Distutils extension for the Rex platform",
     long_description=open('README', 'r').read(),
     package_dir={'': 'src'},

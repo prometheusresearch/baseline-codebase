@@ -10,15 +10,15 @@ add the following lines to ``setup.py``::
     setup(
         ...
         setup_requires=['rex.setup'],
-        rex_data=[...],
+        rex_data='...',
         rex_prefix='...',
         rex_load='...',
         ...
     )
 
 ``rex_data``
-    A list of files and directories which contain static data
-    and configuration to distribute and install with the package.
+    The directory containing static data and configuration to
+    distribute and install with the package.
 ``rex_prefix``
     The default URL root under which the package is served by
     the HTTP server; when not set, ``/<package>`` is used.
@@ -27,7 +27,7 @@ add the following lines to ``setup.py``::
     initialized.  The module should register package-specific plugins
     and extensions.
 
-When the package is installed, static files are copyed to
+When the package is installed, static files are copied to
 ``<base>/share/rex/<package>``.  Additional metadata is stored in
 ``*.egg-info`` in the following files:
 

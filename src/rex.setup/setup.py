@@ -16,17 +16,17 @@ setup(
     namespace_packages=['rex'],
     entry_points={
         'distutils.setup_keywords': [
-            'rex_data = rex.setup:check_data',
+            'rex_static = rex.setup:check_static',
             'rex_prefix = rex.setup:check_prefix',
-            'rex_load = rex.setup:check_load',
+            'rex_init = rex.setup:check_init',
         ],
         'distutils.commands': [
             'install_rex = rex.setup:install_rex',
             'develop_rex = rex.setup:develop_rex'],
         'egg_info.writers': [
-            'rex_data.txt = rex.setup:write_data_txt',
+            'rex_static.txt = rex.setup:write_static_txt',
             'rex_prefix.txt = rex.setup:write_prefix_txt',
-            'rex_load.txt = rex.setup:write_load_txt',
+            'rex_init.txt = rex.setup:write_init_txt',
         ],
     },
 )

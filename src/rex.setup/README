@@ -10,32 +10,32 @@ add the following lines to ``setup.py``::
     setup(
         ...
         setup_requires=['rex.setup'],
-        rex_data='...',
+        rex_static='...',
         rex_prefix='...',
-        rex_load='...',
+        rex_init='...',
         ...
     )
 
-``rex_data``
+``rex_static``
     The directory containing static data and configuration to
     distribute and install with the package.
 ``rex_prefix``
     The default URL root under which the package is served by
     the HTTP server; when not set, ``/<package>`` is used.
-``rex_load``
-    The name of the Python module to load when the application is
-    initialized.  The module should register package-specific plugins
-    and extensions.
+``rex_init``
+    The name of a Python module or a function to invoke
+    when the application is initialized.  Use ``:`` to separate
+    the function name from the module name.
 
 When the package is installed, static files are copied to
 ``<base>/share/rex/<package>``.  Additional metadata is stored in
 ``*.egg-info`` in the following files:
 
-``rex_data.txt``
+``rex_static.txt``
     The directory where static files are stored.
 ``rex_prefix.txt``
     The value of ``rex_prefix`` parameter.
-``rex_load.txt``
-    The value of ``rex_load`` parameter.
+``rex_init.txt``
+    The value of ``rex_init`` parameter.
 
 

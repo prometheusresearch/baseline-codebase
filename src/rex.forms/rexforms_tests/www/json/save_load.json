@@ -8,7 +8,7 @@
                     "name": "test_integer",
                     "type": "integer",
                     "title": "Test Integer",
-                    "required": false,
+                    "required": false
                 },
                 {
                     "name": "test_enum",
@@ -102,5 +102,5 @@
             "questions": []
         }
     ],
-    "title": "Test Form"
+    "title": "Test Form (Save & Load)"
 }

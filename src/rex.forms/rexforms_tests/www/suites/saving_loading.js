@@ -31,7 +31,8 @@ module("saving_loading", {
     setup: function () {
         node().append(getPageTemplate('saving_loading'));
         window.rexFormsClient = createRexFormsClient({
-        	formMeta: window.J.formSaveLoad,
+        	formMeta: window.J['save_load'],
+        	instrumentName: 'save_load',
         	formData: defaultAssessment
         }, 'saving_loading');
     },
@@ -84,13 +85,38 @@ test('test loading and saving', function () {
 	], false);
 
 	var answers = null;
-	window.customResponse = function (request, response) {
+	var validated = false;
+	window.customSaveStateResponse = function (request, response) {
 		var qs = parseQueryString(request.data);
 		var data = $.parseJSON(qs['data']);
 		answers = data.answers;
+
+		var instrumentName = qs['form'];
+		var instrument = $.toJSON(window.J[instrumentName]);
+		var assessment = qs['data'];
+
+		$.ajax({
+			url: 'validate_assessment',
+			data: 'instrument=' + encodeURIComponent(instrument) + '&'
+				+ 'assessment=' + encodeURIComponent(assessment),
+			dataType: 'text',
+			success: function () {
+				console.log('validation OK');
+				validated = true;
+			},
+			error: function () {
+				throw('validationError');
+			},
+			async: false,
+			cache: false,
+			type: 'POST'
+		});
+
 		response.responseText = '{"result":"true"}';
 	}
 	rexFormsClient.save(null, true);
+
+	ok(validated, 'assessment passes schema validation');
 
 	equal(answers['test_integer'], 2, 'value of the integer question was saved correctly');
 	equal(answers['test_float'], 2.1, 'value of the float question was saved correctly');

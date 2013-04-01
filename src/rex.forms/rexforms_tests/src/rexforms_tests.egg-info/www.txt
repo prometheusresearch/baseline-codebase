@@ -1,0 +1,1 @@
+{"prefix": "/rexforms_tests", "root": "/home/drud/dev/new/share/rexrunner", "module": "rexforms_tests", "settings": "# file where you want to keep default settings for your package\n# or override settings for other packages\n"}

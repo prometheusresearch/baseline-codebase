@@ -35,9 +35,9 @@ function createRexFormsClient(o, prefix) {
     };
     var rexFormsClient = new $.RexFormsClient({
             mode: o.mode || 'normal',
-            formMeta: o.formMeta || J.formBasic,
+            formMeta: o.formMeta || J['basic'],
             formData: o.formData || null,
-            instrumentName: o.instrumentName || 'test',
+            instrumentName: o.instrumentName || 'basic',
             showNumbers: o.showNumbers || false,
             assessment: o.assessment || 'test-assessment',
             saveBeforeComplete: o.saveBeforeComplete || false,

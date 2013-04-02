@@ -1070,7 +1070,15 @@ BaseQuestion.prototype.initAnnotation = function (annotation) {
 
 BaseQuestion.prototype.specificOnChange = function () {
     if (this.value !== null)
-        this.annotation = null;
+        this.setAnnotation(null, true);
+}
+
+BaseQuestion.prototype.setAnnotation = function (annotation, internal) {
+    this.annotation = annotation;
+    if (this.annotation)
+        this.setValue(null, internal);
+    else if (!internal && this.onChange)
+        this.onChange();
 }
 
 BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
@@ -1083,11 +1091,8 @@ BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
             .find('.rf-annotation-variants')
             .val(self.annotation ? self.annotation : '')
             .change(function () {
-                self.annotation = $(this).val() || null;
-                if (self.annotation)
-                    self.setValue(null, false);
-                else if (self.onChange)
-                    self.onChange();
+                var annotation = $(this).val() || null;
+                self.setAnnotation(annotation, false);
             });
             annotationContainer.append(annotationNode);
     } else
@@ -1179,10 +1184,6 @@ BaseQuestion.prototype.extractValue = function () {
 
 BaseQuestion.prototype.getAnnotation = function () {
     return this.annotation;
-};
-
-BaseQuestion.prototype.setAnnotation = function (annotation) {
-    this.annotation = annotation;
 };
 
 BaseQuestion.prototype.getExplanation = function () {
@@ -1365,10 +1366,12 @@ DomainQuestion.prototype.specificOnChange = function () {
                     hasAnswer = true;
             });
             if (hasAnswer)
-                this.annotation = null;
+                this.setAnnotation(null, true);
+                // this.annotation = null;
         }
     } else if (this.value !== null)
-        this.annotation = null;
+        this.setAnnotation(null, true);
+        // this.annotation = null;
 };
 
 DomainQuestion.prototype.setValue = function (value, internal) {

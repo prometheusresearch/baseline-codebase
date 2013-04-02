@@ -17,7 +17,7 @@ module("basic", {
 
 test('created properly', function () {
 	equal(rexFormsClient.form.pages.length, 4, "all pages are created");
-	equal(objSize(rexFormsClient.form.questions), 9, "all questions are created");
+	equal(objSize(rexFormsClient.form.questions), 10, "all questions are created");
 	equal(rexFormsClient.currentPageIdx, 0, "first page is current");
     text('#basic_form_title', 'Test Form');
     text('#basic_page_title', 'First Test Page');
@@ -83,6 +83,10 @@ test('test integer question', function () {
 	ok(!questions['test_integer'].isIncorrect(), 'numeric numbers are acceptable');
 
     equal(questions['test_integer'].getValue(), 9, 'extracting value succeeds');
+
+	questions['test_integer'].setAnnotation('do_not_want');
+	equal(questions['test_integer'].getValue(), null, 'Numeric question is cleared after setting annotation');
+	equal(questions['test_integer'].annotation, 'do_not_want', 'Annotation for numeric question is set correctly');
 });
 
 test('test float question', function () {
@@ -151,6 +155,10 @@ test('test string question', function () {
 	ok(!questions['test_string'].isIncorrect(), 'string is acceptable');
 
     equal(questions['test_string'].getValue(), 'should be trimmed', 'extracting and trimming value succeeds');
+
+	questions['test_string'].setAnnotation('do_not_want');
+	equal(questions['test_string'].getValue(), null, 'String question is cleared after setting annotation');
+	equal(questions['test_string'].annotation, 'do_not_want', 'Annotation for string question is set correctly');
 });
 
 test('test date question', function () {
@@ -189,6 +197,10 @@ test('test date question', function () {
 	ok(!questions['test_date'].isIncorrect(), 'string is acceptable');
 
     equal(questions['test_date'].getValue(), '2013-03-20', 'extracting and trimming value succeeds');
+
+	questions['test_date'].setAnnotation('do_not_want');
+	equal(questions['test_date'].getValue(), null, 'Date question is cleared after setting annotation');
+	equal(questions['test_date'].annotation, 'do_not_want', 'Annotation for date question is set correctly');
 });
 
 test('test enum question', function () {
@@ -218,6 +230,10 @@ test('test enum question', function () {
 	ok(!questions['test_enum'].isIncorrect(), 'another variant is acceptable');
 
     equal(questions['test_enum'].getValue(), 'var3', 'extracting value succeeds');
+
+	questions['test_enum'].setAnnotation('do_not_want');
+	equal(questions['test_enum'].getValue(), null, 'Enum question is cleared after setting annotation');
+	equal(questions['test_enum'].annotation, 'do_not_want', 'Annotation for enum question is set correctly');
 });
 
 test('test set question', function () {
@@ -254,6 +270,11 @@ test('test set question', function () {
 
 	var value = questions['test_set'].getValue();
 	ok(value.var1 && !value.var2 && value.var3, 'extracting value succeeds');
+
+	questions['test_set'].setAnnotation('do_not_want');
+	value = questions['test_set'].getValue();
+	ok(!value.var1 && !value.var2 && !value.var3, 'Set question is cleared after setting annotation');
+	equal(questions['test_set'].annotation, 'do_not_want', 'Annotation for set question is set correctly');
 });
 
 test('test dual number question', function () {
@@ -302,4 +323,40 @@ test('test dual number question', function () {
 
 	var question = questions['test_dual'];
     equal(Math.floor(question.getValue()), 31 * question.domain.size + 5, 'extracting value succeeds');
+
+	question.setAnnotation('do_not_want');
+	equal(question.getValue(), null, 'Dual question is cleared after setting annotation');
+	equal(question.annotation, 'do_not_want', 'Annotation for dual question is set correctly');
+});
+
+test('test repeating group', function () {
+	var questions = rexFormsClient.form.questions;
+	questions['test_rep_group'].setValue([
+		{
+			'first_item': 1,
+			'second_item': 2
+		},
+		{
+			'first_item': 3,
+			'second_item': 4
+		}
+	], false);
+	var value = questions['test_rep_group'].getValue();
+
+	equal(value.length, 2, 'repeating group question has right number of groups');
+	var firstGroupOk = (value[0]['first_item'] == 1 && value[0]['second_item'] == 2);
+	var secondGroupOk = (value[1]['first_item'] == 3 && value[1]['second_item'] == 4);
+	ok(firstGroupOk && secondGroupOk, 'setting and getting value succeeds');
+
+	var rexlValue = questions['test_rep_group'].getRexlValue();
+	equal(rexlValue.value, 2, "right common rexl value");
+
+	ok(!questions['test_rep_group'].isIncorrect(), 'is correct');
+
+	questions['test_rep_group'].setAnnotation('do_not_want');
+	equal(questions['test_rep_group'].getValue(), null, 'Dual question is cleared after setting annotation');
+	equal(questions['test_rep_group'].annotation, 'do_not_want', 'Annotation for dual question is set correctly');
+
+	// TODO: test repeating group rendering
+	// var editNode = questions['test_set'].edit();
 });

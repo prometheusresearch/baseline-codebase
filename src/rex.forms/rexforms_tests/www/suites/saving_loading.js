@@ -42,6 +42,8 @@ module("saving_loading", {
 			question.setValue(null, false);
 		});
         rexFormsClient.goToStart();
+		$(rexFormsClient).unbind('rexforms:saveErrorError');
+		window.customSaveStateResponse = null;
     }
 });
 
@@ -101,11 +103,7 @@ test('test loading and saving', function () {
 				+ 'assessment=' + encodeURIComponent(assessment),
 			dataType: 'text',
 			success: function () {
-				console.log('validation OK');
 				validated = true;
-			},
-			error: function () {
-				throw('validationError');
 			},
 			async: false,
 			cache: false,
@@ -123,6 +121,7 @@ test('test loading and saving', function () {
 	equal(answers['test_enum'], 'var2', 'value of the enum question was saved correctly');
 	equal(answers['test_string'], 'new string', 'value of the string question was saved correctly');
 	equal(answers['test_date'], '2013-03-23', 'value of the date question was saved correctly');
+	equal(answers['test_dual'], 26.5, 'value of the dual question was saved correctly')
 	ok(!answers['test_set_var1'] && !answers['test_set_var2'] && answers['test_set_var3'], 'value of the set question was saved correctly');
 
 	value = answers['test_rep_group'];
@@ -130,4 +129,30 @@ test('test loading and saving', function () {
 	firstIsCorrect = (value[0].non_required_item == 6 && value[0].required_item == null);
 	secondIsCorrect = (value[1].non_required_item == null && value[1].required_item == 7);
 	ok(hasTwoGroups && firstIsCorrect && secondIsCorrect, 'value for the repeating group question was saved correctly');
+});
+
+test('test handling save error', function () {
+	var questions = rexFormsClient.form.questions;
+
+	window.customSaveStateResponse = function (request, response) {
+		response.status = 500;
+		response.responseText = '';
+	}
+
+    $(window.rexFormsClient).bind('rexforms:saveError', function (event, eventRetData) {
+    	eventRetData.cancel = true;
+    	throw('SaveError');
+    });
+
+	throws(
+		function () {
+			rexFormsClient.save(null, true);
+		},
+		/SaveError/,
+		"error event is raised on HTTP request fail"
+	);
+
+	questions['test_integer'].setValue(1, false);
+	rexFormsClient.nextPage();
+	equal(rexFormsClient.currentPageIdx, 1, "Set integer question doesn't block to go forward");
 });

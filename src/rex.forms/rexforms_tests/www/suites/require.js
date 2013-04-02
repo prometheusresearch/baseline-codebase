@@ -15,6 +15,7 @@ module("require", {
 		var questions = rexFormsClient.form.questions;
 		$.each(questions, function (_, question) {
 			question.setValue(null, false);
+			question.setAnnotation(null, false);
 		});
         rexFormsClient.goToStart();
     }
@@ -22,6 +23,7 @@ module("require", {
 
 function presetValues(val) {
 	var questions = rexFormsClient.form.questions;
+	val = val || {};
 
 	if (val.testInteger === undefined)
 		val.testInteger = 1;
@@ -87,7 +89,6 @@ test('test integer', function () {
 		/ForwardError/,
 		"empty required integer question blocks going forward"
 	);
-
 	questions['test_integer'].setValue(1, false);
 	rexFormsClient.nextPage();
 	equal(rexFormsClient.currentPageIdx, 1, "Set integer question doesn't block to go forward");
@@ -105,10 +106,17 @@ test('test float', function () {
 		/ForwardError/,
 		"empty required float question blocks going forward"
 	);
-
 	questions['test_float'].setValue(1, false);
 	rexFormsClient.nextPage();
 	equal(rexFormsClient.currentPageIdx, 1, "Set float question doesn't block to go forward");
+});
+
+test('test numeric question with annotation', function () {
+	presetValues();
+	var questions = rexFormsClient.form.questions;
+	questions['test_integer'].setAnnotation('do_not_want');
+	rexFormsClient.nextPage();
+	equal(rexFormsClient.currentPageIdx, 1, "Empty numeric question with annotation doesn't block to go forward");
 });
 
 test('test enum', function () {
@@ -123,10 +131,31 @@ test('test enum', function () {
 		/ForwardError/,
 		"empty required enum question blocks going forward"
 	);
-
 	questions['test_enum'].setValue('var2', false);
 	rexFormsClient.nextPage();
 	equal(rexFormsClient.currentPageIdx, 1, "Set enum question doesn't block to go forward");
+});
+
+test('test enum question with annotation', function () {
+	var questions = rexFormsClient.form.questions;
+	presetValues();
+	questions['test_enum'].setAnnotation('do_not_want');
+	rexFormsClient.nextPage();
+	equal(rexFormsClient.currentPageIdx, 1, "Empty numeric question with annotation doesn't block to go forward");
+});
+
+test('test set question with annotation', function () {
+	var questions = rexFormsClient.form.questions;
+	presetValues({
+		testSet: {
+			'var1':true,
+			'var2':false,
+			'var3':true
+		}
+	});
+	questions['test_set'].setAnnotation('do_not_want');
+	rexFormsClient.nextPage();
+	equal(rexFormsClient.currentPageIdx, 1, "Empty set question with annotation doesn't block to go forward");
 });
 
 test('test string', function () {
@@ -147,6 +176,14 @@ test('test string', function () {
 	equal(rexFormsClient.currentPageIdx, 1, "Set string question doesn't block to go forward");
 });
 
+test('test string question with annotation', function () {
+	var questions = rexFormsClient.form.questions;
+	presetValues();
+	questions['test_string'].setAnnotation('do_not_want');
+	rexFormsClient.nextPage();
+	equal(rexFormsClient.currentPageIdx, 1, "Empty string question with annotation doesn't block to go forward");
+});
+
 test('test date', function () {
 	var questions = rexFormsClient.form.questions;
 	presetValues({
@@ -159,10 +196,17 @@ test('test date', function () {
 		/ForwardError/,
 		"empty required date question blocks going forward"
 	);
-
 	questions['test_date'].setValue('2013-03-22', false);
 	rexFormsClient.nextPage();
 	equal(rexFormsClient.currentPageIdx, 1, "Set date question doesn't block to go forward");
+});
+
+test('test date question with annotation', function () {
+	var questions = rexFormsClient.form.questions;
+	presetValues();
+	questions['test_date'].setAnnotation('do_not_want');
+	rexFormsClient.nextPage();
+	equal(rexFormsClient.currentPageIdx, 1, "Empty date question with annotation doesn't block to go forward");
 });
 
 test('test dual', function () {
@@ -181,6 +225,14 @@ test('test dual', function () {
 	questions['test_dual'].setValue(25.1, false);
 	rexFormsClient.nextPage();
 	equal(rexFormsClient.currentPageIdx, 1, "Set dual question doesn't block to go forward");
+});
+
+test('test dual question with annotation', function () {
+	var questions = rexFormsClient.form.questions;
+	presetValues();
+	questions['test_dual'].setAnnotation('do_not_want');
+	rexFormsClient.nextPage();
+	equal(rexFormsClient.currentPageIdx, 1, "Empty dual question with annotation doesn't block to go forward");
 });
 
 test('test repeating group', function () {
@@ -241,4 +293,21 @@ test('test required repeating group', function () {
 		], false);
 	rexFormsClient.nextPage();
 	equal(rexFormsClient.currentPageIdx, 1, "Set required repeating group doesn't block to go forward");
+});
+
+test('test repeating group question with annotation', function () {
+	var questions = rexFormsClient.form.questions;
+	presetValues({
+		testRepGroup: [
+			{
+				'non_required_item': 1,
+				'required_item': 2
+			}
+		]
+	});
+	questions['test_rep_group'].setAnnotation('do_not_want');
+	equal(questions['test_rep_group'].getValue(), null, 'Repeating group question is cleared after setting annotation');
+	equal(questions['test_rep_group'].annotation, 'do_not_want', 'Annotation for repeating group question is set correctly');
+	rexFormsClient.nextPage();
+	equal(rexFormsClient.currentPageIdx, 1, "Empty repeating group question with annotation doesn't block to go forward");
 });

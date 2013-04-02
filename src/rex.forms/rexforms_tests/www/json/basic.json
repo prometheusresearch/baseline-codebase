@@ -99,6 +99,26 @@
                                 }
                             ]
                         },
+                        {
+                            "name": "test_rep_group",
+                            "type": "rep_group",
+                            "title": "Test repeating group",
+                            "required": false,
+                            "repeatingGroup": [
+                                {
+                                    "name": "first_item",
+                                    "type": "integer",
+                                    "title": "First Item",
+                                    "required": false
+                                },
+                                {
+                                    "name": "second_item",
+                                    "type": "integer",
+                                    "title": "Second Item",
+                                    "required": false
+                                }
+                            ]
+                        }
                     ]
                 },
                 {

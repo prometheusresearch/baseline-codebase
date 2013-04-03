@@ -1,5 +1,10 @@
 (function($) {
 
+var MODE = {
+    PREVIEW: 1,
+    NORMAL: 0
+};
+
 // {{{ helper functions
 function getRandomStr(len) {
     var text = "";
@@ -1005,7 +1010,7 @@ Page.prototype.render = function(templates, mode) {
     var page = $('<div>').addClass('rf-page');
     $.each(self.questions, function (_, question) {
         var questionNode = null;
-        if (mode === "edit")
+        if (mode === MODE.NORMAL)
             questionNode = question.edit();
         else
             questionNode = question.view();
@@ -1162,21 +1167,43 @@ BaseQuestion.prototype.renderCommonPart = function (templateName) {
     return questionNode;
 };
 
+BaseQuestion.prototype.renderView = function () {
+    var self = this;
+    var viewNode = this.renderCommonPart('viewQuestion');
+    this.renderAnnotations(viewNode, /* enable= */ false);
+    var changeButton = this.templates['btnChangeQuestion'].clone();
+    changeButton.click(function () {
+        if (viewNode.parent().size()) {
+            viewNode.before(self.edit());
+            viewNode.detach();
+        }
+    });
+    var container = viewNode.find('.rf-question-change');
+    container.append(changeButton);
+    return viewNode;
+}
+
 BaseQuestion.prototype.view = function () {
     if (!this.viewNode) {
-        this.viewNode = this.renderCommonPart('viewQuestion');
-        this.renderAnnotations(this.viewNode, /* enable= */ false);
+        this.viewNode = this.renderView();
+        this.update();
     }
     return this.viewNode;
 };
 
+BaseQuestion.prototype.renderEdit = function () {
+    var editNode = this.renderCommonPart('editQuestion');
+    this.renderAnnotations(editNode, /* enable= */ true);
+    return editNode;
+}
+
 BaseQuestion.prototype.edit = function () {
     if (!this.editNode) {
-        this.editNode = this.renderCommonPart('editQuestion');
-        this.renderAnnotations(this.editNode, /* enable= */ true);
+        this.editNode = this.renderEdit();
+        this.update();
     }
     return this.editNode;
-};
+}
 
 BaseQuestion.prototype.extractValue = function () {
     return this.value;
@@ -1299,6 +1326,14 @@ var DomainQuestion = function (params, domain) {
 };
 extend(DomainQuestion, BaseQuestion);
 
+DomainQuestion.prototype.renderView = function () {
+    var viewNode = BaseQuestion.prototype.renderView.call(this);
+    var container = viewNode.find('.rf-question-answers:first');
+    var answerPreview = this.getAnswerPreview();
+    container.append(answerPreview);
+    return viewNode;
+};
+
 DomainQuestion.prototype.getAnswerPreview = function () {
     return this.domain.renderView(this.templates,
                                   this.value,
@@ -1308,7 +1343,7 @@ DomainQuestion.prototype.getAnswerPreview = function () {
 
 DomainQuestion.prototype.edit = function () {
     if (!this.editNode) {
-        this.editNode = BaseQuestion.prototype.edit.call(this);
+        this.editNode = BaseQuestion.prototype.renderEdit.call(this);
         var domainNode = this.domain.renderEdit(this.templates,
                                                 this.value,
                                                 this.onChange,
@@ -1798,7 +1833,7 @@ RecordListQuestion.prototype.collapseRecords = function (except) {
 
 RecordListQuestion.prototype.edit = function () {
     if (!this.editNode) {
-        this.editNode = BaseQuestion.prototype.edit.call(this);
+        this.editNode = BaseQuestion.prototype.renderEdit.call(this);
         var node = $('<div>').addClass('rf-records');
         var recordList = $('<div>').addClass('rf-records-list');
         node.append(recordList);
@@ -1853,6 +1888,8 @@ var defaultTemplates = {
         '<button class="rf-add-record"><span class="rf-add-record-title">Add group of answers</span></button>',
     'btnClear':
         '<button class="rf-clear-answers">Clear</button>',
+    'btnChangeQuestion':
+        '<button class="rf-change-question">Change</button>',
     'expandHint':
         '<span class="rf-expand-hint">(Click to expand)</span>',
     'editQuestion':
@@ -1870,6 +1907,7 @@ var defaultTemplates = {
             + '<div class="rf-question-answers"></div>'
             + '<div class="rf-question-annotation"></div>'
             + '<div class="rf-question-explanation"></div>'
+            + '<div class="rf-question-change"></div>'
         + '</div>',
     'errorDialog':
           '<div class="rf-error-dialog">'
@@ -1899,7 +1937,17 @@ var defaultTemplates = {
 $.RexFormsClient = function (o) {
     var self = this;
 
-    this.mode = o.mode ? o.mode : 'normal';
+    switch(o.mode) {
+    case 'normal':
+        this.mode = MODE.NORMAL;
+        break;
+    case 'preview':
+        this.mode = MODE.PREVIEW;
+        break;
+    default:
+        throw("Wrong mode: " + o.mode);
+    };
+
     this.saveBeforeComplete = o.saveBeforeComplete || false;
 
     if (!o)
@@ -1962,12 +2010,6 @@ $.RexFormsClient = function (o) {
     }
     this.progressBar = progressBar;
 
-
-    if (this.mode !== 'normal' &&
-        this.mode !== 'preview') {
-        throw("Wrong mode: " + this.mode);
-    }
-
     this.previewURL = o.previewURL || null;
     this.saveURL = o.saveURL;
     this.completeCallback = o.completeCallback || null;
@@ -2005,7 +2047,7 @@ $.RexFormsClient = function (o) {
 
     var updateButtons = function () {
         // TODO: think how to do it better
-        var showButton = self.mode !== 'preview' && self.currentPageIdx;
+        var showButton = self.mode !== MODE.PREVIEW && self.currentPageIdx;
         self.btnPrev.css('display', showButton ? '':'none');
     }
 
@@ -2047,7 +2089,7 @@ $.RexFormsClient = function (o) {
         var pages = self.form.pages;
 
         if (!skipValidation) {
-            if (self.mode === "preview") {
+            if (self.mode === MODE.PREVIEW) {
                 for (var idx in pages)
                     if (!validateAndScroll(pages[idx]))
                         return;
@@ -2121,13 +2163,13 @@ $.RexFormsClient = function (o) {
         else
             self.pageTitleArea.contents().remove();
 
-        if (self.mode !== "preview") {
+        if (self.mode !== MODE.PREVIEW) {
             self.pageIntroductionArea.contents().remove();
             if (page.introduction)
                 self.pageIntroductionArea.append( renderCreole(page.introduction) );
         }
 
-        var renderedPage = page.render(self.templates, 'edit');
+        var renderedPage = page.render(self.templates, self.mode);
         self.questionArea.append(renderedPage);
         self.raiseEvent('pageRendered', pageIdx);
     };
@@ -2329,7 +2371,7 @@ $.RexFormsClient = function (o) {
         }
     };
 
-    if (this.mode === 'preview')
+    if (this.mode === MODE.PREVIEW)
         this.renderPreview();
     else {
         // 'normal' mode

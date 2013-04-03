@@ -331,7 +331,7 @@ test('test dual number question', function () {
 
 test('test repeating group', function () {
 	var questions = rexFormsClient.form.questions;
-	questions['test_rep_group'].setValue([
+	var initialValue = [
 		{
 			'first_item': 1,
 			'second_item': 2
@@ -339,17 +339,23 @@ test('test repeating group', function () {
 		{
 			'first_item': 3,
 			'second_item': 4
+		},
+		{
+			'first_item': 5,
+			'second_item': 6
 		}
-	], false);
+	];
+	questions['test_rep_group'].setValue(initialValue, false);
 	var value = questions['test_rep_group'].getValue();
 
-	equal(value.length, 2, 'repeating group question has right number of groups');
+	equal(value.length, 3, 'repeating group question has right number of groups');
 	var firstGroupOk = (value[0]['first_item'] == 1 && value[0]['second_item'] == 2);
 	var secondGroupOk = (value[1]['first_item'] == 3 && value[1]['second_item'] == 4);
-	ok(firstGroupOk && secondGroupOk, 'setting and getting value succeeds');
+	var thirdGroupOk = (value[2]['first_item'] == 5 && value[2]['second_item'] == 6);
+	ok(firstGroupOk && secondGroupOk && thirdGroupOk, 'setting and getting value succeeds');
 
 	var rexlValue = questions['test_rep_group'].getRexlValue();
-	equal(rexlValue.value, 2, "right common rexl value");
+	equal(rexlValue.value, 3, "right common rexl value");
 
 	ok(!questions['test_rep_group'].isIncorrect(), 'is correct');
 
@@ -357,6 +363,16 @@ test('test repeating group', function () {
 	equal(questions['test_rep_group'].getValue(), null, 'Dual question is cleared after setting annotation');
 	equal(questions['test_rep_group'].annotation, 'do_not_want', 'Annotation for dual question is set correctly');
 
-	// TODO: test repeating group rendering
-	// var editNode = questions['test_set'].edit();
+	questions['test_rep_group'].setValue(initialValue, false);
+	var editNode = questions['test_rep_group'].edit();
+	var records = editNode.find('.rf-record');
+	equal(records.size(), 3, 'groups are rendered');
+
+	var removeBtn = $(records[1]).find('.rf-remove-record');
+	removeBtn.click();
+	value = questions['test_rep_group'].getValue();
+	equal(value.length, 2, 'deleting a group succeeds');
+	firstGroupOk = (value[0]['first_item'] == 1 && value[0]['second_item'] == 2);
+	secondGroupOk = (value[1]['first_item'] == 5 && value[1]['second_item'] == 6);
+	ok(firstGroupOk && secondGroupOk, 'the rest groups has right values');
 });

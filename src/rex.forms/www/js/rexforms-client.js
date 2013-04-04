@@ -1171,15 +1171,20 @@ BaseQuestion.prototype.renderView = function () {
     var self = this;
     var viewNode = this.renderCommonPart('viewQuestion');
     this.renderAnnotations(viewNode, /* enable= */ false);
-    var changeButton = this.templates['btnChangeQuestion'].clone();
-    changeButton.click(function () {
-        if (viewNode.parent().size()) {
-            viewNode.before(self.edit());
-            viewNode.detach();
-        }
-    });
-    var container = viewNode.find('.rf-question-change');
-    container.append(changeButton);
+    if (!(this.parent instanceof Record)) {
+        var changeButton = this.templates['btnChangeQuestion'].clone();
+        changeButton.click(function () {
+            console.log('change!');
+            if (viewNode.parent().size()) {
+                var editNode = self.edit();
+                console.log('editNode:', editNode);
+                viewNode.before(editNode);
+                viewNode.detach();
+            }
+        });
+        var container = viewNode.find('.rf-question-change');
+        container.append(changeButton);
+    }
     return viewNode;
 }
 
@@ -1591,8 +1596,22 @@ Record.prototype.expand = function () {
     this.collapsed = false;
 }
 
+Record.prototype.renderView = function () {
+    if (!this.viewNode) {
+        this.viewNode = $('<div>').addClass('rf-record'); // this.templates['viewRecord'].clone();
+        var container = $('<div>').addClass('rf-questions');
+        this.viewNode.append(container);
+        $.each(this.questions, function (_, question) {
+            container.append(question.view());
+        });
+    }
+    return this.viewNode;
+};
+
 Record.prototype.renderEdit = function () {
+    console.log('record renderEdit');
     if (!this.editNode) {
+        console.log('2');
         this.editNode = $('<div>').addClass('rf-record');
         var preview = $('<div>').addClass('rf-record-preview');
         var questions = $('<div>').addClass('rf-questions');
@@ -1600,7 +1619,9 @@ Record.prototype.renderEdit = function () {
         this.editNode.append(questions);
         var self = this;
         $.each(this.questions, function (_, question) {
-            questions.append(question.edit());
+            var questionNode = question.edit();
+            console.log('question edit:', questionNode);
+            questions.append(questionNode);
         });
         var btnCollapseRecord = this.templates['btnCollapseRecord'].clone();
         if (!btnCollapseRecord.hasClass('rf-collapse-record'))
@@ -1636,17 +1657,7 @@ Record.prototype.renderEdit = function () {
         if (this.collapsed)
             this.renderCollapsed();
     }
-    return this.editNode;
-};
-
-Record.prototype.renderView = function () {
-    if (!this.editNode) {
-        this.editNode = templates['editRecord'].clone();
-        var container = this.editNode.find('.rf-questions');
-        $.each(this.questions, function (_, question) {
-            container.append(question.edit());
-        });
-    }
+    console.log('editNode:', this.editNode);
     return this.editNode;
 };
 
@@ -1831,6 +1842,15 @@ RecordListQuestion.prototype.collapseRecords = function (except) {
     });
 };
 
+RecordListQuestion.prototype.renderView = function () {
+    var viewNode = BaseQuestion.prototype.renderView.call(this);
+    var container = viewNode.find('.rf-question-answers:first');
+    $.each(this.records, function (_, record) {
+        container.append(record.renderView());
+    });
+    return viewNode;
+};
+
 RecordListQuestion.prototype.edit = function () {
     if (!this.editNode) {
         this.editNode = BaseQuestion.prototype.renderEdit.call(this);
@@ -1852,6 +1872,7 @@ RecordListQuestion.prototype.edit = function () {
         }
         $.each(this.records, function (_, record) {
             var recordNode = record.renderEdit();
+            console.log('edit record:', recordNode);
             recordList.append(recordNode);
         });
         var self = this;

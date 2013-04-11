@@ -2142,7 +2142,6 @@ $.RexFormsClient = function (o) {
 
         var pages = self.form.pages;
 
-<<<<<<< local
         if (!skipValidation) {
             if (self.mode === MODE.PREVIEW) {
                 for (var idx in pages)
@@ -2150,11 +2149,6 @@ $.RexFormsClient = function (o) {
                         return;
             } else if (self.currentPageIdx >= 0 & step > 0) {
                 if (!validateAndScroll(pages[self.currentPageIdx]))
-=======
-        if (self.mode === "preview") {
-            for (var idx in pages)
-                if (!validateAndScroll(pages[idx]))
->>>>>>> other
                     return;
             }
         }

@@ -801,7 +801,7 @@ var domain = {
 
 // }}}
 
-var Form = function(config, data, paramValues, templates, showNumbers) {
+var Form = function(config, data, paramValues, templates, showNumbers, onPageUpdate) {
     var self = this;
 
     // if pages are in group, set group skip logic to each page
@@ -861,17 +861,18 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
         return newSkipExpr;
     }
 
-    function group(list, skipExpr, data, onFormChange) {
+    function group(list, skipExpr, data, onFormChange, onPageUpdate) {
         skipExpr = skipExpr || '';
         $.each(list, function(_, item) {
             if(item.type == 'group')
-                group(item.pages, mergeSkipExpr(skipExpr, item.skipIf), data, onFormChange);
+                group(item.pages, mergeSkipExpr(skipExpr, item.skipIf),
+                      data, onFormChange, onPageUpdate);
             else
-                page(item, data, skipExpr, onFormChange);
+                page(item, data, skipExpr, onFormChange, onPageUpdate);
         });
     }
 
-    function page(item, data, skipExpr, onFormChange) {
+    function page(item, data, skipExpr, onFormChange, onPageUpdate) {
         var questions = $.map(item.questions, function(questionDef) {
             var slave = questionDef.slave || false;
             var questionName = questionDef.name;
@@ -923,13 +924,18 @@ var Form = function(config, data, paramValues, templates, showNumbers) {
                             item.title,
                             item.introduction || null,
                             mergeSkipExpr(skipExpr, item.skipIf) || null);
+        if (onPageUpdate)
+            $(page).bind('updated', onPageUpdate);
         self.pages.push(page);
     }
 
-    group(config.pages, null, data, function () {
-        ++self.changeStamp;
-    });
-
+    group(
+        config.pages, null, data,
+        function () {
+            ++self.changeStamp;
+        },
+        onPageUpdate
+    );
 
     var expr = {};
     // loop through all pages and questions and extract rexl expressions
@@ -976,6 +982,8 @@ Page.prototype.findWrongQuestion = function () {
 Page.prototype.update = function () {
     if (this.renderedPage)
         this.renderedPage.css('display', this.skipped ? 'none' : 'block');
+    // console.log('trigger', this);
+    $(this).trigger('updated');
 }
 
 Page.prototype.isIncorrect = function () {
@@ -1776,7 +1784,7 @@ RecordListQuestion.prototype.createRecordsFromValue = function (value) {
     if (viewRecords)
         viewRecords.contents().remove();
     if (value == null)
-        value = [ null ]; // to create one empty record
+        value = []; // to create one empty record
     var lastRecord = null;
     $.each(value, function (_, recordValue) {
         var record = self.createRecord(recordValue);
@@ -2037,13 +2045,38 @@ $.RexFormsClient = function (o) {
     this.events = o.events || {};
 
     this.formData = o.formData || {};
+
+    this.checkIfEnd = function () {
+        var pages = self.form.pages;
+        var isEnd = true;
+        for (var idx = self.currentPageIdx + 1; idx < pages.length; idx++) {
+            if (!pages[idx].skipped) {
+                isEnd = false;
+                break;
+            }
+        }
+        var event = isEnd ? 'end': 'notEnd';
+        self.raiseEvent(event, null);
+    }
+
+    var onPageUpdate = function () {
+        var idx = self.currentPageIdx;
+        var pages = self.form.pages;
+        if (idx < pages.length - 1) {
+            var nextPage = pages[idx + 1];
+            if (this === nextPage)
+                self.checkIfEnd();
+        }
+    }
+
+    this.currentPageIdx = -1;
     this.form = new Form(o.formMeta,
                          o.formData || {},
                          o.paramValues || {},
                          templates,
-                         o.showNumbers || false);
+                         o.showNumbers || false,
+                         onPageUpdate);
     initGraphState(this.form.questions, this.form.params, this.form.change);
-    this.currentPageIdx = -1;
     this.assessment = o.assessment || null;
     this.instrumentName = o.instrumentName;
     this.savedChangeStamp = 0;
@@ -2109,6 +2142,7 @@ $.RexFormsClient = function (o) {
 
         var pages = self.form.pages;
 
+<<<<<<< local
         if (!skipValidation) {
             if (self.mode === MODE.PREVIEW) {
                 for (var idx in pages)
@@ -2116,6 +2150,11 @@ $.RexFormsClient = function (o) {
                         return;
             } else if (self.currentPageIdx >= 0 & step > 0) {
                 if (!validateAndScroll(pages[self.currentPageIdx]))
+=======
+        if (self.mode === "preview") {
+            for (var idx in pages)
+                if (!validateAndScroll(pages[idx]))
+>>>>>>> other
                     return;
             }
         }
@@ -2133,6 +2172,7 @@ $.RexFormsClient = function (o) {
                 updateButtons();
                 window.scrollTo(0, 0);
                 self.saveLastVisitPage(idx);
+                self.checkIfEnd();
                 return;
             }
             self.raiseEvent('skipPage', idx);

@@ -1167,9 +1167,27 @@ BaseQuestion.prototype.renderCommonPart = function (templateName, view) {
         questionNode.addClass('rf-question-slave');
     var title = renderCreole(this.title);
     var titleNode = questionNode.find('.rf-question-title')
-    if (view)
-        titleNode.text(this.stripMarkup(title));
-    else
+    if (view) {
+        var title = this.stripMarkup(title);
+        if (title.length > 90) {
+            var beginning = title.substr(0, 90);
+            var rest = title.substr(90);
+            var span = $(document.createElement('span')).addClass('rf-text-expand')
+                                                       .css('display', 'none');
+            var expandBtn = this.templates['expandBtn'].clone();
+            expandBtn.click(function () {
+                var btn = $(this);
+                var textNode = btn.siblings('.rf-text-expand');
+                textNode.css('display', '');
+                btn.remove();
+            })
+            span.text(rest);
+            titleNode.text(beginning);
+            titleNode.append(span);
+            titleNode.append(expandBtn);
+        } else
+            titleNode.text(title);
+    } else
         titleNode.append(title);
     questionNode.find('.rf-question-help')
             .append(this.help ? renderCreole(this.help) : null)
@@ -1928,6 +1946,8 @@ var defaultTemplates = {
         '<button class="rf-change-question">Change</button>',
     'expandHint':
         '<span class="rf-expand-hint">(Click to expand)</span>',
+    'expandBtn':
+        '<a class="rf-expand-btn" href="javascript:void(0)" title="Click to expand">&hellip;</a>',
     'editQuestion':
           '<div class="rf-question rf-question-edit">'
             + '<div class="rf-question-required"><abbr title="This question is mandatory">*</abbr></div>'

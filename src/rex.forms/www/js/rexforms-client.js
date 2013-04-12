@@ -1154,17 +1154,24 @@ BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
         explanationContainer.css('display', 'none');
 };
 
-BaseQuestion.prototype.renderCommonPart = function (templateName) {
+BaseQuestion.prototype.stripMarkup = function (nodes) {
+    return $(document.createElement('div')).append(nodes).text();
+}
+
+BaseQuestion.prototype.renderCommonPart = function (templateName, view) {
     var questionNode = this.templates[templateName].clone();
     questionNode.attr('data-question-name', this.name);
     if (this.typeName)
         questionNode.addClass('rf-type-' + this.typeName);
     if (this.slave)
         questionNode.addClass('rf-question-slave');
-    questionNode.find('.rf-question-title')
-            .append(renderCreole(this.title))
-            .end()
-            .find('.rf-question-help')
+    var title = renderCreole(this.title);
+    var titleNode = questionNode.find('.rf-question-title')
+    if (view)
+        titleNode.text(this.stripMarkup(title));
+    else
+        titleNode.append(title);
+    questionNode.find('.rf-question-help')
             .append(this.help ? renderCreole(this.help) : null)
             .end()
             .find('.rf-question-required')
@@ -1177,7 +1184,7 @@ BaseQuestion.prototype.renderCommonPart = function (templateName) {
 
 BaseQuestion.prototype.renderView = function () {
     var self = this;
-    var viewNode = this.renderCommonPart('viewQuestion');
+    var viewNode = this.renderCommonPart('viewQuestion', true);
     this.renderAnnotations(viewNode, /* enable= */ false);
     if (!(this.parent instanceof Record)) {
         var changeButton = this.templates['btnChangeQuestion'].clone();
@@ -1205,7 +1212,7 @@ BaseQuestion.prototype.view = function () {
 };
 
 BaseQuestion.prototype.renderEdit = function () {
-    var editNode = this.renderCommonPart('editQuestion');
+    var editNode = this.renderCommonPart('editQuestion', false);
     this.renderAnnotations(editNode, /* enable= */ true);
     return editNode;
 }

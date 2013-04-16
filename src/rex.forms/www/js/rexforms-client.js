@@ -1030,6 +1030,11 @@ Page.prototype.render = function(templates, mode) {
     return page;
 };
 
+var AnnotationVariants = {
+    'do_not_know': 'I don\'t know the answer.',
+    'do_not_want': 'I don\'t want to answer.'
+};
+
 // TODO: rename BaseQuestion -> Question
 var BaseQuestion = function(params) {
     this.name = params.name;
@@ -1094,25 +1099,63 @@ BaseQuestion.prototype.setAnnotation = function (annotation, internal) {
         this.onChange();
 }
 
-BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
-    var self = this;
 
+BaseQuestion.prototype.stripMarkup = function (nodes) {
+    return $(document.createElement('div')).append(nodes).text();
+}
+
+BaseQuestion.prototype.renderCommonPart = function (templateName, view) {
+    var questionNode = this.templates[templateName].clone();
+    questionNode.attr('data-question-name', this.name);
+    if (this.typeName)
+        questionNode.addClass('rf-type-' + this.typeName);
+    if (this.slave)
+        questionNode.addClass('rf-question-slave');
+    questionNode.find('.rf-question-required')
+            .css('display', this.required ? '' : 'none')
+    if (this.required)
+        questionNode.addClass('rf-required');
+    return questionNode;
+};
+
+BaseQuestion.prototype.renderAnnotationView = function (questionNode) {
     var annotationContainer = questionNode.find('.rf-question-annotation');
-    if (enable && this.askAnnotation) {
-        var annotationNode = self.templates['annotation'].clone();
-        annotationNode
-            .find('.rf-annotation-variants')
-            .val(self.annotation ? self.annotation : '')
-            .change(function () {
-                var annotation = $(this).val() || null;
-                self.setAnnotation(annotation, false);
-            });
-            annotationContainer.append(annotationNode);
+    if (this.askAnnotation && this.annotation) {
+        var text = AnnotationVariants[this.annotation];
+        annotationContainer.text(text);
     } else
         annotationContainer.css('display', 'none');
+}
 
+BaseQuestion.prototype.renderAnnotationEdit = function (questionNode) {
+    var self = this;
+    var annotationContainer = questionNode.find('.rf-question-annotation');
+    if (this.askAnnotation) {
+        var annotationNode = self.templates['annotation'].clone();
+        var variants = annotationNode.find('.rf-annotation-variants');
+        variants.append($('<option>', {
+            value: '',
+            text: ''
+        }));
+        $.each(AnnotationVariants, function (value, text) {
+            variants.append($('<option>', {
+                value: value,
+                text: text
+            }));
+        });
+        variants.val(self.annotation ? self.annotation : '');
+        variants.change(function () {
+            var annotation = $(this).val() || null;
+            self.setAnnotation(annotation, false);
+        });
+        annotationContainer.append(annotationNode);
+    }
+}
+
+BaseQuestion.prototype.renderExplanationEdit = function (questionNode) {
+    var self = this;
     var explanationContainer = questionNode.find('.rf-question-explanation');
-    if (enable && this.askExplanation) {
+    if (this.askExplanation) {
         var explanationNode = self.templates['explanation'].clone();
         var hideBtn = explanationNode.find('.rf-explanation-hide');
         var showBtn = explanationNode.find('.rf-explanation-show');
@@ -1150,67 +1193,51 @@ BaseQuestion.prototype.renderAnnotations = function (questionNode, enable) {
                 self.onFormChange();
         });
         explanationContainer.append(explanationNode)
-    } else
-        explanationContainer.css('display', 'none');
-};
-
-BaseQuestion.prototype.stripMarkup = function (nodes) {
-    return $(document.createElement('div')).append(nodes).text();
+    }
 }
 
-BaseQuestion.prototype.renderCommonPart = function (templateName, view) {
-    var questionNode = this.templates[templateName].clone();
-    questionNode.attr('data-question-name', this.name);
-    if (this.typeName)
-        questionNode.addClass('rf-type-' + this.typeName);
-    if (this.slave)
-        questionNode.addClass('rf-question-slave');
-    var title = renderCreole(this.title);
-    var titleNode = questionNode.find('.rf-question-title')
-    if (view) {
-        var title = this.stripMarkup(title);
-        if (title.length > 90) {
-            var beginning = title.substr(0, 90);
-            var rest = title.substr(90);
-            var span = $(document.createElement('span')).addClass('rf-text-expand')
-                                                       .css('display', 'none');
-            var expandBtn = this.templates['expandBtn'].clone();
-            expandBtn.click(function () {
-                var btn = $(this);
-                var textNode = btn.siblings('.rf-text-expand');
-                textNode.css('display', '');
-                btn.remove();
-            })
-            span.text(rest);
-            titleNode.text(beginning);
-            titleNode.append(span);
-            titleNode.append(expandBtn);
-        } else
-            titleNode.text(title);
+BaseQuestion.prototype.renderExplanationView = function (questionNode) {
+    var explanationContainer = questionNode.find('.rf-question-explanation');
+    if (this.askExplanation && this.explanation) {
+        explanationContainer.text(this.explanation);
     } else
-        titleNode.append(title);
-    questionNode.find('.rf-question-help')
-            .append(this.help ? renderCreole(this.help) : null)
-            .end()
-            .find('.rf-question-required')
-            .css('display', this.required ? '' : 'none')
-            .end();
-    if (this.required)
-        questionNode.addClass('rf-required');
-    return questionNode;
-};
+        explanationContainer.css('display', 'none');
+}
 
 BaseQuestion.prototype.renderView = function () {
     var self = this;
     var viewNode = this.renderCommonPart('viewQuestion', true);
-    this.renderAnnotations(viewNode, /* enable= */ false);
+    var title = renderCreole(this.title);
+    var titleNode = viewNode.find('.rf-question-title');
+    var helpNode = viewNode.find('.rf-question-help');
+    var title = this.stripMarkup(title);
+    if (title.length > 90) {
+        var beginning = title.substr(0, 90);
+        var rest = title.substr(90);
+        var span = $(document.createElement('span')).addClass('rf-text-expand')
+                                                   .css('display', 'none');
+        var expandBtn = this.templates['expandBtn'].clone();
+        expandBtn.click(function () {
+            var btn = $(this);
+            var textNode = btn.siblings('.rf-text-expand');
+            textNode.css('display', '');
+            btn.remove();
+        })
+        span.text(rest);
+        titleNode.text(beginning);
+        titleNode.append(span);
+        titleNode.append(expandBtn);
+    } else
+        titleNode.text(title);
+    helpNode.css('display', 'none');
+
+    this.renderAnnotationView(viewNode);
+    this.renderExplanationView(viewNode);
     if (!(this.parent instanceof Record)) {
         var changeButton = this.templates['btnChangeQuestion'].clone();
         changeButton.click(function () {
-            console.log('change!');
             if (viewNode.parent().size()) {
                 var editNode = self.edit();
-                console.log('editNode:', editNode);
                 viewNode.before(editNode);
                 viewNode.detach();
             }
@@ -1231,7 +1258,13 @@ BaseQuestion.prototype.view = function () {
 
 BaseQuestion.prototype.renderEdit = function () {
     var editNode = this.renderCommonPart('editQuestion', false);
-    this.renderAnnotations(editNode, /* enable= */ true);
+    var title = renderCreole(this.title);
+    var titleNode = editNode.find('.rf-question-title');
+    var helpNode = editNode.find('.rf-question-help');
+    titleNode.append(title);
+    helpNode.append(this.help ? renderCreole(this.help) : null);
+    this.renderAnnotationEdit(editNode);
+    this.renderExplanationEdit(editNode);
     return editNode;
 }
 
@@ -1983,9 +2016,6 @@ var defaultTemplates = {
           '<div class="rf-annotation">'
             + '<span class="rf-annotation-title">I can\'t answer because:</span>'
             + '<select class="rf-annotation-variants">'
-                + '<option value=""></option>'
-                + '<option value="do_not_know">I don\'t know the answer.</option>'
-                + '<option value="do_not_want">I don\'t want to answer.</option>'
             + '</select>'
         + '</div>'
 };

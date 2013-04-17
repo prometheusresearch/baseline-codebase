@@ -1093,12 +1093,13 @@ BaseQuestion.prototype.specificOnChange = function () {
 
 BaseQuestion.prototype.setAnnotation = function (annotation, internal) {
     this.annotation = annotation;
+    if (this.viewNode)
+        this.renderAnnotationView(this.viewNode);
     if (this.annotation)
         this.setValue(null, internal);
     else if (!internal && this.onChange)
         this.onChange();
 }
-
 
 BaseQuestion.prototype.stripMarkup = function (nodes) {
     return $(document.createElement('div')).append(nodes).text();
@@ -1166,7 +1167,7 @@ BaseQuestion.prototype.renderExplanationEdit = function (questionNode) {
             explanationNode.find('.rf-explanation-block').css('display', '');
         };
         self.hideExplanation = function (skipChangeAction) {
-            self.explanation = null;
+            self.setExplanation(null);
             text.val('');
             hideBtn.css('display', 'none');
             showBtn.css('display', '');
@@ -1188,11 +1189,11 @@ BaseQuestion.prototype.renderExplanationEdit = function (questionNode) {
         } else
             self.hideExplanation(true);
         text.change(function () {
-            self.explanation = $(this).val() || null;
+            self.setExplanation($(this).val() || null);
             if (self.onFormChange)
                 self.onFormChange();
         });
-        explanationContainer.append(explanationNode)
+        explanationContainer.append(explanationNode);
     }
 }
 
@@ -1290,6 +1291,8 @@ BaseQuestion.prototype.getExplanation = function () {
 
 BaseQuestion.prototype.setExplanation = function (explanation) {
     this.explanation = explanation;
+    if (this.viewNode)
+        this.renderExplanationView(this.viewNode);
 };
 
 BaseQuestion.prototype.setValue = function (value, internal) {
@@ -1345,7 +1348,7 @@ BaseQuestion.prototype.getRexlValue = function (itemName) {
 
 BaseQuestion.prototype.disable = function() {
     if (this.value !== null) {
-        this.explanation = null;
+        this.setExplanation(null);
         if (this.hideExplanation)
             this.hideExplanation();
         this.setValue(null, false);

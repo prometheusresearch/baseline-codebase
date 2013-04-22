@@ -1,6 +1,7 @@
 
 import sys
 import os
+import warnings
 from testbase import TestCase
 
 from rex.instrument import InstrumentRegistry, Instrument, AssessmentStorage, \
@@ -72,8 +73,13 @@ class TestAssessmentStorage(TestCase):
         instrument = self.storage.instruments.get_instrument('first', version=1)
         all[0] = self.storage.create_assessment(instrument)
         all[1] = self.storage.create_assessment('first')
-        all[2] = self.storage.create_assessment('second')        
-        self.assertEqual(len(list(self.storage.assessments)), 3)
+        all[2] = self.storage.create_assessment('second')
+        f = open ("%s/lock_assessment/broken_00001_000001" % self.storage.directory, 'w')
+        f.close()
+        with warnings.catch_warnings(record=True) as warning_list:
+            warnings.simplefilter('always')
+            self.assertEqual(len(list(self.storage.assessments)), 3)
+            self.assertTrue(any(item.category == UserWarning for item in warning_list))
         for i, a in enumerate(self.storage.assessments):
             self.assertEqual(all[i].id, a.id)
         self.assertFalse(self.storage.get_assessment(all[0].id).is_completed)

@@ -4,6 +4,7 @@ import os
 import glob
 import simplejson
 import shutil
+import warnings
 from .instrument import InstrumentRegistry, Instrument
 from .util import FileLock, savefile
 from rex.validate import ValidationError
@@ -249,8 +250,12 @@ class AssessmentStorage(BaseAssessmentStorage):
         names = sorted([name for name in os.listdir(self.assessment_lock_dir)
                                  if not name.startswith('.') ])
         for name in names:
-            yield self.get_assessment(name)
-         
+            assessment = self.get_assessment(name)
+            if assessment is None:
+                warnings.warn("Could not get assessment %s" % name)
+                continue
+            yield assessment
+
     @property
     def completed_assessments(self):
         for assessment in self.assessments:

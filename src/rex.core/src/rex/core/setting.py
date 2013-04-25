@@ -4,15 +4,17 @@
 
 
 from .extension import Extension
-from .context import active_app
+from .context import get_rex
 from .cache import cached
+from .package import get_packages
+from .validate import BoolVal
+from .error import Error
 import textwrap
 
 
 class Setting(Extension):
 
     name = None
-
     default = None
 
     @classmethod
@@ -26,7 +28,7 @@ class Setting(Extension):
 
     @classmethod
     def enabled(cls):
-        return (self.name is not None)
+        return (cls.name is not None)
 
     @classmethod
     @cached
@@ -49,16 +51,26 @@ class Setting(Extension):
             raise
 
 
+class DebugSetting(Setting):
+
+    name = 'debug'
+    default = False
+    validate = BoolVal()
+
+
 class SettingCollection(object):
 
     __slots__ = ()
 
     @classmethod
-    def build(cls, local_parameters):
+    def build(cls):
+        local_parameters = get_rex().parameters
+        packages = get_packages()
+
         setting_map = Setting.all_map()
         parameters = {}
 
-        for package in reversed(active_app.packages):
+        for package in reversed(packages):
             if package.exists('settings.yaml'):
                 stream = package.open('settings.yaml')
                 package_parameters = yaml.safe_load(stream)
@@ -98,5 +110,15 @@ class SettingCollection(object):
     def __init__(self, **parameters):
         for name in parameters:
             setattr(self, name, parameters[name])
+
+    def __repr__(self):
+        args = ["%s=%r" % (slot, getattr(self, slot))
+                for slot in self.__slots__]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
+@cached
+def get_settings():
+    return SettingCollection.build()
 
 

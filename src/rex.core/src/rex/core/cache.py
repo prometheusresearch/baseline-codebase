@@ -3,37 +3,38 @@
 #
 
 
-from .context import active_app
+from .context import get_rex
 import threading
 import functools
 
 
-class Cache(object):
+class Cache(dict):
     # Per-application cache.
 
+    __slots__ = ('_lock',)
+
     def __init__(self):
-        self._values = {}
         self._lock = threading.RLock()
 
-    def get_or_set(self, key, callback):
-        # Get the cached value associated with the key; call `callback` for
-        # an unknown key.
-        try:
-            return self._values[key]
-        except KeyError:
-            with self._lock:
-                if key not in self._values:
-                    self._values[key] = callback()
-            return self._values[key]
+    def set_default_cb(self, key, callback):
+        # Get the cached value associated with the key; call `callback()` to
+        # get the value for a new key.
+        with self._lock:
+            if key not in self:
+                self[key] = callback()
+        return self[key]
 
 
 def cached(fn):
-    """Memorizes function result in the cache of the active application."""
+    """Memorizes the function result in the cache of the active application."""
     @functools.wraps(fn)
     def wrapper(*args):
-        cache = active_app.cache
+        cache = get_rex().cache
         key = (fn,) + args
-        return cache.get_or_set(key, lambda args=args: fn(*args))
+        try:
+            return cache[key]
+        except KeyError:
+            return cache.set_default_cb(key, lambda fn=fn, args=args: fn(*args))
     return wrapper
 
 

@@ -18,10 +18,14 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     entry_points={},
+    setup_requires=[
+        'rex.setup',
+    ],
     install_requires=[
         'rex.setup',
         'pyyaml',
     ],
+    rex_init='rex.core',
 )
 
 

@@ -4,7 +4,7 @@
 
 
 from .cache import cached
-from .context import active_app
+from .package import get_packages
 
 
 class Extension(object):
@@ -27,7 +27,7 @@ class Extension(object):
     @classmethod
     @cached
     def all(cls):
-        packages = active_app.packages
+        packages = get_packages()
         modules = packages.modules
         subclasses = [cls]
         idx = 0
@@ -35,25 +35,17 @@ class Extension(object):
             subclass = subclasses[idx]
             subclasses.extend(subclass.__subclasses__())
             idx += 1
+        subclasses.reverse()
         return [subclass for subclass in subclasses
                          if subclass.__module__ in modules and
                             subclass.enabled()]
 
     @classmethod
     @cached
-    def one(cls):
-        extensions = cls.all()
-        assert len(extensions) >= 1, \
-                "found no implementations of %s" % cls.__class__.__name__
-        assert len(extensions) <= 1, \
-                "found too many implementations of %s" % cls.__class__.__name__
-        return extensions[0]
-
-    @classmethod
-    @cached
     def by_package(cls, name):
-        package = app.packages[name]
-        return [extension for extension in self.all()
+        packages = get_packages()
+        package = packages[name]
+        return [extension for extension in cls.all()
                           if extension.__module__ in package.modules]
 
 

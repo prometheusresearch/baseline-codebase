@@ -18,13 +18,13 @@ class Paragraph(object):
             return self.message
         block = "\n".join("    "+line
                           for line in str(self.payload).splitlines())
-        return "%s:\n%s" % (self.message, block)
+        return "%s\n%s" % (self.message, block)
 
     def __repr__(self):
         return "<%s %r>" % (self.__class__.__name__, self.message)
 
 
-class Error(object):
+class Error(Exception):
     """An exception with a context trace."""
 
     def __init__(self, message, payload=None):

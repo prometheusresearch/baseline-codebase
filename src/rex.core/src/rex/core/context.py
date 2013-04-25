@@ -6,8 +6,8 @@
 import threading
 
 
-class RexAppContext(threading.local):
-    """Holds attributes of the active Rex application in the current thread."""
+class RexContext(threading.local):
+    """Holds the active Rex application in the current thread."""
 
     def __init__(self):
         self._active_app = None
@@ -21,23 +21,11 @@ class RexAppContext(threading.local):
         self._active_app = self._app_stack.pop()
 
     def __call__(self):
-        if self._active_app is None:
-            raise RuntimeError("Active Rex application is not set")
+        assert self._active_app is not None, \
+                "no Rex application has been activated"
         return self._active_app
 
-    @property
-    def cache(self):
-        return self().cache
 
-    @property
-    def packages(self):
-        return self().packages
-
-    @property
-    def settings(self):
-        return self().settings
-
-
-active_app = RexAppContext()
+get_rex = RexContext()
 
 

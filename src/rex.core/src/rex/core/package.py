@@ -4,7 +4,7 @@
 
 
 from .cache import cached
-from .context import active_app
+from .context import get_rex
 import sys
 import os, os.path
 import pkg_resources
@@ -27,7 +27,8 @@ class Package(object):
         return path
 
     def exists(self, path):
-        return (self.abspath(path) is not None)
+        path = self.abspath(path)
+        return (path is not None and os.path.exists(path))
 
     def open(self, path):
         path = self.abspath(path)
@@ -39,11 +40,17 @@ class Package(object):
         assert path is not None, path
         return os.walk(path)
 
+    def __repr__(self):
+        return "%s(%r, static=%r, prefix=%r, modules=%r)" \
+                % (self.__class__.__name__,
+                   self.name, self.static, self.prefix, self.modules)
+
 
 class PackageCollection(object):
 
     @classmethod
-    def build(cls, requirements):
+    def build(cls):
+        requirements = get_rex().requirements
         if not requirements:
             requirements = ['rex.core']
         packages = []
@@ -66,27 +73,28 @@ class PackageCollection(object):
                 yield package
 
         static = None
-        if dist.has_metadata('rex_static'):
-            static = dist.get_metadata('rex_static')
+        if dist.has_metadata('rex_static.txt'):
+            static = dist.get_metadata('rex_static.txt')
             static = os.path.abspath(static)
             if not os.path.exists(static):
                 raise Error("Cannot find static directory:", static)
 
         prefix = None
-        if dist.has_metadata('rex_prefix'):
-            prefix = dist.get_metadata('rex_prefix')
+        if dist.has_metadata('rex_prefix.txt'):
+            prefix = dist.get_metadata('rex_prefix.txt')
 
         init = None
         modules = set()
-        if dist.has_metadata('rex_init'):
-            init = dist.get_metadata('rex_init')
+        if dist.has_metadata('rex_init.txt'):
+            init = dist.get_metadata('rex_init.txt')
         if init is not None:
             __import__(init)
             modules = set(module for module in sys.modules
-                                 if module == init or
-                                 module.startswith(init+'.'))
-
-        yield Package(name, static, prefix, modules)
+                                 if sys.modules[module] and
+                                    (module == init or
+                                        module.startswith(init+'.')))
+        if static or prefix or modules:
+            yield Package(name, static, prefix, modules)
 
     def __init__(self, packages):
         self.packages = packages
@@ -113,5 +121,13 @@ class PackageCollection(object):
 
     def get(self, name, default=None):
         return self.package_map.get(name, default)
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.packages)
+
+
+@cached
+def get_packages():
+    return PackageCollection.build()
 
 

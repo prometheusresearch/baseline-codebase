@@ -1,0 +1,13 @@
+*********************************************
+  REX.WEB -- Web stack for the Rex platform
+*********************************************
+
+Overview
+========
+
+This package provides the web stack for the Rex platform.
+
+This package is a part of the RexDB platform for medical research
+data management.  It is created by Prometheus Research, LLC
+and released under AGPLv3 license.
+

@@ -20,7 +20,7 @@ setup(name='rex.formbuilder',
       www_dir='www',
       # www_module is the Python module where you register commands, 
       # authenticators & custom handlers
-      www_module='formbuilder',
+      www_module='rex.formbuilder',
       # www_settings is a Yaml file where you could store default parameters 
       # for you package or overriding values for other packages
       www_settings='settings.yaml',

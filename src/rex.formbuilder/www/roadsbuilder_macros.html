@@ -8,10 +8,12 @@
         <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
         <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/json/jquery.json-2.3.min.js"></script>
         <script type="text/javascript" src="{{ PREFIX['rex.common'] }}/js/rexl/0.5.1/rexl.js"></script>
-        <link rel="stylesheet" href="{{ MYPREFIX }}/css/builder.css" />
-        <link rel="stylesheet" href="{{ MYPREFIX }}/css/conditor.css" />
-        <script type="text/javascript" src="{{ MYPREFIX }}/js/conditor.js"></script>
-        <script type="text/javascript" src="{{ MYPREFIX }}/js/builder.js" data-prefix="{{ MYPREFIX }}" data-forms-prefix="{{ PREFIX['rex.forms'] }}"></script>
+        <link rel="stylesheet" href="{{ PREFIX['rex.formbuilder'] }}/css/builder.css" />
+        <link rel="stylesheet" href="{{ PREFIX['rex.formbuilder'] }}/css/conditor.css" />
+        <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/conditor.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/builder-helpers.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/builder-dialogs.js"></script>
+        <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/builder.js" data-prefix="{{ PREFIX['rex.formbuilder'] }}" data-forms-prefix="{{ PREFIX['rex.formbuilder'] }}"></script>
 {% endmacro -%}
 
 {% macro roadsbuilder(instrument, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) -%}
@@ -148,12 +150,6 @@
 
             <div class="rb_edit_group_dialog">
                 Set group name:<br><input type="text" class="rb_edit_group_name" />
-            </div>
-
-            <div id="question_dialog">
-                <div id="question_dialog_text">
-                    Wazzzzzzzzzzzzzzup?
-                </div>
             </div>
 
             <div id="tpl_question_editor" class="rb_question_editor">

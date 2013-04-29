@@ -1,14 +1,15 @@
 
-$.RoadsBuilder = {};
+(function () {
+
+var builderNS = $.RexFormsBuilder = $.RexFormsBuilder || {};
 
 (function () {
     var scripts = document.getElementsByTagName( 'script' );
     var thisScriptTag = $(scripts[ scripts.length - 1 ]);
     $.RoadsBuilder.basePrefix =
         thisScriptTag.attr('data-prefix') || '';
-    $.RoadsBuilder.formsPrefix = 
+    $.RoadsBuilder.formsPrefix =
         thisScriptTag.attr('data-forms-prefix') || '';
-
     // Put other pre-init actions here
 })();
 
@@ -29,98 +30,11 @@ $.RoadsBuilder.QTypes = {
     'rep_group': 'Repeating Group of Questions'
 };
 
-$.RoadsBuilder.remCharsRegExp = new RegExp("[^a-zA-Z0-9\\s_\\-\\/]+", "g");
 $.RoadsBuilder.nameRegExp = new RegExp("[^a-zA-Z0-9_]+", "g");
 $.RoadsBuilder.nameBeginRegExp = new RegExp('^[^a-zA-Z]');
 $.RoadsBuilder.nameEndRegExp   = new RegExp('[^a-zA-Z0-9]$');
 
 $.RoadsBuilder.predefinedLists = {};
-
-$.RoadsBuilder.QuestionDialogF = function () {
-    var dialogObj = null;
-    var dialogParams = null;
-    var dialogQuestion = null;
-    var retValue = null;
-
-    function closeDialog() {
-        dialogObj.dialog('close');
-    }
-
-    var Init = function () {
-        dialogQuestion = $('#question_dialog_text');
-        dialogObj = $('#question_dialog').dialog({
-            autoOpen: false,
-            title: 'Question',
-            width: 400,
-            height: 200,
-            modal: true,
-            close: function () {
-                if (dialogParams.onResult)
-                    dialogParams.onResult(retValue);
-                dialogParams = null;
-                retValue = null;
-            }
-        });
-    }
-
-    function setDialogButtons(buttons) {
-        var optButtons = {};
-        for (var btnName in buttons) {
-            var f = function () {
-                var callee = arguments.callee
-                retValue = buttons[callee.btnName]();
-                closeDialog();
-            }
-            f.btnName = btnName;
-            optButtons[btnName] = f;
-        }
-        dialogObj.dialog('option', 'buttons', optButtons);
-    }
-
-    Init.prototype = {
-        open: function (params) {
-            dialogParams = params;
-            dialogQuestion.text(dialogParams.text);
-            
-            if (dialogParams.buttons)
-                setDialogButtons(dialogParams.buttons);
-            else {
-                setDialogButtons({
-                    'Ok': function () {
-                        return true;
-                    },
-                    'Cancel': function () {
-                        return false;
-                    }
-                });
-            }
-
-            dialogObj.dialog('option', 'title', 
-                dialogParams.title || '');
-            dialogObj.dialog('open');
-        },
-        close: closeDialog
-    }
-
-    return Init;
-}
-
-$.RoadsBuilder.isValidNumeric = function(val, condType) {
-    return (
-        (condType === 'integer' 
-            && /^[0-9]+$/.test(val)) ||
-        (condType === 'float' 
-            && /^([+-]?(((\d+(\.)?)|(\d*\.\d+))([eE][+-]?\d+)?))$/.test(val))
-    );
-}
-
-$.RoadsBuilder.isValidDate = function (year, month, day) {
-    --month;
-    var d = new Date(year, month, day);
-    return (d.getDate() == day &&
-            d.getMonth() == month &&
-            d.getFullYear() == year);
-}
 
 $.RoadsBuilder.EditPageDialogF = function () {
     var dialogObj = null;
@@ -258,14 +172,14 @@ $.RoadsBuilder.BeforeTestDialog = function () {
                         case 'DATE':
                             var matches = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
                             if (!matches ||
-                                !$.RoadsBuilder.isValidDate(matches[1], matches[2], matches[3])) {
+                                !builderNS.isValidDate(matches[1], matches[2], matches[3])) {
                                 valid = false;
                                 break;
                             }
                             paramDict[paramName] = value;
                             break;
                         case 'NUMBER':
-                            if (!$.RoadsBuilder.isValidNumeric(value, 'float')) {
+                            if (!builderNS.isValidNumeric(value, 'float')) {
                                 valid = false;
                                 break;
                             }
@@ -300,7 +214,7 @@ $.RoadsBuilder.BeforeTestDialog = function () {
         for (var idx in params) {
             var param = params[idx];
             var rowHTML = '<tr><td>' 
-                                + $.RoadsBuilder.escapeHTML(param.name) + '</td>' 
+                                + builderNS.escapeHTML(param.name) + '</td>' 
                                 + '<td class="rb_test_param_value"></td></tr>';
 
             var row = $(rowHTML);
@@ -565,7 +479,6 @@ $.RoadsBuilder.ShowJSONDialogF = function () {
     return Init;
 }
 
-
 $.RoadsBuilder.TemplatesF = function () {
     var templates = {};
 
@@ -617,26 +530,6 @@ $.RoadsBuilder.TemplatesF = function () {
     }
     
     return Init;
-}
-
-$.RoadsBuilder.getCId = function(prefix) {
-    var cId = prefix + '_';
-    cId += $.RoadsBuilder.getRandomStr(10);
-    // TODO: check for uniqness inside current instrument
-    return cId;
-}
-
-$.RoadsBuilder.getRandomStr = function(len) {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 
-                 + "abcdefghijklmnopqrstuvwxyz0123456789";
-
-    for(var i = 0; i < len; i++)
-        text += possible.charAt(
-                    Math.floor(Math.random() * possible.length)
-                );
-
-    return text;
 }
 
 $.RoadsBuilder.ContextF = function () {
@@ -775,7 +668,7 @@ $.RoadsBuilder.ContextF = function () {
         },
         createNewPage: function (id) {
             var newPage = {
-                'cId': $.RoadsBuilder.getCId('page'),
+                'cId': builderNS.getCId('page'),
                 'title': null,
                 'questions': []
             };
@@ -793,7 +686,7 @@ $.RoadsBuilder.ContextF = function () {
         createNewGroup: function (title) {
             var newGroup = {
                 'title': title ? title : null,
-                'cId': $.RoadsBuilder.getCId('group'),
+                'cId': builderNS.getCId('group'),
             };
             $.RoadsBuilder.context.putToIndex('group', newGroup);
             return newGroup;
@@ -1022,14 +915,6 @@ $.RoadsBuilder.putHint = function(element, hintId) {
     }
 }
 
-$.RoadsBuilder.isNumericType = function(qType) {
-    return (qType === 'integer' || qType == 'float')
-}
-
-$.RoadsBuilder.isListType = function(qType) {
-    return (qType === 'set' || qType == 'enum'); 
-}
-
 $.RoadsBuilder.updateQuestionDiv = function(questionDiv) {
     var questionData = questionDiv.data('data');
     $('.rb_question_title', questionDiv).text(questionData.title || '');
@@ -1200,14 +1085,14 @@ $.RoadsBuilder.showQuestionEditor = function(question) {
                 isFirst = false;
             }
 
-            if ($.RoadsBuilder.isListType(question.type))
+            if (builderNS.isListType(question.type))
                 $('.rb_choices', editor).css('display', 'block');
 
             inputTitle.change(function () {
                 var title = $(this).val();
                 if (inputName.hasClass('slave')) {
                     inputName.val(
-                        $.RoadsBuilder.getReadableId(title, true, '_', 45)
+                        builderNS.getReadableId(title, true, '_', 45)
                     );
                 }
             })
@@ -1300,27 +1185,6 @@ $.RoadsBuilder.getConditionAnswersStr = function(answers) {
     return ret;
 }
 
-$.RoadsBuilder.escapeHTML = function(str) {
-    return $(document.createElement('div')).text(str).html();
-}
-
-$.RoadsBuilder.getConnectionLabel = function(conditions, defLabel) {
-    if (conditions && conditions.length) {
-        var label = '';
-        for (var idx in conditions) {
-            var condition = conditions[idx];
-            if (idx > 0)
-                label += "<br>";
-            label += '"' + $.RoadsBuilder.escapeHTML(condition['question']) + '": '
-                  + $.RoadsBuilder.escapeHTML(
-                        $.RoadsBuilder.getConditionAnswersStr(condition['answers'])
-                    );
-        }
-        return label;
-    } else
-        return (defLabel ? defLabel : 'Default');
-}
-
 $.RoadsBuilder.addChoiceReal = function(choicesList, code, title,
                                         hideHeader, slave) {
 
@@ -1340,7 +1204,7 @@ $.RoadsBuilder.addChoiceReal = function(choicesList, code, title,
         var title = jThis.val();
         var answerCode = jThis.data('answerCode');
         if (answerCode.hasClass('slave')) {
-            answerCode.val($.RoadsBuilder.getReadableId(title, false, '_', 45));
+            answerCode.val(builderNS.getReadableId(title, false, '_', 45));
         }
     });
 
@@ -1450,7 +1314,7 @@ $.RoadsBuilder.onChangeQuestionType = function() {
 
     var type = jThis.val();
     
-    var answersDisplay = $.RoadsBuilder.isListType(type) ? 'block' : 'none';
+    var answersDisplay = builderNS.isListType(type) ? 'block' : 'none';
     var subQListDisplay = (type === 'rep_group') ? '' : 'none';
 
     presets.css('display', answersDisplay);
@@ -1466,100 +1330,6 @@ $.RoadsBuilder.onChangeQuestionType = function() {
     }
 }
 
-$.RoadsBuilder.abbr = {
-    diagnosis: 'dx',
-    equivalent: 'equiv',
-    confidence: 'conf',
-    develop: 'dev',
-    development: 'dev',
-    developmental: 'dev',
-    neurological: 'neuro',
-    specify: 'spec',
-    describe: 'desc',
-    description: 'desc',
-    positive: 'pos',
-    negative: 'neg',
-    seizure: 'seiz',
-    seizures: 'seiz',
-    unknown: 'unk',
-    surgery: 'surg',
-    medication: 'med',
-    pregnancy: 'preg',
-    pregnant: 'preg',
-    functioning: 'func',
-    functional: 'func',
-    'function': 'func',
-    communication: 'comm',
-    communicate: 'comm',
-    classification: 'class'
-};
-
-$.RoadsBuilder.stopWords = {
-    'is': true,
-    'the': true,
-    'of': true,
-    'and': true,
-    'a': true,
-    'an': true,
-    'for': true,
-    'in': true,
-    'to': true
-};
-
-$.RoadsBuilder.getReadableId = function(str, handlePrefix,
-                                        delim, maxlen) {
-    str = str.replace($.RoadsBuilder.remCharsRegExp, '');
-    var len = str.length;
-    var result = '';
-    var word = '';
-    var begin = true;
-    var ch;
-    for (i = 0; i <= len; i++) {
-        ch = str.charAt(i);
-        if ((ch >= 'a' && ch <= 'z') ||
-            (ch >= '0' && ch <= '9'))
-            word += ch;
-        else if (ch >= 'A' && ch <= 'Z')
-            word += ch.toLowerCase();
-        else if (word) {
-            if (!$.RoadsBuilder.stopWords[word]) {
-                if ($.RoadsBuilder.abbr[word])
-                    word = $.RoadsBuilder.abbr[word];
-
-                if (result)
-                    result += delim + word;
-                else {
-                    if (handlePrefix) {
-                        var matches = 
-                                word.match(/^([a-z]{0,1})(\d+)(.*)$/);
-                    
-                        if (matches !== null) {
-                            if (parseInt(matches[2]) + 0 < 10)
-                                matches[2] = '0' + matches[2];
-                            if (matches[1] === '')
-                                matches[1] = 'q';
-                            word = matches[1] 
-                                    + matches[2]
-                                    + matches[3];
-                        }
-                    }
-                    result = word;
-                    begin = false;
-                }
-            } else
-                begin = false;
-            word = '';
-            if (result.length >= maxlen) {
-                if (result.charAt(maxlen - 1) === delim)
-                    --maxlen; 
-                result = result.substr(0, maxlen);
-                break;
-            }
-        }
-    }
-
-    return result;
-}
 
 $.RoadsBuilder.changesCounter = 0;
 $.RoadsBuilder.instrumentChanged = false;
@@ -1579,23 +1349,13 @@ $.RoadsBuilder.findDuplicates = function(qName, origQuestionData) {
             foundQuestionData === origQuestionData) ? false : true;
 }
 
-$.RoadsBuilder.writeChanges = function(obj, attrs) {
-    if (obj['changes'] === undefined)
-        obj['changes'] = {};
-    for (var idx in attrs) {
-        obj['changes'][attrs[idx]] = $.RoadsBuilder.getChangeStamp();
-    }
-}
-
 $.RoadsBuilder.saveQuestion = function(obj) {
     var jObj = obj;
     var question = jObj.hasClass('rb_question') ?
                             jObj:
                             jObj.parents('.rb_question:first');
-
     var questionData = question.data('data');
     var questionDataUpdated = false;
-
     var inputTitle = $('textarea[name="question-title"]:first', question);
     var qTitle = jQuery.trim( inputTitle.val() );
     var qRequired = $('input[name="question-required"]:first', question)
@@ -1613,7 +1373,7 @@ $.RoadsBuilder.saveQuestion = function(obj) {
     var preloadedAnswers = {};
     // var changes = [];
 
-    if ($.RoadsBuilder.isListType(qQuestionType)) {
+    if (builderNS.isListType(qQuestionType)) {
         var choicesList = $('.choices-list:first', question)
                             .find('.choices-list-items:first');
         var items = $('.rb_choices_item', choicesList);
@@ -1764,7 +1524,7 @@ $.RoadsBuilder.saveQuestion = function(obj) {
     $.RoadsBuilder.makeREXLCache(questionData, 'disableIf');
     $.RoadsBuilder.makeREXLCache(questionData, 'constraints');
 
-    if ($.RoadsBuilder.isListType(qQuestionType)) {
+    if (builderNS.isListType(qQuestionType)) {
         questionData['answers'] = [];
         for (var answerCode in preloadedAnswers) {
             var preAnswer = preloadedAnswers[answerCode];
@@ -1776,9 +1536,7 @@ $.RoadsBuilder.saveQuestion = function(obj) {
         }
     }
 
-    // $.RoadsBuilder.writeChanges(questionData, changes);
-
-    if ($.RoadsBuilder.isListType(qQuestionType))
+    if (builderNS.isListType(qQuestionType))
         $.RoadsBuilder.updatePredefinedChoices(questionData.answers);
 
     $.RoadsBuilder.closeQuestionEditor(question);
@@ -1842,7 +1600,7 @@ $.RoadsBuilder.updateDisableLogicDescription = function(questionEditor) {
     if (disableIf) {
         targetSpan.removeClass('disable_logic_not_set')
                   .html('Disabled if:&nbsp;&nbsp;' 
-                        + $.RoadsBuilder.escapeHTML(
+                        + builderNS.escapeHTML(
                             $.RoadsBuilder.truncateText(disableIf, 30))
                           );
     } else {
@@ -1875,7 +1633,7 @@ $.RoadsBuilder.updatePageWhenSpan = function(pageData) {
         $.RoadsBuilder.pageSkipWhenSpan
             .removeClass('rb_page_skip_not_set')
             .html('Skipped if:&nbsp;&nbsp;' 
-                        + $.RoadsBuilder.escapeHTML(pageData.skipIf));
+                        + builderNS.escapeHTML(pageData.skipIf));
     else
         $.RoadsBuilder.pageSkipWhenSpan
             .addClass('rb_page_skip_not_set')
@@ -2215,12 +1973,12 @@ $.RoadsBuilder.truncateText = function(text, len) {
 
 $.RoadsBuilder.getPageSummary = function(data, targetDiv) {
     if (data.title)
-        targetDiv.html('<strong>' 
-                        + $.RoadsBuilder.escapeHTML(data.title)
+        targetDiv.html('<strong>'
+                        + builderNS.escapeHTML(data.title)
                         + '</strong>');
     else if (data.questions.length > 0) {
         var ret = '<strong>'
-                + $.RoadsBuilder.escapeHTML(
+                + builderNS.escapeHTML(
                       $.RoadsBuilder.truncateText(data.questions[0].title, 40)
                   )
                 + '</strong>';
@@ -2357,13 +2115,13 @@ $.RoadsBuilder.addPage = function(page, to) {
 
                 $.RoadsBuilder.context.putToIndex('question', subQuestion);
             }
-        } else if ($.RoadsBuilder.isListType(qData.type)) {
+        } else if (builderNS.isListType(qData.type)) {
             $.RoadsBuilder.updatePredefinedChoices(qData.answers);
         }
     }
 
     if (!page.cId)
-        page.cId = $.RoadsBuilder.getCId('page');
+        page.cId = builderNS.getCId('page');
 
     $.RoadsBuilder.updatePageDiv(newPageDiv);
 
@@ -2423,7 +2181,7 @@ $.RoadsBuilder.evaluateMeta = function(meta) {
         var page = rel.pages[idx];
 
         if (!page.cId)
-            page.cId = $.RoadsBuilder.getCId('page');
+            page.cId = builderNS.getCId('page');
 
         $.RoadsBuilder.context.putToIndex(page.type, page);
         $.RoadsBuilder.addPage(page, $.RoadsBuilder.pageListDiv);
@@ -2444,7 +2202,7 @@ $.RoadsBuilder.updateConstraintsDescription = function(questionEditor) {
 
     if (constraints && !(constraints instanceof Object)) {
         targetSpan.removeClass('constraints_not_set')
-                  .html('Valid if: ' + $.RoadsBuilder.escapeHTML(
+                  .html('Valid if: ' + builderNS.escapeHTML(
                             $.RoadsBuilder.truncateText(constraints, 30)));
     } else {
         targetSpan.addClass('constraints_not_set')
@@ -2472,7 +2230,7 @@ $.RoadsBuilder.collectQuestionData = function (editor) {
 
     if (!validationError) {
 
-        if ($.RoadsBuilder.isListType(qQuestionType)) {
+        if (builderNS.isListType(qQuestionType)) {
             var choicesList = $('.choices-list:first', editor)
                                 .find('.choices-list-items:first');
             var items = $('.rb_choices_item', choicesList);
@@ -2568,7 +2326,7 @@ $.RoadsBuilder.getAnswersString = function(questionData) {
 $.RoadsBuilder.getQuestionDescription = function(questionData) {
     var type = questionData.type;
 
-    if ($.RoadsBuilder.isListType(type))
+    if (builderNS.isListType(type))
         return $.RoadsBuilder.getAnswersString(questionData);
     else
         return $.RoadsBuilder.QTypes[type];
@@ -2793,7 +2551,7 @@ $(document).ready(function () {
     $.RoadsBuilder.editPageDialog = createObject($.RoadsBuilder.EditPageDialogF);
     $.RoadsBuilder.editParamDialog = createObject($.RoadsBuilder.EditParamDialogF);
     $.RoadsBuilder.beforeTestDialog = new $.RoadsBuilder.BeforeTestDialog();
-    $.RoadsBuilder.questionDialog = createObject($.RoadsBuilder.QuestionDialogF);
+    $.RoadsBuilder.questionDialog = new builderNS.dialog.QuestionDialog;
 
     $.RoadsBuilder.constraintsThisQuestion = null;
 
@@ -3116,7 +2874,7 @@ $.RoadsBuilder.removeGroup = function(link) {
 
     buttons['No'] = function () { return false; };
     $.RoadsBuilder.questionDialog.open({
-        text: title,
+        txt: title,
         title:'Confirm removing',
         buttons: buttons,
         onResult: function (res) {
@@ -3349,3 +3107,4 @@ $.RoadsBuilder.testInstrumentStage4 = function() {
     window.open(url + '?' + query, '_blank');
 }
 
+})();

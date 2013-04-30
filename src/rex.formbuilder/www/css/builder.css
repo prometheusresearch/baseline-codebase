@@ -629,8 +629,7 @@ input.rb_with_margin {
 }
 
 .rb_edit_param_dialog,
-.rb_edit_page_dialog,
-.rb_edit_group_dialog {
+.rb_edit_page_dialog {
     overflow: hidden;
 }
 
@@ -673,7 +672,7 @@ input.rb_identifier_input {
     background-color: #b8d8f9;
 }
 
-#rb_json_text_wrap {
+.rb_json_text_wrap {
     position: absolute;
     top: 10px;
     bottom: 20px;
@@ -682,7 +681,7 @@ input.rb_identifier_input {
     overflow: visible;
 }
 
-#rb_json_text {
+.rb_json_text {
     position: absolute;
     border: 1px dotted #a0a0a0;
     top: 0px;
@@ -692,16 +691,16 @@ input.rb_identifier_input {
     font-family: monospace;
 }
 
-#before_test_parameters {
+.before_test_parameters {
     width: 100%;
 }
 
-#before_test_parameters input,
-#before_test_parameters select {
+.before_test_parameters input,
+.before_test_parameters select {
     width: 100%;
 }
 
-#before_test_dialog h1 {
+.before_test_dialog h1 {
     font-size: 14px;
     margin: 0px;
     padding: 0px;

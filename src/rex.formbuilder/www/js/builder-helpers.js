@@ -3,6 +3,8 @@
 
 var builderNS = $.RexFormsBuilder = $.RexFormsBuilder || {};
 
+builderNS.illegalIdChars = new RegExp("(^[^a-zA-Z])|([^a-zA-Z0-9_]+)|([^a-zA-Z0-9]$)", "g");
+
 builderNS.isValidNumeric = function(val, condType) {
     return (
         (condType === 'integer'
@@ -144,6 +146,5 @@ builderNS.getReadableId = function(str, handlePrefix, delim, maxlen) {
 
     return result;
 }
-
 
 })();

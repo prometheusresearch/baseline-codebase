@@ -156,6 +156,8 @@ class AssessmentStorage(BaseAssessmentStorage):
                 version = data.get('version')
                 instrument = self.instruments.get_instrument(instrument, 
                                                              version=version)
+                if instrument is None:
+                    return None
                 return Assessment(id=id, instrument=instrument, status=status,
                                   data=data,
                                   last_modified=os.path.getmtime(filename))

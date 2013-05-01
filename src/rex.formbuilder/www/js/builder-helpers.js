@@ -147,4 +147,12 @@ builderNS.getReadableId = function(str, handlePrefix, delim, maxlen) {
     return result;
 }
 
+builderNS.extend = function (Child, Parent) {
+    var F = function() { };
+    F.prototype = Parent.prototype;
+    Child.prototype = new F();
+    Child.prototype.constructor = Child;
+    Child.superclass = Parent.prototype;
+}
+
 })();

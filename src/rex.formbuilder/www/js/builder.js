@@ -3,6 +3,80 @@
 
 var builderNS = $.RexFormsBuilder = $.RexFormsBuilder || {};
 
+var ExtParameter = function () {
+    // TODO
+};
+
+var Question = function (def) {
+    var self = this;
+    this.type = def.type;
+    this.name = def.name;
+    this.title = def.title;
+    this.hint = def.hint || null;
+    this.help = def.help || null;
+    this.customTitles = def.customTitles || {};
+    this.required = def.required || false;
+    this.slave = def.slave || null;
+    this.disableIf = def.disableIf || null;
+    this.constraints = def.constraints || null;
+    this.annotation = def.annotation || null;
+    this.explanation = def.explanation || null;
+};
+
+var VariantQuestion = function (def) {
+    Question.call(def);
+    this.dropDown = def.dropDown || false;
+    this.answers = def.answers || {};
+};
+builderNS.extend(VariantQuestion, Question);
+
+var RepeatingGroupQuestion = function (def) {
+    Question.call(def);
+    this.group = [];
+    $.each(def.repeatingGroup, function (_, questionDef) {
+        var question = new builderNS.questionTypes[questionDef].cls;
+        this.group.push(question);
+    });
+};
+builderNS.extend(RepeatingGroupQuestion, Question);
+
+var Page = function (title, cId, skipIf, questions) {
+    var self = this;
+    this.title = title;
+    this.cId = cId;
+    this.skipIf = skipIf;
+    this.questions = questions;
+    $.each(questions, function (_, def) {
+        var question = new builderNS.questionTypes[def].cls;
+        this.questions.push(question);
+    });
+};
+
+var Group = function (title, cId, skipIf, pages) {
+    Page.call(this, title, cId, skipIf, []);
+    this.pages = [];
+    $.each(pages, function (_, def)) {
+        if (pageDef.type === "group")
+            var page = new Group(def.title || '',
+                                 def.cId || null,
+                                 def.skipIf || null,
+                                 def.pages || []);
+        else
+            var page = new Page(def.title || '', 
+                                def.cId || null,
+                                def.skipIf || null,
+                                def.questions || []);
+        self.pages.push(page);
+    });
+};
+builderNS.extend(Group, Page);
+
+var Instrument = function (name, title) {
+    var self = this;
+    this.name = this.name;
+    this.title = this.title;
+};
+
 (function () {
     var scripts = document.getElementsByTagName( 'script' );
     var thisScriptTag = $(scripts[ scripts.length - 1 ]);
@@ -12,21 +86,63 @@ var builderNS = $.RexFormsBuilder = $.RexFormsBuilder || {};
         thisScriptTag.attr('data-forms-prefix') || '';
 })();
 
-$.RexFormsBuilder.QTypes = {
-    'integer': 'Integer',
-    'float': 'Float',
-    'enum': 'One-choice List',
-    'set': 'Multi-select List',
-    'string': 'Text String',
-    'text': 'Text',
-    'date': 'Date',
-    'weight' : 'Weigth',
-    'time_week' : 'Time (weeks)',
-    'time_month' : 'Time (month)',
-    'time_hours' : 'Time (hours)',
-    'time_minutes' : 'Time (minutes)',
-    'time_days' : 'Time (days)',
-    'rep_group': 'Repeating Group of Questions'
+builderNS.questionTypes = {
+    'integer': { 
+        title: 'Integer',
+        cls: Question
+    },
+    'float': { 
+        title: 'Float',
+        cls: Question
+    },
+    'enum': { 
+        title: 'One-choice List',
+        cls: VariantQuestion
+    },
+    'set': { 
+        title: 'Multi-select List',
+        cls: VariantQuestion
+    },
+    'string': { 
+        title: 'Text String',
+        cls: Question
+    },
+    'text': { 
+        title: 'Text',
+        cls: Question
+    },
+    'date': { 
+        title: 'Date',
+        cls: Question
+    },
+    'weight': { 
+        title: 'Weigth',
+        cls: Question
+    },
+    'time_week': { 
+        title: 'Time (weeks)',
+        cls: Question
+    },
+    'time_month': { 
+        title: 'Time (month)',
+        cls: Question
+    },
+    'time_hours': { 
+        title: 'Time (hours)',
+        cls: Question
+    },
+    'time_minutes': { 
+        title: 'Time (minutes)',
+        cls: Question
+    },
+    'time_days': { 
+        title: 'Time (days)',
+        cls: Question
+    },
+    'rep_group': { 
+        title: 'Repeating Group of Questions'
+        cls: RepeatingGroupQuestion
+    }
 };
 
 $.RexFormsBuilder.predefinedLists = {};
@@ -52,10 +168,10 @@ $.RexFormsBuilder.TemplatesF = function () {
         var selectQType = $('select[name="question-type"]',
                                     templates.questionEditor);
         if (selectQType) {
-            for (type in $.RexFormsBuilder.QTypes) {
-                selectQType.append($('<option value="' + type 
-                                + '">' + $.RexFormsBuilder.QTypes[type]
-                                + '</option>').text($.RexFormsBuilder.QTypes[type]));
+            for (type in builderNS.questionTypes) {
+                var title = builderNS.questionTypes[type].title;
+                selectQType.append($('<option value="' + type
+                                        + '"></option>').text(title));
             }
         }
 
@@ -724,21 +840,6 @@ $.RexFormsBuilder.showQuestionEditor = function(question) {
 
         }, parent);
     }
-}
-
-$.RexFormsBuilder.getConditionAnswersStr = function(answers) {
-    var ret = '';
-    for (var idx in answers) {
-        if (idx > 0)
-            ret += ','
-        var answer = answers[idx];
-        if (answer instanceof Array) {
-            ret += '[' + answer[0] + '-'
-                       + answer[1] + ']';
-        } else
-            ret += answer;
-    }
-    return ret;
 }
 
 $.RexFormsBuilder.addChoiceReal = function(choicesList, code, title,
@@ -1870,7 +1971,7 @@ $.RexFormsBuilder.getQuestionDescription = function(questionData) {
     if (builderNS.isListType(type))
         return $.RexFormsBuilder.getAnswersString(questionData);
     else
-        return $.RexFormsBuilder.QTypes[type];
+        return builderNS.questionTypes[type].title;
 }
 
 $.RexFormsBuilder.newInstrument = function() {
@@ -2626,9 +2727,9 @@ $.RexFormsBuilder.testInstrument = function() {
 }
 
 $.RexFormsBuilder.testInstrumentStage2 = function() {
-    $.ajax({url : $.RexFormsBuilder.basePrefix 
-                    + "/construct_instrument?code=" 
-                    + $.RexFormsBuilder.instrumentName 
+    $.ajax({url : $.RexFormsBuilder.basePrefix
+                    + "/construct_instrument?code="
+                    + $.RexFormsBuilder.instrumentName
                     + '&schema=demo',
         success : function(content) {
             console.log('construct successful:', content);

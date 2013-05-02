@@ -16,15 +16,18 @@
         <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/builder.js" data-prefix="{{ PREFIX['rex.formbuilder'] }}" data-forms-prefix="{{ PREFIX['rex.formbuilder'] }}"></script>
 {% endmacro -%}
 
-{% macro roadsbuilder(instrument, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) -%}
+{% macro roadsbuilder(instrument, code, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) -%}
         <script type="text/javascript">
-            $.RexFormsBuilder.manualEditConditions = {%- if manual_edit_conditions %} true {%- else %} false {%- endif %};
-            $.RexFormsBuilder.externalParamTypes = {%- if ext_param_types %}{{ ext_param_types }}{%- else %}null{%- endif %};
-            $.RexFormsBuilder.instrumentName = {% if instrument %}'{{ instrument }}'{% else %} null {% endif %};
-            {% if url_start_test %}
-                $.RexFormsBuilder.urlStartTest = '{{ url_start_test }}';
-                $.RexFormsBuilder.urlSaveForm = '{{ url_save_form }}';
-            {% endif %}
+            $(document).ready(function () {
+                $.RexFormsBuilder.init({
+                    manualEditConditions: {%- if manual_edit_conditions %}true{%- else %}false{%- endif %},
+                    extParamTypes: {%- if ext_param_types %}{{ ext_param_types }}{%- else %}null{%- endif %},
+                    instrumentName: {{ instrument|json }},
+                    instrumentCode: {{ code|json }},
+                    urlStartTest: {{ url_start_test|json }},
+                    urlSaveForm: {{ url_save_form|json }}
+                });
+            });
         </script>
         <div class="rb_left_part">
             <div id="rb_instrument_name">{{ instrument|e }}</div>

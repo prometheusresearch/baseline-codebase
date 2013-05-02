@@ -3,8 +3,9 @@
 
 var builderNS = $.RexFormsBuilder = $.RexFormsBuilder || {};
 
-var ExtParameter = function () {
-    // TODO
+var ExtParameter = function (name, type) {
+    this.name = name;
+    this.type = type;
 };
 
 var Question = function (def) {
@@ -40,7 +41,24 @@ var RepeatingGroupQuestion = function (def) {
 };
 builderNS.extend(RepeatingGroupQuestion, Question);
 
-var Page = function (title, cId, skipIf, questions) {
+builderNS.createPageFromDef = function (def, registerQuestion) {
+    var page = null;
+    if (def.type === "group")
+        page = new Group(def.title || '',
+                             def.cId || null,
+                             def.skipIf || null,
+                             def.pages || [],
+                             registerQuestion);
+    else
+        page = new Page(def.title || '', 
+                            def.cId || null,
+                            def.skipIf || null,
+                            def.questions || [],
+                            registerQuestion);
+    return page;
+}
+
+var Page = function (title, cId, skipIf, questions, registerQuestion) {
     var self = this;
     this.title = title;
     this.cId = cId;
@@ -49,32 +67,38 @@ var Page = function (title, cId, skipIf, questions) {
     $.each(questions, function (_, def) {
         var question = new builderNS.questionTypes[def].cls;
         this.questions.push(question);
+        if (registerQuestion)
+            registerQuestion(question);
     });
 };
 
-var Group = function (title, cId, skipIf, pages) {
+var Group = function (title, cId, skipIf, pages, registerQuestion) {
     Page.call(this, title, cId, skipIf, []);
     this.pages = [];
     $.each(pages, function (_, def)) {
-        if (pageDef.type === "group")
-            var page = new Group(def.title || '',
-                                 def.cId || null,
-                                 def.skipIf || null,
-                                 def.pages || []);
-        else
-            var page = new Page(def.title || '', 
-                                def.cId || null,
-                                def.skipIf || null,
-                                def.questions || []);
+        var page = builderNS.createPageFromDef(def, registerQuestion);
         self.pages.push(page);
     });
 };
 builderNS.extend(Group, Page);
 
-var Instrument = function (name, title) {
+var Instrument = function (name, def) {
     var self = this;
-    this.name = this.name;
-    this.title = this.title;
+    this.name = name;
+    this.title = def.title;
+    this.pages = [];
+    this.questions = {};
+    $.each(def.pages, function (_, pageDef) {
+        var page = builderNS.createPageFromDef(pageDef, function (question) {
+            self.questions[question.name] = question;
+        });
+        self.pages.push(page);
+    });
+    this.params = {};
+    $.each(def.params, function (_, paramDef) {
+        var name = paramDef.name;
+        this.params[name] = new ExtParameter(name, paramDef.type);
+    });
 };
 
 (function () {
@@ -158,232 +182,38 @@ $.RexFormsBuilder.loadInstrument = function (instrumentName) {
     });
 }
 
-$.RexFormsBuilder.TemplatesF = function () {
-    var templates = {};
+var Templates = function () {
+    var templates = {
+        'questionEditor': $('#tpl_question_editor').removeAttr('id'),
+        'choicesItem': $('#tpl_choices_item').removeAttr('id'),
+        'question': $('#tpl_question').removeAttr('id');
+        'page': $('#tpl_page').removeAttr('id'),
+        'pageGroup': $('#tpl_page_group').removeAttr('id'),
+        'parameter': $('#tpl_parameter').removeAttr('id'),
+    };
 
-    var Init = function () {
-        templates.questionEditor = $('#tpl_question_editor');
-        templates.questionEditor.removeAttr('id');
-
-        var selectQType = $('select[name="question-type"]',
-                                    templates.questionEditor);
-        if (selectQType) {
-            for (type in builderNS.questionTypes) {
-                var title = builderNS.questionTypes[type].title;
-                selectQType.append($('<option value="' + type
-                                        + '"></option>').text(title));
-            }
+    var selectQType = $('select[name="question-type"]',
+                                templates['questionEditor']);
+    if (selectQType) {
+        for (type in builderNS.questionTypes) {
+            var title = builderNS.questionTypes[type].title;
+            selectQType.append($('<option value="' + type
+                                    + '"></option>').text(title));
         }
-
-        templates.choicesItem = $('#tpl_choices_item');
-        templates.choicesItem.removeAttr('id');
-        
-        templates.question = $('#tpl_question');
-        templates.question.removeAttr('id');
-
-        templates.page = $('#tpl_page');
-        templates.page.removeAttr('id');
-
-        templates.pageGroup = $('#tpl_page_group');
-        templates.pageGroup.removeAttr('id');
-
-        templates.parameter = $('#tpl_parameter');
-        templates.parameter.removeAttr('id');
     }
 
-    function createObject(type) {
-        if (templates[type])
-            return templates[type].clone();
-        return null;
-    }
-
-    function getTemplate(tplName) {
+    this.create = function (tplName) {
         if (templates[tplName])
-            return templates[tplName];
+            return templates[tplName].clone();
         return null;
     }
+};
 
-    Init.prototype = {
-        createObject: createObject,
-        getTemplate: getTemplate
-    }
-    
-    return Init;
-}
-
-$.RexFormsBuilder.ContextF = function () {
-    var pages = {};
-    var objectCounters = {};
-    var questionIndex = [];
-    var pageIndex = [];
-    var groupIndex = [];
-    var paramIndex = [];
-    var Init = function () {
-        
-    }
-
-    function getIndexByType(indexType) {
-        switch(indexType) {
-        case 'question':
-            return questionIndex;
-        case 'page':
-            return pageIndex;
-        case 'group':
-            return groupIndex;
-        case 'parameter':
-            return paramIndex;
-        }
-        return null;
-    }
-
-    function inIndex(indexType, object) {
-        var indexRef = getIndexByType(indexType);
-        for (var posIdx = 0; posIdx < indexRef.length; posIdx++) {
-            if (indexRef[posIdx] === object)
-                return posIdx;
-        }
-        return null;
-    }
-
-    function sortIndexReal(indexType, indexRef) {
-        var sortFunction;
-        
-        if (indexType === "parameter")
-            sortFunction = function(a,b) {
-                return (a.name < b.name)? -1: 1;
-            };
-        else if (indexType === "page" ||
-                 indexType === "group")
-            sortFunction = function (a,b) {
-                return (a.cId < b.cId) ? -1: 1;
-            };
-        else
-            sortFunction = function(a,b) {
-                return (a.title < b.title)? -1: 1;
-            };
-
-        indexRef.sort(sortFunction);
-    }
-
-    function clearIndex(idxName) {
-        var index = getIndexByType(idxName);
-        index.length = 0;
-    }
-
-    Init.prototype = {
-        clearIndexes: function () {
-            clearIndex('question');
-            clearIndex('page');
-            clearIndex('group');
-            clearIndex('parameter');
-        },
-        dumpIndexes: function () {
-            var indexTypes = ['question', 'page', 'group', 'parameter' ];
-            $.each(indexTypes, function (_, indexType) {
-                var index = getIndexByType(indexType);
-                // console.log(indexType, 'index:', index);
-            });
-        },
-        clearIndex: clearIndex,
-        inIndex: inIndex,
-        findPageData: function (pageName) {
-            var pageIndex = getIndexByType('page');
-            for (var idx in pageIndex) {
-                if (pageIndex[idx]['id'] === pageName)
-                    return pageIndex[idx];
-            }
-            return null;
-        },
-        findParamData: function (paramName) {
-            var paramIndex = getIndexByType('parameter');
-            for (var idx in paramIndex) {
-                if (paramIndex[idx]['name'] === paramName)
-                    return paramIndex[idx];
-            }
-            return null;
-        },
-        findQuestionData: function (questionName) {
-            var questionIndex = getIndexByType('question');
-            for (var idx in questionIndex) {
-                if (questionIndex[idx]['name'] === questionName)
-                    return questionIndex[idx];
-            }
-            return null;
-        },
-        getIndexByType: getIndexByType,
-        sortIndex: function (indexType) {
-            sortIndexReal(indexType, getIndexByType(indexType));
-        },
-        putToIndex: function (indexType, object) {
-            if (inIndex(indexType, object) === null) {
-                var indexRef = getIndexByType(indexType);
-                indexRef.push(object);
-                sortIndexReal(indexType, indexRef);
-            }
-        },
-        removeFromIndex: function (indexType, object) {
-            var posIdx = inIndex(indexType, object);
-
-            // console.log('removeFromIndex:', posIdx, object);
-
-            /*
-            var temp = null;
-            if (posIdx === null)
-                return temp['a'];
-            */
-
-            if (posIdx !== null) {
-                var indexRef = getIndexByType(indexType);
-                indexRef.splice(posIdx, 1);
-            }
-        },
-        getNextObjectNum: function (objType) {
-            if (objectCounters[objType] === undefined)
-                objectCounters[objType] = 0;
-            return objectCounters[objType]++;
-        },
-        getPage: function (id) {
-            return pages[id];
-        },
-        createNewPage: function (id) {
-            var newPage = {
-                'cId': builderNS.getCId('page'),
-                'title': null,
-                'questions': []
-            };
-            $.RexFormsBuilder.context.putToIndex('page', newPage);
-            return newPage;
-        },
-        createNewParameter: function (id) {
-            var newParam = {
-                'name': id ? id : null, 
-                'type': 'NUMBER'
-            };
-            $.RexFormsBuilder.context.putToIndex('parameter', newParam);
-            return newParam;
-        },
-        createNewGroup: function (title) {
-            var newGroup = {
-                'title': title ? title : null,
-                'cId': builderNS.getCId('group'),
-            };
-            $.RexFormsBuilder.context.putToIndex('group', newGroup);
-            return newGroup;
-        },
-        createNewQuestion: function () {
-            var newQuestion = {
-                'name': null,
-                'title': null,
-                'type': 'integer',
-                'required': false,
-                'annotation': false
-            };
-            $.RexFormsBuilder.context.putToIndex('question', newQuestion);
-            return newQuestion;
-        }
-    }
-    return Init;
-}
+var Context = function (name, code, extParamTypes, manualEditConditions) {
+    this.instrument = new Instrument(name, code);
+    this.extParamTypes = extParamTypes;
+    this.manualEditCondtions = manualEditConditions;
+};
 
 $.RexFormsBuilder.namesWhichBreaksConsistency = function (names, exclude) {
     console.log('namesWhichBreaksConsistency(', names, ')');
@@ -1400,10 +1230,10 @@ $.RexFormsBuilder.getParamTitle = function(type) {
     case 'DATE':
         return 'Date';
     default:
-        if ($.RexFormsBuilder.externalParamTypes &&
-            $.RexFormsBuilder.externalParamTypes[type]) {
+        if (builderNS.context.extParamTypes &&
+            builderNS.context.extParamTypes[type]) {
 
-            var typeDesc = $.RexFormsBuilder.externalParamTypes[type];
+            var typeDesc = builderNS.context.extParamTypes[type];
             return typeDesc.title || type;
         }
     }
@@ -1432,7 +1262,6 @@ $.RexFormsBuilder.addParameterReal = function(data) {
     });
     if (!placeFound)
         $.RexFormsBuilder.paramListDiv.append(target);
-        
     target.click(function () {
         $.RexFormsBuilder.editParameter(this);
     });
@@ -1934,7 +1763,7 @@ $.RexFormsBuilder.changeConstraints = function(btn) {
         $.RexFormsBuilder.collectQuestionData(questionEditor);
 
     if ($.RexFormsBuilder.constraintsThisQuestion) {
-        $.RexFormsBuilder.conditionsEditor.open({
+        $.RexFormsBuilder.conditionEditor.open({
             title: 'Edit Constraints',
             callback: function (newValue) {
                 questionEditor[0].constraints = newValue;
@@ -1990,11 +1819,11 @@ $.RexFormsBuilder.loadFromJSON = function() {
     }
 }
 
-$.RexFormsBuilder.loadInstrumentSchema = function(instrumentName, schemaJSON) {
+builderNS.loadInstrumentSchema = function(instrumentName, schemaJSON) {
     //console.log('schemaJSON', schemaJSON);
-    $.RexFormsBuilder.newInstrument();
-    $.RexFormsBuilder.evaluateMetaStr(schemaJSON);
-    $.RexFormsBuilder.instrumentName = instrumentName;
+    builderNS.newInstrument();
+    builderNS.evaluateMetaStr(schemaJSON);
+    builderNS.instrumentName = instrumentName;
 }
 
 $.RexFormsBuilder.clearQuestions = function() {
@@ -2019,7 +1848,7 @@ $.RexFormsBuilder.changeDisableLogic = function(btn) {
     var jButton = $(btn);
     var questionEditor = jButton.parents('.rb_question_editor:first');
 
-    $.RexFormsBuilder.conditionsEditor.open({
+    $.RexFormsBuilder.conditionEditor.open({
         title: 'Edit Disable-Logic Conditions',
         callback: function (newValue) {
             questionEditor[0].disableIf = newValue;
@@ -2034,7 +1863,7 @@ $.RexFormsBuilder.showJSONDialog = null;
 $.RexFormsBuilder.editPageDialog = null;
 $.RexFormsBuilder.editParamDialog = null;
 $.RexFormsBuilder.beforeTestDialog = null;
-$.RexFormsBuilder.conditionsEditor = null;
+$.RexFormsBuilder.conditionEditor = null;
 $.RexFormsBuilder.questionDialog = null;
 $.RexFormsBuilder.progressDialog = null;
 $.RexFormsBuilder.pageListDiv = null;
@@ -2087,7 +1916,7 @@ $.RexFormsBuilder.onInstrumentTitleChanged = function() {
 $.RexFormsBuilder.editGroupSkipConditions = function(a) {
     var groupDiv = $(a).parents('.rb_page_group:first');
     var data = groupDiv.data('data');
-    $.RexFormsBuilder.conditionsEditor.open({
+    $.RexFormsBuilder.conditionEditor.open({
         title: 'Edit Skip-Logic Conditions',
         callback: function (newValue) {
             data.skipIf = newValue;
@@ -2100,7 +1929,7 @@ $.RexFormsBuilder.editGroupSkipConditions = function(a) {
 
 $.RexFormsBuilder.editPageSkipConditions = function() {
     var data = $.RexFormsBuilder.currentPage.data('data');
-    $.RexFormsBuilder.conditionsEditor.open({
+    $.RexFormsBuilder.conditionEditor.open({
         title: 'Edit Skip-Logic Conditions',
         callback: function (newValue) {
             var data = $.RexFormsBuilder.currentPage.data('data');
@@ -2135,87 +1964,41 @@ $.RexFormsBuilder.toType = function (obj) {
     return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
 }
 
-$(document).ready(function () {
-
-    if ($.RexFormsBuilder.externalParamTypes) {
-        if ($.RexFormsBuilder.toType($.RexFormsBuilder.externalParamTypes) === "string")
-            $.RexFormsBuilder.externalParamTypes = 
-                $.parseJSON($.RexFormsBuilder.externalParamTypes);
-        console.log('external parameter types:', $.RexFormsBuilder.externalParamTypes);
-    }
-
-    $.RexFormsBuilder.paramListDiv = $('.rb_params_list');
-    $.RexFormsBuilder.pageListDiv = $('.rb_pages_list');
-    questionListDiv = $('.rb_question_list');
-    $.RexFormsBuilder.pageTitleSpan = $('.rb_page_title');
-    $.RexFormsBuilder.pageSkipWhenSpan = $('#page_skip_when');
-    $.RexFormsBuilder.pageTitleInput = $('.rb_page_title_input');
-    $.RexFormsBuilder.mainPartContent = $('.rb_main_part_content');
-    $.RexFormsBuilder.instrumentTitleInput = $('#rb_instrument_title_input');
-
-    $.RexFormsBuilder.pageTitleSpan.click(function () {
-        $.RexFormsBuilder.editPageTitle();
-    });
-
-    $.RexFormsBuilder.pageTitleInput.change($.RexFormsBuilder.onPageTitleChanged);
-    $.RexFormsBuilder.pageTitleInput.focusout($.RexFormsBuilder.onPageTitleChanged);
-
-    $.RexFormsBuilder.instrumentTitleInput.change($.RexFormsBuilder.onInstrumentTitleChanged);
-    $.RexFormsBuilder.instrumentTitleInput.focusout($.RexFormsBuilder.onInstrumentTitleChanged);
-
-    $('#rb_instrument_title_view').children().click(
-        function () {
-            $.RexFormsBuilder.editInstrumentTitle();
-        }
-    );
-
-    $.RexFormsBuilder.pageTitleInput.keypress(function (e) {
-        if (e.keyCode == 13)
-            $.RexFormsBuilder.onPageTitleChanged(e);
-    });
-
-    $.RexFormsBuilder.setPageListSortable($.RexFormsBuilder.pageListDiv);
-
-    // $.RexFormsBuilder.pageListDiv.on('mousedown', drawRectangleOnMouseDown);
-
-    $.RexFormsBuilder.pageListDiv.data('normalOffset', $.RexFormsBuilder.pageListDiv.offset());
-    $.RexFormsBuilder.setQuestionsSortable(questionListDiv);
-
-    function createObject(classFunc) {
-        return new (classFunc())();
-    }
-
+builderNS.initDialogs = function () {
     var commonOptions = {
         parent: $.RexFormsBuilder
     };
-
-    $.RexFormsBuilder.context = createObject($.RexFormsBuilder.ContextF);
-    $.RexFormsBuilder.templates = createObject($.RexFormsBuilder.TemplatesF);
     $.RexFormsBuilder.showJSONDialog =
         new builderNS.dialog.ShowJSONDialog(commonOptions);
     $.RexFormsBuilder.editPageDialog =
         new builderNS.dialog.EditPageDialog(commonOptions);
-
     var dialogOptions = $.extend({
-        extTypes: $.RexFormsBuilder.externalParamTypes
+        extTypes: builderNS.context.extParamTypes
     }, commonOptions);
     $.RexFormsBuilder.editParamDialog =
         new builderNS.dialog.EditParamDialog(dialogOptions);
-
     dialogOptions = $.extend({
-        extTypes: $.RexFormsBuilder.externalParamTypes
+        extTypes: $.RexFormsBuilder.context.extParamTypes
     }, commonOptions);
     $.RexFormsBuilder.beforeTestDialog =
         new builderNS.dialog.BeforeTestDialog(dialogOptions);
-
     $.RexFormsBuilder.questionDialog =
         new builderNS.dialog.QuestionDialog(commonOptions);
 
-    $.RexFormsBuilder.constraintsThisQuestion = null;
+    $.RexFormsBuilder.progressDialog = $('.rb_progress_dialog').dialog({
+        dialogClass: 'progress-dialog',
+        modal: true,
+        autoOpen: false,
+        width: 350,
+        open: function () { },
+        close: function () { }, 
+    });
+}
 
-    $.RexFormsBuilder.conditionsEditor = new ConditionEditor({
+builderNS.initConditionEditor = function () {
+    builderNS.conditionEditor = new ConditionEditor({
         urlPrefix: $.RexFormsBuilder.basePrefix,
-        manualEdit: $.RexFormsBuilder.manualEditConditions,
+        manualEdit: builderNS.context.manualEditConditions,
         identifierTitle: 'Question or parameter',
         onDescribeId: function (identifier) {
 
@@ -2279,9 +2062,9 @@ $(document).ready(function () {
                         break;
                     case 'STRING':
                     default:
-                        if ($.RexFormsBuilder.externalParamTypes) {
+                        if (builderNS.context.extParamTypes) {
                             var typeDesc = 
-                                $.RexFormsBuilder.externalParamTypes[paramData.type];
+                                builderNS.context.extParamTypes[paramData.type];
 
                             console.log('typeDesc[' + paramData.type +']:', typeDesc);
 
@@ -2370,15 +2153,49 @@ $(document).ready(function () {
             return ret;
         }
     });
+}
 
-    $.RexFormsBuilder.progressDialog = $('.rb_progress_dialog').dialog({
-        dialogClass: 'progress-dialog',
-        modal: true,
-        autoOpen: false,
-        width: 350,
-        open: function () { },
-        close: function () { }, 
-    });
+builderNS.init = function (o) {
+    builderNS.context =
+        new Context(o.instrumentName, o.instrumentCode,
+                    o.extParamTypes, o.manualEditConditions);
+
+    // TODO: handle o.urlStartTest and o.urlSaveForm
+
+    builderNS.nodes = {};
+    builderNS.nodes.paramListDiv = $('.rb_params_list');
+    builderNS.nodes.pageListDiv = $('.rb_pages_list');
+    builderNS.nodes.pageListDiv
+        .data('normalOffset', builderNS.nodes.pageListDiv.offset());
+    builderNS.setPageListSortable(builderNS.nodes.pageListDiv);
+    builderNS.nodes.questionListDiv = $('.rb_question_list');
+    builderNS.setQuestionsSortable(builderNS.nodes.questionListDiv);
+
+    builderNS.nodes.pageTitleSpan =
+        $('.rb_page_title').click(function () {
+            builderNS.editPageTitle();
+        });
+    builderNS.nodes.pageSkipWhenSpan = $('#page_skip_when');
+    builderNS.nodes.pageTitleInput =
+        $('.rb_page_title_input')
+            .change(builderNS.onPageTitleChanged)
+            .focusout(builderNS.onPageTitleChanged)
+            .keypress(function (e) {
+                if (e.keyCode == 13)
+                    builderNS.onPageTitleChanged(e);
+            });
+    builderNS.nodes.mainPartContent = $('.rb_main_part_content');
+    builderNS.nodes.instrumentTitleInput =
+        $('#rb_instrument_title_input')
+            .change($.RexFormsBuilder.onInstrumentTitleChanged)
+            .focusout($.RexFormsBuilder.onInstrumentTitleChanged);
+    $('#rb_instrument_title_view')
+        .children().click(builderNS.editInstrumentTitle);
+    builderNS.templates = new Templates();
+
+    builderNS.constraintsThisQuestion = null;
+    builderNS.initDialogs();
+    builderNS.initConditionEditor();
 
     $.RexFormsBuilder.updatePredefinedChoices([
         {
@@ -2390,10 +2207,8 @@ $(document).ready(function () {
             title: 'No'
         }
     ]);
-
-    if ($.RexFormsBuilder.instrumentName)
-        $.RexFormsBuilder.loadInstrument($.RexFormsBuilder.instrumentName);
-});
+    // TODO: create necessary elements from instrument data
+};
 
 $.RexFormsBuilder.buildPositionIndex = function(deltaY) {
     var pages = $.RexFormsBuilder.pageListDiv.find('.rb_page');

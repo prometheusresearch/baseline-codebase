@@ -1,8 +1,8 @@
 
 (function () {
 
-var builderNS = $.RexFormsBuilder = $.RexFormsBuilder || {};
-var dialogNS = builderNS.dialog = {};
+var builder = $.RexFormBuilder = $.RexFormBuilder || {};
+var dialogNS = builder.dialog = {};
 
 dialogNS.QuestionDialog = function (o) {
 
@@ -94,29 +94,29 @@ dialogNS.EditPageDialog = function (o) {
             var data = options.target.data('data');
             data.title = newName;
             if (options.mode === 'group')
-                builderNS.updateGroupDiv(options.target);
+                builder.updateGroupDiv(options.target);
             else
-                builderNS.updatePageDiv(options.target);
+                builder.updatePageDiv(options.target);
         } else {
             if (options.mode === 'group') {
-                builderNS.processSelectedPages(newName);
+                builder.processSelectedPages(newName);
                 var except = [ ];
-                for (var idx in builderNS.currentSelection) {
-                    var item = $(builderNS.currentSelection[idx]);
-                    if (item[0] !== builderNS.currentPage[0]) {
+                for (var idx in builder.currentSelection) {
+                    var item = $(builder.currentSelection[idx]);
+                    if (item[0] !== builder.currentPage[0]) {
                         item.removeClass('rb_covered');
                     } else
                         except.push(item);
                 }
-                builderNS.currentSelection = except;
+                builder.currentSelection = except;
             } else {
-                var newPageData = builderNS.context.createNewPage();
+                var newPageData = builder.context.createNewPage();
                 newPageData.title = newName;
-                var target = builderNS.addPage(newPageData);
+                var target = builder.addPage(newPageData);
                 if (options.after)
                     options.after.after(target);
                 else
-                    builderNS.pageListDiv.append(target);
+                    builder.pageListDiv.append(target);
             }
         }
         self.close();
@@ -215,7 +215,7 @@ dialogNS.EditParamDialog = function (o) {
 
     var onChange = function () {
         var val = nameInput.val();
-        var newVal = val.replace(builderNS.illegalIdChars, '');
+        var newVal = val.replace(builder.illegalIdChars, '');
         if (newVal !== val)
             nameInput.val(newVal);
     };
@@ -262,8 +262,8 @@ dialogNS.ShowJSONDialog = function (o) {
     outputNode = $('textarea', node);
     this.open = function () {
         var jsonTxt =
-            builderNS.generateMetaJSON(
-                builderNS.instrumentName || '',
+            builder.generateMetaJSON(
+                builder.instrumentName || '',
                 true
             );
         outputNode.val(jsonTxt);
@@ -296,7 +296,7 @@ dialogNS.BeforeTestDialog = function (o) {
         paramTable.find('tr').each(function () {
             var jRow = $(this);
             var paramName = jRow.attr('data-param');
-            var param = builderNS.context.findParamData(paramName);
+            var param = builder.context.findParamData(paramName);
             var value = jQuery.trim(jRow.find('input,select').val());
 
             if (value) {
@@ -316,14 +316,14 @@ dialogNS.BeforeTestDialog = function (o) {
                 switch(realType) {
                 case 'DATE':
                     var m = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-                    if (!m || !builderNS.isValidDate(m[1], m[2], m[3])) {
+                    if (!m || !builder.isValidDate(m[1], m[2], m[3])) {
                         valid = false;
                         break;
                     }
                     paramDict[paramName] = value;
                     break;
                 case 'NUMBER':
-                    if (!builderNS.isValidNumeric(value, 'float')) {
+                    if (!builder.isValidNumeric(value, 'float')) {
                         valid = false;
                         break;
                     }
@@ -361,12 +361,12 @@ dialogNS.BeforeTestDialog = function (o) {
         options = {};
         options.callback = o.callback || null;
         options.paramValues = o.paramValues || {};
-        params = builderNS.context.getIndexByType('parameter');
+        params = builder.context.getIndexByType('parameter');
         paramTable.contents().remove();
         for (var idx in params) {
             var param = params[idx];
             var rowHTML = '<tr><td>'
-                            + builderNS.escapeHTML(param.name) + '</td>'
+                            + builder.escapeHTML(param.name) + '</td>'
                             + '<td class="rb_test_param_value"></td></tr>';
             var row = $(rowHTML);
             row.attr('data-param', param.name);

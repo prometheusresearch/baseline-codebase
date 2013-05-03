@@ -1,7 +1,7 @@
 
 (function () {
 
-var builderNS = $.RexFormsBuilder = $.RexFormsBuilder || {};
+var builder = $.RexFormBuilder = $.RexFormBuilder || {};
 
 var ExtParameter = function (name, type) {
     this.name = name;
@@ -25,23 +25,26 @@ var Question = function (def) {
 };
 
 var VariantQuestion = function (def) {
-    Question.call(def);
+    Question.call(this, def);
     this.dropDown = def.dropDown || false;
     this.answers = def.answers || {};
 };
-builderNS.extend(VariantQuestion, Question);
+builder.extend(VariantQuestion, Question);
 
 var RepeatingGroupQuestion = function (def) {
-    Question.call(def);
+    Question.call(this, def);
+    var self = this;
     this.group = [];
     $.each(def.repeatingGroup, function (_, questionDef) {
-        var question = new builderNS.questionTypes[questionDef].cls;
-        this.group.push(question);
+        var type = questionDef.type;
+        var cls = builder.questionTypes[type].cls;
+        var question = new cls(questionDef);
+        self.group.push(question);
     });
 };
-builderNS.extend(RepeatingGroupQuestion, Question);
+builder.extend(RepeatingGroupQuestion, Question);
 
-builderNS.createPageFromDef = function (def, registerQuestion) {
+builder.createPageFromDef = function (def, registerQuestion) {
     var page = null;
     if (def.type === "group")
         page = new Group(def.title || '',
@@ -65,8 +68,9 @@ var Page = function (title, cId, skipIf, questions, registerQuestion) {
     this.skipIf = skipIf;
     this.questions = questions;
     $.each(questions, function (_, def) {
-        var question = new builderNS.questionTypes[def].cls;
-        this.questions.push(question);
+        var type = def.type;
+        var question = new builder.questionTypes[type].cls(def);
+        self.questions.push(question);
         if (registerQuestion)
             registerQuestion(question);
     });
@@ -75,12 +79,12 @@ var Page = function (title, cId, skipIf, questions, registerQuestion) {
 var Group = function (title, cId, skipIf, pages, registerQuestion) {
     Page.call(this, title, cId, skipIf, []);
     this.pages = [];
-    $.each(pages, function (_, def)) {
-        var page = builderNS.createPageFromDef(def, registerQuestion);
+    $.each(pages, function (_, def) {
+        var page = builder.createPageFromDef(def, registerQuestion);
         self.pages.push(page);
     });
 };
-builderNS.extend(Group, Page);
+builder.extend(Group, Page);
 
 var Instrument = function (name, def) {
     var self = this;
@@ -89,7 +93,7 @@ var Instrument = function (name, def) {
     this.pages = [];
     this.questions = {};
     $.each(def.pages, function (_, pageDef) {
-        var page = builderNS.createPageFromDef(pageDef, function (question) {
+        var page = builder.createPageFromDef(pageDef, function (question) {
             self.questions[question.name] = question;
         });
         self.pages.push(page);
@@ -104,13 +108,13 @@ var Instrument = function (name, def) {
 (function () {
     var scripts = document.getElementsByTagName( 'script' );
     var thisScriptTag = $(scripts[ scripts.length - 1 ]);
-    builderNS.basePrefix =
+    builder.basePrefix =
         thisScriptTag.attr('data-prefix') || '';
-    builderNS.formsPrefix =
+    builder.formsPrefix =
         thisScriptTag.attr('data-forms-prefix') || '';
 })();
 
-builderNS.questionTypes = {
+builder.questionTypes = {
     'integer': { 
         title: 'Integer',
         cls: Question
@@ -164,19 +168,19 @@ builderNS.questionTypes = {
         cls: Question
     },
     'rep_group': { 
-        title: 'Repeating Group of Questions'
+        title: 'Repeating Group of Questions',
         cls: RepeatingGroupQuestion
     }
 };
 
-$.RexFormsBuilder.predefinedLists = {};
+$.RexFormBuilder.predefinedLists = {};
 
-$.RexFormsBuilder.loadInstrument = function (instrumentName) {
-    var url = $.RexFormsBuilder.basePrefix 
+$.RexFormBuilder.loadInstrument = function (instrumentName) {
+    var url = $.RexFormBuilder.basePrefix 
             + "/load_instrument?code=" + instrumentName;
     $.ajax({url : url,
         success : function(content) {
-            $.RexFormsBuilder.loadInstrumentSchema(instrumentName, content);
+            $.RexFormBuilder.loadInstrumentSchema(instrumentName, content);
         },
         type: 'GET'
     });
@@ -186,7 +190,7 @@ var Templates = function () {
     var templates = {
         'questionEditor': $('#tpl_question_editor').removeAttr('id'),
         'choicesItem': $('#tpl_choices_item').removeAttr('id'),
-        'question': $('#tpl_question').removeAttr('id');
+        'question': $('#tpl_question').removeAttr('id'),
         'page': $('#tpl_page').removeAttr('id'),
         'pageGroup': $('#tpl_page_group').removeAttr('id'),
         'parameter': $('#tpl_parameter').removeAttr('id'),
@@ -195,8 +199,8 @@ var Templates = function () {
     var selectQType = $('select[name="question-type"]',
                                 templates['questionEditor']);
     if (selectQType) {
-        for (type in builderNS.questionTypes) {
-            var title = builderNS.questionTypes[type].title;
+        for (type in builder.questionTypes) {
+            var title = builder.questionTypes[type].title;
             selectQType.append($('<option value="' + type
                                     + '"></option>').text(title));
         }
@@ -209,13 +213,76 @@ var Templates = function () {
     }
 };
 
-var Context = function (name, code, extParamTypes, manualEditConditions) {
+var Context = function (name, code, extParamTypes, manualEditConditions, urlStartTest, urlSaveForm) {
     this.instrument = new Instrument(name, code);
     this.extParamTypes = extParamTypes;
     this.manualEditCondtions = manualEditConditions;
+    this.urlStartTest = urlStartTest;
+    this.urlSaveForm = urlSaveForm;
 };
 
-$.RexFormsBuilder.namesWhichBreaksConsistency = function (names, exclude) {
+var FormTitle = function (o) {
+    var self = this;
+    self.value = null;
+    self.nodeText = o.nodeText;
+    self.nodeBtn = o.nodeBtn;
+    self.nodeInput = o.nodeInput;
+
+    self.setTitle = function (title, internal) {
+        self.value = title ? title : '';
+        if (!internal) {
+            if (self.value) {
+                var text = builder.truncateText(self.value, 30);
+                self.nodeText.text(text)
+                             .removeClass('rb-not-set');
+            } else
+                self.nodeText.text('Untitled form')
+                             .addClass('rb-not-set');
+            self.nodeInput.val(self.value);
+        }
+    };
+
+    self.getTitle = function () {
+        return self.value;
+    };
+
+    self.showEditor = function () {
+        self.nodeInput.css('display', '');
+        self.nodeBtn.add(self.nodeText).css('display', 'none');
+    };
+
+    self.closeEditor = function () {
+        self.nodeInput.css('display', 'none');
+        self.nodeBtn.add(self.nodeText).css('display', '');
+    };
+
+    self.nodeInput.css('display', 'none');
+    self.nodeInput.change(function () {
+        var val = self.nodeInput.val();
+        self.setTitle(val);
+        self.closeEditor();
+    });
+    self.nodeBtn.click(self.showEditor);
+    self.setTitle(o.title);
+    self.closeEditor();
+};
+
+builder.init = function (o) {
+    builder.context =
+        new Context(o.instrument, o.code,
+                    o.extParamTypes, o.manualEditConditions || false,
+                    o.urlStartTest || null, o.urlSaveForm || null);
+    builder.templates = new Templates();
+    builder.formTitle = new FormTitle({
+        nodeText: $('#rb_instrument_title'),
+        nodeBtn: $('#rb_instrument_title_button'),
+        nodeInput: $('#rb_instrument_title_input'),
+        title: o.code.title
+    });
+};
+
+/* 
+$.RexFormBuilder.namesWhichBreaksConsistency = function (names, exclude) {
     console.log('namesWhichBreaksConsistency(', names, ')');
 
     var badNames = {};
@@ -224,7 +291,7 @@ $.RexFormsBuilder.namesWhichBreaksConsistency = function (names, exclude) {
         chkNames[name] = true;
     });
 
-    questionIndex = $.RexFormsBuilder.context.getIndexByType('question');
+    questionIndex = $.RexFormBuilder.context.getIndexByType('question');
 
     for (var idx in questionIndex) {
         var question = questionIndex[idx];
@@ -253,7 +320,7 @@ $.RexFormsBuilder.namesWhichBreaksConsistency = function (names, exclude) {
     return Object.keys(badNames);
 }
 
-$.RexFormsBuilder.preparePageMeta = function(pageDiv, to) {
+$.RexFormBuilder.preparePageMeta = function(pageDiv, to) {
     var data = pageDiv.data('data');
     if (pageDiv.hasClass('rb_page_group')) {
         var groupData = pageDiv.data('data');
@@ -268,7 +335,7 @@ $.RexFormsBuilder.preparePageMeta = function(pageDiv, to) {
         var innerItems = pageDiv.children('.rb_class_pages_list').children();
         var total = innerItems.size();
         for (var idx = 0; idx < total; idx++) {
-            $.RexFormsBuilder.preparePageMeta($(innerItems[idx]), thisGroupMeta.pages);
+            $.RexFormBuilder.preparePageMeta($(innerItems[idx]), thisGroupMeta.pages);
         }
 
     } else {
@@ -307,8 +374,8 @@ $.RexFormsBuilder.preparePageMeta = function(pageDiv, to) {
     }
 }
 
-$.RexFormsBuilder.generateMetaJSON = function(instrumentName, doBeautify) {
-    var instrumentMeta = $.RexFormsBuilder.generateMeta(instrumentName);
+$.RexFormBuilder.generateMetaJSON = function(instrumentName, doBeautify) {
+    var instrumentMeta = $.RexFormBuilder.generateMeta(instrumentName);
 
     if (doBeautify && JSON && JSON.stringify)
         return JSON.stringify(instrumentMeta, null, 4);
@@ -316,22 +383,22 @@ $.RexFormsBuilder.generateMetaJSON = function(instrumentName, doBeautify) {
     return $.toJSON(instrumentMeta);
 }
 
-$.RexFormsBuilder.generateMeta = function(instrumentName) {
+$.RexFormBuilder.generateMeta = function(instrumentName) {
     var instrumentMeta = {
         pages: [],
         params: [],
-        title: $.RexFormsBuilder.instrumentTitle
+        title: $.RexFormBuilder.instrumentTitle
     };
 
     var root = instrumentMeta['pages'];
-    $.RexFormsBuilder.pageListDiv.children().each(function () {
+    $.RexFormBuilder.pageListDiv.children().each(function () {
         var jThis = $(this);
         // console.log('checking', jThis);
-        $.RexFormsBuilder.preparePageMeta(jThis, root);
+        $.RexFormBuilder.preparePageMeta(jThis, root);
     });
 
     var root = instrumentMeta['params'];
-    $.RexFormsBuilder.paramListDiv.children().each(function () {
+    $.RexFormBuilder.paramListDiv.children().each(function () {
         var jThis = $(this);
         root.push(jThis.data('data'));
     });
@@ -339,30 +406,30 @@ $.RexFormsBuilder.generateMeta = function(instrumentName) {
     return instrumentMeta;
 }
 
-$.RexFormsBuilder.saveInstrumentReal = function(callback) {
-    var instrumentName = $.RexFormsBuilder.instrumentName;
+$.RexFormBuilder.saveInstrumentReal = function(callback) {
+    var instrumentName = $.RexFormBuilder.instrumentName;
 
     if (!instrumentName)
         instrumentName = prompt("Please set instrument name:");
 
     if (instrumentName) {
-        if ($.RexFormsBuilder.context.getIndexByType('question').length == 0) {
+        if ($.RexFormBuilder.context.getIndexByType('question').length == 0) {
             alert('A form should contain at least one question!');
             return;
         }
     
-        var meta = $.RexFormsBuilder.generateMeta(instrumentName);
+        var meta = $.RexFormBuilder.generateMeta(instrumentName);
 
         meta = $.toJSON(meta);
         var schema = 'instrument=' + encodeURIComponent(instrumentName) 
                     + '&data=' + encodeURIComponent( meta );
 
-        var url = $.RexFormsBuilder.urlSaveForm ||
-                 ($.RexFormsBuilder.basePrefix + "/add_instrument");
+        var url = $.RexFormBuilder.context.urlSaveForm ||
+                 ($.RexFormBuilder.basePrefix + "/add_instrument");
         $.ajax({url : url,
             success : function(content) {
-                if (!$.RexFormsBuilder.instrumentName)
-                    $.RexFormsBuilder.instrumentName = instrumentName;
+                if (!$.RexFormBuilder.instrumentName)
+                    $.RexFormBuilder.instrumentName = instrumentName;
 
                 if (callback)
                     callback();
@@ -370,7 +437,7 @@ $.RexFormsBuilder.saveInstrumentReal = function(callback) {
                     alert('instrument saved!');
             },
             error: function() {
-                $.RexFormsBuilder.closeProgress();
+                $.RexFormBuilder.closeProgress();
                 alert('Error of saving instrument!');
             },
             data : schema,
@@ -379,18 +446,18 @@ $.RexFormsBuilder.saveInstrumentReal = function(callback) {
     }
 };
 
-$.RexFormsBuilder.saveInstrument = function(callback) {
-    $.RexFormsBuilder.closeOpenedEditor(function () {
-        $.RexFormsBuilder.saveInstrumentReal();
+$.RexFormBuilder.saveInstrument = function(callback) {
+    $.RexFormBuilder.closeOpenedEditor(function () {
+        $.RexFormBuilder.saveInstrumentReal();
     }, questionListDiv);
 }
 
-$.RexFormsBuilder.evaluateMetaStr = function(metaStr) {
+$.RexFormBuilder.evaluateMetaStr = function(metaStr) {
     var meta = $.parseJSON(metaStr);
-    $.RexFormsBuilder.evaluateMeta(meta);
+    $.RexFormBuilder.evaluateMeta(meta);
 }
 
-$.RexFormsBuilder.hints = {
+$.RexFormBuilder.hints = {
     emptyField: 'This field could not be empty!',
     wrongQuestionId: 'Question names must begin with a letter. '
                       + 'They may contain letters, numbers, and '
@@ -403,11 +470,11 @@ $.RexFormsBuilder.hints = {
     wrongScore: 'Scores should be numerical'
 }
 
-$.RexFormsBuilder.dismissIt = function(a) {
+$.RexFormBuilder.dismissIt = function(a) {
     var p = $(a).parents('div:first').remove();
 }
 
-$.RexFormsBuilder.putHint = function(element, hintId) {
+$.RexFormBuilder.putHint = function(element, hintId) {
     var existentHint = element.next('.rb_hint');
     if (existentHint.size() == 0 ||
         existentHint.attr('data-hint-id') !== hintId) {
@@ -418,31 +485,31 @@ $.RexFormsBuilder.putHint = function(element, hintId) {
                              .addClass('rb_red_hint')
                              .addClass('rb_question_input')
                              .attr('data-hint-id', hintId);
-        hint.text($.RexFormsBuilder.hints[hintId] + ' ');
-        hint.append(' <a href="javascript:void(0)" onclick="$.RexFormsBuilder.dismissIt(this);">Dismiss this message</a>');
+        hint.text($.RexFormBuilder.hints[hintId] + ' ');
+        hint.append(' <a href="javascript:void(0)" onclick="$.RexFormBuilder.dismissIt(this);">Dismiss this message</a>');
         element.after(hint);
     }
 }
 
-$.RexFormsBuilder.updateQuestionDiv = function(questionDiv) {
+$.RexFormBuilder.updateQuestionDiv = function(questionDiv) {
     var questionData = questionDiv.data('data');
     $('.rb_question_title', questionDiv).text(questionData.title || '');
     $('.rb_question_name', questionDiv).text(questionData.name || '');
     $('.rb_question_descr', questionDiv)
-                    .text($.RexFormsBuilder.getQuestionDescription(questionData));
+                    .text($.RexFormBuilder.getQuestionDescription(questionData));
 }
 
-$.RexFormsBuilder.updateQuestionOrders = function() {
+$.RexFormBuilder.updateQuestionOrders = function() {
     var newQuestionList = [];
     questionListDiv.children('.rb_question').each(function () {
         var questionData = $(this).data('data');
         newQuestionList.push(questionData);
     });
-    var pageData = $.RexFormsBuilder.currentPage.data('data');
+    var pageData = $.RexFormBuilder.currentPage.data('data');
     pageData.questions = newQuestionList;
 }
 
-$.RexFormsBuilder.setPageListSortable = function(list) {
+$.RexFormBuilder.setPageListSortable = function(list) {
     list.sortable({
         cursor: 'move',
         toleranceElement: '> div',
@@ -450,21 +517,21 @@ $.RexFormsBuilder.setPageListSortable = function(list) {
     });
 }
 
-$.RexFormsBuilder.setQuestionsSortable = function(list) {
+$.RexFormBuilder.setQuestionsSortable = function(list) {
     list.sortable({
         cursor: 'move',
         // cancel: '.restrict-question-drag',
         toleranceElement: '> div',
         update: function () {
-            $.RexFormsBuilder.updateQuestionOrders();
+            $.RexFormBuilder.updateQuestionOrders();
         }
     });
 }
 
-$.RexFormsBuilder.addQuestionDiv = function(questionData, listDiv) {
-    var newQuestionDiv = $.RexFormsBuilder.templates.createObject('question');
+$.RexFormBuilder.addQuestionDiv = function(questionData, listDiv) {
+    var newQuestionDiv = $.RexFormBuilder.templates.createObject('question');
     newQuestionDiv.data('data', questionData);
-    $.RexFormsBuilder.updateQuestionDiv(newQuestionDiv);
+    $.RexFormBuilder.updateQuestionDiv(newQuestionDiv);
     
     if (listDiv)
         listDiv.append(newQuestionDiv)
@@ -472,19 +539,19 @@ $.RexFormsBuilder.addQuestionDiv = function(questionData, listDiv) {
         questionListDiv.append(newQuestionDiv);
 
     newQuestionDiv.click(function () {
-        $.RexFormsBuilder.showQuestionEditor(this);
+        $.RexFormBuilder.showQuestionEditor(this);
     });
 
     return newQuestionDiv;
 }
 
-$.RexFormsBuilder.closeOpenedEditor = function(callback, listDiv) {
+$.RexFormBuilder.closeOpenedEditor = function(callback, listDiv) {
     var errorSaving = false;
     listDiv.children('.rb_question').each(function () {
         if (!errorSaving) {
             var thisQuestion = $(this);
             if (thisQuestion.hasClass('rb_opened') && 
-                !$.RexFormsBuilder.saveQuestion(thisQuestion)) {
+                !$.RexFormBuilder.saveQuestion(thisQuestion)) {
 
                 errorSaving = true;
 
@@ -493,7 +560,7 @@ $.RexFormsBuilder.closeOpenedEditor = function(callback, listDiv) {
                 };
 
                 if (listDiv[0] === questionListDiv[0]) {
-                    if ($.RexFormsBuilder.isScrolledIntoView(thisQuestion, questionListDiv))
+                    if ($.RexFormBuilder.isScrolledIntoView(thisQuestion, questionListDiv))
                         doHighlight();
                     else {
                         var scrollOffset = thisQuestion.parent().scrollTop();
@@ -513,7 +580,7 @@ $.RexFormsBuilder.closeOpenedEditor = function(callback, listDiv) {
         callback();
 }
 
-$.RexFormsBuilder.onPredefinedChoicesChange = function () {
+$.RexFormBuilder.onPredefinedChoicesChange = function () {
     var val = $(this).val();
     if (val) {
         var choicesList =
@@ -521,11 +588,11 @@ $.RexFormsBuilder.onPredefinedChoicesChange = function () {
                        .find('.choices-list-items');
 
         choicesList.children().remove();
-        var choices = $.RexFormsBuilder.predefinedLists[val];
+        var choices = $.RexFormBuilder.predefinedLists[val];
 
         var isFirst = true;
         $.each(choices, function (_, choice) {
-            $.RexFormsBuilder.addChoiceReal(
+            $.RexFormBuilder.addChoiceReal(
                 choicesList,
                 choice['code'],
                 choice['title'],
@@ -537,18 +604,18 @@ $.RexFormsBuilder.onPredefinedChoicesChange = function () {
     }
 }
 
-$.RexFormsBuilder.showQuestionEditor = function(question) {
+$.RexFormBuilder.showQuestionEditor = function(question) {
     var questionDiv = $(question);
 
     if (!questionDiv.hasClass('rb_opened')) {
 
         var parent = questionDiv.parent();
-        $.RexFormsBuilder.closeOpenedEditor(function () {
+        $.RexFormBuilder.closeOpenedEditor(function () {
             questionDiv.addClass('rb_opened');
             var question = questionDiv.data('data');
 
             var editorPlace = questionDiv.find('.q_editor:first');
-            var editor = $.RexFormsBuilder.templates.createObject('questionEditor');
+            var editor = $.RexFormBuilder.templates.createObject('questionEditor');
 
             editor.click(function (event) {
                 // trap for event
@@ -559,7 +626,7 @@ $.RexFormsBuilder.showQuestionEditor = function(question) {
             questionDiv.find('.btn-page-answer').css('display', 'none');
 
             $('select[name="predefined-choice-list"]', editor)
-                .change($.RexFormsBuilder.onPredefinedChoicesChange);
+                .change($.RexFormBuilder.onPredefinedChoicesChange);
 
             var questionName = question['name'];
             var inputTitle = $('textarea[name="question-title"]', editor);
@@ -568,7 +635,7 @@ $.RexFormsBuilder.showQuestionEditor = function(question) {
             var required = $('input[name="question-required"]', editor);
 
             var choicesList = $('.choices-list-items', editor);
-            $.RexFormsBuilder.setChoicesSortable(choicesList);
+            $.RexFormBuilder.setChoicesSortable(choicesList);
 
             if (question['title'])
                 inputTitle.val(question['title']);
@@ -586,7 +653,7 @@ $.RexFormsBuilder.showQuestionEditor = function(question) {
             var isFirst = true;
             for (var aIdx in question['answers']) {
                 var answer = question['answers'][aIdx];
-                $.RexFormsBuilder.addChoiceReal(choicesList, 
+                $.RexFormBuilder.addChoiceReal(choicesList, 
                             answer['code'],  
                             answer['title'],
                             isFirst, 
@@ -594,24 +661,24 @@ $.RexFormsBuilder.showQuestionEditor = function(question) {
                 isFirst = false;
             }
 
-            if (builderNS.isListType(question.type))
+            if (builder.isListType(question.type))
                 $('.rb_choices', editor).css('display', 'block');
 
             inputTitle.change(function () {
                 var title = $(this).val();
                 if (inputName.hasClass('slave')) {
                     inputName.val(
-                        builderNS.getReadableId(title, true, '_', 45)
+                        builder.getReadableId(title, true, '_', 45)
                     );
                 }
             })
 
             var fixInputIdentifier = function (input) {
                 var val = input.val();
-                var newVal = val.replace(builderNS.illegalIdChars, '');
+                var newVal = val.replace(builder.illegalIdChars, '');
                 if (newVal !== val) {
                     input.val( newVal );
-                    builderNS.putHint(jThis, 'wrongQuestionId');
+                    builder.putHint(jThis, 'wrongQuestionId');
                 }
             }
 
@@ -632,23 +699,23 @@ $.RexFormsBuilder.showQuestionEditor = function(question) {
                 questionType.find('option[value="rep_group"]').remove();
 
             questionType.val(question.type);
-            questionType.change($.RexFormsBuilder.onChangeQuestionType);
+            questionType.change($.RexFormBuilder.onChangeQuestionType);
             questionType.change();
 
             editor[0].disableIf = question['disableIf'];
             editor[0].constraints = question['constraints'];
 
             if (question['disableIf'])
-                $.RexFormsBuilder.makeREXLCache(editor[0], 'disableIf');
+                $.RexFormBuilder.makeREXLCache(editor[0], 'disableIf');
 
             if (question['constraints'])
-                $.RexFormsBuilder.makeREXLCache(editor[0], 'constraints');
+                $.RexFormBuilder.makeREXLCache(editor[0], 'constraints');
 
-            $.RexFormsBuilder.updateDisableLogicDescription(editor);
-            $.RexFormsBuilder.updateConstraintsDescription(editor);
+            $.RexFormBuilder.updateDisableLogicDescription(editor);
+            $.RexFormBuilder.updateConstraintsDescription(editor);
             
             editor.find('.rb_small_button:first').click(function () {
-                $.RexFormsBuilder.addNewSubQuestion(
+                $.RexFormBuilder.addNewSubQuestion(
                     editor.find('.rb_subquestion_list:first')
                 );
             });
@@ -662,7 +729,7 @@ $.RexFormsBuilder.showQuestionEditor = function(question) {
                 var listDiv = editor.find('.rb_subquestion_list');
 
                 for (var idx in question['repeatingGroup'])
-                    $.RexFormsBuilder.addQuestionDiv(
+                    $.RexFormBuilder.addQuestionDiv(
                         question['repeatingGroup'][idx], 
                         listDiv
                     );
@@ -672,10 +739,10 @@ $.RexFormsBuilder.showQuestionEditor = function(question) {
     }
 }
 
-$.RexFormsBuilder.addChoiceReal = function(choicesList, code, title,
+$.RexFormBuilder.addChoiceReal = function(choicesList, code, title,
                                         hideHeader, slave) {
 
-    var newChoice = $.RexFormsBuilder.templates.createObject('choicesItem');
+    var newChoice = $.RexFormBuilder.templates.createObject('choicesItem');
 
     var answerTitle = $('input[name="answer-title"]', newChoice);
     var answerCode = $('input[name="answer-code"]', newChoice);
@@ -691,13 +758,13 @@ $.RexFormsBuilder.addChoiceReal = function(choicesList, code, title,
         var title = jThis.val();
         var answerCode = jThis.data('answerCode');
         if (answerCode.hasClass('slave')) {
-            answerCode.val(builderNS.getReadableId(title, false, '_', 45));
+            answerCode.val(builder.getReadableId(title, false, '_', 45));
         }
     });
 
     var fixInputAnswerIdentifier = function (input) {
         var val = input.val();
-        var newVal = val.replace(builderNS.illegalIdChars, '');
+        var newVal = val.replace(builder.illegalIdChars, '');
         if (newVal !== val)
             input.val( newVal );
     };
@@ -726,15 +793,15 @@ $.RexFormsBuilder.addChoiceReal = function(choicesList, code, title,
     answerTitle.focus();
 }
 
-$.RexFormsBuilder.addChoice = function(button) {
+$.RexFormBuilder.addChoice = function(button) {
     var jButton = $(button);
     var choicesList = jButton.parent().siblings('.choices-list')
                                       .children('.choices-list-items');
     
-    $.RexFormsBuilder.addChoiceReal(choicesList, null, null, true, true);
+    $.RexFormBuilder.addChoiceReal(choicesList, null, null, true, true);
 }
 
-$.RexFormsBuilder.setChoicesSortable = function(c) {
+$.RexFormBuilder.setChoicesSortable = function(c) {
     console.log('setChoicesSortable', c);
     c.sortable({
         cursor: 'move',
@@ -743,22 +810,22 @@ $.RexFormsBuilder.setChoicesSortable = function(c) {
     });
 }
 
-$.RexFormsBuilder.removeChoicesItem = function (obj) {
+$.RexFormBuilder.removeChoicesItem = function (obj) {
     var choicesDiv = $(obj).parents('.rb_choices_item:first');
     choicesDiv.slideUp(300, function () {
         $(this).remove();
     });
 }
 
-$.RexFormsBuilder.removeQuestion = function (obj) {
+$.RexFormBuilder.removeQuestion = function (obj) {
     var questionDiv = $(obj).parents('.rb_question:first');
     questionDiv.slideUp(300, function () {
-        $.RexFormsBuilder.removeQuestionReal(questionDiv);
+        $.RexFormBuilder.removeQuestionReal(questionDiv);
     });
 }
 
-$.RexFormsBuilder.removeQuestionReal = function(questionDiv) {
-    var pageData = $.RexFormsBuilder.currentPage.data('data');
+$.RexFormBuilder.removeQuestionReal = function(questionDiv) {
+    var pageData = $.RexFormBuilder.currentPage.data('data');
     var questionData = questionDiv.data('data');
     for (var idx in pageData.questions) {
         if (pageData.questions[idx] === questionData) {
@@ -766,25 +833,25 @@ $.RexFormsBuilder.removeQuestionReal = function(questionDiv) {
             break;
         }
     }
-    $.RexFormsBuilder.context.removeFromIndex('question', questionDiv.data('data'));
+    $.RexFormBuilder.context.removeFromIndex('question', questionDiv.data('data'));
     questionDiv.remove();
 }
 
-$.RexFormsBuilder.cancelQuestionEdit = function(button) {
+$.RexFormBuilder.cancelQuestionEdit = function(button) {
     var questionDiv = $(button).parents('.rb_question:first');
     var data = questionDiv.data('data');
 
     blockRepaint = true;
     if (!data['name']) {
-        $.RexFormsBuilder.removeQuestionReal(questionDiv);
+        $.RexFormBuilder.removeQuestionReal(questionDiv);
     } else {
-        $.RexFormsBuilder.closeQuestionEditor(questionDiv);
-        $.RexFormsBuilder.updateQuestionDiv(questionDiv);
+        $.RexFormBuilder.closeQuestionEditor(questionDiv);
+        $.RexFormBuilder.updateQuestionDiv(questionDiv);
     }
     blockRepaint = false;
 }
 
-$.RexFormsBuilder.onChangeQuestionType = function() {
+$.RexFormBuilder.onChangeQuestionType = function() {
     var jThis = $(this);
     var editor = jThis.parents('.rb_question_editor:first');
     var presets = $('.preset-choices', editor);
@@ -794,7 +861,7 @@ $.RexFormsBuilder.onChangeQuestionType = function() {
 
     var type = jThis.val();
     
-    var answersDisplay = builderNS.isListType(type) ? 'block' : 'none';
+    var answersDisplay = builder.isListType(type) ? 'block' : 'none';
     var subQListDisplay = (type === 'rep_group') ? '' : 'none';
 
     presets.css('display', answersDisplay);
@@ -811,25 +878,25 @@ $.RexFormsBuilder.onChangeQuestionType = function() {
 }
 
 
-$.RexFormsBuilder.changesCounter = 0;
-$.RexFormsBuilder.instrumentChanged = false;
-$.RexFormsBuilder.setGlobalChangesMark = function(hasChanges) {
-    $.RexFormsBuilder.instrumentChanged = hasChanges;
+$.RexFormBuilder.changesCounter = 0;
+$.RexFormBuilder.instrumentChanged = false;
+$.RexFormBuilder.setGlobalChangesMark = function(hasChanges) {
+    $.RexFormBuilder.instrumentChanged = hasChanges;
     // globalChangesMark.html(hasChanges ? '*' : '');
 }
 
-$.RexFormsBuilder.getChangeStamp = function() {
-    $.RexFormsBuilder.setGlobalChangesMark(true);
-    return $.RexFormsBuilder.changesCounter++;
+$.RexFormBuilder.getChangeStamp = function() {
+    $.RexFormBuilder.setGlobalChangesMark(true);
+    return $.RexFormBuilder.changesCounter++;
 }
 
-$.RexFormsBuilder.findDuplicates = function(qName, origQuestionData) {
-    var foundQuestionData = $.RexFormsBuilder.context.findQuestionData(qName);
+$.RexFormBuilder.findDuplicates = function(qName, origQuestionData) {
+    var foundQuestionData = $.RexFormBuilder.context.findQuestionData(qName);
     return (!foundQuestionData ||
             foundQuestionData === origQuestionData) ? false : true;
 }
 
-$.RexFormsBuilder.saveQuestion = function(obj) {
+$.RexFormBuilder.saveQuestion = function(obj) {
     var jObj = obj;
     var question = jObj.hasClass('rb_question') ?
                             jObj:
@@ -846,19 +913,19 @@ $.RexFormsBuilder.saveQuestion = function(obj) {
     var validationError = false;
 
     if (!qTitle) {
-        $.RexFormsBuilder.putHint(inputTitle, 'emptyField');
+        $.RexFormBuilder.putHint(inputTitle, 'emptyField');
         validationError = true;
     }
 
     var preloadedAnswers = {};
     // var changes = [];
 
-    if (builderNS.isListType(qQuestionType)) {
+    if (builder.isListType(qQuestionType)) {
         var choicesList = $('.choices-list:first', question)
                             .find('.choices-list-items:first');
         var items = $('.rb_choices_item', choicesList);
         if (items.size() == 0) {
-            $.RexFormsBuilder.putHint(choicesList, 'noAnswers');
+            $.RexFormBuilder.putHint(choicesList, 'noAnswers');
             validationError = true;
         } else {
             for (var idx = 0; idx < items.size(); idx++) {
@@ -875,18 +942,18 @@ $.RexFormsBuilder.saveQuestion = function(obj) {
                 if (answerCode === '' && answerTitle === '') {
                     continue;
                 } else if (answerCode === '' ||
-                    builderNS.illegalIdChars.test(answerCode)) {
-                    $.RexFormsBuilder.putHint(choicesList, 'wrongAnswerId');
+                    builder.illegalIdChars.test(answerCode)) {
+                    $.RexFormBuilder.putHint(choicesList, 'wrongAnswerId');
                     validationError = true;
                     break;
                 } else if (answerScore !== '' && 
                             !/^[0-9]+$/.test(answerScore)) {
 
-                    $.RexFormsBuilder.putHint(choicesList, 'wrongScore');
+                    $.RexFormBuilder.putHint(choicesList, 'wrongScore');
                     validationEerror = true;
                 } else if (preloadedAnswers[answerCode] !== undefined) {
 
-                    $.RexFormsBuilder.putHint(choicesList, 'dupAnswerId');
+                    $.RexFormBuilder.putHint(choicesList, 'dupAnswerId');
                     validationError = true;
                     break;
                 }
@@ -910,14 +977,14 @@ $.RexFormsBuilder.saveQuestion = function(obj) {
     var qName = jQuery.trim( inputName.val() );
 
     if (qName === '' ||
-        builderNS.illegalIdChars.test(qName)) {
-        $.RexFormsBuilder.putHint(inputName, 'wrongQuestionId');
+        builder.illegalIdChars.test(qName)) {
+        $.RexFormBuilder.putHint(inputName, 'wrongQuestionId');
         validationError = true;
     } else {
         var chkNames = { };
 
         chkNames[qName] = function (name) {
-            $.RexFormsBuilder.putHint(inputName, 'dupQuestionId');
+            $.RexFormBuilder.putHint(inputName, 'dupQuestionId');
         }
 
         if (qQuestionType === "set") {
@@ -928,7 +995,7 @@ $.RexFormsBuilder.saveQuestion = function(obj) {
             }
         }
 
-        var badNames = $.RexFormsBuilder
+        var badNames = $.RexFormBuilder
                             .namesWhichBreaksConsistency(
                                 Object.keys(chkNames), 
                                 questionData
@@ -954,7 +1021,7 @@ $.RexFormsBuilder.saveQuestion = function(obj) {
                 var jThis = $(this);
                 
                 if (jThis.hasClass('rb_opened') && 
-                    !$.RexFormsBuilder.saveQuestion(jThis))
+                    !$.RexFormBuilder.saveQuestion(jThis))
 
                     validationError = true;
                 else {
@@ -996,10 +1063,10 @@ $.RexFormsBuilder.saveQuestion = function(obj) {
     questionData['disableIf'] = qEditor[0].disableIf || '';
     questionData['constraints'] = qEditor[0].constraints || '';
 
-    $.RexFormsBuilder.makeREXLCache(questionData, 'disableIf');
-    $.RexFormsBuilder.makeREXLCache(questionData, 'constraints');
+    $.RexFormBuilder.makeREXLCache(questionData, 'disableIf');
+    $.RexFormBuilder.makeREXLCache(questionData, 'constraints');
 
-    if (builderNS.isListType(qQuestionType)) {
+    if (builder.isListType(qQuestionType)) {
         questionData['answers'] = [];
         for (var answerCode in preloadedAnswers) {
             var preAnswer = preloadedAnswers[answerCode];
@@ -1011,16 +1078,16 @@ $.RexFormsBuilder.saveQuestion = function(obj) {
         }
     }
 
-    if (builderNS.isListType(qQuestionType))
-        $.RexFormsBuilder.updatePredefinedChoices(questionData.answers);
+    if (builder.isListType(qQuestionType))
+        $.RexFormBuilder.updatePredefinedChoices(questionData.answers);
 
-    $.RexFormsBuilder.closeQuestionEditor(question);
-    $.RexFormsBuilder.updateQuestionDiv(question);
+    $.RexFormBuilder.closeQuestionEditor(question);
+    $.RexFormBuilder.updateQuestionDiv(question);
 
     return true;
 }
 
-$.RexFormsBuilder.updatePredefinedChoices = function(answers) {
+$.RexFormBuilder.updatePredefinedChoices = function(answers) {
     var titles = [];
 
     $.each(answers, function (_, answer) {
@@ -1033,11 +1100,11 @@ $.RexFormsBuilder.updatePredefinedChoices = function(answers) {
     var preList = [];
     var titlesStr = titles.join(', ');
 
-    if ($.RexFormsBuilder.predefinedLists[titlesStr])
+    if ($.RexFormBuilder.predefinedLists[titlesStr])
         // the same predefined set of choices exists already
         return;
 
-    $.RexFormsBuilder.predefinedLists[titlesStr] = preList;
+    $.RexFormBuilder.predefinedLists[titlesStr] = preList;
     $.each(answers, function (_, answer) {
         preList.push({
             'code': answer['code'],
@@ -1045,16 +1112,16 @@ $.RexFormsBuilder.updatePredefinedChoices = function(answers) {
         });
     });
 
-    var tpl = $.RexFormsBuilder.templates.getTemplate('questionEditor');
+    var tpl = $.RexFormBuilder.templates.getTemplate('questionEditor');
     var selectChoiceList = tpl.find('select[name="predefined-choice-list"]:first');
 
     $('<option>', {
         value: titlesStr,
-        text: $.RexFormsBuilder.truncateText(titlesStr, 50)
+        text: $.RexFormBuilder.truncateText(titlesStr, 50)
     }).appendTo(selectChoiceList);
 }
 
-$.RexFormsBuilder.closeQuestionEditor = function(questionDiv) {
+$.RexFormBuilder.closeQuestionEditor = function(questionDiv) {
     if (questionDiv.hasClass('rb_opened')) {
         var questionEditor =
                 questionDiv.find('.rb_question_editor:first');
@@ -1068,15 +1135,15 @@ $.RexFormsBuilder.closeQuestionEditor = function(questionDiv) {
     }
 }
 
-$.RexFormsBuilder.updateDisableLogicDescription = function(questionEditor) {
+$.RexFormBuilder.updateDisableLogicDescription = function(questionEditor) {
     var targetSpan = questionEditor.find('.rb_disable_logic_descr:first');
     var disableIf = questionEditor[0].disableIf;
     
     if (disableIf) {
         targetSpan.removeClass('disable_logic_not_set')
                   .html('Disabled if:&nbsp;&nbsp;' 
-                        + builderNS.escapeHTML(
-                            $.RexFormsBuilder.truncateText(disableIf, 30))
+                        + builder.escapeHTML(
+                            $.RexFormBuilder.truncateText(disableIf, 30))
                           );
     } else {
         targetSpan.addClass('disable_logic_not_set')
@@ -1084,14 +1151,14 @@ $.RexFormsBuilder.updateDisableLogicDescription = function(questionEditor) {
     }
 }
 
-$.RexFormsBuilder.updateGroupSkipSpan = function(groupDiv) {
+$.RexFormBuilder.updateGroupSkipSpan = function(groupDiv) {
     var groupSkipWhenSpan = groupDiv.find('.rb_page_group_skip:first');
     
     var data = groupDiv.data('data');
     if (data.skipIf) {
         groupSkipWhenSpan
             .removeClass('rb_group_skip_not_set')
-            .text('Skipped if: ' + $.RexFormsBuilder.truncateText(data.skipIf, 30))
+            .text('Skipped if: ' + $.RexFormBuilder.truncateText(data.skipIf, 30))
             
             if (data.skipIf.length >= 30)
                 groupSkipWhenSpan.attr('title', data.skipIf);
@@ -1103,30 +1170,30 @@ $.RexFormsBuilder.updateGroupSkipSpan = function(groupDiv) {
             .html('Never skipped');
 }
 
-$.RexFormsBuilder.updatePageWhenSpan = function(pageData) {
+$.RexFormBuilder.updatePageWhenSpan = function(pageData) {
     if (pageData.skipIf)
-        $.RexFormsBuilder.pageSkipWhenSpan
+        $.RexFormBuilder.pageSkipWhenSpan
             .removeClass('rb_page_skip_not_set')
             .html('Skipped if:&nbsp;&nbsp;' 
-                        + builderNS.escapeHTML(pageData.skipIf));
+                        + builder.escapeHTML(pageData.skipIf));
     else
-        $.RexFormsBuilder.pageSkipWhenSpan
+        $.RexFormBuilder.pageSkipWhenSpan
             .addClass('rb_page_skip_not_set')
             .html('Never skipped');
 }
 
-$.RexFormsBuilder.updatePageTitleSpan = function(pageData) {
+$.RexFormBuilder.updatePageTitleSpan = function(pageData) {
     if (pageData.title)
-        $.RexFormsBuilder.pageTitleSpan
+        $.RexFormBuilder.pageTitleSpan
             .removeClass('rb_page_title_not_set')
             .text(pageData.title);
     else
-        $.RexFormsBuilder.pageTitleSpan
+        $.RexFormBuilder.pageTitleSpan
             .addClass('rb_page_title_not_set')
             .html('Untitled page');
 }
 
-$.RexFormsBuilder.isScrolledIntoView = function(elem, scrollable) {
+$.RexFormBuilder.isScrolledIntoView = function(elem, scrollable) {
     var docViewTop = scrollable.scrollTop();
     var docViewBottom = docViewTop + scrollable.height();
 
@@ -1136,28 +1203,28 @@ $.RexFormsBuilder.isScrolledIntoView = function(elem, scrollable) {
     return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
 }
 
-$.RexFormsBuilder.selectPage = function(pageDiv) {
-    $.RexFormsBuilder.closeOpenedEditor(function () {
-        if ($.RexFormsBuilder.pageTitleInput.is(':visible'))
-            $.RexFormsBuilder.pageTitleInput.focusout();
+$.RexFormBuilder.selectPage = function(pageDiv) {
+    $.RexFormBuilder.closeOpenedEditor(function () {
+        if ($.RexFormBuilder.pageTitleInput.is(':visible'))
+            $.RexFormBuilder.pageTitleInput.focusout();
 
-        $.RexFormsBuilder.mainPartContent.css('display', 'block');
-        if ($.RexFormsBuilder.currentPage)
-            $.RexFormsBuilder.currentPage.removeClass('rb_covered');
-        $.RexFormsBuilder.currentPage = $(pageDiv);
-        $.RexFormsBuilder.currentPage.addClass('rb_covered');
-        var pageData = $.RexFormsBuilder.currentPage.data('data');
-        $.RexFormsBuilder.clearQuestions();
-        $.RexFormsBuilder.updatePageTitleSpan(pageData);
-        $.RexFormsBuilder.updatePageWhenSpan(pageData);
+        $.RexFormBuilder.mainPartContent.css('display', 'block');
+        if ($.RexFormBuilder.currentPage)
+            $.RexFormBuilder.currentPage.removeClass('rb_covered');
+        $.RexFormBuilder.currentPage = $(pageDiv);
+        $.RexFormBuilder.currentPage.addClass('rb_covered');
+        var pageData = $.RexFormBuilder.currentPage.data('data');
+        $.RexFormBuilder.clearQuestions();
+        $.RexFormBuilder.updatePageTitleSpan(pageData);
+        $.RexFormBuilder.updatePageWhenSpan(pageData);
         for (var idx in pageData.questions) {
             var question = pageData.questions[idx];
-            $.RexFormsBuilder.addQuestionDiv(question);
+            $.RexFormBuilder.addQuestionDiv(question);
         }
     }, questionListDiv);
 }
 
-$.RexFormsBuilder.relativeTop = function(element, relativeTo) {
+$.RexFormBuilder.relativeTop = function(element, relativeTo) {
     var top = element[0].offsetTop;
     console.log('top', top);
     while (element.size() && element.parent()[0] !== relativeTo[0]) {
@@ -1170,31 +1237,31 @@ $.RexFormsBuilder.relativeTop = function(element, relativeTo) {
     return top;
 }
 
-$.RexFormsBuilder.addNewSubQuestion = function(listDiv) {
-    $.RexFormsBuilder.closeOpenedEditor(function () {
+$.RexFormBuilder.addNewSubQuestion = function(listDiv) {
+    $.RexFormBuilder.closeOpenedEditor(function () {
         var parentQuestionDiv = listDiv.parents('.rb_question:first');
         var parentQData = parentQuestionDiv.data('data');
-        var qData = $.RexFormsBuilder.context.createNewQuestion();
+        var qData = $.RexFormBuilder.context.createNewQuestion();
         qData.slave = true;
 
         if (!parentQData.repeatingGroup)
             parentQData.repeatingGroup = [];
         parentQData.repeatingGroup.push(qData);
 
-        var questionDiv = $.RexFormsBuilder.addQuestionDiv(qData, listDiv);
+        var questionDiv = $.RexFormBuilder.addQuestionDiv(qData, listDiv);
         questionDiv.click();
     }, listDiv);
 }
 
-$.RexFormsBuilder.addNewQuestion = function() {
-    if (!$.RexFormsBuilder.currentPage)
+$.RexFormBuilder.addNewQuestion = function() {
+    if (!$.RexFormBuilder.currentPage)
         return;
 
-    $.RexFormsBuilder.closeOpenedEditor(function () {
-        var pageData = $.RexFormsBuilder.currentPage.data('data');
-        var questionData = $.RexFormsBuilder.context.createNewQuestion();
+    $.RexFormBuilder.closeOpenedEditor(function () {
+        var pageData = $.RexFormBuilder.currentPage.data('data');
+        var questionData = $.RexFormBuilder.context.createNewQuestion();
         pageData.questions.push(questionData);
-        var questionDiv = $.RexFormsBuilder.addQuestionDiv(questionData);
+        var questionDiv = $.RexFormBuilder.addQuestionDiv(questionData);
         questionDiv.click();
 
         var doEffect = function () {
@@ -1202,7 +1269,7 @@ $.RexFormsBuilder.addNewQuestion = function() {
                                 { color: '#bdecd0' }, 2000);
         };
 
-        if ($.RexFormsBuilder.isScrolledIntoView(questionDiv, questionListDiv))
+        if ($.RexFormBuilder.isScrolledIntoView(questionDiv, questionListDiv))
             doEffect();
         else {
             var scrollOffset = questionListDiv.scrollTop();
@@ -1221,7 +1288,7 @@ $.RexFormsBuilder.addNewQuestion = function() {
     }, questionListDiv);
 }
 
-$.RexFormsBuilder.getParamTitle = function(type) {
+$.RexFormBuilder.getParamTitle = function(type) {
     switch (type) {
     case 'NUMBER':
         return 'Number';
@@ -1230,28 +1297,28 @@ $.RexFormsBuilder.getParamTitle = function(type) {
     case 'DATE':
         return 'Date';
     default:
-        if (builderNS.context.extParamTypes &&
-            builderNS.context.extParamTypes[type]) {
+        if (builder.context.extParamTypes &&
+            builder.context.extParamTypes[type]) {
 
-            var typeDesc = builderNS.context.extParamTypes[type];
+            var typeDesc = builder.context.extParamTypes[type];
             return typeDesc.title || type;
         }
     }
     return 'Unknown';
 }
 
-$.RexFormsBuilder.updateParameterDiv = function(target) {
+$.RexFormBuilder.updateParameterDiv = function(target) {
     var data = target.data('data');
     target.find('.param_name').text(data.name);
     target.find('.rb_param_type').text('(' 
-                    + $.RexFormsBuilder.getParamTitle(data.type) + ')');
+                    + $.RexFormBuilder.getParamTitle(data.type) + ')');
 }
 
-$.RexFormsBuilder.addParameterReal = function(data) {
-    var target = $.RexFormsBuilder.templates.createObject('parameter');
+$.RexFormBuilder.addParameterReal = function(data) {
+    var target = $.RexFormBuilder.templates.createObject('parameter');
     target.data('data', data);
     var placeFound = false;
-    $.RexFormsBuilder.paramListDiv.children().each(function () {
+    $.RexFormBuilder.paramListDiv.children().each(function () {
         if (!placeFound) {
             var thisParamData = $(this).data('data');
             if (data.name < thisParamData.name) {
@@ -1261,14 +1328,14 @@ $.RexFormsBuilder.addParameterReal = function(data) {
         }
     });
     if (!placeFound)
-        $.RexFormsBuilder.paramListDiv.append(target);
+        $.RexFormBuilder.paramListDiv.append(target);
     target.click(function () {
-        $.RexFormsBuilder.editParameter(this);
+        $.RexFormBuilder.editParameter(this);
     });
-    $.RexFormsBuilder.updateParameterDiv(target);
+    $.RexFormBuilder.updateParameterDiv(target);
 }
 
-$.RexFormsBuilder.processREXLObject = function (rexlObj, chCount, oldName, newName) {
+$.RexFormBuilder.processREXLObject = function (rexlObj, chCount, oldName, newName) {
     if (rexlObj.type === "IDENTIFIER") {
         if (rexlObj.value === oldName) {
             rexlObj.value = newName;
@@ -1281,7 +1348,7 @@ $.RexFormsBuilder.processREXLObject = function (rexlObj, chCount, oldName, newNa
         if (rexlObj.type === "OPERATION" &&
             rexlObj.value === "." && rexlObj.args.length > 0) {
 
-            chCount += $.RexFormsBuilder.processREXLObject(rexlObj.args[0],
+            chCount += $.RexFormBuilder.processREXLObject(rexlObj.args[0],
                                                         chCount,
                                                         oldName,
                                                         newName);
@@ -1289,7 +1356,7 @@ $.RexFormsBuilder.processREXLObject = function (rexlObj, chCount, oldName, newNa
         } else {
 
             for (var idx in rexlObj.args) {
-                chCount += $.RexFormsBuilder.processREXLObject(rexlObj.args[idx],
+                chCount += $.RexFormBuilder.processREXLObject(rexlObj.args[idx],
                                                             chCount,
                                                             oldName,
                                                             newName);
@@ -1300,13 +1367,13 @@ $.RexFormsBuilder.processREXLObject = function (rexlObj, chCount, oldName, newNa
     return chCount;
 }
 
-$.RexFormsBuilder.renameREXLIdentifierIfExist = 
+$.RexFormBuilder.renameREXLIdentifierIfExist = 
         function (obj, condName, oldName, newName) {
 
     var chCounter = 0;
 
     if (obj[condName] && obj.cache && obj.cache[condName]) {
-        if (chCounter = $.RexFormsBuilder.processREXLObject(obj.cache[condName], 
+        if (chCounter = $.RexFormBuilder.processREXLObject(obj.cache[condName], 
                                                          0, 
                                                          oldName, 
                                                          newName)) {
@@ -1318,14 +1385,14 @@ $.RexFormsBuilder.renameREXLIdentifierIfExist =
     return chCounter;
 }
 
-$.RexFormsBuilder.renameREXLIdentifiers = function (oldName, newName) {
-    var qIndex = $.RexFormsBuilder.context.getIndexByType('question');
+$.RexFormBuilder.renameREXLIdentifiers = function (oldName, newName) {
+    var qIndex = $.RexFormBuilder.context.getIndexByType('question');
     for (var pos in qIndex) {
-        $.RexFormsBuilder.renameREXLIdentifierIfExist(qIndex[pos], 
+        $.RexFormBuilder.renameREXLIdentifierIfExist(qIndex[pos], 
                                                    'disableIf',
                                                    oldName,
                                                    newName);
-        $.RexFormsBuilder.renameREXLIdentifierIfExist(qIndex[pos],
+        $.RexFormBuilder.renameREXLIdentifierIfExist(qIndex[pos],
                                                    'constraints', 
                                                    oldName, 
                                                    newName);
@@ -1334,47 +1401,47 @@ $.RexFormsBuilder.renameREXLIdentifiers = function (oldName, newName) {
     $('.rb_question_editor', questionListDiv).each(function () {
         var editor = $(this);
 
-        if ($.RexFormsBuilder.renameREXLIdentifierIfExist(this, 
+        if ($.RexFormBuilder.renameREXLIdentifierIfExist(this, 
                                                        'disableIf',
                                                        oldName,
                                                        newName)) {
 
-            $.RexFormsBuilder.updateDisableLogicDescription(editor);
+            $.RexFormBuilder.updateDisableLogicDescription(editor);
         }
 
-        if ($.RexFormsBuilder.renameREXLIdentifierIfExist(this, 
+        if ($.RexFormBuilder.renameREXLIdentifierIfExist(this, 
                                                        'constraints',
                                                        oldName,
                                                        newName)) {
 
-            $.RexFormsBuilder.updateConstraintsDescription(editor);
+            $.RexFormBuilder.updateConstraintsDescription(editor);
         }
     });
 
-    var pIndex = $.RexFormsBuilder.context.getIndexByType('page');
+    var pIndex = $.RexFormBuilder.context.getIndexByType('page');
     for (var pos in pIndex) {
-        $.RexFormsBuilder.renameREXLIdentifierIfExist(pIndex[pos],
+        $.RexFormBuilder.renameREXLIdentifierIfExist(pIndex[pos],
                                                    'skipIf',
                                                    oldName,
                                                    newName);
     }
 
-    var pIndex = $.RexFormsBuilder.context.getIndexByType('group');
+    var pIndex = $.RexFormBuilder.context.getIndexByType('group');
     for (var pos in pIndex) {
-        $.RexFormsBuilder.renameREXLIdentifierIfExist(pIndex[pos],
+        $.RexFormBuilder.renameREXLIdentifierIfExist(pIndex[pos],
                                                    'skipIf',
                                                    oldName,
                                                    newName);
     }
 }
 
-$.RexFormsBuilder.editParameter = function(link) {
+$.RexFormBuilder.editParameter = function(link) {
     var jLink = $(link);
     var paramDiv = jLink.hasClass('rb_parameter') ? 
                         jLink:
                         jLink.parents('.rb_parameter:first');
     var data = paramDiv.data('data');
-    $.RexFormsBuilder.editParamDialog.open({
+    $.RexFormBuilder.editParamDialog.open({
         paramName: data.name,
         paramType: data.type,
         callback: function (newValue, newType) {
@@ -1383,45 +1450,45 @@ $.RexFormsBuilder.editParameter = function(link) {
             data.type = newType;
 
             if (oldName !== newValue)
-                $.RexFormsBuilder.renameREXLIdentifiers(oldName, newValue);
+                $.RexFormBuilder.renameREXLIdentifiers(oldName, newValue);
             
-            $.RexFormsBuilder.updateParameterDiv(paramDiv);
+            $.RexFormBuilder.updateParameterDiv(paramDiv);
         }
     });
 }
 
-$.RexFormsBuilder.addParameter = function(data) {
+$.RexFormBuilder.addParameter = function(data) {
     if (!data) {
-        $.RexFormsBuilder.editParamDialog.open({
+        $.RexFormBuilder.editParamDialog.open({
             callback: function (newValue, newType) {
-                var newParameter = $.RexFormsBuilder.context.createNewParameter();
+                var newParameter = $.RexFormBuilder.context.createNewParameter();
                 newParameter.name = newValue;
                 newParameter.type = newType;
-                $.RexFormsBuilder.addParameterReal(newParameter);
+                $.RexFormBuilder.addParameterReal(newParameter);
             }
         });
     } else {
-        $.RexFormsBuilder.addParameterReal(data);
-        $.RexFormsBuilder.context.putToIndex('parameter', data);
+        $.RexFormBuilder.addParameterReal(data);
+        $.RexFormBuilder.context.putToIndex('parameter', data);
     }
 }
 
-$.RexFormsBuilder.addNewPage = function(btn) {
+$.RexFormBuilder.addNewPage = function(btn) {
     var pageDiv = btn ? $(btn).parents('.rb_page:first') : null;
-    var newPageData = $.RexFormsBuilder.context.createNewPage();
-    var target = $.RexFormsBuilder.addPage(newPageData);
+    var newPageData = $.RexFormBuilder.context.createNewPage();
+    var target = $.RexFormBuilder.addPage(newPageData);
 
     if (pageDiv)
         pageDiv.after(target);
     else
-        $.RexFormsBuilder.pageListDiv.append(target);
+        $.RexFormBuilder.pageListDiv.append(target);
 
     var pagesScollable = $('.rb_pages_scrollable');
     var doEffect = function () {
         target.effect("highlight", { color: '#bdecd0' }, 2000);
     };
 
-    if ($.RexFormsBuilder.isScrolledIntoView(target, pagesScollable))
+    if ($.RexFormBuilder.isScrolledIntoView(target, pagesScollable))
         doEffect();
     else {
         var scrollOffset = pagesScollable.scrollTop();
@@ -1439,21 +1506,15 @@ $.RexFormsBuilder.addNewPage = function(btn) {
     }
 }
 
-$.RexFormsBuilder.truncateText = function(text, len) {
-    if (text.length > len)
-        return text.slice(0, len - 3) + "...";
-    return text;
-}
-
-$.RexFormsBuilder.getPageSummary = function(data, targetDiv) {
+$.RexFormBuilder.getPageSummary = function(data, targetDiv) {
     if (data.title)
         targetDiv.html('<strong>'
-                        + builderNS.escapeHTML(data.title)
+                        + builder.escapeHTML(data.title)
                         + '</strong>');
     else if (data.questions.length > 0) {
         var ret = '<strong>'
-                + builderNS.escapeHTML(
-                      $.RexFormsBuilder.truncateText(data.questions[0].title, 40)
+                + builder.escapeHTML(
+                      $.RexFormBuilder.truncateText(data.questions[0].title, 40)
                   )
                 + '</strong>';
         if (data.questions.length > 1)
@@ -1466,14 +1527,14 @@ $.RexFormsBuilder.getPageSummary = function(data, targetDiv) {
         targetDiv.html('No questions');
 }
 
-$.RexFormsBuilder.updatePageDiv = function (pageDiv) {
+$.RexFormBuilder.updatePageDiv = function (pageDiv) {
     var data = pageDiv.data('data');
     
     var pageTitle = $('.rb_div_page_title:first', pageDiv);
-    $.RexFormsBuilder.getPageSummary(data, pageTitle);
+    $.RexFormBuilder.getPageSummary(data, pageTitle);
 }
 
-$.RexFormsBuilder.makeREXLCache = function (obj, condName) {
+$.RexFormBuilder.makeREXLCache = function (obj, condName) {
     if (obj[condName]) {
         try {
             var parsed = rexl.parse(obj[condName]);
@@ -1488,25 +1549,25 @@ $.RexFormsBuilder.makeREXLCache = function (obj, condName) {
     }
 }
 
-$.RexFormsBuilder.addPage = function(page, to) {
+$.RexFormBuilder.addPage = function(page, to) {
 
     if (page.type === 'group') {
-        var newGroup = $.RexFormsBuilder.createGroup('pageGroup');
+        var newGroup = $.RexFormBuilder.createGroup('pageGroup');
         if (to) {
             to.append(newGroup);
-            $.RexFormsBuilder.setPageListSortable(
+            $.RexFormBuilder.setPageListSortable(
                 newGroup.find('.rb_class_pages_list')
             );
         }
 
-        $.RexFormsBuilder.makeREXLCache(page, 'skipIf');
+        $.RexFormBuilder.makeREXLCache(page, 'skipIf');
 
         newGroup.data('data', page);
-        $.RexFormsBuilder.updateGroupDiv(newGroup);
+        $.RexFormBuilder.updateGroupDiv(newGroup);
         for (var idx in page.pages) {
             var item = page.pages[idx];
-            $.RexFormsBuilder.context.putToIndex(item.type, item);
-            $.RexFormsBuilder.addPage(
+            $.RexFormBuilder.context.putToIndex(item.type, item);
+            $.RexFormBuilder.addPage(
                 item, newGroup.children('.rb_class_pages_list')
             );
         }
@@ -1515,12 +1576,12 @@ $.RexFormsBuilder.addPage = function(page, to) {
     }
 
     // this is a page
-    var newPageDiv = $.RexFormsBuilder.templates.createObject('page');
+    var newPageDiv = $.RexFormBuilder.templates.createObject('page');
 
     if (to)
         to.append(newPageDiv);
 
-    $.RexFormsBuilder.makeREXLCache(page, 'skipIf');
+    $.RexFormBuilder.makeREXLCache(page, 'skipIf');
     newPageDiv.data('data', page);
 
     function fixQuestionData(qData) {
@@ -1573,10 +1634,10 @@ $.RexFormsBuilder.addPage = function(page, to) {
 
         fixQuestionData(qData);
 
-        $.RexFormsBuilder.makeREXLCache(qData, 'disableIf');
-        $.RexFormsBuilder.makeREXLCache(qData, 'constraints');
+        $.RexFormBuilder.makeREXLCache(qData, 'disableIf');
+        $.RexFormBuilder.makeREXLCache(qData, 'constraints');
 
-        $.RexFormsBuilder.context.putToIndex('question', qData);
+        $.RexFormBuilder.context.putToIndex('question', qData);
         if (qData.repeatingGroup && qData.type === "rep_group") {
             for (var sIdx in qData.repeatingGroup) {
                 var subQuestion = qData.repeatingGroup[sIdx];
@@ -1584,52 +1645,52 @@ $.RexFormsBuilder.addPage = function(page, to) {
 
                 subQuestion.slave = true;
 
-                $.RexFormsBuilder.makeREXLCache(subQuestion, 'disableIf');
-                $.RexFormsBuilder.makeREXLCache(subQuestion, 'constraints');
+                $.RexFormBuilder.makeREXLCache(subQuestion, 'disableIf');
+                $.RexFormBuilder.makeREXLCache(subQuestion, 'constraints');
 
-                $.RexFormsBuilder.context.putToIndex('question', subQuestion);
+                $.RexFormBuilder.context.putToIndex('question', subQuestion);
             }
-        } else if (builderNS.isListType(qData.type)) {
-            $.RexFormsBuilder.updatePredefinedChoices(qData.answers);
+        } else if (builder.isListType(qData.type)) {
+            $.RexFormBuilder.updatePredefinedChoices(qData.answers);
         }
     }
 
     if (!page.cId)
-        page.cId = builderNS.getCId('page');
+        page.cId = builder.getCId('page');
 
-    $.RexFormsBuilder.updatePageDiv(newPageDiv);
+    $.RexFormBuilder.updatePageDiv(newPageDiv);
 
     newPageDiv.click(function (event) {
         if (event.shiftKey) {
             document.getSelection().removeAllRanges();
-            if ($.RexFormsBuilder.currentPage) {
-                $.RexFormsBuilder.currentSelection = [];
-                var fromPage = $.RexFormsBuilder.currentPage;
+            if ($.RexFormBuilder.currentPage) {
+                $.RexFormBuilder.currentSelection = [];
+                var fromPage = $.RexFormBuilder.currentPage;
                 var toPage = $(this);
                 var selectIt = false;
-                $.RexFormsBuilder.pageListDiv.find('.rb_page').each(function () {
+                $.RexFormBuilder.pageListDiv.find('.rb_page').each(function () {
                     var jThis = $(this);
                     if (jThis[0] === fromPage[0] ||
                         jThis[0] === toPage[0]) {
 
                         selectIt = !selectIt;
                         jThis.addClass('rb_covered');
-                        $.RexFormsBuilder.currentSelection.push(jThis);
+                        $.RexFormBuilder.currentSelection.push(jThis);
                     } else if (selectIt) {
                         jThis.addClass('rb_covered');
-                        $.RexFormsBuilder.currentSelection.push(jThis);
+                        $.RexFormBuilder.currentSelection.push(jThis);
                     } else {
                         jThis.removeClass('rb_covered');
                     }
                 });
             }
         } else {
-            $.RexFormsBuilder.pageListDiv.find('.rb_covered').removeClass('rb_covered');
-            $.RexFormsBuilder.currentSelection = [ $(this) ];
-            $.RexFormsBuilder.selectPage(this);
+            $.RexFormBuilder.pageListDiv.find('.rb_covered').removeClass('rb_covered');
+            $.RexFormBuilder.currentSelection = [ $(this) ];
+            $.RexFormBuilder.selectPage(this);
         }
 
-        if ($.RexFormsBuilder.currentSelection && $.RexFormsBuilder.currentSelection.length) {
+        if ($.RexFormBuilder.currentSelection && $.RexFormBuilder.currentSelection.length) {
             $('#make_group_btn').removeAttr('disabled');
         } else {
             $('#make_group_btn').attr('disabled','disabled');
@@ -1641,7 +1702,7 @@ $.RexFormsBuilder.addPage = function(page, to) {
     return newPageDiv;
 }
 
-$.RexFormsBuilder.evaluateMeta = function(meta) {
+$.RexFormBuilder.evaluateMeta = function(meta) {
     var rel;
 
     if (meta && meta.content && meta.content.pages)
@@ -1655,38 +1716,38 @@ $.RexFormsBuilder.evaluateMeta = function(meta) {
         var page = rel.pages[idx];
 
         if (!page.cId)
-            page.cId = builderNS.getCId('page');
+            page.cId = builder.getCId('page');
 
-        $.RexFormsBuilder.context.putToIndex(page.type, page);
-        $.RexFormsBuilder.addPage(page, $.RexFormsBuilder.pageListDiv);
+        $.RexFormBuilder.context.putToIndex(page.type, page);
+        $.RexFormBuilder.addPage(page, $.RexFormBuilder.pageListDiv);
     }
 
     for (var idx in rel.params) {
         var param = rel.params[idx];
-        $.RexFormsBuilder.addParameter(param);
+        $.RexFormBuilder.addParameter(param);
     }
 
-    $.RexFormsBuilder.setFormTitle( meta.title );
-    $.RexFormsBuilder.context.dumpIndexes();
+    $.RexFormBuilder.setFormTitle( meta.title );
+    $.RexFormBuilder.context.dumpIndexes();
 }
 
-$.RexFormsBuilder.updateConstraintsDescription = function(questionEditor) {
+$.RexFormBuilder.updateConstraintsDescription = function(questionEditor) {
     var targetSpan = questionEditor.find('.rb_constraint_descr');
     var constraints = questionEditor[0].constraints;
 
     if (constraints && !(constraints instanceof Object)) {
         targetSpan.removeClass('constraints_not_set')
-                  .html('Valid if: ' + builderNS.escapeHTML(
-                            $.RexFormsBuilder.truncateText(constraints, 30)));
+                  .html('Valid if: ' + builder.escapeHTML(
+                            $.RexFormBuilder.truncateText(constraints, 30)));
     } else {
         targetSpan.addClass('constraints_not_set')
                   .html('No constraints');
     }
 };
 
-/* TODO: rewrite this and saveQuestion functions to not repeat code */
+// TODO: rewrite this and saveQuestion functions to not repeat code 
 
-$.RexFormsBuilder.collectQuestionData = function (editor) {
+$.RexFormBuilder.collectQuestionData = function (editor) {
 
     var inputTitle = $('textarea[name="question-title"]:first', editor);
     var qTitle = jQuery.trim( inputTitle.val() );
@@ -1704,7 +1765,7 @@ $.RexFormsBuilder.collectQuestionData = function (editor) {
 
     if (!validationError) {
 
-        if (builderNS.isListType(qQuestionType)) {
+        if (builder.isListType(qQuestionType)) {
             var choicesList = $('.choices-list:first', editor)
                                 .find('.choices-list-items:first');
             var items = $('.rb_choices_item', choicesList);
@@ -1724,7 +1785,7 @@ $.RexFormsBuilder.collectQuestionData = function (editor) {
                     if (answerCode === '' && answerTitle === '') {
                         continue;
                     } else if (answerCode === '' ||
-                        builderNS.illegalIdChars.test(answerCode)) {
+                        builder.illegalIdChars.test(answerCode)) {
                         validationError = true;
                         break;
                     } else if (answerScore !== '' && 
@@ -1755,24 +1816,24 @@ $.RexFormsBuilder.collectQuestionData = function (editor) {
     }
 }
 
-$.RexFormsBuilder.changeConstraints = function(btn) {
+$.RexFormBuilder.changeConstraints = function(btn) {
     var jButton = $(btn);
     var questionEditor = jButton.parents('.rb_question_editor:first');
 
-    $.RexFormsBuilder.constraintsThisQuestion =
-        $.RexFormsBuilder.collectQuestionData(questionEditor);
+    $.RexFormBuilder.constraintsThisQuestion =
+        $.RexFormBuilder.collectQuestionData(questionEditor);
 
-    if ($.RexFormsBuilder.constraintsThisQuestion) {
-        $.RexFormsBuilder.conditionEditor.open({
+    if ($.RexFormBuilder.constraintsThisQuestion) {
+        $.RexFormBuilder.conditionEditor.open({
             title: 'Edit Constraints',
             callback: function (newValue) {
                 questionEditor[0].constraints = newValue;
-                $.RexFormsBuilder.makeREXLCache(questionEditor[0], 'constraints');
-                $.RexFormsBuilder.updateConstraintsDescription(questionEditor);
+                $.RexFormBuilder.makeREXLCache(questionEditor[0], 'constraints');
+                $.RexFormBuilder.updateConstraintsDescription(questionEditor);
             },
             defaultIdentifier: 'this',
             onClose: function (newValue) {
-                $.RexFormsBuilder.constraintsThisQuestion = null;
+                $.RexFormBuilder.constraintsThisQuestion = null;
             },
             conditions: questionEditor[0].constraints
         });
@@ -1781,7 +1842,7 @@ $.RexFormsBuilder.changeConstraints = function(btn) {
     }
 }
 
-$.RexFormsBuilder.getAnswersString = function(questionData) {
+$.RexFormBuilder.getAnswersString = function(questionData) {
     var titles = [];
     for (var idx in questionData['answers']) {
         var title = questionData['answers'][idx]['title'];
@@ -1794,111 +1855,111 @@ $.RexFormsBuilder.getAnswersString = function(questionData) {
     return titles.join(', ');
 }
 
-$.RexFormsBuilder.getQuestionDescription = function(questionData) {
+$.RexFormBuilder.getQuestionDescription = function(questionData) {
     var type = questionData.type;
 
-    if (builderNS.isListType(type))
-        return $.RexFormsBuilder.getAnswersString(questionData);
+    if (builder.isListType(type))
+        return $.RexFormBuilder.getAnswersString(questionData);
     else
-        return builderNS.questionTypes[type].title;
+        return builder.questionTypes[type].title;
 }
 
-$.RexFormsBuilder.newInstrument = function() {
-    $.RexFormsBuilder.clearWorkspace();
-    $.RexFormsBuilder.instrumentName = null;
-    $.RexFormsBuilder.instrumentTitle = '';
-    $.RexFormsBuilder.context.clearIndexes();
+$.RexFormBuilder.newInstrument = function() {
+    $.RexFormBuilder.clearWorkspace();
+    $.RexFormBuilder.instrumentName = null;
+    $.RexFormBuilder.instrumentTitle = '';
+    $.RexFormBuilder.context.clearIndexes();
 }
 
-$.RexFormsBuilder.loadFromJSON = function() {
+$.RexFormBuilder.loadFromJSON = function() {
     var json = prompt('Please input schema json:');
 
     if (json) {
-        $.RexFormsBuilder.clearWorkspace();
-        $.RexFormsBuilder.evaluateMetaStr(json);
+        $.RexFormBuilder.clearWorkspace();
+        $.RexFormBuilder.evaluateMetaStr(json);
     }
 }
 
-builderNS.loadInstrumentSchema = function(instrumentName, schemaJSON) {
+builder.loadInstrumentSchema = function(instrumentName, schemaJSON) {
     //console.log('schemaJSON', schemaJSON);
-    builderNS.newInstrument();
-    builderNS.evaluateMetaStr(schemaJSON);
-    builderNS.instrumentName = instrumentName;
+    builder.newInstrument();
+    builder.evaluateMetaStr(schemaJSON);
+    builder.instrumentName = instrumentName;
 }
 
-$.RexFormsBuilder.clearQuestions = function() {
+$.RexFormBuilder.clearQuestions = function() {
     questionListDiv.contents().remove();
 }
 
-$.RexFormsBuilder.stopEvent = function(event) {
+$.RexFormBuilder.stopEvent = function(event) {
     if (!event)
         event = window.event;
     event.stopPropagation();
 }
 
-$.RexFormsBuilder.clearWorkspace = function() {
-    $.RexFormsBuilder.mainPartContent.css('display', 'none');
-    $.RexFormsBuilder.pageTitleSpan.text('');
-    $.RexFormsBuilder.pageListDiv.contents().remove();
-    $.RexFormsBuilder.paramListDiv.contents().remove();
-    $.RexFormsBuilder.clearQuestions();
+$.RexFormBuilder.clearWorkspace = function() {
+    $.RexFormBuilder.mainPartContent.css('display', 'none');
+    $.RexFormBuilder.pageTitleSpan.text('');
+    $.RexFormBuilder.pageListDiv.contents().remove();
+    $.RexFormBuilder.paramListDiv.contents().remove();
+    $.RexFormBuilder.clearQuestions();
 }
 
-$.RexFormsBuilder.changeDisableLogic = function(btn) {
+$.RexFormBuilder.changeDisableLogic = function(btn) {
     var jButton = $(btn);
     var questionEditor = jButton.parents('.rb_question_editor:first');
 
-    $.RexFormsBuilder.conditionEditor.open({
+    $.RexFormBuilder.conditionEditor.open({
         title: 'Edit Disable-Logic Conditions',
         callback: function (newValue) {
             questionEditor[0].disableIf = newValue;
-            $.RexFormsBuilder.makeREXLCache(questionEditor[0], 'constraints');
-            $.RexFormsBuilder.updateDisableLogicDescription(questionEditor);
+            $.RexFormBuilder.makeREXLCache(questionEditor[0], 'constraints');
+            $.RexFormBuilder.updateDisableLogicDescription(questionEditor);
         },
         conditions: questionEditor[0].disableIf
     });
 }
 
-$.RexFormsBuilder.showJSONDialog = null;
-$.RexFormsBuilder.editPageDialog = null;
-$.RexFormsBuilder.editParamDialog = null;
-$.RexFormsBuilder.beforeTestDialog = null;
-$.RexFormsBuilder.conditionEditor = null;
-$.RexFormsBuilder.questionDialog = null;
-$.RexFormsBuilder.progressDialog = null;
-$.RexFormsBuilder.pageListDiv = null;
-$.RexFormsBuilder.paramListDiv = null;
-$.RexFormsBuilder.context = null;
-$.RexFormsBuilder.templates = null;
+$.RexFormBuilder.showJSONDialog = null;
+$.RexFormBuilder.editPageDialog = null;
+$.RexFormBuilder.editParamDialog = null;
+$.RexFormBuilder.beforeTestDialog = null;
+$.RexFormBuilder.conditionEditor = null;
+$.RexFormBuilder.questionDialog = null;
+$.RexFormBuilder.progressDialog = null;
+$.RexFormBuilder.pageListDiv = null;
+$.RexFormBuilder.paramListDiv = null;
+$.RexFormBuilder.context = null;
+$.RexFormBuilder.templates = null;
 
-$.RexFormsBuilder.pageTitleSpan = null;
-$.RexFormsBuilder.pageTitleInput = null;
-$.RexFormsBuilder.pageSkipWhenSpan = null;
-$.RexFormsBuilder.mainPartContent = null;
-$.RexFormsBuilder.currentSelection = null;
-$.RexFormsBuilder.currentPositionIndex = null;
+$.RexFormBuilder.pageTitleSpan = null;
+$.RexFormBuilder.pageTitleInput = null;
+$.RexFormBuilder.pageSkipWhenSpan = null;
+$.RexFormBuilder.mainPartContent = null;
+$.RexFormBuilder.currentSelection = null;
+$.RexFormBuilder.currentPositionIndex = null;
 
-$.RexFormsBuilder.currentPage = null;
+$.RexFormBuilder.currentPage = null;
 
-$.RexFormsBuilder.onPageTitleChanged = function () {
-    var newTitle = $.RexFormsBuilder.pageTitleInput.val();
-    var data = $.RexFormsBuilder.currentPage.data('data');
+$.RexFormBuilder.onPageTitleChanged = function () {
+    var newTitle = $.RexFormBuilder.pageTitleInput.val();
+    var data = $.RexFormBuilder.currentPage.data('data');
     data.title = newTitle;
-    $.RexFormsBuilder.updatePageDiv($.RexFormsBuilder.currentPage);
-    $.RexFormsBuilder.updatePageTitleSpan(data);
-    // $.RexFormsBuilder.pageTitleSpan.text(newTitle);
-    $.RexFormsBuilder.pageTitleInput.css('display', 'none');
+    $.RexFormBuilder.updatePageDiv($.RexFormBuilder.currentPage);
+    $.RexFormBuilder.updatePageTitleSpan(data);
+    // $.RexFormBuilder.pageTitleSpan.text(newTitle);
+    $.RexFormBuilder.pageTitleInput.css('display', 'none');
     $('.rb_page_title_wrap').css('display', '');
 }
 
-$.RexFormsBuilder.setFormTitle = function (newTitle) {
-    $.RexFormsBuilder.instrumentTitle = newTitle;
+$.RexFormBuilder.setFormTitle = function (newTitle) {
+    $.RexFormBuilder.instrumentTitle = newTitle;
 
     var titleHolder = $('#rb_instrument_title');
     if (newTitle) {
         titleHolder
             .removeClass('rb_instrument_title_not_set')
-            .text($.RexFormsBuilder.truncateText(newTitle, 30));
+            .text($.RexFormBuilder.truncateText(newTitle, 30));
     } else {
         titleHolder
             .addClass('rb_instrument_title_not_set')
@@ -1906,86 +1967,86 @@ $.RexFormsBuilder.setFormTitle = function (newTitle) {
     }
 }
 
-$.RexFormsBuilder.onInstrumentTitleChanged = function() {
-    var newTitle = $.trim($.RexFormsBuilder.instrumentTitleInput.val());
-    $.RexFormsBuilder.setFormTitle(newTitle);
-    $.RexFormsBuilder.instrumentTitleInput.css('display', 'none');
+$.RexFormBuilder.onInstrumentTitleChanged = function() {
+    var newTitle = $.trim($.RexFormBuilder.instrumentTitleInput.val());
+    $.RexFormBuilder.setFormTitle(newTitle);
+    $.RexFormBuilder.instrumentTitleInput.css('display', 'none');
     $('#rb_instrument_title_view').css('display', '');
 }
 
-$.RexFormsBuilder.editGroupSkipConditions = function(a) {
+$.RexFormBuilder.editGroupSkipConditions = function(a) {
     var groupDiv = $(a).parents('.rb_page_group:first');
     var data = groupDiv.data('data');
-    $.RexFormsBuilder.conditionEditor.open({
+    $.RexFormBuilder.conditionEditor.open({
         title: 'Edit Skip-Logic Conditions',
         callback: function (newValue) {
             data.skipIf = newValue;
-            $.RexFormsBuilder.makeREXLCache(data, 'skipIf');
-            $.RexFormsBuilder.updateGroupSkipSpan(groupDiv);
+            $.RexFormBuilder.makeREXLCache(data, 'skipIf');
+            $.RexFormBuilder.updateGroupSkipSpan(groupDiv);
         },
         conditions: data.skipIf
     });
 }
 
-$.RexFormsBuilder.editPageSkipConditions = function() {
-    var data = $.RexFormsBuilder.currentPage.data('data');
-    $.RexFormsBuilder.conditionEditor.open({
+$.RexFormBuilder.editPageSkipConditions = function() {
+    var data = $.RexFormBuilder.currentPage.data('data');
+    $.RexFormBuilder.conditionEditor.open({
         title: 'Edit Skip-Logic Conditions',
         callback: function (newValue) {
-            var data = $.RexFormsBuilder.currentPage.data('data');
+            var data = $.RexFormBuilder.currentPage.data('data');
             data.skipIf = newValue;
-            $.RexFormsBuilder.makeREXLCache(data, 'skipIf');
-            $.RexFormsBuilder.updatePageWhenSpan(data);
+            $.RexFormBuilder.makeREXLCache(data, 'skipIf');
+            $.RexFormBuilder.updatePageWhenSpan(data);
         },
         conditions: data.skipIf
     });
 }
 
-$.RexFormsBuilder.editInstrumentTitle = function() {
+$.RexFormBuilder.editInstrumentTitle = function() {
     $('#rb_instrument_title_view').css('display', 'none');
-    $.RexFormsBuilder.instrumentTitleInput.val(
-        $.RexFormsBuilder.instrumentTitle
+    $.RexFormBuilder.instrumentTitleInput.val(
+        $.RexFormBuilder.instrumentTitle
     );
-    $.RexFormsBuilder.instrumentTitleInput.css('display', '');
-    $.RexFormsBuilder.instrumentTitleInput.focus();
+    $.RexFormBuilder.instrumentTitleInput.css('display', '');
+    $.RexFormBuilder.instrumentTitleInput.focus();
 }
 
-$.RexFormsBuilder.editPageTitle = function() {
+$.RexFormBuilder.editPageTitle = function() {
     $('.rb_page_title_wrap').css('display', 'none');
 
-    var title = $.RexFormsBuilder.currentPage.data('data').title;
+    var title = $.RexFormBuilder.currentPage.data('data').title;
 
-    $.RexFormsBuilder.pageTitleInput.val(title);
-    $.RexFormsBuilder.pageTitleInput.css('display', '');
-    $.RexFormsBuilder.pageTitleInput.focus();
+    $.RexFormBuilder.pageTitleInput.val(title);
+    $.RexFormBuilder.pageTitleInput.css('display', '');
+    $.RexFormBuilder.pageTitleInput.focus();
 }
 
-$.RexFormsBuilder.toType = function (obj) {
+$.RexFormBuilder.toType = function (obj) {
     return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
 }
 
-builderNS.initDialogs = function () {
+builder.initDialogs = function () {
     var commonOptions = {
-        parent: $.RexFormsBuilder
+        parent: $.RexFormBuilder
     };
-    $.RexFormsBuilder.showJSONDialog =
-        new builderNS.dialog.ShowJSONDialog(commonOptions);
-    $.RexFormsBuilder.editPageDialog =
-        new builderNS.dialog.EditPageDialog(commonOptions);
+    $.RexFormBuilder.showJSONDialog =
+        new builder.dialog.ShowJSONDialog(commonOptions);
+    $.RexFormBuilder.editPageDialog =
+        new builder.dialog.EditPageDialog(commonOptions);
     var dialogOptions = $.extend({
-        extTypes: builderNS.context.extParamTypes
+        extTypes: builder.context.extParamTypes
     }, commonOptions);
-    $.RexFormsBuilder.editParamDialog =
-        new builderNS.dialog.EditParamDialog(dialogOptions);
+    $.RexFormBuilder.editParamDialog =
+        new builder.dialog.EditParamDialog(dialogOptions);
     dialogOptions = $.extend({
-        extTypes: $.RexFormsBuilder.context.extParamTypes
+        extTypes: $.RexFormBuilder.context.extParamTypes
     }, commonOptions);
-    $.RexFormsBuilder.beforeTestDialog =
-        new builderNS.dialog.BeforeTestDialog(dialogOptions);
-    $.RexFormsBuilder.questionDialog =
-        new builderNS.dialog.QuestionDialog(commonOptions);
+    $.RexFormBuilder.beforeTestDialog =
+        new builder.dialog.BeforeTestDialog(dialogOptions);
+    $.RexFormBuilder.questionDialog =
+        new builder.dialog.QuestionDialog(commonOptions);
 
-    $.RexFormsBuilder.progressDialog = $('.rb_progress_dialog').dialog({
+    $.RexFormBuilder.progressDialog = $('.rb_progress_dialog').dialog({
         dialogClass: 'progress-dialog',
         modal: true,
         autoOpen: false,
@@ -1995,10 +2056,10 @@ builderNS.initDialogs = function () {
     });
 }
 
-builderNS.initConditionEditor = function () {
-    builderNS.conditionEditor = new ConditionEditor({
-        urlPrefix: $.RexFormsBuilder.basePrefix,
-        manualEdit: builderNS.context.manualEditConditions,
+builder.initConditionEditor = function () {
+    builder.conditionEditor = new ConditionEditor({
+        urlPrefix: $.RexFormBuilder.basePrefix,
+        manualEdit: builder.context.manualEditConditions,
         identifierTitle: 'Question or parameter',
         onDescribeId: function (identifier) {
 
@@ -2006,10 +2067,10 @@ builderNS.initConditionEditor = function () {
             var questionData = null;
 
             if (identifier === "this") {
-                if ($.RexFormsBuilder.constraintsThisQuestion)
-                    questionData = $.RexFormsBuilder.constraintsThisQuestion;
+                if ($.RexFormBuilder.constraintsThisQuestion)
+                    questionData = $.RexFormBuilder.constraintsThisQuestion;
             } else
-                questionData = $.RexFormsBuilder.context.findQuestionData(identifier);
+                questionData = $.RexFormBuilder.context.findQuestionData(identifier);
 
             if (questionData) {
                 ret = {};
@@ -2052,7 +2113,7 @@ builderNS.initConditionEditor = function () {
                     break;
                 }
             } else if (identifier !== "this") {
-                var paramData = $.RexFormsBuilder.context.findParamData(identifier);
+                var paramData = $.RexFormBuilder.context.findParamData(identifier);
                 if (paramData) {
                     ret = {};
 
@@ -2062,9 +2123,9 @@ builderNS.initConditionEditor = function () {
                         break;
                     case 'STRING':
                     default:
-                        if (builderNS.context.extParamTypes) {
+                        if (builder.context.extParamTypes) {
                             var typeDesc = 
-                                builderNS.context.extParamTypes[paramData.type];
+                                builder.context.extParamTypes[paramData.type];
 
                             console.log('typeDesc[' + paramData.type +']:', typeDesc);
 
@@ -2105,18 +2166,18 @@ builderNS.initConditionEditor = function () {
             var matcher =
                 new RegExp($.ui.autocomplete.escapeRegex(term), "i");
 
-            if ($.RexFormsBuilder.constraintsThisQuestion) {
-                var item = $.RexFormsBuilder.constraintsThisQuestion;
+            if ($.RexFormBuilder.constraintsThisQuestion) {
+                var item = $.RexFormBuilder.constraintsThisQuestion;
                 if ("this".indexOf(term) != -1) {
                     ret.push({
                         "title": item.title ?
-                            $.RexFormsBuilder.truncateText(item.title, 80) : '',
+                            $.RexFormBuilder.truncateText(item.title, 80) : '',
                         "value": "this"
                     });
                 }
             }
 
-            var qIndex = $.RexFormsBuilder.context.getIndexByType('question');
+            var qIndex = $.RexFormBuilder.context.getIndexByType('question');
             for (var pos in qIndex) {
                 var item = qIndex[pos];
                 
@@ -2127,14 +2188,14 @@ builderNS.initConditionEditor = function () {
 
                         ret.push({
                             "title": item.title ?
-                                $.RexFormsBuilder.truncateText(item.title, 80) : '',
+                                $.RexFormBuilder.truncateText(item.title, 80) : '',
                             "value": item.name
                         });
                     }
                 }
             }
 
-            var pIndex = $.RexFormsBuilder.context.getIndexByType('parameter');
+            var pIndex = $.RexFormBuilder.context.getIndexByType('parameter');
 
             for (var pos in pIndex) {
                 var item = pIndex[pos];
@@ -2142,7 +2203,7 @@ builderNS.initConditionEditor = function () {
                 if (item.name.search(matcher) !== -1) {
                     ret.push({
                         "title": 'parameter ('
-                                + $.RexFormsBuilder.getParamTitle(item.type)
+                                + $.RexFormBuilder.getParamTitle(item.type)
                                 + ')',
                         "value": item.name
                     });
@@ -2155,49 +2216,48 @@ builderNS.initConditionEditor = function () {
     });
 }
 
-builderNS.init = function (o) {
-    builderNS.context =
+builder.init = function (o) {
+    builder.context =
         new Context(o.instrumentName, o.instrumentCode,
-                    o.extParamTypes, o.manualEditConditions);
+                    o.extParamTypes, o.manualEditConditions || false,
+                    o.urlStartTest || null, o.urlSaveForm || null);
 
-    // TODO: handle o.urlStartTest and o.urlSaveForm
+    builder.nodes = {};
+    builder.nodes.paramListDiv = $('.rb_params_list');
+    builder.nodes.pageListDiv = $('.rb_pages_list');
+    builder.nodes.pageListDiv
+        .data('normalOffset', builder.nodes.pageListDiv.offset());
+    builder.setPageListSortable(builder.nodes.pageListDiv);
+    builder.nodes.questionListDiv = $('.rb_question_list');
+    builder.setQuestionsSortable(builder.nodes.questionListDiv);
 
-    builderNS.nodes = {};
-    builderNS.nodes.paramListDiv = $('.rb_params_list');
-    builderNS.nodes.pageListDiv = $('.rb_pages_list');
-    builderNS.nodes.pageListDiv
-        .data('normalOffset', builderNS.nodes.pageListDiv.offset());
-    builderNS.setPageListSortable(builderNS.nodes.pageListDiv);
-    builderNS.nodes.questionListDiv = $('.rb_question_list');
-    builderNS.setQuestionsSortable(builderNS.nodes.questionListDiv);
-
-    builderNS.nodes.pageTitleSpan =
+    builder.nodes.pageTitleSpan =
         $('.rb_page_title').click(function () {
-            builderNS.editPageTitle();
+            builder.editPageTitle();
         });
-    builderNS.nodes.pageSkipWhenSpan = $('#page_skip_when');
-    builderNS.nodes.pageTitleInput =
+    builder.nodes.pageSkipWhenSpan = $('#page_skip_when');
+    builder.nodes.pageTitleInput =
         $('.rb_page_title_input')
-            .change(builderNS.onPageTitleChanged)
-            .focusout(builderNS.onPageTitleChanged)
+            .change(builder.onPageTitleChanged)
+            .focusout(builder.onPageTitleChanged)
             .keypress(function (e) {
                 if (e.keyCode == 13)
-                    builderNS.onPageTitleChanged(e);
+                    builder.onPageTitleChanged(e);
             });
-    builderNS.nodes.mainPartContent = $('.rb_main_part_content');
-    builderNS.nodes.instrumentTitleInput =
+    builder.nodes.mainPartContent = $('.rb_main_part_content');
+    builder.nodes.instrumentTitleInput =
         $('#rb_instrument_title_input')
-            .change($.RexFormsBuilder.onInstrumentTitleChanged)
-            .focusout($.RexFormsBuilder.onInstrumentTitleChanged);
+            .change($.RexFormBuilder.onInstrumentTitleChanged)
+            .focusout($.RexFormBuilder.onInstrumentTitleChanged);
     $('#rb_instrument_title_view')
-        .children().click(builderNS.editInstrumentTitle);
-    builderNS.templates = new Templates();
+        .children().click(builder.editInstrumentTitle);
+    builder.templates = new Templates();
 
-    builderNS.constraintsThisQuestion = null;
-    builderNS.initDialogs();
-    builderNS.initConditionEditor();
+    builder.constraintsThisQuestion = null;
+    builder.initDialogs();
+    builder.initConditionEditor();
 
-    $.RexFormsBuilder.updatePredefinedChoices([
+    $.RexFormBuilder.updatePredefinedChoices([
         {
             code: 'yes',
             title: 'Yes'
@@ -2207,11 +2267,27 @@ builderNS.init = function (o) {
             title: 'No'
         }
     ]);
-    // TODO: create necessary elements from instrument data
+
+    builder.createInstrumentNodes();
 };
 
-$.RexFormsBuilder.buildPositionIndex = function(deltaY) {
-    var pages = $.RexFormsBuilder.pageListDiv.find('.rb_page');
+builder.createInstrumentNodes = function () {
+    var instrument = builder.context.instrument;
+    $.each(instrument.pages, function () {
+        $.RexFormBuilder.addPage(page, $.RexFormBuilder.pageListDiv);
+    });
+
+    for (var idx in rel.params) {
+        var param = rel.params[idx];
+        $.RexFormBuilder.addParameter(param);
+    }
+
+    $.RexFormBuilder.setFormTitle( meta.title );
+    $.RexFormBuilder.context.dumpIndexes();
+};
+
+$.RexFormBuilder.buildPositionIndex = function(deltaY) {
+    var pages = $.RexFormBuilder.pageListDiv.find('.rb_page');
     var pagesIndex = [];
     pages.each(function () {
         var page = $(this);
@@ -2229,7 +2305,7 @@ $.RexFormsBuilder.buildPositionIndex = function(deltaY) {
     return pagesIndex;
 }
 
-$.RexFormsBuilder.getItemLevel = function(pageDiv, objType) {
+$.RexFormBuilder.getItemLevel = function(pageDiv, objType) {
     var level = 0;
     var cls = (objType === 'page') ?
                 'rb_page_group':
@@ -2244,7 +2320,7 @@ $.RexFormsBuilder.getItemLevel = function(pageDiv, objType) {
     return level;
 }
 
-$.RexFormsBuilder.checkIfEdge = function(element, fromLeft, objType) {
+$.RexFormBuilder.checkIfEdge = function(element, fromLeft, objType) {
     var selector = (objType === 'page') ?
                         '.rb_page,.rb_page_group':
                         '.rb_condition_item,.rb_condition_group';
@@ -2253,13 +2329,13 @@ $.RexFormsBuilder.checkIfEdge = function(element, fromLeft, objType) {
             (!fromLeft && element.next(selector).size() === 0);
 }
 
-$.RexFormsBuilder.getLowestAllowedLevel = function(element, level, fromLeft, objType) {
+$.RexFormBuilder.getLowestAllowedLevel = function(element, level, fromLeft, objType) {
 
     var cls = (objType === 'page') ?
                     'rb_page_group' : 'rb_condition_group';
 
     while (element.size() && level) {
-        if ($.RexFormsBuilder.checkIfEdge(element, fromLeft, objType)) {
+        if ($.RexFormBuilder.checkIfEdge(element, fromLeft, objType)) {
             --level;
             element = element.parent('.' + cls + ':first');
         } else
@@ -2268,7 +2344,7 @@ $.RexFormsBuilder.getLowestAllowedLevel = function(element, level, fromLeft, obj
     return level;
 }
 
-$.RexFormsBuilder.getCutoff = function(page, objType) {
+$.RexFormBuilder.getCutoff = function(page, objType) {
     var cutoff = [];
     var element = page;
 
@@ -2288,7 +2364,7 @@ $.RexFormsBuilder.getCutoff = function(page, objType) {
     return cutoff;
 }
 
-$.RexFormsBuilder.interceptCutoff = function(cutoff1, cutoff2) {
+$.RexFormBuilder.interceptCutoff = function(cutoff1, cutoff2) {
     var intercept = []
     var len = cutoff1.length < cutoff2.length ? 
                 cutoff1.length:
@@ -2301,24 +2377,24 @@ $.RexFormsBuilder.interceptCutoff = function(cutoff1, cutoff2) {
     return intercept;
 }
 
-$.RexFormsBuilder.removeParameter = function(btn) {
+$.RexFormBuilder.removeParameter = function(btn) {
     var paramDiv = $(btn).parents('.rb_parameter:first');
     var paramData = paramDiv.data('data');
-    $.RexFormsBuilder.context.removeFromIndex('parameter', paramData);
+    $.RexFormBuilder.context.removeFromIndex('parameter', paramData);
     paramDiv.remove();
 }
 
-$.RexFormsBuilder.removePage = function(btn) {
+$.RexFormBuilder.removePage = function(btn) {
     var pageDiv = $(btn).parents('.rb_page:first');
     var pageData = pageDiv.data('data');
     for (var idx in pageData.questions) {
-        $.RexFormsBuilder.context.removeFromIndex('question', pageData.questions[idx]);
+        $.RexFormBuilder.context.removeFromIndex('question', pageData.questions[idx]);
     }
-    $.RexFormsBuilder.context.removeFromIndex('page', pageData);
+    $.RexFormBuilder.context.removeFromIndex('page', pageData);
     pageDiv.remove();
 }
 
-$.RexFormsBuilder.removeGroup = function(link) {
+$.RexFormBuilder.removeGroup = function(link) {
     var groupDiv = $(link).parents('.rb_page_group:first');
     var hasInnerElements = groupDiv
                             .find('.rb_page,.rb_page_group').size() > 0;
@@ -2344,7 +2420,7 @@ $.RexFormsBuilder.removeGroup = function(link) {
     }
 
     buttons['No'] = function () { return false; };
-    $.RexFormsBuilder.questionDialog.open({
+    $.RexFormBuilder.questionDialog.open({
         txt: title,
         title:'Confirm removing',
         buttons: buttons,
@@ -2360,36 +2436,36 @@ $.RexFormsBuilder.removeGroup = function(link) {
     });
 }
 
-$.RexFormsBuilder.editPage = function(link) {
+$.RexFormBuilder.editPage = function(link) {
     var pageDiv = $(link).parents('.rb_page:first');
-    $.RexFormsBuilder.editPageDialog.open({
+    $.RexFormBuilder.editPageDialog.open({
         mode: 'page',
         target: pageDiv
     });
 }
 
-$.RexFormsBuilder.editGroup = function(link) {
+$.RexFormBuilder.editGroup = function(link) {
     var groupDiv = $(link).parents('.rb_page_group:first');
-    $.RexFormsBuilder.editPageDialog.open({
+    $.RexFormBuilder.editPageDialog.open({
         mode: 'group',
         target: groupDiv
     });
 }
 
-$.RexFormsBuilder.makePageGroupFromSelection = function() {
-    $.RexFormsBuilder.editPageDialog.open({
+$.RexFormBuilder.makePageGroupFromSelection = function() {
+    $.RexFormBuilder.editPageDialog.open({
         mode: 'group'
     });
 }
 
-$.RexFormsBuilder.updateGroupDiv = function(groupDiv) {
+$.RexFormBuilder.updateGroupDiv = function(groupDiv) {
     var groupData = groupDiv.data('data');
     var groupNameDiv = groupDiv.find('.rb_page_group_name:first');
     
     if (groupData.title) {
         groupNameDiv
             .removeClass('rb_group_title_not_set')
-            .text($.RexFormsBuilder.truncateText(groupData.title, 30));
+            .text($.RexFormBuilder.truncateText(groupData.title, 30));
         if (groupData.title.length >= 30)
             groupNameDiv.attr('title', groupData.title);
     } else
@@ -2399,31 +2475,31 @@ $.RexFormsBuilder.updateGroupDiv = function(groupDiv) {
             .text('Untitled group')
     
 
-    $.RexFormsBuilder.updateGroupSkipSpan(groupDiv);
+    $.RexFormBuilder.updateGroupSkipSpan(groupDiv);
 }
 
-$.RexFormsBuilder.createGroup = function(groupType) {
-    var pageGroup = $.RexFormsBuilder.templates.createObject(groupType);
+$.RexFormBuilder.createGroup = function(groupType) {
+    var pageGroup = $.RexFormBuilder.templates.createObject(groupType);
     return pageGroup;
 }
 
-$.RexFormsBuilder.processSelectedPages = function(newGroupName) {
-    var firstPage = $.RexFormsBuilder.currentSelection[0];
+$.RexFormBuilder.processSelectedPages = function(newGroupName) {
+    var firstPage = $.RexFormBuilder.currentSelection[0];
     var lastPage = 
-        $.RexFormsBuilder.currentSelection[$.RexFormsBuilder.currentSelection.length - 1];
+        $.RexFormBuilder.currentSelection[$.RexFormBuilder.currentSelection.length - 1];
     var pushToGroup = [];
 
     if (firstPage === lastPage) {
         pushToGroup.push(firstPage);
     } else {
-        var firstLevel = $.RexFormsBuilder.getItemLevel(firstPage, 'page');
-        var secondLevel = $.RexFormsBuilder.getItemLevel(lastPage, 'page');
+        var firstLevel = $.RexFormBuilder.getItemLevel(firstPage, 'page');
+        var secondLevel = $.RexFormBuilder.getItemLevel(lastPage, 'page');
 
         var firstLowestAllowedLevel =
-                $.RexFormsBuilder.getLowestAllowedLevel(firstPage, firstLevel, true);
+                $.RexFormBuilder.getLowestAllowedLevel(firstPage, firstLevel, true);
 
         var lastLowestAllowedLevel =
-                $.RexFormsBuilder.getLowestAllowedLevel(lastPage, secondLevel, false);
+                $.RexFormBuilder.getLowestAllowedLevel(lastPage, secondLevel, false);
 
         var lowestAllowedLevel =
                 (firstLowestAllowedLevel < lastLowestAllowedLevel) ?
@@ -2434,16 +2510,16 @@ $.RexFormsBuilder.processSelectedPages = function(newGroupName) {
             lowestAllowedLevel > secondLevel)
             return;
 
-        var firstCutoff = $.RexFormsBuilder.getCutoff(firstPage, 'page');
+        var firstCutoff = $.RexFormBuilder.getCutoff(firstPage, 'page');
         var lastCutoff = null;
         var cutoff = firstCutoff;
-        var total = $.RexFormsBuilder.currentSelection.length;
+        var total = $.RexFormBuilder.currentSelection.length;
 
         for (var idx = 1; idx < total; idx++) {
             var currentCutoff = 
-                $.RexFormsBuilder.getCutoff($.RexFormsBuilder.currentSelection[idx], 
+                $.RexFormBuilder.getCutoff($.RexFormBuilder.currentSelection[idx], 
                                         'page');
-            cutoff = $.RexFormsBuilder.interceptCutoff(cutoff, currentCutoff);
+            cutoff = $.RexFormBuilder.interceptCutoff(cutoff, currentCutoff);
             if (cutoff.length - 1 < lowestAllowedLevel) {
                 return;
             }
@@ -2466,10 +2542,10 @@ $.RexFormsBuilder.processSelectedPages = function(newGroupName) {
     }
 
     if (pushToGroup.length) {
-        var pageGroup = $.RexFormsBuilder.createGroup('pageGroup');
+        var pageGroup = $.RexFormBuilder.createGroup('pageGroup');
         var pageSublistDiv = pageGroup.find('.rb_class_pages_list:first');
 
-        var newGroupData = $.RexFormsBuilder.context.createNewGroup();
+        var newGroupData = $.RexFormBuilder.context.createNewGroup();
         pushToGroup[0].before(pageGroup);
         newGroupData.title = newGroupName;
         pageGroup.data('data', newGroupData);
@@ -2477,105 +2553,107 @@ $.RexFormsBuilder.processSelectedPages = function(newGroupName) {
         for (var idx in pushToGroup) {
             pageSublistDiv.append(pushToGroup[idx]);
         }
-        $.RexFormsBuilder.setPageListSortable(pageSublistDiv);
-        $.RexFormsBuilder.updateGroupDiv(pageGroup);
+        $.RexFormBuilder.setPageListSortable(pageSublistDiv);
+        $.RexFormBuilder.updateGroupDiv(pageGroup);
     }
 }
 
-$.RexFormsBuilder.showProgress = function(params) {
-    $.RexFormsBuilder.progressDialog.startParams = params;
-    $.RexFormsBuilder.progressDialog.dialog('option', 'buttons', params['buttons']);
-    $('.rb_progress_text', $.RexFormsBuilder.progressDialog).html(params['title']);
-    $.RexFormsBuilder.startPollingTimeout();
-    $.RexFormsBuilder.progressDialog.dialog("open");
+$.RexFormBuilder.showProgress = function(params) {
+    $.RexFormBuilder.progressDialog.startParams = params;
+    $.RexFormBuilder.progressDialog.dialog('option', 'buttons', params['buttons']);
+    $('.rb_progress_text', $.RexFormBuilder.progressDialog).html(params['title']);
+    $.RexFormBuilder.startPollingTimeout();
+    $.RexFormBuilder.progressDialog.dialog("open");
 }
 
-$.RexFormsBuilder.closeProgress = function() {
-    $.RexFormsBuilder.stopPollingTimeout();
-    $.RexFormsBuilder.progressDialog.startParams = null;
-    $.RexFormsBuilder.progressDialog.dialog("close");
+$.RexFormBuilder.closeProgress = function() {
+    $.RexFormBuilder.stopPollingTimeout();
+    $.RexFormBuilder.progressDialog.startParams = null;
+    $.RexFormBuilder.progressDialog.dialog("close");
 }
 
-$.RexFormsBuilder.stopPollingTimeout = function() {
-    if ($.RexFormsBuilder.progressDialog.pollTimeout !== null) {
-        clearTimeout($.RexFormsBuilder.progressDialog.pollTimeout)
-        $.RexFormsBuilder.progressDialog.pollTimeout = null;
+$.RexFormBuilder.stopPollingTimeout = function() {
+    if ($.RexFormBuilder.progressDialog.pollTimeout !== null) {
+        clearTimeout($.RexFormBuilder.progressDialog.pollTimeout)
+        $.RexFormBuilder.progressDialog.pollTimeout = null;
     }
 }
 
-$.RexFormsBuilder.startPollingTimeout = function() {
-    $.RexFormsBuilder.progressDialog.pollTimeout =
-        setTimeout("$.RexFormsBuilder.progressDialogPolling()", 1000);
+$.RexFormBuilder.startPollingTimeout = function() {
+    $.RexFormBuilder.progressDialog.pollTimeout =
+        setTimeout("$.RexFormBuilder.progressDialogPolling()", 1000);
 }
 
-$.RexFormsBuilder.progressDialogPolling = function() {
-    var params = $.RexFormsBuilder.progressDialog.startParams;
+$.RexFormBuilder.progressDialogPolling = function() {
+    var params = $.RexFormBuilder.progressDialog.startParams;
     params['pollCallback']();
 }
 
-$.RexFormsBuilder.showInstrumentJSON = function() {
+$.RexFormBuilder.showInstrumentJSON = function() {
     
 }
 
-$.RexFormsBuilder.testInstrument = function() {
+$.RexFormBuilder.testInstrument = function() {
 
-    var params = $.RexFormsBuilder.context.getIndexByType('parameter');
+    var params = $.RexFormBuilder.context.getIndexByType('parameter');
     var toBeContinued = function (paramDict) {
-        $.RexFormsBuilder.closeOpenedEditor(function () {
-            $.RexFormsBuilder.showProgress({
+        $.RexFormBuilder.closeOpenedEditor(function () {
+            $.RexFormBuilder.showProgress({
                 title: '<center>Preparing the form for a test...</center>',
                 pollCallback: function () { }
             });
 
-            $.RexFormsBuilder.savedParamValues = paramDict;
-            $.RexFormsBuilder.saveInstrumentReal($.RexFormsBuilder.testInstrumentStage4);
+            $.RexFormBuilder.savedParamValues = paramDict;
+            $.RexFormBuilder.saveInstrumentReal($.RexFormBuilder.testInstrumentStage4);
         }, questionListDiv);
     }
 
     if (params.length) {
-        $.RexFormsBuilder.beforeTestDialog.open({
-            paramValues: $.RexFormsBuilder.savedParamValues || {},
+        $.RexFormBuilder.beforeTestDialog.open({
+            paramValues: $.RexFormBuilder.savedParamValues || {},
             callback: toBeContinued
         });
     } else
         toBeContinued({});
 }
 
-$.RexFormsBuilder.testInstrumentStage2 = function() {
-    $.ajax({url : $.RexFormsBuilder.basePrefix
+$.RexFormBuilder.testInstrumentStage2 = function() {
+    $.ajax({url : $.RexFormBuilder.basePrefix
                     + "/construct_instrument?code="
-                    + $.RexFormsBuilder.instrumentName
+                    + $.RexFormBuilder.instrumentName
                     + '&schema=demo',
         success : function(content) {
             console.log('construct successful:', content);
-            $.RexFormsBuilder.testInstrumentStage4();
+            $.RexFormBuilder.testInstrumentStage4();
         },
         error: function() {
-            $.RexFormsBuilder.closeProgress();
+            $.RexFormBuilder.closeProgress();
             alert('Error of construct_instrument!');
         },
         type: 'GET'
     });
 }
 
-$.RexFormsBuilder.testInstrumentStage4 = function() {
-    $.RexFormsBuilder.closeProgress();
+$.RexFormBuilder.testInstrumentStage4 = function() {
+    $.RexFormBuilder.closeProgress();
     var paramStr = '';
-    if ($.RexFormsBuilder.savedParamValues) {
-        for (var paramName in $.RexFormsBuilder.savedParamValues) {
-            paramValue = $.RexFormsBuilder.savedParamValues[paramName];
+    if ($.RexFormBuilder.savedParamValues) {
+        for (var paramName in $.RexFormBuilder.savedParamValues) {
+            paramValue = $.RexFormBuilder.savedParamValues[paramName];
             paramStr += '&' + 'p_' + encodeURIComponent(paramName) + '=' 
                         + (paramValue ? encodeURIComponent(paramValue) : '');
         }
     }
-    var url = $.RexFormsBuilder.urlStartTest || 
-            ($.RexFormsBuilder.formsPrefix + '/start_roads');
+    var url = $.RexFormBuilder.context.urlStartTest || 
+            ($.RexFormBuilder.formsPrefix + '/start_roads');
 
     var query = 'test=1&'
-              + 'instrument=' + encodeURIComponent($.RexFormsBuilder.instrumentName)
+              + 'instrument=' + encodeURIComponent($.RexFormBuilder.instrumentName)
               + paramStr;
 
     window.open(url + '?' + query, '_blank');
 }
+
+*/
 
 })();

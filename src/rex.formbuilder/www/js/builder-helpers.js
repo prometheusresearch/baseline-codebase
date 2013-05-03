@@ -1,11 +1,10 @@
 
 (function () {
 
-var builderNS = $.RexFormsBuilder = $.RexFormsBuilder || {};
+var builder = $.RexFormBuilder = $.RexFormBuilder || {};
+builder.illegalIdChars = new RegExp("(^[^a-zA-Z])|([^a-zA-Z0-9_]+)|([^a-zA-Z0-9]$)", "g");
 
-builderNS.illegalIdChars = new RegExp("(^[^a-zA-Z])|([^a-zA-Z0-9_]+)|([^a-zA-Z0-9]$)", "g");
-
-builderNS.isValidNumeric = function(val, condType) {
+builder.isValidNumeric = function(val, condType) {
     return (
         (condType === 'integer'
             && /^[0-9]+$/.test(val)) ||
@@ -14,7 +13,7 @@ builderNS.isValidNumeric = function(val, condType) {
     );
 }
 
-builderNS.isValidDate = function (year, month, day) {
+builder.isValidDate = function (year, month, day) {
     --month;
     var d = new Date(year, month, day);
     return (d.getDate() == day &&
@@ -22,7 +21,7 @@ builderNS.isValidDate = function (year, month, day) {
             d.getFullYear() == year);
 }
 
-builderNS.getRandomStr = function(len) {
+builder.getRandomStr = function(len) {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                  + "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -35,22 +34,22 @@ builderNS.getRandomStr = function(len) {
     return text;
 }
 
-builderNS.getCId = function(prefix) {
+builder.getCId = function(prefix) {
     var cId = prefix + '_';
-    cId += builderNS.getRandomStr(10);
+    cId += builder.getRandomStr(10);
     // TODO: check for uniqness inside current instrument
     return cId;
 }
 
-builderNS.isNumericType = function(type) {
+builder.isNumericType = function(type) {
     return (type === 'integer' || type == 'float');
 }
 
-builderNS.isListType = function(type) {
+builder.isListType = function(type) {
     return (type === 'set' || type == 'enum'); 
 }
 
-builderNS.escapeHTML = function(str) {
+builder.escapeHTML = function(str) {
     return $(document.createElement('div')).text(str).html();
 }
 
@@ -94,7 +93,7 @@ var abbreviations = {
     classification: 'class'
 };
 
-builderNS.getReadableId = function(str, handlePrefix, delim, maxlen) {
+builder.getReadableId = function(str, handlePrefix, delim, maxlen) {
     str = str.replace(notAllowedChars, '');
     var len = str.length;
     var result = '';
@@ -147,12 +146,18 @@ builderNS.getReadableId = function(str, handlePrefix, delim, maxlen) {
     return result;
 }
 
-builderNS.extend = function (Child, Parent) {
+builder.extend = function (Child, Parent) {
     var F = function() { };
     F.prototype = Parent.prototype;
     Child.prototype = new F();
     Child.prototype.constructor = Child;
     Child.superclass = Parent.prototype;
+}
+
+builder.truncateText = function(text, len) {
+    if (text.length > len)
+        return text.slice(0, len - 3) + "...";
+    return text;
 }
 
 })();

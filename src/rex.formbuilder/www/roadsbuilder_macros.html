@@ -1,3 +1,4 @@
+
 {% macro roadsbuilder_head(instrument) -%}
         <meta name="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="" />
@@ -19,13 +20,17 @@
 {% macro roadsbuilder(instrument, code, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) -%}
         <script type="text/javascript">
             $(document).ready(function () {
-                $.RexFormsBuilder.init({
+                $.RexFormBuilder.init({
                     manualEditConditions: {%- if manual_edit_conditions %}true{%- else %}false{%- endif %},
                     extParamTypes: {%- if ext_param_types %}{{ ext_param_types }}{%- else %}null{%- endif %},
-                    instrumentName: {{ instrument|json }},
-                    instrumentCode: {{ code|json }},
+                    instrument: {{ instrument|json }},
+                    code: {{ code|json }},
+                    {% if url_start_test %}
                     urlStartTest: {{ url_start_test|json }},
+                    {% endif %}
+                    {% if url_save_form %}
                     urlSaveForm: {{ url_save_form|json }}
+                    {% endif %}
                 });
             });
         </script>
@@ -33,26 +38,26 @@
             <div id="rb_instrument_name">{{ instrument|e }}</div>
             <div id="rb_instrument_title_wrap">
                 <div id="rb_instrument_title_view">
-                    <span id="rb_instrument_title" class="rb_instrument_title_not_set"></span>
+                    <span id="rb_instrument_title"></span>
                     <button id="rb_instrument_title_button" class="rb_small_button">Change Title</button>
                 </div>
                 <input type="text" id="rb_instrument_title_input" style="display: none;" />
             </div>
             <div class="rb_tools_button_wrapper">
-                <button class="rb_tools_button" onclick="$.RexFormsBuilder.saveInstrument()">Save</button>
-                <button class="rb_tools_button" onclick="$.RexFormsBuilder.testInstrument()">Test</button>
-                <button class="rb_tools_button" onclick="$.RexFormsBuilder.showJSONDialog.open()">JSON</button>
+                <button class="rb_tools_button" onclick="$.RexFormBuilder.saveInstrument()">Save</button>
+                <button class="rb_tools_button" onclick="$.RexFormBuilder.testInstrument()">Test</button>
+                <button class="rb_tools_button" onclick="$.RexFormBuilder.showJSONDialog.open()">JSON</button>
             </div>
             <div class="rb_params_wrapper">
-                <button class="rb_small_button rb_right_aligned" onclick="$.RexFormsBuilder.addParameter(null);">Add Parameter</button>
+                <button class="rb_small_button rb_right_aligned" onclick="$.RexFormBuilder.addParameter(null);">Add Parameter</button>
                 <span class="rb_small_title">Input parameters:</span>
                 <div class="rb_params_list">
                 </div>
             </div>
             <div class="rb_pages_list_wrapper">
                 <div class="rb_pages_list_header">
-                    <button class="rb_small_button rb_right_aligned" id="make_group_btn" onclick="$.RexFormsBuilder.makePageGroupFromSelection();" disabled="1">Make Group</button>
-                    <button class="rb_small_button rb_right_aligned" id="add_new_page_btn" onclick="$.RexFormsBuilder.addNewPage();">Add New Page</button>
+                    <button class="rb_small_button rb_right_aligned" id="make_group_btn" onclick="$.RexFormBuilder.makePageGroupFromSelection();" disabled="1">Make Group</button>
+                    <button class="rb_small_button rb_right_aligned" id="add_new_page_btn" onclick="$.RexFormBuilder.addNewPage();">Add New Page</button>
                     <span class="rb_small_title">Pages:</span>
                 </div>
                 <div class="rb_pages_scrollable">
@@ -65,17 +70,17 @@
             <div class="rb_main_part_content" style="display: none;">
                 <div class="rb_main_part_header">
                     <div class="rb_page_title_wrap">
-                        <span class="rb_page_title">Page Title</span> <button onclick="$.RexFormsBuilder.editPageTitle();">Change</button>
+                        <span class="rb_page_title">Page Title</span> <button onclick="$.RexFormBuilder.editPageTitle();">Change</button>
                     </div>
                     <input type="text" class="rb_page_title_input" style="display: none;" />
                     <div style="margin: 10px 0px 10px 0px;">
-                        <span id="page_skip_when"></span> <button class="rb_small_button" onclick="$.RexFormsBuilder.editPageSkipConditions();">Change</button>
+                        <span id="page_skip_when"></span> <button class="rb_small_button" onclick="$.RexFormBuilder.editPageSkipConditions();">Change</button>
                     </div>
                 </div>
                 <div class="rb_question_list_wrapper">
                     <div class="rb_question_list_header">
                         <span class="rb_small_title">Questions:</span>
-                        <button class="rb_add_question_button" onclick="$.RexFormsBuilder.addNewQuestion();">
+                        <button class="rb_add_question_button" onclick="$.RexFormBuilder.addNewQuestion();">
                             Add Question
                         </button>
                     </div>
@@ -94,7 +99,7 @@
             <li id="tpl_question" class="rb_question">
                 <div>
                     <div class="rb_question_actions">
-                        <a href="javascript:void(0);" onclick="$.RexFormsBuilder.removeQuestion(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        <a href="javascript:void(0);" onclick="$.RexFormBuilder.removeQuestion(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                     </div>
                     <div class="q_caption">
                         <div class="rb_question_title">
@@ -148,7 +153,7 @@
                                         </select>
                                     </div>
                                     <div class="btn-add-div">
-                                        <button class="btn-add" onclick="$.RexFormsBuilder.addChoice(this);return false;">Add choice</button>
+                                        <button class="btn-add" onclick="$.RexFormBuilder.addChoice(this);return false;">Add choice</button>
                                     </div>
                                 </div>
                             </div>
@@ -159,12 +164,12 @@
                                 <input type="text" name="question-name" class="rb_question_input_short slave" maxlength="40" /><br>
                                 <input type="checkbox" name="question-required" /> Required
                                 <h3>Constraints</h3>
-                                <a class="rb_constraint_descr" href="javascript:void(0);" onclick="$.RexFormsBuilder.changeConstraints(this);">No constraints</a>
-                                <button onclick="$.RexFormsBuilder.changeConstraints(this);">Change</button>
+                                <a class="rb_constraint_descr" href="javascript:void(0);" onclick="$.RexFormBuilder.changeConstraints(this);">No constraints</a>
+                                <button onclick="$.RexFormBuilder.changeConstraints(this);">Change</button>
                                 <div class="rb-disable-logic">
                                 <h3>Disable conditions</h3>
-                                <a class="rb_disable_logic_descr" href="javascript:void(0);" onclick="$.RexFormsBuilder.changeDisableLogic(this);">Never disabled</a> 
-                                <button onclick="$.RexFormsBuilder.changeDisableLogic(this);">Change</button>
+                                <a class="rb_disable_logic_descr" href="javascript:void(0);" onclick="$.RexFormBuilder.changeDisableLogic(this);">Never disabled</a> 
+                                <button onclick="$.RexFormBuilder.changeDisableLogic(this);">Change</button>
                                 </div>
                             </div>
                         </td>
@@ -183,8 +188,8 @@
                     </tr>
                     <tr>
                         <td colspan="2" class="rb_question_table_long_row rb_question_table_bottom">
-                            <!-- <button class="btn-save" onclick="$.RexFormsBuilder.stopEvent(arguments[0]);$.RexFormsBuilder.saveQuestion(this);">Close</button> -->
-                            <button onclick="$.RexFormsBuilder.stopEvent(arguments[0]);$.RexFormsBuilder.cancelQuestionEdit(this);">Cancel</button>
+                            <!-- <button class="btn-save" onclick="$.RexFormBuilder.stopEvent(arguments[0]);$.RexFormBuilder.saveQuestion(this);">Close</button> -->
+                            <button onclick="$.RexFormBuilder.stopEvent(arguments[0]);$.RexFormBuilder.cancelQuestionEdit(this);">Cancel</button>
                         </td>
                     </tr>
                 </table>
@@ -197,7 +202,7 @@
                     </div>
                     <div class="rb_choices_item_right">
                         <div class="rb_choices_item_actions">
-                            <a href="javascript:void(0);" onclick="$.RexFormsBuilder.removeChoicesItem(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                            <a href="javascript:void(0);" onclick="$.RexFormBuilder.removeChoicesItem(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                         </div>
                         <div class="restrict-drag">
                             <input type="text" name="answer-code" class="rb_choice_input rb_with_margin slave" maxlength="20" />
@@ -217,8 +222,8 @@
             <div id="tpl_parameter" class="rb_parameter">
                 <span class="param_name"></span> <span class="rb_param_type"></span>
                 <div class="rb_param_actions">
-                    <a href="javascript:void(0)" onclick="$.RexFormsBuilder.editParameter(this);">edit</a>&nbsp;&nbsp;
-                    <a href="javascript:void(0);" onclick="$.RexFormsBuilder.removeParameter(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                    <a href="javascript:void(0)" onclick="$.RexFormBuilder.editParameter(this);">edit</a>&nbsp;&nbsp;
+                    <a href="javascript:void(0);" onclick="$.RexFormBuilder.removeParameter(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                 </div>
             </div>
 
@@ -226,28 +231,28 @@
                 <div>
                     <div>
                         <div class="rb_page_actions">
-                            <a href="javascript:void(0);" onclick="$.RexFormsBuilder.removePage(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                            <a href="javascript:void(0);" onclick="$.RexFormBuilder.removePage(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                         </div>
                         <div class="rb_div_page_title"></div>
                     </div>
                     <div style="overflow: hidden; position: relative;">
                         <div class="step_list">
                         </div>
-                        <button style="float: right;" onclick="$.RexFormsBuilder.addNewPage(this);$.RexFormsBuilder.stopEvent(arguments[0]);" class="rb_small_button">Add next page</button>
+                        <button style="float: right;" onclick="$.RexFormBuilder.addNewPage(this);$.RexFormBuilder.stopEvent(arguments[0]);" class="rb_small_button">Add next page</button>
                     </div>
                 </div>
             </li>
             
             <li id="tpl_page_group" class="rb_page_group">
                 <div class="rb_page_group_header">
-                    <a href="javascript:void(0);" onclick="$.RexFormsBuilder.editGroup(this);" class="rb_page_group_name"></a>
-                    <a class="rb_hidable_link" href="javascript:void(0);" onclick="$.RexFormsBuilder.editGroup(this);">change</a>
+                    <a href="javascript:void(0);" onclick="$.RexFormBuilder.editGroup(this);" class="rb_page_group_name"></a>
+                    <a class="rb_hidable_link" href="javascript:void(0);" onclick="$.RexFormBuilder.editGroup(this);">change</a>
                     <div>
-                        <a class="rb_page_group_skip" href="javascript:void(0);" onclick="$.RexFormsBuilder.editGroupSkipConditions(this);"></a>
-                        <a class="rb_hidable_link" href="javascript:void(0);" onclick="$.RexFormsBuilder.editGroupSkipConditions(this);">change</a>
+                        <a class="rb_page_group_skip" href="javascript:void(0);" onclick="$.RexFormBuilder.editGroupSkipConditions(this);"></a>
+                        <a class="rb_hidable_link" href="javascript:void(0);" onclick="$.RexFormBuilder.editGroupSkipConditions(this);">change</a>
                     </div>
                     <div class="rb_page_group_actions">
-                      <!-- <a href="javascript:void(0)" onclick="$.RexFormsBuilder.editGroup(this);">edit</a>&nbsp;&nbsp;--><a href="javascript:void(0);" onclick="$.RexFormsBuilder.removeGroup(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                      <!-- <a href="javascript:void(0)" onclick="$.RexFormBuilder.editGroup(this);">edit</a>&nbsp;&nbsp;--><a href="javascript:void(0);" onclick="$.RexFormBuilder.removeGroup(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                     </div>
                 </div>
                 <ul class="rb_class_pages_list">

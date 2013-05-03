@@ -296,7 +296,7 @@ body, p, div, td, input {
     cursor: pointer;
 }
 
-.rb_instrument_title_not_set,
+#rb_instrument_title.rb-not-set,
 .rb_page_title_not_set,
 .rb_page_skip_not_set,
 .rb_group_skip_not_set,

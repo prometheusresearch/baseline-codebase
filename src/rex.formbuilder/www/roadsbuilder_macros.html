@@ -49,9 +49,9 @@
                 <button class="rb_tools_button" onclick="$.RexFormBuilder.showJSONDialog.open()">JSON</button>
             </div>
             <div class="rb_params_wrapper">
-                <button class="rb_small_button rb_right_aligned" onclick="$.RexFormBuilder.addParameter(null);">Add Parameter</button>
+                <button id="rb_params_add" class="rb_small_button rb_right_aligned">Add Parameter</button>
                 <span class="rb_small_title">Input parameters:</span>
-                <div class="rb_params_list">
+                <div id="rb_params_list">
                 </div>
             </div>
             <div class="rb_pages_list_wrapper">
@@ -222,8 +222,8 @@
             <div id="tpl_parameter" class="rb_parameter">
                 <span class="param_name"></span> <span class="rb_param_type"></span>
                 <div class="rb_param_actions">
-                    <a href="javascript:void(0)" onclick="$.RexFormBuilder.editParameter(this);">edit</a>&nbsp;&nbsp;
-                    <a href="javascript:void(0);" onclick="$.RexFormBuilder.removeParameter(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                    <a href="javascript:void(0)" class="rb-param-edit">edit</a>&nbsp;&nbsp;
+                    <a href="javascript:void(0)" class="rb-param-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                 </div>
             </div>
 

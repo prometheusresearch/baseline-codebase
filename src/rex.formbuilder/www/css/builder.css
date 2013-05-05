@@ -651,7 +651,7 @@ input.rb_identifier_input {
     width: 250px;
 }
 
-.rb_params_list {
+#rb_params_list {
     height: 70px;
     clear: both;
     margin-top: 10px;

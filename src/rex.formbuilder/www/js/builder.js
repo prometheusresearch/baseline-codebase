@@ -187,6 +187,7 @@ $.RexFormBuilder.loadInstrument = function (instrumentName) {
 }
 
 var Templates = function () {
+    var self = this;
     var templates = {
         'questionEditor': $('#tpl_question_editor').removeAttr('id'),
         'choicesItem': $('#tpl_choices_item').removeAttr('id'),
@@ -206,10 +207,14 @@ var Templates = function () {
         }
     }
 
-    this.create = function (tplName) {
+    this.get = function (tplName) {
         if (templates[tplName])
-            return templates[tplName].clone();
+            return templates[tplName];
         return null;
+    }
+
+    this.create = function (tplName) {
+        return self.get(tplName).clone();
     }
 };
 
@@ -221,7 +226,49 @@ var Context = function (name, code, extParamTypes, manualEditConditions, urlStar
     this.urlSaveForm = urlSaveForm;
 };
 
-var FormTitle = function (o) {
+var InputParameter = function (def, template, onEdit, onRemove) {
+    var self = this;
+    self.name = def.name;
+    self.type = def.type;
+    self.node = template.clone();
+    self.node.find('.param_name').text(self.name);
+    self.node.find('.rb_param_type').text(self.type);
+    var removeBtn = self.node.find('a.rb-param-remove');
+    var editBtn = self.node.find('a.rb-param-edit');
+    removeBtn.click(function () {
+        onRemove(self);
+    });
+    editBtn.click(function () {
+        onEdit(self);
+    });
+    this.remove = function () {
+        self.node.remove();
+    };
+};
+
+var InputParameters = function (o) {
+    var self = this;
+    self.parameters = [];
+    self.template = o.template;
+    self.listNode = o.listNode;
+    self.addButton = o.addButton;
+    console.log('template', self.template);
+    console.log('listNode', self.listNode);
+    console.log('addButton', self.addButton);
+    $.each(o.parameters, function (_, paramDef) {
+        var onRemove = function (parameter) {
+            var idx = self.parameters.indexOf(parameter);
+            self.parameters.splice(idx, 1);
+            parameter.remove();
+        };
+        var parameter = new InputParameter(paramDef, self.template,
+                                           o.onEdit, onRemove);
+        self.parameters.push(parameter);
+        self.listNode.append(parameter.node);
+    });
+};
+
+var InstrumentTitle = function (o) {
     var self = this;
     self.value = null;
     self.nodeText = o.nodeText;
@@ -273,11 +320,21 @@ builder.init = function (o) {
                     o.extParamTypes, o.manualEditConditions || false,
                     o.urlStartTest || null, o.urlSaveForm || null);
     builder.templates = new Templates();
-    builder.formTitle = new FormTitle({
+    builder.instrumentTitle = new InstrumentTitle({
         nodeText: $('#rb_instrument_title'),
         nodeBtn: $('#rb_instrument_title_button'),
         nodeInput: $('#rb_instrument_title_input'),
         title: o.code.title
+    });
+    builder.inputParameters = new InputParameters({
+        listNode: $("#rb_params_list"),
+        addButton: $("#rb_params_add"),
+        template: builder.templates.get('parameter'),
+        extParamTypes: o.extParamTypes,
+        parameters: [{type: "STRING", name: "abc"}], // o.code.params || [],
+        onEdit: function (parameter) {
+            console.log('onEdit')
+        }
     });
 };
 

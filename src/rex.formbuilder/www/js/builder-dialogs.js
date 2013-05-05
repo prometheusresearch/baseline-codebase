@@ -196,7 +196,7 @@ dialogNS.EditParamDialog = function (o) {
         var newName = jQuery.trim(nameInput.val());
         var newType = typeInput.val();
         if (newName) {
-            options.callback(newName, newType);
+            options.onChange(newName, newType);
             self.close();
         }
     }
@@ -226,7 +226,7 @@ dialogNS.EditParamDialog = function (o) {
     this.open = function (o) {
         options = {};
         options.extTypes = o.extTypes || null;
-        options.callback = o.callback || null;
+        options.onChange = o.onChange || null;
         options.paramName = o.paramName || '';
         options.paramType = o.paramType || 'NUMBER';
         options.dialogTitle = o.dialogTitle || 'Edit Parameter';

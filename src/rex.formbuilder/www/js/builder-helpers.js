@@ -160,4 +160,20 @@ builder.truncateText = function(text, len) {
     return text;
 }
 
+builder.paramTypeTitle = function(type, extParamTypes) {
+    switch (type) {
+    case 'NUMBER':
+        return 'Number';
+    case 'STRING':
+        return 'String';
+    case 'DATE':
+        return 'Date';
+    default:
+        if (extParamTypes && extParamTypes[type])
+            return extParamTypes[type];
+    }
+    return 'Unknown';
+}
+
+
 })();

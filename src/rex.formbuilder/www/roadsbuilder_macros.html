@@ -56,12 +56,12 @@
             </div>
             <div class="rb_pages_list_wrapper">
                 <div class="rb_pages_list_header">
-                    <button class="rb_small_button rb_right_aligned" id="make_group_btn" onclick="$.RexFormBuilder.makePageGroupFromSelection();" disabled="1">Make Group</button>
-                    <button class="rb_small_button rb_right_aligned" id="add_new_page_btn" onclick="$.RexFormBuilder.addNewPage();">Add New Page</button>
+                    <button class="rb_small_button rb_right_aligned" id="rb_make_group" disabled="1">Make Group</button>
+                    <button class="rb_small_button rb_right_aligned" id="rb_add_new_page">Add New Page</button>
                     <span class="rb_small_title">Pages:</span>
                 </div>
                 <div class="rb_pages_scrollable">
-                    <ul class="rb_pages_list">
+                    <ul class="rb-page-list" id="rb_page_list">
                     </ul>
                 </div>
             </div>
@@ -220,7 +220,7 @@
             </li>
 
             <div id="tpl_parameter" class="rb_parameter">
-                <span class="param_name"></span> <span class="rb_param_type"></span>
+                <span class="rb-param-name"></span> <span class="rb-param-type-wrap">(<span class="rb-param-type"></span>)</span>
                 <div class="rb_param_actions">
                     <a href="javascript:void(0)" class="rb-param-edit">edit</a>&nbsp;&nbsp;
                     <a href="javascript:void(0)" class="rb-param-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
@@ -231,31 +231,31 @@
                 <div>
                     <div>
                         <div class="rb_page_actions">
-                            <a href="javascript:void(0);" onclick="$.RexFormBuilder.removePage(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                            <a href="javascript:void(0);" class="rb-page-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                         </div>
-                        <div class="rb_div_page_title"></div>
+                        <div class="rb-page-title"></div>
                     </div>
                     <div style="overflow: hidden; position: relative;">
                         <div class="step_list">
                         </div>
-                        <button style="float: right;" onclick="$.RexFormBuilder.addNewPage(this);$.RexFormBuilder.stopEvent(arguments[0]);" class="rb_small_button">Add next page</button>
+                        <button style="float: right;" class="rb_small_button rb-page-add-next">Add next page</button>
                     </div>
                 </div>
             </li>
             
             <li id="tpl_page_group" class="rb_page_group">
                 <div class="rb_page_group_header">
-                    <a href="javascript:void(0);" onclick="$.RexFormBuilder.editGroup(this);" class="rb_page_group_name"></a>
+                    <a href="javascript:void(0);" onclick="$.RexFormBuilder.editGroup(this);" class="rb-group-title"></a>
                     <a class="rb_hidable_link" href="javascript:void(0);" onclick="$.RexFormBuilder.editGroup(this);">change</a>
                     <div>
-                        <a class="rb_page_group_skip" href="javascript:void(0);" onclick="$.RexFormBuilder.editGroupSkipConditions(this);"></a>
-                        <a class="rb_hidable_link" href="javascript:void(0);" onclick="$.RexFormBuilder.editGroupSkipConditions(this);">change</a>
+                        <a class="rb-group-skip-if" href="javascript:void(0);"></a>
+                        <a class="rb_hidable_link" href="javascript:void(0);">change</a>
                     </div>
                     <div class="rb_page_group_actions">
-                      <!-- <a href="javascript:void(0)" onclick="$.RexFormBuilder.editGroup(this);">edit</a>&nbsp;&nbsp;--><a href="javascript:void(0);" onclick="$.RexFormBuilder.removeGroup(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        <a href="javascript:void(0);" class="rb-group-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                     </div>
                 </div>
-                <ul class="rb_class_pages_list">
+                <ul class="rb-page-list">
                 </ul>
             </li>
 

@@ -630,7 +630,7 @@ input.rb_with_margin {
 
 .rb_select_param_type,
 .rb_edit_param_name,
-.rb_edit_page_name {
+.rb-prompt-input {
     width: 99%;
 }
 
@@ -639,12 +639,15 @@ input.rb_with_margin {
     margin-top: 5px;
 }
 
-.rb_edit_param_dialog,
-.rb_edit_page_dialog {
+.rb_edit_param_dialog {
     overflow: hidden;
 }
 
-.rb_edit_page_dialog h3 {
+.rb-prompt-dialog {
+    overflow: hidden;
+}
+
+.rb-prompt-dialog h3 {
     margin: 5px 0px 3px 0px;
     font-size: 100%;
 }

@@ -68,57 +68,42 @@ dialogNS.QuestionDialog = function (o) {
 }
 
 
-dialogNS.EditPageDialog = function (o) {
+dialogNS.promptDialog = function (o) {
 
     var self = this;
     var parent = o.parent || null;
     var template =
-         '<div class="rb_edit_page_dialog">'
+         '<div class="rb-prompt-dialog">'
             + '<div>'
-            +   '<h3>Title:</h3>'
-            +   '<input type="text" class="rb_edit_page_name" />'
+            +   '<h3></h3>'
+            +   '<input type="text" class="rb-prompt-input" />'
             + '</div>'
         + '</div>';
+    this.options = null;
 
     this.close = function () {
-        options = null;
+        self.options = null;
         node.dialog('close');
     };
 
     var node = $(template);
-    var input = $('input.rb_edit_page_name', node);
+    var input = $('input.rb-prompt-input', node);
+    var header = $('h3', node);
+
+    this.validate = function (value) {
+        if (self.options.validate && !self.options.validate(value))
+            return false;
+        return true;
+    };
 
     this.onOk = function () {
-        var newName = jQuery.trim(input.val());
-        if (options.target) {
-            var data = options.target.data('data');
-            data.title = newName;
-            if (options.mode === 'group')
-                builder.updateGroupDiv(options.target);
-            else
-                builder.updatePageDiv(options.target);
-        } else {
-            if (options.mode === 'group') {
-                builder.processSelectedPages(newName);
-                var except = [ ];
-                for (var idx in builder.currentSelection) {
-                    var item = $(builder.currentSelection[idx]);
-                    if (item[0] !== builder.currentPage[0]) {
-                        item.removeClass('rb_covered');
-                    } else
-                        except.push(item);
-                }
-                builder.currentSelection = except;
-            } else {
-                var newPageData = builder.context.createNewPage();
-                newPageData.title = newName;
-                var target = builder.addPage(newPageData);
-                if (options.after)
-                    options.after.after(target);
-                else
-                    builder.pageListDiv.append(target);
-            }
+        var newValue = jQuery.trim(input.val());
+        if (!self.validate(newValue)) {
+            alert("Wrong input value!");
+            return;
         }
+        if (self.options.onSet)
+            self.options.onSet(newValue);
         self.close();
     };
 
@@ -135,18 +120,15 @@ dialogNS.EditPageDialog = function (o) {
     });
 
     this.open = function (o) {
-        options = {};
-        options.target = o.target || null;
-        options.mode = o.mode || null;
-        options.after = o.after || null;
-
-        var itemName = '';
-        if (options.target) {
-            var data = options.target.data('data');
-            itemName = data.title;
-        }
-
-        input.val(itemName);
+        self.options = {};
+        self.options.initialValue = o.initialValue || '';
+        self.options.onSet = o.onSet || null;
+        self.options.validate = o.validate || null;
+        self.options.title = o.title || 'Edit Value';
+        self.options.question = o.question || 'Please input value:';
+        node.dialog('option', 'title', self.options.title);
+        header.text(self.options.question);
+        input.val(self.options.initialValue);
         node.dialog('open');
     };
 }

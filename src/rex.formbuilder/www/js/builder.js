@@ -39,29 +39,13 @@ var RepeatingGroupQuestion = function (def) {
 };
 builder.extend(RepeatingGroupQuestion, Question);
 
-builder.createPageFromDef = function (def, registerQuestion) {
-    var page = null;
-    if (def.type === "group")
-        page = new Group(def.title || '',
-                             def.cId || null,
-                             def.skipIf || null,
-                             def.pages || [],
-                             registerQuestion);
-    else
-        page = new Page(def.title || '', 
-                            def.cId || null,
-                            def.skipIf || null,
-                            def.questions || [],
-                            registerQuestion);
-    return page;
-}
-
 var Page = function (o) {
     var self = this;
     this.parent = null;
     this.questions = [];
     this.templates = o.templates;
     this.node = this.createNode();
+    this.node.data('owner', this);
     $.each(o.def.questions || [], function (_, questionDef) {
         var cls = builder.questionTypes[questionDef.type].cls;
         var question = new cls(questionDef);
@@ -74,7 +58,7 @@ var Page = function (o) {
 };
 Page.prototype.bindEvents = function () {
     var self = this;
-    self.node.find('.rb-page-add-next').click(function () {
+    self.node.find('.rb-page-add-next:first').click(function () {
         var page = new Page({
             def: {
                 type: "page",
@@ -87,13 +71,14 @@ Page.prototype.bindEvents = function () {
         self.parent.append(page, self);
         page.node[0].scrollIntoView();
     });
-    self.node.find('.rb-page-remove').click(function () {
-        self.remove();
+    self.node.find('.rb-page-remove:first').click(function () {
+        if (confirm("Are you sure you want to remove this item?"))
+            self.remove();
     });
 };
 Page.prototype.setTitle = function (title) {
     this.title = title;
-    var titleNode = this.node.find('.rb-page-title');
+    var titleNode = this.node.find('.rb-page-title:first');
     var text;
     if (this.title) {
         text = builder.truncateText(this.title, 30);
@@ -119,38 +104,33 @@ Page.prototype.createNode = function () {
 Page.prototype.setSkipIf = function (skipIf) {
     this.skipIf = skipIf;
 };
-Page.prototype.remove = function (force) {
-    if (force || confirm("Are you sure you want to remove this item?")) {
-        this.parent.removeChild(this);
-    }
+Page.prototype.remove = function () {
+    this.parent.exclude(this);
+    this.node.remove();
 };
 
-var Group = function (o) {
+var PageContainer = function (pageList, pageDefs) {
     var self = this;
-    console.log('new group: ', o);
-    Page.call(this, o);
-    this.pageList = self.node.find('.rb-page-list');
     this.pages = [];
-    this.append = function (page, after) {
-        if (after) {
-            var idx = this.pages.indexOf(after);
-            this.pages.splice(idx + 1, 0, page);
-            after.node.after(page.node);
-        } else {
-            this.pages.push(page);
-            this.pageList.append(page.node);
+    this.pageList = pageList;
+    this.pageList.data('owner', this);
+    this.pageList.sortable({
+        cursor: 'move',
+        toleranceElement: '> div',
+        connectWith: '.rb-page-list',
+        stop: function (event, ui) {
+            var element = ui.item.data('owner');
+            var receiverNode = ui.item.parent();
+            var receiver = receiverNode.data('owner');
+            if (element.parent !== receiver)
+                element.parent.exclude(element);
+            receiver.rearrange();
         }
-        page.parent = self;
-    };
-    this.removeChild = function (page) {
-        var idx = this.pages.indexOf(page);
-        this.pages.splice(idx, 1);
-        page.node.remove();
-    };
-    $.each(o.def.pages, function (_, def) {
+    });
+    $.each(pageDefs, function (_, def) {
         var page;
         var opts = {
-            templates: o.templates,
+            templates: self.templates,
             def: def
         };
         if (def.type == "group")
@@ -160,13 +140,57 @@ var Group = function (o) {
         self.append(page);
     });
 };
+PageContainer.prototype.append = function (page, after) {
+    if (after) {
+        var idx = this.pages.indexOf(after);
+        this.pages.splice(idx + 1, 0, page);
+        after.node.after(page.node);
+    } else {
+        this.pages.push(page);
+        this.pageList.append(page.node);
+    }
+    page.parent = this;
+};
+PageContainer.prototype.exclude = function (page) {
+    var idx = this.pages.indexOf(page);
+    this.pages.splice(idx, 1);
+};
+PageContainer.prototype.rearrange = function () {
+    var self = this;
+    self.pages = [];
+    self.pageList.children().each(function (_, item) {
+        item = $(item);
+        var itemOwner = item.data('owner');
+        self.pages.push(itemOwner);
+    });
+    console.log('rearranged:', self.pages);
+};
+PageContainer.prototype.createEmptyPage = function () {
+    return new Page({
+        def: {
+            type: "page",
+            title: null,
+            questions: []
+            // TODO: generate unique cId
+        },
+        templates: this.templates
+    });
+};
+
+var Group = function (o) {
+    var self = this;
+    Page.call(this, o);
+    PageContainer.call(this, self.node.find('.rb-page-list:first'),
+                        o.def.pages || []);
+};
 builder.extend(Group, Page);
+builder.extend(Group, PageContainer);
 Group.prototype.createNode = function () {
     return this.templates.create('group');
 };
 Group.prototype.setTitle = function (title) {
     this.title = title;
-    var titleNode = this.node.find('.rb-group-title');
+    var titleNode = this.node.find('.rb-group-title:first');
     if (this.title) {
         var text = builder.truncateText(this.title, 30);
         titleNode.text(text);
@@ -178,7 +202,7 @@ Group.prototype.setTitle = function (title) {
 };
 Group.prototype.setSkipIf = function (skipIf) {
     this.skipIf = skipIf;
-    var skipIfNode = this.node.find('.rb-group-skip-if');
+    var skipIfNode = this.node.find('.rb-group-skip-if:first');
     if (this.skipIf) {
         var text = builder.truncateText(this.title, 30);
         skipIfNode.text(truncated);
@@ -190,9 +214,22 @@ Group.prototype.setSkipIf = function (skipIf) {
 };
 Group.prototype.bindEvents = function () {
     var self = this;
-    self.node.find('.rb-group-remove').click(function () {
-        self.remove();
+    self.node.find('.rb-group-remove:first').click(function () {
+        if (confirm("Are you sure you want to remove this item?"))
+            self.remove();
     });
+    self.node.find('.rb-group-title:first')
+        .add(self.node.find('.rb-group-title-change:first'))
+            .click(function () {
+                builder.promptDialog.open({
+                    title: 'Edit Group Title',
+                    question: 'Please provide a new group title:',
+                    initialValue: self.title,
+                    onSet: function (newValue) {
+                        self.setTitle(newValue);
+                    }
+                })
+            });
 };
 
 (function () {
@@ -265,17 +302,6 @@ builder.questionTypes = {
 
 $.RexFormBuilder.predefinedLists = {};
 
-$.RexFormBuilder.loadInstrument = function (instrumentName) {
-    var url = $.RexFormBuilder.basePrefix 
-            + "/load_instrument?code=" + instrumentName;
-    $.ajax({url : url,
-        success : function(content) {
-            $.RexFormBuilder.loadInstrumentSchema(instrumentName, content);
-        },
-        type: 'GET'
-    });
-}
-
 var Templates = function () {
     var self = this;
     var templates = {
@@ -318,72 +344,45 @@ var Context = function (name, extParamTypes, manualEditConditions, urlStartTest,
 
 var Pages = function (o) {
     var self = this;
-    this.pages = [];
     this.templates = o.templates;
     this.addPageButton = o.addPageButton;
     this.makeGroupButton = o.makeGroupButton;
-    this.pageList = o.pageList;
-    this.onEditGroup = o.onEditGroup;
-    this.selection = [];
-    this.append = function (page, after) {
-        if (after) {
-            var idx = this.pages.indexOf(after);
-            this.pages.splice(idx + 1, 0, page);
-            after.node.after(page.node);
-        } else {
-            this.pages.push(page);
-            this.pageList.append(page.node);
-        }
-        page.parent = self;
-    };
-    this.removeChild = function (page) {
-        var idx = this.pages.indexOf(page);
-        this.pages.splice(idx, 1);
-        page.node.remove();
-    };
-    $.each(o.pages, function (_, def) {
-        var page;
-        var opts = {
-            def: def,
-            templates: self.templates
-        };
-        if (def.type === "group") {
-            opts['onEditGroup'] = self.onEditGroup;
-            page = new Group(opts);
-        } else
-            page = new Page(opts);
-        self.append(page);
-    });
-    console.log('this.addPageButton', this.addPageButton);
+    PageContainer.call(this, o.pageList, o.pages);
     this.addPageButton.click(function () {
-        console.log('on adding new page');
-        var page = new Page({
-            def: {
-                type: "page",
-                title: null,
-                questions: []
-                // TODO: generate unique cId
-            },
-            templates: self.templates
-        });
+        var page = self.createEmptyPage();
         self.append(page);
         page.node[0].scrollIntoView();
         // TODO: make this page as current
     });
 };
+builder.extend(Pages, PageContainer);
 
-var InputParameter = function (def, template, extParamTypes, onEdit, onRemove) {
+var InputParameter = function (def, parent, template, extParamTypes, onRemove) {
     var self = this;
+    self.parent = parent;
     self.node = template.clone();
     var removeBtn = self.node.find('a.rb-param-remove');
     var editBtn = self.node.find('a.rb-param-edit');
     removeBtn.click(function () {
-        onRemove(self);
+        self.parent.exclude(self);
+        self.node.remove();
     });
     editBtn.click(function () {
-        onEdit(self);
+        builder.editParamDialog.open({
+            paramName: self.name,
+            paramType: self.type,
+            onChange: function (newName, newType) {
+                if (builder.inputParameters.updateParameter(self, newName,
+                                                            newType)) {
+                    var oldName = self.name;
+                    /*
+                    if (oldName !== newName)
+                        $.RexFormBuilder.renameREXLIdentifiers(oldName, newName);
+                    */
+                }
+            }
+        });
     });
-
     this.remove = function () {
         self.node.remove();
     };
@@ -405,9 +404,17 @@ var InputParameters = function (o) {
     self.listNode = o.listNode;
     self.addButton = o.addButton;
     self.extParamTypes = o.extParamTypes || {};
-    self.onParamEdit = o.onParamEdit;
-    self.onParamAdd = o.onParamAdd;
 
+    this.sort = function() {
+        self.parameters.sort(function (a, b) {
+            if (a.name === b.name)
+                return 0;
+            return (a.name < b.name) ? -1: 1;
+        });
+        $.each(self.parameters, function (_, parameter) {
+            self.listNode.append(parameter.node);
+        });
+    };
     this.isUnique = function (name, except) {
         var isUnique = true;
         $.each(self.parameters, function(_, parameter) {
@@ -417,24 +424,26 @@ var InputParameters = function (o) {
         });
         return isUnique;
     };
-    this.remove = function (parameter) {
+    this.exclude = function (parameter) {
         var idx = self.parameters.indexOf(parameter);
         self.parameters.splice(idx, 1);
-        parameter.remove();
+        parameter.node.detach();
     };
     this.add = function (paramDef) {
         if (!self.isUnique(paramDef.name)) {
-            alert("Could not add parameter '" + paramDef.name + "': parameter already exists");
+            alert("Could not add parameter '" + paramDef.name
+                    + "': parameter already exists");
             return;
         }
-        var parameter = new InputParameter(paramDef, self.template,
-                               self.extParamTypes, self.onParamEdit, self.remove);
+        var parameter = new InputParameter(paramDef, self, self.template,
+                               self.extParamTypes);
         self.parameters.push(parameter);
-        self.listNode.append(parameter.node);
+        self.sort(); // also it will auto-append new parameter to the list node
     };
     this.updateParameter = function (parameter, newName, newType) {
         if (!self.isUnique(newName, parameter)) {
-            alert("Could not change parameter: parameter '" + newName + "' already exists");
+            alert("Could not change parameter: parameter '" + newName
+                    + "' already exists");
             return;
         };
         parameter.update(newName, newType);
@@ -445,7 +454,15 @@ var InputParameters = function (o) {
     });
 
     self.addButton.click(function () {
-        self.onParamAdd();
+        builder.editParamDialog.open({
+            onChange: function (newName, newType) {
+                var paramDef = {
+                    name: newName,
+                    type: newType
+                };
+                builder.inputParameters.add(paramDef);
+            }
+        });
     });
 };
 
@@ -495,14 +512,23 @@ var InstrumentTitle = function (o) {
     self.closeEditor();
 };
 
+var PageTitle = function (o) {
+    var self = this;
+};
+
+var PageEditor = function (o) {
+    var self = this;
+    
+};
+
 builder.initDialogs = function () {
     var commonOptions = {
         parent: builder
     };
     builder.showJSONDialog =
         new builder.dialog.ShowJSONDialog(commonOptions);
-    builder.editPageDialog =
-        new builder.dialog.EditPageDialog(commonOptions);
+    builder.promptDialog =
+        new builder.dialog.promptDialog(commonOptions);
     var dialogOptions = $.extend({
         extTypes: builder.context.extParamTypes
     }, commonOptions);
@@ -545,32 +571,6 @@ builder.init = function (o) {
         template: builder.templates.get('parameter'),
         extParamTypes: o.extParamTypes,
         parameters: o.code.params || [], // [{type: "STRING", name: "abc"}],
-        onParamAdd: function () {
-            builder.editParamDialog.open({
-                onChange: function (newName, newType) {
-                    var paramDef = {
-                        name: newName,
-                        type: newType
-                    };
-                    builder.inputParameters.add(paramDef);
-                }
-            });
-        },
-        onParamEdit: function (parameter) {
-            builder.editParamDialog.open({
-                paramName: parameter.name,
-                paramType: parameter.type,
-                onChange: function (newName, newType) {
-                    if (builder.inputParameters.updateParameter(parameter, newName, newType)) {
-                        var oldName = parameter.name;
-                        /*
-                        if (oldName !== newName)
-                            $.RexFormBuilder.renameREXLIdentifiers(oldName, newName);
-                        */
-                    }
-                }
-            });
-        }
     });
     builder.pages = new Pages({
         makeGroupButton: $("#rb_make_group"),
@@ -578,14 +578,18 @@ builder.init = function (o) {
         pageList: $("#rb_page_list"),
         pages: o.code.pages,
         templates: builder.templates,
+        /*
         onEditGroup: function (group) {
             builder.promptDialog.open({
+                title: 'Set Group Title',
+                question: 'Please provide new group title:',
                 initialValue: group.title,
                 onSet: function (value) {
                     group.setTitle(value);
                 }
             });
         }
+        */
     });
 };
 
@@ -760,11 +764,6 @@ $.RexFormBuilder.saveInstrument = function(callback) {
     }, questionListDiv);
 }
 
-$.RexFormBuilder.evaluateMetaStr = function(metaStr) {
-    var meta = $.parseJSON(metaStr);
-    $.RexFormBuilder.evaluateMeta(meta);
-}
-
 $.RexFormBuilder.hints = {
     emptyField: 'This field could not be empty!',
     wrongQuestionId: 'Question names must begin with a letter. '
@@ -815,14 +814,6 @@ $.RexFormBuilder.updateQuestionOrders = function() {
     });
     var pageData = $.RexFormBuilder.currentPage.data('data');
     pageData.questions = newQuestionList;
-}
-
-$.RexFormBuilder.setPageListSortable = function(list) {
-    list.sortable({
-        cursor: 'move',
-        toleranceElement: '> div',
-        connectWith: 'rb_pages_list,.rb_class_pages_list'
-    });
 }
 
 $.RexFormBuilder.setQuestionsSortable = function(list) {
@@ -2065,22 +2056,6 @@ $.RexFormBuilder.newInstrument = function() {
     $.RexFormBuilder.context.clearIndexes();
 }
 
-$.RexFormBuilder.loadFromJSON = function() {
-    var json = prompt('Please input schema json:');
-
-    if (json) {
-        $.RexFormBuilder.clearWorkspace();
-        $.RexFormBuilder.evaluateMetaStr(json);
-    }
-}
-
-builder.loadInstrumentSchema = function(instrumentName, schemaJSON) {
-    //console.log('schemaJSON', schemaJSON);
-    builder.newInstrument();
-    builder.evaluateMetaStr(schemaJSON);
-    builder.instrumentName = instrumentName;
-}
-
 $.RexFormBuilder.clearQuestions = function() {
     questionListDiv.contents().remove();
 }
@@ -2089,14 +2064,6 @@ $.RexFormBuilder.stopEvent = function(event) {
     if (!event)
         event = window.event;
     event.stopPropagation();
-}
-
-$.RexFormBuilder.clearWorkspace = function() {
-    $.RexFormBuilder.mainPartContent.css('display', 'none');
-    $.RexFormBuilder.pageTitleSpan.text('');
-    $.RexFormBuilder.pageListDiv.contents().remove();
-    $.RexFormBuilder.paramListDiv.contents().remove();
-    $.RexFormBuilder.clearQuestions();
 }
 
 $.RexFormBuilder.changeDisableLogic = function(btn) {
@@ -2146,28 +2113,6 @@ $.RexFormBuilder.onPageTitleChanged = function () {
     $('.rb_page_title_wrap').css('display', '');
 }
 
-$.RexFormBuilder.setFormTitle = function (newTitle) {
-    $.RexFormBuilder.instrumentTitle = newTitle;
-
-    var titleHolder = $('#rb_instrument_title');
-    if (newTitle) {
-        titleHolder
-            .removeClass('rb_instrument_title_not_set')
-            .text($.RexFormBuilder.truncateText(newTitle, 30));
-    } else {
-        titleHolder
-            .addClass('rb_instrument_title_not_set')
-            .text('Untitled form')
-    }
-}
-
-$.RexFormBuilder.onInstrumentTitleChanged = function() {
-    var newTitle = $.trim($.RexFormBuilder.instrumentTitleInput.val());
-    $.RexFormBuilder.setFormTitle(newTitle);
-    $.RexFormBuilder.instrumentTitleInput.css('display', 'none');
-    $('#rb_instrument_title_view').css('display', '');
-}
-
 $.RexFormBuilder.editGroupSkipConditions = function(a) {
     var groupDiv = $(a).parents('.rb_page_group:first');
     var data = groupDiv.data('data');
@@ -2194,25 +2139,6 @@ $.RexFormBuilder.editPageSkipConditions = function() {
         },
         conditions: data.skipIf
     });
-}
-
-$.RexFormBuilder.editInstrumentTitle = function() {
-    $('#rb_instrument_title_view').css('display', 'none');
-    $.RexFormBuilder.instrumentTitleInput.val(
-        $.RexFormBuilder.instrumentTitle
-    );
-    $.RexFormBuilder.instrumentTitleInput.css('display', '');
-    $.RexFormBuilder.instrumentTitleInput.focus();
-}
-
-$.RexFormBuilder.editPageTitle = function() {
-    $('.rb_page_title_wrap').css('display', 'none');
-
-    var title = $.RexFormBuilder.currentPage.data('data').title;
-
-    $.RexFormBuilder.pageTitleInput.val(title);
-    $.RexFormBuilder.pageTitleInput.css('display', '');
-    $.RexFormBuilder.pageTitleInput.focus();
 }
 
 $.RexFormBuilder.toType = function (obj) {
@@ -2575,31 +2501,6 @@ $.RexFormBuilder.makePageGroupFromSelection = function() {
     $.RexFormBuilder.editPageDialog.open({
         mode: 'group'
     });
-}
-
-$.RexFormBuilder.updateGroupDiv = function(groupDiv) {
-    var groupData = groupDiv.data('data');
-    var groupNameDiv = groupDiv.find('.rb_page_group_name:first');
-    
-    if (groupData.title) {
-        groupNameDiv
-            .removeClass('rb_group_title_not_set')
-            .text($.RexFormBuilder.truncateText(groupData.title, 30));
-        if (groupData.title.length >= 30)
-            groupNameDiv.attr('title', groupData.title);
-    } else
-        groupNameDiv
-            .addClass('rb_group_title_not_set')
-            .removeAttr('title')
-            .text('Untitled group')
-    
-
-    $.RexFormBuilder.updateGroupSkipSpan(groupDiv);
-}
-
-$.RexFormBuilder.createGroup = function(groupType) {
-    var pageGroup = $.RexFormBuilder.templates.createObject(groupType);
-    return pageGroup;
 }
 
 $.RexFormBuilder.processSelectedPages = function(newGroupName) {

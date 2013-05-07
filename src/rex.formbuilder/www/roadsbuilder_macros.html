@@ -67,14 +67,14 @@
             </div>
         </div>
         <div class="rb_main_part">
-            <div class="rb_main_part_content" style="display: none;">
+            <div id="rb_page_editor" style="display: none;">
                 <div class="rb_main_part_header">
                     <div class="rb_page_title_wrap">
-                        <span class="rb_page_title">Page Title</span> <button onclick="$.RexFormBuilder.editPageTitle();">Change</button>
+                        <span id="rb_page_title">Page Title</span> <button id="rb_page_title_change">Change</button>
                     </div>
-                    <input type="text" class="rb_page_title_input" style="display: none;" />
+                    <input type="text" id="rb_page_title_input" style="display: none;" />
                     <div style="margin: 10px 0px 10px 0px;">
-                        <span id="page_skip_when"></span> <button class="rb_small_button" onclick="$.RexFormBuilder.editPageSkipConditions();">Change</button>
+                        <span id="rb_page_skip_if"></span> <button id="rb_page_skip_if_change" class="rb_small_button">Change</button>
                     </div>
                 </div>
                 <div class="rb_question_list_wrapper">
@@ -84,7 +84,7 @@
                             Add Question
                         </button>
                     </div>
-                    <ul class="rb_question_list">
+                    <ul id="rb_question_list">
                     </ul>
                 </div>
             </div>
@@ -102,13 +102,13 @@
                         <a href="javascript:void(0);" onclick="$.RexFormBuilder.removeQuestion(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                     </div>
                     <div class="q_caption">
-                        <div class="rb_question_title">
+                        <div class="rb-question-title">
                             Question Title
                         </div>
-                        <div class="rb_question_name">
+                        <div class="rb-question-name">
                             question_name
                         </div>
-                        <div class="rb_question_descr">
+                        <div class="rb-question-descr">
                             question_descr
                         </div>
                     </div>

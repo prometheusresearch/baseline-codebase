@@ -183,7 +183,7 @@ body, p, div, td, input {
     padding: 10px;
 }
 
-.rb_main_part_content {
+#rb_page_editor {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -209,7 +209,7 @@ body, p, div, td, input {
     left: 10px;
 }
 
-.rb_question_list {
+#rb_question_list {
     position: absolute;
     top: 30px;
     bottom: 0px;
@@ -283,7 +283,7 @@ body, p, div, td, input {
     vertical-align: middle;
 }
 
-.rb_page_title {
+#rb_page_title {
     cursor: pointer;
     font-size: 20px;
     line-height: 25px;
@@ -308,7 +308,7 @@ body, p, div, td, input {
 }
 
 #rb_instrument_title.rb-not-set,
-.rb_page_title_not_set,
+#rb_page_title.rb-not-set,
 .rb_page_skip_not_set,
 .rb_group_skip_not_set,
 .rb_group_title_not_set {
@@ -323,7 +323,7 @@ body, p, div, td, input {
     background-color: #fcfcfc;
 }
 
-.rb_page_title_input {
+#rb_page_title_input {
     border: 1px solid #ababab;
     line-height: 100%;
     font-size: 20px;
@@ -343,21 +343,21 @@ body, p, div, td, input {
     color: #808080;
 }
 
-.rb_question_title {
+.rb-question-title {
     font-weight: bold;
     font-size: 100%;
     margin-top: 5px;
     margin-left: 5px;
 }
 
-.rb_question_name {
+.rb-question-name {
     margin-left: 5px;
     margin-top: 5px;
     font-size: 80%;
     color: #808080;
 }
 
-.rb_question_descr {
+.rb-question-descr {
     margin-left: 10px;
     margin-top: 5px;
     font-size: 100%;
@@ -385,8 +385,8 @@ body, p, div, td, input {
     display: none;
 }
 
-.rb_question_list > .rb_opened,
-.rb_question_list > .rb_opened:hover {
+#rb_question_list > .rb_opened,
+#rb_question_list > .rb_opened:hover {
     background-color: #ffe79d;
 }
 

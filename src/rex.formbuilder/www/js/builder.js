@@ -3,11 +3,12 @@
 
 var builder = $.RexFormBuilder = $.RexFormBuilder || {};
 
-var Question = function (def) {
+var Question = function (def, templates) {
     var self = this;
     this.type = def.type;
     this.name = def.name;
     this.title = def.title;
+    this.templates = templates;
     this.hint = def.hint || null;
     this.help = def.help || null;
     this.customTitles = def.customTitles || {};
@@ -17,23 +18,52 @@ var Question = function (def) {
     this.constraints = def.constraints || null;
     this.annotation = def.annotation || null;
     this.explanation = def.explanation || null;
+
+    this.getNode = function () {
+        if (!self.node) {
+            self.node = this.templates.create('question');
+            self.node.data('owner', this);
+            self.updateNode();
+        }
+        return self.node;
+    };
+
+    this.updateNode = function() {
+        if (self.node) {
+            var title = builder.truncateText(self.title || '', 100);
+            self.node.find('.rb-question-title').text(title);
+            self.node.find('.rb-question-name').text(self.name);
+            self.node.find('.rb-question-descr').text(self.description())
+        }
+    };
+};
+Question.prototype.description = function () {
+    return builder.questionTypes[this.type].title;
 };
 
-var VariantQuestion = function (def) {
-    Question.call(this, def);
+var VariantQuestion = function (def, templates) {
+    Question.call(this, def, templates);
     this.dropDown = def.dropDown || false;
-    this.answers = def.answers || {};
+    this.answers = def.answers || [];
 };
 builder.extend(VariantQuestion, Question);
+VariantQuestion.prototype.description = function () {
+    var self = this;
+    var titles = [];
+    var titles = $.map(self.answers, function(answer, _) {
+        return answer.title || answer.code;
+    });
+    return titles.join(', ');
+};
 
-var RepeatingGroupQuestion = function (def) {
-    Question.call(this, def);
+var RepeatingGroupQuestion = function (def, templates) {
+    Question.call(this, def, templates);
     var self = this;
     this.group = [];
     $.each(def.repeatingGroup, function (_, questionDef) {
         var type = questionDef.type;
         var cls = builder.questionTypes[type].cls;
-        var question = new cls(questionDef);
+        var question = new cls(questionDef, templates);
         self.group.push(question);
     });
 };
@@ -44,11 +74,12 @@ var Page = function (o) {
     this.parent = null;
     this.questions = [];
     this.templates = o.templates;
+    this.onSelectPage = o.onSelectPage || null;
     this.node = this.createNode();
     this.node.data('owner', this);
     $.each(o.def.questions || [], function (_, questionDef) {
         var cls = builder.questionTypes[questionDef.type].cls;
-        var question = new cls(questionDef);
+        var question = new cls(questionDef, self.templates);
         self.questions.push(question);
     });
     this.setTitle(o.def.title || null);
@@ -58,6 +89,10 @@ var Page = function (o) {
 };
 Page.prototype.bindEvents = function () {
     var self = this;
+    self.node.click(function () {
+        if (self.onSelectPage)
+            self.onSelectPage(self);
+    });
     self.node.find('.rb-page-add-next:first').click(function () {
         var page = new Page({
             def: {
@@ -82,7 +117,7 @@ Page.prototype.setTitle = function (title) {
     var text;
     if (this.title) {
         text = builder.truncateText(this.title, 30);
-        titleNode.text(truncated);
+        titleNode.text(text);
         titleNode.removeClass('rb-not-set');
     } else {
         var total = this.questions.length;
@@ -109,7 +144,7 @@ Page.prototype.remove = function () {
     this.node.remove();
 };
 
-var PageContainer = function (pageList, pageDefs) {
+var PageContainer = function (pageList, pageDefs, onSelectPage) {
     var self = this;
     this.pages = [];
     this.pageList = pageList;
@@ -131,6 +166,7 @@ var PageContainer = function (pageList, pageDefs) {
         var page;
         var opts = {
             templates: self.templates,
+            onSelectPage: onSelectPage,
             def: def
         };
         if (def.type == "group")
@@ -181,7 +217,17 @@ var Group = function (o) {
     var self = this;
     Page.call(this, o);
     PageContainer.call(this, self.node.find('.rb-page-list:first'),
-                        o.def.pages || []);
+                        o.def.pages || [], o.onSelectPage);
+    self.skipIfEditor = new EditableLogic({
+        nodeText: self.node.find('.rb-group-skip-if:first'),
+        nodeBtn: self.node.find('.rb-group-skip-if-change:first'),
+        value: self.skipIf,
+        maxVisibleTextLen: 30,
+        emptyValueText: 'Never skipped',
+        onChange: function (newValue) {
+            self.skipIf = newValue;
+        }
+    });
 };
 builder.extend(Group, Page);
 builder.extend(Group, PageContainer);
@@ -202,6 +248,9 @@ Group.prototype.setTitle = function (title) {
 };
 Group.prototype.setSkipIf = function (skipIf) {
     this.skipIf = skipIf;
+    if (this.skipIfEditor)
+        this.skipIfEditor.setValue(this.skipIf);
+    /*
     var skipIfNode = this.node.find('.rb-group-skip-if:first');
     if (this.skipIf) {
         var text = builder.truncateText(this.title, 30);
@@ -211,6 +260,7 @@ Group.prototype.setSkipIf = function (skipIf) {
         skipIfNode.text('Never skipped');
         skipIfNode.addClass('rb-not-set');
     }
+    */
 };
 Group.prototype.bindEvents = function () {
     var self = this;
@@ -347,7 +397,7 @@ var Pages = function (o) {
     this.templates = o.templates;
     this.addPageButton = o.addPageButton;
     this.makeGroupButton = o.makeGroupButton;
-    PageContainer.call(this, o.pageList, o.pages);
+    PageContainer.call(this, o.pageList, o.pages, o.onSelectPage);
     this.addPageButton.click(function () {
         var page = self.createEmptyPage();
         self.append(page);
@@ -466,22 +516,66 @@ var InputParameters = function (o) {
     });
 };
 
-var InstrumentTitle = function (o) {
+var EditableLogic = function (o) {
+    var self = this;
+    self.value = null;
+    self.nodeText = o.nodeText;
+    self.nodeBtn = o.nodeBtn;
+    self.maxVisibleTextLen = o.maxVisibleTextLen || 30;
+    self.emptyValueText = o.emptyValueText || 'Not set';
+    self.onChange = o.onChange || null;
+
+    self.setValue = function (value, internal) {
+        self.value = value ? value : '';
+        if (self.onChange)
+            self.onChange(self.value);
+        if (!internal) {
+            if (self.value) {
+                var text = builder.truncateText(self.value, 
+                                                self.maxVisibleTextLen);
+                self.nodeText.text(text)
+                             .removeClass('rb-not-set');
+            } else
+                self.nodeText.text(self.emptyValueText)
+                             .addClass('rb-not-set');
+        }
+    };
+
+    self.getValue = function () {
+        return self.value;
+    };
+
+    self.openEditor = function () {
+        // TODO: open condition editor
+        console.log('open condition editor');
+    };
+
+    self.nodeBtn.click(self.openEditor);
+    self.setValue(o.value || null);
+};
+
+var EditableTitle = function (o) {
     var self = this;
     self.value = null;
     self.nodeText = o.nodeText;
     self.nodeBtn = o.nodeBtn;
     self.nodeInput = o.nodeInput;
+    self.maxVisibleTextLen = o.maxVisibleTextLen || 30;
+    self.emptyTitleText = o.emptyTitleText || 'Untitled';
+    self.onChange = o.onChange || null;
 
     self.setTitle = function (title, internal) {
         self.value = title ? title : '';
+        if (self.onChange)
+            self.onChange(self.value);
         if (!internal) {
             if (self.value) {
-                var text = builder.truncateText(self.value, 30);
+                var text = builder.truncateText(self.value, 
+                                                self.maxVisibleTextLen);
                 self.nodeText.text(text)
                              .removeClass('rb-not-set');
             } else
-                self.nodeText.text('Untitled form')
+                self.nodeText.text(self.emptyTitleText)
                              .addClass('rb-not-set');
             self.nodeInput.val(self.value);
         }
@@ -508,17 +602,119 @@ var InstrumentTitle = function (o) {
         self.closeEditor();
     });
     self.nodeBtn.click(self.showEditor);
-    self.setTitle(o.title);
+    self.setTitle(o.title || null);
     self.closeEditor();
 };
 
-var PageTitle = function (o) {
+var QuestionEditor = function (question, templates) {
     var self = this;
+    self.question = question;
+    self.templates = templates;
+    self.node = self.templates.create('questionEditor');
 };
 
 var PageEditor = function (o) {
     var self = this;
-    
+    self.editorNode = o.editorNode;
+    self.listNode = o.listNode;
+    self.listNode.sortable({
+        cursor: 'move',
+        toleranceElement: '> div',
+        stop: function (event, ui) {
+            self.rearrange();
+        }
+    });
+    self.editors = [];
+    self.rearrange = function () {
+        if (self.page) {
+            self.page.questions = [];
+            self.listNode.children().each(function () {
+                var item = $(this);
+                var owner = item.data('owner');
+                if (owner) {
+                    if (owner instanceof QuestionEditor) {
+                        var question = owner.question;
+                        if (question.name)
+                            owner = owner.question;
+                    }
+                    self.page.questions.push(owner);
+                }
+            });
+        }
+    }
+    self.pageTitle = new EditableTitle({
+        nodeText: $("#rb_page_title"),
+        nodeBtn: $("#rb_page_title_change"),
+        nodeInput: $("#rb_page_title_input"),
+        maxVisibleTextLen: 60,
+        emptyTitleText: 'Untitled page',
+        onChange: function (newValue) {
+            if (self.page)
+                self.page.setTitle(newValue);
+        }
+    });
+    self.page = null;
+    self.skipIfEditor = new EditableLogic({
+        nodeText: $("#rb_page_skip_if"),
+        nodeBtn: $("#rb_page_skip_if_change"),
+        maxVisibleTextLen: 60,
+        emptyValueText: 'Never skipped',
+        onChange: function (newValue) {
+            if (self.page)
+                self.page.setSkipIf(newValue);
+        }
+    });
+    this.openQuestionEditor = function (question) {
+        var isNew = question ? true : false;
+        // TODO: create question if null (new)
+        var editor = new QuestionEditor(question);
+        editors.push(editor);
+        if (isNew) {
+            var questionNode = question.getNode();
+            questionNode.before(editor.node);
+            quesitonNode.detach();
+        } else
+            self.listNode.append(editor.node);
+    };
+    this.setPage = function (page) {
+        self.page = page;
+        self.pageTitle.setTitle(page ? page.title : null);
+        self.skipIfEditor.setValue(page ? page.skipIf : null);
+        self.listNode.children()
+                     .unbind("click.question").detach();
+        if (page) {
+            $.each(page.questions, function (_, question) {
+                var node = question.getNode();
+                node.bind("click.question", function () {
+                    var owner = $(this).data('owner');
+                    self.openQuestionEditor(owner);
+                });
+                self.listNode.append(question.getNode());
+            });
+        }
+        self.editors = [];
+    };
+    this.show = function (page) {
+        self.setPage(page);
+        self.editorNode.css('display', '');
+    };
+    this.hide = function () {
+        self.setPage(null);
+        self.editorNode.css('display', 'none');
+    };
+    this.setSkipIf = function (skipIf) {
+        this.skipIf = skipIf;
+        var skipIfNode = this.node.find('.rb-group-skip-if:first');
+        if (this.skipIf) {
+            var text = builder.truncateText(this.title, 30);
+            skipIfNode.text(truncated);
+            skipIfNode.removeClass('rb-not-set');
+        } else {
+            skipIfNode.text('Never skipped');
+            skipIfNode.addClass('rb-not-set');
+        }
+    };
+    this.setPage(null);
 };
 
 builder.initDialogs = function () {
@@ -559,11 +755,13 @@ builder.init = function (o) {
                     o.urlStartTest || null, o.urlSaveForm || null);
     builder.templates = new Templates();
     builder.initDialogs();
-    builder.instrumentTitle = new InstrumentTitle({
+    builder.instrumentTitle = new EditableTitle({
         nodeText: $('#rb_instrument_title'),
         nodeBtn: $('#rb_instrument_title_button'),
         nodeInput: $('#rb_instrument_title_input'),
-        title: o.code.title
+        title: o.code.title,
+        maxVisibleTextLen: 30,
+        emptyTitleText: 'Untitled instrument'
     });
     builder.inputParameters = new InputParameters({
         listNode: $("#rb_params_list"),
@@ -578,18 +776,18 @@ builder.init = function (o) {
         pageList: $("#rb_page_list"),
         pages: o.code.pages,
         templates: builder.templates,
-        /*
-        onEditGroup: function (group) {
-            builder.promptDialog.open({
-                title: 'Set Group Title',
-                question: 'Please provide new group title:',
-                initialValue: group.title,
-                onSet: function (value) {
-                    group.setTitle(value);
-                }
-            });
+        onSelectPage: function (page) {
+            builder.pageEditor.show(page);
         }
-        */
+    });
+    builder.pageEditor = new PageEditor({
+        editorNode: $("#rb_page_editor"),
+        pageTitleNode: $("#rb_page_title"),
+        pageTitleButton: $("#rb_page_title_change"),
+        pageTitleInput: $("#rb_page_title_input"),
+        skipIfNode: $("#rb_page_skip_if"),
+        skipIfButton: $("#rb_page_skip_if_change"),
+        listNode: $("#rb_question_list")
     });
 };
 

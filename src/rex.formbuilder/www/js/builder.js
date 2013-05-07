@@ -356,7 +356,7 @@ var Templates = function () {
     var self = this;
     var templates = {
         'questionEditor': $('#tpl_question_editor').removeAttr('id'),
-        'choicesItem': $('#tpl_choices_item').removeAttr('id'),
+        'variant': $('#tpl_variant').removeAttr('id'),
         'question': $('#tpl_question').removeAttr('id'),
         'page': $('#tpl_page').removeAttr('id'),
         'group': $('#tpl_page_group').removeAttr('id'),
@@ -606,15 +606,138 @@ var EditableTitle = function (o) {
     self.closeEditor();
 };
 
+var Variant = function (code, title, parent, templates) {
+    var self = this;
+    self.title = title;
+    self.code = code;
+    self.node = templates.create('variant');
+    self.node.data('owner', this);
+    self.parent = parent;
+
+    self.remove = function () {
+        self.parent.exclude(self);
+        self.node.remove();
+    }
+
+    var removeButton = self.node.find('.rb-variant-remove');
+    removeButton.click(function () {
+        self.remove();
+    });
+
+    var inputTitle = self.node.find('input[name=answer-title]:first');
+    inputTitle.val(self.title || '');
+    // TODO: check input value on keyup
+    inputTitle.change(function () {
+        self.title = $.trim(inputTitle.val());
+    });
+
+    var inputCode = self.node.find('input[name=answer-code]:first');
+    inputCode.val(self.code || '');
+    // TODO: check input value on keyup
+    inputCode.change(function () {
+        self.code = $.trim(inputCode.val());
+    });
+};
+
+var VariantsEditor = function (o) {
+    var self = this;
+    var node = o.node;
+    var nodeHeader = node.find(".rb-question-answers-header:first");
+    var nodeList = node.find(".rb-question-answers-list:first");
+    var nodeAddButton = node.find(".rb-question-answers-add:first");
+    var nodeHint = node.find(".rb-question-answers-list-hint:first");
+    self.variants = [];
+    self.show = function () {
+        node.css('display', '');
+    };
+    self.hide = function () {
+        node.css('display', 'none');
+    };
+    self.updateHelpers = function () {
+        var empty = (self.variants.length == 0);
+        nodeHeader.css('display', empty ? 'none': '');
+        nodeHint.css('display', empty ? '': 'none');
+    };
+    self.rearrange = function () {
+        self.variants = [];
+        nodeList.children().each(function (_, item) {
+            var item = $(item);
+            var owner = item.data('owner');
+            self.variants.push(owner);
+        });
+    };
+    self.exclude = function (variant) {
+        var idx = self.variants.indexOf(variant);
+        self.variants.splice(idx, 1);
+        self.updateHelpers();
+    };
+    self.add = function (code, title) {
+        var variant = new Variant(code, title, self, o.templates);
+        self.variants.push(variant);
+        nodeList.append(variant.node);
+        self.updateHelpers();
+    };
+    nodeAddButton.click(function () {
+        self.add(null, null);
+    });
+    $.each(o.answers, function (_, answer) {
+        self.add(answer.code, answer.title);
+    });
+    self.updateHelpers();
+};
+
 var QuestionEditor = function (question, templates) {
     var self = this;
     self.question = question;
     self.templates = templates;
     self.node = self.templates.create('questionEditor');
+
+    var nodeTitle = self.node.find('textarea[name=question-title]:first');
+    var nodeName = self.node.find('input[name=question-name]:first');
+    var nodeRequired = self.node.find('input[name=question-required]:first');
+    var nodeType = self.node.find('select[name=question-type]:first');
+    var nodeCancel = self.node.find('.rb-question-cancel:first');
+    var constraintEditor = new EditableLogic({
+        nodeText: self.node.find(".rb-question-constraint:first"),
+        nodeBtn: $(".rb-question-constraint-change:first"),
+        maxVisibleTextLen: 30,
+        emptyValueText: 'No constraints',
+        value: self.question ? self.question.constraints : null
+    });
+    var disableIfEditor = new EditableLogic({
+        nodeText: self.node.find(".rb-question-disable-if:first"),
+        nodeBtn: $(".rb-question-disable-if:first"),
+        maxVisibleTextLen: 30,
+        emptyValueText: 'Never disabled',
+        value: self.question ? self.question.disableIf : null
+    });
+    var answerEditor = new VariantsEditor({
+        node: self.node.find(".rb-question-answers:first"),
+        answers: self.question && builder.isListType(self.question.type) ? 
+                    self.question.answers: [],
+        templates: self.templates
+    });
+
+    nodeType.change(function () {
+        var type = nodeType.val();
+        if (builder.isListType(type))
+            answerEditor.show();
+        else
+            answerEditor.hide();
+    });
+
+    if (self.question) {
+        nodeTitle.val(self.question.title || '');
+        nodeName.val(self.question.name || '');
+        if (self.question.required)
+            nodeRequired.attr('checked', 'checked');
+        nodeType.val(self.question.type).change();
+    }
 };
 
 var PageEditor = function (o) {
     var self = this;
+    self.templates = o.templates;
     self.editorNode = o.editorNode;
     self.listNode = o.listNode;
     self.listNode.sortable({
@@ -666,13 +789,12 @@ var PageEditor = function (o) {
     });
     this.openQuestionEditor = function (question) {
         var isNew = question ? true : false;
-        // TODO: create question if null (new)
-        var editor = new QuestionEditor(question);
-        editors.push(editor);
+        var editor = new QuestionEditor(question, self.templates);
+        self.editors.push(editor);
         if (isNew) {
             var questionNode = question.getNode();
             questionNode.before(editor.node);
-            quesitonNode.detach();
+            questionNode.detach();
         } else
             self.listNode.append(editor.node);
     };
@@ -787,7 +909,8 @@ builder.init = function (o) {
         pageTitleInput: $("#rb_page_title_input"),
         skipIfNode: $("#rb_page_skip_if"),
         skipIfButton: $("#rb_page_skip_if_change"),
-        listNode: $("#rb_question_list")
+        listNode: $("#rb_question_list"),
+        templates: builder.templates
     });
 };
 

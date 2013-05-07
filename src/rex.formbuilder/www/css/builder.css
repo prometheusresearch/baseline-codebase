@@ -82,8 +82,8 @@ body, p, div, td, input {
     font-size: 11px;
 }
 
-.rb_choices_item:hover .rb_choices_item_actions,
-.rb_question:hover .rb_question_actions,
+.rb-variant:hover .rb_choices_item_actions,
+.rb-question:hover .rb_question_actions,
 .rb_page:hover .rb_page_actions,
 .rb_page_group:hover .rb_page_group_actions {
     display: block;
@@ -93,7 +93,8 @@ body, p, div, td, input {
     margin: 10px 10px 10px 10px;
 }
 
-.rb_question {
+.rb-question,
+.rb-question-editor {
     line-height: 120%;
     margin: 5px;
     border-top: 1px solid #e0e0e0;
@@ -101,11 +102,18 @@ body, p, div, td, input {
     border-right: 1px solid #a0a0a0;
     border-bottom: 1px solid #a0a0a0;
     position: relative;
-    background-color: white;
     /* padding: 5px 10px 10px 10px; */
 }
 
-.rb_question:hover {
+.rb-question {
+    background-color: white;
+}
+
+.rb-question-editor {
+    background-color: #ffe79d;
+}
+
+.rb-question:hover {
     background-color: #f7f7f7;
 }
 
@@ -128,8 +136,8 @@ body, p, div, td, input {
     color: #808080;
 }
 
-.rb_disable_logic_descr,
-.rb_constraint_descr {
+.rb-question-disable-if,
+.rb-question-constraint {
     text-decoration: none;
     color: black;
 }
@@ -385,11 +393,6 @@ body, p, div, td, input {
     display: none;
 }
 
-#rb_question_list > .rb_opened,
-#rb_question_list > .rb_opened:hover {
-    background-color: #ffe79d;
-}
-
 .rb_subquestion_list > .rb_opened,
 .rb_subquestion_list > .rb_opened:hover {
     background-color: #daefff;
@@ -478,7 +481,7 @@ textarea.rb_question_input {
     color: red;
 }
 
-div.rb_choices {
+div.rb-question-answers {
     position:relative;
     background-color: #fafafa;
     border: 1px solid #d0d0d0;
@@ -498,22 +501,22 @@ div.rb_choices {
     width: 30px;
 }
 
-div.rb_choices_header, 
-li.rb_choices_item {
+div.rb-question-answers-header, 
+li.rb-variant {
     position:relative;
 }
 
-div.rb_choices_header {
+div.rb-question-answers-header {
     padding-top: 3px;
     height: 35px;
 }
 
-li.rb_choices_item,
+li.rb-variant,
 div.rb_choices_item_right {
     padding: 3px;
 }
 
-li.rb_choices_item {
+li.rb-variant {
     border: 1px solid #d0d0d0;
     background-color: #dde8fd;
     margin: 3px;
@@ -553,13 +556,13 @@ input.rb_with_margin {
     margin-right: 10px;
 }
 
-.rb_question_editor h3 {
+.rb-question-editor h3 {
     margin-top: 3px;
     margin-bottom: 5px;
     font-size: 100%;
 }
 
-.rb_question_editor h3.rb_with_top_margin {
+.rb-question-editor h3.rb_with_top_margin {
     margin-top: 5px;
 }
 
@@ -729,7 +732,7 @@ input.rb_identifier_input {
     float: right;
 }
 
-.choices-list-items {
+.rb-question-answers-list {
     padding: 0px;
     list-style-type: none;
 }

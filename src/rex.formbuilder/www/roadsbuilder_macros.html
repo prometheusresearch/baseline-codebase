@@ -96,7 +96,7 @@
                 <p><img src="{{ PREFIX['rex.forms'] }}/img/ajax-loader.gif" /></p>
             </div>
 
-            <li id="tpl_question" class="rb_question">
+            <li id="tpl_question" class="rb-question">
                 <div>
                     <div class="rb_question_actions">
                         <a href="javascript:void(0);" onclick="$.RexFormBuilder.removeQuestion(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
@@ -117,100 +117,90 @@
                 </div>
             </li>
 
-            <div id="tpl_question_editor" class="rb_question_editor">
-                <table class="rb_question_table" cellspacing="0">
-                    <tr>
-                        <td class="rb_question_table_left" valign="top">
-                            <div class="rb_question_table_left_inner">
-                                <h3>Title</h3>
-                                <textarea type="text" name="question-title" class="rb_question_input" /></textarea>
-                                <table class="question-selects">
-                                    <h3 class="question-type-header rb_with_top_margin">Question type</h3>
-                                    <select name="question-type"></select>
-                                </table>
-                                <!--
-                                <div class="constraints">
-                                    <h3 class="rb_with_top_margin">Allowed Range</h3>
-                                    From: <input type="text" name="constraint-from" class="rb_constraint_input">
-                                    To: <input type="text" name="constraint-to" class="rb_constraint_input">
-                                </div>
-                                -->
-                                <div class="rb_choices" style="display: none;">
-                                    <div class="rb_choices_header" style="display:none;">
-                                        <h3>Choice</h3>
-                                        <div class="rb_choices_item_right">
-                                            <h3>Identifier</h3>
+            <li id="tpl_question_editor" class="rb-question-editor">
+                <div>
+                    <table class="rb_question_table" cellspacing="0">
+                        <tr>
+                            <td class="rb_question_table_left" valign="top">
+                                <div class="rb_question_table_left_inner">
+                                    <h3>Title</h3>
+                                    <textarea type="text" name="question-title" class="rb_question_input" /></textarea>
+                                    <table class="question-selects">
+                                        <h3 class="question-type-header rb_with_top_margin">Question type</h3>
+                                        <select name="question-type"></select>
+                                    </table>
+                                    <div class="rb-question-answers" style="display: none;">
+                                        <div class="rb-question-answers-header">
+                                            <h3>Choice</h3>
+                                            <div class="rb_choices_item_right">
+                                                <h3>Identifier</h3>
+                                            </div>
+                                        </div>
+                                        <div class="rb-question-answers-list-wrap">
+                                            <span class="rb-question-answers-list-hint">Please add the first choice <!-- or select pre-defined choices: --></span>
+                                            <ul class="rb-question-answers-list">
+                                            </ul>
+                                        </div>
+                                        <div class="rb-predefined-choices-div">
+                                            <!-- <select name="predefined-choice-list">
+                                                <option value=""> - Select pre-defined choices - </option>
+                                            </select> -->
+                                        </div>
+                                        <div>
+                                            <button class="rb-question-answers-add">Add choice</button>
                                         </div>
                                     </div>
-                                    <div class="choices-list">
-                                        <span class="choice-hint">Please add the first choice <!-- or select pre-defined choices: --></span>
-                                        <ul class="choices-list-items">
-                                        </ul>
-                                    </div>
-                                    <div class="rb-predefined-choices-div">
-                                        <select name="predefined-choice-list">
-                                            <option value=""> - Select pre-defined choices - </option>
-                                        </select>
-                                    </div>
-                                    <div class="btn-add-div">
-                                        <button class="btn-add" onclick="$.RexFormBuilder.addChoice(this);return false;">Add choice</button>
+                                </div>
+                            </td>
+                            <td class="rb_question_table_right" valign="top">
+                                <div class="rb_question_table_right_div">
+                                    <h3 class="unique-name">Unique name</h3>
+                                    <input type="text" name="question-name" class="rb_question_input_short slave" maxlength="40" /><br>
+                                    <input type="checkbox" name="question-required" /> Required
+                                    <h3>Constraints</h3>
+                                    <a class="rb-question-constraint" href="javascript:void(0);">No constraints</a>
+                                    <button class="rb-question-constraint-change">Change</button>
+                                    <div class="rb-disable-logic">
+                                    <h3>Disable conditions</h3>
+                                    <a class="rb-question-disable-if" href="javascript:void(0);">Never disabled</a> 
+                                    <button class="rb-question-disable-if-change">Change</button>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="rb_question_table_right" valign="top">
-                            <div class="rb_question_table_right_div">
-                                <h3 class="unique-name">Unique name</h3>
-                                <input type="text" name="question-name" class="rb_question_input_short slave" maxlength="40" /><br>
-                                <input type="checkbox" name="question-required" /> Required
-                                <h3>Constraints</h3>
-                                <a class="rb_constraint_descr" href="javascript:void(0);" onclick="$.RexFormBuilder.changeConstraints(this);">No constraints</a>
-                                <button onclick="$.RexFormBuilder.changeConstraints(this);">Change</button>
-                                <div class="rb-disable-logic">
-                                <h3>Disable conditions</h3>
-                                <a class="rb_disable_logic_descr" href="javascript:void(0);" onclick="$.RexFormBuilder.changeDisableLogic(this);">Never disabled</a> 
-                                <button onclick="$.RexFormBuilder.changeDisableLogic(this);">Change</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="rb_question_table_long_row rb_question_table_subquestions" style="display: none;">
+                                <div class="rb_subquestions_wrap">
+                                    <div class="rb_subquestion_actions">
+                                        <button class="rb_add_question_to_group rb_small_button">Add Question to Group</button>
+                                    </div>
+                                    <h3>Repeating Group of Questions:</h3>
+                                    <ul class="rb_subquestion_list">
+                                    </ul>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="rb_question_table_long_row rb_question_table_subquestions" style="display: none;">
-                            <div class="rb_subquestions_wrap">
-                                <div class="rb_subquestion_actions">
-                                    <button class="rb_add_question_to_group rb_small_button">Add Question to Group</button>
-                                </div>
-                                <h3>Repeating Group of Questions:</h3>
-                                <ul class="rb_subquestion_list">
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="rb_question_table_long_row rb_question_table_bottom">
-                            <!-- <button class="btn-save" onclick="$.RexFormBuilder.stopEvent(arguments[0]);$.RexFormBuilder.saveQuestion(this);">Close</button> -->
-                            <button onclick="$.RexFormBuilder.stopEvent(arguments[0]);$.RexFormBuilder.cancelQuestionEdit(this);">Cancel</button>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="rb_question_table_long_row rb_question_table_bottom">
+                                <!-- <button class="btn-save" onclick="$.RexFormBuilder.stopEvent(arguments[0]);$.RexFormBuilder.saveQuestion(this);">Close</button> -->
+                                <button class="rb-question-cancel">Cancel</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </li>
 
-            <li id="tpl_choices_item" class="rb_choices_item">
+            <li id="tpl_variant" class="rb-variant">
                 <div>
                     <div class="restrict-drag">
                         <input type="text" name="answer-title" class="rb_choice_input_title" />
                     </div>
                     <div class="rb_choices_item_right">
                         <div class="rb_choices_item_actions">
-                            <a href="javascript:void(0);" onclick="$.RexFormBuilder.removeChoicesItem(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                            <a href="javascript:void(0);" class="rb-variant-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                         </div>
                         <div class="restrict-drag">
                             <input type="text" name="answer-code" class="rb_choice_input rb_with_margin slave" maxlength="20" />
-                            <!--
-                            <div>
-                                Score: <input type="text" name="answer-score" class="rb_choice_input_small" />
-                            </div>
-                            -->
                         </div>
                         <div class="btn-remove-container">
                             <a href="javascript:void(0)" onclick="removeChoice(this);" class="remove-choice"><span class="btn-remove"></span></a>

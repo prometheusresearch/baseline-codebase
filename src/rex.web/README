@@ -2,6 +2,9 @@
   REX.WEB -- Web stack for the Rex platform
 *********************************************
 
+.. contents:: Table of Contents
+
+
 Overview
 ========
 
@@ -10,4 +13,192 @@ This package provides the web stack for the Rex platform.
 This package is a part of the RexDB platform for medical research
 data management.  It is created by Prometheus Research, LLC
 and released under AGPLv3 license.
+
+
+Handlers and Routing
+====================
+
+There are several ways to a project to respond to HTTP requests:
+
+1. All files in the ``static/www`` directory are accessible via HTTP.
+   You can provide a handler based on file extension by implementing
+   ``FileHandler`` interface.
+
+2. You can create pure-Python handler using ``PathHandler`` interface.
+
+3. You can provide a handler for specific error codes using ``ErrorHandler``
+   interface.
+
+All the handlers are assembled to a routing tree.  The tree is generated
+as follows:
+
+1. A project responsible for the request is determined from the *mount*
+   table.
+
+2. If the project has a file in ``static/www`` matching the request URI,
+   the response is the file.  An application can provide specific handlers
+   using ``FileHandler`` interface.
+
+3. If the project has a path handler with path matching the request URI,
+   the handler is invoked.
+
+4. Any HTTP exceptions are delegated to a respective ``ErrorHandler``.
+
+
+Authentication and Authorization
+================================
+
+``rex.web.authenticate(req)``
+    Returns the current user or ``None``.
+
+``rex.web.authorize(req, role)``
+    Returns ``True`` if the current user has permissions to execute
+    the action described by ``role``; returns ``False`` otherwise.
+
+    FIXME: maybe, raise an exception?
+
+``rex.web`` defines three roles:
+
+``'authenticated'``
+    Any logged in user.
+
+``'anybody'``
+    Everyone is allowed to do this.
+
+``'nobody'``
+    No one is allowed to do this.
+
+Functions ``authenticate()`` and ``authorize()`` are implemented with
+``Authenticate`` and ``Authorize`` extensions.
+
+
+Static Files
+============
+
+Files from ``static/www`` are exposed via HTTP.
+
+Files and directories that start with ``.`` or ``_`` are hidden.
+
+By default, static files are available for any authenticated user.  You can change
+this using ``static/www/_roles.yaml``.  This file contains a mapping from file name
+to role.  For example::
+
+    index.html: anybody
+    hidden.dat: nobody
+
+
+Commands
+========
+
+Commands is a way to handle an HTTP request in Python code.  To make a new command,
+inherit it from ``Command`` class::
+
+    from rex.web import Command, Parameter
+    from rex.core import StrVal
+    from webob import Response
+
+    class HelloCmd(Command):
+
+        path = '/hello'
+        parameters = [
+            Parameter('name', StrVal('^[A-Za-z]$'), default='World'),
+        ]
+
+        def render(self, req, name):
+            return Response("Hello, %s!" % name, content_type='text/plain')
+
+
+API Reference
+=============
+
+Authentication and Authorization
+--------------------------------
+
+``rex.web.authenticate(req)``
+    Returns the current user or ``None``.
+
+``rex.web.authorize(req, role)``
+    Returns whether the current user is allowed to performed an action
+    described by ``role``.
+
+``rex.web.Authenticate``
+    This extension implements ``rex.web.authenticate()``.
+
+``rex.web.Authorize``
+    This extension implements ``rex.web.authorize()``.
+
+``rex.core`` defines the following roles:
+
+``authenticated``
+    Any authenticated user can perform this action.
+
+``anybody``
+    This action has no restrictions.
+
+``nobody``
+    This action is forbidden.
+
+Handlers, Commands, Mounting
+----------------------------
+
+The following extensions allows you to handle HTTP requests in Python code.
+All handler types define method ``__call__(req)``, which must be overridden in
+subclasses.
+
+``rex.web.PathHandler()``
+    Handles an HTTP request with a specific path.
+
+    ``path``
+        The path; ``'*'`` for catch-all.
+
+``rex.web.FileHandler(filename)``
+    Handles file requests.
+
+    ``ext``
+        File extensions, e.g. ``'.html'``.
+
+``rex.web.ErrorHandler(error)``
+    Handles HTTP errors.
+
+    ``code``
+        Error code, e.g. ``401``.
+
+``rex.web.Command``
+    Specialized variant of ``PathHandler`` with built-in permission checks
+    and parameter parsing.
+
+    Class attributes:
+
+    ``path``
+        The path handled by the command.
+    ``role``
+        The role which the current user must possess to execute the command.
+        Use ``'anybody'`` to make a public command.  The default is
+        ``'authenticated'``.
+    ``parameters``
+        List of command parameters.  Set to ``None`` to disable automatic
+        argument parsing.
+
+    Methods:
+
+    ``render(req, **arguments)``
+        Performs the command and returns an HTTP response.
+
+``rex.web.Parameter(name, validate, default)``
+    Describes command parameter.
+
+``get_mount()``
+    Returns the package mount table.  A mount table is a dictionary: the keys
+    are package names, the values are path segments.
+
+Templates
+---------
+
+``rex_jinja``
+    Jinja2 environment object specialized to process files from ``static``
+    directory.  Supports ``<package>:<static_path>`` syntax.
+
+``render_to_response(path, req, **arguments)``
+    Renders a template; returns a response.
+
 

@@ -417,8 +417,12 @@ body, p, div, td, input {
     width: 95%;
 }
 
-textarea.rb_question_input {
+textarea.rb_question_input[name=question-title] {
     height: 80px;
+}
+
+textarea.rb_question_input[name=question-help] {
+    height: 40px;
 }
 
 .rb-subquestions-wrap {

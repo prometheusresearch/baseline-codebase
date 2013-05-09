@@ -1104,6 +1104,7 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
     self.autoGenerateId = !(self.question && self.question.name);
 
     var nodeTitle = self.node.find('textarea[name=question-title]:first');
+    var nodeHelp = self.node.find('textarea[name=question-help]:first');
     var nodeName = self.node.find('input[name=question-name]:first');
     var nodeRequired = self.node.find('input[name=question-required]:first');
     var nodeAnnotation = self.node.find('input[name=question-annotation]:first');
@@ -1189,6 +1190,7 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
     if (self.question) {
         nodeTitle.val(self.question.title || '');
         nodeName.val(self.question.name || '');
+        nodeHelp.val(self.question.help || '');
         if (self.question.required)
             nodeRequired.attr('checked', 'checked');
         if (self.question.annotation)
@@ -1217,6 +1219,7 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
         var customTitles = customTitleEditor.getDef();
         var constraints = constraintEditor.getValue();
         var disableIf = disableIfEditor.getValue();
+        var help = $.trim(nodeHelp.val());
         if (!def.name)
             throw new builder.ValidationError(
                 "Question name could not be empty", self);
@@ -1224,6 +1227,8 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
         if (!def.title)
             throw new builder.ValidationError(
                 "Question title could not be empty", self);
+        if (help)
+            def.help = help;
         if (annotation)
             def.annotation = annotation;
         if (explanation)
@@ -1410,6 +1415,14 @@ builder.init = function (o) {
     $("#rb_save_instrument").click(function () {
         builder.save({});
     });
+
+    var testButton = $("#rb_test");
+    if (builder.context.urlStartTest)
+        testButton.click(function () {
+            builder.test();
+        });
+    else
+        testButton.attr('disabled', 'disabled');
 };
 
 builder.showJSON = function () {
@@ -1444,100 +1457,7 @@ builder.save = function (o) {
     });
 };
 
-/* 
-$.RexFormBuilder.namesWhichBreaksConsistency = function (names, exclude) {
-    console.log('namesWhichBreaksConsistency(', names, ')');
-
-    var badNames = {};
-    var chkNames = {};
-    $.each(names, function (_, name) {
-        chkNames[name] = true;
-    });
-
-    questionIndex = $.RexFormBuilder.context.getIndexByType('question');
-
-    for (var idx in questionIndex) {
-        var question = questionIndex[idx];
-        
-        if (question === exclude)
-            continue;
-        
-        if (chkNames[question.name]) {
-
-            badNames[question.name] = true;
-            delete chkNames[question.name];
-
-        } else if (question.type === "set") {
-
-            for (var idx in question.answers) {
-                var fullName = question.name + '_'
-                               + question.answers[idx].code;
-                if (chkNames[fullName]) {
-                    badNames[fullName] = true;
-                    delete chkNames[fullName];
-                }
-            }
-        }
-    }
-
-    return Object.keys(badNames);
-}
-
-$.RexFormBuilder.generateMetaJSON = function(instrumentName, doBeautify) {
-    var instrumentMeta = $.RexFormBuilder.generateMeta(instrumentName);
-
-    if (doBeautify && JSON && JSON.stringify)
-        return JSON.stringify(instrumentMeta, null, 4);
-
-    return $.toJSON(instrumentMeta);
-}
-
-$.RexFormBuilder.saveInstrumentReal = function(callback) {
-    var instrumentName = $.RexFormBuilder.instrumentName;
-
-    if (!instrumentName)
-        instrumentName = prompt("Please set instrument name:");
-
-    if (instrumentName) {
-        if ($.RexFormBuilder.context.getIndexByType('question').length == 0) {
-            alert('A form should contain at least one question!');
-            return;
-        }
-    
-        var meta = $.RexFormBuilder.generateMeta(instrumentName);
-
-        meta = $.toJSON(meta);
-        var schema = 'instrument=' + encodeURIComponent(instrumentName) 
-                    + '&data=' + encodeURIComponent( meta );
-
-        var url = $.RexFormBuilder.context.urlSaveForm ||
-                 ($.RexFormBuilder.basePrefix + "/add_instrument");
-        $.ajax({url : url,
-            success : function(content) {
-                if (!$.RexFormBuilder.instrumentName)
-                    $.RexFormBuilder.instrumentName = instrumentName;
-
-                if (callback)
-                    callback();
-                else
-                    alert('instrument saved!');
-            },
-            error: function() {
-                $.RexFormBuilder.closeProgress();
-                alert('Error of saving instrument!');
-            },
-            data : schema,
-            type: 'POST'
-        });
-    }
-};
-
-$.RexFormBuilder.saveInstrument = function(callback) {
-    $.RexFormBuilder.closeOpenedEditor(function () {
-        $.RexFormBuilder.saveInstrumentReal();
-    }, questionListDiv);
-}
-
+/*
 $.RexFormBuilder.hints = {
     emptyField: 'This field could not be empty!',
     wrongQuestionId: 'Question names must begin with a letter. '
@@ -1684,32 +1604,6 @@ $.RexFormBuilder.makeREXLCache = function (obj, condName) {
         } catch(err) {
             delete obj[condName];
         }
-    }
-}
-
-$.RexFormBuilder.changeConstraints = function(btn) {
-    var jButton = $(btn);
-    var questionEditor = jButton.parents('.rb_question_editor:first');
-
-    $.RexFormBuilder.constraintsThisQuestion =
-        $.RexFormBuilder.collectQuestionData(questionEditor);
-
-    if ($.RexFormBuilder.constraintsThisQuestion) {
-        $.RexFormBuilder.conditionEditor.open({
-            title: 'Edit Constraints',
-            callback: function (newValue) {
-                questionEditor[0].constraints = newValue;
-                $.RexFormBuilder.makeREXLCache(questionEditor[0], 'constraints');
-                $.RexFormBuilder.updateConstraintsDescription(questionEditor);
-            },
-            defaultIdentifier: 'this',
-            onClose: function (newValue) {
-                $.RexFormBuilder.constraintsThisQuestion = null;
-            },
-            conditions: questionEditor[0].constraints
-        });
-    } else {
-        alert('Impossible: there are wrong values in the editor');
     }
 }
 
@@ -1942,12 +1836,6 @@ $.RexFormBuilder.interceptCutoff = function(cutoff1, cutoff2) {
     return intercept;
 }
 
-$.RexFormBuilder.makePageGroupFromSelection = function() {
-    $.RexFormBuilder.editPageDialog.open({
-        mode: 'group'
-    });
-}
-
 $.RexFormBuilder.processSelectedPages = function(newGroupName) {
     var firstPage = $.RexFormBuilder.currentSelection[0];
     var lastPage = 
@@ -2054,10 +1942,6 @@ $.RexFormBuilder.progressDialogPolling = function() {
     params['pollCallback']();
 }
 
-$.RexFormBuilder.showInstrumentJSON = function() {
-    
-}
-
 $.RexFormBuilder.testInstrument = function() {
 
     var params = $.RexFormBuilder.context.getIndexByType('parameter');
@@ -2118,7 +2002,6 @@ $.RexFormBuilder.testInstrumentStage4 = function() {
 
     window.open(url + '?' + query, '_blank');
 }
-
 */
 
 })();

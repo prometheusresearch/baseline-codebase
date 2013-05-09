@@ -2,6 +2,9 @@
   REX.CORE -- Core components of the Rex platform
 ***************************************************
 
+.. contents:: Table of Contents
+
+
 Overview
 ========
 
@@ -37,13 +40,17 @@ with the ``with`` statement::
     with app:
         [...]
 
-This fragment activates ``app`` and executes the code in the ``with`` block.
+This fragment executes the code in the ``with`` block with ``app`` being
+active.
 
 Use function ``get_rex()`` to get the current active Rex application::
 
     from rex.core import get_rex
 
-    app = get_rex()
+    [...]
+    with app:
+        [...]
+        app = get_rex()     # Same `app` as in the `with` clause.
 
 Application components
 ----------------------
@@ -65,13 +72,16 @@ a package by name::
 
     from rex.core import get_packages
 
-    packages = get_packages()
+    [...]
+    with app:
 
-    for package in packages:
-        print package.name
+        packages = get_packages()
 
-    acquire_package = packages['rex.acquire']
-    print acquire_package.name
+        for package in packages:
+            print package.name
+
+        acquire_package = packages['rex.acquire']
+        print acquire_package.name
 
 Method ``packages.root()`` returns the primary package of the application::
 
@@ -85,6 +95,17 @@ write::
     settings_data = settings_file.read()
     settings_file.close()
 
+Both absolute and relative paths are accepted; and both are interpreted
+relative to the ``static`` directory of the package.
+
+Package collection provides exactly the same API for reading static files.
+However, in this case, the file name must be prepended with the package name
+and ``:``::
+
+    packages = get_packages
+    settings_file = open('rex.acquire:/settings.yaml')
+
+
 Application configuration
 -------------------------
 
@@ -93,12 +114,15 @@ application::
 
     from rex.core import get_settings
 
-    settings = get_settings()
+    [...]
+    with app:
 
-    db = settings.db
-    data_folder = settings.data_folder
+        settings = get_settings()
 
-Application configuration is generated from parameters passed to the ``RexApp``
+        db = settings.db
+        data_folder = settings.data_folder
+
+Application configuration is generated from parameters passed to the ``Rex``
 constructor as well as predefined setting values provided by packages.  The set
 of available settings is determined by the set of included packages.
 
@@ -448,6 +472,14 @@ Packages
 
     ``get(name, default=None)``
         Gets a package by name; returns ``default`` if not found.
+
+    ``abspath(path)``, ``exists(path)``, etc
+        The path must have the form::
+
+            <package>:<local_path>
+
+        These methods are delegated to the respective methods of
+        the specified package.
 
 ``rex.core.get_packages()``
     Returns the collection of packages for the active application.

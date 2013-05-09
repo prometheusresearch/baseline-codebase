@@ -21,6 +21,8 @@ class Package(object):
     def abspath(self, path):
         if self.static is None:
             return None
+        if path.startswith('/'):
+            path = path[1:]
         path = os.path.abspath(os.path.join(self.static, path))
         if not (path == self.static or path.startswith(self.static+'/')):
             return None
@@ -121,6 +123,25 @@ class PackageCollection(object):
 
     def get(self, name, default=None):
         return self.package_map.get(name, default)
+
+    def _delegate(self, path, method, *args, **kwds):
+        assert ':' in path, "ill-formed path: %r" % path
+        name, local_path = path.split(':')
+        assert name in self.package_map, "unknown package in path: %r" % path
+        package = self.package_map[name]
+        return method(package, local_path, *args, **kwds)
+
+    def abspath(self, path):
+        return self._delegate(path, Package.abspath)
+
+    def exists(self, path):
+        return self._delegate(path, Package.exists)
+
+    def open(self, path):
+        return self._delegate(path, Package.open)
+
+    def walk(self, path):
+        return self._delegate(path, Package.walk)
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.packages)

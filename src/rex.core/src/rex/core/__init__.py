@@ -7,6 +7,7 @@
 
 
 from .application import Rex
+from .cache import cached
 from .extension import Extension
 from .package import Package, PackageCollection, get_packages
 from .setting import Setting, SettingCollection, get_settings

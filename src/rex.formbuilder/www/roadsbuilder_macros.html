@@ -17,20 +17,18 @@
         <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/builder.js" data-prefix="{{ PREFIX['rex.formbuilder'] }}" data-forms-prefix="{{ PREFIX['rex.formbuilder'] }}"></script>
 {% endmacro -%}
 
-{% macro roadsbuilder(instrument, code, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) -%}
+{% macro roadsbuilder(instrument, code, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) %}
         <script type="text/javascript">
             $(document).ready(function () {
                 $.RexFormBuilder.init({
-                    manualEditConditions: {%- if manual_edit_conditions %}true{%- else %}false{%- endif %},
-                    extParamTypes: {%- if ext_param_types %}{{ ext_param_types }}{%- else %}null{%- endif %},
+                    manualEditConditions: {% if manual_edit_conditions %}true{% else %}false{% endif %},
+                    extParamTypes: {% if ext_param_types %}{{ ext_param_types }}{% else %}null{% endif %},
                     instrument: {{ instrument|json }},
                     code: {{ code|json }},
                     {% if url_start_test %}
                     urlStartTest: {{ url_start_test|json }},
                     {% endif %}
-                    {% if url_save_form %}
-                    urlSaveForm: {{ url_save_form|json }}
-                    {% endif %}
+                    urlSaveForm: {% if url_save_form %}{{ url_save_form|json }}{% else %}{{ PREFIX['rex.formbuilder']|json }} + '/save'{% endif %}
                 });
             });
         </script>
@@ -44,9 +42,9 @@
                 <input type="text" id="rb_instrument_title_input" style="display: none;" />
             </div>
             <div class="rb_tools_button_wrapper">
-                <button class="rb_tools_button">Save</button>
-                <button class="rb_tools_button">Test</button>
-                <button class="rb_tools_button" onclick="$.RexFormBuilder.showJSONDialog.open()">JSON</button>
+                <button class="rb_tools_button" id="rb_save_instrument">Save</button>
+                <button class="rb_tools_button" id="rb_test">Test</button>
+                <button class="rb_tools_button" id="rb_show_json" onclick="$.RexFormBuilder.showJSONDialog.open()">JSON</button>
             </div>
             <div class="rb_params_wrapper">
                 <button id="rb_params_add" class="rb_small_button rb_right_aligned">Add Parameter</button>
@@ -99,7 +97,7 @@
             <li id="tpl_question" class="rb-question">
                 <div>
                     <div class="rb_question_actions">
-                        <a href="javascript:void(0);" onclick="$.RexFormBuilder.removeQuestion(this);"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        <a href="javascript:void(0);" class="rb-question-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                     </div>
                     <div class="q_caption">
                         <div class="rb-question-title">

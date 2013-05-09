@@ -39,9 +39,22 @@ class FormBuilderPackageHandler(PackageHandler):
         self.instrument_dir = app.config.formbuilder_instruments
         super(FormBuilderPackageHandler, self).__init__(app, package)
 
+    def instrument_filename(self, instrument):
+        return "%s/%s.json" % (self.instrument_dir, instrument)
+
+    def save_instrument(self, instrument, code):
+        try:
+            filename = self.instrument_filename(instrument)
+            with open(filename, 'w') as f:
+                f.write(code)
+            return True
+        except IOError as e:
+            pass
+        return False
+
     def get_latest_instrument(self, instrument):
         try:
-            filename = "%s/%s.json" % (self.instrument_dir, instrument)
+            filename = self.instrument_filename(instrument)
             with open(filename, 'r') as f:
                 return (f.read(), 0)
         except IOError as e:

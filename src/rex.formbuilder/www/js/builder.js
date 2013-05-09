@@ -51,7 +51,7 @@ Question.prototype.getDef = function () {
     };
     if (this.help)
         def.help = this.help;
-    if (this.customTitles)
+    if (!builder.isEmpty(this.customTitles))
         def.customTitles = $.extend(true, {}, this.customTitles);
     if (this.slave)
         def.slave = this.slave;
@@ -84,7 +84,7 @@ VariantQuestion.prototype.getDef = function () {
     var def = Question.prototype.getDef.call(this);
     if (this.dropDown)
         def.dropDown = this.dropDown;
-    def.answers = $.extend(true, {}, this.answers);
+    def.answers = $.extend(true, [], this.answers);
     return def;
 }
 
@@ -93,9 +93,7 @@ var RepeatingGroupQuestion = function (def, templates) {
     var self = this;
     this.group = [];
     $.each(def.repeatingGroup, function (_, questionDef) {
-        var type = questionDef.type;
-        var cls = builder.questionTypes[type].cls;
-        var question = new cls(questionDef, templates);
+        var question = builder.createQuestion(questionDef, templates);
         self.group.push(question);
     });
 };
@@ -106,6 +104,7 @@ RepeatingGroupQuestion.prototype.getDef = function () {
     $.each(this.group, function (_, question) {
         def.repeatingGroup.push(question.getDef());
     });
+    return def;
 };
 
 var Page = function (o) {
@@ -117,8 +116,7 @@ var Page = function (o) {
     this.node = this.createNode();
     this.node.data('owner', this);
     $.each(o.def.questions || [], function (_, questionDef) {
-        var cls = builder.questionTypes[questionDef.type].cls;
-        var question = new cls(questionDef, self.templates);
+        var question = builder.createQuestion(questionDef, self.templates);
         self.questions.push(question);
     });
     this.setTitle(o.def.title || null);
@@ -181,6 +179,22 @@ Page.prototype.setSkipIf = function (skipIf) {
 Page.prototype.remove = function () {
     this.parent.exclude(this);
     this.node.remove();
+};
+Page.prototype.getDef = function () {
+    var def = {
+        type: 'page',
+        questions: []
+    };
+    if (this.skipIf)
+        def.skipIf = this.skipIf;
+    if (this.cId)
+        def.cId = this.cId;
+    if (this.title)
+        def.title = this.title;
+    $.each(this.questions, function (_, question) {
+        def.questions.push(question.getDef());
+    });
+    return def;
 };
 
 var PageContainer = function (pageList, pageDefs, onSelectPage) {
@@ -320,6 +334,17 @@ Group.prototype.bindEvents = function () {
                 })
             });
 };
+Group.prototype.getDef = function () {
+    var def = Page.prototype.getDef.call(this);
+    def.type = 'group';
+    def.pages = [];
+    if (def['questions'])
+        delete def['questions'];
+    $.each(this.pages, function (_, page) {
+        def.pages.push(page.getDef());
+    });
+    return def;
+};
 
 (function () {
     var scripts = document.getElementsByTagName( 'script' );
@@ -388,11 +413,12 @@ builder.questionTypes = {
         cls: RepeatingGroupQuestion
     }
 };
+builder.createQuestion = function (def, templates) {
+    var cls = builder.questionTypes[def.type].cls;
+    return new cls(def, templates);
+};
 builder.copyQuestion = function (question) {
-    var type = question.type;
-    var def = question.getDef();
-    var cls = builder.questionTypes[type].cls;
-    return new cls(def, question.templates);
+    return builder.createQuestion(question.getDef(), question.templates);
 };
 
 $.RexFormBuilder.predefinedLists = {};
@@ -452,6 +478,14 @@ var Pages = function (o) {
     });
 };
 builder.extend(Pages, PageContainer);
+Pages.prototype.getDef = function () {
+    var self = this;
+    var def = [];
+    $.each(self.pages, function (_, page) {
+        def.push(page.getDef());
+    });
+    return def;
+};
 
 var InputParameter = function (def, parent, template, extParamTypes, onRemove) {
     var self = this;
@@ -488,6 +522,12 @@ var InputParameter = function (def, parent, template, extParamTypes, onRemove) {
         self.node.find('.rb-param-name').text(self.name);
         var typeTitle = builder.paramTypeTitle(self.type);
         self.node.find('.rb-param-type').text(typeTitle);
+    };
+    this.getDef = function () {
+        return {
+            type: self.type,
+            name: self.name
+        };
     };
 
     this.update(def.name, def.type);
@@ -535,6 +575,13 @@ var InputParameters = function (o) {
                                self.extParamTypes);
         self.parameters.push(parameter);
         self.sort(); // also it will auto-append new parameter to the list node
+    };
+    this.getDef = function () {
+        var def = [];
+        $.each(self.parameters, function (_, parameter) {
+            def.push(parameter.getDef());
+        });
+        return def;
     };
     this.updateParameter = function (parameter, newName, newType) {
         if (!self.isUnique(newName, parameter)) {
@@ -926,21 +973,6 @@ var VariantsEditor = function (o) {
     self.updateHelpers();
 };
 
-/*
-var SubquestionEditor = function (node, subquestions, templates) {
-    var self = this;
-    var node = self.node.find('.rb-subquestions-wrap:first');
-    var nodeList = self.node.find('.rb-subquestions:first');
-
-    this.show = function () {
-        node.css('display', 'none');
-    };
-    this.hide = function () {
-        node.css('display', 'none');
-    };
-};
-*/
-
 var QuestionContainer = function (o) {
     var self = this;
     self.editor = null;
@@ -973,11 +1005,16 @@ var QuestionContainer = function (o) {
             }
         });
     };
-    self.excludeQuestion = function (question) {
+    self.replace = function (oldQuestion, newQuestion) {
+        var idx = self.questions.indexOf(oldQuestion);
+        self.questions[idx] = newQuestion;
+    };
+    self.exclude = function (question) {
         var idx = self.questions.indexOf(question);
         self.questions.splice(idx, 1);
     };
     self.closeQuestionEditor = function (cancel) {
+        var ret = true;
         if (self.editor) {
             try {
                 if (!self.editor.empty()) {
@@ -985,15 +1022,11 @@ var QuestionContainer = function (o) {
                     if (cancel && self.editor.question)
                         question = self.editor.question;
                     else {
-                        var def = self.editor.getDef();
-                        var type = def.type;
-                        var cls = builder.questionTypes[type].cls;
-                        question = new cls(def, self.templates);
+                        question = builder.createQuestion(self.editor.getDef(),
+                                                          self.templates);
                         self.makeClickable(question);
-                        if (self.editor.question) {
-                            var idx = self.questions.indexOf(self.editor.question);
-                            self.questions[idx] = question;
-                        };
+                        if (self.editor.question)
+                            self.replace(self.editor.question, question);
                     }
                     if (question)
                         self.editor.node.before(question.getNode());
@@ -1002,17 +1035,20 @@ var QuestionContainer = function (o) {
                 self.editor = null;
                 self.rearrange();
             } catch (e) {
+                ret = false;
                 if (e.name === "ValidationError") {
                     alert(e.message);
                     if (e.obj)
                         e.obj.node[0].scrollIntoView();
-                }
-                throw e;
+                } else
+                    throw e;
             }
         }
+        return ret;
     };
     self.openQuestionEditor = function (question) {
-        self.closeQuestionEditor();
+        if (!self.closeQuestionEditor())
+            return;
         var isNew = question ? true : false;
         var onCancel = function () {
             self.closeQuestionEditor(true);
@@ -1256,7 +1292,8 @@ var PageEditor = function (o) {
         self.editor = null;
     };
     this.show = function (page) {
-        self.closeQuestionEditor();
+        if (!self.closeQuestionEditor())
+            return;
         self.setPage(page);
         self.editorNode.css('display', '');
     };
@@ -1315,6 +1352,14 @@ builder.initDialogs = function () {
     });
 }
 
+builder.getInstrumentData = function () {
+    return {
+        params: builder.inputParameters.getDef(),
+        pages: builder.pages.getDef(),
+        title: builder.instrumentTitle.getTitle()
+    };
+};
+
 builder.init = function (o) {
     builder.context =
         new Context(o.instrument, o.extParamTypes,
@@ -1356,6 +1401,46 @@ builder.init = function (o) {
         skipIfButton: $("#rb_page_skip_if_change"),
         listNode: $("#rb_question_list"),
         templates: builder.templates
+    });
+
+    $("#rb_show_json").click(function () {
+        builder.showJSON();
+    });
+
+    $("#rb_save_instrument").click(function () {
+        builder.save({});
+    });
+};
+
+builder.showJSON = function () {
+    var data = builder.getInstrumentData();
+    var json = JSON.stringify(data, null, 4);
+    builder.showJSONDialog.open(json);
+};
+
+builder.save = function (o) {
+    var data = $.toJSON(builder.getInstrumentData());
+    var postData = 'instrument='
+                    + encodeURIComponent(builder.context.instrumentName)
+                    + '&data=' + encodeURIComponent(data);
+    $.ajax({
+        url: builder.context.urlSaveForm,
+        data: postData,
+        success: function (content, textStatus, req) {
+            if (o.success)
+                o.success();
+            else
+                alert("Instrument saved successfully");
+        },
+        cache: false,
+        error: function (req) {
+            var text = req ? req.responseText : 'connection error';
+            if (o.error)
+                o.error(text);
+            else
+                alert("Save error: " + text);
+        },
+        type: 'POST'
     });
 };
 

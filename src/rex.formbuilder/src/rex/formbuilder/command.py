@@ -1,13 +1,17 @@
 import simplejson
+import re
 
 from rexrunner.response import BadRequestError
 from rexrunner.registry import register_command
-
-#from rex.forms.command import RoadsCommand
 from rexrunner.command import Command
 from webob import Response
 
 class FormBuilderBaseCommand(Command):
+
+    def check_name(self, name):
+        if re.match(r"^[a-zA-Z0-9_\-]+$", name):
+            return True
+        return False
 
     def __init__(self, parent):
         super(FormBuilderBaseCommand, self).__init__(parent)
@@ -40,16 +44,33 @@ class LoadForm(FormBuilderBaseCommand):
         return Response(body=form)
 
 @register_command
+class SaveInstrument(FormBuilderBaseCommand):
+
+    name = '/save'
+
+    def render(self, req):
+        instrument = req.POST.get('instrument')
+        data = req.POST.get('data')
+        if not instrument or not data:
+            raise BadRequestError(detail='Missed instrument details')
+        if not self.check_name(instrument):
+            raise BadRequestError(detail='Wrong instrument name')
+        # TODO: validate instrument
+        if not self.handler.save_instrument(instrument, data):
+            raise BadRequestError(detail='Could not write instrument data')
+        return Response(body='OK')
+
+@register_command
 class RoadsBuilder(FormBuilderBaseCommand):
 
     name = '/builder'
 
     def render(self, req):
-        # self.set_handler()
-
         instrument = req.GET.get('instrument')
         if not instrument:
             return Response(status='401', body='Instrument ID is not provided')
+        if not self.check_name(instrument):
+            raise BadRequestError(detail='Wrong instrument name')
         (code, _) = self.handler.get_latest_instrument(instrument)
         code = simplejson.loads(code)
         # if not form:

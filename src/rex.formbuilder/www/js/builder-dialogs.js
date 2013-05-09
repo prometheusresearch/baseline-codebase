@@ -301,7 +301,6 @@ dialogNS.EditParamDialog = function (o) {
     };
 }
 
-
 dialogNS.ShowJSONDialog = function (o) {
     var node = null;
     var outputNode = null;
@@ -324,12 +323,7 @@ dialogNS.ShowJSONDialog = function (o) {
         modal: true,
     });
     outputNode = $('textarea', node);
-    this.open = function () {
-        var jsonTxt =
-            builder.generateMetaJSON(
-                builder.instrumentName || '',
-                true
-            );
+    this.open = function (jsonTxt) {
         outputNode.val(jsonTxt);
         node.dialog('open');
     };

@@ -2,7 +2,20 @@
 (function () {
 
 var builder = $.RexFormBuilder = $.RexFormBuilder || {};
-builder.illegalIdChars = new RegExp("(^[^a-zA-Z])|([^a-zA-Z0-9_]+)|([^a-zA-Z0-9]$)", "g");
+
+builder.getIllegalIdChars = function (separator) {
+    return new RegExp("(^[^a-zA-Z])|([^a-zA-Z0-9\\" + separator + "]+)", "g");
+};
+
+builder.illegalIdChars = builder.getIllegalIdChars("_");
+    // new RegExp("(^[^a-zA-Z])|([^a-zA-Z0-9_]+)", "g");
+
+builder.keys = function (array) {
+    var ret = [];
+    for (var k in array)
+        ret.push(k);
+    return ret;
+}
 
 builder.isValidNumeric = function(val, condType) {
     return (

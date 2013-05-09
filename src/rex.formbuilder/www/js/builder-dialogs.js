@@ -133,6 +133,88 @@ dialogNS.promptDialog = function (o) {
     };
 }
 
+dialogNS.CustomTitleDialog = function (o) {
+
+    var self = this;
+    var parent = o.parent || null;
+    var template =
+         '<div class="rb-custom-title-dialog">'
+            + '<div>'
+            +   '<h3></h3>'
+            +   '<p>For:<br>'
+            +      '<select class="rb-custom-title-type"></select>'
+            +   '</p>'
+            +   '<p>Text:<br>'
+            +       '<input type="text" class="rb-custom-title-input" />'
+            +   '</p>'
+            + '</div>'
+        + '</div>';
+    this.options = null;
+
+    this.close = function () {
+        self.options = null;
+        node.dialog('close');
+    };
+
+    var node = $(template);
+    var input = $('input.rb-custom-title-input', node);
+    var select = $('select.rb-custom-title-type', node);
+    var header = $('h3', node);
+
+    $.each(o.customTitleTypes, function (type, typeTitle) {
+        select.append(
+            $('<option>')
+                .text(typeTitle)
+                .attr('value', type)
+        );
+    });
+
+    this.validate = function (type, text) {
+        if (self.options.validate && !self.options.validate(type, text))
+            return false;
+        return true;
+    };
+
+    this.onOk = function () {
+        var newText = jQuery.trim(input.val());
+        var newType = jQuery.trim(select.val());
+        if (!self.validate(newType, newText)) {
+            alert("Wrong input title or such title type is already set!");
+            return;
+        }
+        if (self.options.onSet)
+            self.options.onSet(newType, newText);
+        self.close();
+    };
+
+    node = node.dialog({
+        autoOpen: false,
+        title: 'Edit Custom Title',
+        width: 300,
+        height: 230,
+        modal: true,
+        buttons: {
+            'Ok': self.onOk,
+            'Cancel': self.close
+        }
+    });
+
+    this.open = function (o) {
+        self.options = {};
+        self.options.initialText = o.initialText || '';
+        self.options.initialType = o.initialType || builder.keys(o.customTitleTypes)[0];
+        self.options.onSet = o.onSet || null;
+        self.options.validate = o.validate || null;
+        self.options.title = o.title || 'Edit Custom Title';
+        self.options.question = o.question || 'Please input custom title details:';
+        node.dialog('option', 'title', self.options.title);
+        header.text(self.options.question);
+        select.val(self.options.initialType);
+        input.val(self.options.initialText);
+        node.dialog('open');
+    };
+}
+
 
 dialogNS.EditParamDialog = function (o) {
 

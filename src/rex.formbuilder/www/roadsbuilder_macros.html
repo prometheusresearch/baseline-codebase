@@ -44,8 +44,8 @@
                 <input type="text" id="rb_instrument_title_input" style="display: none;" />
             </div>
             <div class="rb_tools_button_wrapper">
-                <button class="rb_tools_button" onclick="$.RexFormBuilder.saveInstrument()">Save</button>
-                <button class="rb_tools_button" onclick="$.RexFormBuilder.testInstrument()">Test</button>
+                <button class="rb_tools_button">Save</button>
+                <button class="rb_tools_button">Test</button>
                 <button class="rb_tools_button" onclick="$.RexFormBuilder.showJSONDialog.open()">JSON</button>
             </div>
             <div class="rb_params_wrapper">
@@ -80,7 +80,7 @@
                 <div class="rb_question_list_wrapper">
                     <div class="rb_question_list_header">
                         <span class="rb_small_title">Questions:</span>
-                        <button class="rb_add_question_button" onclick="$.RexFormBuilder.addNewQuestion();">
+                        <button class="rb-question-add">
                             Add Question
                         </button>
                     </div>
@@ -155,27 +155,43 @@
                             <td class="rb_question_table_right" valign="top">
                                 <div class="rb_question_table_right_div">
                                     <h3 class="unique-name">Unique name</h3>
-                                    <input type="text" name="question-name" class="rb_question_input_short slave" maxlength="40" /><br>
-                                    <input type="checkbox" name="question-required" /> Required
+                                    <input type="text" name="question-name" class="rb_question_input_short slave" maxlength="40" />
+                                    <div class="rb-question-checkboxes">
+                                        <div class="rb-question-checkbox">
+                                            <input type="checkbox" name="question-required" /> Required
+                                        </div>
+                                        <div class="rb-question-checkbox">
+                                            <input type="checkbox" name="question-annotation" /> Has annotation
+                                        </div>
+                                        <div class="rb-question-checkbox">
+                                            <input type="checkbox" name="question-explanation" /> Has explanation
+                                        </div>
+                                    </div>
                                     <h3>Constraints</h3>
                                     <a class="rb-question-constraint" href="javascript:void(0);">No constraints</a>
                                     <button class="rb-question-constraint-change">Change</button>
                                     <div class="rb-disable-logic">
-                                    <h3>Disable conditions</h3>
-                                    <a class="rb-question-disable-if" href="javascript:void(0);">Never disabled</a> 
-                                    <button class="rb-question-disable-if-change">Change</button>
+                                        <h3>Disable conditions</h3>
+                                        <a class="rb-question-disable-if" href="javascript:void(0);">Never disabled</a> 
+                                        <button class="rb-question-disable-if-change">Change</button>
+                                    </div>
+                                    <div class="rb-custom-titles-wrap">
+                                        <h3>Custom Titles</h3>
+                                        <div class="rb-custom-titles">
+                                        </div>
+                                        <button class="rb-custom-title-add">Add Custom Title</button>
                                     </div>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2" class="rb_question_table_long_row rb_question_table_subquestions" style="display: none;">
+                            <td colspan="2" class="rb_question_table_long_row rb-subquestions-wrap" style="display: none;">
                                 <div class="rb_subquestions_wrap">
                                     <div class="rb_subquestion_actions">
-                                        <button class="rb_add_question_to_group rb_small_button">Add Question to Group</button>
+                                        <button class="rb-subquestion-add rb_small_button">Add Question to Group</button>
                                     </div>
                                     <h3>Repeating Group of Questions:</h3>
-                                    <ul class="rb_subquestion_list">
+                                    <ul class="rb-subquestions">
                                     </ul>
                                 </div>
                             </td>
@@ -214,6 +230,15 @@
                 <div class="rb_param_actions">
                     <a href="javascript:void(0)" class="rb-param-edit">edit</a>&nbsp;&nbsp;
                     <a href="javascript:void(0)" class="rb-param-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                </div>
+            </div>
+
+            <div id="tpl_custom_title" class="rb-custom-title">
+                <div class="rb-custom-title-for">Add Repeating Group Button</div>
+                <div class="rb-custom-title-text">This is a title for group button</div>
+                <div class="rb-custom-title-actions">
+                    <a href="javascript:void(0);" class="rb-custom-title-edit">edit</a>
+                    <a href="javascript:void(0);" class="rb-custom-title-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
                 </div>
             </div>
 

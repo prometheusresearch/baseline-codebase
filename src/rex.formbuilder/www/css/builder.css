@@ -55,6 +55,7 @@ body, p, div, td, input {
 }
 
 .rb_choices_item_actions,
+.rb-custom-title-actions,
 .rb_question_actions,
 .rb_page_actions,
 .rb_page_group_actions {
@@ -82,6 +83,7 @@ body, p, div, td, input {
     font-size: 11px;
 }
 
+.rb-custom-title:hover .rb-custom-title-actions,
 .rb-variant:hover .rb_choices_item_actions,
 .rb-question:hover .rb_question_actions,
 .rb_page:hover .rb_page_actions,
@@ -393,8 +395,8 @@ body, p, div, td, input {
     display: none;
 }
 
-.rb_subquestion_list > .rb_opened,
-.rb_subquestion_list > .rb_opened:hover {
+.rb-subquestions > .rb_opened,
+.rb-subquestions > .rb_opened:hover {
     background-color: #daefff;
 }
 
@@ -419,7 +421,7 @@ textarea.rb_question_input {
     height: 80px;
 }
 
-.rb_question_table_subquestions {
+.rb-subquestions-wrap {
     background-color: #fff2c9;
 }
 
@@ -442,7 +444,7 @@ textarea.rb_question_input {
     color: black;
 }
 
-.rb_subquestion_list {
+.rb-subquestions {
     margin-top: 10px;
     margin-left: 5px;
     margin-right: 5px;
@@ -587,7 +589,7 @@ input.rb_with_margin {
   display:none; 
 }
 
-.rb_add_question_button {
+.rb-question-add {
     float: right;
 }
 
@@ -633,7 +635,9 @@ input.rb_with_margin {
 
 .rb_select_param_type,
 .rb_edit_param_name,
-.rb-prompt-input {
+.rb-prompt-input,
+.rb-custom-title-type,
+.rb-custom-title-input {
     width: 99%;
 }
 
@@ -646,11 +650,13 @@ input.rb_with_margin {
     overflow: hidden;
 }
 
-.rb-prompt-dialog {
+.rb-prompt-dialog,
+.rb-custom-title-dialog {
     overflow: hidden;
 }
 
-.rb-prompt-dialog h3 {
+.rb-prompt-dialog h3,
+.rb-custom-title-dialog h3 {
     margin: 5px 0px 3px 0px;
     font-size: 100%;
 }
@@ -724,7 +730,7 @@ input.rb_identifier_input {
     margin-bottom: 10px;
 }
 
-.rb_subquestion_list .rb-disable-logic {
+.rb-subquestions .rb-disable-logic {
     display: none;
 }
 
@@ -735,4 +741,30 @@ input.rb_identifier_input {
 .rb-question-answers-list {
     padding: 0px;
     list-style-type: none;
+}
+
+.rb-question-checkboxes {
+    overflow: hidden;
+}
+
+.rb-question-checkbox {
+    float: left;
+    margin-right: 10px;
+}
+
+.rb-custom-title {
+    min-height: 15px;
+    margin: 5px;
+    padding: 4px 5px 4px 5px;
+    position: relative;
+    border-top: 1px solid #e0e0e0;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #a0a0a0;
+    border-bottom: 1px solid #a0a0a0;
+    background-color: #f0f0f0;
+    font-size: 11px;
+}
+
+.rb-custom-title-for {
+    font-weight: bold;
 }

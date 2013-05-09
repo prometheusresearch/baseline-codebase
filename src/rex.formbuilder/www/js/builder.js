@@ -758,6 +758,13 @@ var CustomTitleEditor = function (o) {
         self.titles.push(title);
         self.sort(); // it will also append the new title to the list node
     };
+    self.getDef = function () {
+        var def = {};
+        $.each(self.titles, function (_, title) {
+            def[title.type] = title.text;
+        });
+        return def;
+    };
 
     $.each(o.customTitles, function (type, text) {
         self.add(type, text);
@@ -779,6 +786,17 @@ var Variant = function (code, title, separator, parent, templates) {
     var inputTitle = self.node.find('input[name=answer-title]:first');
     var removeButton = self.node.find('.rb-variant-remove:first');
 
+    self.getDef = function () {
+        if (!self.code) {
+            if (!self.title)
+                return null;
+            throw new builder.ValidationError("Answer code could not empty", self);
+        }
+        return {
+            code: self.code,
+            title: self.title
+        };
+    }
     self.remove = function () {
         self.parent.exclude(self);
         self.node.remove();
@@ -829,6 +847,7 @@ var Variant = function (code, title, separator, parent, templates) {
 var VariantsEditor = function (o) {
     var self = this;
     var node = o.node;
+    var parent = o.parent;
     var nodeHeader = node.find(".rb-question-answers-header:first");
     var nodeList = node.find(".rb-question-answers-list:first");
     var nodeAddButton = node.find(".rb-question-answers-add:first");
@@ -879,6 +898,24 @@ var VariantsEditor = function (o) {
         nodeList.append(variant.node);
         self.updateHelpers();
     };
+    self.getDef = function (code, title) {
+        var def = [];
+        var busyCodes = {};
+        $.each(self.variants, function (_, variant) {
+            var answerDef = variant.getDef();
+            if (answerDef) {
+                if (busyCodes[answerDef.code])
+                    throw new builder.ValidationError(
+                        "There are duplicated answer variants", self.parent);
+                busyCodes[answerDef.code] = true;
+                def.push(answerDef);
+            }
+        });
+        if (builder.isEmpty(def))
+            throw new builder.ValidationError(
+                "At least one answer variant should exist", self.parent);
+        return def;
+    };
     nodeAddButton.click(function () {
         self.add(null, null);
     });
@@ -906,9 +943,10 @@ var SubquestionEditor = function (node, subquestions, templates) {
 
 var QuestionContainer = function (o) {
     var self = this;
-    self.editors = [];
+    self.editor = null;
     self.questions = [];
     self.listNode = o.listNode;
+    self.templates = o.templates;
     self.listNode.sortable({
         cursor: 'move',
         toleranceElement: '> div',
@@ -937,40 +975,77 @@ var QuestionContainer = function (o) {
     };
     self.excludeQuestion = function (question) {
         var idx = self.questions.indexOf(question);
-        self.editors.splice(idx, 1);
+        self.questions.splice(idx, 1);
     };
-    self.excludeEditor = function (editor) {
-        var idx = self.editors.indexOf(editor);
-        self.editors.splice(idx, 1);
+    self.closeQuestionEditor = function (cancel) {
+        if (self.editor) {
+            try {
+                if (!self.editor.empty()) {
+                    var question = null;
+                    if (cancel && self.editor.question)
+                        question = self.editor.question;
+                    else {
+                        var def = self.editor.getDef();
+                        var type = def.type;
+                        var cls = builder.questionTypes[type].cls;
+                        question = new cls(def, self.templates);
+                        self.makeClickable(question);
+                        if (self.editor.question) {
+                            var idx = self.questions.indexOf(self.editor.question);
+                            self.questions[idx] = question;
+                        };
+                    }
+                    if (question)
+                        self.editor.node.before(question.getNode());
+                }
+                self.editor.remove();
+                self.editor = null;
+                self.rearrange();
+            } catch (e) {
+                if (e.name === "ValidationError") {
+                    alert(e.message);
+                    if (e.obj)
+                        e.obj.node[0].scrollIntoView();
+                }
+                throw e;
+            }
+        }
     };
     self.openQuestionEditor = function (question) {
+        self.closeQuestionEditor();
         var isNew = question ? true : false;
-        var editor = new QuestionEditor(question, self, self.templates);
-        self.editors.push(editor);
+        var onCancel = function () {
+            self.closeQuestionEditor(true);
+        };
+        self.editor = new QuestionEditor(question, self, 
+                                         onCancel, self.templates);
         if (isNew) {
             var questionNode = question.getNode();
-            questionNode.before(editor.node);
+            questionNode.before(self.editor.node);
             questionNode.detach();
         } else
-            self.listNode.append(editor.node);
+            self.listNode.append(self.editor.node);
     };
     self.emptyListNode = function () {
         self.listNode.children()
                      .unbind("click.question").detach();
     };
+    self.makeClickable = function (question) {
+        var node = question.getNode();
+        node.bind("click.question", function () {
+            var owner = $(this).data('owner');
+            self.openQuestionEditor(owner);
+        });
+    };
     self.syncListNode = function () {
         $.each(self.questions, function (_, question) {
-            var node = question.getNode();
-            node.bind("click.question", function () {
-                var owner = $(this).data('owner');
-                self.openQuestionEditor(owner);
-            });
+            self.makeClickable(question);
             self.listNode.append(question.getNode());
         });
     };
 };
 
-var QuestionEditor = function (question, parent, templates) {
+var QuestionEditor = function (question, parent, onCancel, templates) {
     var self = this;
     self.parent = parent;
     self.question = question;
@@ -980,6 +1055,7 @@ var QuestionEditor = function (question, parent, templates) {
     QuestionContainer.call(self, {
         listNode: self.node.find('.rb-subquestions:first'),
         addButton: self.node.find('.rb-subquestion-add:first'),
+        templates: self.templates
     });
     if (self.question && self.question.type === "rep_group") {
         $.each(self.question.group, function (_, question) {
@@ -999,6 +1075,10 @@ var QuestionEditor = function (question, parent, templates) {
     var nodeType = self.node.find('select[name=question-type]:first');
     var nodeCancel = self.node.find('.rb-question-cancel:first');
     var nodeSubquestions = self.node.find('.rb-subquestions-wrap:first');
+
+    nodeCancel.click(function () {
+        onCancel();
+    });
 
     if (self.parent instanceof QuestionEditor)
         // nested repeating groups are not allowed
@@ -1048,7 +1128,8 @@ var QuestionEditor = function (question, parent, templates) {
         answers: self.question && builder.isListType(self.question.type) ? 
                     self.question.answers: [],
         templates: self.templates,
-        separator: self.question && self.question.type === "enum" ? '-' : '_'
+        separator: self.question && self.question.type === "enum" ? '-' : '_',
+        parent: self
     });
     var customTitleEditor = new CustomTitleEditor({
         node: self.node.find(".rb-custom-titles-wrap:first"),
@@ -1080,6 +1161,57 @@ var QuestionEditor = function (question, parent, templates) {
             nodeExplanation.attr('checked', 'checked');
         nodeType.val(self.question.type).change();
     }
+    self.empty = function () {
+        var name = $.trim(nodeName.val());
+        var title = $.trim(nodeTitle.val());
+        return (!self.question && !name && !title);
+    };
+    self.remove = function () {
+        self.node.remove();
+    };
+    self.getDef = function () {
+        var def = {
+            name: $.trim(nodeName.val()),
+            title: $.trim(nodeTitle.val()),
+            required: nodeRequired.is(":checked"),
+            type: nodeType.val()
+        }
+        var annotation = nodeAnnotation.is(":checked");
+        var explanation = nodeExplanation.is(":checked");
+        var customTitles = customTitleEditor.getDef();
+        var constraints = constraintEditor.getValue();
+        var disableIf = disableIfEditor.getValue();
+        if (!def.name)
+            throw new builder.ValidationError(
+                "Question name could not be empty", self);
+        // TODO: check uniqueness
+        if (!def.title)
+            throw new builder.ValidationError(
+                "Question title could not be empty", self);
+        if (annotation)
+            def.annotation = annotation;
+        if (explanation)
+            def.explanation = explanation;
+        if (builder.isListType(def.type))
+            def.answers = answerEditor.getDef();
+        if (!builder.isEmpty(customTitles))
+            def.customTitles = customTitles;
+        if (constraints)
+            def.constraints = constraints;
+        if (disableIf)
+            def.disableIf = disableIf;
+        if (def.type === "rep_group") {
+            var repeatingGroup = [];
+            $.each(self.questions, function (_, question) {
+                repeatingGroup.push(question.getDef());
+            });
+            if (builder.isEmpty(repeatingGroup))
+                throw new builder.ValidationError(
+                    "Repeating group should have at least one question", self);
+            def.repeatingGroup = repeatingGroup;
+        }
+        return def;
+    };
 };
 builder.extend(QuestionEditor, QuestionContainer);
 
@@ -1089,7 +1221,8 @@ var PageEditor = function (o) {
     self.editorNode = o.editorNode;
     QuestionContainer.call(self, {
         listNode: o.listNode,
-        addButton: self.editorNode.find('.rb-question-add:first')
+        addButton: self.editorNode.find('.rb-question-add:first'),
+        templates: self.templates
     });
     self.pageTitle = new EditableTitle({
         nodeText: $("#rb_page_title"),
@@ -1120,9 +1253,10 @@ var PageEditor = function (o) {
         self.emptyListNode();
         self.questions = self.page ? self.page.questions : [];
         self.syncListNode();
-        self.editors = [];
+        self.editor = null;
     };
     this.show = function (page) {
+        self.closeQuestionEditor();
         self.setPage(page);
         self.editorNode.css('display', '');
     };

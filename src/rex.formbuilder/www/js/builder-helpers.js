@@ -62,6 +62,12 @@ builder.isListType = function(type) {
     return (type === 'set' || type == 'enum'); 
 }
 
+builder.isEmpty = function (obj) {
+    for (var _ in obj)
+        return false;
+    return true;
+}
+
 builder.escapeHTML = function(str) {
     return $(document.createElement('div')).text(str).html();
 }
@@ -158,6 +164,12 @@ builder.getReadableId = function(str, handlePrefix, delim, maxlen) {
 
     return result;
 }
+
+builder.ValidationError = function (message, obj) {
+    this.message = message;
+    this.name = "ValidationError";
+    this.obj = obj || null;
+};
 
 builder.extend = function (Child, Parent) {
     var F = function() { };

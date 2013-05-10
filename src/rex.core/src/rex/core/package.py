@@ -12,11 +12,10 @@ import pkg_resources
 
 class Package(object):
 
-    def __init__(self, name, static, prefix, modules):
+    def __init__(self, name, modules, static):
         self.name = name
-        self.static = static
-        self.prefix = prefix
         self.modules = modules
+        self.static = static
 
     def abspath(self, path):
         if self.static is None:
@@ -43,9 +42,9 @@ class Package(object):
         return os.walk(path)
 
     def __repr__(self):
-        return "%s(%r, static=%r, prefix=%r, modules=%r)" \
+        return "%s(%r, modules=%r, static=%r)" \
                 % (self.__class__.__name__,
-                   self.name, self.static, self.prefix, self.modules)
+                   self.name, self.modules, self.static)
 
 
 class PackageCollection(object):
@@ -64,6 +63,10 @@ class PackageCollection(object):
 
     @classmethod
     def _build_package_tree(cls, requirement, seen):
+        if isinstance(requirement, Package):
+            yield requirement
+            return
+
         dist = pkg_resources.get_distribution(requirement)
         name = dist.key
         if name in seen:
@@ -73,17 +76,6 @@ class PackageCollection(object):
         for req in dist.requires():
             for package in cls._build_package_tree(req, seen):
                 yield package
-
-        static = None
-        if dist.has_metadata('rex_static.txt'):
-            static = dist.get_metadata('rex_static.txt')
-            static = os.path.abspath(static)
-            if not os.path.exists(static):
-                raise Error("Cannot find static directory:", static)
-
-        prefix = None
-        if dist.has_metadata('rex_prefix.txt'):
-            prefix = dist.get_metadata('rex_prefix.txt')
 
         init = None
         modules = set()
@@ -95,8 +87,16 @@ class PackageCollection(object):
                                  if sys.modules[module] and
                                     (module == init or
                                         module.startswith(init+'.')))
-        if static or prefix or modules:
-            yield Package(name, static, prefix, modules)
+
+        static = None
+        if dist.has_metadata('rex_static.txt'):
+            static = dist.get_metadata('rex_static.txt')
+            static = os.path.abspath(static)
+            if not os.path.exists(static):
+                raise Error("Cannot find static directory:", static)
+
+        if modules or static:
+            yield Package(name, modules, static)
 
     def __init__(self, packages):
         self.packages = packages

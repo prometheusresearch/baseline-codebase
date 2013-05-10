@@ -175,17 +175,15 @@ To develop a new package, start with the following layout::
             install_requires=[
                 <...>
             ],
-            rex_static='static',
-            rex_prefix='/<name>',
             rex_init='rex.<name>',
+            rex_static='static',
         )
 
     Use parameter ``install_requires`` to indicate package dependencies.
 
     To support Rex extension and distribution mechanisms, we provide three
-    additional setup parameters: ``rex_static``, ``rex_prefix`` and
-    ``rex_init``.  To enable these parameters, add a setup dependency on
-    ``rex.setup`` package::
+    additional setup parameters: ``rex_static`` and ``rex_init``.  To enable
+    these parameters, add a setup dependency on ``rex.setup`` package::
 
         setup_requres=['rex.setup'],
 
@@ -198,11 +196,6 @@ To develop a new package, start with the following layout::
         Standard distutils commands ``install``, ``develop`` and ``sdist`` are
         extended to support this parameter.  On installation, static files are
         copied to ``<base>/share/rex/<package>``.
-
-    ``rex_prefix``
-        This parameter contains the default HTTP mount point for the package.
-        Use it for a package which is accessible via HTTP.  If not set, the
-        mount point is generated from the package name.
 
     ``rex_init``
         This parameter refers to the module to be executed when the application
@@ -427,20 +420,17 @@ Caching
 Packages
 --------
 
-``rex.core.Package``
+``rex.core.Package(name, modules, static)``
     Represents a package.
 
     ``name``
         The package name.
 
-    ``static``
-        The directory which contains static files of the package.
-
-    ``prefix``
-        The default HTTP mount point.
-
     ``modules``
         Set of modules containing extensions defined by the package.
+
+    ``static``
+        The directory which contains static files of the package.
 
     ``abspath(path)``
         Converts a relative path from the static directory to an absolute path.

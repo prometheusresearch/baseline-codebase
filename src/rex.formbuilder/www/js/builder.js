@@ -1466,6 +1466,9 @@ builder.showJSON = function () {
 };
 
 builder.save = function (o) {
+    if (!builder.pageEditor.closeQuestionEditor())
+        return;
+
     var data = $.toJSON(builder.getInstrumentData());
     var postData = 'instrument='
                     + encodeURIComponent(builder.context.instrumentName)

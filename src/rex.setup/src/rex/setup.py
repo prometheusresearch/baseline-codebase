@@ -17,6 +17,15 @@ import setuptools, setuptools.command.install, setuptools.command.develop, \
 import pkg_resources
 
 
+def check_init(dist, attr, value):
+    # Verify that the value is a valid module name.
+    if not isinstance(value, str) and \
+            re.match(r'^[A-Za-z_][0-9A-Za-z_]*'
+                     r'(?:\.[A-Za-z_][0-9A-Za-z_]*)*$', value):
+        raise distutils.errors.DistutilsSetupError(
+                "%s %r is not a valid module name" % (attr, value))
+
+
 def check_static(dist, attr, value):
     # Verify that the value is a directory.
     if not os.path.exists(value):
@@ -27,24 +36,10 @@ def check_static(dist, attr, value):
                 "%s %r is not a directory" % (attr, value))
 
 
-def check_prefix(dist, attr, value):
-    # Verify that the value has the form: `/<prefix>`.
-    if not isinstance(value, str) and \
-            re.match(r'^/(?:[0-9A-Za-z._~@-]+/?)?$', value):
-        raise distutils.errors.DistutilsSetupError(
-                "%s %r is not a valid URL root"
-                " (expected `/<prefix>`)" % (attr, value))
-
-
-def check_init(dist, attr, value):
-    # Verify that the value is a valid module name.
-    if not isinstance(value, str) and \
-            re.match(r'^[A-Za-z_][0-9A-Za-z_]*'
-                     r'(?:\.[A-Za-z_][0-9A-Za-z_]*)*'
-                     r'(?::[A-Za-z_][0-9A-Za-z_]*)?$', value):
-        raise distutils.errors.DistutilsSetupError(
-                "%s %r is not a valid name of a module or a function"
-                % (attr, value))
+def write_init_txt(cmd, basename, filename):
+    # Write `rex_init` parameter to `*.egg-info/rex_init.txt`.
+    module = cmd.distribution.rex_init
+    cmd.write_or_delete_file("rex_init", filename, module)
 
 
 def write_static_txt(cmd, basename, filename):
@@ -55,18 +50,6 @@ def write_static_txt(cmd, basename, filename):
     if not cmd.distribution.rex_static:
         directory = None
     cmd.write_or_delete_file("rex_static", filename, directory)
-
-
-def write_prefix_txt(cmd, basename, filename):
-    # Write `rex_prefix` parameter to `*.egg-info/rex_prefix.txt`.
-    prefix = cmd.distribution.rex_prefix
-    cmd.write_or_delete_file("rex_prefix", filename, prefix)
-
-
-def write_init_txt(cmd, basename, filename):
-    # Write `rex_init` parameter to `*.egg-info/rex_init.txt`.
-    module = cmd.distribution.rex_init
-    cmd.write_or_delete_file("rex_init", filename, module)
 
 
 class install_rex(setuptools.Command):

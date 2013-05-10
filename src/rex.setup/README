@@ -2,40 +2,41 @@
   REX.SETUP -- Distutils extension for the Rex platform
 *********************************************************
 
+.. contents:: Table of Contents
 
-``rex.setup`` is a Distutils extension for distributing static files
-and providing additional metadata for Rex applications.  To use,
-add the following lines to ``setup.py``::
+
+Overview & Reference
+====================
+
+``rex.setup`` is a Distutils extension for distributing static files and
+providing additional metadata for Rex applications.  To use, add the following
+lines to ``setup.py``::
 
     setup(
         ...
         setup_requires=['rex.setup'],
-        rex_static='...',
-        rex_prefix='...',
         rex_init='...',
+        rex_static='...',
         ...
     )
 
-``rex_static``
-    The directory containing static data and configuration to
-    distribute and install with the package.
-``rex_prefix``
-    The default URL root under which the package is served by
-    the HTTP server; when not set, ``/<package>`` is used.
 ``rex_init``
-    The name of a Python module or a function to invoke
-    when the application is initialized.  Use ``:`` to separate
-    the function name from the module name.
+    Use this parameter if the package declares any command or other extension.
+    The value must be the name of a Python module.  When the application is
+    initialized, this module is imported and any extensions defined in this
+    module or its submodules are registered for use with the application.
 
-When the package is installed, static files are copied to
-``<base>/share/rex/<package>``.  Additional metadata is stored in
-``*.egg-info`` in the following files:
+    The value of this parameter is stored in ``*.egg-info/rex_init.txt`` file.
 
-``rex_static.txt``
-    The directory where static files are stored.
-``rex_prefix.txt``
-    The value of ``rex_prefix`` parameter.
-``rex_init.txt``
-    The value of ``rex_init`` parameter.
+``rex_static``
+    Use this parameter if the package contains static files which should be
+    distributed and installed with the package.  The value must be the path to
+    the directory containing static data.
+
+    On installation, static files are copied to the directory::
+
+        <base>/share/rex/<package>
+
+    The name of this directory is stored in ``*.egg-info/rex_static.txt`` file.
 
 

@@ -57,6 +57,7 @@ body, p, div, td, input {
 .rb_choices_item_actions,
 .rb-custom-title-actions,
 .rb_question_actions,
+.rb-question-editor-actions,
 .rb_page_actions,
 .rb_page_group_actions {
     position: absolute;
@@ -86,6 +87,7 @@ body, p, div, td, input {
 .rb-custom-title:hover .rb-custom-title-actions,
 .rb-variant:hover .rb_choices_item_actions,
 .rb-question:hover .rb_question_actions,
+.rb-question-editor:hover .rb-question-editor-actions,
 .rb_page:hover .rb_page_actions,
 .rb_page_group:hover .rb_page_group_actions {
     display: block;
@@ -99,6 +101,7 @@ body, p, div, td, input {
 .rb-question-editor {
     line-height: 120%;
     margin: 5px;
+    padding-top: 5px;
     border-top: 1px solid #e0e0e0;
     border-left: 1px solid #e0e0e0;
     border-right: 1px solid #a0a0a0;

@@ -21,10 +21,20 @@ var Question = function (def, templates) {
     this.annotation = def.annotation || null;
     this.explanation = def.explanation || null;
 
+    this.remove = function () {
+        self.node.trigger("rb:remove");
+        self.node.remove();
+    };
+
     this.getNode = function () {
         if (!self.node) {
             self.node = this.templates.create('question');
             self.node.data('owner', this);
+            self.node.find('.rb-question-remove').click(function (event) {
+                event.stopPropagation();
+                if (confirm("Are you sure you want to remove this item?"))
+                    self.remove();
+            });
             self.updateNode();
         }
         return self.node;
@@ -794,9 +804,8 @@ var CustomTitleEditor = function (o) {
     self.isUnique = function (type, except) {
         var isUnique = true;
         $.each(self.titles, function(_, title) {
-            if (title.type === type && title !== except) {
+            if (title.type === type && title !== except)
                 isUnique = false;
-            }
         });
         return isUnique;
     };
@@ -1019,9 +1028,10 @@ var QuestionContainer = function (o) {
             try {
                 if (!self.editor.empty()) {
                     var question = null;
-                    if (cancel && self.editor.question)
-                        question = self.editor.question;
-                    else {
+                    if (cancel) {
+                        if (self.editor.question)
+                            question = self.editor.question;
+                    } else {
                         question = builder.createQuestion(self.editor.getDef(),
                                                           self.templates);
                         self.makeClickable(question);
@@ -1064,13 +1074,20 @@ var QuestionContainer = function (o) {
     };
     self.emptyListNode = function () {
         self.listNode.children()
-                     .unbind("click.question").detach();
+                     .unbind("click.question")
+                     .unbind("rb:remove")
+                     .detach();
     };
     self.makeClickable = function (question) {
         var node = question.getNode();
         node.bind("click.question", function () {
             var owner = $(this).data('owner');
             self.openQuestionEditor(owner);
+        });
+        node.bind("rb:remove", function () {
+            var owner = $(this).data('owner');
+            console.log("rb:remove", owner);
+            self.exclude(owner);
         });
     };
     self.syncListNode = function () {
@@ -1112,9 +1129,26 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
     var nodeType = self.node.find('select[name=question-type]:first');
     var nodeCancel = self.node.find('.rb-question-cancel:first');
     var nodeSubquestions = self.node.find('.rb-subquestions-wrap:first');
+    var nodeRemove = self.node.find('.rb-question-editor-remove:first');
 
     nodeCancel.click(function () {
         onCancel();
+    });
+
+    nodeRemove.click(function () {
+        var doRemove = false;
+        if (!self.empty()) {
+            if (confirm("Are you sure you want to remove this question?"))
+                doRemove = true;
+        } else
+            doRemove = true;
+        if (doRemove) {
+            if (self.question) {
+                self.question.remove();
+                self.question = null;
+            }
+            onCancel();
+        }
     });
 
     if (self.parent instanceof QuestionEditor)

@@ -206,6 +206,24 @@ Page.prototype.getDef = function () {
     });
     return def;
 };
+Page.prototype.findQuestion = function (identifier, except) {
+    var found = null;
+    $.each(this.questions, function (_, question) {
+        if (!found &&
+            question.name === identifier &&
+            question !== except)
+            found = question;
+    });
+    return found;
+};
+Page.prototype.findQuestionsByRegExp = function (regExp) {
+    var found = [];
+    $.each(this.questions, function (_, question) {
+        if (regExp.test(question.name))
+            found.push(question);
+    });
+    return found;
+};
 
 var PageContainer = function (pageList, pageDefs, onSelectPage) {
     var self = this;
@@ -262,7 +280,6 @@ PageContainer.prototype.rearrange = function () {
         var itemOwner = item.data('owner');
         self.pages.push(itemOwner);
     });
-    console.log('rearranged:', self.pages);
 };
 PageContainer.prototype.createEmptyPage = function () {
     return new Page({
@@ -354,6 +371,21 @@ Group.prototype.getDef = function () {
         def.pages.push(page.getDef());
     });
     return def;
+};
+Group.prototype.findQuestion = function (identifier, except) {
+    var found = null;
+    $.each(this.pages, function (_, page) {
+        if (!found)
+            found = page.findQuestion(identifier, except);
+    });
+    return found;
+};
+Group.prototype.findQuestionsByRegExp = function (regExp) {
+    var found = [];
+    $.each(this.pages, function (_, page) {
+        found.concat(page.findQuestions(regExp));
+    });
+    return found;
 };
 
 (function () {
@@ -496,6 +528,21 @@ Pages.prototype.getDef = function () {
     });
     return def;
 };
+Pages.prototype.findQuestion = function (identifier, except) {
+    var question = null;
+    $.each(this.pages, function (_, page) {
+        if (!question)
+            question = page.findQuestion(identifier, except);
+    });
+    return question;
+};
+Pages.prototype.findQuestionsByRegExp = function (regExp) {
+    var found = [];
+    $.each(this.pages, function (_, page) {
+        found.concat(page.findQuestions(regExp));
+    });
+    return found;
+};
 
 var InputParameter = function (def, parent, template, extParamTypes, onRemove) {
     var self = this;
@@ -561,14 +608,26 @@ var InputParameters = function (o) {
             self.listNode.append(parameter.node);
         });
     };
-    this.isUnique = function (name, except) {
-        var isUnique = true;
+    this.find = function (name, except) {
+        var found = null;
         $.each(self.parameters, function(_, parameter) {
-            if (parameter.name === name && parameter !== except) {
-                isUnique = false;
-            }
+            if (!found &&
+                parameter.name === name &&
+                parameter !== except)
+                found = parameter;
         });
-        return isUnique;
+        return found;
+    };
+    this.findByRegExp = function (regExp) {
+        var found = [];
+        $.each(self.parameters, function (_, parameter) {
+            if (regExp.test(parameter.name))
+                found.push(parameter);
+        });
+        return found;
+    };
+    this.isUnique = function (name, except) {
+        return (self.find(name, except) === null);
     };
     this.exclude = function (parameter) {
         var idx = self.parameters.indexOf(parameter);
@@ -1086,9 +1145,18 @@ var QuestionContainer = function (o) {
         });
         node.bind("rb:remove", function () {
             var owner = $(this).data('owner');
-            console.log("rb:remove", owner);
             self.exclude(owner);
         });
+    };
+    self.findQuestion = function (name, except) {
+        var found = null;
+        $.each(self.questions, function (_, question) {
+            if (!found &&
+                question.name === name &&
+                question !== except)
+                found = question;
+        });
+        return found;
     };
     self.syncListNode = function () {
         $.each(self.questions, function (_, question) {
@@ -1241,6 +1309,15 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
     self.remove = function () {
         self.node.remove();
     };
+    self.isNameUnique = function (name, except) {
+        if (self.parent instanceof QuestionEditor) {
+            if (!builder.isParameterUnique(name) ||
+                self.parent.findQuestion(name, except))
+                return false;
+            return true;
+        }
+        return builder.isUnique(name, except);
+    };
     self.getDef = function () {
         var def = {
             name: $.trim(nodeName.val()),
@@ -1257,7 +1334,10 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
         if (!def.name)
             throw new builder.ValidationError(
                 "Question name could not be empty", self);
-        // TODO: check uniqueness
+        if (!self.isNameUnique(def.name, self.question))
+            throw new builder.ValidationError(
+                "Identifier '" + def.name +
+                "' is already in use by another question or parameter", self);
         if (!def.title)
             throw new builder.ValidationError(
                 "Question title could not be empty", self);
@@ -1389,6 +1469,7 @@ builder.initDialogs = function () {
         open: function () { },
         close: function () { }, 
     });
+    builder.initConditionEditor();
 }
 
 builder.getInstrumentData = function () {
@@ -1398,6 +1479,102 @@ builder.getInstrumentData = function () {
         title: builder.instrumentTitle.getTitle()
     };
 };
+
+builder.isParameterUnique = function (identifier, except) {
+    if (builder.inputParameters.find(identifier, except))
+        return false;
+    return true;
+}
+
+builder.isUnique = function (identifier, except) {
+    if (!builder.isParameterUnique(identifier, except) ||
+        builder.pages.findQuestion(identifier, except))
+        return false;
+    return true;
+};
+
+builder.initConditionEditor = function () {
+    builder.conditionEditor = new ConditionEditor({
+        urlPrefix: builder.basePrefix,
+        manualEdit: builder.context.manualEditConditions,
+        identifierTitle: 'Question or parameter',
+        onDescribeId: function (identifier) {
+            var ret = {};
+            var question;
+            var parameter;
+            if (parameter = builder.inputParameters.find(identifier)) {
+                switch(parameter.type) {
+                case 'NUMBER':
+                    ret.type = 'number';
+                    break;
+                case 'STRING':
+                    ret.type = 'string';
+                    break;
+                case 'DATE':
+                    ret.type = 'date';
+                    break;
+                default:
+                    ret = builder.context.extParamTypes[parameter.type] || null;
+                }
+            } else if (question = builder.questions.findQuestion(identifier)) {
+                switch (question.type) {
+                case 'integer':
+                case 'float':
+                case 'weight':
+                case 'time_week':
+                case 'time_month':
+                case 'time_hours':
+                case 'time_minutes':
+                case 'time_days':
+                    ret.type = 'number';
+                    break;
+                case 'string':
+                case 'text':
+                    ret.type = 'string';
+                    break;
+                case 'enum':
+                case 'set':
+                    ret.type = question.type;
+                    ret.variants = question.answers;
+                    break;
+                default:
+                    ret = null;
+                }
+            }
+            console.log('onDescribeId[' + identifier + ']', ret);
+            return ret;
+        },
+        onSearchId: function (term) {
+
+            var ret = [];
+            var matcher =
+                new RegExp($.ui.autocomplete.escapeRegex(term), "i");
+
+            var found = builder.pages.findQuestionsByRegExp(matcher);
+            $.each(found, function (_, question) {
+                ret.push({
+                    title: question.title.length > 80 ?
+                                builder.truncateText(question.title, 80):
+                                question.title,
+                    value: question.name
+                });
+            });
+
+            found = builder.inputParameters.findByRegExp(matcher);
+            $.each(found, function (_, parameter) {
+                var title = builder.paramTypeTitle(parameter,
+                                                 builder.context.extParamTypes);
+                ret.push({
+                    title: 'parameter (' + title + ')',
+                    value: parameter.name
+                });
+            });
+
+            console.log('onSearchId', ret);
+            return ret;
+        }
+    });
+}
 
 builder.init = function (o) {
     builder.context =
@@ -1561,17 +1738,16 @@ $.RexFormBuilder.processREXLObject = function (rexlObj, chCount, oldName, newNam
     return chCount;
 }
 
-$.RexFormBuilder.renameREXLIdentifierIfExist = 
+$.RexFormBuilder.renameREXLIdentifierIfExist =
         function (obj, condName, oldName, newName) {
 
     var chCounter = 0;
 
     if (obj[condName] && obj.cache && obj.cache[condName]) {
-        if (chCounter = $.RexFormBuilder.processREXLObject(obj.cache[condName], 
-                                                         0, 
-                                                         oldName, 
+        if (chCounter = $.RexFormBuilder.processREXLObject(obj.cache[condName],
+                                                         0,
+                                                         oldName,
                                                          newName)) {
-
             obj[condName] = obj.cache[condName].toString();
             console.log('updated:', obj[condName]);
         }
@@ -1644,165 +1820,6 @@ $.RexFormBuilder.makeREXLCache = function (obj, condName) {
     }
 }
 
-builder.initConditionEditor = function () {
-    builder.conditionEditor = new ConditionEditor({
-        urlPrefix: $.RexFormBuilder.basePrefix,
-        manualEdit: builder.context.manualEditConditions,
-        identifierTitle: 'Question or parameter',
-        onDescribeId: function (identifier) {
-
-            var ret = null;
-            var questionData = null;
-
-            if (identifier === "this") {
-                if ($.RexFormBuilder.constraintsThisQuestion)
-                    questionData = $.RexFormBuilder.constraintsThisQuestion;
-            } else
-                questionData = $.RexFormBuilder.context.findQuestionData(identifier);
-
-            if (questionData) {
-                ret = {};
-                switch(questionData.type) {
-                case 'float':
-                case 'integer':
-                    ret.type = 'number';
-                    break;
-                case 'set':
-                case 'enum':
-                case 'yes_no':
-
-                    if (questionData.type === "set")
-                        ret.type = "set";
-                    else
-                        ret.type = "enum";
-
-                    if (questionData.type === "yes_no")
-                        ret.variants = [
-                            {
-                                code: 'yes',
-                                title: 'Yes'
-                            },
-                            {
-                                code: 'no',
-                                title: 'No'
-                            }
-                        ];
-                    else
-                        ret.variants = questionData.answers;
-
-                    break;
-                case 'date':
-                    ret.type = 'date';
-                    break;
-                case 'string':
-                case 'text':
-                default:
-                    ret.type = 'string';
-                    break;
-                }
-            } else if (identifier !== "this") {
-                var paramData = $.RexFormBuilder.context.findParamData(identifier);
-                if (paramData) {
-                    ret = {};
-
-                    switch(paramData.type) {
-                    case 'NUMBER':
-                        ret.type = 'number';
-                        break;
-                    case 'STRING':
-                    default:
-                        if (builder.context.extParamTypes) {
-                            var typeDesc = 
-                                builder.context.extParamTypes[paramData.type];
-
-                            console.log('typeDesc[' + paramData.type +']:', typeDesc);
-
-                            if (typeDesc) {
-                                switch(typeDesc.type) {
-                                case 'NUMBER':
-                                    ret.type = 'number';
-                                    break;
-                                case 'ENUM':
-                                    ret.type = 'enum';
-                                    ret.variants = typeDesc.variants;
-                                    break;
-                                case 'DATE':
-                                    ret.type = 'date';
-                                    break;
-                                default:
-                                case 'STRING':
-                                    ret.type = 'string';
-                                    break;
-                                }
-                            } else {
-                                ret.type = 'string';
-                            }
-                        } else
-                            ret.type = 'string';
-                        break;
-                    }
-                }
-            }
-
-            console.log('onDescribeId[' + identifier + ']', ret);
-
-            return ret;
-        },
-        onSearchId: function (term) {
-
-            var ret = [];
-            var matcher =
-                new RegExp($.ui.autocomplete.escapeRegex(term), "i");
-
-            if ($.RexFormBuilder.constraintsThisQuestion) {
-                var item = $.RexFormBuilder.constraintsThisQuestion;
-                if ("this".indexOf(term) != -1) {
-                    ret.push({
-                        "title": item.title ?
-                            $.RexFormBuilder.truncateText(item.title, 80) : '',
-                        "value": "this"
-                    });
-                }
-            }
-
-            var qIndex = $.RexFormBuilder.context.getIndexByType('question');
-            for (var pos in qIndex) {
-                var item = qIndex[pos];
-                
-                if (!item.slave && item.name) {
-                    if (item.name.search(matcher) !== -1 ||
-                        (item.title &&
-                            item.title.search(matcher) !== -1)) {
-
-                        ret.push({
-                            "title": item.title ?
-                                $.RexFormBuilder.truncateText(item.title, 80) : '',
-                            "value": item.name
-                        });
-                    }
-                }
-            }
-
-            var pIndex = $.RexFormBuilder.context.getIndexByType('parameter');
-
-            for (var pos in pIndex) {
-                var item = pIndex[pos];
-
-                if (item.name.search(matcher) !== -1) {
-                    ret.push({
-                        "title": 'parameter ('
-                                + builder.paramTypeTitle(item.type, builder.context.extParamTypes)
-                                + ')',
-                        "value": item.name
-                    });
-                }
-            }
-
-            console.log('onSearchId', ret);
-            return ret;
-        }
-    });
-}
 
 $.RexFormBuilder.getItemLevel = function(pageDiv, objType) {
     var level = 0;

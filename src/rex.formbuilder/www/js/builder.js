@@ -219,8 +219,9 @@ Page.prototype.findQuestion = function (identifier, except) {
 Page.prototype.findQuestionsByRegExp = function (regExp) {
     var found = [];
     $.each(this.questions, function (_, question) {
-        if (regExp.test(question.name))
+        if (regExp.test(question.name)) {
             found.push(question);
+        }
     });
     return found;
 };
@@ -383,7 +384,7 @@ Group.prototype.findQuestion = function (identifier, except) {
 Group.prototype.findQuestionsByRegExp = function (regExp) {
     var found = [];
     $.each(this.pages, function (_, page) {
-        found.concat(page.findQuestions(regExp));
+        found = found.concat(page.findQuestionsByRegExp(regExp));
     });
     return found;
 };
@@ -539,7 +540,7 @@ Pages.prototype.findQuestion = function (identifier, except) {
 Pages.prototype.findQuestionsByRegExp = function (regExp) {
     var found = [];
     $.each(this.pages, function (_, page) {
-        found.concat(page.findQuestions(regExp));
+        found = found.concat(page.findQuestionsByRegExp(regExp));
     });
     return found;
 };
@@ -710,6 +711,13 @@ var EditableLogic = function (o) {
     self.openEditor = function () {
         // TODO: open condition editor
         console.log('open condition editor');
+        builder.conditionEditor.open({
+            callback: function (newValue) {
+                self.setValue(newValue);
+            },
+            // defaultIdentifier: parent.name,
+            conditions: self.value
+        });
     };
 
     self.nodeBtn.click(self.openEditor);
@@ -1250,14 +1258,14 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
 
     var constraintEditor = new EditableLogic({
         nodeText: self.node.find(".rb-question-constraint:first"),
-        nodeBtn: $(".rb-question-constraint-change:first"),
+        nodeBtn: self.node.find(".rb-question-constraint-change:first"),
         maxVisibleTextLen: 30,
         emptyValueText: 'No constraints',
         value: self.question ? self.question.constraints : null
     });
     var disableIfEditor = new EditableLogic({
         nodeText: self.node.find(".rb-question-disable-if:first"),
-        nodeBtn: $(".rb-question-disable-if:first"),
+        nodeBtn: self.node.find(".rb-question-disable-if-change:first"),
         maxVisibleTextLen: 30,
         emptyValueText: 'Never disabled',
         value: self.question ? self.question.disableIf : null
@@ -1493,54 +1501,65 @@ builder.isUnique = function (identifier, except) {
     return true;
 };
 
+builder.describeParameter = function (parameter) {
+    var ret = {};
+    switch(parameter.type) {
+    case 'NUMBER':
+        ret.type = 'number';
+        break;
+    case 'STRING':
+        ret.type = 'string';
+        break;
+    case 'DATE':
+        ret.type = 'date';
+        break;
+    default:
+        ret = builder.context.extParamTypes[parameter.type] || null;
+    }
+    return ret;
+};
+
+builder.describeQuestion = function (question) {
+    var ret = {};
+    switch (question.type) {
+    case 'integer':
+    case 'float':
+    case 'weight':
+    case 'time_week':
+    case 'time_month':
+    case 'time_hours':
+    case 'time_minutes':
+    case 'time_days':
+        ret.type = 'number';
+        break;
+    case 'string':
+    case 'text':
+        ret.type = 'string';
+        break;
+    case 'enum':
+    case 'set':
+        ret.type = question.type;
+        ret.variants = question.answers;
+        break;
+    default:
+        ret = null;
+    }
+    return ret;
+};
+
 builder.initConditionEditor = function () {
     builder.conditionEditor = new ConditionEditor({
         urlPrefix: builder.basePrefix,
         manualEdit: builder.context.manualEditConditions,
         identifierTitle: 'Question or parameter',
         onDescribeId: function (identifier) {
-            var ret = {};
+            var ret = null;
             var question;
             var parameter;
-            if (parameter = builder.inputParameters.find(identifier)) {
-                switch(parameter.type) {
-                case 'NUMBER':
-                    ret.type = 'number';
-                    break;
-                case 'STRING':
-                    ret.type = 'string';
-                    break;
-                case 'DATE':
-                    ret.type = 'date';
-                    break;
-                default:
-                    ret = builder.context.extParamTypes[parameter.type] || null;
-                }
-            } else if (question = builder.questions.findQuestion(identifier)) {
-                switch (question.type) {
-                case 'integer':
-                case 'float':
-                case 'weight':
-                case 'time_week':
-                case 'time_month':
-                case 'time_hours':
-                case 'time_minutes':
-                case 'time_days':
-                    ret.type = 'number';
-                    break;
-                case 'string':
-                case 'text':
-                    ret.type = 'string';
-                    break;
-                case 'enum':
-                case 'set':
-                    ret.type = question.type;
-                    ret.variants = question.answers;
-                    break;
-                default:
-                    ret = null;
-                }
-            }
+            if (question = builder.pages.findQuestion(identifier))
+                ret = builder.describeQuestion(question);
+            else if (parameter = builder.inputParameters.find(identifier))
+                ret = builder.describeParameter(parameter);
             console.log('onDescribeId[' + identifier + ']', ret);
             return ret;
         },

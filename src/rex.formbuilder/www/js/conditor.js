@@ -560,7 +560,8 @@ function ConditionEditor(initParams) {
             ]
         }
 
-        var desc = initParams.onDescribeId(value);
+        var onDescribeId = dialogParams.onDescribeId || initParams.onDescribeId;
+        var desc = onDescribeId(value);
 
         if (desc) {
             if (hidablePart.attr('data-identifier') !== value) {
@@ -802,7 +803,9 @@ function ConditionEditor(initParams) {
         identifierInput.each(function () {
             $(this).autocomplete({
                 source: function (request, response) {
-                    ret = initParams.onSearchId(request.term) || [];
+                    var onSearchId = dialogParams.onSearchId ||
+                                     initParams.onSearchId;
+                    ret = onSearchId(request.term) || [];
                     response(ret);
                 },
                 select: function (event, ui) {

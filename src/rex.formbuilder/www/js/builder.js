@@ -691,14 +691,20 @@ var InputParameters = function (o) {
 var EditableLogic = function (o) {
     var self = this;
     self.value = null;
+    self.parsed = null;
     self.nodeText = o.nodeText;
     self.nodeBtn = o.nodeBtn;
     self.maxVisibleTextLen = o.maxVisibleTextLen || 30;
     self.emptyValueText = o.emptyValueText || 'Not set';
     self.onChange = o.onChange || null;
 
+    self.renameIdentifier = function (oldName, newName) {
+        // obj[condName] = obj.cache[condName].toString();
+    };
+
     self.setValue = function (value, internal) {
         self.value = value ? value : '';
+        self.parsed = self.value ? rexl.parse(self.value) : null;
         if (self.onChange)
             self.onChange(self.value);
         if (!internal) {
@@ -718,8 +724,6 @@ var EditableLogic = function (o) {
     };
 
     self.openEditor = function () {
-        // TODO: open condition editor
-        console.log('open condition editor');
         builder.conditionEditor.open({
             callback: function (newValue) {
                 self.setValue(newValue);
@@ -732,6 +736,42 @@ var EditableLogic = function (o) {
     self.nodeBtn.click(self.openEditor);
     self.setValue(o.value || null);
 };
+EditableLogic.prototype.processREXLObject = function (rexlObj, chCount, oldName, newName) {
+    var self = this;
+
+    if (rexlObj.type === "IDENTIFIER") {
+        if (rexlObj.value === oldName) {
+            rexlObj.value = newName;
+            ++chCount;
+        }
+    }
+    if (rexlObj.args && rexlObj.args.length) {
+        if (rexlObj.type === "OPERATION" &&
+            rexlObj.value === "." && rexlObj.args.length > 0) {
+
+            chCount += self.processREXLObject(rexlObj.args[0], chCount,
+                                              oldName, newName);
+        } else {
+            for (var idx in rexlObj.args) {
+                chCount += self.processREXLObject(rexlObj.args[idx], chCount,
+                                                  oldName, newName);
+            }
+        }
+    }
+
+    return chCount;
+}
+
+EditableLogic.prototype.renameIdentifier = function (oldName, newName) {
+    var chCounter = 0;
+    if (this.parsed) {
+        if (chCounter = this.processREXLObject(this.parsed, 0,
+                                               oldName, newName)) {
+            obj[condName] = obj.cache[condName].toString();
+        }
+    }
+    return chCounter;
+}
 
 var EditableTitle = function (o) {
     var self = this;
@@ -1147,6 +1187,7 @@ var QuestionContainer = function (o) {
             questionNode.detach();
         } else
             self.listNode.append(self.editor.node);
+        self.editor.node[0].scrollIntoView();
     };
     self.emptyListNode = function () {
         self.listNode.children()
@@ -1738,105 +1779,6 @@ $.RexFormBuilder.putHint = function(element, hintId) {
         hint.text($.RexFormBuilder.hints[hintId] + ' ');
         hint.append(' <a href="javascript:void(0)" onclick="$.RexFormBuilder.dismissIt(this);">Dismiss this message</a>');
         element.after(hint);
-    }
-}
-
-$.RexFormBuilder.processREXLObject = function (rexlObj, chCount, oldName, newName) {
-    if (rexlObj.type === "IDENTIFIER") {
-        if (rexlObj.value === oldName) {
-            rexlObj.value = newName;
-            ++chCount;
-        }
-    }
-
-    if (rexlObj.args && rexlObj.args.length) {
-    
-        if (rexlObj.type === "OPERATION" &&
-            rexlObj.value === "." && rexlObj.args.length > 0) {
-
-            chCount += $.RexFormBuilder.processREXLObject(rexlObj.args[0],
-                                                        chCount,
-                                                        oldName,
-                                                        newName);
-
-        } else {
-
-            for (var idx in rexlObj.args) {
-                chCount += $.RexFormBuilder.processREXLObject(rexlObj.args[idx],
-                                                            chCount,
-                                                            oldName,
-                                                            newName);
-            }
-        }
-    }
-
-    return chCount;
-}
-
-$.RexFormBuilder.renameREXLIdentifierIfExist =
-        function (obj, condName, oldName, newName) {
-
-    var chCounter = 0;
-
-    if (obj[condName] && obj.cache && obj.cache[condName]) {
-        if (chCounter = $.RexFormBuilder.processREXLObject(obj.cache[condName],
-                                                         0,
-                                                         oldName,
-                                                         newName)) {
-            obj[condName] = obj.cache[condName].toString();
-            console.log('updated:', obj[condName]);
-        }
-    }
-    return chCounter;
-}
-
-$.RexFormBuilder.renameREXLIdentifiers = function (oldName, newName) {
-    var qIndex = $.RexFormBuilder.context.getIndexByType('question');
-    for (var pos in qIndex) {
-        $.RexFormBuilder.renameREXLIdentifierIfExist(qIndex[pos], 
-                                                   'disableIf',
-                                                   oldName,
-                                                   newName);
-        $.RexFormBuilder.renameREXLIdentifierIfExist(qIndex[pos],
-                                                   'constraints', 
-                                                   oldName, 
-                                                   newName);
-    }
-
-    $('.rb_question_editor', questionListDiv).each(function () {
-        var editor = $(this);
-
-        if ($.RexFormBuilder.renameREXLIdentifierIfExist(this, 
-                                                       'disableIf',
-                                                       oldName,
-                                                       newName)) {
-
-            $.RexFormBuilder.updateDisableLogicDescription(editor);
-        }
-
-        if ($.RexFormBuilder.renameREXLIdentifierIfExist(this, 
-                                                       'constraints',
-                                                       oldName,
-                                                       newName)) {
-
-            $.RexFormBuilder.updateConstraintsDescription(editor);
-        }
-    });
-
-    var pIndex = $.RexFormBuilder.context.getIndexByType('page');
-    for (var pos in pIndex) {
-        $.RexFormBuilder.renameREXLIdentifierIfExist(pIndex[pos],
-                                                   'skipIf',
-                                                   oldName,
-                                                   newName);
-    }
-
-    var pIndex = $.RexFormBuilder.context.getIndexByType('group');
-    for (var pos in pIndex) {
-        $.RexFormBuilder.renameREXLIdentifierIfExist(pIndex[pos],
-                                                   'skipIf',
-                                                   oldName,
-                                                   newName);
     }
 }
 

@@ -26,14 +26,23 @@ var Question = function (def, templates) {
         self.node.remove();
     };
 
+    this.duplicate = function () {
+        self.node.trigger("rb:duplicate");
+    };
+
     this.getNode = function () {
         if (!self.node) {
             self.node = this.templates.create('question');
             self.node.data('owner', this);
-            self.node.find('.rb-question-remove').click(function (event) {
+            self.node.find('.rb-question-remove:first').click(function (event) {
                 event.stopPropagation();
                 if (confirm("Are you sure you want to remove this item?"))
                     self.remove();
+            });
+            self.node.find('.rb-question-duplicate:first').click(function (event) {
+                console.log('dulicate');
+                event.stopPropagation();
+                self.duplicate();
             });
             self.updateNode();
         }
@@ -1064,7 +1073,7 @@ var QuestionContainer = function (o) {
     });
     self.addButton = o.addButton;
     self.addButton.click(function () {
-        self.openQuestionEditor(null);
+        self.openQuestionEditor(null, 'new');
     });
     self.rearrange = function () {
         self.questions.length = 0;
@@ -1123,14 +1132,14 @@ var QuestionContainer = function (o) {
         }
         return ret;
     };
-    self.openQuestionEditor = function (question) {
+    self.openQuestionEditor = function (question, mode) {
         if (!self.closeQuestionEditor())
             return;
-        var isNew = question ? true : false;
+        var isNew = (question && mode !== "copy") ? true : false;
         var onCancel = function () {
             self.closeQuestionEditor(true);
         };
-        self.editor = new QuestionEditor(question, self, 
+        self.editor = new QuestionEditor(question, mode, self, 
                                          onCancel, self.templates);
         if (isNew) {
             var questionNode = question.getNode();
@@ -1143,13 +1152,18 @@ var QuestionContainer = function (o) {
         self.listNode.children()
                      .unbind("click.question")
                      .unbind("rb:remove")
+                     .unbind("rb:duplicate")
                      .detach();
     };
     self.makeClickable = function (question) {
         var node = question.getNode();
         node.bind("click.question", function () {
             var owner = $(this).data('owner');
-            self.openQuestionEditor(owner);
+            self.openQuestionEditor(owner, 'edit');
+        });
+        node.bind("rb:duplicate", function () {
+            var owner = $(this).data('owner');
+            self.openQuestionEditor(owner, 'copy');
         });
         node.bind("rb:remove", function () {
             var owner = $(this).data('owner');
@@ -1174,10 +1188,11 @@ var QuestionContainer = function (o) {
     };
 };
 
-var QuestionEditor = function (question, parent, onCancel, templates) {
+var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     var self = this;
     self.parent = parent;
-    self.question = question;
+    self.question = mode === "copy" ? null : question;
+    self.mode = mode;
     self.templates = templates;
     self.node = self.templates.create('questionEditor');
 
@@ -1186,15 +1201,15 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
         addButton: self.node.find('.rb-subquestion-add:first'),
         templates: self.templates
     });
-    if (self.question && self.question.type === "rep_group") {
-        $.each(self.question.group, function (_, question) {
+    if (question && question.type === "rep_group") {
+        $.each(question.group, function (_, question) {
             var copy = builder.copyQuestion(question);
             self.questions.push(copy);
         });
         self.syncListNode();
     }
 
-    self.autoGenerateId = !(self.question && self.question.name);
+    self.autoGenerateId = !(question && question.name);
 
     var nodeTitle = self.node.find('textarea[name=question-title]:first');
     var nodeHelp = self.node.find('textarea[name=question-help]:first');
@@ -1261,27 +1276,27 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
         nodeBtn: self.node.find(".rb-question-constraint-change:first"),
         maxVisibleTextLen: 30,
         emptyValueText: 'No constraints',
-        value: self.question ? self.question.constraints : null
+        value: question ? question.constraints : null
     });
     var disableIfEditor = new EditableLogic({
         nodeText: self.node.find(".rb-question-disable-if:first"),
         nodeBtn: self.node.find(".rb-question-disable-if-change:first"),
         maxVisibleTextLen: 30,
         emptyValueText: 'Never disabled',
-        value: self.question ? self.question.disableIf : null
+        value: question ? question.disableIf : null
     });
     var answerEditor = new VariantsEditor({
         node: self.node.find(".rb-question-answers:first"),
-        answers: self.question && builder.isListType(self.question.type) ? 
-                    self.question.answers: [],
+        answers: question && builder.isListType(question.type) ? 
+                    question.answers: [],
         templates: self.templates,
-        separator: self.question && self.question.type === "enum" ? '-' : '_',
+        separator: question && question.type === "enum" ? '-' : '_',
         parent: self
     });
     var customTitleEditor = new CustomTitleEditor({
         node: self.node.find(".rb-custom-titles-wrap:first"),
         templates: self.templates,
-        customTitles: self.question ? self.question.customTitles : {}
+        customTitles: question ? question.customTitles : {}
     });
 
     nodeType.change(function () {
@@ -1297,17 +1312,18 @@ var QuestionEditor = function (question, parent, onCancel, templates) {
         }
     });
 
-    if (self.question) {
-        nodeTitle.val(self.question.title || '');
-        nodeName.val(self.question.name || '');
-        nodeHelp.val(self.question.help || '');
-        if (self.question.required)
+    if (question) {
+        nodeTitle.val(question.title || '');
+        if (self.mode !== "copy")
+            nodeName.val(question.name || '');
+        nodeHelp.val(question.help || '');
+        if (question.required)
             nodeRequired.attr('checked', 'checked');
-        if (self.question.annotation)
+        if (question.annotation)
             nodeAnnotation.attr('checked', 'checked');
-        if (self.question.explanation)
+        if (question.explanation)
             nodeExplanation.attr('checked', 'checked');
-        nodeType.val(self.question.type).change();
+        nodeType.val(question.type).change();
     }
     self.empty = function () {
         var name = $.trim(nodeName.val());

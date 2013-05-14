@@ -420,6 +420,10 @@ body, p, div, td, input {
     width: 95%;
 }
 
+.rb-question-duplicate {
+    margin-right: 10px;
+}
+
 textarea.rb_question_input[name=question-title] {
     height: 80px;
 }

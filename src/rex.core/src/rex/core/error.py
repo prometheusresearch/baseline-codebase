@@ -14,9 +14,9 @@ class Paragraph(object):
         self.payload = payload
 
     def __str__(self):
-        if not self.payload:
+        if self.payload is None:
             return self.message
-        block = "\n".join("    "+line
+        block = "\n".join("    "+line if line else ""
                           for line in str(self.payload).splitlines())
         return "%s\n%s" % (self.message, block)
 

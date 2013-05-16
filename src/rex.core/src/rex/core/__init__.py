@@ -15,6 +15,7 @@ from .wsgi import WSGI, get_wsgi
 from .context import get_rex
 from .error import Error, guard
 from .validate import (Validate, AnyVal, MaybeVal, OneOfVal, StrVal, ChoiceVal,
-        BoolVal, IntVal, UIntVal, PIntVal, SeqVal, MapVal, FileVal, DirVal)
+        BoolVal, IntVal, UIntVal, PIntVal, SeqVal, MapVal, FileVal,
+        DirectoryVal)
 
 

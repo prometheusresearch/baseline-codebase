@@ -4,6 +4,8 @@
 
 
 from .error import Error, guard
+import re
+import os.path
 
 
 class Validate(object):
@@ -36,11 +38,11 @@ class OneOfVal(Validate):
 
     def __call__(self, value):
         errors = []
-        try:
-            for validate in self.validates:
+        for validate in self.validates:
+            try:
                 return validate(value)
-        except Error, error:
-            errors.append(error)
+            except Error, error:
+                errors.append(error)
         raise Error("Failed to match the value against any of the following:",
                     "\n\n".join(str(error) for error in errors))
 
@@ -61,8 +63,10 @@ class StrVal(Validate):
                     raise Error("Expected a valid UTF-8 string")
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
-            if self.pattern is not None and re.match(pattern, value) is None:
-                raise Error("Expected a string matching:", "/%s/" % pattern)
+            if self.pattern is not None and \
+                    re.match(self.pattern, value) is None:
+                raise Error("Expected a string matching:", "/%s/"
+                            % self.pattern)
         return value
 
 
@@ -109,12 +113,12 @@ class IntVal(Validate):
                     value = int(value)
                 except ValueError:
                     raise Error("Expected an integer")
-            if not isinstance(value, (int, long)):
+            if not isinstance(value, (int, long)) or isinstance(value, bool):
                 raise Error("Expected an integer")
             if not ((self.min_bound is None or self.min_bound <= value) and
                     (self.max_bound is None or self.max_bound >= value)):
-                raise Error("Expected an integer in range:"
-                            " [%s..%s]"
+                raise Error("Expected an integer in range:",
+                            "[%s..%s]"
                             % (self.min_bound
                                if self.min_bound is not None else "",
                                self.max_bound
@@ -140,7 +144,7 @@ class SeqVal(Validate):
         self.validate_item = validate_item
 
     def __call__(self, value):
-        with guard("Got:", value):
+        with guard("Got:", repr(value)):
             if not isinstance(value, list):
                 raise Error("Expected a sequence")
         items = []
@@ -159,17 +163,18 @@ class MapVal(Validate):
         self.validate_item = validate_item
 
     def __call__(self, value):
-        with guard("Got:", value):
+        with guard("Got:", repr(value)):
             if not isinstance(value, dict):
                 raise Error("Expected a mapping")
         pairs = []
         for key in sorted(value):
             item = value[key]
             if self.validate_key is not None:
-                with guard("While validating mapping key:", key):
+                with guard("While validating mapping key:", repr(key)):
                     key = self.validate_key(key)
             if self.validate_item is not None:
-                with guard("While validating mapping item for key:", key):
+                with guard("While validating mapping value for key:",
+                           repr(key)):
                     item = self.validate_item(item)
             pairs.append((key, item))
         return dict(pairs)
@@ -178,7 +183,7 @@ class MapVal(Validate):
 class FileVal(Validate):
 
     def __call__(self, value):
-        with guard("Got:", value):
+        with guard("Got:", repr(value)):
             if not isinstance(value, (str, unicode)):
                 raise Error("Expected a string")
         if isinstance(value, unicode):
@@ -188,10 +193,10 @@ class FileVal(Validate):
         return value
 
 
-class DirVal(Validate):
+class DirectoryVal(Validate):
 
     def __call__(self, value):
-        with guard("Got:", value):
+        with guard("Got:", repr(value)):
             if not isinstance(value, (str, unicode)):
                 raise Error("Expected a string")
         if isinstance(value, unicode):

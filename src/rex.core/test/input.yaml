@@ -1,0 +1,6 @@
+
+title: Tests for rex.core
+suite: all
+tests:
+- py: test/test_validate_pbbt.py
+

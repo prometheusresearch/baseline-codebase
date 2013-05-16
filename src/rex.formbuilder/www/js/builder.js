@@ -3,6 +3,54 @@
 
 var builder = $.RexFormBuilder = $.RexFormBuilder || {};
 
+var RexlExpression = function (value) {
+    var self = this;
+    self.value = null;
+    self.parsed = null;
+    self.setValue(value);
+};
+RexlExpression.prototype.setValue = function (value) {
+    this.value = value ? value : '';
+    this.parsed = this.value ? rexl.parse(this.value) : null;
+};
+RexlExpression.prototype.getValue = function () {
+    return this.value;
+};
+RexlExpression.prototype.processREXLObject = function (rexlObj, chCount, oldName, newName) {
+    var self = this;
+
+    if (rexlObj.type === "IDENTIFIER") {
+        if (rexlObj.value === oldName) {
+            rexlObj.value = newName;
+            ++chCount;
+        }
+    }
+    if (rexlObj.args && rexlObj.args.length) {
+        if (rexlObj.type === "OPERATION" &&
+            rexlObj.value === "." && rexlObj.args.length > 0) {
+
+            chCount += self.processREXLObject(rexlObj.args[0], chCount,
+                                              oldName, newName);
+        } else {
+            for (var idx in rexlObj.args) {
+                chCount += self.processREXLObject(rexlObj.args[idx], chCount,
+                                                  oldName, newName);
+            }
+        }
+    }
+    return chCount;
+};
+RexlExpression.prototype.renameIdentifier = function (oldName, newName) {
+    var chCounter = 0;
+    if (this.parsed) {
+        if (chCounter = this.processREXLObject(this.parsed, 0,
+                                               oldName, newName)) {
+            this.setValue(this.parsed.toString());
+        }
+    }
+    return chCounter;
+};
+
 var Question = function (def, templates) {
     var self = this;
     this.type = def.type;
@@ -16,8 +64,8 @@ var Question = function (def, templates) {
     this.annotation = def.annotation || false;
     this.explanation = def.explanation || false;
     this.slave = def.slave || null;
-    this.disableIf = def.disableIf || null;
-    this.constraints = def.constraints || null;
+    this.disableIf = new RexlExpression(def.disableIf);
+    this.constraints = new RexlExpression(def.constraints);
     this.annotation = def.annotation || null;
     this.explanation = def.explanation || null;
 
@@ -74,10 +122,10 @@ Question.prototype.getDef = function () {
         def.customTitles = $.extend(true, {}, this.customTitles);
     if (this.slave)
         def.slave = this.slave;
-    if (this.disableIf)
-        def.disableIf = this.disableIf;
-    if (this.constraints)
-        def.constraints = this.constraints;
+    if (this.disableIf.value)
+        def.disableIf = this.disableIf.value;
+    if (this.constraints.value)
+        def.constraints = this.constraints.value;
     if (this.annotation)
         def.annotation = this.annotation;
     if (this.explanation)
@@ -140,8 +188,11 @@ var Page = function (o) {
     });
     this.setTitle(o.def.title || null);
     this.cId = o.def.cId || null;
-    this.setSkipIf(o.def.skipIf || null);
+    this.createSkipIf(o.def.skipIf || null);
     this.bindEvents();
+};
+Page.prototype.createSkipIf = function (value) {
+    this.skipIf = new RexlExpression(value);
 };
 Page.prototype.bindEvents = function () {
     var self = this;
@@ -193,7 +244,7 @@ Page.prototype.createNode = function () {
     return this.templates.create('page');
 };
 Page.prototype.setSkipIf = function (skipIf) {
-    this.skipIf = skipIf;
+    this.skipIf.setValue(skipIf);
 };
 Page.prototype.remove = function () {
     this.parent.exclude(this);
@@ -204,8 +255,8 @@ Page.prototype.getDef = function () {
         type: 'page',
         questions: []
     };
-    if (this.skipIf)
-        def.skipIf = this.skipIf;
+    if (this.skipIf.value)
+        def.skipIf = this.skipIf.value;
     if (this.cId)
         def.cId = this.cId;
     if (this.title)
@@ -308,19 +359,18 @@ var Group = function (o) {
     Page.call(this, o);
     PageContainer.call(this, self.node.find('.rb-page-list:first'),
                         o.def.pages || [], o.onSelectPage);
-    self.skipIfEditor = new EditableLogic({
-        nodeText: self.node.find('.rb-group-skip-if:first'),
-        nodeBtn: self.node.find('.rb-group-skip-if-change:first'),
-        value: self.skipIf,
-        maxVisibleTextLen: 30,
-        emptyValueText: 'Never skipped',
-        onChange: function (newValue) {
-            self.skipIf = newValue;
-        }
-    });
 };
 builder.extend(Group, Page);
 builder.extend(Group, PageContainer);
+Group.prototype.createSkipIf = function (value) {
+    this.skipIf = new EditableLogic({
+        nodeText: this.node.find('.rb-group-skip-if:first'),
+        nodeBtn: this.node.find('.rb-group-skip-if-change:first'),
+        value: value,
+        maxVisibleTextLen: 30,
+        emptyValueText: 'Never skipped'
+    });
+};
 Group.prototype.createNode = function () {
     return this.templates.create('group');
 };
@@ -335,22 +385,6 @@ Group.prototype.setTitle = function (title) {
         titleNode.text('Untitled group');
         titleNode.addClass('rb-not-set');
     }
-};
-Group.prototype.setSkipIf = function (skipIf) {
-    this.skipIf = skipIf;
-    if (this.skipIfEditor)
-        this.skipIfEditor.setValue(this.skipIf);
-    /*
-    var skipIfNode = this.node.find('.rb-group-skip-if:first');
-    if (this.skipIf) {
-        var text = builder.truncateText(this.title, 30);
-        skipIfNode.text(truncated);
-        skipIfNode.removeClass('rb-not-set');
-    } else {
-        skipIfNode.text('Never skipped');
-        skipIfNode.addClass('rb-not-set');
-    }
-    */
 };
 Group.prototype.bindEvents = function () {
     var self = this;
@@ -690,88 +724,41 @@ var InputParameters = function (o) {
 
 var EditableLogic = function (o) {
     var self = this;
-    self.value = null;
-    self.parsed = null;
-    self.nodeText = o.nodeText;
-    self.nodeBtn = o.nodeBtn;
-    self.maxVisibleTextLen = o.maxVisibleTextLen || 30;
-    self.emptyValueText = o.emptyValueText || 'Not set';
-    self.onChange = o.onChange || null;
-
-    self.renameIdentifier = function (oldName, newName) {
-        // obj[condName] = obj.cache[condName].toString();
-    };
-
-    self.setValue = function (value, internal) {
-        self.value = value ? value : '';
-        self.parsed = self.value ? rexl.parse(self.value) : null;
-        if (self.onChange)
-            self.onChange(self.value);
-        if (!internal) {
-            if (self.value) {
-                var text = builder.truncateText(self.value, 
-                                                self.maxVisibleTextLen);
-                self.nodeText.text(text)
-                             .removeClass('rb-not-set');
-            } else
-                self.nodeText.text(self.emptyValueText)
-                             .addClass('rb-not-set');
-        }
-    };
-
-    self.getValue = function () {
-        return self.value;
-    };
-
-    self.openEditor = function () {
-        builder.conditionEditor.open({
-            callback: function (newValue) {
-                self.setValue(newValue);
-            },
-            // defaultIdentifier: parent.name,
-            conditions: self.value
-        });
-    };
-
-    self.nodeBtn.click(self.openEditor);
-    self.setValue(o.value || null);
+    RexlExpression.call(this, null);
+    this.nodeText = o.nodeText;
+    this.nodeBtn = o.nodeBtn;
+    this.maxVisibleTextLen = o.maxVisibleTextLen || 30;
+    this.emptyValueText = o.emptyValueText || 'Not set';
+    this.onChange = o.onChange || null;
+    this.nodeBtn.click(function () { 
+        self.openEditor();
+    });
+    this.setValue(o.value);
 };
-EditableLogic.prototype.processREXLObject = function (rexlObj, chCount, oldName, newName) {
+builder.extend(EditableLogic, RexlExpression);
+EditableLogic.prototype.setValue = function (value, internal) {
+    RexlExpression.prototype.setValue.call(this, value);
+    if (!internal && this.nodeText) {
+        if (this.value) {
+            var text = builder.truncateText(this.value,
+                                            this.maxVisibleTextLen);
+            this.nodeText.text(text)
+                         .removeClass('rb-not-set');
+        } else
+            this.nodeText.text(this.emptyValueText)
+                         .addClass('rb-not-set');
+    }
+};
+EditableLogic.prototype.openEditor = function () {
     var self = this;
-
-    if (rexlObj.type === "IDENTIFIER") {
-        if (rexlObj.value === oldName) {
-            rexlObj.value = newName;
-            ++chCount;
-        }
-    }
-    if (rexlObj.args && rexlObj.args.length) {
-        if (rexlObj.type === "OPERATION" &&
-            rexlObj.value === "." && rexlObj.args.length > 0) {
-
-            chCount += self.processREXLObject(rexlObj.args[0], chCount,
-                                              oldName, newName);
-        } else {
-            for (var idx in rexlObj.args) {
-                chCount += self.processREXLObject(rexlObj.args[idx], chCount,
-                                                  oldName, newName);
-            }
-        }
-    }
-
-    return chCount;
-}
-
-EditableLogic.prototype.renameIdentifier = function (oldName, newName) {
-    var chCounter = 0;
-    if (this.parsed) {
-        if (chCounter = this.processREXLObject(this.parsed, 0,
-                                               oldName, newName)) {
-            obj[condName] = obj.cache[condName].toString();
-        }
-    }
-    return chCounter;
-}
+    builder.conditionEditor.open({
+        callback: function (newValue) {
+            self.setValue(newValue);
+        },
+        // defaultIdentifier: parent.name,
+        conditions: self.value
+    });
+};
 
 var EditableTitle = function (o) {
     var self = this;
@@ -1317,14 +1304,14 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         nodeBtn: self.node.find(".rb-question-constraint-change:first"),
         maxVisibleTextLen: 30,
         emptyValueText: 'No constraints',
-        value: question ? question.constraints : null
+        value: question ? question.constraints.value : null
     });
     var disableIfEditor = new EditableLogic({
         nodeText: self.node.find(".rb-question-disable-if:first"),
         nodeBtn: self.node.find(".rb-question-disable-if-change:first"),
         maxVisibleTextLen: 30,
         emptyValueText: 'Never disabled',
-        value: question ? question.disableIf : null
+        value: question ? question.disableIf.value : null
     });
     var answerEditor = new VariantsEditor({
         node: self.node.find(".rb-question-answers:first"),
@@ -1469,7 +1456,7 @@ var PageEditor = function (o) {
     this.setPage = function (page) {
         self.page = page;
         self.pageTitle.setTitle(page ? page.title : null);
-        self.skipIfEditor.setValue(page ? page.skipIf : null);
+        self.skipIfEditor.setValue(page ? page.skipIf.getValue() : null);
         self.emptyListNode();
         self.questions = self.page ? self.page.questions : [];
         self.syncListNode();
@@ -1617,7 +1604,6 @@ builder.initConditionEditor = function () {
                 ret = builder.describeQuestion(question);
             else if (parameter = builder.inputParameters.find(identifier))
                 ret = builder.describeParameter(parameter);
-            console.log('onDescribeId[' + identifier + ']', ret);
             return ret;
         },
         onSearchId: function (term) {
@@ -1717,6 +1703,32 @@ builder.showJSON = function () {
     var json = JSON.stringify(data, null, 4);
     builder.showJSONDialog.open(json);
 };
+
+builder.findCircularObject = function(node, parents, tree){
+    parents = parents || [];
+    tree = tree || [];
+
+    if (!node || typeof node != "object")
+        return false;
+
+    var keys = Object.keys(node), i, value;
+
+    parents.push(node); // add self to current path
+    for (i = keys.length - 1; i >= 0; i--){
+        value = node[keys[i]];
+        if (value && typeof value == "object") {
+            tree.push(keys[i]);
+            if (parents.indexOf(value) >= 0)
+                return true;
+            // check child nodes
+            if (arguments.callee(value, parents, tree))
+                return tree.join('.');
+            tree.pop();
+        }
+    }
+    parents.pop();
+    return false;
+}
 
 builder.save = function (o) {
     if (!builder.pageEditor.closeQuestionEditor())

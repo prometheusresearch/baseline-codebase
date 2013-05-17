@@ -730,7 +730,11 @@ var EditableLogic = function (o) {
     this.maxVisibleTextLen = o.maxVisibleTextLen || 30;
     this.emptyValueText = o.emptyValueText || 'Not set';
     this.onChange = o.onChange || null;
-    this.nodeBtn.click(function () { 
+    this.beforeOpen = o.beforeOpen || null;
+    this.getDefaultIdentifier = o.getDefaultIdentifier || null;
+    this.onSearchId = o.onSearchId || null;
+    this.onDescribeId = o.onDescribeId || null;
+    this.nodeBtn.click(function () {
         self.openEditor();
     });
     this.setValue(o.value);
@@ -751,12 +755,16 @@ EditableLogic.prototype.setValue = function (value, internal) {
 };
 EditableLogic.prototype.openEditor = function () {
     var self = this;
+    if (this.beforeOpen && !this.beforeOpen())
+        return;
     builder.conditionEditor.open({
         callback: function (newValue) {
             self.setValue(newValue);
         },
-        // defaultIdentifier: parent.name,
-        conditions: self.value
+        getDefaultIdentifier: this.getDefaultIdentifier || null,
+        conditions: self.value,
+        onSearchId: self.onSearchId,
+        onDescribeId: self.onDescribeId
     });
 };
 
@@ -1208,6 +1216,14 @@ var QuestionContainer = function (o) {
         });
         return found;
     };
+    self.findQuestionsByRegExp = function (regExp) {
+        var found = [];
+        $.each(self.questions, function (_, question) {
+            if (regExp.test(question.name))
+                found.push(question);
+        });
+        return found;
+    };
     self.syncListNode = function () {
         $.each(self.questions, function (_, question) {
             self.makeClickable(question);
@@ -1249,6 +1265,16 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     var nodeCancel = self.node.find('.rb-question-cancel:first');
     var nodeSubquestions = self.node.find('.rb-subquestions-wrap:first');
     var nodeRemove = self.node.find('.rb-question-editor-remove:first');
+
+    self.getName = function () {
+        return $.trim(nodeName.val());
+    };
+    self.getTitle = function () {
+        return $.trim(nodeTitle.val());
+    };
+    self.getHelp = function () {
+        return $.trim(nodeHelp.val());
+    };
 
     nodeCancel.click(function () {
         onCancel();
@@ -1292,27 +1318,13 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
 
     nodeTitle.change(function () {
         if (self.autoGenerateId) {
-            var titleVal = $.trim(nodeTitle.val());
+            var titleVal = self.getTitle();
             nodeName.val(
                 builder.getReadableId(titleVal, true, '_', 45)
             );
         }
     });
 
-    var constraintEditor = new EditableLogic({
-        nodeText: self.node.find(".rb-question-constraint:first"),
-        nodeBtn: self.node.find(".rb-question-constraint-change:first"),
-        maxVisibleTextLen: 30,
-        emptyValueText: 'No constraints',
-        value: question ? question.constraints.value : null
-    });
-    var disableIfEditor = new EditableLogic({
-        nodeText: self.node.find(".rb-question-disable-if:first"),
-        nodeBtn: self.node.find(".rb-question-disable-if-change:first"),
-        maxVisibleTextLen: 30,
-        emptyValueText: 'Never disabled',
-        value: question ? question.disableIf.value : null
-    });
     var answerEditor = new VariantsEditor({
         node: self.node.find(".rb-question-answers:first"),
         answers: question && builder.isListType(question.type) ? 
@@ -1320,6 +1332,94 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         templates: self.templates,
         separator: question && question.type === "enum" ? '-' : '_',
         parent: self
+    });
+
+    self.onDescribeId = function (identifier) {
+        var name = self.getName();
+        if (identifier === name) {
+            var type = nodeType.val();
+            var def = {
+                name: name,
+                type: type
+            };
+            if (builder.isListType(type)) {
+                try {
+                    def.variants = answerEditor.getDef();
+                } catch (e) {
+                    def.variants = [];
+                }
+            }
+            return builder.describeQuestion(def);
+        }
+        return builder.onDescribeId(identifier);
+    };
+    self.onSearchId = function (term) {
+        var ret = [];
+        var matcher =
+            new RegExp($.ui.autocomplete.escapeRegex(term), "i");
+
+        name = self.getName();
+        var busyNames = {};
+        if (matcher.test(name)) {
+            busyNames[name] = true;
+            var title = self.getTitle();
+            if (title.length > 80)
+                title = builder.truncateText(title);
+            ret.push({
+                title: title,
+                value: name
+            });
+        }
+        if (self.question)
+            busyNames[self.question.name] = true;
+        var found = self.findQuestionsByRegExp(matcher);
+        $.each(found, function (_, question) {
+            if (!busyNames[question.name]) {
+                busyNames[question.name] = true;
+                ret.push({
+                    title: question.title.length > 80 ?
+                                builder.truncateText(question.title, 80):
+                                question.title,
+                    value: question.name
+                });
+            }
+        });
+        $.each(builder.onSearchId(term), function (_, item) {
+            if (!busyNames[item.value]) {
+                ret.push(item);
+            }
+        });
+        return ret;
+    };
+
+    var constraintEditor = new EditableLogic({
+        nodeText: self.node.find(".rb-question-constraint:first"),
+        nodeBtn: self.node.find(".rb-question-constraint-change:first"),
+        maxVisibleTextLen: 30,
+        emptyValueText: 'No constraints',
+        value: question ? question.constraints.value : null,
+        beforeOpen: function () {
+            var name = self.getName();
+            if (!name) {
+                alert("Please specify question name first");
+                return false;
+            }
+            return true;
+        },
+        getDefaultIdentifier: function () {
+            return self.getName();
+        },
+        onSearchId: self.onSearchId,
+        onDescribeId: self.onDescribeId
+    });
+    var disableIfEditor = new EditableLogic({
+        nodeText: self.node.find(".rb-question-disable-if:first"),
+        nodeBtn: self.node.find(".rb-question-disable-if-change:first"),
+        maxVisibleTextLen: 30,
+        emptyValueText: 'Never disabled',
+        value: question ? question.disableIf.value : null,
+        onSearchId: self.onSearchId,
+        onDescribeId: self.onDescribeId
     });
     var customTitleEditor = new CustomTitleEditor({
         node: self.node.find(".rb-custom-titles-wrap:first"),
@@ -1354,8 +1454,8 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         nodeType.val(question.type).change();
     }
     self.empty = function () {
-        var name = $.trim(nodeName.val());
-        var title = $.trim(nodeTitle.val());
+        var name = self.getName();
+        var title = self.getTitle();
         return (!self.question && !name && !title);
     };
     self.remove = function () {
@@ -1372,8 +1472,8 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     };
     self.getDef = function () {
         var def = {
-            name: $.trim(nodeName.val()),
-            title: $.trim(nodeTitle.val()),
+            name: self.getName(),
+            title: self.getTitle(),
             required: nodeRequired.is(":checked"),
             type: nodeType.val()
         }
@@ -1382,7 +1482,7 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         var customTitles = customTitleEditor.getDef();
         var constraints = constraintEditor.getValue();
         var disableIf = disableIfEditor.getValue();
-        var help = $.trim(nodeHelp.val());
+        var help = self.getHelp();
         if (!def.name)
             throw new builder.ValidationError(
                 "Question name could not be empty", self);
@@ -1591,52 +1691,55 @@ builder.describeQuestion = function (question) {
     return ret;
 };
 
+builder.onSearchId = function (term) {
+    var ret = [];
+    var matcher =
+        new RegExp($.ui.autocomplete.escapeRegex(term), "i");
+
+    var found = builder.pages.findQuestionsByRegExp(matcher);
+    $.each(found, function (_, question) {
+        ret.push({
+            title: question.title.length > 80 ?
+                        builder.truncateText(question.title, 80):
+                        question.title,
+            value: question.name
+        });
+    });
+
+    found = builder.inputParameters.findByRegExp(matcher);
+    $.each(found, function (_, parameter) {
+        var title = builder.paramTypeTitle(parameter,
+                                         builder.context.extParamTypes);
+        ret.push({
+            title: 'parameter (' + title + ')',
+            value: parameter.name
+        });
+    });
+
+    console.log('onSearchId', ret);
+    return ret;
+};
+
+builder.onDescribeId = function (identifier) {
+    var ret = null;
+    var question;
+    var parameter;
+    if (question = builder.pages.findQuestion(identifier))
+        ret = builder.describeQuestion(question);
+    else if (parameter = builder.inputParameters.find(identifier))
+        ret = builder.describeParameter(parameter);
+    return ret;
+};
+
 builder.initConditionEditor = function () {
     builder.conditionEditor = new ConditionEditor({
         urlPrefix: builder.basePrefix,
         manualEdit: builder.context.manualEditConditions,
         identifierTitle: 'Question or parameter',
-        onDescribeId: function (identifier) {
-            var ret = null;
-            var question;
-            var parameter;
-            if (question = builder.pages.findQuestion(identifier))
-                ret = builder.describeQuestion(question);
-            else if (parameter = builder.inputParameters.find(identifier))
-                ret = builder.describeParameter(parameter);
-            return ret;
-        },
-        onSearchId: function (term) {
-
-            var ret = [];
-            var matcher =
-                new RegExp($.ui.autocomplete.escapeRegex(term), "i");
-
-            var found = builder.pages.findQuestionsByRegExp(matcher);
-            $.each(found, function (_, question) {
-                ret.push({
-                    title: question.title.length > 80 ?
-                                builder.truncateText(question.title, 80):
-                                question.title,
-                    value: question.name
-                });
-            });
-
-            found = builder.inputParameters.findByRegExp(matcher);
-            $.each(found, function (_, parameter) {
-                var title = builder.paramTypeTitle(parameter,
-                                                 builder.context.extParamTypes);
-                ret.push({
-                    title: 'parameter (' + title + ')',
-                    value: parameter.name
-                });
-            });
-
-            console.log('onSearchId', ret);
-            return ret;
-        }
+        onDescribeId: builder.onDescribeId,
+        onSearchId: builder.onSearchId
     });
-}
+};
 
 builder.init = function (o) {
     builder.context =

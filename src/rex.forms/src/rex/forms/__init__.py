@@ -65,7 +65,7 @@ class InstrumentsPackageHandler(PackageHandler):
         super(InstrumentsPackageHandler, self).__init__(app, package)
         if app.config.rexforms_instrument_folder is not None \
         and app.config.rexforms_assessment_folder is not None:
-            instruments = InstrumentRegistry(app.config.rexforms_instrument_folder) 
+            instruments = InstrumentRegistry(app.config.rexforms_instrument_folder)
             self.assessment_storage = AssessmentStorage(instruments,
                     app.config.rexforms_assessment_folder)
         else:

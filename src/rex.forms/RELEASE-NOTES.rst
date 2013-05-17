@@ -2,6 +2,11 @@
 RexForms Release Notes
 **************************
 
+0.2.2
+=====
+
+- syncronization of versions in setup.py and in repository
+
 0.2.1
 =====
 

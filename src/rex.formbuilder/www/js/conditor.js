@@ -1203,8 +1203,8 @@ function ConditionEditor(initParams) {
         addConditionItem(
             null, 
             null, 
-            (dialogParams.defaultIdentifier ?
-                dialogParams.defaultIdentifier : null)
+            (dialogParams.getDefaultIdentifier ?
+                dialogParams.getDefaultIdentifier() : null)
         );
     });
 

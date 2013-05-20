@@ -132,6 +132,10 @@ Question.prototype.getDef = function () {
         def.explanation = this.explanation;
     return def;
 };
+Question.prototype.renameIdentifier = function (oldName, newName) {
+    this.constraints.renameIdentifier(oldName, newName);
+    this.disableIf.renameIdentifier(oldName, newName);
+};
 
 var VariantQuestion = function (def, templates) {
     Question.call(this, def, templates);
@@ -172,6 +176,18 @@ RepeatingGroupQuestion.prototype.getDef = function () {
         def.repeatingGroup.push(question.getDef());
     });
     return def;
+};
+RepeatingGroupQuestion.prototype.renameIdentifier = function (oldName, newName) {
+    var hasSameIdentifier = false;
+    $.each(this.group, function (_, question) {
+        if (question.name === oldName)
+            hasSameIdentifier = true;
+    });
+    if (!hasSameIdentifier) {
+        $.each(this.group, function (_, question) {
+            question.renameIdentifier(oldName, newName);
+        });
+    }
 };
 
 var Page = function (o) {
@@ -284,6 +300,12 @@ Page.prototype.findQuestionsByRegExp = function (regExp) {
         }
     });
     return found;
+};
+Page.prototype.renameIdentifier = function (oldName, newName) {
+    this.skipIf.renameIdentifier(oldName, newName);
+    $.each(this.questions, function (_, question) {
+        question.renameIdentifier(oldName, newName);
+    });
 };
 
 var PageContainer = function (pageList, pageDefs, onSelectPage) {
@@ -430,6 +452,12 @@ Group.prototype.findQuestionsByRegExp = function (regExp) {
         found = found.concat(page.findQuestionsByRegExp(regExp));
     });
     return found;
+};
+Group.prototype.renameIdentifier = function (oldName, newName) {
+    Page.prototype.renameIdentifier.call(this, oldName, newName);
+    $.each(this.pages, function (_, page) {
+        page.renameIdentifier(oldName, newName);
+    });
 };
 
 (function () {
@@ -1106,6 +1134,7 @@ var QuestionContainer = function (o) {
             self.rearrange();
         }
     });
+    self.onRename = o.onRename || null;
     self.addButton = o.addButton;
     self.addButton.click(function () {
         self.openQuestionEditor(null, 'new');
@@ -1146,8 +1175,13 @@ var QuestionContainer = function (o) {
                         question = builder.createQuestion(self.editor.getDef(),
                                                           self.templates);
                         self.makeClickable(question);
-                        if (self.editor.question)
+                        if (self.editor.question) {
+                            var oldName = self.editor.question.name;
+                            var newName = question.name;
                             self.replace(self.editor.question, question);
+                            if (self.onRename && oldName !== newName)
+                                self.onRename(oldName, newName);
+                        }
                     }
                     if (question)
                         self.editor.node.before(question.getNode());
@@ -1243,7 +1277,13 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     QuestionContainer.call(self, {
         listNode: self.node.find('.rb-subquestions:first'),
         addButton: self.node.find('.rb-subquestion-add:first'),
-        templates: self.templates
+        templates: self.templates,
+        onRename: function (oldName, newName) {
+            $.each(self.questions, function (_, question) {
+                question.constraints.renameIdentifier(oldName, newName);
+                question.disableIf.renameIdentifier(oldName, newName);
+            });
+        }
     });
     if (question && question.type === "rep_group") {
         $.each(question.group, function (_, question) {
@@ -1308,14 +1348,6 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         }
     }
 
-    nodeName.change(function () {
-        self.autoGenerateId = false;
-        fixInputIdentifier( $(this) );
-    });
-    nodeName.keyup(function () {
-        fixInputIdentifier( $(this) );
-    });
-
     nodeTitle.change(function () {
         if (self.autoGenerateId) {
             var titleVal = self.getTitle();
@@ -1344,12 +1376,22 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
             };
             if (builder.isListType(type)) {
                 try {
-                    def.variants = answerEditor.getDef();
+                    def.answers = answerEditor.getDef();
                 } catch (e) {
                     def.variants = [];
                 }
             }
             return builder.describeQuestion(def);
+        }
+        if (self.parent instanceof QuestionEditor) {
+            var found = self.parent.findQuestion(identifier);
+            if (found) {
+                try {
+                    return builder.describeQuestion(found.getDef());
+                } catch (e) {
+                    return NULL;
+                }
+            }
         }
         return builder.onDescribeId(identifier);
     };
@@ -1357,7 +1399,6 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         var ret = [];
         var matcher =
             new RegExp($.ui.autocomplete.escapeRegex(term), "i");
-
         name = self.getName();
         var busyNames = {};
         if (matcher.test(name)) {
@@ -1372,18 +1413,20 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         }
         if (self.question)
             busyNames[self.question.name] = true;
-        var found = self.findQuestionsByRegExp(matcher);
-        $.each(found, function (_, question) {
-            if (!busyNames[question.name]) {
-                busyNames[question.name] = true;
-                ret.push({
-                    title: question.title.length > 80 ?
-                                builder.truncateText(question.title, 80):
-                                question.title,
-                    value: question.name
-                });
-            }
-        });
+        if (self.parent instanceof QuestionEditor) {
+            var found = self.parent.findQuestionsByRegExp(matcher);
+            $.each(found, function (_, question) {
+                if (!busyNames[question.name]) {
+                    busyNames[question.name] = true;
+                    ret.push({
+                        title: question.title.length > 80 ?
+                                    builder.truncateText(question.title, 80):
+                                    question.title,
+                        value: question.name
+                    });
+                }
+            });
+        }
         $.each(builder.onSearchId(term), function (_, item) {
             if (!busyNames[item.value]) {
                 ret.push(item);
@@ -1421,6 +1464,24 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         onSearchId: self.onSearchId,
         onDescribeId: self.onDescribeId
     });
+
+    var previousName = self.getName();
+    nodeName.change(function () {
+        self.autoGenerateId = false;
+        fixInputIdentifier( $(this) );
+        var newName = self.getName();
+        if (previousName !== newName) {
+            if (newName) {
+                if (previousName)
+                    constraintEditor.renameIdentifier(previousName, newName);
+                previousName = newName;
+            }
+        }
+    });
+    nodeName.keyup(function () {
+        fixInputIdentifier( $(this) );
+    });
+
     var customTitleEditor = new CustomTitleEditor({
         node: self.node.find(".rb-custom-titles-wrap:first"),
         templates: self.templates,
@@ -1522,6 +1583,12 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
 };
 builder.extend(QuestionEditor, QuestionContainer);
 
+builder.renameIdentifier = function (oldName, newName) {
+    $.each(builder.pages.pages, function (_, page) {
+        page.renameIdentifier(oldName, newName);
+    });
+};
+
 var PageEditor = function (o) {
     var self = this;
     self.templates = o.templates;
@@ -1529,7 +1596,10 @@ var PageEditor = function (o) {
     QuestionContainer.call(self, {
         listNode: o.listNode,
         addButton: self.editorNode.find('.rb-question-add:first'),
-        templates: self.templates
+        templates: self.templates,
+        onRename: function (oldName, newName) {
+            builder.renameIdentifier(oldName, newName);
+        }
     });
     self.pageTitle = new EditableTitle({
         nodeText: $("#rb_page_title"),
@@ -1715,8 +1785,6 @@ builder.onSearchId = function (term) {
             value: parameter.name
         });
     });
-
-    console.log('onSearchId', ret);
     return ret;
 };
 

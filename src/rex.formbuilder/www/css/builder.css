@@ -741,10 +741,6 @@ input.rb_identifier_input {
     margin-bottom: 10px;
 }
 
-.rb-subquestions .rb-disable-logic {
-    display: none;
-}
-
 .rb-predefined-choices-div {
     float: right;
 }

@@ -227,7 +227,6 @@ to integer::
 outside of these bounds are rejected::
 
     >>> int_1to10_val = IntVal(1, 10)
-    >>> int_to10_val = IntVal(max_bound=10)
     >>> int_1to10_val(1)
     1
     >>> int_1to10_val(5)
@@ -258,6 +257,7 @@ outside of these bounds are rejected::
         [1..]
     Got:
         0
+    >>> int_to10_val = IntVal(max_bound=10)
     >>> int_to10_val(10)
     10
     >>> int_to10_val(11)

@@ -1,6 +1,5 @@
 
-title: Tests for rex.core
-suite: all
+title: rex.core
 tests:
-- py: test/test_validate_pbbt.py
+- include: test/test_validate_pbbt.yaml
 

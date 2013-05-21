@@ -17,12 +17,12 @@ class RexContext(threading.local):
         self._app_stack.append(self._active_app)
         self._active_app = app
 
-    def pop(self):
+    def pop(self, app):
+        assert self._active_app is app, "unexpected Rex application"
         self._active_app = self._app_stack.pop()
 
     def __call__(self):
-        assert self._active_app is not None, \
-                "no Rex application has been activated"
+        assert self._active_app is not None, "no active Rex application"
         return self._active_app
 
 

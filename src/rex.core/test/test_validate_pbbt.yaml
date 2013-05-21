@@ -151,7 +151,7 @@ tests:
   - py: "i2i_map_val({'0': 'false'})"
     except: Error
 
-- title: FireVal, DirectoryVal
+- title: FileVal, DirectoryVal
   tests:
   - py: |
       # Define file_val, dir_val

@@ -69,6 +69,7 @@ class PackageCollection(object):
 
         dist = pkg_resources.get_distribution(requirement)
         name = dist.key
+        name = name.replace('-', '_')
         if name in seen:
             return
         seen.add(name)
@@ -108,9 +109,6 @@ class PackageCollection(object):
     def modules(self):
         return set(module for package in self.packages
                           for module in package.modules)
-
-    def root(self):
-        return self.packages[0]
 
     def __iter__(self):
         return iter(self.packages)

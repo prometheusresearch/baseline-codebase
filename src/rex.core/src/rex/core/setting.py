@@ -10,6 +10,7 @@ from .package import get_packages
 from .validate import BoolVal
 from .error import Error
 import textwrap
+import yaml
 
 
 class Setting(Extension):

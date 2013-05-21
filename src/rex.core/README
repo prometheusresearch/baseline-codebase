@@ -8,10 +8,14 @@
 Overview
 ========
 
-This package provides core components of the RexDB platform: initialization,
-extension mechanism and configuration management.
+This package provides core components of the Rex platform:
 
-This package is a part of the RexDB platform for medical research data
+* initialization;
+* extension mechanism;
+* configuration management;
+* various low-level utilities.
+
+This package is a part of the Rex platform for medical research data
 management.  It is created by Prometheus Research, LLC and released under
 AGPLv3 license.
 
@@ -20,91 +24,97 @@ Constructing applications
 
 Use ``Rex`` constructor to create a new Rex application.  For example::
 
-    from rex.core import Rex
+    >>> from rex.core import Rex
 
-    app = Rex('rex.acquire',
-              db='pgsql:acquiredb',
-              data_folder='./oscr_root/data')
+    >>> demo = Rex('rex.core_demo',
+    ...            demo_folder='./demo')
 
-This code creates a Rex application from ``rex.acquire`` package.
-Configuration parameters are passed as keyword arguments of the constructor.
+This code creates a Rex application from ``rex.core_demo`` package with a
+configuration parameter ``demo_folder`` set to ``'./demo'``.
 
-Rex applications are constructed from reusable components called *packages*.
-The first argument of the ``Rex`` constructor must be the name of the primary
-package of the application.  The application is assembled from the primary
-package and all its dependencies.
+Rex applications are assembled from reusable components called *packages*.
+Packages that form the application are passed as positional arguments to the
+``Rex`` constructor.  Application configuration is passed as keyword arguments
+of the constructor.
 
-Most API calls require you to activate the application first.  You can do this
-with the ``with`` statement::
+Most API calls require you to activate the application first.  Use ``with``
+statement on the application object to activate it::
 
-    with app:
-        [...]
+    >>> from rex.core import get_rex
 
-This fragment executes the code in the ``with`` block with ``app`` being
-active.
+    >>> with demo:
+    ...     print get_rex()     # get the current active application,
+    ...                         # which is `demo`
+    Rex('rex.core_demo', demo_folder='./demo')
 
-Use function ``get_rex()`` to get the current active Rex application::
+The application is activated before the ``with`` block is executed and
+deactivated after the block is complete.  In this example, function
+``get_rex()`` returns the current active Rex application, which gives you
+the same application object.
 
-    from rex.core import get_rex
+You can also use methods ``on()`` and ``off()`` for the same effect::
 
-    [...]
-    with app:
-        [...]
-        app = get_rex()     # Same `app` as in the `with` clause.
+    >>> demo.on()
+    >>> get_rex()
+    Rex('rex.core_demo', demo_folder='./demo')
+    >>> demo.off()
+
+It is an error to call an API that expects an active application when no
+application is activated::
+
+    >>> get_rex()
+    Traceback (most recent call last):
+      ...
+    AssertionError: no active Rex application
 
 Application components
 ----------------------
 
-A package in Rex platform is a Python package distribution that may contain:
+In Rex platform, a *package* is a Python package distribution that may contain:
 
 * Python code;
 * associated static files;
 * documentation;
 * ``setup.py`` script.
 
-Packages may depend on each other.  If a package is added to an application,
-all the package dependencies are also included.  Package dependencies are
+Packages may depend on each other.  If a package is included as a part of a Rex
+application, all its dependencies are also included.  Package dependencies are
 determined from ``install_requires`` parameter of ``setup.py`` script.
 
 Use function ``get_packages()`` to get the collection of packages included to
-the current active application.  You can iterate over all the packages or find
-a package by name::
+the current active application::
 
-    from rex.core import get_packages
+    >>> from rex.core import get_packages
 
-    [...]
-    with app:
+    >>> with demo:
+    ...     packages = get_packages()
 
-        packages = get_packages()
+You can iterate over all the packages or find a package by name::
 
-        for package in packages:
-            print package.name
+    >>> for package in packages:
+    ...     print package.name
+    rex.core_demo
+    rex.core
 
-        acquire_package = packages['rex.acquire']
-        print acquire_package.name
-
-Method ``packages.root()`` returns the primary package of the application::
-
-    root_package = packages.root()
+    >>> demo_package = packages['rex.core_demo']
+    >>> demo_package.name
+    'rex.core_demo'
 
 Package objects provide API for reading static files included with the package.
-For example, to read file ``setttings.yaml`` from ``rex.acquire`` package,
-write::
+For example, to read file ``www/index.html`` from ``static`` directory of
+``rex.core_demo`` package, use::
 
-    settings_file = acquire_package.open('settings.yaml')
-    settings_data = settings_file.read()
-    settings_file.close()
+    >>> index_file = demo_package.open('www/index.html')
+    >>> index_data = index_file.read()
+    >>> index_file.close()
 
-Both absolute and relative paths are accepted; and both are interpreted
-relative to the ``static`` directory of the package.
+Both absolute and relative paths are accepted; both are interpreted relative to
+the ``static`` directory of the package.
 
-Package collection provides exactly the same API for reading static files.
-However, in this case, the file name must be prepended with the package name
-and ``:``::
+Package collection provides similar API for reading static files, but to use
+it, you must include the package name with the path::
 
-    packages = get_packages
-    settings_file = open('rex.acquire:/settings.yaml')
-
+    >>> index_file = packages.open('rex.core_demo:/www/index.html')
 
 Application configuration
 -------------------------
@@ -112,15 +122,13 @@ Application configuration
 Use function ``get_settings()`` to access configuration of the current active
 application::
 
-    from rex.core import get_settings
+    >>> from rex.core import get_settings
 
-    [...]
-    with app:
+    >>> with demo:
+    ...     settings = get_settings()
 
-        settings = get_settings()
-
-        db = settings.db
-        data_folder = settings.data_folder
+    >>> settings.demo_folder
+    './demo'
 
 Application configuration is generated from parameters passed to the ``Rex``
 constructor as well as predefined setting values provided by packages.  The set
@@ -181,7 +189,7 @@ To develop a new package, start with the following layout::
 
     Use parameter ``install_requires`` to indicate package dependencies.
 
-    To support Rex extension and distribution mechanisms, we provide three
+    To support Rex extension and distribution mechanisms, we provide two
     additional setup parameters: ``rex_static`` and ``rex_init``.  To enable
     these parameters, add a setup dependency on ``rex.setup`` package::
 
@@ -199,8 +207,8 @@ To develop a new package, start with the following layout::
 
     ``rex_init``
         This parameter refers to the module to be executed when the application
-        is initialized.  Use it for packages that define any extensions
-        including settings definitions.
+        is initialized.  Use it for packages that define any extensions such as
+        settings definitions or HTTP commands.
 
 ``src/rex/__init__.py``
     This file must declare a namespace package::
@@ -226,32 +234,29 @@ Declaring settings
 ------------------
 
 To declare a setting, make a subclass of ``Setting`` class and define the
-``name`` parameter::
+``name`` parameter.  For example, this is how setting ``demo_folder`` is
+defined in ``rex.core_demo`` package::
 
-    from rex.core import Setting, DirVal
+    from rex.core import Setting, DirectoryVal
 
-    class DataFolderSetting(Setting):
-        """
-        Directory where assessment information is stored.
-        """
+    class DemoFolderSetting(Setting):
+        """Directory with demo data."""
 
-        name = 'data_folder'
-        validate = DirVal()
-
-This code registers a new setting ``data_folder``.
+        name = 'demo_folder'
+        validate = DirectoryVal()
 
 Setting properties are inferred from the class definition as follows:
 
 *Name*
-    The ``name`` attribute specifies the name of the setting.
+    Setting name is specified by the ``name`` attribute.
 
-*Documentation*
-    Setting documentation is extracted from the class docstring.
+*Description*
+    Setting description is extracted from the class docstring.
 
 *Validation*
-    Define method ``validate(value)`` to validate setting values.  This method
-    takes the raw setting value.  If the value is not well-formed, it must
-    raise an error; otherwise, it should return the value.
+    To validate setting values, define method ``validate(value)`` that takes a
+    raw setting value.  If the raw value is valid, it should be normalized and
+    returned; otherwise, an exception should be raised.
 
     ``rex.core`` module provides a number of predefined validators.
 
@@ -269,15 +274,17 @@ Extension mechanism
 
 Rex extension mechanism allows packages to
 
-- declare *interfaces* that provide various services;
-- define *implementations* for interfaces;
-- find implementations for the given interface.
+* declare *interfaces* that provide various services;
+* define *implementations* for interfaces;
+* find implementations for the given interface.
 
-To declare an interface, make a subclass of ``Extension``::
+To declare an interface, make a subclass of ``Extension``.  For example,
+this is how ``rex.core_demo`` declares ``Command`` interface::
 
-    from rex.core import Extension
+    from rex.core import Extension, cached
 
     class Command(Extension):
+        """Interface for named commands."""
 
         name = None
 
@@ -290,6 +297,7 @@ To declare an interface, make a subclass of ``Extension``::
             return (cls.name is not None)
 
         @classmethod
+        @cached
         def by_name(cls, name):
             command_types = [command_type for command_type in cls.all()
                                           if command_type.name == name]
@@ -299,8 +307,8 @@ To declare an interface, make a subclass of ``Extension``::
                     "duplicate command: %s" % name
             return command_types[0]
 
-        def __init__(self, ...):
-            [...]
+        def __init__(self):
+            pass
 
         def __call__(self):
             raise NotImplementedError("%s.__call__()"
@@ -324,23 +332,32 @@ On the ``Command`` interface, we declared several methods and attributes:
 
 To declare an implementation, make a subclass of the interface class::
 
-    class LogoutCommand(Command):
+    class HelloCommand(Command):
+        """Greets the World!"""
 
-        name = 'logout'
+        name = 'hello'
 
         def __call__(self):
-            [...]
+            return "Hello, World!"
 
 To get a list of all commands defined in the current active application, use::
 
-    command_types = Command.all()
+    >>> from rex.core_demo import Command
+
+    >>> with demo:
+    ...     command_types = Command.all()
 
 To find a command by name, use::
 
-    command_type = Command.by_name('logout')
+    >>> with demo:
+    ...    command_type = Command.by_name('hello')
 
-Just like with settings, in order for a command implementation to take effect,
-the module where the command is declared must be specified using ``rex_init``
+    >>> command = command_type()
+    >>> command()
+    'Hello, World!'
+
+Just like with settings, for an interface implementation to take effect, the
+module where the implementation is defined must be specified using ``rex_init``
 parameter in ``setup.py``.
 
 Error reporting
@@ -349,40 +366,71 @@ Error reporting
 Use class ``Error`` or its subclasses for all custom exceptions.  The exception
 constructor takes two arguments: ``message`` and ``payload``.  For example::
 
-    from rex.core import Error
+    >>> from rex.core import Error
 
-    raise Error("Found no product:", product)
-
-This error is rendered as a paragraph::
-
-    Found no product:
+    >>> raise Error("Found no product:", "beer")
+    Traceback (most recent call last):
+      ...
+    Error: Found no product:
         beer
 
 The error may contain multiple paragraphs::
 
-    try:
-        [...]
-        raise Error("Found no product:", product)
-        [...]
-    except Error as error:
-        error.wrap("While looking in:", where)
-        raise
-
-This error is rendered as::
-
-    Found no product:
+    >>> product = "beer"
+    >>> where = "refrigerator #%s" % 3
+    >>> try:
+    ...     raise Error("Found no product:", product)
+    ... except Error as error:
+    ...     error.wrap("While looking in:", where)
+    ...     raise
+    Traceback (most recent call last):
+      ...
+    Error: Found no product:
         beer
     While looking in:
         refrigerator #3
 
 The same code could we written using ``guard`` context manager::
 
-    from rex.core import Error, guard
+    >>> from rex.core import guard
 
-    with guard("While looking in:", where):
-        [...]
-        raise Error("Found no product:", product)
-        [...]
+    >>> with guard("While looking in:", where):
+    ...     raise Error("Found no product:", product)
+    Traceback (most recent call last):
+      ...
+    Error: Found no product:
+        beer
+    While looking in:
+        refrigerator #3
+
+Input validation
+----------------
+
+``rex.core`` contains utilities for validating and converting input values.
+These utilities could be used for validating configuration settings, parsing
+HTTP form parameters and so on.
+
+For example, ``IntVal`` validates integer values::
+
+    >>> from rex.core import IntVal
+
+    >>> int_val = IntVal()
+    >>> int_val(3)
+    3
+    >>> int_val('10')
+    10
+
+Note that the integer validator accepts both an integer object and a numeric
+string converting the latter to an integer.
+
+When the validator rejects the input value, ``Error`` exception is raised::
+
+    >>> int_val('NaN')
+    Traceback (most recent call last):
+        ...
+    Error: Expected an integer
+    Got:
+        'NaN'
 
 
 API Reference
@@ -394,28 +442,36 @@ Application
 ``rex.core.Rex(*requirements, **parameters)``
     Creates a Rex application.
 
-    Parameter ``requirements`` must contain one or more package names.  Those
-    packages and all their dependent packages compose the application.
+    ``requirements``
+        List of packages to include.  Each requirement is either a ``Package``
+        object or a requirement specification in format understood by
+        ``pkg_resources``.
 
-    Parameter ``parameters`` provides values for application settings.
+    ``parameters``
+        Application settings.
 
-    To activate the application, use ``with`` statement::
+    ``on()``
+        Activate the application.
 
-        with app:
-            [...]
+        You can also use ``with`` statement on the application object to make
+        the application active when the ``with`` block is executed.
 
-    The application object provides WSGI interface.
+    ``off()``
+        Deactivate the application.
+
+    ``__call__(environ, start_response)``
+        WSGI interface.
 
 ``rex.core.get_rex()``
-    Returns the Rex application active in the current thread.
+    Returns the current active Rex application.
 
 Caching
 -------
 
 ``rex.core.cached(fn)``
     This decorator caches the output of the wrapped function.  It ensures that
-    for the given active application and the set of function arguments, the
-    function is called only once.
+    for the given set of function arguments, the function is called no more
+    than once.
 
 Packages
 --------
@@ -451,9 +507,6 @@ Packages
     ``modules``
         Set of modules that contain extensions defined by the application.
 
-    ``root()``
-        Returns the main package.
-
     ``iter(packages)``
         Iterates over packages in the collection.
 
@@ -478,12 +531,12 @@ Extensions
 ----------
 
 ``rex.core.Extension``
-    This class and its subclasses forms extension mechanism for Rex
+    This class and its subclasses make the extension mechanism for Rex
     applications.
 
     ``sanitize()``
         This class method is called when a new subclass of ``Extension`` is
-        created.  Override this method to provide validation for subclass
+        created.  Override this method to provide validation for interface
         attributes and methods.
 
     ``enabled()``
@@ -491,8 +544,11 @@ Extensions
         enabled.
 
     ``all()``
-        This class method returns all implementation for the active
-        application.
+        This class method returns all implementations for the given interface.
+
+    ``by_package(name)``
+        This class method returns all implementations for the given interface
+        defined in the given package.
 
 Settings
 --------
@@ -504,15 +560,15 @@ Settings
         Setting name.
 
     ``validate(value)``
-        Called on a raw parameter value.  Must return a processed
-        parameter value or raise an error.
+        Called on a raw parameter value.  Must return a processed parameter
+        value or raise an error.
 
     ``default`` or ``default()``
-        Provides the setting value when it is not given explicitly.
-        If not set, the setting is mandatory.
+        Provides the setting value when it is not given explicitly.  If not
+        set, the setting is mandatory.
 
 ``rex.core.SettingCollection``
-    Application configuration.
+    Collection of setting values.
 
 ``rex.core.get_settings()``
     Returns configuration of the active application.
@@ -521,10 +577,10 @@ WSGI
 ----
 
 ``rex.core.WSGI``
-    This extension allows you to override the WSGI handler for Rex application.
+    This extension allows you to override the WSGI handler.
 
 ``get_wsgi()``
-    Returns the WSGI handler for the active application.
+    Returns the WSGI handler.
 
 Validators
 ----------
@@ -572,7 +628,7 @@ Validators
 ``rex.core.FileVal()``
     Accepts an existing file name.
 
-``rex.core.DirVal()``
+``rex.core.DirectoryVal()``
     Accepts a directory name.
 
 Errors
@@ -585,7 +641,7 @@ Errors
         Adds a paragraph to the error report.
 
 ``guard(message, payload=None)``
-    Use with ``with`` block to automatically
-    add a paragraph to all escaping exceptions.
+    Use with ``with`` statement to automatically add a paragraph to all
+    exceptions leaving the ``with`` block.
 
 

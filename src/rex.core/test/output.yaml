@@ -272,7 +272,7 @@ tests:
               'false'
           While validating mapping value for key:
               0
-    - suite: fireval-directoryval
+    - suite: fileval-directoryval
       tests:
       - py: define-file-val-dir-val
         stdout: ''

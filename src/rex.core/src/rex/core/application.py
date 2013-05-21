@@ -33,11 +33,17 @@ class Rex(object):
                                    for key in sorted(self.parameters)))
                 raise
 
-    def __enter__(self):
+    def on(self):
         get_rex.push(self)
 
+    def off(self):
+        get_rex.pop(self)
+
+    def __enter__(self):
+        self.on()
+
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        get_rex.pop()
+        self.off()
 
     def __call__(self, environ, start_response):
         with self:

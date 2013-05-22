@@ -193,6 +193,8 @@ RepeatingGroupQuestion.prototype.renameIdentifier = function (oldName, newName) 
 var Page = function (o) {
     var self = this;
     this.parent = null;
+    this.selected = false;
+    this.current = false;
     this.questions = [];
     this.templates = o.templates;
     this.onSelectPage = o.onSelectPage || null;
@@ -206,15 +208,41 @@ var Page = function (o) {
     this.cId = o.def.cId || null;
     this.createSkipIf(o.def.skipIf || null);
     this.bindEvents();
+    // this.updateHighlight();
+};
+Page.prototype.getCutoff = function () {
+    var cutoff = [this];
+    var level = this;
+    while (level.parent) {
+        cutoff.unshift(level.parent);
+        level = level.parent;
+    }
+    return cutoff;
+};
+Page.prototype.setCurrent = function (state) {
+    this.current = state ? true : false;
+    this.updateHighlight();
+};
+Page.prototype.setSelected = function (state) {
+    this.current = state ? true : false;
+    this.updateHighlight();
+};
+Page.prototype.updateHighlight = function () {
+    if (this.node) {
+        if (this.current || this.selected)
+            this.node.addClass('rb-highlighted');
+        else
+            this.node.removeClass('rb-highlighted');
+    }
 };
 Page.prototype.createSkipIf = function (value) {
     this.skipIf = new RexlExpression(value);
 };
 Page.prototype.bindEvents = function () {
     var self = this;
-    self.node.click(function () {
+    self.node.click(function (event) {
         if (self.onSelectPage)
-            self.onSelectPage(self);
+            self.onSelectPage(self, event.shiftKey);
     });
     self.node.find('.rb-page-add-next:first').click(function () {
         var page = new Page({
@@ -222,7 +250,7 @@ Page.prototype.bindEvents = function () {
                 type: "page",
                 title: null,
                 questions: [],
-                // TODO: generate unique cId
+                cId: builder.getCId('page')
             },
             templates: self.templates
         });
@@ -339,6 +367,7 @@ var PageContainer = function (pageList, pageDefs, onSelectPage) {
             page = new Page(opts);
         self.append(page);
     });
+    this.onSelectPage = onSelectPage;
 };
 PageContainer.prototype.append = function (page, after) {
     if (after) {
@@ -369,12 +398,49 @@ PageContainer.prototype.createEmptyPage = function () {
         def: {
             type: "page",
             title: null,
-            questions: []
-            // TODO: generate unique cId
+            questions: [],
+            cId: builder.getCId('page')
         },
+        onSelectPage: this.onSelectPage,
         templates: this.templates
     });
 };
+PageContainer.prototype.createEmptyGroup = function () {
+    return new Group({
+        def: {
+            type: "group",
+            title: null,
+            pages: [],
+            cId: builder.getCId('group')
+        },
+        onSelectPage: this.onSelectPage,
+        templates: this.templates
+    });
+}
+PageContainer.prototype.findPagesBetween = function (context) {
+    if (!context.found)
+        context.found = [];
+    $.each(this.pages, function (_, page) {
+        if (context.bounds.length) {
+            if (page instanceof Group)
+                page.findPagesBetween(context);
+            else {
+                if (context.include) {
+                    context.found.push(page);
+                }
+                if (context.bounds.indexOf(page) != -1) {
+                    if (!context.include) {
+                        context.include = true;
+                        context.found.push(page);
+                    }
+                    context.bounds = builder.removeFromArray(page, context.bounds);
+                }
+            }
+        }
+    });
+    return context.found;
+};
+
 
 var Group = function (o) {
     var self = this;
@@ -580,6 +646,7 @@ var Context = function (name, extParamTypes, manualEditConditions, urlStartTest,
 
 var Pages = function (o) {
     var self = this;
+    this.selection = [];
     this.templates = o.templates;
     this.addPageButton = o.addPageButton;
     this.makeGroupButton = o.makeGroupButton;
@@ -590,6 +657,10 @@ var Pages = function (o) {
         page.node[0].scrollIntoView();
         // TODO: make this page as current
     });
+    this.makeGroupButton.click(function () {
+        self.groupFromSelection();
+    });
+    this.updateGroupButton();
 };
 builder.extend(Pages, PageContainer);
 Pages.prototype.getDef = function () {
@@ -615,7 +686,179 @@ Pages.prototype.findQuestionsByRegExp = function (regExp) {
     });
     return found;
 };
+Pages.prototype.updateGroupButton = function () {
+    if (this.selection.length)
+        this.makeGroupButton.removeAttr('disabled');
+    else
+        this.makeGroupButton.attr('disabled', 'disabled');
+};
+Pages.prototype.setSelection = function (selection) {
+    $.each(this.selection, function (_, page) {
+        page.setSelected(false);
+    });
+    this.selection = selection;
+    $.each(this.selection, function (_, page) {
+        page.setSelected(true);
+    });
+    this.updateGroupButton();
+};
+Pages.prototype.addToSelection = function (page) {
+    var total = this.selection.length;
+    if (total) {
+        var bounds = [this.selection[0]];
+        if (total > 1)
+            bounds.push(this.selection[total - 1]);
+        bounds.push(page);
+        bounds = builder.removeDuplicates(bounds);
+        this.setSelection(this.findPagesBetween({
+            bounds: bounds
+        }));
+    } else
+        this.setSelection([page]);
+};
+Pages.prototype.groupFromSelection = function () {
+    var self = this;
+    // var cutoff = self.selection[0].getCutoff();
+    if (self.selection.length == 0)
+        return;
+    else if (self.selection.length > 1) {
+        var first = self.selection[0];
+        var firstSiblings = first.parent.pages;
+        var last = self.selection[self.selection.length - 1];
+        var lastSiblings = last.parent.pages;
+        var first = {
+            siblingBefore: (firstSiblings[0] != first),
+            siblingAfter: (firstSiblings[firstSiblings.length - 1] != first),
+            cutoff: first.getCutoff()
+        };
+        var last = {
+            siblingBefore: (lastSiblings[0] != last),
 
+            siblingAfter: (lastSiblings[lastSiblings.length - 1] != last),
+            cutoff: last.getCutoff()
+        };
+        var common = builder.interceptArrays(first.cutoff, last.cutoff);
+        var commonNearestParent = common[common.length - 1];
+        var canCreateGroup = true;
+        var startFrom = common.indexOf(commonNearestParent) + 1;
+        if (first.parent != commonNearestParent) {
+            for (var i = startFrom; i < first.cutoff.length - 1; i++) {
+                var current = first.cutoff[i];
+                var next = first.cutoff[i + 1];
+                if (current.pages[0] != next) {
+                    canCreateGroup = false;
+                    break;
+                }
+            }
+        }
+        if (canCreateGroup && last.parent != commonNearestParent) {
+            for (var i = startFrom; i < last.cutoff.length - 1; i++) {
+                var current = last.cutoff[i];
+                var next = last.cutoff[i + 1];
+                if (current.pages[current.pages.length - 1] != next) {
+                    canCreateGroup = false;
+                    break;
+                }
+            }
+        }
+
+        if (!canCreateGroup) {
+            alert("Can't create a group from the current selection!");
+            return;
+        }
+        var group = self.createEmptyGroup();
+        first.cutoff[startFrom].node.before(group.node);
+        $.each(self.selection, function (_, page) {
+            var item = page.getCutoff()[startFrom];
+            group.append(item);
+        });
+        commonNearestParent.rearrange();
+    } else {
+        var group = self.createEmptyGroup();
+        var page = this.selection[0];
+        var parent = page.parent;
+        page.node.before(group.node);
+        group.append(page);
+        parent.rearrange();
+    }
+}
+
+/*
+Pages.prototype.processSelectedPages = function() {
+    if (this.selection.length == 0)
+        return;
+    var firstPage = this.selection[0];
+    var lastPage = 
+        this.selection[this.selection.length - 1];
+    var pushToGroup = [];
+
+    if (firstPage === lastPage) {
+        pushToGroup.push(firstPage);
+    } else {
+        var firstLevel = this.getItemLevel(firstPage, 'page');
+        var secondLevel = this.getItemLevel(lastPage, 'page');
+
+        var firstLowestAllowedLevel =
+                this.getLowestAllowedLevel(firstPage, firstLevel, true);
+
+        var lastLowestAllowedLevel =
+                this.getLowestAllowedLevel(lastPage, secondLevel, false);
+
+        var lowestAllowedLevel =
+                (firstLowestAllowedLevel < lastLowestAllowedLevel) ?
+                                    lastLowestAllowedLevel:
+                                    firstLowestAllowedLevel;
+
+        if (lowestAllowedLevel > firstLevel ||
+            lowestAllowedLevel > secondLevel)
+            return;
+
+        var firstCutoff = this.getCutoff(firstPage, 'page');
+        var lastCutoff = null;
+        var cutoff = firstCutoff;
+        var total = this.selection.length;
+
+        for (var idx = 1; idx < total; idx++) {
+            var currentCutoff = 
+                this.getCutoff(this.selection[idx], 'page');
+            cutoff = this.interceptCutoff(cutoff, currentCutoff);
+            if (cutoff.length - 1 < lowestAllowedLevel)
+                return;
+            if (idx == total - 1)
+                lastCutoff = currentCutoff;
+        }
+
+        if (lastCutoff) {
+            var startFrom = firstCutoff[ cutoff.length ];
+            var endOn = lastCutoff[ cutoff.length ];
+
+            pushToGroup.push(startFrom);
+            var element = startFrom;
+
+            do {
+                element = element.next();
+                pushToGroup.push(element);
+            } while (endOn[0] !== element[0] && element.size());
+        }
+    }
+
+    if (pushToGroup.length) {
+        var pageGroup = $.RexFormBuilder.createGroup('pageGroup');
+        var pageSublistDiv = pageGroup.find('.rb_class_pages_list:first');
+
+        var newGroupData = $.RexFormBuilder.context.createNewGroup();
+        pushToGroup[0].before(pageGroup);
+        newGroupData.title = newGroupName;
+        pageGroup.data('data', newGroupData);
+
+        for (var idx in pushToGroup) {
+            pageSublistDiv.append(pushToGroup[idx]);
+        }
+        $.RexFormBuilder.setPageListSortable(pageSublistDiv);
+        $.RexFormBuilder.updateGroupDiv(pageGroup);
+    }
+}
+*/
 var InputParameter = function (def, parent, template, extParamTypes, onRemove) {
     var self = this;
     self.parent = parent;
@@ -1624,6 +1867,8 @@ var PageEditor = function (o) {
         }
     });
     this.setPage = function (page) {
+        if (self.page)
+            self.page.setCurrent(false);
         self.page = page;
         self.pageTitle.setTitle(page ? page.title : null);
         self.skipIfEditor.setValue(page ? page.skipIf.getValue() : null);
@@ -1631,6 +1876,8 @@ var PageEditor = function (o) {
         self.questions = self.page ? self.page.questions : [];
         self.syncListNode();
         self.editor = null;
+        if (self.page)
+            self.page.setCurrent(true);
     };
     this.show = function (page) {
         if (!self.closeQuestionEditor())
@@ -1837,8 +2084,13 @@ builder.init = function (o) {
         pageList: $("#rb_page_list"),
         pages: o.code.pages,
         templates: builder.templates,
-        onSelectPage: function (page) {
-            builder.pageEditor.show(page);
+        onSelectPage: function (page, addToSelection) {
+            if (addToSelection)
+                builder.pages.addToSelection(page);
+            else {
+                builder.pages.setSelection([page]);
+                builder.pageEditor.show(page);
+            }
         }
     });
     builder.pageEditor = new PageEditor({

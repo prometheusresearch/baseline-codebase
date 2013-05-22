@@ -49,7 +49,7 @@ builder.getRandomStr = function(len) {
 
 builder.getCId = function(prefix) {
     var cId = prefix + '_';
-    cId += builder.getRandomStr(10);
+    cId += builder.getRandomStr(20);
     // TODO: check for uniqness inside current instrument
     return cId;
 }
@@ -70,6 +70,31 @@ builder.isEmpty = function (obj) {
 
 builder.escapeHTML = function(str) {
     return $(document.createElement('div')).text(str).html();
+}
+
+builder.removeDuplicates = function(arr) {
+    return arr.filter(function (elem, pos) {
+        return arr.indexOf(elem) == pos;
+    });
+}
+
+builder.removeFromArray = function (item, arr) {
+    return arr.filter(function (elem, pos) {
+        return elem !== item;
+    });
+}
+
+builder.interceptArrays = function (a1, a2) {
+    var total1 = a1.length;
+    var total2 = a2.length;
+    var min = total1 < total2 ? total1 : total2;
+    var ret = [];
+    for (var i = 0; i < min; i++) {
+        if (a1[i] != a2[i])
+            break;
+        ret.push(a1[i]);
+    }
+    return ret;
 }
 
 var notAllowedChars = new RegExp("[^a-zA-Z0-9\\s_\\-\\/]+", "g");
@@ -199,6 +224,5 @@ builder.paramTypeTitle = function(type, extParamTypes) {
     }
     return 'Unknown';
 }
-
 
 })();

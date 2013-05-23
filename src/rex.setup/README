@@ -21,10 +21,11 @@ lines to ``setup.py``::
     )
 
 ``rex_init``
-    Use this parameter if the package declares any command or other extension.
-    The value must be the name of a Python module.  When the application is
-    initialized, this module is imported and any extensions defined in this
-    module or its submodules are registered for use with the application.
+    Use this parameter if the package declares any settings, commands or other
+    extensions.  The value must be the name of a Python module.  When the
+    application is initialized, this module is imported and any extensions
+    defined in this module or its submodules are registered for use with the
+    application.
 
     The value of this parameter is stored in ``*.egg-info/rex_init.txt`` file.
 

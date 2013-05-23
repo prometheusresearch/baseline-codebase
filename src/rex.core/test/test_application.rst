@@ -55,28 +55,6 @@ It is an error to specify unknown package name or configuration setting::
         unknown: None
 
 
-Move to test_setting.rst and test_package.rst::
-
-    >>> Rex('rex.bro ken')
-    Traceback (most recent call last):
-      ...
-    Error: Got ill-formed requirement:
-        rex.bro ken
-    While initializing Rex application:
-        rex.bro ken
-    >>> Rex('rex.core_demo', demo_folder='setup.py')
-    Traceback (most recent call last):
-      ...
-    Error: Cannot find directory:
-        setup.py
-    While validating setting:
-        demo_folder
-    While initializing Rex application:
-        rex.core_demo
-    With parameters:
-        demo_folder: 'setup.py'
-
-
 Activation
 ==========
 

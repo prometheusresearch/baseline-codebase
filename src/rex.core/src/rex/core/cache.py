@@ -20,7 +20,7 @@ class Cache(dict):
         # Get the cached value associated with the key; call `callback()` to
         # get the value for a new key.
         with self._lock:
-            if key not in self:
+            if key not in self:     # might have been set in another thread
                 self[key] = callback()
         return self[key]
 

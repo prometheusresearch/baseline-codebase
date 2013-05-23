@@ -12,6 +12,7 @@ import pkg_resources
 
 
 class Package(object):
+    """Component of a Rex application."""
 
     def __init__(self, name, modules=set(), static=None):
         self.name = name
@@ -19,6 +20,7 @@ class Package(object):
         self.static = static
 
     def abspath(self, path):
+        """Returns the real path for a file in the package static directory."""
         if self.static is None:
             return None
         if path.startswith('/'):
@@ -31,15 +33,18 @@ class Package(object):
         return real_path
 
     def exists(self, path):
+        """Checks if the file exists."""
         real_path = self.abspath(path)
         return (real_path is not None and os.path.exists(real_path))
 
     def open(self, path):
+        """Opens a file in the static directory of the package."""
         real_path = self.abspath(path)
         assert real_path is not None, path
         return open(real_path)
 
     def walk(self, path):
+        """Iterates over a directory tree in the static directory."""
         real_path = self.abspath(path)
         assert real_path is not None, path
         return os.walk(real_path)
@@ -51,9 +56,11 @@ class Package(object):
 
 
 class PackageCollection(object):
+    """Collection of all packages."""
 
     @classmethod
     def build(cls):
+        # Builds package collection from a list of requirements.
         requirements = list(get_rex().requirements)
         requirements.append('rex.core')
         packages = []
@@ -65,26 +72,38 @@ class PackageCollection(object):
 
     @classmethod
     def _build_package_tree(cls, requirement, seen):
+        # Emits packages for the given requirement.
+
+        # If `requirement` is already a `Package` object, we are done.
         if isinstance(requirement, Package):
             yield requirement
             return
 
+        # Otherwise, it must be a requirement string.  Find the respective
+        # Python distribution.
         try:
             dist = pkg_resources.get_distribution(requirement)
         except ValueError:
             raise Error("Got ill-formed requirement:", requirement)
         except pkg_resources.ResolutionError:
             raise Error("Failed to satisfy requirement:", requirement)
+
+        # Normalize the package name.
         name = dist.key
         name = name.replace('-', '_')
+
+        # Check if this package was already processed.
         if name in seen:
             return
         seen.add(name)
 
+        # Process package dependencies first.  That ensures that the packages
+        # are ordered with respect to the dependency relations.
         for req in dist.requires():
             for package in cls._build_package_tree(req, seen):
                 yield package
 
+        # Determine modules where we will look for extensions.
         init = None
         modules = set()
         if dist.has_metadata('rex_init.txt'):
@@ -96,6 +115,7 @@ class PackageCollection(object):
                                     (module == init or
                                         module.startswith(init+'.')))
 
+        # Determine the directory with static files.
         static = None
         if dist.has_metadata('rex_static.txt'):
             static = dist.get_metadata('rex_static.txt')
@@ -103,6 +123,7 @@ class PackageCollection(object):
             if not os.path.exists(static):
                 raise Error("Cannot find static directory:", static)
 
+        # Skip packages without extensions or static packages, emit the rest.
         if modules or static:
             yield Package(name, modules, static)
 
@@ -114,18 +135,22 @@ class PackageCollection(object):
                                   for module in package.modules)
 
     def __iter__(self):
+        """Iterate over packages."""
         return iter(self.packages)
-
-    def __getitem__(self, name):
-        return self.package_map[name]
 
     def __reversed__(self):
         return reversed(self.packages)
 
+    def __getitem__(self, name):
+        """Get the package by name."""
+        return self.package_map[name]
+
     def get(self, name, default=None):
+        """Get the package by name."""
         return self.package_map.get(name, default)
 
     def _delegate(self, path, method, *args, **kwds):
+        # Delegate operations with static files to individual packages.
         assert ':' in path, "missing package name in path: %r" % path
         name, local_path = path.split(':')
         assert name in self.package_map, \
@@ -134,15 +159,19 @@ class PackageCollection(object):
         return method(package, local_path, *args, **kwds)
 
     def abspath(self, path):
+        """Returns a real path to the static file."""
         return self._delegate(path, Package.abspath)
 
     def exists(self, path):
+        """Checks if the static file exists."""
         return self._delegate(path, Package.exists)
 
     def open(self, path):
+        """Opens a static file."""
         return self._delegate(path, Package.open)
 
     def walk(self, path):
+        """Iterates over a directory tree."""
         return self._delegate(path, Package.walk)
 
     def __repr__(self):
@@ -151,6 +180,7 @@ class PackageCollection(object):
 
 @cached
 def get_packages():
+    """Returns a collection of packages for the active application.""" 
     return PackageCollection.build()
 
 

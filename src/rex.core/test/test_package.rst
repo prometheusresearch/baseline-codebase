@@ -24,8 +24,7 @@ active application::
                                modules=set([...]),
                                static=None)])
 
-Package collection provides container interface.  Note that order of packages
-in the collection respects package dependencies::
+Package collection provides container interface::
 
     >>> for package in packages:
     ...     print package.name
@@ -48,6 +47,15 @@ in the collection respects package dependencies::
     >>> packages.get('unknown')
     >>> packages.get('unknown', packages['rex.core_demo']).name
     'rex.core_demo'
+
+The order of packages in the collection respects package dependencies::
+
+    >>> with Rex('rex.core_demo', 'rex.core'):
+    ...     print get_packages()        # doctest: +ELLIPSIS
+    PackageCollection([Package('rex.core_demo', ...), Package('rex.core', ...)])
+    >>> with Rex('rex.core', 'rex.core_demo'):
+    ...     print get_packages()        # doctest: +ELLIPSIS
+    PackageCollection([Package('rex.core_demo', ...), Package('rex.core', ...)])
 
 Attribute ``PackageCollection.modules`` is a set of all modules where Rex would
 look for extensions::

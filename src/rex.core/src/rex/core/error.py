@@ -14,6 +14,9 @@ class Paragraph(object):
         self.payload = payload
 
     def __str__(self):
+        # Emit:
+        #   <message>
+        #       <payload>
         if self.payload is None:
             return self.message
         block = "\n".join("    "+line if line else ""
@@ -36,6 +39,7 @@ class Error(Exception):
         self.paragraphs = [paragraph]
 
     def wrap(self, message, payload=None):
+        """Adds a paragraph."""
         paragraph = Paragraph(message, payload)
         self.paragraphs.append(paragraph)
         return self
@@ -60,7 +64,7 @@ class Error(Exception):
 
 
 class guard(object):
-    """Adds context to exceptions exiting the wrapped block."""
+    """Adds a paragraph to exceptions leaving the wrapped block."""
 
     def __init__(self, message, payload=None):
         self.message = message

@@ -36,6 +36,7 @@ class Extension(object):
         """Returns all implementations for the given interface."""
         packages = get_packages()
         modules = packages.modules
+        # Find all subclasses of `cls`.
         subclasses = [cls]
         idx = 0
         while idx < len(subclasses):
@@ -51,6 +52,7 @@ class Extension(object):
     def top(cls):
         """Returns the most specific implementation for the given interface."""
         extensions = cls.all()
+        # Find all the leaves in the inheritance tree.
         candidates = []
         for extension in extensions:
             if not any(issubclass(candidate, extension)
@@ -58,6 +60,7 @@ class Extension(object):
                 candidates = [candidate for candidate in candidates
                                         if not issubclass(extension, candidate)]
                 candidates.append(extension)
+        # Ensure there is only one leaf and return it.
         assert len(candidates) >= 1, "no implementations found"
         assert len(candidates) <= 1, "too many implementations found: %s" \
                 % ", ".join(repr(candidate) for candidate in candidates)

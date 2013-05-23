@@ -477,7 +477,7 @@ Packages
 --------
 
 ``rex.core.Package(name, modules, static)``
-    Represents a package.
+    Component of a Rex application.
 
     ``name``
         The package name.

@@ -18,10 +18,10 @@ class Rex(object):
         self.requirements = requirements
         self.parameters = parameters
         self.cache = Cache()
-        self._prepare()
+        self._setup()
 
-    def _prepare(self):
-        # Fail early if there is any problem with configuration.
+    def _setup(self):
+        # Fail early if there are any problems with packages or configuration.
         with self:
             try:
                 get_packages()

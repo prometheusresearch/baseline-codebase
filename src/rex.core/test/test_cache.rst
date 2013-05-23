@@ -32,8 +32,8 @@ A cached function must be called in context of an active application::
 
     >>> from rex.core import Rex
     >>> demo = Rex()
-    >>> demo.on()
 
+    >>> demo.on()
     >>> factorial(10)
     3628800
     >>> COUNT

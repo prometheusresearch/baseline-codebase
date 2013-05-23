@@ -256,7 +256,7 @@ body, p, div, td, input {
 .rb_pages_list_wrapper {
     position: absolute;
     top: 210px;
-    bottom: 10px;
+    bottom: 0px;
     right: 10px;
     left: 10px;
 }
@@ -266,10 +266,18 @@ body, p, div, td, input {
     margin-right: 5px;
 }
 
+.rb-pages-hint {
+    position: absolute;
+    bottom: 0px;
+    left: 5px;
+    font-size: 10px;
+    color: #808080;
+}
+
 .rb_pages_scrollable {
     position: absolute;
     top: 30px;
-    bottom: 0px;
+    bottom: 15px;
     right: 0px;
     left: 0px;
     overflow-y: auto;

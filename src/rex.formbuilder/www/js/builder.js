@@ -477,6 +477,7 @@ Group.prototype.setTitle = function (title) {
 Group.prototype.bindEvents = function () {
     var self = this;
     self.node.find('.rb-group-remove:first').click(function () {
+        console.log('self', self);
         if (confirm("Are you sure you want to remove this item?"))
             self.remove();
     });
@@ -524,6 +525,10 @@ Group.prototype.renameIdentifier = function (oldName, newName) {
     $.each(this.pages, function (_, page) {
         page.renameIdentifier(oldName, newName);
     });
+};
+Group.prototype.remove = function () {
+    this.parent.exclude(this);
+    this.node.remove();
 };
 
 (function () {
@@ -767,7 +772,9 @@ Pages.prototype.groupFromSelection = function () {
             return;
         }
         var group = self.createEmptyGroup();
-        first.cutoff[startFrom].node.before(group.node);
+        var beforeElement = first.cutoff[startFrom];
+        beforeElement.parent.append(group);
+        beforeElement.node.before(group.node);
         $.each(self.selection, function (_, page) {
             var item = page.getCutoff()[startFrom];
             group.append(item);
@@ -777,6 +784,7 @@ Pages.prototype.groupFromSelection = function () {
         var group = self.createEmptyGroup();
         var page = this.selection[0];
         var parent = page.parent;
+        parent.append(group);
         page.node.before(group.node);
         group.append(page);
         parent.rearrange();

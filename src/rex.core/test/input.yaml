@@ -1,5 +1,0 @@
-
-title: rex.core
-tests:
-- include: test/test_validate_pbbt.yaml
-

@@ -9,7 +9,7 @@ import functools
 
 
 class Cache(dict):
-    # Per-application cache.
+    # Application cache.
 
     __slots__ = ('_lock',)
 

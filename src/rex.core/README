@@ -586,13 +586,13 @@ Validators
 ----------
 
 ``rex.core.Validate()``
-    Validates and sanitizes the given value.
+    Validates and sanitizes input value.
 
     This is an abstract class.  Subclasses must implement the ``__call__()``
     method.
 
 ``rex.core.AnyVal()``
-    Accepts any value.
+    Accepts any input; returns it unchanged.
 
 ``rex.core.MaybeVal(validate)``
     Accepts ``None`` or delegates to the nested validator.

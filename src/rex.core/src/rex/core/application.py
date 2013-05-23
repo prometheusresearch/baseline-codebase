@@ -12,6 +12,7 @@ from .error import Error
 
 
 class Rex(object):
+    """Rex application."""
 
     def __init__(self, *requirements, **parameters):
         self.requirements = requirements
@@ -20,23 +21,31 @@ class Rex(object):
         self._prepare()
 
     def _prepare(self):
+        # Fail early if there is any problem with configuration.
         with self:
             try:
                 get_packages()
                 get_settings()
                 get_wsgi()
             except Error, error:
-                error.wrap("While initializing Rex application:",
-                           ", ".join(self.requirements) or 'rex.core')
-                error.wrap("With parameters:",
-                           "".join("%s: %r\n" % (key, self.parameters[key])
-                                   for key in sorted(self.parameters)))
+                if self.requirements:
+                    error.wrap("While initializing Rex application:",
+                               "\n".join(str(requirement)
+                                         for requirement in self.requirements))
+                else:
+                    error.wrap("While initializing Rex application")
+                if self.parameters:
+                    error.wrap("With parameters:",
+                               "\n".join("%s: %r" % (key, self.parameters[key])
+                                         for key in sorted(self.parameters)))
                 raise
 
     def on(self):
+        """Activate the application."""
         get_rex.push(self)
 
     def off(self):
+        """Deactiate the application."""
         get_rex.pop(self)
 
     def __enter__(self):
@@ -46,6 +55,7 @@ class Rex(object):
         self.off()
 
     def __call__(self, environ, start_response):
+        """WSGI interface."""
         with self:
             wsgi = get_wsgi()
             output = wsgi(environ, start_response)

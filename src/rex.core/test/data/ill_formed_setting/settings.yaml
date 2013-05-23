@@ -1,0 +1,2 @@
+settings.yaml is expected to contain a mapping from setting names to setting
+values, but this file contains a scalar value instead.

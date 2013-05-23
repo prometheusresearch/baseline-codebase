@@ -9,18 +9,21 @@ import os.path
 
 
 class Validate(object):
+    """Validates and sanitizes input value."""
 
     def __call__(self, value):
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
 
 class AnyVal(Validate):
+    """Accepts any input; returns it unchanged."""
 
     def __call__(self, value):
         return value
 
 
 class MaybeVal(Validate):
+    """Adds ``None`` to an existing validator."""
 
     def __init__(self, validate):
         self.validate = validate
@@ -32,6 +35,7 @@ class MaybeVal(Validate):
 
 
 class OneOfVal(Validate):
+    """Union of validators."""
 
     def __init__(self, *validates):
         self.validates = validates
@@ -48,6 +52,7 @@ class OneOfVal(Validate):
 
 
 class StrVal(Validate):
+    """Accepts string values."""
 
     def __init__(self, pattern=None):
         self.pattern = pattern
@@ -71,6 +76,7 @@ class StrVal(Validate):
 
 
 class ChoiceVal(Validate):
+    """Accepts strings from a fixed set."""
 
     def __init__(self, *choices):
         self.choices = choices
@@ -88,6 +94,7 @@ class ChoiceVal(Validate):
 
 
 class BoolVal(Validate):
+    """Accepts Boolean values."""
 
     def __call__(self, value):
         with guard("Got:", repr(value)):
@@ -101,6 +108,7 @@ class BoolVal(Validate):
 
 
 class IntVal(Validate):
+    """Accepts integers."""
 
     def __init__(self, min_bound=None, max_bound=None):
         self.min_bound = min_bound
@@ -127,18 +135,21 @@ class IntVal(Validate):
 
 
 class UIntVal(IntVal):
+    """Accepts non-negative integers."""
 
     def __init__(self, max_bound=None):
         super(UIntVal, self).__init__(0, max_bound)
 
 
 class PIntVal(IntVal):
+    """Accepts positive integers."""
 
     def __init__(self, max_bound=None):
         super(PIntVal, self).__init__(1, max_bound)
 
 
 class SeqVal(Validate):
+    """Accepts sequences."""
 
     def __init__(self, validate_item=None):
         self.validate_item = validate_item
@@ -157,6 +168,7 @@ class SeqVal(Validate):
 
 
 class MapVal(Validate):
+    """Accepts mappings."""
 
     def __init__(self, validate_key=None, validate_item=None):
         self.validate_key = validate_key
@@ -181,6 +193,7 @@ class MapVal(Validate):
 
 
 class FileVal(Validate):
+    """Accepts paths to files."""
 
     def __call__(self, value):
         with guard("Got:", repr(value)):
@@ -194,6 +207,7 @@ class FileVal(Validate):
 
 
 class DirectoryVal(Validate):
+    """Accepts paths to directories."""
 
     def __call__(self, value):
         with guard("Got:", repr(value)):

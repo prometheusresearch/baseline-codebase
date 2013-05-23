@@ -21,7 +21,11 @@ class Paragraph(object):
         return "%s\n%s" % (self.message, block)
 
     def __repr__(self):
-        return "<%s %r>" % (self.__class__.__name__, self.message)
+        if self.payload is None:
+            return "%s(%r)" % (self.__class__.__name__, self.message)
+        else:
+            return "%s(%r, %r)" % (self.__class__.__name__,
+                                   self.message, self.payload)
 
 
 class Error(Exception):
@@ -34,13 +38,25 @@ class Error(Exception):
     def wrap(self, message, payload=None):
         paragraph = Paragraph(message, payload)
         self.paragraphs.append(paragraph)
+        return self
 
     def __str__(self):
         return "\n".join(str(paragraph) for paragraph in self.paragraphs)
 
     def __repr__(self):
-        return "<%s %r>" % (self.__class__.__name__,
-                            self.paragraphs[0].message)
+        # Emit:
+        #   Error(...).wrap(...).wrap(...)
+        output = ""
+        for paragraph in self.paragraphs:
+            if not output:
+                output = self.__class__.__name__
+            else:
+                output += ".wrap"
+            if paragraph.payload is None:
+                output += "(%r)" % paragraph.message
+            else:
+                output += "(%r, %r)" % (paragraph.message, paragraph.payload)
+        return output
 
 
 class guard(object):

@@ -5,6 +5,7 @@
 
 from .cache import cached
 from .context import get_rex
+from .error import Error
 import sys
 import os, os.path
 import pkg_resources
@@ -12,7 +13,7 @@ import pkg_resources
 
 class Package(object):
 
-    def __init__(self, name, modules, static):
+    def __init__(self, name, modules=set(), static=None):
         self.name = name
         self.modules = modules
         self.static = static
@@ -22,24 +23,26 @@ class Package(object):
             return None
         if path.startswith('/'):
             path = path[1:]
-        path = os.path.abspath(os.path.join(self.static, path))
-        if not (path == self.static or path.startswith(self.static+'/')):
+        real_static = os.path.abspath(self.static)
+        real_path = os.path.abspath(os.path.join(real_static, path))
+        if not (real_path == real_static or
+                real_path.startswith(real_static+'/')):
             return None
-        return path
+        return real_path
 
     def exists(self, path):
-        path = self.abspath(path)
-        return (path is not None and os.path.exists(path))
+        real_path = self.abspath(path)
+        return (real_path is not None and os.path.exists(real_path))
 
     def open(self, path):
-        path = self.abspath(path)
-        assert path is not None, path
-        return open(path)
+        real_path = self.abspath(path)
+        assert real_path is not None, path
+        return open(real_path)
 
     def walk(self, path):
-        path = self.abspath(path)
-        assert path is not None, path
-        return os.walk(path)
+        real_path = self.abspath(path)
+        assert real_path is not None, path
+        return os.walk(real_path)
 
     def __repr__(self):
         return "%s(%r, modules=%r, static=%r)" \
@@ -51,9 +54,8 @@ class PackageCollection(object):
 
     @classmethod
     def build(cls):
-        requirements = get_rex().requirements
-        if not requirements:
-            requirements = ['rex.core']
+        requirements = list(get_rex().requirements)
+        requirements.append('rex.core')
         packages = []
         seen = set()
         for requirement in reversed(requirements):
@@ -67,7 +69,12 @@ class PackageCollection(object):
             yield requirement
             return
 
-        dist = pkg_resources.get_distribution(requirement)
+        try:
+            dist = pkg_resources.get_distribution(requirement)
+        except ValueError:
+            raise Error("Got ill-formed requirement:", requirement)
+        except pkg_resources.ResolutionError:
+            raise Error("Failed to satisfy requirement:", requirement)
         name = dist.key
         name = name.replace('-', '_')
         if name in seen:
@@ -103,12 +110,8 @@ class PackageCollection(object):
         self.packages = packages
         self.package_map = dict((package.name, package)
                                   for package in packages)
-
-    @property
-    @cached
-    def modules(self):
-        return set(module for package in self.packages
-                          for module in package.modules)
+        self.modules = set(module for package in self.packages
+                                  for module in package.modules)
 
     def __iter__(self):
         return iter(self.packages)
@@ -123,9 +126,10 @@ class PackageCollection(object):
         return self.package_map.get(name, default)
 
     def _delegate(self, path, method, *args, **kwds):
-        assert ':' in path, "ill-formed path: %r" % path
+        assert ':' in path, "missing package name in path: %r" % path
         name, local_path = path.split(':')
-        assert name in self.package_map, "unknown package in path: %r" % path
+        assert name in self.package_map, \
+                "unknown package name in path: %r" % path
         package = self.package_map[name]
         return method(package, local_path, *args, **kwds)
 

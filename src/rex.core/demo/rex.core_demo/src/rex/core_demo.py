@@ -6,6 +6,7 @@ class DemoFolderSetting(Setting):
     """Directory with demo data."""
 
     name = 'demo_folder'
+    default = None
     validate = DirectoryVal()
 
 class Command(Extension):

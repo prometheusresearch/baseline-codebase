@@ -15,17 +15,21 @@ import yaml
 
 class Setting(Extension):
 
+    REQUIRED = object()
+    DEFAULT = object()
+
     name = None
-    default = None
+    default = REQUIRED
+
+    @classmethod
+    def sanitize(cls):
+        if cls.name is not None:
+            assert cls.__doc__ is not None and cls.__doc__.strip() != "", \
+                    "undocumented setting: %s" % cls.name
 
     @classmethod
     def help(cls):
-        if cls.__doc__ is None:
-            return None
-        doc = cls.__doc__.rstrip()
-        if not doc:
-            return None
-        return textwrap.dedent(doc)
+        return textwrap.dedent(cls.__doc__).strip()
 
     @classmethod
     def enabled(cls):
@@ -33,15 +37,17 @@ class Setting(Extension):
 
     @classmethod
     @cached
-    def all_map(cls):
+    def map_all(cls):
         return dict((setting.name, setting) for setting in cls.all())
 
     def validate(self, data):
         return data
 
-    def __call__(self, value=None):
-        if value is None:
-            if callable(self.default):
+    def __call__(self, value=DEFAULT):
+        if value is self.DEFAULT:
+            if self.default is self.REQUIRED:
+                raise Error("Missing mandatory setting:", self.name)
+            elif callable(self.default):
                 return self.default()
             else:
                 return self.default
@@ -53,6 +59,9 @@ class Setting(Extension):
 
 
 class DebugSetting(Setting):
+    """
+    Turn on debug mode.
+    """
 
     name = 'debug'
     default = False
@@ -68,13 +77,16 @@ class SettingCollection(object):
         local_parameters = get_rex().parameters
         packages = get_packages()
 
-        setting_map = Setting.all_map()
+        setting_map = Setting.map_all()
         parameters = {}
 
         for package in reversed(packages):
             if package.exists('settings.yaml'):
                 stream = package.open('settings.yaml')
-                package_parameters = yaml.safe_load(stream)
+                try:
+                    package_parameters = yaml.safe_load(stream)
+                except yaml.YAMLError, error:
+                    raise Error("Failed to parse settings file:", str(error))
                 stream.close()
                 if package_parameters is None:
                     continue

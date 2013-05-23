@@ -61,7 +61,7 @@ values accepted by the wrapped validator *and* ``None``::
     True
     >>> maybe_val('NaN')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer
     Got:
         'NaN'
@@ -83,7 +83,7 @@ the input::
     10
     >>> oneof_val('NaN')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Failed to match the value against any of the following:
         Expected a Boolean value
         Got:
@@ -110,13 +110,19 @@ in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
     'Hello'
     >>> str_val(u'Hello')
     'Hello'
+    >>> str_val(None)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a string
+    Got:
+        None
     >>> str_val(u'\N{CYRILLIC CAPITAL LETTER YA}')
     '\xd0\xaf'
     >>> str_val(u'\N{CYRILLIC CAPITAL LETTER YA}'.encode('utf-8'))
     '\xd0\xaf'
     >>> str_val(u'\N{CYRILLIC CAPITAL LETTER YA}'.encode('cp1251'))
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected a valid UTF-8 string
     Got:
         '\xdf'
@@ -130,7 +136,7 @@ pattern are accepted::
     '123-12-1234'
     >>> ssn_val('John Doe')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected a string matching:
         /^\d\d\d-\d\d-\d\d\d\d$/
     Got:
@@ -150,13 +156,13 @@ pattern are accepted::
     'two'
     >>> choice_val(2)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected a string
     Got:
         2
     >>> choice_val('five')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected one of:
         one, two, three
     Got:
@@ -190,7 +196,7 @@ recognized as ``True`` values::
     True
     >>> bool_val(None)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected a Boolean value
     Got:
         None
@@ -212,13 +218,13 @@ to integer::
     10
     >>> int_val('NaN')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer
     Got:
         'NaN'
     >>> int_val(None)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer
     Got:
         None
@@ -235,14 +241,14 @@ outside of these bounds are rejected::
     10
     >>> int_1to10_val(0)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer in range:
         [1..10]
     Got:
         0
     >>> int_1to10_val(11)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer in range:
         [1..10]
     Got:
@@ -252,7 +258,7 @@ outside of these bounds are rejected::
     1
     >>> int_1to_val(0)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer in range:
         [1..]
     Got:
@@ -262,7 +268,7 @@ outside of these bounds are rejected::
     10
     >>> int_to10_val(11)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer in range:
         [..10]
     Got:
@@ -277,7 +283,7 @@ respectively::
     1
     >>> pint_val(0)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer in range:
         [1..]
     Got:
@@ -287,7 +293,7 @@ respectively::
     0
     >>> uint_val(-1)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer in range:
         [0..]
     Got:
@@ -305,7 +311,7 @@ respectively::
     [0, False, None]
     >>> seq_val(None)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected a sequence
     Got:
         None
@@ -320,7 +326,7 @@ respectively::
     [1, 2, 3]
     >>> int_seq_val([1, '2', 'three'])
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer
     Got:
         'three'
@@ -339,7 +345,7 @@ respectively::
     {'0': 'false'}
     >>> map_val(None)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected a mapping
     Got:
         None
@@ -356,7 +362,7 @@ keys and mapping values::
     >>> pi2b_map_val = MapVal(PIntVal(), BoolVal())
     >>> pi2b_map_val({'0': 'false'})
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer in range:
         [1..]
     Got:
@@ -366,7 +372,7 @@ keys and mapping values::
     >>> i2i_map_val = MapVal(IntVal(), IntVal())
     >>> i2i_map_val({'0': 'false'})
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected an integer
     Got:
         'false'
@@ -388,17 +394,17 @@ existing file or directory respectively::
     'setup.py'
     >>> file_val('missing')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Cannot find file:
         missing
     >>> file_val('src')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Cannot find file:
         src
     >>> file_val(None)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected a string
     Got:
         None
@@ -409,17 +415,17 @@ existing file or directory respectively::
     'src'
     >>> dir_val('missing')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Cannot find directory:
         missing
     >>> dir_val('setup.py')
     Traceback (most recent call last):
-        ...
+      ...
     Error: Cannot find directory:
         setup.py
     >>> dir_val(None)
     Traceback (most recent call last):
-        ...
+      ...
     Error: Expected a string
     Got:
         None

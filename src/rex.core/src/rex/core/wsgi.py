@@ -20,8 +20,7 @@ class WSGI(Extension):
 
 @cached
 def get_wsgi():
-    wsgi_types = WSGI.all()
-    wsgi_type = wsgi_types[0]
+    wsgi_type = WSGI.top()
     return wsgi_type.build()
 
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.core',
-    version = "0.5.1",
+    version = "1.0.0",
     description="Core components of the Rex platform",
     long_description=open('README', 'r').read(),
     author="Prometheus Research, LLC",
@@ -19,10 +19,10 @@ setup(
     namespace_packages=['rex'],
     entry_points={},
     setup_requires=[
-        'rex.setup',
+        'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.setup',
+        'rex.setup >=1.0, <2',
         'pyyaml',
     ],
     rex_init='rex.core',

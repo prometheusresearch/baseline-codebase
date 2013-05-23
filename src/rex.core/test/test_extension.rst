@@ -15,15 +15,16 @@ allows us to define extensions in-place::
     >>> main_package = Package('main', modules=set(['__main__']))
     >>> main = Rex(main_package)
 
-We will also use a ``rex.core_demo`` application::
-
-    >>> demo = Rex('rex.core_demo')
-
 To create a new interface, define a subclass of ``Extension``::
 
     >>> from rex.core import Extension
 
     >>> class Greet(Extension):
+    ...
+    ...     @classmethod
+    ...     def enabled(cls):
+    ...         # Exclude the interface itself from the list of implementations.
+    ...         return (cls is not Greet)
     ...
     ...     def __call__(self, name):
     ...         raise NotImplementedError("%s.%s" % (self.__class__.__module__,
@@ -42,12 +43,15 @@ interface::
     ...     def __call__(self, name):
     ...         return "Howdy, %s!" % name
 
-Now you can find all implementations for the ``Greet`` interface available for
-the current active application::
+Now you can find and invoke all implementations of the ``Greet`` interface
+available for the current active application::
 
     >>> with main:
-    ...     print Greet.all()
-    [__main__.Greet, __main__.Hello, __main__.Howdy]
+    ...     for greet_type in Greet.all():
+    ...         greet = greet_type()
+    ...         print greet('Alice')
+    Hello, Alice!
+    Howdy, Alice!
 
 
 ``Extension.all()``, ``Extension.by_package()``, etc
@@ -57,6 +61,7 @@ Use method ``Extension.all()`` on the interface to obtain all implementations
 of the interface.  For example, to list all settings, use::
 
     >>> from rex.core import Setting
+    >>> demo = Rex('rex.core_demo')
 
     >>> with demo:
     ...     print Setting.all()

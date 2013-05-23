@@ -1,0 +1,41 @@
+#
+# Copyright (c) 2013, Prometheus Research, LLC
+#
+
+title: REX.CORE Tests
+suite: rex.core
+tests:
+
+- if: COVERAGE
+  py: |
+    from coverage import coverage
+    cov = coverage(config_file='setup.cfg')
+    cov.start()
+
+- title: Setup
+  tests:
+  - sh: pip install -q -e ./demo/rex.core_demo
+
+- title: Doctests
+  tests:
+  - py: |
+      from doctest import testfile
+  - py: testfile('README', False)
+  - py: testfile('test/test_application.rst', False)
+  - py: testfile('test/test_cache.rst', False)
+  - py: testfile('test/test_error.rst', False)
+  - py: testfile('test/test_extension.rst', False)
+  - py: testfile('test/test_package.rst', False)
+  - py: testfile('test/test_setting.rst', False)
+  - py: testfile('test/test_validate.rst', False)
+
+- title: Tear Down
+  tests:
+  - sh: pip uninstall -q -y rex.core_demo
+
+- if: COVERAGE
+  py: |
+    cov.save()
+    cov.stop()
+    cov.html_report()
+

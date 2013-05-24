@@ -27,6 +27,12 @@ body, p, div, td, input {
     background-color: #b4d6f9;
 }
 
+.rb_page.rb-receiver,
+.rb_page.rb-receiver:hover,
+.rb_page.rb-receiver.rb-highlighted {
+	background-color: #458fc9;
+}
+
 .rb_page_group {
     margin: 5px;
     padding: 5px 5px 5px 5px;
@@ -57,6 +63,23 @@ body, p, div, td, input {
     border-bottom: 1px solid #a0a0a0;
     background-color: #f0f0f0;
     font-size: 11px;
+}
+
+.rb-drag-helper {
+	position: relative;
+	min-height: 30px;
+	min-width: 100px;
+    border: 1px solid #4867ed;
+}
+
+.rb-drag-helper > div {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	background-color: #4867ed;
+	opacity: 0.3;
 }
 
 .rb_choices_item_actions,

@@ -195,6 +195,7 @@ var Page = function (o) {
     this.parent = null;
     this.selected = false;
     this.current = false;
+	this.receiver = false;
     this.questions = [];
     this.templates = o.templates;
     this.onSelectPage = o.onSelectPage || null;
@@ -227,12 +228,21 @@ Page.prototype.setSelected = function (state) {
     this.current = state ? true : false;
     this.updateHighlight();
 };
+Page.prototype.setReceiver = function (state) {
+	this.receiver = state ? true: false;
+	console.log('receiver', this.receiver);
+	this.updateHighlight();
+}
 Page.prototype.updateHighlight = function () {
     if (this.node) {
         if (this.current || this.selected)
             this.node.addClass('rb-highlighted');
         else
             this.node.removeClass('rb-highlighted');
+		if (this.receiver)
+			this.node.addClass('rb-receiver');
+		else
+			this.node.removeClass('rb-receiver');
     }
 };
 Page.prototype.createSkipIf = function (value) {
@@ -243,6 +253,33 @@ Page.prototype.bindEvents = function () {
     self.node.click(function (event) {
         if (self.onSelectPage)
             self.onSelectPage(self, event.shiftKey);
+    });
+	console.log('a', self.node.find("> div"));
+    self.node.find("> div").droppable({
+		accept: "#rb_question_list > .rb-question",
+		drop: function (event, ui) {
+			self.setReceiver(false);
+			var node = ui.draggable;
+			if (node.hasClass('rb-question')) {
+				var question = node.data('owner');
+				if (self.questions.indexOf(question) == -1) {
+					console.log('question', question);
+					question.node.detach();
+					self.questions.push(question);
+					builder.pageEditor.rearrange();
+				}
+			}
+			// ui.draggable.remove()
+		},
+		over: function (event, ui) {
+			console.log('over');
+			self.setReceiver(true);
+			console.log('over', ui.draggable);
+		},
+		out: function (event, ui) {
+			console.log('out');
+			self.setReceiver(false);
+		}
     });
     self.node.find('.rb-page-add-next:first').click(function () {
         var page = new Page({
@@ -617,7 +654,8 @@ var Templates = function () {
         'page': $('#tpl_page').removeAttr('id'),
         'group': $('#tpl_page_group').removeAttr('id'),
         'parameter': $('#tpl_parameter').removeAttr('id'),
-        'customTitle': $('#tpl_custom_title').removeAttr('id')
+        'customTitle': $('#tpl_custom_title').removeAttr('id'),
+		'dragHelper': $('#tpl_drag_helper').removeAttr('id')
     };
 
     var selectQType = $('select[name="question-type"]',
@@ -1380,6 +1418,12 @@ var QuestionContainer = function (o) {
     self.templates = o.templates;
     self.listNode.sortable({
         cursor: 'move',
+		helper: function () {
+			var helper = self.templates.create('dragHelper');
+			// helper.draggable();
+			return helper;
+		},
+		forceHelperSize: true,
         toleranceElement: '> div',
         stop: function (event, ui) {
             self.rearrange();
@@ -1852,6 +1896,9 @@ var PageEditor = function (o) {
             builder.renameIdentifier(oldName, newName);
         }
     });
+	self.listNode.sortable("option", "appendTo", $('#rb_helper_home'));
+	console.log("self.listNode", self.listNode);
+    console.log("appendTo", self.listNode.sortable("option", "appendTo"));
     self.pageTitle = new EditableTitle({
         nodeText: $("#rb_page_title"),
         nodeBtn: $("#rb_page_title_change"),

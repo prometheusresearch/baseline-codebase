@@ -88,7 +88,6 @@ var Question = function (def, templates) {
                     self.remove();
             });
             self.node.find('.rb-question-duplicate:first').click(function (event) {
-                console.log('dulicate');
                 event.stopPropagation();
                 self.duplicate();
             });
@@ -230,7 +229,6 @@ Page.prototype.setSelected = function (state) {
 };
 Page.prototype.setReceiver = function (state) {
 	this.receiver = state ? true: false;
-	console.log('receiver', this.receiver);
 	this.updateHighlight();
 }
 Page.prototype.updateHighlight = function () {
@@ -254,7 +252,6 @@ Page.prototype.bindEvents = function () {
         if (self.onSelectPage)
             self.onSelectPage(self, event.shiftKey);
     });
-	console.log('a', self.node.find("> div"));
     self.node.find("> div").droppable({
 		accept: "#rb_question_list > .rb-question",
 		drop: function (event, ui) {
@@ -263,23 +260,19 @@ Page.prototype.bindEvents = function () {
 			if (node.hasClass('rb-question')) {
 				var question = node.data('owner');
 				if (self.questions.indexOf(question) == -1) {
-					console.log('question', question);
 					question.node.detach();
 					self.questions.push(question);
 					builder.pageEditor.rearrange();
 				}
 			}
-			// ui.draggable.remove()
 		},
 		over: function (event, ui) {
-			console.log('over');
 			self.setReceiver(true);
-			console.log('over', ui.draggable);
 		},
 		out: function (event, ui) {
-			console.log('out');
 			self.setReceiver(false);
-		}
+		},
+        tolerance: 'pointer'
     });
     self.node.find('.rb-page-add-next:first').click(function () {
         var page = new Page({
@@ -514,7 +507,6 @@ Group.prototype.setTitle = function (title) {
 Group.prototype.bindEvents = function () {
     var self = this;
     self.node.find('.rb-group-remove:first').click(function () {
-        console.log('self', self);
         if (confirm("Are you sure you want to remove this item?"))
             self.remove();
     });
@@ -1420,10 +1412,10 @@ var QuestionContainer = function (o) {
         cursor: 'move',
 		helper: function () {
 			var helper = self.templates.create('dragHelper');
-			// helper.draggable();
 			return helper;
 		},
-		forceHelperSize: true,
+        scroll: false,
+        forceHelperSize: false,
         toleranceElement: '> div',
         stop: function (event, ui) {
             self.rearrange();
@@ -1897,8 +1889,6 @@ var PageEditor = function (o) {
         }
     });
 	self.listNode.sortable("option", "appendTo", $('#rb_helper_home'));
-	console.log("self.listNode", self.listNode);
-    console.log("appendTo", self.listNode.sortable("option", "appendTo"));
     self.pageTitle = new EditableTitle({
         nodeText: $("#rb_page_title"),
         nodeBtn: $("#rb_page_title_change"),

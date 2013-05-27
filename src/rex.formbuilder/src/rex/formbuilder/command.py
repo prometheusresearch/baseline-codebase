@@ -4,6 +4,7 @@ import re
 from rexrunner.response import BadRequestError
 from rexrunner.registry import register_command
 from rexrunner.command import Command
+from rex.instrument import Assessment
 from webob import Response
 
 class FormBuilderBaseCommand(Command):
@@ -16,6 +17,35 @@ class FormBuilderBaseCommand(Command):
     def __init__(self, parent):
         super(FormBuilderBaseCommand, self).__init__(parent)
         self.handler = self.parent.app.handler_by_name['rex.formbuilder']
+
+@register_command
+class TestInstrument(FormBuilderBaseCommand):
+
+    name = '/test'
+    template = '/roadsbuilder_test.html'
+
+    def render(self, req):
+        instrument = req.POST.get('instrument')
+        json = req.POST.get('json')
+        if not instrument:
+            return Response(status='401', body='Instrument ID is not provided')
+        if not self.check_name(instrument):
+            raise BadRequestError(detail='Wrong instrument name')
+        if not json:
+            return Response(status='401', body='Instrument JSON is not provided')
+        code = simplejson.loads(json)
+        assessment = Assessment.empty_data()
+        args = {
+            'instrument': {
+                'id': instrument,
+                'json': simplejson.dumps(code),
+            },
+            'assessment': {
+                'id': 'test',
+                'json': simplejson.dumps(assessment)
+            }
+        }
+        return self.render_to_response(self.template, **args)
 
 @register_command
 class FormList(FormBuilderBaseCommand):
@@ -59,6 +89,14 @@ class SaveInstrument(FormBuilderBaseCommand):
         if not self.handler.save_instrument(instrument, data):
             raise BadRequestError(detail='Could not write instrument data')
         return Response(body='OK')
+
+@register_command
+class DummySaveAssessment(FormBuilderBaseCommand):
+
+    name = '/save_assessment'
+
+    def render(self, req):
+        return Response(body='{"result" : true}')
 
 @register_command
 class RoadsBuilder(FormBuilderBaseCommand):

@@ -2166,6 +2166,15 @@ builder.init = function (o) {
         testButton.attr('disabled', 'disabled');
 };
 
+builder.test = function () {
+    if (!builder.pageEditor.closeQuestionEditor())
+        return;
+    var json = $.toJSON(builder.getInstrumentData());
+    var form = $('#rb_form_test');
+    form.find('input[name=json]').val(json);
+    form.submit();
+}
+
 builder.showJSON = function () {
     var data = builder.getInstrumentData();
     var json = JSON.stringify(data, null, 4);

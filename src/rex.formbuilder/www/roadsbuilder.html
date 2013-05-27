@@ -5,7 +5,7 @@
     {{ macro.roadsbuilder_head(instrument=instrument) }}
   </head>
   <body>
-    {{ macro.roadsbuilder(instrument=instrument,code=code,manual_edit_conditions=manual_edit_conditions, 
+    {{ macro.roadsbuilder(instrument=instrument,code=code,manual_edit_conditions=manual_edit_conditions, url_start_test=PREFIX['rex.formbuilder'] + '/test',
                           ext_param_types='{ "DRINK":{ "title":"Drink", "type":"ENUM", "variants":[ {"code":"VODKA", "title":"Vodka" }, {"code":"WINE", "title":"Wine" }, {"code":"BEER", "title":"Beer" } ]} }') }}
   </body>
 </html>

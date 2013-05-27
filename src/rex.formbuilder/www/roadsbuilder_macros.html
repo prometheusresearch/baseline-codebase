@@ -1,4 +1,89 @@
 
+{% import 'rex.forms:/macros.html' as client with context %}
+
+{% macro roadsbuilder_preview_head() %}
+    {{ client.client_head() }}
+    <link rel="stylesheet" href="{{ PREFIX['rex.formbuilder'] }}/css/test.css" />
+{% endmacro %}
+
+{% macro roadsbuilder_preview(instrument, assessment) %}
+    <script type="text/javascript">
+        var rexFormsClient = null;
+        $(document).ready(function () {
+            var progressBar = $('#progress_bar');
+            rexFormsClient = new $.RexFormsClient({
+                mode: 'normal',
+                formMeta: {{ instrument.json|fix_script }},
+                formData: {{ assessment.json|fix_script }},
+                instrumentName: {{ instrument.id|json }},
+                showNumbers: true,
+                assessment: {{ assessment.id|json }},
+                saveURL: {{ (PREFIX['rex.formbuilder'] + '/save_assessment')|json }},
+                formArea: '#survey',
+                questionArea: '#questions',
+                pageTitleArea: '#page_title',
+                pageIntroductionArea: '#page_introduction',
+                formTitleArea: '#form_title',
+                btnPrev: '#back',
+                btnNext: '#next',
+                events: {
+                    'updateProgress': function (data) {
+                        var pct = Math.floor((data.completed + 1) * 100 / data.total);
+                        var cssPct = pct + '%';
+                        progressBar.find('.rc-progress-bar-fill')
+                                   .width(cssPct);
+                        progressBar.find('.rc-progress-bar-pct').html( (data.completed + 1) + ' / ' + data.total );
+                    },
+                    'completed': function () {
+                        window.close();
+                    },
+                    'end': function () {
+                        $('#next').find('.ra-button-title')
+                                  .html('Finish');
+                    },
+                    'notEnd': function () {
+                        $('#next').find('.ra-button-title')
+                                  .html('Next');
+                    }
+                }
+            });
+        });
+    </script>
+
+    <div id="instrument_test">
+        <div id="top_buttons">
+            <div id="back" class="survey_button">&larr; <span class="ra-button-title">Back</span></div>
+            <div id="next" class="survey_button"><span class="ra-button-title">Next</span> &rarr;</div>
+        </div>
+        <div id="survey">
+            <div id="form_title"></div>
+            <div id="progress_bar" class="survey-progress-bar-fill-wrap">
+                <div class="rc-progress-bar-fill" style="width: 0%;"></div>
+                <span class="rc-progress-bar-pct"></span>
+            </div>
+            <div id="page_title"></div>
+            <div id="page_introduction"></div>
+            <div id="questions">
+            </div>
+        </div>
+    </div>
+    <!--
+    <div id="survey">
+        <div id="back" class="survey_button footer_button">&larr; <span class="ra-button-title">Back</span></div>
+        <div id="next" class="survey_button footer_button"><span class="ra-button-title">Next</span> &rarr;</div>
+        <div id="form_title"></div>
+        <div id="progress_bar" class="survey-progress-bar-fill-wrap">
+            <div class="rc-progress-bar-fill" style="width: 0%;"></div>
+            <span class="rc-progress-bar-pct"></span>
+        </div>
+        <div id="page_title"></div>
+        <div id="page_introduction"></div>
+        <div id="questions">
+        </div>
+    </div>
+    -->
+{% endmacro %}
+
 {% macro roadsbuilder_head(instrument) -%}
         <meta name="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="" />
@@ -91,6 +176,11 @@
             </div>
         </div>
         <div class="rb_stuff">
+
+            <form id="rb_form_test" target="_blank" method="POST" action="{{ url_start_test|e }}">
+                <input type="hidden" name="instrument" value="{{ instrument|e }}" />
+                <input type="hidden" name="json" value="" />
+            </form>
 
             <div class="rb_progress_dialog">
                 <p class="rb_progress_text">Constructing in progress</p>

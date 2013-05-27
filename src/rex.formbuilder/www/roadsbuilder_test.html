@@ -1,0 +1,10 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+{% import 'roadsbuilder_macros.html' as builder with context %}
+<html>
+  <head>
+    {{ builder.roadsbuilder_preview_head() }}
+  </head>
+  <body>
+    {{ builder.roadsbuilder_preview(instrument=instrument, assessment=assessment) }}
+  </body>
+</html>

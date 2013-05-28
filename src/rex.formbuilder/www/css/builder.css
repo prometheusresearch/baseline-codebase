@@ -697,11 +697,13 @@ input.rb_with_margin {
     overflow: hidden;
 }
 
+.rb-ask-dialog,
 .rb-prompt-dialog,
 .rb-custom-title-dialog {
     overflow: hidden;
 }
 
+.rb-ask-dialog h3,
 .rb-prompt-dialog h3,
 .rb-custom-title-dialog h3 {
     margin: 5px 0px 3px 0px;

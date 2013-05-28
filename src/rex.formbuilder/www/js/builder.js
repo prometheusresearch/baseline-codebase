@@ -199,6 +199,7 @@ var Page = function (o) {
     this.templates = o.templates;
     this.onSelectPage = o.onSelectPage || null;
     this.node = this.createNode();
+    this.node.data('owner', this);
     $.each(o.def.questions || [], function (_, questionDef) {
         var question = builder.createQuestion(questionDef, self.templates);
         self.questions.push(question);
@@ -422,6 +423,7 @@ PageContainer.prototype.rearrange = function () {
         var itemOwner = item.data('owner');
         self.pages.push(itemOwner);
     });
+    console.log('result of rearrange:', self.pages);
 };
 PageContainer.prototype.createEmptyPage = function () {
     return new Page({
@@ -507,8 +509,17 @@ Group.prototype.setTitle = function (title) {
 Group.prototype.bindEvents = function () {
     var self = this;
     self.node.find('.rb-group-remove:first').click(function () {
-        if (confirm("Are you sure you want to remove this item?"))
-            self.remove();
+        builder.askDialog.open({
+            title: 'Please confirm',
+            question: 'Are you sure you want to remove this group?',
+            answers: [ 'Yes, but save its contents', 'Yes', 'No' ],
+            onAnswer: function (answer) {
+                if (answer !== 'No') {
+                    var saveContents = (answer === 'Yes, but save its contents');
+                    self.remove(saveContents);
+                }
+            }
+        });
     });
     self.node.find('.rb-group-title:first')
         .add(self.node.find('.rb-group-title-change:first'))
@@ -555,9 +566,19 @@ Group.prototype.renameIdentifier = function (oldName, newName) {
         page.renameIdentifier(oldName, newName);
     });
 };
-Group.prototype.remove = function () {
-    this.parent.exclude(this);
+Group.prototype.remove = function (saveContents) {
+    var self = this;
+    var parent = self.parent;
+    if (saveContents) {
+        $.each(this.pages, function (_, item) {
+            item.parent = parent;
+            console.log('owner', item.node.data('owner'));
+            self.node.before(item.node);
+        });
+    }
+    parent.exclude(this);
     this.node.remove();
+    parent.rearrange();
 };
 
 (function () {
@@ -598,8 +619,8 @@ builder.questionTypes = {
         title: 'Date',
         cls: Question
     },
-    'weight': { 
-        title: 'Weigth',
+    'weight': {
+        title: 'Weight',
         cls: Question
     },
     'time_week': { 
@@ -685,6 +706,7 @@ var Pages = function (o) {
     this.templates = o.templates;
     this.addPageButton = o.addPageButton;
     this.makeGroupButton = o.makeGroupButton;
+    this.beforeGrouping = o.beforeGrouping;
     PageContainer.call(this, o.pageList, o.pages, o.onSelectPage);
     this.addPageButton.click(function () {
         var page = self.createEmptyPage();
@@ -753,6 +775,8 @@ Pages.prototype.addToSelection = function (page) {
 };
 Pages.prototype.groupFromSelection = function () {
     var self = this;
+    if (!self.beforeGrouping())
+        return;
     // var cutoff = self.selection[0].getCutoff();
     if (self.selection.length == 0)
         return;
@@ -819,6 +843,7 @@ Pages.prototype.groupFromSelection = function () {
         group.append(page);
         parent.rearrange();
     }
+    self.setSelection([]);
 };
 
 var InputParameter = function (def, parent, template, /* extParamTypes, */ onRemove) {
@@ -1213,6 +1238,7 @@ var Variant = function (code, title, separator, parent, templates) {
         if (!self.code) {
             if (!self.title)
                 return null;
+            console.log('self', self);
             throw new builder.ValidationError("Answer code could not empty", self);
         }
         return {
@@ -1243,8 +1269,11 @@ var Variant = function (code, title, separator, parent, templates) {
     inputTitle.val(self.title || '');
     inputTitle.change(function () {
         self.title = $.trim(inputTitle.val());
-        if (self.autoGenerateId)
-            inputCode.val(builder.getReadableId(self.title, false, self.separator, 45));
+        if (self.autoGenerateId) {
+            var code = builder.getReadableId(self.title, false, self.separator, 45);
+            inputCode.val(code);
+            self.code = code;
+        }
     });
 
     var fixInputAnswerIdentifier = function (input) {
@@ -1766,12 +1795,13 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         return builder.isUnique(name, except);
     };
     self.getDef = function () {
+        self.closeQuestionEditor();
         var def = {
             name: self.getName(),
             title: self.getTitle(),
             required: nodeRequired.is(":checked"),
             type: nodeType.val()
-        }
+        };
         var annotation = nodeAnnotation.is(":checked");
         var explanation = nodeExplanation.is(":checked");
         var customTitles = customTitleEditor.getDef();
@@ -1875,14 +1905,17 @@ var PageEditor = function (o) {
     };
     this.show = function (page) {
         if (!self.closeQuestionEditor())
-            return;
+            return false;
         self.setPage(page);
-        self.editorNode.css('display', '');
+        self.editorNode.css('display', page ? '' : 'none');
+        return true;
     };
+    /*
     this.hide = function () {
         self.setPage(null);
         self.editorNode.css('display', 'none');
     };
+    */
     this.setSkipIf = function (skipIf) {
         this.skipIf = skipIf;
         var skipIfNode = this.node.find('.rb-group-skip-if:first');
@@ -1905,8 +1938,10 @@ builder.initDialogs = function () {
     };
     builder.showJSONDialog =
         new builder.dialog.ShowJSONDialog(commonOptions);
+    builder.askDialog =
+        new builder.dialog.AskDialog(commonOptions);
     builder.promptDialog =
-        new builder.dialog.promptDialog(commonOptions);
+        new builder.dialog.PromptDialog(commonOptions);
     var dialogOptions = $.extend({
         /* extTypes: builder.context.extParamTypes */
     }, commonOptions);
@@ -2080,6 +2115,9 @@ builder.init = function (o) {
         pageList: $("#rb_page_list"),
         pages: o.code.pages,
         templates: builder.templates,
+        beforeGrouping: function () {
+            return builder.pageEditor.show(null);
+        },
         onSelectPage: function (page, addToSelection) {
             if (addToSelection)
                 builder.pages.addToSelection(page);

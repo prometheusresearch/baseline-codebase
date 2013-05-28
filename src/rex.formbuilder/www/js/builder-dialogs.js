@@ -67,8 +67,53 @@ dialogNS.QuestionDialog = function (o) {
     }
 }
 
+dialogNS.AskDialog = function (o) {
+    var self = this;
+    var parent = o.parent || null;
+    var template =
+         '<div class="rb-ask-dialog">'
+            + '<div>'
+            +   '<h3></h3>'
+            + '</div>'
+        + '</div>';
+    this.options = null;
+    this.close = function () {
+        self.options = null;
+        node.dialog('close');
+    };
+    var node = $(template);
+    var header = $('h3', node);
 
-dialogNS.promptDialog = function (o) {
+    node = node.dialog({
+        autoOpen: false,
+        title: 'Question',
+        width: 400,
+        height: 230,
+        modal: true,
+    });
+
+    this.open = function (o) {
+        self.options = {};
+        self.options.onAnswer = o.onAnswer || null;
+        self.options.title = o.title || 'Question';
+        self.options.question = o.question;
+        self.options.answers = o.answers || [ 'Ok', 'Cancel' ];
+        node.dialog('option', 'title', self.options.title);
+        header.text(self.options.question);
+        var buttons = {};
+        $.each(self.options.answers, function (_, title) {
+            buttons[title] = function () {
+                self.options.onAnswer(title);
+                self.close();
+            };
+        });
+        console.log('buttons', buttons);
+        node.dialog('option', 'buttons', buttons);
+        node.dialog('open');
+    };
+};
+
+dialogNS.PromptDialog = function (o) {
 
     var self = this;
     var parent = o.parent || null;

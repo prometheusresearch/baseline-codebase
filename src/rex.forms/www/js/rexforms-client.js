@@ -128,16 +128,12 @@ function getChangeGraph(questions, params, context, initExpr) {
         var parsed = rexl.parse(expr);
         $.each(parsed.getNames(), function(_, name) {
             name = name[0];
-            // form external parameters will not change their value
-            // so we can exclude them from the change graph
-            if (undefined === params[name]) {
-                change[name] = change[name] || [];
-                change[name].push({
-                    expr: parsed,
-                    actions: actions,
-                    context: context
-                });
-            }
+            change[name] = change[name] || [];
+            change[name].push({
+                expr: parsed,
+                actions: actions,
+                context: context
+            });
         });
     });
 
@@ -148,7 +144,7 @@ function initGraphState(questions, params, changeGraph) {
     // bind the change event on each question
     // and calculate the initial graph state
     $.each(changeGraph, function(key, list) {
-        function changeQuestion() {
+        function onChange() {
             $.each(list, function(_, value) {
                 var result = calculateRexlExpr(value.expr, value.context, params);
                 methodKey = result ? 'ifTrue':'ifFalse';
@@ -159,8 +155,9 @@ function initGraphState(questions, params, changeGraph) {
                 });
             });
         }
-        changeQuestion();
-        $(questions[key]).bind('change', changeQuestion);
+        onChange();
+        if (params[key] === undefined)
+            $(questions[key]).bind('change', onChange);
     });
 };
 
@@ -943,7 +940,7 @@ var Form = function(config, data, paramValues, templates, showNumbers, onPageUpd
     // expr['a=1'].push({obj: page, ifTrue: 'skip', ifFalse: 'unskip'})
     // expr['a=1'].push({obj: question, ifTrue: 'disable', ifFalse: 'enable'})
     $.each(this.pages, function(_, page) {
-        if(page.skipExpr) {
+        if (page.skipExpr) {
             var e = expr[page.skipExpr] = expr[page.skipExpr] || [];
             e.push({
                 obj: page,
@@ -1678,9 +1675,7 @@ Record.prototype.renderView = function () {
 };
 
 Record.prototype.renderEdit = function () {
-    console.log('record renderEdit');
     if (!this.editNode) {
-        console.log('2');
         this.editNode = $('<div>').addClass('rf-record');
         var preview = $('<div>').addClass('rf-record-preview');
         var questions = $('<div>').addClass('rf-questions');
@@ -2106,6 +2101,13 @@ $.RexFormsClient = function (o) {
 
     this.formData = o.formData || {};
 
+    this.raiseEvent = function(eventName, eventData) {
+        $(self).trigger('rexforms:' + eventName, eventData);
+        if (self.events[eventName])
+            return this.events[eventName](eventData);
+        return true;
+    };
+
     this.checkIfEnd = function () {
         var pages = self.form.pages;
         var isEnd = true;
@@ -2289,12 +2291,6 @@ $.RexFormsClient = function (o) {
         self.raiseEvent('pageRendered', pageIdx);
     };
 
-    this.raiseEvent = function(eventName, eventData) {
-        $(self).trigger('rexforms:' + eventName, eventData);
-        if (self.events[eventName])
-            return this.events[eventName](eventData);
-        return true;
-    };
 
     this.goToStart = function (pageIdx) {
         validateAndGo(1, 0, true);

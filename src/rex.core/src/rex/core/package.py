@@ -71,22 +71,28 @@ class PackageCollection(object):
         return cls(packages)
 
     @classmethod
-    def _build_package_tree(cls, requirement, seen):
+    def _build_package_tree(cls, key, seen):
         # Emits packages for the given requirement.
 
-        # If `requirement` is already a `Package` object, we are done.
-        if isinstance(requirement, Package):
-            yield requirement
+        # If `key` is already a `Package` object, we are done.
+        if isinstance(key, Package):
+            yield key
             return
 
-        # Otherwise, it must be a requirement string.  Find the respective
-        # Python distribution.
+        # Otherwise, it must be a Requirement object, a requirement string,
+        # or a module name.
+
+        # Try to find a respective distribution.
         try:
-            dist = pkg_resources.get_distribution(requirement)
+            dist = pkg_resources.get_distribution(key)
         except ValueError:
-            raise Error("Got ill-formed requirement:", requirement)
+            raise Error("Got ill-formed requirement:", key)
         except pkg_resources.ResolutionError:
-            raise Error("Failed to satisfy requirement:", requirement)
+            # Perhaps, it is a module name?
+            if key in sys.modules:
+                yield Package(key, modules=set([key]))
+                return
+            raise Error("Failed to satisfy requirement:", str(key))
 
         # Normalize the package name.
         name = dist.key

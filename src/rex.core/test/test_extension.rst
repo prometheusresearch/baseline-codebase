@@ -12,8 +12,7 @@ We start with creating a Rex application from the ``__main__`` module, which
 allows us to define extensions in-place::
 
     >>> from rex.core import Rex, Package
-    >>> main_package = Package('main', modules=set(['__main__']))
-    >>> main = Rex(main_package)
+    >>> main = Rex('__main__')
 
 To create a new interface, define a subclass of ``Extension``::
 

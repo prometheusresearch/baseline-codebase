@@ -96,21 +96,20 @@ attributes ``name``, ``validate`` and ``default``::
     ...     name = 'secret'
     ...     default = lambda self: 'random-value'
 
-    >>> main_package = Package('main', modules=set(['__main__']))
-    >>> with Rex(main_package, optional=False, mandatory=True, integer='10', secret='123'):
+    >>> with Rex('__main__', optional=False, mandatory=True, integer='10', secret='123'):
     ...     print get_settings()
     SettingCollection(debug=False, integer=10, mandatory=True, optional=False, secret='123')
-    >>> with Rex(main_package, mandatory=True):
+    >>> with Rex('__main__', mandatory=True):
     ...     print get_settings()
     SettingCollection(debug=False, integer=0, mandatory=True, optional=None, secret='random-value')
-    >>> Rex(main_package)
+    >>> Rex('__main__')
     Traceback (most recent call last):
       ...
     Error: Missing mandatory setting:
         mandatory
     While initializing Rex application:
-        Package('main', modules=set(['__main__']), static=None)
-    >>> Rex(main_package, mandatory=True, integer='NaN')
+        __main__
+    >>> Rex('__main__', mandatory=True, integer='NaN')
     Traceback (most recent call last):
       ...
     Error: Expected an integer
@@ -119,7 +118,7 @@ attributes ``name``, ``validate`` and ``default``::
     While validating setting:
         integer
     While initializing Rex application:
-        Package('main', modules=set(['__main__']), static=None)
+        __main__
     With parameters:
         integer: 'NaN'
         mandatory: True

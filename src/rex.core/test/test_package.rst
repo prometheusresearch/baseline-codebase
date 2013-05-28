@@ -68,13 +68,24 @@ Constructing package collection
 ===============================
 
 Package collection is constructed from requirements passed to the ``Rex`` constructor.
-You can pass either a distribution name in format understood by ``setuptools`` or
-a ``Package`` object::
+A requirement could be one of the following:
 
-    >>> with Rex('rex.core_demo'):
+* a requirement string in format understood by ``setuptools``;
+* a module name;
+* a ``Package`` object.
+
+::
+
+    >>> with Rex('rex.core_demo>=1.0'):
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
     Package('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
+    Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
+
+    >>> with Rex('__main__'):
+    ...     for package in get_packages():
+    ...         print package       # doctest: +ELLIPSIS
+    Package('__main__', modules=set(['__main__']), static=None)
     Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
 
     >>> from rex.core import Package
@@ -84,7 +95,6 @@ a ``Package`` object::
     ...         print package       # doctest: +ELLIPSIS
     Package('rex.core_demo', modules=set(['rex.core_demo']), static='./demo/rex.core_demo/static')
     Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
-
 
 An exception is raised if the package name is ill-formed or unknown::
 

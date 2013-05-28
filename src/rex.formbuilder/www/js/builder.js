@@ -199,7 +199,6 @@ var Page = function (o) {
     this.templates = o.templates;
     this.onSelectPage = o.onSelectPage || null;
     this.node = this.createNode();
-    this.node.data('owner', this);
     $.each(o.def.questions || [], function (_, questionDef) {
         var question = builder.createQuestion(questionDef, self.templates);
         self.questions.push(question);
@@ -282,6 +281,7 @@ Page.prototype.bindEvents = function () {
                 questions: [],
                 cId: builder.getCId('page')
             },
+            onSelectPage: self.onSelectPage,
             templates: self.templates
         });
         self.parent.append(page, self);
@@ -1052,10 +1052,8 @@ var EditableTitle = function (o) {
         self.nodeBtn.add(self.nodeText).css('display', '');
     };
 
-    var restore = false;
     self.nodeInput.css('display', 'none');
     self.nodeInput.change(function () {
-        console.log('change');
         var val = self.nodeInput.val();
         self.setTitle(val);
         // self.closeEditor();
@@ -1073,6 +1071,7 @@ var EditableTitle = function (o) {
         }
     });
     self.nodeBtn.click(self.showEditor);
+    self.nodeText.click(self.showEditor);
     self.setTitle(o.title || null);
     self.closeEditor();
 };

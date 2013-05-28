@@ -107,7 +107,6 @@ dialogNS.AskDialog = function (o) {
                 self.close();
             };
         });
-        console.log('buttons', buttons);
         node.dialog('option', 'buttons', buttons);
         node.dialog('open');
     };

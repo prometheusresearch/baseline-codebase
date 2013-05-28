@@ -198,6 +198,7 @@ var Page = function (o) {
     this.questions = [];
     this.templates = o.templates;
     this.onSelectPage = o.onSelectPage || null;
+    this.beforeChange = o.beforeChange;
     this.node = this.createNode();
     this.node.data('owner', this);
     $.each(o.def.questions || [], function (_, questionDef) {
@@ -275,6 +276,8 @@ Page.prototype.bindEvents = function () {
         tolerance: 'pointer'
     });
     self.node.find('.rb-page-add-next:first').click(function () {
+        if (!self.beforeChange())
+            return;
         var page = new Page({
             def: {
                 type: "page",
@@ -282,11 +285,13 @@ Page.prototype.bindEvents = function () {
                 questions: [],
                 cId: builder.getCId('page')
             },
+            beforeChange: self.beforeChange,
             onSelectPage: self.onSelectPage,
             templates: self.templates
         });
         self.parent.append(page, self);
         page.node[0].scrollIntoView();
+        self.onSelectPage(page);
     });
     self.node.find('.rb-page-remove:first').click(function () {
         if (confirm("Are you sure you want to remove this item?"))
@@ -367,7 +372,7 @@ Page.prototype.renameIdentifier = function (oldName, newName) {
     });
 };
 
-var PageContainer = function (pageList, pageDefs, onSelectPage) {
+var PageContainer = function (pageList, pageDefs, onSelectPage, beforeChange) {
     var self = this;
     this.pages = [];
     this.pageList = pageList;
@@ -390,6 +395,7 @@ var PageContainer = function (pageList, pageDefs, onSelectPage) {
         var opts = {
             templates: self.templates,
             onSelectPage: onSelectPage,
+            beforeChange: beforeChange,
             def: def
         };
         if (def.type == "group")
@@ -399,6 +405,7 @@ var PageContainer = function (pageList, pageDefs, onSelectPage) {
         self.append(page);
     });
     this.onSelectPage = onSelectPage;
+    this.beforeChange = beforeChange;
 };
 PageContainer.prototype.append = function (page, after) {
     if (after) {
@@ -433,6 +440,7 @@ PageContainer.prototype.createEmptyPage = function () {
             questions: [],
             cId: builder.getCId('page')
         },
+        beforeChange: this.beforeChange,
         onSelectPage: this.onSelectPage,
         templates: this.templates
     });
@@ -446,6 +454,7 @@ PageContainer.prototype.createEmptyGroup = function () {
             cId: builder.getCId('group')
         },
         onSelectPage: this.onSelectPage,
+        beforeChange: this.beforeChange,
         templates: this.templates
     });
 }
@@ -478,7 +487,7 @@ var Group = function (o) {
     var self = this;
     Page.call(this, o);
     PageContainer.call(this, self.node.find('.rb-page-list:first'),
-                        o.def.pages || [], o.onSelectPage);
+                        o.def.pages || [], o.onSelectPage, o.beforeChange);
 };
 builder.extend(Group, Page);
 builder.extend(Group, PageContainer);
@@ -706,13 +715,15 @@ var Pages = function (o) {
     this.templates = o.templates;
     this.addPageButton = o.addPageButton;
     this.makeGroupButton = o.makeGroupButton;
-    this.beforeGrouping = o.beforeGrouping;
-    PageContainer.call(this, o.pageList, o.pages, o.onSelectPage);
+    this.beforeChange = o.beforeChange;
+    PageContainer.call(this, o.pageList, o.pages, o.onSelectPage, o.beforeChange);
     this.addPageButton.click(function () {
+        if (!self.beforeChange())
+            return;
         var page = self.createEmptyPage();
         self.append(page);
         page.node[0].scrollIntoView();
-        // TODO: make this page as current
+        o.onSelectPage(page);
     });
     this.makeGroupButton.click(function () {
         self.groupFromSelection();
@@ -775,7 +786,7 @@ Pages.prototype.addToSelection = function (page) {
 };
 Pages.prototype.groupFromSelection = function () {
     var self = this;
-    if (!self.beforeGrouping())
+    if (!self.beforeChange())
         return;
     // var cutoff = self.selection[0].getCutoff();
     if (self.selection.length == 0)
@@ -2115,7 +2126,7 @@ builder.init = function (o) {
         pageList: $("#rb_page_list"),
         pages: o.code.pages,
         templates: builder.templates,
-        beforeGrouping: function () {
+        beforeChange: function () {
             return builder.pageEditor.show(null);
         },
         onSelectPage: function (page, addToSelection) {

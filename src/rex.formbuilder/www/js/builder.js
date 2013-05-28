@@ -2113,10 +2113,13 @@ builder.test = function () {
         form.submit();
     };
 
-    builder.beforeTestDialog.open({
-        inputParameters: builder.inputParameters,
-        callback: onValuesSet
-    });
+    if (builder.inputParameters.parameters.length) {
+        builder.beforeTestDialog.open({
+            inputParameters: builder.inputParameters,
+            callback: onValuesSet
+        });
+    } else
+        onValuesSet({});
 }
 
 builder.showJSON = function () {

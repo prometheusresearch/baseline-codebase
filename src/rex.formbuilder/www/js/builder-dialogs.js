@@ -246,6 +246,7 @@ dialogNS.EditParamDialog = function (o) {
     var nameInput = $('input.rb_edit_param_name', node);
     var typeInput = $('select.rb_select_param_type', node);
 
+    /*
     if (o.extTypes) {
         for (var typeName in o.extTypes) {
             var typeDesc = o.extTypes[typeName];
@@ -255,6 +256,7 @@ dialogNS.EditParamDialog = function (o) {
             }).appendTo(typeInput);
         }
     }
+    */
 
     this.onOk = function () {
         var newName = jQuery.trim(nameInput.val());
@@ -289,7 +291,7 @@ dialogNS.EditParamDialog = function (o) {
 
     this.open = function (o) {
         options = {};
-        options.extTypes = o.extTypes || null;
+        // options.extTypes = o.extTypes || null;
         options.onChange = o.onChange || null;
         options.paramName = o.paramName || '';
         options.paramType = o.paramType || 'NUMBER';

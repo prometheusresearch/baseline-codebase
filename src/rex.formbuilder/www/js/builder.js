@@ -671,9 +671,9 @@ var Templates = function () {
     }
 };
 
-var Context = function (name, extParamTypes, manualEditConditions, urlStartTest, urlSaveForm) {
+var Context = function (name, /* extParamTypes, */ manualEditConditions, urlStartTest, urlSaveForm) {
     this.instrumentName = name;
-    this.extParamTypes = extParamTypes;
+    // this.extParamTypes = extParamTypes;
     this.manualEditCondtions = manualEditConditions;
     this.urlStartTest = urlStartTest;
     this.urlSaveForm = urlSaveForm;
@@ -821,7 +821,7 @@ Pages.prototype.groupFromSelection = function () {
     }
 };
 
-var InputParameter = function (def, parent, template, extParamTypes, onRemove) {
+var InputParameter = function (def, parent, template, /* extParamTypes, */ onRemove) {
     var self = this;
     self.parent = parent;
     self.node = template.clone();
@@ -880,7 +880,7 @@ var InputParameters = function (o) {
     self.template = o.template;
     self.listNode = o.listNode;
     self.addButton = o.addButton;
-    self.extParamTypes = o.extParamTypes || {};
+    // self.extParamTypes = o.extParamTypes || {};
 
     this.sort = function() {
         self.parameters.sort(function (a, b) {
@@ -924,8 +924,8 @@ var InputParameters = function (o) {
                     + "': parameter already exists");
             return;
         }
-        var parameter = new InputParameter(paramDef, self, self.template,
-                               self.extParamTypes);
+        var parameter = new InputParameter(paramDef, self, self.template /*,
+                               self.extParamTypes */);
         self.parameters.push(parameter);
         self.sort(); // also it will auto-append new parameter to the list node
     };
@@ -1894,12 +1894,12 @@ builder.initDialogs = function () {
     builder.promptDialog =
         new builder.dialog.promptDialog(commonOptions);
     var dialogOptions = $.extend({
-        extTypes: builder.context.extParamTypes
+        /* extTypes: builder.context.extParamTypes */
     }, commonOptions);
     builder.editParamDialog =
         new builder.dialog.EditParamDialog(dialogOptions);
     dialogOptions = $.extend({
-        extTypes: builder.context.extParamTypes
+        /* extTypes: builder.context.extParamTypes */
     }, commonOptions);
     builder.beforeTestDialog =
         new builder.dialog.BeforeTestDialog(dialogOptions);
@@ -1954,8 +1954,10 @@ builder.describeParameter = function (parameter) {
     case 'DATE':
         ret.type = 'date';
         break;
+    /*
     default:
         ret = builder.context.extParamTypes[parameter.type] || null;
+    */
     }
     return ret;
 };
@@ -2005,8 +2007,8 @@ builder.onSearchId = function (term) {
 
     found = builder.inputParameters.findByRegExp(matcher);
     $.each(found, function (_, parameter) {
-        var title = builder.paramTypeTitle(parameter,
-                                         builder.context.extParamTypes);
+        var title = builder.paramTypeTitle(parameter /* ,
+                                         builder.context.extParamTypes */);
         ret.push({
             title: 'parameter (' + title + ')',
             value: parameter.name
@@ -2038,7 +2040,7 @@ builder.initConditionEditor = function () {
 
 builder.init = function (o) {
     builder.context =
-        new Context(o.instrument, o.extParamTypes,
+        new Context(o.instrument, /* o.extParamTypes, */
                     o.manualEditConditions || false,
                     o.urlStartTest || null, o.urlSaveForm || null);
     builder.templates = new Templates();
@@ -2055,7 +2057,7 @@ builder.init = function (o) {
         listNode: $("#rb_params_list"),
         addButton: $("#rb_params_add"),
         template: builder.templates.get('parameter'),
-        extParamTypes: o.extParamTypes,
+        /* extParamTypes: o.extParamTypes, */
         parameters: o.code.params || [], // [{type: "STRING", name: "abc"}],
     });
     builder.pages = new Pages({

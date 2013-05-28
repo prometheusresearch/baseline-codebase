@@ -15,6 +15,7 @@
                 mode: 'normal',
                 formMeta: {{ instrument.json|fix_script }},
                 formData: {{ assessment.json|fix_script }},
+                paramValues: {{ assessment.params|fix_script }},
                 instrumentName: {{ instrument.id|json }},
                 showNumbers: true,
                 assessment: {{ assessment.id|json }},
@@ -179,6 +180,7 @@
 
             <form id="rb_form_test" target="_blank" method="POST" action="{{ url_start_test|e }}">
                 <input type="hidden" name="instrument" value="{{ instrument|e }}" />
+                <input type="hidden" name="params" value="" />
                 <input type="hidden" name="json" value="" />
             </form>
 

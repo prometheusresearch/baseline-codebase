@@ -27,6 +27,8 @@ class TestInstrument(FormBuilderBaseCommand):
     def render(self, req):
         instrument = req.POST.get('instrument')
         json = req.POST.get('json')
+        params = req.POST.get('params', '{}')
+        params = simplejson.loads(params)
         if not instrument:
             return Response(status='401', body='Instrument ID is not provided')
         if not self.check_name(instrument):
@@ -42,6 +44,7 @@ class TestInstrument(FormBuilderBaseCommand):
             },
             'assessment': {
                 'id': 'test',
+                'params': simplejson.dumps(params),
                 'json': simplejson.dumps(assessment)
             }
         }

@@ -335,7 +335,6 @@ dialogNS.BeforeTestDialog = function (o) {
     var self = this;
     var options = null;
     var parent = o.parent || null;
-    var extTypes = o.extTypes || null;
     var template =
         '<div class="before_test_dialog">'
           + '<h1>Please, set values for parameters to start a test:</h1>'
@@ -352,30 +351,23 @@ dialogNS.BeforeTestDialog = function (o) {
         var valid = true;
 
         paramTable.find('tr').each(function () {
+            if (!valid)
+                return;
             var jRow = $(this);
             var paramName = jRow.attr('data-param');
-            var param = builder.context.findParamData(paramName);
-            var value = jQuery.trim(jRow.find('input,select').val());
+            var param = options.inputParameters.find(paramName);
+            var input = jRow.find('input,select');
+            var value = jQuery.trim(input.val());
 
             if (value) {
                 var realType = param.type;
-
-                if (param.type !== 'STRING' &&
-                    param.type !== 'NUMBER' &&
-                    param.type !== 'DATE') {
-                    
-                    if (extTypes) {
-                        typeDesc =
-                            extTypes[param.type];
-                        if (typeDesc)
-                            realType = typeDesc.type;
-                    }
-                }
                 switch(realType) {
                 case 'DATE':
                     var m = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
                     if (!m || !builder.isValidDate(m[1], m[2], m[3])) {
                         valid = false;
+                        alert('Wrong value: date should be in the following format: YYYY-MM-DD.');
+                        input.focus();
                         break;
                     }
                     paramDict[paramName] = value;
@@ -383,6 +375,8 @@ dialogNS.BeforeTestDialog = function (o) {
                 case 'NUMBER':
                     if (!builder.isValidNumeric(value, 'float')) {
                         valid = false;
+                        alert('Wrong value: not a number!');
+                        input.focus();
                         break;
                     }
                     paramDict[paramName] = value;
@@ -392,6 +386,7 @@ dialogNS.BeforeTestDialog = function (o) {
                 }
             } else
                 paramDict[paramName] = null;
+            param.setTestValue(paramDict[paramName]);
         });
 
         if (valid) {
@@ -418,19 +413,18 @@ dialogNS.BeforeTestDialog = function (o) {
     this.open = function (o) {
         options = {};
         options.callback = o.callback || null;
-        options.paramValues = o.paramValues || {};
-        params = builder.context.getIndexByType('parameter');
+        var inputParameters = options.inputParameters = o.inputParameters;
         paramTable.contents().remove();
-        for (var idx in params) {
-            var param = params[idx];
+        for (var idx in inputParameters.parameters) {
+            var param = inputParameters.parameters[idx];
             var rowHTML = '<tr><td>'
                             + builder.escapeHTML(param.name) + '</td>'
                             + '<td class="rb_test_param_value"></td></tr>';
             var row = $(rowHTML);
             row.attr('data-param', param.name);
-            var isScalar = true;
             var realType = param.type;
             var typeDesc;
+            /*
             if (param.type !== 'NUMBER' &&
                 param.type !== 'STRING' &&
                 param.type !== 'DATE') {
@@ -442,45 +436,19 @@ dialogNS.BeforeTestDialog = function (o) {
                     realType = typeDesc;
                 }
             }
+            */
 
             var paramValuePlace = row.find('.rb_test_param_value:first');
-
-            if (isScalar) {
-                var input = $('<input type="text" />');
-                paramValuePlace.append(input);
-                if (realType === "DATE") {
-                    input.datepicker({
-                        dateFormat: 'yy-mm-dd'
-                    });
-                }
-                if (options.paramValues && 
-                    options.paramValues[param.name]) {
-
-                    input.val(options.paramValues[param.name]);
-                }
-            } else {
-                var select = $('<select>');
-                $('<option>', {
-                    value: '',
-                    text: ''
-                }).appendTo(select);
-
-                for (var idx in typeDesc.variants) {
-                    var variant = typeDesc.variants[idx];
-                    $('<option>', {
-                        value: variant.code,
-                        text: variant.title || variant.code
-                    }).appendTo(select);
-                }
-                paramValuePlace.append(select);
-
-                if (options.paramValues && 
-                    options.paramValues[param.name]) {
-
-                    select.val(options.paramValues[param.name]);
-                }
+            var input = $('<input type="text" />');
+            paramValuePlace.append(input);
+            if (realType === "DATE") {
+                input.datepicker({
+                    dateFormat: 'yy-mm-dd'
+                });
             }
-
+            var value = param.getTestValue();
+            if (value !== null)
+                input.val(value);
             paramTable.append(row);
         }
         node.dialog('open');

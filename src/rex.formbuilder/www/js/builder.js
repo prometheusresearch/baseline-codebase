@@ -819,84 +819,8 @@ Pages.prototype.groupFromSelection = function () {
         group.append(page);
         parent.rearrange();
     }
-}
+};
 
-/*
-Pages.prototype.processSelectedPages = function() {
-    if (this.selection.length == 0)
-        return;
-    var firstPage = this.selection[0];
-    var lastPage = 
-        this.selection[this.selection.length - 1];
-    var pushToGroup = [];
-
-    if (firstPage === lastPage) {
-        pushToGroup.push(firstPage);
-    } else {
-        var firstLevel = this.getItemLevel(firstPage, 'page');
-        var secondLevel = this.getItemLevel(lastPage, 'page');
-
-        var firstLowestAllowedLevel =
-                this.getLowestAllowedLevel(firstPage, firstLevel, true);
-
-        var lastLowestAllowedLevel =
-                this.getLowestAllowedLevel(lastPage, secondLevel, false);
-
-        var lowestAllowedLevel =
-                (firstLowestAllowedLevel < lastLowestAllowedLevel) ?
-                                    lastLowestAllowedLevel:
-                                    firstLowestAllowedLevel;
-
-        if (lowestAllowedLevel > firstLevel ||
-            lowestAllowedLevel > secondLevel)
-            return;
-
-        var firstCutoff = this.getCutoff(firstPage, 'page');
-        var lastCutoff = null;
-        var cutoff = firstCutoff;
-        var total = this.selection.length;
-
-        for (var idx = 1; idx < total; idx++) {
-            var currentCutoff = 
-                this.getCutoff(this.selection[idx], 'page');
-            cutoff = this.interceptCutoff(cutoff, currentCutoff);
-            if (cutoff.length - 1 < lowestAllowedLevel)
-                return;
-            if (idx == total - 1)
-                lastCutoff = currentCutoff;
-        }
-
-        if (lastCutoff) {
-            var startFrom = firstCutoff[ cutoff.length ];
-            var endOn = lastCutoff[ cutoff.length ];
-
-            pushToGroup.push(startFrom);
-            var element = startFrom;
-
-            do {
-                element = element.next();
-                pushToGroup.push(element);
-            } while (endOn[0] !== element[0] && element.size());
-        }
-    }
-
-    if (pushToGroup.length) {
-        var pageGroup = $.RexFormBuilder.createGroup('pageGroup');
-        var pageSublistDiv = pageGroup.find('.rb_class_pages_list:first');
-
-        var newGroupData = $.RexFormBuilder.context.createNewGroup();
-        pushToGroup[0].before(pageGroup);
-        newGroupData.title = newGroupName;
-        pageGroup.data('data', newGroupData);
-
-        for (var idx in pushToGroup) {
-            pageSublistDiv.append(pushToGroup[idx]);
-        }
-        $.RexFormBuilder.setPageListSortable(pageSublistDiv);
-        $.RexFormBuilder.updateGroupDiv(pageGroup);
-    }
-}
-*/
 var InputParameter = function (def, parent, template, extParamTypes, onRemove) {
     var self = this;
     self.parent = parent;
@@ -939,7 +863,14 @@ var InputParameter = function (def, parent, template, extParamTypes, onRemove) {
             name: self.name
         };
     };
+    this.setTestValue = function (value) {
+        self.testValue = value;
+    };
+    this.getTestValue = function () {
+        return self.testValue;
+    };
 
+    this.setTestValue(null);
     this.update(def.name, def.type);
 };
 
@@ -1069,6 +1000,8 @@ EditableLogic.prototype.openEditor = function () {
     builder.conditionEditor.open({
         callback: function (newValue) {
             self.setValue(newValue);
+            if (self.onChange)
+                self.onChange(newValue);
         },
         getDefaultIdentifier: this.getDefaultIdentifier || null,
         conditions: self.value,
@@ -1907,6 +1840,8 @@ var PageEditor = function (o) {
         maxVisibleTextLen: 60,
         emptyValueText: 'Never skipped',
         onChange: function (newValue) {
+            console.log('self.page', self.page);
+            console.log('setting new value', newValue);
             if (self.page)
                 self.page.setSkipIf(newValue);
         }
@@ -2169,10 +2104,19 @@ builder.init = function (o) {
 builder.test = function () {
     if (!builder.pageEditor.closeQuestionEditor())
         return;
+
     var json = $.toJSON(builder.getInstrumentData());
-    var form = $('#rb_form_test');
-    form.find('input[name=json]').val(json);
-    form.submit();
+    var onValuesSet = function (paramValues) {
+        var form = $('#rb_form_test');
+        form.find('input[name=json]').val(json);
+        form.find('input[name=params]').val($.toJSON(paramValues));
+        form.submit();
+    };
+
+    builder.beforeTestDialog.open({
+        inputParameters: builder.inputParameters,
+        callback: onValuesSet
+    });
 }
 
 builder.showJSON = function () {

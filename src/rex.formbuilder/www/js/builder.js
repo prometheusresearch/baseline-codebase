@@ -1044,6 +1044,7 @@ var EditableTitle = function (o) {
     self.showEditor = function () {
         self.nodeInput.css('display', '');
         self.nodeBtn.add(self.nodeText).css('display', 'none');
+        self.nodeInput.focus().select();
     };
 
     self.closeEditor = function () {
@@ -1051,11 +1052,25 @@ var EditableTitle = function (o) {
         self.nodeBtn.add(self.nodeText).css('display', '');
     };
 
+    var restore = false;
     self.nodeInput.css('display', 'none');
     self.nodeInput.change(function () {
+        console.log('change');
         var val = self.nodeInput.val();
         self.setTitle(val);
+        // self.closeEditor();
+    });
+    self.nodeInput.focusout(function () {
         self.closeEditor();
+    });
+    self.nodeInput.keyup(function (e) {
+        switch(e.keyCode) {
+        case 27: // esc
+            self.nodeInput.val(self.value);
+        case 13: // enter
+            self.closeEditor();
+            break;
+        }
     });
     self.nodeBtn.click(self.showEditor);
     self.setTitle(o.title || null);

@@ -31,33 +31,31 @@ Application configuration is collected from keyword arguments of ``Rex`` constru
 as well as from ``settings.yaml`` files from each package.  Setting values passed
 through the constructor override values defined in ``settings.yaml`` files::
 
-    >>> from rex.core import Package
-
-    >>> with Rex(Package('debug', static='test/data/debug_setting')):
+    >>> with Rex('./test/data/debug_setting/'):
     ...     print get_settings().debug
     True
-    >>> with Rex(Package('debug', static='test/data/debug_setting'), debug=False):
+    >>> with Rex('./test/data/debug_setting/', debug=False):
     ...     print get_settings().debug
     False
-    >>> with Rex(Package('debug', static='test/data/empty_setting')):
+    >>> with Rex('./test/data/empty_setting/'):
     ...     print get_settings()
     SettingCollection(debug=False)
-    >>> Rex(Package('broken', static='test/data/broken_setting'))           # doctest: +ELLIPSIS
+    >>> Rex('./test/data/broken_setting/')          # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     Error: Failed to parse settings file:
         found undefined alias 'This'
           in "/.../test/data/broken_setting/settings.yaml", line 1, column 1
     While initializing Rex application:
-        Package('broken', ...)
-    >>> Rex(Package('ill_formed', static='test/data/ill_formed_setting'))   # doctest: +ELLIPSIS
+        ./test/data/broken_setting/
+    >>> Rex('./test/data/ill_formed_setting/')      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     Error: Got ill-formed settings file:
         /.../test/data/ill_formed_setting/settings.yaml
     While initializing Rex application:
-        Package('ill_formed', ...)
-    >>> Rex(Package('unknown', static='test/data/unknown_setting'))         # doctest: +ELLIPSIS
+        ./test/data/ill_formed_setting/
+    >>> Rex('./test/data/unknown_setting/')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     Error: Got unknown setting:
@@ -65,7 +63,7 @@ through the constructor override values defined in ``settings.yaml`` files::
     In
         /.../test/data/unknown_setting/settings.yaml
     While initializing Rex application:
-        Package('unknown', ...)
+        ./test/data/unknown_setting/
 
 
 Defining settings

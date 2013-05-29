@@ -80,9 +80,15 @@ class PackageCollection(object):
             return
 
         # Otherwise, it must be a Requirement object, a requirement string,
-        # or a module name.
+        # a module name, or a directory.
 
-        # Try to find a respective distribution.
+        # Path to a directory must end with `/`.
+        if isinstance(key, str) and key.endswith('/') and os.path.isdir(key):
+            name = os.path.basename(key.rstrip('/'))
+            yield Package(name, static=key)
+            return
+
+        # Otherwise, it is a requirement or a module name.
         try:
             dist = pkg_resources.get_distribution(key)
         except ValueError:
@@ -147,9 +153,15 @@ class PackageCollection(object):
     def __reversed__(self):
         return reversed(self.packages)
 
+    def __len__(self):
+        return len(self.packages)
+
     def __getitem__(self, name):
-        """Get the package by name."""
-        return self.package_map[name]
+        """Get the package by index or by name."""
+        if isinstance(name, int):
+            return self.packages[name]
+        else:
+            return self.package_map[name]
 
     def get(self, name, default=None):
         """Get the package by name."""

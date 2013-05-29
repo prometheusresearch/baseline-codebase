@@ -8,7 +8,6 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
-    entry_points={},
     setup_requires=[
         'rex.setup',
     ],

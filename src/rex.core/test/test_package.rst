@@ -35,6 +35,11 @@ Package collection provides container interface::
     rex.core
     rex.core_demo
 
+    >>> len(packages)
+    2
+
+    >>> packages[0].name
+    'rex.core_demo'
     >>> packages['rex.core_demo'].name
     'rex.core_demo'
     >>> packages.get('rex.core_demo').name
@@ -72,6 +77,7 @@ A requirement could be one of the following:
 
 * a requirement string in format understood by ``setuptools``;
 * a module name;
+* a directory;
 * a ``Package`` object.
 
 ::
@@ -86,6 +92,12 @@ A requirement could be one of the following:
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
     Package('__main__', modules=set(['__main__']), static=None)
+    Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
+
+    >>> with Rex('./test/data/empty_setting/'):
+    ...     for package in get_packages():
+    ...         print package       # doctest: +ELLIPSIS
+    Package('empty_setting', modules=set([]), static='./test/data/empty_setting/')
     Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
 
     >>> from rex.core import Package

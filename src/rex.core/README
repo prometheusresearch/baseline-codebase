@@ -443,9 +443,12 @@ Application
     Creates a Rex application.
 
     ``requirements``
-        List of packages to include.  Each requirement is either a ``Package``
-        object or a requirement specification in format understood by
-        ``pkg_resources``.
+        List of packages to include.  Each requirement is one of:
+
+        * a ``Package`` object;
+        * a requirement specification in format understood by ``setuptools``;
+        * a module name;
+        * a path to a directory ending with ``/``.
 
     ``parameters``
         Application settings.
@@ -510,8 +513,8 @@ Packages
     ``iter(packages)``
         Iterates over packages in the collection.
 
-    ``packages[name]``
-        Gets a package by name.
+    ``packages[index_or_name]``
+        Gets a package by index or by name.
 
     ``get(name, default=None)``
         Gets a package by name; returns ``default`` if not found.

@@ -170,6 +170,7 @@ body, p, div, td, input {
 }
 
 .rb-question-disable-if,
+.rb-question-hide-if,
 .rb-question-constraint {
     text-decoration: none;
     color: black;

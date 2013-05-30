@@ -65,6 +65,7 @@ var Question = function (def, templates) {
     this.explanation = def.explanation || false;
     this.slave = def.slave || null;
     this.disableIf = new RexlExpression(def.disableIf);
+    this.hideIf = new RexlExpression(def.hideIf);
     this.constraints = new RexlExpression(def.constraints);
     this.annotation = def.annotation || null;
     this.explanation = def.explanation || null;
@@ -123,6 +124,8 @@ Question.prototype.getDef = function () {
         def.slave = this.slave;
     if (this.disableIf.value)
         def.disableIf = this.disableIf.value;
+    if (this.hideIf.value)
+        def.hideIf = this.hideIf.value;
     if (this.constraints.value)
         def.constraints = this.constraints.value;
     if (this.annotation)
@@ -134,6 +137,7 @@ Question.prototype.getDef = function () {
 Question.prototype.renameIdentifier = function (oldName, newName) {
     this.constraints.renameIdentifier(oldName, newName);
     this.disableIf.renameIdentifier(oldName, newName);
+    this.hideIf.renameIdentifier(oldName, newName);
 };
 
 var VariantQuestion = function (def, templates) {
@@ -1556,6 +1560,7 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
             $.each(self.questions, function (_, question) {
                 question.constraints.renameIdentifier(oldName, newName);
                 question.disableIf.renameIdentifier(oldName, newName);
+                question.hideIf.renameIdentifier(oldName, newName);
             });
         }
     });
@@ -1738,6 +1743,15 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         onSearchId: self.onSearchId,
         onDescribeId: self.onDescribeId
     });
+    var hideIfEditor = new EditableLogic({
+        nodeText: self.node.find(".rb-question-hide-if:first"),
+        nodeBtn: self.node.find(".rb-question-hide-if-change:first"),
+        maxVisibleTextLen: 30,
+        emptyValueText: 'Always visible',
+        value: question ? question.hideIf.value : null,
+        onSearchId: self.onSearchId,
+        onDescribeId: self.onDescribeId
+    });
 
     var previousName = self.getName();
     nodeName.change(function () {
@@ -1818,6 +1832,7 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         var customTitles = customTitleEditor.getDef();
         var constraints = constraintEditor.getValue();
         var disableIf = disableIfEditor.getValue();
+        var hideIf = hideIfEditor.getValue();
         var help = self.getHelp();
         if (!def.name)
             throw new builder.ValidationError(
@@ -1843,6 +1858,8 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
             def.constraints = constraints;
         if (disableIf)
             def.disableIf = disableIf;
+        if (hideIf)
+            def.hideIf = hideIf;
         if (def.type === "rep_group") {
             var repeatingGroup = [];
             $.each(self.questions, function (_, question) {

@@ -6,7 +6,7 @@
 from rex.core import Extension, cached
 
 
-class PathHandler(Extension):
+class HandleLocation(Extension):
 
     path = None
 
@@ -16,7 +16,7 @@ class PathHandler(Extension):
         mapping = {}
         for extension in cls.by_package(name):
             assert extension.path not in mapping, \
-                    "duplicate path handler: %r" % extension.path
+                    "duplicate location handler: %r" % extension.path
             mapping[extension.path] = extension
         return mapping
 
@@ -28,7 +28,7 @@ class PathHandler(Extension):
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
 
-class FileHandler(Extension):
+class HandleFile(Extension):
 
     ext = None
 
@@ -53,7 +53,7 @@ class FileHandler(Extension):
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
 
-class ErrorHandler(Extension):
+class HandleError(Extension):
 
     code = None
 

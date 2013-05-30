@@ -3,9 +3,9 @@
 #
 
 
-from rex.core import Extension, WSGI, get_packages
-from .handler import FileHandler, PathHandler, ErrorHandler
-from .mount import get_mount
+from rex.core import (Setting, Extension, WSGI, get_packages, get_settings,
+        MapVal, ChoiceVal, StrVal)
+from .handle import HandleFile, HandleLocation, HandleError
 from webob import Request, Response
 from webob.exc import WSGIHTTPException, HTTPNotFound
 from beaker.session import SessionObject
@@ -14,6 +14,60 @@ from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPUnauthorized
 from webob.static import FileApp
 import os.path
 import yaml
+
+
+class MountSetting(Setting):
+    """
+    Routing mount table for packages.
+
+    This settings specifies the base URLs for packages that serve
+    HTTP requests.  The value of this setting is a mapping; the key
+    of the mapping is a package name, the value is a URL segment.
+
+    Example:
+
+        mount:
+            rex.web_demo: /
+
+    It is not an error to omit this setting or some packages.  If a mount
+    point for a package is not provided, it is generated from the package
+    name.
+    """
+
+    name = 'mount'
+
+    def default(self):
+        return self.validate(None)
+
+    def validate(self, value):
+        if value is None:
+            value = {}
+        root_name = get_packages()[0].name
+        package_names = [package.name
+                         for package in get_packages()
+                         if package.exists('www') or
+                            HandleLocation.by_package(package)]
+        mount_val = MapVal(ChoiceVal(package_names),
+                           StrVal('^/(?:[0-9A-Aa-z~!@$^*+=:,._-]+/?)?$'))
+        value = mount_val(value)
+        mount = {}
+        seen = set()
+        for name in package_names:
+            if name in value:
+                segment = value[name]
+            elif name == root_name:
+                segment = '/'
+            else:
+                segment = name
+                if '.' in segment:
+                    segment = segment.rsplit('.', 1)[1]
+                segment = segment.replace('_', '-')
+            segment = segment.strip('/')
+            if segment in seen:
+                raise Error("Got duplicate mount URL:", segment)
+            seen.add(segment)
+            mount[name] = segment
+        return mount
 
 
 class ErrorCatcher(object):
@@ -26,12 +80,12 @@ class ErrorCatcher(object):
         req_orig = req.copy()
         try:
             return self.trunk(req)
-        except WSGIHTTPException, exc:
-            if exc.code in self.error_handler_map:
-                handler = self.error_handler_map[exc.code]()
+        except WSGIHTTPException, error:
+            if error.code in self.error_handler_map:
+                handler = self.error_handler_map[error.code](error)
                 return handler(req_orig)
             elif '*' in self.error_handler_map:
-                handler = self.error_handler_map['*']()
+                handler = self.error_handler_map['*'](error)
                 return handle(req_orig)
             else:
                 raise
@@ -45,7 +99,6 @@ class PackageRouter(object):
 
     def __call__(self, req):
         segment = req.path_info_peek()
-        print "segment =", segment
         if segment in self.route_map:
             req.path_info_pop()
             route = self.route_map[segment]
@@ -57,18 +110,17 @@ class PackageRouter(object):
 
 class CommandDispatcher(object):
 
-    def __init__(self, path_handler_map, fallback=None):
-        self.path_handler_map = path_handler_map
+    def __init__(self, location_handler_map, fallback=None):
+        self.location_handler_map = location_handler_map
         self.fallback = fallback
 
     def __call__(self, req):
         path = req.path_info
-        print "path =", path
-        if path in self.path_handler_map:
-            handler = self.path_handler_map[path]()
+        if path in self.location_handler_map:
+            handler = self.location_handler_map[path]()
             return handler(req)
-        if '*' in self.path_handler_map:
-            handler = self.path_handler_map['*']()
+        if '*' in self.location_handler_map:
+            handler = self.location_handler_map['*']()
             return handler(req)
         if self.fallback is not None:
             return self.fallback(req)
@@ -88,7 +140,6 @@ class StaticServer(object):
         if path.endswith('/'):
             path += 'index.html'
         filename = self.root+path
-        print "filename =", filename
         packages = get_packages()
         if packages.exists(filename):
             for segment in path.split('/'):
@@ -117,16 +168,16 @@ class StandardWSGI(WSGI):
 
     @classmethod
     def build(cls):
-        mount = get_mount()
-        file_handler_map = FileHandler.map_all()
+        mount = get_settings().mount
+        file_handler_map = HandleFile.map_all()
         packages = get_packages()
         default = None
         route_map = {}
         for package in packages:
             route = None
-            path_handler_map = PathHandler.map_package(package.name)
-            if path_handler_map:
-                route = CommandDispatcher(path_handler_map, route)
+            location_handler_map = HandleLocation.map_package(package.name)
+            if location_handler_map:
+                route = CommandDispatcher(location_handler_map, route)
             if package.exists('www'):
                 root = "%s:/www" % package.name
                 route = StaticServer(root, file_handler_map, route)
@@ -136,7 +187,7 @@ class StandardWSGI(WSGI):
                 else:
                     default = route
         router = PackageRouter(route_map, default)
-        error_handler_map = ErrorHandler.map_all()
+        error_handler_map = HandleError.map_all()
         catcher = ErrorCatcher(router, error_handler_map)
         return cls(catcher)
 
@@ -144,10 +195,11 @@ class StandardWSGI(WSGI):
         self.handler = handler
 
     def __call__(self, environ, start_response):
+        settings = get_settings()
         req = Request(environ)
         req.session = session = SessionObject(environ)
         req.mount = {}
-        for name, segment in get_mount().items():
+        for name, segment in settings.mount.items():
             if segment:
                 req.mount[name] = req.application_url+"/"+segment
             else:

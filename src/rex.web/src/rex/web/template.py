@@ -4,7 +4,7 @@
 
 
 from rex.core import get_packages
-from .handler import FileHandler
+from .handle import HandleFile
 from webob import Response
 import os.path
 import mimetypes
@@ -13,15 +13,31 @@ import urllib
 import jinja2
 
 
-class TemplateHandler(FileHandler):
+class HandleTemplate(HandleFile):
+
+    content_type = None
 
     def __call__(self, req):
-        return render_to_response(self.filename, req)
+        return render_to_response(self.filename, req,
+                                  content_type=self.content_type)
 
 
-class HTMLHandler(TemplateHandler):
+class HandleHTML(HandleTemplate):
 
     ext = '.html'
+    content_type = 'text/html'
+
+
+class HandleJS(HandleTemplate):
+
+    ext = '.js_t'
+    content_type = 'application/javascript'
+
+
+class HandleCSS(HandleTemplate):
+
+    ext = '.css_t'
+    content_type = 'text/css'
 
 
 class RexJinjaEnvironment(jinja2.Environment):
@@ -75,14 +91,20 @@ rex_jinja.globals.update({
 })
 
 
-def render_to_response(filename, req, **arguments):
+def render_to_response(filename, req,
+                       status=None, content_type=None,
+                       **arguments):
     template = rex_jinja.get_template(filename)
     body = template.render(MOUNT=req.mount,
                            PARAMS=req.params,
                            **arguments)
-    content_type = mimetypes.guess_type(filename)[0]
+    if status is None:
+        status = 200
+    if content_type is None:
+        content_type = mimetypes.guess_type(filename)[0]
     if content_type is None:
         content_type = 'application/octet-stream'
-    return Response(body=body, content_type=content_type, charset='utf-8')
+    return Response(body=body, status=status,
+                    content_type=content_type, charset='UTF-8')
 
 

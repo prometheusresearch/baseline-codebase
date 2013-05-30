@@ -5,9 +5,8 @@
 
 from .auth import authenticate, authorize, Authenticate, Authorize
 from .command import Command, Parameter
-from .handler import PathHandler, FileHandler, ErrorHandler
-from .mount import get_mount
+from .handle import HandleLocation, HandleFile, HandleError
 from .router import StandardWSGI
-from .template import rex_jinja, render_to_response, TemplateHandler
+from .template import rex_jinja, render_to_response, HandleTemplate
 
 

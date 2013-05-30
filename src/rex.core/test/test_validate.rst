@@ -42,6 +42,8 @@ raised::
 
     >>> from rex.core import AnyVal
     >>> any_val = AnyVal()
+    >>> any_val
+    AnyVal()
     >>> X = object()
     >>> any_val(X) == X
     True
@@ -55,6 +57,8 @@ values accepted by the wrapped validator *and* ``None``::
 
     >>> from rex.core import MaybeVal, IntVal
     >>> maybe_val = MaybeVal(IntVal())
+    >>> maybe_val
+    MaybeVal(IntVal())
     >>> maybe_val(10)
     10
     >>> maybe_val(None) is None
@@ -77,6 +81,8 @@ the input::
 
     >>> from rex.core import OneOfVal, BoolVal, IntVal
     >>> oneof_val = OneOfVal(BoolVal(), IntVal())
+    >>> oneof_val
+    OneOfVal(BoolVal(), IntVal())
     >>> oneof_val('1')
     True
     >>> oneof_val('10')
@@ -106,6 +112,8 @@ in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
 
     >>> from rex.core import StrVal
     >>> str_val = StrVal()
+    >>> str_val
+    StrVal()
     >>> str_val('Hello')
     'Hello'
     >>> str_val(u'Hello')
@@ -131,7 +139,9 @@ in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
 pattern.  When the pattern is provided, only input strings that match this
 pattern are accepted::
 
-    >>> ssn_val = StrVal('^\d\d\d-\d\d-\d\d\d\d$')
+    >>> ssn_val = StrVal(r'^\d\d\d-\d\d-\d\d\d\d$')
+    >>> ssn_val
+    StrVal('^\\d\\d\\d-\\d\\d-\\d\\d\\d\\d$')
     >>> ssn_val('123-12-1234')
     '123-12-1234'
     >>> ssn_val('John Doe')
@@ -150,6 +160,8 @@ pattern are accepted::
 
     >>> from rex.core import ChoiceVal
     >>> choice_val = ChoiceVal('one', 'two', 'three')
+    >>> choice_val
+    ChoiceVal('one', 'two', 'three')
     >>> choice_val('two')
     'two'
     >>> choice_val(u'two')
@@ -178,6 +190,8 @@ recognized as ``True`` values::
 
     >>> from rex.core import BoolVal
     >>> bool_val = BoolVal()
+    >>> bool_val
+    BoolVal()
     >>> bool_val(False)
     False
     >>> bool_val(0)
@@ -210,6 +224,8 @@ to integer::
 
     >>> from rex.core import IntVal
     >>> int_val = IntVal()
+    >>> int_val
+    IntVal()
     >>> int_val(10)
     10
     >>> int_val(10L)
@@ -233,6 +249,8 @@ to integer::
 outside of these bounds are rejected::
 
     >>> int_1to10_val = IntVal(1, 10)
+    >>> int_1to10_val
+    IntVal(min_bound=1, max_bound=10)
     >>> int_1to10_val(1)
     1
     >>> int_1to10_val(5)
@@ -254,6 +272,8 @@ outside of these bounds are rejected::
     Got:
         11
     >>> int_1to_val = IntVal(min_bound=1)
+    >>> int_1to_val
+    IntVal(min_bound=1)
     >>> int_1to_val(1)
     1
     >>> int_1to_val(0)
@@ -264,6 +284,8 @@ outside of these bounds are rejected::
     Got:
         0
     >>> int_to10_val = IntVal(max_bound=10)
+    >>> int_to10_val
+    IntVal(max_bound=10)
     >>> int_to10_val(10)
     10
     >>> int_to10_val(11)
@@ -279,6 +301,8 @@ respectively::
 
     >>> from rex.core import PIntVal, UIntVal
     >>> pint_val = PIntVal()
+    >>> pint_val
+    PIntVal()
     >>> pint_val(1)
     1
     >>> pint_val(0)
@@ -289,6 +313,8 @@ respectively::
     Got:
         0
     >>> uint_val = UIntVal()
+    >>> uint_val
+    UIntVal()
     >>> uint_val(0)
     0
     >>> uint_val(-1)
@@ -307,6 +333,8 @@ respectively::
 
     >>> from rex.core import SeqVal
     >>> seq_val = SeqVal()
+    >>> seq_val
+    SeqVal()
     >>> seq_val([0, False, None])
     [0, False, None]
     >>> seq_val(None)
@@ -320,6 +348,8 @@ respectively::
 
     >>> from rex.core import IntVal
     >>> int_seq_val = SeqVal(IntVal())
+    >>> int_seq_val
+    SeqVal(IntVal())
     >>> int_seq_val([])
     []
     >>> int_seq_val(['1', '2', '3'])
@@ -341,6 +371,8 @@ respectively::
 
     >>> from rex.core import MapVal
     >>> map_val = MapVal()
+    >>> map_val
+    MapVal()
     >>> map_val({'0': 'false'})
     {'0': 'false'}
     >>> map_val(None)
@@ -355,6 +387,8 @@ keys and mapping values::
 
     >>> from rex.core import IntVal, PIntVal, BoolVal
     >>> i2b_map_val = MapVal(IntVal(), BoolVal())
+    >>> i2b_map_val
+    MapVal(IntVal(), BoolVal())
     >>> i2b_map_val({})
     {}
     >>> i2b_map_val({'0': 'false'})
@@ -388,6 +422,8 @@ existing file or directory respectively::
 
     >>> from rex.core import FileVal, DirectoryVal
     >>> file_val = FileVal()
+    >>> file_val
+    FileVal()
     >>> file_val('setup.py')
     'setup.py'
     >>> file_val(u'setup.py')
@@ -409,6 +445,8 @@ existing file or directory respectively::
     Got:
         None
     >>> dir_val = DirectoryVal()
+    >>> dir_val
+    DirectoryVal()
     >>> dir_val('src')
     'src'
     >>> dir_val(u'src')

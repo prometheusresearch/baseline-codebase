@@ -14,6 +14,9 @@ class Validate(object):
     def __call__(self, value):
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
+    def __repr__(self):
+        return "%s()" % self.__class__.__name__
+
 
 class AnyVal(Validate):
     """Accepts any input; returns it unchanged."""
@@ -33,6 +36,9 @@ class MaybeVal(Validate):
             return None
         return self.validate(value)
 
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.validate)
+
 
 class OneOfVal(Validate):
     """Union of validators."""
@@ -49,6 +55,11 @@ class OneOfVal(Validate):
                 errors.append(error)
         raise Error("Failed to match the value against any of the following:",
                     "\n\n".join(str(error) for error in errors))
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           ", ".join(str(validate)
+                                     for validate in self.validates))
 
 
 class StrVal(Validate):
@@ -74,6 +85,11 @@ class StrVal(Validate):
                             % self.pattern)
         return value
 
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           repr(self.pattern)
+                                if self.pattern is not None else "")
+
 
 class ChoiceVal(Validate):
     """Accepts strings from a fixed set."""
@@ -91,6 +107,10 @@ class ChoiceVal(Validate):
                 raise Error("Expected one of:",
                             ", ".join(self.choices))
         return value
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           ", ".join(repr(choice) for choice in self.choices))
 
 
 class BoolVal(Validate):
@@ -133,6 +153,14 @@ class IntVal(Validate):
                                if self.max_bound is not None else ""))
         return value
 
+    def __repr__(self):
+        args = []
+        if self.min_bound is not None:
+            args.append("min_bound=%s" % self.min_bound)
+        if self.max_bound is not None:
+            args.append("max_bound=%s" % self.max_bound)
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
 
 class UIntVal(IntVal):
     """Accepts non-negative integers."""
@@ -140,12 +168,22 @@ class UIntVal(IntVal):
     def __init__(self, max_bound=None):
         super(UIntVal, self).__init__(0, max_bound)
 
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           "max_bound=%s" % self.max_bound
+                                if self.max_bound is not None else "")
+
 
 class PIntVal(IntVal):
     """Accepts positive integers."""
 
     def __init__(self, max_bound=None):
         super(PIntVal, self).__init__(1, max_bound)
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           "max_bound=%s" % self.max_bound
+                                if self.max_bound is not None else "")
 
 
 class SeqVal(Validate):
@@ -165,6 +203,11 @@ class SeqVal(Validate):
                     item = self.validate_item(item)
             items.append(item)
         return items
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           self.validate_item
+                                if self.validate_item is not None else "")
 
 
 class MapVal(Validate):
@@ -190,6 +233,14 @@ class MapVal(Validate):
                     item = self.validate_item(item)
             pairs.append((key, item))
         return dict(pairs)
+
+    def __repr__(self):
+        args = []
+        if self.validate_key is not None or self.validate_item is not None:
+            args.append(str(self.validate_key))
+        if self.validate_item is not None:
+            args.append(str(self.validate_item))
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
 class FileVal(Validate):

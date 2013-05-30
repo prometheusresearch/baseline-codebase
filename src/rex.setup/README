@@ -5,8 +5,8 @@
 .. contents:: Table of Contents
 
 
-Overview & Reference
-====================
+Usage
+=====
 
 ``rex.setup`` is a Distutils extension for distributing static files and
 providing additional metadata for Rex applications.  To use, add the following

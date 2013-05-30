@@ -30,6 +30,19 @@ class Paragraph(object):
             return "%s(%r, %r)" % (self.__class__.__name__,
                                    self.message, self.payload)
 
+    def __html__(self):
+        # Used by WebOb for rendering HTTP errors.
+        lines = []
+        lines.append(self.message.replace("&", "&amp;")
+                                 .replace("<", "&lt;")
+                                 .replace(">", "&gt;"))
+        if self.payload is not None:
+            lines.append("<pre>%s</pre>" %
+                         str(self.payload).replace("&", "&amp;")
+                                          .replace("<", "&lt;")
+                                          .replace(">", "&gt;"))
+        return "<br />\n".join(lines)
+
 
 class Error(Exception):
     """An exception with a context trace."""
@@ -61,6 +74,11 @@ class Error(Exception):
             else:
                 output += "(%r, %r)" % (paragraph.message, paragraph.payload)
         return output
+
+    def __html__(self):
+        # Used by WebOb for rendering HTTP errors.
+        return "<br />\n".join(paragraph.__html__()
+                               for paragraph in self.paragraphs)
 
 
 class guard(object):

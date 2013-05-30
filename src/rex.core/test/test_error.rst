@@ -5,8 +5,8 @@
 .. contents:: Table of Contents
 
 
-``Error``, ``guard``
-====================
+``Error``
+=========
 
 Rex API should use ``rex.core.Error`` and its subclasses for error reporting.
 The exception constructor takes the error message and optional payload::
@@ -45,7 +45,19 @@ The error may contain multiple paragraphs::
     >>> error.paragraphs
     [Paragraph('Found no product:', 'beer'), Paragraph('While looking in:', 'refrigerator #3')]
 
-The same code could we written using ``guard`` context manager::
+Errors could be rendered in HTML::
+
+    >>> print error.__html__()
+    Found no product:<br />
+    <pre>beer</pre><br />
+    While looking in:<br />
+    <pre>refrigerator #3</pre>
+
+
+``guard``
+=========
+
+``guard`` context manager adds a paragraph to all escaping errors::
 
     >>> from rex.core import guard
 

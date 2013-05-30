@@ -191,6 +191,26 @@ function collectAnswers (questions) {
     return answers;
 }
 
+function collectAnnotations(questions) {
+    var annotations = {};
+    $.each(questions, function (_, question) {
+        var annotation = question.getAnnotation();
+        if (annotation)
+            annotations[question.name] = annotation;
+    });
+    return annotations;
+};
+
+function collectExplanations(questions) {
+    var explanations = {};
+    $.each(questions, function (_, question) {
+        var explanation = question.getExplanation();
+        if (explanation)
+            explanations[question.name] = explanation;
+    });
+    return explanations;
+};
+
 var creoleParser = new Parse.Simple.Creole({
     linkFormat: ''
 });
@@ -882,12 +902,16 @@ var Form = function(config, data, paramValues, templates, showNumbers, onPageUpd
                 validateExpr: questionDef.constraints || null,
                 required: questionDef.required || false,
                 askAnnotation: questionDef.annotation || false,
+                annotation: null,
+                explanation: null,
+                /*
                 annotation: data.annotations ?
                                 data.annotations[questionName] || null:
                                 null,
                 explanation: data.explanations ?
                                 data.explanations[questionName] || null:
                                 null,
+                */
                 askExplanation: questionDef.explanation || false,
                 onFormChange: onFormChange,
                 templates: templates,
@@ -898,6 +922,27 @@ var Form = function(config, data, paramValues, templates, showNumbers, onPageUpd
             // TODO: set data[value, annotation, explanation]
             var question = null;
             if (questionDef.type === "rep_group") {
+                if (data.annotations && data.annotations[questionName]) {
+                    var annotations = data.annotations[questionName];
+                    if (annotations instanceof Object) {
+                        params.annotations = annotations.value;
+                        params.groupAnnotations = annotations.groupAnnotations || [];
+                    } else {
+                        params.annotations = annotations;
+                        params.groupAnnotations = [];
+                    }
+                }
+                if (data.explanations && data.explanations[questionName]) {
+                    var explanations = data.explanations[questionName];
+                    if (explanations instanceof Object) {
+                        params.explanations = explanations.value;
+                        params.groupExplanations = explanations.groupExplanations || [];
+                    } else {
+                        prarms.explanations = explanations;
+                        params.groupExplanations = [];
+                    }
+                }
+
                 if (data.answers && data.answers.hasOwnProperty(questionDef.name))
                     params['value'] = data.answers[questionDef.name];
                 else
@@ -1524,9 +1569,13 @@ var Record = function (recordDef, values, options) {
     this.collapsed = false;
     this.disabled = false;
     var self = this;
+    var annotations = options.annotations || {};
+    var explanations = options.explanations || {};
+
     $.each(recordDef, function (_, questionDef) {
         var slave = questionDef.slave || false;
         var questionName = questionDef.name;
+
         var params = {
             slave: slave,
             index: null,
@@ -1535,16 +1584,10 @@ var Record = function (recordDef, values, options) {
             disableExpr: questionDef.disableIf || null,
             validateExpr: questionDef.constraints || null,
             required: questionDef.required || false,
-            /*
+            annotation: annotations[questionName] || null,
+            explanation: explanations[questionName] || null,
             askAnnotation: questionDef.annotation || false,
-            annotation: data.annotation ?
-                            data.annotations[questionName] || null:
-                            null,
-            explanation: data.explanations ?
-                            data.explanations[questionName] || null:
-                            null,
             askExplanation: questionDef.explanation || false,
-            */
             onFormChange: options.onChange,
             onValueError: options.onValueError,
             templates: options.templates,
@@ -1684,7 +1727,6 @@ Record.prototype.renderEdit = function () {
         var self = this;
         $.each(this.questions, function (_, question) {
             var questionNode = question.edit();
-            console.log('question edit:', questionNode);
             questions.append(questionNode);
         });
         var btnCollapseRecord = this.templates['btnCollapseRecord'].clone();
@@ -1721,7 +1763,6 @@ Record.prototype.renderEdit = function () {
         if (this.collapsed)
             this.renderCollapsed();
     }
-    console.log('editNode:', this.editNode);
     return this.editNode;
 };
 
@@ -1761,12 +1802,38 @@ Record.prototype.release = function () {
     this.viewNode = null;
 };
 
+Record.prototype.getExplanations = function () {
+    var explanations = collectExplanations(this.questions);
+    var hasExplanations = false;
+    for (var name in explanations) {
+        if (explanations[name]) {
+            hasExplanations = true;
+            break;
+        }
+    }
+    return (hasExplanations) ? explanations : null;
+};
+
+Record.prototype.getAnnotations = function () {
+    var annotations = collectAnnotations(this.questions);
+    var hasAnnotations = false;
+    for (var name in annotations) {
+        if (annotations[name]) {
+            hasAnnotations = true;
+            break;
+        }
+    }
+    return (hasAnnotations) ? annotations : null;
+};
+
 var RecordListQuestion = function (params, recordDef) {
     BaseQuestion.call(this, params);
     this.typeName = 'rep_group';
     this.records = [];
     this.recordDef = recordDef;
-    this.createRecordsFromValue(this.value);
+    this.createRecordsFromValue(this.value,
+                                params.groupAnnotations || [],
+                                params.groupExplanations || []);
 };
 extend(RecordListQuestion, BaseQuestion);
 
@@ -1798,12 +1865,16 @@ RecordListQuestion.prototype.isIncorrect = function () {
                                (this.value !== null && this.recordsAreIncorrect() )));
 };
 
-RecordListQuestion.prototype.createRecord = function (values) {
+RecordListQuestion.prototype.createRecord = function (values, recordAnnotations,
+                                                      recordExplanations) {
     var self = this;
+    // console.log('createRecord', recordAnnotations, recordExplanations);
     var options = {
         customTitles: this.customTitles,
         templates: this.templates,
         onFormChange: this.onFormChange,
+        annotations: recordAnnotations,
+        explanations: recordExplanations,
         onRemove: function (removedRecord) {
             // remove this record from the record list
             self.records = $.grep(self.records, function (record) {
@@ -1825,7 +1896,33 @@ RecordListQuestion.prototype.createRecord = function (values) {
     return record;
 };
 
-RecordListQuestion.prototype.createRecordsFromValue = function (value) {
+RecordListQuestion.prototype.getAnnotation = function () {
+    var groupAnnotations = [];
+    $.each(this.records, function (i, record) {
+        var recordAnnotation = record.getAnnotations();
+        groupAnnotations.push(recordAnnotation);
+    });
+    return {
+        groupAnnotations: groupAnnotations,
+        value: this.annotation
+    };
+};
+
+RecordListQuestion.prototype.getExplanation = function () {
+    var groupExplanations = [];
+    $.each(this.records, function (i, record) {
+        var recordExplanation = record.getExplanations();
+        groupExplanations.push(recordExplanation);
+    });
+    return {
+        groupExplanations: groupExplanations,
+        value: this.explanation
+    };
+};
+
+RecordListQuestion.prototype.createRecordsFromValue = function (value,
+                                                            groupAnnotations,
+                                                            groupExplanations) {
     $.each(this.records, function (i, record) {
         record.release();
     });
@@ -1842,8 +1939,12 @@ RecordListQuestion.prototype.createRecordsFromValue = function (value) {
     if (value == null)
         value = []; // to create one empty record
     var lastRecord = null;
-    $.each(value, function (_, recordValue) {
-        var record = self.createRecord(recordValue);
+    $.each(value, function (i, recordValue) {
+        var recordAnnotations = groupAnnotations[i];
+        var recordExplanations = groupExplanations[i];
+        var record = self.createRecord(recordValue,
+                                        recordAnnotations || {},
+                                        recordExplanations || {});
         self.records.push(record);
         if (editRecords)
             editRecords.append(record.renderEdit());
@@ -1936,13 +2037,13 @@ RecordListQuestion.prototype.edit = function () {
         }
         $.each(this.records, function (_, record) {
             var recordNode = record.renderEdit();
-            console.log('edit record:', recordNode);
+            // console.log('edit record:', recordNode);
             recordList.append(recordNode);
         });
         var self = this;
         btnAddRecord.click(function () {
             if ($(this).parents('.rf-disabled').size() == 0) {
-                var record = self.createRecord(null);
+                var record = self.createRecord(null, {}, {});
                 self.records.push(record);
                 var recordNode = record.renderEdit();
                 self.collapseRecords(record);
@@ -2305,24 +2406,12 @@ $.RexFormsClient = function (o) {
     };
 
     this.collectAnnotations = function () {
-        var annotations = {};
-        $.each(this.form.questions, function (_, question) {
-            var annotation = question.getAnnotation();
-            if (annotation)
-                annotations[question.name] = annotation;
-        });
-        return annotations;
-    }
+        return collectAnnotations(this.form.questions)
+    };
 
-    this.collectExplanations = function () {
-        var explanations = {};
-        $.each(this.form.questions, function (_, question) {
-            var explanation = question.getExplanation();
-            if (explanation)
-                explanations[question.name] = explanation;
-        });
-        return explanations;
-    }
+    this.collectExplanations = function (questions) {
+        return collectExplanations(this.form.questions);
+    };
 
     this.save = function (callback, sync) {
         if (null === self.assessment)
@@ -2333,7 +2422,7 @@ $.RexFormsClient = function (o) {
         this.formData.explanations = self.collectExplanations();
 
         // var changeStamp = self.changeStamp;
-        collectedData = $.toJSON(this.formData);
+        var collectedData = $.toJSON(this.formData);
 
         if (!self.raiseEvent('beforeSave', collectedData))
             // stop if aborted

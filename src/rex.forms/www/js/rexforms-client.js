@@ -108,6 +108,15 @@ function getChangeGraph(questions, params, context, initExpr) {
             });
         }
 
+        if(question.hideExpr) {
+            var e = expr[question.hideExpr] = expr[question.hideExpr] || [];
+            e.push({
+                obj: question,
+                ifTrue: 'hide',
+                ifFalse: 'show'
+            });
+        }
+
         if(question.validateExpr) {
             // validate expression should not affect question until it is answered
             question.validateExpr = question.name
@@ -899,6 +908,7 @@ var Form = function(config, data, paramValues, templates, showNumbers, onPageUpd
                 name: questionName,
                 title: questionDef.title,
                 disableExpr: questionDef.disableIf || null,
+                hideExpr: questionDef.hideIf || null,
                 validateExpr: questionDef.constraints || null,
                 required: questionDef.required || false,
                 askAnnotation: questionDef.annotation || false,
@@ -1086,6 +1096,7 @@ var BaseQuestion = function(params) {
     if (params.index !== null && params.index !== undefined)
         this.title = params.index + '. ' + this.title;
     this.value = params.value;
+    this.hideExpr = params.hideExpr || null;
     this.disableExpr = params.disableExpr || null;
     this.validateExpr = params.validateExpr || null;
     this.askAnnotation = params.askAnnotation || false;
@@ -1099,6 +1110,7 @@ var BaseQuestion = function(params) {
     this.typeName = null;
     this.onFormChange = params.onFormChange || null;
     this.onValueError = params.onValueError || null;
+    this.hidden = false;
     this.disabled = false;
     this.parent = params.parent || null;
     var self = this;
@@ -1350,7 +1362,7 @@ BaseQuestion.prototype.getValue = function (value) {
 };
 
 BaseQuestion.prototype.isIncorrect = function () {
-    return (!this.disabled && ((this.required && this.annotation === null && this.value === null) ||
+    return (this.canBeAnswered() && ((this.required && this.annotation === null && this.value === null) ||
                                (this.invalidByExpr || this.invalidByType)));
 };
 
@@ -1367,14 +1379,20 @@ BaseQuestion.prototype.update = function () {
     var nodes = [this.editNode, this.viewNode];
     var self = this;
     var disabled = self.disabled;
-    if (this.parent && this.parent.disabled)
-        disabled = true;
+    var hidden = self.hidden;
+    if (this.parent) {
+        if (this.parent.disabled)
+            disabled = true;
+        if (this.parent.hidden)
+            hidden = true;
+    }
     $.each(nodes, function(_, node) {
         if(node) {
             if (disabled)
                 node.addClass('rf-disabled');
             else
                 node.removeClass('rf-disabled');
+            node.css('display', hidden ? 'none' : '');
             self.updateActiveElements(node, disabled);
             if (self.isIncorrect())
                 node.addClass('rf-error');
@@ -1388,13 +1406,31 @@ BaseQuestion.prototype.getRexlValue = function (itemName) {
     return rexlize(this.value);
 };
 
-BaseQuestion.prototype.disable = function() {
-    if (this.value !== null) {
-        this.setExplanation(null);
-        if (this.hideExplanation)
-            this.hideExplanation();
-        this.setValue(null, false);
-    }
+BaseQuestion.prototype.clearAnswers = function () {
+    this.setExplanation(null);
+    if (this.hideExplanation)
+        this.hideExplanation();
+    this.setValue(null, false);
+};
+
+BaseQuestion.prototype.canBeAnswered = function () {
+    return !this.hidden && !this.disabled;
+};
+
+BaseQuestion.prototype.hide = function () {
+    this.clearAnswers();
+    this.hidden = true;
+    this.update();
+};
+
+BaseQuestion.prototype.show = function () {
+    this.hidden = false;
+    this.update();
+};
+
+BaseQuestion.prototype.disable = function () {
+    //if (this.value !== null)
+    this.clearAnswers();
     this.disabled = true;
     this.update();
 };
@@ -1568,6 +1604,7 @@ var Record = function (recordDef, values, options) {
     this.onRemove = options.onRemove;
     this.collapsed = false;
     this.disabled = false;
+    this.hidden = false;
     var self = this;
     var annotations = options.annotations || {};
     var explanations = options.explanations || {};
@@ -1582,6 +1619,7 @@ var Record = function (recordDef, values, options) {
             name: questionName,
             title: questionDef.title,
             disableExpr: questionDef.disableIf || null,
+            hideExpr: questionDef.hideIf || null,
             validateExpr: questionDef.constraints || null,
             required: questionDef.required || false,
             annotation: annotations[questionName] || null,
@@ -1792,6 +1830,16 @@ Record.prototype.disable = function () {
     this.update();
 };
 
+Record.prototype.show = function () {
+    this.hidden = false;
+    this.update();
+};
+
+Record.prototype.hide = function () {
+    this.hidden = true;
+    this.update();
+};
+
 Record.prototype.release = function () {
     $.each(this.questions, function(_, question) {
         $(question).off();
@@ -1860,7 +1908,7 @@ RecordListQuestion.prototype.recordsAreIncorrect = function () {
 };
 
 RecordListQuestion.prototype.isIncorrect = function () {
-    return (!this.disabled && ((this.required && this.annotation === null && this.value === null) ||
+    return (this.canBeAnswered() && ((this.required && this.annotation === null && this.value === null) ||
                                (this.invalidByExpr || this.invalidByType) ||
                                (this.value !== null && this.recordsAreIncorrect() )));
 };
@@ -1996,6 +2044,20 @@ RecordListQuestion.prototype.enable = function() {
     BaseQuestion.prototype.enable.call(this);
     $.each(this.records, function (_, record) {
         record.enable();
+    });
+};
+
+RecordListQuestion.prototype.hide = function() {
+    BaseQuestion.prototype.hide.call(this);
+    $.each(this.records, function (_, record) {
+        record.hide();
+    });
+};
+
+RecordListQuestion.prototype.show = function() {
+    BaseQuestion.prototype.show.call(this);
+    $.each(this.records, function (_, record) {
+        record.hide();
     });
 };
 

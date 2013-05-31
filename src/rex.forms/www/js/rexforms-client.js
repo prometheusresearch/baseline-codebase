@@ -916,7 +916,7 @@ var domain = {
 
 // }}}
 
-var Form = function(config, data, paramValues, templates, showNumbers, onPageUpdate) {
+var Form = function(config, data, title, paramValues, templates, showNumbers, onPageUpdate) {
     var self = this;
 
     // if pages are in group, set group skip logic to each page
@@ -933,7 +933,7 @@ var Form = function(config, data, paramValues, templates, showNumbers, onPageUpd
         self.completed = true;
     }
 
-    this.title = config.title || '';
+    this.title = title || config.title || '';
 
     this.pages = [];
     this.questions = {};
@@ -2421,6 +2421,7 @@ $.RexFormsClient = function (o) {
     this.currentPageIdx = -1;
     this.form = new Form(o.formMeta,
                          o.formData || {},
+                         o.formTitle || null,
                          o.paramValues || {},
                          templates,
                          o.showNumbers || false,

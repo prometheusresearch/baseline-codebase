@@ -14,9 +14,6 @@ class Paragraph(object):
         self.payload = payload
 
     def __str__(self):
-        # Emit:
-        #   <message>
-        #       <payload>
         if self.payload is None:
             return self.message
         block = "\n".join("    "+line if line else ""
@@ -45,14 +42,35 @@ class Paragraph(object):
 
 
 class Error(Exception):
-    """An exception with a context trace."""
+    """
+    Exception with a context trace.
+
+    `message`
+        Error description.
+    `payload`
+        Optional data related to the error.
+
+    In ``text/plain``, the exception is rendered as::
+
+        <message>
+            <payload>
+
+    In ``text/html``, the exception is rendered as::
+
+        <message><br>
+        <pre><payload></pre>
+
+    Use :meth:`wrap()` to add more paragraphs.
+    """
 
     def __init__(self, message, payload=None):
         paragraph = Paragraph(message, payload)
         self.paragraphs = [paragraph]
 
     def wrap(self, message, payload=None):
-        """Adds a paragraph."""
+        """
+        Adds a paragraph to the context trace.
+        """
         paragraph = Paragraph(message, payload)
         self.paragraphs.append(paragraph)
         return self
@@ -82,7 +100,9 @@ class Error(Exception):
 
 
 class guard(object):
-    """Adds a paragraph to exceptions leaving the wrapped block."""
+    """
+    Adds a paragraph to exceptions leaving the wrapped ``with`` block.
+    """
 
     def __init__(self, message, payload=None):
         self.message = message

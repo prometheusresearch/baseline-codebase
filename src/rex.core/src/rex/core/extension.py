@@ -8,7 +8,18 @@ from .package import get_packages, Package
 
 
 class Extension(object):
-    """Provides extension mechanism for Rex applications."""
+    """
+    Provides extension mechanism for Rex applications.
+
+    To create a new extensible interface, declare a subclass of
+    :class:`Extension`.
+
+    To create an implementation of the interface, declare a subclass of the
+    interface class.
+
+    Use methods :meth:`all()`, :meth:`by_package()`, :meth:`top()` to find
+    implementations for the given interface.
+    """
 
     class __metaclass__(type):
 
@@ -23,17 +34,27 @@ class Extension(object):
 
     @classmethod
     def sanitize(cls):
-        """Validates a new implementation."""
+        """
+        This method called when a new interface or implementation class is
+        created.  Specific interfaces may override this method to check that
+        implementations satisfy the constraints imposed by the interface.
+        """
 
     @classmethod
     def enabled(cls):
-        """Checks if the implementation is enabled."""
+        """
+        Returns ``True`` for complete implementations; ``False`` for abstract
+        and mixin classes.  Specific interfaces and implementations may
+        override this method.
+        """
         return True
 
     @classmethod
     @cached
     def all(cls):
-        """Returns all implementations for the given interface."""
+        """
+        Returns a list of all implementations for the given interface.
+        """
         packages = get_packages()
         modules = packages.modules
         # Find all subclasses of `cls`.
@@ -43,6 +64,8 @@ class Extension(object):
             subclass = subclasses[idx]
             subclasses.extend(subclass.__subclasses__())
             idx += 1
+        # Filter out abstract classes and implementations not included
+        # with the active application; return the rest.
         return [subclass for subclass in subclasses
                          if subclass.__module__ in modules and
                             subclass.enabled()]
@@ -50,7 +73,12 @@ class Extension(object):
     @classmethod
     @cached
     def top(cls):
-        """Returns the most specific implementation for the given interface."""
+        """
+        Returns the most specific implementation for the given interface.
+
+        The most specific implementation must be a subclass of all the other
+        implementations of the same interface.
+        """
         extensions = cls.all()
         # Find all the leaves in the inheritance tree.
         candidates = []
@@ -69,7 +97,12 @@ class Extension(object):
     @classmethod
     @cached
     def by_package(cls, package):
-        """Returns implementations defined in the given package."""
+        """
+        Returns implementations defined in the given package.
+
+        `package`
+            Package name or :class:`Package` object.
+        """
         if not isinstance(package, Package):
             package = get_packages()[package]
         return [extension for extension in cls.all()

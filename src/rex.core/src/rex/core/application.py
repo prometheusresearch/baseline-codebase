@@ -12,7 +12,20 @@ from .error import Error
 
 
 class Rex(object):
-    """Rex application."""
+    """
+    Creates a Rex application.
+
+    `requirements`
+        Packages to include.  Each requirement is one of:
+
+        * a :class:`.Package` object;
+        * a requirement specification in format understood by ``setuptools``;
+        * a module name;
+        * a path to a directory (must end with ``/``).
+
+    `parameters`
+        Application settings.
+    """
 
     def __init__(self, *requirements, **parameters):
         self.requirements = requirements
@@ -41,11 +54,18 @@ class Rex(object):
                 raise
 
     def on(self):
-        """Activate the application."""
+        """
+        Activates the application.
+
+        You can also apply ``with`` statement on the application object to make
+        the application active while the ``with`` block is executed.
+        """
         get_rex.push(self)
 
     def off(self):
-        """Deactiate the application."""
+        """
+        Deactiates the application.
+        """
         get_rex.pop(self)
 
     def __enter__(self):
@@ -55,7 +75,9 @@ class Rex(object):
         self.off()
 
     def __call__(self, environ, start_response):
-        """WSGI interface."""
+        """
+        WSGI entry point.
+        """
         with self:
             wsgi = get_wsgi()
             output = wsgi(environ, start_response)

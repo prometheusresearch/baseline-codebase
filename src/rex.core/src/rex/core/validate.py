@@ -9,9 +9,16 @@ import os.path
 
 
 class Validate(object):
-    """Validates and sanitizes input value."""
+    """
+    Validates and normalizes input values.
+    """
 
     def __call__(self, value):
+        """
+        Applies the validator to the value.
+
+        Subclasses must override this method.
+        """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
     def __repr__(self):
@@ -19,14 +26,18 @@ class Validate(object):
 
 
 class AnyVal(Validate):
-    """Accepts any input; returns it unchanged."""
+    """
+    Accepts any input; returns it unchanged.
+    """
 
     def __call__(self, value):
         return value
 
 
 class MaybeVal(Validate):
-    """Adds ``None`` to an existing validator."""
+    """
+    Returns ``None`` if input is ``None``; otherwise applies `validate`.
+    """
 
     def __init__(self, validate):
         self.validate = validate
@@ -41,7 +52,10 @@ class MaybeVal(Validate):
 
 
 class OneOfVal(Validate):
-    """Union of validators."""
+    """
+    Returns the value produced by the first successful validator from the
+    `validates` list; raises an error if all validators fail.
+    """
 
     def __init__(self, *validates):
         self.validates = validates
@@ -63,7 +77,11 @@ class OneOfVal(Validate):
 
 
 class StrVal(Validate):
-    """Accepts string values."""
+    """
+    Accepts Unicode and UTF-8 encoded 8-bit strings; returns an 8-bit string.
+
+    If `pattern` is given, the input must match the pattern.
+    """
 
     def __init__(self, pattern=None):
         self.pattern = pattern
@@ -92,7 +110,9 @@ class StrVal(Validate):
 
 
 class ChoiceVal(Validate):
-    """Accepts strings from a fixed set."""
+    """
+    Accepts strings from a fixed set of `choices`.
+    """
 
     def __init__(self, *choices):
         self.choices = choices
@@ -114,7 +134,12 @@ class ChoiceVal(Validate):
 
 
 class BoolVal(Validate):
-    """Accepts Boolean values."""
+    """
+    Accepts Boolean values.
+
+    ``0``, ``''``, ``'0'``, ``'false'`` are accepted as ``False`` values.
+    ``1``, ``'1'``, ``'true'`` are accepted as ``True`` values.
+    """
 
     def __call__(self, value):
         with guard("Got:", repr(value)):
@@ -128,7 +153,12 @@ class BoolVal(Validate):
 
 
 class IntVal(Validate):
-    """Accepts integers."""
+    """
+    Accepts an integer or a string of digits; returns an integer.
+
+    If `min_bound` or `max_bound` are given, checks that the input is within
+    the given boundaries.
+    """
 
     def __init__(self, min_bound=None, max_bound=None):
         self.min_bound = min_bound
@@ -163,7 +193,9 @@ class IntVal(Validate):
 
 
 class UIntVal(IntVal):
-    """Accepts non-negative integers."""
+    """
+    Accepts non-negative integers.
+    """
 
     def __init__(self, max_bound=None):
         super(UIntVal, self).__init__(0, max_bound)
@@ -175,7 +207,9 @@ class UIntVal(IntVal):
 
 
 class PIntVal(IntVal):
-    """Accepts positive integers."""
+    """
+    Accepts positive integers.
+    """
 
     def __init__(self, max_bound=None):
         super(PIntVal, self).__init__(1, max_bound)
@@ -187,7 +221,11 @@ class PIntVal(IntVal):
 
 
 class SeqVal(Validate):
-    """Accepts sequences."""
+    """
+    Accepts lists.
+
+    If set, `validate_item` is used to normalize list items.
+    """
 
     def __init__(self, validate_item=None):
         self.validate_item = validate_item
@@ -211,7 +249,12 @@ class SeqVal(Validate):
 
 
 class MapVal(Validate):
-    """Accepts mappings."""
+    """
+    Accepts dictionaries.
+
+    If set, `validate_key` and `validate_item` are used to normalize dictionary
+    keys and values respectively.
+    """
 
     def __init__(self, validate_key=None, validate_item=None):
         self.validate_key = validate_key
@@ -244,7 +287,9 @@ class MapVal(Validate):
 
 
 class FileVal(Validate):
-    """Accepts paths to files."""
+    """
+    Accepts a path to an existing file.
+    """
 
     def __call__(self, value):
         with guard("Got:", repr(value)):
@@ -258,7 +303,9 @@ class FileVal(Validate):
 
 
 class DirectoryVal(Validate):
-    """Accepts paths to directories."""
+    """
+    Accepts a path to an existing directory.
+    """
 
     def __call__(self, value):
         with guard("Got:", repr(value)):

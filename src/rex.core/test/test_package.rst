@@ -126,17 +126,18 @@ An exception is raised if the package name is ill-formed or unknown::
         rex.unknown
 
 
-Static files
-============
+Resource files
+==============
 
-``Package`` objects provide API for accessing package static files::
+``Package`` objects provide API for accessing package resources::
 
     >>> with demo:
     ...     core_package = get_packages()['rex.core']
     ...     demo_package = get_packages()['rex.core_demo']
 
-``Package.abspath()`` returns real absolute path for a static file.  The file
-does not have to exist, but must reside in the static directory::
+``Package.abspath()`` returns real absolute path for a static resource.  The
+file does not have to exist, but must reside in the static directory of the
+package::
 
     >>> demo_package.abspath('www/index.html')      # doctest: +ELLIPSIS
     '/.../share/rex/rex.core_demo/www/index.html'
@@ -149,7 +150,8 @@ does not have to exist, but must reside in the static directory::
     >>> core_package.abspath('missing.txt') is None
     True
 
-``Package.exists()`` returns ``True`` if the file or directory exists::
+``Package.exists()`` returns ``True`` if the path refers to an existing file or
+directory::
 
     >>> demo_package.exists('www')
     True
@@ -160,7 +162,7 @@ does not have to exist, but must reside in the static directory::
     >>> demo_package.exists('../../../../etc/passwd')
     False
 
-``Package.open()`` opens a package static file::
+``Package.open()`` opens a static resource::
 
     >>> demo_package.open('www/index.html')         # doctest: +ELLIPSIS
     <open file '/.../share/rex/rex.core_demo/www/index.html', mode 'r' at ...>

@@ -3,19 +3,23 @@
 #
 
 
-"""Core components of the Rex platform."""
+"""
+This package provides core components of the Rex platform: initialization,
+extension mechanism, configuration management, base exception object,
+validating utilities.
+"""
 
 
 from .application import Rex
 from .cache import cached
+from .context import get_rex
+from .error import Error, guard
 from .extension import Extension
 from .package import Package, PackageCollection, get_packages
 from .setting import Setting, SettingCollection, get_settings
-from .wsgi import WSGI, get_wsgi
-from .context import get_rex
-from .error import Error, guard
 from .validate import (Validate, AnyVal, MaybeVal, OneOfVal, StrVal, ChoiceVal,
         BoolVal, IntVal, UIntVal, PIntVal, SeqVal, MapVal, FileVal,
         DirectoryVal)
+from .wsgi import WSGI, get_wsgi
 
 

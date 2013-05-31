@@ -12,41 +12,68 @@ import pkg_resources
 
 
 class Package(object):
-    """Component of a Rex application."""
+    """
+    Component of a Rex application.
+
+    `name`
+        The package name.
+    `module`
+        Modules incuded in the package.
+    `static`
+        Directory containing static files of the package.
+    """
 
     def __init__(self, name, modules=set(), static=None):
         self.name = name
         self.modules = modules
         self.static = static
 
-    def abspath(self, path):
-        """Returns the real path for a file in the package static directory."""
+    def abspath(self, local_path):
+        """
+        Takes a `local_path` relative to the static directory of the package.
+
+        The path does not have to refer to an existing file, but should not
+        escape the static directory.
+
+        *Returns:* the normalized absolute path; ``None`` if the path is invalid
+        or the package does not have a static directory.
+        """
+        # Do we have static files at all?
         if self.static is None:
             return None
-        if path.startswith('/'):
-            path = path[1:]
+        # Treat an absolute path as if its root is the static directory.
+        if local_path.startswith('/'):
+            local_path = local_path[1:]
+        # Normalize the path and make sure it does not escape the static
+        # directory.
         real_static = os.path.abspath(self.static)
-        real_path = os.path.abspath(os.path.join(real_static, path))
+        real_path = os.path.abspath(os.path.join(real_static, local_path))
         if not (real_path == real_static or
                 real_path.startswith(real_static+'/')):
             return None
         return real_path
 
-    def exists(self, path):
-        """Checks if the file exists."""
-        real_path = self.abspath(path)
+    def exists(self, local_path):
+        """
+        Returns ``True`` if the path refers to an existing file or directory.
+        """
+        real_path = self.abspath(local_path)
         return (real_path is not None and os.path.exists(real_path))
 
-    def open(self, path):
-        """Opens a file in the static directory of the package."""
-        real_path = self.abspath(path)
-        assert real_path is not None, path
+    def open(self, local_path):
+        """
+        Opens and returns the file referred by `local_path`.
+        """
+        real_path = self.abspath(local_path)
+        assert real_path is not None, local_path
         return open(real_path)
 
-    def walk(self, path):
-        """Iterates over a directory tree in the static directory."""
-        real_path = self.abspath(path)
-        assert real_path is not None, path
+    def walk(self, local_path):
+        """
+        Iterates over the directory tree with the root at `local_path`.
+        """
+        real_path = self.abspath(local_path)
+        assert real_path is not None, local_path
         return os.walk(real_path)
 
     def __repr__(self):
@@ -56,7 +83,9 @@ class Package(object):
 
 
 class PackageCollection(object):
-    """Collection of all packages."""
+    """
+    Collection of packages.
+    """
 
     @classmethod
     def build(cls):
@@ -147,50 +176,72 @@ class PackageCollection(object):
                                   for module in package.modules)
 
     def __iter__(self):
-        """Iterate over packages."""
+        """
+        Iterates over the packages.
+        """
         return iter(self.packages)
 
     def __reversed__(self):
+        # Support for `reversed()` operator.
         return reversed(self.packages)
 
     def __len__(self):
+        """
+        Returns the number of packages.
+        """
         return len(self.packages)
 
-    def __getitem__(self, name):
-        """Get the package by index or by name."""
-        if isinstance(name, int):
-            return self.packages[name]
+    def __getitem__(self, index_or_name):
+        """
+        Gets the package by index or by name.
+        """
+        if isinstance(index_or_name, int):
+            return self.packages[index_or_name]
         else:
-            return self.package_map[name]
+            return self.package_map[index_or_name]
 
     def get(self, name, default=None):
-        """Get the package by name."""
+        """
+        Returns the package by name.
+        """
         return self.package_map.get(name, default)
 
-    def _delegate(self, path, method, *args, **kwds):
-        # Delegate operations with static files to individual packages.
-        assert ':' in path, "missing package name in path: %r" % path
-        name, local_path = path.split(':')
-        assert name in self.package_map, \
-                "unknown package name in path: %r" % path
-        package = self.package_map[name]
+    def _delegate(self, package_path, method, *args, **kwds):
+        # Delegates an operation with a static file to the respective package.
+        assert ':' in package_path, \
+                "missing package name in path: %r" % package_path
+        package_name, local_path = package_path.split(':', 1)
+        assert package_name in self.package_map, \
+                "unknown package name in path: %r" % package_path
+        package = self.package_map[package_name]
         return method(package, local_path, *args, **kwds)
 
-    def abspath(self, path):
-        """Returns a real path to the static file."""
-        return self._delegate(path, Package.abspath)
+    def abspath(self, package_path):
+        """
+        Takes a `package_path` composed of the package name and a relative path
+        separated by ``:``.
 
-    def exists(self, path):
-        """Checks if the static file exists."""
-        return self._delegate(path, Package.exists)
+        *Returns:* the normalized absolute path.
+        """
+        return self._delegate(package_path, Package.abspath)
 
-    def open(self, path):
-        """Opens a static file."""
-        return self._delegate(path, Package.open)
+    def exists(self, package_path):
+        """
+        Returns ``True`` if the path refers to an existing file or directory.
+        """
+        return self._delegate(package_path, Package.exists)
 
-    def walk(self, path):
-        """Iterates over a directory tree."""
-        return self._delegate(path, Package.walk)
+    def open(self, package_path):
+        """
+        Opens and returns the file referred by `package_path`.
+        """
+        return self._delegate(package_path, Package.open)
+
+    def walk(self, package_path):
+        """
+        Iterates over the directory tree with the root at `package_path`.
+        """
+        return self._delegate(package_path, Package.walk)
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.packages)
@@ -198,7 +249,9 @@ class PackageCollection(object):
 
 @cached
 def get_packages():
-    """Returns a collection of packages for the active application.""" 
+    """
+    Returns the packages included with the current active application.
+    """
     return PackageCollection.build()
 
 

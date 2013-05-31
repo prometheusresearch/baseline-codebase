@@ -14,17 +14,34 @@ import yaml
 
 
 class Setting(Extension):
-    """Interface for configuration parameters."""
+    """
+    Interface for configuration parameters.
 
-    REQUIRED = object()
-    DEFAULT = object()
+    To add a new configuration parameter, create a subclass of :class:`Setting` and
+    set the :attr:`name` attribute.
+    """
 
-    # The name of the setting.
+    #: The name of the setting.
     name = None
-    # Default value.
-    default = REQUIRED
-    # Processes the raw value.
-    validate = lambda self, value: value
+
+    def validate(self, value):
+        """
+        Validates and normalizes the setting value.
+
+        Implementations are expected either to override this method or to assign
+        an instance of :class:`Validate` to attribute :attr:`validate`.
+        """
+        return value
+
+    def default(self):
+        """
+        Returns the default value of the function.
+
+        Unless overridden by the implementation, this method raises an error.
+        For optional settings, implementations must either override this method
+        or assign the default value to attribute :attr:`default`.
+        """
+        raise Error("Missing mandatory setting:", self.name)
 
     @classmethod
     def sanitize(cls):
@@ -35,25 +52,31 @@ class Setting(Extension):
 
     @classmethod
     def help(cls):
-        """Describes the setting."""
+        """
+        Describes the setting.
+
+        The description is taken from the docstring of the setting class.
+        """
         return textwrap.dedent(cls.__doc__).strip()
 
     @classmethod
     def enabled(cls):
+        # If `name` is not set, must be the interface or a mixin class.
         return (cls.name is not None)
 
     @classmethod
     @cached
     def map_all(cls):
-        """Maps the setting name to the setting type."""
+        """
+        Returns a dictionary that maps setting names to setting types.
+        """
         return dict((setting.name, setting) for setting in cls.all())
 
-    def __call__(self, value=DEFAULT):
+    UNSET = object()
+    def __call__(self, value=UNSET):
         # No explicit setting value was provided.
-        if value is self.DEFAULT:
-            if self.default is self.REQUIRED:
-                raise Error("Missing mandatory setting:", self.name)
-            elif callable(self.default):
+        if value is self.UNSET:
+            if callable(self.default):
                 return self.default()
             else:
                 return self.default
@@ -77,7 +100,12 @@ class DebugSetting(Setting):
 
 
 class SettingCollection(object):
-    """Application configuration."""
+    """
+    Application configuration.
+
+    Each setting is represented as an attribute in the
+    :class:`SettingCollection` instance.
+    """
 
     __slots__ = ()
 
@@ -146,7 +174,9 @@ class SettingCollection(object):
 
 @cached
 def get_settings():
-    """Returns configuration of the active application."""
+    """
+    Returns configuration of the active application.
+    """
     return SettingCollection.build()
 
 

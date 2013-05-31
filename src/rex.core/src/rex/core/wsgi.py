@@ -8,10 +8,17 @@ from .cache import cached
 
 
 class WSGI(Extension):
-    """Interface for WSGI entry point."""
+    """
+    Interface for WSGI entry point.
+    """
 
     @classmethod
     def build(cls):
+        """
+        Builds the WSGI entry points.
+
+        Implementations must override this method.
+        """
         return cls()
 
     def __call__(self, environ, start_response):
@@ -21,7 +28,9 @@ class WSGI(Extension):
 
 @cached
 def get_wsgi():
-    """Returns WSGI entry point for the active application."""
+    """
+    Returns the WSGI entry point of the active application.
+    """
     wsgi_type = WSGI.top()
     return wsgi_type.build()
 

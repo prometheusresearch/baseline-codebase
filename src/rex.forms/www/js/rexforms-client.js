@@ -46,6 +46,11 @@ function objSize (obj) {
     return size;
 };
 
+function numberOfDays(year, month) {
+    var d = new Date(year, month, 0);
+    return d.getDate();
+}
+
 function isValidDate(year, month, day) {
     --month;
     var d = new Date(year, month, day);
@@ -314,7 +319,23 @@ var DateDomain = function() {
     Domain.call(this, 'date');
 };
 extend(DateDomain, Domain);
+DateDomain.prototype.setDays = function (selectDays, days) {
+    var current = selectDays.attr('data-days') || '0';
+    current = parseInt(current);
+    if (days < current) {
+        selectDays.children().each(function (i, node) {
+            if (i > days)
+                $(node).remove();
+        });
+    } else if (days > current) {
+        for (var day = current + 1; day <= days; day++) {
+            selectDays.append('<option value="' + day + '">' + day + '</option>');
+        }
+    }
+    selectDays.attr('data-days', days);
+};
 DateDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
+    /*
     var input = $('<input type="text">');
     this.setEditValue(input, value, null);
 
@@ -324,22 +345,90 @@ DateDomain.prototype.renderEdit = function (templates, value, onChange, customTi
     input.datepicker({
         dateFormat: 'yy-mm-dd',
         changeYear: true,
+        changeMonth: true,
         yearRange: "c-90:c+10",
     });
 
+    this.setEditValue(input, value, null);
+    if (onChange)
+        input.change(onChange);
+
     return input;
+    */
+
+    var self = this;
+    var node = templates['datepicker'].clone();
+    var selectDay = node.find('.rf-datepicker-day');
+    var selectMonth = node.find('.rf-datepicker-month');
+    var selectYear = node.find('.rf-datepicker-year');
+
+    selectYear.change(function () {
+        selectMonth.trigger('change');
+    });
+
+    selectMonth.change(function () {
+        var year = selectYear.val() || 2000;
+        var month = selectMonth.val();
+        var days = month ? numberOfDays(year, month) : 31;
+        self.setDays(selectDay, days);
+        selectDay.trigger('change');
+    });
+
+    selectDay.change(function () {
+        node.trigger('rf:change');
+    });
+
+    this.setEditValue(node, value, null);
+    node.bind('rf:change', onChange);
+
+    return node;
 };
 DateDomain.prototype.setEditValue = function (node, value, options) {
-    node.val( (value !== null && value !== undefined) ? value : '' );
+    var self = this;
+    var year, month, day;
+    var selectDay = node.find('.rf-datepicker-day');
+    var selectMonth = node.find('.rf-datepicker-month');
+    var selectYear = node.find('.rf-datepicker-year');
+    if (value) {
+        var matches = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        year = parseInt(matches[1]);
+        month = parseInt(matches[2]);
+        day = parseInt(matches[3]);
+        var totalDays = numberOfDays(year, month);
+        self.setDays(selectDay, totalDays);
+    } else {
+        year = '';
+        month = '';
+        day = '';
+        self.setDays(selectDay, 31);
+    }
+    selectDay.val(day);
+    selectMonth.val(month);
+    selectYear.val(year);
 };
 DateDomain.prototype.setViewValue = function (node, value) {
     node.text( (value !== null && value !== undefined) ? value : '' );
 };
 DateDomain.prototype.extractValue = function (node) {
     var value = $.trim( node.val() ) || null;
-    if (!this.isValidValue(value))
-        throw("InvalidDate");
-    return value;
+    var day = node.find('.rf-datepicker-day').val();
+    var month = node.find('.rf-datepicker-month').val();
+    var year = node.find('.rf-datepicker-year').val();
+
+    if (!day && !month && !year)
+        return null;
+    if (day && month && year) {
+        if (month < 10)
+            month = '0' + month;
+        if (day < 10)
+            day = '0' + day;
+        var value = year + '-' + month + '-' + day;
+        if (!this.isValidValue(value))
+            throw("InvalidDate");
+        return value;
+    }
+
+    throw("InvalidDate");
 };
 DateDomain.prototype.isValidValue = function(value) {
     if (value === null)
@@ -2178,6 +2267,30 @@ var defaultTemplates = {
             + '<span class="rf-annotation-title">I can\'t answer because:</span>'
             + '<select class="rf-annotation-variants">'
             + '</select>'
+        + '</div>',
+    'datepicker':
+          '<div class="rf-datepicker">'
+            + '<select class="rf-datepicker-month">'
+                + '<option value=""> Month </option>'
+                + '<option value="1">January</option>'
+                + '<option value="2">February</option>'
+                + '<option value="3">March</option>'
+                + '<option value="4">April</option>'
+                + '<option value="5">May</option>'
+                + '<option value="6">June</option>'
+                + '<option value="7">July</option>'
+                + '<option value="8">August</option>'
+                + '<option value="9">September</option>'
+                + '<option value="10">October</option>'
+                + '<option value="11">November</option>'
+                + '<option value="12">December</option>'
+            + '</select> '
+            + '<select class="rf-datepicker-day">'
+                + '<option value=""> Day </option>'
+            + '</select> '
+            + '<select class="rf-datepicker-year">'
+                + '<option value=""> Year </option>'
+            + '</select>'
         + '</div>'
 };
 
@@ -2246,6 +2359,17 @@ $.RexFormsClient = function (o) {
         else
             target = defaultTemplates[key];
         templates[key] = $( target );
+        if (key === "datepicker") {
+            var currentYear = new Date().getFullYear();
+            var selectYear = templates[key].find('.rf-datepicker-year');
+            for (var year = currentYear - 80; year <= currentYear + 80; year++) {
+                selectYear.append(
+                    $('<option value="' + year + '">' + year + '</option>')
+                );
+            }
+            var selectDay = templates[key].find('.rf-datepicker-day');
+            DateDomain.prototype.setDays(selectDay, 30);
+        }
     });
 
     // creating optional form elements

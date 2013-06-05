@@ -210,6 +210,7 @@ var Page = function (o) {
         self.questions.push(question);
     });
     this.setTitle(o.def.title || null);
+    this.updateDescription();
     this.cId = o.def.cId || null;
     this.createSkipIf(o.def.skipIf || null);
     this.bindEvents();
@@ -265,8 +266,10 @@ Page.prototype.bindEvents = function () {
 			if (node.hasClass('rb-question')) {
 				var question = node.data('owner');
 				if (self.questions.indexOf(question) == -1) {
+                    builder.pageEditor.removeNodeEvents(question.node);
 					question.node.detach();
 					self.questions.push(question);
+                    self.updateDescription();
 					builder.pageEditor.rearrange();
 				}
 			}
@@ -302,6 +305,19 @@ Page.prototype.bindEvents = function () {
             self.remove();
     });
 };
+Page.prototype.updateDescription = function () {
+    var descriptionNode = this.node.find('.rb-page-description:first');
+    descriptionNode.contents().remove();
+    var total = this.questions.length;
+    if (total) {
+        var text = 'Question "' + builder.truncateText(this.questions[0].title, 40) + '"';
+        descriptionNode.text(text);
+        if (total > 1) {
+            var other = total - 1;
+            descriptionNode.append('<br><span class="rb-dark-text">and ' + other + ' other question' + (other > 1 ? 's': '') + '</span>');
+        }
+    }
+};
 Page.prototype.setTitle = function (title) {
     this.title = title;
     var titleNode = this.node.find('.rb-page-title:first');
@@ -311,17 +327,8 @@ Page.prototype.setTitle = function (title) {
         titleNode.text(text);
         titleNode.removeClass('rb-not-set');
     } else {
-        var total = this.questions.length;
-        if (total) {
-            text = builder.truncateText(this.questions[0].title, 30);
-            titleNode.text(text);
-            if (total > 1)
-                titleNode.append('<br><span class="rb-dark-text">And ' + (total - 1) + ' question(s)</span>');
-            titleNode.removeClass('rb-not-set');
-        } else {
-            titleNode.text('Untitled page');
-            titleNode.addClass('rb-not-set');
-        }
+        titleNode.text('Untitled page');
+        titleNode.addClass('rb-not-set');
     }
 };
 Page.prototype.createNode = function () {
@@ -434,7 +441,7 @@ PageContainer.prototype.rearrange = function () {
         var itemOwner = item.data('owner');
         self.pages.push(itemOwner);
     });
-    console.log('result of rearrange:', self.pages);
+    // console.log('result of rearrange:', self.pages);
 };
 PageContainer.prototype.createEmptyPage = function () {
     return new Page({
@@ -506,6 +513,9 @@ Group.prototype.createSkipIf = function (value) {
 };
 Group.prototype.createNode = function () {
     return this.templates.create('group');
+};
+Group.prototype.updateDescription = function () {
+
 };
 Group.prototype.setTitle = function (title) {
     this.title = title;
@@ -585,7 +595,7 @@ Group.prototype.remove = function (saveContents) {
     if (saveContents) {
         $.each(this.pages, function (_, item) {
             item.parent = parent;
-            console.log('owner', item.node.data('owner'));
+            // console.log('owner', item.node.data('owner'));
             self.node.before(item.node);
         });
     }
@@ -1253,7 +1263,7 @@ var Variant = function (code, title, separator, parent, templates) {
         if (!self.code) {
             if (!self.title)
                 return null;
-            console.log('self', self);
+            // console.log('self', self);
             throw new builder.ValidationError("Answer code could not empty", self);
         }
         return {
@@ -1431,6 +1441,7 @@ var QuestionContainer = function (o) {
                 self.questions.push(owner);
             }
         });
+        self.updateDescription();
     };
     self.replace = function (oldQuestion, newQuestion) {
         var idx = self.questions.indexOf(oldQuestion);
@@ -1464,6 +1475,7 @@ var QuestionContainer = function (o) {
                     if (question)
                         self.editor.node.before(question.getNode());
                 }
+                self.updateDescription();
                 self.editor.remove();
                 self.editor = null;
                 self.rearrange();
@@ -1480,8 +1492,10 @@ var QuestionContainer = function (o) {
         return ret;
     };
     self.openQuestionEditor = function (question, mode) {
+        // console.log('openQuestionEditor 1', question);
         if (!self.closeQuestionEditor())
             return;
+        // console.log('openQuestionEditor 2', question);
         var isNew = (question && mode !== "copy") ? true : false;
         var onCancel = function () {
             self.closeQuestionEditor(true);
@@ -1496,12 +1510,17 @@ var QuestionContainer = function (o) {
             self.listNode.append(self.editor.node);
         self.editor.node[0].scrollIntoView();
     };
+    self.removeNodeEvents = function (node) {
+        node.unbind("click.question")
+            .unbind("rb:remove")
+            .unbind("rb:duplicate");
+    };
     self.emptyListNode = function () {
-        self.listNode.children()
-                     .unbind("click.question")
-                     .unbind("rb:remove")
-                     .unbind("rb:duplicate")
-                     .detach();
+        self.listNode.children().each(function (_, node) {
+            node = $(node);
+            self.removeNodeEvents(node);
+            node.detach();
+        });
     };
     self.makeClickable = function (question) {
         var node = question.getNode();
@@ -1541,6 +1560,9 @@ var QuestionContainer = function (o) {
             self.makeClickable(question);
             self.listNode.append(question.getNode());
         });
+    };
+    self.updateDescription = function () {
+
     };
 };
 
@@ -1893,6 +1915,10 @@ var PageEditor = function (o) {
             builder.renameIdentifier(oldName, newName);
         }
     });
+    self.updateDescription = function () {
+        if (self.page)
+            self.page.updateDescription();
+    };
 	self.listNode.sortable("option", "appendTo", $('#rb_helper_home'));
     self.pageTitle = new EditableTitle({
         nodeText: $("#rb_page_title"),

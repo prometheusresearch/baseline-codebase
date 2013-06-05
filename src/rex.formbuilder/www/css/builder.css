@@ -388,6 +388,18 @@ body, p, div, td, input {
     color: black;
 }
 
+.rb-page-description {
+    margin-top: 5px;
+    margin-left: 10px;
+    font-size: 85%;
+    color: #303030;
+    font-style: italic;
+}
+
+.rb-page-description .rb-dark-text {
+    color: #303030;
+}
+
 .rb-page-title .rb-dark-text,
 .rb-page-title.rb-not-set {
     color: #808080;

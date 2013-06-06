@@ -1,5 +1,5 @@
 
-(function () {
+(function ($) {
 
 var builder = $.RexFormBuilder = $.RexFormBuilder || {};
 
@@ -61,6 +61,7 @@ var Question = function (def, templates) {
     this.help = def.help || null;
     this.customTitles = def.customTitles || {};
     this.required = def.required || false;
+    this.slave = def.slave || false;
     this.annotation = def.annotation || false;
     this.explanation = def.explanation || false;
     this.slave = def.slave || null;
@@ -115,6 +116,7 @@ Question.prototype.getDef = function () {
         name: this.name,
         title: this.title,
         required: this.required,
+        slave: this.slave,
     };
     if (this.help)
         def.help = this.help;
@@ -1600,6 +1602,9 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     var nodeHelp = self.node.find('textarea[name=question-help]:first');
     var nodeName = self.node.find('input[name=question-name]:first');
     var nodeRequired = self.node.find('input[name=question-required]:first');
+    var nodeSlave = self.node.find('input[name=question-slave]:first');
+    var labelDropDown = self.node.find('label.rb-question-dropdown:first');
+    var nodeDropDown = labelDropDown.find('input');
     var nodeAnnotation = self.node.find('input[name=question-annotation]:first');
     var nodeExplanation = self.node.find('input[name=question-explanation]:first');
     var nodeType = self.node.find('select[name=question-type]:first');
@@ -1804,7 +1809,9 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
             answerEditor.show();
             nodeSubquestions.css('display', 'none');
             answerEditor.setSeparator( type === "enum" ? '-': '_' );
+            labelDropDown.css('display', (type === "enum") ? '': 'none' );
         } else {
+            labelDropDown.css('display', 'none');
             answerEditor.hide();
             nodeSubquestions.css('display', (type === "rep_group") ?
                                                 '': 'none');
@@ -1818,10 +1825,14 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         nodeHelp.val(question.help || '');
         if (question.required)
             nodeRequired.attr('checked', 'checked');
+        if (question.slave)
+            nodeSlave.attr('checked', 'checked');
         if (question.annotation)
             nodeAnnotation.attr('checked', 'checked');
         if (question.explanation)
             nodeExplanation.attr('checked', 'checked');
+        if (question.type === "enum" && question.dropDown)
+            nodeDropDown.attr('checked', 'checked');
         nodeType.val(question.type).change();
     }
     self.empty = function () {
@@ -1847,6 +1858,7 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
             name: self.getName(),
             title: self.getTitle(),
             required: nodeRequired.is(":checked"),
+            slave: nodeSlave.is(":checked"),
             type: nodeType.val()
         };
         var annotation = nodeAnnotation.is(":checked");
@@ -1872,8 +1884,11 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
             def.annotation = annotation;
         if (explanation)
             def.explanation = explanation;
-        if (builder.isListType(def.type))
+        if (builder.isListType(def.type)) {
             def.answers = answerEditor.getDef();
+            if (def.type === "enum" && nodeDropDown.is(":checked"))
+                def.dropDown = true;
+        }
         if (!builder.isEmpty(customTitles))
             def.customTitles = customTitles;
         if (constraints)
@@ -2325,258 +2340,5 @@ $.RexFormBuilder.putHint = function(element, hintId) {
         element.after(hint);
     }
 }
-
-$.RexFormBuilder.makeREXLCache = function (obj, condName) {
-    if (obj[condName]) {
-        try {
-            var parsed = rexl.parse(obj[condName]);
-
-            if (!obj['cache'])
-                obj['cache'] = {};
-
-            obj['cache'][condName] = parsed;
-        } catch(err) {
-            delete obj[condName];
-        }
-    }
-}
-
-
-$.RexFormBuilder.getItemLevel = function(pageDiv, objType) {
-    var level = 0;
-    var cls = (objType === 'page') ?
-                'rb_page_group':
-                'rb_condition_group';
-    var element = pageDiv.parents("." + cls + ":first");
-    while (element.size()) {
-        ++level;
-        element = element.parents("." + cls + ":first");
-    }
-    return level;
-}
-
-$.RexFormBuilder.checkIfEdge = function(element, fromLeft, objType) {
-    var selector = (objType === 'page') ?
-                        '.rb_page,.rb_page_group':
-                        '.rb_condition_item,.rb_condition_group';
-    return (fromLeft && element.prev(selector).size() === 0) ||
-            (!fromLeft && element.next(selector).size() === 0);
-}
-
-$.RexFormBuilder.getLowestAllowedLevel = function(element, level, fromLeft, objType) {
-
-    var cls = (objType === 'page') ?
-                    'rb_page_group' : 'rb_condition_group';
-
-    while (element.size() && level) {
-        if ($.RexFormBuilder.checkIfEdge(element, fromLeft, objType)) {
-            --level;
-            element = element.parent('.' + cls + ':first');
-        } else
-            break;
-    }
-    return level;
-}
-
-$.RexFormBuilder.getCutoff = function(page, objType) {
-    var cutoff = [];
-    var element = page;
-
-    var chkId = (objType === 'page') ?
-                    'rb_pages_list':
-                    'rb_condition_builder_list';
-
-    cutoff.push(element);
-
-    do {
-        element = element.parent();
-        
-        if (!element.hasClass(chkId))
-            cutoff.unshift(element);
-    } while (element.attr('class') !== chkId && element.size())
-
-    return cutoff;
-}
-
-$.RexFormBuilder.interceptCutoff = function(cutoff1, cutoff2) {
-    var intercept = []
-    var len = cutoff1.length < cutoff2.length ? 
-                cutoff1.length:
-                cutoff2.length;
-                
-    for (var idx = 0; idx < len; idx++) {
-        if (cutoff1[idx][0] === cutoff2[idx][0])
-            intercept.push(cutoff1[idx]);
-    }
-    return intercept;
-}
-
-$.RexFormBuilder.processSelectedPages = function(newGroupName) {
-    var firstPage = $.RexFormBuilder.currentSelection[0];
-    var lastPage = 
-        $.RexFormBuilder.currentSelection[$.RexFormBuilder.currentSelection.length - 1];
-    var pushToGroup = [];
-
-    if (firstPage === lastPage) {
-        pushToGroup.push(firstPage);
-    } else {
-        var firstLevel = $.RexFormBuilder.getItemLevel(firstPage, 'page');
-        var secondLevel = $.RexFormBuilder.getItemLevel(lastPage, 'page');
-
-        var firstLowestAllowedLevel =
-                $.RexFormBuilder.getLowestAllowedLevel(firstPage, firstLevel, true);
-
-        var lastLowestAllowedLevel =
-                $.RexFormBuilder.getLowestAllowedLevel(lastPage, secondLevel, false);
-
-        var lowestAllowedLevel =
-                (firstLowestAllowedLevel < lastLowestAllowedLevel) ?
-                                    lastLowestAllowedLevel:
-                                    firstLowestAllowedLevel;
-
-        if (lowestAllowedLevel > firstLevel ||
-            lowestAllowedLevel > secondLevel)
-            return;
-
-        var firstCutoff = $.RexFormBuilder.getCutoff(firstPage, 'page');
-        var lastCutoff = null;
-        var cutoff = firstCutoff;
-        var total = $.RexFormBuilder.currentSelection.length;
-
-        for (var idx = 1; idx < total; idx++) {
-            var currentCutoff = 
-                $.RexFormBuilder.getCutoff($.RexFormBuilder.currentSelection[idx], 
-                                        'page');
-            cutoff = $.RexFormBuilder.interceptCutoff(cutoff, currentCutoff);
-            if (cutoff.length - 1 < lowestAllowedLevel) {
-                return;
-            }
-            if (idx == total - 1)
-                lastCutoff = currentCutoff;
-        }
-
-        if (lastCutoff) {
-            var startFrom = firstCutoff[ cutoff.length ];
-            var endOn = lastCutoff[ cutoff.length ];
-
-            pushToGroup.push(startFrom);
-            var element = startFrom;
-
-            do {
-                element = element.next();
-                pushToGroup.push(element);
-            } while (endOn[0] !== element[0] && element.size());
-        }
-    }
-
-    if (pushToGroup.length) {
-        var pageGroup = $.RexFormBuilder.createGroup('pageGroup');
-        var pageSublistDiv = pageGroup.find('.rb_class_pages_list:first');
-
-        var newGroupData = $.RexFormBuilder.context.createNewGroup();
-        pushToGroup[0].before(pageGroup);
-        newGroupData.title = newGroupName;
-        pageGroup.data('data', newGroupData);
-
-        for (var idx in pushToGroup) {
-            pageSublistDiv.append(pushToGroup[idx]);
-        }
-        $.RexFormBuilder.setPageListSortable(pageSublistDiv);
-        $.RexFormBuilder.updateGroupDiv(pageGroup);
-    }
-}
-
-$.RexFormBuilder.showProgress = function(params) {
-    $.RexFormBuilder.progressDialog.startParams = params;
-    $.RexFormBuilder.progressDialog.dialog('option', 'buttons', params['buttons']);
-    $('.rb_progress_text', $.RexFormBuilder.progressDialog).html(params['title']);
-    $.RexFormBuilder.startPollingTimeout();
-    $.RexFormBuilder.progressDialog.dialog("open");
-}
-
-$.RexFormBuilder.closeProgress = function() {
-    $.RexFormBuilder.stopPollingTimeout();
-    $.RexFormBuilder.progressDialog.startParams = null;
-    $.RexFormBuilder.progressDialog.dialog("close");
-}
-
-$.RexFormBuilder.stopPollingTimeout = function() {
-    if ($.RexFormBuilder.progressDialog.pollTimeout !== null) {
-        clearTimeout($.RexFormBuilder.progressDialog.pollTimeout)
-        $.RexFormBuilder.progressDialog.pollTimeout = null;
-    }
-}
-
-$.RexFormBuilder.startPollingTimeout = function() {
-    $.RexFormBuilder.progressDialog.pollTimeout =
-        setTimeout("$.RexFormBuilder.progressDialogPolling()", 1000);
-}
-
-$.RexFormBuilder.progressDialogPolling = function() {
-    var params = $.RexFormBuilder.progressDialog.startParams;
-    params['pollCallback']();
-}
-
-$.RexFormBuilder.testInstrument = function() {
-
-    var params = $.RexFormBuilder.context.getIndexByType('parameter');
-    var toBeContinued = function (paramDict) {
-        $.RexFormBuilder.closeOpenedEditor(function () {
-            $.RexFormBuilder.showProgress({
-                title: '<center>Preparing the form for a test...</center>',
-                pollCallback: function () { }
-            });
-
-            $.RexFormBuilder.savedParamValues = paramDict;
-            $.RexFormBuilder.saveInstrumentReal($.RexFormBuilder.testInstrumentStage4);
-        }, questionListDiv);
-    }
-
-    if (params.length) {
-        $.RexFormBuilder.beforeTestDialog.open({
-            paramValues: $.RexFormBuilder.savedParamValues || {},
-            callback: toBeContinued
-        });
-    } else
-        toBeContinued({});
-}
-
-$.RexFormBuilder.testInstrumentStage2 = function() {
-    $.ajax({url : $.RexFormBuilder.basePrefix
-                    + "/construct_instrument?code="
-                    + $.RexFormBuilder.instrumentName
-                    + '&schema=demo',
-        success : function(content) {
-            console.log('construct successful:', content);
-            $.RexFormBuilder.testInstrumentStage4();
-        },
-        error: function() {
-            $.RexFormBuilder.closeProgress();
-            alert('Error of construct_instrument!');
-        },
-        type: 'GET'
-    });
-}
-
-$.RexFormBuilder.testInstrumentStage4 = function() {
-    $.RexFormBuilder.closeProgress();
-    var paramStr = '';
-    if ($.RexFormBuilder.savedParamValues) {
-        for (var paramName in $.RexFormBuilder.savedParamValues) {
-            paramValue = $.RexFormBuilder.savedParamValues[paramName];
-            paramStr += '&' + 'p_' + encodeURIComponent(paramName) + '=' 
-                        + (paramValue ? encodeURIComponent(paramValue) : '');
-        }
-    }
-    var url = $.RexFormBuilder.context.urlStartTest || 
-            ($.RexFormBuilder.formsPrefix + '/start_roads');
-
-    var query = 'test=1&'
-              + 'instrument=' + encodeURIComponent($.RexFormBuilder.instrumentName)
-              + paramStr;
-
-    window.open(url + '?' + query, '_blank');
-}
 */
-
-})();
+})(jQuery);

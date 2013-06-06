@@ -6,6 +6,7 @@
 from .error import Error, guard
 import re
 import os.path
+import collections
 
 
 class Validate(object):
@@ -284,6 +285,39 @@ class MapVal(Validate):
         if self.validate_item is not None:
             args.append(str(self.validate_item))
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
+class OMapVal(MapVal):
+    """
+    Accepts a list of pairs or one-element dictionaries;
+    returns ``OrderedDict`` object.
+
+    If set, `validate_key` and `validate_item` are used to normalize dictionary
+    keys and values respectively.
+    """
+
+    def __call__(self, value):
+        with guard("Got:", repr(value)):
+            if not (isinstance(value, list) and
+                    all(isinstance(item, (list, tuple)) and len(item) == 2 or
+                        isinstance(item, dict) and len(item) == 1
+                        for item in value)):
+                raise Error("Expected an ordered mapping")
+        pairs = []
+        for entry in value:
+            if isinstance(entry, dict):
+                key, item = entry.items()[0]
+            else:
+                key, item = entry
+            if self.validate_key is not None:
+                with guard("While validating mapping key:", repr(key)):
+                    key = self.validate_key(key)
+            if self.validate_item is not None:
+                with guard("While validating mapping value for key:",
+                           repr(key)):
+                    item = self.validate_item(item)
+            pairs.append((key, item))
+        return collections.OrderedDict(pairs)
 
 
 class FileVal(Validate):

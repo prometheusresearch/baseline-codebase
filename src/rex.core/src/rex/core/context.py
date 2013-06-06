@@ -23,7 +23,7 @@ class RexContext(threading.local):
         self._active_app = app
 
     def pop(self, app):
-        # Deactiates the application.
+        # Deactivates the application.
         assert self._active_app is app, "unexpected Rex application"
         self._active_app = self._app_stack.pop()
 

@@ -19,8 +19,8 @@ API reference
    reference
 
 
-Test sessions
-=============
+Examples
+========
 
 .. toctree::
 

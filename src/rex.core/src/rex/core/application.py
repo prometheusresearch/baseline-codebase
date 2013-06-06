@@ -24,7 +24,7 @@ class Rex(object):
         * a path to a directory (must end with ``/``).
 
     `parameters`
-        Application settings.
+        Setting values.
     """
 
     def __init__(self, *requirements, **parameters):
@@ -64,7 +64,7 @@ class Rex(object):
 
     def off(self):
         """
-        Deactiates the application.
+        Deactivates the application.
         """
         get_rex.pop(self)
 

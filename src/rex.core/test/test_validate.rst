@@ -414,6 +414,70 @@ keys and mapping values::
         0
 
 
+``OMapVal``
+===========
+
+``OMapVal`` accepts lists of pairs or one-element dictionaries::
+
+    >>> from rex.core import OMapVal
+    >>> omap_val = OMapVal()
+    >>> omap_val
+    OMapVal()
+    >>> omap_val([('0', 'false'), ('1', 'true')])
+    OrderedDict([('0', 'false'), ('1', 'true')])
+    >>> omap_val([{'0': 'false'}, {'1': 'true'}])
+    OrderedDict([('0', 'false'), ('1', 'true')])
+    >>> omap_val(None)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an ordered mapping
+    Got:
+        None
+    >>> omap_val([(1, 2, 3)])
+    Traceback (most recent call last):
+      ...
+    Error: Expected an ordered mapping
+    Got:
+        [(1, 2, 3)]
+    >>> omap_val([{}])
+    Traceback (most recent call last):
+      ...
+    Error: Expected an ordered mapping
+    Got:
+        [{}]
+
+``OMapVal`` constructor takes two optional parameters: validators for mapping
+keys and mapping values::
+
+    >>> from rex.core import IntVal, PIntVal, BoolVal
+    >>> i2b_omap_val = OMapVal(IntVal(), BoolVal())
+    >>> i2b_omap_val
+    OMapVal(IntVal(), BoolVal())
+    >>> i2b_omap_val([])
+    OrderedDict()
+    >>> i2b_omap_val([{'0': 'false'}])
+    OrderedDict([(0, False)])
+    >>> pi2b_omap_val = OMapVal(PIntVal(), BoolVal())
+    >>> pi2b_omap_val([{'0': 'false'}])
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer in range:
+        [1..]
+    Got:
+        '0'
+    While validating mapping key:
+        '0'
+    >>> i2i_omap_val = OMapVal(IntVal(), IntVal())
+    >>> i2i_omap_val([{'0': 'false'}])
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        'false'
+    While validating mapping value for key:
+        0
+
+
 ``FileVal``, ``DirectoryVal``
 =============================
 

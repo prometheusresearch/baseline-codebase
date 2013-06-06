@@ -33,7 +33,6 @@ Packages
 .. autoclass:: rex.core.Package
 .. autoclass:: rex.core.PackageCollection
    :special-members: __iter__, __len__, __getitem__
-
 .. autofunction:: rex.core.get_packages
 
 
@@ -75,6 +74,7 @@ Validators
 .. autoclass:: rex.core.PIntVal
 .. autoclass:: rex.core.SeqVal
 .. autoclass:: rex.core.MapVal
+.. autoclass:: rex.core.OMapVal
 .. autoclass:: rex.core.FileVal
 .. autoclass:: rex.core.DirectoryVal
 

@@ -35,7 +35,7 @@ class Extension(object):
     @classmethod
     def sanitize(cls):
         """
-        This method called when a new interface or implementation class is
+        This method is called when a new interface or implementation class is
         created.  Specific interfaces may override this method to check that
         implementations satisfy the constraints imposed by the interface.
         """

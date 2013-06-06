@@ -276,6 +276,7 @@ To add a new configuration parameter, create a subclass of
         """Directory with demo data."""
 
         name = 'demo_folder'
+        default = None
         validate = DirectoryVal()
 
 Setting properties are inferred from the class definition as follows:

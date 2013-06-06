@@ -4,17 +4,17 @@
 
 
 from rex.core import (Setting, Extension, WSGI, get_packages, get_settings,
-        MapVal, OMapVal, ChoiceVal, StrVal)
+        MapVal, OMapVal, ChoiceVal, StrVal, Error)
 from .handle import HandleFile, HandleLocation, HandleError
 from .auth import authenticate, authorize
-from .secret import encrypt, decrypt
+from .secret import encrypt, decrypt, sign, validate, a2b, b2a
 from webob import Request, Response
 from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPUnauthorized
 from webob.static import FileApp
 import copy
-import base64
 import os.path
 import fnmatch
+import json
 import yaml
 
 
@@ -31,7 +31,7 @@ class MountSetting(Setting):
 
         mount:
             rex.web_demo:   /
-            rex.ext:        /3rd-party/
+            rex.common:     /shared/
 
     It is not an error to omit some packages or the whole setting entirely.
     If the mount point for a package is not specified, it is determined
@@ -58,7 +58,7 @@ class MountSetting(Setting):
                          if package.exists('www') or
                             HandleLocation.by_package(package)]
         # Check if the raw setting value is well-formed.
-        mount_val = MapVal(ChoiceVal(package_names),
+        mount_val = MapVal(ChoiceVal(*package_names),
                            StrVal('^/(?:[0-9A-Aa-z~!@$^*+=:,._-]+/?)?$'))
         value = mount_val(value)
         # Rebuild the mount table.
@@ -73,7 +73,7 @@ class MountSetting(Setting):
                 segment = name.split('.')[-1].replace('_', '-')
             segment = segment.strip('/')
             if segment in seen:
-                raise Error("Got duplicate mount URL:", segment)
+                raise Error("Got duplicate mount URL:", '/'+segment)
             seen.add(segment)
             mount[name] = segment
         return mount
@@ -92,16 +92,11 @@ class SessionManager(object):
         # Extract session data from the encrypted cookie.
         session = {}
         if self.SESSION_COOKIE in req.cookies:
-            try:
-                session_cookie = base64.b64decode(
-                        req.cookies[self.SESSION_COOKIE])
-            except TypeError:
-                session_cookie = None
-            if session_cookie is not None:
-                session_json = decrypt(session_cookie)
-                if session_json is not None:
-                    session = json.loads(session_json)
-                    assert isinstance(session, dict)
+            session_cookie = req.cookies[self.SESSION_COOKIE]
+            session_json = decrypt(validate(a2b(session_cookie)))
+            if session_json is not None:
+                session = json.loads(session_json)
+                assert isinstance(session, dict)
         req.session = copy.deepcopy(session)
         # Build package mount table.
         req.mount = {}
@@ -119,11 +114,11 @@ class SessionManager(object):
                                    path=req.script_name+'/')
             else:
                 session_json = json.dumps(req.session)
-                session_cookie = base64.b64encode(encrypt(session_json))
+                session_cookie = b2a(sign(encrypt(session_json)))
                 assert len(session_cookie) < 4096, \
                         "session data is too large"
                 resp.set_cookie(self.SESSION_COOKIE,
-                                encrypt(session_json),
+                                session_cookie,
                                 path=req.script_name+'/',
                                 secure=(req.scheme == 'https'),
                                 httponly=True)
@@ -140,20 +135,17 @@ class ErrorCatcher(object):
         self.error_handler_map = error_handler_map
 
     def __call__(self, req):
-        # Save a copy of the request to keep the original PATH_INFO and other
-        # CGI variables.
-        req_orig = req.copy()
         try:
             return self.trunk(req)
         except WSGIHTTPException, error:
             if error.code in self.error_handler_map:
                 # Handler for a specific error code.
                 handler = self.error_handler_map[error.code](error)
-                return handler(req_orig)
+                return handler(req)
             elif '*' in self.error_handler_map:
                 # Catch-all handler.
                 handler = self.error_handler_map['*'](error)
-                return handle(req_orig)
+                return handler(req)
             else:
                 raise
 
@@ -171,6 +163,8 @@ class PackageRouter(object):
         segment = req.path_info_peek()
 
         if segment in self.route_map:
+            # Preserve the original request object.
+            req = req.copy()
             req.path_info_pop()
             route = self.route_map[segment]
             return route(req)
@@ -236,7 +230,7 @@ class StaticServer(object):
             role = self.default_role
             access_path = self.root + self.access_file
             if packages.exists(access_path):
-                access_map = yaml.load(packages.open(access_path))
+                access_map = yaml.safe_load(packages.open(access_path))
                 access_val = OMapVal(StrVal(), StrVal())
                 access_map = access_val(access_map)
                 for pattern in access_map:

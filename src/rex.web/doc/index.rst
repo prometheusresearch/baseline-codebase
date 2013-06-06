@@ -26,6 +26,7 @@ Test sessions
 
    test/test_auth
    test/test_command
+   test/test_route
 
 
 Release notes

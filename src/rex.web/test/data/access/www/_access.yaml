@@ -1,0 +1,5 @@
+- /public.html: anybody
+- /public/*.html: anybody
+- /protected.html: authenticated
+- /protected/*.html: authenticated
+- /*.html: nobody

@@ -7,12 +7,23 @@ from rex.core import Extension, cached
 
 
 class HandleLocation(Extension):
+    """
+    Interface for handling custom URLs.
 
+    Location handlers are local to the package where they are defined.
+
+    See also :class:`rex.web.Command`.
+    """
+
+    #: URL fragment (e.g. ``'/login'`` or ``'*'`` for catch-all)
     path = None
 
     @classmethod
     @cached
-    def map_package(cls, name):
+    def map_by_package(cls, name):
+        """
+        Returns a dictionary mapping URL fragments to handler types.
+        """
         mapping = {}
         for extension in cls.by_package(name):
             assert extension.path not in mapping, \
@@ -25,16 +36,31 @@ class HandleLocation(Extension):
         return (cls.path is not None)
 
     def __call__(self, req):
+        """
+        Handles the request.
+
+        Implementations must override this method.
+        """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
 
 class HandleFile(Extension):
+    """
+    Interface for rendering static resources.
 
+    `path`
+        Path to the resource in format ``'<package>:<local_path>'``.
+    """
+
+    #: File extension (e.g. ``'.html'``)
     ext = None
 
     @classmethod
     @cached
     def map_all(cls):
+        """
+        Returns a dictionary mapping file extensions to handler types.
+        """
         mapping = {}
         for extension in cls.all():
             assert extension.ext not in mapping, \
@@ -46,20 +72,38 @@ class HandleFile(Extension):
     def enabled(cls):
         return (cls.ext is not None)
 
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, path):
+        self.path = path
 
     def __call__(self, req):
+        """
+        Handles the request.
+
+        Implementations must override this method.
+        """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
 
 class HandleError(Extension):
+    """
+    Interface for custom error handlers.
 
+    This interface is used to process HTTP exceptions occurred within
+    :mod:`rex.web` pipeline.
+    """
+
+    #: HTTP error code (e.g. ``404`` or ``'*'`` for catch-all).
     code = None
 
     @classmethod
     @cached
     def map_all(cls):
+        """
+        Returns a dictionary mapping error codes to handler types.
+
+        `error`
+            The original HTTP exception.
+        """
         mapping = {}
         for extension in cls.all():
             assert extension.code not in mapping, \
@@ -75,6 +119,11 @@ class HandleError(Extension):
         self.error = error
 
     def __call__(self, req):
+        """
+        Handles the request.
+
+        Implementations must override this method.
+        """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
 

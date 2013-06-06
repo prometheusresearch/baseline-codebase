@@ -18,7 +18,7 @@ class HandleTemplate(HandleFile):
     content_type = None
 
     def __call__(self, req):
-        return render_to_response(self.filename, req,
+        return render_to_response(self.path, req,
                                   content_type=self.content_type)
 
 

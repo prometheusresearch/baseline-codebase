@@ -24,6 +24,7 @@ Test sessions
 
 .. toctree::
 
+   test/test_auth
    test/test_command
 
 

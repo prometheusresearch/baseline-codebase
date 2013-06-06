@@ -10,9 +10,24 @@ from webob.exc import HTTPBadRequest, HTTPUnauthorized
 
 
 class Parameter(object):
-    """Describes a query parameter."""
+    """
+    Describes a form parameter.
 
-    REQUIRED = object()
+    `name`
+        Parameter name.
+    `validate`
+        Callable that validates and normalizes a raw parameter value.
+    `default`
+        The value to use if the parameter is not provided.  If not set,
+        the parameter is mandatory.
+    """
+
+    class _required_type(object):
+        # For `sphinx.ext.autodoc`.
+        def __repr__(self):
+            return "REQUIRED"
+
+    REQUIRED = _required_type()
 
     def __init__(self, name, validate, default=REQUIRED):
         self.name = name
@@ -31,13 +46,22 @@ class Parameter(object):
 
 class Command(HandleLocation):
     """
-    Variant of ``HandleLocation`` with support for authorization and parameter
-    parsing.
+    Variant of :class:`.HandleLocation` with support for authorization and
+    parameter parsing.
     """
 
+    #: Location of the command.
     path = None
+    #: Permission to execute the command.
     role = 'authenticated'
+    #: List of form parameters.
     parameters = []
+
+    @classmethod
+    def sanitize(cls):
+        if cls.path is not None:
+            assert cls.render.__func__ is not Command.render.__func__, \
+                    "abstract method %s.render()" % cls
 
     def __call__(self, req):
         self.authorize(req)
@@ -45,7 +69,7 @@ class Command(HandleLocation):
         return self.render(req, **arguments)
 
     def authorize(self, req):
-        # Checks if the user is allowed to perform the command.
+        # Checks if we have right permissions to execute the command.
         if self.role is not None:
             if not authorize(req, self.role):
                 raise HTTPUnauthorized()
@@ -89,6 +113,12 @@ class Command(HandleLocation):
         return arguments
 
     def render(self, req, **arguments):
+        """
+        Processes the incoming request and parsed form parameters; returns HTTP
+        response.
+
+        Implementations must override this method.
+        """
         raise NotImplementedError("%s.render()" % self.__class__.__name__)
 
 

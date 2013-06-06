@@ -8,22 +8,23 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.web',
-    version = "0.5.1",
+    version = "1.0.0",
     description="Web stack for the Rex platform",
     long_description=open('README', 'r').read(),
-    author="Prometheus Research, LLC",
+    maintainer="Prometheus Research, LLC",
     license="AGPLv3",
     url="http://bitbucket.org/prometheus/rex.web",
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
-    entry_points={},
     setup_requires=[
-        'rex.setup',
+        'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.core',
+        'rex.core >=1.0, <2',
         'webob',
+        'pycrypto',
+        'pbkdf2',
     ],
     rex_init='rex.web',
 )

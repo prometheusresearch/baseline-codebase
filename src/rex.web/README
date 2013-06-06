@@ -3,45 +3,69 @@
 *********************************************
 
 .. contents:: Table of Contents
+.. role:: mod(literal)
+.. role:: class(literal)
+.. role:: meth(literal)
+.. role:: attr(literal)
+.. role:: func(literal)
 
 
 Overview
 ========
 
-This package provides a web stack for the Rex platform.
+This package provides an extensible web stack for the Rex platform.  It
+includes:
+
+* ability to map specific URLs to HTTP handlers written in Python;
+* server for static resources;
+* support for templates;
+* customizable handlers for standard HTTP errors.
+* authentication and authorization mechanism.
+
+The Rex web stack is built on top of the following packages:
+
+* WebOb_ for HTTP request and response objects;
+* Beaker_ for sessions.
+* Jinja2_ for templates;
 
 This package is a part of the RexDB platform for medical research data
 management.  It is created by Prometheus Research, LLC and released under
 AGPLv3 license.
 
+.. _WebOb: http://docs.webob.org/
+.. _Jinja2: http://jinja.pocoo.org/
+.. _Beaker: http://beaker.readthedocs.org/
 
-Handlers and Routing
---------------------
 
-Package ``rex.web`` provides an extensible web stack for Rex applications.
-It includes:
+Resources and Commands
+======================
 
-* ability to write HTTP handlers in Python for specific URLs;
-* server for package static files, which could be extended to provide
-  custom renderers for specific file types;
-* ability to customize error messages;
-* templates (based on Jinja2);
-* authentication and authorization mechanism.
-
-``rex.web`` is build on top of the following packages:
-
-* WebOb_ for HTTP request and response objects;
-* Jinja2_ for templates;
-* Beaker_ for sessions.
-
-The following code fragment shows how a Rex application may respond to
-a simple request::
+To have a functional web stack, Rex applications should (directly or indirectly)
+depend upon :mod:`rex.web` package::
 
     >>> from rex.core import Rex
     >>> demo = Rex('rex.web_demo')
 
+There are two primary ways a Rex application could respond to HTTP requests:
+using static resources or using HTTP commands.
+
+Any file placed to the ``www`` directory inside the static directory of the
+package, will be accessible via HTTP.  Suppose, for example, we created
+a file ``rex.core_demo/static/www/index.html`` with the following content::
+
+    <!DOCTYPE html>
+    <title>Welcome to REX.CORE_DEMO!</title>
+
+To permit anyone to view this file, we also add a file
+``rex.core_demo/static/www/_access.yaml`` with the following content::
+
+    - /index.html: anybody
+
+Then we could get this file with the request::
+
     >>> from webob import Request
-    >>> req = Request.blank('/')
+
+    >>> req = Request.blank('/index.html')
     >>> print req.get_response(demo)
     200 OK
     Content-Type: text/html; charset=UTF-8
@@ -50,231 +74,9 @@ a simple request::
     <!DOCTYPE html>
     <title>Welcome to REX.CORE_DEMO!</title>
 
-The following diagram shows the structure of the web stack::
-
-     o
-     |
-     |
-     v
-    ErrorCatcher -------------> HandleError
-     |
-     |
-     v
-    PackageRouter
-     |
-     |
-     v
-    StaticServer -------------> HandleFile
-     |
-     |
-     v
-    CommandDispatcher --------> HandleLocation, Command
-
-``ErrorCatcher``
-    Incoming HTTP requests are delegated to ``ErrorCatcher`` handler.
-    It delegates it further down the stack.  If the downstream process
-    produced an HTTP error, ``ErrorCatcher`` checks if the error code
-    has a custom handler.  If so, the request is transferred to the
-    error handler.
-
-``PackageRouter``
-    At this stage, it is determined which package will handle the request.
-    The matches the incoming request with the mount table, which
-    maps path prefixes to packages.
-
-``StaticServer``
-    This handler serves package static files from directory ``static/www``.
-    The application may provide custom handlers for specific file types.
-    If a file is not found, the request is passed to ``CommandDispatcher``.
-
-``CommandDispatcher``
-    The dispatcher looks for handlers for specific URLs written in Python.
-    These handlers must be implementations of ``HandleLocation`` or
-    ``Command`` extensions.
-
-Location Handlers
------------------
-
-Implement ``HandleLocation`` to provide a handler for a specific URL.
-
-For example, ``rex.web_demo`` implements a handler for URL ``/ping``::
-
-    class HandlePing(HandleLocation):
-
-        path = '/ping'
-
-        def __call__(self, req):
-            return Response(content_type='text/plain', body="PONG!")
-
-The location is specified by attribute ``path`` and relative to the
-package mount point.  Use ``'*'`` path to provide a catch-all handler.
-
-::
-
-    >>> req = Request.blank('/ping')
-    >>> print req.get_response(demo)
-    200 OK
-    Content-Type: text/plain; charset=UTF-8
-    Content-Length: 5
-    <BLANKLINE>
-    PONG!
-
-File Handlers
--------------
-
-By default, static files are served verbatim.  You can provide a
-custom handler for specific file extensions by implementing ``HandleFile``
-extension.
-
-For example, ``rex.web_demo`` provides a custom handler for ``.sql`` files.
-It assumes that the file contains a SQL query, executes the query and renders
-the result in CSV::
-
-    class HandleSQL(HandleFile):
-
-        ext = '.sql'
-        database = ':memory:'
-
-        def __call__(self, req):
-            packages = get_packages()
-            sql_file = packages.open(self.filename)
-            sql = sql_file.read()
-            sql_file.close()
-
-            conn = sqlite3.connect(self.database)
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            head = [column[0] for column in cursor.description]
-            rows = cursor.fetchall()
-            conn.close()
-
-            response = Response(content_type='text/csv')
-            response.content_disposition = "attachment; filename=%s.csv" \
-                    % os.path.splitext(os.path.basename(self.filename))[0]
-
-            writer = csv.writer(response.body_file, lineterminator='\n')
-            writer.writerow(head)
-            writer.writerows(rows)
-
-            return response
-
-Now assume that file ``rex.web_demo/static/www/two-plus-two.sql`` contains the
-following query::
-
-    SELECT
-        2 AS "a",
-        2 AS "b",
-        2+2 AS "a+b";
-
-Then the query ``/two-plus-two.sql`` will return::
-
-    >>> req = Request.blank('/two-plus-two.sql')
-    >>> print req.get_response(demo)
-    200 OK
-    Content-Type: text/csv; charset=UTF-8
-    Content-Disposition: attachment; filename=two-plus-two.csv
-    Content-Length: 14
-    <BLANKLINE>
-    a,b,a+b
-    2,2,4
-    <BLANKLINE>
-
-
-Error Handlers
---------------
-
-Implement ``HandleError`` extension to provide custom error handlers for
-HTTP errors.
-
-For example, ``rex.web_demo`` defines an error handler for ``404 Not Found``
-errors::
-
-    class HandleNotFound(HandleError):
-
-        code = 404
-        template = 'rex.web_demo:/templates/404.html'
-
-        def __call__(self, req):
-            return render_to_response(self.template, req, status=self.code,
-                                      path=req.path)
-
-Class attribute ``HandleError.code`` indicates which HTTP errors are handled
-by this handler.  Use ``'*'`` code to provide a handler for all HTTP errors.
-
-The error handler renders a template file
-``rex.web_demo/static/templates/404.html``::
-
-    <!DOCTYPE html>
-    <html>
-      <head><title>Page not found: {{ path|e }}</title></head>
-      <body>The server cannot find the requested page!</body>
-    </html>
-
-Now you can try it::
-
-    >>> req = Request.blank('/not-found')
-    >>> print req.get_response(demo)
-    404 Not Found
-    Content-Type: text/html; charset=UTF-8
-    Content-Length: 145
-    <BLANKLINE>
-    <!DOCTYPE html>
-    <html>
-      <head><title>Page not found: /not-found</title></head>
-      <body>The server cannot find the requested page!</body>
-    </html>
-
-Authentication and Authorization
---------------------------------
-
-``rex.web.authenticate(req)``
-    Returns the current user or ``None``.
-
-``rex.web.authorize(req, role)``
-    Returns ``True`` if the current user has permissions to execute
-    the action described by ``role``; returns ``False`` otherwise.
-
-    FIXME: maybe, raise an exception?
-
-``rex.web`` defines three roles:
-
-``'authenticated'``
-    Any logged in user.
-
-``'anybody'``
-    Everyone is allowed to do this.
-
-``'nobody'``
-    No one is allowed to do this.
-
-Functions ``authenticate()`` and ``authorize()`` are implemented with
-``Authenticate`` and ``Authorize`` extensions.
-
-
-Static Files
-------------
-
-Files from ``static/www`` are exposed via HTTP.
-
-Files and directories that start with ``.`` or ``_`` are hidden.
-
-By default, static files are available for any authenticated user.  You can change
-this using ``static/www/_roles.yaml``.  This file contains a mapping from file name
-to role.  For example::
-
-    index.html: anybody
-    hidden.dat: nobody
-
-
-Commands
---------
-
-To implement a request handler in Python, you can implement ``HandleLocation``
-interface directly.  However it is often convenient to inherit a handler from
-``Command`` class, which provides support for authentication and parsing query
-parameters.
-
-The following command is implemented in ``rex.web_demo`` package::
+Another way to respond to HTTP request is to make a subclass of
+:class:`rex.web.Command`.  For example, :mod:`rex.web_demo` package
+contains the following code::
 
     from rex.core import StrVal
     from rex.web import Command, Parameter
@@ -291,126 +93,361 @@ The following command is implemented in ``rex.web_demo`` package::
         def render(self, req, name):
             return Response("Hello, %s!" % name, content_type='text/plain')
 
-Here is how it could be executed::
+This code creates an HTTP commands that responds to request for ``/hello`` URL
+(``path`` attribute), available to anyone (``role`` attribute) and expects form
+parameter ``name`` (``parameters`` attribute).  After the command authorizes
+the request and parses form parameters it calls method ``render()`` passing to
+it the request and form data.  The ``render()`` method is expected to return an
+HTTP ``Response`` object or to raise an HTTP exception.
 
-    >>> req = Request.blank('/hello?name=Stranger')
+Now, let's execute the command::
+
+    >>> req = Request.blank('/hello?name=Alice')
     >>> print req.get_response(demo)
     200 OK
     Content-Type: text/plain; charset=UTF-8
-    Content-Length: 16
+    Content-Length: 13
     <BLANKLINE>
-    Hello, Stranger!
-
-Attribute ``Command.path`` specifies the URL handled by the command.
-
-Attribute ``Command.role`` is the role required to peform the command.  Role
-*anybody* allows anyone to perform the request.  If the attribute is not set,
-*authenticated* role is assumed.
-
-Attribute ``Command.parameters`` lists query parameters expected by the
-command.  For each parameter, you specify its name, the format and the default
-value.  If the default value is not provided, the parameter is mandatory.
-
-Method ``Command.render()`` must be overridden in subclasses.  This method
-takes the incoming HTTP request and parsed parameters and returns an HTTP
-response.
+    Hello, Alice!
 
 
-API Reference
+Routing and Handlers
+====================
+
+The following diagram shows how :mod:`rex.web` routes incoming HTTP requests::
+
+       o
+       |
+    +--|-----------------+
+    |  v                 |
+    | SessionManager     |
+    |  |                 |
+    |  |                 |
+    |  v                 |
+    | ErrorCatcher -----------------> HandleError
+    |  |                 |
+    |  |                 |
+    |  v                 |
+    | PackageRouter      |
+    |  |                 |
+    |  |                 |
+    |  v                 |
+    | StaticServer -----------------> HandleFile
+    |  |                 |
+    |  |                 |
+    |  v                 |
+    | CommandDispatcher ------------> HandleLocation, Command
+    |                    |
+    +--------------------+
+      (fixed pipeline)                (extensible interfaces)
+
+The block on the left represents the fixed part of the request pipeline; a Rex
+application has little control over it.  The elements on the right are
+interfaces which could be customized by the application.
+
+The pipeline consists of the following components:
+
+:class:`rex.core.SessionManager`
+    Manages encrypted cookie session and other extra request attributes.
+
+:class:`rex.core.ErrorCatcher`
+    Intercepts HTTP exceptions produced downstream and redirects them to custom
+    error handlers.
+
+:class:`rex.core.HandleError`
+    Implement this interface to customize response on certain HTTP errors such
+    as ``401 Not Authorized`` or ``404 Not Found``.
+
+:class:`rex.core.PackageRouter`
+    Determines which package will handle the request based on the *mount* table.
+    The mount table maps the first segment of the incoming request to the package name.
+
+    Typically, the first package in the requirement list is mapped from ``/``,
+    any package with the name ``rex.<name>`` is mounted at ``/<name>``, but you
+    could provide custom mount points with application setting ``mount``.
+
+:class:`rex.core.StaticServer`
+    Serves files from the ``/www`` directory of the package static resources.
+
+:class:`rex.core.HandleFile`
+    Implement this interface to customize rendering of specific file types.
+
+:class:`rex.core.CommandDispatcher`
+    Finds the location handler based on the URL of the incoming request and
+    delegates the request to it.
+
+:class:`rex.core.HandleLocation`
+    Implement this interface to provide a custom handler for a specific URL.
+
+:class:`rex.core.Command`
+    A specialized variant of :class:`rex.core.HandleLocation` with
+    built-in authorization and form parameter parsing.
+
+
+Error Handlers
+==============
+
+Implement :class:`rex.web.HandleError`` interface to customize error reporting
+for specific HTTP errors.
+
+For example, :mod:`rex.web_demo` defines the following handler for ``404 Not
+Found`` errors::
+
+    from rex.web import render_to_response
+
+    class HandleNotFound(HandleError):
+
+        code = 404
+        template = 'rex.web_demo:/templates/404.html'
+
+        def __call__(self, req):
+            return render_to_response(self.template, req, status=self.code,
+                                      path=req.path)
+
+Attribute :attr:`rex.web.HandleError.code` specifies the type of HTTP errors
+handled by this handler.  Use ``'*'`` to match all error types.
+
+The implementation of ``HandleNotFound`` uses function
+:func:`rex.web.render_to_response` to generate a web page from template
+``rex.web_demo/static/templates/404.html``::
+
+    <!DOCTYPE html>
+    <html>
+      <head><title>Page not found: {{ path|e }}</title></head>
+      <body>The server cannot find the requested page!</body>
+    </html>
+
+You can see how this handler works by submitting a non-existing URL to the
+application::
+
+    >>> req = Request.blank('/not-found')
+    >>> print req.get_response(demo)
+    404 Not Found
+    Content-Type: text/html; charset=UTF-8
+    Content-Length: 145
+    <BLANKLINE>
+    <!DOCTYPE html>
+    <html>
+      <head><title>Page not found: /not-found</title></head>
+      <body>The server cannot find the requested page!</body>
+    </html>
+
+
+File Handlers
 =============
 
-Authentication and Authorization
---------------------------------
+To serve static files such as CSS, Javascript and images, place them as static
+package resources to the ``www`` subdirectory.  For example, package
+:mod:`rex.web_demo` contains such static files in ``rex.web_demo/static/www``.
 
-``rex.web.authenticate(req)``
-    Returns the current user or ``None``.
+By default, static files are served unchanged, but you can customize rendering
+for specific file types.  For example, ``rex.web_demo`` provides a custom
+handler for ``.rst`` files::
 
-``rex.web.authorize(req, role)``
-    Returns whether the current user is allowed to performed an action
-    described by ``role``.
+    import docutils.core
 
-``rex.web.Authenticate``
-    This extension implements ``rex.web.authenticate()``.
+    class HandleRST(HandleFile):
 
-``rex.web.Authorize``
-    This extension implements ``rex.web.authorize()``.
+        ext = '.rst'
 
-``rex.core`` defines the following roles:
+        def __call__(self, req):
+            # Load the file.
+            packages = get_packages()
+            with packages.open(self.path) as rst_file:
+                rst_input = rst_file.read()
 
-``authenticated``
-    Any authenticated user can perform this action.
+            # Render to HTML.
+            html_output = docutils.core.publish_string(rst_input,
+                                                       writer_name='html')
 
-``anybody``
-    This action has no restrictions.
+            # Generate the response.
+            return Response(html_output)
 
-``nobody``
-    This action is forbidden.
+:mod:`rex.web_demo` has a RST file ``rex.web_demo/static/www/example.rst``::
 
-Handlers, Commands, Mounting
-----------------------------
+    reStructuredText Example
+    ========================
 
-The following extensions allows you to handle HTTP requests in Python code.
-All handler types define method ``__call__(req)``, which must be overridden in
-subclasses.
+    This file is in reStructuredText_ format, but when served as a part of
+    ``rex.web_demo`` application, it is rendered as HTML.
 
-``rex.web.PathHandler()``
-    Handles an HTTP request with a specific path.
+    .. _reStructuredText: http://docutils.sourceforge.net/rst.html
 
-    ``path``
-        The path; ``'*'`` for catch-all.
+When we request the URL ``/example.rst``, we see HTML output::
 
-``rex.web.FileHandler(filename)``
-    Handles file requests.
+    >>> req = Request.blank('/example.rst')
+    >>> print req.get_response(demo)        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    Content-Type: text/html; charset=UTF-8
+    ...
+    <p>This file is in <a class="reference external"
+    href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>
+    format, but when served as a part of <tt class="docutils
+    literal">rex.web_demo</tt> application, it is rendered as HTML.</p>
+    ...
 
-    ``ext``
-        File extensions, e.g. ``'.html'``.
 
-``rex.web.ErrorHandler(error)``
-    Handles HTTP errors.
+Location Handlers
+=================
 
-    ``code``
-        Error code, e.g. ``401``.
+Implement :class:`rex.web.HandleLocation` interface to provide a handler
+for a specific URL.
 
-``rex.web.Command``
-    Specialized variant of ``PathHandler`` with built-in permission checks
+For example, ``rex.web_demo`` implements a handler for URL ``/ping``::
+
+    class HandlePing(HandleLocation):
+
+        path = '/ping'
+
+        def __call__(self, req):
+            return Response(content_type='text/plain', body="PONG!")
+
+Attribute :attr:`.HandleLocation.path` indicates the location served
+by the handler.  In this example, the handler responds to the request
+``/ping``::
+
+    >>> req = Request.blank('/ping')
+    >>> print req.get_response(demo)
+    200 OK
+    Content-Type: text/plain; charset=UTF-8
+    Content-Length: 5
+    <BLANKLINE>
+    PONG!
+
+.. warning::
+
+    :class:`.HandleLocation` does not have built-in authorization
+    checks.  Use :class:`.Command` if you need built-in authorization
     and parameter parsing.
 
-    Class attributes:
 
-    ``path``
-        The path handled by the command.
-    ``role``
-        The role which the current user must possess to execute the command.
-        Use ``'anybody'`` to make a public command.  The default is
-        ``'authenticated'``.
-    ``parameters``
-        List of command parameters.  Set to ``None`` to disable automatic
-        argument parsing.
+Commands
+========
 
-    Methods:
+To implement a request handler in Python, you can implement
+:class:`rex.web.HandleLocation` interface directly.  However it is often
+convenient to inherit a handler from :class:`rex.web.Command` class, which
+provides support for authorization and parsing query parameters.
 
-    ``render(req, **arguments)``
-        Performs the command and returns an HTTP response.
+``rex.web_demo`` provides a JSON service calculating the *factorial*
+of the given positive integer ``n``::
 
-``rex.web.Parameter(name, validate, default)``
-    Describes command parameter.
+    >>> req = Request.blank('/factorial?n=10')
+    >>> print req.get_response(demo)
+    200 OK
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 21
+    <BLANKLINE>
+    {"n!":3628800,"n":10}
 
-``get_mount()``
-    Returns the package mount table.  A mount table is a dictionary: the keys
-    are package names, the values are path segments.
+This service is implemented as a subclass of :class:`.Command`::
 
-Templates
----------
+    from rex.core import PIntVal
+    from rex.web import Command, Parameter
 
-``rex_jinja``
-    Jinja2 environment object specialized to process files from ``static``
-    directory.  Supports ``<package>:<static_path>`` syntax.
+    class FactorialCmd(Command):
 
-``render_to_response(path, req, **arguments)``
-    Renders a template; returns a response.
+        path = '/factorial'
+        role = 'anybody'
+        parameters = [
+                Parameter('n', PIntVal()),
+        ]
+
+        def render(self, req, n):
+            f = 1
+            for k in range(1, n+1):
+                f = f * k
+            return Response(json={"n": n, "n!": f})
+
+:attr:`.Command.path`
+    Specifies the location handled by the command.
+
+:attr:`.Command.role`
+    The authorization required to perform the request.  Role *anybody*
+    allows anyone to perform the request.  If not set, *authenticated*
+    role is assumed.
+
+:attr:`.Command.parameters`
+    List of query parameters expected by the command.  For each parameter,
+    specify its name, the format and the default value.  If the default
+    value is not provided, the parameter is mandatory.
+
+:meth:`.Command.render`
+    This method must be overridden by implementations.  It takes the incoming
+    HTTP request and parsed form parameters and returns the HTTP response.
 
 
-.. _WebOb: http://docs.webob.org/
-.. _Jinja2: http://jinja.pocoo.org/
-.. _Beaker: http://beaker.readthedocs.org/
+Authentication and authorization
+================================
+
+*Authentication* is the process of "finding who you are".  *Authorization* is
+the process of verifying that "you are permitted to do what you are trying to
+do".  In :mod:`rex.web`, these two services are implemented by functions
+:func:`rex.web.authenticate` and :func:`rex.web.authorize`.
+
+Function :func:`rex.web.authenticate()` takes the incoming request and returns
+the user that performed the request or ``None``::
+
+    >>> from rex.web import authenticate, authorize
+
+    >>> anon_req = Request.blank('/')
+    >>> with demo:
+    ...     print authenticate(anon_req)
+    None
+
+    >>> auth_req = Request.blank('/')
+    >>> auth_req.remote_user = 'Bob'
+    >>> with demo:
+    ...     print authenticate(auth_req)
+    Bob
+
+By default, :func:`.authenticate()` assumes that the user is stored in CGI
+variable ``REMOTE_USER``.  To customize authentication, applications need to
+implement :class:`rex.core.Authenticate`` interface.
+
+Function :func:`rex.web.authorize()` takes the incoming request and permission
+name and returns whether or not the request is given the permission::
+
+    >>> demo.on()
+
+    >>> authorize(anon_req, 'anybody')
+    True
+    >>> authorize(anon_req, 'authenticated')
+    False
+    >>> authorize(anon_req, 'nobody')
+    False
+
+    >>> authorize(auth_req, 'anybody')
+    True
+    >>> authorize(auth_req, 'authenticated')
+    True
+    >>> authorize(auth_req, 'nobody')
+    False
+
+    >>> demo.off()
+
+:mod:`rex.web` defines three permissions:
+
+``'authenticated'``
+    Any logged in user is allowed to perform this action.
+
+``'anybody'``
+    Anyone is allowed to perform this action.
+
+``'nobody'``
+    No one is allowed to perform this action.
+
+To add another permission, applications should implement
+:class:`rex.web.Authorize` interface.
+
+Permissions are used to limit access to commands and static files.
+
+For commands, use attribute :class:`rex.core.Command.role` to specify the
+necessary permission.  By default, commands require *authenticated* permission.
+
+Static files served from the ``www`` directory require *authenticated*
+permission unless overridden in ``www/_access.yaml`` file.  This file must
+contain an ordered dictionary that maps the path pattern to the respective
+permission.
+
 

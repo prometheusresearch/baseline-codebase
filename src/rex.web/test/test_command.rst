@@ -181,3 +181,19 @@ has the same effect as setting ``Command.role`` to ``'anybody'``::
     Hello, stranger!
 
 
+Checking new implementations
+============================
+
+``Command`` requires you to always override the ``render()`` method::
+
+    >>> class BrokenCommand(Command):
+    ...     path = '/broken'
+    ...
+    ...     def __call__(self, req):
+    ...         return Response("Have you defined the `render()` method?",
+    ...                         content_type='text/plain')
+    Traceback (most recent call last):
+      ...
+    AssertionError: abstract method __main__.BrokenCommand.render()
+
+

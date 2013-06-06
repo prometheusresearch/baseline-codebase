@@ -7,6 +7,28 @@
 .. automodule:: rex.web
 
 
+Authentication and authorization
+================================
+
+.. autoclass:: rex.web.Authenticate
+   :special-members: __call__
+.. autoclass:: rex.web.Authorize
+   :special-members: __call__
+.. autofunction:: authenticate
+.. autofunction:: authorize
+
+
+Handler interfaces
+==================
+
+.. autoclass:: rex.web.HandleLocation
+   :special-members: __call__
+.. autoclass:: rex.web.HandleFile
+   :special-members: __call__
+.. autoclass:: rex.web.HandleError
+   :special-members: __call__
+
+
 Commands
 ========
 

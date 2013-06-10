@@ -45,7 +45,7 @@ def get_encryption_key():
 
 @cached
 def get_validation_key():
-    # Generates a key for SHA256.
+    # Generates a key for HMAC-SHA256.
     secret = get_settings().secret
     if secret:
         return pbkdf2.PBKDF2(secret, "validation key").read(VKEY_SIZE)

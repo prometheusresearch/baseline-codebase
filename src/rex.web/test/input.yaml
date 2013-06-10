@@ -16,5 +16,5 @@ tests:
 - sh: pip uninstall -q -y rex.web_demo
 
 - coverage-check: 95.0
-- coverage-report: coverage
+- coverage-report: ./build/coverage
 

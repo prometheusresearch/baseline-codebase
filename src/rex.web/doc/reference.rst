@@ -36,3 +36,11 @@ Commands
 .. autoclass:: rex.web.Command
 
 
+Templates
+=========
+
+.. autoclass:: HandleTemplate
+.. autofunction:: get_jinja
+.. autofunction:: render_to_response
+
+

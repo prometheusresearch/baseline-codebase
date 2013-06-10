@@ -25,8 +25,8 @@ includes:
 The Rex web stack is built on top of the following packages:
 
 * WebOb_ for HTTP request and response objects;
-* Beaker_ for sessions.
 * Jinja2_ for templates;
+* PyCrypto_ and PBKDF2_ for crypto services.
 
 This package is a part of the RexDB platform for medical research data
 management.  It is created by Prometheus Research, LLC and released under
@@ -34,7 +34,8 @@ AGPLv3 license.
 
 .. _WebOb: http://docs.webob.org/
 .. _Jinja2: http://jinja.pocoo.org/
-.. _Beaker: http://beaker.readthedocs.org/
+.. _PyCrypto: http://www.pycrypto.org/
+.. _PBKDF2: http://www.dlitz.net/software/python-pbkdf2/
 
 
 Resources and Commands

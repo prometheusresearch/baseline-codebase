@@ -80,6 +80,7 @@ class MountSetting(Setting):
 
 
 class SessionManager(object):
+    # Adds `session` and `mount` attributes to the request object.
 
     SESSION_COOKIE = 'rex.session'
 

@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import get_packages
+from rex.core import get_packages, cached
 from .handle import HandleFile
 from webob import Response
 import os.path
@@ -14,7 +14,17 @@ import jinja2
 
 
 class HandleTemplate(HandleFile):
+    """
+    Renders a file as a Jinja template.
 
+    This is an abstract implementation of :class:`.HandleFile`.
+    To make a concrete implementation, define a subclass and
+    set attributes :attr:`ext` and :attr:`content_type`.
+    """
+
+    #: File extension.
+    ext = None
+    #: File content type, ``None`` to guess from the extension.
     content_type = None
 
     def __call__(self, req):
@@ -41,20 +51,27 @@ class HandleCSS(HandleTemplate):
 
 
 class RexJinjaEnvironment(jinja2.Environment):
+    # Jinja environment with support for package paths.
 
     def join_path(self, template, parent):
+        # Joins two package paths.
         if ':' not in template:
+            # Package name is not specified.
             if template.startswith('/'):
+                # For absolute paths, take the package name from the parent.
                 if ':' in parent:
                     package, path = parent.split(':', 1)
                     template = "%s:%s" % (package, template)
             else:
+                # For relative paths, take the package name from the parent
+                # and resolve the path relative to the parent path.
                 if ':' in parent:
                     package, parent_path = parent.split(':', 1)
                 else:
+                    # Should never happen.
                     package = None
                     parent_path = parent
-                parent_path = os.path.basename(parent_path)
+                parent_path = os.path.dirname(parent_path)
                 template = os.path.join(parent_path, template)
                 if package is not None:
                     template = "%s:%s" % (package, template)
@@ -62,46 +79,106 @@ class RexJinjaEnvironment(jinja2.Environment):
 
 
 class RexJinjaLoader(jinja2.BaseLoader):
+    # Jinja loader with support for package paths.
 
     def get_source(self, environment, template):
         packages = get_packages()
-        if not packages.exists(template):
+        real_path = packages.abspath(template)
+        if real_path is None or not os.path.isfile(real_path):
             raise jinja2.TemplateNotFound(template)
-        path = packages.abspath(template)
-        mtime = os.path.getmtime(path)
-        stream = open(path)
+        stream = open(real_path)
         source = stream.read().decode('utf-8')
         stream.close()
-        uptodate = (lambda path=path, mtime=mtime:
-                        os.path.getmtime(path) == mtime)
-        return (source, path, uptodate)
+        mtime = os.path.getmtime(real_path)
+        uptodate = (lambda real_path=real_path, mtime=mtime:
+                        os.path.getmtime(real_path) == mtime)
+        return (source, real_path, uptodate)
 
 
-rex_jinja = RexJinjaEnvironment(
-        extensions=['jinja2.ext.do', 'jinja2.ext.loopcontrols'],
-        loader=RexJinjaLoader(),
-)
-rex_jinja.filters.update({
-        'json': json.dumps,
-        'urlencode': urllib.quote,
-})
-rex_jinja.globals.update({
-        'len': len,
-        'str': unicode,
-})
+@cached
+def get_jinja():
+    """
+    Returns a Jinja environment suitable for use with Rex applications.
+
+    The standard Jinja environment was modified to support Rex package
+    paths.  Additionally, the following extensions are enabled:
+
+    ``jinja.ext.do``
+        Adds ``do`` tag
+        (http://jinja.pocoo.org/docs/extensions/#expression-statement).
+
+    ``jinja.ext.loopcontrols``
+        Adds ``break`` and ``continue`` keywords
+        (http://jinja.pocoo.org/docs/extensions/#loop-controls).
+
+    The following filters are added:
+
+    ``json``
+        Converts the given object to JSON representation.
+
+    The following tests are added: *none*.
+
+    The following global functions are added: *none*.
+    """
+    jinja = RexJinjaEnvironment(
+            extensions=[
+                # Add more extensions here.
+                'jinja2.ext.do',
+                'jinja2.ext.loopcontrols',
+            ],
+            loader=RexJinjaLoader())
+    jinja.filters.update({
+            # Add more filters here.
+            'json': json.dumps,
+    })
+    jinja.globals.update({
+            # Add more globals here.
+    })
+    jinja.tests.update({
+            # Add more tests here.
+    })
+    return jinja
 
 
-def render_to_response(filename, req,
+def render_to_response(package_path, req,
                        status=None, content_type=None,
                        **arguments):
-    template = rex_jinja.get_template(filename)
-    body = template.render(MOUNT=req.mount,
-                           PARAMS=req.params,
-                           **arguments)
+    """
+    Renders a template; returns an HTTP response object.
+
+    `package_path`
+        Path to the template in ``<package>:<path>`` format.
+    `req`
+        HTTP request object.
+    `status`
+        HTTP status code (``200`` if not set).
+    `content_type`
+        Content type of the response; guess from the template extension
+        if not set.
+    `arguments`
+        Template parameters.
+
+    Additional parameters passed to the template:
+
+    `MOUNT`
+        Package mount table mapping package names to absolute URLs.
+    `PARAMS`
+        Form parameters.
+    `REQUEST`
+        HTTP request object.
+    """
+    jinja = get_jinja()
+    template = jinja.get_template(package_path)
+    body = template.render(
+            MOUNT=getattr(req, 'mount', {}),    # Allow unmodified
+                                                # Request objects.
+            PARAMS=req.params,
+            REQUEST=req,
+            **arguments)
     if status is None:
         status = 200
     if content_type is None:
-        content_type = mimetypes.guess_type(filename)[0]
+        content_type = mimetypes.guess_type(package_path)[0]
     if content_type is None:
         content_type = 'application/octet-stream'
     return Response(body=body, status=status,

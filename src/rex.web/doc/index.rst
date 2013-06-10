@@ -19,14 +19,15 @@ API reference
    reference
 
 
-Test sessions
-=============
+Examples
+========
 
 .. toctree::
 
    test/test_auth
    test/test_command
    test/test_route
+   test/test_template
 
 
 Release notes

@@ -1,0 +1,4 @@
+include README LICENSE NEWS.rst cogs.local.py
+recursive-include demo README *.py *.html
+recursive-include doc *.py *.rst
+recursive-include test *.yaml

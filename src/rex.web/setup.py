@@ -24,6 +24,7 @@ setup(
     install_requires=[
         'rex.core >=1.0, <2',
         'webob',
+        'jinja2',
         'pycrypto',
         'pbkdf2',
     ],

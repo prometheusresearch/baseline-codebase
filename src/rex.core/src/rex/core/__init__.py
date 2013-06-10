@@ -10,7 +10,7 @@ validating utilities.
 """
 
 
-from .application import Rex
+from .application import Rex, Initialize
 from .cache import cached
 from .context import get_rex
 from .error import Error, guard

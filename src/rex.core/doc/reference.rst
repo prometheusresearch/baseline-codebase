@@ -13,6 +13,8 @@ Application object
 .. autoclass:: rex.core.Rex
    :special-members: __call__
 .. autofunction:: rex.core.get_rex
+.. autoclass:: rex.core.Initialize
+   :special-members: __call__
 
 
 Caching

@@ -4,7 +4,8 @@
 
 
 from .context import get_rex
-from .cache import Cache
+from .cache import Cache, cached
+from .extension import Extension
 from .package import get_packages
 from .setting import get_settings
 from .wsgi import get_wsgi
@@ -31,15 +32,15 @@ class Rex(object):
         self.requirements = requirements
         self.parameters = parameters
         self.cache = Cache()
-        self._setup()
+        self.initialize()
 
-    def _setup(self):
-        # Fail early if there are any problems with packages or configuration.
+    def initialize(self):
+        # Calls `Initialize` implementations.
         with self:
             try:
-                get_packages()
-                get_settings()
-                get_wsgi()
+                for initialize_type in Initialize.one_per_package():
+                    initialize = initialize_type()
+                    initialize()
             except Error, error:
                 if self.requirements:
                     error.wrap("While initializing Rex application:",
@@ -93,5 +94,41 @@ class Rex(object):
                ["%s=%r" % (key, self.parameters[key])
                 for key in sorted(self.parameters)]
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
+class Initialize(Extension):
+    """
+    Interface for initializing Rex applications.
+
+    This interface is invoked when a new :class:`Rex` object is
+    created.  No more than one implementation per package should be
+    defined.
+    """
+
+    @classmethod
+    @cached
+    def one_per_package(cls):
+        """
+        Returns a list of implementations.
+        """
+        extensions = []
+        for package in reversed(get_packages()):
+            package_extensions = cls.by_package(package)
+            assert len(package_extensions) <= 1, \
+                    "too many implementations per package: %s" \
+                    % package_extensions
+            extensions.extend(package_extensions)
+        return extensions
+
+    def __call__(self):
+        """
+        Initializes the application.
+
+        Implementations must override this method.
+        """
+        # Fail early if there are any problems with packages or configuration.
+        get_packages()
+        get_settings()
+        get_wsgi()
 
 

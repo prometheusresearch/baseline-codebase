@@ -99,7 +99,7 @@ class StrVal(Validate):
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
             if self.pattern is not None and \
-                    re.match(r'\A'+self.pattern+r'\Z', value) is None:
+                    re.match(r'\A(?:%s)\Z' % self.pattern, value) is None:
                 raise Error("Expected a string matching:", "/%s/"
                             % self.pattern)
         return value

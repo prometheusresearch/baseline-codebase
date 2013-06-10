@@ -139,18 +139,28 @@ in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
 pattern.  When the pattern is provided, only input strings that match this
 pattern are accepted::
 
-    >>> ssn_val = StrVal(r'^\d\d\d-\d\d-\d\d\d\d$')
+    >>> ssn_val = StrVal(r'\d\d\d-\d\d-\d\d\d\d')
     >>> ssn_val
-    StrVal('^\\d\\d\\d-\\d\\d-\\d\\d\\d\\d$')
+    StrVal('\\d\\d\\d-\\d\\d-\\d\\d\\d\\d')
     >>> ssn_val('123-12-1234')
     '123-12-1234'
     >>> ssn_val('John Doe')
     Traceback (most recent call last):
       ...
     Error: Expected a string matching:
-        /^\d\d\d-\d\d-\d\d\d\d$/
+        /\d\d\d-\d\d-\d\d\d\d/
     Got:
         'John Doe'
+
+The whole input must match the pattern::
+
+    >>> ssn_val('123-12-1234 John Doe')
+    Traceback (most recent call last):
+      ...
+    Error: Expected a string matching:
+        /\d\d\d-\d\d-\d\d\d\d/
+    Got:
+        '123-12-1234 John Doe'
 
 
 ``ChoiceVal``

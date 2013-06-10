@@ -81,7 +81,7 @@ class StrVal(Validate):
     """
     Accepts Unicode and UTF-8 encoded 8-bit strings; returns an 8-bit string.
 
-    If `pattern` is given, the input must match the pattern.
+    If `pattern` is given, the whole input must match the pattern.
     """
 
     def __init__(self, pattern=None):
@@ -99,7 +99,7 @@ class StrVal(Validate):
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
             if self.pattern is not None and \
-                    re.match(self.pattern, value) is None:
+                    re.match(r'\A'+self.pattern+r'\Z', value) is None:
                 raise Error("Expected a string matching:", "/%s/"
                             % self.pattern)
         return value

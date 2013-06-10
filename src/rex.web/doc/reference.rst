@@ -44,3 +44,10 @@ Templates
 .. autofunction:: render_to_response
 
 
+Configuration
+=============
+
+.. autoclass:: MountSetting
+.. autoclass:: SecretSetting
+
+

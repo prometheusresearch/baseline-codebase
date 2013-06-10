@@ -19,14 +19,6 @@ class HandleNotFound(HandleError):
                                   path=req.path)
 
 
-class HandlePing(HandleLocation):
-
-    path = '/ping'
-
-    def __call__(self, req):
-        return Response(content_type='text/plain', body="PONG!")
-
-
 class HandleRST(HandleFile):
 
     ext = '.rst'
@@ -45,35 +37,12 @@ class HandleRST(HandleFile):
         return Response(html_output)
 
 
-class HandleSQL(HandleFile):
+class HandlePing(HandleLocation):
 
-    ext = '.sql'
-    database = ':memory:'
+    path = '/ping'
 
     def __call__(self, req):
-        # Load the query.
-        packages = get_packages()
-        sql_file = packages.open(self.path)
-        sql = sql_file.read()
-        sql_file.close()
-
-        # Execute the query.
-        conn = sqlite3.connect(self.database)
-        cursor = conn.cursor()
-        cursor.execute(sql)
-        head = [column[0] for column in cursor.description]
-        rows = cursor.fetchall()
-        conn.close()
-
-        # Generate the response.
-        response = Response(content_type='text/csv')
-        response.content_disposition = "attachment; filename=%s.csv" \
-                % os.path.splitext(os.path.basename(self.path))[0]
-        writer = csv.writer(response.body_file, lineterminator='\n')
-        writer.writerow(head)
-        writer.writerows(rows)
-
-        return response
+        return Response(content_type='text/plain', body="PONG!")
 
 
 class HelloCmd(Command):
@@ -81,7 +50,7 @@ class HelloCmd(Command):
     path = '/hello'
     role = 'anybody'
     parameters = [
-        Parameter('name', StrVal('^[A-Za-z]+$'), default='World'),
+        Parameter('name', StrVal('[A-Za-z]+'), default='World'),
     ]
 
     def render(self, req, name):

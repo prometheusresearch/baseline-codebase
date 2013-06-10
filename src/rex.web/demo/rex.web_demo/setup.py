@@ -13,6 +13,7 @@ setup(
     ],
     install_requires=[
         'rex.web',
+        'docutils',
     ],
     rex_init='rex.web_demo',
     rex_static='static',

@@ -1,3 +1,5 @@
-- /index.html: anybody
-- /two-plus-two.sql: anybody
-- /example.rst: anybody
+- /index.html   : anybody
+- /page.html    : anybody
+- /example.rst  : anybody
+- /*.png        : anybody
+- /*            : nobody

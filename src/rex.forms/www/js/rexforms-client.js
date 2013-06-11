@@ -1221,6 +1221,7 @@ var BaseQuestion = function(params) {
             self.update();
         };
     this.templates = params.templates || defaultTemplates;
+    console.debug(params);
     this.customTitles = params.customTitles || {};
     this.help = params.help || null;
 }

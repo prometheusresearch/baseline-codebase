@@ -3,99 +3,226 @@
 #
 
 
-from cogs import env, task, setting, argument, option
+from cogs import env, setting, task, argument, option
 from cogs.log import log
-from rex.core import Rex, get_settings, get_packages
-import wsgiref.simple_server
+from .common import make_rex
+import sys
+import binascii
+import datetime
+import traceback
+import SocketServer
+import wsgiref.simple_server, wsgiref.util
 
 
-@setting
-def PROJECT(value=None):
-    if not value:
-        env.project = None
-    elif isinstance(value, str):
-        env.project = value
-    else:
-        raise ValueError("project name is expected")
+class RexServer(SocketServer.ThreadingMixIn, wsgiref.simple_server.WSGIServer):
+    # HTTP server that spawns a thread for each request.
+
+    # Whether to dump HTTP logs.
+    quiet = False
 
 
-@setting
-def REQUIREMENTS(value=None):
-    if not value:
-        env.requirements = []
-    elif isinstance(value, str):
-        env.requirements = value.split()
-    elif isinstance(value, list) and \
-            all(isinstance(item, str) for item in value):
-        env.requirements = value
-    else:
-        raise ValueError("list of requirements is expected")
+class QuietRexServer(RexServer):
+    # Displays unhandled tracebacks only.
+
+    quiet = True
 
 
-@setting
-def SETTINGS(value=None):
-    if not value:
-        env.settings = {}
-    elif isinstance(value, dict) and \
-            all(isinstance(key, str) for key in value):
-        env.settings = value
-    else:
-        raise ValueError("dictionary of settings is expected")
+class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
+    # Provides customized logging.
+
+    def handle(self):
+        # Overridden to replace `ServerHandler` with `RexServerHandler`.
+        self.raw_requestline = self.rfile.readline()
+        if not self.parse_request():
+            return
+        handler = RexServerHandler(
+            self.rfile, self.wfile, self.get_stderr(), self.get_environ())
+        handler.request_handler = self
+        handler.run(self.server.get_app())
+
+    def log_message(self, format, *args):
+        # Dumps a log message in the Apache Common Log Format.
+
+        # The server was started with `--quiet` option.
+        if self.server.quiet:
+            return
+
+        # Extract the remote user when Basic Auth is used.
+        remote_user = '-'
+        auth = self.headers.get('Authorization', '').split()
+        if len(auth) == 2 and auth[0].lower() == 'basic':
+            auth = auth[1]
+            try:
+                auth = auth.decode('base64')
+            except binascii.Error:
+                pass
+            else:
+                if ':' in auth:
+                    remote_user = auth.split(':', 1)[0]
+
+        if format != '"%s" %s %s':
+            # Non-standard format from `log_error()`, no highlighting.
+            # FIXME: not reachable?
+            log("{} - {} [{}] {}",
+                self.address_string(),
+                remote_user,
+                self.log_date_time_string(),
+                format % args)
+        else:
+            # Highlight query strings and error codes.
+            query, status, size = args
+            if status < '400':
+                line = "{} - {} [{}] \"`{}`\" {} {}"
+            else:
+                line = "{} - {} [{}] \"`{}`\" :warning:`{}` {}"
+            log(line,
+                self.address_string(),
+                remote_user,
+                self.log_date_time_string(),
+                query,
+                status,
+                size)
+
+
+class RexServerHandler(wsgiref.simple_server.ServerHandler):
+    # Customizes output on unhandled exceptions.
+
+    def log_exception(self, exc_info):
+        # Dumps the exception traceback to stderr.
+        try:
+            stderr = self.get_stderr()
+            stderr.write("-"*70+"\n")
+            for line in self.format_exception(exc_info):
+                stderr.write(line)
+            stderr.flush()
+        finally:
+            exc_info = None
+
+    def error_output(self, environ, start_response):
+        # Generates `500 Internal Server Error` page.  Includes the traceback
+        # if `--debug` in enabled.
+        exc_info = sys.exc_info()
+        try:
+            start_response(self.error_status, self.error_headers[:], exc_info)
+            body = [self.error_body]
+            if env.debug:
+                body.append("\n\n")
+                body.extend(self.format_exception(exc_info))
+            return body
+        finally:
+            exc_info = None
+
+    def format_exception(self, exc_info):
+        # Generates enhanced traceback output.
+        try:
+            lines = []
+            lines.append("[%s] %s %s %s\n"
+                         % (datetime.datetime.now(),
+                            self.environ['REQUEST_METHOD'],
+                            wsgiref.util.request_uri(self.environ),
+                            self.environ['SERVER_PROTOCOL']))
+            lines.extend(traceback.format_exception(*exc_info))
+            return lines
+        finally:
+            exc_info = None
 
 
 @setting
 def HTTP_HOST(value=None):
+    """HTTP server address
+
+    This parameter specifies the default address for the HTTP server.
+    """
     if not value:
-        env.http_host = None
-    elif isinstance(value, str):
-        env.http_host = value
-    else:
-        raise ValueError("host name is expected")
+        value = '127.0.0.1'
+    if not isinstance(value, str):
+        raise ValueError("expected a host name or an IP address")
+    env.http_host = value
 
 
 @setting
 def HTTP_PORT(value=None):
+    """HTTP server port
+
+    This parameter specifies the default port number for the HTTP
+    server.
+    """
     if not value:
-        env.http_port = None
-    elif isinstance(value, int) and 0 < value < 65535:
-        env.http_port = value
-    else:
-        raise ValueError("port number is expected")
+        value = 8080
+    if isinstance(value, str):
+        value = int(value)
+    if not (isinstance(value, int) and 0 < value < 65536):
+        raise ValueError("expected a port number")
+    env.http_port = value
 
 
 @task
 class SERVE:
+    """starts HTTP server
+
+    The `serve` task starts an HTTP server to serve a Rex application.
+
+    This task takes one argument: the name of the primary Rex package.
+    Alternatively, the package could be specified using `project`
+    setting.
+
+    Use option `--require` or setting `requirements` to specify
+    additional packages to include with the application.
+
+    Use option `--set` or setting `settings` to specify configuration
+    parameters of the application.
+
+    Use options `--host` and `--port` or settings `http-host` and
+    `http-port` to specify the address and the port number for the
+    HTTP server.  If neither are set, the server is started on
+    `127.0.0.1:8080`.
+
+    By default, the server dumps HTTP logs in Apache Common Log Format
+    to stdout.  Use option `--quiet` to suppress this output.
+    Unhandled application exceptions are dumped to stderr.
+
+    Toggle `debug` setting to run the application in debug mode and
+    report unhandled exceptions to the client.
+    """
 
     project = argument(str, default=None)
-    requirement = option('r', str, default=[], plural=True)
-    setting = option('s', str, default={}, plural=True)
-    host = option('h', str, default=None)
-    port = option('p', int, default=None)
+    require = option(None, str, default=[], plural=True,
+            value_name="PACKAGE",
+            hint="include an additional package")
+    set = option(None, str, default={}, plural=True,
+            value_name="PARAM=VALUE",
+            hint="set a configuration parameter")
+    host = option('h', str, default=None,
+            value_name="HOSTNAME",
+            hint="host name for the HTTP server")
+    port = option('p', int, default=None,
+            value_name="PORT",
+            hint="port number for the HTTP server")
+    quiet = option('q', bool,
+            hint="suppress HTTP logs")
 
-    def __init__(self, project, requirement, setting, host, port):
-        self.requirements = []
-        if project:
-            self.requirements.append(project)
-        elif env.project:
-            self.requirements.append(env.project)
-        self.requirements.extend(requirement)
-        self.requirements.extend(env.requirements)
-        self.settings = {}
-        self.settings.update(env.settings)
-        self.settings.update(setting)
-        self.host = host or env.http_port or 'localhost'
-        self.port = port or env.http_port or 8080
+    def __init__(self, project, require, set, host, port, quiet):
+        self.project = project
+        self.require = require
+        self.set = set
+        self.host = host
+        self.port = port
+        self.quiet = quiet
 
     def __call__(self):
-        rex = Rex(*self.requirements, **self.settings)
-        log("Rex: {}", rex)
-        with rex:
-            settings = get_settings()
-            packages = get_packages()
-        log("Settings: {}", settings)
-        log("Packages: {}", packages)
-        log("Starting Rex application on `{}:{}`", self.host, self.port)
-        httpd = wsgiref.simple_server.make_server(self.host, self.port, rex)
+        app = make_rex(self.project, self.require, self.set)
+        host = self.host or env.http_host
+        port = self.port or env.http_port
+        if not self.quiet:
+            if self.project or env.project:
+                log("Serving `{}` on `{}:{}`",
+                    self.project or env.project, host, port)
+            else:
+                log("Serving on `{}:{}`", host, port)
+        httpd = wsgiref.simple_server.make_server(
+                host, port, app,
+                RexServer if not self.quiet else QuietRexServer,
+                RexRequestHandler)
         httpd.serve_forever()
 
 

@@ -8,10 +8,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.ctl',
-    version = "0.5.1",
+    version = "1.0.0",
     description="Command-line administration utility for the Rex platform",
-    long_description=open('README', 'r').read(),
-    author="Prometheus Research, LLC",
+    long_description=open('README.rst', 'r').read(),
+    maintainer="Prometheus Research, LLC",
+    maintainer_email="contact@prometheusresearch.com",
     license="AGPLv3",
     url="http://bitbucket.org/prometheus/rex.ctl",
     package_dir={'': 'src'},
@@ -22,12 +23,13 @@ setup(
             'rex = rex.ctl:main',
         ],
         'rex.ctl': [
+            'common = rex.ctl.common',
             'serve = rex.ctl.serve',
         ],
     },
     install_requires=[
-        'rex.core',
-        'Cogs',
+        'rex.core >= 1.0, <2',
+        'cogs',
     ],
 )
 

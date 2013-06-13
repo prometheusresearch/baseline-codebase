@@ -1,0 +1,159 @@
+#
+# Copyright (c) 2013, Prometheus Research, LLC
+#
+
+title: REX.CTL Tests
+suite: rex.ctl
+tests:
+
+# Setup a sandbox for `rex` invocations.
+- rmdir: ./sandbox
+- mkdir: ./sandbox
+- sh: ln -s ../test/rex-helper ./sandbox/rex
+
+- coverage: setup.cfg
+
+- sh: pip install -q -e ./demo/rex.ctl_demo
+
+- title: rex serve
+  tests:
+
+  - title: Task description
+    tests:
+    - sh: ./sandbox/rex help serve
+    - sh: ./sandbox/rex help http-host
+    - sh: ./sandbox/rex help http-port
+
+  - title: Run with no project
+    tests:
+    - sh: ./sandbox/rex --daemon serve
+    - sh: ./sandbox/rex --get /
+      ignore: &http-ignore |
+        ^Date:.(.*)$ |
+        ^Server:.(.*)$ |
+        \[(\d\d\d\d)-(\d\d)-(\d\d).(\d\d):(\d\d):(\d\d)\.(\d+)\] |
+        Traceback.\(most.recent.call.last\): ((?:\n\s+.+)+)
+    - sh: ./sandbox/rex --kill serve
+      ignore: &log-ignore |
+        \[(\d\d)/(\w\w\w)/(\d\d\d\d).(\d\d):(\d\d):(\d\d)\] |
+        \[(\d\d\d\d)-(\d\d)-(\d\d).(\d\d):(\d\d):(\d\d)\.(\d+)\] |
+        Traceback.\(most.recent.call.last\): ((?:\n\s+.+)+)
+
+  - title: Run with a project
+    tests:
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo
+    - sh: ./sandbox/rex --get /
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo
+      ignore: *log-ignore
+
+  - title: Specify the project using `--project`
+    tests:
+    - sh: ./sandbox/rex --daemon --project=rex.ctl_demo serve
+    - sh: ./sandbox/rex --get /
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill --project=rex.ctl_demo serve
+      ignore: *log-ignore
+
+  - title: Server address with `--http-host` and `--http-port`
+    tests:
+    - sh: ./sandbox/rex --daemon
+            --http-host=localhost --http-port=8088 serve rex.ctl_demo
+    - sh: ./sandbox/rex --get http://localhost:8088/
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill
+            --http-host=localhost --http-port=8088 serve rex.ctl_demo
+      ignore: *log-ignore
+
+  - title: Server address with `--host` and `--port`
+    tests:
+    - sh: ./sandbox/rex --daemon
+            --http-host=localhost --http-port=8088 serve rex.ctl_demo -h 127.0.0.1 -p 8080
+    - sh: ./sandbox/rex --get /
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill
+            --http-host=localhost --http-port=8088 serve rex.ctl_demo -h 127.0.0.1 -p 8080
+      ignore: *log-ignore
+
+  - title: Invalid `--http-host` and `--http-port`
+    tests:
+    - write: ./sandbox/rex.yaml
+      data: 'http-host: true'
+    - sh: ./sandbox/rex serve
+      exit: 1
+    - write: ./sandbox/rex.yaml
+      data: 'http-host: 256.56.6.0'
+    - sh: ./sandbox/rex serve
+      exit: 1
+    - write: ./sandbox/rex.yaml
+      data: 'http-port: -1'
+    - sh: ./sandbox/rex serve
+      exit: 1
+    - write: ./sandbox/rex.yaml
+      data: 'http-port: localhost'
+    - sh: ./sandbox/rex serve
+      exit: 1
+    - write: ./sandbox/rex.yaml
+      data: 'http-port: 15.31'
+    - sh: ./sandbox/rex serve
+      exit: 1
+    - write: ./sandbox/rex.yaml
+      data: 'http-port: 80'
+    - sh: ./sandbox/rex serve
+      exit: 1
+    - rm: ./sandbox/rex.yaml
+
+  - title: HTTP Auth
+    tests:
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo
+    - sh: ./sandbox/rex --get http://Aladdin@localhost:8080/
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --get http://Aladdin:open%20sesame@localhost:8080/
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo
+      ignore: *log-ignore
+
+  - title: Unhandled exceptions
+    tests:
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo
+    - sh: ./sandbox/rex --get /
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --get /error
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo
+      ignore: *log-ignore
+
+  - title: Unhandled exceptions with `--debug`
+    tests:
+    - sh: ./sandbox/rex --daemon --debug serve rex.ctl_demo
+    - sh: ./sandbox/rex --get /
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --get /error
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill --debug serve rex.ctl_demo
+      ignore: *log-ignore
+
+  - title: The `--quiet` option
+    tests:
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --quiet
+    - sh: ./sandbox/rex --get /
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --get /error
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --quiet
+      ignore: *log-ignore
+
+- sh: pip uninstall -q -y rex.ctl_demo
+
+- py: |
+    # Load accumulated coverage data
+    import rex.ctl  # suppress the warning from coverage
+    if '__coverage__' in __pbbt__:
+        __pbbt__['__coverage__'].stop()
+        __pbbt__['__coverage__'].load()
+
+- coverage-check: 95.0
+- coverage-report: ./build/coverage
+
+- rmdir: sandbox
+

@@ -21,8 +21,7 @@ active application::
                                modules=set(['rex.core_demo']),
                                static='/.../share/rex/rex.core_demo'),
                        Package('rex.core',
-                               modules=set([...]),
-                               static=None)])
+                               modules=set([...]))])
 
 Package collection provides container interface::
 
@@ -86,19 +85,19 @@ A requirement could be one of the following:
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
     Package('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
-    Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
+    Package('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> with Rex('__main__'):
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
-    Package('__main__', modules=set(['__main__']), static=None)
-    Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
+    ModulePackage('__main__', modules=set(['__main__']))
+    Package('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> with Rex('./test/data/empty_setting/'):
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
-    Package('empty_setting', modules=set([]), static='./test/data/empty_setting/')
-    Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
+    StaticPackage('empty_setting', static='./test/data/empty_setting/')
+    Package('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> from rex.core import Package
     >>> with Rex(Package('rex.core_demo', modules=set(['rex.core_demo']),
@@ -106,7 +105,7 @@ A requirement could be one of the following:
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
     Package('rex.core_demo', modules=set(['rex.core_demo']), static='./demo/rex.core_demo/static')
-    Package('rex.core', modules=set([..., 'rex.core', ...]), static=None)
+    Package('rex.core', modules=set([..., 'rex.core', ...]))
 
 An exception is raised if the package name is ill-formed or unknown::
 

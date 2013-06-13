@@ -77,9 +77,30 @@ class Package(object):
         return os.walk(real_path)
 
     def __repr__(self):
-        return "%s(%r, modules=%r, static=%r)" \
-                % (self.__class__.__name__,
-                   self.name, self.modules, self.static)
+        args = [repr(self.name)]
+        if self.modules:
+            args.append("modules=%r" % self.modules)
+        if self.static is not None:
+            args.append("static=%r" % self.static)
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
+class ModulePackage(Package):
+    """
+    A package generated from a module name.
+    """
+
+    def __init__(self, name, modules):
+        super(ModulePackage, self).__init__(name, modules=modules)
+
+
+class StaticPackage(Package):
+    """
+    A package generated from a path to a directory.
+    """
+
+    def __init__(self, name, static):
+        super(StaticPackage, self).__init__(name, static=static)
 
 
 class PackageCollection(object):
@@ -114,7 +135,7 @@ class PackageCollection(object):
         # Path to a directory must end with `/`.
         if isinstance(key, str) and key.endswith('/') and os.path.isdir(key):
             name = os.path.basename(key.rstrip('/'))
-            yield Package(name, static=key)
+            yield StaticPackage(name, static=key)
             return
 
         # Otherwise, it is a requirement or a module name.
@@ -125,7 +146,7 @@ class PackageCollection(object):
         except pkg_resources.ResolutionError:
             # Perhaps, it is a module name?
             if key in sys.modules:
-                yield Package(key, modules=set([key]))
+                yield ModulePackage(key, modules=set([key]))
                 return
             raise Error("Failed to satisfy requirement:", str(key))
 

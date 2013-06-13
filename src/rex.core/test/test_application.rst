@@ -124,8 +124,7 @@ without ``rex.web`` package::
     ...     print status
     ...     print headers
 
-    >>> output = demo(environ, start_response)
-    >>> list(output)
+    >>> demo(environ, start_response)
     404 Not Found
     [('Content-Type', 'text/plain')]
     ['Application does not provide web access.\n']

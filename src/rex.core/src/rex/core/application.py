@@ -82,12 +82,8 @@ class Rex(object):
         with self:
             wsgi = get_wsgi()
             output = wsgi(environ, start_response)
-            try:
-                for chunk in output:
-                    yield chunk
-            finally:
-                if hasattr(output, 'close'):
-                    output.close()
+        # FIXME: must not call any extensions!
+        return output
 
     def __repr__(self):
         args = ["%r" % item for item in self.requirements] + \

@@ -3,9 +3,6 @@ from rex.core import get_packages, StrVal, PIntVal
 from rex.web import (HandleError, HandleLocation, HandleFile, Command, Parameter,
         render_to_response)
 from webob import Response
-import sqlite3
-import csv
-import os
 import docutils.core
 
 

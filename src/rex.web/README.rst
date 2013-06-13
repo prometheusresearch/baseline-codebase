@@ -53,15 +53,15 @@ There are two primary ways a Rex application could handle HTTP requests: using
 static resources and using HTTP commands.
 
 To make a static file available via HTTP, put it to the ``www`` directory.  For
-example, :mod:`rex.web_demo` has a file ``rex.core_demo/static/www/index.html``
+example, :mod:`rex.web_demo` has a file ``rex.web_demo/static/www/index.html``
 with the following content::
 
     <!DOCTYPE html>
-    <title>Welcome to REX.CORE_DEMO!</title>
+    <title>Welcome to REX.WEB_DEMO!</title>
 
 By default, access to static files is restricted to authenticated users only.
 To make ``index.html`` publicly available, we added the following line to the
-*access* file ``rex.core_demo/static/www/_access.yaml``::
+*access* file ``rex.web_demo/static/www/_access.yaml``::
 
     - /index.html: anybody
 
@@ -73,10 +73,10 @@ Now we could request this file via HTTP::
     >>> print req.get_response(demo)
     200 OK
     Content-Type: text/html; charset=UTF-8
-    Content-Length: 56
+    Content-Length: 55
     <BLANKLINE>
     <!DOCTYPE html>
-    <title>Welcome to REX.CORE_DEMO!</title>
+    <title>Welcome to REX.WEB_DEMO!</title>
 
 .. note::
 
@@ -458,7 +458,7 @@ Static files served from the ``www`` directory require *authenticated*
 permission unless overridden in *access* file ``_access.yaml``.  This file must
 contain an ordered dictionary that maps path patterns to respective
 permissions.  For example, :mod:`rex.web_demo` has the following access file
-``rex.core_demo/static/www/_access.yaml``::
+``rex.web_demo/static/www/_access.yaml``::
 
 - /index.html   : anybody
 - /page.html    : anybody

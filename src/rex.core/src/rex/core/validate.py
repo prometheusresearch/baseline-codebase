@@ -7,6 +7,7 @@ from .error import Error, guard
 import re
 import os.path
 import collections
+import json
 
 
 class Validate(object):
@@ -223,7 +224,7 @@ class PIntVal(IntVal):
 
 class SeqVal(Validate):
     """
-    Accepts lists.
+    Accepts lists or serialized JSON arrays.
 
     If set, `validate_item` is used to normalize list items.
     """
@@ -233,6 +234,11 @@ class SeqVal(Validate):
 
     def __call__(self, value):
         with guard("Got:", repr(value)):
+            if isinstance(value, (str, unicode)):
+                try:
+                    value = json.loads(value)
+                except ValueError:
+                    raise Error("Expected a JSON array")
             if not isinstance(value, list):
                 raise Error("Expected a sequence")
         items = []
@@ -251,7 +257,7 @@ class SeqVal(Validate):
 
 class MapVal(Validate):
     """
-    Accepts dictionaries.
+    Accepts dictionaries or serialized JSON objects.
 
     If set, `validate_key` and `validate_item` are used to normalize dictionary
     keys and values respectively.
@@ -263,6 +269,11 @@ class MapVal(Validate):
 
     def __call__(self, value):
         with guard("Got:", repr(value)):
+            if isinstance(value, (str, unicode)):
+                try:
+                    value = json.loads(value)
+                except ValueError:
+                    raise Error("Expected a JSON object")
             if not isinstance(value, dict):
                 raise Error("Expected a mapping")
         pairs = []
@@ -298,6 +309,14 @@ class OMapVal(MapVal):
 
     def __call__(self, value):
         with guard("Got:", repr(value)):
+            if isinstance(value, (str, unicode)):
+                try:
+                    value = json.loads(value,
+                            object_pairs_hook=collections.OrderedDict)
+                except ValueError:
+                    raise Error("Expected a JSON object")
+            if isinstance(value, collections.OrderedDict):
+                value = value.items()
             if not (isinstance(value, list) and
                     all(isinstance(item, (list, tuple)) and len(item) == 2 or
                         isinstance(item, dict) and len(item) == 1

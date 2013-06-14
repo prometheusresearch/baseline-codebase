@@ -47,7 +47,7 @@ class Extension(object):
         and mixin classes.  Specific interfaces and implementations may
         override this method.
         """
-        return True
+        return (cls is not Extension)
 
     @classmethod
     @cached

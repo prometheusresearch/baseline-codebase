@@ -354,6 +354,17 @@ respectively::
     Got:
         None
 
+If you pass a string, it must be a valid JSON array::
+
+    >>> seq_val('[-:]')
+    Traceback (most recent call last):
+      ...
+    Error: Expected a JSON array
+    Got:
+        '[-:]'
+    >>> seq_val('[0, false, null]')
+    [0, False, None]
+
 ``SeqVal`` has an optional parameter: a validator to apply to sequence items::
 
     >>> from rex.core import IntVal
@@ -391,6 +402,17 @@ respectively::
     Error: Expected a mapping
     Got:
         None
+
+If you pass a string, it must be a valid JSON object::
+
+    >>> map_val('{-:}')
+    Traceback (most recent call last):
+      ...
+    Error: Expected a JSON object
+    Got:
+        '{-:}'
+    >>> map_val('{"0": false}')
+    {u'0': False}
 
 ``MapVal`` constructor takes two optional parameters: validators for mapping
 keys and mapping values::
@@ -455,6 +477,23 @@ keys and mapping values::
     Error: Expected an ordered mapping
     Got:
         [{}]
+
+``collections.OrderedDict`` objects are also accepted::
+
+    >>> import collections
+    >>> omap_val(collections.OrderedDict([(0, False), (1, True)]))
+    OrderedDict([(0, False), (1, True)])
+
+If you pass a string, it must be a valid JSON object::
+
+    >>> omap_val('{-:}')
+    Traceback (most recent call last):
+      ...
+    Error: Expected a JSON object
+    Got:
+        '{-:}'
+    >>> omap_val('{"0": false, "1": true}')
+    OrderedDict([(u'0', False), (u'1', True)])
 
 ``OMapVal`` constructor takes two optional parameters: validators for mapping
 keys and mapping values::

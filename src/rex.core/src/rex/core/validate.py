@@ -339,35 +339,3 @@ class OMapVal(MapVal):
         return collections.OrderedDict(pairs)
 
 
-class FileVal(Validate):
-    """
-    Accepts a path to an existing file.
-    """
-
-    def __call__(self, value):
-        with guard("Got:", repr(value)):
-            if not isinstance(value, (str, unicode)):
-                raise Error("Expected a string")
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
-        if not os.path.isfile(value):
-            raise Error("Cannot find file:", value)
-        return value
-
-
-class DirectoryVal(Validate):
-    """
-    Accepts a path to an existing directory.
-    """
-
-    def __call__(self, value):
-        with guard("Got:", repr(value)):
-            if not isinstance(value, (str, unicode)):
-                raise Error("Expected a string")
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
-        if not os.path.isdir(value):
-            raise Error("Cannot find directory:", value)
-        return value
-
-

@@ -270,14 +270,14 @@ To add a new configuration parameter, create a subclass of
 :attr:`rex.core.Setting.name` attribute.  For example, this is how
 :mod:`rex.core_demo` declares ``demo_folder`` setting::
 
-    from rex.core import Setting, DirectoryVal
+    from rex.core import Setting, StrVal
 
     class DemoFolderSetting(Setting):
         """Directory with demo data."""
 
         name = 'demo_folder'
         default = None
-        validate = DirectoryVal()
+        validate = StrVal()
 
 Setting properties are inferred from the class definition as follows:
 

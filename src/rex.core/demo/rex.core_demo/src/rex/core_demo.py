@@ -1,5 +1,5 @@
 
-from rex.core import Setting, DirectoryVal
+from rex.core import Setting, StrVal
 from rex.core import Extension, cached
 
 class DemoFolderSetting(Setting):
@@ -7,7 +7,7 @@ class DemoFolderSetting(Setting):
 
     name = 'demo_folder'
     default = None
-    validate = DirectoryVal()
+    validate = StrVal()
 
 class Command(Extension):
     """Interface for named commands."""

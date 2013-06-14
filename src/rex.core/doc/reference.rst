@@ -79,7 +79,5 @@ Validators
 .. autoclass:: rex.core.SeqVal
 .. autoclass:: rex.core.MapVal
 .. autoclass:: rex.core.OMapVal
-.. autoclass:: rex.core.FileVal
-.. autoclass:: rex.core.DirectoryVal
 
 

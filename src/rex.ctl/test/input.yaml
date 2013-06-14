@@ -6,6 +6,7 @@ title: REX.CTL Tests
 suite: rex.ctl
 tests:
 
+
 # Setup a sandbox for `rex` invocations.
 - rmdir: ./sandbox
 - mkdir: ./sandbox
@@ -15,14 +16,51 @@ tests:
 
 - sh: pip install -q -e ./demo/rex.ctl_demo
 
+
+#
+# python -m rex.ctl
+#
+
+- title: python -m rex.ctl
+  tests:
+  - py: |
+      # Simulate `python -m rex.ctl` invocation
+      import sys
+      old_argv = sys.argv
+      sys.argv = ['__main__.py']
+      try:
+          import rex.ctl.__main__
+      except SystemExit:
+          pass
+      sys.argv = old_argv
+      # Save coverage trace.
+      if '__coverage__' in __pbbt__:
+          __pbbt__['__coverage__'].stop()
+          __pbbt__['__coverage__'].save()
+
+
+#
+# rex help
+#
+
+- title: rex help
+  tests:
+  - sh: ./sandbox/rex
+  - sh: ./sandbox/rex help
+  - sh: ./sandbox/rex help serve
+  - sh: ./sandbox/rex help http-host
+  - sh: ./sandbox/rex help http-port
+  - sh: ./sandbox/rex help project
+  - sh: ./sandbox/rex help requirements
+  - sh: ./sandbox/rex help parameters
+
+
+#
+# rex serve
+#
+
 - title: rex serve
   tests:
-
-  - title: Task description
-    tests:
-    - sh: ./sandbox/rex help serve
-    - sh: ./sandbox/rex help http-host
-    - sh: ./sandbox/rex help http-port
 
   - title: Run with no project
     tests:
@@ -31,13 +69,14 @@ tests:
       ignore: &http-ignore |
         ^Date:.(.*)$ |
         ^Server:.(.*)$ |
+        ^Last-Modified:.(.*)$ |
         \[(\d\d\d\d)-(\d\d)-(\d\d).(\d\d):(\d\d):(\d\d)\.(\d+)\] |
-        Traceback.\(most.recent.call.last\): ((?:\n\s+.+)+)
+        Traceback.\(most.recent.call.last\): ((?:[\n][ ]+.+)+)
     - sh: ./sandbox/rex --kill serve
       ignore: &log-ignore |
         \[(\d\d)/(\w\w\w)/(\d\d\d\d).(\d\d):(\d\d):(\d\d)\] |
         \[(\d\d\d\d)-(\d\d)-(\d\d).(\d\d):(\d\d):(\d\d)\.(\d+)\] |
-        Traceback.\(most.recent.call.last\): ((?:\n\s+.+)+)
+        Traceback.\(most.recent.call.last\): ((?:[\n][ ]+.+)+)
 
   - title: Run with a project
     tests:
@@ -47,13 +86,30 @@ tests:
     - sh: ./sandbox/rex --kill serve rex.ctl_demo
       ignore: *log-ignore
 
-  - title: Specify the project using `--project`
+  - title: Using `--require` option
     tests:
-    - sh: ./sandbox/rex --daemon --project=rex.ctl_demo serve
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --require ../test/data/shared/
     - sh: ./sandbox/rex --get /
       ignore: *http-ignore
-    - sh: ./sandbox/rex --kill --project=rex.ctl_demo serve
+    - sh: ./sandbox/rex --get /shared/shared.css
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --require ../test/data/shared/
       ignore: *log-ignore
+
+  - title: Using `--set` option
+    tests:
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --set hello_role=anybody
+    - sh: ./sandbox/rex --get /hello
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --set hello_role=anybody
+      ignore: *log-ignore
+
+  - title: Invalid requirement or parameter
+    tests:
+    - sh: ./sandbox/rex serve rex.ctl_demo --require unknown-package
+      exit: 1
+    - sh: ./sandbox/rex serve rex.ctl_demo --set unknown-parameter=true
+      exit: 1
 
   - title: Server address with `--http-host` and `--http-port`
     tests:
@@ -125,15 +181,15 @@ tests:
 
   - title: Unhandled exceptions with `--debug`
     tests:
-    - sh: ./sandbox/rex --daemon --debug serve rex.ctl_demo
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --debug
     - sh: ./sandbox/rex --get /
       ignore: *http-ignore
     - sh: ./sandbox/rex --get /error
       ignore: *http-ignore
-    - sh: ./sandbox/rex --kill --debug serve rex.ctl_demo
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --debug
       ignore: *log-ignore
 
-  - title: The `--quiet` option
+  - title: Using `--quiet` option
     tests:
     - sh: ./sandbox/rex --daemon serve rex.ctl_demo --quiet
     - sh: ./sandbox/rex --get /
@@ -143,17 +199,99 @@ tests:
     - sh: ./sandbox/rex --kill serve rex.ctl_demo --quiet
       ignore: *log-ignore
 
+
+#
+# rex help packages
+#
+
+- title: rex help packages
+  tests:
+
+  - title: Run with no project
+    tests:
+    - sh: ./sandbox/rex help packages
+      ignore: &ignore-packages |
+        ^Version: \s+ (\d+\.\d+\.\d+)$ |
+        ^(?:Location|Resources): \s+ /(.+)$ |
+        ^Summary: \s+ (.*)$ |
+        ^Dependencies: ((?:[\n]+[ ]+.+)+)
+
+  - title: Run with a project
+    tests:
+    - sh: ./sandbox/rex help packages --project rex.ctl_demo
+      ignore: *ignore-packages
+    - sh: ./sandbox/rex help packages --requirements rex.ctl_demo
+      ignore: *ignore-packages
+    - sh: ./sandbox/rex help packages --requirements '["rex.ctl_demo"]'
+      ignore: *ignore-packages
+
+  - title: Module and static requirements
+    tests:
+    - sh: ./sandbox/rex help packages --requirements rex.core.application
+      ignore: *ignore-packages
+    - sh: ./sandbox/rex help packages --requirements ../test/data/shared/
+      ignore: *ignore-packages
+
+  - title: Ill-formed requirements
+    tests:
+    - write: ./sandbox/rex.yaml
+      data: 'project: true'
+    - sh: ./sandbox/rex help packages
+      exit: 1
+    - write: ./sandbox/rex.yaml
+      data: 'requirements: [true]'
+    - sh: ./sandbox/rex help packages
+      exit: 1
+    - rm: ./sandbox/rex.yaml
+
+
+#
+# rex help settings
+#
+
+- title: rex help settings
+  tests:
+
+  - title: Run with no project
+    tests:
+    - sh: ./sandbox/rex help settings
+      ignore: &ignore-settings |
+        ^Description: ((?:[\n]+[ ]+.+)+)
+
+  - title: Run with a project and parameters
+    tests:
+    - sh: ./sandbox/rex help settings --project rex.ctl_demo
+      ignore: *ignore-settings
+    - sh: ./sandbox/rex help settings --project rex.ctl_demo
+            --parameters 'debug hello_role=anybody'
+      ignore: *ignore-settings
+    - sh: ./sandbox/rex help settings --project rex.ctl_demo
+            --parameters '{"debug":true,"hello_role":"anybody"}'
+      ignore: *ignore-settings
+
+  - title: Ill-formed parameters
+    tests:
+    - sh: ./sandbox/rex help settings --project ../test/data/ill_formed_setting/
+      ignore: *ignore-settings
+    - sh: ./sandbox/rex help settings --project ../test/data/broken_setting/
+      ignore: *ignore-settings
+    - write: ./sandbox/rex.yaml
+      data: 'parameters: [true]'
+    - sh: ./sandbox/rex help settings
+      exit: 1
+    - rm: ./sandbox/rex.yaml
+
+
 - sh: pip uninstall -q -y rex.ctl_demo
 
 - py: |
     # Load accumulated coverage data
-    import rex.ctl  # suppress the warning from coverage
     if '__coverage__' in __pbbt__:
-        __pbbt__['__coverage__'].stop()
         __pbbt__['__coverage__'].load()
 
 - coverage-check: 95.0
 - coverage-report: ./build/coverage
 
 - rmdir: sandbox
+
 

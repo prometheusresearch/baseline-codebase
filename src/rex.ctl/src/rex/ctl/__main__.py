@@ -4,6 +4,12 @@
 
 
 # This file is executed when you run `python -m rex.ctl`.
-__import__('rex.ctl', fromlist=['main']).main()
+
+
+from rex.ctl import main
+import sys
+
+
+sys.exit(main())
 
 

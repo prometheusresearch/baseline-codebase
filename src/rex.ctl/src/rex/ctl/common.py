@@ -4,13 +4,14 @@
 
 
 from cogs import setting, env
-from cogs.log import debug
+from cogs.log import debug, fail
 from rex.core import Rex, get_packages, Error
 import shlex
 import json
 
 
 def pair(value):
+    # Splits `PARAM=VALUE` into a 2-element tuple.
     if not isinstance(value, str):
         raise ValueError("expected a string")
     if '=' in value:
@@ -20,68 +21,74 @@ def pair(value):
 
 
 @setting
-def PROJECT(value=None):
-    """package name
+def PROJECT(name=None):
+    """primary package
 
-    This setting defines the package used by `serve` and
-    other tasks when not specified on command line.
+    The primary package of the application.
     """
-    if not value:
-        value = None
-    if not (value is None or isinstance(value, str)):
+    if not name:
+        name = None
+    if not (name is None or isinstance(name, str)):
         raise ValueError("expected a project name")
-    env.project = value
+    env.project = name
 
 
 @setting
-def REQUIREMENTS(value=None):
-    """list of package names
+def REQUIREMENTS(names=None):
+    """additional application components
 
-    Additional packages to include with the Rex application.
+    Additional packages to include with the application.
     """
-    if not value:
-        value = []
-    if isinstance(value, str):
-        value = value.strip()
-        if value.startswith('[') and value.endswith(']'):
-            value = json.loads(value)
+    if not names:
+        names = []
+    if isinstance(names, str):
+        names = names.strip()
+        if names.startswith('[') and names.endswith(']'):
+            names = json.loads(names)
         else:
-            value = shlex.split(value)
-    if not (isinstance(value, list) and
-            all(isinstance(item, str) for item in value)):
+            names = shlex.split(names)
+    if not (isinstance(names, list) and
+            all(isinstance(item, basestring) for item in names)):
         raise ValueError("expected a list of requirements")
-    env.requirements = value
+    env.requirements = names
 
 
 @setting
-def SETTINGS(value=None):
+def PARAMETERS(config=None):
     """application configuration
 
-    This parameter is a dictionary with application configuration.
+    A dictionary with application parameters.
     """
-    if not value:
-        value = {}
-    if isinstance(value, str):
-        value = value.strip()
-        if value.startswith('{') and value.endswith('}'):
-            value = json.loads(value)
+    if not config:
+        config = {}
+    if isinstance(config, str):
+        config = config.strip()
+        if config.startswith('{') and config.endswith('}'):
+            config = json.loads(config)
         else:
-            value = dict(pair(item) for item in shlex.split(value))
-    if not (isinstance(value, dict) and
-            all(isinstance(key, str) for key in value)):
-        raise ValueError("expected a dictionary of settings")
-    env.settings = value
+            config = dict(pair(item)
+                          for item in shlex.split(config))
+    if not (isinstance(config, dict) and
+            all(isinstance(key, basestring) for key in config)):
+        raise ValueError("expected a dictionary of application parameters")
+    env.parameters = config
 
 
 class RexNoInit(Rex):
+    # Makes a Rex application without executing `Initialize` interface.
 
     def initialize(self):
         with self:
+            # Make sure the requirement list is valid.
             get_packages()
 
 
 def make_rex(project=None, require_list=None, set_list=None,
              initialize=True):
+    # Creates a Rex application from command-line parameters
+    # and global settings.
+
+    # Form the list of requirements.
     requirements = []
     if project is not None:
         requirements.append(project)
@@ -90,17 +97,21 @@ def make_rex(project=None, require_list=None, set_list=None,
     if require_list is not None:
         requirements.extend(require_list)
     requirements.extend(env.requirements)
-    settings = {}
+
+    # Gather application parameters.
+    parameters = {}
     if env.debug:
-        settings['debug'] = True
-    settings.update(env.settings)
+        parameters['debug'] = True
+    parameters.update(env.parameters)
     if set_list is not None:
-        settings.update(set_list)
+        parameters.update(set_list)
+
+    # Build the application.
     rex_type = Rex
     if not initialize:
         rex_type = RexNoInit
     try:
-        return rex_type(*requirements, **settings)
+        return rex_type(*requirements, **parameters)
     except Error, error:
         raise fail(str(error))
 

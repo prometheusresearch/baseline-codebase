@@ -5,7 +5,7 @@
 
 from cogs import env, setting, task, argument, option
 from cogs.log import log
-from .common import make_rex
+from .common import make_rex, pair
 import sys
 import binascii
 import datetime
@@ -116,11 +116,10 @@ class RexServerHandler(wsgiref.simple_server.ServerHandler):
         # Generates enhanced traceback output.
         try:
             lines = []
-            lines.append("[%s] %s %s %s\n"
+            lines.append("[%s] %s => %s\n"
                          % (datetime.datetime.now(),
-                            self.environ['REQUEST_METHOD'],
-                            wsgiref.util.request_uri(self.environ),
-                            self.environ['SERVER_PROTOCOL']))
+                            self.environ['REMOTE_HOST'],
+                            wsgiref.util.request_uri(self.environ)))
             lines.extend(traceback.format_exception(*exc_info))
             return lines
         finally:
@@ -128,32 +127,31 @@ class RexServerHandler(wsgiref.simple_server.ServerHandler):
 
 
 @setting
-def HTTP_HOST(value=None):
+def HTTP_HOST(hostname=None):
     """HTTP server address
 
-    This parameter specifies the default address for the HTTP server.
+    The default address of the HTTP server.
     """
-    if not value:
-        value = '127.0.0.1'
-    if not isinstance(value, str):
+    if not hostname:
+        hostname = '127.0.0.1'
+    if not isinstance(hostname, str):
         raise ValueError("expected a host name or an IP address")
-    env.http_host = value
+    env.http_host = hostname
 
 
 @setting
-def HTTP_PORT(value=None):
+def HTTP_PORT(port=None):
     """HTTP server port
 
-    This parameter specifies the default port number for the HTTP
-    server.
+    The default port number for the HTTP server.
     """
-    if not value:
-        value = 8080
-    if isinstance(value, str):
-        value = int(value)
-    if not (isinstance(value, int) and 0 < value < 65536):
+    if not port:
+        port = 8080
+    if isinstance(port, str):
+        port = int(port)
+    if not (isinstance(port, int) and 0 < port < 65536):
         raise ValueError("expected a port number")
-    env.http_port = value
+    env.http_port = port
 
 
 @task
@@ -169,7 +167,7 @@ class SERVE:
     Use option `--require` or setting `requirements` to specify
     additional packages to include with the application.
 
-    Use option `--set` or setting `settings` to specify configuration
+    Use option `--set` or setting `parameters` to specify configuration
     parameters of the application.
 
     Use options `--host` and `--port` or settings `http-host` and
@@ -189,7 +187,7 @@ class SERVE:
     require = option(None, str, default=[], plural=True,
             value_name="PACKAGE",
             hint="include an additional package")
-    set = option(None, str, default={}, plural=True,
+    set = option(None, pair, default={}, plural=True,
             value_name="PARAM=VALUE",
             hint="set a configuration parameter")
     host = option('h', str, default=None,

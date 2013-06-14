@@ -4,7 +4,8 @@ from setuptools import setup, find_packages
 setup(
     name='rex.ctl_demo',
     version = "1.0.0",
-    description="Demo package for testing rex.ctl",
+    # Do not write `Summary` field to `PKG-INFO` file (for coverage testing):
+    #description="Demo package for testing rex.ctl",
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],

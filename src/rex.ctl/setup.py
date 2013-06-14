@@ -25,6 +25,7 @@ setup(
         'rex.ctl': [
             'common = rex.ctl.common',
             'serve = rex.ctl.serve',
+            'describe = rex.ctl.describe',
         ],
     },
     install_requires=[

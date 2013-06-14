@@ -8,65 +8,133 @@ tests:
   stdout: ''
 - sh: pip install -q -e ./demo/rex.ctl_demo
   stdout: ''
+- suite: python-m-rex.ctl
+  tests:
+  - py: simulate-python-m-rex.ctl-invocation
+    stdout: |
+      Rex - Command-line administration utility for the Rex platform
+      Usage: __main__.py [<settings>...] <task> [<arguments>...]
+
+      Run __main__.py help for general usage and a list of tasks and settings.
+      Run __main__.py help <topic> for help on a specific task or setting.
+- suite: rex-help
+  tests:
+  - sh: ./sandbox/rex
+    stdout: |
+      Rex - Command-line administration utility for the Rex platform
+      Usage: rex [<settings>...] <task> [<arguments>...]
+
+      Run rex help for general usage and a list of tasks and settings.
+      Run rex help <topic> for help on a specific task or setting.
+  - sh: ./sandbox/rex help
+    stdout: |+
+      Rex - Command-line administration utility for the Rex platform
+      Usage: rex [<settings>...] <task> [<arguments>...]
+
+      Run rex help for general usage and a list of tasks,
+      settings and other help topics.
+
+      Run rex help <topic> for help on a specific topic.
+
+      Available tasks:
+        help [<topic>]           : display help on tasks and settings
+        serve [<project>]        : starts HTTP server
+
+      Settings:
+        --debug                  : print debug information
+        --http-host=HOSTNAME     : HTTP server address
+        --http-port=PORT         : HTTP server port
+        --parameters=CONFIG      : application configuration
+        --project=NAME           : primary package
+        --requirements=NAMES     : additional application components
+
+      Other topics:
+        packages                 : list application components
+        settings                 : list configuration parameters
+
+  - sh: ./sandbox/rex help serve
+    stdout: |+
+      SERVE - starts HTTP server
+      Usage: rex serve [<project>]
+
+      The serve task starts an HTTP server to serve a Rex application.
+
+      This task takes one argument: the name of the primary Rex package.
+      Alternatively, the package could be specified using project
+      setting.
+
+      Use option --require or setting requirements to specify
+      additional packages to include with the application.
+
+      Use option --set or setting parameters to specify configuration
+      parameters of the application.
+
+      Use options --host and --port or settings http-host and
+      http-port to specify the address and the port number for the
+      HTTP server.  If neither are set, the server is started on
+      127.0.0.1:8080.
+
+      By default, the server dumps HTTP logs in Apache Common Log Format
+      to stdout.  Use option --quiet to suppress this output.
+      Unhandled application exceptions are dumped to stderr.
+
+      Toggle debug setting to run the application in debug mode and
+      report unhandled exceptions to the client.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -h/--host=HOSTNAME       : host name for the HTTP server
+        -p/--port=PORT           : port number for the HTTP server
+        -q/--quiet               : suppress HTTP logs
+
+  - sh: ./sandbox/rex help http-host
+    stdout: |+
+      HTTP-HOST - HTTP server address
+      Usage: rex --http-host=HOSTNAME
+             http-host: HOSTNAME (rex.yaml)
+             REX_HTTP_HOST=HOSTNAME (environment)
+
+      The default address of the HTTP server.
+
+  - sh: ./sandbox/rex help http-port
+    stdout: |+
+      HTTP-PORT - HTTP server port
+      Usage: rex --http-port=PORT
+             http-port: PORT (rex.yaml)
+             REX_HTTP_PORT=PORT (environment)
+
+      The default port number for the HTTP server.
+
+  - sh: ./sandbox/rex help project
+    stdout: |+
+      PROJECT - primary package
+      Usage: rex --project=NAME
+             project: NAME (rex.yaml)
+             REX_PROJECT=NAME (environment)
+
+      The primary package of the application.
+
+  - sh: ./sandbox/rex help requirements
+    stdout: |+
+      REQUIREMENTS - additional application components
+      Usage: rex --requirements=NAMES
+             requirements: NAMES (rex.yaml)
+             REX_REQUIREMENTS=NAMES (environment)
+
+      Additional packages to include with the application.
+
+  - sh: ./sandbox/rex help parameters
+    stdout: |+
+      PARAMETERS - application configuration
+      Usage: rex --parameters=CONFIG
+             parameters: CONFIG (rex.yaml)
+             REX_PARAMETERS=CONFIG (environment)
+
+      A dictionary with application parameters.
+
 - suite: rex-serve
   tests:
-  - suite: task-description
-    tests:
-    - sh: ./sandbox/rex help serve
-      stdout: |+
-        SERVE - starts HTTP server
-        Usage: rex serve [<project>]
-
-        The serve task starts an HTTP server to serve a Rex application.
-
-        This task takes one argument: the name of the primary Rex package.
-        Alternatively, the package could be specified using project
-        setting.
-
-        Use option --require or setting requirements to specify
-        additional packages to include with the application.
-
-        Use option --set or setting settings to specify configuration
-        parameters of the application.
-
-        Use options --host and --port or settings http-host and
-        http-port to specify the address and the port number for the
-        HTTP server.  If neither are set, the server is started on
-        127.0.0.1:8080.
-
-        By default, the server dumps HTTP logs in Apache Common Log Format
-        to stdout.  Use option --quiet to suppress this output.
-        Unhandled application exceptions are dumped to stderr.
-
-        Toggle debug setting to run the application in debug mode and
-        report unhandled exceptions to the client.
-
-        Options:
-          --require=PACKAGE        : include an additional package
-          --set=PARAM=VALUE        : set a configuration parameter
-          -h/--host=HOSTNAME       : host name for the HTTP server
-          -p/--port=PORT           : port number for the HTTP server
-          -q/--quiet               : suppress HTTP logs
-
-    - sh: ./sandbox/rex help http-host
-      stdout: |+
-        HTTP-HOST - HTTP server address
-        Usage: rex --http-host=VALUE
-               http-host: VALUE (rex.yaml)
-               REX_HTTP_HOST=VALUE (environment)
-
-        This parameter specifies the default address for the HTTP server.
-
-    - sh: ./sandbox/rex help http-port
-      stdout: |+
-        HTTP-PORT - HTTP server port
-        Usage: rex --http-port=VALUE
-               http-port: VALUE (rex.yaml)
-               REX_HTTP_PORT=VALUE (environment)
-
-        This parameter specifies the default port number for the HTTP
-        server.
-
   - suite: run-with-no-project
     tests:
     - sh: ./sandbox/rex --daemon serve
@@ -74,7 +142,7 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 404 Not Found
-        Date: Thu, 13 Jun 2013 21:18:48 GMT
+        Date: Fri, 14 Jun 2013 03:22:49 GMT
         Content-Length: 41
         Content-Type: text/plain
         Server: WSGIServer/0.1 Python/2.7.4
@@ -83,7 +151,7 @@ tests:
     - sh: ./sandbox/rex --kill serve
       stdout: |+
         Serving on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 16:05:08] "GET / HTTP/1.1" 404 41
+        localhost - - [13/Jun/2013 22:22:49] "GET / HTTP/1.1" 404 41
 
   - suite: run-with-a-project
     tests:
@@ -92,7 +160,7 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:01 GMT
+        Date: Fri, 14 Jun 2013 03:22:50 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
@@ -102,26 +170,79 @@ tests:
     - sh: ./sandbox/rex --kill serve rex.ctl_demo
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 16:05:16] "GET / HTTP/1.1" 200 55
+        localhost - - [13/Jun/2013 22:22:50] "GET / HTTP/1.1" 200 55
 
-  - suite: specify-the-project-using-project
+  - suite: using-require-option
     tests:
-    - sh: ./sandbox/rex --daemon --project=rex.ctl_demo serve
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --require ../test/data/shared/
       stdout: ''
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:03 GMT
+        Date: Fri, 14 Jun 2013 03:22:51 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --kill --project=rex.ctl_demo serve
+    - sh: ./sandbox/rex --get /shared/shared.css
+      stdout: |+
+        HTTP/1.0 200 OK
+        Content-Length: 49
+        Accept-Ranges: bytes
+        Server: WSGIServer/0.1 Python/2.7.4
+        Last-Modified: Fri, 14 Jun 2013 01:21:00 GMT
+        Date: Fri, 14 Jun 2013 03:22:51 GMT
+        Content-Type: text/css; charset=UTF-8
+
+
+        body {
+          font-family: 'Comic Sans', cursive;
+        }
+
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --require ../test/data/shared/
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 16:05:23] "GET / HTTP/1.1" 200 55
+        localhost - - [13/Jun/2013 22:22:51] "GET / HTTP/1.1" 200 55
+        localhost - - [13/Jun/2013 22:22:51] "GET /shared/shared.css HTTP/1.1" 200 49
+
+  - suite: using-set-option
+    tests:
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --set hello_role=anybody
+      stdout: ''
+    - sh: ./sandbox/rex --get /hello
+      stdout: |
+        HTTP/1.0 200 OK
+        Date: Fri, 14 Jun 2013 03:22:51 GMT
+        Content-Length: 13
+        Content-Type: text/plain; charset=UTF-8
+        Server: WSGIServer/0.1 Python/2.7.4
+
+        Hello, World!
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --set hello_role=anybody
+      stdout: |+
+        Serving rex.ctl_demo on 127.0.0.1:8080
+        localhost - - [13/Jun/2013 22:22:51] "GET /hello HTTP/1.1" 200 13
+
+  - suite: invalid-requirement-or-parameter
+    tests:
+    - sh: ./sandbox/rex serve rex.ctl_demo --require unknown-package
+      stdout: |+
+        FATAL ERROR: Failed to satisfy requirement:
+            unknown-package
+        While initializing Rex application:
+            rex.ctl_demo
+            unknown-package
+
+    - sh: ./sandbox/rex serve rex.ctl_demo --set unknown-parameter=true
+      stdout: |+
+        FATAL ERROR: Got unknown setting:
+            unknown-parameter
+        While initializing Rex application:
+            rex.ctl_demo
+        With parameters:
+            unknown-parameter: 'true'
 
   - suite: server-address-with-http-host-and-http-port
     tests:
@@ -130,7 +251,7 @@ tests:
     - sh: ./sandbox/rex --get http://localhost:8088/
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:05 GMT
+        Date: Fri, 14 Jun 2013 03:22:53 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
@@ -140,7 +261,7 @@ tests:
     - sh: ./sandbox/rex --kill --http-host=localhost --http-port=8088 serve rex.ctl_demo
       stdout: |+
         Serving rex.ctl_demo on localhost:8088
-        localhost - - [13/Jun/2013 16:05:27] "GET / HTTP/1.1" 200 55
+        localhost - - [13/Jun/2013 22:22:53] "GET / HTTP/1.1" 200 55
 
   - suite: server-address-with-host-and-port
     tests:
@@ -150,7 +271,7 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:06 GMT
+        Date: Fri, 14 Jun 2013 03:22:54 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
@@ -161,7 +282,7 @@ tests:
         -h 127.0.0.1 -p 8080
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 16:05:38] "GET / HTTP/1.1" 200 55
+        localhost - - [13/Jun/2013 22:22:54] "GET / HTTP/1.1" 200 55
 
   - suite: invalid-http-host-and-http-port
     tests:
@@ -196,7 +317,7 @@ tests:
     - sh: ./sandbox/rex --get http://Aladdin@localhost:8080/
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:09 GMT
+        Date: Fri, 14 Jun 2013 03:22:56 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
@@ -206,7 +327,7 @@ tests:
     - sh: ./sandbox/rex --get http://Aladdin:open%20sesame@localhost:8080/
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:11 GMT
+        Date: Fri, 14 Jun 2013 03:22:56 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
@@ -216,8 +337,8 @@ tests:
     - sh: ./sandbox/rex --kill serve rex.ctl_demo
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 16:06:09] "GET / HTTP/1.1" 200 55
-        localhost - Aladdin [13/Jun/2013 16:06:11] "GET / HTTP/1.1" 200 55
+        localhost - - [13/Jun/2013 22:22:56] "GET / HTTP/1.1" 200 55
+        localhost - Aladdin [13/Jun/2013 22:22:56] "GET / HTTP/1.1" 200 55
 
   - suite: unhandled-exceptions
     tests:
@@ -226,7 +347,7 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:13 GMT
+        Date: Fri, 14 Jun 2013 03:22:57 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
@@ -236,7 +357,7 @@ tests:
     - sh: ./sandbox/rex --get /error
       stdout: |
         HTTP/1.0 500 Internal Server Error
-        Date: Thu, 13 Jun 2013 21:19:14 GMT
+        Date: Fri, 14 Jun 2013 03:22:57 GMT
         Content-Length: 59
         Content-Type: text/plain
         Server: WSGIServer/0.1 Python/2.7.4
@@ -245,9 +366,9 @@ tests:
     - sh: ./sandbox/rex --kill serve rex.ctl_demo
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 16:07:21] "GET / HTTP/1.1" 200 55
+        localhost - - [13/Jun/2013 22:22:57] "GET / HTTP/1.1" 200 55
         ----------------------------------------------------------------------
-        [2013-06-13 16:07:21.367336] GET http://127.0.0.1:8080/error HTTP/1.1
+        [2013-06-13 22:22:57.538785] localhost => http://127.0.0.1:8080/error
         Traceback (most recent call last):
           File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
             self.result = application(self.environ, self.start_response)
@@ -267,19 +388,19 @@ tests:
             return handler(req)
           File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/command.py", line 69, in __call__
             return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 23, in render
+          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 36, in render
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
-        localhost - - [13/Jun/2013 16:07:21] "GET /error HTTP/1.1" 500 59
+        localhost - - [13/Jun/2013 22:22:57] "GET /error HTTP/1.1" 500 59
 
   - suite: unhandled-exceptions-with-debug
     tests:
-    - sh: ./sandbox/rex --daemon --debug serve rex.ctl_demo
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --debug
       stdout: ''
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:15 GMT
+        Date: Fri, 14 Jun 2013 03:22:58 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
@@ -289,13 +410,13 @@ tests:
     - sh: ./sandbox/rex --get /error
       stdout: |
         HTTP/1.0 500 Internal Server Error
-        Date: Thu, 13 Jun 2013 21:19:16 GMT
+        Date: Fri, 14 Jun 2013 03:22:58 GMT
         Content-Type: text/plain
         Server: WSGIServer/0.1 Python/2.7.4
 
         A server error occurred.  Please contact the administrator.
 
-        [2013-06-13 16:19:16.250977] GET http://127.0.0.1:8080/error HTTP/1.1
+        [2013-06-13 22:22:58.319993] localhost => http://127.0.0.1:8080/error
         Traceback (most recent call last):
           File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
             self.result = application(self.environ, self.start_response)
@@ -315,17 +436,15 @@ tests:
             return handler(req)
           File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/command.py", line 69, in __call__
             return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 23, in render
+          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 36, in render
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
-    - sh: ./sandbox/rex --kill --debug serve rex.ctl_demo
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --debug
       stdout: |
-        # loading extensions from serve = rex.ctl.serve
-        # loading extensions from common = rex.ctl.common
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 16:07:36] "GET / HTTP/1.1" 200 55
+        localhost - - [13/Jun/2013 22:22:58] "GET / HTTP/1.1" 200 55
         ----------------------------------------------------------------------
-        [2013-06-13 16:07:38.101790] GET http://127.0.0.1:8080/error HTTP/1.1
+        [2013-06-13 22:22:58.319316] localhost => http://127.0.0.1:8080/error
         Traceback (most recent call last):
           File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
             self.result = application(self.environ, self.start_response)
@@ -345,18 +464,18 @@ tests:
             return handler(req)
           File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/command.py", line 69, in __call__
             return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 23, in render
+          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 36, in render
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
-        localhost - - [13/Jun/2013 16:07:38] "GET /error HTTP/1.1" 500 1620
-  - suite: the-quiet-option
+        localhost - - [13/Jun/2013 22:22:58] "GET /error HTTP/1.1" 500 1620
+  - suite: using-quiet-option
     tests:
     - sh: ./sandbox/rex --daemon serve rex.ctl_demo --quiet
       stdout: ''
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Thu, 13 Jun 2013 21:19:19 GMT
+        Date: Fri, 14 Jun 2013 03:22:59 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
         Server: WSGIServer/0.1 Python/2.7.4
@@ -366,7 +485,7 @@ tests:
     - sh: ./sandbox/rex --get /error
       stdout: |
         HTTP/1.0 500 Internal Server Error
-        Date: Thu, 13 Jun 2013 21:19:20 GMT
+        Date: Fri, 14 Jun 2013 03:22:59 GMT
         Content-Length: 59
         Content-Type: text/plain
         Server: WSGIServer/0.1 Python/2.7.4
@@ -375,7 +494,7 @@ tests:
     - sh: ./sandbox/rex --kill serve rex.ctl_demo --quiet
       stdout: |+
         ----------------------------------------------------------------------
-        [2013-06-13 16:07:55.114582] GET http://127.0.0.1:8080/error HTTP/1.1
+        [2013-06-13 22:22:59.110596] localhost => http://127.0.0.1:8080/error
         Traceback (most recent call last):
           File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
             self.result = application(self.environ, self.start_response)
@@ -395,9 +514,410 @@ tests:
             return handler(req)
           File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/command.py", line 69, in __call__
             return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 23, in render
+          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 36, in render
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
+
+- suite: rex-help-packages
+  tests:
+  - suite: run-with-no-project
+    tests:
+    - sh: ./sandbox/rex help packages
+      stdout: |+
+        [rex.core]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+        Summary:
+          Core components of the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.core
+        Dependencies:
+          rex.setup>=1.0,<2
+          pyyaml
+
+  - suite: run-with-a-project
+    tests:
+    - sh: ./sandbox/rex help packages --project rex.ctl_demo
+      stdout: |+
+        [rex.ctl_demo]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src
+        Resources:
+          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/static
+        Dependencies:
+          rex.web
+
+        [rex.web]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.web-opensource/src
+        Summary:
+          Web stack for the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.web
+        Dependencies:
+          rex.core>=1.0,<2
+          webob
+          Jinja2
+          pycrypto
+          pbkdf2
+
+        [rex.core]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+        Summary:
+          Core components of the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.core
+        Dependencies:
+          rex.setup>=1.0,<2
+          pyyaml
+
+    - sh: ./sandbox/rex help packages --requirements rex.ctl_demo
+      stdout: |+
+        [rex.ctl_demo]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src
+        Resources:
+          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/static
+        Dependencies:
+          rex.web
+
+        [rex.web]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.web-opensource/src
+        Summary:
+          Web stack for the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.web
+        Dependencies:
+          rex.core>=1.0,<2
+          webob
+          Jinja2
+          pycrypto
+          pbkdf2
+
+        [rex.core]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+        Summary:
+          Core components of the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.core
+        Dependencies:
+          rex.setup>=1.0,<2
+          pyyaml
+
+    - sh: ./sandbox/rex help packages --requirements '["rex.ctl_demo"]'
+      stdout: |+
+        [rex.ctl_demo]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src
+        Resources:
+          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/static
+        Dependencies:
+          rex.web
+
+        [rex.web]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.web-opensource/src
+        Summary:
+          Web stack for the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.web
+        Dependencies:
+          rex.core>=1.0,<2
+          webob
+          Jinja2
+          pycrypto
+          pbkdf2
+
+        [rex.core]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+        Summary:
+          Core components of the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.core
+        Dependencies:
+          rex.setup>=1.0,<2
+          pyyaml
+
+  - suite: module-and-static-requirements
+    tests:
+    - sh: ./sandbox/rex help packages --requirements rex.core.application
+      stdout: |+
+        [rex.core.application]
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.core-opensource/src/rex/core/application.pyc
+
+        [rex.core]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+        Summary:
+          Core components of the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.core
+        Dependencies:
+          rex.setup>=1.0,<2
+          pyyaml
+
+    - sh: ./sandbox/rex help packages --requirements ../test/data/shared/
+      stdout: |+
+        [shared]
+        Resources:
+          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/test/data/shared
+
+        [rex.core]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+        Summary:
+          Core components of the Rex platform
+        URL:
+          http://bitbucket.org/prometheus/rex.core
+        Dependencies:
+          rex.setup>=1.0,<2
+          pyyaml
+
+  - suite: ill-formed-requirements
+    tests:
+    - sh: ./sandbox/rex help packages
+      stdout: |+
+        FATAL ERROR: invalid value for setting --project: expected a project name
+
+    - sh: ./sandbox/rex help packages
+      stdout: |+
+        FATAL ERROR: invalid value for setting --requirements: expected a list of requirements
+
+- suite: rex-help-settings
+  tests:
+  - suite: run-with-no-project
+    tests:
+    - sh: ./sandbox/rex help settings
+      stdout: |+
+        [debug]
+        Declared in:
+          rex.core
+        Description:
+          Turn on debug mode.
+
+  - suite: run-with-a-project-and-parameters
+    tests:
+    - sh: ./sandbox/rex help settings --project rex.ctl_demo
+      stdout: |+
+        [debug]
+        Declared in:
+          rex.core
+        Description:
+          Turn on debug mode.
+
+        [hello_role]
+        Declared in:
+          rex.ctl_demo
+        Mandatory?
+          true
+        Preset in:
+          rex.ctl_demo
+        Value:
+          'authenticated'
+        Description:
+          Permission to use the `/hello` command.
+
+        [mount]
+        Declared in:
+          rex.web
+        Description:
+          Mount table that maps package names to path segments.
+
+          For each package, this setting specifies the base URL segment
+          for commands and static resources that belong to the package.
+          The value of this setting is a dictionary; the keys are package
+          names, the values are URL segments.
+
+          Example::
+
+              mount:
+                  rex.web_demo:   /
+                  rex.common:     /shared/
+
+          It is not an error to omit some packages or the whole setting entirely.
+          If the mount point for a package is not specified, it is determined
+          as follows:
+
+          1. The first package in the application requirement list is mounted
+             at ``/``.
+          2. Otherwise, a normalized package name is used as the mount point.
+
+        [secret]
+        Declared in:
+          rex.web
+        Preset in:
+          rex.ctl_demo
+        Value:
+          'For the sake of demonstration only.  Normally, you would never preset this parameter.'
+        Description:
+          Secret passphrase for generating private keys.
+
+          If not set, a random key is used. Must be set for a multi-process server.
+
+    - sh: ./sandbox/rex help settings --project rex.ctl_demo --parameters 'debug hello_role=anybody'
+      stdout: |+
+        [debug]
+        Declared in:
+          rex.core
+        Value:
+          True
+        Description:
+          Turn on debug mode.
+
+        [hello_role]
+        Declared in:
+          rex.ctl_demo
+        Mandatory?
+          true
+        Value:
+          'anybody'
+        Description:
+          Permission to use the `/hello` command.
+
+        [mount]
+        Declared in:
+          rex.web
+        Description:
+          Mount table that maps package names to path segments.
+
+          For each package, this setting specifies the base URL segment
+          for commands and static resources that belong to the package.
+          The value of this setting is a dictionary; the keys are package
+          names, the values are URL segments.
+
+          Example::
+
+              mount:
+                  rex.web_demo:   /
+                  rex.common:     /shared/
+
+          It is not an error to omit some packages or the whole setting entirely.
+          If the mount point for a package is not specified, it is determined
+          as follows:
+
+          1. The first package in the application requirement list is mounted
+             at ``/``.
+          2. Otherwise, a normalized package name is used as the mount point.
+
+        [secret]
+        Declared in:
+          rex.web
+        Preset in:
+          rex.ctl_demo
+        Value:
+          'For the sake of demonstration only.  Normally, you would never preset this parameter.'
+        Description:
+          Secret passphrase for generating private keys.
+
+          If not set, a random key is used. Must be set for a multi-process server.
+
+    - sh: ./sandbox/rex help settings --project rex.ctl_demo --parameters '{"debug":true,"hello_role":"anybody"}'
+      stdout: |+
+        [debug]
+        Declared in:
+          rex.core
+        Value:
+          True
+        Description:
+          Turn on debug mode.
+
+        [hello_role]
+        Declared in:
+          rex.ctl_demo
+        Mandatory?
+          true
+        Value:
+          u'anybody'
+        Description:
+          Permission to use the `/hello` command.
+
+        [mount]
+        Declared in:
+          rex.web
+        Description:
+          Mount table that maps package names to path segments.
+
+          For each package, this setting specifies the base URL segment
+          for commands and static resources that belong to the package.
+          The value of this setting is a dictionary; the keys are package
+          names, the values are URL segments.
+
+          Example::
+
+              mount:
+                  rex.web_demo:   /
+                  rex.common:     /shared/
+
+          It is not an error to omit some packages or the whole setting entirely.
+          If the mount point for a package is not specified, it is determined
+          as follows:
+
+          1. The first package in the application requirement list is mounted
+             at ``/``.
+          2. Otherwise, a normalized package name is used as the mount point.
+
+        [secret]
+        Declared in:
+          rex.web
+        Preset in:
+          rex.ctl_demo
+        Value:
+          'For the sake of demonstration only.  Normally, you would never preset this parameter.'
+        Description:
+          Secret passphrase for generating private keys.
+
+          If not set, a random key is used. Must be set for a multi-process server.
+
+  - suite: ill-formed-parameters
+    tests:
+    - sh: ./sandbox/rex help settings --project ../test/data/ill_formed_setting/
+      stdout: |+
+        [debug]
+        Declared in:
+          rex.core
+        Description:
+          Turn on debug mode.
+
+    - sh: ./sandbox/rex help settings --project ../test/data/broken_setting/
+      stdout: |+
+        [debug]
+        Declared in:
+          rex.core
+        Description:
+          Turn on debug mode.
+
+    - sh: ./sandbox/rex help settings
+      stdout: |+
+        FATAL ERROR: invalid value for setting --parameters: expected a dictionary of application parameters
 
 - sh: pip uninstall -q -y rex.ctl_demo
   stdout: ''

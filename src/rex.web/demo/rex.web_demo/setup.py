@@ -1,5 +1,27 @@
 
 from setuptools import setup, find_packages
+from distutils.core import Command
+
+class demo(Command):
+
+    description = "show how to make a simple query"
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from rex.core import Rex
+        from webob import Request
+        demo = Rex('rex.web_demo')
+        req = Request.blank('/hello')
+        print "-"*70
+        print req
+        print "-"*70
+        print req.get_response(demo)
 
 setup(
     name='rex.web_demo',
@@ -15,6 +37,7 @@ setup(
         'rex.web',
         'docutils',
     ],
+    cmdclass={'demo': demo},
     rex_init='rex.web_demo',
     rex_static='static',
 )

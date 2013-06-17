@@ -94,7 +94,7 @@ the following command::
     class HelloCmd(Command):
 
         path = '/hello'
-        role = 'anybody'
+        access = 'anybody'
         parameters = [
             Parameter('name', StrVal('[A-Za-z]+'), default='World'),
         ]
@@ -105,7 +105,7 @@ the following command::
 This code creates an HTTP command that
 
 * handles URL ``/hello`` (``path`` attribute);
-* is publicly accessible (``role`` attribute);
+* is publicly accessible (``access`` attribute);
 * expects form parameter ``name`` (``parameters`` attribute).
 
 A command must override method :meth:`rex.web.Command.render()`, which takes a
@@ -361,7 +361,7 @@ This service is implemented as a subclass of :class:`.Command`::
     class FactorialCmd(Command):
 
         path = '/factorial'
-        role = 'anybody'
+        access = 'anybody'
         parameters = [
                 Parameter('n', PIntVal()),
         ]
@@ -375,10 +375,10 @@ This service is implemented as a subclass of :class:`.Command`::
 :attr:`.Command.path`
     URL handled by the command.
 
-:attr:`.Command.role`
-    The permission required to perform the request.  Role *anybody* allows
-    anyone to perform the request.  If this attribute is not set,
-    *authenticated* role is assumed.
+:attr:`.Command.access`
+    The permission required to perform the request.  Permission *anybody*
+    allows anyone to perform the request.  If this attribute is not set,
+    *authenticated* permission is assumed.
 
 :attr:`.Command.parameters`
     List of query parameters expected by the command.  For each parameter,
@@ -451,7 +451,7 @@ To add another permission, applications should implement
 
 Permissions are used to limit access to commands and static files.
 
-For commands, use attribute :class:`rex.web.Command.role` to specify the
+For commands, use attribute :class:`rex.web.Command.access` to specify the
 necessary permission.  By default, commands require *authenticated* permission.
 
 Static files served from the ``www`` directory require *authenticated*

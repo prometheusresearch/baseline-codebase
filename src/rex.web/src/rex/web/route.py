@@ -182,8 +182,8 @@ class StaticServer(object):
     # Directory index.
     index_file = 'index.html'
     # Default permission.
-    default_role = 'authenticated'
-    # File that maps file patterns to roles.
+    default_access = 'authenticated'
+    # File that maps file patterns to permissions.
     access_file = '/_access.yaml'
 
     def __init__(self, root, file_handler_map, fallback=None):
@@ -228,7 +228,7 @@ class StaticServer(object):
         # We found the file to serve.
         if os.path.isfile(real_path):
             # Detemine and check access permissions for the requested URL.
-            role = self.default_role
+            access = self.default_access
             access_path = self.root + self.access_file
             if packages.exists(access_path):
                 access_map = yaml.safe_load(packages.open(access_path))
@@ -236,9 +236,9 @@ class StaticServer(object):
                 access_map = access_val(access_map)
                 for pattern in access_map:
                     if fnmatch.fnmatchcase(url, pattern):
-                        role = access_map[pattern]
+                        access = access_map[pattern]
                         break
-            if not authorize(req, role):
+            if not authorize(req, access):
                 raise HTTPUnauthorized()
             # Find and execute the handler by file extension.
             ext = os.path.splitext(real_path)[1]

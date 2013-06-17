@@ -17,7 +17,7 @@ support for authorization and parsing query parameters::
 
     >>> class HelloCommand(Command):
     ...     path = '/hello'
-    ...     role = 'anybody'
+    ...     access = 'anybody'
     ...     parameters = [
     ...         Parameter('greeting', ChoiceVal('Hello', 'Hi', 'Howdy'), 'Hello'),
     ...         Parameter('name', StrVal()),
@@ -113,7 +113,7 @@ parameters::
 
     >>> class NoParsingCommand(Command):
     ...     path = '/no-parsing'
-    ...     role = 'anybody'
+    ...     access = 'anybody'
     ...     parameters = None
     ...
     ...     def render(self, req):
@@ -134,8 +134,8 @@ parameters::
 Authentication
 ==============
 
-Attribute ``Command.role`` specifies the role required to perform the command.
-If not set, *authenticated* role is assumed::
+Attribute ``Command.access`` specifies the permission required to perform the
+command.  If not set, *authenticated* is assumed::
 
     >>> from rex.web import authenticate
 
@@ -161,12 +161,12 @@ If not set, *authenticated* role is assumed::
     <BLANKLINE>
     Hello, Alice!
 
-If ``Command.role`` is set to ``None``, authorization is not performed.  This
-has the same effect as setting ``Command.role`` to ``'anybody'``::
+If ``Command.access`` is set to ``None``, authorization is not performed.  This
+has the same effect as setting ``Command.access`` to ``'anybody'``::
 
     >>> class PublicCommand(Command):
     ...     path = '/public'
-    ...     role = None     # or 'anybody'
+    ...     access = None   # or 'anybody'
     ...
     ...     def render(self, req):
     ...         return Response("Hello, stranger!", content_type='text/plain')

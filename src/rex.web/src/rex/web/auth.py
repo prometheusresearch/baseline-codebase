@@ -46,7 +46,7 @@ class Authorize(Extension):
     """
 
     #: Permission name.
-    role = None
+    access = None
 
     @classmethod
     @cached
@@ -57,15 +57,15 @@ class Authorize(Extension):
         """
         mapping = {}
         for extension in cls.all():
-            assert extension.role not in mapping, \
-                    "duplicate role: %r" % extension.role
-            mapping[extension.role] = extension
+            assert extension.access not in mapping, \
+                    "duplicate permission: %r" % extension.access
+            mapping[extension.access] = extension
         return mapping
 
     @classmethod
     def enabled(cls):
         # Whether it is a complete implementation.
-        return (cls.role is not None)
+        return (cls.access is not None)
 
     def __call__(self, req):
         """
@@ -80,7 +80,7 @@ class Authorize(Extension):
 class AuthorizeAuthenticated(Authorize):
     # This permission is granted if the request is authenticated.
 
-    role = 'authenticated'
+    access = 'authenticated'
 
     def __call__(self, req):
         return (authenticate(req) is not None)
@@ -89,7 +89,7 @@ class AuthorizeAuthenticated(Authorize):
 class AuthorizeAnybody(Authorize):
     # This permission is always granted.
 
-    role = 'anybody'
+    access = 'anybody'
 
     def __call__(self, req):
         return True
@@ -98,7 +98,7 @@ class AuthorizeAnybody(Authorize):
 class AuthorizeNobody(Authorize):
     # This permission is never granted.
 
-    role = 'nobody'
+    access = 'nobody'
 
     def __call__(self, req):
         return False
@@ -116,19 +116,19 @@ def authenticate(req):
     return req.environ['rex.user']
 
 
-def authorize(req, role):
+def authorize(req, access):
     """
     Returns whether the request has the given permission.
     """
     # Since authorization could be expensive (e.g. database access),
-    # we cache the result in `environ['rex.roles']`.
-    if 'rex.roles' not in req.environ:
-        req.environ['rex.roles'] = {}
-    if role not in req.environ['rex.roles']:
+    # we cache the result in `environ['rex.access']`.
+    if 'rex.access' not in req.environ:
+        req.environ['rex.access'] = {}
+    if access not in req.environ['rex.access']:
         auth_type_map = Authorize.map_all()
-        assert role in auth_type_map, "undefined role %r" % role
-        auth_type = auth_type_map[role]
-        req.environ['rex.roles'][role] = auth_type()(req)
-    return req.environ['rex.roles'][role]
+        assert access in auth_type_map, "undefined permission %r" % access
+        auth_type = auth_type_map[access]
+        req.environ['rex.access'][access] = auth_type()(req)
+    return req.environ['rex.access'][access]
 
 

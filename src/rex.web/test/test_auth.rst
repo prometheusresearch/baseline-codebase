@@ -42,8 +42,8 @@ will return the cached value::
 ``authorize()``
 ===============
 
-Call ``authorize()`` to determine whether the request is granted a specific permission.
-There are three predefined permissions::
+Call ``authorize()`` to determine whether the request is granted a specific
+permission.  There are three predefined permissions::
 
     >>> demo.on()
     >>> authorize(anon_req, 'anybody')
@@ -60,11 +60,11 @@ There are three predefined permissions::
     False
     >>> demo.off()
 
-``authorize()`` invokes the ``Authorize`` interface and caches the
-result in ``environ['rex.roles']`` dictionary.  Subsequent calls to ``authorize()``
-will return the cached value::
+``authorize()`` invokes the ``Authorize`` interface and caches the result in
+``environ['rex.access']`` dictionary.  Subsequent calls to ``authorize()`` will
+return the cached value::
 
-    >>> anon_req.environ['rex.roles']['authenticated']
+    >>> anon_req.environ['rex.access']['authenticated']
     False
     >>> anon_req.remote_user = 'Clarence'
     >>> authorize(anon_req, 'authenticated')

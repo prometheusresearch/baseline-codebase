@@ -19,7 +19,7 @@ value in a session object::
 
     >>> class SetCmd(Command):
     ...     path = '/set'
-    ...     role = 'anybody'
+    ...     access = 'anybody'
     ...     parameters = [Parameter('x', IntVal())]
     ...     def render(self, req, x):
     ...         req.session['x'] = x
@@ -28,7 +28,7 @@ value in a session object::
 
     >>> class GetCmd(Command):
     ...     path = '/get'
-    ...     role = 'anybody'
+    ...     access = 'anybody'
     ...     def render(self, req):
     ...         if 'x' in req.session:
     ...             return Response("x is equal to %s" % req.session['x'],
@@ -38,7 +38,7 @@ value in a session object::
 
     >>> class DelCmd(Command):
     ...     path = '/del'
-    ...     role = 'anybody'
+    ...     access = 'anybody'
     ...     def render(self, req):
     ...         req.session.pop('x', None)
     ...         return Response("x is unset", content_type='text/plain')

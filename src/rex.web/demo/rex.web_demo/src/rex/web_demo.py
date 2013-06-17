@@ -45,7 +45,7 @@ class HandlePing(HandleLocation):
 class HelloCmd(Command):
 
     path = '/hello'
-    role = 'anybody'
+    access = 'anybody'
     parameters = [
         Parameter('name', StrVal('[A-Za-z]+'), default='World'),
     ]
@@ -57,7 +57,7 @@ class HelloCmd(Command):
 class FactorialCmd(Command):
 
     path = '/factorial'
-    role = 'anybody'
+    access = 'anybody'
     parameters = [
             Parameter('n', PIntVal()),
     ]

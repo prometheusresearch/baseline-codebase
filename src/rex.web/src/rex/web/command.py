@@ -53,14 +53,14 @@ class Command(HandleLocation):
     #: Location of the command.
     path = None
     #: Permission to execute the command.
-    role = 'authenticated'
+    access = 'authenticated'
     #: List of form parameters.
     parameters = []
 
     @classmethod
     def sanitize(cls):
         if cls.path is not None:
-            assert cls.render.__func__ is not Command.render.__func__, \
+            assert cls.render != Command.render, \
                     "abstract method %s.render()" % cls
 
     def __call__(self, req):
@@ -70,8 +70,8 @@ class Command(HandleLocation):
 
     def authorize(self, req):
         # Checks if we have right permissions to execute the command.
-        if self.role is not None:
-            if not authorize(req, self.role):
+        if self.access is not None:
+            if not authorize(req, self.access):
                 raise HTTPUnauthorized()
 
     def parse(self, req):

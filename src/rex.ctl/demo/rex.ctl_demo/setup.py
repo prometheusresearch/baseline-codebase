@@ -1,5 +1,23 @@
 
 from setuptools import setup, find_packages
+from distutils.core import Command
+
+class demo(Command):
+
+    description = "show how to serve a Rex application"
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import os
+        cmd = "rex serve rex.ctl_demo --set hello_access=anybody"
+        print "$", cmd
+        os.spawnvp(0, cmd.split()[0], cmd.split())
 
 setup(
     name='rex.ctl_demo',
@@ -15,6 +33,7 @@ setup(
     install_requires=[
         'rex.web',
     ],
+    cmdclass={'demo': demo},
     rex_init='rex.ctl_demo',
     rex_static='static',
 )

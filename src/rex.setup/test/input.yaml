@@ -65,7 +65,8 @@ tests:
   - sh: unzip -l ./dist/rex.setup_demo-1.0.zip
     cd: ./sandbox/src/rex.setup_demo
     ignore:
-      \d\d\d\d-\d\d-\d\d.\d\d:\d\d
+      \d\d\d\d-\d\d-\d\d.\d\d:\d\d |
+      ^\s+\d+
   # Cleanup.
   - rmdir: sandbox
 

@@ -48,6 +48,7 @@ tests:
   - sh: ./sandbox/rex
   - sh: ./sandbox/rex help
   - sh: ./sandbox/rex help serve
+  - sh: ./sandbox/rex help wsgi
   - sh: ./sandbox/rex help http-host
   - sh: ./sandbox/rex help http-port
   - sh: ./sandbox/rex help project
@@ -76,6 +77,7 @@ tests:
       ignore: &log-ignore |
         \[(\d\d)/(\w\w\w)/(\d\d\d\d).(\d\d):(\d\d):(\d\d)\] |
         \[(\d\d\d\d)-(\d\d)-(\d\d).(\d\d):(\d\d):(\d\d)\.(\d+)\] |
+        [ ](\d+)$ |
         Traceback.\(most.recent.call.last\): ((?:[\n][ ]+.+)+)
 
   - title: Run with a project
@@ -98,10 +100,10 @@ tests:
 
   - title: Using `--set` option
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --set hello_role=anybody
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --set hello_access=anybody
     - sh: ./sandbox/rex --get /hello
       ignore: *http-ignore
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo --set hello_role=anybody
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --set hello_access=anybody
       ignore: *log-ignore
 
   - title: Invalid requirement or parameter
@@ -201,6 +203,31 @@ tests:
 
 
 #
+# rex wsgi
+#
+
+- title: rex wsgi
+  tests:
+
+  - title: Requirements and parameters
+    tests:
+    - sh: ./sandbox/rex wsgi
+    - sh: ./sandbox/rex wsgi rex.ctl_demo
+    - sh: ./sandbox/rex wsgi rex.ctl_demo --require ../test/data/shared/
+    - sh: ./sandbox/rex wsgi rex.ctl_demo --set hello_access=anybody
+    - sh: ./sandbox/rex wsgi rex.ctl_demo --require unknown-package
+      exit: 1
+    - sh: ./sandbox/rex wsgi rex.ctl_demo --set unknown-parameter=true
+      exit: 1
+
+  - title: Using `--output` option
+    tests:
+    - sh: ./sandbox/rex wsgi rex.ctl_demo -o ctl_demo.wsgi
+    - read: ./sandbox/ctl_demo.wsgi
+    - rm: ./sandbox/ctl_demo.wsgi
+
+
+#
 # rex help packages
 #
 
@@ -234,6 +261,8 @@ tests:
 
   - title: Ill-formed requirements
     tests:
+    - sh: ./sandbox/rex help packages --project rex.unknown
+      exit: 1
     - write: ./sandbox/rex.yaml
       data: 'project: true'
     - sh: ./sandbox/rex help packages
@@ -263,14 +292,16 @@ tests:
     - sh: ./sandbox/rex help settings --project rex.ctl_demo
       ignore: *ignore-settings
     - sh: ./sandbox/rex help settings --project rex.ctl_demo
-            --parameters 'debug hello_role=anybody'
+            --parameters 'debug hello_access=anybody'
       ignore: *ignore-settings
     - sh: ./sandbox/rex help settings --project rex.ctl_demo
-            --parameters '{"debug":true,"hello_role":"anybody"}'
+            --parameters '{"debug":true,"hello_access":"anybody"}'
       ignore: *ignore-settings
 
   - title: Ill-formed parameters
     tests:
+    - sh: ./sandbox/rex help settings --project rex.unknown
+      exit: 1
     - sh: ./sandbox/rex help settings --project ../test/data/ill_formed_setting/
       ignore: *ignore-settings
     - sh: ./sandbox/rex help settings --project ../test/data/broken_setting/

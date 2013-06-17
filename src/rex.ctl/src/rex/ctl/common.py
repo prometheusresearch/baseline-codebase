@@ -5,7 +5,7 @@
 
 from cogs import setting, env
 from cogs.log import debug, fail
-from rex.core import Rex, get_packages, Error
+from rex.core import Rex, get_packages, Setting, Error
 import shlex
 import json
 
@@ -78,9 +78,8 @@ class RexNoInit(Rex):
     # Makes a Rex application without executing `Initialize` interface.
 
     def initialize(self):
-        with self:
-            # Make sure the requirement list is valid.
-            get_packages()
+        # Do not fail on startup.
+        pass
 
 
 def make_rex(project=None, require_list=None, set_list=None,

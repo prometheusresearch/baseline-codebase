@@ -4,11 +4,11 @@
 
 
 from cogs import topic
-from cogs.log import log
+from cogs.log import log, fail
 from .common import make_rex
-from rex.core import (get_packages, ModulePackage, StaticPackage, Setting)
+from rex.core import get_packages, ModulePackage, StaticPackage, Setting, Error
 import io
-import ConfigParser
+import email
 import os.path
 import pprint
 import pkg_resources
@@ -19,10 +19,12 @@ import yaml
 def PACKAGES():
     """list application components"""
     # Get a list of components.
-    app = make_rex(initialize=False)
-    with app:
-        packages = get_packages()
-    # FIXME: we miss components with no extensions and resources.
+    try:
+        with make_rex(initialize=False):
+            packages = get_packages()
+        # FIXME: we miss components with no extensions and resources.
+    except Error, error:
+        raise fail(str(error))
 
     for package in packages:
         log("`[{}]`", package.name)
@@ -46,17 +48,14 @@ def PACKAGES():
             summary = None
             url = None
             if dist.has_metadata('PKG-INFO'):
-                config = ConfigParser.RawConfigParser()
-                config.readfp(io.BytesIO('[PKG-INFO]\n' +
-                                         dist.get_metadata('PKG-INFO')))
-                if config.has_option('PKG-INFO', 'Summary'):
-                    summary = config.get('PKG-INFO', 'Summary')
-                    if summary == "UNKNOWN":
-                        summary = None
-                if config.has_option('PKG-INFO', 'Home-Page'):
-                    url = config.get('PKG-INFO', 'Home-Page')
-                    if url == "UNKNOWN":
-                        url = None
+                config = email.message_from_string(
+                        dist.get_metadata('PKG-INFO'))
+                summary = config['Summary']
+                if summary == "UNKNOWN":
+                    summary = None
+                url = config['Home-Page']
+                if url == "UNKNOWN":
+                    url = None
             # Dump package information.
             log("Version:")
             log("  {}", dist.version)
@@ -84,14 +83,17 @@ def SETTINGS():
     # Get mappings from setting names to setting types and
     # packages where they are declared.
     app = make_rex(initialize=False)
-    with app:
-        packages = get_packages()
-        setting_map = {}
-        setting_package = {}
-        for package in packages:
-            for setting_type in Setting.by_package(package):
-                setting_map[setting_type.name] = setting_type
-                setting_package[setting_type.name] = package
+    try:
+        with app:
+            packages = get_packages()
+            setting_map = {}
+            setting_package = {}
+            for package in packages:
+                for setting_type in Setting.by_package(package):
+                    setting_map[setting_type.name] = setting_type
+                    setting_package[setting_type.name] = package
+    except Error, error:
+        raise fail(str(error))
 
     # Load setting values from `settings.yaml` files and application parameters.
     parameters = {}

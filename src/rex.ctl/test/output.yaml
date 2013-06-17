@@ -38,7 +38,8 @@ tests:
 
       Available tasks:
         help [<topic>]           : display help on tasks and settings
-        serve [<project>]        : starts HTTP server
+        serve [<project>]        : start an HTTP server
+        wsgi [<project>]         : generate a WSGI script
 
       Settings:
         --debug                  : print debug information
@@ -54,39 +55,61 @@ tests:
 
   - sh: ./sandbox/rex help serve
     stdout: |+
-      SERVE - starts HTTP server
+      SERVE - start an HTTP server
       Usage: rex serve [<project>]
 
       The serve task starts an HTTP server to serve a Rex application.
 
       This task takes one argument: the name of the primary Rex package.
-      Alternatively, the package could be specified using project
-      setting.
+      Alternatively, the package could be specified using project setting.
 
-      Use option --require or setting requirements to specify
-      additional packages to include with the application.
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
 
       Use option --set or setting parameters to specify configuration
       parameters of the application.
 
-      Use options --host and --port or settings http-host and
-      http-port to specify the address and the port number for the
-      HTTP server.  If neither are set, the server is started on
-      127.0.0.1:8080.
+      Use options --host and --port or settings http-host and http-port
+      to specify the address and the port number for the HTTP server.
+      If neither are set, the server is started on 127.0.0.1:8080.
 
       By default, the server dumps HTTP logs in Apache Common Log Format
-      to stdout.  Use option --quiet to suppress this output.
-      Unhandled application exceptions are dumped to stderr.
+      to stdout.  Use option --quiet to suppress this output.  Unhandled
+      application exceptions are dumped to stderr.
 
-      Toggle debug setting to run the application in debug mode and
-      report unhandled exceptions to the client.
+      Toggle debug setting to run the application in debug mode and report
+      unhandled exceptions to the client.
 
       Options:
         --require=PACKAGE        : include an additional package
         --set=PARAM=VALUE        : set a configuration parameter
-        -h/--host=HOSTNAME       : host name for the HTTP server
-        -p/--port=PORT           : port number for the HTTP server
+        -h/--host=HOSTNAME       : bind to the specified host
+        -p/--port=PORT           : bind to the specified port
         -q/--quiet               : suppress HTTP logs
+
+  - sh: ./sandbox/rex help wsgi
+    stdout: |+
+      WSGI - generate a WSGI script
+      Usage: rex wsgi [<project>]
+
+      The wsgi task generates a WSGI script for a Rex application, which
+      could be used with uwsgi, mod_wsgi or any other WSGI container.
+
+      This task takes one argument: the name of the primary Rex package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Use option --set or setting parameters to specify configuration
+      parameters of the application.
+
+      Use option --output to specify where to write the generated script.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -o/--output=FILE         : write the script to a file
 
   - sh: ./sandbox/rex help http-host
     stdout: |+
@@ -209,7 +232,7 @@ tests:
 
   - suite: using-set-option
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --set hello_role=anybody
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --set hello_access=anybody
       stdout: ''
     - sh: ./sandbox/rex --get /hello
       stdout: |
@@ -220,7 +243,7 @@ tests:
         Server: WSGIServer/0.1 Python/2.7.4
 
         Hello, World!
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo --set hello_role=anybody
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --set hello_access=anybody
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
         localhost - - [13/Jun/2013 22:22:51] "GET /hello HTTP/1.1" 200 13
@@ -518,6 +541,110 @@ tests:
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
 
+- suite: rex-wsgi
+  tests:
+  - suite: requirements-and-parameters
+    tests:
+    - sh: ./sandbox/rex wsgi
+      stdout: |2+
+
+        # WSGI script for a Rex application.
+        # Use it with `uwsgi`, `mod_wsgi` or any other WSGI container.
+
+        from rex.core import Rex
+
+        requirements = [
+        ]
+
+        parameters = {
+        }
+
+        application = Rex(*requirements, **parameters)
+
+    - sh: ./sandbox/rex wsgi rex.ctl_demo
+      stdout: |2+
+
+        # WSGI script for the `rex.ctl_demo` application.
+        # Use it with `uwsgi`, `mod_wsgi` or any other WSGI container.
+
+        from rex.core import Rex
+
+        requirements = [
+            'rex.ctl_demo',
+        ]
+
+        parameters = {
+        }
+
+        application = Rex(*requirements, **parameters)
+
+    - sh: ./sandbox/rex wsgi rex.ctl_demo --require ../test/data/shared/
+      stdout: |2+
+
+        # WSGI script for the `rex.ctl_demo` application.
+        # Use it with `uwsgi`, `mod_wsgi` or any other WSGI container.
+
+        from rex.core import Rex
+
+        requirements = [
+            'rex.ctl_demo',
+            '../test/data/shared/',
+        ]
+
+        parameters = {
+        }
+
+        application = Rex(*requirements, **parameters)
+
+    - sh: ./sandbox/rex wsgi rex.ctl_demo --set hello_access=anybody
+      stdout: |2+
+
+        # WSGI script for the `rex.ctl_demo` application.
+        # Use it with `uwsgi`, `mod_wsgi` or any other WSGI container.
+
+        from rex.core import Rex
+
+        requirements = [
+            'rex.ctl_demo',
+        ]
+
+        parameters = {
+            'hello_access': 'anybody',
+        }
+
+        application = Rex(*requirements, **parameters)
+
+    - sh: ./sandbox/rex wsgi rex.ctl_demo --require unknown-package
+      stdout: |+
+        FATAL ERROR: Failed to satisfy requirement:
+            unknown-package
+
+    - sh: ./sandbox/rex wsgi rex.ctl_demo --set unknown-parameter=true
+      stdout: |+
+        FATAL ERROR: Got unknown setting:
+            unknown-parameter
+
+  - suite: using-output-option
+    tests:
+    - sh: ./sandbox/rex wsgi rex.ctl_demo -o ctl_demo.wsgi
+      stdout: ''
+    - read: ./sandbox/ctl_demo.wsgi
+      data: |2+
+
+        # WSGI script for the `rex.ctl_demo` application.
+        # Use it with `uwsgi`, `mod_wsgi` or any other WSGI container.
+
+        from rex.core import Rex
+
+        requirements = [
+            'rex.ctl_demo',
+        ]
+
+        parameters = {
+        }
+
+        application = Rex(*requirements, **parameters)
+
 - suite: rex-help-packages
   tests:
   - suite: run-with-no-project
@@ -704,6 +831,11 @@ tests:
 
   - suite: ill-formed-requirements
     tests:
+    - sh: ./sandbox/rex help packages --project rex.unknown
+      stdout: |+
+        FATAL ERROR: Failed to satisfy requirement:
+            rex.unknown
+
     - sh: ./sandbox/rex help packages
       stdout: |+
         FATAL ERROR: invalid value for setting --project: expected a project name
@@ -734,7 +866,7 @@ tests:
         Description:
           Turn on debug mode.
 
-        [hello_role]
+        [hello_access]
         Declared in:
           rex.ctl_demo
         Mandatory?
@@ -783,7 +915,7 @@ tests:
 
           If not set, a random key is used. Must be set for a multi-process server.
 
-    - sh: ./sandbox/rex help settings --project rex.ctl_demo --parameters 'debug hello_role=anybody'
+    - sh: ./sandbox/rex help settings --project rex.ctl_demo --parameters 'debug hello_access=anybody'
       stdout: |+
         [debug]
         Declared in:
@@ -793,7 +925,7 @@ tests:
         Description:
           Turn on debug mode.
 
-        [hello_role]
+        [hello_access]
         Declared in:
           rex.ctl_demo
         Mandatory?
@@ -840,7 +972,7 @@ tests:
 
           If not set, a random key is used. Must be set for a multi-process server.
 
-    - sh: ./sandbox/rex help settings --project rex.ctl_demo --parameters '{"debug":true,"hello_role":"anybody"}'
+    - sh: ./sandbox/rex help settings --project rex.ctl_demo --parameters '{"debug":true,"hello_access":"anybody"}'
       stdout: |+
         [debug]
         Declared in:
@@ -850,7 +982,7 @@ tests:
         Description:
           Turn on debug mode.
 
-        [hello_role]
+        [hello_access]
         Declared in:
           rex.ctl_demo
         Mandatory?
@@ -899,6 +1031,11 @@ tests:
 
   - suite: ill-formed-parameters
     tests:
+    - sh: ./sandbox/rex help settings --project rex.unknown
+      stdout: |+
+        FATAL ERROR: Failed to satisfy requirement:
+            rex.unknown
+
     - sh: ./sandbox/rex help settings --project ../test/data/ill_formed_setting/
       stdout: |+
         [debug]

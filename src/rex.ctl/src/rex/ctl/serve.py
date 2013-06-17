@@ -156,31 +156,29 @@ def HTTP_PORT(port=None):
 
 @task
 class SERVE:
-    """starts HTTP server
+    """start an HTTP server
 
     The `serve` task starts an HTTP server to serve a Rex application.
 
     This task takes one argument: the name of the primary Rex package.
-    Alternatively, the package could be specified using `project`
-    setting.
+    Alternatively, the package could be specified using `project` setting.
 
-    Use option `--require` or setting `requirements` to specify
-    additional packages to include with the application.
+    Use option `--require` or setting `requirements` to specify additional
+    packages to include with the application.
 
     Use option `--set` or setting `parameters` to specify configuration
     parameters of the application.
 
-    Use options `--host` and `--port` or settings `http-host` and
-    `http-port` to specify the address and the port number for the
-    HTTP server.  If neither are set, the server is started on
-    `127.0.0.1:8080`.
+    Use options `--host` and `--port` or settings `http-host` and `http-port`
+    to specify the address and the port number for the HTTP server.
+    If neither are set, the server is started on `127.0.0.1:8080`.
 
     By default, the server dumps HTTP logs in Apache Common Log Format
-    to stdout.  Use option `--quiet` to suppress this output.
-    Unhandled application exceptions are dumped to stderr.
+    to stdout.  Use option `--quiet` to suppress this output.  Unhandled
+    application exceptions are dumped to stderr.
 
-    Toggle `debug` setting to run the application in debug mode and
-    report unhandled exceptions to the client.
+    Toggle `debug` setting to run the application in debug mode and report
+    unhandled exceptions to the client.
     """
 
     project = argument(str, default=None)
@@ -192,10 +190,10 @@ class SERVE:
             hint="set a configuration parameter")
     host = option('h', str, default=None,
             value_name="HOSTNAME",
-            hint="host name for the HTTP server")
+            hint="bind to the specified host")
     port = option('p', int, default=None,
             value_name="PORT",
-            hint="port number for the HTTP server")
+            hint="bind to the specified port")
     quiet = option('q', bool,
             hint="suppress HTTP logs")
 

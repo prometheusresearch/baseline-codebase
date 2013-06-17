@@ -4,13 +4,12 @@ from rex.web import Command, Parameter, authorize
 from webob import Response
 from webob.exc import HTTPUnauthorized
 
-class HelloRoleSetting(Setting):
+class HelloAccessSetting(Setting):
     """
     Permission to use the `/hello` command.
     """
-    name = 'hello_role'
+    name = 'hello_access'
     validate = ChoiceVal('anybody', 'authenticated', 'nobody')
-
 
 class HelloCmd(Command):
 
@@ -20,8 +19,8 @@ class HelloCmd(Command):
     ]
 
     def authorize(self, req):
-        role = get_settings().hello_role
-        if not authorize(req, role):
+        access = get_settings().hello_access
+        if not authorize(req, access):
             raise HTTPUnauthorized()
 
     def render(self, req, name):
@@ -30,7 +29,7 @@ class HelloCmd(Command):
 class ErrorCmd(Command):
 
     path = '/error'
-    role = 'anybody'
+    access = 'anybody'
 
     def render(self, req):
         raise RuntimeError("some unexpected problem occurred")

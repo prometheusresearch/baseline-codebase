@@ -23,8 +23,8 @@ All invocations of the ``rex`` utility follows the same pattern::
     $ rex <task> [<arguments>...]
 
 Parameter ``<task>`` indicates the action to perform, ``<arguments>...`` are
-parameters specific to the action.  One of the most useful tasks is called
-``help``, and it allows you to list available tasks, settings and help topics::
+parameters specific to the action.  One of the most useful tasks is ``rex
+help``, which allows you to list available tasks, settings and help topics::
 
     $ rex help
     Rex - Command-line administration utility for the Rex platform
@@ -32,21 +32,19 @@ parameters specific to the action.  One of the most useful tasks is called
 
     Run rex help for general usage and a list of tasks,
     settings and other help topics.
-
     ...
 
-To describe a specific task, pass the task name as a parameter to ``help``, for
-example::
+To describe a specific task, pass the task name as a parameter to ``rex help``;
+for example::
 
     $ rex help serve
     SERVE - starts HTTP server
     Usage: rex serve [<project>]
 
     The serve task starts an HTTP server to serve a Rex application.
-
     ...
 
-You can also use ``help`` to describe a global setting::
+You can also use ``rex help`` to describe a global setting::
 
     $ rex help debug
     DEBUG - print debug information
@@ -58,41 +56,80 @@ You can also use ``help`` to describe a global setting::
 Starting HTTP server
 ====================
 
-Use task ``serve`` to serve a Rex application via HTTP::
+Use ``rex serve`` to serve a Rex application via HTTP::
 
     $ rex serve rex.ctl_demo
     Serving rex.ctl_demo on localhost:8088
 
 Press ``Ctrl-C`` to stop the server.
 
-You can use options ``--host`` and ``--port`` to override the address
-of the HTTP server::
+You can use options ``--host`` and ``--port`` to override the address of the
+HTTP server::
 
     $ rex serve rex.ctl_demo --host localhost --port 8088
     Serving rex.ctl_demo on localhost:8088
 
-Use option ``--set`` to specify an application parameter::
+Use option ``--set`` to specify a parameter of the application::
 
-    $ rex serve rex.ctl_demo --set hello_role=anybody
+    $ rex serve rex.ctl_demo --set hello_access=anybody
 
 
 Configuration file
 ==================
 
 You can specify the project name, application configuration and other
-parameters in a configuration file.  Create a file ``rex.yaml`` with
-the following content::
+parameters in a configuration file.  For example, create a file ``rex.yaml``
+with the following content::
 
     project: rex.ctl_demo
     parameters:
-        hello_role: anybody
+        hello_access: anybody
     http-host: localhost
     http-port: 8088
 
-Now you can start the ``serve`` task with no arguments at all::
+Now you can start ``rex serve`` with no arguments at all::
 
     $ rex serve
     Serving rex.ctl_demo on localhost:8088
+
+Alternatively, configuration parameters could be specified using environment
+variables::
+
+    $ export REX_PROJECT=rex.ctl_demo
+    $ export REX_PARAMETERS='{"hello_access": "anybody"}'
+    $ export REX_HTTP_HOST=localhost
+    $ export REX_HTTP_PORT=8088
+    $ rex serve
+    Serving rex.ctl_demo on localhost:8088
+
+or command-line parameters::
+
+    $ rex serve --project=rex.ctl_demo \
+                --parameters='{"hello_access": "anybody"}' \
+                --http-host=localhost \
+                --http-port=8088
+    Serving rex.ctl_demo on localhost:8088
+
+
+WSGI scripts
+============
+
+For running a Rex application in production, the built-in HTTP server ``rex
+serve`` may not be the best choice.  Instead, you can use one of the industry
+standard tools such as mod_wsgi_, uwsgi_, or Gunicorn_.
+
+.. _mod_wsgi: http://code.google.com/p/modwsgi/
+.. _uwsgi: http://uwsgi-docs.readthedocs.org/
+.. _Gunicorn: http://gunicorn.org/
+
+To serve a Python application, these tools require you to create a *WSGI
+script*, a small Python program that creates and configures an application
+object.  Use ``rex wsgi`` for that purpose::
+
+    $ rex wsgi rex.ctl_demo -o ctl_demo.wsgi
+
+This commands generates a WSGI script for ``rex.ctl_demo`` and saves it as
+``ctl_demo.wsgi``.
 
 
 Packages and settings
@@ -114,7 +151,6 @@ To list all configuration parameters of the application, run::
       rex.core
     Description:
       Turn on debug mode.
-
     ...
 
 

@@ -527,3 +527,81 @@ keys and mapping values::
         0
 
 
+``RecordVal``
+=============
+
+``RecordVal`` expects a dictionary with a fixed set of keys and converts it
+to a ``collections.namedtuple`` object.  It is parameterized with a list of
+fields::
+
+    >>> from rex.core import RecordVal
+    >>> record_val = RecordVal([('name', StrVal()),
+    ...                         ('age', MaybeVal(UIntVal()), None)])
+    >>> record_val
+    RecordVal([('name', StrVal()), ('age', MaybeVal(UIntVal()), None)])
+    >>> record_val({'name': "Alice", 'age': '33'})
+    Record(name='Alice', age=33)
+
+``RecordVal`` also accepts tuples and serialized JSON objects::
+
+    >>> record_val(_)
+    Record(name='Alice', age=33)
+    >>> record_val(("Alice", 33))
+    Record(name='Alice', age=33)
+    >>> record_val('{"name": "Alice", "age": 33}')
+    Record(name='Alice', age=33)
+
+Ill-formed tuples or JSON objects are rejected::
+
+    >>> record_val(("Bob", 'm', 12))
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping
+    Got:
+        ('Bob', 'm', 12)
+    >>> import collections
+    >>> Person = collections.namedtuple("Person", "name sex")
+    >>> record_val(Person("Clarence", 'm'))
+    Traceback (most recent call last):
+      ...
+    Error: Expected a record with fields:
+        name, age
+    Got:
+        Person(name='Clarence', sex='m')
+    >>> record_val("David")
+    Traceback (most recent call last):
+      ...
+    Error: Expected a JSON object
+    Got:
+        'David'
+
+Optional fields can be omitted, but mandatory cannot be::
+
+    >>> record_val({'name': "Bob"})
+    Record(name='Bob', age=None)
+    >>> record_val({'age': 81})
+    Traceback (most recent call last):
+      ...
+    Error: Missing mandatory field:
+        name
+
+Unexpected fields are rejected::
+
+    >>> record_val({'name': "Eleonore", 'sex': 'f'})
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected field:
+        sex
+
+Invalid field values are reported::
+
+    >>> record_val({'name': "Fiona", 'age': False})
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        False
+    While validating field:
+        age
+
+

@@ -120,3 +120,20 @@ directory are rendered as Jinja templates::
     </body>
 
 
+Custom filters, globals and tests
+=================================
+
+Filter ``json`` serializes input to JSON::
+
+    >>> req = Request.blank('/')
+    >>> with templating:
+    ...     print render_to_response('templating:/templates/json.js_t', req,
+    ...                              content_type='application/javascript',
+    ...                              input={"name": 'Alice', "sex": 'f'})
+    200 OK
+    Content-Type: application/javascript; charset=UTF-8
+    Content-Length: 42
+    <BLANKLINE>
+    var input = {"name": "Alice", "sex": "f"};
+
+

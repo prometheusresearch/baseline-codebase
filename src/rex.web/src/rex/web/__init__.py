@@ -15,6 +15,7 @@ from .command import Command, Parameter
 from .handle import HandleLocation, HandleFile, HandleError
 from .route import MountSetting
 from .secret import SecretSetting
-from .template import get_jinja, render_to_response, HandleTemplate
+from .template import (get_jinja, render_to_response, HandleTemplate,
+        jinja_filter_json)
 
 

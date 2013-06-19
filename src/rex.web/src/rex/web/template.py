@@ -95,6 +95,13 @@ class RexJinjaLoader(jinja2.BaseLoader):
         return (source, real_path, uptodate)
 
 
+def jinja_filter_json(value):
+    """
+    Jinja filter ``json`` that serializes the input value to JSON.
+    """
+    return json.dumps(value)
+
+
 @cached
 def get_jinja():
     """
@@ -111,10 +118,7 @@ def get_jinja():
         Adds ``break`` and ``continue`` keywords
         (http://jinja.pocoo.org/docs/extensions/#loop-controls).
 
-    The following filters are added:
-
-    ``json``
-        Converts the given object to JSON representation.
+    The following filters are added: :func:`.jinja_filter_json()`.
 
     The following tests are added: *none*.
 
@@ -129,7 +133,7 @@ def get_jinja():
             loader=RexJinjaLoader())
     jinja.filters.update({
             # Add more filters here.
-            'json': json.dumps,
+            'json': jinja_filter_json,
     })
     jinja.globals.update({
             # Add more globals here.

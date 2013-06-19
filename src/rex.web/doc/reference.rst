@@ -41,6 +41,7 @@ Templates
 
 .. autoclass:: HandleTemplate
 .. autofunction:: get_jinja
+.. autofunction:: jinja_filter_json
 .. autofunction:: render_to_response
 
 

@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<title>rex.db_demo</title>
+<body>
+  <ul>
+    <li><a href="{{ MOUNT['rex.db'] }}/department">Direct access to HTSQL service</a></li>
+    <li><a href="{{ MOUNT['rex.db_demo'] }}/departments_by_school.htsql?school=ns">A canned HTSQL query</a></li>
+    <li><a href="{{ MOUNT['rex.db_demo'] }}/list_of_departments.html">An HTML template using HTSQL</a></li>
+    <li><a href="{{ MOUNT['rex.db_demo'] }}/department_by_id?id=comp">A command using HTSQL</a></li>
+  </ul>
+</body>

@@ -1,0 +1,11 @@
+# List all departments associated with the given school.
+# If no school is given, list all departments.
+
+query:
+  /department
+    .select(code, name)
+    .guard($school, filter(school.code=$school))
+
+parameters:
+  school: null
+

@@ -1,0 +1,9 @@
+
+htsql_base_extensions:
+    tweak.meta:
+    tweak.shell.default:
+    tweak.autolimit:
+        limit: 10000
+
+htsql_access: anybody   # Don't do it for real projects!
+

@@ -1,0 +1,32 @@
+#
+# Copyright (c) 2013, Prometheus Research, LLC
+#
+
+title: REX.DB Tests
+suite: rex.db
+tests:
+
+- rmdir: ./sandbox
+- mkdir: ./sandbox
+- py: |
+    # Create the database
+    import sqlite3
+    sql = open('./demo/rex.db_demo/static/db_demo.sql').read()
+    connection = sqlite3.connect('./sandbox/db_demo.sqlite')
+    connection.executescript(sql)
+    connection.commit()
+
+- coverage: setup.cfg
+
+- sh: pip install -q -e ./demo/rex.db_demo
+
+- doctest: README.rst
+#- doctest: test/test_*.rst
+
+- sh: pip uninstall -q -y rex.db_demo
+
+- coverage-check: 95.0
+- coverage-report: ./build/coverage
+
+- rmdir: ./sandbox
+

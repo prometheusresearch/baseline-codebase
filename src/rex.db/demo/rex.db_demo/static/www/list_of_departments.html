@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<title>List of Departments</title>
+<body>
+  <table>
+    <tr><th colspan="3">Departments ({{ htsql("count(department)") }})</th></tr>
+    <tr><th>No</th><th>Code</th><th>Name</th></tr>
+    {%- for department in htsql("/department{code, name}") %}
+    <tr><td>{{ loop.index }}</td><td>{{ department.code|e }}</td><td>{{ department.name|e }}</td></tr>
+    {%- endfor %}
+  </table>
+</body>

@@ -11,7 +11,7 @@ import binascii
 import datetime
 import traceback
 import SocketServer
-import wsgiref.simple_server, wsgiref.util
+import wsgiref.simple_server, wsgiref.handlers, wsgiref.util
 
 
 class RexServer(SocketServer.ThreadingMixIn, wsgiref.simple_server.WSGIServer):
@@ -84,8 +84,8 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
                 size)
 
 
-class RexServerHandler(wsgiref.simple_server.ServerHandler):
-    # Customizes output on unhandled exceptions.
+class RexServerHandler(wsgiref.handlers.SimpleHandler):
+    # Customizes output for unhandled exceptions.
 
     def log_exception(self, exc_info):
         # Dumps the exception traceback to stderr.
@@ -124,6 +124,20 @@ class RexServerHandler(wsgiref.simple_server.ServerHandler):
             return lines
         finally:
             exc_info = None
+
+    def finish_response(self):
+        # Overridden to fix a problem with `self.close()` called twice and
+        # add a line to access log.
+        if not self.result_is_file() or not self.sendfile():
+            for data in self.result:
+                self.write(data)
+            self.finish_content()
+        # Add a line to access log.
+        self.request_handler.log_request(
+                self.status.split(' ',1)[0], self.bytes_sent)
+        # Note that `close()` is not called if an exception occurs above.
+        # If this happens, the final `close()` is called in `BaseHandler.run()`.
+        self.close()
 
 
 @setting

@@ -3,6 +3,11 @@
 #
 
 
+"""
+This package provides `rex` command-line utility.
+"""
+
+
 from cogs.core import env
 from cogs.run import main
 import sys

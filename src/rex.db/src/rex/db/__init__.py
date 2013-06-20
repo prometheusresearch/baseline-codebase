@@ -130,6 +130,20 @@ class HTSQLAccessSetting(Setting):
     default = 'authenticated'
 
 
+def jinja_global_htsql(query, environment=None, **arguments):
+    """
+    Jinja global ``htsql`` that executes an HTSQL query and returns the result.
+
+    `query`
+        HTSQL query.
+    `environment`, `arguments`
+        Dictionaries with query parameters.
+    """
+    db = get_db()
+    product = db.produce(query, environment, **arguments)
+    return product.data
+
+
 class InitializeDB(Initialize):
     # On startup, checks if the connection parameters are valid.
 
@@ -142,9 +156,7 @@ class InitializeDB(Initialize):
         # Add HTSQL-related globals to the Jinja environment.
         jinja = get_jinja()
         jinja.globals.update({
-            'htsql':
-                lambda query, **arguments:
-                    get_db().produce(query, **arguments).data,
+            'htsql': jinja_global_htsql,
         })
 
 

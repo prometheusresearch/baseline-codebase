@@ -4,9 +4,6 @@
 
 .. contents:: Table of Contents
 .. role:: mod(literal)
-.. role:: class(literal)
-.. role:: meth(literal)
-.. role:: attr(literal)
 .. role:: func(literal)
 
 
@@ -35,15 +32,15 @@ form::
 
     <engine>://<username>:<password>@<host>:<port>/<database>
 
-In our examples, we will use a SQLite database ``./sandbox/db_demo.sqlite``::
+In our examples, we use a SQLite database ``./sandbox/db_demo.sqlite``, which
+is generated from a database schema ``rex.db_demo/static/db_demo.sql``::
 
     >>> from rex.core import Rex
 
     >>> demo = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite')
 
-:mod:`rex.db` allows you to configure HTSQL with two configuration parameters
-``htsql_base_extensions`` and ``htsql_extensions``.  The should specify
-HTSQL addons and addon configuration.
+To enable and configure HTSQL addons, use settings ``htsql_base_extensions``
+and ``htsql_extensions``.
 
 Use ``htsql_base_extensions`` to preset HTSQL configuration for a particular
 application.  For example::
@@ -67,8 +64,8 @@ deployment.  For example::
 HTSQL service
 =============
 
-HTSQL service is mounted under ``/db`` URL.  By default, the access is
-restricted to authenticated users::
+Raw HTSQL service is available under the :mod:`rex.db` mount point.  By
+default, the access is restricted to authenticated users::
 
     >>> from webob import Request
 
@@ -96,12 +93,12 @@ HTSQL service.
 ``*.htsql`` files
 =================
 
-An alternative to enabling direct HTSQL access is ``.htsql`` files, which
-allow you to limit access to HTSQL with "canned" or predefined queries and
-reports.
+Often, letting users access the raw HTSQL service is not desirable for security
+reasons.  In this case, you can use "canned" or prepared HTSQL queries.
 
-In :mod:`rex.db_demo`, we created a file
-``rex.db_demo/static/www/departments_by_school.htsql``::
+To make a canned query, create a static resource with ``.htsql`` extension and
+put it under the ``www`` directory.  For example, :mod:`rex.db_demo` contains a
+static resource ``rex.db_demo/static/www/departments_by_school.htsql``::
 
     # List all departments associated with the given school.
     # If no school is given, list all departments.
@@ -114,7 +111,7 @@ In :mod:`rex.db_demo`, we created a file
     parameters:
       school: null
 
-This is a YAML_ file with two fields:
+This file is in a YAML_ format.  It contains a record with two fields:
 
 ``query``
     The HTSQL query to execute.
@@ -123,8 +120,8 @@ This is a YAML_ file with two fields:
 
 .. _YAML: http://yaml.org/
 
-To get a list of departments in the *School of Natural Science*, we could make
-a request::
+Using our example, to get a list of departments in the *School of Natural
+Science*, we make a request::
 
     >>> req = Request.blank('/departments_by_school.htsql?school=ns')
     >>> print req.get_response(demo)        # doctest: +ELLIPSIS
@@ -141,7 +138,7 @@ a request::
     ...
 
 ``*.htsql`` files are subject to normal access rules for static resources, so
-with ``*.htsql`` files, you can easily configure your application to to permit
+with ``*.htsql`` files, you can easily configure your application to permit
 selected users run a limited set of queries.
 
 
@@ -167,6 +164,7 @@ example, :mod:`rex.db_demo` has a template
 It uses global function ``htsql()`` to make two queries::
 
     count(department)
+
     /department{code, name}
 
 The output is a table listing all departments::
@@ -217,8 +215,8 @@ which finds the department with the given ``id``::
             return Response(json={"code": department.data.code,
                                   "name": department.data.name})
 
-The command uses :func:`rex.db.get_db()`` to obtain an HTSQL instance
-and then uses it to execute a parameterized HTSQL query::
+The command uses :func:`rex.db.get_db()` to obtain an HTSQL instance and then
+uses the instance to execute a parameterized HTSQL query::
 
     department[$id]
 

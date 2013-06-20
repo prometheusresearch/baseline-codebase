@@ -1,0 +1,11 @@
+# List departments with average course credits greater than the given value.
+
+query:
+  /department
+    .define(avg_credits := avg(course.credits))
+    .select(code, name, round(avg_credits, 2))
+    .filter(avg_credits>$credits)
+
+parameters:
+  credits: '0'
+

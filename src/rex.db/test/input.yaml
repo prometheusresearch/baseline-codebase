@@ -21,7 +21,7 @@ tests:
 - sh: pip install -q -e ./demo/rex.db_demo
 
 - doctest: README.rst
-#- doctest: test/test_*.rst
+- doctest: test/test_*.rst
 
 - sh: pip uninstall -q -y rex.db_demo
 

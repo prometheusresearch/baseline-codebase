@@ -14,6 +14,12 @@ HTSQL instance
 .. autofunction:: get_db
 
 
+Templates
+=========
+
+.. autofunction:: jinja_global_htsql
+
+
 Configuration
 =============
 

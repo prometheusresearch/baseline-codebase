@@ -317,11 +317,11 @@ Static resources in directory ``www`` are available via HTTP::
 
     >>> req = Request.blank('/names.csv')
     >>> req.remote_user = 'Daniel'
-    >>> print req.get_response(static)
+    >>> print req.get_response(static)      # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/csv; charset=UTF-8
     Content-Length: 23
-    Last-Modified: Thu, 06 Jun 2013 19:01:04 GMT
+    Last-Modified: ...
     Accept-Ranges: bytes
     <BLANKLINE>
     name
@@ -394,11 +394,11 @@ Access is controlled by ``_access.yaml`` file::
 
     >>> req = Request.blank('/access/default.csv')
     >>> req.remote_user = 'Bob'
-    >>> print req.get_response(static)
+    >>> print req.get_response(static)      # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/csv; charset=UTF-8
     Content-Length: 24
-    Last-Modified: Thu, 06 Jun 2013 19:47:50 GMT
+    Last-Modified: ...
     Accept-Ranges: bytes
     <BLANKLINE>
     names

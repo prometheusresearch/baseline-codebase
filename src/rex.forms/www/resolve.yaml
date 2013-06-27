@@ -1,9 +1,0 @@
-deny:
-- uri: /base.html
-- uri: /roadsbuilder_macros.html
-- uri: /macros.html
-- uri: /index.html
-
-skip_authentication:
-- uri: /roads-client2.html
-

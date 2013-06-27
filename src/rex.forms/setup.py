@@ -2,23 +2,15 @@
 from setuptools import setup, find_packages
 
 setup(name='rex.forms',
-      version="0.2.3",
-      description="Your description here",
-      setup_requires=['rexsetup'],
-      # Uncomment next 2 lines if you are adding any python code
-      packages=find_packages('src'),
-      package_dir={'': 'src'},
+      version="1.0.0",
+      description="RexForms client Javascript code & templates",
       include_package_data=True,
-      namespace_packages=['rex'],
-      install_requires=['rexrunner',
-                        'rex.common>=0.1.0',
-                        'rex.ext>=0.1.0',
-                        'rex.instrument>=0.1.0',
-                        'htsql>=2.3.3',
-                        ],
 
-      www_prefix='/rex.forms',
-      www_dir='www',
-      www_module='rex.forms',
-      www_settings='settings.yaml',
-      )
+      rex_static='static',
+
+      setup_requires=['rex.setup'],
+      install_requires=['rexrunner',
+                        'rex.common>=1.0.0',
+                        'rex.ext>=1.0.0',
+                        ],
+)

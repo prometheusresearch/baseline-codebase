@@ -136,4 +136,40 @@ Filter ``json`` serializes input to JSON::
     <BLANKLINE>
     var input = {"name": "Alice", "sex": "f"};
 
+Filter ``urlencode`` encodes specific symbols in URLs::
 
+    >>> req = Request.blank('/')
+    >>> with templating:
+    ...     print render_to_response('templating:/templates/urlencode.html',
+    ...                               req)
+    200 OK
+    Content-Type: text/html; charset=UTF-8
+    Content-Length: 206
+    <BLANKLINE>
+    Using <b>urlencode</b> on <i>/other?x=1&y=2</i>: 
+    <a href="goto?redirect=/other%3Fx%3D1%26y%3D2">Link</a> 
+    Using <b>ue</b> on <i>/other?x=1&y=2</i>: 
+    <a href="goto?redirect=/other%3Fx%3D1%26y%3D2">Link</a> 
+
+Filter ``fix_script`` replaces '</script>' in a JavaScript line to prevent
+browser parse fail::
+
+
+    >>> req = Request.blank('/')
+    >>> with templating:
+    ...     print render_to_response('templating:/templates/fix_script.html',
+    ...                               req,
+    ...                               s1='<script> Test </script>',
+    ...                               s2='some text </sCriPt> other text',
+    ...                               s3='example: </  sCRiPT    >')
+    200 OK
+    Content-Type: text/html; charset=UTF-8
+    Content-Length: 240
+    <BLANKLINE>
+    <html><head>
+    <script type="text/javascript">
+        var s1 = "<script> Test \u003c\u002fscript>";
+        var s2 = "some text \u003c\u002fsCriPt> other text";
+        var s3 = "example: \u003c\u002f  sCRiPT    >";
+    </script>
+    </head><body></body></html>

@@ -11,6 +11,7 @@ import mimetypes
 import json
 import urllib
 import jinja2
+import re
 
 
 class HandleTemplate(HandleFile):
@@ -102,6 +103,22 @@ def jinja_filter_json(value):
     return json.dumps(value)
 
 
+def jinja_filter_urlencode(value):
+    """
+    Jinja filters ``urlencode``/``ue`` do the same as ``urllib.quote``
+    """
+    return urllib.quote(value)
+
+
+def jinja_filter_fix_script(value):
+    """
+    Jinja filter ``fix_script`` fixes the '</script>' string inside the
+    block of Javascript code preventing browser from failing short on it.
+    """
+    return re.sub(r'(?i)</(\s*script\s*>)',
+                  '\\\\u003c\\\\u002f\\1', value)
+
+
 @cached
 def get_jinja():
     """
@@ -118,7 +135,10 @@ def get_jinja():
         Adds ``break`` and ``continue`` keywords
         (http://jinja.pocoo.org/docs/extensions/#loop-controls).
 
-    The following filters are added: :func:`.jinja_filter_json()`.
+    The following filters are added: 
+        :func:`.jinja_filter_json()`,
+        :func:`.jinja_filter_urlencode()`,
+        :func:`.jinja_filter_fix_script()`.
 
     The following tests are added: *none*.
 
@@ -134,6 +154,9 @@ def get_jinja():
     jinja.filters.update({
             # Add more filters here.
             'json': jinja_filter_json,
+            'urlencode': jinja_filter_urlencode,
+            'ue': jinja_filter_urlencode,
+            'fix_script': jinja_filter_fix_script,
     })
     jinja.globals.update({
             # Add more globals here.

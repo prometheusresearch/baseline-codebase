@@ -120,6 +120,26 @@ directory are rendered as Jinja templates::
     </body>
 
 
+Predefined Template Parameters
+==============================
+
+Each template has following predefined parameters:
+
+`MOUNT`
+  Package mount table mapping package names to absolute URLs.
+
+`USER`
+  Currently authenticated user.
+
+`SETTINGS`
+  Settings of the server.
+
+`URL`
+  Absolute URL of the request.
+
+`PATH_QS`
+  PATH_INFO and QUERY_STRING of the request
+
 Custom filters, globals and tests
 =================================
 

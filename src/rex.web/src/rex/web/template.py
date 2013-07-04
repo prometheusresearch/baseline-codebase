@@ -3,8 +3,9 @@
 #
 
 
-from rex.core import get_packages, cached
+from rex.core import get_packages, cached, get_settings
 from .handle import HandleFile
+from .auth import authenticate
 from webob import Response
 import os.path
 import mimetypes
@@ -193,6 +194,14 @@ def render_to_response(package_path, req,
         Form parameters.
     `REQUEST`
         HTTP request object.
+    `USER`
+        Currently authenticated user.
+    `SETTINGS`
+        Settings of the server.
+    `URL`
+        Absolute URL of the request.
+    `PATH_QS`
+        PATH_INFO and QUERY_STRING of the request.
     """
     jinja = get_jinja()
     template = jinja.get_template(package_path)
@@ -201,6 +210,10 @@ def render_to_response(package_path, req,
                                                 # Request objects.
             PARAMS=req.params,
             REQUEST=req,
+            USER=authenticate(req),
+            SETTINGS=get_settings(),
+            URL=req.url,
+            PATH_QS=req.path_qs,
             **arguments)
     if status is None:
         status = 200

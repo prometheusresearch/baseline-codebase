@@ -24,13 +24,7 @@ Examples
 
 .. toctree::
 
-   test/test_application
-   test/test_cache
-   test/test_error
-   test/test_extension
-   test/test_package
-   test/test_setting
-   test/test_validate
+   test/index
 
 
 Release notes

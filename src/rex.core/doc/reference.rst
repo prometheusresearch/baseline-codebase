@@ -1,6 +1,6 @@
-*******************
-  :mod:`rex.core`
-*******************
+**************************
+  REX.CORE API Reference
+**************************
 
 .. contents:: Table of Contents
 

@@ -1,6 +1,6 @@
-***************************************************
-  REX.CORE -- Core components of the Rex platform
-***************************************************
+******************************
+  REX.CORE Programming Guide
+******************************
 
 .. contents:: Table of Contents
 .. role:: mod(literal)

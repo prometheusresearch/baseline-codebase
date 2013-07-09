@@ -7,9 +7,19 @@ from rex.validate import make_assessment_schema, ValidationError, validate, \
                          instrument_schema
 
 class BaseInstrumentRegistry(object):
-    pass
 
-class InstrumentRegistry(object):
+    def get_instrument(self, id, version=None):
+        assert False, 'Implement in subclasses'
+
+    @property
+    def all_instruments(self):
+        assert False, 'Implement in subclasses'
+
+    @property
+    def latest_instruments(self):
+        assert False, 'Implement in subclasses'
+
+class InstrumentRegistry(BaseInstrumentRegistry):
 
     def __init__(self, directory):
         assert os.path.isdir(directory)

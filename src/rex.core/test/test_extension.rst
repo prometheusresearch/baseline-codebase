@@ -8,7 +8,7 @@
 ``Extension``
 =============
 
-We start with creating a Rex application from the ``__main__`` module, which
+We start with creating a RexDB application from the ``__main__`` module, which
 allows us to define extensions in-place::
 
     >>> from rex.core import Rex, Package

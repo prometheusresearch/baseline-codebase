@@ -61,8 +61,8 @@ The order of packages in the collection respects package dependencies::
     ...     print get_packages()        # doctest: +ELLIPSIS
     PackageCollection([Package('rex.core_demo', ...), Package('rex.core', ...)])
 
-Attribute ``PackageCollection.modules`` is a set of all modules where Rex would
-look for extensions::
+Attribute ``PackageCollection.modules`` is a set of all modules where RexDB
+would look for extensions::
 
     >>> packages.modules    # doctest: +ELLIPSIS
     set([..., 'rex.core_demo', ...])
@@ -114,14 +114,14 @@ An exception is raised if the package name is ill-formed or unknown::
       ...
     Error: Got ill-formed requirement:
         rex.bro ken
-    While initializing Rex application:
+    While initializing RexDB application:
         rex.bro ken
     >>> Rex('rex.unknown')
     Traceback (most recent call last):
       ...
     Error: Failed to satisfy requirement:
         rex.unknown
-    While initializing Rex application:
+    While initializing RexDB application:
         rex.unknown
 
 

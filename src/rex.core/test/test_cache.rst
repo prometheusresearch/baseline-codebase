@@ -78,6 +78,6 @@ It is an error to call a cached function when no application is active::
     >>> factorial(10)
     Traceback (most recent call last):
       ...
-    AssertionError: no active Rex application
+    AssertionError: no active RexDB application
 
 

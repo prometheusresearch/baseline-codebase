@@ -13,7 +13,7 @@ import pkg_resources
 
 class Package(object):
     """
-    Component of a Rex application.
+    Component of a RexDB application.
 
     `name`
         The package name.

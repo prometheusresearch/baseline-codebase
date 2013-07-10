@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 setup(
     name='rex.core',
     version = "1.0.0",
-    description="Core components of the Rex platform",
+    description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
@@ -25,6 +25,10 @@ setup(
         'rex.setup >=1.0, <2',
         'pyyaml',
     ],
+    extras_require={
+        'doc': ['Sphinx'],
+        'test': ['pbbt'],
+    },
     rex_init='rex.core',
 )
 

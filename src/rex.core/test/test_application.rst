@@ -15,7 +15,7 @@ Use ``Rex`` constructor to create an application object::
     >>> Rex()
     Rex()
 
-Rex applications are assembled from packages.  Pass included packages as
+RexDB applications are assembled from packages.  Pass included packages as
 positional parameters to the constructor.  A package could be specified by name
 or as ``Package`` object::
 
@@ -42,7 +42,7 @@ It is an error to specify unknown package name or configuration setting::
       ...
     Error: Failed to satisfy requirement:
         rex.unknown
-    While initializing Rex application:
+    While initializing RexDB application:
         rex.unknown
 
     >>> Rex(unknown=None)
@@ -50,7 +50,7 @@ It is an error to specify unknown package name or configuration setting::
       ...
     Error: Got unknown setting:
         unknown
-    While initializing Rex application
+    While initializing RexDB application
     With parameters:
         unknown: None
 
@@ -80,7 +80,7 @@ It is an error to call ``get_rex()`` when no application is active::
     >>> get_rex()
     Traceback (most recent call last):
       ...
-    AssertionError: no active Rex application
+    AssertionError: no active RexDB application
 
 Activation calls could be nested::
 
@@ -106,7 +106,7 @@ Calls to ``Rex.on()`` and ``Rex.off()`` methods should be ordered properly::
     >>> demo2.off()
     Traceback (most recent call last):
       ...
-    AssertionError: unexpected Rex application
+    AssertionError: unexpected RexDB application
     >>> demo.off()
 
 

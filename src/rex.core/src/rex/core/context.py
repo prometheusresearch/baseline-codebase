@@ -24,12 +24,12 @@ class RexContext(threading.local):
 
     def pop(self, app):
         # Deactivates the application.
-        assert self._active_app is app, "unexpected Rex application"
+        assert self._active_app is app, "unexpected RexDB application"
         self._active_app = self._app_stack.pop()
 
     def __call__(self):
         # Returns the current active application.
-        assert self._active_app is not None, "no active Rex application"
+        assert self._active_app is not None, "no active RexDB application"
         return self._active_app
 
 

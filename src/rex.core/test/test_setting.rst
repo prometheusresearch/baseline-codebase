@@ -46,14 +46,14 @@ through the constructor override values defined in ``settings.yaml`` files::
     Error: Failed to parse settings file:
         found undefined alias 'This'
           in "/.../test/data/broken_setting/settings.yaml", line 1, column 1
-    While initializing Rex application:
+    While initializing RexDB application:
         ./test/data/broken_setting/
     >>> Rex('./test/data/ill_formed_setting/')      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     Error: Got ill-formed settings file:
         /.../test/data/ill_formed_setting/settings.yaml
-    While initializing Rex application:
+    While initializing RexDB application:
         ./test/data/ill_formed_setting/
     >>> Rex('./test/data/unknown_setting/')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
@@ -62,7 +62,7 @@ through the constructor override values defined in ``settings.yaml`` files::
         unknown
     In
         /.../test/data/unknown_setting/settings.yaml
-    While initializing Rex application:
+    While initializing RexDB application:
         ./test/data/unknown_setting/
 
 
@@ -105,7 +105,7 @@ attributes ``name``, ``validate`` and ``default``::
       ...
     Error: Missing mandatory setting:
         mandatory
-    While initializing Rex application:
+    While initializing RexDB application:
         __main__
     >>> Rex('__main__', mandatory=True, integer='NaN')
     Traceback (most recent call last):
@@ -115,7 +115,7 @@ attributes ``name``, ``validate`` and ``default``::
         'NaN'
     While validating setting:
         integer
-    While initializing Rex application:
+    While initializing RexDB application:
         __main__
     With parameters:
         integer: 'NaN'

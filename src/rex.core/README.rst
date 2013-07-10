@@ -14,7 +14,7 @@
 Overview
 ========
 
-This package provides core components of the Rex platform:
+This package provides the foundation of the RexDB platform:
 
 * initialization;
 * extension mechanism;
@@ -23,16 +23,16 @@ This package provides core components of the Rex platform:
 * validation utilities.
 
 This package is a part of the RexDB |R| platform for medical research data
-management.  RexDB is free software created by Prometheus Research, LLC and 
-is released under the AGPLv3 license with a commensurate attribution clause.  
-For more information, please visit http://rexdb.org/.
+management.  RexDB is free software created by Prometheus Research, LLC and is
+released under the AGPLv3 license with a commensurate attribution clause.  For
+more information, please visit http://rexdb.org/.
 
 .. |R| unicode:: 0xAE .. registered trademark sign
 
 Constructing applications
 =========================
 
-Use :class:`rex.core.Rex` constructor to create a new Rex application.  For
+Use :class:`rex.core.Rex` constructor to create a new RexDB application.  For
 example::
 
     >>> from rex.core import Rex
@@ -40,10 +40,10 @@ example::
     >>> demo = Rex('rex.core_demo',
     ...            demo_folder='./demo')
 
-This code creates a Rex application from :mod:`rex.core_demo` package with a
+This code creates a RexDB application from :mod:`rex.core_demo` package with a
 configuration parameter ``demo_folder`` set to ``'./demo'``.
 
-Rex applications are assembled from reusable components called *packages*.
+RexDB applications are assembled from reusable components called *packages*.
 Packages that form the application are passed as positional arguments to the
 :class:`rex.core.Rex` constructor.  Application parameters are passed as
 keyword arguments of the constructor.
@@ -59,7 +59,7 @@ statement on the application object to activate it::
 
 The application is activated before the ``with`` block is executed and
 deactivated after the block is complete.  In this example, function
-:func:`rex.core.get_rex()` returns the current active Rex application, which
+:func:`rex.core.get_rex()` returns the current active RexDB application, which
 gives you the same ``demo`` object.
 
 You can also use methods :meth:`rex.core.Rex.on()` and
@@ -76,22 +76,24 @@ application is activated::
     >>> get_rex()
     Traceback (most recent call last):
       ...
-    AssertionError: no active Rex application
+    AssertionError: no active RexDB application
 
 
 Application components
 ======================
 
-In Rex platform, a *package* is a Python package distribution that may contain:
+In RexDB platform, a *package* is a Python package distribution that may
+contain:
 
 * Python code;
 * associated static files;
 * documentation;
 * ``setup.py`` script.
 
-Packages may depend on each other.  If a package is included as a part of a Rex
-application, all its dependencies are also included.  Package dependencies are
-determined from ``install_requires`` parameter of ``setup.py`` script.
+Packages may depend on each other.  If a package is included as a part of a
+RexDB application, all its dependencies are also included.  Package
+dependencies are determined from ``install_requires`` parameter of ``setup.py``
+script.
 
 Use function :func:`rex.core.get_packages()` to get the collection of packages
 included with the current active application::
@@ -153,8 +155,8 @@ Creating a package
 To develop a new package, start with the following layout::
 
     rex.<name>/
-        README
-        LICENSE
+        README.rst
+        LICENSE.rst
         NEWS.rst
         setup.py
         src/
@@ -176,10 +178,10 @@ To develop a new package, start with the following layout::
         doc/
             [...]
 
-``README``
+``README.rst``
     Package description and overview of the public API exported by the package.
 
-``LICENSE``
+``LICENSE.rst``
     Copyright and licensing information.
 
 ``NEWS.rst``
@@ -213,7 +215,7 @@ To develop a new package, start with the following layout::
 
     Use parameter ``install_requires`` to indicate package dependencies.
 
-    To support Rex extension and distribution mechanisms, we provide two
+    To support RexDB extension and distribution mechanisms, we provide two
     additional setup parameters: ``rex_static`` and ``rex_init``.  To enable
     these parameters, add a setup dependency on ``rex.setup`` package::
 
@@ -311,7 +313,7 @@ Extension mechanism
 ===================
 
 :class:`rex.core.Setting` is an example of the generic extension mechanism for
-Rex applications.  This extension mechanism allows packages to:
+RexDB applications.  This extension mechanism allows packages to:
 
 * declare *interfaces* that provide various services;
 * define *implementations* for interfaces;

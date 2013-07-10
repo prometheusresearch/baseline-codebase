@@ -4,7 +4,7 @@
 
 
 """
-This package provides core components of the Rex platform: initialization,
+This package provides the foundation of the RexDB platform: initialization,
 extension mechanism, configuration management, base exception object,
 validating utilities.
 """

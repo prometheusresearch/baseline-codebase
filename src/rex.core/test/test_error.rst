@@ -8,7 +8,7 @@
 ``Error``
 =========
 
-Rex API should use ``rex.core.Error`` and its subclasses for error reporting.
+RexDB API should use ``rex.core.Error`` and its subclasses for error reporting.
 The exception constructor takes the error message and optional payload::
 
     >>> from rex.core import Error

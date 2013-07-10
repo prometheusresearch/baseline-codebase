@@ -14,7 +14,7 @@ from .error import Error
 
 class Rex(object):
     """
-    Creates a Rex application.
+    Creates a RexDB application.
 
     `requirements`
         Packages to include.  Each requirement is one of:
@@ -43,11 +43,11 @@ class Rex(object):
                     initialize()
             except Error, error:
                 if self.requirements:
-                    error.wrap("While initializing Rex application:",
+                    error.wrap("While initializing RexDB application:",
                                "\n".join(str(requirement)
                                          for requirement in self.requirements))
                 else:
-                    error.wrap("While initializing Rex application")
+                    error.wrap("While initializing RexDB application")
                 if self.parameters:
                     error.wrap("With parameters:",
                                "\n".join("%s: %r" % (key, self.parameters[key])
@@ -94,7 +94,7 @@ class Rex(object):
 
 class Initialize(Extension):
     """
-    Interface for initializing Rex applications.
+    Interface for initializing RexDB applications.
 
     This interface is invoked when a new :class:`Rex` object is
     created.  No more than one implementation per package should be

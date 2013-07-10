@@ -172,9 +172,9 @@ def HTTP_PORT(port=None):
 class SERVE:
     """start an HTTP server
 
-    The `serve` task starts an HTTP server to serve a Rex application.
+    The `serve` task starts an HTTP server to serve a RexDB application.
 
-    This task takes one argument: the name of the primary Rex package.
+    This task takes one argument: the name of the primary RexDB package.
     Alternatively, the package could be specified using `project` setting.
 
     Use option `--require` or setting `requirements` to specify additional

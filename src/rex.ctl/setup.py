@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 setup(
     name='rex.ctl',
     version = "1.0.0",
-    description="Command-line administration utility for the Rex platform",
+    description="Command-line administration utility for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",

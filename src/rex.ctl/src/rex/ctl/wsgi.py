@@ -14,10 +14,10 @@ import sys
 class WSGI:
     """generate a WSGI script
 
-    The `wsgi` task generates a WSGI script for a Rex application, which
+    The `wsgi` task generates a WSGI script for a RexDB application, which
     could be used with `uwsgi`, `mod_wsgi` or any other WSGI container.
 
-    This task takes one argument: the name of the primary Rex package.
+    This task takes one argument: the name of the primary RexDB package.
     Alternatively, the package could be specified using `project` setting.
 
     Use option `--require` or setting `requirements` to specify additional
@@ -64,7 +64,7 @@ class WSGI:
         stream.write("\n")
         stream.write("# WSGI script for %s.\n"
                      % (("the `%s` application" % project)
-                        if project is not None else "a Rex application"))
+                        if project is not None else "a RexDB application"))
         stream.write("# Use it with `uwsgi`, `mod_wsgi`"
                      " or any other WSGI container.\n")
         stream.write("\n")

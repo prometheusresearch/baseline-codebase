@@ -1,6 +1,6 @@
-***********************************************************************
-  REX.CTL -- Command-line administration utility for the Rex platform
-***********************************************************************
+***********************
+  REX.CTL Usage Guide
+***********************
 
 .. contents:: Table of Contents
 
@@ -10,9 +10,12 @@ Overview
 
 This package provides the ``rex`` command-line utility.
 
-This package is a part of the RexDB platform for medical research data
-management.  It is created by Prometheus Research, LLC and released under
-AGPLv3 license.
+This package is a part of the RexDB |R| platform for medical research data
+management.  RexDB is free software created by Prometheus Research, LLC and is
+released under the AGPLv3 license with a commensurate attribution clause.  For
+more information, please visit http://rexdb.org/.
+
+.. |R| unicode:: 0xAE .. registered trademark sign
 
 
 Getting help
@@ -27,7 +30,7 @@ parameters specific to the action.  One of the most useful tasks is ``rex
 help``, which allows you to list available tasks, settings and help topics::
 
     $ rex help
-    Rex - Command-line administration utility for the Rex platform
+    Rex - Command-line administration utility for the RexDB platform
     Usage: rex [<settings>...] <task> [<arguments>...]
 
     Run rex help for general usage and a list of tasks,
@@ -41,7 +44,7 @@ for example::
     SERVE - starts HTTP server
     Usage: rex serve [<project>]
 
-    The serve task starts an HTTP server to serve a Rex application.
+    The serve task starts an HTTP server to serve a RexDB application.
     ...
 
 You can also use ``rex help`` to describe a global setting::
@@ -56,7 +59,7 @@ You can also use ``rex help`` to describe a global setting::
 Starting HTTP server
 ====================
 
-Use ``rex serve`` to serve a Rex application via HTTP::
+Use ``rex serve`` to serve a RexDB application via HTTP::
 
     $ rex serve rex.ctl_demo
     Serving rex.ctl_demo on localhost:8088
@@ -114,7 +117,7 @@ or command-line parameters::
 WSGI scripts
 ============
 
-For running a Rex application in production, the built-in HTTP server ``rex
+For running a RexDB application in production, the built-in HTTP server ``rex
 serve`` may not be the best choice.  Instead, you can use one of the industry
 standard tools such as mod_wsgi_, uwsgi_, or Gunicorn_.
 
@@ -135,7 +138,7 @@ This commands generates a WSGI script for ``rex.ctl_demo`` and saves it as
 Packages and settings
 =====================
 
-To list the packages that compose the Rex application, run::
+To list the packages that compose the RexDB application, run::
 
     $ rex help packages
     [rex.ctl_demo]

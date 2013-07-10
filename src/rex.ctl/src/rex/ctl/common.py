@@ -75,7 +75,7 @@ def PARAMETERS(config=None):
 
 
 class RexNoInit(Rex):
-    # Makes a Rex application without executing `Initialize` interface.
+    # Makes a RexDB application without executing `Initialize` interface.
 
     def initialize(self):
         # Do not fail on startup.
@@ -84,7 +84,7 @@ class RexNoInit(Rex):
 
 def make_rex(project=None, require_list=None, set_list=None,
              initialize=True):
-    # Creates a Rex application from command-line parameters
+    # Creates a RexDB application from command-line parameters
     # and global settings.
 
     # Form the list of requirements.

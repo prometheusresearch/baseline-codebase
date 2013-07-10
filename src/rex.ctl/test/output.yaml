@@ -12,7 +12,7 @@ tests:
   tests:
   - py: simulate-python-m-rex.ctl-invocation
     stdout: |
-      Rex - Command-line administration utility for the Rex platform
+      Rex - Command-line administration utility for the RexDB platform
       Usage: __main__.py [<settings>...] <task> [<arguments>...]
 
       Run __main__.py help for general usage and a list of tasks and settings.
@@ -21,14 +21,14 @@ tests:
   tests:
   - sh: ./sandbox/rex
     stdout: |
-      Rex - Command-line administration utility for the Rex platform
+      Rex - Command-line administration utility for the RexDB platform
       Usage: rex [<settings>...] <task> [<arguments>...]
 
       Run rex help for general usage and a list of tasks and settings.
       Run rex help <topic> for help on a specific task or setting.
   - sh: ./sandbox/rex help
     stdout: |+
-      Rex - Command-line administration utility for the Rex platform
+      Rex - Command-line administration utility for the RexDB platform
       Usage: rex [<settings>...] <task> [<arguments>...]
 
       Run rex help for general usage and a list of tasks,
@@ -58,9 +58,9 @@ tests:
       SERVE - start an HTTP server
       Usage: rex serve [<project>]
 
-      The serve task starts an HTTP server to serve a Rex application.
+      The serve task starts an HTTP server to serve a RexDB application.
 
-      This task takes one argument: the name of the primary Rex package.
+      This task takes one argument: the name of the primary RexDB package.
       Alternatively, the package could be specified using project setting.
 
       Use option --require or setting requirements to specify additional
@@ -92,10 +92,10 @@ tests:
       WSGI - generate a WSGI script
       Usage: rex wsgi [<project>]
 
-      The wsgi task generates a WSGI script for a Rex application, which
+      The wsgi task generates a WSGI script for a RexDB application, which
       could be used with uwsgi, mod_wsgi or any other WSGI container.
 
-      This task takes one argument: the name of the primary Rex package.
+      This task takes one argument: the name of the primary RexDB package.
       Alternatively, the package could be specified using project setting.
 
       Use option --require or setting requirements to specify additional
@@ -165,10 +165,9 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 404 Not Found
-        Date: Fri, 14 Jun 2013 03:22:49 GMT
+        Date: Wed, 10 Jul 2013 19:31:41 GMT
         Content-Length: 41
         Content-Type: text/plain
-        Server: WSGIServer/0.1 Python/2.7.4
 
         Application does not provide web access.
     - sh: ./sandbox/rex --kill serve
@@ -183,10 +182,9 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:50 GMT
+        Date: Wed, 10 Jul 2013 19:31:51 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
@@ -202,22 +200,20 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:51 GMT
+        Date: Wed, 10 Jul 2013 19:31:59 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
     - sh: ./sandbox/rex --get /shared/shared.css
       stdout: |+
         HTTP/1.0 200 OK
-        Content-Length: 49
-        Accept-Ranges: bytes
-        Server: WSGIServer/0.1 Python/2.7.4
+        Date: Wed, 10 Jul 2013 19:32:00 GMT
         Last-Modified: Fri, 14 Jun 2013 01:21:00 GMT
-        Date: Fri, 14 Jun 2013 03:22:51 GMT
+        Content-Length: 49
         Content-Type: text/css; charset=UTF-8
+        Accept-Ranges: bytes
 
 
         body {
@@ -237,10 +233,9 @@ tests:
     - sh: ./sandbox/rex --get /hello
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:51 GMT
+        Date: Wed, 10 Jul 2013 19:32:03 GMT
         Content-Length: 13
         Content-Type: text/plain; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         Hello, World!
     - sh: ./sandbox/rex --kill serve rex.ctl_demo --set hello_access=anybody
@@ -254,7 +249,7 @@ tests:
       stdout: |+
         FATAL ERROR: Failed to satisfy requirement:
             unknown-package
-        While initializing Rex application:
+        While initializing RexDB application:
             rex.ctl_demo
             unknown-package
 
@@ -262,7 +257,7 @@ tests:
       stdout: |+
         FATAL ERROR: Got unknown setting:
             unknown-parameter
-        While initializing Rex application:
+        While initializing RexDB application:
             rex.ctl_demo
         With parameters:
             unknown-parameter: 'true'
@@ -274,10 +269,9 @@ tests:
     - sh: ./sandbox/rex --get http://localhost:8088/
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:53 GMT
+        Date: Wed, 10 Jul 2013 19:32:08 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
@@ -294,10 +288,9 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:54 GMT
+        Date: Wed, 10 Jul 2013 19:32:10 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
@@ -340,20 +333,18 @@ tests:
     - sh: ./sandbox/rex --get http://Aladdin@localhost:8080/
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:56 GMT
+        Date: Wed, 10 Jul 2013 19:32:14 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
     - sh: ./sandbox/rex --get http://Aladdin:open%20sesame@localhost:8080/
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:56 GMT
+        Date: Wed, 10 Jul 2013 19:32:16 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
@@ -370,20 +361,18 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:57 GMT
+        Date: Wed, 10 Jul 2013 19:32:17 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
     - sh: ./sandbox/rex --get /error
       stdout: |
         HTTP/1.0 500 Internal Server Error
-        Date: Fri, 14 Jun 2013 03:22:57 GMT
+        Date: Wed, 10 Jul 2013 19:32:18 GMT
         Content-Length: 59
         Content-Type: text/plain
-        Server: WSGIServer/0.1 Python/2.7.4
 
         A server error occurred.  Please contact the administrator.
     - sh: ./sandbox/rex --kill serve rex.ctl_demo
@@ -423,43 +412,41 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:58 GMT
+        Date: Wed, 10 Jul 2013 19:32:19 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
     - sh: ./sandbox/rex --get /error
       stdout: |
         HTTP/1.0 500 Internal Server Error
-        Date: Fri, 14 Jun 2013 03:22:58 GMT
+        Date: Wed, 10 Jul 2013 19:32:20 GMT
         Content-Type: text/plain
-        Server: WSGIServer/0.1 Python/2.7.4
 
         A server error occurred.  Please contact the administrator.
 
-        [2013-06-13 22:22:58.319993] localhost => http://127.0.0.1:8080/error
+        [2013-07-10 14:32:20.099429] localhost => http://127.0.0.1:8080/error
         Traceback (most recent call last):
           File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
             self.result = application(self.environ, self.start_response)
-          File "/home/xi/xitology/prometheus/rex/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
             output = wsgi(environ, start_response)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 328, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 328, in __call__
             resp = self.handler(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 110, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 110, in __call__
             resp = self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 140, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 140, in __call__
             return self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 174, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 174, in __call__
             return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 253, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 253, in __call__
             return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 271, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 271, in __call__
             return handler(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/command.py", line 69, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/command.py", line 75, in __call__
             return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 36, in render
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 35, in render
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
     - sh: ./sandbox/rex --kill serve rex.ctl_demo --debug
@@ -498,20 +485,18 @@ tests:
     - sh: ./sandbox/rex --get /
       stdout: |
         HTTP/1.0 200 OK
-        Date: Fri, 14 Jun 2013 03:22:59 GMT
+        Date: Wed, 10 Jul 2013 19:32:28 GMT
         Content-Length: 55
         Content-Type: text/html; charset=UTF-8
-        Server: WSGIServer/0.1 Python/2.7.4
 
         <!DOCTYPE html>
         <title>Welcome to REX.CTL_DEMO!</title>
     - sh: ./sandbox/rex --get /error
       stdout: |
         HTTP/1.0 500 Internal Server Error
-        Date: Fri, 14 Jun 2013 03:22:59 GMT
+        Date: Wed, 10 Jul 2013 19:32:28 GMT
         Content-Length: 59
         Content-Type: text/plain
-        Server: WSGIServer/0.1 Python/2.7.4
 
         A server error occurred.  Please contact the administrator.
     - sh: ./sandbox/rex --kill serve rex.ctl_demo --quiet
@@ -548,7 +533,7 @@ tests:
     - sh: ./sandbox/rex wsgi
       stdout: |2+
 
-        # WSGI script for a Rex application.
+        # WSGI script for a RexDB application.
         # Use it with `uwsgi`, `mod_wsgi` or any other WSGI container.
 
         from rex.core import Rex

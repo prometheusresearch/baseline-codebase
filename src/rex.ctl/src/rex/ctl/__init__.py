@@ -16,7 +16,7 @@ import os.path
 
 env.shell.set(name="Rex",
               description="""Command-line administration utility"""
-                          """ for the Rex platform""",
+                          """ for the RexDB platform""",
               local_package='rex.local',
               entry_point='rex.ctl',
               config_name='rex.yaml',

@@ -1,16 +1,30 @@
-*********************************************************
-  REX.SETUP -- Distutils extension for the Rex platform
-*********************************************************
+*************************
+  REX.SETUP Usage Guide
+*************************
 
 .. contents:: Table of Contents
+
+
+Overview
+========
+
+This package contains a Distutils extension that adds support for:
+
+* distributing static resources;
+* initializing RexDB extensions.
+
+This package is a part of the RexDB |R| platform for medical research data
+management.  RexDB is free software created by Prometheus Research, LLC and is
+released under the AGPLv3 license with a commensurate attribution clause.  For
+more information, please visit http://rexdb.org/.
+
+.. |R| unicode:: 0xAE .. registered trademark sign
 
 
 Usage
 =====
 
-``rex.setup`` is a Distutils extension for distributing static files and
-providing additional metadata for Rex applications.  To use, add the following
-lines to ``setup.py``::
+To use ``rex.setup``, add the following lines to ``setup.py``::
 
     setup(
         ...

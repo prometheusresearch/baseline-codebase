@@ -1,6 +1,6 @@
-******************
-  :mod:`rex.web`
-******************
+*************************
+  REX.WEB API Reference
+*************************
 
 .. contents:: Table of Contents
 

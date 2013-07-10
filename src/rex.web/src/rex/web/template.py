@@ -123,9 +123,9 @@ def jinja_filter_fix_script(value):
 @cached
 def get_jinja():
     """
-    Returns a Jinja environment suitable for use with Rex applications.
+    Returns a Jinja environment suitable for use with RexDB applications.
 
-    The standard Jinja environment was modified to support Rex package
+    The standard Jinja environment was modified to support RexDB package
     paths.  Additionally, the following extensions are enabled:
 
     ``jinja.ext.do``

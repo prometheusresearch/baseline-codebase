@@ -1,6 +1,6 @@
-*********************************************
-  REX.WEB -- Web stack for the Rex platform
-*********************************************
+*****************************
+  REX.WEB Programming Guide
+*****************************
 
 .. contents:: Table of Contents
 .. role:: mod(literal)
@@ -13,7 +13,7 @@
 Overview
 ========
 
-This package provides an extensible web stack for the Rex platform.  It
+This package provides an extensible web stack for the RexDB platform.  It
 includes:
 
 * server for static resources;
@@ -23,34 +23,36 @@ includes:
 * client-side sessions;
 * customizable error handlers.
 
-The Rex web stack is built on top of the following packages:
+The RexDB web stack is built on top of the following packages:
 
 * WebOb_ for HTTP request and response objects;
 * Jinja2_ for templates;
 * PyCrypto_ and PBKDF2_ for crypto services.
 
-This package is a part of the RexDB platform for medical research data
-management.  It is created by Prometheus Research, LLC and released under
-AGPLv3 license.
+This package is a part of the RexDB |R| platform for medical research data
+management.  RexDB is free software created by Prometheus Research, LLC and is
+released under the AGPLv3 license with a commensurate attribution clause.  For
+more information, please visit http://rexdb.org/.
 
 .. _WebOb: http://docs.webob.org/
 .. _Jinja2: http://jinja.pocoo.org/
 .. _PyCrypto: http://www.pycrypto.org/
 .. _PBKDF2: http://www.dlitz.net/software/python-pbkdf2/
+.. |R| unicode:: 0xAE .. registered trademark sign
 
 
 Handling HTTP requests
 ======================
 
-To have a functional web stack, Rex applications should (directly or
+To have a functional web stack, RexDB applications should (directly or
 indirectly) include :mod:`rex.web` package.  For example, :mod:`rex.web_demo`
 package pulls :mod:`rex.web` as a dependency::
 
     >>> from rex.core import Rex
     >>> demo = Rex('rex.web_demo')
 
-There are two primary ways a Rex application could handle HTTP requests: using
-static resources and using HTTP commands.
+There are two primary ways a RexDB application could handle HTTP requests:
+using static resources and using HTTP commands.
 
 To make a static file available via HTTP, put it to the ``www`` directory.  For
 example, :mod:`rex.web_demo` has a file ``rex.web_demo/static/www/index.html``
@@ -122,7 +124,7 @@ Now we could execute the command::
     Hello, Alice!
 
 
-Request pipeline
+Routing pipeline
 ================
 
 The following diagram shows how :mod:`rex.web` routes incoming HTTP requests::
@@ -152,9 +154,9 @@ The following diagram shows how :mod:`rex.web` routes incoming HTTP requests::
     +--------------------+
       (fixed pipeline)                (extensible interfaces)
 
-The block on the left represents the fixed part of the request pipeline; a Rex
-application has no control over it.  The elements on the right are interfaces
-which could be customized by the application.
+The block on the left represents the fixed part of the routing pipeline; a
+RexDB application has no control over it.  The elements on the right are
+interfaces which could be customized by the application.
 
 The pipeline consists of the following components:
 

@@ -24,10 +24,7 @@ Examples
 
 .. toctree::
 
-   test/test_auth
-   test/test_command
-   test/test_route
-   test/test_template
+   test/index
 
 
 Release notes
@@ -36,6 +33,14 @@ Release notes
 .. toctree::
 
    changes
+
+
+Copyright and license
+=====================
+
+.. toctree::
+
+   license
 
 
 Indices and tables

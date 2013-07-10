@@ -4,7 +4,7 @@
 
 
 """
-This package provides web stack for the Rex platform: custom URL handlers,
+This package provides web stack for the RexDB platform: custom URL handlers,
 rendering static resources, templates, sessions, authentication and
 authorization mechanism.
 """

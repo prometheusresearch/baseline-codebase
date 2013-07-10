@@ -4,6 +4,7 @@
 
 
 project = 'rex.web'
+html_title = "REX.WEB Documentation"
 extensions = ['sphinx.ext.autodoc']
 master_doc = 'index'
 default_role = 'obj'

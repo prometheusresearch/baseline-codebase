@@ -7,6 +7,7 @@ from rex.core import Error, guard
 from .auth import authorize
 from .handle import HandleLocation
 from webob.exc import HTTPBadRequest, HTTPUnauthorized
+import copy
 
 
 class Parameter(object):
@@ -20,6 +21,9 @@ class Parameter(object):
     `default`
         The value to use if the parameter is not provided.  If not set,
         the parameter is mandatory.
+    `many`
+        If set, allow more than one value for the parameter.  All values
+        are passed as a list.
     """
 
     class _required_type(object):
@@ -29,19 +33,21 @@ class Parameter(object):
 
     REQUIRED = _required_type()
 
-    def __init__(self, name, validate, default=REQUIRED):
+    def __init__(self, name, validate, default=REQUIRED, many=False):
         self.name = name
         self.validate = validate
         self.default = default
+        self.many = many
 
     def __repr__(self):
-        if self.default is self.REQUIRED:
-            return "%s(%r, validate=%r)" \
-                    % (self.__class__.__name__, self.name, self.validate)
-        else:
-            return "%s(%r, validate=%r, default=%r)" \
-                    % (self.__class__.__name__,
-                       self.name, self.validate, self.default)
+        args = []
+        args.append(repr(self.name))
+        args.append("validate=%r" % self.validate)
+        if self.default is not self.REQUIRED:
+            args.append("default=%r" % self.default)
+        if self.many is not False:
+            args.append("many=%r" % self.many)
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
 class Command(HandleLocation):
@@ -90,15 +96,25 @@ class Command(HandleLocation):
                     raise Error("Found unknown parameter:", key)
             # Process expected parameters.
             for parameter in self.parameters:
-                if parameter.name not in req.params:
-                    if parameter.default is Parameter.REQUIRED:
-                        raise Error("Cannot find parameter:", parameter.name)
-                    else:
-                        value = parameter.default
+                all_values = req.params.getall(parameter.name)
+                if not all_values and parameter.default is Parameter.REQUIRED:
+                    # Missing mandatory parameter.
+                    raise Error("Cannot find parameter:", parameter.name)
+                elif not all_values:
+                    # Missing optional parameter.
+                    value = copy.deepcopy(parameter.default)
+                elif len(all_values) > 1 and not parameter.many:
+                    # Multiple values for a singular parameter.
+                    raise Error("Got multiple values for a parameter:",
+                                parameter.name)
                 else:
-                    value = req.params[parameter.name]
                     with guard("While parsing parameter:", parameter.name):
-                        value = parameter.validate(value)
+                        all_values = [parameter.validate(value)
+                                      for value in all_values]
+                    if parameter.many:
+                        value = all_values
+                    else:
+                        [value] = all_values
                 arguments[parameter.name] = value
         except Error, error:
             # Trick WebOb into rendering the error properly in text mode.

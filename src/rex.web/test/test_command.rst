@@ -81,6 +81,15 @@ Missing mandatory parameters are reported::
     Cannot find parameter:
         name
 
+Multiple values for singular parameters are rejected too::
+
+    >>> req = Request.blank('/hello?name=Alice&name=Bob&name=Carl')
+    >>> print req.get_response(demo)        # doctest: +ELLIPSIS
+    400 Bad Request
+    ...
+    Got multiple values for a parameter:
+        name
+
 Ill-formed parameters are detected::
 
     >>> req = Request.blank('/hello?greeting=Good%20morning&name=Daniel')
@@ -129,6 +138,37 @@ parameters::
     Content-Length: 59
     <BLANKLINE>
     We can parse our parameters ourselves, thank you very much!
+
+To permit multiple values for a parameter, turn on the ``many`` flag on the
+parameter.  In this case, the values are passed as a list::
+
+    >>> class HelloManyCommand(Command):
+    ...     path = '/hello_many'
+    ...     access = 'anybody'
+    ...     parameters = [
+    ...         Parameter('names', StrVal(), many=True),
+    ...     ]
+    ...
+    ...     def render(self, req, names):
+    ...         name_list = ", ".join(names[:-1])
+    ...         if name_list:
+    ...             name_list = "%s and %s" % (name_list, names[-1])
+    ...         else:
+    ...             name_list = names[-1]
+    ...         return Response("Hello, %s!" % name_list,
+    ...                         content_type='text/plain')
+
+    >>> HelloManyCommand.parameters
+    [Parameter('names', validate=StrVal(), many=True)]
+
+    >>> demo.cache.clear()      # reset WSGI stack
+    >>> req = Request.blank('/hello_many?names=Alice&names=Bob&names=Carl')
+    >>> print req.get_response(demo)        # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: text/plain; charset=UTF-8
+    Content-Length: 27
+    <BLANKLINE>
+    Hello, Alice, Bob and Carl!
 
 
 Authentication

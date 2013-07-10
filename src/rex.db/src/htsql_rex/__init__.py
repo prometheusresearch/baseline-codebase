@@ -4,7 +4,7 @@
 
 
 """
-The ``rex`` HTSQL addon registers extensions specific to the Rex platform:
+The ``rex`` HTSQL addon registers extensions specific to the RexDB platform:
 
 ``/describe()``
     Produces product metadata.
@@ -19,7 +19,7 @@ import cmd
 class RexAddon(Addon):
 
     name = 'rex'
-    hint = """HTSQL extensions for the Rex platform"""
+    hint = """HTSQL extensions for the RexDB platform"""
     help = __doc__
 
 

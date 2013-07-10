@@ -24,7 +24,7 @@ Examples
 
 .. toctree::
 
-    test/test_db
+    test/index
 
 
 Release notes

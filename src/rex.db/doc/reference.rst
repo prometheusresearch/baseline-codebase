@@ -1,6 +1,6 @@
-*****************
-  :mod:`rex.db`
-*****************
+************************
+  REX.DB API Reference
+************************
 
 .. contents:: Table of Contents
 
@@ -38,7 +38,7 @@ Utilities
 ``rex`` HTSQL addon
 ===================
 
-.. automodule:: rex.db.ext
+.. automodule:: htsql_rex
    :members:
 
 

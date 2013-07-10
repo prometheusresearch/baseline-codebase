@@ -4,7 +4,7 @@
 
 
 """
-This package provides database access to Rex applications.
+This package provides database access to RexDB applications.
 """
 
 

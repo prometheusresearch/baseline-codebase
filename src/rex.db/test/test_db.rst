@@ -17,7 +17,7 @@ HTSQL connection URI is a mandatory setting::
       ...
     Error: Missing mandatory setting:
         db
-    While initializing Rex application:
+    While initializing RexDB application:
         rex.db_demo
 
     >>> demo = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite')
@@ -30,7 +30,7 @@ Ill-formed and invalid connections URI are rejected immediately::
     Error: expected a connection URI of the form 'engine://username:password@host:port/database?options'; got './sandbox/db_demo.sqlite'
     While validating setting:
         db
-    While initializing Rex application:
+    While initializing RexDB application:
         rex.db_demo
     With parameters:
         db: './sandbox/db_demo.sqlite'
@@ -38,7 +38,7 @@ Ill-formed and invalid connections URI are rejected immediately::
     Traceback (most recent call last):
       ...
     Error: failed to initialize 'htsql': failed to establish database connection: file does not exist: ./sandbox/missing.sqlite
-    While initializing Rex application:
+    While initializing RexDB application:
         rex.db_demo
     With parameters:
         db: 'sqlite:./sandbox/missing.sqlite'
@@ -70,8 +70,8 @@ configure HTSQL addons.  The latter overrides the former::
     ...     print len(db.produce('/department'))
     2
 
-The ``rex`` addon is always enabled, which gives access to Rex-specific domains,
-functions and commands::
+The ``rex`` addon is always enabled, which gives access to RexDB-specific
+domains, functions and commands::
 
     >>> with demo:
     ...     db = get_db()

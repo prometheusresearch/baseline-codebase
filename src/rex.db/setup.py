@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 setup(
     name='rex.db',
     version = "1.0.0",
-    description="Database access for the Rex platform",
+    description="Database access for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
@@ -20,7 +20,7 @@ setup(
     namespace_packages=['rex'],
     entry_points={
         'htsql.addons': [
-            'rex = rex.db.ext:RexAddon',
+            'rex = htsql_rex:RexAddon',
         ],
     },
     setup_requires=[

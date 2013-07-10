@@ -1,6 +1,6 @@
-**************************************************
-  REX.DB -- Database access for the Rex platform
-**************************************************
+****************************
+  REX.DB Programming Guide
+****************************
 
 .. contents:: Table of Contents
 .. role:: mod(literal)
@@ -16,11 +16,13 @@ This package implements database access based on HTSQL_.  It provides:
 * support for canned HTSQL queries;
 * ability to make HTSQL queries in commands and templates.
 
-This package is a part of the RexDB platform for medical research data
-management.  It is created by Prometheus Research, LLC and released under
-AGPLv3 license.
+This package is a part of the RexDB |R| platform for medical research data
+management.  RexDB is free software created by Prometheus Research, LLC and is
+released under the AGPLv3 license with a commensurate attribution clause.  For
+more information, please visit http://rexdb.org/.
 
 .. _HTSQL: http://htsql.org/
+.. |R| unicode:: 0xAE .. registered trademark sign
 
 
 Connecting to the database

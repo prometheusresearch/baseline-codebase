@@ -138,7 +138,8 @@ Each template has following predefined parameters:
   Absolute URL of the request.
 
 `PATH_QS`
-  PATH_INFO and QUERY_STRING of the request
+  PATH_INFO and QUERY_STRING of the request.
+
 
 Custom filters, globals and tests
 =================================
@@ -149,47 +150,30 @@ Filter ``json`` serializes input to JSON::
     >>> with templating:
     ...     print render_to_response('templating:/templates/json.js_t', req,
     ...                              content_type='application/javascript',
-    ...                              input={"name": 'Alice', "sex": 'f'})
+    ...                              input={'name': "Alice", 'sex': "f"})
     200 OK
     Content-Type: application/javascript; charset=UTF-8
     Content-Length: 42
     <BLANKLINE>
     var input = {"name": "Alice", "sex": "f"};
 
-Filter ``urlencode`` encodes specific symbols in URLs::
+The output of ``json`` is safe to use in a ``<script>`` block::
 
     >>> req = Request.blank('/')
     >>> with templating:
-    ...     print render_to_response('templating:/templates/urlencode.html',
-    ...                               req)
+    ...     print render_to_response('templating:/templates/json_in_script.html', req,
+    ...                              content_type='application/javascript',
+    ...                              tag={'start': "<title>",
+    ...                                   'end': "</title>",
+    ...                                   'content': "Alice, Bob & Carl"})
     200 OK
-    Content-Type: text/html; charset=UTF-8
-    Content-Length: 206
+    Content-Type: application/javascript; charset=UTF-8
+    Content-Length: 196
     <BLANKLINE>
-    Using <b>urlencode</b> on <i>/other?x=1&y=2</i>: 
-    <a href="goto?redirect=/other%3Fx%3D1%26y%3D2">Link</a> 
-    Using <b>ue</b> on <i>/other?x=1&y=2</i>: 
-    <a href="goto?redirect=/other%3Fx%3D1%26y%3D2">Link</a> 
-
-Filter ``fix_script`` replaces '</script>' in a JavaScript line to prevent
-browser parse fail::
-
-
-    >>> req = Request.blank('/')
-    >>> with templating:
-    ...     print render_to_response('templating:/templates/fix_script.html',
-    ...                               req,
-    ...                               s1='<script> Test </script>',
-    ...                               s2='some text </sCriPt> other text',
-    ...                               s3='example: </  sCRiPT    >')
-    200 OK
-    Content-Type: text/html; charset=UTF-8
-    Content-Length: 240
-    <BLANKLINE>
-    <html><head>
-    <script type="text/javascript">
-        var s1 = "<script> Test \u003c\u002fscript>";
-        var s2 = "some text \u003c\u002fsCriPt> other text";
-        var s3 = "example: \u003c\u002f  sCRiPT    >";
+    <!DOCTYPE html>
+    <title>Testing JSON in &lt;script&gt; block</title>
+    <script>
+      var tag = {"content": "Alice, Bob \u0026 Carl", "start": "\u003ctitle\u003e", "end": "\u003c/title\u003e"};
     </script>
-    </head><body></body></html>
+
+

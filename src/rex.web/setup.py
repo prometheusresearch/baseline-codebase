@@ -23,10 +23,11 @@ setup(
     ],
     install_requires=[
         'rex.core >=1.0, <2',
-        'webob',
-        'jinja2',
-        'pycrypto',
-        'pbkdf2',
+        'webob >=1.2.3, <1.3',
+        'jinja2 >=2.7, <2.8',
+        'pycrypto >=2.4',   # must use the version available on Ubuntu 12.04.
+        'pbkdf2 >=1.3',     # FIXME: use PBKDF2 implementation from PyCrypto
+                            # once we upgrade to PyCrypto >= 2.5.
     ],
     rex_init='rex.web',
 )

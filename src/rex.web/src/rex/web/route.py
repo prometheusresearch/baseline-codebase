@@ -55,7 +55,7 @@ class MountSetting(Setting):
         # All packages with servable content.
         package_names = [package.name
                          for package in get_packages()
-                         if package.exists('www') or
+                         if package.exists(StaticServer.www_root) or
                             HandleLocation.by_package(package)]
         # Check if the raw setting value is well-formed.
         mount_val = MapVal(ChoiceVal(*package_names),
@@ -80,7 +80,7 @@ class MountSetting(Setting):
 
 
 class SessionManager(object):
-    # Adds `session` and `mount` attributes to the request object.
+    # Adds `rex.session` and `rex.mount` to the request environment.
 
     SESSION_COOKIE = 'rex.session'
 
@@ -98,23 +98,25 @@ class SessionManager(object):
             if session_json is not None:
                 session = json.loads(session_json)
                 assert isinstance(session, dict)
-        req.session = copy.deepcopy(session)
+        req.environ['rex.session'] = copy.deepcopy(session)
         # Build package mount table.
-        req.mount = {}
+        mount = {}
         for name, segment in get_settings().mount.items():
             if segment:
-                req.mount[name] = req.application_url+"/"+segment
+                mount[name] = req.application_url+"/"+segment
             else:
-                req.mount[name] = req.application_url
+                mount[name] = req.application_url
+        req.environ['rex.mount'] = mount
         # Process the request.
         resp = self.trunk(req)
-        # Update the session if necessary.
-        if req.session != session:
-            if not req.session:
+        # Update the session cookie if necessary.
+        new_session = req.environ['rex.session']
+        if new_session != session:
+            if not new_session:
                 resp.delete_cookie(self.SESSION_COOKIE,
                                    path=req.script_name+'/')
             else:
-                session_json = json.dumps(req.session)
+                session_json = json.dumps(new_session)
                 session_cookie = b2a(sign(encrypt(session_json)))
                 assert len(session_cookie) < 4096, \
                         "session data is too large"
@@ -185,16 +187,33 @@ class StaticServer(object):
     default_access = 'authenticated'
     # File that maps file patterns to permissions.
     access_file = '/_access.yaml'
+    # Directory published on HTTP.
+    www_root = '/www'
 
-    def __init__(self, root, file_handler_map, fallback=None):
-        # The root directory (in `<package>:<local_path>` format)
-        self.root = root
+    def __init__(self, package_name, file_handler_map, fallback=None):
+        self.package_name = package_name
         # Maps file extensions to handler types.
         self.file_handler_map = file_handler_map
         # Handler to call when file is not found.
         self.fallback = fallback
 
     def __call__(self, req):
+        # Add `rex.package` attribute to the request object
+        # without mangling the original request object.
+        req = req.copy()
+        req.environ['rex.package'] = self.package_name
+
+        # Find the package and make sure that the root directory exists.
+        package = get_packages()[self.package_name]
+        if not package.exists(self.www_root):
+            # If not, delegate the request to the fallback.
+            if self.fallback is not None:
+                return self.fallback(req)
+            # FIXME: not reachable because if neither the `www` directory nor
+            # the fallback exists, `StaticServer` instance is not going to be
+            # created.
+            raise HTTPNotFound()
+
         # Normalize the URL.
         url = req.path_info
         url = os.path.normpath(url)
@@ -205,9 +224,8 @@ class StaticServer(object):
                 raise HTTPNotFound()
 
         # Convert the URL into the filesystem path.
-        package_path = self.root + url
-        packages = get_packages()
-        real_path = packages.abspath(package_path)
+        local_path = self.www_root + url
+        real_path = package.abspath(local_path)
 
         # If the URL refers to a directory without trailing `/`,
         # redirect to url+'/'.
@@ -222,16 +240,16 @@ class StaticServer(object):
         if os.path.isdir(real_path) and \
                 os.path.isfile(os.path.join(real_path, self.index_file)):
             url = os.path.join(url, self.index_file)
-            package_path = os.path.join(package_path, self.index_file)
+            local_path = os.path.join(local_path, self.index_file)
             real_path = os.path.join(real_path, self.index_file)
 
         # We found the file to serve.
         if os.path.isfile(real_path):
             # Detemine and check access permissions for the requested URL.
             access = self.default_access
-            access_path = self.root + self.access_file
-            if packages.exists(access_path):
-                access_map = yaml.safe_load(packages.open(access_path))
+            access_path = self.www_root + self.access_file
+            if package.exists(access_path):
+                access_map = yaml.safe_load(package.open(access_path))
                 access_val = OMapVal(StrVal(), StrVal())
                 access_map = access_val(access_map)
                 for pattern in access_map:
@@ -243,6 +261,7 @@ class StaticServer(object):
             # Find and execute the handler by file extension.
             ext = os.path.splitext(real_path)[1]
             if ext in self.file_handler_map:
+                package_path = "%s:%s" % (self.package_name, local_path)
                 handler = self.file_handler_map[ext](package_path)
             else:
                 handler = FileApp(real_path)
@@ -302,9 +321,8 @@ class StandardWSGI(WSGI):
             if location_handler_map:
                 route = CommandDispatcher(location_handler_map, route)
             # Place `StaticServer` on top of it.
-            if package.exists('www'):
-                root = "%s:/www" % package.name
-                route = StaticServer(root, file_handler_map, route)
+            if package.exists(StaticServer.www_root) or route is not None:
+                route = StaticServer(package.name, file_handler_map, route)
             # Add to the routing table.
             if route is not None:
                 if mount[package.name]:

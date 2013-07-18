@@ -97,7 +97,7 @@ package paths::
     >>> templating.off()
 
 
-HTML Templates
+HTML templates
 ==============
 
 Files with extensions ``.html``, ``.js_t``, ``.css_t`` found in the ``www``
@@ -109,36 +109,42 @@ directory are rendered as Jinja templates::
     >>> print req.get_response(templating)
     200 OK
     Content-Type: text/html; charset=UTF-8
-    Content-Length: 297
+    Content-Length: 286
     <BLANKLINE>
     <!DOCTYPE html>
     <title>Index</title>
     <body>
     <p>The address of this page is <a href="http://localhost/templating/index.html">index.html</a>.</p>
     <p>The value of parameter <code>name</code> is <code>Alice</code>.</p>
-    <p>The value of <code>REMOTE_USER</code> variable is <code>Bob</code>.</p>
+    <p>The user that initiated the request is <code>Bob</code>.</p>
     </body>
 
+Each template gets a number of parameters::
 
-Predefined Template Parameters
-==============================
+    >>> req = Request.blank('/templating/parameters.html?dummy=1')
+    >>> req.remote_user = 'Alice'
 
-Each template has following predefined parameters:
-
-`MOUNT`
-  Package mount table mapping package names to absolute URLs.
-
-`USER`
-  Currently authenticated user.
-
-`SETTINGS`
-  Settings of the server.
-
-`URL`
-  Absolute URL of the request.
-
-`PATH_QS`
-  PATH_INFO and QUERY_STRING of the request.
+    >>> print req.get_response(templating)      # doctest: +NORMALIZE_WHITESPACE
+    200 OK
+    Content-Type: text/html; charset=UTF-8
+    Content-Length: 993
+    <BLANKLINE>
+    <!DOCTYPE html>
+    <title>Template parameters</title>
+    <body>
+    <p><code>MOUNT:</code><code>{&#39;templating&#39;: &#39;http://localhost/templating&#39;}</code></p>
+    <p><code>PACKAGE:</code><code>templating</code></p>
+    <p><code>PACKAGE_URL:</code><code>http://localhost/templating</code></p>
+    <p><code>PARAMS:</code><code>NestedMultiDict([(u&#39;dummy&#39;, u&#39;1&#39;)])</code></p>
+    <p><code>PATH:</code><code>/templating/parameters.html</code></p>
+    <p><code>PATH_QS:</code><code>/templating/parameters.html?dummy=1</code></p>
+    <p><code>PATH_URL:</code><code>http://localhost/templating/parameters.html</code></p>
+    <p><code>REQUEST:</code><code>GET /templating/parameters.html?dummy=1 HTTP/1.0
+    Host: localhost:80</code></p>
+    <p><code>SETTINGS:</code><code>SettingCollection(debug=False, mount={&#39;templating&#39;: &#39;templating&#39;}, secret=None)</code></p>
+    <p><code>URL:</code><code>http://localhost/templating/parameters.html?dummy=1</code></p>
+    <p><code>USER:</code><code>Alice</code></p>
+    </body>
 
 
 Custom filters, globals and tests

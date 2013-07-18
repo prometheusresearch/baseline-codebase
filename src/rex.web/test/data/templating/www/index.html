@@ -1,7 +1,7 @@
 {% extends "/templates/base.html" %}
 {% block title %}Index{% endblock %}
 {% block body %}
-<p>The address of this page is <a href="{{ MOUNT['templating'] }}/index.html">index.html</a>.</p>
+<p>The address of this page is <a href="{{ PACKAGE_URL }}/index.html">index.html</a>.</p>
 <p>The value of parameter <code>name</code> is <code>{{ PARAMS.name|e }}</code>.</p>
-<p>The value of <code>REMOTE_USER</code> variable is <code>{{ REQUEST.remote_user|e }}</code>.</p>
+<p>The user that initiated the request is <code>{{ USER|e }}</code>.</p>
 {% endblock %}

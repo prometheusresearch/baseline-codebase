@@ -180,30 +180,56 @@ def render_to_response(package_path, req,
 
     `MOUNT`
         Package mount table mapping package names to absolute URLs.
+        This attribute is available only after the request is processed by
+        ``SessionManager``.
+    `PACKAGE`
+        The package that handles the request.  This attribute is only available
+        after the request is processed by ``PackageRouter``.
+    `PACKAGE_URL`
+        The URL of the package that handles the request.  This attribute is only
+        available after the request is processed by ``PackageRouter``.
     `PARAMS`
-        Form parameters.
+        Parameters from the query string and request body.
+    `PATH`
+        The path of the request, without host or query string.
+    `PATH_QS`
+        The path of the request, without host, but with a query string.
+    `PATH_URL`
+        The URL of the request, without the query string.
     `REQUEST`
         HTTP request object.
-    `USER`
-        Currently authenticated user.
     `SETTINGS`
-        Settings of the server.
+        Application configuration.
     `URL`
         Absolute URL of the request.
-    `PATH_QS`
-        PATH_INFO and QUERY_STRING of the request.
+    `USER`
+        The user associated with the request.
     """
     jinja = get_jinja()
     template = jinja.get_template(package_path)
+    MOUNT = req.environ.get('rex.mount', {})
+    PACKAGE = req.environ.get('rex.package')
+    PACKAGE_URL = MOUNT.get(PACKAGE)
+    PARAMS = req.params
+    PATH = req.path
+    PATH_QS = req.path_qs
+    PATH_URL = req.path_url
+    REQUEST = req
+    URL = req.url
+    USER = authenticate(req)
+    SETTINGS = get_settings()
     body = template.render(
-            MOUNT=getattr(req, 'mount', {}),    # Allow unmodified
-                                                # Request objects.
-            PARAMS=req.params,
-            REQUEST=req,
-            USER=authenticate(req),
-            SETTINGS=get_settings(),
-            URL=req.url,
-            PATH_QS=req.path_qs,
+            MOUNT=MOUNT,
+            PACKAGE=PACKAGE,
+            PACKAGE_URL=PACKAGE_URL,
+            PARAMS=PARAMS,
+            PATH=PATH,
+            PATH_QS=PATH_QS,
+            PATH_URL=PATH_URL,
+            REQUEST=REQUEST,
+            URL=URL,
+            USER=USER,
+            SETTINGS=SETTINGS,
             **arguments)
     if status is None:
         status = 200

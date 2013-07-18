@@ -22,7 +22,8 @@ value in a session object::
     ...     access = 'anybody'
     ...     parameters = [Parameter('x', IntVal())]
     ...     def render(self, req, x):
-    ...         req.session['x'] = x
+    ...         session = req.environ['rex.session']
+    ...         session['x'] = x
     ...         return Response("x is set to %s" % x,
     ...                         content_type='text/plain')
 
@@ -30,8 +31,9 @@ value in a session object::
     ...     path = '/get'
     ...     access = 'anybody'
     ...     def render(self, req):
-    ...         if 'x' in req.session:
-    ...             return Response("x is equal to %s" % req.session['x'],
+    ...         session = req.environ['rex.session']
+    ...         if 'x' in session:
+    ...             return Response("x is equal to %s" % session['x'],
     ...                             content_type='text/plain')
     ...         else:
     ...             return Response("x is not set", content_type='text/plain')
@@ -40,7 +42,8 @@ value in a session object::
     ...     path = '/del'
     ...     access = 'anybody'
     ...     def render(self, req):
-    ...         req.session.pop('x', None)
+    ...         session = req.environ['rex.session']
+    ...         session.pop('x', None)
     ...         return Response("x is unset", content_type='text/plain')
 
 Parameter ``secret`` is used for generating encryption and validation keys::
@@ -71,7 +74,7 @@ Session is ``{"x":123}``::
     x is set to 123
     >>> session_cookie = resp.headers['Set-Cookie'].split('=')[1].split(';')[0]
 
-Check that session we could decode our session::
+Check that we could decode our session::
 
     >>> req = Request.blank('/get')
     >>> req.cookies['rex.session'] = session_cookie

@@ -1,0 +1,15 @@
+{% extends "/templates/base.html" %}
+{% block title %}Template parameters{% endblock %}
+{% block body %}
+<p><code>MOUNT:</code><code>{{ MOUNT|e }}</code></p>
+<p><code>PACKAGE:</code><code>{{ PACKAGE|e }}</code></p>
+<p><code>PACKAGE_URL:</code><code>{{ PACKAGE_URL|e }}</code></p>
+<p><code>PARAMS:</code><code>{{ PARAMS|e }}</code></p>
+<p><code>PATH:</code><code>{{ PATH|e }}</code></p>
+<p><code>PATH_QS:</code><code>{{ PATH_QS|e }}</code></p>
+<p><code>PATH_URL:</code><code>{{ PATH_URL|e }}</code></p>
+<p><code>REQUEST:</code><code>{{ REQUEST|e }}</code></p>
+<p><code>SETTINGS:</code><code>{{ SETTINGS|e }}</code></p>
+<p><code>URL:</code><code>{{ URL|e }}</code></p>
+<p><code>USER:</code><code>{{ USER|e }}</code></p>
+{% endblock %}

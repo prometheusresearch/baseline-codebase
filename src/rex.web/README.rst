@@ -161,11 +161,13 @@ interfaces which could be customized by the application.
 The pipeline consists of the following components:
 
 ``SessionManager``
-    Adds ``session`` and ``mount`` attributes to the request object.
+    Manages user sessions.
 
-    ``session``
+    Adds the following variables to the request environment:
+
+    ``rex.session``
         A JSON dictionary passed to/from a client using an encrypted cookie.
-    ``mount``
+    ``rex.mount``
         A dictionary mapping package names to absolute URLs; generated from
         ``mount`` configuration parameter.
 
@@ -185,6 +187,11 @@ The pipeline consists of the following components:
 
 ``StaticServer``
     Serves static files from the ``/www`` directory.
+
+    Adds the following variables to the request environment:
+
+    ``rex.package``
+        The package that handles the request.
 
     Implement :class:`rex.web.HandleFile` interface to customize rendering for
     a specific file type.

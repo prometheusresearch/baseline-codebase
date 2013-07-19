@@ -6,7 +6,7 @@
 from rex.core import Error, guard
 from .auth import authorize
 from .handle import HandleLocation
-from webob.exc import HTTPBadRequest, HTTPUnauthorized
+from webob.exc import HTTPUnauthorized
 import copy
 
 
@@ -71,7 +71,11 @@ class Command(HandleLocation):
 
     def __call__(self, req):
         self.authorize(req)
-        arguments = self.parse(req)
+        try:
+            arguments = self.parse(req)
+        except Error, error:
+            # Report the error in the response.
+            return req.get_response(error)
         return self.render(req, **arguments)
 
     def authorize(self, req):
@@ -88,43 +92,33 @@ class Command(HandleLocation):
             return {}
 
         arguments = {}
-        try:
-            # Reject unknown paramerers.
-            valid_keys = set(parameter.name for parameter in self.parameters)
-            for key in req.params.keys():
-                if key not in valid_keys:
-                    raise Error("Found unknown parameter:", key)
-            # Process expected parameters.
-            for parameter in self.parameters:
-                all_values = req.params.getall(parameter.name)
-                if not all_values and parameter.default is Parameter.REQUIRED:
-                    # Missing mandatory parameter.
-                    raise Error("Cannot find parameter:", parameter.name)
-                elif not all_values:
-                    # Missing optional parameter.
-                    value = copy.deepcopy(parameter.default)
-                elif len(all_values) > 1 and not parameter.many:
-                    # Multiple values for a singular parameter.
-                    raise Error("Got multiple values for a parameter:",
-                                parameter.name)
+        # Reject unknown paramerers.
+        valid_keys = set(parameter.name for parameter in self.parameters)
+        for key in req.params.keys():
+            if key not in valid_keys:
+                raise Error("Received unexpected parameter:", key)
+        # Process expected parameters.
+        for parameter in self.parameters:
+            all_values = req.params.getall(parameter.name)
+            if not all_values and parameter.default is Parameter.REQUIRED:
+                # Missing mandatory parameter.
+                raise Error("Cannot find parameter:", parameter.name)
+            elif not all_values:
+                # Missing optional parameter.
+                value = copy.deepcopy(parameter.default)
+            elif len(all_values) > 1 and not parameter.many:
+                # Multiple values for a singular parameter.
+                raise Error("Got multiple values for a parameter:",
+                            parameter.name)
+            else:
+                with guard("While parsing parameter:", parameter.name):
+                    all_values = [parameter.validate(value)
+                                  for value in all_values]
+                if parameter.many:
+                    value = all_values
                 else:
-                    with guard("While parsing parameter:", parameter.name):
-                        all_values = [parameter.validate(value)
-                                      for value in all_values]
-                    if parameter.many:
-                        value = all_values
-                    else:
-                        [value] = all_values
-                arguments[parameter.name] = value
-        except Error, error:
-            # Trick WebOb into rendering the error properly in text mode.
-            # FIXME: WebOb cuts out anything resembling a <tag>.
-            body_template = None
-            accept = req.environ.get('HTTP_ACCEPT', '')
-            if not ('html' in accept or '*/*' in accept):
-                error = str(error).replace("\n", "<br \>")
-                body_template = """${explanation}<br /><br />${detail}"""
-            raise HTTPBadRequest(error, body_template=body_template)
+                    [value] = all_values
+            arguments[parameter.name] = value
 
         return arguments
 

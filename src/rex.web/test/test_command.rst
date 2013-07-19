@@ -62,14 +62,12 @@ Unknown parameters are rejected::
     >>> req = Request.blank('/hello?name=Carl&mood=somber')
     >>> print req.get_response(demo)
     400 Bad Request
-    Content-Length: 149
     Content-Type: text/plain; charset=UTF-8
+    Content-Length: 106
     <BLANKLINE>
-    400 Bad Request
+    The server cannot understand the request due to malformed syntax.
     <BLANKLINE>
-    The server could not comply with the request since it is either malformed or otherwise incorrect.
-    <BLANKLINE>
-    Found unknown parameter:
+    Received unexpected parameter:
         mood
 
 Missing mandatory parameters are reported::

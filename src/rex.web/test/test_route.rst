@@ -300,10 +300,16 @@ Set ``code`` to ``'*'`` to define a catch-all error handler::
     ...     def __call__(self, req):
     ...         return Response("Something went wrong!", status=self.error.code)
 
+    >>> class AuthCmd(Command):
+    ...     path = '/auth'
+    ...     def render(self, req):
+    ...         return Response("Only authenticated users are accepted",
+    ...                         content_type='text/plain')
+
     >>> main.cache.clear()
-    >>> req = Request.blank('/get?x=123')
+    >>> req = Request.blank('/auth')
     >>> print req.get_response(main)
-    400 Bad Request
+    401 Unauthorized
     Content-Type: text/html; charset=UTF-8
     Content-Length: 21
     <BLANKLINE>

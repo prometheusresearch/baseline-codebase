@@ -45,13 +45,50 @@ The error may contain multiple paragraphs::
     >>> error.paragraphs
     [Paragraph('Found no product:', 'beer'), Paragraph('While looking in:', 'refrigerator #3')]
 
-Errors could be rendered in HTML::
+Errors have WSGI interface and are rendered either in ``text/plain`` or
+``text/html``::
 
-    >>> print error.__html__()
+    >>> from wsgiref.util import setup_testing_defaults
+    >>> environ = {}
+    >>> setup_testing_defaults(environ)
+
+    >>> def start_response(status, headers, exc_info=None):
+    ...     print status
+    ...     for key, value in headers:
+    ...         print "%s: %s" % (key, value)
+    ...     print
+
+    >>> print "".join(error(environ, start_response))
+    400 Bad Request
+    Content-Type: text/plain; charset=UTF-8
+    Content-Length: 131
+    <BLANKLINE>
+    The server cannot understand the request due to malformed syntax.
+    <BLANKLINE>
+    Found no product:
+        beer
+    While looking in:
+        refrigerator #3
+
+    >>> environ['HTTP_ACCEPT'] = 'text/html'
+    >>> print "".join(error(environ, start_response))
+    400 Bad Request
+    Content-Type: text/html; charset=UTF-8
+    Content-Length: 275
+    <BLANKLINE>
+    <html>
+    <head>
+    <title>400 Bad Request</title>
+    </head>
+    <body>
+    <h1>400 Bad Request</h1>
+    The server cannot understand the request due to malformed syntax.<br /><br />
     Found no product:<br />
     <pre>beer</pre><br />
     While looking in:<br />
     <pre>refrigerator #3</pre>
+    </body>
+    </html>
 
 
 ``guard``

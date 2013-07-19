@@ -59,6 +59,7 @@ Errors
 ======
 
 .. autoexception:: rex.core.Error
+   :special-members: __call__
 .. autoclass:: guard
 
 

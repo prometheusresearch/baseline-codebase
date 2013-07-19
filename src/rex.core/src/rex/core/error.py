@@ -3,6 +3,9 @@
 #
 
 
+import textwrap
+
+
 class Paragraph(object):
     # Represents error context as a text message with an optional payload.
     # Rendered as:
@@ -28,7 +31,7 @@ class Paragraph(object):
                                    self.message, self.payload)
 
     def __html__(self):
-        # Used by WebOb for rendering HTTP errors.
+        # Render the paragraph in HTML.
         lines = []
         lines.append(self.message.replace("&", "&amp;")
                                  .replace("<", "&lt;")
@@ -50,18 +53,38 @@ class Error(Exception):
     `payload`
         Optional data related to the error.
 
-    In ``text/plain``, the exception is rendered as::
+    :class:`Error` objects provide WSGI interface.  In ``text/plain``
+    and traceback output, the exception is rendered as::
 
-        <message>
-            <payload>
+        {message}
+            {payload}
 
     In ``text/html``, the exception is rendered as::
 
-        <message><br>
-        <pre><payload></pre>
+        {message}<br />
+        <pre>{payload}</pre>
 
     Use :meth:`wrap()` to add more paragraphs.
     """
+
+    # Template for rendering the error in plain text.
+    text_template = textwrap.dedent("""\
+        The server cannot understand the request due to malformed syntax.
+
+        %s""")
+
+    # Template for rendering the error in HTML.
+    html_template = textwrap.dedent("""\
+        <html>
+        <head>
+        <title>400 Bad Request</title>
+        </head>
+        <body>
+        <h1>400 Bad Request</h1>
+        The server cannot understand the request due to malformed syntax.<br /><br />
+        %s
+        </body>
+        </html>""")
 
     def __init__(self, message, payload=None):
         paragraph = Paragraph(message, payload)
@@ -74,6 +97,24 @@ class Error(Exception):
         paragraph = Paragraph(message, payload)
         self.paragraphs.append(paragraph)
         return self
+
+    def __call__(self, environ, start_response):
+        """
+        WSGI entry point.
+        """
+        # If the client is a web browser (checking the same way as WebOb does),
+        # render the error in HTML; otherwise, render it in plain text.
+        accept = environ.get('HTTP_ACCEPT', '')
+        if 'html' in accept or '*/*' in accept:
+            content_type = 'text/html; charset=UTF-8'
+            output = self.html_template % self.__html__()
+        else:
+            content_type = 'text/plain; charset=UTF-8'
+            output = self.text_template % self
+        start_response("400 Bad Request",
+                       [('Content-Type', content_type),
+                        ('Content-Length', str(len(output)))])
+        return [output]
 
     def __str__(self):
         return "\n".join(str(paragraph) for paragraph in self.paragraphs)
@@ -94,7 +135,7 @@ class Error(Exception):
         return output
 
     def __html__(self):
-        # Used by WebOb for rendering HTTP errors.
+        # Render the error in HTML.
         return "<br />\n".join(paragraph.__html__()
                                for paragraph in self.paragraphs)
 

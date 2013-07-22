@@ -48,8 +48,8 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
             return
 
         if format != '"%s" %s %s':
-            # Non-standard format from `log_error()`, no highlighting.
-            # FIXME: not reachable?
+            # Non-standard format from `log_error()`, must be a parsing error
+            # or timeout.
             log(":warning:`Invalid request:` {}", format % args)
             return
 

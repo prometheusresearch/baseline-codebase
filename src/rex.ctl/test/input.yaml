@@ -191,6 +191,14 @@ tests:
     - sh: ./sandbox/rex --kill serve rex.ctl_demo --debug
       ignore: *log-ignore
 
+  - title: Handling invalid requests
+    tests:
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --debug
+    - sh: ./sandbox/rex --get '/invalid /request'
+      ignore: *http-ignore
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --debug
+      ignore: *log-ignore
+
   - title: Using `--quiet` option
     tests:
     - sh: ./sandbox/rex --daemon serve rex.ctl_demo --quiet

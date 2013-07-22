@@ -478,6 +478,20 @@ tests:
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
         localhost - - [13/Jun/2013 22:22:58] "GET /error HTTP/1.1" 500 1620
+  - suite: handling-invalid-requests
+    tests:
+    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --debug
+      stdout: ''
+    - sh: ./sandbox/rex --get '/invalid /request'
+      stdout: "HTTP/0.9 200 \n\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error
+        response</h1>\n<p>Error code 400.\n<p>Message: Bad request syntax ('GET /invalid
+        /request HTTP/1.1').\n<p>Error code explanation: 400 = Bad request syntax
+        or unsupported method.\n</body>\n"
+    - sh: ./sandbox/rex --kill serve rex.ctl_demo --debug
+      stdout: |
+        Serving rex.ctl_demo on 127.0.0.1:8080
+        Invalid request: code 400, message Bad request syntax ('GET /invalid /request HTTP/1.1')
+        localhost - - [22/Jul/2013 13:21:53] "GET /invalid /request HTTP/1.1" 400 -
   - suite: using-quiet-option
     tests:
     - sh: ./sandbox/rex --daemon serve rex.ctl_demo --quiet

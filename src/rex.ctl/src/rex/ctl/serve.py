@@ -47,9 +47,16 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
         if self.server.quiet:
             return
 
+        if format != '"%s" %s %s':
+            # Non-standard format from `log_error()`, no highlighting.
+            # FIXME: not reachable?
+            log(":warning:`Invalid request:` {}", format % args)
+            return
+
         # Extract the remote user when Basic Auth is used.
         remote_user = '-'
-        auth = self.headers.get('Authorization', '').split()
+        # Headers may not exist if the request failed to parse.
+        auth = getattr(self, 'headers', {}).get('Authorization', '').split()
         if len(auth) == 2 and auth[0].lower() == 'basic':
             auth = auth[1]
             try:
@@ -60,28 +67,19 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
                 if ':' in auth:
                     remote_user = auth.split(':', 1)[0]
 
-        if format != '"%s" %s %s':
-            # Non-standard format from `log_error()`, no highlighting.
-            # FIXME: not reachable?
-            log("{} - {} [{}] {}",
-                self.address_string(),
-                remote_user,
-                self.log_date_time_string(),
-                format % args)
+        # Highlight query strings and error codes.
+        query, status, size = args
+        if status < '400':
+            line = "{} - {} [{}] \"`{}`\" {} {}"
         else:
-            # Highlight query strings and error codes.
-            query, status, size = args
-            if status < '400':
-                line = "{} - {} [{}] \"`{}`\" {} {}"
-            else:
-                line = "{} - {} [{}] \"`{}`\" :warning:`{}` {}"
-            log(line,
-                self.address_string(),
-                remote_user,
-                self.log_date_time_string(),
-                query,
-                status,
-                size)
+            line = "{} - {} [{}] \"`{}`\" :warning:`{}` {}"
+        log(line,
+            self.address_string(),
+            remote_user,
+            self.log_date_time_string(),
+            query,
+            status,
+            size)
 
 
 class RexServerHandler(wsgiref.handlers.SimpleHandler):

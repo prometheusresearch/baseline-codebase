@@ -1,0 +1,1 @@
+var data = {{ htsql("/school.code :as school_codes", 'json') }};

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<title>Departments in the School of Engineering</title>
+<body>
+  <table>
+    <tr><th colspan="3">Departments in the School of Engineering</th></tr>
+    <tr><th>No</th><th>Code</th><th>Name</th></tr>
+    {%- for department in htsql("rex.db_demo:/www/departments_by_school.htsql", school='eng') %}
+    <tr><td>{{ loop.index }}</td><td>{{ department.code|e }}</td><td>{{ department.name|e }}</td></tr>
+    {%- endfor %}
+  </table>
+</body>

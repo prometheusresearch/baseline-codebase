@@ -14,6 +14,14 @@ HTSQL instance
 .. autofunction:: get_db
 
 
+Querying
+========
+
+.. autoclass:: Query
+   :members:
+   :special-members: __call__
+
+
 Templates
 =========
 

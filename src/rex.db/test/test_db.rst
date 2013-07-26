@@ -174,7 +174,7 @@ Unexpected parameters are rejected::
     >>> print req.get_response(demo)            # doctest: +ELLIPSIS
     400 Bad Request
     ...
-    Found unknown parameter:
+    Received unexpected parameter:
         credit
 
 HTSQL errors are reported back::
@@ -185,5 +185,73 @@ HTSQL errors are reported back::
     ...
     invalid decimal literal: 2012-12-31
     ...
+
+
+``Query``
+=========
+
+The ``Query`` class wraps ``.htsql`` files and HTSQL queries::
+
+    >>> from rex.db import Query
+    >>> with demo:
+    ...     query = Query("rex.db_demo:/www/departments_by_school.htsql")
+    >>> print query
+    Query('rex.db_demo:/www/departments_by_school.htsql')
+
+Use method ``produce()`` to execute the query::
+
+    >>> with demo:
+    ...     print query.produce(school='ns')        # doctest: +ELLIPSIS
+    ({'astro', 'Astronomy'}, {'chem', 'Chemistry'}, ...)
+
+
+Use method ``format()`` to execute the query and render the result using HTSQL
+formatter::
+
+    >>> with demo:
+    ...     print query.format("application/json", school='ns')     # doctest: +ELLIPSIS
+    {
+      "department": [
+        {
+          "code": "astro",
+          "name": "Astronomy"
+        },
+        {
+          "code": "chem",
+          "name": "Chemistry"
+        },
+        ...
+      ]
+    }
+    <BLANKLINE>
+
+
+``Query`` can also takes query parameters and formatting options from a
+``Request`` object and produce a ``Response`` object::
+
+    >>> req = Request.blank('/?school=ns')
+    >>> req.accept = 'x-htsql/raw'
+    >>> with demo:
+    ...     print query(req)                        # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: application/javascript
+    ...
+    {
+      "meta": {
+        ...
+      },
+      "data": [
+        [
+          "astro",
+          "Astronomy"
+        ],
+        [
+          "chem",
+          "Chemistry"
+        ],
+        ...
+      ]
+    }
+    <BLANKLINE>
 
 

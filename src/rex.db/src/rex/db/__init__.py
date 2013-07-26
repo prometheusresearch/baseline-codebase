@@ -20,6 +20,7 @@ import htsql.core.wsgi
 import htsql.core.cmd.act
 import htsql.core.fmt.accept
 import htsql.core.fmt.emit
+import re
 import yaml
 
 
@@ -130,18 +131,27 @@ class HTSQLAccessSetting(Setting):
     default = 'authenticated'
 
 
-def jinja_global_htsql(query, environment=None, **arguments):
+def jinja_global_htsql(path_or_query, content_type=None,
+                       environment=None, **arguments):
     """
     Jinja global ``htsql`` that executes an HTSQL query and returns the result.
 
-    `query`
-        HTSQL query.
+    `path_or_query`
+        HTSQL query or a package path to a ``.htsql`` file.
+    `content_type`
+        Output format or ``None``.
     `environment`, `arguments`
         Dictionaries with query parameters.
+
+    *Returns:* if ``content_type`` is ``None``, returns the output data,
+    otherwise, returns the rendered output in the given format.
     """
-    db = get_db()
-    product = db.produce(query, environment, **arguments)
-    return product.data
+    query = Query(path_or_query)
+    if content_type is None:
+        product = query.produce(environment, **arguments)
+        return product.data
+    else:
+        return query.format(content_type, environment, **arguments)
 
 
 class InitializeDB(Initialize):
@@ -182,42 +192,62 @@ class HandleHTSQLFile(HandleFile):
 
     ext = '.htsql'
 
-    # File format.
+    def __call__(self, req):
+        # Load and validate the `.htsql` file.
+        query = Query(self.path)
+        return query(req)
+
+
+class Query(object):
+    """
+    Wraps ``.htsql`` files and HTSQL queries.
+
+    `path_or_query`
+        An HTSQL query or a path to a ``.htsql`` file.
+    """
+
+    # Pattern to recognize a path to a `.htsql` file.
+    path_re = re.compile(r'\A[\w.]+[:][\w./-]+[.][h][t][s][q][l]\Z')
+    # File format for `.htsql` file.
     validate = RecordVal([('query', StrVal()),
                           ('parameters',
                               MapVal(StrVal(), MaybeVal(StrVal())),
                               {})])
 
+    def __init__(self, path_or_query):
+        self.path_or_query = path_or_query
+        # If the input is a path to `.htsql` file, parse the file.
+        if self.path_re.match(self.path_or_query):
+            packages = get_packages()
+            spec = self.validate(yaml.safe_load(packages.open(path_or_query)))
+            self.query = spec.query
+            self.parameters = spec.parameters
+        # Otherwise, treat the input as an HTSQL query.
+        else:
+            self.query = path_or_query
+            self.parameters = None
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.path_or_query)
+
     def __call__(self, req):
-        # Load and validate the `.htsql` file.
-        packages = get_packages()
-        spec = self.validate(yaml.safe_load(packages.open(self.path)))
-        # Report unexpected form parameters.
+        """
+        Executes the query taking query parameters from the HTTP request.
+
+        `req`
+            HTTP request object.
+
+        *Returns:* rendered query output as an HTTP response.
+        """
+        # Parse input parameters.
         try:
-            for key in req.params:
-                if key not in spec.parameters:
-                    raise Error("Found unknown parameter:", key)
+            parameters = self._merge(req.params)
         except Error, error:
-            # FIXME: copy/paste from `rex.web.Command`:
-            # Trick WebOb into rendering the error properly in text mode.
-            # FIXME: WebOb cuts out anything resembling a <tag>.
-            body_template = None
-            accept = req.environ.get('HTTP_ACCEPT', '')
-            if not ('html' in accept or '*/*' in accept):
-                error = str(error).replace("\n", "<br \>")
-                body_template = """${explanation}<br /><br />${detail}"""
-            raise HTTPBadRequest(error, body_template=body_template)
-        # Extract query parameters from the HTTP request.
-        environment = {}
-        for name in sorted(spec.parameters):
-            if name in req.params:
-                environment[name] = req.params[name]
-            else:
-                environment[name] = spec.parameters[name]
-        # Execute and render the query.
+            return req.get_response(error)
+        # Execute the query and render the output.
         with get_db():
             try:
-                product = htsql.core.cmd.act.produce(spec.query, environment)
+                product = htsql.core.cmd.act.produce(self.query, parameters)
                 format = htsql.core.fmt.accept.accept(req.environ)
                 headerlist = htsql.core.fmt.emit.emit_headers(format, product)
                 # Pull whole output to avoid random "HTSQL application is not
@@ -227,6 +257,55 @@ class HandleHTSQLFile(HandleFile):
                 return req.get_response(error)
             resp = Response(headerlist=headerlist, app_iter=app_iter)
         return resp
+
+    def produce(self, environment=None, **arguments):
+        """
+        Executes the query; produces the query output.
+
+        `environment`, `arguments`
+            Dictionaries with query parameters.
+        """
+        parameters = self._merge(environment, **arguments)
+        with get_db():
+            return htsql.core.cmd.act.produce(self.query, parameters)
+
+    def format(self, content_type, environment=None, **arguments):
+        """
+        Executes the query; returns rendered output in the given format.
+
+        `content_type`
+            Output format accepted by HTSQL.  Must be content type or HTSQL
+            formatter name, e.g., ``application/json`` or ``raw``.
+        `environment`, `arguments`
+            Dictionaries with query parameters.
+        """
+        # Allow to use a formatter name in place of the content type.
+        if '/' not in content_type:
+            content_type = 'x-htsql/'+content_type
+        # Merge default and input parameters.
+        parameters = self._merge(environment, **arguments)
+        # Execute the query and render the output.
+        with get_db():
+            product = htsql.core.cmd.act.produce(self.query, parameters)
+            return "".join(htsql.core.fmt.emit.emit(content_type, product))
+
+    def _merge(self, environment, **arguments):
+        # Validates the input parameters, merge them with default parameters.
+        if environment is None:
+            environment = {}
+        # Complain about unexpected input parameters.
+        if self.parameters is not None:
+            for name in sorted(environment)+sorted(arguments):
+                if name not in self.parameters:
+                    raise Error("Received unexpected parameter:", name)
+        # Merge all parameters.
+        parameters = {}
+        if self.parameters is not None:
+            parameters.update(self.parameters)
+        if environment:
+            parameters.update(environment)
+        parameters.update(arguments)
+        return parameters
 
 
 class RexHTSQL(htsql.HTSQL):

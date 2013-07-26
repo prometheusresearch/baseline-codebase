@@ -1,7 +1,7 @@
 
 from rex.core import StrVal
 from rex.web import Command, Parameter
-from rex.db import get_db
+from rex.db import get_db, Query
 from webob import Response
 from webob.exc import HTTPNotFound
 
@@ -20,4 +20,16 @@ class DepartmentByIDCommand(Command):
             raise HTTPNotFound()
         return Response(json={"code": department.data.code,
                               "name": department.data.name})
+
+
+class CampusesCommand(Command):
+
+    path = '/campuses'
+    access = 'anybody'
+
+    def render(self, req):
+        query = Query("/school^campus :as campuses")
+        body = query.format('html')
+        return Response(body=body)
+
 

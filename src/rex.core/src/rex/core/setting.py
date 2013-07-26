@@ -43,6 +43,20 @@ class Setting(Extension):
         """
         raise Error("Missing mandatory setting:", self.name)
 
+    def merge(self, old_value, new_value):
+        """
+        Merges setting values from different sources.
+
+        This function takes two values from two different sources and returns
+        a merged value.
+
+        By default, returns `new_value`.  If the value of a setting is expected
+        to be a dictionary or a list, an application may override this method
+        to merge the containers.  Note that values passed to this function are
+        not yet validated.
+        """
+        return new_value
+
     @classmethod
     def sanitize(cls):
         # All settings must have a description.
@@ -72,16 +86,18 @@ class Setting(Extension):
         """
         return dict((setting.name, setting) for setting in cls.all())
 
-    UNSET = object()
-    def __call__(self, value=UNSET):
-        # No explicit setting value was provided.
-        if value is self.UNSET:
+    def __call__(self, values):
+        # No explicit setting values were provided.
+        if not values:
             if callable(self.default):
                 return self.default()
             else:
                 return self.default
 
-        # A setting value was provided.  Process it.
+        # One of more setting value were provided.  Merge and process them.
+        value = values[0]
+        for new_value in values[1:]:
+            value = self.merge(value, new_value)
         try:
             return self.validate(value)
         except Error, error:
@@ -114,8 +130,8 @@ class SettingCollection(object):
         # Mapping from the setting name to the setting type.
         setting_map = Setting.map_all()
 
-        # Setting values.
-        parameters = {}
+        # Setting values from different sources.
+        sources = []
 
         # Load values from `settings.yaml` files.  Respect package dependencies.
         for package in reversed(get_packages()):
@@ -136,22 +152,22 @@ class SettingCollection(object):
                         error = Error("Got unknown setting:", name)
                         error.wrap("In", package.abspath('settings.yaml'))
                         raise error
-                parameters.update(package_parameters)
+                sources.append(package_parameters)
 
         # Load values passed to the application constructor.
         local_parameters = get_rex().parameters
         for name in sorted(local_parameters):
             if name not in setting_map:
                 raise Error("Got unknown setting:", name)
-        parameters.update(local_parameters)
+        sources.append(local_parameters)
 
         # Process raw values.
+        parameters = {}
         for name in sorted(setting_map):
             setting = setting_map[name]()
-            if name in parameters:
-                parameters[name] = setting(parameters[name])
-            else:
-                parameters[name] = setting()
+            values = [source[name] for source in sources if name in source]
+            # Merge and validate values.
+            parameters[name] = setting(values)
 
         # Generate the collection object.
         name = cls.__name__

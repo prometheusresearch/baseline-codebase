@@ -30,8 +30,7 @@ class MountSetting(Setting):
     Example::
 
         mount:
-            rex.web_demo:   /
-            rex.common:     /shared/
+            rex.web_demo:   /demo/
 
     It is not an error to omit some packages or the whole setting entirely.
     If the mount point for a package is not specified, it is determined
@@ -40,16 +39,30 @@ class MountSetting(Setting):
     1. The first package in the application requirement list is mounted
        at ``/``.
     2. Otherwise, a normalized package name is used as the mount point.
+
+    It is permitted for two or more packages to share the mount point.
+    When several packages are mounted at the same URL segment, the request
+    is handled by the first package that contains a command or a static
+    resource that matches the URL.
+
+    This setting could be specified more than once.  Mount tables preset
+    by different packages are merged into one.
     """
 
     name = 'mount'
 
+    def merge(self, old_value, new_value):
+        # Verify and merge dictionaries.
+        map_val = MapVal()
+        value = {}
+        value.update(map_val(old_value))
+        value.update(map_val(new_value))
+        return value
+
     def default(self):
-        return self.validate(None)
+        return self.validate({})
 
     def validate(self, value):
-        if value is None:
-            value = {}
         # The package to mount at ``/``.
         root_name = get_packages()[0].name
         # All packages with servable content.
@@ -63,7 +76,6 @@ class MountSetting(Setting):
         value = mount_val(value)
         # Rebuild the mount table.
         mount = {}
-        seen = set()
         for name in package_names:
             if name in value:
                 segment = value[name]
@@ -72,9 +84,6 @@ class MountSetting(Setting):
             else:
                 segment = name.split('.')[-1].replace('_', '-')
             segment = segment.strip('/')
-            if segment in seen:
-                raise Error("Got duplicate mount URL:", '/'+segment)
-            seen.add(segment)
             mount[name] = segment
         return mount
 
@@ -312,23 +321,30 @@ class StandardWSGI(WSGI):
 
         # Prepare routing map for `PackageRouter`.
         packages = get_packages()
-        default = None
         route_map = {}
-        for package in packages:
+        default = None
+        for package in reversed(packages):
+            # Skip packages without servable content.
+            if package.name not in mount:
+                continue
+            # Mount point and its handler.
+            segment = mount[package.name]
             route = None
+            if segment:
+                route = route_map.get(segment)
+            else:
+                route = default
             # Place `CommandDispatcher` at the bottom of the stack.
             location_handler_map = HandleLocation.map_by_package(package.name)
             if location_handler_map:
                 route = CommandDispatcher(location_handler_map, route)
             # Place `StaticServer` on top of it.
-            if package.exists(StaticServer.www_root) or route is not None:
-                route = StaticServer(package.name, file_handler_map, route)
+            route = StaticServer(package.name, file_handler_map, route)
             # Add to the routing table.
-            if route is not None:
-                if mount[package.name]:
-                    route_map[mount[package.name]] = route
-                else:
-                    default = route
+            if segment:
+                route_map[segment] = route
+            else:
+                default = route
         router = PackageRouter(route_map, default)
         # Place `ErrorCatcher` and `SessionManager` above all.
         error_handler_map = HandleError.map_all()

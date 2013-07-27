@@ -16,7 +16,12 @@ class SecretSetting(Setting):
     """
     Secret passphrase for generating private keys.
 
-    If not set, a random key is used. Must be set for a multi-process server.
+    Example::
+
+        secret: A S3cr3t Passphras3!
+
+    If not set, a random key is used.  This setting must be specified if
+    the application is running under a multi-process HTTP server.
     """
 
     name = 'secret'

@@ -556,6 +556,13 @@ Settings
     Table mapping package names to URL segments.  If not set, generated
     automatically.
 
+    It is permitted for two or more packages to share the mount point.
+    In this case, the request is handled by the first package that has
+    a command or a static resource that matches the URL.
+
+    This setting could be specified more than once.  Mount tables preset
+    by different packages are merged into one.
+
 ``secret``
     Passphrase used for generating encryption and validation keys for the
     session cookie.  If not set, random keys are generated.  This setting must

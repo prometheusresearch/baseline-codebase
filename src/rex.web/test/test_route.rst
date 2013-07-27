@@ -250,16 +250,6 @@ Invalid mount tables are rejected::
         mount
     ...
 
-    >>> Rex('rex.web_demo', './test/data/shared/',
-    ...     mount={'shared': '/'})                  # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    Error: Got duplicate mount URL:
-        /
-    While validating setting:
-        mount
-    ...
-
 The root URL does not have to be mounted::
 
     >>> rootless = Rex('rex.web_demo', './test/data/shared/',
@@ -268,6 +258,35 @@ The root URL does not have to be mounted::
     >>> print req.get_response(rootless)            # doctest: +ELLIPSIS
     404 Not Found
     ...
+
+Several packages may share the same mount point, in which case, the request is
+handled by the first package that contains a resource or a command matching the
+URL::
+
+    >>> union = Rex('rex.web_demo',
+    ...             './test/data/union1/', './test/data/union2/')
+    >>> req = Request.blank('/union/index.html')
+    >>> print req.get_response(union)               # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: text/html; charset=UTF-8
+    ...
+    <title>This page is from the UNION1 package</title>
+
+    >>> req = Request.blank('/union/unique1.html')
+    >>> print req.get_response(union)               # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: text/html; charset=UTF-8
+    ...
+    <title>This page is from the UNION1 package</title>
+
+    >>> req = Request.blank('/union/unique2.html')
+    >>> print req.get_response(union)               # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: text/html; charset=UTF-8
+    ...
+    <title>This page is from the UNION2 package</title>
+
+
 
 
 Handling errors

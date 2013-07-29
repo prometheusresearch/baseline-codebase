@@ -197,6 +197,12 @@ def render_to_response(package_path, req,
 
     Additional parameters passed to the template:
 
+    `CSRF_INPUT_TAG`
+        ``<input>`` tag containing the value of the CSRF token.
+    `CSRF_META_TAG`
+        ``<meta>`` tag containing the value of the CSRF token.
+    `CSRF_TOKEN`
+        CSRF token associated with the user session.
     `MOUNT`
         Package mount table mapping package names to absolute URLs.
         This attribute is available only after the request is processed by

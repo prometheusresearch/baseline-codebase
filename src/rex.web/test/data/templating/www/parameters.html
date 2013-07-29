@@ -1,6 +1,9 @@
 {% extends "/templates/base.html" %}
 {% block title %}Template parameters{% endblock %}
 {% block body %}
+<p><code>CSRF_INPUT_TAG:</code><code>{{ CSRF_INPUT_TAG|e }}</code></p>
+<p><code>CSRF_META_TAG:</code><code>{{ CSRF_META_TAG|e }}</code></p>
+<p><code>CSRF_TOKEN:</code><code>{{ CSRF_TOKEN|e }}</code></p>
 <p><code>MOUNT:</code><code>{{ MOUNT|e }}</code></p>
 <p><code>PACKAGE:</code><code>{{ PACKAGE|e }}</code></p>
 <p><code>PACKAGE_URL:</code><code>{{ PACKAGE_URL|e }}</code></p>

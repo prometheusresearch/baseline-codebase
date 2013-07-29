@@ -69,3 +69,13 @@ class FactorialCmd(Command):
         return Response(json={"n": n, "n!": f})
 
 
+class UnsafeCmd(Command):
+
+    path = '/unsafe'
+    access = 'anybody'
+    unsafe = True
+
+    def render(self, req):
+        return Response("I trust you!", content_type='text/plain')
+
+

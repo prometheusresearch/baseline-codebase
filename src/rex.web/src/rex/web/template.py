@@ -6,6 +6,7 @@
 from rex.core import get_packages, cached, get_settings
 from .handle import HandleFile
 from .auth import authenticate
+from .csrf import retain_csrf_token, make_csrf_meta_tag, make_csrf_input_tag
 from webob import Response
 import os.path
 import mimetypes
@@ -158,6 +159,24 @@ def get_jinja():
     return jinja
 
 
+class lazy(object):
+    # Lazy object proxy.  Used to evaluate template variables on demand.
+
+    def __init__(self, fn):
+        self._fn = fn
+
+    def __call__(self):
+        if not hasattr(self, '_obj'):
+            self._obj = self._fn()
+        return self._obj
+
+    def __str__(self):
+        return str(self())
+
+    def __unicode__(self):
+        return unicode(self())
+
+
 def render_to_response(package_path, req,
                        status=None, content_type=None,
                        **arguments):
@@ -207,6 +226,9 @@ def render_to_response(package_path, req,
     """
     jinja = get_jinja()
     template = jinja.get_template(package_path)
+    CSRF_INPUT_TAG = lazy(lambda req=req: make_csrf_input_tag(req))
+    CSRF_META_TAG = lazy(lambda req=req: make_csrf_meta_tag(req))
+    CSRF_TOKEN = lazy(lambda req=req: retain_csrf_token(req))
     MOUNT = req.environ.get('rex.mount', {})
     PACKAGE = req.environ.get('rex.package')
     PACKAGE_URL = MOUNT.get(PACKAGE)
@@ -216,9 +238,12 @@ def render_to_response(package_path, req,
     PATH_URL = req.path_url
     REQUEST = req
     URL = req.url
-    USER = authenticate(req)
+    USER = lazy(lambda req=req: authenticate(req))
     SETTINGS = get_settings()
     body = template.render(
+            CSRF_INPUT_TAG=CSRF_INPUT_TAG,
+            CSRF_META_TAG=CSRF_META_TAG,
+            CSRF_TOKEN=CSRF_TOKEN,
             MOUNT=MOUNT,
             PACKAGE=PACKAGE,
             PACKAGE_URL=PACKAGE_URL,

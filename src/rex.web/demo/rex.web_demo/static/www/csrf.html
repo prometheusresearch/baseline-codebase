@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Testing CSRF protection</title>
+  <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+  {{ CSRF_META_TAG }}
+</head>
+
+<body>
+  <h1>Testing CSRF protection</h1>
+  <p>To test CSRF protection, start the server and open this page in the browser.</p>
+
+  <h2>Form request without CSRF token</h1>
+  <form action="/unsafe" method="POST">
+    <input type="submit" value="Click to get the Forbidden error!">
+  </form>
+
+  <h2>Form request with CSRF token</h1>
+  <form action="/unsafe" method="POST">
+    {{ CSRF_INPUT_TAG }}
+    <input type="submit" value="Click to perform the unsafe command">
+  </form>
+
+  <h2>Form request with CSRF token passed via query string</h1>
+  <form action="/unsafe" method="GET">
+    {{ CSRF_INPUT_TAG }}
+    <input type="submit" value="Click to get Internal Server Error">
+  </form>
+
+  <h2>Ajax request without CSRF token</h1>
+  <input id="ajax-no-csrf" type="button" value="Click to get Forbidden error!">
+  <script>
+    $(function () {
+      $('#ajax-no-csrf').click(function () {
+        $.ajax("/unsafe", {
+          'complete': function (xhr, text) { alert(text); }
+        });
+      });
+    });
+  </script>
+
+  <h2>Ajax request with CSRF token</h1>
+  <input id="ajax-csrf" type="button" value="Click to perform the unsafe command">
+  <script>
+    $(function () {
+      $('#ajax-csrf').click(function () {
+        var csrf_token = $('meta[name="_csrf_token"]').attr('content');
+        $.ajax("/unsafe", {
+          'headers': { "X-CSRF-Token": csrf_token },
+          'complete': function (xhr, text) { alert(text); }
+        });
+      });
+    });
+  </script>
+</body>

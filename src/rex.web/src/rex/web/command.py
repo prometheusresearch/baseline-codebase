@@ -5,8 +5,9 @@
 
 from rex.core import Error, guard
 from .auth import authorize
+from .csrf import trusted
 from .handle import HandleLocation
-from webob.exc import HTTPUnauthorized
+from webob.exc import HTTPUnauthorized, HTTPForbidden
 import copy
 
 
@@ -60,6 +61,10 @@ class Command(HandleLocation):
     path = None
     #: Permission to execute the command.
     access = 'authenticated'
+    #: If set, indicates that the command the command has non-trivial side
+    #: effects and can be executed only by trusted requests in order to
+    #: prevent CSRF vulnerabilities.
+    unsafe = False
     #: List of form parameters.
     parameters = []
 
@@ -83,6 +88,14 @@ class Command(HandleLocation):
         if self.access is not None:
             if not authorize(req, self.access):
                 raise HTTPUnauthorized()
+        # If the command has side effects, ensure that the request came
+        # from our own site.
+        if self.unsafe and not trusted(req):
+            raise HTTPForbidden()
+        # Ensure that CSRF token is never passed via GET parameters so
+        # that it is not leaked through Referrer header.
+        assert '_csrf_token' not in req.GET, \
+                "_csrf_token must not be passed via query string"
 
     def parse(self, req):
         # Parses query parameters.
@@ -92,10 +105,10 @@ class Command(HandleLocation):
             return {}
 
         arguments = {}
-        # Reject unknown paramerers.
+        # Reject unknown parameters unless the parameter name starts with `_`.
         valid_keys = set(parameter.name for parameter in self.parameters)
         for key in req.params.keys():
-            if key not in valid_keys:
+            if not (key in valid_keys or key.startswith('_')):
                 raise Error("Received unexpected parameter:", key)
         # Process expected parameters.
         for parameter in self.parameters:

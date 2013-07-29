@@ -476,6 +476,76 @@ permissions.  For example, :mod:`rex.web_demo` has the following access file
 - /*            : nobody
 
 
+CSRF protection
+===============
+
+:class:`rex.web.Command` provides optional protection against Cross-Site
+Scripting Forgery (CSRF) attacks.
+
+To perform a CSRF attack, the attacker only needs to trick a user to visit a
+malicious web page.  If the user is currently authenticated in the application,
+the attacker will be able to perform arbitrary actions using the identity of
+the user.  For more information on CSRF, see
+https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29.
+
+Any command that performs actions such as changing the user email address, home
+address or password, or, in general, alters the user or the application data in
+any way, should be protected against CSRF attacks.
+
+To enable CSRF projection, a command should set attribute
+:attr:`.Command.unsafe` to ``True``.  Here is an example from
+:mod:`rex.web_demo`::
+
+    class UnsafeCmd(Command):
+
+        path = '/unsafe'
+        access = 'anybody'
+        unsafe = True
+
+        def render(self, req, n):
+            return Response("I trust you!", content_type='text/plain')
+
+To make a request to an unsafe command, a web page must send so-called CSRF
+token along with the request.  The value of the token could added to a template
+using variables ``CSRF_INPUT_TAG`` or ``CSRF_META_TAG``.
+
+``CSRF_INPUT_TAG`` should be added with any ``<form>`` tag that executes an
+unsafe command.  For example::
+
+    <form action="/unsafe" method="POST">
+      {{ CSRF_INPUT_TAG }}
+      <input type="submit" value="Click to perform the unsafe command">
+    </form>
+
+Forms that include ``CSRF_INPUT_TAG`` must use HTTP method ``POST`` to prevent
+leakage of the CSRF token value.
+
+You may also want to execute an unsafe command using an Ajax request.
+Use ``CSRF_META_TAG`` to add the value of the CSRF token to the page header::
+
+    <head>
+      <title>Testing CSRF protection</title>
+      <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+      {{ CSRF_META_TAG }}
+    </head>
+
+This tag is rendered as::
+
+    <meta name="_csrf_token" content="...">
+
+You can find the value of the token with the following Javascript fragment::
+
+    var csrf_token = $('meta[name="_csrf_token"]').attr('content');
+
+To make an Ajax request to an unsafe command, pass the token using
+``X-CSRF-Token`` HTTP header::
+
+    $.ajax("/unsafe", {
+      'headers': { "X-CSRF-Token": csrf_token },
+      'complete': function (xhr, text) { alert(text); }
+    });
+
+
 Templates
 =========
 

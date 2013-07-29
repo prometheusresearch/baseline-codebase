@@ -36,6 +36,15 @@ Commands
 .. autoclass:: rex.web.Command
 
 
+CSRF protection
+===============
+
+.. autofunction:: trusted
+.. autofunction:: retain_csrf_token
+.. autofunction:: make_csrf_meta_tag
+.. autofunction:: make_csrf_input_tag
+
+
 Templates
 =========
 

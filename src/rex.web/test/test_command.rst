@@ -235,3 +235,58 @@ Checking new implementations
     AssertionError: abstract method __main__.BrokenCommand.render()
 
 
+CSRF protection
+===============
+
+A command which can only be executed by a trusted page is called "unsafe".
+Such commands expect a CSRF token passed either via HTTP headers or via
+form parameters::
+
+    >>> from rex.core import Rex
+    >>> from webob import Request
+
+    >>> csrf = Rex('rex.web_demo', './test/data/csrf/')
+    >>> req = Request.blank('/unsafe')
+    >>> print req.get_response(csrf)        # doctest: +ELLIPSIS
+    403 Forbidden
+    ...
+
+To perform an unsafe command, we must associate a CSRF token with the user
+session::
+
+    >>> import re
+    >>> req = Request.blank('/csrf/index.html')
+    >>> resp = req.get_response(csrf)
+    >>> session_cookie = resp.headers['Set-Cookie'].split('=')[1].split(';')[0]
+    >>> csrf_token = re.search('<meta name="_csrf_token" content="([^"]*)">', str(resp)).group(1)
+
+To execute the command, we must submit the value of the CSRF token with the
+request::
+
+    >>> req = Request.blank('/unsafe')
+    >>> req.cookies['rex.session'] = session_cookie
+    >>> req.headers['X-CSRF-Token'] = csrf_token
+    >>> print req.get_response(csrf)        # doctest: +ELLIPSIS
+    200 OK
+    ...
+
+We could also submit the token as a form parameter::
+
+    >>> req = Request.blank('/unsafe')
+    >>> req.cookies['rex.session'] = session_cookie
+    >>> req.method = 'POST'
+    >>> req.body = '_csrf_token='+csrf_token
+    >>> print req.get_response(csrf)        # doctest: +ELLIPSIS
+    200 OK
+    ...
+
+If the token values do not match, the request is rejected::
+
+    >>> req = Request.blank('/unsafe')
+    >>> req.cookies['rex.session'] = session_cookie
+    >>> req.headers['X-CSRF-Token'] = csrf_token[::-1]
+    >>> print req.get_response(csrf)        # doctest: +ELLIPSIS
+    403 Forbidden
+    ...
+
+

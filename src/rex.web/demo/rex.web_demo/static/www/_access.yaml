@@ -1,5 +1,6 @@
 - /index.html   : anybody
 - /page.html    : anybody
+- /csrf.html    : anybody
 - /example.rst  : anybody
 - /*.png        : anybody
 - /*            : nobody

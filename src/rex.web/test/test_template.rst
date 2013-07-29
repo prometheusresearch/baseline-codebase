@@ -124,14 +124,14 @@ Each template gets a number of parameters::
     >>> req = Request.blank('/templating/parameters.html?dummy=1')
     >>> req.remote_user = 'Alice'
 
-    >>> print req.get_response(templating)      # doctest: +NORMALIZE_WHITESPACE
+    >>> print req.get_response(templating)      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
-    Content-Length: 993
-    <BLANKLINE>
-    <!DOCTYPE html>
-    <title>Template parameters</title>
+    ...
     <body>
+    <p><code>CSRF_INPUT_TAG:</code><code>&lt;input name=&#34;_csrf_token&#34; type=&#34;hidden&#34; value=&#34;...&#34;&gt;</code></p>
+    <p><code>CSRF_META_TAG:</code><code>&lt;meta name=&#34;_csrf_token&#34; content=&#34;...&#34;&gt;</code></p>
+    <p><code>CSRF_TOKEN:</code><code>...</code></p>
     <p><code>MOUNT:</code><code>{&#39;templating&#39;: &#39;http://localhost/templating&#39;}</code></p>
     <p><code>PACKAGE:</code><code>templating</code></p>
     <p><code>PACKAGE_URL:</code><code>http://localhost/templating</code></p>

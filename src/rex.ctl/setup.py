@@ -30,7 +30,7 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core >= 1.0, <2',
+        'rex.core >= 0.9, <2',
         'cogs',
     ],
 )

@@ -8,8 +8,8 @@ This package provides database access to RexDB applications.
 """
 
 
-from rex.core import (Setting, Initialize, cached, get_settings, StrVal,
-        Validate, Error, MaybeVal, MapVal, RecordVal, get_packages)
+from rex.core import (Setting, Initialize, cached, get_settings, get_packages,
+        Error, Validate, StrVal, MaybeVal, OneOfVal, SeqVal, MapVal, RecordVal)
 from rex.web import HandleFile, HandleLocation, authorize, get_jinja
 from webob import Response
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPBadRequest
@@ -71,12 +71,12 @@ class DBSetting(Setting):
     validate = DBVal()
 
 
-class HTSQLBaseExtensionsSetting(Setting):
+class HTSQLExtensionsSetting(Setting):
     """
     Configuration of HTSQL extensions.
 
     Use this setting to preset HTSQL configuration for a particular
-    application.
+    application or to override the preset HTSQL configuration.
 
     The value of this setting is a dictionary that maps addon names
     to addon configuration.  Addon configuration is a dictionary mapping
@@ -84,34 +84,34 @@ class HTSQLBaseExtensionsSetting(Setting):
 
     Example::
 
-        htsql_base_extensions:
+        htsql_extensions:
             tweak.meta:
             tweak.shell.default:
             tweak.timeout:
                 timeout: 600
             tweak.autolimit:
                 limit: 10000
-    """
 
-    name = 'htsql_base_extensions'
-    validate = MaybeVal(MapVal(StrVal(), MaybeVal(MapVal(StrVal()))))
-    default = None
-
-
-class HTSQLExtensionsSetting(HTSQLBaseExtensionsSetting):
-    """
-    Configuration of HTSQL extensions.
-
-    Use this setting to override the preset HTSQL configuration.
-
-    Example::
-
-        htsql_extensions:
-            tweak.timeout:
-                timeout: 30
+    This setting could be specified more than once.  Configuration
+    parameters preset by different packages are merged into one.
     """
 
     name = 'htsql_extensions'
+    validate = MaybeVal(OneOfVal(
+        MapVal(StrVal(), MaybeVal(MapVal(StrVal()))),
+        SeqVal(MapVal(StrVal(), MaybeVal(MapVal(StrVal()))))))
+    default = None
+
+    def merge(self, old_value, new_value):
+        # Merges configuration preset in different packages.
+        value = []
+        for old_or_new_value in [new_value, old_value]:
+            if old_or_new_value:
+                if isinstance(old_or_new_value, list):
+                    value.extend(old_or_new_value)
+                else:
+                    value.append(old_or_new_value)
+        return value
 
 
 class HTSQLAccessSetting(Setting):
@@ -328,9 +328,10 @@ def get_db():
     configuration.append(settings.db)
     configuration.append({'rex': {}})
     if settings.htsql_extensions:
-        configuration.append(settings.htsql_extensions)
-    if settings.htsql_base_extensions:
-        configuration.append(settings.htsql_base_extensions)
+        if isinstance(settings.htsql_extensions, list):
+            configuration.extend(settings.htsql_extensions)
+        else:
+            configuration.append(settings.htsql_extensions)
     return RexHTSQL(*configuration)
 
 

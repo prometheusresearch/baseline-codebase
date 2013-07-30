@@ -43,13 +43,12 @@ is generated from a database schema ``rex.db_demo/static/db_demo.sql``::
 
     >>> demo = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite')
 
-To enable and configure HTSQL addons, use settings ``htsql_base_extensions``
-and ``htsql_extensions``.
+To enable and configure HTSQL addons, use setting ``htsql_extensions``.
 
-Use ``htsql_base_extensions`` to preset HTSQL configuration for a particular
-application.  For example::
+You can use ``htsql_extensions`` to preset HTSQL configuration for a particular
+application.  For example, you can add to ``settings.yaml``::
 
-    htsql_base_extensions:
+    htsql_extensions:
         tweak.meta:
         tweak.shell.default:
         tweak.timeout:
@@ -57,12 +56,13 @@ application.  For example::
         tweak.autolimit:
             limit: 10000
 
-Use ``htsql_extensions`` to override the preset configuration for a specific
-deployment.  For example::
+You can also use ``htsql_extensions`` to override the preset configuration for
+a specific deployment.  For example, you can add to ``rex.yaml``::
 
-    htsql_extensions:
-        tweak.timeout:
-            timeout: 600
+    parameters:
+        htsql_extensions:
+            tweak.timeout:
+                timeout: 600
 
 
 HTSQL service

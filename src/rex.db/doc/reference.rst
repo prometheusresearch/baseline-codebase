@@ -32,7 +32,6 @@ Configuration
 =============
 
 .. autoclass:: DBSetting
-.. autoclass:: HTSQLBaseExtensionsSetting
 .. autoclass:: HTSQLExtensionsSetting
 .. autoclass:: HTSQLAccessSetting
 

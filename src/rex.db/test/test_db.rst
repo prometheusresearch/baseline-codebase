@@ -43,27 +43,29 @@ Ill-formed and invalid connections URI are rejected immediately::
     With parameters:
         db: 'sqlite:./sandbox/missing.sqlite'
 
-Use settings ``htsql_base_extensions`` and ``htsql_extensions`` to enable and
-configure HTSQL addons.  The latter overrides the former::
+Use setting ``htsql_extensions`` to enable and configure HTSQL addons.
+Settings specified in different packages are merged together::
 
     >>> from rex.db import get_db
 
-    >>> nolimit = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite',
-    ...               htsql_base_extensions=None, htsql_extensions=None)
+    >>> nolimit = Rex('rex.db_demo',
+    ...               db='sqlite:./sandbox/db_demo.sqlite',
+    ...               htsql_extensions=None)
     >>> with nolimit:
     ...     db = get_db()
     ...     print len(db.produce('/department'))
     27
 
-    >>> autolimit5 = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite',
-    ...                  htsql_base_extensions={'tweak.autolimit': {'limit': 5}})
+    >>> autolimit5 = Rex('rex.db_demo', './test/data/autolimit5/',
+    ...                  db='sqlite:./sandbox/db_demo.sqlite',
+    ...                  htsql_extensions=None)
     >>> with autolimit5:
     ...     db = get_db()
     ...     print len(db.produce('/department'))
     5
 
-    >>> autolimit2 = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite',
-    ...                  htsql_base_extensions={'tweak.autolimit': {'limit': 5}},
+    >>> autolimit2 = Rex('rex.db_demo', './test/data/autolimit5/',
+    ...                  db='sqlite:./sandbox/db_demo.sqlite',
     ...                  htsql_extensions={'tweak.autolimit': {'limit': 2}})
     >>> with autolimit2:
     ...     db = get_db()

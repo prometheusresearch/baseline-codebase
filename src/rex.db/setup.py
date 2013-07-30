@@ -24,10 +24,10 @@ setup(
         ],
     },
     setup_requires=[
-        'rex.setup >=1.0, <2',
+        'rex.setup >=0.9, <2',
     ],
     install_requires=[
-        'rex.web >=1.0, <2',
+        'rex.web >=0.9, <2',
         'HTSQL >= 2.3.3, <2.5',
     ],
     rex_init='rex.db',

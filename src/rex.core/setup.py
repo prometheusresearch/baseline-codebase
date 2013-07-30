@@ -22,7 +22,7 @@ setup(
         'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.setup >=1.0, <2',
+        'rex.setup >=0.9, <2',
         'pyyaml',
     ],
     extras_require={

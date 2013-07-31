@@ -29,6 +29,7 @@ setup(
     install_requires=[
         'rex.web >=0.9, <2',
         'HTSQL >= 2.3.3, <2.5',
+        'htsql-pgsql',
     ],
     rex_init='rex.db',
 )

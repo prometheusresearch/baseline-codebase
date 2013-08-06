@@ -83,7 +83,8 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
 
 
 class RexServerHandler(wsgiref.handlers.SimpleHandler):
-    # Customizes output for unhandled exceptions.
+    # Customizes output for unhandled exceptions and support for
+    # X-Forwarded-Proto.
 
     def log_exception(self, exc_info):
         # Dumps the exception traceback to stderr.
@@ -136,6 +137,15 @@ class RexServerHandler(wsgiref.handlers.SimpleHandler):
         # Note that `close()` is not called if an exception occurs above.
         # If this happens, the final `close()` is called in `BaseHandler.run()`.
         self.close()
+
+    def get_scheme(self):
+        # X-Forwarded-Proto appears to be a de facto standard for identifying
+        # the originating protocol of an HTTP request when the web server is
+        # behind a reverse proxy.
+        scheme = self.environ.get('HTTP_X_FORWARDED_PROTO')
+        if not scheme:
+            scheme = wsgiref.handlers.SimpleHandler.get_scheme(self)
+        return scheme
 
 
 @setting

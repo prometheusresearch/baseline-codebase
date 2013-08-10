@@ -9,8 +9,8 @@ setup(name='rex.forms',
       rex_static='static',
 
       setup_requires=['rex.setup'],
-      install_requires=['rexrunner',
-                        'rex.common>=1.0.0',
-                        'rex.ext>=1.0.0',
-                        ],
+      install_requires=['rex.web',
+        'rex.common>=0.9',
+        'rex.ext>=0.9',
+      ],
 )

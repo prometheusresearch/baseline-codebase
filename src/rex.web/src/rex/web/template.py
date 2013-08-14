@@ -244,7 +244,7 @@ def render_to_response(package_path, req,
     PATH_URL = req.path_url
     REQUEST = req
     URL = req.url
-    USER = lazy(lambda req=req: authenticate(req))
+    USER = authenticate(req)
     SETTINGS = get_settings()
     body = template.render(
             CSRF_INPUT_TAG=CSRF_INPUT_TAG,

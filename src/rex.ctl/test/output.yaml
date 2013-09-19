@@ -159,19 +159,8 @@ tests:
   - suite: run-with-no-project
     tests:
     - rex: serve
-      stdout: null
-    - get: /
-      status: HTTP/1.0 404 Not Found
-      headers:
-      - [Date, 'Thu, 19 Sep 2013 15:46:14 GMT']
-      - [Content-Length, '41']
-      - [Content-Type, text/plain]
-      body: |
-        Application does not provide web access.
-    - rex: serve
       stdout: |+
-        Serving on 127.0.0.1:8080
-        localhost - - [19/Sep/2013 13:56:41] "GET / HTTP/1.1" 404 41
+        FATAL ERROR: package rex.web must be included with the application
 
   - suite: run-with-a-project
     tests:
@@ -299,29 +288,29 @@ tests:
 
   - suite: invalid-http-host-and-http-port
     tests:
-    - rex: serve
+    - rex: serve rex.ctl_demo
       stdout: |+
         FATAL ERROR: invalid value for setting --http-host: expected a host name or an IP address
 
-    - rex: serve
+    - rex: serve rex.ctl_demo
       stdout: |
-        Serving on 256.56.6.0:8080
+        Serving rex.ctl_demo on 256.56.6.0:8080
         [Errno -2] Name or service not known
-    - rex: serve
+    - rex: serve rex.ctl_demo
       stdout: |+
         FATAL ERROR: invalid value for setting --http-port: expected a port number
 
-    - rex: serve
+    - rex: serve rex.ctl_demo
       stdout: |+
         FATAL ERROR: invalid value for setting --http-port: invalid literal for int() with base 10: 'localhost'
 
-    - rex: serve
+    - rex: serve rex.ctl_demo
       stdout: |+
         FATAL ERROR: invalid value for setting --http-port: expected a port number
 
-    - rex: serve
+    - rex: serve rex.ctl_demo
       stdout: |
-        Serving on 127.0.0.1:80
+        Serving rex.ctl_demo on 127.0.0.1:80
         [Errno 13] Permission denied
   - suite: http-auth
     tests:
@@ -548,20 +537,8 @@ tests:
   - suite: requirements-and-parameters
     tests:
     - rex: wsgi
-      stdout: |2+
-
-        # WSGI script for a RexDB application.
-        # Use it with `uwsgi`, `mod_wsgi` or any other WSGI container.
-
-        from rex.core import Rex
-
-        requirements = [
-        ]
-
-        parameters = {
-        }
-
-        application = Rex(*requirements, **parameters)
+      stdout: |+
+        FATAL ERROR: package rex.web must be included with the application
 
     - rex: wsgi rex.ctl_demo
       stdout: |2+

@@ -66,6 +66,11 @@ tests:
   - title: Run with no project
     tests:
     - rex: serve
+      exit: 1
+
+  - title: Run with a project
+    tests:
+    - rex: serve rex.ctl_demo
       exit: null
     - get: /
       ignore: &http-ignore |
@@ -74,22 +79,12 @@ tests:
         ^Last-Modified:.(.*)$ |
         \[(\d\d\d\d)-(\d\d)-(\d\d).(\d\d):(\d\d):(\d\d)\.(\d+)\] |
         Traceback.\(most.recent.call.last\): ((?:[\n][ ]+.+)+)
-      expect: 404
-    - rex: serve
+    - rex: serve rex.ctl_demo
       ignore: &log-ignore |
         \[(\d\d)/(\w\w\w)/(\d\d\d\d).(\d\d):(\d\d):(\d\d)\] |
         \[(\d\d\d\d)-(\d\d)-(\d\d).(\d\d):(\d\d):(\d\d)\.(\d+)\] |
         [ ](\d+)$ |
         Traceback.\(most.recent.call.last\): ((?:[\n][ ]+.+)+)
-
-  - title: Run with a project
-    tests:
-    - rex: serve rex.ctl_demo
-      exit: null
-    - get: /
-      ignore: *http-ignore
-    - rex: serve rex.ctl_demo
-      ignore: *log-ignore
 
   - title: Using `--require` option
     tests:
@@ -140,27 +135,27 @@ tests:
     tests:
     - write: ./sandbox/rex.yaml
       data: 'http-host: true'
-    - rex: serve
+    - rex: serve rex.ctl_demo
       exit: 1
     - write: ./sandbox/rex.yaml
       data: 'http-host: 256.56.6.0'
-    - rex: serve
+    - rex: serve rex.ctl_demo
       exit: 1
     - write: ./sandbox/rex.yaml
       data: 'http-port: -1'
-    - rex: serve
+    - rex: serve rex.ctl_demo
       exit: 1
     - write: ./sandbox/rex.yaml
       data: 'http-port: localhost'
-    - rex: serve
+    - rex: serve rex.ctl_demo
       exit: 1
     - write: ./sandbox/rex.yaml
       data: 'http-port: 15.31'
-    - rex: serve
+    - rex: serve rex.ctl_demo
       exit: 1
     - write: ./sandbox/rex.yaml
       data: 'http-port: 80'
-    - rex: serve
+    - rex: serve rex.ctl_demo
       exit: 1
     - rm: ./sandbox/rex.yaml
 
@@ -231,6 +226,7 @@ tests:
   - title: Requirements and parameters
     tests:
     - rex: wsgi
+      exit: 1
     - rex: wsgi rex.ctl_demo
     - rex: wsgi rex.ctl_demo --require ../test/data/shared/
     - rex: wsgi rex.ctl_demo --set hello_access=anybody

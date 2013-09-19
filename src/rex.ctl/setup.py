@@ -23,10 +23,7 @@ setup(
             'rex = rex.ctl:main',
         ],
         'rex.ctl': [
-            'common = rex.ctl.common',
-            'describe = rex.ctl.describe',
-            'serve = rex.ctl.serve',
-            'wsgi = rex.ctl.wsgi',
+            'rex = rex.ctl',
         ],
     },
     install_requires=[

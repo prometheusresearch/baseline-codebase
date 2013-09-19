@@ -48,7 +48,8 @@ class WSGI:
 
     def __call__(self):
         # Build the application; validate requirements and configuration.
-        app = make_rex(self.project, self.require, self.set, initialize=False)
+        app = make_rex(self.project, self.require, self.set, initialize=False,
+                       ensure='rex.web')
         try:
             with app:
                 get_packages()

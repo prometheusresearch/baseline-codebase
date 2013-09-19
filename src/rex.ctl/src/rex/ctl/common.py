@@ -83,7 +83,7 @@ class RexNoInit(Rex):
 
 
 def make_rex(project=None, require_list=None, set_list=None,
-             initialize=True):
+             initialize=True, ensure=None):
     # Creates a RexDB application from command-line parameters
     # and global settings.
 
@@ -110,8 +110,18 @@ def make_rex(project=None, require_list=None, set_list=None,
     if not initialize:
         rex_type = RexNoInit
     try:
-        return rex_type(*requirements, **parameters)
+        app = rex_type(*requirements, **parameters)
     except Error, error:
         raise fail(str(error))
+    if ensure is not None:
+        with app:
+            try:
+                packages = get_packages()
+            except Error, error:
+                raise fail(str(error))
+        if ensure not in packages:
+            raise fail("package `{}` must be included with the application",
+                       ensure)
+    return app
 
 

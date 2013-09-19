@@ -228,7 +228,7 @@ class SERVE:
         self.quiet = quiet
 
     def __call__(self):
-        app = make_rex(self.project, self.require, self.set)
+        app = make_rex(self.project, self.require, self.set, ensure='rex.web')
         host = self.host or env.http_host
         port = self.port or env.http_port
         if not self.quiet:

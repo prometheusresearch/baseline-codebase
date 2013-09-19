@@ -26,3 +26,19 @@ env.shell.set(name="Rex",
                            os.path.abspath('.')]),
 
 
+# Enable settings.
+import common
+
+# Enable package and configuration help.
+import describe
+
+# Enable `serve` and `wsgi` tasks (only when `rex.web` is installed).
+try:
+    import rex.web
+except ImportError:
+    pass
+else:
+    import serve
+    import wsgi
+
+

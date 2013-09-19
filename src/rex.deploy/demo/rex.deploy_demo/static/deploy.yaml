@@ -1,0 +1,15 @@
+
+- table: family
+- column: family.code
+- identity: [family.code]
+
+- table: individual
+- link: individual.family
+- column: individual.code
+- column: individual.sex
+- link: individual.mother
+  to: individual
+- link: individual.father
+  to: individual
+- identity: [individual.family, individual.code]
+

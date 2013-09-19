@@ -1,0 +1,44 @@
+****************************
+  REX.DEPLOY Documentation
+****************************
+
+
+Programming guide
+=================
+
+.. toctree::
+
+   guide
+
+
+API reference
+=============
+
+.. toctree::
+
+   reference
+
+
+Examples
+========
+
+.. toctree::
+
+   test/index
+
+
+Release notes
+=============
+
+.. toctree::
+
+   changes
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`search`
+
+

@@ -140,7 +140,7 @@ Packages and settings
 
 To list the packages that compose the RexDB application, run::
 
-    $ rex help packages
+    $ rex packages rex.ctl_demo
     [rex.ctl_demo]
     Version:
       1.0.0
@@ -148,7 +148,7 @@ To list the packages that compose the RexDB application, run::
 
 To list all configuration parameters of the application, run::
 
-    $ rex help settings
+    $ rex settings rex.ctl_demo
     [debug]
     Declared in:
       rex.core

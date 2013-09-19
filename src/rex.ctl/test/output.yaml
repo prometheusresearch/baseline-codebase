@@ -36,7 +36,9 @@ tests:
 
       Available tasks:
         help [<topic>]           : display help on tasks and settings
+        packages [<project>]     : list application components
         serve [<project>]        : start an HTTP server
+        settings [<project>]     : list configuration parameters
         wsgi [<project>]         : generate a WSGI script
 
       Settings:
@@ -46,10 +48,6 @@ tests:
         --parameters=CONFIG      : application configuration
         --project=NAME           : primary package
         --requirements=NAMES     : additional application components
-
-      Other topics:
-        packages                 : list application components
-        settings                 : list configuration parameters
 
   - rex: help serve
     stdout: |+
@@ -108,6 +106,38 @@ tests:
         --require=PACKAGE        : include an additional package
         --set=PARAM=VALUE        : set a configuration parameter
         -o/--output=FILE         : write the script to a file
+
+  - rex: help packages
+    stdout: |+
+      PACKAGES - list application components
+      Usage: rex packages [<project>]
+
+      The packages task lists components of a RexDB application.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+
+  - rex: help settings
+    stdout: |+
+      SETTINGS - list configuration parameters
+      Usage: rex settings [<project>]
+
+      The settings task lists configuration parameters of a RexDB application.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Options:
+        --require=PACKAGE        : include an additional package
 
   - rex: help http-host
     stdout: |+
@@ -624,11 +654,11 @@ tests:
 
         application = Rex(*requirements, **parameters)
 
-- suite: rex-help-packages
+- suite: rex-packages
   tests:
   - suite: run-with-no-project
     tests:
-    - rex: help packages
+    - rex: packages
       stdout: |+
         [rex.core]
         Version:
@@ -645,7 +675,7 @@ tests:
 
   - suite: run-with-a-project
     tests:
-    - rex: help packages --project rex.ctl_demo
+    - rex: packages --project rex.ctl_demo
       stdout: |+
         [rex.ctl_demo]
         Version:
@@ -686,7 +716,7 @@ tests:
           rex.setup>=1.0,<2
           pyyaml
 
-    - rex: help packages --requirements rex.ctl_demo
+    - rex: packages --requirements rex.ctl_demo
       stdout: |+
         [rex.ctl_demo]
         Version:
@@ -727,7 +757,7 @@ tests:
           rex.setup>=1.0,<2
           pyyaml
 
-    - rex: help packages --requirements '["rex.ctl_demo"]'
+    - rex: packages --requirements '["rex.ctl_demo"]'
       stdout: |+
         [rex.ctl_demo]
         Version:
@@ -770,7 +800,7 @@ tests:
 
   - suite: module-and-static-requirements
     tests:
-    - rex: help packages --requirements rex.core.application
+    - rex: packages --requirements rex.core.application
       stdout: |+
         [rex.core.application]
         Location:
@@ -789,7 +819,7 @@ tests:
           rex.setup>=1.0,<2
           pyyaml
 
-    - rex: help packages --requirements ../test/data/shared/
+    - rex: packages --requirements ../test/data/shared/
       stdout: |+
         [shared]
         Resources:
@@ -810,24 +840,24 @@ tests:
 
   - suite: ill-formed-requirements
     tests:
-    - rex: help packages --project rex.unknown
+    - rex: packages --project rex.unknown
       stdout: |+
         FATAL ERROR: Failed to satisfy requirement:
             rex.unknown
 
-    - rex: help packages
+    - rex: packages
       stdout: |+
         FATAL ERROR: invalid value for setting --project: expected a project name
 
-    - rex: help packages
+    - rex: packages
       stdout: |+
         FATAL ERROR: invalid value for setting --requirements: expected a list of requirements
 
-- suite: rex-help-settings
+- suite: rex-settings
   tests:
   - suite: run-with-no-project
     tests:
-    - rex: help settings
+    - rex: settings
       stdout: |+
         [debug]
         Declared in:
@@ -837,7 +867,7 @@ tests:
 
   - suite: run-with-a-project-and-parameters
     tests:
-    - rex: help settings --project rex.ctl_demo
+    - rex: settings --project rex.ctl_demo
       stdout: |+
         [debug]
         Declared in:
@@ -906,7 +936,7 @@ tests:
           If not set, a random key is used.  This setting must be specified if
           the application is running under a multi-process HTTP server.
 
-    - rex: help settings --project rex.ctl_demo --parameters 'debug hello_access=anybody'
+    - rex: settings --project rex.ctl_demo --parameters 'debug hello_access=anybody'
       stdout: |+
         [debug]
         Declared in:
@@ -975,7 +1005,7 @@ tests:
           If not set, a random key is used.  This setting must be specified if
           the application is running under a multi-process HTTP server.
 
-    - rex: help settings --project rex.ctl_demo --parameters '{"debug":true,"hello_access":"anybody"}'
+    - rex: settings --project rex.ctl_demo --parameters '{"debug":true,"hello_access":"anybody"}'
       stdout: |+
         [debug]
         Declared in:
@@ -1046,12 +1076,12 @@ tests:
 
   - suite: ill-formed-parameters
     tests:
-    - rex: help settings --project rex.unknown
+    - rex: settings --project rex.unknown
       stdout: |+
         FATAL ERROR: Failed to satisfy requirement:
             rex.unknown
 
-    - rex: help settings --project ../test/data/ill_formed_setting/
+    - rex: settings --project ../test/data/ill_formed_setting/
       stdout: |+
         [debug]
         Declared in:
@@ -1059,7 +1089,7 @@ tests:
         Description:
           Turn on debug mode.
 
-    - rex: help settings --project ../test/data/broken_setting/
+    - rex: settings --project ../test/data/broken_setting/
       stdout: |+
         [debug]
         Declared in:
@@ -1067,7 +1097,7 @@ tests:
         Description:
           Turn on debug mode.
 
-    - rex: help settings
+    - rex: settings
       stdout: |+
         FATAL ERROR: invalid value for setting --parameters: expected a dictionary of application parameters
 

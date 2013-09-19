@@ -4,129 +4,13 @@
 
 import sys
 import os, os.path
-import threading
-import time
-import signal
-import urllib
-import httplib
-import socket
-import base64
 
 
 # Chdir to `sandbox`.
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.join(os.path.dirname(__file__), '../sandbox'))
 
-
-class Monitor(threading.Thread):
-    # Kills a running daemon after the test harness is done.
-
-    def __init__(self, ppid):
-        threading.Thread.__init__(self)
-        self.ppid = ppid
-
-    def run(self):
-        try:
-            while True:
-                os.kill(self.ppid, 0)
-                time.sleep(0.1)
-        finally:
-            os._exit(1)
-
-
-if len(sys.argv) > 1:
-
-    # Start `rex` in daemon mode.
-    if sys.argv[1] == '--daemon':
-        del sys.argv[1]
-        if os.path.exists('rex.pid'):
-            sys.exit("a daemon process is already running")
-        ppid = os.getppid()
-        if os.fork():
-            while not os.path.exists('rex.pid'):
-                time.sleep(0.1)
-            sys.exit()
-        os.setsid()
-        if os.fork():
-            sys.exit()
-        new_stdin = open('/dev/null', 'r')
-        new_stdout = open('rex.log', 'w', 0)
-        os.dup2(new_stdin.fileno(), sys.stdin.fileno())
-        os.dup2(new_stdout.fileno(), sys.stdout.fileno())
-        os.dup2(new_stdout.fileno(), sys.stderr.fileno())
-        monitor = Monitor(ppid)
-        monitor.daemon = True
-        monitor.start()
-        with open('rex.pid', 'w') as pid_file:
-            pid_file.write(str(os.getpid()))
-
-    # Stops a running daemon, returns its output.
-    elif sys.argv[1] == '--kill':
-        if not os.path.exists('rex.pid'):
-            sys.exit("a daemon process has not been started")
-        with open('rex.pid') as pid_file:
-            pid = int(pid_file.read())
-        try:
-            os.kill(pid, signal.SIGINT)
-        except OSError:
-            pass
-        try:
-            while True:
-                os.kill(pid, 0)
-                time.sleep(0.1)
-        except OSError:
-            pass
-        with open('rex.log') as log_file:
-            sys.stdout.write(log_file.read())
-        os.unlink('rex.log')
-        os.unlink('rex.pid')
-        sys.exit()
-
-    # Make an HTTP request.
-    elif sys.argv[1] == '--get':
-        if not len(sys.argv) == 3:
-            sys.exit("expected a single URL")
-        url = sys.argv[2]
-        scheme, url = urllib.splittype(url)
-        if scheme is None:
-            scheme = 'http'
-        if scheme not in ['http', 'https']:
-            sys.exit("invalid scheme: %s" % scheme)
-        host, url = urllib.splithost(url)
-        if host is None:
-            host = '127.0.0.1:8080'
-            auth = None
-        else:
-            auth, host = urllib.splituser(host)
-        connection_type = {
-                'http': httplib.HTTPConnection,
-                'https': httplib.HTTPSConnection,
-        }[scheme]
-        headers = {}
-        if auth is not None:
-            auth = base64.b64encode(urllib.unquote(auth)).strip()
-            headers['Authorization'] = 'Basic %s' % auth
-        tries = 0
-        while tries < 100:
-            try:
-                connection = connection_type(host)
-                connection.request('GET', url, headers=headers)
-                break
-            except socket.error:
-                tries += 1
-                time.sleep(0.1)
-        else:
-            connection = connection_type(host)
-            connection.request('GET', url, headers=headers)
-        response = connection.getresponse()
-        sys.stdout.write("HTTP/%s %s %s\n"
-                % (response.version/10.0, response.status, response.reason))
-        for header, value in response.getheaders():
-            sys.stdout.write("%s: %s\n" % (header.title(), value))
-        sys.stdout.write("\n")
-        for line in response.read().splitlines():
-            sys.stdout.write("%s\n" % line)
-        sys.exit()
-
+# Fix executable name.
+sys.argv[0] = 'rex'
 
 # Turn on coverage.
 try:

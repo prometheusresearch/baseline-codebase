@@ -4,8 +4,6 @@
 ---
 suite: rex.ctl
 tests:
-- sh: ln -s ../test/rex-helper ./sandbox/rex
-  stdout: ''
 - sh: pip install -q -e ./demo/rex.ctl_demo
   stdout: ''
 - suite: python-m-rex.ctl
@@ -19,14 +17,14 @@ tests:
       Run __main__.py help <topic> for help on a specific task or setting.
 - suite: rex-help
   tests:
-  - sh: ./sandbox/rex
+  - rex: ''
     stdout: |
       Rex - Command-line administration utility for the RexDB platform
       Usage: rex [<settings>...] <task> [<arguments>...]
 
       Run rex help for general usage and a list of tasks and settings.
       Run rex help <topic> for help on a specific task or setting.
-  - sh: ./sandbox/rex help
+  - rex: help
     stdout: |+
       Rex - Command-line administration utility for the RexDB platform
       Usage: rex [<settings>...] <task> [<arguments>...]
@@ -53,7 +51,7 @@ tests:
         packages                 : list application components
         settings                 : list configuration parameters
 
-  - sh: ./sandbox/rex help serve
+  - rex: help serve
     stdout: |+
       SERVE - start an HTTP server
       Usage: rex serve [<project>]
@@ -87,7 +85,7 @@ tests:
         -p/--port=PORT           : bind to the specified port
         -q/--quiet               : suppress HTTP logs
 
-  - sh: ./sandbox/rex help wsgi
+  - rex: help wsgi
     stdout: |+
       WSGI - generate a WSGI script
       Usage: rex wsgi [<project>]
@@ -111,7 +109,7 @@ tests:
         --set=PARAM=VALUE        : set a configuration parameter
         -o/--output=FILE         : write the script to a file
 
-  - sh: ./sandbox/rex help http-host
+  - rex: help http-host
     stdout: |+
       HTTP-HOST - HTTP server address
       Usage: rex --http-host=HOSTNAME
@@ -120,7 +118,7 @@ tests:
 
       The default address of the HTTP server.
 
-  - sh: ./sandbox/rex help http-port
+  - rex: help http-port
     stdout: |+
       HTTP-PORT - HTTP server port
       Usage: rex --http-port=PORT
@@ -129,7 +127,7 @@ tests:
 
       The default port number for the HTTP server.
 
-  - sh: ./sandbox/rex help project
+  - rex: help project
     stdout: |+
       PROJECT - primary package
       Usage: rex --project=NAME
@@ -138,7 +136,7 @@ tests:
 
       The primary package of the application.
 
-  - sh: ./sandbox/rex help requirements
+  - rex: help requirements
     stdout: |+
       REQUIREMENTS - additional application components
       Usage: rex --requirements=NAMES
@@ -147,7 +145,7 @@ tests:
 
       Additional packages to include with the application.
 
-  - sh: ./sandbox/rex help parameters
+  - rex: help parameters
     stdout: |+
       PARAMETERS - application configuration
       Usage: rex --parameters=CONFIG
@@ -160,92 +158,91 @@ tests:
   tests:
   - suite: run-with-no-project
     tests:
-    - sh: ./sandbox/rex --daemon serve
-      stdout: ''
-    - sh: ./sandbox/rex --get /
-      stdout: |
-        HTTP/1.0 404 Not Found
-        Date: Wed, 10 Jul 2013 19:31:41 GMT
-        Content-Length: 41
-        Content-Type: text/plain
-
+    - rex: serve
+      stdout: null
+    - get: /
+      status: HTTP/1.0 404 Not Found
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:46:14 GMT']
+      - [Content-Length, '41']
+      - [Content-Type, text/plain]
+      body: |
         Application does not provide web access.
-    - sh: ./sandbox/rex --kill serve
+    - rex: serve
       stdout: |+
         Serving on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 22:22:49] "GET / HTTP/1.1" 404 41
+        localhost - - [19/Sep/2013 13:56:41] "GET / HTTP/1.1" 404 41
 
   - suite: run-with-a-project
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo
-      stdout: ''
-    - sh: ./sandbox/rex --get /
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:31:51 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
+    - rex: serve rex.ctl_demo
+      stdout: null
+    - get: /
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:46:24 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
 
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - rex: serve rex.ctl_demo
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 22:22:50] "GET / HTTP/1.1" 200 55
+        localhost - - [19/Sep/2013 14:12:32] "GET / HTTP/1.1" 200 55
 
   - suite: using-require-option
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --require ../test/data/shared/
-      stdout: ''
-    - sh: ./sandbox/rex --get /
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:31:59 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
+    - rex: serve rex.ctl_demo --require ../test/data/shared/
+      stdout: null
+    - get: /
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:46:31 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
 
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --get /shared/shared.css
-      stdout: |+
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:00 GMT
-        Last-Modified: Fri, 14 Jun 2013 01:21:00 GMT
-        Content-Length: 49
-        Content-Type: text/css; charset=UTF-8
-        Accept-Ranges: bytes
-
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - get: /shared/shared.css
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:46:35 GMT']
+      - [Last-Modified, 'Thu, 19 Sep 2013 14:53:03 GMT']
+      - [Content-Length, '49']
+      - [Content-Type, text/css; charset=UTF-8]
+      - [Accept-Ranges, bytes]
+      body: |2+
 
         body {
           font-family: 'Comic Sans', cursive;
         }
 
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo --require ../test/data/shared/
+    - rex: serve rex.ctl_demo --require ../test/data/shared/
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 22:22:51] "GET / HTTP/1.1" 200 55
-        localhost - - [13/Jun/2013 22:22:51] "GET /shared/shared.css HTTP/1.1" 200 49
+        localhost - - [19/Sep/2013 14:12:35] "GET / HTTP/1.1" 200 55
+        localhost - - [19/Sep/2013 14:12:35] "GET /shared/shared.css HTTP/1.1" 200 49
 
   - suite: using-set-option
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --set hello_access=anybody
-      stdout: ''
-    - sh: ./sandbox/rex --get /hello
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:03 GMT
-        Content-Length: 13
-        Content-Type: text/plain; charset=UTF-8
-
-        Hello, World!
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo --set hello_access=anybody
+    - rex: serve rex.ctl_demo --set hello_access=anybody
+      stdout: null
+    - get: /hello
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:46:42 GMT']
+      - [Content-Length, '13']
+      - [Content-Type, text/plain; charset=UTF-8]
+      body: Hello, World!
+    - rex: serve rex.ctl_demo --set hello_access=anybody
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 22:22:51] "GET /hello HTTP/1.1" 200 13
+        localhost - - [19/Sep/2013 14:12:38] "GET /hello HTTP/1.1" 200 13
 
   - suite: invalid-requirement-or-parameter
     tests:
-    - sh: ./sandbox/rex serve rex.ctl_demo --require unknown-package
+    - rex: serve rex.ctl_demo --require unknown-package
       stdout: |+
         FATAL ERROR: Failed to satisfy requirement:
             unknown-package
@@ -253,7 +250,7 @@ tests:
             rex.ctl_demo
             unknown-package
 
-    - sh: ./sandbox/rex serve rex.ctl_demo --set unknown-parameter=true
+    - rex: serve rex.ctl_demo --set unknown-parameter=true
       stdout: |+
         FATAL ERROR: Got unknown setting:
             unknown-parameter
@@ -264,279 +261,285 @@ tests:
 
   - suite: server-address-with-http-host-and-http-port
     tests:
-    - sh: ./sandbox/rex --daemon --http-host=localhost --http-port=8088 serve rex.ctl_demo
-      stdout: ''
-    - sh: ./sandbox/rex --get http://localhost:8088/
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:08 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
+    - rex: --http-host=localhost --http-port=8088 serve rex.ctl_demo
+      stdout: null
+    - get: http://localhost:8088/
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:46:48 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
 
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --kill --http-host=localhost --http-port=8088 serve rex.ctl_demo
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - rex: --http-host=localhost --http-port=8088 serve rex.ctl_demo
       stdout: |+
         Serving rex.ctl_demo on localhost:8088
-        localhost - - [13/Jun/2013 22:22:53] "GET / HTTP/1.1" 200 55
+        localhost - - [19/Sep/2013 14:12:47] "GET / HTTP/1.1" 200 55
 
   - suite: server-address-with-host-and-port
     tests:
-    - sh: ./sandbox/rex --daemon --http-host=localhost --http-port=8088 serve rex.ctl_demo
-        -h 127.0.0.1 -p 8080
-      stdout: ''
-    - sh: ./sandbox/rex --get /
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:10 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
+    - rex: --http-host=localhost --http-port=8088 serve rex.ctl_demo -h 127.0.0.1
+        -p 8080
+      stdout: null
+    - get: /
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:46:51 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
 
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --kill --http-host=localhost --http-port=8088 serve rex.ctl_demo
-        -h 127.0.0.1 -p 8080
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - rex: --http-host=localhost --http-port=8088 serve rex.ctl_demo -h 127.0.0.1
+        -p 8080
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 22:22:54] "GET / HTTP/1.1" 200 55
+        localhost - - [19/Sep/2013 14:12:49] "GET / HTTP/1.1" 200 55
 
   - suite: invalid-http-host-and-http-port
     tests:
-    - sh: ./sandbox/rex serve
+    - rex: serve
       stdout: |+
         FATAL ERROR: invalid value for setting --http-host: expected a host name or an IP address
 
-    - sh: ./sandbox/rex serve
+    - rex: serve
       stdout: |
         Serving on 256.56.6.0:8080
         [Errno -2] Name or service not known
-    - sh: ./sandbox/rex serve
+    - rex: serve
       stdout: |+
         FATAL ERROR: invalid value for setting --http-port: expected a port number
 
-    - sh: ./sandbox/rex serve
+    - rex: serve
       stdout: |+
         FATAL ERROR: invalid value for setting --http-port: invalid literal for int() with base 10: 'localhost'
 
-    - sh: ./sandbox/rex serve
+    - rex: serve
       stdout: |+
         FATAL ERROR: invalid value for setting --http-port: expected a port number
 
-    - sh: ./sandbox/rex serve
+    - rex: serve
       stdout: |
         Serving on 127.0.0.1:80
         [Errno 13] Permission denied
   - suite: http-auth
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo
-      stdout: ''
-    - sh: ./sandbox/rex --get http://Aladdin@localhost:8080/
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:14 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
+    - rex: serve rex.ctl_demo
+      stdout: null
+    - get: http://Aladdin@localhost:8080/
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:46:57 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
 
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --get http://Aladdin:open%20sesame@localhost:8080/
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:16 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - get: http://Aladdin:open%20sesame@localhost:8080/
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:47:01 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
 
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - rex: serve rex.ctl_demo
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 22:22:56] "GET / HTTP/1.1" 200 55
-        localhost - Aladdin [13/Jun/2013 22:22:56] "GET / HTTP/1.1" 200 55
+        localhost - - [19/Sep/2013 14:13:16] "GET / HTTP/1.1" 200 55
+        localhost - Aladdin [19/Sep/2013 14:13:16] "GET / HTTP/1.1" 200 55
 
   - suite: unhandled-exceptions
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo
-      stdout: ''
-    - sh: ./sandbox/rex --get /
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:17 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
+    - rex: serve rex.ctl_demo
+      stdout: null
+    - get: /
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:47:04 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
 
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --get /error
-      stdout: |
-        HTTP/1.0 500 Internal Server Error
-        Date: Wed, 10 Jul 2013 19:32:18 GMT
-        Content-Length: 59
-        Content-Type: text/plain
-
-        A server error occurred.  Please contact the administrator.
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - get: /error
+      status: HTTP/1.0 500 Internal Server Error
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:48:08 GMT']
+      - [Content-Length, '59']
+      - [Content-Type, text/plain]
+      body: A server error occurred.  Please contact the administrator.
+    - rex: serve rex.ctl_demo
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 22:22:57] "GET / HTTP/1.1" 200 55
+        localhost - - [19/Sep/2013 14:13:19] "GET / HTTP/1.1" 200 55
         ----------------------------------------------------------------------
-        [2013-06-13 22:22:57.538785] localhost => http://127.0.0.1:8080/error
-        Traceback (most recent call last):
-          File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
-            self.result = application(self.environ, self.start_response)
-          File "/home/xi/xitology/prometheus/rex/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
-            output = wsgi(environ, start_response)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 328, in __call__
-            resp = self.handler(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 110, in __call__
-            resp = self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 140, in __call__
-            return self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 174, in __call__
-            return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 253, in __call__
-            return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 271, in __call__
-            return handler(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/command.py", line 69, in __call__
-            return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 36, in render
-            raise RuntimeError("some unexpected problem occurred")
-        RuntimeError: some unexpected problem occurred
-        localhost - - [13/Jun/2013 22:22:57] "GET /error HTTP/1.1" 500 59
-
-  - suite: unhandled-exceptions-with-debug
-    tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --debug
-      stdout: ''
-    - sh: ./sandbox/rex --get /
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:19 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
-
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --get /error
-      stdout: |
-        HTTP/1.0 500 Internal Server Error
-        Date: Wed, 10 Jul 2013 19:32:20 GMT
-        Content-Type: text/plain
-
-        A server error occurred.  Please contact the administrator.
-
-        [2013-07-10 14:32:20.099429] localhost => http://127.0.0.1:8080/error
+        [2013-09-19 14:13:19.677919] localhost => http://127.0.0.1:8080/error
         Traceback (most recent call last):
           File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
             self.result = application(self.environ, self.start_response)
           File "/home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
             output = wsgi(environ, start_response)
-          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 328, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 362, in __call__
             resp = self.handler(req)
-          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 110, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 120, in __call__
             resp = self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 140, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 151, in __call__
             return self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 174, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 185, in __call__
             return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 253, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 281, in __call__
             return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 271, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 299, in __call__
             return handler(req)
-          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/command.py", line 75, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/command.py", line 84, in __call__
             return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 35, in render
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 35, in render
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo --debug
-      stdout: |
-        Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [13/Jun/2013 22:22:58] "GET / HTTP/1.1" 200 55
-        ----------------------------------------------------------------------
-        [2013-06-13 22:22:58.319316] localhost => http://127.0.0.1:8080/error
+        localhost - - [19/Sep/2013 14:13:19] "GET /error HTTP/1.1" 500 59
+
+  - suite: unhandled-exceptions-with-debug
+    tests:
+    - rex: serve rex.ctl_demo --debug
+      stdout: null
+    - get: /
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:48:11 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
+
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - get: /error
+      status: HTTP/1.0 500 Internal Server Error
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:48:12 GMT']
+      - [Content-Type, text/plain]
+      body: |
+        A server error occurred.  Please contact the administrator.
+
+        [2013-09-19 10:48:12.981468] localhost => http://127.0.0.1:8080/error
         Traceback (most recent call last):
           File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
             self.result = application(self.environ, self.start_response)
-          File "/home/xi/xitology/prometheus/rex/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
             output = wsgi(environ, start_response)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 328, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 362, in __call__
             resp = self.handler(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 110, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 120, in __call__
             resp = self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 140, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 151, in __call__
             return self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 174, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 185, in __call__
             return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 253, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 281, in __call__
             return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 271, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 299, in __call__
             return handler(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/command.py", line 69, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/command.py", line 84, in __call__
             return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 36, in render
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 35, in render
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
-        localhost - - [13/Jun/2013 22:22:58] "GET /error HTTP/1.1" 500 1620
+    - rex: serve rex.ctl_demo --debug
+      stdout: |
+        Serving rex.ctl_demo on 127.0.0.1:8080
+        localhost - - [19/Sep/2013 14:13:26] "GET / HTTP/1.1" 200 55
+        ----------------------------------------------------------------------
+        [2013-09-19 14:13:26.395676] localhost => http://127.0.0.1:8080/error
+        Traceback (most recent call last):
+          File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
+            self.result = application(self.environ, self.start_response)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
+            output = wsgi(environ, start_response)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 362, in __call__
+            resp = self.handler(req)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 120, in __call__
+            resp = self.trunk(req)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 151, in __call__
+            return self.trunk(req)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 185, in __call__
+            return self.fallback(req)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 281, in __call__
+            return self.fallback(req)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 299, in __call__
+            return handler(req)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/command.py", line 84, in __call__
+            return self.render(req, **arguments)
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 35, in render
+            raise RuntimeError("some unexpected problem occurred")
+        RuntimeError: some unexpected problem occurred
+        localhost - - [19/Sep/2013 14:13:26] "GET /error HTTP/1.1" 500 1727
   - suite: handling-invalid-requests
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --debug
-      stdout: ''
-    - sh: ./sandbox/rex --get '/invalid /request'
-      stdout: "HTTP/0.9 200 \n\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error
-        response</h1>\n<p>Error code 400.\n<p>Message: Bad request syntax ('GET /invalid
-        /request HTTP/1.1').\n<p>Error code explanation: 400 = Bad request syntax
-        or unsupported method.\n</body>\n"
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo --debug
+    - rex: serve rex.ctl_demo --debug
+      stdout: null
+    - get: /invalid /request
+      status: 'HTTP/0.9 200 '
+      headers: []
+      body: |
+        <head>
+        <title>Error response</title>
+        </head>
+        <body>
+        <h1>Error response</h1>
+        <p>Error code 400.
+        <p>Message: Bad request syntax ('GET /invalid /request HTTP/1.1').
+        <p>Error code explanation: 400 = Bad request syntax or unsupported method.
+        </body>
+    - rex: serve rex.ctl_demo --debug
       stdout: |
         Serving rex.ctl_demo on 127.0.0.1:8080
         Invalid request: code 400, message Bad request syntax ('GET /invalid /request HTTP/1.1')
-        localhost - - [22/Jul/2013 13:21:53] "GET /invalid /request HTTP/1.1" 400 -
+        localhost - - [19/Sep/2013 14:13:28] "GET /invalid /request HTTP/1.1" 400 -
   - suite: using-quiet-option
     tests:
-    - sh: ./sandbox/rex --daemon serve rex.ctl_demo --quiet
-      stdout: ''
-    - sh: ./sandbox/rex --get /
-      stdout: |
-        HTTP/1.0 200 OK
-        Date: Wed, 10 Jul 2013 19:32:28 GMT
-        Content-Length: 55
-        Content-Type: text/html; charset=UTF-8
+    - rex: serve rex.ctl_demo --quiet
+      stdout: null
+    - get: /
+      status: HTTP/1.0 200 OK
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:48:36 GMT']
+      - [Content-Length, '55']
+      - [Content-Type, text/html; charset=UTF-8]
+      body: '<!DOCTYPE html>
 
-        <!DOCTYPE html>
-        <title>Welcome to REX.CTL_DEMO!</title>
-    - sh: ./sandbox/rex --get /error
-      stdout: |
-        HTTP/1.0 500 Internal Server Error
-        Date: Wed, 10 Jul 2013 19:32:28 GMT
-        Content-Length: 59
-        Content-Type: text/plain
-
-        A server error occurred.  Please contact the administrator.
-    - sh: ./sandbox/rex --kill serve rex.ctl_demo --quiet
+        <title>Welcome to REX.CTL_DEMO!</title>'
+    - get: /error
+      status: HTTP/1.0 500 Internal Server Error
+      headers:
+      - [Date, 'Thu, 19 Sep 2013 15:49:03 GMT']
+      - [Content-Length, '59']
+      - [Content-Type, text/plain]
+      body: A server error occurred.  Please contact the administrator.
+    - rex: serve rex.ctl_demo --quiet
       stdout: |+
         ----------------------------------------------------------------------
-        [2013-06-13 22:22:59.110596] localhost => http://127.0.0.1:8080/error
+        [2013-09-19 14:13:36.282577] localhost => http://127.0.0.1:8080/error
         Traceback (most recent call last):
           File "/usr/lib/python2.7/wsgiref/handlers.py", line 85, in run
             self.result = application(self.environ, self.start_response)
-          File "/home/xi/xitology/prometheus/rex/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src/rex/core/application.py", line 84, in __call__
             output = wsgi(environ, start_response)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 328, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 362, in __call__
             resp = self.handler(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 110, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 120, in __call__
             resp = self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 140, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 151, in __call__
             return self.trunk(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 174, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 185, in __call__
             return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 253, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 281, in __call__
             return self.fallback(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/route.py", line 271, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/route.py", line 299, in __call__
             return handler(req)
-          File "/home/xi/xitology/prometheus/rex/rex.web-opensource/src/rex/web/command.py", line 69, in __call__
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src/rex/web/command.py", line 84, in __call__
             return self.render(req, **arguments)
-          File "/home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 36, in render
+          File "/home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src/rex/ctl_demo.py", line 35, in render
             raise RuntimeError("some unexpected problem occurred")
         RuntimeError: some unexpected problem occurred
 
@@ -544,7 +547,7 @@ tests:
   tests:
   - suite: requirements-and-parameters
     tests:
-    - sh: ./sandbox/rex wsgi
+    - rex: wsgi
       stdout: |2+
 
         # WSGI script for a RexDB application.
@@ -560,7 +563,7 @@ tests:
 
         application = Rex(*requirements, **parameters)
 
-    - sh: ./sandbox/rex wsgi rex.ctl_demo
+    - rex: wsgi rex.ctl_demo
       stdout: |2+
 
         # WSGI script for the `rex.ctl_demo` application.
@@ -577,7 +580,7 @@ tests:
 
         application = Rex(*requirements, **parameters)
 
-    - sh: ./sandbox/rex wsgi rex.ctl_demo --require ../test/data/shared/
+    - rex: wsgi rex.ctl_demo --require ../test/data/shared/
       stdout: |2+
 
         # WSGI script for the `rex.ctl_demo` application.
@@ -595,7 +598,7 @@ tests:
 
         application = Rex(*requirements, **parameters)
 
-    - sh: ./sandbox/rex wsgi rex.ctl_demo --set hello_access=anybody
+    - rex: wsgi rex.ctl_demo --set hello_access=anybody
       stdout: |2+
 
         # WSGI script for the `rex.ctl_demo` application.
@@ -613,19 +616,19 @@ tests:
 
         application = Rex(*requirements, **parameters)
 
-    - sh: ./sandbox/rex wsgi rex.ctl_demo --require unknown-package
+    - rex: wsgi rex.ctl_demo --require unknown-package
       stdout: |+
         FATAL ERROR: Failed to satisfy requirement:
             unknown-package
 
-    - sh: ./sandbox/rex wsgi rex.ctl_demo --set unknown-parameter=true
+    - rex: wsgi rex.ctl_demo --set unknown-parameter=true
       stdout: |+
         FATAL ERROR: Got unknown setting:
             unknown-parameter
 
   - suite: using-output-option
     tests:
-    - sh: ./sandbox/rex wsgi rex.ctl_demo -o ctl_demo.wsgi
+    - rex: wsgi rex.ctl_demo -o ctl_demo.wsgi
       stdout: ''
     - read: ./sandbox/ctl_demo.wsgi
       data: |2+
@@ -648,15 +651,15 @@ tests:
   tests:
   - suite: run-with-no-project
     tests:
-    - sh: ./sandbox/rex help packages
+    - rex: help packages
       stdout: |+
         [rex.core]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
         Summary:
-          Core components of the Rex platform
+          Core components of the RexDB platform
         URL:
           http://bitbucket.org/prometheus/rex.core
         Dependencies:
@@ -665,15 +668,15 @@ tests:
 
   - suite: run-with-a-project
     tests:
-    - sh: ./sandbox/rex help packages --project rex.ctl_demo
+    - rex: help packages --project rex.ctl_demo
       stdout: |+
         [rex.ctl_demo]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
 
@@ -681,7 +684,7 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.web-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src
         Summary:
           Web stack for the Rex platform
         URL:
@@ -689,7 +692,7 @@ tests:
         Dependencies:
           rex.core>=1.0,<2
           webob
-          Jinja2
+          jinja2
           pycrypto
           pbkdf2
 
@@ -697,24 +700,24 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
         Summary:
-          Core components of the Rex platform
+          Core components of the RexDB platform
         URL:
           http://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
 
-    - sh: ./sandbox/rex help packages --requirements rex.ctl_demo
+    - rex: help packages --requirements rex.ctl_demo
       stdout: |+
         [rex.ctl_demo]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
 
@@ -722,7 +725,7 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.web-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src
         Summary:
           Web stack for the Rex platform
         URL:
@@ -730,7 +733,7 @@ tests:
         Dependencies:
           rex.core>=1.0,<2
           webob
-          Jinja2
+          jinja2
           pycrypto
           pbkdf2
 
@@ -738,24 +741,24 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
         Summary:
-          Core components of the Rex platform
+          Core components of the RexDB platform
         URL:
           http://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
 
-    - sh: ./sandbox/rex help packages --requirements '["rex.ctl_demo"]'
+    - rex: help packages --requirements '["rex.ctl_demo"]'
       stdout: |+
         [rex.ctl_demo]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
 
@@ -763,7 +766,7 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.web-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src
         Summary:
           Web stack for the Rex platform
         URL:
@@ -771,7 +774,7 @@ tests:
         Dependencies:
           rex.core>=1.0,<2
           webob
-          Jinja2
+          jinja2
           pycrypto
           pbkdf2
 
@@ -779,9 +782,9 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
         Summary:
-          Core components of the Rex platform
+          Core components of the RexDB platform
         URL:
           http://bitbucket.org/prometheus/rex.core
         Dependencies:
@@ -790,38 +793,38 @@ tests:
 
   - suite: module-and-static-requirements
     tests:
-    - sh: ./sandbox/rex help packages --requirements rex.core.application
+    - rex: help packages --requirements rex.core.application
       stdout: |+
         [rex.core.application]
         Location:
-          /home/xi/xitology/prometheus/rex/rex.core-opensource/src/rex/core/application.pyc
+          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src/rex/core/application.pyc
 
         [rex.core]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
         Summary:
-          Core components of the Rex platform
+          Core components of the RexDB platform
         URL:
           http://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
 
-    - sh: ./sandbox/rex help packages --requirements ../test/data/shared/
+    - rex: help packages --requirements ../test/data/shared/
       stdout: |+
         [shared]
         Resources:
-          /home/xi/xitology/prometheus/rex/rex.ctl-opensource/test/data/shared
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/test/data/shared
 
         [rex.core]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
         Summary:
-          Core components of the Rex platform
+          Core components of the RexDB platform
         URL:
           http://bitbucket.org/prometheus/rex.core
         Dependencies:
@@ -830,16 +833,16 @@ tests:
 
   - suite: ill-formed-requirements
     tests:
-    - sh: ./sandbox/rex help packages --project rex.unknown
+    - rex: help packages --project rex.unknown
       stdout: |+
         FATAL ERROR: Failed to satisfy requirement:
             rex.unknown
 
-    - sh: ./sandbox/rex help packages
+    - rex: help packages
       stdout: |+
         FATAL ERROR: invalid value for setting --project: expected a project name
 
-    - sh: ./sandbox/rex help packages
+    - rex: help packages
       stdout: |+
         FATAL ERROR: invalid value for setting --requirements: expected a list of requirements
 
@@ -847,7 +850,7 @@ tests:
   tests:
   - suite: run-with-no-project
     tests:
-    - sh: ./sandbox/rex help settings
+    - rex: help settings
       stdout: |+
         [debug]
         Declared in:
@@ -857,7 +860,7 @@ tests:
 
   - suite: run-with-a-project-and-parameters
     tests:
-    - sh: ./sandbox/rex help settings --project rex.ctl_demo
+    - rex: help settings --project rex.ctl_demo
       stdout: |+
         [debug]
         Declared in:
@@ -891,8 +894,7 @@ tests:
           Example::
 
               mount:
-                  rex.web_demo:   /
-                  rex.common:     /shared/
+                  rex.web_demo:   /demo/
 
           It is not an error to omit some packages or the whole setting entirely.
           If the mount point for a package is not specified, it is determined
@@ -901,6 +903,14 @@ tests:
           1. The first package in the application requirement list is mounted
              at ``/``.
           2. Otherwise, a normalized package name is used as the mount point.
+
+          It is permitted for two or more packages to share the mount point.
+          When several packages are mounted at the same URL segment, the request
+          is handled by the first package that contains a command or a static
+          resource that matches the URL.
+
+          This setting could be specified more than once.  Mount tables preset
+          by different packages are merged into one.
 
         [secret]
         Declared in:
@@ -912,9 +922,14 @@ tests:
         Description:
           Secret passphrase for generating private keys.
 
-          If not set, a random key is used. Must be set for a multi-process server.
+          Example::
 
-    - sh: ./sandbox/rex help settings --project rex.ctl_demo --parameters 'debug hello_access=anybody'
+              secret: A S3cr3t Passphras3!
+
+          If not set, a random key is used.  This setting must be specified if
+          the application is running under a multi-process HTTP server.
+
+    - rex: help settings --project rex.ctl_demo --parameters 'debug hello_access=anybody'
       stdout: |+
         [debug]
         Declared in:
@@ -948,8 +963,7 @@ tests:
           Example::
 
               mount:
-                  rex.web_demo:   /
-                  rex.common:     /shared/
+                  rex.web_demo:   /demo/
 
           It is not an error to omit some packages or the whole setting entirely.
           If the mount point for a package is not specified, it is determined
@@ -958,6 +972,14 @@ tests:
           1. The first package in the application requirement list is mounted
              at ``/``.
           2. Otherwise, a normalized package name is used as the mount point.
+
+          It is permitted for two or more packages to share the mount point.
+          When several packages are mounted at the same URL segment, the request
+          is handled by the first package that contains a command or a static
+          resource that matches the URL.
+
+          This setting could be specified more than once.  Mount tables preset
+          by different packages are merged into one.
 
         [secret]
         Declared in:
@@ -969,9 +991,14 @@ tests:
         Description:
           Secret passphrase for generating private keys.
 
-          If not set, a random key is used. Must be set for a multi-process server.
+          Example::
 
-    - sh: ./sandbox/rex help settings --project rex.ctl_demo --parameters '{"debug":true,"hello_access":"anybody"}'
+              secret: A S3cr3t Passphras3!
+
+          If not set, a random key is used.  This setting must be specified if
+          the application is running under a multi-process HTTP server.
+
+    - rex: help settings --project rex.ctl_demo --parameters '{"debug":true,"hello_access":"anybody"}'
       stdout: |+
         [debug]
         Declared in:
@@ -1005,8 +1032,7 @@ tests:
           Example::
 
               mount:
-                  rex.web_demo:   /
-                  rex.common:     /shared/
+                  rex.web_demo:   /demo/
 
           It is not an error to omit some packages or the whole setting entirely.
           If the mount point for a package is not specified, it is determined
@@ -1015,6 +1041,14 @@ tests:
           1. The first package in the application requirement list is mounted
              at ``/``.
           2. Otherwise, a normalized package name is used as the mount point.
+
+          It is permitted for two or more packages to share the mount point.
+          When several packages are mounted at the same URL segment, the request
+          is handled by the first package that contains a command or a static
+          resource that matches the URL.
+
+          This setting could be specified more than once.  Mount tables preset
+          by different packages are merged into one.
 
         [secret]
         Declared in:
@@ -1026,16 +1060,21 @@ tests:
         Description:
           Secret passphrase for generating private keys.
 
-          If not set, a random key is used. Must be set for a multi-process server.
+          Example::
+
+              secret: A S3cr3t Passphras3!
+
+          If not set, a random key is used.  This setting must be specified if
+          the application is running under a multi-process HTTP server.
 
   - suite: ill-formed-parameters
     tests:
-    - sh: ./sandbox/rex help settings --project rex.unknown
+    - rex: help settings --project rex.unknown
       stdout: |+
         FATAL ERROR: Failed to satisfy requirement:
             rex.unknown
 
-    - sh: ./sandbox/rex help settings --project ../test/data/ill_formed_setting/
+    - rex: help settings --project ../test/data/ill_formed_setting/
       stdout: |+
         [debug]
         Declared in:
@@ -1043,7 +1082,7 @@ tests:
         Description:
           Turn on debug mode.
 
-    - sh: ./sandbox/rex help settings --project ../test/data/broken_setting/
+    - rex: help settings --project ../test/data/broken_setting/
       stdout: |+
         [debug]
         Declared in:
@@ -1051,7 +1090,7 @@ tests:
         Description:
           Turn on debug mode.
 
-    - sh: ./sandbox/rex help settings
+    - rex: help settings
       stdout: |+
         FATAL ERROR: invalid value for setting --parameters: expected a dictionary of application parameters
 

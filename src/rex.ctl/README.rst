@@ -21,7 +21,7 @@ more information, please visit http://rexdb.org/.
 Getting help
 ============
 
-All invocations of the ``rex`` utility follows the same pattern::
+All invocations of the ``rex`` utility follow the same pattern::
 
     $ rex <task> [<arguments>...]
 
@@ -133,6 +133,25 @@ object.  Use ``rex wsgi`` for that purpose::
 
 This commands generates a WSGI script for ``rex.ctl_demo`` and saves it as
 ``ctl_demo.wsgi``.
+
+
+Database management
+===================
+
+If the RexDB application uses ``rex.db`` and ``rex.deploy`` packages
+to manage and access a database, you can use ``rex`` to perform various
+database-related tasks.
+
+To deploy the application database, use ``rex deploy``::
+
+    $ rex deploy rex.ctl_demo
+    deploying database schema to pgsql:///ctl_demo
+
+To open HTSQL shell to the application database, use ``rex shell``::
+
+    $ rex shell rex.ctl_demo
+    Type 'help' for more information, 'exit' to quit the shell.
+    ctl_demo$
 
 
 Packages and settings

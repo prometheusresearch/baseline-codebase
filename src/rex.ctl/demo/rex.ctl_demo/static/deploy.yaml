@@ -1,0 +1,30 @@
+
+- table: school
+- column: school.code
+- column: school.name
+- column: school.campus
+- identity: [school.code]
+
+- table: department
+- column: department.code
+- link: department.school
+- column: department.name
+- identity: [department.code]
+
+- table: program
+- link: program.school
+- column: program.code
+- column: program.title
+- column: program.degree
+- link: program.part_of
+  to: program
+- identity: [program.school, program.code]
+
+- table: course
+- link: course.department
+- column: course.no
+- column: course.title
+- column: course.credits
+- column: course.description
+- identity: [course.department, course.no]
+

@@ -3,17 +3,13 @@
 #
 
 
-from pbbt import Test, Field, BaseCase, MatchCase
-from pbbt.check import choiceof, maybe, oneof, listof, tupleof, dictof
-from pbbt.std import is_filename, to_identifier
-import re
-import StringIO
-import traceback
+from pbbt import Test, Field, MatchCase
+from pbbt.check import maybe, oneof, listof, tupleof
 import tempfile
 import shutil
 import atexit
 import subprocess
-import os
+import os.path
 import time
 import urllib
 import httplib
@@ -218,6 +214,7 @@ class RexCase(MatchCase):
         else:
             try:
                 proc = subprocess.Popen([command]+parameters,
+                                        stdin=subprocess.PIPE,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.STDOUT)
                 stdout, stderr = proc.communicate(self.input.stdin)

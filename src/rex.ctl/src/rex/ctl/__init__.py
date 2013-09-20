@@ -38,7 +38,23 @@ try:
 except ImportError:
     pass
 else:
-    import serve
-    import wsgi
+    from . import serve, wsgi
+
+# Enable `shell` task if `rex.db` is installed.
+try:
+    import rex.db
+except ImportError:
+    pass
+else:
+    from . import shell
+
+# Enable `deploy` and other database management tasks if `rex.deploy`
+# is installed.
+try:
+    import rex.deploy
+except ImportError:
+    pass
+else:
+    from . import deploy
 
 

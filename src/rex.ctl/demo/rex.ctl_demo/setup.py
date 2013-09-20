@@ -15,6 +15,9 @@ class demo(Command):
 
     def run(self):
         import os
+        cmd = "rex deploy rex.ctl_demo"
+        print "$", cmd
+        os.spawnvp(0, cmd.split()[0], cmd.split())
         cmd = "rex serve rex.ctl_demo --set hello_access=anybody"
         print "$", cmd
         os.spawnvp(0, cmd.split()[0], cmd.split())
@@ -32,6 +35,8 @@ setup(
     ],
     install_requires=[
         'rex.web',
+        'rex.db',
+        'rex.deploy',
     ],
     cmdclass={'demo': demo},
     rex_init='rex.ctl_demo',

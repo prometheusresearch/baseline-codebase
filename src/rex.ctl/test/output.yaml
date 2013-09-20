@@ -35,10 +35,12 @@ tests:
       Run rex help <topic> for help on a specific topic.
 
       Available tasks:
+        deploy [<project>]       : deploy database schema
         help [<topic>]           : display help on tasks and settings
         packages [<project>]     : list application components
         serve [<project>]        : start an HTTP server
         settings [<project>]     : list configuration parameters
+        shell [<project>]        : open HTSQL shell
         wsgi [<project>]         : generate a WSGI script
 
       Settings:
@@ -48,6 +50,51 @@ tests:
         --parameters=CONFIG      : application configuration
         --project=NAME           : primary package
         --requirements=NAMES     : additional application components
+
+  - rex: help deploy
+    stdout: |+
+      DEPLOY - deploy database schema
+      Usage: rex deploy [<project>]
+
+      The deploy task brings the database to the state prescribed by
+      the application.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Use option --set or setting parameters to specify configuration
+      parameters of the application.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        --dry-run                : immediately rollback the changes
+
+  - rex: help shell
+    stdout: |+
+      SHELL - open HTSQL shell
+      Usage: rex shell [<project>]
+
+      The shell task opens an HTSQL shell to the application database.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Use option --set or setting parameters to specify configuration
+      parameters of the application.
+
+      Use option --extend (-E) to enable an HTSQL extension.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -E/--extend=EXT:PARAM=VALUE : include an HTSQL extension
 
   - rex: help serve
     stdout: |+
@@ -183,6 +230,23 @@ tests:
              REX_PARAMETERS=CONFIG (environment)
 
       A dictionary with application parameters.
+
+- suite: rex-deploy
+  tests:
+  - rex: deploy rex.ctl_demo
+    stdout: |
+      deploying database schema to pgsql:///ctl_demo
+- suite: rex-shell
+  tests:
+  - rex: shell rex.ctl_demo
+    stdout: |+
+      PGSQL:///ctl_demo - HTSQL database
+
+      Labels:
+        course                   : table
+        department               : table
+        program                  : table
+        school                   : table
 
 - suite: rex-serve
   tests:
@@ -681,11 +745,41 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
+          rex.db
+          rex.deploy
+
+        [rex.deploy]
+        Version:
+          0.1.0
+        Location:
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/src
+        Resources:
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/static
+        Summary:
+          Database schema management for RexDB platform
+        URL:
+          http://bitbucket.org/prometheus/rex.deploy
+        Dependencies:
+          rex.core
+          rex.db
+
+        [rex.db]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/opensource/rex.db-opensource/src
+        Summary:
+          Database access for the RexDB platform
+        URL:
+          http://bitbucket.org/prometheus/rex.db
+        Dependencies:
+          rex.web>=1.0,<2
+          HTSQL>=2.3.3,<2.5
 
         [rex.web]
         Version:
@@ -722,11 +816,41 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
+          rex.db
+          rex.deploy
+
+        [rex.deploy]
+        Version:
+          0.1.0
+        Location:
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/src
+        Resources:
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/static
+        Summary:
+          Database schema management for RexDB platform
+        URL:
+          http://bitbucket.org/prometheus/rex.deploy
+        Dependencies:
+          rex.core
+          rex.db
+
+        [rex.db]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/opensource/rex.db-opensource/src
+        Summary:
+          Database access for the RexDB platform
+        URL:
+          http://bitbucket.org/prometheus/rex.db
+        Dependencies:
+          rex.web>=1.0,<2
+          HTSQL>=2.3.3,<2.5
 
         [rex.web]
         Version:
@@ -763,11 +887,41 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
+          rex.db
+          rex.deploy
+
+        [rex.deploy]
+        Version:
+          0.1.0
+        Location:
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/src
+        Resources:
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/static
+        Summary:
+          Database schema management for RexDB platform
+        URL:
+          http://bitbucket.org/prometheus/rex.deploy
+        Dependencies:
+          rex.core
+          rex.db
+
+        [rex.db]
+        Version:
+          1.0.0
+        Location:
+          /home/xi/xitology/prometheus/rex/opensource/rex.db-opensource/src
+        Summary:
+          Database access for the RexDB platform
+        URL:
+          http://bitbucket.org/prometheus/rex.db
+        Dependencies:
+          rex.web>=1.0,<2
+          HTSQL>=2.3.3,<2.5
 
         [rex.web]
         Version:
@@ -869,6 +1023,44 @@ tests:
     tests:
     - rex: settings --project rex.ctl_demo
       stdout: |+
+        [db]
+        Declared in:
+          rex.db
+        Mandatory?
+          true
+        Preset in:
+          rex.ctl_demo
+        Value:
+          'pgsql:ctl_demo'
+        Description:
+          Database connection URI; must have the form::
+
+              <engine>://<username>:<password>@<host>:<port>/<database>
+
+          `<engine>`
+              Type of the database server, e.g., ``sqlite``, ``pgsql``, ``mysql``.
+          `<username>:<password>`
+              Authentication parameters.
+          `<host>:<port>`
+              The address of the database server.
+          `<database>`
+              The name of the database; for SQLite, the path to the database file.
+
+          All parameters except ``<engine>`` and ``<database>`` are optional.
+
+          The connection parameters could be also provided as a record with fields
+          ``engine``, ``username``, ``password``, ``host``, ``port``, ``database``.
+
+          Examples::
+
+              db: sqlite:///sandbox/htsql_demo.sqlite
+
+              db: pgsql://htsql_demo:demo@localhost/htsql_demo
+
+              db:
+                  engine: mysql
+                  database: htsql_demo
+
         [debug]
         Declared in:
           rex.core
@@ -886,6 +1078,45 @@ tests:
           'authenticated'
         Description:
           Permission to use the `/hello` command.
+
+        [htsql_access]
+        Declared in:
+          rex.db
+        Description:
+          Permission to access the HTSQL service.
+
+          Set to ``None`` to disable HTSQL service.  The default value is
+          ``'authenticated'``.
+
+          Example::
+
+              htsql_access: anybody
+
+        [htsql_extensions]
+        Declared in:
+          rex.db
+        Description:
+          Configuration of HTSQL extensions.
+
+          Use this setting to preset HTSQL configuration for a particular
+          application or to override the preset HTSQL configuration.
+
+          The value of this setting is a dictionary that maps addon names
+          to addon configuration.  Addon configuration is a dictionary mapping
+          addon parameters to parameter values.
+
+          Example::
+
+              htsql_extensions:
+                  tweak.meta:
+                  tweak.shell.default:
+                  tweak.timeout:
+                      timeout: 600
+                  tweak.autolimit:
+                      limit: 10000
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
 
         [mount]
         Declared in:
@@ -938,6 +1169,44 @@ tests:
 
     - rex: settings --project rex.ctl_demo --parameters 'debug hello_access=anybody'
       stdout: |+
+        [db]
+        Declared in:
+          rex.db
+        Mandatory?
+          true
+        Preset in:
+          rex.ctl_demo
+        Value:
+          'pgsql:ctl_demo'
+        Description:
+          Database connection URI; must have the form::
+
+              <engine>://<username>:<password>@<host>:<port>/<database>
+
+          `<engine>`
+              Type of the database server, e.g., ``sqlite``, ``pgsql``, ``mysql``.
+          `<username>:<password>`
+              Authentication parameters.
+          `<host>:<port>`
+              The address of the database server.
+          `<database>`
+              The name of the database; for SQLite, the path to the database file.
+
+          All parameters except ``<engine>`` and ``<database>`` are optional.
+
+          The connection parameters could be also provided as a record with fields
+          ``engine``, ``username``, ``password``, ``host``, ``port``, ``database``.
+
+          Examples::
+
+              db: sqlite:///sandbox/htsql_demo.sqlite
+
+              db: pgsql://htsql_demo:demo@localhost/htsql_demo
+
+              db:
+                  engine: mysql
+                  database: htsql_demo
+
         [debug]
         Declared in:
           rex.core
@@ -955,6 +1224,45 @@ tests:
           'anybody'
         Description:
           Permission to use the `/hello` command.
+
+        [htsql_access]
+        Declared in:
+          rex.db
+        Description:
+          Permission to access the HTSQL service.
+
+          Set to ``None`` to disable HTSQL service.  The default value is
+          ``'authenticated'``.
+
+          Example::
+
+              htsql_access: anybody
+
+        [htsql_extensions]
+        Declared in:
+          rex.db
+        Description:
+          Configuration of HTSQL extensions.
+
+          Use this setting to preset HTSQL configuration for a particular
+          application or to override the preset HTSQL configuration.
+
+          The value of this setting is a dictionary that maps addon names
+          to addon configuration.  Addon configuration is a dictionary mapping
+          addon parameters to parameter values.
+
+          Example::
+
+              htsql_extensions:
+                  tweak.meta:
+                  tweak.shell.default:
+                  tweak.timeout:
+                      timeout: 600
+                  tweak.autolimit:
+                      limit: 10000
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
 
         [mount]
         Declared in:
@@ -1007,6 +1315,44 @@ tests:
 
     - rex: settings --project rex.ctl_demo --parameters '{"debug":true,"hello_access":"anybody"}'
       stdout: |+
+        [db]
+        Declared in:
+          rex.db
+        Mandatory?
+          true
+        Preset in:
+          rex.ctl_demo
+        Value:
+          'pgsql:ctl_demo'
+        Description:
+          Database connection URI; must have the form::
+
+              <engine>://<username>:<password>@<host>:<port>/<database>
+
+          `<engine>`
+              Type of the database server, e.g., ``sqlite``, ``pgsql``, ``mysql``.
+          `<username>:<password>`
+              Authentication parameters.
+          `<host>:<port>`
+              The address of the database server.
+          `<database>`
+              The name of the database; for SQLite, the path to the database file.
+
+          All parameters except ``<engine>`` and ``<database>`` are optional.
+
+          The connection parameters could be also provided as a record with fields
+          ``engine``, ``username``, ``password``, ``host``, ``port``, ``database``.
+
+          Examples::
+
+              db: sqlite:///sandbox/htsql_demo.sqlite
+
+              db: pgsql://htsql_demo:demo@localhost/htsql_demo
+
+              db:
+                  engine: mysql
+                  database: htsql_demo
+
         [debug]
         Declared in:
           rex.core
@@ -1024,6 +1370,45 @@ tests:
           u'anybody'
         Description:
           Permission to use the `/hello` command.
+
+        [htsql_access]
+        Declared in:
+          rex.db
+        Description:
+          Permission to access the HTSQL service.
+
+          Set to ``None`` to disable HTSQL service.  The default value is
+          ``'authenticated'``.
+
+          Example::
+
+              htsql_access: anybody
+
+        [htsql_extensions]
+        Declared in:
+          rex.db
+        Description:
+          Configuration of HTSQL extensions.
+
+          Use this setting to preset HTSQL configuration for a particular
+          application or to override the preset HTSQL configuration.
+
+          The value of this setting is a dictionary that maps addon names
+          to addon configuration.  Addon configuration is a dictionary mapping
+          addon parameters to parameter values.
+
+          Example::
+
+              htsql_extensions:
+                  tweak.meta:
+                  tweak.shell.default:
+                  tweak.timeout:
+                      timeout: 600
+                  tweak.autolimit:
+                      limit: 10000
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
 
         [mount]
         Declared in:

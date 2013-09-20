@@ -47,6 +47,8 @@ tests:
   tests:
   - rex: ''
   - rex: help
+  - rex: help deploy
+  - rex: help shell
   - rex: help serve
   - rex: help wsgi
   - rex: help packages
@@ -56,6 +58,26 @@ tests:
   - rex: help project
   - rex: help requirements
   - rex: help parameters
+
+
+#
+# rex deploy
+#
+
+- title: rex deploy
+  tests:
+  - rex: deploy rex.ctl_demo
+
+
+#
+# rex shell
+#
+
+- title: rex shell
+  tests:
+  - rex: shell rex.ctl_demo
+    stdin: |
+        describe
 
 
 #

@@ -1,9 +1,7 @@
 import simplejson
 import re
 
-from rexrunner.response import BadRequestError
-from rexrunner.registry import register_command
-from rexrunner.command import Command
+from rex.web import Command
 from rex.instrument import Assessment
 from webob import Response
 
@@ -14,11 +12,10 @@ class FormBuilderBaseCommand(Command):
             return True
         return False
 
-    def __init__(self, parent):
-        super(FormBuilderBaseCommand, self).__init__(parent)
-        self.handler = self.parent.app.handler_by_name['rex.formbuilder']
+    #def __init__(self, parent):
+    #    super(FormBuilderBaseCommand, self).__init__(parent)
+    #    self.handler = self.parent.app.handler_by_name['rex.formbuilder']
 
-@register_command
 class TestInstrument(FormBuilderBaseCommand):
 
     name = '/test'
@@ -32,7 +29,7 @@ class TestInstrument(FormBuilderBaseCommand):
         if not instrument:
             return Response(status='401', body='Instrument ID is not provided')
         if not self.check_name(instrument):
-            raise BadRequestError(detail='Wrong instrument name')
+            return Response(status=400, detail='Wrong instrument name')
         if not json:
             return Response(status='401', body='Instrument JSON is not provided')
         code = simplejson.loads(json)
@@ -50,7 +47,6 @@ class TestInstrument(FormBuilderBaseCommand):
         }
         return self.render_to_response(self.template, **args)
 
-@register_command
 class FormList(FormBuilderBaseCommand):
 
     name = '/instrument_list'
@@ -61,7 +57,6 @@ class FormList(FormBuilderBaseCommand):
         return Response(body=simplejson.dumps(res))
 
 
-@register_command
 class LoadForm(FormBuilderBaseCommand):
 
     name = '/load_instrument'
@@ -76,7 +71,6 @@ class LoadForm(FormBuilderBaseCommand):
             return Response(body='Form not found')
         return Response(body=form)
 
-@register_command
 class SaveInstrument(FormBuilderBaseCommand):
 
     name = '/save'
@@ -85,15 +79,14 @@ class SaveInstrument(FormBuilderBaseCommand):
         instrument = req.POST.get('instrument')
         data = req.POST.get('data')
         if not instrument or not data:
-            raise BadRequestError(detail='Missed instrument details')
+            return Response(status=400, body='Missed instrument details')
         if not self.check_name(instrument):
-            raise BadRequestError(detail='Wrong instrument name')
+            return Response(status=400, body='Wrong instrument name')
         # TODO: validate instrument
         if not self.handler.save_instrument(instrument, data):
-            raise BadRequestError(detail='Could not write instrument data')
+            return Response(status=400, body='Could not write instrument data')
         return Response(body='OK')
 
-@register_command
 class DummySaveAssessment(FormBuilderBaseCommand):
 
     name = '/save_assessment'
@@ -101,7 +94,6 @@ class DummySaveAssessment(FormBuilderBaseCommand):
     def render(self, req):
         return Response(body='{"result" : true}')
 
-@register_command
 class RoadsBuilder(FormBuilderBaseCommand):
 
     name = '/builder'
@@ -111,7 +103,7 @@ class RoadsBuilder(FormBuilderBaseCommand):
         if not instrument:
             return Response(status='401', body='Instrument ID is not provided')
         if not self.check_name(instrument):
-            raise BadRequestError(detail='Wrong instrument name')
+            return Response(status=400, body='Wrong instrument name')
         (code, _) = self.handler.get_latest_instrument(instrument)
         code = simplejson.loads(code)
         # if not form:

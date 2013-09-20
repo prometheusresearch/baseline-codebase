@@ -1,14 +1,9 @@
-from rexrunner.registry import register_parameter, register_handler
-from rexrunner.validator import BoolVal, DirVal
-from rexrunner.parameter import Parameter
-from rexrunner.handler import PackageHandler
-# from rex.forms import InstrumentsPackageHandler
+from rx.core import Setting, BoolVal, StrVal
 from .command import *
 
 import errno
 
-@register_parameter
-class ManualEditConditions(Parameter):
+class ManualEditConditions(Setting):
     """
     Boolean parameter that specifies if it is allowed to manually edit
     conditions in Roads builder. By default, user is allowed only to use
@@ -21,8 +16,7 @@ class ManualEditConditions(Parameter):
     validator = BoolVal(is_nullable=False)
     default = False
 
-@register_parameter
-class FormBuilderInstrumentDir(Parameter):
+class FormBuilderInstrumentDir(Setting):
     """
     Directory which stores instruments
 
@@ -30,8 +24,9 @@ class FormBuilderInstrumentDir(Parameter):
       formbuilder_instruments: /path/to/instruments
     """
     name = 'formbuilder_instruments'
-    validator = DirVal(is_nullable=False)
+    validator = StrVal(is_nullable=False)
 
+"""
 @register_handler
 class FormBuilderPackageHandler(PackageHandler):
 
@@ -61,3 +56,4 @@ class FormBuilderPackageHandler(PackageHandler):
             if e.errno == errno.ENOENT:
                 raise BadRequestError(detail='No such instrument: %s' % instrument)
             raise
+"""

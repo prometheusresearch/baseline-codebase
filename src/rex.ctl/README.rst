@@ -153,6 +153,16 @@ To open HTSQL shell to the application database, use ``rex shell``::
     Type 'help' for more information, 'exit' to quit the shell.
     ctl_demo$
 
+To dump the content of the application database to a file,
+use ``rex dumpdb``::
+
+    $ rex dumpdb rex.ctl_demo -o ctl_demo.sql
+
+To load the content of the application database from a file,
+use ``rex loaddb``::
+
+    $ rex loaddb rex.ctl_demo -i ctl_demo.sql
+
 
 Packages and settings
 =====================

@@ -6,6 +6,9 @@ suite: rex.ctl
 tests:
 - sh: pip install -q -e ./demo/rex.ctl_demo
   stdout: ''
+- rex: dropdb rex.ctl_demo
+  stdout: |
+    Database pgsql:///ctl_demo does not exist.
 - suite: python-m-rex.ctl
   tests:
   - py: simulate-python-m-rex.ctl-invocation
@@ -35,8 +38,12 @@ tests:
       Run rex help <topic> for help on a specific topic.
 
       Available tasks:
+        createdb [<project>]     : create application database
         deploy [<project>]       : deploy database schema
+        dropdb [<project>]       : delete application database
+        dumpdb [<project>]       : dump application database
         help [<topic>]           : display help on tasks and settings
+        loaddb [<project>]       : load application database
         packages [<project>]     : list application components
         serve [<project>]        : start an HTTP server
         settings [<project>]     : list configuration parameters
@@ -231,11 +238,28 @@ tests:
 
       A dictionary with application parameters.
 
+- suite: rex-createdb-etc
+  tests:
+  - rex: createdb rex.ctl_demo
+    stdout: |
+      Creating database pgsql:///ctl_demo.
+  - rex: dumpdb rex.ctl_demo -o ctl_demo.sql
+    stdout: ''
+  - rex: dropdb rex.ctl_demo
+    stdout: |
+      Dropping database pgsql:///ctl_demo.
+  - rex: loaddb rex.ctl_demo -i ctl_demo.sql
+    stdout: |
+      Creating database pgsql:///ctl_demo.
+  - rex: dropdb rex.ctl_demo
+    stdout: |
+      Dropping database pgsql:///ctl_demo.
 - suite: rex-deploy
   tests:
   - rex: deploy rex.ctl_demo
     stdout: |
-      deploying database schema to pgsql:///ctl_demo
+      Creating database pgsql:///ctl_demo.
+      Deploying application database to pgsql:///ctl_demo.
 - suite: rex-shell
   tests:
   - rex: shell rex.ctl_demo

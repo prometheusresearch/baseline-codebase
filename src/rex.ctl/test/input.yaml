@@ -16,6 +16,9 @@ tests:
 
 - sh: pip install -q -e ./demo/rex.ctl_demo
 
+# Drop the demo database (if exists).
+- rex: dropdb rex.ctl_demo
+  ignore: true
 
 #
 # python -m rex.ctl
@@ -58,6 +61,19 @@ tests:
   - rex: help project
   - rex: help requirements
   - rex: help parameters
+
+
+#
+# rex createdb, etc
+#
+
+- title: rex createdb, etc
+  tests:
+  - rex: createdb rex.ctl_demo
+  - rex: dumpdb rex.ctl_demo -o ctl_demo.sql
+  - rex: dropdb rex.ctl_demo
+  - rex: loaddb rex.ctl_demo -i ctl_demo.sql
+  - rex: dropdb rex.ctl_demo
 
 
 #

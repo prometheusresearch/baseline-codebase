@@ -423,12 +423,20 @@ class Writer(object):
 
 class Driver(object):
 
-    def __init__(self):
-        self.catalog = introspect()
+    def __init__(self, connection):
+        self.connection = connection
+        self.catalog = introspect(connection)
         self.writer = Writer()
         self.output = []
 
-    def __call__(self, sql):
+    def __call__(self, facts):
+        for fact in facts:
+            fact(self)
+        cursor = self.connection.cursor()
+        for sql in self.output:
+            cursor.execute(sql)
+
+    def submit(self, sql):
         self.output.append(sql)
 
 
@@ -504,9 +512,9 @@ class TableFact(Fact):
                 return
             body = [writer.define_column("id", "SERIAL", False)]
             sql = writer.create_table("public", self.table, body)
-            driver(sql)
+            driver.submit(sql)
             sql = writer.add_unique_key("public", self.table, ["id"], False)
-            driver(sql)
+            driver.submit(sql)
             table = schema.add_table(self.table)
             id_column = table.add_column("id")
             table.add_unique_key(id_column)
@@ -514,7 +522,7 @@ class TableFact(Fact):
             if self.table not in schema:
                 return
             sql = writer.drop_table("public", self.table)
-            driver(sql)
+            driver.submit(sql)
             schema[self.table].remove()
 
 
@@ -542,7 +550,7 @@ class ColumnFact(Fact):
                 return
             sql = writer.add_column(schema.name, table.name,
                                     self.column, "TEXT", True)
-            driver(sql)
+            driver.submit(sql)
             table.add_column(self.column)
         else:
             if self.of not in schema:
@@ -552,7 +560,7 @@ class ColumnFact(Fact):
                 return
             column = table[self.column]
             sql = writer.drop_column(schema.name, table.name, column.name)
-            driver(sql)
+            driver.submit(sql)
             column.remove()
 
 
@@ -590,10 +598,10 @@ class LinkFact(Fact):
             target_column = target_table["id"]
             sql = writer.add_column(schema.name, table.name,
                                     name, "INTEGER", True)
-            driver(sql)
+            driver.submit(sql)
             sql = writer.add_foreign_key(schema.name, table.name, [name],
                                          schema.name, target_table.name, ["id"])
-            driver(sql)
+            driver.submit(sql)
             column = table.add_column(name)
             table.add_foreign_key([column], target_table, [target_column])
         else:
@@ -605,7 +613,7 @@ class LinkFact(Fact):
                 return
             column = table[name]
             sql = writer.drop_column(schema.name, table.name, column.name)
-            driver(sql)
+            driver.submit(sql)
             column.remove()
 
 
@@ -649,7 +657,7 @@ class IdentityFact(Fact):
             sql = writer.add_unique_key(schema.name, table.name,
                                         [column.name for column in columns],
                                         True)
-            driver(sql)
+            driver.submit(sql)
             table.add_primary_key(columns)
         else:
             raise NotImplementedError()
@@ -687,104 +695,108 @@ def get_facts():
     return facts
 
 
-def run_cluster_sql(sql):
-    db = get_settings().db
-    if db.engine != 'pgsql':
-        raise Error("Expected a 'pgsql' engine; got:", db.engine)
-    parameters = { 'database': 'postgres' }
-    if db.host is not None:
-        parameters['host'] = db.host
-    if db.port is not None:
-        parameters['port'] = db.port
-    if db.username is not None:
-        parameters['user'] = db.username
-    if db.password is not None:
-        parameters['password'] = db.password
-    try:
-        connection = psycopg2.connect(**parameters)
-        connection.set_isolation_level(
-                        psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+class Cluster(object):
+
+    def __init__(self, db):
+        self.db = db
+
+    def connect(self, database=None, autocommit=False):
+        if database is None:
+            database = self.db.database
+        parameters = { 'database': database }
+        if self.db.host is not None:
+            parameters['host'] = self.db.host
+        if self.db.port is not None:
+            parameters['port'] = self.db.port
+        if self.db.username is not None:
+            parameters['user'] = self.db.username
+        if self.db.password is not None:
+            parameters['password'] = self.db.password
+        try:
+            connection = psycopg2.connect(**parameters)
+            if autocommit:
+                connection.set_isolation_level(
+                                psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        except psycopg2.Error, error:
+            raise Error("Failed to connect to the database server:", error)
+        return connection
+
+    def connect_postgres(self):
+        return self.connect('postgres', autocommit=True)
+
+    def exists(self, database=None):
+        if database is None:
+            database = self.db.database
+        sql = """
+            SELECT 1 FROM pg_catalog.pg_database AS d
+            WHERE d.datname = %s
+        """ % self._squote(database)
+        return bool(self._master(database, sql))
+
+    def create(self, database=None):
+        if database is None:
+            database = self.db.database
+        sql = """
+            CREATE DATABASE %s WITH ENCODING = 'UTF-8'
+        """ % self._dquote(database)
+        self._master(database, sql)
+
+    def drop(self, database=None):
+        if database is None:
+            database = self.db.database
+        sql = """
+            DROP DATABASE %s
+        """ % self._dquote(database)
+        self._master(database, sql)
+
+    def deploy(self, facts, database=None, dry_run=False):
+        connection = self.connect(database)
+        try:
+            driver = Driver(connection)
+            driver(facts)
+            if not dry_run:
+                connection.commit()
+            else:
+                connection.rollback()
+            connection.close()
+        except psycopg2.Error, error:
+            raise Error("Got an error from the database server:", error)
+
+    def _master(self, database, sql):
+        if database is None:
+            database = self.db.database
+        result = None
+        connection = self.connect_postgres()
         try:
             cursor = connection.cursor()
             cursor.execute(sql)
-            output = cursor.fetchall()
-        finally:
+            if cursor.description is not None:
+                result = cursor.fetchall()
             connection.close()
-    except psycopg2.Error, error:
-        raise Error("Got an error from the database server:", error)
-    return output
+        except psycopg2.Error, error:
+            raise Error("Got an error from the database server:", error)
+        return result
+
+    def _squote(self, value):
+        value = value.replace("'", "''")
+        if "\\" in value:
+            value = value.replace("\\", "\\\\")
+            return "E'%s'" % value
+        else:
+            return "'%s'" % value
+
+    def _dquote(self, name):
+        return "\"%s\"" % name.replace("\"", "\"\"")
 
 
-def existsdb():
+def get_cluster():
     db = get_settings().db
-    sql = """
-        SELECT 1 FROM pg_catalog.pg_database AS d
-        WHERE d.datname = '%s'
-    """ % db.database
-    return bool(run_cluster_sql(sql))
+    if not db.engine == 'pgsql':
+        raise Error("Expected a PostgreSQL database; got:", db)
+    return Cluster(db)
 
 
-def createdb():
-    db = get_settings().db
-    sql = """
-        CREATE DATABASE "%s" WITH ENCODING = 'UTF-8'
-    """ % db.database
-    run_cluster_sql(sql)
-
-
-def dropdb():
-    db = get_settings().db
-    sql = """
-        DROP DATABASE "%s"
-    """ % db.database
-    run_cluster_sql(sql)
-
-
-def deploydb():
-    facts = get_facts()
-    driver = Driver()
-    for fact in facts:
-        fact(driver)
-    db = get_settings().db
-    if db.engine != 'pgsql':
-        raise Error("Expected a 'pgsql' engine; got:", db.engine)
-    parameters = { 'database': db.database }
-    if db.host is not None:
-        parameters['host'] = db.host
-    if db.port is not None:
-        parameters['port'] = db.port
-    if db.username is not None:
-        parameters['user'] = db.username
-    if db.password is not None:
-        parameters['password'] = db.password
-    try:
-        connection = psycopg2.connect(**parameters)
-        try:
-            cursor = connection.cursor()
-            for sql in driver.output:
-                print sql
-                cursor.execute(sql)
-        finally:
-            connection.commit()
-            connection.close()
-    except psycopg2.Error, error:
-        raise Error("Got an error from the database server:", error)
-
-
-def introspect():
-    db = get_settings().db
-    if db.engine != 'pgsql':
-        raise Error("Expected a 'pgsql' engine; got:", db.engine)
-    parameters = { 'database': db.database }
-    if db.host is not None:
-        parameters['host'] = db.host
-    if db.port is not None:
-        parameters['port'] = db.port
-    if db.username is not None:
-        parameters['user'] = db.username
-    if db.password is not None:
-        parameters['password'] = db.password
-    connection = psycopg2.connect(**parameters)
+def introspect(connection):
     cursor = connection.cursor()
 
     catalog = CatalogRecord()
@@ -867,7 +879,6 @@ def introspect():
             target_columns = [column_by_num[confrelid, num] for num in confkey]
             table.add_foreign_key(columns, target_table, target_columns)
 
-    connection.close()
     return catalog
 
 

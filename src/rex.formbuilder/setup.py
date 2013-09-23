@@ -4,6 +4,9 @@ from setuptools import setup, find_packages
 setup(name='rex.formbuilder',
       version='0.9.9',
       description="Your description here",
+      entry_points = {
+          'rdoma.modules': ['rex_formbuilder = rex.formbuilder.deploy'],
+      },
       setup_requires=['rex.setup'],
       packages=find_packages('src'),
       package_dir={'': 'src'},

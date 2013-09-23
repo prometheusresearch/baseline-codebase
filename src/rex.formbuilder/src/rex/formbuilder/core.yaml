@@ -1,0 +1,30 @@
+
+---
+name: rex_formbuilder.core
+dependencies: [rex_study.core]
+
+
+---
+revision: 20130920
+install:
+- cmd: merge
+  aspect: meta:table
+  data:
+  - id(): rex.formbuilder
+    trunk_table:
+      code_column_name: name
+      code_column_domain: meta.name_t
+
+- cmd: merge
+  aspect: meta:column
+  data:
+  - id(): rex.formbuilder.base_measure_type
+    domain: meta.link_t
+    is_mandatory: false
+    column_linkinfo:
+      target_table: rex.measure_type
+      on_delete: set-null
+  - id(): rex.formbuilder.data
+    domain: meta.json_text_t
+    is_mandatory: true
+

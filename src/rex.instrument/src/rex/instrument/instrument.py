@@ -6,6 +6,10 @@ import itertools
 from rex.validate import make_assessment_schema, ValidationError, validate, \
                          instrument_schema
 
+BASE_INSTRUMENT_JSON = """\
+{"title": null, "pages":[]}
+"""
+
 class BaseInstrumentRegistry(object):
 
     def get_instrument(self, id, version=None):

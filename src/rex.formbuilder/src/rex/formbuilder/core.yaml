@@ -5,15 +5,16 @@ dependencies: [rex_study.core]
 
 
 ---
-revision: 20130920
+revision: 20130921
 install:
+- uri: /meta:table[rex.formbuilder]/delete(expect='?')
 - cmd: merge
   aspect: meta:table
   data:
   - id(): rex.formbuilder
     trunk_table:
-      code_column_name: name
-      code_column_domain: meta.name_t
+      code_column_name: code
+      code_column_domain: meta.code_t
 
 - cmd: merge
   aspect: meta:column

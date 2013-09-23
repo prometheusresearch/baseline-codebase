@@ -18,6 +18,8 @@ install:
 - cmd: merge
   aspect: meta:column
   data:
+  - id(): rex.formbuilder.title
+    domain: meta.text_t
   - id(): rex.formbuilder.base_measure_type
     domain: meta.link_t
     is_mandatory: false
@@ -27,4 +29,7 @@ install:
   - id(): rex.formbuilder.data
     domain: meta.json_text_t
     is_mandatory: true
-
+  - id(): rex.formbuilder.last_updated
+    domain: meta.datetime_t
+    is_mandatory: true
+    default: now()

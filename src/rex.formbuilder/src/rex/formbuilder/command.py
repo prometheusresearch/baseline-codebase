@@ -122,20 +122,6 @@ class FormList(FormBuilderBaseCommand):
         return Response(body=simplejson.dumps(res))
 
 
-class LoadForm(FormBuilderBaseCommand):
-
-    path = '/load_instrument'
-    parameters = [
-        Parameter('code', StrVal())        
-    ]
-
-    def render(self, req, code):
-        form = self.get_instrument(code)
-        if form is None:
-            return Response(status=404, body='Form not found')
-        return Response(body=form)
-
-
 class SaveInstrument(FormBuilderBaseCommand):
 
     path = '/save'

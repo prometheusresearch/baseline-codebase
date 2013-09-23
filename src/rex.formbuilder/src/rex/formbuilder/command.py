@@ -1,6 +1,7 @@
 import simplejson
 import re
 import errno
+from urllib import quote
 
 from rex.web import Command, render_to_response, Parameter, authenticate
 from rex.core import Validate, StrVal, get_settings
@@ -59,8 +60,9 @@ class CreateInstrument(FormBuilderBaseCommand):
 
     def render(self, req, base_measure_type):
         id = self.create_instrument(req, base_measure_type=base_measure_type)
-        # TODO: redirect to roadsbuilder
-        return Response(body=str(id))
+        location = req.script_name + Builder.path + '?instrument_id=' \
+                   + quote(id)
+        return Response(status=303, location=location)
 
     def create_instrument(self, req, base_measure_type=None):
         with self.get_db(req):
@@ -144,7 +146,7 @@ class DummySaveAssessment(FormBuilderBaseCommand):
         return Response(body='{"result" : true}')
 
 
-class RoadsBuilder(FormBuilderBaseCommand):
+class Builder(FormBuilderBaseCommand):
 
     path = '/builder'
     template = 'rex.formbuilder:/template/roadsbuilder.html'

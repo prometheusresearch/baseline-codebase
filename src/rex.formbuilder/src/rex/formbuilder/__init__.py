@@ -1,4 +1,4 @@
-from rx.core import Setting, BoolVal, StrVal
+from rex.core import Setting, BoolVal, StrVal
 from .command import *
 
 import errno
@@ -13,7 +13,7 @@ class ManualEditConditions(Setting):
       manual_edit_conditions: True
     """
     name = 'manual_edit_conditions'
-    validator = BoolVal(is_nullable=False)
+    validator = BoolVal()
     default = False
 
 class FormBuilderInstrumentDir(Setting):
@@ -24,7 +24,7 @@ class FormBuilderInstrumentDir(Setting):
       formbuilder_instruments: /path/to/instruments
     """
     name = 'formbuilder_instruments'
-    validator = StrVal(is_nullable=False)
+    validator = StrVal()
 
 """
 @register_handler

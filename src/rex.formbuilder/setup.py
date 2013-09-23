@@ -18,4 +18,5 @@ setup(name='rex.formbuilder',
       ],
 
       rex_static='static',
+      rex_init='rex.formbuilder',
 )

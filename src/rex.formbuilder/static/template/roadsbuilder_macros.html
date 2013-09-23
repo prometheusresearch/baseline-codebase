@@ -3,7 +3,7 @@
 
 {% macro roadsbuilder_preview_head() %}
     {{ client.client_head() }}
-    <link rel="stylesheet" href="{{ PREFIX['rex.formbuilder'] }}/css/test.css" />
+    <link rel="stylesheet" href="{{ MOUNT['rex.formbuilder'] }}/css/test.css" />
 {% endmacro %}
 
 {% macro roadsbuilder_preview(instrument, assessment) %}
@@ -13,13 +13,13 @@
             var progressBar = $('#progress_bar');
             rexFormsClient = new $.RexFormsClient({
                 mode: 'normal',
-                formMeta: {{ instrument.json|fix_script }},
-                formData: {{ assessment.json|fix_script }},
-                paramValues: {{ assessment.params|fix_script }},
+                formMeta: {{ instrument.json }},
+                formData: {{ assessment.json }},
+                paramValues: {{ assessment.params }},
                 instrumentName: {{ instrument.id|json }},
                 showNumbers: true,
                 assessment: {{ assessment.id|json }},
-                saveURL: {{ (PREFIX['rex.formbuilder'] + '/save_assessment')|json }},
+                saveURL: {{ (MOUNT['rex.formbuilder'] + '/save_assessment')|json }},
                 formArea: '#survey',
                 questionArea: '#questions',
                 pageTitleArea: '#page_title',
@@ -90,17 +90,17 @@
         <meta name="keywords" content="" />
         <meta name="description" content="" />
         <title>{%- if instrument %} {{ instrument }} - {%- endif %}ROADS Builder</title>
-        <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
-        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
-        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
-        <script type="text/javascript" src="{{ PREFIX['rex.ext'] }}/json/jquery.json-2.3.min.js"></script>
-        <script type="text/javascript" src="{{ PREFIX['rex.common'] }}/js/rexl/0.5.1/rexl.js"></script>
-        <link rel="stylesheet" href="{{ PREFIX['rex.formbuilder'] }}/css/builder.css" />
-        <link rel="stylesheet" href="{{ PREFIX['rex.formbuilder'] }}/css/conditor.css" />
-        <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/conditor.js"></script>
-        <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/builder-helpers.js"></script>
-        <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/builder-dialogs.js"></script>
-        <script type="text/javascript" src="{{ PREFIX['rex.formbuilder'] }}/js/builder.js" data-prefix="{{ PREFIX['rex.formbuilder'] }}" data-forms-prefix="{{ PREFIX['rex.formbuilder'] }}"></script>
+        <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
+        <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
+        <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/json/jquery.json-2.3.min.js"></script>
+        <script type="text/javascript" src="{{ MOUNT['rex.common'] }}/js/rexl/0.5.1/rexl.js"></script>
+        <link rel="stylesheet" href="{{ MOUNT['rex.formbuilder'] }}/css/builder.css" />
+        <link rel="stylesheet" href="{{ MOUNT['rex.formbuilder'] }}/css/conditor.css" />
+        <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/conditor.js"></script>
+        <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/builder-helpers.js"></script>
+        <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/builder-dialogs.js"></script>
+        <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/builder.js" data-prefix="{{ MOUNT['rex.formbuilder'] }}" data-forms-prefix="{{ MOUNT['rex.formbuilder'] }}"></script>
 {% endmacro -%}
 
 {% macro roadsbuilder(instrument, code, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) %}
@@ -114,7 +114,7 @@
                     {% if url_start_test %}
                     urlStartTest: {{ url_start_test|json }},
                     {% endif %}
-                    urlSaveForm: {% if url_save_form %}{{ url_save_form|json }}{% else %}{{ PREFIX['rex.formbuilder']|json }} + '/save'{% endif %}
+                    urlSaveForm: {% if url_save_form %}{{ url_save_form|json }}{% else %}{{ MOUNT['rex.formbuilder']|json }} + '/save'{% endif %}
                 });
             });
         </script>
@@ -186,7 +186,7 @@
 
             <div class="rb_progress_dialog">
                 <p class="rb_progress_text">Constructing in progress</p>
-                <p><img src="{{ PREFIX['rex.forms'] }}/img/ajax-loader.gif" /></p>
+                <p><img src="{{ MOUNT['rex.forms'] }}/img/ajax-loader.gif" /></p>
             </div>
 
 			<div id="tpl_drag_helper" class="rb-drag-helper">
@@ -198,7 +198,7 @@
                 <div>
                     <div class="rb_question_actions">
                         <a href="javascript:void(0);" class="rb-question-duplicate">Duplicate</a>
-                        <a href="javascript:void(0);" class="rb-question-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        <a href="javascript:void(0);" class="rb-question-remove"><img src="{{ MOUNT['rex.forms'] }}/img/close_small.png"></a>
                     </div>
                     <div class="q_caption">
                         <div class="rb-question-title">
@@ -219,7 +219,7 @@
             <li id="tpl_question_editor" class="rb-question-editor">
                 <div>
                     <div class="rb-question-editor-actions">
-                        <a href="javascript:void(0);" class="rb-question-editor-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        <a href="javascript:void(0);" class="rb-question-editor-remove"><img src="{{ MOUNT['rex.forms'] }}/img/close_small.png"></a>
                     </div>
                     <table class="rb_question_table" cellspacing="0">
                         <tr>
@@ -326,7 +326,7 @@
                     </div>
                     <div class="rb_choices_item_right">
                         <div class="rb_choices_item_actions">
-                            <a href="javascript:void(0);" class="rb-variant-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                            <a href="javascript:void(0);" class="rb-variant-remove"><img src="{{ MOUNT['rex.forms'] }}/img/close_small.png"></a>
                         </div>
                         <div class="restrict-drag">
                             <input type="text" name="answer-code" class="rb_choice_input rb_with_margin slave" maxlength="20" />
@@ -342,7 +342,7 @@
                 <span class="rb-param-name"></span> <span class="rb-param-type-wrap">(<span class="rb-param-type"></span>)</span>
                 <div class="rb_param_actions">
                     <a href="javascript:void(0)" class="rb-param-edit">edit</a>&nbsp;&nbsp;
-                    <a href="javascript:void(0)" class="rb-param-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                    <a href="javascript:void(0)" class="rb-param-remove"><img src="{{ MOUNT['rex.forms'] }}/img/close_small.png"></a>
                 </div>
             </div>
 
@@ -351,7 +351,7 @@
                 <div class="rb-custom-title-text">This is a title for group button</div>
                 <div class="rb-custom-title-actions">
                     <a href="javascript:void(0);" class="rb-custom-title-edit">edit</a>
-                    <a href="javascript:void(0);" class="rb-custom-title-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                    <a href="javascript:void(0);" class="rb-custom-title-remove"><img src="{{ MOUNT['rex.forms'] }}/img/close_small.png"></a>
                 </div>
             </div>
 
@@ -359,7 +359,7 @@
                 <div>
                     <div>
                         <div class="rb_page_actions">
-                            <a href="javascript:void(0);" class="rb-page-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                            <a href="javascript:void(0);" class="rb-page-remove"><img src="{{ MOUNT['rex.forms'] }}/img/close_small.png"></a>
                         </div>
                         <div class="rb-page-title"></div>
                         <div class="rb-page-description"></div>
@@ -381,7 +381,7 @@
                         <a class="rb-hidable-link rb-group-skip-if-change" href="javascript:void(0);">change</a>
                     </div>
                     <div class="rb_page_group_actions">
-                        <a href="javascript:void(0);" class="rb-group-remove"><img src="{{ PREFIX['rex.forms'] }}/img/close_small.png"></a>
+                        <a href="javascript:void(0);" class="rb-group-remove"><img src="{{ MOUNT['rex.forms'] }}/img/close_small.png"></a>
                     </div>
                 </div>
                 <ul class="rb-page-list">

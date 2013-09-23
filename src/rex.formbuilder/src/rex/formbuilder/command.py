@@ -1,43 +1,67 @@
 import simplejson
 import re
+import errno
 
-from rex.web import Command
+from rex.web import Command, render_to_response, Parameter
+from rex.core import Validate, StrVal, get_settings
+from rex.core.error import guard, Error
 from rex.instrument import Assessment
 from webob import Response
 
+
+class JsonVal(Validate):
+
+    def __call__(self, data):
+        with guard("Got:", repr(data)):
+            try:
+                return simplejson.loads(data)
+            except simplejson.decoder.JSONDecodeError as e:
+                raise Error(e.message)
+        
+
 class FormBuilderBaseCommand(Command):
 
-    def check_name(self, name):
-        if re.match(r"^[a-zA-Z0-9_\-]+$", name):
-            return True
-        return False
+    access = 'anybody'
 
-    #def __init__(self, parent):
-    #    super(FormBuilderBaseCommand, self).__init__(parent)
-    #    self.handler = self.parent.app.handler_by_name['rex.formbuilder']
+    def instrument_filename(self, instrument):
+        return "%s/%s.json" % (get_settings().formbuilder_instruments, 
+                               instrument)
+
+    def get_latest_instrument(self, instrument):
+        try:
+            filename = self.instrument_filename(instrument)
+            with open(filename, 'r') as f:
+                return f.read()
+        except IOError as e:
+            if e.errno == errno.ENOENT:
+                return None
+
+    def save_instrument(self, instrument, code):
+        try:
+            filename = self.instrument_filename(instrument)
+            with open(filename, 'w') as f:
+                f.write(code)
+            return True
+        except IOError as e:
+            return False
+
 
 class TestInstrument(FormBuilderBaseCommand):
 
-    name = '/test'
-    template = '/roadsbuilder_test.html'
+    path = '/test'
+    template = 'rex.formbuilder:/template/roadsbuilder_test.html'
+    parameters = [
+        Parameter('instrument', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$")),
+        Parameter('params', JsonVal(), default={}),
+        Parameter('json', JsonVal())
+    ]
 
-    def render(self, req):
-        instrument = req.POST.get('instrument')
-        json = req.POST.get('json')
-        params = req.POST.get('params', '{}')
-        params = simplejson.loads(params)
-        if not instrument:
-            return Response(status='401', body='Instrument ID is not provided')
-        if not self.check_name(instrument):
-            return Response(status=400, detail='Wrong instrument name')
-        if not json:
-            return Response(status='401', body='Instrument JSON is not provided')
-        code = simplejson.loads(json)
+    def render(self, req, instrument, params, json):
         assessment = Assessment.empty_data()
         args = {
             'instrument': {
                 'id': instrument,
-                'json': simplejson.dumps(code),
+                'json': simplejson.dumps(json),
             },
             'assessment': {
                 'id': 'test',
@@ -45,11 +69,12 @@ class TestInstrument(FormBuilderBaseCommand):
                 'json': simplejson.dumps(assessment)
             }
         }
-        return self.render_to_response(self.template, **args)
+        return render_to_response(self.template, req, **args)
+
 
 class FormList(FormBuilderBaseCommand):
 
-    name = '/instrument_list'
+    path = '/instrument_list'
 
     def render(self, req):
         # self.set_handler()
@@ -59,61 +84,56 @@ class FormList(FormBuilderBaseCommand):
 
 class LoadForm(FormBuilderBaseCommand):
 
-    name = '/load_instrument'
+    path = '/load_instrument'
+    parameters = [
+        Parameter('code', StrVal())        
+    ]
 
-    def render(self, req):
-        # self.set_handler()
-        code = req.GET.get('code')
-        if not code:
-            return Response(status='401', body='Code not provided')
-        form, _ = self.handler.get_latest_instrument(code)
-        if not form:
-            return Response(body='Form not found')
+    def render(self, req, code):
+        form = self.get_latest_instrument(code)
+        if form is None:
+            return Response(status=404, body='Form not found')
         return Response(body=form)
+
 
 class SaveInstrument(FormBuilderBaseCommand):
 
-    name = '/save'
+    path = '/save'
+    parameters = [
+        Parameter('instrument', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$")),
+        Parameter('data', StrVal())
+    ]
 
-    def render(self, req):
-        instrument = req.POST.get('instrument')
-        data = req.POST.get('data')
-        if not instrument or not data:
-            return Response(status=400, body='Missed instrument details')
-        if not self.check_name(instrument):
-            return Response(status=400, body='Wrong instrument name')
-        # TODO: validate instrument
-        if not self.handler.save_instrument(instrument, data):
+    def render(self, req, instrument, data):
+        if not self.save_instrument(instrument, data):
             return Response(status=400, body='Could not write instrument data')
         return Response(body='OK')
 
+
 class DummySaveAssessment(FormBuilderBaseCommand):
 
-    name = '/save_assessment'
+    path = '/save_assessment'
 
     def render(self, req):
         return Response(body='{"result" : true}')
 
+
 class RoadsBuilder(FormBuilderBaseCommand):
 
-    name = '/builder'
+    path = '/builder'
+    template = 'rex.formbuilder:/template/roadsbuilder.html'
+    parameters = [
+        Parameter('instrument', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$")),
+    ]
 
-    def render(self, req):
-        instrument = req.GET.get('instrument')
-        if not instrument:
-            return Response(status='401', body='Instrument ID is not provided')
-        if not self.check_name(instrument):
-            return Response(status=400, body='Wrong instrument name')
-        (code, _) = self.handler.get_latest_instrument(instrument)
+    def render(self, req, instrument):
+        code = self.get_latest_instrument(instrument)
+        if code is None:
+            return Response(status=404, body='Form not found')
         code = simplejson.loads(code)
-        # if not form:
-        #    return Response(body='Form not found')
-
         args = {
             'instrument': instrument,
             'code': code,
-            'req': req,
-            'manual_edit_conditions': self.app.config.manual_edit_conditions
+            'manual_edit_conditions': get_settings().manual_edit_conditions
         }
-
-        return self.render_to_response('/roadsbuilder.html', **args)
+        return render_to_response(self.template, req, **args)

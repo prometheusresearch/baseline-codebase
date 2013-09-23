@@ -2,11 +2,18 @@ import simplejson
 import re
 import errno
 
-from rex.web import Command, render_to_response, Parameter
+from rex.web import Command, render_to_response, Parameter, authenticate
 from rex.core import Validate, StrVal, get_settings
 from rex.core.error import guard, Error
-from rex.instrument import Assessment
+from rex.instrument import Assessment, BASE_INSTRUMENT_JSON
+from rex.rdoma import get_db
 from webob import Response
+from webob.exc import HTTPBadRequest, HTTPNotFound
+
+from htsql.core.cmd.act import produce
+from htsql.core.connect import transaction
+
+ROLE = 'rex.study_access'
 
 
 class JsonVal(Validate):
@@ -21,20 +28,17 @@ class JsonVal(Validate):
 
 class FormBuilderBaseCommand(Command):
 
-    access = 'anybody'
+    def get_db(self, req):
+        user = authenticate(req)
+        return get_db(user=user, role=ROLE)
 
-    def instrument_filename(self, instrument):
-        return "%s/%s.json" % (get_settings().formbuilder_instruments, 
-                               instrument)
-
-    def get_latest_instrument(self, instrument):
-        try:
-            filename = self.instrument_filename(instrument)
-            with open(filename, 'r') as f:
-                return f.read()
-        except IOError as e:
-            if e.errno == errno.ENOENT:
-                return None
+    def get_instrument(self, req, instrument_id):
+        with self.get_db(req):
+            product = produce('/formbuilder{*}?_id=$id', id=instrument_id)
+            if not len(product.data):
+                raise HTTPNotFound(detail=("Instrument '%s' not found" 
+                                           % instrument_id))
+            return product.data[0]
 
     def save_instrument(self, instrument, code):
         try:
@@ -44,6 +48,42 @@ class FormBuilderBaseCommand(Command):
             return True
         except IOError as e:
             return False
+
+
+class CreateInstrument(FormBuilderBaseCommand):
+
+    path = '/create'
+    parameters = [
+        Parameter('base_measure_type', StrVal(), None),
+    ]
+
+    def render(self, req, base_measure_type):
+        id = self.create_instrument(req, base_measure_type=base_measure_type)
+        # TODO: redirect to roadsbuilder
+        return Response(body=str(id))
+
+    def create_instrument(self, req, base_measure_type=None):
+        with self.get_db(req):
+            with transaction():
+                data = BASE_INSTRUMENT_JSON
+                if base_measure_type is not None:
+                    product = produce("""/measure_type.filter(_id=$type)
+                        .top(measure_type_version.sort(version))
+                        .json""",
+                        type=base_measure_type)
+                    if not len(product):
+                        raise HTTPBadRequest(
+                                detail=("Measure Type '%s' not found"
+                                        % base_measure_type))
+                    else:
+                        data = product.data[0] 
+                product = produce("""insert(formbuilder := {
+                        base_measure_type := $base_measure_type,
+                        data := $data
+                    })""", 
+                    base_measure_type=base_measure_type, 
+                    data=data)
+                return str(product.data)
 
 
 class TestInstrument(FormBuilderBaseCommand):
@@ -90,7 +130,7 @@ class LoadForm(FormBuilderBaseCommand):
     ]
 
     def render(self, req, code):
-        form = self.get_latest_instrument(code)
+        form = self.get_instrument(code)
         if form is None:
             return Response(status=404, body='Form not found')
         return Response(body=form)
@@ -123,17 +163,14 @@ class RoadsBuilder(FormBuilderBaseCommand):
     path = '/builder'
     template = 'rex.formbuilder:/template/roadsbuilder.html'
     parameters = [
-        Parameter('instrument', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$")),
+        Parameter('instrument_id', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$")),
     ]
 
-    def render(self, req, instrument):
-        code = self.get_latest_instrument(instrument)
-        if code is None:
-            return Response(status=404, body='Form not found')
-        code = simplejson.loads(code)
+    def render(self, req, instrument_id):
+        instrument = self.get_instrument(req, instrument_id)
         args = {
-            'instrument': instrument,
-            'code': code,
+            'instrument': instrument.code,
+            'code': simplejson.loads(instrument.data),
             'manual_edit_conditions': get_settings().manual_edit_conditions
         }
         return render_to_response(self.template, req, **args)

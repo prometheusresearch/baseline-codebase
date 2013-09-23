@@ -221,6 +221,12 @@ class PackageCollection(object):
         else:
             return self.package_map[index_or_name]
 
+    def __contains__(self, name):
+        """
+        Checks if the package with the given name exists.
+        """
+        return (name in self.package_map)
+
     def get(self, name, default=None):
         """
         Returns the package by name.

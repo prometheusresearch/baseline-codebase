@@ -6,6 +6,12 @@
     <link rel="stylesheet" href="{{ MOUNT['rex.formbuilder'] }}/css/test.css" />
 {% endmacro %}
 
+{% macro roadsbuilder_instruments_head() %}
+    <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
+    <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
+    <link rel="stylesheet" href="{{ MOUNT['rex.formbuilder'] }}/css/instruments.css" />
+{% endmacro %}
+
 {% macro roadsbuilder_preview(instrument, assessment) %}
     <script type="text/javascript">
         var rexFormsClient = null;
@@ -85,11 +91,11 @@
     -->
 {% endmacro %}
 
-{% macro roadsbuilder_head(instrument) -%}
+{% macro roadsbuilder_head(instrument) %}
         <meta name="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="" />
         <meta name="description" content="" />
-        <title>{%- if instrument %} {{ instrument }} - {%- endif %}ROADS Builder</title>
+        {# <title>{%- if instrument %} {{ instrument }} - {%- endif %}ROADS Builder</title> #}
         <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
         <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
         <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
@@ -101,7 +107,7 @@
         <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/builder-helpers.js"></script>
         <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/builder-dialogs.js"></script>
         <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/builder.js" data-prefix="{{ MOUNT['rex.formbuilder'] }}" data-forms-prefix="{{ MOUNT['rex.formbuilder'] }}"></script>
-{% endmacro -%}
+{% endmacro %}
 
 {% macro roadsbuilder(instrument, code, manual_edit_conditions, ext_param_types, url_save_form, url_start_test) %}
         <script type="text/javascript">
@@ -393,3 +399,90 @@
 			
 		</div>
 {% endmacro -%}
+
+{% macro roadsbuilder_instruments(role, edit_url = None, new_url = None, clone_url = None) %}
+{% if not edit_url %}
+    {% set edit_url = MOUNT['rex.formbuilder'] + '/builder' %}
+{% endif %}
+{% if not clone_url %}
+    {% set clone_url = MOUNT['rex.formbuilder'] + '/clone' %}
+{% endif %}
+{% if not new_url %}
+    {% set new_url = MOUNT['rex.formbuilder'] + '/create' %}
+{% endif %}
+<div class="rb-box-absolute">
+    <ul id="rb_instrument_tabs" class="rb-instrument-tabs">
+        <li class="rb-instrument-tab">
+            <a href="#rb_editable_forms" data-toggle="tab">Edited Forms</a>
+        </li>
+        <li class="rb-instrument-tab">
+            <a href="#rb_published_forms" data-toggle="tab">Published Forms</a>
+        </li>
+    </ul>
+    <form id="rb_new_instrument" class="rb-form" action="{{ new_url|e }}">
+        <button>Create New Form</button>
+    </form>
+    <div class="rb-instrument-tab-bodies">
+        <div id="rb_editable_forms" class="rb-instrument-tab-body">
+            <h3>Editable Forms</h3>
+            <ul class="rb-instrument-list">
+            {% for form in rdoma('/~' + role + '/formbuilder{code, title, last_updated}') %}
+                <li class="rb-group-item">
+                    <div class="rb-instrument-name">{{ form.code|e }}</div>
+                    {% if form.title %}
+                    <div class="rb-instrument-title">{{ form.title|e }}</div>
+                    {% else %}
+                    <div class="rb-instrument-title untitled">Untitled Instrument</div>
+                    {% endif %}
+                    <div class="rb-instrument-actions">
+                        <a href="{{ edit_url|e }}?instrument={{ form.code|urlencode }}">Edit</a>
+                    </div>
+                    <div class="rb-instrument-modified">{{ form.last_updated.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+        <div id="rb_published_forms" class="rb-instrument-tab-body">
+            <h3>Published Forms</h3>
+            <ul class="rb-instrument-list">
+            {% for form in rdoma('/~' + role + '/measure_type{code, title}') %}
+                <li class="rb-group-item">
+                    <div class="rb-instrument-name">{{ form.code|e }}</div>
+                    <div class="rb-instrument-title">{{ form.title|e }}</div>
+                    <div class="rb-instrument-actions">
+                        <a href="{{ new_url|e }}?base_measure_type={{ form.code|urlencode }}">Clone</a>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var tabs = $('.rb-instrument-tab');
+        var first = null;
+        tabs.each(function (_, tab) {
+            tab = $(tab);
+            var a = tab.find('a[data-toggle=tab]');
+            a.click(function () {
+                var target = $(a.attr('href'));
+                tab.addClass('active');
+                target.addClass('active');
+                tabs.each(function (_, item) {
+                    item = $(item);
+                    if (item[0] != tab[0]) {
+                        item.removeClass('active');
+                        var tabBody = $(item.find('a[data-toggle=tab]').attr('href'));
+                        tabBody.removeClass('active');
+                    }
+                });
+            });
+            if (!first)
+                first = a;
+        });
+        if (first)
+            first.click();
+    });
+</script>
+{% endmacro %}

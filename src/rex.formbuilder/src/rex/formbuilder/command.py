@@ -117,11 +117,14 @@ class TestInstrument(FormBuilderBaseCommand):
 class FormList(FormBuilderBaseCommand):
 
     path = '/instrument_list'
+    template = 'rex.formbuilder:/template/roadsbuilder_instruments.html'
 
     def render(self, req):
-        # self.set_handler()
-        res = self.handler.get_list_of_forms()
-        return Response(body=simplejson.dumps(res))
+        assessment = Assessment.empty_data()
+        args = {
+            'role': ROLE
+        }
+        return render_to_response(self.template, req, **args)
 
 
 class SaveInstrument(FormBuilderBaseCommand):

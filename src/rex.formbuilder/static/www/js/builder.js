@@ -2282,7 +2282,7 @@ builder.save = function (o) {
         return;
 
     var data = $.toJSON(builder.getInstrumentData());
-    var postData = 'instrument='
+    var postData = 'instrument_id='
                     + encodeURIComponent(builder.context.instrumentName)
                     + '&data=' + encodeURIComponent(data);
     $.ajax({

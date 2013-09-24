@@ -41,15 +41,6 @@ class FormBuilderBaseCommand(Command):
                                            % instrument_id))
             return product.data[0]
 
-    def save_instrument(self, instrument, code):
-        try:
-            filename = self.instrument_filename(instrument)
-            with open(filename, 'w') as f:
-                f.write(code)
-            return True
-        except IOError as e:
-            return False
-
 
 class CreateInstrument(FormBuilderBaseCommand):
 
@@ -131,13 +122,26 @@ class SaveInstrument(FormBuilderBaseCommand):
 
     path = '/save'
     parameters = [
-        Parameter('instrument', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$")),
-        Parameter('data', StrVal())
+        Parameter('instrument_id', StrVal()),
+        Parameter('data', JsonVal())
     ]
 
-    def render(self, req, instrument, data):
-        if not self.save_instrument(instrument, data):
-            return Response(status=400, body='Could not write instrument data')
+    def save_instrument(self, req, instrument_id, data):
+        # TODO: validate instrument
+        with self.get_db(req):
+            try:
+                produce("""update(formbuilder[$id]{id(),
+                        title := $title,
+                        data := $data
+                    })""", 
+                    id=instrument_id,
+                    title=data.get('title'), 
+                    data=simplejson.dumps(data))
+            except Exception as e:
+                raise HTTPBadRequest(detail=repr(e))
+
+    def render(self, req, instrument_id, data):
+        self.save_instrument(req, instrument_id, data)
         return Response(body='OK')
 
 

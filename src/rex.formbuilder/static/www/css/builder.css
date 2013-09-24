@@ -427,7 +427,7 @@ body, p, div, td, input {
 }
 
 .rb_tools_button_wrapper {
-    margin: 5px 5px 5px 10px;
+    margin: 5px 12px 5px 10px;
 }
 
 #rb_instrument_name {
@@ -441,6 +441,10 @@ body, p, div, td, input {
 
 .rb_tools_button {
     width: 60px;
+}
+
+.rb_tools_button_wide {
+    width: 120px;
 }
 
 .rb_stuff {
@@ -825,4 +829,25 @@ input.rb_identifier_input {
 
 .rb-custom-title-for {
     font-weight: bold;
+}
+
+.rb-publish-dialog ul {
+    padding-left: 0px;
+    list-style-type: none;
+}
+
+.rb-publish-dialog ul li {
+    margin-bottom: 10px;
+}
+
+.rb-publish-dialog ul li > * {
+    vertical-align: top;
+}
+
+.rb-inline-block {
+    display: inline-block;
+}
+
+.rb-top-margin {
+    margin-top: 5px;
 }

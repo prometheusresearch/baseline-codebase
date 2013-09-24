@@ -1,0 +1,10 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+{% import 'formbuilder_macros.html' as macro with context %}
+<html>
+  <head>
+    {{ macro.formbuilder_head(instrument=instrument) }}
+  </head>
+  <body>
+    {{ macro.formbuilder(instrument=instrument,code=code,manual_edit_conditions=manual_edit_conditions) }}
+  </body>
+</html>

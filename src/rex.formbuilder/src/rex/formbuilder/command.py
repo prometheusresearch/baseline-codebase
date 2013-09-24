@@ -83,7 +83,7 @@ class CreateInstrument(FormBuilderBaseCommand):
 class TestInstrument(FormBuilderBaseCommand):
 
     path = '/test'
-    template = 'rex.formbuilder:/template/roadsbuilder_test.html'
+    template = 'rex.formbuilder:/template/formbuilder_test.html'
     parameters = [
         Parameter('instrument', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$")),
         Parameter('params', JsonVal(), default={}),
@@ -109,7 +109,7 @@ class TestInstrument(FormBuilderBaseCommand):
 class FormList(FormBuilderBaseCommand):
 
     path = '/'
-    template = 'rex.formbuilder:/template/roadsbuilder_instruments.html'
+    template = 'rex.formbuilder:/template/formbuilder_instruments.html'
 
     def render(self, req):
         assessment = Assessment.empty_data()
@@ -118,6 +118,19 @@ class FormList(FormBuilderBaseCommand):
         }
         return render_to_response(self.template, req, **args)
 
+
+class MeasureTypes(FormBuilderBaseCommand):
+
+    path = '/measure_types'
+
+    def render(self, req):
+        with self.get_db(req):
+            try:
+                product = produce('/measure_type{_id}')
+                ret = [item._id for item in product]
+            except HtsqlError as e:
+                raise HTTPBadRequest(detail=repr(e))
+        return Response(simplejson.dumps(ret))
 
 class SaveInstrument(FormBuilderBaseCommand):
 
@@ -211,7 +224,7 @@ class DummySaveAssessment(FormBuilderBaseCommand):
 class Builder(FormBuilderBaseCommand):
 
     path = '/builder'
-    template = 'rex.formbuilder:/template/roadsbuilder.html'
+    template = 'rex.formbuilder:/template/formbuilder.html'
     parameters = [
         Parameter('instrument_id', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$")),
     ]

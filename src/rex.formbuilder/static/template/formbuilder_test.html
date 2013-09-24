@@ -1,0 +1,10 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+{% import 'formbuilder_macros.html' as builder with context %}
+<html>
+  <head>
+    {{ builder.formbuilder_preview_head() }}
+  </head>
+  <body>
+    {{ builder.formbuilder_preview(instrument=instrument, assessment=assessment) }}
+  </body>
+</html>

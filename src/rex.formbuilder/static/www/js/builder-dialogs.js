@@ -112,6 +112,152 @@ dialogNS.AskDialog = function (o) {
     };
 };
 
+dialogNS.PublishDialog = function (o) {
+    var self = this;
+    var parent = o.parent || null;
+    var template =
+        '<div class="rb-publish-dialog">'
+            + '<p><strong>Caution: This operation will affect the real data entry process.</strong></p>'
+            + '<ul>'
+            +   '<li><input type="radio" name="rb_publish_measure" value="existing"> <div class="rb-inline-block">Using existing measure type: <div class="rb-top-margin"><select name="exist_measure_type"></select></div></div></li>'
+            +   '<li><input type="radio" name="rb_publish_measure" value="new"> <div class="rb-inline-block">Create a new new measure type: <div class="rb-top-margin"><input name="new_measure_type" /></div></div></li>'
+            + '</ul>'
+        + '</div>';
+    this.options = null;
+
+    var node = $(template);
+    var inputsMode = $('input[name=rb_publish_measure]', node);
+    var inputExistMeasure = $('select[name=exist_measure_type]', node);
+    var inputNewMeasure = $('input[name=new_measure_type]', node);
+    var mode;
+
+    console.log('inputExistMeasure', inputExistMeasure[0]);
+    console.log('inputNewMeasure', inputNewMeasure[0]);
+
+    this.setMode = function (newMode) {
+        mode = newMode;
+        if (mode === "existing") {
+            inputExistMeasure.removeAttr('disabled');
+            inputNewMeasure.attr('disabled', 'disabled');
+        } else {
+            inputExistMeasure.attr('disabled', 'disabled');
+            inputNewMeasure.removeAttr('disabled');
+        }
+    };
+    this.close = function () {
+        self.options = null;
+        inputNewMeasure.val('');
+        inputExistMeasure.val('');
+        self.stopInterval();
+        node.dialog('close');
+    };
+
+    inputsMode.click(function () {
+        self.setMode($(this).val());
+    });
+
+    this.onOk = function () {
+        var measureType = (mode === "existing") ?
+                                inputExistMeasure.val():
+                                inputNewMeasure.val();
+        if (measureType) {
+            if (self.options.onSubmit) {
+                var onSuccess = function () {
+                    alert('Successfully published');
+                    self.close();
+                };
+                var onError = function () {
+                    alert('Error publishing form');
+                };
+                self.options.onSubmit(measureType, onSuccess, onError);
+            }
+            self.close();
+        }
+    };
+
+    this.setMeasureTypes = function () {
+        inputExistMeasure.children().remove();
+        inputExistMeasure.append(
+            $('<option>', {
+                'text': '',
+                'value': ''
+            })
+        );
+        $.each(self.options.measureTypes, function (_, measureType) {
+            inputExistMeasure.append(
+                $('<option>', {
+                    'text': measureType,
+                    'value': measureType
+                })
+            );
+        });
+    };
+
+    node = node.dialog({
+        autoOpen: false,
+        title: 'Instrument Publishing',
+        width: 400,
+        height: 300,
+        modal: true,
+        buttons: {
+            'Ok': self.onOk,
+            'Cancel': self.close
+        }
+    });
+
+
+    var okBtn = node.parent().find("button:contains('Ok')");
+    var okBtnTitle = okBtn.find('.ui-button-text');
+    this.setButtonState = function (enabled) {
+        if (enabled)
+            okBtn.removeAttr('disabled')
+               .removeClass('ui-state-disabled');
+        else
+            okBtn.attr('disabled', 'disabled')
+               .addClass('ui-state-disabled');
+    };
+
+    var intervalId = null;
+    var downCounter = 0;
+    this.stopInterval = function () {
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+        downCounter = 0;
+    };
+    this.temporaryDisableOk = function () {
+        self.stopInterval();
+        self.setButtonState(false);
+        downCounter = 1;
+        okBtnTitle.text('Ok (' + downCounter + ')');
+        intervalId = setInterval(function () {
+            if (downCounter > 1) {
+                --downCounter;
+                okBtnTitle.text('Ok (' + downCounter + ')');
+            } else {
+                downCounter = 0;
+                okBtnTitle.text('Ok');
+                self.stopInterval();
+                self.setButtonState(true);
+            }
+        }, 1000);
+    };
+
+    this.open = function (o) {
+        o = o || {};
+        self.options = {};
+        self.options.baseMeasureType = o.baseMeasureType || '';
+        self.options.onSubmit = o.onSubmit || null;
+        self.options.measureTypes = o.measureTypes || [];
+        self.setMeasureTypes();
+        inputsMode.filter('[value=existing]').click();
+        this.temporaryDisableOk();
+        node.dialog('open');
+    };
+
+}
+
 dialogNS.PromptDialog = function (o) {
 
     var self = this;
@@ -363,7 +509,7 @@ dialogNS.ShowJSONDialog = function (o) {
     }
     node = $(template).dialog({
         autoOpen: false,
-        title: "Instrument's JSON",
+        title: "Instrument's source",
         width: 600,
         height: 300,
         modal: true,

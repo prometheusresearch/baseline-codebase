@@ -717,12 +717,14 @@ var Templates = function () {
     }
 };
 
-var Context = function (name, /* extParamTypes, */ manualEditConditions, urlStartTest, urlSaveForm) {
+var Context = function (name, manualEditConditions, urlStartTest,
+                        urlSaveForm, urlPublishForm, urlMeasureTypes) {
     this.instrumentName = name;
-    // this.extParamTypes = extParamTypes;
     this.manualEditCondtions = manualEditConditions;
     this.urlStartTest = urlStartTest;
     this.urlSaveForm = urlSaveForm;
+    this.urlPublishForm = urlPublishForm;
+    this.urlMeasureTypes = urlMeasureTypes;
 };
 
 var Pages = function (o) {
@@ -2007,6 +2009,8 @@ builder.initDialogs = function () {
     };
     builder.showJSONDialog =
         new builder.dialog.ShowJSONDialog(commonOptions);
+    builder.publishDialog =
+        new builder.dialog.PublishDialog(commonOptions);
     builder.askDialog =
         new builder.dialog.AskDialog(commonOptions);
     builder.promptDialog =
@@ -2160,7 +2164,10 @@ builder.init = function (o) {
     builder.context =
         new Context(o.instrument, /* o.extParamTypes, */
                     o.manualEditConditions || false,
-                    o.urlStartTest || null, o.urlSaveForm || null);
+                    o.baseUrl + '/test',
+                    o.baseUrl + '/save',
+                    o.baseUrl + '/publish',
+                    o.baseUrl + '/measure_types');
     builder.templates = new Templates();
     builder.initDialogs();
     builder.instrumentTitle = new EditableTitle({
@@ -2211,20 +2218,26 @@ builder.init = function (o) {
         builder.showJSON();
     });
 
+    $("#rb_publish").click(function () {
+        builder.publish();
+    });
+
     $("#rb_save_instrument").click(function () {
         builder.save({});
     });
 
     var testButton = $("#rb_test");
-    if (builder.context.urlStartTest)
+    if (builder.context.urlStartTest) {
         testButton.click(function () {
             builder.test();
         });
-    else
+    } else
         testButton.attr('disabled', 'disabled');
 };
 
 builder.test = function () {
+
+
     if (!builder.pageEditor.closeQuestionEditor())
         return;
 
@@ -2243,6 +2256,42 @@ builder.test = function () {
         });
     } else
         onValuesSet({});
+}
+
+builder.getMeasureTypes = function (onSuccess) {
+    $.ajax({
+        url: builder.context.urlMeasureTypes,
+        async: true,
+        success: function (content, textStatus, req) {
+            onSuccess($.parseJSON(content));
+        }
+    });
+};
+
+builder.publish = function () {
+    builder.getMeasureTypes(function (measureTypes) {
+        builder.publishDialog.open({
+            measureTypes: measureTypes,
+            onSubmit: function (measureType, onSuccess, onError) {
+                $.ajax({
+                    url: builder.context.urlPublishForm,
+                    async: false,
+                    data: 'instrument_id='
+                            + encodeURIComponent(builder.context.instrumentName)
+                        + '&measure_type_id='
+                            + encodeURIComponent(measureType),
+                    success: function (content, textStatus, req) {
+                        onSuccess();
+                    },
+                    cache: false,
+                    error: function (req) {
+                        onError();
+                    },
+                    type: 'POST'
+                });
+            }
+        });
+    });
 }
 
 builder.showJSON = function () {

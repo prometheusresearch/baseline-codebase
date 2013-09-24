@@ -13,6 +13,7 @@ from webob.exc import HTTPBadRequest, HTTPNotFound
 
 from htsql.core.cmd.act import produce
 from htsql.core.connect import transaction
+from htsql.core.error import Error as HtsqlError
 
 ROLE = 'rex.study_access'
 
@@ -137,11 +138,65 @@ class SaveInstrument(FormBuilderBaseCommand):
                     id=instrument_id,
                     title=data.get('title'), 
                     data=simplejson.dumps(data))
-            except Exception as e:
+            except HtsqlError as e:
                 raise HTTPBadRequest(detail=repr(e))
 
     def render(self, req, instrument_id, data):
         self.save_instrument(req, instrument_id, data)
+        return Response(body='OK')
+
+
+class PublishInstrument(FormBuilderBaseCommand):
+
+    path = '/publish'
+    parameters = [
+        Parameter('instrument_id', StrVal()),
+        Parameter('measure_type_id', StrVal())
+    ]
+
+    def publish_instrument(self, req, instrument_id, measure_type_id):
+        with self.get_db(req):
+            with transaction():
+                instrument = produce("/formbuilder[$id]{*}", id=instrument_id) 
+                if not len(instrument.data):
+                    raise HTTPNotFound(detail=("Instrument '%s' not found" 
+                                               % instrument_id))
+                instrument = instrument.data[0]
+                measure_type = produce("/measure_type[$id]{*}", 
+                                       id=measure_type_id)
+                if len(measure_type.data):
+                    measure_type = measure_type.data[0]
+                else:
+                    title = simplejson.loads(instrument.data).get('title')
+                    measure_type = produce("""/do(
+                            $id := insert(measure_type := {
+                                code := $measure_type_id,
+                                title := $title
+                            }),
+                            /measure_type[$id]{*}
+                        )""",
+                        measure_type_id=measure_type_id,
+                        title=title)
+                    measure_type = measure_type.data[0]
+                last_version = produce("""/measure_type_version{version}
+                        .filter(measure_type=$measure_type&json=$data)
+                    """,
+                    measure_type=measure_type.code,
+                    data=instrument.data)
+                if not len(last_version.data):
+                    # prevents duplicating forms
+                    produce("""insert(measure_type_version := {
+                            measure_type := $measure_type,
+                            json := $data
+                        })""", 
+                        measure_type=measure_type.code, 
+                        data=instrument.data)
+
+    def render(self, req, instrument_id, measure_type_id):
+        try:
+            self.publish_instrument(req, instrument_id, measure_type_id)
+        except HtsqlError as e:
+            raise HTTPBadRequest(detail=repr(e))
         return Response(body='OK')
 
 

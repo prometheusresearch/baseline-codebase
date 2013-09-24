@@ -435,7 +435,7 @@
                     <div class="rb-instrument-title untitled">Untitled Instrument</div>
                     {% endif %}
                     <div class="rb-instrument-actions">
-                        <a href="{{ edit_url|e }}?instrument={{ form.code|urlencode }}">Edit</a>
+                        <a href="{{ edit_url|e }}?instrument_id={{ form.code|urlencode }}">Edit</a>
                     </div>
                     <div class="rb-instrument-modified">{{ form.last_updated.strftime('%Y-%m-%d %H:%M:%S') }}</div>
                 </li>

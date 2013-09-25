@@ -2269,29 +2269,36 @@ builder.getMeasureTypes = function (onSuccess) {
 };
 
 builder.publish = function () {
-    builder.getMeasureTypes(function (measureTypes) {
-        builder.publishDialog.open({
-            measureTypes: measureTypes,
-            onSubmit: function (measureType, onSuccess, onError) {
-                $.ajax({
-                    url: builder.context.urlPublishForm,
-                    async: false,
-                    data: 'instrument_id='
-                            + encodeURIComponent(builder.context.instrumentName)
-                        + '&measure_type_id='
-                            + encodeURIComponent(measureType),
-                    success: function (content, textStatus, req) {
-                        onSuccess();
-                    },
-                    cache: false,
-                    error: function (req) {
-                        onError();
-                    },
-                    type: 'POST'
-                });
-            }
+    var onPublishSubmitted = function (measureType, onSuccess, onError) {
+        $.ajax({
+            url: builder.context.urlPublishForm,
+            async: false,
+            data: 'instrument_id='
+                    + encodeURIComponent(builder.context.instrumentName)
+                + '&measure_type_id='
+                    + encodeURIComponent(measureType),
+            success: function (content, textStatus, req) {
+                onSuccess();
+            },
+            cache: false,
+            error: function (req) {
+                onError();
+            },
+            type: 'POST'
         });
+    }
+
+    builder.save({
+        success: function () {
+            builder.getMeasureTypes(function (measureTypes) {
+                builder.publishDialog.open({
+                    measureTypes: measureTypes,
+                    onSubmit: onPublishSubmitted
+                });
+            });
+        }
     });
+
 }
 
 builder.showJSON = function () {

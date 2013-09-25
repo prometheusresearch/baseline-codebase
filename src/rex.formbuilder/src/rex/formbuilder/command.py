@@ -170,33 +170,30 @@ class PublishInstrument(FormBuilderBaseCommand):
     def publish_instrument(self, req, instrument_id, measure_type_id):
         with self.get_db(req):
             with transaction():
-                instrument = produce("/formbuilder[$id]{*}", id=instrument_id) 
-                if not len(instrument.data):
+                instrument = produce("formbuilder[$id]{*}", 
+                                     id=instrument_id).data
+                if instrument is None:
                     raise HTTPNotFound(detail=("Instrument '%s' not found" 
                                                % instrument_id))
-                instrument = instrument.data[0]
-                measure_type = produce("/measure_type[$id]{*}", 
-                                       id=measure_type_id)
-                if len(measure_type.data):
-                    measure_type = measure_type.data[0]
-                else:
+                measure_type = produce("measure_type[$id]{*}", 
+                                       id=measure_type_id).data
+                if measure_type is None:
                     title = simplejson.loads(instrument.data).get('title')
                     measure_type = produce("""/do(
                             $id := insert(measure_type := {
                                 code := $measure_type_id,
                                 title := $title
                             }),
-                            /measure_type[$id]{*}
+                            measure_type[$id]{*}
                         )""",
                         measure_type_id=measure_type_id,
-                        title=title)
-                    measure_type = measure_type.data[0]
-                last_version = produce("""/measure_type_version{version}
-                        .filter(measure_type=$measure_type&json=$data)
-                    """,
+                        title=title).data
+                last_version = produce(
+                    """/measure_type_version{version}
+                       .filter(measure_type=$measure_type&json=$data)""",
                     measure_type=measure_type.code,
-                    data=instrument.data)
-                if not len(last_version.data):
+                    data=instrument.data).data
+                if not len(last_version):
                     # prevents duplicating forms
                     produce("""insert(measure_type_version := {
                             measure_type := $measure_type,

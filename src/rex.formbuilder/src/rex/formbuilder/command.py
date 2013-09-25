@@ -123,11 +123,25 @@ class MeasureTypes(FormBuilderBaseCommand):
 
     path = '/measure_types'
 
-    def render(self, req):
+    parameters = [
+        Parameter('instrument_id', StrVal(pattern=r"^[a-zA-Z0-9_\-]+$"))
+    ]
+
+    def render(self, req, instrument_id):
         with self.get_db(req):
             try:
-                product = produce('/measure_type{_id}')
-                ret = [item._id for item in product]
+                product = produce("""
+                    /do(
+                        $base_measure_type:=
+                            if_null(formbuilder[%s].base_measure_type, ''),
+                        /measure_type{
+                            _id :as ID,
+                            _id=$base_measure_type :as default
+                        }
+                    )
+                """ % instrument_id, instrument_id=instrument_id)
+                ret = [{"id": item.ID, "default": item.default } \
+                        for item in product]
             except HtsqlError as e:
                 raise HTTPBadRequest(detail=repr(e))
         return Response(simplejson.dumps(ret))

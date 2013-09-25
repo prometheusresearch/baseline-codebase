@@ -2260,7 +2260,9 @@ builder.test = function () {
 
 builder.getMeasureTypes = function (onSuccess) {
     $.ajax({
-        url: builder.context.urlMeasureTypes,
+        url: builder.context.urlMeasureTypes
+                + '?instrument_id='
+                + encodeURIComponent(builder.context.instrumentName),
         async: true,
         success: function (content, textStatus, req) {
             onSuccess($.parseJSON(content));

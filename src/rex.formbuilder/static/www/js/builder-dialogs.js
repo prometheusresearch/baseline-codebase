@@ -186,8 +186,9 @@ dialogNS.PublishDialog = function (o) {
         $.each(self.options.measureTypes, function (_, measureType) {
             inputExistMeasure.append(
                 $('<option>', {
-                    'text': measureType,
-                    'value': measureType
+                    'text': measureType.id,
+                    'value': measureType.id,
+                    'selected': measureType['default']
                 })
             );
         });

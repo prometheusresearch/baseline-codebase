@@ -279,7 +279,7 @@ body, p, div, td, input {
 
 .rb_pages_list_wrapper {
     position: absolute;
-    top: 210px;
+    top: 235px;
     bottom: 0px;
     right: 10px;
     left: 10px;
@@ -850,4 +850,11 @@ input.rb_identifier_input {
 
 .rb-top-margin {
     margin-top: 5px;
+}
+
+a.rb-back-url {
+    color: #586cb5;
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 15px;
 }

@@ -66,7 +66,7 @@ class Extension(object):
             idx += 1
         # Filter out abstract classes and implementations not included
         # with the active application; return the rest.
-        return [subclass for subclass in subclasses
+        return [subclass for subclass in set(subclasses)
                          if subclass.__module__ in modules and
                             subclass.enabled()]
 

@@ -2275,10 +2275,10 @@ builder.publish = function () {
         $.ajax({
             url: builder.context.urlPublishForm,
             async: false,
-            data: 'instrument_id='
-                    + encodeURIComponent(builder.context.instrumentName)
-                + '&measure_type_id='
-                    + encodeURIComponent(measureType),
+            data: {
+                instrument_id: builder.context.instrumentName,
+                measure_type_id: measureType
+            },
             success: function (content, textStatus, req) {
                 onSuccess();
             },

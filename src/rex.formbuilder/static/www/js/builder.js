@@ -1603,6 +1603,7 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     var nodeTitle = self.node.find('textarea[name=question-title]:first');
     var nodeHelp = self.node.find('textarea[name=question-help]:first');
     var nodeName = self.node.find('input[name=question-name]:first');
+    var nodeNameHint = nodeName.next('.hint');
     var nodeRequired = self.node.find('input[name=question-required]:first');
     var nodeSlave = self.node.find('input[name=question-slave]:first');
     var labelDropDown = self.node.find('label.rb-question-dropdown:first');
@@ -1613,6 +1614,17 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     var nodeCancel = self.node.find('.rb-question-cancel:first');
     var nodeSubquestions = self.node.find('.rb-subquestions-wrap:first');
     var nodeRemove = self.node.find('.rb-question-editor-remove:first');
+
+    self.showNameHint = function () {
+        nodeNameHint.css('display', '');
+    }
+    self.hideNameHint = function () {
+        nodeNameHint.css('display', 'none');
+    }
+    nodeNameHint.find('a.hint-dismiss').click(function () {
+        self.hideNameHint();
+    });
+    self.hideNameHint();
 
     self.getName = function () {
         return $.trim(nodeName.val());
@@ -1648,11 +1660,13 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         // nested repeating groups are not allowed
         nodeType.find("option[value=rep_group]").remove();
 
-    var fixInputIdentifier = function (input) {
+    var fixInputIdentifier = function (input, onFixed) {
         var val = input.val();
         var newVal = val.replace(builder.illegalIdChars, '');
         if (newVal !== val) {
             input.val( newVal );
+            if (onFixed)
+                onFixed();
         }
     }
 
@@ -1785,7 +1799,9 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     var previousName = self.getName();
     nodeName.change(function () {
         self.autoGenerateId = false;
-        fixInputIdentifier( $(this) );
+        fixInputIdentifier($(this), function () {
+            self.showNameHint();
+        });
         var newName = self.getName();
         if (previousName !== newName) {
             if (newName) {
@@ -1796,7 +1812,9 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
         }
     });
     nodeName.keyup(function () {
-        fixInputIdentifier( $(this) );
+        fixInputIdentifier($(this), function () {
+            self.showNameHint();
+        });
     });
 
     var customTitleEditor = new CustomTitleEditor({

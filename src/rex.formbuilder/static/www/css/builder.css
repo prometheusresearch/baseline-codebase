@@ -858,3 +858,7 @@ a.rb-back-url {
     margin-top: 10px;
     margin-left: 15px;
 }
+
+.hint-text {
+    color: red;
+}

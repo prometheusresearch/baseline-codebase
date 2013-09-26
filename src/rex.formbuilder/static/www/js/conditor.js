@@ -102,6 +102,8 @@ function ConditionEditor(initParams) {
                 var operand = jQuery.trim(valueInput.val());
                 var operation = $('.rb_select_answer_is', hidPart).val();
 
+                console.log('identifierType', identifierType);
+
                 switch (identifierType) {
                 case 'date':
                     if (operand) {
@@ -120,7 +122,7 @@ function ConditionEditor(initParams) {
                     if (operation !== '' && !isValidNumeric(operand, 'float'))
                         noErrors = false;
                     break;
-                case 'list':
+                case 'set':
                     if (operation === '=' ) {
                         identifier += '.' + operand;
                         operand = 'true()';
@@ -592,11 +594,10 @@ function ConditionEditor(initParams) {
                 case 'enum':
                 case 'set':
                     notEmptyValueContent = $('<select>');
-                    if (desc.type === 'list')
+                    if (desc.type === 'set')
                         relations = selectRelations['variant'];
                     for (var idx in desc.variants) {
                         var variant = desc.variants[idx];
-
                         $('<option>', {
                             value: variant.code,
                             text: truncateText(variant.title || variant.code, 20)

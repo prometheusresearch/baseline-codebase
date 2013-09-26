@@ -227,8 +227,13 @@ class PublishInstrument(FormBuilderBaseCommand):
 class DummySaveAssessment(FormBuilderBaseCommand):
 
     path = '/save_assessment'
+    parameters = [
+        Parameter('assessment', StrVal()),
+        Parameter('data', StrVal()),
+        Parameter('form', StrVal()),
+    ]
 
-    def render(self, req):
+    def render(self, req, assessment, data, form):
         return Response(body='{"result" : true}')
 
 

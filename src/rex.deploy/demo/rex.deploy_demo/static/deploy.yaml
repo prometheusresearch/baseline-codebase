@@ -11,5 +11,9 @@
   to: individual
 - link: individual.father
   to: individual
+- link: individual.adopted_mother
+  to: individual
+- link: individual.adopted_father
+  to: individual
 - identity: [individual.family, individual.code]
 

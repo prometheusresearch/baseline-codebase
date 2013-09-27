@@ -126,7 +126,7 @@
         </script>
         <div class="rb_left_part">
             <a href="{{ base_url|e }}/" class="rb-back-url">&larr; All Instruments</a>
-            <div id="rb_instrument_name">{{ instrument|e }}</div>
+            {# <div id="rb_instrument_name_wrap"><span id="rb_instrument_name">{{ instrument|e }}</span></div> #}
             <div id="rb_instrument_title_wrap">
                 <div id="rb_instrument_title_view">
                     <span id="rb_instrument_title"></span>
@@ -205,6 +205,7 @@
             <li id="tpl_question" class="rb-question">
                 <div>
                     <div class="rb_question_actions">
+                        <a href="javascript:void(0);" class="rb-question-edit">Edit</a>
                         <a href="javascript:void(0);" class="rb-question-duplicate">Duplicate</a>
                         <a href="javascript:void(0);" class="rb-question-remove"><img src="{{ MOUNT['rex.forms'] }}/img/close_small.png"></a>
                     </div>
@@ -322,7 +323,7 @@
                         </tr>
                         <tr>
                             <td colspan="2" class="rb_question_table_long_row rb_question_table_bottom">
-                                <!-- <button class="btn-save" onclick="$.RexFormBuilder.stopEvent(arguments[0]);$.RexFormBuilder.saveQuestion(this);">Close</button> -->
+                                <button class="rb-question-apply">Apply</button>
                                 <button class="rb-question-cancel">Cancel</button>
                             </td>
                         </tr>
@@ -418,10 +419,10 @@
 <div class="rb-box-absolute">
     <ul id="rb_instrument_tabs" class="rb-instrument-tabs">
         <li class="rb-instrument-tab">
-            <a href="#rb_editable_forms" data-toggle="tab">Edited Forms</a>
+            <a href="javascript:void(0);" data-target="#rb_editable_forms" data-toggle="tab">Editable Forms</a>
         </li>
         <li class="rb-instrument-tab">
-            <a href="#rb_published_forms" data-toggle="tab">Published Forms</a>
+            <a href="javascript:void(0);" data-target="#rb_published_forms" data-toggle="tab">Published Forms</a>
         </li>
     </ul>
     <form id="rb_new_instrument" class="rb-form" action="{{ new_url|e }}">
@@ -471,14 +472,14 @@
             tab = $(tab);
             var a = tab.find('a[data-toggle=tab]');
             a.click(function () {
-                var target = $(a.attr('href'));
+                var target = $(a.attr('data-target'));
                 tab.addClass('active');
                 target.addClass('active');
                 tabs.each(function (_, item) {
                     item = $(item);
                     if (item[0] != tab[0]) {
                         item.removeClass('active');
-                        var tabBody = $(item.find('a[data-toggle=tab]').attr('href'));
+                        var tabBody = $(item.find('a[data-toggle=tab]').attr('data-target'));
                         tabBody.removeClass('active');
                     }
                 });

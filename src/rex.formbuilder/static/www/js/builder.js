@@ -1504,8 +1504,11 @@ var QuestionContainer = function (o) {
         var onCancel = function () {
             self.closeQuestionEditor(true);
         };
+        var onApply = function () {
+            self.closeQuestionEditor(false);
+        };
         self.editor = new QuestionEditor(question, mode, self, 
-                                         onCancel, self.templates);
+                                         onApply, onCancel, self.templates);
         if (isNew) {
             var questionNode = question.getNode();
             questionNode.before(self.editor.node);
@@ -1570,7 +1573,7 @@ var QuestionContainer = function (o) {
     };
 };
 
-var QuestionEditor = function (question, mode, parent, onCancel, templates) {
+var QuestionEditor = function (question, mode, parent, onApply, onCancel, templates) {
     var self = this;
     self.parent = parent;
     self.question = mode === "copy" ? null : question;
@@ -1612,6 +1615,7 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
     var nodeExplanation = self.node.find('input[name=question-explanation]:first');
     var nodeType = self.node.find('select[name=question-type]:first');
     var nodeCancel = self.node.find('.rb-question-cancel:first');
+    var nodeApply = self.node.find('.rb-question-apply:first');
     var nodeSubquestions = self.node.find('.rb-subquestions-wrap:first');
     var nodeRemove = self.node.find('.rb-question-editor-remove:first');
 
@@ -1638,6 +1642,10 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
 
     nodeCancel.click(function () {
         onCancel();
+    });
+
+    nodeApply.click(function () {
+        onApply();
     });
 
     nodeRemove.click(function () {
@@ -1853,8 +1861,9 @@ var QuestionEditor = function (question, mode, parent, onCancel, templates) {
             nodeExplanation.attr('checked', 'checked');
         if (question.type === "enum" && question.dropDown)
             nodeDropDown.attr('checked', 'checked');
-        nodeType.val(question.type).change();
+        nodeType.val(question.type);
     }
+    nodeType.change();
     self.empty = function () {
         var name = self.getName();
         var title = self.getTitle();

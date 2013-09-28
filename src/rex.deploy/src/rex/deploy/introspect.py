@@ -3,13 +3,13 @@
 #
 
 
-from .catalog import CatalogRecord
+from .image import CatalogImage
 
 
 def introspect(connection):
     cursor = connection.cursor()
 
-    catalog = CatalogRecord()
+    catalog = CatalogImage()
 
     cursor.execute("""
         SELECT n.oid, n.nspname
@@ -62,13 +62,13 @@ def introspect(connection):
         column_by_num[attrelid, attnum] = column
 
     cursor.execute("""
-        SELECT c.contype, c.confmatchtype,
+        SELECT c.conname, c.contype, c.confmatchtype,
                c.conrelid, c.conkey, c.confrelid, c.confkey
         FROM pg_catalog.pg_constraint c
         WHERE c.contype IN ('p', 'u', 'f')
         ORDER BY c.oid
     """)
-    for (contype, confmatchtype,
+    for (conname, contype, confmatchtype,
             conrelid, conkey, confrelid, confkey) in cursor.fetchall():
         if conrelid not in table_by_oid:
             continue
@@ -79,7 +79,7 @@ def introspect(connection):
         columns = [column_by_num[conrelid, num] for num in conkey]
         if contype in ('p', 'u'):
             is_primary = (contype == 'p')
-            table.add_unique_key(columns, is_primary)
+            table.add_unique_key(conname, columns, is_primary)
         elif contype == 'f':
             if confrelid not in table_by_oid:
                 continue
@@ -87,7 +87,7 @@ def introspect(connection):
             if not all((confrelid, num) in column_by_num for num in confkey):
                 continue
             target_columns = [column_by_num[confrelid, num] for num in confkey]
-            table.add_foreign_key(columns, target_table, target_columns)
+            table.add_foreign_key(conname, columns, target_table, target_columns)
 
     return catalog
 

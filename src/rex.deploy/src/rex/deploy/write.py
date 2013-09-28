@@ -21,8 +21,11 @@ def mangle(fragments, suffix=None,
     text = stem
     if suffix is not None:
         text += separator+suffix
-    if (suffix is None and any(stem.endswith(u"_"+word) for word in forbidden)
-            or len(text) > max_length):
+        is_forbidden = False
+    else:
+        is_forbidden = any(stem == word or stem.endswith(u"_"+word)
+                           for word in forbidden)
+    if is_forbidden or len(text) > max_length:
         digest = separator+unicode(hashlib.md5(stem).hexdigest()[:6])
         if len(text)+len(digest) > max_length:
             cut_start = max_length/4

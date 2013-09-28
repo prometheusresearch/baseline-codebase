@@ -117,7 +117,7 @@ class TableFact(Fact):
             driver.submit(sql)
             table = schema.add_table(name)
             id_column = table.add_column("id")
-            table.add_unique_key(id_column)
+            table.add_unique_key(constraint_name, [id_column])
         else:
             if name not in schema:
                 return
@@ -204,7 +204,8 @@ class LinkFact(Fact):
                                              [name], target_table.name, ["id"])
             driver.submit(sql)
             column = table.add_column(name)
-            table.add_foreign_key([column], target_table, [target_column])
+            table.add_foreign_key(constraint_name, [column],
+                                  target_table, [target_column])
         else:
             if table_name not in schema:
                 return
@@ -262,7 +263,7 @@ class IdentityFact(Fact):
         sql = add_unique_constraint(table.name, constraint_name,
                                     column_names, True)
         driver.submit(sql)
-        table.add_primary_key(columns)
+        table.add_primary_key(constraint_name, columns)
 
 
 def get_facts():

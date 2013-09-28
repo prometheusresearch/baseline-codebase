@@ -105,7 +105,7 @@ def drop_table(name):
 
 def define_column(name, type_name, is_nullable):
     # Generates column definition for `CREATE TABLE` body.
-    return u"{:<16} {}{}".format(
+    return u"{} {}{}".format(
                 dquote(name),
                 dquote(type_name) if not isinstance(type_name, tuple)
                     else u"{}({})".format(
@@ -159,6 +159,17 @@ def drop_constraint(table_name, name):
     # Generates `DROP CONSTRAINT` statement.
     return u"ALTER TABLE {} DROP CONSTRAINT {};".format(
                 dquote(table_name),
+                dquote(name))
+
+
+def create_enum_type(name, labels):
+    return u"CREATE TYPE {} AS ENUM ({});".format(
+                dquote(name),
+                quote(labels))
+
+
+def drop_type(name):
+    return u"DROP TYPE {};".format(
                 dquote(name))
 
 

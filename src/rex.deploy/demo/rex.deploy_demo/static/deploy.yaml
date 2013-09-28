@@ -1,12 +1,16 @@
 
 - table: family
 - column: family.code
+  type: text
 - identity: [family.code]
 
 - table: individual
 - link: individual.family
 - column: individual.code
+  type: text
+- identity: [individual.family, individual.code]
 - column: individual.sex
+  type: [male, female, intersex]
 - link: individual.mother
   to: individual
 - link: individual.father
@@ -15,5 +19,8 @@
   to: individual
 - link: individual.adopted_father
   to: individual
-- identity: [individual.family, individual.code]
+- column: individual.dob
+  type: date
+- column: individual.dead
+  type: boolean
 

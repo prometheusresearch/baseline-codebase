@@ -18,11 +18,36 @@ def introspect(connection):
     """)
     schema_by_oid = {}
     for oid, nspname in cursor.fetchall():
-        if nspname == u'information_schema' or nspname.startswith(u'pg_'):
-            continue
         name = nspname.encode('utf-8')
         schema = catalog.add_schema(name)
         schema_by_oid[oid] = schema
+
+    labels_by_oid = {}
+    cursor.execute("""
+        SELECT e.enumtypid, e.enumlabel
+        FROM pg_catalog.pg_enum e
+        ORDER BY e.enumtypid, e.enumsortorder, e.oid
+    """)
+    for enumtypid, enumlabel in cursor.fetchall():
+        labels_by_oid.setdefault(enumtypid, []).append(enumlabel)
+
+    type_by_oid = {}
+    cursor.execute("""
+        SELECT t.oid, t.typnamespace, t.typname, t.typtype,
+               t.typbasetype, t.typlen, t.typtypmod, t.typdefault
+        FROM pg_catalog.pg_type t
+        JOIN pg_catalog.pg_namespace n ON (t.typnamespace = n.oid)
+        ORDER BY t.typnamespace, t.typname
+    """)
+    for (oid, typnamespace, typname, typtype,
+         typbasetype, typlen, typtypmod, typdefault) in cursor.fetchall():
+        schema = schema_by_oid[typnamespace]
+        if typtype == 'e':
+            labels = labels_by_oid[oid]
+            type = schema.add_enum_type(typname, labels)
+        else:
+            type = schema.add_type(typname)
+        type_by_oid[oid] = type
 
     table_by_oid = {}
     cursor.execute("""
@@ -57,8 +82,9 @@ def introspect(connection):
             continue
         table = table_by_oid[attrelid]
         name = attname.encode('utf-8')
+        type = type_by_oid[atttypid]
         is_nullable = (not attnotnull)
-        column = table.add_column(name)
+        column = table.add_column(name, type, is_nullable)
         column_by_num[attrelid, attnum] = column
 
     cursor.execute("""

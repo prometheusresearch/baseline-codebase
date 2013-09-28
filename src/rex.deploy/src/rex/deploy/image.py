@@ -276,7 +276,7 @@ class EnumTypeImage(TypeImage):
     __slots__ = ('labels',)
 
     def __init__(self, schema, name, labels):
-        super(DomainTypeImage, self).__init__(schema, name)
+        super(EnumTypeImage, self).__init__(schema, name)
         self.labels = labels
 
 
@@ -328,7 +328,7 @@ class TableImage(NamedImage):
             self.columns.last().remove()
         super(TableImage, self).remove()
 
-    def add_column(self, name, type=None, is_nullable=None):
+    def add_column(self, name, type, is_nullable):
         return ColumnImage(self, name, type, is_nullable)
 
     def add_constraint(self, name):

@@ -3,12 +3,13 @@
 #
 
 
-from rex.core import (Extension, MaybeVal, StrVal, BoolVal, SeqVal, RecordVal,
-        get_packages, Error, guard)
+from rex.core import (Extension, MaybeVal, StrVal, BoolVal, OneOfVal,
+        ChoiceVal, SeqVal, RecordVal, get_packages, Error, guard)
 from .introspect import introspect
 from .write import (mangle, create_table, drop_table, define_column,
         add_column, drop_column, add_unique_constraint,
-        add_foreign_key_constraint, drop_constraint)
+        add_foreign_key_constraint, drop_constraint,
+        create_enum_type, drop_type)
 import yaml
 
 
@@ -105,25 +106,29 @@ class TableFact(Fact):
 
     def __call__(self, driver):
         schema = driver.get_schema()
+        system_schema = driver.get_catalog()['pg_catalog']
         name = mangle(self.table)
         if self.present:
             if name in schema:
                 return
-            body = [define_column("id", "serial4", False)]
+            table = schema.add_table(name)
+            type = system_schema.types["int4"]
+            column = table.add_column("id", type, False)
+            constraint_name = mangle([table.name, column.name], "uk")
+            key = table.add_unique_key(constraint_name, [column])
+            body = [define_column(column.name, "serial4", False)]
             sql = create_table(name, body)
             driver.submit(sql)
-            constraint_name = mangle([name, "id"], "uk")
-            sql = add_unique_constraint(name, constraint_name, ["id"], False)
+            sql = add_unique_constraint(table.name, key.name,
+                                        [column.name], False)
             driver.submit(sql)
-            table = schema.add_table(name)
-            id_column = table.add_column("id")
-            table.add_unique_key(constraint_name, [id_column])
         else:
             if name not in schema:
                 return
-            sql = drop_table(name)
+            table = schema[name]
+            sql = drop_table(table.name)
             driver.submit(sql)
-            schema[name].remove()
+            table.remove()
 
 
 class ColumnFact(Fact):
@@ -131,6 +136,10 @@ class ColumnFact(Fact):
     fields = [
             ('column', StrVal(r'\w+(?:\.\w+)?')),
             ('of', MaybeVal(StrVal(r'\w+')), None),
+            ('type', OneOfVal(ChoiceVal("boolean", "integer", "decimal",
+                                        "float", "text", "date", "time",
+                                        "datetime"),
+                              SeqVal(StrVal()))),
             ('present', BoolVal(),  True),
     ]
 
@@ -141,6 +150,7 @@ class ColumnFact(Fact):
 
     def __call__(self, driver):
         schema = driver.get_schema()
+        system_schema = driver.get_catalog()['pg_catalog']
         table_name = mangle(self.of)
         name = mangle(self.column)
         if self.present:
@@ -149,9 +159,27 @@ class ColumnFact(Fact):
             table = schema[table_name]
             if name in table:
                 return
-            sql = add_column(table.name, name, "text", True)
+            is_enum = isinstance(self.type, list)
+            if is_enum:
+                type_name = mangle([self.of, self.column], "enum")
+                type = schema.add_enum_type(type_name, self.type)
+                sql = create_enum_type(type.name, type.labels)
+                driver.submit(sql)
+            else:
+                type_mapping = {
+                        "boolean": "bool",
+                        "integer": "int4",
+                        "decimal": "numeric",
+                        "float": "float8",
+                        "text": "text",
+                        "date": "date",
+                        "time": "time",
+                        "datetime": "timestamp",
+                }
+                type = system_schema.types[type_mapping[self.type]]
+            column = table.add_column(name, type, True)
+            sql = add_column(table.name, column.name, column.type.name, True)
             driver.submit(sql)
-            table.add_column(name)
         else:
             if table_name not in schema:
                 return
@@ -182,6 +210,7 @@ class LinkFact(Fact):
 
     def __call__(self, driver):
         schema = driver.get_schema()
+        system_schema = driver.get_catalog()['pg_catalog']
         table_name = mangle(self.of)
         name = mangle(self.link, "id")
         target_table_name = mangle(self.to)
@@ -194,18 +223,20 @@ class LinkFact(Fact):
             table = schema[table_name]
             if name in table:
                 return
+            type = system_schema.types["int4"]
+            column = table.add_column(name, type, True)
             target_table = schema[target_table_name]
             if "id" not in target_table:
                 raise Error("Missing ID column from target table:", self.to)
             target_column = target_table["id"]
-            sql = add_column(table.name, name, "int4", True)
+            key = table.add_foreign_key(constraint_name, [column],
+                                        target_table, [target_column])
+            sql = add_column(table.name, column.name, column.type.name, True)
             driver.submit(sql)
-            sql = add_foreign_key_constraint(table.name, constraint_name,
-                                             [name], target_table.name, ["id"])
+            sql = add_foreign_key_constraint(table.name, key.name,
+                                             [column.name], target_table.name,
+                                             [target_column.name])
             driver.submit(sql)
-            column = table.add_column(name)
-            table.add_foreign_key(constraint_name, [column],
-                                  target_table, [target_column])
         else:
             if table_name not in schema:
                 return
@@ -241,29 +272,27 @@ class IdentityFact(Fact):
         if table_name not in schema:
             raise Error("Unknown table:", self.of)
         table = schema[self.of]
-        column_names = []
         columns = []
         for label in self.identity:
             column_name = mangle(label)
             link_name = mangle(label, "id")
             if column_name in table:
-                name = column_name
+                column = table[column_name]
             elif link_name in table:
-                name = link_name
+                column = table[link_name]
             else:
                 raise Error("Unknown field:", "%s.%s" % (self.of, label))
-            column_names.append(name)
-            columns.append(table[name])
+            columns.append(column)
         if table.primary_key is not None:
             if table.primary_key.origin_columns == columns:
                 return
             sql = drop_constraint(table.name, table.primary_key.name)
             driver.submit(sql)
             table.primary_key.remove()
-        sql = add_unique_constraint(table.name, constraint_name,
-                                    column_names, True)
+        key = table.add_primary_key(constraint_name, columns)
+        sql = add_unique_constraint(table.name, key.name,
+                                    [column.name for column in columns], True)
         driver.submit(sql)
-        table.add_primary_key(constraint_name, columns)
 
 
 def get_facts():

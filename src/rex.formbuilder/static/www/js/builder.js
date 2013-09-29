@@ -1429,7 +1429,7 @@ var QuestionContainer = function (o) {
     self.onRename = o.onRename || null;
     self.addButton = o.addButton;
     self.addButton.click(function () {
-        self.openQuestionEditor(null, 'new');
+        self.openQuestionEditor(null, 'new', null);
     });
     self.rearrange = function () {
         self.questions.length = 0;
@@ -1455,12 +1455,12 @@ var QuestionContainer = function (o) {
         var idx = self.questions.indexOf(question);
         self.questions.splice(idx, 1);
     };
-    self.closeQuestionEditor = function (cancel) {
+    self.closeQuestionEditor = function (cancel, onSuccess) {
         var ret = true;
         if (self.editor) {
             try {
+                var question = null;
                 if (!self.editor.empty()) {
-                    var question = null;
                     if (cancel) {
                         if (self.editor.question)
                             question = self.editor.question;
@@ -1483,6 +1483,8 @@ var QuestionContainer = function (o) {
                 self.editor.remove();
                 self.editor = null;
                 self.rearrange();
+                if (onSuccess)
+                    onSuccess(question);
             } catch (e) {
                 ret = false;
                 if (e.name === "ValidationError") {
@@ -1495,8 +1497,8 @@ var QuestionContainer = function (o) {
         }
         return ret;
     };
-    self.openQuestionEditor = function (question, mode) {
-        // console.log('openQuestionEditor 1', question);
+    self.openQuestionEditor = function (question, mode, after) {
+        console.log('openQuestionEditor(question=', question, 'mode=', mode, 'after=', after);
         if (!self.closeQuestionEditor())
             return;
         // console.log('openQuestionEditor 2', question);
@@ -1507,14 +1509,25 @@ var QuestionContainer = function (o) {
         var onApply = function () {
             self.closeQuestionEditor(false);
         };
+        var onAddNext = function () {
+            self.closeQuestionEditor(false, function (question) {
+                self.openQuestionEditor(null, 'new', question)
+            });
+        };
         self.editor = new QuestionEditor(question, mode, self, 
-                                         onApply, onCancel, self.templates);
+                                         onApply, onCancel, onAddNext, self.templates);
         if (isNew) {
             var questionNode = question.getNode();
             questionNode.before(self.editor.node);
             questionNode.detach();
-        } else
-            self.listNode.append(self.editor.node);
+        } else {
+            if (after) {
+                console.log('adding after', after.getNode()[0]);
+                after.getNode().after(self.editor.node);
+            } else {
+                self.listNode.append(self.editor.node);
+            }
+        }
         self.editor.node[0].scrollIntoView();
     };
     self.removeNodeEvents = function (node) {
@@ -1533,11 +1546,11 @@ var QuestionContainer = function (o) {
         var node = question.getNode();
         node.bind("click.question", function () {
             var owner = $(this).data('owner');
-            self.openQuestionEditor(owner, 'edit');
+            self.openQuestionEditor(owner, 'edit', null);
         });
         node.bind("rb:duplicate", function () {
             var owner = $(this).data('owner');
-            self.openQuestionEditor(owner, 'copy');
+            self.openQuestionEditor(owner, 'copy', null);
         });
         node.bind("rb:remove", function () {
             var owner = $(this).data('owner');
@@ -1573,7 +1586,7 @@ var QuestionContainer = function (o) {
     };
 };
 
-var QuestionEditor = function (question, mode, parent, onApply, onCancel, templates) {
+var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddNext, templates) {
     var self = this;
     self.parent = parent;
     self.question = mode === "copy" ? null : question;
@@ -1616,6 +1629,7 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, templa
     var nodeType = self.node.find('select[name=question-type]:first');
     var nodeCancel = self.node.find('.rb-question-cancel:first');
     var nodeApply = self.node.find('.rb-question-apply:first');
+    var nodeAddNext = self.node.find('.rb-question-add-next:first');
     var nodeSubquestions = self.node.find('.rb-subquestions-wrap:first');
     var nodeRemove = self.node.find('.rb-question-editor-remove:first');
 
@@ -1646,6 +1660,10 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, templa
 
     nodeApply.click(function () {
         onApply();
+    });
+
+    nodeAddNext.click(function () {
+        onAddNext();
     });
 
     nodeRemove.click(function () {

@@ -143,8 +143,10 @@
             <div class="rb_params_wrapper">
                 <div><a href="javascript:void(0);" id="rb_advanced_trigger" title="Click to expand or collapse.">Advanced Options</a></div>
                 <div class="rb-advanced">
-                    <button id="rb_params_add" class="rb_small_button rb_right_aligned">Declare Variable</button>
-                    <span class="rb_small_title">External Variables: <span class="rb-info" title="These are parameters that you wish to reference in the form. For example, sex and age. The list of available parameters depends on current RexAcquire configuration."><img src="{{ MOUNT['rex.formbuilder'] }}/images/info-icon.png" /></span></span>
+                    <span title="These are parameters that you wish to reference in the form. For example, sex and age. The list of available parameters depends on current RexAcquire configuration.">
+                        <button id="rb_params_add" class="rb_small_button rb_right_aligned">Declare Variable</button>
+                        <span class="rb_small_title">External Variables:</span>
+                    </span>
                     <div id="rb_params_list">
                     </div>
                 </div>
@@ -280,34 +282,39 @@
                                         <div class="rb-question-checkbox">
                                             <input type="checkbox" name="question-required" /> Required
                                         </div>
-                                        <div class="rb-question-checkbox">
-                                            <input type="checkbox" name="question-annotation" /> Has annotation
-                                        </div>
-                                        <div class="rb-question-checkbox">
-                                            <input type="checkbox" name="question-explanation" /> Has explanation
-                                        </div>
-                                        <div class="rb-question-checkbox">
-                                            <input type="checkbox" name="question-slave" /> Slave
-                                        </div>
                                     </div>
-                                    <h3>Constraints</h3>
-                                    <a class="rb-question-constraint" href="javascript:void(0);">No constraints</a>
-                                    <button class="rb-question-constraint-change">Change</button>
-                                    <div class="rb-disable-logic">
-                                        <h3>Disable conditions</h3>
-                                        <a class="rb-question-disable-if" href="javascript:void(0);">Never disabled</a> 
-                                        <button class="rb-question-disable-if-change">Change</button>
-                                    </div>
-                                    <div class="rb-hide-logic">
-                                        <h3>Hide conditions</h3>
-                                        <a class="rb-question-hide-if" href="javascript:void(0);">Always visible</a> 
-                                        <button class="rb-question-hide-if-change">Change</button>
-                                    </div>
-                                    <div class="rb-custom-titles-wrap">
-                                        <h3>Custom Titles</h3>
-                                        <div class="rb-custom-titles">
-                                        </div>
-                                        <button class="rb-custom-title-add">Add Custom Title</button>
+                                    <div class="rb-question-advanced">
+                                        <div class="rb-question-advanced-title"><span title="These are options used to configure advanced options.">Advanced Options</span></div>
+										<div class="rb-question-checkboxes">
+											<div class="rb-question-checkbox">
+												<span title="This adds a 'I can't answer because' option below a question. The option allows a user to declare the reason they can not answer the question."><input type="checkbox" name="question-annotation" /> Has annotation</span>
+											</div>
+											<div class="rb-question-checkbox">
+												<span title="This adds a textbox bellow the question with a text that reads 'I want to explain my answer'."><input type="checkbox" name="question-explanation" /> Has explanation</span>
+											</div>
+											<div class="rb-question-checkbox">
+												<span title="Questions are numbered automatically. If a question is dependent on another question and numbering is unnecessary, this option can be used to remove the numbering. For example, "please specify" questions immediately after a set question."><input type="checkbox" name="question-slave" /> Slave</span>
+											</div>
+										</div>
+										<h3>Constraints</h3>
+										<a class="rb-question-constraint" href="javascript:void(0);">No constraints</a>
+										<button class="rb-question-constraint-change">Change</button>
+										<div class="rb-disable-logic">
+											<span title="A question may be greyed out until a lead question is answered based on logic configured in this option."><h3>Disable conditions</h3></span>
+											<a class="rb-question-disable-if" href="javascript:void(0);">Never disabled</a> 
+											<button class="rb-question-disable-if-change">Change</button>
+										</div>
+										<div class="rb-hide-logic">
+											<span title="A question may be hidden until a lead question is answered based on logic configured in this option."><h3>Hide conditions</h3></span>
+											<a class="rb-question-hide-if" href="javascript:void(0);">Always visible</a> 
+											<button class="rb-question-hide-if-change">Change</button>
+										</div>
+										<div class="rb-custom-titles-wrap">
+											<h3>Custom Titles</h3>
+											<div class="rb-custom-titles">
+											</div>
+											<button class="rb-custom-title-add">Add Custom Title</button>
+										</div>
                                     </div>
                                 </div>
                             </td>

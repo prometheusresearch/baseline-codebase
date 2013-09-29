@@ -17,6 +17,12 @@ function getRandomStr(len) {
     return text;
 }
 
+function truncateText(text, len) {
+    if (text.length > len)
+        return text.slice(0, len - 3) + "...";
+    return text;
+}
+
 function extend(Child, Parent) {
     var F = function() { };
     F.prototype = Parent.prototype;
@@ -2466,8 +2472,8 @@ $.RexFormsClient = function (o) {
                 };
                 self.raiseEvent('forwardError', eventRetData);
                 if (!eventRetData.cancel) {
+                    var wrongQuestion = page.findWrongQuestion();
                     var onDialogClose = function () {
-                        var wrongQuestion = page.findWrongQuestion();
                         if (wrongQuestion) {
                             var scrollTo = null;
                             if (wrongQuestion.editNode)
@@ -2478,10 +2484,17 @@ $.RexFormsClient = function (o) {
                                 scrollTo[0].scrollIntoView();
                         }
                     }
+                    var errorMessage;
+                    if (wrongQuestion) {
+                        errorMessage = "Please correct the following question: \n\n"
+                                        + truncateText(wrongQuestion.title, 50);
+                    } else {
+                        errorMessage = "There are missed required questions or wrong answers on "
+                            + "this page. Please correct the information you provided."
+                    }
                     self.showError(
                         null,
-                        "There are missed required questions or wrong answers on "
-                      + "this page. Please correct the information you provided.",
+                        errorMessage,
                         null,
                         onDialogClose);
                 }
@@ -2717,13 +2730,15 @@ $.RexFormsClient = function (o) {
             localStorage.setItem(this.getBookmarkName(), value);
     }
 
-
     this.showError = function (title, message, iframeContent, onClose) {
         var node = templates['errorDialog'].clone();
-        node.find('.rf-error-message:first').text(message);
+        var tempElement = $(document.createElement('div')).text(message);
+        node.find('.rf-error-message:first').html(
+            tempElement.html().replace(/\n/g,'<br/>')
+        );
         node.dialog({
             width: 500,
-            height: 150,
+            height: 200,
             modal: true,
             title: title || 'Error',
             buttons: {

@@ -230,7 +230,7 @@ dialogNS.PublishDialog = function (o) {
     this.temporaryDisableOk = function () {
         self.stopInterval();
         self.setButtonState(false);
-        downCounter = 1;
+        downCounter = 10;
         okBtnTitle.text('Ok (' + downCounter + ')');
         intervalId = setInterval(function () {
             if (downCounter > 1) {
@@ -413,7 +413,7 @@ dialogNS.EditParamDialog = function (o) {
     var template =
         '<div class="rb_edit_param_dialog">'
           + '<div>'
-          +     'Set identifier name:<br><input type="text" class="rb_edit_param_name" />'
+          +     'Set variable name:<br><input type="text" class="rb_edit_param_name" />'
           + '</div>'
           + '<div style="margin-top: 20px;">'
           +     'Type:<br>'
@@ -460,7 +460,7 @@ dialogNS.EditParamDialog = function (o) {
 
     node = node.dialog({
         autoOpen: false,
-        title: 'Edit Parameter',
+        title: 'Declare External Variable',
         width: 300,
         height: 230,
         modal: true,
@@ -486,7 +486,7 @@ dialogNS.EditParamDialog = function (o) {
         options.onChange = o.onChange || null;
         options.paramName = o.paramName || '';
         options.paramType = o.paramType || 'NUMBER';
-        options.dialogTitle = o.dialogTitle || 'Edit Parameter';
+        options.dialogTitle = o.dialogTitle || 'Declare External Variable';
         nameInput.val(options.paramName);
         typeInput.val(options.paramType);
         node.dialog('option', 'title', options.dialogTitle);

@@ -124,7 +124,7 @@
                 });
             });
         </script>
-        <div class="rb_left_part">
+        <div id="rb_left_part">
             <a href="{{ base_url|e }}/" class="rb-back-url">&larr; All Instruments</a>
             {# <div id="rb_instrument_name_wrap"><span id="rb_instrument_name">{{ instrument|e }}</span></div> #}
             <div id="rb_instrument_title_wrap">
@@ -141,9 +141,12 @@
                 <button class="rb_tools_button" id="rb_publish" style="float: right;">Publish</button>
             </div>
             <div class="rb_params_wrapper">
-                <button id="rb_params_add" class="rb_small_button rb_right_aligned">Add Parameter</button>
-                <span class="rb_small_title">Input parameters:</span>
-                <div id="rb_params_list">
+                <div><a href="javascript:void(0);" id="rb_advanced_trigger" title="Click to expand or collapse.">Advanced Options</a></div>
+                <div class="rb-advanced">
+                    <button id="rb_params_add" class="rb_small_button rb_right_aligned">Declare Variable</button>
+                    <span class="rb_small_title">External Variables: <span class="rb-info" title="These are parameters that you wish to reference in the form. For example, sex and age. The list of available parameters depends on current RexAcquire configuration."><img src="{{ MOUNT['rex.formbuilder'] }}/images/info-icon.png" /></span></span>
+                    <div id="rb_params_list">
+                    </div>
                 </div>
             </div>
             <div class="rb_pages_list_wrapper">

@@ -2241,6 +2241,15 @@ builder.init = function (o) {
         templates: builder.templates
     });
 
+    $('#rb_advanced_trigger').click(function () {
+        var sidebar = $('#rb_left_part');
+        if (sidebar.hasClass('rb-show-advanced')) {
+            sidebar.removeClass('rb-show-advanced');
+        } else {
+            sidebar.addClass('rb-show-advanced');
+        }
+    });
+
     $("#rb_show_json").click(function () {
         builder.showJSON();
     });

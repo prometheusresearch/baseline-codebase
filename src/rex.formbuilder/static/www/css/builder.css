@@ -207,7 +207,7 @@ body, p, div, td, input {
     background-position: bottom right;
 }
 
-.rb_left_part {
+#rb_left_part {
     background-color: white;
     position: absolute;
     top: 0px;
@@ -280,10 +280,14 @@ body, p, div, td, input {
 
 .rb_pages_list_wrapper {
     position: absolute;
-    top: 235px;
+    top: 150px;
     bottom: 0px;
     right: 10px;
     left: 10px;
+}
+
+.rb-show-advanced .rb_pages_list_wrapper {
+    top: 255px;
 }
 
 .rb_pages_list_header {
@@ -859,6 +863,10 @@ input.rb_identifier_input {
     margin-top: 5px;
 }
 
+a {
+    color: #586cb5;
+}
+
 a.rb-back-url {
     color: #586cb5;
     display: inline-block;
@@ -872,4 +880,22 @@ a.rb-back-url {
 
 .rb-question-edit {
     margin-right: 10px;
+}
+
+.rb-info {
+    cursor: help;
+}
+
+.rb-advanced {
+    display: none;
+    margin-top: 10px;
+}
+
+.rb-show-advanced .rb-advanced {
+    display: block;
+}
+
+#rb_advanced_trigger {
+    text-decoration: none;
+    border-bottom: 1px dotted #586cb5;
 }

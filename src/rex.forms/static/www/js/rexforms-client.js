@@ -512,7 +512,8 @@ EnumDomain.prototype.renderEdit = function (templates, value, onChange, customTi
     var thisDomain = this;
 
     if (this.dropDown) {
-        ret = $('<select>').addClass('rf-answer-select');
+        ret = $('<select>').addClass('rf-answer-select')
+                           .css({maxWidth: '100%'});
         var option = $('<option>');
         ret.append(option);
 

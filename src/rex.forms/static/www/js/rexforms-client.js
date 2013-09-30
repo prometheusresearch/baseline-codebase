@@ -2245,6 +2245,7 @@ var defaultTemplates = {
             + '<div class="rf-question-answers"></div>'
             + '<div class="rf-question-annotation"></div>'
             + '<div class="rf-question-explanation"></div>'
+            + '<div class="rf-question-help"></div>'
         + '</div>',
     'viewQuestion':
           '<div class="rf-question rf-question-view">'

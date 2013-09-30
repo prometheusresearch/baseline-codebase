@@ -4,7 +4,7 @@ import errno
 from urllib import quote
 
 from rex.web import Command, render_to_response, Parameter, authenticate
-from rex.core import Validate, StrVal, get_settings
+from rex.core import Validate, StrVal, BoolVal, get_settings
 from rex.core.error import guard, Error
 from rex.instrument import Assessment, BASE_INSTRUMENT_JSON
 from rex.rdoma import get_db
@@ -231,9 +231,10 @@ class DummySaveAssessment(FormBuilderBaseCommand):
         Parameter('assessment', StrVal()),
         Parameter('data', StrVal()),
         Parameter('form', StrVal()),
+        Parameter('completed', BoolVal(), False),
     ]
 
-    def render(self, req, assessment, data, form):
+    def render(self, req, assessment, data, form, completed):
         return Response(body='{"result" : true}')
 
 

@@ -284,7 +284,7 @@
                                         </div>
                                     </div>
                                     <div class="rb-question-advanced">
-                                        <div class="rb-question-advanced-title"><span title="These are options used to configure advanced options.">Advanced Options</span></div>
+                                        <div class="rb-question-advanced-title"><span title="These settings are used to configure advanced functionality of the form. Please make sure you read relevant instructions.">Advanced Options</span></div>
 										<div class="rb-question-checkboxes">
 											<div class="rb-question-checkbox">
 												<span title="This adds a 'I can't answer because' option below a question. The option allows a user to declare the reason they can not answer the question."><input type="checkbox" name="question-annotation" /> Has annotation</span>
@@ -296,7 +296,7 @@
 												<span title="Questions are numbered automatically. If a question is dependent on another question and numbering is unnecessary, this option can be used to remove the numbering. For example, "please specify" questions immediately after a set question."><input type="checkbox" name="question-slave" /> Slave</span>
 											</div>
 										</div>
-										<h3>Constraints</h3>
+										<h3 title="Rules you can specify to place restrictions on choices selected or values entered.">Constraints</h3>
 										<a class="rb-question-constraint" href="javascript:void(0);">No constraints</a>
 										<button class="rb-question-constraint-change">Change</button>
 										<div class="rb-disable-logic">
@@ -310,7 +310,7 @@
 											<button class="rb-question-hide-if-change">Change</button>
 										</div>
 										<div class="rb-custom-titles-wrap">
-											<h3>Custom Titles</h3>
+											<h3 title="Custom text for buttons used to add or remove repeated groups of questions. For example, 'Add Participating Physician', 'Add Procedure', 'Remove Participating Physician', etc.">Custom Titles</h3>
 											<div class="rb-custom-titles">
 											</div>
 											<button class="rb-custom-title-add">Add Custom Title</button>
@@ -430,7 +430,7 @@
 <div class="rb-box-absolute">
     <ul id="rb_instrument_tabs" class="rb-instrument-tabs">
         <li class="rb-instrument-tab">
-            <a href="javascript:void(0);" data-target="#rb_editable_forms" data-toggle="tab">Editable Forms</a>
+            <a href="javascript:void(0);" data-target="#rb_editable_forms" data-toggle="tab">Form Editor</a>
         </li>
         <li class="rb-instrument-tab">
             <a href="javascript:void(0);" data-target="#rb_published_forms" data-toggle="tab">Published Forms</a>
@@ -441,7 +441,7 @@
     </form>
     <div class="rb-instrument-tab-bodies">
         <div id="rb_editable_forms" class="rb-instrument-tab-body">
-            <h3>Editable Forms</h3>
+            <h3>Form Editor</h3>
             <ul class="rb-instrument-list">
             {% for form in rdoma('/~' + role + '/formbuilder{code, title, last_updated}') %}
                 <li class="rb-group-item">

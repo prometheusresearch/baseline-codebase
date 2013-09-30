@@ -1,26 +1,340 @@
 
-- table: family
-- column: family.code
+- table: study
+- column: study.code
   type: text
-- identity: [family.code]
+- identity: [study.code]
+- column: study.title
+  type: text
+- column: study.closed
+  type: boolean
+
+# TODO:
+# - table: study
+#   with:
+#   - column: code
+#     type: text
+#   - identity: [code]
+#   - column: title
+#     type: text
+#   - column: closed
+#     type: boolean
 
 - table: individual
-- link: individual.family
 - column: individual.code
   type: text
-- identity: [individual.family, individual.code]
+- identity: [individual.code]
 - column: individual.sex
-  type: [male, female, intersex]
+  type: [not-known, male, female, not-applicable]
 - link: individual.mother
   to: individual
+  required: false
 - link: individual.father
   to: individual
+  required: false
 - link: individual.adopted_mother
   to: individual
+  required: false
 - link: individual.adopted_father
   to: individual
-- column: individual.dob
+  required: false
+
+# TODO:
+# - table: individual
+#   with:
+#   - column: code
+#     type: text
+#   - identity: [code]
+#   - column: sex
+#     type: [not-known, male, female, not-applicable]
+#   - link: mother
+#     to: individual
+#     required: false
+#   - link: father
+#     to: individual
+#     required: false
+#   - link: adopted_mother
+#     to: individual
+#     required: false
+#   - link: adopted_father
+#     to: individual
+#     required: false
+
+- table: identity
+- link: identity.individual
+- identity: [identity.individual]
+- column: identity.givenname
+  type: text
+  required: false
+- column: identity.middle
+  type: text
+  required: false
+- column: identity.surname
+  type: text
+  required: false
+- column: identity.birthdate
   type: date
-- column: individual.dead
+  required: false
+- column: identity.notes
+  type: text
+  required: false
+
+- table: case_type
+- column: case_type.code
+  type: text
+- identity: [case_type.code]
+- link: case_type.study
+  required: false
+
+- table: role
+- link: role.case_type
+- column: role.code
+  type: text
+- identity: [role.case_type, role.code]
+- column: role.title
+  type: text
+- column: role.singular
   type: boolean
+
+- table: case
+- link: case.case_type
+- column: case.code
+  type: text
+- identity: [case.case_type, case.code]
+- link: case.study
+  required: false
+
+- table: participation
+- link: participation.case
+- link: participation.individual
+- identity: [participation.case, participation.individual]
+- link: participation.role
+  required: false
+
+- table: sample_type
+- column: sample_type.code
+  type: text
+- identity: [sample_type.code]
+
+- table: sample
+- link: sample.individual
+- link: sample.sample_type
+- column: sample.code
+  type: text
+- identity: [sample.individual, sample.sample_type, sample.code]
+
+- table: measure_type
+- column: measure_type.code
+  type: text
+- identity: [measure_type.code]
+- column: measure_type.title
+  type: text
+
+- table: measure_type_version
+- link: measure_type_version.measure_type
+- column: measure_type_version.version
+  type: integer
+- identity: [measure_type_version.measure_type, measure_type_version.version]
+- column: measure_type_version.json
+  type: text
+
+- table: measure
+- link: measure.individual
+- link: measure.measure_type_version
+- column: measure.no
+  type: integer
+- identity: [measure.individual, measure.measure_type_version, measure.no]
+- column: measure.json
+  type: text
+  required: false
+- column: measure.date_of_evaluation
+  type: date
+  required: false
+- column: measure.age_at_evaluation
+  type: integer
+  required: false
+- column: measure.data_entry_status
+  type: [in-process, processed, completed]
+- column: measure.last_modified
+  type: datetime
+  required: false
+- link: measure.originating_study
+  to: study
+  required: false
+
+
+- table: disorder_type
+- column: disorder_type.code
+  type: text
+- identity: [disorder_type.code]
+- column: disorder_type.title
+  type: text
+
+- table: disorder
+- link: disorder.disorder_type
+- column: disorder.code
+  type: text
+- identity: [disorder.disorder_type, disorder.code]
+- column: disorder_type.title
+  type: text
+
+- table: condition
+- link: condition.individual
+- link: condition.disorder_type
+- column: condition.code
+  type: text
+- identity: [condition.individual, condition.disorder_type, condition.code]
+
+- table: consent_type
+- column: consent_type.code
+  type: text
+- identity: [consent_type.code]
+- column: consent_type.title
+  type: text
+- column: consent_type.language
+  type: text
+  required: false
+- column: consent_type.expires_in_month
+  type: integer
+  required: false
+
+- table: consent
+- link: consent.individual
+- link: consent.consent_type
+- column: consent.date_signed
+  type: date
+- identity: [consent.individual, consent.consent_type, consent.date_signed]
+- column: consent.expires
+  type: date
+  required: false
+- column: consent.status
+  type: [confirmed, rejected, in-progress]
+
+- table: consent_presented
+- link: consent_presented.individual
+- link: consent_presented.consent_type
+- column: consent_presented.date_signed
+  type: date
+- identity: [consent_presented.individual,
+             consent_presented.consent_type,
+             consent_presented.date_signed]
+
+- table: study_consent
+- link: study_consent.study
+- link: study_consent.consent_type
+- identity: [study_consent.study, study_consent.consent_type]
+
+- table: visit
+- link: visit.study
+- column: visit.code
+  type: text
+- identity: [visit.study, visit.code]
+- column: visit.title
+  type: text
+
+- table: protocol
+- link: protocol.study
+- column: protocol.code
+  type: text
+- identity: [protocol.study, protocol.code]
+- column: protocol.title
+  type: text
+
+- table: requirement_type
+- column: requirement_type.code
+  type: text
+- identity: [requirement_type.code]
+
+- table: requirement
+- link: requirement.protocol
+- link: requirement.requirement_type
+- column: requirement.code
+  type: text
+- identity: [requirement.protocol, requirement.requirement_type, requirement.code]
+- column: requirement.title
+  type: text
+- link: requirement.visit
+  required: false
+- column: requirement.priority
+  type: integer
+
+- table: measure_requirement
+- link: measure_requirement.requirement
+- link: measure_requirement.measure_type
+- identity: [measure_requirement.requirement, measure_requirement.measure_type]
+
+- table: protocol_participation
+- link: protocol_participation.individual
+- link: protocol_participation.protocol
+- column: protocol_participation.code
+  type: text
+- identity: [protocol_participation.individual,
+             protocol_participation.protocol,
+             protocol_participation.code]
+- column: protocol_participation.legacy_id
+  type: text
+  required: false
+
+- table: todo
+- link: todo.protocol_participation
+- column: todo.code
+  type: text
+- identity: [todo.protocol_participation, todo.code]
+- column: todo.title
+  type: text
+- column: todo.status
+  type: [not-started, complete, skipped]
+- link: todo.requirement
+  required: false
+
+- table: measure_todo
+- link: measure_todo.todo
+- identity: [measure_todo.todo]
+
+- table: staff
+- column: staff.code
+  type: text
+- identity: [staff.code]
+
+- table: appointment_type
+- column: appointment_type.code
+  type: text
+- identity: [appointment_type.code]
+
+- table: appointment
+- link: appointment.appointment_type
+- column: appointment.code
+  type: text
+- identity: [appointment.appointment_type, appointment.code]
+- column: appointment.date
+  type: date
+- column: appointment.start_time
+  type: text
+- column: appointment.end_time
+  type: text
+- column: appointment.outcome
+  type: [scheduled, cancelled, rescheduled, held]
+- column: appointment.date_scheduled
+  type: date
+- column: appointment.time_scheduled
+  type: text
+
+- table: individual_appointment
+- link: individual_appointment.individual
+- link: individual_appointment.appointment
+- identity: [individual_appointment.individual,
+             individual_appointment.appointment]
+
+- table: staff_appointment
+- link: staff_appointment.staff
+- link: staff_appointment.appointment
+- identity: [staff_appointment.staff, staff_appointment.appointment]
+- column: staff_appointment.role
+  type: text
+  required: false
+
+- table: requirement_appointment
+- link: requirement_appointment.todo
+- link: requirement_appointment.appointment
+- identity: [requirement_appointment.todo, requirement_appointment.appointment]
+
 

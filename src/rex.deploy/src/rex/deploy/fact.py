@@ -140,6 +140,7 @@ class ColumnFact(Fact):
                                         "float", "text", "date", "time",
                                         "datetime"),
                               SeqVal(StrVal()))),
+            ('required', BoolVal(), True),
             ('present', BoolVal(),  True),
     ]
 
@@ -178,7 +179,8 @@ class ColumnFact(Fact):
                 }
                 type = system_schema.types[type_mapping[self.type]]
             column = table.add_column(name, type, True)
-            sql = add_column(table.name, column.name, column.type.name, True)
+            sql = add_column(table.name, column.name, column.type.name,
+                             (not self.required))
             driver.submit(sql)
         else:
             if table_name not in schema:
@@ -198,6 +200,7 @@ class LinkFact(Fact):
             ('link', StrVal(r'\w+(?:\.\w+)?')),
             ('of', MaybeVal(StrVal(r'\w+')), None),
             ('to', MaybeVal(StrVal(r'\w+')), None),
+            ('required', BoolVal(), True),
             ('present', BoolVal(),  True),
     ]
 
@@ -224,14 +227,15 @@ class LinkFact(Fact):
             if name in table:
                 return
             type = system_schema.types["int4"]
-            column = table.add_column(name, type, True)
+            column = table.add_column(name, type, (not self.required))
             target_table = schema[target_table_name]
             if "id" not in target_table:
                 raise Error("Missing ID column from target table:", self.to)
             target_column = target_table["id"]
             key = table.add_foreign_key(constraint_name, [column],
                                         target_table, [target_column])
-            sql = add_column(table.name, column.name, column.type.name, True)
+            sql = add_column(table.name, column.name, column.type.name,
+                             (not self.required))
             driver.submit(sql)
             sql = add_foreign_key_constraint(table.name, key.name,
                                              [column.name], target_table.name,

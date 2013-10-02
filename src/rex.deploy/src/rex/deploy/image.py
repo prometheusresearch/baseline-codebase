@@ -88,6 +88,9 @@ class ImageMap(object):
     def get(self, name, default=None):
         return self._image_by_name.get(name, default)
 
+    def index(self, name):
+        return self._names.index(name)
+
     def add(self, image):
         name = image.name
         if name in self._image_by_name:
@@ -223,6 +226,8 @@ class TypeImage(NamedImage):
     # Type.
 
     __slots__ = ()
+    is_domain = False
+    is_enum = False
 
     def __init__(self, schema, name):
         super(TypeImage, self).__init__(weakref.ref(schema), name)
@@ -264,6 +269,7 @@ class DomainTypeImage(TypeImage):
     # Domain type.
 
     __slots__ = ('base_type',)
+    is_domain = True
 
     def __init__(self, schema, name, base_type):
         super(DomainTypeImage, self).__init__(schema, name)
@@ -274,6 +280,7 @@ class EnumTypeImage(TypeImage):
     # `ENUM` type.
 
     __slots__ = ('labels',)
+    is_enum = True
 
     def __init__(self, schema, name, labels):
         super(EnumTypeImage, self).__init__(schema, name)
@@ -284,7 +291,8 @@ class TableImage(NamedImage):
     # Database table.
 
     __slots__ = ('columns', 'constraints', 'primary_key', 'unique_keys',
-                 'foreign_keys', 'referring_foreign_keys', '__weakref__')
+                 'foreign_keys', 'referring_foreign_keys', 'data',
+                 '__weakref__')
 
     def __init__(self, schema, name):
         super(TableImage, self).__init__(weakref.ref(schema), name)
@@ -294,6 +302,7 @@ class TableImage(NamedImage):
         self.unique_keys = []
         self.foreign_keys = []
         self.referring_foreign_keys = []
+        self.data = None
         schema.tables.add(self)
 
     @property
@@ -326,6 +335,8 @@ class TableImage(NamedImage):
             self.constraints.last().remove()
         while self.columns:
             self.columns.last().remove()
+        if self.data is not None:
+            self.data.remove()
         super(TableImage, self).remove()
 
     def add_column(self, name, type, is_nullable):
@@ -343,6 +354,9 @@ class TableImage(NamedImage):
     def add_foreign_key(self, name, columns, target, target_columns):
         return ForeignKeyImage(self, name, columns, target, target_columns)
 
+    def add_data(self, rows):
+        return DataImage(self, rows)
+
 
 class ColumnImage(NamedImage):
     # Database column.
@@ -354,6 +368,8 @@ class ColumnImage(NamedImage):
         table.columns.add(self)
         self.type = type
         self.is_nullable = is_nullable
+        if table.data is not None:
+            table.data.remove()
 
     @property
     def table(self):
@@ -399,6 +415,8 @@ class ColumnImage(NamedImage):
         for foreign_key in self.referring_foreign_keys:
             foreign_key.remove()
         self.table.columns.remove(self)
+        if self.table.data is not None:
+            self.table.data.remove()
         super(ColumnImage, self).remove()
 
 
@@ -439,6 +457,8 @@ class UniqueKeyImage(ConstraintImage):
             assert origin.primary_key is None
             origin.primary_key = self
         origin.unique_keys.append(self)
+        if origin.data is not None:
+            origin.data.remove()
 
     def __contains__(self, column):
         return (column in self.origin_columns)
@@ -453,6 +473,8 @@ class UniqueKeyImage(ConstraintImage):
         return len(self.origin_columns)
 
     def remove(self):
+        if origin.data is not None:
+            origin.data.remove()
         self.origin.unique_keys.remove(self)
         if self.is_primary:
             self.origin.primary_key = None
@@ -492,5 +514,63 @@ class ForeignKeyImage(ConstraintImage):
         self.origin.foreign_keys.remove(self)
         self.target.referring_foreign_keys.remove(self)
         super(ForeignKeyImage, self).remove()
+
+
+class DataImage(Image):
+
+    __slots__ = ('masks', 'indexes')
+
+    def __init__(self, table, rows):
+        super(DataImage, self).__init__(weakref.ref(table))
+        self.masks = {}
+        self.indexes = {}
+        for key in table.unique_keys:
+            mask = tuple(table.columns.index(column.name) for column in key)
+            index = {}
+            for row in rows:
+                handle = tuple(row[idx] for idx in mask)
+                if None not in handle:
+                    index[handle] = row
+            self.masks[key] = mask
+            self.indexes[key] = index
+        table.data = self
+
+    @property
+    def table(self):
+        return self.owner()
+
+    def remove(self):
+        self.table.data = None
+        super(DataImage, self).remove()
+
+    def insert(self, new_row):
+        for key in self.table.unique_keys:
+            mask = self.masks[key]
+            index = self.indexes[key]
+            handle = tuple(new_row[idx] for idx in mask)
+            if None not in handle:
+                index[handle] = new_row
+
+    def update(self, old_row, new_row):
+        for key in self.table.unique_keys:
+            mask = self.masks[key]
+            index = self.indexes[key]
+            old_handle = tuple(old_row[idx] for idx in mask)
+            if None not in old_handle:
+                del index[old_handle]
+            new_handle = tuple(new_row[idx] for idx in mask)
+            if None not in new_handle:
+                index[new_handle] = new_row
+
+    def delete(self, old_row):
+        for key in self.table.unique_keys:
+            mask = self.masks[key]
+            index = self.indexes[key]
+            handle = tuple(old_row[idx] for idx in mask)
+            if None not in handle:
+                del index[handle]
+
+    def get(self, key, handle, default=None):
+        return self.indexes[key].get(handle, default)
 
 

@@ -32,9 +32,9 @@ class Cluster(object):
             parameters['password'] = self.db.password
         try:
             connection = psycopg2.connect(**parameters)
+            connection.set_client_encoding('UTF8')
             if autocommit:
-                connection.set_isolation_level(
-                                psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+                connection.autocommit = True
         except psycopg2.Error, error:
             raise Error("Failed to connect to the database server:", error)
         return connection

@@ -9,7 +9,9 @@ from .introspect import introspect
 from .write import (mangle, create_table, drop_table, define_column,
         add_column, drop_column, add_unique_constraint,
         add_foreign_key_constraint, drop_constraint,
-        create_enum_type, drop_type)
+        create_enum_type, drop_type, select, insert, update)
+import csv
+import htsql.core.domain
 import yaml
 
 
@@ -31,13 +33,16 @@ class Driver(object):
     def __call__(self, facts):
         for fact in facts:
             fact(self)
-        cursor = self.connection.cursor()
-        for sql in self.output:
-            print sql
-            cursor.execute(sql)
 
     def submit(self, sql):
-        self.output.append(sql)
+        cursor = self.connection.cursor()
+        try:
+            print sql
+            cursor.execute(sql)
+            if cursor.description is not None:
+                return cursor.fetchall()
+        finally:
+            cursor.close()
 
 
 class Fact(Extension):
@@ -297,6 +302,128 @@ class IdentityFact(Fact):
         sql = add_unique_constraint(table.name, key.name,
                                     [column.name for column in columns], True)
         driver.submit(sql)
+
+
+class DataFact(Fact):
+
+    fields = [
+            ('data', StrVal()),
+            ('of', StrVal(r'\w+')),
+    ]
+
+    def __call__(self, driver):
+        schema = driver.get_schema()
+        table_name = mangle(self.of)
+        if table_name not in schema:
+            raise Error("Unknown table:", self.of)
+        table = schema[self.of]
+        if table.primary_key is None:
+            raise Error("Table without identity:", self.of)
+
+        if table.data is None:
+            sql = select(table.name, [column.name for column in table])
+            rows = driver.submit(sql)
+            table.add_data(rows)
+
+        reader = csv.reader(self.data.splitlines())
+        names = next(reader)
+        rows = list(reader)
+
+        columns = []
+        mask = []
+        for name in names:
+            name = mangle(name)
+            if name not in table:
+                raise Error("Unknown field:", name)
+            column = table[name]
+            if column in columns:
+                raise Error("Duplicate field:", name)
+            columns.append(column)
+            mask.append(table.columns.index(column.name))
+
+        key_mask = []
+        for column in table.primary_key:
+            if column not in columns:
+                raise Error("Missing identity column:", column.name)
+            key_mask.append(columns.index(column))
+
+        parsers = []
+        for column in columns:
+            type = column.type
+            while type.is_domain:
+                type = type.base_type
+            if type.is_enum:
+                def parse_enum(text, labels=type.labels):
+                    if text is None:
+                        return None
+                    if text not in labels:
+                        raise ValueError(text)
+                    return text
+                parsers.append(parse_enum)
+            elif type.schema.name == 'pg_catalog':
+                if type.name == 'bool':
+                    parsers.append(htsql.core.domain.BooleanDomain.parse)
+                elif type.name in ['int2', 'int4', 'int8']:
+                    parsers.append(htsql.core.domain.IntegerDomain.parse)
+                elif type.name in ['float4', 'float8']:
+                    parsers.append(htsql.core.domain.FloatDomain.parse)
+                elif type.name == 'numeric':
+                    parsers.append(htsql.core.domain.DecimalDomain.parse)
+                elif type.name in ['bpchar', 'varchar', 'text']:
+                    parsers.append(htsql.core.domain.TextDomain.parse)
+                elif type.name == 'date':
+                    parsers.append(htsql.core.domain.DateDomain.parse)
+                elif type.name in ['time', 'timetz']:
+                    parsers.append(htsql.core.domain.TimeDomain.parse)
+                elif type.name in ['timestamp', 'timestamptz']:
+                    parsers.append(htsql.core.domain.DateTimeDomain.parse)
+                else:
+                    parsers.append(htsql.core.domain.OpaqueDomain.parse)
+            else:
+                parsers.append(htsql.core.domain.OpaqueDomain.parse)
+
+        raw_rows = rows
+        rows = []
+        for raw_row in raw_rows:
+            row = []
+            for text, parser in zip(raw_row, parsers):
+                if not text:
+                    data = None
+                else:
+                    try:
+                        data = parser(text.decode('utf-8'))
+                    except ValueError, exc:
+                        raise Error(str(exc))
+                row.append(data)
+            rows.append(tuple(row))
+
+        for partial in rows:
+            handle = tuple(partial[idx] for idx in key_mask)
+            old_row = table.data.get(table.primary_key, handle)
+            if old_row is None:
+                sql = insert(table.name, [column.name for column in columns],
+                             partial, [column.name for column in table.columns])
+                output = driver.submit(sql)
+                assert len(output) == 1
+                table.data.insert(output[0])
+            else:
+                old_partial = tuple(old_row[idx] for idx in mask)
+                if old_partial != partial:
+                    updated_names = []
+                    updated_values = []
+                    for column, old_data, data in zip(columns,
+                                                      old_partial, partial):
+                        if old_data != data:
+                            updated_names.append(column.name)
+                            updated_values.append(data)
+                    sql = update(table.name,
+                                 tuple(columns[idx].name for idx in key_mask),
+                                 handle,
+                                 updated_names, updated_values,
+                                 [column.name for column in table.columns])
+                    output = driver.submit(sql)
+                    assert len(output) == 1
+                    table.data.update(old_row, output[0])
 
 
 def get_facts():

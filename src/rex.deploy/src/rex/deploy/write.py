@@ -173,3 +173,57 @@ def drop_type(name):
                 dquote(name))
 
 
+def select(table_name, names):
+    return u"SELECT {}\n    FROM {};".format(
+                dquote(names),
+                dquote(table_name))
+
+
+def insert(table_name, names, values, returning_names=None):
+    lines = []
+    if names:
+        lines.append(u"INSERT INTO {} ({})".format(
+                    dquote(table_name),
+                    dquote(names)))
+    else:
+        lines.append(u"INSERT INTO {}".format(dquote(table_name)))
+    if values:
+        lines.append(u"    VALUES ({})".format(quote(values)))
+    else:
+        lines.append(u"    DEFAULT VALUES")
+    if returning_names:
+        lines.append(u"    RETURNING {}".format(dquote(returning_names)))
+    return u"\n".join(lines)+u";"
+
+
+def update(table_name, key_name, key_value, names, values,
+           returning_names=None):
+    lines = []
+    lines.append(u"UPDATE {}".format(dquote(table_name)))
+    if names and values:
+        lines.append(u"    SET {}".format(
+                    u", ".join(u"{} = {}".format(
+                                dquote(name),
+                                quote(value))
+                               for name, value in zip(names, values))))
+    else:
+        lines.append(u"    SET {} = {}".format(
+                    dquote(key_name),
+                    quote(key_value)))
+    lines.append(u"    WHERE {} = {}".format(
+                dquote(key_name),
+                quote(key_value)))
+    if returning_names:
+        lines.append(u"    RETURNING {}".format(dquote(returning_names)))
+    return u"\n".join(lines)+u";"
+
+
+def delete(table_name, key_name, key_value):
+    lines = []
+    lines.append(u"DELETE FROM {}".format(dquote(table_name)))
+    lines.append(u"    WHERE {} = {}".format(
+                dquote(key_name),
+                quote(key_value)))
+    return u"\n".join(lines)+u";"
+
+

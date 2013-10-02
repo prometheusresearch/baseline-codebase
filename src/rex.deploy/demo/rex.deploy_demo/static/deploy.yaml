@@ -8,6 +8,14 @@
 - column: study.closed
   type: boolean
 
+- data: |
+    code,title,closed
+    fos,Family Obesity Study,false
+    asdl,Autism Spectrum Disorder Lab,false
+    des,Dennis Exercise Study,false
+    puis,Prometheus University Intelligence Study,true
+  of: study
+
 # TODO:
 # - table: study
 #   with:

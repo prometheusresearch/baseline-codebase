@@ -36,7 +36,6 @@ def introspect(connection):
         SELECT t.oid, t.typnamespace, t.typname, t.typtype,
                t.typbasetype, t.typlen, t.typtypmod, t.typdefault
         FROM pg_catalog.pg_type t
-        JOIN pg_catalog.pg_namespace n ON (t.typnamespace = n.oid)
         ORDER BY t.typnamespace, t.typname
     """)
     for (oid, typnamespace, typname, typtype,

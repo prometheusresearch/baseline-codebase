@@ -25,7 +25,11 @@ setup(
         'rex.core',
         'rex.db',
     ],
+    entry_points = {
+        'htsql.addons': ['rex_deploy = htsql_rex_deploy:DeployAddon'],
+    },
     rex_init='rex.deploy',
+    rex_static='static',
 )
 
 

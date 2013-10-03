@@ -37,7 +37,7 @@ class Driver(object):
     def submit(self, sql):
         cursor = self.connection.cursor()
         try:
-            print sql
+            #print sql
             cursor.execute(sql)
             if cursor.description is not None:
                 return cursor.fetchall()
@@ -331,15 +331,28 @@ class DataFact(Fact):
 
         columns = []
         mask = []
+        targets = {}
         for name in names:
             name = mangle(name)
-            if name not in table:
-                raise Error("Unknown field:", name)
-            column = table[name]
-            if column in columns:
-                raise Error("Duplicate field:", name)
-            columns.append(column)
-            mask.append(table.columns.index(column.name))
+            if name in table:
+                column = table[name]
+                if column in columns:
+                    raise Error("Duplicate field:", name)
+                columns.append(column)
+                mask.append(table.columns.index(column.name))
+            else:
+                name = mangle(name, 'id')
+                if name in table:
+                    column = table[name]
+                    if column in columns:
+                        raise Error("Duplicate field:", name)
+                    columns.append(column)
+                    mask.append(table.columns.index(column.name))
+                    assert len(column.foreign_keys) == 1
+                    target = column.foreign_keys[0].target
+                    targets[column] = target
+                else:
+                    raise Error("Unknown field:", name)
 
         key_mask = []
         for column in table.primary_key:
@@ -349,38 +362,7 @@ class DataFact(Fact):
 
         parsers = []
         for column in columns:
-            type = column.type
-            while type.is_domain:
-                type = type.base_type
-            if type.is_enum:
-                def parse_enum(text, labels=type.labels):
-                    if text is None:
-                        return None
-                    if text not in labels:
-                        raise ValueError(text)
-                    return text
-                parsers.append(parse_enum)
-            elif type.schema.name == 'pg_catalog':
-                if type.name == 'bool':
-                    parsers.append(htsql.core.domain.BooleanDomain.parse)
-                elif type.name in ['int2', 'int4', 'int8']:
-                    parsers.append(htsql.core.domain.IntegerDomain.parse)
-                elif type.name in ['float4', 'float8']:
-                    parsers.append(htsql.core.domain.FloatDomain.parse)
-                elif type.name == 'numeric':
-                    parsers.append(htsql.core.domain.DecimalDomain.parse)
-                elif type.name in ['bpchar', 'varchar', 'text']:
-                    parsers.append(htsql.core.domain.TextDomain.parse)
-                elif type.name == 'date':
-                    parsers.append(htsql.core.domain.DateDomain.parse)
-                elif type.name in ['time', 'timetz']:
-                    parsers.append(htsql.core.domain.TimeDomain.parse)
-                elif type.name in ['timestamp', 'timestamptz']:
-                    parsers.append(htsql.core.domain.DateTimeDomain.parse)
-                else:
-                    parsers.append(htsql.core.domain.OpaqueDomain.parse)
-            else:
-                parsers.append(htsql.core.domain.OpaqueDomain.parse)
+            parsers.append(self._column_domain(column).parse)
 
         raw_rows = rows
         rows = []
@@ -398,6 +380,16 @@ class DataFact(Fact):
             rows.append(tuple(row))
 
         for partial in rows:
+            if targets:
+                old_partial = partial
+                partial = []
+                for item, column in zip(old_partial, columns):
+                    if column not in targets or item is None:
+                        partial.append(item)
+                    else:
+                        target = targets[column]
+                        partial.append(self._resolve(target, item))
+                partial = tuple(partial)
             handle = tuple(partial[idx] for idx in key_mask)
             old_row = table.data.get(table.primary_key, handle)
             if old_row is None:
@@ -424,6 +416,60 @@ class DataFact(Fact):
                     output = driver.submit(sql)
                     assert len(output) == 1
                     table.data.update(old_row, output[0])
+
+    def _column_domain(self, column):
+        if column.foreign_keys:
+            target = column.foreign_keys[0].target
+            labels = [self._column_domain(column)
+                      for column in target.primary_key]
+            return htsql.core.domain.IdentityDomain(labels)
+        type = column.type
+        while type.is_domain:
+            type = type.base_type
+        if type.is_enum:
+            labels = [label.decode('utf-8') for label in type.labels]
+            return htsql.core.domain.EnumDomain(labels)
+        elif type.schema.name == 'pg_catalog':
+            if type.name == 'bool':
+                return htsql.core.domain.BooleanDomain()
+            elif type.name in ['int2', 'int4', 'int8']:
+                return htsql.core.domain.IntegerDomain()
+            elif type.name in ['float4', 'float8']:
+                return htsql.core.domain.FloatDomain()
+            elif type.name == 'numeric':
+                return htsql.core.domain.DecimalDomain()
+            elif type.name in ['bpchar', 'varchar', 'text']:
+                return htsql.core.domain.TextDomain()
+            elif type.name == 'date':
+                return htsql.core.domain.DateDomain()
+            elif type.name in ['time', 'timetz']:
+                return htsql.core.domain.TimeDomain()
+            elif type.name in ['timestamp', 'timestamptz']:
+                return htsql.core.domain.DateTimeDomain()
+            else:
+                return htsql.core.domain.OpaqueDomain()
+        else:
+            return htsql.core.domain.OpaqueDomain()
+
+    def _resolve(self, table, identity):
+        if table.data is None:
+            sql = select(table.name, [column.name for column in table])
+            rows = driver.submit(sql)
+            table.add_data(rows)
+        handle = []
+        for item, column in zip(identity, table.primary_key):
+            if not column.foreign_keys:
+                handle.append(item)
+            else:
+                target = column.foreign_keys[0].target
+                item = self._resolve(target, item)
+                handle.append(item)
+        handle = tuple(handle)
+        row = table.data.get(table.primary_key, handle)
+        if row is None:
+            raise Error("Cannot find record:",
+                        "%s[%s]" % (table.name, identity))
+        return row[0]
 
 
 def get_facts():

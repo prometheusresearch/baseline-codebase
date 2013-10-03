@@ -26,7 +26,6 @@ setup(
         'rex.db',
     ],
     rex_init='rex.deploy',
-    rex_static='static',
 )
 
 

@@ -75,6 +75,21 @@ function objSize(obj) {
     return size;
 }
 
+function initYearSelector(selectYear, yearFrom, yearTo) {
+    var currentYear = new Date().getFullYear();
+    selectYear.children(':not(:first)').remove();
+    var initialYearFrom = yearFrom;
+    if (!yearFrom)
+        yearFrom = (yearTo ? yearTo : currentYear) - 80;
+    if (!yearTo)
+        yearTo = (initialYearFrom ? initialYearFrom : currentYear) + 80;
+    for (var year = yearFrom; year <= yearTo; year++) {
+        selectYear.append(
+            $('<option value="' + year + '">' + year + '</option>')
+        );
+    }
+}
+
 function findParentWithClass(obj, cls) {
     var form = null;
     while (obj) {
@@ -321,8 +336,16 @@ TextDomain.prototype.isValidValue = function(value) {
     return (value === null || (typeof value === 'string'));
 };
 
-var DateDomain = function() {
+var DateDomain = function(options) {
     Domain.call(this, 'date');
+    var range = options.range || {};
+    this.yearFrom = range.from || null;
+    this.yearTo = range.to || null;
+    if (this.yearFrom && this.yearFrom < 1900 ||
+        this.yearTo && this.yearTo < 1900 ||
+        this.yearFrom && this.yearTo &&  this.yearFrom > this.yearTo)
+        throw("InvalidConfig: wrong year range: yearFrom=" + this.yearFrom
+                + ", yearTo=" + this.yearTo);
 };
 extend(DateDomain, Domain);
 DateDomain.prototype.setDays = function (selectDays, days) {
@@ -367,6 +390,9 @@ DateDomain.prototype.renderEdit = function (templates, value, onChange, customTi
     var selectDay = node.find('.rf-datepicker-day');
     var selectMonth = node.find('.rf-datepicker-month');
     var selectYear = node.find('.rf-datepicker-year');
+
+    if (self.yearFrom || self.yearTo)
+        initYearSelector(selectYear, self.yearFrom, self.yearTo);
 
     selectYear.change(function () {
         selectMonth.trigger('change');
@@ -896,6 +922,10 @@ var domain = {
         var questionType = def.type;
 
         switch(questionType) {
+        case "date":
+            return this.get(questionType, {
+                'range': def.range || {}
+            });
         case "enum":
             return this.get(questionType, {
                 'variants': def.answers,
@@ -2370,11 +2400,7 @@ $.RexFormsClient = function (o) {
         if (key === "datepicker") {
             var currentYear = new Date().getFullYear();
             var selectYear = templates[key].find('.rf-datepicker-year');
-            for (var year = currentYear - 80; year <= currentYear + 80; year++) {
-                selectYear.append(
-                    $('<option value="' + year + '">' + year + '</option>')
-                );
-            }
+            initYearSelector(selectYear, currentYear - 80, currentYear + 80);
             var selectDay = templates[key].find('.rf-datepicker-day');
             DateDomain.prototype.setDays(selectDay, 30);
         }

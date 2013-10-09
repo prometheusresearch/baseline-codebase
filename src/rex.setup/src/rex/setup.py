@@ -3,17 +3,21 @@
 #
 
 
-# Distutils extension for distributing static files and providing
-# additional metadata.
+# Distutils extension for distributing static files, providing metadata
+# for RexDB extension mechanism, and downloading external dependencies.
 
 
 import sys
 import re
 import os, os.path
 import shutil
+import urllib2
+import cStringIO
+import zipfile
+import hashlib
 import distutils.log, distutils.errors, distutils.dir_util
 import setuptools, setuptools.command.install, setuptools.command.develop, \
-        setuptools.archive_util
+        setuptools.command.egg_info, setuptools.archive_util
 import pkg_resources
 
 
@@ -34,6 +38,19 @@ def check_static(dist, attr, value):
     if not os.path.isdir(value):
         raise distutils.errors.DistutilsSetupError(
                 "%s %r is not a directory" % (attr, value))
+
+
+def check_download(dist, attr, value):
+    # Verify that the value is a dictionary mapping a directory
+    # to a list of URLs.
+    if not (isinstance(value, dict) and
+            all(isinstance(key, str) for key in value) and
+            all(isinstance(value[key], list) for key in value) and
+            all(isinstance(item, str) for key in value
+                                      for item in value[key])):
+        raise distutils.errors.DistutilsSetupError(
+                "%s must be a dictionary that maps"
+                " a directory to a list of URLs" % attr)
 
 
 def write_init_txt(cmd, basename, filename):
@@ -151,6 +168,98 @@ class develop_rex(setuptools.Command):
                 "Linking %s to %s" % (filename, target))
 
 
+class download_rex(setuptools.Command):
+    # Download 3rd-party non-Python dependencies specified by the
+    # `rex_download` parameter.
+
+    description = "download external dependencies"
+
+    user_options = []
+
+    def initialize_options(self):
+        # The `rex_download` parameter of `setup()`.
+        self.rex_download = self.distribution.rex_download
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        # If `rex_download` is not set, there's nothing to do.
+        if not self.rex_download:
+            return
+        # Loop over base directories.
+        for base in sorted(self.rex_download):
+            # Skip if the base directory is already populated.
+            if os.path.exists(base):
+                continue
+            # Create the directory.
+            os.makedirs(base)
+            try:
+                # Populate the directory from a set of URLs.
+                for url in self.rex_download[base]:
+                    # Extract the MD5 hash from the URL.
+                    md5_hash = None
+                    if '#' in url:
+                        url, fragment = url.split('#', 1)
+                        if fragment.startswith('md5='):
+                            md5_hash = fragment.split('=', 1)[1]
+                    # Download the URL.
+                    distutils.log.info("downloading %s into %s"
+                                       % (url, base))
+                    try:
+                        stream = urllib2.urlopen(url)
+                        data = stream.read()
+                        stream.close()
+                    except urllib2.HTTPError, exc:
+                        raise distutils.errors.DistutilsSetupError(
+                                "failed to download %s: %s" % (url, exc))
+                    digest = hashlib.md5(data).hexdigest()
+                    # Verify the MD5 hash.
+                    if not md5_hash:
+                        distutils.log.warn("missing md5 signature for %s" % url)
+                    elif digest != md5_hash:
+                        raise distutils.errors.DistutilsSetupError(
+                                "md5 signature does not match for %s"
+                                " (expected: %s, got %s)"
+                                % (url, md5_hash, digest))
+                    # If the URL is a ZIP archive, unpack it into
+                    # the base directory.
+                    if url.endswith('.zip'):
+                        archive = zipfile.ZipFile(cStringIO.StringIO(data))
+                        entries = archive.infolist()
+                        assert entries
+                        # We strip the common prefix from all filenames in
+                        # the archive.
+                        common = entries[0].filename
+                        if not (common.endswith('/') and
+                                all(entry.filename.startswith(common)
+                                    for entry in entries)):
+                            common = ''
+                        for entry in entries:
+                            filename = entry.filename[len(common):]
+                            if filename.startswith('/'):
+                                filename = filename[1:]
+                            if not filename:
+                                continue
+                            filename = os.path.join(base, filename)
+                            if filename.endswith('/'):
+                                os.mkdir(filename)
+                            else:
+                                stream = open(filename, 'wb')
+                                stream.write(archive.read(entry))
+                                stream.close()
+                    # If the URL is not an archive, save it as a file
+                    # to the base directory.
+                    else:
+                        filename = os.path.join(base, os.path.basename(url))
+                        stream = open(filename, 'wb')
+                        stream.write(data)
+                        stream.close()
+            except:
+                distutils.dir_util.remove_tree(base)
+                raise
+
+
 # Patch `install` command to call `install_rex`.
 setuptools.command.install.install.sub_commands.insert(0,
         ('install_rex', lambda self: self.distribution.rex_static))
@@ -180,5 +289,12 @@ def add_defaults(self):
             for file in files:
                 self.filelist.append(os.path.join(path, file))
 setuptools.command.sdist.sdist.add_defaults = add_defaults
+
+# Patch `egg_info` to call `download_rex`.
+_find_sources = setuptools.command.egg_info.egg_info.find_sources
+def find_sources(self):
+    self.run_command('download_rex')
+    _find_sources(self)
+setuptools.command.egg_info.egg_info.find_sources = find_sources
 
 

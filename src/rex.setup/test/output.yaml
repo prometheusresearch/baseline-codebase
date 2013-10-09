@@ -32,7 +32,37 @@ tests:
       www
 
       ./share/rex/rex.setup_demo/www:
+      bootstrap
       index.html
+      jquery
+
+      ./share/rex/rex.setup_demo/www/bootstrap:
+      css
+      fonts
+      js
+      LICENSE
+
+      ./share/rex/rex.setup_demo/www/bootstrap/css:
+      bootstrap.css
+      bootstrap.min.css
+      bootstrap-theme.css
+      bootstrap-theme.min.css
+
+      ./share/rex/rex.setup_demo/www/bootstrap/fonts:
+      glyphicons-halflings-regular.eot
+      glyphicons-halflings-regular.svg
+      glyphicons-halflings-regular.ttf
+      glyphicons-halflings-regular.woff
+
+      ./share/rex/rex.setup_demo/www/bootstrap/js:
+      bootstrap.js
+      bootstrap.min.js
+
+      ./share/rex/rex.setup_demo/www/jquery:
+      jquery-1.10.2.js
+      jquery-1.10.2.min.js
+      jquery-1.10.2.min.map
+      MIT-LICENSE.txt
 - suite: develop
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox
@@ -57,7 +87,37 @@ tests:
       www
 
       ./share/rex/rex.setup_demo/www:
+      bootstrap
       index.html
+      jquery
+
+      ./share/rex/rex.setup_demo/www/bootstrap:
+      css
+      fonts
+      js
+      LICENSE
+
+      ./share/rex/rex.setup_demo/www/bootstrap/css:
+      bootstrap.css
+      bootstrap.min.css
+      bootstrap-theme.css
+      bootstrap-theme.min.css
+
+      ./share/rex/rex.setup_demo/www/bootstrap/fonts:
+      glyphicons-halflings-regular.eot
+      glyphicons-halflings-regular.svg
+      glyphicons-halflings-regular.ttf
+      glyphicons-halflings-regular.woff
+
+      ./share/rex/rex.setup_demo/www/bootstrap/js:
+      bootstrap.js
+      bootstrap.min.js
+
+      ./share/rex/rex.setup_demo/www/jquery:
+      jquery-1.10.2.js
+      jquery-1.10.2.min.js
+      jquery-1.10.2.min.map
+      MIT-LICENSE.txt
 - suite: sdist
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox
@@ -73,19 +133,34 @@ tests:
       Archive:  ./dist/rex.setup_demo-1.0.zip
         Length      Date    Time    Name
       ---------  ---------- -----   ----
-             59  2013-06-10 11:58   rex.setup_demo-1.0/setup.cfg
-            510  2013-06-10 11:56   rex.setup_demo-1.0/setup.py
+             59  2013-10-09 18:46   rex.setup_demo-1.0/setup.cfg
+           1765  2013-10-09 18:08   rex.setup_demo-1.0/setup.py
              57  2013-06-10 11:57   rex.setup_demo-1.0/README
-            304  2013-06-10 11:58   rex.setup_demo-1.0/PKG-INFO
+            304  2013-10-09 18:46   rex.setup_demo-1.0/PKG-INFO
             140  2013-05-13 12:51   rex.setup_demo-1.0/static/www/index.html
+          10173  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/LICENSE
+          29512  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/fonts/glyphicons-halflings-regular.ttf
+          63157  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/fonts/glyphicons-halflings-regular.svg
+          14079  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/fonts/glyphicons-halflings-regular.eot
+          16448  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/fonts/glyphicons-halflings-regular.woff
+          58458  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/js/bootstrap.js
+          27726  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/js/bootstrap.min.js
+          97339  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/css/bootstrap.min.css
+         119892  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/css/bootstrap.css
+          16819  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/css/bootstrap-theme.css
+          14996  2013-10-09 18:46   rex.setup_demo-1.0/static/www/bootstrap/css/bootstrap-theme.min.css
+          93107  2013-10-09 18:46   rex.setup_demo-1.0/static/www/jquery/jquery-1.10.2.min.js
+         140036  2013-10-09 18:46   rex.setup_demo-1.0/static/www/jquery/jquery-1.10.2.min.map
+         273199  2013-10-09 18:46   rex.setup_demo-1.0/static/www/jquery/jquery-1.10.2.js
+           1099  2013-10-09 18:46   rex.setup_demo-1.0/static/www/jquery/MIT-LICENSE.txt
              58  2013-05-13 12:48   rex.setup_demo-1.0/src/rex/__init__.py
              44  2013-05-13 12:50   rex.setup_demo-1.0/src/rex/setup_demo.py
-             86  2013-06-10 11:58   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/rex_static.txt
-            304  2013-06-10 11:58   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/PKG-INFO
-              4  2013-06-10 11:58   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/top_level.txt
-              1  2013-06-10 11:58   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/dependency_links.txt
-              4  2013-06-10 11:58   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/namespace_packages.txt
-            382  2013-06-10 11:58   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/SOURCES.txt
-             14  2013-06-10 11:58   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/rex_init.txt
+             97  2013-10-09 18:46   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/rex_static.txt
+            304  2013-10-09 18:46   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/PKG-INFO
+              4  2013-10-09 18:46   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/top_level.txt
+              1  2013-10-09 18:46   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/dependency_links.txt
+              4  2013-10-09 18:46   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/namespace_packages.txt
+           1054  2013-10-09 18:46   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/SOURCES.txt
+             14  2013-10-09 18:46   rex.setup_demo-1.0/src/rex.setup_demo.egg-info/rex_init.txt
       ---------                     -------
-           1967                     14 files
+         979945                     29 files

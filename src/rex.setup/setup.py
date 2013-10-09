@@ -22,10 +22,13 @@ setup(
         'distutils.setup_keywords': [
             'rex_init = rex.setup:check_init',
             'rex_static = rex.setup:check_static',
+            'rex_download = rex.setup:check_download',
         ],
         'distutils.commands': [
             'install_rex = rex.setup:install_rex',
-            'develop_rex = rex.setup:develop_rex'],
+            'develop_rex = rex.setup:develop_rex',
+            'download_rex = rex.setup:download_rex',
+        ],
         'egg_info.writers': [
             'rex_init.txt = rex.setup:write_init_txt',
             'rex_static.txt = rex.setup:write_static_txt',

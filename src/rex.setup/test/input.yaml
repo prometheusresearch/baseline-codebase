@@ -2,8 +2,7 @@
 # Copyright (c) 2012-2013, Prometheus Research, LLC
 #
 
-title: REX.SETUP Tests
-suite: rex.setup
+title: REX.SETUP
 tests:
 
 - title: Test `install` command

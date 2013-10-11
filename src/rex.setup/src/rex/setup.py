@@ -95,8 +95,6 @@ class install_rex(setuptools.Command):
         # Skip if `rex_static` is not set in `setup.py`.
         if not self.rex_static:
             return
-        # Get `egg_info` command (to get EGG name of the distribution).
-        info_cmd = self.get_finalized_command('egg_info')
         # `$PREFIX/share/rex/$NAME`.
         target = os.path.join(self.install_dir, 'share/rex',
                               self.distribution.get_name())
@@ -160,7 +158,6 @@ class develop_rex(setuptools.Command):
         elif os.path.exists(target) or os.path.islink(target):
             self.execute(os.unlink, (target,), "Removing "+target)
         # Create a symlink.
-        # For each entry in `rex_static`, create a symlink.
         if not self.dry_run:
             pkg_resources.ensure_directory(target)
         filename = os.path.abspath(self.rex_static)

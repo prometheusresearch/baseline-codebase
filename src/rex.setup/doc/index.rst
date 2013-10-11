@@ -19,6 +19,14 @@ Release notes
    changes
 
 
+Copyright and license
+=====================
+
+.. toctree::
+
+   license
+
+
 Indices and tables
 ==================
 

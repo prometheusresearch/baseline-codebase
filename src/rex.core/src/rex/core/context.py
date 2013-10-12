@@ -10,7 +10,8 @@ class RexContext(threading.local):
     """
     Returns the current active application.
 
-    The active application is local to a thread.
+    The active application is thread-local so that each thread of the
+    process may have its own active application.
     """
 
     def __init__(self):

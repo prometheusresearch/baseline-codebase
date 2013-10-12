@@ -115,11 +115,22 @@ both ``Hello`` and ``Howdy``, it becomes the top implementation::
     ...     def __call__(self, name):
     ...         return "Hi, %s!" % name
 
-    >>> main.cache.clear()  # reset `Greet.all()`
+    >>> main.reset()    # reset `Greet.all()`
     >>> with main:
     ...     greet_type = Greet.top()
     >>> greet = greet_type()
     >>> greet('Alice')
     'Hi, Alice!'
+
+
+Diamond inheritance
+===================
+
+The set of available implementations is defined correctly even when you use
+diamond inheritance::
+
+    >>> with main:
+    ...     print Greet.all()
+    [__main__.Hello, __main__.Howdy, __main__.Hi]
 
 

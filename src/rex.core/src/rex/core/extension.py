@@ -9,7 +9,7 @@ from .package import get_packages, Package
 
 class Extension(object):
     """
-    Provides extension mechanism for Rex applications.
+    Provides extension mechanism for RexDB applications.
 
     To create a new extensible interface, declare a subclass of
     :class:`Extension`.
@@ -59,14 +59,18 @@ class Extension(object):
         modules = packages.modules
         # Find all subclasses of `cls`.
         subclasses = [cls]
+        # Used to weed out duplicates (due to diamond inheritance).
+        seen = set([cls])
         idx = 0
         while idx < len(subclasses):
-            subclass = subclasses[idx]
-            subclasses.extend(subclass.__subclasses__())
+            for subclass in subclasses[idx].__subclasses__():
+                if subclass not in seen:
+                    subclasses.append(subclass)
+                    seen.add(subclass)
             idx += 1
         # Filter out abstract classes and implementations not included
         # with the active application; return the rest.
-        return [subclass for subclass in set(subclasses)
+        return [subclass for subclass in subclasses
                          if subclass.__module__ in modules and
                             subclass.enabled()]
 

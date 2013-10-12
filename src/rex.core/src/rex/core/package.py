@@ -186,6 +186,7 @@ class PackageCollection(object):
                 raise Error("Cannot find static directory:", static)
 
         # Skip packages without extensions or static packages, emit the rest.
+        # FIXME: should include all packages which depend on ``rex.core``.
         if modules or static:
             yield Package(name, modules, static)
 
@@ -223,7 +224,7 @@ class PackageCollection(object):
 
     def __contains__(self, name):
         """
-        Checks if the package with the given name exists.
+        Checks if a package with the given name exists.
         """
         return (name in self.package_map)
 

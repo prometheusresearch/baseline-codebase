@@ -36,7 +36,7 @@ Packages
 .. autoclass:: rex.core.ModulePackage
 .. autoclass:: rex.core.StaticPackage
 .. autoclass:: rex.core.PackageCollection
-   :special-members: __iter__, __len__, __getitem__
+   :special-members: __iter__, __len__, __getitem__, __contains__
 .. autofunction:: rex.core.get_packages
 
 

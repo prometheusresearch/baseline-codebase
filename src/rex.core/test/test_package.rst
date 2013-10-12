@@ -39,11 +39,15 @@ Package collection provides container interface::
 
     >>> packages[0].name
     'rex.core_demo'
+    >>> 'rex.core_demo' in packages
+    True
     >>> packages['rex.core_demo'].name
     'rex.core_demo'
     >>> packages.get('rex.core_demo').name
     'rex.core_demo'
 
+    >>> 'unknown' in packages
+    False
     >>> packages['unknown']
     Traceback (most recent call last):
       ...

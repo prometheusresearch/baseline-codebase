@@ -2,8 +2,7 @@
 # Copyright (c) 2013, Prometheus Research, LLC
 #
 
-title: REX.CORE Tests
-suite: rex.core
+title: REX.CORE
 tests:
 
 - coverage: setup.cfg

@@ -19,16 +19,12 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup >=0.9, <2',
+        'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.setup >=0.9, <2',
+        'rex.setup >=1.0, <2',  # For use by `rex.core` descendants.
         'pyyaml',
     ],
-    extras_require={
-        'doc': ['Sphinx'],
-        'test': ['pbbt'],
-    },
     rex_init='rex.core',
 )
 

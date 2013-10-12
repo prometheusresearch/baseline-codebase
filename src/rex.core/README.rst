@@ -211,18 +211,25 @@ To develop a new package, start with the following layout::
             ],
             rex_init='rex.<name>',
             rex_static='static',
+            rex_download={...},
         )
 
     Use parameter ``install_requires`` to indicate package dependencies.
 
-    To support RexDB extension and distribution mechanisms, we provide two
-    additional setup parameters: ``rex_static`` and ``rex_init``.  To enable
-    these parameters, add a setup dependency on ``rex.setup`` package::
+    To support RexDB extension and distribution mechanisms, we provide three
+    additional setup parameters: ``rex_init``, ``rex_static``, and
+    ``rex_download``.  To enable these parameters, add a setup dependency on
+    ``rex.setup`` package::
 
         setup_requres=['rex.setup'],
 
     You don't need this line if you don't need to define any of these
     parameters.
+
+    ``rex_init``
+        This parameter refers to the module to be executed when the application
+        is initialized.  Use it for packages that define any extensions such as
+        settings declarations or HTTP commands.
 
     ``rex_static``
         This parameter specifies the directory which contains resource files to
@@ -231,10 +238,10 @@ To develop a new package, start with the following layout::
         ``sdist`` are extended to support this parameter.  On installation,
         static files are copied to directory ``<base>/share/rex/<package>``.
 
-    ``rex_init``
-        This parameter refers to the module to be executed when the application
-        is initialized.  Use it for packages that define any extensions such as
-        settings definitions or HTTP commands.
+    ``rex_download``
+        This parameter specifies external dependencies to be downloaded when
+        the package is installed.  It maps a target directory to a list of URLs
+        which should populate the target directory.
 
 ``src/rex/__init__.py``
     This file must declare a namespace package::

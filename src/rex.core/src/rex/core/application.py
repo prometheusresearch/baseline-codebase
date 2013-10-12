@@ -54,12 +54,23 @@ class Rex(object):
                                          for key in sorted(self.parameters)))
                 raise
 
+    def reset(self):
+        """
+        Clears application cache.
+
+        Use :meth:`reset()` if you need to add a new implementation of an
+        interface to an existing application or reevaluate a :func:`.cached`
+        function.  This method is particularly useful in regression tests.
+        """
+        self.cache.clear()
+
     def on(self):
         """
         Activates the application.
 
         You can also apply ``with`` statement on the application object to make
-        the application active while the ``with`` block is executed.
+        the application active for the period while the ``with`` block is
+        executed.
         """
         get_rex.push(self)
 

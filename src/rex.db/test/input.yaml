@@ -2,8 +2,7 @@
 # Copyright (c) 2013, Prometheus Research, LLC
 #
 
-title: REX.DB Tests
-suite: rex.db
+title: REX.DB
 tests:
 
 - rmdir: ./sandbox

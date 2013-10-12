@@ -24,7 +24,7 @@ Examples
 
 .. toctree::
 
-    test/index
+   test/index
 
 
 Release notes
@@ -33,6 +33,14 @@ Release notes
 .. toctree::
 
    changes
+
+
+Copyright and license
+=====================
+
+.. toctree::
+
+   license
 
 
 Indices and tables

@@ -196,9 +196,9 @@ URL segments are generated from package names::
     rex.web_demo -> /
     shared -> /shared
 
-Within the web stack, the mount table is available as attribute ``mount``
-of the ``Request`` object or variable ``MOUNT`` in templates.  These
-tables contain absolute URLs and should be used for referencing::
+Within the web stack, the mount table is available as ``environ['rex.mount']``
+or as variable ``MOUNT`` in templates.  These tables contain absolute URLs and
+should be used for referencing::
 
     >>> req = Request.blank('/shared/index.html')
     >>> print req.get_response(demo)
@@ -287,8 +287,6 @@ URL::
     <title>This page is from the UNION2 package</title>
 
 
-
-
 Handling errors
 ===============
 
@@ -325,7 +323,7 @@ Set ``code`` to ``'*'`` to define a catch-all error handler::
     ...         return Response("Only authenticated users are accepted",
     ...                         content_type='text/plain')
 
-    >>> main.cache.clear()
+    >>> main.reset()
     >>> req = Request.blank('/auth')
     >>> print req.get_response(main)
     401 Unauthorized
@@ -504,7 +502,7 @@ certain types of files::
     ...         resp.body_file.write("</body>")
     ...         return resp
 
-    >>> static.cache.clear()
+    >>> static.reset()
     >>> req = Request.blank('/names.csv')
     >>> req.remote_user = 'Daniel'
     >>> print req.get_response(static)
@@ -536,7 +534,7 @@ Interface ``HandleLocation`` allows you to handle specific URLs in Python::
     ...     def __call__(self, req):
     ...         return Response("PONG!", content_type='text/plain')
 
-    >>> main.cache.clear()
+    >>> main.reset()
     >>> req = Request.blank('/ping')
     >>> print req.get_response(main)
     200 OK
@@ -552,7 +550,7 @@ Set ``path`` to ``'*'`` to make a catch-all handler::
     ...     def __call__(self, req):
     ...         return Response("How can I help you?", content_type='text/plain')
 
-    >>> main.cache.clear()
+    >>> main.reset()
     >>> req = Request.blank('/help/me')
     >>> print req.get_response(main)
     200 OK

@@ -128,7 +128,7 @@ parameters::
     ...                         " thank you very much!",
     ...                         content_type='text/plain')
 
-    >>> demo.cache.clear()      # reset WSGI stack
+    >>> demo.reset()
     >>> req = Request.blank('/no-parsing?param=value')
     >>> print req.get_response(demo)
     200 OK
@@ -159,7 +159,7 @@ parameter.  In this case, the values are passed as a list::
     >>> HelloManyCommand.parameters
     [Parameter('names', validate=StrVal(), many=True)]
 
-    >>> demo.cache.clear()      # reset WSGI stack
+    >>> demo.reset()
     >>> req = Request.blank('/hello_many?names=Alice&names=Bob&names=Carl')
     >>> print req.get_response(demo)        # doctest: +ELLIPSIS
     200 OK
@@ -184,7 +184,7 @@ command.  If not set, *authenticated* is assumed::
     ...         return Response("Hello, %s!" % authenticate(req),
     ...                         content_type='text/plain')
 
-    >>> demo.cache.clear()
+    >>> demo.reset()
     >>> req = Request.blank('/protected')
     >>> print req.get_response(demo)        # doctest: +ELLIPSIS
     401 Unauthorized
@@ -209,7 +209,7 @@ has the same effect as setting ``Command.access`` to ``'anybody'``::
     ...     def render(self, req):
     ...         return Response("Hello, stranger!", content_type='text/plain')
 
-    >>> demo.cache.clear()
+    >>> demo.reset()
     >>> req = Request.blank('/public')
     >>> print req.get_response(demo)
     200 OK

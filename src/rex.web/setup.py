@@ -14,15 +14,15 @@ setup(
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
     license="AGPLv3",
-    url="http://bitbucket.org/prometheus/rex.web",
+    url="https://bitbucket.org/prometheus/rex.web",
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup >=0.9, <2',
+        'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.core >=0.9, <2',
+        'rex.core >=1.0, <2',
         'webob >=1.2.3, <1.3',
         'jinja2 >=2.7, <2.8',
         'pycrypto >=2.4',   # must use the version available on Ubuntu 12.04.

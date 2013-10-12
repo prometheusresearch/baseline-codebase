@@ -2,8 +2,7 @@
 # Copyright (c) 2013, Prometheus Research, LLC
 #
 
-title: REX.WEB Tests
-suite: rex.web
+title: REX.WEB
 tests:
 
 - coverage: setup.cfg

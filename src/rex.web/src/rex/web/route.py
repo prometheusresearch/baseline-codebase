@@ -242,7 +242,8 @@ class StaticServer(object):
             location = req.path_url+'/'
             if req.query_string:
                 location += '?'+req.query_string
-            # FIXME: should we check permissions first?
+            # FIXME: should we check permissions first?  What about POST
+            # requests?
             return Response(status=301, location=location)
 
         # Otherwise, we will serve `index_file`.

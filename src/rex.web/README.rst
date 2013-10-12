@@ -483,9 +483,9 @@ CSRF protection
 Scripting Forgery (CSRF) attacks.
 
 To perform a CSRF attack, the attacker only needs to trick a user to visit a
-malicious web page.  If the user is currently authenticated in the application,
-the attacker will be able to perform arbitrary actions using the identity of
-the user.  For more information on CSRF, see
+malicious web page.  If the user is currently authenticated with the
+application, the attacker will be able to perform arbitrary actions using the
+identity of the user.  For more information on CSRF, see
 https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29.
 
 Any command that performs actions such as changing the user email address, home
@@ -505,7 +505,7 @@ To enable CSRF projection, a command should set attribute
         def render(self, req, n):
             return Response("I trust you!", content_type='text/plain')
 
-To make a request to an unsafe command, a web page must send so-called CSRF
+To make a request to an unsafe command, a web page must send a so-called CSRF
 token along with the request.  The value of the token could added to a template
 using variables ``CSRF_INPUT_TAG`` or ``CSRF_META_TAG``.
 
@@ -549,7 +549,7 @@ To make an Ajax request to an unsafe command, pass the token using
 Templates
 =========
 
-:mod:`rex.web` supports templates base on Jinja2_.  Use function
+:mod:`rex.web` supports templates based on Jinja2_.  Use function
 :func:`rex.web.render_to_response()` to render a template and generate an HTTP
 response::
 

@@ -28,7 +28,7 @@ class Parameter(object):
     """
 
     class _required_type(object):
-        # For `sphinx.ext.autodoc`.
+        # For the sake of `sphinx.ext.autodoc`.
         def __repr__(self):
             return "REQUIRED"
 
@@ -61,9 +61,9 @@ class Command(HandleLocation):
     path = None
     #: Permission to execute the command.
     access = 'authenticated'
-    #: If set, indicates that the command the command has non-trivial side
-    #: effects and can be executed only by trusted requests in order to
-    #: prevent CSRF vulnerabilities.
+    #: If set, indicates that the command has non-trivial side effects
+    #: and can be executed only by trusted requests in order to prevent
+    #: CSRF vulnerabilities.
     unsafe = False
     #: List of form parameters.
     parameters = []

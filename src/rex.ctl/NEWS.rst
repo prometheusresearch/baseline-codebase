@@ -5,6 +5,16 @@
 .. contents:: Table of Contents
 
 
+1.1.0 (2013-XX-XX)
+==================
+
+* Added ``rex createdb``, ``rex dumpdb`` and other database management tasks.
+* Added ``rex shell`` and ``rex deploy``.
+* Renamed ``rex help packages`` to ``rex packages``, ``rex help settings`` to
+  ``rex settings``.
+* Enable tasks conditionally on the presence of relevant packages.
+
+
 1.0.0 (2013-10-14)
 ==================
 

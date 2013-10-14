@@ -2,8 +2,7 @@
 # Copyright (c) 2013, Prometheus Research, LLC
 #
 
-title: REX.DEPLOY Tests
-suite: rex.deploy
+title: REX.DEPLOY
 tests:
 
 #- coverage: setup.cfg

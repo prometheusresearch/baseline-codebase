@@ -19,11 +19,11 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup',
+        'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.core',
-        'rex.db',
+        'rex.core >=1.0, <2',
+        'rex.db >=1.0, <2',
     ],
     entry_points = {
         'htsql.addons': ['rex_deploy = htsql_rex_deploy:DeployAddon'],

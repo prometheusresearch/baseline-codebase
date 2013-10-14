@@ -2,8 +2,7 @@
 # Copyright (c) 2013, Prometheus Research, LLC
 #
 
-title: REX.CTL Tests
-suite: rex.ctl
+title: REX.CTL
 tests:
 
 

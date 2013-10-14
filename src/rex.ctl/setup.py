@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013, Prometheus Research, LLC
+# Copyright (c) 2013, Prometheus Research, LLC
 #
 
 
@@ -8,13 +8,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.ctl',
-    version = "0.9.9",
+    version = "1.0.0",
     description="Command-line administration utility for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
     license="AGPLv3",
-    url="http://bitbucket.org/prometheus/rex.ctl",
+    url="https://bitbucket.org/prometheus/rex.ctl",
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
@@ -27,7 +27,7 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core >= 0.9, <2',
+        'rex.core >= 1.0, <2',
         'cogs',
     ],
 )

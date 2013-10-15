@@ -294,9 +294,10 @@ Domain.prototype.isValidValue = function(value) {
     return false;
 };
 
-var TextDomain = function(multiLine) {
+var TextDomain = function(o) {
     Domain.call(this, 'text');
-    this.multiLine = multiLine;
+    this.multiLine = o.multiLine;
+    this.pattern = o.pattern ? new RegExp(o.pattern) : null;
 };
 extend(TextDomain, Domain);
 TextDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
@@ -330,7 +331,10 @@ TextDomain.prototype.setViewValue = function (node, value) {
     node.text( (value !== null && value !== undefined) ? value : '' );
 };
 TextDomain.prototype.extractValue = function (node) {
-    return $.trim( node.val() ) || null;
+    var value = $.trim( node.val() ) || null;
+    if (value && this.pattern && !value.match(this.pattern))
+        throw('InvalidString');
+    return value;
 };
 TextDomain.prototype.isValidValue = function(value) {
     return (value === null || (typeof value === 'string'));
@@ -940,8 +944,10 @@ var domain = {
                             "float" === questionType);
         case "string":
         case "text":
-            return this.get(questionType,
-                            "text" === questionType);
+            return this.get(questionType, {
+                multiLine: "text" === questionType,
+                pattern: def.pattern || null
+            });
         }
 
         return this.get(questionType);

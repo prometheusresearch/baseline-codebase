@@ -3,6 +3,7 @@
 ********************************
 
 .. contents:: Table of Contents
+.. role:: mod(literal)
 
 
 Overview
@@ -18,44 +19,124 @@ more information, please visit http://rexdb.org/.
 .. |R| unicode:: 0xAE .. registered trademark sign
 
 
-Schema definition
+Getting started
+===============
+
+:mod:`rex.deploy` is a database schema management system.  It allows you
+to describe and deploy the application database.
+
+Suppose you make a RexDB application for managing medical research.  This
+application stores information about studies, research subjects, assessments
+in a PostgreSQL database.  The application uses :mod:`rex.deploy` to
+describe the structure of the database.
+
+The database schema of the application is described in a static resource
+``deploy.yaml``.  For instance, application :mod:`rex.deploy_demo` describes
+its schema in file ``rex.deploy_demo/static/deploy.yaml``::
+
+    - table: study
+    - column: study.code
+      type: text
+    - identity: [study.code]
+    ...
+
+This file is in YAML format.  It contains a sequence of statements, or *facts*,
+describing the structure of the database.  The first fact is::
+
+    - table: study
+
+It is translated to English as:
+
+    The database contains a table called *study*.
+
+The next fact is::
+
+    - column: study.code
+      type: text
+
+can be interpreted as:
+
+    Table *study* has a column called *code* of type *text*.
+
+The third fact::
+
+    - identity: [study.code]
+
+means:
+
+    Records of table *study* are uniquely identified by column *code*.
+
+When you deploy the application schema, :mod:`rex.deploy` reads each fact and
+ensures that it holds true.  To do so, :mod:`rex.deploy` may modify the
+database.  For example, if you deploy :mod:`rex.deploy_demo` schema from
+scratch, :mod:`rex.deploy` will:
+
+1. Create table ``study``.
+2. Add column ``code`` to table ``study``.
+3. Make ``code`` the primary key of table ``study``.
+
+On the other hand, if you deploy the same schema over the same database
+instance again, :mod:`rex.deploy` will realize that all the facts are already
+satisfied and will leave the database intact.
+
+
+Deploying the schema
+====================
+
+We use the ``rex`` command-line tool from package :mod:`rex.ctl` to deploy
+application schema.  For example, to deploy the schema for
+:mod:`rex.deploy_demo` application, run::
+
+    $ rex deploy rex.deploy_demo --set db=pgsql:deploy_demo
+
+You can also store the application name and parameters in a configuration file
+``rex.yaml``::
+
+    project: rex.deploy_demo
+    settings:
+      db: pgsql:deploy_demo
+
+If the ``rex.yaml`` file exists in the current directory, you can run
+
+    $ rex deploy
+
+to deploy the application database.
+
+For more information on the ``rex`` utility and ``rex.yaml`` configuration
+file, see documentation to :mod:`rex.ctl`.
+
+
+SQL serialization
 =================
 
-A package that uses ``rex.deploy`` can define a schema definition file:
-``/static/deploy.yaml``.  This file contains a collection of statements
-about the database.  For example::
+:mod:`rex.deploy` contains a number of functions for building SQL commands.
+For example, :func:`rex.deploy.sql_create_table` generates a ``CREATE TABLE``
+statemement.  This function takes two arguments: the table name and a list of
+definitions for the body of the statement.  To populate the body with column
+definitions, you can use func:`rex.deploy.sql_define_column`::
 
-    - table: measure
+    >>> from rex.deploy import sql_create_table, sql_define_column
 
-Each statement encodes some fact about the database.  This particular statement
-reads as: *The database has a table called measure*.
+    >>> body = [
+    ...     sql_define_column(u'id', u'serial4', True),
+    ...     sql_define_column(u'code', (u'varchar', 8), True),
+    ...     sql_define_column(u'title', u'text', False),
+    ... ]
+    >>> print sql_create_table(u'study', body)
+    CREATE TABLE "study" (
+        "id" "serial4" NOT NULL,
+        "code" "varchar"(8) NOT NULL,
+        "title" "text"
+    );
 
-When ``rex.deploy`` reads this statement, it checks if there is a table
-called ``measure`` in the database.  If there is, nothing happens.
-Otherwise, ``rex.deploy`` creates the table.  In any case, the end result
-is that this statement becomes true.
+Many common DDL and CRUD expressions are supported.
 
-Similarly, we could define a column::
+:mod:`rex.deploy` also provides a :func:`rex.deploy.mangle` utility for
+generating a valid SQL name from a list of fragments and an optional suffix::
 
-    - column: measure.date_of_evaluation
-      type: date
+    >>> from rex.deploy import mangle
 
-If the column does not exist, it is created.  If the column does exist,
-but of a different type, ``rex.deploy`` will attempt to convert the column
-to the correct data type.  Finally, if the column already exists and
-is of the right type, nothing happens.
-
-The last part is important because it allows us to apply the same statement
-again and again safely.
-
-
-Invocation
-==========
-
-Install package ``rex.ctl`` alongside with ``rex.deploy`` to deploy
-the application database.  Use ``rex deploy`` command to deploy
-the database::
-
-    $ rex deploy rex.deploy_demo
+    >>> mangle([u'individual', u'mother'], u'fk')
+    u'individual_mother_fk'
 
 

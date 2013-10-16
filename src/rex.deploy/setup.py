@@ -14,7 +14,7 @@ setup(
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
     license="AGPLv3",
-    url="http://bitbucket.org/prometheus/rex.deploy",
+    url="https://bitbucket.org/prometheus/rex.deploy",
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],

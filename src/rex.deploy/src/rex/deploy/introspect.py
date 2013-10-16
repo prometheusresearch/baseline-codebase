@@ -82,8 +82,8 @@ def introspect(connection):
         table = table_by_oid[attrelid]
         name = attname.encode('utf-8')
         type = type_by_oid[atttypid]
-        is_nullable = (not attnotnull)
-        column = table.add_column(name, type, is_nullable)
+        is_not_null = bool(attnotnull)
+        column = table.add_column(name, type, is_not_null)
         column_by_num[attrelid, attnum] = column
 
     cursor.execute("""

@@ -339,8 +339,8 @@ class TableImage(NamedImage):
             self.data.remove()
         super(TableImage, self).remove()
 
-    def add_column(self, name, type, is_nullable):
-        return ColumnImage(self, name, type, is_nullable)
+    def add_column(self, name, type, is_not_null):
+        return ColumnImage(self, name, type, is_not_null)
 
     def add_constraint(self, name):
         return ConstraintImage(self, name)
@@ -361,13 +361,13 @@ class TableImage(NamedImage):
 class ColumnImage(NamedImage):
     # Database column.
 
-    __slots__ = ('type', 'is_nullable', '__weakref__')
+    __slots__ = ('type', 'is_not_null', '__weakref__')
 
-    def __init__(self, table, name, type, is_nullable):
+    def __init__(self, table, name, type, is_not_null):
         super(ColumnImage, self).__init__(weakref.ref(table), name)
         table.columns.add(self)
         self.type = type
-        self.is_nullable = is_nullable
+        self.is_not_null = is_not_null
         if table.data is not None:
             table.data.remove()
 
@@ -403,8 +403,8 @@ class ColumnImage(NamedImage):
         self.type = type
         return self
 
-    def set_is_nullable(self, is_nullable):
-        self.is_nullable = is_nullable
+    def set_is_not_null(self, is_not_null):
+        self.is_not_null = is_not_null
         return self
 
     def remove(self):

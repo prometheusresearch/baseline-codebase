@@ -6,10 +6,11 @@
 from rex.core import (Extension, MaybeVal, StrVal, BoolVal, OneOfVal,
         ChoiceVal, SeqVal, RecordVal, get_packages, Error, guard)
 from .introspect import introspect
-from .write import (mangle, create_table, drop_table, define_column,
-        add_column, drop_column, add_unique_constraint,
-        add_foreign_key_constraint, drop_constraint,
-        create_enum_type, drop_type, select, insert, update)
+from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
+        sql_add_column, sql_drop_column, sql_add_unique_constraint,
+        sql_add_foreign_key_constraint, sql_drop_constraint,
+        sql_create_enum_type, sql_drop_type, sql_select, sql_insert,
+        sql_update)
 import csv
 import htsql.core.domain
 import yaml
@@ -118,20 +119,20 @@ class TableFact(Fact):
                 return
             table = schema.add_table(name)
             type = system_schema.types["int4"]
-            column = table.add_column("id", type, False)
+            column = table.add_column("id", type, True)
             constraint_name = mangle([table.name, column.name], "uk")
             key = table.add_unique_key(constraint_name, [column])
-            body = [define_column(column.name, "serial4", False)]
-            sql = create_table(name, body)
+            body = [sql_define_column(column.name, "serial4", True)]
+            sql = sql_create_table(name, body)
             driver.submit(sql)
-            sql = add_unique_constraint(table.name, key.name,
+            sql = sql_add_unique_constraint(table.name, key.name,
                                         [column.name], False)
             driver.submit(sql)
         else:
             if name not in schema:
                 return
             table = schema[name]
-            sql = drop_table(table.name)
+            sql = sql_drop_table(table.name)
             driver.submit(sql)
             table.remove()
 
@@ -169,7 +170,7 @@ class ColumnFact(Fact):
             if is_enum:
                 type_name = mangle([self.of, self.column], "enum")
                 type = schema.add_enum_type(type_name, self.type)
-                sql = create_enum_type(type.name, type.labels)
+                sql = sql_create_enum_type(type.name, type.labels)
                 driver.submit(sql)
             else:
                 type_mapping = {
@@ -183,9 +184,9 @@ class ColumnFact(Fact):
                         "datetime": "timestamp",
                 }
                 type = system_schema.types[type_mapping[self.type]]
-            column = table.add_column(name, type, True)
-            sql = add_column(table.name, column.name, column.type.name,
-                             (not self.required))
+            column = table.add_column(name, type, self.required)
+            sql = sql_add_column(table.name, column.name, column.type.name,
+                             self.required)
             driver.submit(sql)
         else:
             if table_name not in schema:
@@ -194,7 +195,7 @@ class ColumnFact(Fact):
             if name not in table:
                 return
             column = table[name]
-            sql = drop_column(table.name, column.name)
+            sql = sql_drop_column(table.name, column.name)
             driver.submit(sql)
             column.remove()
 
@@ -232,17 +233,17 @@ class LinkFact(Fact):
             if name in table:
                 return
             type = system_schema.types["int4"]
-            column = table.add_column(name, type, (not self.required))
+            column = table.add_column(name, type, self.required)
             target_table = schema[target_table_name]
             if "id" not in target_table:
                 raise Error("Missing ID column from target table:", self.to)
             target_column = target_table["id"]
             key = table.add_foreign_key(constraint_name, [column],
                                         target_table, [target_column])
-            sql = add_column(table.name, column.name, column.type.name,
-                             (not self.required))
+            sql = sql_add_column(table.name, column.name, column.type.name,
+                             self.required)
             driver.submit(sql)
-            sql = add_foreign_key_constraint(table.name, key.name,
+            sql = sql_add_foreign_key_constraint(table.name, key.name,
                                              [column.name], target_table.name,
                                              [target_column.name])
             driver.submit(sql)
@@ -253,7 +254,7 @@ class LinkFact(Fact):
             if name not in table:
                 return
             column = table[name]
-            sql = drop_column(table.name, column.name)
+            sql = sql_drop_column(table.name, column.name)
             driver.submit(sql)
             column.remove()
 
@@ -295,11 +296,11 @@ class IdentityFact(Fact):
         if table.primary_key is not None:
             if table.primary_key.origin_columns == columns:
                 return
-            sql = drop_constraint(table.name, table.primary_key.name)
+            sql = sql_drop_constraint(table.name, table.primary_key.name)
             driver.submit(sql)
             table.primary_key.remove()
         key = table.add_primary_key(constraint_name, columns)
-        sql = add_unique_constraint(table.name, key.name,
+        sql = sql_add_unique_constraint(table.name, key.name,
                                     [column.name for column in columns], True)
         driver.submit(sql)
 
@@ -321,7 +322,7 @@ class DataFact(Fact):
             raise Error("Table without identity:", self.of)
 
         if table.data is None:
-            sql = select(table.name, [column.name for column in table])
+            sql = sql_select(table.name, [column.name for column in table])
             rows = driver.submit(sql)
             table.add_data(rows)
 
@@ -393,7 +394,7 @@ class DataFact(Fact):
             handle = tuple(partial[idx] for idx in key_mask)
             old_row = table.data.get(table.primary_key, handle)
             if old_row is None:
-                sql = insert(table.name, [column.name for column in columns],
+                sql = sql_insert(table.name, [column.name for column in columns],
                              partial, [column.name for column in table.columns])
                 output = driver.submit(sql)
                 assert len(output) == 1
@@ -401,17 +402,17 @@ class DataFact(Fact):
             else:
                 old_partial = tuple(old_row[idx] for idx in mask)
                 if old_partial != partial:
-                    updated_names = []
-                    updated_values = []
+                    sql_updated_names = []
+                    sql_updated_values = []
                     for column, old_data, data in zip(columns,
                                                       old_partial, partial):
                         if old_data != data:
-                            updated_names.append(column.name)
-                            updated_values.append(data)
-                    sql = update(table.name,
+                            sql_updated_names.append(column.name)
+                            sql_updated_values.append(data)
+                    sql = sql_update(table.name,
                                  tuple(columns[idx].name for idx in key_mask),
                                  handle,
-                                 updated_names, updated_values,
+                                 sql_updated_names, updated_values,
                                  [column.name for column in table.columns])
                     output = driver.submit(sql)
                     assert len(output) == 1
@@ -453,7 +454,7 @@ class DataFact(Fact):
 
     def _resolve(self, table, identity):
         if table.data is None:
-            sql = select(table.name, [column.name for column in table])
+            sql = sql_select(table.name, [column.name for column in table])
             rows = driver.submit(sql)
             table.add_data(rows)
         handle = []

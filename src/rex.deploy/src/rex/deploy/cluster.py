@@ -5,7 +5,7 @@
 
 from rex.core import get_settings, Error
 from .fact import Driver
-from .write import select_database, create_database, drop_database
+from .sql import sql_select_database, sql_create_database, sql_drop_database
 import htsql.core.util
 import psycopg2, psycopg2.extensions
 
@@ -45,19 +45,19 @@ class Cluster(object):
     def exists(self, database=None):
         if database is None:
             database = self.db.database
-        sql = select_database(database)
+        sql = sql_select_database(database)
         return bool(self._master(database, sql))
 
     def create(self, database=None):
         if database is None:
             database = self.db.database
-        sql = create_database(database)
+        sql = sql_create_database(database)
         self._master(database, sql)
 
     def drop(self, database=None):
         if database is None:
             database = self.db.database
-        sql = drop_database(database)
+        sql = sql_drop_database(database)
         self._master(database, sql)
 
     def deploy(self, facts, database=None, dry_run=False):

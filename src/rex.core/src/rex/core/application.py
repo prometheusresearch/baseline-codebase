@@ -63,6 +63,7 @@ class Rex(object):
         function.  This method is particularly useful in regression tests.
         """
         self.cache.clear()
+        self.initialize()
 
     def on(self):
         """
@@ -101,6 +102,16 @@ class Rex(object):
                ["%s=%r" % (key, self.parameters[key])
                 for key in sorted(self.parameters)]
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
+class LatentRex(Rex):
+    """
+    Variant of :class:`Rex` that is not automatically initialized when
+    an instance is created so that the constructor never fails.
+    """
+
+    def initialize(self):
+        pass
 
 
 class Initialize(Extension):

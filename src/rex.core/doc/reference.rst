@@ -12,6 +12,7 @@ Application object
 
 .. autoclass:: rex.core.Rex
    :special-members: __call__
+.. autoclass:: rex.core.LatentRex
 .. autofunction:: rex.core.get_rex
 .. autoclass:: rex.core.Initialize
    :special-members: __call__

@@ -13,6 +13,7 @@
 * Renamed ``rex help packages`` to ``rex packages``, ``rex help settings`` to
   ``rex settings``.
 * Enable tasks conditionally on the presence of relevant packages.
+* Added NIH acknowlegement (Clark Evans).
 
 
 1.0.0 (2013-10-14)

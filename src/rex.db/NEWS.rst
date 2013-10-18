@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.0.1 (2013-XX-XX)
+==================
+
+* Added NIH acknowlegment (Clark Evans).
+
+
 1.0.0 (2013-10-11)
 ==================
 

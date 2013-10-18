@@ -8,7 +8,7 @@ from cogs.log import log, fail
 from cogs.fs import exe
 from .common import make_rex, pair
 from rex.core import get_settings, Error
-from rex.deploy import get_cluster, get_facts
+from rex.deploy import get_cluster, deploy
 
 
 @task
@@ -227,12 +227,12 @@ class DEPLOY:
         try:
             with app:
                 cluster = get_cluster()
-                facts = get_facts()
             if not cluster.exists():
                 log("Creating database `{}`.", cluster.db)
                 cluster.create()
             log("Deploying application database to `{}`.", cluster.db)
-            cluster.deploy(facts, dry_run=self.dry_run)
+            with app:
+                deploy(dry_run=self.dry_run)
         except Error, error:
             raise fail(str(error))
 

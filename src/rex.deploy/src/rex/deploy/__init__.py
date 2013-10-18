@@ -8,8 +8,12 @@ This package provides database schema management.
 """
 
 
-from .cluster import get_cluster
-from .fact import get_facts
+from .cluster import get_cluster, Cluster
+from .fact import get_facts, deploy
+from .image import (Image, NamedImage, ImageMap, CatalogImage, SchemaImage,
+        TypeImage, DomainTypeImage, EnumTypeImage, TableImage, ColumnImage,
+        ConstraintImage, UniqueKeyImage, ForeignKeyImage, DataImage)
+from .introspect import introspect
 from .sql import (mangle, sql_name, sql_value, sql_create_database,
         sql_drop_database, sql_select_database, sql_create_table,
         sql_drop_table, sql_define_column, sql_add_column, sql_drop_column,

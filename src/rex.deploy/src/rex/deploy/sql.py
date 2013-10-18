@@ -63,7 +63,8 @@ def sql_name(names):
     `names`
         Identifier or a list of identifiers.
 
-    *Returns:* a comma-separated list of quoted identifiers.
+    If given a list of names, returns a comma-separated sequence of quoted
+    identifiers.  Otherwise, returns a quoted identifier.
     """
     if not isinstance(names, (list, tuple)):
         names = [names]
@@ -76,9 +77,9 @@ def sql_value(value):
     Converts a value to a SQL literal.
 
     `value`
-        Represents a SQL value.  Could be ``None`` or a value of type
-        ```bool``, ``int``, ``long``, ``float``, ``decimal.Decimal``, ``str``
-        or ``unicode``.  Could also be a list or a tuple of values.
+        SQL value.  Accepted types are ``bool``, ``int``, ``long``, ``float``,
+        ``decimal.Decimal``, ``str``, ``unicode`` or ``None``.  Also accepted
+        are lists or tuples of acceptable values.
     """
     if value is None:
         return u"NULL"
@@ -107,10 +108,9 @@ def sql_value(value):
 
 def sql_create_database(name):
     """
-    Generates ``CREATE DATABASE`` statement.
+    Generates::
 
-    `name`
-        Database name.
+        CREATE DATABASE {name}
     """
     # Generates `CREATE DATABASE` statement.
     return u"CREATE DATABASE {} WITH ENCODING = 'UTF-8';" \
@@ -119,65 +119,53 @@ def sql_create_database(name):
 
 def sql_drop_database(name):
     """
-    Generates ``DROP DATABASE`` statement.
+    Generates::
 
-    `name`
-        Database name.
+        DROP DATABASE {name}
     """
     return u"DROP DATABASE {};".format(sql_name(name))
 
 
 def sql_select_database(name):
     """
-    Generates a ``SELECT`` statement that returns a row if the database
-    with the given name exists.
+    Generates::
 
-    `name`
-        Database name.
+        SELECT TRUE WHERE {name} IN *available databases*
     """
     return u"SELECT TRUE FROM pg_catalog.pg_database AS d" \
             u" WHERE d.datname = {};" \
             .format(sql_value(name))
 
 
-def sql_create_table(name, body):
+def sql_create_table(name, definitions):
     """
-    Generates ``CREATE TABLE`` statement.
+    Generates::
 
-    `name`
-        Table name.
-    `body`
-        Table body, a list of lines.
+        CREATE TABLE {name} ( {definition}, ... )
     """
     lines = []
     lines.append(u"CREATE TABLE {} (".format(sql_name(name)))
-    for body_line in body[:-1]:
-        lines.append(u"    {},".format(body_line))
-    lines.append(u"    {}".format(body[-1]))
+    for line in definitions[:-1]:
+        lines.append(u"    {},".format(line))
+    lines.append(u"    {}".format(definitions[-1]))
     lines.append(u");")
     return u"\n".join(lines)
 
 
 def sql_drop_table(name):
     """
-    Generates ``DROP TABLE`` statement.
+    Generates::
 
-    `name`
-        Table name.
+        DROP TABLE {name}
     """
     return "DROP TABLE {};".format(sql_name(name))
 
 
 def sql_define_column(name, type_name, is_not_null):
     """
-    Generates column definition for ``CREATE TABLE`` statement.
+    Generates::
 
-    `name`
-        Column name.
-    `type_name`
-        Column type or a tuple of column type and type parameters.
-    `is_not_null`
-        If set, add ``NOT NULL`` constraint.
+        {name} {type_name} [NOT NULL]
     """
     # Generates column definition for `CREATE TABLE` body.
     return u"{} {}{}" \
@@ -192,16 +180,9 @@ def sql_define_column(name, type_name, is_not_null):
 
 def sql_add_column(table_name, name, type_name, is_not_null):
     """
-    Generates ``ALTER TABLE ... ADD COLUMN`` statement.
+    Generates::
 
-    `table_name`
-        Table name.
-    `name`
-        Column name.
-    `type_name`
-        Column type or a tuple of column type and type parameters.
-    `is_not_null`
-        If set, add ``NOT NULL`` constraint.
+        ALTER TABLE {table_name} ADD COLUMN {name} {type_name} [NOT NULL]
     """
     return u"ALTER TABLE {} ADD COLUMN {} {}{};" \
             .format(sql_name(table_name),
@@ -216,12 +197,9 @@ def sql_add_column(table_name, name, type_name, is_not_null):
 
 def sql_drop_column(table_name, name):
     """
-    Generates ``ALTER TABLE ... DROP COLUMN`` statement.
+    Generates::
 
-    `table_name`
-        Table name.
-    `name`
-        Column name.
+        ALTER TABLE {table_name} DROP COLUMN {name}
     """
     return u"ALTER TABLE {} DROP COLUMN {};" \
             .format(sql_name(table_name),
@@ -230,16 +208,10 @@ def sql_drop_column(table_name, name):
 
 def sql_add_unique_constraint(table_name, name, column_names, is_primary):
     """
-    Generates ``ALTER TABLE ... ADD UNIQUE | PRIMARY KEY`` statement.
+    Generates::
 
-    `table_name`
-        Table name.
-    `name`
-        Constraint name.
-    `column_names`
-        List of columns in the key.
-    `is_primary`
-        If set, generates ``PRIMARY KEY`` constraint.
+        ALTER TABLE {table_name} ADD CONSTRAINT {name}
+        { UNIQUE | PRIMARY KEY } (column_name, ...)
     """
     return u"ALTER TABLE {} ADD CONSTRAINT {} {} ({});" \
             .format(sql_name(table_name),
@@ -251,18 +223,11 @@ def sql_add_unique_constraint(table_name, name, column_names, is_primary):
 def sql_add_foreign_key_constraint(table_name, name, column_names,
                                    target_table_name, target_column_names):
     """
-    Generates ``ALTER TABLE ... ADD FOREIGN KEY`` statement.
+    Generates::
 
-    `table_name`
-        Name of the referring table.
-    `name`
-        Constraint name.
-    `column_names`
-        List of referring columns.
-    `target_table_name`
-        Name of the referred table.
-    `target_column_names`
-        List of referred columns.
+        ALTER TABLE {table_name} ADD CONSTRAINT {name}
+        FOREIGN KEY ({column_name}, ...)
+        REFERENCES {target_table_name} ({target_column_name}, ...)
     """
     return u"ALTER TABLE {} ADD CONSTRAINT {}" \
             u" FOREIGN KEY ({}) REFERENCES {} ({});" \
@@ -275,12 +240,9 @@ def sql_add_foreign_key_constraint(table_name, name, column_names,
 
 def sql_drop_constraint(table_name, name):
     """
-    Generates ``ALTER TABLE ... DROP CONSTRAINT`` statement.
+    Generates::
 
-    `table_name`
-        Table name.
-    `name`
-        Constraint name.
+        ALTER TABLE {table_name} DROP CONSTRAINT {name}
     """
     return u"ALTER TABLE {} DROP CONSTRAINT {};" \
             .format(sql_name(table_name),
@@ -289,12 +251,9 @@ def sql_drop_constraint(table_name, name):
 
 def sql_create_enum_type(name, labels):
     """
-    Generates ``CREATE TYPE ... AS ENUM`` statement.
+    Generates::
 
-    `name`
-        Type name.
-    `labels`
-        List of enum values.
+        CREATE TYPE {name} AS ENUM ({label}, ...)
     """
     return u"CREATE TYPE {} AS ENUM ({});" \
             .format(sql_name(name),
@@ -303,10 +262,9 @@ def sql_create_enum_type(name, labels):
 
 def sql_drop_type(name):
     """
-    Generates ``DROP TYPE`` statement.
+    Generates::
 
-    `name`
-        Type name.
+        DROP TYPE {name}
     """
     return u"DROP TYPE {};" \
             .format(sql_name(name))
@@ -314,12 +272,9 @@ def sql_drop_type(name):
 
 def sql_select(table_name, names):
     """
-    Generates a simple ``SELECT`` statement.
+    Generates::
 
-    `table_name`
-        Table name.
-    `names`
-        Column names to select from the table.
+        SELECT {name}, ... FROM {table_name}
     """
     return u"SELECT {}\n    FROM {};" \
             .format(sql_name(names),
@@ -328,16 +283,11 @@ def sql_select(table_name, names):
 
 def sql_insert(table_name, names, values, returning_names=None):
     """
-    Generates an ``INSERT`` statement.
+    Generates::
 
-    `table_name`
-        Table name.
-    `names`
-        List of table columns.
-    `values`
-        Respective column values.
-    `returning_names`
-        List of columns to return or ``None``.
+        INSERT INTO {table_name} ({name}, ...)
+        VALUES ({value}, ...)
+        RETURNING {returning_name}, ...
     """
     lines = []
     if names:
@@ -358,20 +308,11 @@ def sql_insert(table_name, names, values, returning_names=None):
 def sql_update(table_name, key_name, key_value, names, values,
                returning_names=None):
     """
-    Generates an ``UPDATE`` statement.
+    Generates::
 
-    `table_name`
-        Table name.
-    `key_name`
-        Name of the column used to select a row in the table.
-    `key_value`
-        Value for selecting a table row.
-    `names`
-        List of columns to update.
-    `values`
-        Corresponding column values.
-    `returning_names`
-        List of columns to return or ``None``.
+        UPDATE {table_name} SET {name} = {value}, ...
+        WHERE {key_name} = {key_value}
+        RETURNING {returning_name}, ...
     """
     lines = []
     lines.append(u"UPDATE {}".format(sql_name(table_name)))
@@ -395,14 +336,10 @@ def sql_update(table_name, key_name, key_value, names, values,
 
 def sql_delete(table_name, key_name, key_value):
     """
-    Generates a ``DELETE`` statement.
+    Generates::
 
-    `table_name`
-        Table name.
-    `key_name`
-        Name of the column used to select the row to delete.
-    `key_value`
-        Corresponding value.
+        DELETE FROM {table_name}
+        WHERE {key_name} = {key_value}
     """
     lines = []
     lines.append(u"DELETE FROM {}".format(sql_name(table_name)))

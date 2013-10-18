@@ -3,14 +3,21 @@
 #
 
 
-from rex.core import get_settings, Error
-from .fact import Driver
+from rex.core import get_settings, Error, cached
 from .sql import sql_select_database, sql_create_database, sql_drop_database
 import htsql.core.util
 import psycopg2, psycopg2.extensions
 
 
 class Cluster(object):
+    """
+    Represents a PostgreSQL cluster of databases.
+
+    `db`
+        HTSQL connection URI.  Server parameters are used to connect
+        to the cluster.  The database name is used as the default
+        name for database operations.
+    """
 
     def __init__(self, db):
         self.db = htsql.core.util.DB.parse(db)
@@ -18,10 +25,17 @@ class Cluster(object):
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, str(self.db))
 
-    def connect(self, database=None, autocommit=False):
-        if database is None:
-            database = self.db.database
-        parameters = { 'database': database }
+    def connect(self, name=None, autocommit=False):
+        """
+        Creates and returns a connection to a database from the cluster.
+
+        `name`
+            Database name; if not set, connect to the database specified
+            in the :class:`Cluster` constructor.
+        `autocommit`
+            If set, set the connection to autocommit mode.
+        """
+        parameters = { 'database': name or self.db.database }
         if self.db.host is not None:
             parameters['host'] = self.db.host
         if self.db.port is not None:
@@ -32,6 +46,10 @@ class Cluster(object):
             parameters['password'] = self.db.password
         try:
             connection = psycopg2.connect(**parameters)
+            psycopg2.extensions.register_type(psycopg2.extensions.UNICODE,
+                                              connection)
+            psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY,
+                                              connection)
             connection.set_client_encoding('UTF8')
             if autocommit:
                 connection.autocommit = True
@@ -39,45 +57,25 @@ class Cluster(object):
             raise Error("Failed to connect to the database server:", error)
         return connection
 
-    def connect_postgres(self):
-        return self.connect('postgres', autocommit=True)
+    def exists(self, name=None):
+        """Returns ``True`` if the database exists in the cluster."""
+        sql = sql_select_database(name or self.db.database)
+        return bool(self._master(sql))
 
-    def exists(self, database=None):
-        if database is None:
-            database = self.db.database
-        sql = sql_select_database(database)
-        return bool(self._master(database, sql))
+    def create(self, name=None):
+        """Creates a new database in the cluster."""
+        sql = sql_create_database(name or self.db.database)
+        self._master(sql)
 
-    def create(self, database=None):
-        if database is None:
-            database = self.db.database
-        sql = sql_create_database(database)
-        self._master(database, sql)
+    def drop(self, name=None):
+        """Deletes a database."""
+        sql = sql_drop_database(name or self.db.database)
+        self._master(sql)
 
-    def drop(self, database=None):
-        if database is None:
-            database = self.db.database
-        sql = sql_drop_database(database)
-        self._master(database, sql)
-
-    def deploy(self, facts, database=None, dry_run=False):
-        connection = self.connect(database)
-        try:
-            driver = Driver(connection)
-            driver(facts)
-            if not dry_run:
-                connection.commit()
-            else:
-                connection.rollback()
-            connection.close()
-        except psycopg2.Error, error:
-            raise Error("Got an error from the database server:", error)
-
-    def _master(self, database, sql):
-        if database is None:
-            database = self.db.database
+    def _master(self, sql):
+        # Executes `sql` against the master database; returns the output.
         result = None
-        connection = self.connect_postgres()
+        connection = self.connect('postgres', autocommit=True)
         try:
             cursor = connection.cursor()
             cursor.execute(sql)
@@ -89,7 +87,11 @@ class Cluster(object):
         return result
 
 
+@cached
 def get_cluster():
+    """
+    Get a cluster associated with the application database.
+    """
     db = get_settings().db
     if not db.engine == 'pgsql':
         raise Error("Expected a PostgreSQL database; got:", db)

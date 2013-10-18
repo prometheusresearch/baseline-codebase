@@ -5,6 +5,7 @@
 
 from rex.core import (Extension, MaybeVal, StrVal, BoolVal, OneOfVal,
         ChoiceVal, SeqVal, RecordVal, get_packages, Error, guard)
+from .cluster import get_cluster
 from .introspect import introspect
 from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
         sql_add_column, sql_drop_column, sql_add_unique_constraint,
@@ -14,6 +15,7 @@ from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
 import csv
 import htsql.core.domain
 import yaml
+import psycopg2
 
 
 class Driver(object):
@@ -119,7 +121,7 @@ class TableFact(Fact):
                 return
             table = schema.add_table(name)
             type = system_schema.types["int4"]
-            column = table.add_column("id", type, True)
+            column = table.add_column(u"id", type, True)
             constraint_name = mangle([table.name, column.name], "uk")
             key = table.add_unique_key(constraint_name, [column])
             body = [sql_define_column(column.name, "serial4", True)]
@@ -221,7 +223,7 @@ class LinkFact(Fact):
         schema = driver.get_schema()
         system_schema = driver.get_catalog()['pg_catalog']
         table_name = mangle(self.of)
-        name = mangle(self.link, "id")
+        name = mangle(self.link, u"id")
         target_table_name = mangle(self.to)
         constraint_name = mangle([self.of, self.link], "fk")
         if self.present:
@@ -235,9 +237,9 @@ class LinkFact(Fact):
             type = system_schema.types["int4"]
             column = table.add_column(name, type, self.required)
             target_table = schema[target_table_name]
-            if "id" not in target_table:
+            if u"id" not in target_table:
                 raise Error("Missing ID column from target table:", self.to)
-            target_column = target_table["id"]
+            target_column = target_table[u"id"]
             key = table.add_foreign_key(constraint_name, [column],
                                         target_table, [target_column])
             sql = sql_add_column(table.name, column.name, column.type.name,
@@ -285,7 +287,7 @@ class IdentityFact(Fact):
         columns = []
         for label in self.identity:
             column_name = mangle(label)
-            link_name = mangle(label, "id")
+            link_name = mangle(label, u"id")
             if column_name in table:
                 column = table[column_name]
             elif link_name in table:
@@ -503,5 +505,21 @@ def get_facts():
                 else:
                     raise Error("Got unrecognized fact")
     return facts
+
+
+def deploy(dry_run=False):
+    facts = get_facts()
+    cluster = get_cluster()
+    connection = cluster.connect()
+    try:
+        driver = Driver(connection)
+        driver(facts)
+        if not dry_run:
+            connection.commit()
+        else:
+            connection.rollback()
+        connection.close()
+    except psycopg2.Error, error:
+        raise Error("Got an error from the database driver:", error)
 
 

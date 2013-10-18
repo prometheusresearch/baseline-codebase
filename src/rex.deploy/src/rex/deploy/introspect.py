@@ -7,10 +7,14 @@ from .image import CatalogImage
 
 
 def introspect(connection):
+    """
+    Returns a catalog image that reflects the structure of the database.
+    """
     cursor = connection.cursor()
 
     catalog = CatalogImage()
 
+    # Extract schemas.
     cursor.execute("""
         SELECT n.oid, n.nspname
         FROM pg_catalog.pg_namespace n
@@ -18,10 +22,10 @@ def introspect(connection):
     """)
     schema_by_oid = {}
     for oid, nspname in cursor.fetchall():
-        name = nspname.encode('utf-8')
-        schema = catalog.add_schema(name)
+        schema = catalog.add_schema(nspname)
         schema_by_oid[oid] = schema
 
+    # Extract ENUM labels.
     labels_by_oid = {}
     cursor.execute("""
         SELECT e.enumtypid, e.enumlabel
@@ -31,6 +35,7 @@ def introspect(connection):
     for enumtypid, enumlabel in cursor.fetchall():
         labels_by_oid.setdefault(enumtypid, []).append(enumlabel)
 
+    # Extract data types.
     type_by_oid = {}
     cursor.execute("""
         SELECT t.oid, t.typnamespace, t.typname, t.typtype,
@@ -48,6 +53,7 @@ def introspect(connection):
             type = schema.add_type(typname)
         type_by_oid[oid] = type
 
+    # Extract tables.
     table_by_oid = {}
     cursor.execute("""
         SELECT c.oid, c.relnamespace, c.relname
@@ -60,10 +66,10 @@ def introspect(connection):
         if relnamespace not in schema_by_oid:
             continue
         schema = schema_by_oid[relnamespace]
-        name = relname.encode('utf-8')
         table = schema.add_table(relname)
         table_by_oid[oid] = table
 
+    # Extract columns.
     column_by_num = {}
     cursor.execute("""
         SELECT a.attrelid, a.attnum, a.attname, a.atttypid, a.atttypmod,
@@ -80,12 +86,12 @@ def introspect(connection):
         if attrelid not in table_by_oid:
             continue
         table = table_by_oid[attrelid]
-        name = attname.encode('utf-8')
         type = type_by_oid[atttypid]
         is_not_null = bool(attnotnull)
-        column = table.add_column(name, type, is_not_null)
+        column = table.add_column(attname, type, is_not_null)
         column_by_num[attrelid, attnum] = column
 
+    # Extract constraints.
     cursor.execute("""
         SELECT c.conname, c.contype, c.confmatchtype,
                c.conrelid, c.conkey, c.confrelid, c.confkey

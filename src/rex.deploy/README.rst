@@ -110,6 +110,40 @@ For more information on the ``rex`` utility and ``rex.yaml`` configuration
 file, see documentation to :mod:`rex.ctl`.
 
 
+Cluster management
+==================
+
+:mod:`rex.deploy` allows you to manage databases in a PostgreSQL cluster.  Use
+function :func:`rex.deploy.get_cluster` to get a :class:`rex.deploy.Cluster`
+instance associated with the application database::
+
+    >>> from rex.core import Rex
+    >>> demo = Rex('rex.deploy_demo')
+
+    >>> from rex.deploy import get_cluster
+    >>> with demo:
+    ...     cluster = get_cluster()
+
+Using :class:`rex.deploy.Cluster`, you can create and destroy databases in the
+cluster::
+
+    >>> cluster.create('deploy_demo_derived')
+    >>> cluster.exists('deploy_demo_derived')
+    True
+
+    >>> cluster.drop('deploy_demo_derived')
+    >>> cluster.exists('deploy_demo_derived')
+    False
+
+Use function :func:`rex.deploy.introspect` to get a catalog image that reflects
+the structure of the database::
+
+    >>> from rex.deploy import introspect
+
+    >>> connection = cluster.connect()
+    >>> catalog = introspect(connection)
+
+
 SQL serialization
 =================
 

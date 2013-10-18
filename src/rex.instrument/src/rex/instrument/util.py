@@ -33,8 +33,9 @@ class FileLock(object):
         fcntl.flock(self.descriptor, fcntl.LOCK_EX)
 
     def __exit__(self, *args, **kwds):
-        fcntl.flock(self.descriptor, fcntl.LOCK_UN)
-        self.descriptor.close()
+        if self.descriptor is not None:
+            fcntl.flock(self.descriptor, fcntl.LOCK_UN)
+            self.descriptor.close()
         self.descriptor = None
 
 

@@ -5,7 +5,7 @@
 
 from cogs import setting, env
 from cogs.log import debug, fail
-from rex.core import Rex, get_packages, Setting, Error
+from rex.core import Rex, LatentRex, get_packages, Setting, Error
 import shlex
 import json
 
@@ -74,14 +74,6 @@ def PARAMETERS(config=None):
     env.parameters = config
 
 
-class RexNoInit(Rex):
-    # Makes a RexDB application without executing `Initialize` interface.
-
-    def initialize(self):
-        # Do not fail on startup.
-        pass
-
-
 def make_rex(project=None, require_list=None, set_list=None,
              initialize=True, ensure=None):
     # Creates a RexDB application from command-line parameters
@@ -108,7 +100,7 @@ def make_rex(project=None, require_list=None, set_list=None,
     # Build the application.
     rex_type = Rex
     if not initialize:
-        rex_type = RexNoInit
+        rex_type = LatentRex
     try:
         app = rex_type(*requirements, **parameters)
     except Error, error:

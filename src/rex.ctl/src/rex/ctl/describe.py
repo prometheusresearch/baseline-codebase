@@ -137,6 +137,7 @@ class SETTINGS:
 
         # Load setting values from `settings.yaml` files and application
         # parameters.
+        # FIXME: no longer works properly now that we permit merging.
         parameters = {}
         sources = {}
         for package in reversed(packages):

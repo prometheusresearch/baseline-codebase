@@ -752,11 +752,11 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core/src
         Summary:
-          Core components of the RexDB platform
+          Foundation of the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.core
+          https://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
@@ -769,9 +769,9 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
           rex.db
@@ -781,27 +781,28 @@ tests:
         Version:
           0.1.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy/static
         Summary:
           Database schema management for RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.deploy
+          https://bitbucket.org/prometheus/rex.deploy
         Dependencies:
-          rex.core
-          rex.db
+          rex.core>=1.0,<2
+          rex.db>=1.0,<2
 
         [rex.db]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.db-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.db/src
         Summary:
           Database access for the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.db
+          https://bitbucket.org/prometheus/rex.db
         Dependencies:
+          rex.core>=1.0,<2
           rex.web>=1.0,<2
           HTSQL>=2.3.3,<2.5
 
@@ -809,27 +810,27 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.web/src
         Summary:
-          Web stack for the Rex platform
+          Web stack for the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.web
+          https://bitbucket.org/prometheus/rex.web
         Dependencies:
           rex.core>=1.0,<2
-          webob
-          jinja2
-          pycrypto
-          pbkdf2
+          webob>=1.2.3,<1.3
+          jinja2>=2.7,<2.8
+          pycrypto>=2.4
+          pbkdf2>=1.3
 
         [rex.core]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core/src
         Summary:
-          Core components of the RexDB platform
+          Foundation of the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.core
+          https://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
@@ -840,9 +841,9 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
           rex.db
@@ -852,27 +853,28 @@ tests:
         Version:
           0.1.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy/static
         Summary:
           Database schema management for RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.deploy
+          https://bitbucket.org/prometheus/rex.deploy
         Dependencies:
-          rex.core
-          rex.db
+          rex.core>=1.0,<2
+          rex.db>=1.0,<2
 
         [rex.db]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.db-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.db/src
         Summary:
           Database access for the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.db
+          https://bitbucket.org/prometheus/rex.db
         Dependencies:
+          rex.core>=1.0,<2
           rex.web>=1.0,<2
           HTSQL>=2.3.3,<2.5
 
@@ -880,27 +882,27 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.web/src
         Summary:
-          Web stack for the Rex platform
+          Web stack for the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.web
+          https://bitbucket.org/prometheus/rex.web
         Dependencies:
           rex.core>=1.0,<2
-          webob
-          jinja2
-          pycrypto
-          pbkdf2
+          webob>=1.2.3,<1.3
+          jinja2>=2.7,<2.8
+          pycrypto>=2.4
+          pbkdf2>=1.3
 
         [rex.core]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core/src
         Summary:
-          Core components of the RexDB platform
+          Foundation of the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.core
+          https://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
@@ -911,9 +913,9 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl/demo/rex.ctl_demo/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource/demo/rex.ctl_demo/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl/demo/rex.ctl_demo/static
         Dependencies:
           rex.web
           rex.db
@@ -923,27 +925,28 @@ tests:
         Version:
           0.1.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy/src
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.deploy-opensource/static
+          /home/xi/xitology/prometheus/rex/opensource/rex.deploy/static
         Summary:
           Database schema management for RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.deploy
+          https://bitbucket.org/prometheus/rex.deploy
         Dependencies:
-          rex.core
-          rex.db
+          rex.core>=1.0,<2
+          rex.db>=1.0,<2
 
         [rex.db]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.db-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.db/src
         Summary:
           Database access for the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.db
+          https://bitbucket.org/prometheus/rex.db
         Dependencies:
+          rex.core>=1.0,<2
           rex.web>=1.0,<2
           HTSQL>=2.3.3,<2.5
 
@@ -951,27 +954,27 @@ tests:
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.web-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.web/src
         Summary:
-          Web stack for the Rex platform
+          Web stack for the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.web
+          https://bitbucket.org/prometheus/rex.web
         Dependencies:
           rex.core>=1.0,<2
-          webob
-          jinja2
-          pycrypto
-          pbkdf2
+          webob>=1.2.3,<1.3
+          jinja2>=2.7,<2.8
+          pycrypto>=2.4
+          pbkdf2>=1.3
 
         [rex.core]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core/src
         Summary:
-          Core components of the RexDB platform
+          Foundation of the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.core
+          https://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
@@ -982,17 +985,17 @@ tests:
       stdout: |+
         [rex.core.application]
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src/rex/core/application.pyc
+          /home/xi/xitology/prometheus/rex/opensource/rex.core/src/rex/core/application.pyc
 
         [rex.core]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core/src
         Summary:
-          Core components of the RexDB platform
+          Foundation of the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.core
+          https://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
@@ -1001,17 +1004,17 @@ tests:
       stdout: |+
         [shared]
         Resources:
-          /home/xi/xitology/prometheus/rex/opensource/rex.ctl-opensource-regress/test/data/shared
+          /home/xi/xitology/prometheus/rex/opensource/rex.ctl/test/data/shared
 
         [rex.core]
         Version:
           1.0.0
         Location:
-          /home/xi/xitology/prometheus/rex/opensource/rex.core-opensource/src
+          /home/xi/xitology/prometheus/rex/opensource/rex.core/src
         Summary:
-          Core components of the RexDB platform
+          Foundation of the RexDB platform
         URL:
-          http://bitbucket.org/prometheus/rex.core
+          https://bitbucket.org/prometheus/rex.core
         Dependencies:
           rex.setup>=1.0,<2
           pyyaml
@@ -1119,6 +1122,10 @@ tests:
         [htsql_extensions]
         Declared in:
           rex.db
+        Preset in:
+          rex.deploy
+        Value:
+          {'rex_deploy': {}}
         Description:
           Configuration of HTSQL extensions.
 
@@ -1265,6 +1272,10 @@ tests:
         [htsql_extensions]
         Declared in:
           rex.db
+        Preset in:
+          rex.deploy
+        Value:
+          {'rex_deploy': {}}
         Description:
           Configuration of HTSQL extensions.
 
@@ -1411,6 +1422,10 @@ tests:
         [htsql_extensions]
         Declared in:
           rex.db
+        Preset in:
+          rex.deploy
+        Value:
+          {'rex_deploy': {}}
         Description:
           Configuration of HTSQL extensions.
 

@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <title>All RexForms Tests</title>
-    <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/qunit/1.10.0/qunit/qunit.css">
-    <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/qunit/1.10.0/addons/composite/qunit-composite.css">
-    <script src="{{ PREFIX['rex.ext'] }}/qunit/1.10.0/qunit/qunit.js"></script>
-    <script src="{{ PREFIX['rex.ext'] }}/qunit/1.10.0/addons/composite/qunit-composite.js"></script>
+    <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/qunit/qunit.css">
+    <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/addons/composite/qunit-composite.css">
+    <script src="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/qunit/qunit.js"></script>
+    <script src="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/addons/composite/qunit-composite.js"></script>
     <script>
         QUnit.testSuites([
             {% for file in files %}

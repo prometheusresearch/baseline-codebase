@@ -2,7 +2,7 @@
 {% import 'rex.forms:/macros.html' as macro with context %}
 <html>
 <head>
-    <title>Suite: {% if req.GET.run %}{{ req.GET.run|e }}{% else %}all{% endif %}</title>
+    <title>Suite: {% if PARAMS.run %}{{ PARAMS.run|e }}{% else %}all{% endif %}</title>
     {{ macro.client_head() }}
     <script type="text/javascript" src="jquery-mockjax/jquery.mockjax.js"></script>
     <script type="text/javascript">
@@ -74,16 +74,16 @@
         };
     </script>
 
-    <link rel="stylesheet" href="{{ PREFIX['rex.ext'] }}/qunit/1.10.0/qunit/qunit.css">
-    <script src="{{ PREFIX['rex.ext'] }}/qunit/1.10.0/qunit/qunit.js"></script>
-    <script src="{{ PREFIX['rex.common'] }}/js/qunit-addons/qunit-dom.js"></script>
+    <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/qunit/qunit.css">
+    <script src="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/qunit/qunit.js"></script>
+    <script src="{{ MOUNT['rex.common'] }}/js/qunit-addons/qunit-dom.js"></script>
 
-    {% if not req.GET.run %}
+    {% if not PARAMS.run %}
         {% for file in files %}
         <script src="suites/{{ file }}.js"></script>
         {% endfor %}
     {% else %}
-        <script src="suites/{{ req.GET.run }}.js"></script>
+        <script src="suites/{{ PARAMS.run }}.js"></script>
     {% endif %}
 </head>
 <body>

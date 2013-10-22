@@ -4,7 +4,7 @@
 <head>
     <title>Suite: {% if PARAMS.run %}{{ PARAMS.run|e }}{% else %}all{% endif %}</title>
     {{ macro.client_head() }}
-    <script type="text/javascript" src="jquery-mockjax/jquery.mockjax.js"></script>
+    <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery-mockjax/jquery.mockjax.js"></script>
     <script type="text/javascript">
         window.customSaveStateResponse = null;
         $.mockjax({

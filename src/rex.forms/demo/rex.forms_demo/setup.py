@@ -15,6 +15,5 @@ setup(name='rex.forms_demo',
       setup_requires=['rex.setup'],
       install_requires=[
           'rex.forms>=0.9.0',
-          'rex.study_auth',
       ],
 )

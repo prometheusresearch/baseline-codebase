@@ -43,8 +43,7 @@ class Assessment(object):
     def update(self, data):
         try:
             self.instrument.validate(data)
-        except ValidationError, exc:
-            raise exc
+        except ValidationError:
             raise AssessmentError("Assessment data is invalid: %s"
                                   % simplejson.dumps(data))
         self.data = data

@@ -22,6 +22,8 @@ class Assessment(object):
     valid_statuses = [IN_PROGRESS, COMPLETED]
 
     def __init__(self, id, instrument, data, status, last_modified):
+        #print 'Assessment', id, status, last_modified
+        #print data
         assert isinstance(id, (str, unicode))
         assert isinstance(instrument, Instrument)
         self.id = id
@@ -41,7 +43,8 @@ class Assessment(object):
     def update(self, data):
         try:
             self.instrument.validate(data)
-        except ValidationError:
+        except ValidationError, exc:
+            raise exc
             raise AssessmentError("Assessment data is invalid: %s"
                                   % simplejson.dumps(data))
         self.data = data

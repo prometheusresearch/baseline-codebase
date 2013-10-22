@@ -1,0 +1,17 @@
+#
+# Copyright (c) 2013, Prometheus Research, LLC
+#
+
+title: REX.INSTRUMENT 
+suite: rex.instrument
+tests:
+
+- coverage: setup.cfg
+
+- doctest: README.rst
+- doctest: test/test_instrument.rst
+- doctest: test/test_assessment.rst
+
+- coverage-check: 90.0
+- coverage-report: ./build/coverage
+

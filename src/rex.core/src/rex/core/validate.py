@@ -7,6 +7,7 @@ from .error import Error, guard
 import re
 import os.path
 import collections
+import keyword
 import json
 
 
@@ -355,6 +356,7 @@ class RecordVal(Validate):
     def __init__(self, fields):
         self.fields = fields
         self.names = []
+        self.attributes = {}
         self.validates = {}
         self.defaults = {}
         for field in fields:
@@ -369,7 +371,12 @@ class RecordVal(Validate):
                 self.names.append(name)
                 self.validates[name] = validate
                 self.defaults[name] = default
-        self.record_type = collections.namedtuple('Record', self.names)
+            attribute = name
+            if keyword.iskeyword(attribute):
+                attribute += '_'
+            self.attributes[name] = attribute
+        self.record_type = collections.namedtuple('Record',
+                [self.attributes[name] for name in self.names])
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
@@ -392,14 +399,16 @@ class RecordVal(Validate):
             name = name.replace('-', '_').replace(' ', '_')
             if name not in self.names:
                 raise Error("Got unexpected field:", name)
-            values[name] = value
+            attribute = self.attributes[name]
+            values[attribute] = value
         for name in self.names:
-            if name in values:
+            attribute = self.attributes[name]
+            if attribute in values:
                 validate = self.validates[name]
                 with guard("While validating field:", name):
-                    values[name] = validate(values[name])
+                    values[attribute] = validate(values[attribute])
             elif name in self.defaults:
-                values[name] = self.defaults[name]
+                values[attribute] = self.defaults[name]
             else:
                 raise Error("Missing mandatory field:", name)
         return self.record_type(**values)

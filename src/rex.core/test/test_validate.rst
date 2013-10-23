@@ -604,4 +604,13 @@ Invalid field values are reported::
     While validating field:
         age
 
+``RecordVal`` mangles field names that coincide with Python keywords::
+
+    >>> kwd_record_val = RecordVal([('if', BoolVal()),
+    ...                             ('then', IntVal())])
+    >>> kwd_record_val
+    RecordVal([('if', BoolVal()), ('then', IntVal())])
+    >>> kwd_record_val({'if': True, 'then': 42})
+    Record(if_=True, then=42)
+
 

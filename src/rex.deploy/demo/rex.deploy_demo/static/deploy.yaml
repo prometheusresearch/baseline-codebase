@@ -1,12 +1,13 @@
 
 - table: study
-- column: study.code
-  type: text
-- identity: [study.code]
-- column: study.title
-  type: text
-- column: study.closed
-  type: boolean
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+  - column: closed
+    type: boolean
 
 - data: |
     code,title,closed
@@ -16,35 +17,25 @@
     puis,Prometheus University Intelligence Study,true
   of: study
 
-# TODO:
-# - table: study
-#   with:
-#   - column: code
-#     type: text
-#   - identity: [code]
-#   - column: title
-#     type: text
-#   - column: closed
-#     type: boolean
-
 - table: individual
-- column: individual.code
-  type: text
-- identity: [individual.code]
-- column: individual.sex
-  type: [not-known, male, female, not-applicable]
-- link: individual.mother
-  to: individual
-  required: false
-- link: individual.father
-  to: individual
-  required: false
-- link: individual.adopted_mother
-  to: individual
-  required: false
-- link: individual.adopted_father
-  to: individual
-  required: false
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: sex
+    type: [not-known, male, female, not-applicable]
+  - link: mother
+    to: individual
+    required: false
+  - link: father
+    to: individual
+    required: false
+  - link: adopted_mother
+    to: individual
+    required: false
+  - link: adopted_father
+    to: individual
+    required: false
 
 - data: |
     code,sex,mother,father
@@ -1381,27 +1372,6 @@
     2330,male,,
     2331,male,,
   of: individual
-
-# TODO:
-# - table: individual
-#   with:
-#   - column: code
-#     type: text
-#   - identity: [code]
-#   - column: sex
-#     type: [not-known, male, female, not-applicable]
-#   - link: mother
-#     to: individual
-#     required: false
-#   - link: father
-#     to: individual
-#     required: false
-#   - link: adopted_mother
-#     to: individual
-#     required: false
-#   - link: adopted_father
-#     to: individual
-#     required: false
 
 - table: identity
 - link: identity.individual

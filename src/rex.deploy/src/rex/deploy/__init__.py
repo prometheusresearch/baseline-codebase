@@ -9,7 +9,7 @@ This package provides database schema management.
 
 
 from .cluster import get_cluster, Cluster
-from .fact import get_facts, deploy
+from .fact import deploy
 from .image import (Image, NamedImage, ImageMap, CatalogImage, SchemaImage,
         TypeImage, DomainTypeImage, EnumTypeImage, TableImage, ColumnImage,
         ConstraintImage, UniqueKeyImage, ForeignKeyImage, DataImage)

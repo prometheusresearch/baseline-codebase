@@ -15,6 +15,7 @@ from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
 import csv
 import htsql.core.domain
 import re
+import os.path
 import yaml
 import psycopg2
 
@@ -49,7 +50,7 @@ class DeployLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
 
     def construct_yaml_map(self, node):
         # Store the location of the node.
-        data = super(DeployLoader, self).construct_yaml_map(node)
+        data = self.construct_mapping(node)
         location = Location(node.start_mark.name, node.start_mark.line+1)
         self.oid_to_location[id(data)] = location
         return data
@@ -68,6 +69,10 @@ class Driver(object):
         self.catalog = None
         self.logging = {}
         self.edit = False
+        self.cwd = None
+
+    def chdir(self, directory):
+        self.cwd = directory
 
     def parse(self, stream):
         loader = DeployLoader(stream)
@@ -79,10 +84,21 @@ class Driver(object):
                 (isinstance(data, list) and all(isinstance(item, dict)
                                                 for item in data))):
             raise Error("Got ill-formed input")
-        if isinstance(data, dict):
-            return self.build(data)
-        else:
-            return [self.build(item) for item in data]
+        location = None
+        try:
+            if isinstance(data, dict):
+                location = loader.oid_to_location.get(id(data))
+                return self.build(data)
+            else:
+                facts = []
+                for item in data:
+                    location = loader.oid_to_location.get(id(item))
+                    facts.append(self.build(item))
+                return facts
+        except Error, error:
+            if location is not None:
+                error.wrap("While parsing:", location)
+            raise
 
     def build(self, mapping):
         for fact_type in Fact.all():
@@ -626,6 +642,8 @@ class DataFact(Fact):
             data = record.data
         else:
             data_path = record.data
+            if driver.cwd is not None:
+                data_path = os.path.join(driver.cwd, data_path)
             if table_label is None:
                 table_label = os.path.splitext(os.path.basename(data_path))[0]
         if table_label is None:
@@ -678,7 +696,10 @@ class DataFact(Fact):
             rows = driver.submit(sql)
             table.add_data(rows)
 
-        reader = csv.reader(self.data.splitlines())
+        if self.data_path is not None:
+            reader = csv.reader(open(self.data_path))
+        else:
+            reader = csv.reader(self.data.splitlines())
         labels = next(reader)
         rows = list(reader)
 
@@ -834,10 +855,12 @@ def deploy(dry_run=False):
         for package in reversed(get_packages()):
             if not package.exists('deploy.yaml'):
                 continue
+            driver.chdir(package.abspath('/'))
             package_facts = driver.parse(package.open('deploy.yaml'))
             if not isinstance(package_facts, list):
                 package_facts = [package_facts]
             facts.extend(package_facts)
+        driver.chdir(None)
         driver(facts)
         if not dry_run:
             connection.commit()

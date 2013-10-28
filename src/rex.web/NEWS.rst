@@ -5,9 +5,10 @@
 .. contents:: Table of Contents
 
 
-1.0.1 (2013-XX-XX)
+1.1.0 (2013-XX-XX)
 ==================
 
+* Made the routing pipeline extensible (Kyrylo Simonov).
 * Added NIH acknowledgement (Clark Evans).
 
 

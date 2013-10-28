@@ -132,7 +132,7 @@ Each template gets a number of parameters::
     <p><code>CSRF_INPUT_TAG:</code><code>&lt;input name=&#34;_csrf_token&#34; type=&#34;hidden&#34; value=&#34;...&#34;&gt;</code></p>
     <p><code>CSRF_META_TAG:</code><code>&lt;meta name=&#34;_csrf_token&#34; content=&#34;...&#34;&gt;</code></p>
     <p><code>CSRF_TOKEN:</code><code>...</code></p>
-    <p><code>MOUNT:</code><code>{&#39;templating&#39;: &#39;http://localhost/templating&#39;}</code></p>
+    <p><code>MOUNT:</code><code>{&#39;rex.web&#39;: &#39;http://localhost&#39;, &#39;rex.core&#39;: &#39;http://localhost/core&#39;, &#39;templating&#39;: &#39;http://localhost/templating&#39;}</code></p>
     <p><code>PACKAGE:</code><code>templating</code></p>
     <p><code>PACKAGE_URL:</code><code>http://localhost/templating</code></p>
     <p><code>PARAMS:</code><code>NestedMultiDict([(u&#39;dummy&#39;, u&#39;1&#39;)])</code></p>
@@ -141,7 +141,7 @@ Each template gets a number of parameters::
     <p><code>PATH_URL:</code><code>http://localhost/templating/parameters.html</code></p>
     <p><code>REQUEST:</code><code>GET /templating/parameters.html?dummy=1 HTTP/1.0
     Host: localhost:80</code></p>
-    <p><code>SETTINGS:</code><code>SettingCollection(debug=False, mount={&#39;templating&#39;: &#39;templating&#39;}, secret=None)</code></p>
+    <p><code>SETTINGS:</code><code>SettingCollection(debug=False, mount={&#39;rex.web&#39;: &#39;&#39;, &#39;rex.core&#39;: &#39;core&#39;, &#39;templating&#39;: &#39;templating&#39;}, secret=None)</code></p>
     <p><code>URL:</code><code>http://localhost/templating/parameters.html?dummy=1</code></p>
     <p><code>USER:</code><code>Alice</code></p>
     </body>

@@ -209,10 +209,10 @@ def render_to_response(package_path, req,
         ``SessionManager``.
     `PACKAGE`
         The package that handles the request.  This attribute is only available
-        after the request is processed by ``PackageRouter``.
+        after the request is processed by ``SegmentMapper``.
     `PACKAGE_URL`
         The URL of the package that handles the request.  This attribute is only
-        available after the request is processed by ``PackageRouter``.
+        available after the request is processed by ``SegmentMapper``.
     `PARAMS`
         Parameters from the query string and request body.
     `PATH`

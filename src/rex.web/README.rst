@@ -134,32 +134,36 @@ Routing pipeline
 The following diagram shows how :mod:`rex.web` routes incoming HTTP requests::
 
        o
-       |
+       |  (joint pipeline)
     +--|-----------------+
     |  v                 |
     | SessionManager     |
     |  |                 |
-    |  |                 |
     |  v                 |
     | ErrorCatcher -----------------> HandleError
     |  |                 |
-    |  |                 |
     |  v                 |
-    | PackageRouter      |
-    |  |                 |
-    |  |                 |
-    |  v                 |
+    | SegmentMapper      |
+    |  |  |  |           |
+    +--|--|--|-----------+
+       |  |  |
+    +--|-----------------+
+    |  v                 |+
+    | PackageGate        ||+
+    |  |                 |||
+    |  v                 |||
     | StaticServer -----------------> HandleFile
-    |  |                 |
-    |  |                 |
-    |  v                 |
+    |  |                 |||
+    |  v                 |||
     | CommandDispatcher ------------> HandleLocation, Command
-    |                    |
-    +--------------------+
-      (fixed pipeline)                (extensible interfaces)
+    |                    |||
+    +--------------------+||
+     +--------------------+|
+      +--------------------+
+         (package pipelines)          (extensible interfaces)
 
-The block on the left represents the fixed part of the routing pipeline; a
-RexDB application has no control over it.  The elements on the right are
+The blocks on the left represents the fixed parts of the routing pipeline; a
+RexDB application has little control over it.  The elements on the right are
 interfaces which could be customized by the application.
 
 The pipeline consists of the following components:
@@ -182,20 +186,21 @@ The pipeline consists of the following components:
     specific HTTP errors such as as ``401 Not Authorized`` or ``404 Not
     Found``.
 
-``PackageRouter``
+``SegmentMapper``
     Determines which package will handle the incoming request.
 
     By default, the first package in the requirement list is mounted at ``/``,
     and any other package ``<package>.<name>`` is mounted at ``/<name>``.  You
     can override default mount points using ``mount`` configuration parameter.
 
-``StaticServer``
-    Serves static files from the ``/www`` directory.
-
-    Adds the following variables to the request environment:
+``PackageGate``
+    Adds the following variables to the reques environment:
 
     ``rex.package``
-        The package that handles the request.
+        The name of the package that handles the request.
+
+``StaticServer``
+    Serves static files from the ``/www`` directory.
 
     Implement :class:`rex.web.HandleFile` interface to customize rendering for
     a specific file type.
@@ -209,6 +214,9 @@ The pipeline consists of the following components:
     You can also use :class:`rex.web.Command`, a specialized variant of
     :class:`rex.web.HandleLocation` with built-in authorization and form
     parameters parsing.
+
+An application may add additional components to the package pipeline by
+implementing :class:`rex.web.Route` interface.
 
 
 Error Handlers

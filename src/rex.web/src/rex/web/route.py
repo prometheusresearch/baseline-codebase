@@ -4,7 +4,7 @@
 
 
 from rex.core import (Setting, Extension, WSGI, get_packages, get_settings,
-        MapVal, OMapVal, ChoiceVal, StrVal, Error)
+        MapVal, OMapVal, ChoiceVal, StrVal, Error, cached)
 from .handle import HandleFile, HandleLocation, HandleError
 from .auth import authenticate, authorize
 from .secret import encrypt, decrypt, sign, validate, a2b, b2a
@@ -65,11 +65,8 @@ class MountSetting(Setting):
     def validate(self, value):
         # The package to mount at ``/``.
         root_name = get_packages()[0].name
-        # All packages with servable content.
-        package_names = [package.name
-                         for package in get_packages()
-                         if package.exists(StaticServer.www_root) or
-                            HandleLocation.by_package(package)]
+        # All packages (not necessarily with servable content).
+        package_names = [package.name for package in get_packages()]
         # Check if the raw setting value is well-formed.
         mount_val = MapVal(ChoiceVal(*package_names),
                            StrVal('^/(?:[0-9A-Aa-z~!@$^*+=:,._-]+/?)?$'))
@@ -162,8 +159,8 @@ class ErrorCatcher(object):
                 raise
 
 
-class PackageRouter(object):
-    # Determines which package handles the request.
+class SegmentMapper(object):
+    # Uses the first segment of the URL to determine the request handler.
 
     def __init__(self, route_map, fallback=None):
         # Maps URL segments to handlers.
@@ -187,6 +184,28 @@ class PackageRouter(object):
         raise HTTPNotFound()
 
 
+class PackageGate(object):
+    # Adds `rex.package` to the request environment.
+
+    def __init__(self, name, fallback=None):
+        # Package name.
+        self.name = name
+        # The next handler.
+        self.fallback = fallback
+
+    def __call__(self, req):
+        # Add `rex.package` to the request environment
+        # without mangling the original request object.
+        req = req.copy()
+        req.environ['rex.package'] = self.name
+        # Delegate the request.
+        if self.fallback is not None:
+            return self.fallback(req)
+        # NOTE: Not reachable (`PackageGate` is not created when
+        # `fallback` is unset).
+        raise HTTPNotFound()
+
+
 class StaticServer(object):
     # Handles static resources.
 
@@ -199,30 +218,14 @@ class StaticServer(object):
     # Directory published on HTTP.
     www_root = '/www'
 
-    def __init__(self, package_name, file_handler_map, fallback=None):
-        self.package_name = package_name
+    def __init__(self, package, file_handler_map, fallback=None):
+        self.package = package
         # Maps file extensions to handler types.
         self.file_handler_map = file_handler_map
         # Handler to call when file is not found.
         self.fallback = fallback
 
     def __call__(self, req):
-        # Add `rex.package` attribute to the request object
-        # without mangling the original request object.
-        req = req.copy()
-        req.environ['rex.package'] = self.package_name
-
-        # Find the package and make sure that the root directory exists.
-        package = get_packages()[self.package_name]
-        if not package.exists(self.www_root):
-            # If not, delegate the request to the fallback.
-            if self.fallback is not None:
-                return self.fallback(req)
-            # FIXME: not reachable because if neither the `www` directory nor
-            # the fallback exists, `StaticServer` instance is not going to be
-            # created.
-            raise HTTPNotFound()
-
         # Normalize the URL.
         url = req.path_info
         url = os.path.normpath(url)
@@ -234,7 +237,7 @@ class StaticServer(object):
 
         # Convert the URL into the filesystem path.
         local_path = self.www_root + url
-        real_path = package.abspath(local_path)
+        real_path = self.package.abspath(local_path)
 
         # If the URL refers to a directory without trailing `/`,
         # redirect to url+'/'.
@@ -258,8 +261,8 @@ class StaticServer(object):
             # Detemine and check access permissions for the requested URL.
             access = self.default_access
             access_path = self.www_root + self.access_file
-            if package.exists(access_path):
-                access_map = yaml.safe_load(package.open(access_path))
+            if self.package.exists(access_path):
+                access_map = yaml.safe_load(self.package.open(access_path))
                 access_val = OMapVal(StrVal(), StrVal())
                 access_map = access_val(access_map)
                 for pattern in access_map:
@@ -271,7 +274,7 @@ class StaticServer(object):
             # Find and execute the handler by file extension.
             ext = os.path.splitext(real_path)[1]
             if ext in self.file_handler_map:
-                package_path = "%s:%s" % (self.package_name, local_path)
+                package_path = "%s:%s" % (self.package.name, local_path)
                 handler = self.file_handler_map[ext](package_path)
             else:
                 handler = FileApp(real_path)
@@ -308,6 +311,78 @@ class CommandDispatcher(object):
         raise HTTPNotFound()
 
 
+class Route(Extension):
+    """
+    Interface for adding a component to the package routing pipeline.
+    """
+
+    #: The relative position of the component (lower is earlier).
+    priority = None
+
+    @classmethod
+    def sanitize(cls):
+        # `priority` must be an integer.
+        assert cls.priority is None or isinstance(cls.priority, int)
+
+    @classmethod
+    def enabled(cls):
+        return (cls.priority is not None)
+
+    @classmethod
+    @cached
+    def ordered(cls):
+        """
+        Returns implementations in the priority order.
+        """
+        extensions = cls.all()
+        priorities = set([extension.priority for extension in extensions])
+        assert len(priorities) == len(extensions)
+        return sorted(extensions, key=(lambda e: e.priority))
+
+    def __call__(self, package, fallback):
+        """
+        Generates a routing component for the given package.
+
+        Implementations must override this method.
+        """
+        raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
+
+
+class RoutePackage(Route):
+    # Sets `rex.package`.
+
+    priority = 0
+
+    def __call__(self, package, fallback):
+        if fallback is not None:
+            return PackageGate(package.name, fallback)
+        return fallback
+
+
+class RouteFiles(Route):
+    # Serves files from `static/www` directory.
+
+    priority = 10
+
+    def __call__(self, package, fallback):
+        if package.exists(StaticServer.www_root):
+            file_handler_map = HandleFile.map_all()
+            return StaticServer(package, file_handler_map, fallback)
+        return fallback
+
+
+class RouteCommands(Route):
+    # Routes to `HandleLocation` and `Command` handlers.
+
+    priority = 20
+
+    def __call__(self, package, fallback):
+        location_handler_map = HandleLocation.map_by_package(package.name)
+        if location_handler_map:
+            return CommandDispatcher(location_handler_map, fallback)
+        return fallback
+
+
 class StandardWSGI(WSGI):
 
     @classmethod
@@ -317,39 +392,34 @@ class StandardWSGI(WSGI):
         # Package mount table.
         mount = get_settings().mount
 
-        # File handlers shared by all packages.
-        file_handler_map = HandleFile.map_all()
+        # Generators for package routing pipeline.
+        planners = [route_type() for route_type in Route.ordered()]
+        planners.reverse()
 
-        # Prepare routing map for `PackageRouter`.
+        # Prepare routing map for `SegmentMapper`.
         packages = get_packages()
         route_map = {}
         default = None
         for package in reversed(packages):
-            # Skip packages without servable content.
-            if package.name not in mount:
-                continue
             # Mount point and its handler.
             segment = mount[package.name]
-            route = None
             if segment:
                 route = route_map.get(segment)
             else:
                 route = default
-            # Place `CommandDispatcher` at the bottom of the stack.
-            location_handler_map = HandleLocation.map_by_package(package.name)
-            if location_handler_map:
-                route = CommandDispatcher(location_handler_map, route)
-            # Place `StaticServer` on top of it.
-            route = StaticServer(package.name, file_handler_map, route)
+            # Generate routing pipeline for the package.
+            for planner in planners:
+                route = planner(package, route)
             # Add to the routing table.
-            if segment:
-                route_map[segment] = route
-            else:
-                default = route
-        router = PackageRouter(route_map, default)
-        # Place `ErrorCatcher` and `SessionManager` above all.
+            if route is not None:
+                if segment:
+                    route_map[segment] = route
+                else:
+                    default = route
+        mapper = SegmentMapper(route_map, default)
+        # Place `ErrorCatcher` and `SessionManager` on top.
         error_handler_map = HandleError.map_all()
-        catcher = ErrorCatcher(router, error_handler_map)
+        catcher = ErrorCatcher(mapper, error_handler_map)
         manager = SessionManager(catcher)
         return cls(manager)
 

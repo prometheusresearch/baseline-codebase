@@ -18,14 +18,16 @@ Authentication and authorization
 .. autofunction:: authorize
 
 
-Handler interfaces
-==================
+Routing and handlers
+====================
 
 .. autoclass:: rex.web.HandleLocation
    :special-members: __call__
 .. autoclass:: rex.web.HandleFile
    :special-members: __call__
 .. autoclass:: rex.web.HandleError
+   :special-members: __call__
+.. autoclass:: rex.web.Route
    :special-members: __call__
 
 

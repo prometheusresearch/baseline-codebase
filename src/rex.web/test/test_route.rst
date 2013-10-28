@@ -193,6 +193,8 @@ URL segments are generated from package names::
     ...     mount = get_settings().mount
     ...     for name, segment in sorted(mount.items()):
     ...         print "%s -> /%s" % (name, segment)
+    rex.core -> /core
+    rex.web -> /web
     rex.web_demo -> /
     shared -> /shared
 
@@ -241,7 +243,7 @@ Invalid mount tables are rejected::
     Traceback (most recent call last):
       ...
     Error: Expected one of:
-        rex.web_demo
+        rex.web_demo, rex.web, rex.core
     Got:
         'shared'
     While validating mapping key:

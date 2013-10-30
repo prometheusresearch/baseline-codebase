@@ -9,6 +9,56 @@ import os.path
 import collections
 import keyword
 import json
+import yaml
+
+
+class Location(object):
+    # Position of a node in a YAML document.
+
+    __slots__ = ('filename', 'line')
+
+    @classmethod
+    def from_node(cls, node):
+        return cls(node.start_mark.name, node.start_mark.line)
+
+    def __init__(self, filename, line):
+        self.filename = filename
+        self.line = line
+
+    def __str__(self):
+        return "\"%s\", line %s" % (self.filename, self.line+1)
+
+    def __repr__(self):
+        return "%s(%r, %r)" % (self.__class__.__name__,
+                               self.filename, self.line)
+
+
+BaseLoader = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
+class ValidatingLoader(BaseLoader):
+
+    def __init__(self, stream, validate, master=None):
+        super(ValidatingLoader, self).__init__(stream)
+        self.validate = validate
+        self.validate_stack = []
+        self.master = master
+
+    def push_validate(self, validate):
+        self.validate_stack.append(self.validate)
+        self.validate = validate
+
+    def pop_validate(self):
+        self.validate = self.validate_stack.pop()
+
+    def construct_object(self, node, deep=False):
+        if self.validate is not None:
+            return self.validate.construct(self, node)
+        return super(ValidatingLoader, self).construct_object(node, deep)
+
+    def __call__(self):
+        try:
+            return self.get_single_data()
+        finally:
+            self.dispose()
 
 
 class Validate(object):
@@ -23,6 +73,23 @@ class Validate(object):
         Subclasses must override this method.
         """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
+
+    def parse(self, stream, master=None):
+        loader = ValidatingLoader(stream, self, master)
+        try:
+            return loader()
+        except yaml.YAMLError, exc:
+            raise Error("Failed to parse a YAML document:", exc)
+
+    def construct(self, loader, node):
+        loader.push_validate(None)
+        try:
+            data = loader.construct_object(node, deep=True)
+        finally:
+            loader.pop_validate()
+        location = Location.from_node(node)
+        with guard("While parsing:", location):
+            return self(data)
 
     def __repr__(self):
         return "%s()" % self.__class__.__name__
@@ -49,6 +116,12 @@ class MaybeVal(Validate):
         if data is None:
             return None
         return self.validate(data)
+
+    def construct(self, loader, node):
+        if (isinstance(node, yaml.ScalarNode) and
+                node.tag == u'tag:yaml.org,2002:null'):
+            return None
+        return self.validate.construct(loader, node)
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.validate)
@@ -106,6 +179,18 @@ class StrVal(Validate):
                             % self.pattern)
         return data
 
+    def construct(self, loader, node):
+        with guard("While parsing:", Location.from_node(node)):
+            if not (isinstance(node, yaml.ScalarNode) and
+                    node.tag == u'tag:yaml.org,2002:str'):
+                error = Error("Expected a string")
+                error.wrap("Got:", node.value
+                                   if isinstance(node, yaml.ScalarNode)
+                                   else "a %s" % node.id)
+                raise error
+            data = loader.construct_scalar(node)
+            return self(data)
+
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
                            repr(self.pattern)
@@ -131,6 +216,18 @@ class ChoiceVal(Validate):
                             ", ".join(self.choices))
         return data
 
+    def construct(self, loader, node):
+        with guard("While parsing:", Location.from_node(node)):
+            if not (isinstance(node, yaml.ScalarNode) and
+                    node.tag == u'tag:yaml.org,2002:str'):
+                error = Error("Expected a string")
+                error.wrap("Got:", node.value
+                                   if isinstance(node, yaml.ScalarNode)
+                                   else "a %s" % node.id)
+                raise error
+            data = loader.construct_scalar(node)
+            return self(data)
+
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
                            ", ".join(repr(choice) for choice in self.choices))
@@ -153,6 +250,17 @@ class BoolVal(Validate):
             if not isinstance(data, bool):
                 raise Error("Expected a Boolean value")
         return data
+
+    def construct(self, loader, node):
+        with guard("While parsing:", Location.from_node(node)):
+            if not (isinstance(node, yaml.ScalarNode) and
+                    node.tag == u'tag:yaml.org,2002:bool'):
+                error = Error("Expected a Boolean value")
+                error.wrap("Got:", node.value
+                                   if isinstance(node, yaml.ScalarNode)
+                                   else "a %s" % node.id)
+                raise error
+            return loader.construct_yaml_bool(node)
 
 
 class IntVal(Validate):
@@ -185,6 +293,17 @@ class IntVal(Validate):
                                self.max_bound
                                if self.max_bound is not None else ""))
         return data
+
+    def construct(self, loader, node):
+        with guard("While parsing:", Location.from_node(node)):
+            if not (isinstance(node, yaml.ScalarNode) and
+                    node.tag == u'tag:yaml.org,2002:int'):
+                error = Error("Expected an integer")
+                error.wrap("Got:", node.value
+                                   if isinstance(node, yaml.ScalarNode)
+                                   else "a %s" % node.id)
+                raise error
+            return self(loader.construct_yaml_int(node))
 
     def __repr__(self):
         args = []
@@ -250,6 +369,22 @@ class SeqVal(Validate):
             items.append(item)
         return items
 
+    def construct(self, loader, node):
+        if not (isinstance(node, yaml.SequenceNode) and
+                node.tag == u'tag:yaml.org,2002:seq'):
+            error = Error("Expected a sequence")
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            error.wrap("While parsing:", Location.from_node(node))
+            raise error
+        loader.push_validate(self.validate_item)
+        try:
+            data = loader.construct_sequence(node, deep=True)
+        finally:
+            loader.pop_validate()
+        return data
+
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
                            self.validate_item
@@ -289,6 +424,44 @@ class MapVal(Validate):
                     value = self.validate_value(value)
             pairs.append((key, value))
         return dict(pairs)
+
+    def construct(self, loader, node):
+        if not (isinstance(node, yaml.MappingNode) and
+                node.tag == u'tag:yaml.org,2002:map'):
+            error = Error("Expected a mapping")
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            error.wrap("While parsing:", Location.from_node(node))
+            raise error
+        data = {}
+        for key_node, value_node in node.value:
+            loader.push_validate(self.validate_key)
+            try:
+                key = loader.construct_object(key_node, deep=True)
+            finally:
+                loader.pop_validate()
+            try:
+                hash(key)
+            except TypeError, exc:
+                raise yaml.constructor.ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "found an unacceptable key (%s)" % exc,
+                        key_node.start_mark)
+            if key in data:
+                raise yaml.constructor.ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "found a duplicate key",
+                        key_node.start_mark)
+            loader.push_validate(self.validate_value)
+            try:
+                value = loader.construct_object(value_node, deep=True)
+            finally:
+                loader.pop_validate()
+            data[key] = value
+        return data
 
     def __repr__(self):
         args = []
@@ -336,6 +509,48 @@ class OMapVal(MapVal):
                 with guard("While validating mapping value for key:",
                            repr(key)):
                     value = self.validate_value(value)
+            pairs.append((key, value))
+        return collections.OrderedDict(pairs)
+
+    def construct(self, loader, node):
+        if not (isinstance(node, yaml.SequenceNode) and
+                node.tag == u'tag:yaml.org,2002:seq'):
+            error = Error("Expected an ordered mapping")
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            error.wrap("While parsing:", Location.from_node(node))
+            raise error
+        pairs = []
+        for item_node in node.value:
+            if not (isinstance(item_node, yaml.MappingNode) and
+                    item_node.tag == u'tag:yaml.org,2002:map' and
+                    len(item_node.value) == 1):
+                error = Error("Expected an entry of an ordered mapping")
+                error.wrap("Got:", item_node.value
+                                   if isinstance(item_node, yaml.ScalarNode)
+                                   else "a %s" % item_node.id)
+                error.wrap("While parsing:", Location.from_node(item_node))
+                raise error
+            [[key_node, value_node]] = item_node.value
+            loader.push_validate(self.validate_key)
+            try:
+                key = loader.construct_object(key_node, deep=True)
+            finally:
+                loader.pop_validate()
+            try:
+                hash(key)
+            except TypeError, exc:
+                raise yaml.constructor.ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "found an unacceptable key (%s)" % exc,
+                        key_node.start_mark)
+            loader.push_validate(self.validate_value)
+            try:
+                value = loader.construct_object(value_node, deep=True)
+            finally:
+                loader.pop_validate()
             pairs.append((key, value))
         return collections.OrderedDict(pairs)
 
@@ -411,6 +626,47 @@ class RecordVal(Validate):
                 values[attribute] = self.defaults[name]
             else:
                 raise Error("Missing mandatory field:", name)
+        return self.record_type(**values)
+
+    def construct(self, loader, node):
+        location = Location.from_node(node)
+        if not (isinstance(node, yaml.MappingNode) and
+                node.tag == u'tag:yaml.org,2002:map'):
+            error = Error("Expected a mapping")
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            error.wrap("While parsing:", Location.from_node(node))
+            raise error
+        values = {}
+        for key_node, value_node in node.value:
+            loader.push_validate(StrVal())
+            try:
+                name = loader.construct_object(key_node, deep=True)
+            finally:
+                loader.pop_validate()
+            name = name.replace('-', '_').replace(' ', '_')
+            with guard("While parsing:", location):
+                if name not in self.names:
+                    raise Error("Got unexpected field:", name)
+                if name in values:
+                    raise Error("Got duplicate field:", name)
+            loader.push_validate(self.validates[name])
+            with guard("While validating field:", name):
+                try:
+                    value = loader.construct_object(value_node, deep=True)
+                finally:
+                    loader.pop_validate()
+            attribute = self.attributes[name]
+            values[attribute] = value
+        for name in self.names:
+            attribute = self.attributes[name]
+            if attribute not in values:
+                if name in self.defaults:
+                    values[attribute] = self.defaults[name]
+                else:
+                    with guard("While parsing:", location):
+                        raise Error("Missing mandatory field:", name)
         return self.record_type(**values)
 
     def __repr__(self):

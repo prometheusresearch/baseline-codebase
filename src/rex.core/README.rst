@@ -498,4 +498,12 @@ is raised::
     Got:
         'NaN'
 
+You can also use validators to parse and validate YAML documents::
+
+    >>> int_val.parse("""
+    ... ---
+    ... -8
+    ... """)
+    -8
+
 

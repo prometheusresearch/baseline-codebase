@@ -34,6 +34,14 @@ raised::
     Got:
         'NaN'
 
+A validator can also be used to parse YAML documents::
+
+    >>> int_val.parse("""
+    ... ---
+    ... -8
+    ... """)
+    -8
+
 
 ``AnyVal``
 ==========
@@ -47,6 +55,21 @@ raised::
     >>> X = object()
     >>> any_val(X) == X
     True
+
+``AnyVal`` parses any well-formed YAML document::
+
+    >>> any_val.parse(""" X """)
+    'X'
+
+Ill-formed YAML documents raise ``rex.core.Error`` exception::
+
+    >>> any_val.parse(""" : """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        while parsing a block mapping
+        did not find expected key
+          in "<byte string>", line 1, column 2
 
 
 ``MaybeVal``
@@ -69,6 +92,21 @@ values accepted by the wrapped validator *and* ``None``::
     Error: Expected an integer
     Got:
         'NaN'
+
+``MaybeVal`` works the same way with YAML documents::
+
+    >>> maybe_val.parse(""" 10 """)
+    10
+    >>> maybe_val.parse(""" null """) is None
+    True
+    >>> maybe_val.parse(""" NaN """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        NaN
+    While parsing:
+        "<byte string>", line 1
 
 
 ``OneOfVal``
@@ -135,6 +173,27 @@ in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
     Got:
         '\xdf'
 
+``StrVal`` can also parse YAML documents::
+
+    >>> str_val.parse(""" Hello """)
+    'Hello'
+    >>> str_val.parse(""" null """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a string
+    Got:
+        null
+    While parsing:
+        "<byte string>", line 1
+    >>> str_val.parse(""" [] """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a string
+    Got:
+        a sequence
+    While parsing:
+        "<byte string>", line 1
+
 ``StrVal`` constructor takes an optional argument: a regular expression
 pattern.  When the pattern is provided, only input strings that match this
 pattern are accepted::
@@ -190,6 +249,19 @@ The whole input must match the pattern::
     Got:
         'five'
 
+``ChoiceVal`` can parse YAML documents::
+
+    >>> choice_val.parse(""" two """)
+    'two'
+    >>> choice_val.parse(""" 2 """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a string
+    Got:
+        2
+    While parsing:
+        "<byte string>", line 1
+
 
 ``BoolVal``
 ===========
@@ -225,6 +297,19 @@ recognized as ``True`` values::
     Got:
         None
 
+``BoolVal`` can parse YAML documents::
+
+    >>> bool_val.parse(""" false """)
+    False
+    >>> bool_val.parse(""" null """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a Boolean value
+    Got:
+        null
+    While parsing:
+        "<byte string>", line 1
+
 
 ``IntVal``, ``PIntVal``, ``UIntVal``
 ====================================
@@ -254,6 +339,19 @@ to integer::
     Error: Expected an integer
     Got:
         None
+
+``IntVal`` can parse YAML documents::
+
+    >>> int_val.parse(""" 10 """)
+    10
+    >>> int_val.parse(""" NaN """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        NaN
+    While parsing:
+        "<byte string>", line 1
 
 ``IntVal`` takes two optional parameters: lower and upper bounds.  Values
 outside of these bounds are rejected::
@@ -384,6 +482,19 @@ If you pass a string, it must be a valid JSON array::
     While validating sequence item
         #3
 
+``SeqVal`` can also parse YAML documents::
+
+    >>> seq_val.parse(""" [0, false, null] """)
+    [0, False, None]
+    >>> seq_val.parse(""" null """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a sequence
+    Got:
+        null
+    While parsing:
+        "<byte string>", line 1
+
 
 ``MapVal``
 ==========
@@ -444,6 +555,38 @@ keys and mapping values::
         'false'
     While validating mapping value for key:
         0
+
+``MapVal`` can also parse YAML documents::
+
+    >>> map_val.parse(""" {'0': 'false'} """)
+    {'0': 'false'}
+    >>> map_val.parse(""" null """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping
+    Got:
+        null
+    While parsing:
+        "<byte string>", line 1
+
+``MapVal`` can detect ill-formed YAML mappings::
+
+    >>> map_val.parse(""" { {}: {} } """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        while constructing a mapping
+          in "<byte string>", line 1, column 2
+        found an unacceptable key (unhashable type: 'dict')
+          in "<byte string>", line 1, column 4
+    >>> map_val.parse(""" { key: value, key: value } """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        while constructing a mapping
+          in "<byte string>", line 1, column 2
+        found a duplicate key
+          in "<byte string>", line 1, column 16
 
 
 ``OMapVal``
@@ -525,6 +668,46 @@ keys and mapping values::
         'false'
     While validating mapping value for key:
         0
+
+``OMapVal`` can parse YAML documents::
+
+    >>> omap_val.parse(""" [ '0': 'false', '1': 'true' ] """)
+    OrderedDict([('0', 'false'), ('1', 'true')])
+    >>> omap_val.parse(""" null """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an ordered mapping
+    Got:
+        null
+    While parsing:
+        "<byte string>", line 1
+
+``MapVal`` can detect ill-formed ordered mappings in a YAML document::
+
+    >>> omap_val.parse(""" [ null ] """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an entry of an ordered mapping
+    Got:
+        null
+    While parsing:
+        "<byte string>", line 1
+    >>> omap_val.parse(""" [ {} ] """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an entry of an ordered mapping
+    Got:
+        a mapping
+    While parsing:
+        "<byte string>", line 1
+    >>> omap_val.parse(""" [ {}: {} ] """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        while constructing a mapping
+          in "<byte string>", line 1, column 2
+        found an unacceptable key (unhashable type: 'dict')
+          in "<byte string>", line 1, column 4
 
 
 ``RecordVal``
@@ -612,5 +795,58 @@ Invalid field values are reported::
     RecordVal([('if', BoolVal()), ('then', IntVal())])
     >>> kwd_record_val({'if': True, 'then': 42})
     Record(if_=True, then=42)
+
+``RecordVal`` can also parse YAML documents::
+
+    >>> record_val.parse(""" { name: Alice, age: 33 } """)
+    Record(name='Alice', age=33)
+    >>> record_val.parse(""" null """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping
+    Got:
+        null
+    While parsing:
+        "<byte string>", line 1
+
+``RecordVal`` accepts missing optional fields, but reports duplicate, unknown
+or missing mandatory fields in a YAML document::
+
+    >>> record_val.parse(""" { name: Bob } """)
+    Record(name='Bob', age=None)
+    >>> record_val.parse(""" { name: Alice, name: Bob } """)
+    Traceback (most recent call last):
+      ...
+    Error: Got duplicate field:
+        name
+    While parsing:
+        "<byte string>", line 1
+    >>> record_val.parse(""" { name: Eleonore, sex: f } """)
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected field:
+        sex
+    While parsing:
+        "<byte string>", line 1
+    >>> record_val.parse(""" { age: 81 } """)
+    Traceback (most recent call last):
+      ...
+    Error: Missing mandatory field:
+        name
+    While parsing:
+        "<byte string>", line 1
+
+``RecordVal`` annotates nested validation errors::
+
+    >>> record_val.parse(""" { name: Fiona, age: false } """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        false
+    While parsing:
+        "<byte string>", line 1
+    While validating field:
+        age
 
 

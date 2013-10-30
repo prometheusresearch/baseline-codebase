@@ -17,7 +17,7 @@ class Package(object):
 
     `name`
         The package name.
-    `module`
+    `modules`
         Modules incuded in the package.
     `static`
         Directory containing static files of the package.

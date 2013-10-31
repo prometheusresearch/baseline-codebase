@@ -27,7 +27,7 @@ setup(
         'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.core >=1.0, <2',
+        'rex.core >=1.1, <2',
         'rex.web >=1.0, <2',
         'HTSQL >= 2.3.3, <2.5',
     ],

@@ -21,7 +21,6 @@ import htsql.core.cmd.act
 import htsql.core.fmt.accept
 import htsql.core.fmt.emit
 import re
-import yaml
 
 
 class DBVal(Validate):
@@ -219,7 +218,7 @@ class Query(object):
         # If the input is a path to `.htsql` file, parse the file.
         if self.path_re.match(self.path_or_query):
             packages = get_packages()
-            spec = self.validate(yaml.safe_load(packages.open(path_or_query)))
+            spec = self.validate.parse(packages.open(path_or_query))
             self.query = spec.query
             self.parameters = spec.parameters
         # Otherwise, treat the input as an HTSQL query.

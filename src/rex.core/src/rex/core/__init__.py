@@ -20,7 +20,7 @@ from .package import (Package, ModulePackage, StaticPackage, PackageCollection,
 from .setting import Setting, SettingCollection, get_settings
 from .validate import (Validate, AnyVal, MaybeVal, OneOfVal, StrVal, ChoiceVal,
         BoolVal, IntVal, UIntVal, PIntVal, SeqVal, OneOrSeqVal, MapVal,
-        OMapVal, RecordVal, SwitchVal, Location)
+        OMapVal, RecordVal, SwitchVal, Record, Location, set_location, locate)
 from .wsgi import WSGI, get_wsgi
 
 

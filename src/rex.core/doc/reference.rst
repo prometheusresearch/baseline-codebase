@@ -84,6 +84,9 @@ Validators
 .. autoclass:: rex.core.OMapVal
 .. autoclass:: rex.core.RecordVal
 .. autoclass:: rex.core.SwitchVal
+.. autoclass:: rex.core.Record
 .. autoclass:: rex.core.Location
+.. automethod:: rex.core.set_location
+.. automethod:: rex.core.locate
 
 

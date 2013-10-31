@@ -7,7 +7,9 @@ from .error import Error, guard
 import re
 import os.path
 import collections
+import operator
 import keyword
+import weakref
 import json
 import yaml
 
@@ -38,6 +40,51 @@ class Location(object):
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__,
                                self.filename, self.line)
+
+
+class LocationRef(weakref.ref):
+    # Weak reference from a record to its location.
+
+    __slots__ = ('oid', 'location')
+
+    oid_to_ref = {}
+
+    @staticmethod
+    def cleanup(ref, oid_to_ref=oid_to_ref):
+        del oid_to_ref[ref.oid]
+
+    def __new__(cls, record, location):
+        self = super(LocationRef, cls).__new__(cls, record, cls.cleanup)
+        self.oid = id(record)
+        self.location = location
+        cls.oid_to_ref[self.oid] = self
+        return self
+
+    def __init__(self, record, location):
+        super(LocationRef, self).__init__(record, self.cleanup)
+
+    @classmethod
+    def locate(cls, record):
+        """
+        Finds the record location.
+        """
+        ref = cls.oid_to_ref.get(id(record))
+        if ref is not None:
+            return ref.location
+
+    @classmethod
+    def set_location(cls, record, location):
+        """
+        Associates a record with its location.
+        """
+        if not isinstance(location, Location):
+            location = cls.locate(location)
+        if location is not None:
+            cls(record, location)
+
+
+set_location = LocationRef.set_location
+locate = LocationRef.locate
 
 
 BaseLoader = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
@@ -600,6 +647,76 @@ class OMapVal(MapVal):
         return collections.OrderedDict(pairs)
 
 
+class Record(object):
+    """
+    Base class for records with a fixed set of fields.
+    """
+
+    # NOTE: cannot use named tuples because we need weak references.
+    __slots__ = ('__weakref__',)
+    _fields = ()
+
+    @classmethod
+    def make(cls, name, fields):
+        """
+        Generates a record class with the given fields.
+        """
+        name = name or cls.__name__
+        bases = (cls,)
+        members = {}
+        members['__slots__'] = members['_fields'] = tuple(fields)
+        return type(name, bases, members)
+
+    def __init__(self, *args, **kwds):
+        # Convert any keywords to positional arguments.
+        args_tail = []
+        for field in self._fields[len(args):]:
+            if field not in kwds:
+                raise TypeError("missing field %r" % field)
+            else:
+                args_tail.append(kwds.pop(field))
+        args = args + tuple(args_tail)
+        # Complain if there are any keywords left.
+        if kwds:
+            attr = sorted(kwds)[0]
+            if any(field == attr for field in self._fields):
+                raise TypeError("duplicate field %r" % attr)
+            else:
+                raise TypeError("unknown field %r" % attr)
+        # Assign field values.
+        if len(args) != len(self._fields):
+            raise TypeError("expected %d arguments, got %d"
+                            % (len(self._fields), len(args)))
+        for arg, field in zip(args, self._fields):
+            setattr(self, field, arg)
+
+    def __iter__(self):
+        # Provided so that ``tuple(self)`` works.
+        for field in self._fields:
+            yield getattr(self, field)
+
+    def __len__(self):
+        return len(self._fields)
+
+    def __hash__(self):
+        return hash(tuple(self))
+
+    def __eq__(self, other):
+        return (self.__class__ is other.__class__ and
+                tuple(self) == tuple(other))
+
+    def __ne__(self, other):
+        return (self.__class__ is not other.__class__ or
+                tuple(self) != tuple(other))
+
+    def __repr__(self):
+        # `<name>(<field>=<value>, ...)`
+        return ("%s(%s)" %
+                (self.__class__.__name__,
+                 ", ".join("%s=%r" % (field, value)
+                           for field, value in zip(self._fields, self))))
+
+
 class RecordVal(Validate):
     """
     Accepts a dictionary with field values; returns ``namedtuple`` object.
@@ -635,7 +752,7 @@ class RecordVal(Validate):
             if keyword.iskeyword(attribute):
                 attribute += '_'
             self.attributes[name] = attribute
-        self.record_type = collections.namedtuple('Record',
+        self.record_type = Record.make(None,
                 [self.attributes[name] for name in self.names])
 
     def __call__(self, data):
@@ -645,7 +762,8 @@ class RecordVal(Validate):
                     data = json.loads(data)
                 except ValueError:
                     raise Error("Expected a JSON object")
-            if isinstance(data, tuple) and len(data) == len(self.fields):
+            if (isinstance(data, (tuple, Record)) and
+                    len(data) == len(self.fields)):
                 if list(getattr(data, '_fields', self.names)) != self.names:
                     raise Error("Expected a record with fields:",
                                 ", ".join(self.names))
@@ -712,7 +830,9 @@ class RecordVal(Validate):
                 else:
                     with guard("While parsing:", location):
                         raise Error("Missing mandatory field:", name)
-        return self.record_type(**values)
+        data = self.record_type(**values)
+        set_location(data, location)
+        return data
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.fields)
@@ -749,7 +869,7 @@ class SwitchVal(Validate):
                 if isinstance(mapping, dict):
                     names = set([key.replace('-', '_').replace(' ', '_')
                                  for key in mapping])
-        elif isinstance(data, tuple):
+        elif isinstance(data, (tuple, Record)):
             names = set(getattr(data, '_fields', []))
         for key in sorted(self.validate_map):
             if key in names:

@@ -972,3 +972,75 @@ cannot recognize::
     81
 
 
+Records and locations
+=====================
+
+``Record`` is used to create record types with a fixed set of fields::
+
+    >>> from rex.core import Record
+    >>> Person = Record.make('Person', ['name', 'age'])
+
+You can use this type to create record objects::
+
+    >>> p1 = Person("Alice", 33)
+    >>> p1
+    Person(name='Alice', age=33)
+    >>> p2 = Person(name="Bob", age=81)
+    >>> p2
+    Person(name='Bob', age=81)
+
+Invalid records are rejected::
+
+    >>> Person("Clarence")
+    Traceback (most recent call last):
+      ...
+    TypeError: missing field 'age'
+    >>> Person("Daniel", 56, sex='m')
+    Traceback (most recent call last):
+      ...
+    TypeError: unknown field 'sex'
+    >>> Person("Eleonore", 18, age=18)
+    Traceback (most recent call last):
+      ...
+    TypeError: duplicate field 'age'
+    >>> Person("Fiona", 3, 'f')
+    Traceback (most recent call last):
+      ...
+    TypeError: expected 2 arguments, got 3
+
+Records are compared by value and can be used as keys in a dictionary::
+
+    >>> p1 == Person("Alice", 33)
+    True
+    >>> p1 != p2
+    True
+    >>> p1 in { Person("Alice", 33): False }
+    True
+
+Records generated from a YAML file with ``RecordVal.parse()`` are associated
+with a position in the YAML file::
+
+    >>> from rex.core import locate
+    >>> p3 = record_val.parse(""" { name: Alice, age: 33 } """)
+    >>> location = locate(p3)
+    >>> location
+    Location('<byte string>', 0)
+    >>> print location
+    "<byte string>", line 1
+
+Records that are generated manually has no associated location::
+
+    >>> locate(p1) is None
+    True
+
+Use function ``set_location()`` to reassign record locations::
+
+    >>> from rex.core import set_location
+    >>> set_location(p1, p2)
+    >>> locate(p1) is None
+    True
+    >>> set_location(p1, p3)
+    >>> locate(p1)
+    Location('<byte string>', 0)
+
+

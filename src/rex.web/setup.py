@@ -22,7 +22,7 @@ setup(
         'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.core >=1.0, <2',
+        'rex.core >=1.1, <2',
         'webob >=1.2.3, <1.3',
         'jinja2 >=2.7, <2.8',
         'pycrypto >=2.4',   # must use the version available on Ubuntu 12.04.

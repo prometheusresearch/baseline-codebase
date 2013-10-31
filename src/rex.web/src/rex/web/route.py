@@ -215,6 +215,8 @@ class StaticServer(object):
     default_access = 'authenticated'
     # File that maps file patterns to permissions.
     access_file = '/_access.yaml'
+    # Format validator for the access file.
+    access_val = OMapVal(StrVal(), StrVal())
     # Directory published on HTTP.
     www_root = '/www'
 
@@ -262,9 +264,8 @@ class StaticServer(object):
             access = self.default_access
             access_path = self.www_root + self.access_file
             if self.package.exists(access_path):
-                access_map = yaml.safe_load(self.package.open(access_path))
-                access_val = OMapVal(StrVal(), StrVal())
-                access_map = access_val(access_map)
+                access_map = self.access_val.parse(
+                        self.package.open(access_path))
                 for pattern in access_map:
                     if fnmatch.fnmatchcase(url, pattern):
                         access = access_map[pattern]

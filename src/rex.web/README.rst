@@ -194,7 +194,7 @@ The pipeline consists of the following components:
     can override default mount points using ``mount`` configuration parameter.
 
 ``PackageGate``
-    Adds the following variables to the reques environment:
+    Adds the following variables to the request environment:
 
     ``rex.package``
         The name of the package that handles the request.

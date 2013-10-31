@@ -496,6 +496,42 @@ If you pass a string, it must be a valid JSON array::
         "<byte string>", line 1
 
 
+``OneOrSeqVal``
+===============
+
+``OneOrSeqVal`` accepts an item or a list of items::
+
+    >>> from rex.core import OneOrSeqVal
+    >>> one_or_seq_val = OneOrSeqVal(IntVal())
+    >>> one_or_seq_val
+    OneOrSeqVal(IntVal())
+    >>> one_or_seq_val([2, 3, 5, 7])
+    [2, 3, 5, 7]
+    >>> one_or_seq_val(11)
+    11
+    >>> one_or_seq_val([0, False, None])
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        False
+    While validating sequence item
+        #2
+    >>> one_or_seq_val('NaN')
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        'NaN'
+
+``OneOrSeqVal`` can also parse YAML documents::
+
+    >>> one_or_seq_val.parse(""" [2, 3, 5, 7] """)
+    [2, 3, 5, 7]
+    >>> one_or_seq_val.parse(""" 11 """)
+    11
+
+
 ``MapVal``
 ==========
 
@@ -848,5 +884,91 @@ or missing mandatory fields in a YAML document::
         "<byte string>", line 1
     While validating field:
         age
+
+
+``SwitchVal``
+=============
+
+``SwitchVal`` chooses which validator to apply based on the fields of the input
+record::
+
+    >>> from rex.core import SwitchVal
+    >>> switch_val = SwitchVal({'name': record_val})
+    >>> switch_val
+    SwitchVal({'name': RecordVal([('name', StrVal()), ('age', MaybeVal(UIntVal()), None)])})
+    >>> switch_val({'name': "Alice", 'age': '33'})
+    Record(name='Alice', age=33)
+    >>> switch_val({'age': 81})
+    Traceback (most recent call last):
+      ...
+    Error: Cannot recognize a record
+    Got:
+        {'age': 81}
+
+``SwitchVal`` also accepts serialized JSON objects and named tuples::
+
+    >>> switch_val('{"name": "Alice", "age": 33}')
+    Record(name='Alice', age=33)
+    >>> switch_val(_)
+    Record(name='Alice', age=33)
+
+Without the default validator, unexpected values are rejected::
+
+    >>> switch_val(None)
+    Traceback (most recent call last):
+      ...
+    Error: Cannot recognize a record
+    Got:
+        None
+
+If the default validator is provided, it is used for values that ``SwitchVal``
+cannot recognize::
+
+    >>> default_switch_val = SwitchVal({'name': record_val}, IntVal())
+    >>> default_switch_val
+    SwitchVal({'name': RecordVal([('name', StrVal()), ('age', MaybeVal(UIntVal()), None)])}, IntVal())
+    >>> default_switch_val({'name': "Alice", 'age': '33'})
+    Record(name='Alice', age=33)
+    >>> default_switch_val("81")
+    81
+    >>> default_switch_val("Bob")
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        'Bob'
+
+``SwitchVal`` can parse YAML documents::
+
+    >>> switch_val.parse(""" { name: Alice, age: 33 } """)
+    Record(name='Alice', age=33)
+    >>> switch_val.parse(""" null """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping
+    Got:
+        null
+    While parsing:
+        "<byte string>", line 1
+
+``SwitchVal`` rejects or uses the default validator to parse YAML nodes it
+cannot recognize::
+
+    >>> switch_val.parse(""" { age: 81 } """)
+    Traceback (most recent call last):
+      ...
+    Error: Cannot recognize a record
+    While parsing:
+        "<byte string>", line 1
+    >>> default_switch_val.parse(""" { true: false } """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        a mapping
+    While parsing:
+        "<byte string>", line 1
+    >>> default_switch_val.parse(""" 81 """)
+    81
 
 

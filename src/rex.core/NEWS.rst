@@ -8,6 +8,7 @@
 1.1.0 (2013-XX-XX)
 ==================
 
+* Added ``OneOrSeqVal`` and ``SwitchVal`` validators.
 * Validators can now parse YAML documents.
 * ``RecordVal`` supports field names that coincide with Python keywords.
 * Added ``LatentRex`` class.

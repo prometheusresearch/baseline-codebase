@@ -13,7 +13,14 @@ import yaml
 
 
 class Location(object):
-    # Position of a node in a YAML document.
+    """
+    Position of a node in a YAML document.
+
+    `filename`
+        The path to the YAML document.
+    `line`
+        The line in the YAML document (zero-based).
+    """
 
     __slots__ = ('filename', 'line')
 
@@ -35,6 +42,7 @@ class Location(object):
 
 BaseLoader = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
 class ValidatingLoader(BaseLoader):
+    # Customized YAML parser that uses validators to convert YAML nodes.
 
     def __init__(self, stream, validate, master=None):
         super(ValidatingLoader, self).__init__(stream)
@@ -74,14 +82,12 @@ class Validate(object):
         """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
-    def parse(self, stream, master=None):
-        loader = ValidatingLoader(stream, self, master)
-        try:
-            return loader()
-        except yaml.YAMLError, exc:
-            raise Error("Failed to parse a YAML document:", exc)
-
     def construct(self, loader, node):
+        """
+        Validates and converts a YAML node.
+
+        Subclasses should override this method.
+        """
         loader.push_validate(None)
         try:
             data = loader.construct_object(node, deep=True)
@@ -90,6 +96,21 @@ class Validate(object):
         location = Location.from_node(node)
         with guard("While parsing:", location):
             return self(data)
+
+    def parse(self, stream, master=None):
+        """
+        Parses and validates a YAML document.
+
+        `stream`
+            A string or an open file containing a YAML document.
+        `master`
+            Optional controller object for the YAML loader.
+        """
+        loader = ValidatingLoader(stream, self, master)
+        try:
+            return loader()
+        except yaml.YAMLError, exc:
+            raise Error("Failed to parse a YAML document:", exc)
 
     def __repr__(self):
         return "%s()" % self.__class__.__name__
@@ -391,6 +412,30 @@ class SeqVal(Validate):
                                 if self.validate_item is not None else "")
 
 
+class OneOrSeqVal(SeqVal):
+    """
+    Accepts a single item or a list of items.
+
+    If set, `validate_item` is used to normalize the items.
+    """
+
+    def __call__(self, data):
+        if isinstance(data, list):
+            return super(OneOrSeqVal, self).__call__(data)
+        return (self.validate_item(data)
+                    if self.validate_item is not None else data)
+
+    def construct(self, loader, node):
+        if isinstance(node, yaml.SequenceNode):
+            return super(OneOrSeqVal, self).construct(loader, node)
+        loader.push_validate(self.validate_item)
+        try:
+            data = loader.construct_object(node, deep=True)
+        finally:
+            loader.pop_validate()
+        return data
+
+
 class MapVal(Validate):
     """
     Accepts dictionaries or serialized JSON objects.
@@ -559,7 +604,7 @@ class RecordVal(Validate):
     """
     Accepts a dictionary with field values; returns ``namedtuple`` object.
 
-    ``fields``
+    `fields`
         List of record fields, where each field is one of:
 
         * a pair of the field name and the field validator, for mandatory
@@ -636,7 +681,7 @@ class RecordVal(Validate):
             error.wrap("Got:", node.value
                                if isinstance(node, yaml.ScalarNode)
                                else "a %s" % node.id)
-            error.wrap("While parsing:", Location.from_node(node))
+            error.wrap("While parsing:", location)
             raise error
         values = {}
         for key_node, value_node in node.value:
@@ -671,5 +716,81 @@ class RecordVal(Validate):
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.fields)
+
+
+class SwitchVal(Validate):
+    """
+    Accepts a record; applies a validator that matches the set of record
+    fields.
+
+    `validate_map`
+        Dictionary that maps a field name to the respective validator.
+
+    `validate_default`
+        Validator to use when no other validator matches the record.
+    """
+
+    def __init__(self, validate_map, validate_default=None):
+        self.validate_map = validate_map
+        self.validate_default = validate_default
+
+    def __call__(self, data):
+        names = set()
+        if isinstance(data, dict):
+            names = set([key.replace('-', '_').replace(' ', '_')
+                         for key in data
+                         if isinstance(key, (str, unicode))])
+        elif isinstance(data, (str, unicode)):
+            try:
+                mapping = json.loads(data)
+            except ValueError:
+                pass
+            else:
+                if isinstance(mapping, dict):
+                    names = set([key.replace('-', '_').replace(' ', '_')
+                                 for key in mapping])
+        elif isinstance(data, tuple):
+            names = set(getattr(data, '_fields', []))
+        for key in sorted(self.validate_map):
+            if key in names:
+                return self.validate_map[key](data)
+        if self.validate_default is not None:
+            return self.validate_default(data)
+        error = Error("Cannot recognize a record")
+        error.wrap("Got:", repr(data))
+        raise error
+
+    def construct(self, loader, node):
+        location = Location.from_node(node)
+        if not (isinstance(node, yaml.MappingNode) and
+                node.tag == u'tag:yaml.org,2002:map'):
+            if self.validate_default is not None:
+                return self.validate_default.construct(loader, node)
+            error = Error("Expected a mapping")
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            error.wrap("While parsing:", location)
+            raise error
+        for key in sorted(self.validate_map):
+            for key_node, value_node in node.value:
+                if not (isinstance(key_node, yaml.ScalarNode) and
+                        key_node.tag == u'tag:yaml.org,2002:str'):
+                    continue
+                name = key_node.value.replace('-', '_').replace(' ', '_')
+                if key == name:
+                    return self.validate_map[key].construct(loader, node)
+        if self.validate_default is not None:
+            return self.validate_default.construct(loader, node)
+        error = Error("Cannot recognize a record")
+        error.wrap("While parsing:", location)
+        raise error
+
+    def __repr__(self):
+        args = []
+        args.append(str(self.validate_map))
+        if self.validate_default is not None:
+            args.append(str(self.validate_default))
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 

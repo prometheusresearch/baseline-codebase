@@ -19,7 +19,8 @@ from .package import (Package, ModulePackage, StaticPackage, PackageCollection,
         get_packages)
 from .setting import Setting, SettingCollection, get_settings
 from .validate import (Validate, AnyVal, MaybeVal, OneOfVal, StrVal, ChoiceVal,
-        BoolVal, IntVal, UIntVal, PIntVal, SeqVal, MapVal, OMapVal, RecordVal)
+        BoolVal, IntVal, UIntVal, PIntVal, SeqVal, OneOrSeqVal, MapVal,
+        OMapVal, RecordVal, SwitchVal, Location)
 from .wsgi import WSGI, get_wsgi
 
 

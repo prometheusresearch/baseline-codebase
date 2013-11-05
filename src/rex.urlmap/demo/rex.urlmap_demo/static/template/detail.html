@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% set record = htsql(query, id=id) %}
+
+{% block title %}{{ title|e }}: {% if record %}{{ record.code|e }}{% else %}NOT FOUND!{% endif %}{% endblock %}
+
+{% block content %}
+  {% if record %}
+    <h1>{{ record.title|e }}</h1>
+    <table class="table table-bordered">
+      <tr><th>Code</th><td>{{ record.code|e }}</td></tr>
+      <tr><th>Title</th><td>{{ record.title|e }}</td></tr>
+    </table>
+  {% endif %}
+{% endblock %}
+

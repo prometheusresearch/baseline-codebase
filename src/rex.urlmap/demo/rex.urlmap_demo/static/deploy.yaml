@@ -1,0 +1,14 @@
+
+- table: study
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+  - data: |
+      code,title
+      fos,Family Obesity Study
+      asdl,Autism Spectrum Disorder Lab
+      schizo,Schizophrenia and Schizoaffective Disorders Clinical Trial
+

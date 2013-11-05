@@ -1,0 +1,29 @@
+
+context:
+
+  navigation:
+  - path: /
+    title: Home
+  - path: /studies
+    title: Studies
+
+paths:
+
+  /:
+    template: /template/index.html
+    access: anybody
+
+  /studies:
+    template: /template/list.html
+    access: anybody
+    context:
+      title: Studies
+      query: /study{code, title}
+
+  /studies/$id:
+    template: /template/detail.html
+    access: anybody
+    context:
+      title: Study
+      query: study[$id]{code, title}
+

@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title|e }}{% endblock %}
+
+{% block content %}
+  <h1>{{ title|e }}</h1>
+  <table class="table table-striped">
+    {% for study in htsql(query) %}
+      <tr><td><a href="{{ PATH }}/{{ study.code|e }}">{{ study.title|e }}</a></td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+

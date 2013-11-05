@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{% import "rex.vendor:/template/macro.html" as vendor with context %}
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    {{ vendor.jquery() }}
+    {{ vendor.bootstrap() }}
+  </head>
+  <body>
+    <div class="navbar navbar-inverse">
+      <div class="container">
+        <ul class="nav navbar-nav">
+          <li><a class="navbar-brand" href="{{ MOUNT['rex.urlmap_demo'] }}/">REX.URLMAP_DEMO</a></li>
+          {% for entry in navigation -%}
+            <li><a href="{{ MOUNT['rex.urlmap_demo'] }}{{ entry.path }}">{{ entry.title|e }}</a></li>
+          {%- endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

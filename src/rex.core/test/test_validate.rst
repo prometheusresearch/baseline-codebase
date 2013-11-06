@@ -495,6 +495,11 @@ If you pass a string, it must be a valid JSON array::
     While parsing:
         "<byte string>", line 1
 
+An empty YAML document is interpreted as an empty list::
+
+    >>> seq_val.parse(""" """)
+    []
+
 
 ``OneOrSeqVal``
 ===============
@@ -624,6 +629,11 @@ keys and mapping values::
         found a duplicate key
           in "<byte string>", line 1, column 16
 
+An empty YAML document is interpreted as an empty dictionary::
+
+    >>> map_val.parse(""" """)
+    {}
+
 
 ``OMapVal``
 ===========
@@ -744,6 +754,11 @@ keys and mapping values::
           in "<byte string>", line 1, column 2
         found an unacceptable key (unhashable type: 'dict')
           in "<byte string>", line 1, column 4
+
+An empty YAML document is interpreted as an empty mapping::
+
+    >>> omap_val.parse(""" """)
+    OrderedDict()
 
 
 ``RecordVal``

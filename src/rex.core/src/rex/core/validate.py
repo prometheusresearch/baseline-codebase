@@ -96,6 +96,12 @@ class ValidatingLoader(BaseLoader):
         self.validate = validate
         self.validate_stack = []
         self.master = master
+        # Needed to generate a `Mark` object below.  We can't get it directly
+        # from a `CLoader` instance.
+        self.stream_name = (self.name if hasattr(self, 'name')
+                            else '<unicode string>' if isinstance(stream, unicode)
+                            else '<byte string>' if isinstance(stream, str)
+                            else getattr(stream, 'name', '<file>'))
 
     def push_validate(self, validate):
         self.validate_stack.append(self.validate)
@@ -111,7 +117,14 @@ class ValidatingLoader(BaseLoader):
 
     def __call__(self):
         try:
-            return self.get_single_data()
+            # Ensure the stream contains no or one YAML document; load it.
+            node = self.get_single_node()
+            # If the stream contain no documents, make a fake !!null document.
+            if node is None:
+                mark = yaml.Mark(self.stream_name, 0, 0, 0, None, None)
+                node = yaml.ScalarNode(u"tag:yaml.org,2002:null", u"",
+                                       mark, mark, u'')
+            return self.construct_document(node)
         finally:
             self.dispose()
 
@@ -438,6 +451,10 @@ class SeqVal(Validate):
         return items
 
     def construct(self, loader, node):
+        if (isinstance(node, yaml.ScalarNode) and
+                node.tag == u'tag:yaml.org,2002:null' and
+                node.value == u''):
+            return []
         if not (isinstance(node, yaml.SequenceNode) and
                 node.tag == u'tag:yaml.org,2002:seq'):
             error = Error("Expected a sequence")
@@ -518,6 +535,10 @@ class MapVal(Validate):
         return dict(pairs)
 
     def construct(self, loader, node):
+        if (isinstance(node, yaml.ScalarNode) and
+                node.tag == u'tag:yaml.org,2002:null' and
+                node.value == u''):
+            return {}
         if not (isinstance(node, yaml.MappingNode) and
                 node.tag == u'tag:yaml.org,2002:map'):
             error = Error("Expected a mapping")
@@ -605,6 +626,10 @@ class OMapVal(MapVal):
         return collections.OrderedDict(pairs)
 
     def construct(self, loader, node):
+        if (isinstance(node, yaml.ScalarNode) and
+                node.tag == u'tag:yaml.org,2002:null' and
+                node.value == u''):
+            return collections.OrderedDict()
         if not (isinstance(node, yaml.SequenceNode) and
                 node.tag == u'tag:yaml.org,2002:seq'):
             error = Error("Expected an ordered mapping")
@@ -809,7 +834,7 @@ class RecordVal(Validate):
             finally:
                 loader.pop_validate()
             name = name.replace('-', '_').replace(' ', '_')
-            with guard("While parsing:", location):
+            with guard("While parsing:", Location.from_node(key_node)):
                 if name not in self.names:
                     raise Error("Got unexpected field:", name)
                 if name in values:

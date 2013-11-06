@@ -887,6 +887,14 @@ or missing mandatory fields in a YAML document::
     While parsing:
         "<byte string>", line 1
 
+If every field has a default value, ``RecordVal`` interprets an empty document
+as a record with all default values::
+
+    >>> default_record_val = RecordVal([('mother', StrVal(), None),
+    ...                                 ('father', StrVal(), None)])
+    >>> default_record_val.parse(""" """)
+    Record(mother=None, father=None)
+
 ``RecordVal`` annotates nested validation errors::
 
     >>> record_val.parse(""" { name: Fiona, age: false } """)

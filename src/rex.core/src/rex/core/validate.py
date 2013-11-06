@@ -818,6 +818,17 @@ class RecordVal(Validate):
 
     def construct(self, loader, node):
         location = Location.from_node(node)
+        if (isinstance(node, yaml.ScalarNode) and
+                node.tag == u'tag:yaml.org,2002:null' and
+                node.value == u'' and
+                len(self.defaults) == len(self.names)):
+            values = {}
+            for name in self.names:
+                attribute = self.attributes[name]
+                values[attribute] = self.defaults[name]
+            data = self.record_type(**values)
+            set_location(data, location)
+            return data
         if not (isinstance(node, yaml.MappingNode) and
                 node.tag == u'tag:yaml.org,2002:map'):
             error = Error("Expected a mapping")

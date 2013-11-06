@@ -8,6 +8,7 @@
 1.1.0 (2013-XX-XX)
 ==================
 
+* Support for sandbox packages.
 * Added ``OneOrSeqVal`` and ``SwitchVal`` validators.
 * Validators can now parse YAML documents.
 * ``RecordVal`` supports field names that coincide with Python keywords.

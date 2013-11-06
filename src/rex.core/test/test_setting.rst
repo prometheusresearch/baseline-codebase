@@ -31,39 +31,53 @@ Application configuration is collected from keyword arguments of ``Rex`` constru
 as well as from ``settings.yaml`` files from each package.  Setting values passed
 through the constructor override values defined in ``settings.yaml`` files::
 
-    >>> with Rex('./test/data/debug_setting/'):
+    >>> from rex.core import SandboxPackage
+    >>> sandbox = SandboxPackage('settings')
+
+    >>> sandbox.rewrite('/settings.yaml', """debug: true""")
+    >>> with Rex(sandbox):
     ...     print get_settings().debug
     True
-    >>> with Rex('./test/data/debug_setting/', debug=False):
+    >>> with Rex(sandbox, debug=False):
     ...     print get_settings().debug
     False
-    >>> with Rex('./test/data/empty_setting/'):
+
+    >>> sandbox.rewrite('/settings.yaml', """ """)
+    >>> with Rex(sandbox):
     ...     print get_settings()
     SettingCollection(debug=False)
-    >>> Rex('./test/data/broken_setting/')          # doctest: +ELLIPSIS
+
+    >>> sandbox.rewrite('/settings.yaml', """***Invalid YAML***""")
+    >>> Rex(sandbox)                # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     Error: Failed to parse settings file:
-        found undefined alias 'This'
-          in "/.../test/data/broken_setting/settings.yaml", line 1, column 1
+        while scanning an alias
+          in "/.../settings.yaml", line 1, column 1
+        expected alphabetic or numeric character, but found '*'
+          in "/.../settings.yaml", line 1, column 2
     While initializing RexDB application:
-        ./test/data/broken_setting/
-    >>> Rex('./test/data/ill_formed_setting/')      # doctest: +ELLIPSIS
+        SandboxPackage('settings')
+
+    >>> sandbox.rewrite('/settings.yaml', """Ill-formed settings file""")
+    >>> Rex(sandbox)                # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     Error: Got ill-formed settings file:
-        /.../test/data/ill_formed_setting/settings.yaml
+        /.../settings.yaml
     While initializing RexDB application:
-        ./test/data/ill_formed_setting/
-    >>> Rex('./test/data/unknown_setting/')         # doctest: +ELLIPSIS
+        SandboxPackage('settings')
+
+    >>> sandbox.rewrite('/settings.yaml', """unknown: true""")
+    >>> Rex(sandbox)                # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     Error: Got unknown setting:
         unknown
     In
-        /.../test/data/unknown_setting/settings.yaml
+        /.../settings.yaml
     While initializing RexDB application:
-        ./test/data/unknown_setting/
+        SandboxPackage('settings')
 
 
 Defining settings
@@ -94,20 +108,20 @@ attributes ``name``, ``validate`` and ``default``::
     ...     name = 'secret'
     ...     default = lambda self: 'random-value'
 
-    >>> with Rex('__main__', optional=False, mandatory=True, integer='10', secret='123'):
+    >>> with Rex('-', optional=False, mandatory=True, integer='10', secret='123'):
     ...     print get_settings()
     SettingCollection(debug=False, integer=10, mandatory=True, optional=False, secret='123')
-    >>> with Rex('__main__', mandatory=True):
+    >>> with Rex('-', mandatory=True):
     ...     print get_settings()
     SettingCollection(debug=False, integer=0, mandatory=True, optional=None, secret='random-value')
-    >>> Rex('__main__')
+    >>> Rex('-')
     Traceback (most recent call last):
       ...
     Error: Missing mandatory setting:
         mandatory
     While initializing RexDB application:
-        __main__
-    >>> Rex('__main__', mandatory=True, integer='NaN')
+        -
+    >>> Rex('-', mandatory=True, integer='NaN')
     Traceback (most recent call last):
       ...
     Error: Expected an integer
@@ -116,7 +130,7 @@ attributes ``name``, ``validate`` and ``default``::
     While validating setting:
         integer
     While initializing RexDB application:
-        __main__
+        -
     With parameters:
         integer: 'NaN'
         mandatory: True

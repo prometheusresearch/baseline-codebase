@@ -8,11 +8,11 @@
 ``Extension``
 =============
 
-We start with creating a RexDB application from the ``__main__`` module, which
-allows us to define extensions in-place::
+We start with creating a RexDB application with a sandbox package, which allows
+us to define extensions in-place::
 
     >>> from rex.core import Rex, Package
-    >>> main = Rex('__main__')
+    >>> main = Rex('-')
 
 To create a new interface, define a subclass of ``Extension``::
 

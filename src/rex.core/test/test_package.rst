@@ -82,6 +82,7 @@ A requirement could be one of the following:
 * a module name;
 * a directory;
 * a ``Package`` object.
+* string ``'-'`` which indicates a sandbox package.
 
 ::
 
@@ -97,10 +98,16 @@ A requirement could be one of the following:
     ModulePackage('__main__', modules=set(['__main__']))
     Package('rex.core', modules=set([..., 'rex.core', ...]))
 
-    >>> with Rex('./test/data/empty_setting/'):
+    >>> with Rex('./test/data/static/'):
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
-    StaticPackage('empty_setting', static='./test/data/empty_setting/')
+    StaticPackage('static', static='./test/data/static/')
+    Package('rex.core', modules=set([..., 'rex.core', ...]))
+
+    >>> with Rex('-'):
+    ...     for package in get_packages():
+    ...         print package       # doctest: +ELLIPSIS
+    SandboxPackage()
     Package('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> from rex.core import Package
@@ -177,6 +184,33 @@ directory::
     Traceback (most recent call last):
       ...
     AssertionError: ../README
+
+Sandbox packages (and only sandbox packages) allow you to create files in the static
+directory::
+
+    >>> from rex.core import SandboxPackage
+    >>> sandbox = SandboxPackage()
+
+    >>> sandbox.exists('/www/index.html')
+    False
+    >>> sandbox.rewrite('/www/_access.yaml', """- /*: anybody""")
+    >>> sandbox.rewrite('/www/index.html',
+    ...                 """<title>Welcome to Sandbox!</title>""")
+    >>> sandbox.exists('/www/index.html')
+    True
+
+Sandbox packages can also remove files and directories::
+
+    >>> sandbox.rewrite('/www/index.html', None)
+    >>> sandbox.exists('/www/index.html')
+    False
+    >>> sandbox.rewrite('/www', None)
+    >>> sandbox.exists('/www')
+    False
+
+It is safe to attempt to remove a file which does not exist::
+
+    >>> sandbox.rewrite('/www/index.html', None)
 
 ``Package.walk()`` iterates over a directory tree::
 

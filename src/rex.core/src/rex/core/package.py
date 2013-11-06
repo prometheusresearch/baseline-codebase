@@ -8,6 +8,9 @@ from .context import get_rex
 from .error import Error
 import sys
 import os, os.path
+import tempfile
+import shutil
+import atexit
 import pkg_resources
 
 
@@ -103,6 +106,52 @@ class StaticPackage(Package):
         super(StaticPackage, self).__init__(name, static=static)
 
 
+class SandboxPackage(Package):
+    """
+    A package created from the ``__main__`` module and a temporary
+    static directory.  Useful for testing.
+    """
+
+    def __init__(self, name='sandbox'):
+        modules = set(['__main__'])
+        # Create a temporary static directory and make sure it is
+        # deleted on exit.
+        static = tempfile.mkdtemp()
+        atexit.register(shutil.rmtree, static, True)
+        super(SandboxPackage, self).__init__(name=name,
+                modules=modules, static=static)
+
+    def rewrite(self, local_path, content):
+        """
+        Creates or rewrites a file in the static directory.
+
+        If `content` is ``None``, removes a file or a directory.
+        """
+        real_path = self.abspath(local_path)
+        assert real_path is not None, local_path
+        if content is not None:
+            # Create. the base directory if necessary.
+            directory = os.path.dirname(real_path)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            # Create the file.
+            with open(real_path, 'w') as stream:
+                stream.write(content)
+        else:
+            # Remove a file or a directory.
+            if os.path.exists(real_path):
+                if os.path.isdir(real_path):
+                    shutil.rmtree(real_path)
+                else:
+                    os.unlink(real_path)
+
+    def __repr__(self):
+        args = []
+        if self.name != 'sandbox':
+            args.append(repr(self.name))
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
 class PackageCollection(object):
     """
     Collection of packages.
@@ -129,8 +178,13 @@ class PackageCollection(object):
             yield key
             return
 
-        # Otherwise, it must be a Requirement object, a requirement string,
-        # a module name, or a directory.
+        # Otherwise, it must be a sandbox package, a Requirement object,
+        # a requirement string, a module name, or a directory.
+
+        # Name `-` indicates a sandbox package.
+        if key == '-':
+            yield SandboxPackage()
+            return
 
         # Path to a directory must end with `/`.
         if isinstance(key, str) and key.endswith('/') and os.path.isdir(key):

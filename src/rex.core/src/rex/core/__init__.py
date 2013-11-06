@@ -15,8 +15,8 @@ from .cache import cached
 from .context import get_rex
 from .error import Error, guard
 from .extension import Extension
-from .package import (Package, ModulePackage, StaticPackage, PackageCollection,
-        get_packages)
+from .package import (Package, ModulePackage, StaticPackage, SandboxPackage,
+        PackageCollection, get_packages)
 from .setting import Setting, SettingCollection, get_settings
 from .validate import (Validate, AnyVal, MaybeVal, OneOfVal, StrVal, ChoiceVal,
         BoolVal, IntVal, UIntVal, PIntVal, SeqVal, OneOrSeqVal, MapVal,

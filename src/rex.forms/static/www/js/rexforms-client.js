@@ -2459,6 +2459,9 @@ $.RexFormsClient = function (o) {
     }
 
     this.currentPageIdx = -1;
+
+    this.preprocessMeta(o.formMeta, o.formData || {});
+
     this.form = new Form(o.formMeta,
                          o.formData || {},
                          o.formTitle || null,
@@ -2652,6 +2655,7 @@ $.RexFormsClient = function (o) {
             return;
 
         this.formData.answers = collectAnswers(self.form.questions);
+        $.extend(true, this.formData.answers, this.calculations);
         this.formData.annotations = self.collectAnnotations();
         this.formData.explanations = self.collectExplanations();
 
@@ -2825,6 +2829,36 @@ $.RexFormsClient = function (o) {
         // this.validateAndGo(1, lastVisitPage);
         // this.goToPage(lastVisitPage);
     }
+}
+$.RexFormsClient.prototype.preprocessMeta = function (meta, data) {
+    var self = this;
+    this.calculations = {};
+
+    var walk = function (pages) {
+        $.each(meta.pages, function (_, item) {
+            if (item.type === "group") {
+                walk(item.pages);
+                return;
+            }
+
+            item.questions = $.grep(item.questions, function (question, _) {
+                if (question.hasOwnProperty('calculation') &&
+                    question.calculation !== null) {
+                    var name = question.name;
+                    var value = null;
+                    if (data.answers.hasOwnProperty(name) &&
+                        data.answers[name] !== null) {
+                        value = data.answers[name];
+                    }
+                    self.calculations[name] = value;
+                    return false;
+                }
+                return true;
+            })
+        })
+    };
+
+    walk(meta.pages);
 }
 
 })(jQuery);

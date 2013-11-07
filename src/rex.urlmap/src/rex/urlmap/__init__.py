@@ -10,7 +10,7 @@ file.
 
 
 from rex.core import (cached, MaybeVal, StrVal, BoolVal, MapVal, SeqVal,
-        RecordVal, SwitchVal, Error)
+        RecordVal, SwitchVal, locate, Error)
 from rex.web import Route, authorize, trusted, render_to_response
 from webob.exc import HTTPNotFound, HTTPUnauthorized, HTTPForbidden
 import os
@@ -38,8 +38,8 @@ class URLMapper(object):
         self.fallback = fallback
 
     def __call__(self, req):
-        # Load and parse `urlmap.yaml`; delegate the request to the root
-        # handler.
+        # Load and parse `urlmap.yaml`; delegate the request to the tree
+        # walker.
         handler = load_map(self.package, self.fallback)
         return handler(req)
 
@@ -151,6 +151,8 @@ class CachingLoad(object):
     # to race conditions -- use only to permit development without
     # restarting the server.
 
+    # FIXME: API; move to rex.core.
+
     @classmethod
     @cached
     def instance(cls, *args):
@@ -234,7 +236,7 @@ class LoadMap(CachingLoad):
             ('context', MapVal(StrVal(ATTR_PATTERN)), {}),
             ('paths', MapVal(StrVal(PATH_PATTERN),
                              SwitchVal({
-                                 template_key: template_val}))),
+                                 template_key: template_val})), {}),
     ])
 
     def __init__(self, package, fallback):

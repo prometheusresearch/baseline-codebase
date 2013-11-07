@@ -1,5 +1,5 @@
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from distutils.core import Command
 
 class demo(Command):
@@ -24,6 +24,9 @@ setup(
     name='rex.urlmap_demo',
     version = "1.0.0",
     description="Demo package for testing rex.urlmap",
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
+    namespace_packages=['rex'],
     setup_requires=[
         'rex.setup',
     ],
@@ -33,6 +36,7 @@ setup(
         'rex.deploy',
     ],
     cmdclass={'demo': demo},
+    rex_init='rex.urlmap_demo',
     rex_static='static',
 )
 

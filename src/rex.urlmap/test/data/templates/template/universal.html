@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ title|default('Welcome!')|e }}</title>
+    {{ CSRF_META_TAG }}
+  </head>
+  <body>
+    {% if segment -%}
+      <p>Segment label is <code>{{ segment|e }}</code></p>
+    {%- endif %}
+    {% if parameter -%}
+      <p>Parameter value is <code>{{ parameter|e }}</code></p>
+    {%- endif %}
+  </body>
+</html>

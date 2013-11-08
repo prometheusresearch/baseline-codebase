@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 setup(
     name='rex.urlmap',
     version = "1.0.0",
-    description="Mapping HTTP requests to HTML templates",
+    description="Configures URL handlers",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",

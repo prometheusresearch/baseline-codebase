@@ -5,8 +5,8 @@
 {% block content %}
   <h1>{{ title|e }}</h1>
   <table class="table table-striped">
-    {% for study in htsql(query) %}
-      <tr><td><a href="{{ PATH }}/{{ study.code|e }}">{{ study.title|e }}</a></td></tr>
+    {% for record in htsql(query) %}
+      <tr><td><a href="{{ PATH }}/{{ record.code|e }}">{{ record.title|e }}</a></td></tr>
     {% endfor %}
   </table>
 {% endblock %}

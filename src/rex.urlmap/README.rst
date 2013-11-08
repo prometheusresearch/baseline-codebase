@@ -9,7 +9,11 @@
 Overview
 ========
 
-This package allows you to map HTTP requests to HTML templates.
+This package lets you map incoming URLs to URL handlers such as:
+
+* HTML templates;
+* HTSQL queries *(TODO)*;
+* Javascript and CSS bundles *(TODO)*.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -27,92 +31,267 @@ Getting started
 ===============
 
 :mod:`rex.urlmap` allows you to configure *URL mapping* for your RexDB
-application.  With :mod:`rex.urlmap`, you can declare a set of URL handled by
-your application and associate with each URL a respective HTML template.
-
-To use this package, add :mod:`rex.urlmap` to the list of dependencies of your
-application.
+application.  You can specify a set of URLs accepted by the application and
+associate each URL with a URL handler such as an HTML template or an HTSQL
+query.
 
 For a web application, a clean and consistent URL scheme is important for
-improving user experience.  Suppose you are developing a web application for
-managing medical research projects.  The application may contain the following
-pages:
+improving the user experience.  In this guide, let's assume we are developing a
+web application for managing medical research projects.  We decided that the
+application should contain the following pages:
 
 * *Welcome screen.*  This page may contain some basic statistics and provide
   links to other parts of the application.
 
-* *List of research studies.*  This page contains a list of studies with
-  links to individual study pages.
+* *List of research studies.*  This page contains a list of studies with links
+  to individual study pages.
 
 * *Study details.*  On this page, a user can see some information about the
   selected study.
 
-For this application, you may design the following URL mapping scheme:
+* *List of indiviuals.*  This page contains a list of research subjects.
+
+* *Individual details*.  This page describes a selected research subject.
+
+We also noticed that the pages *List of research studies* and *List of
+individuals*, as well as *Study details* and *Indivual details* are similar
+enough so they could be generated from the same HTML template.  Finally, all
+the pages share a common navigation bar.
+
+For this application, we designed the following URL mapping scheme:
 
 ``/``
-    The welcome screen.
+    *Welcome screen*
+``/study``
+    *List of research studies*
+``/study/$id``
+    *Study details*
+``/individual``
+    *List of individuals*
+``/individual/$id``
+    *Individual details*
 
-``/studies``
-    The page with the list of studies.
+Here, URLs ``/study/$id`` and ``/individual/$id`` are parameterized by the
+``$id`` label and describe whole families of URLs.  For example, ``/study/fos``
+may show details of a *Family Obesity Study* while ``/individual/1001``
+displays information about an individual with code ``1001``.
 
-``/studies/$id``
-    Study details page.
+Now let's encode this URL scheme with :mod:`rex.urlmap`.  First, we need to
+add :mod:`rex.urlmap` to the list of dependencies of the application.  Next,
+we create a static resource ``urlmap.yaml``.  It contains two sections::
 
-The last URL is particularly interesting because it is parameterized by the
-study identifier.  That is, it describes not just one URL, but a family of
-URLs.  URL ``/studies/fos`` may lead to *Family Obesity Study* page while URL
-``/studies/asdl`` opens *Autism Spectrum Disorder Lab* page.
+    context:
+      ...
 
-Now having designed the URL mapping scheme, you can declare it using
-:mod:`rex.urlmap`.  Create a static resource ``urlmap.yaml`` with the following
-lines::
+    paths:
+      ...
+
+Section ``context`` contains context variables that are passed to all HTML
+templates declared in ``urlmap.yaml``.  In our case, we use this section to
+configure the navigation bar::
 
     context:
 
       navigation:
       - path: /
         title: Home
-      - path: /studies
+      - path: /study
         title: Studies
+      - path: /individual
+        title: Individuals
+
+Then we can use variable ``navigation`` in HTML templates as follows::
+
+    <ul class="nav navbar-nav">
+    {%- for entry in navigation %}
+      <li><a href="{{ MOUNT['rex.urlmap_demo'] }}{{ entry.path }}">{{ entry.title|e }}</a></li>
+    {%- endfor %}
+    </ul>
+
+Section ``paths`` configures URL mapping.  In our case, it has the form::
 
     paths:
 
       /:
-        template: /template/index.html
-        access: anybody
+        ...
 
-      /studies:
-        template: /template/list.html
+      /study:
+        ...
+
+      /study/$id:
+        ...
+
+      /individual:
+        ...
+
+      /individual/$id:
+        ...
+
+For each URL in this list, we must specify an HTML template used to render the
+page.  For example::
+
+    /:
+      template: /template/index.html
+      access: anybody
+
+Field ``template`` is a path to the HTML template.  Field ``access`` restricts
+access to the page.  Value *anybody* means that this page could be accessed by
+unauthenticated users.
+
+We can pass extra context variables to the templates.  For example::
+
+    /study:
+      template: /template/list.html
+      context:
+        title: Studies
+        query: /study{code, title}
+
+    /study/$id:
+      template: /template/detail.html
+      context:
+        title: Study
+        query: study[$id]{code, title}
+
+Here, we pass context variables ``title`` and ``query`` to a generic template,
+which uses them to render a customizable section of the page.  For example,
+template ``/template/list.html`` uses variable ``query`` to generate a table
+with a list of links::
+
+    <table class="table table-striped">
+    {% for record in htsql(query) %}
+      <tr><td><a href="{{ PATH }}/{{ record.code|e }}">{{ record.title|e }}</a></td></tr>
+    {% endfor %}
+    </table>
+
+This technique allows us to adapt the same template for different pages.  For
+example, we can use templates ``list.html`` and ``detail.html`` to generate
+*Individual* pages::
+
+    /individual:
+      template: /template/list.html
+      context:
+        title: Individuals
+        query: /individual{code, first_name+' '+last_name :as title}
+
+    /individual/$id:
+      template: /template/detail.html
+      context:
+        title: Individual
+        query: individual[$id]{code, first_name+' '+last_name :as title}
+
+
+The ``urlmap.yaml`` file format
+===============================
+
+In this section, we describe the format of the ``urlmap.yaml`` configuration
+file.  This file may contain the following fields:
+
+`context`
+    Variables to pass to all templates defined in this file.
+
+    Example::
+
         context:
+
+          navigation:
+          - path: /
+            title: Home
+          - path: /study
+            title: Studies
+          - path: /individual
+            title: Individuals
+
+    In this example, we define a single context variable ``navigation`` with a
+    list of links for the navigation bar.
+
+`paths`
+    Maps URLs to URL handlers.
+
+    Example::
+
+        paths:
+
+          /study:
+            template: /template/list.html
+            context:
+              title: Studies
+              query: /study{code, title}
+
+          /study/$id:
+            template: /template/detail.html
+            context:
+              title: Study
+              query: study[$id]{code, title}
+
+    A URL may contain a *labeled segment*, in the form ``$<name>``.  For
+    example::
+
+        /individual/$id
+
+    This URL expression matches any 2-segment URL which starts with
+    ``/individual/``.  For example, it matches URL::
+
+        /individual/1001
+
+    For this URL, variable ``id`` equal to ``1001`` will be added to the
+    template context.
+
+    URL handlers of different types are described in the following sections.
+
+
+Template handler
+================
+
+A template handler renders an HTML page from a template ``template`` using
+context variables ``context``.  The following fields are expected:
+
+`template`
+    Path to a Jinja template.  To use a template from a different package, add
+    the package name and ``:`` to the path.
+
+    Examples::
+
+        template: /template/list.html
+
+        template: rex.acquire:/template/index.html
+
+    This field is mandatory.
+
+`context`
+    Variables to pass to the template.  Variables defined here override
+    variables defined in the top-level ``context`` section.
+
+    Example::
+
+        context:
+          title: Studies
           query: /study{code, title}
 
-      /studies/$study_id
-        template: /template/detail.html
-        context:
-          query: study[$id]{code, title}
+`access`
+    Permission required to access the URL.  If not set, permission
+    *authenticated* is assumed.
 
-We will review this file line by line.  The ``urlmap.yaml`` file contains
-two sections: ``context`` and ``paths``.  The latter is a mapping that
-defines URL handlers.  The ``context`` section contains global attributes
-that are passed to every template.  In our example, ``context`` contains
-a list of links with titles for the navigation bar.
+    Example::
 
-The ``paths`` sections defines three URLs: ``/``, ``/studies`` and
-``/studies/$study_id``.
+        access: anybody
 
-The URL ``/`` is mapped onto HTML template ``/template/index.html``.
-Attribute ``access: anybody`` indicates that the index page is accessable
-by unauthenticated users.  By default, only authenticated users are
-permitted.
+`unsafe`
+    Enables CSRF protection for this page.  If enabled, the incoming request
+    must contain a CSRF token.  By default, CSRF protection is disabled.
 
-The URL ``/studies`` is mapped to HTML template ``/template/list.html``.
-The ``context`` field defines additional parameters to be passed to the
-template.  In this case, we pass ``query`` parameter which contains an
-HTSQL query used to render the list of studies.
+    Example::
 
-Finally, the family of URLs ``/studies/$study_id`` is mapped to
-template ``/template/detail.html``.  Again, we pass an additional context
-parameter ``query`` to the template, which is used to render a specific
-study.
+        unsafe: true
+
+`parameters` *(TODO: validation?)*
+    Maps expected query parameters to default values.
+
+    Query parameters are passed to the template as context variables.
+    Unexpected query parameters are rejected.
+
+    Example::
+
+        parameters:
+          search: ''
 
 

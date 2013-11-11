@@ -1,10 +1,14 @@
 
-import os
-import re
 import simplejson
-import itertools
+import copy
+
 from rex.validate import make_assessment_schema, ValidationError, validate, \
                          instrument_schema
+
+from htsql.core.domain import (BooleanDomain, IntegerDomain, DecimalDomain,
+        TextDomain, DateDomain, DateTimeDomain, EnumDomain)
+from htsql.core.syn.parse import parse
+from htsql.core.error import Error as HtsqlError
 
 BASE_INSTRUMENT_JSON = """\
 {"title": null, "pages":[]}
@@ -38,3 +42,81 @@ class Instrument(object):
 
     def validate(self, data):
         validate(self.assessment_schema, data)
+
+
+class Calculation(object):
+
+    def __init__(self, question, parameters):
+        self.name = question['name']
+        self.define = {}
+        for name in parameters:
+            self.define[name] = 'null()'
+        self.calculation = question['calculation']
+        if question['type'] in ['string', 'text']:
+            self.domain = TextDomain()
+        elif question['type'] in ['integer', 'time_month', 'time_week',
+                                  'time_days', 'time_hours', 'time_minutes']:
+            self.domain = IntegerDomain()
+        elif question['type'] in ['float', 'weight']:
+            self.domain = DecimalDomain()
+        elif question['type'] == 'date':
+            self.domain = DateDomain()
+        elif question['type'] == 'datetime':
+            self.domain = DateTimeDomain()
+        elif question['type'] == 'enum':
+            choices = [answer['code'] for answer in question['answers']]
+            self.domain = EnumDomain(choices)
+        else:
+            raise
+        self.query = 'define(%(define)s).' + \
+                     ('{%(name)s:=%(calculation)s}'
+                      % {'name': self.name,
+                         'calculation': self.calculation})
+        self.check_query()
+
+    def check_query(self):
+        query = self.query \
+                % {'define': ', '.join(['%s:=%s' % (k, v)
+                                        for (k, v) in self.define.items()])}
+        query = parse(query)
+
+    def get_query(self, data={}):
+        define = copy.deepcopy(self.define)
+        for name in data:
+            value = data[name]
+            if value is None:
+                continue
+            define[name] = value
+        query = self.query \
+                % {'define': ', '.join(['%s:=%s' % (k, v)
+                                        for (k, v) in define.items()])}
+        return query
+
+
+def get_calculations(data):
+
+    calculate_questions = []
+    parameters = []
+
+    def process_page(page):
+
+        for page in page['pages']:
+            if page['type'] == 'page':
+                process_questions(page['questions'])
+            else:
+                process_page(page)
+
+    def process_questions(questions):
+        for question in questions:
+            if question['type'] == 'rep_group':
+                continue
+            if question.get('calculation'):
+                calculate_questions.append(question)
+            parameters.append(question['name'])
+    process_page(data)
+
+    calculations = []
+    for question in calculate_questions:
+        name = question['name']
+        calculations.append(Calculation(question, parameters))
+    return calculations

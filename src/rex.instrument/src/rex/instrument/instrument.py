@@ -2,6 +2,8 @@
 import simplejson
 import copy
 
+from rex.core.error import Error
+
 from rex.validate import make_assessment_schema, ValidationError, validate, \
                          instrument_schema
 
@@ -67,7 +69,7 @@ class Calculation(object):
             choices = [answer['code'] for answer in question['answers']]
             self.domain = EnumDomain(choices)
         else:
-            raise
+            raise Error('Unexpected question type:', question['type'])
         self.query = 'define(%(define)s).' + \
                      ('{%(name)s:=%(calculation)s}'
                       % {'name': self.name,
@@ -76,14 +78,20 @@ class Calculation(object):
 
     def check_query(self):
         query = self.query \
-                % {'define': ', '.join(['%s:=%s' % (k, v)
+                % {'/define': ', '.join(['%s:=%s' % (k, v)
                                         for (k, v) in self.define.items()])}
-        query = parse(query)
+        try:
+            query = parse(query)
+        except:
+            raise Error('unable to parse calculation %s query:' % self.name,
+                        query)
 
     def get_query(self, data={}):
         define = copy.deepcopy(self.define)
         for name in data:
             value = data[name]
+            if isinstance(value, list):
+                value = len(value)
             if value is None:
                 continue
             define[name] = value
@@ -108,11 +116,11 @@ def get_calculations(data):
 
     def process_questions(questions):
         for question in questions:
+            parameters.append(question['name'])
             if question['type'] == 'rep_group':
                 continue
             if question.get('calculation'):
                 calculate_questions.append(question)
-            parameters.append(question['name'])
     process_page(data)
 
     calculations = []

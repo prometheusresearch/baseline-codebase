@@ -2835,7 +2835,7 @@ $.RexFormsClient.prototype.preprocessMeta = function (meta, data) {
     this.calculations = {};
 
     var walk = function (pages) {
-        $.each(meta.pages, function (_, item) {
+        $.each(pages, function (_, item) {
             if (item.type === "group") {
                 walk(item.pages);
                 return;

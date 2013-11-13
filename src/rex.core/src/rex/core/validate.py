@@ -715,6 +715,23 @@ class Record(object):
         for arg, field in zip(args, self._fields):
             setattr(self, field, arg)
 
+    def __clone__(self, **kwds):
+        """
+        Makes a copy of the record with new values for the given fields.
+        """
+        if not kwds:
+            return self
+        args = []
+        for field in self._fields:
+            arg = kwds.pop(field, getattr(self, field))
+            args.append(arg)
+        if kwds:
+            attr = sorted(kwds)[0]
+            raise TypeError("unknown field %r" % attr)
+        clone = self.__class__(*args)
+        set_location(clone, self)
+        return clone
+
     def __iter__(self):
         # Provided so that ``tuple(self)`` works.
         for field in self._fields:
@@ -777,6 +794,7 @@ class RecordVal(Validate):
             if keyword.iskeyword(attribute):
                 attribute += '_'
             self.attributes[name] = attribute
+        # FIXME: public API?
         self.record_type = Record.make(None,
                 [self.attributes[name] for name in self.names])
 

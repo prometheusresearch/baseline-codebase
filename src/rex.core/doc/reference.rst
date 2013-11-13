@@ -86,6 +86,7 @@ Validators
 .. autoclass:: rex.core.RecordVal
 .. autoclass:: rex.core.SwitchVal
 .. autoclass:: rex.core.Record
+   :special-members: __clone__
 .. autoclass:: rex.core.Location
 .. automethod:: rex.core.set_location
 .. automethod:: rex.core.locate

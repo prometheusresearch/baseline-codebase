@@ -1040,6 +1040,17 @@ Records are compared by value and can be used as keys in a dictionary::
     >>> p1 in { Person("Alice", 33): False }
     True
 
+Records could be cloned with updated field values::
+
+    >>> p1.__clone__()
+    Person(name='Alice', age=33)
+    >>> p1.__clone__(age=p1.age+1)
+    Person(name='Alice', age=34)
+    >>> p1.__clone__(sex='f')
+    Traceback (most recent call last):
+      ...
+    TypeError: unknown field 'sex'
+
 Records generated from a YAML file with ``RecordVal.parse()`` are associated
 with a position in the YAML file::
 
@@ -1064,6 +1075,11 @@ Use function ``set_location()`` to reassign record locations::
     True
     >>> set_location(p1, p3)
     >>> locate(p1)
+    Location('<byte string>', 0)
+
+Cloned records inherit their location from the original record::
+
+    >>> locate(p1.__clone__(age=p1.age+1))
     Location('<byte string>', 0)
 
 

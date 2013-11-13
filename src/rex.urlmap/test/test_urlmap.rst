@@ -69,10 +69,12 @@ Parsing ``urlmap.yaml``
     >>> Rex(sandbox, 'rex.urlmap')          # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got duplicate or ambiguous path:
+    Error: Detected duplicate or ambiguous path:
         /$b
-    While parsing:
+    Defined in:
         "/.../urlmap.yaml", line 4
+    And previously in:
+        "/.../urlmap.yaml", line 3
     ...
 
 ``rex.urlmap`` understands both full package and local package paths::
@@ -104,6 +106,36 @@ Parsing ``urlmap.yaml``
     200 OK
     ...
     <title>/template/local.html</title>
+
+You can use ``include`` directive to split the ``urlmap.yaml``
+into several files::
+
+    >>> sandbox.rewrite('/urlmap/study.yaml', """
+    ... paths:
+    ...   /study:
+    ...     template: templates:/template/universal.html
+    ...     context: { title: Studies }
+    ... """)
+    >>> sandbox.rewrite('/urlmap/individual.yaml', """
+    ... paths:
+    ...   /individual:
+    ...     template: templates:/template/universal.html
+    ...     context: { title: Individuals }
+    ... """)
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: [./urlmap/study.yaml, ./urlmap/individual.yaml]
+    ... """)
+
+    >>> include_demo = Rex(sandbox, 'rex.urlmap')
+
+``include`` directive can also take a single filename.  Full package paths are
+accepted::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: sandbox:./urlmap/study.yaml
+    ... """)
+
+    >>> include_demo = Rex(sandbox, 'rex.urlmap')
 
 
 Access control

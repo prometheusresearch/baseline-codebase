@@ -9,8 +9,8 @@ file.
 """
 
 
-from rex.core import (cached, MaybeVal, StrVal, BoolVal, MapVal, SeqVal,
-        RecordVal, SwitchVal, locate, Error)
+from rex.core import (get_packages, cached, MaybeVal, StrVal, BoolVal, MapVal,
+        SeqVal, OneOrSeqVal, RecordVal, SwitchVal, locate, Error, guard)
 from rex.web import Route, authorize, trusted, render_to_response
 from webob.exc import HTTPNotFound, HTTPUnauthorized, HTTPForbidden
 import os
@@ -213,28 +213,31 @@ class CachingLoad(object):
 class LoadMap(CachingLoad):
     # Parses `urlmap.yaml` file.
 
-    # Query parameters.
-    ATTR_PATTERN = r'[A-Za-z_][0-9A-Za-z_]*'
+    # Query parameters and context variables.
+    attr_val = StrVal(r'[A-Za-z_][0-9A-Za-z_]*')
     # URL pattern.
-    PATH_PATTERN = r'(([/]([0-9A-Za-z._-]+|[$][A-Za-z_][0-9A-Za-z_]*))+[/]?)|[/]'
+    path_val = StrVal(r'(([/]([0-9A-Za-z._-]+|[$][A-Za-z_][0-9A-Za-z_]*))+'
+                      r'[/]?)|[/]')
     # File pattern.
-    FILE_PATTERN = r'[/0-9A-Za-z:._-]+'
+    file_val = StrVal(r'[/0-9A-Za-z:._-]+')
 
     # Validator for template records.
     template_key = 'template'
     template_val = RecordVal([
-            ('template', StrVal(FILE_PATTERN)),
+            ('template', file_val),
             ('access', StrVal(), 'authenticated'),
             ('unsafe', BoolVal(), False),
-            ('parameters', MapVal(StrVal(ATTR_PATTERN),
+            ('parameters', MapVal(attr_val,
                                   MaybeVal(StrVal())), {}),
-            ('context', MapVal(StrVal(ATTR_PATTERN)), {}),
+            ('context', MapVal(attr_val), {}),
     ])
+    template_type = template_val.record_type
 
-    # Validator for the root record.
+    # Validator for the urlmap record.
     validate = RecordVal([
-            ('context', MapVal(StrVal(ATTR_PATTERN)), {}),
-            ('paths', MapVal(StrVal(PATH_PATTERN),
+            ('include', OneOrSeqVal(file_val), None),
+            ('context', MapVal(attr_val), {}),
+            ('paths', MapVal(path_val,
                              SwitchVal({
                                  template_key: template_val})), {}),
     ])
@@ -245,21 +248,18 @@ class LoadMap(CachingLoad):
         self.fallback = fallback
 
     def load(self):
-        return self.parse(self.open(self.package.abspath('urlmap.yaml')))
-
-    def parse(self, stream):
         # Generates a request handler from `urlmap.yaml` configuration.
 
-        # Parses the file.
-        tree_record = self.validate.parse(stream)
+        # Parse the file and process the `include` section.
+        stream = self.open(self.package.abspath('urlmap.yaml'))
+        map_spec = self.validate.parse(stream)
+        map_spec = self._include(map_spec)
 
         # Segment tree with handlers at the leaves; `'*'` denotes any segment;
         # `None` is a leaf handler.
         segment_map = {}
         # Iterate over `paths` dictionary.
-        for path in sorted(tree_record.paths):
-            # Template record.
-            template_record = tree_record.paths[path]
+        for path in sorted(map_spec.paths):
             # Split the URL into segments, find segment labels and add a path
             # to the segment tree.
             segments = path[1:].split('/')
@@ -274,22 +274,15 @@ class LoadMap(CachingLoad):
                     key = segment
                 labels.append(label)
                 mapping = mapping.setdefault(key, {})
-            # Report a duplicate path.
-            if None in mapping:
-                error = Error("Got duplicate or ambiguous path:", path)
-                error.wrap("While parsing:", locate(template_record))
-                raise error
+            assert None not in mapping
             # Generate a template handler.
-            template = template_record.template
-            if ':' not in template:
-                template = "%s:%s" % (self.package.name, template)
-            access = template_record.access
-            unsafe = template_record.unsafe
-            parameters = template_record.parameters
+            template_spec = map_spec.paths[path]
+            template = template_spec.template
+            access = template_spec.access
+            unsafe = template_spec.unsafe
+            parameters = template_spec.parameters
             validates = {}
-            context = {}
-            context.update(tree_record.context)
-            context.update(template_record.context)
+            context = self._merge(map_spec.context, template_spec.context)
             mapping[None] = TemplateRenderer(
                                 labels=labels,
                                 template=template,
@@ -300,6 +293,85 @@ class LoadMap(CachingLoad):
                                 context=context)
         # Generate the main handler.
         return TreeWalker(segment_map, self.fallback)
+
+    def _include(self, include_spec, include_path=None, base_spec=None):
+        # Flattens include directives in `include_spec`, merges it into
+        # `base_spec` and returns a new urlmap record.
+
+        # Base package and directory for resolving relative paths.
+        if include_path is None:
+            include_path = "%s:/urlmap.yaml" % self.package.name
+        include_package, include_path = include_path.split(':', 1)
+        include_path = os.path.dirname(include_path)
+        packages = get_packages()
+
+        # A urlmap record to merge into and return.
+        if base_spec is None:
+            base_spec = include_spec.__clone__(include=None,
+                                               context={}, paths={})
+
+        # Paths to include.
+        if not include_spec.include:
+            includes = []
+        elif not isinstance(include_spec.include, list):
+            includes = [include_spec.include]
+        else:
+            includes = include_spec.include
+
+        # Merge included urlmaps.
+        with guard("Included from:", locate(include_spec).filename):
+            for include in includes:
+                # Resolve a relative path.
+                if ':' not in include:
+                    include = "%s:%s" % (include_package,
+                                         os.path.join(include_path, include))
+                # Load and merge a nested urlmap.
+                stream = self.open(packages.abspath(include))
+                spec = self.validate.parse(stream)
+                stream.close()
+                base_spec = self._include(spec, include, base_spec)
+
+        # Merge `include_spec` into `base_spec`.
+        context = self._merge(base_spec.context, include_spec.context)
+        paths = base_spec.paths.copy()
+        seen = {}
+        for path in paths:
+            mask = tuple(segment if not segment.startswith('$') else '*'
+                         for segment in path[1:].split('/'))
+            seen[mask] = paths[path]
+        for path in sorted(include_spec.paths):
+            path_spec = include_spec.paths[path]
+            # Detect duplicate URLs.
+            mask = tuple(segment if not segment.startswith('$') else '*'
+                         for segment in path[1:].split('/'))
+            if mask in seen:
+                error = Error("Detected duplicate or ambiguous path:", path)
+                error.wrap("Defined in:", locate(path_spec))
+                error.wrap("And previously in:", locate(seen[mask]))
+                raise error
+            # Resolve relative paths.
+            if isinstance(path_spec, self.template_type):
+                if ':' not in path_spec.template:
+                    template = "%s:%s" % (include_package,
+                                          os.path.join(include_path,
+                                                       path_spec.template))
+                    path_spec = path_spec.__clone__(template=template)
+            paths[path] = path_spec
+            seen[mask] = path_spec
+
+        return base_spec.__clone__(context=context, paths=paths)
+
+    def _merge(self, *contexts):
+        # Merge contexts.
+        merged = {}
+        for context in contexts:
+            for key in context:
+                value = context[key]
+                if (isinstance(value, dict) and
+                        isinstance(getitem(merged, key), dict)):
+                    value = self._merge(merged[key], value)
+                merged[key] = value
+        return merged
 
 
 load_map = LoadMap.do

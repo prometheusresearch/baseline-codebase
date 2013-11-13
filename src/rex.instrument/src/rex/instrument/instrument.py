@@ -2,7 +2,7 @@
 import simplejson
 import copy
 
-from rex.core.error import Error
+from rex.core import Error
 
 from rex.validate import make_assessment_schema, ValidationError, validate, \
                          instrument_schema
@@ -53,7 +53,7 @@ class Calculation(object):
         self.define = {}
         for name in parameters:
             self.define[name] = 'null()'
-        self.calculation = question['calculation']
+        self.calculation = question['calculation'].replace(' ', '')
         if question['type'] in ['string', 'text']:
             self.domain = TextDomain()
         elif question['type'] in ['integer', 'time_month', 'time_week',
@@ -70,7 +70,7 @@ class Calculation(object):
             self.domain = EnumDomain(choices)
         else:
             raise Error('Unexpected question type:', question['type'])
-        self.query = 'define(%(define)s).' + \
+        self.query = '/define(%(define)s).' + \
                      ('{%(name)s:=%(calculation)s}'
                       % {'name': self.name,
                          'calculation': self.calculation})
@@ -78,11 +78,11 @@ class Calculation(object):
 
     def check_query(self):
         query = self.query \
-                % {'/define': ', '.join(['%s:=%s' % (k, v)
+                % {'define': ', '.join(['%s:=%s' % (k, v)
                                         for (k, v) in self.define.items()])}
         try:
             query = parse(query)
-        except:
+        except Exception, exc:
             raise Error('unable to parse calculation %s query:' % self.name,
                         query)
 
@@ -92,7 +92,7 @@ class Calculation(object):
             value = data[name]
             if isinstance(value, list):
                 value = len(value)
-            if value is None:
+            if value in (None, 'none'):
                 continue
             define[name] = value
         query = self.query \
@@ -124,6 +124,7 @@ def get_calculations(data):
     process_page(data)
 
     calculations = []
+
     for question in calculate_questions:
         name = question['name']
         calculations.append(Calculation(question, parameters))

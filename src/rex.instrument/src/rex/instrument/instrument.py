@@ -92,8 +92,10 @@ class Calculation(object):
             value = data[name]
             if isinstance(value, list):
                 value = len(value)
-            if value in (None, 'none'):
+            if value is None:
                 continue
+            if isinstance(value, (str, unicode)):
+                value = "'%s'" % value.replace("'", "''")
             define[name] = value
         query = self.query \
                 % {'define': ', '.join(['%s:=%s' % (k, v)

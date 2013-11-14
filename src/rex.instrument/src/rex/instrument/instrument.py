@@ -50,9 +50,8 @@ class Calculation(object):
 
     def __init__(self, question, parameters):
         self.name = question['name']
-        self.define = {}
-        for name in parameters:
-            self.define[name] = 'null()'
+        self.define = dict([(name, 'null()')
+                            for name in parameters if name != self.name])
         self.calculation = question['calculation'].replace(' ', '')
         if question['type'] in ['string', 'text']:
             self.domain = TextDomain()
@@ -92,7 +91,7 @@ class Calculation(object):
             value = data[name]
             if isinstance(value, list):
                 value = len(value)
-            if value is None:
+            if value in (None, 'none'):
                 continue
             if isinstance(value, (str, unicode)):
                 value = "'%s'" % value.replace("'", "''")

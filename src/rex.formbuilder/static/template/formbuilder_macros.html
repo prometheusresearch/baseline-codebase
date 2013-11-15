@@ -419,7 +419,7 @@
 
 {% macro formbuilder_instruments(role, edit_url = None, new_url = None, clone_url = None) %}
 {% if not edit_url %}
-    {% set edit_url = MOUNT['rex.formbuilder'] + '/builder' %}
+    {% set edit_url = MOUNT['rex.formbuilder'] + '/builder?instrument_id=%s' %}
 {% endif %}
 {% if not clone_url %}
     {% set clone_url = MOUNT['rex.formbuilder'] + '/clone' %}
@@ -452,7 +452,7 @@
                     <div class="rb-instrument-title untitled">Untitled Instrument</div>
                     {% endif %}
                     <div class="rb-instrument-actions">
-                        <a href="{{ edit_url|e }}?instrument_id={{ form.code|urlencode }}">Edit</a>
+                        <a href="{{ edit_url|replace("%s", form.code|urlencode) }}">Edit</a>
                     </div>
                     <div class="rb-instrument-modified">{{ form.last_updated.strftime('%Y-%m-%d %H:%M:%S') }}</div>
                 </li>

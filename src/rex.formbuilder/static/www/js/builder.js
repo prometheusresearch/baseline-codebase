@@ -2206,6 +2206,7 @@ builder.initConditionEditor = function () {
 };
 
 builder.init = function (o) {
+    var code = (typeof o.code === 'string') ? $.parseJSON(o.code) : o.code;
     builder.context =
         new Context(o.instrument, /* o.extParamTypes, */
                     o.manualEditConditions || false,
@@ -2219,7 +2220,7 @@ builder.init = function (o) {
         nodeText: $('#rb_instrument_title'),
         nodeBtn: $('#rb_instrument_title_button'),
         nodeInput: $('#rb_instrument_title_input'),
-        title: o.code.title,
+        title: code.title,
         maxVisibleTextLen: 30,
         emptyTitleText: 'Untitled instrument'
     });
@@ -2228,13 +2229,13 @@ builder.init = function (o) {
         addButton: $("#rb_params_add"),
         template: builder.templates.get('parameter'),
         /* extParamTypes: o.extParamTypes, */
-        parameters: o.code.params || [], // [{type: "STRING", name: "abc"}],
+        parameters: code.params || [], // [{type: "STRING", name: "abc"}],
     });
     builder.pages = new Pages({
         makeGroupButton: $("#rb_make_group"),
         addPageButton: $("#rb_add_new_page"),
         pageList: $("#rb_page_list"),
-        pages: o.code.pages,
+        pages: code.pages,
         templates: builder.templates,
         beforeChange: function () {
             return builder.pageEditor.show(null);

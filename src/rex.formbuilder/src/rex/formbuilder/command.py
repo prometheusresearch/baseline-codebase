@@ -26,7 +26,7 @@ class JsonVal(Validate):
                 return simplejson.loads(data)
             except simplejson.decoder.JSONDecodeError as e:
                 raise Error(e.message)
-        
+
 
 class FormBuilderBaseCommand(Command):
 

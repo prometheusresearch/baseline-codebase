@@ -4,10 +4,44 @@
 
 
 from rex.core import (get_packages, cached, MaybeVal, StrVal, BoolVal, MapVal,
-        OneOrSeqVal, RecordVal, SwitchVal, locate, Error, guard)
+        OneOrSeqVal, RecordVal, SwitchVal, locate, Location, Error, guard)
 from .handle import TreeWalker, TemplateRenderer
 import os
 import threading
+import yaml
+
+
+class MaybeOverrideVal(RecordVal):
+
+    def __init__(self, fields, validate_default):
+        super(MaybeOverrideVal, self).__init__(fields)
+        self.validate_default = validate_default
+
+    def __call__(self, data):
+        raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
+
+    def construct(self, loader, node):
+        if node.tag == u'!override':
+            if (isinstance(node, yaml.ScalarNode) and
+                    node.value == u''):
+                node = yaml.ScalarNode(u'tag:yaml.org,2002:null', node.value,
+                        node.start_mark, node.end_mark, node.style)
+            elif isinstance(node, yaml.MappingNode):
+                node = yaml.MappingNode(u'tag:yaml.org,2002:map', node.value,
+                        node.start_mark, node.end_mark, node.flow_style)
+            else:
+                error = Error("Expected a mapping")
+                error.wrap("Got:", node.value
+                                   if isinstance(node, yaml.ScalarNode)
+                                   else "a %s" % node.id)
+                error.wrap("While parsing:", Location.from_node(node))
+                raise error
+            return super(MaybeOverrideVal, self).construct(loader, node)
+        return self.validate_default.construct(loader, node)
+
+    def __repr__(self):
+        return "%s(%r, %r)" % (self.__class__.__name__,
+                               self.fields, self.validate_default)
 
 
 class CachingLoad(object):
@@ -78,13 +112,17 @@ class CachingLoad(object):
 class LoadMap(CachingLoad):
     # Parses `urlmap.yaml` file.
 
-    # Query parameters and context variables.
+    # Names of query parameters and context variables.
     attr_val = StrVal(r'[A-Za-z_][0-9A-Za-z_]*')
     # URL pattern.
     path_val = StrVal(r'(([/]([0-9A-Za-z._-]+|[$][A-Za-z_][0-9A-Za-z_]*))+'
                       r'[/]?)|[/]')
-    # File pattern.
+    # Filename pattern.
     file_val = StrVal(r'[/0-9A-Za-z:._-]+')
+    # Template variables.
+    context_val = MapVal(attr_val)
+    # Query parameters.
+    parameters_val = MapVal(attr_val, MaybeVal(StrVal()))
 
     # Validator for template records.
     template_key = 'template'
@@ -92,19 +130,30 @@ class LoadMap(CachingLoad):
             ('template', file_val),
             ('access', StrVal(), 'authenticated'),
             ('unsafe', BoolVal(), False),
-            ('parameters', MapVal(attr_val,
-                                  MaybeVal(StrVal())), {}),
-            ('context', MapVal(attr_val), {}),
+            ('parameters', parameters_val, {}),
+            ('context', context_val, {}),
     ])
     template_type = template_val.record_type
+
+    # Validator for regular handlers.
+    handle_val = SwitchVal({
+            template_key: template_val })
+
+    # Validator for `!override` records.
+    override_val = MaybeOverrideVal([
+            ('template', file_val, None),
+            ('access', StrVal(), None),
+            ('unsafe', BoolVal(), None),
+            ('parameters', parameters_val, None),
+            ('context', context_val, None),
+    ], handle_val)
+    override_type = override_val.record_type
 
     # Validator for the urlmap record.
     validate = RecordVal([
             ('include', OneOrSeqVal(file_val), None),
-            ('context', MapVal(attr_val), {}),
-            ('paths', MapVal(path_val,
-                             SwitchVal({
-                                 template_key: template_val})), {}),
+            ('context', context_val, {}),
+            ('paths', MapVal(path_val, override_val), {}),
     ])
 
     def __init__(self, package, fallback):
@@ -140,22 +189,20 @@ class LoadMap(CachingLoad):
                 labels.append(label)
                 mapping = mapping.setdefault(key, {})
             assert None not in mapping
+            handle_spec = map_spec.paths[path]
             # Generate a template handler.
-            template_spec = map_spec.paths[path]
-            template = template_spec.template
-            access = template_spec.access
-            unsafe = template_spec.unsafe
-            parameters = template_spec.parameters
-            validates = {}
-            context = self._merge(map_spec.context, template_spec.context)
-            mapping[None] = TemplateRenderer(
-                                labels=labels,
-                                template=template,
-                                access=access,
-                                unsafe=unsafe,
-                                parameters=parameters,
-                                validates=validates,
-                                context=context)
+            if isinstance(handle_spec, self.template_type):
+                validates = {}
+                context = self._merge(map_spec.context, handle_spec.context)
+                handler = TemplateRenderer(
+                        labels=labels,
+                        template=handle_spec.template,
+                        access=handle_spec.access,
+                        unsafe=handle_spec.unsafe,
+                        parameters=handle_spec.parameters,
+                        validates=validates,
+                        context=context)
+            mapping[None] = handler
         # Generate the main handler.
         return TreeWalker(segment_map, self.fallback)
 
@@ -163,11 +210,11 @@ class LoadMap(CachingLoad):
         # Flattens include directives in `include_spec`, merges it into
         # `base_spec` and returns a new urlmap record.
 
-        # Base package and directory for resolving relative paths.
+        # Current package and directory for resolving relative paths.
         if include_path is None:
             include_path = "%s:/urlmap.yaml" % self.package.name
-        include_package, include_path = include_path.split(':', 1)
-        include_path = os.path.dirname(include_path)
+        current_package, current_path = include_path.split(':', 1)
+        current_path = (current_package, os.path.dirname(current_path))
         packages = get_packages()
 
         # A urlmap record to merge into and return.
@@ -175,7 +222,7 @@ class LoadMap(CachingLoad):
             base_spec = include_spec.__clone__(include=None,
                                                context={}, paths={})
 
-        # Paths to include.
+        # Files to include.
         if not include_spec.include:
             includes = []
         elif not isinstance(include_spec.include, list):
@@ -187,53 +234,89 @@ class LoadMap(CachingLoad):
         with guard("Included from:", locate(include_spec).filename):
             for include in includes:
                 # Resolve a relative path.
-                if ':' not in include:
-                    include = "%s:%s" % (include_package,
-                                         os.path.join(include_path, include))
+                include = self._resolve(include, current_path)
                 # Load and merge a nested urlmap.
                 stream = self.open(packages.abspath(include))
                 spec = self.validate.parse(stream)
                 stream.close()
                 base_spec = self._include(spec, include, base_spec)
 
-        # Merge `include_spec` into `base_spec`.
+        # Merge `base_spec` and `include_spec`.
         context = self._merge(base_spec.context, include_spec.context)
         paths = base_spec.paths.copy()
+        # URL cache for detecting duplicate URLs.
         seen = {}
         for path in paths:
             mask = tuple(segment if not segment.startswith('$') else '*'
                          for segment in path[1:].split('/'))
             seen[mask] = paths[path]
         for path in sorted(include_spec.paths):
-            path_spec = include_spec.paths[path]
-            # Detect duplicate URLs.
-            mask = tuple(segment if not segment.startswith('$') else '*'
-                         for segment in path[1:].split('/'))
-            if mask in seen:
-                error = Error("Detected duplicate or ambiguous path:", path)
-                error.wrap("Defined in:", locate(path_spec))
-                error.wrap("And previously in:", locate(seen[mask]))
-                raise error
+            handle_spec = include_spec.paths[path]
             # Resolve relative paths.
-            if isinstance(path_spec, self.template_type):
-                if ':' not in path_spec.template:
-                    template = "%s:%s" % (include_package,
-                                          os.path.join(include_path,
-                                                       path_spec.template))
-                    path_spec = path_spec.__clone__(template=template)
-            paths[path] = path_spec
-            seen[mask] = path_spec
+            handle_spec = self._resolve(handle_spec, current_path)
+            # Merge `!override` records.
+            if isinstance(handle_spec, self.override_type):
+                if path not in paths:
+                    error = Error("Detected orphaned override:", path)
+                    error.wrap("Defined in:", locate(handle_spec))
+                    raise error
+                paths[path] = self._override(paths[path], handle_spec)
+            else:
+                # Complain about duplicate URLs.
+                mask = tuple(segment if not segment.startswith('$') else '*'
+                             for segment in path[1:].split('/'))
+                if mask in seen:
+                    error = Error("Detected duplicate or ambiguous path:", path)
+                    error.wrap("Defined in:", locate(handle_spec))
+                    error.wrap("And previously in:", locate(seen[mask]))
+                    raise error
+                paths[path] = handle_spec
+                seen[mask] = handle_spec
 
         return base_spec.__clone__(context=context, paths=paths)
 
+    def _resolve(self, spec, current_path):
+        # Resolves relative paths.
+        if isinstance(spec, str):
+            if ':' not in spec:
+                current_package, current_directory = current_path
+                spec = "%s:%s" % (current_package,
+                                  os.path.join(current_directory, spec))
+        elif isinstance(spec, (self.template_type, self.override_type)):
+            template = self._resolve(spec.template, current_path)
+            spec = spec.__clone__(template=template)
+        return spec
+
+    def _override(self, handle_spec, override_spec):
+        # Merges fields defined in an `!override` record onto `handle_spec`.
+        if isinstance(handle_spec, self.template_type):
+            if override_spec.template is not None:
+                handle_spec = handle_spec.__clone__(
+                        template=override_spec.template)
+            if override_spec.access is not None:
+                handle_spec = handle_spec.__clone__(
+                        access=override_spec.access)
+            if override_spec.unsafe is not None:
+                handle_spec = handle_spec.__clone__(
+                        unsafe=override_spec.unsafe)
+            if override_spec.parameters is not None:
+                parameters = self._merge(handle_spec.parameters,
+                                         override_spec.parameters)
+                handle_spec = handle_spec.__clone__(parameters=parameters)
+            if override_spec.context is not None:
+                context = self._merge(handle_spec.context,
+                                      override_spec.context)
+                handle_spec = handle_spec.__clone__(context=context)
+        return handle_spec
+
     def _merge(self, *contexts):
-        # Merge contexts.
+        # Merge context dictionaries.
         merged = {}
         for context in contexts:
             for key in context:
                 value = context[key]
                 if (isinstance(value, dict) and
-                        isinstance(getitem(merged, key), dict)):
+                        isinstance(merged.get(key), dict)):
                     value = self._merge(merged[key], value)
                 merged[key] = value
         return merged

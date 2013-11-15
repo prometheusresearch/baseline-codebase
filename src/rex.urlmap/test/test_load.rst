@@ -1,0 +1,220 @@
+***************************
+  Loading ``urlmap.yaml``
+***************************
+
+.. contents:: Table of Contents
+
+
+Parsing paths
+=============
+
+``rex.urlmap`` detects duplicate or ambiguous paths::
+
+    >>> from rex.core import Rex, SandboxPackage
+    >>> sandbox = SandboxPackage()
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /$a: { template: . }
+    ...   /$b: { template: . }
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap')          # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Detected duplicate or ambiguous path:
+        /$b
+    Defined in:
+        "/.../urlmap.yaml", line 4
+    And previously in:
+        "/.../urlmap.yaml", line 3
+    ...
+
+``rex.urlmap`` understands both full package and local package paths::
+
+    >>> sandbox.rewrite('/template/full.html',
+    ...                 """<title>sandbox:/template/full.html</title>""")
+    >>> sandbox.rewrite('/template/local.html',
+    ...                 """<title>/template/local.html</title>""")
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /full:
+    ...     template: sandbox:/template/full.html
+    ...     access: anybody
+    ...   /local:
+    ...     template: /template/local.html
+    ...     access: anybody
+    ... """)
+
+    >>> path_demo = Rex(sandbox, 'rex.urlmap')
+
+    >>> from webob import Request
+
+    >>> req = Request.blank('/full')
+    >>> print req.get_response(path_demo)   # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <title>sandbox:/template/full.html</title>
+
+    >>> req = Request.blank('/local')
+    >>> print req.get_response(path_demo)   # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <title>/template/local.html</title>
+
+
+Include and override
+====================
+
+You can use ``include`` directive to split the ``urlmap.yaml`` into several
+files::
+
+    >>> sandbox.rewrite('/urlmap/study.yaml', """
+    ... paths:
+    ...   /study:
+    ...     template: templates:/template/universal.html
+    ...     access: anybody
+    ...     context: { title: Studies }
+    ... """)
+    >>> sandbox.rewrite('/urlmap/individual.yaml', """
+    ... paths:
+    ...   /individual:
+    ...     template: templates:/template/universal.html
+    ...     access: anybody
+    ...     context: { title: Individuals }
+    ... """)
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: [./urlmap/study.yaml, ./urlmap/individual.yaml]
+    ... """)
+
+    >>> include_demo = Rex(sandbox, 'rex.urlmap', './test/data/templates/')
+
+    >>> req = Request.blank('/study')
+    >>> print req.get_response(include_demo)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    <title>Studies</title>
+    ...
+
+``include`` directive can also take a single filename.  Full package paths are
+accepted::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: sandbox:./urlmap/study.yaml
+    ... """)
+
+    >>> include_demo = Rex(sandbox, 'rex.urlmap')
+
+Use ``!override`` tag to override context variables and other parameters of a
+URL handler defined in an included file::
+
+    >>> sandbox.rewrite('/urlmap/base.yaml', """
+    ... paths:
+    ...   /:
+    ...     template: templates:/template/universal.html
+    ...     access: anybody
+    ...     context:
+    ...       title: Welcome!
+    ...       link: { href: 'http://htsql.org/', title: HTSQL }
+    ... """)
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /: !override
+    ...     context: { title: "Welcome, frield!" }
+    ... """)
+    >>> override_demo = Rex(sandbox, 'rex.urlmap', './test/data/templates/')
+
+    >>> req = Request.blank('/')
+    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    <title>Welcome, frield!</title>
+    ...
+    <p><a href="http://htsql.org/">HTSQL</a></p>
+    ...
+
+When context variables are merged, nested dictionaries are merged too::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /: !override
+    ...     context: { link: { title: HTSQL Query Language } }
+    ... """)
+
+    >>> req = Request.blank('/')
+    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    <p><a href="http://htsql.org/">HTSQL Query Language</a></p>
+    ...
+
+Any field could be overriden::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /: !override
+    ...     template: templates:/template/universal.html
+    ...     access: authenticated
+    ...     unsafe: false
+    ...     parameters: { parameter: '' }
+    ...     context: { title: "Welcome, frield!" }
+    ... """)
+    >>> override_demo = Rex(sandbox, 'rex.urlmap', './test/data/templates/')
+
+    >>> req = Request.blank('/?parameter=Bob')
+    >>> req.remote_user = 'Alice'
+    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    <title>Welcome, frield!</title>
+    ...
+    <p>Parameter value is <code>Bob</code></p>
+    ...
+
+Empty overrides are accepted::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /: !override
+    ... """)
+
+    >>> req = Request.blank('/')
+    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    <title>Welcome!</title>
+    ...
+
+But ill-formed overrides are rejected::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /: !override []
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap')              # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping
+    Got:
+        a sequence
+    ...
+
+Orphaned overrides are detected and reported::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /orphaned: !override
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap')              # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Detected orphaned override:
+        /orphaned
+    Defined in:
+        "/.../urlmap.yaml", line 3
+    ...
+
+

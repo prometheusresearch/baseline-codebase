@@ -11,5 +11,8 @@
     {% if parameter -%}
       <p>Parameter value is <code>{{ parameter|e }}</code></p>
     {%- endif %}
+    {% if link -%}
+      <p><a href="{{ link.href|e }}">{{ link.title|e }}</a></p>
+    {%- endif %}
   </body>
 </html>

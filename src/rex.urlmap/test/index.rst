@@ -4,6 +4,7 @@
 
 .. toctree::
 
-   test_urlmap
+   test_handle
+   test_load
 
 

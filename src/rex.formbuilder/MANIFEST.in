@@ -1,0 +1,3 @@
+include README.rst NEWS.rst LICENSE.rst
+recursive-include src *
+recursive-include static *

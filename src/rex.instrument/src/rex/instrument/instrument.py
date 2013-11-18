@@ -69,21 +69,10 @@ class Calculation(object):
             self.domain = EnumDomain(choices)
         else:
             raise Error('Unexpected question type:', question['type'])
-        self.query = '/define(%(define)s).' + \
+        self.query = '/define_collection(%(define)s).' + \
                      ('{%(name)s:=%(calculation)s}'
                       % {'name': self.name,
                          'calculation': self.calculation})
-        self.check_query()
-
-    def check_query(self):
-        query = self.query \
-                % {'define': ', '.join(['%s:=%s' % (k, v)
-                                        for (k, v) in self.define.items()])}
-        try:
-            query = parse(query)
-        except Exception, exc:
-            raise Error('unable to parse calculation %s query:' % self.name,
-                        query)
 
     def get_query(self, data={}):
         define = copy.deepcopy(self.define)

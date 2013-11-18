@@ -1,0 +1,15 @@
+
+paths:
+
+  /study:
+    template: /template/list.html
+    context:
+      title: Studies
+      query: /study{code, title}
+
+  /study/$id:
+    template: /template/detail.html
+    context:
+      title: Study
+      query: study[$id]{code, title}
+

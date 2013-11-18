@@ -37,19 +37,19 @@ query.
 
 For a web application, a clean and consistent URL scheme is important for
 improving the user experience.  In this guide, let's assume we are developing a
-web application for managing medical research projects.  We decided that the
-application should contain the following pages:
+web application for managing medical research projects.  The application
+consists of the following pages:
 
 * *Welcome screen.*  This page may contain some basic statistics and provide
   links to other parts of the application.
 
 * *List of research studies.*  This page contains a list of studies with links
-  to individual study pages.
+  to specific study pages.
 
 * *Study details.*  On this page, a user can see some information about the
   selected study.
 
-* *List of indiviuals.*  This page contains a list of research subjects.
+* *List of indiviuals.*  This page contains a list of human research subjects.
 
 * *Individual details*.  This page describes a selected research subject.
 
@@ -100,7 +100,8 @@ configure the navigation bar::
       - path: /individual
         title: Individuals
 
-Then we can use variable ``navigation`` in HTML templates as follows::
+With this definition, we can use variable ``navigation`` in HTML templates as
+follows::
 
     <ul class="nav navbar-nav">
     {%- for entry in navigation %}
@@ -108,7 +109,7 @@ Then we can use variable ``navigation`` in HTML templates as follows::
     {%- endfor %}
     </ul>
 
-Section ``paths`` configures URL mapping.  In our case, it has the form::
+Section ``paths`` configures URL mapping::
 
     paths:
 
@@ -134,7 +135,7 @@ page.  For example::
       template: /template/index.html
       access: anybody
 
-Field ``template`` is a path to the HTML template.  Field ``access`` restricts
+Field ``template`` is the path to the HTML template.  Field ``access`` restricts
 access to the page.  Value *anybody* means that this page could be accessed by
 unauthenticated users.
 
@@ -163,7 +164,7 @@ with a list of links::
     {% endfor %}
     </table>
 
-This technique allows us to adapt the same template for different pages.  For
+This technique allows us to adapt the same template to different pages.  For
 example, we can use templates ``list.html`` and ``detail.html`` to generate
 *Individual* pages::
 
@@ -180,11 +181,119 @@ example, we can use templates ``list.html`` and ``detail.html`` to generate
         query: individual[$id]{code, first_name+' '+last_name :as title}
 
 
+Include and override
+====================
+
+When the ``urlmap.yaml`` file becomes too large, it is convenient to split it
+into several smaller files.  You can do this with an ``include`` field.
+
+In our sample application, let's move *Study* and *Individual* pages to
+separate configuration files.  Create file ``./static/urlmap/study.yaml``::
+
+    paths:
+
+      /study:
+        template: /template/list.html
+        ...
+
+      /study/$id:
+        template: /template/detail.html
+        ...
+
+and file ``./static/urlmap/individual.yaml``::
+
+    paths:
+
+      /individual:
+        template: /template/list.html
+        ...
+
+      /individual/$id:
+        template: /template/detail.html
+        ...
+
+After extracting *Study* and *Individual* pages from ``urlmap.yaml``, it will
+have the form::
+
+    include:
+    - /urlmap/study.yaml
+    - /urlmap/individual.yaml
+
+    context:
+      ...
+
+    paths:
+
+      /:
+        template: /template/index.html
+        ...
+
+Note that we added a new section ``include`` with a list of files containing
+additional configuration.
+
+Sometimes, when we include an existing configuration file, we may want to
+modify some URL mapping definition.  We can do this with an ``!override`` tag.
+
+Suppose we want to change the title of the ``/individual`` page from
+*Individuals* to *Human research subjects* without modifying the file
+``/urlmap/individual.yaml``, where the page is defined.  In ``/urlmap.yaml``,
+we add a definition::
+
+    include:
+    - /urlmap/study.yaml
+    - /urlmap/individual.yaml
+
+    paths:
+
+      ...
+
+      /individual: !override
+        context:
+          title: Human research subjects
+
+Remember the page definition in ``/urlmap/individual.yaml``::
+
+    /individual:
+      template: /template/list.html
+      context:
+        title: Individuals
+        query: /individual{code, first_name+' '+last_name :as title}
+
+When it is combined with the ``!override`` definition in ``urlmap.yaml``, we
+get::
+
+    /individual:
+      template: /template/list.html
+      context:
+        title: Human research subjects
+        query: /individual{code, first_name+' '+last_name :as title}
+
+
 The ``urlmap.yaml`` file format
 ===============================
 
 In this section, we describe the format of the ``urlmap.yaml`` configuration
 file.  This file may contain the following fields:
+
+`include`
+    File or a list of files to include.  Relative and absolute file paths are
+    accepted.  The files must be in the ``urlmap.yaml`` format; it particular,
+    they may also contain an `include` section.
+
+    Examples::
+
+        include:
+        - /urlmap/study.yaml
+        - /urlmap/individual.yaml
+
+        include: rex.study:/urlmap.yaml
+
+    In the first example, URL mapping configuration is loaded from files
+    ``./static/urlmap/study.yaml`` and ``./static/urlmap/individual.yaml`` from
+    the same package.
+
+    In the second example, additional configuration is loaded from file
+    ``./static/urlmap.yaml`` from package ``rex.study``.
 
 `context`
     Variables to pass to all templates defined in this file.
@@ -293,5 +402,56 @@ context variables ``context``.  The following fields are expected:
 
         parameters:
           search: ''
+
+
+Override handler
+================
+
+An override handler allows you to redefine some fields of an existing handler.
+Thus you can only use an override handler for paths with an existing handler
+defined in another configuration file.
+
+An override handler is marked by a YAML tag ``!override``.  It may contain all
+the fields of a template handler:
+
+    ``template``, ``context``, ``access``, ``unsafe``, ``parameters``.
+
+None of the fields is mandatory.  Fields that are omitted are inherited from
+the original template handler.
+
+Example::
+
+    !override
+    context:
+      title: Human research subjects
+
+The complete file with this override definition may look like this::
+
+    include:
+    - /urlmap/study.yaml
+    - /urlmap/individual.yaml
+
+    paths:
+
+      /individual: !override
+        context:
+          title: Human research subjects
+
+The original handler for ``/individual`` is defined in
+``/urlmap/individual.yaml``::
+
+    paths:
+
+      /individual:
+        template: /template/list.html
+        context:
+          title: Individuals
+          query: /individual{code, first_name+' '+last_name :as title}
+
+      ...
+
+The ``!override`` definition changes the ``title`` context variable
+to a new value.  All the other context variables and other parameters
+are unchanged.
 
 

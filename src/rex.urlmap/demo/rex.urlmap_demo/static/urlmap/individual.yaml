@@ -1,0 +1,15 @@
+
+paths:
+
+  /individual:
+    template: /template/list.html
+    context:
+      title: Individuals
+      query: /individual{code, first_name+' '+last_name :as title}
+
+  /individual/$id:
+    template: /template/detail.html
+    context:
+      title: Individual
+      query: individual[$id]{code, first_name+' '+last_name :as title}
+

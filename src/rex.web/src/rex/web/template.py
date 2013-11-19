@@ -10,9 +10,10 @@ from .csrf import retain_csrf_token, make_csrf_meta_tag, make_csrf_input_tag
 from webob import Response
 import os.path
 import mimetypes
+import urllib
 import json
-import jinja2
 import re
+import jinja2
 
 
 class HandleTemplate(HandleFile):
@@ -109,6 +110,38 @@ def jinja_filter_json(value):
                             .replace('&', '\\u0026')
 
 
+def _quote(value):
+    # Percent-encodes the given value.
+    if not isinstance(value, (str, unicode)):
+        value = unicode(value)
+    if isinstance(value, unicode):
+        value = value.encode('utf-8')
+    return unicode(urllib.quote(value, safe=''))
+
+
+def jinja_filter_urlencode(value):
+    """
+    Jinja filter ``urlencode`` (``ue``) that percent-encodes the given
+    string.  Can accept regular strings, dictionaries or pairwise
+    iterables.
+
+    Works just like the standard ``urlencode`` filter, but also escapes
+    the ``/`` character.
+    """
+    if isinstance(value, (str, unicode)):
+        return _quote(value)
+    else:
+        if isinstance(value, dict):
+            items = value.iteritems()
+        else:
+            try:
+                items = iter(value)
+            except TypeError:
+                return _quote(value)
+        return u'&'.join(_quote(k)+'='+_quote(v)
+                         for k, v in items)
+
+
 @cached
 def get_jinja():
     """
@@ -128,6 +161,7 @@ def get_jinja():
     The following filters are added:
 
     * :func:`.jinja_filter_json()`.
+    * :func:`.jinja_filter_urlencode()`.
 
     The following tests are added: *none*.
 
@@ -148,7 +182,8 @@ def get_jinja():
     jinja.filters.update({
             # Add more filters here.
             'json': jinja_filter_json,
-            'ue': jinja.filters['urlencode'],
+            'urlencode': jinja_filter_urlencode,
+            'ue': jinja_filter_urlencode,
     })
     jinja.globals.update({
             # Add more globals here.

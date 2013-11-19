@@ -15,7 +15,6 @@ import copy
 import os.path
 import fnmatch
 import json
-import yaml
 
 
 class MountSetting(Setting):

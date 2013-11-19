@@ -18,6 +18,6 @@ from .handle import HandleLocation, HandleFile, HandleError
 from .route import MountSetting, Route
 from .secret import SecretSetting
 from .template import (get_jinja, render_to_response, HandleTemplate,
-        jinja_filter_json)
+        jinja_filter_json, jinja_filter_urlencode)
 
 

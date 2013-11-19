@@ -8,7 +8,8 @@
 1.1.0 (2013-XX-XX)
 ==================
 
-* Made the routing pipeline extensible (Kyrylo Simonov).
+* Force the ``urlencode`` filter to escape the ``/`` character.
+* Made the routing pipeline extensible.
 * Added NIH acknowledgement (Clark Evans).
 
 

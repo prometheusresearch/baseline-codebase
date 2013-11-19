@@ -168,12 +168,11 @@ The output of ``json`` is safe to use in a ``<script>`` block::
     >>> req = Request.blank('/')
     >>> with templating:
     ...     print render_to_response('templating:/templates/json_in_script.html', req,
-    ...                              content_type='application/javascript',
     ...                              tag={'start': "<title>",
     ...                                   'end': "</title>",
     ...                                   'content': "Alice, Bob & Carl"})
     200 OK
-    Content-Type: application/javascript; charset=UTF-8
+    Content-Type: text/html; charset=UTF-8
     Content-Length: 196
     <BLANKLINE>
     <!DOCTYPE html>
@@ -181,5 +180,43 @@ The output of ``json`` is safe to use in a ``<script>`` block::
     <script>
       var tag = {"content": "Alice, Bob \u0026 Carl", "start": "\u003ctitle\u003e", "end": "\u003c/title\u003e"};
     </script>
+
+Filter ``urlencode`` percent-encodes the value::
+
+    >>> with templating:
+    ...     print render_to_response('templating:/templates/urlencode.html', req,
+    ...                              name=u"Alice, Bob & Carl")             # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <a href="/hello?Alice%2C%20Bob%20%26%20Carl">Hello, Alice, Bob &amp; Carl!</a>
+
+The ``urlencode`` filter accepts regular and Unicode strings, dictionaries and
+lists of pairs:
+
+    >>> with templating:
+    ...     print render_to_response('templating:/templates/urlencode.html', req,
+    ...                              name={"name": "Alice, Bob & Carl"})    # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <a href="/hello?name=Alice%2C%20Bob%20%26%20Carl">Hello, {&#39;name&#39;: &#39;Alice, Bob &amp; Carl&#39;}!</a>
+
+
+    >>> with templating:
+    ...     print render_to_response('templating:/templates/urlencode.html', req,
+    ...                              name=[("name", "Alice"),
+    ...                                    ("name", "Bob"),
+    ...                                    ("name", "Carl")])               # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <a href="/hello?name=Alice&name=Bob&name=Carl">Hello, [(&#39;name&#39;, &#39;Alice&#39;), (&#39;name&#39;, &#39;Bob&#39;), (&#39;name&#39;, &#39;Carl&#39;)]!</a>
+
+Non-string values are converted to a string before encoding::
+
+    >>> with templating:
+    ...     print render_to_response('templating:/templates/urlencode.html', req,
+    ...                              name=None)                             # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <a href="/hello?None">Hello, None!</a>
 
 

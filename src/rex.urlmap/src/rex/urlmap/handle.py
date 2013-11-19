@@ -6,6 +6,7 @@
 from rex.core import Error, guard
 from rex.web import authorize, trusted, render_to_response
 from webob.exc import HTTPNotFound, HTTPUnauthorized, HTTPForbidden
+import urllib
 
 
 class TreeWalker(object):
@@ -102,6 +103,7 @@ class TemplateRenderer(object):
         segments = req.path_info[1:].split('/')
         for label, segment in zip(self.labels, segments):
             if label is not None:
+                segment = urllib.unquote(segment)
                 if label in self.validates:
                     with guard("While parsing segment:", "$"+label):
                         segment = self.validates[label](segment)

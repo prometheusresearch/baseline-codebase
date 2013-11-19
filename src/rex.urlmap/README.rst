@@ -160,7 +160,7 @@ with a list of links::
 
     <table class="table table-striped">
     {% for record in htsql(query) %}
-      <tr><td><a href="{{ PATH }}/{{ record.code|e }}">{{ record.title|e }}</a></td></tr>
+      <tr><td><a href="{{ PATH }}/{{ record.code|ue }}">{{ record.title|e }}</a></td></tr>
     {% endfor %}
     </table>
 
@@ -344,6 +344,8 @@ file.  This file may contain the following fields:
 
     For this URL, variable ``id`` equal to ``1001`` will be added to the
     template context.
+
+    Labeled segments must be percent-encoded.
 
     URL handlers of different types are described in the following sections.
 

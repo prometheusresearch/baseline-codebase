@@ -49,8 +49,8 @@ class Instrument(object):
 class Calculation(object):
 
     def __init__(self, question, parameters):
-        self.name = question['name']
-        self.define = dict([(name, 'null()')
+        self.name = question['name'].replace('-', '_').replace(' ', '')
+        self.define = dict([(name.replace('-', '_').replace(' ', ''), 'null()')
                             for name in parameters if name != self.name])
         self.calculation = question['calculation'].replace(' ', '')
         if question['type'] in ['string', 'text']:
@@ -77,6 +77,7 @@ class Calculation(object):
     def get_query(self, data={}):
         define = copy.deepcopy(self.define)
         for name in data:
+            name = name.replace('-', '_')
             value = data[name]
             if isinstance(value, list):
                 value = len(value)

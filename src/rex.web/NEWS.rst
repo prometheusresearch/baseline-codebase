@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.1.0 (2013-XX-XX)
+1.1.0 (2013-11-20)
 ==================
 
 * Force the ``urlencode`` filter to escape the ``/`` character.

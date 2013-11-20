@@ -5,9 +5,10 @@
 .. contents:: Table of Contents
 
 
-1.0.1 (2013-XX-XX)
+1.0.1 (2013-11-20)
 ==================
 
+* Use validators to parse `*.htsql` files.
 * Added NIH acknowlegment (Clark Evans).
 
 

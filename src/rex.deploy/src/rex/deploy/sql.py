@@ -211,7 +211,7 @@ def sql_add_unique_constraint(table_name, name, column_names, is_primary):
     Generates::
 
         ALTER TABLE {table_name} ADD CONSTRAINT {name}
-        { UNIQUE | PRIMARY KEY } (column_name, ...)
+        { UNIQUE | PRIMARY KEY } ({column_name}, ...)
     """
     return u"ALTER TABLE {} ADD CONSTRAINT {} {} ({});" \
             .format(sql_name(table_name),

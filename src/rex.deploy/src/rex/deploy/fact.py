@@ -3,8 +3,9 @@
 #
 
 
-from rex.core import (Extension, MaybeVal, StrVal, BoolVal, OneOfVal,
-        ChoiceVal, SeqVal, MapVal, RecordVal, get_packages, Error, guard)
+from rex.core import (Extension, Validate, MaybeVal, StrVal, BoolVal, OneOfVal,
+        ChoiceVal, SeqVal, OneOrSeqVal, MapVal, RecordVal, SwitchVal,
+        get_packages, Error, guard, locate, set_location)
 from .cluster import get_cluster
 from .introspect import introspect
 from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
@@ -13,98 +14,101 @@ from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
         sql_create_enum_type, sql_drop_type, sql_select, sql_insert,
         sql_update)
 import csv
-import htsql.core.domain
 import re
+import datetime
 import os.path
-import yaml
+import htsql.core.domain
 import psycopg2
+import yaml
 
 
-class Location(object):
-    # Position of a record in a YAML document.
+class FactVal(Validate):
 
-    def __init__(self, filename, line):
-        self.filename = filename
-        self.line = line
+    def _switch(self):
+        validate_map = {}
+        for fact_type in Fact.all():
+            validate_map[fact_type.key] = fact_type.validate
+        return SwitchVal(validate_map)
 
-    def __str__(self):
-        return "\"%s\", line %s" % (self.filename, self.line)
+    def __call__(self, data):
+        switch_val = self._switch()
+        return switch_val(data)
 
-    def __repr__(self):
-        return "%s(%r, %r)" % (self.__class__.__name__,
-                               self.filename, self.line)
-
-
-class DeployLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
-
-    def __init__(self, stream):
-        super(DeployLoader, self).__init__(stream)
-        self.oid_to_location = {}
-
-    def __call__(self):
-        return self.get_single_data()
-
-    def construct_yaml_str(self, node):
-        # Return `!!str` scalar as `unicode`.
-        return self.construct_scalar(node)
-
-    def construct_yaml_map(self, node):
-        # Store the location of the node.
-        data = self.construct_mapping(node)
-        location = Location(node.start_mark.name, node.start_mark.line+1)
-        self.oid_to_location[id(data)] = location
-        return data
+    def construct(self, loader, node):
+        switch_val = self._switch()
+        return switch_val.construct(loader, node)
 
 
-DeployLoader.add_constructor(
-        u'tag:yaml.org,2002:str', DeployLoader.construct_yaml_str)
-DeployLoader.add_constructor(
-        u'tag:yaml.org,2002:map', DeployLoader.construct_yaml_map)
+class UnicodeVal(StrVal):
+
+    def __init__(self, pattern=None):
+        super(UnicodeVal, self).__init__(pattern)
+
+    def __call__(self, data):
+        data = super(UnicodeVal, self).__call__(data)
+        return data.decode('utf-8')
+
+    def construct(self, loader, node):
+        data = super(UnicodeVal, self).construct(loader, node)
+        return data.decode('utf-8')
+
+
+class LabelVal(UnicodeVal):
+
+    def __init__(self):
+        super(LabelVal, self).__init__(r'[a-z_][0-9a-z_]*')
+
+
+class DottedLabelVal(UnicodeVal):
+
+    def __init__(self):
+        super(DottedLabelVal, self).__init__(
+                r'[a-z_][0-9a-z_]*([.][a-z_][0-9a-z_]*)?')
 
 
 class Driver(object):
 
+    validate = OneOrSeqVal(FactVal())
+
     def __init__(self, connection, logging={}):
         self.connection = connection
         self.catalog = None
-        self.logging = {}
-        self.edit = False
+        self.logging = logging
         self.cwd = None
+        self.is_locked = True
 
     def chdir(self, directory):
         self.cwd = directory
 
-    def parse(self, stream):
-        loader = DeployLoader(stream)
-        try:
-            data = loader()
-        except yaml.YAMLError, exc:
-            raise Error("Failed to parse a YAML document:", exc)
-        if not (isinstance(data, dict) or
-                (isinstance(data, list) and all(isinstance(item, dict)
-                                                for item in data))):
-            raise Error("Got ill-formed input")
-        location = None
-        try:
-            if isinstance(data, dict):
-                location = loader.oid_to_location.get(id(data))
-                return self.build(data)
-            else:
-                facts = []
-                for item in data:
-                    location = loader.oid_to_location.get(id(item))
-                    facts.append(self.build(item))
-                return facts
-        except Error, error:
-            if location is not None:
-                error.wrap("While parsing:", location)
-            raise
+    def lock(self):
+        self.is_locked = True
 
-    def build(self, mapping):
+    def unlock(self):
+        self.is_locked = False
+
+    def reset(self):
+        self.catalog = None
+        self.is_locked = True
+
+    def parse(self, stream):
+        spec = self.validate.parse(stream)
+        if isinstance(spec, list):
+            facts = []
+            for item in spec:
+                with guard("While parsing:", locate(item)):
+                    facts.append(self.build(item))
+            return facts
+        else:
+            with guard("While parsing:", locate(spec)):
+                return self.build(spec)
+
+    def build(self, spec):
         for fact_type in Fact.all():
-            if fact_type.key in mapping:
-                return fact_type.build(self, mapping)
-        raise Error("Failed to recognize fact")
+            if isinstance(spec, fact_type.record_type):
+                fact = fact_type.build(self, spec)
+                set_location(spec, fact)
+                return fact
+        assert False, "unknown fact record: %s" % spec
 
     def log(self, msg, *args, **kwds):
         log = self.logging.get('log')
@@ -129,9 +133,13 @@ class Driver(object):
     def get_schema(self):
         return self.get_catalog()[u"public"]
 
-    def __call__(self, facts):
-        for fact in facts:
-            fact(self)
+    def __call__(self, fact):
+        try:
+            return fact(self)
+        except Error, error:
+            location = locate(fact) or fact
+            error.wrap("While deploying:", location)
+            raise
 
     def submit(self, sql):
         cursor = self.connection.cursor()
@@ -144,46 +152,13 @@ class Driver(object):
             cursor.close()
 
 
-class UnicodeVal(StrVal):
-
-    def __init__(self, pattern=None):
-        self.pattern = pattern
-
-    def __call__(self, data):
-        with guard("Got:", repr(data)):
-            if not isinstance(data, (str, unicode)):
-                raise Error("Expected a string")
-            if isinstance(data, str):
-                try:
-                    data = data.decode('utf-8')
-                except UnicodeDecodeError:
-                    raise Error("Expected a valid UTF-8 string")
-            if self.pattern is not None and \
-                    re.match(r'\A(?:%s)\Z' % self.pattern, data) is None:
-                        raise Error("Expected a string matching:",
-                                    "/%s/" % self.pattern)
-        return data
-
-
-class LabelVal(UnicodeVal):
-
-    def __init__(self):
-        super(LabelVal, self).__init__(r'[a-z_][0-9a-z_]*')
-
-
-class DottedLabelVal(UnicodeVal):
-
-    def __init__(self):
-        super(DottedLabelVal, self).__init__(
-                r'[a-z_][0-9a-z_]*([.][a-z_][0-9a-z_]*)?')
-
-
 class Fact(Extension):
     """Represents a state of the database."""
 
     fields = []
     key = None
     validate = None
+    record_type = None
 
     @classmethod
     def sanitize(cls):
@@ -192,6 +167,8 @@ class Fact(Extension):
                 cls.key = cls.fields[0][0]
             if 'validate' not in cls.__dict__:
                 cls.validate = RecordVal(cls.fields)
+            if 'record_type' not in cls.__dict__:
+                cls.record_type = cls.validate.record_type
 
     @classmethod
     def enabled(cls):
@@ -204,7 +181,7 @@ class Fact(Extension):
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        return to_yaml(self)
+        return yaml.dump(self, Dumper=FactDumper)
 
     def __repr__(self):
         raise NotImplementedError("%s.__repr__()" % self.__class__.__name__)
@@ -213,29 +190,66 @@ class Fact(Extension):
         raise NotImplementedError("%s.__yaml__()" % self.__class__.__name__)
 
 
+class FactDumper(yaml.Dumper):
+
+    def represent_str(self, data):
+        # Represent both `str` and `unicode` objects as YAML strings.
+        # Use block style for multiline strings.
+        if isinstance(data, unicode):
+            data = data.encode('utf-8')
+        tag = None
+        style = None
+        if data.endswith('\n'):
+            style = '|'
+        try:
+            data = data.decode('utf-8')
+            tag = u'tag:yaml.org,2002:str'
+        except UnicodeDecodeError:
+            data = data.encode('base64')
+            tag = u'tag:yaml.org,2002:binary'
+            style = '|'
+        return self.represent_scalar(tag, data, style=style)
+
+    def represent_fact(self, data):
+        # Represent `Fact` objects.
+        tag = u'tag:yaml.org,2002:map'
+        mapping = list(data.__yaml__())
+        flow_style = None
+        return self.represent_mapping(tag, mapping, flow_style=flow_style)
+
+FactDumper.add_representer(str, FactDumper.represent_str)
+FactDumper.add_representer(unicode, FactDumper.represent_str)
+FactDumper.add_multi_representer(Fact, FactDumper.represent_fact)
+
+
 class TableFact(Fact):
 
     fields = [
             ('table', LabelVal()),
             ('present', BoolVal(), True),
-            ('with', SeqVal(MapVal()), None),
+            ('with', SeqVal(FactVal()), None),
     ]
 
     @classmethod
-    def build(cls, driver, record):
-        record = cls.validate(record)
-        label = record.table
-        is_present = record.present
-        if not is_present and record.with_:
-            raise Error("Illegal `with` clause")
+    def build(cls, driver, spec):
+        label = spec.table
+        is_present = spec.present
+        if not is_present and spec.with_:
+            raise Error("Got unexpected clause:", "with")
         nested_facts = None
-        if record.with_:
+        if spec.with_:
             nested_facts = []
-            for mapping in record.with_:
-                if mapping.get('of', label) != label:
-                    raise Error("Illegal `with` clause")
-                mapping['of'] = label
-                nested_facts.append(driver.build(mapping))
+            for nested_spec in spec.with_:
+                if 'of' not in nested_spec._fields:
+                    raise Error("Got unrelated nested fact",
+                                locate(nested_spec))
+                if nested_spec.of is None:
+                    nested_spec = nested_spec.__clone__(of=label)
+                if nested_spec.of != label:
+                    raise Error("Got unrelated nested fact",
+                                locate(nested_spec))
+                nested_fact = driver.build(nested_spec)
+                nested_facts.append(nested_fact)
         return cls(label, is_present=is_present, nested_facts=nested_facts)
 
     def __init__(self, label, is_present=True, nested_facts=None):
@@ -320,37 +334,38 @@ class ColumnFact(Fact):
     ]
 
     @classmethod
-    def build(cls, driver, record):
-        record = cls.validate(record)
-        if u'.' in record.column:
-            table_label, label = record.column.split(u'.')
-            if record.of is not None and record.of != table_label:
-                raise Error("Table name is specified twice")
+    def build(cls, driver, spec):
+        if u'.' in spec.column:
+            table_label, label = spec.column.split(u'.')
+            if spec.of is not None and spec.of != table_label:
+                raise Error("Got mismatched table names:",
+                            ", ".join((table_label, spec.of)))
         else:
-            label = record.column
-            table_label = record.of
-            if record.of is None:
-                raise Error("Table name is not specified")
-        is_present = record.present
-        type = record.type
+            label = spec.column
+            table_label = spec.of
+            if spec.of is None:
+                raise Error("Got missing table name")
+        is_present = spec.present
+        type = spec.type
         if is_present:
             if type is None:
-                raise Error("Missing `type` clause")
+                raise Error("Got missing clause:", "type")
             if isinstance(type, list):
                 if len(type) == 0:
-                    raise Error("Missing labels")
+                    raise Error("Got missing enum labels")
                 if len(set(type)) < len(type):
-                    raise Error("Duplicate labels")
+                    raise Error("Got duplicate enum labels:",
+                                ", ".join(type))
         else:
             if type is not None:
-                raise Error("Illegal `type` clause")
-        is_required = record.required
+                raise Error("Got unexpected clause:", "type")
+        is_required = spec.required
         if is_present:
             if is_required is None:
                 is_required = True
         else:
             if is_required is not None:
-                raise Error("Illegal `is_required` clause")
+                raise Error("Got unexpected clause:", "required")
         return cls(table_label, label, type=type, is_required=is_required,
                    is_present=is_present)
 
@@ -443,28 +458,28 @@ class LinkFact(Fact):
     ]
 
     @classmethod
-    def build(cls, driver, record):
-        record = cls.validate(record)
-        if u'.' in record.link:
-            table_label, label = record.link.split(u'.')
-            if record.of is not None and record.of != table_label:
-                raise Error("Table name is specified twice")
+    def build(cls, driver, spec):
+        if u'.' in spec.link:
+            table_label, label = spec.link.split(u'.')
+            if spec.of is not None and spec.of != table_label:
+                raise Error("Got mismatched table names:",
+                            ", ".join((table_label, spec.of)))
         else:
-            label = record.link
-            table_label = record.of
-            if record.of is None:
-                raise Error("Table name is not specified")
-        target_table_label  = record.to
+            label = spec.link
+            table_label = spec.of
+            if spec.of is None:
+                raise Error("Got missing table name")
+        target_table_label  = spec.to
         if target_table_label is None:
             target_table_label = label
-        is_present = record.present
-        is_required = record.required
+        is_present = spec.present
+        is_required = spec.required
         if is_present:
             if is_required is None:
                 is_required = True
         else:
             if is_required is not None:
-                raise Error("Illegal `is_required` clause")
+                raise Error("Got unexpected clause:", "required")
         return cls(table_label, label, target_table_label,
                    is_required=is_required, is_present=is_present)
 
@@ -557,22 +572,22 @@ class IdentityFact(Fact):
     ]
 
     @classmethod
-    def build(cls, driver, record):
-        record = cls.validate(record)
-        table_label = record.of
+    def build(cls, driver, spec):
+        table_label = spec.of
         labels = []
-        if not record.identity:
-            raise Error("Illegal `identity` clause")
-        for label in record.identity:
+        if not spec.identity:
+            raise Error("Got missing identity fields")
+        for label in spec.identity:
             if u'.' in label:
                 current_table_label = table_label
                 table_label, label = label.split(u'.')
                 if (current_table_label is not None and
                         table_label != current_table_label):
-                    raise Error("Illegal `identity` clause")
+                    raise Error("Got mismatched table names:",
+                                ", ".join((table_label, current_table_label)))
             labels.append(label)
         if table_label is None:
-            raise Error("Missing table name")
+            raise Error("Got missing table name")
         return cls(table_label, labels)
 
     def __init__(self, table_label, labels):
@@ -633,22 +648,21 @@ class DataFact(Fact):
     ]
 
     @classmethod
-    def build(cls, driver, record):
-        record = cls.validate(record)
-        table_label = record.of
+    def build(cls, driver, spec):
+        table_label = spec.of
         data_path = None
         data = None
-        if u'\n' in record.data:
-            data = record.data
+        if u'\n' in spec.data:
+            data = spec.data
         else:
-            data_path = record.data
+            data_path = spec.data
             if driver.cwd is not None:
                 data_path = os.path.join(driver.cwd, data_path)
             if table_label is None:
                 table_label = os.path.splitext(os.path.basename(data_path))[0]
         if table_label is None:
-            raise Error("Missing table name")
-        is_present = record.present
+            raise Error("Got missing table name")
+        is_present = spec.present
         return cls(table_label, data_path=data_path, data=data,
                    is_present=is_present)
 
@@ -846,28 +860,48 @@ class DataFact(Fact):
         return row[0]
 
 
-def deploy(dry_run=False):
+def deploy(logging={}, dry_run=False):
+    time_start = datetime.datetime.now()
+    # Prepare the driver.
     cluster = get_cluster()
     connection = cluster.connect()
-    try:
-        driver = Driver(connection)
-        facts = []
-        for package in reversed(get_packages()):
-            if not package.exists('deploy.yaml'):
-                continue
-            driver.chdir(package.abspath('/'))
-            package_facts = driver.parse(package.open('deploy.yaml'))
-            if not isinstance(package_facts, list):
-                package_facts = [package_facts]
-            facts.extend(package_facts)
-        driver.chdir(None)
-        driver(facts)
-        if not dry_run:
-            connection.commit()
-        else:
-            connection.rollback()
-        connection.close()
-    except psycopg2.Error, error:
-        raise Error("Got an error from the database driver:", error)
+    driver = Driver(connection, logging=logging)
+    packages = [package for package in reversed(get_packages())
+                        if package.exists('deploy.yaml')]
+    if not packages:
+        driver.log("Nothing to deploy.")
+    facts_by_package = {}
+    # Load and parse `deploy.yaml` files.
+    for package in packages:
+        driver.chdir(package.abspath('/'))
+        package_facts = driver.parse(package.open('deploy.yaml'))
+        if not isinstance(package_facts, list):
+            package_facts = [package_facts]
+        facts_by_package[package] = package_facts
+    driver.chdir(None)
+    # Deploying database schema.
+    driver.unlock()
+    for package in packages:
+        driver.log("Deploying {}.", package.name)
+        facts = facts_by_package[package]
+        for fact in facts:
+            driver(fact)
+#    # Validating directives.
+#    driver.reset()
+#    for package in packages:
+#        driver.log("Validating {}.", package.name)
+#        facts = facts_by_package[package]
+#        for fact in facts:
+#            if not driver(fact):
+#                location = driver.locate(fact) or "--"
+#                driver.warn("Fact `{}` ({}) is not satisfied.", fact, location)
+    # Commit changes and report.
+    if not dry_run:
+        connection.commit()
+    else:
+        driver.log("Rolling back changes (dry run).")
+        connection.rollback()
+    time_end = datetime.datetime.now()
+    driver.debug("Total time: {}", time_end-time_start)
 
 

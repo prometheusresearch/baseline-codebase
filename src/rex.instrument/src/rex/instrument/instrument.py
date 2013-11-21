@@ -52,7 +52,7 @@ class Calculation(object):
         self.name = question['name'].replace('-', '_').replace(' ', '')
         self.define = dict([(name.replace('-', '_').replace(' ', ''), 'null()')
                             for name in parameters if name != self.name])
-        self.calculation = question['calculation'].replace(' ', '')
+        self.calculation = question['calculation']
         if question['type'] in ['string', 'text']:
             self.domain = TextDomain()
         elif question['type'] in ['integer', 'time_month', 'time_week',

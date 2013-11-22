@@ -590,9 +590,10 @@ EnumDomain.prototype.renderEdit = function (templates, value, onChange, customTi
             var btnClear = templates['btnClear'].clone();
             btnClear.click(function () {
                 if ($(this).parents('.rf-disabled').size() == 0) {
-                    $(this).parents('.rf-answer-list:first')
-                                .find('input[type="radio"]')
-                                .removeAttr('checked');
+                    $(this).parents('.rf-question:first')
+                           .find('.rf-answer-list:first')
+                           .find('input[type="radio"]')
+                           .removeAttr('checked');
                     onChange();
                 }
             });

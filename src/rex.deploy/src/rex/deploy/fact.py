@@ -104,7 +104,7 @@ class Driver(object):
 
     def build(self, spec):
         for fact_type in Fact.all():
-            if isinstance(spec, fact_type.record_type):
+            if isinstance(spec, fact_type.validate.record_type):
                 fact = fact_type.build(self, spec)
                 set_location(spec, fact)
                 return fact
@@ -158,7 +158,6 @@ class Fact(Extension):
     fields = []
     key = None
     validate = None
-    record_type = None
 
     @classmethod
     def sanitize(cls):
@@ -167,8 +166,6 @@ class Fact(Extension):
                 cls.key = cls.fields[0][0]
             if 'validate' not in cls.__dict__:
                 cls.validate = RecordVal(cls.fields)
-            if 'record_type' not in cls.__dict__:
-                cls.record_type = cls.validate.record_type
 
     @classmethod
     def enabled(cls):
@@ -264,6 +261,8 @@ class TableFact(Fact):
         self.label = label
         self.is_present = is_present
         self.nested_facts = nested_facts
+        #: Table SQL name.
+        self.name = mangle(label)
 
     def __yaml__(self):
         yield ('table', self.label)
@@ -282,33 +281,81 @@ class TableFact(Fact):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
     def __call__(self, driver):
-        schema = driver.get_schema()
-        system_schema = driver.get_catalog()['pg_catalog']
-        name = mangle(self.label)
         if self.is_present:
-            if name in schema:
-                return
-            table = schema.add_table(name)
-            type = system_schema.types["int4"]
-            column = table.add_column(u"id", type, True)
-            constraint_name = mangle([table.name, column.name], "uk")
-            key = table.add_unique_key(constraint_name, [column])
-            body = [sql_define_column(column.name, "serial4", True)]
-            sql = sql_create_table(name, body)
-            driver.submit(sql)
-            sql = sql_add_unique_constraint(table.name, key.name,
-                                        [column.name], False)
-            driver.submit(sql)
+            return self.create(driver)
         else:
-            if name not in schema:
-                return
-            table = schema[name]
-            sql = sql_drop_table(table.name)
-            driver.submit(sql)
-            table.remove()
+            return self.drop(driver)
+
+    def create(self, driver):
+        # Ensures that the table is present.
+        schema = driver.get_schema()
+        # Create the table if it does not exist.
+        if self.name not in schema:
+            if driver.is_locked:
+                return False
+            # Submit `CREATE TABLE {name} (id serial4 NOT NULL)` and
+            # `ADD CONSTRAINT UNIQUE (id)`.
+            body = [sql_define_column(u'id', u'serial4', True)]
+            key_name = mangle([self.label, u'id'], u'uk')
+            driver.submit(sql_create_table(self.name, body))
+            driver.submit(sql_add_unique_constraint(
+                    self.name, key_name, [u'id'], False))
+            # Update the catalog image.
+            system_schema = driver.get_catalog()[u'pg_catalog']
+            table = schema.add_table(self.name)
+            int4_type = system_schema.types[u'int4']
+            id_column = table.add_column(u'id', int4_type, True)
+            table.add_unique_key(key_name, [id_column])
+        # Verify that the table has `id` column.
+        table = schema[self.name]
+        if u'id' not in table:
+            if driver.is_locked:
+                return False
+            raise Error("Detected a table without an ID column:", self.name)
+        # Verify that there's a UNIQUE constraint on the `id` column.
+        id_column = table['id']
+        if not any(unique_key.origin_columns == [id_column]
+                   for unique_key in table.unique_keys):
+            if driver.is_locked:
+                return False
+            raise Error("Detected a table without a UNIQUE constraint"
+                        " on the ID column:", self.name)
+        # Apply nested facts.
         if self.nested_facts:
             for nested_fact in self.nested_facts:
-                nested_fact(driver)
+                if not nested_fact(driver):
+                    return False
+        return True
+
+    def drop(self, driver):
+        # Ensures that the table is absent.
+        schema = driver.get_schema()
+        if self.name not in schema:
+            return True
+        if driver.is_locked:
+            return False
+        # Bail if there are links to the table.
+        table = schema[self.name]
+        if any(foreign_key
+               for foreign_key in table.referring_foreign_keys
+               if foreign_key.origin != table):
+            raise Error("Cannot drop a table with links referring to it:",
+                        self.name)
+        # Find `ENUM` types to be deleted with the table.
+        enum_types = []
+        for column in table:
+            if column.type.is_enum:
+                enum_types.append(column.type)
+        # Submit `DROP TABLE {name}`.
+        driver.submit(sql_drop_table(self.name))
+        # Submit `DROP TYPE` statements.
+        for enum_type in enum_types:
+            driver.submit(sql_drop_type(enum_type.name))
+        # Update the catalog image.
+        table.remove()
+        for enum_type in enum_types:
+            enum_type.remove()
+        return True
 
 
 class ColumnFact(Fact):
@@ -389,6 +436,18 @@ class ColumnFact(Fact):
         self.type = type
         self.is_required = is_required
         self.is_present = is_present
+        #: Table SQL name.
+        self.table_name = mangle(table_label)
+        #: Column SQL name.
+        self.name = mangle(label)
+        if isinstance(type, list):
+            #: Type SQL name.
+            self.type_name = mangle([table_label, label], u'enum')
+            #: Labels for ``ENUM`` type.
+            self.enum_labels = type
+        else:
+            self.type_name = self.TYPE_MAP[self.type]
+            self.enum_labels = None
 
     def __yaml__(self):
         yield ('column', self.label)
@@ -413,38 +472,81 @@ class ColumnFact(Fact):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
     def __call__(self, driver):
-        schema = driver.get_schema()
-        system_schema = driver.get_catalog()['pg_catalog']
-        table_name = mangle(self.table_label)
-        name = mangle(self.label)
         if self.is_present:
-            if table_name not in schema:
-                raise Error("Unknown table:", self.table_label)
-            table = schema[table_name]
-            if name in table:
-                return
-            is_enum = isinstance(self.type, list)
-            if is_enum:
-                type_name = mangle([self.table_label, self.label], "enum")
-                type = schema.add_enum_type(type_name, self.type)
-                sql = sql_create_enum_type(type.name, type.labels)
-                driver.submit(sql)
-            else:
-                type = system_schema.types[self.TYPE_MAP[self.type]]
-            column = table.add_column(name, type, self.is_required)
-            sql = sql_add_column(table.name, column.name, column.type.name,
-                                 self.is_required)
-            driver.submit(sql)
+            return self.create(driver)
         else:
-            if table_name not in schema:
-                return
-            table = schema[table_name]
-            if name not in table:
-                return
-            column = table[name]
-            sql = sql_drop_column(table.name, column.name)
-            driver.submit(sql)
-            column.remove()
+            return self.drop(driver)
+
+    def create(self, driver):
+        # Ensures that the column is present.
+        schema = driver.get_schema()
+        # Find the table.
+        if self.table_name not in schema:
+            if driver.is_locked:
+                return False
+            raise Error("Cannot find table:", self.table_name)
+        # Determine the column type.
+        if self.enum_labels:
+            # Make sure the ENUM type exists.
+            # Create the type if it does not exist and update the catalog.
+            if self.type_name not in schema.types:
+                if driver.is_locked:
+                    return False
+                driver.submit(sql_create_enum_type(
+                        self.type_name, self.enum_labels))
+                schema.add_enum_type(self.type_name, self.enum_labels)
+            # Check that the type is the one we expect.
+            type = schema.types[self.type_name]
+            if not (type.is_enum and type.labels == self.enum_labels):
+                if driver.is_locked:
+                    return False
+                raise Error("Detected a mismatched ENUM type:", self.type_name)
+        else:
+            # A regular system type.
+            system_schema = driver.get_catalog()['pg_catalog']
+            type = system_schema.types[self.type_name]
+        table = schema[self.table_name]
+        # Create the column if it does not exist.
+        if self.name not in table:
+            if driver.is_locked:
+                return False
+            driver.submit(sql_add_column(
+                    self.table_name, self.name, self.type_name,
+                    self.is_required))
+            table.add_column(self.name, type, self.is_required)
+        # Check that the column has the right type and constraints.
+        column = table[self.name]
+        if column.type != type:
+            if driver.is_locked:
+                return False
+            raise Error("Detected a column with mismatched type:", self.name)
+        if column.is_not_null != self.is_required:
+            if driver.is_locked:
+                return False
+            raise Error("Detected a column with mismatched"
+                        " NOT NULL constraint:", self.name)
+        return True
+
+    def drop(self, driver):
+        # Ensures that the column is absent.
+        schema = driver.get_schema()
+        if self.table_name not in schema:
+            return True
+        table = schema[self.table_name]
+        if self.name not in table:
+            return True
+        if driver.is_locked:
+            return False
+        # Drop the column.
+        column = table[self.name]
+        type = column.type
+        driver.submit(sql_drop_column(self.table_name, self.name))
+        column.remove()
+        # Drop the dependent ENUM type.
+        if type.is_enum:
+            driver.submit(sql_drop_type(type.name))
+            type.remove()
+        return True
 
 
 class LinkFact(Fact):
@@ -497,9 +599,16 @@ class LinkFact(Fact):
         self.table_label = table_label
         self.label = label
         self.target_table_label = target_table_label
-        self.type = type
         self.is_required = is_required
         self.is_present = is_present
+        #: Table SQL name.
+        self.table_name = mangle(table_label)
+        #: Column SQL name.
+        self.name = mangle(label, u'id')
+        #: Target table SQL name.
+        self.target_table_name = mangle(target_table_label)
+        #: Foreign key SQL name.
+        self.constraint_name = mangle([table_label, label], u'fk')
 
     def __yaml__(self):
         yield ('link', self.label)
@@ -522,46 +631,78 @@ class LinkFact(Fact):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
     def __call__(self, driver):
-        schema = driver.get_schema()
-        system_schema = driver.get_catalog()['pg_catalog']
-        table_name = mangle(self.table_label)
-        name = mangle(self.label, u"id")
-        target_table_name = mangle(self.target_table_label)
-        constraint_name = mangle([self.table_label, self.label], "fk")
         if self.is_present:
-            if table_name not in schema:
-                raise Error("Unknown table:", self.table_label)
-            if target_table_name not in schema:
-                raise Error("Unknown target table:", self.target_table_label)
-            table = schema[table_name]
-            if name in table:
-                return
-            type = system_schema.types["int4"]
-            column = table.add_column(name, type, self.is_required)
-            target_table = schema[target_table_name]
-            if u"id" not in target_table:
-                raise Error("Missing ID column from target table:",
-                            self.target_table_label)
-            target_column = target_table[u"id"]
-            key = table.add_foreign_key(constraint_name, [column],
-                                        target_table, [target_column])
-            sql = sql_add_column(table.name, column.name, column.type.name,
-                                 self.is_required)
-            driver.submit(sql)
-            sql = sql_add_foreign_key_constraint(table.name, key.name,
-                                             [column.name], target_table.name,
-                                             [target_column.name])
-            driver.submit(sql)
+            return self.create(driver)
         else:
-            if table_name not in schema:
-                return
-            table = schema[table_name]
-            if name not in table:
-                return
-            column = table[name]
-            sql = sql_drop_column(table.name, column.name)
-            driver.submit(sql)
-            column.remove()
+            return self.drop(driver)
+
+    def create(self, driver):
+        # Ensures that the link is present.
+        schema = driver.get_schema()
+        if self.table_name not in schema:
+            if driver.is_locked:
+                return False
+            raise Error("Cannot find table:", self.table_name)
+        table = schema[self.table_name]
+        if self.target_table_name not in schema:
+            if driver.is_locked:
+                return False
+            raise Error("Cannot find target table:", self.target_table_name)
+        target_table = schema[self.target_table_name]
+        if u'id' not in target_table:
+            if driver.is_locked:
+                return False
+            raise Error("Detected a table without an ID column:",
+                        self.target_table_name)
+        target_column = target_table[u'id']
+        # Create the link column if it does not exist.
+        # FIXME: check if a non-link column with the same label exists?
+        if self.name not in table:
+            if driver.is_locked:
+                return False
+            driver.submit(sql_add_column(
+                    self.table_name, self.name, target_column.type.name,
+                    self.is_required))
+            table.add_column(self.name, target_column.type, self.is_required)
+        column = table[self.name]
+        # Verify the column type and `NOT NULL` constraint.
+        if column.type != target_column.type:
+            if driver.is_locked:
+                return False
+            raise Error("Detected a column with mismatched type:", self.name)
+        if column.is_not_null != self.is_required:
+            if driver.is_locked:
+                return False
+            raise Error("Detected a column with mismatched"
+                        " NOT NULL constraint:", self.name)
+        # Create a `FOREIGN KEY` constraint if necessary.
+        if not any(foreign_key
+                   for foreign_key in table.foreign_keys
+                   if list(foreign_key) == [(column, target_column)]):
+            if driver.is_locked:
+                return False
+            driver.submit(sql_add_foreign_key_constraint(
+                    self.table_name, self.constraint_name, [self.name],
+                    self.target_table_name, [u'id']))
+            table.add_foreign_key(self.constraint_name, [column],
+                                  target_table, [target_column])
+        return True
+
+    def drop(self, driver):
+        # Ensures that the link is absent.
+        schema = driver.get_schema()
+        if self.table_name not in schema:
+            return True
+        table = schema[self.table_name]
+        if self.name not in table:
+            return True
+        if driver.is_locked:
+            return False
+        # Drop the link.
+        column = table[self.name]
+        driver.submit(sql_drop_column(self.table_name, self.name))
+        column.remove()
+        return True
 
 
 class IdentityFact(Fact):
@@ -597,6 +738,13 @@ class IdentityFact(Fact):
                 len(set(labels)) == len(labels))
         self.table_label = table_label
         self.labels = labels
+        #: Table SQL name.
+        self.table_name = mangle(table_label)
+        #: Column/Link SQL names.
+        self.names = [(mangle(label), mangle(label, u'id'))
+                      for label in labels]
+        #: Constraint SQL name.
+        self.constraint_name = mangle(table_label, u'pk')
 
     def __yaml__(self):
         yield ('identity', self.labels)
@@ -609,34 +757,47 @@ class IdentityFact(Fact):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
     def __call__(self, driver):
+        # Ensures the `PRIMARY KEY` constraint exists.
         schema = driver.get_schema()
-        table_name = mangle(self.table_label)
-        constraint_name = mangle(self.table_label, "pk")
-        if table_name not in schema:
-            raise Error("Unknown table:", self.table_label)
-        table = schema[table_name]
+        if self.table_name not in schema:
+            if driver.is_locked:
+                return False
+            raise Error("Cannot find table:", self.table_name)
+        table = schema[self.table_name]
         columns = []
-        for label in self.labels:
-            column_name = mangle(label)
-            link_name = mangle(label, u"id")
+        for column_name, link_name in self.names:
             if column_name in table:
                 column = table[column_name]
             elif link_name in table:
                 column = table[link_name]
             else:
-                raise Error("Unknown field:",
-                            "%s.%s" % (self.table_label, label))
+                if driver.is_locked:
+                    return False
+                raise Error("Cannot find column:", column_name)
             columns.append(column)
-        if table.primary_key is not None:
-            if table.primary_key.origin_columns == columns:
-                return
-            sql = sql_drop_constraint(table.name, table.primary_key.name)
-            driver.submit(sql)
+        # Drop the `PRIMARY KEY` constraint if it does not match the identity.
+        if (table.primary_key is not None and
+                list(table.primary_key) != columns):
+            if driver.is_locked:
+                return False
+            driver.submit(sql_drop_constraint(
+                    self.table_name, table.primary_key.name))
             table.primary_key.remove()
-        key = table.add_primary_key(constraint_name, columns)
-        sql = sql_add_unique_constraint(table.name, key.name,
-                                    [column.name for column in columns], True)
-        driver.submit(sql)
+        # Create the `PRIMARY KEY` constraint if necessary.
+        if table.primary_key is None:
+            if driver.is_locked:
+                return False
+            driver.submit(sql_add_unique_constraint(
+                    self.table_name, self.constraint_name,
+                    [column.name for column in columns], True))
+            table.add_primary_key(self.constraint_name, columns)
+        return True
+
+
+class _skip_type(object):
+    def __repr__(self):
+        return "SKIP"
+SKIP = _skip_type()
 
 
 class DataFact(Fact):
@@ -678,6 +839,8 @@ class DataFact(Fact):
         self.data_path = data_path
         self.data = data
         self.is_present = is_present
+        #: Table SQL name.
+        self.table_name = mangle(table_label)
 
     def __yaml__(self):
         yield ('data', self.data_path or self.data)
@@ -697,126 +860,224 @@ class DataFact(Fact):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
     def __call__(self, driver):
-        schema = driver.get_schema()
-        table_name = mangle(self.table_label)
-        if table_name not in schema:
-            raise Error("Unknown table:", self.table_label)
-        table = schema[table_name]
-        if table.primary_key is None:
-            raise Error("Table without identity:", self.table_label)
+        if self.is_present:
+            return self.create(driver)
+        else:
+            return self.drop(driver)
 
+    def create(self, driver):
+        # Ensures that the table contains the given data.
+
+        # Find the table.
+        schema = driver.get_schema()
+        if self.table_name not in schema:
+            if driver.is_locked:
+                return False
+            raise Error("Cannot find table:", self.table_name)
+        table = schema[self.table_name]
+        if table.primary_key is None:
+            if driver.is_locked:
+                return False
+            raise Error("Detected a table without identity:",
+                        self.table_name)
+
+        # Load existing table content.
         if table.data is None:
-            sql = sql_select(table.name, [column.name for column in table])
-            rows = driver.submit(sql)
+            rows = driver.submit(sql_select(
+                    table.name, [column.name for column in table]))
             table.add_data(rows)
 
+        # Load input data.
+        rows = self._parse(driver, table)
+        # If no input, assume NOOP.
+        if not rows:
+            return True
+
+        # Indexes of the primary key columns.
+        key_mask = [table.columns.index(column.name)
+                    for column in table.primary_key]
+        # Indexes of columns that do not belong to the PK.
+        nonkey_mask = [table.columns.index(column.name)
+                       for column in table
+                       if column not in table.primary_key]
+
+        # Target table for a link column.
+        targets = {}
+        for column in table:
+            foreign_keys = column.foreign_keys
+            if foreign_keys:
+                targets[column] = foreign_keys[0].target
+
+        for row_idx, row in enumerate(rows):
+            try:
+                # Verify that PK is provided.
+                if any(row[idx] is None or row[idx] is SKIP
+                       for idx in key_mask):
+                    raise Error("Detected missing identity value")
+                # Convert links to FK values.
+                if targets:
+                    items = []
+                    for column, data in zip(table, row):
+                        item = data
+                        if (column in targets and
+                                data is not None and data is not SKIP):
+                            target = targets[column]
+                            item = self._resolve(target, data)
+                            if item is None:
+                                if driver.is_locked:
+                                    return False
+                                dumper = self._domain(column).dump
+                                raise Error("Detected missing link:",
+                                            dumper(data))
+                        items.append(item)
+                    row = tuple(items)
+                # The primary key value.
+                handle = tuple(row[idx] for idx in key_mask)
+                # Find an existing row by the PK.
+                old_row = table.data.get(table.primary_key, handle)
+                if old_row is not None:
+                    # Find columns and values that changed.
+                    names = []
+                    values = []
+                    for column, data, old_data in zip(table, row, old_row):
+                        if data is SKIP or data == old_data:
+                            continue
+                        names.append(column.name)
+                        values.append(data)
+                    if not names:
+                        continue
+                    # Update an existing row.
+                    if driver.is_locked:
+                        return False
+                    key_names = [column.name
+                                 for column in table.primary_key]
+                    returning_names = [column.name for column in table]
+                    output = driver.submit(sql_update(
+                            table.name, key_names, handle, names, values,
+                            returning_names))
+                    assert len(output) == 1
+                    table.data.update(old_row, output[0])
+                else:
+                    # Add a new row.
+                    if driver.is_locked:
+                        return False
+                    names = []
+                    values = []
+                    for column, data in zip(table, row):
+                        if data is SKIP:
+                            continue
+                        names.append(column.name)
+                        values.append(data)
+                    returning_names = [column.name for column in table]
+                    output = driver.submit(sql_insert(
+                            table.name, names, values, returning_names))
+                    assert len(output) == 1
+                    table.data.insert(output[0])
+            except Error, error:
+                # Add the row being processed to the error trace.
+                items = []
+                for column, data in zip(table, rows[row_idx]):
+                    if data is None or data is SKIP:
+                        continue
+                    dumper = self._domain(column).dump
+                    item = to_literal(dumper(data))
+                    items.append(item)
+                error.wrap("While processing row #%s:" % (row_idx+1),
+                           u"{%s}" % u", ".join(items))
+                raise
+
+    def _parse(self, driver, table):
+        # Loads and parses CSV input.
         if self.data_path is not None:
             reader = csv.reader(open(self.data_path))
         else:
             reader = csv.reader(self.data.splitlines())
-        labels = next(reader)
-        rows = list(reader)
+        try:
+            labels = next(reader)
+        except StopIteration:
+            # Empty CSV file, assume NOOP.
+            return []
+        slices = list(reader)
 
-        columns = []
-        mask = []
-        targets = {}
-        for label in labels:
-            name = mangle(label)
-            if name in table:
-                column = table[name]
-                if column in columns:
-                    raise Error("Duplicate field:", label)
-                columns.append(column)
-                mask.append(table.columns.index(column.name))
+        # Maps a table column to a position in the slice.
+        masks = {}
+        # Maps a table column to a converter to native representation.
+        parsers = {}
+        # Find table columns provided by the input CSV.
+        for idx, label in enumerate(labels):
+            column_name = mangle(label)
+            link_name = mangle(label, u'id')
+            if column_name in table:
+                column = table[column_name]
+            elif link_name in table:
+                column = table[link_name]
             else:
-                name = mangle(label, 'id')
-                if name in table:
-                    column = table[name]
-                    if column in columns:
-                        raise Error("Duplicate field:", label)
-                    columns.append(column)
-                    mask.append(table.columns.index(column.name))
-                    assert len(column.foreign_keys) == 1
-                    target = column.foreign_keys[0].target
-                    targets[column] = target
-                else:
-                    raise Error("Unknown field:", label)
+                raise Error("Cannot find column:", column_name)
+            if column in masks:
+                raise Error("Detected duplicate column:", column_name)
+            masks[column] = idx
+            parsers[column] = self._domain(column).parse
 
-        key_mask = []
+        # Verify that we got PK columns.
         for column in table.primary_key:
-            if column not in columns:
-                raise Error("Missing identity column:", column.name)
-            key_mask.append(columns.index(column))
+            if column not in masks:
+                raise Error("Detected missing identity column:", column.name)
 
-        parsers = []
-        for column in columns:
-            parsers.append(self._column_domain(column).parse)
-
-        raw_rows = rows
+        # Convert text slices into native form.
         rows = []
-        for raw_row in raw_rows:
+        for idx, slice in enumerate(slices):
+            if self.data_path is not None:
+                location = "\"%s\", row %s" % (self.data_path, idx+2)
+            else:
+                location = "row %s" % (idx+2)
+            with guard("On:", location):
+                if len(slice) < len(masks):
+                    raise Error("Detected too few columns:",
+                                "%s < %s" % (len(slice), len(masks)))
+                elif len(slice) > len(masks):
+                    raise Error("Detected too many columns:",
+                                "%s > %s" % (len(slice), len(masks)))
+            # Convert the row.
             row = []
-            for text, parser in zip(raw_row, parsers):
-                if not text:
-                    data = None
+            for column in table.columns:
+                if column not in masks:
+                    data = SKIP
                 else:
-                    try:
-                        data = parser(text.decode('utf-8'))
-                    except ValueError, exc:
-                        raise Error(str(exc))
+                    text = slice[masks[column]]
+                    if not text:
+                        data = SKIP
+                    else:
+                        parser = parsers[column]
+                        try:
+                            data = parser(text.decode('utf-8'))
+                        except ValueError, exc:
+                            error = Error("Detected invalid input:", exc)
+                            error.wrap("While convering column:", column.name)
+                            raise error
                 row.append(data)
             rows.append(tuple(row))
 
-        for partial in rows:
-            if targets:
-                old_partial = partial
-                partial = []
-                for item, column in zip(old_partial, columns):
-                    if column not in targets or item is None:
-                        partial.append(item)
-                    else:
-                        target = targets[column]
-                        partial.append(self._resolve(target, item))
-                partial = tuple(partial)
-            handle = tuple(partial[idx] for idx in key_mask)
-            old_row = table.data.get(table.primary_key, handle)
-            if old_row is None:
-                sql = sql_insert(table.name, [column.name for column in columns],
-                             partial, [column.name for column in table.columns])
-                output = driver.submit(sql)
-                assert len(output) == 1
-                table.data.insert(output[0])
-            else:
-                old_partial = tuple(old_row[idx] for idx in mask)
-                if old_partial != partial:
-                    sql_updated_names = []
-                    sql_updated_values = []
-                    for column, old_data, data in zip(columns,
-                                                      old_partial, partial):
-                        if old_data != data:
-                            sql_updated_names.append(column.name)
-                            sql_updated_values.append(data)
-                    sql = sql_update(table.name,
-                                 tuple(columns[idx].name for idx in key_mask),
-                                 handle,
-                                 sql_updated_names, updated_values,
-                                 [column.name for column in table.columns])
-                    output = driver.submit(sql)
-                    assert len(output) == 1
-                    table.data.update(old_row, output[0])
+        return rows
 
-    def _column_domain(self, column):
+    def _domain(self, column):
+        # Determines HTSQL domain of the column.
+
+        # FK column -> identity of the target table.
         if column.foreign_keys:
             target = column.foreign_keys[0].target
-            labels = [self._column_domain(column)
+            labels = [self._domain(column)
                       for column in target.primary_key]
             return htsql.core.domain.IdentityDomain(labels)
+        # Type image.
         type = column.type
+        # Unwrap a domain type.
         while type.is_domain:
             type = type.base_type
+        # Translate a `ENUM` type.
         if type.is_enum:
             labels = [label.decode('utf-8') for label in type.labels]
             return htsql.core.domain.EnumDomain(labels)
+        # Translate known scalar types.
         elif type.schema.name == 'pg_catalog':
             if type.name == 'bool':
                 return htsql.core.domain.BooleanDomain()
@@ -834,16 +1095,18 @@ class DataFact(Fact):
                 return htsql.core.domain.TimeDomain()
             elif type.name in ['timestamp', 'timestamptz']:
                 return htsql.core.domain.DateTimeDomain()
-            else:
-                return htsql.core.domain.OpaqueDomain()
-        else:
-            return htsql.core.domain.OpaqueDomain()
+        # Fallback domain.
+        return htsql.core.domain.OpaqueDomain()
 
     def _resolve(self, table, identity):
+        # Finds a row by identity.
+
+        # Pre-load table data if necessary.
         if table.data is None:
-            sql = sql_select(table.name, [column.name for column in table])
-            rows = driver.submit(sql)
+            rows = driver.submit(sql_select(
+                    table.name, [column.name for column in table]))
             table.add_data(rows)
+        # Determine the PK value.
         handle = []
         for item, column in zip(identity, table.primary_key):
             if not column.foreign_keys:
@@ -853,11 +1116,16 @@ class DataFact(Fact):
                 item = self._resolve(target, item)
                 handle.append(item)
         handle = tuple(handle)
+        # Find the row by PK.
         row = table.data.get(table.primary_key, handle)
+        # Return the row ID.
         if row is None:
-            raise Error("Cannot find record:",
-                        "%s[%s]" % (table.name, identity))
-        return row[0]
+            return None
+        else:
+            return row[0]
+
+    def drop(self, driver):
+        raise NotImplementedError("%s.drop()" % self.__class__.__name__)
 
 
 def deploy(logging={}, dry_run=False):

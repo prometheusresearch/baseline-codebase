@@ -75,7 +75,7 @@ class Driver(object):
         self.catalog = None
         self.logging = logging
         self.cwd = None
-        self.is_locked = True
+        self.is_locked = False
 
     def chdir(self, directory):
         self.cwd = directory
@@ -88,7 +88,7 @@ class Driver(object):
 
     def reset(self):
         self.catalog = None
-        self.is_locked = True
+        self.is_locked = False
 
     def parse(self, stream):
         spec = self.validate.parse(stream)
@@ -106,7 +106,7 @@ class Driver(object):
         for fact_type in Fact.all():
             if isinstance(spec, fact_type.validate.record_type):
                 fact = fact_type.build(self, spec)
-                set_location(spec, fact)
+                set_location(fact, spec)
                 return fact
         assert False, "unknown fact record: %s" % spec
 
@@ -133,13 +133,29 @@ class Driver(object):
     def get_schema(self):
         return self.get_catalog()[u"public"]
 
-    def __call__(self, fact):
+    def __call__(self, facts, is_locked=None):
+        if not isinstance(facts, (list, tuple)):
+            facts = [facts]
+        # Set new lock status.
+        if is_locked is not None:
+            self.is_locked, is_locked = is_locked, self.is_locked
         try:
-            return fact(self)
-        except Error, error:
-            location = locate(fact) or fact
-            error.wrap("While deploying:", location)
-            raise
+            # Apply the facts.
+            for fact in facts:
+                try:
+                    fact(self)
+                except Error, error:
+                    if not self.is_locked:
+                        message = "While deploying:"
+                    else:
+                        message = "While validating:"
+                    location = locate(fact) or fact
+                    error.wrap(message, location)
+                    raise
+        finally:
+            # Restore original lock status.
+            if is_locked is not None:
+                self.is_locked, is_locked = is_locked, self.is_locked
 
     def submit(self, sql):
         cursor = self.connection.cursor()
@@ -148,6 +164,10 @@ class Driver(object):
             cursor.execute(sql)
             if cursor.description is not None:
                 return cursor.fetchall()
+        except psycopg2.Error, exc:
+            error = Error("Got an error from the database driver:", exc)
+            error.wrap("While executing SQL:", sql)
+            raise error
         finally:
             cursor.close()
 
@@ -292,7 +312,7 @@ class TableFact(Fact):
         # Create the table if it does not exist.
         if self.name not in schema:
             if driver.is_locked:
-                return False
+                raise Error("Detected missing table:", self.name)
             # Submit `CREATE TABLE {name} (id serial4 NOT NULL)` and
             # `ADD CONSTRAINT UNIQUE (id)`.
             body = [sql_define_column(u'id', u'serial4', True)]
@@ -306,40 +326,32 @@ class TableFact(Fact):
             int4_type = system_schema.types[u'int4']
             id_column = table.add_column(u'id', int4_type, True)
             table.add_unique_key(key_name, [id_column])
-        # Verify that the table has `id` column.
+        # Verify that the table has `id` column with a UNIQUE contraint.
         table = schema[self.name]
         if u'id' not in table:
-            if driver.is_locked:
-                return False
-            raise Error("Detected a table without an ID column:", self.name)
-        # Verify that there's a UNIQUE constraint on the `id` column.
+            raise Error("Detected missing column:", "%s.id" % table)
         id_column = table['id']
         if not any(unique_key.origin_columns == [id_column]
                    for unique_key in table.unique_keys):
-            if driver.is_locked:
-                return False
-            raise Error("Detected a table without a UNIQUE constraint"
-                        " on the ID column:", self.name)
+            raise Error("Detected missing column UNIQUE constraint:",
+                        "%s.id" % table)
         # Apply nested facts.
         if self.nested_facts:
-            for nested_fact in self.nested_facts:
-                if not nested_fact(driver):
-                    return False
-        return True
+            driver(self.nested_facts)
 
     def drop(self, driver):
         # Ensures that the table is absent.
         schema = driver.get_schema()
         if self.name not in schema:
-            return True
+            return
         if driver.is_locked:
-            return False
+            raise Error("Detected unexpected table:", self.name)
         # Bail if there are links to the table.
         table = schema[self.name]
         if any(foreign_key
                for foreign_key in table.referring_foreign_keys
                if foreign_key.origin != table):
-            raise Error("Cannot drop a table with links referring to it:",
+            raise Error("Cannot delete a table with links onto it:",
                         self.name)
         # Find `ENUM` types to be deleted with the table.
         enum_types = []
@@ -355,11 +367,11 @@ class TableFact(Fact):
         table.remove()
         for enum_type in enum_types:
             enum_type.remove()
-        return True
 
 
 class ColumnFact(Fact):
 
+    # HTSQL name -> SQL name.
     TYPE_MAP = {
             "boolean": "bool",
             "integer": "int4",
@@ -482,25 +494,21 @@ class ColumnFact(Fact):
         schema = driver.get_schema()
         # Find the table.
         if self.table_name not in schema:
-            if driver.is_locked:
-                return False
-            raise Error("Cannot find table:", self.table_name)
+            raise Error("Detected missing table:", self.table_name)
         # Determine the column type.
         if self.enum_labels:
             # Make sure the ENUM type exists.
             # Create the type if it does not exist and update the catalog.
             if self.type_name not in schema.types:
                 if driver.is_locked:
-                    return False
+                    raise Error("Detected missing ENUM type:", self.type_name)
                 driver.submit(sql_create_enum_type(
                         self.type_name, self.enum_labels))
                 schema.add_enum_type(self.type_name, self.enum_labels)
             # Check that the type is the one we expect.
             type = schema.types[self.type_name]
             if not (type.is_enum and type.labels == self.enum_labels):
-                if driver.is_locked:
-                    return False
-                raise Error("Detected a mismatched ENUM type:", self.type_name)
+                raise Error("Detected mismatched ENUM type:", self.type_name)
         else:
             # A regular system type.
             system_schema = driver.get_catalog()['pg_catalog']
@@ -509,7 +517,8 @@ class ColumnFact(Fact):
         # Create the column if it does not exist.
         if self.name not in table:
             if driver.is_locked:
-                return False
+                raise Error("Detected missing column:",
+                            "%s.%s" % (table, self.name))
             driver.submit(sql_add_column(
                     self.table_name, self.name, self.type_name,
                     self.is_required))
@@ -517,28 +526,23 @@ class ColumnFact(Fact):
         # Check that the column has the right type and constraints.
         column = table[self.name]
         if column.type != type:
-            if driver.is_locked:
-                return False
-            raise Error("Detected a column with mismatched type:", self.name)
+            raise Error("Detected column with mismatched type:", column)
         if column.is_not_null != self.is_required:
-            if driver.is_locked:
-                return False
-            raise Error("Detected a column with mismatched"
-                        " NOT NULL constraint:", self.name)
-        return True
+            raise Error("Detected column with mismatched"
+                        " NOT NULL constraint:", column)
 
     def drop(self, driver):
         # Ensures that the column is absent.
         schema = driver.get_schema()
         if self.table_name not in schema:
-            return True
+            return
         table = schema[self.table_name]
         if self.name not in table:
-            return True
-        if driver.is_locked:
-            return False
-        # Drop the column.
+            return
         column = table[self.name]
+        if driver.is_locked:
+            raise Error("Detected unexpected column:", column)
+        # Drop the column.
         type = column.type
         driver.submit(sql_drop_column(self.table_name, self.name))
         column.remove()
@@ -546,7 +550,6 @@ class ColumnFact(Fact):
         if type.is_enum:
             driver.submit(sql_drop_type(type.name))
             type.remove()
-        return True
 
 
 class LinkFact(Fact):
@@ -640,26 +643,21 @@ class LinkFact(Fact):
         # Ensures that the link is present.
         schema = driver.get_schema()
         if self.table_name not in schema:
-            if driver.is_locked:
-                return False
-            raise Error("Cannot find table:", self.table_name)
+            raise Error("Detected missing table:", self.table_name)
         table = schema[self.table_name]
         if self.target_table_name not in schema:
-            if driver.is_locked:
-                return False
-            raise Error("Cannot find target table:", self.target_table_name)
+            raise Error("Detected missing table:", self.target_table_name)
         target_table = schema[self.target_table_name]
         if u'id' not in target_table:
-            if driver.is_locked:
-                return False
-            raise Error("Detected a table without an ID column:",
-                        self.target_table_name)
+            raise Error("Detected missing column:",
+                        "%s.id" % self.target_table_name)
         target_column = target_table[u'id']
         # Create the link column if it does not exist.
         # FIXME: check if a non-link column with the same label exists?
         if self.name not in table:
             if driver.is_locked:
-                return False
+                raise Error("Detected missing column:",
+                            "%s.%s" % (self.table_name, self.name))
             driver.submit(sql_add_column(
                     self.table_name, self.name, target_column.type.name,
                     self.is_required))
@@ -667,42 +665,37 @@ class LinkFact(Fact):
         column = table[self.name]
         # Verify the column type and `NOT NULL` constraint.
         if column.type != target_column.type:
-            if driver.is_locked:
-                return False
-            raise Error("Detected a column with mismatched type:", self.name)
+            raise Error("Detected column with mismatched type:", column)
         if column.is_not_null != self.is_required:
-            if driver.is_locked:
-                return False
-            raise Error("Detected a column with mismatched"
-                        " NOT NULL constraint:", self.name)
+            raise Error("Detected column with mismatched"
+                        " NOT NULL constraint:", column)
         # Create a `FOREIGN KEY` constraint if necessary.
         if not any(foreign_key
                    for foreign_key in table.foreign_keys
                    if list(foreign_key) == [(column, target_column)]):
             if driver.is_locked:
-                return False
+                raise Error("Detected column with missing"
+                            " FOREIGN KEY constraint:", column)
             driver.submit(sql_add_foreign_key_constraint(
                     self.table_name, self.constraint_name, [self.name],
                     self.target_table_name, [u'id']))
             table.add_foreign_key(self.constraint_name, [column],
                                   target_table, [target_column])
-        return True
 
     def drop(self, driver):
         # Ensures that the link is absent.
         schema = driver.get_schema()
         if self.table_name not in schema:
-            return True
+            return
         table = schema[self.table_name]
         if self.name not in table:
-            return True
-        if driver.is_locked:
-            return False
-        # Drop the link.
+            return
         column = table[self.name]
+        if driver.is_locked:
+            raise Error("Detected unexpected column:", column)
+        # Drop the link.
         driver.submit(sql_drop_column(self.table_name, self.name))
         column.remove()
-        return True
 
 
 class IdentityFact(Fact):
@@ -760,9 +753,7 @@ class IdentityFact(Fact):
         # Ensures the `PRIMARY KEY` constraint exists.
         schema = driver.get_schema()
         if self.table_name not in schema:
-            if driver.is_locked:
-                return False
-            raise Error("Cannot find table:", self.table_name)
+            raise Error("Detected missing table:", self.table_name)
         table = schema[self.table_name]
         columns = []
         for column_name, link_name in self.names:
@@ -771,27 +762,27 @@ class IdentityFact(Fact):
             elif link_name in table:
                 column = table[link_name]
             else:
-                if driver.is_locked:
-                    return False
-                raise Error("Cannot find column:", column_name)
+                raise Error("Detected missing column:",
+                            "%s.%s" % (table, column_name))
             columns.append(column)
         # Drop the `PRIMARY KEY` constraint if it does not match the identity.
         if (table.primary_key is not None and
                 list(table.primary_key) != columns):
             if driver.is_locked:
-                return False
+                raise Error("Detected table with mismatched"
+                            " PRIMARY KEY constraint:", table)
             driver.submit(sql_drop_constraint(
                     self.table_name, table.primary_key.name))
             table.primary_key.remove()
         # Create the `PRIMARY KEY` constraint if necessary.
         if table.primary_key is None:
             if driver.is_locked:
-                return False
+                raise Error("Detected table with missing"
+                            " PRIMARY KEY constraint:", table)
             driver.submit(sql_add_unique_constraint(
                     self.table_name, self.constraint_name,
                     [column.name for column in columns], True))
             table.add_primary_key(self.constraint_name, columns)
-        return True
 
 
 class _skip_type(object):
@@ -871,15 +862,10 @@ class DataFact(Fact):
         # Find the table.
         schema = driver.get_schema()
         if self.table_name not in schema:
-            if driver.is_locked:
-                return False
-            raise Error("Cannot find table:", self.table_name)
+            raise Error("Detected missing table:", self.table_name)
         table = schema[self.table_name]
         if table.primary_key is None:
-            if driver.is_locked:
-                return False
-            raise Error("Detected a table without identity:",
-                        self.table_name)
+            raise Error("Detected table without PRIMARY KEY constraint:", table)
 
         # Load existing table content.
         if table.data is None:
@@ -891,7 +877,7 @@ class DataFact(Fact):
         rows = self._parse(driver, table)
         # If no input, assume NOOP.
         if not rows:
-            return True
+            return
 
         # Indexes of the primary key columns.
         key_mask = [table.columns.index(column.name)
@@ -911,9 +897,10 @@ class DataFact(Fact):
         for row_idx, row in enumerate(rows):
             try:
                 # Verify that PK is provided.
-                if any(row[idx] is None or row[idx] is SKIP
-                       for idx in key_mask):
-                    raise Error("Detected missing identity value")
+                for idx in key_mask:
+                    if row[idx] is None or row[idx] is SKIP:
+                        raise Error("Detected column with missing value:",
+                                    table[idx])
                 # Convert links to FK values.
                 if targets:
                     items = []
@@ -924,10 +911,8 @@ class DataFact(Fact):
                             target = targets[column]
                             item = self._resolve(target, data)
                             if item is None:
-                                if driver.is_locked:
-                                    return False
                                 dumper = self._domain(column).dump
-                                raise Error("Detected missing link:",
+                                raise Error("Detected unknown link:",
                                             dumper(data))
                         items.append(item)
                     row = tuple(items)
@@ -948,7 +933,7 @@ class DataFact(Fact):
                         continue
                     # Update an existing row.
                     if driver.is_locked:
-                        return False
+                        raise Error("Detected modified row")
                     key_names = [column.name
                                  for column in table.primary_key]
                     returning_names = [column.name for column in table]
@@ -960,7 +945,7 @@ class DataFact(Fact):
                 else:
                     # Add a new row.
                     if driver.is_locked:
-                        return False
+                        raise Error("Detected missing row")
                     names = []
                     values = []
                     for column, data in zip(table, row):
@@ -1012,16 +997,18 @@ class DataFact(Fact):
             elif link_name in table:
                 column = table[link_name]
             else:
-                raise Error("Cannot find column:", column_name)
+                raise Error("Detected missing column:",
+                            "%s.%s" % (table, column_name))
             if column in masks:
-                raise Error("Detected duplicate column:", column_name)
+                raise Error("Detected duplicate column:",
+                            "%s.%s" % (table, column_name))
             masks[column] = idx
             parsers[column] = self._domain(column).parse
 
         # Verify that we got PK columns.
         for column in table.primary_key:
             if column not in masks:
-                raise Error("Detected missing identity column:", column.name)
+                raise Error("Detected missing PRIMARY KEY column:", column)
 
         # Convert text slices into native form.
         rows = []
@@ -1032,30 +1019,30 @@ class DataFact(Fact):
                 location = "row %s" % (idx+2)
             with guard("On:", location):
                 if len(slice) < len(masks):
-                    raise Error("Detected too few columns:",
+                    raise Error("Detected too few entries:",
                                 "%s < %s" % (len(slice), len(masks)))
                 elif len(slice) > len(masks):
-                    raise Error("Detected too many columns:",
+                    raise Error("Detected too many entries:",
                                 "%s > %s" % (len(slice), len(masks)))
-            # Convert the row.
-            row = []
-            for column in table.columns:
-                if column not in masks:
-                    data = SKIP
-                else:
-                    text = slice[masks[column]]
-                    if not text:
+                # Convert the row.
+                row = []
+                for column in table.columns:
+                    if column not in masks:
                         data = SKIP
                     else:
-                        parser = parsers[column]
-                        try:
-                            data = parser(text.decode('utf-8'))
-                        except ValueError, exc:
-                            error = Error("Detected invalid input:", exc)
-                            error.wrap("While convering column:", column.name)
-                            raise error
-                row.append(data)
-            rows.append(tuple(row))
+                        text = slice[masks[column]]
+                        if not text:
+                            data = SKIP
+                        else:
+                            parser = parsers[column]
+                            try:
+                                data = parser(text.decode('utf-8'))
+                            except ValueError, exc:
+                                error = Error("Detected invalid input:", exc)
+                                error.wrap("While converting column:", column)
+                                raise error
+                    row.append(data)
+                rows.append(tuple(row))
 
         return rows
 
@@ -1148,21 +1135,16 @@ def deploy(logging={}, dry_run=False):
         facts_by_package[package] = package_facts
     driver.chdir(None)
     # Deploying database schema.
-    driver.unlock()
     for package in packages:
         driver.log("Deploying {}.", package.name)
         facts = facts_by_package[package]
-        for fact in facts:
-            driver(fact)
-#    # Validating directives.
-#    driver.reset()
-#    for package in packages:
-#        driver.log("Validating {}.", package.name)
-#        facts = facts_by_package[package]
-#        for fact in facts:
-#            if not driver(fact):
-#                location = driver.locate(fact) or "--"
-#                driver.warn("Fact `{}` ({}) is not satisfied.", fact, location)
+        driver(facts)
+    # Validating directives.
+    driver.reset()
+    for package in packages:
+        driver.log("Validating {}.", package.name)
+        facts = facts_by_package[package]
+        driver(facts, is_locked=True)
     # Commit changes and report.
     if not dry_run:
         connection.commit()

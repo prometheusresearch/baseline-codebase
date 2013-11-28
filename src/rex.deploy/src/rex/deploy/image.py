@@ -437,6 +437,9 @@ class ColumnImage(NamedImage):
         if table.data is not None:
             table.data.remove()
 
+    def __unicode__(self):
+        return u"%s.%s" % (self.table, self.name)
+
     @property
     def table(self):
         """Column owner."""

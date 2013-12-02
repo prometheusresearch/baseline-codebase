@@ -1,10 +1,8 @@
-body {
-    margin: 0px;
-    padding: 0px;
-    background-color: #465663;
-}
-
-body, p, div, td, input {
+.rb-box-absolute,
+.rb-box-absolute p,
+.rb-box-absolute div,
+.rb-box-absolute td,
+.rb-box-absolute input {
     font-family:verdana;
     font-size:14px;
 }

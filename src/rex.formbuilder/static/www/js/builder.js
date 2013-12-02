@@ -60,6 +60,7 @@ var Question = function (def, templates) {
     // this.hint = def.hint || null;
     this.help = def.help || null;
     this.customTitles = def.customTitles || {};
+    this.calculation = def.calculation || false;
     this.required = def.required || false;
     this.slave = def.slave || false;
     this.annotation = def.annotation || false;
@@ -118,6 +119,8 @@ Question.prototype.getDef = function () {
         required: this.required,
         slave: this.slave,
     };
+    if (this.calculation)
+        def.calculation = this.calculation;
     if (this.help)
         def.help = this.help;
     if (!builder.isEmpty(this.customTitles))
@@ -1590,6 +1593,7 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
     var self = this;
     self.parent = parent;
     self.question = mode === "copy" ? null : question;
+    self.calculation = null;
     self.mode = mode;
     self.templates = templates;
     self.node = self.templates.create('questionEditor');
@@ -1871,6 +1875,8 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
         nodeHelp.val(question.help || '');
         if (question.required)
             nodeRequired.attr('checked', 'checked');
+        if (question.calculation)
+            self.calculation = question.calculation;
         if (question.slave)
             nodeSlave.attr('checked', 'checked');
         if (question.annotation)
@@ -1908,6 +1914,8 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
             slave: nodeSlave.is(":checked"),
             type: nodeType.val()
         };
+        if (self.calculation)
+            def.calculation = self.calculation;
         var annotation = nodeAnnotation.is(":checked");
         var explanation = nodeExplanation.is(":checked");
         var customTitles = customTitleEditor.getDef();

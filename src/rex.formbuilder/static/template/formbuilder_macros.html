@@ -110,6 +110,7 @@
 {% endmacro %}
 
 {% macro formbuilder(instrument, code, manual_edit_conditions, ext_param_types, base_url=None) %}
+    <div class="rb-box-absolute">
         <script type="text/javascript">
             {% if not base_url %}
                 {% set base_url = MOUNT['rex.formbuilder'] %}
@@ -415,6 +416,7 @@
 		<div id="rb_helper_home">
 			
 		</div>
+    </div>
 {% endmacro -%}
 
 {% macro formbuilder_instruments(role, edit_url = None, new_url = None, clone_url = None) %}

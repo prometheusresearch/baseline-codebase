@@ -1,12 +1,36 @@
-body {
-    margin: 0px;
-    padding: 0px;
-    background-color: #465663;
-}
 
-body, p, div, td, input {
+.rb-box-absolute,
+.rb-box-absolute p,
+.rb-box-absolute div,
+.rb-box-absolute td,
+.rb-box-absolute input,
+.rb-box-absolute button {
     font-family:verdana;
     font-size:12px;
+}
+
+.rb-box-absolute h1,
+.rb-box-absolute h2,
+.rb-box-absolute h3 {
+    line-height: normal;
+}
+
+.rb-box-absolute ul {
+    margin-left: 0px;
+}
+
+#rb_add_new_page {
+    margin-right: 3px;
+}
+
+.rb-box-absolute {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: #465663;
+    overflow: auto;
 }
 
 .rb_page {
@@ -280,14 +304,14 @@ body, p, div, td, input {
 
 .rb_pages_list_wrapper {
     position: absolute;
-    top: 150px;
+    top: 165px;
     bottom: 0px;
     right: 10px;
     left: 10px;
 }
 
 .rb-show-advanced .rb_pages_list_wrapper {
-    top: 255px;
+    top: 275px;
 }
 
 .rb_pages_list_header {
@@ -603,10 +627,15 @@ div.rb_choices_item_right {
     position:absolute;
     padding-left: 10px;
     top: 0px;
-    left: 60%;
+    left: 61%;
     bottom: 0px;
     right: 0px;
     overflow: hidden;
+}
+
+input.rb_choice_input_title,
+input.rb_choice_input {
+    margin-bottom: 0px;
 }
 
 input.rb_with_margin {
@@ -916,4 +945,8 @@ a.rb-back-url {
 
 .rb-question-add-next {
     margin-left: 20px;
+}
+
+ul#rb_question_list {
+    margin-left: 0px;
 }

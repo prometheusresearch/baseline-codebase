@@ -62,7 +62,7 @@ class CreateInstrument(FormBuilderBaseCommand):
                 data = BASE_INSTRUMENT_JSON
                 if base_measure_type is not None:
                     product = produce("""/measure_type.filter(_id=$type)
-                        .top(measure_type_version.sort(version))
+                        .top(measure_type_version.sort(version-))
                         .json""",
                         type=base_measure_type)
                     if not len(product):

@@ -4,11 +4,11 @@
 
 
 from cogs import env, setting, task, argument, option
-from cogs.log import log, fail
+from cogs.log import log, fail, warn, debug
 from cogs.fs import exe
 from .common import make_rex, pair
 from rex.core import get_settings, Error
-from rex.deploy import get_cluster, deploy
+from rex.deploy import get_cluster, deploy, LOG_PROGRESS
 
 
 @task
@@ -231,8 +231,14 @@ class DEPLOY:
                 log("Creating database `{}`.", cluster.db)
                 cluster.create()
             log("Deploying application database to `{}`.", cluster.db)
+            def logging(level, msg, *args, **kwds):
+                if level&LOG_PROGRESS:
+                    log(msg, *args, **kwds)
+                else:
+                    debug(msg, *args, **kwds)
             with app:
-                deploy(dry_run=self.dry_run)
+                deploy(logging=logging, dry_run=self.dry_run)
+            log("Done.")
         except Error, error:
             raise fail(str(error))
 

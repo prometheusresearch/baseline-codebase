@@ -49,10 +49,6 @@ class IdentityFact(Fact):
         #: Constraint SQL name.
         self.constraint_name = mangle(table_label, u'pk')
 
-    def __yaml__(self):
-        yield ('identity', self.labels)
-        yield ('of', self.table_label)
-
     def __repr__(self):
         args = []
         args.append(repr(self.table_label))

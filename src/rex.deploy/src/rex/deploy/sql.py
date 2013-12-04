@@ -91,7 +91,7 @@ def sql_value(value):
     if isinstance(value, (int, long, float, decimal.Decimal)):
         # FIXME: accept finite numbers only.
         return unicode(value)
-    if isinstance(value, (datetime.date, datetime.datetime)):
+    if isinstance(value, (datetime.date, datetime.time, datetime.datetime)):
         return u"'%s'" % value
     if isinstance(value, (str, unicode)):
         value = value.replace(u"'", u"''")

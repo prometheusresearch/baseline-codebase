@@ -55,6 +55,8 @@ class ColumnFact(Fact):
                 if len(set(type)) < len(type):
                     raise Error("Got duplicate enum labels:",
                                 ", ".join(type))
+            else:
+                type = type.decode('utf-8')
         else:
             if type is not None:
                 raise Error("Got unexpected clause:", "type")
@@ -74,7 +76,7 @@ class ColumnFact(Fact):
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
-            assert (isinstance(type, str) and type in self.TYPE_MAP or
+            assert (isinstance(type, unicode) and type in self.TYPE_MAP or
                     isinstance(type, list) and len(type) > 0 and
                     all(isinstance(label, unicode) and len(label) > 0
                         for label in type) and
@@ -92,7 +94,10 @@ class ColumnFact(Fact):
         self.table_name = mangle(table_label)
         #: Column SQL name.
         self.name = mangle(label)
-        if isinstance(type, list):
+        if type is None:
+            self.type_name = None
+            self.enum_labels = None
+        elif isinstance(type, list):
             #: Type SQL name.
             self.type_name = mangle([table_label, label], u'enum')
             #: Labels for ``ENUM`` type.
@@ -100,16 +105,6 @@ class ColumnFact(Fact):
         else:
             self.type_name = self.TYPE_MAP[self.type]
             self.enum_labels = None
-
-    def __yaml__(self):
-        yield ('column', self.label)
-        yield ('of', self.table_label)
-        if self.type is not None:
-            yield ('type', self.type)
-        if self.is_required is not None:
-            yield ('required', self.is_required)
-        if not self.is_present:
-            yield ('present', self.is_present)
 
     def __repr__(self):
         args = []

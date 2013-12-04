@@ -8,7 +8,9 @@ from .fact import Fact, LabelVal
 from .sql import mangle, sql_select, sql_insert, sql_update
 import os.path
 import csv
+import re
 import htsql.core.domain
+import htsql.core.util
 
 
 class _skip_type(object):
@@ -30,14 +32,15 @@ class DataFact(Fact):
         table_label = spec.of
         data_path = None
         data = None
-        if u'\n' in spec.data:
+        if not re.match(r'\A\S+\Z', spec.data):
             data = spec.data
         else:
             data_path = spec.data
             if driver.cwd is not None:
                 data_path = os.path.join(driver.cwd, data_path)
             if table_label is None:
-                table_label = os.path.splitext(os.path.basename(data_path))[0]
+                basename = os.path.splitext(os.path.basename(data_path))[0]
+                table_label = basename.decode('utf-8')
         if table_label is None:
             raise Error("Got missing table name")
         is_present = spec.present
@@ -48,8 +51,7 @@ class DataFact(Fact):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert (data_path is None or
                 (isinstance(data_path, str) and len(data_path) > 0))
-        assert (data is None or
-                (isinstance(data, str) and len(data) > 0))
+        assert data is None or isinstance(data, str)
         assert (data_path is None) != (data is None)
         assert isinstance(is_present, bool)
         self.table_label = table_label
@@ -58,12 +60,6 @@ class DataFact(Fact):
         self.is_present = is_present
         #: Table SQL name.
         self.table_name = mangle(table_label)
-
-    def __yaml__(self):
-        yield ('data', self.data_path or self.data)
-        yield ('of', self.table_label)
-        if not self.is_present:
-            yield ('present', self.is_present)
 
     def __repr__(self):
         args = []
@@ -93,17 +89,14 @@ class DataFact(Fact):
         if table.primary_key is None:
             raise Error("Detected table without PRIMARY KEY constraint:", table)
 
-        # Load existing table content.
-        if table.data is None:
-            rows = driver.submit(sql_select(
-                    table.name, [column.name for column in table]))
-            table.add_data(rows)
-
         # Load input data.
         rows = self._parse(driver, table)
         # If no input, assume NOOP.
         if not rows:
             return
+
+        # Load existing table content.
+        self._preload(driver, table)
 
         # Indexes of the primary key columns.
         key_mask = [table.columns.index(column.name)
@@ -135,7 +128,7 @@ class DataFact(Fact):
                         if (column in targets and
                                 data is not None and data is not SKIP):
                             target = targets[column]
-                            item = self._resolve(target, data)
+                            item = self._resolve(driver, target, data)
                             if item is None:
                                 dumper = self._domain(column).dump
                                 raise Error("Detected unknown link:",
@@ -191,7 +184,7 @@ class DataFact(Fact):
                     if data is None or data is SKIP:
                         continue
                     dumper = self._domain(column).dump
-                    item = to_literal(dumper(data))
+                    item = htsql.core.util.to_literal(dumper(data))
                     items.append(item)
                 error.wrap("While processing row #%s:" % (row_idx+1),
                            u"{%s}" % u", ".join(items))
@@ -311,14 +304,12 @@ class DataFact(Fact):
         # Fallback domain.
         return htsql.core.domain.OpaqueDomain()
 
-    def _resolve(self, table, identity):
+    def _resolve(self, driver, table, identity):
         # Finds a row by identity.
 
         # Pre-load table data if necessary.
-        if table.data is None:
-            rows = driver.submit(sql_select(
-                    table.name, [column.name for column in table]))
-            table.add_data(rows)
+        self._preload(driver, table)
+
         # Determine the PK value.
         handle = []
         for item, column in zip(identity, table.primary_key):
@@ -326,7 +317,7 @@ class DataFact(Fact):
                 handle.append(item)
             else:
                 target = column.foreign_keys[0].target
-                item = self._resolve(target, item)
+                item = self._resolve(driver, target, item)
                 handle.append(item)
         handle = tuple(handle)
         # Find the row by PK.
@@ -336,6 +327,13 @@ class DataFact(Fact):
             return None
         else:
             return row[0]
+
+    def _preload(self, driver, table):
+        # Pre-loads table data if necessary.
+        if table.data is None:
+            data = driver.submit(sql_select(
+                    table.name, [column.name for column in table]))
+            table.add_data(data)
 
     def drop(self, driver):
         raise NotImplementedError("%s.drop()" % self.__class__.__name__)

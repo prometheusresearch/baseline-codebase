@@ -63,8 +63,6 @@ def introspect(connection):
         ORDER BY c.relnamespace, c.relname
     """)
     for oid, relnamespace, relname in cursor.fetchall():
-        if relnamespace not in schema_by_oid:
-            continue
         schema = schema_by_oid[relnamespace]
         table = schema.add_table(relname)
         table_by_oid[oid] = table

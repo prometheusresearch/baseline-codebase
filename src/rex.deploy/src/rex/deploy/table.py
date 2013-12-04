@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Error, BoolVal, SeqVal
+from rex.core import Error, BoolVal, SeqVal, locate
 from .fact import Fact, LabelVal, FactVal
 from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
         sql_add_unique_constraint, sql_drop_type)
@@ -28,18 +28,19 @@ class TableFact(Fact):
             nested_facts = []
             for nested_spec in spec.with_:
                 if 'of' not in nested_spec._fields:
-                    raise Error("Got unrelated nested fact",
+                    raise Error("Got unrelated nested fact:",
                                 locate(nested_spec))
                 if nested_spec.of is None:
                     nested_spec = nested_spec.__clone__(of=label)
                 if nested_spec.of != label:
-                    raise Error("Got unrelated nested fact",
+                    raise Error("Got unrelated nested fact:",
                                 locate(nested_spec))
                 nested_fact = driver.build(nested_spec)
                 nested_facts.append(nested_fact)
         return cls(label, is_present=is_present, nested_facts=nested_facts)
 
     def __init__(self, label, is_present=True, nested_facts=None):
+        # Validate input constraints.
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
@@ -53,13 +54,6 @@ class TableFact(Fact):
         self.nested_facts = nested_facts
         #: Table SQL name.
         self.name = mangle(label)
-
-    def __yaml__(self):
-        yield ('table', self.label)
-        if not self.is_present:
-            yield ('present', self.is_present)
-        if self.nested_facts is not None:
-            yield ('with', self.nested_facts)
 
     def __repr__(self):
         args = []

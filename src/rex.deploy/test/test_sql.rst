@@ -90,11 +90,13 @@ constants::
     >>> print sql_value(decimal.Decimal('3.0'))
     3.0
 
-Date and datetime values are also accepted::
+Date, time and datetime values are also accepted::
 
     >>> import datetime
     >>> print sql_value(datetime.date(2010, 4, 15))
     '2010-04-15'
+    >>> print sql_value(datetime.time(20, 13))
+    '20:13:00'
     >>> print sql_value(datetime.datetime(2010, 4, 15, 20, 13))
     '2010-04-15 20:13:00'
 

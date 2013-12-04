@@ -15,7 +15,7 @@ class LinkFact(Fact):
             ('link', DottedLabelVal()),
             ('of', LabelVal(), None),
             ('to', LabelVal(), None),
-            ('required', BoolVal(), True),
+            ('required', BoolVal(), None),
             ('present', BoolVal(), True),
     ]
 
@@ -31,30 +31,33 @@ class LinkFact(Fact):
             table_label = spec.of
             if spec.of is None:
                 raise Error("Got missing table name")
-        target_table_label  = spec.to
-        if target_table_label is None:
-            target_table_label = label
-        is_present = spec.present
+        target_table_label = spec.to
         is_required = spec.required
+        is_present = spec.present
         if is_present:
+            if target_table_label is None:
+                target_table_label = label
             if is_required is None:
                 is_required = True
         else:
+            if target_table_label is not None:
+                raise Error("Got unexpected clause:", "to")
             if is_required is not None:
                 raise Error("Got unexpected clause:", "required")
         return cls(table_label, label, target_table_label,
                    is_required=is_required, is_present=is_present)
 
-    def __init__(self, table_label, label, target_table_label,
+    def __init__(self, table_label, label, target_table_label=None,
                  is_required=None, is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
-        assert (isinstance(target_table_label, unicode)
-                and len(target_table_label) > 0)
         assert isinstance(is_present, bool)
         if is_present:
+            assert (isinstance(target_table_label, unicode)
+                    and len(target_table_label) > 0)
             assert isinstance(is_required, bool)
         else:
+            assert target_table_label is None
             assert is_required is None
         self.table_label = table_label
         self.label = label
@@ -65,25 +68,21 @@ class LinkFact(Fact):
         self.table_name = mangle(table_label)
         #: Column SQL name.
         self.name = mangle(label, u'id')
-        #: Target table SQL name.
-        self.target_table_name = mangle(target_table_label)
-        #: Foreign key SQL name.
-        self.constraint_name = mangle([table_label, label], u'fk')
-
-    def __yaml__(self):
-        yield ('link', self.label)
-        yield ('of', self.table_label)
-        yield ('to', self.target_table_label)
-        if self.is_required is not None:
-            yield ('required', self.is_required)
-        if not self.is_present:
-            yield ('present', self.is_present)
+        if is_present:
+            #: Target table SQL name.
+            self.target_table_name = mangle(target_table_label)
+            #: Foreign key SQL name.
+            self.constraint_name = mangle([table_label, label], u'fk')
+        else:
+            self.target_table_name = None
+            self.constraint_name = None
 
     def __repr__(self):
         args = []
         args.append(repr(self.table_label))
         args.append(repr(self.label))
-        args.append(repr(self.target_table_label))
+        if self.target_table_label is not None:
+            args.append(repr(self.target_table_label))
         if self.is_required is not None:
             args.append("is_required=%r" % self.is_required)
         if not self.is_present:

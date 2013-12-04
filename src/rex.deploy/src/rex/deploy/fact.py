@@ -3,20 +3,20 @@
 #
 
 
-from rex.core import (Extension, Validate, StrVal, OneOrSeqVal, RecordVal,
-        SwitchVal, get_packages, Error, guard, locate, set_location)
-from .cluster import get_cluster
+from rex.core import (LatentRex, Extension, Validate, StrVal, OneOrSeqVal,
+        RecordVal, SwitchVal, Error, guard, locate, set_location)
 from .introspect import introspect
-import datetime
+import sys
 import psycopg2
-import yaml
 
 
 class FactVal(Validate):
 
     def _switch(self):
         validate_map = {}
-        for fact_type in Fact.all():
+        with LatentRex('rex.deploy'):
+            fact_types = Fact.all()
+        for fact_type in fact_types:
             validate_map[fact_type.key] = fact_type.validate
         return SwitchVal(validate_map)
 
@@ -56,11 +56,16 @@ class DottedLabelVal(UnicodeVal):
                 r'[a-z_][0-9a-z_]*([.][a-z_][0-9a-z_]*)?')
 
 
+LOG_ALL = (1 << 0)
+LOG_PROGRESS = (1 << 1)
+LOG_TIMING = (1 << 2)
+LOG_SQL = (1 << 3)
+
 class Driver(object):
 
     validate = OneOrSeqVal(FactVal())
 
-    def __init__(self, connection, logging={}):
+    def __init__(self, connection, logging=False):
         self.connection = connection
         self.catalog = None
         self.logging = logging
@@ -80,6 +85,15 @@ class Driver(object):
         self.catalog = None
         self.is_locked = False
 
+    def commit(self):
+        self.connection.commit()
+
+    def rollback(self):
+        self.connection.rollback()
+
+    def close(self):
+        self.connection.close()
+
     def parse(self, stream):
         spec = self.validate.parse(stream)
         if isinstance(spec, list):
@@ -93,27 +107,31 @@ class Driver(object):
                 return self.build(spec)
 
     def build(self, spec):
-        for fact_type in Fact.all():
+        with LatentRex('rex.deploy'):
+            fact_types = Fact.all()
+        for fact_type in fact_types:
             if isinstance(spec, fact_type.validate.record_type):
                 fact = fact_type.build(self, spec)
                 set_location(fact, spec)
                 return fact
         assert False, "unknown fact record: %s" % spec
 
-    def log(self, msg, *args, **kwds):
-        log = self.logging.get('log')
-        if log is not None:
-            log(msg, *args, **kwds)
-
-    def warn(self, msg, *args, **kwds):
-        warn = self.logging.get('warn')
-        if warn is not None:
-            warn(msg, *args, **kwds)
-
-    def debug(self, msg, *args, **kwds):
-        debug = self.logging.get('debug')
-        if debug is not None:
-            debug(msg, *args, **kwds)
+    def log(self, level, msg, *args, **kwds):
+        if not self.logging:
+            return
+        if isinstance(self.logging, int):
+            if not (self.logging&LOG_ALL or self.logging&level):
+                return
+            stream = sys.stdout
+        else:
+            stream = self.logging
+        if hasattr(stream, 'write'):
+            if args or kwds:
+                msg = msg.format(*args, **kwds)
+            stream.write(msg+"\n")
+            stream.flush()
+        else:
+            stream(level, msg, *args, **kwds)
 
     def get_catalog(self):
         if self.catalog is None:
@@ -124,6 +142,8 @@ class Driver(object):
         return self.get_catalog()[u"public"]
 
     def __call__(self, facts, is_locked=None):
+        if isinstance(facts, (str, unicode)):
+            facts = self.parse(facts)
         if not isinstance(facts, (list, tuple)):
             facts = [facts]
         # Set new lock status.
@@ -150,7 +170,7 @@ class Driver(object):
     def submit(self, sql):
         cursor = self.connection.cursor()
         try:
-            self.debug(sql)
+            self.log(LOG_SQL, "{}", sql)
             cursor.execute(sql)
             if cursor.description is not None:
                 return cursor.fetchall()
@@ -184,88 +204,7 @@ class Fact(Extension):
     def __call__(self, driver):
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
-    def __str__(self):
-        return unicode(self).encode('utf-8')
-
-    def __unicode__(self):
-        return yaml.dump(self, Dumper=FactDumper)
-
     def __repr__(self):
         raise NotImplementedError("%s.__repr__()" % self.__class__.__name__)
-
-    def __yaml__(self):
-        raise NotImplementedError("%s.__yaml__()" % self.__class__.__name__)
-
-
-class FactDumper(yaml.Dumper):
-
-    def represent_str(self, data):
-        # Represent both `str` and `unicode` objects as YAML strings.
-        # Use block style for multiline strings.
-        if isinstance(data, unicode):
-            data = data.encode('utf-8')
-        tag = None
-        style = None
-        if data.endswith('\n'):
-            style = '|'
-        try:
-            data = data.decode('utf-8')
-            tag = u'tag:yaml.org,2002:str'
-        except UnicodeDecodeError:
-            data = data.encode('base64')
-            tag = u'tag:yaml.org,2002:binary'
-            style = '|'
-        return self.represent_scalar(tag, data, style=style)
-
-    def represent_fact(self, data):
-        # Represent `Fact` objects.
-        tag = u'tag:yaml.org,2002:map'
-        mapping = list(data.__yaml__())
-        flow_style = None
-        return self.represent_mapping(tag, mapping, flow_style=flow_style)
-
-FactDumper.add_representer(str, FactDumper.represent_str)
-FactDumper.add_representer(unicode, FactDumper.represent_str)
-FactDumper.add_multi_representer(Fact, FactDumper.represent_fact)
-
-
-def deploy(logging={}, dry_run=False):
-    time_start = datetime.datetime.now()
-    # Prepare the driver.
-    cluster = get_cluster()
-    connection = cluster.connect()
-    driver = Driver(connection, logging=logging)
-    packages = [package for package in reversed(get_packages())
-                        if package.exists('deploy.yaml')]
-    if not packages:
-        driver.log("Nothing to deploy.")
-    facts_by_package = {}
-    # Load and parse `deploy.yaml` files.
-    for package in packages:
-        driver.chdir(package.abspath('/'))
-        package_facts = driver.parse(package.open('deploy.yaml'))
-        if not isinstance(package_facts, list):
-            package_facts = [package_facts]
-        facts_by_package[package] = package_facts
-    driver.chdir(None)
-    # Deploying database schema.
-    for package in packages:
-        driver.log("Deploying {}.", package.name)
-        facts = facts_by_package[package]
-        driver(facts)
-    # Validating directives.
-    driver.reset()
-    for package in packages:
-        driver.log("Validating {}.", package.name)
-        facts = facts_by_package[package]
-        driver(facts, is_locked=True)
-    # Commit changes and report.
-    if not dry_run:
-        connection.commit()
-    else:
-        driver.log("Rolling back changes (dry run).")
-        connection.rollback()
-    time_end = datetime.datetime.now()
-    driver.debug("Total time: {}", time_end-time_start)
 
 

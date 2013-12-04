@@ -81,7 +81,9 @@ class ImageMap(object):
         return (name in self._image_by_name)
 
     def __getitem__(self, name):
-        """Finds an object by name."""
+        """Finds an object by position or name."""
+        if isinstance(name, int):
+            name = self._names[name]
         return self._image_by_name[name]
 
     def __iter__(self):
@@ -241,6 +243,7 @@ class SchemaImage(NamedImage):
             self.tables.last().remove()
         while self.types:
             self.types().last().remove()
+        self.catalog.schemas.remove(self)
         super(SchemaImage, self).remove()
 
     def add_table(self, name):
@@ -305,7 +308,8 @@ class TypeImage(NamedImage):
             column.remove()
         for domain in self.domains:
             domain.remove()
-        super(self, TypeImage).remove()
+        self.schema.types.remove(self)
+        super(TypeImage, self).remove()
 
 
 class DomainTypeImage(TypeImage):
@@ -395,6 +399,7 @@ class TableImage(NamedImage):
             self.columns.last().remove()
         if self.data is not None:
             self.data.remove()
+        self.schema.tables.remove(self)
         super(TableImage, self).remove()
 
     def add_column(self, name, type, is_not_null):
@@ -489,9 +494,9 @@ class ColumnImage(NamedImage):
             foreign_key.remove()
         for foreign_key in self.referring_foreign_keys[:]:
             foreign_key.remove()
-        self.table.columns.remove(self)
         if self.table.data is not None:
             self.table.data.remove()
+        self.table.columns.remove(self)
         super(ColumnImage, self).remove()
 
 
@@ -516,7 +521,7 @@ class ConstraintImage(NamedImage):
         return self
 
     def remove(self):
-        self.table.constraints.remove(self)
+        self.origin.constraints.remove(self)
         super(ConstraintImage, self).remove()
 
 
@@ -555,8 +560,8 @@ class UniqueKeyImage(ConstraintImage):
         return len(self.origin_columns)
 
     def remove(self):
-        if origin.data is not None:
-            origin.data.remove()
+        if self.origin.data is not None:
+            self.origin.data.remove()
         self.origin.unique_keys.remove(self)
         if self.is_primary:
             self.origin.primary_key = None

@@ -8,10 +8,10 @@ This package provides database schema management.
 """
 
 
-from .cluster import get_cluster, Cluster
+from .cluster import Cluster, get_cluster, deploy
 from .column import ColumnFact
 from .data import DataFact, SKIP
-from .fact import Driver, deploy
+from .fact import Driver, LOG_ALL, LOG_PROGRESS, LOG_TIMING, LOG_SQL
 from .identity import IdentityFact
 from .image import (Image, NamedImage, ImageMap, CatalogImage, SchemaImage,
         TypeImage, DomainTypeImage, EnumTypeImage, TableImage, ColumnImage,

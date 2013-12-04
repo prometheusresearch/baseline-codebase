@@ -3,9 +3,11 @@
 #
 
 
-from rex.core import get_settings, Error, cached
+from rex.core import get_packages, get_settings, Error, cached
+from .fact import Driver, LOG_PROGRESS, LOG_TIMING, LOG_SQL
 from .sql import sql_select_database, sql_create_database, sql_drop_database
 import htsql.core.util
+import datetime
 import psycopg2, psycopg2.extensions
 
 
@@ -72,6 +74,22 @@ class Cluster(object):
         sql = sql_drop_database(name or self.db.database)
         self._master(sql)
 
+    def overwrite(self, name=None):
+        """
+        Creates a new database from scratch.  If the database with the same
+        name already exists, drop it first.
+        """
+        if self.exists(name):
+            self.drop(name)
+        self.create(name)
+
+    def drive(self, name=None, logging=False):
+        """
+        Creates a :class:`rex.deploy.Driver` instance for the database.
+        """
+        connection = self.connect(name)
+        return Driver(connection, logging=logging)
+
     def _master(self, sql):
         # Executes `sql` against the master database; returns the output.
         result = None
@@ -96,5 +114,45 @@ def get_cluster():
     if not db.engine == 'pgsql':
         raise Error("Expected a PostgreSQL database; got:", db)
     return Cluster(db)
+
+
+def deploy(logging=False, dry_run=False):
+    time_start = datetime.datetime.now()
+    # Prepare the driver.
+    cluster = get_cluster()
+    driver = cluster.drive(logging=logging)
+    packages = [package for package in reversed(get_packages())
+                        if package.exists('deploy.yaml')]
+    if not packages:
+        driver.log(LOG_PROGRESS, "Nothing to deploy.")
+    facts_by_package = {}
+    # Load and parse `deploy.yaml` files.
+    for package in packages:
+        driver.chdir(package.abspath('/'))
+        package_facts = driver.parse(package.open('deploy.yaml'))
+        if not isinstance(package_facts, list):
+            package_facts = [package_facts]
+        facts_by_package[package] = package_facts
+    driver.chdir(None)
+    # Deploying database schema.
+    for package in packages:
+        driver.log(LOG_PROGRESS, "Deploying {}.", package.name)
+        facts = facts_by_package[package]
+        driver(facts)
+    # Validating directives.
+    driver.reset()
+    for package in packages:
+        driver.log(LOG_PROGRESS, "Validating {}.", package.name)
+        facts = facts_by_package[package]
+        driver(facts, is_locked=True)
+    # Commit changes and report.
+    if not dry_run:
+        driver.commit()
+    else:
+        driver.log(LOG_PROGRESS, "Rolling back changes (dry run).")
+        driver.rollback()
+    time_end = datetime.datetime.now()
+    driver.log(LOG_TIMING, "Total time: {}", time_end-time_start)
+    driver.close()
 
 

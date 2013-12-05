@@ -2,6 +2,12 @@
 rex.instrument release notes
 **************************************
 
+0.1.4
+=====
+
+- added calculation support;
+
+
 0.1.3
 =====
 

@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='rex.instrument',
-      version = "0.1.3",
+      version = "0.1.4",
       description="Instrument/Assessment model",
       packages=find_packages('src'),
       package_dir={'': 'src'},

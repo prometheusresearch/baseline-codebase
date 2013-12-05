@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.2.0 (2013-XX-XX)
+==================
+
+* ``bool(get_rex)`` returns if there is an active application.
+
+
 1.1.0 (2013-11-20)
 ==================
 

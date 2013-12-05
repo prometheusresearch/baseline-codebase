@@ -82,6 +82,14 @@ It is an error to call ``get_rex()`` when no application is active::
       ...
     AssertionError: no active RexDB application
 
+``get_rex`` could be used to determine if there is an active application::
+
+    >>> print bool(get_rex)
+    False
+    >>> with demo:
+    ...     print bool(get_rex)
+    True
+
 Activation calls could be nested::
 
     >>> demo2 = Rex('rex.core_demo')

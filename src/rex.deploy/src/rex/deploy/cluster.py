@@ -4,7 +4,7 @@
 
 
 from rex.core import get_packages, get_settings, Error, cached
-from .fact import Driver, LOG_PROGRESS, LOG_TIMING, LOG_SQL
+from .fact import Driver
 from .sql import sql_select_database, sql_create_database, sql_drop_database
 import htsql.core.util
 import datetime
@@ -117,42 +117,56 @@ def get_cluster():
 
 
 def deploy(logging=False, dry_run=False):
+    """
+    Deploys and validates the application schema from ``deploy.yaml``
+    files.
+
+    `logging`
+        Logging configuration for the deployment driver.
+    `dry_run`
+        If set, the changes are rolled back at the end of the deployment.
+    """
     time_start = datetime.datetime.now()
     # Prepare the driver.
     cluster = get_cluster()
     driver = cluster.drive(logging=logging)
-    packages = [package for package in reversed(get_packages())
-                        if package.exists('deploy.yaml')]
-    if not packages:
-        driver.log(LOG_PROGRESS, "Nothing to deploy.")
-    facts_by_package = {}
-    # Load and parse `deploy.yaml` files.
-    for package in packages:
-        driver.chdir(package.abspath('/'))
-        package_facts = driver.parse(package.open('deploy.yaml'))
-        if not isinstance(package_facts, list):
-            package_facts = [package_facts]
-        facts_by_package[package] = package_facts
-    driver.chdir(None)
-    # Deploying database schema.
-    for package in packages:
-        driver.log(LOG_PROGRESS, "Deploying {}.", package.name)
-        facts = facts_by_package[package]
-        driver(facts)
-    # Validating directives.
-    driver.reset()
-    for package in packages:
-        driver.log(LOG_PROGRESS, "Validating {}.", package.name)
-        facts = facts_by_package[package]
-        driver(facts, is_locked=True)
-    # Commit changes and report.
-    if not dry_run:
-        driver.commit()
-    else:
-        driver.log(LOG_PROGRESS, "Rolling back changes (dry run).")
-        driver.rollback()
-    time_end = datetime.datetime.now()
-    driver.log(LOG_TIMING, "Total time: {}", time_end-time_start)
-    driver.close()
+    try:
+        packages = [package for package in reversed(get_packages())
+                            if package.exists('deploy.yaml')]
+        if not packages:
+            driver.log_progress("Nothing to deploy.")
+            return
+        facts_by_package = {}
+        # Load and parse `deploy.yaml` files.
+        for package in packages:
+            driver.chdir(package.abspath('/'))
+            package_facts = driver.parse(package.open('deploy.yaml'))
+            if not isinstance(package_facts, list):
+                package_facts = [package_facts]
+            facts_by_package[package] = package_facts
+        driver.chdir(None)
+        # Deploying database schema.
+        for package in packages:
+            driver.log_progress("Deploying {}.", package.name)
+            facts = facts_by_package[package]
+            driver(facts)
+        # Validating directives.
+        driver.reset()
+        driver.lock()
+        for package in packages:
+            driver.log_progress("Validating {}.", package.name)
+            facts = facts_by_package[package]
+            driver(facts)
+        driver.unlock()
+        # Commit changes and report.
+        if not dry_run:
+            driver.commit()
+        else:
+            driver.log_progress("Rolling back changes (dry run).")
+            driver.rollback()
+    finally:
+        time_end = datetime.datetime.now()
+        driver.log_timing("Total time: {}", time_end-time_start)
+        driver.close()
 
 

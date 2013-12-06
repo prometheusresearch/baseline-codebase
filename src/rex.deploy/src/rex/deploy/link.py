@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, BoolVal
-from .fact import Fact, LabelVal, DottedLabelVal
+from .fact import Fact, LabelVal, QLabelVal
 from .sql import (mangle, sql_add_column, sql_drop_column,
         sql_add_foreign_key_constraint)
 
@@ -12,11 +12,11 @@ from .sql import (mangle, sql_add_column, sql_drop_column,
 class LinkFact(Fact):
 
     fields = [
-            ('link', DottedLabelVal()),
-            ('of', LabelVal(), None),
-            ('to', LabelVal(), None),
-            ('required', BoolVal(), None),
-            ('present', BoolVal(), True),
+            ('link', QLabelVal),
+            ('of', LabelVal, None),
+            ('to', LabelVal, None),
+            ('required', BoolVal, None),
+            ('present', BoolVal, True),
     ]
 
     @classmethod
@@ -105,15 +105,13 @@ class LinkFact(Fact):
             raise Error("Detected missing table:", self.target_table_name)
         target_table = schema[self.target_table_name]
         if u'id' not in target_table:
-            raise Error("Detected missing column:",
-                        "%s.id" % self.target_table_name)
+            raise Error("Detected missing column:", "id")
         target_column = target_table[u'id']
         # Create the link column if it does not exist.
         # FIXME: check if a non-link column with the same label exists?
         if self.name not in table:
             if driver.is_locked:
-                raise Error("Detected missing column:",
-                            "%s.%s" % (self.table_name, self.name))
+                raise Error("Detected missing column:", self.name)
             driver.submit(sql_add_column(
                     self.table_name, self.name, target_column.type.name,
                     self.is_required))

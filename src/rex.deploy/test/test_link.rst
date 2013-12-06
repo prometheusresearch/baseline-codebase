@@ -128,7 +128,7 @@ table does not exist, or if the driver is locked::
     Traceback (most recent call last):
       ...
     Error: Detected missing column:
-        individual.mother_id
+        mother_id
     While validating:
         "<byte string>", line 1
 
@@ -141,7 +141,7 @@ An error is raised if the target table has no ``id`` column::
     Traceback (most recent call last):
       ...
     Error: Detected missing column:
-        family.id
+        id
     While deploying:
         "<byte string>", line 1
 
@@ -155,7 +155,7 @@ correct type and ``NOT NULL`` constraint::
     Traceback (most recent call last):
       ...
     Error: Detected column with mismatched type:
-        individual.mother_id
+        mother_id
     While deploying:
         "<byte string>", line 1
 
@@ -163,7 +163,7 @@ correct type and ``NOT NULL`` constraint::
     Traceback (most recent call last):
       ...
     Error: Detected column with mismatched NOT NULL constraint:
-        sample.individual_id
+        individual_id
     While deploying:
         "<byte string>", line 1
 
@@ -177,7 +177,7 @@ It also verifies that the ``FOREIGN KEY`` constraint exists::
     Traceback (most recent call last):
       ...
     Error: Detected column with missing FOREIGN KEY constraint:
-        individual.father_id
+        father_id
     While validating:
         "<byte string>", line 1
 
@@ -211,7 +211,7 @@ A locked driver cannot delete a link::
     Traceback (most recent call last):
       ...
     Error: Detected unexpected column:
-        individual.father_id
+        father_id
     While validating:
         "<byte string>", line 1
 

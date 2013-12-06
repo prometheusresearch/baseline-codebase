@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, BoolVal, SeqVal, locate
-from .fact import Fact, LabelVal, FactVal
+from .fact import Fact, FactVal, LabelVal
 from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
         sql_add_unique_constraint, sql_drop_type)
 
@@ -12,9 +12,9 @@ from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
 class TableFact(Fact):
 
     fields = [
-            ('table', LabelVal()),
-            ('present', BoolVal(), True),
-            ('with', SeqVal(FactVal()), None),
+            ('table', LabelVal),
+            ('present', BoolVal, True),
+            ('with', SeqVal(FactVal), None),
     ]
 
     @classmethod
@@ -93,12 +93,11 @@ class TableFact(Fact):
         # Verify that the table has `id` column with a UNIQUE contraint.
         table = schema[self.name]
         if u'id' not in table:
-            raise Error("Detected missing column:", "%s.id" % table)
+            raise Error("Detected missing column:", "id")
         id_column = table['id']
         if not any(unique_key.origin_columns == [id_column]
                    for unique_key in table.unique_keys):
-            raise Error("Detected missing column UNIQUE constraint:",
-                        "%s.id" % table)
+            raise Error("Detected missing column UNIQUE constraint:", "id")
         # Apply nested facts.
         if self.nested_facts:
             driver(self.nested_facts)

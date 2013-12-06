@@ -56,7 +56,7 @@ We create tables with columns and links::
     ... - { table: family }
     ... - { column: family.code, type: text }
     ... - { identity: [family.code] }
-    ... - { column: family.notes, type: text }
+    ... - { column: family.notes, type: text, required: false }
     ... - { table: individual }
     ... - { link: individual.family }
     ... - { column: individual.code, type: text }
@@ -86,7 +86,7 @@ Deploying a data fact adds rows to a table::
     ...   code,notes
     ...   1001,Andersons
     ...   1002,Bergmans
-    ...   1003,Clarks
+    ...   1003,
     ... of: family
     ... """)
     SELECT "id", "code", "notes"
@@ -97,8 +97,8 @@ Deploying a data fact adds rows to a table::
     INSERT INTO "family" ("code", "notes")
         VALUES ('1002', 'Bergmans')
         RETURNING "id", "code", "notes";
-    INSERT INTO "family" ("code", "notes")
-        VALUES ('1003', 'Clarks')
+    INSERT INTO "family" ("code")
+        VALUES ('1003')
         RETURNING "id", "code", "notes";
 
 Deploying the same fact second time has no effect::
@@ -117,7 +117,7 @@ However if data is changed, the respective table record is updated::
     >>> driver("""
     ... data: |
     ...   code,notes
-    ...   1001,Andersons
+    ...   1001,
     ...   1002,Browns
     ...   1003,Clarks
     ... of: family
@@ -126,6 +126,12 @@ However if data is changed, the respective table record is updated::
         SET "notes" = 'Browns'
         WHERE "code" = '1002'
         RETURNING "id", "code", "notes";
+    UPDATE "family"
+        SET "notes" = 'Clarks'
+        WHERE "code" = '1003'
+        RETURNING "id", "code", "notes";
+
+Note that empty values are ignored here.
 
 It is an error if the data table does not exist or lacks identity::
 
@@ -158,7 +164,7 @@ A row must contain the value of the ``PRIMARY KEY``::
     Traceback (most recent call last):
       ...
     Error: Detected column with missing value:
-        family.code
+        code
     While processing row #1:
         {'Dixons'}
     While deploying:
@@ -265,7 +271,7 @@ Unknown and duplicate columns are detected::
     Traceback (most recent call last):
       ...
     Error: Detected missing column:
-        family.name
+        name
     While deploying:
         "<byte string>", line 1
 
@@ -273,7 +279,7 @@ Unknown and duplicate columns are detected::
     Traceback (most recent call last):
       ...
     Error: Detected duplicate column:
-        family.code
+        code
     While deploying:
         "<byte string>", line 1
 
@@ -283,7 +289,7 @@ All columns from the ``PRIMARY KEY`` must be included::
     Traceback (most recent call last):
       ...
     Error: Detected missing PRIMARY KEY column:
-        individual.family_id
+        family_id
     While deploying:
         "<byte string>", line 1
 
@@ -332,7 +338,7 @@ Invalid values are rejected::
     Error: Detected invalid input:
         invalid enum literal: expected one of 'male', 'female'; got 'f'
     While converting column:
-        individual.sex
+        sex
     On:
         row 2
     While deploying:

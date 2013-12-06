@@ -103,7 +103,7 @@ column with ``UNIQUE`` constraint::
     Traceback (most recent call last):
       ...
     Error: Detected missing column:
-        sample.id
+        id
     While deploying:
         "<byte string>", line 1
 
@@ -114,7 +114,7 @@ column with ``UNIQUE`` constraint::
     Traceback (most recent call last):
       ...
     Error: Detected missing column UNIQUE constraint:
-        sample.id
+        id
     While deploying:
         "<byte string>", line 1
 

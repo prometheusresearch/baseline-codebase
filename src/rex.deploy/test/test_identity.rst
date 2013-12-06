@@ -102,7 +102,7 @@ It is an error if identity refers to an unknown table or a column::
     Traceback (most recent call last):
       ...
     Error: Detected missing column:
-        individual.family
+        family
     While deploying:
         "<byte string>", line 1
 

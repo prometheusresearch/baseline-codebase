@@ -4,15 +4,15 @@
 
 
 from rex.core import Error, SeqVal
-from .fact import Fact, LabelVal, DottedLabelVal
+from .fact import Fact, LabelVal, QLabelVal
 from .sql import mangle, sql_add_unique_constraint, sql_drop_constraint
 
 
 class IdentityFact(Fact):
 
     fields = [
-            ('identity', SeqVal(DottedLabelVal())),
-            ('of', LabelVal(), None),
+            ('identity', SeqVal(QLabelVal)),
+            ('of', LabelVal, None),
     ]
 
     @classmethod
@@ -68,8 +68,7 @@ class IdentityFact(Fact):
             elif link_name in table:
                 column = table[link_name]
             else:
-                raise Error("Detected missing column:",
-                            "%s.%s" % (table, column_name))
+                raise Error("Detected missing column:", column_name)
             columns.append(column)
         # Drop the `PRIMARY KEY` constraint if it does not match the identity.
         if (table.primary_key is not None and

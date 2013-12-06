@@ -34,22 +34,22 @@ application database::
 You can use the ``Cluster`` object to test, create and destroy databases
 in the database cluster::
 
-    >>> cluster.create('deploy_demo_derived')
-    >>> cluster.exists('deploy_demo_derived')
+    >>> cluster.create('deploy_demo_cluster')
+    >>> cluster.exists('deploy_demo_cluster')
     True
 
-    >>> cluster.drop('deploy_demo_derived')
-    >>> cluster.exists('deploy_demo_derived')
+    >>> cluster.drop('deploy_demo_cluster')
+    >>> cluster.exists('deploy_demo_cluster')
     False
 
 It is an error if you try to create a database which already exists or
 drop a database which does not exist::
 
-    >>> cluster.drop('deploy_demo_derived')
+    >>> cluster.drop('deploy_demo_cluster')
     Traceback (most recent call last):
       ...
     Error: Got an error from the database server:
-        database "deploy_demo_derived" does not exist
+        database "deploy_demo_cluster" does not exist
 
 
 Connecting to the database
@@ -63,20 +63,20 @@ database or any other database in the same cluster::
     <connection object at ...; dsn: 'dbname=deploy_demo', closed: 0>
     >>> connection.close()
 
-    >>> cluster.create('deploy_demo_derived')
-    >>> connection = cluster.connect('deploy_demo_derived')
+    >>> cluster.create('deploy_demo_cluster')
+    >>> connection = cluster.connect('deploy_demo_cluster')
     >>> connection                  # doctest: +ELLIPSIS
-    <connection object at ...; dsn: 'dbname=deploy_demo_derived', closed: 0>
+    <connection object at ...; dsn: 'dbname=deploy_demo_cluster', closed: 0>
     >>> connection.close()
 
 It is an error to try to connect to a database which does not exist::
 
-    >>> cluster.drop('deploy_demo_derived')
-    >>> cluster.connect('deploy_demo_derived')
+    >>> cluster.drop('deploy_demo_cluster')
+    >>> cluster.connect('deploy_demo_cluster')
     Traceback (most recent call last):
       ...
     Error: Failed to connect to the database server:
-        FATAL:  database "deploy_demo_derived" does not exist
+        FATAL:  database "deploy_demo_cluster" does not exist
 
 ``Cluster`` uses connection parameters from the given connection URI::
 
@@ -90,5 +90,79 @@ It is an error to try to connect to a database which does not exist::
         	Is the server running on host "127.0.0.1" and accepting
         	TCP/IP connections on port 2345?
 
+You can create a deployment driver for a database from the cluster::
+
+    >>> cluster.create('deploy_demo_cluster')
+    >>> driver = cluster.drive('deploy_demo_cluster')
+    >>> driver
+    <Driver dbname=deploy_demo_cluster>
+
+Using the driver, you can deploy any database facts or raw SQL::
+
+    >>> driver("""{ table: individual }""")
+
+    >>> driver.submit("""CREATE TABLE individual (id int4 NOT NULL);""")
+    Traceback (most recent call last):
+      ...
+    Error: Got an error from the database driver:
+        relation "individual" already exists
+    While executing SQL:
+        CREATE TABLE individual (id int4 NOT NULL);
+
+After manipulating the database with the driver, you need to commit or rollback
+and close the driver connection::
+
+    >>> driver.rollback()
+    >>> driver.close()
+
+
+Deploying application database
+==============================
+
+Use function ``deploy()`` to read and deploy the application schema from
+``deploy.yaml`` files.  When there are no ``deploy.yaml``, ``deploy()``
+does nothing::
+
+    >>> from rex.core import SandboxPackage
+    >>> from rex.deploy import deploy
+    >>> sandbox = SandboxPackage()
+    >>> deploy_demo = LatentRex(sandbox, 'rex.deploy', db='pgsql:deploy_demo_cluster')
+
+    >>> with deploy_demo:
+    ...     deploy(logging=True)                        # doctest: +ELLIPSIS
+    Nothing to deploy.
+    Total time: ...
+
+Normally, ``deploy()`` will read and deploy ``deploy.yaml`` files from
+all packages::
+
+    >>> sandbox.rewrite('/deploy.yaml', """
+    ... table: individual
+    ... """)
+    >>> with deploy_demo:
+    ...     deploy(logging=True)                        # doctest: +ELLIPSIS
+    Deploying sandbox.
+    CREATE TABLE "individual" ...
+    Validating sandbox.
+    Total time: ...
+
+You can run ``deploy()`` in dry run mode, in which case any changes to
+the database will be rolled back::
+
+    >>> sandbox.rewrite('/deploy.yaml', """
+    ... table: study
+    ... """)
+    >>> with deploy_demo:
+    ...     deploy(logging=True, dry_run=True)          # doctest: +ELLIPSIS
+    Deploying sandbox.
+    CREATE TABLE "study" ...
+    Validating sandbox.
+    Rolling back changes (dry run).
+    Total time: ...
+
+Finally, we destroy the test database::
+
+    >>> with deploy_demo:
+    ...     get_cluster().drop()
 
 

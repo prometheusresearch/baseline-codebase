@@ -142,7 +142,7 @@ or the driver is locked, an error is raised::
     Traceback (most recent call last):
       ...
     Error: Detected missing column:
-        individual.birth
+        birth
     While validating:
         "<byte string>", line 1
 
@@ -181,7 +181,7 @@ the column is altered to match the fact.  Currently, it's not yet functional::
     Traceback (most recent call last):
       ...
     Error: Detected column with mismatched type:
-        individual.sex
+        sex
     While deploying:
         "<byte string>", line 1
 
@@ -189,7 +189,7 @@ the column is altered to match the fact.  Currently, it's not yet functional::
     Traceback (most recent call last):
       ...
     Error: Detected column with mismatched NOT NULL constraint:
-        individual.sex
+        sex
     While deploying:
         "<byte string>", line 1
 
@@ -220,7 +220,7 @@ A locked driver cannot delete a column::
     Traceback (most recent call last):
       ...
     Error: Detected unexpected column:
-        individual.sex
+        sex
     While validating:
         "<byte string>", line 1
 

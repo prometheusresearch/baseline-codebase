@@ -22,7 +22,7 @@ setup(
         'rex.setup >=1.0, <2',
     ],
     install_requires=[
-        'rex.core >=1.0, <2',
+        'rex.core >=1.2, <2',
         'rex.db >=1.0, <2',
     ],
     entry_points = {

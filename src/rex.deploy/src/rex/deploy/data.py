@@ -22,9 +22,9 @@ SKIP = _skip_type()
 class DataFact(Fact):
 
     fields = [
-            ('data', StrVal()),
-            ('of', LabelVal(), None),
-            ('present', BoolVal(), True),
+            ('data', StrVal),
+            ('of', LabelVal, None),
+            ('present', BoolVal, True),
     ]
 
     @classmethod
@@ -216,11 +216,9 @@ class DataFact(Fact):
             elif link_name in table:
                 column = table[link_name]
             else:
-                raise Error("Detected missing column:",
-                            "%s.%s" % (table, column_name))
+                raise Error("Detected missing column:", column_name)
             if column in masks:
-                raise Error("Detected duplicate column:",
-                            "%s.%s" % (table, column_name))
+                raise Error("Detected duplicate column:", column_name)
             masks[column] = idx
             parsers[column] = self._domain(column).parse
 

@@ -3,8 +3,9 @@
 #
 
 
-from rex.core import Error, BoolVal, OneOfVal, ChoiceVal, SeqVal
-from .fact import Fact, UnicodeVal, LabelVal, DottedLabelVal
+from rex.core import (Error, BoolVal, UStrVal, UChoiceVal, SeqVal, UnionVal,
+        OnSeq)
+from .fact import Fact, LabelVal, QLabelVal
 from .sql import (mangle, sql_add_column, sql_drop_column,
         sql_create_enum_type, sql_drop_type)
 
@@ -24,12 +25,12 @@ class ColumnFact(Fact):
     }
 
     fields = [
-            ('column', DottedLabelVal()),
-            ('of', LabelVal(), None),
-            ('type', OneOfVal(ChoiceVal(*sorted(TYPE_MAP)),
-                              SeqVal(UnicodeVal(r'[0-9A-Za-z_-]+'))), None),
-            ('required', BoolVal(), None),
-            ('present', BoolVal(), True),
+            ('column', QLabelVal),
+            ('of', LabelVal, None),
+            ('type', UnionVal((OnSeq, SeqVal(UStrVal(r'[0-9A-Za-z_-]+'))),
+                              UChoiceVal(*sorted(TYPE_MAP))), None),
+            ('required', BoolVal, None),
+            ('present', BoolVal, True),
     ]
 
     @classmethod
@@ -55,8 +56,6 @@ class ColumnFact(Fact):
                 if len(set(type)) < len(type):
                     raise Error("Got duplicate enum labels:",
                                 ", ".join(type))
-            else:
-                type = type.decode('utf-8')
         else:
             if type is not None:
                 raise Error("Got unexpected clause:", "type")
@@ -152,8 +151,7 @@ class ColumnFact(Fact):
         # Create the column if it does not exist.
         if self.name not in table:
             if driver.is_locked:
-                raise Error("Detected missing column:",
-                            "%s.%s" % (table, self.name))
+                raise Error("Detected missing column:", self.name)
             driver.submit(sql_add_column(
                     self.table_name, self.name, self.type_name,
                     self.is_required))

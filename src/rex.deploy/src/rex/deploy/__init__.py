@@ -11,11 +11,12 @@ This package provides database schema management.
 from .cluster import Cluster, get_cluster, deploy
 from .column import ColumnFact
 from .data import DataFact, SKIP
-from .fact import Driver, LOG_ALL, LOG_PROGRESS, LOG_TIMING, LOG_SQL
+from .fact import Driver
 from .identity import IdentityFact
-from .image import (Image, NamedImage, ImageMap, CatalogImage, SchemaImage,
-        TypeImage, DomainTypeImage, EnumTypeImage, TableImage, ColumnImage,
-        ConstraintImage, UniqueKeyImage, ForeignKeyImage, DataImage)
+from .image import (make_catalog, Image, NamedImage, ImageMap, CatalogImage,
+        SchemaImage, TypeImage, DomainTypeImage, EnumTypeImage, TableImage,
+        ColumnImage, ConstraintImage, UniqueKeyImage, ForeignKeyImage,
+        DataImage)
 from .introspect import introspect
 from .link import LinkFact
 from .sql import (mangle, sql_name, sql_value, sql_create_database,

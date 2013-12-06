@@ -3,67 +3,41 @@
 #
 
 
-from rex.core import (LatentRex, Extension, Validate, StrVal, OneOrSeqVal,
-        RecordVal, SwitchVal, Error, guard, locate, set_location)
+from rex.core import (LatentRex, get_rex, Extension, Validate, UStrVal,
+        OneOrSeqVal, RecordVal, UnionVal, Error, guard, locate, set_location)
 from .introspect import introspect
 import sys
 import psycopg2
 
 
 class FactVal(Validate):
-
-    def _switch(self):
-        validate_map = {}
-        with LatentRex('rex.deploy'):
-            fact_types = Fact.all()
-        for fact_type in fact_types:
-            validate_map[fact_type.key] = fact_type.validate
-        return SwitchVal(validate_map)
-
-    def __call__(self, data):
-        switch_val = self._switch()
-        return switch_val(data)
+    # Converts a mapping to a `Fact` record.
 
     def construct(self, loader, node):
-        switch_val = self._switch()
-        return switch_val.construct(loader, node)
+        union_val = UnionVal([(fact_type.key, fact_type.validate)
+                              for fact_type in Fact.all()])
+        return union_val.construct(loader, node)
 
 
-class UnicodeVal(StrVal):
+class LabelVal(UStrVal):
+    # An entity label.
 
-    def __init__(self, pattern=None):
-        super(UnicodeVal, self).__init__(pattern)
-
-    def __call__(self, data):
-        data = super(UnicodeVal, self).__call__(data)
-        return data.decode('utf-8')
-
-    def construct(self, loader, node):
-        data = super(UnicodeVal, self).construct(loader, node)
-        return data.decode('utf-8')
+    pattern = r'[a-z_][0-9a-z_]*'
 
 
-class LabelVal(UnicodeVal):
+class QLabelVal(UStrVal):
+    # An entity label with an optional qualifier.
 
-    def __init__(self):
-        super(LabelVal, self).__init__(r'[a-z_][0-9a-z_]*')
+    pattern = r'[a-z_][0-9a-z_]*([.][a-z_][0-9a-z_]*)?'
 
-
-class DottedLabelVal(UnicodeVal):
-
-    def __init__(self):
-        super(DottedLabelVal, self).__init__(
-                r'[a-z_][0-9a-z_]*([.][a-z_][0-9a-z_]*)?')
-
-
-LOG_ALL = (1 << 0)
-LOG_PROGRESS = (1 << 1)
-LOG_TIMING = (1 << 2)
-LOG_SQL = (1 << 3)
 
 class Driver(object):
 
     validate = OneOrSeqVal(FactVal())
+
+    LOG_PROGRESS = 'progress'
+    LOG_TIMING = 'timing'
+    LOG_SQL = 'sql'
 
     def __init__(self, connection, logging=False):
         self.connection = connection
@@ -107,9 +81,7 @@ class Driver(object):
                 return self.build(spec)
 
     def build(self, spec):
-        with LatentRex('rex.deploy'):
-            fact_types = Fact.all()
-        for fact_type in fact_types:
+        for fact_type in Fact.all():
             if isinstance(spec, fact_type.validate.record_type):
                 fact = fact_type.build(self, spec)
                 set_location(fact, spec)
@@ -119,19 +91,21 @@ class Driver(object):
     def log(self, level, msg, *args, **kwds):
         if not self.logging:
             return
-        if isinstance(self.logging, int):
-            if not (self.logging&LOG_ALL or self.logging&level):
-                return
-            stream = sys.stdout
-        else:
-            stream = self.logging
-        if hasattr(stream, 'write'):
+        if self.logging is True:
             if args or kwds:
                 msg = msg.format(*args, **kwds)
-            stream.write(msg+"\n")
-            stream.flush()
+            print msg
         else:
-            stream(level, msg, *args, **kwds)
+            self.logging(level, msg, *args, **kwds)
+
+    def log_progress(self, msg, *args, **kwds):
+        return self.log(self.LOG_PROGRESS, msg, *args, **kwds)
+
+    def log_timing(self, msg, *args, **kwds):
+        return self.log(self.LOG_TIMING, msg, *args, **kwds)
+
+    def log_sql(self, msg, *args, **kwds):
+        return self.log(self.LOG_SQL, msg, *args, **kwds)
 
     def get_catalog(self):
         if self.catalog is None:
@@ -140,6 +114,20 @@ class Driver(object):
 
     def get_schema(self):
         return self.get_catalog()[u"public"]
+
+    def submit(self, sql):
+        cursor = self.connection.cursor()
+        try:
+            self.log_sql("{}", sql)
+            cursor.execute(sql)
+            if cursor.description is not None:
+                return cursor.fetchall()
+        except psycopg2.Error, exc:
+            error = Error("Got an error from the database driver:", exc)
+            error.wrap("While executing SQL:", sql)
+            raise error
+        finally:
+            cursor.close()
 
     def __call__(self, facts, is_locked=None):
         if isinstance(facts, (str, unicode)):
@@ -167,19 +155,8 @@ class Driver(object):
             if is_locked is not None:
                 self.is_locked, is_locked = is_locked, self.is_locked
 
-    def submit(self, sql):
-        cursor = self.connection.cursor()
-        try:
-            self.log(LOG_SQL, "{}", sql)
-            cursor.execute(sql)
-            if cursor.description is not None:
-                return cursor.fetchall()
-        except psycopg2.Error, exc:
-            error = Error("Got an error from the database driver:", exc)
-            error.wrap("While executing SQL:", sql)
-            raise error
-        finally:
-            cursor.close()
+    def __repr__(self):
+        return "<%s %s>" % (self.__class__.__name__, self.connection.dsn)
 
 
 class Fact(Extension):
@@ -190,7 +167,18 @@ class Fact(Extension):
     validate = None
 
     @classmethod
+    def all(cls):
+        # Gets all `Fact` implementations.
+        if not get_rex:
+            # Allow it to work even when there is no active Rex application.
+            with LatentRex('rex.deploy'):
+                return super(Fact, cls).all()
+        else:
+            return super(Fact, cls).all()
+
+    @classmethod
     def sanitize(cls):
+        # Prepares the fact validator.
         if cls.__dict__.get('fields'):
             if 'key' not in cls.__dict__:
                 cls.key = cls.fields[0][0]

@@ -15,6 +15,9 @@ class Image(object):
     def __init__(self, owner):
         self.owner = owner
 
+    def __repr__(self):
+        return "<%s>" % self.__class__.__name__
+
     def remove(self):
         """Removes the object from the catalog."""
         # Destroy all fields to release references and ensure the object
@@ -24,15 +27,6 @@ class Image(object):
                 for slot in cls.__slots__:
                     if not (slot.startswith('__') and slot.endswith('__')):
                         delattr(self, slot)
-
-    def __unicode__(self):
-        raise NotImplementedError()
-
-    def __str__(self):
-        return unicode(self).encode('utf-8')
-
-    def __repr__(self):
-        return "<%s %s>" % (self.__class__.__name__, self)
 
 
 class NamedImage(Image):
@@ -49,12 +43,16 @@ class NamedImage(Image):
         #: Object name.
         self.name = name
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return self.name.encode('utf-8')
+
+    def __repr__(self):
+        return "<%s %s>" % (self.__class__.__name__, self)
 
     def rename(self, name):
         """Renames the object."""
         self.name = name
+        return self
 
 
 class ImageMap(object):
@@ -66,12 +64,8 @@ class ImageMap(object):
         self._image_by_name = {}
         self._names = []
 
-    def __unicode__(self):
-        return u"{%s}" % u", ".join(unicode(self._image_by_name[name])
-                                    for name in self._names)
-
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return "{%s}" % ", ".join(name.encode('utf-8') for name in self._names)
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self)
@@ -98,12 +92,8 @@ class ImageMap(object):
         """Is the collection empty?"""
         return bool(self._names)
 
-    def get(self, name, default=None):
-        """Finds an object by name or returns ``default``."""
-        return self._image_by_name.get(name, default)
-
     def index(self, name):
-        """Returns the position of an object in the collection."""
+        """Returns the position of an object with the given name."""
         return self._names.index(name)
 
     def add(self, image):
@@ -161,9 +151,6 @@ class CatalogImage(Image):
         #: Collection of database schemas.
         self.schemas = ImageMap()
 
-    def __unicode__(self):
-        return u"."
-
     def __contains__(self, name):
         """Is there a schema with the given name?"""
         return (name in self.schemas)
@@ -179,10 +166,6 @@ class CatalogImage(Image):
     def __len__(self):
         """Number of schemas."""
         return len(self.schemas)
-
-    def get(self, name, default=None):
-        """Finds a schema by name or returns ``default``."""
-        return self.schemas.get(name, default)
 
     def remove(self):
         while self.schemas:
@@ -228,10 +211,6 @@ class SchemaImage(NamedImage):
         """Number of tables."""
         return len(self.tables)
 
-    def get(self, name, default=None):
-        """Finds a table by name or returns ``default``."""
-        return self.tables.get(name, default)
-
     def rename(self, name):
         old_name = self.name
         self.name = name
@@ -242,7 +221,7 @@ class SchemaImage(NamedImage):
         while self.tables:
             self.tables.last().remove()
         while self.types:
-            self.types().last().remove()
+            self.types.last().remove()
         self.catalog.schemas.remove(self)
         super(SchemaImage, self).remove()
 
@@ -254,7 +233,7 @@ class SchemaImage(NamedImage):
         """Adds a type."""
         return TypeImage(self, name)
 
-    def add_domain_type(self, name):
+    def add_domain_type(self, name, base_type):
         """Adds a ``DOMAIN`` type."""
         return DomainTypeImage(self, name, base_type)
 
@@ -323,6 +302,9 @@ class DomainTypeImage(TypeImage):
         #: Wrapped type.
         self.base_type = base_type
 
+    def __repr__(self):
+        return "<%s %s <: %s>" % (self.__class__.__name__, self, self.base_type)
+
 
 class EnumTypeImage(TypeImage):
     """Enumeration type."""
@@ -334,6 +316,10 @@ class EnumTypeImage(TypeImage):
         super(EnumTypeImage, self).__init__(schema, name)
         #: List of labels.
         self.labels = labels
+
+    def __repr__(self):
+        return "<%s %s = %s>" % (self.__class__.__name__,
+                                 self, " | ".join(self.labels))
 
 
 class TableImage(NamedImage):
@@ -381,10 +367,6 @@ class TableImage(NamedImage):
     def __len__(self):
         """Number of columns."""
         return len(self.columns)
-
-    def get(self, name, default=None):
-        """Finds a table by name or returns ``default``."""
-        return self.columns.get(name, default)
 
     def rename(self, name):
         old_name = self.name
@@ -442,13 +424,16 @@ class ColumnImage(NamedImage):
         if table.data is not None:
             table.data.remove()
 
-    def __unicode__(self):
-        return u"%s.%s" % (self.table, self.name)
-
     @property
     def table(self):
         """Column owner."""
         return self.owner()
+
+    def __repr__(self):
+        return "<%s %s.%s : %s%s>" % (self.__class__.__name__,
+                                      self.table, self,
+                                      self.type,
+                                      "?" if not self.is_not_null else "")
 
     @property
     def unique_keys(self):
@@ -514,6 +499,9 @@ class ConstraintImage(NamedImage):
         """Constraint owner."""
         return self.owner()
 
+    def __repr__(self):
+        return "<%s %s.%s>" % (self.__class__.__name__, self.origin, self)
+
     def rename(self, name):
         old_name = self.name
         self.name = name
@@ -542,6 +530,13 @@ class UniqueKeyImage(ConstraintImage):
         origin.unique_keys.append(self)
         if origin.data is not None:
             origin.data.remove()
+
+    def __repr__(self):
+        origin_list = ", ".join(str(column) for column in self.origin_columns)
+        return "<%s %s.%s (%s)%s>" % (self.__class__.__name__,
+                                      self.origin, self,
+                                      origin_list,
+                                      "!" if self.is_primary else "")
 
     def __contains__(self, column):
         """Does the column belong to the key?"""
@@ -587,6 +582,14 @@ class ForeignKeyImage(ConstraintImage):
     def target(self):
         """Target table."""
         return self.coowner()
+
+    def __repr__(self):
+        origin_list = ", ".join(str(column) for column in self.origin_columns)
+        target_list = ", ".join(str(column) for column in self.target_columns)
+        return "<%s %s.%s (%s) -> %s (%s)>" \
+                % (self.__class__.__name__,
+                   self.origin, self, origin_list,
+                   self.target, target_list)
 
     def __contains__(self, column_pair):
         """Does a pair of columns belong to the key?"""
@@ -635,6 +638,9 @@ class DataImage(Image):
         """Table."""
         return self.owner()
 
+    def __repr__(self):
+        return "<%s %s>" % (self.__class__.__name__, self.table)
+
     def remove(self):
         self.table.data = None
         super(DataImage, self).remove()
@@ -672,5 +678,10 @@ class DataImage(Image):
     def get(self, key, handle, default=None):
         """Finds a row by a key."""
         return self.indexes[key].get(handle, default)
+
+
+def make_catalog():
+    """Creates an empty catalog image."""
+    return CatalogImage()
 
 

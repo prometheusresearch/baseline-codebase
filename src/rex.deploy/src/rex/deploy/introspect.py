@@ -3,7 +3,7 @@
 #
 
 
-from .image import CatalogImage
+from .image import make_catalog
 
 
 def introspect(connection):
@@ -12,7 +12,7 @@ def introspect(connection):
     """
     cursor = connection.cursor()
 
-    catalog = CatalogImage()
+    catalog = make_catalog()
 
     # Extract schemas.
     cursor.execute("""

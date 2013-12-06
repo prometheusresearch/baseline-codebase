@@ -11,6 +11,7 @@ Introspection and database catalog
 ==================================
 
 .. autofunction:: introspect
+.. autofunction:: make_catalog
 .. autoclass:: Image
 .. autoclass:: NamedImage
 .. autoclass:: ImageMap

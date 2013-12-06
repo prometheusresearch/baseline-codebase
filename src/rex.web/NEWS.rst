@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.1.1 (2013-XX-XX)
+==================
+
+* Minor bug fixes.
+
+
 1.1.0 (2013-11-20)
 ==================
 

@@ -244,8 +244,11 @@ class StrVal(Validate):
     If `pattern` is given, the whole input must match the pattern.
     """
 
+    pattern = None
+
     def __init__(self, pattern=None):
-        self.pattern = pattern
+        # Allow to specify the pattern in a subclass.
+        self.pattern = pattern or self.__class__.pattern
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
@@ -279,7 +282,8 @@ class StrVal(Validate):
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
                            repr(self.pattern)
-                                if self.pattern is not None else "")
+                                if self.pattern != self.__class__.pattern
+                                else "")
 
 
 class UStrVal(StrVal):

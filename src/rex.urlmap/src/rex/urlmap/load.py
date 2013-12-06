@@ -4,24 +4,38 @@
 
 
 from rex.core import (get_packages, cached, MaybeVal, StrVal, BoolVal, MapVal,
-        OneOrSeqVal, RecordVal, SwitchVal, locate, Location, Error, guard)
+        OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate, Location, Error,
+        guard)
 from .handle import TreeWalker, TemplateRenderer
 import os
 import threading
 import yaml
 
 
-class MaybeOverrideVal(RecordVal):
+class OnTag(OnMatch):
 
-    def __init__(self, fields, validate_default):
-        super(MaybeOverrideVal, self).__init__(fields)
-        self.validate_default = validate_default
+    def __init__(self, tag):
+        self.tag = tag
 
     def __call__(self, data):
-        raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
+        return (isinstance(data, yaml.Node) and data.tag == self.tag)
+
+    def __str__(self):
+        return "%s record" % self.tag
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.tag)
+
+
+class TaggedRecordVal(RecordVal):
+
+    def __init__(self, tag, *fields):
+        super(TaggedRecordVal, self).__init__(*fields)
+        self.tag = tag
 
     def construct(self, loader, node):
-        if node.tag == u'!override':
+        if node.tag == self.tag:
+            # Rewrite the node for `RecordVal`.
             if (isinstance(node, yaml.ScalarNode) and
                     node.value == u''):
                 node = yaml.ScalarNode(u'tag:yaml.org,2002:null', node.value,
@@ -29,19 +43,11 @@ class MaybeOverrideVal(RecordVal):
             elif isinstance(node, yaml.MappingNode):
                 node = yaml.MappingNode(u'tag:yaml.org,2002:map', node.value,
                         node.start_mark, node.end_mark, node.flow_style)
-            else:
-                error = Error("Expected a mapping")
-                error.wrap("Got:", node.value
-                                   if isinstance(node, yaml.ScalarNode)
-                                   else "a %s" % node.id)
-                error.wrap("While parsing:", Location.from_node(node))
-                raise error
-            return super(MaybeOverrideVal, self).construct(loader, node)
-        return self.validate_default.construct(loader, node)
+        return super(TaggedRecordVal, self).construct(loader, node)
 
     def __repr__(self):
-        return "%s(%r, %r)" % (self.__class__.__name__,
-                               self.fields, self.validate_default)
+        return "%s(%r, %r)" % (self.__class__.__name__, self.tag,
+                               ", ".join(repr(field) for field in self.fields))
 
 
 class CachingLoad(object):
@@ -122,38 +128,37 @@ class LoadMap(CachingLoad):
     # Template variables.
     context_val = MapVal(attr_val)
     # Query parameters.
-    parameters_val = MapVal(attr_val, MaybeVal(StrVal()))
+    parameters_val = MapVal(attr_val, MaybeVal(StrVal))
 
     # Validator for template records.
     template_key = 'template'
-    template_val = RecordVal([
+    template_val = RecordVal(
             ('template', file_val),
-            ('access', StrVal(), 'authenticated'),
-            ('unsafe', BoolVal(), False),
+            ('access', StrVal, 'authenticated'),
+            ('unsafe', BoolVal, False),
             ('parameters', parameters_val, {}),
-            ('context', context_val, {}),
-    ])
+            ('context', context_val, {}))
     template_type = template_val.record_type
 
-    # Validator for regular handlers.
-    handle_val = SwitchVal({
-            template_key: template_val })
-
     # Validator for `!override` records.
-    override_val = MaybeOverrideVal([
+    override_val = TaggedRecordVal(u'!override',
             ('template', file_val, None),
-            ('access', StrVal(), None),
-            ('unsafe', BoolVal(), None),
+            ('access', StrVal, None),
+            ('unsafe', BoolVal, None),
             ('parameters', parameters_val, None),
-            ('context', context_val, None),
-    ], handle_val)
+            ('context', context_val, None))
     override_type = override_val.record_type
+
+    # Validator for all handlers.
+    handle_val = UnionVal(
+            (OnTag(override_val.tag), override_val),
+            (template_key, template_val))
 
     # Validator for the urlmap record.
     validate = RecordVal([
             ('include', OneOrSeqVal(file_val), None),
             ('context', context_val, {}),
-            ('paths', MapVal(path_val, override_val), {}),
+            ('paths', MapVal(path_val, handle_val), {}),
     ])
 
     def __init__(self, package, fallback):

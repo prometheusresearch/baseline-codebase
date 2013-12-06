@@ -8,10 +8,29 @@
 Parsing paths
 =============
 
-``rex.urlmap`` detects duplicate or ambiguous paths::
+``rex.urlmap`` reports when it cannot recognize a handler record::
 
     >>> from rex.core import Rex, SandboxPackage
     >>> sandbox = SandboxPackage()
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /index:
+    ...     context: { title: Welcome! }
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap')          # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Expected one of:
+        !override record
+        template record
+    Got:
+        a mapping
+    While parsing:
+        "/.../urlmap.yaml", line 4
+    ...
+
+``rex.urlmap`` detects duplicate or ambiguous paths::
 
     >>> sandbox.rewrite('/urlmap.yaml', """
     ... paths:

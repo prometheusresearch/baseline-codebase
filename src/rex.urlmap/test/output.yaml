@@ -10,6 +10,7 @@ tests:
   stdout: |
     Deploying application database to pgsql:///urlmap_demo.
     Deploying rex.urlmap_demo.
+    Validating rex.urlmap_demo.
     Done.
 - sh: pip uninstall -q -y rex.urlmap_demo
   stdout: ''

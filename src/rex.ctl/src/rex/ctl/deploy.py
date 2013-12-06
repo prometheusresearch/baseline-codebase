@@ -8,7 +8,7 @@ from cogs.log import log, fail, warn, debug
 from cogs.fs import exe
 from .common import make_rex, pair
 from rex.core import get_settings, Error
-from rex.deploy import get_cluster, deploy, LOG_PROGRESS
+from rex.deploy import get_cluster, deploy
 
 
 @task
@@ -232,7 +232,7 @@ class DEPLOY:
                 cluster.create()
             log("Deploying application database to `{}`.", cluster.db)
             def logging(level, msg, *args, **kwds):
-                if level&LOG_PROGRESS:
+                if level == 'progress':
                     log(msg, *args, **kwds)
                 else:
                     debug(msg, *args, **kwds)

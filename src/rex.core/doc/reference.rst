@@ -74,7 +74,9 @@ Validators
 .. autoclass:: rex.core.MaybeVal
 .. autoclass:: rex.core.OneOfVal
 .. autoclass:: rex.core.StrVal
+.. autoclass:: rex.core.UStrVal
 .. autoclass:: rex.core.ChoiceVal
+.. autoclass:: rex.core.UChoiceVal
 .. autoclass:: rex.core.BoolVal
 .. autoclass:: rex.core.IntVal
 .. autoclass:: rex.core.UIntVal
@@ -85,6 +87,13 @@ Validators
 .. autoclass:: rex.core.OMapVal
 .. autoclass:: rex.core.RecordVal
 .. autoclass:: rex.core.SwitchVal
+.. autoclass:: rex.core.UnionVal
+.. autoclass:: rex.core.OnMatch
+   :special-members: __call__, __str__
+.. autoclass:: rex.core.OnScalar
+.. autoclass:: rex.core.OnSeq
+.. autoclass:: rex.core.OnMap
+.. autoclass:: rex.core.OnField
 .. autoclass:: rex.core.Record
    :special-members: __clone__
 .. autoclass:: rex.core.Location

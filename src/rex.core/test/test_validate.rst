@@ -79,7 +79,7 @@ Ill-formed YAML documents raise ``rex.core.Error`` exception::
 values accepted by the wrapped validator *and* ``None``::
 
     >>> from rex.core import MaybeVal, IntVal
-    >>> maybe_val = MaybeVal(IntVal())
+    >>> maybe_val = MaybeVal(IntVal)
     >>> maybe_val
     MaybeVal(IntVal())
     >>> maybe_val(10)
@@ -142,8 +142,8 @@ integer.  That's because ``BoolVal`` is tried first and ``'1'`` is recognized
 by ``BoolVal`` as a ``True`` value while ``'10'`` doesn't.
 
 
-``StrVal``
-==========
+``StrVal``, ``UStrVal``
+=======================
 
 ``StrVal`` accepts 8-bit and Unicode strings.  8-bit strings are expected to be
 in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
@@ -172,6 +172,15 @@ in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
     Error: Expected a valid UTF-8 string
     Got:
         '\xdf'
+
+Use ``UStrVal`` if you want to get Unicode strings::
+
+    >>> from rex.core import UStrVal
+    >>> ustr_val = UStrVal()
+    >>> ustr_val('Hello')
+    u'Hello'
+    >>> ustr_val(u'Hello')
+    u'Hello'
 
 ``StrVal`` can also parse YAML documents::
 
@@ -222,8 +231,8 @@ The whole input must match the pattern::
         '123-12-1234 John Doe'
 
 
-``ChoiceVal``
-=============
+``ChoiceVal``, ``UChoiceVal``
+=============================
 
 ``ChoiceVal`` accepts strings from a predefined set of values::
 
@@ -248,6 +257,20 @@ The whole input must match the pattern::
         one, two, three
     Got:
         'five'
+
+``ChoiceVal`` also accepts a list of values::
+
+    >>> ChoiceVal(['one', 'two', 'three'])
+    ChoiceVal('one', 'two', 'three')
+
+Use ``UChoiceVal`` if you want to get a Unicode string as a result::
+
+    >>> from rex.core import UChoiceVal
+    >>> uchoice_val = UChoiceVal(u'one', u'two', u'three')
+    >>> uchoice_val('two')
+    u'two'
+    >>> uchoice_val(u'two')
+    u'two'
 
 ``ChoiceVal`` can parse YAML documents::
 
@@ -466,7 +489,7 @@ If you pass a string, it must be a valid JSON array::
 ``SeqVal`` has an optional parameter: a validator to apply to sequence items::
 
     >>> from rex.core import IntVal
-    >>> int_seq_val = SeqVal(IntVal())
+    >>> int_seq_val = SeqVal(IntVal)
     >>> int_seq_val
     SeqVal(IntVal())
     >>> int_seq_val([])
@@ -507,7 +530,7 @@ An empty YAML document is interpreted as an empty list::
 ``OneOrSeqVal`` accepts an item or a list of items::
 
     >>> from rex.core import OneOrSeqVal
-    >>> one_or_seq_val = OneOrSeqVal(IntVal())
+    >>> one_or_seq_val = OneOrSeqVal(IntVal)
     >>> one_or_seq_val
     OneOrSeqVal(IntVal())
     >>> one_or_seq_val([2, 3, 5, 7])
@@ -570,14 +593,14 @@ If you pass a string, it must be a valid JSON object::
 keys and mapping values::
 
     >>> from rex.core import IntVal, PIntVal, BoolVal
-    >>> i2b_map_val = MapVal(IntVal(), BoolVal())
+    >>> i2b_map_val = MapVal(IntVal, BoolVal)
     >>> i2b_map_val
     MapVal(IntVal(), BoolVal())
     >>> i2b_map_val({})
     {}
     >>> i2b_map_val({'0': 'false'})
     {0: False}
-    >>> pi2b_map_val = MapVal(PIntVal(), BoolVal())
+    >>> pi2b_map_val = MapVal(PIntVal, BoolVal)
     >>> pi2b_map_val({'0': 'false'})
     Traceback (most recent call last):
       ...
@@ -587,7 +610,7 @@ keys and mapping values::
         '0'
     While validating mapping key:
         '0'
-    >>> i2i_map_val = MapVal(IntVal(), IntVal())
+    >>> i2i_map_val = MapVal(IntVal, IntVal)
     >>> i2i_map_val({'0': 'false'})
     Traceback (most recent call last):
       ...
@@ -688,14 +711,14 @@ If you pass a string, it must be a valid JSON object::
 keys and mapping values::
 
     >>> from rex.core import IntVal, PIntVal, BoolVal
-    >>> i2b_omap_val = OMapVal(IntVal(), BoolVal())
+    >>> i2b_omap_val = OMapVal(IntVal, BoolVal)
     >>> i2b_omap_val
     OMapVal(IntVal(), BoolVal())
     >>> i2b_omap_val([])
     OrderedDict()
     >>> i2b_omap_val([{'0': 'false'}])
     OrderedDict([(0, False)])
-    >>> pi2b_omap_val = OMapVal(PIntVal(), BoolVal())
+    >>> pi2b_omap_val = OMapVal(PIntVal, BoolVal)
     >>> pi2b_omap_val([{'0': 'false'}])
     Traceback (most recent call last):
       ...
@@ -705,7 +728,7 @@ keys and mapping values::
         '0'
     While validating mapping key:
         '0'
-    >>> i2i_omap_val = OMapVal(IntVal(), IntVal())
+    >>> i2i_omap_val = OMapVal(IntVal, IntVal)
     >>> i2i_omap_val([{'0': 'false'}])
     Traceback (most recent call last):
       ...
@@ -769,16 +792,23 @@ to a ``collections.namedtuple`` object.  It is parameterized with a list of
 fields::
 
     >>> from rex.core import RecordVal
-    >>> record_val = RecordVal([('name', StrVal()),
-    ...                         ('age', MaybeVal(UIntVal()), None)])
+    >>> record_val = RecordVal(('name', StrVal),
+    ...                        ('age', MaybeVal(UIntVal), None))
     >>> record_val
-    RecordVal([('name', StrVal()), ('age', MaybeVal(UIntVal()), None)])
-    >>> record_val({'name': "Alice", 'age': '33'})
+    RecordVal(('name', StrVal()), ('age', MaybeVal(UIntVal()), None))
+    >>> record = record_val({'name': "Alice", 'age': '33'})
+    >>> record
     Record(name='Alice', age=33)
 
-``RecordVal`` also accepts tuples and serialized JSON objects::
+The ``RecordVal`` constructor also accepts a list of fields::
 
-    >>> record_val(_)
+    >>> RecordVal([('name', StrVal),
+    ...            ('age', MaybeVal(UIntVal), None)])
+    RecordVal(('name', StrVal()), ('age', MaybeVal(UIntVal()), None))
+
+``RecordVal`` allows tuples and serialized JSON objects::
+
+    >>> record_val(record)
     Record(name='Alice', age=33)
     >>> record_val(("Alice", 33))
     Record(name='Alice', age=33)
@@ -840,10 +870,10 @@ Invalid field values are reported::
 
 ``RecordVal`` mangles field names that coincide with Python keywords::
 
-    >>> kwd_record_val = RecordVal([('if', BoolVal()),
-    ...                             ('then', IntVal())])
+    >>> kwd_record_val = RecordVal(('if', BoolVal),
+    ...                            ('then', IntVal))
     >>> kwd_record_val
-    RecordVal([('if', BoolVal()), ('then', IntVal())])
+    RecordVal(('if', BoolVal()), ('then', IntVal()))
     >>> kwd_record_val({'if': True, 'then': 42})
     Record(if_=True, then=42)
 
@@ -890,8 +920,8 @@ or missing mandatory fields in a YAML document::
 If every field has a default value, ``RecordVal`` interprets an empty document
 as a record with all default values::
 
-    >>> default_record_val = RecordVal([('mother', StrVal(), None),
-    ...                                 ('father', StrVal(), None)])
+    >>> default_record_val = RecordVal([('mother', StrVal, None),
+    ...                                 ('father', StrVal, None)])
     >>> default_record_val.parse(""" """)
     Record(mother=None, father=None)
 
@@ -918,7 +948,7 @@ record::
     >>> from rex.core import SwitchVal
     >>> switch_val = SwitchVal({'name': record_val})
     >>> switch_val
-    SwitchVal({'name': RecordVal([('name', StrVal()), ('age', MaybeVal(UIntVal()), None)])})
+    SwitchVal({'name': RecordVal(('name', StrVal()), ('age', MaybeVal(UIntVal()), None))})
     >>> switch_val({'name': "Alice", 'age': '33'})
     Record(name='Alice', age=33)
     >>> switch_val({'age': 81})
@@ -949,7 +979,7 @@ cannot recognize::
 
     >>> default_switch_val = SwitchVal({'name': record_val}, IntVal())
     >>> default_switch_val
-    SwitchVal({'name': RecordVal([('name', StrVal()), ('age', MaybeVal(UIntVal()), None)])}, IntVal())
+    SwitchVal({'name': RecordVal(('name', StrVal()), ('age', MaybeVal(UIntVal()), None))}, IntVal())
     >>> default_switch_val({'name': "Alice", 'age': '33'})
     Record(name='Alice', age=33)
     >>> default_switch_val("81")
@@ -993,6 +1023,105 @@ cannot recognize::
         "<byte string>", line 1
     >>> default_switch_val.parse(""" 81 """)
     81
+
+
+``UnionVal``
+============
+
+``UnionVal`` is a union of several validators.  ``UnionVal`` selects
+which validator to apply based on a set of conditions::
+
+    >>> from rex.core import UnionVal, OnScalar, OnSeq, OnMap
+    >>> union_val = UnionVal([(OnScalar, IntVal),
+    ...                       (OnSeq, SeqVal(IntVal)),
+    ...                       (OnMap, MapVal(IntVal, BoolVal))])
+    >>> union_val
+    UnionVal((OnScalar(), IntVal()), (OnSeq(), SeqVal(IntVal())), (OnMap(), MapVal(IntVal(), BoolVal())))
+    >>> union_val('10')
+    10
+    >>> union_val(['10'])
+    [10]
+    >>> union_val({'10': 'true'})
+    {10: True}
+    >>> union_val(())
+    Traceback (most recent call last):
+      ...
+    Error: Expected one of:
+        scalar
+        sequence
+        mapping
+    Got:
+        ()
+
+``UnionVal`` can also be used to discriminate between records of different
+types::
+
+    >>> from rex.core import OnField
+    >>> record_union_val = UnionVal(('name', RecordVal(('name', StrVal),
+    ...                                                ('age', MaybeVal(UIntVal), None))))
+    >>> record_union_val
+    UnionVal((OnField('name'), RecordVal(('name', StrVal()), ('age', MaybeVal(UIntVal()), None))))
+    >>> record_union_val({'name': "Alice", 'age': '33'})
+    Record(name='Alice', age=33)
+
+``UnionVal`` understands serialized JSON objects and named tuples::
+
+    >>> record_union_val('{"name": "Alice", "age": 33}')
+    Record(name='Alice', age=33)
+    >>> record_union_val(_)
+    Record(name='Alice', age=33)
+
+Without the default validator, unexpected values are rejected::
+
+    >>> record_union_val({'age': 81})
+    Traceback (most recent call last):
+      ...
+    Error: Expected one of:
+        name record
+    Got:
+        {'age': 81}
+    >>> record_union_val('-')
+    Traceback (most recent call last):
+      ...
+    Error: Expected one of:
+        name record
+    Got:
+        '-'
+
+If the default validator is provided, ``UnionVal`` never raises an error::
+
+    >>> default_union_val = UnionVal((OnSeq, SeqVal(IntVal)), IntVal)
+    >>> default_union_val(['10'])
+    [10]
+    >>> default_union_val('10')
+    10
+    >>> default_union_val(None)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an integer
+    Got:
+        None
+
+``UnionVal`` can parse YAML documents::
+
+    >>> union_val.parse(""" 10 """)
+    10
+    >>> union_val.parse(""" [10] """)
+    [10]
+    >>> union_val.parse(""" { 10: true } """)
+    {10: True}
+
+    >>> record_union_val.parse(""" { name: Alice, age: 33 } """)
+    Record(name='Alice', age=33)
+    >>> record_union_val.parse(""" { age: 81 } """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected one of:
+        name record
+    Got:
+        a mapping
+    While parsing:
+        "<byte string>", line 1
 
 
 Records and locations

@@ -191,6 +191,8 @@ class MaybeVal(Validate):
     """
 
     def __init__(self, validate):
+        if isinstance(validate, type):
+            validate = validate()
         self.validate = validate
 
     def __call__(self, data):
@@ -212,6 +214,8 @@ class OneOfVal(Validate):
     """
     Returns the value produced by the first successful validator from the
     `validates` list; raises an error if all validators fail.
+
+    *DEPRECATED:* use :class:`UnionVal`.
     """
 
     def __init__(self, *validates):
@@ -278,12 +282,24 @@ class StrVal(Validate):
                                 if self.pattern is not None else "")
 
 
+class UStrVal(StrVal):
+    """
+    Accepts Unicode and UTF-8 encoded 8-bit strings; returns a Unicode string.
+    """
+
+    def __call__(self, data):
+        data = super(UStrVal, self).__call__(data)
+        return data.decode('utf-8')
+
+
 class ChoiceVal(Validate):
     """
     Accepts strings from a fixed set of `choices`.
     """
 
     def __init__(self, *choices):
+        if len(choices) == 1 and isinstance(choices[0], list):
+            [choices] = choices
         self.choices = choices
 
     def __call__(self, data):
@@ -312,6 +328,16 @@ class ChoiceVal(Validate):
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
                            ", ".join(repr(choice) for choice in self.choices))
+
+
+class UChoiceVal(ChoiceVal):
+    """
+    Accepts strings from a fixed set of `choices`; returns a Unicode string.
+    """
+
+    def __call__(self, data):
+        data = super(UChoiceVal, self).__call__(data)
+        return data.decode('utf-8')
 
 
 class BoolVal(Validate):
@@ -431,6 +457,8 @@ class SeqVal(Validate):
     """
 
     def __init__(self, validate_item=None):
+        if isinstance(validate_item, type):
+            validate_item = validate_item()
         self.validate_item = validate_item
 
     def __call__(self, data):
@@ -509,6 +537,10 @@ class MapVal(Validate):
     """
 
     def __init__(self, validate_key=None, validate_value=None):
+        if isinstance(validate_key, type):
+            validate_key = validate_key()
+        if isinstance(validate_value, type):
+            validate_value = validate_value()
         self.validate_key = validate_key
         self.validate_value = validate_value
 
@@ -772,8 +804,10 @@ class RecordVal(Validate):
           for optional fields.
     """
 
-    def __init__(self, fields):
-        self.fields = fields
+    def __init__(self, *fields):
+        if len(fields) == 1 and isinstance(fields[0], list):
+            [fields] = fields
+        self.fields = []
         self.names = []
         self.attributes = {}
         self.validates = {}
@@ -783,10 +817,16 @@ class RecordVal(Validate):
                 "invalid field: %s" % repr(field)
             if len(field) == 2:
                 name, validate = field
+                if isinstance(validate, type):
+                    validate = validate()
+                self.fields.append((name, validate))
                 self.names.append(name)
                 self.validates[name] = validate
             else:
                 name, validate, default = field
+                if isinstance(validate, type):
+                    validate = validate()
+                self.fields.append((name, validate, default))
                 self.names.append(name)
                 self.validates[name] = validate
                 self.defaults[name] = default
@@ -889,7 +929,8 @@ class RecordVal(Validate):
         return data
 
     def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.fields)
+        return "%s(%s)" % (self.__class__.__name__,
+                           ", ".join(repr(field) for field in self.fields))
 
 
 class SwitchVal(Validate):
@@ -902,6 +943,8 @@ class SwitchVal(Validate):
 
     `validate_default`
         Validator to use when no other validator matches the record.
+
+    *DEPRECATED:* use :class:`UnionVal`.
     """
 
     def __init__(self, validate_map, validate_default=None):
@@ -966,5 +1009,167 @@ class SwitchVal(Validate):
         if self.validate_default is not None:
             args.append(str(self.validate_default))
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
+class OnMatch(object):
+    """
+    Matches the input value against some condition.
+    """
+
+    def __call__(self):
+        """
+        Performs the test on the given value.
+
+        Subclasses must override this method.
+        """
+        raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
+
+    def __str__(self):
+        """
+        A textual description of the test; used for error messages.
+
+        Subclasses must override this method.
+        """
+        raise NotImplementedError("%s.__str__()" % self.__class__.__name__)
+
+    def __repr__(self):
+        return "%s()" % self.__class__.__name__
+
+
+class OnScalar(OnMatch):
+    """
+    Tests if the input is a scalar value.
+    """
+
+    def __call__(self, data):
+        return (data is None or
+                isinstance(data, (str, unicode, bool, int, long)) or
+                isinstance(data, yaml.ScalarNode))
+
+    def __str__(self):
+        return "scalar"
+
+
+class OnSeq(OnMatch):
+    """
+    Tests if the input is a sequence.
+    """
+
+    def __call__(self, data):
+        return (isinstance(data, list) or
+                isinstance(data, yaml.SequenceNode))
+
+    def __str__(self):
+        return "sequence"
+
+
+class OnMap(OnMatch):
+    """
+    Tests if the input is a mapping.
+    """
+
+    def __call__(self, data):
+        return (isinstance(data, dict) or
+                isinstance(data, yaml.MappingNode))
+
+    def __str__(self):
+        return "mapping"
+
+
+class OnField(OnMatch):
+    """
+    Tests if the input has a field with the given name.
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, data):
+        keys = []
+        if isinstance(data, (str, unicode)):
+            try:
+                mapping = json.loads(data)
+            except ValueError:
+                pass
+            else:
+                if isinstance(mapping, dict):
+                    data = mapping
+        if isinstance(data, dict):
+            keys = [key for key in data if isinstance(key, (str, unicode))]
+        elif isinstance(data, (tuple, Record)):
+            keys = getattr(data, '_fields', [])
+        elif (isinstance(data, yaml.MappingNode) and
+                data.tag == u'tag:yaml.org,2002:map'):
+            keys = [key_node.value
+                    for key_node, value_node in data.value
+                    if isinstance(key_node, yaml.ScalarNode) and
+                        key_node.tag == u'tag:yaml.org,2002:str']
+        return any(key.replace('-', '_').replace(' ', '_') == self.name
+                   for key in keys)
+
+    def __str__(self):
+        return "%s record" % self.name
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.name)
+
+
+class UnionVal(Validate):
+    """
+    Checks the value against a given set of tests; returns the value
+    produced by the validator associated with the first successful test;
+    raises an error if all tests fail.
+
+    `variants`
+        List of pairs of a test and a validator.  If the test is omitted
+        or ``None``, it always succeeds.  If the test is a string,
+        a :class:`OnField` test is assumed.
+    """
+
+    def __init__(self, *variants):
+        if len(variants) == 1 and isinstance(variants[0], list):
+            [variants] = variants
+        self.variants = []
+        for variant in variants:
+            if isinstance(variant, tuple) and len(variant) == 2:
+                match, validate = variant
+            else:
+                match = None
+                validate = variant
+            if isinstance(match, (str, unicode)):
+                match = OnField(match)
+            if isinstance(match, type):
+                match = match()
+            if isinstance(validate, type):
+                validate = validate()
+            self.variants.append((match, validate))
+
+    def __call__(self, data):
+        for match, validate in self.variants:
+            if match is None or match(data):
+                return validate(data)
+        error = Error("Expected one of:",
+                      "\n".join(str(match)
+                                for match, validate in self.variants))
+        error.wrap("Got:", repr(data))
+        raise error
+
+    def construct(self, loader, node):
+        for match, validate in self.variants:
+            if match is None or match(node):
+                return validate.construct(loader, node)
+        error = Error("Expected one of:",
+                      "\n".join(str(match)
+                                for match, validate in self.variants))
+        error.wrap("Got:", node.value
+                           if isinstance(node, yaml.ScalarNode)
+                           else "a %s" % node.id)
+        error.wrap("While parsing:", Location.from_node(node))
+        raise error
+
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           ", ".join(repr(variant)
+                                     for variant in self.variants))
 
 

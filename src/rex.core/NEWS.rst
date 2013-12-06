@@ -8,6 +8,7 @@
 1.2.0 (2013-XX-XX)
 ==================
 
+* Added more validator types.
 * ``bool(get_rex)`` returns if there is an active application.
 
 

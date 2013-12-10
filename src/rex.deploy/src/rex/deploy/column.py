@@ -11,6 +11,56 @@ from .sql import (mangle, sql_add_column, sql_drop_column,
 
 
 class ColumnFact(Fact):
+    """
+    Describes a table column.
+
+    `table_label`: ``unicode``
+        Table name.
+    `label`: ``unicode``
+        The name of the column.
+    `type`: *type name* or [``unicode``]
+        The type of the column; one of: *boolean*, *integer*,
+        *decimal*, *float*, *text*, *date*, *time*, *datetime*.
+        For an ``ENUM`` type, specify a list of ``ENUM`` labels.
+    `is_required`: ``bool``
+        Indicates if ``NULL`` values are not allowed.
+    `is_present`: ``bool``
+        Indicates whether the column exists.
+
+    YAML record has the following fields:
+
+    `column`: ``<label>`` or ``<table_label>.<label>``
+        Either the column name or the table and the column names separated
+        by a period.
+    `of`: ``<table_label>``
+        The name of the table.
+    `type`: *type name* or [``<enum_label>``]
+        The type of the column, one of: *boolean*, *integer*,
+        *decimal*, *float*, *text*, *date*, *time*, *datetime*.
+        For an ``ENUM`` type, specify a list of ``ENUM`` labels.
+    `required`: ``true`` (default) or ``false``
+        Indicates if the column rejects ``NULL`` values.
+    `present`: ``true`` (default) or ``false``
+        Indicates whether the column exists.
+
+    Deploying when ``is_present`` is on:
+
+        Ensures that table ``<table_label>`` has a column ``<label>``
+        of the given ``<type>`` and, depending on ``is_required``,
+        with or without ``NOT NULL`` constraint.
+
+        It is an error if table ``<table_label>`` does not exist.
+
+        *(TODO)* If the column exists, but does not match the description,
+        it is converted to match the description (when possible).
+
+    Deploying when ``is_present`` is off:
+
+        Ensures that table ``<table_label>`` does not have column
+        ``<label>``.  If such a column exists, it is deleted.
+
+        It is *not* an error if table ``<table_label>`` does not exist.
+    """
 
     # HTSQL name -> SQL name.
     TYPE_MAP = {
@@ -89,17 +139,13 @@ class ColumnFact(Fact):
         self.type = type
         self.is_required = is_required
         self.is_present = is_present
-        #: Table SQL name.
         self.table_name = mangle(table_label)
-        #: Column SQL name.
         self.name = mangle(label)
         if type is None:
             self.type_name = None
             self.enum_labels = None
         elif isinstance(type, list):
-            #: Type SQL name.
             self.type_name = mangle([table_label, label], u'enum')
-            #: Labels for ``ENUM`` type.
             self.enum_labels = type
         else:
             self.type_name = self.TYPE_MAP[self.type]

@@ -10,6 +10,55 @@ from .sql import (mangle, sql_add_column, sql_drop_column,
 
 
 class LinkFact(Fact):
+    """
+    Describes a link between two tables.
+
+    `table_label`: ``unicode``
+        The name of the origin table.
+    `label`: ``unicode``
+        The name of the link.
+    `target_table_label`: ``unicode`` or ``None``
+        The name of the target table.  Must be ``None``
+        if ``is_present`` is not set.
+    `is_required`: ``bool`` or ``None``
+        Indicates if ``NULL`` values are not allowed.  Must be ``None``
+        if ``is_present`` is not set.
+    `is_present`: ``bool``
+        Indicates whether the link exists.
+
+    YAML record has the following fields:
+
+    `link`: ``<label>`` or ``<table_label>.<label>``
+        Either the link name or the table and the link names separated
+        by a period.
+    `of`: ``<table_label>``
+        The name of the origin table.  If omitted, the table name must be
+        specified in the ``link`` field.
+    `to`: ``<target_table_label>``
+        The name of the target table.  If omitted, assumed to coincide
+        with the link name.
+    `required`: ``true`` (default) or ``false``
+        Indicates if the ``NULL`` values are not allowed.
+    `present`: ``true`` (default) or ``false``
+        Indicates whether the link exists.
+
+    Deploying when ``is_present`` is on:
+
+        Ensures that table ``<table_label>`` has a column ``<label>_id``
+        and a ``FOREIGN KEY`` constraint from ``<table_label>.<label>_id``
+        to ``<target_table_label>.id``.  If ``is_required`` is set,
+        the column should have a ``NOT NULL`` constraint.
+
+        It is an error if table ``<table_label>`` or ``<target_table_label>``
+        does not exist.
+
+    Deploying when ``is_present`` is off:
+
+        Ensures that table ``<table_label>`` does not have column
+        ``<label>_id``.  If such a column exists, it is deleted.
+
+        It is *not* an error if table ``<table_label>`` does not exist.
+    """
 
     fields = [
             ('link', QLabelVal),
@@ -64,14 +113,10 @@ class LinkFact(Fact):
         self.target_table_label = target_table_label
         self.is_required = is_required
         self.is_present = is_present
-        #: Table SQL name.
         self.table_name = mangle(table_label)
-        #: Column SQL name.
         self.name = mangle(label, u'id')
         if is_present:
-            #: Target table SQL name.
             self.target_table_name = mangle(target_table_label)
-            #: Foreign key SQL name.
             self.constraint_name = mangle([table_label, label], u'fk')
         else:
             self.target_table_name = None

@@ -77,7 +77,7 @@ class Cluster(object):
     def overwrite(self, name=None):
         """
         Creates a new database from scratch.  If the database with the same
-        name already exists, drop it first.
+        name already exists, it is deleted first.
         """
         if self.exists(name):
             self.drop(name)

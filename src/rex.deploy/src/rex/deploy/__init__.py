@@ -11,7 +11,7 @@ This package provides database schema management.
 from .cluster import Cluster, get_cluster, deploy
 from .column import ColumnFact
 from .data import DataFact, SKIP
-from .fact import Driver
+from .fact import Fact, Driver
 from .identity import IdentityFact
 from .image import (make_catalog, Image, NamedImage, ImageMap, CatalogImage,
         SchemaImage, TypeImage, DomainTypeImage, EnumTypeImage, TableImage,

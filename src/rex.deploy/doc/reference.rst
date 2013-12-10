@@ -7,6 +7,29 @@
 .. automodule:: rex.deploy
 
 
+Facts
+=====
+
+.. autoclass:: Fact
+   :special-members: __call__
+.. autoclass:: TableFact
+.. autoclass:: ColumnFact
+.. autoclass:: LinkFact
+.. autoclass:: IdentityFact
+.. autoclass:: DataFact
+.. autodata:: SKIP
+.. autoclass:: Driver
+   :special-members: __call__
+
+
+Cluster management
+==================
+
+.. autoclass:: Cluster
+.. autofunction:: get_cluster
+.. autofunction:: deploy
+
+
 Introspection and database catalog
 ==================================
 
@@ -32,13 +55,6 @@ Introspection and database catalog
 .. autoclass:: ForeignKeyImage
    :special-members: __contains__, __getitem__, __iter__, __len__
 .. autoclass:: DataImage
-
-
-Cluster management
-==================
-
-.. autoclass:: Cluster
-.. autofunction:: get_cluster
 
 
 SQL Serialization

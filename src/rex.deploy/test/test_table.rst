@@ -24,7 +24,7 @@ Use field ``with`` to list facts to deployed together with the table fact::
 
     >>> driver.parse("""{ table: individual,
     ...                   with: [{ column: code, type: text}] }""")
-    TableFact(u'individual', nested_facts=[ColumnFact(u'individual', u'code', u'text', is_required=True)])
+    TableFact(u'individual', related=[ColumnFact(u'individual', u'code', u'text', is_required=True)])
 
 Nested facts must deploy columns, links or data of the table being deployed::
 
@@ -32,7 +32,7 @@ Nested facts must deploy columns, links or data of the table being deployed::
     ...                   with: [{ table: sample }] }""")
     Traceback (most recent call last):
       ...
-    Error: Got unrelated nested fact:
+    Error: Got unrelated fact:
         "<byte string>", line 2
     While parsing:
         "<byte string>", line 1
@@ -41,7 +41,7 @@ Nested facts must deploy columns, links or data of the table being deployed::
     ...                   with: [{ column: code, of: sample }] }""")
     Traceback (most recent call last):
       ...
-    Error: Got unrelated nested fact:
+    Error: Got unrelated fact:
         "<byte string>", line 2
     While parsing:
         "<byte string>", line 1
@@ -157,7 +157,7 @@ It will also refuse to drop the table that has any links onto it::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Cannot delete a table with links onto it:
+    Error: Cannot delete a table with links into it:
         individual
     While deploying:
         "<byte string>", line 4

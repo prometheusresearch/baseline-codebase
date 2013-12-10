@@ -101,6 +101,12 @@ Using the driver, you can deploy any database facts or raw SQL::
 
     >>> driver("""{ table: individual }""")
 
+    >>> driver({ 'column': "individual.code", 'type': "text" })
+
+    >>> from rex.deploy import LinkFact
+    >>> driver([LinkFact(u"individual", u"mother", u"individual", is_required=False),
+    ...         LinkFact(u"individual", u"father", u"individual", is_required=False)])
+
     >>> driver.submit("""CREATE TABLE individual (id int4 NOT NULL);""")
     Traceback (most recent call last):
       ...

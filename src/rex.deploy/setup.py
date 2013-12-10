@@ -24,6 +24,8 @@ setup(
     install_requires=[
         'rex.core >=1.2, <2',
         'rex.db >=1.0, <2',
+        'HTSQL >=2.3.3, <2.5',
+        'psycopg2 >=2.4.2',
     ],
     entry_points = {
         'htsql.addons': ['rex_deploy = htsql_rex_deploy:DeployAddon'],

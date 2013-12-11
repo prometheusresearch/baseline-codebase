@@ -28,6 +28,7 @@ setup(
     ],
     install_requires=[
         'rex.deploy',
+        'rex.db',   # Until we can add it back as `rex.deploy` dependency.
     ],
     cmdclass={'demo': demo},
     rex_static='static',

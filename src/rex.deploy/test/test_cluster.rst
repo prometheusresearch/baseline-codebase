@@ -132,7 +132,8 @@ does nothing::
     >>> from rex.core import SandboxPackage
     >>> from rex.deploy import deploy
     >>> sandbox = SandboxPackage()
-    >>> deploy_demo = LatentRex(sandbox, 'rex.deploy', db='pgsql:deploy_demo_cluster')
+    >>> deploy_demo = LatentRex(sandbox, 'rex.deploy', 'rex.db',
+    ...                         db='pgsql:deploy_demo_cluster')
 
     >>> with deploy_demo:
     ...     deploy(logging=True)                        # doctest: +ELLIPSIS

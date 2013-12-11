@@ -16,27 +16,6 @@ class IdentityFact(Fact):
         The name of the table.
     `labels`: [``unicode``]
         Names of columns and links that constitute the table identity.
-
-    YAML record has the following fields:
-
-    `identity`: [``<label>`` or ``<table_label>.<label>``]
-        List of columns/links that form the table identity.  Each entry
-        of the list is either the column/link name or the table and
-        the column/link name separated by a period.
-    `of`: ``<table_label>``
-        The name of the table.  If omitted, the table name must be
-        specified in the ``identity`` field.
-
-    Deploying:
-
-        Ensures that table ``<table_label>`` has a ``PRIMARY KEY`` constraint
-        on the given columns and links.
-
-        It is an error if table ``<table_label>`` or any of the identity
-        columns and links do not exist.
-
-        If the table has a different ``PRIMARY KEY`` constraint, it is deleted
-        and a new constraint is created.
     """
 
     fields = [

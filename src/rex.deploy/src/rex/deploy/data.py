@@ -34,50 +34,6 @@ class DataFact(Fact):
         must be specified, but not both.
     `is_present`: ``bool``
         Indicates whether or not the table contains the given data.
-
-    YAML record has the following fields:
-
-    `data`: ``<data_path>`` or ``<data>``
-        Either path to a CSV file with table data or table data
-        in CSV format.
-    `of`: ``<table_label>``
-        The name of the table.  If not set, the table name is
-        inferred from the file name in the ``data`` field.
-    `present`: ``true`` (default) or ``false``
-        Whether or not the table contains the given data.
-
-    Table data must be provided in a CSV format.  The first line
-    of the CSV file should contain the names of the columns and links.
-    Subsequent lines should contain values for the respective columns
-    and links.  Each line represents a table row.
-
-    A column value must be a valid HTSQL literal value of the column type
-    (e.g. ``true`` or ``false`` for *boolean* values, date in ``YYYY-MM-DD``
-    format for *date* values and so on).
-
-    A link value must be specified using HTSQL identity format:
-    a dot-separated combination of column and link values that form
-    the identity of the target row.
-
-    An empty value indicates that the respective column or link is
-    to be ignored.  Thus it is impossible to represent a ``NULL``
-    value or an empty string using CSV format.
-
-    Deploying a row of CSV input when ``is_present`` is on:
-
-        Ensures that the table contains a row with the given values.
-
-        If the table does not contain a row with the given values,
-        but there is a row with the same identity value, the row
-        is updated to match the given values.
-
-        If the table does not contain a row with the same identity
-        value, a new row is added.
-
-        Values for each identity column and link of the table must
-        be specified and non-empty.
-
-    Deploying a row of CSV input when ``is_present`` is off: *(TODO)*
     """
 
     fields = [

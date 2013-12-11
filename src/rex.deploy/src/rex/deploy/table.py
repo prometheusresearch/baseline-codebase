@@ -20,29 +20,6 @@ class TableFact(Fact):
     `related`: [:class:`Fact`] or ``None``
         Facts to be deployed when the table is deployed.  Could be specified
         only when ``is_present`` is ``True``.
-
-    YAML record has the following fields:
-
-    `table`: ``<label>``
-        The table name.
-    `present`: ``true`` (default) or ``false``
-        Indicates whether the table exists in the database.
-    `with`: [...]
-        List of facts related to the table.  For related facts,
-        the ``of`` field is automatically set to the name of the table.
-
-    Deploying when ``is_present`` is on:
-
-        Ensures that there exists a table ``<label>`` with a surrogate
-        key column ``id``.  All facts in ``related`` list are deployed
-        as well.
-
-    Deploing when ``is_present`` is off:
-
-        Ensures that there is no table called ``<label>`` in the database.
-        If such a table exists, it is deleted.
-
-        Links targeting the table will prevent the table from being deleted.
     """
 
     fields = [

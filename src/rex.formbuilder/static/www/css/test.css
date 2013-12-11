@@ -298,13 +298,22 @@ li.answer-item label {
 }
 
 .rf-question-title {
-    font-size: 18px;
     display: inline-block;
     margin-top: 6px;
     min-width: 345px;
     padding-right: 5px;
     margin-bottom: 10px;
     vertical-align: top;
+}
+
+.rf-question-title,
+.rf-question-title p {
+    font-size: 18px;
+}
+
+.rf-question-title p {
+    margin-top: 0px;
+    margin-bottom: 5px;
 }
 
 .rf-record .rf-required > .rf-question-title {

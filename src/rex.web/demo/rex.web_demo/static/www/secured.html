@@ -1,0 +1,6 @@
+{% extends "/templates/base.html" %}
+{% block title %}Example Secured Page{% endblock %}
+{% block body %}
+<p>This page is available only to <i>authenticated</i> users.</p>
+<p>You are authenticated as <b>{{ USER|e }}</b>.</p>
+{% endblock %}

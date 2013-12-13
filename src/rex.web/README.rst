@@ -483,7 +483,9 @@ permissions.  For example, :mod:`rex.web_demo` has the following access file
 
 - /index.html   : anybody
 - /page.html    : anybody
+- /csrf.html    : anybody
 - /example.rst  : anybody
+- /secured.html : authenticated
 - /*.png        : anybody
 - /*            : nobody
 

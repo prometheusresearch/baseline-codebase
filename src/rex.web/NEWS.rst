@@ -9,6 +9,7 @@
 ==================
 
 * Minor bug fixes.
+* Added /secured.html page to rex.web_demo application.
 
 
 1.1.0 (2013-11-20)

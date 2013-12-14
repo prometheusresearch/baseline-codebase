@@ -1,9 +1,11 @@
-********************************
-  REX.DEPLOY Programming Guide
-********************************
+**************************
+  REX.DEPLOY Usage Guide
+**************************
 
 .. contents:: Table of Contents
 .. role:: mod(literal)
+.. role:: class(literal)
+.. role:: func(literal)
 
 
 Overview
@@ -16,8 +18,8 @@ management.  RexDB is free software created by Prometheus Research, LLC and is
 released under the AGPLv3 license with a commensurate attribution clause.  For
 more information, please visit http://rexdb.org/.
 
-The development of this product was supported by the National Institute
-Of Mental Health of the National Institutes of Health under Award Number
+The development of this product was supported by the National Institute of
+Mental Health of the National Institutes of Health under Award Number
 R43MH099826.
 
 .. |R| unicode:: 0xAE .. registered trademark sign
@@ -26,54 +28,62 @@ R43MH099826.
 Getting started
 ===============
 
-:mod:`rex.deploy` is a database schema management system.  It allows you
-to describe and deploy the application database.
+:mod:`rex.deploy` is a database schema management system.  It allows you to
+describe and deploy the application database.
 
-Suppose you make a RexDB application for managing medical research.  This
-application stores information about studies, research subjects, assessments
-in a PostgreSQL database.  The application uses :mod:`rex.deploy` to
-describe the structure of the database.
+In this section, let's assume that you are developing a Rex application
+:mod:`rex.deploy_demo` for managing medical research data.  This application
+stores information about studies, research subjects and assessments in a
+PostgreSQL database.  The application uses :mod:`rex.deploy` to describe the
+structure of the database.
 
-The database schema of the application is described in a static resource
-``deploy.yaml``.  For instance, application :mod:`rex.deploy_demo` describes
-its schema in file ``rex.deploy_demo/static/deploy.yaml``::
+The database schema of the application is defined in a static resource
+``deploy.yaml``.  For :mod:`rex.deploy_demo`, that's going to be the file
+``rex.deploy_demo/static/deploy.yaml``::
 
     - table: study
-    - column: study.code
+
+    - column: code
+      of: study
       type: text
-    - identity: [study.code]
+
+    - identity: [code]
+      of: study
+
     ...
 
 This file is in YAML format.  It contains a sequence of statements, or *facts*,
 describing the structure of the database.  The first fact is::
 
-    - table: study
+    table: study
 
 It is translated to English as:
 
-    The database contains a table called *study*.
+    The database has a table called ``study``.
 
-The next fact is::
+The next fact::
 
-    - column: study.code
-      type: text
+    column: code
+    of: study
+    type: text
 
-can be interpreted as:
+can be interpreted as follows:
 
-    Table *study* has a column called *code* of type *text*.
+    Table ``study`` has a column called ``code`` of type ``text``.
 
 The third fact::
 
-    - identity: [study.code]
+    identity: [code]
+    of: study
 
 means:
 
-    Records of table *study* are uniquely identified by column *code*.
+    Rows of table ``study`` are uniquely identified by column ``code``.
 
 When you deploy the application schema, :mod:`rex.deploy` reads each fact and
-ensures that it holds true.  To do so, :mod:`rex.deploy` may modify the
-database.  For example, if you deploy :mod:`rex.deploy_demo` schema from
-scratch, :mod:`rex.deploy` will:
+makes sure that it holds true.  To do so, :mod:`rex.deploy` may alter the
+current structure of the database.  For example, if you deploy
+:mod:`rex.deploy_demo` schema on an empty database, :mod:`rex.deploy` will:
 
 1. Create table ``study``.
 2. Add column ``code`` to table ``study``.
@@ -83,13 +93,30 @@ On the other hand, if you deploy the same schema over the same database
 instance again, :mod:`rex.deploy` will realize that all the facts are already
 satisfied and will leave the database intact.
 
+A collection of facts related to the same table could be grouped together using
+``with`` clause on the table fact.  For example, we could rewrite the
+definition of the table ``study`` as follows::
+
+    - table: study
+      with:
+      - column: code
+        type: text
+      - identity: [code]
+
+This way we don't need to repeat the ``of`` clauses.  Other than that, this
+form is functionally equivalent to the original schema definition.  In the
+examples below, we will often write individual facts in the full form, but in
+practice, a ``with`` clause is often used.
+
 
 Deploying the schema
 ====================
 
-We use the ``rex`` command-line tool from package :mod:`rex.ctl` to deploy
-application schema.  For example, to deploy the schema for
-:mod:`rex.deploy_demo` application, run::
+In order to use :mod:`rex.deploy`, we need to add :mod:`rex.deploy` and
+:mod:`rex.db` to the list of dependencies of the application.
+
+Then we use the ``rex`` command-line tool from package :mod:`rex.ctl`.  To
+deploy the schema for :mod:`rex.deploy_demo` application, run::
 
     $ rex deploy rex.deploy_demo --set db=pgsql:deploy_demo
 
@@ -100,14 +127,202 @@ You can also store the application name and parameters in a configuration file
     parameters:
       db: pgsql:deploy_demo
 
-If the ``rex.yaml`` file exists in the current directory, you can run
+The ``rex`` utility will pick up the application configuration from a
+``rex.yaml`` file in the current directory, so you can run::
 
     $ rex deploy
 
 to deploy the application database.
 
 For more information on the ``rex`` utility and ``rex.yaml`` configuration
-file, see documentation to :mod:`rex.ctl`.
+file, see documentation of :mod:`rex.ctl`.
+
+
+Describing the database
+=======================
+
+:mod:`rex.deploy` lets you describe database *tables*, table *columns* and
+*links*, the *identity* of the table and the *data* stored in the table.
+
+The simplest is a table fact.  For example::
+
+    table: individual
+
+It expresses a claim: There is a table called ``individual``.
+
+You could also describe a negative assertion: There is *no* table called
+``family``::
+
+    table: family
+    present: false
+
+When these facts are deployed, :mod:`rex.deploy` verifies that these assertions
+hold true.  If not, it will try to alter the database to make them true.  If
+the database has no table ``individual``, it will be created.  If the database
+has a table called ``family``, it will be deleted.
+
+*(TODO)* Another variant of a table fact allows you to get the table renamed::
+
+    table: instrument
+    was: measure_type
+
+*(TODO)* It reads as: The database has a table called ``instrument``, which was
+previously called ``measure_type``.
+
+*(TODO)* When ``was`` clause is specified, the behavior of :mod:`rex.deploy` is
+slightly more complicated than usual.  In case when the database has no table
+called ``instrument``, :mod:`rex.deploy` checks if there is a table called
+``measure_type.``.  If there is, it is renamed to ``instrument``.  Otherwise, a
+new table ``instrument`` is created.
+
+A table with no fields is not very useful.  To describe the structure of a
+table, we use *column* and *link* facts.
+
+A column fact describes a column of a table.  For example::
+
+    - column: first_name
+      of: identity
+      type: text
+
+    - column: last_name
+      of: identity
+      type: text
+
+    - column: birthday
+      of: identity
+      type: date
+      required: false
+
+These definitions express the claim that table ``identity`` has columns
+``first_name`` and ``last_name`` of text type and a column ``birthday`` of date
+type.  Column ``birthday`` is not required, which means that the table will
+accept ``NULL`` as the column value.  Columns ``first_name`` and ``last_name``
+are required.
+
+:mod:`rex.deploy` supports a number of column types, in particular, boolean (a
+type with two values ``false`` and ``true``), integer, text and date.  It also
+allows you to declare that a column has an *enumerated* type, a data type that
+consists of a set of distinct named values.  For example, let's define a column
+``sex`` with three values: ``male``, ``female``, and ``intersex``::
+
+    column: sex
+    of: individual
+    type: [male, female, intersex]
+
+You can also express the fact that a column does not exist.  For example::
+
+    column: middle_name
+    of: identity
+    present: false
+
+A *link* is a connection between two tables.  For example, to express the fact
+that each study protocol is associated with some study, we write::
+
+    link: study
+    of: protocol
+    to: study
+
+This defines a link called ``study`` from table ``protocol`` to table
+``study``.  Since the name of the link coincides with the name of the target
+table, we can omit the ``to`` clause::
+
+    link: study
+    of: protocol
+
+A link may connect a table to itself.  For example, this is how we can express
+parental relationships::
+
+    - link: mother
+      of: individual
+      to: individual
+      required: false
+
+    - link: father
+      of: individual
+      to: individual
+      required: false
+
+Note that we added a clause ``required: false`` to the link definition.  It
+means that the table will allow ``NULL`` as the link value.  We must always set
+``required: false`` for self-referential links, otherwise, we won't be able to
+add any rows to the table.
+
+Table identity is a set of columns and links which uniquely identify each row
+of the table.  In the simplest case, it consists of a single column::
+
+    - table: individual
+
+    - column: code
+      of: individual
+      type: text
+
+    - identity: [code]
+      of: individual
+
+In more complex cases, table identity may include links to other tables.  In
+particular, a table which identity consists of two links establishes a
+many-to-many relationship between the linked tables::
+
+    - table: participation
+
+    - link: case
+      of: participation
+
+    - link: individual
+      of: participation
+
+    - identity: [case, individual]
+      of: participation
+
+In HTSQL, you can get the identity value for a table row using the ``id()``
+function.  For example, the ``id()`` of ``individual`` is the value of the
+column ``individual.code``::
+
+    deploy_demo$ /individual{id(), code}
+
+     | individual  |
+     +------+------+
+     | id() | code |
+    -+------+------+-
+     | 1000 | 1000 |
+     | 1001 | 1001 |
+     | 1002 | 1002 |
+     ...
+
+For ``participation``, ``id()`` is a combination of ``case.id()`` and
+``individual.id()``::
+
+    deploy_demo$ /participation{id(), case{id()}, individual{id()}}
+
+     | participation                                   |
+     +---------------------+--------------+------------+
+     |                     | case         | individual |
+     |                     +--------------+------------+
+     | id()                | id()         | id()       |
+    -+---------------------+--------------+------------+-
+     | (family.10000).1000 | family.10000 | 1000       |
+     | (family.10000).1001 | family.10000 | 1001       |
+     | (family.10000).1002 | family.10000 | 1002       |
+    ...
+
+:mod:`rex.deploy` allows you to define not only the structure of the database,
+but also the content of the tables.  It is useful for populating fact tables
+and sample data.  For example, we can add some rows to the ``individual``
+table::
+
+    data: |
+      code,sex,mother,father
+      1000,female,,
+      1001,male,,
+      1002,female,1000,1001
+      1003,male,1000,1001
+      1004,male,1000,1001
+    of: individual
+
+The ``data`` clause contains the content of the table in CSV format.
+
+In the following sections we describe the format and behavior of different
+types of facts.
 
 
 Table fact
@@ -122,7 +337,7 @@ A table fact describes a database table.
     The previous name of the table.
 
 `present`: ``true`` (default) or ``false``
-    Indicates whether the table exists in thee database.
+    Indicates whether the table exists in the database.
 
 `with`: [...]
     List of facts related to the table.  Facts listed here have their ``of``
@@ -183,13 +398,17 @@ Examples:
        facts::
 
         - table: protocol
+
         - link: study
           of: protocol
+
         - column: code
           of: protocol
           type: text
+
         - identity: [study, code]
           of: protocol
+
         - column: title
           of: protocol
           type: text
@@ -230,7 +449,7 @@ A column fact describes a column of a table.
 Deploying when ``present`` is ``true``:
 
     Ensures that table ``<table_label>`` has a column ``<label>`` of type
-    ``<table_label>``.  If the column does not exist, it is created.
+    ``<type_label>``.  If the column does not exist, it is created.
 
     If ``required`` is set to ``true``, which is the default, the column
     should have a ``NOT NULL`` constraint.
@@ -260,7 +479,7 @@ Examples:
         column: study.title
         type: text
 
-       When the column is defined within a ``with`` clause, ``of`` could be
+       When the column is defined in a ``with`` clause, ``of`` could be
        omitted::
 
         table: study
@@ -336,7 +555,7 @@ Deploying when ``present`` is ``true``:
 Deploying when ``present`` is ``false``:
 
     Ensures that table ``<table_label>`` does not have column ``<label>_id``.
-    If such a column exists, it is deleted.
+    If such column exists, it is deleted.
 
     It is *not* an error if table ``<table_label>`` does not exist.
 
@@ -349,7 +568,7 @@ Examples:
         to: individual
 
        Since the name of the link and the name of the target table are the
-       same, the ``to`` clause could be omitted::
+       same, we could omit the ``to`` clause::
 
         link: individual
         of: sample
@@ -447,7 +666,7 @@ Examples:
           type: text
         - identity: [code]
 
-       A trunk table is a table which identity does not depend on other tables.
+       A trunk table is a table whose identity does not depend on other tables.
        Identity of a trunk table does not contain links to other tables.
 
     #. Creating a *facet* table::
@@ -510,8 +729,8 @@ values for the respective columns and links.  Each line represents a table row.
 CSV input must include values for identity columns and links.
 
 A column value must be a valid HTSQL literal value of the column type (e.g.
-``true`` and ``false`` for a *boolean* column, date in ``YYYY-MM-DD`` format
-for a *date* column, and so on).
+``true`` or ``false`` for a *boolean* column, date in ``YYYY-MM-DD`` format for
+a *date* column, and so on).
 
 A link value must be specified using HTSQL identity format: a dot-separated
 combination of column and link values that form the identity of the target row.
@@ -589,7 +808,7 @@ Examples:
           1004,,1000,1001
         of: individual
 
-    #. Setting link values::
+    #. Setting links::
 
         data: |
           case,individual
@@ -601,12 +820,15 @@ Examples:
         of: participation
 
 
-Cluster management
-==================
+Introduction to Python API
+==========================
 
-:mod:`rex.deploy` allows you to manage databases in a PostgreSQL cluster.  Use
-function :func:`rex.deploy.get_cluster` to get a :class:`rex.deploy.Cluster`
-instance associated with the application database::
+:mod:`rex.deploy` provides a rich API for manipulating PostgreSQL databases.
+We start with describing how to use it to manage a cluster of PostgreSQL
+databases.
+
+Use function :func:`rex.deploy.get_cluster` to get a
+:class:`rex.deploy.Cluster` instance associated with the application database::
 
     >>> from rex.core import Rex
     >>> demo = Rex('rex.deploy_demo')
@@ -618,12 +840,12 @@ instance associated with the application database::
 Using :class:`rex.deploy.Cluster`, you can create and destroy databases in the
 cluster::
 
-    >>> cluster.create('deploy_demo_derived')
-    >>> cluster.exists('deploy_demo_derived')
+    >>> cluster.create('deploy_demo_readme')
+    >>> cluster.exists('deploy_demo_readme')
     True
 
-    >>> cluster.drop('deploy_demo_derived')
-    >>> cluster.exists('deploy_demo_derived')
+    >>> cluster.drop('deploy_demo_readme')
+    >>> cluster.exists('deploy_demo_readme')
     False
 
 Use function :func:`rex.deploy.introspect` to get a catalog image that reflects
@@ -634,15 +856,48 @@ the structure of the database::
     >>> connection = cluster.connect()
     >>> catalog = introspect(connection)
 
+The :class:`rex.deploy.CatalogImage` object contains database schemas, tables,
+columns, types and constraints::
 
-SQL serialization
-=================
+    >>> for schema in catalog:
+    ...     print schema                        # doctest: +ELLIPSIS
+    information_schema
+    pg_catalog
+    ...
+
+    >>> public_schema = catalog[u'public']
+    >>> for table in public_schema:
+    ...     print table                         # doctest: +ELLIPSIS
+    appointment
+    appointment_type
+    case
+    ...
+
+    >>> individual_table = public_schema[u'individual']
+    >>> for column in individual_table:
+    ...     print column                        # doctest: +ELLIPSIS
+    id
+    code
+    sex
+    ...
+
+:mod:`rex.deploy` allows you to create and deploy database facts
+programmatically.  To do that, you need to create a :class:`rex.deploy.Driver`
+instance for the target database::
+
+    >>> driver = cluster.drive()
+
+Then you can use it to deploy database facts::
+
+    >>> from rex.deploy import TableFact
+
+    >>> driver(TableFact(u'individual'))
 
 :mod:`rex.deploy` contains a number of functions for building SQL commands.
 For example, :func:`rex.deploy.sql_create_table` generates a ``CREATE TABLE``
 statemement.  This function takes two arguments: the table name and a list of
 definitions for the body of the statement.  To populate the body with column
-definitions, you can use func:`rex.deploy.sql_define_column`::
+definitions, you can use :func:`rex.deploy.sql_define_column`::
 
     >>> from rex.deploy import sql_create_table, sql_define_column
 

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.0.1 (2013-XX-XX)
+1.0.1 (2013-12-13)
 ==================
 
 * Updated YAML validation.

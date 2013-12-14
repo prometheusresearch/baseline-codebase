@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.1.0 (2013-XX-XX)
+1.1.0 (2013-12-13)
 ==================
 
 * Added ``rex createdb``, ``rex dumpdb`` and other database management tasks.

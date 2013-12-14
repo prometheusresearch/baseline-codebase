@@ -260,6 +260,9 @@ tests:
     stdout: |
       Creating database pgsql:///ctl_demo.
       Deploying application database to pgsql:///ctl_demo.
+      Deploying rex.ctl_demo.
+      Validating rex.ctl_demo.
+      Done.
 - suite: rex-shell
   tests:
   - rex: shell rex.ctl_demo

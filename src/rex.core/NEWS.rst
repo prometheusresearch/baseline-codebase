@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.2.0 (2013-XX-XX)
+1.2.0 (2013-12-13)
 ==================
 
 * Added more validator types.

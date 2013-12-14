@@ -34,6 +34,7 @@ setup(
         'rex.urlmap',
         'rex.vendor',
         'rex.deploy',
+        'rex.db',
     ],
     cmdclass={'demo': demo},
     rex_init='rex.urlmap_demo',

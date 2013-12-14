@@ -5,11 +5,10 @@
 .. contents:: Table of Contents
 
 
-1.1.1 (2013-XX-XX)
+1.1.1 (2013-12-13)
 ==================
 
-* Minor bug fixes.
-* Added /secured.html page to rex.web_demo application.
+* Minor updates to test data.
 
 
 1.1.0 (2013-11-20)

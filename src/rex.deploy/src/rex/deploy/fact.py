@@ -216,9 +216,9 @@ class Driver(object):
                     fact(self)
                 except Error, error:
                     if not self.is_locked:
-                        message = "While deploying:"
+                        message = "While deploying %s fact:" % fact.key
                     else:
-                        message = "While validating:"
+                        message = "While validating %s fact:" % fact.key
                     location = locate(fact) or fact
                     error.wrap(message, location)
                     raise

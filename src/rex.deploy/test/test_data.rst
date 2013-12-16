@@ -140,7 +140,7 @@ It is an error if the data table does not exist or lacks identity::
       ...
     Error: Detected missing table:
         measure
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 1
 
     >>> driver("""{ table: measure }""")                # doctest: +ELLIPSIS
@@ -150,7 +150,7 @@ It is an error if the data table does not exist or lacks identity::
       ...
     Error: Detected table without PRIMARY KEY constraint:
         measure
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 1
 
 A row must contain the value of the ``PRIMARY KEY``::
@@ -167,7 +167,7 @@ A row must contain the value of the ``PRIMARY KEY``::
         code
     While processing row #1:
         {'Dixons'}
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 2
 
 If the driver is locked, it cannot modify existing or add new records::
@@ -183,7 +183,7 @@ If the driver is locked, it cannot modify existing or add new records::
     Error: Detected modified row
     While processing row #1:
         {'1003', 'Crawfords'}
-    While validating:
+    While validating data fact:
         "<byte string>", line 2
 
     >>> driver("""
@@ -197,7 +197,7 @@ If the driver is locked, it cannot modify existing or add new records::
     Error: Detected missing row
     While processing row #1:
         {'1004', 'Dixons'}
-    While validating:
+    While validating data fact:
         "<byte string>", line 2
 
 
@@ -240,7 +240,7 @@ Invalid links are rejected::
         1001.01
     While processing row #1:
         {'1001', '01', '1001.01', '1001.01'}
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 2
 
 Values of different types are accepted::
@@ -272,7 +272,7 @@ Unknown and duplicate columns are detected::
       ...
     Error: Detected missing column:
         name
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 1
 
     >>> driver("""{ data: "code,code\\n", of: family }""")
@@ -280,7 +280,7 @@ Unknown and duplicate columns are detected::
       ...
     Error: Detected duplicate column:
         code
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 1
 
 All columns from the ``PRIMARY KEY`` must be included::
@@ -290,7 +290,7 @@ All columns from the ``PRIMARY KEY`` must be included::
       ...
     Error: Detected missing PRIMARY KEY column:
         family_id
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 1
 
 Each CSV row must have correct number of entries::
@@ -307,7 +307,7 @@ Each CSV row must have correct number of entries::
         2 > 1
     On:
         row 2
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 2
 
     >>> driver("""
@@ -322,7 +322,7 @@ Each CSV row must have correct number of entries::
         2 < 3
     On:
         row 2
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 2
 
 Invalid values are rejected::
@@ -341,7 +341,7 @@ Invalid values are rejected::
         sex
     On:
         row 2
-    While deploying:
+    While deploying data fact:
         "<byte string>", line 2
 
 Finally we destroy the test database::

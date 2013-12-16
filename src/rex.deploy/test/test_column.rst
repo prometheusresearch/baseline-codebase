@@ -134,7 +134,7 @@ or the driver is locked, an error is raised::
       ...
     Error: Detected missing table:
         identity
-    While deploying:
+    While deploying column fact:
         "<byte string>", line 1
 
     >>> driver("""{ column: individual.birth, type: date }""",
@@ -143,7 +143,7 @@ or the driver is locked, an error is raised::
       ...
     Error: Detected missing column:
         birth
-    While validating:
+    While validating column fact:
         "<byte string>", line 1
 
 When the column type is a list of ``ENUM`` labels, a corresponding ``ENUM``
@@ -163,7 +163,7 @@ An error is raised when the driver is locked and cannot create a new type::
       ...
     Error: Detected missing ENUM type:
         individual_status_enum
-    While validating:
+    While validating column fact:
         "<byte string>", line 1
 
 In the future, if the column already exists, but does not match the column fact,
@@ -174,7 +174,7 @@ the column is altered to match the fact.  Currently, it's not yet functional::
       ...
     Error: Detected mismatched ENUM type:
         individual_sex_enum
-    While deploying:
+    While deploying column fact:
         "<byte string>", line 1
 
     >>> driver("""{ column: individual.sex, type: text }""")
@@ -182,7 +182,7 @@ the column is altered to match the fact.  Currently, it's not yet functional::
       ...
     Error: Detected column with mismatched type:
         sex
-    While deploying:
+    While deploying column fact:
         "<byte string>", line 1
 
     >>> driver("""{ column: individual.sex, type: [male, female], required: false }""")
@@ -190,7 +190,7 @@ the column is altered to match the fact.  Currently, it's not yet functional::
       ...
     Error: Detected column with mismatched NOT NULL constraint:
         sex
-    While deploying:
+    While deploying column fact:
         "<byte string>", line 1
 
 You cannot create a column if there is already a link with the same name::
@@ -203,7 +203,7 @@ You cannot create a column if there is already a link with the same name::
       ...
     Error: Detected unexpected column
         mother_id
-    While deploying:
+    While deploying column fact:
         "<byte string>", line 3
 
 
@@ -234,7 +234,7 @@ A locked driver cannot delete a column::
       ...
     Error: Detected unexpected column:
         sex
-    While validating:
+    While validating column fact:
         "<byte string>", line 1
 
 When you delete a column of ``ENUM`` type, the type is dropped too::
@@ -252,7 +252,7 @@ You cannot delete a column if there is a link with the same name::
       ...
     Error: Detected unexpected column
         mother_id
-    While deploying:
+    While deploying column fact:
         "<byte string>", line 1
 
 Finally, we drop the test database::

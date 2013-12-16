@@ -95,7 +95,7 @@ It is an error if identity refers to an unknown table or a column::
       ...
     Error: Detected missing table:
         measure
-    While deploying:
+    While deploying identity fact:
         "<byte string>", line 1
 
     >>> driver("""{ identity: [individual.family, individual.code] }""")
@@ -103,7 +103,7 @@ It is an error if identity refers to an unknown table or a column::
       ...
     Error: Detected missing column:
         family
-    While deploying:
+    While deploying identity fact:
         "<byte string>", line 1
 
 If ``PRIMARY KEY`` already exists and is different from the given ``identity``,
@@ -128,7 +128,7 @@ match the identity, an error is raised::
       ...
     Error: Detected table with missing PRIMARY KEY constraint:
         measure
-    While validating:
+    While validating identity fact:
         "<byte string>", line 1
 
     >>> driver("""{ identity: [identity.code] }""",
@@ -137,7 +137,7 @@ match the identity, an error is raised::
       ...
     Error: Detected table with mismatched PRIMARY KEY constraint:
         identity
-    While validating:
+    While validating identity fact:
         "<byte string>", line 1
 
 Finally, we drop the test database::

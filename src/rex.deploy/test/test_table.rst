@@ -90,7 +90,7 @@ When the driver is locked and the table does not exist, an error is raised::
       ...
     Error: Detected missing table:
         sample
-    While validating:
+    While validating table fact:
         "<byte string>", line 1
 
 If the table already exists, the driver will verify that it has the ``id``
@@ -104,7 +104,7 @@ column with ``UNIQUE`` constraint::
       ...
     Error: Detected missing column:
         id
-    While deploying:
+    While deploying table fact:
         "<byte string>", line 1
 
     >>> driver.submit("""ALTER TABLE sample ADD COLUMN id int4 NOT NULL;""")
@@ -115,7 +115,7 @@ column with ``UNIQUE`` constraint::
       ...
     Error: Detected missing column UNIQUE constraint:
         id
-    While deploying:
+    While deploying table fact:
         "<byte string>", line 1
 
 
@@ -145,7 +145,7 @@ Deploying the same fact second time has no effect::
       ...
     Error: Detected unexpected table:
         individual
-    While validating:
+    While validating table fact:
         "<byte string>", line 1
 
 It will also refuse to drop the table that has any links onto it::
@@ -159,7 +159,7 @@ It will also refuse to drop the table that has any links onto it::
       ...
     Error: Cannot delete a table with links into it:
         individual
-    While deploying:
+    While deploying table fact:
         "<byte string>", line 4
 
 If a table has any columns of ``ENUM`` type, the type is

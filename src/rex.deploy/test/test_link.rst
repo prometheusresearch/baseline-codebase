@@ -112,7 +112,7 @@ table does not exist, or if the driver is locked::
       ...
     Error: Detected missing table:
         measure
-    While deploying:
+    While deploying link fact:
         "<byte string>", line 1
 
     >>> driver("""{ link: individual.family }""")
@@ -120,7 +120,7 @@ table does not exist, or if the driver is locked::
       ...
     Error: Detected missing table:
         family
-    While deploying:
+    While deploying link fact:
         "<byte string>", line 1
 
     >>> driver("""{ link: individual.mother, to: individual }""",
@@ -129,7 +129,7 @@ table does not exist, or if the driver is locked::
       ...
     Error: Detected missing column:
         mother_id
-    While validating:
+    While validating link fact:
         "<byte string>", line 1
 
 An error is raised if the target table has no ``id`` column::
@@ -142,7 +142,7 @@ An error is raised if the target table has no ``id`` column::
       ...
     Error: Detected missing column:
         id
-    While deploying:
+    While deploying link fact:
         "<byte string>", line 1
 
 If the link column exists, the driver verifies that is has a
@@ -156,7 +156,7 @@ correct type and ``NOT NULL`` constraint::
       ...
     Error: Detected column with mismatched type:
         mother_id
-    While deploying:
+    While deploying link fact:
         "<byte string>", line 1
 
     >>> driver("""{ link: sample.individual, required: false }""")
@@ -164,7 +164,7 @@ correct type and ``NOT NULL`` constraint::
       ...
     Error: Detected column with mismatched NOT NULL constraint:
         individual_id
-    While deploying:
+    While deploying link fact:
         "<byte string>", line 1
 
 It also verifies that the ``FOREIGN KEY`` constraint exists::
@@ -178,7 +178,7 @@ It also verifies that the ``FOREIGN KEY`` constraint exists::
       ...
     Error: Detected column with missing FOREIGN KEY constraint:
         father_id
-    While validating:
+    While validating link fact:
         "<byte string>", line 1
 
 You cannot create a link if there is a regular column with the same name::
@@ -192,7 +192,7 @@ You cannot create a link if there is a regular column with the same name::
       ...
     Error: Detected unexpected column
         individual
-    While deploying:
+    While deploying link fact:
         "<byte string>", line 4
 
 
@@ -226,7 +226,7 @@ A locked driver cannot delete a link::
       ...
     Error: Detected unexpected column:
         father_id
-    While validating:
+    While validating link fact:
         "<byte string>", line 1
 
 You cannot delete a link if there is a regular column with the same name::
@@ -236,7 +236,7 @@ You cannot delete a link if there is a regular column with the same name::
       ...
     Error: Detected unexpected column
         individual
-    While deploying:
+    While deploying link fact:
         "<byte string>", line 1
 
 Finally, we drop the test database::

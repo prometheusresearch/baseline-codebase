@@ -181,6 +181,20 @@ It also verifies that the ``FOREIGN KEY`` constraint exists::
     While validating:
         "<byte string>", line 1
 
+You cannot create a link if there is a regular column with the same name::
+
+    >>> driver("""
+    ... - { table: identity }
+    ... - { column: identity.individual, type: text }
+    ... - { link: identity.individual }
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Detected unexpected column
+        individual
+    While deploying:
+        "<byte string>", line 4
+
 
 Dropping the link
 =================
@@ -213,6 +227,16 @@ A locked driver cannot delete a link::
     Error: Detected unexpected column:
         father_id
     While validating:
+        "<byte string>", line 1
+
+You cannot delete a link if there is a regular column with the same name::
+
+    >>> driver("""{ link: identity.individual, present: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Detected unexpected column
+        individual
+    While deploying:
         "<byte string>", line 1
 
 Finally, we drop the test database::

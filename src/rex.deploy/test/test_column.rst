@@ -193,6 +193,19 @@ the column is altered to match the fact.  Currently, it's not yet functional::
     While deploying:
         "<byte string>", line 1
 
+You cannot create a column if there is already a link with the same name::
+
+    >>> driver("""
+    ... - { link: individual.mother, to: individual }
+    ... - { column: individual.mother, type: integer }
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Detected unexpected column
+        mother_id
+    While deploying:
+        "<byte string>", line 3
+
 
 Dropping the column
 ===================
@@ -231,6 +244,16 @@ When you delete a column of ``ENUM`` type, the type is dropped too::
     DROP TYPE "individual_sex_enum";
     >>> u'individual_sex_enum' in schema.types
     False
+
+You cannot delete a column if there is a link with the same name::
+
+    >>> driver("""{ column: individual.mother, present: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Detected unexpected column
+        mother_id
+    While deploying:
+        "<byte string>", line 1
 
 Finally, we drop the test database::
 

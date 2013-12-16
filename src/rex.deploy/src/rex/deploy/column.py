@@ -107,6 +107,7 @@ class ColumnFact(Fact):
         self.is_present = is_present
         self.table_name = mangle(table_label)
         self.name = mangle(label)
+        self.name_for_link = mangle(label, u'id')
         if type is None:
             self.type_name = None
             self.enum_labels = None
@@ -160,6 +161,9 @@ class ColumnFact(Fact):
             system_schema = driver.get_catalog()['pg_catalog']
             type = system_schema.types[self.type_name]
         table = schema[self.table_name]
+        # Verify that we don't have a link under the same name.
+        if self.name_for_link in table:
+            raise Error("Detected unexpected column", self.name_for_link)
         # Create the column if it does not exist.
         if self.name not in table:
             if driver.is_locked:
@@ -178,10 +182,15 @@ class ColumnFact(Fact):
 
     def drop(self, driver):
         # Ensures that the column is absent.
+        # Find the table.
         schema = driver.get_schema()
         if self.table_name not in schema:
             return
         table = schema[self.table_name]
+        # Verify that we don't have a link under the same name.
+        if self.name_for_link in table:
+            raise Error("Detected unexpected column", self.name_for_link)
+        # Find the column.
         if self.name not in table:
             return
         column = table[self.name]

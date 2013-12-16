@@ -82,6 +82,7 @@ class LinkFact(Fact):
         self.is_present = is_present
         self.table_name = mangle(table_label)
         self.name = mangle(label, u'id')
+        self.name_for_column = mangle(label)
         if is_present:
             self.target_table_name = mangle(target_table_label)
             self.constraint_name = mangle([table_label, label], u'fk')
@@ -119,8 +120,10 @@ class LinkFact(Fact):
         if u'id' not in target_table:
             raise Error("Detected missing column:", "id")
         target_column = target_table[u'id']
+        # Verify that we don't have a regular column under the same name.
+        if self.name_for_column in table:
+            raise Error("Detected unexpected column", self.name_for_column)
         # Create the link column if it does not exist.
-        # FIXME: check if a non-link column with the same label exists?
         if self.name not in table:
             if driver.is_locked:
                 raise Error("Detected missing column:", self.name)
@@ -150,10 +153,15 @@ class LinkFact(Fact):
 
     def drop(self, driver):
         # Ensures that the link is absent.
+        # Find the table.
         schema = driver.get_schema()
         if self.table_name not in schema:
             return
         table = schema[self.table_name]
+        # Verify that we don't have a regular column under the same name.
+        if self.name_for_column in table:
+            raise Error("Detected unexpected column", self.name_for_column)
+        # Find the column.
         if self.name not in table:
             return
         column = table[self.name]

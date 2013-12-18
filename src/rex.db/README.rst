@@ -92,6 +92,24 @@ default, the access is restricted to authenticated users::
      | astro  | Astronomy              | ns          |
     ...
 
+:mod:`rex.db` allows you to tunnel HTSQL queries in a POST body.  This is
+especially useful for long queries that exceed the request length limit of the
+server or the browser::
+
+    >>> req = Request.blank('/db/', POST="/school%7Bname%7D?campus=%27old%27")
+    >>> req.remote_user = 'Alice'
+    >>> print req.get_response(demo)        # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: text/plain; charset=UTF-8
+    ...
+     | school                        |
+     +-------------------------------+
+     | name                          |
+    -+-------------------------------+-
+     | School of Art & Design        |
+     | College of Education          |
+     | School of Arts and Humanities |
+    ...
 
 Permissions required to access HTSQL service is controlled by configuration
 parameter ``htsql_access``.  Set ``htsql_access`` to ``None`` to disable

@@ -124,6 +124,37 @@ default, requires authenticated access::
      | astro  | Astronomy              | ns          |
     ...
 
+It is possible to tunnel HTSQL queries in a POST body::
+
+    >>> req = Request.blank('/db/', POST="/department")
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: text/plain; charset=UTF-8
+    ...
+     | department                                    |
+     +--------+------------------------+-------------+
+     | code   | name                   | school_code |
+    -+--------+------------------------+-------------+-
+     | acc    | Accounting             | bus         |
+     | arthis | Art History            | la          |
+     | astro  | Astronomy              | ns          |
+    ...
+
+When the query is in a POST body, special characters must be properly escaped::
+
+    >>> req = Request.blank('/db/', POST="/department%7Bcode,name%7D?school.code=%27ns%27")
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: text/plain; charset=UTF-8
+    ...
+     | department          |
+     +-------+-------------+
+     | code  | name        |
+    -+-------+-------------+-
+     | astro | Astronomy   |
+     | chem  | Chemistry   |
+     | mth   | Mathematics |
+     ...
 
 Setting ``htsql_access`` controls access to the HTSQL server.  To disable
 the service, set ``htsql_access`` to ``None``::

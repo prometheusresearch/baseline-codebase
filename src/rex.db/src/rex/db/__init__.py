@@ -21,6 +21,7 @@ import htsql.core.cmd.act
 import htsql.core.fmt.accept
 import htsql.core.fmt.emit
 import re
+import urllib
 
 
 class DBVal(Validate):
@@ -182,6 +183,18 @@ class HandleHTSQLLocation(HandleLocation):
         # Check if the request has access to the service.
         if not authorize(req, settings.htsql_access):
             raise HTTPUnauthorized()
+        # Unpack HTSQL queries tunneled in a POST body.
+        if (req.method == 'POST' and
+                req.path_info == '/' and req.query_string == ''):
+            path_info = req.body
+            query_string = ''
+            if '?' in path_info:
+                path_info, query_string = path_info.split('?', 1)
+            path_info = urllib.unquote(path_info)
+            req = req.copy()
+            req.method = 'GET'
+            req.path_info = path_info
+            req.query_string = query_string
         # Gateway to HTSQL.
         return req.get_response(get_db())
 

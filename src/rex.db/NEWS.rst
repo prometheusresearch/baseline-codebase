@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.1.0 (2013-XX-XX)
+==================
+
+* Allow tunneling of HTSQL queries in a POST body.
+
+
 1.0.1 (2013-11-20)
 ==================
 

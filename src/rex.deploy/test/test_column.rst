@@ -32,7 +32,7 @@ If the table is not set or set twice, an error is raised::
     Traceback (most recent call last):
       ...
     Error: Got missing table name
-    While parsing:
+    While parsing column fact:
         "<byte string>", line 1
 
     >>> driver.parse("""{ column: individual.code, of: identity, type: text }""")
@@ -40,7 +40,7 @@ If the table is not set or set twice, an error is raised::
       ...
     Error: Got mismatched table names:
         individual, identity
-    While parsing:
+    While parsing column fact:
         "<byte string>", line 1
 
 The ``type`` field is the name of the column type or a list of labels
@@ -57,14 +57,14 @@ or ``ENUM`` labels are not specified correctly::
       ...
     Error: Got missing clause:
         type
-    While parsing:
+    While parsing column fact:
         "<byte string>", line 1
 
     >>> driver.parse("""{ column: individual.sex, type: [] }""")
     Traceback (most recent call last):
       ...
     Error: Got missing enum labels
-    While parsing:
+    While parsing column fact:
         "<byte string>", line 1
 
     >>> driver.parse("""{ column: individual.sex, type: [male, female, male] }""")
@@ -72,7 +72,7 @@ or ``ENUM`` labels are not specified correctly::
       ...
     Error: Got duplicate enum labels:
         male, female, male
-    While parsing:
+    While parsing column fact:
         "<byte string>", line 1
 
 By default, a column does not permit ``NULL`` values.  Turn off flag
@@ -93,7 +93,7 @@ Field ``present: false`` cannot coexist with other column parameters::
       ...
     Error: Got unexpected clause:
         type
-    While parsing:
+    While parsing column fact:
         "<byte string>", line 1
 
     >>> driver.parse("""{ column: individual.code, required: true, present: false }""")
@@ -101,7 +101,7 @@ Field ``present: false`` cannot coexist with other column parameters::
       ...
     Error: Got unexpected clause:
         required
-    While parsing:
+    While parsing column fact:
         "<byte string>", line 1
 
 

@@ -319,7 +319,8 @@ table::
       1004,male,1000,1001
     of: individual
 
-The ``data`` clause contains the content of the table in CSV format.
+The ``data`` clause contains the content of the table in tabular (CSV) or
+structured (YAML) format.
 
 In the following sections we describe the format and behavior of different
 types of facts.
@@ -710,7 +711,7 @@ Data fact
 Data fact describes the content of a table.
 
 `data`: ``<data_path>`` or ``<data>``
-    Path to a CSV file with table data *or* table data in CSV format.
+    Path to a file with table data *or* embedded table data.
 
 `of`: ``<table_label>``
     The name of the table.
@@ -722,11 +723,17 @@ Data fact describes the content of a table.
 `present`: ``true`` (default) or ``false``
     Indicates whether the table contains the given data.
 
-Table data must be provided in CSV format.  The first line in the CSV input
-should contain the names of columns and links.  Subsequent lines should contain
-values for the respective columns and links.  Each line represents a table row.
+Table data must be provided in tabular (CSV) or structured (JSON, YAML)
+format.
 
-CSV input must include values for identity columns and links.
+When data is in CSV format, the first line in the CSV input should contain the
+names of columns and links.  Subsequent lines should contain values for the
+respective columns and links.  Each line represents a table row.
+
+When data is in structured format, it must contain either a single record or a
+list of records.  Record fields must coincide with the column and link names.
+
+Input must include values for identity columns and links.
 
 A column value must be a valid HTSQL literal value of the column type (e.g.
 ``true`` or ``false`` for a *boolean* column, date in ``YYYY-MM-DD`` format for
@@ -735,11 +742,10 @@ a *date* column, and so on).
 A link value must be specified using HTSQL identity format: a dot-separated
 combination of column and link values that form the identity of the target row.
 
-An empty value indicates that the respective column or link is to be ignored.
-It is impossible to represent a ``NULL`` value or an empty string using CSV
-format.
-
-*(TODO)* JSON and YAML formats are also supported.
+An empty value in CSV input indicates that the respective column or link is to
+be ignored.  It is impossible to represent a ``NULL`` value or an empty string
+using CSV format.  In YAML, use ``null`` and ``''`` to represent a ``NULL``
+value and an empty string respectively.
 
 Deploying a row of input when ``present`` is ``true``:
 
@@ -796,6 +802,15 @@ Examples:
             code,title
             fos,Family Obesity Study
             adsl,Autism Spectrum Disorder Lab
+
+    #. Adding table data using YAML format::
+
+        data:
+          - code: fos
+            title: Family Obesity Study
+          - code: adsl
+            title: Autism Spectrum Disorder Lab
+        of: study
 
     #. Adding table data with empty values::
 

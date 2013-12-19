@@ -26,7 +26,7 @@ The identity should have at least one label::
     Traceback (most recent call last):
       ...
     Error: Got missing identity fields
-    While parsing:
+    While parsing identity fact:
         "<byte string>", line 1
 
 The table of the identity constraint could be set either as a prefix
@@ -42,7 +42,7 @@ multiple times::
     Traceback (most recent call last):
       ...
     Error: Got missing table name
-    While parsing:
+    While parsing identity fact:
         "<byte string>", line 1
 
     >>> driver.parse("""{ identity: [individual.code], of: study }""")
@@ -50,7 +50,7 @@ multiple times::
       ...
     Error: Got mismatched table names:
         individual, study
-    While parsing:
+    While parsing identity fact:
         "<byte string>", line 1
 
 

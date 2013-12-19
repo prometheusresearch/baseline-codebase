@@ -128,7 +128,8 @@ class Driver(object):
             return spec
         for fact_type in Fact.all():
             if isinstance(spec, fact_type.validate.record_type):
-                with guard("While parsing:", locate(spec) or spec):
+                with guard("While parsing %s fact:" % fact_type.key,
+                           locate(spec) or spec):
                     fact = fact_type.build(self, spec)
                 set_location(fact, spec)
                 return fact

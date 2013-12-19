@@ -3,12 +3,16 @@
 #
 
 
-from rex.core import Error, guard, StrVal, BoolVal
+from rex.core import (Error, guard, StrVal, BoolVal, OneOrSeqVal, MapVal,
+        UnionVal, OnScalar)
 from .fact import Fact, LabelVal
 from .sql import mangle, sql_select, sql_insert, sql_update
 import os.path
 import csv
 import re
+import json
+import decimal
+import datetime
 import htsql.core.domain
 import htsql.core.util
 
@@ -21,6 +25,15 @@ class _skip_type(object):
 SKIP = _skip_type()
 
 
+class DataVal(MapVal):
+    # Like `MapVal`, but also accept `namedtuple` objects.
+
+    def __call__(self, data):
+        if hasattr(data, '_fields') or hasattr(data, '__fields__'):
+            return data
+        return super(DataVal, self).__call__(data)
+
+
 class DataFact(Fact):
     """
     Describes table content.
@@ -28,16 +41,21 @@ class DataFact(Fact):
     `table_label`: ``unicode``
         The name of the table.
     `data_path`: ``str`` or ``None``
-        Path to a CSV file with table data.
-    `data`: ``str`` or ``None``
-        Table data in CSV format.  Either ``data_path`` or ``data``
-        must be specified, but not both.
+        Path to a file with table data.  File must be in CSV, JSON or YAML
+        format (determined from the file extension).
+    `data`: ``str``, record, list of records or ``None``
+        Table data.  Either ``data_path`` or ``data`` must be specified,
+        but not both.  If ``data`` is a string, it must be in CSV format.
+        Otherwise, it's a record or a list of record.  A record could be
+        represented as a ``dict`` or as a ``namedtuple``-like object.
     `is_present`: ``bool``
         Indicates whether or not the table contains the given data.
     """
 
+    data_validate = OneOrSeqVal(DataVal(LabelVal))
+
     fields = [
-            ('data', StrVal),
+            ('data', UnionVal((OnScalar, StrVal), data_validate)),
             ('of', LabelVal, None),
             ('present', BoolVal, True),
     ]
@@ -47,15 +65,15 @@ class DataFact(Fact):
         table_label = spec.of
         data_path = None
         data = None
-        if not re.match(r'\A\S+\Z', spec.data):
-            data = spec.data
-        else:
+        if isinstance(spec.data, str) and re.match(r'\A\S+\Z', spec.data):
             data_path = spec.data
             if driver.cwd is not None:
                 data_path = os.path.join(driver.cwd, data_path)
             if table_label is None:
                 basename = os.path.splitext(os.path.basename(data_path))[0]
                 table_label = basename.decode('utf-8')
+        else:
+            data = spec.data
         if table_label is None:
             raise Error("Got missing table name")
         is_present = spec.present
@@ -66,7 +84,16 @@ class DataFact(Fact):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert (data_path is None or
                 (isinstance(data_path, str) and len(data_path) > 0))
-        assert data is None or isinstance(data, str)
+        assert (data is None or
+                isinstance(data, str) or
+                isinstance(data, dict) or
+                hasattr(data, '_fields') or
+                hasattr(data, '__fields__') or
+                (isinstance(data, list) and
+                    all(isinstance(item, dict) or
+                        hasattr(item, '_fields') or
+                        hasattr(item, '__fields__')
+                        for item in data)))
         assert (data_path is None) != (data is None)
         assert isinstance(is_present, bool)
         self.table_label = table_label
@@ -104,13 +131,13 @@ class DataFact(Fact):
             raise Error("Detected table without PRIMARY KEY constraint:", table)
 
         # Load input data.
-        rows = self._parse(driver, table)
+        rows = self._load(table)
         # If no input, assume NOOP.
         if not rows:
             return
 
         # Load existing table content.
-        self._preload(driver, table)
+        self._fetch(driver, table)
 
         # Indexes of the primary key columns.
         key_mask = [table.columns.index(column.name)
@@ -167,11 +194,9 @@ class DataFact(Fact):
                     # Update an existing row.
                     if driver.is_locked:
                         raise Error("Detected modified row")
-                    key_names = [column.name
-                                 for column in table.primary_key]
                     returning_names = [column.name for column in table]
                     output = driver.submit(sql_update(
-                            table.name, key_names, handle, names, values,
+                            table.name, u'id', old_row[0], names, values,
                             returning_names))
                     assert len(output) == 1
                     table.data.update(old_row, output[0])
@@ -195,33 +220,117 @@ class DataFact(Fact):
                 # Add the row being processed to the error trace.
                 items = []
                 for column, data in zip(table, rows[row_idx]):
-                    if data is None or data is SKIP:
+                    if data is SKIP:
                         continue
-                    dumper = self._domain(column).dump
-                    item = htsql.core.util.to_literal(dumper(data))
+                    if data is None:
+                        item = u'null'
+                    else:
+                        dumper = self._domain(column).dump
+                        item = htsql.core.util.to_literal(dumper(data))
                     items.append(item)
                 error.wrap("While processing row #%s:" % (row_idx+1),
                            u"{%s}" % u", ".join(items))
                 raise
 
-    def _parse(self, driver, table):
-        # Loads and parses CSV input.
-        if self.data_path is not None:
-            reader = csv.reader(open(self.data_path))
-        else:
-            reader = csv.reader(self.data.splitlines())
-        try:
-            labels = next(reader)
-        except StopIteration:
-            # Empty CSV file, assume NOOP.
-            return []
-        slices = list(reader)
+    def _load(self, table):
+        # Loads input data and produces a list of tuples.
 
+        # Detect data source and format.
+        data = self.data
+        if self.data_path is not None:
+            extension = os.path.splitext(self.data_path)[1]
+            if extension == '.csv':
+                data = open(self.data_path)
+            elif extension == '.json':
+                stream = open(self.data_path)
+                with guard("While parsing JSON data:", self.data_path):
+                    try:
+                        data = json.load(stream)
+                    except ValueError, exc:
+                        raise Error("Detected ill-formed JSON:", exc)
+                    data = self.data_validate(data)
+            elif extension == '.yaml':
+                stream = open(self.data_path)
+                with guard("While parsing YAML data:", self.data_path):
+                    data = self.data_validate.parse(stream)
+            else:
+                raise Error("Detected unknown data file format:",
+                            self.data_path)
+
+        rows = []
+        # Process tabular input (CSV).
+        if isinstance(data, str) or hasattr(data, 'read'):
+
+            # Read the header and the content of the table.
+            if isinstance(data, str):
+                data = data.splitlines()
+                reader = csv.reader(data)
+            else:
+                reader = csv.reader(data)
+            try:
+                labels = next(reader)
+            except StopIteration:
+                # Empty CSV file, assume NOOP.
+                return []
+            # Skip empty values.
+            slices = [tuple(item if item else SKIP for item in slice)
+                      for slice in reader]
+            # Convert a slice into a table row.
+            try:
+                for row in self._convert(table, labels, slices):
+                    rows.append(row)
+            except Error, error:
+                idx = len(rows)+1
+                if self.data_path is not None:
+                    location = "\"%s\", line #%s" % (self.data_path, idx+1)
+                else:
+                    location = data[idx]
+                error.wrap("While parsing row #%s:" % idx, location)
+                raise
+
+        # Process structured input (YAML, JSON, or a list of records).
+        else:
+            # Treat a record as a one-record list.
+            if not isinstance(data, list):
+                data = [data]
+
+            for record in data:
+                if hasattr(record, '_fields') or hasattr(record, '__fields__'):
+                    # Unpack a `namedtuple`-like object.
+                    fields = (getattr(record, '_fields', ()) or
+                              getattr(record, '__fields__', ()))
+                    items = [(field, value)
+                             for field, value in zip(fields, record)
+                             if field is not None]
+                else:
+                    # Unpack a dictionary.
+                    items = sorted(record.items())
+                # Convert a record into a table row.
+                labels, slice = zip(*items)
+                try:
+                    rows.extend(self._convert(table, labels, [slice]))
+                except Error, error:
+                    if self.data_path is not None:
+                        location = "\"%s\"" % self.data_path
+                    else:
+                        location = record
+                    error.wrap("While parsing row #%s:"
+                               % (len(rows)+1), location)
+                    raise
+
+        return rows
+
+    def _convert(self, table, labels, slices):
+        # Converts raw input into a list of table rows.
+
+        # We don't want any errors on empty input.
+        if not slices:
+            return
         # Maps a table column to a position in the slice.
         masks = {}
-        # Maps a table column to a converter to native representation.
-        parsers = {}
-        # Find table columns provided by the input CSV.
+        # Maps a table column to its HTSQL domain.
+        domains = {}
+        # Find table columns corresponding to the input labels.
         for idx, label in enumerate(labels):
             column_name = mangle(label)
             link_name = mangle(label, u'id')
@@ -234,48 +343,46 @@ class DataFact(Fact):
             if column in masks:
                 raise Error("Detected duplicate column:", column_name)
             masks[column] = idx
-            parsers[column] = self._domain(column).parse
+            domains[column] = self._domain(column)
 
         # Verify that we got PK columns.
         for column in table.primary_key:
             if column not in masks:
                 raise Error("Detected missing PRIMARY KEY column:", column)
 
-        # Convert text slices into native form.
-        rows = []
-        for idx, slice in enumerate(slices):
-            if self.data_path is not None:
-                location = "\"%s\", row %s" % (self.data_path, idx+2)
-            else:
-                location = "row %s" % (idx+2)
-            with guard("On:", location):
-                if len(slice) < len(masks):
-                    raise Error("Detected too few entries:",
-                                "%s < %s" % (len(slice), len(masks)))
-                elif len(slice) > len(masks):
-                    raise Error("Detected too many entries:",
-                                "%s > %s" % (len(slice), len(masks)))
-                # Convert the row.
-                row = []
-                for column in table.columns:
-                    if column not in masks:
-                        data = SKIP
-                    else:
-                        text = slice[masks[column]]
-                        if not text:
-                            data = SKIP
-                        else:
-                            parser = parsers[column]
-                            try:
-                                data = parser(text.decode('utf-8'))
-                            except ValueError, exc:
-                                error = Error("Detected invalid input:", exc)
-                                error.wrap("While converting column:", column)
-                                raise error
-                    row.append(data)
-                rows.append(tuple(row))
-
-        return rows
+        # Convert raw slices into native form.
+        for slice in slices:
+            if len(slice) < len(masks):
+                raise Error("Detected too few entries:",
+                            "%s < %s" % (len(slice), len(masks)))
+            elif len(slice) > len(masks):
+                raise Error("Detected too many entries:",
+                            "%s > %s" % (len(slice), len(masks)))
+            # Convert the row.
+            row = []
+            for column in table.columns:
+                if column not in masks:
+                    data = SKIP
+                else:
+                    data = slice[masks[column]]
+                    if data is not None and data is not SKIP:
+                        domain = domains[column]
+                        try:
+                            # If it's a text value, let the domain parse it.
+                            if isinstance(data, str):
+                                data = data.decode('utf-8')
+                            if isinstance(data, unicode):
+                                data = domain.parse(data)
+                            # Otherwise, verify that the value is compatible
+                            # with the domain.
+                            else:
+                                data = self._adapt(data, domain)
+                        except ValueError, exc:
+                            error = Error("Detected invalid input:", exc)
+                            error.wrap("While converting column:", column)
+                            raise error
+                row.append(data)
+            yield tuple(row)
 
     def _domain(self, column):
         # Determines HTSQL domain of the column.
@@ -313,14 +420,56 @@ class DataFact(Fact):
                 return htsql.core.domain.TimeDomain()
             elif type.name in ['timestamp', 'timestamptz']:
                 return htsql.core.domain.DateTimeDomain()
-        # Fallback domain.
+        # Fallback to opaque domain.
         return htsql.core.domain.OpaqueDomain()
+
+    @classmethod
+    def _adapt(cls, data, domain):
+        # Adapts a raw value to the given HTSQL domain.
+        if data is None:
+            return None
+        if isinstance(data, str):
+            data = data.decode('utf-8')
+        if isinstance(data, unicode):
+            return domain.parse(data)
+        if isinstance(domain, htsql.core.domain.BooleanDomain):
+            if isinstance(data, bool):
+                return data
+        elif isinstance(domain, htsql.core.domain.IntegerDomain):
+            if isinstance(data, (int, long)):
+                return data
+        elif isinstance(domain, htsql.core.domain.FloatDomain):
+            if isinstance(data, float):
+                return data
+            elif isinstance(data, (int, long, decimal.Decimal)):
+                return float(data)
+        elif isinstance(domain, htsql.core.domain.DecimalDomain):
+            if isinstance(data, decimal.Decimal):
+                return data
+            if isinstance(data, (int, long, float)):
+                return decimal.Decimal(data)
+        elif isinstance(domain, htsql.core.domain.DateDomain):
+            if isinstance(data, datetime.date):
+                return data
+        elif isinstance(domain, htsql.core.domain.TimeDomain):
+            if isinstance(data, datetime.time):
+                return data
+        elif isinstance(domain, htsql.core.domain.DateTimeDomain):
+            if isinstance(data, datetime.datetime):
+                return data
+        elif isinstance(domain, htsql.core.domain.IdentityDomain):
+            if (isinstance(data, (list, tuple)) and
+                    len(data) == len(domain.labels) and
+                    None not in data):
+                return tuple(cls._adapt(item, label)
+                             for item, label in zip(data, domain.labels))
+        raise ValueError(repr(data))
 
     def _resolve(self, driver, table, identity):
         # Finds a row by identity.
 
         # Pre-load table data if necessary.
-        self._preload(driver, table)
+        self._fetch(driver, table)
 
         # Determine the PK value.
         handle = []
@@ -340,7 +489,7 @@ class DataFact(Fact):
         else:
             return row[0]
 
-    def _preload(self, driver, table):
+    def _fetch(self, driver, table):
         # Pre-loads table data if necessary.
         if table.data is None:
             data = driver.submit(sql_select(

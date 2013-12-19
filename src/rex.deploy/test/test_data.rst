@@ -20,8 +20,7 @@ Field ``data`` denotes a data fact::
     >>> driver.parse("""{ data: ./deploy/individual.csv }""")
     DataFact(u'individual', data_path='./deploy/individual.csv')
 
-You could specify either a path to a CSV file or embed CSV data
-directly::
+You could either specify the path to a data file or embed input data::
 
     >>> driver.parse("""
     ... data: |
@@ -31,19 +30,19 @@ directly::
     ... """)
     DataFact(u'study', data='code,name\nasdl,Autism Spectrum Disorder Lab\n')
 
-If the ``of`` field omitted, the table name is inferred from
-the file name.  If you embed CSV data in ``data`` field, you
-must provide the table name via ``of`` field::
+If the ``of`` field omitted, the table name is inferred from the file name.  If
+you embed input data in ``data`` field, you must provide the table name via
+``of`` field::
 
     >>> driver.parse("""
-    ... data: |
-    ...   code,name
-    ...   asdl,Autism Spectrum Disorder Lab
+    ... data:
+    ...   code: asdl
+    ...   name: Autism Spectrum Disorder Lab
     ... """)
     Traceback (most recent call last):
       ...
     Error: Got missing table name
-    While parsing:
+    While parsing data fact:
         "<byte string>", line 2
 
 
@@ -74,6 +73,7 @@ We create tables with columns and links::
     ... - { column: sample.birth, type: date }
     ... - { column: sample.sleep, type: time }
     ... - { column: sample.timestamp, type: datetime }
+    ... - { column: sample.current, type: boolean }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE TABLE "family" ...
     CREATE TABLE "individual" ...
@@ -124,14 +124,14 @@ However if data is changed, the respective table record is updated::
     ... """)
     UPDATE "family"
         SET "notes" = 'Browns'
-        WHERE "code" = '1002'
+        WHERE "id" = 2
         RETURNING "id", "code", "notes";
     UPDATE "family"
         SET "notes" = 'Clarks'
-        WHERE "code" = '1003'
+        WHERE "id" = 3
         RETURNING "id", "code", "notes";
 
-Note that empty values are ignored here.
+Note that empty values in CSV input are ignored.
 
 It is an error if the data table does not exist or lacks identity::
 
@@ -201,8 +201,72 @@ If the driver is locked, it cannot modify existing or add new records::
         "<byte string>", line 2
 
 
-Links and data types
-====================
+Loading data
+============
+
+``rex.deploy`` can load input data from a CSV, JSON or YAML file::
+
+    >>> from rex.core import SandboxPackage
+    >>> sandbox = SandboxPackage()
+    >>> driver.chdir(sandbox.static)
+
+    >>> sandbox.rewrite('./deploy/family.csv', """\
+    ... code,notes
+    ... 1001,Andersons
+    ... """)
+    >>> driver("""{ data: ./deploy/family.csv }""")
+
+    >>> sandbox.rewrite('./deploy/family.json', """\
+    ... { "code": "1002", "notes": "Browns" }
+    ... """)
+    >>> driver("""{ data: ./deploy/family.json }""")
+
+    >>> sandbox.rewrite('./deploy/family.yaml', """\
+    ... code: '1003'
+    ... notes: Clarks
+    ... """)
+    >>> driver("""{ data: ./deploy/family.yaml }""")
+
+File format is determined from the file extension.  Unknown extensions are
+reported::
+
+    >>> driver("""{ data: ./deploy/family.xsl }""")     # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Detected unknown data file format:
+        /.../deploy/family.xsl
+    While deploying data fact:
+        "<byte string>", line 1
+
+Ill-formed input data raises an exception::
+
+    >>> sandbox.rewrite('./deploy/broken/family.json', """{]""")
+    >>> driver("""{ data: ./deploy/broken/family.json }""") # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Detected ill-formed JSON:
+        Expecting property name: line 1 column 2 (char 1)
+    While parsing JSON data:
+        /.../deploy/broken/family.json
+    While deploying data fact:
+        "<byte string>", line 1
+
+    >>> sandbox.rewrite('./deploy/broken/family.yaml', """{]""")
+    >>> driver("""{ data: ./deploy/broken/family.yaml }""") # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        while parsing a flow node
+        did not find expected node content
+          in "/.../deploy/broken/family.yaml", line 1, column 2
+    While parsing YAML data:
+        /.../deploy/broken/family.yaml
+    While deploying data fact:
+        "<byte string>", line 1
+
+
+Column and link values
+======================
 
 Links are resolved to ``id`` values::
 
@@ -247,83 +311,54 @@ Values of different types are accepted::
 
     >>> driver("""
     ... data: |
-    ...   individual,code,age,height,salary,birth,sleep,timestamp
-    ...   1003.03,01,30,175.05,95000,1990-03-13,22:30,2013-12-03 20:37
+    ...   individual,code,age,height,salary,birth,sleep,timestamp,current
+    ...   1003.03,01,30,175.05,95000,1990-03-13,22:30,2010-12-03 20:37,false
     ... of: sample
     ... """)
-    SELECT "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp"
+    SELECT "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current"
         FROM "sample";
-    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp")
-        VALUES (3, '01', 30, 175.05, 95000, '1990-03-13', '22:30:00', '2013-12-03 20:37:00')
-        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp";
+    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current")
+        VALUES (3, '01', 30, 175.05, 95000, '1990-03-13', '22:30:00', '2010-12-03 20:37:00', FALSE)
+        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current";
 
-
-Parsing CSV
-===========
-
-Empty data is accepted::
-
-    >>> driver("""{ data: "", of: family }""")
-
-Unknown and duplicate columns are detected::
-
-    >>> driver("""{ data: "code,name\\n", of: family }""")
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing column:
-        name
-    While deploying data fact:
-        "<byte string>", line 1
-
-    >>> driver("""{ data: "code,code\\n", of: family }""")
-    Traceback (most recent call last):
-      ...
-    Error: Detected duplicate column:
-        code
-    While deploying data fact:
-        "<byte string>", line 1
-
-All columns from the ``PRIMARY KEY`` must be included::
-
-    >>> driver("""{ data: "code,sex,father,mother\\n", of: individual }""")
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing PRIMARY KEY column:
-        family_id
-    While deploying data fact:
-        "<byte string>", line 1
-
-Each CSV row must have correct number of entries::
+Values could be specified in a structured format::
 
     >>> driver("""
-    ... data: |
-    ...   code
-    ...   1001,Andersons
-    ... of: family
+    ... data:
+    ...   individual: '1003.03'
+    ...   code: '02'
+    ...   age: 33
+    ...   height: 175.05
+    ...   salary: 130000
+    ...   birth: 1990-03-13
+    ...   sleep: '23:15'
+    ...   timestamp: 2013-12-17 12:50:03
+    ...   current: false
+    ... of: sample
     ... """)
-    Traceback (most recent call last):
-      ...
-    Error: Detected too many entries:
-        2 > 1
-    On:
-        row 2
-    While deploying data fact:
-        "<byte string>", line 2
+    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current")
+        VALUES (3, '02', 33, 175.05, 130000, '1990-03-13', '23:15:00', '2013-12-17 12:50:03', FALSE)
+        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current";
 
-    >>> driver("""
-    ... data: |
-    ...   family,code,sex
-    ...   1001,01
-    ... of: individual
+You could also supply data directly from HTSQL query::
+
+    >>> from rex.core import Rex
+    >>> demo = Rex('rex.deploy_demo')
+
+    >>> from rex.db import get_db
+    >>> with demo:
+    ...     db = get_db()
+
+    >>> data = db.produce("""
+    ... /{[1003.03] :as individual, '03' :as code,
+    ...   33 :as age, 175.05 :as height, 130000 :as salary,
+    ...   date('1990-03-13') :as birth, time('23:45') :as sleep,
+    ...   datetime('2013-12-19 13:22') :as timestamp, true: as current}
     ... """)
-    Traceback (most recent call last):
-      ...
-    Error: Detected too few entries:
-        2 < 3
-    On:
-        row 2
-    While deploying data fact:
-        "<byte string>", line 2
+    >>> driver({ 'data': list(data), 'of': u"sample" })
+    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current")
+        VALUES (3, '03', 33, 175.05, 130000, '1990-03-13', '23:45:00', '2013-12-19 13:22:00', TRUE)
+        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current";
 
 Invalid values are rejected::
 
@@ -339,8 +374,115 @@ Invalid values are rejected::
         invalid enum literal: expected one of 'male', 'female'; got 'f'
     While converting column:
         sex
-    On:
-        row 2
+    While parsing row #1:
+        1001,01,f
+    While deploying data fact:
+        "<byte string>", line 2
+
+    >>> driver("""
+    ... data:
+    ...   individual: '1003.03'
+    ...   code: 1990-03-13
+    ... of: sample
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Detected invalid input:
+        datetime.date(1990, 3, 13)
+    While converting column:
+        code
+    While parsing row #1:
+        {u'code': datetime.date(1990, 3, 13), u'individual': '1003.03'}
+    While deploying data fact:
+        "<byte string>", line 2
+
+
+Processing input data
+=====================
+
+Empty input is accepted::
+
+    >>> driver("""{ data: "", of: family }""")
+    >>> driver("""{ data: "code,notes\n", of: family }""")
+
+Unknown and duplicate columns are detected::
+
+    >>> driver("""
+    ... data: |
+    ...   code,name
+    ...   1001,Johnsons
+    ... of: family
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Detected missing column:
+        name
+    While parsing row #1:
+        1001,Johnsons
+    While deploying data fact:
+        "<byte string>", line 2
+
+    >>> driver("""
+    ... data: |
+    ...   code,code
+    ...   1001,2002
+    ... of: family
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Detected duplicate column:
+        code
+    While parsing row #1:
+        1001,2002
+    While deploying data fact:
+        "<byte string>", line 2
+
+All columns from the ``PRIMARY KEY`` must be included::
+
+    >>> driver("""
+    ... data: |
+    ...   code,sex,father,mother
+    ...   01,f,,
+    ... of: individual
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Detected missing PRIMARY KEY column:
+        family_id
+    While parsing row #1:
+        01,f,,
+    While deploying data fact:
+        "<byte string>", line 2
+
+Each CSV row must have correct number of entries::
+
+    >>> driver("""
+    ... data: |
+    ...   code
+    ...   1001,Andersons
+    ... of: family
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Detected too many entries:
+        2 > 1
+    While parsing row #1:
+        1001,Andersons
+    While deploying data fact:
+        "<byte string>", line 2
+
+    >>> driver("""
+    ... data: |
+    ...   family,code,sex
+    ...   1001,01
+    ... of: individual
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Detected too few entries:
+        2 < 3
+    While parsing row #1:
+        1001,01
     While deploying data fact:
         "<byte string>", line 2
 

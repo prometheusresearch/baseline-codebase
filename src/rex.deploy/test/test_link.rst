@@ -33,7 +33,7 @@ It is also an error if they are both specified::
     Traceback (most recent call last):
       ...
     Error: Got missing table name
-    While parsing:
+    While parsing link fact:
         "<byte string>", line 1
 
     >>> driver.parse("""{ link: sample.individual, of: measure }""")
@@ -41,7 +41,7 @@ It is also an error if they are both specified::
       ...
     Error: Got mismatched table names:
         sample, measure
-    While parsing:
+    While parsing link fact:
         "<byte string>", line 1
 
 The target of the link could be omitted if its name coincides with
@@ -68,7 +68,7 @@ Field ``present: false`` cannot coexist with other link parameters::
       ...
     Error: Got unexpected clause:
         to
-    While parsing:
+    While parsing link fact:
         "<byte string>", line 1
 
     >>> driver.parse("""{ link: individual.code, required: true, present: false }""")
@@ -76,7 +76,7 @@ Field ``present: false`` cannot coexist with other link parameters::
       ...
     Error: Got unexpected clause:
         required
-    While parsing:
+    While parsing link fact:
         "<byte string>", line 1
 
 

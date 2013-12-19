@@ -314,18 +314,16 @@ def sql_update(table_name, key_name, key_value, names, values,
         WHERE {key_name} = {key_value}
         RETURNING {returning_name}, ...
     """
+    if not (names and values):
+        names = [key_name]
+        values = [key_value]
     lines = []
     lines.append(u"UPDATE {}".format(sql_name(table_name)))
-    if names and values:
-        lines.append(u"    SET {}"
-                    .format(u", ".join(u"{} = {}"
-                                        .format(sql_name(name),
-                                                sql_value(value))
-                                       for name, value in zip(names, values))))
-    else:
-        lines.append(u"    SET {} = {}"
-                    .format(sql_name(key_name),
-                            sql_value(key_value)))
+    lines.append(u"    SET {}"
+                .format(u", ".join(u"{} = {}"
+                                    .format(sql_name(name),
+                                            sql_value(value))
+                                   for name, value in zip(names, values))))
     lines.append(u"    WHERE {} = {}"
                 .format(sql_name(key_name),
                         sql_value(key_value)))

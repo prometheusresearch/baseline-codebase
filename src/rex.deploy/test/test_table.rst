@@ -34,7 +34,7 @@ Nested facts must deploy columns, links or data of the table being deployed::
       ...
     Error: Got unrelated fact:
         "<byte string>", line 2
-    While parsing:
+    While parsing table fact:
         "<byte string>", line 1
 
     >>> driver.parse("""{ table: individual,
@@ -43,7 +43,7 @@ Nested facts must deploy columns, links or data of the table being deployed::
       ...
     Error: Got unrelated fact:
         "<byte string>", line 2
-    While parsing:
+    While parsing table fact:
         "<byte string>", line 1
 
 Turn off flag ``present`` to indicate that the table is to be deleted::
@@ -59,7 +59,7 @@ You cannot combine ``present: false`` with the ``with`` field::
       ...
     Error: Got unexpected clause:
         with
-    While parsing:
+    While parsing table fact:
         "<byte string>", line 1
 
 

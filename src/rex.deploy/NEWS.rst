@@ -9,6 +9,7 @@
 ==================
 
 * Prevent creation of both a regular column and a link under the same label.
+* Data fact accepts input in YAML and JSON formats.
 
 
 1.0.0 (2013-12-13)

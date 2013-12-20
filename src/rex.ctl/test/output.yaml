@@ -51,6 +51,7 @@ tests:
         wsgi [<project>]         : generate a WSGI script
 
       Settings:
+        --config=CONFIG_FILE     : config file to retrieve settings from
         --debug                  : print debug information
         --http-host=HOSTNAME     : HTTP server address
         --http-port=PORT         : HTTP server port

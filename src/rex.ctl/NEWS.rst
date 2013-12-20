@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.1.1 (2013-12-20)
+==================
+
+* Require the latest version of Cogs.
+
+
 1.1.0 (2013-12-13)
 ==================
 

@@ -160,6 +160,14 @@ li.answer-item label {
     margin-top: 0px;
 }
 
+.rf-question.rf-type-description {
+    padding-top: 10px;
+}
+.rf-question.rf-type-description.rf-question-slave {
+    border-top: inherit;
+    padding-top: 10px;
+}
+
 #questions > .rf-page:first-child > .rf-question:first-child {
     border-top: 0px;
     padding-top: 0px;

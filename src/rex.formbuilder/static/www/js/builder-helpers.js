@@ -62,6 +62,10 @@ builder.isListType = function(type) {
     return (type === 'set' || type == 'enum'); 
 }
 
+builder.isDescriptiveType = function(type) {
+    return (type === 'description');
+};
+
 builder.isEmpty = function (obj) {
     for (var _ in obj)
         return false;

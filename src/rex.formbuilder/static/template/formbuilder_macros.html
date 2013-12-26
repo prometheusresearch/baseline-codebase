@@ -242,8 +242,10 @@
                                 <div class="rb_question_table_left_inner">
                                     <h3>Title</h3>
                                     <textarea type="text" name="question-title" class="rb_question_input" /></textarea>
-                                    <h3>Help</h3>
-                                    <textarea type="text" name="question-help" class="rb_question_input" /></textarea>
+                                    <div>
+                                        <h3>Help</h3>
+                                        <textarea type="text" name="question-help" class="rb_question_input" /></textarea>
+                                    </div>
                                     <table class="question-selects">
                                         <h3 class="question-type-header rb_with_top_margin">Question type</h3>
                                         <select name="question-type"></select>
@@ -297,9 +299,11 @@
 												<span title="Questions are numbered automatically. If a question is dependent on another question and numbering is unnecessary, this option can be used to remove the numbering. For example, "please specify" questions immediately after a set question."><input type="checkbox" name="question-slave" /> Slave</span>
 											</div>
 										</div>
-										<h3 title="Rules you can specify to place restrictions on choices selected or values entered.">Constraints</h3>
-										<a class="rb-question-constraint" href="javascript:void(0);">No constraints</a>
-										<button class="rb-question-constraint-change">Change</button>
+                                        <div class="rb-constraint-logic">
+    										<h3 title="Rules you can specify to place restrictions on choices selected or values entered.">Constraints</h3>
+	    									<a class="rb-question-constraint" href="javascript:void(0);">No constraints</a>
+		    								<button class="rb-question-constraint-change">Change</button>
+                                        </div>
 										<div class="rb-disable-logic">
 											<span title="A question may be greyed out until a lead question is answered based on logic configured in this option."><h3>Disable conditions</h3></span>
 											<a class="rb-question-disable-if" href="javascript:void(0);">Never disabled</a> 

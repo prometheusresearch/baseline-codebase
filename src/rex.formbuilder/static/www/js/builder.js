@@ -198,6 +198,11 @@ RepeatingGroupQuestion.prototype.renameIdentifier = function (oldName, newName) 
     }
 };
 
+var DescriptiveText = function(def, templates) {
+    Question.call(this, def, templates);
+};
+builder.extend(DescriptiveText, Question);
+
 var Page = function (o) {
     var self = this;
     this.parent = null;
@@ -674,6 +679,10 @@ builder.questionTypes = {
     'rep_group': { 
         title: 'Repeating Group of Questions',
         cls: RepeatingGroupQuestion
+    },
+    'description': {
+        title: 'Descriptive Text',
+        cls: DescriptiveText
     }
 };
 builder.createQuestion = function (def, templates) {
@@ -1501,7 +1510,7 @@ var QuestionContainer = function (o) {
         return ret;
     };
     self.openQuestionEditor = function (question, mode, after) {
-        console.log('openQuestionEditor(question=', question, 'mode=', mode, 'after=', after);
+        // console.log('openQuestionEditor(question=', question, 'mode=', mode, 'after=', after);
         if (!self.closeQuestionEditor())
             return;
         // console.log('openQuestionEditor 2', question);
@@ -1525,7 +1534,7 @@ var QuestionContainer = function (o) {
             questionNode.detach();
         } else {
             if (after) {
-                console.log('adding after', after.getNode()[0]);
+                // console.log('adding after', after.getNode()[0]);
                 after.getNode().after(self.editor.node);
             } else {
                 self.listNode.append(self.editor.node);
@@ -1856,15 +1865,43 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
     nodeType.change(function () {
         var type = nodeType.val();
         if (builder.isListType(type)) {
+            labelDropDown.toggle(type === 'enum')
             answerEditor.show();
-            nodeSubquestions.css('display', 'none');
             answerEditor.setSeparator( type === "enum" ? '-': '_' );
-            labelDropDown.css('display', (type === "enum") ? '': 'none' );
-        } else {
-            labelDropDown.css('display', 'none');
+
+            nodeHelp.parent().show();
+            nodeRequired.parent().show();
+            nodeSlave.parent().show();
+            nodeAnnotation.parent().show();
+            nodeExplanation.parent().show();
+            self.node.find('.rb-constraint-logic').show();
+            self.node.find('.rb-custom-titles-wrap').show();
+
+        } else if (builder.isDescriptiveType(type)) {
+            labelDropDown.hide();
             answerEditor.hide();
-            nodeSubquestions.css('display', (type === "rep_group") ?
-                                                '': 'none');
+            nodeSubquestions.hide();
+
+            nodeHelp.parent().hide();
+            nodeRequired.parent().hide();
+            nodeSlave.parent().hide();
+            nodeAnnotation.parent().hide();
+            nodeExplanation.parent().hide();
+            self.node.find('.rb-constraint-logic').hide();
+            self.node.find('.rb-custom-titles-wrap').hide();
+
+        } else {
+            labelDropDown.hide();
+            answerEditor.hide();
+            nodeSubquestions.toggle(type === 'rep_group');
+
+            nodeHelp.parent().show();
+            nodeRequired.parent().show();
+            nodeSlave.parent().show();
+            nodeAnnotation.parent().show();
+            nodeExplanation.parent().show();
+            self.node.find('.rb-constraint-logic').show();
+            self.node.find('.rb-custom-titles-wrap').show();
         }
     });
 
@@ -2008,8 +2045,8 @@ var PageEditor = function (o) {
         maxVisibleTextLen: 60,
         emptyValueText: 'Never skipped',
         onChange: function (newValue) {
-            console.log('self.page', self.page);
-            console.log('setting new value', newValue);
+            // console.log('self.page', self.page);
+            // console.log('setting new value', newValue);
             if (self.page)
                 self.page.setSkipIf(newValue);
         }

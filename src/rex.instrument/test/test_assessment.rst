@@ -75,9 +75,7 @@ create assessment with improper data::
     ...                         last_modified=None)
     Traceback (most recent call last):
         ...
-    ValidationError: test '#/required' failed on '#':
-      object lacks property 'annotations'
-
+    AssessmentError: Assessment data is invalid: {}
 
     >>> assessment_data['annotations'] = {}
     >>> assessment = Assessment(id='1',
@@ -87,8 +85,7 @@ create assessment with improper data::
     ...                         last_modified=None)
     Traceback (most recent call last):
         ...
-    ValidationError: test '#/required' failed on '#':
-      object lacks property 'explanations'
+    AssessmentError: Assessment data is invalid: {"annotations": {}}
 
     >>> assessment_data['explanations'] = {}
     >>> assessment = Assessment(id='1',
@@ -98,8 +95,7 @@ create assessment with improper data::
     ...                         last_modified=None)
     Traceback (most recent call last):
         ...
-    ValidationError: test '#/required' failed on '#':
-      object lacks property 'answers'
+    AssessmentError: Assessment data is invalid: {"explanations": {}, "annotations": {}}
 
     >>> assessment_data['answers'] = {'0': '2'}
     >>> assessment = Assessment(id='1',
@@ -109,8 +105,7 @@ create assessment with improper data::
     ...                         last_modified=None)
     Traceback (most recent call last):
         ...
-    ValidationError: test '#/properties/answers/additionalProperties' failed on '#/answers':
-      object has unexpected property '0'
+    AssessmentError: Assessment data is invalid: {"explanations": {}, "annotations": {}, "answers": {"0": "2"}}
 
     >>> assessment_data['answers'] = {'1': '2'}
     >>> assessment = Assessment(id='1',
@@ -120,8 +115,7 @@ create assessment with improper data::
     ...                         last_modified=None)
     Traceback (most recent call last):
         ...
-    ValidationError: test '#/properties/answers/properties/1/enum' failed on '#/answers/1':
-      value is not expected
+    AssessmentError: Assessment data is invalid: {"explanations": {}, "annotations": {}, "answers": {"1": "2"}}
 
     >>> assessment_data['answers'] = {'1': '0'}
     >>> assessment = Assessment(id='1',
@@ -129,4 +123,13 @@ create assessment with improper data::
     ...                         data=assessment_data,
     ...                         status='progressed',
     ...                         last_modified=None)
+
+    >>> assessment.is_completed
+    False
+
+    >>> assessment.json
+    '{\n  "annotations": {},\n  "answers": {\n    "1": "0"\n  },\n  "explanations": {}\n}'
+
+    >>> Assessment.empty_data()
+    {'instrument': None, 'version': None, 'explanations': {}, 'annotations': {}, 'answers': {}}
 

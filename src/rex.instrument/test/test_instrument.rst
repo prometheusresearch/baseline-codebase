@@ -182,6 +182,8 @@ create instrument with improper data::
         object lacks property 'type'
       test '#/definitions/question/anyOf/4/required' failed on '#/pages/0/questions/0':
         object lacks property 'type'
+      test '#/definitions/question/anyOf/5/required' failed on '#/pages/0/questions/0':
+        object lacks property 'type'
 
 proper question types: "integer",
                        "float",
@@ -218,6 +220,8 @@ example of improper question type::
         value is not expected
       test '#/definitions/groupType/enum' failed on '#/pages/0/questions/0/type':
         value is not expected
+      test '#/definitions/descriptionType/enum' failed on '#/pages/0/questions/0/type':
+        value is not expected
 
     >>> question['type'] = 'date'
     >>> instrument = Instrument(id="i", version=1,
@@ -235,6 +239,8 @@ example of improper question type::
       test '#/definitions/question/anyOf/3/required' failed on '#/pages/0/questions/0':
         object lacks property 'name'
       test '#/definitions/question/anyOf/4/required' failed on '#/pages/0/questions/0':
+        object lacks property 'name'
+      test '#/definitions/question/anyOf/5/required' failed on '#/pages/0/questions/0':
         object lacks property 'name'
 
     >>> question['name'] = 1
@@ -262,6 +268,8 @@ example of improper question type::
         object lacks property 'title'
       test '#/definitions/question/anyOf/4/required' failed on '#/pages/0/questions/0':
         object lacks property 'title'
+      test '#/definitions/question/anyOf/5/required' failed on '#/pages/0/questions/0':
+        object lacks property 'title'
 
     >>> question['title'] = 'Date'
     >>> instrument = Instrument(id="i", version=1,
@@ -280,6 +288,8 @@ example of improper question type::
         object lacks property 'required'
       test '#/definitions/question/anyOf/4/required' failed on '#/pages/0/questions/0':
         object lacks property 'required'
+      test '#/definitions/descriptionType/enum' failed on '#/pages/0/questions/0/type':
+        value is not expected
 
     >>> question['required'] = True
     >>> instrument = Instrument(id="i", version=1,

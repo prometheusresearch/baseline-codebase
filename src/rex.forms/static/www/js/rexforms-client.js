@@ -215,13 +215,18 @@ function rexlize(val) {
 function collectAnswers (questions) {
     var answers = {};
     $.each(questions, function (_, question) {
+        if (!question.collectAnswer) {
+            return;
+        }
+
         var value = question.getValue();
         if (value instanceof Object && !(value instanceof Array)) {
             $.each(value, function (key, value) {
                 answers[question.name + '_' + key] = value;
             });
-        } else
+        } else {
             answers[question.name] = value;
+        }
     });
     return answers;
 }
@@ -229,6 +234,10 @@ function collectAnswers (questions) {
 function collectAnnotations(questions) {
     var annotations = {};
     $.each(questions, function (_, question) {
+        if (!question.collectAnswer) {
+            return;
+        }
+
         var annotation = question.getAnnotation();
         if (annotation)
             annotations[question.name] = annotation;
@@ -239,6 +248,10 @@ function collectAnnotations(questions) {
 function collectExplanations(questions) {
     var explanations = {};
     $.each(questions, function (_, question) {
+        if (!question.collectAnswer) {
+            return;
+        }
+
         var explanation = question.getExplanation();
         if (explanation)
             explanations[question.name] = explanation;
@@ -876,6 +889,26 @@ var TimeDDomain = function() {
 };
 extend(TimeDDomain, DualNumberDomain);
 
+var DescriptionDomain = function() {
+    Domain.call(this, 'description');
+};
+extend(DescriptionDomain, Domain);
+DescriptionDomain.prototype.renderEdit = function(templates, value, onChange, customTitles) {
+    return $('<div>');
+};
+DescriptionDomain.prototype.setEditValue = function(node, value, options) {
+    // no-op
+};
+DescriptionDomain.prototype.setViewValue = function(node, value) {
+    // no-op
+};
+DescriptionDomain.prototype.extractValue = function(node) {
+    return null;
+};
+DescriptionDomain.prototype.isValidValue = function(value) {
+    return true;
+};
+
 var domain = {
     all: {
         'integer': NumberDomain,
@@ -891,6 +924,7 @@ var domain = {
         'time_month' : TimeDomain,
         'time_minutes' : TimeMDomain,
         'time_days' : TimeDDomain,
+        'description': DescriptionDomain
     },
 
     get: function(type, options) {
@@ -1033,35 +1067,60 @@ var Form = function(config, data, title, paramValues, templates, showNumbers, on
 
     function page(item, data, skipExpr, onFormChange, onPageUpdate) {
         var questions = $.map(item.questions, function(questionDef) {
-            var slave = questionDef.slave || false;
             var questionName = questionDef.name;
-            var params = {
-                slave: slave,
-                index: (showNumbers && !slave) ? self.nextQuestionIndex++ : null,
-                name: questionName,
-                title: questionDef.title,
-                disableExpr: questionDef.disableIf || null,
-                hideExpr: questionDef.hideIf || null,
-                validateExpr: questionDef.constraints || null,
-                required: questionDef.required || false,
-                askAnnotation: questionDef.annotation || false,
-                annotation: null,
-                explanation: null,
-                /*
-                annotation: data.annotations ?
-                                data.annotations[questionName] || null:
-                                null,
-                explanation: data.explanations ?
-                                data.explanations[questionName] || null:
-                                null,
-                */
-                askExplanation: questionDef.explanation || false,
-                onFormChange: onFormChange,
-                templates: templates,
-                customTitles: questionDef.customTitles || null,
-                parent: self,
-                help: questionDef.help || null
-            };
+            var params = {};
+            if (questionDef.type == 'description') {
+                params = {
+                    slave: false,
+                    index: null,
+                    name: questionName,
+                    title: questionDef.title,
+                    disableExpr: questionDef.disableIf || null,
+                    hideExpr: questionDef.hideIf || null,
+                    validateExpr: null,
+                    required: false,
+                    askAnnotation: false,
+                    annotation: null,
+                    explanation: null,
+                    askExplanation: false,
+                    onFormChange: onFormChange,
+                    templates: templates,
+                    customTitles: null,
+                    parent: self,
+                    help: null,
+                    collectAnswer: false
+                };
+            } else {
+                var slave = questionDef.slave || false;
+                params = {
+                    slave: slave,
+                    index: (showNumbers && !slave) ? self.nextQuestionIndex++ : null,
+                    name: questionName,
+                    title: questionDef.title,
+                    disableExpr: questionDef.disableIf || null,
+                    hideExpr: questionDef.hideIf || null,
+                    validateExpr: questionDef.constraints || null,
+                    required: questionDef.required || false,
+                    askAnnotation: questionDef.annotation || false,
+                    annotation: null,
+                    explanation: null,
+                    /*
+                    annotation: data.annotations ?
+                                    data.annotations[questionName] || null:
+                                    null,
+                    explanation: data.explanations ?
+                                    data.explanations[questionName] || null:
+                                    null,
+                    */
+                    askExplanation: questionDef.explanation || false,
+                    onFormChange: onFormChange,
+                    templates: templates,
+                    customTitles: questionDef.customTitles || null,
+                    parent: self,
+                    help: questionDef.help || null
+                };
+            }
+
             // TODO: set data[value, annotation, explanation]
             var question = null;
             if (questionDef.type === "rep_group") {
@@ -1267,6 +1326,11 @@ var BaseQuestion = function(params) {
     this.templates = params.templates || defaultTemplates;
     this.customTitles = params.customTitles || {};
     this.help = params.help || null;
+    if (params.collectAnswer === undefined || params.collectAnswer === null) {
+        this.collectAnswer = true;
+    } else {
+        this.collectAnswer = params.collectAnswer;
+    }
 }
 
 BaseQuestion.prototype.initAnnotation = function (annotation) {

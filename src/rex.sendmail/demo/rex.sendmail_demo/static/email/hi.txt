@@ -1,0 +1,5 @@
+From: Alice Anderson <alice@example.net>
+To: {{ name }} <{{ email }}>
+Subject: Hi there!
+
+Hi {{ name.split()[0] }}!

@@ -115,7 +115,14 @@ function calculateRexlExpr(expr, context, params) {
         if(!question) {
             alert("No such question: " + name[0]);
         }
-        var rexlValue = question.getRexlValue(name.slice(1, name.length));
+        var rexlValue;
+        try {
+            rexlValue = question.getRexlValue(name.slice(1, name.length));
+        } catch(e) {
+            alert("An error occured during expression evaluation: " + expr + "\n " +
+                  "(question: " + question.name  + ")");
+            throw e;
+        }
         return rexlValue;
     });
     return ret;
@@ -209,6 +216,7 @@ function rexlize(val) {
     else if ('boolean' === type)
         return rexl.Boolean.value(val);
 
+    console.log('wrong val', val);
     throw('RexlTypeError');
 }
 

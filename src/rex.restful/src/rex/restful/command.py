@@ -81,13 +81,13 @@ class RestfulLocation(Command):
         payload = {}
 
         if request.method.upper() in ('POST', 'PUT'):
-            serializer = Serializer.get_for_mime_type(
-                request.headers['Content-Type']
-            )
-            if serializer:
-                serializer = serializer()
-                content_type = serializer.mime_type
-                payload = serializer.deserialize(request.body)
+            content_type = request.headers.get('Content-Type')
+            if content_type:
+                serializer = Serializer.get_for_mime_type(content_type)
+                if serializer:
+                    serializer = serializer()
+                    content_type = serializer.mime_type
+                    payload = serializer.deserialize(request.body)
 
         # TODO: we should be able to validate the payload
         # in the same sort of way that we validate the parameters.

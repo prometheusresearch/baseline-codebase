@@ -46,12 +46,6 @@ def sendmail(message):
     tos.extend(message.get_all('recent-bcc', []))
     del message['bcc']
     del message['recent-bcc']
-    #settings = get_settings()
-    #if settings.forward:
-    #    if isinstance(settings.forward, str):
-    #        tos.append(settings.forward)
-    #    else:
-    #        tos.extend(settings.forward)
     sender = email.utils.parseaddr(from_)[1]
     if not sender:
         raise Error("Email sender is not specified:",
@@ -289,25 +283,6 @@ class SendmailSetting(Setting):
     """
     validate = MaybeVal(StrVal(pattern))
     default = "smtp:127.0.0.1"
-
-
-class ForwardSetting(Setting):
-    """
-    Extra BCC addresses.
-
-    This parameter allows you to forward all outgoing messages
-    to the specified address or a list of addresses.  Examples::
-
-        forward: alice@prometheusresearch.com
-
-        forward: [bob@prometheusresearch.com,
-                  clarence@prometheusresearch.com]
-    """
-
-    # FIXME: remove or enable?
-    #name = 'forward'
-    #validate = OneOrSeqVal(StrVal(r"\S+ @ [\w.-]+"))
-    #default = None
 
 
 @cached

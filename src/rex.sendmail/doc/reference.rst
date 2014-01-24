@@ -26,6 +26,5 @@ Settings
 ========
 
 .. autoclass:: SendmailSetting
-.. .. autoclass:: ForwardSetting
 
 

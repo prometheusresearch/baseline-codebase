@@ -57,6 +57,15 @@ Introspection and database catalog
 .. autoclass:: DataImage
 
 
+Entity metadata
+===============
+
+.. autofunction:: label_to_title
+.. autoclass:: Meta
+.. autoclass:: TableMeta
+.. autoclass:: ColumnMeta
+
+
 SQL Serialization
 =================
 

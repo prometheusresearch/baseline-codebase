@@ -20,6 +20,11 @@ Field ``table`` denotes a table fact::
     >>> driver.parse("""{ table: individual }""")
     TableFact(u'individual')
 
+Use field ``table`` to specify the table title::
+
+    >>> driver.parse("""{ table: individual, title: Test Subjects }""")
+    TableFact(u'individual', title=u'Test Subjects')
+
 Use field ``with`` to list facts to deployed together with the table fact::
 
     >>> driver.parse("""{ table: individual,
@@ -51,7 +56,16 @@ Turn off flag ``present`` to indicate that the table is to be deleted::
     >>> driver.parse("""{ table: individual, present: false }""")
     TableFact(u'individual', is_present=False)
 
-You cannot combine ``present: false`` with the ``with`` field::
+You cannot combine ``present: false`` with the ``title`` or ``with`` fields::
+
+    >>> driver.parse("""{ table: individual, present: false,
+    ...                   title: Test Subjects }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        title
+    While parsing table fact:
+        "<byte string>", line 1
 
     >>> driver.parse("""{ table: individual, present: false,
     ...                   with: [{ column: code, type: text }] }""")
@@ -81,6 +95,16 @@ Deploying a table fact creates the table::
 Deploying the same fact second time has no effect::
 
     >>> driver("""{ table: individual }""")
+
+If the table name is mangled, the original table label is stored in the table
+comment.  Similarly, the table title is stored in the comment::
+
+    >>> driver("""{ table: individual_id, title: Identity }""")     # doctest: +ELLIPSIS
+    CREATE TABLE "individual_id__3dcb2f" ...
+    COMMENT ON TABLE "individual_id__3dcb2f" IS '---
+    label: individual_id
+    title: Identity
+    ';
 
 When the driver is locked and the table does not exist, an error is raised::
 
@@ -116,6 +140,19 @@ column with ``UNIQUE`` constraint::
     Error: Detected missing column UNIQUE constraint:
         id
     While deploying table fact:
+        "<byte string>", line 1
+
+When the driver is locked, the driver verifies that the metadata is
+up-to-date::
+
+    >>> driver("""{ table: individual, title: Test Subjects }""",
+    ...        is_locked=True)
+    Traceback (most recent call last):
+      ...
+    Error: Detected missing metadata:
+        ---
+        title: Test Subjects
+    While validating table fact:
         "<byte string>", line 1
 
 

@@ -81,6 +81,11 @@ By default, a column does not permit ``NULL`` values.  Turn off flag
     >>> driver.parse("""{ column: individual.code, type: text, required: false }""")
     ColumnFact(u'individual', u'code', u'text', is_required=False)
 
+Use field ``title`` to specify the column title::
+
+    >>> driver.parse("""{ column: individual.code, type: text, title: Individual ID }""")
+    ColumnFact(u'individual', u'code', u'text', is_required=True, title=u'Individual ID')
+
 Turn of flag ``present`` to indicate that the column should not exist::
 
     >>> driver.parse("""{ column: individual.code, present: false }""")
@@ -101,6 +106,14 @@ Field ``present: false`` cannot coexist with other column parameters::
       ...
     Error: Got unexpected clause:
         required
+    While parsing column fact:
+        "<byte string>", line 1
+
+    >>> driver.parse("""{ column: individual.code, title: Individual ID, present: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        title
     While parsing column fact:
         "<byte string>", line 1
 
@@ -125,6 +138,13 @@ Deploying a column fact creates the column::
 Deploying the same fact the second time has no effect::
 
     >>> driver("""{ column: individual.code, type: text }""")
+
+The title of the column is stored in the column comment::
+
+    >>> driver("""{ column: individual.code, type: text, title: Individual ID }""")
+    COMMENT ON COLUMN "individual"."code" IS '---
+    title: Individual ID
+    ';
 
 If the driver cannot create the column because the column table does not exist
 or the driver is locked, an error is raised::
@@ -193,6 +213,16 @@ the column is altered to match the fact.  Currently, it's not yet functional::
     While deploying column fact:
         "<byte string>", line 1
 
+When the driver is locked, it has to verify that the column metadata is
+up-to-date::
+
+    >>> driver("""{ column: individual.code, type: text }""", is_locked=True)
+    Traceback (most recent call last):
+      ...
+    Error: Detected missing metadata:
+    While validating column fact:
+        "<byte string>", line 1
+
 You cannot create a column if there is already a link with the same name::
 
     >>> driver("""
@@ -201,7 +231,7 @@ You cannot create a column if there is already a link with the same name::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected unexpected column
+    Error: Detected unexpected column:
         mother_id
     While deploying column fact:
         "<byte string>", line 3

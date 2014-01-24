@@ -137,6 +137,15 @@ def sql_select_database(name):
             .format(sql_value(name))
 
 
+def sql_comment_on_schema(name, text):
+    """
+    Generates::
+
+        COMMENT ON SCHEMA {name} IS {text}
+    """
+    return "COMMENT ON SCHEMA {} IS {};".format(sql_name(name), sql_value(text))
+
+
 def sql_create_table(name, definitions):
     """
     Generates::
@@ -159,6 +168,15 @@ def sql_drop_table(name):
         DROP TABLE {name}
     """
     return "DROP TABLE {};".format(sql_name(name))
+
+
+def sql_comment_on_table(name, text):
+    """
+    Generates::
+
+        COMMENT ON TABLE {name} IS {text}
+    """
+    return "COMMENT ON TABLE {} IS {};".format(sql_name(name), sql_value(text))
 
 
 def sql_define_column(name, type_name, is_not_null):
@@ -206,6 +224,18 @@ def sql_drop_column(table_name, name):
                     sql_name(name))
 
 
+def sql_comment_on_column(table_name, name, text):
+    """
+    Generates::
+
+        COMMENT ON COLUMN {table_name}.{name} IS {text}
+    """
+    return "COMMENT ON COLUMN {}.{} IS {};" \
+            .format(sql_name(table_name),
+                    sql_name(name),
+                    sql_value(text))
+
+
 def sql_add_unique_constraint(table_name, name, column_names, is_primary):
     """
     Generates::
@@ -249,6 +279,18 @@ def sql_drop_constraint(table_name, name):
                     sql_name(name))
 
 
+def sql_comment_on_constraint(table_name, name, text):
+    """
+    Generates::
+
+        COMMENT ON CONSTRAINT {name} ON {table_name} IS {text}
+    """
+    return "COMMENT ON CONSTRAINT {} ON {} IS {};" \
+            .format(sql_name(name),
+                    sql_name(table_name),
+                    sql_value(text))
+
+
 def sql_create_enum_type(name, labels):
     """
     Generates::
@@ -268,6 +310,15 @@ def sql_drop_type(name):
     """
     return u"DROP TYPE {};" \
             .format(sql_name(name))
+
+
+def sql_comment_on_type(name, text):
+    """
+    Generates::
+
+        COMMENT ON TYPE {name} IS {text}
+    """
+    return "COMMENT ON TYPE {} IS {};".format(sql_name(name), sql_value(text))
 
 
 def sql_select(table_name, names):

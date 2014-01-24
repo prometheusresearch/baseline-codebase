@@ -38,6 +38,19 @@ class QLabelVal(UStrVal):
     pattern = r'[a-z_][0-9a-z_]*([.][a-z_][0-9a-z_]*)?'
 
 
+class TitleVal(UStrVal):
+    # Entity title.
+
+    pattern = r'\S(.*\S)?'
+
+
+def label_to_title(label):
+    """
+    Makes a title out of an entity label.
+    """
+    return label.replace(u'_', u' ').title()
+
+
 class Driver(object):
     """
     Deploys database facts.

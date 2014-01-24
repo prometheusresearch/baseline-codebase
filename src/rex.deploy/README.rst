@@ -175,6 +175,13 @@ called ``instrument``, :mod:`rex.deploy` checks if there is a table called
 ``measure_type.``.  If there is, it is renamed to ``instrument``.  Otherwise, a
 new table ``instrument`` is created.
 
+When HTSQL displays the content of the table in tabular form (e.g. HTML, CSV or
+plain text), the capitalized table name is used as the header of the tabular
+output.  You can use the ``title`` clause to provide a custom header::
+
+    table: instrument
+    title: Instrument or Measure
+
 A table with no fields is not very useful.  To describe the structure of a
 table, we use *column* and *link* facts.
 
@@ -211,7 +218,7 @@ consists of a set of distinct named values.  For example, let's define a column
 
 You can also express the fact that a column does not exist.  For example::
 
-    column: middle_name
+    column: middle
     of: identity
     present: false
 
@@ -340,6 +347,12 @@ A table fact describes a database table.
 `present`: ``true`` (default) or ``false``
     Indicates whether the table exists in the database.
 
+`title`: ``<title>``
+    Header used in tabular output.  If not provided, the header is generated
+    from the table name.
+
+    This clause cannot be set if ``present`` is ``false``.
+
 `with`: [...]
     List of facts related to the table.  Facts listed here have their ``of``
     clauses automatically assigned to the name of the table.
@@ -447,6 +460,12 @@ A column fact describes a column of a table.
 
     This clause cannot be used if ``present`` is ``false``.
 
+`title`: ``<title>``
+    Header used in tabular output.  If not provided, the header is generated
+    from the column name.
+
+    This clause cannot be set if ``present`` is ``false``.
+
 Deploying when ``present`` is ``true``:
 
     Ensures that table ``<table_label>`` has a column ``<label>`` of type
@@ -488,6 +507,13 @@ Examples:
         - column: title
           type: text
 
+    #. Setting the column title::
+
+        column: middle
+        of: identity
+        type: text
+        title: Middle Name
+
     #. Removing a column::
 
         column: title
@@ -502,7 +528,7 @@ Examples:
 
     #. Adding a column that permits ``NULL`` values::
 
-        column: middle_name
+        column: middle
         of: identity
         type: text
         required: false
@@ -539,6 +565,12 @@ A link fact describes a link between two tables.
     Indicates whether or not the link forbids ``NULL`` values.
 
     This clause cannot be used if ``present`` is ``false``.
+
+`title`: ``<title>``
+    Header used in tabular output.  If not provided, the header is generated
+    from the link name.
+
+    This clause cannot be set if ``present`` is ``false``.
 
 Deploying when ``present`` is ``true``:
 

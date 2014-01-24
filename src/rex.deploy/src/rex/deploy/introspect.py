@@ -90,14 +90,15 @@ def introspect(connection):
         column_by_num[attrelid, attnum] = column
 
     # Extract constraints.
+    constraint_by_oid = {}
     cursor.execute("""
-        SELECT c.conname, c.contype, c.confmatchtype,
+        SELECT c.oid, c.conname, c.contype, c.confmatchtype,
                c.conrelid, c.conkey, c.confrelid, c.confkey
         FROM pg_catalog.pg_constraint c
         WHERE c.contype IN ('p', 'u', 'f')
         ORDER BY c.oid
     """)
-    for (conname, contype, confmatchtype,
+    for (oid, conname, contype, confmatchtype,
             conrelid, conkey, confrelid, confkey) in cursor.fetchall():
         if conrelid not in table_by_oid:
             continue
@@ -108,7 +109,8 @@ def introspect(connection):
         columns = [column_by_num[conrelid, num] for num in conkey]
         if contype in ('p', 'u'):
             is_primary = (contype == 'p')
-            table.add_unique_key(conname, columns, is_primary)
+            key = table.add_unique_key(conname, columns, is_primary)
+            constraint_by_oid[oid] = key
         elif contype == 'f':
             if confrelid not in table_by_oid:
                 continue
@@ -116,7 +118,41 @@ def introspect(connection):
             if not all((confrelid, num) in column_by_num for num in confkey):
                 continue
             target_columns = [column_by_num[confrelid, num] for num in confkey]
-            table.add_foreign_key(conname, columns, target_table, target_columns)
+            key = table.add_foreign_key(conname, columns,
+                                        target_table, target_columns)
+            constraint_by_oid[oid] = key
+
+    # Extract comments.
+    cursor.execute("""
+        SELECT CAST('pg_catalog.pg_namespace'::regclass AS OID),
+               CAST('pg_catalog.pg_type'::regclass AS OID),
+               CAST('pg_catalog.pg_class'::regclass AS OID),
+               CAST('pg_catalog.pg_constraint'::regclass AS OID)
+    """)
+    pg_namespace, pg_type, pg_class, pg_constraint = cursor.fetchone()
+
+    cursor.execute("""
+        SELECT d.objoid, d.classoid, d.objsubid, d.description
+        FROM pg_catalog.pg_description d
+        WHERE d.classoid IN ('pg_catalog.pg_namespace'::regclass,
+                             'pg_catalog.pg_type'::regclass,
+                             'pg_catalog.pg_class'::regclass,
+                             'pg_catalog.pg_constraint'::regclass)
+        ORDER BY d.objoid, d.classoid, d.objsubid
+    """)
+    for objoid, classoid, objsubid, description in cursor.fetchall():
+        if classoid == pg_namespace:
+            entity = schema_by_oid.get(objoid)
+        elif classoid == pg_type:
+            entity = type_by_oid.get(objoid)
+        elif classoid == pg_class and objsubid == 0:
+            entity = table_by_oid.get(objoid)
+        elif classoid == pg_class:
+            entity = column_by_num.get((objoid, objsubid))
+        elif classoid == pg_constraint:
+            entity = constraint_by_oid.get(oid)
+        if entity is not None:
+            entity.set_comment(description)
 
     return catalog
 

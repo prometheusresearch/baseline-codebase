@@ -180,7 +180,7 @@ class CatalogImage(Image):
 class SchemaImage(NamedImage):
     """Database schema."""
 
-    __slots__ = ('tables', 'types', '__weakref__')
+    __slots__ = ('tables', 'types', 'comment', '__weakref__')
 
     def __init__(self, catalog, name):
         super(SchemaImage, self).__init__(weakref.ref(catalog), name)
@@ -188,6 +188,8 @@ class SchemaImage(NamedImage):
         self.tables = ImageMap()
         #: Collection of types in the schema.
         self.types = ImageMap()
+        #: Schema comment.
+        self.comment = None
         catalog.schemas.add(self)
 
     @property
@@ -241,16 +243,22 @@ class SchemaImage(NamedImage):
         """Adds an ``ENUM`` type."""
         return EnumTypeImage(self, name, labels)
 
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
+
 
 class TypeImage(NamedImage):
     """Type."""
 
-    __slots__ = ()
+    __slots__ = ('comment',)
     is_domain = False
     is_enum = False
 
     def __init__(self, schema, name):
         super(TypeImage, self).__init__(weakref.ref(schema), name)
+        #: Type comment.
+        self.comment = None
         schema.types.add(self)
 
     @property
@@ -290,6 +298,10 @@ class TypeImage(NamedImage):
         self.schema.types.remove(self)
         super(TypeImage, self).remove()
 
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
+
 
 class DomainTypeImage(TypeImage):
     """Domain type."""
@@ -326,7 +338,7 @@ class TableImage(NamedImage):
     """Database table."""
 
     __slots__ = ('columns', 'constraints', 'primary_key', 'unique_keys',
-                 'foreign_keys', 'referring_foreign_keys', 'data',
+                 'foreign_keys', 'referring_foreign_keys', 'data', 'comment',
                  '__weakref__')
 
     def __init__(self, schema, name):
@@ -345,6 +357,8 @@ class TableImage(NamedImage):
         self.referring_foreign_keys = []
         #: Table rows.
         self.data = None
+        #: Table comment.
+        self.comment = None
         schema.tables.add(self)
 
     @property
@@ -408,11 +422,15 @@ class TableImage(NamedImage):
         """Adds table rows."""
         return DataImage(self, rows)
 
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
+
 
 class ColumnImage(NamedImage):
     """Database column."""
 
-    __slots__ = ('type', 'is_not_null', '__weakref__')
+    __slots__ = ('type', 'is_not_null', 'comment')
 
     def __init__(self, table, name, type, is_not_null):
         super(ColumnImage, self).__init__(weakref.ref(table), name)
@@ -421,6 +439,8 @@ class ColumnImage(NamedImage):
         self.type = type
         #: Has ``NOT NULL`` constraint?
         self.is_not_null = is_not_null
+        #: Column comment.
+        self.comment = None
         if table.data is not None:
             table.data.remove()
 
@@ -484,14 +504,20 @@ class ColumnImage(NamedImage):
         self.table.columns.remove(self)
         super(ColumnImage, self).remove()
 
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
+
 
 class ConstraintImage(NamedImage):
     """Table constraint."""
 
-    __slots__ = ()
+    __slots__ = ('comment',)
 
     def __init__(self, origin, name):
         super(ConstraintImage, self).__init__(weakref.ref(origin), name)
+        #: Constraint comment.
+        self.comment = None
         origin.constraints.add(self)
 
     @property
@@ -511,6 +537,10 @@ class ConstraintImage(NamedImage):
     def remove(self):
         self.origin.constraints.remove(self)
         super(ConstraintImage, self).remove()
+
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
 
 
 class UniqueKeyImage(ConstraintImage):

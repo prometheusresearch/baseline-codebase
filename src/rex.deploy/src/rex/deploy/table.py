@@ -4,9 +4,11 @@
 
 
 from rex.core import Error, BoolVal, SeqVal, locate
-from .fact import Fact, FactVal, LabelVal
-from .sql import (mangle, sql_create_table, sql_drop_table, sql_define_column,
-        sql_add_unique_constraint, sql_drop_type)
+from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
+from .meta import TableMeta
+from .sql import (mangle, sql_create_table, sql_drop_table,
+        sql_comment_on_table, sql_define_column, sql_add_unique_constraint,
+        sql_drop_type)
 
 
 class TableFact(Fact):
@@ -15,6 +17,8 @@ class TableFact(Fact):
 
     `label`: ``unicode``
         The name of the table.
+    `title`: ``unicode`` or ``None``
+        The title of the table.  If not set, generated from the label.
     `is_present`: ``bool``
         Indicates whether the table exists in the database.
     `related`: [:class:`Fact`] or ``None``
@@ -24,6 +28,7 @@ class TableFact(Fact):
 
     fields = [
             ('table', LabelVal),
+            ('title', TitleVal, None),
             ('present', BoolVal, True),
             ('with', SeqVal(FactVal), None),
     ]
@@ -32,6 +37,9 @@ class TableFact(Fact):
     def build(cls, driver, spec):
         label = spec.table
         is_present = spec.present
+        if not is_present and spec.title:
+            raise Error("Got unexpected clause:", "title")
+        title = spec.title
         if not is_present and spec.with_:
             raise Error("Got unexpected clause:", "with")
         related = None
@@ -48,19 +56,23 @@ class TableFact(Fact):
                                 locate(related_spec))
                 related_fact = driver.build(related_spec)
                 related.append(related_fact)
-        return cls(label, is_present=is_present, related=related)
+        return cls(label, title=title, is_present=is_present, related=related)
 
-    def __init__(self, label, is_present=True, related=None):
+    def __init__(self, label, title=None, is_present=True, related=None):
         # Validate input constraints.
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
+            assert (title is None or
+                    (isinstance(title, unicode) and len(title) > 0))
             assert (related is None or
                     (isinstance(related, list) and
                      all(isinstance(fact, Fact) for fact in related)))
         else:
+            assert title is None
             assert related is None
         self.label = label
+        self.title = title
         self.is_present = is_present
         self.related = related
         self.name = mangle(label)
@@ -68,6 +80,8 @@ class TableFact(Fact):
     def __repr__(self):
         args = []
         args.append(repr(self.label))
+        if self.title is not None:
+            args.append("title=%r" % self.title)
         if not self.is_present:
             args.append("is_present=%r" % self.is_present)
         if self.related is not None:
@@ -108,6 +122,17 @@ class TableFact(Fact):
         if not any(unique_key.origin_columns == [id_column]
                    for unique_key in table.unique_keys):
             raise Error("Detected missing column UNIQUE constraint:", "id")
+        # Store the original table label and the table title.
+        meta = TableMeta.parse(table)
+        saved_label = self.label if self.label != self.name else None
+        saved_title = self.title if self.title != label_to_title(self.label) \
+                      else None
+        if meta.update(label=saved_label, title=saved_title):
+            comment = meta.dump()
+            if driver.is_locked:
+                raise Error("Detected missing metadata:", comment)
+            driver.submit(sql_comment_on_table(self.name, comment))
+            table.set_comment(comment)
         # Apply nested facts.
         if self.related:
             driver(self.related)

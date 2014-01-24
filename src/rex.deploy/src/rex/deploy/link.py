@@ -4,9 +4,10 @@
 
 
 from rex.core import Error, BoolVal
-from .fact import Fact, LabelVal, QLabelVal
+from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
+from .meta import ColumnMeta, TableMeta
 from .sql import (mangle, sql_add_column, sql_drop_column,
-        sql_add_foreign_key_constraint)
+        sql_comment_on_column, sql_add_foreign_key_constraint)
 
 
 class LinkFact(Fact):
@@ -23,6 +24,9 @@ class LinkFact(Fact):
     `is_required`: ``bool`` or ``None``
         Indicates if ``NULL`` values are not allowed.  Must be ``None``
         if ``is_present`` is not set.
+    `title`: ``unicode`` or ``None``
+        The title of the link.  If not set, borrowed from the target title
+        or generated from the label.
     `is_present`: ``bool``
         Indicates whether the link exists.
     """
@@ -32,6 +36,7 @@ class LinkFact(Fact):
             ('of', LabelVal, None),
             ('to', LabelVal, None),
             ('required', BoolVal, None),
+            ('title', TitleVal, None),
             ('present', BoolVal, True),
     ]
 
@@ -49,6 +54,7 @@ class LinkFact(Fact):
                 raise Error("Got missing table name")
         target_table_label = spec.to
         is_required = spec.required
+        title = spec.title
         is_present = spec.present
         if is_present:
             if target_table_label is None:
@@ -60,11 +66,13 @@ class LinkFact(Fact):
                 raise Error("Got unexpected clause:", "to")
             if is_required is not None:
                 raise Error("Got unexpected clause:", "required")
+            if title is not None:
+                raise Error("Got unexpected clause:", "title")
         return cls(table_label, label, target_table_label,
-                   is_required=is_required, is_present=is_present)
+                   is_required=is_required, title=title, is_present=is_present)
 
     def __init__(self, table_label, label, target_table_label=None,
-                 is_required=None, is_present=True):
+                 is_required=None, title=None, is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
@@ -72,13 +80,17 @@ class LinkFact(Fact):
             assert (isinstance(target_table_label, unicode)
                     and len(target_table_label) > 0)
             assert isinstance(is_required, bool)
+            assert (title is None or
+                    (isinstance(title, unicode) and len(title) > 0))
         else:
             assert target_table_label is None
             assert is_required is None
+            assert title is None
         self.table_label = table_label
         self.label = label
         self.target_table_label = target_table_label
         self.is_required = is_required
+        self.title = title
         self.is_present = is_present
         self.table_name = mangle(table_label)
         self.name = mangle(label, u'id')
@@ -98,6 +110,8 @@ class LinkFact(Fact):
             args.append(repr(self.target_table_label))
         if self.is_required is not None:
             args.append("is_required=%r" % self.is_required)
+        if self.title is not None:
+            args.append("title=%r" % self.title)
         if not self.is_present:
             args.append("is_present=%r" % self.is_present)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
@@ -150,6 +164,24 @@ class LinkFact(Fact):
                     self.target_table_name, [u'id']))
             table.add_foreign_key(self.constraint_name, [column],
                                   target_table, [target_column])
+        # Store the original link label and the link title.
+        meta = ColumnMeta.parse(column)
+        preferred_label = self.name[:-2].rstrip(u'_') \
+                                if self.name.endswith(u'_id') else None
+        saved_label = self.label if self.label != preferred_label else None
+        preferred_title = label_to_title(self.label)
+        if self.label == self.target_table_label:
+            target_meta = TableMeta.parse(target_table)
+            if target_meta.title:
+                preferred_title = target_meta.title
+        saved_title = self.title if self.title != preferred_title else None
+        if meta.update(label=saved_label, title=saved_title):
+            comment = meta.dump()
+            if driver.is_locked:
+                raise Error("Detected missing metadata:", comment)
+            driver.submit(sql_comment_on_column(
+                    self.table_name, self.name, comment))
+            column.set_comment(comment)
 
     def drop(self, driver):
         # Ensures that the link is absent.

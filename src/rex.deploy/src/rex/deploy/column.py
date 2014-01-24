@@ -5,9 +5,10 @@
 
 from rex.core import (Error, BoolVal, UStrVal, UChoiceVal, SeqVal, UnionVal,
         OnSeq)
-from .fact import Fact, LabelVal, QLabelVal
+from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
+from .meta import ColumnMeta
 from .sql import (mangle, sql_add_column, sql_drop_column,
-        sql_create_enum_type, sql_drop_type)
+        sql_comment_on_column, sql_create_enum_type, sql_drop_type)
 
 
 class ColumnFact(Fact):
@@ -24,6 +25,8 @@ class ColumnFact(Fact):
         For an ``ENUM`` type, specify a list of ``ENUM`` labels.
     `is_required`: ``bool``
         Indicates if ``NULL`` values are not allowed.
+    `title`: ``unicode`` or ``None``
+        The title of the column.  If not set, generated from the label.
     `is_present`: ``bool``
         Indicates whether the column exists.
     """
@@ -46,6 +49,7 @@ class ColumnFact(Fact):
             ('type', UnionVal((OnSeq, SeqVal(UStrVal(r'[0-9A-Za-z_-]+'))),
                               UChoiceVal(*sorted(TYPE_MAP))), None),
             ('required', BoolVal, None),
+            ('title', TitleVal, None),
             ('present', BoolVal, True),
     ]
 
@@ -63,6 +67,7 @@ class ColumnFact(Fact):
                 raise Error("Got missing table name")
         is_present = spec.present
         type = spec.type
+        title = spec.title
         if is_present:
             if type is None:
                 raise Error("Got missing clause:", "type")
@@ -75,6 +80,8 @@ class ColumnFact(Fact):
         else:
             if type is not None:
                 raise Error("Got unexpected clause:", "type")
+            if title is not None:
+                raise Error("Got unexpected clause:", "title")
         is_required = spec.required
         if is_present:
             if is_required is None:
@@ -82,11 +89,11 @@ class ColumnFact(Fact):
         else:
             if is_required is not None:
                 raise Error("Got unexpected clause:", "required")
-        return cls(table_label, label, type=type, is_required=is_required,
-                   is_present=is_present)
+        return cls(table_label, label, title=title, type=type,
+                   is_required=is_required, is_present=is_present)
 
-    def __init__(self, table_label, label, type=None, is_required=None,
-                 is_present=True):
+    def __init__(self, table_label, label, type=None,
+                 is_required=None, title=None, is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
@@ -97,13 +104,17 @@ class ColumnFact(Fact):
                         for label in type) and
                     len(set(type)) == len(type))
             assert isinstance(is_required, bool)
+            assert (title is None or
+                    (isinstance(title, unicode) and len(title) > 0))
         else:
             assert type is None
             assert is_required is None
+            assert title is None
         self.table_label = table_label
         self.label = label
         self.type = type
         self.is_required = is_required
+        self.title = title
         self.is_present = is_present
         self.table_name = mangle(table_label)
         self.name = mangle(label)
@@ -126,6 +137,8 @@ class ColumnFact(Fact):
             args.append(repr(self.type))
         if self.is_required is not None:
             args.append("is_required=%r" % self.is_required)
+        if self.title is not None:
+            args.append("title=%r" % self.title)
         if not self.is_present:
             args.append("is_present=%r" % self.is_present)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
@@ -163,7 +176,7 @@ class ColumnFact(Fact):
         table = schema[self.table_name]
         # Verify that we don't have a link under the same name.
         if self.name_for_link in table:
-            raise Error("Detected unexpected column", self.name_for_link)
+            raise Error("Detected unexpected column:", self.name_for_link)
         # Create the column if it does not exist.
         if self.name not in table:
             if driver.is_locked:
@@ -179,6 +192,18 @@ class ColumnFact(Fact):
         if column.is_not_null != self.is_required:
             raise Error("Detected column with mismatched"
                         " NOT NULL constraint:", column)
+        # Store the original column label and the column title.
+        meta = ColumnMeta.parse(column)
+        saved_label = self.label if self.label != self.name else None
+        saved_title = self.title if self.title != label_to_title(self.label) \
+                      else None
+        if meta.update(label=saved_label, title=saved_title):
+            comment = meta.dump()
+            if driver.is_locked:
+                raise Error("Detected missing metadata:", comment)
+            driver.submit(sql_comment_on_column(
+                    self.table_name, self.name, comment))
+            column.set_comment(comment)
 
     def drop(self, driver):
         # Ensures that the column is absent.

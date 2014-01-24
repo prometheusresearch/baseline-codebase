@@ -56,6 +56,11 @@ By default, a link does not permit ``NULL`` values.  Turn off flag
     >>> driver.parse("""{ link: sample.individual, required: false }""")
     LinkFact(u'sample', u'individual', u'individual', is_required=False)
 
+You can explicitly specify the link title::
+
+    >>> driver.parse("""{ link: sample.individual, title: Subject }""")
+    LinkFact(u'sample', u'individual', u'individual', is_required=True, title=u'Subject')
+
 Turn off flag ``present`` to indicate that the link should not exist::
 
     >>> driver.parse("""{ link: individual.code, present: false }""")
@@ -71,11 +76,19 @@ Field ``present: false`` cannot coexist with other link parameters::
     While parsing link fact:
         "<byte string>", line 1
 
-    >>> driver.parse("""{ link: individual.code, required: true, present: false }""")
+    >>> driver.parse("""{ link: sample.individual, required: true, present: false }""")
     Traceback (most recent call last):
       ...
     Error: Got unexpected clause:
         required
+    While parsing link fact:
+        "<byte string>", line 1
+
+    >>> driver.parse("""{ link: sample.individual, title: Subject, present: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        title
     While parsing link fact:
         "<byte string>", line 1
 
@@ -103,6 +116,13 @@ Deploying a link fact creates a column and a foreign key::
 Deploying the same fact the second time has no effect::
 
     >>> driver("""{ link: sample.individual }""")
+
+The title of the link is stored in the column comment::
+
+    >>> driver("""{ link: sample.individual, title: Subject }""")
+    COMMENT ON COLUMN "sample"."individual_id" IS '---
+    title: Subject
+    ';
 
 The driver cannot create the link if either the origin or the target
 table does not exist, or if the driver is locked::
@@ -178,6 +198,16 @@ It also verifies that the ``FOREIGN KEY`` constraint exists::
       ...
     Error: Detected column with missing FOREIGN KEY constraint:
         father_id
+    While validating link fact:
+        "<byte string>", line 1
+
+When the driver is locked, it verifies that the metadata is up-to-date::
+
+    >>> driver("""{ link: sample.individual }""",
+    ...        is_locked=True)
+    Traceback (most recent call last):
+      ...
+    Error: Detected missing metadata:
     While validating link fact:
         "<byte string>", line 1
 

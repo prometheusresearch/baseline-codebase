@@ -208,6 +208,32 @@ Data types
     DROP TYPE "individual_sex_enum";
 
 
+Comments
+========
+
+``rex.deploy`` allows you to add and remove comments for schemas, tables,
+columns, types and constraints::
+
+    >>> from rex.deploy import (sql_comment_on_schema, sql_comment_on_table,
+    ...     sql_comment_on_column, sql_comment_on_constraint, sql_comment_on_type)
+
+    >>> print sql_comment_on_schema(u'public', None)
+    COMMENT ON SCHEMA "public" IS NULL;
+
+    >>> print sql_comment_on_table(u'individual', u'Test Subjects')
+    COMMENT ON TABLE "individual" IS 'Test Subjects';
+
+    >>> print sql_comment_on_column(u'individual', u'sex', u'Sex (M/F/I)')
+    COMMENT ON COLUMN "individual"."sex" IS 'Sex (M/F/I)';
+
+    >>> print sql_comment_on_constraint(u'individual', u'individual_pk',
+    ...                                 u'Surrogate primary key')
+    COMMENT ON CONSTRAINT "individual_pk" ON "individual" IS 'Surrogate primary key';
+
+    >>> print sql_comment_on_type(u'individual_sex_enum', u'Sex (M/F/I)')
+    COMMENT ON TYPE "individual_sex_enum" IS 'Sex (M/F/I)';
+
+
 ``SELECT``, ``INSERT``, ``UPDATE``, ``DELETE``
 ==============================================
 

@@ -1,4 +1,5 @@
 
-htsql_extensions:
-  rex_deploy: {}
+# FIXME: enable after transition from RDOMA to rex.deploy.
+#htsql_extensions:
+#  rex_deploy: {}
 

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.2.0 (2014-XX-XX)
+1.2.0 (2014-01-24)
 ==================
 
 * Store metadata as comments on tables, columns and other entities.

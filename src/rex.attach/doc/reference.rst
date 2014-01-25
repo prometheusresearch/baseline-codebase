@@ -16,6 +16,14 @@ Attachment storage
 .. autofunction:: get_storage
 
 
+Upload and download
+===================
+
+.. autoclass:: AttachmentVal
+.. autofunction:: upload
+.. autofunction:: download
+
+
 Settings
 ========
 

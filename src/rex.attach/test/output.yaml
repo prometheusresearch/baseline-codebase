@@ -6,5 +6,7 @@ suite: rex.attach
 tests:
 - sh: pip install -q -e ./demo/rex.attach_demo
   stdout: ''
+- py: deploying-rex.attach-demo
+  stdout: ''
 - sh: pip uninstall -q -y rex.attach_demo
   stdout: ''

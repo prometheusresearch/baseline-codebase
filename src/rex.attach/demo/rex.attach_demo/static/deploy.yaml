@@ -1,0 +1,11 @@
+
+- table: file
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+  - column: handle
+    type: text
+

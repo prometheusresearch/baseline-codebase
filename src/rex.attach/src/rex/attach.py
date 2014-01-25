@@ -4,12 +4,12 @@
 
 
 """
-This package provides storage for uploaded files.
+This package provides a storage for uploaded files.
 """
 
 
-from rex.core import (get_settings, Setting, Initialize, StrVal, MaybeVal,
-        Error, cached)
+from rex.core import (get_settings, Setting, Initialize, Validate, StrVal,
+        MaybeVal, Error, cached)
 from rex.web import HandleLocation, authorize
 from webob import Response
 from webob.dec import wsgify
@@ -22,6 +22,7 @@ import uuid
 import mimetypes
 import shutil
 import cgi
+import collections
 
 
 def sanitize_filename(filename):
@@ -105,7 +106,7 @@ class LocalStorage(object):
     def __init__(self, attach_dir):
         self.attach_dir = attach_dir
 
-    def add(self, name, content=None):
+    def add(self, name, content):
         """
         Adds an attachment to the storage.
 
@@ -121,13 +122,6 @@ class LocalStorage(object):
 
         Returns an opaque attachment handle.
         """
-        if content is None:
-            # Extract the attachment content from a `cgi.FieldStorage` object
-            # or a tuple.
-            if isinstance(name, cgi.FieldStorage):
-                name, content = name.filename, name.file
-            else:
-                name, content = name
         # Sanitize the file name.
         name = sanitize_filename(name)
         # The directory where we save the file:
@@ -329,5 +323,55 @@ def get_storage():
     """
     settings = get_settings()
     return LocalStorage(settings.attach_dir)
+
+
+class AttachmentVal(Validate):
+    """
+    Accepts an HTML form field containing an uploaded file.
+
+    Produces a pair: the file name and an open file object.
+    """
+    # TODO: permitted file extensions, validate images?
+
+    Attachment = collections.namedtuple('Attachment', 'name content')
+
+    def __call__(self, data):
+        if (isinstance(data, cgi.FieldStorage) and
+                data.filename is not None and data.file is not None):
+            return self.Attachment(data.filename, data.file)
+        if (isinstance(data, tuple) and len(data) == 2 and
+                isinstance(data[0], (str, unicode)) and
+                hasattr(data[1], 'read')):
+            return self.Attachment(*data)
+        error = Error("Expected an uploaded file")
+        error.wrap("Got:", repr(data))
+        raise error
+
+
+def upload(attachment):
+    """
+    Adds the given attachment to the storage.
+
+    `attachment`
+        A ``cgi.FieldStorage`` instance that contains the uploaded file
+        or a pair with two elements: the file name and the file content.
+
+    *Returns:* attachment handle.
+    """
+    if isinstance(attachment, cgi.FieldStorage):
+        name, content = attachment.filename, attachment.file
+    else:
+        name, content = attachment
+    storage = get_storage()
+    return storage.add(name, content)
+
+
+def download(handle):
+    """
+    Returns an HTTP response containing the attachment with the given handle.
+    """
+    storage = get_storage()
+    # FIXME: 404 if not found or invalid?
+    return storage.route(handle)
 
 

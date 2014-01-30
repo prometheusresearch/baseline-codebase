@@ -216,7 +216,7 @@ function rexlize(val) {
     else if ('boolean' === type)
         return rexl.Boolean.value(val);
 
-    console.log('wrong val', val);
+    // console.log('wrong val', val);
     throw('RexlTypeError');
 }
 

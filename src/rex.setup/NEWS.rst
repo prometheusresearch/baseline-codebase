@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.0.2 (2014-02-XX)
+==================
+
+* Fixed unpacking zip archives that do not contain directory entries.
+
+
 1.0.1 (2013-11-20)
 ==================
 

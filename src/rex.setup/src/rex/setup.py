@@ -225,13 +225,15 @@ class download_rex(setuptools.Command):
                         archive = zipfile.ZipFile(cStringIO.StringIO(data))
                         entries = archive.infolist()
                         assert entries
-                        # We strip the common prefix from all filenames in
-                        # the archive.
-                        common = entries[0].filename
-                        if not (common.endswith('/') and
-                                all(entry.filename.startswith(common)
-                                    for entry in entries)):
+                        # Find the common prefix to strip from all filenames
+                        # in the archive.
+                        common = os.path.commonprefix(
+                                [entry.filename for entry in entries])
+                        if '/' in common:
+                            common = common.rsplit('/', 1)[0]
+                        else:
                             common = ''
+                        # Unpack each entry.
                         for entry in entries:
                             filename = entry.filename[len(common):]
                             if filename.startswith('/'):
@@ -239,9 +241,10 @@ class download_rex(setuptools.Command):
                             if not filename:
                                 continue
                             filename = os.path.join(base, filename)
-                            if filename.endswith('/'):
-                                os.mkdir(filename)
-                            else:
+                            dirname = os.path.dirname(filename)
+                            if not os.path.exists(dirname):
+                                os.makedirs(dirname)
+                            if not filename.endswith('/'):
                                 stream = open(filename, 'wb')
                                 stream.write(archive.read(entry))
                                 stream.close()

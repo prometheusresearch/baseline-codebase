@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.setup',
-    version = "1.0.1",
+    version = "1.0.2",
     description="Distutils extension for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

@@ -158,6 +158,11 @@ class ErrorCatcher(object):
                 raise
 
 
+def not_found(req):
+    # Used as the default fallback.
+    raise HTTPNotFound()
+
+
 class SegmentMapper(object):
     # Uses the first segment of the URL to determine the request handler.
 
@@ -165,7 +170,7 @@ class SegmentMapper(object):
         # Maps URL segments to handlers.
         self.route_map = route_map
         # Fallback handler.
-        self.fallback = fallback
+        self.fallback = fallback or not_found
 
     def __call__(self, req):
         segment = req.path_info_peek()
@@ -177,10 +182,7 @@ class SegmentMapper(object):
             route = self.route_map[segment]
             return route(req)
 
-        if self.fallback is not None:
-            return self.fallback(req)
-
-        raise HTTPNotFound()
+        return self.fallback(req)
 
 
 class PackageGate(object):
@@ -190,7 +192,7 @@ class PackageGate(object):
         # Package name.
         self.name = name
         # The next handler.
-        self.fallback = fallback
+        self.fallback = fallback or not_found
 
     def __call__(self, req):
         # Add `rex.package` to the request environment
@@ -198,11 +200,7 @@ class PackageGate(object):
         req = req.copy()
         req.environ['rex.package'] = self.name
         # Delegate the request.
-        if self.fallback is not None:
-            return self.fallback(req)
-        # NOTE: Not reachable (`PackageGate` is not created when
-        # `fallback` is unset).
-        raise HTTPNotFound()
+        return self.fallback(req)
 
 
 class StaticServer(object):
@@ -223,8 +221,8 @@ class StaticServer(object):
         self.package = package
         # Maps file extensions to handler types.
         self.file_handler_map = file_handler_map
-        # Handler to call when file is not found.
-        self.fallback = fallback
+        # Handler to call when no file is found.
+        self.fallback = fallback or not_found
 
     def __call__(self, req):
         # Normalize the URL.
@@ -234,7 +232,7 @@ class StaticServer(object):
         # Immediately reject anything starting with `.` or `_`.
         for segment in url.split('/'):
             if segment.startswith('.') or segment.startswith('_'):
-                raise HTTPNotFound()
+                return self.fallback(req)
 
         # Convert the URL into the filesystem path.
         local_path = self.www_root + url
@@ -281,9 +279,7 @@ class StaticServer(object):
             return handler(req)
 
         # If file not found, delegate to the fallback or return 404.
-        if self.fallback is not None:
-            return self.fallback(req)
-        raise HTTPNotFound()
+        return self.fallback(req)
 
 
 class CommandDispatcher(object):
@@ -293,7 +289,7 @@ class CommandDispatcher(object):
         # Maps URLs to handler types.
         self.location_handler_map = location_handler_map
         # Default handler.
-        self.fallback = fallback
+        self.fallback = fallback or not_found
 
     def __call__(self, req):
         path = req.path_info
@@ -306,9 +302,7 @@ class CommandDispatcher(object):
             handler = self.location_handler_map['*']()
             return handler(req)
 
-        if self.fallback is not None:
-            return self.fallback(req)
-        raise HTTPNotFound()
+        return self.fallback(req)
 
 
 class Route(Extension):

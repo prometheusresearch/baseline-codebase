@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.web',
-    version="1.1.1",
+    version="1.1.2",
     description="Web stack for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

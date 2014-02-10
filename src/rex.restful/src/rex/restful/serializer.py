@@ -25,20 +25,34 @@ class Serializer(Extension):
 
     @classmethod
     @cached
+    def map_by_format(cls):
+        mapping = {}
+        for ext in cls.all():
+            assert ext.format_string not in mapping, \
+                'duplicate format string: %s' % ext.format_string
+            mapping[ext.format_string] = ext
+        return mapping
+
+    @classmethod
+    @cached
+    def map_by_mime_type(cls):
+        mapping = {}
+        for ext in cls.all():
+            assert ext.mime_type not in mapping, \
+                'duplicate mime type: %s' % ext.mime_type
+            mapping[ext.mime_type] = ext
+        return mapping
+
+    @classmethod
+    @cached
     def get_for_mime_type(cls, mime_type):
         mime_type = mime_type.split(';')[0]
-        for ext in cls.all():
-            if mime_type == ext.mime_type:
-                return ext
-        return None
+        return cls.map_by_mime_type().get(mime_type)
 
     @classmethod
     @cached
     def get_for_format(cls, format):
-        for ext in cls.all():
-            if format == ext.format_string:
-                return ext
-        return None
+        return cls.map_by_format().get(format)
 
     @classmethod
     def enabled(cls):
@@ -51,12 +65,6 @@ class Serializer(Extension):
                 'abstract method %s.serialize()' % cls
             assert cls.deserialize != Serializer.deserialize, \
                 'abstract method %s.deserialize()' % cls
-# TODO: Figure out a way to make this work
-#            for extension in cls.all():
-#                assert cls.format_string != extension.format_string, \
-#                    'format_string %s already implemented' % cls.format_string
-#                assert cls.mime_type != extension.mime_type, \
-#                    'mime_type %s already implemented' % cls.mime_type
 
     def serialize(self, value):
         raise NotImplementedError()

@@ -87,15 +87,38 @@ set_location = LocationRef.set_location
 locate = LocationRef.locate
 
 
-BaseLoader = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
-class ValidatingLoader(BaseLoader):
-    # Customized YAML parser that uses validators to convert YAML nodes.
+class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
+    """
+    Validating YAML parser.
+
+    `stream`
+        Input stream or input string.
+    `validate`
+        Document validator.
+    `master`
+        Optional controller object.
+    """
+
+    class ValidatingContext(object):
+        # Sets the parser validator on the `with` block.
+
+        def __init__(self, loader, validate):
+            self.loader = loader
+            self.validate = validate
+
+        def __enter__(self):
+            self.loader.validate_stack.append(self.loader.validate)
+            self.loader.validate = self.validate
+
+        def __exit__(self, exc_type, exc_value, exc_tb):
+            self.loader.validate = self.loader.validate_stack.pop()
 
     def __init__(self, stream, validate, master=None):
-        super(ValidatingLoader, self).__init__(stream)
+        self.stream = stream
         self.validate = validate
         self.validate_stack = []
         self.master = master
+        super(ValidatingLoader, self).__init__(stream)
         # Needed to generate a `Mark` object below.  We can't get it directly
         # from a `CLoader` instance.
         self.stream_name = (self.name if hasattr(self, 'name')
@@ -103,19 +126,19 @@ class ValidatingLoader(BaseLoader):
                             else '<byte string>' if isinstance(stream, str)
                             else getattr(stream, 'name', '<file>'))
 
-    def push_validate(self, validate):
-        self.validate_stack.append(self.validate)
-        self.validate = validate
+    def validating(self, validate):
+        """
+        Overrides the current validator.  Use on a ``with`` block::
 
-    def pop_validate(self):
-        self.validate = self.validate_stack.pop()
-
-    def construct_object(self, node, deep=False):
-        if self.validate is not None:
-            return self.validate.construct(self, node)
-        return super(ValidatingLoader, self).construct_object(node, deep)
+            with loader.validating(StrVal()):
+                ...
+        """
+        return self.ValidatingContext(self, validate)
 
     def __call__(self):
+        """
+        Parses and validates a YAML document.
+        """
         try:
             # Ensure the stream contains no or one YAML document; load it.
             node = self.get_single_node()
@@ -127,6 +150,62 @@ class ValidatingLoader(BaseLoader):
             return self.construct_document(node)
         finally:
             self.dispose()
+
+    def __iter__(self):
+        """
+        Parses and validates all documents in a YAML stream.
+        """
+        try:
+            while self.check_data():
+                yield self.get_data()
+        finally:
+            self.dispose()
+
+    def construct_object(self, node, deep=False):
+        if node.tag == u'!include':
+            stream = self.include(node)
+            loader = self.__class__(stream, self.validate, self.master)
+            # Ensure the stream contains no or one YAML document; load it.
+            node = loader.get_single_node()
+            # If the stream contain no documents, make a fake !!null document.
+            if node is None:
+                mark = yaml.Mark(loader.stream_name, 0, 0, 0, None, None)
+                node = yaml.ScalarNode(u"tag:yaml.org,2002:null", u"",
+                                       mark, mark, u'')
+            stream.close()
+            return loader.construct_document(node)
+        if node.tag == u'!include/str':
+            with self.include(node) as stream:
+                value = stream.read()
+            node = yaml.ScalarNode(u"tag:yaml.org,2002:str", value,
+                                   node.start_mark, node.end_mark, u'')
+        if self.validate is not None:
+            return self.validate.construct(self, node)
+        return super(ValidatingLoader, self).construct_object(node, deep)
+
+    def include(self, node):
+        if not isinstance(node, yaml.ScalarNode):
+            raise yaml.constructor.ConstructorError(None, None,
+                    "expected a file name, but found %s" % node.id,
+                    node.start_mark)
+        if not node.value:
+            raise yaml.constructor.ConstructorError(None, None,
+                    "expected a file name, but found an empty node",
+                    node.start_mark)
+        basename = getattr(self.stream, 'name', None)
+        filename = node.value.encode('utf-8')
+        if not os.path.isabs(filename):
+            if not basename:
+                raise yaml.constructor.ConstructorError(None, None,
+                        "unable to resolve relative path: %s" % filename,
+                        node.start_mark)
+            filename = os.path.join(os.path.dirname(basename), filename)
+        try:
+            stream = open(filename, 'rb')
+        except IOError, exc:
+            raise yaml.constructor.ConstructorError(None, None,
+                    "unable to open file: %s" % filename, node.start_mark)
+        return stream
 
 
 class Validate(object):
@@ -148,11 +227,8 @@ class Validate(object):
 
         Subclasses should override this method.
         """
-        loader.push_validate(None)
-        try:
+        with loader.validating(None):
             data = loader.construct_object(node, deep=True)
-        finally:
-            loader.pop_validate()
         location = Location.from_node(node)
         with guard("While parsing:", location):
             return self(data)
@@ -169,6 +245,22 @@ class Validate(object):
         loader = ValidatingLoader(stream, self, master)
         try:
             return loader()
+        except yaml.YAMLError, exc:
+            raise Error("Failed to parse a YAML document:", exc)
+
+    def parse_all(self, stream, master=None):
+        """
+        Parses and validates all documents in a YAML stream.
+
+        `stream`
+            A string or an open file containing a series of YAML documents.
+        `master`
+            Optional controller object for the YAML loader.
+        """
+        loader = ValidatingLoader(stream, self, master)
+        try:
+            for data in loader:
+                yield data
         except yaml.YAMLError, exc:
             raise Error("Failed to parse a YAML document:", exc)
 
@@ -495,11 +587,8 @@ class SeqVal(Validate):
                                else "a %s" % node.id)
             error.wrap("While parsing:", Location.from_node(node))
             raise error
-        loader.push_validate(self.validate_item)
-        try:
+        with loader.validating(self.validate_item):
             data = loader.construct_sequence(node, deep=True)
-        finally:
-            loader.pop_validate()
         return data
 
     def __repr__(self):
@@ -524,11 +613,8 @@ class OneOrSeqVal(SeqVal):
     def construct(self, loader, node):
         if isinstance(node, yaml.SequenceNode):
             return super(OneOrSeqVal, self).construct(loader, node)
-        loader.push_validate(self.validate_item)
-        try:
+        with loader.validating(self.validate_item):
             data = loader.construct_object(node, deep=True)
-        finally:
-            loader.pop_validate()
         return data
 
 
@@ -585,11 +671,8 @@ class MapVal(Validate):
             raise error
         data = {}
         for key_node, value_node in node.value:
-            loader.push_validate(self.validate_key)
-            try:
+            with loader.validating(self.validate_key):
                 key = loader.construct_object(key_node, deep=True)
-            finally:
-                loader.pop_validate()
             try:
                 hash(key)
             except TypeError, exc:
@@ -604,11 +687,8 @@ class MapVal(Validate):
                         node.start_mark,
                         "found a duplicate key",
                         key_node.start_mark)
-            loader.push_validate(self.validate_value)
-            try:
+            with loader.validating(self.validate_value):
                 value = loader.construct_object(value_node, deep=True)
-            finally:
-                loader.pop_validate()
             data[key] = value
         return data
 
@@ -686,11 +766,8 @@ class OMapVal(MapVal):
                 error.wrap("While parsing:", Location.from_node(item_node))
                 raise error
             [[key_node, value_node]] = item_node.value
-            loader.push_validate(self.validate_key)
-            try:
+            with loader.validating(self.validate_key):
                 key = loader.construct_object(key_node, deep=True)
-            finally:
-                loader.pop_validate()
             try:
                 hash(key)
             except TypeError, exc:
@@ -699,11 +776,8 @@ class OMapVal(MapVal):
                         node.start_mark,
                         "found an unacceptable key (%s)" % exc,
                         key_node.start_mark)
-            loader.push_validate(self.validate_value)
-            try:
+            with loader.validating(self.validate_value):
                 value = loader.construct_object(value_node, deep=True)
-            finally:
-                loader.pop_validate()
             pairs.append((key, value))
         return collections.OrderedDict(pairs)
 
@@ -901,23 +975,17 @@ class RecordVal(Validate):
             raise error
         values = {}
         for key_node, value_node in node.value:
-            loader.push_validate(StrVal())
-            try:
+            with loader.validating(StrVal()):
                 name = loader.construct_object(key_node, deep=True)
-            finally:
-                loader.pop_validate()
             name = name.replace('-', '_').replace(' ', '_')
             with guard("While parsing:", Location.from_node(key_node)):
                 if name not in self.names:
                     raise Error("Got unexpected field:", name)
                 if name in values:
                     raise Error("Got duplicate field:", name)
-            loader.push_validate(self.validates[name])
-            with guard("While validating field:", name):
-                try:
-                    value = loader.construct_object(value_node, deep=True)
-                finally:
-                    loader.pop_validate()
+            with guard("While validating field:", name), \
+                 loader.validating(self.validates[name]):
+                value = loader.construct_object(value_node, deep=True)
             attribute = self.attributes[name]
             values[attribute] = value
         for name in self.names:

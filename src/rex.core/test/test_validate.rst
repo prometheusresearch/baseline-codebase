@@ -42,6 +42,19 @@ A validator can also be used to parse YAML documents::
     ... """)
     -8
 
+Use method ``parse_all()`` to parse a YAML stream containing several YAML
+documents::
+
+    >>> values = int_val.parse_all("""
+    ... --- 2
+    ... --- 3
+    ... --- 5
+    ... --- 7
+    ... --- 11
+    ... """)
+    >>> list(values)
+    [2, 3, 5, 7, 11]
+
 
 ``AnyVal``
 ==========
@@ -107,6 +120,11 @@ values accepted by the wrapped validator *and* ``None``::
         NaN
     While parsing:
         "<byte string>", line 1
+
+An empty YAML stream is interpreted as a ``null`` value::
+
+    >>> maybe_val.parse(""" """) is None
+    True
 
 
 ``OneOfVal``
@@ -1210,5 +1228,69 @@ Cloned records inherit their location from the original record::
 
     >>> locate(p1.__clone__(age=p1.age+1))
     Location('<byte string>', 0)
+
+
+``!include``
+============
+
+In YAML documents, you can use tags ``!include`` and ``!include/str`` for
+loading content from external files.  Files that are included using
+``!include`` tag are interpreted as YAML documents.  Files included using
+``!include/str`` are interpreted as literal data::
+
+    >>> from rex.core import SandboxPackage
+
+    >>> sandbox = SandboxPackage()
+    >>> sandbox.rewrite('include.me', """ [We, love, YAML] """)
+    >>> sandbox.rewrite('include.yaml', """ !include include.me """)
+    >>> sandbox.rewrite('include-str.yaml', """ !include/str include.me """)
+
+    >>> seq_val = SeqVal(StrVal)
+    >>> seq_val.parse(sandbox.open('include.yaml'))
+    ['We', 'love', 'YAML']
+
+    >>> str_val = StrVal()
+    >>> str_val.parse(sandbox.open('include-str.yaml'))
+    ' [We, love, YAML] '
+
+An empty YAML stream is interpreted as a ``null`` value::
+
+    >>> sandbox.rewrite('include.me', """ """)
+    >>> seq_val.parse(sandbox.open('include.yaml'))
+    []
+    >>> str_val.parse(sandbox.open('include-str.yaml'))
+    ' '
+
+Invalid ``!include`` directives are rejected::
+
+    >>> any_val = AnyVal()
+
+    >>> any_val.parse(""" !include """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        expected a file name, but found an empty node
+          in "<byte string>", line 1, column 2
+
+    >>> any_val.parse(""" !include [] """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        expected a file name, but found sequence
+          in "<byte string>", line 1, column 2
+
+    >>> any_val.parse(""" !include not-found.yaml """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        unable to resolve relative path: not-found.yaml
+          in "<byte string>", line 1, column 2
+
+    >>> any_val.parse(""" !include /not-found.yaml """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        unable to open file: /not-found.yaml
+          in "<byte string>", line 1, column 2
 
 

@@ -99,5 +99,7 @@ Validators
 .. autoclass:: rex.core.Location
 .. automethod:: rex.core.set_location
 .. automethod:: rex.core.locate
+.. autoclass:: rex.core.ValidatingLoader
+   :special-members: __call__, __iter__
 
 

@@ -15,14 +15,15 @@ from .cache import cached
 from .context import get_rex
 from .error import Error, guard
 from .extension import Extension
-from .package import (Package, ModulePackage, StaticPackage, SandboxPackage,
-        PackageCollection, get_packages)
+from .package import (
+    Package, ModulePackage, StaticPackage, SandboxPackage, PackageCollection,
+    get_packages)
 from .setting import Setting, SettingCollection, get_settings
-from .validate import (Validate, AnyVal, MaybeVal, OneOfVal, StrVal, UStrVal,
-        ChoiceVal, UChoiceVal, BoolVal, IntVal, UIntVal, PIntVal, SeqVal,
-        OneOrSeqVal, MapVal, OMapVal, RecordVal, SwitchVal, UnionVal, OnMatch,
-        OnScalar, OnSeq, OnMap, OnField, Record, Location, set_location,
-        locate)
+from .validate import (
+    ValidatingLoader, Validate, AnyVal, MaybeVal, OneOfVal, StrVal, UStrVal,
+    ChoiceVal, UChoiceVal, BoolVal, IntVal, UIntVal, PIntVal, SeqVal,
+    OneOrSeqVal, MapVal, OMapVal, RecordVal, SwitchVal, UnionVal, OnMatch,
+    OnScalar, OnSeq, OnMap, OnField, Record, Location, set_location, locate)
 from .wsgi import WSGI, get_wsgi
 
 

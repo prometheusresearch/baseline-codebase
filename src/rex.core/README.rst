@@ -33,6 +33,7 @@ R43MH099826.
 
 .. |R| unicode:: 0xAE .. registered trademark sign
 
+
 Constructing applications
 =========================
 
@@ -505,5 +506,11 @@ You can also use validators to parse and validate YAML documents::
     ... -8
     ... """)
     -8
+
+The YAML loader accepts a safe subset of YAML.  It also understand non-standard
+tags: ``!include`` and ``!include/str``, which are used to include data from an
+external file.  The content of an ``!include`` and ``!include/str`` nodes must
+be a relative path to the file containing the data.  Use ``!include`` to
+include a YAML document, ``!include/str`` to include a literal string.
 
 

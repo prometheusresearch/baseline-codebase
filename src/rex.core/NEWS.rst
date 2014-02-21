@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.3.0 (2014-02-21)
+==================
+
+* Added support for ``!include`` and ``!include/str`` tags in YAML input.
+
+
 1.2.0 (2013-12-13)
 ==================
 

@@ -7,7 +7,6 @@ from .error import Error, guard
 import re
 import os.path
 import collections
-import operator
 import keyword
 import weakref
 import json
@@ -202,7 +201,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
             filename = os.path.join(os.path.dirname(basename), filename)
         try:
             stream = open(filename, 'rb')
-        except IOError, exc:
+        except IOError:
             raise yaml.constructor.ConstructorError(None, None,
                     "unable to open file: %s" % filename, node.start_mark)
         return stream

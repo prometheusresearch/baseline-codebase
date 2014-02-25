@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+1.4.0 (2014-XX-XX)
+==================
+
+* Added method ``Extension.package()``, which returns the package that owns
+  the extension.
+
+
 1.3.0 (2014-02-21)
 ==================
 

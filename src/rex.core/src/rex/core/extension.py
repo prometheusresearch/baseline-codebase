@@ -51,6 +51,15 @@ class Extension(object):
 
     @classmethod
     @cached
+    def package(cls):
+        """
+        Returns the package in which the extension was declared.
+        """
+        packages = get_packages()
+        return packages.modules.get(cls.__module__)
+
+    @classmethod
+    @cached
     def all(cls):
         """
         Returns a list of all implementations for the given interface.

@@ -247,9 +247,10 @@ class PackageCollection(object):
     def __init__(self, packages):
         self.packages = packages
         self.package_map = dict((package.name, package)
-                                  for package in packages)
-        self.modules = set(module for package in self.packages
-                                  for module in package.modules)
+                                for package in packages)
+        self.modules = dict((module, package)
+                            for package in self.packages
+                            for module in package.modules)
 
     def __iter__(self):
         """

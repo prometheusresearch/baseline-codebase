@@ -52,6 +52,14 @@ available for the current active application::
     Hello, Alice!
     Howdy, Alice!
 
+Each extension has attribute ``package``, which contains the package where
+the extension was defined::
+
+    >>> with main:
+    ...     package = Hello.package()
+    >>> package
+    SandboxPackage()
+
 
 ``Extension.all()``, ``Extension.by_package()``, etc
 ====================================================

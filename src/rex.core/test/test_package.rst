@@ -65,11 +65,11 @@ The order of packages in the collection respects package dependencies::
     ...     print get_packages()        # doctest: +ELLIPSIS
     PackageCollection([Package('rex.core_demo', ...), Package('rex.core', ...)])
 
-Attribute ``PackageCollection.modules`` is a set of all modules where RexDB
-would look for extensions::
+Attribute ``PackageCollection.modules`` is a dictionary that maps modules where
+RexDB would look for extensions to the package which owns the module::
 
     >>> packages.modules    # doctest: +ELLIPSIS
-    set([..., 'rex.core_demo', ...])
+    {..., 'rex.core_demo': Package('rex.core_demo', ...), ...}
 
 
 Constructing package collection

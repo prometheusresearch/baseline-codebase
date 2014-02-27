@@ -3,7 +3,53 @@
 #
 
 
-from rex.core import Extension, cached
+from rex.core import (Extension, cached, Package, get_packages, Setting,
+        get_settings, StrVal, ChoiceVal, MapVal)
+
+
+class AccessSetting(Setting):
+    """
+    Access table with permissions required to access package resources.
+
+    For each package, this setting specifies the default permission required
+    to access package commands, static files and other resources via HTTP.
+
+    Example::
+
+        access:
+            rex.web_demo:   anybody
+
+    It is not an error to omit some packages or the whole setting entirely.
+    If the permission for a package is not specified, *authenticated*
+    permission is assumed.
+
+    This setting could be specified more than once.  Access tables preset
+    by different packages are merged into one.
+    """
+
+    name = 'access'
+
+    def merge(self, old_value, new_value):
+        # Verify and merge dictionaries.
+        map_val = MapVal()
+        value = {}
+        value.update(map_val(old_value))
+        value.update(map_val(new_value))
+        return value
+
+    def default(self):
+        return self.validate({})
+
+    def validate(self, value):
+        # All packages.
+        package_names = [package.name for package in get_packages()]
+        # Check if the raw setting value is well-formed.
+        mount_val = MapVal(ChoiceVal(*package_names), StrVal())
+        value = mount_val(value)
+        # Rebuild the access table.
+        access = dict((name, value.get(name))
+                      for name in package_names)
+        return access
 
 
 class Authenticate(Extension):
@@ -116,10 +162,41 @@ def authenticate(req):
     return req.environ['rex.user']
 
 
-def authorize(req, access):
+def authorize(req, access, default='authenticated'):
     """
     Returns whether the request has the given permission.
+
+    `access` is one of:
+
+    - the name of the permission;
+    - the name of a package;
+    - a :class:`rex.core.Package` object.
+    - an object with attributes ``access`` or ``package`` containing
+      respectively the permission name or the package that owns the object.
     """
+    # Maybe the permission name is set by the `access` or `package` attributes?
+    for attr in ('access', 'package'):
+        value = getattr(access, attr, None)
+        if callable(value) and not isinstance(value, Package):
+            value = value()
+        if value is not None:
+            access = value
+            break
+    # Is it a package object?
+    if isinstance(access, Package):
+        access = access.name
+    # Resolve a package name to a concrete permission.
+    packages = get_packages()
+    settings = get_settings()
+    seen = set()
+    while access in packages:
+        assert access not in seen, \
+                "detected a loop in access setting: %s" % sorted(seen)
+        seen.add(access)
+        access = settings.access.get(packages[access].name)
+    if access is None:
+        access = default
+    assert isinstance(access, str), repr(access)
     # Since authorization could be expensive (e.g. database access),
     # we cache the result in `environ['rex.access']`.
     if 'rex.access' not in req.environ:

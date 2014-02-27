@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.0.0 (2013-XX-XX)
+==================
+
+* Added setting ``access``.
+
+
 1.1.1 (2013-12-13)
 ==================
 

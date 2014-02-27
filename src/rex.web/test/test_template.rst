@@ -141,7 +141,7 @@ Each template gets a number of parameters::
     <p><code>PATH_URL:</code><code>http://localhost/templating/parameters.html</code></p>
     <p><code>REQUEST:</code><code>GET /templating/parameters.html?dummy=1 HTTP/1.0
     Host: localhost:80</code></p>
-    <p><code>SETTINGS:</code><code>SettingCollection(debug=False, mount={&#39;rex.web&#39;: &#39;&#39;, &#39;rex.core&#39;: &#39;core&#39;, &#39;templating&#39;: &#39;templating&#39;}, secret=None)</code></p>
+    <p><code>SETTINGS:</code><code>SettingCollection(...)</code></p>
     <p><code>URL:</code><code>http://localhost/templating/parameters.html?dummy=1</code></p>
     <p><code>USER:</code><code>Alice</code></p>
     </body>

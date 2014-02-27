@@ -27,7 +27,7 @@ support for authorization and parsing query parameters::
     ...         return Response("%s, %s!" % (greeting, name),
     ...                         content_type='text/plain')
 
-    >>> demo = Rex('__main__', 'rex.web')
+    >>> demo = Rex('-', 'rex.web', access={'sandbox': 'anybody'})
     >>> req = Request.blank('/hello?name=Alice')
     >>> print req.get_response(demo)
     200 OK
@@ -199,12 +199,12 @@ command.  If not set, *authenticated* is assumed::
     <BLANKLINE>
     Hello, Alice!
 
-If ``Command.access`` is set to ``None``, authorization is not performed.  This
-has the same effect as setting ``Command.access`` to ``'anybody'``::
+If ``Command.access`` is set to ``None``, the command inherits its permissions
+from the package where it is defined::
 
     >>> class PublicCommand(Command):
     ...     path = '/public'
-    ...     access = None   # or 'anybody'
+    ...     access = None
     ...
     ...     def render(self, req):
     ...         return Response("Hello, stranger!", content_type='text/plain')

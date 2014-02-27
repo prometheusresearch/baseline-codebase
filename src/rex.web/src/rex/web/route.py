@@ -208,8 +208,6 @@ class StaticServer(object):
 
     # Directory index.
     index_file = 'index.html'
-    # Default permission.
-    default_access = 'authenticated'
     # File that maps file patterns to permissions.
     access_file = '/_access.yaml'
     # Format validator for the access file.
@@ -258,7 +256,7 @@ class StaticServer(object):
         # We found the file to serve.
         if os.path.isfile(real_path):
             # Detemine and check access permissions for the requested URL.
-            access = self.default_access
+            access = None
             access_path = self.www_root + self.access_file
             if self.package.exists(access_path):
                 access_map = self.access_val.parse(
@@ -267,6 +265,8 @@ class StaticServer(object):
                     if fnmatch.fnmatchcase(url, pattern):
                         access = access_map[pattern]
                         break
+            if access is None:
+                access = self.package
             if not authorize(req, access):
                 raise HTTPUnauthorized()
             # Find and execute the handler by file extension.

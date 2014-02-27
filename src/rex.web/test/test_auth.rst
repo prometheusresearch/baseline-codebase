@@ -58,7 +58,6 @@ permission.  There are three predefined permissions::
     True
     >>> authorize(auth_req, 'nobody')
     False
-    >>> demo.off()
 
 ``authorize()`` invokes the ``Authorize`` interface and caches the result in
 ``environ['rex.access']`` dictionary.  Subsequent calls to ``authorize()`` will
@@ -69,5 +68,6 @@ return the cached value::
     >>> anon_req.remote_user = 'Clarence'
     >>> authorize(anon_req, 'authenticated')
     False
+    >>> demo.off()
 
 

@@ -85,9 +85,8 @@ class Command(HandleLocation):
 
     def authorize(self, req):
         # Checks if we have right permissions to execute the command.
-        if self.access is not None:
-            if not authorize(req, self.access):
-                raise HTTPUnauthorized()
+        if not authorize(req, self):
+            raise HTTPUnauthorized()
         # If the command has side effects, ensure that the request came
         # from our own site.
         if self.unsafe and not trusted(req):

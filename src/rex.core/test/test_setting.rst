@@ -51,10 +51,10 @@ through the constructor override values defined in ``settings.yaml`` files::
     >>> Rex(sandbox)                # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Failed to parse settings file:
+    Error: Failed to parse a YAML document:
         while scanning an alias
           in "/.../settings.yaml", line 1, column 1
-        expected alphabetic or numeric character, but found '*'
+        did not find expected alphabetic or numeric character
           in "/.../settings.yaml", line 1, column 2
     While initializing RexDB application:
         SandboxPackage('settings')
@@ -63,8 +63,11 @@ through the constructor override values defined in ``settings.yaml`` files::
     >>> Rex(sandbox)                # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got ill-formed settings file:
-        /.../settings.yaml
+    Error: Expected a mapping
+    Got:
+        Ill-formed settings file
+    While parsing:
+        "/.../settings.yaml", line 1
     While initializing RexDB application:
         SandboxPackage('settings')
 

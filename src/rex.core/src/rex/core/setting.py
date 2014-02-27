@@ -7,7 +7,7 @@ from .extension import Extension
 from .context import get_rex
 from .cache import cached
 from .package import get_packages
-from .validate import BoolVal
+from .validate import BoolVal, StrVal, MapVal
 from .error import Error
 import textwrap
 import yaml
@@ -125,6 +125,8 @@ class SettingCollection(object):
 
     __slots__ = ()
 
+    validate = MapVal(StrVal)
+
     @classmethod
     def build(cls):
         # Mapping from the setting name to the setting type.
@@ -137,16 +139,8 @@ class SettingCollection(object):
         for package in reversed(get_packages()):
             if package.exists('settings.yaml'):
                 stream = package.open('settings.yaml')
-                try:
-                    package_parameters = yaml.safe_load(stream)
-                except yaml.YAMLError, error:
-                    raise Error("Failed to parse settings file:", str(error))
+                package_parameters = cls.validate.parse(stream)
                 stream.close()
-                if package_parameters is None:
-                    continue
-                if not isinstance(package_parameters, dict):
-                    raise Error("Got ill-formed settings file:",
-                                package.abspath('settings.yaml'))
                 for name in sorted(package_parameters):
                     if name not in setting_map:
                         error = Error("Got unknown setting:", name)

@@ -80,6 +80,12 @@ Use option ``--set`` to specify a parameter of the application::
 
     $ rex serve rex.ctl_demo --set hello_access=anybody
 
+When you test a RexDB application, it is often convenient to preset user
+credentials from the command line.  You can do it using option
+``--remote-user``::
+
+    $ rex serve rex.ctl_demo --remote-user=admin
+
 
 Configuration file
 ==================

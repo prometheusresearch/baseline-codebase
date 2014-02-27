@@ -1,2 +1,2 @@
 <!DOCTYPE html>
-<title>Welcome to REX.CTL_DEMO!</title>
+<title>{% if USER %}Welcome {{ USER|e }}!{% else %}Welcome to REX.CTL_DEMO!{% endif %}</title>

@@ -124,6 +124,9 @@ tests:
       to specify the address and the port number for the HTTP server.
       If neither are set, the server is started on 127.0.0.1:8080.
 
+      User option --remote-user to preset user credentials.  The value
+      of this option is passed to the application as REMOTE_USER variable.
+
       By default, the server dumps HTTP logs in Apache Common Log Format
       to stdout.  Use option --quiet to suppress this output.  Unhandled
       application exceptions are dumped to stderr.
@@ -136,6 +139,7 @@ tests:
         --set=PARAM=VALUE        : set a configuration parameter
         -h/--host=HOSTNAME       : bind to the specified host
         -p/--port=PORT           : bind to the specified port
+        --remote-user=USER       : preset user credentials
         -q/--quiet               : suppress HTTP logs
 
   - rex: help wsgi
@@ -434,33 +438,23 @@ tests:
       stdout: |
         Serving rex.ctl_demo on 127.0.0.1:80
         [Errno 13] Permission denied
-  - suite: http-auth
+  - suite: using-remote-user
     tests:
-    - rex: serve rex.ctl_demo
+    - rex: serve rex.ctl_demo --remote-user=Aladdin
       stdout: null
-    - get: http://Aladdin@localhost:8080/
+    - get: http://localhost:8080/
       status: HTTP/1.0 200 OK
       headers:
-      - [Date, 'Thu, 19 Sep 2013 15:46:57 GMT']
-      - [Content-Length, '55']
+      - [Date, 'Thu, 27 Feb 2014 19:33:55 GMT']
+      - [Content-Length, '47']
       - [Content-Type, text/html; charset=UTF-8]
       body: '<!DOCTYPE html>
 
-        <title>Welcome to REX.CTL_DEMO!</title>'
-    - get: http://Aladdin:open%20sesame@localhost:8080/
-      status: HTTP/1.0 200 OK
-      headers:
-      - [Date, 'Thu, 19 Sep 2013 15:47:01 GMT']
-      - [Content-Length, '55']
-      - [Content-Type, text/html; charset=UTF-8]
-      body: '<!DOCTYPE html>
-
-        <title>Welcome to REX.CTL_DEMO!</title>'
-    - rex: serve rex.ctl_demo
+        <title>Welcome Aladdin!</title>'
+    - rex: serve rex.ctl_demo --remote-user=Aladdin
       stdout: |+
         Serving rex.ctl_demo on 127.0.0.1:8080
-        localhost - - [19/Sep/2013 14:13:16] "GET / HTTP/1.1" 200 55
-        localhost - Aladdin [19/Sep/2013 14:13:16] "GET / HTTP/1.1" 200 55
+        localhost - Aladdin [27/Feb/2014 13:33:55] "GET / HTTP/1.1" 200 47
 
   - suite: unhandled-exceptions
     tests:

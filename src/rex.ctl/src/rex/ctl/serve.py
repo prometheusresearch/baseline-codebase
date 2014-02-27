@@ -14,20 +14,27 @@ import SocketServer
 import wsgiref.simple_server, wsgiref.handlers, wsgiref.util
 
 
-class RexServer(SocketServer.ThreadingMixIn, wsgiref.simple_server.WSGIServer):
+class RexServer(SocketServer.ThreadingMixIn,
+                wsgiref.simple_server.WSGIServer,
+                object):
     # HTTP server that spawns a thread for each request.
 
+    # Preset REMOTE_USER value.
+    remote_user = None
     # Whether to dump HTTP logs.
-    quiet = False
+    quiet = None
+
+    @classmethod
+    def make(cls, remote_user, quiet):
+        # Builds a subclass with the given class parameters.
+        context = {
+            'remote_user': remote_user,
+            'quiet': quiet,
+        }
+        return type(cls.__name__, (cls,), context)
 
 
-class QuietRexServer(RexServer):
-    # Displays unhandled tracebacks only.
-
-    quiet = True
-
-
-class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
+class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler, object):
     # Provides customized logging.
 
     def handle(self):
@@ -39,6 +46,13 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
             self.rfile, self.wfile, self.get_stderr(), self.get_environ())
         handler.request_handler = self
         handler.run(self.server.get_app())
+
+    def get_environ(self):
+        # Sets REMOTE_USER.
+        environ = super(RexRequestHandler, self).get_environ()
+        if self.server.remote_user:
+            environ['REMOTE_USER'] = self.server.remote_user
+        return environ
 
     def log_message(self, format, *args):
         # Dumps a log message in the Apache Common Log Format.
@@ -53,19 +67,8 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
             log(":warning:`Invalid request:` {}", format % args)
             return
 
-        # Extract the remote user when Basic Auth is used.
-        remote_user = '-'
-        # Headers may not exist if the request failed to parse.
-        auth = getattr(self, 'headers', {}).get('Authorization', '').split()
-        if len(auth) == 2 and auth[0].lower() == 'basic':
-            auth = auth[1]
-            try:
-                auth = auth.decode('base64')
-            except binascii.Error:
-                pass
-            else:
-                if ':' in auth:
-                    remote_user = auth.split(':', 1)[0]
+        # Extract the remote user.
+        remote_user = self.server.remote_user or '-'
 
         # Highlight query strings and error codes.
         query, status, size = args
@@ -195,6 +198,9 @@ class SERVE:
     to specify the address and the port number for the HTTP server.
     If neither are set, the server is started on `127.0.0.1:8080`.
 
+    User option `--remote-user` to preset user credentials.  The value
+    of this option is passed to the application as `REMOTE_USER` variable.
+
     By default, the server dumps HTTP logs in Apache Common Log Format
     to stdout.  Use option `--quiet` to suppress this output.  Unhandled
     application exceptions are dumped to stderr.
@@ -216,15 +222,19 @@ class SERVE:
     port = option('p', int, default=None,
             value_name="PORT",
             hint="bind to the specified port")
+    remote_user = option(None, str, default=None,
+            value_name="USER",
+            hint="preset user credentials")
     quiet = option('q', bool,
             hint="suppress HTTP logs")
 
-    def __init__(self, project, require, set, host, port, quiet):
+    def __init__(self, project, require, set, host, port, remote_user, quiet):
         self.project = project
         self.require = require
         self.set = set
         self.host = host
         self.port = port
+        self.remote_user = remote_user
         self.quiet = quiet
 
     def __call__(self):
@@ -239,7 +249,7 @@ class SERVE:
                 log("Serving on `{}:{}`", host, port)
         httpd = wsgiref.simple_server.make_server(
                 host, port, app,
-                RexServer if not self.quiet else QuietRexServer,
+                RexServer.make(self.remote_user, self.quiet),
                 RexRequestHandler)
         httpd.serve_forever()
 

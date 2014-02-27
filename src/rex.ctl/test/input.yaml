@@ -198,15 +198,13 @@ tests:
       exit: 1
     - rm: ./sandbox/rex.yaml
 
-  - title: HTTP Auth
+  - title: Using `--remote-user`
     tests:
-    - rex: serve rex.ctl_demo
+    - rex: serve rex.ctl_demo --remote-user=Aladdin
       exit: null
-    - get: http://Aladdin@localhost:8080/
+    - get: http://localhost:8080/
       ignore: *http-ignore
-    - get: http://Aladdin:open%20sesame@localhost:8080/
-      ignore: *http-ignore
-    - rex: serve rex.ctl_demo
+    - rex: serve rex.ctl_demo --remote-user=Aladdin
       ignore: *log-ignore
 
   - title: Unhandled exceptions

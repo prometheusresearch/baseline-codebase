@@ -12,6 +12,8 @@
   the extension.
 * Added decorator ``@autoreload`` that re-evaluates a cached function whenever
   any of the source files changes.
+* Make sure implementations that failed ``Extension.sanitize()`` are never
+  used.
 
 
 1.3.0 (2014-02-21)

@@ -26,7 +26,12 @@ class Extension(object):
         def __new__(mcls, name, bases, members):
             # Call `sanitize()` when a new implementation is defined.
             cls = type.__new__(mcls, name, bases, members)
-            cls.sanitize()
+            try:
+                cls.sanitize()
+            except:
+                # Make sure the implementation can never be used.
+                cls.__module__ = None
+                raise
             return cls
 
         def __repr__(cls):

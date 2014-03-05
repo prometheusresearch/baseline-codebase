@@ -81,3 +81,61 @@ It is an error to call a cached function when no application is active::
     AssertionError: no active RexDB application
 
 
+``autoreload``
+==============
+
+``@rex.core.autoreload`` is a decorator for functions that load data from
+files.  Just like ``@cached``, it saves the result from the function, but it
+also re-evaluates the function if any of the source files changes.
+
+The decorated function must have a parameter called ``open`` with default
+value ``open``::
+
+    >>> from rex.core import autoreload
+
+    >>> COUNT = 0
+
+    >>> @autoreload
+    ... def load(path, open=open):
+    ...     global COUNT
+    ...     COUNT += 1
+    ...     return open(path).read()
+
+The function must be called in the context of a Rex application::
+
+    >>> from rex.core import Rex, SandboxPackage
+
+    >>> sandbox = SandboxPackage()
+    >>> demo = Rex(sandbox)
+    >>> demo.on()
+
+    >>> sandbox.rewrite('load.txt', """Load me!""")
+    >>> load(sandbox.abspath('load.txt'))
+    'Load me!'
+    >>> COUNT
+    1
+
+The second time the function is called, the cached result is returned::
+
+    >>> load(sandbox.abspath('load.txt'))
+    'Load me!'
+    >>> COUNT
+    1
+
+However if we change the file, the function gets called again::
+
+    >>> sandbox.rewrite('load.txt', """Load me, please!""")
+    >>> load(sandbox.abspath('load.txt'))
+    'Load me, please!'
+    >>> COUNT
+    2
+
+Any errors when the function is evaluated invalidate the cache::
+
+    >>> sandbox.rewrite('load.txt', None)
+    >>> load(sandbox.abspath('load.txt'))       # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    IOError: [Errno 2] No such file or directory: '/.../load.txt'
+
+

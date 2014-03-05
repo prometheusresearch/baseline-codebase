@@ -22,6 +22,7 @@ Caching
 =======
 
 .. autofunction:: rex.core.cached
+.. autofunction:: rex.core.autoreload
 
 
 Extensions

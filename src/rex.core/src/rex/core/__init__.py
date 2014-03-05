@@ -11,7 +11,7 @@ validating utilities.
 
 
 from .application import Rex, LatentRex, Initialize
-from .cache import cached
+from .cache import cached, autoreload
 from .context import get_rex
 from .error import Error, guard
 from .extension import Extension

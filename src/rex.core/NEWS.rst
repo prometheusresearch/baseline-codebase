@@ -10,6 +10,8 @@
 
 * Added method ``Extension.package()``, which returns the package that owns
   the extension.
+* Added decorator ``@autoreload`` that re-evaluates a cached function whenever
+  any of the source files changes.
 
 
 1.3.0 (2014-02-21)

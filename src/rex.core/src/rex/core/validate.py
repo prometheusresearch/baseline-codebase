@@ -96,6 +96,8 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
         Document validator.
     `master`
         Optional controller object.
+    `open`
+        Function used to open external files.
     """
 
     class ValidatingContext(object):
@@ -112,11 +114,12 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
         def __exit__(self, exc_type, exc_value, exc_tb):
             self.loader.validate = self.loader.validate_stack.pop()
 
-    def __init__(self, stream, validate, master=None):
+    def __init__(self, stream, validate, master=None, open=open):
         self.stream = stream
         self.validate = validate
         self.validate_stack = []
         self.master = master
+        self.open = open
         super(ValidatingLoader, self).__init__(stream)
         # Needed to generate a `Mark` object below.  We can't get it directly
         # from a `CLoader` instance.
@@ -200,7 +203,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                         node.start_mark)
             filename = os.path.join(os.path.dirname(basename), filename)
         try:
-            stream = open(filename, 'rb')
+            stream = self.open(filename)
         except IOError:
             raise yaml.constructor.ConstructorError(None, None,
                     "unable to open file: %s" % filename, node.start_mark)
@@ -232,7 +235,7 @@ class Validate(object):
         with guard("While parsing:", location):
             return self(data)
 
-    def parse(self, stream, master=None):
+    def parse(self, stream, master=None, open=open):
         """
         Parses and validates a YAML document.
 
@@ -240,14 +243,16 @@ class Validate(object):
             A string or an open file containing a YAML document.
         `master`
             Optional controller object for the YAML loader.
+        `open`
+            Function used to open external files.
         """
-        loader = ValidatingLoader(stream, self, master)
+        loader = ValidatingLoader(stream, self, master, open)
         try:
             return loader()
         except yaml.YAMLError, exc:
             raise Error("Failed to parse a YAML document:", exc)
 
-    def parse_all(self, stream, master=None):
+    def parse_all(self, stream, master=None, open=open):
         """
         Parses and validates all documents in a YAML stream.
 
@@ -255,8 +260,10 @@ class Validate(object):
             A string or an open file containing a series of YAML documents.
         `master`
             Optional controller object for the YAML loader.
+        `open`
+            Function used to open external files.
         """
-        loader = ValidatingLoader(stream, self, master)
+        loader = ValidatingLoader(stream, self, master, open)
         try:
             for data in loader:
                 yield data

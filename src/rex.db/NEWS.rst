@@ -9,6 +9,7 @@
 ==================
 
 * Removed ``htsql_access`` setting; use package permissions instead.
+* Removed ``/describe()`` command from the ``rex`` HTSQL addon.
 
 
 1.1.0 (2013-12-20)

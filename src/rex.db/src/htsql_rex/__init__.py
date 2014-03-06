@@ -5,15 +5,11 @@
 
 """
 The ``rex`` HTSQL addon registers extensions specific to the RexDB platform:
-
-``/describe()``
-    Produces product metadata.
+none so far.
 """
 
 
-
 from htsql.core.addon import Addon
-import cmd
 
 
 class RexAddon(Addon):

@@ -72,26 +72,6 @@ Settings specified in different packages are merged together::
     ...     print len(db.produce('/department'))
     2
 
-The ``rex`` addon is always enabled, which gives access to RexDB-specific
-domains, functions and commands::
-
-    >>> with demo:
-    ...     db = get_db()
-
-    >>> product = db.produce('/department/:describe')
-    >>> product
-    <Product null>
-    >>> product.meta
-    <Profile list(record(text, text, text))>
-
-    >>> db.produce('/describe()')
-    Traceback (most recent call last):
-      ...
-    Error: Expected one argument
-    While parsing:
-        /describe()
-         ^^^^^^^^^^
-
 
 HTSQL service
 =============

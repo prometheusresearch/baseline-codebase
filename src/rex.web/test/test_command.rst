@@ -27,7 +27,7 @@ support for authorization and parsing query parameters::
     ...         return Response("%s, %s!" % (greeting, name),
     ...                         content_type='text/plain')
 
-    >>> demo = Rex('-', 'rex.web', access={'sandbox': 'anybody'})
+    >>> demo = Rex('-', 'rex.web')
     >>> req = Request.blank('/hello?name=Alice')
     >>> print req.get_response(demo)
     200 OK
@@ -173,45 +173,26 @@ Authentication
 ==============
 
 Attribute ``Command.access`` specifies the permission required to perform the
-command.  If not set, *authenticated* is assumed::
+command.  If not set, package permission (by default, *authenticated*) is
+assumed::
 
     >>> from rex.web import authenticate
 
-    >>> class ProtectedCommand(Command):
-    ...     path = '/protected'
+    >>> class PackageCommand(Command):
+    ...     path = '/package'
     ...
     ...     def render(self, req):
-    ...         return Response("Hello, %s!" % authenticate(req),
+    ...         return Response("Hello, %s!" % (authenticate(req) or "stranger"),
     ...                         content_type='text/plain')
 
     >>> demo.reset()
-    >>> req = Request.blank('/protected')
+    >>> req = Request.blank('/package')
     >>> print req.get_response(demo)        # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
-    >>> req = Request.blank('/protected')
-    >>> req.remote_user = 'Alice'
-    >>> print req.get_response(demo)
-    200 OK
-    Content-Type: text/plain; charset=UTF-8
-    Content-Length: 13
-    <BLANKLINE>
-    Hello, Alice!
-
-If ``Command.access`` is set to ``None``, the command inherits its permissions
-from the package where it is defined::
-
-    >>> class PublicCommand(Command):
-    ...     path = '/public'
-    ...     access = None
-    ...
-    ...     def render(self, req):
-    ...         return Response("Hello, stranger!", content_type='text/plain')
-
-    >>> demo.reset()
-    >>> req = Request.blank('/public')
-    >>> print req.get_response(demo)
+    >>> public_demo = Rex('-', 'rex.web', access={'sandbox': 'anybody'})
+    >>> print req.get_response(public_demo)
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 16

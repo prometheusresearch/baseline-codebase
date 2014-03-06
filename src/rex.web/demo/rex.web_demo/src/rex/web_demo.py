@@ -69,6 +69,22 @@ class FactorialCmd(Command):
         return Response(json={"n": n, "n!": f})
 
 
+class FibonacciCmd(Command):
+
+    path = '/fibonacci/{n}'
+    access = 'anybody'
+    parameters = [
+            Parameter('n', PIntVal()),
+    ]
+
+    def render(self, req, n):
+        p = 0
+        q = 1
+        for k in range(n):
+            p, q = q, p+q
+        return Response(json={"n": n, "fib": p})
+
+
 class UnsafeCmd(Command):
 
     path = '/unsafe'

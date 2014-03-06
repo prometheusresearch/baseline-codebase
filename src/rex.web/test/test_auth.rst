@@ -59,6 +59,18 @@ permission.  There are three predefined permissions::
     >>> authorize(auth_req, 'nobody')
     False
 
+``authorize()`` also accepts a package name in place of a permission name.  In
+this case, permission of the package defined using ``access`` setting is
+assumed::
+
+    >>> with Rex('rex.web_demo', access={'rex.web_demo': 'anybody'}):
+    ...     print authorize(anon_req, 'rex.web_demo')
+    True
+
+    >>> with Rex('rex.web_demo', access={'rex.web_demo': 'nobody'}):
+    ...     print authorize(auth_req, 'rex.web_demo')
+    False
+
 ``authorize()`` invokes the ``Authorize`` interface and caches the result in
 ``environ['rex.access']`` dictionary.  Subsequent calls to ``authorize()`` will
 return the cached value::

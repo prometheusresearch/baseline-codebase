@@ -393,13 +393,48 @@ This service is implemented as a subclass of :class:`.Command`::
                 f = f * k
             return Response(json={"n": n, "n!": f})
 
+One could also pass command parameters via URL.  For example, ``rex.web_demo``
+provides a JSON serice for calculating the *Fibonacci* number::
+
+    >>> req = Request.blank('/fibonacci/10')
+    >>> print req.get_response(demo)
+    200 OK
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 17
+    <BLANKLINE>
+    {"fib":55,"n":10}
+
+This service is implemented as follows::
+
+    class FibonacciCmd(Command):
+
+        path = '/fibonacci/{n}'
+        access = 'anybody'
+        parameters = [
+                Parameter('n', PIntVal()),
+        ]
+
+        def render(self, req, n):
+            p = 0
+            q = 1
+            for k in range(n):
+                p, q = q, p+q
+            return Response(json={"n": n, "fib": p})
+
 :attr:`.Command.path`
     URL handled by the command.
+
+    The path may contain wildcard characters ``*`` and ``**``; the former
+    matches any URL segment, the latter matches a sequence of one or more
+    segments.
+
+    You can also assign a label to any segment of the URL using ``$label``
+    or ``{label}`` syntax.
 
 :attr:`.Command.access`
     The permission required to perform the request.  Permission *anybody*
     allows anyone to perform the request.  If this attribute is not set,
-    *authenticated* permission is assumed.
+    the permission of the package that owns the command is assumed.
 
 :attr:`.Command.parameters`
     List of query parameters expected by the command.  For each parameter,
@@ -470,12 +505,15 @@ name and returns whether or not the request is given the permission::
 To add another permission, applications should implement
 :class:`rex.web.Authorize` interface.
 
-Permissions are used to limit access to commands and static files.
+To set a permission on a package, you can use the ``access`` setting.
+The package permission affects commands and static files owned by the
+package.  By default, *authenticated* permission is assumed.
 
-For commands, use attribute :class:`rex.web.Command.access` to specify the
-necessary permission.  By default, commands require *authenticated* permission.
+For commands, use attribute :attr:`rex.web.Command.access` to specify the
+necessary permission.  If :attr:`rex.web.Command.access` is not set,
+the package permission is assumed.
 
-Static files served from the ``www`` directory require *authenticated*
+Static files served from the ``www`` directory require the package
 permission unless overridden in *access* file ``_access.yaml``.  This file must
 contain an ordered dictionary that maps path patterns to respective
 permissions.  For example, :mod:`rex.web_demo` has the following access file
@@ -635,6 +673,12 @@ Settings
 ========
 
 :mod:`rex.web` declares the following settings.
+
+``acccess``
+    Table that maps package names to permissions.
+
+    This settings could be specified more than once.  Access tables preset
+    by different packages are merged into one table.
 
 ``mount``
     Table mapping package names to URL segments.  If not set, generated

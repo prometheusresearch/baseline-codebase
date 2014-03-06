@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.db',
-    version = "1.1.0",
+    version = "2.0.0",
     description="Database access for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -28,7 +28,7 @@ setup(
     ],
     install_requires=[
         'rex.core >=1.1, <2',
-        'rex.web >=1.0, <2',
+        'rex.web >=2.0, <3',
         'HTSQL >=2.3.3, <2.5',
     ],
     rex_init='rex.db',

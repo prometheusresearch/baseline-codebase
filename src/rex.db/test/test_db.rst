@@ -96,13 +96,13 @@ domains, functions and commands::
 HTSQL service
 =============
 
-Raw HTSQL service is available under the ``rex.db`` mount point and, by
-default, requires authenticated access::
+Raw HTSQL service is available under the ``rex.db`` mount point and requires
+the ``rex.db`` package permissions::
 
     >>> from webob import Request
 
     >>> auth_demo = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite',
-    ...                 htsql_access='authenticated')
+    ...                 access={'rex.db': 'authenticated'})
 
     >>> anon_req = Request.blank('/db/department')
     >>> print anon_req.get_response(auth_demo)  # doctest: +ELLIPSIS
@@ -156,13 +156,13 @@ When the query is in a POST body, special characters must be properly escaped::
      | mth   | Mathematics |
      ...
 
-Setting ``htsql_access`` controls access to the HTSQL server.  To disable
-the service, set ``htsql_access`` to ``None``::
+The permission on ``rex.db`` package controls access to the HTSQL server.  To disable
+the service, set the permission to ``nobody``::
 
     >>> noservice = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite',
-    ...                 htsql_access=None)
+    ...                 access={'rex.db': 'nobody'})
     >>> print auth_req.get_response(noservice)  # doctest: +ELLIPSIS
-    404 Not Found
+    401 Unauthorized
     ...
 
 

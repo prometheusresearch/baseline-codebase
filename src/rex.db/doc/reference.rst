@@ -33,7 +33,6 @@ Configuration
 
 .. autoclass:: DBSetting
 .. autoclass:: HTSQLExtensionsSetting
-.. autoclass:: HTSQLAccessSetting
 
 
 Utilities

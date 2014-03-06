@@ -111,9 +111,9 @@ server or the browser::
      | School of Arts and Humanities |
     ...
 
-Permissions required to access HTSQL service is controlled by configuration
-parameter ``htsql_access``.  Set ``htsql_access`` to ``None`` to disable
-HTSQL service.
+HTSQL service requires the ``rex.db`` package permissions, which could be
+configured using the ``access`` setting.  To disable HTSQL service, set
+``access`` to ``{'rex.db': 'nobody'}``.
 
 
 ``*.htsql`` files

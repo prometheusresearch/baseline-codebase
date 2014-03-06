@@ -114,23 +114,6 @@ class HTSQLExtensionsSetting(Setting):
         return value
 
 
-class HTSQLAccessSetting(Setting):
-    """
-    Permission to access the HTSQL service.
-
-    Set to ``None`` to disable HTSQL service.  The default value is
-    ``'authenticated'``.
-
-    Example::
-
-        htsql_access: anybody
-    """
-
-    name = 'htsql_access'
-    validate = MaybeVal(StrVal())
-    default = 'authenticated'
-
-
 def jinja_global_htsql(path_or_query, content_type=None,
                        environment=None, **arguments):
     """
@@ -176,12 +159,8 @@ class HandleHTSQLLocation(HandleLocation):
     path = '*'
 
     def __call__(self, req):
-        # Check if the service is enabled or not.
-        settings = get_settings()
-        if settings.htsql_access is None:
-            raise HTTPNotFound()
         # Check if the request has access to the service.
-        if not authorize(req, settings.htsql_access):
+        if not authorize(req, self.package()):
             raise HTTPUnauthorized()
         # Unpack HTSQL queries tunneled in a POST body.
         if (req.method == 'POST' and

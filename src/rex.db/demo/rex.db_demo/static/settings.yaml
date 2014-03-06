@@ -3,5 +3,6 @@ htsql_extensions:
     tweak.meta:
     tweak.shell.default:
 
-htsql_access: anybody   # Don't do it for real projects!
+access:
+    rex.db: anybody     # Don't do it for real projects!
 

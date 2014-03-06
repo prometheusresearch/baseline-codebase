@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.0.0 (2013-XX-XX)
+2.0.0 (2014-XX-XX)
 ==================
 
 * Added setting ``access``; enhanced ``authorize()``.

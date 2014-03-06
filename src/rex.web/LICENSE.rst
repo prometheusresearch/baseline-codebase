@@ -1,7 +1,7 @@
 RexDB |R| Free Software License
 ===============================
 
-Copyright |c| 2006-2013 Prometheus Research, LLC.
+Copyright |c| 2006-2014 Prometheus Research, LLC.
 All rights reserved.
 
 This program is free software: you can use, redistribute, and/or modify

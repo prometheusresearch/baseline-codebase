@@ -23,8 +23,7 @@ class AccessSetting(Setting):
     If the permission for a package is not specified, *authenticated*
     permission is assumed.
 
-    This setting could be specified more than once.  Access tables preset
-    by different packages are merged into one.
+    Access tables defined by different packages are merged into one table.
     """
 
     name = 'access'
@@ -169,8 +168,8 @@ def authorize(req, access, default='authenticated'):
     `access` is one of:
 
     - the name of the permission;
-    - the name of a package;
-    - a :class:`rex.core.Package` object.
+    - the name of a package or a :class:`rex.core.Package` object, which implies
+      package permission defined with the ``access`` setting;
     - an object with attributes ``access`` or ``package`` containing
       respectively the permission name or the package that owns the object.
     """

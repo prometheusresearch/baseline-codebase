@@ -292,16 +292,9 @@ class CommandDispatcher(object):
         self.fallback = fallback or not_found
 
     def __call__(self, req):
-        path = req.path_info
-
-        if path in self.location_handler_map:
-            handler = self.location_handler_map[path]()
-            return handler(req)
-
-        if '*' in self.location_handler_map:
-            handler = self.location_handler_map['*']()
-            return handler(req)
-
+        handler = self.location_handler_map.get(req.path_info)
+        if handler:
+            return handler()(req)
         return self.fallback(req)
 
 

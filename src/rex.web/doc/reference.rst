@@ -36,6 +36,8 @@ Commands
 
 .. autoclass:: rex.web.Parameter
 .. autoclass:: rex.web.Command
+.. autoclass:: rex.web.PathMask
+.. autoclass:: rex.web.PathMap
 
 
 CSRF protection

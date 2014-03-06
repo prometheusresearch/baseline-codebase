@@ -60,7 +60,7 @@ class Command(HandleLocation):
     #: Location of the command.
     path = None
     #: Permission to execute the command.
-    access = 'authenticated'
+    access = None
     #: If set, indicates that the command has non-trivial side effects
     #: and can be executed only by trusted requests in order to prevent
     #: CSRF vulnerabilities.
@@ -71,6 +71,7 @@ class Command(HandleLocation):
     @classmethod
     def sanitize(cls):
         if cls.path is not None:
+            super(Command, cls).sanitize()
             assert cls.render != Command.render, \
                     "abstract method %s.render()" % cls
 
@@ -99,19 +100,26 @@ class Command(HandleLocation):
     def parse(self, req):
         # Parses query parameters.
 
+        # Extract segment labels.  If a label is listed in `parameters`,
+        # the value will be validated and overriden later.
+        arguments = self.path(req.path_info)
+
         if self.parameters is None:
             # Skip parsing.
-            return {}
+            return arguments
 
-        arguments = {}
         # Reject unknown parameters unless the parameter name starts with `_`.
         valid_keys = set(parameter.name for parameter in self.parameters)
         for key in req.params.keys():
-            if not (key in valid_keys or key.startswith('_')):
+            if key in self.path.labels or \
+                    not (key in valid_keys or key.startswith('_')):
                 raise Error("Received unexpected parameter:", key)
         # Process expected parameters.
         for parameter in self.parameters:
-            all_values = req.params.getall(parameter.name)
+            if parameter.name in self.path.labels:
+                all_values = [arguments[parameter.name]]
+            else:
+                all_values = req.params.getall(parameter.name)
             if not all_values and parameter.default is Parameter.REQUIRED:
                 # Missing mandatory parameter.
                 raise Error("Cannot find parameter:", parameter.name)

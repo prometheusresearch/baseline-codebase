@@ -8,7 +8,8 @@
 2.0.0 (2013-XX-XX)
 ==================
 
-* Added setting ``access``.
+* Added setting ``access``; enhanced ``authorize()``.
+* Added path matching utilities.
 
 
 1.1.1 (2013-12-13)

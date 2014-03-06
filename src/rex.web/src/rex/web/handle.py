@@ -4,6 +4,7 @@
 
 
 from rex.core import Extension, cached
+from .path import PathMask, PathMap
 
 
 class HandleLocation(Extension):
@@ -19,16 +20,20 @@ class HandleLocation(Extension):
     path = None
 
     @classmethod
+    def sanitize(cls):
+        if 'path' in cls.__dict__ and cls.path is not None:
+            if not isinstance(cls.path, PathMask):
+                cls.path = PathMask(cls.path)
+
+    @classmethod
     @cached
     def map_by_package(cls, name):
         """
         Returns a dictionary mapping URL fragments to handler types.
         """
-        mapping = {}
+        mapping = PathMap()
         for extension in cls.by_package(name):
-            assert extension.path not in mapping, \
-                    "duplicate location handler: %r" % extension.path
-            mapping[extension.path] = extension
+            mapping.add(extension.path, extension)
         return mapping
 
     @classmethod

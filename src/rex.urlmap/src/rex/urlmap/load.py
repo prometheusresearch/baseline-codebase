@@ -6,6 +6,7 @@
 from rex.core import (get_packages, cached, MaybeVal, StrVal, BoolVal, MapVal,
         OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate, Location, Error,
         guard, autoreload)
+from rex.web import PathMask, PathMap
 from .handle import TreeWalker, TemplateRenderer
 import os
 import yaml
@@ -109,41 +110,26 @@ class LoadMap(object):
         map_spec = self.validate.parse(stream)
         map_spec = self._include(map_spec)
 
-        # Segment tree with handlers at the leaves; `'*'` denotes any segment;
-        # `None` is a leaf handler.
-        segment_map = {}
+        # Maps URL patterns to handlers.
+        segment_map = PathMap()
         # Iterate over `paths` dictionary.
         for path in sorted(map_spec.paths):
-            # Split the URL into segments, find segment labels and add a path
-            # to the segment tree.
-            segments = path[1:].split('/')
-            labels = []
-            mapping = segment_map
-            for segment in segments:
-                if segment.startswith('$'):
-                    label = segment[1:]
-                    key = '*'
-                else:
-                    label = None
-                    key = segment
-                labels.append(label)
-                mapping = mapping.setdefault(key, {})
-            assert None not in mapping
             handle_spec = map_spec.paths[path]
+            path = PathMask(path)
             # Generate a template handler.
             if isinstance(handle_spec, self.template_type):
                 validates = {}
                 access = handle_spec.access or self.package.name
                 context = self._merge(map_spec.context, handle_spec.context)
                 handler = TemplateRenderer(
-                        labels=labels,
+                        path=path,
                         template=handle_spec.template,
                         access=access,
                         unsafe=handle_spec.unsafe,
                         parameters=handle_spec.parameters,
                         validates=validates,
                         context=context)
-            mapping[None] = handler
+            segment_map.add(path, handler)
         # Generate the main handler.
         return TreeWalker(segment_map, self.fallback)
 

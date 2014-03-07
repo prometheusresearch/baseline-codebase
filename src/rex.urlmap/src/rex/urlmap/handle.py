@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, guard
-from rex.web import authorize, trusted, render_to_response
+from rex.web import not_found, authorize, trusted, render_to_response
 from webob.exc import HTTPNotFound, HTTPUnauthorized, HTTPForbidden
 import urllib
 
@@ -13,40 +13,24 @@ class TreeWalker(object):
     # Routes the request through the segment tree.
 
     def __init__(self, segment_map, fallback):
-        # Maps a URL segment to a nested segment map; `'*'` denotes wildcard
-        # segments; `None` denotes leaf handlers.
+        # Maps URLs to handlers.
         self.segment_map = segment_map
         # Handler for URLs that don't match the segment map.
-        self.fallback = fallback
+        self.fallback = fallback or not_found
 
     def __call__(self, req):
-        # Split the URL into segments.
-        segments = req.path_info[1:].split('/')
-        # Traverse the segment tree.
-        mapping = self.segment_map
-        for segment in segments:
-            if segment in mapping:
-                mapping = mapping[segment]
-            elif '*' in mapping:
-                mapping = mapping['*']
-            else:
-                mapping = {}
-                break
-        # If found a leaf, use it; otherwise use `fallback`.
-        if None in mapping:
-            return mapping[None](req)
-        if self.fallback is not None:
-            return self.fallback(req)
-        raise HTTPNotFound()
+        # Find the handle for the URL.
+        handle = self.segment_map.get(req.path_info, self.fallback)
+        return handle(req)
 
 
 class TemplateRenderer(object):
     # Renders a Jinja template.
 
-    def __init__(self, labels, template, access, unsafe,
+    def __init__(self, path, template, access, unsafe,
                  parameters, validates, context):
-        # List of names for URL segments; use `None` for unlabeled segments.
-        self.labels = labels
+        # Path mask for extracting labeled segments.
+        self.path = path
         # Package path to the template.
         self.template = template
         # Permission to request the URL.
@@ -73,7 +57,7 @@ class TemplateRenderer(object):
 
     def authorize(self, req):
         # Check access permissions.
-        if self.access is not None and not authorize(req, self.access):
+        if not authorize(req, self.access):
             raise HTTPUnauthorized()
         # Protect against CSRF attacts.
         if self.unsafe and not trusted(req):
@@ -100,14 +84,11 @@ class TemplateRenderer(object):
                         value = self.validates[name](value)
             context[name] = value
         # Process segment labels.
-        segments = req.path_info[1:].split('/')
-        for label, segment in zip(self.labels, segments):
-            if label is not None:
-                segment = urllib.unquote(segment)
-                if label in self.validates:
-                    with guard("While parsing segment:", "$"+label):
-                        segment = self.validates[label](segment)
-                context[label] = segment
+        for label, segment in sorted(self.path(req.path_info).items()):
+            if label in self.validates:
+                with guard("While parsing segment:", "$"+label):
+                    segment = self.validates[label](segment)
+            context[label] = segment
         return context
 
 

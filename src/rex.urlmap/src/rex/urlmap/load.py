@@ -134,7 +134,7 @@ class LoadMap(CachingLoad):
     template_key = 'template'
     template_val = RecordVal(
             ('template', file_val),
-            ('access', StrVal, 'authenticated'),
+            ('access', StrVal, None),
             ('unsafe', BoolVal, False),
             ('parameters', parameters_val, {}),
             ('context', context_val, {}))
@@ -198,11 +198,12 @@ class LoadMap(CachingLoad):
             # Generate a template handler.
             if isinstance(handle_spec, self.template_type):
                 validates = {}
+                access = handle_spec.access or self.package.name
                 context = self._merge(map_spec.context, handle_spec.context)
                 handler = TemplateRenderer(
                         labels=labels,
                         template=handle_spec.template,
-                        access=handle_spec.access,
+                        access=access,
                         unsafe=handle_spec.unsafe,
                         parameters=handle_spec.parameters,
                         validates=validates,

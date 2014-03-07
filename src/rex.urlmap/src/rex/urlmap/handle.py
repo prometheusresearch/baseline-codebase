@@ -1,12 +1,11 @@
 #
-# Copyright (c) 2013, Prometheus Research, LLC
+# Copyright (c) 2013-2014, Prometheus Research, LLC
 #
 
 
 from rex.core import Error, guard
 from rex.web import not_found, authorize, trusted, render_to_response
-from webob.exc import HTTPNotFound, HTTPUnauthorized, HTTPForbidden
-import urllib
+from webob.exc import HTTPUnauthorized, HTTPForbidden
 
 
 class TreeWalker(object):

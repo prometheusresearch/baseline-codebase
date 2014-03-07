@@ -159,7 +159,9 @@ class ErrorCatcher(object):
 
 
 def not_found(req):
-    # Used as the default fallback.
+    """
+    Raises 404.  Use as the default fallback.
+    """
     raise HTTPNotFound()
 
 

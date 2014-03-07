@@ -56,8 +56,7 @@ class LoadMap(object):
     # Names of query parameters and context variables.
     attr_val = StrVal(r'[A-Za-z_][0-9A-Za-z_]*')
     # URL pattern.
-    path_val = StrVal(r'(([/]([0-9A-Za-z._-]+|[$][A-Za-z_][0-9A-Za-z_]*))+'
-                      r'[/]?)|[/]')
+    path_val = StrVal(r'/[${}/0-9A-Za-z:._-]*')
     # Filename pattern.
     file_val = StrVal(r'[/0-9A-Za-z:._-]+')
     # Template variables.
@@ -172,13 +171,18 @@ class LoadMap(object):
         context = self._merge(base_spec.context, include_spec.context)
         paths = base_spec.paths.copy()
         # URL cache for detecting duplicate URLs.
-        seen = {}
+        seen = PathMap()
         for path in paths:
-            mask = tuple(segment if not segment.startswith('$') else '*'
-                         for segment in path[1:].split('/'))
-            seen[mask] = paths[path]
+            seen.add(path, paths[path])
         for path in sorted(include_spec.paths):
             handle_spec = include_spec.paths[path]
+            # Validate the URL.
+            try:
+                mask = PathMask(path)
+            except ValueError:
+                error = Error("Detected ill-formed path:", path)
+                error.wrap("While parsing:", locate(handle_spec))
+                raise error
             # Resolve relative paths.
             handle_spec = self._resolve(handle_spec, current_path)
             # Merge `!override` records.
@@ -190,15 +194,13 @@ class LoadMap(object):
                 paths[path] = self._override(paths[path], handle_spec)
             else:
                 # Complain about duplicate URLs.
-                mask = tuple(segment if not segment.startswith('$') else '*'
-                             for segment in path[1:].split('/'))
                 if mask in seen:
                     error = Error("Detected duplicate or ambiguous path:", path)
                     error.wrap("Defined in:", locate(handle_spec))
                     error.wrap("And previously in:", locate(seen[mask]))
                     raise error
                 paths[path] = handle_spec
-                seen[mask] = handle_spec
+                seen.add(path, handle_spec)
 
         return base_spec.__clone__(context=context, paths=paths)
 

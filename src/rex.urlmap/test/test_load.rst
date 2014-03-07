@@ -8,10 +8,26 @@
 Parsing paths
 =============
 
-``rex.urlmap`` reports when it cannot recognize a handler record::
+``rex.urlmap`` requires well-formed URLs::
 
     >>> from rex.core import Rex, SandboxPackage
     >>> sandbox = SandboxPackage()
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /individual/{id:
+    ...     template: /template/individual.html
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap')          # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Detected ill-formed path:
+        /individual/{id
+    While parsing:
+        "/.../urlmap.yaml", line 4
+    ...
+
+``rex.urlmap`` reports when it cannot recognize a handler record::
 
     >>> sandbox.rewrite('/urlmap.yaml', """
     ... paths:

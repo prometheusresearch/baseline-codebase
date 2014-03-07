@@ -3,6 +3,9 @@
 #
 
 
+import urllib
+
+
 class Symbol(object):
     # Represents `*` and `**` singletons.
 
@@ -106,7 +109,7 @@ class PathMask(object):
                 if value != pattern:
                     raise ValueError("path does not match the mask: %r" % path)
             if label:
-                assignments[label] = value
+                assignments[label] = urllib.unquote(value)
         if segments:
             raise ValueError("path does not match the mask: %r" % path)
         return assignments

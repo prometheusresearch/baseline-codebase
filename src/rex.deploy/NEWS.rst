@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.2.1 (2014-XX-XX)
+==================
+
+* Updated dependencies.
+
+
 1.2.0 (2014-01-24)
 ==================
 

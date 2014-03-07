@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.deploy',
-    version = "1.2.0",
+    version = "1.2.1",
     description="Database schema management for RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -23,8 +23,9 @@ setup(
     ],
     install_requires=[
         'rex.core >=1.2, <2',
-#        'rex.db >=1.0, <2',    Should be enabled back after RDOMA is retired.
+#        'rex.db >=1.0, <3',    Should be enabled back after RDOMA is retired.
         'HTSQL >=2.3.3, <2.5',
+        'HTSQL-PGSQL >=2.3.3, <2.5',
         'psycopg2 >=2.4.2',
     ],
     entry_points = {

@@ -5,10 +5,9 @@
 
 from rex.core import (get_packages, cached, MaybeVal, StrVal, BoolVal, MapVal,
         OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate, Location, Error,
-        guard)
+        guard, autoreload)
 from .handle import TreeWalker, TemplateRenderer
 import os
-import threading
 import yaml
 
 
@@ -50,72 +49,7 @@ class TaggedRecordVal(RecordVal):
                                ", ".join(repr(field) for field in self.fields))
 
 
-class CachingLoad(object):
-    # Loads and processes data from a file and caches the result.
-    # Reloads the data whenever the file is updated.  Not resistant
-    # to race conditions -- use only to permit development without
-    # restarting the server.
-
-    # FIXME: API; move to rex.core.
-
-    @classmethod
-    @cached
-    def instance(cls, *args):
-        # Creates and caches a class instance with the given arguments.
-        return cls(*args)
-
-    @classmethod
-    def do(cls, *args):
-        # Loads data from a file.
-        instance = cls.instance(*args)
-        return instance()
-
-    def __init__(self):
-        self.lock = threading.Lock()
-        # Set of files used to generate the result.
-        self.filenames = []
-        # Time of the last update of the files from this set.
-        self.last_modified = None
-        # Cached data.
-        self.result = None
-
-    def __call__(self):
-        with self.lock:
-            # Check if we can use the cached result.
-            if (self.last_modified is not None and
-                    all(os.path.exists(filename)
-                        for filename in self.filenames)):
-                last_modified = max(os.stat(filename).st_mtime
-                                    for filename in self.filenames)
-                if last_modified == self.last_modified:
-                    return self.result
-            # If not, generate and cache the result.
-            self.filenames = []
-            self.last_modified = None
-            try:
-                self.result = self.load()
-            except:
-                self.filenames = []
-                self.last_modified = None
-                raise
-            return self.result
-
-    def open(self, filename):
-        # Opens the file; notes the time of the last update.
-        stream = open(filename)
-        if filename not in self.filenames:
-            self.filenames.append(filename)
-            last_modified = os.fstat(stream.fileno()).st_mtime
-            if self.last_modified is None or self.last_modified < last_modified:
-                self.last_modified = last_modified
-        return stream
-
-    def load(self):
-        # Parses the file(s).  Subclasses must reimplement this method.
-        raise NotImplementedError("%s.load()" % self.__class__.__name__)
-
-
-class LoadMap(CachingLoad):
+class LoadMap(object):
     # Parses `urlmap.yaml` file.
 
     # Names of query parameters and context variables.
@@ -161,12 +95,13 @@ class LoadMap(CachingLoad):
             ('paths', MapVal(path_val, handle_val), {}),
     ])
 
-    def __init__(self, package, fallback):
+    def __init__(self, package, fallback, open=open):
         super(LoadMap, self).__init__()
         self.package = package
         self.fallback = fallback
+        self.open = open
 
-    def load(self):
+    def __call__(self):
         # Generates a request handler from `urlmap.yaml` configuration.
 
         # Parse the file and process the `include` section.
@@ -328,6 +263,10 @@ class LoadMap(CachingLoad):
         return merged
 
 
-load_map = LoadMap.do
+@autoreload
+def load_map(package, fallback, open=open):
+    # Parses `urlmap.yaml` file.
+    load = LoadMap(package, fallback, open=open)
+    return load()
 
 

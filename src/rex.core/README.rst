@@ -387,7 +387,8 @@ several methods and attributes:
     This method finds an implementation with the given name.  You can also use
     existing methods :meth:`.Extension.all()`, :meth:`.Extension.top()`,
     :meth:`.Extension.by_package()` to find implementations of a specific
-    interface.
+    interface.  Use method :meth:`.Extension.package()` on the implementation
+    class to find the package which owns the implementation.
 
 To declare an implementation, create a subclass of the interface class::
 

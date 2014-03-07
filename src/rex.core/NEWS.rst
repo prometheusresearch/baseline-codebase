@@ -5,13 +5,13 @@
 .. contents:: Table of Contents
 
 
-1.4.0 (2014-XX-XX)
+1.4.0 (2014-03-07)
 ==================
 
 * Added method ``Extension.package()``, which returns the package that owns
   the extension.
-* Added decorator ``@autoreload`` that re-evaluates a cached function whenever
-  any of the source files changes.
+* Added a caching decorator ``@autoreload`` that re-evaluates the cached
+  function whenever any of the files opened by the function change.
 * Make sure implementations that failed ``Extension.sanitize()`` are never
   used.
 

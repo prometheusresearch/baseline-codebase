@@ -137,8 +137,8 @@ def cached(fn):
 
 def autoreload(fn):
     """
-    Decorates the function that loads data from a file to cache its return
-    values.  Rebuilds the result if any of the source files changes.
+    Decorates the function to cache its return value.  The cached value is
+    re-evaluated if any of the files opened by the function change.
 
     The function must have only positional arguments with the last argument
     being ``open=open``.

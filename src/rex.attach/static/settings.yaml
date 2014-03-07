@@ -1,0 +1,9 @@
+#
+# Copyright (c) 2014, Prometheus Research, LLC
+#
+
+
+access:
+    rex.attach: nobody
+
+

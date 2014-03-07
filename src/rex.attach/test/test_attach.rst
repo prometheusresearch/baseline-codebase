@@ -142,16 +142,16 @@ response with attachment content::
 The ``rex.attach`` module also provides a service to download attachments
 directly.  By default, it is disabled::
 
-    >>> req = Request.blank("/attach"+handle_str)
+    >>> req = Request.blank("/attach"+handle_str, remote_user='Alice')
     >>> print req.get_response(demo)                    # doctest: +ELLIPSIS
-    404 Not Found
+    401 Unauthorized
     ...
 
-To enable the service, specify parameter ``attach_access``, which should
-contain the permission required to access the service::
+To enable the service, you should set the permission for the ``rex.attach``
+package using ``access`` setting::
 
     >>> download_demo = Rex('rex.attach_demo', attach_dir="./sandbox/attachments",
-    ...                     attach_access='authenticated')
+    ...                     access={'rex.attach': 'authenticated'})
 
 Requests must have the required permission::
 

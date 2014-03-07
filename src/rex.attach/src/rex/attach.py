@@ -263,22 +263,6 @@ class AttachDirSetting(Setting):
     validate = StrVal()
 
 
-class AttachAccessSetting(Setting):
-    """
-    Permission required for unrestricted access to the attachment storage.
-
-    The default value is ``None``, which disables access to the storage.
-
-    Example::
-
-        attach_access: architect
-    """
-
-    name = 'attach_access'
-    validate = MaybeVal(StrVal)
-    default = None
-
-
 class InitializeAttach(Initialize):
     # Verifies that `attach_dir` is a valid directory and writable.
 
@@ -297,12 +281,8 @@ class HandleAttachLocation(HandleLocation):
     path = '*'
 
     def __call__(self, req):
-        settings = get_settings()
-        # Check if the service is enabled.
-        if settings.attach_access is None:
-            raise HTTPNotFound()
         # Check if the request has access to the service.
-        if not authorize(req, settings.attach_access):
+        if not authorize(req, self.package()):
             raise HTTPUnauthorized()
         # Allow only GET and HEAD requests.
         if req.method not in ('GET', 'HEAD'):

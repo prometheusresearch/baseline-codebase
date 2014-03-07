@@ -38,7 +38,9 @@ Commands
 .. autoclass:: rex.web.Parameter
 .. autoclass:: rex.web.Command
 .. autoclass:: rex.web.PathMask
+   :special-members: __call__
 .. autoclass:: rex.web.PathMap
+   :special-members: __contains__, __getitem__
 
 
 CSRF protection

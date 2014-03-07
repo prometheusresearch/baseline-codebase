@@ -11,7 +11,7 @@ Path maps
 ``PathMap`` class is used to match a URL path against a collection
 of URL patterns.  Use method ``PathMap.add()`` to add an URL pattern::
 
-    >>> from rex.web import PathMap
+    >>> from rex.web import PathMap, PathMask
 
     >>> map = PathMap()
     >>> map.add('/', "Index")
@@ -38,6 +38,32 @@ Use method ``PathMap.get()`` to match a path against the collection::
     'Edit Individual'
     >>> map.get('/not-found', default="Not Found")
     'Not Found'
+
+You can also use ``[]`` operation::
+
+    >>> map['/individual/1001']
+    'Individual'
+    >>> map['/not-found']
+    Traceback (most recent call last):
+      ...
+    ValueError: path does not match any mask: /not-found
+
+Use ``in`` operator to check whether the path matches any mask in the
+collection::
+
+    >>> '/individual/1001' in map
+    True
+    >>> '/not-found' in map
+    False
+
+You can also match mask objects against the collection::
+
+    >>> map[PathMask('/individual/$id')]
+    'Individual'
+    >>> map[PathMask('/*')]
+    Traceback (most recent call last):
+      ...
+    ValueError: path does not match any mask: /*
 
 A path must always start with ``/``::
 
@@ -69,8 +95,6 @@ Path masks
 ==========
 
 A mask object allows you to extract label values from a path::
-
-    >>> from rex.web import PathMask
 
     >>> mask = PathMask('/individual/{id}')
     >>> mask

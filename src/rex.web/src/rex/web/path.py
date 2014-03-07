@@ -6,20 +6,12 @@
 import urllib
 
 
-class Symbol(object):
-    # Represents `*` and `**` singletons.
-
-    def __init__(self, text):
-        self.text = text
-
-    def __repr__(self):
-        return str(self.text)
-
-
-# Matches any segment.
-STAR = Symbol('*')
-# Matches one or more segments.
-DOUBLE_STAR = Symbol('**')
+# Pattern that matches any segment.
+STAR = object()
+# Pattern that matches one or more arbitrary segments.
+DOUBLE_STAR = object()
+# Value to return when the path does not match any mask.
+MISSING = object()
 
 
 class PathMask(object):
@@ -146,7 +138,17 @@ class PathMap(object):
         """
         Matches the given path against the mask collection; returns the target
         of the most specific mask or `default`.
+
+        Also accepts a :class:`PathMask` instance; in which case, returns the
+        target defined for the mask.
         """
+        if isinstance(path, PathMask):
+            subtree = self.tree
+            for pattern in path.patterns:
+                if pattern not in subtree:
+                    return default
+                subtree = subtree[pattern]
+            return subtree.get(None, default)
         if not path.startswith('/'):
             raise ValueError("path must start with /: %r" % path)
         segments = path[1:].split('/')
@@ -166,5 +168,21 @@ class PathMap(object):
             if None in tree:
                 return tree[None]
         return default
+
+    def __getitem__(self, path):
+        """
+        Matches the path against the collection; returns the target
+        corresponding to the most specific matching mask.
+        """
+        value = self.get(path, MISSING)
+        if value is MISSING:
+            raise ValueError("path does not match any mask: %s" % path)
+        return value
+
+    def __contains__(self, path):
+        """
+        Checks if the path matches any mask in the collection.
+        """
+        return self.get(path, MISSING) is not MISSING
 
 

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.0.0 (2014-XX-XX)
+2.0.0 (2014-03-07)
 ==================
 
 * Removed ``htsql_access`` setting; use package permissions instead.

@@ -54,8 +54,7 @@ Now we make a Rex application over the created database::
 
     >>> demo = Rex('rex.db', 'rex.deploy',
     ...            db='pgsql:deploy_demo_htsql',
-    ...            htsql_extensions={'rex_deploy': {}},
-    ...            htsql_access='anybody')
+    ...            htsql_extensions={'rex_deploy': {}})
     >>> demo.on()
 
 Now we can make some queries to see how ``rex.deploy`` metadata changes HTSQL

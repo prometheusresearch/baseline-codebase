@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.2.0 (2013-XX-XX)
+1.2.0 (2013-03-07)
 ==================
 
 * Added option ``--remote-user`` for ``rex serve`` task.

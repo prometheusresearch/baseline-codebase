@@ -5,10 +5,11 @@
 .. contents:: Table of Contents
 
 
-2.0.0 (2014-XX-XX)
+2.0.0 (2014-03-07)
 ==================
 
 * When URL permission is not specified explicitly, use package permission.
+* Use ``rex.web`` syntax for URL masks.
 
 
 1.0.1 (2013-12-13)

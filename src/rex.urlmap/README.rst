@@ -379,8 +379,8 @@ context variables ``context``.  The following fields are expected:
           query: /study{code, title}
 
 `access`
-    Permission required to access the URL.  If not set, permission
-    *authenticated* is assumed.
+    Permission required to access the URL.  If not set, the permission of the
+    package that owns the handler is assumed.
 
     Example::
 

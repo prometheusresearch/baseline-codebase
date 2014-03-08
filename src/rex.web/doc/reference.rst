@@ -66,6 +66,7 @@ Configuration
 =============
 
 .. autoclass:: MountSetting
+.. autoclass:: AccessSetting
 .. autoclass:: SecretSetting
 
 

@@ -394,7 +394,7 @@ This service is implemented as a subclass of :class:`.Command`::
             return Response(json={"n": n, "n!": f})
 
 One could also pass command parameters via URL.  For example, ``rex.web_demo``
-provides a JSON serice for calculating the *Fibonacci* number::
+provides a JSON service for calculating the *n*-th *Fibonacci* number::
 
     >>> req = Request.blank('/fibonacci/10')
     >>> print req.get_response(demo)
@@ -491,6 +491,13 @@ name and returns whether or not the request is given the permission::
 
     >>> demo.off()
 
+In place of the permission name, :func:`rex.web.authorize()` can also take:
+
+- a package name or a package object, in which case, the function verifies
+  whether the request has the package permission;
+- an object with attributes ``access`` or ``package`` containing respectively
+  the name of the permission or the package.
+
 :mod:`rex.web` defines three permissions:
 
 ``'authenticated'``
@@ -505,13 +512,15 @@ name and returns whether or not the request is given the permission::
 To add another permission, applications should implement
 :class:`rex.web.Authorize` interface.
 
-To set a permission on a package, you can use the ``access`` setting.
-The package permission affects commands and static files owned by the
-package.  By default, *authenticated* permission is assumed.
+To set permission on a package, you can use the ``access`` setting.  The
+``access`` setting is a dictionary that maps package names to permissions.  The
+package permission is the default permission for all resources owned by the
+package including commands and static files.  If the package permission is not
+set, *authenticated* permission is assumed.
 
 For commands, use attribute :attr:`rex.web.Command.access` to specify the
-necessary permission.  If :attr:`rex.web.Command.access` is not set,
-the package permission is assumed.
+desired permission.  If :attr:`rex.web.Command.access` is not set, the
+permission of the package that owns the command is assumed.
 
 Static files served from the ``www`` directory require the package
 permission unless overridden in *access* file ``_access.yaml``.  This file must
@@ -689,7 +698,7 @@ Settings
     a command or a static resource that matches the URL.
 
     This setting could be specified more than once.  Mount tables preset
-    by different packages are merged into one.
+    by different packages are merged into one table.
 
 ``secret``
     Passphrase used for generating encryption and validation keys for the

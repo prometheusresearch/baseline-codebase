@@ -19,13 +19,17 @@ class PathMask(object):
     Pattern for matching URL segments.
 
     `text`
-        URL pattern of the form ``'/segment1/segment2/...'``.
+        URL path or pattern starting with ``/``.  Each URL segment can
+        be one of:
 
-        Segments ``*`` and ``**`` have a special meaning, they match any
-        segment or any sequence of segments respectively.
+        - a literal value, e.g. ``/individual``;
+        - a wildcard segment ``/*`` or ``/**`` matching respectively any
+          segment or any sequence of segments;
+        - a labeled segment in the form ``/$label`` or ``/$label:pattern``;
+          if ``pattern`` is not set, ``*`` is assumed.  Syntax ``/{label}``
+          or ``/{label:pattern}`` is also accepted.
 
-        A labeled segment has the form ``$label:segment``.  A segment
-        ``$label`` is equivalent to ``$label:*``.
+        Path ``'*'`` is interpreted as ``'/**'``.
     """
 
     @staticmethod
@@ -80,7 +84,9 @@ class PathMask(object):
 
     def __call__(self, path):
         """
-        Extracts values of segment labels.
+        Extracts labeled segments.
+
+        Returns a dictionary that maps the labels to URL segments.
         """
         assignments = {}
         if not path.startswith('/'):
@@ -123,7 +129,7 @@ class PathMap(object):
 
     def add(self, mask, target):
         """
-        Adds a URL pattern to the collection with the given target.
+        Adds the URL pattern with the given target to the collection.
         """
         if not isinstance(mask, PathMask):
             mask = PathMask(mask)

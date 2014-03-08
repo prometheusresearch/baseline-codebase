@@ -28,7 +28,6 @@ Settings
 ========
 
 .. autoclass:: AttachDirSetting
-.. autoclass:: AttachAccessSetting
 
 
 Utilities

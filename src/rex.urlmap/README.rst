@@ -269,6 +269,36 @@ get::
         query: /individual{code, first_name+' '+last_name :as title}
 
 
+
+Embedding settings values
+=========================
+
+You can use a value of an application setting in ``urlmap.yaml``.  Let's assume
+that the application declares a setting called ``site_title``::
+
+    from rex.core import Setting, StrVal
+
+    class SiteTitleSetting(Setting):
+        """
+        The title of the site displayed on the root page.
+        """
+        name = 'site_title'
+        validate = StrVal()
+        default = "A Rex application'
+
+You can set the value of this setting in a ``setting.yaml`` file or pass it as
+a command-line parameter when you start the application.
+
+Use ``!setting`` tag to include the value of the setting in ``urlmap.yaml``.
+For example::
+
+    /:
+      template: /template/index.html
+      access: anybody
+      context:
+        title: !setting site_title
+
+
 The ``urlmap.yaml`` file format
 ===============================
 

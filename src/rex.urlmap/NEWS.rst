@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.1.0 (2014-XX-XX)
+==================
+
+* Support for ``!setting`` tag in ``urlmap.yaml``.
+
+
 2.0.0 (2014-03-07)
 ==================
 

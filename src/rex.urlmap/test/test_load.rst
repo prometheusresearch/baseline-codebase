@@ -253,3 +253,78 @@ Orphaned overrides are detected and reported::
     ...
 
 
+Embedding settings
+==================
+
+You can use ``!setting`` tag to use a setting value in the ``urlmap.yaml``
+file::
+
+    >>> from rex.core import Setting, StrVal
+
+    >>> class SiteTitleSetting(Setting):
+    ...     """Site title"""
+    ...     name = 'site_title'
+    ...     validate = StrVal()
+    ...     default = None
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /:
+    ...     template: templates:/template/universal.html
+    ...     access: anybody
+    ...     context: { title: !setting site_title }
+    ... """)
+    >>> settings_demo = Rex(sandbox, 'rex.urlmap', './test/data/templates/',
+    ...                     site_title="Settings Demo")
+
+    >>> req = Request.blank('/')
+    >>> print req.get_response(settings_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    <title>Settings Demo</title>
+    ...
+
+Unknown, invalid or ill-formed setting values are rejected::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: !setting []
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap')              # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        expected a setting name, but found sequence
+          in "/.../urlmap.yaml", line 2, column 10
+    ...
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: !setting extra_urlmap
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap')              # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Got unknown setting:
+        extra_urlmap
+    While parsing:
+        "/.../urlmap.yaml", line 2
+    While validating field:
+        include
+    ...
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: !setting site_title
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap', site_title="Settings Demo")      # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Expected a string matching:
+        /[/0-9A-Za-z:._-]+/
+    Got:
+        'Settings Demo'
+    While parsing:
+        "/.../urlmap.yaml", line 2
+    While validating field:
+        include
+    ...
+
+

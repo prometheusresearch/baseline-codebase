@@ -3,9 +3,10 @@
 #
 
 
-from rex.core import (get_packages, cached, MaybeVal, StrVal, BoolVal, MapVal,
-        OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate, Location, Error,
-        guard, autoreload)
+from rex.core import (
+        get_packages, get_settings, cached, autoreload, ValidatingLoader,
+        MaybeVal, StrVal, BoolVal, MapVal, OneOrSeqVal, RecordVal, UnionVal,
+        OnMatch, locate, Location, Error, guard)
 from rex.web import PathMask, PathMap
 from .handle import TreeWalker, TemplateRenderer
 import os
@@ -48,6 +49,26 @@ class TaggedRecordVal(RecordVal):
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__, self.tag,
                                ", ".join(repr(field) for field in self.fields))
+
+
+class MapLoader(ValidatingLoader):
+    # Add support for !setting tag.
+
+    def construct_object(self, node, deep=False):
+        if node.tag != u'!setting':
+            return super(MapLoader, self).construct_object(node, deep)
+        if not isinstance(node, yaml.ScalarNode):
+            raise yaml.constructor.ConstructorError(None, None,
+                    "expected a setting name, but found %s" % node.id,
+                    node.start_mark)
+        settings = get_settings()
+        with guard("While parsing:", Location.from_node(node)):
+            if not hasattr(settings, node.value):
+                raise Error("Got unknown setting:", node.value.encode('utf-8'))
+            value = getattr(settings, node.value)
+            if self.validate is not None:
+                value = self.validate(value)
+        return value
 
 
 class LoadMap(object):
@@ -106,7 +127,7 @@ class LoadMap(object):
 
         # Parse the file and process the `include` section.
         stream = self.open(self.package.abspath('urlmap.yaml'))
-        map_spec = self.validate.parse(stream)
+        map_spec = self.validate.parse(stream, Loader=MapLoader)
         map_spec = self._include(map_spec)
 
         # Maps URL patterns to handlers.
@@ -163,7 +184,7 @@ class LoadMap(object):
                 include = self._resolve(include, current_path)
                 # Load and merge a nested urlmap.
                 stream = self.open(packages.abspath(include))
-                spec = self.validate.parse(stream)
+                spec = self.validate.parse(stream, Loader=MapLoader)
                 stream.close()
                 base_spec = self._include(spec, include, base_spec)
 

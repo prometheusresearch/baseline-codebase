@@ -9,6 +9,7 @@
 ==================
 
 * Support for ``!setting`` tag in ``urlmap.yaml``.
+* Support for package lookup in ``include`` directive.
 
 
 2.0.0 (2014-03-07)

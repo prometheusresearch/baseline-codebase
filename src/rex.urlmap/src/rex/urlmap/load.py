@@ -228,6 +228,12 @@ class LoadMap(object):
     def _resolve(self, spec, current_path):
         # Resolves relative paths.
         if isinstance(spec, str):
+            if spec.startswith('::'):
+                local_path = spec[2:]
+                for package in get_packages():
+                    if package.exists(local_path):
+                        return "%s:%s" % (package.name, local_path)
+                raise Error("Cannot find file:", spec)
             if ':' not in spec:
                 current_package, current_directory = current_path
                 spec = "%s:%s" % (current_package,

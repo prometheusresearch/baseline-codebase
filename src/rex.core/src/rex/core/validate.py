@@ -166,7 +166,8 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
     def construct_object(self, node, deep=False):
         if node.tag == u'!include':
             stream = self.include(node)
-            loader = self.__class__(stream, self.validate, self.master)
+            loader = self.__class__(stream, self.validate,
+                                    self.master, self.open)
             # Ensure the stream contains no or one YAML document; load it.
             node = loader.get_single_node()
             # If the stream contain no documents, make a fake !!null document.
@@ -235,7 +236,7 @@ class Validate(object):
         with guard("While parsing:", location):
             return self(data)
 
-    def parse(self, stream, master=None, open=open):
+    def parse(self, stream, master=None, open=open, Loader=ValidatingLoader):
         """
         Parses and validates a YAML document.
 
@@ -245,14 +246,17 @@ class Validate(object):
             Optional controller object for the YAML loader.
         `open`
             Function used to open external files.
+        `Loader`
+            YAML parser class.
         """
-        loader = ValidatingLoader(stream, self, master, open)
+        loader = Loader(stream, self, master, open)
         try:
             return loader()
         except yaml.YAMLError, exc:
             raise Error("Failed to parse a YAML document:", exc)
 
-    def parse_all(self, stream, master=None, open=open):
+    def parse_all(self, stream, master=None, open=open,
+                  Loader=ValidatingLoader):
         """
         Parses and validates all documents in a YAML stream.
 
@@ -262,8 +266,10 @@ class Validate(object):
             Optional controller object for the YAML loader.
         `open`
             Function used to open external files.
+        `Loader`
+            YAML parser class.
         """
-        loader = ValidatingLoader(stream, self, master, open)
+        loader = Loader(stream, self, master, open)
         try:
             for data in loader:
                 yield data

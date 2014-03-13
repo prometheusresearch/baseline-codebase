@@ -139,30 +139,6 @@ accepted::
 
     >>> include_demo = Rex(sandbox, 'rex.urlmap')
 
-If the filename starts with ``::``, ``rex.urlmap`` will search for the file
-across all packages::
-
-    >>> sandbox.rewrite('/urlmap.yaml', """
-    ... include: ::/urlmap/study.yaml
-    ... """)
-
-    >>> include_demo = Rex(sandbox, 'rex.urlmap')
-
-If the lookup fails, an error is reported::
-
-    >>> sandbox.rewrite('/urlmap.yaml', """
-    ... include: ::/urlmap/appointment.yaml
-    ... """)
-
-    >>> Rex(sandbox, 'rex.urlmap')          # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    Error: Cannot find file:
-        ::/urlmap/appointment.yaml
-    Included from:
-        /.../urlmap.yaml
-    ...
-
 Use ``!override`` tag to override context variables and other parameters of a
 URL handler defined in an included file::
 

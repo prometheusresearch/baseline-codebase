@@ -307,10 +307,8 @@ file.  This file may contain the following fields:
 
 `include`
     File or a list of files to include.  Relative and absolute file paths are
-    accepted.  If the file name starts with symbols ``::``, it will be looked
-    up across all packages of the application.  The files must be in the
-    ``urlmap.yaml`` format; it particular, they may also contain an `include`
-    section.
+    accepted.  The files must be in the ``urlmap.yaml`` format; it particular,
+    they may also contain an `include` section.
 
     Examples::
 
@@ -320,17 +318,12 @@ file.  This file may contain the following fields:
 
         include: rex.study:/urlmap.yaml
 
-        include: ::/urlmap/study_extra.yaml
-
     In the first example, URL mapping configuration is loaded from files
     ``./static/urlmap/study.yaml`` and ``./static/urlmap/individual.yaml`` from
     the same package.
 
     In the second example, additional configuration is loaded from file
     ``./static/urlmap.yaml`` from package ``rex.study``.
-
-    In the last example, ``rex.urlmap`` will search all packages for a file
-    called ``/urlmap/study_extra.yaml``, the first file found will be loaded.
 
 `context`
     Variables to pass to all templates defined in this file.

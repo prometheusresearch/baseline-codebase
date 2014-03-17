@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.forms',
-    version='0.10.1',
+    version='0.10.2',
     description="RexForms client Javascript code & templates",
     include_package_data=True,
     setup_requires=['rex.setup'],

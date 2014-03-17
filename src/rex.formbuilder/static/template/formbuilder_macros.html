@@ -109,11 +109,14 @@
         <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/builder.js" data-prefix="{{ MOUNT['rex.formbuilder'] }}" data-forms-prefix="{{ MOUNT['rex.formbuilder'] }}"></script>
 {% endmacro %}
 
-{% macro formbuilder(instrument, code, manual_edit_conditions, ext_param_types, base_url=None) %}
+{% macro formbuilder(instrument, code, manual_edit_conditions, ext_param_types, base_url=None, index_url=None) %}
     <div class="rb-box-absolute">
         <script type="text/javascript">
             {% if not base_url %}
                 {% set base_url = MOUNT['rex.formbuilder'] %}
+            {% endif %}
+            {% if not index_url %}
+                {% set index_url = base_url + '/' %}
             {% endif %}
             $(document).ready(function () {
                 $.RexFormBuilder.init({
@@ -126,7 +129,7 @@
             });
         </script>
         <div id="rb_left_part">
-            <a href="{{ base_url|e }}/" class="rb-back-url">&larr; All Instruments</a>
+            <a href="{{ index_url|e }}" class="rb-back-url">&larr; All Instruments</a>
             {# <div id="rb_instrument_name_wrap"><span id="rb_instrument_name">{{ instrument|e }}</span></div> #}
             <div id="rb_instrument_title_wrap">
                 <div id="rb_instrument_title_view">

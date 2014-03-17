@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='1.2.0',
+    version='1.2.1',
     description='A GUI for constructing RexAcquire Forms',
     entry_points={
         'rdoma.modules': ['rex_formbuilder = rex.formbuilder.deploy'],

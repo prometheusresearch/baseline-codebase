@@ -90,11 +90,11 @@ test('test loading and saving', function () {
 	var validated = false;
 	window.customSaveStateResponse = function (request, response) {
 		var qs = parseQueryString(request.data);
-		var data = $.parseJSON(qs['data']);
+		var data = JSON.parse(qs['data']);
 		answers = data.answers;
 
 		var instrumentName = qs['form'];
-		var instrument = $.toJSON(window.J[instrumentName]);
+		var instrument = JSON.stringify(window.J[instrumentName]);
 		var assessment = qs['data'];
 
 		$.ajax({

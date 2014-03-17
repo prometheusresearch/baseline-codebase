@@ -1,13 +1,12 @@
 {%- from 'files.html' import files with context -%}
+{% import "rex.vendor:/template/macro.html" as vendor with context %}
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <title>All RexForms Tests</title>
-    <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/qunit/qunit.css">
-    <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/addons/composite/qunit-composite.css">
-    <script src="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/qunit/qunit.js"></script>
-    <script src="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/addons/composite/qunit-composite.js"></script>
+    {{ vendor.qunit() }}
+    {{ vendor.qunit_composite() }}
     <script>
         QUnit.testSuites([
             {% for file in files %}

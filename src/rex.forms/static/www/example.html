@@ -1,12 +1,12 @@
+{% import "rex.vendor:/template/macro.html" as vendor with context %}
 <html>
     <head>
         <title>Example of Conditions Editor</title>
-        <link rel="stylesheet" href="/ext/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
-        <script type="text/javascript" src="/ext/jquery/jquery-1.7.2.min.js"></script>
-        <script type="text/javascript" src="/ext/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
-        <script type="text/javascript" src="/rexl/rexl.js"></script>
-        <link rel="stylesheet" href="/css/conditor.css" />
-        <script type="text/javascript" src="/js/conditor.js"></script>
+        {{ vendor.jquery() }}
+        {{ vendor.jquery_ui() }}
+        <script type="text/javascript" src="{{ MOUNT['rex.forms'] }}/js/rexl.js"></script>
+        <link rel="stylesheet" href="{{ MOUNT['rex.forms'] }}/css/conditor.css" />
+        <script type="text/javascript" src="{{ MOUNT['rex.forms'] }}/js/conditor.js"></script>
         <style>
             body {
                 position: absolute;

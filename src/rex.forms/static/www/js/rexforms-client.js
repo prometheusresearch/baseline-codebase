@@ -2733,7 +2733,7 @@ $.RexFormsClient = function (o) {
         this.formData.explanations = self.collectExplanations();
 
         // var changeStamp = self.changeStamp;
-        var collectedData = $.toJSON(this.formData);
+        var collectedData = JSON.stringify(this.formData);
 
         if (!self.raiseEvent('beforeSave', collectedData))
             // stop if aborted
@@ -2762,7 +2762,7 @@ $.RexFormsClient = function (o) {
                 success: function(content, textStatus, req) {
                     var result = null;
                     try {
-                        var result = $.parseJSON(content);
+                        var result = JSON.parse(content);
                     } catch(err) {
                         onError(req, null);
                         return;

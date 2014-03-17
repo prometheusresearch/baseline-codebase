@@ -644,7 +644,7 @@ rexl.TypeInstance = rexl.Class(function(cls, data) {
 
 rexl.TypeInstance.prototype.adapt = function(cls) {
     if(this.cls.is(rexl.Untyped))
-        return rexl.type(cls);
+        return rexl.type(cls, this.data);
     if(this.cls.is(cls))
         return this;
     rexl.validator.error("Can't adapt from " + this.cls + " to " + cls);
@@ -751,6 +751,24 @@ rexl.EvalBase.prototype.argList = function(args) {
 	return ret;
 }
 
+rexl.EvalBase.prototype.findCommon = function(args, types, common) {
+    var dict = {}, list = [];
+    for(i = 0, l = args.length; i < l; i++) 
+        if(!args[i].cls.is(rexl.Untyped))
+            dict[args[i].cls.toString()] = args[i].cls;
+    for(var key in dict)
+        list.push(dict[key]);
+    if(list.length == 0 && args.length)
+        return rexl.String;
+    else if (list.length == 1) {
+        for(var i = 0, l = types.length; i < l; i++)
+            if(types[i].is(list[0]))
+                return types[i];
+    } 
+    
+    return null;
+}
+
 rexl.EvalBase.prototype.eval = function() {
 	var e = this;
 	var js = this.node.toJS(); 	
@@ -761,71 +779,58 @@ rexl.EvalBase.prototype.eval = function() {
 	return value[0];
 }
 
-rexl.EvalBase.prototype.f = function(arg) {
-    if(arg == rexl._separator)
-        return this.specifier;
-	if(this._f[arg])
-		return this._f[arg];
-	rexl.evaluator.error(arg + ' operation/function/method/property is not implemented.');
-}
-
-rexl.EvalBase.prototype.specifier = function(e, left, right) {
-    if(left.isIdentifier() && right.isIdentifier()) {
-        left = left.getData();
-        right = right.getData();
-        for(var i = 0, l = right.length; i < l; i++)
-            left.push(right[i]);
-        return new rexl.Identifier(left);
-    }
-    else if(left.isValue() && right.isIdentifier()) {
-        return e.p(left, right.getData());
-    }
-    else
-        (this instanceof rexl.Evaluator ? rexl.evaluator:rexl.validator)
-            .error("The right-most operand of '" + rexl._separator
-                    + "' operation should be identifier");
-}
-
-rexl.EvalBase.prototype.pos = function(start, end) {
-    this.start = start;
-    this.end = end;
-    return this;
-}
-
-
 rexl.Evaluator = rexl.Class(function(node, callback, obj) {
     rexl.EvalBase.call(this, rexl.Value, callback, obj);
 	this.node = node;
 }, rexl.EvalBase);
 
-rexl.Evaluator.prototype.error = function(message) {
-    rexl._error('evaluator', message, this.start, this.end);
-}
-
-rexl.Evaluator.prototype.evaluate = function() {
-    var r = this.eval();//rexl.EvalBase.prototype.evaluate.call(this);
-    return r.value;
-}
-
-
-rexl.Evaluator.prototype.str = function(s) {
-	return rexl.Untyped.value(s);
-}
-
-rexl.Evaluator.prototype.num = function(n) {
-	return rexl.Number.value(n);
-}
-
-
-rexl.Evaluator.prototype.p = function(obj, name) {
-    var value = this.check([obj])[0];
-    args = this.check(args);
-    return value.property(name);
-}
-
-
 rexl.Evaluator.prototype._f = {
-	'|': function() {
+    '+': function() {
+        var e = arguments[0];
+        var data = e.check(e.argList(arguments));
+        var argTypes = data.map(function (item) { return item.type; });
+        var common = e.findCommon(argTypes, [rexl.String, rexl.Number])
+        var values = data.map(function (i) { return common.cast(i); }),
+            ret = null;
+        if(common.is(rexl.Number)) {
+            ret = 0;
+            for(var i = 0, l = values.length; i < l; i++) {
+                if(values[i].isNull())
+                    return common.value(null);
+                ret -= values[i].value;
+            }
+            ret *= -1;
+        }
+        else {
+            ret = '';
+            for(var i = 0, l = values.length; i < l; i++) {
+                if(values[i].isNull())
+                    return common.value(null);
+                ret += values[i].value;
+            }
+        }
+        return common.value(ret)
+    },
+    '-': function() {
+        var e = arguments[0];
+        var data = e.check(e.argList(arguments));
+        var argTypes = data.map(function (item) { return item.type; });
+        var common = e.findCommon(argTypes, [rexl.Number]);
+        var values = data.map(function (i) { return common.cast(i); }),
+            ret = null;
+        if (common.is(rexl.Number)) {
+            ret = 0;
+            for (var i = 0, l = values.length; i < l; i++) {
+                if(values[i].isNull())
+                    return common.value(null);
+                ret -= values[i].value;
+                if (i == 0)
+                    ret *= -1;
+            }
+        }
+        return common.value(ret);
+    },
+    '|': function() {
 		var e = arguments[0];
 		var args = e.check(e.argList(arguments));
 		var ret = false;
@@ -838,6 +843,26 @@ rexl.Evaluator.prototype._f = {
 		}
 		return rexl.Boolean.value(ret);
 	},
+    'count_true': function () {
+        var e = arguments[0];
+        var args = e.check(e.argList(arguments));
+        var c = 0;
+        for (var i = 0, l = args.length; i < l; i++) {
+            var v = rexl.Boolean.cast(args[i]);
+            if (v.value == true)
+                ++c;
+        }
+        return rexl.Number.value(c);
+    },
+    'if': function () {
+        var e = arguments[0];
+        var args = e.check(e.argList(arguments));
+        if (rexl.Boolean.cast(args[0]).value)
+            return args[1];
+        if (args.length == 3)
+            return args[2];
+        return rexl.Untyped.value(null);
+    },
 	'&': function() {
 		var e = arguments[0];
 		var args = e.check(e.argList(arguments));
@@ -932,10 +957,74 @@ rexl.Evaluator.prototype._f = {
         return rexl.String.value(value);
     },
 
+    'today': function() {
+        var today = new Date();
+        return rexl.String.value(
+                (today.getYear() + 1900) + '-'
+                + (today.getMonth() + 1) + '-'
+                + today.getDate());
+    },
+
     // Math functions
     'pi':function() {
         return rexl.Number.value(Math.PI);
     }
+}
+
+rexl.EvalBase.prototype.f = function(arg) {
+    if(arg == rexl._separator)
+        return this.specifier;
+	if(this._f[arg])
+		return this._f[arg];
+	rexl.evaluator.error(arg + ' operation/function/method/property is not implemented.');
+}
+
+rexl.EvalBase.prototype.specifier = function(e, left, right) {
+    if(left.isIdentifier() && right.isIdentifier()) {
+        left = left.getData();
+        right = right.getData();
+        for(var i = 0, l = right.length; i < l; i++)
+            left.push(right[i]);
+        return new rexl.Identifier(left);
+    }
+    else if(left.isValue() && right.isIdentifier()) {
+        return e.p(left, right.getData());
+    }
+    else
+        (this instanceof rexl.Evaluator ? rexl.evaluator:rexl.validator)
+            .error("The right-most operand of '" + rexl._separator
+                    + "' operation should be identifier");
+}
+
+rexl.EvalBase.prototype.pos = function(start, end) {
+    this.start = start;
+    this.end = end;
+    return this;
+}
+
+rexl.Evaluator.prototype.error = function(message) {
+    rexl._error('evaluator', message, this.start, this.end);
+}
+
+rexl.Evaluator.prototype.evaluate = function() {
+    var r = this.eval();//rexl.EvalBase.prototype.evaluate.call(this);
+    return r.value;
+}
+
+
+rexl.Evaluator.prototype.str = function(s) {
+	return rexl.Untyped.value(s);
+}
+
+rexl.Evaluator.prototype.num = function(n) {
+	return rexl.Number.value(n);
+}
+
+
+rexl.Evaluator.prototype.p = function(obj, name) {
+    var value = this.check([obj])[0];
+    args = this.check(args);
+    return value.property(name);
 }
 
 rexl.Evaluator.prototype.comp2 = function(op, jsOp, left, right) {
@@ -1027,22 +1116,6 @@ rexl.Validator.prototype.evaluate = function() {
 
 }*/
 
-rexl.Validator.prototype.findCommon = function(args, types, common) {
-    if(!common)
-        common = rexl.String;
-    for(var i = 0, l = types.length; i < l; i++) {
-        var type = types[i];
-        for(var j = 0, l2 = args.length; j < l2; j++)
-            if(args[j].cls.is(type)) {
-                common = args[j].cls;
-                break;
-            }
-        if(j < args.length)
-            break;
-    }
-    return common;
-}
-
 rexl.Validator.prototype.trueFalseBase = function(name, args) {
     var data = this.check(this.argList(args));
     if(data.length != 0)
@@ -1072,7 +1145,10 @@ rexl.Validator.prototype.compBase = function(name, args) {
         rexl._error('validator', name + ' expects exactly 2 arguments');
     var common = this.findCommon(data, [rexl.String, rexl.Number, rexl.Boolean, rexl.Binary,
             rexl.BitString, rexl.Date, rexl.Time, rexl.DateTime,
-            rexl.TimeDeltai, rexl.Array])
+            rexl.TimeDelta, rexl.Array]);
+    if(common == null)
+        rexl._error("Can't find common type for " + data[0].cls.toString() 
+                    + " and " + data[1].cls.toString());
     data.map(function(item) {item.adapt(common)});
     return rexl.type(rexl.Boolean);
 }
@@ -1091,6 +1167,20 @@ rexl.Validator.prototype._f = {
             rexl._error('validator', 'is_null() expects exactly one argument'); 
         return rexl.type(rexl.Boolean); 
     },
+    'count_true': function () {
+        var v = arguments[0];
+        var data = v.check(v.argList(arguments));
+        if (!data.length)
+            rexl._error('validator', 'count_true() expects at least one argument');
+        return rex.type(rexl.Number);
+    },
+    'if': function() {
+        var v = arguments[0];
+        var data = v.check(v.argList(arguments));
+        if(!data.length || data.length < 2 || data.length > 3)
+            rexl._error('validator', 'if() expects 2 or 3 arguments');
+        return rexl.type(rexl.Untyped);
+    },
     'coalesce': function() {
         var v = arguments[0];
         var data = v.check(v.argList(arguments));
@@ -1099,6 +1189,8 @@ rexl.Validator.prototype._f = {
         var common = v.findCommon(data, [rexl.String, rexl.Number, rexl.Boolean, rexl.Binary,
             rexl.BitString, rexl.Date, rexl.Time, rexl.DateTime,
             rexl.TimeDelta]);
+        if(common == null)
+            rexl._error("Can't find common type for coalesce arguments");
         data.map(function(item) {item.adapt(common)});
         return rexl.type(common); 
     },

@@ -14,8 +14,7 @@ setup(
     setup_requires=['rex.setup'],
     install_requires=[
         'rex.web>=1.0,<2',
-        'rex.common>=0.9,<2',
-        'rex.ext>=0.9,<2',
+        'rex.vendor>=1.2,<2',
     ],
     rex_static='static',
 )

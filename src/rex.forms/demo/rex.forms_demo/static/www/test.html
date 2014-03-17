@@ -1,10 +1,11 @@
 {% from 'files.html' import files with context %}
 {% import 'rex.forms:/macros.html' as macro with context %}
+{% import "rex.vendor:/template/macro.html" as vendor with context %}
 <html>
 <head>
     <title>Suite: {% if PARAMS.run %}{{ PARAMS.run|e }}{% else %}all{% endif %}</title>
     {{ macro.client_head() }}
-    <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery-mockjax/jquery.mockjax.js"></script>
+    {{ vendor.jquery_mockjax() }}
     <script type="text/javascript">
         window.customSaveStateResponse = null;
         $.mockjax({
@@ -74,9 +75,8 @@
         };
     </script>
 
-    <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/qunit/qunit.css">
-    <script src="{{ MOUNT['rex.ext'] }}/qunit/1.10.0/qunit/qunit.js"></script>
-    <script src="{{ MOUNT['rex.common'] }}/js/qunit-addons/qunit-dom.js"></script>
+    {{ vendor.qunit() }}
+    <script src="{{ MOUNT['rex.forms'] }}/js/qunit-dom.js"></script>
 
     {% if not PARAMS.run %}
         {% for file in files %}
@@ -97,7 +97,3 @@
     <div id="qunit"></div>
 </body>
 </html>
-
-<!--
-  vim: foldmethod=marker:
--->

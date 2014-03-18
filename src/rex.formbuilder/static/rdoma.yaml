@@ -1,13 +1,8 @@
-
----
 name: rex_formbuilder.core
-dependencies: [rex_study.core]
-
-
 ---
 revision: 20130921
 install:
-- uri: /meta:table[rex.formbuilder]/delete(expect='?')
+#- uri: /meta:table[rex.formbuilder]/delete(expect='?')
 - cmd: merge
   aspect: meta:table
   data:

@@ -2251,7 +2251,7 @@ builder.initConditionEditor = function () {
 };
 
 builder.init = function (o) {
-    var code = (typeof o.code === 'string') ? $.parseJSON(o.code) : o.code;
+    var code = (typeof o.code === 'string') ? JSON.parse(o.code) : o.code;
     builder.context =
         new Context(o.instrument, /* o.extParamTypes, */
                     o.manualEditConditions || false,
@@ -2341,11 +2341,11 @@ builder.test = function () {
     if (!builder.pageEditor.closeQuestionEditor())
         return;
 
-    var json = $.toJSON(builder.getInstrumentData());
+    var json = JSON.stringify(builder.getInstrumentData());
     var onValuesSet = function (paramValues) {
         var form = $('#rb_form_test');
         form.find('input[name=json]').val(json);
-        form.find('input[name=params]').val($.toJSON(paramValues));
+        form.find('input[name=params]').val(JSON.stringify(paramValues));
         form.submit();
     };
 
@@ -2365,7 +2365,7 @@ builder.getMeasureTypes = function (onSuccess) {
                 + encodeURIComponent(builder.context.instrumentName),
         async: true,
         success: function (content, textStatus, req) {
-            onSuccess($.parseJSON(content));
+            onSuccess(JSON.parse(content));
         }
     });
 };
@@ -2439,7 +2439,7 @@ builder.save = function (o) {
     if (!builder.pageEditor.closeQuestionEditor())
         return;
 
-    var data = $.toJSON(builder.getInstrumentData());
+    var data = JSON.stringify(builder.getInstrumentData());
     var postData = 'instrument_id='
                     + encodeURIComponent(builder.context.instrumentName)
                     + '&data=' + encodeURIComponent(data);

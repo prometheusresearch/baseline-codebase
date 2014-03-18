@@ -19,10 +19,9 @@ setup(
     namespace_packages=['rex'],
     include_package_data=True,
     install_requires=[
-        'rex.web>=1.0,<2',
+        'rex.web>=1.0,<3',
+        'rex.vendor>=1.2',
         'htsql>=2.3.3',
-        'rex.common>=0.9',
-        'rex.ext>=0.9',
         'rex.forms>=0.10,<2',
         'rex.instrument>=0.1.5,<2',
     ],

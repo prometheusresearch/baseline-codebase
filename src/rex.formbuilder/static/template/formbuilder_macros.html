@@ -1,4 +1,4 @@
-
+{% import "rex.vendor:/template/macro.html" as vendor with context %}
 {% import 'rex.forms:/macros.html' as client with context %}
 
 {% macro formbuilder_preview_head() %}
@@ -7,8 +7,8 @@
 {% endmacro %}
 
 {% macro formbuilder_instruments_head() %}
-    <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
-    <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
+    {{ vendor.jquery() }}
+    {{ vendor.jquery_ui() }}
     <link rel="stylesheet" href="{{ MOUNT['rex.formbuilder'] }}/css/instruments.css" />
 {% endmacro %}
 
@@ -96,11 +96,9 @@
         <meta name="keywords" content="" />
         <meta name="description" content="" />
         {# <title>{%- if instrument %} {{ instrument }} - {%- endif %}ROADS Builder</title> #}
-        <link rel="stylesheet" href="{{ MOUNT['rex.ext'] }}/jquery-ui/1.8.22/themes/black-tie/jquery-ui-1.8.22.custom.css" />
-        <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery/jquery-1.7.2.min.js"></script>
-        <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/jquery-ui/1.8.22/jquery-ui-1.8.22.custom.min.js"></script>
-        <script type="text/javascript" src="{{ MOUNT['rex.ext'] }}/json/jquery.json-2.3.min.js"></script>
-        <script type="text/javascript" src="{{ MOUNT['rex.common'] }}/js/rexl/0.5.1/rexl.js"></script>
+        {{ vendor.jquery() }}
+        {{ vendor.jquery_ui() }}
+        <script type="text/javascript" src="{{ MOUNT['rex.forms'] }}/js/rexl.js"></script>
         <link rel="stylesheet" href="{{ MOUNT['rex.formbuilder'] }}/css/builder.css" />
         <link rel="stylesheet" href="{{ MOUNT['rex.formbuilder'] }}/css/conditor.css" />
         <script type="text/javascript" src="{{ MOUNT['rex.formbuilder'] }}/js/conditor.js"></script>

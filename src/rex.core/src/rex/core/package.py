@@ -216,8 +216,12 @@ class PackageCollection(object):
         # Process package dependencies first.  That ensures that the packages
         # are ordered with respect to the dependency relations.
         for req in dist.requires():
-            for package in cls._build_package_tree(req, seen):
-                yield package
+            try:
+                for package in cls._build_package_tree(req, seen):
+                    yield package
+            except Error, error:
+                error.wrap("Required for:", name)
+                raise
 
         # Determine modules where we will look for extensions.
         init = None

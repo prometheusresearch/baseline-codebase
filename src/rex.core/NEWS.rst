@@ -9,6 +9,7 @@
 ==================
 
 * ``Validate.parse()`` now permits a custom YAML loader.
+* When a dependency cannot be satisfied, report which package requested it.
 
 
 1.4.0 (2014-03-07)

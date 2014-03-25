@@ -13,7 +13,7 @@ setup(
     include_package_data=True,
     setup_requires=['rex.setup'],
     install_requires=[
-        'rex.web>=1.0,<2',
+        'rex.web>=1.0,<3',
         'rex.vendor>=1.2,<2',
     ],
     rex_static='static',

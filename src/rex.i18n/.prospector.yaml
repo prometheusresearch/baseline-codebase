@@ -1,0 +1,20 @@
+ignore:
+  - ^doc/conf\.py$
+  - ^demo/.*$
+
+pep8:
+  disable:
+    - W391
+
+pylint:
+  disable:
+    - W0401
+    - C0111
+    - R0921
+    - R0922
+    - R0903
+
+pyflakes:
+  disable:
+    - FL0005
+

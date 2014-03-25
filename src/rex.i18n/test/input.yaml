@@ -1,0 +1,18 @@
+#
+# Copyright (c) 2014, Prometheus Research, LLC
+#
+
+title: REX.I18N
+tests:
+  - coverage: setup.cfg
+
+#  - sh: pip install -q -e ./demo/rex.i18n_demo
+
+  - doctest: README.rst
+  - doctest: test/test_*.rst
+
+#  - sh: pip uninstall -q -y rex.i18n_demo
+
+  - coverage-check: 90.0
+  - coverage-report: ./build/coverage
+

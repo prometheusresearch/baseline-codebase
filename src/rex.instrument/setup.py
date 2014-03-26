@@ -15,7 +15,10 @@ setup(
     include_package_data=True,
     namespace_packages=['rex'],
     install_requires=[
-        'rex.validate>=0.1.8,<2'
+        'rex.core>=1,<2',
+        'rex.validate>=0.1.8,<2',
+        'HTSQL>=2.3.3,<3',
+        'simplejson',
     ],
 )
 

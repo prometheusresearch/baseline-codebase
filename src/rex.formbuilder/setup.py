@@ -8,8 +8,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='1.2.4',
+    version='1.2.5',
     description='A GUI for constructing RexAcquire Forms',
+    long_description=open('README.rst', 'r').read(),
+    maintainer='Prometheus Research, LLC',
+    maintainer_email='contact@prometheusresearch.com',
+    license='AGPLv3',
+    url='https://bitbucket.org/prometheus/rex.formbuilder',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     namespace_packages=['rex'],

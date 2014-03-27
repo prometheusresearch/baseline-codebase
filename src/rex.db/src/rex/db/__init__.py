@@ -140,6 +140,10 @@ def jinja_global_htsql(path_or_query, content_type=None,
 class InitializeDB(Initialize):
     # On startup, checks if the connection parameters are valid.
 
+    @classmethod
+    def enabled(cls):
+        return ('rex.rdoma' not in get_packages())
+
     def __call__(self):
         # Check if we can connect to the database.
         try:
@@ -157,6 +161,10 @@ class HandleHTSQLLocation(HandleLocation):
     # Gateway to HTSQL service.
 
     path = '*'
+
+    @classmethod
+    def enabled(cls):
+        return ('rex.rdoma' not in get_packages())
 
     def __call__(self, req):
         # Check if the request has access to the service.
@@ -182,6 +190,10 @@ class HandleHTSQLFile(HandleFile):
     # Interprets `*.htsql` files.
 
     ext = '.htsql'
+
+    @classmethod
+    def enabled(cls):
+        return ('rex.rdoma' not in get_packages())
 
     def __call__(self, req):
         # Load and validate the `.htsql` file.

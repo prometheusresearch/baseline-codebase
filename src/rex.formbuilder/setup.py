@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='1.2.3',
+    version='1.2.4',
     description='A GUI for constructing RexAcquire Forms',
     packages=find_packages('src'),
     package_dir={'': 'src'},
@@ -22,7 +22,7 @@ setup(
         'rex.web>=1,<3',
         'rex.vendor>=1.2,<2',
         'HTSQL>=2.3.3,<3',
-        'rex.forms>=0.10,<0.19',
+        'rex.forms>=0.10.2,<0.19',
         'rex.instrument>=0.1.5,<0.9',
         'rex.rdoma>=0.10,<2',
         'simplejson',

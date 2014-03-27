@@ -20,7 +20,7 @@ class DeployAddon(Addon):
     @classmethod
     def get_extension(cls, app, attributes):
         return {
-#            'rex': {},
+            'rex': {},
         }
 
 

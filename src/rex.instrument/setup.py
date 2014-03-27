@@ -8,8 +8,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.instrument',
-    version='0.1.6',
+    version='0.1.7',
     description="Instrument/Assessment model",
+    long_description=open('README.rst', 'r').read(),
+    maintainer='Prometheus Research, LLC',
+    maintainer_email='contact@prometheusresearch.com',
+    license='AGPLv3',
+    url='https://bitbucket.org/prometheus/rex.instrument',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     include_package_data=True,

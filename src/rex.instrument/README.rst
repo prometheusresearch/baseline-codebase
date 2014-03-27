@@ -1,5 +1,12 @@
-*********************************************************
-    Rex Instrument
-********************************************************
+********************************
+REX.INSTRUMENT Programming Guide
+********************************
 
-Stores all Instrument/Assessment model information
+.. contents:: Table of Contents
+
+
+Overview
+========
+
+Stores all Instrument/Assessment model information.
+

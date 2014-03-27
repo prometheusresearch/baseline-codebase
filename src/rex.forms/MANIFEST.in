@@ -1,2 +1,2 @@
-include settings.yaml
-recursive-include www *
+include README.rst NEWS.rst LICENSE.rst
+

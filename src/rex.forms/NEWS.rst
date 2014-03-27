@@ -1,6 +1,12 @@
-**************************
-RexForms Release Notes
-**************************
+***********************
+REX.FORMS Release Notes
+***********************
+
+0.10.4
+======
+
+- Documentation updates in preparation for open-sourcing.
+
 
 0.2.2
 =====

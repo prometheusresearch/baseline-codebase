@@ -1,0 +1,13 @@
+paths:
+
+    /about/:
+      template: rex.ui:/templates/one_column_layout.html
+      context:
+        title: RexDB About
+        centercol:
+          include:
+            type: include
+            sort_order: 10
+            params:
+              includes:
+              - rex.about:/templates/license.rst

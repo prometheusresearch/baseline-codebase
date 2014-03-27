@@ -84,7 +84,12 @@ class Setting(Extension):
         """
         Returns a dictionary that maps setting names to setting types.
         """
-        return dict((setting.name, setting) for setting in cls.all())
+        mapping = {}
+        for extension in cls.all():
+            assert extension.name not in mapping, \
+                    "duplicate setting: %r" % extension.name
+            mapping[extension.name] = extension
+        return mapping
 
     def __call__(self, values):
         # No explicit setting values were provided.

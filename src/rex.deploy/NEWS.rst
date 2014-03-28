@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.2.2 (2014-XX-XX)
+1.2.2 (2014-03-28)
 ==================
 
 * Restored dependency on ``rex.db``.

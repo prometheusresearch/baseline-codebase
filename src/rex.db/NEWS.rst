@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.0.1 (2014-XX-XX)
+2.0.1 (2014-03-28)
 ==================
 
 * Disable some extensions when ``rex.rdoma`` is enabled.

@@ -3,8 +3,11 @@
 #
 
 
+import os.path
+
 from babel import Locale
 from babel.support import Translations, NullTranslations
+from polib import pofile
 from speaklater import make_lazy_string
 
 from rex.core import get_rex, get_settings, get_packages, cached
@@ -14,13 +17,21 @@ __all__ = (
     'KEY_LOCALE',
     'KEY_TIMEZONE',
     'KEY_TRANSLATIONS',
+
     'DIRECTION_LTR',
     'DIRECTION_RTL',
     'RTL_LANGUAGES',
+
+    'DOMAIN_BACKEND',
+    'DOMAIN_FRONTEND',
+    'ALL_DOMAINS',
+
     'get_locale',
     'get_locale_direction',
     'get_timezone',
     'get_translations',
+    'get_json_translations',
+
     'gettext',
     'ngettext',
     'lazy_gettext',
@@ -42,6 +53,14 @@ RTL_LANGUAGES = (
     'ps',   # Pashto
     'he',   # Hebrew
     'ur',   # Urdu
+)
+
+
+DOMAIN_BACKEND = 'backend'
+DOMAIN_FRONTEND = 'frontend'
+ALL_DOMAINS = (
+    DOMAIN_BACKEND,
+    DOMAIN_FRONTEND,
 )
 
 
@@ -72,12 +91,16 @@ def get_timezone():
 def get_translations():
     rex = get_rex()
     if not hasattr(rex, KEY_TRANSLATIONS):
-        setattr(rex, KEY_TRANSLATIONS, collect_translations(str(get_locale())))
+        setattr(
+            rex,
+            KEY_TRANSLATIONS,
+            collect_translations(str(get_locale()), DOMAIN_BACKEND),
+        )
     return getattr(rex, KEY_TRANSLATIONS)
 
 
 @cached
-def collect_translations(locale):
+def collect_translations(locale, domain):
     translations = None
 
     #print 'collecting for %s' % locale
@@ -87,9 +110,13 @@ def collect_translations(locale):
             #print '    no i18n dir'
             continue
 
-        pkg_tx = Translations.load(package.abspath('i18n'), [locale])
+        pkg_tx = Translations.load(
+            dirname=package.abspath('i18n'),
+            locales=[locale],
+            domain=domain,
+        )
         #print '    got %r' % pkg_tx
-        if translations:
+        if isinstance(translations, Translations):
             #print '    merging to %r' % translations
             translations.merge(pkg_tx)
         else:
@@ -98,7 +125,7 @@ def collect_translations(locale):
     default = str(get_settings().i18n_default_locale)
     if locale != default:
         #print 'default is %s, merging' % default
-        default_translations = collect_translations(default)
+        default_translations = collect_translations(default, domain)
         if not isinstance(default_translations, NullTranslations):
             translations = default_translations.merge(translations)
 
@@ -106,6 +133,45 @@ def collect_translations(locale):
     #print 'result is %r' % translations
 
     return translations
+
+
+@cached
+def get_json_translations(locale, domain):
+    translations = collect_translations(locale, domain)
+
+    contents = {
+        '': {
+            'domain': domain,
+            'lang': locale,
+            'plural_forms': 'nplurals=2; plural=(n != 1)',
+        }
+    }
+
+    po_sources = None
+    for mo_file in translations.files:
+        po_file = '%s.po' % os.path.splitext(mo_file)[0]
+
+        if po_sources:
+            po_sources.merge(pofile(po_file))
+        else:
+            po_sources = pofile(po_file)
+
+    if po_sources:
+        for entry in po_sources:
+            if entry.msgid_plural:
+                contents[entry.msgid] = [
+                    entry.msgid_plural
+                ]
+                for index in sorted(entry.msgstr_plural):
+                    contents[entry.msgid].append(entry.msgstr_plural[index])
+            else:
+                contents[entry.msgid] = [None, entry.msgstr]
+
+        plural_forms = po_sources.metadata.get('Plural-Forms')
+        if plural_forms:
+            contents['']['plural_forms'] = plural_forms
+
+    return {domain: contents}
 
 
 def gettext(string, **variables):

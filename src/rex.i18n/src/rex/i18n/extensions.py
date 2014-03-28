@@ -9,17 +9,20 @@ from pytz import timezone, UnknownTimeZoneError
 from rex.core import Extension, get_settings, cached
 from rex.web import HandleTemplate
 
-from .core import KEY_LOCALE, KEY_TIMEZONE
+from .core import KEY_LOCALE, KEY_TIMEZONE, DOMAIN_BACKEND, DOMAIN_FRONTEND
 
 
 __all__ = (
     'BabelMapper',
     'CoreBabelMapper',
     'WebBabelMapper',
+    'JavaScriptBabelMapper',
+
     'LocaleDetector',
     'SessionLocaleDetector',
     'AcceptLanguageLocaleDetector',
     'DefaultLocaleDetector',
+
     'TimezoneDetector',
     'SessionTimezoneDetector',
     'DefaultTimezoneDetector',
@@ -27,6 +30,8 @@ __all__ = (
 
 
 class BabelMapper(Extension):
+    domain = None
+
     @classmethod
     def sanitize(cls):
         if cls.__name__ != 'BabelMapper':
@@ -35,23 +40,32 @@ class BabelMapper(Extension):
 
     @classmethod
     def enabled(cls):
-        return cls is not BabelMapper
+        return cls.domain is not None
 
     @classmethod
     def mapper_config(cls):
+        raise NotImplementedError()
+
+    @classmethod
+    def domain_mapper_config(cls, domain):
         parts = []
         for mapper in cls.all():
-            parts.append(mapper.mapper_config())
+            if mapper.domain == domain:
+                parts.append(mapper.mapper_config())
         return '\n'.join(parts)
 
 
 class CoreBabelMapper(BabelMapper):
+    domain = DOMAIN_BACKEND
+
     @classmethod
     def mapper_config(cls):
         return '[python: src/**.py]'
 
 
 class WebBabelMapper(BabelMapper):
+    domain = DOMAIN_BACKEND
+
     @classmethod
     def mapper_config(cls):
         jinja_extensions = 'extensions=jinja2.ext.do,jinja2.ext.loopcontrols'
@@ -64,6 +78,19 @@ class WebBabelMapper(BabelMapper):
         for handler in HandleTemplate.all():
             lines.append('[jinja2: static/www/**%s]' % handler.ext)
             lines.append(jinja_extensions)
+
+        return '\n'.join(lines)
+
+
+class JavaScriptBabelMapper(BabelMapper):
+    domain = DOMAIN_FRONTEND
+
+    @classmethod
+    def mapper_config(cls):
+        lines = [
+            '[javascript: static/js/**.js]',
+            '[javascript: static/js/**.jsx]',
+        ]
 
         return '\n'.join(lines)
 

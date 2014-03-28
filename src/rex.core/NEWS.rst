@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.5.0 (2014-XX-XX)
+1.5.0 (2014-03-28)
 ==================
 
 * ``Validate.parse()`` now permits a custom YAML loader.

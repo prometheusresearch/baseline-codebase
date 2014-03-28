@@ -61,11 +61,10 @@ tests:
   # Build source distribution for rex.setup_demo; verify content.
   - sh: ../../bin/python setup.py -q sdist --format=zip
     cd: ./sandbox/src/rex.setup_demo
-  - sh: unzip -l ./dist/rex.setup_demo-1.0.zip
-    cd: ./sandbox/src/rex.setup_demo
-    ignore:
-      \d\d\d\d-\d\d-\d\d.\d\d:\d\d |
-      ^\s+\d+
+  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-1.0.zip
+    cd: sandbox
+  - sh: ls -R ./rex.setup_demo-1.0
+    cd: sandbox
   # Cleanup.
   - rmdir: sandbox
 

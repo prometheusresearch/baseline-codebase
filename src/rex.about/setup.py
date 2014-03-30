@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.about',
-    version='0.0.1',
+    version='0.0.2',
     description='Licensing and dependent works declaration',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
@@ -16,7 +16,7 @@ setup(
         'rex.setup>=1.0.2, <2',
     ],
     install_requires=[
-        'rex.urlmap >= 1.0.1, <2',
+        'rex.urlmap >= 1.0.1, <3',
         'rex.ui >=1.0.1, <2',
     ],
     rex_init='rex.about',

@@ -17,7 +17,7 @@ setup(
     ],
     install_requires=[
         'rex.urlmap >= 1.0.1, <3',
-        'rex.ui >=1.0.1, <2',
+        'rex.ui >=1.0.12, <2',
     ],
     rex_init='rex.about',
     rex_static='static',

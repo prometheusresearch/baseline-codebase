@@ -42,10 +42,10 @@ A cached function must be called in context of an active application::
     3628800
     >>> COUNT
     10
-    >>> factorial(20)
-    2432902008176640000
+    >>> factorial(12)
+    479001600
     >>> COUNT
-    20
+    12
     >>> demo.off()
 
 Exceptions are not cached::
@@ -56,13 +56,13 @@ Exceptions are not cached::
       ...
     ValueError: 0
     >>> COUNT
-    21
+    13
     >>> factorial(0)
     Traceback (most recent call last):
       ...
     ValueError: 0
     >>> COUNT
-    22
+    14
     >>> demo.off()
 
 Caching is specific to the active application::
@@ -71,7 +71,7 @@ Caching is specific to the active application::
     ...     print factorial(10)
     3628800
     >>> COUNT
-    32
+    24
 
 It is an error to call a cached function when no application is active::
 

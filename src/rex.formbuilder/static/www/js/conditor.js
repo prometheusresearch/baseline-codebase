@@ -813,7 +813,7 @@ function ConditionEditor(initParams) {
                     $(this).val(ui.item.value).change();
                     return true;
                 }
-            }).data( "autocomplete" )._renderItem = function( ul, item ) {
+            }).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
                 return $( "<li></li>" )
                     .data( "item.autocomplete", item )
                     .append( '<a class="rb_ac_item"><b>' 

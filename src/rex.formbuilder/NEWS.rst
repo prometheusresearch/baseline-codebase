@@ -3,6 +3,12 @@ REX.FORMBUILDER Release Notes
 *****************************
 
 
+1.2.7
+=====
+
+- Fixed issue where condition builder popup wasn't displaying properly.
+
+
 1.2.6
 =====
 

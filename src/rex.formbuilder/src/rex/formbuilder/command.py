@@ -52,7 +52,7 @@ class CreateInstrument(FormBuilderBaseCommand):
 
     def render(self, req, base_measure_type):
         id = self.create_instrument(req, base_measure_type=base_measure_type)
-        location = req.script_name + Builder.path + '?instrument_id=' \
+        location = req.script_name + str(Builder.path) + '?instrument_id=' \
                    + quote(id)
         return Response(status=303, location=location)
 

@@ -1,0 +1,30 @@
+{
+    "name": "rex.i18n",
+    "version": "0.1.0",
+    "description": "JavaScript I18N Utilities for the RexDB Framework",
+    "author": "Prometheus Research, LLC",
+    "license": "AGPLv3",
+    "repository": {
+        "type": "hg",
+        "url": "https://bitbucket.org/prometheus/rex.i18n"
+    },
+    "main": "lib/index.js",
+    "peerDependencies": {
+        "extend": "^1.2.1",
+        "jed": "^0.5.4",
+        "jstimezonedetect": "^1.0.5",
+        "globalize": "git+http://github.com/jquery/globalize.git#master"
+    },
+    "devDependencies": {
+        "browserify": "3.30.4",
+        "karma": "^0.12.2",
+        "karma-phantomjs-launcher": "^0.1.2",
+        "karma-browserify": "^0.1.0",
+        "karma-jasmine": "^0.2.2",
+        "chai": "^1.9.1",
+        "grunt": "^0.4.4",
+        "grunt-karma": "^0.8.2",
+        "grunt-jslint": "^1.1.8"
+    }
+}
+

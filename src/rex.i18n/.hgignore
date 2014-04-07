@@ -1,4 +1,6 @@
 syntax: glob
 build
 dist
+static/cldr
+static/js/node_modules
 

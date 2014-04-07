@@ -8,7 +8,8 @@ import json
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPFound
 
-from rex.core import get_settings, StrVal
+from rex.core import get_settings, StrVal, get_packages
+from rex.jsbundle import CommonJSBundle
 from rex.web import Command, Parameter
 
 from .core import KEY_LOCALE, DOMAIN_FRONTEND, get_json_translations
@@ -18,6 +19,9 @@ from .validators import LocaleVal
 __all__ = (
     'SwitchLocaleCommand',
     'GetTranslationsCommand',
+    'GetLocaleCommonCommand',
+    'GetLocaleDetailCommand',
+    'I18NJSBundle',
 )
 
 
@@ -70,4 +74,58 @@ class GetTranslationsCommand(Command):
                 ('Content-type', 'application/json'),
             ],
         )
+
+
+class CldrPackagerCommand(Command):
+    def get_cldr_components(self, parameters):
+        raise NotImplementedError()
+
+    def get_cldr_path(self, filename):
+        return 'rex.i18n:/cldr/%s' % filename
+
+    def build_package(self, components):
+        parts = []
+        for component in components:
+            with get_packages().open(self.get_cldr_path(component)) as comp:
+                parts.append(comp.read())
+        return '[%s]' % (','.join(parts),)
+
+    def render(self, request, **parameters):
+        package = self.build_package(self.get_cldr_components(parameters))
+        return Response(
+            package,
+            headerlist=[
+                ('Content-type', 'application/json'),
+            ],
+        )
+
+
+class GetLocaleCommonCommand(CldrPackagerCommand):
+    path = '/locale'
+    access = 'anybody'
+
+    def get_cldr_components(self, parameters):
+        return (
+            'supplemental/likelySubtags.json',
+            'supplemental/timeData.json',
+            'supplemental/weekData.json',
+        )
+
+
+class GetLocaleDetailCommand(CldrPackagerCommand):
+    path = '/locale/{locale}'
+    access = 'anybody'
+    parameters = (
+        Parameter('locale', LocaleVal(), None),
+    )
+
+    def get_cldr_components(self, parameters):
+        return (
+            'main/%s/ca-gregorian.json' % parameters['locale'],
+            'main/%s/numbers.json' % parameters['locale'],
+        )
+
+
+class I18NJSBundle(CommonJSBundle):
+    path = '/i18n.js'
 

@@ -25,10 +25,11 @@ setup(
         ],
     },
     setup_requires=[
-        'rex.setup>=1,<2',
+        'rex.setup>=1,<2', #  TODO: update when commonjs branch merges
     ],
     install_requires=[
         'rex.core>=1.4,<2',
+        'rex.jsbundle>=0.0.1,<2',
         'rex.web>=2,<3',
         'babel>=1,<2',
         'speaklater>=1.3,<2',
@@ -36,5 +37,12 @@ setup(
         'pytz>=0a',
     ],
     rex_init='rex.i18n',
+    rex_static='static',
+    rex_download={
+        './static/cldr': [
+            'http://unicode.org/Public/cldr/25/json.zip#md5=b9c226b76393abe0715f0f6c1063d736',
+        ],
+    },
+    rex_js_package='js',
 )
 

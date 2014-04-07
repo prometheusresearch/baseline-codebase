@@ -1,0 +1,15 @@
+{
+    "frontend": {
+        "": {
+            "domain": "frontend",
+            "lang": "fr",
+            "plural_forms": "nplurals=2; plural=(n != 1);"
+        },
+        "hello": [null, "bonjour"],
+        "hello %(name)s": [null, "bonjour %(name)s"],
+        "an apple": ["some apples", "une pomme", "des pommes"],
+        "%(num)s apple": ["%(num)s apples", "%(num)s pomme", "%(num)s pommes"],
+        "%(num)s %(color)s apple": ["%(num)s %(color)s apples", "%(num)s %(color)s pomme", "%(num)s %(color)s pommes"]
+    }
+}
+

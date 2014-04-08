@@ -236,7 +236,7 @@ Filter ``url`` raises an error if the package URL refers to an unknown package::
     >>> print req.get_response(templating)
     Traceback (most recent call last):
       ...
-    Error: Cannot found mount point for package URL:
+    Error: Could not find the mount point for:
         bad_package:index.html
 
 

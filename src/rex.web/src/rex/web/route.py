@@ -452,7 +452,7 @@ def url_for(req, package_url):
             local_url = '/'+local_url
         prefix = mount.get(package)
         if not prefix:
-            raise Error("Cannot found mount point for package URL:", package_url)
+            raise Error("Could not find the mount point for:", package_url)
         url = prefix+local_url
     return url
 

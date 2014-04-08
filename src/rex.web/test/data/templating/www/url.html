@@ -1,0 +1,7 @@
+{% extends "/templates/base.html" %}
+{% block title %}URL resolution{% endblock %}
+{% block body %}
+<p><a href="{{ 'index.html'|url }}">Local link</a></p>
+<p><a href="{{ 'rex.web_demo:/index.html'|url }}">Link to another package</a></p>
+<p><a href="{{ 'http://htsql.org/'|url }}">External link</a></p>
+{% endblock %}

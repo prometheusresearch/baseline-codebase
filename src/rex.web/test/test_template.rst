@@ -12,7 +12,7 @@ Function ``render_to_response()`` renders a template and generates an HTTP
 response object::
 
     >>> from rex.core import Rex
-    >>> templating = Rex('rex.web', './test/data/templating/')
+    >>> templating = Rex('rex.web_demo', './test/data/templating/')
 
     >>> from rex.web import render_to_response
     >>> from webob import Request
@@ -132,7 +132,7 @@ Each template gets a number of parameters::
     <p><code>CSRF_INPUT_TAG:</code><code>&lt;input name=&#34;_csrf_token&#34; type=&#34;hidden&#34; value=&#34;...&#34;&gt;</code></p>
     <p><code>CSRF_META_TAG:</code><code>&lt;meta name=&#34;_csrf_token&#34; content=&#34;...&#34;&gt;</code></p>
     <p><code>CSRF_TOKEN:</code><code>...</code></p>
-    <p><code>MOUNT:</code><code>{&#39;rex.web&#39;: &#39;http://localhost&#39;, &#39;rex.core&#39;: &#39;http://localhost/core&#39;, &#39;templating&#39;: &#39;http://localhost/templating&#39;}</code></p>
+    <p><code>MOUNT:</code><code>{&#39;rex.web_demo&#39;: &#39;http://localhost&#39;, &#39;rex.web&#39;: &#39;http://localhost/web&#39;, &#39;rex.core&#39;: &#39;http://localhost/core&#39;, &#39;templating&#39;: &#39;http://localhost/templating&#39;}</code></p>
     <p><code>PACKAGE:</code><code>templating</code></p>
     <p><code>PACKAGE_URL:</code><code>http://localhost/templating</code></p>
     <p><code>PARAMS:</code><code>NestedMultiDict([(u&#39;dummy&#39;, u&#39;1&#39;)])</code></p>
@@ -218,5 +218,25 @@ Non-string values are converted to a string before encoding::
     200 OK
     ...
     <a href="/hello?None">Hello, None!</a>
+
+Filter ``url`` converts a package URL to an absolute URL::
+
+    >>> req = Request.blank('/templating/url.html')
+    >>> print req.get_response(templating)              # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <p><a href="http://localhost/templating/index.html">Local link</a></p>
+    <p><a href="http://localhost/index.html">Link to another package</a></p>
+    <p><a href="http://htsql.org/">External link</a></p>
+    ...
+
+Filter ``url`` raises an error if the package URL refers to an unknown package::
+
+    >>> req = Request.blank('/templating/bad_url.html')
+    >>> print req.get_response(templating)
+    Traceback (most recent call last):
+      ...
+    Error: Cannot found mount point for package URL:
+        bad_package:index.html
 
 

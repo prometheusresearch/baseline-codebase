@@ -30,6 +30,7 @@ Routing and handlers
 .. autoclass:: rex.web.Route
    :special-members: __call__
 .. autofunction:: rex.web.not_found
+.. autofunction:: url_for
 
 
 Commands
@@ -59,6 +60,7 @@ Templates
 .. autofunction:: get_jinja
 .. autofunction:: jinja_filter_json
 .. autofunction:: jinja_filter_urlencode
+.. autofunction:: jinja_filter_url
 .. autofunction:: render_to_response
 
 

@@ -1,0 +1,5 @@
+{% extends "/templates/base.html" %}
+{% block title %}Invalid package URL{% endblock %}
+{% block body %}
+<p><a href="{{ 'bad_package:index.html'|url }}">Link to an unknown package</a></p>
+{% endblock %}

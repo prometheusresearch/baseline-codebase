@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+2.1.0 (2014-04-XX)
+==================
+
+* Added function ``url_for()`` and Jinja filter ``url`` that convert
+  ``<package>:<path>`` to a URL.
+
+
 2.0.0 (2014-03-07)
 ==================
 

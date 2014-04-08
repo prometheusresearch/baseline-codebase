@@ -425,3 +425,35 @@ class StandardWSGI(WSGI):
         return resp(environ, start_response)
 
 
+def url_for(req, package_url):
+    """
+    Converts a package URL to an absolute URL.
+
+    `req`
+        HTTP request object.
+    `package_url`
+        Package URL composed of the package name and a relative URL
+        separated by ``:``: ``package:/path/to/resource``.  If the package name
+        is omitted, the package that handles the current request is assumed.
+
+        If the URL starts with ``http://`` or ``https://``, it is returned
+        as is.
+    """
+    if package_url.startswith('http://') or package_url.startswith('https://'):
+        url = package_url
+    else:
+        mount = req.environ.get('rex.mount', {})
+        package = req.environ.get('rex.package')
+        if ':' in package_url:
+            package, local_url = package_url.split(':', 1)
+        else:
+            local_url = package_url
+        if not local_url.startswith('/'):
+            local_url = '/'+local_url
+        prefix = mount.get(package)
+        if not prefix:
+            raise Error("Cannot found mount point for package URL:", package_url)
+        url = prefix+local_url
+    return url
+
+

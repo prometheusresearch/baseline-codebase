@@ -3,8 +3,9 @@
 #
 
 
-from rex.core import get_packages, cached, get_settings
+from rex.core import get_packages, cached, get_settings, Error
 from .handle import HandleFile
+from .route import url_for
 from .auth import authenticate
 from .csrf import retain_csrf_token, make_csrf_meta_tag, make_csrf_input_tag
 from webob import Response
@@ -142,6 +143,16 @@ def jinja_filter_urlencode(value):
                          for k, v in items)
 
 
+@jinja2.contextfilter
+def jinja_filter_url(context, value):
+    """
+    Jinja filter ``url`` that converts a path of the form
+    ``package:/path/to/resource`` to URL
+    ``http://mount-point/path/to/resource``.
+    """
+    return url_for(context['REQUEST'], value).decode('utf-8')
+
+
 @cached
 def get_jinja():
     """
@@ -162,6 +173,7 @@ def get_jinja():
 
     * :func:`.jinja_filter_json()`.
     * :func:`.jinja_filter_urlencode()`.
+    * :func:`.jinja_filter_url()`.
 
     The following tests are added: *none*.
 
@@ -184,6 +196,7 @@ def get_jinja():
             'json': jinja_filter_json,
             'urlencode': jinja_filter_urlencode,
             'ue': jinja_filter_urlencode,
+            'url': jinja_filter_url,
     })
     jinja.globals.update({
             # Add more globals here.

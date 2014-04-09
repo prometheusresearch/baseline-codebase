@@ -1,6 +1,7 @@
 ignore:
   - ^doc/conf\.py$
   - ^demo/.*$
+  - ^static/js/.*$
 
 pep8:
   disable:

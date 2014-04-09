@@ -88,8 +88,8 @@ class JavaScriptBabelMapper(BabelMapper):
     @classmethod
     def mapper_config(cls):
         lines = [
-            '[javascript: static/js/**.js]',
-            '[javascript: static/js/**.jsx]',
+            '[javascript: static/js/lib/**.js]',
+            '[javascript: static/js/lib/**.jsx]',
         ]
 
         return '\n'.join(lines)

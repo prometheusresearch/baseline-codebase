@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.about',
-    version='0.0.3',
+    version='0.0.4',
     description='Licensing and dependent works declaration',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

@@ -4,6 +4,7 @@ paths:
       template: rex.ui:/templates/one_column_layout.html
       context:
         title: RexDB About
+        data_navigation: false
         centercol:
           header:
             sort_order: 10

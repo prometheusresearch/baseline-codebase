@@ -73,6 +73,9 @@ tests:
   - rex: dropdb rex.ctl_demo
   - rex: loaddb rex.ctl_demo -i ctl_demo.sql
   - rex: dropdb rex.ctl_demo
+  - rex: createdb --quiet rex.ctl_demo
+  - rex: dumpdb --quiet rex.ctl_demo -o ctl_demo.sql
+  - rex: dropdb --quiet rex.ctl_demo
 
 
 #
@@ -82,6 +85,7 @@ tests:
 - title: rex deploy
   tests:
   - rex: deploy rex.ctl_demo
+  - rex: deploy --quiet rex.ctl_demo
 
 
 #

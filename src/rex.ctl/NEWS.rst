@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+1.3.0 (2013-04-16)
+==================
+
+* Added option ``--quiet`` for ``rex deploy`` and other database management
+  tasks.
+
+
 1.2.0 (2013-03-07)
 ==================
 

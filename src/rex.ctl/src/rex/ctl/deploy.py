@@ -22,11 +22,14 @@ class CREATEDB:
     set = option(None, pair, default={}, plural=True,
             value_name="PARAM=VALUE",
             hint="set a configuration parameter")
+    quiet = option('q', bool,
+            hint="suppress logging")
 
-    def __init__(self, project, require, set):
+    def __init__(self, project, require, set, quiet):
         self.project = project
         self.require = require
         self.set = set
+        self.quiet = quiet
 
     def __call__(self):
         app = make_rex(self.project, self.require, self.set, False,
@@ -35,9 +38,11 @@ class CREATEDB:
             with app:
                 cluster = get_cluster()
             if cluster.exists():
-                log("Database `{}` already exists.", cluster.db)
+                if not self.quiet:
+                    log("Database `{}` already exists.", cluster.db)
             else:
-                log("Creating database `{}`.", cluster.db)
+                if not self.quiet:
+                    log("Creating database `{}`.", cluster.db)
                 cluster.create()
         except Error, error:
             raise fail(str(error))
@@ -54,11 +59,14 @@ class DROPDB:
     set = option(None, pair, default={}, plural=True,
             value_name="PARAM=VALUE",
             hint="set a configuration parameter")
+    quiet = option('q', bool,
+            hint="suppress logging")
 
-    def __init__(self, project, require, set):
+    def __init__(self, project, require, set, quiet):
         self.project = project
         self.require = require
         self.set = set
+        self.quiet = quiet
 
     def __call__(self):
         app = make_rex(self.project, self.require, self.set, False,
@@ -67,9 +75,11 @@ class DROPDB:
             with app:
                 cluster = get_cluster()
             if not cluster.exists():
-                log("Database `{}` does not exist.", cluster.db)
+                if not self.quiet:
+                    log("Database `{}` does not exist.", cluster.db)
             else:
-                log("Dropping database `{}`.", cluster.db)
+                if not self.quiet:
+                    log("Dropping database `{}`.", cluster.db)
                 cluster.drop()
         except Error, error:
             raise fail(str(error))
@@ -89,12 +99,15 @@ class DUMPDB:
     output = option('o', str, default=None,
             value_name="FILE",
             hint="dump output to a file")
+    quiet = option('q', bool,
+            hint="suppress logging")
 
-    def __init__(self, project, require, set, output):
+    def __init__(self, project, require, set, output, quiet):
         self.project = project
         self.require = require
         self.set = set
         self.output = output
+        self.quiet = quiet
 
     def __call__(self):
         app = make_rex(self.project, self.require, self.set, False,
@@ -143,12 +156,15 @@ class LOADDB:
     input = option('i', str, default=None,
             value_name="FILE",
             hint="load input from a file")
+    quiet = option('q', bool,
+            hint="suppress logging")
 
-    def __init__(self, project, require, set, input):
+    def __init__(self, project, require, set, input, quiet):
         self.project = project
         self.require = require
         self.set = set
         self.input = input
+        self.quiet = quiet
 
     def __call__(self):
         app = make_rex(self.project, self.require, self.set, False,
@@ -157,7 +173,8 @@ class LOADDB:
             with app:
                 cluster = get_cluster()
             if not cluster.exists():
-                log("Creating database `{}`.", cluster.db)
+                if not self.quiet:
+                    log("Creating database `{}`.", cluster.db)
                 cluster.create()
         except Error, error:
             raise fail(str(error))
@@ -214,12 +231,15 @@ class DEPLOY:
             hint="set a configuration parameter")
     dry_run = option(None, bool,
             hint="immediately rollback the changes")
+    quiet = option('q', bool,
+            hint="suppress logging")
 
-    def __init__(self, project, require, set, dry_run):
+    def __init__(self, project, require, set, dry_run, quiet):
         self.project = project
         self.require = require
         self.set = set
         self.dry_run = dry_run
+        self.quiet = quiet
 
     def __call__(self):
         app = make_rex(self.project, self.require, self.set, False,
@@ -228,17 +248,21 @@ class DEPLOY:
             with app:
                 cluster = get_cluster()
             if not cluster.exists():
-                log("Creating database `{}`.", cluster.db)
+                if not self.quiet:
+                    log("Creating database `{}`.", cluster.db)
                 cluster.create()
-            log("Deploying application database to `{}`.", cluster.db)
+            if not self.quiet:
+                log("Deploying application database to `{}`.", cluster.db)
             def logging(level, msg, *args, **kwds):
                 if level == 'progress':
-                    log(msg, *args, **kwds)
+                    if not self.quiet:
+                        log(msg, *args, **kwds)
                 else:
                     debug(msg, *args, **kwds)
             with app:
                 deploy(logging=logging, dry_run=self.dry_run)
-            log("Done.")
+            if not self.quiet:
+                log("Done.")
         except Error, error:
             raise fail(str(error))
 

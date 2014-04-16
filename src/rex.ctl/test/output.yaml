@@ -45,6 +45,11 @@ tests:
         help [<topic>]           : display help on tasks and settings
         loaddb [<project>]       : load application database
         packages [<project>]     : list application components
+        rdoma-createdb [<project>] : create application database
+        rdoma-deploy [<project>] : deploy application database
+        rdoma-dropdb [<project>] : delete application database
+        rdoma-dumpdb [<project>] : dump application database to a file
+        rdoma-loaddb [<project>] : load application database from a file
         serve [<project>]        : start an HTTP server
         settings [<project>]     : list configuration parameters
         shell [<project>]        : open HTSQL shell
@@ -80,6 +85,7 @@ tests:
         --require=PACKAGE        : include an additional package
         --set=PARAM=VALUE        : set a configuration parameter
         --dry-run                : immediately rollback the changes
+        -q/--quiet               : suppress logging
 
   - rex: help shell
     stdout: |+
@@ -259,6 +265,12 @@ tests:
   - rex: dropdb rex.ctl_demo
     stdout: |
       Dropping database pgsql:///ctl_demo.
+  - rex: createdb --quiet rex.ctl_demo
+    stdout: ''
+  - rex: dumpdb --quiet rex.ctl_demo -o ctl_demo.sql
+    stdout: ''
+  - rex: dropdb --quiet rex.ctl_demo
+    stdout: ''
 - suite: rex-deploy
   tests:
   - rex: deploy rex.ctl_demo
@@ -268,6 +280,8 @@ tests:
       Deploying rex.ctl_demo.
       Validating rex.ctl_demo.
       Done.
+  - rex: deploy --quiet rex.ctl_demo
+    stdout: ''
 - suite: rex-shell
   tests:
   - rex: shell rex.ctl_demo
@@ -1048,6 +1062,26 @@ tests:
     tests:
     - rex: settings --project rex.ctl_demo
       stdout: |+
+        [access]
+        Declared in:
+          rex.web
+        Description:
+          Access table with permissions required to access package resources.
+
+          For each package, this setting specifies the default permission required
+          to access package commands, static files and other resources via HTTP.
+
+          Example::
+
+              access:
+                  rex.web_demo:   anybody
+
+          It is not an error to omit some packages or the whole setting entirely.
+          If the permission for a package is not specified, *authenticated*
+          permission is assumed.
+
+          Access tables defined by different packages are merged into one table.
+
         [db]
         Declared in:
           rex.db
@@ -1104,26 +1138,9 @@ tests:
         Description:
           Permission to use the `/hello` command.
 
-        [htsql_access]
-        Declared in:
-          rex.db
-        Description:
-          Permission to access the HTSQL service.
-
-          Set to ``None`` to disable HTSQL service.  The default value is
-          ``'authenticated'``.
-
-          Example::
-
-              htsql_access: anybody
-
         [htsql_extensions]
         Declared in:
           rex.db
-        Preset in:
-          rex.deploy
-        Value:
-          {'rex_deploy': {}}
         Description:
           Configuration of HTSQL extensions.
 
@@ -1198,6 +1215,26 @@ tests:
 
     - rex: settings --project rex.ctl_demo --parameters 'debug hello_access=anybody'
       stdout: |+
+        [access]
+        Declared in:
+          rex.web
+        Description:
+          Access table with permissions required to access package resources.
+
+          For each package, this setting specifies the default permission required
+          to access package commands, static files and other resources via HTTP.
+
+          Example::
+
+              access:
+                  rex.web_demo:   anybody
+
+          It is not an error to omit some packages or the whole setting entirely.
+          If the permission for a package is not specified, *authenticated*
+          permission is assumed.
+
+          Access tables defined by different packages are merged into one table.
+
         [db]
         Declared in:
           rex.db
@@ -1254,26 +1291,9 @@ tests:
         Description:
           Permission to use the `/hello` command.
 
-        [htsql_access]
-        Declared in:
-          rex.db
-        Description:
-          Permission to access the HTSQL service.
-
-          Set to ``None`` to disable HTSQL service.  The default value is
-          ``'authenticated'``.
-
-          Example::
-
-              htsql_access: anybody
-
         [htsql_extensions]
         Declared in:
           rex.db
-        Preset in:
-          rex.deploy
-        Value:
-          {'rex_deploy': {}}
         Description:
           Configuration of HTSQL extensions.
 
@@ -1348,6 +1368,26 @@ tests:
 
     - rex: settings --project rex.ctl_demo --parameters '{"debug":true,"hello_access":"anybody"}'
       stdout: |+
+        [access]
+        Declared in:
+          rex.web
+        Description:
+          Access table with permissions required to access package resources.
+
+          For each package, this setting specifies the default permission required
+          to access package commands, static files and other resources via HTTP.
+
+          Example::
+
+              access:
+                  rex.web_demo:   anybody
+
+          It is not an error to omit some packages or the whole setting entirely.
+          If the permission for a package is not specified, *authenticated*
+          permission is assumed.
+
+          Access tables defined by different packages are merged into one table.
+
         [db]
         Declared in:
           rex.db
@@ -1404,26 +1444,9 @@ tests:
         Description:
           Permission to use the `/hello` command.
 
-        [htsql_access]
-        Declared in:
-          rex.db
-        Description:
-          Permission to access the HTSQL service.
-
-          Set to ``None`` to disable HTSQL service.  The default value is
-          ``'authenticated'``.
-
-          Example::
-
-              htsql_access: anybody
-
         [htsql_extensions]
         Declared in:
           rex.db
-        Preset in:
-          rex.deploy
-        Value:
-          {'rex_deploy': {}}
         Description:
           Configuration of HTSQL extensions.
 

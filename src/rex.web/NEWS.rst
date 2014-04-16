@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.1.0 (2014-04-XX)
+2.1.0 (2014-04-16)
 ==================
 
 * Added function ``url_for()`` and Jinja filter ``url`` that convert

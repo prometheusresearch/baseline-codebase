@@ -15,6 +15,7 @@ import decimal
 import datetime
 import htsql.core.domain
 import htsql.core.util
+import psycopg2.tz
 
 
 class _skip_type(object):
@@ -381,6 +382,15 @@ class DataFact(Fact):
                             error = Error("Detected invalid input:", exc)
                             error.wrap("While converting column:", column)
                             raise error
+                        # If the value is a TZ-aware datetime, we convert
+                        # it to the local timezone and then strip the
+                        # timezone.  This is compatible with PostgreSQL
+                        # TIMESTAMP parsing rules and allows us to compare
+                        # datetime values in Python code.
+                        if (isinstance(data, datetime.datetime) and
+                            data.tzinfo is not None):
+                            tz = psycopg2.tz.LocalTimezone()
+                            data = data.astimezone(tz).replace(tzinfo=None)
                 row.append(data)
             yield tuple(row)
 

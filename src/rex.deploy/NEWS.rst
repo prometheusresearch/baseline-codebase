@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.2.3 (2014-04-17)
+==================
+
+* Data fact can now process timezone-aware datetime values.
+
+
 1.2.2 (2014-03-28)
 ==================
 

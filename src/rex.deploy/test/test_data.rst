@@ -360,6 +360,20 @@ You could also supply data directly from HTSQL query::
         VALUES (3, '03', 33, 175.05, 130000, '1990-03-13', '23:45:00', '2013-12-19 13:22:00', TRUE)
         RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current";
 
+Values of ``datetime`` type may contain a timezone, in which case, the value
+is converted to the local timezone::
+
+    >>> driver("""
+    ... data:
+    ...   individual: '1003.03'
+    ...   code: '02'
+    ...   timestamp: '2013-12-17 12:50:03-10'
+    ... of: sample
+    ... """)                                            # doctest: +ELLIPSIS
+    UPDATE "sample"
+        SET "timestamp" = '...'
+        ...
+
 Invalid values are rejected::
 
     >>> driver("""

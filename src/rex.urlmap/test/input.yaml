@@ -14,6 +14,7 @@ tests:
 - doctest: test/test_*.rst
 
 - sh: pip uninstall -q -y rex.urlmap_demo
+- sh: dropdb --if-exists urlmap_demo
 
 - coverage-check: 95.0
 - coverage-report: ./build/coverage

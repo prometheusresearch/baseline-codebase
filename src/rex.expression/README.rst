@@ -62,6 +62,7 @@ Features supported
 ==================
 
 Rexl supports following operations: 
+
 * '+' - adding;
 * '-' - substraction;
 * '|' - or;
@@ -75,6 +76,7 @@ Rexl supports following operations:
 * '<=' - less or equal;
 
 It also supports a list of functions:
+
 * 'true()';
 * 'false()';
 * 'null()';

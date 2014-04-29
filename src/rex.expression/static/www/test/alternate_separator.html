@@ -1,0 +1,32 @@
+<html>
+<head>
+	<title>REXL</title>		
+	<script language="Javascript" src="../rexl.js"></script>
+	<script language="Javascript" src="../test.js"></script>
+    <script language="Javascript" src="evaluation.js"></script>
+    <script language="Javascript">
+        function load() {
+            for(var i = 0, l = rexl.test.tests.length; i < l; i++) {
+                var test = rexl.test.tests[i];
+                test.query = test.query.replace(/\./g, ':');
+            }
+            rexl.setSeparator(':');
+            rexl.test.run('evaluate', true, true, false);
+        }
+    </script>
+	<style>
+		body, p, div {
+			font-size: 9pt;
+			font-family: Verdana, Arial, Helvetica;
+		}
+		p {
+			border-top: solid 1px #777777;
+			padding: 4px;
+			margin: 2px;
+		}
+	</style>
+</head>
+<body onLoad="load();">
+    <div id="output"></div>
+</body>
+</html>

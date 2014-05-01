@@ -55,6 +55,24 @@ documents::
     >>> list(values)
     [2, 3, 5, 7, 11]
 
+Ill-formed YAML documents also raise ``rex.core.Error`` exception::
+
+    >>> int_val.parse(""" : """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        while parsing a block mapping
+        did not find expected key
+          in "<byte string>", line 1, column 2
+
+    >>> list(int_val.parse_all(""" : """))
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        while parsing a block mapping
+        did not find expected key
+          in "<byte string>", line 1, column 2
+
 
 ``AnyVal``
 ==========
@@ -74,15 +92,44 @@ documents::
     >>> any_val.parse(""" X """)
     'X'
 
-Ill-formed YAML documents raise ``rex.core.Error`` exception::
 
-    >>> any_val.parse(""" : """)
+``ProxyVal``
+============
+
+``ProxyVal`` allows you to wrap another validator.  Since you don't need
+to provide the wrapped validator during the construction time, it allows
+you to validate recursive structures.  For example, here's how you could
+express a structure that consists of nested lists::
+
+    >>> from rex.core import ProxyVal, SeqVal
+    >>> proxy_val = ProxyVal()
+    >>> proxy_val
+    ProxyVal()
+    >>> bool(proxy_val)
+    False
+    >>> wrapped_val = SeqVal(proxy_val)
+    >>> proxy_val.set(wrapped_val)
+    >>> proxy_val
+    ProxyVal(SeqVal(...))
+    >>> bool(proxy_val)
+    True
+
+    >>> proxy_val([])
+    []
+    >>> proxy_val([[], [[]], []])
+    [[], [[]], []]
+
+    >>> proxy_val(None)
     Traceback (most recent call last):
       ...
-    Error: Failed to parse a YAML document:
-        while parsing a block mapping
-        did not find expected key
-          in "<byte string>", line 1, column 2
+    Error: Expected a sequence
+    Got:
+        None
+
+``ProxyVal`` also works with YAML documents::
+
+    >>> proxy_val.parse(""" [[], [[]], []] """)
+    [[], [[]], []]
 
 
 ``MaybeVal``

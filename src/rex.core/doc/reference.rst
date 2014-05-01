@@ -72,6 +72,8 @@ Validators
 .. autoclass:: rex.core.Validate
    :special-members: __call__
 .. autoclass:: rex.core.AnyVal
+.. autoclass:: rex.core.ProxyVal
+   :special-members: __nonzero__
 .. autoclass:: rex.core.MaybeVal
 .. autoclass:: rex.core.OneOfVal
 .. autoclass:: rex.core.StrVal

@@ -289,6 +289,44 @@ class AnyVal(Validate):
         return data
 
 
+class ProxyVal(Validate):
+    """
+    Permits validating recursive structures.
+
+    `validate`
+        Validator wrapped by the proxy.  You can set this validator
+        after the proxy is constructed using :meth:`set`, which
+        permits you to use the proxy when constructing the validator.
+    """
+
+    def __init__(self, validate=None):
+        self.validate = validate
+
+    def set(self, validate):
+        """Sets the validator for the proxy to wrap."""
+        assert self.validate is None and validate is not None
+        self.validate = validate
+
+    def __nonzero__(self):
+        """``True`` is the wrapped validator is set."""
+        return (self.validate is not None)
+
+    def __call__(self, data):
+        assert self.validate is not None
+        return self.validate(data)
+
+    def construct(self, loader, node):
+        assert self.validate is not None
+        return self.validate.construct(loader, node)
+
+    def __repr__(self):
+        if self.validate is None:
+            return "%s()" % self.__class__.__name__
+        else:
+            return "%s(%s(...))" % (self.__class__.__name__,
+                                    self.validate.__class__.__name__)
+
+
 class MaybeVal(Validate):
     """
     Returns ``None`` if input is ``None``; otherwise applies `validate`.

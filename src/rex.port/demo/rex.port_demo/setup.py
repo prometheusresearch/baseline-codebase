@@ -4,7 +4,7 @@ from distutils.core import Command
 
 class demo(Command):
 
-    description = "demonstrate CRUD operations"
+    description = "demonstrate port operations"
     user_options = []
 
     def initialize_options(self):
@@ -14,7 +14,21 @@ class demo(Command):
         pass
 
     def run(self):
-        pass
+        import os
+        cmd = "rex deploy rex.port_demo"
+        print "$", cmd
+        os.spawnvp(0, cmd.split()[0], cmd.split())
+        from rex.core import Rex
+        demo = Rex('rex.port_demo')
+        demo.on()
+        from rex.port import Port
+        print '-'*72
+        study_port = Port('study')
+        print study_port
+        from webob import Request
+        req = Request.blank('/')
+        print '-'*72
+        print study_port(req)
 
 setup(
     name='rex.port_demo',
@@ -25,7 +39,10 @@ setup(
     ],
     install_requires=[
         'rex.port',
+        'rex.ctl',
+        'rex.deploy',
     ],
     cmdclass={'demo': demo},
+    rex_static='static',
 )
 

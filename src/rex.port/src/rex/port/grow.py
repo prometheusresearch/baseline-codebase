@@ -3,8 +3,9 @@
 #
 
 
-from rex.core import (UStrVal, ProxyVal, SeqVal, OneOrSeqVal, RecordVal,
-        UnionVal, OnScalar, OnField, Error)
+from rex.core import (Validate, UStrVal, ProxyVal, SeqVal, OneOrSeqVal,
+        RecordVal, UnionVal, OnScalar, OnField, Error)
+from rex.db import get_db
 from .arm import (TrunkArm, BranchArm, FacetArm, ColumnArm, LinkArm, SyntaxArm,
         Filter, Mask)
 from htsql.core.error import Error as HTSQLError
@@ -18,17 +19,6 @@ from htsql.core.tr.bind import BindingState
 from htsql.core.tr.binding import RootBinding
 from htsql.core.tr.lookup import prescribe
 import fnmatch
-
-
-class SyntaxVal(UStrVal):
-
-    def __call__(self, data):
-        data = super(SyntaxVal, self).__call__(data)
-        try:
-            syntax = parse(data)
-        except HTSQLError, exc:
-            raise Error("Failed to parse an HTSQL expression:", str(exc))
-        return syntax
 
 
 def as_path(syntax):
@@ -97,7 +87,27 @@ def as_calculation(syntax):
     return (name, path, expression)
 
 
-class Grow(object):
+class OnSyntax(OnScalar):
+
+    def __call__(self, data):
+        return (isinstance(data, Syntax) or
+                super(OnSyntax, self).__call__(data))
+
+
+class SyntaxVal(UStrVal):
+
+    def __call__(self, data):
+        if isinstance(data, Syntax):
+            return data
+        data = super(SyntaxVal, self).__call__(data)
+        try:
+            syntax = parse(data)
+        except HTSQLError, exc:
+            raise Error("Failed to parse an HTSQL expression:", str(exc))
+        return syntax
+
+
+class GrowVal(Validate):
 
     validate = ProxyVal()
 
@@ -120,17 +130,28 @@ class Grow(object):
     calculation_variant = (OnField('calculation'), validate_calculation)
 
     validate_scalar = SyntaxVal()
-    scalar_variant = (OnScalar, validate_scalar)
+    scalar_variant = (OnSyntax, validate_scalar)
 
     validate.set(OneOrSeqVal(UnionVal(
             entity_variant, calculation_variant, scalar_variant)))
 
+    def __call__(self, data):
+        with get_db():
+            return self.validate(data)
+
+    def construct(self, loader, node):
+        with get_db():
+            return self.validate.construct(loader, node)
+
+
+class Grow(object):
+
     @classmethod
     def parse(cls, stream):
         if isinstance(stream, (str, unicode)) or hasattr(stream, 'read'):
-            spec = cls.validate.parse(stream)
+            spec = GrowVal.validate.parse(stream)
         else:
-            spec = cls.validate(stream)
+            spec = GrowVal.validate(stream)
         if isinstance(spec, list):
             return GrowSequence([cls.build(item) for item in spec])
         else:
@@ -150,7 +171,7 @@ class Grow(object):
             raise Error("Expected an HTSQL expression of the form:",
                         "<name> OR <name>. ... .<name> OR <name> := <expr>") \
                   .wrap("Got:", spec)
-        elif isinstance(spec, cls.entity_record_type):
+        elif isinstance(spec, GrowVal.entity_record_type):
             name_path_mask = as_entity(spec.entity)
             if name_path_mask is None:
                 raise Error("Expected an HTSQL expression of the form:",
@@ -191,7 +212,7 @@ class Grow(object):
                 related = [Grow.build(with_spec) for with_spec in spec.with_]
             return GrowEntity(name, path, mask, filters,
                               select_patterns, deselect_patterns, related)
-        elif isinstance(spec, cls.calculation_record_type):
+        elif isinstance(spec, GrowVal.calculation_record_type):
             name_path_expression = as_calculation(spec.calculation)
             name_path = as_name(spec.calculation)
             if name_path_expression is not None:

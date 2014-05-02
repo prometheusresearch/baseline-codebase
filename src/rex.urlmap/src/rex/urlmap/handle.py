@@ -91,3 +91,32 @@ class TemplateRenderer(object):
         return context
 
 
+class PortRenderer(object):
+    # Renders a database port.
+
+    def __init__(self, port, access, unsafe):
+        # Database port.
+        self.port = port
+        # Permission to request the URL.
+        self.access = access
+        # If set, enables CSRF protection.
+        self.unsafe = unsafe
+
+    def __call__(self, req):
+        # Check permissions.
+        self.authorize(req)
+        # Submit the request to the port.
+        try:
+            return self.port(req)
+        except Error, error:
+            return req.get_response(error)
+
+    def authorize(self, req):
+        # Check access permissions.
+        if not authorize(req, self.access):
+            raise HTTPUnauthorized()
+        # Protect against CSRF attacts.
+        if self.unsafe and not trusted(req):
+            raise HTTPForbidden()
+
+

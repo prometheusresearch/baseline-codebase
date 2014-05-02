@@ -77,7 +77,7 @@ Access permissions could be specified for each URL::
     ...     context: { title: Protected against CSRF attacks! }
     ... """)
 
-    >>> auth_demo = Rex(sandbox, './test/data/templates/', 'rex.urlmap')
+    >>> auth_demo = Rex(sandbox, './test/data/templates/', 'rex.urlmap_demo')
 
 URLs with ``access`` parameter set to ``anybody`` do not require
 authorization::
@@ -126,6 +126,117 @@ Pages marked as ``unsafe`` require a CSRF token::
     ...
 
 
+Ports and access control
+========================
+
+Ports generate HTSQL output::
+
+    >>> req = Request.blank('/data/total', accept='application/json')
+    >>> print req.get_response(demo)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "total_study": 2,
+      "total_individual": 5
+    }
+
+Errors in query parameters are detected::
+
+    >>> req = Request.blank('/data/study?individual=1000', accept='application/json',
+    ...                     remote_user='Alice')
+    >>> print req.get_response(demo)    # doctest: +ELLIPSIS
+    400 Bad Request
+    ...
+
+Access permissions for port handlers work the same way as for template
+handlers::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /data/public:
+    ...     port: num_study := count(study?!closed)
+    ...     access: anybody
+    ...   /data/private:
+    ...     port: study?!closed
+    ...   /data/unsafe:
+    ...     port: individual
+    ...     access: anybody
+    ...     unsafe: true
+    ...   /csrf-token:
+    ...     template: templates:/template/universal.html
+    ...     access: anybody
+    ...     context: { title: Get a CSRF token from this page }
+    ... """)
+
+    >>> data_auth_demo = Rex(sandbox, './test/data/templates/', 'rex.urlmap_demo')
+
+Again, URLs with ``access`` parameter set to ``anybody`` do not require
+authorization::
+
+    >>> req = Request.blank('/data/public', accept='application/json')
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "num_study": 2
+    }
+
+By default, only authenticated users are accepted::
+
+    >>> req = Request.blank('/data/private', accept='application/json')
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
+    401 Unauthorized
+    ...
+
+    >>> req.remote_user = 'Alice'
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "study": [
+        {
+          "id": "asdl",
+          "code": "asdl",
+          "title": "Autism Spectrum Disorder Lab",
+          "closed": false
+        },
+        ...
+      ]
+    }
+
+Ports marked as ``unsafe`` require a CSRF token::
+
+    >>> req = Request.blank('/data/unsafe', accept='application/json')
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
+    403 Forbidden
+    ...
+
+    >>> import re
+    >>> req = Request.blank('/csrf-token')
+    >>> resp = req.get_response(data_auth_demo)
+    >>> session_cookie = resp.headers['Set-Cookie'].split('=')[1].split(';')[0]
+    >>> csrf_token = re.search('<meta name="_csrf_token" content="([^"]*)">', str(resp)).group(1)
+
+    >>> req = Request.blank('/data/unsafe', accept='application/json')
+    >>> req.cookies['rex.session'] = session_cookie
+    >>> req.headers['X-CSRF-Token'] = csrf_token
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "individual": [
+        {
+          "id": "1000",
+          "code": "1000",
+          "first_name": "May",
+          "last_name": "Kanaris",
+          "sex": "female"
+        },
+        ...
+      ]
+    }
+
+
 Parameters
 ==========
 
@@ -141,7 +252,7 @@ URLs can possess segment and query parameters::
     ...     access: anybody
     ...     parameters: { parameter }
     ... """)
-    >>> params_demo = Rex(sandbox, './test/data/templates/', 'rex.urlmap')
+    >>> params_demo = Rex(sandbox, './test/data/templates/', 'rex.urlmap_demo')
 
 Segment and parameter values are passed to the template::
 

@@ -12,7 +12,7 @@ Overview
 This package lets you map incoming URLs to URL handlers such as:
 
 * HTML templates;
-* HTSQL queries *(TODO)*;
+* database ports;
 * Javascript and CSS bundles *(TODO)*.
 
 This package is a part of the RexDB |R| platform for medical research data
@@ -32,7 +32,7 @@ Getting started
 
 :mod:`rex.urlmap` allows you to configure *URL mapping* for your RexDB
 application.  You can specify a set of URLs accepted by the application and
-associate each URL with a URL handler such as an HTML template or an HTSQL
+associate each URL with a URL handler such as an HTML template or a database
 query.
 
 For a web application, a clean and consistent URL scheme is important for
@@ -181,6 +181,57 @@ example, we can use templates ``list.html`` and ``detail.html`` to generate
         query: individual[$id]{code, first_name+' '+last_name :as title}
 
 
+Database access
+===============
+
+We could also use :mod:`rex.urlmap` to provide access to the application
+database.  A URL that shows a slice of the database is called a *port*.  For
+our demo application, we would like to define the following 3 ports:
+
+* *Study port*.  It provides access to the ``study`` table.
+* *Individual port*.  Provides access to the ``individual`` table.
+* *Totals port*.  Provides the total number of ``study`` and ``individual``
+  records.
+
+We attach these ports to the following URLs:
+
+``/data/study``
+    *Study port*
+``/data/individual``
+    *Individual port*
+``/data/total``
+    *Totals port*
+
+To do this, we add the following lines to the ``paths`` section of
+``urlmap.yaml``::
+
+    paths:
+      ...
+
+      /data/study:
+        port: study?!closed
+
+      /data/individual:
+        port: individual
+
+      /data/total:
+        port:
+        - total_study := count(study?!closed)
+        - total_individual := count(individual)
+        access: anybody
+
+We use field ``port`` to describe the subset of data provided through the port.
+The URL ``/data/study`` provides all records from ``study`` table that satisfy
+condition ``!closed``.  The URL ``/data/individual`` produces all records from
+``individual`` table.  Finally, ``/data/total`` generates the total number of
+records in ``study`` and ``individual`` ports.  For a complete reference on the
+port definition syntax, see documentation to :mod:`rex.port`.
+
+In the last definition, we used field ``access`` to override the default access
+permissions to the port.  Value *anybody* means that the port could be accessed
+by unauthenticated users.
+
+
 Include and override
 ====================
 
@@ -267,7 +318,6 @@ get::
       context:
         title: Human research subjects
         query: /individual{code, first_name+' '+last_name :as title}
-
 
 
 Embedding settings values
@@ -362,6 +412,9 @@ file.  This file may contain the following fields:
               title: Study
               query: study[$id]{code, title}
 
+          /data/study:
+            port: study?!closed
+
     A URL may contain a *labeled segment*, in the form ``$<name>``.  For
     example::
 
@@ -436,6 +489,40 @@ context variables ``context``.  The following fields are expected:
           search: ''
 
 
+Port handler
+============
+
+A port handler provides access to the application database.  The following
+fields are expected:
+
+`port`
+    The port definition, which includes a list of tables, columns and
+    calculated fields available through the port.  For a complete reference on
+    port definition, see documentation to :mod:`rex.port`.
+
+    Example::
+
+        port: study?!closed
+
+    This field is mandatory.
+
+`access`
+    Permission required to access the port.  If not set, the permission of the
+    package that owns the handler is assumed.
+
+    Example::
+
+        access: anybody
+
+`unsafe`
+    Enables CSRF protection for the port.  If enabled, the incoming request
+    must contain a CSRF token.  By default, CSRF protection is disabled.
+
+    Example::
+
+        unsafe: true
+
+
 Override handler
 ================
 
@@ -444,9 +531,11 @@ Thus you can only use an override handler for paths with an existing handler
 defined in another configuration file.
 
 An override handler is marked by a YAML tag ``!override``.  It may contain all
-the fields of a template handler:
+the fields of a template handler or a port handler:
 
     ``template``, ``context``, ``access``, ``unsafe``, ``parameters``.
+
+    ``port``, ``access``, ``unsafe``.
 
 None of the fields is mandatory.  Fields that are omitted are inherited from
 the original template handler.
@@ -456,6 +545,14 @@ Example::
     !override
     context:
       title: Human research subjects
+
+A port handler can also be overriden, in which case, the new definitions
+are added to the original port description.  Example::
+
+    !override
+    port:
+    - individual.identity
+    - individual.participation
 
 The complete file with this override definition may look like this::
 
@@ -469,6 +566,11 @@ The complete file with this override definition may look like this::
         context:
           title: Human research subjects
 
+      /data/individual: !override
+        port:
+        - individual.identity
+        - individual.participation
+
 The original handler for ``/individual`` is defined in
 ``/urlmap/individual.yaml``::
 
@@ -480,10 +582,16 @@ The original handler for ``/individual`` is defined in
           title: Individuals
           query: /individual{code, first_name+' '+last_name :as title}
 
+      /data/individual:
+        port: individual
+
       ...
 
-The ``!override`` definition changes the ``title`` context variable
-to a new value.  All the other context variables and other parameters
-are unchanged.
+In the first ``!override`` definition, we change the ``title`` context variable
+to a new value.  All the other context variables and other parameters are
+unchanged.
+
+In the second ``!override`` definition, we add a nested ``identity`` record and
+a list of ``participation`` records to each ``individual`` record.
 
 

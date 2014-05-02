@@ -6,11 +6,13 @@
   - identity: [code]
   - column: title
     type: text
+  - column: closed
+    type: boolean
   - data: |
-      code,title
-      fos,Family Obesity Study
-      asdl,Autism Spectrum Disorder Lab
-      schizo,Schizophrenia and Schizoaffective Disorders Clinical Trial
+      code,title,closed
+      fos,Family Obesity Study,false
+      asdl,Autism Spectrum Disorder Lab,false
+      schizo,Schizophrenia and Schizoaffective Disorders Clinical Trial,true
 
 - table: individual
   with:

@@ -1,3 +1,5 @@
 
 db: pgsql:urlmap_demo
+htsql_extensions:
+    rex_deploy:
 

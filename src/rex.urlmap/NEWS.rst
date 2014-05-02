@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.2.0 (2014-XX-XX)
+==================
+
+* Support for *port* handlers.
+
+
 2.1.0 (2014-03-28)
 ==================
 

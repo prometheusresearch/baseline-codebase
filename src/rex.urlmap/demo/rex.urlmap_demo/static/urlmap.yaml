@@ -19,3 +19,9 @@ paths:
     template: /template/index.html
     access: anybody
 
+  /data/total:
+    port:
+    - total_study := count(study?!closed)
+    - total_individual := count(individual)
+    access: anybody
+

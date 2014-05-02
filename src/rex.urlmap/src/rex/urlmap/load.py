@@ -8,7 +8,8 @@ from rex.core import (
         MaybeVal, StrVal, BoolVal, MapVal, OneOrSeqVal, RecordVal, UnionVal,
         OnMatch, locate, Location, Error, guard)
 from rex.web import PathMask, PathMap
-from .handle import TreeWalker, TemplateRenderer
+from rex.port import GrowVal, Port
+from .handle import TreeWalker, TemplateRenderer, PortRenderer
 import os
 import yaml
 
@@ -95,9 +96,17 @@ class LoadMap(object):
             ('context', context_val, {}))
     template_type = template_val.record_type
 
+    port_key = 'port'
+    port_val = RecordVal(
+            ('port', GrowVal),
+            ('access', StrVal, None),
+            ('unsafe', BoolVal, False))
+    port_type = port_val.record_type
+
     # Validator for `!override` records.
     override_val = TaggedRecordVal(u'!override',
             ('template', file_val, None),
+            ('port', GrowVal, None),
             ('access', StrVal, None),
             ('unsafe', BoolVal, None),
             ('parameters', parameters_val, None),
@@ -107,7 +116,8 @@ class LoadMap(object):
     # Validator for all handlers.
     handle_val = UnionVal(
             (OnTag(override_val.tag), override_val),
-            (template_key, template_val))
+            (template_key, template_val),
+            (port_key, port_val))
 
     # Validator for the urlmap record.
     validate = RecordVal([
@@ -149,6 +159,15 @@ class LoadMap(object):
                         parameters=handle_spec.parameters,
                         validates=validates,
                         context=context)
+            elif isinstance(handle_spec, self.port_type):
+                access = handle_spec.access or self.package.name
+                port = Port(handle_spec.port)
+                handler = PortRenderer(
+                        port=port,
+                        access=access,
+                        unsafe=handle_spec.unsafe)
+            else:
+                raise NotImplementedError()
             segment_map.add(path, handler)
         # Generate the main handler.
         return TreeWalker(segment_map, self.fallback)
@@ -212,7 +231,7 @@ class LoadMap(object):
                     error = Error("Detected orphaned override:", path)
                     error.wrap("Defined in:", locate(handle_spec))
                     raise error
-                paths[path] = self._override(paths[path], handle_spec)
+                paths[path] = self._override(path, paths[path], handle_spec)
             else:
                 # Complain about duplicate URLs.
                 if mask in seen:
@@ -237,7 +256,7 @@ class LoadMap(object):
             spec = spec.__clone__(template=template)
         return spec
 
-    def _override(self, handle_spec, override_spec):
+    def _override(self, path, handle_spec, override_spec):
         # Merges fields defined in an `!override` record onto `handle_spec`.
         if isinstance(handle_spec, self.template_type):
             if override_spec.template is not None:
@@ -257,6 +276,34 @@ class LoadMap(object):
                 context = self._merge(handle_spec.context,
                                       override_spec.context)
                 handle_spec = handle_spec.__clone__(context=context)
+            if override_spec.port is not None:
+                error = Error("Detected unexpected port override"
+                              " for template:", path)
+                error.wrap("Defined in:", locate(override_spec))
+                raise error
+        elif isinstance(handle_spec, self.port_type):
+            if override_spec.port is not None:
+                port = []
+                for spec in [handle_spec.port, override_spec.port]:
+                    if isinstance(spec, list):
+                        port.extend(spec)
+                    else:
+                        port.append(spec)
+                handle_spec = handle_spec.__clone__(
+                        port=port)
+            if override_spec.access is not None:
+                handle_spec = handle_spec.__clone__(
+                        access=override_spec.access)
+            if override_spec.unsafe is not None:
+                handle_spec = handle_spec.__clone__(
+                        unsafe=override_spec.unsafe)
+            if (override_spec.template is not None or
+                override_spec.parameters is not None or
+                override_spec.context is not None):
+                error = Error("Detected unexpected template override"
+                              " for port:", path)
+                error.wrap("Defined in:", locate(override_spec))
+                raise error
         return handle_spec
 
     def _merge(self, *contexts):

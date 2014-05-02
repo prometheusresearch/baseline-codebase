@@ -13,3 +13,6 @@ paths:
       title: Study
       query: study[$id]{code, title}
 
+  /data/study:
+    port: study?!closed
+

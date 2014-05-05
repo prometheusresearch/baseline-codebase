@@ -5,6 +5,14 @@
 .. contents:: Table of Contents
 
 
+2.1.0 (2014-XX-XX)
+==================
+
+* Remove an extra top-level record in JSON output when the top-level
+  value is a record.
+* Do not strip ``NULL`` values in JSON output.
+
+
 2.0.1 (2014-03-28)
 ==================
 

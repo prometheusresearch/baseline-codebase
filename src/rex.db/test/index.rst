@@ -5,5 +5,6 @@
 .. toctree::
 
    test_db
+   test_htsql
 
 

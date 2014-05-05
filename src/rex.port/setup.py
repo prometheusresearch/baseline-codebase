@@ -24,7 +24,7 @@ setup(
     install_requires=[
         'rex.core >=1.6, <2',
         'rex.web >=2.1, <3',
-        'rex.db >=2.0, <3',
+        'rex.db >=2.1, <3',
     ],
     rex_init='rex.port',
     rex_static='static',

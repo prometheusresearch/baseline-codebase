@@ -53,6 +53,7 @@ tests:
   - rex: help shell
   - rex: help serve
   - rex: help wsgi
+  - rex: help serve-uwsgi
   - rex: help packages
   - rex: help settings
   - rex: help http-host
@@ -60,6 +61,7 @@ tests:
   - rex: help project
   - rex: help requirements
   - rex: help parameters
+  - rex: help uwsgi
 
 
 #
@@ -281,6 +283,26 @@ tests:
     - rex: wsgi rex.ctl_demo -o ctl_demo.wsgi
     - read: ./sandbox/ctl_demo.wsgi
     - rm: ./sandbox/ctl_demo.wsgi
+
+
+#
+# rex serve-uwsgi
+#
+
+- title: rex serve-uwsgi
+  tests:
+
+  - title: Missing configuration
+    tests:
+    - rex: serve-uwsgi rex.ctl_demo
+      exit: 1
+
+  - title: Running uWSGI
+    tests:
+    - rex: serve-uwsgi rex.ctl_demo --set-uwsgi version
+      ignore: true
+    - rex: serve-uwsgi rex.ctl_demo --uwsgi version
+      ignore: true
 
 
 #

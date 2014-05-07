@@ -20,6 +20,39 @@ def pair(value):
         return (value, True)
 
 
+def sequence(value):
+    # Accepts a sequence of parameters.
+    if not value:
+        value = []
+    if isinstance(value, str):
+        value = value.strip()
+        if value.startswith('[') and value.endswith(']'):
+            value = json.loads(value)
+        else:
+            value = shlex.split(value)
+    if not (isinstance(value, list) and
+            all(isinstance(item, basestring) for item in value)):
+        raise ValueError("expected a sequence of parameters")
+    return value
+
+
+def collection(value):
+    # Accepts a collection of configuration parameters.
+    if not value:
+        value = {}
+    if isinstance(value, str):
+        value = value.strip()
+        if value.startswith('{') and value.endswith('}'):
+            value = json.loads(value)
+        else:
+            value = dict(pair(item)
+                         for item in shlex.split(value))
+    if not (isinstance(value, dict) and
+            all(isinstance(key, basestring) for key in value)):
+        raise ValueError("expected a collection of parameters")
+    return value
+
+
 @setting
 def PROJECT(name=None):
     """primary package
@@ -39,18 +72,7 @@ def REQUIREMENTS(names=None):
 
     Additional packages to include with the application.
     """
-    if not names:
-        names = []
-    if isinstance(names, str):
-        names = names.strip()
-        if names.startswith('[') and names.endswith(']'):
-            names = json.loads(names)
-        else:
-            names = shlex.split(names)
-    if not (isinstance(names, list) and
-            all(isinstance(item, basestring) for item in names)):
-        raise ValueError("expected a list of requirements")
-    env.requirements = names
+    env.requirements = sequence(names)
 
 
 @setting
@@ -59,19 +81,7 @@ def PARAMETERS(config=None):
 
     A dictionary with application parameters.
     """
-    if not config:
-        config = {}
-    if isinstance(config, str):
-        config = config.strip()
-        if config.startswith('{') and config.endswith('}'):
-            config = json.loads(config)
-        else:
-            config = dict(pair(item)
-                          for item in shlex.split(config))
-    if not (isinstance(config, dict) and
-            all(isinstance(key, basestring) for key in config)):
-        raise ValueError("expected a dictionary of application parameters")
-    env.parameters = config
+    env.parameters = collection(config)
 
 
 def make_rex(project=None, require_list=None, set_list=None,

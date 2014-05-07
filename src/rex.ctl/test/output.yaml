@@ -51,6 +51,7 @@ tests:
         rdoma-dumpdb [<project>] : dump application database to a file
         rdoma-loaddb [<project>] : load application database from a file
         serve [<project>]        : start an HTTP server
+        serve-uwsgi [<project>]  : start a uWSGI server
         settings [<project>]     : list configuration parameters
         shell [<project>]        : open HTSQL shell
         wsgi [<project>]         : generate a WSGI script
@@ -63,6 +64,7 @@ tests:
         --parameters=CONFIG      : application configuration
         --project=NAME           : primary package
         --requirements=NAMES     : additional application components
+        --uwsgi=CONFIG           : configuration of the uWSGI server
 
   - rex: help deploy
     stdout: |+
@@ -172,6 +174,30 @@ tests:
         --set=PARAM=VALUE        : set a configuration parameter
         -o/--output=FILE         : write the script to a file
 
+  - rex: help serve-uwsgi
+    stdout: |+
+      SERVE-UWSGI - start a uWSGI server
+      Usage: rex serve-uwsgi [<project>]
+
+      The uwsgi task starts a RexDB application with a uWSGI server.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Use option --set or setting parameters to specify configuration
+      parameters of the application.
+
+      Use option --set-uwsgi or setting uwsgi to specify configuration
+      of the uWSGI server.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        --set-uwsgi=PARAM=VALUE  : set a uWSGI option
+
   - rex: help packages
     stdout: |+
       PACKAGES - list application components
@@ -248,6 +274,15 @@ tests:
              REX_PARAMETERS=CONFIG (environment)
 
       A dictionary with application parameters.
+
+  - rex: help uwsgi
+    stdout: |+
+      UWSGI - configuration of the uWSGI server
+      Usage: rex --uwsgi=CONFIG
+             uwsgi: CONFIG (rex.yaml)
+             REX_UWSGI=CONFIG (environment)
+
+      A dictionary with uWSGI configuration parameters.
 
 - suite: rex-createdb-etc
   tests:
@@ -754,6 +789,24 @@ tests:
 
         application = Rex(*requirements, **parameters)
 
+- suite: rex-serve-uwsgi
+  tests:
+  - suite: missing-configuration
+    tests:
+    - rex: serve-uwsgi rex.ctl_demo
+      stdout: |+
+        FATAL ERROR: missing uWSGI configuration
+
+  - suite: running-uwsgi
+    tests:
+    - rex: serve-uwsgi rex.ctl_demo --set-uwsgi version
+      stdout: |
+        Starting uWSGI server for rex.ctl_demo
+        1.9.11
+    - rex: serve-uwsgi rex.ctl_demo --uwsgi version
+      stdout: |
+        Starting uWSGI server for rex.ctl_demo
+        1.9.11
 - suite: rex-packages
   tests:
   - suite: run-with-no-project
@@ -1044,7 +1097,7 @@ tests:
 
     - rex: packages
       stdout: |+
-        FATAL ERROR: invalid value for setting --requirements: expected a list of requirements
+        FATAL ERROR: invalid value for setting --requirements: expected a sequence of parameters
 
 - suite: rex-settings
   tests:
@@ -1544,7 +1597,7 @@ tests:
 
     - rex: settings
       stdout: |+
-        FATAL ERROR: invalid value for setting --parameters: expected a dictionary of application parameters
+        FATAL ERROR: invalid value for setting --parameters: expected a collection of parameters
 
 - sh: pip uninstall -q -y rex.ctl_demo
   stdout: ''

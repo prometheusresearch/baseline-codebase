@@ -242,11 +242,8 @@ class SERVE:
         host = self.host or env.http_host
         port = self.port or env.http_port
         if not self.quiet:
-            if self.project or env.project:
-                log("Serving `{}` on `{}:{}`",
-                    self.project or env.project, host, port)
-            else:
-                log("Serving on `{}:{}`", host, port)
+            log("Serving `{}` on `{}:{}`",
+                app.requirements[0], host, port)
         httpd = wsgiref.simple_server.make_server(
                 host, port, app,
                 RexServer.make(self.remote_user, self.quiet),

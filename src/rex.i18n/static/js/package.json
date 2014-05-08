@@ -12,7 +12,9 @@
     "peerDependencies": {
         "extend": "^1.2.1",
         "jed": "^0.5.4",
-        "jstimezonedetect": "^1.0.5",
+        "jstimezonedetect": "^1.0.5"
+    },
+    "depenedencies": {
         "globalize": "git+http://github.com/jquery/globalize.git#master"
     },
     "devDependencies": {

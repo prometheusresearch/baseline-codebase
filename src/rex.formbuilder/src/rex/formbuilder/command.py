@@ -203,8 +203,14 @@ class PublishInstrument(FormBuilderBaseCommand):
                         measure_type_id=measure_type_id,
                         title=title).data
                 last_version = produce(
-                    """/measure_type_version{version}
-                       .filter(measure_type=$measure_type&json=$data)""",
+                    """/do(
+                        $latest:=max((
+                            measure_type_version?measure_type=$measure_type
+                        ).version),
+                        /measure_type_version?
+                            measure_type=$measure_type&version=$latest&json=$data
+                        {version}
+                    )""",
                     measure_type=measure_type.code,
                     data=instrument.data).data
                 if not len(last_version):

@@ -17,6 +17,10 @@ function getRandomStr(len) {
     return text;
 }
 
+function isNullOrUndef(value) {
+    return (value === null || value === undefined);
+}
+
 function truncateText(text, len) {
     if (text.length > len)
         return text.slice(0, len - 3) + "...";
@@ -216,7 +220,6 @@ function rexlize(val) {
     else if ('boolean' === type)
         return rexl.Boolean.value(val);
 
-    // console.log('wrong val', val);
     throw('RexlTypeError');
 }
 
@@ -500,36 +503,93 @@ DateDomain.prototype.isValidValue = function(value) {
     return true;
 };
 
-var NumberDomain = function(isFloat) {
+var NumberDomain = function(options) {
+    this.isFloat = options.isFloat;
+    this.slider = options.slider;
+    this.low = options.low;
+    this.high = options.high;
+    this.step = options.step;
+    if (this.slider && (isNullOrUndef(this.low) ||
+                        isNullOrUndef(this.high) ||
+                        isNullOrUndef(this.step))) {
+        throw("InvalidConfig: slider parameters are not set");
+    }
     Domain.call(this, 'number');
-    this.isFloat = isFloat;
 };
 extend(NumberDomain, Domain);
+NumberDomain.prototype.getInitialValue = function () {
+    return this.slider ? this.low: null;
+};
 NumberDomain.prototype.renderEdit = function (templates, value, onChange, customTitles) {
-    var input = $('<input type="text">');
-    this.setEditValue(input, value, null);
-
-    if (onChange)
-        input.change(onChange);
-
-    return input;
+    var node;
+    if (this.slider) {
+        value = isNullOrUndef(value)? this.low: value;
+        node = $('<div class="rf-slider">'
+                + '<div class="rf-slider-value"></div>'
+                + '<div class="rf-slider-widget"></div>'
+                + '<div class="rf-slider-scale">'
+                    + '<div class="rf-slider-low"></div>'
+                    + '<div class="rf-slider-high"></div>'
+                + '</div>'
+            + '</div>');
+        var valueNode = node.find('.rf-slider-value');
+        var sliderNode = node.find('.rf-slider-widget');
+        node.find('.rf-slider-low').text(this.low);
+        node.find('.rf-slider-high').text(this.high);
+        sliderNode.slider({
+            orientation: "horizontal",
+            max: this.high,
+            min: this.low,
+            step: this.step,
+            value: value,
+            slide: function (e, ui) {
+                valueNode.text(ui.value);
+            }
+        });
+        sliderNode.on("slidechange", function (e, ui) {
+            var value = sliderNode.slider('option', 'value');
+            valueNode.text(value);
+        });
+        this.setEditValue(node, value, null);
+        setTimeout(function () {
+            sliderNode.on("slidechange", function (e, ui) {
+                if (onChange)
+                    onChange();
+            });
+            sliderNode.trigger('slidechange');
+        });
+    }
+    else {
+        node = $('<input type="text">');
+        this.setEditValue(node, value, null);
+        if (onChange)
+            node.change(onChange);
+    }
+    return node;
 };
 NumberDomain.prototype.setEditValue = function (node, value, options) {
-    node.val( (value !== null && value !== undefined) ? value : '' );
+    if (this.slider)
+        node.find('.rf-slider-widget').slider('option', 'value', value);
+    else
+        node.val( (value !== null && value !== undefined) ? value : '' );
 };
 NumberDomain.prototype.setViewValue = function (node, value) {
-    node.text( (value !== null && value !== undefined) ? value : '' );
+    node.val( (value !== null && value !== undefined) ? value : '' );
 };
 NumberDomain.prototype.extractValue = function (node) {
-    var value = $.trim( node.val() ) || null;
-
-    if (value !== null) {
-        if (this.isFloat && isValidNumeric(value, 'float'))
-            value = parseFloat(value);
-        else if (!this.isFloat && isValidNumeric(value, 'integer'))
-            value = parseInt(value);
-        else
-            throw("InvalidNumeric");
+    var value;
+    if (this.slider) {
+        value = node.find('.rf-slider-widget').slider('option', 'value');
+    } else {
+        value = $.trim(node.val()) || null;
+        if (value !== null) {
+            if (this.isFloat && isValidNumeric(value, 'float'))
+                value = parseFloat(value);
+            else if (!this.isFloat && isValidNumeric(value, 'integer'))
+                value = parseInt(value);
+            else
+                throw("InvalidNumeric");
+        }
     }
 
     return value;
@@ -983,8 +1043,13 @@ var domain = {
             return this.get(questionType, def.answers);
         case "integer":
         case "float":
-            return this.get(questionType,
-                            "float" === questionType);
+            return this.get(questionType, {
+                isFloat: ("float" === questionType),
+                slider: def.slider || false,
+                low: def.low || null,
+                high: def.high || null,
+                step: def.step || null
+            });
         case "string":
         case "text":
             return this.get(questionType, {
@@ -1234,7 +1299,6 @@ Page.prototype.findWrongQuestion = function () {
 Page.prototype.update = function () {
     if (this.renderedPage)
         this.renderedPage.css('display', this.skipped ? 'none' : 'block');
-    // console.log('trigger', this);
     $(this).trigger('updated');
 }
 
@@ -1676,6 +1740,10 @@ var DomainQuestion = function (params, domain) {
         domain instanceof SetDomain) {
         params.value = domain.getEmptyValue();
     }
+    if (params.value === null &&
+        domain instanceof NumberDomain) {
+        params.value = domain.getInitialValue();
+    }
 
     BaseQuestion.call(this, params);
     this.domain = domain;
@@ -1730,9 +1798,9 @@ DomainQuestion.prototype.getRexlValue = function (itemName) {
 };
 
 DomainQuestion.prototype.extractValue = function () {
-    if (!this.editNode)
+    var domainNode = (this.editNode || $()).find('.rf-question-answers:first').children();
+    if (domainNode.size() == 0)
         return this.value;
-    var domainNode = this.editNode.find('.rf-question-answers:first').children();
     return this.domain.extractValue(domainNode);
 };
 
@@ -2121,7 +2189,6 @@ RecordListQuestion.prototype.isIncorrect = function () {
 RecordListQuestion.prototype.createRecord = function (values, recordAnnotations,
                                                       recordExplanations) {
     var self = this;
-    // console.log('createRecord', recordAnnotations, recordExplanations);
     var options = {
         customTitles: this.customTitles,
         templates: this.templates,
@@ -2304,7 +2371,6 @@ RecordListQuestion.prototype.edit = function () {
         }
         $.each(this.records, function (_, record) {
             var recordNode = record.renderEdit();
-            // console.log('edit record:', recordNode);
             recordList.append(recordNode);
         });
         var self = this;

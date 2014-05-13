@@ -16,7 +16,11 @@ Usage
 
 First rex.expression should be included in HTML code with this snippet::
 
-    <script src="{{ MOUNT['rex.expression'] }}/rexl.js"></script>
+    {% import "rex.expression:/macro.html" as expression with context %}
+    ...
+    <head>
+        {{ expression.rexl() }}
+    </head>
 
 In JavaScript code rex.expression gives three possibilities. First, it can 
 parse rexl expressions::

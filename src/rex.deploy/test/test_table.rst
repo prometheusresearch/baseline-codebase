@@ -25,6 +25,11 @@ Use field ``table`` to specify the table title::
     >>> driver.parse("""{ table: individual, title: Test Subjects }""")
     TableFact(u'individual', title=u'Test Subjects')
 
+Turn off field ``reliable`` to create a fast, but not crash-safe table::
+
+    >>> driver.parse("""{ table: history, reliable: false }""")
+    TableFact(u'history', is_reliable=False)
+
 Use field ``with`` to list facts to deployed together with the table fact::
 
     >>> driver.parse("""{ table: individual,
@@ -56,7 +61,17 @@ Turn off flag ``present`` to indicate that the table is to be deleted::
     >>> driver.parse("""{ table: individual, present: false }""")
     TableFact(u'individual', is_present=False)
 
-You cannot combine ``present: false`` with the ``title`` or ``with`` fields::
+You cannot combine ``present: false`` with the ``reliable``, ``title`` or
+``with`` fields::
+
+    >>> driver.parse("""{ table: individual, present: false,
+    ...                   reliable: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        reliable
+    While parsing table fact:
+        "<byte string>", line 1
 
     >>> driver.parse("""{ table: individual, present: false,
     ...                   title: Test Subjects }""")
@@ -105,6 +120,24 @@ comment.  Similarly, the table title is stored in the comment::
     label: individual_id
     title: Identity
     ';
+
+To create a fast, but not crash-safe table, unset option ``present``::
+
+    >>> driver("""{ table: history, reliable: false }""")
+    CREATE UNLOGGED TABLE "history" (
+        "id" "serial4" NOT NULL
+    );
+    ALTER TABLE "history" ADD CONSTRAINT "history_id_uk" UNIQUE ("id");
+
+It is impossible to change this characteristic after the table is created::
+
+    >>> driver("""{ table: history, reliable: true }""")
+    Traceback (most recent call last):
+      ...
+    Error: Detected table with mismatched reliability characteristic:
+        history
+    While deploying table fact:
+        "<byte string>", line 1
 
 When the driver is locked and the table does not exist, an error is raised::
 

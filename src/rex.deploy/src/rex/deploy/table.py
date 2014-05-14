@@ -17,6 +17,8 @@ class TableFact(Fact):
 
     `label`: ``unicode``
         The name of the table.
+    `is_reliable`: ``bool``
+        Indicates whether the table is crush-safe.
     `title`: ``unicode`` or ``None``
         The title of the table.  If not set, generated from the label.
     `is_present`: ``bool``
@@ -28,6 +30,7 @@ class TableFact(Fact):
 
     fields = [
             ('table', LabelVal),
+            ('reliable', BoolVal, None),
             ('title', TitleVal, None),
             ('present', BoolVal, True),
             ('with', SeqVal(FactVal), None),
@@ -37,6 +40,13 @@ class TableFact(Fact):
     def build(cls, driver, spec):
         label = spec.table
         is_present = spec.present
+        is_reliable = spec.reliable
+        if is_present:
+            if is_reliable is None:
+                is_reliable = True
+        else:
+            if is_reliable is not None:
+                raise Error("Got unexpected clause:", "reliable")
         if not is_present and spec.title:
             raise Error("Got unexpected clause:", "title")
         title = spec.title
@@ -56,22 +66,27 @@ class TableFact(Fact):
                                 locate(related_spec))
                 related_fact = driver.build(related_spec)
                 related.append(related_fact)
-        return cls(label, title=title, is_present=is_present, related=related)
+        return cls(label, is_reliable=is_reliable, title=title,
+                   is_present=is_present, related=related)
 
-    def __init__(self, label, title=None, is_present=True, related=None):
+    def __init__(self, label, is_reliable=True, title=None, is_present=True,
+                 related=None):
         # Validate input constraints.
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
+            assert isinstance(is_reliable, bool)
             assert (title is None or
                     (isinstance(title, unicode) and len(title) > 0))
             assert (related is None or
                     (isinstance(related, list) and
                      all(isinstance(fact, Fact) for fact in related)))
         else:
+            assert is_reliable is None or isinstance(is_reliable, bool)
             assert title is None
             assert related is None
         self.label = label
+        self.is_reliable = is_reliable
         self.title = title
         self.is_present = is_present
         self.related = related
@@ -80,6 +95,8 @@ class TableFact(Fact):
     def __repr__(self):
         args = []
         args.append(repr(self.label))
+        if self.is_reliable is False:
+            args.append("is_reliable=%r" % self.is_reliable)
         if self.title is not None:
             args.append("title=%r" % self.title)
         if not self.is_present:
@@ -104,13 +121,16 @@ class TableFact(Fact):
             # Submit `CREATE TABLE {name} (id serial4 NOT NULL)` and
             # `ADD CONSTRAINT UNIQUE (id)`.
             body = [sql_define_column(u'id', u'serial4', True)]
+            is_unlogged = (not self.is_reliable)
             key_name = mangle([self.label, u'id'], u'uk')
-            driver.submit(sql_create_table(self.name, body))
+            driver.submit(sql_create_table(
+                    self.name, body, is_unlogged=is_unlogged))
             driver.submit(sql_add_unique_constraint(
                     self.name, key_name, [u'id'], False))
             # Update the catalog image.
             system_schema = driver.get_catalog()[u'pg_catalog']
             table = schema.add_table(self.name)
+            table.set_is_unlogged(is_unlogged)
             int4_type = system_schema.types[u'int4']
             id_column = table.add_column(u'id', int4_type, True)
             table.add_unique_key(key_name, [id_column])
@@ -122,6 +142,9 @@ class TableFact(Fact):
         if not any(unique_key.origin_columns == [id_column]
                    for unique_key in table.unique_keys):
             raise Error("Detected missing column UNIQUE constraint:", "id")
+        if table.is_unlogged != (not self.is_reliable):
+            raise Error("Detected table with mismatched"
+                        " reliability characteristic:", table)
         # Store the original table label and the table title.
         meta = TableMeta.parse(table)
         saved_label = self.label if self.label != self.name else None

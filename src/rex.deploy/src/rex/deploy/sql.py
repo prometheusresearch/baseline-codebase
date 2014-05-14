@@ -146,14 +146,16 @@ def sql_comment_on_schema(name, text):
     return "COMMENT ON SCHEMA {} IS {};".format(sql_name(name), sql_value(text))
 
 
-def sql_create_table(name, definitions):
+def sql_create_table(name, definitions, is_unlogged=False):
     """
     Generates::
 
-        CREATE TABLE {name} ( {definition}, ... )
+        CREATE [UNLOGGED] TABLE {name} ( {definition}, ... )
     """
     lines = []
-    lines.append(u"CREATE TABLE {} (".format(sql_name(name)))
+    lines.append(u"CREATE{} TABLE {} ("
+            .format(u" UNLOGGED" if is_unlogged else u"",
+                    sql_name(name)))
     for line in definitions[:-1]:
         lines.append(u"    {},".format(line))
     lines.append(u"    {}".format(definitions[-1]))

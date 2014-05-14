@@ -347,6 +347,12 @@ A table fact describes a database table.
 `present`: ``true`` (default) or ``false``
     Indicates whether the table exists in the database.
 
+`reliable`: ``true`` (default) or ``false``
+    Indicates whether the table is crash-safe.
+
+    Unset this flag to create a table that has fast update operations, but may
+    lose committed data when the database server crashes.
+
 `title`: ``<title>``
     Header used in tabular output.  If not provided, the header is generated
     from the table name.
@@ -426,6 +432,11 @@ Examples:
         - column: title
           of: protocol
           type: text
+
+    #. Adding a table with fast updates (but not crash-safe)::
+
+        table: history
+        reliable: false
 
 
 Column fact

@@ -246,6 +246,7 @@ class SchemaImage(NamedImage):
     def set_comment(self, text):
         """Sets the comment."""
         self.comment = text
+        return self
 
 
 class TypeImage(NamedImage):
@@ -301,6 +302,7 @@ class TypeImage(NamedImage):
     def set_comment(self, text):
         """Sets the comment."""
         self.comment = text
+        return self
 
 
 class DomainTypeImage(TypeImage):
@@ -339,7 +341,7 @@ class TableImage(NamedImage):
 
     __slots__ = ('columns', 'constraints', 'primary_key', 'unique_keys',
                  'foreign_keys', 'referring_foreign_keys', 'data', 'comment',
-                 '__weakref__')
+                 'is_unlogged', '__weakref__')
 
     def __init__(self, schema, name):
         super(TableImage, self).__init__(weakref.ref(schema), name)
@@ -359,6 +361,8 @@ class TableImage(NamedImage):
         self.data = None
         #: Table comment.
         self.comment = None
+        #: The table was created as `UNLOGGED`?
+        self.is_unlogged = False
         schema.tables.add(self)
 
     @property
@@ -425,6 +429,12 @@ class TableImage(NamedImage):
     def set_comment(self, text):
         """Sets the comment."""
         self.comment = text
+        return self
+
+    def set_is_unlogged(self, is_unlogged):
+        """Sets or unsets ``UNLOGGED`` property."""
+        self.is_unlogged = is_unlogged
+        return self
 
 
 class ColumnImage(NamedImage):
@@ -482,16 +492,6 @@ class ColumnImage(NamedImage):
         self.table.columns.replace(old_name, self)
         return self
 
-    def set_type(self, type):
-        """Sets new column type."""
-        self.type = type
-        return self
-
-    def set_is_not_null(self, is_not_null):
-        """Sets or unsets ``NOT NULL`` constraint."""
-        self.is_not_null = is_not_null
-        return self
-
     def remove(self):
         for unique_key in self.unique_keys[:]:
             unique_key.remove()
@@ -504,9 +504,20 @@ class ColumnImage(NamedImage):
         self.table.columns.remove(self)
         super(ColumnImage, self).remove()
 
+    def set_type(self, type):
+        """Sets new column type."""
+        self.type = type
+        return self
+
+    def set_is_not_null(self, is_not_null):
+        """Sets or unsets ``NOT NULL`` constraint."""
+        self.is_not_null = is_not_null
+        return self
+
     def set_comment(self, text):
         """Sets the comment."""
         self.comment = text
+        return self
 
 
 class ConstraintImage(NamedImage):
@@ -541,6 +552,7 @@ class ConstraintImage(NamedImage):
     def set_comment(self, text):
         """Sets the comment."""
         self.comment = text
+        return self
 
 
 class UniqueKeyImage(ConstraintImage):

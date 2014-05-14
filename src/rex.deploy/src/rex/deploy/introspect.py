@@ -56,15 +56,17 @@ def introspect(connection):
     # Extract tables.
     table_by_oid = {}
     cursor.execute("""
-        SELECT c.oid, c.relnamespace, c.relname
+        SELECT c.oid, c.relnamespace, c.relname, c.relpersistence
         FROM pg_catalog.pg_class c
         WHERE c.relkind IN ('r', 'v') AND
               HAS_TABLE_PRIVILEGE(c.oid, 'SELECT')
         ORDER BY c.relnamespace, c.relname
     """)
-    for oid, relnamespace, relname in cursor.fetchall():
+    for oid, relnamespace, relname, relpersistence in cursor.fetchall():
         schema = schema_by_oid[relnamespace]
         table = schema.add_table(relname)
+        if relpersistence == 'u':
+            table.set_is_unlogged(True)
         table_by_oid[oid] = table
 
     # Extract columns.

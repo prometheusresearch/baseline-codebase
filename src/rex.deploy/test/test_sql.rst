@@ -162,6 +162,16 @@ statement::
     >>> print sql_drop_table(u'study')
     DROP TABLE "study";
 
+You can configure some table properties when generating ``CREATE TABLE``
+statement::
+
+    >>> print sql_create_table(u'study', body, is_unlogged=True)
+    CREATE UNLOGGED TABLE "study" (
+        "id" "serial4" NOT NULL,
+        "code" "varchar"(8) NOT NULL,
+        "title" "text"
+    );
+
 ``rex.deploy`` can also generate ``ALTER TABLE`` statements to add and remove
 columns and constraints::
 

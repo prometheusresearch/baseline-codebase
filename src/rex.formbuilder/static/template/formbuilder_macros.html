@@ -250,8 +250,14 @@
                                     <table class="question-selects">
                                         <h3 class="question-type-header rb_with_top_margin">Question type</h3>
                                         <select name="question-type"></select>
-                                        <label class="rb-question-dropdown"><input type="checkbox" name="drop_down" />Drop-Down Style</label>
+                                        <label class="rb-question-dropdown"><input type="checkbox" name="drop_down" /> Drop-Down Style</label>
+                                        <label class="rb-question-slider"><input type="checkbox" name="slider" /> Slider Style</label>
                                     </table>
+                                    <div class="rb-question-slider-props" style="display: none;">
+                                        <span class="rb-question-slider-prop" title="The lowest value that could be set by the slider">Low: <input type="text" class="rb-short-input" name="low" /></span>
+                                        <span class="rb-question-slider-prop" title="The highest value that could be set by the slider">High: <input type="text" class="rb-short-input" name="high" /></span>
+                                        <span class="rb-question-slider-prop" title="Step value for the slider">Step: <input type="text" class="rb-short-input" name="step" /></span>
+                                    </div>
                                     <div class="rb-question-answers" style="display: none;">
                                         <div class="rb-question-answers-header">
                                             <h3>Choice</h3>

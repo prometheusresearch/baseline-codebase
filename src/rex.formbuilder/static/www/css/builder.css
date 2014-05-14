@@ -950,3 +950,11 @@ a.rb-back-url {
 ul#rb_question_list {
     margin-left: 0px;
 }
+
+.rb-short-input {
+    width: 50px;
+}
+
+.rb-question-slider-prop {
+    margin-right: 10px;
+}

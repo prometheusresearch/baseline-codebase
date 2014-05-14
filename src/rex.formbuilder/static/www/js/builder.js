@@ -145,6 +145,28 @@ Question.prototype.renameIdentifier = function (oldName, newName) {
     this.hideIf.renameIdentifier(oldName, newName);
 };
 
+var NumberQuestion = function(def, templates) {
+    Question.call(this, def, templates);
+
+    this.slider = def.slider || null;
+    this.high = def.high || null;
+    this.low = def.low || null;
+    this.step = def.step || null;
+};
+builder.extend(NumberQuestion, Question);
+NumberQuestion.prototype.getDef = function () {
+    var def = Question.prototype.getDef.call(this);
+    if (this.slider)
+        def.slider = this.slider;
+    if (!builder.isNullOrUndef(this.low))
+        def.low = this.low;
+    if (!builder.isNullOrUndef(this.high))
+        def.high = this.high;
+    if (!builder.isNullOrUndef(this.step))
+        def.step = this.step;
+    return def;
+};
+
 var VariantQuestion = function (def, templates) {
     Question.call(this, def, templates);
     this.dropDown = def.dropDown || false;
@@ -622,31 +644,31 @@ Group.prototype.remove = function (saveContents) {
 })();
 
 builder.questionTypes = {
-    'integer': { 
+    'integer': {
         title: 'Integer',
-        cls: Question
+        cls: NumberQuestion
     },
-    'float': { 
+    'float': {
         title: 'Float',
-        cls: Question
+        cls: NumberQuestion
     },
-    'enum': { 
+    'enum': {
         title: 'One-choice List',
         cls: VariantQuestion
     },
-    'set': { 
+    'set': {
         title: 'Multi-select List',
         cls: VariantQuestion
     },
-    'string': { 
+    'string': {
         title: 'Text String',
         cls: Question
     },
-    'text': { 
+    'text': {
         title: 'Text',
         cls: Question
     },
-    'date': { 
+    'date': {
         title: 'Date',
         cls: Question
     },
@@ -654,27 +676,27 @@ builder.questionTypes = {
         title: 'Weight',
         cls: Question
     },
-    'time_week': { 
+    'time_week': {
         title: 'Time (weeks)',
         cls: Question
     },
-    'time_month': { 
+    'time_month': {
         title: 'Time (month)',
         cls: Question
     },
-    'time_hours': { 
+    'time_hours': {
         title: 'Time (hours)',
         cls: Question
     },
-    'time_minutes': { 
+    'time_minutes': {
         title: 'Time (minutes)',
         cls: Question
     },
-    'time_days': { 
+    'time_days': {
         title: 'Time (days)',
         cls: Question
     },
-    'rep_group': { 
+    'rep_group': {
         title: 'Repeating Group of Questions',
         cls: RepeatingGroupQuestion
     },
@@ -1498,8 +1520,16 @@ var QuestionContainer = function (o) {
                 ret = false;
                 if (e.name === "ValidationError") {
                     alert(e.message);
-                    if (e.obj)
-                        e.obj.node[0].scrollIntoView();
+                    if (e.obj) {
+                        if (e.obj instanceof jQuery) {
+                            e.obj[0].scrollIntoView();
+                            var tagName = e.obj.prop('tagName').toLowerCase();
+                            if (tagName === "input" || tagName === "textarea")
+                                e.obj.focus();
+                        }
+                        else
+                            e.obj.node[0].scrollIntoView();
+                    }
                 } else
                     throw e;
             }
@@ -1630,7 +1660,13 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
     var nodeRequired = self.node.find('input[name=question-required]:first');
     var nodeSlave = self.node.find('input[name=question-slave]:first');
     var labelDropDown = self.node.find('label.rb-question-dropdown:first');
+    var labelSlider = self.node.find('label.rb-question-slider:first');
+    var nodeSliderProps = self.node.find('.rb-question-slider-props:first');
+    var inputSliderHigh = nodeSliderProps.find('input[name=high]');
+    var inputSliderLow = nodeSliderProps.find('input[name=low]');
+    var inputSliderStep = nodeSliderProps.find('input[name=step]');
     var nodeDropDown = labelDropDown.find('input');
+    var nodeSlider = labelSlider.find('input');
     var nodeAnnotation = self.node.find('input[name=question-annotation]:first');
     var nodeExplanation = self.node.find('input[name=question-explanation]:first');
     var nodeType = self.node.find('select[name=question-type]:first');
@@ -1671,6 +1707,13 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
 
     nodeAddNext.click(function () {
         onAddNext();
+    });
+
+    nodeSlider.change(function () {
+        if (nodeSlider.is(':checked'))
+            nodeSliderProps.show();
+        else
+            nodeSliderProps.hide();
     });
 
     nodeRemove.click(function () {
@@ -1885,6 +1928,7 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
             self.node.find('.rb-custom-titles-wrap').hide();
 
         } else {
+
             labelDropDown.hide();
             answerEditor.hide();
             nodeSubquestions.toggle(type === 'rep_group');
@@ -1897,6 +1941,11 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
             self.node.find('.rb-constraint-logic').show();
             self.node.find('.rb-custom-titles-wrap').show();
         }
+
+        if (builder.isNumericType(type))
+            labelSlider.show();
+        else
+            labelSlider.hide();
     });
 
     if (question) {
@@ -1916,6 +1965,12 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
             nodeExplanation.attr('checked', 'checked');
         if (question.type === "enum" && question.dropDown)
             nodeDropDown.attr('checked', 'checked');
+        if (builder.isNumericType(question.type) && question.slider) {
+            nodeSlider.attr('checked', 'checked').change();
+            inputSliderHigh.val(question.high);
+            inputSliderLow.val(question.low);
+            inputSliderStep.val(question.step);
+        }
         nodeType.val(question.type);
     }
     nodeType.change();
@@ -1974,6 +2029,29 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
             def.answers = answerEditor.getDef();
             if (def.type === "enum" && nodeDropDown.is(":checked"))
                 def.dropDown = true;
+        }
+        if (builder.isNumericType(def.type) && nodeSlider.is(":checked")) {
+            def.slider = true;
+            var parser = def.type === "integer" ? parseInt: parseFloat;
+            var re = new RegExp(def.type === "integer"?
+                                    '^[-+]{0,1}\\d+$': '^[-+]{0,1}[0-9]+\\.?[0-9]+$');
+            console.log('re', re);
+            $.each([inputSliderLow, inputSliderHigh, inputSliderStep], function (_, input) {
+                input = $(input);
+                var val = input.val();
+                if (!re.test(val))
+                    throw new builder.ValidationError(
+                        "Slider parameters should be set and numeric", input);
+            });
+            def.low = parser(inputSliderLow.val());
+            def.high = parser(inputSliderHigh.val());
+            def.step = parser(inputSliderStep.val());
+            if (def.low > def.high)
+                throw new builder.ValidationError(
+                    "Low slider value should not be highter than the high value", inputSliderLow);
+            if (def.step <= 0)
+                throw new builder.ValidationError(
+                    "Slider step value should not be equal or less zero", inputSliderStep);
         }
         if (!builder.isEmpty(customTitles))
             def.customTitles = customTitles;

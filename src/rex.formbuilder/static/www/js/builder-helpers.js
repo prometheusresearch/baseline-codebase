@@ -17,6 +17,10 @@ builder.keys = function (array) {
     return ret;
 }
 
+builder.isNullOrUndef = function (val) {
+    return val === null || val === undefined;
+}
+
 builder.isValidNumeric = function(val, condType) {
     return (
         (condType === 'integer'
@@ -55,11 +59,11 @@ builder.getCId = function(prefix) {
 }
 
 builder.isNumericType = function(type) {
-    return (type === 'integer' || type == 'float');
+    return (type === 'integer' || type === 'float');
 }
 
 builder.isListType = function(type) {
-    return (type === 'set' || type == 'enum'); 
+    return (type === 'set' || type === 'enum'); 
 }
 
 builder.isDescriptiveType = function(type) {

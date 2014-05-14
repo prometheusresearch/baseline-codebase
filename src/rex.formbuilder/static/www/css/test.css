@@ -779,3 +779,25 @@ textarea.rc_answer_variant {
     margin-bottom: 10px;
     font-size: 16px;
 }
+
+.rf-slider-value {
+    margin-bottom: 10px;
+}
+
+.rf-slider-scale {
+    overflow: hidden;
+    margin-top: 10px;
+    color: #a0a0a0;
+}
+
+.rf-slider-low {
+    float: left;
+}
+
+.rf-slider-high {
+    float: right;
+}
+
+.rf-slider-widget {
+    clear: both;
+}

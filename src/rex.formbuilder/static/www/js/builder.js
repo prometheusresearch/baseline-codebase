@@ -451,7 +451,6 @@ PageContainer.prototype.rearrange = function () {
         var itemOwner = item.data('owner');
         self.pages.push(itemOwner);
     });
-    // console.log('result of rearrange:', self.pages);
 };
 PageContainer.prototype.createEmptyPage = function () {
     return new Page({
@@ -605,7 +604,6 @@ Group.prototype.remove = function (saveContents) {
     if (saveContents) {
         $.each(this.pages, function (_, item) {
             item.parent = parent;
-            // console.log('owner', item.node.data('owner'));
             self.node.before(item.node);
         });
     }
@@ -1279,7 +1277,6 @@ var Variant = function (code, title, separator, parent, templates) {
         if (!self.code) {
             if (!self.title)
                 return null;
-            // console.log('self', self);
             throw new builder.ValidationError("Answer code could not empty", self);
         }
         return {
@@ -1510,10 +1507,8 @@ var QuestionContainer = function (o) {
         return ret;
     };
     self.openQuestionEditor = function (question, mode, after) {
-        // console.log('openQuestionEditor(question=', question, 'mode=', mode, 'after=', after);
         if (!self.closeQuestionEditor())
             return;
-        // console.log('openQuestionEditor 2', question);
         var isNew = (question && mode !== "copy") ? true : false;
         var onCancel = function () {
             self.closeQuestionEditor(true);
@@ -1534,7 +1529,6 @@ var QuestionContainer = function (o) {
             questionNode.detach();
         } else {
             if (after) {
-                // console.log('adding after', after.getNode()[0]);
                 after.getNode().after(self.editor.node);
             } else {
                 self.listNode.append(self.editor.node);
@@ -2045,8 +2039,6 @@ var PageEditor = function (o) {
         maxVisibleTextLen: 60,
         emptyValueText: 'Never skipped',
         onChange: function (newValue) {
-            // console.log('self.page', self.page);
-            // console.log('setting new value', newValue);
             if (self.page)
                 self.page.setSkipIf(newValue);
         }

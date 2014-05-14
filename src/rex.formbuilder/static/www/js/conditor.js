@@ -102,8 +102,6 @@ function ConditionEditor(initParams) {
                 var operand = jQuery.trim(valueInput.val());
                 var operation = $('.rb_select_answer_is', hidPart).val();
 
-                console.log('identifierType', identifierType);
-
                 switch (identifierType) {
                 case 'date':
                     if (operand) {
@@ -132,7 +130,6 @@ function ConditionEditor(initParams) {
 
                 if (noErrors) {
                     valueInput.removeClass('rb_wrong');
-                    console.log('before build statement or=', or, 'neg', neg); 
                     thisStatement =
                         buildStatement(isFirst,
                                 or,
@@ -251,12 +248,10 @@ function ConditionEditor(initParams) {
                 if (noErrors)
                     conditionsStr += statement;
 
-                console.log('conditionsStr:', conditionsStr);
             });
         }
 
         if (noErrors) {
-            console.log('no errors');
             dialogParams.callback(conditionsStr); 
             closeDialog();
         }
@@ -457,7 +452,6 @@ function ConditionEditor(initParams) {
     }
 
     function setConditionListSortable(list) {
-        console.log('list:', list);
         list.sortable({
             cursor: 'move',
             toleranceElement: '> div',
@@ -936,7 +930,6 @@ function ConditionEditor(initParams) {
                 opName = node.value.value;
                 if (toType(opName) !== "string") {
                     // this is unsupported
-                    console.log('opName is not string:', opName)
                     return null;
                 }
             } else
@@ -951,7 +944,6 @@ function ConditionEditor(initParams) {
 
             var opDef = getOperationDef(opName, node.args.length);
             if (!opDef) {
-                console.log('Can not find operation definition for:', opName);
                 return null;
             }
 
@@ -1002,8 +994,6 @@ function ConditionEditor(initParams) {
                         argIdentifier = arg.value;
                     } else if (arg.type === "OPERATION") {
                         if (arg.value === ".") {
-                            console.log('before arg', arg);
-
                             if (arg.args.length == 2 &&
                                 arg.args[0].type === "IDENTIFIER" &&
                                 arg.args[1].type === "IDENTIFIER") {
@@ -1035,7 +1025,6 @@ function ConditionEditor(initParams) {
                                 return null;
                             }
                         } else {
-                            console.log('something else', arg);
                             return null;
                         }
                     } else if (arg.type === "QUOTED_LITERAL") {
@@ -1064,13 +1053,11 @@ function ConditionEditor(initParams) {
 
                     return endPoint;
                 } else {
-                    console.log('null param: argIdentifier:', argIdentifier, 'argValue:', argValue);
                     return null;
                 }
             }
         }
         
-        console.log('default null', node);
         return null;
     }
 
@@ -1255,18 +1242,14 @@ function ConditionEditor(initParams) {
             try {
                 node = rexl.parse(conditionsStr);
             } catch(err) {
-                console.log('error parsing rexl:', conditionsStr);
                 parsable = false;
             }
 
             if (parsable) {
-                console.log('Node', node);
                 var imItems = buildIntermediateItems(node);
                 if (!imItems) {
-                    console.log('items are not parsable');
                     parsable = false;
                 } else {
-                    console.log('parsable items: ', imItems);
                     buildConditionItems(imItems,
                             conditionBuilderList);
                 }

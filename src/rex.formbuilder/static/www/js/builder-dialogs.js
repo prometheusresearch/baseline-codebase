@@ -131,9 +131,6 @@ dialogNS.PublishDialog = function (o) {
     var inputNewMeasure = $('input[name=new_measure_type]', node);
     var mode;
 
-    console.log('inputExistMeasure', inputExistMeasure[0]);
-    console.log('inputNewMeasure', inputNewMeasure[0]);
-
     this.setMode = function (newMode) {
         mode = newMode;
         if (mode === "existing") {

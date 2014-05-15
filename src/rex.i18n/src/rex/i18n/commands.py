@@ -9,7 +9,7 @@ from webob import Response
 from webob.exc import HTTPBadRequest, HTTPFound
 
 from rex.core import get_settings, StrVal, get_packages
-from rex.jsbundle import CommonJSBundle
+from rex.jsbundle import Bundle
 from rex.web import Command, Parameter
 
 from .core import KEY_LOCALE, DOMAIN_FRONTEND, get_json_translations
@@ -126,6 +126,6 @@ class GetLocaleDetailCommand(CldrPackagerCommand):
         )
 
 
-class I18NJSBundle(CommonJSBundle):
-    path = '/i18n.js'
+class I18NJSBundle(Bundle):
+    path = '/i18n/{chunk_name}'
 

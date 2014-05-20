@@ -1,13 +1,14 @@
 {% import "rex.vendor:/template/macro.html" as vendor with context %}
+{% import "rex.expression:/macro.html" as expression with context %}
 
 {% macro client_head() -%}
         <meta name="Content-Type" content="text/html; charset=utf-8" />
         {{ vendor.jquery() }}
         {{ vendor.jquery_ui() }}
+        {{ expression.rexl() }}
 
         <script type="text/javascript" src="{{ MOUNT['rex.forms'] }}/js/creole.js"></script>
         <script type="text/javascript" src="{{ MOUNT['rex.forms'] }}/js/rexforms-client.js"></script>
-        <script type="text/javascript" src="{{ MOUNT['rex.forms'] }}/js/rexl.js"></script>
 {% endmacro -%}
 
 {% macro client_default_styles() %}

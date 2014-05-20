@@ -22,6 +22,7 @@ setup(
     install_requires=[
         'rex.web>=1,<3',
         'rex.vendor>=1.2,<2',
+        'rex.expression>=1,<2'
     ],
     rex_static='static',
 )

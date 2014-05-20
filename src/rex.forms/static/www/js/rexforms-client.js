@@ -1805,8 +1805,9 @@ DomainQuestion.prototype.extractValue = function () {
 };
 
 DomainQuestion.prototype.initAnnotation = function (annotation) {
-    var isEmpty = (this.value === null);
-    if (!isEmpty) {
+    var isEmpty = (this.value === null || this.value === undefined ||
+                   this.value === '');
+    if (!isEmpty && this.value instanceof Object) {
         var hasAnswer = false;
         $.each(this.value, function (_, value) {
             if (value)

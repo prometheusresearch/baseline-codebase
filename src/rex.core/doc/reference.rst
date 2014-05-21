@@ -35,6 +35,7 @@ Packages
 ========
 
 .. autoclass:: rex.core.Package
+.. autoclass:: rex.core.PythonPackage
 .. autoclass:: rex.core.ModulePackage
 .. autoclass:: rex.core.StaticPackage
 .. autoclass:: rex.core.SandboxPackage

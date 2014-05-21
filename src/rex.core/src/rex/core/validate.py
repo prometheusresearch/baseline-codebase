@@ -299,8 +299,7 @@ class ProxyVal(Validate):
         permits you to use the proxy when constructing the validator.
     """
 
-    def __init__(self, validate=None):
-        self.validate = validate
+    validate = None
 
     def set(self, validate):
         """Sets the validator for the proxy to wrap."""

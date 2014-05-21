@@ -16,8 +16,8 @@ from .context import get_rex
 from .error import Error, guard
 from .extension import Extension
 from .package import (
-    Package, ModulePackage, StaticPackage, SandboxPackage, PackageCollection,
-    get_packages)
+    Package, PythonPackage, ModulePackage, StaticPackage, SandboxPackage,
+    PackageCollection, get_packages)
 from .setting import Setting, SettingCollection, get_settings
 from .validate import (
     ValidatingLoader, Validate, AnyVal, ProxyVal, MaybeVal, OneOfVal, StrVal,

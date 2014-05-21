@@ -88,6 +88,12 @@ class Package(object):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
+class PythonPackage(Package):
+    """
+    A package generated from a Python distribution.
+    """
+
+
 class ModulePackage(Package):
     """
     A package generated from a module name.
@@ -246,7 +252,7 @@ class PackageCollection(object):
         # Skip packages without extensions or static packages, emit the rest.
         # FIXME: should include all packages which depend on ``rex.core``.
         if modules or static:
-            yield Package(name, modules, static)
+            yield PythonPackage(name, modules, static)
 
     def __init__(self, packages):
         self.packages = packages

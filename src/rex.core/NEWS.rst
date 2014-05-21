@@ -9,6 +9,7 @@
 ==================
 
 * Added ``ProxyVal``.
+* Added ``PythonPackage``.
 
 
 1.5.0 (2014-03-28)

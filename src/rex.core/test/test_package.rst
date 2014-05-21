@@ -17,11 +17,11 @@ active application::
     >>> with demo:
     ...     packages = get_packages()
     >>> packages    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
-    PackageCollection([Package('rex.core_demo',
-                               modules=set(['rex.core_demo']),
-                               static='/.../share/rex/rex.core_demo'),
-                       Package('rex.core',
-                               modules=set([...]))])
+    PackageCollection([PythonPackage('rex.core_demo',
+                                     modules=set(['rex.core_demo']),
+                                     static='/.../share/rex/rex.core_demo'),
+                       PythonPackage('rex.core',
+                                     modules=set([...]))])
 
 Package collection provides container interface::
 
@@ -60,16 +60,16 @@ The order of packages in the collection respects package dependencies::
 
     >>> with Rex('rex.core_demo', 'rex.core'):
     ...     print get_packages()        # doctest: +ELLIPSIS
-    PackageCollection([Package('rex.core_demo', ...), Package('rex.core', ...)])
+    PackageCollection([PythonPackage('rex.core_demo', ...), PythonPackage('rex.core', ...)])
     >>> with Rex('rex.core', 'rex.core_demo'):
     ...     print get_packages()        # doctest: +ELLIPSIS
-    PackageCollection([Package('rex.core_demo', ...), Package('rex.core', ...)])
+    PackageCollection([PythonPackage('rex.core_demo', ...), PythonPackage('rex.core', ...)])
 
 Attribute ``PackageCollection.modules`` is a dictionary that maps modules where
 RexDB would look for extensions to the package which owns the module::
 
     >>> packages.modules    # doctest: +ELLIPSIS
-    {..., 'rex.core_demo': Package('rex.core_demo', ...), ...}
+    {..., 'rex.core_demo': PythonPackage('rex.core_demo', ...), ...}
 
 
 Constructing package collection
@@ -89,26 +89,26 @@ A requirement could be one of the following:
     >>> with Rex('rex.core_demo>=1.0'):
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
-    Package('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
-    Package('rex.core', modules=set([..., 'rex.core', ...]))
+    PythonPackage('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
+    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> with Rex('__main__'):
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
     ModulePackage('__main__', modules=set(['__main__']))
-    Package('rex.core', modules=set([..., 'rex.core', ...]))
+    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> with Rex('./test/data/static/'):
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
     StaticPackage('static', static='./test/data/static/')
-    Package('rex.core', modules=set([..., 'rex.core', ...]))
+    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> with Rex('-'):
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
     SandboxPackage()
-    Package('rex.core', modules=set([..., 'rex.core', ...]))
+    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> from rex.core import Package
     >>> with Rex(Package('rex.core_demo', modules=set(['rex.core_demo']),
@@ -116,7 +116,7 @@ A requirement could be one of the following:
     ...     for package in get_packages():
     ...         print package       # doctest: +ELLIPSIS
     Package('rex.core_demo', modules=set(['rex.core_demo']), static='./demo/rex.core_demo/static')
-    Package('rex.core', modules=set([..., 'rex.core', ...]))
+    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
 An exception is raised if the package name is ill-formed or unknown::
 

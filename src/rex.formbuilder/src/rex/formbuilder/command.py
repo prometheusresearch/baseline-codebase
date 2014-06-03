@@ -50,11 +50,13 @@ class CreateInstrument(FormBuilderBaseCommand):
         Parameter('base_measure_type', StrVal(), None),
     ]
 
+
     def render(self, req, base_measure_type):
         id = self.create_instrument(req, base_measure_type=base_measure_type)
-        location = req.script_name + str(Builder.path) + '?instrument_id=' \
-                   + quote(id)
+        mount = req.environ['rex.mount']
+        location = "%s/edit/%s/" % (mount['rex.formbuilder'], quote(id))
         return Response(status=303, location=location)
+
 
     def create_instrument(self, req, base_measure_type=None):
         with self.get_db(req):
@@ -102,19 +104,6 @@ class TestInstrument(FormBuilderBaseCommand):
                 'params': simplejson.dumps(params),
                 'json': simplejson.dumps(assessment)
             }
-        }
-        return render_to_response(self.template, req, **args)
-
-
-class FormList(FormBuilderBaseCommand):
-
-    path = '/'
-    template = 'rex.formbuilder:/template/formbuilder_instruments.html'
-
-    def render(self, req):
-        assessment = Assessment.empty_data()
-        args = {
-            'role': ROLE
         }
         return render_to_response(self.template, req, **args)
 

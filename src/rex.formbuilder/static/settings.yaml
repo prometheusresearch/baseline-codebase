@@ -4,3 +4,5 @@
 # should not be specified here
 #instrument_folder: '/files/roads'
 manual_edit_conditions: True
+access:
+  rex.formbuilder: rex.study_access

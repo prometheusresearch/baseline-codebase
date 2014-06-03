@@ -1,0 +1,19 @@
+context:
+    brand_title: Formbuilder
+
+paths:
+
+    /:
+      template: rex.formbuilder:/template/formbuilder.html
+      context:
+        role: rex.study_access
+        title: Formbuilder Instrument List
+
+    /edit/$id/:
+      template: rex.formbuilder:/template/formbuilder.html
+      context:
+        role: rex.study_access
+        manual_edit_conditions: false
+
+include:
+- !setting rex_formbuilder_overrides

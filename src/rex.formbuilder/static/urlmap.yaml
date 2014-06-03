@@ -1,0 +1,3 @@
+include:
+- rex.formbuilder:/urlmap/formbuilder.yaml
+- !setting rex_formbuilder_overrides

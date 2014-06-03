@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.1.1 (2014-XX-XX)
+==================
+
+* When reporting duplicate paths, display the targets.
+
+
 2.1.0 (2014-04-16)
 ==================
 

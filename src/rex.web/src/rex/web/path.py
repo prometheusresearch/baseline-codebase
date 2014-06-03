@@ -137,7 +137,8 @@ class PathMap(object):
         for pattern in mask.patterns:
             tree = tree.setdefault(pattern, {})
         if None in tree:
-            raise ValueError("duplicate path mask: %s" % mask)
+            raise ValueError("multiple targets %r and %r for path mask: %s"
+                             % (tree[None], target, mask))
         tree[None] = target
 
     def get(self, path, default=None):

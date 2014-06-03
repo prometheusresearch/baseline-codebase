@@ -24,7 +24,7 @@ It is an error to add the same mask twice::
     >>> map.add('/individual/*', None)
     Traceback (most recent call last):
       ...
-    ValueError: duplicate path mask: /individual/*
+    ValueError: multiple targets 'Individual' and None for path mask: /individual/*
 
 Use method ``PathMap.get()`` to match a path against the collection::
 

@@ -6,4 +6,8 @@ syntax: glob
 *.egg-info
 build
 dist
+node_modules
 sandbox
+bootstrap
+jquery
+bundle

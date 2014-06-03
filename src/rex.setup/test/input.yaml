@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2013, Prometheus Research, LLC
+# Copyright (c) 2012-2014, Prometheus Research, LLC
 #
 
 title: REX.SETUP
@@ -20,13 +20,19 @@ tests:
   # Install rex.setup_demo; verify layout and egg-info files.
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     cd: sandbox
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0-py2.7.egg-info/rex_init.txt
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0-py2.7.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_static.txt
     ignore: &ignore-prefix |
       /(.*)/sandbox/
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_bundle.txt
   - sh: ls -R ./lib/python2.7/site-packages/rex
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: ls -R ./share/rex
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./lib
+    environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.
   - rmdir: sandbox
@@ -45,8 +51,16 @@ tests:
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_static.txt
     ignore: *ignore-prefix
   - sh: ls -R ./share/rex
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: ls -R ./share/rex/rex.setup_demo
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./lib
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./lib/bower_components
+    environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.
   - rmdir: sandbox
@@ -61,9 +75,13 @@ tests:
   # Build source distribution for rex.setup_demo; verify content.
   - sh: ../../bin/python setup.py -q sdist --format=zip
     cd: ./sandbox/src/rex.setup_demo
-  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-1.0.zip
+  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-1.0.0.zip
     cd: sandbox
-  - sh: ls -R ./rex.setup_demo-1.0
+  - sh: ls -R ./rex.setup_demo-1.0.0
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./lib
+    environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.
   - rmdir: sandbox

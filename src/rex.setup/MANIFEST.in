@@ -1,1 +1,2 @@
 include README.rst NEWS.rst LICENSE.rst
+recursive-include src *.js *.json

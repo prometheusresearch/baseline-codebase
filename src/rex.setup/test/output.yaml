@@ -14,10 +14,27 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     stdout: ''
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0-py2.7.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_init.txt
     data: rex.setup_demo
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0-py2.7.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_static.txt
     data: /home/xi/xitology/prometheus/rex/rex.setup-opensource/sandbox/share/rex/rex.setup_demo
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_bundle.txt
+    data: |
+      {
+        "./www/bootstrap": [
+          "https://raw.github.com/twbs/bootstrap/v3.0.0/LICENSE#md5=e23fadd6ceef8c618fc1c65191d846fa",
+          "https://github.com/twbs/bootstrap/releases/download/v3.0.0/bootstrap-3.0.0-dist.zip#md5=6b17c05bb1a1ddb123b7cadea187ff68"
+        ],
+        "./www/bundle": [
+          "webpack:rex-setup-demo"
+        ],
+        "./www/jquery": [
+          "https://raw.github.com/jquery/jquery/1.10.2/MIT-LICENSE.txt#md5=e43aa437a6a1ba421653bd5034333bf9",
+          "http://code.jquery.com/jquery-1.10.2.js#md5=91515770ce8c55de23b306444d8ea998",
+          "http://code.jquery.com/jquery-1.10.2.min.js#md5=628072e7212db1e8cdacb22b21752cda",
+          "http://code.jquery.com/jquery-1.10.2.min.map#md5=6c3ccfc221d36777d383b6e04d0b8af9"
+        ]
+      }
   - sh: ls -R ./lib/python2.7/site-packages/rex
     stdout: |
       ./lib/python2.7/site-packages/rex:
@@ -29,24 +46,34 @@ tests:
       rex.setup_demo
 
       ./share/rex/rex.setup_demo:
+      js
       www
+
+      ./share/rex/rex.setup_demo/js:
+      bower.json
+      lib
+
+      ./share/rex/rex.setup_demo/js/lib:
+      index.js
+      index.less
 
       ./share/rex/rex.setup_demo/www:
       bootstrap
+      bundle
       index.html
       jquery
 
       ./share/rex/rex.setup_demo/www/bootstrap:
+      LICENSE
       css
       fonts
       js
-      LICENSE
 
       ./share/rex/rex.setup_demo/www/bootstrap/css:
-      bootstrap.css
-      bootstrap.min.css
       bootstrap-theme.css
       bootstrap-theme.min.css
+      bootstrap.css
+      bootstrap.min.css
 
       ./share/rex/rex.setup_demo/www/bootstrap/fonts:
       glyphicons-halflings-regular.eot
@@ -58,11 +85,20 @@ tests:
       bootstrap.js
       bootstrap.min.js
 
+      ./share/rex/rex.setup_demo/www/bundle:
+      bundle.css
+      bundle.js
+
       ./share/rex/rex.setup_demo/www/jquery:
+      MIT-LICENSE.txt
       jquery-1.10.2.js
       jquery-1.10.2.min.js
       jquery-1.10.2.min.map
-      MIT-LICENSE.txt
+  - sh: ls ./lib
+    stdout: |
+      bower_components
+      node_modules
+      python2.7
 - suite: develop
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox
@@ -84,24 +120,34 @@ tests:
   - sh: ls -R ./share/rex/rex.setup_demo
     stdout: |
       ./share/rex/rex.setup_demo:
+      js
       www
+
+      ./share/rex/rex.setup_demo/js:
+      bower.json
+      lib
+
+      ./share/rex/rex.setup_demo/js/lib:
+      index.js
+      index.less
 
       ./share/rex/rex.setup_demo/www:
       bootstrap
+      bundle
       index.html
       jquery
 
       ./share/rex/rex.setup_demo/www/bootstrap:
+      LICENSE
       css
       fonts
       js
-      LICENSE
 
       ./share/rex/rex.setup_demo/www/bootstrap/css:
-      bootstrap.css
-      bootstrap.min.css
       bootstrap-theme.css
       bootstrap-theme.min.css
+      bootstrap.css
+      bootstrap.min.css
 
       ./share/rex/rex.setup_demo/www/bootstrap/fonts:
       glyphicons-halflings-regular.eot
@@ -113,11 +159,25 @@ tests:
       bootstrap.js
       bootstrap.min.js
 
+      ./share/rex/rex.setup_demo/www/bundle:
+      bundle.css
+      bundle.js
+
       ./share/rex/rex.setup_demo/www/jquery:
+      MIT-LICENSE.txt
       jquery-1.10.2.js
       jquery-1.10.2.min.js
       jquery-1.10.2.min.map
-      MIT-LICENSE.txt
+  - sh: ls ./lib
+    stdout: |
+      bower_components
+      node_modules
+      python2.7
+  - sh: ls ./lib/bower_components
+    stdout: |
+      bootstrap
+      jquery
+      rex-setup-demo
 - suite: sdist
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox
@@ -128,11 +188,11 @@ tests:
     stdout: ''
   - sh: ../../bin/python setup.py -q sdist --format=zip
     stdout: ''
-  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-1.0.zip
+  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-1.0.0.zip
     stdout: ''
-  - sh: ls -R ./rex.setup_demo-1.0
+  - sh: ls -R ./rex.setup_demo-1.0.0
     stdout: |
-      ./rex.setup_demo-1.0:
+      ./rex.setup_demo-1.0.0:
       PKG-INFO
       README
       setup.cfg
@@ -140,55 +200,75 @@ tests:
       src
       static
 
-      ./rex.setup_demo-1.0/src:
+      ./rex.setup_demo-1.0.0/src:
       rex
       rex.setup_demo.egg-info
 
-      ./rex.setup_demo-1.0/src/rex:
+      ./rex.setup_demo-1.0.0/src/rex:
       __init__.py
       setup_demo.py
 
-      ./rex.setup_demo-1.0/src/rex.setup_demo.egg-info:
+      ./rex.setup_demo-1.0.0/src/rex.setup_demo.egg-info:
+      PKG-INFO
+      SOURCES.txt
       dependency_links.txt
       namespace_packages.txt
-      PKG-INFO
+      rex_bundle.txt
       rex_init.txt
       rex_static.txt
-      SOURCES.txt
       top_level.txt
 
-      ./rex.setup_demo-1.0/static:
+      ./rex.setup_demo-1.0.0/static:
+      js
       www
 
-      ./rex.setup_demo-1.0/static/www:
+      ./rex.setup_demo-1.0.0/static/js:
+      bower.json
+      lib
+
+      ./rex.setup_demo-1.0.0/static/js/lib:
+      index.js
+      index.less
+
+      ./rex.setup_demo-1.0.0/static/www:
       bootstrap
+      bundle
       index.html
       jquery
 
-      ./rex.setup_demo-1.0/static/www/bootstrap:
+      ./rex.setup_demo-1.0.0/static/www/bootstrap:
+      LICENSE
       css
       fonts
       js
-      LICENSE
 
-      ./rex.setup_demo-1.0/static/www/bootstrap/css:
-      bootstrap.css
-      bootstrap.min.css
+      ./rex.setup_demo-1.0.0/static/www/bootstrap/css:
       bootstrap-theme.css
       bootstrap-theme.min.css
+      bootstrap.css
+      bootstrap.min.css
 
-      ./rex.setup_demo-1.0/static/www/bootstrap/fonts:
+      ./rex.setup_demo-1.0.0/static/www/bootstrap/fonts:
       glyphicons-halflings-regular.eot
       glyphicons-halflings-regular.svg
       glyphicons-halflings-regular.ttf
       glyphicons-halflings-regular.woff
 
-      ./rex.setup_demo-1.0/static/www/bootstrap/js:
+      ./rex.setup_demo-1.0.0/static/www/bootstrap/js:
       bootstrap.js
       bootstrap.min.js
 
-      ./rex.setup_demo-1.0/static/www/jquery:
+      ./rex.setup_demo-1.0.0/static/www/bundle:
+      bundle.css
+      bundle.js
+
+      ./rex.setup_demo-1.0.0/static/www/jquery:
+      MIT-LICENSE.txt
       jquery-1.10.2.js
       jquery-1.10.2.min.js
       jquery-1.10.2.min.map
-      MIT-LICENSE.txt
+  - sh: ls ./lib
+    stdout: |
+      bower_components
+      node_modules
+      python2.7

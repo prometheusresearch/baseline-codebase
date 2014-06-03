@@ -1,0 +1,9 @@
+{
+    "name": "rex-setup-demo",
+    "version": "1.0.0",
+    "main": "./lib/index",
+    "dependencies": {
+        "jquery": "1.x",
+        "bootstrap": "*"
+    }
+}

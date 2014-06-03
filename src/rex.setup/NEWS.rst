@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+1.1.0 (2014-XX-XX)
+==================
+
+* Support for generated assets.
+* Support for Bower components embedded inside Python packages.
+
+
 1.0.2 (2014-03-12)
 ==================
 

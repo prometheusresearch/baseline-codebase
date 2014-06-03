@@ -1,0 +1,13 @@
+{
+  "name": "rex-setup",
+  "version": "1.1.0",
+  "main": "./index.js",
+  "dependencies": {
+    "webpack-less-asset-plugin": "git+https://github.com/shcarrico/webpack-less-asset-plugin.git"
+  },
+  "peerDependencies": {
+    "bower": "^1.3.4",
+    "webpack": "^1.3.0-beta2",
+    "jsx-loader": "^0.10.2"
+  }
+}

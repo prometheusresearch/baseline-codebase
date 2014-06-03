@@ -29,7 +29,6 @@ setup(
     ],
     install_requires=[
         'rex.core>=1.4,<2',
-        'rex.jsbundle>=0.0.1,<2',
         'rex.web>=2,<3',
         'babel>=1,<2',
         'speaklater>=1.3,<2',

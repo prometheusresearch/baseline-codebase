@@ -120,6 +120,9 @@ class SERVE_UWSGI:
 
     Use option `--set-uwsgi` or setting `uwsgi` to specify configuration
     of the uWSGI server.
+
+    Toggle option `--watch` to automatically rebuild generated files
+    that belong to the application.
     """
 
     project = argument(str, default=None)
@@ -132,16 +135,20 @@ class SERVE_UWSGI:
     set_uwsgi = option(None, pair, default={}, plural=True,
             value_name="PARAM=VALUE",
             hint="set a uWSGI option")
+    watch = option('w', bool,
+            hint="rebuild generated files on the fly")
 
-    def __init__(self, project, require, set, set_uwsgi):
+    def __init__(self, project, require, set, set_uwsgi, watch):
         self.project = project
         self.require = require
         self.set = set
         self.set_uwsgi = set_uwsgi
+        self.watch = watch
 
     def __call__(self):
         # Build the application; validate requirements and configuration.
-        app = make_rex(self.project, self.require, self.set, ensure='rex.web')
+        app = make_rex(self.project, self.require, self.set,
+                       detached_watch=self.watch, ensure='rex.web')
         # Make a temporary .wsgi file: /tmp/<project>-XXX.wsgi.
         fd, path = tempfile.mkstemp(prefix=app.requirements[0]+'-',
                                     suffix='.wsgi')

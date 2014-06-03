@@ -9,6 +9,7 @@
 ==================
 
 * Added ``rex serve-wsgi`` task.
+* Added ``--watch`` option to ``rex serve`` and ``rex serve-uwsgi``.
 
 
 1.3.0 (2014-04-16)

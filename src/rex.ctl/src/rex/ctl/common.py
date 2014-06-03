@@ -5,9 +5,13 @@
 
 from cogs import setting, env
 from cogs.log import debug, fail
-from rex.core import Rex, LatentRex, get_packages, Setting, Error
+from rex.setup import watch
+from rex.core import Rex, LatentRex, get_packages, PythonPackage, Setting, Error
+import sys
+import os
 import shlex
 import json
+import atexit
 
 
 def pair(value):
@@ -85,7 +89,8 @@ def PARAMETERS(config=None):
 
 
 def make_rex(project=None, require_list=None, set_list=None,
-             initialize=True, ensure=None):
+             initialize=True, attached_watch=False, detached_watch=False,
+             ensure=None):
     # Creates a RexDB application from command-line parameters
     # and global settings.
 
@@ -124,6 +129,35 @@ def make_rex(project=None, require_list=None, set_list=None,
         if ensure not in packages:
             raise fail("package `{}` must be included with the application",
                        ensure)
+
+    # Start watchers for generated files.
+    if attached_watch or detached_watch:
+        with app:
+            to_watch = [package.name for package in get_packages()
+                                     if isinstance(package, PythonPackage)]
+
+        if attached_watch:
+            terminate = watch(*to_watch)
+            if terminate is not None:
+                atexit.register(terminate)
+
+        elif detached_watch:
+            # Fork off a daemon.
+            readfd, writefd = os.pipe()
+            if os.fork() == 0:
+                os.close(writefd)
+                os.setsid()
+                if os.fork() != 0:
+                    os._exit(0)
+                # Start the watchers.
+                terminate = watch(*to_watch)
+                if terminate is None:
+                    os._exit(0)
+                atexit.register(terminate)
+                # Wait till the parent process terminates.
+                os.read(readfd, 1)
+                sys.exit(0)
+
     return app
 
 

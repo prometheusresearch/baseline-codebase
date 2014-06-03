@@ -132,8 +132,11 @@ tests:
       to specify the address and the port number for the HTTP server.
       If neither are set, the server is started on 127.0.0.1:8080.
 
-      User option --remote-user to preset user credentials.  The value
+      Use option --remote-user to preset user credentials.  The value
       of this option is passed to the application as REMOTE_USER variable.
+
+      Toggle option --watch to automatically rebuild generated files
+      that belong to the application.
 
       By default, the server dumps HTTP logs in Apache Common Log Format
       to stdout.  Use option --quiet to suppress this output.  Unhandled
@@ -148,6 +151,7 @@ tests:
         -h/--host=HOSTNAME       : bind to the specified host
         -p/--port=PORT           : bind to the specified port
         --remote-user=USER       : preset user credentials
+        -w/--watch               : rebuild generated files on the fly
         -q/--quiet               : suppress HTTP logs
 
   - rex: help wsgi
@@ -193,10 +197,14 @@ tests:
       Use option --set-uwsgi or setting uwsgi to specify configuration
       of the uWSGI server.
 
+      Toggle option --watch to automatically rebuild generated files
+      that belong to the application.
+
       Options:
         --require=PACKAGE        : include an additional package
         --set=PARAM=VALUE        : set a configuration parameter
         --set-uwsgi=PARAM=VALUE  : set a uWSGI option
+        -w/--watch               : rebuild generated files on the fly
 
   - rex: help packages
     stdout: |+

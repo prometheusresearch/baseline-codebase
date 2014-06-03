@@ -198,8 +198,11 @@ class SERVE:
     to specify the address and the port number for the HTTP server.
     If neither are set, the server is started on `127.0.0.1:8080`.
 
-    User option `--remote-user` to preset user credentials.  The value
+    Use option `--remote-user` to preset user credentials.  The value
     of this option is passed to the application as `REMOTE_USER` variable.
+
+    Toggle option `--watch` to automatically rebuild generated files
+    that belong to the application.
 
     By default, the server dumps HTTP logs in Apache Common Log Format
     to stdout.  Use option `--quiet` to suppress this output.  Unhandled
@@ -225,20 +228,25 @@ class SERVE:
     remote_user = option(None, str, default=None,
             value_name="USER",
             hint="preset user credentials")
+    watch = option('w', bool,
+            hint="rebuild generated files on the fly")
     quiet = option('q', bool,
             hint="suppress HTTP logs")
 
-    def __init__(self, project, require, set, host, port, remote_user, quiet):
+    def __init__(self, project, require, set, host, port, remote_user,
+                 watch, quiet):
         self.project = project
         self.require = require
         self.set = set
         self.host = host
         self.port = port
         self.remote_user = remote_user
+        self.watch = watch
         self.quiet = quiet
 
     def __call__(self):
-        app = make_rex(self.project, self.require, self.set, ensure='rex.web')
+        app = make_rex(self.project, self.require, self.set,
+                       attached_watch=self.watch, ensure='rex.web')
         host = self.host or env.http_host
         port = self.port or env.http_port
         if not self.quiet:

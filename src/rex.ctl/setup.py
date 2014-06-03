@@ -27,7 +27,8 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core >=1.1, <2',
+        'rex.setup >=1.1, <2',
+        'rex.core >=1.6, <2',
         'cogs >=0.3.0',
     ],
 )

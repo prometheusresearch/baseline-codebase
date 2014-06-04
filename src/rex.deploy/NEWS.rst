@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.3.0 (2014-XX-XX)
+1.3.0 (2014-06-04)
 ==================
 
 * Added ability to create ``UNLOGGED`` tables.

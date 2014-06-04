@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.6.0 (2014-XX-XX)
+1.6.0 (2014-06-04)
 ==================
 
 * Added ``ProxyVal``.

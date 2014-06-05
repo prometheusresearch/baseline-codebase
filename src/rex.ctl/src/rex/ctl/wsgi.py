@@ -161,6 +161,9 @@ class SERVE_UWSGI:
         stream.close()
         # Load parameters to uWSGI and generate `uwsgi` command line.
         uwsgi_parameters = {}
+        uwsgi_parameters['plugin'] = 'python'
+        if hasattr(sys, 'real_prefix'):
+            uwsgi_parameters['virtualenv'] = sys.prefix
         uwsgi_parameters.update(env.uwsgi)
         uwsgi_parameters.update(self.set_uwsgi)
         if not uwsgi_parameters:

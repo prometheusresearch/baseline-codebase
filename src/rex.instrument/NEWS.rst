@@ -2,6 +2,10 @@
 REX.INSTRUMENT Release Notes
 ****************************
 
+0.1.8
+=====
+
+- Fixed Calculation.
 
 0.1.7
 =====

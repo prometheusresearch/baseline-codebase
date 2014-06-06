@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.instrument',
-    version='0.1.7',
+    version='0.1.8',
     description="Instrument/Assessment model",
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

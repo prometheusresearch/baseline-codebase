@@ -51,7 +51,7 @@ class Calculation(object):
     def __init__(self, question, parameters):
         self.name = question['name'].replace('-', '_').replace(' ', '')
         self.define = dict([(name.replace('-', '_').replace(' ', ''), 'null()')
-                            for name in parameters if name != self.name])
+                            for name in parameters])
         self.calculation = question['calculation']
         if question['type'] in ['string', 'text']:
             self.domain = TextDomain()
@@ -78,7 +78,7 @@ class Calculation(object):
         define = copy.deepcopy(self.define)
         for name in data:
             name = name.replace('-', '_')
-            value = data[name]
+            value = data.get(name, None)
             if isinstance(value, list):
                 value = len(value)
             if value in (None, 'none'):

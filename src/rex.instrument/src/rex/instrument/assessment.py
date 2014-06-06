@@ -11,6 +11,7 @@ from rex.validate import ValidationError
 # do not change these values unless you know what you're doing
 IN_PROGRESS = 'in-progress'
 COMPLETED = 'completed'
+EDITED = 'edited'
 
 
 class AssessmentError(Exception):
@@ -38,7 +39,7 @@ class Assessment(object):
 
     @property
     def is_completed(self):
-        return self.status == COMPLETED
+        return self.status == COMPLETED or self.status == EDITED
 
     def update(self, data):
         try:

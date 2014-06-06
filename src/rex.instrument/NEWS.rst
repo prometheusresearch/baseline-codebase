@@ -2,10 +2,13 @@
 REX.INSTRUMENT Release Notes
 ****************************
 
-0.1.8
+0.2.0
 =====
 
-- Fixed Calculation.
+- Fixed an issue Calculations and missing names.
+- Added support for an "Edited" state, allowing measures to be edited after
+  they are completed.
+
 
 0.1.7
 =====

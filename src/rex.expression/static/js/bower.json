@@ -1,0 +1,25 @@
+{
+  "name": "rex-expression",
+  "version": "1.0.0",
+  "authors": [
+    "Prometheus Research, LLC"
+  ],
+  "description": "rex.expression javascript library",
+  "main": "index.js",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "rex"
+  ],
+  "license": "AGPLv3",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(name='rex.expression',
       version = "1.0.0",
       description="JavaScript library to parse HTSQL expressions",
-      setup_requires=['rex.setup'],
+      setup_requires=['rex.setup >= 1.1, <2'],
 #      packages=find_packages('src'),
 #      package_dir={'': 'src'},
 #      include_package_data = True,

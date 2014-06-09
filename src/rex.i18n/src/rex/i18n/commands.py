@@ -20,7 +20,6 @@ __all__ = (
     'GetTranslationsCommand',
     'GetLocaleCommonCommand',
     'GetLocaleDetailCommand',
-    'I18NJSBundle',
 )
 
 

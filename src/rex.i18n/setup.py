@@ -25,7 +25,7 @@ setup(
         ],
     },
     setup_requires=[
-        'rex.setup>=1,<2',  # TODO: update when commonjs branch merges
+        'rex.setup>=1.1,<2',
     ],
     install_requires=[
         'rex.core>=1.4,<2',

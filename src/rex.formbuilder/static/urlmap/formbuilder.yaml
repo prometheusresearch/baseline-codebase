@@ -14,6 +14,3 @@ paths:
       context:
         role: rex.study_access
         manual_edit_conditions: false
-
-include:
-- !setting rex_formbuilder_overrides

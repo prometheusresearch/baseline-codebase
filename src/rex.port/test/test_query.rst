@@ -220,6 +220,8 @@ Filters are extracted from the query string of the HTTP request::
           "id": "1050",
           "code": "1050",
           "sex": "male",
+          "mother": null,
+          "father": null,
           "identity": {
             "id": "1050",
             "givenname": "Rodney",

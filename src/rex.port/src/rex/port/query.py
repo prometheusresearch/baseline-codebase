@@ -9,6 +9,7 @@ from .arm import RootArm, ArmDumper
 from .grow import Grow
 from htsql.core.util import maybe, listof
 from htsql.core.domain import Value
+from htsql.core.connect import transaction
 from htsql.core.syn.syntax import VoidSyntax
 from htsql.core.cmd.embed import Embed
 from htsql.core.tr.bind import BindingState
@@ -18,6 +19,7 @@ from htsql.core.fmt.accept import accept
 from htsql.core.fmt.emit import emit, emit_headers
 from webob import Response
 import urllib
+import json
 import yaml
 
 
@@ -209,8 +211,26 @@ class Port(object):
             pipe = translate(binding)
             return pipe()(None)
 
-    def replace(self, old, new, **parameters):
-        raise NotImplementedError
+    def replace(self, old, new):
+        if isinstance(old, (str, unicode)):
+            old = json.loads(old)
+        if isinstance(new, (str, unicode)):
+            new = json.loads(new)
+        with get_db():
+            with transaction():
+                old = self.tree.adapt(old)
+                new = self.tree.adapt(new)
+                old = self.tree.flatten(old)
+                new = self.tree.flatten(new)
+                difference = self.tree.pair(old, new)
+                difference = self.tree.restore(difference)
+                changes = self.tree.patch(difference)
+                constraints = self.tree.restrict(changes)
+                state = BindingState(RootBinding(VoidSyntax()))
+                binding = self.tree.bind(state, constraints)
+                pipe = translate(binding)
+                output = pipe()(None)
+        return output
 
     def insert(self, new):
         return self.replace(None, new)
@@ -222,7 +242,12 @@ class Port(object):
         return self.replace(old, None)
 
     def __call__(self, req):
-        product = self.produce(req.query_string)
+        if req.method == 'GET':
+            product = self.produce(req.query_string)
+        elif req.method == 'POST':
+            product = self.replace(req.POST.get('old'), req.POST.get('new'))
+        else:
+            raise Error("Unexpected method:", req.method)
         with get_db():
             format = accept(req.environ)
             headerlist = emit_headers(format, product)

@@ -222,7 +222,11 @@ Ports marked as ``unsafe`` require a CSRF token::
     >>> req.headers['X-CSRF-Token'] = csrf_token
     >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
-    ...
+    Content-Type: application/javascript
+    Content-Disposition: inline; filename="_.js"
+    Vary: Accept
+    Content-Length: 934
+    <BLANKLINE>
     {
       "individual": [
         {
@@ -230,11 +234,49 @@ Ports marked as ``unsafe`` require a CSRF token::
           "code": "1000",
           "first_name": "May",
           "last_name": "Kanaris",
-          "sex": "female"
+          "sex": "female",
+          "mother": null,
+          "father": null
         },
-        ...
+        {
+          "id": "1001",
+          "code": "1001",
+          "first_name": "Joseph",
+          "last_name": "Kanaris",
+          "sex": "male",
+          "mother": null,
+          "father": null
+        },
+        {
+          "id": "1002",
+          "code": "1002",
+          "first_name": "Vanessa",
+          "last_name": "Kanaris",
+          "sex": "female",
+          "mother": "1000",
+          "father": "1001"
+        },
+        {
+          "id": "1003",
+          "code": "1003",
+          "first_name": "James",
+          "last_name": "Kanaris",
+          "sex": "male",
+          "mother": "1000",
+          "father": "1001"
+        },
+        {
+          "id": "1004",
+          "code": "1004",
+          "first_name": "Emanuel",
+          "last_name": "Kanaris",
+          "sex": "male",
+          "mother": "1000",
+          "father": "1001"
+        }
       ]
     }
+    <BLANKLINE>
 
 
 Parameters

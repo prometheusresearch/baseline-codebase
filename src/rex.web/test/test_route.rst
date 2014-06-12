@@ -334,6 +334,11 @@ Set ``code`` to ``'*'`` to define a catch-all error handler::
     <BLANKLINE>
     Something went wrong!
 
+Let's prevent ``HandleAnyError`` from messing with the rest of the tests::
+
+    >>> HandleAnyError.code = None
+    >>> main.reset()
+
 
 Handling static files
 =====================
@@ -456,18 +461,16 @@ If the URL that refers to a directory does not end with a trailing slash,
 the slash is added using a redirect::
 
     >>> req = Request.blank('/index')
-    >>> print req.get_response(static)
+    >>> print req.get_response(static)      # doctest: +ELLIPSIS
     301 Moved Permanently
-    Content-Type: text/html; charset=UTF-8
-    Content-Length: 0
     Location: http://localhost/index/
+    ...
 
     >>> req = Request.blank('/noindex?name=Alice')
-    >>> print req.get_response(static)
+    >>> print req.get_response(static)      # doctest: +ELLIPSIS
     301 Moved Permanently
-    Content-Type: text/html; charset=UTF-8
-    Content-Length: 0
     Location: http://localhost/noindex/?name=Alice
+    ...
 
 Files and directories that start with ``_`` or ``.`` are effectively hidden::
 
@@ -544,6 +547,27 @@ Interface ``HandleLocation`` allows you to handle specific URLs in Python::
     Content-Length: 5
     <BLANKLINE>
     PONG!
+
+When the URL matches the command path except for the trailing ``/``,
+the slash is added with a redirect::
+
+    >>> class HandleSlash(HandleLocation):
+    ...     path = '/slash/'
+    ...     def __call__(self, req):
+    ...         return Response("Slash!", content_type='text/plain')
+
+    >>> main.reset()
+    >>> req = Request.blank('/slash')
+    >>> print req.get_response(main)        # doctest: +ELLIPSIS
+    301 Moved Permanently
+    Location: http://localhost/slash/
+    ...
+
+    >>> req = Request.blank('/slash/')
+    >>> print req.get_response(main)        # doctest: +ELLIPSIS
+    200 OK
+    ...
+    Slash!
 
 Set ``path`` to ``'*'`` to make a catch-all handler::
 

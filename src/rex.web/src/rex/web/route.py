@@ -9,7 +9,8 @@ from .handle import HandleFile, HandleLocation, HandleError
 from .auth import authenticate, authorize
 from .secret import encrypt, decrypt, sign, validate, a2b, b2a
 from webob import Request, Response
-from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPUnauthorized
+from webob.exc import (WSGIHTTPException, HTTPNotFound, HTTPUnauthorized,
+        HTTPMovedPermanently)
 from webob.static import FileApp
 import copy
 import os.path
@@ -241,12 +242,7 @@ class StaticServer(object):
         # If the URL refers to a directory without trailing `/`,
         # redirect to url+'/'.
         if os.path.isdir(real_path) and not req.path_url.endswith('/'):
-            location = req.path_url+'/'
-            if req.query_string:
-                location += '?'+req.query_string
-            # FIXME: should we check permissions first?  What about POST
-            # requests?
-            return Response(status=301, location=location)
+            raise HTTPMovedPermanently(add_slash=True)
 
         # Otherwise, we will serve `index_file`.
         if os.path.isdir(real_path) and \
@@ -297,6 +293,8 @@ class CommandDispatcher(object):
         handler = self.location_handler_map.get(req.path_info)
         if handler:
             return handler()(req)
+        if self.location_handler_map.completes(req.path_info):
+            raise HTTPMovedPermanently(add_slash=True)
         return self.fallback(req)
 
 

@@ -5,10 +5,12 @@
 .. contents:: Table of Contents
 
 
-2.1.1 (2014-XX-XX)
+2.2.0 (2014-XX-XX)
 ==================
 
 * When reporting duplicate paths, display the targets.
+* When the URL matches a command path except for the trailing ``/``,
+  redirect to URL + ``/``.
 
 
 2.1.0 (2014-04-16)

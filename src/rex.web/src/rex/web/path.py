@@ -89,9 +89,9 @@ class PathMask(object):
         Returns a dictionary that maps the labels to URL segments.
         """
         assignments = {}
-        if not path.startswith('/'):
+        if path and not path.startswith('/'):
             raise ValueError("path must start with /: %r" % path)
-        segments = path[1:].split('/')
+        segments = path.split('/')[1:]
         length = len(segments)
         if length < len(self.patterns):
             raise ValueError("path does not match the mask: %r" % path)
@@ -156,9 +156,9 @@ class PathMap(object):
                     return default
                 subtree = subtree[pattern]
             return subtree.get(None, default)
-        if not path.startswith('/'):
+        if path and not path.startswith('/'):
             raise ValueError("path must start with /: %r" % path)
-        segments = path[1:].split('/')
+        segments = path.split('/')[1:]
         subtrees = [self.tree]
         for segment in segments:
             new_subtrees = []
@@ -191,5 +191,14 @@ class PathMap(object):
         Checks if the path matches any mask in the collection.
         """
         return self.get(path, MISSING) is not MISSING
+
+
+    def completes(self, path):
+        """
+        Checks if `<path>/` is in the collection.
+        """
+        if path.endswith('/'):
+            return False
+        return self.get(path+'/', MISSING) is not MISSING
 
 

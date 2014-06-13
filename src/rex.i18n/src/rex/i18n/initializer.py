@@ -68,9 +68,17 @@ class SupportedLocaleList(object):
     def __getitem__(self, key):
         if isinstance(key, int):
             locale = self.locales[key]
+            if locale == get_locale():
+                description = locale.get_display_name(get_locale())
+            else:
+                description = u'%s (%s)' % (
+                    locale.get_display_name(get_locale()),
+                    locale.get_display_name(locale),
+                )
+
             return (
                 locale.language,
-                locale.get_display_name(get_locale()),
+                description,
             )
         else:
             try:

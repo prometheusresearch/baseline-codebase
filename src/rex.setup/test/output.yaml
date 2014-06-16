@@ -58,6 +58,7 @@ tests:
       index.less
 
       ./share/rex/rex.setup_demo/www:
+      _access.yaml
       bootstrap
       bundle
       index.html
@@ -88,6 +89,13 @@ tests:
       ./share/rex/rex.setup_demo/www/bundle:
       bundle.css
       bundle.js
+      font
+
+      ./share/rex/rex.setup_demo/www/bundle/font:
+      32941d6330044744c02493835b799e90.svg
+      68ed1dac06bf0409c18ae7bc62889170.woff
+      7ad17c6085dee9a33787bac28fb23d46.eot
+      e49d52e74b7689a0727def99da31f3eb.ttf
 
       ./share/rex/rex.setup_demo/www/jquery:
       MIT-LICENSE.txt
@@ -132,6 +140,7 @@ tests:
       index.less
 
       ./share/rex/rex.setup_demo/www:
+      _access.yaml
       bootstrap
       bundle
       index.html
@@ -162,6 +171,13 @@ tests:
       ./share/rex/rex.setup_demo/www/bundle:
       bundle.css
       bundle.js
+      font
+
+      ./share/rex/rex.setup_demo/www/bundle/font:
+      32941d6330044744c02493835b799e90.svg
+      68ed1dac06bf0409c18ae7bc62889170.woff
+      7ad17c6085dee9a33787bac28fb23d46.eot
+      e49d52e74b7689a0727def99da31f3eb.ttf
 
       ./share/rex/rex.setup_demo/www/jquery:
       MIT-LICENSE.txt
@@ -231,6 +247,7 @@ tests:
       index.less
 
       ./rex.setup_demo-1.0.0/static/www:
+      _access.yaml
       bootstrap
       bundle
       index.html
@@ -261,6 +278,13 @@ tests:
       ./rex.setup_demo-1.0.0/static/www/bundle:
       bundle.css
       bundle.js
+      font
+
+      ./rex.setup_demo-1.0.0/static/www/bundle/font:
+      32941d6330044744c02493835b799e90.svg
+      68ed1dac06bf0409c18ae7bc62889170.woff
+      7ad17c6085dee9a33787bac28fb23d46.eot
+      e49d52e74b7689a0727def99da31f3eb.ttf
 
       ./rex.setup_demo-1.0.0/static/www/jquery:
       MIT-LICENSE.txt

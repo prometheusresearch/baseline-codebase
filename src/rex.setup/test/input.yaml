@@ -84,5 +84,5 @@ tests:
     environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.
-  - rmdir: sandbox
+  #- rmdir: sandbox
 

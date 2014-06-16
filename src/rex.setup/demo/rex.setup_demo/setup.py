@@ -30,7 +30,7 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=['rex.setup'],
-    install_requires=['rex.web'],
+    install_requires=[],
     cmdclass={'demo': demo},
     rex_init='rex.setup_demo',
     rex_static='static',

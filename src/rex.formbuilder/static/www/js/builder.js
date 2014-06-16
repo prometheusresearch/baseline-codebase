@@ -2034,8 +2034,7 @@ var QuestionEditor = function (question, mode, parent, onApply, onCancel, onAddN
             def.slider = true;
             var parser = def.type === "integer" ? parseInt: parseFloat;
             var re = new RegExp(def.type === "integer"?
-                                    '^[-+]{0,1}\\d+$': '^[-+]{0,1}[0-9]+\\.?[0-9]+$');
-            console.log('re', re);
+                                    '^[-+]{0,1}\\d+$': '^[-+]{0,1}[0-9]+(\\.?[0-9]+){0,1}$');
             $.each([inputSliderLow, inputSliderHigh, inputSliderStep], function (_, input) {
                 input = $(input);
                 var val = input.val();

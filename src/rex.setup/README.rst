@@ -221,9 +221,13 @@ Webpack configuration
 By default ``rex.setup`` will use default Webpack configuration for bundling
 bower components. This default configuration has the following characteristics:
 
-* It outputs ``bundle.js`` as an entry point
+* It outputs ``bundle.js``
+* It outputs ``bundle.css`` if entry component has ``styleEntry`` key in
+  ``bower.json`` which points to a less stylesheet.
 * It uses ``jsx-loader`` to transform JSX_ files into standard ES5 JavaScript
   (JSX is a syntax extension to JavaScript used to develop React_ applications).
+* It copies referenced (both from less and js code) assets such as images, fonts
+  to a bundle directory.
 
 Bower components authors can override Webpack configuration by placing
 ``webpack.config.js`` file in the root of a Bower component directory

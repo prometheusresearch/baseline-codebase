@@ -205,3 +205,15 @@ def bower_component_filename(component_name, filename=None):
         return None
     return path
 
+def bower_component_metadata(component_name):
+    """ Return contents of ``bower.json`` metadata for a component.
+
+    :param component_name: Name of the installed bower component
+    :type component_name: str
+    :return: Component metdata
+    :rtype: dict
+    """
+    bower_json = bower_component_filename(component_name, 'bower.json')
+    if bower_json:
+        with open(bower_json, 'r') as f:
+            return json.load(f)

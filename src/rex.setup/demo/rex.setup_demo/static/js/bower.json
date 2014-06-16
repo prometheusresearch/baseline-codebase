@@ -2,6 +2,7 @@
     "name": "rex-setup-demo",
     "version": "1.0.0",
     "main": "./lib/index",
+    "styleEntry": "./lib/index.less",
     "dependencies": {
         "jquery": "1.x",
         "bootstrap": "*"

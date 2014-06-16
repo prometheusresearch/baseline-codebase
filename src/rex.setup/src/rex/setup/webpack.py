@@ -16,25 +16,33 @@ def webpack_config(package):
     # rex.setup
     config = commonjs.bower_component_filename(package, 'webpack.config.js')
     if config is not None:
-        return ['--bail', '--config', config]
+        return ['--config', config]
     else:
-        entry = commonjs.bower_component_filename(package)
+        component_path = commonjs.bower_component_filename(package)
+        # let webpack get entry via "main" key in bower.json
+        entry = [component_path]
+        # check if we have entry for stylesheets via "styleEntry" key in
+        # bower.json
+        meta = commonjs.bower_component_metadata(package)
+        if 'styleEntry' in meta:
+            entry = entry + [
+                os.path.join(component_path, meta['styleEntry'])
+            ]
         # resolve webpack.config.js installed as a part of rex-setup package
         config = commonjs.node([
             '-p',
             'require.resolve("rex-setup/webpack.config.js")'
         ]).strip()
         return [
-            '--bail',
             '--config', config,
-            '--context', entry,
-            '--entry', entry
-        ]
+            '--context', component_path
+        ] + entry
 
 
 def webpack(module, target):
     return commonjs.node([
         commonjs.find_executable('webpack'),
+        '--bail',
         '--output-path', target
     ] + webpack_config(module))
 

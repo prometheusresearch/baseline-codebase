@@ -2,7 +2,7 @@
 
 var path       = require('path');
 var webpack    = require('webpack');
-var LessPlugin = require('webpack-less-asset-plugin');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var global_modules = path.join(
   process.env.NPM_CONFIG_PREFIX,
@@ -27,10 +27,20 @@ function configureWebpack(config) {
         /react\/react-with-addons\.js$/
       ]
     },
-    {
-      test: /\.less$/,
-      loader: require.resolve('webpack-less-asset-plugin/loader')
-    }
+    { test: /\.less$/,
+      loaders: [
+        ExtractTextPlugin.loader(),
+        "css-loader",
+        "less-loader"
+      ]
+    },
+    { test: /\.png$/,    loader: "url-loader?prefix=img/&limit=5000" },
+		{ test: /\.jpg$/,    loader: "url-loader?prefix=img/&limit=5000" },
+		{ test: /\.gif$/,    loader: "url-loader?prefix=img/&limit=5000" },
+		{ test: /\.woff$/,   loader: "url-loader?prefix=font/&limit=5000" },
+		{ test: /\.eot$/,    loader: "file-loader?prefix=font/" },
+		{ test: /\.ttf$/,    loader: "file-loader?prefix=font/" },
+		{ test: /\.svg$/,    loader: "file-loader?prefix=font/" },
   ]);
   unshift(config, 'module.noParse', [
     /react\/react\.js$/,
@@ -46,11 +56,7 @@ function configureWebpack(config) {
   unshift(config, 'resolve.extensions', ['', '.js']);
 
   unshift(config, 'plugins' ,[
-    new LessPlugin({
-      root: process.cwd(),
-      less: {paths: [global_modules]},
-      filename: 'bundle.css'
-    }),
+    new ExtractTextPlugin("bundle.css"),
     new webpack.ResolverPlugin([
       new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin(
         "bower.json", ["main"])

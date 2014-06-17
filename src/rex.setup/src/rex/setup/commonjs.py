@@ -132,7 +132,14 @@ def install_bower_components(dist, seen=None):
     # Installs the Bower package from the given Python package and
     # its dependencies.
     if not isinstance(dist, pkg_resources.Distribution):
-        dist = pkg_resources.get_distribution(dist)
+        try:
+            dist = pkg_resources.get_distribution(dist)
+        except pkg_resources.DistributionNotFound:
+            # We can only hope that this dependency doesn't contain required
+            # bower components.
+            distutils.log.warn("install bower components:"
+                               " ignoring unavailable dependency %s" % dist)
+            return
     if seen is None:
         seen = set()
     if dist.key in seen:
@@ -217,3 +224,4 @@ def bower_component_metadata(component_name):
     if bower_json:
         with open(bower_json, 'r') as f:
             return json.load(f)
+

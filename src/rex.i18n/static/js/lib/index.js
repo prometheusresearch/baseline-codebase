@@ -8,7 +8,6 @@
 'use strict';
 
 
-var extend = require('extend');
 var Jed = require('jed');
 var jstz = require('jstimezonedetect').jstz;
 var globalize = require('globalize');
@@ -171,11 +170,16 @@ var RexI18N = function (options) {
      * @property config
      * @type Object
      */
-    this.config = {};
+    this.config = {
+        locale: options.locale || defaults.locale,
+        timezone: options.timezone || defaults.timezone,
+        translationsBaseUrl: options.translationsBaseUrl || defaults.translationsBaseUrl,
+        localeBaseUrl: options.localeBaseUrl || defaults.localeBaseUrl,
+        timeout: options.timeout || defaults.timeout
+    };
 
 
     // Initialize the config.
-    extend(this.config, defaults, options);
     if (!this.config.timezone) {
         // No timezone specified, let's figure it out ourselves.
         try {

@@ -37,12 +37,14 @@ setup(
     ],
     rex_init='rex.i18n',
     rex_static='static',
-    rex_download={
-        './static/cldr': [
+    rex_bundle={
+        './cldr': [
             'http://unicode.org/Public/cldr/25/json.zip'
             '#md5=b9c226b76393abe0715f0f6c1063d736',
         ],
+#        './www/i18n': [
+#            'webpack:rex-i18n',
+#        ],
     },
-    rex_js_package='js',
 )
 

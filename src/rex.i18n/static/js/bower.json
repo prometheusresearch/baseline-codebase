@@ -10,7 +10,9 @@
     },
     "main": "lib/index.js",
     "dependencies": {
-        "globalize": "http://github.com/jquery/globalize.git#master"
+        "jed": "^0.5.4",
+        "jstimezonedetect": "^1.0.5",
+        "globalize": "^1.0.0"
     }
 }
 

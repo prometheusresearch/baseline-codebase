@@ -62,7 +62,7 @@ function configureWebpack(config) {
   unshift(config, 'resolve.extensions', ['', '.js']);
 
   unshift(config, 'plugins' ,[
-    new ExtractTextPlugin('bundle.css'),
+    new ExtractTextPlugin('bundle.css', {allChunks: true}),
     new webpack.ResolverPlugin([
       new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin(
         'bower.json', ['main'])

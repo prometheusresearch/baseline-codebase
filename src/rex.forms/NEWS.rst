@@ -2,6 +2,25 @@
 REX.FORMS Release Notes
 ***********************
 
+
+0.11.2
+======
+
+- Tightened the version bounds on rex.expression.
+
+
+0.11.1
+======
+
+- Changed how the REXL/rex.expression library was referenced.
+
+
+0.11.0
+======
+
+- Added support for slider widgets.
+
+
 0.10.4
 ======
 
@@ -25,3 +44,4 @@ REX.FORMS Release Notes
 - value validation by domains
 - changed rendering of annotations and explanations
 - more friendly preview mode
+

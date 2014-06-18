@@ -27,8 +27,8 @@ setup(
         'rex.web>=2.1.0,<3',
         'rex.vendor>=1.5.0,<2',
         'HTSQL>=2.3.3,<3',
-        'rex.forms>=0.11.1,<1',
-        'rex.instrument>=0.1.7,<1',
+        'rex.forms>=0.11.1,<0.19',
+        'rex.instrument>=0.1.7,<0.9',
         'rex.rdoma>=0.13.2,<2',
         'simplejson',
         'rex.application>=0.4.1,<1'

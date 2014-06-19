@@ -97,7 +97,6 @@ HTTP API::
 
 Links::
 
-    >>> from rex.port import Port
     >>> individual_port = Port("individual")
 
     >>> individual_port.insert({'individual': [{'code': '2000', 'sex': 'male'},
@@ -116,4 +115,19 @@ Links::
     <Product {()}>
     >>> individual_port.delete({'individual': [{'id': '2001'}, {'id': '2000'}]})
     <Product {()}>
+
+Relative links::
+
+    >>> individual_port.insert(
+    ...     {'individual': [{'code': '2000', 'sex': 'male'},
+    ...                     {'code': '2001', 'sex': 'female'},
+    ...                     {'code': '2002', 'sex': 'male', 'mother': '#/individual/1', 'father': '#/individual/0'},
+    ...                     {'code': '2003', 'sex': 'female', 'mother': '#/individual/1', 'father': '#/individual/0'}]})
+    <Product {({[2000], '2000', 'male', null, null}, {[2001], '2001', 'female', null, null}, {[2002], '2002', 'male', [2001], [2000]}, {[2003], '2003', 'female', [2001], [2000]})}>
+
+    >>> individual_port.delete(
+    ...     {'individual': [{'id': '2003'}, {'id': '2002'}, {'id': '2001'}, {'id': '2000'}]})
+    <Product {()}>
+
+
 

@@ -323,6 +323,50 @@ class Missing(object):
 MISSING = Missing()
 
 
+class Reference(object):
+
+    def __init__(self, path):
+        self.path = tuple(path)
+
+    def __str__(self):
+        return "#"+"".join("/"+segment for segment in self.path)
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.path)
+
+    def __hash__(self):
+        return hash(self.path)
+
+    def __eq__(self, other):
+        return (isinstance(other, Reference) and self.path == other.path)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class Cell(object):
+
+    def __init__(self, node, reference, id, fields):
+        self.node = node
+        self.reference = reference
+        self.id = id
+        self.fields = fields
+
+    def __iter__(self):
+        return iter(self.fields)
+
+    def __getitem__(self, key):
+        return self.fields[key]
+
+    def __len__(self):
+        return len(self.fields)
+
+    def __repr__(self):
+        return "%s(%r, %r, %r, %r)" \
+                % (self.__class__.__name__,
+                   self.node, self.reference, self.id, self.fields)
+
+
 class Arm(object):
 
     is_plural = False
@@ -455,147 +499,140 @@ class RootArm(Arm):
 
     def flatten(self, data):
         result = []
-        for arm, item in zip(self.arms.values(), data):
-            result.extend(arm.flatten(item))
+        for (name, arm), item in zip(self.arms.items(), data):
+            result.extend(arm.flatten((name,), item))
         return result
 
     def pair(self, old, new):
-        result = []
-        for (old_arc, old_records), (new_arc, new_records) in zip(old, new):
-            assert old_arc is new_arc
-            arc = old_arc
-            old_record_by_id = {}
-            for record in old_records:
-                record_id = record[0]
-                if record_id is None or record_id is MISSING:
-                    raise Error("Old record must have an id:", record)
-                if record_id in old_record_by_id:
-                    raise Error("Duplicate record id:", record_id)
-                old_record_by_id[record_id] = record
-            new_record_by_id = {}
-            for record in new_records:
-                record_id = record[0]
-                if record_id is None or record_id is MISSING:
-                    continue
-                if record_id in new_record_by_id:
-                    raise Error("Duplicate record id:", record_id)
-                if record_id not in old_record_by_id:
-                    old_record_by_id[record_id] = (record_id,) + \
-                                                  (MISSING,)*(len(record)-1)
-                new_record_by_id[record_id] = record
-            pairs = []
-            for record in old_records:
-                record_id = record[0]
-                if record_id not in new_record_by_id:
-                    pairs.append((record, None))
-            for record in new_records:
-                record_id = record[0]
-                if record_id is not None and record_id is not MISSING:
-                    old_record = old_record_by_id[record_id]
-                    pairs.append((old_record, record))
-            for record in new_records:
-                record_id = record[0]
-                if record_id is None or record_id is MISSING:
-                    pairs.append((None, record))
-            result.append((arc, pairs))
-        return result
+        difference = []
+        #nodes = []
+        #old_cells_by_node = {}
+        #new_cells_by_node = {}
+        #for cells, cells_by_node in [(old, old_cells_by_node),
+        #                             (new, new_cells_by_node)]:
+        #    for cell in cells:
+        #        if cell.node not in nodes:
+        #            nodes.append(cell.node)
+        #            old_cells_by_node[node] = []
+        #            new_cells_by_node[node] = []
+        #        cells_by_node.append(cell)
+        old_map = {}
+        new_map = {}
+        for cell in old:
+            if cell.id is None or cell.id is MISSING:
+                raise Error("Old record must have an id:", cell.reference)
+            key = (cell.node, cell.id)
+            if key in old_map:
+                raise Error("Duplicate record id:", cell.reference)
+            old_map[key] = cell
+        for cell in new:
+            if cell.id is None or cell.id is MISSING:
+                continue
+            key = (cell.node, cell.id)
+            if key in new_map:
+                raise Error("Duplicate record id:", cell.reference)
+            new_map[key] = cell
+        for cell in old:
+            key = (cell.node, cell.id)
+            if key not in new_map:
+                difference.append((cell, None))
+        for cell in new:
+            if cell.id is not None and cell.id is not MISSING:
+                key = (cell.node, cell.id)
+                if key in old_map:
+                    old_cell = old_map[key]
+                else:
+                    old_cell = Cell(cell.node, cell.reference, cell.id,
+                                    [MISSING]*len(cell.fields))
+                difference.append((old_cell, cell))
+        for cell in new:
+            if cell.id is None or cell.id is MISSING:
+                difference.append((None, cell))
+        return difference
 
     def restore(self, difference):
         restored_difference = []
-        for node, pairs in difference:
-            restored_pairs = []
-            columns = []
+        nodes = []
+        ids_by_node = {}
+        for cell, new_cell in difference:
+            if cell is None:
+                continue
+            node = cell.node
+            if node not in nodes:
+                nodes.append(node)
+                ids_by_node[node] = []
+            ids_by_node[node].append(cell.id)
+        restored_fields = {}
+        for node in nodes:
+            state = BindingState(RootBinding(VoidSyntax()))
+            recipe = prescribe(TableArc(node.table), state.scope)
+            binding = state.use(recipe, state.scope.syntax)
+            recipe = identify(binding)
+            identity = state.use(recipe, binding.syntax, scope=binding)
+            domain = identity.domain
+            conditions = []
+            for id in ids_by_node[node]:
+                value = Value(domain, id)
+                condition = locate(state, binding, value)
+                conditions.append(condition)
+            if len(conditions) == 1:
+                [condition] = conditions
+            else:
+                condition = FormulaBinding(state.scope, OrSig(),
+                                           BooleanDomain(),
+                                           state.scope.syntax,
+                                           ops=conditions)
+            binding = SieveBinding(binding, condition, binding.syntax)
+            state.push_scope(binding)
+            elements = [identity]
             for label in classify(node):
                 arc = label.arc
                 if not (isinstance(arc, ColumnArc) or
                         (isinstance(arc, ChainArc) and len(arc.joins) == 1 and
                          arc.joins[0].is_direct)):
                     continue
-                columns.append(arc)
-            used = set()
-            ids = []
-            for old, new in pairs:
-                if old is not None:
-                    ids.append(old[0])
-                for record in (old, new):
-                    if record is None:
-                        continue
-                    for item, column in zip(record[1:], columns):
-                        if item is not MISSING:
-                            used.add(column)
-            if ids:
-                state = BindingState(RootBinding(VoidSyntax()))
-                recipe = prescribe(TableArc(node.table), state.scope)
-                binding = state.use(recipe, state.scope.syntax)
-                recipe = identify(binding)
-                identity = state.use(recipe, binding.syntax, scope=binding)
-                domain = identity.domain
-                conditions = []
-                for id in ids:
-                    value = Value(domain, id)
-                    condition = locate(state, binding, value)
-                    conditions.append(condition)
-                if len(conditions) == 1:
-                    [condition] = conditions
-                else:
-                    condition = FormulaBinding(state.scope, OrSig(),
-                                               BooleanDomain(),
-                                               state.scope.syntax,
-                                               ops=conditions)
-                binding = SieveBinding(binding, condition, binding.syntax)
-                state.push_scope(binding)
-                elements = [identity]
-                for column in columns:
-                    if column not in used:
-                        continue
-                    recipe = prescribe(column, state.scope)
-                    element = state.use(recipe, state.scope.syntax)
-                    if isinstance(column, ChainArc):
-                        recipe = identify(element)
-                        element = state.use(recipe, state.scope.syntax,
-                                            scope=element)
-                    elements.append(element)
-                fields = [decorate(element) for element in elements]
-                domain = RecordDomain(fields)
-                binding = SelectionBinding(state.scope, elements, domain,
-                                           state.scope.syntax)
-                state.pop_scope()
-                domain = ListDomain(binding.domain)
-                binding = CollectBinding(state.scope, binding, domain,
-                                         binding.syntax)
-                pipe = translate(binding)
-                product = pipe()(None)
-                record_by_id = {}
-                for record in product:
-                    record_by_id[record[0]] = record
-            else:
-                record_by_id = {}
-            for old, new in pairs:
-                if old is None:
-                    restored_pairs.append((old, new))
-                    continue
-                if old[0] not in record_by_id:
-                    raise Error("Missing record:", old)
-                record = record_by_id[old[0]]
-                restored_old = [old[0]]
-                idx = 0
-                for column, field in zip(columns, old[1:]):
-                    if column in used:
-                        idx += 1
-                        real_field = record[idx]
-                        if field is MISSING:
-                            field = real_field
-                        else:
-                            if field != real_field:
-                                raise Error("Unexpected value:", old)
-                    restored_old.append(field)
-                restored_pairs.append((restored_old, new))
-            restored_difference.append((node, restored_pairs))
+                recipe = prescribe(arc, state.scope)
+                element = state.use(recipe, state.scope.syntax)
+                if isinstance(arc, ChainArc):
+                    recipe = identify(element)
+                    element = state.use(recipe, state.scope.syntax,
+                                        scope=element)
+                elements.append(element)
+            fields = [decorate(element) for element in elements]
+            domain = RecordDomain(fields)
+            binding = SelectionBinding(state.scope, elements, domain,
+                                       state.scope.syntax)
+            state.pop_scope()
+            domain = ListDomain(binding.domain)
+            binding = CollectBinding(state.scope, binding, domain,
+                                     binding.syntax)
+            pipe = translate(binding)
+            product = pipe()(None)
+            for record in product:
+                key = (node, record[0])
+                restored_fields[key] = record[1:]
+        for cell, new_cell in difference:
+            if cell is not None:
+                key = (cell.node, cell.id)
+                if key not in restored_fields:
+                    raise Error("Missing record:", cell.reference)
+                fields = restored_fields[key]
+                for item, restored_item in zip(cell, fields):
+                    if item is not MISSING and item != restored_item:
+                        raise Error("Modified record:", cell.reference)
+                cell = Cell(cell.node, cell.reference, cell.id, fields)
+            restored_difference.append((cell, new_cell))
         return restored_difference
 
     def patch(self, difference):
         changes = []
-        for node, pairs in difference:
+        id_by_reference = {}
+        ids_by_node = {}
+        for old_cell, new_cell in difference:
+            if old_cell is None:
+                node = new_cell.node
+            else:
+                node = old_cell.node
             arcs = []
             for label in classify(node):
                 arc = label.arc
@@ -604,31 +641,53 @@ class RootArm(Arm):
                          arc.joins[0].is_direct)):
                     continue
                 arcs.append(arc)
-            ids = []
-            for old, new in pairs:
-                if old is None:
-                    id = self.patch_insert(node, arcs, new)
-                    ids.append(id)
-                elif new is None:
-                    self.patch_delete(node, arcs, old[0])
-                else:
-                    record = [old[0]]
-                    for old_item, new_item in zip(old[1:], new[1:]):
-                        if (old_item is not MISSING and new_item is not MISSING
-                                and old_item != new_item):
-                            item = new_item
-                        else:
-                            item = MISSING
-                        record.append(item)
-                    id = self.patch_update(node, arcs, record)
-                    ids.append(id)
-            changes.append((node, ids))
+            if node not in ids_by_node:
+                ids_by_node[node] = []
+                changes.append((node, ids_by_node[node]))
+            if old_cell is None:
+                id = None
+                old_fields = None
+                new_fields = new_cell.fields
+            elif new_cell is None:
+                id = old_cell.id
+                old_fields = None
+                new_fields = None
+            else:
+                id = old_cell.id
+                old_fields = old_cell.fields
+                new_fields = new_cell.fields
+            if new_fields is not None:
+                fields = []
+                for field in new_fields:
+                    if isinstance(field, Reference):
+                        if field not in id_by_reference:
+                            raise Error("Invalid reference:", field)
+                        field = id_by_reference[field]
+                    fields.append(field)
+                new_fields = fields
+            if id is None:
+                id = self.patch_insert(node, arcs, new_fields)
+                id_by_reference[new_cell.reference] = id
+                ids_by_node[node].append(id)
+            elif new_fields is None:
+                self.patch_delete(node, arcs, id)
+            else:
+                record = []
+                for old_field, new_field in zip(old_fields, new_fields):
+                    if (new_field is not MISSING and new_field != old_field):
+                        field = new_field
+                    else:
+                        field = MISSING
+                    record.append(field)
+                id = self.patch_update(node, arcs, id, record)
+                id_by_reference[new_cell.reference] = id
+                ids_by_node[node].append(id)
         return changes
 
     def patch_insert(self, node, arcs, record):
         active_arcs = []
         active_items = []
-        for arc, item in zip(arcs, record[1:]):
+        for arc, item in zip(arcs, record):
             if item is not MISSING:
                 active_arcs.append(arc)
                 active_items.append(item)
@@ -645,14 +704,13 @@ class RootArm(Arm):
                         active_items)))
         return row
 
-    def patch_update(self, node, arcs, record):
+    def patch_update(self, node, arcs, key_id, record):
         active_arcs = []
         active_items = []
-        for arc, item in zip(arcs, record[1:]):
+        for arc, item in zip(arcs, record):
             if item is not MISSING:
                 active_arcs.append(arc)
                 active_items.append(item)
-        key_id = record[0]
         resolve_key = BuildResolveKey.__invoke__(
                 node, active_arcs)
         extract_table = BuildExtractTable.__invoke__(
@@ -747,6 +805,11 @@ class TableArm(Arm):
         constraints_by_name = constraints.dispatch(self.arms)
         recipe = prescribe(self.arc, state.scope)
         binding = state.use(recipe, state.scope.syntax)
+        if self.mask is not None:
+            condition = state.bind(self.mask.syntax, scope=binding)
+            condition = ImplicitCastBinding(condition, BooleanDomain(),
+                                            condition.syntax)
+            binding = SieveBinding(binding, condition, binding.syntax)
         if self.is_plural:
             binding = self.condition(binding, state, constraints)
         state.push_scope(binding)
@@ -834,8 +897,10 @@ class TableArm(Arm):
             id_value = clarify(id_domain, id_value)
         return (id_value,)+tuple(record)
 
-    def flatten(self, data):
-        record = [data[0]]
+    def flatten(self, path, data):
+        reference = Reference(path)
+        id = data[0]
+        record = []
         index_by_arc = dict((arm.arc, index)
                             for index, arm in enumerate(self.arms.values()))
         for label in classify(self.node):
@@ -850,7 +915,7 @@ class TableArm(Arm):
             else:
                 value = MISSING
             record.append(value)
-        return record
+        return [Cell(self.node, reference, id, record)]
 
 
 class TrunkArm(TableArm):
@@ -875,9 +940,11 @@ class TrunkArm(TableArm):
                     for item in data]
         return [super(TrunkArm, self).adapt(data)]
 
-    def flatten(self, data):
-        return [(self.node, [super(TrunkArm, self).flatten(item)
-                             for item in data])]
+    def flatten(self, path, data):
+        result = []
+        for idx, item in enumerate(data):
+            result.extend(super(TrunkArm, self).flatten(path+(str(idx),), item))
+        return result
 
 
 class BranchArm(TableArm):
@@ -895,6 +962,12 @@ class BranchArm(TableArm):
         binding = super(BranchArm, self).bind(state, constraints)
         domain = ListDomain(binding.domain)
         return CollectBinding(state.scope, binding, domain, binding.syntax)
+
+    def flatten(self, path, data):
+        result = []
+        for idx, item in enumerate(data):
+            result.extend(super(BranchArm, self).flatten(path+(str(idx),), item))
+        return result
 
 
 class FacetArm(TableArm):
@@ -1006,6 +1079,9 @@ class LinkArm(Arm):
         return binding
 
     def adapt(self, data):
+        if isinstance(data, (str, unicode)) and data.startswith('#/'):
+            path = data[2:].split('/')
+            return Reference(path)
         value = Embed.__invoke__(data)
         state = BindingState(RootBinding(VoidSyntax()))
         recipe = prescribe(TableArc(self.node.table), state.scope)

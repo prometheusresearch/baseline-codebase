@@ -4,11 +4,6 @@
 
 .. contents:: Table of Contents
 
-1.1.1 (2014-06-16)
-==================
-
-* Fix for creating bundles for less files with external dependencies
-
 
 1.1.0 (2014-XX-XX)
 ==================

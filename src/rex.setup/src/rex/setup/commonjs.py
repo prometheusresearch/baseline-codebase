@@ -129,8 +129,7 @@ def install_bower_components(dist, seen=None):
         if not path.strip():
             cwd = pkg_resources.resource_filename('rex.setup', 'commonjs')
             npm(['install', '--global'], cwd=cwd)
-    # Installs the Bower package from the given Python package and
-    # its dependencies.
+    # Installs the Bower package from the given Python package.
     if not isinstance(dist, pkg_resources.Distribution):
         try:
             dist = pkg_resources.get_distribution(dist)
@@ -144,8 +143,6 @@ def install_bower_components(dist, seen=None):
         seen = set()
     if dist.key in seen:
         return
-    for req in dist.requires():
-        install_bower_components(req, seen)
     if not dist.has_metadata('rex_static.txt'):
         return
     static = dist.get_metadata('rex_static.txt')
@@ -180,6 +177,12 @@ def install_bower_components(dist, seen=None):
         raise distutils.errors.DistutilsSetupError(
                 "unexpected package version in %s: expected %s; got %s"
                 % (bower_json, dist.version, package.get('version')))
+    # Install Bower dependencies that are packaged in Python distributions.
+    if isinstance(package.get('dependencies'), dict):
+        dependencies = set(package['dependencies'])
+        for req in dist.requires():
+            if req.key.replace('.', '-') in dependencies:
+                install_bower_components(req, seen)
     # If we are inside virtualenv install into $venv/lib/bower_components
     # otherwise do a local install
     cwd = os.path.join(sys.prefix, 'lib')

@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.6.1 (2014-XX-XX)
+==================
+
+* Fixed ``RecordVal`` to accept records with default values.
+
+
 1.6.0 (2014-06-04)
 ==================
 

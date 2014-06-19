@@ -974,11 +974,14 @@ class RecordVal(Validate):
                     raise Error("Expected a JSON object")
             if (isinstance(data, (tuple, Record)) and
                     len(data) == len(self.fields)):
-                if list(getattr(data, '_fields', self.names)) != self.names:
+                fields = self.record_type._fields
+                if getattr(data, '_fields', fields) != fields:
                     raise Error("Expected a record with fields:",
                                 ", ".join(self.names))
                 data = dict((name, value)
-                            for name, value in zip(self.names, data))
+                            for name, value in zip(self.names, data)
+                            if name not in self.defaults or
+                               value != self.defaults[name])
             if not isinstance(data, dict):
                 raise Error("Expected a mapping")
         values = {}

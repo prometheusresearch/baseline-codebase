@@ -5,7 +5,7 @@
 
 from rex.core import Error, guard
 from rex.web import not_found, authorize, trusted, render_to_response
-from webob.exc import HTTPUnauthorized, HTTPForbidden
+from webob.exc import HTTPUnauthorized, HTTPForbidden, HTTPMovedPermanently
 
 
 class TreeWalker(object):
@@ -19,8 +19,12 @@ class TreeWalker(object):
 
     def __call__(self, req):
         # Find the handle for the URL.
-        handle = self.segment_map.get(req.path_info, self.fallback)
-        return handle(req)
+        handle = self.segment_map.get(req.path_info)
+        if handle:
+            return handle(req)
+        if self.segment_map.completes(req.path_info):
+            raise HTTPMovedPermanently(add_slash=True)
+        return self.fallback(req)
 
 
 class TemplateRenderer(object):

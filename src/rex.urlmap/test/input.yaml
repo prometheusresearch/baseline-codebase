@@ -8,13 +8,12 @@ tests:
 - coverage: setup.cfg
 
 - sh: pip install -q -e ./demo/rex.urlmap_demo
-- sh: rex deploy rex.urlmap_demo
+- sh: rex deploy -q rex.urlmap_demo
 
 - doctest: README.rst
 - doctest: test/test_*.rst
 
 - sh: pip uninstall -q -y rex.urlmap_demo
-- sh: dropdb --if-exists urlmap_demo
 
 - coverage-check: 95.0
 - coverage-report: ./build/coverage

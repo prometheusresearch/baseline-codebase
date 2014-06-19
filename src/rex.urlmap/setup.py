@@ -23,7 +23,7 @@ setup(
     ],
     install_requires=[
         'rex.core >=1.5, <2',
-        'rex.web >=2.0, <3',
+        'rex.web >=2.2, <3',
         'rex.port >=1.0, <2',
     ],
     rex_init='rex.urlmap',

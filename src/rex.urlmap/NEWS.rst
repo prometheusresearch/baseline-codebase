@@ -9,6 +9,8 @@
 ==================
 
 * Support for *port* handlers.
+* When the URL matches a path except for the trailing ``/``,
+  redirect to URL + ``/``.
 
 
 2.1.0 (2014-03-28)

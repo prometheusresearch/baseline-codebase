@@ -106,15 +106,19 @@ def sql_value(value):
                               " for values of type %s" % type(value).__name__)
 
 
-def sql_create_database(name):
+def sql_create_database(name, template=None):
     """
     Generates::
 
-        CREATE DATABASE {name}
+        CREATE DATABASE {name} [TEMPLATE = {template}]
     """
     # Generates `CREATE DATABASE` statement.
-    return u"CREATE DATABASE {} WITH ENCODING = 'UTF-8';" \
-            .format(sql_name(name))
+    options = []
+    options.append(u"ENCODING = 'UTF-8'")
+    if template is not None:
+        options.append(u"TEMPLATE = {}".format(sql_name(template)))
+    return u"CREATE DATABASE {} WITH {};" \
+            .format(sql_name(name), u" ".join(options))
 
 
 def sql_drop_database(name):

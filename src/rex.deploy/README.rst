@@ -906,6 +906,14 @@ cluster::
     >>> cluster.exists('deploy_demo_readme')
     False
 
+You can also clone an existing database that resides on the same cluster::
+
+    >>> cluster.clone('deploy_demo', 'deploy_demo_clone')
+    >>> cluster.exists('deploy_demo_clone')
+    True
+
+    >>> cluster.drop('deploy_demo_clone')
+
 Use function :func:`rex.deploy.introspect` to get a catalog image that reflects
 the structure of the database::
 

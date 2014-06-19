@@ -64,10 +64,14 @@ class Cluster(object):
         sql = sql_select_database(name or self.db.database)
         return bool(self._master(sql))
 
-    def create(self, name=None):
+    def create(self, name=None, template=None):
         """Creates a new database in the cluster."""
-        sql = sql_create_database(name or self.db.database)
+        sql = sql_create_database(name or self.db.database, template=template)
         self._master(sql)
+
+    def clone(self, template, name=None):
+        """Creates a copy of the template database."""
+        self.create(name, template)
 
     def drop(self, name=None):
         """Deletes a database."""

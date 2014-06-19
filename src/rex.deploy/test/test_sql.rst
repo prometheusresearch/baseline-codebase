@@ -137,6 +137,11 @@ Database management
     >>> print sql_select_database(u'deploy_demo')
     SELECT TRUE FROM pg_catalog.pg_database AS d WHERE d.datname = 'deploy_demo';
 
+When creating a database, you can specify an existing database as a template::
+
+    >>> print sql_create_database(u'deploy_demo', template=u'deploy_demo_template')
+    CREATE DATABASE "deploy_demo" WITH ENCODING = 'UTF-8' TEMPLATE = "deploy_demo_template";
+
 
 Tables, columns, and constraints
 ================================

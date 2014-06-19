@@ -42,6 +42,14 @@ in the database cluster::
     >>> cluster.exists('deploy_demo_cluster')
     False
 
+You can also clone an existing database::
+
+    >>> cluster.clone('deploy_demo', 'deploy_demo_clone')
+    >>> cluster.exists('deploy_demo_clone')
+    True
+
+    >>> cluster.drop('deploy_demo_clone')
+
 It is an error if you try to create a database which already exists or
 drop a database which does not exist::
 
@@ -171,5 +179,3 @@ Finally, we destroy the test database::
 
     >>> with deploy_demo:
     ...     get_cluster().drop()
-
-

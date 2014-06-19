@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.4.0 (2014-06-18)
+==================
+
+* Added ability to specify the template for a new database.
+
+
 1.3.0 (2014-06-04)
 ==================
 

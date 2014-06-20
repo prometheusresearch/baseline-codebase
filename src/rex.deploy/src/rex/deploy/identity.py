@@ -5,7 +5,9 @@
 
 from rex.core import Error, SeqVal
 from .fact import Fact, LabelVal, QLabelVal
-from .sql import mangle, sql_add_unique_constraint, sql_drop_constraint
+from .image import SET_DEFAULT, CASCADE
+from .sql import (mangle, sql_add_unique_constraint,
+        sql_add_foreign_key_constraint, sql_drop_constraint)
 
 
 class IdentityFact(Fact):
@@ -93,5 +95,25 @@ class IdentityFact(Fact):
                     self.table_name, self.constraint_name,
                     [column.name for column in columns], True))
             table.add_primary_key(self.constraint_name, columns)
+        # Make sure that foreign keys contained in `PRIMARY KEY` columns
+        # are set with `ON DELETE CASCADE` rule.
+        for foreign_key in table.foreign_keys:
+            if set(foreign_key.origin_columns).issubset(columns):
+                on_delete = CASCADE
+            else:
+                on_delete = SET_DEFAULT
+            if foreign_key.on_delete != on_delete:
+                if driver.is_locked:
+                    raise Error("Detected FOREIGN KEY with wrong"
+                                " ON DELETE rule:", foreign_key)
+                driver.submit(sql_drop_constraint(
+                        self.table_name, foreign_key.name))
+                driver.submit(sql_add_foreign_key_constraint(
+                        self.table_name, foreign_key.name,
+                        [column.name for column in foreign_key.origin_columns],
+                        foreign_key.target.name,
+                        [column.name for column in foreign_key.target_columns],
+                        on_update=foreign_key.on_update, on_delete=on_delete))
+                foreign_key.set_on_delete(on_delete)
 
 

@@ -257,21 +257,25 @@ def sql_add_unique_constraint(table_name, name, column_names, is_primary):
 
 
 def sql_add_foreign_key_constraint(table_name, name, column_names,
-                                   target_table_name, target_column_names):
+                                   target_table_name, target_column_names,
+                                   on_update=None, on_delete=None):
     """
     Generates::
 
         ALTER TABLE {table_name} ADD CONSTRAINT {name}
         FOREIGN KEY ({column_name}, ...)
         REFERENCES {target_table_name} ({target_column_name}, ...)
+        [ON UPDATE {on_update}] [ON DELETE {on_delete}]
     """
     return u"ALTER TABLE {} ADD CONSTRAINT {}" \
-            u" FOREIGN KEY ({}) REFERENCES {} ({});" \
+            u" FOREIGN KEY ({}) REFERENCES {} ({}){}{};" \
             .format(sql_name(table_name),
                     sql_name(name),
                     sql_name(column_names),
                     sql_name(target_table_name),
-                    sql_name(target_column_names))
+                    sql_name(target_column_names),
+                    u" ON UPDATE "+on_update if on_update is not None else u"",
+                    u" ON DELETE "+on_delete if on_delete is not None else u"")
 
 
 def sql_drop_constraint(table_name, name):

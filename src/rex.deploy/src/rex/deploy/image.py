@@ -418,9 +418,11 @@ class TableImage(NamedImage):
         """Adds a ``PRIMARY KEY`` constraint."""
         return UniqueKeyImage(self, name, columns, True)
 
-    def add_foreign_key(self, name, columns, target, target_columns):
+    def add_foreign_key(self, name, columns, target, target_columns,
+                        on_update=None, on_delete=None):
         """Adds a ``FOREIGN KEY`` constraint."""
-        return ForeignKeyImage(self, name, columns, target, target_columns)
+        return ForeignKeyImage(self, name, columns, target, target_columns,
+                               on_update=on_update, on_delete=on_delete)
 
     def add_data(self, rows):
         """Adds table rows."""
@@ -605,18 +607,31 @@ class UniqueKeyImage(ConstraintImage):
         super(UniqueKeyImage, self).remove()
 
 
+NO_ACTION = u'NO ACTION'
+RESTRICT = u'RESTRICT'
+CASCADE = u'CASCADE'
+SET_NULL = u'SET NULL'
+SET_DEFAULT = u'SET DEFAULT'
+
+
 class ForeignKeyImage(ConstraintImage):
     """Foreign key constraint."""
 
-    __slots__ = ('origin_columns', 'coowner', 'target_columns')
+    __slots__ = ('origin_columns', 'coowner', 'target_columns',
+                 'on_update', 'on_delete')
 
-    def __init__(self, origin, name, origin_columns, target, target_columns):
+    def __init__(self, origin, name, origin_columns, target, target_columns,
+                 on_update=None, on_delete=None):
         super(ForeignKeyImage, self).__init__(origin, name)
         #: Key columns.
         self.origin_columns = origin_columns
         self.coowner = weakref.ref(target)
         #: Target key columns.
         self.target_columns = target_columns
+        #: Action to perform when the referenced column is updated.
+        self.on_update = on_update or NO_ACTION
+        #: Action to perform when the referenced row is deleted.
+        self.on_delete = on_delete or NO_ACTION
         origin.foreign_keys.append(self)
         target.referring_foreign_keys.append(self)
 
@@ -653,6 +668,16 @@ class ForeignKeyImage(ConstraintImage):
         self.origin.foreign_keys.remove(self)
         self.target.referring_foreign_keys.remove(self)
         super(ForeignKeyImage, self).remove()
+
+    def set_on_update(self, action):
+        """Sets ``ON UPDATE`` action."""
+        self.on_update = action
+        return self
+
+    def set_on_delete(self, action):
+        """Sets ``ON DELETE`` action."""
+        self.on_delete = action
+        return self
 
 
 class DataImage(Image):

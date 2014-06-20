@@ -179,3 +179,5 @@ Finally, we destroy the test database::
 
     >>> with deploy_demo:
     ...     get_cluster().drop()
+
+

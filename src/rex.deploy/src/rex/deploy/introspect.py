@@ -3,7 +3,17 @@
 #
 
 
-from .image import make_catalog
+from .image import (make_catalog, NO_ACTION, RESTRICT, CASCADE, SET_NULL,
+        SET_DEFAULT)
+
+
+conftype_to_action = {
+        'a': NO_ACTION,
+        'r': RESTRICT,
+        'c': CASCADE,
+        'n': SET_NULL,
+        'd': SET_DEFAULT,
+}
 
 
 def introspect(connection):
@@ -95,13 +105,15 @@ def introspect(connection):
     constraint_by_oid = {}
     cursor.execute("""
         SELECT c.oid, c.conname, c.contype, c.confmatchtype,
-               c.conrelid, c.conkey, c.confrelid, c.confkey
+               c.conrelid, c.conkey, c.confrelid, c.confkey,
+               c.confupdtype, c.confdeltype
         FROM pg_catalog.pg_constraint c
         WHERE c.contype IN ('p', 'u', 'f')
         ORDER BY c.oid
     """)
     for (oid, conname, contype, confmatchtype,
-            conrelid, conkey, confrelid, confkey) in cursor.fetchall():
+            conrelid, conkey, confrelid, confkey,
+            confupdtype, confdeltype) in cursor.fetchall():
         if conrelid not in table_by_oid:
             continue
         table = table_by_oid[conrelid]
@@ -120,8 +132,12 @@ def introspect(connection):
             if not all((confrelid, num) in column_by_num for num in confkey):
                 continue
             target_columns = [column_by_num[confrelid, num] for num in confkey]
+            on_update = conftype_to_action[confupdtype]
+            on_delete = conftype_to_action[confdeltype]
             key = table.add_foreign_key(conname, columns,
-                                        target_table, target_columns)
+                                        target_table, target_columns,
+                                        on_update=on_update,
+                                        on_delete=on_delete)
             constraint_by_oid[oid] = key
 
     # Extract comments.

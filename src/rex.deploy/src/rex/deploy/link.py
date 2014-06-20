@@ -5,6 +5,7 @@
 
 from rex.core import Error, BoolVal
 from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
+from .image import SET_DEFAULT
 from .meta import ColumnMeta, TableMeta
 from .sql import (mangle, sql_add_column, sql_drop_column,
         sql_comment_on_column, sql_add_foreign_key_constraint)
@@ -161,9 +162,10 @@ class LinkFact(Fact):
                             " FOREIGN KEY constraint:", column)
             driver.submit(sql_add_foreign_key_constraint(
                     self.table_name, self.constraint_name, [self.name],
-                    self.target_table_name, [u'id']))
+                    self.target_table_name, [u'id'], on_delete=SET_DEFAULT))
             table.add_foreign_key(self.constraint_name, [column],
-                                  target_table, [target_column])
+                                  target_table, [target_column],
+                                  on_delete=SET_DEFAULT)
         # Store the original link label and the link title.
         meta = ColumnMeta.parse(column)
         preferred_label = self.name[:-2].rstrip(u'_') \

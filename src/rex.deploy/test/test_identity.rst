@@ -77,7 +77,8 @@ Deploying the same fact again has no effect::
 
     >>> driver("""{ identity: [individual.code] }""")
 
-Table identity may include both columns and links::
+Table identity may include both columns and links.  Respective ``FOREIGN KEY``
+constraints are set to ``ON DELETE CASCADE``::
 
     >>> driver("""
     ... - { table: identity }
@@ -87,6 +88,8 @@ Table identity may include both columns and links::
     ... """)                                            # doctest: +ELLIPSIS
     CREATE TABLE "identity" ...
     ALTER TABLE "identity" ADD CONSTRAINT "identity_pk" PRIMARY KEY ("individual_id", "code");
+    ALTER TABLE "identity" DROP CONSTRAINT "identity_individual_fk";
+    ALTER TABLE "identity" ADD CONSTRAINT "identity_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON UPDATE NO ACTION ON DELETE CASCADE;
 
 It is an error if identity refers to an unknown table or a column::
 

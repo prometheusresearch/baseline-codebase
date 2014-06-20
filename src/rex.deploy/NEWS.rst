@@ -5,10 +5,12 @@
 .. contents:: Table of Contents
 
 
-1.4.0 (2014-06-18)
+1.4.0 (2014-XX-XX)
 ==================
 
 * Added ability to specify the template for a new database.
+* ``FOREIGN KEY`` constraints that are contained in ``PRIMARY KEY``
+  are set with ``ON DELETE CASCADE``.
 
 
 1.3.0 (2014-06-04)

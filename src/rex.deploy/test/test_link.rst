@@ -106,7 +106,7 @@ Deploying a link fact creates a column and a foreign key::
     CREATE TABLE "individual" ...
     CREATE TABLE "sample" ...
     ALTER TABLE "sample" ADD COLUMN "individual_id" "int4" NOT NULL;
-    ALTER TABLE "sample" ADD CONSTRAINT "sample_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id");
+    ALTER TABLE "sample" ADD CONSTRAINT "sample_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
 
     >>> schema = driver.get_schema()
     >>> sample_table = schema[u'sample']

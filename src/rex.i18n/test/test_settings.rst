@@ -47,13 +47,13 @@ can be set to any valid IANA timezone identifier::
 
     >>> app = Rex('__main__', 'rex.i18n')
     >>> with app:
-    ...     get_settings().i18n_default_timezone
-    <UTC>
+    ...     get_settings().i18n_default_timezone.zone
+    'UTC'
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_timezone='America/New_York')
     >>> with app:
-    ...     get_settings().i18n_default_timezone
-    <DstTzInfo 'America/New_York' EST-1 day, 19:00:00 STD>
+    ...     get_settings().i18n_default_timezone.zone
+    'America/New_York'
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_timezone='foobar')
     Traceback (most recent call last):

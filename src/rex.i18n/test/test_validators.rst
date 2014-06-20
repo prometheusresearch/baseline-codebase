@@ -30,20 +30,21 @@ The LocaleVal validator takes in a POSIX locale identifier or a Babel
 TimezoneVal
 ===========
 
-::
+The TimeoneVal validator takes in a Olsen Timzone name string or pytz
+``timezone`` and normalizes it to a ``timezone``::
 
     >>> from rex.i18n import TimezoneVal
     >>> validator = TimezoneVal()
-    >>> validator('UTC')
-    <UTC>
-    >>> validator('America/New_York')
-    <DstTzInfo 'America/New_York' EST-1 day, 19:00:00 STD>
-    >>> validator('foobar')
+    >>> validator('UTC').zone
+    'UTC'
+    >>> validator('America/New_York').zone
+    'America/New_York'
+    >>> validator('foobar').zone
     Traceback (most recent call last):
         ...
     Error: expected an IANA TZ identifier, got 'foobar'
 
     >>> from pytz import timezone
-    >>> validator(timezone('America/New_York'))
-    <DstTzInfo 'America/New_York' EST-1 day, 19:00:00 STD>
+    >>> validator(timezone('America/New_York')).zone
+    'America/New_York'
 

@@ -9,6 +9,7 @@ import shutil
 import stat
 import subprocess
 import json
+import email
 import distutils.log, distutils.errors
 import pkg_resources
 
@@ -120,29 +121,13 @@ def bower(args, cwd=None):
     return node(args, cwd)
 
 
-def install_bower_components(dist, seen=None):
-    top = (seen is None)
-    # First, install the `rex-setup` NPM package that comes with rex.setup.
-    if top:
-        path = node(['-p',
-                     'try { require.resolve("rex-setup") } catch (e) {""}'])
-        if not path.strip():
-            cwd = pkg_resources.resource_filename('rex.setup', 'commonjs')
-            npm(['install', '--global'], cwd=cwd)
-    # Installs the Bower package from the given Python package.
-    if not isinstance(dist, pkg_resources.Distribution):
-        try:
-            dist = pkg_resources.get_distribution(dist)
-        except pkg_resources.DistributionNotFound:
-            # We can only hope that this dependency doesn't contain required
-            # bower components.
-            distutils.log.warn("install bower components:"
-                               " ignoring unavailable dependency %s" % dist)
-            return
-    if seen is None:
-        seen = set()
-    if dist.key in seen:
-        return
+def install_bower_components(req):
+    # Resolve a requirement string.
+    dist = get_distribution(req)
+    if dist is None:
+        raise distutils.errors.DistutilsSetupError(
+                "failed to find package with Bower component: %s" % req)
+    # Skip packages without CommonJS components.
     if not dist.has_metadata('rex_static.txt'):
         return
     static = dist.get_metadata('rex_static.txt')
@@ -150,15 +135,14 @@ def install_bower_components(dist, seen=None):
         return
     if not os.path.exists(os.path.join(static, 'js', 'bower.json')):
         return
+    # Make sure `rex-setup` NPM package that comes with rex.setup is installed.
+    path = node(['-p',
+                 'try { require.resolve("rex-setup") } catch (e) {""}'])
+    if not path.strip():
+        cwd = pkg_resources.resource_filename('rex.setup', 'commonjs')
+        npm(['install', '--global'], cwd=cwd)
+    # Validate the component descriptor.
     component_name = dist.key.replace('.', '-')
-    # Check if the package is already installed and we are not specifically
-    # asked to reinstall it.
-    if not top:
-        path = os.path.join(
-                sys.prefix, 'lib', 'bower_components', component_name)
-        if os.path.exists(path):
-            return
-    # Validate the component.
     js = os.path.abspath(os.path.join(static, 'js'))
     bower_json = os.path.join(js, 'bower.json')
     with open(bower_json) as stream:
@@ -181,16 +165,23 @@ def install_bower_components(dist, seen=None):
     if isinstance(package.get('dependencies'), dict):
         dependencies = set(package['dependencies'])
         for req in dist.requires():
-            if req.key.replace('.', '-') in dependencies:
-                install_bower_components(req, seen)
-    # If we are inside virtualenv install into $venv/lib/bower_components
-    # otherwise do a local install
+            dependency_name = req.key.replace('.', '-')
+            if dependency_name not in dependencies:
+                continue
+            # Check if the dependency is already installed.
+            path = os.path.join(
+                    sys.prefix, 'lib', 'bower_components', dependency_name)
+            if os.path.exists(path):
+                continue
+            install_bower_components(req)
+    # Install the component into `$PREFIX/lib/bower_components`.
+    distutils.log.info("installing bower component: %s" % component_name)
     cwd = os.path.join(sys.prefix, 'lib')
     # If the Python package has been installed with `python setup.py develop`,
-    # install its CommonJS package with `bower link`, otherwise, use
+    # install its Bower component with `bower link`, otherwise, use
     # `bower install`.
     if os.path.islink(static):
-        # bower link is broken, we install first and then link manually
+        # `bower link` is broken, we install first and then link manually.
         bower(['install', js], cwd=cwd)
         installed_path = bower_component_filename(component_name)
         if os.path.islink(installed_path):
@@ -215,6 +206,7 @@ def bower_component_filename(component_name, filename=None):
         return None
     return path
 
+
 def bower_component_metadata(component_name):
     """ Return contents of ``bower.json`` metadata for a component.
 
@@ -227,4 +219,44 @@ def bower_component_metadata(component_name):
     if bower_json:
         with open(bower_json, 'r') as f:
             return json.load(f)
+
+
+def get_distribution(req):
+    # Returns a distribution object for the given requirement string.
+    if isinstance(req, pkg_resources.Distribution):
+        return req
+    if not isinstance(req, pkg_resources.Requirement):
+        req = pkg_resources.Requirement.parse(req)
+    try:
+        return pkg_resources.get_distribution(req)
+    except pkg_resources.DistributionNotFound:
+        pass
+    # Try to find the package in the pip build directory.
+    try:
+        import pip
+    except ImportError:
+        return
+    build_prefix = pip.locations.build_prefix
+    package_path = os.path.join(build_prefix, req.key)
+    pkg_info_path = os.path.join(package_path, 'PKG-INFO')
+    if not os.path.exists(pkg_info_path):
+        return
+    pkg_info = email.message_from_file(open(pkg_info_path))
+    name = pkg_info.get('name', '-')
+    version = pkg_info.get('version')
+    egg_info_path = os.path.join(package_path,
+                                 'pip-egg-info/%s.egg-info' % name)
+    if not os.path.exists(egg_info_path):
+        return
+    static_path = os.path.join(package_path, 'static')
+    if os.path.exists(static_path):
+        rex_static_path = os.path.join(egg_info_path, 'rex_static.txt')
+        with open(rex_static_path, 'w') as stream:
+            stream.write(static_path)
+    dist = pkg_resources.Distribution(
+            package_path,
+            pkg_resources.PathMetadata(package_path, egg_info_path),
+            name, version)
+    return dist
+
 

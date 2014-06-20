@@ -73,7 +73,7 @@ class GenerateWebpack(Generate):
     def watch(self):
         # If we are at this point, the package has been installed
         # with `python setup.py develop` and so CommonJS packages
-        # must have been installed.
+        # must have been installed already.
         module = self.url.split(':', 1)[1]
         proc = webpack_watch(module, self.target)
         def terminate():

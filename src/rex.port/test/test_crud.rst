@@ -129,5 +129,46 @@ Relative links::
     ...     {'individual': [{'id': '2003'}, {'id': '2002'}, {'id': '2001'}, {'id': '2000'}]})
     <Product {()}>
 
+Facets and branches::
+
+    >>> full_individual_port = Port(['individual', 'individual.identity', 'individual.participation'])
+    >>> full_individual_port.insert(
+    ...     {'individual': [
+    ...         {'code': '3000', 'sex': 'male',
+    ...          'identity': {'givenname': 'Nikolaus', 'surname': 'Harald', 'birthdate': '1951-12-04'},
+    ...          'participation': {'protocol': 'fos.father', 'code': '1'}},
+    ...         {'code': '3001', 'sex': 'female',
+    ...          'identity': {'givenname': 'Nora', 'surname': 'Karin', 'birthdate': '1954-05-15'},
+    ...          'participation': {'protocol': 'fos.mother', 'code': '1'}},
+    ...         {'code': '3002', 'sex': 'female', 'father': '#/individual/0', 'mother': '#/individual/1',
+    ...          'identity': {'givenname': 'Janne', 'surname': 'Harald', 'birthdate': '1976-07-25'},
+    ...          'participation': {'protocol': 'fos.proband', 'code': '1'}},
+    ...         {'code': '3003', 'sex': 'male', 'father': '#/individual/0', 'mother': '#/individual/1',
+    ...          'identity': {'givenname': 'Vincent', 'surname': 'Harald', 'birthdate': '1979-03-13'},
+    ...          'participation': {'protocol': 'fos.unaffected-sib', 'code': '1'}}]})
+    ...     # doctest: +NORMALIZE_WHITESPACE
+    <Product {({[3000], '3000', 'male', null, null,
+                {[3000], 'Nikolaus', 'Harald', '1951-12-04'},
+                ({[3000.(fos.father).1], '1', [fos.father]},)},
+               {[3001], '3001', 'female', null, null,
+                {[3001], 'Nora', 'Karin', '1954-05-15'},
+                ({[3001.(fos.mother).1], '1', [fos.mother]},)},
+               {[3002], '3002', 'female', [3001], [3000],
+                {[3002], 'Janne', 'Harald', '1976-07-25'},
+                ({[3002.(fos.proband).1], '1', [fos.proband]},)},
+               {[3003], '3003', 'male', [3001], [3000],
+                {[3003], 'Vincent', 'Harald', '1979-03-13'},
+                ({[3003.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}>
+
+    >>> full_individual_port.produce(
+    ...     ('individual', ['3000', '3001', '3002', '3003']))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    <Product {(...
+               {[3003], '3003', 'male', [3001], [3000],
+                {[3003], 'Vincent', 'Harald', '1979-03-13'},
+                ({[3003.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}>
+
+    >>> full_individual_port.delete(
+    ...     {'individual': [{'id': '3003'}, {'id': '3002'}, {'id': '3001'}, {'id': '3000'}]})
+    <Product {()}>
 
 

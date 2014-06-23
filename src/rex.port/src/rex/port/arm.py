@@ -316,6 +316,9 @@ def clarify(domains, values):
 
 class Missing(object):
 
+    def __nonzero__(self):
+        return False
+
     def __repr__(self):
         return "MISSING"
 
@@ -903,19 +906,35 @@ class TableArm(Arm):
         record = []
         index_by_arc = dict((arm.arc, index)
                             for index, arm in enumerate(self.arms.values()))
+        parent_arc = parent_value = None
+        if not isinstance(self, TrunkArm):
+            parent_arc = self.arc.reverse()
+            if self.is_plural:
+                parent_value = Reference(path[:-2])
+            else:
+                parent_value = Reference(path[:-1])
         for label in classify(self.node):
             arc = label.arc
             if not (isinstance(arc, ColumnArc) or
                     (isinstance(arc, ChainArc) and len(arc.joins) == 1 and
                      arc.joins[0].is_direct)):
                 continue
-            if arc in index_by_arc:
+            if arc == parent_arc:
+                value = parent_value
+            elif arc in index_by_arc:
                 index = index_by_arc[arc]
                 value = data[index+1]
             else:
                 value = MISSING
             record.append(value)
-        return [Cell(self.node, reference, id, record)]
+        cells = [Cell(self.node, reference, id, record)]
+        for name, arm in self.arms.items():
+            if isinstance(arm, TableArm):
+                index = index_by_arc[arm.arc]
+                value = data[index+1]
+                if value:
+                    cells.extend(arm.flatten(path+(name,), value))
+        return cells
 
 
 class TrunkArm(TableArm):
@@ -962,6 +981,14 @@ class BranchArm(TableArm):
         binding = super(BranchArm, self).bind(state, constraints)
         domain = ListDomain(binding.domain)
         return CollectBinding(state.scope, binding, domain, binding.syntax)
+
+    def adapt(self, data):
+        if data is None:
+            return []
+        if isinstance(data, list):
+            return [super(BranchArm, self).adapt(item)
+                    for item in data]
+        return [super(BranchArm, self).adapt(data)]
 
     def flatten(self, path, data):
         result = []

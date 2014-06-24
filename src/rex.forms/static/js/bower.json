@@ -1,0 +1,38 @@
+{
+  "name": "rex-forms",
+  "version": "0.19.0",
+  "description": "JavaScript functionality for the rex.forms framework",
+  "authors": [
+    "Prometheus Research, LLC"
+  ],
+  "private": true,
+  "main": "./lib/index.js",
+  "styleEntry": "./styles/index.less",
+  "dependencies": {
+    "react": "^0.10.0",
+    "react-forms": "https://github.com/prometheusresearch/react-forms.git#v0.3.3",
+    "emitter": "https://github.com/component/emitter.git#1.1.2",
+    "jscreole": "prometheusresearch/jscreole#inline-markup",
+    "assert": "*",
+    "mocha": "*"
+  },
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/prometheus/rex.forms"
+  },
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "rex",
+    "forms"
+  ],
+  "license": "AGPLv3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

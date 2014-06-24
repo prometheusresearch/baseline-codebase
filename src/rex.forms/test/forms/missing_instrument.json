@@ -1,0 +1,20 @@
+{
+    "defaultLocalization": "en",
+    "pages": [
+        {
+            "id": "page1",
+            "elements": [
+                {
+                    "type": "question",
+                    "options": {
+                        "fieldId": "q_fake",
+                        "text": {
+                            "en": "How do you feel today?"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
+

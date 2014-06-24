@@ -1,0 +1,19 @@
+{
+  "name": "rex-forms-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "moduleType": [
+    "node"
+  ],
+  "dependencies": {
+    "bootstrap": "*"
+  },
+  "license": "AGPLv3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

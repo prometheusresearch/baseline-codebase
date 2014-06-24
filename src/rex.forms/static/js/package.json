@@ -1,0 +1,16 @@
+{
+  "name": "rex.forms",
+  "version": "0.19.0",
+  "description": "JavaScript functionality for the rex.forms framework",
+  "author": "Prometheus Research, LLC",
+  "license": "AGPLv3",
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/prometheus/rex.forms"
+  },
+  "main": "lib/index.js",
+  "devDependencies": {
+    "eslint-jsx": "git+https://github.com/andreypopp/eslint#jsx",
+    "mocha-loader": "^0.6.4"
+  }
+}

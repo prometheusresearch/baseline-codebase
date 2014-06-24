@@ -1,0 +1,46 @@
+{% extends "rex.forms_demo:/templates/base.html" %}
+{% block body %}
+  <div id="form"></div>
+  <div id="assessment"></div>
+{% endblock %}
+{% block script %}
+  var FORM = {{form}};
+  var INSTRUMENT = {{instrument}};
+
+  var form = RexForms.render({
+    element: document.getElementById('form'),
+    form: FORM,
+    instrument: INSTRUMENT,
+    showOverview: {% if overview %}true{% else %}false{% endif %},
+    readOnly: {% if read_only %}true{% else %}false{% endif %}
+  });
+
+  var Assessment = React.createClass({
+
+    render: function() {
+      return React.DOM.pre({className: 'Assessment'},
+        JSON.stringify(this.props.assessment, null, 2)
+      );
+    }
+  });
+
+  function renderAssessment(assessment) {
+    React.renderComponent(
+      Assessment({assessment: assessment}),
+      document.getElementById('assessment')
+    );
+  }
+
+  form.on('change', function() {
+    console.log('change');
+  });
+  form.on('update', function(assessment, isValid) {
+    console.log('update', 'isValid:', isValid);
+    renderAssessment(assessment);
+  });
+  form.on('complete', function(assessment) {
+    console.log('complete');
+  });
+
+  renderAssessment(form.getAssessment());
+{% endblock %}

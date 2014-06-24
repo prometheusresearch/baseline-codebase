@@ -1,16 +1,27 @@
-***********************
-REX.FORMS Release Notes
-***********************
+********************
+REX.FORMS Change Log
+********************
+
+.. contents:: Table of Contents
 
 
-0.11.2
-======
+0.19.0 (6/24/2014)
+===================
+
+- Added a series of interface and utility classess, to mirror and function with
+  those defined in ``rex.instrument``.
+- Changed structure of Form JSON representation.
+- Complete rewrite of form rendering library.
+
+
+0.11.2 (6/17/2014)
+==================
 
 - Tightened the version bounds on rex.expression.
 
 
-0.11.1
-======
+0.11.1 (6/2/2014)
+=================
 
 - Changed how the REXL/rex.expression library was referenced.
 

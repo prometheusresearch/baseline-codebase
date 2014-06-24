@@ -1,0 +1,305 @@
+@import "~bootstrap/less/bootstrap";
+
+@questionIndent: 20px;
+
+@colorTextError: #b94a48;
+@colorTextMinor: #999999;
+@colorTextDisabled: #cccccc;
+
+@colorBg: #ffffff;
+@colorBgHover: #fafafa;
+
+@padding: 0.5em;
+@paddingSmall: 0.25em;
+@paddingLarge: 1em;
+
+/**
+ * Form styling
+ */
+
+.rex-forms-Form__toolbar {
+  margin-top: @padding * 2;
+  margin-bottom: @padding;
+}
+
+.rex-forms-Form__complete {
+  .btn();
+  .btn-success();
+}
+
+.rex-forms-Form__info {
+  padding: @padding;
+  color: @colorTextDisabled;
+}
+
+.rex-forms-PageNavigation {
+  margin-top: @padding * 2;
+  margin-bottom: @padding;
+}
+
+.rex-forms-PageNavigation__next {
+  text-align: right;
+}
+
+.rex-forms-Pagination {
+  margin: 0;
+
+  li a.disabled {
+    color: @colorTextDisabled;
+    cursor: default;
+    &:hover {
+      background-color: white;
+    }
+  }
+}
+
+.rex-forms-NavigationButton {
+  .btn();
+  .btn-default();
+}
+
+/**
+
+ * Elements styling
+ */
+
+.rex-forms-Element {
+  padding: @paddingLarge;
+  border-top: 1px solid @colorBgHover;
+}
+
+.rex-forms-Element:last-child {
+  border-bottom: 1px solid @colorBgHover;
+}
+
+.rex-forms-Divider:last-child {
+  border-bottom: none;
+}
+
+.rex-forms-Divider + .rex-forms-Element,
+.rex-forms-Divider + .rex-forms-EditableQuestionWrapper .rex-forms-Element,
+.rex-forms-Divider {
+  border-top: none;
+}
+
+.rex-forms-Divider {
+  padding: 0;
+  hr {
+    margin: 0;
+    border-top: 1px solid #b1b1b1;
+  }
+}
+
+/**
+ * Widgets styling
+ */
+
+.rex-forms-required-mixin {
+  &::before {
+    content: '* ';
+    color: red;
+  }
+}
+
+.rex-forms-Widget {
+}
+
+.rex-forms-Widget--error {
+  .rex-forms-Widget__label,
+  .rex-forms-Widget__help,
+  .rex-forms-Widget__input,
+  .rex-forms-Widget__error {
+    color: @colorTextError;
+  }
+}
+
+.rex-forms-Widget--required .rex-forms-Widget__label {
+  .rex-forms-required-mixin();
+}
+
+.rex-forms-Widget__label {
+  margin-bottom: @padding / 2;
+}
+
+.rex-forms-Widget__help {
+  padding: @paddingSmall 0;
+  color: @colorTextMinor;
+}
+
+.rex-forms-Widget__error {
+  padding: @paddingSmall 0;
+}
+
+.rex-forms-Widget__input {
+  .width-small {
+      width: 25%;
+  }
+  .width-medium {
+      width: 50%;
+  }
+  .width-large {
+      width: 100%;
+  }
+
+  .height-small {
+      height: 7em;
+  }
+  .height-medium {
+      height: 12em;
+  }
+  .height-large {
+      height: 25em;
+  }
+
+  select {
+      width: auto;
+      max-width: 50%;
+  }
+}
+
+.rex-forms-ItemLabel {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.rex-forms-ItemLabel__label,
+.rex-forms-ItemLabel__help {
+  display: block;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.rex-forms-ItemLabel__label {
+  font-weight: bold;
+}
+
+.rex-forms-ItemLabel__help {
+  font-size: 90%;
+  color: @colorTextMinor;
+}
+
+.rex-forms-explanation,
+.rex-forms-annotation {
+    margin-left: 0;
+}
+
+.rex-forms-radioGroup__option,
+.rex-forms-checkGroup__option {
+  margin-left: @questionIndent;
+  margin-bottom: 5px;
+
+  input {
+    margin-right: 10px;
+    cursor: pointer;
+  }
+
+  input {
+    display: inline-block;
+    vertical-align: top;
+  }
+}
+
+/**
+ * recordList
+ */
+
+.rex-forms-recordList__remove {
+  margin: @padding;
+}
+.rex-forms-recordList__add {
+  .btn();
+  .btn-default();
+  .btn-sm ();
+  margin-top: @padding;
+}
+
+/**
+ * matrix
+ */
+.rex-forms-matrix {
+  display: table;
+  width: 100%;
+}
+
+.rex-forms-matrixRow,
+.rex-forms-matrixHeaderRow {
+  display: table-row;
+
+  .rex-forms-Question {
+    border: none;
+    margin: 0;
+  }
+}
+.rex-forms-matrixHeaderRow__label {
+  padding: @padding;
+}
+
+.rex-forms-matrixRow__cell,
+.rex-forms-matrixHeaderRow__cell {
+  display: table-cell;
+  vertical-align: top;
+}
+
+.rex-forms-matrixRow__label {
+  padding: @padding;
+}
+
+.rex-forms-matrixHeaderRow__cell--required .rex-forms-ItemLabel__label {
+  .rex-forms-required-mixin();
+}
+
+.rex-forms-value {
+  padding: 10px 0;
+}
+
+.rex-forms-value__novalue {
+  font-size: 90%;
+  color: #aaa;
+}
+
+/**
+ * FormOverview
+ */
+
+.rex-forms-FormOverview {
+
+}
+
+.rex-forms-FormOverview__note {
+  .well();
+  margin-bottom: @paddingLarge;
+}
+
+.rex-forms-EditableQuestionWrapper {
+  position: relative;
+}
+
+.rex-forms-EditableQuestionWrapper:hover {
+  background-color: @colorBgHover;
+}
+
+.rex-forms-EditableQuestionWrapper__button {
+  .btn();
+  .btn-default();
+  .btn-xs();
+}
+
+.rex-forms-EditableQuestionWrapper__toolbar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  button {
+    margin-left: 5px;
+  }
+}
+
+/**
+ * Print styles
+ */
+@media print {
+  .rex-forms-Form__toolbar,
+  .rex-forms-EditableQuestionWrapper__toolbar {
+    display: none;
+  }
+}

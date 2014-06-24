@@ -487,6 +487,12 @@ class RootArm(Arm):
     def adapt(self, data):
         if data is None:
             return tuple(arm.adapt(None) for arm in self.arms.values())
+        if isinstance(data, list):
+            trunks = [name for name, arm in self.items()
+                           if isinstance(arm, TrunkArm)]
+            if len(trunks) == 1:
+                [name] = trunks
+                data = {name: data}
         if isinstance(data, dict):
             record = []
             for name, arm in self.items():

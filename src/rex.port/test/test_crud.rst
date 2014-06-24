@@ -1,4 +1,8 @@
 
+*******************
+  CRUD Operations
+*******************
+
 Python API::
 
     >>> from rex.core import Rex

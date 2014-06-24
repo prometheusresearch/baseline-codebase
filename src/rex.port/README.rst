@@ -29,13 +29,13 @@ R43MH099826.
 Database Schema Graph
 =====================
 
-For the purpose of describing how ``rex.port`` works, we will use a sample
+For the purpose of describing how ``rex.port`` works, we will use a simple
 database schema that describes individuals participating in medical studies.
-Information about research subjects is stored in the table ``individual``,
-with PHI data being separated in a table ``identity``.
-Research studies are stored in table ``study``.  Each study have a number
-of protocols, which describe the roles of individuals participating in studies.
-Finally, table ``participation`` link individuals to study protocols.
+Information about research subjects is stored in table ``individual``, with PHI
+data stored separately in table ``identity``.  Research studies are stored in
+table ``study``.  Each study has a number of protocols, which describe the
+roles of individuals participating in studies.  Finally, table
+``participation`` connect individuals to study protocols.
 
 The following diagram describes the schema::
 
@@ -310,12 +310,11 @@ all of the following expressions define the same port::
     - entity: participation
       select: [code, protocol]
 
-Sometimes you may want to extract only a subset of all records
-in the table.  For this purpose, use attribute ``mask`` when you
-define the entity.
+Sometimes you may want to extract only a subset of all records in the table.
+For this purpose, use attribute ``mask`` when you define the entity.
 
-For example, to limit the list of ``individual`` to ``proband`` from
-the ``fos`` study, you can define a port as follows::
+For example, to limit the list of ``individual`` to ``proband`` from the
+``fos`` study, you can define a port as follows::
 
     >>> proband_port = Port("""
     ... - entity: individual
@@ -365,8 +364,8 @@ A port object can also respond to HTTP queries::
     }
     <BLANKLINE>
 
-Sometimes you may wish to get a subset of all the records.  You can do it
-by adding a filter to the query.  For example, to get the first 5 ``individual``
+Sometimes you may wish to get a subset of all the records.  You can do it by
+adding a filter to the query.  For example, to get the first 5 ``individual``
 records from ``individual_port``, write::
 
     >>> print individual_port.produce("individual:top=5")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
@@ -398,5 +397,148 @@ To select a specific individual, use the following filter::
 
 CRUD Interface
 ==============
+
+A port could also be used to modify data in the database.  To change the
+content of the port, you need to submit two data slices: *old* and *new*.
+:mod:`rex.port` will find the *old* slice in the database and replace it with
+the content of the *new* slice.
+
+For example, the following query sets the ``closed`` flag on the ``[fos]`` study::
+
+    >>> study_port.replace(
+    ...     {'study': {
+    ...         'id': 'fos',
+    ...         'code': 'fos',
+    ...         'title': 'Family Obesity Study',
+    ...         'closed': False } },
+    ...     {'study': {
+    ...         'id': 'fos',
+    ...         'closed': True } })
+    <Product {({[fos], 'fos', 'Family Obesity Study', true},)}>
+
+In this query, we tell :mod:`rex.port` to find record ``study[fos]``, verify
+that the values of the record fields ``code``, ``title`` and ``closed`` match
+the values given in the query, and then change the value of field ``closed`` to
+``True``.  The query returns the updated ``study`` record.
+
+One can also submit a CRUD query as an HTTP POST request.  The request should
+contain two POST parameters: ``old`` and ``new``::
+
+    >>> req = Request.blank('/', content_type='multipart/form-data; boundary=boundary', accept='x-htsql/json',
+    ...     POST={
+    ...         'old': '''{"study": {"id": "fos", "code": "fos", "title": "Family Obesity Study", "closed": true}}''',
+    ...         'new': '''{"study": {"id": "fos", "code": "fos", "title": "Family Obesity Study", "closed": false}}''',
+    ...     })
+    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "study": [
+        {
+          "id": "fos",
+          "code": "fos",
+          "title": "Family Obesity Study",
+          "closed": false
+        }
+      ]
+    }
+
+:mod:`rex.port` uses the ``id`` field to match the records in the *old* and
+*new* slices.  The *old* slice may contain fields other than ``id``, in which
+case, the supplied field values are compared with the actual data in the
+database.  If there is any discrepancy, an error is reported.
+
+The output of the query contains the data from the changed records.
+
+To add a new record to the database, include it to the *new* slice without the
+``id`` field.  The port will insert it into the database and return it in the
+output::
+
+    >>> study_port.replace(
+    ...     None,
+    ...     {'study': {
+    ...         'code': 'sds',
+    ...         'title': 'Sleep Disorder Study',
+    ...         'closed': False}})
+    <Product {({[sds], 'sds', 'Sleep Disorder Study', false},)}>
+
+To delete a record, add it to the *old* slice, but omit it from the *new*
+slice::
+
+    >>> study_port.replace(
+    ...     {'study': {'id': 'sds'}},
+    ...     None)
+    <Product {()}>
+
+Since these operations are so common, :mod:`rex.port` provides shortcut methods
+for inserting, updating and deleting records::
+
+    >>> study_port.insert([
+    ...     {'code': 'sds', 'title': 'Sleep Disorder Study', 'closed': False}])
+    <Product {({[sds], 'sds', 'Sleep Disorder Study', false},)}>
+
+    >>> study_port.update([
+    ...     {'id': 'sds', 'closed': True}])
+    <Product {({[sds], 'sds', 'Sleep Disorder Study', true},)}>
+
+    >>> study_port.delete([
+    ...     {'id': 'sds'}])
+    <Product {()}>
+
+When you add multiple records in one query, you often need to connect newly
+created records.  Since the ``id`` field of the new record is not known,
+:mod:`rex.port` allows you to specify link values in `JSON Pointer`_ format.
+
+In the following example, we add a family of individuals.  Notice how records
+of the children are linked to the parental records::
+
+    >>> individual_port.insert(
+    ...     {'individual': [{'code': '2000', 'sex': 'male'},
+    ...                     {'code': '2001', 'sex': 'female'},
+    ...                     {'code': '2002', 'sex': 'male', 'mother': '#/individual/1', 'father': '#/individual/0'},
+    ...                     {'code': '2003', 'sex': 'female', 'mother': '#/individual/1', 'father': '#/individual/0'}]})
+    ...     # doctest: +NORMALIZE_WHITESPACE
+    <Product {({[2000], '2000', 'male', null, null, null, ()},
+              {[2001], '2001', 'female', null, null, null, ()},
+              {[2002], '2002', 'male', [2001], [2000], null, ()},
+              {[2003], '2003', 'female', [2001], [2000], null, ()})}>
+
+CRUD operations are not limited to top-level tables; you can insert a slice
+that includes a set of records with subrecords.  For example::
+
+    >>> individual_port.insert(
+    ...     {'individual': [
+    ...         {'code': '3000', 'sex': 'male',
+    ...          'identity': {'givenname': 'Nikolaus', 'surname': 'Harald', 'birthdate': '1951-12-04'},
+    ...          'participation': {'protocol': 'fos.father', 'code': '1'}},
+    ...         {'code': '3001', 'sex': 'female',
+    ...          'identity': {'givenname': 'Nora', 'surname': 'Karin', 'birthdate': '1954-05-15'},
+    ...          'participation': {'protocol': 'fos.mother', 'code': '1'}},
+    ...         {'code': '3002', 'sex': 'female', 'father': '#/individual/0', 'mother': '#/individual/1',
+    ...          'identity': {'givenname': 'Janne', 'surname': 'Harald', 'birthdate': '1976-07-25'},
+    ...          'participation': {'protocol': 'fos.proband', 'code': '1'}},
+    ...         {'code': '3003', 'sex': 'male', 'father': '#/individual/0', 'mother': '#/individual/1',
+    ...          'identity': {'givenname': 'Vincent', 'surname': 'Harald', 'birthdate': '1979-03-13'},
+    ...          'participation': {'protocol': 'fos.unaffected-sib', 'code': '1'}}]})
+    ...     # doctest: +NORMALIZE_WHITESPACE
+    <Product {({[3000], '3000', 'male', null, null,
+                {[3000], 'Nikolaus', 'Harald', '1951-12-04'},
+                ({[3000.(fos.father).1], '1', [fos.father]},)},
+               {[3001], '3001', 'female', null, null,
+                {[3001], 'Nora', 'Karin', '1954-05-15'},
+                ({[3001.(fos.mother).1], '1', [fos.mother]},)},
+               {[3002], '3002', 'female', [3001], [3000],
+                {[3002], 'Janne', 'Harald', '1976-07-25'},
+                ({[3002.(fos.proband).1], '1', [fos.proband]},)},
+               {[3003], '3003', 'male', [3001], [3000],
+                {[3003], 'Vincent', 'Harald', '1979-03-13'},
+                ({[3003.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}>
+
+    >>> individual_port.delete([{'id': '2000'}, {'id': '2001'}, {'id': '2002'}, {'id': '2003'},
+    ...                         {'id': '3000'}, {'id': '3001'}, {'id': '3002'}, {'id': '3003'}])
+    <Product {()}>
+
+
+.. _JSON Pointer: http://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-09
 
 

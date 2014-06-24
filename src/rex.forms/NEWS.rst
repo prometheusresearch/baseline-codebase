@@ -5,8 +5,14 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.19.1 (6/24/2014)
+==================
+
+- Packaging fix.
+
+
 0.19.0 (6/24/2014)
-===================
+==================
 
 - Added a series of interface and utility classess, to mirror and function with
   those defined in ``rex.instrument``.

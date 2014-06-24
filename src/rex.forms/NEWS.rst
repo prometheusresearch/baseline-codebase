@@ -5,10 +5,10 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.19.1 (6/24/2014)
-==================
+0.19.1-2 (6/24/2014)
+====================
 
-- Packaging fix.
+- Packaging fixes.
 
 
 0.19.0 (6/24/2014)

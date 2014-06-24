@@ -5,6 +5,12 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.9.1 (6/24/2014)
+=================
+
+- Packaging fix.
+
+
 0.9.0 (6/24/2014)
 ==================
 

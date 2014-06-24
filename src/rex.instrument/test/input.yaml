@@ -1,17 +1,40 @@
 #
-# Copyright (c) 2013, Prometheus Research, LLC
+# Copyright (c) 2014, Prometheus Research, LLC
 #
 
-title: REX.INSTRUMENT 
-suite: rex.instrument
+title: REX.INSTRUMENT
 tests:
+  - coverage: setup.cfg
 
-- coverage: setup.cfg
+  - sh: pip install -q -e ./demo/rex.instrument_demo
 
-- doctest: README.rst
-- doctest: test/test_instrument.rst
-- doctest: test/test_assessment.rst
+  - doctest: README.rst
+  - doctest: test/test_*.rst
 
-- coverage-check: 90.0
-- coverage-report: ./build/coverage
+  - instrumentversions: test/instruments/*.json
+  - assessments: test/assessments/*.json
+
+  - title: rex instrument-validate
+    tests:
+      - sh: rex instrument-validate test/instruments/simplest.json
+      - sh: rex instrument-validate test/instruments/missing_title.json
+        exit: 1
+      - sh: rex instrument-validate /tmp/does/not/actually/exist.json
+        exit: 1
+      - sh: rex instrument-validate
+        exit: 1
+
+  # Without actually implementing the interface fully, it's rather hard to
+  # test these.
+  #- title: rex instrument-retrieve
+  #  tests:
+  #    - sh: rex instrument-retrieve someinstrument
+  #- title: rex instrument-store
+  #  tests:
+  #    - sh: rex instrument-store someinstrument mydefinition.json
+
+  - sh: pip uninstall -q -y rex.instrument_demo
+
+  - coverage-check: 90.0
+  - coverage-report: ./build/coverage
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013, Prometheus Research, LLC
+# Copyright (c) 2014, Prometheus Research, LLC
 #
 
 
@@ -8,22 +8,30 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.instrument',
-    version='0.2.0',
-    description="Instrument/Assessment model",
+    version='0.9.0',
+    description='Class interfaces and framework for using EDC components',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
     maintainer_email='contact@prometheusresearch.com',
     license='AGPLv3',
     url='https://bitbucket.org/prometheus/rex.instrument',
-    packages=find_packages('src'),
     package_dir={'': 'src'},
+    packages=find_packages('src'),
     include_package_data=True,
     namespace_packages=['rex'],
-    install_requires=[
-        'rex.core>=1,<2',
-        'rex.validate>=0.2,<2',
-        'HTSQL>=2.3.3,<3',
-        'simplejson',
+    entry_points={
+        'rex.ctl': [
+            'instrument = rex.instrument.ctl',
+        ],
+    },
+    setup_requires=[
+        'rex.setup>=1.0,<2',
     ],
+    install_requires=[
+        'rex.core>=1.1,<2',
+        'jsonschema>=2.3,<3',
+        'rfc3987>=1.3.3,<2',
+    ],
+    rex_init='rex.instrument',
 )
 

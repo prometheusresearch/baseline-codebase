@@ -1,0 +1,11 @@
+{
+    "id": "urn:test-instrument",
+    "title": "The InstrumentVersion Title",
+    "record": [
+        {
+            "id": "q_fake",
+            "type": "text"
+        }
+    ]
+}
+

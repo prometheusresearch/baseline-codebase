@@ -1,0 +1,398 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+
+    "id": "http://rexdb.com/instrument/0.5.0#",
+    "title": "Common Instrument Definition",
+
+    "definitions": {
+        "identifierType": {
+            "type": "string",
+
+            "pattern": "^[a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9]$"
+        },
+
+        "simpleDataType": {
+            "enum": [
+                "float",
+                "integer",
+                "text",
+                "enumeration",
+                "enumerationSet",
+                "boolean",
+                "date",
+                "time",
+                "dateTime"
+            ]
+        },
+
+        "complexDataType": {
+            "enum": [
+                "recordList",
+                "matrix"
+            ]
+        },
+
+        "standardDataType": {
+            "oneOf": [
+                { "$ref": "#definitions/simpleDataType" },
+                { "$ref": "#definitions/complexDataType" }
+            ]
+        },
+
+        "customDataType": {
+            "type": "string",
+
+            "pattern": "^(?!(text|integer|float|boolean|enumeration|enumerationSet|date|time|dateTime|recordList|matrix)$)[a-zA-Z0-9]+$"
+        },
+
+        "requiredOptionalType": {
+            "enum": [
+                "required",
+                "optional",
+                "none"
+            ]
+        },
+
+        "timeBoundConstraintType": {
+            "type": "object",
+
+            "properties": {
+                "min": {
+                    "type": "string",
+                    "pattern": "^(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$"
+                },
+
+                "max": {
+                    "type": "string",
+                    "pattern": "^(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$"
+                }
+            },
+
+            "minProperties": 1,
+
+            "additionalProperties": false
+        },
+
+        "dateBoundConstraintType": {
+            "type": "object",
+
+            "properties": {
+                "min": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])$"
+                },
+
+                "max": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])$"
+                }
+            },
+
+            "minProperties": 1,
+
+            "additionalProperties": false
+        },
+
+        "dateTimeBoundConstraintType": {
+            "type": "object",
+
+            "properties": {
+                "min": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])T(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$"
+                },
+
+                "max": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])T(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$"
+                }
+            },
+
+            "minProperties": 1,
+
+            "additionalProperties": false
+        },
+
+        "numericBoundConstraintType": {
+            "type": "object",
+
+            "properties": {
+                "min": {
+                    "type": "number"
+                },
+
+                "max": {
+                    "type": "number"
+                }
+            },
+
+            "minProperties": 1,
+
+            "additionalProperties": false
+        },
+
+        "enumerationType": {
+            "type": "object",
+
+            "properties": {
+                "description": {
+                    "type": "string"
+                }
+            },
+
+            "additionalProperties": false
+        },
+
+        "fieldType": {
+            "type": "object",
+
+            "properties": {
+                "id": {
+                    "$ref": "#definitions/identifierType"
+                },
+
+                "description": {
+                    "type": "string"
+                },
+
+                "type": {
+                    "oneOf": [
+                        { "$ref": "#/definitions/typeDefinitionType" },
+                        { "$ref": "#/definitions/simpleDataType" },
+                        { "$ref": "#/definitions/customDataType" }
+                    ]
+                },
+
+                "required": {
+                    "type": "boolean"
+                },
+
+                "annotation": {
+                    "$ref": "#definitions/requiredOptionalType"
+                },
+
+                "explanation": {
+                    "$ref": "#definitions/requiredOptionalType"
+                }
+            },
+
+            "required": [
+                "id",
+                "type"
+            ],
+
+            "additionalProperties": false
+        },
+
+        "recordType": {
+            "type": "array",
+
+            "items": {
+                "$ref": "#/definitions/fieldType"
+            },
+
+            "minItems": 1,
+
+            "additionalItems": false
+        },
+
+        "rowType": {
+            "type": "object",
+
+            "properties": {
+                "id": {
+                    "$ref": "#definitions/identifierType"
+                },
+
+                "description": {
+                    "type": "string"
+                },
+
+                "required": {
+                    "type": "boolean"
+                }
+            },
+
+            "required": [
+                "id"
+            ],
+
+            "additionalProperties": false
+        },
+
+        "rowListType": {
+            "type": "array",
+
+            "items": {
+                "$ref": "#/definitions/rowType"
+            },
+
+            "minItems": 1,
+
+            "additionalItems": false
+        },
+
+        "columnType": {
+            "type": "object",
+
+            "properties": {
+                "id": {
+                    "$ref": "#definitions/identifierType"
+                },
+
+                "description": {
+                    "type": "string"
+                },
+
+                "type": {
+                    "oneOf": [
+                        { "$ref": "#/definitions/typeDefinitionType" },
+                        { "$ref": "#/definitions/simpleDataType" },
+                        { "$ref": "#/definitions/customDataType" }
+                    ]
+                },
+
+                "required": {
+                    "type": "boolean"
+                }
+            },
+
+            "required": [
+                "id",
+                "type"
+            ],
+
+            "additionalProperties": false
+        },
+
+        "columnListType": {
+            "type": "array",
+
+            "items": {
+                "$ref": "#/definitions/columnType"
+            },
+
+            "minItems": 1,
+
+            "additionalItems": false
+        },
+
+        "typeDefinitionType": {
+            "type": "object",
+
+            "properties": {
+                "base": {
+                    "oneOf": [
+                        { "$ref": "#/definitions/standardDataType" },
+                        { "$ref": "#/definitions/customDataType" }
+                    ]
+                },
+
+                "range": {
+                    "oneOf": [
+                        { "$ref": "#/definitions/numericBoundConstraintType" },
+                        { "$ref": "#/definitions/dateBoundConstraintType" },
+                        { "$ref": "#/definitions/timeBoundConstraintType" },
+                        { "$ref": "#/definitions/dateTimeBoundConstraintType" }
+                    ]
+                },
+
+                "length": {
+                    "$ref": "#/definitions/numericBoundConstraintType"
+                },
+
+                "pattern": {
+                    "type": "string",
+                    "minLength": 1
+                },
+
+                "enumerations": {
+                    "type": "object",
+
+                    "patternProperties": {
+                        "^[a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9]$": {
+                            "$ref": "#/definitions/enumerationType"
+                        }
+                    },
+
+                    "minProperties": 1,
+
+                    "additionalProperties": false
+                },
+
+                "record": {
+                    "$ref": "#/definitions/recordType"
+                },
+
+                "columns": {
+                    "$ref": "#/definitions/columnListType"
+                },
+
+                "rows": {
+                    "$ref": "#/definitions/rowListType"
+                }
+            },
+
+            "required": [
+                "base"
+            ],
+
+            "additionalProperties": false
+        },
+
+        "typeCollectionType": {
+            "type": "object",
+
+            "patternProperties": {
+                "^(?!(text|integer|float|boolean|enumeration|enumerationSet|date|time|dateTime|recordList|matrix)$)[a-zA-Z0-9]+$": {
+                    "$ref": "#/definitions/typeDefinitionType"
+                }
+            },
+
+            "minProperties": 1,
+
+            "additionalProperties": false
+        }
+    },
+
+    "type": "object",
+
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uri"
+        },
+
+        "version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+$"
+        },
+
+        "title": {
+            "type": "string",
+            "minLength": 1
+        },
+
+        "description": {
+            "type": "string"
+        },
+
+        "types": {
+            "$ref": "#/definitions/typeCollectionType"
+        },
+
+        "record": {
+            "$ref": "#/definitions/recordType"
+        }
+    },
+
+    "required": [
+        "id",
+        "version",
+        "title",
+        "record"
+    ],
+
+    "additionalProperties": false
+}
+

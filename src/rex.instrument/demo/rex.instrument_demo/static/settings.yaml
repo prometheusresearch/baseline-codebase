@@ -1,0 +1,7 @@
+instrument_implementation:
+    user: rex.instrument_demo.MyUser
+    subject: rex.instrument_demo.MySubject
+    instrument: rex.instrument_demo.MyInstrument
+    instrumentversion: rex.instrument_demo.MyInstrumentVersion
+    assessment: rex.instrument_demo.MyAssessment
+

@@ -1,0 +1,22 @@
+{
+    "id": "urn:test-instrument",
+    "version": "1.1",
+    "title": "The InstrumentVersion Title",
+    "types": {
+        "myCustomType": {
+            "base": "text",
+            "pattern": "[a-z]+"
+        }
+    },
+    "record": [
+        {
+            "id": "q_fake",
+            "type": "text"
+        },
+        {
+            "id": "q_blah",
+            "type": "myCustomType"
+        }
+    ]
+}
+

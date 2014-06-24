@@ -1,0 +1,38 @@
+{
+    "id": "urn:test-instrument",
+    "version": "1.1",
+    "title": "The InstrumentVersion Title",
+    "record": [
+        {
+            "id": "q_fake",
+            "type": "text"
+        },
+        {
+            "id": "q_foo",
+            "type": {
+                "base": "matrix",
+                "columns": [
+                    {
+                        "id": "q_fake",
+                        "type": "text",
+                        "required": true
+                    },
+                    {
+                        "id": "foobar",
+                        "type": {
+                            "base": "integer",
+                            "range": { "min": 10 }
+                        }
+                    }
+                ],
+                "rows": [
+                    {
+                        "id": "somerow",
+                        "required": true
+                    }
+                ]
+            }
+        }
+    ]
+}
+

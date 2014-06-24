@@ -95,3 +95,56 @@ Settings
     When a key is not specified, ``rex.instrument`` will use the ``top()``-most
     implementation that exists in the application instance.
 
+
+Command Line Tools
+==================
+
+This package contains a series of command line tools (exposed via ``rex.ctl``):
+
+
+instrument-retrieve
+-------------------
+
+This tool will retrieve a Common Instrument Definition from the datastore and
+print it to standard out. You can use the ``--output`` option to send the
+output to a file. The ``instrument-uid`` parameter is the Unique ID (UID) of
+the Instrument to retrieve. By default, it will retrieve the latest version of
+the Instrument, unless the ``--version`` option is used.
+
+This tool requires that an implementation of the ``rex.instrument`` interfaces
+be installed and referenced by the project or ``rex.yaml``.
+
+::
+
+  rex instrument-retrieve <instrument-uid> [<project>]
+
+
+instrument-store
+----------------
+
+This tool will store a Common Instrument Definition file to the datastore. The
+``instrument-uid`` parameter is the UID to store the Instrument under (it can
+be existing or new). The ``definition`` parameter is the path to a JSON file
+containing the Common Instrument Definition to store. By default, the defition
+will be stored as a new version under the UID, unless the ``--version`` option
+is used.
+
+This tool requires that an implementation of the ``rex.instrument`` interfaces
+be installed and referenced by the project or ``rex.yaml``.
+
+::
+
+  rex instrument-store <instrument-uid> <definition> [<project>]
+
+
+instrument-validate
+-------------------
+
+This tool will validate the structure of a JSON file against the rules and
+schema of the Common Instrument Definition format. The ``definition`` argument
+is the path to the JSON file to validate.
+
+::
+
+  rex instrument-validate <definition>
+

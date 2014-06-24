@@ -51,6 +51,13 @@ Task
     ``rex.instrument``) that tells the system to prompt the User to complete
     the specified Form.
 
+Entry
+    This class represents a preliminary or historical version of an Assessment
+    (from ``rex.instrument``) that is used in a multiple-data-entry application
+    to capture the separate instances of the data prior to reconcilation, or is
+    used to record the previous revisions of an Assessment if it is modified
+    after completion.
+
 
 Format Validation
 =================
@@ -77,13 +84,14 @@ Settings
     * channel
     * form
     * task
+    * entry
 
     When a key is not specified, ``rex.forms`` will use the ``top()``-most
     implementation that exists in the application instance.
 
 
-JavaScript Implementation
-=========================
+JavaScript Components
+=====================
 
 Using Rex Forms inside application
 ----------------------------------
@@ -185,4 +193,60 @@ where available events are:
 
 ``page(page, pageIndex, form)``
   Page transition happened.
+
+
+Command Line Tools
+==================
+
+This package contains a series of command line tools (exposed via ``rex.ctl``):
+
+
+forms-retrieve
+--------------
+
+This tool will retrieve a Web Form Configuration from the datastore and
+print it to standard out. You can use the ``--output`` option to send the
+output to a file. The ``instrument-uid`` parameter is the Unique ID (UID) of
+the Instrument the desired Form is associated with, and ``channel-uid`` is the
+UID of the Channel the desired Form is associated with. By default, it will
+retrieve the Form for the latest version of the Instrument, unless the
+``--version`` option is used.
+
+This tool requires that an implementation of the ``rex.forms`` interfaces
+be installed and referenced by the project or ``rex.yaml``.
+
+::
+
+    rex forms-retrieve <instrument-uid> <channel-uid> [<project>]
+
+
+forms-store
+-----------
+
+This tool will store a Web Form Configuration file to the datastore. The
+``instrument-uid`` parameter is the UID of the Instrument to associate the Form
+with, and the ``channel-uid`` parameter is the UID of the Channel to associate
+the Form with. The ``configuration`` parameter is the path to a JSON file
+containing the Web Form Configuration to store. By default, the configuration
+will be associated with the latest version of the Instrument, unless the
+``--version`` option is used.
+
+This tool requires that an implementation of the ``rex.forms`` interfaces
+be installed and referenced by the project or ``rex.yaml``.
+
+::
+
+    rex forms-store <instrument-uid> <channel-uid> <configuration> [<project>]
+
+
+forms-validate
+-------------------
+
+This tool will validate the structure of a JSON file against the rules and
+schema of the Web Form Configuration format. The ``configuration`` argument
+is the path to the JSON file to validate.
+
+::
+
+    rex forms-validate <configuration>
 

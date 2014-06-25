@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='2.0.3',
+    version='2.0.4',
     description='A GUI for constructing RexAcquire Forms',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
@@ -25,13 +25,13 @@ setup(
     install_requires=[
         'rex.core>=1.6.0,<2',
         'rex.web>=2.1.0,<3',
-        'rex.vendor>=1.5.0,<2',
+        'rex.vendor>=1.5.0,<3',
         'HTSQL>=2.3.3,<3',
         'rex.forms>=0.11.1,<0.19',
         'rex.instrument>=0.1.7,<0.9',
         'rex.rdoma>=0.13.2,<2',
         'simplejson',
-        'rex.application>=0.4.1,<1'
+        'rex.application>=0.4.1,<2'
     ],
     rex_init='rex.formbuilder',
     rex_static='static',

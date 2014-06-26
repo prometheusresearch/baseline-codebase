@@ -3,6 +3,7 @@
 *************************
 
 .. contents:: Table of Contents
+.. role:: mod(literal)
 
 
 Overview
@@ -32,7 +33,7 @@ R43MH099826.
 Usage
 =====
 
-To use ``rex.setup``, add the following lines to ``setup.py``::
+To use :mod:`rex.setup`, add the following lines to ``setup.py``::
 
     setup(
         ...
@@ -52,8 +53,8 @@ To use ``rex.setup``, add the following lines to ``setup.py``::
 
     The value of this parameter is stored in ``*.egg-info/rex_init.txt`` file.
 
-    For example, package ``rex.setup_demo`` contains some RexDB extensions, and
-    so it should specify in ``setup.py``::
+    For example, package :mod:`rex.setup_demo` contains some RexDB extensions,
+    and so it should specify in ``setup.py``::
 
         setup(
             name='rex.setup_demo',
@@ -97,8 +98,8 @@ To use ``rex.setup``, add the following lines to ``setup.py``::
     The value of this parameter is stored in ``*.egg-info/rex_bundle.txt``
     file.
 
-    In this example, the package downloads JQuery_ and `Twitter Bootstrap`_
-    as well as generates a JavaScript bundle::
+    In this example, the package downloads JQuery_ and `Bootstrap`_ as well as
+    generates a JavaScript bundle::
 
         setup(
             name='rex.setup_demo',
@@ -126,8 +127,8 @@ To use ``rex.setup``, add the following lines to ``setup.py``::
 Bower components
 ================
 
-``rex.setup`` provides a way to ship Bower_ components together with Python
-packages. 
+:mod:`rex.setup` provides a way to distribute Bower_ components together with
+Python packages. 
 
 To create a Bower component, make directory ``static/js`` and add file
 ``static/js/bower.json`` in `Bower component format`_. It must include the
@@ -139,127 +140,65 @@ For example, here is content of ``rex.setup_demo/static/js/bower.json``::
         "name": "rex-setup-demo",
         "version": "1.0.0",
         "main": "./lib/index",
+        "styleEntry": "./lib/index.less",
         "dependencies": {
             "jquery": "2.x",
-            "bootstrap": "3.x"
+            "bootstrap": "*"
         }
     }
 
-Alternatively you can use ``bower init`` command inside ``static/js``
-directory, which will guide you step by step through creating ``bower.json``.
+Here we declare the entry point of the component ``static/js/lib/index.js``,
+the stylesheet of the component ``static/js/lib/index.jess``, and the component
+dependencies: jQuery_ and `Bootstrap`_.  The name of the component
+``rex-setup-demo`` is derived from the name of the package containing it
+:mod:`rex.setup_demo` and the version of the component coincides with the
+version of the package.
 
+Alternatively, you can run command ``bower init`` in directory ``static/js``,
+which will guide you step by step through creating ``bower.json``.
 
-JavaScript dependencies
-=======================
+In ``bower.json``, you can list two types of dependencies:
 
-There are two types of dependencies JavaScript code can use:
+* Bower components distributed via bower registry.  Usually, third-party
+  dependencies like React_, jQuery_ and Bootstrap_ are declared this way.
 
-* Bower components distributed via bower registry (usually 3rd-party
-  dependencies like React, jQuery and Bootstrap are referenced that way).
+* Other Bower components embedded inside Python packages.  It includes
+  RexDB-specific components.
 
-* Other Bower components embedded inside Python packages (usually other
-  Prometheus/RexDB packages).
+Both types of dependencies should be specified using ``dependencies`` attribute
+in ``bower.json``.  In addition, to make :mod:`rex.setup` able to find Bower
+components embedded inside Python packages, these packages must be listed as
+dependencies in ``setup.py``.
 
-The first type of dependencies (distributed via Bower) should be specified via
-``bower.json`` metadata (``dependencies`` attribute). The other type of
-dependencies should be specified via ``setup.py`` as usual.
+Both types of dependencies could be referenced from JavaScript code using
+CommonJS_ ``require()`` function.  For example, to use jQuery, you may write::
 
-Both types of dependencies will be available to Bower component JavaScript code.
+  var $ = require('jquery');
 
-The Bower component is installed (along its dependencies) whenever the Python
-Package containing it is installed in development mode (``python setup.py
+  $(function () {
+      $('body').html('<h1>Welcome to <tt>rex.setup_demo</tt>!</h1>');
+  });
+
+:mod:`rex.setup` installs embedded Bower components and its dependencies when
+the Python package is being installed in development mode (``python setup.py
 develop``).
 
+To learn how to use Javascript components in HTML pages, see
+`Javascript and CSS bundles`_.
 
-Bundling JavaScript code
-========================
+To use Bower components, you need to have Node.js_ and NPM_ installed.
+On a Linux system, they could be installed with a command::
 
-Webpack_ is used to compose Bower component code and its dependencies in a
-single bundle. ``rex.setup`` provides an interface to Webpack_ via
-``rex_bundle`` directive in Python package metadata::
-
-        setup(
-            name='rex.setup_demo',
-            ...
-            setup_requires=['rex.setup'],
-            rex_static='static',
-            rex_bundle={
-                './www/bundle': [
-                    'webpack:rex-setup-demo',
-                ],
-            },
-        )
-
-The snippet above will instruct ``rex.setup`` to generate ``static/www/bundle``
-directory by bundling Bower component named ``rex-setup-demo``.
-
-.. note:: Why bundle destination has to be a directory?
-
-  Webpack allows to bundle not only javascript code but also stylesheets and
-  other assets (images, fonts, ...). Also it could generate chunked bundles
-  which could improve performance of large applications.
-
-Bundle is generated automatically when running ``python setup.py sdist`` so
-source distribution will contain bundled JavaScript code and won't have
-dependency on Node.js runtime.
-
-Also bundle is generated when running ``python setup.py develop``. When using
-``rex serve`` command with ``-w`` flag bundle will be rebuilt on source
-changes::
-
-    rex serve -w rex.someapp
-
-Bundle is served by a static HTTP server (as it belongs to ``static/www``
-directory) and consumed via ``<script>`` tag::
-
-    <script src="{{ PACKAGE_URL }}/bundle/bundle.js"></script>
-
-
-Webpack configuration
-=====================
-
-By default ``rex.setup`` will use default Webpack configuration for bundling
-bower components. This default configuration has the following characteristics:
-
-* It outputs ``bundle.js``
-* It outputs ``bundle.css`` if entry component has ``styleEntry`` key in
-  ``bower.json`` which points to a less stylesheet.
-* It uses ``jsx-loader`` to transform JSX_ files into standard ES5 JavaScript
-  (JSX is a syntax extension to JavaScript used to develop React_ applications).
-* It copies referenced (both from less and js code) assets such as images, fonts
-  to a bundle directory.
-
-Bower components authors can override Webpack configuration by placing
-``webpack.config.js`` file in the root of a Bower component directory
-(``static/js``) with the following contents::
-
-    var configureWebpack = require('rex-setup').configureWebpack;
-
-    module.exports = configureWebpack({
-      // custom webpack configuration goes here
-    });
-
-Using ``configureWebpack`` function from ``rex-setup`` Node.js package ensures
-that all dependencies installed with ``rex.setup`` will be resolved correctly.
-
-For a detailed explanation on possible Webpack configuration directives see
-`Webpack configuration`_ section in the documentation.
-
-.. _CommonJS: http://wiki.commonjs.org/wiki/Modules/1.1
-.. _Bower: http://bower.io/
-.. _Bower component format: http://bower.io/#defining-a-package
-.. _Webpack: http://webpack.github.io
-.. _Webpack configuration: webpack.github.io/docs/configuration.html
-.. _JSX: http://facebook.github.io/react/docs/jsx-in-depth.html
-.. _React: http://reactjs.org
+    $ sudo apt-get install nodejs npm
 
 
 Generated files
 ===============
 
-You can instruct ``rex.setup`` to build some static resources when the package
-is installed.  For example, ``rex.setup`` can download static resources from
-the web or generate JavaScript or CSS bundles.
+You can instruct :mod:`rex.setup` to generate some static resources when the
+package is installed.  In particular, :mod:`rex.setup` can download static
+resources from the web, as well as generate JavaScript and CSS bundles from
+Bower components.
 
 To configure generated resources, use parameter ``rex_bundle`` in ``setup.py``.
 The parameter should be a mapping from a directory to a list of URLs.  When the
@@ -275,27 +214,112 @@ Otherwise, the file is simply stored to the target directory.
 Specify a URL fragment ``#md5=...`` to validate the integrity of the downloaded
 file.
 
-Use URL scheme ``webpack`` to build a JavaScript bundle from a Bower_ component.
-The URL must contain the name of the component. For example,
+Use URL scheme ``webpack`` to build a JavaScript bundle from a Bower_
+component.  The URL must contain the name of the component. For example,
 ``webpack:rex-setup-demo`` produces a bundle from a Bower component
 ``rex.setup_demo/static/js/bower.json``.
 
 .. note::
-  ``rex-setup-demo`` is a name of a bower component as specified in the
-  corresponding ``bower.json`` package metadata.
+  ``rex-setup-demo`` is the name of the bower component specified in the
+  corresponding ``bower.json`` file.
 
-Files are generated by Distutils when you run ``python setup.py install`` or
-``python setup.py develop`` commands.  You can also use a dedicated command
-``bundle``::
+Files are generated by :mod:`rex.setup` when you run ``python setup.py
+install``, ``python setup.py develop`` or ``python setup.py sdist`` commands.
+You can also use a dedicated command ``bundle``::
 
     $ python setup.py bundle
 
 Use option ``--force`` to regenerate existing bundles; option ``--clean`` to
-remove generated files.
+remove generated files::
+
+    $ python setup.py bundle --force
+    $ python setup.py bundle --clean
 
 
+JavaScript and CSS bundles
+==========================
+
+:mod:`rex.setup` uses Webpack_ to pack Bower component code and its dependencies in a
+single file suitable for use in a web browser.  To specify the component to pack,
+use ``rex_bundle`` directive in ``setup.py``::
+
+        setup(
+            name='rex.setup_demo',
+            ...
+            setup_requires=['rex.setup'],
+            rex_static='static',
+            rex_bundle={
+                './www/bundle': [
+                    'webpack:rex-setup-demo',
+                ],
+            },
+        )
+
+The code above instructs :mod:`rex.setup` to generate a bundle from Bower component
+called ``rex-setup-demo`` and store it into directory ``static/www/bundle``.
+
+.. note:: Why bundle destination has to be a directory?
+
+  Webpack allows to bundle not only JavaScript code but also stylesheets and
+  other assets (images, fonts, ...).  Also it could generate chunked bundles
+  which could improve performance of large applications.
+
+When you work on client-side code, it's not very convenient to rebuild the bundles
+every time you change a line in JavaScript code.  If you run ``rex serve`` or
+``rex serve-uwsgi`` command with ``--watch`` or ``-w`` flag, bundles are rebuilt
+every time any of the source files is modified::
+
+    $ rex serve -w rex.setup_demo
+
+From the application perspective, bundles are regular static resources.  To
+include a JavaScript bundle to an HTML page, use ``<script>`` tag::
+
+    <script src="{{ PACKAGE_URL }}/bundle/bundle.js"></script>
+
+To include a CSS bundle, use::
+
+    <link rel="stylesheet" href="{{ PACKAGE_URL }}/bundle/bundle.css">
+
+By default, :mod:`rex.setup` uses the following Webpack configuration for
+bundling Bower components:
+
+* It generates ``bundle.js``.
+* It generates ``bundle.css`` if the component has ``styleEntry`` attribute in
+  ``bower.json`` pointing to a Less_ stylesheet.
+* It uses ``jsx-loader`` to transform JSX_ files into standard ES5 JavaScript
+  (JSX is a syntax extension to JavaScript used to develop React_
+  applications).
+* It copies referenced (both from Less and JavaScript code) assets such as
+  images, fonts to the bundle directory.
+
+You can override the standard Webpack configuration by placing
+``webpack.config.js`` file to the root of the Bower component directory
+(``static/js``) with the following content::
+
+    var configureWebpack = require('rex-setup').configureWebpack;
+
+    module.exports = configureWebpack({
+      // custom webpack configuration goes here
+    });
+
+Using ``configureWebpack`` function from ``rex-setup`` Node.js package ensures
+that all dependencies installed with ``rex.setup`` will be resolved correctly.
+
+For a detailed explanation on possible Webpack configuration directives see
+`Webpack configuration`_.
+
+
+.. _CommonJS: http://wiki.commonjs.org/wiki/Modules/1.1
+.. _Bower: http://bower.io/
+.. _Webpack: http://webpack.github.io
+.. _Webpack configuration: webpack.github.io/docs/configuration.html
+.. _JSX: http://facebook.github.io/react/docs/jsx-in-depth.html
+.. _Less: http://lesscss.org/
+.. _React: http://reactjs.org
 .. _JQuery: http://jquery.com/
-.. _Twitter Bootstrap: http://getbootstrap.com/
+.. _Bootstrap: http://getbootstrap.com/
 .. _Bower: http://bower.io/
 .. _Bower component format: http://bower.io/#defining-a-package
+.. _Node.js: http://nodejs.org/
+.. _NPM: https://www.npmjs.org/
 

@@ -216,6 +216,7 @@ def solve_discrepancies(
             entries,
             reconciled_discrepancies.get(field['id']),
             known_types,
+            has_override=(field['id'] in reconciled_discrepancies),
         )
         if solved is not None:
             solution['values'][field['id']] = solved
@@ -227,7 +228,8 @@ def _solve_field_discrepancies(
         field,
         entries,
         reconciled_discrepancy,
-        known_types):
+        known_types,
+        has_override=False):
     if isinstance(field['type'], basestring):
         field_type = known_types[field['type']]
     else:
@@ -236,7 +238,7 @@ def _solve_field_discrepancies(
     args = (field, entries, reconciled_discrepancy)
 
     if field_type in INSTRUMENT_SIMPLE_TYPES:
-        return _solve_simple_discrepancy(*args)
+        return _solve_simple_discrepancy(*args, has_override=has_override)
 
     elif field_type == 'recordList':
         return _solve_record_discrepancy(*args)
@@ -251,13 +253,14 @@ def _solve_simple_discrepancy(
         field,
         entries,
         reconciled_discrepancy,
-        accessor=None):
+        accessor=None,
+        has_override=False):
     if not accessor:
         accessor = lambda entry, name: entry.data['values'].get(name, {})
 
     solution = {}
 
-    if reconciled_discrepancy:
+    if has_override:
         solution['value'] = reconciled_discrepancy
     else:
         for entry in entries:
@@ -327,6 +330,7 @@ def _solve_record_discrepancy(field, entries, reconciled_discrepancy):
                     name,
                     record_index,
                 ),
+                has_override=(subfield['id'] in sub_rec_disc),
             )
             if solved is not None:
                 record_solution[subfield['id']] = solved
@@ -352,6 +356,7 @@ def _solve_matrix_discrepancy(field, entries, reconciled_discrepancy):
                 entries,
                 sub_rec_disc.get(column['id']),
                 accessor=lambda entry, name: accessor(entry, name, row['id']),
+                has_override=(column['id'] in sub_rec_disc),
             )
             if solved is not None:
                 row_solution[column['id']] = solved

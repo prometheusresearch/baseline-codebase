@@ -178,8 +178,12 @@ method can then be used to merge the Assessment Data in the Entries together::
     >>> entry3.data['values']['q_fake']['value'] = 'a different answer'
     >>> task.get_discrepancies(entries=entries)
     {'q_fake': {u'entry444': 'my answer', u'entry333': 'my answer', u'entry555': 'a different answer'}}
+    >>> task.solve_discrepancies({}, entries=entries)
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
     >>> task.solve_discrepancies({'q_fake': 'the answer'}, entries=entries)
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'the answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    >>> task.solve_discrepancies({'q_fake': None}, entries=entries)
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': None}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
     >>> entry2.data['values']['q_fake']['explanation'] = 'Because I said so.'
     >>> task.solve_discrepancies({}, entries=entries)

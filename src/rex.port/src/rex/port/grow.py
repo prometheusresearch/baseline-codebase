@@ -200,11 +200,11 @@ class Grow(object):
                     filter_name, parameters, expression = name_parameters_expression
                     filters.append((filter_name, parameters, expression))
             select_patterns = [u'*']
-            if spec.select:
+            if spec.select is not None:
                 select_patterns = spec.select \
                         if isinstance(spec.select, list) else [spec.select]
             deselect_patterns = []
-            if spec.deselect:
+            if spec.deselect is not None:
                 deselect_patterns = spec.deselect \
                         if isinstance(spec.deselect, list) else [spec.deselect]
             related = []

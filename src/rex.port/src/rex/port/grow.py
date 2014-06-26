@@ -286,14 +286,12 @@ class GrowEntity(Grow):
             raise Error("Not an entity:", self.name)
         arms = []
         for label in classify(arm_arc.target):
-            if self.select_patterns:
-                if not any(fnmatch.fnmatchcase(label.name, pattern)
-                           for pattern in self.select_patterns):
-                    continue
-            if self.deselect_patterns:
-                if any(fnmatch.fnmatchcase(label.name, pattern)
-                       for pattern in self.deselect_patterns):
-                    continue
+            if not any(fnmatch.fnmatchcase(label.name, pattern)
+                       for pattern in self.select_patterns):
+                continue
+            if any(fnmatch.fnmatchcase(label.name, pattern)
+                   for pattern in self.deselect_patterns):
+                continue
             arc = label.arc
             if isinstance(arc, ColumnArc) and arc.link is not None:
                 arc = arc.link

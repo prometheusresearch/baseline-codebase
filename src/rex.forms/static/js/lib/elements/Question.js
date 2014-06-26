@@ -124,4 +124,8 @@ var Question = React.createClass({
 });
 
 
-module.exports = Question;
+module.exports = {
+  Question: Question,
+  determineWidgetType: determineWidgetType
+};
+

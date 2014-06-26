@@ -15,7 +15,7 @@ var EnumerationWidgetMixin = {
       this.props.options.enumerations
       || defaultBooleanEnumeration
     );
-    var isHidden = this.formEvents().isEnumerationHidden;
+    var isHidden = this.formEvents() ? this.formEvents().isEnumerationHidden : function () { return true; };
     return enumerations.filter((enumeration) => isHidden(enumeration.id));
   }
 };

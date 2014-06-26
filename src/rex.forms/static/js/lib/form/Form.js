@@ -7,39 +7,12 @@ var React                  = require('react');
 var ReactForms             = require('react-forms');
 var validation             = ReactForms.validation;
 var makeAssessment         = require('../assessment').makeAssessment;
-var localization           = require('../localization');
-var createSchema           = require('../createSchema');
+var createSchema           = require('../createSchema').createSchema;
 var FormEntry              = require('./FormEntry');
 var FormOverview           = require('./FormOverview');
 var FormEventsContextMixin = require('./FormEventsContextMixin');
+var FormLocalizerMixin     = require('./FormLocalizerMixin');
 
-var FormLocalizerMixin = {
-  mixins: [localization.LocalizerMixin],
-
-  getLocale: function() {
-    return this.props.locale;
-  },
-
-  localize: function(localizedString) {
-    if (!localizedString) {
-      return '';
-    }
-
-    var locale = this.props.locale;
-
-    if (localizedString[locale]) {
-      return localizedString[locale];
-    }
-
-    var language = locale.split(/[\-_]/, 1);
-
-    if (localizedString[language]) {
-      return localizedString[language];
-    }
-
-    return localizedString[this.props.form.defaultLocalization];
-  }
-};
 
 var Form = React.createClass({
   mixins: [
@@ -249,4 +222,8 @@ var Form = React.createClass({
   }
 });
 
-module.exports = Form;
+module.exports = {
+  Form: Form,
+  FormLocalizerMixin: FormLocalizerMixin
+};
+

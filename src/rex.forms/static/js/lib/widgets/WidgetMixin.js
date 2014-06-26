@@ -98,7 +98,11 @@ var WidgetMixin = {
   },
 
   getInputName: function() {
-    return `${this.context.value.schema.name}[${this.props.name}]`;
+    if (this.context.value.schema.name) {
+        return `${this.context.value.schema.name}[${this.props.name}]`;
+    } else {
+        return this.props.name;
+    }
   },
 
   getSize: function(dimension, defaultSize, allowedSizes) {

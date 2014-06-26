@@ -213,4 +213,12 @@ class SchemaBuilder {
   }
 }
 
-module.exports = createSchema;
+module.exports = {
+  SIMPLE_INSTRUMENT_BASE_TYPES: SIMPLE_INSTRUMENT_BASE_TYPES,
+  COMPLEX_INSTRUMENT_BASE_TYPES: COMPLEX_INSTRUMENT_BASE_TYPES,
+  INSTRUMENT_BASE_TYPES: INSTRUMENT_BASE_TYPES,
+  createTypeCatalog: createTypeCatalog,
+  getTypeDefinition: getTypeDefinition,
+  createSchema: createSchema
+};
+

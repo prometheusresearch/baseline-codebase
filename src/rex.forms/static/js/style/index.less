@@ -13,6 +13,7 @@
 @paddingSmall: 0.25em;
 @paddingLarge: 1em;
 
+
 /**
  * Form styling
  */
@@ -58,8 +59,8 @@
   .btn-default();
 }
 
-/**
 
+/**
  * Elements styling
  */
 
@@ -89,6 +90,7 @@
     border-top: 1px solid #b1b1b1;
   }
 }
+
 
 /**
  * Widgets styling
@@ -199,6 +201,7 @@
   }
 }
 
+
 /**
  * recordList
  */
@@ -213,9 +216,11 @@
   margin-top: @padding;
 }
 
+
 /**
  * matrix
  */
+
 .rex-forms-matrix {
   display: table;
   width: 100%;
@@ -257,6 +262,7 @@
   color: #aaa;
 }
 
+
 /**
  * FormOverview
  */
@@ -294,6 +300,7 @@
   }
 }
 
+
 /**
  * Print styles
  */
@@ -303,3 +310,127 @@
     display: none;
   }
 }
+
+
+/**
+ * Reconciler styles
+ */
+
+.rex-forms-Reconciler {
+  .container-fluid();
+}
+
+.rex-forms-ReconcilerComplete {
+  .btn();
+  .btn-primary();
+}
+
+
+.rex-forms-ReconcilerHeader {
+  .row();
+}
+
+.rex-forms-ReconcilerHeaderColumn {
+  p {
+    border: 1px solid grey;
+    border-radius: 5px;
+    text-align: center;
+    padding: 5px;
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+
+  .num-choices-2 & { .make-sm-column(4); }
+  .num-choices-3 & { .make-sm-column(3); }
+  .num-choices-4 & { .make-sm-column(2); }
+  .num-choices-5 & { .make-sm-column(2); }
+}
+
+.rex-forms-ReconcilerSection {
+  margin-top: 1em;
+  background-color: #fafafa;
+  border-radius: 3px;
+
+  & .rex-forms-ReconcilerSection {
+    background-color: #f2f2f2;
+
+    .rex-forms-Discrepancy__title {
+      padding-left: 10px;
+    }
+
+    & .rex-forms-ReconcilerSection {
+      background-color: #eaeaea;
+
+      .rex-forms-Discrepancy__title {
+        padding-left: 20px;
+      }
+    }
+  }
+}
+
+.rex-forms-Discrepancy,
+.rex-forms-RecordListDiscrepancy,
+.rex-forms-RecordListRecordDiscrepancy,
+.rex-forms-MatrixDiscrepancy,
+.rex-forms-MatrixRowDiscrepancy {
+  .row();
+}
+.rex-forms-Discrepancy__inner,
+.rex-forms-RecordListDiscrepancy__inner,
+.rex-forms-RecordListRecordDiscrepancy__inner,
+.rex-forms-MatrixDiscrepancy__inner,
+.rex-forms-MatrixRowDiscrepancy__inner {
+  .container-fluid();
+}
+
+.rex-forms-Discrepancy__title {
+  .row();
+
+  margin-bottom: 0.5em;
+  padding-top: 3px;
+  padding-left: 3px;
+
+  p {
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+}
+
+.rex-forms-DiscrepancyValues {
+  .row();
+}
+.rex-forms-DiscrepancyValues__choice {
+  cursor: pointer;
+  border-radius: 3px;
+
+  &:hover {
+    background-color: #DDF0FF;
+  }
+
+  &.rex-forms-DiscrepancyValues__choice--active {
+    background-color: #B8DAF6;
+  }
+
+  p {
+    min-height: 2em;
+    line-height: 2em;
+    margin-bottom: 0;
+  }
+
+  &.num-choices-2 { .make-sm-column(4); }
+  &.num-choices-3 { .make-sm-column(3); }
+  &.num-choices-4 { .make-sm-column(2); }
+  &.num-choices-5 { .make-sm-column(2); }
+}
+.rex-forms-DiscrepancyValues__input {
+  &.num-choices-2 { .make-sm-column(4); }
+  &.num-choices-3 { .make-sm-column(3); }
+  &.num-choices-4 { .make-sm-column(4); }
+  &.num-choices-5 { .make-sm-column(2); }
+}
+
+.rex-forms-ReconcilerControls {
+  text-align: center;
+  margin-top: 2em;
+}
+

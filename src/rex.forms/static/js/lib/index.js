@@ -5,10 +5,11 @@
 
 module.exports = {
   render: require('./render'),
-  Form: require('./form'),
+  Form: require('./form').Form,
   elements: require('./elements'),
   widgets: require('./widgets'),
-  services: require('./services')
+  services: require('./services'),
+  reconciler: require('./reconciler')
 };
 
 if (window) {

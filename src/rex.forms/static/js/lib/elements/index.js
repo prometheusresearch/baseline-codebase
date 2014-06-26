@@ -5,7 +5,7 @@
 
 var Divider   = require('./Divider');
 var Header    = require('./Header');
-var Question  = require('./Question');
+var Question  = require('./Question').Question;
 var Text      = require('./Text');
 
 var defaultElementComponentMap = {

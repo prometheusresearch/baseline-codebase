@@ -5,7 +5,7 @@
 
 var React     = require('react');
 var emitter   = require('emitter');
-var Form      = require('./form');
+var Form      = require('./form').Form;
 var utils     = require('./utils');
 var merge     = utils.merge;
 var invariant = utils.invariant;

@@ -12,6 +12,7 @@ var FormEntry              = require('./FormEntry');
 var FormOverview           = require('./FormOverview');
 var FormEventsContextMixin = require('./FormEventsContextMixin');
 var FormLocalizerMixin     = require('./FormLocalizerMixin');
+var _                      = require('../localization')._;
 
 
 var Form = React.createClass({
@@ -69,12 +70,8 @@ var Form = React.createClass({
               onClick={this.onComplete}
               type="button"
               className="rex-forms-Form__complete">
-              Complete form
+              {_('Complete Form')}
             </button>
-            {!isValid &&
-              <span className="rex-forms-Form__info">
-                Form cannot be completed until all fields are valid
-              </span>}
           </div>}
       </div>
     );

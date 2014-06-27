@@ -22,7 +22,8 @@ class FormPersistenceService {
       this.debug('initializing autosave service');
       this._saveService = new FormAutoSaveService(
         this.form,
-        this.onSave.bind(this)
+        this.onSave.bind(this),
+        this.options
       );
     }
 
@@ -30,7 +31,8 @@ class FormPersistenceService {
       this.debug('initializing completion service');
       this._completeService = new FormCompletionService(
         this.form,
-        this.onComplete.bind(this)
+        this.onComplete.bind(this),
+        this.options
       );
     }
   }

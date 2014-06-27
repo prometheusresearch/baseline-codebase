@@ -398,7 +398,8 @@ tests:
     if '__coverage__' in __pbbt__:
         __pbbt__['__coverage__'].load()
 
-- coverage-check: 95.0
+# Unable to measure coverage since many commands do `exec`.
+#- coverage-check: 95.0
 - coverage-report: ./build/coverage
 
 - rmdir: sandbox

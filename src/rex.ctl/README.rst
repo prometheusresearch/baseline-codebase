@@ -144,6 +144,32 @@ object.  Use ``rex wsgi`` for that purpose::
 This commands generates a WSGI script for ``rex.ctl_demo`` and saves it as
 ``ctl_demo.wsgi``.
 
+You could combine generating a WSGI script and starting a uwsgi_ server with
+``rex serve-uwsgi`` command.  To specify uWSGI configuration, add section
+``uwsgi`` to the ``rex.yaml`` configuration file.  For example, to serve
+``rex.ctl_demo`` via HTTP on port 8080, add to ``rex.yaml``::
+
+    project: rex.ctl_demo
+    uwsgi:
+      http-socket: :8080
+
+Then start::
+
+    $ rex serve-uwsgi
+    Starting uWSGI server for rex.ctl_demo
+    *** Starting uWSGI 2.0.3-debian (64bit) on [Fri Jun 27 15:53:27 2014] ***
+    [...]
+
+A more complete uWSGI configuration may start a uWSGI daemon with a master
+process and several worker processes::
+
+    uwsgi:
+      master: true
+      daemonize: uwsgi.log
+      processes: 4
+      threads: 2
+      socket: :3031
+
 
 Database management
 ===================

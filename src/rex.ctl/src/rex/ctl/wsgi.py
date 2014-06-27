@@ -160,14 +160,14 @@ class SERVE_UWSGI:
         stream.write("\n")
         stream.close()
         # Load parameters to uWSGI and generate `uwsgi` command line.
+        if not env.uwsgi and not self.set_uwsgi:
+            raise fail("missing uWSGI configuration")
         uwsgi_parameters = {}
         uwsgi_parameters['plugin'] = 'python'
         if hasattr(sys, 'real_prefix'):
             uwsgi_parameters['virtualenv'] = sys.prefix
         uwsgi_parameters.update(env.uwsgi)
         uwsgi_parameters.update(self.set_uwsgi)
-        if not uwsgi_parameters:
-            raise fail("missing uWSGI configuration")
         uwsgi_parameters['wsgi-file'] = path
         cmd = ['uwsgi']
         for key in sorted(uwsgi_parameters):

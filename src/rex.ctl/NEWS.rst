@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.4.0 (2014-XX-XX)
+1.4.0 (2014-06-27)
 ==================
 
 * Added ``rex serve-wsgi`` task.

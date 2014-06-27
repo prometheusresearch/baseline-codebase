@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.1.0 (2014-XX-XX)
+2.1.0 (2014-06-27)
 ==================
 
 * Remove an extra top-level record in JSON output when the top-level

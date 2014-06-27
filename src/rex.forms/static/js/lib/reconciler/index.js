@@ -8,11 +8,10 @@
 
 
 var React = require('react/addons');
-var Forms = require('react-forms');
 
 var FormLocalizerMixin = require('../form/FormLocalizerMixin');
 var merge = require('../utils').merge;
-var components = require('./components')
+var components = require('./components');
 var Header = components.Header;
 var DiscrepancyList = components.DiscrepancyList;
 var SchemaBuilder = require('./schema').SchemaBuilder;
@@ -40,8 +39,9 @@ var Reconciler = React.createClass({
     onComplete: React.PropTypes.func.isRequired
   },
 
-  onComplete: function (event) {
-    var reconciledDiscrepancies = this.refs.discrepancyForm.getReconciledDiscrepancies(),
+  onComplete: function () {
+    var reconciledDiscrepancies = 
+        this.refs.discrepancyForm.getReconciledDiscrepancies(),
       isValid = this.refs.discrepancyForm.isValid();
 
     this.setState({
@@ -97,7 +97,7 @@ var render = function (options) {
     locale: 'en'
   };
 
-  var options = merge(defaults, options);
+  options = merge(defaults, options);
 
   var Component = options.component;
   var element = options.element;

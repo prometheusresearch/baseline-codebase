@@ -14,8 +14,8 @@ var EditableQuestionWrapper = require('./EditableQuestionWrapper');
 
 var NOTE = _(`
   Please review entered values before completing the form.
-  You can press <strong>edit</strong> button at the top-right corner of the question
-  to edit its value.
+  You can press <strong>edit</strong> button at the top-right corner of the
+  question to edit its value.
 `);
 
 /**

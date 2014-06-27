@@ -3,7 +3,6 @@
  */
 'use strict';
 
-var React                  = require('react');
 var FormEventsContextMixin = require('./FormEventsContextMixin');
 
 var FormEventsMixin = {

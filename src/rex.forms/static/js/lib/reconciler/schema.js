@@ -12,10 +12,11 @@ var Schema = Forms.schema.Schema;
 var Property = Forms.schema.Property;
 
 var createSchema = require('../createSchema');
+var SIMPLE_INSTRUMENT_BASE_TYPES = createSchema.SIMPLE_INSTRUMENT_BASE_TYPES;
 var types = require('../types');
 var validators = require('../validators');
 
-var components = require('./components')
+var components = require('./components');
 var SimpleDiscrepancy = components.SimpleDiscrepancy;
 var RecordListDiscrepancy = components.RecordListDiscrepancy;
 var RecordListRecordDiscrepancy = components.RecordListRecordDiscrepancy;
@@ -95,7 +96,11 @@ class SchemaBuilder {
   }
 
   buildRecordListRecord(recordId, recordFieldType, values, recordFieldQuestion) {
-    var sb = new RecordSchemaBuilder(values, recordFieldType, recordFieldQuestion);
+    var sb = new RecordSchemaBuilder(
+      values,
+      recordFieldType,
+      recordFieldQuestion
+    );
 
     var properties = Object.keys(values).map((key) => {
       return sb.buildProperty(key, values[key]);
@@ -128,7 +133,11 @@ class SchemaBuilder {
   }
 
   buildMatrixRow(rowId, matrixFieldType, values, matrixFieldQuestion) {
-    var sb = new MatrixSchemaBuilder(values, matrixFieldType, matrixFieldQuestion);
+    var sb = new MatrixSchemaBuilder(
+      values,
+      matrixFieldType,
+      matrixFieldQuestion
+    );
 
     var properties = Object.keys(values).map((key) => {
       return sb.buildProperty(key, values[key]);
@@ -165,7 +174,7 @@ class SchemaBuilder {
   }
 
   isSimpleType(fieldType) {
-    return (createSchema.SIMPLE_INSTRUMENT_BASE_TYPES.indexOf(fieldType.rootType) > -1);
+    return (SIMPLE_INSTRUMENT_BASE_TYPES.indexOf(fieldType.rootType) > -1);
   }
 
   getQuestion(field) {
@@ -184,7 +193,7 @@ class SchemaBuilder {
 
 class RecordSchemaBuilder extends SchemaBuilder {
   constructor(discrepancies, fieldType, question) {
-    super(discrepancies, fieldType, question)
+    super(discrepancies, fieldType, question);
   }
 
   getQuestion(field) {
@@ -202,7 +211,7 @@ class MatrixSchemaBuilder extends RecordSchemaBuilder {
     var fakeInstrument = {
       record: fieldType.columns
     };
-    super(discrepancies, fakeInstrument, question)
+    super(discrepancies, fakeInstrument, question);
   }
 }
 

@@ -8,7 +8,6 @@ var ReactForms      = require('react-forms');
 var utils           = require('../utils');
 var cx              = React.addons.classSet;
 var componentMap    = require('../elements').defaultElementComponentMap;
-var utils           = require('../utils');
 var FormEventsMixin = require('./FormEventsMixin');
 
 var Page = React.createClass({

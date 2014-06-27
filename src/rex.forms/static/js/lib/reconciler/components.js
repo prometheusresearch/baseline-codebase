@@ -138,12 +138,14 @@ var DiscrepancyChoices = React.createClass({
       var value = this.decodeValue(discrepancy[key]);
       var classes = {
         'rex-forms-DiscrepancyValues__choice': true,
-        'rex-forms-DiscrepancyValues__choice--active': this.state.selectedEntry === key
+        'rex-forms-DiscrepancyValues__choice--active': (
+          this.state.selectedEntry === key
+        )
       };
       classes[this.getColumnSizeClass()] = true;
       classes = classSet(classes);
 
-      var clickHandler = function (event) {
+      var clickHandler = function () {
         this.setState({
           selectedEntry: key
         });
@@ -161,8 +163,9 @@ var DiscrepancyChoices = React.createClass({
   },
 
   render: function () {
-    var values = this.buildValues(this.props.discrepancy)
-    var classes = 'rex-forms-DiscrepancyValues__input ' + this.getColumnSizeClass();
+    var values = this.buildValues(this.props.discrepancy),
+      classes = 'rex-forms-DiscrepancyValues__input '
+        + this.getColumnSizeClass();
     return (
       <div className="rex-forms-DiscrepancyValues">
         {values}
@@ -264,7 +267,6 @@ var RecordListRecordDiscrepancy = React.createClass({
 
   render: function () {
     var schema = this.value().schema,
-      question = schema.props.question,
       title = _('Record #%(recordNumber)s', {
         recordNumber: parseInt(this.props.name) + 1
       }),
@@ -329,7 +331,6 @@ var MatrixRowDiscrepancy = React.createClass({
 
   render: function () {
     var schema = this.value().schema,
-      question = schema.props.question,
       title = this.localize(schema.props.row.text),
       children = Object.keys(schema.children).map((key) => {
         return (

@@ -9,7 +9,7 @@ from rex.core import (
         OnMatch, locate, Location, Error, guard)
 from rex.web import PathMask, PathMap
 from rex.port import GrowVal, Port
-from .handle import TreeWalker, TemplateRenderer, PortRenderer
+from .handle import TreeWalker, TemplateRenderer, QueryRenderer, PortRenderer
 import os
 import yaml
 
@@ -96,6 +96,14 @@ class LoadMap(object):
             ('context', context_val, {}))
     template_type = template_val.record_type
 
+    query_key = 'query'
+    query_val = RecordVal(
+            ('query', StrVal),
+            ('parameters', parameters_val, {}),
+            ('access', StrVal, None),
+            ('unsafe', BoolVal, False))
+    query_type = query_val.record_type
+
     port_key = 'port'
     port_val = RecordVal(
             ('port', GrowVal),
@@ -106,6 +114,7 @@ class LoadMap(object):
     # Validator for `!override` records.
     override_val = TaggedRecordVal(u'!override',
             ('template', file_val, None),
+            ('query', StrVal, None),
             ('port', GrowVal, None),
             ('access', StrVal, None),
             ('unsafe', BoolVal, None),
@@ -117,6 +126,7 @@ class LoadMap(object):
     handle_val = UnionVal(
             (OnTag(override_val.tag), override_val),
             (template_key, template_val),
+            (query_key, query_val),
             (port_key, port_val))
 
     # Validator for the urlmap record.
@@ -159,6 +169,14 @@ class LoadMap(object):
                         parameters=handle_spec.parameters,
                         validates=validates,
                         context=context)
+            elif isinstance(handle_spec, self.query_type):
+                access = handle_spec.access or self.package.name
+                handler = QueryRenderer(
+                        path=path,
+                        query=handle_spec.query,
+                        parameters=handle_spec.parameters,
+                        access=access,
+                        unsafe=handle_spec.unsafe)
             elif isinstance(handle_spec, self.port_type):
                 access = handle_spec.access or self.package.name
                 port = Port(handle_spec.port)
@@ -276,9 +294,31 @@ class LoadMap(object):
                 context = self._merge(handle_spec.context,
                                       override_spec.context)
                 handle_spec = handle_spec.__clone__(context=context)
-            if override_spec.port is not None:
-                error = Error("Detected unexpected port override"
-                              " for template:", path)
+            if (override_spec.query is not None or
+                override_spec.port is not None):
+                error = Error("Detected invalid override"
+                              " of template:", path)
+                error.wrap("Defined in:", locate(override_spec))
+                raise error
+        elif isinstance(handle_spec, self.query_type):
+            if override_spec.query is not None:
+                handle_spec = handle_spec.__clone__(
+                        query=override_spec.query)
+            if override_spec.parameters is not None:
+                parameters = self._merge(handle_spec.parameters,
+                                         override_spec.parameters)
+                handle_spec = handle_spec.__clone__(parameters=parameters)
+            if override_spec.access is not None:
+                handle_spec = handle_spec.__clone__(
+                        access=override_spec.access)
+            if override_spec.unsafe is not None:
+                handle_spec = handle_spec.__clone__(
+                        unsafe=override_spec.unsafe)
+            if (override_spec.template is not None or
+                override_spec.port is not None or
+                override_spec.context is not None):
+                error = Error("Detected invalid override"
+                              " of query:", path)
                 error.wrap("Defined in:", locate(override_spec))
                 raise error
         elif isinstance(handle_spec, self.port_type):
@@ -298,10 +338,11 @@ class LoadMap(object):
                 handle_spec = handle_spec.__clone__(
                         unsafe=override_spec.unsafe)
             if (override_spec.template is not None or
+                override_spec.query is not None or
                 override_spec.parameters is not None or
                 override_spec.context is not None):
-                error = Error("Detected unexpected template override"
-                              " for port:", path)
+                error = Error("Detected invalid override"
+                              " of port:", path)
                 error.wrap("Defined in:", locate(override_spec))
                 raise error
         return handle_spec

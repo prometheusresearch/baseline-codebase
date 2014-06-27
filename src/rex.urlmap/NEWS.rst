@@ -8,7 +8,7 @@
 2.2.0 (2014-XX-XX)
 ==================
 
-* Support for *port* handlers.
+* Support for *port* and *query* handlers.
 * When the URL matches a path except for the trailing ``/``,
   redirect to URL + ``/``.
 

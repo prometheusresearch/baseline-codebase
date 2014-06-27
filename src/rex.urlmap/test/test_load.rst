@@ -40,6 +40,7 @@ Parsing paths
     Error: Expected one of:
         !override record
         template record
+        query record
         port record
     Got:
         a mapping
@@ -238,7 +239,34 @@ But ill-formed overrides are rejected::
         a sequence
     ...
 
-Ports can be overriden too::
+HTSQL queries and ports can be overriden too.  With HTSQL queries,
+you can only replace the whole query::
+
+    >>> sandbox.rewrite('/urlmap/base.yaml', """
+    ... paths:
+    ...   /data/individual_info:
+    ...     query: total := count(individual)
+    ...     access: nobody
+    ...     unsafe: true
+    ... """)
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /data/individual_info: !override
+    ...     query: total := count(individual.guard($sex, filter(sex=$sex)))
+    ...     parameters: { sex }
+    ...     access: anybody
+    ...     unsafe: false
+    ... """)
+    >>> req = Request.blank('/data/individual_info?sex=male', accept='application/json')
+    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "total": 3
+    }
+
+Overriding a port definition adds more arms to the port::
 
     >>> sandbox.rewrite('/urlmap/base.yaml', """
     ... paths:
@@ -267,8 +295,8 @@ Ports can be overriden too::
       "max_code": "1004"
     }
 
-However it is an error to override a template with port data or a port with
-template data::
+However it is an error to override a template with port or query data
+or a port or a query with template data::
 
     >>> sandbox.rewrite('/urlmap/base.yaml', """
     ... paths:
@@ -278,6 +306,8 @@ template data::
     ...       title: Individuals
     ...   /data/individual:
     ...     port: individual
+    ...   /data/total:
+    ...     query: total := count(individual)
     ... """)
 
     >>> sandbox.rewrite('/urlmap.yaml', """
@@ -289,8 +319,24 @@ template data::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected unexpected port override for template:
+    Error: Detected invalid override of template:
         /individual
+    Defined in:
+        "/.../urlmap.yaml", line 4
+    ...
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /data/total: !override
+    ...     context:
+    ...       title: Experimental Subjects
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Detected invalid override of query:
+        /data/total
     Defined in:
         "/.../urlmap.yaml", line 4
     ...
@@ -305,7 +351,7 @@ template data::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected unexpected template override for port:
+    Error: Detected invalid override of port:
         /data/individual
     Defined in:
         "/.../urlmap.yaml", line 4

@@ -20,8 +20,10 @@ paths:
     access: anybody
 
   /data/total:
-    port:
-    - total_study := count(study?!closed)
-    - total_individual := count(individual)
+    query: |
+      {
+        total_study := count(study?!closed),
+        total_individual := count(individual),
+      }
     access: anybody
 

@@ -126,10 +126,10 @@ Pages marked as ``unsafe`` require a CSRF token::
     ...
 
 
-Ports and access control
-========================
+Access control for queries and ports
+====================================
 
-Ports generate HTSQL output::
+Queries and ports generate HTSQL output::
 
     >>> req = Request.blank('/data/total', accept='application/json')
     >>> print req.get_response(demo)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
@@ -140,7 +140,28 @@ Ports generate HTSQL output::
       "total_individual": 5
     }
 
+    >>> req = Request.blank('/data/study', accept='application/json', remote_user='Alice')
+    >>> print req.get_response(demo)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "study": [
+        {
+          "id": "asdl",
+          "code": "asdl",
+          "title": "Autism Spectrum Disorder Lab",
+          "closed": false
+        },
+        ...
+      ]
+    }
+
 Errors in query parameters are detected::
+
+    >>> req = Request.blank('/data/total?sex=male')
+    >>> print req.get_response(demo)    # doctest: +ELLIPSIS
+    400 Bad Request
+    ...
 
     >>> req = Request.blank('/data/study?individual=1000', accept='application/json',
     ...                     remote_user='Alice')
@@ -148,17 +169,26 @@ Errors in query parameters are detected::
     400 Bad Request
     ...
 
-Access permissions for port handlers work the same way as for template
-handlers::
+Access permissions for query and port handlers work the same way as for
+template handlers::
 
     >>> sandbox.rewrite('/urlmap.yaml', """
     ... paths:
-    ...   /data/public:
+    ...   /data/public-query:
+    ...     query: num_study := count(study?!closed)
+    ...     access: anybody
+    ...   /data/private-query:
+    ...     query: /study?!closed
+    ...   /data/unsafe-query:
+    ...     query: /individual
+    ...     access: anybody
+    ...     unsafe: true
+    ...   /data/public-port:
     ...     port: num_study := count(study?!closed)
     ...     access: anybody
-    ...   /data/private:
+    ...   /data/private-port:
     ...     port: study?!closed
-    ...   /data/unsafe:
+    ...   /data/unsafe-port:
     ...     port: individual
     ...     access: anybody
     ...     unsafe: true
@@ -173,7 +203,15 @@ handlers::
 Again, URLs with ``access`` parameter set to ``anybody`` do not require
 authorization::
 
-    >>> req = Request.blank('/data/public', accept='application/json')
+    >>> req = Request.blank('/data/public-query', accept='application/json')
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "num_study": 2
+    }
+
+    >>> req = Request.blank('/data/public-port', accept='application/json')
     >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
@@ -183,7 +221,27 @@ authorization::
 
 By default, only authenticated users are accepted::
 
-    >>> req = Request.blank('/data/private', accept='application/json')
+    >>> req = Request.blank('/data/private-query', accept='application/json')
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
+    401 Unauthorized
+    ...
+
+    >>> req.remote_user = 'Alice'
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "study": [
+        {
+          "code": "asdl",
+          "title": "Autism Spectrum Disorder Lab",
+          "closed": false
+        },
+        ...
+      ]
+    }
+
+    >>> req = Request.blank('/data/private-port', accept='application/json')
     >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
@@ -206,7 +264,12 @@ By default, only authenticated users are accepted::
 
 Ports marked as ``unsafe`` require a CSRF token::
 
-    >>> req = Request.blank('/data/unsafe', accept='application/json')
+    >>> req = Request.blank('/data/unsafe-query', accept='application/json')
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
+    403 Forbidden
+    ...
+
+    >>> req = Request.blank('/data/unsafe-port', accept='application/json')
     >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
     403 Forbidden
     ...
@@ -217,7 +280,25 @@ Ports marked as ``unsafe`` require a CSRF token::
     >>> session_cookie = resp.headers['Set-Cookie'].split('=')[1].split(';')[0]
     >>> csrf_token = re.search('<meta name="_csrf_token" content="([^"]*)">', str(resp)).group(1)
 
-    >>> req = Request.blank('/data/unsafe', accept='application/json')
+    >>> req = Request.blank('/data/unsafe-query', accept='application/json')
+    >>> req.cookies['rex.session'] = session_cookie
+    >>> req.headers['X-CSRF-Token'] = csrf_token
+    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "individual": [
+        {
+          "code": "1000",
+          "first_name": "May",
+          "last_name": "Kanaris",
+          "sex": "female"
+        },
+        ...
+      ]
+    }
+
+    >>> req = Request.blank('/data/unsafe-port', accept='application/json')
     >>> req.cookies['rex.session'] = session_cookie
     >>> req.headers['X-CSRF-Token'] = csrf_token
     >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
@@ -327,5 +408,74 @@ Unknown or duplicate parameters are rejected::
     ...
     Got multiple values for parameter:
         parameter
+
+HTSQL queries can also accept segment and query parameters::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /individual/$id:
+    ...     query: individual[$id]
+    ...     access: anybody
+    ...   /individual:
+    ...     query: /individual.guard($sex, filter(sex=$sex))
+    ...     access: anybody
+    ...     parameters: { sex }
+    ... """)
+
+The parameters are passed to the query::
+
+    >>> req = Request.blank('/individual/1000', accept='application/json')
+    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "individual": {
+        "code": "1000",
+        "first_name": "May",
+        "last_name": "Kanaris",
+        "sex": "female"
+      }
+    }
+
+    >>> req = Request.blank('/individual?sex=male', accept='application/json')
+    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "individual": [
+        {
+          "code": "1001",
+          "first_name": "Joseph",
+          "last_name": "Kanaris",
+          "sex": "male"
+        },
+        ...
+      ]
+    }
+
+Invalid, unknown or duplicate parameters are rejected::
+
+    >>> req = Request.blank('/individual?sex=unknown', accept='application/json')
+    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    invalid enum literal: expected one of 'not-known', 'male', 'female'; got 'unknown'
+    While translating:
+        /individual.guard($sex, filter(sex=$sex))
+                                           ^^^^
+
+    >>> req = Request.blank('/individual?mother=1000')
+    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS
+    400 Bad Request
+    ...
+    Received unexpected parameter:
+        mother
+
+    >>> req = Request.blank('/individual?sex=male&sex=female')
+    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    Got multiple values for parameter:
+        sex
 
 

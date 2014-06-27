@@ -12,8 +12,8 @@ Overview
 This package lets you map incoming URLs to URL handlers such as:
 
 * HTML templates;
-* database ports;
-* Javascript and CSS bundles *(TODO)*.
+* HTSQL queries;
+* database ports.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -230,6 +230,18 @@ port definition syntax, see documentation to :mod:`rex.port`.
 In the last definition, we used field ``access`` to override the default access
 permissions to the port.  Value *anybody* means that the port could be accessed
 by unauthenticated users.
+
+While ports provide a convenient and comprehensive way to access database, you
+can also use :mod:`rex.urlmap` to map URLs to raw HTSQL queries.  For example,
+URL ``/data/total`` could be defined as an HTSQL query::
+
+    /data/total:
+      query: |
+        {
+          total_study := count(study?!closed),
+          total_individual := count(individual),
+        }
+      access: anybody
 
 
 Include and override
@@ -489,6 +501,38 @@ context variables ``context``.  The following fields are expected:
           search: ''
 
 
+Query handler
+=============
+
+A query handler executes a prepared HTSQL query with the given parameters.  The
+following fields are expected:
+
+`query`
+    HTSQL query to execute.
+
+    Example::
+
+        query: /individual{id()}?sex=$sex
+
+    This field is mandatory.
+
+`access`
+    Permission required to execute the query.  If not set, the permission of
+    the package that owns the handler is assumed.
+
+    Example::
+
+        access: anybody
+
+`unsafe`
+    Enables CSRF protection for the query.  If enabled, the incoming request
+    must contain a CSRF token.  By default, CSRF protection is disabled.
+
+    Example::
+
+        unsafe: true
+
+
 Port handler
 ============
 
@@ -534,6 +578,8 @@ An override handler is marked by a YAML tag ``!override``.  It may contain all
 the fields of a template handler or a port handler:
 
     ``template``, ``context``, ``access``, ``unsafe``, ``parameters``.
+
+    ``query``, ``parameters``, ``access``, ``unsafe``.
 
     ``port``, ``access``, ``unsafe``.
 

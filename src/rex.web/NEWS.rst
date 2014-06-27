@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.2.0 (2014-XX-XX)
+2.2.0 (2014-06-27)
 ==================
 
 * When reporting duplicate paths, display the targets.

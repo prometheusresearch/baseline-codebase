@@ -170,6 +170,7 @@ var RexI18N = function (options) {
      * @property config
      * @type Object
      */
+    options = options || {};
     this.config = {
         locale: options.locale || defaults.locale,
         timezone: options.timezone || defaults.timezone,
@@ -516,4 +517,7 @@ module.exports = {
     RexI18N: RexI18N,
     LazyString: LazyString
 };
+
+global.Rex = global.Rex || {};
+global.Rex.I18N = module.exports;
 

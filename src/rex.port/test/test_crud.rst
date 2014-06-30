@@ -135,7 +135,9 @@ Relative links::
 
 Facets and branches::
 
-    >>> full_individual_port = Port(['individual', 'individual.identity', 'individual.participation'])
+    >>> full_individual_port = Port(['individual', 'individual.identity', 'individual.participation',
+    ...                              'individual.total_participation := count(participation)',
+    ...                              'total_individual := count(individual)'])
     >>> full_individual_port.insert(
     ...     {'individual': [
     ...         {'code': '3000', 'sex': 'male',
@@ -153,26 +155,45 @@ Facets and branches::
     ...     # doctest: +NORMALIZE_WHITESPACE
     <Product {({[3000], '3000', 'male', null, null,
                 {[3000], 'Nikolaus', 'Harald', '1951-12-04'},
-                ({[3000.(fos.father).1], '1', [fos.father]},)},
+                ({[3000.(fos.father).1], '1', [fos.father]},), 1},
                {[3001], '3001', 'female', null, null,
                 {[3001], 'Nora', 'Karin', '1954-05-15'},
-                ({[3001.(fos.mother).1], '1', [fos.mother]},)},
+                ({[3001.(fos.mother).1], '1', [fos.mother]},), 1},
                {[3002], '3002', 'female', [3001], [3000],
                 {[3002], 'Janne', 'Harald', '1976-07-25'},
-                ({[3002.(fos.proband).1], '1', [fos.proband]},)},
+                ({[3002.(fos.proband).1], '1', [fos.proband]},), 1},
                {[3003], '3003', 'male', [3001], [3000],
                 {[3003], 'Vincent', 'Harald', '1979-03-13'},
-                ({[3003.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}>
+                ({[3003.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},), 1}), 102}>
+
+    >>> full_individual_port.replace(
+    ...     {'individual': [
+    ...         {'id': '3002', 'code': '3002', 'sex': 'female', 'father': '3000', 'mother': '3001',
+    ...          'participation': {'id': '3002.(fos.proband).1', 'protocol': 'fos.proband', 'code': '1'}},
+    ...         {'id': '3003', 'code': '3003', 'sex': 'male', 'father': '3000', 'mother': '3001',
+    ...          'identity': {'id': '3003', 'givenname': 'Vincent', 'surname': 'Harald', 'birthdate': '1979-03-13'},
+    ...          'participation': {'id': '3003.(fos.unaffected-sib).1', 'protocol': 'fos.unaffected-sib', 'code': '1'}}]},
+    ...     {'individual': [
+    ...         {'id': '3002', 'total_participation': 1,
+    ...          'participation': {'id': '3002.(fos.proband).1', 'protocol': 'fos.unaffected-sib'}},
+    ...         {'id': '3003', 'total_participation': 1,
+    ...          'identity': {'id': '3003', 'birthdate': '1979-03-31'},
+    ...          'participation': {'id': '3003.(fos.unaffected-sib).1', 'protocol': 'fos.proband'}}]})
+    ...     # doctest: +NORMALIZE_WHITESPACE
+    <Product {({[3002], '3002', 'female', [3001], [3000], {[3002], 'Janne', 'Harald', '1976-07-25'},
+                ({[3002.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},), 1},
+               {[3003], '3003', 'male', [3001], [3000], {[3003], 'Vincent', 'Harald', '1979-03-31'},
+                ({[3003.(fos.proband).1], '1', [fos.proband]},), 1}), 102}>
 
     >>> full_individual_port.produce(
     ...     ('individual', ['3000', '3001', '3002', '3003']))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     <Product {(...
                {[3003], '3003', 'male', [3001], [3000],
-                {[3003], 'Vincent', 'Harald', '1979-03-13'},
-                ({[3003.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}>
+                {[3003], 'Vincent', 'Harald', '1979-03-31'},
+                ({[3003.(fos.proband).1], '1', [fos.proband]},), 1}), 102}>
 
     >>> full_individual_port.delete(
     ...     {'individual': [{'id': '3003'}, {'id': '3002'}, {'id': '3001'}, {'id': '3000'}]})
-    <Product {()}>
+    <Product {(), 98}>
 
 

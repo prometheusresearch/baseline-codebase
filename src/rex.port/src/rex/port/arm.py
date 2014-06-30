@@ -244,7 +244,7 @@ def get_id_domain(node):
         for arc in arcs:
             identity_arcs = localize(arc.target)
             if identity_arcs:
-                field = chain(identity_arc)
+                field = chain(identity_arcs)
             else:
                 field = arc.column.domain
             fields.append(field)
@@ -509,7 +509,9 @@ class RootArm(Arm):
     def flatten(self, data):
         result = []
         for (name, arm), item in zip(self.arms.items(), data):
-            result.extend(arm.flatten((name,), item))
+            if not isinstance(arm, TableArm):
+                continue
+            result.extend(arm.flatten(None, (name,), item))
         return result
 
     def pair(self, old, new):
@@ -624,11 +626,16 @@ class RootArm(Arm):
             if cell is not None:
                 key = (cell.node, cell.id)
                 if key not in restored_fields:
-                    raise Error("Missing record:", cell.reference)
+                    error = Error("Missing record:", cell.reference)
+                    error.wrap("Expected:", tuple(cell))
+                    raise error
                 fields = restored_fields[key]
                 for item, restored_item in zip(cell, fields):
                     if item is not MISSING and item != restored_item:
-                        raise Error("Modified record:", cell.reference)
+                        error = Error("Modified record:", cell.reference)
+                        error.wrap("Expected:", tuple(cell))
+                        error.wrap("Got:", fields)
+                        raise error
                 cell = Cell(cell.node, cell.reference, cell.id, fields)
             restored_difference.append((cell, new_cell))
         return restored_difference
@@ -752,6 +759,8 @@ class RootArm(Arm):
             ids_by_node[node] = ids
         constraints = []
         for name, arm in self.items():
+            if not isinstance(arm, TableArm):
+                continue
             ids = ids_by_node.get(arm.node)
             if ids:
                 state = BindingState(RootBinding(VoidSyntax()))
@@ -906,7 +915,7 @@ class TableArm(Arm):
             id_value = clarify(id_domain, id_value)
         return (id_value,)+tuple(record)
 
-    def flatten(self, path, data):
+    def flatten(self, parent_id, path, data):
         reference = Reference(path)
         id = data[0]
         record = []
@@ -915,7 +924,9 @@ class TableArm(Arm):
         parent_arc = parent_value = None
         if not isinstance(self, TrunkArm):
             parent_arc = self.arc.reverse()
-            if self.is_plural:
+            if parent_id:
+                parent_value = parent_id
+            elif self.is_plural:
                 parent_value = Reference(path[:-2])
             else:
                 parent_value = Reference(path[:-1])
@@ -939,7 +950,7 @@ class TableArm(Arm):
                 index = index_by_arc[arm.arc]
                 value = data[index+1]
                 if value:
-                    cells.extend(arm.flatten(path+(name,), value))
+                    cells.extend(arm.flatten(id, path+(name,), value))
         return cells
 
 
@@ -965,10 +976,11 @@ class TrunkArm(TableArm):
                     for item in data]
         return [super(TrunkArm, self).adapt(data)]
 
-    def flatten(self, path, data):
+    def flatten(self, parent_id, path, data):
         result = []
         for idx, item in enumerate(data):
-            result.extend(super(TrunkArm, self).flatten(path+(str(idx),), item))
+            result.extend(super(TrunkArm, self).flatten(
+                parent_id, path+(str(idx),), item))
         return result
 
 
@@ -996,10 +1008,11 @@ class BranchArm(TableArm):
                     for item in data]
         return [super(BranchArm, self).adapt(data)]
 
-    def flatten(self, path, data):
+    def flatten(self, parent_id, path, data):
         result = []
         for idx, item in enumerate(data):
-            result.extend(super(BranchArm, self).flatten(path+(str(idx),), item))
+            result.extend(super(BranchArm, self).flatten(
+                parent_id, path+(str(idx),), item))
         return result
 
 
@@ -1144,6 +1157,9 @@ class SyntaxArm(Arm):
     def bind(self, state, constraints):
         recipe = prescribe(self.arc, state.scope)
         return state.use(recipe, state.scope.syntax)
+
+    def adapt(self, data):
+        return MISSING
 
 
 class Mask(object):

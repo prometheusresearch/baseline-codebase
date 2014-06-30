@@ -1155,7 +1155,7 @@ class Mask(object):
     def merge(self, syntax):
         assert isinstance(syntax, maybe(Syntax))
         if syntax is None:
-            return syntax
+            return self
         return Mask(OperatorSyntax(u'&', self.syntax, syntax))
 
     def to_yaml(self):

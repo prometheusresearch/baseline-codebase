@@ -9,15 +9,15 @@ var CAPTURE_LOG = true;
 
 
 // Mock translation structures.
-var MOCK_EN = require('./mocks/tx_en.json');
-var MOCK_FR = require('./mocks/tx_fr.json');
-var MOCK_ES = require('./mocks/tx_es.json');
+var MOCK_EN = require('json!./mocks/tx_en.json');
+var MOCK_FR = require('json!./mocks/tx_fr.json');
+var MOCK_ES = require('json!./mocks/tx_es.json');
 
 // Mock Locale Components
-var MOCK_LOCALE_COMMON = require('./mocks/locale_common.json');
-var MOCK_LOCALE_EN = require('./mocks/locale_en.json');
-var MOCK_LOCALE_FR = require('./mocks/locale_fr.json');
-var MOCK_LOCALE_ES = require('./mocks/locale_es.json');
+var MOCK_LOCALE_COMMON = require('json!./mocks/locale_common.json');
+var MOCK_LOCALE_EN = require('json!./mocks/locale_en.json');
+var MOCK_LOCALE_FR = require('json!./mocks/locale_fr.json');
+var MOCK_LOCALE_ES = require('json!./mocks/locale_es.json');
 
 
 // Define the common setup/teardown routines for testing with.

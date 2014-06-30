@@ -1,21 +1,29 @@
+var rexSetup = require('rex-setup');
+
 module.exports = function (config) {
     'use strict';
 
     config.set({
         basePath: '',
-        frameworks: ['jasmine', 'browserify'],
+        frameworks: ['jasmine'],
         files: [
             'test/**/*.js'
         ],
         exclude: [
         ],
         preprocessors: {
-            'test/**/*.js': ['browserify']
+            'test/**/*_spec.js': ['webpack']
         },
-        browserify: {
-            watch: true,
-            debug: true
-        },
+        webpack: rexSetup.configureWebpack({
+          resolve: {
+            alias: {
+              'cldr': 'cldrjs',
+              'cldr/supplemental': 'cldrjs/dist/cldr/supplemental',
+              'cldrjs/supplemental': 'cldrjs/dist/cldr/supplemental'
+            }
+          },
+          devtool: 'source-map'
+        }),
         reporters: ['progress'],
         port: 9876,
         colors: true,

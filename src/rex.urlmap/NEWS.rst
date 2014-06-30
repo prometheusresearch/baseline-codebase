@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.2.1 (2014-XX-XX)
+==================
+
+* Updated dependency on ``rex.port``.
+
+
 2.2.0 (2014-06-27)
 ==================
 

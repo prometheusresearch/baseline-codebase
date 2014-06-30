@@ -5,11 +5,13 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.20.0 (xx/xx/2014)
+0.20.0 (6/30/2014)
 ===================
 
 - Added JS component for facilitating Entry reconciliations.
-- Fixed issue with discrepancy solving not recognizing overrides of ``None``.
+- Fixed issue with discrepancy solving API not recognizing overrides of
+  ``None``.
+- Upgraded react-forms.
 
 
 0.19.1-2 (6/24/2014)

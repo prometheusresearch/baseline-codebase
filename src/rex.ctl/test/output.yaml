@@ -27,45 +27,6 @@ tests:
 
       Run rex help for general usage and a list of tasks and settings.
       Run rex help <topic> for help on a specific task or setting.
-  - rex: help
-    stdout: |+
-      Rex - Command-line administration utility for the RexDB platform
-      Usage: rex [<settings>...] <task> [<arguments>...]
-
-      Run rex help for general usage and a list of tasks,
-      settings and other help topics.
-
-      Run rex help <topic> for help on a specific topic.
-
-      Available tasks:
-        createdb [<project>]     : create application database
-        deploy [<project>]       : deploy database schema
-        dropdb [<project>]       : delete application database
-        dumpdb [<project>]       : dump application database
-        help [<topic>]           : display help on tasks and settings
-        loaddb [<project>]       : load application database
-        packages [<project>]     : list application components
-        rdoma-createdb [<project>] : create application database
-        rdoma-deploy [<project>] : deploy application database
-        rdoma-dropdb [<project>] : delete application database
-        rdoma-dumpdb [<project>] : dump application database to a file
-        rdoma-loaddb [<project>] : load application database from a file
-        serve [<project>]        : start an HTTP server
-        serve-uwsgi [<project>]  : start a uWSGI server
-        settings [<project>]     : list configuration parameters
-        shell [<project>]        : open HTSQL shell
-        wsgi [<project>]         : generate a WSGI script
-
-      Settings:
-        --config=CONFIG_FILE     : config file to retrieve settings from
-        --debug                  : print debug information
-        --http-host=HOSTNAME     : HTTP server address
-        --http-port=PORT         : HTTP server port
-        --parameters=CONFIG      : application configuration
-        --project=NAME           : primary package
-        --requirements=NAMES     : additional application components
-        --uwsgi=CONFIG           : configuration of the uWSGI server
-
   - rex: help deploy
     stdout: |+
       DEPLOY - deploy database schema

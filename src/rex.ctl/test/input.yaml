@@ -48,7 +48,6 @@ tests:
 - title: rex help
   tests:
   - rex: ''
-  - rex: help
   - rex: help deploy
   - rex: help shell
   - rex: help serve

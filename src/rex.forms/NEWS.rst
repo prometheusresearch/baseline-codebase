@@ -5,8 +5,15 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.21.0 (7/xx/2014)
+==================
+
+- Added an extension called TaskCompletionProcessor to allow custom logic to
+  be executed after a Task has been completed.
+
+
 0.20.0 (6/30/2014)
-===================
+==================
 
 - Added JS component for facilitating Entry reconciliations.
 - Fixed issue with discrepancy solving API not recognizing overrides of

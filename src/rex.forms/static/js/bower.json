@@ -27,7 +27,7 @@
     "rex",
     "forms"
   ],
-  "license": "AGPLv3",
+  "license": "AGPL-3.0",
   "ignore": [
     "**/.*",
     "node_modules",

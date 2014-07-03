@@ -125,10 +125,10 @@ Values of any other type are rejected::
 Database management
 ===================
 
-``rex.deploy`` can generate SQL for creating and destroying databases::
+``rex.deploy`` can generate SQL for creating, destroying and renaming databases::
 
     >>> from rex.deploy import sql_create_database, sql_drop_database, \
-    ...                        sql_select_database
+    ...                        sql_select_database, sql_rename_database
 
     >>> print sql_create_database(u'deploy_demo')
     CREATE DATABASE "deploy_demo" WITH ENCODING = 'UTF-8';
@@ -141,6 +141,11 @@ When creating a database, you can specify an existing database as a template::
 
     >>> print sql_create_database(u'deploy_demo', template=u'deploy_demo_template')
     CREATE DATABASE "deploy_demo" WITH ENCODING = 'UTF-8' TEMPLATE = "deploy_demo_template";
+
+If a database exists, it can be renamed::
+
+    >>> print sql_rename_database(u'deploy_demo', u'new_deploy_demo')
+    ALTER DATABASE "deploy_demo" RENAME TO "new_deploy_demo";
 
 
 Tables, columns, and constraints

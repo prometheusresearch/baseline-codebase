@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.5.0 (2014-XX-XX)
+==================
+
+* Added ability to rename an existing database.
+
+
 1.4.0 (2014-06-27)
 ==================
 
@@ -58,6 +64,6 @@
 1.0.0 (2013-12-13)
 ==================
 
-* Initial implementation (Kyrylo Simonov).
+* Initial implementation.
 
 

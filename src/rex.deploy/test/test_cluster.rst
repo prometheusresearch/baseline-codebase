@@ -48,7 +48,15 @@ You can also clone an existing database::
     >>> cluster.exists('deploy_demo_clone')
     True
 
-    >>> cluster.drop('deploy_demo_clone')
+Or rename it::
+
+    >>> cluster.rename('deploy_demo_renamed', 'deploy_demo_clone')
+    >>> cluster.exists('deploy_demo_clone')
+    False
+    >>> cluster.exists('deploy_demo_renamed')
+    True
+
+    >>> cluster.drop('deploy_demo_renamed')
 
 It is an error if you try to create a database which already exists or
 drop a database which does not exist::

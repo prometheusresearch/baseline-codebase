@@ -130,6 +130,16 @@ def sql_drop_database(name):
     return u"DROP DATABASE {};".format(sql_name(name))
 
 
+def sql_rename_database(name, new_name):
+    """
+    Generates::
+
+        ALTER DATABASE {name} RENAME TO {new_name}
+    """
+    return u"ALTER DATABASE {} RENAME TO {};".format(sql_name(name),
+                                                     sql_name(new_name))
+
+
 def sql_select_database(name):
     """
     Generates::

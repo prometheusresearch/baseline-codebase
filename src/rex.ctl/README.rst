@@ -160,12 +160,12 @@ Then start::
     *** Starting uWSGI 2.0.3-debian (64bit) on [Fri Jun 27 15:53:27 2014] ***
     [...]
 
-A more complete uWSGI configuration may start a uWSGI daemon with a master
-process and several worker processes::
+A more complete uWSGI configuration might construct the application,
+then daemonize with a master process and several worker processes::
 
     uwsgi:
       master: true
-      daemonize: uwsgi.log
+      daemonize2: uwsgi.log
       processes: 4
       threads: 2
       socket: :3031

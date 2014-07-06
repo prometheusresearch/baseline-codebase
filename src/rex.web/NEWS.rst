@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.2.1 (2014-XX-XX)
+2.2.1 (2014-07-06)
 ==================
 
 * Pregenerate random encryption keys on startup to work better with

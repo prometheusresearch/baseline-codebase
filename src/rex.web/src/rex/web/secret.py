@@ -32,10 +32,12 @@ class SecretSetting(Setting):
 # AES128
 CKEY_SIZE = 16
 CBLOCK_SIZE = 16
+CKEY = os.urandom(CKEY_SIZE)
 
 # SHA256
 VKEY_SIZE = 64
 VDIGEST_SIZE = 32
+VKEY = os.urandom(VKEY_SIZE)
 
 
 @cached
@@ -45,7 +47,7 @@ def get_encryption_key():
     if secret:
         return pbkdf2.PBKDF2(secret, "encryption key").read(CKEY_SIZE)
     else:
-        return os.urandom(CKEY_SIZE)
+        return CKEY
 
 
 @cached
@@ -55,7 +57,7 @@ def get_validation_key():
     if secret:
         return pbkdf2.PBKDF2(secret, "validation key").read(VKEY_SIZE)
     else:
-        return os.urandom(VKEY_SIZE)
+        return VKEY
 
 
 def encrypt(plaintext):

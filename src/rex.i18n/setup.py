@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.i18n',
-    version='0.1.0',
+    version='0.2.0',
     description='An Internationalization framework for rex.web applications.',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

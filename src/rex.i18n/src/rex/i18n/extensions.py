@@ -73,6 +73,8 @@ class WebBabelMapper(BabelMapper):
         lines = [
             '[jinja2: static/template/**.html]',
             jinja_extensions,
+            '[jinja2: static/templates/**.html]',
+            jinja_extensions,
         ]
 
         for handler in HandleTemplate.all():

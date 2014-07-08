@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.1.2 (2014-07-08)
+==================
+
+* Support both ``node`` and ``nodejs`` executables.
+
+
 1.1.1 (2014-07-01)
 ==================
 

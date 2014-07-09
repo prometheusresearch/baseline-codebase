@@ -3,7 +3,8 @@
 #
 
 
-from rex.core import UStrVal
+from rex.core import StrVal, UStrVal
+from rex.web import url_for
 from .widget import Widget, NullWidget
 from .parse import WidgetVal
 import cgi
@@ -54,5 +55,20 @@ class PanelWidget(Widget):
         return u"<div class=\"row\">\n<div class=\"col-md-6\">\n%s</div>\n" \
                 u"<div class=\"col-md-6\">\n%s</div>\n</div>\n" \
                 % (self.left.as_html(req), self.right.as_html(req))
+
+
+class LinkWidget(Widget):
+
+    name = 'Link'
+    fields = [
+            ('url', StrVal),
+            ('text', UStrVal, None),
+    ]
+
+    def as_html(self, req):
+        url = url_for(req, self.url).decode('utf-8')
+        text = self.text or url
+        return u"<a href=\"%s\">%s</a>\n" \
+                % (cgi.escape(url, True), cgi.escape(text))
 
 

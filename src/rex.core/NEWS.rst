@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.6.2 (2014-07-09)
+==================
+
+* Fixed ``autoreload`` to cache result when there are multiple source files.
+
+
 1.6.1 (2014-06-27)
 ==================
 

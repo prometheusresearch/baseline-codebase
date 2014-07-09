@@ -71,7 +71,7 @@ class OpenSpy(object):
                     for path in self.paths:
                         stat = os.stat(path)
                         last_modified = max(last_modified, stat.st_mtime)
-                        total_size = stat.st_size
+                        total_size += stat.st_size
                     if (last_modified, total_size) == \
                             (self.last_modified, self.total_size):
                         return self.result

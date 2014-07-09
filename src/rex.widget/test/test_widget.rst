@@ -8,14 +8,14 @@
     >>> from rex.widget import Widget
 
     >>> screen = Widget.parse("""
-    ... !Section
-    ... - !Header Welcome to rex.widget_demo
-    ... - !Label This is a humble label.
-    ... - !Panel
-    ...   left: !Label This is the left panel
+    ... !<Section>
+    ... - !<Header> Welcome to rex.widget_demo
+    ... - !<Label> This is a humble label.
+    ... - !<Panel>
+    ...   left: !<Label> This is the left panel
     ...   right:
-    ...   - !Header Main Panel
-    ...   - !Label This is the main panel
+    ...   - !<Header> Main Panel
+    ...   - !<Label> This is the main panel
     ... """)
 
     >>> print screen

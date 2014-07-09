@@ -66,8 +66,8 @@ class WidgetVal(Validate):
         if isinstance(node, yaml.ScalarNode):
             if node.tag == u'tag:yaml.org,2002:null':
                 return NullWidget()
-            if node.tag.startswith(u'!'):
-                name = node.tag[1:]
+            if node.tag.isalnum():
+                name = node.tag
                 if node.value:
                     value = yaml.ScalarNode(u'tag:yaml.org,2002:str',
                             node.value, node.start_mark, node.end_mark,
@@ -77,15 +77,15 @@ class WidgetVal(Validate):
             if node.tag == u'tag:yaml.org,2002:seq':
                 return GroupWidget([loader.construct_object(item, deep=True)
                                     for item in node.value])
-            if node.tag.startswith(u'!'):
-                name = node.tag[1:]
+            if node.tag.isalnum():
+                name = node.tag
                 value = yaml.SequenceNode(u'tag:yaml.org,2002:seq',
                         node.value, node.start_mark, node.end_mark,
                         node.flow_style)
                 pairs = [(None, value)]
         elif isinstance(node, yaml.MappingNode):
-            if node.tag.startswith(u'!'):
-                name = node.tag[1:]
+            if node.tag.isalnum():
+                name = node.tag
                 pairs = node.value
         if not name:
             error = Error("Expected a widget")

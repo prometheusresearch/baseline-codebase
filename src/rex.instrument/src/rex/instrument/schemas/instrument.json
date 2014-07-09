@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
 
-    "id": "http://rexdb.com/instrument/0.5.0#",
+    "id": "http://rexdb.com/instrument/0.6.0#",
     "title": "Common Instrument Definition",
 
     "definitions": {
@@ -173,6 +173,10 @@
 
                 "explanation": {
                     "$ref": "#definitions/requiredOptionalType"
+                },
+
+                "identifiable": {
+                    "type": "boolean"
                 }
             },
 

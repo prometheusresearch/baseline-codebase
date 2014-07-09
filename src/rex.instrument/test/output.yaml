@@ -41,6 +41,7 @@ tests:
   - {test/instruments/constraint_record_notallowed.json: 'ValidationError: "integer"
       Fields cannot have constraints: record'}
   - {test/instruments/empty_title.json: 'ValidationError: u'''' is too short'}
+  - {test/instruments/identifiable.json: VALIDATED}
   - {test/instruments/matrix.json: VALIDATED}
   - {test/instruments/matrix_complex_column.json: 'ValidationError: Complex type "recordList"
       cannot be used within another complex type.'}

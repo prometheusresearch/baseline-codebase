@@ -2,7 +2,7 @@
 Common Instrument Definition
 ****************************
 
-DRAFT v0.5.0
+DRAFT v0.6.0
 
 
 .. contents:: Table of Contents
@@ -150,6 +150,21 @@ explanation
                        Field.
                      * ``none`` - An explanation is not allowed for this
                        Field.
+
+identifiable
+    :Type: Boolean
+    :Description: Indicates whether or not the reponse for this Field will (or
+                  can) contain information that can be used to identify the
+                  subject or respondant. This is typically used to flag fields
+                  that would contain information that could be classified as
+                  "Protected Health Information" (`HIPAA PHI`_), "Personally
+                  Identifiable Information" (`NIST PII`_), "Personal Data"
+                  (`EU Data Protection Directive`_), etc. This property is
+                  optional, and, if not specified, is assumed to be false.
+
+.. _`HIPAA PHI`: http://www.gpo.gov/fdsys/pkg/CFR-2002-title45-vol1/pdf/CFR-2002-title45-vol1-sec164-514.pdf
+.. _`NIST PII`: http://csrc.nist.gov/publications/nistpubs/800-122/sp800-122.pdf
+.. _`EU Data Protection Directive`: http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:31995L0046
 
 
 Type Collection Object

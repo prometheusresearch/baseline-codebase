@@ -918,6 +918,31 @@ class Record(object):
                            for field, value in zip(self._fields, self))))
 
 
+class RecordField(object):
+
+    NODEFAULT = object()
+
+    def __init__(self, name, validate, default=NODEFAULT):
+        attribute = name
+        if keyword.iskeyword(attribute):
+            attribute += '_'
+        if isinstance(validate, type):
+            validate = validate()
+        has_default = (default is not self.NODEFAULT)
+        self.attribute = attribute
+        self.name = name
+        self.validate = validate
+        if has_default:
+            self.default = default
+        self.has_default = has_default
+
+    def __repr__(self):
+        if self.has_default:
+            return repr((self.name, self.validate, self.default))
+        else:
+            return repr((self.name, self.validate))
+
+
 class RecordVal(Validate):
     """
     Accepts a dictionary with field values; returns ``namedtuple`` object.
@@ -925,6 +950,7 @@ class RecordVal(Validate):
     `fields`
         List of record fields, where each field is one of:
 
+        * a :class:`RecordField` object;
         * a pair of the field name and the field validator, for mandatory
           fields;
         * a triple of the field name, the validator and the default value,
@@ -934,36 +960,15 @@ class RecordVal(Validate):
     def __init__(self, *fields):
         if len(fields) == 1 and isinstance(fields[0], list):
             [fields] = fields
-        self.fields = []
-        self.names = []
-        self.attributes = {}
-        self.validates = {}
-        self.defaults = {}
+        self.fields = collections.OrderedDict()
         for field in fields:
-            assert isinstance(field, tuple) and 2 <= len(field) <= 3, \
-                "invalid field: %s" % repr(field)
-            if len(field) == 2:
-                name, validate = field
-                if isinstance(validate, type):
-                    validate = validate()
-                self.fields.append((name, validate))
-                self.names.append(name)
-                self.validates[name] = validate
-            else:
-                name, validate, default = field
-                if isinstance(validate, type):
-                    validate = validate()
-                self.fields.append((name, validate, default))
-                self.names.append(name)
-                self.validates[name] = validate
-                self.defaults[name] = default
-            attribute = name
-            if keyword.iskeyword(attribute):
-                attribute += '_'
-            self.attributes[name] = attribute
-        # FIXME: public API?
+            if isinstance(field, tuple):
+                field = RecordField(*field)
+            assert isinstance(field, RecordField), field
+            assert field.name not in self.fields, field
+            self.fields[field.name] = field
         self.record_type = Record.make(None,
-                [self.attributes[name] for name in self.names])
+                [field.attribute for field in self.fields.values()])
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
@@ -977,31 +982,30 @@ class RecordVal(Validate):
                 fields = self.record_type._fields
                 if getattr(data, '_fields', fields) != fields:
                     raise Error("Expected a record with fields:",
-                                ", ".join(self.names))
-                data = dict((name, value)
-                            for name, value in zip(self.names, data)
-                            if name not in self.defaults or
-                               value != self.defaults[name])
+                                ", ".join(self.fields.keys()))
+                data = dict((field.name, value)
+                            for field, value in zip(self.fields.values(), data)
+                            if not field.has_default or value != field.default)
             if not isinstance(data, dict):
                 raise Error("Expected a mapping")
         values = {}
         for name in sorted(data):
             value = data[name]
             name = name.replace('-', '_').replace(' ', '_')
-            if name not in self.names:
+            if name not in self.fields:
                 raise Error("Got unexpected field:", name)
-            attribute = self.attributes[name]
+            attribute = self.fields[name].attribute
             values[attribute] = value
-        for name in self.names:
-            attribute = self.attributes[name]
+        for field in self.fields.values():
+            attribute = field.attribute
             if attribute in values:
-                validate = self.validates[name]
-                with guard("While validating field:", name):
+                validate = field.validate
+                with guard("While validating field:", field.name):
                     values[attribute] = validate(values[attribute])
-            elif name in self.defaults:
-                values[attribute] = self.defaults[name]
+            elif field.has_default:
+                values[attribute] = field.default
             else:
-                raise Error("Missing mandatory field:", name)
+                raise Error("Missing mandatory field:", field.name)
         return self.record_type(**values)
 
     def construct(self, loader, node):
@@ -1009,11 +1013,10 @@ class RecordVal(Validate):
         if (isinstance(node, yaml.ScalarNode) and
                 node.tag == u'tag:yaml.org,2002:null' and
                 node.value == u'' and
-                len(self.defaults) == len(self.names)):
+                all(field.has_default for field in self.fields.values())):
             values = {}
-            for name in self.names:
-                attribute = self.attributes[name]
-                values[attribute] = self.defaults[name]
+            for field in self.fields.values():
+                values[field.attribute] = field.default
             data = self.record_type(**values)
             set_location(data, location)
             return data
@@ -1031,30 +1034,31 @@ class RecordVal(Validate):
                 name = loader.construct_object(key_node, deep=True)
             name = name.replace('-', '_').replace(' ', '_')
             with guard("While parsing:", Location.from_node(key_node)):
-                if name not in self.names:
+                if name not in self.fields:
                     raise Error("Got unexpected field:", name)
                 if name in values:
                     raise Error("Got duplicate field:", name)
+            field = self.fields[name]
             with guard("While validating field:", name), \
-                 loader.validating(self.validates[name]):
+                 loader.validating(field.validate):
                 value = loader.construct_object(value_node, deep=True)
-            attribute = self.attributes[name]
-            values[attribute] = value
-        for name in self.names:
-            attribute = self.attributes[name]
+            values[field.attribute] = value
+        for field in self.fields.values():
+            attribute = field.attribute
             if attribute not in values:
-                if name in self.defaults:
-                    values[attribute] = self.defaults[name]
+                if field.has_default:
+                    values[attribute] = field.default
                 else:
                     with guard("While parsing:", location):
-                        raise Error("Missing mandatory field:", name)
+                        raise Error("Missing mandatory field:", field.name)
         data = self.record_type(**values)
         set_location(data, location)
         return data
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
-                           ", ".join(repr(field) for field in self.fields))
+                           ", ".join(repr(field)
+                                     for field in self.fields.values()))
 
 
 class SwitchVal(Validate):

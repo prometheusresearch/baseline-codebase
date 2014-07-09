@@ -5,6 +5,12 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.10.1 (xx/xx/2014)
+===================
+
+- Added ability to mark Instrument fields as containing PHI/PII.
+
+
 0.9.1 (6/24/2014)
 =================
 

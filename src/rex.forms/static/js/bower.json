@@ -13,6 +13,7 @@
     "react-forms": "https://github.com/prometheusresearch/react-forms.git#v0.5.1",
     "emitter": "https://github.com/component/emitter.git#1.1.2",
     "jscreole": "prometheusresearch/jscreole#inline-markup",
+    "rex-expression": "*",
     "assert": "*",
     "mocha": "*"
   },

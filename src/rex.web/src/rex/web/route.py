@@ -273,7 +273,7 @@ class StaticServer(object):
                 package_path = "%s:%s" % (self.package.name, local_path)
                 handler = self.file_handler_map[ext](package_path)
             else:
-                handler = FileApp(real_path)
+                handler = FileApp(real_path, cache_control='private')
             return handler(req)
 
         # If file not found, delegate to the fallback or return 404.

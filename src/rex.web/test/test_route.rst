@@ -356,6 +356,7 @@ Static resources in directory ``www`` are available via HTTP::
     Content-Length: 23
     Last-Modified: ...
     Accept-Ranges: bytes
+    Cache-Control: private
     <BLANKLINE>
     name
     Alice
@@ -433,6 +434,7 @@ Access is controlled by ``_access.yaml`` file::
     Content-Length: 24
     Last-Modified: ...
     Accept-Ranges: bytes
+    Cache-Control: private
     <BLANKLINE>
     names
     Alice

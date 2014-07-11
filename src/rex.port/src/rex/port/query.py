@@ -8,7 +8,7 @@ from rex.db import get_db
 from .arm import RootArm, ArmDumper
 from .grow import Grow
 from htsql.core.util import maybe, listof
-from htsql.core.domain import Value
+from htsql.core.domain import Value, Product
 from htsql.core.connect import transaction
 from htsql.core.syn.syntax import VoidSyntax
 from htsql.core.cmd.embed import Embed
@@ -210,6 +210,14 @@ class Port(object):
             binding = self.tree.bind(state, constraints)
             pipe = translate(binding)
             return pipe()(None)
+
+    def describe(self, *args, **kwds):
+        with get_db():
+            constraints = ConstraintSet.parse(*args, **kwds)
+            state = BindingState(RootBinding(VoidSyntax()))
+            binding = self.tree.bind(state, constraints)
+            pipe = translate(binding)
+            return Product(pipe.meta, None)
 
     def replace(self, old, new):
         if isinstance(old, (str, unicode)):

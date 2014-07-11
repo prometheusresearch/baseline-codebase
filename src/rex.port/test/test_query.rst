@@ -32,6 +32,13 @@ After you create a port, you can query it::
     {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
       {[fos], 'fos', 'Family Obesity Study', false})}
 
+You can also obtain the type of the result without executing the query::
+
+    >>> product = study_port.describe()
+    >>> print product
+    null
+    >>> print product.meta
+    record(list(record(identity(text), text, text, boolean)))
 
 The port could also handle HTTP requests::
 

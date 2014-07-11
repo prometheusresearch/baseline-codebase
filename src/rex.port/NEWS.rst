@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-0.1.1 (2014-XX-XX)
+0.2.0 (2014-XX-XX)
 ==================
 
 * Various fixes and improvements.

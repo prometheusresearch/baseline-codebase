@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.2.2 (2014-XX-XX)
+2.2.2 (2014-07-14)
 ==================
 
 * Set ``Cache-Control: private`` header on static resources.

@@ -41,7 +41,7 @@ class OpenSpy(object):
         # Arguments to the function.
         self.args = args
         # Set of source files.
-        self.paths = []
+        self.paths = None
         # Time of the last update of the files from this set.
         self.last_modified = 0
         # The total size of all opened files.
@@ -64,7 +64,7 @@ class OpenSpy(object):
     def __call__(self):
         with self.lock:
             # Check if we can use the cached result.
-            if self.paths:
+            if self.paths is not None:
                 try:
                     last_modified = 0
                     total_size = 0
@@ -84,7 +84,7 @@ class OpenSpy(object):
             try:
                 self.result = self.callback(*self.args, open=self.open)
             except:
-                self.paths = []
+                self.paths = None
                 self.last_modified = 0
                 self.total_size = 0
                 raise

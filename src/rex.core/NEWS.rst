@@ -9,6 +9,7 @@
 ==================
 
 * Added ``RecordField``.
+* ``autoreload()``: cache the result even if no files were opened.
 
 
 1.6.2 (2014-07-09)

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.attach',
-    version = "2.0.0",
+    version = "2.0.1",
     description="File storage for uploaded files",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -23,7 +23,7 @@ setup(
     ],
     install_requires=[
         'rex.core >=1.4, <2',
-        'rex.web >=2.0, <3',
+        'rex.web >=2.0, <4',
     ],
     rex_init='rex.attach',
     rex_static='static',

@@ -1009,22 +1009,23 @@ class Entry(Extension, Comparable, Displayable, Dictable):
     )
 
     @staticmethod
-    def validate_data(data, schema=None):
+    def validate_data(data, instrument_version=None):
         """
         Validates that the specified data is a legal Assessment Document.
 
         :param data: the Assessment data to validate
         :type data: dict or JSON string
-        :param schema:
-            the schema to validate the data against; if None, the generic
-            schema will be used
-        :type schema: dict
+        :param instrument_version:
+            the InstrumentVersion containing the Instrument Definition to
+            validate the data against; if not specified, only the adherance to
+            the base Assessment Document definition is checked
+        :type instrument_version: InstrumentVersion
         :raises:
             ValidationError if the specified structure fails any of the
             requirements
         """
 
-        return Assessment.validate_data(data, schema=schema)
+        return Assessment.validate_data(data, instrument_version)
 
     @staticmethod
     def schema_from_instrument(instrument_version):
@@ -1300,7 +1301,6 @@ class Entry(Extension, Comparable, Displayable, Dictable):
 
     @data.setter
     def data(self, value):
-        self.__class__.validate_data(value)
         # pylint: disable=W0201
         self._data = deepcopy(value)
 
@@ -1342,12 +1342,10 @@ class Entry(Extension, Comparable, Displayable, Dictable):
             ValidationError if the data fails any of the requirements
         """
 
-        if (not schema) and self.assessment.instrument_version:
-            schema = self.__class__.schema_from_instrument(
-                self.assessment.instrument_version
-            )
-
-        return self.__class__.validate_data(self.data, schema)
+        return self.__class__.validate_data(
+            self.data,
+            self.assessment.instrument_version,
+        )
 
     def get_meta(self, name, default=None):
         """

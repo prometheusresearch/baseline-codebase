@@ -10,6 +10,9 @@ REX.FORMS Change Log
 
 - Added an extension called TaskCompletionProcessor to allow custom logic to
   be executed after a Task has been completed.
+- Updated the Entry.validate_data() method to support the updated validation
+  logic provided by Assessment.validate_data().
+- Entry data is now only validated upon complete, rather than on assignment.
 
 
 0.20.0 (6/30/2014)

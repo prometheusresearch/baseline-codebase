@@ -1,5 +1,5 @@
 import codecs
-import glob
+import os.path
 
 from pbbt import Test, Field, MatchCase, listof
 
@@ -25,10 +25,14 @@ class InstrumentValidatorCase(MatchCase):
         from rex.instrument import InstrumentVersion, ValidationError
 
         results = []
-        for filename in sorted(glob.glob(self.input.instrumentversions)):
+        for filename in sorted(os.listdir(self.input.instrumentversions)):
+            full_path = os.path.join(self.input.instrumentversions, filename)
+
+            if not os.path.isfile(full_path):
+                continue
             self.ui.literal('Validating %s...' % filename)
 
-            data = codecs.open(filename, 'r', encoding='utf-8').read()
+            data = codecs.open(full_path, 'r', encoding='utf-8').read()
             try:
                 InstrumentVersion.validate_definition(data)
             except ValidationError as exc:
@@ -71,26 +75,74 @@ class AssessmentValidatorCase(MatchCase):
     def run(self):
         # this import needs to be here instead of at the top of the module
         # because if it runs upon load, it seems to confuse converage.py
-        from rex.instrument import Assessment, ValidationError
+        from rex.instrument import Instrument, InstrumentVersion, Assessment, \
+            ValidationError
 
         results = []
-        for filename in sorted(glob.glob(self.input.assessments)):
-            self.ui.literal('Validating %s...' % filename)
+        for filename in sorted(os.listdir(self.input.assessments)):
+            full_path = os.path.join(self.input.assessments, filename)
 
-            data = codecs.open(filename, 'r', encoding='utf-8').read()
-            try:
-                Assessment.validate_data(data)
-            except ValidationError as exc:
-                results.append({
-                    filename: u'%s: %s' % (
-                        exc.__class__.__name__,
-                        exc,
-                    ),
-                })
-            else:
-                results.append({
-                    filename: 'VALIDATED',
-                })
+            if os.path.isfile(full_path):
+                self.ui.literal('Validating %s...' % filename)
+
+                data = codecs.open(full_path, 'r', encoding='utf-8').read()
+                try:
+                    Assessment.validate_data(data)
+                except ValidationError as exc:
+                    results.append({
+                        filename: u'%s: %s' % (
+                            exc.__class__.__name__,
+                            exc,
+                        ),
+                    })
+                else:
+                    results.append({
+                        filename: 'VALIDATED',
+                    })
+
+            elif os.path.isdir(full_path):
+                instrument_defn = codecs.open(
+                    os.path.join(full_path, 'instrument.json'),
+                    'r',
+                    encoding='utf-8'
+                ).read()
+                instrument = Instrument('test', 'Test Instrument')
+                instrument_version = InstrumentVersion(
+                    'test1',
+                    instrument,
+                    instrument_defn,
+                    1,
+                )
+
+                for subfilename in sorted(os.listdir(full_path)):
+                    full_subpath = os.path.join(full_path, subfilename)
+
+                    if subfilename == 'instrument.json' \
+                            or not os.path.isfile(full_subpath):
+                        continue
+                    else:
+                        subfilename = os.path.join(filename, subfilename)
+
+                    self.ui.literal('Validating %s...' % subfilename)
+
+                    data = codecs.open(
+                        full_subpath,
+                        'r',
+                        encoding='utf-8',
+                    ).read()
+                    try:
+                        Assessment.validate_data(data, instrument_version)
+                    except ValidationError as exc:
+                        results.append({
+                            subfilename: u'%s: %s' % (
+                                exc.__class__.__name__,
+                                exc,
+                            ),
+                        })
+                    else:
+                        results.append({
+                            subfilename: 'VALIDATED',
+                        })
 
         return self.Output(
             assessments=self.input.assessments,

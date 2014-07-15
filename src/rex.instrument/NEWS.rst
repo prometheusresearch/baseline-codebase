@@ -5,10 +5,15 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-0.10.1 (xx/xx/2014)
+0.10.0 (xx/xx/2014)
 ===================
 
 - Added ability to mark Instrument fields as containing PHI/PII.
+- Enhanced Assessment.validate_data() method to perform Instrument-specific
+  validation of the data structure, in addition to the base Common Assessment
+  Document schema validation.
+- Assessment data is now only validated upon complete, rather than on
+  assigment.
 
 
 0.9.1 (6/24/2014)

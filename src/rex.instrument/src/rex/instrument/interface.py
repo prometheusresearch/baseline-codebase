@@ -4,6 +4,7 @@
 
 
 import json
+import re
 
 from copy import deepcopy
 from datetime import datetime, date
@@ -779,6 +780,27 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         )
 
 
+SIMPLE_TYPE_CHECKS = {
+    'float': (int, long, float),
+    'text': basestring,
+    'enumeration': basestring,
+    'enumerationSet': list,
+    'boolean': bool,
+}
+REGEX_TYPE_CHECKS = {
+    'date':  re.compile(
+        r'^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])$'
+    ),
+    'time': re.compile(
+        r'^(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$'
+    ),
+    'dateTime': re.compile(
+        r'^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])'
+        'T(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$'
+    ),
+}
+
+
 class Assessment(Extension, Comparable, Displayable, Dictable):
     """
     Represents a response to an Instrument by a Subject.
@@ -799,16 +821,17 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
     )
 
     @staticmethod
-    def validate_data(data, schema=None):
+    def validate_data(data, instrument_version=None):
         """
         Validates that the specified data is a legal Assessment Document.
 
         :param data: the Assessment data to validate
         :type data: dict or JSON string
-        :param schema:
-            the schema to validate the data against; if None, the generic
-            schema will be used
-        :type schema: dict
+        :param instrument_version:
+            the InstrumentVersion containing the Instrument Definition to
+            validate the data against; if not specified, only the adherance to
+            the base Assessment Document definition is checked
+        :type instrument_version: InstrumentVersion
         :raises:
             ValidationError if the specified structure fails any of the
             requirements
@@ -822,34 +845,178 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
                 'Assessment Documents must be mapped objects.'
             )
 
-        # Make sure it validates against the schema.
-        schema = schema or ASSESSMENT_SCHEMA
+        # Make sure it validates against the base schema.
         try:
             jsonschema.validate(
                 data,
-                schema,
+                ASSESSMENT_SCHEMA,
                 format_checker=jsonschema.FormatChecker(),
             )
         except jsonschema.ValidationError as ex:
             raise ValidationError(ex.message)
 
+        if not instrument_version:
+            return
+
+        # Make sure the instrument ID lines up
+        if data['instrument']['id'] != instrument_version.definition['id'] or \
+                data['instrument']['version'] != \
+                instrument_version.definition['version']:
+            raise ValidationError(
+                'This Assessment is not associated with the specified'
+                ' InstrumentVersion'
+            )
+
+        Assessment._check_assessment_record(
+            data['values'],
+            instrument_version.definition['record'],
+            known_types=InstrumentVersion.get_definition_type_catalog(
+                instrument_version.definition
+            ),
+        )
+
     @staticmethod
-    def schema_from_instrument(instrument_version):
-        """
-        Generates a JSON Schema definition that validates Assessment for the
-        specified InstrumentVersion
-        """
+    def _check_assessment_record(assessment, instrument_version, known_types):
+        afields = set(assessment.keys())
+        ifields = set([field['id'] for field in instrument_version])
 
-        # Start with the default schema as a base.
-        schema = deepcopy(ASSESSMENT_SCHEMA)
+        # Make sure we have all the fields.
+        missing = ifields - afields
+        if missing:
+            raise ValidationError(
+                'Assessment is missing values for: %s' % (
+                    ', '.join(missing),
+                )
+            )
 
-        # TODO: Build a type definition that is specific to the structure
-        # of the Instrument and replace schema['properties']['values'] with it
+        # Make sure we don't have any extra fields.
+        extra = afields - ifields
+        if extra:
+            raise ValidationError(
+                'Assessment contains unexpected values: %s' % (
+                    ', '.join(extra),
+                )
+            )
 
-        # TODO: Update schema['properties']['instrument'] so that it checks for
-        # the right version.
+        for field in instrument_version:
+            Assessment._check_assessment_field(
+                assessment[field['id']],
+                field,
+                known_types,
+            )
 
-        return schema
+    @staticmethod
+    def _check_assessment_field(assessment, field, known_types):
+        value = assessment.get('value', None)
+        explanation = assessment.get('explanation', None)
+        annotation = assessment.get('annotation', None)
+
+        # Make sure we have a value if required.
+        if field.get('required', False) and not value:
+            raise ValidationError(
+                'A value for field "%s" is required' % (
+                    field['id'],
+                )
+            )
+
+        # Make sure we have an explanation when desired.
+        opt = field.get('explanation', 'none')
+        if opt == 'none' and explanation is not None:
+            raise ValidationError(
+                'An explanation for field "%s" is not allowed' % (
+                    field['id'],
+                )
+            )
+        elif opt == 'required' and not explanation:
+            raise ValidationError(
+                'An explanation is required for field "%s"' % (
+                    field['id'],
+                )
+            )
+
+        # Make sure we have an annotation when desired.
+        opt = field.get('annotation', 'none')
+        if opt == 'none' and annotation is not None:
+            raise ValidationError(
+                'An annotation for field "%s" is not allowed' % (
+                    field['id'],
+                )
+            )
+        elif opt == 'required' and not value and not annotation:
+            raise ValidationError(
+                'An annotation is required for field "%s"' % (
+                    field['id'],
+                )
+            )
+        elif opt == 'optional' and value and annotation:
+            raise ValidationError(
+                'An annotation for field "%s" is not required because it'
+                ' has a value' % (
+                    field['id'],
+                )
+            )
+
+        # Make sure the value data type is correct.
+        Assessment._check_field_type(
+            assessment,
+            field,
+            known_types,
+        )
+
+    @staticmethod
+    def _check_field_type(assessment, field, known_types):
+        value = assessment.get('value', None)
+
+        if value is None:
+            return
+
+        if isinstance(field['type'], basestring):
+            field_type = field['type']
+        else:
+            field_type = known_types[field['type']['base']]
+
+        # TODO: check type constraints
+
+        if field_type in SIMPLE_TYPE_CHECKS:
+            if isinstance(value, SIMPLE_TYPE_CHECKS[field_type]):
+                return
+
+        elif field_type in REGEX_TYPE_CHECKS:
+            if REGEX_TYPE_CHECKS[field_type].match(value):
+                return
+
+        elif field_type == 'integer':
+            if isinstance(value, (int, long)) \
+                    or (isinstance(value, float) and value.is_integer()):
+                return
+
+        elif field_type == 'recordList':
+            if isinstance(value, list):
+                for val in value:
+                    Assessment._check_assessment_record(
+                        val,
+                        field['type']['record'],
+                        known_types,
+                    )
+                return
+
+        elif field_type == 'matrix':
+            if isinstance(value, dict):
+                # TODO: check missing/extra rows
+                for columns in value.values():
+                    Assessment._check_assessment_record(
+                        columns,
+                        field['type']['columns'],
+                        known_types,
+                    )
+                return
+
+        raise ValidationError(
+            'The value for "%s" is not the correct type (%s)' % (
+                field['id'],
+                field_type,
+            )
+        )
 
     @staticmethod
     def generate_empty_data(instrument_version):
@@ -1097,7 +1264,6 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
 
     @data.setter
     def data(self, value):
-        self.__class__.validate_data(value)
         self._data = deepcopy(value)
 
     @property
@@ -1117,7 +1283,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
     def data_json(self, value):
         self.data = json.loads(value)
 
-    def validate(self, schema=None):
+    def validate(self):
         """
         Validates that this Asessment is a legal Assessment Document.
 
@@ -1125,12 +1291,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             ValidationError if the Assessment fails any of the requirements
         """
 
-        if (not schema) and self.instrument_version:
-            schema = self.__class__.schema_from_instrument(
-                self.instrument_version
-            )
-
-        return self.__class__.validate_data(self.data, schema)
+        return self.__class__.validate_data(self.data, self.instrument_version)
 
     def get_meta(self, name, default=None):
         """

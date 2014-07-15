@@ -1,0 +1,18 @@
+{
+    "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.1"
+    },
+    "values": {
+        "q_fake": {
+            "value": "my answer"
+        },
+        "q_foo": {
+            "value": 42
+        },
+        "q_bar": {
+            "value": true,
+            "explanation": "because i said so"
+        }
+    }
+}

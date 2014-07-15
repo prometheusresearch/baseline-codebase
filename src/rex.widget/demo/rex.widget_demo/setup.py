@@ -15,9 +15,10 @@ class demo(Command):
 
     def run(self):
         import os
-        cmd = "rex serve rex.widget_demo"
-        print "$", cmd
-        os.spawnvp(0, cmd.split()[0], cmd.split())
+        for cmd in ["rex deploy rex.widget_demo",
+                    "rex serve rex.widget_demo"]:
+            print "$", cmd
+            os.spawnvp(0, cmd.split()[0], cmd.split())
 
 setup(
     name='rex.widget_demo',
@@ -28,6 +29,8 @@ setup(
     ],
     install_requires=[
         'rex.widget',
+        'rex.urlmap',
+        'rex.deploy',
     ],
     cmdclass={'demo': demo},
     rex_static='static',

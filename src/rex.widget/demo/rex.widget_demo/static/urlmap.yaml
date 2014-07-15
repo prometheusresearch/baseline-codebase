@@ -1,0 +1,11 @@
+
+paths:
+
+  /:
+    widget:
+      !<Grid>
+      path: rex.widget_demo:/data/study
+
+  /data/study:
+    port: study
+

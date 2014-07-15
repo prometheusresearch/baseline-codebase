@@ -23,7 +23,7 @@ setup(
     ],
     install_requires=[
         'rex.core >=1.6, <2',
-        'rex.web >=2.2, <3',
+        'rex.web >=3.0, <4',
     ],
     rex_init='rex.widget',
     rex_static='static',

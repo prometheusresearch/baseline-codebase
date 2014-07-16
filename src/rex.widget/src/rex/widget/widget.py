@@ -67,7 +67,8 @@ class Widget(Extension):
             # FIXME: include full module path to already registered and to-be
             # registered module classes
             assert extension.name not in mapping, \
-                    "duplicate widget class: %r" % extension.name
+                "duplicate widget %r defined by '%r' and '%r'" % (
+                    extension.name, mapping[extension.name], extension)
             mapping[extension.name] = extension
         return mapping
 

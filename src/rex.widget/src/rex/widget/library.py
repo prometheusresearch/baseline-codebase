@@ -2,13 +2,13 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-
+import json
+import cgi
 from webob import Response
 from rex.core import StrVal, UStrVal, IntVal, Error
 from rex.web import url_for, route
-from .widget import Widget, NullWidget
+from .widget import Widget, NullWidget, DataReferenceVal
 from .parse import WidgetVal
-import cgi
 
 
 class LabelWidget(Widget):
@@ -96,3 +96,16 @@ class TwoColumnLayoutWidget(Widget):
             ('main', WidgetVal, NullWidget()),
             ('sidebar_width', IntVal, 3),
     ]
+
+
+class Select(Widget):
+
+    name = 'Select'
+    js_type = 'rex-widget/lib/Select'
+
+    fields = [
+        ('data', DataReferenceVal, None),
+    ]
+
+    def as_json(self, req):
+        return super(Select, self).as_json(req)

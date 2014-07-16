@@ -7,6 +7,8 @@ paths:
       sidebar:
         - !<Header> Sidebar
         - !<Label> There go filters and stuff...
+        - !<Select>
+          data: rex.widget_demo:/data/study_options
       main:
         - !<Header> Main
         - !<Label> Content/grids/forms...
@@ -15,3 +17,7 @@ paths:
   /data/study:
     port: study
 
+  /data/study_options:
+    port:
+      - entity: study
+        select: [title]

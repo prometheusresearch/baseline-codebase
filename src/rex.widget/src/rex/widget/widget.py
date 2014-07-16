@@ -6,8 +6,11 @@
 import re
 import json
 import yaml
+from htsql.core.fmt.emit import emit
+from rex.db import get_db
 from webob import Response
-from rex.core import Extension, RecordField, ProxyVal, cached
+from rex.web import route
+from rex.core import Validate, Extension, RecordField, ProxyVal, cached
 
 
 TEMPLATE = """
@@ -23,18 +26,56 @@ TEMPLATE = """
   <div id="__main__"></div>
   <script src="/bundle/bundle.js"></script>
   <script>
-    var __REX_WIDGET_DESCRIPTOR__ = %s;
+    var __REX_WIDGET__ = %s;
     if (window.Rex === undefined || window.Rex.Widget === undefined) {
       throw new Error('include rex-widget bower package in your application');
     }
-    Rex.Widget.renderDescriptor(
-      __REX_WIDGET_DESCRIPTOR__,
+    Rex.Widget.renderSpec(
+      __REX_WIDGET__,
       document.getElementById('__main__')
     );
   </script>
 </body>
 </html>
 """
+
+
+def first_product_row(product):
+    """ Return a first row of a product."""
+    with get_db():
+        field_name = product.meta.domain.fields[0].tag
+        data = ''.join(emit('application/json', product))
+        data = json.loads(data)
+        return data[field_name]
+
+
+class DataReference(object):
+
+    def __init__(self, reference):
+        self.reference = reference
+
+    def resolve_port(self, handler):
+        port = handler.port
+        return first_product_row(port.produce())
+
+    def __call__(self, req):
+        handler = route(self.reference)
+
+        if handler is None:
+            raise Error("Invalid data:", self.reference)
+
+        if hasattr(handler, 'port'):
+            return self.resolve_port(handler)
+        else:
+            raise NotImplementedError(
+                    "Unknown data reference: %s" % this.reference)
+
+
+class DataReferenceVal(Validate):
+
+    def __call__(self, data):
+        # FIXME: validate!
+        return DataReference(data)
 
 
 class Widget(Extension):
@@ -121,14 +162,36 @@ class Widget(Extension):
         # XXX: Check if we need more aggresive escape here!
         return TEMPLATE % json.dumps(descriptor, indent=2).replace('</', '<\\/')
 
-    def as_json(self, req):
+    def as_json(self, req, extra_props=None):
         props = {
             to_camelcase(name): value.as_json(req) if isinstance(value, Widget) else value
             for name, value in self.values.items()
         }
+
+        props = {}
+        state = {}
+
+        for name, value in self.values.items():
+            if isinstance(value, Widget):
+                value_descriptor = value.as_json(req)
+                state.update(value_descriptor["state"])
+                value = value_descriptor["widget"]
+
+            if isinstance(value, DataReference):
+                state[name] = {"id": name, "state": value(req)}
+                value = {"__state__": name}
+
+            props[to_camelcase(name)] = value
+
+        if extra_props is not None:
+            props.update(extra_props)
+
         return {
-            "__type__": self.js_type,
-            "props": props
+            "widget": {
+                "__type__": self.js_type,
+                "props": props
+            },
+            "state": state
         }
 
     def __str__(self):
@@ -157,9 +220,18 @@ class GroupWidget(Widget):
             ('children', Widget.validate),
     ]
 
-    def as_json(self, req):
+    def as_json(self, req, extra_props=None):
+        state = {}
+        children = []
+
+        for child in self.children:
+            child_descriptor = child.as_json(req)
+            state.update(child_descriptor["state"])
+            children.append(child_descriptor["widget"])
+
         return {
-            "__children__": [child.as_json(req) for child in self.children]
+            "widget": {"__children__": children},
+            "state": state
         }
 
 
@@ -172,8 +244,11 @@ class NullWidget(Widget):
             cls.singleton = Widget.__new__(cls)
         return cls.singleton
 
-    def as_json(self, req):
-        return None
+    def as_json(self, req, extra_props=None):
+        return {
+            "widget": None,
+            "state": {}
+        }
 
 
 class WidgetDumper(yaml.Dumper):

@@ -7,7 +7,7 @@ import cgi
 from webob import Response
 from rex.core import StrVal, UStrVal, IntVal, Error
 from rex.web import url_for, route
-from .widget import Widget, NullWidget, DataReferenceVal
+from .widget import Widget, NullWidget, DataReferenceVal, StateVal, State
 from .parse import WidgetVal
 
 
@@ -105,6 +105,7 @@ class Select(Widget):
 
     fields = [
         ('data', DataReferenceVal, None),
+        ('selected', StateVal(IntVal), State(None)),
     ]
 
     def as_json(self, req):

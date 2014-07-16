@@ -78,6 +78,23 @@ class DataReferenceVal(Validate):
         return DataReference(data)
 
 
+class State(object):
+
+    def __init__(self, initial):
+        self.initial = initial
+
+
+class StateVal(Validate):
+
+    def __init__(self, validate):
+        if isinstance(validate, type):
+            validate = validate()
+        self.validate = validate
+
+    def __call__(self, data):
+        return State(self.validate(data))
+
+
 class Widget(Extension):
 
     name = None
@@ -172,16 +189,21 @@ class Widget(Extension):
         state = {}
 
         for name, value in self.values.items():
+
+            name = to_camelcase(name)
+
             if isinstance(value, Widget):
                 value_descriptor = value.as_json(req)
                 state.update(value_descriptor["state"])
-                value = value_descriptor["widget"]
-
-            if isinstance(value, DataReference):
+                props[name] = value_descriptor["widget"]
+            elif isinstance(value, DataReference):
                 state[name] = {"id": name, "state": value(req)}
-                value = {"__state__": name}
-
-            props[to_camelcase(name)] = value
+                props[name] = {"__state_read__": name}
+            elif isinstance(value, State):
+                state[name] = {"id": name, "state": value.initial}
+                props[name] = {"__state_read_write__": name}
+            else:
+                props[name] = value
 
         if extra_props is not None:
             props.update(extra_props)
@@ -212,6 +234,10 @@ to_camelcase_re = re.compile(r'_([a-zA-Z])')
 
 def to_camelcase(s):
     return to_camelcase_re.sub(lambda m: m.group(1).upper(), s)
+
+
+def capitalize(s):
+    return s[:1].upper() + s[1:]
 
 
 class GroupWidget(Widget):

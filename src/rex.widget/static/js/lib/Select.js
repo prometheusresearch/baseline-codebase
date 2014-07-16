@@ -13,11 +13,11 @@ var sentinel = '__empty_value_sentinel__';
 var Select = React.createClass({
 
   propTypes: {
-    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
+    selected: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
     emptyValue: React.PropTypes.object,
     data: React.PropTypes.array,
     options: React.PropTypes.array,
-    onChange: React.PropTypes.func
+    onSelected: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -50,9 +50,7 @@ var Select = React.createClass({
     if (value === sentinel) {
       value = undefined;
     }
-    if (this.props.onChange) {
-      this.props.onChange(value);
-    }
+    this.props.onSelected(value);
   }
 });
 

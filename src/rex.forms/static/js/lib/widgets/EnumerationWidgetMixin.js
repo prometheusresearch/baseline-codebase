@@ -17,8 +17,8 @@ var EnumerationWidgetMixin = {
     );
     var isHidden = this.formEvents() ?
       this.formEvents().isEnumerationHidden
-      : function () { return true; };
-    return enumerations.filter((enumeration) => isHidden(enumeration.id));
+      : function () { return false; };
+    return enumerations.filter((enumeration) => !isHidden(enumeration.id));
   }
 };
 

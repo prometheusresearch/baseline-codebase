@@ -13,6 +13,7 @@ REX.FORMS Change Log
 - Updated the Entry.validate_data() method to support the updated validation
   logic provided by Assessment.validate_data().
 - Entry data is now only validated upon complete, rather than on assignment.
+- Fixed issue with enumerations not showing.
 
 
 0.20.0 (6/30/2014)

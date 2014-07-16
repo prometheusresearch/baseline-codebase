@@ -2,9 +2,15 @@
 paths:
 
   /:
-    widget:
-      !<Grid>
-      path: rex.widget_demo:/data/study
+    widget: !<TwoColumnLayout>
+      sidebar_width: 3
+      sidebar:
+        - !<Header> Sidebar
+        - !<Label> There go filters and stuff...
+      main:
+        - !<Header> Main
+        - !<Label> Content/grids/forms...
+
 
   /data/study:
     port: study

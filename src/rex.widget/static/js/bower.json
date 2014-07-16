@@ -1,0 +1,30 @@
+{
+  "name": "rex-widget",
+  "version": "1.0.0",
+  "authors": [
+    "Prometheus Research LLC"
+  ],
+  "description": "Rex Widget JavaScript infrastructure",
+  "main": "./lib/index.js",
+  "styleEntry": "./style/index.less",
+  "dependencies": {
+    "react": "^0.10.0",
+    "bootstrap": "^3.2.0"
+  },
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "rex",
+    "widget",
+    "ui"
+  ],
+  "license": "AGPLv3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

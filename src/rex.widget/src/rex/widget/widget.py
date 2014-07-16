@@ -3,31 +3,35 @@
 #
 
 
-from rex.core import Extension, RecordField, ProxyVal, cached
-from webob import Response
+import re
+import json
 import yaml
+from webob import Response
+from rex.core import Extension, RecordField, ProxyVal, cached
 
 
 TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hello, world!</title>
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-<!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/bundle/bundle.css">
 </head>
 <body>
-
-%s
+  <div id="__main__"></div>
+  <script src="/bundle/bundle.js"></script>
+  <script>
+    var __REX_WIDGET_DESCRIPTOR__ = %s;
+    if (window.Rex === undefined || window.Rex.Widget === undefined) {
+      throw new Error('include rex-widget bower package in your application');
+    }
+    Rex.Widget.renderDescriptor(
+      __REX_WIDGET_DESCRIPTOR__,
+      document.getElementById('__main__')
+    );
+  </script>
 </body>
 </html>
 """
@@ -60,6 +64,8 @@ class Widget(Extension):
     def map_all(cls):
         mapping = {}
         for extension in cls.all():
+            # FIXME: include full module path to already registered and to-be
+            # registered module classes
             assert extension.name not in mapping, \
                     "duplicate widget class: %r" % extension.name
             mapping[extension.name] = extension
@@ -95,15 +101,34 @@ class Widget(Extension):
         if len(args) != len(self.fields):
             raise TypeError("expected %d arguments, got %d"
                             % (len(self.fields), len(args)))
+        self.values = {}
         for arg, field in zip(args, self.fields):
             setattr(self, field.attribute, arg)
+            self.values[field.attribute] = arg
 
     def __call__(self, req):
-        body = TEMPLATE % self.as_html(req)
-        return Response(body)
+        accept = req.accept.best_match(['text/html', 'application/json'])
+        if accept == 'application/json':
+            return Response(json=self.as_json(req))
+        else:
+            return Response(self.as_html(req))
 
     def as_html(self, req):
-        raise NotImplementedError()
+        descriptor = self.as_json(req)
+        # XXX: The indent=2 is useful for debug/introspection but hurts bytesize,
+        # can we turn it on only in dev mode?
+        # XXX: Check if we need more aggresive escape here!
+        return TEMPLATE % json.dumps(descriptor, indent=2).replace('</', '<\\/')
+
+    def as_json(self, req):
+        props = {
+            to_camelcase(name): value.as_json(req) if isinstance(value, Widget) else value
+            for name, value in self.values.items()
+        }
+        return {
+            "__type__": self.js_type,
+            "props": props
+        }
 
     def __str__(self):
         text = yaml.dump(self, Dumper=WidgetDumper)
@@ -119,14 +144,22 @@ class Widget(Extension):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
+to_camelcase_re = re.compile(r'_([a-zA-Z])')
+
+def to_camelcase(s):
+    return to_camelcase_re.sub(lambda m: m.group(1).upper(), s)
+
+
 class GroupWidget(Widget):
 
     fields = [
             ('children', Widget.validate),
     ]
 
-    def as_html(self, req):
-        return u"".join(child.as_html(req) for child in self.children)
+    def as_json(self, req):
+        return {
+            "__children__": [child.as_json(req) for child in self.children]
+        }
 
 
 class NullWidget(Widget):
@@ -138,8 +171,8 @@ class NullWidget(Widget):
             cls.singleton = Widget.__new__(cls)
         return cls.singleton
 
-    def as_html(self, req):
-        return u""
+    def as_json(self, req):
+        return None
 
 
 class WidgetDumper(yaml.Dumper):

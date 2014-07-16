@@ -1,0 +1,22 @@
+{
+  "name": "rex-widget-demo",
+  "version": "1.0.0",
+  "authors": [
+    "Prometheus Research, LLC"
+  ],
+  "description": "Rex Widget Demo",
+  "moduleType": [
+    "node"
+  ],
+  "dependencies": {
+    "rex-widget": "*"
+  },
+  "license": "AGPLv3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

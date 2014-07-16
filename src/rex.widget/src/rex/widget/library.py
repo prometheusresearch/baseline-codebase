@@ -3,7 +3,8 @@
 #
 
 
-from rex.core import StrVal, UStrVal, Error
+from webob import Response
+from rex.core import StrVal, UStrVal, IntVal, Error
 from rex.web import url_for, route
 from .widget import Widget, NullWidget
 from .parse import WidgetVal
@@ -13,63 +14,38 @@ import cgi
 class LabelWidget(Widget):
 
     name = 'Label'
+    js_type = 'rex-widget/lib/Label'
     fields = [
             ('text', UStrVal),
     ]
-
-    def as_html(self, req):
-        return u"%s\n" % cgi.escape(self.text)
 
 
 class HeaderWidget(Widget):
 
     name = 'Header'
+    js_type = 'rex-widget/lib/Header'
     fields = [
             ('text', UStrVal),
     ]
-
-    def as_html(self, req):
-        return u"<h1>%s</h1>\n" % cgi.escape(self.text)
 
 
 class SectionWidget(Widget):
 
     name = 'Section'
+    js_type = 'rex-widget/lib/Section'
     fields = [
             ('content', WidgetVal, NullWidget())
     ]
-
-    def as_html(self, req):
-        return u"<div>\n%s</div>\n" % self.content.as_html(req)
-
-
-class PanelWidget(Widget):
-
-    name = 'Panel'
-    fields = [
-            ('left', WidgetVal, NullWidget()),
-            ('right', WidgetVal, NullWidget()),
-    ]
-
-    def as_html(self, req):
-        return u"<div class=\"row\">\n<div class=\"col-md-6\">\n%s</div>\n" \
-                u"<div class=\"col-md-6\">\n%s</div>\n</div>\n" \
-                % (self.left.as_html(req), self.right.as_html(req))
 
 
 class LinkWidget(Widget):
 
     name = 'Link'
+    js_type = 'rex-widget/lib/Link'
     fields = [
             ('url', StrVal),
             ('text', UStrVal, None),
     ]
-
-    def as_html(self, req):
-        url = url_for(req, self.url).decode('utf-8')
-        text = self.text or url
-        return u"<a href=\"%s\">%s</a>\n" \
-                % (cgi.escape(url, True), cgi.escape(text))
 
 
 class GridWidget(Widget):
@@ -109,3 +85,14 @@ class GridWidget(Widget):
         lines.append(u"</script>\n")
         return u"".join(lines)
 
+
+class TwoColumnLayoutWidget(Widget):
+
+    name = 'TwoColumnLayout'
+    js_type = 'rex-widget/lib/TwoColumnLayout'
+
+    fields = [
+            ('sidebar', WidgetVal, NullWidget()),
+            ('main', WidgetVal, NullWidget()),
+            ('sidebar_width', IntVal, 3),
+    ]

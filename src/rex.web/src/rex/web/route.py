@@ -10,12 +10,13 @@ from .auth import authenticate, authorize
 from .secret import encrypt, decrypt, sign, validate, a2b, b2a
 from webob import Request, Response
 from webob.exc import (WSGIHTTPException, HTTPNotFound, HTTPUnauthorized,
-        HTTPMovedPermanently)
-from webob.static import FileApp
+        HTTPMovedPermanently, HTTPMethodNotAllowed)
+from webob.static import FileIter, BLOCK_SIZE
 import copy
 import os.path
 import fnmatch
 import json
+import mimetypes
 
 
 class MountSetting(Setting):
@@ -272,9 +273,28 @@ class StaticServer(object):
             if ext in self.file_handler_map:
                 package_path = "%s:%s" % (self.package.name, local_path)
                 handler = self.file_handler_map[ext](package_path)
+                return handler(req)
             else:
-                handler = FileApp(real_path, cache_control='private')
-            return handler(req)
+                if req.method not in ('GET', 'HEAD'):
+                    raise HTTPMethodNotAllowed()
+                stream = open(real_path, 'rb')
+                if 'wsgi.file_wrapper' in req.environ:
+                    app_iter = req.environ['wsgi.file_wrapper'] \
+                            (stream, BLOCK_SIZE)
+                else:
+                    app_iter = FileIter(stream)
+                content_type, content_encoding = \
+                        mimetypes.guess_type(real_path)
+                stat = os.fstat(stream.fileno())
+                return Response(
+                        app_iter=app_iter,
+                        content_type=content_type,
+                        content_encoding=content_encoding,
+                        last_modified=stat.st_mtime,
+                        content_length=stat.st_size,
+                        accept_ranges='bytes',
+                        cache_control='private',
+                        conditional_response=True)
 
         # If file not found, delegate to the fallback or return 404.
         return self.fallback(req)

@@ -364,6 +364,18 @@ Static resources in directory ``www`` are available via HTTP::
     Charles
     <BLANKLINE>
 
+Static files accept only ``GET`` and ``HEAD`` methods::
+
+    >>> req = Request.blank('/names.csv', remote_user='Daniel', method='HEAD')
+    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    200 OK
+    ...
+
+    >>> req = Request.blank('/names.csv', remote_user='Daniel', method='POST')
+    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    405 Method Not Allowed
+    ...
+
 By default, only authenticated users can access static resources::
 
     >>> req = Request.blank('/names.csv')

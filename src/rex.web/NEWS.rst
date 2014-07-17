@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.2.3 (2014-07-17)
+==================
+
+* Fixed a bug which prevented setting of a session cookie on static resource.
+
+
 2.2.2 (2014-07-14)
 ==================
 

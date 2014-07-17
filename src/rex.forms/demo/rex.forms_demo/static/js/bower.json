@@ -6,7 +6,8 @@
     "node"
   ],
   "dependencies": {
-    "bootstrap": "*"
+    "bootstrap": "*",
+    "rex-forms": "*"
   },
   "license": "AGPLv3",
   "ignore": [

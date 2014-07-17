@@ -1,19 +1,27 @@
+#
+# Copyright (c) 2014, Prometheus Research, LLC
+#
 
-from setuptools import setup, find_packages
 
-setup(name='rex.expression',
-      version = "1.1.1",
-      description="JavaScript library to parse HTSQL expressions",
-      setup_requires=['rex.setup >= 1.1, <2'],
-#      packages=find_packages('src'),
-#      package_dir={'': 'src'},
-#      include_package_data = True,
-#      namespace_packages=['rex'],
+from setuptools import setup
 
-      # Dependency information
-      install_requires=[
-          'rex.web>0.9,<3'
-      ],
-      rex_static='static',
-#      rex_init='rex.expression'
+
+setup(
+    name='rex.expression',
+    version='1.1.1',
+    description='JavaScript library to parse HTSQL-like expressions',
+    long_description=open('README.rst', 'r').read(),
+    maintainer='Prometheus Research, LLC',
+    maintainer_email='contact@prometheusresearch.com',
+    license='AGPLv3',
+    url='https://bitbucket.org/rexdb/rex.expression-provisional',
+    include_package_data=True,
+    setup_requires=[
+        'rex.setup>= 1.1,<2'
+    ],
+    install_requires=[
+        'rex.web>0.9,<3',
+    ],
+    rex_static='static',
 )
+

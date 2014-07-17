@@ -14,7 +14,7 @@ setup(
     maintainer='Prometheus Research, LLC',
     maintainer_email='contact@prometheusresearch.com',
     license='AGPLv3',
-    url='https://bitbucket.org/prometheus/rex.i18n',
+    url='https://bitbucket.org/rexdb/rex.i18n-provisional',
     package_dir={'': 'src'},
     packages=find_packages('src'),
     include_package_data=True,

@@ -15,7 +15,7 @@ setup(
     maintainer='Prometheus Research, LLC',
     maintainer_email='contact@prometheusresearch.com',
     license='AGPLv3',
-    url='https://bitbucket.org/prometheus/rex.forms',
+    url='https://bitbucket.org/rexdb/rex.forms-provisional',
     package_dir={'': 'src'},
     packages=find_packages('src'),
     include_package_data=True,

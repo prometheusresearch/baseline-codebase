@@ -23,7 +23,7 @@ class ApplicationState(MutableMapping):
     """ Represents application state as a graph of interdependent values."""
 
     def __init__(self):
-        self.states = {}
+        self.storage = {}
         self.dependents = {}
 
     def add(self, id, value, dependencies=None, remote=False):
@@ -31,35 +31,35 @@ class ApplicationState(MutableMapping):
         self._add(state)
 
     def update(self, app_state):
-        for state in app_state.states.values():
+        for state in app_state.storage.values():
             self._add(state)
 
     def _add(self, state):
         # TODO: check for circular dependencies
-        self.states[state.id] = state
+        self.storage[state.id] = state
         for dep in state.dependencies:
             self.dependents.setdefault(dep, []).append(state.id)
 
     def dependency_path(self, from_id):
         for state_id in self.dependents.get(from_id, []):
-            yield self.states[state_id]
+            yield self.storage[state_id]
             for dep in self.dependency_path(state_id):
                 yield dep
 
     def __iter__(self):
-        return iter(self.states)
+        return iter(self.storage)
 
     def __len__(self):
-        return len(self.states)
+        return len(self.storage)
 
     def __getitem__(self, id):
-        return self.states[id]
+        return self.storage[id]
 
     def __setitem__(self, id, value):
-        self.states[id] = value
+        self.storage[id] = value
 
     def __delitem__(self, id):
-        del self.states[id]
+        del self.storage[id]
 
 
 def fetch_state(state):

@@ -438,6 +438,12 @@ class StandardWSGI(WSGI):
         if (environ.get('SCRIPT_NAME', '').endswith('/') and
                 environ.get('PATH_INFO', '').startswith('/')):
             environ['SCRIPT_NAME'] = environ['SCRIPT_NAME'][:-1]
+        # Another UWSGI bug.
+        if (len(environ.get('SCRIPT_NAME', '')) > 0 and
+                len(environ.get('PATH_INFO', '')) == 1 and
+                environ.get('PATH_INFO')[0] != '/'):
+            environ['SCRIPT_NAME'] = environ['SCRIPT_NAME'] + environ['PATH_INFO']
+            environ['PATH_INFO'] = ''
         # Bridge between WSGI and WebOb.
         req = Request(environ)
         try:

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.5.0 (2014-XX-XX)
+1.5.0 (2014-07-18)
 ==================
 
 * Added ability to rename an existing database.

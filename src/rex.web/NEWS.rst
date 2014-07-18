@@ -5,10 +5,12 @@
 .. contents:: Table of Contents
 
 
-2.2.3 (2014-07-17)
+2.2.3 (2014-07-18)
 ==================
 
 * Fixed a bug which prevented setting of a session cookie on static resource.
+* Added a workaround for ``mod_proxy_uwsgi`` leaving a trailing ``/`` on
+  ``SCRIPT_NAME``.
 
 
 2.2.2 (2014-07-14)

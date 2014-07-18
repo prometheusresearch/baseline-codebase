@@ -434,6 +434,10 @@ class StandardWSGI(WSGI):
         self.handler = handler
 
     def __call__(self, environ, start_response):
+        # Workaround for uWSGI leaving an extra `/` on SCRIPT_NAME.
+        if (environ.get('SCRIPT_NAME', '').endswith('/') and
+                environ.get('PATH_INFO', '').startswith('/')):
+            environ['SCRIPT_NAME'] = environ['SCRIPT_NAME'][:-1]
         # Bridge between WSGI and WebOb.
         req = Request(environ)
         try:

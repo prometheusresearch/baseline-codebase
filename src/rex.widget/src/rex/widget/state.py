@@ -41,11 +41,8 @@ class ApplicationState(MutableMapping):
             self.dependents.setdefault(dep, []).append(state.id)
 
     def dependency_path(self, from_id):
-        """
-        """
-        yield self.states[from_id]
-
         for state_id in self.dependents.get(from_id, []):
+            yield self.states[state_id]
             for dep in self.dependency_path(state_id):
                 yield dep
 
@@ -68,23 +65,27 @@ class ApplicationState(MutableMapping):
 def fetch_state(state):
     """ Return a new application state with resolved data references."""
 
-    fetched_state = ApplicationState()
+    result = ApplicationState()
 
     for item in state.values():
-        fetch_state_item(item, state, fetched_state)
+        fetch_state_item(item, state, result)
 
-    return fetched_state
+    return result
 
 
 def fetch_state_update(state, origin):
     """ Return a partial application with resolved data references originated
     from a state with ``origin`` id."""
-    fetched_state = ApplicationState()
+    # we use context to store fetched state but only need to return state along
+    # the dependency path
+    result = ApplicationState()
+    context = ApplicationState()
 
     for item in state.dependency_path(origin):
-        fetch_state_item(item, state, fetched_state)
+        fetch_state_item(item, state, context)
+        result[item.id] = context[item.id]
 
-    return fetched_state
+    return result
 
 
 def fetch_state_item(item, state_in, state_out):

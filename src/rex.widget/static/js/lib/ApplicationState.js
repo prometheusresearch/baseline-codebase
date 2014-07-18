@@ -10,7 +10,7 @@ var invariant   = require('./invariant');
 var merge       = require('./merge');
 
 // a mapping from state ids to states
-var states = {};
+var storage = {};
 
 // a mapping from state ids to arrays of dependent state ids
 var dependents = {};
@@ -18,7 +18,7 @@ var dependents = {};
 var ApplicationState = merge({
 
   get: function(id) {
-    var state = states[id];
+    var state = storage[id];
     invariant(
       state !== undefined,
       'cannot dereference state by id "%s"', id
@@ -42,10 +42,10 @@ var ApplicationState = merge({
     var value = stateDescriptor.value;
     var dependencies = stateDescriptor.dependencies || [];
 
-    if (states[id] !== undefined) {
-      states[id] = merge(states[id], {value});
+    if (storage[id] !== undefined) {
+      storage[id] = merge(storage[id], {value});
     } else {
-      states[id] = {value, remote: stateDescriptor.remote, updating: false};
+      storage[id] = {value, remote: stateDescriptor.remote, updating: false};
     }
 
     // TODO: Check for cycles.
@@ -60,7 +60,7 @@ var ApplicationState = merge({
   },
 
   update: function(id, value) {
-    var newStates = merge({}, states);
+    var nextStorage = merge({}, storage);
 
     var queue = [id];
     var toNotify = [];
@@ -74,9 +74,9 @@ var ApplicationState = merge({
       // place where we can dispatch update to state's store so it can process
       // it in some way
       if (sID === id) {
-        newStates[sID].value = value;
-      } else if (newStates[sID].remote) {
-        newStates[sID].value = merge(newStates[sID].value, {updating: true});
+        nextStorage[sID].value = value;
+      } else if (nextStorage[sID].remote) {
+        nextStorage[sID].value = merge(nextStorage[sID].value, {updating: true});
         needRemoteUpdate = true;
       }
 
@@ -84,7 +84,7 @@ var ApplicationState = merge({
       queue = queue.concat(dependents[sID] || []);
     }
 
-    states = newStates;
+    storage = nextStorage;
 
     // notify listeners so that they can show loading indicators if needed
     toNotify.forEach(this.notifyStateChanged, this);
@@ -96,7 +96,7 @@ var ApplicationState = merge({
 
   notifyStateChanged: function(id) {
     console.debug('state changed:', id);
-    this.emit(id, id, states[id].value);
+    this.emit(id, id, storage[id].value);
   },
 
   remoteUpdate: function(id, value) {
@@ -110,8 +110,6 @@ var ApplicationState = merge({
     });
 
     params[`update:${id}`] = value
-
-    console.log(params);
 
     request
       .post(window.location.pathname)
@@ -137,14 +135,14 @@ var ApplicationState = merge({
   },
 
   forEach: function(func, context) {
-    Object.keys(states).forEach((id) => func.call(context, states[id], id));
+    Object.keys(storage).forEach((id) => func.call(context, storage[id], id));
   }
 
 }, Emitter.prototype);
 
 
 if (__DEV__) {
-  ApplicationState.states = states;
+  ApplicationState.storage = storage;
   ApplicationState.dependents = dependents;
 }
 

@@ -15,22 +15,22 @@ var Select = React.createClass({
   propTypes: {
     selected: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
     emptyValue: React.PropTypes.object,
-    data: React.PropTypes.array,
+    data: React.PropTypes.object,
     options: React.PropTypes.array,
     onSelected: React.PropTypes.func.isRequired
   },
 
   render: function() {
     var empty = this.props.emptyValue;
-    var value = this.props.value;
-    var options = this.props.options.concat(this.props.data);
+    var selected = this.props.selected;
+    var options = this.props.options.concat(this.props.data.data);
 
-    if (value === undefined) {
-      value = sentinel;
+    if (selected === undefined) {
+      selected = sentinel;
     }
 
     return this.transferPropsTo(
-      <select className="rex-widget-Select" value={value} onChange={this.onChange}>
+      <select className="rex-widget-Select" value={selected} onChange={this.onChange}>
         {empty && <option key={sentinel} value={sentinel}>{empty.title}</option>}
         {options.map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
       </select>

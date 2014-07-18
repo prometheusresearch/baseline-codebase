@@ -9,7 +9,9 @@
   "styleEntry": "./style/index.less",
   "dependencies": {
     "react": "^0.10.0",
-    "bootstrap": "^3.2.0"
+    "bootstrap": "^3.2.0",
+    "superagent": "^0.18.2",
+    "qs": "visionmedia/node-querystring#0.6.6"
   },
   "moduleType": [
     "node"

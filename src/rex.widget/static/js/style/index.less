@@ -1,1 +1,105 @@
 @import (less) "~bootstrap/less/bootstrap";
+
+@padding: 0.5em;
+@paddingS: 0.25em;
+@paddingL: 1em;
+
+@colorBackground: #ffffff;
+@colorShadow: #bcbcbc;
+@colorHoverHighlight: #eaeaea;
+@colorSelectedHighlight: #ffef8f;
+@colorLink: #1546CF;
+
+@border: 1px solid #cccccc;
+
+@headerHeight: 60px;
+
+/**
+ * Select widget
+ */
+.rex-widget-Select {
+  width: 100%;
+}
+
+/**
+ * Table widget
+ */
+.rex-widget-Table {
+  width: 100%;
+
+  border-top: @border;
+  border-bottom: @border;
+  border-right: @border;
+
+  td {
+    border-left: @border;
+    border-top: @border;
+    padding: 5px;
+    text-align: center;
+  }
+
+  th {
+    border-left: @border;
+    padding: 5px;
+    text-align: center;
+  }
+
+  thead {
+    tr {
+      background-color: @colorHoverHighlight;
+      th {
+        font-weight: bold;
+      }
+    }
+  }
+
+  tbody {
+    tr:hover {
+      background-color: @colorHoverHighlight;
+    }
+  }
+    
+  .first {
+    border-left: none;
+    text-align: left;
+    border-right: 1px solid #777;
+  }
+
+  .rex-widget-Table__calculatedColumn {
+    border-left: 2px solid black;
+  }
+
+  .rex-widget-Table__calculatedRow {
+    border-top: 2px solid black;
+  }
+
+  .rex-widget-Table__calculatedColumn,
+  .rex-widget-Table__calculatedRow {
+    font-weight: bold;
+    background-color: @colorHoverHighlight;
+  }
+
+}
+
+/**
+ * LoadingIndicator
+ */
+.rex-widget-LoadingIndicator {
+  width: 100%;
+  text-align: center;
+}
+
+/**
+ * Preloader
+ */
+.rex-widget-Preloader {
+  width: 100%;
+  height: 100%;
+  color: #aaa;
+  font-weight: bold;
+  text-align: center;
+  padding: @paddingL;
+}
+.rex-widget-Preloader__caption {
+  padding: @paddingL;
+}

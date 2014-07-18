@@ -5,17 +5,35 @@ paths:
     widget: !<TwoColumnLayout>
       sidebar_width: 3
       sidebar:
-        - !<Header> Sidebar
-        - !<Label> There go filters and stuff...
+        - !<Header> {text: Filters}
+        - !<Label> {text: "Choose study to show by id:"}
         - !<Select>
+          id: study_code
+          data: rex.widget_demo:/data/study_options
+        - !<Label> {text: "Choose study to show by another id:"}
+        - !<Select>
+          id: study_code_x
           data: rex.widget_demo:/data/study_options
       main:
-        - !<Header> Main
-        - !<Label> Content/grids/forms...
+        - !<Header> {text: Studies}
+        - !<Table>
+          id: study
+          data: rex.widget_demo:/data/study?study:id=${study_code.selected}&study:xid=${study_code_x.selected}
+          columns:
+            - key: code
+              title: Code
+            - key: title
+              title: Title
+            - key: closed
+              title: Closed
 
 
   /data/study:
-    port: study
+    port:
+    - entity: study
+      filters:
+        - "id($code) := guard($code, code=$code)"
+        - "xid($code) := guard($code, code=$code)"
 
   /data/study_options:
     port:

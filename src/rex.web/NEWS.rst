@@ -9,8 +9,8 @@
 ==================
 
 * Fixed a bug which prevented setting of a session cookie on static resource.
-* Added a workaround for ``mod_proxy_uwsgi`` leaving a trailing ``/`` on
-  ``SCRIPT_NAME``.
+* Added workarounds for ``mod_proxy_uwsgi`` mishandling ``SCRIPT_NAME`` and
+  ``PATH_INFO``.
 
 
 2.2.2 (2014-07-14)

@@ -40,13 +40,13 @@ constructor and string-rendering methods::
     u'{"instrument": {"uid": "fake123", "title": "My Instrument Title"}, "version": 1, "uid": "notreal456"}'
 
 
-The Instruments passed to the constructor must actually be Instrument
-instance::
+The Instruments passed to the constructor must actually be an Instrument
+instance or a string containing a UID::
 
-    >>> iv = InstrumentVersion('notreal456', 'fake123', {}, 1)
+    >>> iv = InstrumentVersion('notreal456', object(), {}, 1)
     Traceback (most recent call last):
       ...
-    ValueError: instrument must be an instance of Instrument
+    ValueError: instrument must be an instance of Instrument or a UID of one
 
 
 The definition can be passed to the contructor as either a JSON-encoded string

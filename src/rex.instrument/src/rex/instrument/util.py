@@ -9,6 +9,7 @@ import pkg_resources
 
 from datetime import date, time, datetime
 from decimal import Decimal
+from functools import wraps
 
 from rex.core import cached
 
@@ -19,6 +20,8 @@ __all__ = (
     'to_json',
     'RexJSONEncoder',
     'package_version',
+    'memoized_property',
+    'forget_memoized_property',
 )
 
 
@@ -128,4 +131,36 @@ def to_json(obj, **kwargs):
         cls=RexJSONEncoder,
         **kwargs
     )
+
+
+def memoized_property(func):
+    """
+    A decorator that performs the same function as Python's ``property``
+    decorator, but adds memoization functionality.
+    """
+
+    name = '%s__MEMOIZED' % func.__name__
+
+    @wraps(func)
+    def wrapper(self):
+        if not hasattr(self, name):
+            setattr(self, name, func(self))
+        return getattr(self, name)
+    return property(wrapper)
+
+
+def forget_memoized_property(instance, name):
+    """
+    Causes a memoized_property to forget the value it has cached, so that the
+    next time the property is accessed, the function is re-executed.
+
+    Typically, you'd reserve using @memoized_property for those properties that
+    aren't going to change during the lifetime of the instance. But, there are
+    always exceptions to everything, so this method gives you a way to force
+    the instance to re-cache.
+    """
+
+    name = '%s__MEMOIZED' % name
+    if hasattr(instance, name):
+        delattr(instance, name)
 

@@ -17,6 +17,10 @@ REX.INSTRUMENT Change Log
 - InstrumentVersion will no longer validate the definition upon instantiation
   or assignment.
 - Added a shared caching mechanism for use by implementations.
+- Most sub-object properties now perform lazy retrieval with caching.
+- The Instrument.get_latest_version() method has been changed to the
+  "latest_version" property.
+- Added a utility decorator to facilitate the memoization of properties.
 
 
 0.9.1 (6/24/2014)

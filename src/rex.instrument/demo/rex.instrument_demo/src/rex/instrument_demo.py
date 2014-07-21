@@ -73,7 +73,8 @@ class MyInstrument(Instrument):
     def get_version(self, version):
         return MyInstrumentVersion.create(self, {}, version)
 
-    def get_latest_version(self):
+    @property
+    def latest_version(self):
         return self.get_version(99)
 
     def save(self):

@@ -11,7 +11,7 @@ from datetime import datetime, date
 
 import jsonschema
 
-from rex.core import Extension
+from rex.core import Extension, get_settings
 
 from .errors import ValidationError, InstrumentError
 from .mixins import Comparable, Displayable, Dictable
@@ -19,7 +19,7 @@ from .schema import INSTRUMENT_SCHEMA, INSTRUMENT_BASE_TYPES, \
     INSTRUMENT_FIELD_CONSTRAINTS, INSTRUMENT_REQUIRED_CONSTRAINTS, \
     ASSESSMENT_SCHEMA, INSTRUMENT_COMPLEX_TYPES
 from .meta import *
-from .util import to_unicode
+from .util import to_unicode, memoized_property
 
 
 __all__ = (
@@ -338,15 +338,12 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def get_latest_version(self):
+    @property
+    def latest_version(self):
         """
-        Returns the most recent InstrumentVersion for this Instrument.
+        The most recent InstrumentVersion for this Instrument. Read only.
 
         Must be implemented by concrete classes.
-
-        :returns:
-            the InstrumentVersion for the most recent version of this
-            Instrument; None if there is no version for this Instrument
         """
 
         raise NotImplementedError()
@@ -668,8 +665,10 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
     def __init__(self, uid, instrument, definition, version):
         self._uid = to_unicode(uid)
 
-        if not isinstance(instrument, Instrument):
-            raise ValueError('instrument must be an instance of Instrument')
+        if not isinstance(instrument, (Instrument, basestring)):
+            raise ValueError(
+                'instrument must be an instance of Instrument or a UID of one'
+            )
         self._instrument = instrument
 
         self._version = version
@@ -690,7 +689,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         return self._uid
 
-    @property
+    @memoized_property
     def instrument(self):
         """
         The Instrument this instance is a version of. Read only.
@@ -698,7 +697,12 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         :rtype: Instrument
         """
 
-        return self._instrument
+        if isinstance(self._instrument, basestring):
+            instrument_impl = \
+                get_settings().instrument_implementation.instrument
+            return instrument_impl.get_by_uid(self._instrument)
+        else:
+            return self._instrument
 
     @property
     def version(self):
@@ -1139,13 +1143,16 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             status=None):
         self._uid = to_unicode(uid)
 
-        if not isinstance(subject, Subject):
-            raise ValueError('subject must be an instance of Subject')
+        if not isinstance(subject, (Subject, basestring)):
+            raise ValueError(
+                'subject must be an instance of Subject or a UID of one'
+            )
         self._subject = subject
 
-        if not isinstance(instrument_version, InstrumentVersion):
+        if not isinstance(instrument_version, (InstrumentVersion, basestring)):
             raise ValueError(
                 'instrument_version must be an instance of InstrumentVersion'
+                ' or a UID of one'
             )
         else:
             self._instrument_version = instrument_version
@@ -1169,7 +1176,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
 
         return self._uid
 
-    @property
+    @memoized_property
     def instrument_version(self):
         """
         The InstrumentVersion that this Assessment is in response to. Read
@@ -1178,9 +1185,14 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         :rtype: InstrumentVersion
         """
 
-        return self._instrument_version
+        if isinstance(self._instrument_version, basestring):
+            iv_impl = \
+                get_settings().instrument_implementation.instrumentversion
+            return iv_impl.get_by_uid(self._instrument_version)
+        else:
+            return self._instrument_version
 
-    @property
+    @memoized_property
     def subject(self):
         """
         The Subject that this Assessment is about. Read only.
@@ -1188,7 +1200,11 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         :rtype: Subject
         """
 
-        return self._subject
+        if isinstance(self._subject, basestring):
+            subject_impl = get_settings().instrument_implementation.subject
+            return subject_impl.get_by_uid(self._subject)
+        else:
+            return self._subject
 
     @property
     def evaluation_date(self):

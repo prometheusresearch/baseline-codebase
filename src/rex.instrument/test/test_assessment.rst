@@ -58,16 +58,16 @@ and string-rendering methods::
 
 
 The Subjects and InstrumentVersions passed to the constructor must actually be
-instances of those classes::
+instances of those classes or strings containing UIDs::
 
-    >>> assessment = Assessment('fake123', 'not a subject', iv, ASSESSMENT)
+    >>> assessment = Assessment('fake123', object(), iv, ASSESSMENT)
     Traceback (most recent call last):
       ...
-    ValueError: subject must be an instance of Subject
-    >>> assessment = Assessment('fake123', subject, 'not real', ASSESSMENT)
+    ValueError: subject must be an instance of Subject or a UID of one
+    >>> assessment = Assessment('fake123', subject, object(), ASSESSMENT)
     Traceback (most recent call last):
       ...
-    ValueError: instrument_version must be an instance of InstrumentVersion
+    ValueError: instrument_version must be an instance of InstrumentVersion or a UID of one
 
 
 The Evaluation Date must actually be a date (or datetime)::

@@ -166,7 +166,7 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
                 ))
 
             if not self.version:
-                instrument_version = instrument.get_latest_version()
+                instrument_version = instrument.latest_version
             else:
                 instrument_version = instrument.get_version(self.version)
             if not instrument_version:

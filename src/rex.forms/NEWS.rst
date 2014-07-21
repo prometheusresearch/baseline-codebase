@@ -12,7 +12,10 @@ REX.FORMS Change Log
   be executed after a Task has been completed.
 - Updated the Entry.validate_data() method to support the updated validation
   logic provided by Assessment.validate_data().
-- Entry data is now only validated upon complete, rather than on assignment.
+- Entry data is now only validated upon complete, rather than on
+  instantiation and assignment.
+- Form will no longer validation the configuration upon instantiation or
+  assignment.
 - Fixed issue with enumerations not showing.
 
 

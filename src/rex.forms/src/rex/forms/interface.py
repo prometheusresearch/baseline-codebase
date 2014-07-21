@@ -390,9 +390,9 @@ class Form(Extension, Comparable, Displayable, Dictable):
         self._instrument_version = instrument_version
 
         if isinstance(configuration, basestring):
-            self.configuration_json = configuration
+            self._configuration = json.loads(configuration)
         else:
-            self.configuration = configuration
+            self._configuration = deepcopy(configuration)
 
     @property
     def uid(self):
@@ -438,8 +438,6 @@ class Form(Extension, Comparable, Displayable, Dictable):
 
     @configuration.setter
     def configuration(self, value):
-        self.__class__.validate_configuration(value)
-        # pylint: disable=W0201
         self._configuration = deepcopy(value)
 
     @property
@@ -1028,15 +1026,6 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         return Assessment.validate_data(data, instrument_version)
 
     @staticmethod
-    def schema_from_instrument(instrument_version):
-        """
-        Generates a JSON Schema definition that validates an Entry for the
-        specified InstrumentVersion
-        """
-
-        return Assessment.schema_from_instrument(instrument_version)
-
-    @staticmethod
     def generate_empty_data(instrument_version):
         """
         Generates an Assessment data structure that addresses the Fields and
@@ -1154,9 +1143,9 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         self._assessment = assessment
 
         if isinstance(data, basestring):
-            self.data_json = data
+            self._data = json.loads(data)
         else:
-            self.data = data
+            self._data = deepcopy(data)
 
         self._type = entry_type
         self._created_by = to_unicode(created_by)
@@ -1301,7 +1290,6 @@ class Entry(Extension, Comparable, Displayable, Dictable):
 
     @data.setter
     def data(self, value):
-        # pylint: disable=W0201
         self._data = deepcopy(value)
 
     @property
@@ -1334,7 +1322,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         # pylint: disable=W0201
         self._memo = to_unicode(value)
 
-    def validate(self, schema=None):
+    def validate(self):
         """
         Validates that this Entry contains a legal Assessment Document.
 
@@ -1551,7 +1539,7 @@ class TaskCompletionProcessor(Extension):
     @classmethod
     def sanitize(cls):
         if cls.__name__ != 'TaskCompletionProcessor':
-            assert cls.is_applicable != TaskCompletionProcessor.is_applicable, \
+            assert cls.is_applicable != TaskCompletionProcessor.is_applicable,\
                 'abstract method %s.is_applicable()' % cls
             assert cls.execute != TaskCompletionProcessor.execute, \
                 'abstract method %s.execute()' % cls

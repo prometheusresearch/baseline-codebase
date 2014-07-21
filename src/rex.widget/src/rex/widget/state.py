@@ -8,10 +8,11 @@ import urlparse
 import urllib
 from collections import namedtuple, MutableMapping
 
+import htsql.core.cmd.act
 from htsql.core.fmt.emit import emit
 from rex.db import get_db
 from rex.web import route
-from rex.core import Validate
+from rex.core import Validate, Error
 
 
 StateDescriptor = namedtuple(
@@ -103,65 +104,113 @@ def fetch_state_item(item, state_in, state_out):
             state_out[item.id] = state_in[item.id]
 
 
+def product_to_json(product):
+    with get_db():
+        data = ''.join(emit('application/json', product))
+    data = json.loads(data)
+    return data
+
+
 class DataReference(object):
 
-    interpolation_re = re.compile(r'^\${([a-zA-Z_\.0-9]+)}$')
+    def __init__(self, url, refs):
+        self.url = url
+        self.refs = refs
+        self.dependencies = refs.values()
+        self.parsed = urlparse.urlparse(url)
+        self.parsed_query = {k: v[0] for k, v
+                in urlparse.parse_qs(self.parsed.query)}
 
-    def __init__(self, reference):
-        self.reference = urlparse.urlparse(reference)
-        self.query = {}
-        self.depenendecy_to_query = {}
-        self.dependencies = []
+    @property
+    def route_reference(self):
+        if self.parsed.scheme:
+            return "%s:%s" % (self.parsed.scheme, self.parsed.path)
+        else:
+            return self.parsed.path
 
-        for k, v in self._parse_qs(self.reference.query).items():
-            if self.interpolation_re.match(v):
-                dep = v[2:-1] # strip '${' and '}'
-                self.depenendecy_to_query[dep] = k
-                self.dependencies.append(dep)
-            else:
-                self.query[k] = v
+    def resolve_port(self, handler, params):
+        query = dict(self.parsed_query)
+        query.update(params)
+        query = {k: v for k, v in query.items() if v is not None}
+        product = handler.port.produce(urllib.urlencode(query))
+        data = product_to_json(product)
+        return data[product.meta.domain.fields[0].tag]
 
-    def resolve_port(self, handler, query):
-        port = handler.port
-        return self._first_product_row(port.produce(urllib.urlencode(query)))
+    def resolve_query(self, handler, params):
+        query = dict(self.parsed_query)
 
-    def _first_product_row(self, product):
-        """ Return a first row of a product."""
+        for k in self.refs:
+            query[k] = ''
+
+        query.update(params)
+
         with get_db():
-            field_name = product.meta.domain.fields[0].tag
-            data = ''.join(emit('application/json', product))
-            data = json.loads(data)
-            return data[field_name]
+            product = htsql.core.cmd.act.produce(handler.query, query)
 
-    def _parse_qs(self, s):
-        return {k: v[0] for k, v in urlparse.parse_qs(s).items()}
+        data = product_to_json(product)
+        return data[product.meta.tag]
 
-    def __call__(self, state):
+    def fetch(self, handler, state):
+        """ Fetch data using ``handler`` in context of the current application
+        ``state``.
+        """
+        raise NotImplementedError(
+            "%s.fetch(state) is not implemented" % self.__class__.__name__)
 
-        query = dict(self.query)
-
-        for dep in self.dependencies:
-            value = state[dep].value
-            if value is not None:
-                query[self.depenendecy_to_query[dep]] = value
-
-        handler = route(self.reference.path)
-
-        if handler is None:
-            raise Error("Invalid data:", reference)
-
+    def execute_handler(self, handler, params):
+        """ Execute ``handler`` with given ``params``.
+        
+        This method is often used by :class:`DataReference` subclasses to
+        implement :method:`fetch(handler, state)`.
+        """
         if hasattr(handler, 'port'):
-            return self.resolve_port(handler, query)
+            return self.resolve_port(handler, params)
+        elif hasattr(handler, 'query'):
+            return self.resolve_query(handler, params)
         else:
             raise NotImplementedError(
-                    "Unknown data reference: %s" % reference)
+                    "Unknown data reference: %s" % self.route_reference)
+
+    def __call__(self, state):
+        handler = route(self.route_reference)
+
+        if handler is None:
+            raise Error("Invalid data reference:", self.route_reference)
+
+        return self.fetch(handler, state)
 
 
 class DataReferenceVal(Validate):
 
+    data_reference_factory = NotImplemented
+
     def __call__(self, data):
-        # FIXME: validate!
-        return DataReference(data)
+        if isinstance(data, basestring):
+            return self.data_reference_factory(data, refs={})
+        elif isinstance(data, dict):
+            if not "url" in data:
+                raise Error(
+                    "invalid data reference: expected an URL or "
+                    "{url: ..., refs: ...} mapping")
+            return self.data_reference_factory(
+                    data["url"],
+                    refs=data.get("refs", []))
+        else:
+            raise Error(
+                "invalid data reference: expected an URL or "
+                "{url: ..., refs: ...} mapping")
+
+
+class CollectionReference(DataReference):
+
+    def fetch(self, handler, state):
+        params = {name: state[depID].value for name, depID in self.refs.items()}
+        return self.execute_handler(handler, params)
+
+
+class CollectionReferenceVal(DataReferenceVal):
+
+    data_reference_factory = CollectionReference
 
 
 class State(object):

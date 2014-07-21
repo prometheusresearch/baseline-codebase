@@ -8,7 +8,7 @@ from webob import Response
 from rex.core import SeqVal, StrVal, UStrVal, IntVal, Error
 from rex.web import url_for, route
 from .widget import Widget, NullWidget
-from .state import DataReferenceVal, StateVal, State
+from .state import CollectionReferenceVal, StateVal, State
 from .parse import WidgetVal
 
 
@@ -55,7 +55,7 @@ class TableWidget(Widget):
     js_type = 'rex-widget/lib/Table'
     fields = [
         ('id', StrVal),
-        ('data', DataReferenceVal),
+        ('data', CollectionReferenceVal),
         ('columns', SeqVal),
     ]
 
@@ -79,7 +79,7 @@ class Select(Widget):
 
     fields = [
         ('id', StrVal),
-        ('data', DataReferenceVal, None),
+        ('data', CollectionReferenceVal, None),
         ('selected', StateVal(IntVal), State(None)),
     ]
 

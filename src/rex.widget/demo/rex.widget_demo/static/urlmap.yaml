@@ -18,7 +18,11 @@ paths:
         - !<Header> {text: Studies}
         - !<Table>
           id: study
-          data: rex.widget_demo:/data/study?study:id=${study_code.selected}&study:xid=${study_code_x.selected}
+          data:
+            url: rex.widget_demo:/data/study
+            refs:
+              'study:id': study_code.selected
+              'study:xid': study_code_x.selected
           columns:
             - key: code
               title: Code

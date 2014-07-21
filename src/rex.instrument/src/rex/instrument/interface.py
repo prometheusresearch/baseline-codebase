@@ -675,9 +675,9 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         self._version = version
 
         if isinstance(definition, basestring):
-            self.definition_json = definition
+            self._definition = json.loads(definition)
         else:
-            self.definition = definition
+            self._definition = deepcopy(definition)
 
     @property
     def uid(self):
@@ -720,8 +720,6 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
     @definition.setter
     def definition(self, value):
-        self.__class__.validate_definition(value)
-        # pylint: disable=W0201
         self._definition = deepcopy(value)
 
     @property
@@ -1153,11 +1151,9 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             self._instrument_version = instrument_version
 
         if isinstance(data, basestring):
-            self.data_json = data
-        elif data is not None:
-            self.data = data
+            self._data = json.loads(data)
         else:
-            self._data = None
+            self._data = deepcopy(data)
 
         self.evaluation_date = evaluation_date
         self.status = status or Assessment.STATUS_IN_PROGRESS

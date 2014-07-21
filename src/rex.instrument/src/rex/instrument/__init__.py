@@ -3,6 +3,7 @@
 #
 
 
+from .cache import *
 from .errors import *
 from .interface import *
 from .settings import *

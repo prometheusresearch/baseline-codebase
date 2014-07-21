@@ -13,7 +13,10 @@ REX.INSTRUMENT Change Log
   validation of the data structure, in addition to the base Common Assessment
   Document schema validation.
 - Assessment data is now only validated upon complete, rather than on
-  assigment.
+  instantiation and assignment.
+- InstrumentVersion will no longer validate the definition upon instantiation
+  or assignment.
+- Added a shared caching mechanism for use by implementations.
 
 
 0.9.1 (6/24/2014)
@@ -23,7 +26,7 @@ REX.INSTRUMENT Change Log
 
 
 0.9.0 (6/24/2014)
-==================
+=================
 
 - Major overhaul of utility/interface classes.
 - Moved schema validation logic of Instruments and Assessments from
@@ -32,7 +35,7 @@ REX.INSTRUMENT Change Log
 
 
 0.2.0 (6/6/2014)
-===============
+================
 
 - Fixed an issue Calculations and missing names.
 - Added support for an "Edited" state, allowing measures to be edited after

@@ -35,5 +35,6 @@ Configuration
 Utilities
 =========
 
+.. automodule:: rex.instrument.cache
 .. automodule:: rex.instrument.util
 

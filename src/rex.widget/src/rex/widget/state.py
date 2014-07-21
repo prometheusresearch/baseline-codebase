@@ -54,6 +54,8 @@ class ApplicationState(MutableMapping):
         return len(self.storage)
 
     def __getitem__(self, id):
+        if ':' in id:
+            id = id.split(':', 1)[0]
         return self.storage[id]
 
     def __setitem__(self, id, value):
@@ -61,6 +63,12 @@ class ApplicationState(MutableMapping):
 
     def __delitem__(self, id):
         del self.storage[id]
+
+    def deref(self, ref):
+        value = self.storage[ref.id].value
+        for part in ref.path:
+            value = value[part]
+        return value
 
 
 def fetch_state(state):
@@ -74,17 +82,18 @@ def fetch_state(state):
     return result
 
 
-def fetch_state_update(state, origin):
+def fetch_state_update(state, origins):
     """ Return a partial application with resolved data references originated
-    from a state with ``origin`` id."""
+    from a state with ``origins`` ids."""
     # we use context to store fetched state but only need to return state along
     # the dependency path
     result = ApplicationState()
     context = ApplicationState()
 
-    for item in state.dependency_path(origin):
-        fetch_state_item(item, state, context)
-        result[item.id] = context[item.id]
+    for origin in origins:
+        for item in state.dependency_path(origin):
+            fetch_state_item(item, state, context)
+            result[item.id] = context[item.id]
 
     return result
 
@@ -116,7 +125,7 @@ class DataReference(object):
     def __init__(self, url, refs):
         self.url = url
         self.refs = refs
-        self.dependencies = refs.values()
+        self.dependencies = [r.id for r in refs.values()]
         self.parsed = urlparse.urlparse(url)
         self.parsed_query = {k: v[0] for k, v
                 in urlparse.parse_qs(self.parsed.query)}
@@ -171,6 +180,14 @@ class DataReference(object):
             raise NotImplementedError(
                     "Unknown data reference: %s" % self.route_reference)
 
+    def __str__(self):
+        return "%s(%s, %s)" % (
+                self.__class__.__name__,
+                self.url,
+                self.refs)
+
+    __repr__ = __str__
+
     def __call__(self, state):
         handler = route(self.route_reference)
 
@@ -178,6 +195,17 @@ class DataReference(object):
             raise Error("Invalid data reference:", self.route_reference)
 
         return self.fetch(handler, state)
+
+
+Reference = namedtuple('Reference', ['id', 'path'])
+
+
+def parse_ref(ref):
+    if ':' in ref:
+        id, path = ref.split(':', 1)
+        return Reference(id, path.split('.'))
+    else:
+        return Reference(ref, [])
 
 
 class DataReferenceVal(Validate):
@@ -192,9 +220,10 @@ class DataReferenceVal(Validate):
                 raise Error(
                     "invalid data reference: expected an URL or "
                     "{url: ..., refs: ...} mapping")
-            return self.data_reference_factory(
-                    data["url"],
-                    refs=data.get("refs", []))
+            refs = {name: parse_ref(ref)
+                    for name, ref
+                    in data.get("refs", {}).items()}
+            return self.data_reference_factory(data["url"], refs=refs)
         else:
             raise Error(
                 "invalid data reference: expected an URL or "
@@ -204,13 +233,31 @@ class DataReferenceVal(Validate):
 class CollectionReference(DataReference):
 
     def fetch(self, handler, state):
-        params = {name: state[depID].value for name, depID in self.refs.items()}
+        params = {name: state.deref(ref) for name, ref in self.refs.items()}
         return self.execute_handler(handler, params)
 
 
 class CollectionReferenceVal(DataReferenceVal):
 
     data_reference_factory = CollectionReference
+
+
+class PaginatedCollectionReference(DataReference):
+    pass
+
+
+class PaginatedCollectionReferenceVal(DataReferenceVal):
+
+    data_reference_factory = PaginatedCollectionReference
+
+
+class EntityReference(DataReference):
+    pass
+
+
+class EntityReferenceVal(DataReferenceVal):
+
+    data_reference_factory = EntityReference
 
 
 class State(object):

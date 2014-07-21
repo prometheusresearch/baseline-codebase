@@ -13,24 +13,24 @@ var sentinel = '__empty_value_sentinel__';
 var Select = React.createClass({
 
   propTypes: {
-    selected: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
+    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
     emptyValue: React.PropTypes.object,
     data: React.PropTypes.object,
     options: React.PropTypes.array,
-    onSelected: React.PropTypes.func.isRequired
+    onValue: React.PropTypes.func.isRequired
   },
 
   render: function() {
     var empty = this.props.emptyValue;
-    var selected = this.props.selected;
+    var value = this.props.value;
     var options = this.props.options.concat(this.props.data.data);
 
-    if (selected === undefined) {
-      selected = sentinel;
+    if (value === undefined) {
+      value = sentinel;
     }
 
     return this.transferPropsTo(
-      <select className="rex-widget-Select" value={selected} onChange={this.onChange}>
+      <select className="rex-widget-Select" value={value} onChange={this.onChange}>
         {empty && <option key={sentinel} value={sentinel}>{empty.title}</option>}
         {options.map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
       </select>
@@ -50,7 +50,7 @@ var Select = React.createClass({
     if (value === sentinel) {
       value = undefined;
     }
-    this.props.onSelected(value);
+    this.props.onValue(value);
   }
 });
 

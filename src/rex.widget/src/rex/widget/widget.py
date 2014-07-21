@@ -123,6 +123,13 @@ class Widget(Extension):
             setattr(self, field.attribute, arg)
             self.values[field.attribute] = arg
 
+    @property
+    def fields_mapping(self):
+        mapping = {}
+        for field in self.fields:
+            mapping[field.name] = field.validate
+        return mapping
+
     def descriptor(self, req):
         props = {}
         state = ApplicationState()
@@ -137,11 +144,15 @@ class Widget(Extension):
                 props[name] = descriptor.widget
             elif isinstance(value, DataReference):
                 state_id = "%s.%s" % (self.id, name)
+
                 props[name] = {"__state_read__": state_id}
+
                 state.add(state_id, value, dependencies=value.dependencies, remote=True)
             elif isinstance(value, State):
                 state_id = "%s.%s" % (self.id, name)
+
                 props[name] = {"__state_read_write__": state_id}
+
                 state.add(state_id, value.initial)
             else:
                 props[name] = value
@@ -175,24 +186,22 @@ class Widget(Extension):
 
         elif req.method == 'POST':
 
-            origin = None
+            origins = []
 
-            for id, value in req.POST.items():
+            for id, value in req.json.items():
                 if id.startswith('update:'):
-                    if origin is not None:
-                        raise HTTPBadRequest("only single update:* parameter is supported")
                     id = id[7:]
-                    origin = id
+                    origins.append(id)
 
                 if not id in state:
                     raise HTTPBadRequest("invalid state id: %s" % id)
 
                 state[id] = state[id]._replace(value=value)
 
-            if origin is None:
+            if not origins:
                 state = fetch_state(state)
             else:
-                state = fetch_state_update(state, origin)
+                state = fetch_state_update(state, origins)
 
             return {"state": state}
 
@@ -242,6 +251,19 @@ class NullWidget(Widget):
 
     def descriptor(self, req):
         return WidgetDescriptor(None, ApplicationState())
+
+
+def iterate_widget(widget):
+    """ Iterator over widgets which flattens :class:`GroupWidget` and
+    ignores :class:`NullWidget`."""
+    if isinstance(widget, GroupWidget):
+        for child in widget.children:
+            for grand_child in iterate_widget(child):
+                yield grand_child
+    elif isinstance(widget, NullWidget):
+        pass
+    else:
+        yield widget
 
 
 class WidgetJSONEncoder(json.JSONEncoder):

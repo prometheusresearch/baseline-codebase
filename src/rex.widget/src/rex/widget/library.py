@@ -5,9 +5,9 @@
 import json
 import cgi
 from webob import Response
-from rex.core import SeqVal, StrVal, UStrVal, IntVal, Error
+from rex.core import SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error
 from rex.web import url_for, route
-from .widget import Widget, NullWidget
+from .widget import Widget, NullWidget, iterate_widget
 from .state import CollectionReferenceVal, StateVal, State
 from .parse import WidgetVal
 
@@ -72,7 +72,7 @@ class TwoColumnLayoutWidget(Widget):
     ]
 
 
-class Select(Widget):
+class SelectWidget(Widget):
 
     name = 'Select'
     js_type = 'rex-widget/lib/Select'
@@ -80,8 +80,52 @@ class Select(Widget):
     fields = [
         ('id', StrVal),
         ('data', CollectionReferenceVal, None),
-        ('selected', StateVal(IntVal), State(None)),
+        ('value', StateVal(IntVal), State(None)),
     ]
 
-    def as_json(self, req):
-        return super(Select, self).as_json(req)
+
+class TextInputWidget(Widget):
+
+    name = 'TextInput'
+    js_type = 'rex-widget/lib/TextInput'
+
+    fields = [
+        ('id', StrVal),
+        ('value', StateVal(IntVal), State(None)),
+    ]
+
+
+class FiltersWidget(Widget):
+
+    name = 'Filters'
+    js_type = 'rex-widget/lib/Filters'
+
+    fields = [
+        ('id', StrVal),
+        ('title', StrVal, 'Filters'),
+        ('filters', WidgetVal, NullWidget()),
+        ('show_apply_button', BoolVal, True),
+        ('show_clear_button', BoolVal, True),
+    ]
+
+    def descriptor(self, req):
+        descriptor = super(FiltersWidget, self).descriptor(req)
+
+        filter_state_ids  = []
+        value = {}
+
+        for widget in iterate_widget(self.filters):
+            fields = widget.fields_mapping
+            if 'id' in fields and isinstance(fields.get('value'), StateVal):
+                filter_state_id = "%s.value" % widget.id
+                filter_state_ids.append(filter_state_id)
+                value[widget.id] = descriptor.state[filter_state_id].value
+
+        state_id = "%s.value" % self.id
+        descriptor.state.add(state_id, value)
+        descriptor.widget["props"].update({
+            "value": {"__state_read_write__": state_id},
+            "filterStateIds": filter_state_ids
+        })
+
+        return descriptor

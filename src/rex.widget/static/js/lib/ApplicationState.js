@@ -18,12 +18,14 @@ var dependents = {};
 var ApplicationState = merge({
 
   get: function(id) {
-    var state = storage[id];
-    invariant(
-      state !== undefined,
-      'cannot dereference state by id "%s"', id
-    );
-    return state.value;
+    if (id.indexOf(':') > -1) {
+      var parsed = id.split(':', 1);
+      var value = storage[parsed[0]].value;
+      parsed[1].split('.').forEach((part) => value = value[part]);
+      return value;
+    } else {
+      return storage[id].value;
+    }
   },
 
   hydrateAll: function(statePacket) {
@@ -59,24 +61,25 @@ var ApplicationState = merge({
     }
   },
 
-  update: function(id, value) {
+  updateMany: function(values) {
     var nextStorage = merge({}, storage);
 
-    var queue = [id];
+    var queue = Object.keys(values);
     var toNotify = [];
 
     var needRemoteUpdate = false;
 
     while (queue.length > 0) {
       var sID = queue.shift();
+      var state = nextStorage[sID];
 
       // XXX: If we would need some sophisticated state management, this is the
       // place where we can dispatch update to state's store so it can process
       // it in some way
-      if (sID === id) {
-        nextStorage[sID].value = value;
-      } else if (nextStorage[sID].remote) {
-        nextStorage[sID].value = merge(nextStorage[sID].value, {updating: true});
+      if (values[sID] !== undefined) {
+        state.value = values[sID];
+      } else if (state.remote) {
+        state.value = merge(state.value, {updating: true});
         needRemoteUpdate = true;
       }
 
@@ -90,30 +93,36 @@ var ApplicationState = merge({
     toNotify.forEach(this.notifyStateChanged, this);
 
     if (needRemoteUpdate) {
-      this.remoteUpdate(id, value);
+      this.remoteUpdate(values);
     }
   },
 
+  update: function(id, value) {
+    var values = {}
+    values[id] = value;
+    this.updateMany(values);
+  },
+
   notifyStateChanged: function(id) {
-    console.debug('state changed:', id);
     this.emit(id, id, storage[id].value);
   },
 
-  remoteUpdate: function(id, value) {
+  remoteUpdate: function(values) {
 
     var params = {};
 
-    this.forEach((state, stateID) => {
-      if (!state.remote && id !== stateID) {
-        params[stateID] = state.value;
+    this.forEach((state, id) => {
+      if (!state.remote && values[id] === undefined) {
+        params[id] = state.value;
       }
     });
 
-    params[`update:${id}`] = value
+    Object.keys(values).forEach((id) => {
+      params[`update:${id}`] = values[id];
+    });
 
     request
       .post(window.location.pathname)
-      .type('form')
       .send(params)
       .set('Accept', 'application/json')
       .end(this._remoteUpdateCompleted.bind(this));

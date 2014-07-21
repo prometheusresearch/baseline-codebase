@@ -68,20 +68,20 @@ and string-rendering methods::
 
 
 The Subjects, Instruments, and Assessments passed to the constructor must
-actually be instances of those classes::
+actually be instances of those classes or strings containing UIDs::
 
-    >>> task = Task('bar999', 'not a subject', instrument, 100)
+    >>> task = Task('bar999', object(), instrument, 100)
     Traceback (most recent call last):
       ...
-    ValueError: subject must be an instance of Subject
-    >>> task = Task('bar999', subject, 'not real', 100)
+    ValueError: subject must be an instance of Subject or a UID of one
+    >>> task = Task('bar999', subject, object(), 100)
     Traceback (most recent call last):
       ...
-    ValueError: instrument must be an instance of Instrument
+    ValueError: instrument must be an instance of Instrument or a UID of one
     >>> task = Task('bar999', subject, instrument, 100, 6)
     Traceback (most recent call last):
       ...
-    ValueError: assessment must be an instance of Assessment
+    ValueError: assessment must be an instance of Assessment or a UID of one
 
 
 The priority passed to the constructor must be an integer::
@@ -92,10 +92,10 @@ The priority passed to the constructor must be an integer::
     ValueError: priority must be an integer
 
 
-Tasks have a method to retrieve the InstrumentVersion they're associated with::
+Tasks have a property to retrieve the InstrumentVersion they're associated with::
 
     >>> task = Task('bar999', subject, instrument, 100, assessment)
-    >>> task.get_instrument_version()
+    >>> task.instrument_version
     InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)
 
 

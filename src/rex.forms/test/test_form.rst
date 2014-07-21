@@ -80,16 +80,16 @@ and string-rendering methods::
 
 
 The Channels and InstrumentVersions passed to the constructor must actually be
-instances of those classes::
+instances of those classes or strings containing UIDs::
 
-    >>> form = Form('foo789', 'not a channel', iv, FORM)
+    >>> form = Form('foo789', object(), iv, FORM)
     Traceback (most recent call last):
       ...
-    ValueError: channel must be an instance of Channel
-    >>> form = Form('foo789', channel, 'not real', FORM)
+    ValueError: channel must be an instance of Channel or a UID of one
+    >>> form = Form('foo789', channel, object(), FORM)
     Traceback (most recent call last):
       ...
-    ValueError: instrument_version must be an instance of InstrumentVersion
+    ValueError: instrument_version must be an instance of InstrumentVersion or a UID of one
 
 
 The configuration can be passed to the contructor as either a JSON-encoded

@@ -72,12 +72,12 @@ and string-rendering methods::
 
 
 The Assessments passed to the constructor must actually be an instance of that
-class::
+class or a string containing a UID::
 
-    >>> entry = Entry('entry333', 'not an assessment', Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry = Entry('entry333', object(), Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
     Traceback (most recent call last):
       ...
-    ValueError: assessment must be an instance of Assessment
+    ValueError: assessment must be an instance of Assessment or a UID of one
 
 
 The data can be passed to the contructor as either a JSON-encoded string

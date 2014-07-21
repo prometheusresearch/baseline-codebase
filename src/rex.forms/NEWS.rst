@@ -17,6 +17,8 @@ REX.FORMS Change Log
 - Form will no longer validation the configuration upon instantiation or
   assignment.
 - Fixed issue with enumerations not showing.
+- Updated references to Instrument.get_latest_version() to new property.
+- Most sub-object properties now perform lazy retrieval with caching.
 
 
 0.20.0 (6/30/2014)

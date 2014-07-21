@@ -11,11 +11,11 @@ from datetime import datetime
 
 import jsonschema
 
-from rex.core import Extension, cached
+from rex.core import Extension, cached, get_settings
 from rex.instrument import Subject, Instrument, InstrumentVersion, Assessment
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.meta import *
-from rex.instrument.util import to_unicode
+from rex.instrument.util import to_unicode, memoized_property
 
 from .discrepancies import find_discrepancies, solve_discrepancies
 from .errors import ValidationError, FormError
@@ -379,13 +379,16 @@ class Form(Extension, Comparable, Displayable, Dictable):
     def __init__(self, uid, channel, instrument_version, configuration):
         self._uid = to_unicode(uid)
 
-        if not isinstance(channel, Channel):
-            raise ValueError('channel must be an instance of Channel')
+        if not isinstance(channel, (Channel, basestring)):
+            raise ValueError(
+                'channel must be an instance of Channel or a UID of one'
+            )
         self._channel = channel
 
-        if not isinstance(instrument_version, InstrumentVersion):
+        if not isinstance(instrument_version, (InstrumentVersion, basestring)):
             raise ValueError(
                 'instrument_version must be an instance of InstrumentVersion'
+                ' or a UID of one'
             )
         self._instrument_version = instrument_version
 
@@ -405,7 +408,7 @@ class Form(Extension, Comparable, Displayable, Dictable):
 
         return self._uid
 
-    @property
+    @memoized_property
     def channel(self):
         """
         The Channel that this Form belongs to. Read only.
@@ -413,9 +416,13 @@ class Form(Extension, Comparable, Displayable, Dictable):
         :rtype: Channel
         """
 
-        return self._channel
+        if isinstance(self._channel, basestring):
+            channel_impl = get_settings().forms_implementation.channel
+            return channel_impl.get_by_uid(self._channel)
+        else:
+            return self._channel
 
-    @property
+    @memoized_property
     def instrument_version(self):
         """
         The InstrumentVersion that this Form is an implementation of. Read
@@ -424,7 +431,12 @@ class Form(Extension, Comparable, Displayable, Dictable):
         :rtype: InstrumentVersion
         """
 
-        return self._instrument_version
+        if isinstance(self._instrument_version, basestring):
+            iv_impl = \
+                get_settings().instrument_implementation.instrumentversion
+            return iv_impl.get_by_uid(self._instrument_version)
+        else:
+            return self._instrument_version
 
     @property
     def configuration(self):
@@ -619,20 +631,27 @@ class Task(Extension, Comparable, Displayable, Dictable):
             status=None):
         self._uid = to_unicode(uid)
 
-        if not isinstance(subject, Subject):
-            raise ValueError('subject must be an instance of Subject')
+        if not isinstance(subject, (Subject, basestring)):
+            raise ValueError(
+                'subject must be an instance of Subject or a UID of one'
+            )
         self._subject = subject
 
-        if not isinstance(instrument, Instrument):
-            raise ValueError('instrument must be an instance of Instrument')
+        if not isinstance(instrument, (Instrument, basestring)):
+            raise ValueError(
+                'instrument must be an instance of Instrument or a UID of one'
+            )
         self._instrument = instrument
 
         if not isinstance(priority, int):
             raise ValueError('priority must be an integer')
         self._priority = priority
 
-        if not isinstance(assessment, Assessment) and assessment is not None:
-            raise ValueError('assessment must be an instance of Assessment')
+        if not isinstance(assessment, (Assessment, basestring)) \
+                and assessment is not None:
+            raise ValueError(
+                'assessment must be an instance of Assessment or a UID of one'
+            )
         self._assessment = assessment
 
         self.status = status or Task.STATUS_NOT_STARTED
@@ -648,7 +667,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
 
         return self._uid
 
-    @property
+    @memoized_property
     def subject(self):
         """
         The Subject that this Task is required of. Read only.
@@ -656,9 +675,13 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :rtype: Subject
         """
 
-        return self._subject
+        if isinstance(self._subject, basestring):
+            subject_impl = get_settings().instrument_implementation.subject
+            return subject_impl.get_by_uid(self._subject)
+        else:
+            return self._subject
 
-    @property
+    @memoized_property
     def instrument(self):
         """
         The Instrument that this Task is requiring. Read only.
@@ -666,7 +689,12 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :rtype: Instrument
         """
 
-        return self._instrument
+        if isinstance(self._instrument, basestring):
+            instrument_impl = \
+                get_settings().instrument_implementation.instrument
+            return instrument_impl.get_by_uid(self._instrument)
+        else:
+            return self._instrument
 
     @property
     def priority(self):
@@ -727,7 +755,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
             self.__class__.STATUS_VALIDATING,
         )
 
-    @property
+    @memoized_property
     def assessment(self):
         """
         The Assessment associated with the Task. Read only.
@@ -735,12 +763,17 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :returns: the associated Assessment, or None if one does not exist yet
         :rtype: Assessment
         """
+        if isinstance(self._assessment, basestring):
+            assessment_impl = \
+                get_settings().instrument_implementation.assessment
+            return assessment_impl.get_by_uid(self._assessment)
+        else:
+            return self._assessment
 
-        return self._assessment
-
-    def get_instrument_version(self):
+    @memoized_property
+    def instrument_version(self):
         """
-        Returns the InstrumentVersion associated with this Task.
+        The InstrumentVersion associated with this Task. Read only.
 
         In situations where there is an Assessment associated with this Task,
         this will be the InstrumentVersion associated with the Assessment.
@@ -753,7 +786,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         if self.assessment:
             return self.assessment.instrument_version
         else:
-            return self.instrument.get_latest_version()
+            return self.instrument.latest_version
 
     def get_form(self, channel):
         """
@@ -880,7 +913,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
             return {}
 
         return find_discrepancies(
-            self.get_instrument_version(),
+            self.instrument_version,
             entries,
         )
 
@@ -930,7 +963,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
             raise FormError('No Entries were found to create a solution from')
 
         return solve_discrepancies(
-            self.get_instrument_version(),
+            self.instrument_version,
             entries,
             reconciled_discrepancies,
         )
@@ -1138,8 +1171,10 @@ class Entry(Extension, Comparable, Displayable, Dictable):
             memo=None):
         self._uid = to_unicode(uid)
 
-        if not isinstance(assessment, Assessment):
-            raise ValueError('assessment must be an instance of Assessment')
+        if not isinstance(assessment, (Assessment, basestring)):
+            raise ValueError(
+                'assessment must be an instance of Assessment or a UID of one'
+            )
         self._assessment = assessment
 
         if isinstance(data, basestring):
@@ -1166,7 +1201,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
 
         return self._uid
 
-    @property
+    @memoized_property
     def assessment(self):
         """
         The Assessment this Entry is associated with. Read only.
@@ -1174,7 +1209,12 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         :rtype: Assessment
         """
 
-        return self._assessment
+        if isinstance(self._assessment, basestring):
+            assessment_impl = \
+                get_settings().instrument_implementation.assessment
+            return assessment_impl.get_by_uid(self._assessment)
+        else:
+            return self._assessment
 
     @property
     def created_by(self):

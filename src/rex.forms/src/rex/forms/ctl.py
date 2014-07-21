@@ -174,7 +174,7 @@ class FORMS_RETRIEVE(FormsInstanceTask):
                 ))
 
             if not self.version:
-                instrument_version = instrument.get_latest_version()
+                instrument_version = instrument.latest_version
             else:
                 instrument_version = instrument.get_version(self.version)
             if not instrument_version:
@@ -288,7 +288,7 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
             print 'Using Instrument: %s' % instrument
 
             if not self.version:
-                instrument_version = instrument.get_latest_version()
+                instrument_version = instrument.latest_version
             else:
                 instrument_version = instrument.get_version(self.version)
             if not instrument_version:

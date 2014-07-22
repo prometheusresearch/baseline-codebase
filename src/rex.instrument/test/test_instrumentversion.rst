@@ -35,9 +35,9 @@ constructor and string-rendering methods::
     "InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)"
 
     >>> iv.as_dict()
-    {'instrument': {'uid': u'fake123', 'title': u'My Instrument Title'}, 'version': 1, 'uid': u'notreal456'}
+    {'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'version': 1, 'uid': u'notreal456'}
     >>> iv.as_json()
-    u'{"instrument": {"uid": "fake123", "title": "My Instrument Title"}, "version": 1, "uid": "notreal456"}'
+    u'{"instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "version": 1, "uid": "notreal456"}'
 
 
 The Instruments passed to the constructor must actually be an Instrument

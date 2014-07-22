@@ -52,9 +52,9 @@ and string-rendering methods::
     "Assessment(u'fake123', Subject(u'subject1'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
 
     >>> assessment.as_dict()
-    {'instrument_version': {'instrument': {'uid': u'fake123', 'title': u'My Instrument Title'}, 'version': 1, 'uid': u'notreal456'}, 'status': u'in-progress', 'uid': u'fake123', 'evaluation_date': None, 'subject': {'uid': u'subject1'}}
+    {'instrument_version': {'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'version': 1, 'uid': u'notreal456'}, 'status': u'in-progress', 'uid': u'fake123', 'evaluation_date': None, 'subject': {'uid': u'subject1'}}
     >>> assessment.as_json()
-    u'{"instrument_version": {"instrument": {"uid": "fake123", "title": "My Instrument Title"}, "version": 1, "uid": "notreal456"}, "status": "in-progress", "uid": "fake123", "evaluation_date": null, "subject": {"uid": "subject1"}}'
+    u'{"instrument_version": {"instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "version": 1, "uid": "notreal456"}, "status": "in-progress", "uid": "fake123", "evaluation_date": null, "subject": {"uid": "subject1"}}'
 
 
 The Subjects and InstrumentVersions passed to the constructor must actually be

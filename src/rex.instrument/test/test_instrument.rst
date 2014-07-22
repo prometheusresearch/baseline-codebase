@@ -20,9 +20,22 @@ and string-rendering methods::
     "Instrument(u'fake123', u'My Instrument Title')"
 
     >>> instrument.as_dict()
-    {'uid': u'fake123', 'title': u'My Instrument Title'}
+    {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}
     >>> instrument.as_json()
-    u'{"uid": "fake123", "title": "My Instrument Title"}'
+    u'{"status": "active", "uid": "fake123", "title": "My Instrument Title"}'
+
+
+Instruments have a status property which is readable and writable::
+
+    >>> instrument.status
+    u'active'
+    >>> instrument.status = Instrument.STATUS_DISABLED
+    >>> instrument.status
+    u'disabled'
+    >>> instrument.status = 'something else'
+    Traceback (most recent call last):
+      ...
+    ValueError: "something else" is not a valid Instrument status
 
 
 Instruments can be checked for equality. Note that equality is only defined as

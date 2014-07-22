@@ -21,6 +21,7 @@ REX.INSTRUMENT Change Log
 - The Instrument.get_latest_version() method has been changed to the
   "latest_version" property.
 - Added a utility decorator to facilitate the memoization of properties.
+- Instruments now have a status property.
 
 
 0.9.1 (6/24/2014)

@@ -231,8 +231,18 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
     Represents a general, unversioned Instrument.
     """
 
+    #: The Instrument can be used for data collection.
+    STATUS_ACTIVE = u'active'
+    #: The Instrument is not allowed to be used for data collection.
+    STATUS_DISABLED = u'disabled'
+    ALL_STATUSES = (
+        STATUS_ACTIVE,
+        STATUS_DISABLED,
+    )
+
     dict_properties = (
         'title',
+        'status',
     )
 
     @classmethod
@@ -275,7 +285,7 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, uid, title):
+    def create(cls, uid, title, status=None):
         """
         Creates an Instrument in the datastore and returns a corresponding
         Instrument instance.
@@ -287,6 +297,10 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         :type uid: string
         :param title: the title to use for the new Instrument
         :type title: string
+        :param status:
+            the status to assign the new Instrument. if not specified,
+            ``STATUS_ACTIVE`` is used
+        :type status: string
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Instrument
@@ -294,9 +308,10 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def __init__(self, uid, title):
+    def __init__(self, uid, title, status=None):
         self._uid = to_unicode(uid)
         self.title = title
+        self.status = status or self.__class__.STATUS_ACTIVE
 
     @property
     def uid(self):
@@ -323,6 +338,27 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
     def title(self, value):
         # pylint: disable=W0201
         self._title = to_unicode(value)
+
+    @property
+    def status(self):
+        """
+        The status of this Instrument.
+
+        :rtype: unicode
+        """
+
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        if value not in self.__class__.ALL_STATUSES:
+            raise ValueError(
+                '"%s" is not a valid Instrument status' % (
+                    value,
+                )
+            )
+        # pylint: disable=W0201
+        self._status = value
 
     def get_version(self, version):
         """
@@ -1163,7 +1199,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             self._data = deepcopy(data)
 
         self.evaluation_date = evaluation_date
-        self.status = status or Assessment.STATUS_IN_PROGRESS
+        self.status = status or self.__class__.STATUS_IN_PROGRESS
 
     @property
     def uid(self):

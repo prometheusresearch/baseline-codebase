@@ -1391,6 +1391,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             version=version,
         )
 
+    # pylint: disable=W0613
     def complete(self, user):
         """
         Marks the Assessment as complete and performs a validation of the

@@ -96,6 +96,7 @@ class RexJSONEncoder(json.JSONEncoder):
     * decimal.Decimal
     """
 
+    # pylint: disable=E0202
     def default(self, obj):
         if isinstance(obj, (date, time, datetime)):
             return obj.isoformat()

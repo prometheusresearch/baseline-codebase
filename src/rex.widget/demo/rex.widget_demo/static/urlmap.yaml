@@ -1,28 +1,27 @@
-
 paths:
 
   /:
     widget: !<TwoColumnLayout>
       sidebar_width: 3
       sidebar:
-        - !<Header> {text: Filters}
-        - !<Label> {text: "Choose study to show by id:"}
+        - !<Header> Filters
+        - !<Label> "Choose study to show by id:"
         - !<Select>
           id: study_code
           data: rex.widget_demo:/data/study_options
-        - !<Label> {text: "Choose study to show by another id:"}
+        - !<Label> "Choose study to show by another id:"
         - !<Select>
           id: study_code_x
           data: rex.widget_demo:/data/study_options
       main:
-        - !<Header> {text: Studies}
+        - !<Header> Studies
         - !<Table>
           id: study
           data:
             url: rex.widget_demo:/data/study
             refs:
-              'study:id': study_code.selected
-              'study:xid': study_code_x.selected
+              'study:id': study_code.value
+              'study:xid': study_code_x.value
           columns:
             - key: code
               title: Code

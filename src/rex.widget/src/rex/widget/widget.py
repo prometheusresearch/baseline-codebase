@@ -11,11 +11,11 @@ from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 from rex.core import (
         Error, Extension, RecordField,
-        ProxyVal, StrVal, cached
-        )
-from .state import (
-        ApplicationState, fetch_state, fetch_state_update,
-        DataReference, State)
+        ProxyVal, StrVal, cached)
+from .state.graph import (
+        StateGraph, compute_state_graph, compute_state_graph_update)
+from .state.computator import UpdatedValueComputator
+from .state import StateGenerator
 
 
 # FIXME: XSS! via script_name
@@ -132,7 +132,7 @@ class Widget(Extension):
 
     def descriptor(self, req):
         props = {}
-        state = ApplicationState()
+        state = StateGraph()
 
         for name, value in self.values.items():
 
@@ -140,20 +140,18 @@ class Widget(Extension):
 
             if isinstance(value, Widget):
                 descriptor = value.descriptor(req)
-                state.update(descriptor.state)
                 props[name] = descriptor.widget
-            elif isinstance(value, DataReference):
-                state_id = "%s.%s" % (self.id, name)
+                state.update(descriptor.state)
 
-                props[name] = {"__state_read__": state_id}
+            elif isinstance(value, StateGenerator):
+                value_state = value.describe_state(self.id, name)
+                for prop_name, state_descriptor in value_state:
+                    state[state_descriptor.id] = state_descriptor
+                    if state_descriptor.rw:
+                        props[prop_name] = {"__state_read_write__": state_descriptor.id}
+                    else:
+                        props[prop_name] = {"__state_read__": state_descriptor.id}
 
-                state.add(state_id, value, dependencies=value.dependencies, remote=True)
-            elif isinstance(value, State):
-                state_id = "%s.%s" % (self.id, name)
-
-                props[name] = {"__state_read_write__": state_id}
-
-                state.add(state_id, value.initial)
             else:
                 props[name] = value
 
@@ -181,7 +179,7 @@ class Widget(Extension):
         widget, state = self.descriptor(req)
 
         if req.method == 'GET':
-            state = fetch_state(state)
+            state = compute_state_graph(state)
             return {"widget": widget, "state": state}
 
         elif req.method == 'POST':
@@ -189,6 +187,7 @@ class Widget(Extension):
             origins = []
 
             for id, value in req.json.items():
+
                 if id.startswith('update:'):
                     id = id[7:]
                     origins.append(id)
@@ -196,12 +195,13 @@ class Widget(Extension):
                 if not id in state:
                     raise HTTPBadRequest("invalid state id: %s" % id)
 
-                state[id] = state[id]._replace(value=value)
+                state[id] = state[id]._replace(
+                    value=UpdatedValueComputator(value, state[id].value))
 
             if not origins:
-                state = fetch_state(state)
+                state = compute_state_graph(state)
             else:
-                state = fetch_state_update(state, origins)
+                state = compute_state_graph_update(state, origins)
 
             return {"state": state}
 
@@ -229,7 +229,7 @@ class GroupWidget(Widget):
     ]
 
     def descriptor(self, req):
-        state = ApplicationState()
+        state = StateGraph()
         children = []
 
         for child in self.children:
@@ -250,12 +250,11 @@ class NullWidget(Widget):
         return cls.singleton
 
     def descriptor(self, req):
-        return WidgetDescriptor(None, ApplicationState())
+        return WidgetDescriptor(None, StateGraph())
 
 
 def iterate_widget(widget):
-    """ Iterator over widgets which flattens :class:`GroupWidget` and
-    ignores :class:`NullWidget`."""
+    """ Iterate widget or a group of widgets."""
     if isinstance(widget, GroupWidget):
         for child in widget.children:
             for grand_child in iterate_widget(child):
@@ -269,7 +268,7 @@ def iterate_widget(widget):
 class WidgetJSONEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, ApplicationState):
+        if isinstance(obj, StateGraph):
             return {k: v._asdict() for k, v in obj.items()}
         return super(WidgetJSONEncoder, self).default(obj)
 

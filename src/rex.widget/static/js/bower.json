@@ -11,7 +11,8 @@
     "react": "^0.10.0",
     "bootstrap": "^3.2.0",
     "superagent": "^0.18.2",
-    "qs": "visionmedia/node-querystring#0.6.6"
+    "qs": "visionmedia/node-querystring#0.6.6",
+    "react-grid": "prometheusresearch/react-grid#66910619b7cf85edaf6f1282f472d536784ac968"
   },
   "moduleType": [
     "node"

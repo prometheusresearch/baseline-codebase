@@ -8,12 +8,41 @@ var qs          = require('qs');
 var Emitter     = require('emitter');
 var invariant   = require('./invariant');
 var merge       = require('./merge');
+var mergeInto   = require('./mergeInto');
 
 // a mapping from state ids to states
 var storage = {};
 
 // a mapping from state ids to arrays of dependent state ids
 var dependents = {};
+
+function updateStateValue(value, update) {
+  // If this is an object we should process update directives, otherwise we just
+  // replace value with an updated one
+  if (typeof update === 'object' && update !== null) {
+
+    var updatedValue = {};
+    mergeInto(updatedValue, value);
+
+    Object.keys(update).forEach(function(key) {
+      var val = update[key];
+      if (val && val.__append__) {
+        invariant(
+          value === undefined || Array.isArray(updatedValue[key]),
+          '__append__ directive only allowed on arrays'
+        );
+
+        updatedValue[key] = (updatedValue[key] || []).concat(val.__append__);
+      } else {
+        updatedValue[key] = val;
+      }
+    });
+
+    return updatedValue;
+  } else {
+    return update;
+  }
+}
 
 var ApplicationState = merge({
 
@@ -44,10 +73,18 @@ var ApplicationState = merge({
     var value = stateDescriptor.value;
     var dependencies = stateDescriptor.dependencies || [];
 
-    if (storage[id] !== undefined) {
-      storage[id] = merge(storage[id], {value});
+    var prevState = storage[id];
+
+    if (prevState !== undefined) {
+      storage[id] = merge(prevState, {
+        value: updateStateValue(prevState.value, value)
+      });
     } else {
-      storage[id] = {value, remote: stateDescriptor.remote, updating: false};
+      storage[id] = {
+        value: updateStateValue(undefined, value),
+        rw: stateDescriptor.rw,
+        updating: stateDescriptor.updating
+      };
     }
 
     // TODO: Check for cycles.
@@ -78,7 +115,7 @@ var ApplicationState = merge({
       // it in some way
       if (values[sID] !== undefined) {
         state.value = values[sID];
-      } else if (state.remote) {
+      } else if (!state.rw) {
         state.value = merge(state.value, {updating: true});
         needRemoteUpdate = true;
       }
@@ -112,7 +149,7 @@ var ApplicationState = merge({
     var params = {};
 
     this.forEach((state, id) => {
-      if (!state.remote && values[id] === undefined) {
+      if (state.rw && values[id] === undefined) {
         params[id] = state.value;
       }
     });

@@ -2,13 +2,12 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-import json
-import cgi
-from webob import Response
 from rex.core import SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error
-from rex.web import url_for, route
 from .widget import Widget, NullWidget, iterate_widget
-from .state import CollectionReferenceVal, StateVal, State
+from .state import (
+    StateDescriptor,
+    CollectionReferenceVal, PaginatedCollectionReferenceVal,
+    StateVal, State)
 from .parse import WidgetVal
 
 
@@ -122,10 +121,21 @@ class FiltersWidget(Widget):
                 value[widget.id] = descriptor.state[filter_state_id].value
 
         state_id = "%s.value" % self.id
-        descriptor.state.add(state_id, value)
+        descriptor.state[state_id] = StateDescriptor(state_id, value, [], True)
         descriptor.widget["props"].update({
             "value": {"__state_read_write__": state_id},
             "filterStateIds": filter_state_ids
         })
 
         return descriptor
+
+
+class GridWidget(Widget):
+
+    name = 'Grid'
+    js_type = 'rex-widget/lib/Grid'
+
+    fields = [
+        ('id', StrVal),
+        ('data', PaginatedCollectionReferenceVal(include_meta=True)),
+    ]

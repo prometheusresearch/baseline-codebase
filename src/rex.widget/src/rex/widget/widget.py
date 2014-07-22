@@ -176,37 +176,40 @@ class Widget(Extension):
         return TEMPLATE % {"spec": spec, "script_name": req.script_name}
 
     def as_json(self, req):
-        widget, state = self.descriptor(req)
-
         if req.method == 'GET':
-            state = compute_state_graph(state)
-            return {"widget": widget, "state": state}
-
+            return self.produce(req)
         elif req.method == 'POST':
-
-            origins = []
-
-            for id, value in req.json.items():
-
-                if id.startswith('update:'):
-                    id = id[7:]
-                    origins.append(id)
-
-                if not id in state:
-                    raise HTTPBadRequest("invalid state id: %s" % id)
-
-                state[id] = state[id]._replace(
-                    value=UpdatedValueComputator(value, state[id].value))
-
-            if not origins:
-                state = compute_state_graph(state)
-            else:
-                state = compute_state_graph_update(state, origins)
-
-            return {"state": state}
-
+            return self.produce_update(req)
         else:
             raise HTTPMethodNotAllowed()
+
+    def produce(self, req):
+        widget, state = self.descriptor(req)
+        state = compute_state_graph(state)
+        return {"widget": widget, "state": state}
+
+    def produce_update(self, req):
+        widget, state = self.descriptor(req)
+
+        origins = []
+
+        for id, value in req.json.items():
+            if id.startswith('update:'):
+                id = id[7:]
+                origins.append(id)
+
+            if not id in state:
+                raise HTTPBadRequest("invalid state id: %s" % id)
+
+            state[id] = state[id]._replace(
+                value=UpdatedValueComputator(value, state[id].value))
+
+        if not origins:
+            state = compute_state_graph(state)
+        else:
+            state = compute_state_graph_update(state, origins)
+
+        return {"state": state}
 
     def __str__(self):
         text = yaml.dump(self, Dumper=WidgetYAMLDumper)

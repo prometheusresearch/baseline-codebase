@@ -162,9 +162,9 @@ class Widget(Extension):
     def __call__(self, req):
         accept = req.accept.best_match(['text/html', 'application/json'])
         if accept == 'application/json':
-            return Response(
-                json.dumps(self.as_json(req), cls=WidgetJSONEncoder),
-                content_type='application/json')
+            spec = self.as_json(req)
+            spec = WidgetJSONEncoder(indent=2).encode(spec)
+            return Response(spec, content_type='application/json')
         else:
             return Response(self.as_html(req))
 

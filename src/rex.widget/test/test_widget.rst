@@ -56,6 +56,57 @@ Widget can also handle WSGI requests, the default representation is
       <script src="/bundle/bundle.js"></script>
       <script>
         var __REX_WIDGET__ = {
+          "widget": {
+            "__type__": "rex-widget/lib/TwoColumnLayout", 
+            "props": {
+              "sidebar": {
+                "__type__": "rex-widget/lib/Label", 
+                "props": {
+                  "text": "just a sidebar"
+                }
+              }, 
+              "main": {
+                "__children__": [
+                  {
+                    "__type__": "rex-widget/lib/Header", 
+                    "props": {
+                      "text": "Welcome to rex.widget_demo"
+                    }
+                  }, 
+                  {
+                    "__type__": "rex-widget/lib/Label", 
+                    "props": {
+                      "text": "This is a humble label."
+                    }
+                  }
+                ]
+              }, 
+              "sidebarWidth": 3
+            }
+          }, 
+          "state": {}
+        };
+        if (window.Rex === undefined || window.Rex.Widget === undefined) {
+          throw new Error('include rex-widget bower package in your application');
+        }
+        Rex.Widget.renderSpec(
+          __REX_WIDGET__,
+          document.getElementById('__main__')
+        );
+      </script>
+    </body>
+    </html>
+
+A JavaScript application can also request ``application/json`` representation of
+the UI::
+
+    >>> req = Request.blank('/')
+    >>> req.accept = 'application/json'
+    >>> print screen(req)           # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    200 OK
+    Content-Type: application/json; charset=UTF-8
+    ...
+    {
       "widget": {
         "__type__": "rex-widget/lib/TwoColumnLayout", 
         "props": {
@@ -85,25 +136,4 @@ Widget can also handle WSGI requests, the default representation is
         }
       }, 
       "state": {}
-    };
-        if (window.Rex === undefined || window.Rex.Widget === undefined) {
-          throw new Error('include rex-widget bower package in your application');
-        }
-        Rex.Widget.renderSpec(
-          __REX_WIDGET__,
-          document.getElementById('__main__')
-        );
-      </script>
-    </body>
-    </html>
-
-A JavaScript application can also request ``application/json`` representation of
-the UI::
-
-    >>> req = Request.blank('/')
-    >>> req.accept = 'application/json'
-    >>> print screen(req)           # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    200 OK
-    Content-Type: application/json; charset=UTF-8
-    ...
-    {"widget": {"__type__": "rex-widget/lib/TwoColumnLayout", "props": {"sidebar": {"__type__": "rex-widget/lib/Label", "props": {"text": "just a sidebar"}}, "main": {"__children__": [{"__type__": "rex-widget/lib/Header", "props": {"text": "Welcome to rex.widget_demo"}}, {"__type__": "rex-widget/lib/Label", "props": {"text": "This is a humble label."}}]}, "sidebarWidth": 3}}, "state": {}}
+    }

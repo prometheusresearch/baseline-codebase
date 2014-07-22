@@ -62,9 +62,9 @@ and string-rendering methods::
     Instrument(u'fake123', u'My Instrument Title')
 
     >>> task.as_dict()
-    {'priority': 100, 'instrument': {'uid': u'fake123', 'title': u'My Instrument Title'}, 'status': u'not-started', 'uid': u'bar999', 'subject': {'uid': u'fake123'}}
+    {'priority': 100, 'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'status': u'not-started', 'uid': u'bar999', 'subject': {'uid': u'fake123'}}
     >>> task.as_json()
-    u'{"priority": 100, "instrument": {"uid": "fake123", "title": "My Instrument Title"}, "status": "not-started", "uid": "bar999", "subject": {"uid": "fake123"}}'
+    u'{"priority": 100, "instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "status": "not-started", "uid": "bar999", "subject": {"uid": "fake123"}}'
 
 
 The Subjects, Instruments, and Assessments passed to the constructor must

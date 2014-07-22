@@ -74,9 +74,9 @@ and string-rendering methods::
     u'The InstrumentVersion Title'
 
     >>> form.as_dict()
-    {'instrument_version': {'instrument': {'uid': u'fake123', 'title': u'My Instrument Title'}, 'version': 1, 'uid': u'notreal456'}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'title': u'My EDC Application'}}
+    {'instrument_version': {'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'version': 1, 'uid': u'notreal456'}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'title': u'My EDC Application'}}
     >>> form.as_json()
-    u'{"instrument_version": {"instrument": {"uid": "fake123", "title": "My Instrument Title"}, "version": 1, "uid": "notreal456"}, "uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application"}}'
+    u'{"instrument_version": {"instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "version": 1, "uid": "notreal456"}, "uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application"}}'
 
 
 The Channels and InstrumentVersions passed to the constructor must actually be

@@ -18,12 +18,6 @@ class StateGraph(MutableMapping):
         self.storage = {}
         self.dependents = {}
 
-    def dependency_path(self, from_id):
-        yield self.storage[from_id]
-        for state_id in self.dependents.get(from_id, []):
-            for dep in self.dependency_path(state_id):
-                yield dep
-
     def __iter__(self):
         return iter(self.storage)
 
@@ -43,7 +37,19 @@ class StateGraph(MutableMapping):
     def __delitem__(self, id):
         del self.storage[id]
 
+    def dependency_path(self, from_id):
+        """ Iterate over dependencies originating from ``from_id``."""
+        yield self.storage[from_id]
+        for state_id in self.dependents.get(from_id, []):
+            for dep in self.dependency_path(state_id):
+                yield dep
+
     def deref(self, ref):
+        """ Dereference state reference to a value.
+
+        :param ref: state reference
+        :type ref: str | :class:`Reference`
+        """
         if not isinstance(ref, Reference):
             ref = parse_ref(ref)
         value = self.storage[ref.id].value

@@ -531,11 +531,16 @@ class Task(Extension, Comparable, Displayable, Dictable):
     Subject.
     """
 
-    STATUS_NOT_STARTED = u'not-started'  #: Work has not started on the task.
-    STATUS_STARTED = u'started'          #: Work has been started on the task.
-    STATUS_VALIDATING = u'validating'    #: Data has been collected and is awaiting reconciliation.
-    STATUS_COMPLETE = u'complete'        #: The Task has been satisfied.
-    STATUS_SKIPPED = u'skipped'          #: The Task is no longer necessary.
+    #: Work has not started on the task.
+    STATUS_NOT_STARTED = u'not-started'
+    #: Work has been started on the task.
+    STATUS_STARTED = u'started'
+    #: Data has been collected and is awaiting reconciliation.
+    STATUS_VALIDATING = u'validating'
+    #: The Task has been satisfied.
+    STATUS_COMPLETE = u'complete'
+    #: The Task is no longer necessary.
+    STATUS_SKIPPED = u'skipped'
     ALL_STATUSES = (
         STATUS_NOT_STARTED,
         STATUS_STARTED,

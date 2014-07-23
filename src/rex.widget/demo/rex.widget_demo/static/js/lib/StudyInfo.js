@@ -13,7 +13,7 @@ var StudyInfo = React.createClass({
       contents = (
         <div className="rex-widget-demo-StudyInfo__study">
           {Object.keys(this.props.data.data).map((name) =>
-            <InfoItem name={name} value={this.props.data.data[name]} />)}
+            <InfoItem key={name} name={name} value={this.props.data.data[name]} />)}
         </div>
       );
     } else {

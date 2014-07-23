@@ -17,9 +17,8 @@ paths:
                 data: rex.widget_demo:/data/study_options
             - !<Filter>
               title: "Choose study to show by another id:"
-              filter: !<Select>
+              filter: !<TextInput>
                 id: study_code_x
-                data: rex.widget_demo:/data/study_options
       main:
         - !<Header> Studies
         - !<Table>

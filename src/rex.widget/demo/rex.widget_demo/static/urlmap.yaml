@@ -8,7 +8,7 @@ paths:
 
         - !<Filters>
           id: filters
-          show_apply_button: false
+          show_apply_button: true
           show_clear_button: true
           filters:
             - !<Filter>

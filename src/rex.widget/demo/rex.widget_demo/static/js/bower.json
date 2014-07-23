@@ -5,6 +5,10 @@
     "Prometheus Research, LLC"
   ],
   "description": "Rex Widget Demo",
+  "main": "./lib/index.js",
+  "dependencies": {
+    "react": "^0.10.0"
+  },
   "moduleType": [
     "node"
   ],

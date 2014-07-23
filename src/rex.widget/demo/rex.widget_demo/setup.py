@@ -24,6 +24,9 @@ setup(
     name='rex.widget_demo',
     version = "1.0.0",
     description="Demo package for testing rex.widget",
+    namespace_packages=['rex'],
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
     setup_requires=[
         'rex.setup',
     ],
@@ -33,6 +36,7 @@ setup(
         'rex.deploy',
     ],
     cmdclass={'demo': demo},
+    rex_init='rex.widget_demo',
     rex_static='static',
     rex_bundle={
         './www/bundle': [

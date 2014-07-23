@@ -22,7 +22,8 @@ paths:
       main:
         - !<Header> Studies
         - !<Table>
-          id: study
+          id: study_list
+          selectable: true
           data:
             url: rex.widget_demo:/data/study
             refs:
@@ -35,6 +36,12 @@ paths:
               title: Title
             - key: closed
               title: Closed
+        - !<StudyInfo>
+          id: study
+          data:
+            url: rex.widget_demo:/data/study
+            refs:
+              'study:id': study_list.selected
 
 
   /data/study:

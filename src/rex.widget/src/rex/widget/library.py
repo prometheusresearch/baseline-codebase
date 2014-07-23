@@ -57,6 +57,8 @@ class TableWidget(Widget):
         ('id', StrVal),
         ('data', CollectionVal),
         ('columns', SeqVal),
+        ('selectable', BoolVal, False),
+        ('selected', State(StrVal), State(None)),
     ]
 
 

@@ -1,7 +1,11 @@
-#
-# Copyright (c) 2014, Prometheus Research, LLC
-#
+"""
 
+    rex.widget.widget
+    =================
+
+    :copyright: 2014, Prometheus Research, LLC
+
+"""
 
 import re
 import json

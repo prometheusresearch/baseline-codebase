@@ -9,7 +9,7 @@
 
 from .fields import (
     StateField, State,
-    StateVal, CollectionVal, PaginatedCollectionVal)
+    StateVal, CollectionVal, EntityVal, PaginatedCollectionVal)
 from .graph import (
     StateGraph, StateDescriptor,
     compute_state_graph, compute_state_graph_update)

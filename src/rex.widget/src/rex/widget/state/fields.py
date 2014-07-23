@@ -10,8 +10,8 @@
 from collections import namedtuple
 from rex.core import Validate, Error
 from .computator import (
-        CollectionComputator,
-        PaginatedCollectionComputator, InitialValue)
+        CollectionComputator, EntityComputator, PaginatedCollectionComputator,
+        InitialValue)
 from .graph import parse_ref, StateDescriptor
 
 
@@ -110,14 +110,14 @@ class State(StateField):
 
 class DataVal(Validate):
 
-    data_reference_factory = Data
+    field_factory = Data
 
     def __init__(self, include_meta=False):
         self.include_meta = include_meta
 
     def __call__(self, data):
         if isinstance(data, basestring):
-            return self.data_reference_factory(
+            return self.field_factory(
                     self.computator_factory,
                     data,
                     refs={},
@@ -130,7 +130,7 @@ class DataVal(Validate):
             refs = {name: parse_ref(ref)
                     for name, ref
                     in data.get("refs", {}).items()}
-            return self.data_reference_factory(
+            return self.field_factory(
                     self.computator_factory,
                     data["url"],
                     refs=refs,
@@ -148,8 +148,13 @@ class CollectionVal(DataVal):
 
 class PaginatedCollectionVal(DataVal):
 
-    data_reference_factory = PaginatedCollection
+    field_factory = PaginatedCollection
     computator_factory = PaginatedCollectionComputator
+
+
+class EntityVal(DataVal):
+
+    computator_factory = EntityComputator
 
 
 class StateVal(Validate):

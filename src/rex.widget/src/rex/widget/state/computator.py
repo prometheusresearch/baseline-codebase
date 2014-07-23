@@ -158,6 +158,20 @@ class CollectionComputator(DataComputator):
         return self.execute_handler(handler, params)
 
 
+class EntityComputator(DataComputator):
+
+    def fetch(self, handler, state, origins=None):
+        params = {name: state.deref(ref) for name, ref in self.refs.items()}
+
+        if None in params.values():
+            return {"data": None, "updating": False}
+
+        data = self.execute_handler(handler, params)
+        # XXX: raise error here?
+        data["data"] = data["data"][0]
+        return data
+
+
 class PaginatedCollectionComputator(DataComputator):
 
     def __init__(self, pagination_state_id, url, refs=None, include_meta=False):

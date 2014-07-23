@@ -7,7 +7,7 @@ from rex.core import (
 from .widget import Widget, NullWidget, iterate_widget
 from .state import (
     StateDescriptor,
-    CollectionReferenceVal, PaginatedCollectionReferenceVal,
+    CollectionVal, PaginatedCollectionVal,
     StateVal, State)
 from .parse import WidgetVal
 
@@ -55,7 +55,7 @@ class TableWidget(Widget):
     js_type = 'rex-widget/lib/Table'
     fields = [
         ('id', StrVal),
-        ('data', CollectionReferenceVal),
+        ('data', CollectionVal),
         ('columns', SeqVal),
     ]
 
@@ -79,7 +79,7 @@ class SelectWidget(Widget):
 
     fields = [
         ('id', StrVal),
-        ('data', CollectionReferenceVal, None),
+        ('data', CollectionVal, None),
         ('value', StateVal(IntVal), State(None)),
     ]
 
@@ -144,5 +144,5 @@ class GridWidget(Widget):
 
     fields = [
         ('id', StrVal),
-        ('data', PaginatedCollectionReferenceVal(include_meta=True)),
+        ('data', PaginatedCollectionVal(include_meta=True)),
     ]

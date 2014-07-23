@@ -38,22 +38,31 @@ class StateComputator(object):
             self.__class__.__name__)
 
 
-class IdentityComputator(StateComputator):
-    # FIXME: Find me a better name
+class InitialValue(StateComputator):
+    """ State computator which sets initial value and resets it if one of its
+    deps is changed.
+
+    :param initial_value: initial value
+    :keyword dependencies: list of state ids this state depends on
+    """
 
     def __init__(self, initial_value, dependencies=None):
         self.initial_value = initial_value
         self.dependencies = set(dependencies) if dependencies is not None else set()
 
     def __call__(self, value, state, origins=None):
-        if origins is None:
+        updated = {
+            sid for sid in state.dependency_path(origin)
+                for origin in origins
+        }
+
+        if origins is None or self.dependencies & updated:
             return self.initial_value
         else:
             return value
 
 
-class UpdatedValueComputator(StateComputator):
-    # FIXME: Find me a better name
+class UpdatedValue(StateComputator):
 
     def __init__(self, value, computator):
         self.value = value
@@ -122,7 +131,7 @@ class DataComputator(StateComputator):
     def execute_handler(self, handler, params):
         """ Execute ``handler`` with given ``params``.
         
-        This method is often used by :class:`DataReference` subclasses to
+        This method is often used by :class:`DataComputator` subclasses to
         implement :method:`fetch(handler, state)`.
         """
         if hasattr(handler, 'port'):

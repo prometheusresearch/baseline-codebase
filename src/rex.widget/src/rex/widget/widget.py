@@ -12,10 +12,9 @@ from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 from rex.core import (
         Error, Extension, RecordField,
         ProxyVal, StrVal, cached)
-from .state.graph import (
-        StateGraph, compute_state_graph, compute_state_graph_update)
-from .state.computator import UpdatedValueComputator
-from .state import StateGenerator
+from .state import (
+    StateField, UpdatedValue,
+    StateGraph, compute_state_graph, compute_state_graph_update)
 
 
 # FIXME: XSS! via script_name
@@ -45,7 +44,7 @@ TEMPLATE = """
     );
   </script>
 </body>
-</html>
+
 """
 
 WidgetDescriptor = namedtuple(
@@ -143,7 +142,7 @@ class Widget(Extension):
                 props[name] = descriptor.widget
                 state.update(descriptor.state)
 
-            elif isinstance(value, StateGenerator):
+            elif isinstance(value, StateField):
                 value_state = value.describe_state(self.id, name)
                 for prop_name, state_descriptor in value_state:
                     state[state_descriptor.id] = state_descriptor
@@ -202,7 +201,7 @@ class Widget(Extension):
                 raise HTTPBadRequest("invalid state id: %s" % id)
 
             state[id] = state[id]._replace(
-                value=UpdatedValueComputator(value, state[id].value))
+                value=UpdatedValue(value, state[id].value))
 
         if not origins:
             state = compute_state_graph(state)

@@ -10,7 +10,6 @@
 from collections import namedtuple, MutableMapping
 from .computator import StateComputator
 
-
 class StateGraph(MutableMapping):
     """ Represents application state as a graph of interdependent values."""
 
@@ -56,6 +55,14 @@ class StateGraph(MutableMapping):
         for part in ref.path:
             value = value[part]
         return value
+
+
+StateDescriptor = namedtuple(
+        'StateDescriptor',
+        ['id', 'value', 'dependencies', 'rw'])
+
+
+Reference = namedtuple('Reference', ['id', 'path'])
 
 
 def compute_state_graph(graph):
@@ -110,9 +117,6 @@ def compute_state_node(node, graph_in, graph_out, origins=None):
             graph_out[node.id] = node._replace(value=value)
         else:
             graph_out[node.id] = graph_in[node.id]
-
-
-Reference = namedtuple('Reference', ['id', 'path'])
 
 
 def parse_ref(ref):

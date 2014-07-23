@@ -2,7 +2,8 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-from rex.core import SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error
+from rex.core import (
+        SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error, RecordVal, RecordField)
 from .widget import Widget, NullWidget, iterate_widget
 from .state import (
     StateDescriptor,
@@ -94,6 +95,17 @@ class TextInputWidget(Widget):
     ]
 
 
+class FilterWidget(Widget):
+
+    name = 'Filter'
+    js_type = 'rex-widget/lib/Filter'
+
+    fields = [
+        ('title', StrVal),
+        ('filter', WidgetVal)
+    ]
+
+
 class FiltersWidget(Widget):
 
     name = 'Filters'
@@ -110,22 +122,19 @@ class FiltersWidget(Widget):
     def descriptor(self, req):
         descriptor = super(FiltersWidget, self).descriptor(req)
 
-        filter_state_ids  = []
         value = {}
 
         for widget in iterate_widget(self.filters):
-            fields = widget.fields_mapping
+            fields = widget.filter.fields_mapping
             if 'id' in fields and isinstance(fields.get('value'), StateVal):
-                filter_state_id = "%s.value" % widget.id
-                filter_state_ids.append(filter_state_id)
-                value[widget.id] = descriptor.state[filter_state_id].value
+                filter_state_id = "%s.value" % widget.filter.id
+                value[widget.filter.id] = descriptor.state[filter_state_id].value
+
+        print value
 
         state_id = "%s.value" % self.id
         descriptor.state[state_id] = StateDescriptor(state_id, value, [], True)
-        descriptor.widget["props"].update({
-            "value": {"__state_read_write__": state_id},
-            "filterStateIds": filter_state_ids
-        })
+        descriptor.widget["props"]["value"] = {"__state_read_write__": state_id}
 
         return descriptor
 

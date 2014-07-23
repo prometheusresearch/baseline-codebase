@@ -8,7 +8,7 @@ var React = require('react');
 var Label = React.createClass({
 
   render: function() {
-    return <span>{this.props.text}</span>;
+    return <span className="rex-widget-Label">{this.props.text}</span>;
   }
 });
 

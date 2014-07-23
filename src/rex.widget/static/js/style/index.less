@@ -14,11 +14,68 @@
 
 @headerHeight: 60px;
 
+
+.position-top-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+
 /**
  * Select widget
  */
 .rex-widget-Select {
   width: 100%;
+}
+
+/**
+ * Filters widget
+ */
+.rex-widget-Filters {
+  padding: @padding;
+}
+
+.rex-widget-Filters__header {
+  position: relative;
+  margin-bottom: @paddingL;
+}
+
+.rex-widget-Filters__footer {
+  position: relative;
+  margin-top: @paddingL;
+}
+
+.rex-widget-Filters__title {
+  font-weight: bold;
+}
+
+.rex-widget-Filters__clearButton {
+  .btn();
+  .btn-xs();
+  .btn-link();
+  .position-top-right();
+}
+
+.rex-widget-Filters__applyButton {
+  .btn();
+  .btn-xs();
+  .btn-default();
+}
+
+.rex-widget-Filters__filters {
+
+}
+
+/**
+ * Filter widget
+ */
+.rex-widget-Filter {
+  margin-bottom: @paddingL;
+}
+
+.rex-widget-Filter__title {
+  font-size: 90%;
 }
 
 /**

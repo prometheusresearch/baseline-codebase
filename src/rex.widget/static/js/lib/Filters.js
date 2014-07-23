@@ -1,6 +1,4 @@
 /**
- * Filters panel
- *
  * @jsx React.DOM
  */
 'use strict';
@@ -10,7 +8,6 @@ var cx                = React.addons.classSet;
 var cloneWithProps    = React.addons.cloneWithProps;
 var merge             = require('./merge');
 var emptyFunction     = require('./emptyFunction');
-var chainFunction     = require('./chainFunction');
 var ApplicationState  = require('./ApplicationState');
 
 var Filters = React.createClass({
@@ -19,7 +16,7 @@ var Filters = React.createClass({
     title: React.PropTypes.string,
     showClearButton: React.PropTypes.bool,
     showApplyButton: React.PropTypes.bool,
-    filters: React.PropTypes.renderable
+    filters: React.PropTypes.array
   },
 
   render: function() {
@@ -29,40 +26,39 @@ var Filters = React.createClass({
     );
     return (
       <div className={className}>
-        <div>
+        <div className="rex-widget-Filters__header">
           <div className="rex-widget-Filters__title">
             {this.props.title}
           </div>
-          <div>
-            {this.props.showClearButton &&
-              <button
-                onClick={this.onClear}
-                className="rex-widget-Filters__clearButton">
-                Clear filters
-              </button>}
-          </div>
+          {this.props.showClearButton &&
+            <button
+              onClick={this.onClear}
+              className="rex-widget-Filters__clearButton">
+              Clear filters
+            </button>}
         </div>
         <div className="rex-widget-Filters__filters">
           {this.renderFilters()}
         </div>
-        {this.props.showApplyButton && <button onClick={this.onApply}>Apply</button>}
+        {this.props.showApplyButton && 
+          <div className="rex-widget-Filters__footer">
+            <button className="rex-widget-Filters__applyButton" onClick={this.onApply}>
+              Apply
+            </button>
+          </div>}
       </div>
     );
   },
 
   renderFilters: function() {
-    var filters = [];
-
-    React.Children.forEach(this.props.filters, (filter, idx) => {
-      var key = filter.props.id || idx;
-      filters.push(cloneWithProps(filter, {
+    return React.Children.map(this.props.filters, (filter) => {
+      var key = filter.props.filter.props.id;
+      return cloneWithProps(filter, {
         key,
-        onValue: chainFunction(this.onValue.bind(null, key), filter.props.onValue),
+        onValue: this.onValue.bind(null, key),
         value: this.state[key] || null
-      }));
+      })
     });
-
-    return filters;
   },
 
   getDefaultProps: function() {
@@ -80,7 +76,7 @@ var Filters = React.createClass({
   getFilterState: function(props) {
     var state = {};
     React.Children.forEach(props.filters, (filter) => {
-      var key = filter.props.id;
+      var key = filter.props.filter.props.id;
       state[key] = props.value[key] || null;
     });
     return state;
@@ -92,15 +88,20 @@ var Filters = React.createClass({
 
   onClear: function() {
     var filters = {};
+    var filterStateIDs = []
+
     React.Children.forEach(this.props.filters, (filter) => {
-      var key = filter.props.id;
+      var key = filter.props.filter.props.id;
+      filterStateIDs.push(key + '.value');
       filters[key] = null;
     });
-    this.replaceState(filters);
+
 
     var update = {};
     update[this.props.id + '.value'] = filters;
-    this.props.filterStateIds.forEach((id) => update[id] = null);
+    filterStateIDs.forEach((id) => update[id] = null);
+
+    this.replaceState(filters);
     ApplicationState.updateMany(update);
   },
 

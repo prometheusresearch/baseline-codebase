@@ -25,7 +25,7 @@ var Select = React.createClass({
     var value = this.props.value;
     var options = this.props.options.concat(this.props.data.data);
 
-    if (value === undefined) {
+    if (value === undefined || value === null) {
       value = sentinel;
     }
 
@@ -39,7 +39,7 @@ var Select = React.createClass({
 
   getDefaultProps: function() {
     return {
-      emptyValue: {id: sentinel, title: '— no value —'},
+      emptyValue: {id: sentinel, title: ''},
       options: [],
       data: []
     };
@@ -48,7 +48,7 @@ var Select = React.createClass({
   onChange: function(e) {
     var value = e.target.value;
     if (value === sentinel) {
-      value = undefined;
+      value = null;
     }
     this.props.onValue(value);
   }

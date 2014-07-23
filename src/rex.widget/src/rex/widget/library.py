@@ -130,8 +130,6 @@ class FiltersWidget(Widget):
                 filter_state_id = "%s.value" % widget.filter.id
                 value[widget.filter.id] = descriptor.state[filter_state_id].value
 
-        print value
-
         state_id = "%s.value" % self.id
         descriptor.state[state_id] = StateDescriptor(state_id, value, [], True)
         descriptor.widget["props"]["value"] = {"__state_read_write__": state_id}

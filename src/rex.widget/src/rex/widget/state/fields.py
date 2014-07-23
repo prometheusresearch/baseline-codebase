@@ -95,17 +95,21 @@ class PaginatedCollection(Data):
 
 class State(StateField):
 
-    def __init__(self, initial):
-        self.initial = initial
+    def __init__(self, initial_value, dependencies=None):
+        self.initial_value = initial_value
+        self.dependencies = dependencies or []
 
     def describe_state(self, widget_id, field_name):
         state_id = "%s.%s" % (widget_id, field_name)
-        return [
-            (field_name,
-                StateDescriptor(
-                    state_id, self.initial,
-                    dependencies=[], rw=True))
-        ]
+        dependencies = ["%s.%s" % (widget_id, dep) for dep in self.dependencies]
+        state = StateDescriptor(
+                state_id,
+                value=InitialValue(
+                    self.initial_value, 
+                    dependencies=dependencies),
+                dependencies=dependencies,
+                rw=True)
+        return [(field_name, state)]
 
 
 class DataVal(Validate):
@@ -159,11 +163,12 @@ class EntityVal(DataVal):
 
 class StateVal(Validate):
 
-    def __init__(self, validate):
+    def __init__(self, validate, dependencies=None):
         if isinstance(validate, type):
             validate = validate()
         self.validate = validate
+        self.dependencies = dependencies
 
     def __call__(self, data):
-        return State(self.validate(data))
+        return State(self.validate(data), dependencies=self.dependencies)
 

@@ -51,12 +51,16 @@ class InitialValue(StateComputator):
         self.dependencies = set(dependencies) if dependencies is not None else set()
 
     def __call__(self, value, state, origins=None):
+        origins = origins or []
+
         updated = {
-            sid for sid in state.dependency_path(origin)
+            state_desc.id
                 for origin in origins
+                if origin in state
+                for state_desc in state.dependency_path(origin)
         }
 
-        if origins is None or self.dependencies & updated:
+        if not origins or self.dependencies & updated:
             return self.initial_value
         else:
             return value

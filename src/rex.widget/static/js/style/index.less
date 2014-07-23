@@ -184,3 +184,46 @@
 .rex-widget-Preloader__caption {
   padding: @paddingL;
 }
+
+/**
+ * Grid widget
+ */
+.rex-widget-Grid {
+
+  .react-grid-HeaderCell {
+    padding: @padding;
+    cursor: default;
+    background-color: @colorHoverHighlight;
+    border-top: 1px solid darken(@colorHoverHighlight, 10%);
+    border-bottom: 1px solid darken(@colorHoverHighlight, 10%);
+    border-left: 1px solid darken(@colorHoverHighlight, 10%);
+    &:hover {
+      background-color: darken(@colorHoverHighlight, 10%);
+    }
+    &:last-child {
+      border-right: 1px solid darken(@colorHoverHighlight, 10%);
+    }
+  }
+
+  .react-grid-Cell {
+    padding: @padding;
+    white-space: nowrap;
+    border-left: 1px dotted @colorHoverHighlight;
+    &:last-child {
+      border-right: 1px dotted @colorHoverHighlight;
+    }
+  }
+}
+
+.rex-widget-GridRow {
+  border-bottom: 1px solid @colorHoverHighlight;
+  cursor: default;
+}
+
+.rex-widget-GridRow--hovered {
+  background-color: @colorHoverHighlight;
+}
+
+.rex-widget-GridRow--selected {
+  background-color: @colorSelectedHighlight;
+}

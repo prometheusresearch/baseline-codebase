@@ -109,7 +109,7 @@ def compute_state_graph_update(graph, origins):
 
 
 def compute_state_node(node, graph_in, graph_out, origins=None):
-    if not node.id in graph_out:
+    if node.id not in graph_out:
         if isinstance(node.value, StateComputator):
             for dep in node.dependencies:
                 compute_state_node(graph_in[dep], graph_in, graph_out)

@@ -4,6 +4,7 @@
 'use strict';
 
 var React         = require('react/addons');
+var PropTypes     = React.PropTypes;
 var cx            = React.addons.classSet;
 var BaseGrid      = require('react-grid');
 var BaseRow       = require('react-grid/lib/Row');
@@ -15,8 +16,8 @@ var GridRow = React.createClass({
 
   render: function() {
     var selected = (
-      this.props.selectedRowId !== undefined
-      && this.props.selectedRowId === this.props.row.id
+      this.props.selected !== undefined
+      && this.props.selected === this.props.row.id
     );
     var hovered = (
       this.props.hoveredRowId !== undefined
@@ -24,9 +25,9 @@ var GridRow = React.createClass({
     );
 
     var className = cx({
-      'sims-GridRow': true,
-      'sims-GridRow--selected': selected,
-      'sims-GridRow--hovered': hovered
+      'rex-widget-GridRow': true,
+      'rex-widget-GridRow--selected': selected,
+      'rex-widget-GridRow--hovered': hovered
     });
 
     return this.transferPropsTo(
@@ -39,7 +40,7 @@ var GridRow = React.createClass({
   },
 
   onClick: function() {
-    this.props.onSelect(this.props.row.id);
+    this.props.onSelected(this.props.row.id);
   },
 
   onMouseEnter: function() {
@@ -77,17 +78,18 @@ var SortableGridHeaderCell = React.createClass({
 var Grid = React.createClass({
 
   propTypes: {
-    data: React.PropTypes.object.isRequired,
-    onRows: React.PropTypes.func,
+    data: PropTypes.object.isRequired,
+    onRows: PropTypes.func,
 
-    columns: React.PropTypes.object,
+    columns: PropTypes.object,
 
-    selectedRowId: React.PropTypes.number,
-    onSelect: React.PropTypes.func,
+    selectable: PropTypes.bool,
+    selected: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    onSelected: PropTypes.func,
 
-    sortedColumnId: React.PropTypes.string,
-    sortDirection: React.PropTypes.string,
-    onSort: React.PropTypes.func
+    sortedColumnId: PropTypes.string,
+    sortDirection: PropTypes.string,
+    onSort: PropTypes.func
   },
 
   getInitialState: function() {
@@ -98,9 +100,9 @@ var Grid = React.createClass({
     var columns = this.getColumns(this.props.data.meta);
     var rowRenderer = (
       <GridRow
-        selectedRowId={this.props.selectedRowId}
         hoveredRowId={this.state.hoveredRowId}
-        onSelect={this.props.onSelect}
+        selected={this.props.selectable && this.props.selected}
+        onSelected={this.props.selectable && this.props.onSelected}
         onHover={this.onHover}
         />
     );
@@ -109,7 +111,7 @@ var Grid = React.createClass({
         columns={columns}
         rows={this.getRows}
         length={this.props.data.data.length}
-        className="sims-Grid"
+        className="rex-widget-Grid"
         rowRenderer={rowRenderer}
         />
     );
@@ -118,7 +120,8 @@ var Grid = React.createClass({
   getDefaultProps: function() {
     return {
       columns: {},
-      onSelect: emptyFunction,
+      selectable: false,
+      onSelected: emptyFunction,
       onSort: emptyFunction
     };
   },

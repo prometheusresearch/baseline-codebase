@@ -130,7 +130,7 @@ class FiltersWidget(Widget):
             fields = widget.filter.fields_mapping
             if 'id' in fields and isinstance(fields.get('value'), StateVal):
                 filter_state_id = "%s.value" % widget.filter.id
-                value[widget.filter.id] = descriptor.state[filter_state_id].value
+                value[widget.filter.id] = descriptor.state[filter_state_id].value.initial_value
 
         state_id = "%s.value" % self.id
         descriptor.state[state_id] = StateDescriptor(state_id, value, [], True)
@@ -147,6 +147,8 @@ class GridWidget(Widget):
     fields = [
         ('id', StrVal),
         ('data', PaginatedCollectionVal(include_meta=True)),
+        ('selectable', BoolVal, False),
+        ('selected', StateVal(IntVal), State(None)),
     ]
 
 

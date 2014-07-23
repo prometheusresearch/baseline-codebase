@@ -5,6 +5,7 @@ paths:
       sidebar_width: 3
       sidebar: 
         - !<Header> Sidebar
+
         - !<Filters>
           id: filters
           show_apply_button: false
@@ -19,8 +20,10 @@ paths:
               title: "Choose study to show by another id:"
               filter: !<TextInput>
                 id: study_code_x
+
       main:
         - !<Header> Studies
+
         - !<Table>
           id: study_list
           selectable: true
@@ -36,12 +39,22 @@ paths:
               title: Title
             - key: closed
               title: Closed
+
+        - !<BarChart>
+          id: study_graph
+          data:
+            url: rex.widget_demo:/data/study
+            refs:
+              'study:id': filters.value:study_code
+
         - !<StudyInfo>
           id: study
           data:
             url: rex.widget_demo:/data/study
             refs:
               'study:id': study_list.selected
+
+
 
 
   /data/study:

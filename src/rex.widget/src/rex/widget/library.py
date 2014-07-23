@@ -148,3 +148,14 @@ class GridWidget(Widget):
         ('id', StrVal),
         ('data', PaginatedCollectionVal(include_meta=True)),
     ]
+
+
+class BarChart(Widget):
+
+    name = 'BarChart'
+    js_type = 'rex-widget/lib/BarChart'
+
+    fields = [
+        ('id', StrVal),
+        ('data', CollectionVal(include_meta=True)),
+    ]

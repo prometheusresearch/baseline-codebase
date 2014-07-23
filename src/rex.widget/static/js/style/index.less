@@ -141,20 +141,24 @@
     border-right: 1px solid #777;
   }
 
-  .rex-widget-Table__calculatedColumn {
-    border-left: 2px solid black;
-  }
+}
 
-  .rex-widget-Table__calculatedRow {
-    border-top: 2px solid black;
-  }
+.rex-widget-Table__row--selected {
+  background-color: @colorSelectedHighlight;
+}
 
-  .rex-widget-Table__calculatedColumn,
-  .rex-widget-Table__calculatedRow {
-    font-weight: bold;
-    background-color: @colorHoverHighlight;
-  }
+.rex-widget-Table__calculatedColumn {
+  border-left: 2px solid black;
+}
 
+.rex-widget-Table__calculatedRow {
+  border-top: 2px solid black;
+}
+
+.rex-widget-Table__calculatedColumn,
+.rex-widget-Table__calculatedRow {
+  font-weight: bold;
+  background-color: @colorHoverHighlight;
 }
 
 /**

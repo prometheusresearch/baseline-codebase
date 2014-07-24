@@ -52,11 +52,12 @@ var Filters = React.createClass({
 
   renderFilters: function() {
     return React.Children.map(this.props.filters, (filter) => {
-      var key = filter.props.filter.props.id;
+      var id = filter.props.filter.props.id;
       return cloneWithProps(filter, {
-        key,
-        onValue: this.onValue.bind(null, key),
-        value: this.state[key] || null
+        key: id,
+        id,
+        onValue: this.onValue,
+        value: this.state[id] || null
       })
     });
   },
@@ -96,7 +97,6 @@ var Filters = React.createClass({
       filters[key] = null;
     });
 
-
     var update = {};
     update[this.props.id + '.value'] = filters;
     filterStateIDs.forEach((id) => update[id] = null);
@@ -105,16 +105,23 @@ var Filters = React.createClass({
     ApplicationState.updateMany(update);
   },
 
-  onValue: function(name, value) {
-    var filters = {};
-    filters[name] = value || null;
-    filters = merge(this.state, filters);
+  onValue: function(id, value, update) {
+    var nextState = this.updatedState(id, value);
 
     if (!this.props.showApplyButton) {
-      this.props.onValue(filters);
+      ApplicationState.updateMany(merge(
+        update,
+        this.props.onValue.produce(nextState)
+      ));
     }
 
-    this.setState(filters);
+    this.setState(nextState);
+  },
+
+  updatedState: function(id, value) {
+    var update = {};
+    update[id] = value || null;
+    return merge(this.state, update);
   }
 });
 

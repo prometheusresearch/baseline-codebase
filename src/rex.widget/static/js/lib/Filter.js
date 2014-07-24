@@ -6,19 +6,23 @@
 var React           = require('react/addons');
 var cloneWithProps  = React.addons.cloneWithProps;
 var chainFunction   = require('./chainFunction');
+var merge           = require('./merge');
 
 var Filter = React.createClass({
 
   propTypes: {
-    title: React.PropTypes.string,
-    filter: React.PropTypes.renderable
+    id: React.PropTypes.string.isRequired,
+    filter: React.PropTypes.renderable.isRequired,
+    title: React.PropTypes.string.isRequired,
+    value: React.PropTypes.string,
+    onValue: React.PropTypes.func
   },
 
   render: function() {
     var filter = this.props.filter;
     filter = cloneWithProps(this.props.filter, {
       value: this.props.value,
-      onValue: chainFunction(this.props.onValue, filter.props.onValue),
+      onValue: this.onValue.bind(null, filter.props.onValue)
     });
     return (
       <div className="rex-widget-Filter">
@@ -26,6 +30,10 @@ var Filter = React.createClass({
         <div className="rex-widget-Filter__filter">{filter}</div>
       </div>
     );
+  },
+
+  onValue: function(onValue, value) {
+    this.props.onValue(this.props.id, value, onValue.produce(value));
   }
 });
 

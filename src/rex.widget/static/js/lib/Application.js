@@ -94,7 +94,7 @@ function constructComponent(widget, key) {
     // Write to state
     } else if (prop !== null && prop.__state_read_write__) {
       props[name] = ApplicationState.get(prop.__state_read_write__);
-      props[stateWriterName(name)] = makeStateWriter(prop.__state_read_write__);
+      props[stateWriterName(name)] = makeAction(prop.__state_read_write__);
     } else {
       props[name] = prop;
     }
@@ -108,10 +108,21 @@ function stateWriterName(name) {
   return 'on' + name[0].toUpperCase() + name.slice(1);
 }
 
-function makeStateWriter(id) {
-  return function(value) {
-    ApplicationState.update(id, value);
+function makeAction(id) {
+  function produce(value) {
+    var update = {};
+    update[id] = value;
+    return update;
   }
+
+  function execute(value) {
+    ApplicationState.updateMany(produce(value));
+  }
+
+  execute.produce = produce;
+  execute.execute = execute;
+
+  return execute;
 }
 
 module.exports = Application;

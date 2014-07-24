@@ -121,8 +121,8 @@ class FiltersWidget(Widget):
         ('show_clear_button', BoolVal, True),
     ]
 
-    def descriptor(self, req):
-        descriptor = super(FiltersWidget, self).descriptor(req)
+    def descriptor(self):
+        descriptor = super(FiltersWidget, self).descriptor()
 
         value = {}
 

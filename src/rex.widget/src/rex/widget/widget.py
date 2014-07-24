@@ -133,7 +133,8 @@ class Widget(Extension):
             mapping[field.name] = field.validate
         return mapping
 
-    def descriptor(self, req):
+    @cached
+    def descriptor(self):
         props = {}
         state = StateGraph()
 
@@ -142,7 +143,7 @@ class Widget(Extension):
             name = to_camelcase(name)
 
             if isinstance(value, Widget):
-                descriptor = value.descriptor(req)
+                descriptor = value.descriptor()
                 props[name] = descriptor.widget
                 state.update(descriptor.state)
 
@@ -187,14 +188,15 @@ class Widget(Extension):
             raise HTTPMethodNotAllowed()
 
     def produce(self, req):
-        widget, state = self.descriptor(req)
+        widget, state = self.descriptor()
         state = compute_state_graph(state)
         return {"widget": widget, "state": state}
 
     def produce_update(self, req):
-        widget, state = self.descriptor(req)
+        widget, state = self.descriptor()
 
         origins = []
+        updates = StateGraph()
 
         for id, value in req.json.items():
             if id.startswith('update:'):
@@ -204,8 +206,10 @@ class Widget(Extension):
             if not id in state:
                 raise HTTPBadRequest("invalid state id: %s" % id)
 
-            state[id] = state[id]._replace(
+            updates[id] = state[id]._replace(
                 value=UpdatedValue(value, state[id].value))
+
+        state = state.merge(updates)
 
         if not origins:
             state = compute_state_graph(state)
@@ -234,12 +238,12 @@ class GroupWidget(Widget):
             ('children', Widget.validate),
     ]
 
-    def descriptor(self, req):
+    def descriptor(self):
         state = StateGraph()
         children = []
 
         for child in self.children:
-            descriptor = child.descriptor(req)
+            descriptor = child.descriptor()
             state.update(descriptor.state)
             children.append(descriptor.widget)
 
@@ -255,7 +259,7 @@ class NullWidget(Widget):
             cls.singleton = Widget.__new__(cls)
         return cls.singleton
 
-    def descriptor(self, req):
+    def descriptor(self):
         return WidgetDescriptor(None, StateGraph())
 
 

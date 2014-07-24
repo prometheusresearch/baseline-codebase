@@ -39,6 +39,11 @@ class StateGraph(MutableMapping):
     def __delitem__(self, id):
         del self.storage[id]
 
+    def merge(self, state):
+        result = StateGraph(self)
+        result.update(state)
+        return result
+
     def dependency_path(self, from_id):
         """ Iterate over dependencies originating from ``from_id``."""
         yield self.storage[from_id]

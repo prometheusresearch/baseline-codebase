@@ -13,9 +13,12 @@ from .computator import StateComputator
 class StateGraph(MutableMapping):
     """ Represents application state as a graph of interdependent values."""
 
-    def __init__(self):
+    def __init__(self, initial=None):
         self.storage = {}
         self.dependents = {}
+
+        if initial is not None:
+            self.update(initial)
 
     def __iter__(self):
         return iter(self.storage)

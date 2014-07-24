@@ -298,7 +298,6 @@ def to_json(obj):
 class WidgetJSONEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        print obj.__class__
         if isinstance(obj, UIDescriptor):
             return {"__type__": obj.type, "props": obj.props}
         if isinstance(obj, UIDescriptorChildren):

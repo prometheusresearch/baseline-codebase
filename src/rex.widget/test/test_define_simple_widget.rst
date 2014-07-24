@@ -40,5 +40,6 @@
     {'text': 'Hello, world!', 'level': 1}
 
     >>> w.descriptor() # doctest: +NORMALIZE_WHITESPACE
-    WidgetDescriptor(widget={'__type__': 'should-be-ok-for-test', 'props': {'text': 'Hello, world!', 'level': 1}},
+    WidgetDescriptor(widget={'__type__': 'should-be-ok-for-test',
+                             'props': {'text': 'Hello, world!', 'level': 1}},
                      state=StateGraph(storage={}, dependents={}))

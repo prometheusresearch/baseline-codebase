@@ -3,7 +3,8 @@
 #
 
 from rex.core import (
-        SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error, RecordVal, RecordField)
+        SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error, RecordVal, RecordField,
+        cached)
 from .widget import Widget, NullWidget, iterate_widget
 from .state import (
     StateDescriptor,
@@ -121,6 +122,7 @@ class FiltersWidget(Widget):
         ('show_clear_button', BoolVal, True),
     ]
 
+    @cached
     def descriptor(self):
         descriptor = super(FiltersWidget, self).descriptor()
 
@@ -132,11 +134,15 @@ class FiltersWidget(Widget):
                 filter_state_id = "%s.value" % widget.filter.id
                 value[widget.filter.id] = descriptor.state[filter_state_id].value.initial_value
 
-        state_id = "%s.value" % self.id
-        descriptor.state[state_id] = StateDescriptor(state_id, value, [], True)
-        descriptor.widget["props"]["value"] = {"__state_read_write__": state_id}
+        id = "%s.value" % self.id
 
-        return descriptor
+        props = dict(descriptor.ui.props)
+        props["value"] = {"__state_read_write__": id}
+
+        return descriptor._replace(
+            state=descriptor.state.merge({id: StateDescriptor(id, value, [], True)}),
+            ui=descriptor.ui._replace(props=props)
+        )
 
 
 class GridWidget(Widget):

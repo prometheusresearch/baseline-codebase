@@ -17,9 +17,9 @@ if (window.__require__ === undefined) {
 }
 
 /**
- * Render Rex Widget component widget into DOM.
+ * Render Rex Widget spec into DOM.
  *
- * @param {Descriptor} widget
+ * @param {Spec} spec
  * @param {DOMElement?} element
  * @return {ReactComponent}
  */
@@ -29,7 +29,7 @@ function renderSpec(spec, element) {
   ApplicationState.hydrateAll(spec.state);
 
   return React.renderComponent(
-    <Application stateIDs={stateIDs} widget={spec.widget} />,
+    <Application stateIDs={stateIDs} ui={spec.ui} />,
     element);
 }
 

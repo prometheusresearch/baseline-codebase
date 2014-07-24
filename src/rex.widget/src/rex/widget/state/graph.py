@@ -7,18 +7,18 @@
 
 """
 
-from collections import namedtuple, MutableMapping
+from collections import namedtuple, MutableMapping, Mapping
 from .computator import StateComputator
 
-class StateGraph(MutableMapping):
-    """ Represents application state as a graph of interdependent values."""
+
+class StateGraph(Mapping):
 
     def __init__(self, initial=None):
         self.storage = {}
         self.dependents = {}
 
         if initial is not None:
-            self.update(initial)
+            _merge_state_into(self, initial)
 
     def __iter__(self):
         return iter(self.storage)
@@ -31,24 +31,11 @@ class StateGraph(MutableMapping):
             id = id.split(':', 1)[0]
         return self.storage[id]
 
-    def __setitem__(self, id, state):
-        self.storage[id] = state
-        for dep in state.dependencies:
-            self.dependents.setdefault(dep, []).append(id)
-
-    def __delitem__(self, id):
-        del self.storage[id]
-
     def __str__(self):
         return "%s(storage=%s, dependents=%s)" % (
                 self.__class__.__name__, self.storage, self.dependents)
 
     __repr__ = __str__
-
-    def merge(self, state):
-        result = StateGraph(self)
-        result.update(state)
-        return result
 
     def dependency_path(self, from_id):
         """ Iterate over dependencies originating from ``from_id``."""
@@ -70,6 +57,36 @@ class StateGraph(MutableMapping):
             value = value[part]
         return value
 
+    def merge(self, state):
+        result = self.__class__(self)
+        _merge_state_into(result, state)
+        return result
+
+
+class MutableStateGraph(StateGraph, MutableMapping):
+
+    def __setitem__(self, id, state):
+        self.storage[id] = state
+        for dep in state.dependencies:
+            dependents = self.dependents.setdefault(dep, [])
+            if not id in dependents:
+                dependents.append(id)
+
+    def __delitem__(self, id):
+        del self.storage[id]
+
+    def immutable(self):
+        return StateGraph(self)
+
+
+def _merge_state_into(dst, src):
+    for id, state in src.items():
+        dst.storage[id] = state
+        for dep in state.dependencies:
+            dependents = dst.dependents.setdefault(dep, [])
+            if not id in dependents:
+                dependents.append(id)
+
 
 StateDescriptor = namedtuple(
         'StateDescriptor',
@@ -89,7 +106,7 @@ def compute_state_graph(graph):
     :rtype: :class:`StateGraph`
     """
 
-    computed_graph = StateGraph()
+    computed_graph = MutableStateGraph()
 
     for node in graph.values():
         compute_state_node(node, graph, computed_graph)
@@ -111,8 +128,8 @@ def compute_state_graph_update(graph, origins):
     """
     # we use context to store fetched state but only need to return state along
     # the dependency path, so the byte size would be minimal
-    computed_graph = StateGraph()
-    context = StateGraph()
+    computed_graph = MutableStateGraph()
+    context = MutableStateGraph()
 
     for origin in origins:
         for node in graph.dependency_path(origin):

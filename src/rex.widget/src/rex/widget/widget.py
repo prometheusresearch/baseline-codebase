@@ -8,7 +8,7 @@
 """
 
 import re
-import json
+import simplejson as json
 import yaml
 from collections import namedtuple
 from webob import Response
@@ -18,7 +18,7 @@ from rex.core import (
         ProxyVal, StrVal, cached)
 from .state import (
     StateField, UpdatedValue,
-    StateGraph, compute_state_graph, compute_state_graph_update)
+    StateGraph, MutableStateGraph, compute_state_graph, compute_state_graph_update)
 
 
 # FIXME: XSS! via script_name
@@ -53,7 +53,17 @@ TEMPLATE = """
 
 WidgetDescriptor = namedtuple(
         'WidgetDescriptor',
-        ['widget', 'state'])
+        ['ui', 'state'])
+
+
+UIDescriptor = namedtuple(
+        'UIDescriptor',
+        ['type', 'props'])
+
+
+UIDescriptorChildren = namedtuple(
+        'UIDescriptorChildren',
+        ['children'])
 
 
 class Widget(Extension):
@@ -136,7 +146,7 @@ class Widget(Extension):
     @cached
     def descriptor(self):
         props = {}
-        state = StateGraph()
+        state = MutableStateGraph()
 
         for name, value in self.values.items():
 
@@ -144,7 +154,7 @@ class Widget(Extension):
 
             if isinstance(value, Widget):
                 descriptor = value.descriptor()
-                props[name] = descriptor.widget
+                props[name] = descriptor.ui
                 state.update(descriptor.state)
 
             elif isinstance(value, StateField):
@@ -160,14 +170,14 @@ class Widget(Extension):
                 props[name] = value
 
         return WidgetDescriptor(
-                {"__type__": self.js_type, "props": props},
-                state)
+                UIDescriptor(self.js_type, props),
+                state.immutable())
 
     def __call__(self, req):
         accept = req.accept.best_match(['text/html', 'application/json'])
         if accept == 'application/json':
             spec = self.as_json(req)
-            spec = WidgetJSONEncoder(indent=2).encode(spec)
+            spec = to_json(spec)
             return Response(spec, content_type='application/json')
         else:
             return Response(self.as_html(req))
@@ -176,7 +186,7 @@ class Widget(Extension):
         # XXX: The indent=2 is useful for debug/introspection but hurts bytesize,
         # can we turn it on only in dev mode?
         spec = self.as_json(req)
-        spec = WidgetJSONEncoder(indent=2).encode(spec)
+        spec = to_json(spec)
         return TEMPLATE % {"spec": spec, "script_name": req.script_name}
 
     def as_json(self, req):
@@ -190,13 +200,13 @@ class Widget(Extension):
     def produce(self, req):
         widget, state = self.descriptor()
         state = compute_state_graph(state)
-        return {"widget": widget, "state": state}
+        return {"ui": widget, "state": state}
 
     def produce_update(self, req):
         widget, state = self.descriptor()
 
         origins = []
-        updates = StateGraph()
+        updates = MutableStateGraph()
 
         for id, value in req.json.items():
             if id.startswith('update:'):
@@ -238,16 +248,17 @@ class GroupWidget(Widget):
             ('children', Widget.validate),
     ]
 
+    @cached
     def descriptor(self):
-        state = StateGraph()
+        state = MutableStateGraph()
         children = []
 
         for child in self.children:
             descriptor = child.descriptor()
             state.update(descriptor.state)
-            children.append(descriptor.widget)
+            children.append(descriptor.ui)
 
-        return WidgetDescriptor({"__children__": children}, state)
+        return WidgetDescriptor(UIDescriptorChildren(children), state.immutable())
 
 
 class NullWidget(Widget):
@@ -275,9 +286,25 @@ def iterate_widget(widget):
         yield widget
 
 
+def to_json(obj):
+    encoder = WidgetJSONEncoder(
+        indent=2,
+        tuple_as_array=False,
+        namedtuple_as_object=False
+    )
+    return encoder.encode(obj)
+
+
 class WidgetJSONEncoder(json.JSONEncoder):
 
     def default(self, obj):
+        print obj.__class__
+        if isinstance(obj, UIDescriptor):
+            return {"__type__": obj.type, "props": obj.props}
+        if isinstance(obj, UIDescriptorChildren):
+            return {"__children__": obj.children}
+        if isinstance(obj, WidgetDescriptor):
+            return {"ui": obj.ui, "state": obj.state}
         if isinstance(obj, StateGraph):
             return {k: v._asdict() for k, v in obj.items()}
         return super(WidgetJSONEncoder, self).default(obj)

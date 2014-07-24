@@ -11,6 +11,6 @@ from .fields import (
     StateField, State,
     StateVal, CollectionVal, EntityVal, PaginatedCollectionVal)
 from .graph import (
-    StateGraph, StateDescriptor,
+    StateGraph, MutableStateGraph, StateDescriptor,
     compute_state_graph, compute_state_graph_update)
 from .computator import UpdatedValue

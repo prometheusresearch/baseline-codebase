@@ -10,11 +10,11 @@ var Application = React.createClass({
 
   propTypes: {
     stateIDs: React.PropTypes.array,
-    widget: React.PropTypes.object.isRequired
+    ui: React.PropTypes.object.isRequired
   },
 
   render: function() {
-    return constructComponent(this.props.widget);
+    return constructComponent(this.props.ui);
   },
 
   getDefaultProps: function() {
@@ -59,17 +59,17 @@ var Application = React.createClass({
  *
  * @private
  *
- * @param {Widget} widget
+ * @param {Widget} ui
  * @param {Number|String} key
  * @returns {ReactDescriptor}
  */
-function constructComponent(widget, key) {
-  if (widget.__type__ === undefined) {
-    throw new Error('widget should have "__type__" attribute');
+function constructComponent(ui, key) {
+  if (ui.__type__ === undefined) {
+    throw new Error('ui should have "__type__" attribute');
   }
 
-  if (widget.props === undefined) {
-    throw new Error('widget should have "props" attribute');
+  if (ui.props === undefined) {
+    throw new Error('ui should have "props" attribute');
   }
 
   var props = {};
@@ -78,8 +78,8 @@ function constructComponent(widget, key) {
     props.key = key;
   }
 
-  for (var name in widget.props) {
-    var prop = widget.props[name];
+  for (var name in ui.props) {
+    var prop = ui.props[name];
     // Widget
     if (prop !== null && prop.__type__) {
       props[name] = constructComponent(prop);
@@ -100,7 +100,7 @@ function constructComponent(widget, key) {
     }
   }
 
-  var Component = __require__(widget.__type__);
+  var Component = __require__(ui.__type__);
   return Component(props);
 }
 

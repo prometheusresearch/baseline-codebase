@@ -61,35 +61,35 @@ Widget can also handle WSGI requests, the default representation is
       <script src="/bundle/bundle.js"></script>
       <script>
         var __REX_WIDGET__ = {
-          "widget": {
-            "__type__": "rex-widget/lib/TwoColumnLayout", 
+          "state": {},
+          "ui": {
+            "__type__": "rex-widget/lib/TwoColumnLayout",
             "props": {
               "sidebar": {
-                "__type__": "rex-widget/lib/Label", 
+                "__type__": "rex-widget/lib/Label",
                 "props": {
                   "text": "just a sidebar"
                 }
-              }, 
+              },
               "main": {
                 "__children__": [
                   {
-                    "__type__": "rex-widget/lib/Header", 
+                    "__type__": "rex-widget/lib/Header",
                     "props": {
                       "text": "Welcome to rex.widget_demo"
                     }
-                  }, 
+                  },
                   {
-                    "__type__": "rex-widget/lib/Label", 
+                    "__type__": "rex-widget/lib/Label",
                     "props": {
                       "text": "This is a humble label."
                     }
                   }
                 ]
-              }, 
+              },
               "sidebarWidth": 3
             }
-          }, 
-          "state": {}
+          }
         };
         if (window.Rex === undefined || window.Rex.Widget === undefined) {
           throw new Error('include rex-widget bower package in your application');
@@ -111,33 +111,33 @@ the UI::
     Content-Type: application/json; charset=UTF-8
     ...
     {
-      "widget": {
-        "__type__": "rex-widget/lib/TwoColumnLayout", 
+      "state": {},
+      "ui": {
+        "__type__": "rex-widget/lib/TwoColumnLayout",
         "props": {
           "sidebar": {
-            "__type__": "rex-widget/lib/Label", 
+            "__type__": "rex-widget/lib/Label",
             "props": {
               "text": "just a sidebar"
             }
-          }, 
+          },
           "main": {
             "__children__": [
               {
-                "__type__": "rex-widget/lib/Header", 
+                "__type__": "rex-widget/lib/Header",
                 "props": {
                   "text": "Welcome to rex.widget_demo"
                 }
-              }, 
+              },
               {
-                "__type__": "rex-widget/lib/Label", 
+                "__type__": "rex-widget/lib/Label",
                 "props": {
                   "text": "This is a humble label."
                 }
               }
             ]
-          }, 
+          },
           "sidebarWidth": 3
         }
-      }, 
-      "state": {}
+      }
     }

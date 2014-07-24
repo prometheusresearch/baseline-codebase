@@ -24,6 +24,7 @@ setup(
     install_requires=[
         'rex.core >=1.6, <2',
         'rex.web >=3.0, <4',
+        'simplejson >= 3.0',
     ],
     rex_init='rex.widget',
     rex_static='static',

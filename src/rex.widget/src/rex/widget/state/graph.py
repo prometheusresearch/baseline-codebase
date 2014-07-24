@@ -39,6 +39,12 @@ class StateGraph(MutableMapping):
     def __delitem__(self, id):
         del self.storage[id]
 
+    def __str__(self):
+        return "%s(storage=%s, dependents=%s)" % (
+                self.__class__.__name__, self.storage, self.dependents)
+
+    __repr__ = __str__
+
     def merge(self, state):
         result = StateGraph(self)
         result.update(state)

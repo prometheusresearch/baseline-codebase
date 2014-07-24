@@ -4,3 +4,5 @@ demo::
 install develop::
 	python setup.py $@
 
+test::
+	python -m doctest $(shell find ./test -name '*.rst')

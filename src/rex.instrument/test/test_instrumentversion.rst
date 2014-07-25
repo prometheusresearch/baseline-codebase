@@ -56,13 +56,16 @@ or the dict equivalent::
     >>> iv.validate()
 
 
-The definition can be retrieved as either a JSON-encoded string, or a dict
-equivalent::
+The definition can be set or retrieved as either a JSON-encoded string, or a
+dict equivalent::
 
     >>> iv.definition_json
     u'{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}'
+    >>> iv.definition_json = u'{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
+
     >>> iv.definition
-    {u'record': [{u'type': u'text', u'id': u'q_fake'}], u'version': u'1.1', u'id': u'urn:test-instrument', u'title': u'The InstrumentVersion Title'}
+    {u'record': [{u'type': u'text', u'id': u'q_fake'}], u'version': u'1.1', u'id': u'urn:test-instrument', u'title': u'A Different Title'}
+    >>> iv.definition = {u'record': [{u'type': u'text', u'id': u'q_foo'}], u'version': u'1.1', u'id': u'urn:test-instrument', u'title': u'A Different Title'}
 
 
 InstrumentVersions can be checked for equality. Note that equality is only

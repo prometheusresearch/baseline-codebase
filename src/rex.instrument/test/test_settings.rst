@@ -15,7 +15,7 @@ abstract interface classes, which, of course, are mostly useless::
     >>> test = Rex('__main__', 'rex.instrument')
     >>> test.on()
     >>> get_settings().instrument_implementation
-    Record(user=rex.instrument.interface.User, subject=rex.instrument.interface.Subject, instrument=rex.instrument.interface.Instrument, instrumentversion=rex.instrument.interface.InstrumentVersion, assessment=rex.instrument.interface.Assessment)
+    Record(user=rex.instrument.interface.user.User, subject=rex.instrument.interface.subject.Subject, instrument=rex.instrument.interface.instrument.Instrument, instrumentversion=rex.instrument.interface.instrumentversion.InstrumentVersion, assessment=rex.instrument.interface.assessment.Assessment)
 
 
 Typically an app would have these implementations specified in its

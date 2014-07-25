@@ -93,13 +93,22 @@ or the dict equivalent::
     >>> assessment.validate()
 
 
-The data can be retrieved as either a JSON-encoded string or a dict
+The data can be set or retrieved as either a JSON-encoded string or a dict
 equivalent::
 
     >>> assessment.data
     {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'my answer'}}}
+    >>> assessment.data = {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'a different answer'}}}
+
     >>> assessment.data_json
-    u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "my answer"}}}'
+    u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "a different answer"}}}'
+    >>> assessment.data_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
+
+    >>> assessment.data = None
+    >>> assessment.data is None
+    True
+    >>> assessment.data_json is None
+    True
 
 
 Assessments have a status property which is readable and writable::

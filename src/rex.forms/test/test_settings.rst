@@ -12,7 +12,7 @@ abstract interface classes, which, of course, are mostly useless::
     >>> test = Rex('__main__', 'rex.forms')
     >>> test.on()
     >>> get_settings().forms_implementation
-    Record(channel=rex.forms.interface.Channel, form=rex.forms.interface.Form, task=rex.forms.interface.Task, entry=rex.forms.interface.Entry)
+    Record(channel=rex.forms.interface.channel.Channel, form=rex.forms.interface.form.Form, task=rex.forms.interface.task.Task, entry=rex.forms.interface.entry.Entry)
 
 
 Typically an app would have these implementations specified in its

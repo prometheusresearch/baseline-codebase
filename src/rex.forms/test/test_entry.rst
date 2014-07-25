@@ -87,13 +87,16 @@ or the dict equivalent::
     >>> entry.validate()
 
 
-The data can be retrieved as either a JSON-encoded string or a dict
+The data can be set or retrieved as either a JSON-encoded string or a dict
 equivalent::
 
     >>> entry.data
     {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'my answer'}}}
+    >>> entry.data = {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'my different answer'}}}
+
     >>> entry.data_json
-    u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "my answer"}}}'
+    u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "my different answer"}}}'
+    >>> entry.data_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
 
 
 Entries have date_modified, modified_by, status, and memo properties which are

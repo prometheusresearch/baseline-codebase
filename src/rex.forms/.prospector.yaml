@@ -16,11 +16,11 @@ pylint:
     - R0921
     - R0922
     - R0903
-    - C0302
 
   options:
     max-public-methods: 30
     max-args: 10
+    max-attributes: 10
 
 pyflakes:
   disable:

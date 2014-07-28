@@ -59,6 +59,11 @@ Assessment
     This class represents the data that has been collected to satisfy an
     InstrumentVersion.
 
+DraftInstrumentVersion
+    This class represents a version of an Instrument that is in the process of
+    being created. It is not available for use by the system to collect data
+    until it is published.
+
 
 Format Validation
 =================
@@ -91,6 +96,7 @@ Settings
     * instrument
     * instrumentversion
     * assessment
+    * draftinstrumentversion
 
     When a key is not specified, ``rex.instrument`` will use the ``top()``-most
     implementation that exists in the application instance.

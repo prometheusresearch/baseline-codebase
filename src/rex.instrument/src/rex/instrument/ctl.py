@@ -5,6 +5,8 @@
 
 import sys
 
+from getpass import getuser
+
 from cogs import task, argument, option
 from cogs.log import fail
 
@@ -227,6 +229,15 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
         ' not specified, the instrument UID will be used',
     )
 
+    published_by = option(
+        None,
+        str,
+        default=getuser(),
+        value_name='NAME',
+        hint='the name to record as the publisher of the InstrumentVersion; if'
+        ' not specified, the username of the executing user will be used',
+    )
+
     def __init__(
             self,
             instrument_uid,
@@ -235,7 +246,8 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
             require,
             setting,
             version,
-            title):
+            title,
+            published_by):
         super(INSTRUMENT_STORE, self).__init__(
             project,
             require,
@@ -245,6 +257,7 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
         self.definition = definition
         self.version = version
         self.title = title
+        self.published_by = published_by
 
     def __call__(self):
         with self.get_rex():
@@ -269,12 +282,15 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
             instrument_version = instrument.get_version(self.version)
             if instrument_version and self.version:
                 instrument_version.definition_json = definition_json
+                instrument_version.published_by = self.published_by
+                instrument_version.date_published = datetime.utcnow()
                 instrument_version.save()
                 print 'Updated version: %s' % instrument_version.version
             else:
                 instrument_version = instrumentversion_impl.create(
                     instrument,
                     definition_json,
+                    self.published_by,
                     version=self.version,
                 )
                 print 'Created new version: %s' % instrument_version.version

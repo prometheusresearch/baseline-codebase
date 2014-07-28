@@ -30,6 +30,7 @@ class InstrumentImplementationSetting(Setting):
       * instrument
       * instrumentversion
       * assessment
+      * draftinstrumentversion
     """
 
     ALLOWED_INTERFACES = (
@@ -38,6 +39,7 @@ class InstrumentImplementationSetting(Setting):
         Instrument,
         InstrumentVersion,
         Assessment,
+        DraftInstrumentVersion,
     )
 
     name = 'instrument_implementation'

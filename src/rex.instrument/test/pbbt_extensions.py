@@ -1,6 +1,8 @@
 import codecs
 import os.path
 
+from datetime import datetime
+
 from pbbt import Test, Field, MatchCase, listof
 
 
@@ -112,6 +114,8 @@ class AssessmentValidatorCase(MatchCase):
                     instrument,
                     instrument_defn,
                     1,
+                    'test',
+                    datetime.now(),
                 )
 
                 for subfilename in sorted(os.listdir(full_path)):

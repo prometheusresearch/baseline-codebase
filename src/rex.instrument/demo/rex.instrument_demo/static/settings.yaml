@@ -4,4 +4,5 @@ instrument_implementation:
     instrument: rex.instrument_demo.MyInstrument
     instrumentversion: rex.instrument_demo.MyInstrumentVersion
     assessment: rex.instrument_demo.MyAssessment
+    draftinstrumentversion: rex.instrument_demo.MyDraftInstrumentVersion
 

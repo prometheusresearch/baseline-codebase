@@ -9,6 +9,7 @@ REX.INSTRUMENT Examples
    test_instrument
    test_instrumentversion
    test_assessment
+   test_draftinstrumentversion
    test_cache
    test_settings
    test_util

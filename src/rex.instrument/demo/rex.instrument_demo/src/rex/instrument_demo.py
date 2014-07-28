@@ -2,6 +2,7 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
+from datetime import datetime
 
 from rex.instrument.interface import *
 
@@ -99,22 +100,28 @@ class MyInstrumentVersion(InstrumentVersion):
                 MyInstrument('fake_instrument_1iv'),
                 {},
                 '1',
+                'some_person',
+                datetime(2014, 5, 22),
             ),
             cls(
                 'fake_instrument_version_2',
                 MyInstrument('fake_instrument_2iv'),
                 {},
                 '2',
+                'some_person',
+                datetime(2014, 5, 22),
             )
         ]
 
     @classmethod
-    def create(cls, instrument, definition, version=None):
+    def create(cls, instrument, definition, published_by, version=None, date_published=None):
         return cls(
             'fake_instrument_version_1',
             instrument,
             definition,
             version,
+            published_by,
+            date_published,
         )
 
     def save(self):
@@ -159,4 +166,58 @@ class MyAssessment(Assessment):
 
     def save(self):
         pass
+
+
+class MyDraftInstrumentVersion(DraftInstrumentVersion):
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(
+            uid,
+            MyInstrument.get_by_uid('fake_instrument_1iv'),
+            'some_person',
+            {},
+            '1',
+        )
+
+    @classmethod
+    def find(cls, offset=0, limit=100, **search_criteria):
+        return [
+            cls(
+                'fake_draft_instrument_version_1',
+                MyInstrument('fake_instrument_1div'),
+                'some_person',
+                datetime(2014, 05, 22),
+            ),
+            cls(
+                'fake_draft_instrument_version_2',
+                MyInstrument('fake_instrument_2div'),
+                'some_person',
+                datetime(2014, 05, 22),
+            )
+        ]
+
+    @classmethod
+    def create(
+            cls,
+            instrument,
+            created_by,
+            definition=None,
+            parent_instrument_version=None,
+            date_created=None):
+        return cls(
+            uid,
+            instrument,
+            created_by,
+            date_created or datetime.now(),
+            parent_instrument_version=parent_instrument_version,
+        )
+
+    def save(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def publish(self, user):
+        return MyInstrument('fake_published_draft_instrument_1')
 

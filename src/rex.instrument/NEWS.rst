@@ -22,6 +22,10 @@ REX.INSTRUMENT Change Log
   "latest_version" property.
 - Added a utility decorator to facilitate the memoization of properties.
 - Instruments now have a status property.
+- InstrumentVersions now have a published_by and date_published property.
+- Added a new interface class in DraftInstrumentVersion to allow the management
+  of InstrumentVersions that are in the process of being created and aren't
+  ready for general use in the system.
 
 
 0.9.1 (6/24/2014)

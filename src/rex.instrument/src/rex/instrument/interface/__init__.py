@@ -3,11 +3,12 @@
 #
 
 
-from .user import *
-from .subject import *
+from .assessment import *
+from .draftinstrumentversion import *
 from .instrument import *
 from .instrumentversion import *
-from .assessment import *
+from .subject import *
+from .user import *
 
 
 __all__ = (
@@ -16,5 +17,6 @@ __all__ = (
     'Instrument',
     'InstrumentVersion',
     'Assessment',
+    'DraftInstrumentVersion',
 )
 

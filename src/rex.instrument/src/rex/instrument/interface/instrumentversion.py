@@ -6,6 +6,7 @@
 import json
 
 from copy import deepcopy
+from datetime import datetime
 
 import jsonschema
 
@@ -33,6 +34,8 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
     dict_properties = (
         'instrument',
         'version',
+        'published_by',
+        'date_published',
     )
 
     @classmethod
@@ -267,7 +270,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
     @classmethod
     def find(cls, offset=0, limit=100, **search_criteria):
         """
-        Returns Instruments that match the specified criteria.
+        Returns InstrumentVersions that match the specified criteria.
 
         Must be implemented by concrete classes.
 
@@ -287,7 +290,13 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, instrument, definition, version=None):
+    def create(
+            cls,
+            instrument,
+            definition,
+            published_by,
+            version=None,
+            date_published=None):
         """
         Creates an InstrumentVersion in the datastore and returns a
         corresponding InstrumentVersion instance.
@@ -296,12 +305,18 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         :param instrument: the Instrument the instance will be a version of
         :type instrument: Instrument
-        :param definition: the JSON Instrument Definition for the version
-        :type definition: dict or JSON string
+        :param definition: the Common Instrument Definition for the version
+        :type definition: dict or JSON-encoded string
+        :param published_by: the user/application that published the version
+        :type published_by: string
         :param version:
             the identifier of the version to create; if None, one will be
             calculated
         :type version: int
+        :param date_published:
+            the date the version was published for use; if not specified,
+            defaults to datetime.utcnow()
+        :type date_published: datetime
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: InstrumentVersion
@@ -309,7 +324,14 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def __init__(self, uid, instrument, definition, version):
+    def __init__(
+            self,
+            uid,
+            instrument,
+            definition,
+            version,
+            published_by,
+            date_published):
         self._uid = to_unicode(uid)
 
         if not isinstance(instrument, (Instrument, basestring)):
@@ -324,6 +346,9 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
             self._definition = json.loads(definition)
         else:
             self._definition = deepcopy(definition)
+
+        self.published_by = published_by
+        self.date_published = date_published
 
     @property
     def uid(self):
@@ -387,20 +412,58 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
     def definition_json(self, value):
         self.definition = json.loads(value)
 
+    @property
+    def published_by(self):
+        """
+        The username or application that published this
+        InstrumentVersion.
+
+        :rtype: unicode
+        """
+
+        return self._published_by
+
+    @published_by.setter
+    def published_by(self, value):
+        # pylint: disable=W0201
+        self._published_by = to_unicode(value)
+
+    @property
+    def date_published(self):
+        """
+        The date the InstrumentVersion was published.
+
+        :rtype: datetime
+        """
+
+        return self._date_published
+
+    @date_published.setter
+    def date_published(self, value):
+        if not isinstance(value, datetime):
+            raise ValueError(
+                '"%s" is not a valid datetime' % (
+                    value,
+                )
+            )
+
+        # pylint: disable=W0201
+        self._date_published = value
+
     def validate(self):
         """
-        Validates that this Instrument is a legal Common Instrument
+        Validates that this definition is a legal Common Instrument
         Definition.
 
         :raises:
-            ValidationError if the Instrument fails any of the requirements
+            ValidationError if the definition fails any of the requirements
         """
 
         return self.__class__.validate_definition(self.definition)
 
     def save(self):
         """
-        Persists the Instrument into the datastore.
+        Persists the InstrumentVersion into the datastore.
 
         Must be implemented by concrete classes.
 

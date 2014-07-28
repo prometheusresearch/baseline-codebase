@@ -29,7 +29,7 @@ var PageNavigation = React.createClass({
                 onClick={this.prevPage}
                 label={_('Previous Page')} /> : null}
           </div>
-          <div className="col-sm-2">
+          <div className="col-sm-2 rex-forms-PageNavigation__info">
             {this.props.children}
           </div>
           <div className="col-sm-5 rex-forms-PageNavigation__next">

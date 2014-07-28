@@ -1,8 +1,13 @@
 demo::
-	rex serve --watch rex.widget_demo
+	@rex serve rex.widget_demo
 
 install develop::
-	python setup.py $@
+	@python setup.py $@
 
-test::
-	python -m doctest $(shell find ./test -name '*.rst')
+test:: unittest doctest
+
+unittest::
+	@py.test ./test
+
+doctest::
+	@python -m doctest $(shell find ./test -name '*.rst')

@@ -7,6 +7,7 @@
 
 """
 
+from collections import namedtuple
 import json
 import urlparse
 import urllib
@@ -18,67 +19,64 @@ from rex.db import get_db
 from rex.web import route
 from rex.core import Error
 
+from .graph import Reset, uncomputed
+from .reference import parse_ref
 
-class StateComputator(object):
-    """ Abstract base class for state computators.
-    
-    Subclasses should implement method :method:`__call__`.
-    """
+class InitialValue(object):
 
-    def __call__(self, value, state, origins=None):
-        """ Compute state value.
-
-        :param value: current state value or None
-        :param state: application state
-        :param origins: a list of state ids from which this computation was
-                        originated
-        """
-        raise NotImplementedError(
-            "%s.__call__(state, origins) is not implemented" % \
-            self.__class__.__name__)
-
-
-class InitialValue(StateComputator):
-    """ State computator which sets initial value and resets it if one of its
-    deps is changed.
-
-    :param initial_value: initial value
-    :keyword dependencies: list of state ids this state depends on
-    """
-
-    def __init__(self, initial_value, dependencies=None):
+    def __init__(self, initial_value):
         self.initial_value = initial_value
-        self.dependencies = set(dependencies) if dependencies is not None else set()
 
-    def __call__(self, value, state, origins=None):
-        origins = origins or []
-
-        updated = {
-            state_desc.id
-                for origin in origins
-                if origin in state
-                for state_desc in state.dependency_path(origin)
-        }
-
-        if not origins or self.dependencies & updated:
+    def __call__(self, state, graph, dirty=None):
+        if state.value == uncomputed:
             return self.initial_value
-        else:
-            return value
+        return state.value
 
 
-class UpdatedValue(StateComputator):
+class InRangeValue(object):
 
-    def __init__(self, value, computator):
-        self.value = value
-        self.computator = computator
+    def __init__(self, initial_value, source=None):
+        self.initial_value = initial_value
+        self.source = source
 
-    def __call__(self, value, state, origins=None):
-        if isinstance(self.computator, StateComputator):
-            return self.computator(self.value, state, origins=origins)
-        return self.value
+    def __call__(self, state, graph, dirty=None):
+        source = state.id.split('.')[0] + '.' + self.source
+
+        if dirty is None:
+            return Reset(self.initial_value)
+
+        if state.value is None:
+            return state.value
+
+        # if data source is marked as dirty we need to check if current value is
+        # still valid and reset it otherwise
+        if source in dirty:
+            options = [str(option['id']) for option in graph.deref(source)["data"]]
+            if state.value not in options:
+                return Reset(self.initial_value)
+
+        return state.value
 
 
-class DataComputator(StateComputator):
+class AggregatedValue(object):
+
+    def __init__(self, aggregation):
+        self.aggregation = aggregation
+
+    def initial_value(self, graph):
+        return {k: graph.deref(dep) for k, dep in self.aggregation.items()}
+
+    def __call__(self, state, graph, dirty=None):
+        if dirty is None:
+            return self.initial_value(graph)
+
+        if set(self.aggregation.values()) & dirty:
+            return self.initial_value(graph)
+
+        return state.value
+
+
+class DataComputator(object):
     """ An abstract base class for state computators which fetch their state
     from database."""
 
@@ -125,18 +123,18 @@ class DataComputator(StateComputator):
         data = product_to_json(product)
         return {"data": data[product.meta.tag], "updating": False}
 
-    def fetch(self, handler, state, origins=None):
+    def fetch(self, handler, graph, dirty=None):
         """ Fetch data using ``handler`` in context of the current application
-        ``state``.
+        state ``graph``.
         """
         raise NotImplementedError(
-            "%s.fetch(state) is not implemented" % self.__class__.__name__)
+            "%s.fetch(handler, graph, dirty=None) is not implemented" % self.__class__.__name__)
 
     def execute_handler(self, handler, params):
         """ Execute ``handler`` with given ``params``.
         
         This method is often used by :class:`DataComputator` subclasses to
-        implement :method:`fetch(handler, state)`.
+        implement :method:`fetch`.
         """
         if hasattr(handler, 'port'):
             return self.fetch_port(handler, **params)
@@ -146,33 +144,40 @@ class DataComputator(StateComputator):
             raise NotImplementedError(
                     "Unknown data reference: %s" % self.route)
 
-    def __call__(self, value, state, origins=None):
+    def __call__(self, state, graph, dirty=None):
         handler = route(self.route)
 
         if handler is None:
             raise Error("Invalid data reference:", self.route)
 
-        return self.fetch(handler, state, origins=origins)
+        return self.fetch(handler, graph, dirty)
 
 
 class CollectionComputator(DataComputator):
 
-    def fetch(self, handler, state, origins=None):
-        params = {name: state.deref(ref) for name, ref in self.refs.items()}
+    def fetch(self, handler, graph, dirty):
+        params = {name: graph.deref(ref) for name, ref in self.refs.items()}
         return self.execute_handler(handler, params)
 
 
 class EntityComputator(DataComputator):
 
-    def fetch(self, handler, state, origins=None):
-        params = {name: state.deref(ref) for name, ref in self.refs.items()}
+    def fetch(self, handler, graph, dirty):
+        params = {name: graph.deref(ref) for name, ref in self.refs.items()}
+
+        print params
 
         if None in params.values():
             return {"data": None, "updating": False}
 
         data = self.execute_handler(handler, params)
-        # XXX: raise error here?
-        data["data"] = data["data"][0]
+
+        if isinstance(data["data"], list):
+            if len(data["data"]) == 0:
+                data["data"] = None
+            else:
+                data["data"] = data["data"][0]
+
         return data
 
 
@@ -196,14 +201,14 @@ class PaginatedCollectionComputator(DataComputator):
                 handler,
                 **params)
 
-    def fetch(self, handler, state, origins=None):
+    def fetch(self, handler, graph, dirty):
         is_pagination = (
-            origins
-            and len(origins) == 1
-            and origins[0] == self.pagination_state_id
+            dirty
+            and len(dirty) == 1
+            and dirty[0] == self.pagination_state_id
         )
         
-        params = {name: state.deref(ref) for name, ref in self.refs.items()}
+        params = {name: graph.deref(ref) for name, ref in self.refs.items()}
         params["top"] = params["top"] + 1
         data = self.execute_handler(handler, params)
 

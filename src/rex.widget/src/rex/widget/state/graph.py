@@ -8,13 +8,14 @@
 """
 
 from collections import namedtuple, MutableMapping, Mapping
-from .computator import StateComputator
 
+from .reference import Reference, parse_ref
 
 class StateGraph(Mapping):
 
     def __init__(self, initial=None):
         self.storage = {}
+        self.dependencies = {}
         self.dependents = {}
 
         if initial is not None:
@@ -31,18 +32,15 @@ class StateGraph(Mapping):
             id = id.split(':', 1)[0]
         return self.storage[id]
 
+    def show(self):
+        for id, deps in self.dependencies.items():
+            print id, [(d.id, d.reset_only) for d in deps]
+
     def __str__(self):
         return "%s(storage=%s, dependents=%s)" % (
                 self.__class__.__name__, self.storage, self.dependents)
 
     __repr__ = __str__
-
-    def dependency_path(self, from_id):
-        """ Iterate over dependencies originating from ``from_id``."""
-        yield self.storage[from_id]
-        for state_id in self.dependents.get(from_id, []):
-            for dep in self.dependency_path(state_id):
-                yield dep
 
     def deref(self, ref):
         """ Dereference state reference to a value.
@@ -52,108 +50,208 @@ class StateGraph(Mapping):
         """
         if not isinstance(ref, Reference):
             ref = parse_ref(ref)
-        value = self.storage[ref.id].value
-        for part in ref.path:
-            value = value[part]
-        return value
+        try:
+            value = self.storage[ref.id].value
+            if value is uncomputed:
+                raise LookupError("value %s is uncomputed" % (ref,))
+            for part in ref.path:
+                value = value[part]
+        except KeyError:
+            if ref.id in self.storage:
+                raise LookupError(
+                    "cannot dereference '%s' reference with value '%r'" % (
+                    ref, self.storage[ref.id].value))
+            else:
+                raise LookupError("cannot dereference '%s' reference" % (ref,))
+        else:
+            return value
 
-    def merge(self, state):
+    def merge(self, st):
         result = self.__class__(self)
-        _merge_state_into(result, state)
+        _merge_state_into(result, st)
         return result
 
 
 class MutableStateGraph(StateGraph, MutableMapping):
 
-    def __setitem__(self, id, state):
-        self.storage[id] = state
-        for dep in state.dependencies:
-            dependents = self.dependents.setdefault(dep, [])
-            if not id in dependents:
-                dependents.append(id)
+    def __setitem__(self, id, st):
+        self.storage[id] = st
+        self.dependencies[id] = st.dependencies
+        self.dependents.setdefault(id, [])
+
+        for d in st.dependencies:
+            dependents = self.dependents.setdefault(d.id, [])
+            inverse_dep = Dep(id, reset_only=d.reset_only)
+            if not inverse_dep in dependents:
+                dependents.append(inverse_dep)
+
+    def add(self, *args, **kwargs):
+        st = state(*args, **kwargs)
+        self[st.id] = st
+
+    def set(self, id, value):
+        self[id] = self[id]._replace(value=value)
+
+    def set_many(self, updates):
+        for id, value in updates.items():
+            self.set(id, value)
 
     def __delitem__(self, id):
-        del self.storage[id]
+        raise NotImplementedError("not implemented")
 
     def immutable(self):
         return StateGraph(self)
 
 
 def _merge_state_into(dst, src):
-    for id, state in src.items():
-        dst.storage[id] = state
-        for dep in state.dependencies:
-            dependents = dst.dependents.setdefault(dep, [])
-            if not id in dependents:
-                dependents.append(id)
+    for id, st in src.items():
+        dst.storage[id] = st
+        dst.dependencies[id] = st.dependencies
+
+        for d in st.dependencies:
+            dependents = dst.dependents.setdefault(d.id, [])
+            inverse_dep = Dep(id, reset_only=d.reset_only)
+            if not inverse_dep in dependents:
+                dependents.append(inverse_dep)
 
 
-StateDescriptor = namedtuple(
-        'StateDescriptor',
-        ['id', 'value', 'dependencies', 'rw'])
+State = namedtuple(
+        'State',
+        ['id', 'computator', 'value', 'dependencies', 'rw'])
 
 
-Reference = namedtuple('Reference', ['id', 'path'])
+Dep = namedtuple(
+        'Dep',
+        ['id', 'reset_only'])
 
 
-def compute_state_graph(graph):
-    """ Compute ``graph``.
-
-    :param graph: state graph to compute
-    :type graph: :class:`StateGraph`
-
-    :return: computed state graph
-    :rtype: :class:`StateGraph`
-    """
-
-    computed_graph = MutableStateGraph()
-
-    for node in graph.values():
-        compute_state_node(node, graph, computed_graph)
-
-    return computed_graph
+Reset = namedtuple(
+        'Reset',
+        ['value'])
 
 
-def compute_state_graph_update(graph, origins):
-    """ Compute ``graph`` given the changed atoms listed in ``origins``.
-
-    :param graph: state graph to compute
-    :type graph:  :class:`StateGraph`
-
-    :param origins: a list of state ids which were changed
-    :type origins: [str]
-
-    :return: computed state graph
-    :rtype: :class:`StateGraph`
-    """
-    # we use context to store fetched state but only need to return state along
-    # the dependency path, so the byte size would be minimal
-    computed_graph = MutableStateGraph()
-    context = MutableStateGraph()
-
-    for origin in origins:
-        for node in graph.dependency_path(origin):
-            compute_state_node(node, graph, context, origins=origins)
-            computed_graph[node.id] = context[node.id]
-
-    return computed_graph
+def dep(id, reset_only=False):
+    return Dep(id=id, reset_only=reset_only)
 
 
-def compute_state_node(node, graph_in, graph_out, origins=None):
-    if node.id not in graph_out:
-        if isinstance(node.value, StateComputator):
-            for dep in node.dependencies:
-                compute_state_node(graph_in[dep], graph_in, graph_out)
-            value = node.value(graph_out.get(node.id), graph_out, origins=origins)
-            graph_out[node.id] = node._replace(value=value)
-        else:
-            graph_out[node.id] = graph_in[node.id]
+def state(id, computator, dependencies=None, rw=False):
+    if dependencies is None:
+        dependencies = []
+    dependencies = [
+        d if isinstance(d, Dep) else Dep(d, reset_only=False)
+        for d in dependencies
+    ]
+    return State(
+        id=id,
+        computator=computator,
+        value=uncomputed,
+        dependencies=dependencies,
+        rw=rw)
 
 
-def parse_ref(ref):
-    """ Parse string into :class:`Reference`"""
-    if ':' in ref:
-        id, path = ref.split(':', 1)
-        return Reference(id, path.split('.'))
-    else:
-        return Reference(ref, [])
+uncomputed = object()
+
+
+def compute(graph):
+    computed = MutableStateGraph()
+    visited = set()
+
+    def _compute(state):
+        if state.id in visited:
+            return
+
+        visited.add(state.id)
+
+        for d in graph.dependencies.get(state.id, []):
+            _compute(graph[d.id])
+
+        value = state.computator(state, computed, dirty=None)
+
+        if isinstance(value, Reset):
+            value = value.value
+
+        computed[state.id] = state._replace(value=value)
+
+    for state in graph.values():
+        _compute(state)
+
+    return computed
+
+
+def compute_update(graph, origins):
+    computed = MutableStateGraph()
+    visited = set()
+
+    def _compute(state):
+        if state.id in visited:
+            return
+
+        force = False
+
+        visited.add(state.id)
+
+
+        for d in graph.dependencies.get(state.id, []):
+            _compute(graph[d.id])
+
+        print "-- computing update", state.id
+
+        value = state.computator(state, computed, dirty=visited)
+
+        if isinstance(value, Reset):
+            value = value.value
+            force = True
+
+        print "-- computed  update", state.id, force
+
+        computed[state.id] = state._replace(value=value)
+
+        for d in graph.dependents.get(state.id, []):
+            if (force and d.id in origins) or not d.reset_only:
+                _compute(graph[d.id])
+
+    print origins
+    print topo_sort(graph, origins)
+
+    for id in topo_sort(graph, origins):
+        _compute(graph[id])
+
+    return computed, visited
+
+
+def topo_sort(graph, ids):
+    sorted = []
+    seen = set()
+
+    queue = [s for s in graph.values() if not s.dependencies]
+
+    while queue:
+
+        c = queue.pop()
+
+        if c.id in seen:
+            continue
+
+        dependencies = [graph[d.id]
+                for d in c.dependencies
+                if d.id not in seen]
+
+
+        if dependencies:
+            queue = [c] + dependencies + queue
+            continue
+
+        seen.add(c.id)
+
+        if c.id in ids:
+            sorted.append(c.id)
+
+        dependents = [graph[d.id]
+                for d in graph.dependents.get(c.id, [])
+                if d.id not in seen]
+
+        if dependents:
+            queue = dependents + queue
+
+
+    return sorted

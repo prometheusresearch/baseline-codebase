@@ -8,14 +8,15 @@
 """
 
 from collections import namedtuple
-from rex.core import Validate, Error
+from rex.core import Validate, Error, RecordField
 from .computator import (
         CollectionComputator, EntityComputator, PaginatedCollectionComputator,
         InitialValue)
-from .graph import parse_ref, StateDescriptor
+from .graph import state
+from .reference import parse_ref
 
 
-class StateField(object):
+class StateDescriptor(object):
     """ Abstract base class for fields which can generate state."""
 
     def describe_state(self, widget_id, field_name):
@@ -33,7 +34,26 @@ class StateField(object):
             "%s.describe_state(name) is not implemented" % self.__class__.__name__)
 
 
-class Data(StateField):
+class SimpleStateDescriptor(StateDescriptor):
+
+    def __init__(self, value, computator=None, dependencies=None):
+        self.value = value
+        self.computator = computator
+        self.dependencies = dependencies
+
+
+    def describe_state(self, widget_id, field_name):
+        state_id = "%s.%s" % (widget_id, field_name)
+        dependencies = ["%s.%s" % (widget_id, dep) for dep in self.dependencies]
+        st = state(
+                state_id,
+                computator=self.computator,
+                dependencies=dependencies,
+                rw=True)
+        return [(field_name, st)]
+
+
+class DataDescriptor(StateDescriptor):
     """ Field which defines remote data source such as port or HTSQL query.
     
     :param computator_factory: factory for state computator
@@ -52,11 +72,11 @@ class Data(StateField):
         state_id = "%s.%s" % (widget_id, field_name)
         computator = self.computator_factory(self.url, self.refs, self.include_meta)
         dependencies = [r.id for r in self.refs.values()]
-        state = StateDescriptor(state_id, computator, dependencies, rw=False)
-        return [(field_name, state)]
+        st = state(state_id, computator, dependencies=dependencies)
+        return [(field_name, st)]
 
 
-class PaginatedCollection(Data):
+class PaginatedCollectionDescriptor(DataDescriptor):
     """ A reference to a collection which provides pagination mechanism."""
 
     def describe_state(self, widget_id, field_name):
@@ -73,48 +93,50 @@ class PaginatedCollection(Data):
 
         return [
             (field_name,
-                StateDescriptor(
+                state(
                     state_id,
                     PaginatedCollectionComputator(
                         pagination_state_id,
                         self.url,
                         refs=refs,
                         include_meta=self.include_meta),
-                    dependencies=dependencies + [pagination_state_id],
-                    rw=False)),
-            ("%sPagination" % field_name,
-                StateDescriptor(
+                    dependencies=dependencies + [pagination_state_id])),
+            ("%s" % field_name,
+                state(
                     pagination_state_id,
-                    InitialValue(
-                        {"top": 100, "skip": 0},
-                        dependencies=dependencies),
+                    InitialValue({"top": 100, "skip": 0}),
                     dependencies=dependencies,
                     rw=True)),
         ]
 
 
-class State(StateField):
+class StateVal(Validate):
 
-    def __init__(self, initial_value, dependencies=None):
-        self.initial_value = initial_value
+    def __init__(self, validate,
+            computator=None,
+            dependencies=None,
+            default=RecordField.NODEFAULT):
+
+        if isinstance(validate, type):
+            validate = validate()
+
+        self.validate = validate
+        self.computator = computator or InitialValue(default)
         self.dependencies = dependencies or []
+        self.default = self.field(default)
 
-    def describe_state(self, widget_id, field_name):
-        state_id = "%s.%s" % (widget_id, field_name)
-        dependencies = ["%s.%s" % (widget_id, dep) for dep in self.dependencies]
-        state = StateDescriptor(
-                state_id,
-                value=InitialValue(
-                    self.initial_value, 
-                    dependencies=dependencies),
-                dependencies=dependencies,
-                rw=True)
-        return [(field_name, state)]
+    def field(self, value):
+        return SimpleStateDescriptor(value,
+                computator=self.computator,
+                dependencies=self.dependencies)
+
+    def __call__(self, data):
+        return self.field(self.validate(data))
 
 
 class DataVal(Validate):
 
-    field_factory = Data
+    field_factory = DataDescriptor
 
     def __init__(self, include_meta=False):
         self.include_meta = include_meta
@@ -152,23 +174,10 @@ class CollectionVal(DataVal):
 
 class PaginatedCollectionVal(DataVal):
 
-    field_factory = PaginatedCollection
+    field_factory = PaginatedCollectionDescriptor
     computator_factory = PaginatedCollectionComputator
 
 
 class EntityVal(DataVal):
 
     computator_factory = EntityComputator
-
-
-class StateVal(Validate):
-
-    def __init__(self, validate, dependencies=None):
-        if isinstance(validate, type):
-            validate = validate()
-        self.validate = validate
-        self.dependencies = dependencies
-
-    def __call__(self, data):
-        return State(self.validate(data), dependencies=self.dependencies)
-

@@ -14,11 +14,11 @@ from collections import namedtuple
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 from rex.core import (
-        Error, Extension, RecordField,
+        AnyVal, Error, Extension, RecordField,
         ProxyVal, StrVal, cached)
 from .state import (
-    StateField, UpdatedValue,
-    StateGraph, MutableStateGraph, compute_state_graph, compute_state_graph_update)
+    State, StateDescriptor,
+    StateGraph, MutableStateGraph, compute, compute_update)
 
 
 # FIXME: XSS! via script_name
@@ -65,6 +65,10 @@ UIDescriptorChildren = namedtuple(
         'UIDescriptorChildren',
         ['children'])
 
+StateFieldDeclaration = namedtuple(
+        'StateFieldDeclaration',
+        ['name', 'field'])
+
 
 class Widget(Extension):
 
@@ -78,11 +82,27 @@ class Widget(Extension):
         def __new__(mcls, name, bases, members):
             cls = Extension.__metaclass__.__new__(mcls, name, bases, members)
             if 'fields' in members:
-                cls.fields = [
-                        RecordField(*field)
-                            if isinstance(field, tuple) else field
-                        for field in cls.fields]
+                fields = []
+                for field in cls.fields:
+                    if len(field) == 3:
+                        fields.append(RecordField(*field))
+                    elif len(field) == 2:
+                        name, validator = field
+                        if hasattr(validator, 'default'):
+                            fields.append(RecordField(
+                                name, validator, validator.default))
+                        else:
+                            fields.append(RecordField(name, validator))
+
+                cls.fields = fields
+
             return cls
+
+    @staticmethod
+    def state(dependencies=None):
+        def decorator(computator):
+            name = computator.__name__
+        return decorator
 
     @classmethod
     def enabled(cls):
@@ -157,7 +177,7 @@ class Widget(Extension):
                 props[name] = descriptor.ui
                 state.update(descriptor.state)
 
-            elif isinstance(value, StateField):
+            elif isinstance(value, StateDescriptor):
                 value_state = value.describe_state(self.id, name)
                 for prop_name, state_descriptor in value_state:
                     state[state_descriptor.id] = state_descriptor
@@ -199,14 +219,16 @@ class Widget(Extension):
 
     def produce(self, req):
         widget, state = self.descriptor()
-        state = compute_state_graph(state)
+        state.show()
+        state = compute(state)
         return {"ui": widget, "state": state}
 
     def produce_update(self, req):
         widget, state = self.descriptor()
+        state.show()
 
         origins = []
-        updates = MutableStateGraph()
+        updates = {}
 
         for id, value in req.json.items():
             if id.startswith('update:'):
@@ -216,15 +238,14 @@ class Widget(Extension):
             if not id in state:
                 raise HTTPBadRequest("invalid state id: %s" % id)
 
-            updates[id] = state[id]._replace(
-                value=UpdatedValue(value, state[id].value))
+            updates[id] = state[id]._replace(value=value)
 
         state = state.merge(updates)
 
         if not origins:
-            state = compute_state_graph(state)
+            state, _ = compute(state)
         else:
-            state = compute_state_graph_update(state, origins)
+            state, _ = compute_update(state, origins)
 
         return {"state": state}
 
@@ -305,7 +326,16 @@ class WidgetJSONEncoder(json.JSONEncoder):
         if isinstance(obj, WidgetDescriptor):
             return {"ui": obj.ui, "state": obj.state}
         if isinstance(obj, StateGraph):
-            return {k: v._asdict() for k, v in obj.items()}
+            return obj.storage
+        if isinstance(obj, State):
+            return {
+                "id": obj.id,
+                "value": obj.value,
+                "dependencies": [dep.id
+                    for dep in obj.dependencies
+                    if not dep.reset_only],
+                "rw": obj.rw
+            }
         return super(WidgetJSONEncoder, self).default(obj)
 
     def encode(self, obj):

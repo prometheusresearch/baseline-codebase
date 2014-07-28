@@ -40,7 +40,7 @@ var Filters = React.createClass({
         <div className="rex-widget-Filters__filters">
           {this.renderFilters()}
         </div>
-        {this.props.showApplyButton && 
+        {this.props.showApplyButton &&
           <div className="rex-widget-Filters__footer">
             <button className="rex-widget-Filters__applyButton" onClick={this.onApply}>
               Apply

@@ -8,9 +8,12 @@
 """
 
 from .fields import (
-    StateField, State,
+    StateDescriptor,
     StateVal, CollectionVal, EntityVal, PaginatedCollectionVal)
 from .graph import (
-    StateGraph, MutableStateGraph, StateDescriptor,
-    compute_state_graph, compute_state_graph_update)
-from .computator import UpdatedValue
+    StateGraph, MutableStateGraph,
+    State, state,
+    Dep, dep,
+    compute, compute_update)
+from .computator import (
+    InitialValue, InRangeValue, AggregatedValue)

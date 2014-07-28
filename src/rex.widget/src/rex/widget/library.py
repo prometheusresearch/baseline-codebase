@@ -1,15 +1,20 @@
-#
-# Copyright (c) 2014, Prometheus Research, LLC
-#
+"""
+
+    rex.widget.library
+    ==================
+
+    :copyright: 2014, Prometheus Research, LLC
+
+"""
 
 from rex.core import (
         SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error, RecordVal, RecordField,
         cached)
 from .widget import Widget, NullWidget, iterate_widget
 from .state import (
-    StateDescriptor,
-    CollectionVal, PaginatedCollectionVal,
-    StateVal, State)
+        state, dep,
+        CollectionVal, PaginatedCollectionVal,
+        StateVal, State, InRangeValue)
 from .parse import WidgetVal
 
 
@@ -59,7 +64,7 @@ class TableWidget(Widget):
         ('data', CollectionVal),
         ('columns', SeqVal),
         ('selectable', BoolVal, False),
-        ('selected', State(StrVal), State(None)),
+        ('selected', StateVal(StrVal, default=None)),
     ]
 
 
@@ -83,7 +88,9 @@ class SelectWidget(Widget):
     fields = [
         ('id', StrVal),
         ('data', CollectionVal, None),
-        ('value', StateVal(IntVal), State(None)),
+        ('value', StateVal(IntVal,
+            computator=InRangeValue(None, source='data'),
+            dependencies=['data'], default=None)),
     ]
 
 
@@ -94,7 +101,7 @@ class TextInputWidget(Widget):
 
     fields = [
         ('id', StrVal),
-        ('value', StateVal(IntVal), State(None)),
+        ('value', StateVal(StrVal, default=None)),
     ]
 
 
@@ -122,27 +129,42 @@ class FiltersWidget(Widget):
         ('show_clear_button', BoolVal, True),
     ]
 
+    def __init__(self, *args, **kwargs):
+        super(FiltersWidget, self).__init__(*args, **kwargs)
+        self.refs = {
+            w.filter.id: "%s.value" % w.filter.id
+            for w in iterate_widget(self.filters)}
+        self.dependencies = [
+            dep(id, reset_only=True)
+            for id in self.refs.values()]
+
     @cached
     def descriptor(self):
         descriptor = super(FiltersWidget, self).descriptor()
 
-        value = {}
-
-        for widget in iterate_widget(self.filters):
-            fields = widget.filter.fields_mapping
-            if 'id' in fields and isinstance(fields.get('value'), StateVal):
-                filter_state_id = "%s.value" % widget.filter.id
-                value[widget.filter.id] = descriptor.state[filter_state_id].value.initial_value
-
-        id = "%s.value" % self.id
+        state_id = "%s.value" % self.id
 
         props = dict(descriptor.ui.props)
-        props["value"] = {"__state_read_write__": id}
+        props["value"] = {"__state_read_write__": state_id}
+
+        st = state(state_id, self.computator, dependencies=self.dependencies, rw=True)
 
         return descriptor._replace(
-            state=descriptor.state.merge({id: StateDescriptor(id, value, [], True)}),
-            ui=descriptor.ui._replace(props=props)
+            ui=descriptor.ui._replace(props=props),
+            state=descriptor.state.merge({state_id: st})
         )
+
+    def initial_value(self, graph):
+        return {k: graph.deref(dep) for k, dep in self.refs.items()}
+
+    def computator(self, state, graph, dirty=None):
+        if dirty is None:
+            return self.initial_value(graph)
+
+        if set(self.refs.values()) & dirty:
+            return self.initial_value(graph)
+
+        return state.value
 
 
 class GridWidget(Widget):
@@ -154,7 +176,7 @@ class GridWidget(Widget):
         ('id', StrVal),
         ('data', PaginatedCollectionVal(include_meta=True)),
         ('selectable', BoolVal, False),
-        ('selected', StateVal(IntVal), State(None)),
+        ('selected', StateVal(IntVal)),
     ]
 
 

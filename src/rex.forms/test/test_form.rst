@@ -5,6 +5,14 @@ Form
 .. contents:: Table of Contents
 
 
+Set up the environment::
+
+    >>> from rex.core import Rex
+    >>> from datetime import datetime
+    >>> rex = Rex('__main__', 'rex.forms_demo')
+    >>> rex.on()
+
+
 The semi-abstract base Form class only implements a simple constructor
 and string-rendering methods::
 
@@ -91,6 +99,12 @@ instances of those classes or strings containing UIDs::
     Traceback (most recent call last):
       ...
     ValueError: instrument_version must be an instance of InstrumentVersion or a UID of one
+
+    >>> form = Form('foo789', 'channel1', 'instrumentversion1', FORM)
+    >>> form.channel
+    MyChannel(u'channel1', u'Title for channel1')
+    >>> form.instrument_version
+    MyInstrumentVersion(u'instrumentversion1', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1)
 
 
 The configuration can be passed to the contructor as either a JSON-encoded

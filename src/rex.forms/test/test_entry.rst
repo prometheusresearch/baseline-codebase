@@ -8,7 +8,7 @@ Entry
 Set up the environment::
 
     >>> from rex.core import Rex
-    >>> rex = Rex('__main__', 'rex.forms')
+    >>> rex = Rex('__main__', 'rex.forms_demo')
     >>> rex.on()
 
 
@@ -79,6 +79,10 @@ class or a string containing a UID::
     Traceback (most recent call last):
       ...
     ValueError: assessment must be an instance of Assessment or a UID of one
+
+    >>> entry = Entry('entry333', 'assessment1', Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry.assessment
+    MyAssessment(u'assessment1', MySubject(u'fake_subject_1a'), MyInstrumentVersion(u'fake_instrument_version_1a', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1))
 
 
 The data can be passed to the contructor as either a JSON-encoded string

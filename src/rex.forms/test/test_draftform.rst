@@ -9,8 +9,9 @@ Set up the environment::
 
     >>> from rex.core import Rex
     >>> from datetime import datetime
-    >>> rex = Rex('__main__', 'rex.forms')
+    >>> rex = Rex('__main__', 'rex.forms_demo')
     >>> rex.on()
+
 
 The semi-abstract base DraftForm class only implements a simple constructor
 and string-rendering methods::
@@ -98,6 +99,12 @@ actually be instances of those classes or strings containing UIDs::
     Traceback (most recent call last):
       ...
     ValueError: draft_instrument_version must be an instance of DraftInstrumentVersion or a UID of one
+
+    >>> df = DraftForm('foo789', 'channel1', 'div1', FORM)
+    >>> df.channel
+    MyChannel(u'channel1', u'Title for channel1')
+    >>> df.draft_instrument_version
+    MyDraftInstrumentVersion(u'div1', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'))
 
 
 The configuration can be passed to the contructor as either a JSON-encoded

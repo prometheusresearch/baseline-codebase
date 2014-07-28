@@ -2,12 +2,18 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-import os, os.path
 import json
+import os.path
+
+from datetime import datetime
+
 from webob.exc import HTTPNotFound
+
 from rex.core import Initialize, StrVal, BoolVal
 from rex.web import Command, Parameter, render_to_response
 from rex.forms.interface import Channel, Form, Task, Entry, DraftForm
+from rex.instrument.interface import Subject, Instrument, InstrumentVersion, \
+    Assessment, DraftInstrumentVersion
 
 
 class InitializeRexFormsDemo(Initialize):
@@ -84,25 +90,108 @@ def get_form_title(form):
     return title.get('en')
 
 
+
 class MyChannel(Channel):
-    pass
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(uid, 'Title for %s' % uid)
 
 
 class MyOtherChannel(MyChannel):
-    pass
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(uid, 'Title for %s_other' % uid)
+
+
+class MyInstrument(Instrument):
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(uid, 'Title for %s' % uid)
+
+
+class MyInstrumentVersion(InstrumentVersion):
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(
+            uid,
+            MyInstrument.get_by_uid('fake_instrument_1iv'),
+            {},
+            1,
+            'someone',
+            datetime(2014, 5, 22),
+        )
 
 
 class MyForm(Form):
-    pass
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(
+            uid,
+            MyChannel.get_by_uid('channel1'),
+            MyInstrumentVersion.get_by_uid('instrumentversion1'),
+            {}
+        )
+
+
+class MySubject(Subject):
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(uid)
 
 
 class MyTask(Task):
-    pass
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(
+            uid,
+            MySubject.get_by_uid('subject1'),
+            MyInstrument.get_by_uid('instrument1'),
+            1
+        )
+
+
+class MyAssessment(Assessment):
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(
+            uid,
+            MySubject.get_by_uid('fake_subject_1a'),
+            MyInstrumentVersion.get_by_uid('fake_instrument_version_1a'),
+            {},
+        )
 
 
 class MyEntry(Entry):
-    pass
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(
+            uid,
+            MyAssessment.get_by_uid('assessment1'),
+            'preliminary',
+            {},
+            'someone',
+            datetime(2014, 5, 22)
+        )
+
+
+class MyDraftInstrumentVersion(DraftInstrumentVersion):
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(
+            uid,
+            MyInstrument.get_by_uid('fake_instrument_1iv'),
+            'some_person',
+            datetime(2014, 5, 22),
+        )
+
 
 class MyDraftForm(DraftForm):
-    pass
+    @classmethod
+    def get_by_uid(cls, uid):
+        return cls(
+            uid,
+            MyChannel.get_by_uid('channel1'),
+            MyDraftInstrumentVersion.get_by_uid('draftinstrumentversion1'),
+            {}
+        )
 

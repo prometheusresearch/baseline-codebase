@@ -12,7 +12,9 @@ Set up the environment::
     >>> from rex.forms.interface import Entry, Task
     >>> from datetime import datetime
     >>> from copy import deepcopy
-
+    >>> from rex.core import Rex
+    >>> rex = Rex('__main__', 'rex.forms_demo')
+    >>> rex.on()
 
 The semi-abstract base Task class only implements a simple constructor
 and string-rendering methods::
@@ -83,6 +85,14 @@ actually be instances of those classes or strings containing UIDs::
     Traceback (most recent call last):
       ...
     ValueError: assessment must be an instance of Assessment or a UID of one
+
+    >>> task = Task('bar999', 'subject1', 'instrument1', 100, assessment='assessment1')
+    >>> task.subject
+    MySubject(u'subject1')
+    >>> task.instrument
+    MyInstrument(u'instrument1', u'Title for instrument1')
+    >>> task.assessment
+    MyAssessment(u'assessment1', MySubject(u'fake_subject_1a'), MyInstrumentVersion(u'fake_instrument_version_1a', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1))
 
 
 The priority passed to the constructor must be an integer::

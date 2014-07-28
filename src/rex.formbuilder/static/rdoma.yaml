@@ -30,11 +30,3 @@ install:
     is_mandatory: true
     default: now()
 
----
-revision: 20140723
-install:
-- cmd: merge
-  aspect: rex:applet
-  data:
-  - id(): rex-formbuilder
-    name: rex.formbuilder

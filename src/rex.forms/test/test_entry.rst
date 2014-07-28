@@ -16,6 +16,7 @@ The semi-abstract base Task class only implements a simple constructor
 and string-rendering methods::
 
     >>> from rex.instrument.interface import User, Subject, Instrument, InstrumentVersion, Assessment
+    >>> from datetime import datetime
     >>> subject = Subject('fake123')
     >>> instrument = Instrument('fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
@@ -29,7 +30,7 @@ and string-rendering methods::
     ...         }
     ...     ]
     ... }
-    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1)
+    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> ASSESSMENT = {
     ...     'instrument': {
     ...         'id': 'urn:test-instrument',

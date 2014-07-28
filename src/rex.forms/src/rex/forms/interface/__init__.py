@@ -5,6 +5,7 @@
 
 from .channel import *
 from .completion_processor import *
+from .draftform import *
 from .entry import *
 from .form import *
 from .parameter_supplier import *
@@ -18,5 +19,6 @@ __all__ = (
     'Entry',
     'ParameterSupplier',
     'TaskCompletionProcessor',
+    'DraftForm',
 )
 

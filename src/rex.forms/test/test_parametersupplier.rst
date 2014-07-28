@@ -51,6 +51,7 @@ returned by their ``get_parameters()`` method::
     ...
 
     >>> from rex.instrument.interface import Subject, Instrument, InstrumentVersion
+    >>> from datetime import datetime
     >>> from rex.forms.interface import Task
     >>> subject = Subject('fake123')
     >>> instrument = Instrument('fake123', 'My Instrument Title')
@@ -65,7 +66,7 @@ returned by their ``get_parameters()`` method::
     ...         }
     ...     ]
     ... }
-    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1)
+    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> task = Task('bar999', subject, instrument, 100)
 
     >>> from rex.core import Rex

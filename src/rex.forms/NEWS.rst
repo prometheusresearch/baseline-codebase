@@ -19,6 +19,9 @@ REX.FORMS Change Log
 - Fixed issue with enumerations not showing.
 - Updated references to Instrument.get_latest_version() to new property.
 - Most sub-object properties now perform lazy retrieval with caching.
+- Added new interface class in DraftForm to allow the management of Forms that
+  are in the process of being created and aren't ready for general use in the
+  system.
 
 
 0.20.0 (6/30/2014)

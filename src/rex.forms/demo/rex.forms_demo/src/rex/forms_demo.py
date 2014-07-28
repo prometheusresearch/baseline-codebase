@@ -7,10 +7,12 @@ import json
 from webob.exc import HTTPNotFound
 from rex.core import Initialize, StrVal, BoolVal
 from rex.web import Command, Parameter, render_to_response
-from rex.forms.interface import Channel, Form, Task, Entry
+from rex.forms.interface import Channel, Form, Task, Entry, DraftForm
+
 
 class InitializeRexFormsDemo(Initialize):
     pass
+
 
 class Examples(Command):
 
@@ -99,5 +101,8 @@ class MyTask(Task):
 
 
 class MyEntry(Entry):
+    pass
+
+class MyDraftForm(DraftForm):
     pass
 

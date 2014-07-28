@@ -8,6 +8,7 @@ Task
 Set up the environment::
 
     >>> from rex.instrument.interface import Subject, Instrument, InstrumentVersion, Assessment
+    >>> from datetime import datetime
     >>> from rex.forms.interface import Entry, Task
     >>> from datetime import datetime
     >>> from copy import deepcopy
@@ -29,7 +30,7 @@ and string-rendering methods::
     ...         }
     ...     ]
     ... }
-    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1)
+    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> ASSESSMENT = {
     ...     'instrument': {
     ...         'id': 'urn:test-instrument',
@@ -162,7 +163,7 @@ method can then be used to merge the Assessment Data in the Entries together::
     ... }
 
     >>> instrument = Instrument('fake123', 'My Instrument Title')
-    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1)
+    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> assessment = Assessment('fake123', subject, iv, DATA)
     >>> task = Task('bar999', subject, instrument, 100, assessment)
     >>> entry1 = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, DATA, 'bob', datetime(2014, 5, 22, 12, 34, 56))

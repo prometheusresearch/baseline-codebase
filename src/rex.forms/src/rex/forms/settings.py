@@ -5,7 +5,7 @@
 
 from rex.core import Setting, RecordVal, StrVal
 
-from .interface import Channel, Form, Task, Entry
+from .interface import Channel, Form, Task, Entry, DraftForm
 
 
 __all__ = (
@@ -28,6 +28,7 @@ class FormsImplementationSetting(Setting):
       * form
       * task
       * entry
+      * draftform
     """
 
     ALLOWED_INTERFACES = (
@@ -35,6 +36,7 @@ class FormsImplementationSetting(Setting):
         Form,
         Task,
         Entry,
+        DraftForm,
     )
 
     name = 'forms_implementation'

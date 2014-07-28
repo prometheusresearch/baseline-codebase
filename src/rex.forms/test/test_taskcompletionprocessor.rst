@@ -50,6 +50,7 @@ whose ``is_applicable()`` method returns ``True``::
     ...
 
     >>> from rex.instrument.interface import Subject, Instrument, InstrumentVersion, User
+    >>> from datetime import datetime
     >>> from rex.forms.interface import Task
     >>> subject = Subject('fake123')
     >>> instrument = Instrument('fake123', 'My Instrument Title')
@@ -64,7 +65,7 @@ whose ``is_applicable()`` method returns ``True``::
     ...         }
     ...     ]
     ... }
-    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1)
+    >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> task = Task('bar999', subject, instrument, 100)
     >>> user = User('userid', 'userlogin')
 

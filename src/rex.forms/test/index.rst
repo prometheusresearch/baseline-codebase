@@ -10,4 +10,5 @@ REX.FORMS Examples
     test_parametersupplier
     test_settings
     test_task
+    test_draftform
 

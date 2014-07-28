@@ -58,6 +58,11 @@ Entry
     used to record the previous revisions of an Assessment if it is modified
     after completion.
 
+DraftForm
+    This class represents a version of a Form that is in the process of being
+    created. It is not available for use by the system to collect data until it
+    is published.
+
 
 Format Validation
 =================
@@ -85,6 +90,7 @@ Settings
     * form
     * task
     * entry
+    * draftform
 
     When a key is not specified, ``rex.forms`` will use the ``top()``-most
     implementation that exists in the application instance.

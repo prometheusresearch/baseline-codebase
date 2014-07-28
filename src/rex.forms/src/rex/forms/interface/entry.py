@@ -167,6 +167,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         :param date_created:
             the date this Entry was created; if not specified, defaults to
             datetime.utcnow()
+        :type date_created: datetime
         :param data:
             the Assessment data; if not specified, an empty structure will be
             generated
@@ -506,5 +507,4 @@ class Entry(Extension, Comparable, Displayable, Dictable):
             self.assessment,
             self.type,
         )
-
 

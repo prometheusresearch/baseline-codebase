@@ -9,7 +9,7 @@ Set up the environment::
 
     >>> from rex.core import Rex
     >>> from datetime import datetime
-    >>> rex = Rex('__main__', 'rex.instrument')
+    >>> rex = Rex('__main__', 'rex.instrument_demo')
     >>> rex.on()
 
 
@@ -69,6 +69,12 @@ instances of those classes or strings containing UIDs::
     Traceback (most recent call last):
       ...
     ValueError: instrument_version must be an instance of InstrumentVersion or a UID of one
+
+    >>> assessment = Assessment('fake123', 'subject1', 'instrumentversion1', ASSESSMENT)
+    >>> assessment.subject
+    MySubject(u'subject1')
+    >>> assessment.instrument_version
+    MyInstrumentVersion(u'instrumentversion1', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1)
 
 
 The Evaluation Date must actually be a date (or datetime)::

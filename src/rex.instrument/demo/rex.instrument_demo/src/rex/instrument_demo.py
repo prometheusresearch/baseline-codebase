@@ -89,7 +89,9 @@ class MyInstrumentVersion(InstrumentVersion):
             uid,
             MyInstrument.get_by_uid('fake_instrument_1iv'),
             {},
-            '1',
+            1,
+            'someone',
+            datetime(2014, 5, 22),
         )
 
     @classmethod
@@ -99,7 +101,7 @@ class MyInstrumentVersion(InstrumentVersion):
                 'fake_instrument_version_1',
                 MyInstrument('fake_instrument_1iv'),
                 {},
-                '1',
+                1,
                 'some_person',
                 datetime(2014, 5, 22),
             ),
@@ -176,7 +178,7 @@ class MyDraftInstrumentVersion(DraftInstrumentVersion):
             MyInstrument.get_by_uid('fake_instrument_1iv'),
             'some_person',
             {},
-            '1',
+            1,
         )
 
     @classmethod

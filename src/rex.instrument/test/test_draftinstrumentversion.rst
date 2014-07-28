@@ -5,6 +5,14 @@ DraftInstrumentVersion
 .. contents:: Table of Contents
 
 
+Set up the environment::
+
+    >>> from rex.core import Rex
+    >>> from datetime import datetime
+    >>> rex = Rex('__main__', 'rex.instrument_demo')
+    >>> rex.on()
+
+
 InstrumentVersion
 =================
 
@@ -57,6 +65,12 @@ be an instance or a string containing a UID::
     Traceback (most recent call last):
       ...
     ValueError: parent_instrument_version must be an instance of InstrumentVersion or a UID of one
+
+    >>> div = DraftInstrumentVersion('notreal456', 'instrument1', 'someguy', datetime(2014, 5, 2), parent_instrument_version='instrumentversion11')
+    >>> div.instrument
+    MyInstrument(u'instrument1', u'Title for instrument1')
+    >>> div.parent_instrument_version
+    MyInstrumentVersion(u'instrumentversion11', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1)
 
 
 The definition can be passed to the contructor as either a JSON-encoded string

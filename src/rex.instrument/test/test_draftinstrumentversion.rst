@@ -81,6 +81,7 @@ dict equivalent::
     >>> div.definition is None
     True
     >>> div.definition_json is None
+    True
 
 
 DraftInstrumentVersions have date_modified and modified_by properties which are

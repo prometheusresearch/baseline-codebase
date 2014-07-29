@@ -93,7 +93,7 @@ class DataComputator(object):
         self.parsed = urlparse.urlparse(url)
         self.parsed_query = {
                 k: v[0] for k, v
-                in urlparse.parse_qs(self.parsed.query)}
+                in urlparse.parse_qs(self.parsed.query).items()}
 
     @property
     def route(self):

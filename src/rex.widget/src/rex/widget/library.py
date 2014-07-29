@@ -170,7 +170,7 @@ class GridWidget(Widget):
         ('id', StrVal),
         ('data', PaginatedCollectionVal(include_meta=True)),
         ('selectable', BoolVal, False),
-        ('selected', StateVal(IntVal)),
+        ('selected', StateVal(IntVal, default=None)),
     ]
 
 

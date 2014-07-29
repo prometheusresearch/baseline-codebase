@@ -181,9 +181,7 @@ var ApplicationState = merge({
 
     var state = response.body.state;
     this.hydrateAll(state);
-    console.log(Rex.Widget.ApplicationState.getStorage()['reviewerFilter.value'].value)
     Object.keys(state).forEach(this.notifyStateChanged, this);
-    console.log(Rex.Widget.ApplicationState.getStorage()['reviewerFilter.value'].value)
   },
 
   forEach: function(func, context) {

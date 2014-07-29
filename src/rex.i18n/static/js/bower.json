@@ -1,28 +1,28 @@
 {
-    "name": "rex-i18n",
-    "version": "0.2.0",
-    "private": true,
-    "description": "JavaScript I18N Utilities for the RexDB Framework",
-    "authors": [
-        "Prometheus Research, LLC"
-    ],
-    "license": "AGPL-3.0",
-    "repository": {
-        "type": "hg",
-        "url": "https://bitbucket.org/rexdb/rex.i18n-provisional"
-    },
-    "main": "lib/index.js",
-    "dependencies": {
-        "jed": "^0.5.4",
-        "jstimezonedetect": "^1.0.5",
-        "globalize": "^1.0.0"
-    },
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_components",
-        "test",
-        "tests"
-    ]
+  "name": "rex-i18n",
+  "version": "0.2.0",
+  "private": true,
+  "description": "JavaScript I18N Utilities for the RexDB Framework",
+  "authors": [
+    "Prometheus Research, LLC"
+  ],
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/rexdb/rex.i18n-provisional"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "jed": "^0.5.4",
+    "jstimezonedetect": "^1.0.5",
+    "globalize": "^1.0.0"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
 }
 

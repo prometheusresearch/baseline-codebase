@@ -111,9 +111,6 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                     rw=True)),
         ]
 
-    def compute_pagination_state(self, state, graph, dirty=None):
-        pass
-
 
 class StateVal(Validate):
 

@@ -8,7 +8,7 @@
 """
 
 from collections import namedtuple, MutableMapping, Mapping
-from rex.core import AnyVal
+from rex.core import AnyVal, Error
 from ..logging import getLogger
 from .reference import Reference, parse_ref
 

@@ -120,7 +120,7 @@ dialogNS.PublishDialog = function (o) {
             + '<p><strong>Caution: This operation will affect the real data entry process.</strong></p>'
             + '<ul>'
             +   '<li><input type="radio" name="rb_publish_measure" value="existing"> <div class="rb-inline-block">Using existing measure type: <div class="rb-top-margin"><select name="exist_measure_type"></select></div></div></li>'
-            +   '<li><input type="radio" name="rb_publish_measure" value="new"> <div class="rb-inline-block">Create a new new measure type: <div class="rb-top-margin"><input name="new_measure_type" /></div></div></li>'
+            +   '<li><input type="radio" name="rb_publish_measure" value="new"> <div class="rb-inline-block">Create a new measure type: <div class="rb-top-margin"><input name="new_measure_type" /></div></div><p>Measure Type names must be lowercase and contain only hyphens. Spaces and special characters are not acceptable.</p></li>'
             + '</ul>'
         + '</div>';
     this.options = null;
@@ -195,7 +195,7 @@ dialogNS.PublishDialog = function (o) {
         autoOpen: false,
         title: 'Instrument Publishing',
         width: 400,
-        height: 300,
+        height: 400,
         modal: true,
         buttons: {
             'Ok': self.onOk,

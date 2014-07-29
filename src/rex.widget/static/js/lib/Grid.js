@@ -78,7 +78,10 @@ var SortableGridHeaderCell = React.createClass({
 var Grid = React.createClass({
 
   propTypes: {
-    data: PropTypes.object.isRequired,
+    data: PropTypes.oneOfType([
+      PropTypes.object.isRequired,
+      PropTypes.array.isRequired
+    ]),
     onRows: PropTypes.func,
 
     columns: PropTypes.object,
@@ -97,7 +100,15 @@ var Grid = React.createClass({
   },
 
   render: function() {
-    var columns = this.getColumns(this.props.data.meta);
+    var columns = [];
+    var length = null;
+    if (this.props.data.meta) {
+      columns = this.getColumnsFromMeta(this.props.data.meta);
+      length = this.props.data.data.length;
+    } else {
+      columns = this.getColumnsFromKeys(this.props.data);
+      length = this.props.data.length;
+    }
     var rowRenderer = (
       <GridRow
         hoveredRowId={this.state.hoveredRowId}
@@ -110,7 +121,7 @@ var Grid = React.createClass({
       <BaseGrid
         columns={columns}
         rows={this.getRows}
-        length={this.props.data.data.length}
+        length={length}
         className="rex-widget-Grid"
         rowRenderer={rowRenderer}
         />
@@ -157,7 +168,7 @@ var Grid = React.createClass({
     });
   },
 
-  getColumns: function(meta) {
+  getColumnsFromMeta: function(meta) {
     if (!this._columns || this._columns.meta !== meta) {
       var columns = [];
 
@@ -179,7 +190,26 @@ var Grid = React.createClass({
     return this._columns;
   },
 
+  getColumnsFromKeys: function(data) {
+    if (data.length === 0)
+      return [];
+    var keys = Object.keys(data[0]);
+    var columns = [];
+    for (var i = 0, len = keys.length; i < len; i++) {
+        var column = {
+          key: keys[i],
+          name: keys[i]
+        };
+        columns.push(column);
+    }
+    this._columns = this.decorateColumns(columns);
+    return this._columns;
+  },
+
   getRows: function(start, stop) {
+    if (!this.props.data.data)
+      return this.props.data.slice(start, stop);
+
     setTimeout(() => {
       if (this.props.data.data.length - stop < 20
           && !this.props.data.updating

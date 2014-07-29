@@ -29,11 +29,14 @@ log = getLogger(__name__)
 
 class InitialValue(object):
 
-    def __init__(self, initial_value):
+    def __init__(self, initial_value, reset_on_changes=False):
         self.initial_value = initial_value
+        self.reset_on_changes = reset_on_changes
 
     def __call__(self, state, graph, dirty=None):
         if state.value is unknown:
+            return Reset(self.initial_value)
+        if self.reset_on_changes and (set(d.id for d in state.dependencies) & dirty):
             return Reset(self.initial_value)
         return state.value
 
@@ -88,7 +91,8 @@ class DataComputator(object):
         self.include_meta = include_meta
 
         self.parsed = urlparse.urlparse(url)
-        self.parsed_query = {k: v[0] for k, v
+        self.parsed_query = {
+                k: v[0] for k, v
                 in urlparse.parse_qs(self.parsed.query)}
 
     @property
@@ -129,7 +133,10 @@ class DataComputator(object):
             product = htsql.core.cmd.act.produce(handler.query, query)
 
         data = product_to_json(product)
-        return {"data": data[product.meta.tag], "updating": False}
+        return {
+            "data": data[product.meta.tag],
+            "updating": False
+        }
 
     def fetch(self, handler, graph, dirty=None):
         """ Fetch data using ``handler`` in context of the current application
@@ -140,7 +147,7 @@ class DataComputator(object):
 
     def execute_handler(self, handler, params):
         """ Execute ``handler`` with given ``params``.
-        
+
         This method is often used by :class:`DataComputator` subclasses to
         implement :method:`fetch`.
         """
@@ -211,9 +218,9 @@ class PaginatedCollectionComputator(DataComputator):
         is_pagination = (
             dirty
             and len(dirty) == 1
-            and dirty[0] == self.pagination_state_id
+            and list(dirty)[0] == self.pagination_state_id
         )
-        
+
         params = {name: graph[ref] for name, ref in self.refs.items()}
         params["top"] = params["top"] + 1
         data = self.execute_handler(handler, params)
@@ -232,7 +239,7 @@ class PaginatedCollectionComputator(DataComputator):
 
 def product_to_json(product):
     """ Convert product to JSON serializeable object.
-    
+
     :param product: Product to convert
     :type product: :class:`htsql.code.domain.Product`
     """
@@ -245,7 +252,7 @@ def product_to_json(product):
 
 def product_meta_to_json(product):
     """ Convert product's meta to JSON serializeable object.
-    
+
     :param product: Product to convert meta of
     :type product: :class:`htsql.code.domain.Product`
     """

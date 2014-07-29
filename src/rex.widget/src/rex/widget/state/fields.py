@@ -103,13 +103,16 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                         refs=refs,
                         include_meta=self.include_meta),
                     dependencies=dependencies + [pagination_state_id])),
-            ("%s" % field_name,
+            ("%sPagination" % field_name,
                 state(
                     pagination_state_id,
-                    InitialValue({"top": 100, "skip": 0}),
+                    InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
                     dependencies=dependencies,
                     rw=True)),
         ]
+
+    def compute_pagination_state(self, state, graph, dirty=None):
+        pass
 
 
 class StateVal(Validate):

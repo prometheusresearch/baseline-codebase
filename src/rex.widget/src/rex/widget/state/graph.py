@@ -8,10 +8,17 @@
 """
 
 from collections import namedtuple, MutableMapping, Mapping
+from rex.core import AnyVal
+from ..logging import getLogger
 from .reference import Reference, parse_ref
 
 
+log = getLogger(__name__)
+
+
 class StateGraph(Mapping):
+    """ Represents immutable graph of states with dependencies between.
+    """
 
     def __init__(self, initial=None):
         self.storage = {}
@@ -32,17 +39,13 @@ class StateGraph(Mapping):
             id = id.split(':', 1)[0]
         return self.storage[id]
 
-    def show(self):
-        for id, deps in self.dependencies.items():
-            print id, [(d.id, d.reset_only) for d in deps]
-
     def __str__(self):
         return "%s(storage=%s, dependents=%s)" % (
                 self.__class__.__name__, self.storage, self.dependents)
 
     __repr__ = __str__
 
-    def deref(self, ref):
+    def get_value(self, ref):
         """ Dereference state reference to a value.
 
         :param ref: state reference
@@ -52,8 +55,8 @@ class StateGraph(Mapping):
             ref = parse_ref(ref)
         try:
             value = self.storage[ref.id].value
-            if value is uncomputed:
-                raise LookupError("value %s is uncomputed" % (ref,))
+            if value is unknown:
+                raise LookupError("value %s is unknown" % (ref,))
             for part in ref.path:
                 value = value[part]
         except KeyError:
@@ -73,6 +76,8 @@ class StateGraph(Mapping):
 
 
 class MutableStateGraph(StateGraph, MutableMapping):
+    """ A mutable version of state graph
+    """
 
     def __setitem__(self, id, st):
         self.storage[id] = st
@@ -104,6 +109,10 @@ class MutableStateGraph(StateGraph, MutableMapping):
 
 
 class StateGraphComputation(Mapping):
+    """ Computation over state graph
+
+    :attr output: resulted graph with computed state
+    """
 
     def __init__(self, input, output=None):
         self.input = input
@@ -117,37 +126,32 @@ class StateGraphComputation(Mapping):
         return len(self.output)
 
     def compute(self, id):
-        print '-- computing', id
-        reset = False
         st = self.input[id]
-
+        log.debug('computing: %s', id)
         value = st.computator(st, self, dirty=self.visited)
-
         self.visited.add(id)
-
         if isinstance(value, Reset):
             value = value.value
             reset = True
-
-        print '-- computed ', id, reset
-
+        else:
+            reset = False
+        log.debug('computed:  %s, reset status: %s', id, reset)
         self.output[st.id] = st._replace(value=value)
-
         return reset
 
     def __getitem__(self, ref):
         if not isinstance(ref, Reference):
             ref = parse_ref(ref)
 
-        if ref.id in self.output and self.output[ref.id].value is not uncomputed:
-            return self.output.deref(ref)
+        if ref.id in self.output and self.output[ref.id].value is not unknown:
+            return self.output.get_value(ref)
 
         if not ref.id in self.input:
             raise Error('invalid reference: %s' % ref)
 
         self.compute(ref.id)
 
-        return self.output.deref(ref)
+        return self.output.get_value(ref)
 
 
 def _merge_state_into(dst, src):
@@ -164,7 +168,7 @@ def _merge_state_into(dst, src):
 
 State = namedtuple(
         'State',
-        ['id', 'computator', 'value', 'dependencies', 'rw'])
+        ['id', 'computator', 'validator', 'value', 'dependencies', 'rw'])
 
 
 Dep = namedtuple(
@@ -177,11 +181,15 @@ Reset = namedtuple(
         ['value'])
 
 
+# a marker for value which are unknown
+unknown = object()
+
+
 def dep(id, reset_only=False):
     return Dep(id=id, reset_only=reset_only)
 
 
-def state(id, computator, dependencies=None, rw=False):
+def state(id, computator, validator=AnyVal, value=unknown, dependencies=None, rw=False):
     if dependencies is None:
         dependencies = []
     dependencies = [
@@ -191,15 +199,14 @@ def state(id, computator, dependencies=None, rw=False):
     return State(
         id=id,
         computator=computator,
-        value=uncomputed,
+        validator=validator,
+        value=value,
         dependencies=dependencies,
         rw=rw)
 
 
-uncomputed = object()
-
-
 def compute(graph):
+    """ Compute entire state graph."""
     computation = StateGraphComputation(graph)
 
     for id in computation.input:
@@ -209,8 +216,8 @@ def compute(graph):
 
 
 def compute_update(graph, origins):
+    """ Compute state graph update which were originated from ``origins``."""
     computation = StateGraphComputation(graph)
-    visited = set()
 
     def _compute(id, recompute_deps=True):
         if id in computation.visited:
@@ -220,8 +227,8 @@ def compute_update(graph, origins):
 
         if recompute_deps or id in origins:
             for d in computation.input.dependents.get(id, []):
-                if not d.reset_only \
-                    or reset and (d.id in origins or computation.input[d.id].rw):
+                st = computation.input[d.id]
+                if not d.reset_only or reset and (st.id in origins or st.rw):
                     _compute(d.id, recompute_deps=not reset or not d.reset_only)
 
     for id in cause_effect_sort(computation.input, origins):
@@ -236,35 +243,32 @@ def cause_effect_sort(graph, ids):
     sorted = []
     seen = set()
 
+    # start with states which have no deps
     queue = [s for s in graph.values() if not s.dependencies]
 
     while queue:
-
         c = queue.pop()
-
         if c.id in seen:
             continue
 
+        # check if we have deps we didn't see before
         dependencies = [graph[d.id]
                 for d in c.dependencies
                 if d.id not in seen]
-
-
         if dependencies:
             queue = [c] + dependencies + queue
             continue
 
+        # mark it as seen and append to the result
         seen.add(c.id)
-
         if c.id in ids:
             sorted.append(c.id)
 
+        # proceed with states which depend on the current state
         dependents = [graph[d.id]
                 for d in graph.dependents.get(c.id, [])
                 if d.id not in seen]
-
         if dependents:
             queue = dependents + queue
-
 
     return sorted

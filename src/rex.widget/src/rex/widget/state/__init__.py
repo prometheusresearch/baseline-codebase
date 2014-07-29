@@ -14,6 +14,6 @@ from .graph import (
     StateGraph, MutableStateGraph,
     State, state,
     Dep, dep, Reset,
-    compute, compute_update, uncomputed)
+    compute, compute_update, unknown)
 from .computator import (
     InitialValue, InRangeValue, AggregatedValue)

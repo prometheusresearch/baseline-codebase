@@ -219,13 +219,11 @@ class Widget(Extension):
 
     def produce(self, req):
         widget, state = self.descriptor()
-        state.show()
         state = compute(state)
         return {"ui": widget, "state": state}
 
     def produce_update(self, req):
         widget, state = self.descriptor()
-        state.show()
 
         origins = []
         updates = {}

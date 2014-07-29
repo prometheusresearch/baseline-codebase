@@ -36,10 +36,11 @@ class StateDescriptor(object):
 
 class SimpleStateDescriptor(StateDescriptor):
 
-    def __init__(self, value, computator=None, dependencies=None):
+    def __init__(self, value, computator=None, validator=None, dependencies=None):
         self.value = value
         self.computator = computator
         self.dependencies = dependencies
+        self.validator = validator
 
 
     def describe_state(self, widget_id, field_name):
@@ -48,6 +49,7 @@ class SimpleStateDescriptor(StateDescriptor):
         st = state(
                 state_id,
                 computator=self.computator,
+                validator=self.validator,
                 dependencies=dependencies,
                 rw=True)
         return [(field_name, st)]
@@ -112,26 +114,27 @@ class PaginatedCollectionDescriptor(DataDescriptor):
 
 class StateVal(Validate):
 
-    def __init__(self, validate,
+    def __init__(self, validator,
             computator=None,
             dependencies=None,
             default=RecordField.NODEFAULT):
 
-        if isinstance(validate, type):
-            validate = validate()
+        if isinstance(validator, type):
+            validator = validator()
 
-        self.validate = validate
+        self.validator = validator
         self.computator = computator or InitialValue(default)
         self.dependencies = dependencies or []
         self.default = self.field(default)
 
     def field(self, value):
         return SimpleStateDescriptor(value,
+                validator=self.validator,
                 computator=self.computator,
                 dependencies=self.dependencies)
 
     def __call__(self, data):
-        return self.field(self.validate(data))
+        return self.field(self.validator(data))
 
 
 class DataVal(Validate):

@@ -19,8 +19,13 @@ from rex.db import get_db
 from rex.web import route
 from rex.core import Error
 
-from .graph import Reset, uncomputed
+from ..logging import getLogger
+from .graph import Reset, unknown
 from .reference import parse_ref
+
+
+log = getLogger(__name__)
+
 
 class InitialValue(object):
 
@@ -28,7 +33,7 @@ class InitialValue(object):
         self.initial_value = initial_value
 
     def __call__(self, state, graph, dirty=None):
-        if state.value is uncomputed:
+        if state.value is unknown:
             return Reset(self.initial_value)
         return state.value
 
@@ -42,13 +47,13 @@ class InRangeValue(object):
     def __call__(self, state, graph, dirty=None):
         source = state.id.split('.')[0] + '.' + self.source
 
-        if state.value is uncomputed:
+        if state.value is unknown:
             return Reset(self.initial_value)
 
         # if data source is marked as dirty we need to check if current value is
         # still valid and reset it otherwise
         if state.value is not None and source in dirty:
-            options = [str(option['id']) for option in graph[source]["data"]]
+            options = [option['id'] for option in graph[source]["data"]]
             if state.value not in options:
                 return Reset(self.initial_value)
 
@@ -97,7 +102,11 @@ class DataComputator(object):
         query = dict(self.parsed_query)
         query.update(params)
         query = {k: v for k, v in query.items() if v is not None}
-        product = handler.port.produce(urllib.urlencode(query))
+        query = urllib.urlencode(query)
+
+        log.info('fetching port: %s?%s', self.url, query)
+
+        product = handler.port.produce(query)
         data = product_to_json(product)
         data = data[product.meta.domain.fields[0].tag]
         if self.include_meta:
@@ -113,6 +122,8 @@ class DataComputator(object):
             query[k] = ''
 
         query.update(params)
+
+        log.info('fetching query: %s?%s', self.url, urllib.urlencode(query))
 
         with get_db():
             product = htsql.core.cmd.act.produce(handler.query, query)
@@ -154,7 +165,6 @@ class CollectionComputator(DataComputator):
 
     def fetch(self, handler, graph, dirty):
         params = {name: graph[ref] for name, ref in self.refs.items()}
-        print " -- CollectionComputator", self.refs, self.url, params
         return self.execute_handler(handler, params)
 
 
@@ -162,8 +172,6 @@ class EntityComputator(DataComputator):
 
     def fetch(self, handler, graph, dirty):
         params = {name: graph[ref] for name, ref in self.refs.items()}
-
-        print params
 
         if None in params.values():
             return {"data": None, "updating": False}

@@ -21,7 +21,6 @@ var Filter = React.createClass({
   render: function() {
     var filter = this.props.filter;
     filter = cloneWithProps(this.props.filter, {
-      value: this.props.value,
       onValue: this.onValue.bind(null, filter.props.onValue)
     });
     return (

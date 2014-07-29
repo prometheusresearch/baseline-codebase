@@ -8,8 +8,8 @@
 """
 
 from collections import namedtuple, MutableMapping, Mapping
-
 from .reference import Reference, parse_ref
+
 
 class StateGraph(Mapping):
 
@@ -103,6 +103,53 @@ class MutableStateGraph(StateGraph, MutableMapping):
         return StateGraph(self)
 
 
+class StateGraphComputation(Mapping):
+
+    def __init__(self, input, output=None):
+        self.input = input
+        self.output = output or MutableStateGraph()
+        self.visited = set()
+
+    def __iter__(self):
+        return iter(self.output)
+
+    def __len__(self):
+        return len(self.output)
+
+    def compute(self, id):
+        print '-- computing', id
+        reset = False
+        st = self.input[id]
+
+        value = st.computator(st, self, dirty=self.visited)
+
+        self.visited.add(id)
+
+        if isinstance(value, Reset):
+            value = value.value
+            reset = True
+
+        print '-- computed ', id, reset
+
+        self.output[st.id] = st._replace(value=value)
+
+        return reset
+
+    def __getitem__(self, ref):
+        if not isinstance(ref, Reference):
+            ref = parse_ref(ref)
+
+        if ref.id in self.output and self.output[ref.id].value is not uncomputed:
+            return self.output.deref(ref)
+
+        if not ref.id in self.input:
+            raise Error('invalid reference: %s' % ref)
+
+        self.compute(ref.id)
+
+        return self.output.deref(ref)
+
+
 def _merge_state_into(dst, src):
     for id, st in src.items():
         dst.storage[id] = st
@@ -153,73 +200,39 @@ uncomputed = object()
 
 
 def compute(graph):
-    computed = MutableStateGraph()
-    visited = set()
+    computation = StateGraphComputation(graph)
 
-    def _compute(state):
-        if state.id in visited:
-            return
+    for id in computation.input:
+        computation.compute(id)
 
-        visited.add(state.id)
-
-        for d in graph.dependencies.get(state.id, []):
-            _compute(graph[d.id])
-
-        value = state.computator(state, computed, dirty=None)
-
-        if isinstance(value, Reset):
-            value = value.value
-
-        computed[state.id] = state._replace(value=value)
-
-    for state in graph.values():
-        _compute(state)
-
-    return computed
+    return computation.output
 
 
 def compute_update(graph, origins):
-    computed = MutableStateGraph()
+    computation = StateGraphComputation(graph)
     visited = set()
 
-    def _compute(state):
-        if state.id in visited:
+    def _compute(id, recompute_deps=True):
+        if id in computation.visited:
             return
 
-        force = False
+        reset = computation.compute(id)
 
-        visited.add(state.id)
+        if recompute_deps or id in origins:
+            for d in computation.input.dependents.get(id, []):
+                if not d.reset_only \
+                    or reset and (d.id in origins or computation.input[d.id].rw):
+                    _compute(d.id, recompute_deps=not reset or not d.reset_only)
 
+    for id in cause_effect_sort(computation.input, origins):
+        _compute(id)
 
-        for d in graph.dependencies.get(state.id, []):
-            _compute(graph[d.id])
-
-        print "-- computing update", state.id
-
-        value = state.computator(state, computed, dirty=visited)
-
-        if isinstance(value, Reset):
-            value = value.value
-            force = True
-
-        print "-- computed  update", state.id, force
-
-        computed[state.id] = state._replace(value=value)
-
-        for d in graph.dependents.get(state.id, []):
-            if (force and d.id in origins) or not d.reset_only:
-                _compute(graph[d.id])
-
-    print origins
-    print topo_sort(graph, origins)
-
-    for id in topo_sort(graph, origins):
-        _compute(graph[id])
-
-    return computed, visited
+    return computation.output, computation.visited
 
 
-def topo_sort(graph, ids):
+def cause_effect_sort(graph, ids):
+    """ Sort ``ids`` topologically according to ``graph`` to respect
+    cause-effect relationship."""
     sorted = []
     seen = set()
 

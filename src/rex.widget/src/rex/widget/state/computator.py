@@ -28,8 +28,8 @@ class InitialValue(object):
         self.initial_value = initial_value
 
     def __call__(self, state, graph, dirty=None):
-        if state.value == uncomputed:
-            return self.initial_value
+        if state.value is uncomputed:
+            return Reset(self.initial_value)
         return state.value
 
 
@@ -42,16 +42,13 @@ class InRangeValue(object):
     def __call__(self, state, graph, dirty=None):
         source = state.id.split('.')[0] + '.' + self.source
 
-        if dirty is None:
+        if state.value is uncomputed:
             return Reset(self.initial_value)
-
-        if state.value is None:
-            return state.value
 
         # if data source is marked as dirty we need to check if current value is
         # still valid and reset it otherwise
-        if source in dirty:
-            options = [str(option['id']) for option in graph.deref(source)["data"]]
+        if state.value is not None and source in dirty:
+            options = [str(option['id']) for option in graph[source]["data"]]
             if state.value not in options:
                 return Reset(self.initial_value)
 
@@ -64,7 +61,7 @@ class AggregatedValue(object):
         self.aggregation = aggregation
 
     def initial_value(self, graph):
-        return {k: graph.deref(dep) for k, dep in self.aggregation.items()}
+        return {k: graph[dep] for k, dep in self.aggregation.items()}
 
     def __call__(self, state, graph, dirty=None):
         if dirty is None:
@@ -156,14 +153,15 @@ class DataComputator(object):
 class CollectionComputator(DataComputator):
 
     def fetch(self, handler, graph, dirty):
-        params = {name: graph.deref(ref) for name, ref in self.refs.items()}
+        params = {name: graph[ref] for name, ref in self.refs.items()}
+        print " -- CollectionComputator", self.refs, self.url, params
         return self.execute_handler(handler, params)
 
 
 class EntityComputator(DataComputator):
 
     def fetch(self, handler, graph, dirty):
-        params = {name: graph.deref(ref) for name, ref in self.refs.items()}
+        params = {name: graph[ref] for name, ref in self.refs.items()}
 
         print params
 
@@ -208,7 +206,7 @@ class PaginatedCollectionComputator(DataComputator):
             and dirty[0] == self.pagination_state_id
         )
         
-        params = {name: graph.deref(ref) for name, ref in self.refs.items()}
+        params = {name: graph[ref] for name, ref in self.refs.items()}
         params["top"] = params["top"] + 1
         data = self.execute_handler(handler, params)
 

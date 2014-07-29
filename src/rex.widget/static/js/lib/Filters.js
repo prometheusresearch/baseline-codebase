@@ -56,8 +56,7 @@ var Filters = React.createClass({
       return cloneWithProps(filter, {
         key: id,
         id,
-        onValue: this.onValue,
-        value: this.state[id] || null
+        onValue: this.onValue
       })
     });
   },
@@ -70,11 +69,8 @@ var Filters = React.createClass({
     };
   },
 
-  getInitialState: function() {
-    return this.getFilterState(this.props);
-  },
-
   getFilterState: function(props) {
+    props = props || this.props;
     var state = {};
     React.Children.forEach(props.filters, (filter) => {
       var key = filter.props.filter.props.id;
@@ -84,7 +80,12 @@ var Filters = React.createClass({
   },
 
   onApply: function() {
-    this.props.onValue(this.state);
+    var state = this.getFilterState();
+    React.Children.forEach(this.props.filters, (filter) => {
+      var key = filter.props.filter.props.id;
+      state[key] = ApplicationState.get(key + '.value');
+    });
+    this.props.onValue(state);
   },
 
   onClear: function() {
@@ -113,15 +114,15 @@ var Filters = React.createClass({
         update,
         this.props.onValue.produce(nextState)
       ));
+    } else {
+      ApplicationState.updateMany(update);
     }
-
-    this.setState(nextState);
   },
 
   updatedState: function(id, value) {
     var update = {};
     update[id] = value || null;
-    return merge(this.state, update);
+    return merge(this.getFilterState(), update);
   }
 });
 

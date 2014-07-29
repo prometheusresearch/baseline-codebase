@@ -86,6 +86,7 @@ var ApplicationState = merge({
         updating: stateDescriptor.updating
       };
     }
+    console.debug('hydrated ', id, storage[id].value);
 
     // TODO: Check for cycles.
     if (dependencies.length > 0) {
@@ -99,6 +100,7 @@ var ApplicationState = merge({
   },
 
   updateMany: function(values) {
+    console.debug('updateMany', values);
     var nextStorage = merge({}, storage);
 
     var queue = Object.keys(values);
@@ -158,6 +160,8 @@ var ApplicationState = merge({
       params[`update:${id}`] = values[id];
     });
 
+    console.debug('remote update with', params);
+
     request
       .post(window.location.pathname)
       .send(params)
@@ -177,7 +181,9 @@ var ApplicationState = merge({
 
     var state = response.body.state;
     this.hydrateAll(state);
+    console.log(Rex.Widget.ApplicationState.getStorage()['reviewerFilter.value'].value)
     Object.keys(state).forEach(this.notifyStateChanged, this);
+    console.log(Rex.Widget.ApplicationState.getStorage()['reviewerFilter.value'].value)
   },
 
   forEach: function(func, context) {
@@ -188,8 +194,8 @@ var ApplicationState = merge({
 
 
 if (__DEV__) {
-  ApplicationState.storage = storage;
-  ApplicationState.dependents = dependents;
+  ApplicationState.getStorage = function() { return storage; };
+  ApplicationState.getDependents = function() { return dependents; };
 }
 
 

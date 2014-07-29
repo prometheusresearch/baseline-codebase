@@ -12,7 +12,7 @@ from rex.core import (
         cached)
 from .widget import Widget, NullWidget, iterate_widget
 from .state import (
-        state, dep,
+        state, dep, uncomputed, Reset,
         CollectionVal, PaginatedCollectionVal,
         StateVal, State, InRangeValue)
 from .parse import WidgetVal
@@ -154,15 +154,9 @@ class FiltersWidget(Widget):
             state=descriptor.state.merge({state_id: st})
         )
 
-    def initial_value(self, graph):
-        return {k: graph.deref(dep) for k, dep in self.refs.items()}
-
     def computator(self, state, graph, dirty=None):
-        if dirty is None:
-            return self.initial_value(graph)
-
-        if set(self.refs.values()) & dirty:
-            return self.initial_value(graph)
+        if state.value is uncomputed or (set(self.refs.values()) & dirty):
+            return Reset({k: graph[dep] for k, dep in self.refs.items()})
 
         return state.value
 

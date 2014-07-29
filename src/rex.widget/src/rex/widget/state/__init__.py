@@ -13,7 +13,7 @@ from .fields import (
 from .graph import (
     StateGraph, MutableStateGraph,
     State, state,
-    Dep, dep,
-    compute, compute_update)
+    Dep, dep, Reset,
+    compute, compute_update, uncomputed)
 from .computator import (
     InitialValue, InRangeValue, AggregatedValue)

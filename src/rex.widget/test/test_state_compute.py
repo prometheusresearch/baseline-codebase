@@ -29,10 +29,10 @@ class ReviewerData(object):
     """ Mimics DataComputator but does nothing except returning params."""
 
     def __call__(self, state, graph, dirty):
-        return [
+        return {"data": [
             {"id": 1},
             {"id": 2},
-        ]
+        ]}
 
 class ReviewerYearData(object):
     """ Mimics DataComputator but does nothing except returning params."""
@@ -41,14 +41,14 @@ class ReviewerYearData(object):
     reviewer2 = [2002, 2003]
 
     def __call__(self, state, graph, dirty):
-        reviewer = graph.deref('reviewer.value')
+        reviewer = graph['reviewer.value']
         if reviewer == 1:
-            return [{"id": year} for year in self.reviewer1]
+            return {"data": [{"id": year} for year in self.reviewer1]}
         elif reviewer == 2:
-            return [{"id": year} for year in self.reviewer2]
+            return {"data": [{"id": year} for year in self.reviewer2]}
         else:
-            return [{"id": year}
-                    for year in set(self.reviewer1 + self.reviewer2)]
+            return {"data": [{"id": year}
+                    for year in set(self.reviewer1 + self.reviewer2)]}
 
 def prepare_state():
     g = MutableStateGraph()
@@ -57,7 +57,7 @@ def prepare_state():
     g.add('reviewer.data',
         ReviewerData())
     g.add('reviewer.value',
-        InRangeValue(None, source='reviewer.data'),
+        InRangeValue(None, source='data'),
         dependencies=['reviewer.data'],
         rw=True)
 
@@ -66,7 +66,7 @@ def prepare_state():
         ReviewerYearData(),
         dependencies=['reviewer.value'])
     g.add('reviewerYear.value',
-        InRangeValue(None, source='reviewerYear.data'),
+        InRangeValue(None, source='data'),
         dependencies=['reviewerYear.data'],
         rw=True)
 
@@ -114,20 +114,20 @@ def test_initial_computation():
     computed = compute(state)
 
     assert 'reviewer.data' in computed
-    assert computed['reviewer.data'].value == [
+    assert computed['reviewer.data'].value == {"data": [
         {'id': 1},
         {'id': 2}
-    ]
+    ]}
 
     assert 'reviewer.value' in computed
     assert computed['reviewer.value'].value == None
 
     assert 'reviewerYear.data' in computed
-    assert computed['reviewerYear.data'].value == [
+    assert computed['reviewerYear.data'].value == {"data": [
         {'id': 2001},
         {'id': 2002},
-        {'id': 2003}
-    ]
+        {'id': 2003},
+    ]}
 
     assert 'reviewerYear.value' in computed
     assert computed['reviewerYear.value'].value == None
@@ -149,7 +149,6 @@ def test_initial_computation():
 
 def test_simple_update_reviewer():
     state = prepare_state()
-    return
 
     state.set_many({
         'reviewerYear.value': None,
@@ -163,17 +162,16 @@ def test_simple_update_reviewer():
     computed, visited = compute_update(state, ['reviewer.value'])
 
     assert computed['reviewer.value'].value == 1
-    assert computed['reviewerYear.data'].value == [
+    assert computed['reviewerYear.data'].value == {"data": [
         {'id': 2001},
         {'id': 2002}
-    ]
+    ]}
     assert computed['reviewerYear.value'].value == None
     assert 'reviewerFilter.value' not in computed
     assert 'reviewerStatistics.data' not in computed
 
 def test_update_reviewer_keep_value():
     state = prepare_state()
-    return
 
     state.set_many({
         'reviewerYear.value': 2001,
@@ -183,10 +181,10 @@ def test_update_reviewer_keep_value():
     computed, visited = compute_update(state, ['reviewer.value'])
 
     assert computed['reviewer.value'].value == 1
-    assert computed['reviewerYear.data'].value == [
+    assert computed['reviewerYear.data'].value == {"data": [
         {'id': 2001},
         {'id': 2002}
-    ]
+    ]}
     assert computed['reviewerYear.value'].value == 2001
     assert 'reviewerFilter.value' not in computed
     assert 'reviewerStatistics.data' not in computed
@@ -194,7 +192,6 @@ def test_update_reviewer_keep_value():
 
 def test_update_reviewer_reset_value():
     state = prepare_state()
-    return
 
     state.set_many({
         'reviewerYear.value': 2001,
@@ -204,18 +201,20 @@ def test_update_reviewer_reset_value():
     computed, visited = compute_update(state, ['reviewer.value'])
 
     assert computed['reviewer.value'].value == 2
-    assert computed['reviewerYear.data'].value == [
+    assert computed['reviewerYear.data'].value == {"data": [
         {'id': 2002},
         {'id': 2003}
-    ]
+    ]}
     assert computed['reviewerYear.value'].value == None
-    assert 'reviewerFilter.value' not in computed
+    assert computed['reviewerFilter.value'].value == {
+        "reviewerYear": None,
+        "reviewer": 2
+    }
     assert 'reviewerStatistics.data' not in computed
 
 
 def test_update_reviewer_and_filter_only():
     state = prepare_state()
-    return
 
     state.set_many({
         'reviewerYear.value': None,
@@ -229,10 +228,10 @@ def test_update_reviewer_and_filter_only():
     computed, visited = compute_update(state, ['reviewerFilter.value', 'reviewer.value'])
 
     assert computed['reviewer.value'].value == 1
-    assert computed['reviewerYear.data'].value == [
+    assert computed['reviewerYear.data'].value == {"data": [
         {'id': 2001},
         {'id': 2002}
-    ]
+    ]}
     assert computed['reviewerYear.value'].value == None
     assert computed['reviewerFilter.value'].value == {
         'reviewer': 1,
@@ -248,7 +247,6 @@ def test_update_reviewer_and_filter_only():
 
 def test_update_reviewer_and_filter_keep_value():
     state = prepare_state()
-    return
 
     state.set_many({
         'reviewerYear.value': 2001,
@@ -265,10 +263,10 @@ def test_update_reviewer_and_filter_keep_value():
     ])
 
     assert computed['reviewer.value'].value == 1
-    assert computed['reviewerYear.data'].value == [
+    assert computed['reviewerYear.data'].value == {"data": [
         {'id': 2001},
         {'id': 2002}
-    ]
+    ]}
     assert computed['reviewerYear.value'].value == 2001
     assert computed['reviewerFilter.value'].value == {
         'reviewer': 1,
@@ -284,7 +282,6 @@ def test_update_reviewer_and_filter_keep_value():
 
 def test_update_reviewer_and_filter_reset_value():
     state = prepare_state()
-    return
 
     state.set_many({
         'reviewerYear.value': 2001,
@@ -301,10 +298,10 @@ def test_update_reviewer_and_filter_reset_value():
     ])
 
     assert computed['reviewer.value'].value == 2
-    assert computed['reviewerYear.data'].value == [
+    assert computed['reviewerYear.data'].value == {"data": [
         {'id': 2002},
         {'id': 2003}
-    ]
+    ]}
     assert computed['reviewerYear.value'].value == None
     assert computed['reviewerFilter.value'].value == {
         'reviewer': 2,

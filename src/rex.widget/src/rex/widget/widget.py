@@ -16,40 +16,11 @@ from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 from rex.core import (
         AnyVal, Error, Extension, RecordField,
         ProxyVal, StrVal, cached)
+from rex.web import render_to_response
 from .state import (
     State, StateDescriptor,
     StateGraph, MutableStateGraph, compute, compute_update)
 
-
-# FIXME: XSS! via script_name
-TEMPLATE = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="%(script_name)s/bundle/bundle.css">
-</head>
-<body>
-  <div id="__main__"></div>
-  <script>
-    var __MOUNT_PREFIX__ = "%(script_name)s";
-  </script>
-  <script src="%(script_name)s/bundle/bundle.js"></script>
-  <script>
-    var __REX_WIDGET__ = %(spec)s;
-    if (window.Rex === undefined || window.Rex.Widget === undefined) {
-      throw new Error('include rex-widget bower package in your application');
-    }
-    Rex.Widget.renderSpec(
-      __REX_WIDGET__,
-      document.getElementById('__main__')
-    );
-  </script>
-</body>
-
-"""
 
 WidgetDescriptor = namedtuple(
         'WidgetDescriptor',
@@ -64,10 +35,6 @@ UIDescriptor = namedtuple(
 UIDescriptorChildren = namedtuple(
         'UIDescriptorChildren',
         ['children'])
-
-StateFieldDeclaration = namedtuple(
-        'StateFieldDeclaration',
-        ['name', 'field'])
 
 
 class Widget(Extension):
@@ -196,33 +163,35 @@ class Widget(Extension):
     def __call__(self, req):
         accept = req.accept.best_match(['text/html', 'application/json'])
         if accept == 'application/json':
-            spec = self.as_json(req)
-            spec = to_json(spec)
-            return Response(spec, content_type='application/json')
+            return self.as_json(req)
         else:
-            return Response(self.as_html(req))
-
-    def as_html(self, req):
-        # XXX: The indent=2 is useful for debug/introspection but hurts bytesize,
-        # can we turn it on only in dev mode?
-        spec = self.as_json(req)
-        spec = to_json(spec)
-        return TEMPLATE % {"spec": spec, "script_name": req.script_name}
+            return self.as_html(req)
 
     def as_json(self, req):
+        spec = self.handle(req)
+        spec = to_json(spec)
+        return Response(spec, content_type='application/json')
+
+    def as_html(self, req):
+        spec = self.handle(req)
+        spec = to_json(spec)
+        return render_to_response(
+                'rex.widget:/templates/index.html', req, spec=spec)
+
+    def handle(self, req):
         if req.method == 'GET':
-            return self.produce(req)
+            return self.handle_init(req)
         elif req.method == 'POST':
-            return self.produce_update(req)
+            return self.handle_update(req)
         else:
             raise HTTPMethodNotAllowed()
 
-    def produce(self, req):
+    def handle_init(self, req):
         widget, state = self.descriptor()
         state = compute(state)
         return {"ui": widget, "state": state}
 
-    def produce_update(self, req):
+    def handle_update(self, req):
         widget, state = self.descriptor()
 
         origins = []

@@ -46,6 +46,10 @@ class Channel(Extension, Comparable, Displayable, Dictable):
         """
         Returns Channels that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * title (partial matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

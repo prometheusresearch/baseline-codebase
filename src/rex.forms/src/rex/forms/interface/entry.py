@@ -123,6 +123,12 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         """
         Returns Entries that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * assessment (UID or instance; exact matches)
+        * type (exact matches)
+        * status (exact matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

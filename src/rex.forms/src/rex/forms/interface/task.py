@@ -78,6 +78,13 @@ class Task(Extension, Comparable, Displayable, Dictable):
         """
         Returns Tasks that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * subject (UID or instance; exact matches)
+        * channel (UID or instance; exact matches)
+        * instrument (UID or instance; exact matches)
+        * status (exact matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

@@ -76,6 +76,11 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         """
         Returns DraftForms that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * channel (UID or instance; exact matches)
+        * draft_instrument_version (UID or instance; exact matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

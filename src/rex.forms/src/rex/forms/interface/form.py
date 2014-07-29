@@ -214,6 +214,11 @@ class Form(Extension, Comparable, Displayable, Dictable):
         """
         Returns Forms that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * channel (UID or instance; exact matches)
+        * instrument_version (UID or instance; exact matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

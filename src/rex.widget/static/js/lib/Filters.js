@@ -9,6 +9,7 @@ var cloneWithProps    = React.addons.cloneWithProps;
 var merge             = require('./merge');
 var emptyFunction     = require('./emptyFunction');
 var ApplicationState  = require('./ApplicationState');
+var Panel             = require('./Panel');
 
 var Filters = React.createClass({
 
@@ -25,28 +26,23 @@ var Filters = React.createClass({
       'rex-widget-Filters'
     );
     return (
-      <div className={className}>
-        <div className="rex-widget-Filters__header">
-          <div className="rex-widget-Filters__title">
-            {this.props.title}
-          </div>
-          {this.props.showClearButton &&
-            <button
-              onClick={this.onClear}
-              className="rex-widget-Filters__clearButton">
-              Clear filters
-            </button>}
-        </div>
-        <div className="rex-widget-Filters__filters">
-          {this.renderFilters()}
-        </div>
-        {this.props.showApplyButton &&
+      <Panel
+        className={className}
+        title={this.props.title}
+        headerToolbar={this.props.showClearButton &&
+          <button
+            onClick={this.onClear}
+            className="rex-widget-Filters__clearButton">
+            Clear filters
+          </button>}
+        footerToolbar={this.props.showApplyButton &&
           <div className="rex-widget-Filters__footer">
             <button className="rex-widget-Filters__applyButton" onClick={this.onApply}>
               Apply
             </button>
-          </div>}
-      </div>
+          </div>}>
+          {this.renderFilters()}
+      </Panel>
     );
   },
 

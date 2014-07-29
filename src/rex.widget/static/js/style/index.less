@@ -50,41 +50,62 @@
 }
 
 /**
- * Filters widget
+ * List widget
  */
-.rex-widget-Filters {
+.rex-widget-List {
+  padding: 0;
+  list-style-type: none;
+}
+.rex-widget-List__item {
+  padding: @paddingS @padding;
+  list-style-type: none;
+  cursor: pointer;
+  &:hover {
+    background-color: @colorHoverHighlight;
+  }
+}
+.rex-widget-List__item--selected {
+  background-color: @colorSelectedHighlight;
+}
+
+/**
+ * Panel widget
+ */
+.rex-widget-Panel {
   padding: @padding;
 }
 
-.rex-widget-Filters__header {
+.rex-widget-Panel__header {
   position: relative;
   margin-bottom: @paddingL;
 }
 
-.rex-widget-Filters__footer {
+.rex-widget-Panel__title {
+  font-weight: bold;
+}
+
+.rex-widget-Panel__headerToolbar {
+  .position-top-right();
+}
+
+.rex-widget-Panel__footer {
   position: relative;
   margin-top: @paddingL;
 }
 
-.rex-widget-Filters__title {
-  font-weight: bold;
-}
-
+/**
+ * Filters widget
+ */
 .rex-widget-Filters__clearButton {
   .btn();
   .btn-xs();
   .btn-link();
-  .position-top-right();
 }
 
 .rex-widget-Filters__applyButton {
   .btn();
   .btn-xs();
   .btn-default();
-}
-
-.rex-widget-Filters__filters {
-
 }
 
 /**

@@ -88,6 +88,9 @@ function constructComponent(ui, key) {
       props[name] = prop.__children__.map(function(child, key) {
         return constructComponent(child, key);
       });
+    // js value reference
+    } else if (prop !== null && prop.__reference__) {
+      props[name] = __require__(prop.__reference__);
     // Read from state
     } else if (prop !== null && prop.__state_read__) {
       props[name] = ApplicationState.get(prop.__state_read__);

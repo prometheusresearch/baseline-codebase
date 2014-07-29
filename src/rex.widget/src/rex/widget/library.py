@@ -15,6 +15,7 @@ from .state import (
         state, dep, unknown, Reset,
         CollectionVal, PaginatedCollectionVal,
         StateVal, State, InRangeValue)
+from .jsval import JSVal
 from .parse import WidgetVal
 
 
@@ -41,7 +42,7 @@ class SectionWidget(Widget):
     name = 'Section'
     js_type = 'rex-widget/lib/Section'
     fields = [
-            ('content', WidgetVal, NullWidget())
+        ('content', WidgetVal, NullWidget())
     ]
 
 
@@ -50,8 +51,33 @@ class LinkWidget(Widget):
     name = 'Link'
     js_type = 'rex-widget/lib/Link'
     fields = [
-            ('url', StrVal),
-            ('text', UStrVal, None),
+        ('url', StrVal),
+        ('text', UStrVal, None),
+    ]
+
+
+class Panel(Widget):
+
+    name = 'Panel'
+    js_type = 'rex-widget/lib/Panel'
+    fields = [
+        ('title', StrVal),
+        ('header_toolbar', WidgetVal, NullWidget()),
+        ('footer_toolbar', WidgetVal, NullWidget()),
+        ('children', WidgetVal, NullWidget()),
+    ]
+
+
+class List(Widget):
+
+    name = 'List'
+    js_type = 'rex-widget/lib/List'
+    fields = [
+        ('id', StrVal),
+        ('data', CollectionVal),
+        ('selectable', BoolVal, False),
+        ('selected', StateVal(IntVal, default=None)),
+        ('item_renderer', JSVal, None),
     ]
 
 

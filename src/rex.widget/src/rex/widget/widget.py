@@ -20,6 +20,7 @@ from rex.web import render_to_response
 from .state import (
     State, StateDescriptor,
     StateGraph, MutableStateGraph, compute, compute_update)
+from .jsval import JSValue
 
 
 WidgetDescriptor = namedtuple(
@@ -143,6 +144,9 @@ class Widget(Extension):
                 descriptor = value.descriptor()
                 props[name] = descriptor.ui
                 state.update(descriptor.state)
+
+            elif isinstance(value, JSValue):
+                props[name] = {"__reference__": value.reference}
 
             elif isinstance(value, StateDescriptor):
                 value_state = value.describe_state(self.id, name)

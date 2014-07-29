@@ -96,7 +96,8 @@ function loadGlobalizeComponents(component) {
                 globalize.load(components[i]);
             }
 
-            GLOBALIZE_LOADED_COMPONENTS[component] = true;
+            GLOBALIZE_LOADED_COMPONENTS[component] =
+                (component === 'common') ? true : globalize(component);
         } catch (exc) {
             log('Could not parse locale components: ' + exc.toString());
             GLOBALIZE_LOADED_COMPONENTS[component] = false;
@@ -110,8 +111,12 @@ function loadGlobalizeComponents(component) {
 function globalizeLoaded(locale) {
     return (
         (GLOBALIZE_LOADED_COMPONENTS.common === true)
-        && (GLOBALIZE_LOADED_COMPONENTS[locale] === true)
+        && (GLOBALIZE_LOADED_COMPONENTS[locale])
     );
+}
+
+function getGlobalize(locale) {
+    return GLOBALIZE_LOADED_COMPONENTS[locale];
 }
 
 function getGlobalizeDateTimeFormat(funcName, format) {
@@ -360,11 +365,11 @@ var RexI18N = function (options) {
                         return date.toString();
                     }
                 }
-                return globalize.formatDate(date, format, locale);
+                return getGlobalize(locale).formatDate(date, format);
             });
         }
 
-        return globalize.formatDate(date, format, locale);
+        return getGlobalize(locale).formatDate(date, format, locale);
     };
 
 
@@ -450,11 +455,11 @@ var RexI18N = function (options) {
                 if (!globalizeLoaded(locale)) {
                     return number.toString();
                 }
-                return globalize.formatNumber(number, format, locale);
+                return getGlobalize(locale).formatNumber(number, format, locale);
             });
         }
 
-        return globalize.formatNumber(number, format, locale);
+        return getGlobalize(locale).formatNumber(number, format, locale);
     };
 
 

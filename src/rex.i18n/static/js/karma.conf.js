@@ -18,11 +18,10 @@ module.exports = function (config) {
           resolve: {
             alias: {
               'cldr': 'cldrjs',
-              'cldr/supplemental': 'cldrjs/dist/cldr/supplemental',
+              'cldrjs/event': 'cldrjs/dist/cldr/event',
               'cldrjs/supplemental': 'cldrjs/dist/cldr/supplemental'
             }
-          },
-          devtool: 'source-map'
+          }
         }),
         reporters: ['progress'],
         port: 9876,

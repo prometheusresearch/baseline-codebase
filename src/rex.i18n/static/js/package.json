@@ -6,7 +6,7 @@
     "license": "AGPLv3",
     "repository": {
         "type": "hg",
-        "url": "https://bitbucket.org/prometheus/rex.i18n"
+        "url": "https://bitbucket.org/rexdb/rex.i18n-provisional"
     },
     "main": "lib/index.js",
     "dependencies": {
@@ -15,8 +15,8 @@
         "globalize": "^1.0.0"
     },
     "devDependencies": {
-        "grunt": "^0.4.4",
-        "karma": "^0.12.16",
+        "grunt": "^0.4.5",
+        "karma": "^0.12.19",
         "grunt-jslint": "^1.1.8",
         "grunt-karma": "^0.8.3",
         "karma-jasmine": "^0.2.2",

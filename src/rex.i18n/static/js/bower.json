@@ -9,7 +9,7 @@
     "license": "AGPL-3.0",
     "repository": {
         "type": "hg",
-        "url": "https://bitbucket.org/prometheus/rex.i18n"
+        "url": "https://bitbucket.org/rexdb/rex.i18n-provisional"
     },
     "main": "lib/index.js",
     "dependencies": {

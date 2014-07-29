@@ -58,6 +58,11 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         """
         Returns Instruments that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * title (partial matches)
+        * status (exact matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

@@ -75,6 +75,11 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         """
         Returns DraftInstrumentVersions that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * instrument (UID or instance; exact matches)
+        * parent_instrument_version (UID or instance; exact matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

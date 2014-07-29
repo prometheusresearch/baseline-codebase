@@ -340,6 +340,12 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         """
         Returns Asessments that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * instrument_version (UID or instance; exact matches)
+        * subject (UID or instance; exact matches)
+        * status (exact matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

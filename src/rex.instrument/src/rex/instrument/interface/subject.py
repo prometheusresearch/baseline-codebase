@@ -43,6 +43,10 @@ class Subject(Extension, Comparable, Displayable, Dictable):
         """
         Returns Subjects that match the specified criteria.
 
+        ``search_criteria`` for this method will (at a minimum) support:
+
+        * uid (partial matches)
+
         Must be implemented by concrete classes.
 
         :param offset:

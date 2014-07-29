@@ -177,8 +177,7 @@ class MyDraftInstrumentVersion(DraftInstrumentVersion):
             uid,
             MyInstrument.get_by_uid('fake_instrument_1iv'),
             'some_person',
-            {},
-            1,
+            datetime(2014, 5, 22),
         )
 
     @classmethod

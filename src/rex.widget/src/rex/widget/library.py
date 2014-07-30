@@ -102,6 +102,25 @@ class Tab(Widget):
     title   = Field(StrVal)
     content = Field(WidgetVal, default=NullWidget())
 
+
+class RadioButtonGroup(Widget):
+
+    name    = 'RadioButtonGroup'
+    js_type = 'rex-widget/lib/RadioButtonGroup'
+
+    options = Field(SeqVal)
+    layout  = Field(StrVal, default='vertical')
+
+
+class CheckboxGroup(Widget):
+
+    name    = 'CheckboxGroup'
+    js_type = 'rex-widget/lib/CheckboxGroup'
+
+    options = Field(SeqVal)
+    layout  = Field(StrVal, default='vertical')
+
+
 class List(Widget):
 
     name    = 'List'

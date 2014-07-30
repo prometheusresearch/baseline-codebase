@@ -13,7 +13,7 @@ from __future__ import absolute_import
 
 from .parse import WidgetVal
 from .library import LabelWidget, HeaderWidget, SectionWidget
-from .widget import Widget, Field, NullWidget, GroupWidget
+from .widget import Widget, NullWidget, GroupWidget, Field, StateField
 from .state import (
     EntityVal, CollectionVal, PaginatedCollectionVal,
     StateVal, State)

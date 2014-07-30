@@ -18,7 +18,8 @@ from rex.core import (
         ProxyVal, StrVal, cached)
 from rex.web import render_to_response
 from .state import (
-    State, StateDescriptor,
+    InitialValue,
+    State, StateVal, StateDescriptor,
     StateGraph, MutableStateGraph, compute, compute_update)
 from .jsval import JSValue
 
@@ -40,22 +41,65 @@ UIDescriptorChildren = namedtuple(
 
 class Field(object):
 
-    # we maintain _ord as a global counter which is used to assign ordering to
+    # we maintain order as a global counter which is used to assign ordering to
     # field instances
-    _ord = 1
+    order = 0
 
     def __new__(cls, *args, **kwargs):
-        cls._ord += 1
+        # increment global counter
+        cls.order += 1
         self = object.__new__(cls, *args, **kwargs)
-        self._ord = cls._ord
+        # assign current order value on an instance to define ordering between
+        # all Field instances
+        self.order = cls.order
         return self
 
     def __init__(self, validator, default=RecordField.NODEFAULT):
         self.validator = validator
         self.default = default
 
+        # TODO: remove lines below after state refactor
         if hasattr(validator, 'default'):
             self.default = validator.default
+
+    def to_record_field(self, name):
+        validator = self.validator
+        if isinstance(validator, type):
+            validator = validator()
+        return RecordField(name, validator, self.default)
+
+
+class StateField(Field):
+
+    def __init__(self, validator, computator=None, dependencies=None, default=RecordField.NODEFAULT):
+        super(StateField, self).__init__(validator, default=default)
+        self.computator = computator
+        self.dependencies = dependencies
+
+    def to_record_field(self, name):
+        default = self.default
+
+        validator = StateVal(
+                self.validator,
+                self.computator or InitialValue(self.default),
+                dependencies=self.dependencies)
+
+        if default is not RecordField.NODEFAULT:
+            default = validator(default)
+
+        return RecordField(name, validator, default)
+
+    def set_dependencies(self, dependencies):
+        self.dependencies = dependencies
+
+
+def state(validator, dependencies=None, default=RecordField.NODEFAULT):
+    def register_computator(computator):
+        return StateField(
+                validator, computator,
+                dependencies=dependencies,
+                default=default)
+    return register_computator
 
 
 class Widget(Extension):
@@ -70,22 +114,17 @@ class Widget(Extension):
         def __new__(mcls, name, bases, members):
             cls = Extension.__metaclass__.__new__(mcls, name, bases, members)
 
+            # collect all Field instances ordered by order attribute
             cls.fields = [
-                RecordField(name, field.validator, field.default)
+                field.to_record_field(name)
                 for name, field in sorted((
                     (name, field)
                     for name, field in members.items()
                     if isinstance(field, Field)),
-                    key=lambda (_, field): field._ord)
+                    key=lambda (_, field): field.order)
             ]
 
             return cls
-
-    @staticmethod
-    def state(dependencies=None):
-        def decorator(computator):
-            name = computator.__name__
-        return decorator
 
     @classmethod
     def enabled(cls):
@@ -132,8 +171,6 @@ class Widget(Extension):
                 raise TypeError("unknown field %r" % attr)
         # Assign field values.
         if len(args) != len(self.fields):
-            import ipdb
-            ipdb.set_trace()
             raise TypeError("expected %d arguments, got %d"
                             % (len(self.fields), len(args)))
         self.values = {}
@@ -166,8 +203,7 @@ class Widget(Extension):
                 props[name] = {"__reference__": value.reference}
 
             elif isinstance(value, StateDescriptor):
-                value_state = value.describe_state(self.id, name)
-                for prop_name, state_descriptor in value_state:
+                for prop_name, state_descriptor in value.describe_state(self, name):
                     state[state_descriptor.id] = state_descriptor
                     if state_descriptor.rw:
                         props[prop_name] = {"__state_read_write__": state_descriptor.id}
@@ -277,6 +313,7 @@ class NullWidget(Widget):
             cls.singleton = Widget.__new__(cls)
         return cls.singleton
 
+    @cached
     def descriptor(self):
         return WidgetDescriptor(None, StateGraph())
 

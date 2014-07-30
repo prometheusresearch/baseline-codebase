@@ -7,21 +7,16 @@
 
 """
 
-from rex.core import (
-        SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error, RecordVal, RecordField,
-        cached)
-from .widget import Widget, Field, NullWidget, iterate_widget
-from .state import (
-        state, dep, unknown, Reset,
-        CollectionVal, PaginatedCollectionVal,
-        StateVal, State, InRangeValue)
-from .jsval import JSVal
+from rex.core import SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error, RecordVal
+from .widget import Widget, Field, StateField, state, NullWidget, iterate_widget
+from .state import dep, unknown, Reset, CollectionVal, PaginatedCollectionVal
 from .parse import WidgetVal
+from .jsval import JSVal
 
 
 class LabelWidget(Widget):
 
-    name = 'Label'
+    name    = 'Label'
     js_type = 'rex-widget/lib/Label'
 
     text = Field(UStrVal)
@@ -29,7 +24,7 @@ class LabelWidget(Widget):
 
 class HeaderWidget(Widget):
 
-    name = 'Header'
+    name    = 'Header'
     js_type = 'rex-widget/lib/Header'
 
     text = Field(UStrVal)
@@ -37,14 +32,15 @@ class HeaderWidget(Widget):
 
 class SectionWidget(Widget):
 
-    name = 'Section'
+    name    = 'Section'
     js_type = 'rex-widget/lib/Section'
+
     content = Field(WidgetVal, default=NullWidget())
 
 
 class LinkWidget(Widget):
 
-    name = 'Link'
+    name    = 'Link'
     js_type = 'rex-widget/lib/Link'
 
     url     = Field(StrVal)
@@ -53,7 +49,7 @@ class LinkWidget(Widget):
 
 class Panel(Widget):
 
-    name = 'Panel'
+    name    = 'Panel'
     js_type = 'rex-widget/lib/Panel'
 
     title           = Field(StrVal)
@@ -64,32 +60,32 @@ class Panel(Widget):
 
 class List(Widget):
 
-    name = 'List'
+    name    = 'List'
     js_type = 'rex-widget/lib/List'
 
     id              = Field(StrVal)
     data            = Field(CollectionVal)
     selectable      = Field(BoolVal)
-    selected        = Field(StateVal(IntVal, default=None))
+    selected        = StateField(IntVal, default=None)
     item_renderer   = Field(JSVal, default=None)
 
 
 class TableWidget(Widget):
 
-    name = 'Table'
+    name    = 'Table'
     js_type = 'rex-widget/lib/Table'
 
     id          = Field(StrVal)
     data        = Field(CollectionVal)
     columns     = Field(SeqVal)
     selectable  = Field(BoolVal, default=False)
-    selected    = Field(StateVal(StrVal, default=None))
-    
+    selected    = StateField(StrVal, default=None)
+
 
 
 class TwoColumnLayoutWidget(Widget):
 
-    name = 'TwoColumnLayout'
+    name    = 'TwoColumnLayout'
     js_type = 'rex-widget/lib/TwoColumnLayout'
 
     sidebar         = Field(WidgetVal, default=NullWidget())
@@ -99,28 +95,41 @@ class TwoColumnLayoutWidget(Widget):
 
 class SelectWidget(Widget):
 
-    name = 'Select'
+    name    = 'Select'
     js_type = 'rex-widget/lib/Select'
 
     id      = Field(StrVal)
     data    = Field(CollectionVal, None)
-    value   = Field(StateVal(IntVal,
-                computator=InRangeValue(None, source='data'),
-                dependencies=['data'], default=None))
+
+    @state(IntVal, dependencies=['data'], default=None)
+    def value(self, state, graph, dirty=None):
+        if state.value is unknown:
+            return Reset(None)
+
+        data = '%s.data' % self.id
+
+        # if data is marked as dirty we need to check if current value is
+        # still valid and reset it otherwise
+        if state.value is not None and data in dirty:
+            options = [option['id'] for option in graph[data]["data"]]
+            if state.value not in options:
+                return Reset(None)
+
+        return state.value
 
 
 class TextInputWidget(Widget):
 
-    name = 'TextInput'
+    name    = 'TextInput'
     js_type = 'rex-widget/lib/TextInput'
 
     id      = Field(StrVal)
-    value   = Field(StateVal(StrVal, default=None))
+    value   = StateField(StrVal, default=None)
 
 
 class FilterWidget(Widget):
 
-    name = 'Filter'
+    name    = 'Filter'
     js_type = 'rex-widget/lib/Filter'
 
     title   = Field(StrVal)
@@ -143,47 +152,33 @@ class FiltersWidget(Widget):
         self.refs = {
             w.filter.id: "%s.value" % w.filter.id
             for w in iterate_widget(self.filters)}
-        self.dependencies = [
-            dep(id, reset_only=True)
-            for id in self.refs.values()]
 
-    @cached
-    def descriptor(self):
-        descriptor = super(FiltersWidget, self).descriptor()
-
-        state_id = "%s.value" % self.id
-
-        props = dict(descriptor.ui.props)
-        props["value"] = {"__state_read_write__": state_id}
-
-        st = state(state_id, self.computator, dependencies=self.dependencies, rw=True)
-
-        return descriptor._replace(
-            ui=descriptor.ui._replace(props=props),
-            state=descriptor.state.merge({state_id: st})
-        )
-
-    def computator(self, state, graph, dirty=None):
+    @state(IntVal, default=None)
+    def value(self, state, graph, dirty=None):
         if state.value is unknown or (set(self.refs.values()) & dirty):
             return Reset({k: graph[dep] for k, dep in self.refs.items()})
 
         return state.value
 
+    @value.set_dependencies
+    def value_dependencies(self):
+        return [dep(id, reset_only=True) for id in self.refs.values()]
+
 
 class GridWidget(Widget):
 
-    name = 'Grid'
+    name    = 'Grid'
     js_type = 'rex-widget/lib/Grid'
 
     id          = Field(StrVal)
     data        = Field(PaginatedCollectionVal(include_meta=True))
     selectable  = Field(BoolVal, False)
-    selected    = Field(StateVal(IntVal, default=None))
+    selected    = StateField(IntVal, default=None)
 
 
 class BarChart(Widget):
 
-    name = 'BarChart'
+    name    = 'BarChart'
     js_type = 'rex-widget/lib/BarChart'
 
     id      = Field(StrVal)

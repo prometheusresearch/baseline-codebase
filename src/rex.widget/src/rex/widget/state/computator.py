@@ -33,7 +33,7 @@ class InitialValue(object):
         self.initial_value = initial_value
         self.reset_on_changes = reset_on_changes
 
-    def __call__(self, state, graph, dirty=None):
+    def __call__(self, widget, state, graph, dirty=None):
         if state.value is unknown:
             return Reset(self.initial_value)
         if self.reset_on_changes and (set(d.id for d in state.dependencies) & dirty):
@@ -47,7 +47,7 @@ class InRangeValue(object):
         self.initial_value = initial_value
         self.source = source
 
-    def __call__(self, state, graph, dirty=None):
+    def __call__(self, widget, state, graph, dirty=None):
         source = state.id.split('.')[0] + '.' + self.source
 
         if state.value is unknown:
@@ -71,7 +71,7 @@ class AggregatedValue(object):
     def initial_value(self, graph):
         return {k: graph[dep] for k, dep in self.aggregation.items()}
 
-    def __call__(self, state, graph, dirty=None):
+    def __call__(self, widget, state, graph, dirty=None):
         if dirty is None:
             return self.initial_value(graph)
 
@@ -159,7 +159,7 @@ class DataComputator(object):
             raise NotImplementedError(
                     "Unknown data reference: %s" % self.route)
 
-    def __call__(self, state, graph, dirty=None):
+    def __call__(self, widget, state, graph, dirty=None):
         handler = route(self.route)
 
         if handler is None:

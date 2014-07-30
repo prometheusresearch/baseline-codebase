@@ -128,7 +128,7 @@ class StateGraphComputation(Mapping):
     def compute(self, id):
         st = self.input[id]
         log.debug('computing: %s', id)
-        value = st.computator(st, self, dirty=self.visited)
+        value = st.computator(st.widget, st, self, dirty=self.visited)
         self.visited.add(id)
         if isinstance(value, Reset):
             value = value.value
@@ -147,7 +147,7 @@ class StateGraphComputation(Mapping):
             return self.output.get_value(ref)
 
         if not ref.id in self.input:
-            raise Error('invalid reference: %s' % ref)
+            raise Error('invalid reference: %s' % (ref,))
 
         self.compute(ref.id)
 
@@ -168,7 +168,7 @@ def _merge_state_into(dst, src):
 
 State = namedtuple(
         'State',
-        ['id', 'computator', 'validator', 'value', 'dependencies', 'rw'])
+        ['id', 'widget', 'computator', 'validator', 'value', 'dependencies', 'rw'])
 
 
 Dep = namedtuple(
@@ -189,7 +189,7 @@ def dep(id, reset_only=False):
     return Dep(id=id, reset_only=reset_only)
 
 
-def state(id, computator, validator=AnyVal, value=unknown, dependencies=None, rw=False):
+def state(id, widget, computator, validator=AnyVal, value=unknown, dependencies=None, rw=False):
     if dependencies is None:
         dependencies = []
     dependencies = [
@@ -198,6 +198,7 @@ def state(id, computator, validator=AnyVal, value=unknown, dependencies=None, rw
     ]
     return State(
         id=id,
+        widget=widget,
         computator=computator,
         validator=validator,
         value=value,

@@ -38,6 +38,26 @@ UIDescriptorChildren = namedtuple(
         ['children'])
 
 
+class Field(object):
+
+    # we maintain _ord as a global counter which is used to assign ordering to
+    # field instances
+    _ord = 1
+
+    def __new__(cls, *args, **kwargs):
+        cls._ord += 1
+        self = object.__new__(cls, *args, **kwargs)
+        self._ord = cls._ord
+        return self
+
+    def __init__(self, validator, default=RecordField.NODEFAULT):
+        self.validator = validator
+        self.default = default
+
+        if hasattr(validator, 'default'):
+            self.default = validator.default
+
+
 class Widget(Extension):
 
     name = None
@@ -49,20 +69,15 @@ class Widget(Extension):
 
         def __new__(mcls, name, bases, members):
             cls = Extension.__metaclass__.__new__(mcls, name, bases, members)
-            if 'fields' in members:
-                fields = []
-                for field in cls.fields:
-                    if len(field) == 3:
-                        fields.append(RecordField(*field))
-                    elif len(field) == 2:
-                        name, validator = field
-                        if hasattr(validator, 'default'):
-                            fields.append(RecordField(
-                                name, validator, validator.default))
-                        else:
-                            fields.append(RecordField(name, validator))
 
-                cls.fields = fields
+            cls.fields = [
+                RecordField(name, field.validator, field.default)
+                for name, field in sorted((
+                    (name, field)
+                    for name, field in members.items()
+                    if isinstance(field, Field)),
+                    key=lambda (_, field): field._ord)
+            ]
 
             return cls
 
@@ -117,6 +132,8 @@ class Widget(Extension):
                 raise TypeError("unknown field %r" % attr)
         # Assign field values.
         if len(args) != len(self.fields):
+            import ipdb
+            ipdb.set_trace()
             raise TypeError("expected %d arguments, got %d"
                             % (len(self.fields), len(args)))
         self.values = {}
@@ -236,9 +253,7 @@ class Widget(Extension):
 
 class GroupWidget(Widget):
 
-    fields = [
-            ('children', Widget.validate),
-    ]
+    children = Field(Widget.validate)
 
     @cached
     def descriptor(self):

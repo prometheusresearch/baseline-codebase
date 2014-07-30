@@ -101,11 +101,12 @@ class WidgetVal(Validate):
         widget_class = widget_classes[name]
         field_by_name = dict((field.name, field)
                              for field in widget_class.fields)
+        fields_with_no_defaults = [f for f in widget_class.fields if not f.has_default]
         values = {}
         for key_node, value_node in pairs:
             if key_node is None:
-                if len(widget_class.fields) == 1:
-                    name = widget_class.fields[0].name
+                if len(fields_with_no_defaults) == 1:
+                    name = fields_with_no_defaults[0].name
                     key_node = node
                 else:
                     error = Error("Expected a mapping")

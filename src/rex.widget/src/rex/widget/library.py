@@ -10,7 +10,7 @@
 from rex.core import (
         SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error, RecordVal, RecordField,
         cached)
-from .widget import Widget, NullWidget, iterate_widget
+from .widget import Widget, Field, NullWidget, iterate_widget
 from .state import (
         state, dep, unknown, Reset,
         CollectionVal, PaginatedCollectionVal,
@@ -23,75 +23,68 @@ class LabelWidget(Widget):
 
     name = 'Label'
     js_type = 'rex-widget/lib/Label'
-    fields = [
-            ('text', UStrVal),
-    ]
+
+    text = Field(UStrVal)
 
 
 class HeaderWidget(Widget):
 
     name = 'Header'
     js_type = 'rex-widget/lib/Header'
-    fields = [
-            ('text', UStrVal),
-    ]
+
+    text = Field(UStrVal)
 
 
 class SectionWidget(Widget):
 
     name = 'Section'
     js_type = 'rex-widget/lib/Section'
-    fields = [
-        ('content', WidgetVal, NullWidget())
-    ]
+    content = Field(WidgetVal, default=NullWidget())
 
 
 class LinkWidget(Widget):
 
     name = 'Link'
     js_type = 'rex-widget/lib/Link'
-    fields = [
-        ('url', StrVal),
-        ('text', UStrVal, None),
-    ]
+
+    url     = Field(StrVal)
+    text    = Field(UStrVal, default=None)
 
 
 class Panel(Widget):
 
     name = 'Panel'
     js_type = 'rex-widget/lib/Panel'
-    fields = [
-        ('title', StrVal),
-        ('header_toolbar', WidgetVal, NullWidget()),
-        ('footer_toolbar', WidgetVal, NullWidget()),
-        ('children', WidgetVal, NullWidget()),
-    ]
+
+    title           = Field(StrVal)
+    children        = Field(WidgetVal, default=NullWidget())
+    header_toolbar  = Field(WidgetVal, default=NullWidget())
+    footer_toolbar  = Field(WidgetVal, default=NullWidget())
 
 
 class List(Widget):
 
     name = 'List'
     js_type = 'rex-widget/lib/List'
-    fields = [
-        ('id', StrVal),
-        ('data', CollectionVal),
-        ('selectable', BoolVal, False),
-        ('selected', StateVal(IntVal, default=None)),
-        ('item_renderer', JSVal, None),
-    ]
+
+    id              = Field(StrVal)
+    data            = Field(CollectionVal)
+    selectable      = Field(BoolVal)
+    selected        = Field(StateVal(IntVal, default=None))
+    item_renderer   = Field(JSVal, default=None)
 
 
 class TableWidget(Widget):
 
     name = 'Table'
     js_type = 'rex-widget/lib/Table'
-    fields = [
-        ('id', StrVal),
-        ('data', CollectionVal),
-        ('columns', SeqVal),
-        ('selectable', BoolVal, False),
-        ('selected', StateVal(StrVal, default=None)),
-    ]
+
+    id          = Field(StrVal)
+    data        = Field(CollectionVal)
+    columns     = Field(SeqVal)
+    selectable  = Field(BoolVal, default=False)
+    selected    = Field(StateVal(StrVal, default=None))
+    
 
 
 class TwoColumnLayoutWidget(Widget):
@@ -99,11 +92,9 @@ class TwoColumnLayoutWidget(Widget):
     name = 'TwoColumnLayout'
     js_type = 'rex-widget/lib/TwoColumnLayout'
 
-    fields = [
-            ('sidebar', WidgetVal, NullWidget()),
-            ('main', WidgetVal, NullWidget()),
-            ('sidebar_width', IntVal, 3),
-    ]
+    sidebar         = Field(WidgetVal, default=NullWidget())
+    main            = Field(WidgetVal, default=NullWidget())
+    sidebar_width   = Field(IntVal, default=3)
 
 
 class SelectWidget(Widget):
@@ -111,13 +102,11 @@ class SelectWidget(Widget):
     name = 'Select'
     js_type = 'rex-widget/lib/Select'
 
-    fields = [
-        ('id', StrVal),
-        ('data', CollectionVal, None),
-        ('value', StateVal(IntVal,
-            computator=InRangeValue(None, source='data'),
-            dependencies=['data'], default=None)),
-    ]
+    id      = Field(StrVal)
+    data    = Field(CollectionVal, None)
+    value   = Field(StateVal(IntVal,
+                computator=InRangeValue(None, source='data'),
+                dependencies=['data'], default=None))
 
 
 class TextInputWidget(Widget):
@@ -125,10 +114,8 @@ class TextInputWidget(Widget):
     name = 'TextInput'
     js_type = 'rex-widget/lib/TextInput'
 
-    fields = [
-        ('id', StrVal),
-        ('value', StateVal(StrVal, default=None)),
-    ]
+    id      = Field(StrVal)
+    value   = Field(StateVal(StrVal, default=None))
 
 
 class FilterWidget(Widget):
@@ -136,10 +123,8 @@ class FilterWidget(Widget):
     name = 'Filter'
     js_type = 'rex-widget/lib/Filter'
 
-    fields = [
-        ('title', StrVal),
-        ('filter', WidgetVal)
-    ]
+    title   = Field(StrVal)
+    filter  = Field(WidgetVal)
 
 
 class FiltersWidget(Widget):
@@ -147,13 +132,11 @@ class FiltersWidget(Widget):
     name = 'Filters'
     js_type = 'rex-widget/lib/Filters'
 
-    fields = [
-        ('id', StrVal),
-        ('title', StrVal, 'Filters'),
-        ('filters', WidgetVal, NullWidget()),
-        ('show_apply_button', BoolVal, True),
-        ('show_clear_button', BoolVal, True),
-    ]
+    id                  = Field(StrVal)
+    title               = Field(StrVal, default='Filters')
+    filters             = Field(WidgetVal, default=NullWidget())
+    show_apply_button   = Field(BoolVal, default=True)
+    show_clear_button   = Field(BoolVal, default=True)
 
     def __init__(self, *args, **kwargs):
         super(FiltersWidget, self).__init__(*args, **kwargs)
@@ -192,12 +175,10 @@ class GridWidget(Widget):
     name = 'Grid'
     js_type = 'rex-widget/lib/Grid'
 
-    fields = [
-        ('id', StrVal),
-        ('data', PaginatedCollectionVal(include_meta=True)),
-        ('selectable', BoolVal, False),
-        ('selected', StateVal(IntVal, default=None)),
-    ]
+    id          = Field(StrVal)
+    data        = Field(PaginatedCollectionVal(include_meta=True))
+    selectable  = Field(BoolVal, False)
+    selected    = Field(StateVal(IntVal, default=None))
 
 
 class BarChart(Widget):
@@ -205,7 +186,5 @@ class BarChart(Widget):
     name = 'BarChart'
     js_type = 'rex-widget/lib/BarChart'
 
-    fields = [
-        ('id', StrVal),
-        ('data', CollectionVal(include_meta=True)),
-    ]
+    id      = Field(StrVal)
+    data    = Field(CollectionVal(include_meta=True))

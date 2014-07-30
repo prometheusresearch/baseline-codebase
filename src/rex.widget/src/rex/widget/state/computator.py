@@ -41,46 +41,6 @@ class InitialValue(object):
         return state.value
 
 
-class InRangeValue(object):
-
-    def __init__(self, initial_value, source=None):
-        self.initial_value = initial_value
-        self.source = source
-
-    def __call__(self, widget, state, graph, dirty=None):
-        source = state.id.split('.')[0] + '.' + self.source
-
-        if state.value is unknown:
-            return Reset(self.initial_value)
-
-        # if data source is marked as dirty we need to check if current value is
-        # still valid and reset it otherwise
-        if state.value is not None and source in dirty:
-            options = [option['id'] for option in graph[source]["data"]]
-            if state.value not in options:
-                return Reset(self.initial_value)
-
-        return state.value
-
-
-class AggregatedValue(object):
-
-    def __init__(self, aggregation):
-        self.aggregation = aggregation
-
-    def initial_value(self, graph):
-        return {k: graph[dep] for k, dep in self.aggregation.items()}
-
-    def __call__(self, widget, state, graph, dirty=None):
-        if dirty is None:
-            return self.initial_value(graph)
-
-        if set(self.aggregation.values()) & dirty:
-            return self.initial_value(graph)
-
-        return state.value
-
-
 class DataComputator(object):
     """ An abstract base class for state computators which fetch their state
     from database."""

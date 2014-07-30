@@ -11,8 +11,49 @@ import pytest
 
 from rex.widget.state import (
         MutableStateGraph, dep,
-        compute, compute_update,
-        InRangeValue, AggregatedValue)
+        compute, compute_update, unknown, Reset)
+
+
+class InRangeValue(object):
+
+    def __init__(self, initial_value, source=None):
+        self.initial_value = initial_value
+        self.source = source
+
+    def __call__(self, widget, state, graph, dirty=None):
+        source = state.id.split('.')[0] + '.' + self.source
+
+        if state.value is unknown:
+            return Reset(self.initial_value)
+
+        # if data source is marked as dirty we need to check if current value is
+        # still valid and reset it otherwise
+        if state.value is not None and source in dirty:
+            options = [option['id'] for option in graph[source]["data"]]
+            if state.value not in options:
+                return Reset(self.initial_value)
+
+        return state.value
+
+
+
+class AggregatedValue(object):
+
+    def __init__(self, aggregation):
+        self.aggregation = aggregation
+
+    def initial_value(self, graph):
+        return {k: graph[dep] for k, dep in self.aggregation.items()}
+
+    def __call__(self, widget, state, graph, dirty=None):
+        if dirty is None:
+            return self.initial_value(graph)
+
+        if set(self.aggregation.values()) & dirty:
+            return self.initial_value(graph)
+
+        return state.value
+
 
 class DummyData(object):
     """ Mimics DataComputator but does nothing except returning params."""
@@ -20,7 +61,7 @@ class DummyData(object):
     def __init__(self, refs=None):
         self.refs = refs or {}
 
-    def __call__(self, state, graph, dirty):
+    def __call__(self, widget, state, graph, dirty):
         params = {name: graph[ref] for name, ref in self.refs.items()}
         return {"params": params}
 
@@ -28,7 +69,7 @@ class DummyData(object):
 class ReviewerData(object):
     """ Mimics DataComputator but does nothing except returning params."""
 
-    def __call__(self, state, graph, dirty):
+    def __call__(self, widget, state, graph, dirty):
         return {"data": [
             {"id": 1},
             {"id": 2},
@@ -40,7 +81,7 @@ class ReviewerYearData(object):
     reviewer1 = [2001, 2002]
     reviewer2 = [2002, 2003]
 
-    def __call__(self, state, graph, dirty):
+    def __call__(self, widget, state, graph, dirty):
         reviewer = graph['reviewer.value']
         if reviewer == 1:
             return {"data": [{"id": year} for year in self.reviewer1]}
@@ -55,23 +96,28 @@ def prepare_state():
 
     # select box
     g.add('reviewer.data',
+        None,
         ReviewerData())
     g.add('reviewer.value',
+        None,
         InRangeValue(None, source='data'),
         dependencies=['reviewer.data'],
         rw=True)
 
     # select box which depends on reviewer.value
     g.add('reviewerYear.data',
+        None,
         ReviewerYearData(),
         dependencies=['reviewer.value'])
     g.add('reviewerYear.value',
+        None,
         InRangeValue(None, source='data'),
         dependencies=['reviewerYear.data'],
         rw=True)
 
     # filter which depends on both select boxes
     g.add('reviewerFilter.value',
+        None,
         AggregatedValue({
             'reviewer': 'reviewer.value',
             'reviewerYear': 'reviewerYear.value'
@@ -84,6 +130,7 @@ def prepare_state():
 
     # dataset which depends on filter
     g.add('reviewerStatistics.data',
+        None,
         DummyData({
             'reviewer': 'reviewerFilter.value:reviewer',
             'reviewerYear': 'reviewerFilter.value:reviewerYear'

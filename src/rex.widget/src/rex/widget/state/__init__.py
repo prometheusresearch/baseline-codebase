@@ -15,5 +15,4 @@ from .graph import (
     State, state,
     Dep, dep, Reset,
     compute, compute_update, unknown)
-from .computator import (
-    InitialValue, InRangeValue, AggregatedValue)
+from .computator import InitialValue

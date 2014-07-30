@@ -131,7 +131,11 @@ class DataComputator(object):
 class CollectionComputator(DataComputator):
 
     def fetch(self, handler, graph, dirty):
-        params = {name: graph[ref] for name, ref in self.refs.items()}
+        params = {}
+        for name, ref in self.refs.items():
+            value = graph[ref]
+            if value is not None:
+                params[name] = value
         return self.execute_handler(handler, params)
 
 

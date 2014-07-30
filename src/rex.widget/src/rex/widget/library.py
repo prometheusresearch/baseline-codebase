@@ -16,6 +16,32 @@ from .parse import WidgetVal
 from .jsval import JSVal
 
 
+class Container(Widget):
+
+    name        = 'Container'
+    js_type     = 'rex-widget/lib/Container'
+
+    rows        = Field(WidgetVal, default=NullWidget())
+
+
+class Row(Widget):
+
+    name        = 'Row'
+    js_type     = 'rex-widget/lib/Row'
+
+    columns     = Field(WidgetVal, default=NullWidget())
+    height      = Field(IntVal, default=NullWidget())
+
+
+class Column(Widget):
+
+    name        = 'Column'
+    js_type     = 'rex-widget/lib/Column'
+
+    children    = Field(WidgetVal, default=NullWidget())
+    width       = Field(IntVal, default=NullWidget())
+
+
 class LabelWidget(Widget):
 
     name    = 'Label'
@@ -59,6 +85,22 @@ class Panel(Widget):
     header_toolbar  = Field(WidgetVal, default=NullWidget())
     footer_toolbar  = Field(WidgetVal, default=NullWidget())
 
+
+class Tabs(Widget):
+
+    name    = 'Tabs'
+    js_type = 'rex-widget/lib/Tabs'
+
+    tabs    = Field(WidgetVal, default=NullWidget())
+
+
+class Tabs(Widget):
+
+    name    = 'Tab'
+    js_type = 'rex-widget/lib/Tab'
+
+    title   = Field(StrVal)
+    content = Field(WidgetVal, default=NullWidget())
 
 class List(Widget):
 

@@ -185,8 +185,15 @@ class PaginatedCollectionComputator(DataComputator):
             and list(dirty)[0] == self.pagination_state_id
         )
 
-        params = {name: graph[ref] for name, ref in self.refs.items()}
+        params = {}
+        for name, ref in self.refs.items():
+            value = graph[ref]
+            if value is not None:
+                params[name] = value
+
+        # patch "top" so we can see if we have more data than we need now
         params["top"] = params["top"] + 1
+
         data = self.execute_handler(handler, params)
 
         if len(data["data"]) == params["top"]:

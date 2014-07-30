@@ -47,12 +47,12 @@ class SimpleStateDescriptor(StateDescriptor):
     def describe_state(self, widget, field_name):
         state_id = "%s.%s" % (widget.id, field_name)
 
-        dependencies = self.dependencies
-        if hasattr(dependencies, '__call__'):
-            dependencies = dependencies(widget)
-
-        dependencies = [d if isinstance(d, Dep) else dep(d) for d in dependencies]
-        dependencies = [d._replace(id="%s.%s" % (widget.id, d.id)) if not '.' in d.id else d for d in dependencies]
+        dependencies = [
+            absolutize_dep(d if isinstance(d, Dep) else dep(d), widget.id)
+            for d in (
+                self.dependencies(widget)
+                if hasattr(self.dependencies, '__call__')
+                else self.dependencies)]
 
         st = state(
                 state_id,
@@ -61,7 +61,16 @@ class SimpleStateDescriptor(StateDescriptor):
                 validator=self.validator,
                 dependencies=dependencies,
                 rw=True)
+
         return [(field_name, st)]
+
+
+def absolutize_dep(dep, widget_id):
+    """ Convert dependency ``dep`` from relative to absolute reference."""
+    if '.' in dep.id:
+        return dep
+    else:
+        return dep._replace(id="%s.%s" % (widget_id, dep.id))
 
 
 class DataDescriptor(StateDescriptor):

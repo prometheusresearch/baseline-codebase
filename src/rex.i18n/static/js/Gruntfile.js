@@ -36,7 +36,8 @@ module.exports = function (grunt) {
       project: {
         src: [
           'Gruntfile.js',
-          'karma.conf.js'
+          'karma.conf.js',
+          'webpack.config.js'
         ],
 
         options: {

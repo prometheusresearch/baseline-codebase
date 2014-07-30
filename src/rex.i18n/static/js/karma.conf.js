@@ -1,4 +1,4 @@
-var rexSetup = require('rex-setup');
+var webpackConfig = require('./webpack.config.js');
 
 module.exports = function (config) {
   'use strict';
@@ -16,15 +16,7 @@ module.exports = function (config) {
     preprocessors: {
       'test/**/*_spec.js': ['webpack']
     },
-    webpack: rexSetup.configureWebpack({
-      resolve: {
-        alias: {
-          'cldr': 'cldrjs',
-          'cldrjs/event': 'cldrjs/dist/cldr/event',
-          'cldrjs/supplemental': 'cldrjs/dist/cldr/supplemental'
-        }
-      }
-    }),
+    webpack: webpackConfig,
     reporters: ['progress'],
     port: 9876,
     colors: true,

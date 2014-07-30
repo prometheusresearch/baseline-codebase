@@ -8,11 +8,11 @@
 """
 
 from collections import namedtuple
-from rex.core import Validate, Error, RecordField
+from rex.core import Validate, Error
 from .computator import (
         CollectionComputator, EntityComputator, PaginatedCollectionComputator,
         InitialValue)
-from .graph import state, dep, Dep
+from .graph import state, dep, Dep, unknown
 from .reference import parse_ref
 
 
@@ -36,13 +36,14 @@ class StateDescriptor(object):
 
 class SimpleStateDescriptor(StateDescriptor):
 
-    def __init__(self, computator=None, validator=None, dependencies=None):
+    def __init__(self, computator=None, validator=None, value=unknown, dependencies=None):
         if dependencies is None:
             dependencies = []
 
         self.computator = computator
         self.dependencies = dependencies
         self.validator = validator
+        self.value = value
 
     def describe_state(self, widget, field_name):
         state_id = "%s.%s" % (widget.id, field_name)
@@ -59,6 +60,7 @@ class SimpleStateDescriptor(StateDescriptor):
                 widget,
                 computator=self.computator,
                 validator=self.validator,
+                value=self.value,
                 dependencies=dependencies,
                 rw=True)
 
@@ -143,11 +145,15 @@ class StateVal(Validate):
         self.computator = computator
         self.dependencies = dependencies or []
 
-    def __call__(self, data):
+    def descriptor(self, value):
         return SimpleStateDescriptor(
             validator=self.validator,
             computator=self.computator,
+            value=value,
             dependencies=self.dependencies)
+
+    def __call__(self, data):
+        return self.descriptor(self.validator(data))
 
 
 class DataVal(Validate):

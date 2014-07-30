@@ -58,6 +58,10 @@ class StateGraph(Mapping):
             if value is unknown:
                 raise LookupError("value %s is unknown" % (ref,))
             for part in ref.path:
+                if value is None:
+                    raise LookupError(
+                        "cannot dereference '%s' reference with value '%r'" % (
+                        ref, self.storage[ref.id].value))
                 value = value[part]
         except KeyError:
             if ref.id in self.storage:
@@ -241,7 +245,7 @@ def compute_update(graph, origins):
 def cause_effect_sort(graph, ids):
     """ Sort ``ids`` topologically according to ``graph`` to respect
     cause-effect relationship."""
-    sorted = []
+    result = []
     seen = set()
 
     # start with states which have no deps
@@ -263,7 +267,7 @@ def cause_effect_sort(graph, ids):
         # mark it as seen and append to the result
         seen.add(c.id)
         if c.id in ids:
-            sorted.append(c.id)
+            result.append(c.id)
 
         # proceed with states which depend on the current state
         dependents = [graph[d.id]
@@ -272,4 +276,4 @@ def cause_effect_sort(graph, ids):
         if dependents:
             queue = dependents + queue
 
-    return sorted
+    return result

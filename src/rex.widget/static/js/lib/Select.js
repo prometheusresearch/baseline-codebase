@@ -23,7 +23,8 @@ var Select = React.createClass({
   render: function() {
     var empty = this.props.emptyValue;
     var value = this.props.value;
-    var options = this.props.options.concat(this.props.data.data);
+    var options = this.props.options ? this.props.options : [];
+    var data = this.props.data ? this.props.data.data : [];
 
     if (value === undefined || value === null) {
       value = sentinel;
@@ -32,7 +33,7 @@ var Select = React.createClass({
     return this.transferPropsTo(
       <select className="rex-widget-Select" value={value} onChange={this.onChange}>
         {empty && <option key={sentinel} value={sentinel}>{empty.title}</option>}
-        {options.map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
+        {options.concat(data).map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
       </select>
     );
   },

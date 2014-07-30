@@ -16,12 +16,14 @@ var List = React.createClass({
       PropTypes.string,
       PropTypes.number
       ]),
+    items: PropTypes.array,
+    selectable: PropTypes.bool,
     onSelected: PropTypes.func,
     itemRenderer: PropTypes.func
   },
 
   render: function() {
-    if (this.props.data.updating) {
+    if (this.props.data && this.props.data.updating) {
       return <Preloader />;
     }
     var items = this.renderItems();
@@ -33,8 +35,11 @@ var List = React.createClass({
   },
 
   renderItems: function() {
+    var dataItems = this.props.data ? this.props.data.data : [];
+    var items = this.props.items ? this.props.items : [];
+
     var renderer = this.props.itemRenderer || itemRenderer;
-    return this.props.data.data.map((item) => {
+    return items.concat(dataItems).map((item) => {
       var selected = this.props.selected === item.id;
       var selectable = this.props.selectable;
       var className = cx({
@@ -54,8 +59,7 @@ var List = React.createClass({
 });
 
 function itemRenderer(item) {
-  console.log(item);
-  return item.code;
+  return item.title;
 }
 
 module.exports = List;

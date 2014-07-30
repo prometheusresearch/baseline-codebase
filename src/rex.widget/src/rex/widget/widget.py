@@ -14,11 +14,11 @@ from collections import namedtuple
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 from rex.core import (
-        AnyVal, Error, Extension, RecordField,
+        MaybeVal, AnyVal, Error, Extension, RecordField,
         ProxyVal, StrVal, cached)
 from rex.web import render_to_response
 from .state import (
-    InitialValue,
+    InitialValue, unknown,
     State, StateVal, StateDescriptor,
     StateGraph, MutableStateGraph, compute, compute_update)
 from .jsval import JSValue
@@ -77,11 +77,11 @@ class StateField(Field):
         self.dependencies = dependencies
 
     def to_record_field(self, name):
-        default = self.default
+        default = unknown if self.default is RecordField.NODEFAULT else self.default
 
         validator = StateVal(
-                self.validator,
-                self.computator or InitialValue(self.default),
+                MaybeVal(self.validator),
+                self.computator or InitialValue(default),
                 dependencies=self.dependencies)
 
         if default is not RecordField.NODEFAULT:

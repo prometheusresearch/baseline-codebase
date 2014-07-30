@@ -7,7 +7,9 @@
 
 """
 
-from rex.core import SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error, RecordVal
+from rex.core import (
+        AnyVal, OneOfVal, SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error,
+        RecordVal)
 from .widget import Widget, Field, StateField, state, NullWidget, iterate_widget
 from .state import dep, unknown, Reset, CollectionVal, PaginatedCollectionVal
 from .parse import WidgetVal
@@ -64,9 +66,10 @@ class List(Widget):
     js_type = 'rex-widget/lib/List'
 
     id              = Field(StrVal)
-    data            = Field(CollectionVal)
-    selectable      = Field(BoolVal)
-    selected        = StateField(IntVal, default=None)
+    data            = Field(CollectionVal, default=None)
+    items           = Field(SeqVal, default=None)
+    selectable      = Field(BoolVal, default=False)
+    selected        = StateField(OneOfVal(IntVal(), StrVal()), default=None)
     item_renderer   = Field(JSVal, default=None)
 
 
@@ -99,9 +102,10 @@ class SelectWidget(Widget):
     js_type = 'rex-widget/lib/Select'
 
     id      = Field(StrVal)
-    data    = Field(CollectionVal, None)
+    options = Field(SeqVal, default=None)
+    data    = Field(CollectionVal, default=None)
 
-    @state(IntVal, dependencies=['data'], default=None)
+    @state(OneOfVal(IntVal(), StrVal()), default=None)
     def value(self, state, graph, dirty=None):
         if state.value is unknown:
             return Reset(None)
@@ -116,6 +120,10 @@ class SelectWidget(Widget):
                 return Reset(None)
 
         return state.value
+
+    @value.set_dependencies
+    def value_dependencies(self):
+        return ['data'] if self.data is not None else []
 
 
 class TextInputWidget(Widget):
@@ -153,7 +161,7 @@ class FiltersWidget(Widget):
             w.filter.id: "%s.value" % w.filter.id
             for w in iterate_widget(self.filters)}
 
-    @state(IntVal, default=None)
+    @state(AnyVal)
     def value(self, state, graph, dirty=None):
         if state.value is unknown or (set(self.refs.values()) & dirty):
             return Reset({k: graph[dep] for k, dep in self.refs.items()})

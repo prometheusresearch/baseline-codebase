@@ -171,7 +171,6 @@ method can then be used to merge the Assessment Data in the Entries together::
     ...         }
     ...     }
     ... }
-
     >>> instrument = Instrument('fake123', 'My Instrument Title')
     >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> assessment = Assessment('fake123', subject, iv, DATA)
@@ -181,10 +180,23 @@ method can then be used to merge the Assessment Data in the Entries together::
     >>> entry3 = Entry('entry555', assessment, Entry.TYPE_PRELIMINARY, DATA, 'jim', datetime(2014, 5, 22, 12, 34, 56))
     >>> entries = [entry1, entry2, entry3]
 
+Identical Entries should yield no discrepancies and a solution that is
+equivalent to the Entries' data::
+
     >>> task.get_discrepancies(entries=entries)
     {}
     >>> task.solve_discrepancies({}, entries=entries)
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+
+Only given one Entry, it should yield no discrepancies and a solution that is
+equivalent to the one Entry's data::
+
+    >>> task.get_discrepancies(entries=[entry1])
+    {}
+    >>> task.solve_discrepancies({}, entries=[entry1])
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+
+One entry with a different value should be spotted and solved appropriately::
 
     >>> entry3.data['values']['q_fake']['value'] = 'a different answer'
     >>> task.get_discrepancies(entries=entries)
@@ -196,12 +208,19 @@ method can then be used to merge the Assessment Data in the Entries together::
     >>> task.solve_discrepancies({'q_fake': None}, entries=entries)
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': None}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
+If a field only has one explanation in the group, use it in the solution::
+
     >>> entry2.data['values']['q_fake']['explanation'] = 'Because I said so.'
     >>> task.solve_discrepancies({}, entries=entries)
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': 'Because I said so.', 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+
+If a field as more than one explanation in the group, merge them::
+
     >>> entry3.data['values']['q_fake']['explanation'] = 'Why not?'
     >>> task.solve_discrepancies({}, entries=entries)
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': u'2014-05-22 12:34:56 / joe: Because I said so.\n\n2014-05-22 12:34:56 / jim: Why not?', 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+
+Set up tests with recordList fields::
 
     >>> del iv.definition['record'][0]
     >>> del iv.definition['record'][0]
@@ -246,6 +265,10 @@ method can then be used to merge the Assessment Data in the Entries together::
     >>> entry1.data['values'] = deepcopy(RECORD_VALUES)
     >>> entry2.data['values'] = deepcopy(RECORD_VALUES)
     >>> entry3.data['values'] = deepcopy(RECORD_VALUES)
+
+Discrepancies of simple fields should be spotted in the sub-records of a
+recordList field::
+
     >>> entry3.data['values']['q_rec']['value'][0]['dink']['value'] = 'bonjour'
     >>> task.get_discrepancies(entries=entries)
     {'q_rec': {'0': {'dink': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': 'bonjour'}}}}
@@ -253,6 +276,8 @@ method can then be used to merge the Assessment Data in the Entries together::
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}
     >>> task.solve_discrepancies({'q_rec': {'0': {'dink': 'hi'}}}, entries=entries)
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hi'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}
+
+Discrepancies of mismatching records should be spotted and solved::
 
     >>> del entry3.data['values']['q_rec']['value'][0]
     >>> expected_discrepancies = {'q_rec': {'0': {'donk': {u'entry444': False, u'entry333': False, u'entry555': True}, 'dink': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': 'goodbye'}}, '1': {'donk': {u'entry444': True, u'entry333': True, u'entry555': None}, 'dink': {u'entry444': 'goodbye', u'entry333': 'goodbye', u'entry555': None}}}}
@@ -262,6 +287,8 @@ method can then be used to merge the Assessment Data in the Entries together::
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}
     >>> task.solve_discrepancies({'q_rec': {'1': {'dink': 'bye'}}}, entries=entries)
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'bye'}}]}}
+
+Set up tests with matrix fields::
 
     >>> del iv.definition['record'][0]
     >>> iv.definition['record'].append({
@@ -313,6 +340,10 @@ method can then be used to merge the Assessment Data in the Entries together::
     >>> entry1.data['values'] = deepcopy(MATRIX_VALUES)
     >>> entry2.data['values'] = deepcopy(MATRIX_VALUES)
     >>> entry3.data['values'] = deepcopy(MATRIX_VALUES)
+
+Discrepancies of simple fields within the depths of a matrix should be spotted
+and solved::
+
     >>> entry3.data['values']['q_matrix']['value']['row1']['dah']['value'] = 'hi'
     >>> task.get_discrepancies(entries=entries)
     {'q_matrix': {'row1': {'dah': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': 'hi'}}}}

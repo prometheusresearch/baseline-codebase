@@ -1,5 +1,9 @@
 @import (less) "~bootstrap/less/bootstrap";
 
+@border-radius-base:        0px;
+@border-radius-large:       0px;
+@border-radius-small:       0px;
+
 @padding: 0.5em;
 @paddingS: 0.25em;
 @paddingL: 1em;
@@ -44,6 +48,22 @@ html, body, #__main__ {
 .rex-widget-Column {
   height: 100%;
   overflow-y: auto;
+}
+
+/** 
+ * Tabs widget
+ */
+.rex-widget-Tabs__tab {
+  // !important due to Bootstrap specifity :(
+  padding: @paddingS @padding !important;
+}
+
+.rex-widget-Tabs__tab--active {
+  background-color: @colorSelectedHighlight;
+}
+
+.rex-widget-Tabs__tabs li {
+  margin-bottom: 0;
 }
 
 /**

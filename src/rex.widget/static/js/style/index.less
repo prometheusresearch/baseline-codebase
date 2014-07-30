@@ -14,6 +14,10 @@
 
 @headerHeight: 60px;
 
+html, body, #__main__ {
+  height: 100%;
+}
+
 
 .position-top-right {
   position: absolute;
@@ -24,8 +28,16 @@
 /**
  * TwoColumnLayout widget
  */
+.rex-widget-TwoColumnLayout {
+  height: 100%;
+}
+.rex-widget-TwoColumnLayout__container {
+  height: 100%;
+}
 .rex-widget-TwoColumnLayout__sidebar,
 .rex-widget-TwoColumnLayout__main {
+  height: 100%;
+  overflow-y: auto;
   & > h1 {
     margin-bottom: @padding;
   }

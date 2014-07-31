@@ -106,7 +106,7 @@ var Grid = React.createClass({
       columns = this.getColumnsFromMeta(this.props.data.meta);
       length = this.props.data.data.length;
     } else {
-      columns = this.getColumnsFromKeys(this.props.data);
+      columns = this.getColumnsFromKeys(this.props.data.data);
       length = this.props.data.length;
     }
     var rowRenderer = (
@@ -174,11 +174,11 @@ var Grid = React.createClass({
 
       // XXX: find a way to do this for a general case
       // (need hierarchical columns in react-grid)
-      var fields = meta.domain.fields[0].domain.item.domain.fields;
+      var fields = meta.domain.item.domain.fields;
 
       for (var i = 0, len = fields.length; i < len; i++) {
         var column = {
-          key: fields[i].header,
+          key: fields[i].tag,
           name: fields[i].header
         };
         columns.push(column);

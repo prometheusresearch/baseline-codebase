@@ -75,6 +75,7 @@ class DataComputator(object):
         data = data[product.meta.domain.fields[0].tag]
         if self.include_meta:
             meta = product_meta_to_json(handler.port.describe())
+            meta = meta["domain"]["fields"][0]
             return {"data": data, "meta": meta, "updating": False}
         else:
             return {"data": data, "updating": False}
@@ -94,10 +95,14 @@ class DataComputator(object):
             product = htsql.core.cmd.act.produce(handler.query, query)
 
         data = product_to_json(product)
-        return {
-            "data": data[product.meta.tag],
-            "updating": False
-        }
+        data = data[product.meta.tag]
+
+        if self.include_meta:
+            meta = product_meta_to_json(product)
+            return {"data": data, "meta": meta, "updating": False}
+        else:
+            return {"data": data, "updating": False}
+
 
     def fetch(self, handler, graph, dirty=None):
         """ Fetch data using ``handler`` in context of the current application

@@ -108,6 +108,19 @@ class User(Extension, Comparable, Displayable, Dictable):
 
         return self._login
 
+    def get_subject(self, uid):
+        """
+        Retrieves a Subject using its UID, if this User has access to it.
+
+        :param uid: the UID of the Subject to retrieve
+        :type uid: string
+        :returns:
+            the Subject matching the UID if this User has access to it;
+            otherwise None
+        """
+
+        raise NotImplementedError()
+
     def find_subjects(self, offset=0, limit=100, **search_criteria):
         """
         Returns Subjects that match the specified criteria that this User

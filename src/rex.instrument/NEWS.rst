@@ -26,6 +26,7 @@ REX.INSTRUMENT Change Log
 - Added a new interface class in DraftInstrumentVersion to allow the management
   of InstrumentVersions that are in the process of being created and aren't
   ready for general use in the system.
+- Users now have a get_subject() method.
 
 
 0.9.1 (6/24/2014)

@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.21.0 (7/xx/2014)
+0.21.0 (7/31/2014)
 ==================
 
 - Added an extension called TaskCompletionProcessor to allow custom logic to

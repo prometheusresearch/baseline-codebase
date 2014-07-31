@@ -91,6 +91,7 @@ class Tabs(Widget):
     name    = 'Tabs'
     js_type = 'rex-widget/lib/Tabs'
 
+    active  = Field(IntVal, default=1)
     tabs    = Field(WidgetVal, default=NullWidget())
 
 

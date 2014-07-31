@@ -28,7 +28,6 @@ var Tabs = React.createClass({
         'rex-widget-Tabs__tab--active': isActive,
         'active': isActive
       });
-      console.log(idx);
       tabs.push(
         <li key={idx}>
           <a

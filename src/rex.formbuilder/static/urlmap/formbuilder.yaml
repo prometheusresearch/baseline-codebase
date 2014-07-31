@@ -1,16 +1,15 @@
 context:
     brand_title: Formbuilder
+    role: rex.study_admin
 
 paths:
 
     /:
       template: rex.formbuilder:/template/formbuilder.html
       context:
-        role: rex.study_access
         title: Formbuilder Instrument List
 
     /edit/$id/:
       template: rex.formbuilder:/template/formbuilder.html
       context:
-        role: rex.study_access
         manual_edit_conditions: false

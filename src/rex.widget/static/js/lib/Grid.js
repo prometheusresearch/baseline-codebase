@@ -105,10 +105,14 @@ var Grid = React.createClass({
     if (this.props.data.meta) {
       columns = this.getColumnsFromMeta(this.props.data.meta);
       length = this.props.data.data.length;
-    } else {
-      columns = this.getColumnsFromKeys(this.props.data.data);
+    } else if (Array.isArray(this.props.data)) {
+      columns = this.getColumnsFromKeys(this.props.data);
       length = this.props.data.length;
+    } else {
+      columns = this.getColumnsFromData(this.props.data);
+      length = this.props.data.data.length;
     }
+
     var rowRenderer = (
       <GridRow
         hoveredRowId={this.state.hoveredRowId}
@@ -191,6 +195,23 @@ var Grid = React.createClass({
   },
 
   getColumnsFromKeys: function(data) {
+    if (data.length === 0)
+      return [];
+    var keys = Object.keys(data[0]);
+    var columns = [];
+    for (var i = 0, len = keys.length; i < len; i++) {
+        var column = {
+          key: keys[i],
+          name: keys[i]
+        };
+        columns.push(column);
+    }
+    this._columns = this.decorateColumns(columns);
+    return this._columns;
+  },
+
+  getColumnsFromData: function(data) {
+    var data = data.data;
     if (data.length === 0)
       return [];
     var keys = Object.keys(data[0]);

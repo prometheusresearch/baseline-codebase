@@ -5,8 +5,8 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-0.10.0 (xx/xx/2014)
-===================
+0.10.0 (7/31/2014)
+==================
 
 - Added ability to mark Instrument fields as containing PHI/PII.
 - Enhanced Assessment.validate_data() method to perform Instrument-specific

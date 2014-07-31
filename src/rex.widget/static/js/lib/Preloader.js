@@ -3,14 +3,15 @@
  */
 'use strict';
 
-var React            = require('react');
+var React            = require('react/addons');
+var cx               = React.addons.classSet;
 var LoadingIndicator = require('./LoadingIndicator');
 
 var Preloader = React.createClass({
 
   render: function() {
     return (
-      <div className="rex-widget-Preloader">
+      <div className={cx("rex-widget-Preloader", this.props.className)}>
         <LoadingIndicator /> 
         <div className="rex-widget-Preloader__caption">{this.props.caption}</div>
       </div>

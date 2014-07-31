@@ -19,7 +19,7 @@ var CheckboxGroup = React.createClass({
       this.props.layout === 'vertical' ? 'checkbox' : 'checkbox-inline'
     );
     var options = this.props.options.map((option) =>
-      <div className={className}>
+      <div key={option.id} className={className}>
         <label>
           <input
             type="checkbox"

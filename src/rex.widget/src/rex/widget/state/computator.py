@@ -80,7 +80,8 @@ class DataComputator(object):
             return {"data": data, "updating": False}
 
     def fetch_query(self, handler, **params):
-        query = dict(self.parsed_query)
+        query = dict(handler.parameters)
+        query.update(self.parsed_query)
 
         for k in self.refs:
             query[k] = ''

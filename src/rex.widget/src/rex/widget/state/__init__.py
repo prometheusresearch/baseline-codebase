@@ -15,4 +15,6 @@ from .graph import (
     State, state,
     Dep, dep, Reset,
     compute, compute_update, unknown)
-from .computator import InitialValue
+from .computator import (
+    InitialValue, PaginatedCollectionComputator,
+    CollectionComputator, EntityComputator)

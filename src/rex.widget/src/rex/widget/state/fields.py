@@ -159,9 +159,13 @@ class StateVal(Validate):
 class DataVal(Validate):
 
     field_factory = DataDescriptor
+    computator_factory = NotImplemented
 
-    def __init__(self, include_meta=False):
+    def __init__(self, include_meta=False, computator_factory=None):
         self.include_meta = include_meta
+
+        if computator_factory is not None:
+            self.computator_factory = computator_factory
 
     def __call__(self, data):
         if isinstance(data, basestring):

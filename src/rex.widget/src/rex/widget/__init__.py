@@ -16,6 +16,7 @@ from .library import LabelWidget, HeaderWidget, SectionWidget
 from .widget import Widget, NullWidget, GroupWidget, Field, StateField
 from .state import (
     EntityVal, CollectionVal, PaginatedCollectionVal,
+    PaginatedCollectionComputator, CollectionComputator, EntityComputator,
     StateVal, State)
 from .jsval import JSVal
 

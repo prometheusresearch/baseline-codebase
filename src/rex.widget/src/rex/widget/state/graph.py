@@ -59,9 +59,7 @@ class StateGraph(Mapping):
                 raise LookupError("value %s is unknown" % (ref,))
             for part in ref.path:
                 if value is None:
-                    raise LookupError(
-                        "cannot dereference '%s' reference with value '%r'" % (
-                        ref, self.storage[ref.id].value))
+                    return None
                 value = value[part]
         except KeyError:
             if ref.id in self.storage:

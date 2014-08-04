@@ -77,7 +77,7 @@ class CreateInstrument(FormBuilderBaseCommand):
                         base_measure_type := $base_measure_type,
                         data := $data
                     })""", 
-                    base_measure_type=base_measure_type, 
+                    base_measure_type=base_measure_type,
                     data=data)
                 return str(product.data)
 
@@ -206,10 +206,13 @@ class PublishInstrument(FormBuilderBaseCommand):
                     # prevents duplicating forms
                     produce("""insert(measure_type_version := {
                             measure_type := $measure_type,
+                            published_by := $published_by,
+                            date_published := now(),
                             json := $data
                         })""", 
-                        measure_type=measure_type.code, 
-                        data=instrument.data)
+                        measure_type=measure_type.code,
+                        data=instrument.data,
+                        published_by=authenticate(req))
 
     def render(self, req, instrument_id, measure_type_id):
         try:

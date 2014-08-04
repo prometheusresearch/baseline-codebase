@@ -51,12 +51,12 @@ class Serializer(Extension):
 
     @classmethod
     @cached
-    def get_for_format(cls, format):
-        return cls.map_by_format().get(format)
+    def get_for_format(cls, fmt):
+        return cls.map_by_format().get(fmt)
 
     @classmethod
     def enabled(cls):
-        return (cls.format_string is not None and cls.mime_type is not None)
+        return cls.format_string is not None and cls.mime_type is not None
 
     @classmethod
     def sanitize(cls):
@@ -74,12 +74,12 @@ class Serializer(Extension):
 
 
 def datetime_to_str(val):
-    r = val.isoformat()
+    ret = val.isoformat()
     if val.microsecond:
-        r = r[:23] + r[26:]
-    if r.endswith('+00:00'):
-        r = r[:-6] + 'Z'
-    return r
+        ret = ret[:23] + ret[26:]
+    if ret.endswith('+00:00'):
+        ret = ret[:-6] + 'Z'
+    return ret
 
 
 def date_to_str(val):
@@ -87,12 +87,13 @@ def date_to_str(val):
 
 
 def time_to_str(val):
-    r = val.isoformat()
+    ret = val.isoformat()
     if val.microsecond:
-        r = r[:12]
-    return r
+        ret = ret[:12]
+    return ret
 
 
+# pylint: disable=E0202
 class RestfulJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
@@ -161,15 +162,15 @@ class UrlSerializer(Serializer):
 
     def serialize(self, value):
         if isinstance(value, dict):
-            kv = value.items()
+            keyval = value.items()
         elif isinstance(value, (list, tuple)):
-            kv = value
+            keyval = value
         else:
             raise TypeError(
                 'Only lists, tuples, and dicts can be URL serialized'
             )
 
-        params = self._flatten_structure(kv)
+        params = self._flatten_structure(keyval)
         params = self._encode_dates(params)
 
         return urllib.urlencode(params, doseq=True)
@@ -198,12 +199,12 @@ class UrlSerializer(Serializer):
             # If we're nested, build the chain of dicts.
             if keychain:
                 key = keychain[0]
-                v = c = {}
+                val = subdict = {}
                 for subkey in keychain[1:]:
-                    c[subkey] = {}
-                    c = c[subkey]
-                c = value
-                value = v
+                    subdict[subkey] = {}
+                    subdict = subdict[subkey]
+                subdict = value
+                value = val
 
             data[key] = value
 

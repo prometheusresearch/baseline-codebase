@@ -18,6 +18,7 @@ __all__ = (
 )
 
 
+# pylint: disable=W0223
 class RestfulLocation(Command):
     path = None
     priority = 1000
@@ -41,7 +42,7 @@ class RestfulLocation(Command):
 
     @classmethod
     def enabled(cls):
-        return (cls.path is not None)
+        return cls.path is not None
 
     @classmethod
     def sanitize(cls):
@@ -69,8 +70,8 @@ class RestfulLocation(Command):
             if serializer:
                 return serializer()
 
-        format = request.GET.get('format') or self.default_format
-        serializer = Serializer.get_for_format(format)
+        fmt = request.GET.get('format') or self.default_format
+        serializer = Serializer.get_for_format(fmt)
         if serializer:
             return serializer()
 
@@ -165,6 +166,7 @@ class RestfulLocation(Command):
 
         return implementation, default_status
 
+    # pylint: disable=W0613
     def _options_handler(self, request):
         allowed = ['OPTIONS']
 

@@ -267,7 +267,7 @@ class Widget(Extension):
         state = state.merge(updates)
 
         if not origins:
-            state, _ = compute(state)
+            state = compute(state)
         else:
             state, _ = compute_update(state, origins)
 

@@ -19,15 +19,9 @@ var GridRow = React.createClass({
       this.props.selected !== undefined
       && this.props.selected === this.props.row.id
     );
-    var hovered = (
-      this.props.hoveredRowId !== undefined
-      && this.props.hoveredRowId === this.props.row.id
-    );
-
     var className = cx({
       'rex-widget-GridRow': true,
-      'rex-widget-GridRow--selected': selected,
-      'rex-widget-GridRow--hovered': hovered
+      'rex-widget-GridRow--selected': selected
     });
 
     return this.transferPropsTo(
@@ -46,10 +40,6 @@ var GridRow = React.createClass({
 
   onClick: function() {
     this.props.onSelected(this.props.row.id);
-  },
-
-  onMouseEnter: function() {
-    this.props.onHover(this.props.row.id);
   }
 });
 
@@ -87,7 +77,6 @@ var Grid = React.createClass({
       PropTypes.object.isRequired,
       PropTypes.array.isRequired
     ]),
-    onRows: PropTypes.func,
 
     columns: PropTypes.object,
 
@@ -98,10 +87,6 @@ var Grid = React.createClass({
     sortedColumnId: PropTypes.string,
     sortDirection: PropTypes.string,
     onSort: PropTypes.func
-  },
-
-  getInitialState: function() {
-    return {hoveredRowId: null};
   },
 
   render: function() {
@@ -120,16 +105,15 @@ var Grid = React.createClass({
 
     var rowRenderer = (
       <GridRow
-        hoveredRowId={this.state.hoveredRowId}
         selected={this.props.selectable && this.props.selected}
         onSelected={this.props.selectable && this.props.onSelected}
-        onHover={this.onHover}
         />
     );
     return (
       <BaseGrid
         columns={columns}
         rows={this.getRows}
+        onRows={this.onRows}
         length={length}
         className="rex-widget-Grid"
         rowRenderer={rowRenderer}
@@ -144,10 +128,6 @@ var Grid = React.createClass({
       onSelected: emptyFunction,
       onSort: emptyFunction
     };
-  },
-
-  onHover: function(hoveredRowId) {
-    this.setState({hoveredRowId});
   },
 
   /**
@@ -232,21 +212,23 @@ var Grid = React.createClass({
     return this._columns;
   },
 
-  getRows: function(start, stop) {
-    if (!this.props.data.data)
-      return this.props.data.slice(start, stop);
+  getData() {
+    var data = this.props.data;
+    return Array.isArray(data) ? data : data.data;
+  },
 
-    setTimeout(() => {
-      if (this.props.data.data.length - stop < 20
-          && !this.props.data.updating
-          && this.props.data.hasMore) {
-        this.props.onDataPagination({
-          top: this.props.dataPagination.top,
-          skip: this.props.dataPagination.skip + this.props.dataPagination.top
-        });
-      }
-    }, 0);
-    return this.props.data.data.slice(start, stop);
+  getRows: function(start, end) {
+    return this.getData().slice(start, end);
+  },
+
+  onRows({start, end}) {
+    var {updating, hasMore, data} = this.props.data;
+    if (data.length - end < 20 && !updating && hasMore) {
+      this.props.onDataPagination({
+        top: this.props.dataPagination.top,
+        skip: this.props.dataPagination.skip + this.props.dataPagination.top
+      });
+    }
   },
 
   requestMoreRows: function() {

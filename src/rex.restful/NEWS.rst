@@ -15,6 +15,8 @@ REX.RESTFUL Change Log
 * Fixed handling of ``format`` as a querystring parameter.
 * Now only HTTP Exceptions are encoded and returned to clients, any other hard
   exceptions will crash the request entirely.
+* Added a SimpleResource extension to more easily implement the common-case
+  endpoint of simple resources.
 
 
 0.1.0 (2/10/2014)

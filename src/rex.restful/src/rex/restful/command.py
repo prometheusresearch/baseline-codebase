@@ -14,6 +14,7 @@ from .serializer import Serializer
 
 __all__ = (
     'RestfulLocation',
+    'SimpleResource',
 )
 
 
@@ -102,9 +103,9 @@ class RestfulLocation(Command):
             self.path_info = request.path_info
 
     def parse_arguments(self, request):
-        # We want to use the logic within self.parse(), but we only want it
+        # We want to use the logic within Command.parse(), but we only want it
         # to operate on GET variables, not POST. So, until self.parse() is
-        # refactored a little bit, we'll sending it a mock request.
+        # refactored a little bit, we'll send it a mock request.
         return self.parse(RestfulLocation._FakeRequest(request))
 
     def __call__(self, request, **kwargs):
@@ -167,7 +168,7 @@ class RestfulLocation(Command):
         return implementation, default_status
 
     # pylint: disable=W0613
-    def _options_handler(self, request, **kwarg):
+    def _options_handler(self, request, **kwargs):
         allowed = ['OPTIONS']
 
         for meth, func_name in RestfulLocation._METHOD_MAP.items():
@@ -181,4 +182,48 @@ class RestfulLocation(Command):
 
     def render(self, req, **arguments):
         raise NotImplementedError("%s.render()" % self.__class__.__name__)
+
+
+class SimpleResource(RestfulLocation):
+    @classmethod
+    def sanitize(cls):
+        if cls.enabled():
+            base_name = '%sBase' % cls.__name__
+            base_attrs = {}
+
+            # We want the base handler to inherit from RestfulLocation as well
+            # as any other specified parent classes, but not from
+            # SimpleResource itself.
+            base_bases = tuple([RestfulLocation] + [
+                base
+                for base in cls.__bases__
+                if not issubclass(base, RestfulLocation)
+            ])
+
+            def transfer_attr(name, new_name=None, delete=False):
+                new_name = new_name or name
+                if name in cls.__dict__:
+                    base_attrs[new_name] = cls.__dict__[name]
+                    if delete:
+                        delattr(cls, name)
+
+            # Suck the necessary properties & methods off of the detail handler
+            # and put them on the base.
+            transfer_attr('base_path', 'path', delete=True)
+            transfer_attr('base_parameters', 'parameters', delete=True)
+            transfer_attr('create', delete=True)
+            transfer_attr('list', 'retrieve', delete=True)
+            transfer_attr('priority')
+            transfer_attr('access')
+            transfer_attr('default_format')
+            transfer_attr('__module__')
+
+            # Create the base handler.
+            cls.__base_handler = type(
+                base_name,
+                base_bases,
+                base_attrs,
+            )
+
+            super(SimpleResource, cls).sanitize()
 

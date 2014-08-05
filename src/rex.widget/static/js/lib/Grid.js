@@ -32,11 +32,16 @@ var GridRow = React.createClass({
 
     return this.transferPropsTo(
       <BaseRow
+        ref="row"
         className={className}
         onMouseEnter={this.onMouseEnter}
         onClick={this.onClick}
         />
     );
+  },
+
+  setScrollLeft: function(scrollLeft) {
+    this.refs.row.setScrollLeft(scrollLeft);
   },
 
   onClick: function() {

@@ -1,6 +1,6 @@
-***********
-Serializers
-***********
+***************
+RestfulLocation
+***************
 
 .. contents:: Table of Contents
 

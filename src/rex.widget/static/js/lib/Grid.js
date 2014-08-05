@@ -90,19 +90,6 @@ var Grid = React.createClass({
   },
 
   render: function() {
-    var columns = [];
-    var length = null;
-    if (this.props.data.meta) {
-      columns = this.getColumnsFromMeta(this.props.data.meta);
-      length = this.props.data.data.length;
-    } else if (Array.isArray(this.props.data)) {
-      columns = this.getColumnsFromKeys(this.props.data);
-      length = this.props.data.length;
-    } else {
-      columns = this.getColumnsFromData(this.props.data);
-      length = this.props.data.data.length;
-    }
-
     var rowRenderer = (
       <GridRow
         selected={this.props.selectable && this.props.selected}
@@ -111,10 +98,10 @@ var Grid = React.createClass({
     );
     return (
       <BaseGrid
-        columns={columns}
+        columns={this.getColumns()}
         rows={this.getRows}
         onRows={this.onRows}
-        length={length}
+        length={this.getData().length}
         className="rex-widget-Grid"
         rowRenderer={rowRenderer}
         />
@@ -124,9 +111,11 @@ var Grid = React.createClass({
   getDefaultProps: function() {
     return {
       columns: {},
+      hideColumns: [],
       selectable: false,
       onSelected: emptyFunction,
-      onSort: emptyFunction
+      onSort: emptyFunction,
+      startPaginationBefore: 20
     };
   },
 
@@ -137,29 +126,49 @@ var Grid = React.createClass({
    * @private
    */
   decorateColumns: function(columns) {
-    var decorators = this.props.columns;
+    var index = columns.index;
+    if (this.props.hideColumns.length > 0) {
+      columns = columns.filter((column) =>
+          this.props.hideColumns.indexOf(column.key) === -1);
+    }
+    if (this.props.showColumns) {
+      return this.props.showColumns.map((key) => this.decorateColumn(index[key]));
+    } else {
+      return columns.map(this.decorateColumn);
+    }
+  },
 
-    return columns.map((column) => {
-      var decorator = decorators[column.key];
-
-      if (decorator) {
-        column = merge(column, decorator);
-        if (column.sortable) {
-          mergeInto(column, {
-            sorted: this.props.sortedColumnId === column.key ? this.props.sortDirection : undefined,
-            headerRenderer: SortableGridHeaderCell,
-            onSort: this.props.onSort
-          });
-        }
+  decorateColumn(column) {
+    var decorator = this.props.columns[column.key];
+    if (decorator) {
+      column = merge(column, decorator);
+      if (column.sortable) {
+        mergeInto(column, {
+          sorted: this.props.sortedColumnId === column.key ? this.props.sortDirection : undefined,
+          headerRenderer: SortableGridHeaderCell,
+          onSort: this.props.onSort
+        });
       }
+    }
+    return column;
+  },
 
-      return column;
-    });
+  getColumns() {
+    if (this.props.data.meta) {
+      return this.getColumnsFromMeta(this.props.data.meta);
+    } else if (Array.isArray(this.props.data)) {
+      return this.getColumnsFromKeys(this.props.data);
+    } else {
+      return this.getColumnsFromData(this.props.data);
+    }
   },
 
   getColumnsFromMeta: function(meta) {
     if (!this._columns || this._columns.meta !== meta) {
+      var index = {};
       var columns = [];
+      columns.index = index;
+      columns.meta = meta;
 
       // XXX: find a way to do this for a general case
       // (need hierarchical columns in react-grid)
@@ -171,10 +180,10 @@ var Grid = React.createClass({
           name: fields[i].header
         };
         columns.push(column);
+        index[column.key] = column;
       }
 
       this._columns = this.decorateColumns(columns);
-      this._columns.meta = meta;
     }
     return this._columns;
   },
@@ -184,12 +193,15 @@ var Grid = React.createClass({
       return [];
     var keys = Object.keys(data[0]);
     var columns = [];
+    var index = {}
+    columns.index = index;
     for (var i = 0, len = keys.length; i < len; i++) {
-        var column = {
-          key: keys[i],
-          name: keys[i]
-        };
-        columns.push(column);
+      var column = {
+        key: keys[i],
+        name: keys[i]
+      };
+      columns.push(column);
+      index[column.key] = column;
     }
     this._columns = this.decorateColumns(columns);
     return this._columns;
@@ -201,12 +213,15 @@ var Grid = React.createClass({
       return [];
     var keys = Object.keys(data[0]);
     var columns = [];
+    var index = {};
+    columns.index = index;
     for (var i = 0, len = keys.length; i < len; i++) {
-        var column = {
-          key: keys[i],
-          name: keys[i]
-        };
-        columns.push(column);
+      var column = {
+        key: keys[i],
+        name: keys[i]
+      };
+      columns.push(column);
+      index[column.key] = column;
     }
     this._columns = this.decorateColumns(columns);
     return this._columns;
@@ -223,30 +238,15 @@ var Grid = React.createClass({
 
   onRows({start, end}) {
     var {updating, hasMore, data} = this.props.data;
-    if (data.length - end < 20 && !updating && hasMore) {
-      this.props.onDataPagination({
-        top: this.props.dataPagination.top,
-        skip: this.props.dataPagination.skip + this.props.dataPagination.top
-      });
+    if (
+      Array.isArray(data)
+      && data.length - end < this.props.startPaginationBefore
+      && !updating
+      && hasMore
+    ) {
+      var {top, skip} = this.props.dataPagination;
+      this.props.onDataPagination({top, skip: skip + top});
     }
-  },
-
-  requestMoreRows: function() {
-    if (this.requestMoreRowsRequired) {
-      this.requestMoreRowsRequired = undefined;
-    }
-  },
-
-  componentDidMount: function() {
-    this.requestMoreRows();
-  },
-
-  componentDidUpdate: function() {
-    this.requestMoreRows();
-  },
-
-  componentWillUmount: function() {
-    this.requestMoreRowsRequired = undefined;
   }
 });
 

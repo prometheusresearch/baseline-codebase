@@ -8,7 +8,7 @@
 """
 
 from rex.core import (
-        AnyVal, OneOfVal, SeqVal, StrVal, UStrVal, IntVal, BoolVal, Error,
+        AnyVal, OneOfVal, SeqVal, StrVal, UStrVal, IntVal, BoolVal, MaybeVal,
         RecordVal)
 from .widget import Widget, Field, StateField, state, NullWidget, iterate_widget
 from .state import dep, unknown, Reset, CollectionVal, PaginatedCollectionVal
@@ -240,10 +240,13 @@ class GridWidget(Widget):
     name    = 'Grid'
     js_type = 'rex-widget/lib/Grid'
 
-    id          = Field(StrVal)
-    data        = Field(PaginatedCollectionVal(include_meta=True))
-    selectable  = Field(BoolVal, False)
-    selected    = StateField(IntVal, default=None)
+    id             = Field(StrVal)
+    data           = Field(PaginatedCollectionVal(include_meta=True))
+    selectable     = Field(BoolVal, False)
+    selected       = StateField(IntVal, default=None)
+    columns        = Field(AnyVal, default={})
+    hide_columns   = Field(SeqVal(StrVal), default=[])
+    show_columns   = Field(MaybeVal(SeqVal(StrVal)), default=None)
 
 
 class BarChart(Widget):

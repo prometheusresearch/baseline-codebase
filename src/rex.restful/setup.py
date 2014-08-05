@@ -25,6 +25,7 @@ setup(
     install_requires=[
         'rex.core>=1,<2',
         'rex.web>=2,<3',
+        'pyyaml',
     ],
     rex_init='rex.restful',
 )

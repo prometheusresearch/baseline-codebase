@@ -3,11 +3,11 @@
 #
 
 import json
-import re
-import urllib
-import urlparse
 
 from datetime import datetime, date, time
+from decimal import Decimal
+
+import yaml
 
 from rex.core import cached, Extension
 
@@ -15,7 +15,7 @@ from rex.core import cached, Extension
 __all__ = (
     'Serializer',
     'JsonSerializer',
-    'UrlSerializer',
+    'YamlSerializer',
 )
 
 
@@ -73,37 +73,14 @@ class Serializer(Extension):
         raise NotImplementedError()
 
 
-def datetime_to_str(val):
-    ret = val.isoformat()
-    if val.microsecond:
-        ret = ret[:23] + ret[26:]
-    if ret.endswith('+00:00'):
-        ret = ret[:-6] + 'Z'
-    return ret
-
-
-def date_to_str(val):
-    return val.isoformat()
-
-
-def time_to_str(val):
-    ret = val.isoformat()
-    if val.microsecond:
-        ret = ret[:12]
-    return ret
-
-
-# pylint: disable=E0202
 class RestfulJSONEncoder(json.JSONEncoder):
+    # pylint: disable=E0202
     def default(self, obj):
-        if isinstance(obj, datetime):
-            return datetime_to_str(obj)
+        if isinstance(obj, (datetime, date, time)):
+            return obj.isoformat()
 
-        elif isinstance(obj, date):
-            return date_to_str(obj)
-
-        elif isinstance(obj, time):
-            return time_to_str(obj)
+        elif isinstance(obj, Decimal):
+            return float(obj)
 
         else:
             return super(RestfulJSONEncoder, self).default(obj)
@@ -120,93 +97,31 @@ class JsonSerializer(Serializer):
         return json.loads(value)
 
 
-RE_SUBKEY = re.compile(r'^(?P<mainkey>[^\[]+)\[(?P<subkey>.+)\]$')
-
-
-class UrlSerializer(Serializer):
-    format_string = 'url'
-    mime_type = 'application/x-www-form-urlencoded'
-
-    def _flatten_structure(self, data):
-        flattened = []
-        for key, value in data:
-            if isinstance(value, dict):
-                flat_value = self._flatten_structure(value.items())
-                for fkey, fvalue in flat_value:
-                    flattened.append((
-                        '%s[%s]' % (key, fkey),
-                        fvalue,
-                    ))
-            else:
-                flattened.append((key, value))
-
-        return flattened
-
-    def _encode_dates(self, params):
-        new_params = []
-
-        for param in params:
-            if isinstance(param[1], datetime):
-                new_params.append((param[0], datetime_to_str(param[1])))
-
-            elif isinstance(param[1], date):
-                new_params.append((param[0], date_to_str(param[1])))
-
-            elif isinstance(param[1], time):
-                new_params.append((param[0], time_to_str(param[1])))
-
-            else:
-                new_params.append(param)
-
-        return new_params
+class YamlSerializer(Serializer):
+    format_string = 'yaml'
+    mime_type = 'application/x-yaml'
 
     def serialize(self, value):
-        if isinstance(value, dict):
-            keyval = value.items()
-        elif isinstance(value, (list, tuple)):
-            keyval = value
-        else:
-            raise TypeError(
-                'Only lists, tuples, and dicts can be URL serialized'
-            )
-
-        params = self._flatten_structure(keyval)
-        params = self._encode_dates(params)
-
-        return urllib.urlencode(params, doseq=True)
+        return yaml.dump(value, Dumper=RestfulYamlDumper)
 
     def deserialize(self, value):
-        # Parse the string.
-        raw = urlparse.parse_qs(
-            value,
-            keep_blank_values=True,
-            strict_parsing=False,
-        )
+        return yaml.safe_load(value)
 
-        data = {}
-        for key, value in raw.items():
-            # De-listify keys that only have one value.
-            if len(value) == 1:
-                value = value[0]
 
-            # Figure out it there's any key nesting.
-            keychain = []
-            parts = RE_SUBKEY.match(key)
-            while parts:
-                keychain.append(parts.groupdict()['mainkey'])
-                parts = RE_SUBKEY.match(parts.groupdict()['subkey'])
+# pylint: disable=R0901,R0904
+class RestfulYamlDumper(yaml.SafeDumper):
+    def decimal_representer(self, data):
+        return self.represent_scalar('tag:yaml.org,2002:float', str(data))
 
-            # If we're nested, build the chain of dicts.
-            if keychain:
-                key = keychain[0]
-                val = subdict = {}
-                for subkey in keychain[1:]:
-                    subdict[subkey] = {}
-                    subdict = subdict[subkey]
-                subdict = value
-                value = val
+    def time_representer(self, data):
+        return self.represent_scalar('tag:yaml.org,2002:str', data.isoformat())
 
-            data[key] = value
-
-        return data
+RestfulYamlDumper.add_representer(
+    Decimal,
+    RestfulYamlDumper.decimal_representer,
+)
+RestfulYamlDumper.add_representer(
+    time,
+    RestfulYamlDumper.time_representer,
+)
 

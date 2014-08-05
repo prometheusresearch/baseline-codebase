@@ -9,6 +9,8 @@ REX.RESTFUL Change Log
 ==================
 
 * Removed custom Route as the functionality is now incorporated in ``rex.web``.
+* Removed UrlSerializer as it is a silly way to represent complex structures.
+* Added a YamlSerializer.
 
 
 0.1.0 (2/10/2014)

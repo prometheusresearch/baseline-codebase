@@ -1,14 +1,13 @@
 #
-# Copyright (c) 2013, Prometheus Research, LLC
+# Copyright (c) 2014, Prometheus Research, LLC
 #
 
-import traceback
 
 from webob import Response
-from webob.exc import HTTPMethodNotAllowed
+from webob.exc import HTTPMethodNotAllowed, HTTPException
 
-from rex.core import cached
-from rex.web import Command
+from rex.core import cached, StrVal
+from rex.web import Command, Parameter
 
 from .serializer import Serializer
 
@@ -20,12 +19,9 @@ __all__ = (
 
 # pylint: disable=W0223
 class RestfulLocation(Command):
-    path = None
     priority = 1000
     access = 'authenticated'
-    unsafe = False
     default_format = 'json'
-    parameters = []
 
     _METHOD_MAP = {
         'POST': 'create',
@@ -41,18 +37,26 @@ class RestfulLocation(Command):
     }
 
     @classmethod
-    def enabled(cls):
-        return cls.path is not None
-
-    @classmethod
     def sanitize(cls):
         if cls.enabled():
-            found_method = False
+            super(RestfulLocation, cls).sanitize()
+
+            # Make sure there's at least one verb implemented.
             for method in cls._METHOD_MAP.values():
                 if hasattr(cls, method):
-                    found_method = True
                     break
-            assert found_method, 'No resource methods defined on %s' % cls
+            else:
+                assert False, 'No resource methods defined on %s' % cls
+
+            # Add a Parameter to capture "format" if it isn't already there.
+            cls.parameters = list(cls.parameters)
+            for param in cls.parameters:
+                if param.name == 'format':
+                    break
+            else:
+                cls.parameters.append(
+                    Parameter('format', StrVal(), None),
+                )
 
     @classmethod
     @cached
@@ -72,10 +76,7 @@ class RestfulLocation(Command):
 
         fmt = request.GET.get('format') or self.default_format
         serializer = Serializer.get_for_format(fmt)
-        if serializer:
-            return serializer()
-
-        return None
+        return serializer()
 
     def parse_payload(self, request):
         content_type = None
@@ -96,15 +97,15 @@ class RestfulLocation(Command):
         return payload, content_type
 
     class _FakeRequest(object):
-        def __init__(self, params):
-            self.params = params
+        def __init__(self, request):
+            self.params = request.params
+            self.path_info = request.path_info
 
     def parse_arguments(self, request):
         # We want to use the logic within self.parse(), but we only want it
         # to operate on GET variables, not POST. So, until self.parse() is
         # refactored a little bit, we'll sending it a mock request.
-        fake_request = RestfulLocation._FakeRequest(request.GET)
-        return self.parse(fake_request)
+        return self.parse(RestfulLocation._FakeRequest(request))
 
     def __call__(self, request, **kwargs):
         self.authorize(request)
@@ -123,8 +124,7 @@ class RestfulLocation(Command):
             kwargs.update(arguments)
 
             response = implementation(request, **kwargs)
-        except Exception, exc:
-            traceback.print_exc()
+        except HTTPException, exc:
 
             response = {
                 'error': unicode(exc),
@@ -167,7 +167,7 @@ class RestfulLocation(Command):
         return implementation, default_status
 
     # pylint: disable=W0613
-    def _options_handler(self, request):
+    def _options_handler(self, request, **kwarg):
         allowed = ['OPTIONS']
 
         for meth, func_name in RestfulLocation._METHOD_MAP.items():
@@ -178,4 +178,7 @@ class RestfulLocation(Command):
         response.headers['Allow'] = ', '.join(allowed)
 
         return response
+
+    def render(self, req, **arguments):
+        raise NotImplementedError("%s.render()" % self.__class__.__name__)
 

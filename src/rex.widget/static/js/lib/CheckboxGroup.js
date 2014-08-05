@@ -3,14 +3,17 @@
  */
 'use strict';
 
-var React     = require('react/addons');
-var PropTypes = React.PropTypes;
-var cx        = React.addons.classSet;
+var React         = require('react/addons');
+var PropTypes     = React.PropTypes;
+var cx            = React.addons.classSet;
+var emptyFunction = require('rex-widget/lib/emptyFunction');
 
 var CheckboxGroup = React.createClass({
 
   propTypes: {
-    options: PropTypes.array.isRequired
+    options: PropTypes.array.isRequired,
+    value: PropTypes.array,
+    onValue: PropTypes.func
   },
 
   render: function() {
@@ -22,8 +25,9 @@ var CheckboxGroup = React.createClass({
       <div key={option.id} className={className}>
         <label>
           <input
+            checked={this.props.value && this.props.value.indexOf(option.id) > -1}
             type="checkbox"
-            onChange={this.onChange.bind(null, option.id)}
+            onChange={this.onValue.bind(null, option.id)}
             />
           {option.title}
         </label>
@@ -36,7 +40,21 @@ var CheckboxGroup = React.createClass({
     );
   },
 
-  onChange: function(id) {
+  getDefaultProps: function() {
+    return {
+      value: [],
+      onValue: emptyFunction
+    };
+  },
+
+  onValue: function(id, e) {
+    var value = this.props.value ? this.props.value.slice(0) : [];
+    if (e.target.checked) {
+      value.push(id);
+    } else {
+      value.splice(value.indexOf(id), 1);
+    }
+    this.props.onValue(value);
   }
 });
 

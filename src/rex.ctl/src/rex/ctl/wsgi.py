@@ -155,9 +155,10 @@ class SERVE_UWSGI:
         stream = os.fdopen(fd, 'w')
         for line in wsgi_file(app):
             stream.write(line)
-        stream.write("import os\n")
-        stream.write("os.unlink(%r)\n" % path)
-        stream.write("\n")
+        # Doesn't work in some uwsgi configurations.
+        #stream.write("import os\n")
+        #stream.write("os.unlink(%r)\n" % path)
+        #stream.write("\n")
         stream.close()
         # Load parameters to uWSGI and generate `uwsgi` command line.
         if not env.uwsgi and not self.set_uwsgi:

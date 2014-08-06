@@ -166,6 +166,15 @@ header, or by adding a ``format`` querystring parameter::
     {foo: '42'}
     <BLANKLINE>
 
+    >>> req = Request.blank('/foo/42?format=somethingfake')
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    ### RETRIEVING FOO 42
+    200 OK
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: ...
+    <BLANKLINE>
+    {"foo": "42"}
+
 Calling a method that is not implemented on the resource will result in a HTTP
 405::
 

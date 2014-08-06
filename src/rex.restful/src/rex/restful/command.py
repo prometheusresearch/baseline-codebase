@@ -75,9 +75,12 @@ class RestfulLocation(Command):
             if serializer:
                 return serializer()
 
-        fmt = request.GET.get('format') or self.default_format
+        fmt = request.GET.get('format')
         serializer = Serializer.get_for_format(fmt)
-        return serializer()
+        if serializer:
+            return serializer()
+
+        return Serializer.get_for_format(self.default_format)()
 
     def parse_payload(self, request):
         content_type = None

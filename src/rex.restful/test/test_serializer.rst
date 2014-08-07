@@ -81,7 +81,7 @@ This serializer will encode structures into their JSON equivalents::
     '{"a_time": "12:34:56"}'
 
     >>> serializer.serialize({'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56)})
-    '{"a_date": "2014-05-22T12:34:56"}'
+    '{"a_date": "2014-05-22T12:34:56.000Z"}'
 
     >>> serializer.serialize({'a_decimal': decimal.Decimal('1.23')})
     '{"a_decimal": 1.23}'
@@ -103,22 +103,31 @@ Python equivalents (dicts & lists)::
     {u'foo': [u'a', u'c'], u'bar': u'b'}
 
     >>> serializer.deserialize('{"baz": {"happy": "a"}, "foo": ["a", "c"], "bar": "b"}')
-    {u'bar': u'b', u'foo': [u'a', u'c'], u'baz': {u'happy': u'a'}}
+    {u'baz': {u'happy': u'a'}, u'foo': [u'a', u'c'], u'bar': u'b'}
 
     >>> serializer.deserialize('{"baz": {"sad": "b", "happy": "a"}, "foo": ["a", "c"], "bar": "b"}')
-    {u'bar': u'b', u'foo': [u'a', u'c'], u'baz': {u'happy': u'a', u'sad': u'b'}}
+    {u'baz': {u'happy': u'a', u'sad': u'b'}, u'foo': [u'a', u'c'], u'bar': u'b'}
 
     >>> serializer.deserialize('{"baz": {"sad": "b", "happy": ["a", "c"]}, "foo": ["a", "c"], "bar": "b"}')
-    {u'bar': u'b', u'foo': [u'a', u'c'], u'baz': {u'happy': [u'a', u'c'], u'sad': u'b'}}
+    {u'baz': {u'happy': [u'a', u'c'], u'sad': u'b'}, u'foo': [u'a', u'c'], u'bar': u'b'}
 
     >>> serializer.deserialize('{"foo": {"baz": {"happy": "c"}, "bar": "a"}}')
     {u'foo': {u'bar': u'a', u'baz': {u'happy': u'c'}}}
 
     >>> serializer.deserialize('{"foo": {"baz": {"sad": "d", "happy": "c"}, "bar": "a"}}')
-    {u'foo': {u'bar': u'a', u'baz': {u'happy': u'c', u'sad': u'd'}}}
+    {u'foo': {u'bar': u'a', u'baz': {u'sad': u'd', u'happy': u'c'}}}
 
     >>> serializer.deserialize('{"foo": {"baz": {"sad": "d", "happy": ["c", "e"]}, "bar": "a"}}')
-    {u'foo': {u'bar': u'a', u'baz': {u'happy': [u'c', u'e'], u'sad': u'd'}}}
+    {u'foo': {u'bar': u'a', u'baz': {u'sad': u'd', u'happy': [u'c', u'e']}}}
+
+    >>> serializer.deserialize('{"a_date": "2014-05-22"}')
+    {u'a_date': datetime.date(2014, 5, 22)}
+
+    >>> serializer.deserialize('{"a_time": "12:34:56"}')
+    {u'a_time': datetime.time(12, 34, 56)}
+
+    >>> serializer.deserialize('{"a_date": "2014-05-22T12:34:56.000Z"}')
+    {u'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56, tzinfo=tzutc())}
 
 
 YamlSerializer
@@ -203,4 +212,13 @@ Python equivalents (dicts & lists)::
 
     >>> serializer.deserialize('foo:\n  bar: a\n  baz:\n    happy: [c, e]\n    sad: d\n')
     {'foo': {'bar': 'a', 'baz': {'happy': ['c', 'e'], 'sad': 'd'}}}
+
+    >>> serializer.deserialize('{a_date: 2014-05-22}\n')
+    {'a_date': datetime.date(2014, 5, 22)}
+
+    >>> #serializer.deserialize("{a_time: '12:34:56'}\n")
+    {'a_time': datetime.time(12, 34, 56)}
+
+    >>> serializer.deserialize("{a_date: !!timestamp '2014-05-22 12:34:56'}\n")
+    {'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56)}
 

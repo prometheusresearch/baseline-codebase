@@ -26,6 +26,7 @@ setup(
         'rex.core>=1,<2',
         'rex.web>=2,<3',
         'pyyaml',
+        'python-dateutil',
     ],
     rex_init='rex.restful',
 )

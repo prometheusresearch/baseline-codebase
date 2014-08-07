@@ -3,11 +3,14 @@
 #
 
 import json
+import re
 
 from datetime import datetime, date, time
 from decimal import Decimal
 
 import yaml
+
+from dateutil.parser import parse as parse_date
 
 from rex.core import cached, Extension
 
@@ -76,7 +79,19 @@ class Serializer(Extension):
 class RestfulJSONEncoder(json.JSONEncoder):
     # pylint: disable=E0202
     def default(self, obj):
-        if isinstance(obj, (datetime, date, time)):
+        if isinstance(obj, datetime):
+            parts = obj.utctimetuple()
+            return '%d-%02d-%02dT%02d:%02d:%02d.%sZ' % (
+                parts.tm_year,
+                parts.tm_mon,
+                parts.tm_mday,
+                parts.tm_hour,
+                parts.tm_min,
+                parts.tm_sec,
+                ('%06d' % obj.microsecond)[:-3],
+            )
+
+        elif isinstance(obj, (date, time)):
             return obj.isoformat()
 
         elif isinstance(obj, Decimal):
@@ -84,6 +99,59 @@ class RestfulJSONEncoder(json.JSONEncoder):
 
         else:
             return super(RestfulJSONEncoder, self).default(obj)
+
+
+RE_DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+RE_TIME = re.compile(r'^\d{2}:\d{2}:\d{2}$')
+RE_DATETIME = re.compile(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z)?$')
+
+
+def get_date_or_string(value):
+    # pylint: disable=W0704
+
+    if RE_DATETIME.match(value):
+        try:
+            return parse_date(value)
+        except ValueError:  # pragma: no cover
+            pass
+
+    elif RE_DATE.match(value):
+        try:
+            return parse_date(value).date()
+        except ValueError:  # pragma: no cover
+            pass
+
+    elif RE_TIME.match(value):
+        try:
+            return parse_date(value).time()
+        except ValueError:  # pragma: no cover
+            pass
+
+    return value
+
+
+# Adapted from http://stackoverflow.com/a/3235787
+def restful_json_decoder(value):
+    if isinstance(value, list):
+        pairs = enumerate(value)
+    elif isinstance(value, dict):
+        pairs = value.items()
+
+    results = []
+    for key, val in pairs:
+        if isinstance(val, basestring):
+            val = get_date_or_string(val)
+
+        elif isinstance(val, (dict, list)):
+            val = restful_json_decoder(val)
+
+        results.append((key, val))
+
+    if isinstance(value, list):
+        return [result[1] for result in results]
+
+    elif isinstance(value, dict):
+        return dict(results)
 
 
 class JsonSerializer(Serializer):
@@ -94,7 +162,7 @@ class JsonSerializer(Serializer):
         return json.dumps(value, cls=RestfulJSONEncoder)
 
     def deserialize(self, value):
-        return json.loads(value)
+        return json.loads(value, object_hook=restful_json_decoder)
 
 
 class YamlSerializer(Serializer):

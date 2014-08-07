@@ -49,10 +49,19 @@ var ApplicationState = merge({
   get: function(id) {
     if (id.indexOf(':') > -1) {
       var parsed = id.split(':', 1);
-      var value = storage[parsed[0]].value;
+      id = parsed[0];
+      var value = storage[id].value;
+      invariant(
+        storage[id] !== undefined,
+        `cannot dereference state with id: ${id}`
+      );
       parsed[1].split('.').forEach((part) => value = value[part]);
       return value;
     } else {
+      invariant(
+        storage[id] !== undefined,
+        `cannot dereference state with id: ${id}`
+      );
       return storage[id].value;
     }
   },
@@ -181,7 +190,9 @@ var ApplicationState = merge({
 
     var state = response.body.state;
     this.hydrateAll(state);
-    Object.keys(state).forEach(this.notifyStateChanged, this);
+    window.ReactUpdates.batchedUpdates(() => {
+      Object.keys(state).forEach(this.notifyStateChanged, this);
+    });
   },
 
   forEach: function(func, context) {

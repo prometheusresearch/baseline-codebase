@@ -24,7 +24,7 @@ var Select = React.createClass({
     var empty = this.props.emptyValue;
     var value = this.props.value;
     var options = this.props.options ? this.props.options : [];
-    var data = this.props.data ? this.props.data.data : [];
+    var data = this.props.data ? (this.props.data.data || []) : [];
 
     if (value === undefined || value === null) {
       value = sentinel;

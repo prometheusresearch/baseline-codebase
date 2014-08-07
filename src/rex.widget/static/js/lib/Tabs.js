@@ -3,25 +3,26 @@
  */
 'use strict';
 
-var React     = require('react/addons');
-var PropTypes = React.PropTypes;
-var cx        = React.addons.classSet;
+var React         = require('react/addons');
+var PropTypes     = React.PropTypes;
+var cx            = React.addons.classSet;
+var emptyFunction = require('./emptyFunction');
 
 var Tabs = React.createClass({
 
   propTypes: {
     tabs: PropTypes.renderable,
-    active: PropTypes.number
+    active: PropTypes.number,
+    onActive: PropTypes.func
   },
 
-  render: function() {
-    var active = this.state.active || 1;
+  render() {
     var tabs = [];
     var panes = [];
 
     React.Children.forEach(this.props.tabs, (tab, idx) => {
       idx = idx + 1;
-      var isActive = idx === active;
+      var isActive = idx === this.props.active;
 
       var tabClassName = cx({
         'rex-widget-Tabs__tab': true,
@@ -31,7 +32,7 @@ var Tabs = React.createClass({
       tabs.push(
         <li key={idx}>
           <a
-            onClick={this.activate.bind(null, idx)}
+            onClick={this.props.onActive.bind(null, idx)}
             className={tabClassName} href="#" role="tab">
             {tab.props.title}
           </a>
@@ -61,12 +62,11 @@ var Tabs = React.createClass({
     );
   },
 
-  getInitialState: function() {
-    return {active: this.props.active || 1};
-  },
-
-  activate: function(active) {
-    this.setState({active});
+  getDefaultProps() {
+    return {
+      active: 1,
+      onActive: emptyFunction
+    };
   }
 });
 

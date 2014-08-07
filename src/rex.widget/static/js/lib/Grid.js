@@ -14,7 +14,7 @@ var mergeInto     = require('./mergeInto');
 
 var GridRow = React.createClass({
 
-  render: function() {
+  render() {
     var selected = (
       this.props.selected !== undefined
       && this.props.selected === this.props.row.id
@@ -45,7 +45,7 @@ var GridRow = React.createClass({
 
 var SortableGridHeaderCell = React.createClass({
 
-  render: function() {
+  render() {
     var sorted = this.props.column.sorted
 
     var icon = sorted ?
@@ -89,7 +89,8 @@ var Grid = React.createClass({
     onSort: PropTypes.func
   },
 
-  render: function() {
+  render() {
+    console.log('Grid.render()');
     var rowRenderer = (
       <GridRow
         selected={this.props.selectable && this.props.selected}
@@ -209,8 +210,9 @@ var Grid = React.createClass({
 
   getColumnsFromData: function(data) {
     var data = data.data;
-    if (data.length === 0)
+    if (data.length === 0) {
       return [];
+    }
     var keys = Object.keys(data[0]);
     var columns = [];
     var index = {};
@@ -244,6 +246,7 @@ var Grid = React.createClass({
       && !updating
       && hasMore
     ) {
+      console.log('Grid.onDataPagination()', updating, hasMore, this.props.onDataPagination);
       var {top, skip} = this.props.dataPagination;
       this.props.onDataPagination({top, skip: skip + top});
     }

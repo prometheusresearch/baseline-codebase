@@ -178,13 +178,6 @@ class Widget(Extension):
             setattr(self, field.attribute, arg)
             self.values[field.attribute] = arg
 
-    @property
-    def fields_mapping(self):
-        mapping = {}
-        for field in self.fields:
-            mapping[field.name] = field.validate
-        return mapping
-
     @cached
     def descriptor(self):
         props = {}
@@ -219,59 +212,43 @@ class Widget(Extension):
 
     def __call__(self, req):
         accept = req.accept.best_match(['text/html', 'application/json'])
+        spec = self.request_to_spec(req)
+        spec = to_json(spec)
         if accept == 'application/json':
-            return self.as_json(req)
+            return Response(spec, content_type='application/json')
         else:
-            return self.as_html(req)
+            return render_to_response(
+                    'rex.widget:/templates/index.html', req, spec=spec)
 
-    def as_json(self, req):
-        spec = self.handle(req)
-        spec = to_json(spec)
-        return Response(spec, content_type='application/json')
-
-    def as_html(self, req):
-        spec = self.handle(req)
-        spec = to_json(spec)
-        return render_to_response(
-                'rex.widget:/templates/index.html', req, spec=spec)
-
-    def handle(self, req):
+    def request_to_spec(self, req):
+        widget, state = self.descriptor()
         if req.method == 'GET':
-            return self.handle_init(req)
+            state = compute(state)
+            return {"ui": widget, "state": state}
         elif req.method == 'POST':
-            return self.handle_update(req)
+            origins = []
+            updates = {}
+
+            for id, value in req.json.items():
+                if id.startswith('update:'):
+                    id = id[7:]
+                    origins.append(id)
+
+                if not id in state:
+                    raise HTTPBadRequest("invalid state id: %s" % id)
+
+                updates[id] = state[id]._replace(value=value)
+
+            state = state.merge(updates)
+
+            if not origins:
+                state = compute(state)
+            else:
+                state, _ = compute_update(state, origins)
+
+            return {"state": state}
         else:
             raise HTTPMethodNotAllowed()
-
-    def handle_init(self, req):
-        widget, state = self.descriptor()
-        state = compute(state)
-        return {"ui": widget, "state": state}
-
-    def handle_update(self, req):
-        widget, state = self.descriptor()
-
-        origins = []
-        updates = {}
-
-        for id, value in req.json.items():
-            if id.startswith('update:'):
-                id = id[7:]
-                origins.append(id)
-
-            if not id in state:
-                raise HTTPBadRequest("invalid state id: %s" % id)
-
-            updates[id] = state[id]._replace(value=value)
-
-        state = state.merge(updates)
-
-        if not origins:
-            state = compute(state)
-        else:
-            state, _ = compute_update(state, origins)
-
-        return {"state": state}
 
     def __str__(self):
         text = yaml.dump(self, Dumper=WidgetYAMLDumper)

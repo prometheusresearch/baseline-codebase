@@ -33,7 +33,7 @@ class InitialValue(object):
         self.initial_value = initial_value
         self.reset_on_changes = reset_on_changes
 
-    def __call__(self, widget, state, graph, dirty=None):
+    def __call__(self, widget, state, graph, dirty=None, is_active=True):
         if state.value is unknown:
             return Reset(self.initial_value)
         if self.reset_on_changes and (set(d.id for d in state.dependencies) & dirty):
@@ -44,6 +44,8 @@ class InitialValue(object):
 class DataComputator(object):
     """ An abstract base class for state computators which fetch their state
     from database."""
+
+    inactive_value = NotImplemented
 
     def __init__(self, url, refs=None, include_meta=False):
         self.url = url
@@ -125,16 +127,18 @@ class DataComputator(object):
             raise NotImplementedError(
                     "Unknown data reference: %s" % self.route)
 
-    def __call__(self, widget, state, graph, dirty=None):
+    def __call__(self, widget, state, graph, dirty=None, is_active=True):
+        if not is_active:
+            return self.inactive_value
         handler = route(self.route)
-
         if handler is None:
             raise Error("Invalid data reference:", self.route)
-
         return self.fetch(handler, graph, dirty)
 
 
 class CollectionComputator(DataComputator):
+
+    inactive_value = {"data": [], "updating": True}
 
     def fetch(self, handler, graph, dirty):
         params = {}
@@ -146,6 +150,8 @@ class CollectionComputator(DataComputator):
 
 
 class EntityComputator(DataComputator):
+
+    inactive_value = {"data": None, "updating": True}
 
     def fetch(self, handler, graph, dirty):
         params = {name: graph[ref] for name, ref in self.refs.items()}
@@ -165,6 +171,8 @@ class EntityComputator(DataComputator):
 
 
 class PaginatedCollectionComputator(DataComputator):
+
+    inactive_value = {"data": [], "updating": True, "hasMore": False}
 
     def __init__(self, pagination_state_id, url, refs=None, include_meta=False):
         super(PaginatedCollectionComputator, self).__init__(

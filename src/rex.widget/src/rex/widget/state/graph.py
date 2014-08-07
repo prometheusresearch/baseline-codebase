@@ -116,10 +116,10 @@ class StateGraphComputation(Mapping):
     :attr output: resulted graph with computed state
     """
 
-    def __init__(self, input, output=None):
+    def __init__(self, input, output=None, dirty=None):
         self.input = input
         self.output = output or MutableStateGraph()
-        self.visited = set()
+        self.dirty = set() if not dirty else set(dirty)
 
     def __iter__(self):
         return iter(self.output)
@@ -128,18 +128,29 @@ class StateGraphComputation(Mapping):
         return len(self.output)
 
     def compute(self, id):
+        reset = False
         st = self.input[id]
         log.debug('computing: %s', id)
-        value = st.computator(st.widget, st, self, dirty=self.visited)
-        self.visited.add(id)
+        is_active = st.is_active(self)
+        value = st.computator(st.widget, st, self, dirty=self.dirty, is_active=is_active)
         if isinstance(value, Reset):
             value = value.value
             reset = True
-        else:
-            reset = False
+        if st.value != value:
+            self.dirty.add(id)
         log.debug('computed:  %s, reset status: %s', id, reset)
         self.output[st.id] = st._replace(value=value)
         return reset
+
+    def get_output(self):
+        return self.output
+
+    def get_updated_output(self):
+        return StateGraph({
+            id: state for id, state
+            in self.output.items()
+            if id in self.dirty
+        })
 
     def __getitem__(self, ref):
         if not isinstance(ref, Reference):
@@ -170,7 +181,8 @@ def _merge_state_into(dst, src):
 
 State = namedtuple(
         'State',
-        ['id', 'widget', 'computator', 'validator', 'value', 'dependencies', 'rw'])
+        ['id', 'widget', 'computator', 'validator', 'is_active',
+         'value', 'dependencies', 'rw'])
 
 
 Dep = namedtuple(
@@ -191,7 +203,7 @@ def dep(id, reset_only=False):
     return Dep(id=id, reset_only=reset_only)
 
 
-def state(id, widget, computator, validator=AnyVal, value=unknown, dependencies=None, rw=False):
+def state(id, widget, computator, validator=AnyVal, is_active=None, value=unknown, dependencies=None, rw=False):
     if dependencies is None:
         dependencies = []
     dependencies = [
@@ -205,6 +217,7 @@ def state(id, widget, computator, validator=AnyVal, value=unknown, dependencies=
         validator=validator,
         value=value,
         dependencies=dependencies,
+        is_active=is_active or (lambda graph: True),
         rw=rw)
 
 
@@ -215,15 +228,15 @@ def compute(graph):
     for id in computation.input:
         computation.compute(id)
 
-    return computation.output
+    return computation.get_output()
 
 
 def compute_update(graph, origins):
     """ Compute state graph update which were originated from ``origins``."""
-    computation = StateGraphComputation(graph)
+    computation = StateGraphComputation(graph, dirty=origins)
 
     def _compute(id, recompute_deps=True):
-        if id in computation.visited:
+        if id in computation.output:
             return
 
         reset = computation.compute(id)
@@ -237,7 +250,7 @@ def compute_update(graph, origins):
     for id in cause_effect_sort(computation.input, origins):
         _compute(id)
 
-    return computation.output, computation.visited
+    return computation.get_updated_output(), computation.dirty
 
 
 def cause_effect_sort(graph, ids):

@@ -17,7 +17,7 @@ from .widget import Widget, NullWidget, GroupWidget, Field, StateField
 from .state import (
     EntityVal, CollectionVal, PaginatedCollectionVal,
     PaginatedCollectionComputator, CollectionComputator, EntityComputator,
-    StateVal, State)
+    StateVal, State, state, dep)
 from .jsval import JSVal
 
 # XXX: Consult Kyrylo where logging configuration should reside.

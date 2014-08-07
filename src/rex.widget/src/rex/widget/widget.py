@@ -184,31 +184,32 @@ class Widget(Extension):
         state = MutableStateGraph()
 
         for name, value in self.values.items():
-
             name = to_camelcase(name)
-
             if isinstance(value, Widget):
-                descriptor = value.descriptor()
-                props[name] = descriptor.ui
-                state.update(descriptor.state)
-
+                self.on_widget(props, state, name, value)
             elif isinstance(value, JSValue):
                 props[name] = {"__reference__": value.reference}
-
             elif isinstance(value, StateDescriptor):
-                for prop_name, state_descriptor in value.describe_state(self, name):
-                    state[state_descriptor.id] = state_descriptor
-                    if state_descriptor.rw:
-                        props[prop_name] = {"__state_read_write__": state_descriptor.id}
-                    else:
-                        props[prop_name] = {"__state_read__": state_descriptor.id}
-
+                self.on_state_descriptor(props, state, name, value)
             else:
                 props[name] = value
 
         return WidgetDescriptor(
                 UIDescriptor(self.js_type, props),
                 state.immutable())
+
+    def on_widget(self, props, state, name, widget):
+        descriptor = widget.descriptor()
+        props[name] = descriptor.ui
+        state.update(descriptor.state)
+
+    def on_state_descriptor(self, props, state, name, state_descriptor):
+        for prop_name, descriptor in state_descriptor.describe_state(self, name):
+            state[descriptor.id] = descriptor
+            if descriptor.rw:
+                props[prop_name] = {"__state_read_write__": descriptor.id}
+            else:
+                props[prop_name] = {"__state_read__": descriptor.id}
 
     def __call__(self, req):
         accept = req.accept.best_match(['text/html', 'application/json'])

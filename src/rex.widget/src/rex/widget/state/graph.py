@@ -28,6 +28,9 @@ class StateGraph(Mapping):
         if initial is not None:
             _merge_state_into(self, initial)
 
+    def __contains__(self, id):
+        return id in self.storage
+
     def __iter__(self):
         return iter(self.storage)
 
@@ -132,6 +135,7 @@ class StateGraphComputation(Mapping):
         st = self.input[id]
         log.debug('computing: %s', id)
         is_active = st.is_active(self)
+        from .computator import DataComputator
         value = st.computator(st.widget, st, self, dirty=self.dirty, is_active=is_active)
         if isinstance(value, Reset):
             value = value.value
@@ -141,6 +145,9 @@ class StateGraphComputation(Mapping):
         log.debug('computed:  %s, reset status: %s', id, reset)
         self.output[st.id] = st._replace(value=value)
         return reset
+
+    def is_computed(self, id):
+        return id in self.output and self.output[id].value is not unknown
 
     def get_output(self):
         return self.output
@@ -156,7 +163,7 @@ class StateGraphComputation(Mapping):
         if not isinstance(ref, Reference):
             ref = parse_ref(ref)
 
-        if ref.id in self.output and self.output[ref.id].value is not unknown:
+        if self.is_computed(ref.id):
             return self.output.get_value(ref)
 
         if not ref.id in self.input:
@@ -226,7 +233,8 @@ def compute(graph):
     computation = StateGraphComputation(graph)
 
     for id in computation.input:
-        computation.compute(id)
+        if not computation.is_computed(id):
+            computation.compute(id)
 
     return computation.get_output()
 
@@ -236,7 +244,7 @@ def compute_update(graph, origins):
     computation = StateGraphComputation(graph, dirty=origins)
 
     def _compute(id, recompute_deps=True):
-        if id in computation.output:
+        if computation.is_computed(id):
             return
 
         reset = computation.compute(id)

@@ -82,18 +82,28 @@ class Dictable(object):
 
     dict_properties = ()
 
-    def as_dict(self):
+    def as_dict(self, extra_properties=None):
         """
         Returns a dictionary that contains the core properties of this object.
 
+        :param extra_properties:
+            the properties, in addition to the default properties, to return
+            in the dictionary
+        :type extra_properties: list
         :rtype: dict
         """
+
+        extra_properties = extra_properties or []
+        target_properties = set(
+            list(self.dict_properties)
+            + list(extra_properties)
+        )
 
         ret = {
             'uid': self.uid,
         }
 
-        for prop in self.dict_properties:
+        for prop in target_properties:
             value = getattr(self, prop, None)
             if isinstance(value, Dictable):
                 value = value.as_dict()
@@ -101,12 +111,16 @@ class Dictable(object):
 
         return ret
 
-    def as_json(self):
+    def as_json(self, extra_properties=None):
         """
         Returns a JSON-encoded object built from this object's dictionary.
 
+        :param extra_properties:
+            the properties, in addition to the default properties, to return
+            in the JSON object
+        :type extra_properties: list
         :rtype: string
         """
 
-        return to_json(self.as_dict())
+        return to_json(self.as_dict(extra_properties=extra_properties))
 

@@ -48,9 +48,9 @@ constructor and string-rendering methods::
     u'notreal456'
 
     >>> div.as_dict()
-    {'modified_by': u'someguy', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'someguy', 'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0), 'parent_instrument_version': None}
+    {'parent_instrument_version': None, 'modified_by': u'someguy', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'someguy', 'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0)}
     >>> div.as_json()
-    u'{"modified_by": "someguy", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "someguy", "instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00", "parent_instrument_version": null}'
+    u'{"parent_instrument_version": null, "modified_by": "someguy", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "someguy", "instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00"}'
 
 
 The Instruments and InstrumentVersions passed to the constructor must actually

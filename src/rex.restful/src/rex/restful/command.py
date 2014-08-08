@@ -184,7 +184,8 @@ class RestfulLocation(Command):
         return response
 
     def render(self, req, **arguments):
-        raise NotImplementedError("%s.render()" % self.__class__.__name__)
+        # This is never called.
+        pass  # pragma: no cover
 
 
 class SimpleResource(RestfulLocation):
@@ -192,7 +193,6 @@ class SimpleResource(RestfulLocation):
     def sanitize(cls):
         if cls.enabled():
             base_name = '%sBase' % cls.__name__
-            base_attrs = {}
 
             # We want the base handler to inherit from RestfulLocation as well
             # as any other specified parent classes, but not from
@@ -203,23 +203,30 @@ class SimpleResource(RestfulLocation):
                 if not issubclass(base, RestfulLocation)
             ])
 
-            def transfer_attr(name, new_name=None, delete=False):
-                new_name = new_name or name
-                if name in cls.__dict__:
-                    base_attrs[new_name] = cls.__dict__[name]
-                    if delete:
-                        delattr(cls, name)
+            base_attrs = dict(cls.__dict__)
 
-            # Suck the necessary properties & methods off of the detail handler
-            # and put them on the base.
-            transfer_attr('base_path', 'path', delete=True)
-            transfer_attr('base_parameters', 'parameters', delete=True)
-            transfer_attr('create', delete=True)
-            transfer_attr('list', 'retrieve', delete=True)
-            transfer_attr('priority')
-            transfer_attr('access')
-            transfer_attr('default_format')
-            transfer_attr('__module__')
+            # Remove unsupported methods from the base.
+            for attr in ['retrieve', 'update', 'delete']:
+                if attr in base_attrs:
+                    del base_attrs[attr]
+
+            # Turn the 'list' method into a 'retrieve' on the base.
+            if 'list' in base_attrs:
+                base_attrs['retrieve'] = base_attrs['list']
+                del base_attrs['list']
+                delattr(cls, 'list')
+
+            # Remove the create method from the detail handler.
+            if 'create' in base_attrs:
+                delattr(cls, 'create')
+
+            for attr in ['path', 'parameters']:
+                battr = 'base_%s' % attr
+                if battr in base_attrs:
+                    base_attrs[attr] = base_attrs[battr]
+                    del base_attrs[battr]
+                elif attr in base_attrs:
+                    del base_attrs[attr]
 
             # Create the base handler.
             cls.__base_handler = type(

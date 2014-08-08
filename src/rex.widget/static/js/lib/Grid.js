@@ -93,7 +93,6 @@ var Grid = React.createClass({
   },
 
   render() {
-    console.log('Grid.render()');
     var rowRenderer = (
       <GridRow
         selected={this.props.selectable && this.props.selected}
@@ -252,7 +251,6 @@ var Grid = React.createClass({
       && !updating
       && hasMore
     ) {
-      console.log('Grid.onDataPagination()', updating, hasMore, this.props.onDataPagination);
       var {top, skip} = this.props.dataPagination;
       this.props.onDataPagination({top, skip: skip + top});
     }

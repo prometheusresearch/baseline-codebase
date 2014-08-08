@@ -19,9 +19,3 @@ from .state import (
     PaginatedCollectionComputator, CollectionComputator, EntityComputator,
     StateVal, State, state, dep)
 from .jsval import JSVal
-
-# XXX: Consult Kyrylo where logging configuration should reside.
-import logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(levelname)s %(name)s %(message)s')

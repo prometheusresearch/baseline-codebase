@@ -8,6 +8,8 @@
 """
 
 from collections import namedtuple
+from contextlib import contextmanager
+import time
 import json
 import urlparse
 import urllib
@@ -25,6 +27,14 @@ from .reference import parse_ref
 
 
 log = getLogger(__name__)
+
+
+@contextmanager
+def measure_execution_time(message='execution time: %f seconds'):
+    start = time.clock()
+    yield
+    end = time.clock()
+    log.debug(message, end - start)
 
 
 class InitialValue(object):
@@ -70,9 +80,10 @@ class DataComputator(object):
         query = {k: v for k, v in query.items() if v is not None}
         query = urllib.urlencode(query)
 
-        log.info('fetching port: %s?%s', self.url, query)
+        log.debug('fetching port: %s?%s', self.url, query)
 
-        product = handler.port.produce(query)
+        with measure_execution_time():
+            product = handler.port.produce(query)
         data = product_to_json(product)
         data = data[product.meta.domain.fields[0].tag]
         if self.include_meta:
@@ -91,9 +102,9 @@ class DataComputator(object):
 
         query.update(params)
 
-        log.info('fetching query: %s?%s', self.url, urllib.urlencode(query))
+        log.debug('fetching query: %s?%s', self.url, urllib.urlencode(query))
 
-        with get_db():
+        with measure_execution_time(), get_db():
             product = htsql.core.cmd.act.produce(handler.query, query)
 
         data = product_to_json(product)

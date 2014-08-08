@@ -185,6 +185,34 @@ html, body, #__main__ {
 }
 
 /**
+ * Row Filters widget
+ */
+.rex-widget-RowFilters {
+  margin-left: @paddingL;
+}
+
+.rex-widget-RowFilters__header {
+  margin-bottom: @paddingL;
+}
+
+.rex-widget-RowFilters__clearButton {
+  .btn();
+  .btn-xs();
+  .btn-link();
+}
+
+.rex-widget-RowFilters__applyButton {
+  .btn();
+  .btn-xs();
+  .btn-default();
+}
+
+.rex-widget-RowFilters__buttonList {
+  width: 100%;
+  text-align: left;
+}
+
+/**
  * Filter widget
  */
 .rex-widget-Filter {
@@ -193,6 +221,23 @@ html, body, #__main__ {
 
 .rex-widget-Filter__title {
   font-size: 90%;
+}
+
+/**
+ * RowFilter widget
+ */
+
+.rex-widget-RowFilter {
+  display: block-inline;
+  margin-right: @paddingL;
+  .rex-widget-Select {
+    width: auto;
+  }
+}
+
+.rex-widget-RowFilter__title {
+  font-size: 90%;
+  margin-right: @paddingS;
 }
 
 /**

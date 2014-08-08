@@ -230,6 +230,14 @@ class TextInputWidget(Widget):
     value   = StateField(StrVal, default=None)
 
 
+class RowFilterWidget(Widget):
+
+    name    = 'RowFilter'
+    js_type = 'rex-widget/lib/RowFilter'
+
+    title   = Field(StrVal)
+    filter  = Field(WidgetVal)
+
 class FilterWidget(Widget):
 
     name    = 'Filter'
@@ -267,6 +275,32 @@ class FiltersWidget(Widget):
     def value_dependencies(self):
         return [dep(id, reset_only=True) for id in self.refs.values()]
 
+class RowFiltersWidget(Widget):
+
+    name = 'RowFilters'
+    js_type = 'rex-widget/lib/RowFilters'
+
+    id                  = Field(StrVal)
+    filters             = Field(WidgetVal, default=NullWidget())
+    show_apply_button   = Field(BoolVal, default=True)
+    show_clear_button   = Field(BoolVal, default=True)
+
+    def __init__(self, *args, **kwargs):
+        super(RowFiltersWidget, self).__init__(*args, **kwargs)
+        self.refs = {
+            w.filter.id: "%s.value" % w.filter.id
+            for w in iterate_widget(self.filters)}
+
+    @state(AnyVal)
+    def value(self, state, graph, dirty=None):
+        if state.value is unknown or (set(self.refs.values()) & dirty):
+            return Reset({k: graph[dep] for k, dep in self.refs.items()})
+
+        return state.value
+
+    @value.set_dependencies
+    def value_dependencies(self):
+        return [dep(id, reset_only=True) for id in self.refs.values()]
 
 class GridWidget(Widget):
 

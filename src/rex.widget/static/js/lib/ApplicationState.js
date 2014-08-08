@@ -190,9 +190,7 @@ var ApplicationState = merge({
 
     var state = response.body.state;
     this.hydrateAll(state);
-    window.ReactUpdates.batchedUpdates(() => {
-      Object.keys(state).forEach(this.notifyStateChanged, this);
-    });
+    Object.keys(state).forEach(this.notifyStateChanged, this);
   },
 
   forEach: function(func, context) {

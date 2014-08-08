@@ -83,9 +83,9 @@ and string-rendering methods::
     u'The InstrumentVersion Title'
 
     >>> df.as_dict()
-    {'uid': u'foo789', 'draft_instrument_version': {'modified_by': u'jay', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'jay', 'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0), 'parent_instrument_version': None}, 'channel': {'uid': u'chan135', 'title': u'My EDC Application'}}
+    {'draft_instrument_version': {'parent_instrument_version': None, 'modified_by': u'jay', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'jay', 'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'title': u'My EDC Application'}}
     >>> df.as_json()
-    u'{"uid": "foo789", "draft_instrument_version": {"modified_by": "jay", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "jay", "instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00", "parent_instrument_version": null}, "channel": {"uid": "chan135", "title": "My EDC Application"}}'
+    u'{"draft_instrument_version": {"parent_instrument_version": null, "modified_by": "jay", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "jay", "instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application"}}'
 
 
 The Channels and DraftInstrumentVersions passed to the constructor must

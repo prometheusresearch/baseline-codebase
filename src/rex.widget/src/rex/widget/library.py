@@ -303,17 +303,19 @@ class RowFiltersWidget(Widget):
         return [dep(id, reset_only=True) for id in self.refs.values()]
 
 class GridWidget(Widget):
+    """ Data Grid."""
 
     name    = 'Grid'
     js_type = 'rex-widget/lib/Grid'
 
-    id             = Field(StrVal)
-    data           = Field(PaginatedCollectionVal(include_meta=True))
-    selectable     = Field(BoolVal, False)
-    selected       = StateField(IntVal, default=None)
-    columns        = Field(AnyVal, default={})
-    hide_columns   = Field(SeqVal(StrVal), default=[])
-    show_columns   = Field(MaybeVal(SeqVal(StrVal)), default=None)
+    id                  = Field(StrVal)
+    data                = Field(PaginatedCollectionVal(include_meta=True))
+    selectable          = Field(BoolVal, False)
+    selected            = StateField(IntVal, default=None)
+    columns             = Field(AnyVal, default={})
+    resizeable_columns  = Field(BoolVal, default=False)
+    hide_columns        = Field(SeqVal(StrVal), default=[])
+    show_columns        = Field(MaybeVal(SeqVal(StrVal)), default=None)
 
 
 class BarChart(Widget):

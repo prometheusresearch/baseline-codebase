@@ -79,6 +79,9 @@ var Grid = React.createClass({
     ]),
 
     columns: PropTypes.object,
+    hideColumns: PropTypes.array,
+    showColumns: PropTypes.array,
+    resizeableColumns: PropTypes.bool,
 
     selectable: PropTypes.bool,
     selected: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -150,6 +153,9 @@ var Grid = React.createClass({
           onSort: this.props.onSort
         });
       }
+    }
+    if (this.props.resizeableColumns) {
+      column = merge(column, {resizeable: true});
     }
     return column;
   },

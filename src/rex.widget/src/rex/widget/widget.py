@@ -212,7 +212,7 @@ class Widget(Extension):
                 props[prop_name] = {"__state_read__": descriptor.id}
 
     def request_to_spec(self, req):
-        user = req.environ['REMOTE_USER']
+        user = req.environ.get('rex.user')
         widget, state = self.descriptor()
         if req.method == 'GET':
             state = compute(state, user=user)

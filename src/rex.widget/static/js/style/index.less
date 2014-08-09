@@ -14,6 +14,7 @@
 @colorHoverHighlight: #eaeaea;
 @colorSelectedHighlight: #ffef8f;
 @colorLink: #1546CF;
+@colorGrey: #777777;
 
 @border: 1px solid #cccccc;
 
@@ -213,6 +214,11 @@ html, body, #__main__ {
   text-align: left;
 }
 
+.rex-widget-RowFilters__title {
+    font-size: 120%;
+    margin-right: @padding;
+}
+
 /**
  * Filter widget
  */
@@ -234,11 +240,15 @@ html, body, #__main__ {
   .rex-widget-Select {
     width: auto;
   }
+
+  .rex-widget-TextInput {
+    width: auto;
+  }
 }
 
 .rex-widget-RowFilter__title {
-  font-size: 90%;
   margin-right: @paddingS;
+  color: @colorGrey;
 }
 
 /**

@@ -199,6 +199,7 @@ class SelectWidget(Widget):
     id      = Field(StrVal)
     options = Field(SeqVal, default=None)
     data    = Field(CollectionVal, default=None)
+    title_for_empty = Field(StrVal, default=None)
 
     @state(OneOfVal(IntVal(), StrVal()), default=None)
     def value(self, state, graph, dirty=None, is_active=True):
@@ -235,7 +236,7 @@ class RowFilterWidget(Widget):
     name    = 'RowFilter'
     js_type = 'rex-widget/lib/RowFilter'
 
-    title   = Field(StrVal)
+    title   = Field(StrVal, default=None)
     filter  = Field(WidgetVal)
 
 class FilterWidget(Widget):
@@ -281,9 +282,11 @@ class RowFiltersWidget(Widget):
     js_type = 'rex-widget/lib/RowFilters'
 
     id                  = Field(StrVal)
+    title               = Field(StrVal, default=None)
     filters             = Field(WidgetVal, default=NullWidget())
     show_apply_button   = Field(BoolVal, default=True)
     show_clear_button   = Field(BoolVal, default=True)
+    class_name          = Field(StrVal, default=None)
 
     def __init__(self, *args, **kwargs):
         super(RowFiltersWidget, self).__init__(*args, **kwargs)
@@ -292,7 +295,7 @@ class RowFiltersWidget(Widget):
             for w in iterate_widget(self.filters)}
 
     @state(AnyVal)
-    def value(self, state, graph, dirty=None):
+    def value(self, state, graph, dirty=None, is_state=True, is_active=True):
         if state.value is unknown or (set(self.refs.values()) & dirty):
             return Reset({k: graph[dep] for k, dep in self.refs.items()})
 

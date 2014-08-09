@@ -13,7 +13,7 @@ var RowFilter = React.createClass({
   propTypes: {
     id: React.PropTypes.string.isRequired,
     filter: React.PropTypes.renderable.isRequired,
-    title: React.PropTypes.string.isRequired,
+    title: React.PropTypes.string,
     value: React.PropTypes.string,
     onValue: React.PropTypes.func
   },

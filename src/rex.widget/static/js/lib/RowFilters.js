@@ -13,19 +13,22 @@ var ApplicationState  = require('./ApplicationState');
 var RowFilters = React.createClass({
 
   propTypes: {
+    title: React.PropTypes.string,
     showClearButton: React.PropTypes.bool,
     showApplyButton: React.PropTypes.bool,
     filters: React.PropTypes.array
   },
 
   render: function() {
-    var className = cx(
-      this.props.className,
-      'rex-widget-RowFilters'
-    );
+    var className = this.props.className ? this.props.className + ' rex-widget-RowFilters' :
+                    'rex-widget-RowFilters';
+    
     return (
-      <div className="rex-widget-RowFilters">
+      <div className={className}>
         <div className="rex-widget-RowFilters__children">
+          {this.props.title ? 
+            <strong className="rex-widget-RowFilters__title">{this.props.title}</strong> : ''
+          }
           {this.renderFilters()}
           <span className="rex-widget-RowFilters__buttonList">
             <button className="rex-widget-RowFilters__applyButton" onClick={this.onApply}>
@@ -65,6 +68,7 @@ var RowFilters = React.createClass({
     props = props || this.props;
     var state = {};
     React.Children.forEach(props.filters, (filter) => {
+      console.log('filter', filter.props.filter.props.id);
       var key = filter.props.filter.props.id;
       state[key] = props.value[key] || null;
     });

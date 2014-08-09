@@ -81,7 +81,7 @@ class StateGraph(Mapping):
 
 
 class MutableStateGraph(StateGraph, MutableMapping):
-    """ A mutable version of state graph
+    """ A mutable version of state graph.
     """
 
     def __setitem__(self, id, st):
@@ -114,15 +114,22 @@ class MutableStateGraph(StateGraph, MutableMapping):
 
 
 class StateGraphComputation(Mapping):
-    """ Computation over state graph
+    """ Computation over state graph.
 
-    :attr output: resulted graph with computed state
+    :attr input: input state graph
+    :keyword output: resulted graph with computed state
+    :keyword dirty: a set of dirtied state ids
+    :keyword user: user
     """
 
-    def __init__(self, input, output=None, dirty=None):
+    def __init__(self, input, output=None, dirty=None, user=None):
         self.input = input
         self.output = output or MutableStateGraph()
         self.dirty = set() if not dirty else set(dirty)
+        self.user = user
+
+        if self.user is not None:
+            self.output['USER'] = state('USER', None, None, value=self.user)
 
     def __iter__(self):
         return iter(self.output)
@@ -149,15 +156,15 @@ class StateGraphComputation(Mapping):
     def is_computed(self, id):
         return id in self.output and self.output[id].value is not unknown
 
-    def get_output(self):
-        return self.output
-
-    def get_updated_output(self):
-        return StateGraph({
-            id: state for id, state
-            in self.output.items()
-            if id in self.dirty
-        })
+    def get_output(self, dirty_only=False):
+        if dirty_only:
+            return StateGraph({
+                id: state for id, state
+                in self.output.items()
+                if id in self.dirty
+            })
+        else:
+            return self.output.immutable()
 
     def __getitem__(self, ref):
         if not isinstance(ref, Reference):
@@ -228,9 +235,9 @@ def state(id, widget, computator, validator=AnyVal, is_active=None, value=unknow
         rw=rw)
 
 
-def compute(graph):
+def compute(graph, user=None):
     """ Compute entire state graph."""
-    computation = StateGraphComputation(graph)
+    computation = StateGraphComputation(graph, user=user)
 
     for id in computation.input:
         if not computation.is_computed(id):
@@ -239,9 +246,9 @@ def compute(graph):
     return computation.get_output()
 
 
-def compute_update(graph, origins):
+def compute_update(graph, origins, user=None):
     """ Compute state graph update which were originated from ``origins``."""
-    computation = StateGraphComputation(graph, dirty=origins)
+    computation = StateGraphComputation(graph, dirty=origins, user=user)
 
     def _compute(id, recompute_deps=True):
         if computation.is_computed(id):
@@ -258,7 +265,7 @@ def compute_update(graph, origins):
     for id in cause_effect_sort(computation.input, origins):
         _compute(id)
 
-    return computation.get_updated_output(), computation.dirty
+    return computation.get_output(dirty_only=True)
 
 
 def cause_effect_sort(graph, ids):
@@ -278,7 +285,7 @@ def cause_effect_sort(graph, ids):
         # check if we have deps we didn't see before
         dependencies = [graph[d.id]
                 for d in c.dependencies
-                if d.id not in seen]
+                if d.id not in seen and d.id in graph]
         if dependencies:
             queue = [c] + dependencies + queue
             continue

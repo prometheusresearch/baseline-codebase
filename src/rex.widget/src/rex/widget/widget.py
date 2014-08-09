@@ -211,20 +211,11 @@ class Widget(Extension):
             else:
                 props[prop_name] = {"__state_read__": descriptor.id}
 
-    def __call__(self, req):
-        accept = req.accept.best_match(['text/html', 'application/json'])
-        spec = self.request_to_spec(req)
-        spec = to_json(spec)
-        if accept == 'application/json':
-            return Response(spec, content_type='application/json')
-        else:
-            return render_to_response(
-                    'rex.widget:/templates/index.html', req, spec=spec)
-
     def request_to_spec(self, req):
+        user = req.environ['REMOTE_USER']
         widget, state = self.descriptor()
         if req.method == 'GET':
-            state = compute(state)
+            state = compute(state, user=user)
             return {"ui": widget, "state": state}
         elif req.method == 'POST':
             origins = []
@@ -243,13 +234,23 @@ class Widget(Extension):
             state = state.merge(updates)
 
             if not origins:
-                state = compute(state)
+                state = compute(state, user=user)
             else:
-                state, _ = compute_update(state, origins)
+                state = compute_update(state, origins, user=user)
 
             return {"state": state}
         else:
             raise HTTPMethodNotAllowed()
+
+    def __call__(self, req):
+        accept = req.accept.best_match(['text/html', 'application/json'])
+        spec = self.request_to_spec(req)
+        spec = to_json(spec)
+        if accept == 'application/json':
+            return Response(spec, content_type='application/json')
+        else:
+            return render_to_response(
+                    'rex.widget:/templates/index.html', req, spec=spec)
 
     def __str__(self):
         text = yaml.dump(self, Dumper=WidgetYAMLDumper)

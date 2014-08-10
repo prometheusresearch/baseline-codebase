@@ -122,7 +122,7 @@ class StateGraphComputation(Mapping):
     :keyword user: user
     """
 
-    def __init__(self, input, output=None, dirty=None, user=None):
+    def __init__(self, input, output=None, dirty=None, values=None, user=None):
         self.input = input
         self.output = output or MutableStateGraph()
         self.dirty = set() if not dirty else set(dirty)
@@ -130,6 +130,11 @@ class StateGraphComputation(Mapping):
 
         if self.user is not None:
             self.output['USER'] = state('USER', None, None, value=self.user)
+
+        if values is not None:
+            for id, value in values.items():
+                self.output[id] = self.input[id]._replace(value=value)
+
 
     def __iter__(self):
         return iter(self.output)
@@ -196,7 +201,7 @@ def _merge_state_into(dst, src):
 State = namedtuple(
         'State',
         ['id', 'widget', 'computator', 'validator', 'is_active',
-         'value', 'dependencies', 'rw'])
+         'value', 'dependencies', 'is_ephemeral', 'rw'])
 
 
 Dep = namedtuple(
@@ -217,7 +222,8 @@ def dep(id, reset_only=False):
     return Dep(id=id, reset_only=reset_only)
 
 
-def state(id, widget, computator, validator=AnyVal, is_active=None, value=unknown, dependencies=None, rw=False):
+def state(id, widget, computator, validator=AnyVal, is_active=None,
+        value=unknown, dependencies=None, is_ephemeral=False, rw=False):
     if dependencies is None:
         dependencies = []
     dependencies = [
@@ -232,12 +238,13 @@ def state(id, widget, computator, validator=AnyVal, is_active=None, value=unknow
         value=value,
         dependencies=dependencies,
         is_active=is_active or (lambda graph: True),
+        is_ephemeral=is_ephemeral,
         rw=rw)
 
 
-def compute(graph, user=None):
+def compute(graph, values=None, user=None):
     """ Compute entire state graph."""
-    computation = StateGraphComputation(graph, user=user)
+    computation = StateGraphComputation(graph, values=values, user=user)
 
     for id in computation.input:
         if not computation.is_computed(id):

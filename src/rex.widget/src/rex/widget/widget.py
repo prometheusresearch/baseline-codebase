@@ -10,6 +10,7 @@
 import re
 import simplejson as json
 import yaml
+from jquery_unparam import jquery_unparam as parse_qs
 from collections import namedtuple
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
@@ -71,10 +72,12 @@ class Field(object):
 
 class StateField(Field):
 
-    def __init__(self, validator, computator=None, dependencies=None, default=RecordField.NODEFAULT):
+    def __init__(self, validator, computator=None, dependencies=None,
+            is_ephemeral=False, default=RecordField.NODEFAULT):
         super(StateField, self).__init__(validator, default=default)
         self.computator = computator
         self.dependencies = dependencies
+        self.is_ephemeral = is_ephemeral
 
     def to_record_field(self, name):
         default = unknown if self.default is RecordField.NODEFAULT else self.default
@@ -82,6 +85,7 @@ class StateField(Field):
         validator = StateVal(
                 MaybeVal(self.validator),
                 self.computator or InitialValue(default),
+                is_ephemeral=self.is_ephemeral,
                 dependencies=self.dependencies)
 
         if default is not RecordField.NODEFAULT:
@@ -215,7 +219,11 @@ class Widget(Extension):
         user = req.environ.get('rex.user')
         widget, state = self.descriptor()
         if req.method == 'GET':
-            state = compute(state, user=user)
+            values = parse_qs(req.query_string)
+            for k, v in values.items():
+                if k in state and state[k].validator is not None:
+                    values[k] = state[k].validator(v)
+            state = compute(state, values=values, user=user)
             return {"ui": widget, "state": state}
         elif req.method == 'POST':
             origins = []
@@ -336,6 +344,7 @@ class WidgetJSONEncoder(json.JSONEncoder):
                 "dependencies": [dep.id
                     for dep in obj.dependencies
                     if not dep.reset_only],
+                "isEphemeral": obj.is_ephemeral,
                 "rw": obj.rw
             }
         return super(WidgetJSONEncoder, self).default(obj)

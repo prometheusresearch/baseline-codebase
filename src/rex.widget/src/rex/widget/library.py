@@ -201,7 +201,7 @@ class SelectWidget(Widget):
     data    = Field(CollectionVal, default=None)
     title_for_empty = Field(StrVal, default=None)
 
-    @state(OneOfVal(IntVal(), StrVal()), default=None)
+    @state(OneOfVal(StrVal()), default=None)
     def value(self, state, graph, dirty=None, is_active=True):
         if state.value is unknown:
             return Reset(None)
@@ -228,7 +228,7 @@ class TextInputWidget(Widget):
     js_type = 'rex-widget/lib/TextInput'
 
     id      = Field(StrVal)
-    value   = StateField(StrVal, default=None)
+    value   = StateField(StrVal, is_ephemeral=True, default=None)
 
 
 class RowFilterWidget(Widget):
@@ -314,7 +314,7 @@ class GridWidget(Widget):
     id                  = Field(StrVal)
     data                = Field(PaginatedCollectionVal(include_meta=True))
     selectable          = Field(BoolVal, False)
-    selected            = StateField(IntVal, default=None)
+    selected            = StateField(AnyVal, default=None)
     columns             = Field(AnyVal, default={})
     resizeable_columns  = Field(BoolVal, default=False)
     hide_columns        = Field(SeqVal(StrVal), default=[])

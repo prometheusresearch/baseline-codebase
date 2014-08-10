@@ -4,7 +4,8 @@
 'use strict';
 
 var request     = require('superagent/superagent');
-var qs          = require('qs');
+var $           = require('jquery');
+require('./jquery-deparam');
 var Emitter     = require('emitter');
 var invariant   = require('./invariant');
 var merge       = require('./merge');
@@ -44,9 +45,61 @@ function updateStateValue(value, update) {
   }
 }
 
+function forEachReadWriteState(func) {
+  Object.keys(storage).forEach(function(key) {
+    var state = storage[key];
+    if (state.rw) {
+      func(state, key);
+    }
+  });
+}
+
+function serializeApplicationState() {
+  var pathname = window.location.pathname;
+  var query = {};
+  forEachReadWriteState(function(state, key) {
+    if (state.value !== null) {
+      query[key] = state.value;
+    }
+  });
+  console.log(JSON.stringify(query), $.param(query));
+  query = $.param(query);
+  if (query.length > 0) {
+    pathname = `${pathname}?${query}`;
+  }
+  return pathname;
+}
+
+window.addEventListener('popstate', function() {
+  var update = {};
+  var query = qs.parse(window.location.search.slice(1));
+  forEachReadWriteState(function(state, key) {
+    var value = query[key];
+    if (value === '' || value === undefined) {
+      value = null;
+    }
+    update[key] = value;
+  });
+  ApplicationState.updateMany(update);
+});
+
 var ApplicationState = merge({
 
-  get: function(id) {
+  replaceHistoryRecord() {
+    var pathname = serializeApplicationState();
+    window.history.replaceState(null, '', pathname);
+  },
+
+  pushHistoryRecord() {
+    var pathname = serializeApplicationState();
+    window.history.pushState(null, '', pathname);
+  },
+
+  getState(id) {
+    return storage[id];
+  },
+
+  get(id) {
     if (id.indexOf(':') > -1) {
       var parsed = id.split(':', 1);
       id = parsed[0];
@@ -66,7 +119,7 @@ var ApplicationState = merge({
     }
   },
 
-  hydrateAll: function(statePacket) {
+  hydrateAll(statePacket) {
     Object.keys(statePacket).forEach((id) =>
       this.hydrate(statePacket[id]))
   },
@@ -76,7 +129,7 @@ var ApplicationState = merge({
    * @param {Object} state
    * @param {Array<Strign>} dependencies
    */
-  hydrate: function(stateDescriptor) {
+  hydrate(stateDescriptor) {
 
     var id = stateDescriptor.id;
     var value = stateDescriptor.value;
@@ -92,7 +145,8 @@ var ApplicationState = merge({
       storage[id] = {
         value: updateStateValue(undefined, value),
         rw: stateDescriptor.rw,
-        updating: stateDescriptor.updating
+        updating: stateDescriptor.updating,
+        isEphemeral: stateDescriptor.isEphemeral
       };
     }
     console.debug('hydrated ', id, storage[id].value);
@@ -108,7 +162,7 @@ var ApplicationState = merge({
     }
   },
 
-  updateMany: function(values) {
+  updateMany(values) {
     console.debug('updateMany', values);
     var nextStorage = merge({}, storage);
 
@@ -145,17 +199,17 @@ var ApplicationState = merge({
     }
   },
 
-  update: function(id, value) {
+  update(id, value) {
     var values = {}
     values[id] = value;
     this.updateMany(values);
   },
 
-  notifyStateChanged: function(id) {
+  notifyStateChanged(id) {
     this.emit(id, id, storage[id].value);
   },
 
-  remoteUpdate: function(values) {
+  remoteUpdate(values) {
 
     var params = {};
 
@@ -178,7 +232,7 @@ var ApplicationState = merge({
       .end(this._remoteUpdateCompleted.bind(this));
   },
 
-  _remoteUpdateCompleted: function(err, response) {
+  _remoteUpdateCompleted(err, response) {
     // FIXME: We need to do proper error handling instead: store error in state
     // so UI can render appropriate message
     if (err) {
@@ -191,9 +245,10 @@ var ApplicationState = merge({
     var state = response.body.state;
     this.hydrateAll(state);
     Object.keys(state).forEach(this.notifyStateChanged, this);
+    this.replaceHistoryRecord()
   },
 
-  forEach: function(func, context) {
+  forEach(func, context) {
     Object.keys(storage).forEach((id) => func.call(context, storage[id], id));
   }
 

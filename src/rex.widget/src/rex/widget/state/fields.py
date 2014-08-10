@@ -8,7 +8,7 @@
 """
 
 from collections import namedtuple
-from rex.core import Validate, Error
+from rex.core import Validate, Error, MapVal, StrVal, IntVal
 from .computator import (
         CollectionComputator, EntityComputator, PaginatedCollectionComputator,
         InitialValue)
@@ -36,11 +36,13 @@ class StateDescriptor(object):
 
 class SimpleStateDescriptor(StateDescriptor):
 
-    def __init__(self, computator=None, validator=None, value=unknown, dependencies=None):
+    def __init__(self, computator=None, validator=None, value=unknown,
+            is_ephemeral=False, dependencies=None):
         if dependencies is None:
             dependencies = []
 
         self.computator = computator
+        self.is_ephemeral = is_ephemeral
         self.dependencies = dependencies
         self.validator = validator
         self.value = value
@@ -62,6 +64,7 @@ class SimpleStateDescriptor(StateDescriptor):
                 validator=self.validator,
                 value=self.value,
                 dependencies=dependencies,
+                is_ephemeral=self.is_ephemeral,
                 rw=True)
 
         return [(field_name, st)]
@@ -129,6 +132,7 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                     pagination_state_id,
                     widget,
                     InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
+                    validator=MapVal(StrVal, IntVal),
                     dependencies=dependencies,
                     rw=True)),
         ]
@@ -136,7 +140,8 @@ class PaginatedCollectionDescriptor(DataDescriptor):
 
 class StateVal(Validate):
 
-    def __init__(self, validator, computator, dependencies=None):
+    def __init__(self, validator, computator, dependencies=None,
+            is_ephemeral=False):
 
         if isinstance(validator, type):
             validator = validator()
@@ -144,12 +149,14 @@ class StateVal(Validate):
         self.validator = validator
         self.computator = computator
         self.dependencies = dependencies or []
+        self.is_ephemeral = is_ephemeral
 
     def descriptor(self, value):
         return SimpleStateDescriptor(
             validator=self.validator,
             computator=self.computator,
             value=value,
+            is_ephemeral=self.is_ephemeral,
             dependencies=self.dependencies)
 
     def __call__(self, data):

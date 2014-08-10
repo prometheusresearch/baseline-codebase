@@ -77,7 +77,7 @@ class DataComputator(object):
     def fetch_port(self, handler, **params):
         query = dict(self.parsed_query)
         query.update(params)
-        query = {k: v for k, v in query.items() if v is not None}
+        query = {k: v for k, v in query.items() if v is not None and v != ''}
         query = urllib.urlencode(query)
 
         log.debug('fetching port: %s?%s', self.url, query)

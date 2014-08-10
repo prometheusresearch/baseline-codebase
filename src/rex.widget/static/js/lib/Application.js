@@ -96,8 +96,10 @@ function constructComponent(ui, key) {
       props[name] = ApplicationState.get(prop.__state_read__);
     // Write to state
     } else if (prop !== null && prop.__state_read_write__) {
-      props[name] = ApplicationState.get(prop.__state_read_write__);
-      props[stateWriterName(name)] = makeAction(prop.__state_read_write__);
+      var stateID = prop.__state_read_write__;
+      var state = ApplicationState.getState(stateID);
+      props[name] = ApplicationState.get(stateID);
+      props[stateWriterName(name)] = makeAction(stateID, state.isEphemeral);
     } else {
       props[name] = prop;
     }
@@ -111,7 +113,7 @@ function stateWriterName(name) {
   return 'on' + name[0].toUpperCase() + name.slice(1);
 }
 
-function makeAction(id) {
+function makeAction(id, isEphemeral) {
   function produce(value) {
     var update = {};
     update[id] = value;
@@ -120,6 +122,11 @@ function makeAction(id) {
 
   function execute(value) {
     ApplicationState.updateMany(produce(value));
+    if (isEphemeral) {
+      ApplicationState.replaceHistoryRecord();
+    } else {
+      ApplicationState.pushHistoryRecord();
+    }
   }
 
   execute.produce = produce;

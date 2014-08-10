@@ -100,6 +100,7 @@ var Filters = React.createClass({
 
     this.replaceState(filters);
     ApplicationState.updateMany(update);
+    ApplicationState.pushHistoryRecord();
   },
 
   onValue: function(id, value, update) {
@@ -110,6 +111,7 @@ var Filters = React.createClass({
         update,
         this.props.onValue.produce(nextState)
       ));
+      ApplicationState.pushHistoryRecord();
     } else {
       ApplicationState.updateMany(update);
     }

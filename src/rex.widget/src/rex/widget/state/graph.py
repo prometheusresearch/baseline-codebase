@@ -21,6 +21,12 @@ log = getLogger(__name__)
 
 class StateGraph(Mapping):
     """ Represents immutable graph of states with dependencies between.
+
+    Instances of :class:`StateGraph` implement :class:`collections.Mapping`
+    abstract base class.
+
+    :param initial: Intial state
+    :type initial: :class:`collections.Mapping`
     """
 
     def __init__(self, initial=None):
@@ -85,7 +91,31 @@ class StateGraph(Mapping):
 
 class MutableStateGraph(StateGraph, MutableMapping):
     """ A mutable version of state graph.
+
+    Instances of :class:`MutableStateGraph` implement
+    :class:`collections.MutableMapping` abstract base class.
     """
+
+    def add(self, *args, **kwargs):
+        """ Shortuct for adding new state to a graph.
+        
+        For arguments see :class:`State`.
+        """
+        st = State(*args, **kwargs)
+        self[st.id] = st
+
+    def set(self, id, value):
+        """ Update state by ``id`` with a new ``value``."""
+        self[id] = self[id]._replace(value=value)
+
+    def set_many(self, updates):
+        """ Update many states at once."""
+        for id, value in updates.items():
+            self.set(id, value)
+
+    def immutable(self):
+        """ Return an immutable version of the state graph."""
+        return StateGraph(self)
 
     def __setitem__(self, id, st):
         self.storage[id] = st
@@ -98,22 +128,8 @@ class MutableStateGraph(StateGraph, MutableMapping):
             if not inverse_dep in dependents:
                 dependents.append(inverse_dep)
 
-    def add(self, *args, **kwargs):
-        st = State(*args, **kwargs)
-        self[st.id] = st
-
-    def set(self, id, value):
-        self[id] = self[id]._replace(value=value)
-
-    def set_many(self, updates):
-        for id, value in updates.items():
-            self.set(id, value)
-
     def __delitem__(self, id):
         raise NotImplementedError("not implemented")
-
-    def immutable(self):
-        return StateGraph(self)
 
 
 class StateGraphComputation(Mapping):
@@ -235,7 +251,19 @@ _State = namedtuple('State', [
 
 
 class State(_State):
-    """ Represents a single atom of application state."""
+    """ Represents a single atom of application state.
+    
+    :attr id: state identifier
+    :attr widget: widget state is bound to
+    :attr computator: state computator
+    :attr validator: state value validator
+    :attr is_active: function which determines is state should be computed
+    :attr value: current value (unknown if it is not yet computed)
+    :attr default: default value
+    :attr dependencies: a list of state dependencies
+    :attr is_ephemeral: if state is ephemeral (should not be persisted on each update)
+    :attr rw: if state is read-write
+    """
 
     __slots__ = ()
 
@@ -266,7 +294,12 @@ _Dep = namedtuple('Dep', ['id', 'reset_only'])
 
 
 class Dep(_Dep):
-    """ Represent dependency between states."""
+    """ Represent dependency between states.
+    
+    :attr id: state identifier
+    :attr reset_only: If ``True`` then state is only recomputed when the state
+                      it depends on recomputed with :class:`Reset` marker.
+    """
 
     __slots__ = ()
 

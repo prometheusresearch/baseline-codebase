@@ -11,6 +11,9 @@ REX.FORMS Change Log
 - Changed Form.validate_configuration() parameter naming to align to that used
   in the Assessment.validate_data() method.
 - Addressed changes to the Assessment.validate_data() interface method.
+- All get_by_uid() and find() methods now accept and optional user parameter to
+  indicate that the resulting instance should be accessible by the specified
+  User.
 
 
 0.21.0 (7/31/2014)

@@ -55,7 +55,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         )
 
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         """
         Retrieves a DraftForm from the datastore using its UID.
 
@@ -63,6 +63,8 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
 
         :param uid: the UID of the DraftForm to retrieve
         :type uid: string
+        :param user: the User who should have access to the desired DraftForm
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :returns:
@@ -73,7 +75,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         """
         Returns DraftForms that match the specified criteria.
 
@@ -92,6 +94,8 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
             the maximum number of DraftForms to return (useful for pagination
             purposes)
         :type limit: int
+        :param user: the User who should have access to the desired DraftForms
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: list of DraftForms

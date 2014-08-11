@@ -24,7 +24,7 @@ class Channel(Extension, Comparable, Displayable, Dictable):
     )
 
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         """
         Retrieves a Channel from the datastore using its UID.
 
@@ -32,6 +32,8 @@ class Channel(Extension, Comparable, Displayable, Dictable):
 
         :param uid: the UID of the Channel to retrieve
         :type uid: string
+        :param user: the User who should have access to the desired Channel
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :returns:
@@ -42,7 +44,7 @@ class Channel(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         """
         Returns Channels that match the specified criteria.
 
@@ -60,6 +62,8 @@ class Channel(Extension, Comparable, Displayable, Dictable):
             the maximum number of Channels to return (useful for pagination
             purposes)
         :type limit: int
+        :param user: the User who should have access to the desired Channels
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: list of Channels
@@ -92,7 +96,12 @@ class Channel(Extension, Comparable, Displayable, Dictable):
 
         return self._title
 
-    def get_instruments(self, offset=0, limit=100, **search_criteria):
+    def get_instruments(
+            self,
+            offset=0,
+            limit=100,
+            user=None,
+            **search_criteria):
         """
         Returns Instruments that have at least one Form configured for this
         Channel.
@@ -107,6 +116,8 @@ class Channel(Extension, Comparable, Displayable, Dictable):
             the maximum number of Instruments to return (useful for pagination
             purposes)
         :type limit: int
+        :param user: the User who should have access to the desired Instruments
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: list of Instruments

@@ -56,7 +56,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
     )
 
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         """
         Retrieves a Task from the datastore using its UID.
 
@@ -64,6 +64,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
 
         :param uid: the UID of the Task to retrieve
         :type uid: string
+        :param user: the User who should have access to the desired Task
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :returns:
@@ -74,7 +76,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         """
         Returns Tasks that match the specified criteria.
 
@@ -95,6 +97,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             the maximum number of Tasks to return (useful for pagination
             purposes)
         :type limit: int
+        :param user: the User who should have access to the desired Tasks
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: list of Tasks

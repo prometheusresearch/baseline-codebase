@@ -211,7 +211,9 @@ class SelectWidget(Widget):
         # if data is marked as dirty we need to check if current value is
         # still valid and reset it otherwise
         if state.value is not None and data in dirty:
-            options = [option['id'] for option in graph[data]["data"]]
+            options = [o['id'] for o in graph[data]['data']]
+            if self.options is not None:
+                options = [o['id'] for o in self.options]
             if state.value not in options:
                 return Reset(None)
 

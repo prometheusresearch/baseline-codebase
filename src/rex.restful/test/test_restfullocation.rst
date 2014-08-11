@@ -175,6 +175,28 @@ header, or by adding a ``format`` querystring parameter::
     <BLANKLINE>
     {"foo": "42"}
 
+Sending an invalidly-formatted body will result in an HTTP 400::
+
+    >>> req = Request.blank('/foo/42', method='POST')
+    >>> req.body = '[garbage}'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    400 Bad Request
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: ...
+    <BLANKLINE>
+    {"error": "The incoming payload could not be deserialized (No JSON object could be decoded)"}
+
+    >>> req = Request.blank('/foo/42', method='POST')
+    >>> req.body = '[garbage}'
+    >>> req.headers['Content-Type'] = 'application/x-yaml'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    400 Bad Request
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: ...
+    <BLANKLINE>
+    {"error": "The incoming payload could not be deserialized (while parsing a flow sequence\n  in \"<string>\", line 1, column 1:\n    [garbage}\n    ^\nexpected ',' or ']', but got '}'\n  in \"<string>\", line 1, column 9:\n    [garbage}\n            ^)"}
+
 Calling a method that is not implemented on the resource will result in a HTTP
 405::
 

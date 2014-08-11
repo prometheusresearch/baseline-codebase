@@ -4,7 +4,7 @@
 
 
 from webob import Response
-from webob.exc import HTTPMethodNotAllowed, HTTPException
+from webob.exc import HTTPMethodNotAllowed, HTTPException, HTTPBadRequest
 
 from rex.core import cached, StrVal
 from rex.web import Command, Parameter
@@ -93,7 +93,15 @@ class RestfulLocation(Command):
                 if serializer:
                     serializer = serializer()
                     content_type = serializer.mime_type
-                    payload = serializer.deserialize(request.body)
+                    try:
+                        payload = serializer.deserialize(request.body)
+                    except Exception as exc:
+                        raise HTTPBadRequest(
+                            'The incoming payload could not be deserialized'
+                            ' (%s)' % (
+                                unicode(exc),
+                            )
+                        )
 
         # TODO: we should be able to validate the payload
         # in the same sort of way that we validate the parameters.

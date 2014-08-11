@@ -76,17 +76,17 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
     )
 
     @staticmethod
-    def validate_data(data, instrument_version=None):
+    def validate_data(data, instrument_definition=None):
         """
         Validates that the specified data is a legal Assessment Document.
 
         :param data: the Assessment data to validate
         :type data: dict or JSON string
-        :param instrument_version:
-            the InstrumentVersion containing the Instrument Definition to
-            validate the data against; if not specified, only the adherance to
-            the base Assessment Document definition is checked
-        :type instrument_version: InstrumentVersion
+        :param instrument_definition:
+            the Common Instrument Definition to validate the data against; if
+            not specified, only the adherance to the base Assessment Document
+            definition is checked
+        :type instrument_definition: dict or JSON string
         :raises:
             ValidationError if the specified structure fails any of the
             requirements
@@ -110,23 +110,30 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         except jsonschema.ValidationError as ex:
             raise ValidationError(ex.message)
 
-        if not instrument_version:
+        if not instrument_definition:
             return
+        else:
+            if isinstance(instrument_definition, basestring):
+                instrument_definition = json.loads(instrument_definition)
+            if not isinstance(instrument_definition, dict):
+                raise ValidationError(
+                    'Instrument Definitions must be mapped objects.'
+                )
 
         # Make sure the instrument ID lines up
-        if data['instrument']['id'] != instrument_version.definition['id'] or \
+        if data['instrument']['id'] != instrument_definition['id'] or \
                 data['instrument']['version'] != \
-                instrument_version.definition['version']:
+                instrument_definition['version']:
             raise ValidationError(
                 'This Assessment is not associated with the specified'
-                ' InstrumentVersion'
+                ' Instrument Definition'
             )
 
         Assessment._check_assessment_record(
             data['values'],
-            instrument_version.definition['record'],
+            instrument_definition['record'],
             known_types=InstrumentVersion.get_definition_type_catalog(
-                instrument_version.definition
+                instrument_definition
             ),
         )
 
@@ -554,15 +561,26 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
     def data_json(self, value):
         self.data = json.loads(value)
 
-    def validate(self):
+    def validate(self, instrument_definition=None):
         """
         Validates that this Asessment is a legal Assessment Document.
 
+        :param instrument_definition:
+            the Common Instrument Definition to validate the data against; if
+            not specified, the definition found on the InstrumentVersion
+            associated with this Assessment will be used
+        :type instrument_definition: dict or JSON string
         :raises:
             ValidationError if the Assessment fails any of the requirements
         """
 
-        return self.__class__.validate_data(self.data, self.instrument_version)
+        if (not instrument_definition) and self.instrument_version:
+            instrument_definition = self.instrument_version.definition
+
+        return self.__class__.validate_data(
+            self.data,
+            instrument_definition=instrument_definition,
+        )
 
     def get_meta(self, name, default=None):
         """

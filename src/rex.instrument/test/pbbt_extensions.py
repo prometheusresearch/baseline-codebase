@@ -1,8 +1,6 @@
 import codecs
 import os.path
 
-from datetime import datetime
-
 from pbbt import Test, Field, MatchCase, listof
 
 
@@ -77,7 +75,7 @@ class AssessmentValidatorCase(MatchCase):
     def run(self):
         # this import needs to be here instead of at the top of the module
         # because if it runs upon load, it seems to confuse converage.py
-        from rex.instrument import Instrument, InstrumentVersion, Assessment, \
+        from rex.instrument import InstrumentVersion, Assessment, \
             ValidationError
 
         results = []
@@ -108,15 +106,17 @@ class AssessmentValidatorCase(MatchCase):
                     'r',
                     encoding='utf-8'
                 ).read()
-                instrument = Instrument('test', 'Test Instrument')
-                instrument_version = InstrumentVersion(
-                    'test1',
-                    instrument,
-                    instrument_defn,
-                    1,
-                    'test',
-                    datetime.now(),
-                )
+
+                try:
+                    InstrumentVersion.validate_definition(instrument_defn)
+                except ValidationError as exc:
+                    results.append({
+                        filename: u'%s: %s' % (
+                            exc.__class__.__name__,
+                            exc,
+                        ),
+                    })
+                    continue
 
                 for subfilename in sorted(os.listdir(full_path)):
                     full_subpath = os.path.join(full_path, subfilename)
@@ -135,7 +135,10 @@ class AssessmentValidatorCase(MatchCase):
                         encoding='utf-8',
                     ).read()
                     try:
-                        Assessment.validate_data(data, instrument_version)
+                        Assessment.validate_data(
+                            data,
+                            instrument_definition=instrument_defn,
+                        )
                     except ValidationError as exc:
                         results.append({
                             subfilename: u'%s: %s' % (

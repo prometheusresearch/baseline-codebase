@@ -10,6 +10,8 @@ REX.INSTRUMENT Change Log
 - Added the ability for the as_dict() and as_json() methods to accept a list of
   extra parameters to include in their serializations that aren't included in
   the default list.
+- Changed the Assessment.validate_data() method to take the raw Instrument
+  Definition as its optional argument rather than an InstrumentVersion.
 
 
 0.10.0 (7/31/2014)

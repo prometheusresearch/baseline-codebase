@@ -250,7 +250,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
             cls._validate_field(field_def, known_types)
 
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         """
         Retrieves an InstrumentVersion from the datastore using its UID.
 
@@ -258,6 +258,9 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         :param uid: the UID of the InstrumentVersion to retrieve
         :type uid: string
+        :param user:
+            the User who should have access to the desired InstrumentVersion
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :returns:
@@ -268,7 +271,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         """
         Returns InstrumentVersions that match the specified criteria.
 
@@ -287,6 +290,9 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
             the maximum number of InstrumentVersions to return (useful for
             pagination purposes)
         :type limit: int
+        :param user:
+            the User who should have access to the desired InstrumentVersions
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: list of InstrumentVersions

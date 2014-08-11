@@ -9,46 +9,34 @@ from rex.instrument.interface import *
 
 class MyUser(User):
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         return cls(uid, 'fake_login')
 
     @classmethod
-    def get_by_login(cls, login):
+    def get_by_login(cls, login, user=None):
         return cls('fake_user_1', login)
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         return [
             cls.get_by_uid('fake_user_1', 'fake_login1'),
             cls.get_by_uid('fake_user_2', 'fake_login2'),
         ]
 
-    def find_subjects(self, offset=0, limit=100, **search_criteria):
-        return []
-
-    def has_subject(self, subject):
-        return False
-
-    def find_instruments(self, offset=0, limit=100, **search_criteria):
-        return []
-
-    def has_instrument(self, instrument):
-        return False
-
 
 class MyOtherUser(MyUser):
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         return MyUser.get_by_uid('%s_other' % uid)
 
 
 class MySubject(Subject):
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         return cls(uid)
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         return [
             cls.get_by_uid('fake_subject_1'),
             cls.get_by_uid('fake_subject_2'),
@@ -57,11 +45,11 @@ class MySubject(Subject):
 
 class MyInstrument(Instrument):
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         return cls.create(uid, 'Title for %s' % uid)
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         return [
             cls.get_by_uid('fake_instrument_1'),
             cls.get_by_uid('fake_instrument_2'),
@@ -84,7 +72,7 @@ class MyInstrument(Instrument):
 
 class MyInstrumentVersion(InstrumentVersion):
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         return cls(
             uid,
             MyInstrument.get_by_uid('fake_instrument_1iv'),
@@ -95,7 +83,7 @@ class MyInstrumentVersion(InstrumentVersion):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         return [
             cls(
                 'fake_instrument_version_1',
@@ -132,7 +120,7 @@ class MyInstrumentVersion(InstrumentVersion):
 
 class MyAssessment(Assessment):
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         return cls(
             uid,
             MySubject.get_by_uid('fake_subject_1a'),
@@ -141,7 +129,7 @@ class MyAssessment(Assessment):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         return [
             cls(
                 'fake_assessment_1',
@@ -172,7 +160,7 @@ class MyAssessment(Assessment):
 
 class MyDraftInstrumentVersion(DraftInstrumentVersion):
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         return cls(
             uid,
             MyInstrument.get_by_uid('fake_instrument_1iv'),
@@ -181,7 +169,7 @@ class MyDraftInstrumentVersion(DraftInstrumentVersion):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         return [
             cls(
                 'fake_draft_instrument_version_1',

@@ -25,6 +25,16 @@ string-rendering methods::
     u'{"login": "username", "uid": "fake123"}'
 
 
+Users have methods that allow you to retrieve other interface objects, but
+filtered by what that User has access to see::
+
+    >>> user.get_object_by_uid('fake123', 'instrument')
+    MyInstrument(u'fake123', u'Title for fake123')
+
+    >>> user.find_objects('assessment')
+    [MyAssessment(u'fake_assessment_1', MySubject(u'fake_subject_1a'), MyInstrumentVersion(u'fake_instrument_version_1a', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1)), MyAssessment(u'fake_assessment_2', MySubject(u'fake_subject_2a'), MyInstrumentVersion(u'fake_instrument_version_2a', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1))]
+
+
 Users can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::
 

@@ -17,6 +17,11 @@ REX.INSTRUMENT Change Log
   generate their own UIDs rather than having them be explicitly passed). In
   many implementations, this code will be used to generate the UID.
 - Added a code property to Instrument.
+- The get_subject() and find_subjects() methods on User have been replaced by
+  more generic methods named get_object_by_uid() and find_objects().
+- All get_by_uid() and find() methods now accept and optional user parameter to
+  indicate that the resulting instance should be accessible by the specified
+  User.
 
 
 0.10.0 (7/31/2014)

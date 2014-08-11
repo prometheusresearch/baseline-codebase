@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Extension
+from rex.core import Extension, get_settings
 
 from ..mixins import Comparable, Displayable, Dictable
 from ..util import to_unicode
@@ -26,7 +26,7 @@ class User(Extension, Comparable, Displayable, Dictable):
     )
 
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         """
         Retrieves a User from the datastore using its UID.
 
@@ -34,6 +34,8 @@ class User(Extension, Comparable, Displayable, Dictable):
 
         :param uid: the UID of the User to retrieve
         :type uid: string
+        :param user: the User who should have access to the desired User
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :returns:
@@ -44,7 +46,7 @@ class User(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def get_by_login(cls, login):
+    def get_by_login(cls, login, user=None):
         """
         Retrieves a User from the datastore using its login username.
 
@@ -52,6 +54,8 @@ class User(Extension, Comparable, Displayable, Dictable):
 
         :param login: the login username of the User to retrieve
         :type login: string
+        :param user: the User who should have access to the desired User
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :returns:
@@ -62,7 +66,7 @@ class User(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         """
         Returns Users that match the specified criteria.
 
@@ -76,6 +80,8 @@ class User(Extension, Comparable, Displayable, Dictable):
             the maximum number of Users to return (useful for pagination
             purposes)
         :type limit: int
+        :param user: the User who should have access to the desired Users
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: list of Users
@@ -108,40 +114,60 @@ class User(Extension, Comparable, Displayable, Dictable):
 
         return self._login
 
-    def get_subject(self, uid):
-        """
-        Retrieves a Subject using its UID, if this User has access to it.
+    def _get_implementation(self, package_name, object_name):
+        setting = getattr(
+            get_settings(),
+            '%s_implementation' % package_name.lower(),
+        )
+        impl = getattr(setting, object_name.lower())
+        return impl
 
-        :param uid: the UID of the Subject to retrieve
+    def get_object_by_uid(self, uid, object_name, package_name='instrument'):
+        """
+        Retrieves an interface object using its UID, if this User has access to
+        it. Essentially acts as a proxy to the object's get_by_uid() method.
+
+        :param uid: the UID of the object to retrieve
         :type uid: string
+        :param object_name:
+            the name of the interface object to retrieve (e.g., "subject",
+            "instrument", "instrumentversion", "assessment", etc)
+        :type object_name: string
+        :param package_name:
+            the package alias the interface object is defined in; if not
+            specified, defaults to "instrument"
+        :type package_name: string
+        :raises:
+            DataStoreError if there was an error reading from the datastore
         :returns:
-            the Subject matching the UID if this User has access to it;
+            the object matching the UID if this User has access to it;
             otherwise None
         """
 
-        raise NotImplementedError()
+        impl = self._get_implementation(package_name, object_name)
+        return impl.get_by_uid(uid, user=self)
 
-    def find_subjects(self, offset=0, limit=100, **search_criteria):
+    def find_objects(self, object_name, package_name='instrument', **kwargs):
         """
-        Returns Subjects that match the specified criteria that this User
-        has access to.
+        Retrieves interface objects that match the specified criteria that this
+        User has access to. Essentially acts as a proxy to the object's find()
+        method.
 
-        Must be implemented by concrete classes.
-
-        :param offset:
-            the offset in the list of Subjects to start the return set from
-            (useful for pagination purposes)
-        :type offset: int
-        :param limit:
-            the maximum number of Subjects to return (useful for pagination
-            purposes)
-        :type limit: int
+        :param object_name:
+            the name of the interface object to retrieve (e.g., "subject",
+            "instrument", "instrumentversion", "assessment", etc)
+        :type object_name: string
+        :param package_name:
+            the package alias the interface object is defined in; if not
+            specified, defaults to "instrument"
+        :type package_name: string
         :raises:
             DataStoreError if there was an error reading from the datastore
-        :rtype: list of Subjects
+        :returns: list of interface objects
         """
 
-        raise NotImplementedError()
+        impl = self._get_implementation(package_name, object_name)
+        return impl.find(user=self, **kwargs)
 
     def get_display_name(self):
         """

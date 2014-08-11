@@ -38,7 +38,7 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
     )
 
     @classmethod
-    def get_by_uid(cls, uid):
+    def get_by_uid(cls, uid, user=None):
         """
         Retrieves an Instrument from the datastore using its UID.
 
@@ -46,6 +46,8 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
 
         :param uid: the UID of the Instrument to retrieve
         :type uid: string
+        :param user: the User who should have access to the desired Instrument
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :returns:
@@ -55,7 +57,7 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, **search_criteria):
+    def find(cls, offset=0, limit=100, user=None, **search_criteria):
         """
         Returns Instruments that match the specified criteria.
 
@@ -75,6 +77,8 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
             the maximum number of Instruments to return (useful for pagination
             purposes)
         :type limit: int
+        :param user: the User who should have access to the desired Instruments
+        :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: list of Instruments

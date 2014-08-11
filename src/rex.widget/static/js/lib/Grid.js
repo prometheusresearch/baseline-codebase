@@ -49,7 +49,7 @@ var SortableGridHeaderCell = React.createClass({
     var sorted = this.props.column.sorted
 
     var icon = sorted ?
-      (sorted === 'asc' ?  '↓' : '↑') :
+      (sorted === '+' ?  '↓' : '↑') :
       null
 
     return (
@@ -62,11 +62,9 @@ var SortableGridHeaderCell = React.createClass({
 
   onClick: function() {
     var sorted = this.props.column.sorted;
-    sorted = sorted === 'asc' ?
-      'desc' : 'asc';
-    this.props.column.onSort(
-      this.props.column,
-      sorted)
+    var direction = sorted === '+' ?
+      '-' : '+';
+    this.props.column.onSort(`${direction}${this.props.column.key}`);
   }
 });
 
@@ -87,9 +85,10 @@ var Grid = React.createClass({
     selected: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     onSelected: PropTypes.func,
 
-    sortedColumnId: PropTypes.string,
-    sortDirection: PropTypes.string,
-    onSort: PropTypes.func
+    dataSort: PropTypes.string,
+    onSort: PropTypes.func,
+
+    sortDirection: PropTypes.string
   },
 
   render() {
@@ -142,21 +141,43 @@ var Grid = React.createClass({
   },
 
   decorateColumn(column) {
+    var sort = this.getSortSpec();
+    if (this.props.sortableColumns) {
+      column = merge(column, {sortable: true});
+    }
+    if (this.props.resizeableColumns) {
+      column = merge(column, {resizeable: true});
+    }
     var decorator = this.props.columns[column.key];
     if (decorator) {
       column = merge(column, decorator);
       if (column.sortable) {
         mergeInto(column, {
-          sorted: this.props.sortedColumnId === column.key ? this.props.sortDirection : undefined,
+          sorted: sort.key === column.key ? sort.direction : undefined,
           headerRenderer: SortableGridHeaderCell,
-          onSort: this.props.onSort
+          onSort: this.props.onDataSort
         });
       }
     }
-    if (this.props.resizeableColumns) {
-      column = merge(column, {resizeable: true});
-    }
     return column;
+  },
+
+  getSortSpec() {
+    if (this.props.dataSort) {
+      var key;
+      var direction;
+      var sort = this.props.dataSort;
+      if (sort[0] === '-' || sort[0] === '+') {
+        key = sort[0] === '-' || sort[0] === '+' ? sort.slice(1) : sort;
+        direction = sort[0];
+      } else {
+        key = sort;
+        direction = '+';
+      }
+      return {key, direction};
+    } else {
+      return {key: null, direction: '+'};
+    }
   },
 
   getColumns() {

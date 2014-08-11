@@ -319,6 +319,7 @@ class GridWidget(Widget):
     selected            = StateField(AnyVal, default=None)
     columns             = Field(AnyVal, default={})
     resizeable_columns  = Field(BoolVal, default=False)
+    sortable_columns    = Field(BoolVal, default=False)
     hide_columns        = Field(SeqVal(StrVal), default=[])
     show_columns        = Field(MaybeVal(SeqVal(StrVal)), default=None)
 

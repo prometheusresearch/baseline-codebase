@@ -190,14 +190,19 @@ class PaginatedCollectionComputator(DataComputator):
                 url, refs=refs, include_meta=include_meta)
         self.pagination_state_id = pagination_state_id
 
-    def fetch_port(self, handler, top=None, skip=None, **params):
+    def fetch_port(self, handler, top=None, skip=None, sort=None, **params):
         assert top is not None
         assert skip is not None
+
 
         # Ports require us to specify entity name in top/skip constraints
         entity_name = handler.port.tree.items()[0][0]
         params["%s:top" % entity_name] = top
         params["%s:skip" % entity_name] = skip
+
+        (sort_field, sort_direction) = parse_sort_spec(sort)
+        if sort_field:
+            params["%s.%s:sort" % (entity_name, sort_field)] = sort_direction
 
         return super(PaginatedCollectionComputator, self).fetch_port(
                 handler,
@@ -231,6 +236,13 @@ class PaginatedCollectionComputator(DataComputator):
             data["data"] = {"__append__": data["data"]}
 
         return data
+
+
+def parse_sort_spec(spec):
+    if spec and (spec[0] == '+' or spec[0] == '-'):
+        return (spec[1:], 'asc' if spec[0] == '+' else 'desc')
+    else:
+        return (spec, 'asc')
 
 
 def product_to_json(product):

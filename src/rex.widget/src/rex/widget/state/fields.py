@@ -96,6 +96,7 @@ class PaginatedCollectionDescriptor(DataDescriptor):
     def describe_state(self, widget, field_name):
         state_id = "%s.%s" % (widget.id, field_name)
         pagination_state_id = "%s.%s.pagination" % (widget.id, field_name)
+        sort_state_id = "%s.%s.sort" % (widget.id, field_name)
 
         dependencies = [r.id for r in self.refs.values()]
 
@@ -103,6 +104,7 @@ class PaginatedCollectionDescriptor(DataDescriptor):
         refs.update({
             "top": "%s:top" % pagination_state_id,
             "skip": "%s:skip" % pagination_state_id,
+            "sort": "%s" % sort_state_id
         }),
 
         return [
@@ -115,7 +117,7 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                         self.url,
                         refs=refs,
                         include_meta=self.include_meta),
-                    dependencies=dependencies + [pagination_state_id],
+                    dependencies=dependencies + [pagination_state_id, sort_state_id],
                     is_writable=False)),
             ("%sPagination" % field_name,
                 State(
@@ -123,6 +125,13 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                     widget=widget,
                     computator=InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
                     validator=MapVal(StrVal, IntVal),
+                    dependencies=dependencies,
+                    is_writable=True)),
+            ("%sSort" % field_name,
+                State(
+                    sort_state_id,
+                    widget=widget,
+                    validator=StrVal(),
                     dependencies=dependencies,
                     is_writable=True)),
         ]

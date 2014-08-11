@@ -49,6 +49,11 @@ UIDescriptorChildren = namedtuple(
 
 
 class Field(object):
+    """ Definition of a widget's field.
+
+    :param validator: Validator
+    :param default: Default value
+    """
 
     # we maintain order as a global counter which is used to assign ordering to
     # field instances
@@ -79,6 +84,13 @@ class Field(object):
 
 
 class StateField(Field):
+    """ Definition of a widget's stateful field.
+
+    :param validator: Validator
+    :param default: Default value
+
+    Other params are passed through to :class:`State` constructor.
+    """
 
     def __init__(self, validator, default=RecordField.NODEFAULT, **params):
         super(StateField, self).__init__(validator, default=default)
@@ -112,6 +124,31 @@ def state(validator, dependencies=None, default=RecordField.NODEFAULT):
 
 
 class Widget(Extension):
+    """ Base class for widgets.
+
+    Widget definition in Rex Widget is consist of two parts.
+    
+    One part is a Python subclass of :class:`Widget` which defines field
+    validation and widget state management (for stateful widgets).
+   
+    Another part is a React component which defines UI and models user
+    interactions.
+
+    A basic example of defining a new widget looks like::
+
+        class Label(Widget):
+            name = 'Label'
+            js_type = 'my-app/lib/Label'
+            text = Field(StrVal)
+
+    This will allow to use widget from the URL mapping::
+
+        <!Label>
+        text: Hello, world!
+
+    Also the React component counter part should be defined in
+    `my-app/lib/Label` CommonJS module.
+    """
 
     name = None
     fields = []

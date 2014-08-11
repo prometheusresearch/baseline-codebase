@@ -12,8 +12,8 @@ from .fields import (
     StateVal, CollectionVal, EntityVal, PaginatedCollectionVal)
 from .graph import (
     StateGraph, MutableStateGraph,
-    State, state,
-    Dep, dep, Reset,
+    State,
+    Dep, Reset,
     compute, compute_update, unknown)
 from .computator import (
     InitialValue, PaginatedCollectionComputator,

@@ -3,6 +3,9 @@
     rex.widget.state.graph
     ======================
 
+    Data structures for representing a whole application state and computations
+    over them.
+
     :copyright: 2014, Prometheus Research, LLC
 
 """
@@ -96,7 +99,7 @@ class MutableStateGraph(StateGraph, MutableMapping):
                 dependents.append(inverse_dep)
 
     def add(self, *args, **kwargs):
-        st = state(*args, **kwargs)
+        st = State(*args, **kwargs)
         self[st.id] = st
 
     def set(self, id, value):
@@ -116,9 +119,13 @@ class MutableStateGraph(StateGraph, MutableMapping):
 class StateGraphComputation(Mapping):
     """ Computation over state graph.
 
+    Instances of :class:`StateGraphComputation` implement
+    class:`collections.Mapping` abstract base class.
+
     :attr input: input state graph
     :keyword output: resulted graph with computed state
     :keyword dirty: a set of dirtied state ids
+    :keyword values: a set of precomputed values
     :keyword user: user
     """
 
@@ -129,26 +136,24 @@ class StateGraphComputation(Mapping):
         self.user = user
 
         if self.user is not None:
-            self.output['USER'] = state('USER', None, None, value=self.user)
+            self.output['USER'] = State('USER', value=self.user, rw=False)
 
         if values is not None:
             for id, value in values.items():
                 self.output[id] = self.input[id]._replace(value=value)
 
-
-    def __iter__(self):
-        return iter(self.output)
-
-    def __len__(self):
-        return len(self.output)
-
     def compute(self, id):
+        """ Force computation of state with id ``id``."""
         reset = False
         st = self.input[id]
         log.debug('computing: %s', id)
         is_active = st.is_active(self)
-        from .computator import DataComputator
-        value = st.computator(st.widget, st, self, dirty=self.dirty, is_active=is_active)
+        if st.computator is not None:
+            value = st.computator(st.widget, st, self, dirty=self.dirty, is_active=is_active)
+        elif st.value is not unknown:
+            value = st.value
+        else:
+            value = Reset(st.default)
         if isinstance(value, Reset):
             value = value.value
             reset = True
@@ -159,9 +164,15 @@ class StateGraphComputation(Mapping):
         return reset
 
     def is_computed(self, id):
+        """ Check if state with id ``id`` is already computed."""
         return id in self.output and self.output[id].value is not unknown
 
     def get_output(self, dirty_only=False):
+        """ Get computed application state.
+
+        :keyword dirty_only: If output should contain only changed states
+                             (default: ``False``)
+        """
         if dirty_only:
             return StateGraph({
                 id: state for id, state
@@ -170,6 +181,12 @@ class StateGraphComputation(Mapping):
             })
         else:
             return self.output.immutable()
+
+    def __iter__(self):
+        return iter(self.output)
+
+    def __len__(self):
+        return len(self.output)
 
     def __getitem__(self, ref):
         if not isinstance(ref, Reference):
@@ -198,48 +215,73 @@ def _merge_state_into(dst, src):
                 dependents.append(inverse_dep)
 
 
-State = namedtuple(
-        'State',
-        ['id', 'widget', 'computator', 'validator', 'is_active',
-         'value', 'dependencies', 'is_ephemeral', 'rw'])
-
-
-Dep = namedtuple(
-        'Dep',
-        ['id', 'reset_only'])
-
-
-Reset = namedtuple(
-        'Reset',
-        ['value'])
-
-
-# a marker for value which are unknown
+#: A state value which is used as a placeholder while actual value isn't yet
+#: computed.
 unknown = object()
 
 
-def dep(id, reset_only=False):
-    return Dep(id=id, reset_only=reset_only)
+_State = namedtuple('State', [
+                    'id',
+                    'widget',
+                    'computator',
+                    'validator',
+                    'is_active',
+                    'value',
+                    'default',
+                    'dependencies',
+                    'is_ephemeral',
+                    'rw'
+                    ])
 
 
-def state(id, widget, computator, validator=AnyVal, is_active=None,
-        value=unknown, dependencies=None, is_ephemeral=False, rw=False):
-    if dependencies is None:
-        dependencies = []
-    dependencies = [
-        d if isinstance(d, Dep) else Dep(d, reset_only=False)
-        for d in dependencies
-    ]
-    return State(
-        id=id,
-        widget=widget,
-        computator=computator,
-        validator=validator,
-        value=value,
-        dependencies=dependencies,
-        is_active=is_active or (lambda graph: True),
-        is_ephemeral=is_ephemeral,
-        rw=rw)
+class State(_State):
+    """ Represents a single atom of application state."""
+
+    __slots__ = ()
+
+    def __new__(cls, id, widget=None, computator=None, validator=AnyVal, is_active=None,
+            value=unknown, default=None, dependencies=None, is_ephemeral=False,
+            rw=True):
+        if dependencies is None:
+            dependencies = []
+        dependencies = [
+            d if isinstance(d, Dep) else Dep(d, reset_only=False)
+            for d in dependencies
+        ]
+        return _State.__new__(
+            cls,
+            id=id,
+            widget=widget,
+            computator=computator,
+            validator=validator,
+            value=value,
+            default=default,
+            dependencies=dependencies,
+            is_active=is_active or (lambda graph: True),
+            is_ephemeral=is_ephemeral,
+            rw=rw)
+
+
+_Dep = namedtuple('Dep', ['id', 'reset_only'])
+
+
+class Dep(_Dep):
+    """ Represent dependency between states."""
+
+    __slots__ = ()
+
+    def __new__(cls, id, reset_only=False):
+        return _Dep.__new__(cls, id, reset_only=reset_only)
+
+
+_Reset = namedtuple('Reset', ['value'])
+
+
+class Reset(_Reset):
+    """ A special marker for state computations which instructs to recompute
+    states which dependencies marked with ``reset_only``."""
+
+    __slots__ = ()
 
 
 def compute(graph, values=None, user=None):

@@ -12,7 +12,7 @@ from rex.core import Validate, Error, MapVal, StrVal, IntVal
 from .computator import (
         CollectionComputator, EntityComputator, PaginatedCollectionComputator,
         InitialValue)
-from .graph import state, dep, Dep, unknown
+from .graph import State, Dep, unknown
 from .reference import parse_ref
 
 
@@ -36,36 +36,25 @@ class StateDescriptor(object):
 
 class SimpleStateDescriptor(StateDescriptor):
 
-    def __init__(self, computator=None, validator=None, value=unknown,
-            is_ephemeral=False, dependencies=None):
-        if dependencies is None:
-            dependencies = []
-
-        self.computator = computator
-        self.is_ephemeral = is_ephemeral
-        self.dependencies = dependencies
-        self.validator = validator
-        self.value = value
+    def __init__(self, dependencies=None, **params):
+        self.dependencies = dependencies or []
+        self.params = params
 
     def describe_state(self, widget, field_name):
         state_id = "%s.%s" % (widget.id, field_name)
-
+        
         dependencies = [
-            absolutize_dep(d if isinstance(d, Dep) else dep(d), widget.id)
+            absolutize_dep(d if isinstance(d, Dep) else Dep(d), widget.id)
             for d in (
                 self.dependencies(widget)
                 if hasattr(self.dependencies, '__call__')
                 else self.dependencies)]
 
-        st = state(
+        st = State(
                 state_id,
-                widget,
-                computator=self.computator,
-                validator=self.validator,
-                value=self.value,
+                widget=widget,
                 dependencies=dependencies,
-                is_ephemeral=self.is_ephemeral,
-                rw=True)
+                **self.params)
 
         return [(field_name, st)]
 
@@ -97,7 +86,7 @@ class DataDescriptor(StateDescriptor):
         state_id = "%s.%s" % (widget.id, field_name)
         computator = self.computator_factory(self.url, self.refs, self.include_meta)
         dependencies = [r.id for r in self.refs.values()]
-        st = state(state_id, widget, computator, dependencies=dependencies)
+        st = State(state_id, widget=widget, computator=computator, dependencies=dependencies, rw=False)
         return [(field_name, st)]
 
 
@@ -118,20 +107,21 @@ class PaginatedCollectionDescriptor(DataDescriptor):
 
         return [
             (field_name,
-                state(
+                State(
                     state_id,
-                    widget,
-                    PaginatedCollectionComputator(
+                    widget=widget,
+                    computator=PaginatedCollectionComputator(
                         pagination_state_id,
                         self.url,
                         refs=refs,
                         include_meta=self.include_meta),
-                    dependencies=dependencies + [pagination_state_id])),
+                    dependencies=dependencies + [pagination_state_id],
+                    rw=False)),
             ("%sPagination" % field_name,
-                state(
+                State(
                     pagination_state_id,
-                    widget,
-                    InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
+                    widget=widget,
+                    computator=InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
                     validator=MapVal(StrVal, IntVal),
                     dependencies=dependencies,
                     rw=True)),
@@ -140,27 +130,20 @@ class PaginatedCollectionDescriptor(DataDescriptor):
 
 class StateVal(Validate):
 
-    def __init__(self, validator, computator, dependencies=None,
-            is_ephemeral=False):
-
+    def __init__(self, validator, **params):
         if isinstance(validator, type):
             validator = validator()
-
         self.validator = validator
-        self.computator = computator
-        self.dependencies = dependencies or []
-        self.is_ephemeral = is_ephemeral
+        self.params = params
 
     def descriptor(self, value):
         return SimpleStateDescriptor(
             validator=self.validator,
-            computator=self.computator,
             value=value,
-            is_ephemeral=self.is_ephemeral,
-            dependencies=self.dependencies)
+            **self.params)
 
-    def __call__(self, data):
-        return self.descriptor(self.validator(data))
+    def __call__(self, value):
+        return self.descriptor(self.validator(value))
 
 
 class DataVal(Validate):

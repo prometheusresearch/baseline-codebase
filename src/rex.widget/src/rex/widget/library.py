@@ -13,7 +13,7 @@ from rex.core import (
 from .widget import (
         Widget, GroupWidget, NullWidget, Field, StateField, state,
         iterate_widget)
-from .state import dep, unknown, Reset, CollectionVal, PaginatedCollectionVal
+from .state import unknown, Reset, Dep, CollectionVal, PaginatedCollectionVal
 from .parse import WidgetVal
 from .jsval import JSVal
 
@@ -114,7 +114,7 @@ class Tabs(Widget):
         descriptor_state = {
             id: desc._replace(
                 is_active=self.is_tab_active(n, desc.is_active),
-                dependencies=desc.dependencies + [dep(self.active_state)]
+                dependencies=desc.dependencies + [Dep(self.active_state)]
             ) for id, desc in descriptor.state.items()
         }
         state.update(descriptor_state)
@@ -274,7 +274,7 @@ class FiltersWidget(Widget):
 
     @value.set_dependencies
     def value_dependencies(self):
-        return [dep(id, reset_only=True) for id in self.refs.values()]
+        return [Dep(id, reset_only=True) for id in self.refs.values()]
 
 class RowFiltersWidget(Widget):
 
@@ -303,7 +303,7 @@ class RowFiltersWidget(Widget):
 
     @value.set_dependencies
     def value_dependencies(self):
-        return [dep(id, reset_only=True) for id in self.refs.values()]
+        return [Dep(id, reset_only=True) for id in self.refs.values()]
 
 class GridWidget(Widget):
     """ Data Grid."""

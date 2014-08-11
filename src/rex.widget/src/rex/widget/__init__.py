@@ -17,5 +17,5 @@ from .widget import Widget, NullWidget, GroupWidget, Field, StateField
 from .state import (
     EntityVal, CollectionVal, PaginatedCollectionVal,
     PaginatedCollectionComputator, CollectionComputator, EntityComputator,
-    StateVal, State, state, dep)
+    StateVal, State, Dep, unknown)
 from .jsval import JSVal

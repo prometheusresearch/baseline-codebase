@@ -15,19 +15,27 @@ from collections import namedtuple
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 from rex.core import (
-        MaybeVal, AnyVal, Error, Extension, RecordField,
+        MaybeVal, AnyVal, Error, Extension, RecordVal, RecordField,
         ProxyVal, StrVal, cached)
 from rex.web import render_to_response
 from .state import (
-    InitialValue, unknown,
+    unknown,
     State, StateVal, StateDescriptor,
     StateGraph, MutableStateGraph, compute, compute_update)
 from .jsval import JSValue
 
 
-WidgetDescriptor = namedtuple(
-        'WidgetDescriptor',
-        ['ui', 'state'])
+_WidgetDescriptor = namedtuple('WidgetDescriptor', ['ui', 'state'])
+
+
+class WidgetDescriptor(_WidgetDescriptor):
+    """ Descriptor for a widget.
+
+    :attr ui: UI descriptor
+    :attr state: State graph
+    """
+
+    __slots__ = ()
 
 
 UIDescriptor = namedtuple(
@@ -72,21 +80,17 @@ class Field(object):
 
 class StateField(Field):
 
-    def __init__(self, validator, computator=None, dependencies=None,
-            is_ephemeral=False, default=RecordField.NODEFAULT):
+    def __init__(self, validator, default=RecordField.NODEFAULT, **params):
         super(StateField, self).__init__(validator, default=default)
-        self.computator = computator
-        self.dependencies = dependencies
-        self.is_ephemeral = is_ephemeral
+        self.params = params
 
     def to_record_field(self, name):
         default = unknown if self.default is RecordField.NODEFAULT else self.default
 
         validator = StateVal(
                 MaybeVal(self.validator),
-                self.computator or InitialValue(default),
-                is_ephemeral=self.is_ephemeral,
-                dependencies=self.dependencies)
+                default=default,
+                **self.params)
 
         if default is not RecordField.NODEFAULT:
             default = validator(default)
@@ -100,9 +104,10 @@ class StateField(Field):
 def state(validator, dependencies=None, default=RecordField.NODEFAULT):
     def register_computator(computator):
         return StateField(
-                validator, computator,
-                dependencies=dependencies,
-                default=default)
+                validator,
+                default=default,
+                computator=computator,
+                dependencies=dependencies)
     return register_computator
 
 

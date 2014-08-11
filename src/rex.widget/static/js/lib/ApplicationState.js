@@ -62,7 +62,6 @@ function serializeApplicationState() {
       query[key] = state.value;
     }
   });
-  console.log(JSON.stringify(query), $.param(query));
   query = $.param(query);
   if (query.length > 0) {
     pathname = `${pathname}?${query}`;
@@ -72,7 +71,7 @@ function serializeApplicationState() {
 
 window.addEventListener('popstate', function() {
   var update = {};
-  var query = qs.parse(window.location.search.slice(1));
+  var query = $.deparam(window.location.search.slice(1));
   forEachReadWriteState(function(state, key) {
     var value = query[key];
     if (value === '' || value === undefined) {

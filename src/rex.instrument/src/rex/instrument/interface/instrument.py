@@ -33,6 +33,7 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
 
     dict_properties = (
         'title',
+        'code',
         'status',
     )
 
@@ -61,6 +62,7 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         ``search_criteria`` for this method will (at a minimum) support:
 
         * title (partial matches)
+        * code (partial matches)
         * status (exact matches)
 
         Must be implemented by concrete classes.
@@ -81,16 +83,17 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, uid, title, status=None):
+    def create(cls, code, title, status=None):
         """
         Creates an Instrument in the datastore and returns a corresponding
         Instrument instance.
 
         Must be implemented by concrete classes.
 
-        :param uid:
-            the unique identifier that will represent the new Instrument
-        :type uid: string
+        :param code:
+            a unique identifier that will represent the new Instrument. in some
+            implementations, this is used to generate the UID of the Instrument
+        :type code: string
         :param title: the title to use for the new Instrument
         :type title: string
         :param status:
@@ -104,8 +107,9 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def __init__(self, uid, title, status=None):
+    def __init__(self, uid, code, title, status=None):
         self._uid = to_unicode(uid)
+        self._code = to_unicode(code)
         self.title = title
         self.status = status or self.__class__.STATUS_ACTIVE
 
@@ -119,6 +123,17 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         """
 
         return self._uid
+
+    @property
+    def code(self):
+        """
+        A unique string that represents the Instrument in the set of
+        Instruments in the system. Read only.
+
+        :rtype: unicode
+        """
+
+        return self._code
 
     @property
     def title(self):

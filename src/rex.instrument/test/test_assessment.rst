@@ -18,7 +18,7 @@ and string-rendering methods::
 
     >>> from rex.instrument.interface import User, Subject, Instrument, InstrumentVersion, Assessment
     >>> subject = Subject('subject1')
-    >>> instrument = Instrument('fake123', 'My Instrument Title')
+    >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
     ...     'id': 'urn:test-instrument',
     ...     'version': '1.1',
@@ -53,9 +53,9 @@ and string-rendering methods::
     "Assessment(u'fake123', Subject(u'subject1'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
 
     >>> assessment.as_dict()
-    {'instrument_version': {'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'status': u'in-progress', 'uid': u'fake123', 'evaluation_date': None, 'subject': {'uid': u'subject1'}}
+    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'status': u'in-progress', 'uid': u'fake123', 'evaluation_date': None, 'subject': {'uid': u'subject1'}}
     >>> assessment.as_json()
-    u'{"instrument_version": {"instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "status": "in-progress", "uid": "fake123", "evaluation_date": null, "subject": {"uid": "subject1"}}'
+    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "status": "in-progress", "uid": "fake123", "evaluation_date": null, "subject": {"uid": "subject1"}}'
 
 
 The Subjects and InstrumentVersions passed to the constructor must actually be

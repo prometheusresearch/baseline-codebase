@@ -12,6 +12,11 @@ REX.INSTRUMENT Change Log
   the default list.
 - Changed the Assessment.validate_data() method to take the raw Instrument
   Definition as its optional argument rather than an InstrumentVersion.
+- Instrument.create() now takes a unique "code" rather than an explicit UID.
+  This was done for consistency with other interface classes (all of which
+  generate their own UIDs rather than having them be explicitly passed). In
+  many implementations, this code will be used to generate the UID.
+- Added a code property to Instrument.
 
 
 0.10.0 (7/31/2014)

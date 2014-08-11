@@ -9,7 +9,7 @@ The semi-abstract base Instrument class only implements a simple constructor
 and string-rendering methods::
 
     >>> from rex.instrument.interface import Instrument
-    >>> instrument = Instrument('fake123', 'My Instrument Title')
+    >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> instrument.get_display_name()
     u'My Instrument Title'
     >>> unicode(instrument)
@@ -20,9 +20,9 @@ and string-rendering methods::
     "Instrument(u'fake123', u'My Instrument Title')"
 
     >>> instrument.as_dict()
-    {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}
+    {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}
     >>> instrument.as_json()
-    u'{"status": "active", "uid": "fake123", "title": "My Instrument Title"}'
+    u'{"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}'
 
 
 Instruments have a status property which is readable and writable::
@@ -41,9 +41,9 @@ Instruments have a status property which is readable and writable::
 Instruments can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::
 
-    >>> instrument1 = Instrument('fake123', 'My Instrument Title')
-    >>> instrument2 = Instrument('fake456', 'My Instrument Title')
-    >>> instrument3 = Instrument('fake123', 'My Other Instrument Title')
+    >>> instrument1 = Instrument('fake123', 'fake123', 'My Instrument Title')
+    >>> instrument2 = Instrument('fake456', 'fake456', 'My Instrument Title')
+    >>> instrument3 = Instrument('fake123', 'fake123', 'My Other Instrument Title')
     >>> instrument1 == instrument2
     False
     >>> instrument1 == instrument3

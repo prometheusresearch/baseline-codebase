@@ -21,7 +21,7 @@ constructor and string-rendering methods::
 
     >>> from rex.instrument.interface import Instrument, InstrumentVersion
     >>> from datetime import datetime
-    >>> instrument = Instrument('fake123', 'My Instrument Title')
+    >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
     ...     'id': 'urn:test-instrument',
     ...     'version': '1.1',
@@ -44,11 +44,11 @@ constructor and string-rendering methods::
     "InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)"
 
     >>> iv.as_dict()
-    {'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}
+    {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}
     >>> iv.as_dict(extra_properties=['definition'])
-    {'definition': {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'The InstrumentVersion Title'}, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0), 'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1}
+    {'definition': {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'The InstrumentVersion Title'}, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0), 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1}
     >>> iv.as_json()
-    u'{"instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}'
+    u'{"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}'
 
 
 The Instruments passed to the constructor must actually be an Instrument

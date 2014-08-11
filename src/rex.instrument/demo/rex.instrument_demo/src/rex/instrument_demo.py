@@ -69,7 +69,7 @@ class MyInstrument(Instrument):
 
     @classmethod
     def create(cls, uid, title):
-        return cls(uid, title)
+        return cls(uid, uid, title)
 
     def get_version(self, version):
         return MyInstrumentVersion.create(self, {}, version)

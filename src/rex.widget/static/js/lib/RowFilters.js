@@ -30,17 +30,21 @@ var RowFilters = React.createClass({
             <strong className="rex-widget-RowFilters__title">{this.props.title}</strong> : ''
           }
           {this.renderFilters()}
-          <span className="rex-widget-RowFilters__buttonList">
-            <button className="rex-widget-RowFilters__applyButton" onClick={this.onApply}>
-              Apply
-            </button>
-            {this.props.showClearButton &&
-            <button
-              onClick={this.onClear}
-              className="rex-widget-RowFilters__clearButton">
-              Clear filters
-            </button>}
-          </span>
+          {(this.props.showApplyButton || this.props.showClearButton) &&
+            <span className="rex-widget-RowFilters__buttonList">
+              {this.props.showApplyButton &&
+              <button className="rex-widget-RowFilters__applyButton" onClick={this.onApply}>
+                Apply
+              </button>
+              }
+              {this.props.showClearButton &&
+              <button
+                onClick={this.onClear}
+                className="rex-widget-RowFilters__clearButton">
+                Clear filters
+              </button>}
+            </span>
+          }
         </div>
       </div>
     );

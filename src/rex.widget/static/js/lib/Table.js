@@ -60,6 +60,7 @@ var Table = React.createClass({
                   } else {
                     transposedData[column.key].push(row[column.key]);
                   }
+                  console.log(transposedData);
                   return (
                     <td key={column.key}>
                       {column.formatter ? column.formatter(row[column.key], column.key, row) : row[column.key]}
@@ -94,6 +95,7 @@ var Table = React.createClass({
                 );
               })}
               {calculatedColumns.map((column, index) => {
+                console.log(transposedData[column.key]);
                 var value = row.calculate(transposedData[column.key], column.key, columns.length + index);
                 return (
                   <td className="rex-widget-Table__calculatedColumn" key={column.key}>

@@ -67,23 +67,26 @@ class Entry(Extension, Comparable, Displayable, Dictable):
     )
 
     @staticmethod
-    def validate_data(data, instrument_version=None):
+    def validate_data(data, instrument_definition=None):
         """
         Validates that the specified data is a legal Assessment Document.
 
         :param data: the Assessment data to validate
         :type data: dict or JSON string
-        :param instrument_version:
-            the InstrumentVersion containing the Instrument Definition to
-            validate the data against; if not specified, only the adherance to
-            the base Assessment Document definition is checked
-        :type instrument_version: InstrumentVersion
+        :param instrument_definition:
+            the Common Instrument Definition to validate the data against; if
+            not specified, only the adherance to the base Assessment Document
+            definition is checked
+        :type instrument_definition: dict or JSON string
         :raises:
             ValidationError if the specified structure fails any of the
             requirements
         """
 
-        return Assessment.validate_data(data, instrument_version)
+        return Assessment.validate_data(
+            data,
+            instrument_definition=instrument_definition,
+        )
 
     @staticmethod
     def generate_empty_data(instrument_version):
@@ -397,17 +400,26 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         # pylint: disable=W0201
         self._memo = to_unicode(value)
 
-    def validate(self):
+    def validate(self, instrument_definition=None):
         """
         Validates that this Entry contains a legal Assessment Document.
 
+        :param instrument_definition:
+            the Common Instrument Definition to validate the data against; if
+            not specified, the definition found on the InstrumentVersion
+            associated with the Assessment will be used
+        :type instrument_definition: dict or JSON string
         :raises:
             ValidationError if the data fails any of the requirements
         """
 
+        if (not instrument_definition) and self.assessment:
+            instrument_definition = \
+                self.assessment.instrument_version.definition
+
         return self.__class__.validate_data(
             self.data,
-            self.assessment.instrument_version,
+            instrument_definition=instrument_definition,
         )
 
     def get_meta(self, name, default=None):

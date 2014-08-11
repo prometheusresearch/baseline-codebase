@@ -149,8 +149,9 @@ class Form(Extension, Comparable, Displayable, Dictable):
         :param configuration: the Form configuration to validate
         :type configuration: string or dict
         :param instrument_definition:
-            the Common Instrument Definition that the Form is building from
-        :type instrument_definition: string or dict
+            the Common Instrument Definition that the Form should be validated
+            against
+        :type instrument_definition: dict or JSON string
         :raises:
             ValidationError if the specified configuration fails any of the
             requirements
@@ -349,20 +350,25 @@ class Form(Extension, Comparable, Displayable, Dictable):
     def configuration_json(self, value):
         self.configuration = json.loads(value)
 
-    def validate(self, instrument_schema=None):
+    def validate(self, instrument_definition=None):
         """
         Validates that this Form is a legal Web Form Configuration.
 
+        :param instrument_definition:
+            the Common Instrument Definition that the Form should be validated
+            against; if not specified, the definition found on the
+            InstrumentVersion associated with this Form will be used
+        :type instrument_definition: dict or JSON string
         :raises:
             ValidationError if the Form fails any of the requirements
         """
 
-        if (not instrument_schema) and self.instrument_version:
-            instrument_schema = self.instrument_version.definition
+        if (not instrument_definition) and self.instrument_version:
+            instrument_definition = self.instrument_version.definition
 
         return self.__class__.validate_configuration(
             self.configuration,
-            instrument_schema,
+            instrument_definition=instrument_definition,
         )
 
     def save(self):

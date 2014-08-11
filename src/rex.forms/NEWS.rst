@@ -5,6 +5,14 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.22.0 (8/xx/2014)
+==================
+
+- Changed Form.validate_configuration() parameter naming to align to that used
+  in the Assessment.validate_data() method.
+- Addressed changes to the Assessment.validate_data() interface method.
+
+
 0.21.0 (7/31/2014)
 ==================
 

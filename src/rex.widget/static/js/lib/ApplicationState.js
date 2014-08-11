@@ -18,6 +18,8 @@ var storage = {};
 // a mapping from state ids to arrays of dependent state ids
 var dependents = {};
 
+var preventPopState = false;
+
 function updateStateValue(value, update) {
   // If this is an object we should process update directives, otherwise we just
   // replace value with an updated one
@@ -71,6 +73,10 @@ function serializeApplicationState() {
 }
 
 window.addEventListener('popstate', function() {
+  if (preventPopState) {
+    preventPopState = false;
+    return;
+  }
   var update = {};
   var query = $.deparam(window.location.search.slice(1));
   forEachReadWriteState(function(state, key) {
@@ -251,6 +257,7 @@ var ApplicationState = merge({
     ReactUpdates.batchedUpdates(() => {
       Object.keys(state).forEach(this.notifyStateChanged, this);
     });
+    preventPopState = true;
     this.replaceHistoryRecord()
   },
 

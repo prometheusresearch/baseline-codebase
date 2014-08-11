@@ -3,13 +3,14 @@
  */
 'use strict';
 
-var request     = require('superagent/superagent');
-var $           = require('jquery');
+var request       = require('superagent/superagent');
+var ReactUpdates  = require('react/lib/ReactUpdates');
+var $             = require('jquery');
 require('./jquery-deparam');
-var Emitter     = require('emitter');
-var invariant   = require('./invariant');
-var merge       = require('./merge');
-var mergeInto   = require('./mergeInto');
+var Emitter       = require('emitter');
+var invariant     = require('./invariant');
+var merge         = require('./merge');
+var mergeInto     = require('./mergeInto');
 
 // a mapping from state ids to states
 var storage = {};
@@ -119,8 +120,10 @@ var ApplicationState = merge({
   },
 
   hydrateAll(statePacket) {
-    Object.keys(statePacket).forEach((id) =>
-      this.hydrate(statePacket[id]))
+    ReactUpdates.batchedUpdates(() => {
+      Object.keys(statePacket).forEach((id) =>
+        this.hydrate(statePacket[id]))
+    });
   },
 
   /**
@@ -191,7 +194,9 @@ var ApplicationState = merge({
     storage = nextStorage;
 
     // notify listeners so that they can show loading indicators if needed
-    toNotify.forEach(this.notifyStateChanged, this);
+    ReactUpdates.batchedUpdates(() => {
+      toNotify.forEach(this.notifyStateChanged, this);
+    });
 
     if (needRemoteUpdate) {
       this.remoteUpdate(values);
@@ -243,7 +248,9 @@ var ApplicationState = merge({
 
     var state = response.body.state;
     this.hydrateAll(state);
-    Object.keys(state).forEach(this.notifyStateChanged, this);
+    ReactUpdates.batchedUpdates(() => {
+      Object.keys(state).forEach(this.notifyStateChanged, this);
+    });
     this.replaceHistoryRecord()
   },
 

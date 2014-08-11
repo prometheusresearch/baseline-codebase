@@ -8,7 +8,7 @@
   "main": "./lib/index.js",
   "styleEntry": "./style/index.less",
   "dependencies": {
-    "react": "^0.11.0",
+    "react": "http://registry.npmjs.org/react/-/react-0.11.1.tgz#*",
     "bootstrap": "^3.2.0",
     "superagent": "^0.18.2",
     "emitter": "component/emitter#1.1.3",

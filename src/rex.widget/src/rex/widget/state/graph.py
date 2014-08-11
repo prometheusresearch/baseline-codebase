@@ -231,9 +231,17 @@ def _merge_state_into(dst, src):
                 dependents.append(inverse_dep)
 
 
+class Unknown(object):
+
+    def __str__(self):
+        return "Unknown()"
+
+    __repr__ = __str__
+
+
 #: A state value which is used as a placeholder while actual value isn't yet
 #: computed.
-unknown = object()
+unknown = Unknown()
 
 
 _State = namedtuple('State', [

@@ -38,14 +38,29 @@ class WidgetDescriptor(_WidgetDescriptor):
     __slots__ = ()
 
 
-UIDescriptor = namedtuple(
-        'UIDescriptor',
-        ['type', 'props'])
+_UIDescriptor = namedtuple('UIDescriptor', ['type', 'props'])
 
 
-UIDescriptorChildren = namedtuple(
-        'UIDescriptorChildren',
-        ['children'])
+class UIDescriptor(_UIDescriptor):
+    """ UI descriptiton.
+
+    :attr type: CommonJS module which exports React component
+    :attr props: Properties which should be passed to a React component
+    """
+
+    __slots__ = ()
+
+
+_UIDescriptorChildren = namedtuple('UIDescriptorChildren', ['children'])
+
+
+class UIDescriptorChildren(_UIDescriptorChildren):
+    """ List of UI descriptitons.
+
+    :attr children: A list of UI descriptors.
+    """
+
+    __slots__ = ()
 
 
 class Field(object):
@@ -114,6 +129,8 @@ class StateField(Field):
 
 
 def state(validator, dependencies=None, default=RecordField.NODEFAULT):
+    """ Decorator for defining :class:`StateField` instances with inline
+    computator."""
     def register_computator(computator):
         return StateField(
                 validator,

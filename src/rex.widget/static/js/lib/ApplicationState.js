@@ -48,7 +48,7 @@ function updateStateValue(value, update) {
 function forEachReadWriteState(func) {
   Object.keys(storage).forEach(function(key) {
     var state = storage[key];
-    if (state.rw) {
+    if (state.isWritable) {
       func(state, key);
     }
   });
@@ -143,7 +143,7 @@ var ApplicationState = merge({
     } else {
       storage[id] = {
         value: updateStateValue(undefined, value),
-        rw: stateDescriptor.rw,
+        isWritable: stateDescriptor.isWritable,
         updating: stateDescriptor.updating,
         isEphemeral: stateDescriptor.isEphemeral
       };
@@ -179,7 +179,7 @@ var ApplicationState = merge({
       // it in some way
       if (values[sID] !== undefined) {
         state.value = values[sID];
-      } else if (!state.rw) {
+      } else if (!state.isWritable) {
         state.value = merge(state.value, {updating: true});
         needRemoteUpdate = true;
       }
@@ -213,7 +213,7 @@ var ApplicationState = merge({
     var params = {};
 
     this.forEach((state, id) => {
-      if (state.rw && values[id] === undefined) {
+      if (state.isWritable && values[id] === undefined) {
         params[id] = state.value;
       }
     });

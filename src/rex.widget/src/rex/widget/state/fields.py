@@ -86,7 +86,7 @@ class DataDescriptor(StateDescriptor):
         state_id = "%s.%s" % (widget.id, field_name)
         computator = self.computator_factory(self.url, self.refs, self.include_meta)
         dependencies = [r.id for r in self.refs.values()]
-        st = State(state_id, widget=widget, computator=computator, dependencies=dependencies, rw=False)
+        st = State(state_id, widget=widget, computator=computator, dependencies=dependencies, is_writable=False)
         return [(field_name, st)]
 
 
@@ -116,7 +116,7 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                         refs=refs,
                         include_meta=self.include_meta),
                     dependencies=dependencies + [pagination_state_id],
-                    rw=False)),
+                    is_writable=False)),
             ("%sPagination" % field_name,
                 State(
                     pagination_state_id,
@@ -124,7 +124,7 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                     computator=InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
                     validator=MapVal(StrVal, IntVal),
                     dependencies=dependencies,
-                    rw=True)),
+                    is_writable=True)),
         ]
 
 

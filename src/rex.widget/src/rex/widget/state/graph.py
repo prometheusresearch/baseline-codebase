@@ -152,7 +152,7 @@ class StateGraphComputation(Mapping):
         self.user = user
 
         if self.user is not None:
-            self.output['USER'] = State('USER', value=self.user, rw=False)
+            self.output['USER'] = State('USER', value=self.user, is_writable=False)
 
         if values is not None:
             for id, value in values.items():
@@ -246,13 +246,13 @@ _State = namedtuple('State', [
                     'default',
                     'dependencies',
                     'is_ephemeral',
-                    'rw'
+                    'is_writable'
                     ])
 
 
 class State(_State):
     """ Represents a single atom of application state.
-    
+
     :attr id: state identifier
     :attr widget: widget state is bound to
     :attr computator: state computator
@@ -262,14 +262,14 @@ class State(_State):
     :attr default: default value
     :attr dependencies: a list of state dependencies
     :attr is_ephemeral: if state is ephemeral (should not be persisted on each update)
-    :attr rw: if state is read-write
+    :attr is_writable: if state is read-write
     """
 
     __slots__ = ()
 
     def __new__(cls, id, widget=None, computator=None, validator=AnyVal, is_active=None,
             value=unknown, default=None, dependencies=None, is_ephemeral=False,
-            rw=True):
+            is_writable=True):
         if dependencies is None:
             dependencies = []
         dependencies = [
@@ -287,7 +287,7 @@ class State(_State):
             dependencies=dependencies,
             is_active=is_active or (lambda graph: True),
             is_ephemeral=is_ephemeral,
-            rw=rw)
+            is_writable=is_writable)
 
 
 _Dep = namedtuple('Dep', ['id', 'reset_only'])
@@ -341,7 +341,7 @@ def compute_update(graph, origins, user=None):
         if recompute_deps or id in origins:
             for d in computation.input.dependents.get(id, []):
                 st = computation.input[d.id]
-                if not d.reset_only or reset and (st.id in origins or st.rw):
+                if not d.reset_only or reset and (st.id in origins or st.is_writable):
                     _compute(d.id, recompute_deps=not reset or not d.reset_only)
 
     for id in cause_effect_sort(computation.input, origins):

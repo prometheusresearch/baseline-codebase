@@ -215,7 +215,7 @@ class Widget(Extension):
     def on_state_descriptor(self, props, state, name, state_descriptor):
         for prop_name, descriptor in state_descriptor.describe_state(self, name):
             state[descriptor.id] = descriptor
-            if descriptor.rw:
+            if descriptor.is_writable:
                 props[prop_name] = {"__state_read_write__": descriptor.id}
             else:
                 props[prop_name] = {"__state_read__": descriptor.id}
@@ -350,7 +350,7 @@ class WidgetJSONEncoder(json.JSONEncoder):
                     for dep in obj.dependencies
                     if not dep.reset_only],
                 "isEphemeral": obj.is_ephemeral,
-                "rw": obj.rw
+                "isWritable": obj.is_writable
             }
         return super(WidgetJSONEncoder, self).default(obj)
 

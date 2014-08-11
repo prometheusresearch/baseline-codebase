@@ -22,7 +22,7 @@ var Tabs = React.createClass({
 
     React.Children.forEach(this.props.tabs, (tab, idx) => {
       idx = idx + 1;
-      var isActive = idx === this.props.active;
+      var isActive = idx == this.props.active;
 
       var tabClassName = cx({
         'rex-widget-Tabs__tab': true,

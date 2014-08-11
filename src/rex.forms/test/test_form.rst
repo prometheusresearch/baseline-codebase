@@ -18,7 +18,7 @@ and string-rendering methods::
 
     >>> from rex.instrument.interface import Instrument, InstrumentVersion
     >>> from datetime import datetime
-    >>> instrument = Instrument('fake123', 'My Instrument Title')
+    >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
     ...     'id': 'urn:test-instrument',
     ...     'version': '1.1',
@@ -83,9 +83,9 @@ and string-rendering methods::
     u'The InstrumentVersion Title'
 
     >>> form.as_dict()
-    {'instrument_version': {'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'title': u'My EDC Application'}}
+    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'title': u'My EDC Application'}}
     >>> form.as_json()
-    u'{"instrument_version": {"instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application"}}'
+    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application"}}'
 
 
 The Channels and InstrumentVersions passed to the constructor must actually be

@@ -18,7 +18,7 @@ and string-rendering methods::
     >>> from rex.instrument.interface import User, Subject, Instrument, InstrumentVersion, Assessment
     >>> from datetime import datetime
     >>> subject = Subject('fake123')
-    >>> instrument = Instrument('fake123', 'My Instrument Title')
+    >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
     ...     'id': 'urn:test-instrument',
     ...     'version': '1.1',

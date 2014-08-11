@@ -106,7 +106,7 @@ class MyOtherChannel(MyChannel):
 class MyInstrument(Instrument):
     @classmethod
     def get_by_uid(cls, uid):
-        return cls(uid, 'Title for %s' % uid)
+        return cls(uid, uid, 'Title for %s' % uid)
 
 
 class MyInstrumentVersion(InstrumentVersion):

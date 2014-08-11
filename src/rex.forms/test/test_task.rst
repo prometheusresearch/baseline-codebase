@@ -20,7 +20,7 @@ The semi-abstract base Task class only implements a simple constructor
 and string-rendering methods::
 
     >>> subject = Subject('fake123')
-    >>> instrument = Instrument('fake123', 'My Instrument Title')
+    >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
     ...     'id': 'urn:test-instrument',
     ...     'version': '1.1',
@@ -65,9 +65,9 @@ and string-rendering methods::
     Instrument(u'fake123', u'My Instrument Title')
 
     >>> task.as_dict()
-    {'priority': 100, 'instrument': {'status': u'active', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'status': u'not-started', 'uid': u'bar999', 'subject': {'uid': u'fake123'}}
+    {'priority': 100, 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'status': u'not-started', 'uid': u'bar999', 'subject': {'uid': u'fake123'}}
     >>> task.as_json()
-    u'{"priority": 100, "instrument": {"status": "active", "uid": "fake123", "title": "My Instrument Title"}, "status": "not-started", "uid": "bar999", "subject": {"uid": "fake123"}}'
+    u'{"priority": 100, "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "status": "not-started", "uid": "bar999", "subject": {"uid": "fake123"}}'
 
 
 The Subjects, Instruments, and Assessments passed to the constructor must
@@ -171,7 +171,7 @@ method can then be used to merge the Assessment Data in the Entries together::
     ...         }
     ...     }
     ... }
-    >>> instrument = Instrument('fake123', 'My Instrument Title')
+    >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> assessment = Assessment('fake123', subject, iv, DATA)
     >>> task = Task('bar999', subject, instrument, 100, assessment)

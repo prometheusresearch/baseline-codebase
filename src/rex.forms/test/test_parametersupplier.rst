@@ -54,7 +54,7 @@ returned by their ``get_parameters()`` method::
     >>> from datetime import datetime
     >>> from rex.forms.interface import Task
     >>> subject = Subject('fake123')
-    >>> instrument = Instrument('fake123', 'My Instrument Title')
+    >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
     ...     'id': 'urn:test-instrument',
     ...     'version': '1.1',

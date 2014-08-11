@@ -80,7 +80,7 @@ class DataComputator(object):
         query = {k: v for k, v in query.items() if v is not None and v != ''}
         query = urllib.urlencode(query)
 
-        log.debug('fetching port: %s?%s', self.url, query)
+        log.debug('fetching port: %s?%s', self.parsed.path, query)
 
         with measure_execution_time():
             product = handler.port.produce(query)
@@ -102,7 +102,7 @@ class DataComputator(object):
 
         query.update(params)
 
-        log.debug('fetching query: %s?%s', self.url, urllib.urlencode(query))
+        log.debug('fetching query: %s?%s', self.parsed.path, urllib.urlencode(query))
 
         with measure_execution_time(), get_db():
             product = htsql.core.cmd.act.produce(handler.query, query)

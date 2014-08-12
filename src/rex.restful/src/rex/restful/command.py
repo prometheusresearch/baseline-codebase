@@ -117,7 +117,10 @@ class RestfulLocation(Command):
         # We want to use the logic within Command.parse(), but we only want it
         # to operate on GET variables, not POST. So, until self.parse() is
         # refactored a little bit, we'll send it a mock request.
-        return self.parse(RestfulLocation._FakeRequest(request))
+        try:
+            return self.parse(RestfulLocation._FakeRequest(request))
+        except Exception as exc:
+            raise HTTPBadRequest(unicode(exc))
 
     def __call__(self, request, **kwargs):
         self.authorize(request)

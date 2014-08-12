@@ -205,6 +205,10 @@ Calling a method that is not implemented on the resource will result in a HTTP
     405 Method Not Allowed
     ...
 
+
+Errors
+======
+
 HTTP Exceptions raised by the methods will be encoded in the same manner as a
 normal response::
 
@@ -223,4 +227,14 @@ Any other exceptions will result in a hard failure::
     Traceback (most recent call last):
         ...
     Exception: This always fails
+
+Sending an unexpected querystring parameter will result in an HTTP 400::
+
+    >>> req = Request.blank('/foo/42?hello=goodbye', method='POST')
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    400 Bad Request
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: ...
+    <BLANKLINE>
+    {"error": "Received unexpected parameter:\n    hello"}
 

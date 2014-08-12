@@ -18,6 +18,7 @@ REX.RESTFUL Change Log
 * Added a SimpleResource extension to more easily implement the common-case
   endpoint of simple resources.
 * Invalid payloads now result in a 400 rather than a crash.
+* Fixed a crash that occurred when unexpected parameters were encountered.
 
 
 0.1.0 (2/10/2014)

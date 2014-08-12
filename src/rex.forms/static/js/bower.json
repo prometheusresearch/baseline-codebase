@@ -10,7 +10,7 @@
   "styleEntry": "./styles/index.less",
   "dependencies": {
     "react": "^0.10.0",
-    "react-forms": "https://github.com/prometheusresearch/react-forms.git#v0.5.1",
+    "react-forms": "https://github.com/prometheusresearch/react-forms.git#v0.5.2",
     "emitter": "https://github.com/component/emitter.git#1.1.2",
     "jscreole": "prometheusresearch/jscreole#inline-markup",
     "rex-expression": "*",

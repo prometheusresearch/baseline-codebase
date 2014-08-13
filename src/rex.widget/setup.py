@@ -25,6 +25,7 @@ setup(
         'rex.core >=1.6, <2',
         'rex.web >=3.0, <4',
         'simplejson >= 3.0',
+        'jquery-unparam >=1.0, <2',
     ],
     rex_init='rex.widget',
     rex_static='static',

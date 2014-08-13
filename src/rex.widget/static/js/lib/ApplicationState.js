@@ -138,7 +138,6 @@ var ApplicationState = merge({
    * @param {Array<Strign>} dependencies
    */
   hydrate(stateDescriptor) {
-
     var id = stateDescriptor.id;
     var value = stateDescriptor.value;
     var dependencies = stateDescriptor.dependencies || [];
@@ -219,8 +218,22 @@ var ApplicationState = merge({
     this.emit(id, id, storage[id].value);
   },
 
+  remoteReload(id) {
+    console.debug('remoteReload', id);
+
+    var update = {};
+    for(var dep in dependents) {
+      // TODO: fix user handling
+      if(dep !== 'USER' && dependents[dep].indexOf(id) != -1) {
+        update[dep] = storage[dep].value;
+      }
+    }
+    this.remoteUpdate(update);
+  },
+
   remoteUpdate(values) {
 
+    console.debug('remoteUpdate', values);
     var params = {};
 
     this.forEach((state, id) => {

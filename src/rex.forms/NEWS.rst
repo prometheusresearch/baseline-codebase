@@ -16,6 +16,7 @@ REX.FORMS Change Log
   User.
 - Fixed rendering of boolean fields as dropDown widgets.
 - Default date/time/dateTime fields are no longer gigantic.
+- Fixed an issue where matrix questions couldn't define their rows.
 
 
 0.21.0 (7/31/2014)

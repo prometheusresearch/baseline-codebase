@@ -34,6 +34,7 @@ FORM_ELEMENT_OPTIONS = {
         'error',
         'enumerations',
         'questions',
+        'rows',
         'widget',
         'events',
     ]),

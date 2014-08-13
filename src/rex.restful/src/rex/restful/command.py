@@ -6,7 +6,7 @@
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed, HTTPException, HTTPBadRequest
 
-from rex.core import cached, StrVal
+from rex.core import cached, StrVal, Error
 from rex.web import Command, Parameter
 
 from .serializer import Serializer
@@ -119,7 +119,7 @@ class RestfulLocation(Command):
         # refactored a little bit, we'll send it a mock request.
         try:
             return self.parse(RestfulLocation._FakeRequest(request))
-        except Exception as exc:
+        except Error as exc:
             raise HTTPBadRequest(unicode(exc))
 
     def __call__(self, request, **kwargs):

@@ -4,32 +4,33 @@
 
 'use strict';
 
-var React       = require('react');
-var WidgetMixin = require('./WidgetMixin');
+var React = require('react');
+var EnumerationWidgetMixin = require('./EnumerationWidgetMixin');
 
 var dropDown = React.createClass({
-  mixins: [WidgetMixin],
+  mixins: [EnumerationWidgetMixin],
 
   className: 'rex-forms-dropDown',
 
-  renderInput: function () {
-    var options = this.props.options.enumerations.map((enumeration) =>
+  renderEnumeration: function (enumeration) {
+    return (
       <option key={enumeration.id} value={enumeration.id}>
         {this.localize(enumeration.text)}
       </option>
-    );
+    )
+  },
 
-    // TODO: Refactor for help popups.
+  renderInput: function () {
     return (
       <select
-        className="form-control"
+        className="rex-forms-dropDown"
         id={this.getInputName()}
         name={this.getInputName()}
         onChange={this.onChange}
         value={this.getValue()}>
 
         <option></option>
-        {options}
+        {this.getEnumerations().map(this.renderEnumeration)}
       </select>
     );
   }

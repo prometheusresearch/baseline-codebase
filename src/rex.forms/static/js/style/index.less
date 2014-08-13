@@ -1,4 +1,8 @@
-@import "~bootstrap/less/bootstrap";
+@import (reference) "~bootstrap/less/variables";
+@import (reference) "~bootstrap/less/mixins";
+@import (reference) "~bootstrap/less/buttons";
+@import (reference) "~bootstrap/less/wells";
+@import (reference) "~bootstrap/less/forms";
 
 @questionIndent: 20px;
 
@@ -204,6 +208,11 @@
     display: inline-block;
     vertical-align: top;
   }
+}
+
+.rex-forms-dropDown {
+  .form-control();
+  margin-left: @questionIndent;
 }
 
 

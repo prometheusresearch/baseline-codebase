@@ -40,7 +40,7 @@ var radioGroup = React.createClass({
 
   renderInput: function() {
     return (
-      <div>
+      <div className="rex-forms-radioGroup">
         {this.getEnumerations().map(this.renderEnumeration)}
       </div>
     );

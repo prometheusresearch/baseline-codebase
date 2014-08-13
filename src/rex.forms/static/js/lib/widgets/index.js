@@ -12,6 +12,7 @@ var dropDown             = require('./dropDown');
 var recordList           = require('./recordList');
 var textArea             = require('./textArea');
 var inputText            = require('./inputText');
+var inputDateTime        = require('./inputDateTime');
 var matrix               = require('./matrix');
 var value                = require('./value');
 var readOnlyAnnotation   = require('./readOnlyAnnotation');
@@ -31,9 +32,9 @@ var defaultWidgetMap = {
   checkGroup,
   dropDown,
 
-  datePicker: inputText,
-  timePicker: inputText,
-  dateTimePicker: inputText,
+  datePicker: inputDateTime,
+  timePicker: inputDateTime,
+  dateTimePicker: inputDateTime,
 
   recordList,
   matrix,

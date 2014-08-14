@@ -17,6 +17,7 @@ REX.FORMS Change Log
 - Fixed rendering of boolean fields as dropDown widgets.
 - Default date/time/dateTime fields are no longer gigantic.
 - Fixed an issue where matrix questions couldn't define their rows.
+- It's now possible to cancel the input of an optional explanation/annotation.
 
 
 0.21.0 (7/31/2014)

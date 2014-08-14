@@ -6,13 +6,21 @@
 var React       = require('react/addons');
 var cx          = React.addons.classSet;
 var WidgetMixin = require('./WidgetMixin');
+var _           = require('../localization')._;
 
 var ToggleText = React.createClass({
   mixins: [WidgetMixin],
 
   propTypes: {
     toggleText: React.PropTypes.string.isRequired,
+    cancelText: React.PropTypes.string,
     label: React.PropTypes.string.isRequired
+  },
+
+  getDefaultProps: function () {
+    return {
+      cancelText: _("I don't want to provide this information.")
+    };
   },
 
   getInitialState: function () {
@@ -24,6 +32,12 @@ var ToggleText = React.createClass({
   toggleDisplay: function (e) {
     e.preventDefault();
     this.setState({toggleForced: !this.state.toggleForced});
+  },
+
+  cancelInput: function (e) {
+    var empty = this.value().updateSerialized(null);
+    this.onValueUpdate(empty);
+    this.toggleDisplay(e);
   },
 
   renderInput: function () {
@@ -60,6 +74,11 @@ var ToggleText = React.createClass({
               onChange={this.onChange}
               value={this.getValue()}
               />
+            {!required ?
+              <div className="rex-forms-ToggleText__cancel">
+                <a href="#" onClick={this.cancelInput}>{this.props.cancelText}</a>
+              </div> :
+              null}
           </div> :
           null}
       </div>

@@ -20,6 +20,8 @@ REX.FORMS Change Log
 - It's now possible to cancel the input of an optional explanation/annotation.
 - Invalid JSON is now considered a ValidationError by
   Form.validate_configuration().
+- The forms-validate command now takes an option to specify the Instrument JSON
+  to validate against.
 
 
 0.21.0 (7/31/2014)

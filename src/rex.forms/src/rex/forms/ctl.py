@@ -31,7 +31,7 @@ class FormsTaskTools(object):
     rex.ctl tasks.
     """
 
-    def open_and_validate(self, filename):
+    def open_and_validate(self, filename, instrument_definition=None, instrument_file=None):
         try:
             configuration = open(filename, 'r').read()
         except Exception as exc:
@@ -40,8 +40,20 @@ class FormsTaskTools(object):
                 str(exc),
             ))
 
+        if (not instrument_definition) and instrument_file:
+            try:
+                instrument_definition = open(instrument_file, 'r').read()
+            except Exception as exc:
+                raise fail('Could not open "%s": %s' % (
+                    filename,
+                    str(exc),
+                ))
+
         try:
-            Form.validate_configuration(configuration)
+            Form.validate_configuration(
+                configuration,
+                instrument_definition=instrument_definition,
+            )
         except ValidationError as exc:
             raise fail(exc.message)
 
@@ -62,11 +74,25 @@ class FORMS_VALIDATE(FormsTaskTools):
 
     configuration = argument(str)
 
-    def __init__(self, configuration):
+    instrument = option(
+        None,
+        str,
+        default=None,
+        value_name='FILE',
+        hint='the file containing the associated Instrument Definition JSON;'
+        ' if not specified, then the Web Form Configuration will only be'
+        ' checked for schema violations',
+    )
+
+    def __init__(self, configuration, instrument):
         self.configuration = configuration
+        self.instrument = instrument
 
     def __call__(self):
-        self.open_and_validate(self.configuration)
+        self.open_and_validate(
+            self.configuration,
+            instrument_file=self.instrument,
+        )
 
         print '"%s" contains a valid Web Form Configuration.\n' % (
             self.configuration,
@@ -278,8 +304,6 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
             channel_impl = get_settings().forms_implementation.channel
             form_impl = get_settings().forms_implementation.form
 
-            configuration_json = self.open_and_validate(self.configuration)
-
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
                 raise fail('Instrument "%s" does not exist.' % (
@@ -296,6 +320,11 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
                     self.instrument_uid,
                 ))
             print 'Instrument Version: %s' % instrument_version.version
+
+            configuration_json = self.open_and_validate(
+                self.configuration,
+                instrument_definition=instrument_version.definition,
+            )
 
             channel = channel_impl.get_by_uid(self.channel_uid)
             if not channel:

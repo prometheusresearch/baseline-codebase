@@ -250,7 +250,10 @@ forms-validate
 
 This tool will validate the structure of a JSON file against the rules and
 schema of the Web Form Configuration format. The ``configuration`` argument
-is the path to the JSON file to validate.
+is the path to the JSON file to validate. By default, the file will only be
+validated against the base schema. If you want to also validate it against a
+Common Instrument Definition, then you can use the ``--instrument`` parameter
+to point this tool at the file containing the definition.
 
 ::
 

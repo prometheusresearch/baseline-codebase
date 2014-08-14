@@ -124,7 +124,7 @@
                     ]
                 },
 
-                "target": {
+                "targets": {
                     "$ref": "#/definitions/tagListType"
                 },
 

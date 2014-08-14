@@ -81,12 +81,14 @@ function createExecutionContextFromForm(form) {
       for (var i = 0, len = question.events.length; i < len; i++) {
         var event = question.events[i];
 
-        var id = event.target || question.fieldId;
+        var ids = event.targets || [question.fieldId];
         var action = event.action;
 
-        context[id] = context[id] || {};
-        context[id][action] = context[id][action] || [];
-        context[id][action].push(event);
+        for (var j = 0; j < ids.length; j++) {
+          context[ids[j]] = context[ids[j]] || {};
+          context[ids[j]][action] = context[ids[j]][action] || [];
+          context[ids[j]][action].push(event);
+        }
       }
     }
   });

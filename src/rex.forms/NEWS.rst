@@ -22,6 +22,10 @@ REX.FORMS Change Log
   Form.validate_configuration().
 - The forms-validate command now takes an option to specify the Instrument JSON
   to validate against.
+- Fixed an issue where the target property on an Event Object wasn't being
+  treated as an array.
+- The target property on an Event Object in a Form Configuration has been
+  renamed to "targets".
 
 
 0.21.0 (7/31/2014)

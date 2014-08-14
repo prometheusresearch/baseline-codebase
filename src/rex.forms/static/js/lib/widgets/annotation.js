@@ -16,7 +16,6 @@ var annotation = React.createClass({
     );
     return this.transferPropsTo(
       <ToggleText
-        className="rex-forms-annotation"
         required={this.props.required}
         toggleText={text}
         label={label}

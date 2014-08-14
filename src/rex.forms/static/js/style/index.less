@@ -3,6 +3,7 @@
 @import (reference) "~bootstrap/less/buttons";
 @import (reference) "~bootstrap/less/wells";
 @import (reference) "~bootstrap/less/forms";
+@import (reference) "~bootstrap/less/tables";
 
 @questionIndent: 20px;
 
@@ -21,6 +22,10 @@
 /**
  * Form styling
  */
+
+.rex-forms-Title {
+  padding-bottom: 1em;
+}
 
 .rex-forms-Form__toolbar {
   margin-top: @padding * 2;
@@ -94,9 +99,48 @@
 
 .rex-forms-Divider {
   padding: 0;
+  padding-bottom: 1em;
   hr {
     margin: 0;
     border-top: 1px solid #b1b1b1;
+  }
+}
+
+.rex-forms-Text {
+  table {
+    /* Unfortunately can't use the following because jscreole doesn't create
+       tables with appropriate thead/tbody/tfoot nodes. So, we'll cut&paste
+       from bootstrap/less/tables.less
+    .table();
+    .table-bordered();
+    */
+
+    margin-bottom: @line-height-computed;
+    border: 1px solid @table-border-color;
+
+    > tr {
+      > th,
+      > td {
+        padding: @table-cell-padding;
+        line-height: @line-height-base;
+        vertical-align: top;
+        border: 1px solid @table-border-color;
+      }
+
+      > th {
+        vertical-align: bottom;
+        border-bottom: 2px solid @table-border-color;
+        border-bottom-width: 2px;
+
+      }
+    }
+
+    > tr:first-child {
+      > th,
+      > td {
+        border-top: 0;
+      }
+    }
   }
 }
 
@@ -180,18 +224,14 @@
   cursor: pointer;
 }
 
-.rex-forms-ItemLabel__label {
-  font-weight: bold;
-}
-
 .rex-forms-ItemLabel__help {
   font-size: 90%;
   color: @colorTextMinor;
 }
 
-.rex-forms-explanation,
-.rex-forms-annotation {
-    margin-left: 0;
+.rex-forms-Widget-explanation,
+.rex-forms-Widget-annotation {
+    margin-left: @questionIndent;
 }
 
 .rex-forms-radioGroup__option,
@@ -251,6 +291,10 @@
 }
 .rex-forms-matrixHeaderRow__label {
   padding: @padding;
+
+  .rex-forms-ItemLabel__label {
+    font-weight: bold;
+  }
 }
 
 .rex-forms-matrixRow__cell,
@@ -261,6 +305,10 @@
 
 .rex-forms-matrixRow__label {
   padding: @padding;
+
+  .rex-forms-ItemLabel__label {
+    font-weight: bold;
+  }
 }
 
 .rex-forms-matrixHeaderRow__cell--required .rex-forms-ItemLabel__label {

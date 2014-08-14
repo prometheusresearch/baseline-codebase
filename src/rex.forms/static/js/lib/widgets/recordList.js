@@ -33,10 +33,12 @@ var recordList = React.createClass({
         {this.renderHelp()}
         {records}
         {error}
-        <button
-          type="button"
-          className="rex-forms-recordList__add"
-          onClick={this.onAdd}>Add</button>
+        <div>
+          <button
+            type="button"
+            className="rex-forms-recordList__add"
+            onClick={this.onAdd}>Add</button>
+        </div>
       </div>
     );
   },

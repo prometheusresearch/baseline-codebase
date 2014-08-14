@@ -12,7 +12,6 @@ var explanation = React.createClass({
   render: function () {
     return this.transferPropsTo(
       <ToggleText
-        className="rex-forms-explanation"
         toggleText={_('I would like to explain my response to this question.')}
         label={_('Explanation:')}
       />

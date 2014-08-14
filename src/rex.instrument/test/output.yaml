@@ -37,6 +37,8 @@ tests:
   - {constraint_record_notallowed.json: 'ValidationError: "integer" Fields cannot
       have constraints: record'}
   - {empty_title.json: 'ValidationError: u'''' is too short'}
+  - {garbage.json: 'ValidationError: Invalid JSON provided: No JSON object could be
+      decoded'}
   - {identifiable.json: VALIDATED}
   - {matrix.json: VALIDATED}
   - {matrix_complex_column.json: 'ValidationError: Complex type "recordList" cannot
@@ -103,12 +105,18 @@ tests:
   - {all_types/nulls.json: VALIDATED}
   - {datatypes.json: VALIDATED}
   - {empty_values.json: 'ValidationError: {} does not have enough properties'}
+  - {garbage/good.json: 'ValidationError: Invalid Instrument JSON provided: No JSON
+      object could be decoded'}
+  - {garbage.json: 'ValidationError: Invalid JSON provided: No JSON object could be
+      decoded'}
   - {meta.json: VALIDATED}
   - {missing_instrument.json: 'ValidationError: u''instrument'' is a required property'}
   - {missing_instrument_id.json: 'ValidationError: u''id'' is a required property'}
   - {missing_instrument_version.json: 'ValidationError: u''version'' is a required
       property'}
   - {missing_values.json: 'ValidationError: u''values'' is a required property'}
+  - {not_an_object/good.json: 'ValidationError: Instrument Definitions must be mapped
+      objects.'}
   - {not_an_object.json: 'ValidationError: Assessment Documents must be mapped objects.'}
   - {simplest/bad_instrument_id.json: 'ValidationError: This Assessment is not associated
       with the specified Instrument Definition'}

@@ -210,7 +210,12 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         # Make sure we're working with a dict.
         if isinstance(definition, basestring):
-            definition = json.loads(definition)
+            try:
+                definition = json.loads(definition)
+            except ValueError as exc:
+                raise ValidationError(
+                    'Invalid JSON provided: %s' % unicode(exc)
+                )
         if not isinstance(definition, dict):
             raise ValidationError(
                 'Instrument Definitions must be mapped objects.'

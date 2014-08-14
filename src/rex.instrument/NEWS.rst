@@ -22,6 +22,8 @@ REX.INSTRUMENT Change Log
 - All get_by_uid() and find() methods now accept and optional user parameter to
   indicate that the resulting instance should be accessible by the specified
   User.
+- Invalid JSON is now considered a ValidationError by
+  Instrument.validate_definition() and Assessment.validate_data().
 
 
 0.10.0 (7/31/2014)

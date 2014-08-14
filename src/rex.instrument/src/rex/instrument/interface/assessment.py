@@ -94,7 +94,12 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
 
         # Make sure we're working with a dict.
         if isinstance(data, basestring):
-            data = json.loads(data)
+            try:
+                data = json.loads(data)
+            except ValueError as exc:
+                raise ValidationError(
+                    'Invalid JSON provided: %s' % unicode(exc)
+                )
         if not isinstance(data, dict):
             raise ValidationError(
                 'Assessment Documents must be mapped objects.'
@@ -112,13 +117,18 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
 
         if not instrument_definition:
             return
-        else:
-            if isinstance(instrument_definition, basestring):
+
+        if isinstance(instrument_definition, basestring):
+            try:
                 instrument_definition = json.loads(instrument_definition)
-            if not isinstance(instrument_definition, dict):
+            except ValueError as exc:
                 raise ValidationError(
-                    'Instrument Definitions must be mapped objects.'
+                    'Invalid Instrument JSON provided: %s' % unicode(exc)
                 )
+        if not isinstance(instrument_definition, dict):
+            raise ValidationError(
+                'Instrument Definitions must be mapped objects.'
+            )
 
         # Make sure the instrument ID lines up
         if data['instrument']['id'] != instrument_definition['id'] or \

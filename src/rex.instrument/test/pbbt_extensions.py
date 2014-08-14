@@ -75,8 +75,7 @@ class AssessmentValidatorCase(MatchCase):
     def run(self):
         # this import needs to be here instead of at the top of the module
         # because if it runs upon load, it seems to confuse converage.py
-        from rex.instrument import InstrumentVersion, Assessment, \
-            ValidationError
+        from rex.instrument import Assessment, ValidationError
 
         results = []
         for filename in sorted(os.listdir(self.input.assessments)):
@@ -106,17 +105,6 @@ class AssessmentValidatorCase(MatchCase):
                     'r',
                     encoding='utf-8'
                 ).read()
-
-                try:
-                    InstrumentVersion.validate_definition(instrument_defn)
-                except ValidationError as exc:
-                    results.append({
-                        filename: u'%s: %s' % (
-                            exc.__class__.__name__,
-                            exc,
-                        ),
-                    })
-                    continue
 
                 for subfilename in sorted(os.listdir(full_path)):
                     full_subpath = os.path.join(full_path, subfilename)

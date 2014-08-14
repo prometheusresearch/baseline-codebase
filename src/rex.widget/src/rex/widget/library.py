@@ -232,6 +232,13 @@ class TextInputWidget(Widget):
     id      = Field(StrVal)
     value   = StateField(StrVal, is_ephemeral=True, default=None)
 
+class CheckboxWidget(Widget):
+
+    name    = 'Checkbox'
+    js_type = 'rex-widget/lib/Checkbox'
+
+    id      = Field(StrVal)
+    value   = StateField(BoolVal, is_ephemeral=True, default=None)
 
 class RowFilterWidget(Widget):
 
@@ -317,6 +324,7 @@ class GridWidget(Widget):
     data                = Field(PaginatedCollectionVal(include_meta=True))
     selectable          = Field(BoolVal, False)
     selected            = StateField(AnyVal, default=None)
+    search              = StateField(StrVal, default=None)
     columns             = Field(AnyVal, default={})
     resizeable_columns  = Field(BoolVal, default=False)
     sortable_columns    = Field(BoolVal, default=False)
@@ -331,3 +339,11 @@ class BarChart(Widget):
 
     id      = Field(StrVal)
     data    = Field(CollectionVal(include_meta=True))
+
+class ButtonWidget(Widget):
+
+    name    = 'Button'
+    js_type = 'rex-widget/lib/Button'
+
+    id      = Field(StrVal)
+    name   =  Field(StrVal, default='Save')

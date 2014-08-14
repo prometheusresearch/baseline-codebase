@@ -50,10 +50,11 @@ var Select = React.createClass({
 
   onChange: function(e) {
     var value = e.target.value;
+    var id    = e.target.id;
     if (value === sentinel) {
       value = null;
     }
-    this.props.onValue(value);
+    this.props.onValue(value, id);
   }
 });
 

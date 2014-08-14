@@ -8,10 +8,16 @@ tests:
   validations:
   - {test/forms/bad_instrument.json: 'ValidationError: u''version'' is a required
       property'}
+  - {test/forms/broken_instrument.json: 'ValidationError: Invalid Instrument JSON
+      provided: No JSON object could be decoded'}
   - {test/forms/extra_element_options.json: 'ValidationError: "header" Element cannot
       have options: fieldId'}
   - {test/forms/extra_field.json: 'ValidationError: There are fields that are not
       in the Instrument: q_doesntexist'}
+  - {test/forms/garbage.json: 'ValidationError: Invalid JSON provided: No JSON object
+      could be decoded'}
+  - {test/forms/instrument_not_an_object.json: 'ValidationError: Instrument Definitions
+      must be mapped objects.'}
   - {test/forms/missing_defaultlocalization.json: 'ValidationError: u''defaultLocalization''
       is a required property'}
   - {test/forms/missing_element_options.json: 'ValidationError: "header" Element missing

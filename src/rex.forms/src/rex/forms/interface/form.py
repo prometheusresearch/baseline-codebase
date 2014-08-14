@@ -158,7 +158,12 @@ class Form(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(configuration, basestring):
-            configuration = json.loads(configuration)
+            try:
+                configuration = json.loads(configuration)
+            except ValueError as exc:
+                raise ValidationError(
+                    'Invalid JSON provided: %s' % unicode(exc)
+                )
         if not isinstance(configuration, dict):
             raise ValidationError(
                 'Form Configurations must be mapped objects.'
@@ -182,7 +187,12 @@ class Form(Extension, Comparable, Displayable, Dictable):
         # If we have an Instrument definition to validate against, do so.
         if instrument_definition:
             if isinstance(instrument_definition, basestring):
-                instrument_definition = json.loads(instrument_definition)
+                try:
+                    instrument_definition = json.loads(instrument_definition)
+                except ValueError as exc:
+                    raise ValidationError(
+                        'Invalid Instrument JSON provided: %s' % unicode(exc)
+                    )
             if not isinstance(instrument_definition, dict):
                 raise ValidationError(
                     'Instrument Definitions must be mapped objects.'

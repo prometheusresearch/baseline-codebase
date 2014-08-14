@@ -18,6 +18,8 @@ REX.FORMS Change Log
 - Default date/time/dateTime fields are no longer gigantic.
 - Fixed an issue where matrix questions couldn't define their rows.
 - It's now possible to cancel the input of an optional explanation/annotation.
+- Invalid JSON is now considered a ValidationError by
+  Form.validate_configuration().
 
 
 0.21.0 (7/31/2014)

@@ -49,13 +49,11 @@ class FormValidatorCase(MatchCase):
                         )
                         if os.path.exists(path):
                             instrument_cache[instrument_name] = \
-                                json.loads(
-                                    codecs.open(
-                                        path,
-                                        'r',
-                                        encoding='utf-8',
-                                    ).read()
-                                )
+                                codecs.open(
+                                    path,
+                                    'r',
+                                    encoding='utf-8',
+                                ).read()
                     instrument = instrument_cache.get(instrument_name)
 
             try:

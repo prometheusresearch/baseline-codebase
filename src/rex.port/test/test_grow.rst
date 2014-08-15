@@ -50,7 +50,7 @@ Alternatively, you can provide full YAML specification::
     entity: study
     select: [code, title, closed]
 
-You can also generate a port object from parsed YAML::
+You can also generate a port object from a Python structure::
 
     >>> study_port = Port({"entity": "study"})
     >>> print study_port
@@ -225,5 +225,303 @@ One could define custom filters on entities::
     filters: ['search($text) := identity.givenname~$text|identity.surname~$text',
               'birthrange($l, $h) := identity.birthdate>=$l&identity.birthdate<=$h']
     select: [code, sex, mother, father]
+
+
+Errors while parsing YAML
+=========================
+
+Invalid HTSQL expressions are rejected::
+
+    >>> Port("""
+    ... syntax error
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse an HTSQL expression:
+        Got unexpected input
+        While parsing:
+            syntax error
+                   ^^^^^
+    While parsing:
+        "<byte string>", line 2
+
+Field ``entity`` must be a valid name with an optional mask::
+
+    >>> Port("""
+    ... entity: count(individual)
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR <name>. ... .<name> OR <name>?<mask>
+    Got:
+        count(individual)
+    While processing field:
+        entity
+    While parsing:
+        "<byte string>", line 2
+
+Field ``at`` must be a valid path::
+
+    >>> Port("""
+    ... entity: individual
+    ... at: root()
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR <name>. ... .<name>
+    Got:
+        root()
+    While processing field:
+        at
+    While parsing:
+        "<byte string>", line 2
+
+Mask expression must be specified once::
+
+    >>> Port("""
+    ... entity: individual?sex='female'
+    ... mask: sex='male'
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got entity mask specified twice:
+        sex='female'
+    And:
+        sex='male'
+    While parsing:
+        "<byte string>", line 2
+
+Filter expressions must have the form ``<name>($<param>, ...) := <expr>``::
+
+    >>> Port("""
+    ... entity: individual
+    ... filters: [sex]
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name>($<param>, ...) := <expr>
+    Got:
+        sex
+    While processing field:
+        filters
+    While parsing:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... entity: individual
+    ... filters: ['individual.by_sex($sex) := sex=$sex']
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name>($<param>, ...) := <expr>
+    Got:
+        individual.by_sex($sex):=sex=$sex
+    While processing field:
+        filters
+    While parsing:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... entity: individual
+    ... filters: ['by_sex(sex) := sex=$sex']
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name>($<param>, ...) := <expr>
+    Got:
+        by_sex(sex):=sex=$sex
+    While processing field:
+        filters
+    While parsing:
+        "<byte string>", line 2
+
+Calculated expressions in shorthand form must have the form
+``<path>.<name> := <expr>``::
+
+    >>> Port("""
+    ... num_individual() := count(individual)
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR <name>. ... .<name> OR <name> := <expr>
+    Got:
+        num_individual():=count(individual)
+    While parsing:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... $num_individual := count(individual)
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR <name>. ... .<name> OR <name> := <expr>
+    Got:
+        $num_individual:=count(individual)
+    While parsing:
+        "<byte string>", line 2
+
+In full form, field ``calculation`` must be either ``<name>`` or
+``<name> := <expr>``::
+
+    >>> Port("""
+    ... calculation: num_individual($sex) := count(individual?sex=$sex)
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR <name>. ... .<name> OR <name> := <expr>
+    Got:
+        num_individual($sex):=count(individual?sex=$sex)
+    While processing field:
+        calculation
+    While parsing:
+        "<byte string>", line 2
+
+The calculated expression must be set only once::
+
+    >>> Port("""
+    ... calculation: num_individual
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got missing calculation expression
+    While parsing:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... calculation: num_individual := count(individual)
+    ... expression: count(participation)
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got calculation expression specified twice:
+        num_individual:=count(individual)
+    And:
+        count(participation)
+    While parsing:
+        "<byte string>", line 2
+
+Field ``at`` must be a valid path::
+
+    >>> Port("""
+    ... calculation: num_individual := count(individual)
+    ... at: root()
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR <name>. ... .<name>
+    Got:
+        root()
+    While processing field:
+        at
+    While parsing:
+        "<byte string>", line 2
+
+
+Errors while applying builders
+==============================
+
+The path to the entity being added must exist::
+
+    >>> Port("""individual.identity""")
+    Traceback (most recent call last):
+      ...
+    Error: Unable to find arm:
+        individual
+    While following path:
+        individual
+    While applying:
+        "<byte string>", line 1
+
+    >>> Port("""individual.num_participation := count(participation)""")
+    Traceback (most recent call last):
+      ...
+    Error: Unable to find arm:
+        individual
+    While following path:
+        individual
+    While applying:
+        "<byte string>", line 1
+
+Duplicate entities are rejected::
+
+    >>> Port("""
+    ... - individual
+    ... - individual
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got entity that has already been added:
+        individual
+    While applying:
+        "<byte string>", line 3
+
+    >>> Port("""
+    ... - num_individual := count(individual)
+    ... - num_individual := count(individual)
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got calculation that has already been added:
+        num_individual
+    While applying:
+        "<byte string>", line 3
+
+An attribute that is not a table or a reverse link is rejected::
+
+    >>> Port("""
+    ... entity: person
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got unknown entity:
+        person
+    While applying:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... - entity: individual
+    ... - entity: individual.sex
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got unknown entity:
+        sex
+    While applying:
+        "<byte string>", line 3
+
+Calculation cannot be added to non-entities::
+
+    >>> Port("""
+    ... - individual
+    ... - individual.mother.num_participation := count(participation)
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Unable to add calculation to a non-entity
+    While applying:
+        "<byte string>", line 3
+
+Calculations must be valid HTSQL expressions::
+
+    >>> Port("""num_person := count(person)""")
+    Traceback (most recent call last):
+      ...
+    Error: Failed to compile an HTSQL expression:
+        Found unknown attribute:
+            person
+        While translating:
+            num_person := count(person)
+                                ^^^^^^
+    While applying:
+        "<byte string>", line 1
 
 

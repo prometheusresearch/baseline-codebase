@@ -6,6 +6,7 @@
   - identity: [code]
   - column: title
     type: text
+    required: false
   - column: closed
     type: boolean
   - data: ./deploy/study.csv

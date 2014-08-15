@@ -108,9 +108,10 @@ the ``study`` slice can be obtained with the following HTSQL query::
 
     >>> print demo_db.produce('''
     ...     /study{id(), code, title, closed}
-    ... ''')                        # doctest: +NORMALIZE_WHITESPACE
+    ... ''')                        # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     ({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
-     {[fos], 'fos', 'Family Obesity Study', false})
+     {[fos], 'fos', 'Family Obesity Study', false},
+     ...)
 
 Yet another slice with ``individual`` and associated ``identity`` and
 ``participation`` records::
@@ -212,9 +213,10 @@ Now you can use the port object to query data from the database.
 For example::
 
     >>> product = study_port.produce()
-    >>> print product               # doctest: +NORMALIZE_WHITESPACE
+    >>> print product               # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
-      {[fos], 'fos', 'Family Obesity Study', false})}
+      {[fos], 'fos', 'Family Obesity Study', false},
+      ...)}
 
 Port can also generate response to an HTTP request::
 
@@ -237,7 +239,8 @@ Port can also generate response to an HTTP request::
           "code": "fos",
           "title": "Family Obesity Study",
           "closed": false
-        }
+        },
+        ...
       ]
     }
     <BLANKLINE>
@@ -332,13 +335,12 @@ Query Interface
 You can query a port and produce an HTSQL ``Product`` object::
 
     >>> product = study_port.produce()
-    >>> product
-    <Product {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true}, {[fos], 'fos', 'Family Obesity Study', false})}>
+    >>> product             # doctest: +ELLIPSIS
+    <Product {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true}, ...)}>
     >>> product.meta
     <Profile record(list(record(identity(text), text, text, boolean)))>
-    >>> product.data        # doctest: +NORMALIZE_WHITESPACE
-    Record(study=[study(id=ID(u'asdl'), code=u'asdl', title=u'Autism Spectrum Disorder Lab', closed=True),
-                  study(id=ID(u'fos'), code=u'fos', title=u'Family Obesity Study', closed=False)])
+    >>> product.data        # doctest: +ELLIPSIS
+    Record(study=[study(id=ID(u'asdl'), code=u'asdl', title=u'Autism Spectrum Disorder Lab', closed=True), ...])
 
 A port object can also respond to HTTP queries::
 
@@ -359,7 +361,8 @@ A port object can also respond to HTTP queries::
           "code": "fos",
           "title": "Family Obesity Study",
           "closed": false
-        }
+        },
+        ...
       ]
     }
     <BLANKLINE>

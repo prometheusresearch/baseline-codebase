@@ -25,7 +25,7 @@ class EventExecutionContext {
 
   execute(targetID, actionName, resolver) {
     var resolve = this._resolveWith(resolver);
-    var actions = this._getAction(targetID, actionName);
+    var actions = this.getAction(targetID, actionName);
     for (var i = 0, len = actions.length; i < len; i++) {
       var action = actions[i];
       var value = RexExpression.evaluate(action.trigger, resolve);
@@ -37,10 +37,10 @@ class EventExecutionContext {
   }
 
   has(targetID, actionName) {
-    return this._getAction(targetID, actionName).length > 0;
+    return this.getAction(targetID, actionName).length > 0;
   }
 
-  _getAction(targetID, actionName) {
+  getAction(targetID, actionName) {
     var actions = this.context[targetID];
     return actions ? actions[actionName] || [] : [];
   }

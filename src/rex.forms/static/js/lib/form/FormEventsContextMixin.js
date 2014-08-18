@@ -66,8 +66,23 @@ var FormEventsContextMixin = {
       targetID, action, this._resolveIdentifier.bind(null, value));
   },
 
-  isEnumerationHiddenByEvents: function(targetID, value) {
-    return this.executeEventExpression(targetID, 'hideEnumeration', value);
+  isEnumerationHiddenByEvents: function(targetID, enumeration, value) {
+    if (this.executeEventExpression(targetID, 'hideEnumeration', value)) {
+      var actions = this.getEventExecutionContext().getAction(
+        targetID,
+        'hideEnumeration'
+      );
+
+      for (var i=0; i < actions.length; i+=1) {
+        var options = actions[i].options || {},
+          targettedEnumerations = options.enumerations || [];
+
+        if (targettedEnumerations.indexOf(enumeration) > -1) {
+          return true;
+        }
+      }
+    }
+    return false;
   },
 
   isDisabledByEvents: function(targetID, value) {

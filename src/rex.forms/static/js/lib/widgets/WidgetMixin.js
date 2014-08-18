@@ -97,6 +97,10 @@ var WidgetMixin = {
     return {};
   },
 
+  getName: function() {
+    return this.context.value.schema.name || this.props.name;
+  },
+
   getInputName: function() {
     if (this.context.value.schema.name) {
         return `${this.context.value.schema.name}[${this.props.name}]`;

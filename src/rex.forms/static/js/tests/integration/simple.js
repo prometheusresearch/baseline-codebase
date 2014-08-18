@@ -481,7 +481,7 @@ describe('simple integration tests', function() {
           qNumberWidget,
           'rex-forms-Widget__error'
         );
-        assert.equal(errorMessages.length, 0, 'error message should be hidden cause field is fresh');
+        assert.equal(errorMessages.length, 1, 'error message should be shown');
         invalidInput();
         errorMessages = TestUtils.scryRenderedDOMComponentsWithClass(
           qNumberWidget,
@@ -497,7 +497,7 @@ describe('simple integration tests', function() {
       });
 
       it('correctly toggles "rex-forms-Widget--error" class on question element', function() {
-        assert.ok(!qNumberWidget.getDOMNode().classList.contains('rex-forms-Widget--error'));
+        assert.ok(qNumberWidget.getDOMNode().classList.contains('rex-forms-Widget--error'));
         invalidInput();
         assert.ok(qNumberWidget.getDOMNode().classList.contains('rex-forms-Widget--error'));
         input();

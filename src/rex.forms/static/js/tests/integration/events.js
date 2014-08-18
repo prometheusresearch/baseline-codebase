@@ -421,8 +421,11 @@ describe('form events', function() {
                 "text": {"en": "Value + 2"},
                 "events": [
                   {
-                    "trigger": "q_in.value+2",
-                    "action": "calculate"
+                    "trigger": "true()",
+                    "action": "calculate",
+                    "options": {
+                      "calculation": "q_in+2"
+                    }
                   }
                 ]
               }

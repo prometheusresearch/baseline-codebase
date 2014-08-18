@@ -17,7 +17,7 @@ var dropDown = React.createClass({
       <option key={enumeration.id} value={enumeration.id}>
         {this.localize(enumeration.text)}
       </option>
-    )
+    );
   },
 
   renderInput: function () {

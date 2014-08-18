@@ -82,7 +82,7 @@ function render(options) {
       id: 'rex_forms_debug_page',
       elements: [
         {
-          type: 'rawValueDisplay',
+          type: 'rawValueDisplay'
         }
       ]
     });

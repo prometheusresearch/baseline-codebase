@@ -57,7 +57,9 @@ var ToggleText = React.createClass({
       <div className="rex-forms-ToggleText">
         {showToggle ?
           <div className="rex-forms-ToggleText__toggle">
-            <a href="#" onClick={this.toggleDisplay}>{this.props.toggleText}</a>
+            <a href="#" onClick={this.toggleDisplay}>
+              {this.props.toggleText}
+            </a>
           </div> :
           null}
         {!showToggle ?
@@ -76,7 +78,9 @@ var ToggleText = React.createClass({
               />
             {!required ?
               <div className="rex-forms-ToggleText__cancel">
-                <a href="#" onClick={this.cancelInput}>{this.props.cancelText}</a>
+                <a href="#" onClick={this.cancelInput}>
+                  {this.props.cancelText}
+                </a>
               </div> :
               null}
           </div> :

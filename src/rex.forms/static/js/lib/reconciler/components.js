@@ -247,7 +247,8 @@ var RecordListDiscrepancy = React.createClass({
       });
 
     return (
-      <div className='rex-forms-ReconcilerSection rex-forms-RecordListDiscrepancy'>
+      <div
+        className='rex-forms-ReconcilerSection rex-forms-RecordListDiscrepancy'>
         <div className='rex-forms-RecordListDiscrepancy__inner'>
           <DiscrepancyTitle
             title={this.localize(question.text)} />
@@ -280,7 +281,8 @@ var RecordListRecordDiscrepancy = React.createClass({
       });
 
     return (
-      <div className='rex-forms-ReconcilerSection rex-forms-RecordListRecordDiscrepancy'>
+      <div
+        className='rex-forms-ReconcilerSection rex-forms-RecordListRecordDiscrepancy'>
         <div className='rex-forms-RecordListRecordDiscrepancy__inner'>
           <DiscrepancyTitle
             title={title} />
@@ -311,7 +313,8 @@ var MatrixDiscrepancy = React.createClass({
       });
 
     return (
-      <div className='rex-forms-ReconcilerSection rex-forms-MatrixDiscrepancy'>
+      <div
+        className='rex-forms-ReconcilerSection rex-forms-MatrixDiscrepancy'>
         <div className='rex-forms-MatrixDiscrepancy__inner'>
           <DiscrepancyTitle
             title={this.localize(question.text)} />
@@ -342,7 +345,8 @@ var MatrixRowDiscrepancy = React.createClass({
       });
 
     return (
-      <div className='rex-forms-ReconcilerSection rex-forms-MatrixRowDiscrepancy'>
+      <div
+        className='rex-forms-ReconcilerSection rex-forms-MatrixRowDiscrepancy'>
         <div className='rex-forms-MatrixRowDiscrepancy__inner'>
           <DiscrepancyTitle
             title={title} />

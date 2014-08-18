@@ -95,7 +95,11 @@ class SchemaBuilder {
     );
   }
 
-  buildRecordListRecord(recordId, recordFieldType, values, recordFieldQuestion) {
+  buildRecordListRecord(
+      recordId,
+      recordFieldType,
+      values,
+      recordFieldQuestion) {
     var sb = new RecordSchemaBuilder(
       values,
       recordFieldType,

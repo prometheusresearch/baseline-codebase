@@ -32,6 +32,8 @@ REX.FORMS Change Log
   on the expression in the "targets" property rather than the "calculation"
   option.
 - Added support for calculating the values of unprompted fields.
+- The fail action now takes the error message to display from the "text"
+  option.
 
 
 0.21.0 (7/31/2014)

@@ -3,8 +3,10 @@
  */
 'use strict';
 
-var React                  = require('react');
-var EventExecutionContext  = require('../EventExecutionContext');
+var React                 = require('react');
+var EventExecutionContext = require('../EventExecutionContext');
+var _                     = require('../localization')._;
+
 
 var FormEventsContextMixin = {
 
@@ -59,30 +61,31 @@ var FormEventsContextMixin = {
    *                       value will be used.
    * @returns {Any}
    */
-  executeEventExpression: function(targetID, action, value) {
+  executeEventExpression: function(targetID, action, value, processor) {
     var executionContext = this.getEventExecutionContext();
     value = value || this.value().value;
     return executionContext.execute(
-      targetID, action, this._resolveIdentifier.bind(null, value));
+      targetID,
+      action,
+      this._resolveIdentifier.bind(null, value),
+      processor
+    );
   },
 
   isEnumerationHiddenByEvents: function(targetID, enumeration, value) {
-    if (this.executeEventExpression(targetID, 'hideEnumeration', value)) {
-      var actions = this.getEventExecutionContext().getAction(
-        targetID,
-        'hideEnumeration'
-      );
+    return this.executeEventExpression(
+      targetID,
+      'hideEnumeration',
+      value,
+      (action, triggerResult) => {
+        if (!triggerResult) { return false; }
 
-      for (var i=0; i < actions.length; i+=1) {
-        var options = actions[i].options || {},
+        var options = action.options || {},
           targettedEnumerations = options.enumerations || [];
 
-        if (targettedEnumerations.indexOf(enumeration) > -1) {
-          return true;
-        }
+        return (targettedEnumerations.indexOf(enumeration) > -1);
       }
-    }
-    return false;
+    );
   },
 
   isDisabledByEvents: function(targetID, value) {
@@ -94,7 +97,21 @@ var FormEventsContextMixin = {
   },
 
   isFailedByEvents: function(targetID, value) {
-    return this.executeEventExpression(targetID, 'fail', value);
+    return this.executeEventExpression(
+      targetID,
+      'fail',
+      value,
+      (action, triggerResult) => {
+        if (!triggerResult) { return false; }
+
+        var options = action.options || {},
+          message = this.localize(options.text) || _('invalid value');
+
+        return {
+          message: message
+        };
+      }
+    );
   },
 
   isCalculatedByEvents: function(targetID, value) {
@@ -102,27 +119,23 @@ var FormEventsContextMixin = {
   },
 
   calculateByEvents: function(targetID, value) {
-    if (this.executeEventExpression(targetID, 'calculate', value)) {
-      var actions = this.getEventExecutionContext().getAction(
-        targetID,
-        'calculate'
-      );
+    return this.executeEventExpression(
+      targetID,
+      'calculate',
+      value,
+      (action, triggerResult) => {
+        if (!triggerResult) { return false; }
 
-      for (var i=0; i < actions.length; i+=1) {
-        var options = actions[i].options || {},
+        var options = action.options || {},
           calculation = options.calculation;
 
-        if (calculation) {
-          value = value || this.value().value;
-          return this.getEventExecutionContext().evaluate(
-            calculation,
-            this._resolveIdentifier.bind(null, value)
-          )
-        }
+        value = value || this.value().value;
+        return this.getEventExecutionContext().evaluate(
+          calculation,
+          this._resolveIdentifier.bind(null, value)
+        );
       }
-    }
-
-    return undefined;
+    );
   },
 
   /**

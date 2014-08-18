@@ -30,12 +30,15 @@ class EventExecutionContext {
     );
   }
 
-  execute(targetID, actionName, resolver) {
+  execute(targetID, actionName, resolver, processor) {
     var actions = this.getAction(targetID, actionName);
     for (var i = 0, len = actions.length; i < len; i++) {
       var action = actions[i];
       var value = this.evaluate(action.trigger, resolver);
       if (value !== undefined) {
+        if (processor) {
+          return processor(action, value);
+        }
         return value;
       }
     }

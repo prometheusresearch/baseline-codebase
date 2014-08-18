@@ -31,6 +31,7 @@ REX.FORMS Change Log
 - Fixed an issue where the calculation action was performing calculations based
   on the expression in the "targets" property rather than the "calculation"
   option.
+- Added support for calculating the values of unprompted fields.
 
 
 0.21.0 (7/31/2014)

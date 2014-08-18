@@ -112,6 +112,15 @@ function createExecutionContextFromForm(form) {
     }
   }
 
+  // Add in the unprompted fields.
+  Object.keys(form.unprompted || {}).forEach((name) => {
+    var event = form.unprompted[name];
+    event.trigger = 'true()';  // This is a little hacky.
+    context[name] = context[name] || {};
+    context[name][event.action] = context[name][event.action] || [];
+    context[name][event.action].push(event);
+  });
+
   return new EventExecutionContext(context, form);
 }
 

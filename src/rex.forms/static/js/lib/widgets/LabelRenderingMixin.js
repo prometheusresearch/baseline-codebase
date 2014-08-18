@@ -4,6 +4,7 @@
 
 'use strict';
 
+var React     = require('react');  // Don't remove this, no matter what eslint says.
 var localized = require('../localized');
 
 /**

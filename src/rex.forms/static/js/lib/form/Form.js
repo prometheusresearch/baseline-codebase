@@ -112,15 +112,17 @@ var Form = React.createClass({
   getFormState: function(value) {
     var events = this.formEvents();
     this.getEventExecutionContext().forEachTarget((name) => {
-      var newValue = events.calculate(name, value.value);
+      if (events.isCalculated(name, value.value)) {
+        var newValue = events.calculate(name, value.value);
 
-      if (newValue !== undefined
-          && (!value.value[name] || !value.value[name].value !== newValue)) {
+        if (newValue !== undefined
+            && (!value.value[name] || !value.value[name].value !== newValue)) {
 
-        value = value
-          .get(name).get('value')
-          .updateValue(newValue)
-          .root();
+          value = value
+            .get(name).get('value')
+            .updateValue(newValue)
+            .root();
+        }
       }
 
       var failed = events.isFailed(name, value.value);

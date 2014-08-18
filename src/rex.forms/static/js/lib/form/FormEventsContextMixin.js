@@ -97,13 +97,32 @@ var FormEventsContextMixin = {
     return this.executeEventExpression(targetID, 'fail', value);
   },
 
-  isCalculatedByEvents: function(targetID) {
-    return this.hasEventExpression(targetID, 'calculate');
+  isCalculatedByEvents: function(targetID, value) {
+    return this.executeEventExpression(targetID, 'calculate', value);
   },
 
   calculateByEvents: function(targetID, value) {
+    if (this.executeEventExpression(targetID, 'calculate', value)) {
+      var actions = this.getEventExecutionContext().getAction(
+        targetID,
+        'calculate'
+      );
 
-    return this.executeEventExpression(targetID, 'calculate', value);
+      for (var i=0; i < actions.length; i+=1) {
+        var options = actions[i].options || {},
+          calculation = options.calculation;
+
+        if (calculation) {
+          value = value || this.value().value;
+          return this.getEventExecutionContext().evaluate(
+            calculation,
+            this._resolveIdentifier.bind(null, value)
+          )
+        }
+      }
+    }
+
+    return undefined;
   },
 
   /**

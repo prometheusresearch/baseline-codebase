@@ -28,6 +28,9 @@ REX.FORMS Change Log
   renamed to "targets".
 - Fixed an issue where the hideEnumeration action was hiding objects listed in
   the "targets" property rather than the "enumerations" option.
+- Fixed an issue where the calculation action was performing calculations based
+  on the expression in the "targets" property rather than the "calculation"
+  option.
 
 
 0.21.0 (7/31/2014)

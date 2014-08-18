@@ -23,12 +23,18 @@ class EventExecutionContext {
     }
   }
 
+  evaluate(expression, resolver) {
+    return RexExpression.evaluate(
+      expression,
+      this._resolveWith(resolver)
+    );
+  }
+
   execute(targetID, actionName, resolver) {
-    var resolve = this._resolveWith(resolver);
     var actions = this.getAction(targetID, actionName);
     for (var i = 0, len = actions.length; i < len; i++) {
       var action = actions[i];
-      var value = RexExpression.evaluate(action.trigger, resolve);
+      var value = this.evaluate(action.trigger, resolver);
       if (value !== undefined) {
         return value;
       }

@@ -49,8 +49,8 @@ var Page = React.createClass({
     if (element.type === 'question') {
       utils.mergeInto(props, {
         name,
-        disabled: events.isDisabled(name),
-        hidden: events.isHidden(name) || events.isCalculated(name)
+        disabled: events.isDisabled(name) || events.isCalculated(name),
+        hidden: events.isHidden(name)
       });
     }
 

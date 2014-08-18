@@ -52,6 +52,11 @@ var Page = React.createClass({
         disabled: events.isDisabled(name) || events.isCalculated(name),
         hidden: events.isHidden(name)
       });
+
+    } else if (element.type === 'rawValueDisplay') {
+      utils.mergeInto(props, {
+        value: this.value()
+      });
     }
 
     return elementComponent(props);

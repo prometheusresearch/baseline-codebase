@@ -3,16 +3,18 @@
  */
 'use strict';
 
-var Divider   = require('./Divider');
-var Header    = require('./Header');
-var Question  = require('./Question').Question;
-var Text      = require('./Text');
+var Divider         = require('./Divider');
+var Header          = require('./Header');
+var Question        = require('./Question').Question;
+var RawValueDisplay = require('./RawValueDisplay');
+var Text            = require('./Text');
 
 var defaultElementComponentMap = {
   header: Header,
   text: Text,
   divider: Divider,
-  question: Question
+  question: Question,
+  rawValueDisplay: RawValueDisplay
 };
 
 module.exports = {
@@ -20,5 +22,6 @@ module.exports = {
   Question,
   Header,
   Divider,
-  Text
+  Text,
+  RawValueDisplay
 };

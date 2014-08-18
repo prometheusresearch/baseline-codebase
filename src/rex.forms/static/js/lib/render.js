@@ -25,7 +25,8 @@ function render(options) {
     showOverviewOnCompletion: true,
     showOverview: false,
     readOnly: false,
-    scrollToTopOnPage: true
+    scrollToTopOnPage: true,
+    debug: false
   };
 
   options = merge(defaults, options);
@@ -75,6 +76,18 @@ function render(options) {
     && isCompatible(options.assessment.instrument, options.instrument),
     'Assessment document is not compatible with instrument'
   );
+
+  if (options.debug) {
+    options.form.pages.unshift({
+      id: 'rex_forms_debug_page',
+      elements: [
+        {
+          type: 'rawValueDisplay',
+        }
+      ]
+    });
+  }
+  delete options.debug;
 
   form = React.renderComponent(Component(options), element);
 

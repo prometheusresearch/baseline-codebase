@@ -54,10 +54,10 @@ title
     :Example: My Example Title
 
 tags
-    :Type: Array of `Identifier`
+    :Type: Array of `Identifier`_
     :Description: This property defines all tags that may be used throughout
-                  the Form either in the `tags` property of Elements or the
-                  `target` property of Events.
+                  the Form either in the ``tags`` property of Elements or the
+                  ``targets`` property of Events.
 
 pages
     :Type: Array of `Page Object`_
@@ -91,14 +91,14 @@ id
     :Constraints: Required; Must be a URI as described in `RFC3986`_
 
                   .. _`RFC3986`: http://tools.ietf.org/html/rfc3986
-    :Description: This property is a reference to the `id` property on the root
+    :Description: This property is a reference to the ``id`` property on the root
                   object of an Instrument Definition. It is meant to specify the
                   exact Instrument this Web Form Configuration is based on.
 
 version
     :Type: String
     :Constraints: Required
-    :Description: This property is a reference the the `version` property on the
+    :Description: This property is a reference the the ``version`` property on the
                   root object of an Instrument Definition. It is meant to
                   specify the exact revision of the Instrument this Form
                   Configuration is based on.
@@ -152,9 +152,9 @@ options
                      Element Type    Applicable Options
                      =============== ==================
                      question        The options are in the form of a `Question Object`_.
-                     header          The only option allowed is a single property named `text` that
+                     header          The only option allowed is a single property named ``text`` that
                                      is a `Localized String Object`_.
-                     text            The only option allowed is a single property named `text` that
+                     text            The only option allowed is a single property named ``text`` that
                                      is a `Localized String Object`_.
                      divider         N/A
                      =============== ==================
@@ -165,7 +165,7 @@ tags
                   belonging to a particular "group" so that they may be later
                   referenced in an `Event Object`_ target as collection. The
                   tags used in this property must have been defined in the
-                  `tags` property on the `Root Object`_.
+                  ``tags`` property on the `Root Object`_.
 
 
 Question Object
@@ -202,8 +202,8 @@ error
 
 enumerations
     :Type: Array of `Descriptor Object`_
-    :Constraints: Only applies to Questions for Fields of type `enumeration` or
-                  `enumerationSet`
+    :Constraints: Only applies to Questions for Fields of type ``enumeration``
+                  or ``enumerationSet``
     :Description: This property contains the list of Enumerations that are
                   presented to the user for them to choose from. The order that
                   the Enumeration Objects are placed in this property is the
@@ -211,17 +211,17 @@ enumerations
 
 questions
     :Type: Array of `Question Object`_
-    :Constraints: Required for Fields of type `recordList` or `matrix`
+    :Constraints: Required for Fields of type ``recordList`` or ``matrix``
     :Description: This property allows the author to specify the sequence and
                   configuration of the child Fields contained within a
-                  `recordList` or `matrix` Field. For matrices, these questions
-                  correspond to the columns.
+                  ``recordList`` or ``matrix`` Field. For matrices, these
+                  questions correspond to the columns.
 
 rows
     :Type: Array of `Descriptor Object`_
-    :Constraints: Required for Fields of type `matrix`
+    :Constraints: Required for Fields of type ``matrix``
     :Description: This property allows the author to specify the sequence and
-                  configuration of the rows in a `matrix` field.
+                  configuration of the rows in a ``matrix`` field.
 
 widget
     :Type: `Widget Configuration Object`_
@@ -274,8 +274,8 @@ particular condition is met. This object consists of the following properties:
 trigger
     :Type: String
     :Constraints: Required
-    :Description: This property specifies an expression (syntax TBD) that, when
-                  it evaluates to a truthy value, will then cause the `action`
+    :Description: This property specifies a REXL expression that, when
+                  it evaluates to a truthy value, will then cause the ``action``
                   specified in this `Event Object`_ to execute.
 
 action
@@ -289,27 +289,34 @@ action
                      ================== =============================== =================== ===========
                      hide               question, header, text, divider Yes                 Completely hides the element from the user.
                      disable            question, header, text, divider Yes                 Shows the element to the user, but does not allow them to interact with or respond to it.
-                     hideEnumeration    question                        No                  Hides the specified enumerations (in `enumeration` and `enumerationSet` Questions) from the user.
+                     hideEnumeration    question                        No                  Hides the specified enumerations (in ``enumeration`` and ``enumerationSet`` Questions) from the user.
                      fail               question                        No                  Causes the response to the Question to be considered "invalid", meaning the user must change it before they can successfully complete the Form.
                      calculate          question                        No                  Causes the response to the Question to be automatically calculated using an expression.
                      ================== =============================== =================== ===========
 
-target
+targets
     :Type: Array of `Identifier`_
     :Description: This property specifies which Element(s) are impacted by the
-                  `action` being executed. These Identifiers can either be
-                  either references to the `fieldId` of Questions, the `id` of
-                  Pages, or a tag specified by one or more Elements in the
-                  `tags` property. If not specified, it is implied that the
-                  `action` applies to the Question the Event is associated
+                  ``action`` being executed. These Identifiers can either be
+                  either references to the ``fieldId`` of Questions, the ``id``
+                  of Pages, or a tag specified by one or more Elements in the
+                  ``tags`` property. If not specified, it is implied that the
+                  ``action`` applies to the Question the Event is associated
                   with.
 
 options
     :Type: Object
-    :Constraints: The contents of the Object depend on the `action` specified.
+    :Constraints: The contents of the Object depend on the ``action`` specified.
     :Descriptions: This property allows the Form author to provide configuration
-                   parameters to the `action` being executed. This property is
-                   optional.
+                   parameters to the ``action`` being executed. This property
+                   is optional.
+    :PossibleValues: ============== =================== ===========
+                     Option         Applicable Actions  Description
+                     ============== =================== ===========
+                     text           fail                A `Localized String Object`_ that contains the error message to show on the target question.
+                     enumerations   hideEnumeration     A list of enumeration IDs to hide on the target question.
+                     calculation    calculate           The REXL expression to use to calculate the value for the target Question.
+                     ============== =================== ===========
 
 
 Widget Configuration Object
@@ -323,15 +330,35 @@ type
     :Constraints: Required
     :Description: This property indicates the type of the front-end widget that
                   should be used.
-    :PossibleValues: TBD
+    :PossibleValues: ============== ======================= ===========
+                     Type           Applicable Field Types  Description
+                     ============== ======================= ===========
+                     inputText      text*                   A single-line text box.
+                     inputNumber    integer*, float*        A single-line text box optimized for numeric input.
+                     textArea       text                    A multi-line text box.
+                     radioGroup     enumeration*, boolean*  A group of radio button options that only allows one selection.
+                     checkGroup     enumerationSet*         A group of checkbox options that allows multiple selections.
+                     dropDown       enumeration, boolean    A drop-down selection box that only allows one selection.
+                     datePicker     date*                   TBD
+                     timePicker     time*                   TBD
+                     dateTimePicker dateTime*               TBD
+                     ============== ======================= ===========
+
+                     Field types notated with a ``*`` use that widget by default.
 
 options:
     :Type: Object
     :Constraints: The contents of the Object depend on the widget specified in
-                  the `type` property.
+                  the ``type`` property.
     :Descriptions: This property allows the Form author to provide configuration
                    parameters to the widget being used. This property is
                    optional.
+    :PossibleValues: ========== =================================== =========== ===========
+                     Option     Applicable Widgets                  Default     Description
+                     ========== =================================== =========== ===========
+                     width      inputText, inputNumber, textArea    medium      Specifies the width of the widget. Allows ``small``, ``medium``, or ``large``.
+                     height     textArea                            medium      Specifies the height of the widget. Allows ``small``, ``medium``, or ``large``.
+                     ========== =================================== =========== ===========
 
 
 Unprompted Collection Object
@@ -361,11 +388,15 @@ action
 
 options
     :Type: Object
-    :Constraints: The contents of the Object depend on the `action` specified.
+    :Constraints: The contents of the Object depend on the ``action`` specified.
     :Descriptions: This property allows the Form author to provide configuration
-                   parameters to the `action` being executed. This property is
+                   parameters to the ``action`` being executed. This property is
                    optional.
-
+    :PossibleValues: ============== =================== ===========
+                     Option         Applicable Actions  Description
+                     ============== =================== ===========
+                     calculation    calculate           The REXL expression to use to calculate the value for the target Field.
+                     ============== =================== ===========
 
 Parameter Collection Object
 ---------------------------
@@ -373,8 +404,8 @@ A Parameter Collection object consists of one-to-many properties where the
 proeprty name serves as a reference to a variable that will be supplied to the
 Form rendering engine from an external source. These variableso can be used in
 any event logic, and can be substituted into the text of any element that
-renders text. The ID of the property is in the format of an `Identifier` and
-the value is a `Parameter Object`.
+renders text. The ID of the property is in the format of an `Identifier`_ and
+the value is a `Parameter Object`_.
 
 
 Parameter Object
@@ -387,7 +418,7 @@ type
     :Contraints: Required
     :Description: This property indicates the rough data type of the value that
                   will be received in this variable.
-    :PossibleValues: `numeric`, `text`, `boolean`
+    :PossibleValues: ``numeric``, ``text``, ``boolean``
 
 
 Localized String Object

@@ -7,8 +7,9 @@ REX.FORMS Examples
     test_channel
     test_entry
     test_form
-    test_parametersupplier
-    test_settings
     test_task
     test_draftform
+    test_settings
+    test_parametersupplier
+    test_taskcompletionprocessor
 

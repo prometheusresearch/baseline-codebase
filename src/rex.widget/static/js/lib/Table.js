@@ -60,7 +60,6 @@ var Table = React.createClass({
                   } else {
                     transposedData[column.key].push(row[column.key]);
                   }
-                  console.log(transposedData);
                   return (
                     <td key={column.key}>
                       {column.formatter ? column.formatter(row[column.key], column.key, row) : row[column.key]}
@@ -87,15 +86,16 @@ var Table = React.createClass({
           {calculatedRows.map((row, rowIndex) =>
             <tr key={rowIndex} className="rex-widget-Table__calculatedRow">
               {columns.map((column, index) => {
-                var value = row.calculate(transposedData[column.key], column.key, index);
+                var value = row.calculate(transposedData[column.key], column.key, index, column);
+                if (column.skipInTotal)
+                  return '';
                 return (
-                  <td key={column.key}>
+                  <td key={column.key} colSpan={column.colSpan}>
                     {column.formatter ? column.formatter(value, column.key, row) : value}
                   </td>
                 );
               })}
               {calculatedColumns.map((column, index) => {
-                console.log(transposedData[column.key]);
                 var value = row.calculate(transposedData[column.key], column.key, columns.length + index);
                 return (
                   <td className="rex-widget-Table__calculatedColumn" key={column.key}>

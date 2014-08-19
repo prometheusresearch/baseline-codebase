@@ -1,0 +1,14 @@
+[main]
+host = https://www.transifex.com
+type = PO
+
+[rexforms.frontend]
+source_lang = en
+source_file = static/i18n/frontend.pot
+file_filter = static/i18n/<lang>/LC_MESSAGES/frontend.po
+
+[rexforms.backend]
+source_lang = en
+source_file = static/i18n/backend.pot
+file_filter = static/i18n/<lang>/LC_MESSAGES/backend.po
+

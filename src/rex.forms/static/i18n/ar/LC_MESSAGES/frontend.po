@@ -1,0 +1,190 @@
+# Translations template for rex.forms.
+# Copyright (C) 2014 Prometheus Research, LLC
+# This file is distributed under the same license as the rex.forms project.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: rex.forms\n"
+"Report-Msgid-Bugs-To: contact@prometheusresearch.com\n"
+"POT-Creation-Date: 2014-08-19 11:43-0400\n"
+"PO-Revision-Date: 2014-08-19 15:50+0000\n"
+"Last-Translator: Jason Simeone\n"
+"Language-Team: Arabic (http://www.transifex.com/projects/p/rexforms/language/ar/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.3\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: static/js/lib/types.js:27
+msgid "Please enter a valid number."
+msgstr ""
+
+#: static/js/lib/types.js:52
+msgid "Please enter a valid whole number."
+msgstr ""
+
+#: static/js/lib/types.js:82
+msgid "Only true or false values are allowed."
+msgstr ""
+
+#: static/js/lib/types.js:146
+msgid "Dates must be entered in YYYY-MM-DD format."
+msgstr ""
+
+#: static/js/lib/types.js:150
+msgid "Please enter a valid date."
+msgstr ""
+
+#: static/js/lib/types.js:177
+msgid ""
+"Times must be entered in HH:MM:SS format. They are 24-hour based, and "
+"seconds are optional."
+msgstr ""
+
+#: static/js/lib/types.js:217
+msgid ""
+"Date/Time values must be entered in YYYY-MM-DD HH:MM:SS format. Times are "
+"24-hour based, and seconds are optional."
+msgstr ""
+
+#: static/js/lib/validators.js:41
+#, python-format
+msgid "Cannot measure length of \"%(value)s\""
+msgstr ""
+
+#: static/js/lib/validators.js:46
+#, python-format
+msgid "Cannot be less than a length of %(value)s"
+msgstr ""
+
+#: static/js/lib/validators.js:51
+#, python-format
+msgid "Cannot be more than a length of %(value)s"
+msgstr ""
+
+#: static/js/lib/validators.js:62
+msgid "Does not match the accepted pattern"
+msgstr ""
+
+#: static/js/lib/validators.js:74
+#, python-format
+msgid "\"%(value)s\" is not an acceptable value"
+msgstr ""
+
+#: static/js/lib/validators.js:101
+#, python-format
+msgid "Cannot be less than %(value)s"
+msgstr ""
+
+#: static/js/lib/validators.js:107
+#, python-format
+msgid "Cannot be greater than %(value)s"
+msgstr ""
+
+#: static/js/lib/validators.js:191
+msgid "This number is outside the acceptible bounds for an integer."
+msgstr ""
+
+#: static/js/lib/form/EditableQuestionWrapper.js:39
+msgid "Save"
+msgstr ""
+
+#: static/js/lib/form/EditableQuestionWrapper.js:39
+msgid "Edit"
+msgstr ""
+
+#: static/js/lib/form/Form.js:73
+msgid "Complete Form"
+msgstr ""
+
+#: static/js/lib/form/FormEventsContextMixin.js:108
+msgid "Invalid value."
+msgstr ""
+
+#: static/js/lib/form/FormOverview.js:15
+msgid ""
+"Please review entered values before completing the form. You can press "
+"<strong>edit</strong> button at the top-right corner of the question to edit"
+" its value."
+msgstr ""
+
+#: static/js/lib/form/PageNavigation.js:30
+msgid "Previous Page"
+msgstr ""
+
+#: static/js/lib/form/PageNavigation.js:40
+msgid "Next Page"
+msgstr ""
+
+#: static/js/lib/form/Pagination.js:32
+#, python-format
+msgid "You are currently viewing page %(index)s"
+msgstr ""
+
+#: static/js/lib/form/Pagination.js:33
+#, python-format
+msgid "Jump to page %(index)s"
+msgstr ""
+
+#: static/js/lib/form/ProgressBar.js:16
+#, python-format
+msgid "%(percent)s% complete"
+msgstr ""
+
+#: static/js/lib/reconciler/components.js:57
+#, python-format
+msgid "Entered By: %(user)s"
+msgstr ""
+
+#: static/js/lib/reconciler/components.js:64
+msgid "Final Value"
+msgstr ""
+
+#: static/js/lib/reconciler/components.js:272
+#, python-format
+msgid "Record #%(recordNumber)s"
+msgstr ""
+
+#: static/js/lib/reconciler/index.js:84
+msgid "Complete Reconciliation"
+msgstr ""
+
+#: static/js/lib/widgets/ToggleText.js:22
+msgid "I don't want to provide this information."
+msgstr ""
+
+#: static/js/lib/widgets/annotation.js:13
+msgid "I can't (or won't) respond to this question."
+msgstr ""
+
+#: static/js/lib/widgets/annotation.js:14
+msgid "Please explain why you can't or won't respond to this question:"
+msgstr ""
+
+#: static/js/lib/widgets/explanation.js:15
+msgid "I would like to explain my response to this question."
+msgstr ""
+
+#: static/js/lib/widgets/explanation.js:16
+#: static/js/lib/widgets/readOnlyExplanation.js:20
+msgid "Explanation:"
+msgstr ""
+
+#: static/js/lib/widgets/readOnlyAnnotation.js:21
+msgid "I can't (or won't) respond to this question because:"
+msgstr ""
+
+#: static/js/lib/widgets/record.js:35
+msgid "Remove"
+msgstr ""
+
+#: static/js/lib/widgets/recordList.js:42
+msgid "Add"
+msgstr ""
+
+#: static/js/lib/widgets/value.js:26
+msgid "No value provided."
+msgstr ""

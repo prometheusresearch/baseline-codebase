@@ -5,8 +5,9 @@
 
 var React      = require('react');
 var ReactForms = require('react-forms');
-var cx         = React.addons.classSet;
 var DirtyState = require('./DirtyState');
+var _          = require('../localization')._;
+
 
 var record = React.createClass({
   mixins: [
@@ -21,16 +22,14 @@ var record = React.createClass({
   },
 
   render: function () {
-    var className = cx(
-      'remove btn btn-default',
-      'btn-xs pull-right',
-      'rex-forms-recordList__remove'
-    );
     return (
       <div className="rex-forms-recordList__record">
         {!this.props.readOnly &&
-          <button className={className} onClick={this.onRemove} type="button">
-            &times; remove
+          <button
+            className="rex-forms-recordList__remove"
+            onClick={this.onRemove}
+            type="button">
+            &times; {_('Remove')}
           </button>}
         {this.renderQuestions()}
       </div>

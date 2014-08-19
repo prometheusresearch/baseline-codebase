@@ -11,7 +11,8 @@ var defaultBooleanEnumeration = [
       'en': 'Yes',
       'fr': 'Oui',
       'es': 'Sí',
-      'it': 'Sì'
+      'it': 'Sì',
+      'ar': 'نعم'
     }
   },
   {
@@ -20,7 +21,8 @@ var defaultBooleanEnumeration = [
       'en': 'No',
       'fr': 'Non',
       'es': 'No',
-      'it': 'No'
+      'it': 'No',
+      'ar': 'لا'
     }
   }
 ];

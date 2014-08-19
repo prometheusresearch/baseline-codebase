@@ -50,6 +50,10 @@
 
 .rex-forms-PageNavigation__next {
   text-align: right;
+
+  [dir='rtl'] & {
+    text-align: left;
+  }
 }
 
 .rex-forms-PageNavigation__info {
@@ -232,6 +236,11 @@
 .rex-forms-Widget-explanation,
 .rex-forms-Widget-annotation {
     margin-left: @questionIndent;
+
+    [dir='rtl'] & {
+        margin-right: @questionIndent;
+        margin-left: 0;
+    }
 }
 
 .rex-forms-radioGroup__option,
@@ -239,8 +248,19 @@
   margin-left: @questionIndent;
   margin-bottom: 5px;
 
+  [dir='rtl'] & {
+    margin-right: @questionIndent;
+    margin-left: 0;
+  }
+
   input {
     margin-right: 10px;
+
+    [dir='rtl'] & {
+      margin-left: 10px;
+      margin-right: 0;
+    }
+
     cursor: pointer;
   }
 
@@ -253,6 +273,11 @@
 .rex-forms-dropDown {
   .form-control();
   margin-left: @questionIndent;
+
+  [dir='rtl'] & {
+    margin-right: @questionIndent;
+    margin-left: 0;
+  }
 }
 
 
@@ -261,7 +286,15 @@
  */
 
 .rex-forms-recordList__remove {
+  .btn();
+  .btn-default();
+  .btn-xs();
   margin: @padding;
+  float: right;
+
+  [dir='rtl'] & {
+    float: left;
+  }
 }
 .rex-forms-recordList__add {
   .btn();
@@ -357,8 +390,18 @@
   top: 10px;
   right: 10px;
 
+  [dir='rtl'] & {
+    left: 10px;
+    right: initial;
+  }
+
   button {
     margin-left: 5px;
+
+    [dir='rtl'] & {
+      margin-right: 5px;
+      margin-left: 0;
+    }
   }
 }
 

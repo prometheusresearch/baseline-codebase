@@ -9,6 +9,8 @@ var cx                      = React.addons.classSet;
 var record                  = require('./record');
 var LabelRenderingMixin     = require('./LabelRenderingMixin');
 var SelfErrorRenderingMixin = require('./SelfErrorRenderingMixin');
+var _                       = require('../localization')._;
+
 
 var recordList = React.createClass({
   mixins: [
@@ -37,7 +39,7 @@ var recordList = React.createClass({
           <button
             type="button"
             className="rex-forms-recordList__add"
-            onClick={this.onAdd}>Add</button>
+            onClick={this.onAdd}>{_('Add')}</button>
         </div>
       </div>
     );

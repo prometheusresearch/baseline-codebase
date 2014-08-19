@@ -5,6 +5,7 @@
 
 var React     = require('react');
 var Question  = require('../elements').Question;
+var _         = require('../localization')._;
 
 
 /**
@@ -35,12 +36,12 @@ var EditableQuestionWrapper = React.createClass({
             disabled={this.props.active && !this.props.isValid}
             onClick={this.props.active ? this.onSave : this.onEdit}
             className="rex-forms-EditableQuestionWrapper__button">
-            {this.props.active ? 'save' : 'edit'}
+            {this.props.active ? _('Save') : _('Edit')}
           </button>
           {this.props.active && <button
             onClick={this.onCancel}
             className="rex-forms-EditableQuestionWrapper__button">
-            cancel
+            {_('Cancel')}
           </button>}
         </div>
       );

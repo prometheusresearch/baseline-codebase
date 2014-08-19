@@ -12,11 +12,11 @@ var FormEventsMixin         = require('./FormEventsMixin');
 var Title                   = require('./Title');
 var EditableQuestionWrapper = require('./EditableQuestionWrapper');
 
-var NOTE = _(`
-  Please review entered values before completing the form.
-  You can press <strong>edit</strong> button at the top-right corner of the
-  question to edit its value.
-`);
+var NOTE = _(
+  'Please review your entered values before completing the form.'
+  + ' You can press the <strong>Edit</strong> button at the top-right corner'
+  + ' of the question to edit its value.'
+);
 
 /**
  * Form which renders all fields read-only with "edit" button to selectively

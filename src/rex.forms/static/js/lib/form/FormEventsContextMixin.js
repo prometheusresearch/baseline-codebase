@@ -105,7 +105,7 @@ var FormEventsContextMixin = {
         if (!triggerResult) { return false; }
 
         var options = action.options || {},
-          message = this.localize(options.text) || _('invalid value');
+          message = this.localize(options.text) || _('Invalid value.');
 
         return {
           message: message

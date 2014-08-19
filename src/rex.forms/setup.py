@@ -33,6 +33,7 @@ setup(
         'rex.ctl>=1,<2',
         'rex.instrument>=0.11,<2',
         'rex.expression>=1.1,<2',
+        'rex.i18n>=0.1,<2',
         'jsonschema>=2.3,<3',
         'rfc3987>=1.3.3,<2'
     ],

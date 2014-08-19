@@ -8,8 +8,8 @@ import sys
 from cogs import task, argument, option
 from cogs.log import fail
 
-from rex.core import get_settings
 from rex.ctl.common import make_rex, pair
+from rex.instrument.util import get_implementation
 
 from .errors import ValidationError
 from .interface import Form
@@ -188,11 +188,7 @@ class FORMS_RETRIEVE(FormsInstanceTask):
 
     def __call__(self):
         with self.get_rex():
-            instrument_impl = get_settings() \
-                .instrument_implementation.instrument
-            channel_impl = get_settings().forms_implementation.channel
-            form_impl = get_settings().forms_implementation.form
-
+            instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
                 raise fail('Instrument "%s" does not exist.' % (
@@ -208,12 +204,14 @@ class FORMS_RETRIEVE(FormsInstanceTask):
                     self.instrument_uid,
                 ))
 
+            channel_impl = get_implementation('channel', package_name='forms')
             channel = channel_impl.get_by_uid(self.channel_uid)
             if not channel:
                 raise fail('Channel "%s" does not exist.' % (
                     self.channel_uid,
                 ))
 
+            form_impl = get_implementation('form', package_name='forms')
             form = form_impl.find(
                 instrument_version=instrument_version,
                 channel=channel,
@@ -299,11 +297,7 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
 
     def __call__(self):
         with self.get_rex():
-            instrument_impl = get_settings() \
-                .instrument_implementation.instrument
-            channel_impl = get_settings().forms_implementation.channel
-            form_impl = get_settings().forms_implementation.form
-
+            instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
                 raise fail('Instrument "%s" does not exist.' % (
@@ -326,6 +320,7 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
                 instrument_definition=instrument_version.definition,
             )
 
+            channel_impl = get_implementation('channel', package_name='forms')
             channel = channel_impl.get_by_uid(self.channel_uid)
             if not channel:
                 raise fail('Channel "%s" does not exist.' % (
@@ -333,6 +328,7 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
                 ))
             print 'Using Channel: %s' % channel
 
+            form_impl = get_implementation('form', package_name='forms')
             form = form_impl.find(
                 instrument_version=instrument_version,
                 channel=channel,

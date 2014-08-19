@@ -8,12 +8,13 @@ import json
 from copy import deepcopy
 from datetime import datetime
 
-from rex.core import Extension, get_settings
+from rex.core import Extension
 from rex.instrument.interface import Assessment
 from rex.instrument.meta import get_assessment_meta, set_assessment_meta, \
     set_assessment_application
 from rex.instrument.mixins import Comparable, Displayable, Dictable
-from rex.instrument.util import to_unicode, memoized_property
+from rex.instrument.util import to_unicode, memoized_property, \
+    get_implementation
 
 from ..errors import FormError
 
@@ -252,8 +253,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._assessment, basestring):
-            assessment_impl = \
-                get_settings().instrument_implementation.assessment
+            assessment_impl = get_implementation('assessment')
             return assessment_impl.get_by_uid(self._assessment)
         else:
             return self._assessment

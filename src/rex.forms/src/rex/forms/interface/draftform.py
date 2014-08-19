@@ -7,10 +7,11 @@ import json
 
 from copy import deepcopy
 
-from rex.core import Extension, get_settings
+from rex.core import Extension
 from rex.instrument.interface import DraftInstrumentVersion
 from rex.instrument.mixins import Comparable, Displayable, Dictable
-from rex.instrument.util import to_unicode, memoized_property
+from rex.instrument.util import to_unicode, memoized_property, \
+    get_implementation
 
 from .channel import Channel
 
@@ -48,7 +49,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
             requirements
         """
 
-        form_impl = get_settings().forms_implementation.form
+        form_impl = get_implementation('form', package_name='forms')
         form_impl.validate_configuration(
             configuration,
             instrument_definition=instrument_definition,
@@ -169,7 +170,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._channel, basestring):
-            channel_impl = get_settings().forms_implementation.channel
+            channel_impl = get_implementation('channel', package_name='forms')
             return channel_impl.get_by_uid(self._channel)
         else:
             return self._channel
@@ -184,8 +185,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._draft_instrument_version, basestring):
-            div_impl = \
-                get_settings().instrument_implementation.draftinstrumentversion
+            div_impl = get_implementation('draftinstrumentversion')
             return div_impl.get_by_uid(self._draft_instrument_version)
         else:
             return self._draft_instrument_version
@@ -281,8 +281,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         :returns: the Form that results from the publishing
         """
 
-        form_impl = get_settings().forms_implementation.form
-
+        form_impl = get_implementation('form', package_name='forms')
         form = form_impl.create(
             self.channel,
             instrument_version,

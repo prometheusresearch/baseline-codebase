@@ -3,10 +3,11 @@
 #
 
 
-from rex.core import Extension, get_settings
+from rex.core import Extension
 from rex.instrument.interface import Subject, Instrument, Assessment
 from rex.instrument.mixins import Comparable, Displayable, Dictable
-from rex.instrument.util import to_unicode, memoized_property
+from rex.instrument.util import to_unicode, memoized_property, \
+    get_implementation
 
 from .entry import Entry
 from ..discrepancies import find_discrepancies, solve_discrepancies
@@ -191,7 +192,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._subject, basestring):
-            subject_impl = get_settings().instrument_implementation.subject
+            subject_impl = get_implementation('subject')
             return subject_impl.get_by_uid(self._subject)
         else:
             return self._subject
@@ -205,8 +206,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._instrument, basestring):
-            instrument_impl = \
-                get_settings().instrument_implementation.instrument
+            instrument_impl = get_implementation('instrument')
             return instrument_impl.get_by_uid(self._instrument)
         else:
             return self._instrument
@@ -279,8 +279,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :rtype: Assessment
         """
         if isinstance(self._assessment, basestring):
-            assessment_impl = \
-                get_settings().instrument_implementation.assessment
+            assessment_impl = get_implementation('assessment')
             return assessment_impl.get_by_uid(self._assessment)
         else:
             return self._assessment

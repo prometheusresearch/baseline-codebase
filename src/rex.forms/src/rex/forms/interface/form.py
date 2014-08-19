@@ -10,10 +10,11 @@ from copy import deepcopy
 
 import jsonschema
 
-from rex.core import Extension, get_settings
+from rex.core import Extension
 from rex.instrument.interface import InstrumentVersion
 from rex.instrument.mixins import Comparable, Displayable, Dictable
-from rex.instrument.util import to_unicode, memoized_property
+from rex.instrument.util import to_unicode, memoized_property, \
+    get_implementation
 
 from .channel import Channel
 from ..errors import ValidationError
@@ -315,7 +316,7 @@ class Form(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._channel, basestring):
-            channel_impl = get_settings().forms_implementation.channel
+            channel_impl = get_implementation('channel', package_name='forms')
             return channel_impl.get_by_uid(self._channel)
         else:
             return self._channel
@@ -330,8 +331,7 @@ class Form(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._instrument_version, basestring):
-            iv_impl = \
-                get_settings().instrument_implementation.instrumentversion
+            iv_impl = get_implementation('instrumentversion')
             return iv_impl.get_by_uid(self._instrument_version)
         else:
             return self._instrument_version

@@ -357,6 +357,16 @@
   color: #aaa;
 }
 
+.rex-forms-value__choice {
+  &::after {
+    content: ', ';
+  }
+
+  &:last-child::after {
+    content: ''
+  }
+}
+
 
 /**
  * FormOverview

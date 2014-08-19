@@ -34,6 +34,8 @@ REX.FORMS Change Log
 - Added support for calculating the values of unprompted fields.
 - The fail action now takes the error message to display from the "text"
   option.
+- Fixed issue of enumeration, enumerationSet, and boolean fields not displaying
+  the proper text for the selected choices on the review screen.
 
 
 0.21.0 (7/31/2014)

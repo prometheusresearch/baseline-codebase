@@ -15,6 +15,7 @@ var inputText            = require('./inputText');
 var inputDateTime        = require('./inputDateTime');
 var matrix               = require('./matrix');
 var value                = require('./value');
+var enumeratedValue      = require('./enumeratedValue');
 var readOnlyAnnotation   = require('./readOnlyAnnotation');
 var readOnlyExplanation  = require('./readOnlyExplanation');
 var readOnlyRecordList   = require('./readOnlyRecordList');
@@ -46,9 +47,9 @@ var defaultWidgetMap = {
   readOnlyInputNumber: value,
   readOnlyTextArea: value,
 
-  readOnlyRadioGroup: value,
-  readOnlyDropDown: value,
-  readOnlyCheckGroup: value,
+  readOnlyRadioGroup: enumeratedValue,
+  readOnlyDropDown: enumeratedValue,
+  readOnlyCheckGroup: enumeratedValue,
 
   readOnlyDatePicker: value,
   readOnlyTimePicker: value,

@@ -16,16 +16,17 @@ var value = React.createClass({
   ],
 
   render: function() {
-    var val = this.value();
+    var val = this.value().value,
+      hasValue = (val !== null);
+
     return (
       <div className="rex-forms-value">
         {this.renderLabel()}
         <div>
-          {val.value === null ?
+          {hasValue ? val :
             <span className="rex-forms-value__novalue">
               {_('No value provided.')}
-            </span> :
-            val.value}
+            </span>}
         </div>
       </div>
     );

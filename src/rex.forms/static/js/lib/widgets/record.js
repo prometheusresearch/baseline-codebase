@@ -22,6 +22,7 @@ var record = React.createClass({
   },
 
   render: function () {
+    var removeText = this.props.removeLabelText || _('Remove');
     return (
       <div className="rex-forms-recordList__record">
         {!this.props.readOnly &&
@@ -29,7 +30,7 @@ var record = React.createClass({
             className="rex-forms-recordList__remove"
             onClick={this.onRemove}
             type="button">
-            &times; {_('Remove')}
+            &times; {removeText}
           </button>}
         {this.renderQuestions()}
       </div>

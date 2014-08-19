@@ -36,6 +36,8 @@ REX.FORMS Change Log
   option.
 - Fixed issue of enumeration, enumerationSet, and boolean fields not displaying
   the proper text for the selected choices on the review screen.
+- Added ability to configure the labels of the buttons on the recordList
+  widget.
 
 
 0.21.0 (7/31/2014)

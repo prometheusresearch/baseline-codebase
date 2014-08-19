@@ -342,6 +342,8 @@ type
                      datePicker     date*                   TBD
                      timePicker     time*                   TBD
                      dateTimePicker dateTime*               TBD
+                     recordList     recordList*             A complex widget that allows the editing of repeated sets of questions in a vertically-scrolling fashion.
+                     matrix         matrix*                 A grid of Fields where the Questions are presented horizontally and repeated for each row in the matrix.
                      ============== ======================= ===========
 
                      Field types notated with a ``*`` use that widget by default.
@@ -353,12 +355,14 @@ options:
     :Descriptions: This property allows the Form author to provide configuration
                    parameters to the widget being used. This property is
                    optional.
-    :PossibleValues: ========== =================================== =========== ===========
-                     Option     Applicable Widgets                  Default     Description
-                     ========== =================================== =========== ===========
-                     width      inputText, inputNumber, textArea    medium      Specifies the width of the widget. Allows ``small``, ``medium``, or ``large``.
-                     height     textArea                            medium      Specifies the height of the widget. Allows ``small``, ``medium``, or ``large``.
-                     ========== =================================== =========== ===========
+    :PossibleValues: ============== =================================== =========== ===========
+                     Option         Applicable Widgets                  Default     Description
+                     ============== =================================== =========== ===========
+                     width          inputText, inputNumber, textArea    medium      Specifies the width of the widget. Allows ``small``, ``medium``, or ``large``.
+                     height         textArea                            medium      Specifies the height of the widget. Allows ``small``, ``medium``, or ``large``.
+                     addLabel       recordList                          Add         A `Localized String Object` that specifies the text to use on the button that adds a new record to the list.
+                     removeLabel    recordList                          Remove      A `Localized String Object` that specifies the text to use on the button that removes a record from the list.
+                     ============== =================================== =========== ===========
 
 
 Unprompted Collection Object

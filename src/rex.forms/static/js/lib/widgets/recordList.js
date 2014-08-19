@@ -9,15 +9,24 @@ var cx                      = React.addons.classSet;
 var record                  = require('./record');
 var LabelRenderingMixin     = require('./LabelRenderingMixin');
 var SelfErrorRenderingMixin = require('./SelfErrorRenderingMixin');
-var _                       = require('../localization')._;
+var localization            = require('../localization');
+var _ = localization._;
 
 
 var recordList = React.createClass({
   mixins: [
     ReactForms.RepeatingFieldsetMixin,
     LabelRenderingMixin,
-    SelfErrorRenderingMixin
+    SelfErrorRenderingMixin,
+    localization.LocalizedMixin
   ],
+
+  getWidgetOptions: function() {
+    if (this.props.options && this.props.options.widget) {
+      return this.props.options.widget.options || {};
+    }
+    return {};
+  },
 
   render: function() {
     var records = this.renderRecords();
@@ -29,6 +38,10 @@ var recordList = React.createClass({
       error ? 'rex-forms-Widget--error' : null,
       error ? 'rex-forms-recordList--error' : null
     );
+
+    var options = this.getWidgetOptions();
+    var addText = options.addLabel ? this.localize(options.addLabel) : _('Add');
+
     return (
       <div className={className}>
         {this.renderLabel()}
@@ -39,7 +52,7 @@ var recordList = React.createClass({
           <button
             type="button"
             className="rex-forms-recordList__add"
-            onClick={this.onAdd}>{_('Add')}</button>
+            onClick={this.onAdd}>{addText}</button>
         </div>
       </div>
     );
@@ -47,12 +60,17 @@ var recordList = React.createClass({
 
   renderRecords: function () {
     var value = this.value();
+
+    var options = this.getWidgetOptions();
+    var removeText = this.localize(options.removeLabel);
+
     return value.value.map((_, name) => {
       return (
         <record
           key={name}
           name={name}
           onRemove={this.remove}
+          removeLabelText={removeText}
           questions={this.props.options.questions}
           />
       );

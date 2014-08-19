@@ -5,12 +5,34 @@
  */
 'use strict';
 
+var utils = require('./utils');
+
+
 function coerceEmptyValueToNull(value) {
   if (value === undefined
       || value === ''
+      || (utils.isObject(value) && Object.getOwnPropertyNames(value).length === 0)
       || (Array.isArray(value) && value.length === 0)) {
     return null;
   }
+
+  if (utils.isObject(value)) {
+    Object.getOwnPropertyNames(value).forEach((property) => {
+      value[property] = coerceEmptyValueToNull(value[property]);
+    });
+
+  } else if (Array.isArray(value)) {
+    value = value.map((val) => {
+      return coerceEmptyValueToNull(val);
+    }).filter((v) => {
+      return (v !== null);
+    });
+
+    if (value.length === 0) {
+      return null;
+    }
+  }
+
   return value;
 }
 

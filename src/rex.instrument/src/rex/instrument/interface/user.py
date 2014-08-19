@@ -3,10 +3,10 @@
 #
 
 
-from rex.core import Extension, get_settings
+from rex.core import Extension
 
 from ..mixins import Comparable, Displayable, Dictable
-from ..util import to_unicode
+from ..util import to_unicode, get_implementation
 
 
 __all__ = (
@@ -114,14 +114,6 @@ class User(Extension, Comparable, Displayable, Dictable):
 
         return self._login
 
-    def _get_implementation(self, package_name, object_name):
-        setting = getattr(
-            get_settings(),
-            '%s_implementation' % package_name.lower(),
-        )
-        impl = getattr(setting, object_name.lower())
-        return impl
-
     def get_object_by_uid(self, uid, object_name, package_name='instrument'):
         """
         Retrieves an interface object using its UID, if this User has access to
@@ -144,7 +136,7 @@ class User(Extension, Comparable, Displayable, Dictable):
             otherwise None
         """
 
-        impl = self._get_implementation(package_name, object_name)
+        impl = get_implementation(object_name, package_name=package_name)
         return impl.get_by_uid(uid, user=self)
 
     def find_objects(self, object_name, package_name='instrument', **kwargs):
@@ -166,7 +158,7 @@ class User(Extension, Comparable, Displayable, Dictable):
         :returns: list of interface objects
         """
 
-        impl = self._get_implementation(package_name, object_name)
+        impl = get_implementation(object_name, package_name=package_name)
         return impl.find(user=self, **kwargs)
 
     def get_display_name(self):

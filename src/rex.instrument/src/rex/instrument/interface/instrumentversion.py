@@ -10,7 +10,7 @@ from datetime import datetime
 
 import jsonschema
 
-from rex.core import Extension, get_settings
+from rex.core import Extension
 
 from .instrument import Instrument
 from ..errors import ValidationError
@@ -18,7 +18,7 @@ from ..mixins import Comparable, Displayable, Dictable
 from ..schema import INSTRUMENT_SCHEMA, INSTRUMENT_BASE_TYPES, \
     INSTRUMENT_FIELD_CONSTRAINTS, INSTRUMENT_REQUIRED_CONSTRAINTS, \
     INSTRUMENT_COMPLEX_TYPES
-from ..util import to_unicode, memoized_property
+from ..util import to_unicode, memoized_property, get_implementation
 
 
 __all__ = (
@@ -386,8 +386,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._instrument, basestring):
-            instrument_impl = \
-                get_settings().instrument_implementation.instrument
+            instrument_impl = get_implementation('instrument')
             return instrument_impl.get_by_uid(self._instrument)
         else:
             return self._instrument

@@ -11,7 +11,7 @@ from datetime import date, time, datetime
 from decimal import Decimal
 from functools import wraps
 
-from rex.core import cached
+from rex.core import cached, get_settings
 
 
 __all__ = (
@@ -22,6 +22,7 @@ __all__ = (
     'package_version',
     'memoized_property',
     'forget_memoized_property',
+    'get_implementation',
 )
 
 
@@ -159,9 +160,43 @@ def forget_memoized_property(instance, name):
     aren't going to change during the lifetime of the instance. But, there are
     always exceptions to everything, so this method gives you a way to force
     the instance to re-cache.
+
+    :param instance: the object that contains the memoized property
+    :type instance: object
+    :param name: the name of the memoized property
+    :type name: string
     """
 
     name = '%s__MEMOIZED' % name
     if hasattr(instance, name):
         delattr(instance, name)
+
+
+def get_implementation(class_name, package_name='instrument'):
+    """
+    A convenience function for retrieving interface class implementations from
+    the instance settings.
+
+    :param class_name:
+        the name of the interface class to retrieve the implementation for
+    :type class_name: string
+    :param package_name:
+        the short package name of the package that defines the desired
+        desired interface class; if not specified, defaults to "instrument"
+    :type package_name: string
+    :returns:
+        the interface class implementation; None if the desired implementation
+        could not be found
+    """
+
+    setting = getattr(
+        get_settings(),
+        '%s_implementation' % package_name.lower(),
+        None,
+    )
+
+    if setting:
+        return getattr(setting, class_name.lower(), None)
+
+    return None
 

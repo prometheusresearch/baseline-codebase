@@ -67,3 +67,30 @@ library's encoder with support for date, time, datetime, and Decimal objects::
     >>> to_json({'my_decimal': Decimal('1.23')})
     '{"my_decimal": "1.23"}'
 
+
+Interface Implementation Retrival
+=================================
+
+The ``util`` module provides a convenience function for retrieving interface
+class implementations in the currently-executing application::
+
+    >>> from rex.instrument.util import get_implementation
+    >>> from rex.core import Rex
+    >>> rex = Rex('rex.instrument_demo')
+    >>> rex.on()
+
+    >>> get_implementation('user', package_name='instrument')
+    rex.instrument_demo.MyUser
+
+    >>> get_implementation('instrument')
+    rex.instrument_demo.MyInstrument
+
+    >>> get_implementation('doesntexist') is None
+    True
+
+    >>> get_implementation('instrument', package_name='doesntexist') is None
+    True
+
+
+    >>> rex.off()
+

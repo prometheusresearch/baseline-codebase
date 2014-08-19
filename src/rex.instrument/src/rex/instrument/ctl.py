@@ -11,11 +11,11 @@ from getpass import getuser
 from cogs import task, argument, option
 from cogs.log import fail
 
-from rex.core import get_settings
 from rex.ctl.common import make_rex, pair
 
 from .errors import ValidationError
 from .interface import InstrumentVersion
+from .util import get_implementation
 
 
 __all__ = (
@@ -159,9 +159,7 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
 
     def __call__(self):
         with self.get_rex():
-            instrument_impl = get_settings() \
-                .instrument_implementation.instrument
-
+            instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
                 raise fail('Instrument "%s" does not exist.' % (
@@ -262,13 +260,10 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
 
     def __call__(self):
         with self.get_rex():
-            instrument_impl = get_settings() \
-                .instrument_implementation.instrument
-            instrumentversion_impl = get_settings() \
-                .instrument_implementation.instrumentversion
 
             definition_json = self.open_and_validate(self.definition)
 
+            instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
                 print 'An Instrument by "%s" does not exist; creating it.' % (
@@ -288,6 +283,8 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
                 instrument_version.save()
                 print 'Updated version: %s' % instrument_version.version
             else:
+                instrumentversion_impl = \
+                    get_implementation('instrumentversion')
                 instrument_version = instrumentversion_impl.create(
                     instrument,
                     definition_json,

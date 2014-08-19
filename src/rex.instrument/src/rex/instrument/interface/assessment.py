@@ -11,7 +11,7 @@ from datetime import datetime, date
 
 import jsonschema
 
-from rex.core import Extension, get_settings
+from rex.core import Extension
 
 from .instrumentversion import InstrumentVersion
 from .subject import Subject
@@ -20,7 +20,7 @@ from ..meta import get_assessment_meta, set_assessment_meta, \
     set_assessment_application
 from ..mixins import Comparable, Displayable, Dictable
 from ..schema import ASSESSMENT_SCHEMA
-from ..util import to_unicode, memoized_property
+from ..util import to_unicode, memoized_property, get_implementation
 
 
 __all__ = (
@@ -75,8 +75,8 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         'evaluation_date',
     )
 
-    @staticmethod
-    def validate_data(data, instrument_definition=None):
+    @classmethod
+    def validate_data(cls, data, instrument_definition=None):
         """
         Validates that the specified data is a legal Assessment Document.
 
@@ -115,9 +115,11 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         except jsonschema.ValidationError as ex:
             raise ValidationError(ex.message)
 
-        if not instrument_definition:
-            return
+        if instrument_definition:
+            cls._check_instrument_adherence(data, instrument_definition)
 
+    @classmethod
+    def _check_instrument_adherence(cls, assessment, instrument_definition):
         if isinstance(instrument_definition, basestring):
             try:
                 instrument_definition = json.loads(instrument_definition)
@@ -131,24 +133,28 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             )
 
         # Make sure the instrument ID lines up
-        if data['instrument']['id'] != instrument_definition['id'] or \
-                data['instrument']['version'] != \
+        if assessment['instrument']['id'] != instrument_definition['id'] or \
+                assessment['instrument']['version'] != \
                 instrument_definition['version']:
             raise ValidationError(
                 'This Assessment is not associated with the specified'
                 ' Instrument Definition'
             )
 
-        Assessment._check_assessment_record(
-            data['values'],
+        cls._check_assessment_record(
+            assessment['values'],
             instrument_definition['record'],
             known_types=InstrumentVersion.get_definition_type_catalog(
                 instrument_definition
             ),
         )
 
-    @staticmethod
-    def _check_assessment_record(assessment, instrument_version, known_types):
+    @classmethod
+    def _check_assessment_record(
+            cls,
+            assessment,
+            instrument_version,
+            known_types):
         afields = set(assessment.keys())
         ifields = set([field['id'] for field in instrument_version])
 
@@ -171,14 +177,14 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             )
 
         for field in instrument_version:
-            Assessment._check_assessment_field(
+            cls._check_assessment_field(
                 assessment[field['id']],
                 field,
                 known_types,
             )
 
-    @staticmethod
-    def _check_assessment_field(assessment, field, known_types):
+    @classmethod
+    def _check_assessment_field(cls, assessment, field, known_types):
         value = assessment.get('value', None)
         explanation = assessment.get('explanation', None)
         annotation = assessment.get('annotation', None)
@@ -229,14 +235,14 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             )
 
         # Make sure the value data type is correct.
-        Assessment._check_field_type(
+        cls._check_field_type(
             assessment,
             field,
             known_types,
         )
 
-    @staticmethod
-    def _check_field_type(assessment, field, known_types):
+    @classmethod
+    def _check_field_type(cls, assessment, field, known_types):
         value = assessment.get('value', None)
 
         if value is None:
@@ -249,39 +255,37 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
 
         # TODO: check type constraints
 
-        if field_type in SIMPLE_TYPE_CHECKS:
-            if isinstance(value, SIMPLE_TYPE_CHECKS[field_type]):
-                return
+        if field_type in SIMPLE_TYPE_CHECKS \
+                and isinstance(value, SIMPLE_TYPE_CHECKS[field_type]):
+            return
 
-        elif field_type in REGEX_TYPE_CHECKS:
-            if REGEX_TYPE_CHECKS[field_type].match(value):
-                return
+        if field_type in REGEX_TYPE_CHECKS \
+                and REGEX_TYPE_CHECKS[field_type].match(value):
+            return
 
-        elif field_type == 'integer':
-            if isinstance(value, (int, long)) \
-                    or (isinstance(value, float) and value.is_integer()):
-                return
+        if field_type == 'integer' and (
+                isinstance(value, (int, long))
+                or (isinstance(value, float) and value.is_integer())):
+            return
 
-        elif field_type == 'recordList':
-            if isinstance(value, list):
-                for val in value:
-                    Assessment._check_assessment_record(
-                        val,
-                        field['type']['record'],
-                        known_types,
-                    )
-                return
+        if field_type == 'recordList' and isinstance(value, list):
+            for val in value:
+                cls._check_assessment_record(
+                    val,
+                    field['type']['record'],
+                    known_types,
+                )
+            return
 
-        elif field_type == 'matrix':
-            if isinstance(value, dict):
-                # TODO: check missing/extra rows
-                for columns in value.values():
-                    Assessment._check_assessment_record(
-                        columns,
-                        field['type']['columns'],
-                        known_types,
-                    )
-                return
+        if field_type == 'matrix' and isinstance(value, dict):
+            # TODO: check missing/extra rows
+            for columns in value.values():
+                cls._check_assessment_record(
+                    columns,
+                    field['type']['columns'],
+                    known_types,
+                )
+            return
 
         raise ValidationError(
             'The value for "%s" is not the correct type (%s)' % (
@@ -466,8 +470,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._instrument_version, basestring):
-            iv_impl = \
-                get_settings().instrument_implementation.instrumentversion
+            iv_impl = get_implementation('instrumentversion')
             return iv_impl.get_by_uid(self._instrument_version)
         else:
             return self._instrument_version
@@ -481,7 +484,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._subject, basestring):
-            subject_impl = get_settings().instrument_implementation.subject
+            subject_impl = get_implementation('subject')
             return subject_impl.get_by_uid(self._subject)
         else:
             return self._subject

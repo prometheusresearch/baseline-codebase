@@ -7,12 +7,12 @@ import json
 from copy import deepcopy
 from datetime import datetime
 
-from rex.core import Extension, get_settings
+from rex.core import Extension
 
 from .instrument import Instrument
 from .instrumentversion import InstrumentVersion
 from ..mixins import Comparable, Displayable, Dictable
-from ..util import to_unicode, memoized_property
+from ..util import to_unicode, memoized_property, get_implementation
 
 
 __all__ = (
@@ -49,7 +49,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
             requirements
         """
 
-        iv_impl = get_settings().instrument_implementation.instrumentversion
+        iv_impl = get_implementation('instrumentversion')
         iv_impl.validate_definition(definition)
 
     @classmethod
@@ -197,8 +197,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._instrument, basestring):
-            instrument_impl = \
-                get_settings().instrument_implementation.instrument
+            instrument_impl = get_implementation('instrument')
             return instrument_impl.get_by_uid(self._instrument)
         else:
             return self._instrument
@@ -212,8 +211,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._parent_instrument_version, basestring):
-            iv_impl = \
-                get_settings().instrument_implementation.instrumentversion
+            iv_impl = get_implementation('instrumentversion')
             return iv_impl.get_by_uid(self._parent_instrument_version)
         else:
             return self._parent_instrument_version
@@ -370,7 +368,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         :returns: the InstrumentVersion that results from the publishing
         """
 
-        iv_impl = get_settings().instrument_implementation.instrumentversion
+        iv_impl = get_implementation('instrumentversion')
 
         instrument_version = iv_impl.create(
             self.instrument,

@@ -249,8 +249,6 @@ var ApplicationState = merge({
       }
     }
 
-    console.log(updates);
-
     if (Object.keys(updates).length > 0) {
       for (var group in updates) {
         this.remoteUpdate(updates[group]);

@@ -8,6 +8,10 @@ __webpack_require__.p = __MOUNT_PREFIX__ + __BUNDLE_PREFIX__;
 var React            = require('react');
 var ApplicationState = require('./ApplicationState');
 var Application      = require('./Application');
+var DataPreloader    = require('./DataPreloader');
+var PropTypes        = require('./PropTypes');
+var Table            = require('./Table');
+var Grid             = require('./Grid');
 
 if (window.__require__ === undefined) {
   throw new Error(
@@ -36,7 +40,10 @@ function renderSpec(spec, element) {
 
 module.exports = {
   renderSpec,
-  ApplicationState
+  ApplicationState,
+  Application,
+  PropTypes,
+  Table, Grid, DataPreloader
 };
 
 window.Rex = window.Rex || {};

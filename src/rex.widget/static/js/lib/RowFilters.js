@@ -20,6 +20,7 @@ var RowFilters = React.createClass({
   },
 
   render: function() {
+    console.warn('<RowFilters /> is deprecated, use <Filters inline /> instead.');
     var className = this.props.className ? this.props.className + ' rex-widget-RowFilters' :
                     'rex-widget-RowFilters';
     

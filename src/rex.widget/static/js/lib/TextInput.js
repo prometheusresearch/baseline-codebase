@@ -56,7 +56,10 @@ var AmortizedOnChange = {
       clearTimeout(this._amortizedOnChangeTimer);
     }
     e.persist();
-    this._amortizedOnChangeTimer = setTimeout(this.onChangeAmortized.bind(null, e), this.props.amortizationTimeout);
+    this._amortizedOnChangeTimer = setTimeout(
+      this.onChangeAmortized.bind(null, e),
+      this.props.amortizationTimeout
+    );
   }
 };
 

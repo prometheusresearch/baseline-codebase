@@ -119,7 +119,7 @@ var TextInput = React.createClass({
   onChangeAmortized(e) {
     var value = e.target.value === '' ? null : e.target.value;
     if (this.props.value !== value) {
-      this.props.onValue(value);
+      this.props.onValue(value, e.target.id);
     }
   }
 

@@ -76,17 +76,24 @@ class DataDescriptor(StateDescriptor):
     :keywords include_meta: should the result include metadata
     """
 
-    def __init__(self, computator_factory, url, refs=None, include_meta=False):
+    def __init__(self, computator_factory, url, refs=None, include_meta=False,
+            defer=None):
         self.computator_factory = computator_factory
         self.url = url
         self.refs = refs
         self.include_meta = include_meta
+        self.defer = defer
 
     def describe_state(self, widget, field_name):
         state_id = "%s.%s" % (widget.id, field_name)
         computator = self.computator_factory(self.url, self.refs, self.include_meta)
         dependencies = [r.id for r in self.refs.values()]
-        st = State(state_id, widget=widget, computator=computator, dependencies=dependencies, is_writable=False)
+        st = State(state_id,
+                widget=widget,
+                computator=computator,
+                dependencies=dependencies,
+                is_writable=False,
+                defer=self.defer)
         return [(field_name, st)]
 
 
@@ -118,7 +125,8 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                         refs=refs,
                         include_meta=self.include_meta),
                     dependencies=dependencies + [pagination_state_id, sort_state_id],
-                    is_writable=False)),
+                    is_writable=False,
+                    defer=self.defer)),
             ("%sPagination" % field_name,
                 State(
                     pagination_state_id,
@@ -185,7 +193,8 @@ class DataVal(Validate):
                     self.computator_factory,
                     data["url"],
                     refs=refs,
-                    include_meta=self.include_meta)
+                    include_meta=self.include_meta,
+                    defer=data.get('defer'))
         else:
             raise Error(
                 "invalid data reference: expected an URL or "

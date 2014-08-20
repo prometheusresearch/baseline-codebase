@@ -16,5 +16,6 @@ from .graph import (
     Dep, Reset,
     compute, compute_update, unknown)
 from .computator import (
+    Data, Append,
     InitialValue, PaginatedCollectionComputator,
     CollectionComputator, EntityComputator)

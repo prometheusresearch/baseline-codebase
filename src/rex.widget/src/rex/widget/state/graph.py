@@ -151,6 +151,8 @@ class StateGraphComputation(Mapping):
         self.dirty = set() if not dirty else set(dirty)
         self.user = user
 
+        self._completed = False
+
         if self.user is not None:
             self.output['USER'] = State('USER', value=self.user, is_writable=False)
 
@@ -158,10 +160,12 @@ class StateGraphComputation(Mapping):
             for id, value in values.items():
                 self.output[id] = self.input[id]._replace(value=value)
 
-    def compute(self, id):
+    def compute(self, id, defer=False):
         """ Force computation of state with id ``id``."""
         reset = False
         st = self.input[id]
+        if not defer and st.defer:
+            st = st._replace(defer=None)
         log.debug('computing: %s', id)
         is_active = st.is_active(self)
         if st.computator is not None:
@@ -189,6 +193,11 @@ class StateGraphComputation(Mapping):
         :keyword dirty_only: If output should contain only changed states
                              (default: ``False``)
         """
+        if self._completed:
+            raise RuntimeError(
+                'computation cannot provide its output more than once')
+        self._completed = True
+
         if dirty_only:
             return StateGraph({
                 id: state for id, state
@@ -196,7 +205,13 @@ class StateGraphComputation(Mapping):
                 if id in self.dirty
             })
         else:
-            return self.output.immutable()
+            result = self.output.immutable()
+            result = result.merge({
+                id: state for id, state
+                in self.input.items()
+                if not id in result
+            })
+            return result
 
     def __iter__(self):
         return iter(self.output)
@@ -233,6 +248,8 @@ def _merge_state_into(dst, src):
 
 class Unknown(object):
 
+    tag = '__unknown__'
+
     def __str__(self):
         return "Unknown()"
 
@@ -250,6 +267,7 @@ _State = namedtuple('State', [
                     'computator',
                     'validator',
                     'is_active',
+                    'defer',
                     'value',
                     'default',
                     'dependencies',
@@ -266,6 +284,8 @@ class State(_State):
     :attr computator: state computator
     :attr validator: state value validator
     :attr is_active: function which determines is state should be computed
+    :attr defer: tag for a group of deferred state computation (or None is state
+                 is not deferred)
     :attr value: current value (unknown if it is not yet computed)
     :attr default: default value
     :attr dependencies: a list of state dependencies
@@ -277,7 +297,7 @@ class State(_State):
 
     def __new__(cls, id, widget=None, computator=None, validator=AnyVal, is_active=None,
             value=unknown, default=None, dependencies=None, is_ephemeral=False,
-            is_writable=True):
+            is_writable=True, defer=None):
         if dependencies is None:
             dependencies = []
         dependencies = [
@@ -294,6 +314,7 @@ class State(_State):
             default=default,
             dependencies=dependencies,
             is_active=is_active or (lambda graph: True),
+            defer=defer,
             is_ephemeral=is_ephemeral,
             is_writable=is_writable)
 
@@ -325,13 +346,19 @@ class Reset(_Reset):
     __slots__ = ()
 
 
-def compute(graph, values=None, user=None):
-    """ Compute entire state graph."""
+def compute(graph, values=None, user=None, defer=False):
+    """ Compute entire state graph.
+    
+    :param graph: Application state
+    :param values: Known values to be merged into application state graph
+    :param user: Current user
+    :param defer: Allow state marked with `defer` tag to be deferred
+    """
     computation = StateGraphComputation(graph, values=values, user=user)
 
     for id in computation.input:
         if not computation.is_computed(id):
-            computation.compute(id)
+            computation.compute(id, defer=defer)
 
     return computation.get_output()
 

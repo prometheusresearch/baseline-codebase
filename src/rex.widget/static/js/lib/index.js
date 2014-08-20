@@ -27,6 +27,7 @@ function renderSpec(spec, element) {
   var stateIDs = Object.keys(spec.state);
 
   ApplicationState.hydrateAll(spec.state);
+  ApplicationState.loadDeferred();
 
   return React.renderComponent(
     <Application stateIDs={stateIDs} ui={spec.ui} />,

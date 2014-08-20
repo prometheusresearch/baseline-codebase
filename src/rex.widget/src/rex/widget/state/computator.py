@@ -51,6 +51,19 @@ class InitialValue(object):
         return state.value
 
 
+_Data = namedtuple('Data', ['data', 'meta', 'updating', 'has_more'])
+
+class Data(_Data):
+
+    __slots__ = ()
+
+    def __new__(cls, data, meta=None, updating=False, has_more=False):
+        return _Data.__new__(cls, data=data, meta=meta, updating=updating, has_more=False)
+
+
+Append = namedtuple('Append', ['data'])
+
+
 class DataComputator(object):
     """ An abstract base class for state computators which fetch their state
     from database."""
@@ -89,9 +102,10 @@ class DataComputator(object):
         if self.include_meta:
             meta = product_meta_to_json(handler.port.describe())
             meta = meta["domain"]["fields"][0]
+            return Data(data, meta=meta)
             return {"data": data, "meta": meta, "updating": False}
         else:
-            return {"data": data, "updating": False}
+            return Data(data)
 
     def fetch_query(self, handler, **params):
         query = dict(handler.parameters)
@@ -112,9 +126,9 @@ class DataComputator(object):
 
         if self.include_meta:
             meta = product_meta_to_json(product)
-            return {"data": data, "meta": meta, "updating": False}
+            return Data(data, meta=meta)
         else:
-            return {"data": data, "updating": False}
+            return Data(data)
 
 
     def fetch(self, handler, graph, dirty=None):
@@ -139,7 +153,7 @@ class DataComputator(object):
                     "Unknown data reference: %s" % self.route)
 
     def __call__(self, widget, state, graph, dirty=None, is_active=True):
-        if not is_active:
+        if not is_active or state.defer is not None:
             return self.inactive_value
         handler = route(self.route)
         if handler is None:
@@ -149,7 +163,7 @@ class DataComputator(object):
 
 class CollectionComputator(DataComputator):
 
-    inactive_value = {"data": [], "updating": True}
+    inactive_value = Data([], updating=True)
 
     def fetch(self, handler, graph, dirty):
         params = {}
@@ -162,28 +176,29 @@ class CollectionComputator(DataComputator):
 
 class EntityComputator(DataComputator):
 
-    inactive_value = {"data": None, "updating": True}
+    inactive_value = Data(None, updating=True)
+    no_value = Data(None)
 
     def fetch(self, handler, graph, dirty):
         params = {name: graph[ref] for name, ref in self.refs.items()}
 
         if None in params.values():
-            return {"data": None, "updating": False}
+            return self.no_value
 
         data = self.execute_handler(handler, params)
 
-        if isinstance(data["data"], list):
-            if len(data["data"]) == 0:
-                data["data"] = None
+        if isinstance(data.data, list):
+            if len(data.data) == 0:
+                data = self.no_value
             else:
-                data["data"] = data["data"][0]
+                data = data._replace(data=data.data[0])
 
         return data
 
 
 class PaginatedCollectionComputator(DataComputator):
 
-    inactive_value = {"data": [], "updating": True, "hasMore": False}
+    inactive_value = Data([], updating=True, has_more=False)
 
     def __init__(self, pagination_state_id, url, refs=None, include_meta=False):
         super(PaginatedCollectionComputator, self).__init__(
@@ -226,14 +241,16 @@ class PaginatedCollectionComputator(DataComputator):
 
         data = self.execute_handler(handler, params)
 
-        if len(data["data"]) == params["top"]:
-            data["data"] = data["data"][:-1]
-            data["hasMore"] = True
+        if len(data.data) == params["top"]:
+            data = data._replace(
+                data=data.data[:-1],
+                has_more=True
+            )
         else:
-            data["hasMore"] = False
+            data = data._replace(has_more=False)
 
         if is_pagination:
-            data["data"] = {"__append__": data["data"]}
+            data = data._replace(data=Append(data.data))
 
         return data
 

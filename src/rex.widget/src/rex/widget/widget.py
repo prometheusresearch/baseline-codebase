@@ -19,6 +19,7 @@ from rex.core import (
         ProxyVal, StrVal, cached)
 from rex.web import render_to_response
 from .state import (
+    Data, Append,
     unknown,
     State, StateVal, StateDescriptor,
     StateGraph, MutableStateGraph, compute, compute_update)
@@ -282,29 +283,14 @@ class Widget(Extension):
             for k, v in values.items():
                 if k in state and state[k].validator is not None:
                     values[k] = state[k].validator(v)
-            state = compute(state, values=values, user=user)
+            state = compute(state, values=values, user=user, defer=True)
             return {"ui": widget, "state": state}
         elif req.method == 'POST':
-            origins = []
-            updates = {}
-
-            for id, value in req.json.items():
-                if id.startswith('update:'):
-                    id = id[7:]
-                    origins.append(id)
-
-                if not id in state:
-                    raise HTTPBadRequest("invalid state id: %s" % id)
-
-                updates[id] = state[id]._replace(value=value)
-
-            state = state.merge(updates)
-
+            state, origins = state_update_params(state, req.json)
             if not origins:
                 state = compute(state, user=user)
             else:
                 state = compute_update(state, origins, user=user)
-
             return {"state": state}
         else:
             raise HTTPMethodNotAllowed()
@@ -332,6 +318,25 @@ class Widget(Extension):
             args.append("%s=%r" % (field.attribute, value))
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
+
+def state_update_params(state, params):
+    origins = []
+    updates = {}
+
+    for id, value in params.items():
+        if id.startswith('update:'):
+            id = id[7:]
+            origins.append(id)
+
+        if not id in state:
+            raise HTTPBadRequest("invalid state id: %s" % id)
+
+        if value != unknown.tag:
+            updates[id] = state[id]._replace(value=value)
+
+    state = state.merge(updates)
+
+    return state, origins
 
 class GroupWidget(Widget):
 
@@ -396,6 +401,17 @@ class WidgetJSONEncoder(json.JSONEncoder):
             return {"ui": obj.ui, "state": obj.state}
         if isinstance(obj, StateGraph):
             return obj.storage
+        if obj is unknown:
+            return "__unknown__"
+        if isinstance(obj, Data):
+            return {
+                "data": obj.data,
+                "meta": obj.meta,
+                "updating": obj.updating,
+                "hasMore": obj.has_more
+            }
+        if isinstance(obj, Append):
+            return {"__append__": obj.data}
         if isinstance(obj, State):
             return {
                 "id": obj.id,
@@ -404,7 +420,8 @@ class WidgetJSONEncoder(json.JSONEncoder):
                     for dep in obj.dependencies
                     if not dep.reset_only],
                 "isEphemeral": obj.is_ephemeral,
-                "isWritable": obj.is_writable
+                "isWritable": obj.is_writable,
+                "defer": obj.defer
             }
         return super(WidgetJSONEncoder, self).default(obj)
 

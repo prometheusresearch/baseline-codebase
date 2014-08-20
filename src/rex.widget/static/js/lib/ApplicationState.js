@@ -12,6 +12,8 @@ var invariant     = require('./invariant');
 var merge         = require('./merge');
 var mergeInto     = require('./mergeInto');
 
+var UNKNOWN = '__unknown__';
+
 // a mapping from state ids to states
 var storage = {};
 
@@ -110,6 +112,9 @@ var ApplicationState = merge({
       var parsed = id.split(':', 1);
       id = parsed[0];
       var value = storage[id].value;
+      if (value === UNKNOWN) {
+        return null;
+      }
       invariant(
         storage[id] !== undefined,
         `cannot dereference state with id: ${id}`
@@ -121,7 +126,11 @@ var ApplicationState = merge({
         storage[id] !== undefined,
         `cannot dereference state with id: ${id}`
       );
-      return storage[id].value;
+      var value = storage[id].value;
+      if (value === UNKNOWN) {
+        return null;
+      }
+      return value;
     }
   },
 
@@ -151,12 +160,12 @@ var ApplicationState = merge({
     } else {
       storage[id] = {
         value: updateStateValue(undefined, value),
+        defer: stateDescriptor.defer,
         isWritable: stateDescriptor.isWritable,
         updating: stateDescriptor.updating,
         isEphemeral: stateDescriptor.isEphemeral
       };
     }
-    console.debug('hydrated ', id, storage[id].value);
 
     // TODO: Check for cycles.
     if (dependencies.length > 0) {
@@ -170,7 +179,6 @@ var ApplicationState = merge({
   },
 
   updateMany(values) {
-    console.debug('updateMany', values);
     var nextStorage = merge({}, storage);
 
     var queue = Object.keys(values);
@@ -219,8 +227,6 @@ var ApplicationState = merge({
   },
 
   remoteReload(id) {
-    console.debug('remoteReload', id);
-
     var update = {};
     for(var dep in dependents) {
       // TODO: fix user handling
@@ -231,9 +237,28 @@ var ApplicationState = merge({
     this.remoteUpdate(update);
   },
 
-  remoteUpdate(values) {
+  loadDeferred() {
+    var updates = {};
 
-    console.debug('remoteUpdate', values);
+    for (var id in storage) {
+      var {defer} = storage[id];
+      if (defer !== null) {
+        var update = updates[defer] || {};
+        update[id] = UNKNOWN;
+        updates[defer] = update;
+      }
+    }
+
+    console.log(updates);
+
+    if (Object.keys(updates).length > 0) {
+      for (var group in updates) {
+        this.remoteUpdate(updates[group]);
+      }
+    }
+  },
+
+  remoteUpdate(values) {
     var params = {};
 
     this.forEach((state, id) => {
@@ -245,8 +270,6 @@ var ApplicationState = merge({
     Object.keys(values).forEach((id) => {
       params[`update:${id}`] = values[id];
     });
-
-    console.debug('remote update with', params);
 
     request
       .post(window.location.pathname)

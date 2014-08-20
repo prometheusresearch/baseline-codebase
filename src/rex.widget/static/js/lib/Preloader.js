@@ -13,13 +13,16 @@ var Preloader = React.createClass({
     return (
       <div className={cx("rex-widget-Preloader", this.props.className)}>
         <LoadingIndicator /> 
-        <div className="rex-widget-Preloader__caption">{this.props.caption}</div>
+        {this.props.caption &&
+          <div className="rex-widget-Preloader__caption">
+            {this.props.caption}
+          </div>}
       </div>
     );
   },
 
   getDefaultProps() {
-    return {caption: 'Loading'};
+    return {caption: null};
   }
 });
 

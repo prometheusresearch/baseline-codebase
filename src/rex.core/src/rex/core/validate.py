@@ -919,21 +919,32 @@ class Record(object):
 
 
 class RecordField(object):
+    """
+    Describes a field of a record for use with :class:`RecordVal`.
 
-    NODEFAULT = object()
+    `name`
+        The name of the field.
+    `validate`
+        Field type.
+    `default`
+        The default value; ``NotImplemented`` if the field is mandatory.
+    `attribute`
+        Normalized name that could be used as a Python attribute.
+    `has_default`
+        ``True`` if the field is optional; ``False`` otherwise.
+    """
 
-    def __init__(self, name, validate, default=NODEFAULT):
+    def __init__(self, name, validate, default=NotImplemented):
         attribute = name
         if keyword.iskeyword(attribute):
             attribute += '_'
         if isinstance(validate, type):
             validate = validate()
-        has_default = (default is not self.NODEFAULT)
+        has_default = (default is not NotImplemented)
         self.attribute = attribute
         self.name = name
         self.validate = validate
-        if has_default:
-            self.default = default
+        self.default = default
         self.has_default = has_default
 
     def __repr__(self):

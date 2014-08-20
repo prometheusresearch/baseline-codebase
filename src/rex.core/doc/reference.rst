@@ -100,6 +100,7 @@ Validators
 .. autoclass:: rex.core.OnField
 .. autoclass:: rex.core.Record
    :special-members: __clone__
+.. autoclass:: rex.core.RecordField
 .. autoclass:: rex.core.Location
 .. automethod:: rex.core.set_location
 .. automethod:: rex.core.locate

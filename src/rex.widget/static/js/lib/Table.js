@@ -5,15 +5,16 @@
  */
 'use strict';
 
-var React     = require('react/addons');
-var PropTypes = React.PropTypes;
-var cx        = React.addons.classSet;
-var Preloader = require('./Preloader');
+var React           = require('react/addons');
+var PropTypes       = React.PropTypes;
+var cx              = React.addons.classSet;
+var Preloader       = require('./Preloader');
+var WidgetPropTypes = require('./PropTypes');
 
 var Table = React.createClass({
 
   propTypes: {
-    data: PropTypes.object.isRequired,
+    data: WidgetPropTypes.Data.isRequired,
     columns: PropTypes.array.isRequired,
     calculatedColumns: PropTypes.array,
     calculatedRows: PropTypes.array,
@@ -22,7 +23,7 @@ var Table = React.createClass({
     selected: PropTypes.string
   },
 
-  render: function() {
+  render() {
     if (this.props.data.updating) {
       return <Preloader />;
     }
@@ -110,16 +111,16 @@ var Table = React.createClass({
     );
   },
 
-  onSelected: function(rowID) {
-    if (this.props.selectable) {
-      this.props.onSelected(rowID);
-    }
-  },
-
-  getDefaultProps: function() {
+  getDefaultProps() {
     return {
       calculatedColumns: [],
       calculatedRows: []
+    }
+  },
+
+  onSelected(rowID) {
+    if (this.props.selectable) {
+      this.props.onSelected(rowID);
     }
   }
 

@@ -9,7 +9,7 @@ var LoadingIndicator = require('./LoadingIndicator');
 
 var Preloader = React.createClass({
 
-  render: function() {
+  render() {
     return (
       <div className={cx("rex-widget-Preloader", this.props.className)}>
         <LoadingIndicator /> 
@@ -18,7 +18,7 @@ var Preloader = React.createClass({
     );
   },
 
-  getDefaultProps: function() {
+  getDefaultProps() {
     return {caption: 'Loading'};
   }
 });

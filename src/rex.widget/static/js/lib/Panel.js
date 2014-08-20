@@ -17,8 +17,13 @@ var Panel = React.createClass({
   },
 
   render: function() {
+    var className = cx(
+      'rex-widget-Panel',
+      this.props.className,
+      this.props.inline && 'rex-widget-Panel--inline'
+    )
     return (
-      <div className={cx('rex-widget-Panel', this.props.className)}>
+      <div className={className}>
         <div className="rex-widget-Panel__header">
           <div className="rex-widget-Panel__title">
             {this.props.title}

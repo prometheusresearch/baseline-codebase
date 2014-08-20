@@ -229,8 +229,9 @@ class TextInputWidget(Widget):
     name    = 'TextInput'
     js_type = 'rex-widget/lib/TextInput'
 
-    id      = Field(StrVal)
-    value   = StateField(StrVal, is_ephemeral=True, default=None)
+    id          = Field(StrVal)
+    value       = StateField(StrVal, is_ephemeral=True, default=None)
+    placeholder = Field(StrVal, default='')
 
 class CheckboxWidget(Widget):
 
@@ -265,6 +266,7 @@ class FiltersWidget(Widget):
     id                  = Field(StrVal)
     title               = Field(StrVal, default='Filters')
     filters             = Field(WidgetVal, default=NullWidget())
+    inline              = Field(BoolVal, default=False)
     show_apply_button   = Field(BoolVal, default=True)
     show_clear_button   = Field(BoolVal, default=True)
 

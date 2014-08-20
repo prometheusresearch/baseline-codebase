@@ -107,8 +107,7 @@ html, body, #__main__ {
   & > h1 {
     margin-bottom: @padding;
   }
-  & > div {
-    border-top: 1px solid @colorHoverHighlight;
+  & > * {
     margin-bottom: @padding;
   }
 }
@@ -171,6 +170,14 @@ html, body, #__main__ {
   margin-top: @paddingL;
 }
 
+.rex-widget-Panel--inline {
+  .rex-widget-Panel__header,
+  .rex-widget-Panel__children,
+  .rex-widget-Panel__footer {
+    display: inline-block;
+  }
+}
+
 /**
  * Filters widget
  */
@@ -184,6 +191,9 @@ html, body, #__main__ {
   .btn();
   .btn-xs();
   .btn-default();
+}
+
+.rex-widget-Filters--inline {
 }
 
 /**
@@ -230,6 +240,15 @@ html, body, #__main__ {
 .rex-widget-Filter__title {
   font-size: 90%;
 }
+
+.rex-widget-Filter--inline {
+  display: inline-block;
+  margin-left: @paddingL;
+  .rex-widget-Filter__title {
+    display: none;
+  }
+}
+
 
 /**
  * RowFilter widget

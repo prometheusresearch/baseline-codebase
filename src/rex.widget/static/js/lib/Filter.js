@@ -4,34 +4,41 @@
 'use strict';
 
 var React           = require('react/addons');
+var PropTypes       = React.PropTypes;
 var cloneWithProps  = React.addons.cloneWithProps;
+var cx              = React.addons.classSet;
 var chainFunction   = require('./chainFunction');
 var merge           = require('./merge');
 
 var Filter = React.createClass({
 
   propTypes: {
-    id: React.PropTypes.string.isRequired,
-    filter: React.PropTypes.renderable.isRequired,
-    title: React.PropTypes.string.isRequired,
-    value: React.PropTypes.string,
-    onValue: React.PropTypes.func
+    id: PropTypes.string.isRequired,
+    filter: PropTypes.renderable.isRequired,
+    title: PropTypes.string.isRequired,
+    value: PropTypes.string,
+    onValue: PropTypes.func,
+    inline: PropTypes.bool
   },
 
-  render: function() {
+  render() {
     var filter = this.props.filter;
     filter = cloneWithProps(this.props.filter, {
       onValue: this.onValue.bind(null, filter.props.onValue)
     });
+    var className = cx(
+      'rex-widget-Filter',
+      this.props.inline && 'rex-widget-Filter--inline'
+    );
     return (
-      <div className="rex-widget-Filter">
+      <div className={className}>
         <div className="rex-widget-Filter__title">{this.props.title}</div>
         <div className="rex-widget-Filter__filter">{filter}</div>
       </div>
     );
   },
 
-  onValue: function(onValue, value) {
+  onValue(onValue, value) {
     this.props.onValue(this.props.id, value, onValue.produce(value));
   }
 });

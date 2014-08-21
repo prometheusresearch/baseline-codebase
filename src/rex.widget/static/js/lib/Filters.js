@@ -36,7 +36,8 @@ var Filters = React.createClass({
           <button
             onClick={this.onClear}
             className="rex-widget-Filters__clearButton">
-            Clear filters
+            <i className="glyphicon glyphicon-remove" />
+            <span className="rex-widget-Filters__clearButtonText">Clear filters</span>
           </button>}
         footerToolbar={this.props.showApplyButton &&
           <div className="rex-widget-Filters__footer">
@@ -63,7 +64,7 @@ var Filters = React.createClass({
 
   getDefaultProps() {
     return {
-      title: 'Filters',
+      title: null,
       showClearButton: true,
       showApplyButton: true
     };

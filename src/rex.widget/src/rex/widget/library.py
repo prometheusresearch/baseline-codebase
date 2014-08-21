@@ -264,7 +264,7 @@ class FiltersWidget(Widget):
     js_type = 'rex-widget/lib/Filters'
 
     id                  = Field(StrVal)
-    title               = Field(StrVal, default='Filters')
+    title               = Field(StrVal, default=None)
     filters             = Field(WidgetVal, default=NullWidget())
     inline              = Field(BoolVal, default=False)
     show_apply_button   = Field(BoolVal, default=True)

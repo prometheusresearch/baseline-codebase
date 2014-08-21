@@ -10,7 +10,7 @@ from email import message_from_string
 from tempfile import NamedTemporaryFile
 
 from cogs import task, argument, option
-from cogs.log import fail
+from cogs.log import fail, warn
 from babel.messages.frontend import CommandLineInterface
 
 from rex.core import get_packages
@@ -270,5 +270,12 @@ class I18N_COMPILE(I18N_TASK):
                 )
             args.append('--directory=%s' % pot_dir)
 
-            CommandLineInterface().run(args)
+            try:
+                CommandLineInterface().run(args)
+            except:
+                warn(
+                    'There was a failure when trying to compile domain: %s' % (
+                        domain,
+                    )
+                )
 

@@ -45,7 +45,7 @@ var Filters = React.createClass({
               Apply
             </button>
           </div>}>
-          <div onKeyPress={this.onKeyPress}>
+          <div onKeyPress={this.props.showApplyButton && this.onKeyPress}>
             <this.renderFilters />
           </div>
       </Panel>

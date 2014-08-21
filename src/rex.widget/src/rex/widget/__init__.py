@@ -21,13 +21,6 @@ from .state import (
     StateVal, State, Dep, unknown)
 from .jsval import JSVal
 
-class LoggingVal(Validate):
-
-    def __call__(self, data):
-        if data is not None:
-            import logging
-            logging.dictCondig(data)
-
 
 class Logging(Setting):
     """ Parameter specifies logging configuration."""
@@ -35,3 +28,9 @@ class Logging(Setting):
     name = 'logging'
     validator = LoggingVal
     default = None
+
+    def __call__(self, config):
+        if config:
+            config = dict(*config)
+            import logging.config
+            logging.config.dictConfig(config)

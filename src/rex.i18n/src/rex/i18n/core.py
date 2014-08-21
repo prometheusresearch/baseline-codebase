@@ -65,6 +65,12 @@ ALL_DOMAINS = (
 
 
 def get_locale():
+    """
+    Retrieves the locale being used on the current thread.
+
+    :rtype: Locale
+    """
+
     rex = get_rex()
     if not hasattr(rex, KEY_LOCALE):
         setattr(rex, KEY_LOCALE, get_settings().i18n_default_locale)
@@ -72,6 +78,18 @@ def get_locale():
 
 
 def get_locale_direction(locale=None):
+    """
+    Retrieves the directionality of the script used in a locale.
+
+    :param locale:
+        the locale to get the script direction of; if not specified the current
+        locale is used
+    :type locale: string
+    :returns:
+        ``lrt`` to indicate a left-to-right script or ``rtl`` to indicate a
+        right-to-left script
+    """
+
     if not locale:
         locale = get_locale()
     else:
@@ -82,6 +100,12 @@ def get_locale_direction(locale=None):
 
 
 def get_timezone():
+    """
+    Retrieves the timezone being used on the current thread.
+
+    :rtype: tzinfo
+    """
+
     rex = get_rex()
     if not hasattr(rex, KEY_TIMEZONE):
         setattr(rex, KEY_TIMEZONE, get_settings().i18n_default_timezone)
@@ -89,6 +113,12 @@ def get_timezone():
 
 
 def get_translations():
+    """
+    Retrieves the gettext translations for the current locale.
+
+    :rtype: Translations
+    """
+
     rex = get_rex()
     if not hasattr(rex, KEY_TRANSLATIONS):
         setattr(
@@ -130,6 +160,17 @@ def collect_translations(locale, domain):
 
 @cached
 def get_json_translations(locale, domain):
+    """
+    Creates and returns a JSON-encoded version of the gettext Translations
+    object.
+
+    :param locale: the locale to to render into JSON
+    :type locale: string
+    :param domain: the gettext domain to render into JSON
+    :type domain: string
+    :returns: a JSON-encoded string of the gettext data
+    """
+
     translations = collect_translations(locale, domain)
 
     contents = {
@@ -168,6 +209,18 @@ def get_json_translations(locale, domain):
 
 
 def gettext(string, **variables):
+    """
+    A wrapped version of the ``ugettext`` function that will perform the
+    translation according to the active locale. It also supports named variable
+    interpolation.
+
+    :param string: the string to translate
+    :param string: string
+    :returns:
+        the translated string; or the original string if the current locale
+        does not have a translation for it
+    """
+
     translations = get_translations()
     if translations is None:
         return string % variables
@@ -175,6 +228,22 @@ def gettext(string, **variables):
 
 
 def ngettext(singular, plural, num, **variables):
+    """
+    A wrapped version of the ``ungettext`` function that will perform the
+    plural translation according to the active locale. It also supports named
+    variable interpolation.
+
+    :param singular: the singluar version of the string to translate
+    :type singular: string
+    :param plural: the plural form of the string to translate
+    :type plural: string
+    :param num: the number to base the decision of plurality on
+    :type num: numeric
+    :returns:
+        the translated string; or the original string if the current locale
+        does not have a translation for it
+    """
+
     variables.setdefault('num', num)
     translations = get_translations()
     if translations is None:
@@ -183,5 +252,17 @@ def ngettext(singular, plural, num, **variables):
 
 
 def lazy_gettext(string, **variables):
+    """
+    A function that provides lazy strings for translations. You receive an
+    object that appears to be a string but changes the value every time the
+    value is evaluated based on the currently active locale.
+
+    :param string: the string to translate
+    :param string: string
+    :returns:
+        the translated string; or the original string if the current locale
+        does not have a translation for it
+    """
+
     return make_lazy_string(gettext, string, **variables)
 

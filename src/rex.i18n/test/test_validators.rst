@@ -20,7 +20,7 @@ The LocaleVal validator takes in a POSIX locale identifier or a Babel
     >>> validator('foobar')
     Traceback (most recent call last):
         ...
-    Error: unknown locale 'foobar'
+    Error: expected a POSIX locale identifier, got 'foobar'
 
     >>> from babel import Locale
     >>> validator(Locale.parse('en'))

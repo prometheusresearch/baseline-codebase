@@ -2,6 +2,8 @@ ignore:
   - ^doc/conf\.py$
   - ^demo/.*$
   - ^static/js/.*$
+  # Have to ignore the rex.ctl commands because pylint crashes when it tries to import cogs.
+  - ^src/rex/i18n/ctl.py$
 
 pep8:
   disable:
@@ -15,7 +17,16 @@ pylint:
     - R0922
     - R0903
 
+  options:
+    max-public-methods: 30
+    max-args: 10
+    max-attributes: 10
+
 pyflakes:
   disable:
     - FL0005
+
+frosted:
+  disable:
+    - E103
 

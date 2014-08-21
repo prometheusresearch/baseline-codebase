@@ -5,10 +5,10 @@
 
 from datetime import tzinfo
 
-from babel import Locale
-from pytz import timezone
+from babel import Locale, UnknownLocaleError
+from pytz import timezone, UnknownTimeZoneError
 
-from rex.core import Validate, Error
+from rex.core import StrVal, Error
 
 
 __all__ = (
@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class LocaleVal(Validate):
+class LocaleVal(StrVal):
     """
     Accepts POSIX locale identifiers and coerces them to ``babel.Locale``
     objects.
@@ -26,11 +26,13 @@ class LocaleVal(Validate):
     def __call__(self, data):
         try:
             return Locale.parse(data)
-        except Exception as exc:
-            raise Error(exc.message)
+        except UnknownLocaleError:
+            raise Error(
+                'expected a POSIX locale identifier, got \'%s\'' % data
+            )
 
 
-class TimezoneVal(Validate):
+class TimezoneVal(StrVal):
     """
     Accepts IANA Time Zone Database identifiers and coerces them to
     ``pytz.timezone`` objects.
@@ -42,6 +44,6 @@ class TimezoneVal(Validate):
 
         try:
             return timezone(data)
-        except:
+        except UnknownTimeZoneError:
             raise Error('expected an IANA TZ identifier, got \'%s\'' % data)
 

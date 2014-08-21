@@ -29,7 +29,7 @@ be set to any valid POSIX Locale identifier::
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_locale='foobar')
     Traceback (most recent call last):
       ...
-    Error: unknown locale 'foobar'
+    Error: expected a POSIX locale identifier, got 'foobar'
     While validating setting:
         i18n_default_locale
     While initializing RexDB application:
@@ -93,7 +93,7 @@ valid POSIX Locale identifiers::
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['foobar'])
     Traceback (most recent call last):
       ...
-    Error: unknown locale 'foobar'
+    Error: expected a POSIX locale identifier, got 'foobar'
     While validating sequence item
         #1
     While validating setting:

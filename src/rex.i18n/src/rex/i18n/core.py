@@ -103,11 +103,8 @@ def get_translations():
 def collect_translations(locale, domain):
     translations = None
 
-    #print 'collecting for %s' % locale
     for package in reversed(get_packages()):
-        #print '  looking at %s' % package.name
         if not package.exists('i18n'):
-            #print '    no i18n dir'
             continue
 
         pkg_tx = Translations.load(
@@ -115,22 +112,18 @@ def collect_translations(locale, domain):
             locales=[locale],
             domain=domain,
         )
-        #print '    got %r' % pkg_tx
         if isinstance(translations, Translations):
-            #print '    merging to %r' % translations
             translations.merge(pkg_tx)
         else:
             translations = pkg_tx
 
     default = str(get_settings().i18n_default_locale)
     if locale != default:
-        #print 'default is %s, merging' % default
         default_translations = collect_translations(default, domain)
         if not isinstance(default_translations, NullTranslations):
             translations = default_translations.merge(translations)
 
     translations = translations or NullTranslations()
-    #print 'result is %r' % translations
 
     return translations
 

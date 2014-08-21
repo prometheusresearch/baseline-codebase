@@ -21,6 +21,8 @@ __all__ = (
 
 class I18NInitialize(Initialize):
     def __call__(self):
+        # pylint: disable=W0108
+
         # Activate I18N support in Jinja.
         jinja = get_jinja()
         jinja.add_extension('jinja2.ext.i18n')

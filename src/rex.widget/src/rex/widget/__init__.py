@@ -11,6 +11,7 @@
 
 from __future__ import absolute_import
 
+from rex.core import Validate, Setting
 from .parse import WidgetVal
 from .library import LabelWidget, HeaderWidget, SectionWidget
 from .widget import Widget, NullWidget, GroupWidget, Field, StateField
@@ -19,3 +20,18 @@ from .state import (
     PaginatedCollectionComputator, CollectionComputator, EntityComputator,
     StateVal, State, Dep, unknown)
 from .jsval import JSVal
+
+class LoggingVal(Validate):
+
+    def __call__(self, data):
+        if data is not None:
+            import logging
+            logging.dictCondig(data)
+
+
+class Logging(Setting):
+    """ Parameter specifies logging configuration."""
+
+    name = 'logging'
+    validator = LoggingVal
+    default = None

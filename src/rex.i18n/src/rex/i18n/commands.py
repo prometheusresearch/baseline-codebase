@@ -118,7 +118,13 @@ class GetLocaleDetailCommand(CldrPackagerCommand):
     )
 
     def get_cldr_components(self, parameters):
+        if parameters['locale'] not in get_settings().i18n_supported_locales:
+            raise HTTPBadRequest(
+                '"%s" is not a supported locale' % parameters['locale']
+            )
+
         return (
             'main/%s/ca-gregorian.json' % parameters['locale'],
             'main/%s/numbers.json' % parameters['locale'],
         )
+

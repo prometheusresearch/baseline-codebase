@@ -60,6 +60,15 @@ class Data(_Data):
     def __new__(cls, data, meta=None, updating=False, has_more=False):
         return _Data.__new__(cls, data=data, meta=meta, updating=updating, has_more=False)
 
+    def __getitem__(self, name):
+        # Python weirdness, __getattr__ is implemented in terms of __getitem__
+        if isinstance(name, int):
+            return _Data.__getitem__(self, name)
+        if name in self._fields:
+            return getattr(self, name)
+        else:
+            raise KeyError(name)
+
 
 Append = namedtuple('Append', ['data'])
 

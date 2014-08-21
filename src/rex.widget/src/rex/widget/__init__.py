@@ -26,8 +26,6 @@ class Logging(Setting):
     """ Parameter specifies logging configuration."""
 
     name = 'logging'
-    validator = LoggingVal
-    default = None
 
     def __call__(self, config):
         if config:

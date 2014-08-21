@@ -73,9 +73,9 @@ def locate(state, scope, value):
     domain = identity.domain
     lops = identity.elements
     # Prepare the right operand.
-    if value.domain == domain and value.data is not None:
+    if value.domain == domain:
         rops = value.data
-    elif isinstance(value.domain, UntypedDomain) and value.data is not None:
+    elif isinstance(value.domain, UntypedDomain):
         try:
             rops = domain.parse(value.data)
         except ValueError:
@@ -83,6 +83,11 @@ def locate(state, scope, value):
     else:
         raise Error("Failed to convert value of type %s to %s:"
                     % (value.domain, domain), value)
+
+    # If value is not provided, always return `False`.
+    if rops is None:
+        return LiteralBinding(state.scope, False, BooleanDomain(),
+                              scope.syntax)
 
     # Generate `lops=rops`, where `lops` is an `IdentityBinding.fields`
     # and `rops` is an `IdentityDomain` value.

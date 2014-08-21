@@ -43,7 +43,7 @@ class Constraint(object):
                 if arguments:
                     arguments = [arguments]
                 else:
-                    arguments = []
+                    arguments = [None]
             else:
                 path = urllib.unquote(data)
                 if ':' in path:

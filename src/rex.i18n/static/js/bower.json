@@ -15,7 +15,9 @@
   "dependencies": {
     "jed": "^0.5.4",
     "jstimezonedetect": "^1.0.5",
-    "globalize": "^1.0.0"
+    "globalize": "^1.0.0",
+    "native-promise-only": "^0.7.5",
+    "deepmerge": "^0.2.9"
   },
   "ignore": [
     "**/.*",

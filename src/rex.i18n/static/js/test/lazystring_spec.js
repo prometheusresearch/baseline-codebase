@@ -1,8 +1,7 @@
 'use strict';
 
 
-var i18n = require('../lib/index.js');
-var expect = require('chai').expect;
+var LazyString = require('../lib/lazystring').LazyString;
 
 
 describe('LazyString', function () {
@@ -19,48 +18,48 @@ describe('LazyString', function () {
   });
 
   it('does not evaluate upon creation', function () {
-    i18n.LazyString(testFunc);
-    expect(testFunc.calls.count()).to.equal(0);
+    LazyString(testFunc);
+    expect(testFunc.calls.count()).toBe(0);
   });
 
   it('evaluates upon casting to string', function () {
-    var ls = new i18n.LazyString(testFunc),
+    var ls = new LazyString(testFunc),
       foo;
 
     foo = ls + String();
-    expect(testFunc.calls.count()).to.equal(1);
-    expect(foo).to.equal('hello');
+    expect(testFunc.calls.count()).toBe(1);
+    expect(foo).toBe('hello');
 
     foo = String(ls);
-    expect(testFunc.calls.count()).to.equal(2);
-    expect(foo).to.equal('hello');
+    expect(testFunc.calls.count()).toBe(2);
+    expect(foo).toBe('hello');
   });
 
   it('evaluates upon comparison', function () {
     /*jshint eqeqeq:false */
-    var ls = new i18n.LazyString(testFunc),
+    var ls = new LazyString(testFunc),
       foo;
 
     foo = (ls == 1);
-    expect(testFunc.calls.count()).to.equal(1);
-    expect(foo).to.be.false;
+    expect(testFunc.calls.count()).toBe(1);
+    expect(foo).toBe(false);
 
     foo = (ls == 'hello');
-    expect(testFunc.calls.count()).to.equal(2);
-    expect(foo).to.be.true;
+    expect(testFunc.calls.count()).toBe(2);
+    expect(foo).toBe(true);
   });
 
   it('does not evaluate upon strict comparison', function () {
-    var ls = new i18n.LazyString(testFunc),
+    var ls = new LazyString(testFunc),
       foo;
 
     foo = (ls === 1);
-    expect(testFunc.calls.count()).to.equal(0);
-    expect(foo).to.be.false;
+    expect(testFunc.calls.count()).toBe(0);
+    expect(foo).toBe(false);
 
     foo = (ls === 'hello');
-    expect(testFunc.calls.count()).to.equal(0);
-    expect(foo).to.be.false;
+    expect(testFunc.calls.count()).toBe(0);
+    expect(foo).toBe(false);
   });
 
 });

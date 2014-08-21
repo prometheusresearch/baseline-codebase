@@ -1,23 +1,18 @@
 'use strict';
 
 
-var i18n = require('../lib/index.js');
-var expect = require('chai').expect;
-
-
-var CAPTURE_LOG = true;
+var LazyString = require('../lib/lazystring').LazyString;
+var RexI18N = require('../lib/i18n').RexI18N;
 
 
 // Mock translation structures.
 var MOCK_EN = require('json!./mocks/tx_en.json');
 var MOCK_FR = require('json!./mocks/tx_fr.json');
-var MOCK_ES = require('json!./mocks/tx_es.json');
 
 // Mock Locale Components
 var MOCK_LOCALE_COMMON = require('json!./mocks/locale_common.json');
 var MOCK_LOCALE_EN = require('json!./mocks/locale_en.json');
 var MOCK_LOCALE_FR = require('json!./mocks/locale_fr.json');
-var MOCK_LOCALE_ES = require('json!./mocks/locale_es.json');
 
 
 // Define the common setup/teardown routines for testing with.
@@ -53,19 +48,68 @@ function commonSetup() {
     'contentType': 'application/json',
     'responseText': JSON.stringify(MOCK_LOCALE_FR)
   });
-
-  if (CAPTURE_LOG && global.console && global.console.log) {
-    // Mute & capture any logging.
-    spyOn(global.console, 'log');
-  }
 }
 
 function commonTeardown() {
   jasmine.Ajax.uninstall();
+}
 
-  if (CAPTURE_LOG && global.console && global.console.log) {
-    global.console.log.calls.reset();
-  }
+function buildInstances(locales, done) {
+    var numInstances = locales.length;
+    var onLoad = function () {
+      numInstances -= 1;
+      if (numInstances === 0) {
+        done();
+      }
+    };
+
+    var instances = {};
+    locales.forEach(function (locale) {
+      instances[locale] = RexI18N({
+        locale: locale,
+        timezone: 'America/New_York',
+        onLoad: onLoad
+      });
+    });
+
+    return instances;
+}
+
+function respondToLocaleRequests(locale, responseOverride) {
+  var urls = [
+    ['/locale/', 'locale_'],
+    ['/translations/', 'tx_']
+  ];
+
+  urls.forEach(function (url) {
+    var requests, response;
+
+    requests = jasmine.Ajax.requests.filter(url[0] + locale);
+    if (requests.length > 0) {
+      if (responseOverride) {
+        response = responseOverride;
+      } else {
+        try {
+          response = JSON.stringify(require('json!./mocks/' + url[1] + locale + '.json'));
+        } catch (exc) {
+          response = null;
+        }
+      }
+
+      if (response) {
+        requests[0].response({
+          'status': 200,
+          'contentType': 'application/json',
+          'responseText': response
+        });
+      } else {
+        requests[0].response({
+          'status': 404,
+          'statusText': '404 Not Found'
+        });
+      }
+    }
+  });
 }
 
 
@@ -74,96 +118,93 @@ describe('construction', function () {
   afterEach(commonTeardown);
 
   it('should have known default configuration', function () {
-    var ri = i18n.RexI18N();
-    expect(ri.config.locale).to.equal('en');
-    expect(ri.config.timezone).to.be.ok;
-    expect(ri.config.translationsBaseUrl).to.equal('/translations');
-    expect(ri.config.localeBaseUrl).to.equal('/locale');
-    expect(ri.config.timeout).to.equal(10000);
+    var ri = RexI18N();
+    expect(ri.config.locale).toBe('en');
+    expect(ri.config.timezone).toBeTruthy();
+    expect(ri.config.translationsBaseUrl).toBe('/translations');
+    expect(ri.config.localeBaseUrl).toBe('/locale');
+    expect(ri.config.timeout).toBe(10000);
   });
 
   it('should allow specification of a timezone', function () {
-    var ri = i18n.RexI18N({timezone: 'Europe/London'});
-    expect(ri.config.timezone).to.equal('Europe/London');
+    var ri = RexI18N({timezone: 'Europe/London'});
+    expect(ri.config.timezone).toBe('Europe/London');
   });
 
   it('should complain if given a bogus timezone', function () {
     function makeBroken() {
-      i18n.RexI18N({timezone: 'fake'});
+      RexI18N({timezone: 'fake'});
     }
-    expect(makeBroken).to.throw(/Invalid timezone/);
+    expect(makeBroken).toThrow();
   });
 
   it('should retrieve translations from the correct location', function () {
     var ri;
 
-    ri = i18n.RexI18N();
-    expect(jasmine.Ajax.requests.filter('/translations/en').length).to.equal(1);
+    ri = RexI18N();
+    expect(jasmine.Ajax.requests.filter('/translations/en').length).toBe(1);
 
-    ri = i18n.RexI18N({locale: 'fr'});
-    expect(jasmine.Ajax.requests.filter('/translations/fr').length).to.equal(1);
+    ri = RexI18N({locale: 'fr'});
+    expect(jasmine.Ajax.requests.filter('/translations/fr').length).toBe(1);
 
-    ri = i18n.RexI18N({translationsBaseUrl: '/somewhere'});
-    expect(jasmine.Ajax.requests.filter('/somewhere/en').length).to.equal(1);
+    ri = RexI18N({translationsBaseUrl: '/somewhere'});
+    expect(jasmine.Ajax.requests.filter('/somewhere/en').length).toBe(1);
 
-    ri = i18n.RexI18N({translationsBaseUrl: '/somewhere', locale: 'fr'});
-    expect(jasmine.Ajax.requests.filter('/somewhere/fr').length).to.equal(1);
+    ri = RexI18N({translationsBaseUrl: '/somewhere', locale: 'fr'});
+    expect(jasmine.Ajax.requests.filter('/somewhere/fr').length).toBe(1);
   });
 
   it('should retrieve locale config from the correct location', function () {
     var ri;
 
-    ri = i18n.RexI18N({locale: 'es'});
-    expect(jasmine.Ajax.requests.filter('/locale/es').length).to.equal(1);
+    ri = RexI18N({locale: 'es'});
+    expect(jasmine.Ajax.requests.filter('/locale/es').length).toBe(1);
 
-    ri = i18n.RexI18N({localeBaseUrl: '/somewhere', locale: 'zh'});
-    expect(jasmine.Ajax.requests.filter('/somewhere/zh').length).to.equal(1);
+    ri = RexI18N({localeBaseUrl: '/somewhere', locale: 'zh'});
+    expect(jasmine.Ajax.requests.filter('/somewhere/zh').length).toBe(1);
   });
 
-  it('should still work if the translations could not be retrieved', function () {
-    var ri = i18n.RexI18N({locale: 'es'});
-    jasmine.Ajax.requests.filter('/translations/es')[0].response({
-      'status': 404,
-      'statusText': '404 Not Found'
-    });
-    expect(ri.gettext('hello')).to.equal('hello');
+  it('should still work if the translations could not be retrieved', function (done) {
+    var onLoad = function (ri) {
+      expect(ri.gettext('hello')).toBe('hello');
+      done();
+    };
+
+    var ri = RexI18N({locale: 'ar', onLoad: onLoad});
+    respondToLocaleRequests('ar');
   });
 
-  it('should still work if the translations could not be parsed', function () {
-    var ri = i18n.RexI18N({locale: 'es'});
-    jasmine.Ajax.requests.filter('/translations/es')[0].response({
-      'status': 200,
-      'contentType': 'application/json',
-      'responseText': 'asd[asd[]asda]d'
-    });
-    expect(ri.gettext('hello')).to.equal('hello');
+  it('should still work if the translations could not be parsed', function (done) {
+    var onLoad = function (ri) {
+      expect(ri.gettext('hello')).toBe('hello');
+      done();
+    };
+
+    var ri = RexI18N({locale: 'pl', onLoad: onLoad});
+    respondToLocaleRequests('pl', 'asdads[sa]asd[asd[as]');
   });
 });
 
 
 describe('gettext', function () {
-  var riEnglish, riFrench;
-
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
-
-    riEnglish = i18n.RexI18N({locale: 'en'});
-    riFrench = i18n.RexI18N({locale: 'fr'});
+    this.instances = buildInstances(['en', 'fr'], done);
   });
 
   afterEach(commonTeardown);
 
   it('should translate a simple string', function () {
-    expect(riEnglish.gettext('hello')).to.equal('hello');
-    expect(riFrench.gettext('hello')).to.equal('bonjour');
+    expect(this.instances.en.gettext('hello')).toBe('hello');
+    expect(this.instances.fr.gettext('hello')).toBe('bonjour');
   });
 
   it('should translate a formatted string', function () {
     var variables = {
       name: 'Bob'
     };
-    expect(riEnglish.gettext('hello %(name)s', variables)).to.equal('hello Bob');
-    expect(riFrench.gettext('hello %(name)s', variables)).to.equal('bonjour Bob');
+    expect(this.instances.en.gettext('hello %(name)s', variables)).toBe('hello Bob');
+    expect(this.instances.fr.gettext('hello %(name)s', variables)).toBe('bonjour Bob');
   });
 
   it('should translate a formatted string with extra variables', function () {
@@ -171,65 +212,62 @@ describe('gettext', function () {
       name: 'Bob',
       color: 'blue'
     };
-    expect(riEnglish.gettext('hello %(name)s', variables)).to.equal('hello Bob');
-    expect(riFrench.gettext('hello %(name)s', variables)).to.equal('bonjour Bob');
+    expect(this.instances.en.gettext('hello %(name)s', variables)).toBe('hello Bob');
+    expect(this.instances.fr.gettext('hello %(name)s', variables)).toBe('bonjour Bob');
   });
 
   it('should die if not given all formatting variables', function () {
     var variables = {};
-    expect(function () { riEnglish.gettext('hello %(name)s', variables); }).to.throw();
-    expect(function () { riFrench.gettext('hello %(name)s', variables); }).to.throw();
+    expect(function () { this.instances.en.gettext('hello %(name)s', variables); }).toThrow();
+    expect(function () { this.instances.fr.gettext('hello %(name)s', variables); }).toThrow();
   });
 
-  it('should return LazyStrings when the translations have not finished loading', function () {
-    var riSpanish = i18n.RexI18N({locale: 'es'}),
+  it('should return LazyStrings when the translations have not finished loading', function (done) {
+    var onLoad = function (riSpanish) {
+      expect(value.toString()).toBe('hola');
+
+      value = riSpanish.gettext('hello %(name)s', {name: 'Bob'});
+      expect(value instanceof LazyString).toBe(false);
+      expect(value).toBe('hola Bob');
+
+      done();
+    };
+
+    var riSpanish = RexI18N({locale: 'es', onLoad: onLoad}),
       value;
 
     value = riSpanish.gettext('hello');
-    expect(value).to.be.instanceof(i18n.LazyString);
-    expect(value).to.not.equal('hello');
-    expect(value).to.not.equal('hola');
-    expect(value.toString()).to.equal('hello');
+    expect(value instanceof LazyString).toBe(true);
+    expect(value).not.toBe('hello');
+    expect(value).not.toBe('hola');
+    expect(value.toString()).toBe('hello');
 
-    jasmine.Ajax.requests.filter('/translations/es')[0].response({
-      'status': 200,
-      'contentType': 'application/json',
-      'responseText': JSON.stringify(MOCK_ES)
-    });
-
-    expect(value.toString()).to.equal('hola');
-
-    value = riSpanish.gettext('hello %(name)s', {name: 'Bob'});
-    expect(value).to.not.be.instanceof(i18n.LazyString);
-    expect(value).to.equal('hola Bob');
+    respondToLocaleRequests('es');
   });
 });
 
 
 describe('ngettext', function () {
-  var riEnglish, riFrench;
-
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    riEnglish = i18n.RexI18N({locale: 'en'});
-    riFrench = i18n.RexI18N({locale: 'fr'});
+    this.instances = buildInstances(['en', 'fr'], done);
   });
 
   afterEach(commonTeardown);
 
   it('should translate a simple pluralized string', function () {
-    expect(riEnglish.ngettext('an apple', 'some apples', 1)).to.equal('an apple');
-    expect(riEnglish.ngettext('an apple', 'some apples', 2)).to.equal('some apples');
-    expect(riFrench.ngettext('an apple', 'some apples', 1)).to.equal('une pomme');
-    expect(riFrench.ngettext('an apple', 'some apples', 2)).to.equal('des pommes');
+    expect(this.instances.en.ngettext('an apple', 'some apples', 1)).toBe('an apple');
+    expect(this.instances.en.ngettext('an apple', 'some apples', 2)).toBe('some apples');
+    expect(this.instances.fr.ngettext('an apple', 'some apples', 1)).toBe('une pomme');
+    expect(this.instances.fr.ngettext('an apple', 'some apples', 2)).toBe('des pommes');
   });
 
   it('should translate a pluralized string with the number', function () {
-    expect(riEnglish.ngettext('%(num)s apple', '%(num)s apples', 1)).to.equal('1 apple');
-    expect(riEnglish.ngettext('%(num)s apple', '%(num)s apples', 2)).to.equal('2 apples');
-    expect(riFrench.ngettext('%(num)s apple', '%(num)s apples', 1)).to.equal('1 pomme');
-    expect(riFrench.ngettext('%(num)s apple', '%(num)s apples', 2)).to.equal('2 pommes');
+    expect(this.instances.en.ngettext('%(num)s apple', '%(num)s apples', 1)).toBe('1 apple');
+    expect(this.instances.en.ngettext('%(num)s apple', '%(num)s apples', 2)).toBe('2 apples');
+    expect(this.instances.fr.ngettext('%(num)s apple', '%(num)s apples', 1)).toBe('1 pomme');
+    expect(this.instances.fr.ngettext('%(num)s apple', '%(num)s apples', 2)).toBe('2 pommes');
   });
 
   it('should translate a formatted pluralized string', function () {
@@ -237,202 +275,199 @@ describe('ngettext', function () {
       color: 'blue'
     };
     expect(
-      riEnglish.ngettext('%(num)s %(color)s apple', '%(num)s %(color)s apples', 1, variables)
-    ).to.equal('1 blue apple');
+      this.instances.en.ngettext('%(num)s %(color)s apple', '%(num)s %(color)s apples', 1, variables)
+    ).toBe('1 blue apple');
     expect(
-      riEnglish.ngettext('%(num)s %(color)s apple', '%(num)s %(color)s apples', 2, variables)
-    ).to.equal('2 blue apples');
+      this.instances.en.ngettext('%(num)s %(color)s apple', '%(num)s %(color)s apples', 2, variables)
+    ).toBe('2 blue apples');
     expect(
-      riFrench.ngettext('%(num)s %(color)s apple', '%(num)s %(color)s apples', 1, variables)
-    ).to.equal('1 blue pomme');
+      this.instances.fr.ngettext('%(num)s %(color)s apple', '%(num)s %(color)s apples', 1, variables)
+    ).toBe('1 blue pomme');
     expect(
-      riFrench.ngettext('%(num)s %(color)s apple', '%(num)s %(color)s apples', 2, variables)
-    ).to.equal('2 blue pommes');
+      this.instances.fr.ngettext('%(num)s %(color)s apple', '%(num)s %(color)s apples', 2, variables)
+    ).toBe('2 blue pommes');
   });
 
-  it('should return LazyStrings when the translations have not finished loading', function () {
-    var riSpanish = i18n.RexI18N({locale: 'es'}),
+  it('should return LazyStrings when the translations have not finished loading', function (done) {
+    var onLoad = function (riSpanish) {
+      expect(value.toString()).toBe('algunas manzanas');
+
+      value = riSpanish.ngettext('%(num)s apple', '%(num)s apples', 2);
+      expect(value instanceof LazyString).toBe(false);
+      expect(value).toBe('2 manzanas');
+
+      done();
+    };
+
+    var riSpanish = RexI18N({locale: 'es', onLoad: onLoad}),
       value;
 
     value = riSpanish.ngettext('an apple', 'some apples', 2);
-    expect(value).to.be.instanceof(i18n.LazyString);
-    expect(value).to.not.equal('some apples');
-    expect(value).to.not.equal('algunas manzanas');
-    expect(value.toString()).to.equal('some apples');
+    expect(value instanceof LazyString).toBe(true);
+    expect(value).not.toBe('some apples');
+    expect(value).not.toBe('algunas manzanas');
+    expect(value.toString()).toBe('some apples');
 
-    jasmine.Ajax.requests.filter('/translations/es')[0].response({
-      'status': 200,
-      'contentType': 'application/json',
-      'responseText': JSON.stringify(MOCK_ES)
-    });
-
-    expect(value.toString()).to.equal('algunas manzanas');
-
-    value = riSpanish.ngettext('%(num)s apple', '%(num)s apples', 2);
-    expect(value).to.not.be.instanceof(i18n.LazyString);
-    expect(value).to.equal('2 manzanas');
+    respondToLocaleRequests('es');
   });
 });
 
 
 describe('formatDate', function () {
-  var riEnglish, riFrench, testDate = new Date(2014, 3, 1, 9, 34, 43);
+  var testDate = new Date(2014, 3, 1, 9, 34, 43);
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    riEnglish = i18n.RexI18N({locale: 'en', timezone: 'America/New_York'});
-    riFrench = i18n.RexI18N({locale: 'fr', timezone: 'America/New_York'});
+    this.instances = buildInstances(['en', 'fr'], done);
   });
 
   afterEach(commonTeardown);
 
   it('has a format named \'short\'', function () {
-    expect(riEnglish.formatDate(testDate, 'short')).to.equal('4/1/14');
-    expect(riFrench.formatDate(testDate, 'short')).to.equal('01/04/2014');
+    expect(this.instances.en.formatDate(testDate, 'short')).toBe('4/1/14');
+    expect(this.instances.fr.formatDate(testDate, 'short')).toBe('01/04/2014');
   });
 
   it('has a format named \'medium\'', function () {
-    expect(riEnglish.formatDate(testDate, 'medium')).to.equal('Apr 1, 2014');
-    expect(riFrench.formatDate(testDate, 'medium')).to.equal('1 avr. 2014');
+    expect(this.instances.en.formatDate(testDate, 'medium')).toBe('Apr 1, 2014');
+    expect(this.instances.fr.formatDate(testDate, 'medium')).toBe('1 avr. 2014');
   });
 
   it('has a format named \'long\'', function () {
-    expect(riEnglish.formatDate(testDate, 'long')).to.equal('April 1, 2014');
-    expect(riFrench.formatDate(testDate, 'long')).to.equal('1 avril 2014');
+    expect(this.instances.en.formatDate(testDate, 'long')).toBe('April 1, 2014');
+    expect(this.instances.fr.formatDate(testDate, 'long')).toBe('1 avril 2014');
   });
 
   it('has a format named \'full\'', function () {
-    expect(riEnglish.formatDate(testDate, 'full')).to.equal('Tuesday, April 1, 2014');
-    expect(riFrench.formatDate(testDate, 'full')).to.equal('mardi 1 avril 2014');
+    expect(this.instances.en.formatDate(testDate, 'full')).toBe('Tuesday, April 1, 2014');
+    expect(this.instances.fr.formatDate(testDate, 'full')).toBe('mardi 1 avril 2014');
   });
 
   it('has a format named \'iso\'', function () {
-    expect(riEnglish.formatDate(testDate, 'iso')).to.equal('2014-04-01');
-    expect(riFrench.formatDate(testDate, 'iso')).to.equal('2014-04-01');
+    expect(this.instances.en.formatDate(testDate, 'iso')).toBe('2014-04-01');
+    expect(this.instances.fr.formatDate(testDate, 'iso')).toBe('2014-04-01');
   });
 
   it('defaults to the medium format', function () {
-    expect(riEnglish.formatDate(testDate)).to.equal('Apr 1, 2014');
-    expect(riFrench.formatDate(testDate)).to.equal('1 avr. 2014');
+    expect(this.instances.en.formatDate(testDate)).toBe('Apr 1, 2014');
+    expect(this.instances.fr.formatDate(testDate)).toBe('1 avr. 2014');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('can render as a different timezone than the one configured', function () {
-    expect(riEnglish.formatDate(testDate, 'short', 'Pacific/Honolulu')).to.equal('3/31/14');
-    expect(riFrench.formatDate(testDate, 'short', 'Pacific/Honolulu')).to.equal('31/03/2014');
+    expect(this.instances.en.formatDate(testDate, 'short', 'Pacific/Honolulu')).toBe('3/31/14');
+    expect(this.instances.fr.formatDate(testDate, 'short', 'Pacific/Honolulu')).toBe('31/03/2014');
   });
 });
 
 
 describe('formatDateTime', function () {
-  var riEnglish, riFrench, testDate = new Date(2014, 3, 1, 9, 34, 43);
+  var testDate = new Date(2014, 3, 1, 9, 34, 43);
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    riEnglish = i18n.RexI18N({locale: 'en', timezone: 'America/New_York'});
-    riFrench = i18n.RexI18N({locale: 'fr', timezone: 'America/New_York'});
+    this.instances = buildInstances(['en', 'fr'], done);
   });
 
   afterEach(commonTeardown);
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'short\'', function () {
-    expect(riEnglish.formatDateTime(testDate, 'short')).to.equal('4/1/2014, 5:34 AM');
-    expect(riFrench.formatDateTime(testDate, 'short')).to.equal('01/04/2014 05:34');
+    expect(this.instances.en.formatDateTime(testDate, 'short')).toBe('4/1/2014, 5:34 AM');
+    expect(this.instances.fr.formatDateTime(testDate, 'short')).toBe('01/04/2014 05:34');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'medium\'', function () {
-    expect(riEnglish.formatDateTime(testDate, 'medium')).to.equal('Apr 1, 2014, 5:34:43 AM');
-    expect(riFrench.formatDateTime(testDate, 'medium')).to.equal('1 avr. 2014 05:34:43');
+    expect(this.instances.en.formatDateTime(testDate, 'medium')).toBe('Apr 1, 2014, 5:34:43 AM');
+    expect(this.instances.fr.formatDateTime(testDate, 'medium')).toBe('1 avr. 2014 05:34:43');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'long\'', function () {
-    expect(riFrench.formatDateTime(testDate, 'long')).to.equal('1 avril 2014 05:34 -0400');
-    expect(riEnglish.formatDateTime(testDate, 'long')).to.equal('April 1, 2014 5:34 AM -0400');
+    expect(this.instances.fr.formatDateTime(testDate, 'long')).toBe('1 avril 2014 05:34 -0400');
+    expect(this.instances.en.formatDateTime(testDate, 'long')).toBe('April 1, 2014 5:34 AM -0400');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'full\'', function () {
-    expect(riEnglish.formatDateTime(testDate, 'full')).to.equal('Tuesday, April 1, 2014 5:34 AM -0400');
-    expect(riFrench.formatDateTime(testDate, 'full')).to.equal('mardi 1 avril 2014 05:34 -0400');
+    expect(this.instances.en.formatDateTime(testDate, 'full')).toBe('Tuesday, April 1, 2014 5:34 AM -0400');
+    expect(this.instances.fr.formatDateTime(testDate, 'full')).toBe('mardi 1 avril 2014 05:34 -0400');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'iso\'', function () {
-    expect(riEnglish.formatDateTime(testDate, 'iso')).to.equal('2014-04-01T05:34:43-0400');
-    expect(riFrench.formatDateTime(testDate, 'iso')).to.equal('2014-04-01T05:34:43-0400');
+    expect(this.instances.en.formatDateTime(testDate, 'iso')).toBe('2014-04-01T05:34:43-0400');
+    expect(this.instances.fr.formatDateTime(testDate, 'iso')).toBe('2014-04-01T05:34:43-0400');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('defaults to the medium format', function () {
-    expect(riEnglish.formatDateTime(testDate)).to.equal('Apr 1, 2014, 5:34:43 AM');
-    expect(riFrench.formatDateTime(testDate)).to.equal('1 avr. 2014 05:34:43');
+    expect(this.instances.en.formatDateTime(testDate)).toBe('Apr 1, 2014, 5:34:43 AM');
+    expect(this.instances.fr.formatDateTime(testDate)).toBe('1 avr. 2014 05:34:43');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('can render as a different timezone than the one configured', function () {
-    expect(riEnglish.formatDateTime(testDate, 'short', 'America/Chicago')).to.equal('4/1/2014, 4:34 AM');
-    expect(riFrench.formatDateTime(testDate, 'short', 'America/Chicago')).to.equal('01/04/2014 04:34');
+    expect(this.instances.en.formatDateTime(testDate, 'short', 'America/Chicago')).toBe('4/1/2014, 4:34 AM');
+    expect(this.instances.fr.formatDateTime(testDate, 'short', 'America/Chicago')).toBe('01/04/2014 04:34');
   });
 });
 
 
 describe('formatTime', function () {
-  var riEnglish, riFrench, testDate = new Date(2014, 3, 1, 9, 34, 43);
+  var testDate = new Date(2014, 3, 1, 9, 34, 43);
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    riEnglish = i18n.RexI18N({locale: 'en', timezone: 'America/New_York'});
-    riFrench = i18n.RexI18N({locale: 'fr', timezone: 'America/New_York'});
+    this.instances = buildInstances(['en', 'fr'], done);
   });
 
   afterEach(commonTeardown);
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'short\'', function () {
-    expect(riEnglish.formatTime(testDate, 'short')).to.equal('5:34 AM');
-    expect(riFrench.formatTime(testDate, 'short')).to.equal('05:34');
+    expect(this.instances.en.formatTime(testDate, 'short')).toBe('5:34 AM');
+    expect(this.instances.fr.formatTime(testDate, 'short')).toBe('05:34');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'medium\'', function () {
-    expect(riEnglish.formatTime(testDate, 'medium')).to.equal('5:34:43 AM');
-    expect(riFrench.formatTime(testDate, 'medium')).to.equal('05:34:43');
+    expect(this.instances.en.formatTime(testDate, 'medium')).toBe('5:34:43 AM');
+    expect(this.instances.fr.formatTime(testDate, 'medium')).toBe('05:34:43');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'long\'', function () {
-    expect(riEnglish.formatTime(testDate, 'long')).to.equal('5:34:43 AM -0400');
-    expect(riFrench.formatTime(testDate, 'long')).to.equal('05:34:43 -0400');
+    expect(this.instances.en.formatTime(testDate, 'long')).toBe('5:34:43 AM -0400');
+    expect(this.instances.fr.formatTime(testDate, 'long')).toBe('05:34:43 -0400');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'full\'', function () {
-    expect(riEnglish.formatTime(testDate, 'full')).to.equal('5:34:43 AM GMT-04:00');
-    expect(riFrench.formatTime(testDate, 'full')).to.equal('05:34:43 UTC-04:00');
+    expect(this.instances.en.formatTime(testDate, 'full')).toBe('5:34:43 AM GMT-04:00');
+    expect(this.instances.fr.formatTime(testDate, 'full')).toBe('05:34:43 UTC-04:00');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('has a format named \'iso\'', function () {
-    expect(riEnglish.formatTime(testDate, 'iso')).to.equal('05:34:43-0400');
-    expect(riFrench.formatTime(testDate, 'iso')).to.equal('05:34:43-0400');
+    expect(this.instances.en.formatTime(testDate, 'iso')).toBe('05:34:43-0400');
+    expect(this.instances.fr.formatTime(testDate, 'iso')).toBe('05:34:43-0400');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('defaults to the medium format', function () {
-    expect(riEnglish.formatTime(testDate)).to.equal('5:34:43 AM');
-    expect(riFrench.formatTime(testDate)).to.equal('05:34:43');
+    expect(this.instances.en.formatTime(testDate)).toBe('5:34:43 AM');
+    expect(this.instances.fr.formatTime(testDate)).toBe('05:34:43');
   });
 
   // SKIPPED: No timezone conversion support yet.
   xit('can render as a different timezone than the one configured', function () {
-    expect(riEnglish.formatTime(testDate, 'short', 'America/Chicago')).to.equal('4:34 AM');
-    expect(riFrench.formatTime(testDate, 'short', 'America/Chicago')).to.equal('04:34');
+    expect(this.instances.en.formatTime(testDate, 'short', 'America/Chicago')).toBe('4:34 AM');
+    expect(this.instances.fr.formatTime(testDate, 'short', 'America/Chicago')).toBe('04:34');
   });
 });
 
@@ -448,14 +483,13 @@ describe('formatNumber', function () {
       'fr': ['123', '1,23', '0', '123\u00A0456', '123\u00A0456,789']
     };
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    ri = {};
-    for (l = 0; l < locales.length; l += 1) {
-      ri[locales[l]] = i18n.RexI18N({locale: locales[l]});
-    }
+    ri = buildInstances(locales, done);
   });
+
+  afterEach(commonTeardown);
 
   for (l = 0; l < locales.length; l += 1) {
     for (i = 0; i < vectors.length; i += 1) {
@@ -465,7 +499,7 @@ describe('formatNumber', function () {
           locale = locales[l],
           result = results[locale][i];
         it('should format [' + vector + '] as a decimal in "' + locale + '"', function () {
-          expect(ri[locale].formatNumber(vector)).to.equal(result);
+          expect(ri[locale].formatNumber(vector)).toBe(result);
         });
       }).call(this);
     }
@@ -475,13 +509,14 @@ describe('formatNumber', function () {
     expect(ri.en.formatNumber(3.141592, {
       minimumSignificantDigits: 1,
       maximumSignificantDigits: 3
-    })).to.equal('3.14');
+    })).toBe('3.14');
 
     expect(ri.en.formatNumber(3141592, {
       useGrouping: false
-    })).to.equal('3141592');
+    })).toBe('3141592');
   });
 });
+
 
 describe('formatDecimal', function () {
   var locales = ['en', 'fr'],
@@ -494,14 +529,13 @@ describe('formatDecimal', function () {
       'fr': ['123', '1,23', '0', '123\u00A0456', '123\u00A0456,789']
     };
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    ri = {};
-    for (l = 0; l < locales.length; l += 1) {
-      ri[locales[l]] = i18n.RexI18N({locale: locales[l]});
-    }
+    ri = buildInstances(locales, done);
   });
+
+  afterEach(commonTeardown);
 
   for (l = 0; l < locales.length; l += 1) {
     for (i = 0; i < vectors.length; i += 1) {
@@ -511,7 +545,7 @@ describe('formatDecimal', function () {
           locale = locales[l],
           result = results[locale][i];
         it('should format [' + vector + '] correctly in "' + locale + '"', function () {
-          expect(ri[locale].formatDecimal(vector)).to.equal(result);
+          expect(ri[locale].formatDecimal(vector)).toBe(result);
         });
       }).call(this);
     }
@@ -530,14 +564,13 @@ describe('formatPercent', function () {
       'fr': ['12\u00A0300\u00A0%', '123\u00A0%', '0\u00A0%', '50\u00A0%', '66\u00A0%']
     };
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    ri = {};
-    for (l = 0; l < locales.length; l += 1) {
-      ri[locales[l]] = i18n.RexI18N({locale: locales[l]});
-    }
+    ri = buildInstances(locales, done);
   });
+
+  afterEach(commonTeardown);
 
   for (l = 0; l < locales.length; l += 1) {
     for (i = 0; i < vectors.length; i += 1) {
@@ -547,7 +580,7 @@ describe('formatPercent', function () {
           locale = locales[l],
           result = results[locale][i];
         it('should format [' + vector + '] correctly in "' + locale + '"', function () {
-          expect(ri[locale].formatPercent(vector)).to.equal(result);
+          expect(ri[locale].formatPercent(vector)).toBe(result);
         });
       }).call(this);
     }
@@ -567,14 +600,13 @@ xdescribe('formatScientific', function () {
       'fr': []
     };
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    ri = {};
-    for (l = 0; l < locales.length; l += 1) {
-      ri[locales[l]] = i18n.RexI18N({locale: locales[l]});
-    }
+    ri = buildInstances(locales, done);
   });
+
+  afterEach(commonTeardown);
 
   for (l = 0; l < locales.length; l += 1) {
     for (i = 0; i < vectors.length; i += 1) {
@@ -584,7 +616,7 @@ xdescribe('formatScientific', function () {
           locale = locales[l],
           result = results[locale][i];
         it('should format [' + vector + '] correctly in "' + locale + '"', function () {
-          expect(ri[locale].formatScientific(vector)).to.equal(result);
+          expect(ri[locale].formatScientific(vector)).toBe(result);
         });
       }).call(this);
     }
@@ -604,14 +636,13 @@ xdescribe('formatCurrency', function () {
       'fr': []
     };
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     commonSetup();
 
-    ri = {};
-    for (l = 0; l < locales.length; l += 1) {
-      ri[locales[l]] = i18n.RexI18N({locale: locales[l]});
-    }
+    ri = buildInstances(locales, done);
   });
+
+  afterEach(commonTeardown);
 
   for (l = 0; l < locales.length; l += 1) {
     for (i = 0; i < vectors.length; i += 1) {
@@ -621,7 +652,7 @@ xdescribe('formatCurrency', function () {
           locale = locales[l],
           result = results[locale][i];
         it('should format [' + vector + '] correctly in "' + locale + '"', function () {
-          expect(ri[locale].formatCurrency(vector)).to.equal(result);
+          expect(ri[locale].formatCurrency(vector)).toBe(result);
         });
       }).call(this);
     }
@@ -669,32 +700,32 @@ describe('globalize-based methods', function () {
     }
   ];
 
-  it('should return LazyStrings when the locale info has not finished loading', function () {
-    var riSpanish = i18n.RexI18N({locale: 'es'}),
+  it('should return LazyStrings when the locale info has not finished loading', function (done) {
+    var onLoad = function (riSpanish) {
+      for (i = 0; i < vectors.length; i += 1) {
+        expect(values[i].toString()).toBe(vectors[i].final);
+        check = riSpanish[vectors[i].func](vectors[i].input);
+        expect(check instanceof LazyString).not.toBe(true);
+        expect(check).toBe(vectors[i].final);
+      }
+
+      done();
+    };
+
+    var riSpanish = RexI18N({locale: 'es', onLoad: onLoad}),
       values = [],
       check,
       i;
 
     for (i = 0; i < vectors.length; i += 1) {
       values[i] = riSpanish[vectors[i].func](vectors[i].input);
-      expect(values[i]).to.be.instanceof(i18n.LazyString);
-      expect(values[i]).to.not.equal(vectors[i].interm);
-      expect(values[i]).to.not.equal(vectors[i].final);
-      expect(values[i].toString()).to.equal(vectors[i].interim);
+      expect(values[i] instanceof LazyString).toBe(true);
+      expect(values[i]).not.toBe(vectors[i].interm);
+      expect(values[i]).not.toBe(vectors[i].final);
+      expect(values[i].toString()).toBe(vectors[i].interim);
     }
 
-    jasmine.Ajax.requests.filter('/locale/es')[0].response({
-      'status': 200,
-      'contentType': 'application/json',
-      'responseText': JSON.stringify(MOCK_LOCALE_ES)
-    });
-
-    for (i = 0; i < vectors.length; i += 1) {
-      expect(values[i].toString()).to.equal(vectors[i].final);
-      check = riSpanish[vectors[i].func](vectors[i].input);
-      expect(check).to.not.be.instanceof(i18n.LazyString);
-      expect(check).to.equal(vectors[i].final);
-    }
+    respondToLocaleRequests('es');
   });
 });
 

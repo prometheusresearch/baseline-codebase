@@ -2,6 +2,7 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-karma');
 
   grunt.initConfig({
@@ -73,9 +74,22 @@ module.exports = function (grunt) {
             xit: false,
             beforeEach: false,
             afterEach: false,
-            spyOn: false
+            spyOn: false,
+            expect: false
           }
         }
+      }
+    },
+
+    watch: {
+      test: {
+        files: [
+          'test/**/*.js',
+          'lib/**/*.js'
+        ],
+        tasks: [
+          'karma:single'
+        ]
       }
     },
 
@@ -93,10 +107,10 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('test', 'karma:single');
-  grunt.registerTask('dev', 'karma:watch');
+  grunt.registerTask('test', ['karma:single']);
+  grunt.registerTask('dev', ['karma:single', 'watch']);
   grunt.registerTask('lint', ['jshint:project', 'jshint:source']);
-  grunt.registerTask('lint:all', 'jshint');
+  grunt.registerTask('lint:all', ['jshint']);
 
   grunt.registerTask('default', ['lint', 'test']);
 };

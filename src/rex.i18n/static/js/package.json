@@ -9,20 +9,15 @@
     "url": "https://bitbucket.org/rexdb/rex.i18n-provisional"
   },
   "main": "lib/index.js",
-  "dependencies": {
-    "jed": "^0.5.4",
-    "jstimezonedetect": "^1.0.5",
-    "globalize": "^1.0.0"
-  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "karma": "^0.12.19",
     "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1",
     "grunt-karma": "^0.8.3",
     "karma-jasmine": "^0.2.2",
     "karma-webpack": "^1.2.1",
     "karma-phantomjs-launcher": "^0.1.4",
-    "chai": "^1.9.1",
     "json-loader": "^0.5.1"
   }
 }

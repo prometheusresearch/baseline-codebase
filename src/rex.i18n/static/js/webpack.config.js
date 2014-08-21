@@ -5,7 +5,8 @@ module.exports = rexSetup.configureWebpack({
     alias: {
       'cldr': 'cldrjs',
       'cldrjs/event': 'cldrjs/dist/cldr/event',
-      'cldrjs/supplemental': 'cldrjs/dist/cldr/supplemental'
+      'cldrjs/supplemental': 'cldrjs/dist/cldr/supplemental',
+      'native-promise-only': 'native-promise-only/lib/npo.src.js'
     }
   }
 });

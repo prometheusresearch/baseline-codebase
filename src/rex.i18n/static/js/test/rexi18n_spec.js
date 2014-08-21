@@ -19,31 +19,31 @@ var MOCK_LOCALE_FR = require('json!./mocks/locale_fr.json');
 function commonSetup() {
   jasmine.Ajax.install();
 
-  jasmine.Ajax.stubRequest('/translations/en').andReturn({
+  jasmine.Ajax.stubRequest('/i18n/translations/en').andReturn({
     'status': 200,
     'contentType': 'application/json',
     'responseText': JSON.stringify(MOCK_EN)
   });
 
-  jasmine.Ajax.stubRequest('/translations/fr').andReturn({
+  jasmine.Ajax.stubRequest('/i18n/translations/fr').andReturn({
     'status': 200,
     'contentType': 'application/json',
     'responseText': JSON.stringify(MOCK_FR)
   });
 
-  jasmine.Ajax.stubRequest('/locale').andReturn({
+  jasmine.Ajax.stubRequest('/i18n/locale').andReturn({
     'status': 200,
     'contentType': 'application/json',
     'responseText': JSON.stringify(MOCK_LOCALE_COMMON)
   });
 
-  jasmine.Ajax.stubRequest('/locale/en').andReturn({
+  jasmine.Ajax.stubRequest('/i18n/locale/en').andReturn({
     'status': 200,
     'contentType': 'application/json',
     'responseText': JSON.stringify(MOCK_LOCALE_EN)
   });
 
-  jasmine.Ajax.stubRequest('/locale/fr').andReturn({
+  jasmine.Ajax.stubRequest('/i18n/locale/fr').andReturn({
     'status': 200,
     'contentType': 'application/json',
     'responseText': JSON.stringify(MOCK_LOCALE_FR)
@@ -77,8 +77,8 @@ function buildInstances(locales, done) {
 
 function respondToLocaleRequests(locale, responseOverride) {
   var urls = [
-    ['/locale/', 'locale_'],
-    ['/translations/', 'tx_']
+    ['/i18n/locale/', 'locale_'],
+    ['/i18n/translations/', 'tx_']
   ];
 
   urls.forEach(function (url) {
@@ -121,8 +121,9 @@ describe('construction', function () {
     var ri = RexI18N();
     expect(ri.config.locale).toBe('en');
     expect(ri.config.timezone).toBeTruthy();
-    expect(ri.config.translationsBaseUrl).toBe('/translations');
-    expect(ri.config.localeBaseUrl).toBe('/locale');
+    expect(ri.config.baseUrl).toBe('/i18n');
+    expect(ri.config.translationsUrl).toBe('/translations');
+    expect(ri.config.localeUrl).toBe('/locale');
     expect(ri.config.timeout).toBe(10000);
   });
 
@@ -142,31 +143,35 @@ describe('construction', function () {
     var ri;
 
     ri = RexI18N();
-    expect(jasmine.Ajax.requests.filter('/translations/en').length).toBe(1);
+    expect(jasmine.Ajax.requests.filter('/i18n/translations/en').length).toBe(1);
 
     ri = RexI18N({locale: 'fr'});
-    expect(jasmine.Ajax.requests.filter('/translations/fr').length).toBe(1);
+    expect(jasmine.Ajax.requests.filter('/i18n/translations/fr').length).toBe(1);
 
-    ri = RexI18N({translationsBaseUrl: '/somewhere'});
-    expect(jasmine.Ajax.requests.filter('/somewhere/en').length).toBe(1);
+    ri = RexI18N({translationsUrl: '/somewhere'});
+    expect(jasmine.Ajax.requests.filter('/i18n/somewhere/en').length).toBe(1);
 
-    ri = RexI18N({translationsBaseUrl: '/somewhere', locale: 'fr'});
-    expect(jasmine.Ajax.requests.filter('/somewhere/fr').length).toBe(1);
+    ri = RexI18N({translationsUrl: '/somewhere', locale: 'fr'});
+    expect(jasmine.Ajax.requests.filter('/i18n/somewhere/fr').length).toBe(1);
+
+    ri = RexI18N({baseUrl: '/foo', translationsUrl: '/somewhere', locale: 'fr'});
+    expect(jasmine.Ajax.requests.filter('/foo/somewhere/fr').length).toBe(1);
   });
 
   it('should retrieve locale config from the correct location', function () {
     var ri;
 
     ri = RexI18N({locale: 'es'});
-    expect(jasmine.Ajax.requests.filter('/locale/es').length).toBe(1);
+    expect(jasmine.Ajax.requests.filter('/i18n/locale/es').length).toBe(1);
 
-    ri = RexI18N({localeBaseUrl: '/somewhere', locale: 'zh'});
-    expect(jasmine.Ajax.requests.filter('/somewhere/zh').length).toBe(1);
+    ri = RexI18N({localeUrl: '/somewhere', locale: 'zh'});
+    expect(jasmine.Ajax.requests.filter('/i18n/somewhere/zh').length).toBe(1);
   });
 
-  it('should still work if the translations could not be retrieved', function (done) {
+  it('should still work if the translations/locale could not be retrieved', function (done) {
     var onLoad = function (ri) {
       expect(ri.gettext('hello')).toBe('hello');
+      expect(ri.formatDate(new Date(2014, 3, 1, 9, 34, 43), 'short').toString()).toBe('Tue Apr 01 2014');
       done();
     };
 
@@ -174,9 +179,10 @@ describe('construction', function () {
     respondToLocaleRequests('ar');
   });
 
-  it('should still work if the translations could not be parsed', function (done) {
+  it('should still work if the translations/locale could not be parsed', function (done) {
     var onLoad = function (ri) {
       expect(ri.gettext('hello')).toBe('hello');
+      expect(ri.formatDate(new Date(2014, 3, 1, 9, 34, 43), 'short').toString()).toBe('Tue Apr 01 2014');
       done();
     };
 

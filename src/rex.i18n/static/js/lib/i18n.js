@@ -21,9 +21,12 @@ var LazyString = require('./lazystring').LazyString;
  *      formatting.
  * @param {String} [options.timezone='UTC'] The timezone to use in date
  *      formatting. If not specified, an attempt will be made to detect it.
- * @param {String} [options.translationsBaseUrl='/translations'] The base URL
+ * @param {String} [options.baseUrl='/i18n'] The base URL that the
+ *      translationsUrl and localeUrl are appended to in order to retrieve
+ *      the relevant I18N information.
+ * @param {String} [options.translationsUrl='/translations'] The base URL
  *      to retrieve the translations to use for gettext, etc.
- * @param {String} [options.localeBaseUrl='/locale'] The base URL to retrieve
+ * @param {String} [options.localeUrl='/locale'] The base URL to retrieve
  *      the locale information needed for the date and numerical methods.
  * @param {Integer} [options.timeout=10000] The number of milliseconds to use
  *      as a timeout value when retrieving translations, etc from the server.
@@ -44,8 +47,9 @@ var RexI18N = function (options) {
     defaults = {
       locale: 'en',
       timezone: null,
-      translationsBaseUrl: '/translations',
-      localeBaseUrl: '/locale',
+      baseUrl: '/i18n',
+      translationsUrl: '/translations',
+      localeUrl: '/locale',
       timeout: 10000,
       onLoad: function () {}
     };
@@ -85,7 +89,7 @@ var RexI18N = function (options) {
 
   // Initialize Jed.
   var jedPromise = JedWrapper.retrieve(
-    this.config.translationsBaseUrl,
+    this.config.baseUrl + this.config.translationsUrl,
     this.config.locale
   ).then(
     function (jed) {
@@ -95,7 +99,7 @@ var RexI18N = function (options) {
 
   // Initialize Globalize.
   var globalizePromise = GlobalizeWrapper.retrieve(
-    this.config.localeBaseUrl,
+    this.config.baseUrl + this.config.localeUrl,
     this.config.locale
   ).then(
     function (globalize) {

@@ -133,7 +133,7 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                     widget=widget,
                     computator=InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
                     validator=MapVal(StrVal, IntVal),
-                    dependencies=dependencies,
+                    dependencies=dependencies + [sort_state_id],
                     is_writable=True)),
             ("%sSort" % field_name,
                 State(

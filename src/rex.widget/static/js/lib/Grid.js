@@ -12,6 +12,35 @@ var emptyFunction = require('./emptyFunction');
 var merge         = require('./merge');
 var mergeInto     = require('./mergeInto');
 
+function sameColumn(a, b) {
+  var k;
+
+  for (k in a) {
+    if (k === 'sorted') {
+      continue;
+    }
+    if (a.hasOwnProperty(k)) {
+      if (typeof a[k] === 'function' && typeof b[k] === 'function') {
+        continue;
+      }
+      if (!b.hasOwnProperty(k) || a[k] !== b[k]) {
+        return false;
+      }
+    }
+  }
+
+  for (k in b) {
+  //if (k === 'sorted') {
+  //  continue;
+  //}
+    if (b.hasOwnProperty(k) && !a.hasOwnProperty(k)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 var GridRow = React.createClass({
 
   render() {
@@ -53,9 +82,9 @@ var SortableGridHeaderCell = React.createClass({
       null
 
     return (
-      <div onClick={this.onClick}>
+      <div className="react-grid-HeaderCell__value" onClick={this.onClick}>
         {this.props.column.name}
-        <span>{icon}</span>
+        <span className="rex-widget-Grid__sortIcon">{icon}</span>
       </div>
     )
   },
@@ -100,6 +129,7 @@ var Grid = React.createClass({
     );
     return (
       <BaseGrid
+        columnEquality={sameColumn}
         columns={this.getColumns()}
         rows={this.getRows}
         onRows={this.onRows}

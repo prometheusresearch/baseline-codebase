@@ -45,7 +45,9 @@ var Filters = React.createClass({
               Apply
             </button>
           </div>}>
-          <this.renderFilters />
+          <div onKeyPress={this.onKeyPress}>
+            <this.renderFilters />
+          </div>
       </Panel>
     );
   },
@@ -78,6 +80,12 @@ var Filters = React.createClass({
       state[key] = props.value[key] || null;
     });
     return state;
+  },
+
+  onKeyPress(e) {
+    if (e.key === 'Enter') {
+      this.onApply();
+    }
   },
 
   onApply() {

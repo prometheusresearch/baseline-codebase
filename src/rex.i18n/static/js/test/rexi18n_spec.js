@@ -171,7 +171,7 @@ describe('construction', function () {
   it('should still work if the translations/locale could not be retrieved', function (done) {
     var onLoad = function (ri) {
       expect(ri.gettext('hello')).toBe('hello');
-      expect(ri.formatDate(new Date(2014, 3, 1, 9, 34, 43), 'short').toString()).toBe('Tue Apr 01 2014');
+      expect(ri.formatDate(new Date(2014, 3, 1, 9, 34, 43), 'short').toString()).toBe('04/01/2014');
       done();
     };
 
@@ -182,7 +182,7 @@ describe('construction', function () {
   it('should still work if the translations/locale could not be parsed', function (done) {
     var onLoad = function (ri) {
       expect(ri.gettext('hello')).toBe('hello');
-      expect(ri.formatDate(new Date(2014, 3, 1, 9, 34, 43), 'short').toString()).toBe('Tue Apr 01 2014');
+      expect(ri.formatDate(new Date(2014, 3, 1, 9, 34, 43), 'short').toString()).toBe('04/01/2014');
       done();
     };
 
@@ -671,19 +671,19 @@ describe('globalize-based methods', function () {
     {
       func: 'formatDate',
       input: new Date(2014, 3, 1, 9, 34, 43),
-      interim: 'Tue Apr 01 2014',
+      interim: '04/01/2014',
       final: '1/4/2014'
     },
     {
       func: 'formatDateTime',
       input: new Date(2014, 3, 1, 9, 34, 43),
-      interim: 'Tue Apr 01 2014 09:34:43 GMT-0400 (EDT)',
+      interim: 'Tue Apr  1 09:34:43 2014',
       final: '1/4/2014 9:34:43'
     },
     {
       func: 'formatTime',
       input: new Date(2014, 3, 1, 9, 34, 43),
-      interim: '09:34:43 GMT-0400 (EDT)',
+      interim: '09:34:43',
       final: '9:34:43'
     },
     {

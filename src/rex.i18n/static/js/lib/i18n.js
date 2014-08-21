@@ -229,10 +229,21 @@ RexI18N.prototype._internalDateFormatter = function (
       if (!self.globalize) {
         switch (formatClass) {
           case 'date':
+            if (date.toLocaleDateString) {
+              return date.toLocaleDateString();
+            }
             return date.toDateString();
+
           case 'time':
+            if (date.toLocaleTimeString) {
+              return date.toLocaleTimeString();
+            }
             return date.toTimeString();
+
           default:
+            if (date.toLocaleString) {
+              return date.toLocaleString();
+            }
             return date.toString();
         }   
       }
@@ -328,6 +339,9 @@ RexI18N.prototype.formatNumber = function (number, format) {
     var self = this;
     return new LazyString(function () {
       if (!self.globalize) {
+        if (number.toLocaleString) {
+          return number.toLocaleString();
+        }
         return number.toString();
       }
       return self.globalize.formatNumber(number, format);

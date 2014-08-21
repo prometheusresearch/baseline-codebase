@@ -395,13 +395,15 @@ html, body, #__main__ {
 
   .react-grid-Cell {
     padding: @padding;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     border-left: 1px dotted @colorHoverHighlight;
     &:last-child {
       border-right: 1px dotted @colorHoverHighlight;
     }
   }
+}
+
+.rex-widget-Grid__sortIcon {
+  padding: @padding;
 }
 
 .rex-widget-GridRow {
@@ -414,7 +416,9 @@ html, body, #__main__ {
 }
 
 .rex-widget-GridRow--selected {
-  background-color: @colorSelectedHighlight;
+  .react-grid-Cell {
+    background-color: @colorSelectedHighlight;
+  }
 }
 
 .rex-widget-Button {

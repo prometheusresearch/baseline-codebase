@@ -175,6 +175,13 @@ html, body, #__main__ {
   .rex-widget-Panel__children,
   .rex-widget-Panel__footer {
     display: inline-block;
+    margin: 0;
+  }
+  .rex-widget-Panel__footer {
+    margin-left: @paddingL;
+  }
+  .rex-widget-Panel__headerToolbar {
+    position: static;
   }
 }
 
@@ -187,6 +194,10 @@ html, body, #__main__ {
   .btn-link();
 }
 
+.rex-widget-Filters__clearButtonText {
+  margin-left: @padding;
+}
+
 .rex-widget-Filters__applyButton {
   .btn();
   .btn-xs();
@@ -194,6 +205,9 @@ html, body, #__main__ {
 }
 
 .rex-widget-Filters--inline {
+  .rex-widget-Filters__clearButtonText {
+    display: none;
+  }
 }
 
 /**
@@ -243,6 +257,7 @@ html, body, #__main__ {
 
 .rex-widget-Filter--inline {
   display: inline-block;
+  margin-bottom: 0;
   margin-left: @paddingL;
   .rex-widget-Filter__title {
     display: none;

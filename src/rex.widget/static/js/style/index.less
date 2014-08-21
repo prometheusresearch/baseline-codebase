@@ -178,7 +178,7 @@ html, body, #__main__ {
     margin: 0;
   }
   .rex-widget-Panel__footer {
-    margin-left: @paddingL;
+    margin-left: @paddingS;
   }
   .rex-widget-Panel__headerToolbar {
     position: static;
@@ -195,7 +195,7 @@ html, body, #__main__ {
 }
 
 .rex-widget-Filters__clearButtonText {
-  margin-left: @padding;
+  margin-left: @paddingS;
 }
 
 .rex-widget-Filters__applyButton {
@@ -261,6 +261,9 @@ html, body, #__main__ {
   margin-left: @paddingL;
   .rex-widget-Filter__title {
     display: none;
+  }
+  &:first-child {
+    margin-left: 0;
   }
 }
 

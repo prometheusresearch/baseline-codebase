@@ -32,19 +32,28 @@ var Filters = React.createClass({
         inline={this.props.inline}
         className={className}
         title={this.props.title}
-        headerToolbar={this.props.showClearButton &&
+        headerToolbar={this.props.showClearButton && !this.props.inline &&
           <button
             onClick={this.onClear}
             className="rex-widget-Filters__clearButton">
             <i className="glyphicon glyphicon-remove" />
             <span className="rex-widget-Filters__clearButtonText">Clear filters</span>
           </button>}
-        footerToolbar={this.props.showApplyButton &&
-          <div className="rex-widget-Filters__footer">
-            <button className="rex-widget-Filters__applyButton" onClick={this.onApply}>
-              Apply
+        footerToolbar={[
+          this.props.showApplyButton &&
+            <div className="rex-widget-Filters__footer">
+              <button className="rex-widget-Filters__applyButton" onClick={this.onApply}>
+                Apply
+              </button>
+            </div>,
+          this.props.showClearButton && this.props.inline &&
+            <button
+              onClick={this.onClear}
+              className="rex-widget-Filters__clearButton">
+              <i className="glyphicon glyphicon-remove" />
+              <span className="rex-widget-Filters__clearButtonText">Clear filters</span>
             </button>
-          </div>}>
+          ]}>
           <div onKeyPress={this.props.showApplyButton && this.onKeyPress}>
             <this.renderFilters />
           </div>

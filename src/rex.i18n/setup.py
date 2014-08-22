@@ -43,9 +43,6 @@ setup(
             'http://unicode.org/Public/cldr/25/json.zip'
             '#md5=b9c226b76393abe0715f0f6c1063d736',
         ],
-        './www/rex-i18n': [
-            'webpack:rex-i18n',
-        ],
     },
 )
 

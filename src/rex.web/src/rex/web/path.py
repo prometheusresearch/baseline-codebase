@@ -30,6 +30,10 @@ class PathMask(object):
           or ``/{label:pattern}`` is also accepted.
 
         Path ``'*'`` is interpreted as ``'/**'``.
+
+    `guard`
+        A predicate function which allows you to enforce arbitrary conditions
+        on the path.
     """
 
     @staticmethod
@@ -78,8 +82,9 @@ class PathMask(object):
 
         return labels, patterns
 
-    def __init__(self, text):
+    def __init__(self, text, guard=None):
         self.text = text
+        self.guard = guard
         self.labels, self.patterns = self.split(text)
 
     def __call__(self, path):
@@ -113,10 +118,17 @@ class PathMask(object):
         return assignments
 
     def __str__(self):
-        return self.text
+        if self.guard is None:
+            return self.text
+        else:
+            return "%s | %s" % (self.text, self.guard)
 
     def __repr__(self):
-        return "%s(%r)" % (self.__class__.__name__, self.text)
+        if self.guard is None:
+            return "%s(%r)" % (self.__class__.__name__, self.text)
+        else:
+            return "%s(%r, %r)" % (self.__class__.__name__,
+                                   self.text, self.guard)
 
 
 class PathMap(object):
@@ -125,7 +137,13 @@ class PathMap(object):
     """
 
     def __init__(self):
+        # Maps patterns to targets; has the structure:
+        #   <pattern> | STAR | DOUBLE_STAR -> <subtree>
+        #   None -> [(<guard>, <target>)]
         self.tree = {}
+
+    def __nonzero__(self):
+        return bool(self.tree)
 
     def add(self, mask, target):
         """
@@ -136,10 +154,27 @@ class PathMap(object):
         tree = self.tree
         for pattern in mask.patterns:
             tree = tree.setdefault(pattern, {})
-        if None in tree:
-            raise ValueError("multiple targets %r and %r for path mask: %s"
-                             % (tree[None], target, mask))
-        tree[None] = target
+        guards = tree.setdefault(None, [])
+        for guard, guard_target in guards:
+            if mask.guard == guard:
+                raise ValueError("multiple targets %r and %r for path mask: %s"
+                                 % (guard_target, target, mask))
+        guards.append((mask.guard, target))
+
+    def update(self, other):
+        """
+        Merges another collection of URL patterns.
+        """
+        todo = [(self.tree, other.tree)]
+        while todo:
+            tree, other_tree = todo.pop()
+            for key in other_tree:
+                if key not in tree:
+                    tree[key] = other_tree[key]
+                elif key is None:
+                    tree[key] = other_tree[key]+tree[key]
+                else:
+                    todo.append((tree[key], other_tree[key]))
 
     def get(self, path, default=None):
         """
@@ -149,13 +184,18 @@ class PathMap(object):
         Also accepts a :class:`PathMask` instance; in which case, returns the
         target defined for the mask.
         """
+        # If `PathMask` is given, find its target.
         if isinstance(path, PathMask):
             subtree = self.tree
             for pattern in path.patterns:
                 if pattern not in subtree:
                     return default
                 subtree = subtree[pattern]
-            return subtree.get(None, default)
+            for guard, target in subtree.get(None, []):
+                if path.guard == guard:
+                    return target
+            return default
+        # Otherwise, match the path against the pattern tree.
         if path and not path.startswith('/'):
             raise ValueError("path must start with /: %r" % path)
         segments = path.split('/')[1:]
@@ -165,15 +205,16 @@ class PathMap(object):
             for tree in subtrees:
                 if segment in tree:
                     new_subtrees.append(tree[segment])
-                if STAR in tree:
+                if STAR in tree and len(segment) > 0:
                     new_subtrees.append(tree[STAR])
                 if DOUBLE_STAR in tree:
                     new_subtrees.append(tree[DOUBLE_STAR])
                     new_subtrees.append({DOUBLE_STAR: tree[DOUBLE_STAR]})
             subtrees = new_subtrees
-        for tree in subtrees:
-            if None in tree:
-                return tree[None]
+        for subtree in subtrees:
+            for guard, target in subtree.get(None, []):
+                if guard is None or guard(path):
+                    return target
         return default
 
     def __getitem__(self, path):
@@ -191,7 +232,6 @@ class PathMap(object):
         Checks if the path matches any mask in the collection.
         """
         return self.get(path, MISSING) is not MISSING
-
 
     def completes(self, path):
         """

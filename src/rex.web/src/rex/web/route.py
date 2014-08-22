@@ -4,9 +4,10 @@
 
 
 from rex.core import (Setting, Extension, WSGI, get_packages, get_settings,
-        MapVal, OMapVal, ChoiceVal, StrVal, Error, cached)
+        MapVal, OMapVal, ChoiceVal, StrVal, Error, cached, autoreload)
 from .handle import HandleFile, HandleLocation, HandleError
 from .auth import authenticate, authorize
+from .path import PathMap, PathMask
 from .secret import encrypt, decrypt, sign, validate, a2b, b2a
 from webob import Request, Response
 from webob.exc import (WSGIHTTPException, HTTPNotFound, HTTPUnauthorized,
@@ -189,22 +190,54 @@ class SegmentMapper(object):
         return self.fallback(req)
 
 
-class PackageGate(object):
-    # Adds `rex.package` to the request environment.
+class RoutingTable(object):
+    # Adds `rex.package` to the request environment and dispatches
+    # the request to the command or some other handler.
 
-    def __init__(self, name, fallback=None):
-        # Package name.
-        self.name = name
+    def __init__(self, package, fallback=None):
+        # The package.
+        self.package = package
         # The next handler.
         self.fallback = fallback or not_found
 
     def __call__(self, req):
-        # Add `rex.package` to the request environment
-        # without mangling the original request object.
-        req = req.copy()
-        req.environ['rex.package'] = self.name
-        # Delegate the request.
+        handle_map = get_routes(self.package)
+        handle = handle_map.get(req.path_info)
+        if handle is not None:
+            # Add `rex.package` to the request environment
+            # without mangling the original request object.
+            req = req.copy()
+            req.environ['rex.package'] = self.package.name
+            return handle(req)
+        # Redirect to `<path>/` if there is a handler.
+        if handle_map.completes(req.path_info):
+            raise HTTPMovedPermanently(add_slash=True)
+        # Delegate the request to the fallback.
         return self.fallback(req)
+
+
+class StaticGuard(object):
+    # Verifies if the path can be handled by `StaticServer`.
+
+    def __init__(self, package):
+        self.package = package
+
+    def __call__(self, path):
+        # Normalize the URL.
+        if path.endswith('/'):
+            path += StaticServer.index_file
+        path = os.path.normpath(path)
+
+        # Immediately reject anything starting with `.` or `_`.
+        if any(segment.startswith('.') or segment.startswith('_')
+               for segment in path.split('/')):
+            return False
+
+        # Convert the URL into the filesystem path.
+        local_path = StaticServer.www_root + path
+        real_path = self.package.abspath(local_path)
+
+        return os.path.isfile(real_path)
 
 
 class StaticServer(object):
@@ -219,108 +252,91 @@ class StaticServer(object):
     # Directory published on HTTP.
     www_root = '/www'
 
-    def __init__(self, package, file_handler_map, fallback=None):
+    def __init__(self, package, file_handler_map):
         self.package = package
         # Maps file extensions to handler types.
         self.file_handler_map = file_handler_map
-        # Handler to call when no file is found.
-        self.fallback = fallback or not_found
 
     def __call__(self, req):
         # Normalize the URL.
         url = req.path_info
+        if url.endswith('/'):
+            url += self.index_file
         url = os.path.normpath(url)
 
-        # Immediately reject anything starting with `.` or `_`.
-        for segment in url.split('/'):
-            if segment.startswith('.') or segment.startswith('_'):
-                return self.fallback(req)
+        # Path containing `/.` or `/_` should have been rejected by the guard.
+        assert not any(segment.startswith('.') or segment.startswith('_')
+                       for segment in url.split('/'))
 
         # Convert the URL into the filesystem path.
         local_path = self.www_root + url
         real_path = self.package.abspath(local_path)
+        assert os.path.isfile(real_path)
 
-        # If the URL refers to a directory without trailing `/`,
-        # redirect to url+'/'.
-        if os.path.isdir(real_path) and not req.path_url.endswith('/'):
-            raise HTTPMovedPermanently(add_slash=True)
-
-        # Otherwise, we will serve `index_file`.
-        if os.path.isdir(real_path) and \
-                os.path.isfile(os.path.join(real_path, self.index_file)):
-            url = os.path.join(url, self.index_file)
-            local_path = os.path.join(local_path, self.index_file)
-            real_path = os.path.join(real_path, self.index_file)
-
-        # We found the file to serve.
-        if os.path.isfile(real_path):
-            # Detemine and check access permissions for the requested URL.
-            access = None
-            access_path = self.www_root + self.access_file
-            if self.package.exists(access_path):
-                access_map = self.access_val.parse(
-                        self.package.open(access_path))
-                for pattern in access_map:
-                    if fnmatch.fnmatchcase(url, pattern):
-                        access = access_map[pattern]
-                        break
-            if access is None:
-                access = self.package
-            if not authorize(req, access):
-                raise HTTPUnauthorized()
-            # Find and execute the handler by file extension.
-            ext = os.path.splitext(real_path)[1]
-            if ext in self.file_handler_map:
-                package_path = "%s:%s" % (self.package.name, local_path)
-                handler = self.file_handler_map[ext](package_path)
-                return handler(req)
+        # Detemine and check access permissions for the requested URL.
+        access = None
+        access_path = self.www_root + self.access_file
+        if self.package.exists(access_path):
+            access_map = self.access_val.parse(
+                    self.package.open(access_path))
+            for pattern in access_map:
+                if fnmatch.fnmatchcase(url, pattern):
+                    access = access_map[pattern]
+                    break
+        if access is None:
+            access = self.package
+        if not authorize(req, access):
+            raise HTTPUnauthorized()
+        # Find and execute the handler by file extension.
+        ext = os.path.splitext(real_path)[1]
+        if ext in self.file_handler_map:
+            package_path = "%s:%s" % (self.package.name, local_path)
+            handler = self.file_handler_map[ext](package_path)
+            return handler(req)
+        else:
+            if req.method not in ('GET', 'HEAD'):
+                raise HTTPMethodNotAllowed()
+            stream = open(real_path, 'rb')
+            if 'wsgi.file_wrapper' in req.environ:
+                app_iter = req.environ['wsgi.file_wrapper'] \
+                        (stream, BLOCK_SIZE)
             else:
-                if req.method not in ('GET', 'HEAD'):
-                    raise HTTPMethodNotAllowed()
-                stream = open(real_path, 'rb')
-                if 'wsgi.file_wrapper' in req.environ:
-                    app_iter = req.environ['wsgi.file_wrapper'] \
-                            (stream, BLOCK_SIZE)
-                else:
-                    app_iter = FileIter(stream)
-                content_type, content_encoding = \
-                        mimetypes.guess_type(real_path)
-                stat = os.fstat(stream.fileno())
-                return Response(
-                        app_iter=app_iter,
-                        content_type=content_type,
-                        content_encoding=content_encoding,
-                        last_modified=stat.st_mtime,
-                        content_length=stat.st_size,
-                        accept_ranges='bytes',
-                        cache_control='private',
-                        conditional_response=True)
+                app_iter = FileIter(stream)
+            content_type, content_encoding = \
+                    mimetypes.guess_type(real_path)
+            stat = os.fstat(stream.fileno())
+            return Response(
+                    app_iter=app_iter,
+                    content_type=content_type,
+                    content_encoding=content_encoding,
+                    last_modified=stat.st_mtime,
+                    content_length=stat.st_size,
+                    accept_ranges='bytes',
+                    cache_control='private',
+                    conditional_response=True)
 
         # If file not found, delegate to the fallback or return 404.
         return self.fallback(req)
 
 
 class CommandDispatcher(object):
-    # Routes the request to `HandleLocation` implementations.
+    # Routes the request to a `HandleLocation` implementation.
 
-    def __init__(self, location_handler_map, fallback=None):
-        # Maps URLs to handler types.
-        self.location_handler_map = location_handler_map
-        # Default handler.
-        self.fallback = fallback or not_found
+    def __init__(self, handler_type):
+        self.handler_type = handler_type
 
     def __call__(self, req):
-        handler = self.location_handler_map.get(req.path_info)
-        if handler:
-            return handler()(req)
-        if self.location_handler_map.completes(req.path_info):
-            raise HTTPMovedPermanently(add_slash=True)
-        return self.fallback(req)
+        handler = self.handler_type()
+        return handler(req)
 
 
 class Route(Extension):
     """
-    Interface for adding a component to the package routing pipeline.
+    Interface for generating package routing table.
+
+    `open`
+        A wrapper over ``open()`` function to be used for opening
+        source files.
     """
 
     #: The relative position of the component (lower is earlier).
@@ -346,48 +362,44 @@ class Route(Extension):
         assert len(priorities) == len(extensions)
         return sorted(extensions, key=(lambda e: e.priority))
 
-    def __call__(self, package, fallback):
+    def __init__(self, open=open):
+        self.open = open
+
+    def __call__(self, package):
         """
-        Generates a routing component for the given package.
+        Generates a routing table for the given package.
 
         Implementations must override this method.
         """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
 
 
-class RoutePackage(Route):
-    # Sets `rex.package`.
-
-    priority = 0
-
-    def __call__(self, package, fallback):
-        if fallback is not None:
-            return PackageGate(package.name, fallback)
-        return fallback
-
-
 class RouteFiles(Route):
-    # Serves files from `static/www` directory.
+    # Adds a handler for serving files from `static/www` directory.
 
     priority = 10
 
-    def __call__(self, package, fallback):
+    def __call__(self, package):
+        path_map = PathMap()
         if package.exists(StaticServer.www_root):
             file_handler_map = HandleFile.map_all()
-            return StaticServer(package, file_handler_map, fallback)
-        return fallback
+            server = StaticServer(package, file_handler_map)
+            guard = StaticGuard(package)
+            mask = PathMask('/**', guard)
+            path_map.add(mask, server)
+        return path_map
 
 
 class RouteCommands(Route):
-    # Routes to `HandleLocation` and `Command` handlers.
+    # Adds `HandleLocation` and `Command` handlers.
 
     priority = 20
 
-    def __call__(self, package, fallback):
-        location_handler_map = HandleLocation.map_by_package(package.name)
-        if location_handler_map:
-            return CommandDispatcher(location_handler_map, fallback)
-        return fallback
+    def __call__(self, package):
+        path_map = PathMap()
+        for extension in HandleLocation.by_package(package.name):
+            path_map.add(extension.path, CommandDispatcher(extension))
+        return path_map
 
 
 class StandardWSGI(WSGI):
@@ -400,8 +412,6 @@ class StandardWSGI(WSGI):
         mount = get_settings().mount
 
         # Generators for package routing pipeline.
-        planners = [route_type() for route_type in Route.ordered()]
-        planners.reverse()
 
         # Prepare routing map for `SegmentMapper`.
         packages = get_packages()
@@ -414,9 +424,9 @@ class StandardWSGI(WSGI):
                 route = route_map.get(segment)
             else:
                 route = default
-            # Generate routing pipeline for the package.
-            for planner in planners:
-                route = planner(package, route)
+            # Generate routing map for the package.
+            if get_routes(package):
+                route = RoutingTable(package, route)
             # Add to the routing table.
             if route is not None:
                 if segment:
@@ -483,5 +493,36 @@ def url_for(req, package_url):
             raise Error("Could not find the mount point for:", package_url)
         url = prefix+local_url
     return url
+
+
+@autoreload
+def get_routes(package, open=open):
+    """
+    Returns the routing table for the given package.
+    """
+    handle_map = PathMap()
+    for route_type in reversed(Route.ordered()):
+        route = route_type(open)
+        handle_map.update(route(package))
+    return handle_map
+
+
+def route(package_url):
+    """
+    Finds the handler for the given package URL.
+
+    Returns ``None`` if no handler is found.
+
+    `package_url`
+        URL in ``'package:/path/to/resource'`` format.
+    """
+    if ':' not in package_url:
+        return None
+    package_name, local_url = package_url.split(':', 1)
+    packages = get_packages()
+    if package_name not in packages:
+        return None
+    routes = get_routes(packages[package_name])
+    return routes.get(local_url)
 
 

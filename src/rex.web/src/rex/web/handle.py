@@ -26,17 +26,6 @@ class HandleLocation(Extension):
                 cls.path = PathMask(cls.path)
 
     @classmethod
-    @cached
-    def map_by_package(cls, name):
-        """
-        Returns a dictionary mapping URL fragments to handler types.
-        """
-        mapping = PathMap()
-        for extension in cls.by_package(name):
-            mapping.add(extension.path, extension)
-        return mapping
-
-    @classmethod
     def enabled(cls):
         return (cls.path is not None)
 

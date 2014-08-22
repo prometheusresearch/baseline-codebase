@@ -31,6 +31,8 @@ Routing and handlers
    :special-members: __call__
 .. autofunction:: rex.web.not_found
 .. autofunction:: url_for
+.. autofunction:: get_routes
+.. autofunction:: route
 
 
 Commands

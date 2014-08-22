@@ -471,19 +471,19 @@ If the URL refers to a directory, file ``index.html`` is served, if it exists::
     404 Not Found
     ...
 
-If the URL that refers to a directory does not end with a trailing slash,
-the slash is added using a redirect::
+If the URL that refers to a directory does not end with a trailing slash, the
+slash is added using a redirect, but only if the directory contains
+``index.html``::
 
-    >>> req = Request.blank('/index')
+    >>> req = Request.blank('/index?name=Alice')
     >>> print req.get_response(static)      # doctest: +ELLIPSIS
     301 Moved Permanently
-    Location: http://localhost/index/
+    Location: http://localhost/index/?name=Alice
     ...
 
     >>> req = Request.blank('/noindex?name=Alice')
     >>> print req.get_response(static)      # doctest: +ELLIPSIS
-    301 Moved Permanently
-    Location: http://localhost/noindex/?name=Alice
+    404 Not Found
     ...
 
 Files and directories that start with ``_`` or ``.`` are effectively hidden::

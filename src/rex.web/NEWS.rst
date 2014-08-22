@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.0.0 (2014-XX-XX)
+==================
+
+* Refactoring ``Route`` interface.
+
+
 2.2.3 (2014-07-18)
 ==================
 

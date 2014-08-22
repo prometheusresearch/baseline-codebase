@@ -1,8 +1,12 @@
 'use strict';
 
-var path       = require('path');
-var webpack    = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path                 = require('path');
+var webpack              = require('webpack');
+var ExtractTextPlugin    = require('extract-text-webpack-plugin');
+var IntrospectablePlugin = require('rex-setup/introspection/plugin');
+
+var DEV           = !!process.env.REX_SETUP_DEV;
+var BUNDLE_PREFIX = process.env.REX_SETUP_BUNDLE_PREFIX || '/bundle/';
 
 var global_modules = path.join(
   process.env.NPM_CONFIG_PREFIX,
@@ -21,11 +25,7 @@ function configureWebpack(config) {
   unshift(config, 'module.loaders', [
     {
       test: /\.js$/,
-      loader: 'jsx-loader?harmony=true',
-      exclude: [
-        /react\/react\.js$/,
-        /react\/react-with-addons\.js$/
-      ]
+      loader: 'jsx-loader?harmony=true'
     },
     { test: /\.less$/,
       loaders: [
@@ -48,15 +48,9 @@ function configureWebpack(config) {
 		{ test: /\.svg$/, loader: 'file-loader?prefix=font/' },
 		{ test: /\.woff$/, loader: 'url-loader?prefix=font/&limit=5000' }
   ]);
-  unshift(config, 'module.noParse', [
-    /react\/react\.js$/,
-    /react\/react-with-addons\.js$/
-  ]);
 
   unshift(config, 'resolveLoader.root', process.env.NODE_PATH);
 
-  set(config, 'resolve.alias.react/addons', global('react/react-with-addons.js'));
-  set(config, 'resolve.alias.react', global('react/react-with-addons.js'));
   unshift(config, 'resolve.root', global_modules);
   set(config, 'resolve.modulesDirectories', []);
   unshift(config, 'resolve.extensions', ['', '.js']);
@@ -66,8 +60,20 @@ function configureWebpack(config) {
     new webpack.ResolverPlugin([
       new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin(
         'bower.json', ['main'])
-    ], ['normal'])
+    ], ['normal']),
+    new webpack.DefinePlugin({
+      // used to guard code to run only in development
+      __DEV__: DEV,
+      // bundle prefix
+      __BUNDLE_PREFIX__: JSON.stringify(BUNDLE_PREFIX),
+      // defined as a fallback, should be defined at runtime
+      __MOUNT_PREFIX__: '(typeof __MOUNT_PREFIX__ === "undefined" ? "" : __MOUNT_PREFIX__)',
+      // React relies on that
+      'process.env': {NODE_ENV: JSON.stringify(DEV ? 'development' : 'production')}
+    }),
+    new IntrospectablePlugin(),
   ]);
+
   return config;
 }
 

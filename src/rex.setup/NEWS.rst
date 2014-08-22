@@ -4,6 +4,21 @@
 
 .. contents:: Table of Contents
 
+1.2.0 (to be released)
+======================
+
+* Bundle minification for production deployments (with external source maps).
+
+* Support for running code only while in development::
+
+    if (__DEV__) {
+      // debug messages, assertions, validations, ...
+    }
+
+* Better support for bundles mounted under prefix.
+
+* Experimental bundle introspection feature (used by Rex Widget).
+
 
 1.1.2 (2014-07-08)
 ==================

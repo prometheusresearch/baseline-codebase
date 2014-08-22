@@ -84,17 +84,19 @@ def setup_commonjs():
             os.chmod(path, stat.S_IMODE(mode|0o111))
 
 
-def exe(cmd, args, cwd=None, daemon=False):
+def exe(cmd, args, cwd=None, daemon=False, env=None):
     # Executes the command; returns the output or, if `daemon` is set,
     # the process object.
     setup_commonjs()
     args = [cmd] + args
-    env = {}
-    env.update(os.environ)
-    env.update(get_commonjs_environment())
+    _env = {}
+    _env.update(os.environ)
+    _env.update(get_commonjs_environment())
+    if env:
+        _env.update(env)
     distutils.log.info("executing %s" % " ".join(args))
     proc = subprocess.Popen(args,
-            env=env, cwd=cwd,
+            env=_env, cwd=cwd,
             stdout=subprocess.PIPE if not daemon else None)
     if daemon:
         return proc
@@ -107,21 +109,21 @@ def exe(cmd, args, cwd=None, daemon=False):
     return out
 
 
-def node(args, cwd=None, daemon=False):
+def node(args, cwd=None, daemon=False, env=None):
     # Executes `node args...`.
-    return exe('node', args, cwd=cwd, daemon=daemon)
+    return exe('node', args, cwd=cwd, daemon=daemon, env=env)
 
 
-def npm(args, cwd=None):
+def npm(args, cwd=None, env=None):
     # Executes `npm args...`.
     args = ['--quiet', '--color', 'false'] + args
-    return exe('npm', args, cwd=cwd)
+    return exe('npm', args, cwd=cwd, env=env)
 
 
-def bower(args, cwd=None):
+def bower(args, cwd=None, env=None):
     # Executes `bower args...`.
     args = [find_executable('bower'), '--config.interactive=false'] + args
-    return node(args, cwd)
+    return node(args, cwd, env=env)
 
 
 def install_bower_components(req):

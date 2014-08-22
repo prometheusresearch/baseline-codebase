@@ -43,17 +43,21 @@ def webpack(module, target):
     return commonjs.node([
         commonjs.find_executable('webpack'),
         '--bail',
+        '--optimize-minimize',
+        '--devtool', 'source-map',
         '--output-path', target
     ] + webpack_config(module))
 
 
 def webpack_watch(module, target):
+    env = {'REX_SETUP_DEV': '1'}
     return commonjs.node([
         commonjs.find_executable('webpack'),
         '--devtool', 'eval',
         '--output-path', target,
+        '--hide-modules',
         '--watch'
-    ] + webpack_config(module), daemon=True)
+    ] + webpack_config(module), daemon=True, env=env)
 
 
 class GenerateWebpack(Generate):

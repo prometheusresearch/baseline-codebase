@@ -55,13 +55,22 @@ var RexI18N = function (options) {
     };
 
   /**
-   * The configuration used for instance of the localization class.
+   * The configuration used for this instance of the localization class.
    *
    * @class RexI18N
    * @property config
    * @type Object
    */
   this.config = deepmerge(defaults, options || {});
+
+  /**
+   * Indicates whether or not this instance has completed loading its data.
+   *
+   * @class RexI18N
+   * @property isLoaded
+   * @type Boolean
+   */
+  this.isLoaded = false;
 
   // Initialize the config.
   if (!this.config.timezone) {
@@ -112,9 +121,11 @@ var RexI18N = function (options) {
     globalizePromise
   ]).then(
     function () {
+      self.isLoaded = true;
       self.config.onLoad(self);
     },
     function (error) {
+      self.isLoaded = true;
       self.config.onLoad(self, error);
     }
   );

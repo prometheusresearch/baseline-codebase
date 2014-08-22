@@ -189,6 +189,18 @@ describe('construction', function () {
     var ri = RexI18N({locale: 'pl', onLoad: onLoad});
     respondToLocaleRequests('pl', 'asdads[sa]asd[asd[as]');
   });
+
+  it('should update the isLoaded property appropriately', function (done) {
+    var onLoad = function (ri) {
+      expect(ri.isLoaded).toBe(true);
+      done();
+    };
+
+    var ri = RexI18N({locale: 'es', onLoad: onLoad});
+    expect(ri.isLoaded).toBe(false);
+
+    respondToLocaleRequests('es');
+  });
 });
 
 

@@ -3,11 +3,8 @@
 #
 
 
-import os.path
-
 from babel import Locale
 from babel.support import Translations, NullTranslations
-from polib import pofile
 from speaklater import make_lazy_string
 
 from rex.core import get_rex, get_settings, get_packages, cached
@@ -181,29 +178,33 @@ def get_json_translations(locale, domain):
         }
     }
 
-    po_sources = None
-    for mo_file in translations.files:
-        po_file = '%s.po' % os.path.splitext(mo_file)[0]
+    for key, val in translations._catalog.items():
+        if not key:
+            # We don't want to kill our '' key.
+            continue
 
-        if po_sources:
-            po_sources.merge(pofile(po_file))
+        if isinstance(key, tuple):
+            # This is a pluralized string
+            key, idx = key
+            values = contents.get(key, [None])
+            if len(values) <= (idx + 1):
+                # The array isn't big enough for the index we're working with;
+                # extend it.
+                values.extend([None] * ((idx + 2) - len(values)))
+
+            values[idx + 1] = val
+            val = values
         else:
-            po_sources = pofile(po_file)
+            if key == val:
+                val = ''
+            val = [None, val]
 
-    if po_sources:
-        for entry in po_sources:
-            if entry.msgid_plural:
-                contents[entry.msgid] = [
-                    entry.msgid_plural
-                ]
-                for index in sorted(entry.msgstr_plural):
-                    contents[entry.msgid].append(entry.msgstr_plural[index])
-            else:
-                contents[entry.msgid] = [None, entry.msgstr]
+        contents[key] = val
 
-        plural_forms = po_sources.metadata.get('Plural-Forms')
-        if plural_forms:
-            contents['']['plural_forms'] = plural_forms
+    # Update the plural forms expression if we have one.
+    plural_forms = translations._info.get('plural-forms', None)
+    if plural_forms:
+        contents['']['plural_forms'] = plural_forms
 
     return {domain: contents}
 

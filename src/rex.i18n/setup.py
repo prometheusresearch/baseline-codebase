@@ -33,7 +33,6 @@ setup(
         'rex.web>=2,<3',
         'babel>=1,<2',
         'speaklater>=1.3,<2',
-        'polib>=1.0.4,<2',
         'pytz>=0a',
     ],
     rex_init='rex.i18n',

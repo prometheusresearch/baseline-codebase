@@ -67,7 +67,7 @@ This function will return a JSON-encoded version of a Translations object
 suitable for use by client-side JavaScript libraries::
 
     >>> get_json_translations('fr', 'backend')
-    {'backend': {'': {'lang': 'fr', 'domain': 'backend', 'plural_forms': u'nplurals=2; plural=(n > 1)'}, u'apple': [None, u'pomme'], u'%(num)s banana': [u'%(num)s bananas', u'%(num)s banane', u'%(num)s bananes']}}
+    {'backend': {'': {'lang': 'fr', 'domain': 'backend', 'plural_forms': 'nplurals=2; plural=(n > 1)'}, u'apple': [None, u'pomme'], u'%(num)s banana': [None, u'%(num)s banane', u'%(num)s bananes']}}
 
 
 gettext

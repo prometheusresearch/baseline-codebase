@@ -89,6 +89,7 @@ tests:
       ./share/rex/rex.setup_demo/www/bundle:
       bundle.css
       bundle.js
+      bundle.js.map
       font
 
       ./share/rex/rex.setup_demo/www/bundle/font:
@@ -171,6 +172,7 @@ tests:
       ./share/rex/rex.setup_demo/www/bundle:
       bundle.css
       bundle.js
+      bundle.js.map
       font
 
       ./share/rex/rex.setup_demo/www/bundle/font:
@@ -278,6 +280,7 @@ tests:
       ./rex.setup_demo-1.0.0/static/www/bundle:
       bundle.css
       bundle.js
+      bundle.js.map
       font
 
       ./rex.setup_demo-1.0.0/static/www/bundle/font:

@@ -5,10 +5,12 @@
 
 import json
 
+from datetime import datetime
+
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPFound
 
-from rex.core import get_settings, StrVal, get_packages
+from rex.core import get_settings, StrVal, get_packages, cached
 from rex.web import Command, Parameter
 
 from .core import KEY_LOCALE, DOMAIN_FRONTEND, get_json_translations
@@ -21,6 +23,9 @@ __all__ = (
     'GetLocaleCommonCommand',
     'GetLocaleDetailCommand',
 )
+
+
+LAST_MODIFIED_DATE = datetime.now()
 
 
 class SwitchLocaleCommand(Command):
@@ -71,7 +76,14 @@ class GetTranslationsCommand(Command):
             headerlist=[
                 ('Content-type', 'application/json'),
             ],
+            last_modified=LAST_MODIFIED_DATE,
+            conditional_response=True,
         )
+
+
+@cached
+def get_file(path):
+    return get_packages().open(path).read()
 
 
 class CldrPackagerCommand(Command):
@@ -81,11 +93,13 @@ class CldrPackagerCommand(Command):
     def get_cldr_path(self, filename):
         return 'rex.i18n:/cldr/%s' % filename
 
+    def component_exists(self, filename):
+        return get_packages().exists(self.get_cldr_path(filename))
+
     def build_package(self, components):
         parts = []
         for component in components:
-            with get_packages().open(self.get_cldr_path(component)) as comp:
-                parts.append(comp.read())
+            parts.append(get_file(self.get_cldr_path(component)))
         return '[%s]' % (','.join(parts),)
 
     def render(self, request, **parameters):
@@ -95,6 +109,8 @@ class CldrPackagerCommand(Command):
             headerlist=[
                 ('Content-type', 'application/json'),
             ],
+            last_modified=LAST_MODIFIED_DATE,
+            conditional_response=True,
         )
 
 
@@ -123,8 +139,16 @@ class GetLocaleDetailCommand(CldrPackagerCommand):
                 '"%s" is not a supported locale' % parameters['locale']
             )
 
-        return (
-            'main/%s/ca-gregorian.json' % parameters['locale'],
-            'main/%s/numbers.json' % parameters['locale'],
-        )
+        components = [
+            'main/%s/ca-gregorian.json',
+            'main/%s/numbers.json',
+        ]
+
+        for idx, mask in enumerate(components):
+            if self.component_exists(mask % parameters['locale']):
+                components[idx] = mask % parameters['locale']
+            else:
+                components[idx] = mask % 'en'
+
+        return components
 

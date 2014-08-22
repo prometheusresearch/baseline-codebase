@@ -127,9 +127,14 @@ var Form = React.createClass({
 
       var failed = events.isFailed(name, value.value);
       if (failed) {
+        value = value.get(name).get('value')
         value = value
-          .get(name).get('value')
           .updateValidation({validation: {failure: failed.message, forceError: true}})
+          .root();
+      } else if (validation.isFailure(value.get(name).get('value').validation)) {
+        value = value.get(name).get('value');
+        value = value
+          .updateValue(value.value)
           .root();
       }
     });

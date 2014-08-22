@@ -8,6 +8,7 @@ var PropTypes     = React.PropTypes;
 var cx            = React.addons.classSet;
 var BaseGrid      = require('react-grid');
 var BaseRow       = require('react-grid/lib/Row');
+var Icon          = require('./Icon');
 var emptyFunction = require('./emptyFunction');
 var merge         = require('./merge');
 var mergeInto     = require('./mergeInto');
@@ -78,13 +79,14 @@ var SortableGridHeaderCell = React.createClass({
     var sorted = this.props.column.sorted
 
     var icon = sorted ?
-      (sorted === '+' ?  '↓' : '↑') :
-      null
+      (sorted === '+' ?
+        <Icon name="sort-by-attributes" /> :
+        <Icon name="sort-by-attributes-alt" />) :
+      null;
 
     return (
       <div className="react-grid-HeaderCell__value" onClick={this.onClick}>
-        {this.props.column.name}
-        <span className="rex-widget-Grid__sortIcon">{icon}</span>
+        {icon} {this.props.column.name}
       </div>
     )
   },

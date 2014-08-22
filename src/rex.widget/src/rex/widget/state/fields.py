@@ -8,7 +8,7 @@
 """
 
 from collections import namedtuple
-from rex.core import Validate, Error, MapVal, StrVal, IntVal
+from rex.core import Validate, Error, MaybeVal, MapVal, OneOfVal, StrVal, IntVal
 from .computator import (
         CollectionComputator, EntityComputator, PaginatedCollectionComputator,
         InitialValue)
@@ -124,7 +124,9 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                         self.url,
                         refs=refs,
                         include_meta=self.include_meta),
-                    dependencies=dependencies + [pagination_state_id, sort_state_id],
+                    dependencies=dependencies + [
+                        pagination_state_id,
+                        sort_state_id],
                     is_writable=False,
                     defer=self.defer)),
             ("%sPagination" % field_name,
@@ -134,6 +136,7 @@ class PaginatedCollectionDescriptor(DataDescriptor):
                     computator=InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
                     validator=MapVal(StrVal, IntVal),
                     dependencies=dependencies + [sort_state_id],
+                    persistence=State.INVISIBLE,
                     is_writable=True)),
             ("%sSort" % field_name,
                 State(

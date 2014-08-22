@@ -13,6 +13,11 @@ var merge         = require('./merge');
 var mergeInto     = require('./mergeInto');
 
 var UNKNOWN = '__unknown__';
+var PERSISTENCE = {
+  PERSISTENT: 'persistent',
+  EPHEMERAL: 'ephemeral',
+  INVISIBLE: 'invisible'
+};
 
 // a mapping from state ids to states
 var storage = {};
@@ -63,7 +68,7 @@ function serializeApplicationState() {
   var pathname = window.location.pathname;
   var query = {};
   forEachReadWriteState(function(state, key) {
-    if (state.value !== null) {
+    if (state.value !== null && state.persistence !== PERSISTENCE.INVISIBLE) {
       query[key] = state.value;
     }
   });
@@ -92,6 +97,9 @@ window.addEventListener('popstate', function() {
 });
 
 var ApplicationState = merge({
+
+  UNKNOWN,
+  PERSISTENCE,
 
   replaceHistoryRecord() {
     var pathname = serializeApplicationState();
@@ -163,7 +171,7 @@ var ApplicationState = merge({
         defer: stateDescriptor.defer,
         isWritable: stateDescriptor.isWritable,
         updating: stateDescriptor.updating,
-        isEphemeral: stateDescriptor.isEphemeral
+        persistence: stateDescriptor.persistence
       };
     }
 

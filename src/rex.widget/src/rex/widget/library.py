@@ -13,7 +13,7 @@ from rex.core import (
 from .widget import (
         Widget, GroupWidget, NullWidget, Field, StateField, state,
         iterate_widget)
-from .state import unknown, Reset, Dep, CollectionVal, PaginatedCollectionVal
+from .state import unknown, State, Reset, Dep, CollectionVal, PaginatedCollectionVal
 from .parse import WidgetVal
 from .jsval import JSVal
 
@@ -230,7 +230,7 @@ class TextInputWidget(Widget):
     js_type = 'rex-widget/lib/TextInput'
 
     id          = Field(StrVal)
-    value       = StateField(StrVal, is_ephemeral=True, default=None)
+    value       = StateField(StrVal, persistence=State.EPHEMERAL, default=None)
     placeholder = Field(StrVal, default='')
 
 class CheckboxWidget(Widget):
@@ -239,7 +239,7 @@ class CheckboxWidget(Widget):
     js_type = 'rex-widget/lib/Checkbox'
 
     id      = Field(StrVal)
-    value   = StateField(BoolVal, is_ephemeral=True, default=None)
+    value   = StateField(BoolVal, persistence=State.EPHEMERAL, default=None)
 
 class FilterWidget(Widget):
 

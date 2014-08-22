@@ -419,7 +419,7 @@ class WidgetJSONEncoder(json.JSONEncoder):
                 "dependencies": [dep.id
                     for dep in obj.dependencies
                     if not dep.reset_only],
-                "isEphemeral": obj.is_ephemeral,
+                "persistence": obj.persistence,
                 "isWritable": obj.is_writable,
                 "defer": obj.defer
             }

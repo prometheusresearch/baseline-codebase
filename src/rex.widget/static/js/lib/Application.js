@@ -5,6 +5,7 @@
 
 var React             = require('react');
 var ApplicationState  = require('./ApplicationState');
+var invariant         = require('./invariant');
 
 var Application = React.createClass({
 
@@ -99,7 +100,7 @@ function constructComponent(ui, key) {
       var stateID = prop.__state_read_write__;
       var state = ApplicationState.getState(stateID);
       props[name] = ApplicationState.get(stateID);
-      props[stateWriterName(name)] = makeAction(stateID, state.isEphemeral);
+      props[stateWriterName(name)] = makeAction(stateID, state.persistence);
     } else {
       props[name] = prop;
     }
@@ -113,7 +114,7 @@ function stateWriterName(name) {
   return 'on' + name[0].toUpperCase() + name.slice(1);
 }
 
-function makeAction(id, isEphemeral) {
+function makeAction(id, persistence) {
   function produce(value) {
     var update = {};
     update[id] = value;
@@ -122,10 +123,21 @@ function makeAction(id, isEphemeral) {
 
   function execute(value) {
     ApplicationState.updateMany(produce(value));
-    if (isEphemeral) {
-      ApplicationState.replaceHistoryRecord();
-    } else {
-      ApplicationState.pushHistoryRecord();
+    switch (persistence) {
+      case ApplicationState.PERSISTENCE.PERSISTENT:
+        ApplicationState.pushHistoryRecord();
+        break;
+      case ApplicationState.PERSISTENCE.EPHEMERAL:
+        ApplicationState.replaceHistoryRecord();
+        break;
+      case ApplicationState.PERSISTENCE.INVISIBLE:
+        break;
+      default:
+        invariant(
+          false,
+          "Invalid persistence configuration for state '%s': %s",
+          persistence
+        );
     }
   }
 

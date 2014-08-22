@@ -271,7 +271,7 @@ _State = namedtuple('State', [
                     'value',
                     'default',
                     'dependencies',
-                    'is_ephemeral',
+                    'persistence',
                     'is_writable'
                     ])
 
@@ -289,15 +289,20 @@ class State(_State):
     :attr value: current value (unknown if it is not yet computed)
     :attr default: default value
     :attr dependencies: a list of state dependencies
-    :attr is_ephemeral: if state is ephemeral (should not be persisted on each update)
+    :attr persistence: the strategy regarding if state should be persisted
+                       across state changes
     :attr is_writable: if state is read-write
     """
 
+    PERSISTENT = 'persistent'
+    EPHEMERAL = 'ephemeral'
+    INVISIBLE = 'invisible'
+
     __slots__ = ()
 
-    def __new__(cls, id, widget=None, computator=None, validator=AnyVal, is_active=None,
-            value=unknown, default=None, dependencies=None, is_ephemeral=False,
-            is_writable=True, defer=None):
+    def __new__(cls, id, widget=None, computator=None, validator=AnyVal,
+            is_active=None, value=unknown, default=None, dependencies=None,
+            persistence=PERSISTENT, is_writable=True, defer=None):
         if dependencies is None:
             dependencies = []
         dependencies = [
@@ -315,7 +320,7 @@ class State(_State):
             dependencies=dependencies,
             is_active=is_active or (lambda graph: True),
             defer=defer,
-            is_ephemeral=is_ephemeral,
+            persistence=persistence,
             is_writable=is_writable)
 
 

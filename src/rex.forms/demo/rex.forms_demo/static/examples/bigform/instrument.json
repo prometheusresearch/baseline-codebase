@@ -1,0 +1,228 @@
+{
+  "id": "urn:demo-instrument",
+  "version": "1.0",
+
+  "title": "Demonstration Instrument",
+  "description": "An instrument that demonstrates all the field types.",
+
+  "types": {
+    "fruit": {
+      "base": "enumerationSet",
+      "enumerations": {
+        "apple": {},
+        "banana": {},
+        "orange": {},
+        "watermelon": {}
+      }
+    },
+
+    "colors": {
+      "base": "enumeration",
+      "enumerations": {
+        "red": {},
+        "blue": {},
+        "green": {}
+      }
+    }
+  },
+
+  "record": [
+    {
+      "id": "q_float1",
+      "type": "float"
+    },
+    {
+      "id": "q_float2",
+      "type": "float"
+    },
+    {
+      "id": "q_float3",
+      "type": "float"
+    },
+    {
+      "id": "q_integer1",
+      "type": "integer"
+    },
+    {
+      "id": "q_integer2",
+      "type": "integer"
+    },
+    {
+      "id": "q_integer3",
+      "type": "integer"
+    },
+    {
+      "id": "q_text1",
+      "type": "text"
+    },
+    {
+      "id": "q_text2",
+      "type": "text"
+    },
+    {
+      "id": "q_text3",
+      "type": "text"
+    },
+    {
+      "id": "q_text4",
+      "type": "text"
+    },
+    {
+      "id": "q_text5",
+      "type": "text"
+    },
+    {
+      "id": "q_text6",
+      "type": "text"
+    },
+    {
+      "id": "q_text7",
+      "type": "text",
+      "explanation": "required",
+      "annotation": "required"
+    },
+    {
+      "id": "q_text8",
+      "type": "text",
+      "explanation": "required",
+      "annotation": "optional"
+    },
+    {
+      "id": "q_text9",
+      "type": "text",
+      "explanation": "optional",
+      "annotation": "required"
+    },
+    {
+      "id": "q_text10",
+      "type": "text",
+      "explanation": "optional",
+      "annotation": "optional"
+    },
+    {
+      "id": "q_text11",
+      "type": "text"
+    },
+    {
+      "id": "q_text12",
+      "type": "text"
+    },
+    {
+      "id": "q_text13",
+      "type": "text"
+    },
+    {
+      "id": "q_enumeration1",
+      "type": "colors"
+    },
+    {
+      "id": "q_enumeration2",
+      "type": "colors"
+    },
+    {
+      "id": "q_enumeration3",
+      "type": "colors"
+    },
+    {
+      "id": "q_enumerationset1",
+      "type": "fruit"
+    },
+    {
+      "id": "q_boolean1",
+      "type": "boolean"
+    },
+    {
+      "id": "q_boolean2",
+      "type": "boolean"
+    },
+    {
+      "id": "q_boolean3",
+      "type": "boolean"
+    },
+    {
+      "id": "q_boolean4",
+      "type": "boolean"
+    },
+    {
+      "id": "q_boolean5",
+      "type": "boolean"
+    },
+    {
+      "id": "q_boolean6",
+      "type": "boolean"
+    },
+    {
+      "id": "q_boolean7",
+      "type": "boolean"
+    },
+    {
+      "id": "q_boolean8",
+      "type": "boolean"
+    },
+    {
+      "id": "q_date1",
+      "type": "date"
+    },
+    {
+      "id": "q_time1",
+      "type": "time"
+    },
+    {
+      "id": "q_datetime1",
+      "type": "dateTime"
+    },
+    {
+      "id": "q_recordlist1",
+      "type": {
+        "base": "recordList",
+        "record": [
+          {
+            "id": "q_rec_integer",
+            "type": "integer"
+          },
+          {
+            "id": "q_rec_text",
+            "type": "text"
+          },
+          {
+            "id": "q_rec_enumeration",
+            "type": "colors"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q_matrix1",
+      "type": {
+        "base": "matrix",
+        "columns": [
+          {
+            "id": "q_mtx_integer",
+            "type": "integer"
+          },
+          {
+            "id": "q_mtx_text",
+            "type": "text"
+          },
+          {
+            "id": "q_mtx_enumeration",
+            "type": "colors"
+          }
+        ],
+        "rows": [
+          {
+            "id": "first"
+          },
+          {
+            "id": "second"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q_calculated",
+      "type": "text"
+    }
+  ]
+}
+

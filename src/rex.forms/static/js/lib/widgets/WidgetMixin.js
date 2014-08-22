@@ -60,11 +60,12 @@ var WidgetMixin = {
   },
 
   renderError: function() {
-    if (!this.isDirty()) {
-      return null;
-    }
     var text = null;
     var validation = this.value().validation;
+
+    if (!this.isDirty() && !validation.validation.forceError) {
+      return null;
+    }
 
     if (ReactForms.validation.isFailure(validation)) {
       if (this.props.options.error) {

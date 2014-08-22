@@ -129,7 +129,7 @@ var Form = React.createClass({
       if (failed) {
         value = value
           .get(name).get('value')
-          .updateValidation({validation: {failure: failed.message}})
+          .updateValidation({validation: {failure: failed.message, forceError: true}})
           .root();
       }
     });

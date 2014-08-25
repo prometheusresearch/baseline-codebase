@@ -1,11 +1,16 @@
-#
-# Copyright (c) 2014, Prometheus Research, LLC
-#
+"""
 
+    rex.widget.parse
+    ================
 
+    :copyright: 2014, Prometheus Research, LLC
+
+"""
+
+import json
+import yaml
 from rex.core import Validate, StrVal, Location, Error, guard
 from .widget import Widget, GroupWidget, NullWidget
-import yaml
 
 
 class WidgetVal(Validate):
@@ -34,7 +39,7 @@ class WidgetVal(Validate):
                 if not isinstance(data, dict):
                     if not len(widget_class.fields) == 1:
                         raise Error("Expected a widget mapping")
-                    data = { widget_class.fields[0].name: data }
+                    data = {widget_class.fields[0].name: data}
         field_by_name = dict((field.name, field)
                              for field in widget_class.fields)
         values = {}
@@ -69,9 +74,10 @@ class WidgetVal(Validate):
             if node.tag.isalnum():
                 name = node.tag
                 if node.value:
-                    value = yaml.ScalarNode(u'tag:yaml.org,2002:str',
-                            node.value, node.start_mark, node.end_mark,
-                            node.style)
+                    value = yaml.ScalarNode(
+                        u'tag:yaml.org,2002:str',
+                        node.value, node.start_mark, node.end_mark,
+                        node.style)
                     pairs = [(None, value)]
         elif isinstance(node, yaml.SequenceNode):
             if node.tag == u'tag:yaml.org,2002:seq':
@@ -79,9 +85,10 @@ class WidgetVal(Validate):
                                     for item in node.value])
             if node.tag.isalnum():
                 name = node.tag
-                value = yaml.SequenceNode(u'tag:yaml.org,2002:seq',
-                        node.value, node.start_mark, node.end_mark,
-                        node.flow_style)
+                value = yaml.SequenceNode(
+                    u'tag:yaml.org,2002:seq',
+                    node.value, node.start_mark, node.end_mark,
+                    node.flow_style)
                 pairs = [(None, value)]
         elif isinstance(node, yaml.MappingNode):
             if node.tag.isalnum():
@@ -101,7 +108,8 @@ class WidgetVal(Validate):
         widget_class = widget_classes[name]
         field_by_name = dict((field.name, field)
                              for field in widget_class.fields)
-        fields_with_no_defaults = [f for f in widget_class.fields if not f.has_default]
+        fields_with_no_defaults = [
+            f for f in widget_class.fields if not f.has_default]
         values = {}
         for key_node, value_node in pairs:
             if key_node is None:
@@ -142,5 +150,3 @@ class WidgetVal(Validate):
 
 
 Widget.validate.set(WidgetVal())
-
-

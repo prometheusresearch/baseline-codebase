@@ -9,6 +9,9 @@ install develop::
 
 test:: unittest doctest
 
+lint::
+	pylint src/rex/widget
+
 unittest::
 	@py.test ./test
 

@@ -13,7 +13,7 @@
 from collections import namedtuple, MutableMapping, Mapping
 from rex.core import AnyVal, Error
 from ..logging import getLogger
-from .reference import Reference, parse_ref
+from .reference import Reference
 
 
 log = getLogger(__name__)
@@ -64,7 +64,7 @@ class StateGraph(Mapping):
         :type ref: str | :class:`Reference`
         """
         if not isinstance(ref, Reference):
-            ref = parse_ref(ref)
+            ref = Reference(ref)
         try:
             value = self.storage[ref.id].value
             if value is unknown:
@@ -221,7 +221,7 @@ class StateGraphComputation(Mapping):
 
     def __getitem__(self, ref):
         if not isinstance(ref, Reference):
-            ref = parse_ref(ref)
+            ref = Reference(ref)
 
         if self.is_computed(ref.id):
             return self.output.get_value(ref)

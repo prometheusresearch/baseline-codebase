@@ -8,14 +8,17 @@
 
 from collections import namedtuple
 
+_Reference = namedtuple('Reference', ['state_id', 'path'])
 
-Reference = namedtuple('Reference', ['id', 'path'])
+class Reference(_Reference):
+    """ A reference to state and a path inside its value."""
 
+    __slots__ = ()
 
-def parse_ref(ref):
-    """ Parse string into :class:`Reference`"""
-    if ':' in ref:
-        id, path = ref.split(':', 1)
-        return Reference(id, path.split('.'))
-    else:
-        return Reference(ref, [])
+    def __new__(cls, state_id, path=None):
+        path = path or []
+        if ':' in state_id:
+            _state_id, _path = state_id.split(':', 1)
+            return _Reference.__new__(cls, _state_id, _path.split('.') + path)
+        else:
+            return _Reference.__new__(cls, state_id, path)

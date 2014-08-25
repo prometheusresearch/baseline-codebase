@@ -23,7 +23,6 @@ from rex.core import Error
 
 from ..logging import getLogger
 from .graph import Reset, unknown
-from .reference import parse_ref
 
 
 log = getLogger(__name__)

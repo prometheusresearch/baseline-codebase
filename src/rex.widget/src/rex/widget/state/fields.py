@@ -13,7 +13,7 @@ from .computator import (
         CollectionComputator, EntityComputator, PaginatedCollectionComputator,
         InitialValue)
 from .graph import State, Dep, unknown
-from .reference import parse_ref
+from .reference import Reference
 
 
 class StateDescriptor(object):
@@ -189,7 +189,7 @@ class DataVal(Validate):
                 raise Error(
                     "invalid data reference: expected an URL or "
                     "{url: ..., refs: ...} mapping")
-            refs = {name: parse_ref(ref)
+            refs = {name: Reference(ref)
                     for name, ref
                     in data.get("refs", {}).items()}
             return self.field_factory(

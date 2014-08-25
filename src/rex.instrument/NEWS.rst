@@ -4,7 +4,8 @@ REX.INSTRUMENT Change Log
 
 .. contents:: Table of Contents
 
-0.11.0 (8/xx/2014)
+
+0.11.0 (8/25/2014)
 ==================
 
 - Added the ability for the as_dict() and as_json() methods to accept a list of

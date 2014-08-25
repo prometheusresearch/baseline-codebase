@@ -8,7 +8,7 @@
 
 from collections import namedtuple
 
-_Reference = namedtuple('Reference', ['state_id', 'path'])
+_Reference = namedtuple('Reference', ['id', 'path'])
 
 class Reference(_Reference):
     """ A reference to state and a path inside its value."""

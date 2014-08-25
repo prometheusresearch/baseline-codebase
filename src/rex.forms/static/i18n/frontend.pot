@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rex.forms 0.22.0\n"
 "Report-Msgid-Bugs-To: contact@prometheusresearch.com\n"
-"POT-Creation-Date: 2014-08-19 11:43-0400\n"
+"POT-Creation-Date: 2014-08-22 16:58-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -105,9 +105,9 @@ msgstr ""
 
 #: static/js/lib/form/FormOverview.js:15
 msgid ""
-"Please review entered values before completing the form. You can press "
-"<strong>edit</strong> button at the top-right corner of the question to "
-"edit its value."
+"Please review your entered values before completing the form. You can "
+"press the <strong>Edit</strong> button at the top-right corner of the "
+"question to edit its value."
 msgstr ""
 
 #: static/js/lib/form/PageNavigation.js:30
@@ -130,7 +130,7 @@ msgstr ""
 
 #: static/js/lib/form/ProgressBar.js:16
 #, python-format
-msgid "%(percent)s% complete"
+msgid "%(percent)s%% complete"
 msgstr ""
 
 #: static/js/lib/reconciler/components.js:57
@@ -176,15 +176,15 @@ msgstr ""
 msgid "I can't (or won't) respond to this question because:"
 msgstr ""
 
-#: static/js/lib/widgets/record.js:35
+#: static/js/lib/widgets/record.js:25
 msgid "Remove"
 msgstr ""
 
-#: static/js/lib/widgets/recordList.js:42
+#: static/js/lib/widgets/recordList.js:43
 msgid "Add"
 msgstr ""
 
-#: static/js/lib/widgets/value.js:26
+#: static/js/lib/widgets/value.js:28
 msgid "No value provided."
 msgstr ""
 

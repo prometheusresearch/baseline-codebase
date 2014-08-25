@@ -14,7 +14,7 @@ var ProgressBar = React.createClass({
   render: function () {
     var style = {width: this.props.percentComplete + '%'};
     var message = _(
-      '%(percent)s% complete',
+      '%(percent)s%% complete',
       {percent: this.props.percentComplete});
 
     return (

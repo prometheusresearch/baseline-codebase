@@ -171,7 +171,8 @@ var ApplicationState = merge({
         defer: stateDescriptor.defer,
         isWritable: stateDescriptor.isWritable,
         updating: stateDescriptor.updating,
-        persistence: stateDescriptor.persistence
+        persistence: stateDescriptor.persistence,
+        dependencies: stateDescriptor.dependencies
       };
     }
 
@@ -187,6 +188,7 @@ var ApplicationState = merge({
   },
 
   updateMany(values) {
+    console.debug('updateMany', values);
     var nextStorage = merge({}, storage);
 
     var queue = Object.keys(values);
@@ -197,6 +199,11 @@ var ApplicationState = merge({
     while (queue.length > 0) {
       var sID = queue.shift();
       var state = nextStorage[sID];
+
+      invariant(
+        state !== undefined,
+        'unknown state to update: "%s"', sID
+      );
 
       // XXX: If we would need some sophisticated state management, this is the
       // place where we can dispatch update to state's store so it can process

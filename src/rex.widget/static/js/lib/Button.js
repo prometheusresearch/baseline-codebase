@@ -14,14 +14,14 @@ var Button = React.createClass({
 
   render: function() {
     var name = this.props.name ? 'Save' : this.props.name;
-    console.log(name);
     return (
       <button
         className="rex-widget-Button"
         placeholder={this.props.placeholder}
         onClick={this.onClick}
-        id={this.props.id}
-      >{name}</button>
+        id={this.props.id}>
+        {name}
+      </button>
     );
   },
 

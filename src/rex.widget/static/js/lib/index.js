@@ -9,6 +9,8 @@ var React            = require('react');
 var ApplicationState = require('./ApplicationState');
 var Application      = require('./Application');
 var DataPreloader    = require('./DataPreloader');
+var LoadingIndicator = require('./LoadingIndicator');
+var Icon             = require('./Icon');
 var PropTypes        = require('./PropTypes');
 var Table            = require('./Table');
 var Grid             = require('./Grid');
@@ -43,7 +45,7 @@ module.exports = {
   ApplicationState,
   Application,
   PropTypes,
-  Table, Grid, DataPreloader
+  Table, Grid, DataPreloader, LoadingIndicator, Icon
 };
 
 window.Rex = window.Rex || {};

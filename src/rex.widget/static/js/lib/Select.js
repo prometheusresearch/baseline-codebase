@@ -44,7 +44,7 @@ var Select = React.createClass({
     return {
       emptyValue: {id: sentinel, title: ''},
       options: [],
-      data: []
+      data: null
     };
   },
 

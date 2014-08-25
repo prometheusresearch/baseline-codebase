@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.22.0 (8/xx/2014)
+0.22.0 (8/25/2014)
 ==================
 
 - Changed Form.validate_configuration() parameter naming to align to that used

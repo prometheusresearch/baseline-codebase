@@ -143,30 +143,26 @@ var ApplicationState = merge({
     }
   },
 
-  hydrate(update) {
+  hydrate(update, remote) {
     var nextValues = {};
     mergeInto(nextValues, values);
     ReactUpdates.batchedUpdates(() => {
       Object.keys(update).forEach((id) => {
         var value = update[id];
+        var state = states[id];
 
         invariant(
-          states[id] !== undefined,
+          state !== undefined,
           "unknown state '%s'", id
         );
 
-        var prevValue = nextValues[id];
+        nextValues[id] = merge(nextValues[id], {
+          value: mergeValue(nextValues[id].value, value)
+        });
 
-        if (prevValue !== undefined && prevValue.value !== UNKNOWN) {
-          nextValues[id] = {
-            value: mergeValue(prevValue.value, value),
-            updating: false
-          };
-        } else {
-          nextValues[id] = {
-            value,
-            updating: false
-          };
+        if (remote) {
+          nextValues[id].remote = false;
+          nextValues[id].updating = false;
         }
       });
 
@@ -293,7 +289,7 @@ var ApplicationState = merge({
     }
 
     var values = response.body.values;
-    this.hydrate(values);
+    this.hydrate(values, true);
     ReactUpdates.batchedUpdates(() => {
       Object.keys(values).forEach(this.notifyStateChanged, this);
     });

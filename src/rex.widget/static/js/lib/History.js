@@ -56,7 +56,6 @@ class History {
   }
 
   _handlePopState() {
-    console.log('POPSTATE!!!');
     if (this.preventPopState) {
       this.preventPopState = false;
       return;
@@ -67,10 +66,7 @@ class History {
       if (!isWritable) {
         return;
       }
-      if (alias) {
-        key = alias;
-      }
-      var value = query[key];
+      var value = query[alias || key];
       if (value === '' || value === undefined) {
         value = null;
       }

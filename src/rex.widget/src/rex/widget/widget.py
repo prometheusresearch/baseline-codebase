@@ -41,7 +41,7 @@ class Field(object):
         self.order = cls.order
         return self
 
-    def __init__(self, validator, default=RecordField.NODEFAULT):
+    def __init__(self, validator, default=NotImplemented):
         self.validator = validator
         self.default = default
 
@@ -65,19 +65,19 @@ class StateField(Field):
     Other params are passed through to :class:`State` constructor.
     """
 
-    def __init__(self, validator, default=RecordField.NODEFAULT, **params):
+    def __init__(self, validator, default=NotImplemented, **params):
         super(StateField, self).__init__(validator, default=default)
         self.params = params
 
     def to_record_field(self, name):
-        default = unknown if self.default is RecordField.NODEFAULT else self.default
+        default = unknown if self.default is NotImplemented else self.default
 
         validator = StateVal(
             MaybeVal(self.validator),
             default=default,
             **self.params)
 
-        if default is not RecordField.NODEFAULT:
+        if default is not NotImplemented:
             default = validator(default)
 
         return RecordField(name, validator, default)
@@ -86,7 +86,7 @@ class StateField(Field):
         self.dependencies = dependencies
 
 
-def state(validator, dependencies=None, default=RecordField.NODEFAULT):
+def state(validator, dependencies=None, default=NotImplemented):
     """ Decorator for defining :class:`StateField` instances with inline
     computator."""
     def register_computator(computator):

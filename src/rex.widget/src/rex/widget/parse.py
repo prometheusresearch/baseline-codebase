@@ -9,7 +9,7 @@
 
 import json
 import yaml
-from rex.core import Validate, StrVal, Location, Error, guard
+from rex.core import Validate, StrVal, Location, Error, guard, set_location
 from .widget import Widget, GroupWidget, NullWidget
 
 
@@ -146,7 +146,9 @@ class WidgetVal(Validate):
                 else:
                     raise Error("Missing mandatory field:", field.name) \
                             .wrap("Of widget:", widget_class.name)
-        return widget_class(**values)
+        widget = widget_class(**values)
+        set_location(widget, location)
+        return widget
 
 
 Widget.validate.set(WidgetVal())

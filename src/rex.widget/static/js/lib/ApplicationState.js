@@ -28,7 +28,7 @@ var values = {};
 function mergeValue(value, update) {
   // If this is an object we should process update directives, otherwise we just
   // replace value with an updated one
-  if (typeof update === 'object' && update !== null) {
+  if (typeof update === 'object' && update !== null && value !== UNKNOWN) {
     var updatedValue = {};
     mergeInto(updatedValue, value);
     Object.keys(update).forEach(function(key) {
@@ -53,6 +53,7 @@ function mergeValue(value, update) {
 var ApplicationState = merge({
 
   PERSISTENCE,
+  UNKNOWN,
 
   /**
    * Start application.

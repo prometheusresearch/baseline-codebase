@@ -113,11 +113,15 @@ function constructComponent(ui, key) {
 function readState(ref) {
   // XXX: think of a better to pass updating flag to widget
   var state = ApplicationState.getState(ref);
-  var {value, updating} = ApplicationState.getValue(ref);
   if (ref.indexOf(':') > -1 || state.isWritable) {
-    return value;
+    return ApplicationState.get(ref);
   } else {
-    return merge(value, {updating});
+    var {value, updating} = ApplicationState.getValue(ref);
+    if (value === null || value === ApplicationState.UNKNOWN) {
+      return null
+    } else {
+      return merge(value, {updating});
+    }
   }
 }
 

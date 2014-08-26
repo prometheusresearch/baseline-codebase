@@ -39,6 +39,7 @@ class History {
         return;
       }
       if (value !== null
+          && value !== this.state.UNKNOWN
           && persistence !== this.state.PERSISTENCE.INVISIBLE) {
 
         if (alias) {

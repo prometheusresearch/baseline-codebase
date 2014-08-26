@@ -15,8 +15,9 @@ from rex.core import (
 from .state import (
     unknown, StateVal, StateDescriptor,
     StateGraph, MutableStateGraph)
-from .jsval import JSValue
-from .descriptor import UIDescriptor, UIDescriptorChildren, WidgetDescriptor
+from .descriptor import (
+    UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
+    StateReadWrite, StateRead)
 from .handle import handle
 
 
@@ -228,8 +229,6 @@ class Widget(Extension):
             name = to_camelcase(name)
             if isinstance(value, Widget):
                 self.on_widget(props, state, name, value)
-            elif isinstance(value, JSValue):
-                props[name] = {"__reference__": value.reference}
             elif isinstance(value, StateDescriptor):
                 self.on_state_descriptor(props, state, name, value)
             else:
@@ -253,9 +252,9 @@ class Widget(Extension):
         for prop_name, descriptor in state_descriptor.describe_state(self, name):
             state[descriptor.id] = descriptor
             if descriptor.is_writable:
-                props[prop_name] = {"__state_read_write__": descriptor.id}
+                props[prop_name] = StateReadWrite(descriptor.id)
             else:
-                props[prop_name] = {"__state_read__": descriptor.id}
+                props[prop_name] = StateRead(descriptor.id)
 
     __call__ = handle
 

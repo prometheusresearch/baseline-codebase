@@ -10,7 +10,10 @@
 from __future__ import absolute_import
 import simplejson as json
 from .state import Data, Append, State, StateGraph, unknown
-from .descriptor import UIDescriptor, UIDescriptorChildren, WidgetDescriptor
+from .descriptor import (
+    UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
+    StateRead, StateReadWrite)
+from .jsval import JSValue
 
 
 def dumps(obj):
@@ -25,6 +28,12 @@ def dumps(obj):
 class WidgetJSONEncoder(json.JSONEncoder):
 
     def default(self, obj): # pylint: ignore
+        if isinstance(obj, JSValue):
+            return {"__reference__": obj.reference}
+        if isinstance(obj, StateReadWrite):
+            return {"__state_read_write__": obj.id}
+        if isinstance(obj, StateRead):
+            return {"__state_read__": obj.id}
         if isinstance(obj, UIDescriptor):
             return {"__type__": obj.type, "props": obj.props}
         if isinstance(obj, UIDescriptorChildren):

@@ -50,3 +50,6 @@ class UIDescriptorChildren(_UIDescriptorChildren):
 
     __slots__ = ()
 
+
+StateRead = namedtuple('StateRead', ['id'])
+StateReadWrite = namedtuple('StateReadWrite', ['id'])

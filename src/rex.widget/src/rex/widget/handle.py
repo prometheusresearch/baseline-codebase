@@ -41,14 +41,20 @@ def compute_descriptor(widget, req):
             for k, v in parse_qs(req.query_string).items()
         }
         state = compute(state, values=values, user=user, defer=True)
-        return {"descriptor": descriptor, "values": state.get_values()}
+        return {
+            "descriptor": descriptor._replace(state=state),
+            "values": state.get_values()
+        }
     elif req.method == 'POST':
         state, origins = merge_state_update(state, req.json)
         if not origins:
             state = compute(state, user=user)
         else:
             state = compute_update(state, origins, user=user)
-        return {"descriptor": None, "values": state.get_values()}
+        return {
+            "descriptor": None,
+            "values": state.get_values()
+        }
     else:
         raise HTTPMethodNotAllowed()
 

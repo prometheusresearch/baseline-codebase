@@ -279,7 +279,10 @@ class Reference(_Reference):
             return _Reference.__new__(cls, state_id, path)
 
     def __str__(self):
-        return "Reference('%s:%s')" % (self.id, '.'.join(self.path))
+        if self.path:
+            return "Reference('%s:%s')" % (self.id, '.'.join(self.path))
+        else:
+            return "Reference('%s')" % self.id
 
     __repr__ = __str__
 

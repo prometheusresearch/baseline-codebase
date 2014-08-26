@@ -132,7 +132,7 @@ var Filters = React.createClass({
         update,
         this.props.onValue.produce(nextState)
       ));
-      ApplicationState.pushHistoryRecord();
+      ApplicationState.history.pushState();
     } else {
       ApplicationState.updateMany(update);
     }

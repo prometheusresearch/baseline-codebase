@@ -59,6 +59,11 @@ class Data(_Data):
     def __new__(cls, data, meta=None, updating=False, has_more=False):
         return _Data.__new__(cls, data=data, meta=meta, updating=updating, has_more=False)
 
+    def get(self, name, default=None):
+        if name in self._fields:
+            return self[name]
+        return default
+
     def __getitem__(self, name):
         # Python weirdness, __getattr__ is implemented in terms of __getitem__
         if isinstance(name, int):
@@ -225,7 +230,7 @@ class PaginatedCollectionComputator(DataComputator):
 
         (sort_field, sort_direction) = parse_sort_spec(sort)
         if sort_field:
-            params["%s/%s:sort" % (entity_name, sort_field)] = sort_direction
+            params["%s.%s:sort" % (entity_name, sort_field)] = sort_direction
 
         return super(PaginatedCollectionComputator, self).fetch_port(
                 handler,

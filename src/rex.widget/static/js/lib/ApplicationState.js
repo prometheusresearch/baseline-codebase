@@ -96,7 +96,24 @@ var ApplicationState = merge({
   },
 
   getState(id) {
-    return states[id];
+    if (id.indexOf(':') > -1) {
+      id = id.split(':', 1)[0];
+    }
+    var state = states[id];
+    invariant(
+      state !== undefined,
+      `no state with id "${id}" found`
+    );
+    return state;
+  },
+
+  getValue(id) {
+    var value = values[id];
+    invariant(
+      value !== undefined,
+      `no value for state id "${id}" found`
+    );
+    return value;
   },
 
   get(id) {

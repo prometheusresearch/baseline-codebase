@@ -6,6 +6,7 @@
 var React             = require('react');
 var ApplicationState  = require('./ApplicationState');
 var invariant         = require('./invariant');
+var merge             = require('./merge');
 
 var Application = React.createClass({
 
@@ -93,7 +94,7 @@ function constructComponent(ui, key) {
       props[name] = __require__(prop.__reference__);
     // Read from state
     } else if (prop !== null && prop.__state_read__) {
-      props[name] = ApplicationState.get(prop.__state_read__);
+      props[name] = readState(prop.__state_read__);
     // Write to state
     } else if (prop !== null && prop.__state_read_write__) {
       var stateID = prop.__state_read_write__;
@@ -107,6 +108,17 @@ function constructComponent(ui, key) {
 
   var Component = __require__(ui.__type__);
   return Component(props);
+}
+
+function readState(ref) {
+  // XXX: think of a better to pass updating flag to widget
+  var state = ApplicationState.getState(ref);
+  var {value, updating} = ApplicationState.getValue(ref);
+  if (ref.indexOf(':') > -1 || state.isWritable) {
+    return value;
+  } else {
+    return merge(value, {updating});
+  }
 }
 
 function stateWriterName(name) {

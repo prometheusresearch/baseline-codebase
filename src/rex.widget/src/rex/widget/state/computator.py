@@ -50,14 +50,14 @@ class InitialValue(object):
         return state.value
 
 
-_Data = namedtuple('Data', ['data', 'meta', 'updating', 'has_more'])
+_Data = namedtuple('Data', ['data', 'meta', 'has_more'])
 
 class Data(_Data):
 
     __slots__ = ()
 
-    def __new__(cls, data, meta=None, updating=False, has_more=False):
-        return _Data.__new__(cls, data=data, meta=meta, updating=updating, has_more=False)
+    def __new__(cls, data, meta=None, has_more=False):
+        return _Data.__new__(cls, data=data, meta=meta, has_more=False)
 
     def get(self, name, default=None):
         if name in self._fields:
@@ -116,7 +116,7 @@ class DataComputator(object):
             meta = product_meta_to_json(handler.port.describe())
             meta = meta["domain"]["fields"][0]
             return Data(data, meta=meta)
-            return {"data": data, "meta": meta, "updating": False}
+            return {"data": data, "meta": meta}
         else:
             return Data(data)
 
@@ -176,7 +176,7 @@ class DataComputator(object):
 
 class CollectionComputator(DataComputator):
 
-    inactive_value = Data([], updating=True)
+    inactive_value = Data([])
 
     def fetch(self, handler, graph, dirty):
         params = {}
@@ -189,7 +189,7 @@ class CollectionComputator(DataComputator):
 
 class EntityComputator(DataComputator):
 
-    inactive_value = Data(None, updating=True)
+    inactive_value = Data(None)
     no_value = Data(None)
 
     def fetch(self, handler, graph, dirty):
@@ -211,7 +211,7 @@ class EntityComputator(DataComputator):
 
 class PaginatedCollectionComputator(DataComputator):
 
-    inactive_value = Data([], updating=True, has_more=False)
+    inactive_value = Data([], has_more=False)
 
     def __init__(self, pagination_state_id, url, refs=None, include_meta=False):
         super(PaginatedCollectionComputator, self).__init__(

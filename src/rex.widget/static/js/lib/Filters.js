@@ -121,7 +121,7 @@ var Filters = React.createClass({
 
     this.replaceState(filters);
     ApplicationState.updateMany(update);
-    ApplicationState.pushHistoryRecord();
+    ApplicationState.history.pushState();
   },
 
   onValue(id, value, update) {

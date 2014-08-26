@@ -82,6 +82,9 @@ class StateGraph(Mapping):
         else:
             return value
 
+    def get_values(self):
+        return {state_id: state.value for state_id, state in self.items()}
+
     def merge(self, state):
         result = self.__class__(self)
         _merge_state_into(result, state)
@@ -225,7 +228,6 @@ class StateGraphComputation(Mapping):
         if self.is_computed(ref.id):
             return self.output.get_value(ref)
 
-        print self.input.keys()
         if not ref.id in self.input:
             raise Error('invalid reference: %s' % (ref,))
 

@@ -10,21 +10,24 @@
 from pyquerystring import parse as parse_qs
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
+
+from rex.core import cached
 from rex.web import render_to_response
+
 from .json import dumps
 from .state import compute, compute_update, unknown
+
+
+TEMPLATE = 'rex.widget:/templates/index.html'
 
 
 def handle(widget, req):
     accept = req.accept.best_match(['text/html', 'application/json'])
     desc = compute_descriptor(widget, req)
-    desc = dumps(desc)
     if accept == 'application/json':
-        return Response(desc, content_type='application/json')
+        return Response(dumps(desc), content_type='application/json')
     else:
-        return render_to_response(
-            'rex.widget:/templates/index.html', req,
-            desc=desc)
+        return render_to_response(TEMPLATE, req, desc=dumps(desc))
 
 
 def compute_descriptor(widget, req):
@@ -32,23 +35,25 @@ def compute_descriptor(widget, req):
     descriptor = widget.descriptor()
     state = descriptor.state
     if req.method == 'GET':
-        values = parse_qs(req.query_string)
-        for k, v in values.items():
-            if k in state and state[k].validator is not None:
-                values[k] = state[k].validator(v)
+        aliases = get_alias_mapping(state)
+        values = {
+            aliases.get(k, k): state[k].validator(v) if k in state else v
+            for k, v in parse_qs(req.query_string).items()
+        }
         state = compute(state, values=values, user=user, defer=True)
-        return descriptor._replace(state=state)
+        return {"descriptor": descriptor, "values": state.get_values()}
     elif req.method == 'POST':
-        state, origins = state_update_params(state, req.json)
+        state, origins = merge_state_update(state, req.json)
         if not origins:
             state = compute(state, user=user)
         else:
             state = compute_update(state, origins, user=user)
-        return {"state": state}
+        return {"descriptor": None, "values": state.get_values()}
     else:
         raise HTTPMethodNotAllowed()
 
-def state_update_params(state, params):
+
+def merge_state_update(state, params):
     origins = []
     updates = {}
 
@@ -67,3 +72,6 @@ def state_update_params(state, params):
 
     return state, origins
 
+
+def get_alias_mapping(state):
+    return {s.alias: s.id for s in state.values() if s.alias}

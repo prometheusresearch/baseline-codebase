@@ -54,15 +54,9 @@ paths:
             refs:
               'study:id': study_list/selected
 
-#     states:
-#       study_code_x/value:
-#         alias: codex
-#       study_code/value:
-#         alias: code
-#       filters/value:
-#         alias: filters
-
-
+      states:
+        study_list/selected:
+          alias: selected_study
 
 
   /data/study:

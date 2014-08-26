@@ -59,7 +59,6 @@ class WidgetJSONEncoder(json.JSONEncoder):
         if isinstance(obj, State):
             return {
                 "id": obj.id,
-                "value": obj.value,
                 "dependencies": [
                     dep.id
                     for dep in obj.dependencies

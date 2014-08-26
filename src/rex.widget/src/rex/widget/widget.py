@@ -211,33 +211,28 @@ class Widget(Extension):
                 self.values[field.attribute] = arg
 
     @cached
-    def state_configuration(self):
-        return {
-            state_id: state_configuration.record_type(alias=config)
-                      if isinstance(config, basestring)
-                      else config
-            for state_id, config
-            in self.states.items()
-        }
-
-    @cached
     def descriptor(self):
         props = {}
         state = MutableStateGraph()
+        own_state = MutableStateGraph()
 
         for name, value in self.values.items():
             name = to_camelcase(name)
             if isinstance(value, Widget):
                 self.on_widget(props, state, name, value)
             elif isinstance(value, StateDescriptor):
-                self.on_state_descriptor(props, state, name, value)
+                self.on_state(props, own_state, name, value)
             else:
                 props[name] = value
 
-        for state_id, conf in self.state_configuration().items():
+        if own_state:
+            own_state = assign_aliases(own_state, self.id)
+            state.update(own_state)
+
+        # override states from state configuration
+        for state_id, conf in self.states.items():
             if state_id in state:
-                if conf.alias:
-                    state[state_id] = state[state_id]._replace(alias=conf.alias)
+                state[state_id] = state[state_id]._replace(alias=conf.alias)
 
         return WidgetDescriptor(
             ui=UIDescriptor(self.js_type, props),
@@ -248,7 +243,7 @@ class Widget(Extension):
         props[name] = descriptor.ui
         state.update(descriptor.state)
 
-    def on_state_descriptor(self, props, state, name, state_descriptor):
+    def on_state(self, props, state, name, state_descriptor):
         for prop_name, descriptor in state_descriptor.describe_state(self, name):
             state[descriptor.id] = descriptor
             if descriptor.is_writable:
@@ -270,6 +265,14 @@ class Widget(Extension):
                 continue
             args.append("%s=%r" % (field.attribute, value))
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
+def assign_aliases(state, widget_id):
+    writable_state = [s for s in state.values() if s.is_writable]
+    if len(writable_state) == 1:
+        key = writable_state[0].id
+        state[key] = state[key]._replace(alias=widget_id)
+    return state
 
 
 class GroupWidget(Widget):

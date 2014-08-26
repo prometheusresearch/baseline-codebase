@@ -9,7 +9,7 @@ var Emitter       = require('emitter');
 var invariant     = require('./invariant');
 var merge         = require('./merge');
 var mergeInto     = require('./mergeInto');
-var qs            = require('./qs');
+var History       = require('./History');
 
 var UNKNOWN = '__unknown__';
 var PERSISTENCE = {
@@ -18,22 +18,19 @@ var PERSISTENCE = {
   INVISIBLE: 'invisible'
 };
 
-// a mapping from state ids to states
-var storage = {};
-
+// a mapping from state ids to state configurations
+var states = undefined;
 // a mapping from state ids to arrays of dependent state ids
 var dependents = {};
+// a mapping from state ids to state values
+var values = {};
 
-var preventPopState = false;
-
-function updateStateValue(value, update) {
+function mergeValue(value, update) {
   // If this is an object we should process update directives, otherwise we just
   // replace value with an updated one
   if (typeof update === 'object' && update !== null) {
-
     var updatedValue = {};
     mergeInto(updatedValue, value);
-
     Object.keys(update).forEach(function(key) {
       var val = update[key];
       if (val && val.__append__) {
@@ -47,99 +44,81 @@ function updateStateValue(value, update) {
         updatedValue[key] = val;
       }
     });
-
     return updatedValue;
   } else {
     return update;
   }
 }
 
-function forEachReadWriteState(func) {
-  Object.keys(storage).forEach(function(key) {
-    var state = storage[key];
-    if (state.isWritable) {
-      func(state, key);
-    }
-  });
-}
-
-function serializeApplicationState() {
-  var pathname = window.location.pathname;
-  var query = {};
-  forEachReadWriteState(function(state, key) {
-    if (state.value !== null
-        && state.persistence !== PERSISTENCE.INVISIBLE) {
-
-//    if (storage[key].alias) {
-//      key = storage[key].alias;
-//    }
-
-      query[key] = state.value;
-    }
-  });
-  query = qs.stringify(query);
-  if (query.length > 0) {
-    pathname = `${pathname}?${query}`;
-  }
-  return pathname;
-}
-
-window.addEventListener('popstate', function() {
-  if (preventPopState) {
-    preventPopState = false;
-    return;
-  }
-  var update = {};
-  var query = qs.parse(window.location.search.slice(1));
-  forEachReadWriteState(function(state, key) {
-    var value = query[key];
-    if (value === '' || value === undefined) {
-      value = null;
-    }
-    update[key] = value;
-  });
-  ApplicationState.updateMany(update);
-});
-
 var ApplicationState = merge({
 
-  UNKNOWN,
   PERSISTENCE,
 
-  replaceHistoryRecord() {
-    var pathname = serializeApplicationState();
-    window.history.replaceState(null, '', pathname);
+  /**
+   * Start application.
+   *
+   * @param {State} state
+   * @param {Values} values
+   */
+  start(state, values) {
+    this.configure(state);
+    this.hydrate(values);
+    this.loadDeferred();
   },
 
-  pushHistoryRecord() {
-    var pathname = serializeApplicationState();
-    window.history.pushState(null, '', pathname);
+  /**
+   * Update applicaiton state
+   *
+   * @param {State} states
+   */
+  configure(conf) {
+    invariant(
+      states === undefined,
+      'state is already configured'
+    );
+    states = {};
+    Object.keys(conf).forEach((id) => this._configureState(conf[id]));
+  },
+
+  _configureState(state) {
+    var {id, dependencies} = state;
+    states[id] = state;
+    values[id] = {value: UNKNOWN, updating: !!state.defer};
+    // TODO: Check for cycles.
+    if (dependencies.length > 0) {
+      dependencies.forEach(function(dep) {
+        var list = dependents[dep] = dependents[dep] || [];
+        if (dependents[dep].indexOf(id) === -1) {
+          dependents[dep].push(id);
+        }
+      });
+    }
   },
 
   getState(id) {
-    return storage[id];
+    return states[id];
   },
 
   get(id) {
     if (id.indexOf(':') > -1) {
       var parsed = id.split(':', 1);
       id = parsed[0];
-      var value = storage[id].value;
+      var value = values[id].value;
       if (value === UNKNOWN) {
         return null;
       }
       invariant(
-        storage[id] !== undefined,
+        states[id] !== undefined,
         `cannot dereference state with id: ${id}`
       );
       parsed[1].split('.').forEach((part) => value = value[part]);
       return value;
     } else {
       invariant(
-        storage[id] !== undefined,
+        states[id] !== undefined,
         `cannot dereference state with id: ${id}`
       );
-      var value = storage[id].value;
+      var value = values[id].value;
       if (value === UNKNOWN) {
         return null;
       }
@@ -147,64 +126,52 @@ var ApplicationState = merge({
     }
   },
 
-  hydrateAll(statePacket) {
+  hydrate(update) {
+    var nextValues = {};
+    mergeInto(nextValues, values);
     ReactUpdates.batchedUpdates(() => {
-      Object.keys(statePacket).forEach((id) =>
-        this.hydrate(statePacket[id]))
+      Object.keys(update).forEach((id) => {
+        var value = update[id];
+
+        invariant(
+          states[id] !== undefined,
+          "unknown state '%s'", id
+        );
+
+        var prevValue = nextValues[id];
+
+        if (prevValue !== undefined && prevValue.value !== UNKNOWN) {
+          nextValues[id] = {
+            value: mergeValue(prevValue.value, value),
+            updating: false
+          };
+        } else {
+          nextValues[id] = {
+            value,
+            updating: false
+          };
+        }
+      });
+
+      values = nextValues;
     });
   },
 
   /**
-   * @param {String} id
-   * @param {Object} state
-   * @param {Array<Strign>} dependencies
+   * Update multiple states at once.
    */
-  hydrate(stateDescriptor) {
-    var id = stateDescriptor.id;
-    var value = stateDescriptor.value;
-    var dependencies = stateDescriptor.dependencies || [];
+  updateMany(update) {
+    var nextValues = {};
+    mergeInto(nextValues, values);
 
-    var prevState = storage[id];
-
-    if (prevState !== undefined) {
-      storage[id] = merge(prevState, {
-        value: updateStateValue(prevState.value, value)
-      });
-    } else {
-      storage[id] = {
-        value: updateStateValue(undefined, value),
-        defer: stateDescriptor.defer,
-        isWritable: stateDescriptor.isWritable,
-        updating: stateDescriptor.updating,
-        persistence: stateDescriptor.persistence,
-        dependencies: stateDescriptor.dependencies,
-        alias: stateDescriptor.alias
-      };
-    }
-
-    // TODO: Check for cycles.
-    if (dependencies.length > 0) {
-      dependencies.forEach(function(dep) {
-        var toUpdate = dependents[dep] = dependents[dep] || [];
-        if (toUpdate.indexOf(id) === -1) {
-          toUpdate.push(id);
-        }
-      });
-    }
-  },
-
-  updateMany(values) {
-    console.debug('updateMany', values);
-    var nextStorage = merge({}, storage);
-
-    var queue = Object.keys(values);
+    var queue = Object.keys(update);
     var toNotify = [];
 
     var needRemoteUpdate = false;
 
     while (queue.length > 0) {
       var sID = queue.shift();
-      var state = nextStorage[sID];
+      var state = states[sID];
 
       invariant(
         state !== undefined,
@@ -214,10 +181,10 @@ var ApplicationState = merge({
       // XXX: If we would need some sophisticated state management, this is the
       // place where we can dispatch update to state's store so it can process
       // it in some way
-      if (values[sID] !== undefined) {
-        state.value = values[sID];
+      if (update[sID] !== undefined) {
+        nextValues[sID] = {value: update[sID], updating: false};
       } else if (!state.isWritable) {
-        state.value = merge(state.value, {updating: true});
+        nextValues[sID] = {value: values[sID].value, updating: true};
         needRemoteUpdate = true;
       }
 
@@ -225,7 +192,7 @@ var ApplicationState = merge({
       queue = queue.concat(dependents[sID] || []);
     }
 
-    storage = nextStorage;
+    values = nextValues;
 
     // notify listeners so that they can show loading indicators if needed
     ReactUpdates.batchedUpdates(() => {
@@ -233,26 +200,26 @@ var ApplicationState = merge({
     });
 
     if (needRemoteUpdate) {
-      this.remoteUpdate(values);
+      this.remoteUpdate(update);
     }
   },
 
   update(id, value) {
-    var values = {}
-    values[id] = value;
-    this.updateMany(values);
+    var update = {}
+    update[id] = value;
+    this.updateMany(update);
   },
 
   notifyStateChanged(id) {
-    this.emit(id, id, storage[id].value);
+    this.emit(id, id, values[id].value);
   },
 
   remoteReload(id) {
     var update = {};
-    for(var dep in dependents) {
+    for (var dep in dependents) {
       // TODO: fix user handling
-      if(dep !== 'USER' && dependents[dep].indexOf(id) != -1) {
-        update[dep] = storage[dep].value;
+      if (dep !== 'USER' && dependents[dep].indexOf(id) != -1) {
+        update[dep] = values[dep].value;
       }
     }
     this.remoteUpdate(update);
@@ -261,8 +228,8 @@ var ApplicationState = merge({
   loadDeferred() {
     var updates = {};
 
-    for (var id in storage) {
-      var {defer} = storage[id];
+    for (var id in states) {
+      var {defer} = states[id];
       if (defer !== null) {
         var update = updates[defer] || {};
         update[id] = UNKNOWN;
@@ -277,17 +244,17 @@ var ApplicationState = merge({
     }
   },
 
-  remoteUpdate(values) {
+  remoteUpdate(update) {
     var params = {};
 
-    this.forEach((state, id) => {
-      if (state.isWritable && values[id] === undefined) {
-        params[id] = state.value;
+    this.forEach((state, id, {value}) => {
+      if (state.isWritable && update[id] === undefined) {
+        params[id] = value;
       }
     });
 
-    Object.keys(values).forEach((id) => {
-      params[`update:${id}`] = values[id];
+    Object.keys(update).forEach((id) => {
+      params[`update:${id}`] = update[id];
     });
 
     request
@@ -303,30 +270,33 @@ var ApplicationState = merge({
     if (err) {
       throw err;
     }
+
     if (response.status !== 200) {
       throw new Error(`cannot update state: ${response.text}`);
     }
 
-    var state = response.body.state;
-    this.hydrateAll(state);
+    var values = response.body.values;
+    this.hydrate(values);
     ReactUpdates.batchedUpdates(() => {
-      Object.keys(state).forEach(this.notifyStateChanged, this);
+      Object.keys(values).forEach(this.notifyStateChanged, this);
     });
-    preventPopState = true;
-    this.replaceHistoryRecord()
-    preventPopState = false;
+    this.history.replaceState();
   },
 
   forEach(func, context) {
-    Object.keys(storage).forEach((id) => func.call(context, storage[id], id));
+    Object.keys(states).forEach((id) =>
+      func.call(context, states[id], id, values[id]));
   }
 
 }, Emitter.prototype);
 
+ApplicationState.history = new History(ApplicationState);
+
 
 if (__DEV__) {
-  ApplicationState.getStorage = function() { return storage; };
+  ApplicationState.getStates = function() { return states; };
   ApplicationState.getDependents = function() { return dependents; };
+  ApplicationState.getValues = function() { return values; };
 }
 
 

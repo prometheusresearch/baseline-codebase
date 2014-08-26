@@ -17,7 +17,7 @@
     if (window.Rex === undefined || window.Rex.Widget === undefined) {
       throw new Error('include rex-widget bower package in your application');
     }
-    Rex.Widget.renderSpec(
+    Rex.Widget.render(
       __REX_WIDGET__,
       document.getElementById('__main__')
     );

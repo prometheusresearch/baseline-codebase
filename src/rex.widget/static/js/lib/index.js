@@ -8,50 +8,41 @@ __webpack_require__.p = __MOUNT_PREFIX__ + __BUNDLE_PREFIX__;
 var React            = require('react');
 var ApplicationState = require('./ApplicationState');
 var Application      = require('./Application');
-var DataPreloader    = require('./DataPreloader');
-var LoadingIndicator = require('./LoadingIndicator');
-var Icon             = require('./Icon');
-var PropTypes        = require('./PropTypes');
-var Table            = require('./Table');
-var Grid             = require('./Grid');
+var invariant        = require('./invariant');
 
-if (window.__require__ === undefined) {
-  throw new Error(
-    'rex-widget requires introspectable plugin to be enabled, '
-    + 'you probably have an old version of rex-setup npm package installed'
-  );
+if (__DEV__) {
+  // Needed for React Dev Tools
+  window.React = React;
 }
 
+invariant(
+  window.__require__ !== undefined,
+  'rex-widget requires introspectable plugin to be enabled, '
+  + 'you probably have an old version of rex-setup npm package installed'
+);
+
 /**
- * Render Rex Widget spec into DOM.
- *
- * @param {Spec} spec
- * @param {DOMElement?} element
- * @return {ReactComponent}
+ * Render Rex Widget application into DOM.
  */
-function renderSpec(spec, element) {
-  var stateIDs = Object.keys(spec.state);
-
-  ApplicationState.hydrateAll(spec.state);
-  ApplicationState.loadDeferred();
-
+function render({descriptor: {state, ui}, values}, element) {
+  ApplicationState.start(state, values);
   return React.renderComponent(
-    <Application stateIDs={stateIDs} ui={spec.ui} />,
+    <Application listenTo={Object.keys(state)} ui={ui} />,
     element);
 }
 
 module.exports = {
-  renderSpec,
+  render,
   ApplicationState,
   Application,
-  PropTypes,
-  Table, Grid, DataPreloader, LoadingIndicator, Icon
+  History:          require('./History'),
+  PropTypes:        require('./PropTypes'),
+  Table:            require('./Table'),
+  Grid:             require('./Grid'),
+  DataPreloader:    require('./DataPreloader'),
+  LoadingIndicator: require('./LoadingIndicator'),
+  Icon:             require('./Icon')
 };
 
 window.Rex = window.Rex || {};
 window.Rex.Widget = module.exports;
-
-// Needed for React Dev Tools
-if (__DEV__) {
-  window.React = React;
-}

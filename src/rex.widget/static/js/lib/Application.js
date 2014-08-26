@@ -10,47 +10,46 @@ var invariant         = require('./invariant');
 var Application = React.createClass({
 
   propTypes: {
-    stateIDs: React.PropTypes.array,
+    listenTo: React.PropTypes.array,
     ui: React.PropTypes.object.isRequired
   },
 
-  render: function() {
+  render() {
     return constructComponent(this.props.ui);
   },
 
-  getDefaultProps: function() {
-    return {stateIDs: []};
+  getDefaultProps() {
+    return {listenTo: []};
   },
 
-  componentDidMount: function() {
-    this._setupStateListeners(this.props.stateIDs);
+  componentDidMount() {
+    this._setupStateListeners(this.props.listenTo);
   },
 
-  componentDidUpdate: function(prevProps) {
-    this._removeStateListeners(prevProps.stateIDs);
-    this._setupStateListeners(this.props.stateIDs);
+  componentWillUmount() {
+    this._removeStateListeners(this.props.listenTo);
   },
 
-  componentWillUmount: function() {
-    this._removeStateListeners(this.props.stateIDs);
-  },
-
-  _removeStateListeners: function(stateIDs) {
-    for (var i = 0, len = stateIDs.length; i < len; i++) {
-      ApplicationState.off(stateIDs[i], this._update);
+  _removeStateListeners(listenTo) {
+    for (var i = 0, len = listenTo.length; i < len; i++) {
+      ApplicationState.off(listenTo[i], this.update);
     }
   },
 
-  _setupStateListeners: function(stateIDs) {
-    for (var i = 0, len = stateIDs.length; i < len; i++) {
-      ApplicationState.on(stateIDs[i], this._update);
+  _setupStateListeners(listenTo) {
+    for (var i = 0, len = listenTo.length; i < len; i++) {
+      ApplicationState.on(listenTo[i], this.update);
     }
   },
 
-  // XXX: forceUpdate() method isn't bound to component, this is why we have
-  // _update() and because we might want to do something more interesting in the
-  // future.
-  _update: function() {
+  /**
+   * Force update of the application UI.
+   *
+   * The method forceUpdate() isn't automatically bound to a component instance but
+   * user-defined methods are. This is why we need to use `this.update` instead
+   * of `this.forceUpdate` when registering callbacks.
+   */
+  update() {
     this.forceUpdate();
   }
 });
@@ -125,10 +124,10 @@ function makeAction(id, persistence) {
     ApplicationState.updateMany(produce(value));
     switch (persistence) {
       case ApplicationState.PERSISTENCE.PERSISTENT:
-        ApplicationState.pushHistoryRecord();
+        ApplicationState.history.pushState();
         break;
       case ApplicationState.PERSISTENCE.EPHEMERAL:
-        ApplicationState.replaceHistoryRecord();
+        ApplicationState.history.replaceState();
         break;
       case ApplicationState.PERSISTENCE.INVISIBLE:
         break;

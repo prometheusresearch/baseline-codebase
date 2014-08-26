@@ -1,3 +1,6 @@
+Widget
+======
+
 ::
 
     >>> from rex.core import Rex
@@ -141,3 +144,18 @@ the UI::
         }
       }
     }
+
+ Validations
+ -----------
+
+ Widget doesn't allow to have duplicate state ids inside its definition::
+
+    >>> screen = Widget.parse("""
+    ... !<TwoColumnLayout>
+    ... sidebar: !<TextInput>
+    ...   id: input
+    ... main: !<TextInput>
+    ...   id: input
+    ... """)
+
+    >>> desc = screen.descriptor()

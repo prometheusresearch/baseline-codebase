@@ -1,0 +1,29 @@
+{
+  "name": "rex-widget",
+  "version": "0.0.0",
+  "description": "Rex Widget JavaScript library",
+  "main": "lib/index.js",
+  "dependencies": {
+    "mochify": "^1.0.2"
+  },
+  "devDependencies": {
+    "mocha": "^1.21.4",
+    "mochify": "^1.0.2",
+    "reactify": "^0.14.0"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "author": "Prometheus Research, LLC",
+  "license": "AGPLv3",
+  "browserify": {
+    "transform": [
+      [
+        "reactify",
+        {
+          "es6": true
+        }
+      ]
+    ]
+  }
+}

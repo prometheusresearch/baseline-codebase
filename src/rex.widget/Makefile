@@ -1,5 +1,5 @@
 demo::
-	@rex serve --watch rex.widget_demo
+	@rex serve --debug --watch rex.widget_demo
 
 doc::
 	@sphinx-build doc doc/_build

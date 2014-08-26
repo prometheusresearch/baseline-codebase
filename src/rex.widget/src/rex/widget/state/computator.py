@@ -225,7 +225,7 @@ class PaginatedCollectionComputator(DataComputator):
 
         (sort_field, sort_direction) = parse_sort_spec(sort)
         if sort_field:
-            params["%s.%s:sort" % (entity_name, sort_field)] = sort_direction
+            params["%s/%s:sort" % (entity_name, sort_field)] = sort_direction
 
         return super(PaginatedCollectionComputator, self).fetch_port(
                 handler,

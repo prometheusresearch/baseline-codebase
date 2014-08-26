@@ -12,11 +12,10 @@ from .fields import (
     StateVal, CollectionVal, EntityVal, PaginatedCollectionVal)
 from .graph import (
     StateGraph, MutableStateGraph,
-    State,
+    State, Reference,
     Dep, Reset,
     compute, compute_update, unknown)
 from .computator import (
     Data, Append,
     InitialValue, PaginatedCollectionComputator,
     CollectionComputator, EntityComputator)
-from .reference import Reference

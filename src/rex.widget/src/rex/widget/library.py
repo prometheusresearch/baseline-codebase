@@ -99,7 +99,7 @@ class Tabs(Widget):
 
     @property
     def active_state(self):
-        return '%s.active' % self.id
+        return '%s/active' % self.id
 
     def is_tab_active(self, n, is_active):
         def _is_tab_active(graph):
@@ -206,7 +206,7 @@ class SelectWidget(Widget):
         if state.value is unknown:
             return Reset(None)
 
-        data = '%s.data' % self.id
+        data = '%s/data' % self.id
 
         # if data is marked as dirty we need to check if current value is
         # still valid and reset it otherwise
@@ -265,7 +265,7 @@ class FiltersWidget(Widget):
     def __init__(self, *args, **kwargs):
         super(FiltersWidget, self).__init__(*args, **kwargs)
         self.refs = {
-            w.filter.id: "%s.value" % w.filter.id
+            w.filter.id: "%s/value" % w.filter.id
             for w in iterate_widget(self.filters)}
 
     @state(AnyVal)

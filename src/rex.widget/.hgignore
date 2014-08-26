@@ -8,3 +8,4 @@ build
 doc/_build/
 dist
 www/bundle/*
+node_modules

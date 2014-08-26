@@ -10,13 +10,13 @@
 import re
 import simplejson as json
 import yaml
-from jquery_unparam import jquery_unparam as parse_qs
+import pyquerystring
 from collections import namedtuple
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 from rex.core import (
-        MaybeVal, AnyVal, Error, Extension, RecordVal, RecordField,
-        ProxyVal, StrVal, cached)
+    Extension, cached, Record,
+    MaybeVal, RecordField, ProxyVal, OneOfVal, MapVal, StrVal, RecordVal)
 from rex.web import render_to_response
 from .state import (
     Data, Append,
@@ -26,7 +26,10 @@ from .state import (
 from .jsval import JSValue
 
 
-_WidgetDescriptor = namedtuple('WidgetDescriptor', ['ui', 'state'])
+_WidgetDescriptor = namedtuple('WidgetDescriptor', [
+    'ui',
+    'state'
+])
 
 
 class WidgetDescriptor(_WidgetDescriptor):
@@ -141,6 +144,10 @@ def state(validator, dependencies=None, default=RecordField.NODEFAULT):
     return register_computator
 
 
+state_configuration = RecordVal(RecordField('alias', StrVal()))
+state_configuration_mapping = MapVal(StrVal(), state_configuration)
+
+
 class Widget(Extension):
     """ Base class for widgets.
 
@@ -169,9 +176,13 @@ class Widget(Extension):
     """
 
     name = None
+    js_type = NotImplemented
+
     fields = []
 
     validate = ProxyVal()
+
+    NON_PROP_NAMES = ('states',)
 
     class __metaclass__(Extension.__metaclass__):
 
@@ -188,8 +199,10 @@ class Widget(Extension):
                     key=lambda (_, field): field.order)
             ]
 
-            return cls
+            cls.fields.append(
+                RecordField('states', state_configuration_mapping, {}))
 
+            return cls
     @classmethod
     def enabled(cls):
         return (cls.name is not None)
@@ -240,7 +253,18 @@ class Widget(Extension):
         self.values = {}
         for arg, field in zip(args, self.fields):
             setattr(self, field.attribute, arg)
-            self.values[field.attribute] = arg
+            if not field.attribute in self.NON_PROP_NAMES:
+                self.values[field.attribute] = arg
+
+    @cached
+    def state_configuration(self):
+        return {
+            state_id: state_configuration.record_type(alias=config)
+                      if isinstance(config, basestring)
+                      else config
+            for state_id, config
+            in self.states.items()
+        }
 
     @cached
     def descriptor(self):
@@ -258,9 +282,14 @@ class Widget(Extension):
             else:
                 props[name] = value
 
+        for state_id, conf in self.state_configuration().items():
+            if state_id in state:
+                if conf.alias:
+                    state[state_id] = state[state_id]._replace(alias=conf.alias)
+
         return WidgetDescriptor(
-                UIDescriptor(self.js_type, props),
-                state.immutable())
+            UIDescriptor(self.js_type, props),
+            state.immutable())
 
     def on_widget(self, props, state, name, widget):
         descriptor = widget.descriptor()
@@ -277,14 +306,15 @@ class Widget(Extension):
 
     def request_to_spec(self, req):
         user = req.environ.get('rex.user')
+        descriptor = self.descriptor()
         widget, state = self.descriptor()
         if req.method == 'GET':
-            values = parse_qs(req.query_string)
+            values = pyquerystring.parse(req.query_string)
             for k, v in values.items():
                 if k in state and state[k].validator is not None:
                     values[k] = state[k].validator(v)
             state = compute(state, values=values, user=user, defer=True)
-            return {"ui": widget, "state": state}
+            return descriptor._replace(state=state)
         elif req.method == 'POST':
             state, origins = state_update_params(state, req.json)
             if not origins:
@@ -317,6 +347,10 @@ class Widget(Extension):
                 continue
             args.append("%s=%r" % (field.attribute, value))
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
+def merge_querystring(state, querystring):
+    pass
 
 
 def state_update_params(state, params):
@@ -352,7 +386,9 @@ class GroupWidget(Widget):
             state.update(descriptor.state)
             children.append(descriptor.ui)
 
-        return WidgetDescriptor(UIDescriptorChildren(children), state.immutable())
+        return WidgetDescriptor(
+            UIDescriptorChildren(children),
+            state.immutable())
 
 
 class NullWidget(Widget):
@@ -398,7 +434,10 @@ class WidgetJSONEncoder(json.JSONEncoder):
         if isinstance(obj, UIDescriptorChildren):
             return {"__children__": obj.children}
         if isinstance(obj, WidgetDescriptor):
-            return {"ui": obj.ui, "state": obj.state}
+            return {
+                "ui": obj.ui,
+                "state": obj.state
+            }
         if isinstance(obj, StateGraph):
             return obj.storage
         if obj is unknown:
@@ -421,7 +460,8 @@ class WidgetJSONEncoder(json.JSONEncoder):
                     if not dep.reset_only],
                 "persistence": obj.persistence,
                 "isWritable": obj.is_writable,
-                "defer": obj.defer
+                "defer": obj.defer,
+                "alias": obj.alias,
             }
         return super(WidgetJSONEncoder, self).default(obj)
 

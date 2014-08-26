@@ -12,8 +12,7 @@ from rex.core import Validate, Error, MaybeVal, MapVal, OneOfVal, StrVal, IntVal
 from .computator import (
         CollectionComputator, EntityComputator, PaginatedCollectionComputator,
         InitialValue)
-from .graph import State, Dep, unknown
-from .reference import Reference
+from .graph import State, Dep, Reference, unknown
 
 
 class StateDescriptor(object):
@@ -26,7 +25,7 @@ class StateDescriptor(object):
 
         :param widget: widget instance
         :param field_name: field name
-        
+
         :return: lisf of state descriptors
         :rtype: [(str, :class:`StateDescriptor`)]
         """
@@ -41,35 +40,23 @@ class SimpleStateDescriptor(StateDescriptor):
         self.params = params
 
     def describe_state(self, widget, field_name):
-        state_id = "%s.%s" % (widget.id, field_name)
-        
-        dependencies = [
-            absolutize_dep(d if isinstance(d, Dep) else Dep(d), widget.id)
-            for d in (
-                self.dependencies(widget)
-                if hasattr(self.dependencies, '__call__')
-                else self.dependencies)]
-
+        state_id = "%s/%s" % (widget.id, field_name)
+        dependencies = (self.dependencies(widget)
+                        if hasattr(self.dependencies, '__call__')
+                        else self.dependencies)
+        dependencies = [Dep(d).absolutize(widget.id) for d in dependencies]
         st = State(
                 state_id,
                 widget=widget,
-                dependencies=dependencies,
+                dependencies=list(dependencies),
                 **self.params)
 
         return [(field_name, st)]
 
 
-def absolutize_dep(dep, widget_id):
-    """ Convert dependency ``dep`` from relative to absolute reference."""
-    if '.' in dep.id:
-        return dep
-    else:
-        return dep._replace(id="%s.%s" % (widget_id, dep.id))
-
-
 class DataDescriptor(StateDescriptor):
     """ Field which defines remote data source such as port or HTSQL query.
-    
+
     :param computator_factory: factory for state computator
     :param url: URL
     :param refs: a mapping of references
@@ -85,7 +72,7 @@ class DataDescriptor(StateDescriptor):
         self.defer = defer
 
     def describe_state(self, widget, field_name):
-        state_id = "%s.%s" % (widget.id, field_name)
+        state_id = "%s/%s" % (widget.id, field_name)
         computator = self.computator_factory(self.url, self.refs, self.include_meta)
         dependencies = [r.id for r in self.refs.values()]
         st = State(state_id,
@@ -101,9 +88,9 @@ class PaginatedCollectionDescriptor(DataDescriptor):
     """ A reference to a collection which provides pagination mechanism."""
 
     def describe_state(self, widget, field_name):
-        state_id = "%s.%s" % (widget.id, field_name)
-        pagination_state_id = "%s.%s.pagination" % (widget.id, field_name)
-        sort_state_id = "%s.%s.sort" % (widget.id, field_name)
+        state_id = "%s/%s" % (widget.id, field_name)
+        pagination_state_id = "%s/%s/pagination" % (widget.id, field_name)
+        sort_state_id = "%s/%s/sort" % (widget.id, field_name)
 
         dependencies = [r.id for r in self.refs.values()]
 

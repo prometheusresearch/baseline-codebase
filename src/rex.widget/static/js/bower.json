@@ -8,7 +8,9 @@
   "main": "./lib/index.js",
   "styleEntry": "./style/index.less",
   "dependencies": {
-    "react": "http://registry.npmjs.org/react/-/react-0.11.1.tgz#*",
+    "react":  "http://registry.npmjs.org/react/-/react-0.11.1.tgz#*",
+    "dot-qs": "http://registry.npmjs.org/dot-qs/-/dot-qs-0.2.0.tgz#*",
+    "flat": "http://registry.npmjs.org/flat/-/flat-1.2.1.tgz#*",
     "bootstrap": "^3.2.0",
     "superagent": "^0.18.2",
     "emitter": "component/emitter#1.1.3",

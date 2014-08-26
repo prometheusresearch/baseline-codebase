@@ -13,7 +13,6 @@
 from collections import namedtuple, MutableMapping, Mapping
 from rex.core import AnyVal, Error
 from ..logging import getLogger
-from .reference import Reference
 
 
 log = getLogger(__name__)
@@ -37,8 +36,8 @@ class StateGraph(Mapping):
         if initial is not None:
             _merge_state_into(self, initial)
 
-    def __contains__(self, id):
-        return id in self.storage
+    def __contains__(self, state_id):
+        return state_id in self.storage
 
     def __iter__(self):
         return iter(self.storage)
@@ -46,14 +45,14 @@ class StateGraph(Mapping):
     def __len__(self):
         return len(self.storage)
 
-    def __getitem__(self, id):
-        if ':' in id:
-            id = id.split(':', 1)[0]
-        return self.storage[id]
+    def __getitem__(self, state_id):
+        if ':' in state_id:
+            state_id = state_id.split(':', 1)[0]
+        return self.storage[state_id]
 
     def __str__(self):
         return "%s(storage=%s, dependents=%s)" % (
-                self.__class__.__name__, self.storage, self.dependents)
+            self.__class__.__name__, self.storage, self.dependents)
 
     __repr__ = __str__
 
@@ -72,20 +71,20 @@ class StateGraph(Mapping):
             for part in ref.path:
                 if value is None:
                     return None
-                value = value[part]
+                value = value.get(part)
         except KeyError:
             if ref.id in self.storage:
                 raise LookupError(
                     "cannot dereference '%s' reference with value '%r'" % (
-                    ref, self.storage[ref.id].value))
+                        ref, self.storage[ref.id].value))
             else:
                 raise LookupError("cannot dereference '%s' reference" % (ref,))
         else:
             return value
 
-    def merge(self, st):
+    def merge(self, state):
         result = self.__class__(self)
-        _merge_state_into(result, st)
+        _merge_state_into(result, state)
         return result
 
 
@@ -98,37 +97,37 @@ class MutableStateGraph(StateGraph, MutableMapping):
 
     def add(self, *args, **kwargs):
         """ Shortuct for adding new state to a graph.
-        
+
         For arguments see :class:`State`.
         """
         st = State(*args, **kwargs)
         self[st.id] = st
 
-    def set(self, id, value):
-        """ Update state by ``id`` with a new ``value``."""
-        self[id] = self[id]._replace(value=value)
+    def set(self, state_id, value):
+        """ Update state by ``state_id`` with a new ``value``."""
+        self[state_id] = self[state_id]._replace(value=value)
 
     def set_many(self, updates):
         """ Update many states at once."""
-        for id, value in updates.items():
-            self.set(id, value)
+        for state_id, value in updates.items():
+            self.set(state_id, value)
 
     def immutable(self):
         """ Return an immutable version of the state graph."""
         return StateGraph(self)
 
-    def __setitem__(self, id, st):
-        self.storage[id] = st
-        self.dependencies[id] = st.dependencies
-        self.dependents.setdefault(id, [])
+    def __setitem__(self, state_id, st):
+        self.storage[state_id] = st
+        self.dependencies[state_id] = st.dependencies
+        self.dependents.setdefault(state_id, [])
 
-        for d in st.dependencies:
-            dependents = self.dependents.setdefault(d.id, [])
-            inverse_dep = Dep(id, reset_only=d.reset_only)
+        for dep in st.dependencies:
+            dependents = self.dependents.setdefault(dep.id, [])
+            inverse_dep = Dep(state_id, reset_only=dep.reset_only)
             if not inverse_dep in dependents:
                 dependents.append(inverse_dep)
 
-    def __delitem__(self, id):
+    def __delitem__(self, _state_id):
         raise NotImplementedError("not implemented")
 
 
@@ -157,8 +156,8 @@ class StateGraphComputation(Mapping):
             self.output['USER'] = State('USER', value=self.user, is_writable=False)
 
         if values is not None:
-            for id, value in values.items():
-                self.output[id] = self.input[id]._replace(value=value)
+            for state_id, value in values.items():
+                self.output[state_id] = self.input[state_id]._replace(value=value)
 
     def compute(self, id, defer=False):
         """ Force computation of state with id ``id``."""
@@ -226,6 +225,7 @@ class StateGraphComputation(Mapping):
         if self.is_computed(ref.id):
             return self.output.get_value(ref)
 
+        print self.input.keys()
         if not ref.id in self.input:
             raise Error('invalid reference: %s' % (ref,))
 
@@ -235,13 +235,13 @@ class StateGraphComputation(Mapping):
 
 
 def _merge_state_into(dst, src):
-    for id, st in src.items():
-        dst.storage[id] = st
-        dst.dependencies[id] = st.dependencies
+    for state_id, st in src.items():
+        dst.storage[state_id] = st
+        dst.dependencies[state_id] = st.dependencies
 
-        for d in st.dependencies:
-            dependents = dst.dependents.setdefault(d.id, [])
-            inverse_dep = Dep(id, reset_only=d.reset_only)
+        for dep in st.dependencies:
+            dependents = dst.dependents.setdefault(dep.id, [])
+            inverse_dep = Dep(state_id, reset_only=dep.reset_only)
             if not inverse_dep in dependents:
                 dependents.append(inverse_dep)
 
@@ -261,19 +261,61 @@ class Unknown(object):
 unknown = Unknown()
 
 
+_Reference = namedtuple('Reference', ['id', 'path'])
+
+class Reference(_Reference):
+    """ A reference to state and a path inside its value."""
+
+    __slots__ = ()
+
+    def __new__(cls, state_id, path=None):
+        path = path or []
+        if ':' in state_id:
+            _state_id, _path = state_id.split(':', 1)
+            return _Reference.__new__(cls, _state_id, _path.split('.') + path)
+        else:
+            return _Reference.__new__(cls, state_id, path)
+
+    def __str__(self):
+        return "Reference('%s:%s')" % (self.id, '.'.join(self.path))
+
+    __repr__ = __str__
+
+
+_StateID = namedtuple('StateID', ['parts'])
+
+class StateID(_StateID):
+
+    DELIMITER = '/'
+
+    def __new__(cls, *state_id):
+        if len(state_id) == 1:
+            if isinstance(state_id[0], cls):
+                return state_id[0]
+            if isinstance(state_id[0], basestring):
+                state_id = state_id[0].split(cls.DELIMITER)
+        return _StateID.__new__(cls, tuple(state_id))
+
+    def __str__(self):
+        return "StateID('%s')" % self.DELIMITER.join(self.parts)
+
+    __repr__ = __str__
+
+
 _State = namedtuple('State', [
-                    'id',
-                    'widget',
-                    'computator',
-                    'validator',
-                    'is_active',
-                    'defer',
-                    'value',
-                    'default',
-                    'dependencies',
-                    'persistence',
-                    'is_writable'
-                    ])
+    'id',
+    'widget',
+    'computator',
+    'validator',
+    'is_active',
+    'defer',
+    'value',
+    'default',
+    'dependencies',
+    'persistence',
+    'is_writable',
+    'alias'
+])
 
 
 class State(_State):
@@ -292,6 +334,7 @@ class State(_State):
     :attr persistence: the strategy regarding if state should be persisted
                        across state changes
     :attr is_writable: if state is read-write
+    :attr alias: state alias
     """
 
     PERSISTENT = 'persistent'
@@ -302,13 +345,10 @@ class State(_State):
 
     def __new__(cls, id, widget=None, computator=None, validator=AnyVal,
             is_active=None, value=unknown, default=None, dependencies=None,
-            persistence=PERSISTENT, is_writable=True, defer=None):
+            persistence=PERSISTENT, is_writable=True, defer=None, alias=None):
         if dependencies is None:
             dependencies = []
-        dependencies = [
-            d if isinstance(d, Dep) else Dep(d, reset_only=False)
-            for d in dependencies
-        ]
+        dependencies = [Dep(dep) for dep in dependencies]
         return _State.__new__(
             cls,
             id=id,
@@ -321,7 +361,8 @@ class State(_State):
             is_active=is_active or (lambda graph: True),
             defer=defer,
             persistence=persistence,
-            is_writable=is_writable)
+            is_writable=is_writable,
+            alias=alias)
 
 
 _Dep = namedtuple('Dep', ['id', 'reset_only'])
@@ -337,8 +378,19 @@ class Dep(_Dep):
 
     __slots__ = ()
 
-    def __new__(cls, id, reset_only=False):
-        return _Dep.__new__(cls, id, reset_only=reset_only)
+    def __new__(cls, state_id, reset_only=None):
+        if isinstance(state_id, Dep):
+            if reset_only is None:
+                return state_id
+            else:
+                return state_id._replace(reset_only=reset_only)
+        return _Dep.__new__(cls, state_id, reset_only=reset_only or False)
+
+    def absolutize(self, prefix):
+        if '/' in self.id:
+            return self
+        else:
+            return self._replace(id='%s/%s' % (prefix, self.id))
 
 
 _Reset = namedtuple('Reset', ['value'])
@@ -353,7 +405,7 @@ class Reset(_Reset):
 
 def compute(graph, values=None, user=None, defer=False):
     """ Compute entire state graph.
-    
+
     :param graph: Application state
     :param values: Known values to be merged into application state graph
     :param user: Current user
@@ -361,9 +413,9 @@ def compute(graph, values=None, user=None, defer=False):
     """
     computation = StateGraphComputation(graph, values=values, user=user)
 
-    for id in computation.input:
-        if not computation.is_computed(id):
-            computation.compute(id, defer=defer)
+    for state_id in computation.input:
+        if not computation.is_computed(state_id):
+            computation.compute(state_id, defer=defer)
 
     return computation.get_output()
 
@@ -372,20 +424,23 @@ def compute_update(graph, origins, user=None):
     """ Compute state graph update which were originated from ``origins``."""
     computation = StateGraphComputation(graph, dirty=origins, user=user)
 
-    def _compute(id, recompute_deps=True):
-        if computation.is_computed(id):
+    def _compute(state_id, recompute_deps=True):
+        if computation.is_computed(state_id):
             return
 
-        reset = computation.compute(id)
+        reset = computation.compute(state_id)
 
-        if recompute_deps or id in origins:
-            for d in computation.input.dependents.get(id, []):
-                st = computation.input[d.id]
-                if not d.reset_only or reset and (st.id in origins or st.is_writable):
-                    _compute(d.id, recompute_deps=not reset or not d.reset_only)
+        if recompute_deps or state_id in origins:
+            for dep in computation.input.dependents.get(state_id, []):
+                st = computation.input[dep.id]
+                if not dep.reset_only or reset \
+                   and (st.state_id in origins or st.is_writable):
+                    _compute(
+                        dep.id,
+                        recompute_deps=not reset or not dep.reset_only)
 
-    for id in cause_effect_sort(computation.input, origins):
-        _compute(id)
+    for state_id in cause_effect_sort(computation.input, origins):
+        _compute(state_id)
 
     return computation.get_output(dirty_only=True)
 
@@ -400,27 +455,27 @@ def cause_effect_sort(graph, ids):
     queue = [s for s in graph.values() if not s.dependencies]
 
     while queue:
-        c = queue.pop()
-        if c.id in seen:
+        cur = queue.pop()
+        if cur.id in seen:
             continue
 
         # check if we have deps we didn't see before
-        dependencies = [graph[d.id]
-                for d in c.dependencies
-                if d.id not in seen and d.id in graph]
+        dependencies = [
+            graph[dep.id] for dep in cur.dependencies
+            if dep.id not in seen and dep.id in graph]
         if dependencies:
-            queue = [c] + dependencies + queue
+            queue = [cur] + dependencies + queue
             continue
 
         # mark it as seen and append to the result
-        seen.add(c.id)
-        if c.id in ids:
-            result.append(c.id)
+        seen.add(cur.id)
+        if cur.id in ids:
+            result.append(cur.id)
 
         # proceed with states which depend on the current state
-        dependents = [graph[d.id]
-                for d in graph.dependents.get(c.id, [])
-                if d.id not in seen]
+        dependents = [
+            graph[dep.id] for dep in graph.dependents.get(cur.id, [])
+            if dep.id not in seen]
         if dependents:
             queue = dependents + queue
 

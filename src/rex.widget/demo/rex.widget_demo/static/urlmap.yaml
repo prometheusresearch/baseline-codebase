@@ -30,8 +30,8 @@ paths:
           data:
             url: rex.widget_demo:/data/study
             refs:
-              'study:id': filters.value:study_code
-              'study:xid': filters.value:study_code_x
+              'study:id': filters/value:study_code
+              'study:xid': filters/value:study_code_x
           columns:
             - key: code
               title: Code
@@ -45,14 +45,22 @@ paths:
           data:
             url: rex.widget_demo:/data/study
             refs:
-              'study:id': filters.value:study_code
+              'study:id': filters/value:study_code
 
         - !<StudyInfo>
           id: study
           data:
             url: rex.widget_demo:/data/study
             refs:
-              'study:id': study_list.selected
+              'study:id': study_list/selected
+
+#     states:
+#       study_code_x/value:
+#         alias: codex
+#       study_code/value:
+#         alias: code
+#       filters/value:
+#         alias: filters
 
 
 

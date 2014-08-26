@@ -100,7 +100,7 @@ var Filters = React.createClass({
     var state = this.getFilterState();
     React.Children.forEach(this.props.filters, (filter) => {
       var key = filter.props.filter.props.id;
-      state[key] = ApplicationState.get(key + '.value');
+      state[key] = ApplicationState.get(key + '/value');
     });
     this.props.onValue(state);
   },
@@ -111,12 +111,12 @@ var Filters = React.createClass({
 
     React.Children.forEach(this.props.filters, (filter) => {
       var key = filter.props.filter.props.id;
-      filterStateIDs.push(key + '.value');
+      filterStateIDs.push(key + '/value');
       filters[key] = null;
     });
 
     var update = {};
-    update[this.props.id + '.value'] = filters;
+    update[this.props.id + '/value'] = filters;
     filterStateIDs.forEach((id) => update[id] = null);
 
     this.replaceState(filters);

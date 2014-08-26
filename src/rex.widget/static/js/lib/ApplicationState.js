@@ -5,12 +5,11 @@
 
 var request       = require('superagent/superagent');
 var ReactUpdates  = require('react/lib/ReactUpdates');
-var $             = require('jquery');
-require('./jquery-deparam');
 var Emitter       = require('emitter');
 var invariant     = require('./invariant');
 var merge         = require('./merge');
 var mergeInto     = require('./mergeInto');
+var qs            = require('./qs');
 
 var UNKNOWN = '__unknown__';
 var PERSISTENCE = {
@@ -68,11 +67,17 @@ function serializeApplicationState() {
   var pathname = window.location.pathname;
   var query = {};
   forEachReadWriteState(function(state, key) {
-    if (state.value !== null && state.persistence !== PERSISTENCE.INVISIBLE) {
+    if (state.value !== null
+        && state.persistence !== PERSISTENCE.INVISIBLE) {
+
+//    if (storage[key].alias) {
+//      key = storage[key].alias;
+//    }
+
       query[key] = state.value;
     }
   });
-  query = $.param(query);
+  query = qs.stringify(query);
   if (query.length > 0) {
     pathname = `${pathname}?${query}`;
   }
@@ -85,7 +90,7 @@ window.addEventListener('popstate', function() {
     return;
   }
   var update = {};
-  var query = $.deparam(window.location.search.slice(1));
+  var query = qs.parse(window.location.search.slice(1));
   forEachReadWriteState(function(state, key) {
     var value = query[key];
     if (value === '' || value === undefined) {
@@ -172,7 +177,8 @@ var ApplicationState = merge({
         isWritable: stateDescriptor.isWritable,
         updating: stateDescriptor.updating,
         persistence: stateDescriptor.persistence,
-        dependencies: stateDescriptor.dependencies
+        dependencies: stateDescriptor.dependencies,
+        alias: stateDescriptor.alias
       };
     }
 
@@ -308,6 +314,7 @@ var ApplicationState = merge({
     });
     preventPopState = true;
     this.replaceHistoryRecord()
+    preventPopState = false;
   },
 
   forEach(func, context) {

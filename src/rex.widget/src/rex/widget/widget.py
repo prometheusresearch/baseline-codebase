@@ -241,8 +241,8 @@ class Widget(Extension):
                     state[state_id] = state[state_id]._replace(alias=conf.alias)
 
         return WidgetDescriptor(
-            UIDescriptor(self.js_type, props),
-            state.immutable())
+            ui=UIDescriptor(self.js_type, props),
+            state=state.immutable())
 
     def on_widget(self, props, state, name, widget):
         descriptor = widget.descriptor()
@@ -288,8 +288,8 @@ class GroupWidget(Widget):
             children.append(descriptor.ui)
 
         return WidgetDescriptor(
-            UIDescriptorChildren(children),
-            state.immutable())
+            ui=UIDescriptorChildren(children),
+            state=state.immutable())
 
 
 class NullWidget(Widget):
@@ -306,11 +306,11 @@ class NullWidget(Widget):
         return WidgetDescriptor(None, StateGraph())
 
 
-def iterate_widget(widget):
+def iterate(widget):
     """ Iterate widget or a group of widgets."""
     if isinstance(widget, GroupWidget):
         for child in widget.children:
-            for grand_child in iterate_widget(child):
+            for grand_child in iterate(child):
                 yield grand_child
     elif isinstance(widget, NullWidget):
         pass

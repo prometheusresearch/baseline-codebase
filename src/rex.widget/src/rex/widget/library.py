@@ -12,7 +12,7 @@ from rex.core import (
         RecordVal)
 from .widget import (
         Widget, GroupWidget, NullWidget, Field, StateField, state,
-        iterate_widget)
+        iterate)
 from .state import unknown, State, Reset, Dep, CollectionVal, PaginatedCollectionVal
 from .parse import WidgetVal
 from .jsval import JSVal
@@ -266,7 +266,7 @@ class FiltersWidget(Widget):
         super(FiltersWidget, self).__init__(*args, **kwargs)
         self.refs = {
             w.filter.id: "%s/value" % w.filter.id
-            for w in iterate_widget(self.filters)}
+            for w in iterate(self.filters)}
 
     @state(AnyVal)
     def value(self, state, graph, dirty=None, is_state=True, is_active=True):

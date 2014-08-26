@@ -9,16 +9,17 @@
 
 from collections import namedtuple
 
+
 _WidgetDescriptor = namedtuple('WidgetDescriptor', [
     'ui',
-    'state'
+    'state',
 ])
 
 
 class WidgetDescriptor(_WidgetDescriptor):
     """ Descriptor for a widget.
 
-    :attr ui: UI descriptor
+    :attr ui: UI description
     :attr state: State graph
     """
 

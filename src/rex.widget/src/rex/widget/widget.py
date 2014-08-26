@@ -8,63 +8,16 @@
 """
 
 import re
-import simplejson as json
 import yaml
-import pyquerystring
-from collections import namedtuple
-from webob import Response
-from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 from rex.core import (
-    Extension, cached, Record,
-    MaybeVal, RecordField, ProxyVal, OneOfVal, MapVal, StrVal, RecordVal)
-from rex.web import render_to_response
+    Extension, cached,
+    MaybeVal, RecordField, ProxyVal, MapVal, StrVal, RecordVal)
 from .state import (
-    Data, Append,
-    unknown,
-    State, StateVal, StateDescriptor,
-    StateGraph, MutableStateGraph, compute, compute_update)
+    unknown, StateVal, StateDescriptor,
+    StateGraph, MutableStateGraph)
 from .jsval import JSValue
-
-
-_WidgetDescriptor = namedtuple('WidgetDescriptor', [
-    'ui',
-    'state'
-])
-
-
-class WidgetDescriptor(_WidgetDescriptor):
-    """ Descriptor for a widget.
-
-    :attr ui: UI descriptor
-    :attr state: State graph
-    """
-
-    __slots__ = ()
-
-
-_UIDescriptor = namedtuple('UIDescriptor', ['type', 'props'])
-
-
-class UIDescriptor(_UIDescriptor):
-    """ UI descriptiton.
-
-    :attr type: CommonJS module which exports React component
-    :attr props: Properties which should be passed to a React component
-    """
-
-    __slots__ = ()
-
-
-_UIDescriptorChildren = namedtuple('UIDescriptorChildren', ['children'])
-
-
-class UIDescriptorChildren(_UIDescriptorChildren):
-    """ List of UI descriptitons.
-
-    :attr children: A list of UI descriptors.
-    """
-
-    __slots__ = ()
+from .descriptor import UIDescriptor, UIDescriptorChildren, WidgetDescriptor
+from .handle import handle
 
 
 class Field(object):
@@ -119,9 +72,9 @@ class StateField(Field):
         default = unknown if self.default is RecordField.NODEFAULT else self.default
 
         validator = StateVal(
-                MaybeVal(self.validator),
-                default=default,
-                **self.params)
+            MaybeVal(self.validator),
+            default=default,
+            **self.params)
 
         if default is not RecordField.NODEFAULT:
             default = validator(default)
@@ -137,10 +90,10 @@ def state(validator, dependencies=None, default=RecordField.NODEFAULT):
     computator."""
     def register_computator(computator):
         return StateField(
-                validator,
-                default=default,
-                computator=computator,
-                dependencies=dependencies)
+            validator,
+            default=default,
+            computator=computator,
+            dependencies=dependencies)
     return register_computator
 
 
@@ -152,10 +105,10 @@ class Widget(Extension):
     """ Base class for widgets.
 
     Widget definition in Rex Widget is consist of two parts.
-    
+
     One part is a Python subclass of :class:`Widget` which defines field
     validation and widget state management (for stateful widgets).
-   
+
     Another part is a React component which defines UI and models user
     interactions.
 
@@ -205,7 +158,7 @@ class Widget(Extension):
             return cls
     @classmethod
     def enabled(cls):
-        return (cls.name is not None)
+        return cls.name is not None
 
     @classmethod
     @cached
@@ -304,36 +257,7 @@ class Widget(Extension):
             else:
                 props[prop_name] = {"__state_read__": descriptor.id}
 
-    def request_to_spec(self, req):
-        user = req.environ.get('rex.user')
-        descriptor = self.descriptor()
-        widget, state = self.descriptor()
-        if req.method == 'GET':
-            values = pyquerystring.parse(req.query_string)
-            for k, v in values.items():
-                if k in state and state[k].validator is not None:
-                    values[k] = state[k].validator(v)
-            state = compute(state, values=values, user=user, defer=True)
-            return descriptor._replace(state=state)
-        elif req.method == 'POST':
-            state, origins = state_update_params(state, req.json)
-            if not origins:
-                state = compute(state, user=user)
-            else:
-                state = compute_update(state, origins, user=user)
-            return {"state": state}
-        else:
-            raise HTTPMethodNotAllowed()
-
-    def __call__(self, req):
-        accept = req.accept.best_match(['text/html', 'application/json'])
-        spec = self.request_to_spec(req)
-        spec = to_json(spec)
-        if accept == 'application/json':
-            return Response(spec, content_type='application/json')
-        else:
-            return render_to_response(
-                    'rex.widget:/templates/index.html', req, spec=spec)
+    __call__ = handle
 
     def __str__(self):
         text = yaml.dump(self, Dumper=WidgetYAMLDumper)
@@ -348,29 +272,6 @@ class Widget(Extension):
             args.append("%s=%r" % (field.attribute, value))
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
-
-def merge_querystring(state, querystring):
-    pass
-
-
-def state_update_params(state, params):
-    origins = []
-    updates = {}
-
-    for id, value in params.items():
-        if id.startswith('update:'):
-            id = id[7:]
-            origins.append(id)
-
-        if not id in state:
-            raise HTTPBadRequest("invalid state id: %s" % id)
-
-        if value != unknown.tag:
-            updates[id] = state[id]._replace(value=value)
-
-    state = state.merge(updates)
-
-    return state, origins
 
 class GroupWidget(Widget):
 
@@ -417,59 +318,6 @@ def iterate_widget(widget):
         yield widget
 
 
-def to_json(obj):
-    encoder = WidgetJSONEncoder(
-        indent=2,
-        tuple_as_array=False,
-        namedtuple_as_object=False
-    )
-    return encoder.encode(obj)
-
-
-class WidgetJSONEncoder(json.JSONEncoder):
-
-    def default(self, obj):
-        if isinstance(obj, UIDescriptor):
-            return {"__type__": obj.type, "props": obj.props}
-        if isinstance(obj, UIDescriptorChildren):
-            return {"__children__": obj.children}
-        if isinstance(obj, WidgetDescriptor):
-            return {
-                "ui": obj.ui,
-                "state": obj.state
-            }
-        if isinstance(obj, StateGraph):
-            return obj.storage
-        if obj is unknown:
-            return "__unknown__"
-        if isinstance(obj, Data):
-            return {
-                "data": obj.data,
-                "meta": obj.meta,
-                "updating": obj.updating,
-                "hasMore": obj.has_more
-            }
-        if isinstance(obj, Append):
-            return {"__append__": obj.data}
-        if isinstance(obj, State):
-            return {
-                "id": obj.id,
-                "value": obj.value,
-                "dependencies": [dep.id
-                    for dep in obj.dependencies
-                    if not dep.reset_only],
-                "persistence": obj.persistence,
-                "isWritable": obj.is_writable,
-                "defer": obj.defer,
-                "alias": obj.alias,
-            }
-        return super(WidgetJSONEncoder, self).default(obj)
-
-    def encode(self, obj):
-        # XXX: Check if we need more aggresive escape here!
-        return super(WidgetJSONEncoder, self).encode(obj).replace('</', '<\\/')
-
-
 class WidgetYAMLDumper(yaml.Dumper):
 
     def represent_unicode(self, data):
@@ -495,16 +343,12 @@ class WidgetYAMLDumper(yaml.Dumper):
 
 
 WidgetYAMLDumper.add_representer(
-        unicode, WidgetYAMLDumper.represent_unicode)
+    unicode, WidgetYAMLDumper.represent_unicode)
 WidgetYAMLDumper.add_multi_representer(
-        Widget, WidgetYAMLDumper.represent_widget)
+    Widget, WidgetYAMLDumper.represent_widget)
 
 
 to_camelcase_re = re.compile(r'_([a-zA-Z])')
 
 def to_camelcase(s):
     return to_camelcase_re.sub(lambda m: m.group(1).upper(), s)
-
-
-def capitalize(s):
-    return s[:1].upper() + s[1:]

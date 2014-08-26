@@ -95,7 +95,7 @@ module.exports = function introspectionLoader(source) {
           } else {
             var deps = ';';
             files.forEach(function(file) {
-              if (file === this.resourcePath) {
+              if (file === this.resourcePath || /__tests__/.exec(file)) {
                 return;
               }
 

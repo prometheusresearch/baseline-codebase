@@ -89,9 +89,8 @@ class DataComputator(object):
         self.include_meta = include_meta
 
         self.parsed = urlparse.urlparse(url)
-        self.parsed_query = {
-                k: v[0] for k, v
-                in urlparse.parse_qs(self.parsed.query).items()}
+        self.parsed_query = {k: v if isinstance(v, list) else [v]
+                for k, v in urlparse.parse_qsl(self.parsed.query)}
 
     @property
     def route(self):
@@ -103,7 +102,8 @@ class DataComputator(object):
     def fetch_port(self, handler, **params):
         query = dict(self.parsed_query)
         query.update(params)
-        query = {k: v for k, v in query.items() if v is not None and v != ''}
+        query = {k: [v for v in vs if v is not None and v != ''] for k, vs in query.items()}
+        query = {k: v for k, v in query.items() if v}
         query = urllib.urlencode(query, doseq=True)
 
         log.debug('fetching port: %s?%s', self.parsed.path, query)
@@ -234,9 +234,10 @@ class PaginatedCollectionComputator(DataComputator):
         params["%s:top" % entity_name] = top
         params["%s:skip" % entity_name] = skip
 
-        sort_field, sort_direction = parse_sort_spec(sort)
-        if sort_field:
-            params["%s.%s:sort" % (entity_name, sort_field)] = sort_direction
+        if sort:
+            sort_field, sort_direction = parse_sort_spec(sort[0])
+            if sort_field:
+                params["%s.%s:sort" % (entity_name, sort_field)] = [sort_direction]
 
         return super(PaginatedCollectionComputator, self).fetch_port(
             handler,

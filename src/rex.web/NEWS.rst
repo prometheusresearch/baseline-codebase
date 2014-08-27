@@ -5,10 +5,11 @@
 .. contents:: Table of Contents
 
 
-3.0.0 (2014-XX-XX)
+3.0.0 (2014-08-27)
 ==================
 
 * Refactoring ``Route`` interface.
+* Made ``PathMap`` iterable.
 
 
 2.2.3 (2014-07-18)

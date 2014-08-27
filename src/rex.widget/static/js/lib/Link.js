@@ -15,7 +15,6 @@ var Link = React.createClass({
   },
 
   render: function() {
-    console.log(this._owner);
     var href = ApplicationMap.link(this.props.href, this.props.params);
     return this.transferPropsTo(
       <a href={href}>{this.props.children}</a>

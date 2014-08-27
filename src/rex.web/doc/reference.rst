@@ -43,7 +43,7 @@ Commands
 .. autoclass:: rex.web.PathMask
    :special-members: __call__
 .. autoclass:: rex.web.PathMap
-   :special-members: __contains__, __getitem__
+   :special-members: __contains__, __getitem__, __iter__
 
 
 CSRF protection

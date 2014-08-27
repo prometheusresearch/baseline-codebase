@@ -233,6 +233,27 @@ class PathMap(object):
         """
         return self.get(path, MISSING) is not MISSING
 
+    def __iter__(self):
+        """
+        Iterates over all masks in the collection.
+        """
+        todo = [('', self.tree)]
+        while todo:
+            prefix, subtree = todo.pop(0)
+            segments = sorted(segment for segment in subtree
+                              if isinstance(segment, str))
+            for segment in segments:
+                path = prefix + '/' + segment
+                todo.append((path, subtree[segment]))
+            for key, segment in [(STAR, '*'), (DOUBLE_STAR, '**')]:
+                if key in subtree:
+                    path = prefix + '/' + segment
+                    todo.append((path, subtree[key]))
+            if None in subtree:
+                path = prefix or '/'
+                for guard, target in subtree[None]:
+                    yield PathMask(path, guard)
+
     def completes(self, path):
         """
         Checks if `<path>/` is in the collection.

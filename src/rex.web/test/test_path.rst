@@ -65,6 +65,15 @@ You can also match mask objects against the collection::
       ...
     ValueError: path does not match any mask: /*
 
+You can iterate over all masks in the map::
+
+    >>> for mask in map:
+    ...     print mask
+    /
+    /individual
+    /individual/*
+    /individual/*/edit
+
 A path must always start with ``/``::
 
     >>> map.get('ill-formed')

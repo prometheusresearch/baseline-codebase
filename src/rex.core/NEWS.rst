@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.7.0 (2014-XX-XX)
+1.7.0 (2014-08-27)
 ==================
 
 * Added ``RecordField``.

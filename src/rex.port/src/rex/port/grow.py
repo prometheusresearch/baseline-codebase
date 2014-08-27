@@ -13,11 +13,13 @@ from htsql.core.error import Error as HTSQLError
 from htsql.core.model import (HomeNode, TableNode, TableArc, ChainArc,
         ColumnArc)
 from htsql.core.classify import classify
+from htsql.core.domain import UntypedDomain
 from htsql.core.syn.syntax import (Syntax, VoidSyntax, IdentifierSyntax,
         AssignSyntax, FilterSyntax, ComposeSyntax, ReferenceSyntax)
 from htsql.core.syn.parse import parse
 from htsql.core.tr.bind import BindingState
-from htsql.core.tr.binding import RootBinding
+from htsql.core.tr.binding import (RootBinding, LiteralRecipe,
+        DefineReferenceBinding)
 from htsql.core.tr.lookup import prescribe
 import fnmatch
 
@@ -445,6 +447,11 @@ class GrowCalculation(Grow):
             # its domain.
             try:
                 state = BindingState(RootBinding(VoidSyntax()))
+                # We have to supply $USER (TODO: other variables too?).
+                recipe = LiteralRecipe(None, UntypedDomain())
+                scope = DefineReferenceBinding(state.scope, u"USER", recipe,
+                        state.scope.syntax)
+                state.push_scope(scope)
                 if isinstance(parent.node, TableNode):
                     recipe = prescribe(parent.arc, state.scope)
                     binding = state.use(recipe, state.scope.syntax)

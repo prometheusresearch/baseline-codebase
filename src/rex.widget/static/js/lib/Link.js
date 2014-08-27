@@ -3,12 +3,23 @@
  */
 'use strict';
 
-var React = require('react');
+var React           = require('react');
+var PropTypes       = React.PropTypes;
+var ApplicationMap  = require('./ApplicationMap');
 
 var Link = React.createClass({
 
+  propTypes: {
+    href: PropTypes.string.isRequired,
+    params: PropTypes.object
+  },
+
   render: function() {
-    return <a href={this.props.url}>{this.props.text}</a>;
+    console.log(this._owner);
+    var href = ApplicationMap.link(this.props.href, this.props.params);
+    return this.transferPropsTo(
+      <a href={href}>{this.props.children}</a>
+    );
   }
 });
 

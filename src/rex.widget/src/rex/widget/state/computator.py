@@ -250,7 +250,6 @@ class PaginatedCollectionComputator(DataComputator):
         )
 
         params = {}
-        print self.refs
         for name, refs in self.refs.items():
             for ref in refs:
                 value = graph[ref]

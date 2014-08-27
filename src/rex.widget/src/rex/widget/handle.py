@@ -35,11 +35,7 @@ def compute_descriptor(widget, req):
     descriptor = widget.descriptor()
     state = descriptor.state
     if req.method == 'GET':
-        aliases = get_alias_mapping(state)
-        values = {
-            aliases.get(k, k): state[k].validator(v) if k in state else v
-            for k, v in parse_qs(req.query_string).items()
-        }
+        values = validate_values(state, parse_qs(req.query_string))
         state = compute(state, values=values, user=user, defer=True)
         return {
             "descriptor": descriptor._replace(state=state),
@@ -57,6 +53,17 @@ def compute_descriptor(widget, req):
         }
     else:
         raise HTTPMethodNotAllowed()
+
+
+def validate_values(state, values):
+    aliases = get_alias_mapping(state)
+    validated = {}
+    for k, value in values.items():
+        id = aliases.get(k, k)
+        if not id in state:
+            raise HTTPBadRequest("invalid state id or state alias: %s" % id)
+        validated[id] = state[id].validator(value)
+    return validated
 
 
 def merge_state_update(state, params):

@@ -228,14 +228,19 @@ var ApplicationState = merge({
     this.emit(id, id, values[id].value);
   },
 
-  remoteReload(id) {
-    var update = {};
-    for (var dep in dependents) {
-      // TODO: fix user handling
-      if (dep !== 'USER' && dependents[dep].indexOf(id) != -1) {
-        update[dep] = values[dep].value;
-      }
+  remoteReload(ids) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
     }
+    var update = {};
+    ids.map((id) => {
+      for (var dep in dependents) {
+        // TODO: fix user handling
+        if (dep !== 'USER' && dependents[dep].indexOf(id) != -1) {
+          update[dep] = values[dep].value;
+        }
+      }
+    });
     this.remoteUpdate(update);
   },
 

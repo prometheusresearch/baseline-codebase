@@ -4,7 +4,8 @@
 
 
 from .arm import RootArm, TableArm, LinkArm
-from .condition import Condition, FilterCondition, TopSkipCondition
+from .condition import (Condition, FilterCondition, TopSkipCondition,
+        ReferenceCondition)
 from htsql.core.domain import Product, BooleanDomain, RecordDomain, ListDomain
 from htsql.core.syn.syntax import Syntax, VoidSyntax, IdentifierSyntax
 from htsql.core.tr.bind import BindingState
@@ -34,7 +35,8 @@ class Bind(object):
         # Generate a bare `Binding` object from the arm.
         binding = self.use()
         # For trunk and branch arms, apply constraints rooted at the arm.
-        if self.arm.is_plural:
+        # For the root, define parameters.
+        if isinstance(self.arm, RootArm) or self.arm.is_plural:
             binding = self.condition(binding)
         # Bind nested arms.
         binding = self.select(binding)
@@ -65,9 +67,18 @@ class Bind(object):
     def condition(self, binding, scope=None):
         # Applies constraints.  The scope of the arm is given when
         # it is different from the binding.
+        scope = scope or binding
+
+        # For the root node, define references.
+        if isinstance(self.arm, RootArm):
+            for constraint in self.constraints_by_name[None]:
+                binding = ReferenceCondition.apply(self.arm, self.state,
+                        constraint, binding, scope)
+            binding = ReferenceCondition.apply_missing(self.arm, self.state,
+                    binding, scope)
+            return binding
 
         # Apply constraints for nested columns, links and facet tables.
-        scope = scope or binding
         self.state.push_scope(scope)
         for name, arm in self.arm.arms.items():
             if arm.is_plural:
@@ -140,6 +151,7 @@ def compile(tree, constraints):
     bind = Bind(tree, state, constraints)
     pipe = translate(bind())
     return pipe
+
 
 def produce(tree, constraints):
     # Given a port tree and a set of constraints, produces an HTSQL output.

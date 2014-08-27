@@ -105,12 +105,15 @@ class RootArm(Arm):
 
     kind = 'root'
 
-    def __init__(self, arms):
+    def __init__(self, arms, parameters={}):
         super(RootArm, self).__init__(None, arms)
+        self.parameters = parameters
 
-    def grow(self, arms=[]):
+    def grow(self, arms=[], parameters={}):
         assert isinstance(arms, listof(tupleof(unicode, Arm)))
-        return self.__class__(self.arms.items()+arms)
+        new_parameters = self.parameters.copy()
+        new_parameters.update(parameters)
+        return self.__class__(self.arms.items()+arms, new_parameters)
 
     def to_yaml(self, name=None):
         assert name is None

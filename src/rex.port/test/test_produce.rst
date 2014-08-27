@@ -200,14 +200,6 @@ Or multiple arguments::
        {[1050], 'Rodney', 'Dymond', '1959-02-02'},
        ({[1050.(fos.father).1], '1', [fos.father]},)})}
 
-    >>> print individual_port.produce(individual=["1000", "1050"])          # doctest: +NORMALIZE_WHITESPACE
-    {({[1000], '1000', 'female', null, null,
-       {[1000], 'May', 'Kanaris', '1961-01-01'},
-       ({[1000.(fos.mother).1], '1', [fos.mother]},)},
-      {[1050], '1050', 'male', null, null,
-       {[1050], 'Rodney', 'Dymond', '1959-02-02'},
-       ({[1050.(fos.father).1], '1', [fos.father]},)})}
-
 Constraints are extracted from the query string of the HTTP request::
 
     >>> from webob import Request
@@ -442,7 +434,7 @@ branch entities::
     Error: Got unexpected arm type:
         expected facet entity, column, link or calculation; got branch entity
     While applying constraint:
-        individual.participation:null=
+        individual.participation:null
 
 
 Comparison and search constraints
@@ -581,5 +573,71 @@ A filter with incorrect number or type of arguments is rejected::
         birthrange
     While applying constraint:
         individual:birthrange=1&individual:birthrange=10
+
+
+Parameters
+==========
+
+An entity may use a ``$USER`` parameter in the mask::
+
+    >>> masked_port = Port("individual?identity.surname=$USER")
+
+If it is not specified, the value of ``$USER`` is ``null``::
+
+    >>> masked_port.produce()
+    <Product {()}>
+
+However you can set it as a keyword parameter::
+
+    >>> masked_port.produce(USER='Dahl')            # doctest: +NORMALIZE_WHITESPACE,
+    <Product {({[1091], '1091', 'female', null, null},
+               {[1092], '1092', 'male', null, null},
+               {[1093], '1093', 'male', [1091], [1092]})}>
+
+The ``$USER`` parameter is extracted from HTTP request::
+
+    >>> req = Request.blank("/", remote_user='Dahl', accept='application/json')
+    >>> print masked_port(req)                      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    200 OK
+    ...
+    {
+      "individual": [
+        {
+          "id": "1091",
+          "code": "1091",
+          "sex": "female",
+          "mother": null,
+          "father": null
+        },
+        ...
+        {
+          "id": "1093",
+          "code": "1093",
+          "sex": "male",
+          "mother": "1091",
+          "father": "1092"
+        }
+      ]
+    }
+
+However you cannot pass ``$USER`` in a query string::
+
+    >>> masked_port.produce(":USER=Dahl")
+    Traceback (most recent call last):
+      ...
+    Error: Got unknown parameter:
+        USER_
+    While applying constraint:
+        :USER_=Dahl
+
+Exactly one argument is expected::
+
+    >>> masked_port.produce(((), "USER", []))
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected number of arguments:
+        expected 1; got 0
+    While applying constraint:
+        :USER
 
 

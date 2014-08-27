@@ -3,6 +3,7 @@
 #
 
 
+from rex.web import authenticate
 from rex.db import get_db
 from .arm import RootArm, ArmDumper
 from .grow import Grow
@@ -73,7 +74,7 @@ class Port(object):
 
     def __call__(self, req):
         if req.method == 'GET':
-            product = self.produce(req.query_string)
+            product = self.produce(req.query_string, USER=authenticate(req))
         elif req.method == 'POST':
             product = self.replace(req.POST.get('old'), req.POST.get('new'))
         else:

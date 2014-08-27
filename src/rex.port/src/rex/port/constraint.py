@@ -7,6 +7,9 @@ from rex.core import Error
 import urllib
 
 
+reserved_parameters = ['USER', 'FORMAT']
+
+
 class Constraint(object):
     """
     Represents a constraint over a port arm.
@@ -51,6 +54,8 @@ class Constraint(object):
                 else:
                     operator = None
                 arguments = []
+            if operator in reserved_parameters:
+                operator += '_'
             data = (path, operator, arguments)
 
         # Pair `(<path>, <arguments>)` or triple
@@ -65,6 +70,8 @@ class Constraint(object):
 
         # `<path>` is a string `'<name>. ... .<name>'` or a list
         # `[<name>, ...]`.
+        if not path:
+            path = ()
         if isinstance(path, str):
             path = path.decode('utf-8', 'replace')
         if isinstance(path, unicode):
@@ -115,11 +122,12 @@ class Constraint(object):
         else:
             operator = ""
         if not self.arguments:
-            arguments = [""]
-        else:
-            arguments = [argument.encode('utf-8')
-                            if isinstance(argument, unicode) else str(argument)
-                         for argument in self.arguments]
+            return "%s%s" % (path, operator)
+        arguments = [argument.encode('utf-8')
+                     if isinstance(argument, unicode)
+                     else "" if argument is None
+                     else str(argument)
+                     for argument in self.arguments]
         return "&".join("%s%s=%s" % (path, operator, urllib.quote(argument))
                         for argument in arguments)
 
@@ -142,7 +150,7 @@ class ConstraintSet(object):
                 inputs.extend(arg.split('&'))
             else:
                 inputs.append(arg)
-        inputs.extend(sorted(kwds.items()))
+        inputs.extend(((), key, value) for key, value in sorted(kwds.items()))
         constraints = []
         indexes = {}
         for input in inputs:

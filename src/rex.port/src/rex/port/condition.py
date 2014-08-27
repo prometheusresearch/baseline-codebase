@@ -6,13 +6,14 @@
 from rex.core import Extension, cached, Error, guard
 from .arm import (TableArm, TrunkArm, BranchArm, FacetArm, ColumnArm, LinkArm,
         SyntaxArm)
-from .constraint import ConstraintSet
+from .constraint import ConstraintSet, reserved_parameters
+from htsql.core.util import to_name
 from htsql.core.error import Error as HTSQLError
 from htsql.core.domain import (UntypedDomain, BooleanDomain, NumberDomain,
         IntegerDomain, TextDomain, EnumDomain, DateDomain, TimeDomain,
         DateTimeDomain, IdentityDomain)
 from htsql.core.cmd.embed import Embed
-from htsql.core.tr.lookup import prescribe, identify
+from htsql.core.tr.lookup import prescribe, identify, lookup_reference
 from htsql.core.tr.binding import (LiteralBinding, IdentityBinding,
         ImplicitCastBinding, SieveBinding, FormulaBinding, DirectionBinding,
         SortBinding, DefineReferenceBinding, ClipBinding, LiteralRecipe)
@@ -175,6 +176,47 @@ class Condition(Extension):
         # `binding` is a `Binding` object to wrap; `scope` is the arm scope;
         # `self.state.scope` is the scope of the parent arm.
         raise NotImplementedError()
+
+
+class ReferenceCondition(object):
+    # Implements a reference definition.
+
+    @classmethod
+    def apply(cls, arm, state, constraint, binding, scope):
+        with guard("While applying constraint:", constraint):
+            operator = constraint.operator
+            if not (operator in arm.parameters or
+                    operator in reserved_parameters):
+                raise Error("Got unknown parameter:", operator)
+            arguments = embed(constraint.arguments)
+            condition = cls(arm, state, operator, arguments)
+            return condition(binding, scope)
+
+    @classmethod
+    def apply_missing(cls, arm, state, binding, scope):
+        for name in sorted(arm.parameters)+reserved_parameters:
+            name = to_name(name)
+            if lookup_reference(binding, name) is not None:
+                continue
+            arguments = embed([arm.parameters.get(name)])
+            condition = cls(arm, state, name, arguments)
+            return condition(binding, scope)
+
+    def __init__(self, arm, state, name, arguments):
+        self.arm = arm
+        self.state = state
+        self.name = name
+        self.arguments = arguments
+
+    def __call__(self, binding, scope):
+        if len(self.arguments) != 1:
+            raise Error("Got unexpected number of arguments:",
+                        "expected 1; got %s" % len(self.arguments))
+        [argument] = self.arguments
+        recipe = LiteralRecipe(argument.data, argument.domain)
+        binding = DefineReferenceBinding(binding, self.name, recipe,
+                binding.syntax)
+        return binding
 
 
 class FilterCondition(object):

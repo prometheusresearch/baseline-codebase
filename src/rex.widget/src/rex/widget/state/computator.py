@@ -104,7 +104,7 @@ class DataComputator(object):
         query = dict(self.parsed_query)
         query.update(params)
         query = {k: v for k, v in query.items() if v is not None and v != ''}
-        query = urllib.urlencode(query)
+        query = urllib.urlencode(query, doseq=True)
 
         log.debug('fetching port: %s?%s', self.parsed.path, query)
 
@@ -123,13 +123,15 @@ class DataComputator(object):
     def fetch_query(self, handler, **params):
         query = dict(handler.parameters)
         query.update(self.parsed_query)
-
-        for k in self.refs:
-            query[k] = ''
-
+        query.update({k: [''] for k in self.refs})
         query.update(params)
+        query = {k: v[0] if isinstance(v, list) else v for k, v in query.items()}
 
-        log.debug('fetching query: %s?%s', self.parsed.path, urllib.urlencode(query))
+        log.debug(
+            'fetching query: %s?%s',
+            self.parsed.path,
+            urllib.urlencode(query, doseq=True)
+        )
 
         with measure_execution_time(), get_db():
             product = htsql.core.cmd.act.produce(handler.query, query)
@@ -163,7 +165,7 @@ class DataComputator(object):
             return self.fetch_query(handler, **params)
         else:
             raise NotImplementedError(
-                    "Unknown data reference: %s" % self.route)
+                "Unknown data reference: %s" % self.route)
 
     def __call__(self, widget, state, graph, dirty=None, is_active=True):
         if not is_active or state.defer is not None:
@@ -178,12 +180,14 @@ class CollectionComputator(DataComputator):
 
     inactive_value = Data([])
 
-    def fetch(self, handler, graph, dirty):
+    def fetch(self, handler, graph, dirty=None):
         params = {}
-        for name, ref in self.refs.items():
-            value = graph[ref]
-            if value is not None:
-                params[name] = value
+        for name, refs in self.refs.items():
+            for ref in refs:
+                value = graph[ref]
+                if value is None:
+                    continue
+                params.setdefault(name, []).append(value)
         return self.execute_handler(handler, params)
 
 
@@ -192,11 +196,14 @@ class EntityComputator(DataComputator):
     inactive_value = Data(None)
     no_value = Data(None)
 
-    def fetch(self, handler, graph, dirty):
-        params = {name: graph[ref] for name, ref in self.refs.items()}
-
-        if None in params.values():
-            return self.no_value
+    def fetch(self, handler, graph, dirty=None):
+        params = {}
+        for name, refs in self.refs.items():
+            for ref in refs:
+                value = graph[ref]
+                if value is None:
+                    return self.no_value
+                params.setdefault(name, []).append(value)
 
         data = self.execute_handler(handler, params)
 
@@ -222,19 +229,18 @@ class PaginatedCollectionComputator(DataComputator):
         assert top is not None
         assert skip is not None
 
-
         # Ports require us to specify entity name in top/skip constraints
         entity_name = handler.port.tree.items()[0][0]
         params["%s:top" % entity_name] = top
         params["%s:skip" % entity_name] = skip
 
-        (sort_field, sort_direction) = parse_sort_spec(sort)
+        sort_field, sort_direction = parse_sort_spec(sort)
         if sort_field:
             params["%s.%s:sort" % (entity_name, sort_field)] = sort_direction
 
         return super(PaginatedCollectionComputator, self).fetch_port(
-                handler,
-                **params)
+            handler,
+            **params)
 
     def fetch(self, handler, graph, dirty):
         is_pagination = (
@@ -244,17 +250,20 @@ class PaginatedCollectionComputator(DataComputator):
         )
 
         params = {}
-        for name, ref in self.refs.items():
-            value = graph[ref]
-            if value is not None:
-                params[name] = value
+        print self.refs
+        for name, refs in self.refs.items():
+            for ref in refs:
+                value = graph[ref]
+                if value is None:
+                    continue
+                params.setdefault(name, []).append(value)
 
         # patch "top" so we can see if we have more data than we need now
-        params["top"] = params["top"] + 1
+        params["top"] = [params["top"][0] + 1]
 
         data = self.execute_handler(handler, params)
 
-        if len(data.data) == params["top"]:
+        if len(data.data) == params["top"][0]:
             data = data._replace(
                 data=data.data[:-1],
                 has_more=True

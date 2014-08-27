@@ -74,7 +74,7 @@ class DataDescriptor(StateDescriptor):
     def describe_state(self, widget, field_name):
         state_id = "%s/%s" % (widget.id, field_name)
         computator = self.computator_factory(self.url, self.refs, self.include_meta)
-        dependencies = [r.id for r in self.refs.values()]
+        dependencies = [r.id for refs in self.refs.values() for r in refs]
         st = State(state_id,
                 widget=widget,
                 computator=computator,
@@ -92,13 +92,13 @@ class PaginatedCollectionDescriptor(DataDescriptor):
         pagination_state_id = "%s/%s/pagination" % (widget.id, field_name)
         sort_state_id = "%s/%s/sort" % (widget.id, field_name)
 
-        dependencies = [r.id for r in self.refs.values()]
+        dependencies = [r.id for refs in self.refs.values() for r in refs]
 
         refs = dict(self.refs)
         refs.update({
-            "top": "%s:top" % pagination_state_id,
-            "skip": "%s:skip" % pagination_state_id,
-            "sort": "%s" % sort_state_id
+            "top": (Reference("%s:top" % pagination_state_id),),
+            "skip": (Reference("%s:skip" % pagination_state_id),),
+            "sort": (Reference("%s" % sort_state_id),),
         }),
 
         return [
@@ -176,7 +176,9 @@ class DataVal(Validate):
                 raise Error(
                     "invalid data reference: expected an URL or "
                     "{url: ..., refs: ...} mapping")
-            refs = {name: Reference(ref)
+            refs = {name: (Reference(ref),)
+                          if not isinstance(ref, list)
+                          else tuple(Reference(r) for r in ref)
                     for name, ref
                     in data.get("refs", {}).items()}
             return self.field_factory(

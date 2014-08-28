@@ -18,13 +18,15 @@ var Filter = React.createClass({
     title: PropTypes.string.isRequired,
     value: PropTypes.string,
     onValue: PropTypes.func,
-    inline: PropTypes.bool
+    inline: PropTypes.bool,
+    amortizationEnabled: PropTypes.bool
   },
 
   render() {
     var filter = this.props.filter;
     filter = cloneWithProps(this.props.filter, {
-      onValue: this.onValue.bind(null, filter.props.onValue)
+      onValue: this.onValue.bind(null, filter.props.onValue),
+      amortizationEnabled: this.props.amortizationEnabled
     });
     var className = cx(
       'rex-widget-Filter',

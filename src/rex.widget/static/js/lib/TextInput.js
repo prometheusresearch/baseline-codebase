@@ -28,12 +28,14 @@ var emptyFunction = require('./emptyFunction');
 var AmortizedOnChange = {
 
   propTypes: {
-    amortizationTimeout: PropTypes.number
+    amortizationTimeout: PropTypes.number,
+    amortizationEnabled: PropTypes.bool
   },
 
   getDefaultProps() {
     return {
-      amortizationTimeout: 500
+      amortizationTimeout: 500,
+      amortizationEnabled: true
     };
   },
 
@@ -52,14 +54,18 @@ var AmortizedOnChange = {
     if (this.onChangeImmediate) {
       this.onChangeImmediate(e);
     }
-    if (this._amortizedOnChangeTimer) {
-      clearTimeout(this._amortizedOnChangeTimer);
+    if (this.props.amortizationEnabled) {
+      if (this._amortizedOnChangeTimer) {
+        clearTimeout(this._amortizedOnChangeTimer);
+      }
+      e.persist();
+      this._amortizedOnChangeTimer = setTimeout(
+        this.onChangeAmortized.bind(null, e),
+        this.props.amortizationTimeout
+      );
+    } else {
+      this.onChangeAmortized(e);
     }
-    e.persist();
-    this._amortizedOnChangeTimer = setTimeout(
-      this.onChangeAmortized.bind(null, e),
-      this.props.amortizationTimeout
-    );
   }
 };
 

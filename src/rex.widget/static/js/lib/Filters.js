@@ -67,7 +67,8 @@ var Filters = React.createClass({
         key: id,
         id,
         onValue: this.onValue,
-        inline: this.props.inline
+        inline: this.props.inline,
+        amortizationEnabled: !this.props.showApplyButton
       })
     });
   },

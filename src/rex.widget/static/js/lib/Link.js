@@ -11,14 +11,19 @@ var Link = React.createClass({
 
   propTypes: {
     href: PropTypes.string.isRequired,
-    params: PropTypes.object
+    params: PropTypes.object,
+    unsafe: PropTypes.bootean
   },
 
   render: function() {
-    var href = ApplicationMap.link(this.props.href, this.props.params);
     return this.transferPropsTo(
-      <a href={href}>{this.props.children}</a>
+      <a href={this.href()}>{this.props.children}</a>
     );
+  },
+
+  href() {
+    var link = this.props.unsafe ? ApplicationMap.linkUnsafe : ApplicationMap.link;
+    return link(this.props.href, this.props.params);
   }
 });
 

@@ -14,25 +14,6 @@ import htsql.core.fmt.accept
 import htsql.core.fmt.emit
 
 
-class TreeWalker(object):
-    # Routes the request through the segment tree.
-
-    def __init__(self, segment_map, fallback):
-        # Maps URLs to handlers.
-        self.segment_map = segment_map
-        # Handler for URLs that don't match the segment map.
-        self.fallback = fallback or not_found
-
-    def __call__(self, req):
-        # Find the handle for the URL.
-        handle = self.segment_map.get(req.path_info)
-        if handle:
-            return handle(req)
-        if self.segment_map.completes(req.path_info):
-            raise HTTPMovedPermanently(add_slash=True)
-        return self.fallback(req)
-
-
 class TemplateRenderer(object):
     # Renders a Jinja template.
 
@@ -193,5 +174,29 @@ class PortRenderer(object):
         # Protect against CSRF attacts.
         if self.unsafe and not trusted(req):
             raise HTTPForbidden()
+
+
+class WidgetRenderer(object):
+    # Renders a widget.
+
+    def __init__(self, widget, access):
+        # The screen to render.
+        self.widget = widget
+        # Permission to request the URL.
+        self.access = access
+
+    def __call__(self, req):
+        # Check permissions.
+        self.authorize(req)
+        # Let the widget render itself.
+        try:
+            return self.widget(req)
+        except Error, error:
+            return req.get_response(error)
+
+    def authorize(self, req):
+        # Check access permissions.
+        if not authorize(req, self.access):
+            raise HTTPUnauthorized()
 
 

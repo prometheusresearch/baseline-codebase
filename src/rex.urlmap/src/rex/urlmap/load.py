@@ -4,12 +4,14 @@
 
 
 from rex.core import (
-        get_packages, get_settings, cached, autoreload, ValidatingLoader,
-        MaybeVal, StrVal, BoolVal, MapVal, OneOrSeqVal, RecordVal, UnionVal,
-        OnMatch, locate, Location, Error, guard)
+        get_packages, get_settings, cached, ValidatingLoader, MaybeVal, StrVal,
+        AnyVal, BoolVal, MapVal, OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate,
+        Location, Error, guard)
 from rex.web import PathMask, PathMap
 from rex.port import GrowVal, Port
-from .handle import TreeWalker, TemplateRenderer, QueryRenderer, PortRenderer
+from rex.widget import WidgetVal
+from .handle import (TemplateRenderer, QueryRenderer, PortRenderer,
+        WidgetRenderer)
 import os
 import yaml
 
@@ -86,7 +88,7 @@ class LoadMap(object):
     # Query parameters.
     parameters_val = MapVal(attr_val, MaybeVal(StrVal))
 
-    # Validator for template records.
+    # Validators for all record types.
     template_key = 'template'
     template_val = RecordVal(
             ('template', file_val),
@@ -111,11 +113,18 @@ class LoadMap(object):
             ('unsafe', BoolVal, False))
     port_type = port_val.record_type
 
+    widget_key = 'widget'
+    widget_val = RecordVal(
+            ('widget', WidgetVal),
+            ('access', StrVal, None))
+    widget_type = widget_val.record_type
+
     # Validator for `!override` records.
     override_val = TaggedRecordVal(u'!override',
             ('template', file_val, None),
             ('query', StrVal, None),
             ('port', GrowVal, None),
+            ('widget', WidgetVal, None),
             ('access', StrVal, None),
             ('unsafe', BoolVal, None),
             ('parameters', parameters_val, None),
@@ -127,7 +136,8 @@ class LoadMap(object):
             (OnTag(override_val.tag), override_val),
             (template_key, template_val),
             (query_key, query_val),
-            (port_key, port_val))
+            (port_key, port_val),
+            (widget_key, widget_val))
 
     # Validator for the urlmap record.
     validate = RecordVal([
@@ -136,10 +146,9 @@ class LoadMap(object):
             ('paths', MapVal(path_val, handle_val), {}),
     ])
 
-    def __init__(self, package, fallback, open=open):
+    def __init__(self, package, open=open):
         super(LoadMap, self).__init__()
         self.package = package
-        self.fallback = fallback
         self.open = open
 
     def __call__(self):
@@ -184,11 +193,17 @@ class LoadMap(object):
                         port=port,
                         access=access,
                         unsafe=handle_spec.unsafe)
+            elif isinstance(handle_spec, self.widget_type):
+                access = handle_spec.access or self.package.name
+                handler = WidgetRenderer(
+                        widget=handle_spec.widget,
+                        access=access)
             else:
                 raise NotImplementedError()
             segment_map.add(path, handler)
+
         # Generate the main handler.
-        return TreeWalker(segment_map, self.fallback)
+        return segment_map
 
     def _include(self, include_spec, include_path=None, base_spec=None):
         # Flattens include directives in `include_spec`, merges it into
@@ -295,7 +310,8 @@ class LoadMap(object):
                                       override_spec.context)
                 handle_spec = handle_spec.__clone__(context=context)
             if (override_spec.query is not None or
-                override_spec.port is not None):
+                override_spec.port is not None or
+                override_spec.widget is not None):
                 error = Error("Detected invalid override"
                               " of template:", path)
                 error.wrap("Defined in:", locate(override_spec))
@@ -316,6 +332,7 @@ class LoadMap(object):
                         unsafe=override_spec.unsafe)
             if (override_spec.template is not None or
                 override_spec.port is not None or
+                override_spec.widget is not None or
                 override_spec.context is not None):
                 error = Error("Detected invalid override"
                               " of query:", path)
@@ -339,6 +356,7 @@ class LoadMap(object):
                         unsafe=override_spec.unsafe)
             if (override_spec.template is not None or
                 override_spec.query is not None or
+                override_spec.widget is not None or
                 override_spec.parameters is not None or
                 override_spec.context is not None):
                 error = Error("Detected invalid override"
@@ -360,10 +378,9 @@ class LoadMap(object):
         return merged
 
 
-@autoreload
-def load_map(package, fallback, open=open):
+def load_map(package, open=open):
     # Parses `urlmap.yaml` file.
-    load = LoadMap(package, fallback, open=open)
+    load = LoadMap(package, open=open)
     return load()
 
 

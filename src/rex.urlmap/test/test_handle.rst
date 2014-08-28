@@ -479,3 +479,16 @@ Invalid, unknown or duplicate parameters are rejected::
         sex
 
 
+Widgets
+=======
+
+``rex.urlmap`` can render widgets::
+
+    >>> req = Request.blank('/hello')
+    >>> print req.get_response(demo)        # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <!DOCTYPE html>
+    ...
+
+

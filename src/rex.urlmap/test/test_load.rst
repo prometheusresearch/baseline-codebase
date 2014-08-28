@@ -42,6 +42,7 @@ Parsing paths
         template record
         query record
         port record
+        widget record
     Got:
         a mapping
     While parsing:

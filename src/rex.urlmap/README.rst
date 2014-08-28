@@ -567,6 +567,34 @@ fields are expected:
         unsafe: true
 
 
+Widget handler
+==============
+
+A widget handler allows you to render an HTML page from a widget tree.  The
+following fields are expected:
+
+`widget`
+    Widget tree in format supported by :mod:`rex.widget`.
+
+    Example::
+
+        widget:
+        - !<Header> Hello World!
+        - !<Link>
+          url: rex.urlmap_demo:/
+          text: Back
+
+    This field is mandatory.
+
+`access`
+    Permission required to access the page.  If not set, the permission of the
+    package that owns the handler is assumed.
+
+    Example::
+
+        access: anybody
+
+
 Override handler
 ================
 

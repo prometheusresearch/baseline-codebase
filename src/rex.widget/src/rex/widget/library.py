@@ -303,3 +303,14 @@ class ButtonWidget(Widget):
 
     id      = Field(StrVal)
     name   =  Field(StrVal, default='Save')
+
+class Autocomplete(Widget):
+
+    name    = 'Autocomplete'
+    js_type = 'rex-widget/lib/Autocomplete'
+
+    id          = Field(StrVal())
+    options     = Field(SeqVal(), default=None)
+    placeholder = Field(StrVal, default=None)
+    value       = StateField(AnyVal, default=None)
+    data        = Field(CollectionVal(), default=None)

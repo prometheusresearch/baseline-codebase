@@ -10,7 +10,7 @@ var Preloader  = require('./Preloader');
 var DataPreloader = React.createClass({
 
   propTypes: {
-    data: PropTypes.object,
+    data: PropTypes.object.isRequired,
     caption: PropTypes.string,
     children: PropTypes.component,
     renderer: PropTypes.func

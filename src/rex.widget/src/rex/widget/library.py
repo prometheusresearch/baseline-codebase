@@ -17,6 +17,25 @@ from .state import unknown, State, Reset, Dep, CollectionVal, PaginatedCollectio
 from .parse import WidgetVal
 from .jsval import JSVal
 
+class FlexContainer(Widget):
+
+    name = 'FlexContainer'
+    js_type = 'rex-widget/lib/layout/Container'
+
+    vertical    = Field(BoolVal(), default=False)
+    children    = Field(WidgetVal(), default=False)
+    class_name  = Field(StrVal(), default=None)
+
+class FlexBlock(Widget):
+
+    name = 'FlexBlock'
+    js_type = 'rex-widget/lib/layout/Block'
+
+    class_name  = Field(StrVal(), default=None)
+    grow        = Field(OneOfVal(BoolVal(), IntVal()), default=False)
+    shrink      = Field(OneOfVal(BoolVal(), IntVal()), default=False)
+    size        = Field(IntVal(), default=0)
+    children    = Field(WidgetVal(), default=False)
 
 class Container(Widget):
 

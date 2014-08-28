@@ -105,12 +105,6 @@ html, body, #__main__ {
   position: relative;
   height: 100%;
   overflow-y: auto;
-  & > h1 {
-    margin-bottom: @padding;
-  }
-  & > * {
-    margin-bottom: @padding;
-  }
 }
 
 /**
@@ -382,6 +376,11 @@ html, body, #__main__ {
  */
 .rex-widget-Grid {
 
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+
   .react-grid-HeaderCell {
     padding: @padding;
     cursor: default;
@@ -429,4 +428,23 @@ html, body, #__main__ {
   .btn();
   .btn-xs();
   .btn-default();
+}
+
+/**
+ * Flex Layout
+ */
+.rex-widget-Container {
+  position: relative;
+  display: flex;
+  height: 100%;
+}
+
+.rex-widget-Block {
+  position: relative;
+  overflow: auto;
+
+  & > .rex-widget-Container {
+    position: absolute;
+    width: 100%;
+  }
 }

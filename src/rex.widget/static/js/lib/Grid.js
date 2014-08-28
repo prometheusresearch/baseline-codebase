@@ -136,7 +136,7 @@ var Grid = React.createClass({
         rows={this.getRows}
         onRows={this.onRows}
         length={this.getData().length}
-        className="rex-widget-Grid"
+        className={cx('rex-widget-Grid', this.props.className)}
         rowRenderer={rowRenderer}
         />
     );

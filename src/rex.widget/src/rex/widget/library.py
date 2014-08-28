@@ -94,38 +94,8 @@ class Tabs(Widget):
     js_type = 'rex-widget/lib/Tabs'
 
     id      = Field(StrVal)
-    active  = StateField(IntVal, default=1)
+    active  = Field(IntVal, default=1)
     tabs    = Field(WidgetVal, default=NullWidget())
-
-    @property
-    def active_state(self):
-        return '%s/active' % self.id
-
-    def is_tab_active(self, n, is_active):
-        def _is_tab_active(graph):
-            if is_active and not is_active(graph):
-                return False
-            active = graph[self.active_state]
-            return active == n
-        return _is_tab_active
-
-    def on_tab(self, props, state, n, tab):
-        descriptor = tab.descriptor()
-        descriptor_state = {
-            id: desc._replace(
-                is_active=self.is_tab_active(n, desc.is_active),
-                dependencies=desc.dependencies + [Dep(self.active_state)]
-            ) for id, desc in descriptor.state.items()
-        }
-        state.update(descriptor_state)
-
-    def on_widget(self, props, state, name, widget):
-        props[name] = widget.descriptor().ui
-        if isinstance(widget, GroupWidget):
-            for n, tab in enumerate(widget.children):
-                self.on_tab(props, state, n + 1, tab)
-        else:
-            self.on_tab(props, state, 1, widget)
 
 
 class Tab(Widget):

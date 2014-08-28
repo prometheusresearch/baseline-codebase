@@ -12,17 +12,17 @@ var Tabs = React.createClass({
 
   propTypes: {
     tabs: PropTypes.renderable,
-    active: PropTypes.number,
-    onActive: PropTypes.func
+    active: PropTypes.number
   },
 
   render() {
     var tabs = [];
     var panes = [];
+    var active = this.getActive();
 
     React.Children.forEach(this.props.tabs, (tab, idx) => {
       idx = idx + 1;
-      var isActive = idx == this.props.active;
+      var isActive = idx === active;
 
       var tabClassName = cx({
         'rex-widget-Tabs__tab': true,
@@ -32,7 +32,7 @@ var Tabs = React.createClass({
       tabs.push(
         <li key={idx}>
           <a
-            onClick={this.props.onActive.bind(null, idx)}
+            onClick={this.onClick.bind(null, idx)}
             className={tabClassName} href="#" role="tab">
             {tab.props.title}
           </a>
@@ -67,6 +67,25 @@ var Tabs = React.createClass({
       active: 1,
       onActive: emptyFunction
     };
+  },
+
+  getInitialState() {
+    return {active: null};
+  },
+
+  getActive() {
+    return this.state.active !== null ?
+      this.state.active :
+      this.props.active;
+  },
+
+  setActive(active) {
+    this.setState({active});
+  },
+
+  onClick(active, e) {
+    e.preventDefault();
+    this.setActive(active);
   }
 });
 

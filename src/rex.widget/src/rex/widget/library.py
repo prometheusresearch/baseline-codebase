@@ -296,15 +296,6 @@ class GridWidget(Widget):
     hide_columns        = Field(SeqVal(StrVal), default=[])
     show_columns        = Field(MaybeVal(SeqVal(StrVal)), default=None)
 
-
-class BarChart(Widget):
-
-    name    = 'BarChart'
-    js_type = 'rex-widget/lib/BarChart'
-
-    id      = Field(StrVal)
-    data    = Field(CollectionVal(include_meta=True))
-
 class ButtonWidget(Widget):
 
     name    = 'Button'

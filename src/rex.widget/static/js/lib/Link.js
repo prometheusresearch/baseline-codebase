@@ -15,7 +15,7 @@ var Link = React.createClass({
     unsafe: PropTypes.bootean
   },
 
-  render: function() {
+  render() {
     return this.transferPropsTo(
       <a href={this.href()}>{this.props.children}</a>
     );

@@ -12,7 +12,7 @@ var Link = React.createClass({
   propTypes: {
     href: PropTypes.string.isRequired,
     params: PropTypes.object,
-    unsafe: PropTypes.bootean
+    unsafe: PropTypes.bool
   },
 
   render() {

@@ -4,8 +4,9 @@
 
 .. contents:: Table of Contents
 
-1.2.0 (to be released)
-======================
+
+1.2.0 (2014-08-28)
+==================
 
 * Bundle minification for production deployments (with external source maps).
 

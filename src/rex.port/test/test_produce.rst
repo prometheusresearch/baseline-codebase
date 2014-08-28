@@ -69,6 +69,17 @@ The port could also handle HTTP requests::
     }
     <BLANKLINE>
 
+The output format could also be specified using ``:FORMAT`` constraint::
+
+    >>> req = Request.blank('/?:FORMAT=x-htsql/csv')
+    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    Content-Type: text/csv; charset=UTF-8
+    ...
+    id,code,title,closed
+    asdl,asdl,Autism Spectrum Disorder Lab,1
+    ...
+
 A port can also be used to evaluate calculated attributes::
 
     >>> count_port = Port("""

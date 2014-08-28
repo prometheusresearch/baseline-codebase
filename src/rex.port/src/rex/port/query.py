@@ -80,7 +80,7 @@ class Port(object):
         else:
             raise HTTPMethodNotAllowed()
         with self.db:
-            format = accept(req.environ)
+            format = product.format or accept(req.environ)
             headerlist = emit_headers(format, product)
             app_iter = list(emit(format, product))
             return Response(headerlist=headerlist, app_iter=app_iter)

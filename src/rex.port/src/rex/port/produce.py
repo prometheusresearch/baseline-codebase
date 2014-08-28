@@ -14,6 +14,7 @@ from htsql.core.tr.binding import (RootBinding, TitleBinding, SelectionBinding,
 from htsql.core.tr.lookup import prescribe, identify
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.translate import translate
+from htsql.core.fmt.accept import Accept
 
 
 class Bind(object):
@@ -153,15 +154,27 @@ def compile(tree, constraints):
     return pipe
 
 
+def format(constraints):
+    # Extracts :FORMAT parameter.
+    arguments = constraints.get(((), 'FORMAT_'))
+    if (arguments is not None and len(arguments) == 1 and
+            isinstance(arguments[0], str)):
+        content_type = arguments[0]
+        return Accept.__invoke__(content_type)
+    return None
+
+
 def produce(tree, constraints):
     # Given a port tree and a set of constraints, produces an HTSQL output.
     pipe = compile(tree, constraints)
-    return pipe()(None)
+    product = pipe()(None)
+    product.format = format(constraints)
+    return product
 
 
 def describe(tree, constraints):
     # Given a port tree and a set of constraints, produces output metadata.
     pipe = compile(tree, constraints)
-    return Product(pipe.meta, None)
+    return Product(pipe.meta, None, format=format(constraints))
 
 

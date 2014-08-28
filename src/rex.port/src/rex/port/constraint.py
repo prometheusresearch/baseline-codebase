@@ -7,7 +7,7 @@ from rex.core import Error
 import urllib
 
 
-reserved_parameters = ['USER', 'FORMAT']
+reserved_parameters = ['USER', 'FORMAT', 'FORMAT_']
 
 
 class Constraint(object):
@@ -194,6 +194,12 @@ class ConstraintSet(object):
 
     def __iter__(self):
         return iter(self.constraints)
+
+    def get(self, key, default=None):
+        for constraint in self.constraints:
+            if constraint.key() == key:
+                return constraint.value()
+        return default
 
     def __str__(self):
         return "&".join(str(constraint) for constraint in self.constraints)

@@ -5,7 +5,7 @@
 
 from rex.core import (
         get_packages, get_settings, cached, ValidatingLoader, MaybeVal, StrVal,
-        AnyVal, BoolVal, MapVal, OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate,
+        BoolVal, MapVal, OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate,
         Location, Error, guard)
 from rex.web import PathMask, PathMap
 from rex.port import GrowVal, Port
@@ -188,7 +188,8 @@ class LoadMap(object):
                         unsafe=handle_spec.unsafe)
             elif isinstance(handle_spec, self.port_type):
                 access = handle_spec.access or self.package.name
-                port = Port(handle_spec.port)
+                with guard("While creating port:", locate(handle_spec)):
+                    port = Port(handle_spec.port)
                 handler = PortRenderer(
                         port=port,
                         access=access,

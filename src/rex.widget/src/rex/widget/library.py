@@ -23,7 +23,7 @@ class FlexContainer(Widget):
     js_type = 'rex-widget/lib/layout/Container'
 
     vertical    = Field(BoolVal(), default=False)
-    children    = Field(WidgetVal(), default=False)
+    children    = Field(WidgetVal(), default=NullWidget())
     class_name  = Field(StrVal(), default=None)
 
 class FlexBlock(Widget):
@@ -35,7 +35,7 @@ class FlexBlock(Widget):
     grow        = Field(OneOfVal(BoolVal(), IntVal()), default=False)
     shrink      = Field(OneOfVal(BoolVal(), IntVal()), default=False)
     size        = Field(IntVal(), default=0)
-    children    = Field(WidgetVal(), default=False)
+    children    = Field(WidgetVal(), default=NullWidget())
 
 class Container(Widget):
 
@@ -249,6 +249,7 @@ class FiltersWidget(Widget):
 
     id                  = Field(StrVal)
     title               = Field(StrVal, default=None)
+    class_name          = Field(StrVal, default=None)
     filters             = Field(WidgetVal, default=NullWidget())
     inline              = Field(BoolVal, default=False)
     show_apply_button   = Field(BoolVal, default=True)

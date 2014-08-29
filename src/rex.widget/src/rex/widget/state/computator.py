@@ -87,13 +87,11 @@ def map_param(param):
 
 
 def urlencode(query):
-    print query
     params = {}
     for k, v in query.items():
         v = [map_param(x) for x in v if x is not None]
         if v:
             params[k] = v
-    print params
     return urllib.urlencode(params, doseq=True)
 
 

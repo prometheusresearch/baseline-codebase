@@ -20,7 +20,6 @@ var CheckboxGroup = React.createClass({
   },
 
   render: function() {
-    console.log(this.props.value);
     var className = cx(
       'rex-widget-CheckboxGroup__checkbox',
       this.props.layout === 'vertical' ? 'checkbox' : 'checkbox-inline'

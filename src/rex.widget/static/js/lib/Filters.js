@@ -23,7 +23,7 @@ var Filters = React.createClass({
 
   render() {
     var className = cx(
-      this.props.className,
+      this.props.className || false,
       'rex-widget-Filters',
       this.props.inline && 'rex-widget-Filters--inline'
     );

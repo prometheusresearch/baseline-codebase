@@ -51,7 +51,8 @@ module.exports = {
   Icon:             require('./Icon'),
   TextInput:        require('./TextInput'),
   Button:           require('./Button'),
-  Checkbox:         require('./Checkbox')
+  Checkbox:         require('./Checkbox'),
+  CheckboxGroup:    require('./CheckboxGroup')
 };
 
 window.Rex = window.Rex || {};

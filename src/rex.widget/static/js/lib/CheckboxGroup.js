@@ -6,17 +6,21 @@
 var React         = require('react/addons');
 var PropTypes     = React.PropTypes;
 var cx            = React.addons.classSet;
-var emptyFunction = require('rex-widget/lib/emptyFunction');
+var emptyFunction = require('./emptyFunction');
+var merge         = require('./merge');
 
 var CheckboxGroup = React.createClass({
 
   propTypes: {
     options: PropTypes.array.isRequired,
-    value: PropTypes.array,
-    onValue: PropTypes.func
+    value: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+    valueAsMapping: PropTypes.bool, // XXX: Hack allows us to pass multiple params to port
+    onValue: PropTypes.func,
+    layout: PropTypes.string
   },
 
   render: function() {
+    console.log(this.props.value);
     var className = cx(
       'rex-widget-CheckboxGroup__checkbox',
       this.props.layout === 'vertical' ? 'checkbox' : 'checkbox-inline'
@@ -25,7 +29,7 @@ var CheckboxGroup = React.createClass({
       <div key={option.id} className={className}>
         <label>
           <input
-            checked={this.props.value && this.props.value.indexOf(option.id) > -1}
+            checked={this.isActive(option.id)}
             type="checkbox"
             onChange={this.onValue.bind(null, option.id)}
             />
@@ -47,12 +51,30 @@ var CheckboxGroup = React.createClass({
     };
   },
 
-  onValue: function(id, e) {
-    var value = this.props.value ? this.props.value.slice(0) : [];
-    if (e.target.checked) {
-      value.push(id);
+  isActive(id) {
+    var {value, valueAsMapping} = this.props;
+    if (!value) {
+      return false;
+    } else if (valueAsMapping) {
+      return value[id];
     } else {
-      value.splice(value.indexOf(id), 1);
+      return value.indexOf(option.id) > -1;
+    }
+  },
+
+  onValue: function(id, e) {
+    var {value, valueAsMapping} = this.props;
+    if (valueAsMapping) {
+      value = merge({}, value);
+      value[id] = e.target.checked;
+    } else {
+      value = value || [];
+      value = value.slice(0);
+      if (e.target.checked) {
+        value.push(id);
+      } else {
+        value.splice(value.indexOf(id), 1);
+      }
     }
     this.props.onValue(value);
   }

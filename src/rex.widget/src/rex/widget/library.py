@@ -9,7 +9,7 @@
 
 from rex.core import (
         AnyVal, OneOfVal, SeqVal, StrVal, UStrVal, IntVal, BoolVal, MaybeVal,
-        RecordVal)
+        RecordVal, MapVal)
 from .widget import (
         Widget, GroupWidget, NullWidget, Field, StateField, state,
         iterate)
@@ -140,8 +140,11 @@ class CheckboxGroup(Widget):
     name    = 'CheckboxGroup'
     js_type = 'rex-widget/lib/CheckboxGroup'
 
-    options = Field(SeqVal)
-    layout  = Field(StrVal, default='vertical')
+    id               = Field(StrVal)
+    options          = Field(SeqVal)
+    layout           = Field(StrVal, default='vertical')
+    value_as_mapping = Field(BoolVal(), default=False)
+    value            = StateField(OneOfVal(MapVal(StrVal(), BoolVal()), AnyVal()))
 
 
 class List(Widget):

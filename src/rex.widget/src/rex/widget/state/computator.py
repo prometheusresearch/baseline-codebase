@@ -77,6 +77,26 @@ class Data(_Data):
 Append = namedtuple('Append', ['data'])
 
 
+def map_param(param):
+    # XXX: 0 == False, thanks Python
+    if param is False or param == 'false':
+        return ''
+    if param is True:
+        return 'true'
+    return param
+
+
+def urlencode(query):
+    print query
+    params = {}
+    for k, v in query.items():
+        v = [map_param(x) for x in v if x is not None]
+        if v:
+            params[k] = v
+    print params
+    return urllib.urlencode(params, doseq=True)
+
+
 class DataComputator(object):
     """ An abstract base class for state computators which fetch their state
     from database."""
@@ -102,9 +122,7 @@ class DataComputator(object):
     def fetch_port(self, handler, **params):
         query = dict(self.parsed_query)
         query.update(params)
-        query = {k: [v for v in vs if v is not None and v != ''] for k, vs in query.items()}
-        query = {k: v for k, v in query.items() if v}
-        query = urllib.urlencode(query, doseq=True)
+        query = urlencode(query)
 
         log.debug('fetching port: %s?%s', self.parsed.path, query)
 

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.1.1 (2014-XX-XX)
+2.1.1 (2014-08-29)
 ==================
 
 * Support for ``rex.web==3.0.0``.

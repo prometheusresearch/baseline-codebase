@@ -1225,6 +1225,27 @@ Invalid records are rejected::
       ...
     TypeError: expected 2 arguments, got 3
 
+Record fields could be accessed by name or by index::
+
+    >>> p1.name
+    'Alice'
+    >>> p1['name']
+    'Alice'
+    >>> p1[0]
+    'Alice'
+
+Unknown keys are rejected::
+
+    >>> p1['sex']
+    Traceback (most recent call last):
+      ...
+    KeyError: 'sex'
+
+A record can be easily converted to a dictionary::
+
+    >>> vars(p1)
+    OrderedDict([('name', 'Alice'), ('age', 33)])
+
 Records are compared by value and can be used as keys in a dictionary::
 
     >>> p1 == Person("Alice", 33)

@@ -891,6 +891,21 @@ class Record(object):
         set_location(clone, self)
         return clone
 
+    def __getitem__(self, key):
+        index = key
+        if not isinstance(index, int):
+            try:
+                index = self._fields.index(key)
+            except ValueError:
+                raise KeyError(key)
+        return getattr(self, self._fields[index])
+
+    def _asdict(self):
+        return collections.OrderedDict((field, getattr(self, field))
+                                       for field in self._fields)
+
+    __dict__ = property(_asdict)
+
     def __iter__(self):
         # Provided so that ``tuple(self)`` works.
         for field in self._fields:

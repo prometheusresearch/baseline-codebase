@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.8.0 (2014-08-28)
+==================
+
+* Added ``Record.__getitem__`` and ``Record.__dict__``.
+
+
 1.7.0 (2014-08-27)
 ==================
 

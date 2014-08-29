@@ -58,7 +58,7 @@ var CheckboxGroup = React.createClass({
     } else if (valueAsMapping) {
       return value[id];
     } else {
-      return value.indexOf(option.id) > -1;
+      return value.indexOf(id) > -1;
     }
   },
 

@@ -37,6 +37,19 @@ class FlexBlock(Widget):
     size        = Field(IntVal(), default=0)
     children    = Field(WidgetVal(), default=NullWidget())
 
+
+class FlexResizeableBlock(Widget):
+    name = 'FlexResizeableBlock'
+    js_type = 'rex-widget/lib/layout/ResizeableBlock'
+
+    class_name  = Field(StrVal(), default=None)
+    direction   = Field(StrVal(), default='left')
+    grow        = Field(OneOfVal(BoolVal(), IntVal()), default=False)
+    shrink      = Field(OneOfVal(BoolVal(), IntVal()), default=False)
+    size        = Field(IntVal(), default=0)
+    children    = Field(WidgetVal(), default=NullWidget())
+
+
 class Container(Widget):
 
     name        = 'Container'

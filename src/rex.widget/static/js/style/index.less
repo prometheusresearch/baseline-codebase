@@ -448,3 +448,60 @@ html, body, #__main__ {
     width: 100%;
   }
 }
+
+.rex-widget-ResizeableBlock {
+  position: relative;
+}
+
+.rex-widget-ResizeableBlock--resize {
+  .rex-widget-ResizeableBlock__handle {
+    background: @colorHoverHighlight;
+  }
+}
+
+.rex-widget-ResizeableBlock--left {
+  .rex-widget-ResizeableBlock__handle {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: col-resize;
+  }
+}
+
+.rex-widget-ResizeableBlock--top {
+  .rex-widget-ResizeableBlock__handle {
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 4px;
+    cursor: row-resize;
+  }
+}
+
+.rex-widget-ResizeableBlock--right {
+  .rex-widget-ResizeableBlock__handle {
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: col-resize;
+  }
+}
+
+.rex-widget-ResizeableBlock--bottom {
+  .rex-widget-ResizeableBlock__handle {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    cursor: row-resize;
+  }
+}
+
+.rex-widget-ResizeableBlock__handle {
+  position: absolute;
+  &:hover {
+    background: @colorHoverHighlight;
+  }
+}

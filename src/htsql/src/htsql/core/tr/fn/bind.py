@@ -42,9 +42,9 @@ from .signature import (AsSig, LimitSig, SortSig, CastSig, MakeDateSig,
         SubtractSig, DateDecrementSig, DateTimeDecrementSig, DateDifferenceSig,
         TodaySig, NowSig, MultiplySig, DivideSig, IfSig, SwitchSig,
         KeepPolaritySig, ReversePolaritySig, RoundSig, RoundToSig, TruncSig,
-        TruncToSig, LengthSig, ContainsSig, ExistsSig, CountSig, MinMaxSig,
-        SumSig, AvgSig, AggregateSig, QuantifySig, DefineSig, GivenSig,
-        SelectSig, LinkSig, TopSig, GuardSig)
+        TruncToSig, LengthSig, ContainsSig, HasPrefixSig, ExistsSig, CountSig,
+        MinMaxSig, SumSig, AvgSig, AggregateSig, QuantifySig, DefineSig,
+        GivenSig, SelectSig, LinkSig, TopSig, GuardSig)
 import sys
 
 
@@ -1519,6 +1519,14 @@ class CorrelateTextContains(CorrelateFunction):
                        (UntypedDomain, TextDomain),
                        (UntypedDomain, UntypedDomain))
     signature = ContainsSig
+    domains = [TextDomain(), TextDomain()]
+    codomain = BooleanDomain()
+
+
+class BindHasPrefix(BindMonoFunction):
+
+    call('has_prefix')
+    signature = HasPrefixSig
     domains = [TextDomain(), TextDomain()]
     codomain = BooleanDomain()
 

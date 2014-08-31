@@ -17,18 +17,18 @@ from .state import unknown, State, Reset, Dep, CollectionVal, PaginatedCollectio
 from .parse import WidgetVal
 from .jsval import JSVal
 
-class FlexContainer(Widget):
+class Container(Widget):
 
-    name = 'FlexContainer'
+    name = 'Container'
     js_type = 'rex-widget/lib/layout/Container'
 
     vertical    = Field(BoolVal(), default=False)
     children    = Field(WidgetVal(), default=NullWidget())
     class_name  = Field(StrVal(), default=None)
 
-class FlexBlock(Widget):
+class Block(Widget):
 
-    name = 'FlexBlock'
+    name = 'Block'
     js_type = 'rex-widget/lib/layout/Block'
 
     class_name  = Field(StrVal(), default=None)
@@ -38,8 +38,8 @@ class FlexBlock(Widget):
     children    = Field(WidgetVal(), default=NullWidget())
 
 
-class FlexResizeableBlock(Widget):
-    name = 'FlexResizeableBlock'
+class ResizeableBlock(Widget):
+    name = 'ResizeableBlock'
     js_type = 'rex-widget/lib/layout/ResizeableBlock'
 
     class_name  = Field(StrVal(), default=None)
@@ -48,32 +48,6 @@ class FlexResizeableBlock(Widget):
     shrink      = Field(OneOfVal(BoolVal(), IntVal()), default=False)
     size        = Field(IntVal(), default=0)
     children    = Field(WidgetVal(), default=NullWidget())
-
-
-class Container(Widget):
-
-    name        = 'Container'
-    js_type     = 'rex-widget/lib/Container'
-
-    rows        = Field(WidgetVal, default=NullWidget())
-
-
-class Row(Widget):
-
-    name        = 'Row'
-    js_type     = 'rex-widget/lib/Row'
-
-    columns     = Field(WidgetVal, default=NullWidget())
-    height      = Field(IntVal, default=NullWidget())
-
-
-class Column(Widget):
-
-    name        = 'Column'
-    js_type     = 'rex-widget/lib/Column'
-
-    children    = Field(WidgetVal, default=NullWidget())
-    width       = Field(IntVal, default=NullWidget())
 
 
 class LabelWidget(Widget):

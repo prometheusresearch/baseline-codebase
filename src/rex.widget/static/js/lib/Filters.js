@@ -18,7 +18,7 @@ var Filters = React.createClass({
     title: PropTypes.string,
     showClearButton: PropTypes.bool,
     showApplyButton: PropTypes.bool,
-    filters: PropTypes.array
+    filters: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
   },
 
   render() {
@@ -62,6 +62,9 @@ var Filters = React.createClass({
 
   renderFilters() {
     return React.Children.map(this.props.filters, (filter) => {
+      if (!filter) {
+        return null;
+      }
       var id = filter.props.filter.props.id;
       return cloneWithProps(filter, {
         key: id,
@@ -85,6 +88,9 @@ var Filters = React.createClass({
     props = props || this.props;
     var state = {};
     React.Children.forEach(props.filters, (filter) => {
+      if (!filter) {
+        return;
+      }
       var key = filter.props.filter.props.id;
       state[key] = props.value[key] || null;
     });
@@ -100,6 +106,9 @@ var Filters = React.createClass({
   onApply() {
     var state = this.getFilterState();
     React.Children.forEach(this.props.filters, (filter) => {
+      if (!filter) {
+        return;
+      }
       var key = filter.props.filter.props.id;
       state[key] = ApplicationState.get(key + '/value');
     });
@@ -111,6 +120,9 @@ var Filters = React.createClass({
     var filterStateIDs = []
 
     React.Children.forEach(this.props.filters, (filter) => {
+      if (!filter) {
+        return;
+      }
       var key = filter.props.filter.props.id;
       filterStateIDs.push(key + '/value');
       filters[key] = null;

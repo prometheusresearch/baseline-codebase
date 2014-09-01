@@ -3,12 +3,16 @@
  */
 'use strict';
 
-var React         = require('react/addons');
-var PropTypes     = React.PropTypes;
-var cx            = React.addons.classSet;
-var emptyFunction = require('./emptyFunction');
+var React           = require('react/addons');
+var PropTypes       = React.PropTypes;
+var cx              = React.addons.classSet;
+var emptyFunction   = require('./emptyFunction');
+var merge           = require('./merge');
+var PageStateMixin  = require('./PageStateMixin');
 
 var Tabs = React.createClass({
+
+  mixins: [PageStateMixin],
 
   propTypes: {
     tabs: PropTypes.renderable,
@@ -70,7 +74,7 @@ var Tabs = React.createClass({
   },
 
   getInitialState() {
-    return {active: null};
+    return merge({active: null}, this.getPageState());
   },
 
   getActive() {
@@ -81,6 +85,7 @@ var Tabs = React.createClass({
 
   setActive(active) {
     this.setState({active});
+    this.setPageState({active});
   },
 
   onClick(active, e) {

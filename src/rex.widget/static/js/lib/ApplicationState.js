@@ -119,7 +119,7 @@ var ApplicationState = merge({
 
   get(id) {
     if (id.indexOf(':') > -1) {
-      var parsed = id.split(':', 1);
+      var parsed = id.split(':', 2);
       id = parsed[0];
       var value = values[id].value;
       if (value === UNKNOWN) {
@@ -129,7 +129,13 @@ var ApplicationState = merge({
         states[id] !== undefined,
         `cannot dereference state with id: ${id}`
       );
-      parsed[1].split('.').forEach((part) => value = value[part]);
+      var path = parsed[1].split('.');
+      for (var i = 0, len = path.length; i < len; i++) {
+        if (value === null || value === undefined) {
+          return value;
+        }
+        value = value[path[i]];
+      }
       return value;
     } else {
       invariant(

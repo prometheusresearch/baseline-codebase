@@ -52,7 +52,9 @@ module.exports = {
   TextInput:        require('./TextInput'),
   Button:           require('./Button'),
   Checkbox:         require('./Checkbox'),
-  CheckboxGroup:    require('./CheckboxGroup')
+  CheckboxGroup:    require('./CheckboxGroup'),
+  Filters:          require('./Filters'),
+  Filter:           require('./Filter')
 };
 
 window.Rex = window.Rex || {};

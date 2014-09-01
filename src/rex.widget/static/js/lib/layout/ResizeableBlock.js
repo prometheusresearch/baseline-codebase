@@ -3,13 +3,17 @@
  */
 'use strict';
 
-var React      = require('react/addons');
-var PropTypes  = React.PropTypes;
-var cx         = React.addons.classSet;
-var Draggable  = require('react-grid/lib/Draggable');
-var Block      = require('./Block');
+var React           = require('react/addons');
+var PropTypes       = React.PropTypes;
+var cx              = React.addons.classSet;
+var Draggable       = require('react-grid/lib/Draggable');
+var Block           = require('./Block');
+var merge           = require('../merge');
+var PageStateMixin  = require('../PageStateMixin');
 
 var ResizeableBlock = React.createClass({
+
+  mixins: [PageStateMixin],
 
   propTypes: {
     minSize: PropTypes.number,
@@ -38,10 +42,10 @@ var ResizeableBlock = React.createClass({
   },
 
   getInitialState() {
-    return {
-      size: null,
-      resize: false
-    };
+    return merge({
+      resize: false,
+      size: null
+    }, this.getPageState());
   },
 
   getDefaultProps() {
@@ -49,6 +53,14 @@ var ResizeableBlock = React.createClass({
       direction: 'left',
       minSize: 0
     };
+  },
+
+  getPageStateId() {
+    if (this.props.pageStateId) {
+      return this.props.pageStateId;
+    } else {
+      return `${this.constructor.displayName}__${this._rootNodeID}__${this._mountDepth}`;
+    }
   },
 
   size(bounds, x, y) {
@@ -78,6 +90,7 @@ var ResizeableBlock = React.createClass({
     var size = Math.max(this.size(this.__bounds, e.pageX, e.pageY), this.props.minSize);
     this.__bounds = undefined;
     this.setState({size, resize: false});
+    this.setPageState({size});
   }
 
 });

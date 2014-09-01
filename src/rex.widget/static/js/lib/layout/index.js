@@ -5,5 +5,7 @@
 
 module.exports = {
   Container: require('./Container'),
-  Block: require('./Block')
+  Block: require('./Block'),
+  ResizeableBlock: require('./ResizeableBlock'),
+  CollapsibleBlock: require('./CollapsibleBlock')
 };

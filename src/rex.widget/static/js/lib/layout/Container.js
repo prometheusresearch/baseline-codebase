@@ -7,6 +7,7 @@ var React           = require('react/addons');
 var PropTypes       = React.PropTypes;
 var cx              = React.addons.classSet;
 var cloneWithProps  = React.addons.cloneWithProps;
+var merge           = require('../merge');
 
 var Container = React.createClass({
 
@@ -27,8 +28,13 @@ var Container = React.createClass({
 
   renderChildren(children) {
     return React.Children.map(children, (child) => {
-      var props = this.props.vertical ? {width: '100%'} : {height: '100%'};
-      return cloneWithProps(child, props);
+      if (child === null) {
+        return child;
+      }
+      return cloneWithProps(child, merge(
+        {vertical: this.props.vertical},
+        this.props.vertical ? {width: '100%'} : {height: '100%'}
+      ));
     });
   }
 });

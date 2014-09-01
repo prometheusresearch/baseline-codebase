@@ -421,6 +421,7 @@ html, body, #__main__ {
   position: relative;
   display: flex;
   height: 100%;
+  overflow: hidden;
 }
 
 .rex-widget-Block {
@@ -485,7 +486,48 @@ html, body, #__main__ {
 
 .rex-widget-ResizeableBlock__handle {
   position: absolute;
-  &:hover {
+}
+
+.rex-widget-ResizeableBlock__service:hover {
+  & > .rex-widget-ResizeableBlock__handle {
+    background: @colorHoverHighlight;
+  }
+}
+
+.rex-widget-CollapsibleBlock {
+  overflow: visible;
+}
+
+.rex-widget-CollapsibleBlock__button {
+  cursor: pointer;
+  padding: 6px;
+  position: absolute;
+  bottom: -20px;
+  left: -30px;
+  height: 30px;
+  overflow: hidden;
+  transform: rotate(-90deg);
+  transform-origin: 0 0;
+}
+
+.rex-widget-CollapsibleBlock--vertical {
+  .rex-widget-CollapsibleBlock__button {
+    left: 10px;
+    top: -30px;
+    transform: none;
+  }
+}
+
+.rex-widget-CollapsibleBlock__buttonInner {
+  height: 40px;
+  background: white;
+  padding: 6px;
+  box-shadow: @standardShadow;
+}
+
+.rex-widget-ResizeableBlock__service:hover,
+.rex-widget-ResizeableBlock--resize {
+  .rex-widget-CollapsibleBlock__buttonInner {
     background: @colorHoverHighlight;
   }
 }

@@ -50,6 +50,17 @@ class ResizeableBlock(Widget):
     children    = Field(WidgetVal(), default=NullWidget())
 
 
+class CollapsibleBlock(Widget):
+    name = 'CollapsibleBlock'
+    js_type = 'rex-widget/lib/layout/CollapsibleBlock'
+
+    class_name  = Field(StrVal(), default=None)
+    direction   = Field(StrVal(), default='left')
+    grow        = Field(OneOfVal(BoolVal(), IntVal()), default=False)
+    shrink      = Field(OneOfVal(BoolVal(), IntVal()), default=False)
+    size        = Field(IntVal(), default=0)
+    children    = Field(WidgetVal(), default=NullWidget())
+
 class LabelWidget(Widget):
 
     name    = 'Label'

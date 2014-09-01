@@ -12,15 +12,14 @@ var Block = React.createClass({
   propTypes: {
     size: PropTypes.number,
     grow: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
-    shrink: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
-    width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    forceWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    forceHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    shrink: PropTypes.oneOfType([PropTypes.bool, PropTypes.number])
   },
 
   render() {
-    var style = {};
+    var style = {
+      minWidth: this.props.minWidth,
+      minHeight: this.props.minHeight
+    };
     var grow = 0 + this.props.grow; // coerce Boolean to Number
     if (grow) {
       style.flexGrow = grow;
@@ -32,19 +31,22 @@ var Block = React.createClass({
     if (this.props.size) {
       style.flex = this.props.size;
     }
-    if (this.props.height != undefined) {
-      style.height = this.props.height;
-    }
-    if (this.props.width != undefined) {
-      style.width = this.props.width;
-    }
-    if (this.props.forceWidth != undefined) {
-      style.width = this.props.forceWidth;
+    if (this.props.fixedSize != undefined) {
       style.flex = style.flexShrink = style.flexGrow = undefined;
+      if (this.props.vertical) {
+        style.height = this.props.fixedSize;
+      } else {
+        style.width = this.props.fixedSize;
+      }
     }
-    if (this.props.forceHeight != undefined) {
-      style.height = this.props.forceHeight;
-      style.flex = style.flexShrink = style.flexGrow = undefined;
+    if (this.props.forceSize != undefined) {
+      if (this.props.vertical) {
+        style.minHeight = this.props.forceSize;
+        style.maxHeight = this.props.forceSize;
+      } else {
+        style.minWidth = this.props.forceSize;
+        style.maxWidth = this.props.forceSize;
+      }
     }
     return (
       <div style={style} className={cx('rex-widget-Block', this.props.className)}>

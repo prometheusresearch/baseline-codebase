@@ -27,16 +27,17 @@ var ResizeableBlock = React.createClass({
       `rex-widget-ResizeableBlock--${this.props.direction}`,
       this.state.resize && 'rex-widget-ResizeableBlock--resize'
     );
-    var forceWidth = direction === 'left' || direction === 'right' ? this.state.size : null;
-    var forceHeight = direction === 'top' || direction === 'bottom' ? this.state.size : null;
     return this.transferPropsTo(
-      <Block className={className} forceWidth={forceWidth} forceHeight={forceHeight}>
+      <Block className={className} fixedSize={this.state.size}>
         {this.props.children}
-        <Draggable
-          className="rex-widget-ResizeableBlock__handle"
-          onDrag={this.onResize}
-          onDragEnd={this.onResizeEnd}
-          />
+        <div className="rex-widget-ResizeableBlock__service">
+          <Draggable
+            className="rex-widget-ResizeableBlock__handle"
+            onDrag={this.onResize}
+            onDragEnd={this.onResizeEnd}
+            />
+          {this.props.service}
+        </div>
       </Block>
     );
   },

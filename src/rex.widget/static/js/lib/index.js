@@ -54,7 +54,8 @@ module.exports = {
   Checkbox:         require('./Checkbox'),
   CheckboxGroup:    require('./CheckboxGroup'),
   Filters:          require('./Filters'),
-  Filter:           require('./Filter')
+  Filter:           require('./Filter'),
+  layout:           require('./layout')
 };
 
 window.Rex = window.Rex || {};

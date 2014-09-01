@@ -75,7 +75,8 @@ var TextInput = React.createClass({
   propTypes: {
     value: PropTypes.string,
     onValue: PropTypes.func,
-    placeholder: PropTypes.string
+    placeholder: PropTypes.string,
+    disabled: PropTypes.bool
   },
 
   render() {
@@ -85,6 +86,7 @@ var TextInput = React.createClass({
         className="rex-widget-TextInput"
         placeholder={this.props.placeholder}
         value={value}
+        disabled={this.props.disabled}
         onChange={this.onChange}
         />
     );

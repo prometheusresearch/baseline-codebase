@@ -23,6 +23,7 @@ var Autocomplete = React.createClass({
     }
     return (
       <ReactAutocomplete
+        className={this.props.className}
         placeholder={placeholder}
         value={{id: value}}
         options={options}

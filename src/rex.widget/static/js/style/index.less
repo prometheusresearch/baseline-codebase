@@ -416,6 +416,32 @@ html, body, #__main__ {
 }
 
 /**
+ * CheckboxGroup
+ */
+
+.rex-widget-CheckboxGroup--inline {
+  & > .rex-widget-CheckboxGroup__checkbox {
+    display: inline-block;
+  }
+}
+
+.rex-widget-CheckboxGroup__checkbox {
+  padding: @paddingS;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.rex-widget-CheckboxGroup__label {
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.rex-widget-CheckboxGroup__checkbox input {
+  margin: 0 @paddingS;
+}
+
+/**
  * Flex Layout
  */
 .rex-widget-Container {

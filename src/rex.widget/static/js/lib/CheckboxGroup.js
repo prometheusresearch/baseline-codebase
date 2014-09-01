@@ -20,14 +20,11 @@ var CheckboxGroup = React.createClass({
   },
 
   render: function() {
-    var className = cx(
-      'rex-widget-CheckboxGroup__checkbox',
-      this.props.layout === 'vertical' ? 'checkbox' : 'checkbox-inline'
-    );
-    var options = this.props.options.map((option) =>
-      <div key={option.id} className={className}>
-        <label>
+    var options = this.props.options.filter((option) => option).map((option) =>
+      <div key={option.id} className="rex-widget-CheckboxGroup__checkbox">
+        <label className="rex-widget-CheckboxGroup__label">
           <input
+            className="rex-widget-CheckboxGroup__input"
             checked={this.isActive(option.id)}
             type="checkbox"
             onChange={this.onValue.bind(null, option.id)}
@@ -36,17 +33,17 @@ var CheckboxGroup = React.createClass({
         </label>
       </div>
     );
-    return (
-      <div className="rex-widget-CheckboxGroup">
-        {options}
-      </div>
-    );
+    var className = cx({
+      'rex-widget-CheckboxGroup': true,
+      'rex-widget-CheckboxGroup--inline': this.props.layout !== 'vertical'
+    });
+    return <div className={className}>{options}</div>;
   },
 
   getDefaultProps: function() {
     return {
       value: [],
-      onValue: emptyFunction
+      onValue: emptyFunction,
     };
   },
 

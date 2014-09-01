@@ -55,14 +55,6 @@ var ResizeableBlock = React.createClass({
     };
   },
 
-  getPageStateId() {
-    if (this.props.pageStateId) {
-      return this.props.pageStateId;
-    } else {
-      return `${this.constructor.displayName}__${this._rootNodeID}__${this._mountDepth}`;
-    }
-  },
-
   size(bounds, x, y) {
     switch (this.props.direction) {
       case 'top':

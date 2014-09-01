@@ -24,11 +24,7 @@ var PageStateMixin = {
     } else if (this.props.pageStateId) {
       return this.props.pageStateId;
     } else {
-      invariant(
-        false,
-        'PageStateMixin requires either pageStateId prop ' +
-        'passed to component or getPageStateId() method implemented'
-      );
+      return `${this.constructor.displayName}__${this._rootNodeID}__${this._mountDepth}`;
     }
   }
 };

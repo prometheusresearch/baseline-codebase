@@ -44,6 +44,8 @@ module.exports = {
   PropTypes:        require('./PropTypes'),
   Table:            require('./Table'),
   Select:           require('./Select'),
+  Tabs:             require('./Tabs'),
+  Tab:              require('./Tab'),
   Grid:             require('./Grid'),
   Preloader:        require('./Preloader'),
   DataPreloader:    require('./DataPreloader'),

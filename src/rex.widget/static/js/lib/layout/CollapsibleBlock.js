@@ -22,7 +22,7 @@ var CollapsibleBlock = React.createClass({
       'rex-widget-CollapsibleBlock--vertical': this.props.vertical
     });
     var service = (
-      <div onClick={this.toggle} className="rex-widget-CollapsibleBlock__button">
+      <div title="Show/hide" onClick={this.toggle} className="rex-widget-CollapsibleBlock__button">
         <div className="rex-widget-CollapsibleBlock__buttonInner">
           {this.state.collapsed ?
             <Icon name="chevron-up" /> :

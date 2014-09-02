@@ -32,6 +32,7 @@ var ResizeableBlock = React.createClass({
         {this.props.children}
         <div className="rex-widget-ResizeableBlock__service">
           <Draggable
+            title="Drag to resize"
             className="rex-widget-ResizeableBlock__handle"
             onDrag={this.onResize}
             onDragEnd={this.onResizeEnd}

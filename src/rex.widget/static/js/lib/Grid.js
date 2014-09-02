@@ -11,7 +11,10 @@ var BaseRow       = require('react-grid/lib/Row');
 var Icon          = require('./Icon');
 var emptyFunction = require('./emptyFunction');
 var merge         = require('./merge');
+var invariant     = require('./invariant');
 var mergeInto     = require('./mergeInto');
+var isString      = require('./isString');
+var formatters    = require('./formatters');
 
 function sameColumn(a, b) {
   var k;
@@ -189,6 +192,14 @@ var Grid = React.createClass({
           headerRenderer: SortableGridHeaderCell,
           onSort: this.props.onDataSort
         });
+      }
+      if (column.formatter && isString(column.formatter)) {
+        var formatter = formatters[column.formatter];
+        invariant(
+          formatter !== undefined,
+          'invalid formatter "%s"', column.formatter
+        );
+        mergeInto(column, {formatter});
       }
     }
     return column;

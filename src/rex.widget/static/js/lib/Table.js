@@ -100,7 +100,7 @@ var Table = React.createClass({
                 var value = row.calculate(transposedData[column.key], column.key, columns.length + index);
                 return (
                   <td className="rex-widget-Table__calculatedColumn" key={column.key}>
-                    {column.formatter ? column.formatter(value , column.key, row) : value}
+                    {column.formatter ? column.formatter(value, column.key, row) : value}
                   </td>
                 )
               })}

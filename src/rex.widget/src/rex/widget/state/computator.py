@@ -143,7 +143,9 @@ class DataComputator(object):
         for (k, v) in query.items():
             v = v[0] if isinstance(v, list) else v
             if v == False:
-                v = None
+                v = ''
+            if v is None:
+                v = ''
             query[k] = v
 
         log.debug(

@@ -139,9 +139,12 @@ class DataComputator(object):
     def fetch_query(self, handler, **params):
         query = dict(handler.parameters)
         query.update(self.parsed_query)
-        query.update({k: [''] for k in self.refs})
         query.update(params)
-        query = {k: v[0] if isinstance(v, list) else v for k, v in query.items()}
+        for (k, v) in query.items():
+            v = v[0] if isinstance(v, list) else v
+            if v == False:
+                v = None
+            query[k] = v
 
         log.debug(
             'fetching query: %s?%s',
@@ -150,7 +153,7 @@ class DataComputator(object):
         )
 
         with measure_execution_time(), get_db():
-            product = htsql.core.cmd.act.produce(handler.query, query)
+            product = htsql.core.cmd.act.produce(handler.query, **query)
 
         data = product_to_json(product)
         data = data[product.meta.tag]

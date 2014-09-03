@@ -20,6 +20,9 @@ function global(p) {
 function configureWebpack(config) {
   set(config, 'watchDelay', 800);
 
+  set(config, 'resolve.alias.react/addons', global('react/react-with-addons.js'));
+  set(config, 'resolve.alias.react', global('react/react-with-addons.js'));
+
   set(config, 'output.path', process.cwd());
   set(config, 'output.filename', 'bundle.js');
   unshift(config, 'module.loaders', [

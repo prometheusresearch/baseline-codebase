@@ -3,18 +3,19 @@
  */
 'use strict';
 
-var React         = require('react/addons');
-var PropTypes     = React.PropTypes;
-var cx            = React.addons.classSet;
-var BaseGrid      = require('react-grid');
-var BaseRow       = require('react-grid/lib/Row');
-var Icon          = require('./Icon');
-var emptyFunction = require('./emptyFunction');
-var merge         = require('./merge');
-var invariant     = require('./invariant');
-var mergeInto     = require('./mergeInto');
-var isString      = require('./isString');
-var formatters    = require('./formatters');
+var React            = require('react/addons');
+var PropTypes        = React.PropTypes;
+var cx               = React.addons.classSet;
+var BaseGrid         = require('react-grid');
+var BaseRow          = require('react-grid/lib/Row');
+var Icon             = require('./Icon');
+var emptyFunction    = require('./emptyFunction');
+var merge            = require('./merge');
+var invariant        = require('./invariant');
+var mergeInto        = require('./mergeInto');
+var isString         = require('./isString');
+var formatters       = require('./formatters');
+var ApplicationState = require('./ApplicationState');
 
 function sameColumn(a, b) {
   var k;
@@ -115,6 +116,7 @@ var Grid = React.createClass({
     showColumns: PropTypes.array,
     resizeableColumns: PropTypes.bool,
 
+    autoSelect: PropTypes.bool,
     selectable: PropTypes.bool,
     selected: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     onSelected: PropTypes.func,
@@ -145,7 +147,7 @@ var Grid = React.createClass({
     );
   },
 
-  getDefaultProps: function() {
+  getDefaultProps() {
     return {
       columns: {},
       hideColumns: [],
@@ -156,13 +158,31 @@ var Grid = React.createClass({
     };
   },
 
+  componentDidMount() {
+    this.checkAutoSelect();
+  },
+
+  componentDidUpdate() {
+    this.checkAutoSelect();
+  },
+
+  checkAutoSelect() {
+    var {autoSelect, selected, selectable} = this.props;
+    if (autoSelect && selectable && selected == null) {
+      var firstRow = this.getData()[0];
+      if (firstRow) {
+        this.props.onSelected(firstRow.id, {persistence: ApplicationState.PERSISTENCE.INVISIBLE});
+      }
+    }
+  },
+
   /**
    * Decorate columns definition with information about resizeable columns,
    * sortable columns, ...
    *
    * @private
    */
-  decorateColumns: function(columns) {
+  decorateColumns(columns) {
     var index = columns.index;
     if (this.props.hideColumns.length > 0) {
       columns = columns.filter((column) =>
@@ -233,7 +253,7 @@ var Grid = React.createClass({
     }
   },
 
-  getColumnsFromMeta: function(meta) {
+  getColumnsFromMeta(meta) {
     if (!this._columns || this._columns.meta !== meta) {
       var index = {};
       var columns = [];
@@ -258,7 +278,7 @@ var Grid = React.createClass({
     return this._columns;
   },
 
-  getColumnsFromKeys: function(data) {
+  getColumnsFromKeys(data) {
     if (data.length === 0)
       return [];
     var keys = Object.keys(data[0]);
@@ -277,7 +297,7 @@ var Grid = React.createClass({
     return this._columns;
   },
 
-  getColumnsFromData: function(data) {
+  getColumnsFromData(data) {
     var data = data.data;
     if (data.length === 0) {
       return [];
@@ -303,7 +323,7 @@ var Grid = React.createClass({
     return Array.isArray(data) ? data : data.data;
   },
 
-  getRows: function(start, end) {
+  getRows(start, end) {
     return this.getData().slice(start, end);
   },
 

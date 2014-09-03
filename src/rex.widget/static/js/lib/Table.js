@@ -5,11 +5,12 @@
  */
 'use strict';
 
-var React           = require('react/addons');
-var PropTypes       = React.PropTypes;
-var cx              = React.addons.classSet;
-var Preloader       = require('./Preloader');
-var WidgetPropTypes = require('./PropTypes');
+var React            = require('react/addons');
+var PropTypes        = React.PropTypes;
+var cx               = React.addons.classSet;
+var Preloader        = require('./Preloader');
+var WidgetPropTypes  = require('./PropTypes');
+var ApplicationState = require('./ApplicationState');
 
 var Table = React.createClass({
 
@@ -20,6 +21,7 @@ var Table = React.createClass({
     calculatedRows: PropTypes.array,
     className: PropTypes.string,
     selectable: PropTypes.bool,
+    autoSelect: PropTypes.bool,
     selected: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   },
 
@@ -121,6 +123,24 @@ var Table = React.createClass({
   onSelected(rowID) {
     if (this.props.selectable && rowID != this.props.selected) {
       this.props.onSelected(rowID);
+    }
+  },
+
+  componentDidMount() {
+    this.checkAutoSelect();
+  },
+
+  componentDidUpdate() {
+    this.checkAutoSelect();
+  },
+
+  checkAutoSelect() {
+    var {autoSelect, selected, selectable} = this.props;
+    if (autoSelect && selectable && selected == null) {
+      var firstRow = this.props.data.data[0];
+      if (firstRow) {
+        this.props.onSelected(firstRow.id, {persistence: ApplicationState.PERSISTENCE.INVISIBLE});
+      }
     }
   }
 

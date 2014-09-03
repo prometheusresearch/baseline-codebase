@@ -167,6 +167,7 @@ class TableWidget(Widget):
     data        = Field(CollectionVal)
     columns     = Field(SeqVal)
     selectable  = Field(BoolVal, default=False)
+    auto_select = Field(BoolVal, default=False)
     selected    = StateField(StrVal, default=None)
 
 
@@ -278,7 +279,8 @@ class GridWidget(Widget):
 
     id                  = Field(StrVal)
     data                = Field(PaginatedCollectionVal(include_meta=True))
-    selectable          = Field(BoolVal, False)
+    selectable          = Field(BoolVal, default=False)
+    auto_select         = Field(BoolVal, default=False)
     selected            = StateField(AnyVal, default=None)
     search              = StateField(StrVal, default=None)
     columns             = Field(AnyVal, default={})

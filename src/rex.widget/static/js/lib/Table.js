@@ -20,7 +20,7 @@ var Table = React.createClass({
     calculatedRows: PropTypes.array,
     className: PropTypes.string,
     selectable: PropTypes.bool,
-    selected: PropTypes.string
+    selected: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   },
 
   render() {
@@ -119,7 +119,7 @@ var Table = React.createClass({
   },
 
   onSelected(rowID) {
-    if (this.props.selectable) {
+    if (this.props.selectable && rowID != this.props.selected) {
       this.props.onSelected(rowID);
     }
   }

@@ -5,6 +5,12 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.11.1 (9/3/2014)
+=================
+
+- Fixed an issue that occurred when validating Assessments with custom types.
+
+
 0.11.0 (8/25/2014)
 ==================
 

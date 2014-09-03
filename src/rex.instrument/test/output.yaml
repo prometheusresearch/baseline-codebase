@@ -103,6 +103,7 @@ tests:
       correct type (time)'}
   - {all_types/good.json: VALIDATED}
   - {all_types/nulls.json: VALIDATED}
+  - {custom_type/good.json: VALIDATED}
   - {datatypes.json: VALIDATED}
   - {empty_values.json: 'ValidationError: {} does not have enough properties'}
   - {garbage/good.json: 'ValidationError: Invalid Instrument JSON provided: No JSON

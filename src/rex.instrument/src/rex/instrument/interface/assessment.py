@@ -249,7 +249,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             return
 
         if isinstance(field['type'], basestring):
-            field_type = field['type']
+            field_type = known_types[field['type']]
         else:
             field_type = known_types[field['type']['base']]
 

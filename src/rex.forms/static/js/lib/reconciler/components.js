@@ -121,6 +121,7 @@ var DiscrepancyChoices = React.createClass({
   },
 
   decodeValue: function (value) {
+    if (!value) { return value; }
     value = value.toString();
     var enumerations = this.props.question.enumerations;
     if (enumerations) {
@@ -140,7 +141,8 @@ var DiscrepancyChoices = React.createClass({
         'rex-forms-DiscrepancyValues__choice': true,
         'rex-forms-DiscrepancyValues__choice--active': (
           this.state.selectedEntry === key
-        )
+        ),
+        'rex-forms-DiscrepancyValues__choice--novalue': value ? false : true
       };
       classes[this.getColumnSizeClass()] = true;
       classes = classSet(classes);
@@ -154,7 +156,7 @@ var DiscrepancyChoices = React.createClass({
 
       return (
         <div key={key} className={classes}>
-          <p onClick={clickHandler}>{value}</p>
+          <p onClick={clickHandler}>{value || _('No value provided.')}</p>
         </div>
         );
     });
@@ -189,7 +191,7 @@ var SimpleDiscrepancy = React.createClass({
       discrepancy = value.schema.props.discrepancy,
       choice = discrepancy[entryUid];
 
-    choice = value.updateSerialized(choice.toString());
+    choice = value.updateSerialized(choice ? choice.toString() : choice);
     this.onValueUpdate(choice);
   },
 

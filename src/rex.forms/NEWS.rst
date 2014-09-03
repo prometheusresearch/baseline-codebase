@@ -5,6 +5,13 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.22.1 (9/3/2014)
+=================
+
+- Fixed an issue where the reconciler JS component would crash if it
+  encountered a null value.
+
+
 0.22.0 (8/25/2014)
 ==================
 

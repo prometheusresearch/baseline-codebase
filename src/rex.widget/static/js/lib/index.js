@@ -57,6 +57,7 @@ module.exports = {
   CheckboxGroup:    require('./CheckboxGroup'),
   Filters:          require('./Filters'),
   Filter:           require('./Filter'),
+  Modal:            require('./Modal'),
   layout:           require('./layout'),
   PageStateMixin:   require('./PageStateMixin')
 };

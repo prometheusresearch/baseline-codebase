@@ -307,3 +307,8 @@ class Autocomplete(Widget):
     placeholder = Field(StrVal, default=None)
     value       = StateField(AnyVal, default=None)
     data        = Field(CollectionVal(), default=None)
+
+class Modal(Widget):
+
+    name    = 'Modal'
+    js_type = 'rex-widget/lib/Modal'

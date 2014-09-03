@@ -9,7 +9,7 @@ var loadingIndicator = require('../img/loading-indicator.gif');
 var LoadingIndicator = React.createClass({
 
   render: function() {
-    return (
+    return this.transferPropsTo(
       <div className="rex-widget-LoadingIndicator">
         <img src={loadingIndicator} />
       </div>

@@ -180,7 +180,8 @@ var ApplicationState = merge({
   /**
    * Update multiple states at once.
    */
-  updateMany(update) {
+  updateMany(update, options) {
+    options = options || {};
     var nextValues = {};
     mergeInto(nextValues, values);
 
@@ -220,14 +221,14 @@ var ApplicationState = merge({
     });
 
     if (needRemoteUpdate) {
-      this.remoteUpdate(update);
+      this.remoteUpdate(update, options);
     }
   },
 
-  update(id, value) {
+  update(id, value, options) {
     var update = {}
     update[id] = value;
-    this.updateMany(update);
+    this.updateMany(update, options);
   },
 
   notifyStateChanged(id) {
@@ -269,7 +270,8 @@ var ApplicationState = merge({
     }
   },
 
-  remoteUpdate(update) {
+  remoteUpdate(update, options) {
+    options = options || {};
     var params = {};
 
     this.forEach((state, id, {value}) => {
@@ -286,10 +288,10 @@ var ApplicationState = merge({
       .post(window.location.pathname)
       .send(params)
       .set('Accept', 'application/json')
-      .end(this._remoteUpdateCompleted.bind(this));
+      .end(this._remoteUpdateCompleted.bind(this, options));
   },
 
-  _remoteUpdateCompleted(err, response) {
+  _remoteUpdateCompleted(options, err, response) {
     // FIXME: We need to do proper error handling instead: store error in state
     // so UI can render appropriate message
     if (err) {
@@ -305,7 +307,9 @@ var ApplicationState = merge({
     ReactUpdates.batchedUpdates(() => {
       Object.keys(values).forEach(this.notifyStateChanged, this);
     });
-    this.history.replaceState();
+    if (options.persistence !== PERSISTENT.INVISIBLE) {
+      this.history.replaceState();
+    }
   },
 
   forEach(func, context) {

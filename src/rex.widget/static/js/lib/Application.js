@@ -136,9 +136,11 @@ function makeAction(id, persistence) {
     return update;
   }
 
-  function execute(value) {
-    ApplicationState.updateMany(produce(value));
-    switch (persistence) {
+  function execute(value, options) {
+    options = options || {};
+    ApplicationState.updateMany(produce(value), options);
+    var updatePersistence = options.persistence || persistence;
+    switch (updatePersistence) {
       case ApplicationState.PERSISTENCE.PERSISTENT:
         ApplicationState.history.pushState();
         break;
@@ -151,7 +153,7 @@ function makeAction(id, persistence) {
         invariant(
           false,
           "Invalid persistence configuration for state '%s': %s",
-          persistence
+          updatePersistence 
         );
     }
   }

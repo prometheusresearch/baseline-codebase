@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.2.1 (2014-09-03)
+==================
+
+* Restored react aliases to recover backward compatibility with 1.1 release.
+
+
 1.2.0 (2014-08-28)
 ==================
 

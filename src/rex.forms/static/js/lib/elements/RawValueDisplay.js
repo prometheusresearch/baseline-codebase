@@ -10,6 +10,12 @@ var RawValueDisplay = React.createClass({
   mixins: [ElementMixin],
 
   render: function () {
+    if (!this.props.value) {
+      return (
+        <div />
+      );
+    }
+
     var value = JSON.stringify(this.props.value.value, null, '  ');
     var serialized = JSON.stringify(this.props.value.serialized, null, '  ');
     var validation = JSON.stringify(this.props.value.validation, null, '  ');

@@ -12,10 +12,20 @@ var EnumerationMixin = {
   ],
 
   getEnumerations: function() {
-    var enumerations = (
-      this.props.options.enumerations
-      || defaultBooleanEnumeration
-    );
+    var enumerations = this.props.options.enumerations;
+    if (!enumerations) {
+      var instrumentType = this.context.value.schema.children.value.props.instrumentType;
+      if (instrumentType.rootType === 'boolean') {
+        enumerations = defaultBooleanEnumeration;
+      } else if (instrumentType.enumerations) {
+        enumerations = Object.keys(instrumentType.enumerations).sort().map((id) => {
+          return {
+            id: id,
+            text: id
+          };
+        });
+      }
+    }
 
     var name = this.context.value.schema.name || this.props.name;
 

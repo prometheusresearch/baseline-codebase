@@ -13,6 +13,8 @@ REX.FORMS Change Log
 - Fixed a crash when finding discrepancies with enumerationSet fields.
 - Fixed issues with displaying discrepancies for enumerationSet fields and
   fields using custom types.
+- Fixed the enumeration/enumerationSet widgets displaying Yes/No as choices
+  when the enumeration text for the question wasn't defined in the Form config.
 
 
 0.22.1 (9/3/2014)

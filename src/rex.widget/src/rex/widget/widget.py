@@ -13,77 +13,13 @@ from rex.core import (
     Extension, cached,
     MaybeVal, RecordField, ProxyVal, MapVal, StrVal, RecordVal)
 from .state import (
-    unknown, StateVal, StateDescriptor,
+    unknown, Dep,
     StateGraph, MutableStateGraph)
 from .descriptor import (
     UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
     StateReadWrite, StateRead)
+from .fields import Field, StateField, BaseStateField
 from .handle import handle
-
-
-class Field(object):
-    """ Definition of a widget's field.
-
-    :param validator: Validator
-    :param default: Default value
-    """
-
-    # we maintain order as a global counter which is used to assign ordering to
-    # field instances
-    order = 0
-
-    def __new__(cls, *args, **kwargs):
-        # increment global counter
-        cls.order += 1
-        self = object.__new__(cls, *args, **kwargs)
-        # assign current order value on an instance to define ordering between
-        # all Field instances
-        self.order = cls.order
-        return self
-
-    def __init__(self, validator, default=NotImplemented):
-        self.validator = validator
-        self.default = default
-
-        # TODO: remove lines below after state refactor
-        if hasattr(validator, 'default'):
-            self.default = validator.default
-
-    def to_record_field(self, name):
-        validator = self.validator
-        if isinstance(validator, type):
-            validator = validator()
-        return RecordField(name, validator, self.default)
-
-
-class StateField(Field):
-    """ Definition of a widget's stateful field.
-
-    :param validator: Validator
-    :param default: Default value
-
-    Other params are passed through to :class:`State` constructor.
-    """
-
-    def __init__(self, validator, default=NotImplemented, **params):
-        super(StateField, self).__init__(validator, default=default)
-        self.params = params
-
-    def to_record_field(self, name):
-        default = unknown if self.default is NotImplemented else self.default
-
-        validator = StateVal(
-            MaybeVal(self.validator),
-            default=default,
-            **self.params)
-
-        if default is not NotImplemented:
-            default = validator(default)
-
-        return RecordField(name, validator, default)
-
-    def set_dependencies(self, dependencies):
-        self.dependencies = dependencies
 
 
 def state(validator, dependencies=None, default=NotImplemented):
@@ -133,6 +69,7 @@ class Widget(Extension):
     js_type = NotImplemented
 
     fields = []
+    fields_by_name = {}
 
     validate = ProxyVal()
 
@@ -143,19 +80,24 @@ class Widget(Extension):
         def __new__(mcls, name, bases, members):
             cls = Extension.__metaclass__.__new__(mcls, name, bases, members)
 
-            # collect all Field instances ordered by order attribute
-            cls.fields = [
-                field.to_record_field(name)
-                for name, field in sorted((
-                    (name, field)
-                    for name, field in members.items()
-                    if isinstance(field, Field)),
-                    key=lambda (_, field): field.order)
-            ]
+            fields = sorted((
+                (name, field) for name, field in members.items()
+                if isinstance(field, Field)),
+                key=lambda (_, field): field.order)
 
-            cls.fields.append(
+            _fields = []
+            _fields_by_name = {}
+
+            for name, field in fields:
+                _fields.append(field.to_record_field(name))
+                _fields_by_name[name] = field
+
+            _fields.append(
                 RecordField('states', state_configuration_mapping, {}))
 
+            cls.fields = _fields
+            cls.fields_by_name = _fields_by_name
+                
             return cls
     @classmethod
     def enabled(cls):
@@ -217,11 +159,16 @@ class Widget(Extension):
         own_state = MutableStateGraph()
 
         for name, value in self.values.items():
+            field = self.fields_by_name[name]
+
             name = to_camelcase(name)
+
+            # XXX: we shouldn't make Widget and StateField to be mutually
+            # exclusive
             if isinstance(value, Widget):
                 self.on_widget(props, state, name, value)
-            elif isinstance(value, StateDescriptor):
-                self.on_state(props, own_state, name, value)
+            elif isinstance(field, BaseStateField):
+                self.on_state(props, own_state, name, value, field)
             else:
                 props[name] = value
 
@@ -243,8 +190,8 @@ class Widget(Extension):
         props[name] = descriptor.ui
         state.update(descriptor.state)
 
-    def on_state(self, props, state, name, state_descriptor):
-        for prop_name, descriptor in state_descriptor.describe_state(self, name):
+    def on_state(self, props, state, name, value, field):
+        for prop_name, descriptor in field.describe(name, value, self):
             state[descriptor.id] = descriptor
             if descriptor.is_writable:
                 props[prop_name] = StateReadWrite(descriptor.id)

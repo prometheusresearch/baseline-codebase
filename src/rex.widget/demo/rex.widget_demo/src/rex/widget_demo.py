@@ -8,7 +8,7 @@
 """
 
 from rex.core import StrVal
-from rex.widget import Widget, Field, EntityVal
+from rex.widget import Widget, Field, EntityField
 
 class StudyInfo(Widget):
     """ Show information about the study"""
@@ -17,4 +17,4 @@ class StudyInfo(Widget):
     js_type = 'rex-widget-demo/lib/StudyInfo'
 
     id      = Field(StrVal)
-    data    = Field(EntityVal)
+    data    = EntityField()

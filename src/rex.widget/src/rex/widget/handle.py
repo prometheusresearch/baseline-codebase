@@ -63,6 +63,7 @@ def validate_values(state, values):
         id = aliases.get(k, k)
         if not id in state:
             raise HTTPBadRequest("invalid state id or state alias: %s" % id)
+        print state[id]
         validated[id] = state[id].validator(value)
     return validated
 

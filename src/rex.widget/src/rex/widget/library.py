@@ -10,10 +10,9 @@
 from rex.core import (
         AnyVal, OneOfVal, SeqVal, StrVal, UStrVal, IntVal, BoolVal, MaybeVal,
         RecordVal, MapVal)
-from .widget import (
-        Widget, GroupWidget, NullWidget, Field, StateField, state,
-        iterate)
-from .state import unknown, State, Reset, Dep, CollectionVal, PaginatedCollectionVal
+from .widget import Widget, GroupWidget, NullWidget, state, iterate
+from .fields import Field, StateField, CollectionField, PaginatedCollectionField
+from .state import unknown, State, Reset, Dep
 from .parse import WidgetVal
 from .jsval import JSVal
 
@@ -151,7 +150,7 @@ class List(Widget):
     js_type = 'rex-widget/lib/List'
 
     id              = Field(StrVal)
-    data            = Field(CollectionVal, default=None)
+    data            = CollectionField()
     items           = Field(SeqVal, default=None)
     selectable      = Field(BoolVal, default=False)
     selected        = StateField(OneOfVal(IntVal(), StrVal()), default=None)
@@ -164,7 +163,7 @@ class TableWidget(Widget):
     js_type = 'rex-widget/lib/Table'
 
     id          = Field(StrVal)
-    data        = Field(CollectionVal)
+    data        = CollectionField()
     columns     = Field(SeqVal)
     selectable  = Field(BoolVal, default=False)
     auto_select = Field(BoolVal, default=False)
@@ -189,7 +188,7 @@ class SelectWidget(Widget):
 
     id      = Field(StrVal)
     options = Field(SeqVal, default=None)
-    data    = Field(CollectionVal, default=None)
+    data    = CollectionField(default=None)
     title_for_empty = Field(StrVal, default=None)
 
     @state(OneOfVal(StrVal()), default=None)
@@ -278,7 +277,7 @@ class GridWidget(Widget):
     js_type = 'rex-widget/lib/Grid'
 
     id                  = Field(StrVal)
-    data                = Field(PaginatedCollectionVal(include_meta=True))
+    data                = PaginatedCollectionField(include_meta=True)
     selectable          = Field(BoolVal, default=False)
     auto_select         = Field(BoolVal, default=False)
     selected            = StateField(AnyVal, default=None)
@@ -306,7 +305,7 @@ class Autocomplete(Widget):
     options     = Field(SeqVal(), default=None)
     placeholder = Field(StrVal, default=None)
     value       = StateField(AnyVal, default=None)
-    data        = Field(CollectionVal(), default=None)
+    data        = CollectionField()
 
 class Modal(Widget):
 

@@ -7,9 +7,9 @@
 
 """
 
+from __future__ import absolute_import
+
 from collections import namedtuple
-from contextlib import contextmanager
-import time
 import json
 import urlparse
 import urllib
@@ -21,19 +21,12 @@ from rex.db import get_db
 from rex.web import route
 from rex.core import Error
 
-from ..logging import getLogger
-from .graph import Reset, unknown
+from .logging import getLogger
+from .state import Reset, unknown
+from .util import measure_execution_time
 
 
 log = getLogger(__name__)
-
-
-@contextmanager
-def measure_execution_time(message='execution time: %f seconds'):
-    start = time.clock()
-    yield
-    end = time.clock()
-    log.debug(message, end - start)
 
 
 class InitialValue(object):
@@ -124,7 +117,7 @@ class DataComputator(object):
 
         log.debug('fetching port: %s?%s', self.parsed.path, query)
 
-        with measure_execution_time():
+        with measure_execution_time(log=log):
             product = handler.port.produce(query)
         data = product_to_json(product)
         data = data[product.meta.domain.fields[0].tag]
@@ -154,7 +147,7 @@ class DataComputator(object):
             urllib.urlencode(query, doseq=True)
         )
 
-        with measure_execution_time(), get_db():
+        with measure_execution_time(log=log), get_db():
             product = htsql.core.cmd.act.produce(handler.query, **query)
 
         data = product_to_json(product)

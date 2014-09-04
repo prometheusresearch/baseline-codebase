@@ -42,13 +42,6 @@ paths:
             - key: closed
               title: Closed
 
-        - !<BarChart>
-          id: study_graph
-          data:
-            url: rex.widget_demo:/data/study
-            refs:
-              'study:id': filters/value:study_code
-
         - !<StudyInfo>
           id: study
           data:

@@ -12,7 +12,7 @@
 
 from collections import namedtuple, MutableMapping, Mapping
 from rex.core import AnyVal, Error
-from ..logging import getLogger
+from .logging import getLogger
 
 
 log = getLogger(__name__)
@@ -348,7 +348,7 @@ class State(_State):
 
     __slots__ = ()
 
-    def __new__(cls, id, widget=None, computator=None, validator=AnyVal,
+    def __new__(cls, id, widget=None, computator=None, validator=AnyVal(),
             is_active=None, value=unknown, default=None, dependencies=None,
             persistence=PERSISTENT, is_writable=True, defer=None, alias=None):
         if dependencies is None:

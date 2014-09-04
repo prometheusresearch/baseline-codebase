@@ -9,7 +9,8 @@
 
 from __future__ import absolute_import
 import simplejson as json
-from .state import Data, Append, State, StateGraph, unknown
+from .state import State, StateGraph, unknown
+from .computator import Data, Append
 from .descriptor import (
     UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
     StateRead, StateReadWrite)

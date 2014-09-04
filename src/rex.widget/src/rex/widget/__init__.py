@@ -15,11 +15,10 @@ from rex.core import Validate, Setting
 from .parse import WidgetVal
 from .library import LabelWidget, HeaderWidget, SectionWidget
 from .widget import Widget, NullWidget, GroupWidget, Field, StateField
-from .state import (
-    EntityVal, CollectionVal, PaginatedCollectionVal,
-    PaginatedCollectionComputator, CollectionComputator, EntityComputator,
-    Reference,
-    StateVal, State, Dep, unknown)
+from .fields import (
+    Field, StateField, CollectionField,
+    PaginatedCollectionField, EntityField)
+from .state import Reference, State, Dep, unknown
 from .jsval import JSVal
 
 

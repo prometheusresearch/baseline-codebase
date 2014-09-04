@@ -11,10 +11,8 @@ import re
 import yaml
 from rex.core import (
     Extension, cached,
-    MaybeVal, RecordField, ProxyVal, MapVal, StrVal, RecordVal)
-from .state import (
-    unknown, Dep,
-    StateGraph, MutableStateGraph)
+    RecordField, ProxyVal, MapVal, StrVal, RecordVal)
+from .state import StateGraph, MutableStateGraph
 from .descriptor import (
     UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
     StateReadWrite, StateRead)
@@ -77,13 +75,14 @@ class Widget(Extension):
 
     class __metaclass__(Extension.__metaclass__):
 
-        def __new__(mcls, name, bases, members):
-            cls = Extension.__metaclass__.__new__(mcls, name, bases, members)
+        def __new__(mcs, name, bases, members):
+            cls = Extension.__metaclass__.__new__(mcs, name, bases, members)
 
-            fields = sorted((
-                (name, field) for name, field in members.items()
-                if isinstance(field, Field)),
-                key=lambda (_, field): field.order)
+            fields = (
+                (name, field)
+                for name, field in members.items()
+                if isinstance(field, Field))
+            fields = sorted(fields, key=lambda (_, field): field.order)
 
             _fields = []
             _fields_by_name = {}
@@ -97,8 +96,9 @@ class Widget(Extension):
 
             cls.fields = _fields
             cls.fields_by_name = _fields_by_name
-                
+
             return cls
+
     @classmethod
     def enabled(cls):
         return cls.name is not None
@@ -155,8 +155,8 @@ class Widget(Extension):
     @cached
     def descriptor(self):
         props = {}
-        state = MutableStateGraph()
-        own_state = MutableStateGraph()
+        graph = MutableStateGraph()
+        own_graph = MutableStateGraph()
 
         for name, value in self.values.items():
             field = self.fields_by_name[name]
@@ -166,33 +166,33 @@ class Widget(Extension):
             # XXX: we shouldn't make Widget and StateField to be mutually
             # exclusive
             if isinstance(value, Widget):
-                self.on_widget(props, state, name, value)
+                self.on_widget(props, graph, name, value)
             elif isinstance(field, BaseStateField):
-                self.on_state(props, own_state, name, value, field)
+                self.on_state(props, own_graph, name, value, field)
             else:
                 props[name] = value
 
-        if own_state:
-            own_state = assign_aliases(own_state, self.id)
-            state.update(own_state)
+        if own_graph:
+            own_graph = assign_aliases(own_graph, self.id) # pylint: disable=no-member
+            graph.update(own_graph)
 
         # override states from state configuration
-        for state_id, conf in self.states.items():
-            if state_id in state:
-                state[state_id] = state[state_id]._replace(alias=conf.alias)
+        for state_id, conf in self.states.items(): # pylint: disable=no-member
+            if state_id in graph:
+                graph[state_id] = graph[state_id]._replace(alias=conf.alias) # pylint: disable=protected-access
 
         return WidgetDescriptor(
             ui=UIDescriptor(self.js_type, props),
-            state=state.immutable())
+            state=graph.immutable())
 
-    def on_widget(self, props, state, name, widget):
+    def on_widget(self, props, graph, name, widget): # pylint: disable=no-self-use
         descriptor = widget.descriptor()
         props[name] = descriptor.ui
-        state.update(descriptor.state)
+        graph.update(descriptor.state)
 
-    def on_state(self, props, state, name, value, field):
+    def on_state(self, props, graph, name, value, field): # pylint: disable=too-many-arguments
         for prop_name, descriptor in field.describe(name, value, self):
-            state[descriptor.id] = descriptor
+            graph[descriptor.id] = descriptor
             if descriptor.is_writable:
                 props[prop_name] = StateReadWrite(descriptor.id)
             else:
@@ -214,12 +214,12 @@ class Widget(Extension):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
-def assign_aliases(state, widget_id):
-    writable_state = [s for s in state.values() if s.is_writable]
+def assign_aliases(graph, widget_id):
+    writable_state = [s for s in graph.values() if s.is_writable]
     if len(writable_state) == 1:
         key = writable_state[0].id
-        state[key] = state[key]._replace(alias=widget_id)
-    return state
+        graph[key] = graph[key]._replace(alias=widget_id) # pylint: disable=protected-access
+    return graph
 
 
 class GroupWidget(Widget):
@@ -228,17 +228,17 @@ class GroupWidget(Widget):
 
     @cached
     def descriptor(self):
-        state = MutableStateGraph()
+        graph = MutableStateGraph()
         children = []
 
         for child in self.children:
             descriptor = child.descriptor()
-            state.update(descriptor.state)
+            graph.update(descriptor.state)
             children.append(descriptor.ui)
 
         return WidgetDescriptor(
             ui=UIDescriptorChildren(children),
-            state=state.immutable())
+            state=graph.immutable())
 
 
 class NullWidget(Widget):
@@ -267,7 +267,7 @@ def iterate(widget):
         yield widget
 
 
-class WidgetYAMLDumper(yaml.Dumper):
+class WidgetYAMLDumper(yaml.Dumper): # pylint: disable=too-many-ancestors,too-many-public-methods
 
     def represent_unicode(self, data):
         return self.represent_scalar(u'tag:yaml.org,2002:str', data)
@@ -299,5 +299,5 @@ WidgetYAMLDumper.add_multi_representer(
 
 to_camelcase_re = re.compile(r'_([a-zA-Z])')
 
-def to_camelcase(s):
-    return to_camelcase_re.sub(lambda m: m.group(1).upper(), s)
+def to_camelcase(value):
+    return to_camelcase_re.sub(lambda m: m.group(1).upper(), value)

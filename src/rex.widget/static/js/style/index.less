@@ -2,9 +2,11 @@
 @import (less) "~react-grid/themes/bootstrap";
 @import (less) "~react-autocomplete/themes/bootstrap";
 
-@border-radius-base:        0px;
-@border-radius-large:       0px;
-@border-radius-small:       0px;
+@border-radius-base:        3px;
+@border-radius-large:       3px;
+@border-radius-small:       3px;
+
+@standardShadow: none;
 
 @padding: 0.5em;
 @paddingS: 0.25em;
@@ -99,11 +101,10 @@ html, body, #__main__ {
  */
 .rex-widget-TextInput {
   width: 100%;
-}
-
-.rex-widget-TextInput[disabled] {
-  width: 100%;
-  background-color: @colorHoverHighlight;
+  .form-control;
+  .input-sm;
+  height: 22px;
+  padding: 4px 6px;
 }
 
 /**

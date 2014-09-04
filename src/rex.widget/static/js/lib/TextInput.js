@@ -35,7 +35,7 @@ var AmortizedOnChange = {
   getDefaultProps() {
     return {
       amortizationTimeout: 500,
-      amortizationEnabled: true
+      amortizationEnabled: false 
     };
   },
 

@@ -10,6 +10,7 @@ REX.FORMS Change Log
 
 - Fixed a problem where the JS component would generate an Assessment document
   with parially-complete recordList records.
+- Fixed a crash when finding discrepancies with enumerationSet fields.
 
 
 0.22.1 (9/3/2014)

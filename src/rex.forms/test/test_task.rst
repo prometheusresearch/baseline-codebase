@@ -154,6 +154,15 @@ method can then be used to merge the Assessment Data in the Entries together::
     ...         {
     ...             'id': 'q_foo',
     ...             'type': 'integer'
+    ...         },
+    ...         {
+    ...             'id': 'q_blah',
+    ...             'type': 'enumerationSet',
+    ...             'enumerations': {
+    ...                 'red': {},
+    ...                 'blue': {},
+    ...                 'green': {}
+    ...             }
     ...         }
     ...     ]
     ... }
@@ -168,6 +177,9 @@ method can then be used to merge the Assessment Data in the Entries together::
     ...         },
     ...         'q_foo': {
     ...             'value': 45
+    ...         },
+    ...         'q_blah': {
+    ...             'value': ['red', 'green']
     ...         }
     ...     }
     ... }
@@ -186,7 +198,7 @@ equivalent to the Entries' data::
     >>> task.get_discrepancies(entries=entries)
     {}
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
 Only given one Entry, it should yield no discrepancies and a solution that is
 equivalent to the one Entry's data::
@@ -194,7 +206,7 @@ equivalent to the one Entry's data::
     >>> task.get_discrepancies(entries=[entry1])
     {}
     >>> task.solve_discrepancies({}, entries=[entry1])
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
 One entry with a different value should be spotted and solved appropriately::
 
@@ -202,26 +214,31 @@ One entry with a different value should be spotted and solved appropriately::
     >>> task.get_discrepancies(entries=entries)
     {'q_fake': {u'entry444': 'my answer', u'entry333': 'my answer', u'entry555': 'a different answer'}}
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
     >>> task.solve_discrepancies({'q_fake': 'the answer'}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'the answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'the answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
     >>> task.solve_discrepancies({'q_fake': None}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': None}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': None}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+
+    >>> entry2.data['values']['q_blah']['value'] = ['blue']
+    >>> task.get_discrepancies(entries=entries)
+    {'q_fake': {u'entry444': 'my answer', u'entry333': 'my answer', u'entry555': 'a different answer'}, 'q_blah': {u'entry444': ['blue'], u'entry333': ['red', 'green'], u'entry555': ['red', 'green']}}
 
 If a field only has one explanation in the group, use it in the solution::
 
     >>> entry2.data['values']['q_fake']['explanation'] = 'Because I said so.'
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': 'Because I said so.', 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': 'Because I said so.', 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
 If a field as more than one explanation in the group, merge them::
 
     >>> entry3.data['values']['q_fake']['explanation'] = 'Why not?'
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': u'2014-05-22 12:34:56 / joe: Because I said so.\n\n2014-05-22 12:34:56 / jim: Why not?', 'annotation': None, 'value': 'my answer'}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': u'2014-05-22 12:34:56 / joe: Because I said so.\n\n2014-05-22 12:34:56 / jim: Why not?', 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
 Set up tests with recordList fields::
 
+    >>> del iv.definition['record'][0]
     >>> del iv.definition['record'][0]
     >>> del iv.definition['record'][0]
     >>> iv.definition['record'].append({

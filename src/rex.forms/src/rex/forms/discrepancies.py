@@ -99,7 +99,12 @@ def _get_simple_discrepancies(field, entries, accessor=None):
         for entry in entries
     ])
 
-    if len(set(values.values())) > 1:
+    unique_values = set([
+        v if not isinstance(v, list) else tuple(v)  # lists aren't hashable, tuples are
+        for v in values.values()
+    ])
+
+    if len(unique_values) > 1:
         return values
 
     return {}
@@ -115,7 +120,7 @@ def _get_record_discrepancies(field, entries):
 
     def accessor(entry, name, record_index):
         records = entry.data['values'][field['id']]['value']
-        if len(records) > record_index:
+        if records and len(records) > record_index:
             return records[record_index][name]['value']
         return None
 

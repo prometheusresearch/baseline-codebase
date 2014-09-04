@@ -50,6 +50,7 @@ class WidgetJSONEncoder(json.JSONEncoder):
             return "__unknown__"
         if isinstance(obj, Data):
             return {
+                "id": obj.id,
                 "data": obj.data,
                 "meta": obj.meta,
                 "hasMore": obj.has_more

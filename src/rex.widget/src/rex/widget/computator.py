@@ -43,14 +43,14 @@ class InitialValue(object):
         return state.value
 
 
-_Data = namedtuple('Data', ['data', 'meta', 'has_more'])
+_Data = namedtuple('Data', ['id', 'data', 'meta', 'has_more'])
 
 class Data(_Data):
 
     __slots__ = ()
 
-    def __new__(cls, data, meta=None, has_more=False):
-        return _Data.__new__(cls, data=data, meta=meta, has_more=False)
+    def __new__(cls, data, meta=None, has_more=False, id=None):
+        return _Data.__new__(cls, id=id, data=data, meta=meta, has_more=False)
 
     def get(self, name, default=None):
         if name in self._fields:
@@ -187,7 +187,10 @@ class DataComputator(object):
         handler = route(self.route)
         if handler is None:
             raise Error("Invalid data reference:", self.route)
-        return self.fetch(handler, graph, dirty)
+        data = self.fetch(handler, graph, dirty)
+        if data.id is None:
+            data = data._replace(id=state.id)
+        return data
 
 
 class CollectionComputator(DataComputator):

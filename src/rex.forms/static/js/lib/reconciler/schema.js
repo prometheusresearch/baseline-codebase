@@ -102,6 +102,7 @@ class SchemaBuilder {
       recordFieldQuestion) {
     var sb = new RecordSchemaBuilder(
       values,
+      this.instrument,
       recordFieldType,
       recordFieldQuestion
     );
@@ -139,6 +140,7 @@ class SchemaBuilder {
   buildMatrixRow(rowId, matrixFieldType, values, matrixFieldQuestion) {
     var sb = new MatrixSchemaBuilder(
       values,
+      this.instrument,
       matrixFieldType,
       matrixFieldQuestion
     );
@@ -196,8 +198,12 @@ class SchemaBuilder {
 
 
 class RecordSchemaBuilder extends SchemaBuilder {
-  constructor(discrepancies, fieldType, question) {
-    super(discrepancies, fieldType, question);
+  constructor(discrepancies, instrument, fieldType, question) {
+    var fakeInstrument = {
+      types: instrument.types || {},
+      record: fieldType.record
+    };
+    super(discrepancies, fakeInstrument, question);
   }
 
   getQuestion(field) {
@@ -211,11 +217,11 @@ class RecordSchemaBuilder extends SchemaBuilder {
 
 
 class MatrixSchemaBuilder extends RecordSchemaBuilder {
-  constructor(discrepancies, fieldType, question) {
-    var fakeInstrument = {
+  constructor(discrepancies, instrument, fieldType, question) {
+    var fakeFieldType = {
       record: fieldType.columns
     };
-    super(discrepancies, fakeInstrument, question);
+    super(discrepancies, instrument, fakeFieldType, question);
   }
 }
 

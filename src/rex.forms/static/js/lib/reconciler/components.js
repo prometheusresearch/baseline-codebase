@@ -13,10 +13,11 @@ var Forms = require('react-forms');
 var FormFor = Forms.FormFor;
 
 var determineWidgetType = require('../elements/Question').determineWidgetType;
-var merge = require('../utils').merge;
+var utils = require('../utils');
 var widgetMap = require('../widgets').defaultWidgetMap;
 var l10n = require('../localization');
 var _ = l10n._;
+var types = require('../types');
 
 
 var HeaderColumn = React.createClass({
@@ -121,17 +122,25 @@ var DiscrepancyChoices = React.createClass({
   },
 
   decodeValue: function (value) {
-    if (!value) { return value; }
-    value = value.toString();
+    if (value === null) { return value; }
+
+    if (!Array.isArray(value)) {
+      value = [value.toString()];
+    }
+
     var enumerations = this.props.question.enumerations;
-    if (enumerations) {
-      for (var i = 0; i < enumerations.length; i += 1) {
-        if (enumerations[i].id === value) {
-          return this.localize(enumerations[i].text);
+    var decoded = value.map((part) => {
+      if (enumerations) {
+        for (var i = 0; i < enumerations.length; i += 1) {
+          if (enumerations[i].id === part) {
+            return this.localize(enumerations[i].text);
+          }
         }
       }
-    }
-    return value;
+      return part;
+    });
+
+    return decoded.join(', ');
   },
 
   buildValues: function (discrepancy) {
@@ -191,7 +200,13 @@ var SimpleDiscrepancy = React.createClass({
       discrepancy = value.schema.props.discrepancy,
       choice = discrepancy[entryUid];
 
-    choice = value.updateSerialized(choice ? choice.toString() : choice);
+    var type = types.getForInstrumentType(value.schema.props.instrumentType);
+    if (choice === null) {
+      choice = type.getDefaultValue();
+    }
+    choice = type.serialize(choice);
+
+    choice = value.updateSerialized(choice);
     this.onValueUpdate(choice);
   },
 
@@ -204,7 +219,7 @@ var SimpleDiscrepancy = React.createClass({
       schema.props.instrumentType.rootType,
       question
     );
-    widget = widgetMap[widget](merge(
+    widget = widgetMap[widget](utils.merge(
       this.props,
       {
         options: question,

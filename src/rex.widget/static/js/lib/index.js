@@ -25,8 +25,8 @@ invariant(
 /**
  * Render Rex Widget application into DOM.
  */
-function render({descriptor: {state, ui}, map, values}, element) {
-  ApplicationState.start(state, values);
+function render({descriptor: {state, ui}, map, values, versions}, element) {
+  ApplicationState.start(state, values, versions);
   ApplicationMap.configure(map);
   return React.renderComponent(
     <Application listenTo={Object.keys(state)} ui={ui} />,
@@ -39,6 +39,8 @@ module.exports = {
   Application,
   link:             ApplicationMap.link,
   linkUnsafe:       ApplicationMap.linkUnsafe,
+  request:          require('./request'),
+  Reference:        require('./Reference'),
   Link:             require('./Link'),
   History:          require('./History'),
   PropTypes:        require('./PropTypes'),

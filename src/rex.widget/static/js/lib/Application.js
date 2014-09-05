@@ -7,6 +7,7 @@ var React             = require('react');
 var ApplicationState  = require('./ApplicationState');
 var invariant         = require('./invariant');
 var merge             = require('./merge');
+var Reference         = require('./Reference');
 
 var Application = React.createClass({
 
@@ -110,17 +111,47 @@ function constructComponent(ui, key) {
   return Component(props);
 }
 
+class Data {
+
+  constructor({id, data, meta, hasMore, updating}) {
+    this.id = id;
+    this.data = data;
+    this.meta = meta;
+    this.hasMore = hasMore;
+    this.updating = updating;
+  }
+
+  transaction(updater) {
+    var ref = new Reference(this.id);
+    return this._transaction(ref, updater);
+  }
+
+  transactionIn(path, updater) {
+    var ref = new Reference(this.id, path);
+    return this._transaction(ref, updater);
+  }
+
+  _transaction(ref, updater) {
+    var tx = ApplicationState.createUpdateTransaction(ref, updater);
+    return tx.begin();
+  }
+
+}
+
 function readState(ref) {
   // XXX: think of a better to pass updating flag to widget
   var state = ApplicationState.getState(ref);
-  if (ref.indexOf(':') > -1 || state.isWritable) {
+  ref = Reference.as(ref);
+  if (ref.path.length > 0) {
+    // if this is deep reference we just dereference it
     return ApplicationState.get(ref);
   } else {
-    var {value, updating} = ApplicationState.getValue(ref);
+    // if this state read we also include updating state
+    var {value, updating} = ApplicationState.getValue(ref.id);
     if (value === null || value === ApplicationState.UNKNOWN) {
       return null
     } else {
-      return merge(value, {updating});
+      return new Data(merge(value, {updating}));
     }
   }
 }

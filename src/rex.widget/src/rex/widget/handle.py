@@ -7,6 +7,7 @@
 
 """
 
+from collections import defaultdict
 from pyquerystring import parse as parse_qs
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
@@ -19,6 +20,7 @@ from .state import compute, compute_update, unknown
 
 
 TEMPLATE = 'rex.widget:/templates/index.html'
+INITIAL_VERSIONS = defaultdict(lambda: 1)
 
 
 def handle(widget, req):
@@ -37,20 +39,24 @@ def compute_descriptor(widget, req):
     if req.method == 'GET':
         values = validate_values(state, parse_qs(req.query_string))
         state = compute(state, values=values, user=user, defer=True)
+        values = state.get_values()
+        versions = {k: 1 for k in values}
         return {
-            "descriptor": descriptor._replace(state=state),
-            "values": state.get_values(),
-            "map": get_widget_map()
+            'descriptor': descriptor._replace(state=state),
+            'values': values,
+            'versions': versions,
+            'map': get_widget_map(),
         }
     elif req.method == 'POST':
-        state, origins = merge_state_update(state, req.json)
+        state, origins = merge_state_update(state, req.json['values'])
         if not origins:
             state = compute(state, user=user)
         else:
             state = compute_update(state, origins, user=user)
         return {
-            "descriptor": None,
-            "values": state.get_values()
+            'descriptor': None,
+            'values': state.get_values(),
+            'versions': req.json['versions']
         }
     else:
         raise HTTPMethodNotAllowed()

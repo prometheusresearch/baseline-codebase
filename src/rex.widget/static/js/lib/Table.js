@@ -65,7 +65,9 @@ var Table = React.createClass({
                   }
                   return (
                     <td key={column.key}>
-                      {column.formatter ? column.formatter(row[column.key], column.key, row) : row[column.key]}
+                      {column.formatter ?
+                        column.formatter(row[column.key], column.key, row, rowIndex) :
+                        row[column.key]}
                     </td>
                   );
                 })}
@@ -79,7 +81,9 @@ var Table = React.createClass({
                   }
                   return (
                     <td className="rex-widget-Table__calculatedColumn" key={column.key}>
-                      {column.formatter ? column.formatter(value, column.key, row) : value}
+                      {column.formatter ?
+                        column.formatter(value, column.key, row, rowIndex) :
+                        value}
                     </td>
                   );
                 })}

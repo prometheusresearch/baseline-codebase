@@ -3,13 +3,16 @@
  */
 'use strict';
 
-var request       = require('superagent/superagent');
-var ReactUpdates  = require('react/lib/ReactUpdates');
-var Emitter       = require('emitter');
-var invariant     = require('./invariant');
-var merge         = require('./merge');
-var mergeInto     = require('./mergeInto');
-var History       = require('./History');
+var request                = require('superagent/superagent');
+var React                  = require('react/addons');
+var ReactUpdates           = require('react/lib/ReactUpdates');
+var Emitter                = require('emitter');
+var invariant              = require('./invariant');
+var merge                  = require('./merge');
+var mergeInto              = require('./mergeInto');
+var History                = require('./History');
+var Reference              = require('./Reference');
+var StateUpdateTransaction = require('./StateUpdateTransaction');
 
 var UNKNOWN = '__unknown__';
 var PERSISTENCE = {
@@ -61,9 +64,9 @@ var ApplicationState = merge({
    * @param {State} state
    * @param {Values} values
    */
-  start(state, values) {
+  start(state, values, versions) {
     this.configure(state);
-    this.hydrate(values);
+    this.hydrate(values, versions, false);
     this.loadDeferred();
   },
 
@@ -84,7 +87,12 @@ var ApplicationState = merge({
   _configureState(state) {
     var {id, dependencies} = state;
     states[id] = state;
-    values[id] = {value: UNKNOWN, updating: !!state.defer};
+    values[id] = {
+      id,
+      value: UNKNOWN,
+      updating: state.defer !== null,
+      version: 0
+    };
     // TODO: Check for cycles.
     if (dependencies.length > 0) {
       dependencies.forEach(function(dep) {
@@ -117,45 +125,38 @@ var ApplicationState = merge({
     return value;
   },
 
-  get(id) {
-    if (id.indexOf(':') > -1) {
-      var parsed = id.split(':', 2);
-      id = parsed[0];
-      var value = values[id].value;
-      if (value === UNKNOWN) {
-        return null;
-      }
-      invariant(
-        states[id] !== undefined,
-        `cannot dereference state with id: ${id}`
-      );
-      var path = parsed[1].split('.');
-      for (var i = 0, len = path.length; i < len; i++) {
+  get(ref) {
+    ref = Reference.as(ref);
+    invariant(
+      states[ref.id] !== undefined,
+      `cannot dereference state by ref: ${ref}`
+    );
+
+    var value = values[ref.id].value;
+
+    if (value === UNKNOWN) {
+      return null;
+    }
+
+    if (ref.path.length > 0) {
+      for (var i = 0, len = ref.path.length; i < len; i++) {
         if (value === null || value === undefined) {
           return value;
         }
-        value = value[path[i]];
+        value = value[ref.path[i]];
       }
-      return value;
-    } else {
-      invariant(
-        states[id] !== undefined,
-        `cannot dereference state with id: ${id}`
-      );
-      var value = values[id].value;
-      if (value === UNKNOWN) {
-        return null;
-      }
-      return value;
     }
+
+    return value;
   },
 
-  hydrate(update, remote) {
+  hydrate(update, versions, remote) {
     var nextValues = {};
     mergeInto(nextValues, values);
     ReactUpdates.batchedUpdates(() => {
       Object.keys(update).forEach((id) => {
         var value = update[id];
+        var version = versions[id];
         var state = states[id];
 
         invariant(
@@ -163,16 +164,27 @@ var ApplicationState = merge({
           "unknown state '%s'", id
         );
 
-        nextValues[id] = merge(nextValues[id], {
-          value: mergeValue(nextValues[id].value, value)
-        });
+        invariant(version !== undefined);
 
-        if (remote) {
-          nextValues[id].remote = false;
-          nextValues[id].updating = false;
+        if (nextValues[id].version <= version) {
+          var prevValue = nextValues[id].value;
+          nextValues[id] = merge(nextValues[id], {
+            id,
+            value: mergeValue(nextValues[id].value, value),
+            version
+          });
+
+          if (remote) {
+            nextValues[id].remote = false;
+            nextValues[id].updating = false;
+          }
+        } else {
+          console.debug(
+            'skipping state hydration', id,
+            'versions', nextValues[id].version, version
+          );
         }
       });
-
       values = nextValues;
     });
   },
@@ -193,6 +205,7 @@ var ApplicationState = merge({
     while (queue.length > 0) {
       var sID = queue.shift();
       var state = states[sID];
+      var version = nextValues[sID].version;
 
       invariant(
         state !== undefined,
@@ -203,9 +216,10 @@ var ApplicationState = merge({
       // place where we can dispatch update to state's store so it can process
       // it in some way
       if (update[sID] !== undefined) {
-        nextValues[sID] = {value: update[sID], updating: false};
+        version = version + 1;
+        nextValues[sID] = merge(nextValues[sID], {value: update[sID], updating: false});
       } else if (!state.isWritable) {
-        nextValues[sID] = {value: values[sID].value, updating: true};
+        nextValues[sID] = merge(nextValues[sID], {value: values[sID].value, updating: true});
         needRemoteUpdate = true;
       }
 
@@ -229,6 +243,11 @@ var ApplicationState = merge({
     var update = {}
     update[id] = value;
     this.updateMany(update, options);
+  },
+
+  createUpdateTransaction(ref, func) {
+    ref = Reference.as(ref);
+    return new StateUpdateTransaction(ref, this, func);
   },
 
   notifyStateChanged(id) {
@@ -273,8 +292,10 @@ var ApplicationState = merge({
   remoteUpdate(update, options) {
     options = options || {};
     var params = {};
+    var versions = {};
 
-    this.forEach((state, id, {value}) => {
+    this.forEach((state, id, {value, version}) => {
+      versions[id] = version;
       if (state.isWritable && update[id] === undefined) {
         params[id] = value;
       }
@@ -284,9 +305,10 @@ var ApplicationState = merge({
       params[`update:${id}`] = update[id];
     });
 
+
     request
       .post(window.location.pathname)
-      .send(params)
+      .send({values: params, versions})
       .set('Accept', 'application/json')
       .end(this._remoteUpdateCompleted.bind(this, options));
   },
@@ -302,8 +324,8 @@ var ApplicationState = merge({
       throw new Error(`cannot update state: ${response.text}`);
     }
 
-    var values = response.body.values;
-    this.hydrate(values, true);
+    var {values, versions} = response.body;
+    this.hydrate(values, versions, true);
     ReactUpdates.batchedUpdates(() => {
       Object.keys(values).forEach(this.notifyStateChanged, this);
     });
@@ -315,6 +337,18 @@ var ApplicationState = merge({
   forEach(func, context) {
     Object.keys(states).forEach((id) =>
       func.call(context, states[id], id, values[id]));
+  },
+
+  getStates() {
+    return states;
+  },
+
+  getDependents() {
+    return dependents;
+  },
+
+  getValues() {
+    return values;
   }
 
 }, Emitter.prototype);
@@ -322,11 +356,6 @@ var ApplicationState = merge({
 ApplicationState.history = new History(ApplicationState);
 
 
-if (__DEV__) {
-  ApplicationState.getStates = function() { return states; };
-  ApplicationState.getDependents = function() { return dependents; };
-  ApplicationState.getValues = function() { return values; };
-}
 
 
 module.exports = ApplicationState;

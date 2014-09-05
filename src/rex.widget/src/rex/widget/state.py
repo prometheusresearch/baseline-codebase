@@ -439,7 +439,7 @@ def compute_update(graph, origins, user=None):
             for dep in computation.input.dependents.get(state_id, []):
                 st = computation.input[dep.id]
                 if not dep.reset_only or reset \
-                   and (st.state_id in origins or st.is_writable):
+                   and (st.id in origins or st.is_writable):
                     _compute(
                         dep.id,
                         recompute_deps=not reset or not dep.reset_only)

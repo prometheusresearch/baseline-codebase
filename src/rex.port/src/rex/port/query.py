@@ -58,10 +58,11 @@ class Port(object):
             constraints = ConstraintSet.parse(*args, **kwds)
             return describe(self.tree, constraints)
 
-    def replace(self, old, new):
+    def replace(self, old, new, *args, **kwds):
         with self.db:
+            constraints = ConstraintSet.parse(*args, **kwds)
             with transaction():
-                return replace(self.tree, old, new)
+                return replace(self.tree, old, new, constraints)
 
     def insert(self, new):
         return self.replace(None, new)
@@ -76,7 +77,8 @@ class Port(object):
         if req.method == 'GET':
             product = self.produce(req.query_string, USER=authenticate(req))
         elif req.method == 'POST':
-            product = self.replace(req.POST.get('old'), req.POST.get('new'))
+            product = self.replace(req.POST.get('old'), req.POST.get('new'),
+                                   req.query_string, USER=authenticate(req))
         else:
             raise HTTPMethodNotAllowed()
         with self.db:

@@ -49,11 +49,26 @@ class Missing(object):
 MISSING = Missing()
 
 
+Pair = collections.namedtuple('Pair', 'old new')
+
+
 class Reference(object):
-    # A parsed JSON Reference object.
+    # A path in the data tree.
+
+    @staticmethod
+    def normalize(path):
+        for item in path:
+            if isinstance(item, tuple):
+                name, index = item
+                yield name
+                if index is not None:
+                    yield str(index)
+            else:
+                yield item
 
     def __init__(self, path):
-        self.path = tuple(path)
+        # `[(name, index or None)]`
+        self.path = tuple(self.normalize(path))
 
     def __str__(self):
         return "#"+"".join("/"+segment for segment in self.path)
@@ -207,12 +222,12 @@ def adapt_table(arm, data):
     return (identity,)+tuple(fields)
 
 
-def flatten(path, arm, data, parent_identity=None):
+def flatten(arm, data, path=(), parent_identity=None):
     # Extracts a list of cells from the given arm data.
     cells = []
 
     identity = None
-    if isinstance(arm, TableArm):
+    if isinstance(arm, TableArm) and data:
         # Extract a cell from a table record.
         reference = Reference(path)
         identity = data[0]
@@ -225,8 +240,6 @@ def flatten(path, arm, data, parent_identity=None):
             parent_arc = arm.arc.reverse()
             if parent_identity:
                 parent_field = parent_identity
-            elif arm.is_plural:
-                parent_field = Reference(path[:-2])
             else:
                 parent_field = Reference(path[:-1])
         for arc in scalars(arm):
@@ -240,159 +253,196 @@ def flatten(path, arm, data, parent_identity=None):
             fields.append(field)
         cells.append(Cell(arm.node, reference, identity, fields))
         data = data[1:]
+
+    # Prepare a mapping path -> cells.
+    cell_map = collections.OrderedDict()
+    if isinstance(arm, TableArm):
+        schema_path = tuple([name for name, index in path])
+        cell_map[schema_path] = cells
+
+    # Allow processing when there is no data for the arm.
+    if not data:
+        data = [MISSING]*len(arm)
+
     # Process nested arms.
+    nested_maps = []
     for (name, offshot), item in zip(arm.items(), data):
         if not isinstance(offshot, TableArm):
             continue
-        if not item:
-            continue
-        if offshot.is_plural:
+        if item and offshot.is_plural:
             for index, offshot_data in enumerate(item):
-                cells.extend(flatten(path+(name, str(index)),
-                                     offshot, offshot_data, identity))
+                nested_map = flatten(offshot, offshot_data,
+                                     path+((name, index),), identity)
+                nested_maps.append(nested_map)
         else:
-            cells.extend(flatten(path+(name,), offshot, item, identity))
-    return cells
+            nested_map = flatten(offshot, item, path+((name, None),), identity)
+            nested_maps.append(nested_map)
 
-
-def match(old, new):
-    # Generates a list of cell pairs.
-    pairs = []
-    old_map = {}
-    new_map = {}
-    for cell in old:
-        if not cell.identity:
-            raise Error("Got record without identity:", cell)
-        if cell.key in old_map:
-            raise Error("Got duplicate record:", old_map[cell.key]) \
-                    .wrap("And:", cell)
-        old_map[cell.key] = cell
-    for cell in new:
-        if not cell.identity:
-            continue
-        if cell.key in new_map:
-            raise Error("Got duplicate record:", new_map[cell.key]) \
-                    .wrap("And:", cell)
-        new_map[cell.key] = cell
-    for cell in old:
-        if cell.key not in new_map:
-            pairs.append((cell, None))
-    for cell in new:
-        if cell.identity:
-            if cell.key not in old_map:
-                old_map[cell.key] = Cell(cell.node, cell.reference,
-                                         cell.identity, [MISSING]*len(cell))
-            pairs.append((old_map[cell.key], cell))
-    for cell in new:
-        if not cell.identity:
-            pairs.append((None, cell))
-    return pairs
-
-
-def recover(pairs):
-    # Validates the cell data against the database.
-
-    # Mapping: `node -> [identity, ...]` generated from old cells.
-    nodes = collections.OrderedDict()
-    for cell, new_cell in pairs:
-        if cell is None:
-            continue
-        if cell.node not in nodes:
-            nodes[cell.node] = []
-        nodes[cell.node].append(cell.identity)
-    # Shallow port tree corresponding to existing cell nodes.
-    table_arms = []
-    # Respective constraints with cell identities.
-    constraints = []
-    for table_index, (node, identities) in enumerate(nodes.items()):
-        domain = identify(node)
-        identities = [Value(domain, identity) for identity in identities]
-        field_arms = []
-        for field_index, arc in enumerate(scalars(node)):
-            if isinstance(arc, ChainArc) and len(arc.joins) == 1:
-                field_arm = LinkArm(arc.joins[0])
+    # Merge data for nested arms and return the result.
+    for nested_map in nested_maps:
+        for schema_path in nested_map:
+            if schema_path in cell_map:
+                cell_map[schema_path].extend(nested_map[schema_path])
             else:
-                field_arm = ColumnArm(arc.column)
-            field_name = u'_'+unicode(field_index)
-            field_arms.append((field_name, field_arm))
-        table_arm = TrunkArm(node.table, field_arms, None, [])
-        table_name = u'_'+unicode(table_index)
-        table_arms.append((table_name, table_arm))
-        constraints.append(Constraint((table_name,), None, identities))
-    tree = RootArm(table_arms)
+                cell_map[schema_path] = nested_map[schema_path]
+    return cell_map
+
+
+def match(old_map, new_map):
+    # Merges `{path: [old_cell]}` and `{path: [new_cell]}` into
+    # mapping `{path: [(old_cell, new_cell)]}`.
+    pair_map = collections.OrderedDict()
+
+    for schema_path in old_map:
+        old_cells = old_map[schema_path]
+        new_cells = new_map[schema_path]
+        pairs = []
+        old_by_key = {}
+        new_by_key = {}
+        for cell in old_cells:
+            if not cell.identity:
+                raise Error("Got record without identity:", cell)
+            if cell.key in old_by_key:
+                raise Error("Got duplicate record:", old_by_key[cell.key]) \
+                        .wrap("And:", cell)
+            old_by_key[cell.key] = cell
+        for cell in new_cells:
+            if not cell.identity:
+                continue
+            if cell.key in new_by_key:
+                raise Error("Got duplicate record:", new_by_key[cell.key]) \
+                        .wrap("And:", cell)
+            new_by_key[cell.key] = cell
+        for cell in old_cells:
+            if cell.key not in new_by_key:
+                pairs.append(Pair(cell, None))
+        for cell in new_cells:
+            if cell.identity:
+                if cell.key not in old_by_key:
+                    old_cell = Cell(cell.node, cell.reference, cell.identity,
+                                    [MISSING]*len(cell))
+                else:
+                    old_cell = old_by_key[cell.key]
+                pairs.append(Pair(old_cell, cell))
+        for cell in new_cells:
+            if not cell.identity:
+                pairs.append(Pair(None, cell))
+        pair_map[schema_path] = pairs
+
+    return pair_map
+
+
+def refetch(tree, identity_map, constraints):
+    # Fetch the subset of the port data within the given identity set.
+    constraints = constraints.constraints[:]
+    for path, arm in tree.walk(TableArm):
+        if not arm.is_plural:
+            continue
+        arguments = []
+        for argument in identity_map[path]:
+            if isinstance(argument, Pair):
+                argument = argument.old
+            if isinstance(argument, Cell):
+                argument = argument.identity
+            argument = Value(arm.domain, argument)
+            arguments.append(argument)
+        constraint = Constraint(path, None, arguments)
+        constraints.append(constraint)
     constraints = ConstraintSet(0, constraints)
-    # Extract the data from the database.
-    product = produce(tree, constraints)
-    recovered_fields = {}
-    for node, records in zip(nodes, product.data):
-        for record in records:
-            key = (node, record[0])
-            recovered_fields[key] = record[1:]
-    # Validate existing and recover missing data.
-    recovered_pairs = []
-    for cell, new_cell in pairs:
-        if cell is not None:
-            if cell.key not in recovered_fields:
+    return produce(tree, constraints)
+
+
+def recover(pair_map, actual_map):
+    # Validates the old subset against the database data.
+
+    recovered_map = collections.OrderedDict()
+
+    for schema_path in pair_map:
+        pairs = pair_map[schema_path]
+        actuals = actual_map[schema_path]
+        actual_by_key = dict([(actual.key, actual) for actual in actuals])
+
+        recovered_pairs = []
+        recovered_map[schema_path] = recovered_pairs
+
+        for pair in pairs:
+            cell = pair.old
+            if cell is None:
+                recovered_pairs.append(pair)
+                continue
+
+            if cell.key not in actual_by_key:
                 raise Error("Got a missing record:", cell)
-            fields = recovered_fields[cell.key]
-            for field, recovered_field in zip(cell.fields, fields):
+            recovered_fields = actual_by_key[cell.key].fields
+            for field, recovered_field in zip(cell.fields, recovered_fields):
                 if field is not MISSING and field != recovered_field:
                     raise Error("Got a modified record:", cell)
-            cell = Cell(cell.node, cell.reference, cell.identity, fields)
-        recovered_pairs.append((cell, new_cell))
-    return recovered_pairs
+            cell = Cell(cell.node, cell.reference, cell.identity,
+                        recovered_fields)
+            recovered_pair = Pair(cell, pair.new)
+            recovered_pairs.append(recovered_pair)
+
+    return recovered_map
 
 
-def patch(pairs):
+def patch(pair_map):
     # Updates the database.
-    changes = {}
+    identity_map = collections.OrderedDict()
+
     reference_to_identity = {}
-    for old_cell, new_cell in pairs:
-        node = old_cell.node if old_cell is not None else new_cell.node
-        if old_cell is None:
-            identity = None
-            old_fields = None
-            new_fields = new_cell.fields
-        elif new_cell is None:
-            identity = old_cell.identity
-            old_fields = old_cell.fields
-            new_fields = None
-        else:
-            identity = old_cell.identity
-            old_fields = old_cell.fields
-            new_fields = new_cell.fields
-        if new_fields is not None:
-            resolved_fields = []
-            for field in new_fields:
-                if isinstance(field, Reference):
-                    if field not in reference_to_identity:
-                        raise Error("Got unknown reference:", field)
-                    field = reference_to_identity[field]
-                resolved_fields.append(field)
-            new_fields = resolved_fields
-            if old_fields is not None:
-                new_fields = [new_field
-                                    if new_field != old_field else MISSING
-                              for old_field, new_field
-                                    in zip(old_fields, new_fields)]
-            arcs = []
-            trimmed_fields = []
-            for arc, field in zip(scalars(node), new_fields):
-                if field is not MISSING:
-                    arcs.append(arc)
-                    trimmed_fields.append(field)
-            new_fields = trimmed_fields
-        if old_fields is None:
-            new_identity = insert(node, arcs, new_fields)
-        elif new_fields is None:
-            delete(node, identity)
-            new_identity = None
-        else:
-            new_identity = update(node, arcs, identity, new_fields)
-        if new_identity is not None:
-            reference_to_identity[new_cell.reference] = new_identity
-            changes.setdefault(node, []).append(new_identity)
-    return changes
+    for schema_path in pair_map:
+        pairs = pair_map[schema_path]
+        identities = []
+        identity_map[schema_path] = identities
+
+        for old_cell, new_cell in pairs:
+            node = old_cell.node if old_cell is not None else new_cell.node
+            if old_cell is None:
+                identity = None
+                old_fields = None
+                new_fields = new_cell.fields
+            elif new_cell is None:
+                identity = old_cell.identity
+                old_fields = old_cell.fields
+                new_fields = None
+            else:
+                identity = old_cell.identity
+                old_fields = old_cell.fields
+                new_fields = new_cell.fields
+            if new_fields is not None:
+                resolved_fields = []
+                for field in new_fields:
+                    if isinstance(field, Reference):
+                        if field not in reference_to_identity:
+                            raise Error("Got unknown reference:", field)
+                        field = reference_to_identity[field]
+                    resolved_fields.append(field)
+                new_fields = resolved_fields
+                if old_fields is not None:
+                    new_fields = [new_field
+                                        if new_field != old_field else MISSING
+                                  for old_field, new_field
+                                        in zip(old_fields, new_fields)]
+                arcs = []
+                trimmed_fields = []
+                for arc, field in zip(scalars(node), new_fields):
+                    if field is not MISSING:
+                        arcs.append(arc)
+                        trimmed_fields.append(field)
+                new_fields = trimmed_fields
+            if old_fields is None:
+                new_identity = insert(node, arcs, new_fields)
+            elif new_fields is None:
+                delete(node, identity)
+                new_identity = None
+            else:
+                new_identity = update(node, arcs, identity, new_fields)
+            if new_identity is not None:
+                reference_to_identity[new_cell.reference] = new_identity
+                identity_cell = Cell(new_cell.node, new_cell.reference,
+                                     new_identity, None)
+                identities.append(identity_cell)
+    return identity_map
 
 
 def insert(node, arcs, fields):
@@ -441,32 +491,51 @@ def delete(node, identity):
                 identity))
 
 
-def restrict(path, arm, changes):
-    # Generates a set of constraints from the set of affected identities.
-    constraints = []
-    if isinstance(arm, TableArm) and arm.is_plural:
-        arguments = [Value(arm.domain, value)
-                     for value in changes.get(arm.node, [])]
-        constraints.append(Constraint(path, None, arguments))
-    for name, offshot in arm.arms.items():
-        constraints.extend(restrict(path+(name,), offshot, changes))
-    if isinstance(arm, RootArm):
-        constraints = ConstraintSet(0, constraints)
-    return constraints
+def verify(identity_map, actual_map):
+    # Verifies that all modified records are in the output data.
+
+    for schema_path in identity_map:
+        cells = identity_map[schema_path]
+        actuals = actual_map[schema_path]
+        identities = set([actual.identity for actual in actuals])
+        for cell in cells:
+            if cell.identity not in identities:
+                raise Error("Failed to fetch:", cell)
 
 
-def replace(tree, old, new):
+def replace(tree, old, new, constraints):
     # Replaces the `old` subset of the database with `new` data.
+
+    # Parse JSON if necessary.
     old = load(old)
     new = load(new)
+
+    # Recover canonical product data structure.
     old = adapt(tree, old)
     new = adapt(tree, new)
-    old = flatten((), tree, old)
-    new = flatten((), tree, new)
-    pairs = match(old, new)
-    pairs = recover(pairs)
-    changes = patch(pairs)
-    constraints = restrict((), tree, changes)
-    return produce(tree, constraints)
+
+    # Convert to a mapping `{path: [cell]}`.
+    old_map = flatten(tree, old)
+    new_map = flatten(tree, new)
+
+    # Convert to a mapping `{path: [(old_cell, new_cell)]}`.
+    pair_map = match(old_map, new_map)
+
+    # Extract the actual data subset from the database and
+    # compare it with the `old` subset.
+    product = refetch(tree, pair_map, constraints)
+    actual_map = flatten(tree, product.data)
+    pair_map = recover(pair_map, actual_map)
+
+    # Apply the changes, receive the identities of the affected records.
+    identity_map = patch(pair_map)
+
+    # Extract this data subset again and verify that all the modified
+    # records are within it.
+    product = refetch(tree, identity_map, constraints)
+    actual_map = flatten(tree, product.data)
+    verify(identity_map, actual_map)
+
+    return product
 
 

@@ -87,6 +87,13 @@ class Arm(object):
     def items(self):
         return self.arms.items()
 
+    def walk(self, ArmType=object):
+        if isinstance(self, ArmType):
+            yield (), self
+        for name, offshot in self.arms.items():
+            for path, arm in offshot.walk(ArmType):
+                yield (name,)+path, arm
+
     def to_yaml(self, dumper, name=None):
         raise NotImplementedError()
 

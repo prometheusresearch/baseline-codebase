@@ -315,4 +315,13 @@ Unknown references are detected::
     Error: Got unknown reference:
         #/individual/0
 
+When a record is created or modified, it must not leave the boundaries of the
+port::
+
+    >>> study_port.replace(None, [{'id': 'fos', 'closed': True}], ('study.closed', False))
+    Traceback (most recent call last):
+      ...
+    Error: Failed to fetch:
+        #/study/0
+
 

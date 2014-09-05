@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.0.0 (2014-XX-XX)
+==================
+
+* Improving CRUD support.
+
+
 0.2.0 (2014-08-27)
 ==================
 

@@ -55,13 +55,13 @@ class Field(object):
         return RecordField(name, validator, self.default)
 
 
-class BaseStateField(Field):
+class StateFieldBase(Field):
 
     def describe(self, name, value, widget):
         raise NotImplemented()
 
 
-class StateField(BaseStateField):
+class StateField(StateFieldBase):
     """ Definition of a widget's stateful field.
 
     :param validator: Validator
@@ -120,7 +120,7 @@ class DataSpecVal(Validate):
         return data
 
 
-class DataField(BaseStateField):
+class DataField(StateFieldBase):
 
     computator_factory = NotImplemented
 

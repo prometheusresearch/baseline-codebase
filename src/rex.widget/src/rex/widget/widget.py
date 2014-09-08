@@ -16,7 +16,7 @@ from .state import StateGraph, MutableStateGraph
 from .descriptor import (
     UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
     StateReadWrite, StateRead)
-from .fields import Field, StateField, BaseStateField
+from .fields import Field, StateField, StateFieldBase
 from .handle import handle
 
 
@@ -167,7 +167,7 @@ class Widget(Extension):
             # exclusive
             if isinstance(value, Widget):
                 self.on_widget(props, graph, name, value)
-            elif isinstance(field, BaseStateField):
+            elif isinstance(field, StateFieldBase):
                 self.on_state(props, own_graph, name, value, field)
             else:
                 props[name] = value

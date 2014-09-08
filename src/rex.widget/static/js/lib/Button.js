@@ -4,23 +4,34 @@
 'use strict';
 
 var React = require('react/addons');
+var cx    = React.addons.classSet;
+var Icon  = require('./Icon');
 
 var Button = React.createClass({
   
   propTypes: {
-    name: React.PropTypes.string,
-    onClick: React.PropTypes.func.isRequired
+    onClick: React.PropTypes.func,
+    link: React.PropTypes.bool,
+    success: React.PropTypes.bool,
+    icon: React.PropTypes.string
   },
 
   render: function() {
-    var name = this.props.name ? 'Save' : this.props.name;
+    var className = cx({
+      'rex-widget-Button': true,
+      'rex-widget-Button--default': !this.props.link && !this.props.success,
+      'rex-widget-Button--success': this.props.success,
+      'rex-widget-Button--link': this.props.link
+    });
     return (
       <button
-        className="rex-widget-Button"
+        disabled={this.props.disabled}
+        className={cx(className, this.props.className)}
         placeholder={this.props.placeholder}
         onClick={this.onClick}
         id={this.props.id}>
-        {name}
+        {this.props.icon && <Icon name={this.props.icon} />}
+        {this.props.children}
       </button>
     );
   },

@@ -80,7 +80,7 @@ var GridRow = React.createClass({
 var SortableGridHeaderCell = React.createClass({
 
   render() {
-    var sorted = this.props.column.sorted
+    var {sorted, name} = this.props.column;
 
     var icon = sorted ?
       (sorted === '+' ?
@@ -89,8 +89,8 @@ var SortableGridHeaderCell = React.createClass({
       null;
 
     return (
-      <div className="react-grid-HeaderCell__value" onClick={this.onClick}>
-        {icon} {this.props.column.name}
+      <div title={name} className="react-grid-HeaderCell__value" onClick={this.onClick}>
+        {icon} {name}
       </div>
     )
   },

@@ -4,6 +4,7 @@
 'use strict';
 
 var React         = require('react/addons');
+var cx            = React.addons.classSet;
 var PropTypes     = React.PropTypes;
 var emptyFunction = require('./emptyFunction');
 
@@ -76,14 +77,23 @@ var TextInput = React.createClass({
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     onValue: PropTypes.func,
     placeholder: PropTypes.string,
-    disabled: PropTypes.bool
+    disabled: PropTypes.bool,
+    textarea: PropTypes.bool
   },
 
   render() {
     var value = this.getValue();
+    var component = this.props.textarea ? React.DOM.textarea : React.DOM.input;
+    var className = cx({
+      'rex-widget-TextInput': true,
+      'rex-widget-TextInput--textarea': this.props.textarea,
+      'rex-widget-TextInput--verticalResize': this.props.textarea && this.props.resize === 'vertical',
+      'rex-widget-TextInput--horizontalResize': this.props.textarea && this.props.resize === 'horizontal',
+      'rex-widget-TextInput--noResize': this.props.textarea && this.props.resize === 'none'
+    });
     return this.transferPropsTo(
-      <input
-        className="rex-widget-TextInput"
+      <component
+        className={className}
         placeholder={this.props.placeholder}
         value={value}
         disabled={this.props.disabled}

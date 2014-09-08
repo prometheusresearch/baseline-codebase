@@ -8,6 +8,7 @@ var ApplicationState  = require('./ApplicationState');
 var invariant         = require('./invariant');
 var merge             = require('./merge');
 var Reference         = require('./Reference');
+var Data              = require('./Data');
 
 var Application = React.createClass({
 
@@ -109,33 +110,6 @@ function constructComponent(ui, key) {
 
   var Component = __require__(ui.__type__);
   return Component(props);
-}
-
-class Data {
-
-  constructor({id, data, meta, hasMore, updating}) {
-    this.id = id;
-    this.data = data;
-    this.meta = meta;
-    this.hasMore = hasMore;
-    this.updating = updating;
-  }
-
-  transaction(updater) {
-    var ref = new Reference(this.id);
-    return this._transaction(ref, updater);
-  }
-
-  transactionIn(path, updater) {
-    var ref = new Reference(this.id, path);
-    return this._transaction(ref, updater);
-  }
-
-  _transaction(ref, updater) {
-    var tx = ApplicationState.createUpdateTransaction(ref, updater);
-    return tx.begin();
-  }
-
 }
 
 function readState(ref) {

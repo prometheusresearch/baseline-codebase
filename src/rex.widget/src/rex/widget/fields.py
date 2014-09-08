@@ -7,6 +7,7 @@
 
 """
 
+import urlparse
 from collections import namedtuple
 from rex.core import (
     Validate, Error,
@@ -156,6 +157,15 @@ class EntityField(DataField):
 class PaginatedCollectionField(DataField):
     """ A reference to a collection which provides pagination mechanism."""
 
+    def _extract_sort_state(self, spec):
+        url = urlparse.urlparse(spec.url)
+        for k, v in urlparse.parse_qs(url.query).items():
+            if not k[-5:] == ':sort':
+                continue
+            _entity_name, field_name = k[:-5].split('.', 1)
+            return ('+' if v[0] == 'asc' else '-') + field_name
+        return unknown
+
     def describe(self, name, spec, widget):
         if spec is None:
             return []
@@ -170,7 +180,8 @@ class PaginatedCollectionField(DataField):
             "top": (Reference("%s:top" % pagination_state_id),),
             "skip": (Reference("%s:skip" % pagination_state_id),),
             "sort": (Reference("%s" % sort_state_id),),
-        }),
+        })
+
 
         return [
             (name,
@@ -199,6 +210,7 @@ class PaginatedCollectionField(DataField):
             ("%sSort" % name,
                 State(
                     sort_state_id,
+                    value=self._extract_sort_state(spec),
                     widget=widget,
                     validator=StrVal(),
                     dependencies=dependencies,

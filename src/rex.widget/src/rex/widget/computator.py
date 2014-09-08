@@ -88,6 +88,10 @@ def urlencode(query):
     return urllib.urlencode(params, doseq=True)
 
 
+def sort_params(params):
+    return {k: v for k, v in params.items() if k[-5:] == ':sort'}
+
+
 class DataComputator(object):
     """ An abstract base class for state computators which fetch their state
     from database."""
@@ -112,6 +116,14 @@ class DataComputator(object):
 
     def fetch_port(self, handler, **params):
         query = dict(self.parsed_query)
+
+        predefined_sort_params = sort_params(query)
+        override_sort_params = sort_params(params)
+
+        if predefined_sort_params and override_sort_params:
+            for k in predefined_sort_params:
+                del query[k]
+
         query.update(params)
         query = urlencode(query)
 
@@ -253,8 +265,9 @@ class PaginatedCollectionComputator(DataComputator):
 
         if sort:
             sort_field, sort_direction = parse_sort_spec(sort[0])
+            sort_field = '%s.%s:sort' % (entity_name, sort_field)
             if sort_field:
-                params["%s.%s:sort" % (entity_name, sort_field)] = [sort_direction]
+                params[sort_field] = [sort_direction]
 
         return super(PaginatedCollectionComputator, self).fetch_port(
             handler,

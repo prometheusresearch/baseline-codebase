@@ -18,6 +18,7 @@ from .computator import (
     InitialValue,
     EntityComputator, CollectionComputator, PaginatedCollectionComputator)
 from .logging import getLogger
+from .util import cached_property
 
 
 class Field(object):
@@ -40,19 +41,27 @@ class Field(object):
         self.order = cls.order
         return self
 
-    def __init__(self, validator, default=NotImplemented):
+    def __init__(self, validator, default=NotImplemented, name=None):
         self.validator = validator
         self.default = default
+        # name will be defined by Widget metaclass
+        self.name = name
 
         # TODO: remove lines below after state refactor
         if hasattr(validator, 'default'):
             self.default = validator.default
 
-    def to_record_field(self, name):
+    def __get__(self, widget, widget_cls):
+        if widget is None:
+            return self
+        return widget.values[self.name]
+
+    @cached_property
+    def record_field(self):
         validator = self.validator
         if isinstance(validator, type):
             validator = validator()
-        return RecordField(name, validator, self.default)
+        return RecordField(self.name, validator, self.default)
 
 
 class StateFieldBase(Field):

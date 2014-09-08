@@ -9,9 +9,10 @@
 
 import re
 import yaml
+from collections import OrderedDict
 from rex.core import (
     Extension, cached,
-    RecordField, ProxyVal, MapVal, StrVal, RecordVal)
+    RecordField, OneOfVal, ProxyVal, MapVal, StrVal, IntVal, RecordVal)
 from .state import StateGraph, MutableStateGraph
 from .descriptor import (
     UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
@@ -66,37 +67,43 @@ class Widget(Extension):
     name = None
     js_type = NotImplemented
 
-    fields = []
-    fields_by_name = {}
+    fields = OrderedDict()
+    record_fields = []
 
     validate = ProxyVal()
 
-    NON_PROP_NAMES = ('states',)
+    NON_PROP_FIELDS = set(['states'])
 
     class __metaclass__(Extension.__metaclass__):
 
         def __new__(mcs, name, bases, members):
             cls = Extension.__metaclass__.__new__(mcs, name, bases, members)
+            cls.fields = OrderedDict()
 
-            fields = (
-                (name, field)
-                for name, field in members.items()
-                if isinstance(field, Field))
+            fields = ((name, field) for name, field in members.items()
+                      if isinstance(field, Field))
             fields = sorted(fields, key=lambda (_, field): field.order)
 
-            _fields = []
-            _fields_by_name = {}
+            need_id_field = False
 
             for name, field in fields:
-                _fields.append(field.to_record_field(name))
-                _fields_by_name[name] = field
+                if isinstance(field, StateFieldBase):
+                    need_id_field = True
+                field.name = name
+                cls.fields[name] = field
 
-            _fields.append(
-                RecordField('states', state_configuration_mapping, {}))
+            # if we have at least one state field we need to inject id field
+            if need_id_field and not 'id' in cls.fields:
+                cls.id = cls.fields['id'] = Field(
+                    OneOfVal(IntVal, StrVal),
+                    name='id')
 
-            cls.fields = _fields
-            cls.fields_by_name = _fields_by_name
+            # inject state configuration field
+            cls.states = cls.fields['states'] = Field(
+                    state_configuration_mapping,
+                    default={}, name='states')
 
+            cls.record_fields = [f.record_field for f in cls.fields.values()]
             return cls
 
     @classmethod
@@ -126,7 +133,7 @@ class Widget(Extension):
     def __init__(self, *args, **kwds):
         # Convert any keywords to positional arguments.
         args_tail = []
-        for field in self.fields[len(args):]:
+        for field in self.record_fields[len(args):]:
             attribute = field.attribute
             if attribute in kwds:
                 args_tail.append(kwds.pop(attribute))
@@ -138,19 +145,17 @@ class Widget(Extension):
         # Complain if there are any keywords left.
         if kwds:
             attr = sorted(kwds)[0]
-            if any(field.attribute == attr for field in self.fields):
+            if any(field.attribute == attr for field in self.record_fields):
                 raise TypeError("duplicate field %r" % attr)
             else:
                 raise TypeError("unknown field %r" % attr)
         # Assign field values.
-        if len(args) != len(self.fields):
+        if len(args) != len(self.record_fields):
             raise TypeError("expected %d arguments, got %d"
-                            % (len(self.fields), len(args)))
-        self.values = {}
-        for arg, field in zip(args, self.fields):
-            setattr(self, field.attribute, arg)
-            if not field.attribute in self.NON_PROP_NAMES:
-                self.values[field.attribute] = arg
+                            % (len(self.record_fields), len(args)))
+        self.values = {
+            field.attribute: arg
+            for arg, field in zip(args, self.record_fields)}
 
     @cached
     def descriptor(self):
@@ -159,8 +164,9 @@ class Widget(Extension):
         own_graph = MutableStateGraph()
 
         for name, value in self.values.items():
-            field = self.fields_by_name[name]
-
+            if name in self.NON_PROP_FIELDS:
+                continue
+            field = self.fields[name]
             name = to_camelcase(name)
 
             # XXX: we shouldn't make Widget and StateField to be mutually
@@ -206,7 +212,7 @@ class Widget(Extension):
 
     def __repr__(self):
         args = []
-        for field in self.fields:
+        for field in self.record_fields:
             value = getattr(self, field.attribute)
             if field.has_default and field.default == value:
                 continue
@@ -280,7 +286,7 @@ class WidgetYAMLDumper(yaml.Dumper): # pylint: disable=too-many-ancestors,too-ma
             return self.represent_scalar(u'tag:yaml.org,2002:null', u'')
         tag = unicode(data.name)
         mapping = []
-        for field in data.fields:
+        for field in data.record_fields:
             value = getattr(data, field.attribute)
             if field.has_default and field.default == value:
                 continue

@@ -13,6 +13,9 @@ from rex.core import Validate, StrVal, Location, Error, guard, set_location
 from .widget import Widget, GroupWidget, NullWidget
 
 
+
+
+
 class WidgetVal(Validate):
 
     def __call__(self, data):
@@ -36,12 +39,14 @@ class WidgetVal(Validate):
                     raise Error("Expected a widget mapping")
                 name, data = next(data.items())
                 widget_class = widget_classes[name]
+                fields_with_no_defaults = [
+                    f for f in widget_class.record_fields if not f.has_default]
                 if not isinstance(data, dict):
-                    if not len(widget_class.fields) == 1:
+                    if not len(fields_with_no_defaults) == 1:
                         raise Error("Expected a widget mapping")
-                    data = {widget_class.fields[0].name: data}
+                    data = {fields_with_no_defaults[0].name: data}
         field_by_name = dict((field.name, field)
-                             for field in widget_class.fields)
+                             for field in widget_class.record_fields)
         values = {}
         with guard("Of widget:", widget_class.name):
             for name in sorted(data):
@@ -49,9 +54,9 @@ class WidgetVal(Validate):
                 name = name.replace('-', '_').replace(' ', '_')
                 if name not in field_by_name:
                     raise Error("Got unexpected field:", name)
-                attribute = self.fields[name].attribute
+                attribute = self.field_by_name[name].attribute
                 values[attribute] = value
-            for field in widget_class.fields:
+            for field in widget_class.record_fields:
                 attribute = field.attribute
                 if attribute in values:
                     validate = field.validate
@@ -107,9 +112,9 @@ class WidgetVal(Validate):
             raise error
         widget_class = widget_classes[name]
         field_by_name = dict((field.name, field)
-                             for field in widget_class.fields)
+                             for field in widget_class.record_fields)
         fields_with_no_defaults = [
-            f for f in widget_class.fields if not f.has_default]
+            f for f in widget_class.record_fields if not f.has_default]
         values = {}
         for key_node, value_node in pairs:
             if key_node is None:
@@ -138,7 +143,7 @@ class WidgetVal(Validate):
                  loader.validating(field.validate):
                 value = loader.construct_object(value_node, deep=True)
             values[field.attribute] = value
-        for field in widget_class.fields:
+        for field in widget_class.record_fields:
             attribute = field.attribute
             if attribute not in values:
                 if field.has_default:

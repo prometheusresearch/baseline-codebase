@@ -233,8 +233,8 @@ html, body, #__main__ {
 }
 
 .rex-widget-RowFilters__title {
-    font-size: 120%;
-    margin-right: @padding;
+  font-size: 120%;
+  margin-right: @padding;
 }
 
 /**
@@ -250,13 +250,15 @@ html, body, #__main__ {
 
 .rex-widget-Filter--inline {
   display: inline-block;
-  margin-bottom: 0;
-  margin-left: @paddingL;
+  margin-bottom: @paddingS;
+  margin-right: @paddingL;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
   .rex-widget-Filter__title {
     display: none;
-  }
-  &:first-child {
-    margin-left: 0;
   }
 }
 

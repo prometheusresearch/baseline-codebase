@@ -39,7 +39,7 @@ var Filters = React.createClass({
             <i className="glyphicon glyphicon-remove" />
             <span className="rex-widget-Filters__clearButtonText">Clear filters</span>
           </button>}
-        footerToolbar={
+        footerToolbar={(this.props.showApplyButton || this.props.showClearButton && this.props.inline) &&
           <div key="applyButton" className="rex-widget-Filters__footer">
             {this.props.showApplyButton &&
               <button className="rex-widget-Filters__applyButton" onClick={this.onApply}>

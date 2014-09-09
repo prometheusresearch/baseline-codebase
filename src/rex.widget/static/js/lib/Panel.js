@@ -35,11 +35,12 @@ var Panel = React.createClass({
         <div className="rex-widget-Panel__children">
           {this.props.children}
         </div>
-        <div className="rex-widget-Panel__footer">
-          <div className="rex-widget-Panel__footerToolbar">
-            {this.props.footerToolbar}
-          </div>
-        </div>
+        {this.props.footerToolbar &&
+          <div className="rex-widget-Panel__footer">
+            <div className="rex-widget-Panel__footerToolbar">
+              {this.props.footerToolbar}
+            </div>
+          </div>}
       </div>
     );
   }

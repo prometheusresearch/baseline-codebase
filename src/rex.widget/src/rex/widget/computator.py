@@ -147,9 +147,7 @@ class DataComputator(object):
         query.update(params)
         for (k, v) in query.items():
             v = v[0] if isinstance(v, list) else v
-            if v == False:
-                v = ''
-            if v is None:
+            if v == False or v is None or v == 'false':
                 v = ''
             query[k] = v
 

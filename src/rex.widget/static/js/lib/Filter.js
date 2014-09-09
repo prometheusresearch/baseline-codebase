@@ -25,6 +25,8 @@ var Filter = React.createClass({
   render() {
     var filter = this.props.filter;
     filter = cloneWithProps(this.props.filter, {
+      inline: this.props.inline,
+      title: filter.props.title || this.props.title,
       onValue: this.onValue.bind(null, filter.props.onValue),
       amortizationEnabled: this.props.amortizationEnabled
     });

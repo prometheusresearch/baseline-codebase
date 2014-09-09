@@ -12,7 +12,8 @@ var Link = React.createClass({
   propTypes: {
     href: PropTypes.string.isRequired,
     params: PropTypes.object,
-    unsafe: PropTypes.bool
+    unsafe: PropTypes.bool,
+    plain: PropTypes.bool
   },
 
   render() {
@@ -22,8 +23,9 @@ var Link = React.createClass({
   },
 
   href() {
-    var link = this.props.unsafe ? ApplicationMap.linkUnsafe : ApplicationMap.link;
-    return link(this.props.href, this.props.params);
+    var {unsafe, plain, params, href} = this.props;
+    var link = unsafe ? ApplicationMap.linkUnsafe : ApplicationMap.link;
+    return link(href, params, {plain});
   }
 });
 

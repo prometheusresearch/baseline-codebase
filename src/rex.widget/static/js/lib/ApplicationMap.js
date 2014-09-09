@@ -18,7 +18,7 @@ var ApplicationMap = {
       map = conf;
   },
 
-  link(url, params) {
+  link(url, params, options) {
     var paramsProto = map[url];
 
     invariant(
@@ -35,7 +35,7 @@ var ApplicationMap = {
       }
     }
 
-    return makeURL(url, params);
+    return makeURL(url, params, options);
   },
 
   linkUnsafe: makeURL

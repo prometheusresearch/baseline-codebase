@@ -86,7 +86,7 @@ var SortableGridHeaderCell = React.createClass({
       (sorted === '+' ?
         <Icon name="sort-by-attributes" /> :
         <Icon name="sort-by-attributes-alt" />) :
-      null;
+        <Icon name="sort" className="rex-widget-Grid__sortableIndicator" />;
 
     return (
       <div title={name} className="react-grid-HeaderCell__value" onClick={this.onClick}>

@@ -3,7 +3,8 @@
  */
 'use strict';
 
-var React     = require('react');
+var React     = require('react/addons');
+var cx        = React.addons.classSet;
 var PropTypes = React.PropTypes;
 
 var Icon = React.createClass({
@@ -13,7 +14,8 @@ var Icon = React.createClass({
   },
 
   render() {
-    return <i className={`glyphicon glyphicon-${this.props.name}`} />;
+    var className = cx('glyphicon', `glyphicon-${this.props.name}`, this.props.className);
+    return <i className={className} />;
   }
 });
 

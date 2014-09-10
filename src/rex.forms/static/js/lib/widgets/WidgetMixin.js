@@ -104,7 +104,16 @@ var WidgetMixin = {
 
   getInputName: function() {
     if (this.context.value.schema.name) {
-        return `${this.context.value.schema.name}[${this.props.name}]`;
+        var name = `${this.context.value.schema.name}[${this.props.name}]`;
+
+        if (this.context.value.path && (this.context.value.path.length === 4)) {
+          // We're inside of a complex type. We need to add an extra identifier
+          // to our name to distinguish us from other copies of this widget
+          // within the complex type.
+          name = `${this.context.value.path[0]}[${this.context.value.path[2]}[${name}]]`;
+        }
+
+        return name;
     } else {
         return this.props.name;
     }

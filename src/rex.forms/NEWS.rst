@@ -26,6 +26,9 @@ REX.FORMS Change Log
   fields that caused invalid Assessments to be generated.
 - When tabbing through a Form, when an dropDown or radioGroup widget is
   encountered, the full list of choices is scrolled into view.
+- Fixed issues with enumeration fields embedded within recordList and matrix
+  fields not allowing more than one selection across all instances of that
+  field.
 
 
 0.22.1 (9/3/2014)

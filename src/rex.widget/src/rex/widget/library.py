@@ -259,7 +259,7 @@ class FiltersWidget(Widget):
             w.filter.id: "%s/value" % w.filter.id
             for w in iterate(self.filters)}
 
-    @state(AnyVal)
+    @state(MapVal(StrVal(), AnyVal()))
     def value(self, state, graph, dirty=None, is_state=True, is_active=True):
         if state.value is unknown or (set(self.refs.values()) & dirty):
             return Reset({k: graph[dep] for k, dep in self.refs.items()})
@@ -269,6 +269,16 @@ class FiltersWidget(Widget):
     @value.set_dependencies
     def value_dependencies(self):
         return [Dep(id, reset_only=True) for id in self.refs.values()]
+
+    @value.set_deserializer
+    def value_deserializer(self, value):
+        if value is None:
+            return value
+        for k, state_id in self.refs.items():
+            if k in value:
+                value[k] = self.state[state_id].validator(value[k])
+        return value
+
 
 class GridWidget(Widget):
     """ Data Grid."""

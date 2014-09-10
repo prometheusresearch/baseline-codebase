@@ -22,6 +22,8 @@ REX.FORMS Change Log
   integer and float fields.
 - When entering the "review" phase of completing a Form, the page will now
   scroll to the top of the Form.
+- Fixed issues when solving discrepancies involving recordList and matrix
+  fields that caused invalid Assessments to be generated.
 
 
 0.22.1 (9/3/2014)

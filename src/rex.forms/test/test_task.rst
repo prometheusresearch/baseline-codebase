@@ -290,9 +290,9 @@ recordList field::
     >>> task.get_discrepancies(entries=entries)
     {'q_rec': {'0': {'dink': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': 'bonjour'}}}}
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}}
     >>> task.solve_discrepancies({'q_rec': {'0': {'dink': 'hi'}}}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hi'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hi'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}}
 
 Discrepancies of mismatching records should be spotted and solved::
 
@@ -301,9 +301,9 @@ Discrepancies of mismatching records should be spotted and solved::
     >>> task.get_discrepancies(entries=entries) == expected_discrepancies
     True
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}}
     >>> task.solve_discrepancies({'q_rec': {'1': {'dink': 'bye'}}}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'bye'}}]}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'bye'}}]}}}
 
 Set up tests with matrix fields::
 
@@ -364,10 +364,10 @@ and solved::
     >>> entry3.data['values']['q_matrix']['value']['row1']['dah']['value'] = 'hi'
     >>> task.get_discrepancies(entries=entries)
     {'q_matrix': {'row1': {'dah': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': 'hi'}}}}
-    >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': 'hello'}, 'doo': {'explanation': None, 'annotation': None, 'value': 42.1}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': 'goodbye'}, 'doo': {'explanation': None, 'annotation': None, 'value': 63}}}}}
+    >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'value': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': 'hello'}, 'doo': {'explanation': None, 'annotation': None, 'value': 42.1}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': 'goodbye'}, 'doo': {'explanation': None, 'annotation': None, 'value': 63}}}}}}
     >>> task.solve_discrepancies({}, entries=entries) == expected_solution
     True
-    >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': 'hey'}, 'doo': {'explanation': None, 'annotation': None, 'value': 42.1}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': 'goodbye'}, 'doo': {'explanation': None, 'annotation': None, 'value': 63}}}}}
+    >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'value': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': 'hey'}, 'doo': {'explanation': None, 'annotation': None, 'value': 42.1}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': 'goodbye'}, 'doo': {'explanation': None, 'annotation': None, 'value': 63}}}}}}
     >>> task.solve_discrepancies({'q_matrix': {'row1': {'dah': 'hey'}}}, entries=entries) == expected_solution
     True
 

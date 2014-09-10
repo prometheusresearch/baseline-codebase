@@ -341,7 +341,7 @@ def _solve_record_discrepancy(field, entries, reconciled_discrepancy):
                 record_solution[subfield['id']] = solved
         solution.append(record_solution)
 
-    return solution
+    return {'value': solution or None}
 
 
 def _solve_matrix_discrepancy(field, entries, reconciled_discrepancy):
@@ -368,5 +368,5 @@ def _solve_matrix_discrepancy(field, entries, reconciled_discrepancy):
 
         solution[row['id']] = row_solution
 
-    return solution
+    return {'value': solution}
 

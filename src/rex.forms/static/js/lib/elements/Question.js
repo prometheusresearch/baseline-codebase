@@ -38,7 +38,8 @@ var Question = React.createClass({
     var className = cx(
       'rex-forms-Element',
       'rex-forms-Question',
-      'rex-forms-Question-' + this.props.name
+      'rex-forms-Question-' + this.props.name,
+      this.props.disabled ? 'rex-forms-Question__disabled' : null
     );
 
     var style = {

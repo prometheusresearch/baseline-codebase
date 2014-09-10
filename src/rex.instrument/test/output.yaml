@@ -103,6 +103,10 @@ tests:
       correct type (time)'}
   - {all_types/good.json: VALIDATED}
   - {all_types/nulls.json: VALIDATED}
+  - {boolean/bad_missing_required.json: 'ValidationError: Assessment is missing values
+      for: q_fake'}
+  - {boolean/good.json: VALIDATED}
+  - {boolean/good_with_false_required.json: VALIDATED}
   - {custom_type/good.json: VALIDATED}
   - {datatypes.json: VALIDATED}
   - {empty_values.json: 'ValidationError: {} does not have enough properties'}

@@ -1,0 +1,11 @@
+{
+    "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.1"
+    },
+    "values": {
+        "q_fake2": {
+            "value": false
+        }
+    }
+}

@@ -189,8 +189,13 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         explanation = assessment.get('explanation', None)
         annotation = assessment.get('annotation', None)
 
+        has_value = (value != '') \
+            and (value is not None) \
+            and (value != []) \
+            and (value != {})
+
         # Make sure we have a value if required.
-        if field.get('required', False) and not value:
+        if field.get('required', False) and not has_value:
             raise ValidationError(
                 'A value for field "%s" is required' % (
                     field['id'],
@@ -220,13 +225,13 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
                     field['id'],
                 )
             )
-        elif opt == 'required' and not value and not annotation:
+        elif opt == 'required' and not has_value and not annotation:
             raise ValidationError(
                 'An annotation is required for field "%s"' % (
                     field['id'],
                 )
             )
-        elif opt == 'optional' and value and annotation:
+        elif opt == 'optional' and has_value and annotation:
             raise ValidationError(
                 'An annotation for field "%s" is not required because it'
                 ' has a value' % (

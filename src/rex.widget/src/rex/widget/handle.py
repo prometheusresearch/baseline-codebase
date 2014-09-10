@@ -12,7 +12,7 @@ from pyquerystring import parse as parse_qs
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPMethodNotAllowed
 
-from rex.core import cached, get_packages
+from rex.core import cached, get_packages, guard
 from rex.web import render_to_response, get_routes
 
 from .json import dumps
@@ -69,13 +69,14 @@ def validate_values(state, values):
         id = aliases.get(k, k)
         if not id in state:
             raise HTTPBadRequest("invalid state id or state alias: %s" % id)
-        validated[id] = state[id].validator(value)
+        with guard('While validating state: %s' % id):
+            validated[id] = state[id].validator(value)
     return validated
 
 
 def merge_state_update(state, params):
     origins = []
-    updates = {}
+    values = {}
 
     for id, value in params.items():
         if id.startswith('update:'):
@@ -86,9 +87,11 @@ def merge_state_update(state, params):
             raise HTTPBadRequest("invalid state id: %s" % id)
 
         if value != unknown.tag:
-            updates[id] = state[id]._replace(value=value)
+            values[id] = value
 
-    state = state.merge(updates)
+    values = validate_values(state, values)
+    state = state.merge({
+        k: state[k]._replace(value=v) for k, v in values.items()})
 
     return state, origins
 

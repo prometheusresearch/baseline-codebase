@@ -266,7 +266,7 @@ class PaginatedCollectionField(DataField):
                     sort_state_id,
                     value=self._extract_sort_state(spec),
                     widget=widget,
-                    validator=StrVal(),
+                    validator=MaybeVal(StrVal()),
                     dependencies=dependencies,
                     is_writable=True)),
         ]

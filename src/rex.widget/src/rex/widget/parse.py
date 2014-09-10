@@ -13,9 +13,6 @@ from rex.core import Validate, StrVal, Location, Error, guard, set_location
 from .widget import Widget, GroupWidget, NullWidget
 
 
-
-
-
 class WidgetVal(Validate):
 
     def __call__(self, data):

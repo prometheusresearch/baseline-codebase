@@ -3,13 +3,18 @@
  */
 'use strict';
 
-var React         = require('react/addons');
-var PropTypes     = React.PropTypes;
-var cx            = React.addons.classSet;
-var emptyFunction = require('./emptyFunction');
-var merge         = require('./merge');
+var React             = require('react/addons');
+var PropTypes         = React.PropTypes;
+var cx                = React.addons.classSet;
+var emptyFunction     = require('./emptyFunction');
+var merge             = require('./merge');
+var AmortizedOnChange = require('./AmortizedOnChange');
+var shallowEqual      = require('./shallowEqual');
 
 var CheckboxGroup = React.createClass({
+  mixins: [AmortizedOnChange],
+
+  amortizationTimeout: 1000,
 
   propTypes: {
     options: PropTypes.array.isRequired,
@@ -19,7 +24,7 @@ var CheckboxGroup = React.createClass({
     layout: PropTypes.string
   },
 
-  render: function() {
+  render() {
     var options = this.props.options.filter((option) => option).map((option) =>
       <div key={option.id} className="rex-widget-CheckboxGroup__checkbox">
         <label className="rex-widget-CheckboxGroup__label">
@@ -27,7 +32,7 @@ var CheckboxGroup = React.createClass({
             className="rex-widget-CheckboxGroup__input"
             checked={this.isActive(option.id)}
             type="checkbox"
-            onChange={this.onValue.bind(null, option.id)}
+            onChange={this.onCheckboxChange.bind(null, option.id)}
             />
           {option.title}
         </label>
@@ -40,27 +45,48 @@ var CheckboxGroup = React.createClass({
     return <div className={className}>{options}</div>;
   },
 
-  getDefaultProps: function() {
+  getDefaultProps() {
     return {
       value: [],
-      onValue: emptyFunction,
+      onValue: emptyFunction
     };
   },
 
+  getInitialState() {
+    return {value: null};
+  },
+
+  getValue() {
+    if (this.state.value !== null) {
+      return this.state.value;
+    }
+    return this.props.value;
+  },
+
   isActive(id) {
-    var {value, valueAsMapping} = this.props;
+    var value = this.getValue();
     if (!value) {
       return false;
-    } else if (valueAsMapping) {
+    } else if (this.props.valueAsMapping) {
       return value[id];
     } else {
       return value.indexOf(id) > -1;
     }
   },
 
-  onValue: function(id, e) {
-    var {value, valueAsMapping} = this.props;
-    if (valueAsMapping) {
+  onChangeImmediate(value) {
+    this.setState({value});
+  },
+
+  onChangeAmortized(value) {
+    if (!shallowEqual(this.props.value, value)) {
+      this.props.onValue(value);
+    }
+  },
+
+  onCheckboxChange: function(id, e) {
+    var value = this.getValue();
+    if (this.props.valueAsMapping) {
       value = merge({}, value);
       value[id] = e.target.checked;
     } else {
@@ -72,7 +98,7 @@ var CheckboxGroup = React.createClass({
         value.splice(value.indexOf(id), 1);
       }
     }
-    this.props.onValue(value);
+    this.onChange(value);
   }
 });
 

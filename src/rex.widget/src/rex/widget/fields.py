@@ -7,6 +7,7 @@
 
 """
 
+import functools
 import urlparse
 from collections import namedtuple
 from rex.core import (
@@ -22,10 +23,11 @@ from .util import cached_property
 
 
 class Field(object):
-    """ Definition of a widget's field.
+    """ Widget field definition.
 
     :param validator: Validator
-    :param default: Default value
+    :keyword default: Default value
+    :keyword name: Name of the field
     """
 
     # we maintain order as a global counter which is used to assign ordering to
@@ -42,6 +44,8 @@ class Field(object):
         return self
 
     def __init__(self, validator, default=NotImplemented, name=None):
+        if isinstance(validator, type):
+            validator = validator()
         self.validator = validator
         self.default = default
         # name will be defined by Widget metaclass
@@ -58,15 +62,19 @@ class Field(object):
 
     @cached_property
     def record_field(self):
-        validator = self.validator
-        if isinstance(validator, type):
-            validator = validator()
-        return RecordField(self.name, validator, self.default)
+        """ Create record field validator.
+
+        This is used to construct validator of the whol widget (via
+        :class:`rex.core.RecordVal`).
+        """
+        return RecordField(self.name, self.validator, self.default)
 
 
 class StateFieldBase(Field):
+    """ Base class for state fields."""
 
     def describe(self, name, value, widget):
+        """ Describe state."""
         raise NotImplemented()
 
 
@@ -79,11 +87,13 @@ class StateField(StateFieldBase):
     Other params are passed through to :class:`State` constructor.
     """
 
-    def __init__(self, validator, default=NotImplemented, dependencies=None, **params):
+    def __init__(self, validator, default=NotImplemented, dependencies=None,
+            deserializer=None, **params):
         super(StateField, self).__init__(validator, default=default)
         if self.default is NotImplemented:
             self.default = unknown
         self.validator = MaybeVal(self.validator)
+        self.deserializer = deserializer
         self.params = params
         self.dependencies = dependencies or []
 
@@ -94,14 +104,49 @@ class StateField(StateFieldBase):
         return [Dep(dep).absolutize(widget.id) for dep in dependencies]
 
     def set_dependencies(self, dependencies):
+        """ Set dependencies for the state.
+
+        This is helper method which is intented to be used as a decorator::
+
+            class MyWidget(Widget):
+
+                value = StateField(...)
+
+                @value.set_dependencies
+                def value_dependencies(self, widget):
+                    return [...]
+
+        """
         self.dependencies = dependencies
+
+    def set_deserializer(self, deserializer):
+        """ Set deserializer for the state.
+
+        This is helper method which is intented to be used as a decorator::
+
+            class MyWidget(Widget):
+
+                value = StateField(...)
+
+                @value.set_deserializer
+                def value_deserializer(self, widget, value):
+                    return ...
+
+        """
+        self.deserializer = deserializer
+
+    def validate(self, widget, value):
+        if self.deserializer:
+            value = self.deserializer(widget, value)
+        value = self.validator(value)
+        return value
 
     def describe(self, name, value, widget):
         st = State(
             id="%s/%s" % (widget.id, name),
             widget=widget,
             dependencies=self.get_dependencies(widget),
-            validator=self.validator,
+            validator=functools.partial(self.validate, widget),
             value=value,
             **self.params)
         return [(name, st)]

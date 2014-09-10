@@ -12,6 +12,10 @@ var radioGroup = React.createClass({
 
   className: 'rex-forms-radioGroup',
 
+  onFocus: function () {
+    this.getDOMNode().scrollIntoView(false);
+  },
+
   /**
    * Render enumeration descriptor
    *
@@ -26,6 +30,7 @@ var radioGroup = React.createClass({
             type="radio"
             name={this.getInputName()}
             onChange={this.onChange.bind(null, enumeration.id)}
+            onFocus={this.onFocus}
             value={enumeration.id}
             />
           <ItemLabel

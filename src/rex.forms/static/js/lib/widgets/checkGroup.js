@@ -27,6 +27,10 @@ var checkGroup = React.createClass({
     this.onChange(nextValue);
   },
 
+  onFocusCheck: function () {
+    this.getDOMNode().scrollIntoView(false);
+  },
+
   /**
    * Render enumeration descriptor
    *
@@ -44,6 +48,7 @@ var checkGroup = React.createClass({
             name={this.getInputName()}
             onChange={this.onChangeCheck}
             value={enumeration.id}
+            onFocus={this.onFocusCheck}
             />
           <ItemLabel
             className="rex-forms-checkGroup__optionLabel"

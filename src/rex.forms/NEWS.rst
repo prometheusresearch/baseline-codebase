@@ -24,6 +24,8 @@ REX.FORMS Change Log
   scroll to the top of the Form.
 - Fixed issues when solving discrepancies involving recordList and matrix
   fields that caused invalid Assessments to be generated.
+- When tabbing through a Form, when an dropDown or radioGroup widget is
+  encountered, the full list of choices is scrolled into view.
 
 
 0.22.1 (9/3/2014)

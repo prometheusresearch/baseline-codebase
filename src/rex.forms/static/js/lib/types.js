@@ -5,6 +5,8 @@
 
 var baseTypes = require('react-forms').types;
 var _         = require('./localization')._;
+var utils     = require('./utils');
+
 
 var generic = baseTypes.any;
 
@@ -16,12 +18,19 @@ var numberFloat = {
 
   // TODO: Use I18N lib to parse numbers
   deserialize: function (value) {
-    if (value === '') {
+    if ((value === '') || (value === null) || (value === undefined)) {
       return null;
     }
 
-    if (!isNaN(parseFloat(value)) && isFinite(value)) {
-      return parseFloat(value);
+    if (utils.isString(value)) {
+      value = value.trim();
+    } else if (utils.isNumber(value)) {
+      value = value.toString();
+    }
+
+    var parsed = parseFloat(value);
+    if (!isNaN(parsed) && isFinite(parsed) && (parsed.toString() === value)) {
+      return parsed;
     }
 
     throw new Error(_('Please enter a valid number.'));
@@ -41,12 +50,19 @@ var numberInteger = {
 
   // TODO: Use I18N lib to parse numbers
   deserialize: function (value) {
-    if (value === '') {
+    if ((value === '') || (value === null) || (value === undefined)) {
       return null;
     }
 
-    if (!isNaN(parseInt(value, 10)) && isFinite(value)) {
-      return parseInt(value, 10);
+    if (utils.isString(value)) {
+      value = value.trim();
+    } else if (utils.isNumber(value)) {
+      value = value.toString();
+    }
+
+    var parsed = parseInt(value, 10);
+    if (!isNaN(parsed) && isFinite(parsed) && (parsed.toString() === value)) {
+      return parsed;
     }
 
     throw new Error(_('Please enter a valid whole number.'));

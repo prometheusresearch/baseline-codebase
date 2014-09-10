@@ -39,9 +39,22 @@ function isString(o) {
   return Object.prototype.toString.call(o) === '[object String]';
 }
 
+function isNumber(o) {
+  return Object.prototype.toString.call(o) === '[object Number]';
+}
+
 function isObject(o) {
   return Object.prototype.toString.call(o) === '[object Object]';
 }
 
 
-module.exports = {mergeInto, merge, invariant, chain, isString, isObject};
+module.exports = {
+  mergeInto,
+  merge,
+  invariant,
+  chain,
+  isString,
+  isNumber,
+  isObject
+};
+

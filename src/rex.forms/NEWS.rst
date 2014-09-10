@@ -15,6 +15,11 @@ REX.FORMS Change Log
   fields using custom types.
 - Fixed the enumeration/enumerationSet widgets displaying Yes/No as choices
   when the enumeration text for the question wasn't defined in the Form config.
+- Fixed an issue where decimal numbers were being silently accepted and
+  truncated when entered in integer fields.
+- Fixed an issue where values with extra, non-numeric characters were being
+  silently accepted and dropped in some situations when interacting with
+  integer and float fields.
 
 
 0.22.1 (9/3/2014)

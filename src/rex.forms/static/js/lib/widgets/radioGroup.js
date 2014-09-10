@@ -6,6 +6,7 @@
 var React                  = require('react');
 var EnumerationWidgetMixin = require('./EnumerationWidgetMixin');
 var ItemLabel              = require('./ItemLabel');
+var ensureInView           = require('../utils').ensureInView;
 
 var radioGroup = React.createClass({
   mixins: [EnumerationWidgetMixin],
@@ -13,7 +14,7 @@ var radioGroup = React.createClass({
   className: 'rex-forms-radioGroup',
 
   onFocus: function () {
-    this.getDOMNode().scrollIntoView(false);
+    ensureInView(this.getDOMNode());
   },
 
   /**

@@ -47,6 +47,21 @@ function isObject(o) {
   return Object.prototype.toString.call(o) === '[object Object]';
 }
 
+function ensureInView(element) {
+  var rect = element.getBoundingClientRect();
+  var viewportBottom = window.innerHeight || document.documentElement.clientHeight;
+
+  var isInView = (
+    rect.top >= 0 &&
+    rect.bottom <= viewportBottom
+  );
+
+  if (!isInView) {
+    var alignTop = Math.abs(rect.bottom - viewportBottom) > Math.abs(rect.top);
+    element.scrollIntoView(alignTop);
+  }
+}
+
 
 module.exports = {
   mergeInto,
@@ -55,6 +70,7 @@ module.exports = {
   chain,
   isString,
   isNumber,
-  isObject
+  isObject,
+  ensureInView
 };
 

@@ -6,6 +6,7 @@
 var React                  = require('react');
 var EnumerationWidgetMixin = require('./EnumerationWidgetMixin');
 var ItemLabel              = require('./ItemLabel');
+var ensureInView           = require('../utils').ensureInView;
 
 var checkGroup = React.createClass({
   mixins: [EnumerationWidgetMixin],
@@ -28,7 +29,7 @@ var checkGroup = React.createClass({
   },
 
   onFocusCheck: function () {
-    this.getDOMNode().scrollIntoView(false);
+    ensureInView(this.getDOMNode());
   },
 
   /**

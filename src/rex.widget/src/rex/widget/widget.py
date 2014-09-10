@@ -37,7 +37,11 @@ state_configuration = RecordVal(RecordField('alias', StrVal()))
 state_configuration_mapping = MapVal(StrVal(), state_configuration)
 
 
-class Widget(Extension):
+class WidgetBase(Extension):
+    pass
+
+
+class Widget(WidgetBase):
     """ Base class for widgets.
 
     Widget definition in Rex Widget is consist of two parts.
@@ -80,16 +84,23 @@ class Widget(Extension):
             cls = Extension.__metaclass__.__new__(mcs, name, bases, members)
             cls.fields = OrderedDict()
 
-            fields = ((name, field) for name, field in members.items()
-                      if isinstance(field, Field))
-            fields = sorted(fields, key=lambda (_, field): field.order)
+            fields = []
+
+            for base in bases:
+                if issubclass(base, WidgetBase) and not base is WidgetBase:
+                    fields = base.fields.items() + fields
+
+            own_fields = [(name, field) for name, field in members.items()
+                      if isinstance(field, Field)]
+            own_fields = sorted(own_fields, key=lambda (_, field): field.order)
 
             need_id_field = False
 
-            for name, field in fields:
+            for name, field in own_fields + fields:
                 if isinstance(field, StateFieldBase):
                     need_id_field = True
-                field.name = name
+                if field.name is None:
+                    field.name = name
                 cls.fields[name] = field
 
             # if we have at least one state field we need to inject id field
@@ -190,6 +201,10 @@ class Widget(Extension):
         return WidgetDescriptor(
             ui=UIDescriptor(self.js_type, props),
             state=graph.immutable())
+
+    @property
+    def state(self):
+        return self.descriptor().state
 
     def on_widget(self, props, graph, name, widget): # pylint: disable=no-self-use
         descriptor = widget.descriptor()

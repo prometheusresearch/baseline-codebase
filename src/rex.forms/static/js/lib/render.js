@@ -45,6 +45,10 @@ function render(options) {
     form.emit('complete', assessment, form);
   };
 
+  options.onReview = function(assessment) {
+    form.emit('review', assessment, form);
+  };
+
   options.onPage = function(page, index) {
     form.emit('page', page, index, form);
   };
@@ -103,6 +107,10 @@ function render(options) {
 
   if (options.scrollToTopOnPage) {
     form.on('page', () => {
+      var node = form.getDOMNode();
+      node.scrollIntoView(true);
+    });
+    form.on('review', () => {
       var node = form.getDOMNode();
       node.scrollIntoView(true);
     });

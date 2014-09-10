@@ -20,6 +20,8 @@ REX.FORMS Change Log
 - Fixed an issue where values with extra, non-numeric characters were being
   silently accepted and dropped in some situations when interacting with
   integer and float fields.
+- When entering the "review" phase of completing a Form, the page will now
+  scroll to the top of the Form.
 
 
 0.22.1 (9/3/2014)

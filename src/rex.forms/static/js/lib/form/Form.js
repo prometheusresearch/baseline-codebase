@@ -205,6 +205,9 @@ var Form = React.createClass({
       // check if we need to show overview before completion
       if (this.props.showOverviewOnCompletion && !this.state.showOverview) {
         this.setState({showOverview: true});
+        if (this.props.onReview) {
+          this.props.onReview(this.getAssessment(value.value));
+        }
       } else {
         this.setState({completed: true});
         if (this.props.onComplete) {

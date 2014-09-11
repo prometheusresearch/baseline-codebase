@@ -305,6 +305,15 @@ Discrepancies of mismatching records should be spotted and solved::
     >>> task.solve_discrepancies({'q_rec': {'1': {'dink': 'bye'}}}, entries=entries)
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'bye'}}]}}}
 
+    >>> entry3.data['values']['q_rec']['value'] = None
+    >>> expected_discrepancies = {'q_rec': {'1': {'donk': {u'entry444': True, u'entry333': True, u'entry555': None}, 'dink': {u'entry444': 'goodbye', u'entry333': 'goodbye', u'entry555': None}}, '0': {'donk': {u'entry444': False, u'entry333': False, u'entry555': None}, 'dink': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': None}}}}
+    >>> task.get_discrepancies(entries=entries) == expected_discrepancies
+    True
+    >>> task.solve_discrepancies({}, entries=entries)
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}}
+    >>> task.solve_discrepancies({'q_rec': {'1': {'dink': 'bye'}}}, entries=entries)
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'bye'}}]}}}
+
 Set up tests with matrix fields::
 
     >>> del iv.definition['record'][0]

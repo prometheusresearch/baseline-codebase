@@ -317,7 +317,7 @@ def _solve_record_discrepancy(field, entries, reconciled_discrepancy):
 
     def accessor(entry, name, record_index):
         records = entry.data['values'][field['id']]['value']
-        if len(records) > record_index:
+        if records and len(records) > record_index:
             return records[record_index][name]
         return {}
 

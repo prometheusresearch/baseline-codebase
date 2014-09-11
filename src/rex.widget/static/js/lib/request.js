@@ -15,6 +15,7 @@ function is2XXStatusCode(statusCode) {
 class Request extends superagent.Request {
 
   query(key, value) {
+    value = value === null ? '' : value;
     if (value !== undefined && isString(key)) {
       var query = {};
       query[key] = value;

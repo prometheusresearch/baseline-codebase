@@ -61,7 +61,9 @@ module.exports = {
   Filter:           require('./Filter'),
   Modal:            require('./Modal'),
   layout:           require('./layout'),
-  PageStateMixin:   require('./PageStateMixin')
+  PageStateMixin:   require('./PageStateMixin'),
+  Container:        require('./layout/Container'),
+  Block:            require('./layout/Block')
 };
 
 window.Rex = window.Rex || {};

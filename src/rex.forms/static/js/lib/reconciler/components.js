@@ -9,6 +9,7 @@
 
 var React = require('react/addons');
 var classSet = React.addons.classSet;
+var cloneWithProps = React.addons.cloneWithProps;
 var Forms = require('react-forms');
 var FormFor = Forms.FormFor;
 
@@ -87,12 +88,23 @@ var Header = React.createClass({
 
 var DiscrepancyTitle = React.createClass({
   propTypes: {
-    title: React.PropTypes.string.isRequired
+    title: React.PropTypes.string.isRequired,
+    required: React.PropTypes.bool
+  },
+
+  getDefaultProps: function () {
+    return {
+      required: false
+    };
   },
 
   render: function () {
+    var classes = classSet({
+      'rex-forms-Discrepancy__title': true,
+      'rex-forms-Discrepancy__required': this.props.required
+    });
     return (
-      <div className="rex-forms-Discrepancy__title">
+      <div className={classes}>
         <p>{this.props.title}</p>
       </div>
     );
@@ -108,7 +120,8 @@ var DiscrepancyChoices = React.createClass({
   propTypes: {
     discrepancy: React.PropTypes.object.isRequired,
     question: React.PropTypes.object.isRequired,
-    onSelect: React.PropTypes.func.isRequired
+    onSelect: React.PropTypes.func.isRequired,
+    targetWidget: React.PropTypes.component.isRequired
   },
 
   getInitialState: function () {
@@ -177,11 +190,20 @@ var DiscrepancyChoices = React.createClass({
     var values = this.buildValues(this.props.discrepancy),
       classes = 'rex-forms-DiscrepancyValues__input '
         + this.getColumnSizeClass();
+
+    var widget = cloneWithProps(this.props.targetWidget, {
+      onChange: () => {
+        this.setState({
+          selectedEntry: null
+        });
+      }
+    });
+
     return (
       <div className="rex-forms-DiscrepancyValues">
         {values}
         <div key='_fv' className={classes}>
-          {this.props.children}
+          {widget}
         </div>
       </div>
     );
@@ -231,12 +253,13 @@ var SimpleDiscrepancy = React.createClass({
       <div className="rex-forms-ReconcilerSection rex-forms-Discrepancy">
         <div className="rex-forms-Discrepancy__inner">
           <DiscrepancyTitle
-            title={this.localize(question.text)} />
+            title={this.localize(question.text)}
+            required={schema.props.required} />
           <DiscrepancyChoices
             discrepancy={discrepancy}
             question={question}
-            onSelect={this.onSelect}>
-            {widget}
+            onSelect={this.onSelect}
+            targetWidget={widget}>
           </DiscrepancyChoices>
         </div>
       </div>
@@ -268,7 +291,8 @@ var RecordListDiscrepancy = React.createClass({
         className='rex-forms-ReconcilerSection rex-forms-RecordListDiscrepancy'>
         <div className='rex-forms-RecordListDiscrepancy__inner'>
           <DiscrepancyTitle
-            title={this.localize(question.text)} />
+            title={this.localize(question.text)}
+            required={schema.props.required} />
           {children}
         </div>
       </div>
@@ -302,7 +326,8 @@ var RecordListRecordDiscrepancy = React.createClass({
         className='rex-forms-ReconcilerSection rex-forms-RecordListRecordDiscrepancy'>
         <div className='rex-forms-RecordListRecordDiscrepancy__inner'>
           <DiscrepancyTitle
-            title={title} />
+            title={title}
+            required={schema.props.required} />
           {children}
         </div>
       </div>
@@ -366,7 +391,8 @@ var MatrixRowDiscrepancy = React.createClass({
         className='rex-forms-ReconcilerSection rex-forms-MatrixRowDiscrepancy'>
         <div className='rex-forms-MatrixRowDiscrepancy__inner'>
           <DiscrepancyTitle
-            title={title} />
+            title={title}
+            required={schema.props.required} />
           {children}
         </div>
       </div>

@@ -17,7 +17,11 @@ var matrixRow = React.createClass({
   mixins: [ReactForms.FieldsetMixin],
 
   render: function() {
-    var className = cx('rex-forms-matrixRow');
+    var className = cx({
+      'rex-forms-matrixRow': true,
+      'rex-forms-matrixRow__required': this.value().schema.props.required
+    });
+
     return (
       <div className={className}>
         <ItemLabel

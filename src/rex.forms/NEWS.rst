@@ -29,6 +29,10 @@ REX.FORMS Change Log
 - Fixed issues with enumeration fields embedded within recordList and matrix
   fields not allowing more than one selection across all instances of that
   field.
+- Required fields are now marked as such on the reconciliation screen.
+- If the final value on the reconciliation screen is modified by hand, the
+  previously-selected value is dehighlighted.
+- Required rows in matrix fields are now flagged as such.
 
 
 0.22.1 (9/3/2014)

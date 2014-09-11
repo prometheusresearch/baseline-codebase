@@ -14,7 +14,13 @@ var EnumerationMixin = {
   getEnumerations: function() {
     var enumerations = this.props.options.enumerations;
     if (!enumerations) {
-      var instrumentType = this.context.value.schema.children.value.props.instrumentType;
+      var instrumentType;
+      if (this.context.value.schema.children.value) {
+        instrumentType = this.context.value.schema.children.value.props.instrumentType;
+      } else {
+        instrumentType = this.context.value.schema.children[this.props.name].props.instrumentType;
+      }
+
       if (instrumentType.rootType === 'boolean') {
         enumerations = defaultBooleanEnumeration;
       } else if (instrumentType.enumerations) {

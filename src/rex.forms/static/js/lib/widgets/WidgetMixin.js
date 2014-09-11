@@ -35,8 +35,8 @@ var WidgetMixin = {
     var input = this.renderInput();
 
     input = cloneWithProps(input, {
-      onBlur: chain(input.props.onChange, this.markDirty),
-      onChange: chain(input.props.onChange, this.markDirty)
+      onBlur: chain(chain(input.props.onChange, this.markDirty), this.props.onChange),
+      onChange: chain(chain(input.props.onChange, this.markDirty), this.props.onChange)
     });
 
     var className = cx(

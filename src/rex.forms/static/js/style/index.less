@@ -346,6 +346,10 @@
 
   .rex-forms-ItemLabel__label {
     font-weight: bold;
+
+    .rex-forms-matrixRow__required & {
+      .rex-forms-required-mixin();
+    }
   }
 }
 
@@ -513,6 +517,12 @@
   p {
     font-weight: bold;
     margin-bottom: 0;
+  }
+
+  &.rex-forms-Discrepancy__required {
+    p {
+      .rex-forms-required-mixin();
+    }
   }
 }
 

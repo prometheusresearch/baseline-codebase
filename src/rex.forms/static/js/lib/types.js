@@ -85,7 +85,15 @@ var bool = {
       return value;
     }
 
+    if (value === null) {
+      return null;
+    }
+
     value = value.trim().toLowerCase();
+
+    if (value === '') {
+      return null;
+    }
 
     if (value === 'true') {
       return true;

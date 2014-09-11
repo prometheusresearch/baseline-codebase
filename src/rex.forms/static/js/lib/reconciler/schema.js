@@ -157,11 +157,20 @@ class SchemaBuilder {
       }
     }
 
+    var required;
+    for (var i = 0; i < matrixFieldType.rows.length; i += 1) {
+      if (matrixFieldType.rows[i].id === rowId) {
+        required = matrixFieldType.rows[i].required;
+        break;
+      }
+    }
+
     return (
       <Schema
         name={rowId}
         row={row}
-        component={MatrixRowDiscrepancy}>
+        component={MatrixRowDiscrepancy}
+        required={required}>
         {properties}
       </Schema>
     );

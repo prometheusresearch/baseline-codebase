@@ -65,7 +65,7 @@ var TextInput = React.createClass({
   },
 
   onChangeImmediate(e) {
-    var value = e.target.value === '' ? null : e.target.value;
+    var value = e.target.value;
     this.setState({value});
   },
 

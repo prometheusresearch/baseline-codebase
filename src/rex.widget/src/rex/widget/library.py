@@ -190,6 +190,7 @@ class SelectWidget(Widget):
     options = Field(SeqVal, default=None)
     data    = CollectionField(default=None)
     title_for_empty = Field(StrVal, default=None)
+    no_empty_value = Field(BoolVal(), default=False)
 
     @state(OneOfVal(StrVal()), default=None)
     def value(self, state, graph, dirty=None, is_active=True):

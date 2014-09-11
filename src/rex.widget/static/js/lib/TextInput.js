@@ -53,10 +53,6 @@ var TextInput = React.createClass({
     return this.getStateFromProps(this.props);
   },
 
-  componentWillReceiveProps(nextProps) {
-    this.setState(this.getStateFromProps(nextProps));
-  },
-
   getStateFromProps({value}) {
     return {value};
   },
@@ -65,7 +61,7 @@ var TextInput = React.createClass({
     if (this.state.value !== null) {
       return this.state.value;
     }
-    return '';
+    return this.props.value;
   },
 
   onChangeImmediate(e) {

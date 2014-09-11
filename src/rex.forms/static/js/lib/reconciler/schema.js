@@ -202,6 +202,12 @@ class SchemaBuilder {
         }
       }
     }
+
+    // A failsafe to handle situations like unprompted fields, etc.
+    return {
+      fieldId: field.id,
+      text: field.id
+    }
   }
 }
 

@@ -214,7 +214,7 @@ var Grid = React.createClass({
         });
       }
       if (column.formatter && isString(column.formatter)) {
-        var formatter = formatters[column.formatter];
+        var formatter = formatters.resolve(column.formatter);
         invariant(
           formatter !== undefined,
           'invalid formatter "%s"', column.formatter

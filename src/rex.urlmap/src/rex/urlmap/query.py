@@ -18,7 +18,9 @@ import htsql.core.fmt.emit
 class QueryRenderer(object):
     # Renders an HTSQL query.
 
-    def __init__(self, path, query, parameters, access, unsafe):
+    def __init__(self, db, path, query, parameters, access, unsafe):
+        # HTSQL instance.
+        self.db = db
         # Path mask for extracting labeled segments.
         self.path = path
         # HTSQL query.
@@ -39,7 +41,7 @@ class QueryRenderer(object):
         except Error, error:
             return req.get_response(error)
         # Execute the query and render the output.
-        with get_db():
+        with self.db:
             try:
                 product = htsql.core.cmd.act.produce(self.query, parameters)
                 format = htsql.core.fmt.accept.accept(req.environ)
@@ -94,6 +96,7 @@ class MapQuery(Map):
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
         return QueryRenderer(
+                db=get_db(),
                 path=path,
                 query=spec.query,
                 parameters=spec.parameters,

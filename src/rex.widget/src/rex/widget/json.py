@@ -9,6 +9,7 @@
 
 from __future__ import absolute_import
 import simplejson as json
+from rex.core import Record
 from .state import State, StateGraph, unknown
 from .computator import Data, Append
 from .descriptor import (
@@ -69,6 +70,8 @@ class WidgetJSONEncoder(json.JSONEncoder):
                 "defer": obj.defer,
                 "alias": obj.alias,
             }
+        if isinstance(obj, Record):
+            return obj._asdict()
         return super(WidgetJSONEncoder, self).default(obj)
 
     def encode(self, obj):

@@ -296,6 +296,33 @@ Overriding a port definition adds more arms to the port::
       "max_code": "1004"
     }
 
+Finally, one could also override widget definitions::
+
+    >>> sandbox.rewrite('/urlmap/base.yaml', """
+    ... paths:
+    ...   /hello:
+    ...     widget: !<Header> Hello
+    ...     access: nobody
+    ... """)
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /hello: !override
+    ...     widget: !<Header> Hello, World!
+    ...     access: anybody
+    ... """)
+    >>> req = Request.blank('/hello')
+    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    "ui": {
+      "__type__": "rex-widget/lib/Header",
+      "props": {
+        "text": "Hello, World!"
+      }
+    }
+    ...
+
 However it is an error to override a template with port or query data
 or a port or a query with template data::
 

@@ -4,16 +4,26 @@
 
 
 from rex.core import (
-        get_packages, get_settings, cached, ValidatingLoader, MaybeVal, StrVal,
-        BoolVal, MapVal, OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate,
-        Location, Error, guard)
+        get_packages, get_settings, ValidatingLoader, StrVal, MapVal,
+        OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate, Location, Error,
+        guard)
 from rex.web import PathMask, PathMap
-from rex.port import GrowVal, Port
-from rex.widget import WidgetVal
-from .handle import (TemplateRenderer, QueryRenderer, PortRenderer,
-        WidgetRenderer)
+from .map import Map
 import os
 import yaml
+
+
+def _merge(*contexts):
+    # Merge context dictionaries.
+    merged = {}
+    for context in contexts:
+        for key in context:
+            value = context[key]
+            if (isinstance(value, dict) and
+                    isinstance(merged.get(key), dict)):
+                value = _merge(merged[key], value)
+            merged[key] = value
+    return merged
 
 
 class OnTag(OnMatch):
@@ -32,6 +42,7 @@ class OnTag(OnMatch):
 
 
 class TaggedRecordVal(RecordVal):
+    # Like `RecordVal`, but expects a special YAML tag.
 
     def __init__(self, tag, *fields):
         super(TaggedRecordVal, self).__init__(*fields)
@@ -55,7 +66,7 @@ class TaggedRecordVal(RecordVal):
 
 
 class MapLoader(ValidatingLoader):
-    # Add support for !setting tag.
+    # Add support for `!setting` tag.
 
     def construct_object(self, node, deep=False):
         if node.tag != u'!setting':
@@ -77,79 +88,31 @@ class MapLoader(ValidatingLoader):
 class LoadMap(object):
     # Parses `urlmap.yaml` file.
 
-    # Names of query parameters and context variables.
-    attr_val = StrVal(r'[A-Za-z_][0-9A-Za-z_]*')
-    # URL pattern.
-    path_val = StrVal(r'/[${}/0-9A-Za-z:._-]*')
-    # Filename pattern.
-    file_val = StrVal(r'[/0-9A-Za-z:._-]+')
-    # Template variables.
-    context_val = MapVal(attr_val)
-    # Query parameters.
-    parameters_val = MapVal(attr_val, MaybeVal(StrVal))
-
-    # Validators for all record types.
-    template_key = 'template'
-    template_val = RecordVal(
-            ('template', file_val),
-            ('access', StrVal, None),
-            ('unsafe', BoolVal, False),
-            ('parameters', parameters_val, {}),
-            ('context', context_val, {}))
-    template_type = template_val.record_type
-
-    query_key = 'query'
-    query_val = RecordVal(
-            ('query', StrVal),
-            ('parameters', parameters_val, {}),
-            ('access', StrVal, None),
-            ('unsafe', BoolVal, False))
-    query_type = query_val.record_type
-
-    port_key = 'port'
-    port_val = RecordVal(
-            ('port', GrowVal),
-            ('access', StrVal, None),
-            ('unsafe', BoolVal, False))
-    port_type = port_val.record_type
-
-    widget_key = 'widget'
-    widget_val = RecordVal(
-            ('widget', WidgetVal),
-            ('access', StrVal, None))
-    widget_type = widget_val.record_type
-
-    # Validator for `!override` records.
-    override_val = TaggedRecordVal(u'!override',
-            ('template', file_val, None),
-            ('query', StrVal, None),
-            ('port', GrowVal, None),
-            ('widget', WidgetVal, None),
-            ('access', StrVal, None),
-            ('unsafe', BoolVal, None),
-            ('parameters', parameters_val, None),
-            ('context', context_val, None))
-    override_type = override_val.record_type
-
-    # Validator for all handlers.
-    handle_val = UnionVal(
-            (OnTag(override_val.tag), override_val),
-            (template_key, template_val),
-            (query_key, query_val),
-            (port_key, port_val),
-            (widget_key, widget_val))
-
-    # Validator for the urlmap record.
-    validate = RecordVal([
-            ('include', OneOrSeqVal(file_val), None),
-            ('context', context_val, {}),
-            ('paths', MapVal(path_val, handle_val), {}),
-    ])
-
     def __init__(self, package, open=open):
         super(LoadMap, self).__init__()
         self.package = package
         self.open = open
+        # Prepare the validator.
+        self.map_by_record_type = {}
+        override_fields = []
+        override_field_set = set()
+        handle_pairs = []
+        for map_type in Map.all():
+            for field in map_type.validate.fields.values():
+                if field.name not in override_field_set:
+                    override_fields.append((field.name, field.validate, None))
+                    override_field_set.add(field.name)
+            handle_pairs.append((map_type.key, map_type.validate))
+            self.map_by_record_type[map_type.record_type] = map_type(package)
+        override_val = TaggedRecordVal(u'!override', override_fields)
+        handle_val = UnionVal(
+                (OnTag(override_val.tag), override_val),
+                *handle_pairs)
+        self.validate = RecordVal([
+                ('include', OneOrSeqVal(StrVal(r'[/0-9A-Za-z:._-]+')), None),
+                ('context', MapVal(StrVal(r'[A-Za-z_][0-9A-Za-z_]*')), {}),
+                ('paths', MapVal(StrVal(r'/[${}/0-9A-Za-z:._-]*'),
+                                 handle_val), {})])
 
     def __call__(self):
         # Generates a request handler from `urlmap.yaml` configuration.
@@ -159,51 +122,15 @@ class LoadMap(object):
         map_spec = self.validate.parse(stream, Loader=MapLoader)
         map_spec = self._include(map_spec)
 
-        # Maps URL patterns to handlers.
+        # Map URL patterns to handlers.
         segment_map = PathMap()
-        # Iterate over `paths` dictionary.
         for path in sorted(map_spec.paths):
             handle_spec = map_spec.paths[path]
             path = PathMask(path)
-            # Generate a template handler.
-            if isinstance(handle_spec, self.template_type):
-                validates = {}
-                access = handle_spec.access or self.package.name
-                context = self._merge(map_spec.context, handle_spec.context)
-                handler = TemplateRenderer(
-                        path=path,
-                        template=handle_spec.template,
-                        access=access,
-                        unsafe=handle_spec.unsafe,
-                        parameters=handle_spec.parameters,
-                        validates=validates,
-                        context=context)
-            elif isinstance(handle_spec, self.query_type):
-                access = handle_spec.access or self.package.name
-                handler = QueryRenderer(
-                        path=path,
-                        query=handle_spec.query,
-                        parameters=handle_spec.parameters,
-                        access=access,
-                        unsafe=handle_spec.unsafe)
-            elif isinstance(handle_spec, self.port_type):
-                access = handle_spec.access or self.package.name
-                with guard("While creating port:", locate(handle_spec)):
-                    port = Port(handle_spec.port)
-                handler = PortRenderer(
-                        port=port,
-                        access=access,
-                        unsafe=handle_spec.unsafe)
-            elif isinstance(handle_spec, self.widget_type):
-                access = handle_spec.access or self.package.name
-                handler = WidgetRenderer(
-                        widget=handle_spec.widget,
-                        access=access)
-            else:
-                raise NotImplementedError()
+            map = self.map_by_record_type[type(handle_spec)]
+            handler = map(handle_spec, path, map_spec.context)
             segment_map.add(path, handler)
 
-        # Generate the main handler.
         return segment_map
 
     def _include(self, include_spec, include_path=None, base_spec=None):
@@ -214,7 +141,7 @@ class LoadMap(object):
         if include_path is None:
             include_path = "%s:/urlmap.yaml" % self.package.name
         current_package, current_path = include_path.split(':', 1)
-        current_path = (current_package, os.path.dirname(current_path))
+        current_directory = os.path.dirname(current_path)
         packages = get_packages()
 
         # A urlmap record to merge into and return.
@@ -234,7 +161,10 @@ class LoadMap(object):
         with guard("Included from:", locate(include_spec).filename):
             for include in includes:
                 # Resolve a relative path.
-                include = self._resolve(include, current_path)
+                if ':' not in include:
+                    include = "%s:%s" \
+                            % (current_package,
+                               os.path.join(current_directory, include))
                 # Load and merge a nested urlmap.
                 stream = self.open(packages.abspath(include))
                 spec = self.validate.parse(stream, Loader=MapLoader)
@@ -242,7 +172,7 @@ class LoadMap(object):
                 base_spec = self._include(spec, include, base_spec)
 
         # Merge `base_spec` and `include_spec`.
-        context = self._merge(base_spec.context, include_spec.context)
+        context = _merge(base_spec.context, include_spec.context)
         paths = base_spec.paths.copy()
         # URL cache for detecting duplicate URLs.
         seen = PathMap()
@@ -257,16 +187,12 @@ class LoadMap(object):
                 error = Error("Detected ill-formed path:", path)
                 error.wrap("While parsing:", locate(handle_spec))
                 raise error
-            # Resolve relative paths.
-            handle_spec = self._resolve(handle_spec, current_path)
-            # Merge `!override` records.
-            if isinstance(handle_spec, self.override_type):
-                if path not in paths:
-                    error = Error("Detected orphaned override:", path)
-                    error.wrap("Defined in:", locate(handle_spec))
-                    raise error
-                paths[path] = self._override(path, paths[path], handle_spec)
-            else:
+            # Get the mapper that generates the handler for this record type.
+            mapper = self.map_by_record_type.get(type(handle_spec))
+            if mapper is not None:
+                # Resolve relative paths.
+                handle_spec = mapper.abspath(handle_spec, current_package,
+                                             current_directory)
                 # Complain about duplicate URLs.
                 if mask in seen:
                     error = Error("Detected duplicate or ambiguous path:", path)
@@ -275,108 +201,32 @@ class LoadMap(object):
                     raise error
                 paths[path] = handle_spec
                 seen.add(path, handle_spec)
-
+            else:
+                # Merge `!override` records.
+                if path not in paths:
+                    error = Error("Detected orphaned override:", path)
+                    error.wrap("Defined in:", locate(handle_spec))
+                    raise error
+                handle_spec = self._override(path, paths[path], handle_spec)
+                mapper = self.map_by_record_type[type(handle_spec)]
+                handle_spec = mapper.abspath(handle_spec, current_package,
+                                             current_directory)
+                paths[path] = handle_spec
         return base_spec.__clone__(context=context, paths=paths)
-
-    def _resolve(self, spec, current_path):
-        # Resolves relative paths.
-        if isinstance(spec, str):
-            if ':' not in spec:
-                current_package, current_directory = current_path
-                spec = "%s:%s" % (current_package,
-                                  os.path.join(current_directory, spec))
-        elif isinstance(spec, (self.template_type, self.override_type)):
-            template = self._resolve(spec.template, current_path)
-            spec = spec.__clone__(template=template)
-        return spec
 
     def _override(self, path, handle_spec, override_spec):
         # Merges fields defined in an `!override` record onto `handle_spec`.
-        if isinstance(handle_spec, self.template_type):
-            if override_spec.template is not None:
-                handle_spec = handle_spec.__clone__(
-                        template=override_spec.template)
-            if override_spec.access is not None:
-                handle_spec = handle_spec.__clone__(
-                        access=override_spec.access)
-            if override_spec.unsafe is not None:
-                handle_spec = handle_spec.__clone__(
-                        unsafe=override_spec.unsafe)
-            if override_spec.parameters is not None:
-                parameters = self._merge(handle_spec.parameters,
-                                         override_spec.parameters)
-                handle_spec = handle_spec.__clone__(parameters=parameters)
-            if override_spec.context is not None:
-                context = self._merge(handle_spec.context,
-                                      override_spec.context)
-                handle_spec = handle_spec.__clone__(context=context)
-            if (override_spec.query is not None or
-                override_spec.port is not None or
-                override_spec.widget is not None):
-                error = Error("Detected invalid override"
-                              " of template:", path)
-                error.wrap("Defined in:", locate(override_spec))
-                raise error
-        elif isinstance(handle_spec, self.query_type):
-            if override_spec.query is not None:
-                handle_spec = handle_spec.__clone__(
-                        query=override_spec.query)
-            if override_spec.parameters is not None:
-                parameters = self._merge(handle_spec.parameters,
-                                         override_spec.parameters)
-                handle_spec = handle_spec.__clone__(parameters=parameters)
-            if override_spec.access is not None:
-                handle_spec = handle_spec.__clone__(
-                        access=override_spec.access)
-            if override_spec.unsafe is not None:
-                handle_spec = handle_spec.__clone__(
-                        unsafe=override_spec.unsafe)
-            if (override_spec.template is not None or
-                override_spec.port is not None or
-                override_spec.widget is not None or
-                override_spec.context is not None):
-                error = Error("Detected invalid override"
-                              " of query:", path)
-                error.wrap("Defined in:", locate(override_spec))
-                raise error
-        elif isinstance(handle_spec, self.port_type):
-            if override_spec.port is not None:
-                port = []
-                for spec in [handle_spec.port, override_spec.port]:
-                    if isinstance(spec, list):
-                        port.extend(spec)
-                    else:
-                        port.append(spec)
-                handle_spec = handle_spec.__clone__(
-                        port=port)
-            if override_spec.access is not None:
-                handle_spec = handle_spec.__clone__(
-                        access=override_spec.access)
-            if override_spec.unsafe is not None:
-                handle_spec = handle_spec.__clone__(
-                        unsafe=override_spec.unsafe)
-            if (override_spec.template is not None or
-                override_spec.query is not None or
-                override_spec.widget is not None or
-                override_spec.parameters is not None or
-                override_spec.context is not None):
-                error = Error("Detected invalid override"
-                              " of port:", path)
-                error.wrap("Defined in:", locate(override_spec))
-                raise error
+        map = self.map_by_record_type[type(handle_spec)]
+        # Reject mis-typed `!override` entries.
+        for key, value in sorted(vars(override_spec).items()):
+            if value is not None:
+                if key not in map.validate.fields:
+                    error = Error("Detected invalid override"
+                                  " of %s:" % map.key, path)
+                    error.wrap("Defined in:", locate(override_spec))
+                    raise error
+        handle_spec = map.override(handle_spec, override_spec)
         return handle_spec
-
-    def _merge(self, *contexts):
-        # Merge context dictionaries.
-        merged = {}
-        for context in contexts:
-            for key in context:
-                value = context[key]
-                if (isinstance(value, dict) and
-                        isinstance(merged.get(key), dict)):
-                    value = self._merge(merged[key], value)
-                merged[key] = value
-        return merged
 
 
 def load_map(package, open=open):

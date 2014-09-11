@@ -9,6 +9,7 @@ Usage guide
 .. toctree::
 
    guide
+   reference
 
 
 Examples

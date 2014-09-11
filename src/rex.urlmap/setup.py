@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.urlmap',
-    version = "2.3.0",
+    version = "2.4.0",
     description="Configures URL handlers",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -25,7 +25,7 @@ setup(
         'rex.core >=1.5, <2',
         'rex.web >=3.0, <4',
         'rex.db >=2.1, <3',
-        'rex.port >=0.1.0, <1',
+        'rex.port >=0.1.0, <2',
         'rex.widget >=0.1.0, <1',
     ],
     rex_init='rex.urlmap',

@@ -24,10 +24,16 @@ class EventExecutionContext {
   }
 
   evaluate(expression, resolver) {
-    return RexExpression.evaluate(
-      expression,
-      this._resolveWith(resolver)
-    );
+    try {
+      return RexExpression.evaluate(
+        expression,
+        this._resolveWith(resolver)
+      );
+    } catch (exc) {
+      if (console && console.error) {
+        console.error(exc.toString() + ' (' + expression + ')');
+      }
+    }
   }
 
   execute(targetID, actionName, resolver, processor) {

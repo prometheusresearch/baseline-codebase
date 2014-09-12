@@ -74,6 +74,21 @@ class HeaderWidget(Widget):
     js_type = 'rex-widget/lib/Header'
 
     text = Field(UStrVal)
+    level = Field(IntVal(), default=1)
+
+class TextWidget(Widget):
+
+    name    = 'Text'
+    js_type = 'rex-widget/lib/Text'
+
+    text = Field(UStrVal)
+
+class UnsafeHTML(Widget):
+
+    name    = 'UnsafeHTML'
+    js_type = 'rex-widget/lib/UnsafeHTML'
+
+    html = Field(UStrVal)
 
 
 class SectionWidget(Widget):
@@ -89,7 +104,7 @@ class LinkWidget(Widget):
     name    = 'Link'
     js_type = 'rex-widget/lib/Link'
 
-    url     = Field(StrVal)
+    href    = Field(StrVal)
     text    = Field(UStrVal, default=None)
 
 

@@ -8,7 +8,11 @@ var React = require('react');
 var Section = React.createClass({
 
   render: function() {
-    return <div>{this.props.content}</div>;
+    return (
+      <div className="rex-widget-Section">
+        {this.props.content}
+      </div>
+    );
   }
 });
 

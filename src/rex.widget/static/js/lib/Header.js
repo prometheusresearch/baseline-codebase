@@ -8,7 +8,12 @@ var React = require('react');
 var Header = React.createClass({
 
   render: function() {
-    return <h1>{this.props.text}</h1>;
+    var h = React.DOM['h' + this.props.level];
+    return <h className="rex-widget-Header">{this.props.text}</h>;
+  },
+
+  getDefaultProps() {
+    return {level: 1};
   }
 });
 

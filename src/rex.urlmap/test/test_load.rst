@@ -318,7 +318,8 @@ Finally, one could also override widget definitions::
     "ui": {
       "__type__": "rex-widget/lib/Header",
       "props": {
-        "text": "Hello, World!"
+        "text": "Hello, World!",
+        ...
       }
     }
     ...

@@ -9,6 +9,7 @@
 ==================
 
 * Added ``Map`` interface to define ``urlmap.yaml`` entry types.
+* Support for widgets is moved to ``rex.widget``.
 
 
 2.3.0 (2014-08-28)

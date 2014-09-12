@@ -25,8 +25,7 @@ setup(
         'rex.core >=1.5, <2',
         'rex.web >=3.0, <4',
         'rex.db >=2.1, <3',
-        'rex.port >=0.1.0, <2',
-        'rex.widget >=0.1.0, <1',
+        'rex.port >=1.0, <2',
     ],
     rex_init='rex.urlmap',
 )

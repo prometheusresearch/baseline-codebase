@@ -31,7 +31,7 @@ paths:
     widget:
     - !<Header> Hello World!
     - !<Link>
-      url: rex.urlmap_demo:/
+      href: rex.urlmap_demo:/
       text: Back
     access: anybody
 

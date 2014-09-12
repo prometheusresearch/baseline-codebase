@@ -33,8 +33,10 @@ REX.FORMS Change Log
 - If the final value on the reconciliation screen is modified by hand, the
   previously-selected value is dehighlighted.
 - Required rows in matrix fields are now flagged as such.
-- Fixed issue in reconciliation screen where it didn't reliably detect if all
-  required values were entered.
+- Fixed an issue in reconciliation screen where it didn't reliably detect if
+  all required values were entered.
+- Fixed an issue that prevented the solving of discrepancies including an
+  empty enumerationSet value.
 
 
 0.22.1 (9/3/2014)

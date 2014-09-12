@@ -254,6 +254,12 @@ def _solve_field_discrepancies(
     return None
 
 
+def safe_empty(value):
+    if value in ([], {}):
+        return None
+    return value
+
+
 def _solve_simple_discrepancy(
         field,
         entries,
@@ -266,7 +272,7 @@ def _solve_simple_discrepancy(
     solution = {}
 
     if has_override:
-        solution['value'] = reconciled_discrepancy
+        solution['value'] = safe_empty(reconciled_discrepancy)
     else:
         for entry in entries:
             try:

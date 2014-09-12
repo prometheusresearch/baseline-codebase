@@ -130,6 +130,10 @@ var array = {
       return [value];
     }
 
+    if (value.length == 0) {
+      return null;
+    }
+
     return value;
   },
 
@@ -146,7 +150,7 @@ var array = {
   },
 
   getDefaultValue: function () {
-    return [];
+    return null;
   }
 };
 

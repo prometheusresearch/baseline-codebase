@@ -3,7 +3,31 @@
  */
 'use strict';
 
-var React = require('react/addons');
+var copyProperties = require('react/lib/copyProperties');
+
+function shallowCopy(x) {
+  if (Array.isArray(x)) {
+    return x.concat();
+  } else if (x && typeof x === 'object') {
+    return copyProperties(new x.constructor(), x);
+  } else {
+    return x;
+  }
+}
+
+function set(value, path, update) {
+  if (path.length === 0) {
+    return update;
+  }
+  path = shallowCopy(path);
+  var key = path.shift();
+  value = shallowCopy(value);
+  if (value === null) {
+    value = {};
+  }
+  value[key] = set(value[key], path, update);
+  return value;
+}
 
 class Reference {
 
@@ -25,15 +49,7 @@ class Reference {
   }
 
   set(value, update) {
-    var directive = {};
-    var current = directive;
-    for (var i = 0, len = this.path.length; i < len; i++) {
-      var key = this.path[i];
-      current[key] = {};
-      current = current[key];
-    }
-    current.$set = update;
-    return React.addons.update(value, directive);
+    return set(value, this.path, update);
   }
 
   toString() {

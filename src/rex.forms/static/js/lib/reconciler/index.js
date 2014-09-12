@@ -40,25 +40,21 @@ var Reconciler = React.createClass({
   },
 
   onComplete: function () {
-    var reconciledDiscrepancies = 
-        this.refs.discrepancyForm.getReconciledDiscrepancies(),
-      isValid = this.refs.discrepancyForm.isValid();
-
     this.setState({
       processingComplete: true
+    }, () => {
+      this.props.onComplete(
+        this.refs.discrepancyForm.getReconciledDiscrepancies(),
+        this.refs.discrepancyForm.isValid()
+      ).then(
+        null,
+        (err) => {
+          this.setState({
+            processingComplete: false
+          });
+        }
+      );
     });
-
-    this.props.onComplete(
-      reconciledDiscrepancies,
-      isValid
-    ).then(
-      null,
-      (err) => {
-        this.setState({
-          processingComplete: false
-        });
-      }
-    );
   },
 
   render: function () {

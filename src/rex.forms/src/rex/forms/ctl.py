@@ -3,6 +3,7 @@
 #
 
 
+import json
 import sys
 
 from cogs import task, argument, option
@@ -166,6 +167,12 @@ class FORMS_RETRIEVE(FormsInstanceTask):
         value_name='OUTPUT_FILE',
         hint='the file to write the JSON to; if not specified, stdout is used',
     )
+    pretty = option(
+        None,
+        bool,
+        hint='if specified, the outputted JSON will be formatted with newlines'
+        ' and indentation',
+    )
 
     def __init__(
             self,
@@ -175,7 +182,8 @@ class FORMS_RETRIEVE(FormsInstanceTask):
             require,
             setting,
             version,
-            output):
+            output,
+            pretty):
         super(FORMS_RETRIEVE, self).__init__(
             project,
             require,
@@ -185,6 +193,7 @@ class FORMS_RETRIEVE(FormsInstanceTask):
         self.channel_uid = channel_uid
         self.version = version
         self.output = output
+        self.pretty = pretty
 
     def __call__(self):
         with self.get_rex():
@@ -240,7 +249,13 @@ class FORMS_RETRIEVE(FormsInstanceTask):
             else:
                 output = sys.stdout
 
-            output.write(form.configuration_json)
+            output.write(
+                json.dumps(
+                    form.configuration,
+                    ensure_ascii=False,
+                    indent=2 if self.pretty else None,
+                )
+            )
             output.write('\n')
 
 

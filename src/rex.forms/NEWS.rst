@@ -37,6 +37,8 @@ REX.FORMS Change Log
   all required values were entered.
 - Fixed an issue that prevented the solving of discrepancies including an
   empty enumerationSet value.
+- The output from the forms-retrieve command can now be optionally
+  pretty-printed.
 
 
 0.22.1 (9/3/2014)

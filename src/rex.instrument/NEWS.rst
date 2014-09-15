@@ -10,6 +10,8 @@ REX.INSTRUMENT Change Log
 
 - Fixed an issue that caused required boolean fields to not allow False values
   in Assessments.
+- The output from the instrument-retrieve command can now be optionally
+  pretty-printed.
 
 
 0.11.1 (9/3/2014)

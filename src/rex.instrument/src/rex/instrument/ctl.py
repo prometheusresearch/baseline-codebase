@@ -3,6 +3,7 @@
 #
 
 
+import json
 import sys
 
 from datetime import datetime
@@ -139,6 +140,12 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
         value_name='OUTPUT_FILE',
         hint='the file to write the JSON to; if not specified, stdout is used',
     )
+    pretty = option(
+        None,
+        bool,
+        hint='if specified, the outputted JSON will be formatted with newlines'
+        ' and indentation',
+    )
 
     def __init__(
             self,
@@ -147,7 +154,8 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
             require,
             setting,
             version,
-            output):
+            output,
+            pretty):
         super(INSTRUMENT_RETRIEVE, self).__init__(
             project,
             require,
@@ -156,6 +164,7 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
         self.instrument_uid = instrument_uid
         self.version = version
         self.output = output
+        self.pretty = pretty
 
     def __call__(self):
         with self.get_rex():
@@ -186,7 +195,13 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
             else:
                 output = sys.stdout
 
-            output.write(instrument_version.definition_json)
+            output.write(
+                json.dumps(
+                    instrument_version.definition,
+                    ensure_ascii=False,
+                    indent=2 if self.pretty else None,
+                )
+            )
             output.write('\n')
 
 

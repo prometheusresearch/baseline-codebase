@@ -17,7 +17,8 @@ var Container = React.createClass({
 
   render() {
     var style = {
-      flexDirection: this.props.vertical ? 'column' : 'row'
+      flexDirection: this.props.vertical ? 'column' : 'row',
+      WebkitFlexDirection: this.props.vertical ? 'column' : 'row'
     };
     return (
       <div style={style} className={cx('rex-widget-Container', this.props.className)}>

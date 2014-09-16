@@ -23,16 +23,20 @@ var Block = React.createClass({
     var grow = 0 + this.props.grow; // coerce Boolean to Number
     if (grow) {
       style.flexGrow = grow;
+      style.WebkitFlexGrow = grow;
     }
     var shrink = 0 + this.props.shrink; // coerce Boolean to Number
     if (shrink) {
       style.flexShrink = shrink;
+      style.WebkitFlexShrink = shrink;
     }
     if (this.props.size) {
       style.flex = this.props.size;
+      style.WebkitFlex = this.props.size;
     }
     if (this.props.fixedSize != undefined) {
       style.flex = style.flexShrink = style.flexGrow = undefined;
+      style.WebkitFlex= style.WebkitFlexShrink = style.WebkitFlexGrow = undefined;
       if (this.props.vertical) {
         style.height = this.props.fixedSize;
       } else {

@@ -374,6 +374,11 @@ html, body, #__main__ {
 /**
  * Grid widget
  */
+
+.react-grid-Cell__value,
+.react-grid-HeaderCell__value {
+  -webkit-transform: translateY(-50%);
+}
 .rex-widget-Grid {
 
   position: absolute;
@@ -501,6 +506,7 @@ html, body, #__main__ {
 .rex-widget-Container {
   position: relative;
   display: flex;
+  display: -webkit-flex;
   height: 100%;
   overflow: hidden;
 }
@@ -588,7 +594,9 @@ html, body, #__main__ {
   height: 30px;
   overflow: hidden;
   transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg);
   transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
 }
 
 .rex-widget-CollapsibleBlock--vertical {
@@ -596,6 +604,7 @@ html, body, #__main__ {
     left: 10px;
     top: -30px;
     transform: none;
+    -webkit-transform: none;
   }
 }
 

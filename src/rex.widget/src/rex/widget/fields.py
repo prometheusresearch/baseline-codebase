@@ -257,7 +257,7 @@ class PaginatedCollectionField(DataField):
                     pagination_state_id,
                     widget=widget,
                     computator=InitialValue({"top": 100, "skip": 0}, reset_on_changes=True),
-                    validator=MapVal(StrVal, IntVal),
+                    validator=MaybeVal(MapVal(StrVal, IntVal)),
                     dependencies=dependencies + [sort_state_id],
                     persistence=State.INVISIBLE,
                     is_writable=True)),

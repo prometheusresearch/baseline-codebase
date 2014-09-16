@@ -65,9 +65,11 @@ var ApplicationState = merge({
    * @param {Values} values
    */
   start(state, values, versions) {
+    this.history.preventPopState = true;
     this.configure(state);
     this.hydrate(values, versions, false);
     this.loadDeferred();
+    setTimeout(() => this.history.preventPopState = false, 300);
   },
 
   /**
@@ -329,7 +331,7 @@ var ApplicationState = merge({
     ReactUpdates.batchedUpdates(() => {
       Object.keys(values).forEach(this.notifyStateChanged, this);
     });
-    if (options.persistence !== PERSISTENT.INVISIBLE) {
+    if (options.persistence !== PERSISTENCE.PERSISTENT.INVISIBLE) {
       this.history.replaceState();
     }
   },

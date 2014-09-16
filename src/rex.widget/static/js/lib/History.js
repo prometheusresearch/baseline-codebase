@@ -17,10 +17,6 @@ class History {
     window.addEventListener('popstate', this._handlePopState.bind(this));
   }
 
-  preventPopState() {
-    this.preventPopState = true;
-  }
-
   replaceState() {
     var pathname = this.pathname();
     window.history.replaceState(null, '', pathname);

@@ -20,6 +20,7 @@ from .fields import (
     PaginatedCollectionField, EntityField)
 from .state import Reference, State, Dep, unknown
 from .jsval import JSVal
+from .urlmap import WidgetRenderer
 
 
 class Logging(Setting):

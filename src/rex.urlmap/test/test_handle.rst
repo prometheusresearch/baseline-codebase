@@ -126,8 +126,8 @@ Pages marked as ``unsafe`` require a CSRF token::
     ...
 
 
-Access control for queries, ports and widget
-============================================
+Access control for queries and ports
+====================================
 
 Queries and ports generate HTSQL output::
 
@@ -169,7 +169,7 @@ Errors in query parameters are detected::
     400 Bad Request
     ...
 
-Access permissions for query, port and widget handlers work the same way as for
+Access permissions for query and port handlers work the same way as for
 template handlers::
 
     >>> sandbox.rewrite('/urlmap.yaml', """
@@ -196,8 +196,6 @@ template handlers::
     ...     template: templates:/template/universal.html
     ...     access: anybody
     ...     context: { title: Get a CSRF token from this page }
-    ...   /hello:
-    ...     widget: !<Header> Hello, World!
     ... """)
 
     >>> data_auth_demo = Rex(sandbox, './test/data/templates/', 'rex.urlmap_demo')
@@ -263,16 +261,6 @@ By default, only authenticated users are accepted::
         ...
       ]
     }
-
-    >>> req = Request.blank('/hello')
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
-    401 Unauthorized
-    ...
-
-    >>> req.remote_user = 'Alice'
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
-    200 OK
-    ...
 
 Ports marked as ``unsafe`` require a CSRF token::
 
@@ -489,18 +477,5 @@ Invalid, unknown or duplicate parameters are rejected::
     ...
     Got multiple values for parameter:
         sex
-
-
-Widgets
-=======
-
-``rex.urlmap`` can render widgets::
-
-    >>> req = Request.blank('/hello')
-    >>> print req.get_response(demo)        # doctest: +ELLIPSIS
-    200 OK
-    ...
-    <!DOCTYPE html>
-    ...
 
 

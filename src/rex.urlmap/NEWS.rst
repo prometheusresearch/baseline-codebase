@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.4.0 (2014-XX-XX)
+2.4.0 (2014-09-16)
 ==================
 
 * Added ``Map`` interface to define ``urlmap.yaml`` entry types.

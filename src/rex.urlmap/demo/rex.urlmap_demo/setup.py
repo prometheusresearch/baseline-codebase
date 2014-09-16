@@ -34,7 +34,6 @@ setup(
         'rex.urlmap',
         'rex.vendor',
         'rex.deploy',
-        'rex.widget',
         'rex.ctl',
     ],
     cmdclass={'demo': demo},

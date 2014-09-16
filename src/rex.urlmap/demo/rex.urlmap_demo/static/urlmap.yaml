@@ -27,11 +27,3 @@ paths:
       }
     access: anybody
 
-  /hello:
-    widget:
-    - !<Header> Hello World!
-    - !<Link>
-      href: rex.urlmap_demo:/
-      text: Back
-    access: anybody
-

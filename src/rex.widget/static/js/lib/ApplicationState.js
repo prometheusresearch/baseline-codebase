@@ -69,7 +69,7 @@ var ApplicationState = merge({
     this.configure(state);
     this.hydrate(values, versions, false);
     this.loadDeferred();
-    setTimeout(() => this.history.preventPopState = false, 300);
+    setTimeout(() => this.history.preventPopState = false, 1000);
   },
 
   /**

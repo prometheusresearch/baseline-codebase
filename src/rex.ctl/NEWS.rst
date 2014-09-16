@@ -8,8 +8,7 @@
 1.4.2 (2014-09-16)
 ==================
 
-* Fixed some tests.
-* ``rex serve-uwsgi``: do not remove the ``.wsgi`` file on startup.
+* Updated test output.
 
 
 1.4.1 (2014-08-06)

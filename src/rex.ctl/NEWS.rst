@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.4.2 (2014-XX-XX)
+1.4.2 (2014-09-16)
 ==================
 
 * Fixed some tests.

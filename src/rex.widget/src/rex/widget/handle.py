@@ -101,7 +101,7 @@ def get_alias_mapping(state):
 
 @cached
 def get_widget_map():
-    from rex.urlmap.handle import WidgetRenderer
+    from .urlmap import WidgetRenderer
     widget_map = {}
     packages = get_packages()
     for package in packages:

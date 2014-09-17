@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.22.2 (9/xx/2014)
+0.22.2 (9/17/2014)
 ==================
 
 - Fixed a problem where the JS component would generate an Assessment document

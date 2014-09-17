@@ -35,8 +35,12 @@ implement at least one of the ``create``, ``retrieve``, ``update``, or
         ...
     AssertionError: No resource methods defined on __main__.FailedResource
 
-    >>> RestfulLocation.all()
-    [__main__.TestResource]
+    >>> TestResource in RestfulLocation.all()
+    True
+    >>> FailedResource in RestfulLocation.all()
+    Traceback (most recent call last):
+        ...
+    NameError: name 'FailedResource' is not defined
 
     >>> rex.off()
 

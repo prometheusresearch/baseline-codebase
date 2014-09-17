@@ -20,9 +20,139 @@ __all__ = (
 
 # pylint: disable=W0223
 class RestfulLocation(Command):
+    """
+    This is the base class for the core functionality of rex.restful.
+
+    .. method:: retrieve(request, **params)
+
+        This method is executed when the path recieves an HTTP GET request.
+
+        On successful execution, this method will result in an HTTP status of
+        200.
+
+        If this method is not implemented in a concrete class, then the path
+        associated with this class will respond with an HTTP 405 (Method Not
+        Allowed) error when invoked with a GET.
+
+        :param params:
+            Much like the base ``rex.web.Command`` class that this class is
+            based on, this dictionary contains all the parameters that are sent
+            to the path as part of the URL or as querystring parameters. Note
+            that even if no parameters are expected (e.g., none are defined in
+            the ``parameters`` property on this class), this method will always
+            receive the ``format`` parameter.
+        :type params: dict
+        :param request: the Request object associated with this HTTP request
+        :type request: Request
+        :returns:
+            This method should return whatever is appropriate for the API you
+            are implementing. This return value is passed through a
+            ``Serializer`` before it is sent to the client.
+
+    .. method:: create(request, **params)
+
+        This method is executed when the path recieves an HTTP POST request.
+
+        Any content sent by the client in the request's body will be
+        automatically decoded into the appropriate Python object using the
+        ``Serializer`` mechanics and stored on the ``payload`` property of the
+        ``request`` argument.
+
+        On successful execution, this method will result in an HTTP status of
+        201.
+
+        If this method is not implemented in a concrete class, then the path
+        associated with this class will respond with an HTTP 405 (Method Not
+        Allowed) error when invoked with a POST.
+
+        :param params:
+            Much like the base ``rex.web.Command`` class that this class is
+            based on, this dictionary contains all the parameters that are sent
+            to the path as part of the URL or as querystring parameters. Note
+            that even if no parameters are expected (e.g., none are defined in
+            the ``parameters`` property on this class), this method will always
+            receive the ``format`` parameter.
+        :type params: dict
+        :param request: the Request object associated with this HTTP request
+        :type request: Request
+        :returns:
+            This method should return whatever is appropriate for the API you
+            are implementing. This return value is passed through a
+            ``Serializer`` before it is sent to the client.
+
+    .. method:: update(request, **params)
+
+        This method is executed when the path recieves an HTTP PUT request.
+
+        Any content sent by the client in the request's body will be
+        automatically decoded into the appropriate Python object using the
+        ``Serializer`` mechanics and stored on the ``payload`` property of the
+        ``request`` argument.
+
+        On successful execution, this method will result in an HTTP status of
+        202.
+
+        If this method is not implemented in a concrete class, then the path
+        associated with this class will respond with an HTTP 405 (Method Not
+        Allowed) error when invoked with a PUT.
+
+        :param params:
+            Much like the base ``rex.web.Command`` class that this class is
+            based on, this dictionary contains all the parameters that are sent
+            to the path as part of the URL or as querystring parameters. Note
+            that even if no parameters are expected (e.g., none are defined in
+            the ``parameters`` property on this class), this method will always
+            receive the ``format`` parameter.
+        :type params: dict
+        :param request: the Request object associated with this HTTP request
+        :type request: Request
+        :returns:
+            This method should return whatever is appropriate for the API you
+            are implementing. This return value is passed through a
+            ``Serializer`` before it is sent to the client.
+
+    .. method:: delete(request, **params)
+
+        This method is executed when the path recieves an HTTP DELETE request.
+
+        On successful execution, this method will result in an HTTP status of
+        204.
+
+        If this method is not implemented in a concrete class, then the path
+        associated with this class will respond with an HTTP 405 (Method Not
+        Allowed) error when invoked with a PUT.
+
+        :param params:
+            Much like the base ``rex.web.Command`` class that this class is
+            based on, this dictionary contains all the parameters that are sent
+            to the path as part of the URL or as querystring parameters. Note
+            that even if no parameters are expected (e.g., none are defined in
+            the ``parameters`` property on this class), this method will always
+            receive the ``format`` parameter.
+        :type params: dict
+        :param request: the Request object associated with this HTTP request
+        :type request: Request
+        :returns:
+            Nothing. Anything returned by this method will be ignored, and will
+            not be sent to the client.
+    """
+
     priority = 1000
+
+    #: The permission required to access this location.
     access = 'authenticated'
+
+    #: The URL that this location responds to. Must be specified by concrete
+    #: classes.
+    path = None
+
+    #: The default format identifier to use when/if a compatible Serializer
+    #: cannot be detected via the request headers or format parameter.
     default_format = 'json'
+
+    #: The list of ``Parameter`` that are expected to be received through both
+    #: ``path`` variables and/or URL querystring parameters.
+    parameters = []
 
     _METHOD_MAP = {
         'POST': 'create',
@@ -200,6 +330,76 @@ class RestfulLocation(Command):
 
 
 class SimpleResource(RestfulLocation):
+    """
+    This is an extension of ``RestfulLocation`` to provide a convenient way to
+    implement a common pattern of RESTful APIs. Many simple resources follow a
+    pattern such as this:
+
+    * The /foo URI accepts the following actions:
+
+      * ``GET``: Returns an array of all the "foo" resources in the system.
+      * ``POST``: Creates a brand new instance of the "foo" resource.
+
+    * The /foo/{id} URI accepts the following actions:
+
+      * ``GET``: Returns the "foo" instance identified by the ID in the URI.
+      * ``PUT``: Updates the "foo" instance identified by the ID in the URI.
+      * ``DELETE``: Deletes the "foo" instance identified by the ID in the URI.
+
+    You can accomplish such a pattern by inheriting from this class and noting
+    a few differences:
+
+    * You must specify a property named ``base_path``. It functions just like
+      the ``path`` property from ``RestfulLocation``, but is where the
+      parent-level actions are mapped, whereas the ``path`` property is where
+      the detail-level actions are mapped.
+
+      * You can also specify a ``base_parameters`` property if your
+        ``base_path`` includes variables.
+
+    * The ``retrieve``, ``update``, and ``delete`` methods (if defined) will be
+      utilized by the actions received by the detail-level ``path``.
+
+    * The ``list`` and ``create`` methods (if defined) will be utilized by the
+      actions received by the parent-level ``base_path``.
+
+
+    .. method:: list(request, **params)
+
+        This method is executed when the base_path recieves an HTTP GET
+        request.
+
+        On successful execution, this method will result in an HTTP status of
+        200.
+
+        If this method is not implemented in a concrete class, then the
+        base_path associated with this class will respond with an HTTP 405
+        (Method Not Allowed) error when invoked with a GET.
+
+        :param params:
+            Much like the base ``rex.web.Command`` class that this class is
+            based on, this dictionary contains all the parameters that are sent
+            to the path as part of the URL or as querystring parameters. Note
+            that even if no parameters are expected (e.g., none are defined in
+            the ``parameters`` property on this class), this method will always
+            receive the ``format`` parameter.
+        :type params: dict
+        :param request: the Request object associated with this HTTP request
+        :type request: Request
+        :returns:
+            This method should return whatever is appropriate for the API you
+            are implementing. This return value is passed through a
+            ``Serializer`` before it is sent to the client.
+    """
+
+    #: The URL that should handle the parent-level actions. Must be specified
+    #: by concrete classes.
+    base_path = None
+
+    #: The list of ``Parameter`` that are expected to be received through both
+    #: ``base_path`` variables and/or URL querystring parameters.
+    base_parameters = []
+
     @classmethod
     def sanitize(cls):
         if cls.enabled():

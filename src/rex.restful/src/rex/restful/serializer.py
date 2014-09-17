@@ -23,12 +23,31 @@ __all__ = (
 
 
 class Serializer(Extension):
+    """
+    This is an Extension that allows developers to implement additional data
+    formatting/encoding methods for their APIs to support.
+    """
+
+    #: The string that identifies the Serializer when passed to the "format"
+    #: querystring parameter. Must be specified by concrete classes.
     format_string = None
+
+    #: The MIME type that identifies the format/encoding the Serializer. It is
+    #: used when checking the incoming Content-Type for compatibility, and it
+    #: is sent in the Content-Type of the response. Must be specified by
+    #: concrete classes.
     mime_type = None
 
     @classmethod
     @cached
     def map_by_format(cls):
+        """
+        Returns mapping of format identifiers to the Serializer implementation
+        that supports them.
+
+        :rtype: dict
+        """
+
         mapping = {}
         for ext in cls.all():
             assert ext.format_string not in mapping, \
@@ -39,6 +58,13 @@ class Serializer(Extension):
     @classmethod
     @cached
     def map_by_mime_type(cls):
+        """
+        Returns a mapping of MIME types to the Serializer implementation that
+        supports them.
+
+        :rtype: dict
+        """
+
         mapping = {}
         for ext in cls.all():
             assert ext.mime_type not in mapping, \
@@ -49,12 +75,31 @@ class Serializer(Extension):
     @classmethod
     @cached
     def get_for_mime_type(cls, mime_type):
+        """
+        Retrieves the Serializer implementation that supports the specified
+        MIME type. If an implementation cannot be found, ``None`` is returned.
+
+        :param mime_type: the MIME type to retrieve
+        :type mime_type: string
+        :rtype: Serializer
+        """
+
         mime_type = mime_type.split(';')[0]
         return cls.map_by_mime_type().get(mime_type)
 
     @classmethod
     @cached
     def get_for_format(cls, fmt):
+        """
+        Retrieves the Serializer implementation that supports the specified
+        format identifier. If an implementation cannot be found, ``None`` is
+        returned.
+
+        :param fmt: the format identifier to retreive
+        :type fmt: string
+        :rtype: Serializer
+        """
+
         return cls.map_by_format().get(fmt)
 
     @classmethod
@@ -70,9 +115,32 @@ class Serializer(Extension):
                 'abstract method %s.deserialize()' % cls
 
     def serialize(self, value):
+        """
+        Encodes/Formats the data from the result of the API for transmission
+        to the client.
+
+        Must be implemented by concrete classes.
+
+        :param value:
+            the outgoing data that is to be serialized; typically, this is a
+            Python ``dict``, ``list``, or ``tuple``
+        :rtype: string
+        """
+
         raise NotImplementedError()
 
     def deserialize(self, value):
+        """
+        Decodes the data from the client for use in the API methods.
+
+        Must be implemented by concrete classes.
+
+        :param value: the incoming data that is to be deserialized
+        :type value:
+            an object that acts as both a string and a file-like object
+        :returns: the decoded object
+        """
+
         raise NotImplementedError()
 
 
@@ -155,7 +223,14 @@ def restful_json_decoder(value):
 
 
 class JsonSerializer(Serializer):
+    """
+    An implementation of Serializer that supports JSON-encoded structures.
+    """
+
+    #:
     format_string = 'json'
+
+    #:
     mime_type = 'application/json'
 
     def serialize(self, value):
@@ -166,7 +241,14 @@ class JsonSerializer(Serializer):
 
 
 class YamlSerializer(Serializer):
+    """
+    An implementation of Serializer that supports YAML-encoded structures.
+    """
+
+    #:
     format_string = 'yaml'
+
+    #:
     mime_type = 'application/x-yaml'
 
     def serialize(self, value):

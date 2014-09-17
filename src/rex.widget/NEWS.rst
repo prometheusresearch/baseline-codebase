@@ -9,5 +9,3 @@
 ==================
 
 * Initial implementation.
-
-

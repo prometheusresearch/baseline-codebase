@@ -45,18 +45,18 @@ The ``widget`` key is used to specify that the ``/about`` URL will be handled by
 Rex Widget (analogous to ``port`` or ``query`` handlers which are provided by
 the corresponding packages of the RexDB platform).
 
-A concrete widget which will be rendered is specified with ``!<Container>``
+A concrete widget which will be rendered is specified with ``<Container>``
 annotation syntax.
 
 Widgets can be provided with parameters, a set of allowed parameters is defined
-by a widget author. The ``!<Container>`` widget accepts ``children`` parameter
+by a widget author. The ``<Container>`` widget accepts ``children`` parameter
 which specify what should be rendered inside of it, an other widget or a list of
 those.
 
 Shorthand configuration syntax
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``!<Header>`` and ``!<Text>`` widgets above are configured via shorthand
+The ``<Header>`` and ``<Text>`` widgets above are configured via shorthand
 syntax. This is allowed only for widgets which accept a single required field.
 
 The configuration::
@@ -91,9 +91,9 @@ appearance of the widget and interactions with a user.
 Basic widgets
 ~~~~~~~~~~~~~
 
-An example widget ``!<MyHeader>`` which renders into ``<h1>``, ``<h2>``, ...
+An example widget ``<MyHeader>`` which renders into ``<h1>``, ``<h2>``, ...
 elements depending on its ``level`` property. This widget functions exactly the
-same as built-in ``!<Header>``.
+same as built-in ``<Header>``.
 
 The complete widget declaration looks like::
 
@@ -154,7 +154,7 @@ can use it to configure the appearance of the widget and user interactions.
 Refer to React_ documentation for the information on how to define React
 components.
 
-Finally you can use ``!<MyHeader>`` widget via an URL mapping::
+Finally you can use ``<MyHeader>`` widget via an URL mapping::
 
   widget:
     !<MyHeader> Hello, world
@@ -171,10 +171,10 @@ Stateful widgets
 
 A stateful widget manages some state which can be used to drive applications
 data and user interactions. The examples of stateful widgets provided by Rex
-Widget are ``!<TextInput>`` and ``!<Select>``.
+Widget are ``<TextInput>`` and ``<Select>``.
 
-We will replicate ``!<TextInput>`` widget functionality in a new
-``!<MyTextInput>`` stateful widget::
+We will replicate ``<TextInput>`` widget functionality in a new
+``<MyTextInput>`` stateful widget::
 
   from rex.core import StrVal
   from rex.widget import Widget, Field, StateField
@@ -191,7 +191,7 @@ This is the minimal stateful widget. It defines state ``value`` via
 ``StateField``. Also stateful widgets are required to have ``id`` field.
 
 The difference between ``Field`` and ``StateField`` becomes visible when we see
-the JavaScript definition of ``!<MyTextInput>``::
+the JavaScript definition of ``<MyTextInput>``::
 
   /** @jsx React.DOM */
 
@@ -220,7 +220,7 @@ We connect ``onValue`` to an ``onChange`` event of React ``<input />`` component
 so when user types into the text field, the application is notified of a new
 state value.
 
-Now we can use our ``!<MyTextInput>`` widget::
+Now we can use our ``<MyTextInput>`` widget::
 
   widget: !<Container>
     children:
@@ -233,9 +233,9 @@ Now we can use our ``!<MyTextInput>`` widget::
         refs:
           username: username/value
 
-The configuration above uses ``!<MyTextInput>`` and connects it to ``!<Grid>``
+The configuration above uses ``<MyTextInput>`` and connects it to ``<Grid>``
 so the data fetched by grid will depend on the current state value of
-``!<MyTextInput>``.
+``<MyTextInput>``.
 
 We will see how to define data widget below but now you can notice how we used
 ``username/value`` to refer to the widget's state::
@@ -250,10 +250,10 @@ Data widgets
 ~~~~~~~~~~~~
 
 Data widgets are widgets which fetch data from database. The examples of data
-widgets are ``!<Grid>`` and ``!<Table>`` provided by Rex Widget.
+widgets are ``<Grid>`` and ``<Table>`` provided by Rex Widget.
 
-We will define widget ``!<MyTable>`` which replicates the functionality of
-built-in ``!<Table>`` data widget::
+We will define widget ``<MyTable>`` which replicates the functionality of
+built-in ``<Table>`` data widget::
 
   from rex.core import StrVal
   from rex.widget import Widget, Field, CollectionField
@@ -268,7 +268,7 @@ built-in ``!<Table>`` data widget::
 
 Data widgets are required to have ``id`` field, similar to stateful widgets.
 
-The notable thing in the ``!<MyTable>`` declaration is the usage of
+The notable thing in the ``<MyTable>`` declaration is the usage of
 ``CollectionField`` to define ``data`` field.
 
 The presence of such fields instructs Rex Widget to fetch data from database and
@@ -308,7 +308,7 @@ component. It is an object with ``data`` and ``updating`` attributes. Attribute
 
     data = CollectionField(include_meta=True)
 
-Finally we can use our ``!<MyTable>`` widget in URL mapping::
+Finally we can use our ``<MyTable>`` widget in URL mapping::
 
   widget: !<Container>
     children:
@@ -320,3 +320,57 @@ Finally we can use our ``!<MyTable>`` widget in URL mapping::
         url: /data/users
         refs:
           username: username/value
+
+Linking between application pages
+---------------------------------
+
+Because Rex Widget stores application state in URL query string and manages
+browser history stack it is advised that applications use ``<Link>`` component
+to generate links between pages and states inside a page::
+
+  !<Link>
+  text: John Doe
+  href: /users
+  params:
+    username: johndoe
+
+Or from inside another custom widget definition::
+
+  <Link href="/users" params={{username: 'johndoe'}}>
+    John Doe
+  </Link>
+
+By default ``<Link>`` component validates ``href`` and ``params`` fields by only
+allowing linking to a page which is defined in URL mapping with a Rex Widget
+handler and parameters keys specified as aliases for state references.
+
+So for the ``<Link>`` usage above to be valid the following page should exists
+in URL mapping::
+
+  path:
+    /users:
+      widget: !<Container>
+        states:
+          username/value:
+            alias: username
+        children: ...
+
+Note that the top level widget ``<Container>`` has the ``states`` field which
+specify an alias ``username`` for state ``username/value``. Only aliases could
+be used in ``<Link>`` parameters.
+
+Alternatively if you want to generate link without any validations you can pass
+``unsafe`` prop to component::
+
+  !<Link>
+  text: Some page
+  href: /somepage
+  params:
+    someparam: somevalue
+  unsafe: true
+
+Or from inside another custom widget definition::
+
+  <Link unsafe href="/somepage" params={{someparam: somevalue}}>
+    Some page
+  </Link>

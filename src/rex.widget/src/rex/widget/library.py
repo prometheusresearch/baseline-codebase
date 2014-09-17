@@ -104,8 +104,10 @@ class LinkWidget(Widget):
     name    = 'Link'
     js_type = 'rex-widget/lib/Link'
 
-    href    = Field(StrVal)
-    text    = Field(UStrVal, default=None)
+    href    = Field(StrVal())
+    text    = Field(UStrVal(), default=None)
+    params  = Field(MapVal(StrVal(), StrVal()), default={})
+    unsafe  = Field(BoolVal(), default=False)
 
 
 class Panel(Widget):

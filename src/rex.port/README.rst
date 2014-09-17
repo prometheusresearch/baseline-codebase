@@ -29,13 +29,21 @@ R43MH099826.
 Database Schema Graph
 =====================
 
-For the purpose of describing how ``rex.port`` works, we will use a simple
-database schema that describes individuals participating in medical studies.
-Information about research subjects is stored in table ``individual``, with PHI
-data stored separately in table ``identity``.  Research studies are stored in
-table ``study``.  Each study has a number of protocols, which describe the
-roles of individuals participating in studies.  Finally, table
-``participation`` connect individuals to study protocols.
+In this introduction, we demonstrate the concepts of database ports on a simple
+database that describes individuals participating in medical studies.  The
+database contains the following tables:
+
+`individual`
+    This table stores information about research subjects.
+`identity`
+    PHI information related to each individual is stored in a separate table.
+`study`
+    Research studies are stored in this table.
+`protocol`
+    Each study has a number of protocols, which describe the roles of
+    individuals participating in the study.
+`participation`
+    This table connects individuals to study protocols.
 
 The following diagram describes the schema::
 
@@ -49,126 +57,186 @@ The following diagram describes the schema::
     |   protocol    |<----------o participation |
     +---------------+           +---------------+
 
-HTSQL represents a database schema as a directed graph, or a collection of nodes
-connected by arrows.  Each node represents a collection of homogeneous entities,
-or table records.  In addition, the graph contains one *unit* node, which serves
-as an origin node when we construct paths in the schema graph.
+HTSQL represents a database schema as a directed graph, or a collection of
+nodes connected by arrows.  Each node represents a set of homogeneous table
+records.  In addition, the graph contains one *unit* node, which serves as the
+origin node when we construct paths in the schema graph.
 
 Arrows in the schema graph are categorized by the types of nodes they connect.
-There is exactly one arrow connecting the unit node to each class node.  Arrows
+There is exactly one arrow connecting the unit node to each table node.  An arrow
 between two table nodes represents a relationship between records of the respective
 tables.
 
+In HTSQL, we assign names to arrows, not nodes.  We express a path in the
+database schema graph as a sequence of arrow names separated by ``.``.
+
 Here is our demo schema represented as a directed graph::
 
-                                            ****
-                       .................... **** ....................
-                   ....                .... **** ....                ....
-               ....                ....      .       ....                ....
-            ...                 ...          .           ...                 ...
-        study              protocol    participation    individual            identity
-        .                   .                .                 .                   .
-       .                   .                 .                  .                   .
-       v                   v                 v                  v                   v
-    xxxx   protocol     xxxx participation  xxxx  participation xxxx   identity     xxxx
-    xxxx -------------> xxxx -------------> xxxx <------------- xxxx -------------> xxxx
-    xxxx                xxxx                xxxx                xxxx                xxxx
+                                                  *****
+       ........................................  *******  ........................................
+      .                                          *******                                          .
+      .                       .................  *******  .................                       .
+      .                      .                    *****                    .                      .
+      .                      .                      .                      .                      .
+      .                      .                      .                      .                      .
+      .                      .                      .                      .                      .
+    study                 protocol            participation            individual              identity
+      .                      .                      .                      .                      .
+      .                      .                      .                      .                      .
+      .                      .                      .                      .                      .
+      v                      v                      v                      v                      v
 
+     ###     protocol       ###   participation    ###    participation   ###     identity       ###
+    #####  ------------->  #####  ------------->  #####  <-------------  #####  ------------->  #####
+     ###                    ###                    ###      .-.---------  ###  <--------.-.      ###
+                                                            . .                         . .
+                                                            . .  individual_via_mother  . .
+                                                            .  ------------>------------  .
+                                                            .                             .
+                                                            .    individual_via_father    .
+                                                             -------------->--------------
 
-    ****                xxxx
-    **** unit node      xxxx table node
-    ****                xxxx
+     *****
+    *******                 ###
+    ******* unit node      ##### table node
+    *******                 ###
+     *****
 
-When we query or update the database, we are usually interested only in a some subset
-or a *slice* of all the data.  For example, we might want to get all ``study`` records,
-or all ``individual`` records with associated ``identity`` and ``participation`` records,
-and so on.  A data slice can be represented on the database schema graph as a some subtree
-of the schema graph with the root at the unit node.
+When we query or modify the database content, usually we are only interested in
+a particular subset or a *slice* of the data.  For example, we may want to get
+all ``study`` records, or all ``individual`` records with associated
+``identity`` and ``participation``.   A database slice can be represented on
+the schema graph as a subtree with the root at the unit node.
 
-Here is a slice which contains only a ``study`` table::
+Here is a slice which contains only data from the ``study`` table::
 
-                                            ****
-                       .................... ****
-                   ....                     ****
-               ....
-            ...
-        study
-        .
-       .
-       v
-    xxxx
-    xxxx
-    xxxx
+                                                  *****
+       ........................................  *******
+      .                                          *******
+      .                                          *******
+      .                                           *****
+      .
+      .
+      .
+    study
+      .
+      .
+      .
+      v
 
-Each slice corresponds to a particular subset of data from the database.  For example,
-the ``study`` slice can be obtained with the following HTSQL query::
+     ###
+    #####
+     ###
 
-    >>> from htsql import HTSQL
-    >>> demo_db = HTSQL('pgsql:port_demo', {'rex_deploy': {}})
+Using raw HTSQL, you can get the data from this slice with the following
+query::
+
+    >>> from rex.core import Rex
+
+    >>> demo = Rex('rex.port_demo')
+    >>> demo.on()
+
+    >>> from rex.db import get_db
+    >>> demo_db = get_db()
 
     >>> print demo_db.produce('''
-    ...     /study{id(), code, title, closed}
+    ...     {
+    ...         /study{id(), code, title, closed}
+    ...     }
     ... ''')                        # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    ({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
-     {[fos], 'fos', 'Family Obesity Study', false},
-     ...)
+    {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
+      {[fos], 'fos', 'Family Obesity Study', false},
+      ...)}
 
-Yet another slice with ``individual`` and associated ``identity`` and
-``participation`` records::
+A more convenient way to get this data is through a port that describes the
+slice ``study``::
 
-    ****
-    ****
-    **** ....
-             ....
-                 ...
-                individual
-                       .
-                        .
-                        v
-    xxxx  participation xxxx   identity     xxxx
-    xxxx <------------- xxxx -------------> xxxx
-    xxxx                xxxx                xxxx
+    >>> from rex.port import Port
 
-The data from this slice could be obtained with the following query::
+    >>> study_port = Port("study")
+
+It is easy to get the data from the port::
+
+    >>> print study_port.produce()                  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[asdl], ...}, ...)}
+
+Here is another schema diagram.  It represents a slice that consists of
+``individual`` with associated ``identity`` and ``participation`` records::
+
+     *****
+    *******
+    *******
+    *******  .................
+     *****                    .
+                              .
+                              .
+                              .
+                          individual
+                              .
+                              .
+                              .
+                              v
+
+      ###    participation   ###     identity       ###
+     #####  <-------------  #####  ------------->  #####
+      ###                    ###                    ###
+
+The data from this slice could be obtained with the following HTSQL query::
 
     >>> print demo_db.produce('''
-    ...     /individual{
-    ...         id(), code, sex, mother.id(), father.id(),
-    ...         identity{id(), givenname, surname, birthdate},
-    ...         /participation{id(), protocol.id(), code}}
+    ...     {
+    ...         /individual{
+    ...             id(), code, sex, mother.id(), father.id(),
+    ...             identity{id(), givenname, surname, birthdate},
+    ...             /participation{id(), protocol.id(), code}
+    ...         }
+    ...     }
     ... ''')                        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
-    ({[1000], '1000', 'female', null, null,
-      {[1000], 'May', 'Kanaris', '1961-01-01'},
-      ({[1000.(fos.mother).1], [fos.mother], '1'},)},
-     {[1001], '1001', 'male', null, null,
-      {[1001], 'Joseph', 'Kanaris', '1959-02-02'},
-      ({[1001.(fos.father).1], [fos.father], '1'},)},
-     {[1002], '1002', 'female', [1000], [1001],
-      {[1002], 'Vanessa', 'Kanaris', '1991-01-02'},
-      ({[1002.(fos.proband).1], [fos.proband], '1'},)},
-     {[1003], '1003', 'male', [1000], [1001],
-      {[1003], 'James', 'Kanaris', '1996-03-31'},
-      ({[1003.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)},
-     {[1004], '1004', 'male', [1000], [1001],
-      {[1004], 'Emanuel', 'Kanaris', '2001-05-02'},
-      ({[1004.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)},
-     ...)
+    {({[1000], '1000', 'female', null, null,
+       {[1000], 'May', 'Kanaris', '1961-01-01'},
+       ({[1000.(fos.mother).1], [fos.mother], '1'},)},
+      {[1001], '1001', 'male', null, null,
+       {[1001], 'Joseph', 'Kanaris', '1959-02-02'},
+       ({[1001.(fos.father).1], [fos.father], '1'},)},
+      {[1002], '1002', 'female', [1000], [1001],
+       {[1002], 'Vanessa', 'Kanaris', '1991-01-02'},
+       ({[1002.(fos.proband).1], [fos.proband], '1'},)},
+      {[1003], '1003', 'male', [1000], [1001],
+       {[1003], 'James', 'Kanaris', '1996-03-31'},
+       ({[1003.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)},
+      {[1004], '1004', 'male', [1000], [1001],
+       {[1004], 'Emanuel', 'Kanaris', '2001-05-02'},
+       ({[1004.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)},
+      ...)}
 
+Again, it is more convenient to define a port over the slice and get the data
+through the port::
 
-A slice may contain the whole database, as in this example::
+    >>> individual_port = Port(
+    ...         ["individual", "individual.identity", "individual.participation"])
 
-                                            ****
-                       .................... **** ....................
-                   ....                .... **** ....                ....
-               ....                ....      .       ....                ....
-            ...                 ...          .           ...                 ...
-        study              protocol    participation    individual            identity
-        .                   .                .                 .                   .
-       .                   .                 .                  .                   .
-       v                   v                 v                  v                   v
-    xxxx                xxxx                xxxx                xxxx                xxxx
-    xxxx                xxxx                xxxx                xxxx                xxxx
-    xxxx                xxxx                xxxx                xxxx                xxxx
+    >>> print individual_port.produce()         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[1000], ...}, ...)}
+
+A slice may contain the whole database, as in this diagram::
+
+                                                  *****
+       ........................................  *******  ........................................
+      .                                          *******                                          .
+      .                       .................  *******  .................                       .
+      .                      .                    *****                    .                      .
+      .                      .                      .                      .                      .
+      .                      .                      .                      .                      .
+      .                      .                      .                      .                      .
+    study                 protocol            participation            individual              identity
+      .                      .                      .                      .                      .
+      .                      .                      .                      .                      .
+      .                      .                      .                      .                      .
+      v                      v                      v                      v                      v
+
+     ###                    ###                    ###                    ###                    ###
+    #####                  #####                  #####                  #####                  #####
+     ###                    ###                    ###                    ###                    ###
 
 The following query gets the data for this slice::
 
@@ -187,38 +255,44 @@ The following query gets the data for this slice::
      ({[1000], '1000', 'female', null, null}, ...),
      ({[1000], [1000], 'May', 'Kanaris', '1961-01-01'}, ...)}
 
+A corresponding port query is as follows::
+
+    >>> everything_port = Port(
+    ...         ["study", "protocol", "participation", "individual", "identity"])
+
+    >>> print everything_port.produce()     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[asdl], ...}, ...),
+     ({[asdl.aspergers-individual], ...}, ...),
+     ({[1000.(fos.mother).1], ...}, ...),
+     ({[1000], ...}, ...),
+     ({[1000], ...}, ...)}
+
 
 Port Definition
 ===============
 
-A port provides an interface for querying and updating data from a slice of
-the application database.  To be able to use ports, you need to add package
-:mod:`rex.port` to the list of application dependencies::
+A port provides an interface for querying and updating data from a slice of a
+database.  To use ports, you need to add package :mod:`rex.port` to the list of
+application dependencies.
 
-    >>> from rex.core import Rex
-
-    >>> demo = Rex('rex.port_demo')
-    >>> demo.on()
-
-It's very easy to create a port object::
-
-    >>> from rex.port import Port
+It's easy to create a port object for a single table::
 
     >>> study_port = Port("study")
+
     >>> print study_port
     entity: study
     select: [code, title, closed]
 
-Now you can use the port object to query data from the database.
-For example::
+You can use the port to query data from the database slice::
 
     >>> product = study_port.produce()
+
     >>> print product               # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
       {[fos], 'fos', 'Family Obesity Study', false},
       ...)}
 
-Port can also generate response to an HTTP request::
+Ports can also generate a response to an HTTP request::
 
     >>> from webob import Request
 
@@ -245,10 +319,9 @@ Port can also generate response to an HTTP request::
     }
     <BLANKLINE>
 
-
-To define a more complicated structure, one can use a YAML format.
-For example, to create a port from ``individual`` with associated
-``identity`` and ``participation``, write::
+You can describe more complicated port structures using YAML format.  For
+example, to create a port from ``individual`` table with associated
+``identity`` and ``participation`` tables, write::
 
     >>> individual_port = Port("""
     ... - entity: individual
@@ -256,6 +329,7 @@ For example, to create a port from ``individual`` with associated
     ...   - entity: identity
     ...   - entity: participation
     ... """)
+
     >>> print individual_port
     entity: individual
     select: [code, sex, mother, father]
@@ -271,8 +345,8 @@ For example, to create a port from ``individual`` with associated
        ({[1000.(fos.mother).1], '1', [fos.mother]},)},
     ...)}
 
-``rex.port`` allows you to define a port in multiple ways.  For example,
-all of the following expressions define the same port::
+``rex.port`` provides multiple ways to define ports.  For example, all of the
+following expressions define the same port structure::
 
     >>> print Port("""
     ... - individual
@@ -313,8 +387,9 @@ all of the following expressions define the same port::
     - entity: participation
       select: [code, protocol]
 
-Sometimes you may want to extract only a subset of all records in the table.
-For this purpose, use attribute ``mask`` when you define the entity.
+Sometimes you may want to limit access to a particular subset of all records in
+the table.  For this purpose, use attribute ``mask`` when you define the
+entity.
 
 For example, to limit the list of ``individual`` to ``proband`` from the
 ``fos`` study, you can define a port as follows::
@@ -323,10 +398,83 @@ For example, to limit the list of ``individual`` to ``proband`` from the
     ... - entity: individual
     ...   mask: exists(participation.protocol[fos.proband])
     ... """)
+
     >>> print proband_port
     entity: individual
     mask: exists(participation.protocol[fos.proband])
     select: [code, sex, mother, father]
+
+    >>> print proband_port.produce()            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[1002], '1002', 'female', [1000], [1001]},
+      {[1006], '1006', 'female', [1007], [1008]},
+      {[1011], '1011', 'male', [1009], [1010]},
+      ...)}
+
+
+The same port could be defined using shortcut notation::
+
+    >>> print Port("individual?exists(participation.protocol[fos.proband])")
+    entity: individual
+    mask: exists(participation.protocol[fos.proband])
+    select: [code, sex, mother, father]
+
+By default, a port contains all columns and links from a table.  If you want to
+select which columns to include, use ``select`` property.  Alternatively, you
+can use ``deselect`` property to exclude particular columns::
+
+    >>> study_title_port = Port("""
+    ... entity: study
+    ... select: [title]
+    ... """)
+
+    >>> print study_title_port
+    entity: study
+    select: [title]
+
+    >>> print study_title_port.produce()        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[asdl], 'Autism Spectrum Disorder Lab'},
+      {[fos], 'Family Obesity Study'},
+      ...)}
+
+    >>> print Port("""
+    ... entity: study
+    ... deselect: [code, closed]
+    ... """)
+    entity: study
+    select: [title]
+
+Aside from tables, columns and links, a port may include calculated fields.  A
+calculated field could be a single scalar value attached to the root node::
+
+    >>> num_study_port = Port("num_study := count(study)")
+
+    >>> print num_study_port
+    calculation: num_study
+    expression: count(study)
+
+    >>> print num_study_port.produce()
+    {3}
+
+You can also define a calculated field for an entity::
+
+    >>> study_stats_port = Port("""
+    ... entity: study
+    ... select: [title]
+    ... with:
+    ... - num_individual := count(protocol.participation)
+    ... """)
+
+    >>> print study_stats_port
+    entity: study
+    select: [title]
+    with:
+    - calculation: num_individual
+      expression: count(protocol.participation)
+
+    >>> print study_stats_port.produce()            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[asdl], 'Autism Spectrum Disorder Lab', 0},
+      {[fos], 'Family Obesity Study', 97},
+      ...)}
 
 
 Query Interface
@@ -342,7 +490,7 @@ You can query a port and produce an HTSQL ``Product`` object::
     >>> product.data        # doctest: +ELLIPSIS
     Record(study=[study(id=ID(u'asdl'), code=u'asdl', title=u'Autism Spectrum Disorder Lab', closed=True), ...])
 
-A port object can also respond to HTTP queries::
+A port object can also respond to HTTP requests::
 
     >>> req = Request.blank('/', accept='application/json')
     >>> print study_port(req)       # doctest: +ELLIPSIS
@@ -367,9 +515,9 @@ A port object can also respond to HTTP queries::
     }
     <BLANKLINE>
 
-Sometimes you may wish to get a subset of all the records.  You can do it by
-adding a filter to the query.  For example, to get the first 5 ``individual``
-records from ``individual_port``, write::
+Sometimes you may wish to get a particular subset of all the records available
+through the port.  You can do it by using a query *constraint*.  For example,
+to get the first 5 ``individual`` records from ``individual_port``, write::
 
     >>> print individual_port.produce("individual:top=5")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], '1000', 'female', null, null,
@@ -380,8 +528,17 @@ records from ``individual_port``, write::
        {[1004], 'Emanuel', 'Kanaris', '2001-05-02'},
        ({[1004.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
 
-To skip the first 10 records and then get the next 5, you need
-to add a filter ``skip``::
+Here, ``individual:top=5`` is a constraint expression, where ``individual`` is
+a path in the schema slice, ``top`` is a constraint operator and ``5`` is an
+argument.  You can also represent a constraint expression as a tuple::
+
+    >>> print individual_port.produce(("individual", "top", [5]))       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    {({[1000], ...},
+      ...
+      {[1004], ...})}
+
+To skip the first 10 records and then get the next 5, you need to add a
+constraint ``skip``::
 
     >>> print individual_port.produce("individual:top=5&individual:skip=10")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1010], '1010', 'male', null, null,
@@ -392,10 +549,119 @@ to add a filter ``skip``::
        {[1014], 'Michael', 'Secundo', '1991-01-02'},
        ({[1014.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
 
-To select a specific individual, use the following filter::
+To select a specific individual, use the equality constraint::
 
     >>> print individual_port.produce("individual=1050")    # doctest: +ELLIPSIS
     {({[1050], '1050', 'male', null, null, ...},)}
+
+You can also apply a constraint on an entity field::
+
+    >>> print individual_port.produce("individual.sex=male")        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[1001], '1001', 'male', null, null, ...},
+      {[1003], '1003', 'male', [1000], [1001], ...},
+      ...)}
+
+Note that when we use the equality constraint, we can omit the constraint operator.
+
+The following constraint operators are supported:
+
+`:eq`
+    This is the default operator.  It allows you to select a record by its
+    ``id`` value, or filter records by a field or a link value.
+
+`:top`, `:skip`
+    These operators allow you to select a range of records from ``skip+1`` to
+    ``skip+top``.
+
+`:sort`
+    The ``:sort`` operator allows you to change the order in which the records
+    are produced.  Apply the ``:sort`` constraint to the field by which the
+    records should be ordered.  The constraint argument must be ``asc`` (for
+    ascending order) or ``desc`` (for descending order).
+
+    For example, to sort studies by title, you can run the query::
+
+        >>> print study_port.produce("study.title:sort=asc")        # doctest: +NORMALIZE_WHITESPACE
+        {({[lol], 'lol', null, true},
+          {[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
+          {[fos], 'fos', 'Family Obesity Study', false})}
+
+`:lt`, `:le`, `:gt`, `:ge`
+    Comparison operators ``<``, ``<=``, ``>``, ``>=``.  You can use comparison
+    operators with numeric, date and text values.  For example, the following
+    query selects all individuals who were born in ``1975``::
+
+        >>> print individual_port.produce("individual.identity.birthdate:ge=1975-01-01"
+        ...                               "&individual.identity.birthdate:lt=1976-01-01")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+        {({[1007], '1007', 'female', null, null,
+           {[1007], 'Niesha', 'Kirschke', '1975-01-01'},
+           ({[1007.(fos.mother).1], '1', [fos.mother]},)},
+          ...
+          {[1063], '1063', 'male', [1061], [1062],
+           {[1063], 'Kenneth', 'Rednour', '1975-01-02'},
+           ({[1063.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+
+`:contains`
+    To search for a given substring in a text field, use operator
+    ``:contains``.  For example::
+
+        >>> print individual_port.produce("individual.identity.surname:contains=ar")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+        {({[1000], '1000', 'female', null, null,
+           {[1000], 'May', 'Kanaris', '1961-01-01'},
+           ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+          ...
+          {[1090], '1090', 'male', [1088], [1089],
+           {[1090], 'Fletcher', 'Archibold', '2007-03-03'},
+           ({[1090.(fos.proband).1], '1', [fos.proband]},)})}
+
+`:null`
+    Use ``:null`` operator to filter out ``null`` values.
+
+    For example, to list studies that have ``title`` field unset, run::
+
+        >>> print study_port.produce("study.title:null=true")
+        {({[lol], 'lol', null, true},)}
+
+Finally, one could also define custom filter from an arbitrary HTSQL predicate.
+For example, we may create a port on ``individual`` table with two filters::
+
+    >>> filtered_port = Port("""
+    ... - entity: individual
+    ...   filters:
+    ...   - search($text) := identity.givenname~$text|identity.surname~$text
+    ...   - birthrange($l,$h) := identity.birthdate>=$l&identity.birthdate<$h
+    ...   with: [identity, participation]
+    ... """)
+
+Filter ``:search`` lets you search individuals by their first or last name.
+Filter ``birthrange`` allows you to select individual within a specified age
+range.  Now we could use these filters in constraint expressions::
+
+    >>> print filtered_port.produce("individual:search=ch")     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    {({[1006], '1006', 'female', [1007], [1008],
+       {[1006], 'Josefine', 'Kirschke', '2000-01-02'},
+       ({[1006.(fos.proband).1], '1', [fos.proband]},)},
+      ...
+      {[1090], '1090', 'male', [1088], [1089],
+       {[1090], 'Fletcher', 'Archibold', '2007-03-03'},
+       ({[1090.(fos.proband).1], '1', [fos.proband]},)})}
+
+To use a constraint with more than one argument, you need to write a constraint
+expression with each argument::
+
+    >>> print filtered_port.produce("individual:birthrange=1979-01-01&individual:birthrange=1980-01-01")    # doctest: +NORMALIZE_WHITESPACE
+    {({[1020], '1020', 'male', null, null,
+       {[1020], 'David', 'Bedwell', '1979-05-06'},
+       ({[1020.(fos.father).1], '1', [fos.father]},)},
+      {[1086], '1086', 'male', [1084], [1085],
+       {[1086], 'Matthew', 'Burrough', '1979-01-02'},
+       ({[1086.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+
+Alternatively, you can submit a constraint expression in a tuple form::
+
+    >>> print filtered_port.produce(("individual", "birthrange", ["1979-01-01", "1980-01-01"]))     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    {({[1020], ...},
+      {[1086], ...})}
 
 
 CRUD Interface

@@ -18,6 +18,14 @@ import yaml
 
 
 class Port(object):
+    """
+    Represents a slice of the database content.
+
+    `tree`
+        The schema slice represented in YAML format.
+    `db`
+        HTSQL instance; if not provided, obtained from :func:`rex.db.get_db()`.
+    """
 
     def __init__(self, tree=None, db=None):
         if db is None:
@@ -32,6 +40,7 @@ class Port(object):
         self.db = db
 
     def __str__(self):
+        # Renders YAML representation of the schema tree.
         return yaml.dump(self.tree.to_yaml(), Dumper=ArmDumper).rstrip()
 
     def __repr__(self):
@@ -43,37 +52,94 @@ class Port(object):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
     def grow(self, stream):
+        """
+        Updates the structure of the port.
+
+        `stream`
+            Contains updated port definitions in YAML format.
+
+        Returns the updated port.
+        """
         with self.db:
             grow = Grow.parse(stream)
             tree = grow(self.tree)
-        return self.__class__(tree)
+        return self.__class__(tree, self.db)
 
     def produce(self, *args, **kwds):
+        """
+        Returns data from the port.
+
+        `*args`, `**kwds`
+            Query constraints.
+        """
         with self.db:
             constraints = ConstraintSet.parse(*args, **kwds)
             return produce(self.tree, constraints)
 
     def describe(self, *args, **kwds):
+        """
+        Returns HTSQL metadata for the port output.
+        """
         with self.db:
             constraints = ConstraintSet.parse(*args, **kwds)
             return describe(self.tree, constraints)
 
     def replace(self, old, new, *args, **kwds):
+        """
+        Replaces ``old`` port data with ``new`` data.
+
+        `old`, `new`
+            Data in format compatible with port structure.  Could be
+            represented in JSON format or as a collection of Python
+            dictionaries and lists.  HTSQL ``Product`` values are also
+            accepted.
+
+        `*args`, `**kwds`
+            Query constraints.
+        """
         with self.db:
             constraints = ConstraintSet.parse(*args, **kwds)
             with transaction():
                 return replace(self.tree, old, new, constraints)
 
     def insert(self, new):
+        """
+        Adds new records to the database.
+
+        `new`
+            Data in format compatible with port structure.
+        """
         return self.replace(None, new)
 
     def update(self, new):
+        """
+        Updates records in the database.
+
+        `new`
+            Data in format compatible with port structure.
+        """
         return self.replace(None, new)
 
     def delete(self, old):
+        """
+        Deletes records from the database.
+
+        `old`
+            Data in format compatible with port structure.
+        """
         return self.replace(old, None)
 
     def __call__(self, req):
+        """
+        Handles an HTTP request.
+
+        ``GET`` HTTP requests are interpreted as :meth:`.produce()` calls.
+        Query constraints are parsed from the request ``QUERY_STRING``.
+
+        ``POST`` HTTP requests are interpreted as :meth:`.replace()` calls.
+        The ``old`` and ``new`` parameters are taken from the respective POST
+        parameters.  Query constraints are parsed from ``QUERY_STRING``.
+        """
         if req.method == 'GET':
             product = self.produce(req.query_string, USER=authenticate(req))
         elif req.method == 'POST':

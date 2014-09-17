@@ -137,9 +137,7 @@ class Constraint(object):
 
 
 class ConstraintSet(object):
-    """
-    Represents a set of constraints at some port arm.
-    """
+    # Represents a set of constraint at some arm.
 
     @classmethod
     def parse(cls, *args, **kwds):

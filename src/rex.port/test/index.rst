@@ -5,7 +5,7 @@
 .. toctree::
 
    test_grow
-   test_query
-   test_crud
+   test_produce
+   test_replace
 
 

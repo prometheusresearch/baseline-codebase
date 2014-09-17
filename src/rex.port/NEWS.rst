@@ -5,10 +5,10 @@
 .. contents:: Table of Contents
 
 
-1.0.0 (2014-XX-XX)
+1.0.0 (2014-09-16)
 ==================
 
-* Improving CRUD support.
+* Improving CRUD support, documentation.
 
 
 0.2.0 (2014-08-27)

@@ -17,6 +17,8 @@ from .parse import WidgetVal
 from .jsval import JSVal
 
 class Container(Widget):
+    """ Layout container."""
+
     name = 'Container'
     js_type = 'rex-widget/lib/layout/Container'
 
@@ -36,6 +38,7 @@ class Container(Widget):
         doc='CSS class name')
 
 class Block(Widget):
+    """ Layout block."""
 
     name = 'Block'
     js_type = 'rex-widget/lib/layout/Block'
@@ -48,6 +51,8 @@ class Block(Widget):
 
 
 class ResizeableBlock(Widget):
+    """ Layout block with resize handles."""
+
     name = 'ResizeableBlock'
     js_type = 'rex-widget/lib/layout/ResizeableBlock'
 
@@ -60,6 +65,8 @@ class ResizeableBlock(Widget):
 
 
 class CollapsibleBlock(Widget):
+    """ Collapsible layout block."""
+
     name = 'CollapsibleBlock'
     js_type = 'rex-widget/lib/layout/CollapsibleBlock'
 
@@ -71,6 +78,7 @@ class CollapsibleBlock(Widget):
     children    = Field(WidgetVal(), default=NullWidget())
 
 class LabelWidget(Widget):
+    """ Label."""
 
     name    = 'Label'
     js_type = 'rex-widget/lib/Label'
@@ -79,21 +87,40 @@ class LabelWidget(Widget):
 
 
 class HeaderWidget(Widget):
+    """ Header."""
 
-    name    = 'Header'
+    name = 'Header'
     js_type = 'rex-widget/lib/Header'
 
-    text = Field(UStrVal)
-    level = Field(IntVal(), default=1)
+    text = Field(
+        UStrVal(),
+        doc="Content")
+    level = Field(
+        IntVal(), default=1,
+        doc="Level")
 
 class TextWidget(Widget):
+    """ Text."""
 
-    name    = 'Text'
+    name = 'Text'
     js_type = 'rex-widget/lib/Text'
 
-    text = Field(UStrVal)
+    text = Field(
+        UStrVal,
+        doc="Content")
 
 class UnsafeHTML(Widget):
+    """ Widget which allows injecting raw HTML content into page.
+
+    This can be used to embed YouTube/Vimeo videos for example::
+
+        !<UnsafeHTML>
+        html: |
+            <iframe ...></iframe>
+
+    .. danger::
+        This can result in XSS injection.
+    """
 
     name    = 'UnsafeHTML'
     js_type = 'rex-widget/lib/UnsafeHTML'
@@ -110,14 +137,23 @@ class SectionWidget(Widget):
 
 
 class LinkWidget(Widget):
+    """ Navigation link"""
 
     name    = 'Link'
     js_type = 'rex-widget/lib/Link'
 
-    href    = Field(StrVal())
-    text    = Field(UStrVal(), default=None)
-    params  = Field(MapVal(StrVal(), StrVal()), default={})
-    unsafe  = Field(BoolVal(), default=False)
+    href = Field(
+        StrVal(),
+        doc="Link URL")
+    text = Field(
+        UStrVal(), default=None,
+        doc="Link text")
+    params = Field(
+        MapVal(StrVal(), StrVal()), default={},
+        doc="Link parameters")
+    unsafe = Field(
+        BoolVal(), default=False,
+        doc="Do not validate ``href`` and ``params`` fields")
 
 
 class Panel(Widget):

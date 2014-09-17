@@ -11,6 +11,13 @@ Programming guide
    guide
 
 
+Widget library
+==============
+
+.. toctree::
+
+   library
+
 API reference
 =============
 

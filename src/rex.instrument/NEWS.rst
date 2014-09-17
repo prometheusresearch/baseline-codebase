@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-0.11.2 (9/xx/2014)
+0.11.2 (9/17/2014)
 ==================
 
 - Fixed an issue that caused required boolean fields to not allow False values

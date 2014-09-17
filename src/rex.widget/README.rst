@@ -119,7 +119,7 @@ implementation for the widget.
 
 The ``text`` and ``level`` attributes are widget's fields, defined as instances
 of ``Field`` class. The only required argument of ``Field`` is a validator (a
-:module:`rex.core` validator) which is used to validate field value.
+:mod:`rex.core` validator) which is used to validate field value.
 
 The ``text`` field is required because it doesn't have ``default`` value
 specified while ``level`` is optional, it has ``1`` as its default value.

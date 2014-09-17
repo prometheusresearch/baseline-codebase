@@ -17,13 +17,23 @@ from .parse import WidgetVal
 from .jsval import JSVal
 
 class Container(Widget):
-
     name = 'Container'
     js_type = 'rex-widget/lib/layout/Container'
 
-    vertical    = Field(BoolVal(), default=False)
-    children    = Field(WidgetVal(), default=NullWidget())
-    class_name  = Field(StrVal(), default=None)
+    vertical = Field(
+        BoolVal(),
+        default=False,
+        doc='If children orientation should be vertical')
+
+    children = Field(
+        WidgetVal(),
+        default=NullWidget(),
+        doc='Children')
+
+    class_name = Field(
+        StrVal(),
+        default=None,
+        doc='CSS class name')
 
 class Block(Widget):
 

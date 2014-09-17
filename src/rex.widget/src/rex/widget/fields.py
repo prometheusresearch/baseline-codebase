@@ -43,11 +43,12 @@ class Field(object):
         self.order = cls.order
         return self
 
-    def __init__(self, validator, default=NotImplemented, name=None):
+    def __init__(self, validator, default=NotImplemented, doc=None, name=None):
         if isinstance(validator, type):
             validator = validator()
         self.validator = validator
         self.default = default
+        self.__doc__ = doc
         # name will be defined by Widget metaclass
         self.name = name
 

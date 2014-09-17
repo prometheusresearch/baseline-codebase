@@ -33,8 +33,15 @@ def state(validator, dependencies=None, default=NotImplemented):
     return register_computator
 
 
-state_configuration = RecordVal(RecordField('alias', StrVal()))
-state_configuration_mapping = MapVal(StrVal(), state_configuration)
+class StatesConfigurationField(Field):
+
+    state_configuration = RecordVal(RecordField('alias', StrVal()))
+    state_configuration_mapping = MapVal(StrVal(), state_configuration)
+
+    def __init__(self):
+        super(StatesConfigurationField, self).__init__(
+            self.state_configuration_mapping,
+            default={}, name='states')
 
 
 class WidgetBase(Extension):
@@ -110,9 +117,7 @@ class Widget(WidgetBase):
                     name='id')
 
             # inject state configuration field
-            cls.states = cls.fields['states'] = Field(
-                    state_configuration_mapping,
-                    default={}, name='states')
+            cls.states = cls.fields['states'] = StatesConfigurationField()
 
             cls.record_fields = [f.record_field for f in cls.fields.values()]
             return cls

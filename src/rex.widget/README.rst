@@ -321,6 +321,19 @@ Finally we can use our ``<MyTable>`` widget in URL mapping::
         refs:
           username: username/value
 
+Besides ``CollectionField`` there are ``PaginatedCollectionField`` and
+``EntityField`` field types.
+
+``PaginatedCollectionField`` works the same as ``CollectionField`` but paginates
+its result. Refer to ``<Grid>`` widget implementation on how to use
+``PaginatedCollectionField``.
+
+``EntityField`` differs in how it applies parameters from ``refs``. While
+``CollectionField`` instructs Rex Widget to fetch data any time a parameter
+changes, ``EntityField`` field only fetches data when all parameters are present
+(not empty strings and not ``None``). Thus this type of field is useful when you
+want only to fetch data when some item in selected in list, for example.
+
 Linking between application pages
 ---------------------------------
 

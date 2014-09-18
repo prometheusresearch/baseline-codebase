@@ -7,8 +7,8 @@ __webpack_require__.p = __MOUNT_PREFIX__ + __BUNDLE_PREFIX__;
 
 var React            = require('react');
 var ApplicationState = require('./ApplicationState');
-var ApplicationMap   = require('./ApplicationMap');
 var Application      = require('./Application');
+var Sitemap          = require('./Sitemap');
 var invariant        = require('./invariant');
 
 if (__DEV__) {
@@ -27,7 +27,6 @@ invariant(
  */
 function render({descriptor: {state, ui}, map, values, versions}, element) {
   ApplicationState.start(state, values, versions);
-  ApplicationMap.configure(map);
   return React.renderComponent(
     <Application listenTo={Object.keys(state)} ui={ui} />,
     element);
@@ -37,8 +36,7 @@ module.exports = {
   render,
   ApplicationState,
   Application,
-  link:             ApplicationMap.link,
-  linkUnsafe:       ApplicationMap.linkUnsafe,
+  Sitemap:          Sitemap,
   request:          require('./request'),
   Reference:        require('./Reference'),
   Link:             require('./Link'),

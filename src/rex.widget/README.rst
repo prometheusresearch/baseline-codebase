@@ -343,17 +343,17 @@ to generate links between pages and states inside a page::
 
   !<Link>
   text: John Doe
-  href: /users
+  to: users
   params:
     username: johndoe
 
 Or from inside another custom widget definition::
 
-  <Link href="/users" params={{username: 'johndoe'}}>
+  <Link to="users" params={{username: 'johndoe'}}>
     John Doe
   </Link>
 
-By default ``<Link>`` component validates ``href`` and ``params`` fields by only
+By default ``<Link>`` component validates ``to`` and ``params`` fields by only
 allowing linking to a page which is defined in URL mapping with a Rex Widget
 handler and parameters keys specified as aliases for state references.
 
@@ -362,15 +362,15 @@ in URL mapping::
 
   path:
     /users:
-      widget: !<Container>
-        states:
-          username/value:
-            alias: username
+      widget: !<Page>
+        id: users
+        params 
+          username: username/value
         children: ...
 
-Note that the top level widget ``<Container>`` has the ``states`` field which
-specify an alias ``username`` for state ``username/value``. Only aliases could
-be used in ``<Link>`` parameters.
+Note that the top level widget ``<Page>`` has the ``params`` field which specify
+an allowed parameter ``username`` which is mapped onto ``username/value`` state
+id.
 
 Alternatively if you want to generate link without any validations you can pass
 ``unsafe`` prop to component::

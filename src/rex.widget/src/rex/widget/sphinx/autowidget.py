@@ -31,11 +31,7 @@ class WidgetDocumenter(sphinx.ext.autodoc.ClassDocumenter):
         return ""
 
     def filter_members(self, members, want_all):
-        return [
-            (membername, member, False)       
-            for (membername, member) in members
-            if membername != 'states'
-        ]
+        return [(membername, member, False) for (membername, member) in members]
 
     def get_object_members(self, want_all):
         # TODO: check self.options.members and fitler requires fields

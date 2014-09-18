@@ -39,8 +39,9 @@ class MapWidget(Map):
 
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
+        widget = spec.widget(context)
         return WidgetRenderer(
-                widget=spec.widget,
+                widget=widget,
                 access=access)
 
     def override(self, spec, override_spec):

@@ -94,15 +94,19 @@ function constructComponent(ui, key) {
     // js value reference
     } else if (prop !== null && prop.__reference__) {
       props[name] = __require__(prop.__reference__);
-    // Read from state
+    // Write to state
     } else if (prop !== null && prop.__state_read__) {
-      props[name] = readState(prop.__state_read__);
+      var stateID = prop.__state_read__;
+      props[name] = ApplicationState.get(stateID);
     // Write to state
     } else if (prop !== null && prop.__state_read_write__) {
       var stateID = prop.__state_read_write__;
       var state = ApplicationState.getState(stateID);
       props[name] = ApplicationState.get(stateID);
       props[stateWriterName(name)] = makeAction(stateID, state.persistence);
+    // Read from data
+    } else if (prop !== null && prop.__data_read__) {
+      props[name] = dataRead(prop.__data_read__);
     } else {
       props[name] = prop;
     }
@@ -112,7 +116,7 @@ function constructComponent(ui, key) {
   return Component(props);
 }
 
-function readState(ref) {
+function dataRead(ref) {
   // XXX: think of a better to pass updating flag to widget
   var state = ApplicationState.getState(ref);
   ref = Reference.as(ref);

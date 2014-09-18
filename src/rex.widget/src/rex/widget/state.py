@@ -85,6 +85,9 @@ class StateGraph(Mapping):
     def get_values(self):
         return {state_id: state.value for state_id, state in self.items()}
 
+    def add(self, state):
+        return self.merge({state.id: state})
+
     def merge(self, state):
         result = self.__class__(self)
         _merge_state_into(result, state)

@@ -44,8 +44,7 @@ def compute_descriptor(widget, req):
         return {
             'descriptor': descriptor._replace(state=state),
             'values': values,
-            'versions': versions,
-            'map': get_widget_map(),
+            'versions': versions
         }
     elif req.method == 'POST':
         state, origins = merge_state_update(state, req.json['values'])
@@ -98,37 +97,3 @@ def merge_state_update(state, params):
 
 def get_alias_mapping(state):
     return {s.alias: s.id for s in state.values() if s.alias}
-
-@cached
-def get_widget_map():
-    from .urlmap import WidgetRenderer
-    widget_map = {}
-    packages = get_packages()
-    for package in packages:
-        routes = get_routes(package)
-        for path, handler in iter_pathmap_tree(routes.tree):
-            if not isinstance(handler, WidgetRenderer):
-                continue
-            widget_map[path] = {
-                k.alias: True
-                for k in handler.widget.states.values()}
-    return widget_map
-
-
-def iter_pathmap_tree(tree, _prefix=''):
-    if not _prefix or _prefix[-1] != '/':
-        _prefix += '/'
-    for k, v in tree.items():
-        if k is None:
-            k = ''
-        prefix = '%s%s' % (_prefix, k)
-        if not isinstance(k, basestring):
-            continue
-        if isinstance(v, dict):
-            for s in iter_pathmap_tree(v, _prefix=prefix):
-                yield s
-        else:
-            for _guard, handler in v:
-                if len(prefix) > 1 and prefix[-1] == '/':
-                    prefix = prefix[:-1]
-                yield prefix, handler

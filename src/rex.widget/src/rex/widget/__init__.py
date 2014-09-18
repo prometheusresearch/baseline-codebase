@@ -13,7 +13,7 @@ from __future__ import absolute_import
 
 from rex.core import Validate, Setting
 from .parse import WidgetVal
-from .library import LabelWidget, HeaderWidget, SectionWidget
+from .library import Page
 from .widget import Widget, NullWidget, GroupWidget, Field, StateField
 from .fields import (
     Field, StateField, CollectionField,

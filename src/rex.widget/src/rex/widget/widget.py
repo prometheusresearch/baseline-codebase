@@ -11,12 +11,12 @@ import re
 import yaml
 from collections import OrderedDict
 from rex.core import (
-    Extension, cached,
+    Validate, Extension, cached, set_location,
     RecordField, OneOfVal, ProxyVal, MapVal, StrVal, IntVal, RecordVal)
 from .state import StateGraph, MutableStateGraph
 from .descriptor import (
     UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
-    StateReadWrite, StateRead)
+    StateReadWrite, StateRead, DataRead)
 from .fields import Field, StateField, StateFieldBase
 from .handle import handle
 
@@ -33,15 +33,19 @@ def state(validator, dependencies=None, default=NotImplemented):
     return register_computator
 
 
-class StatesConfigurationField(Field):
+class WidgetFactory(object):
 
-    state_configuration = RecordVal(RecordField('alias', StrVal()))
-    state_configuration_mapping = MapVal(StrVal(), state_configuration)
+    def __init__(self, widget_class, *args, **kwargs):
+        self.widget_class = widget_class
+        self.args = args
+        self.kwargs = kwargs
+        self.location = None
 
-    def __init__(self):
-        super(StatesConfigurationField, self).__init__(
-            self.state_configuration_mapping,
-            default={}, name='states')
+    def __call__(self, context):
+        widget = self.widget_class(context, *self.args, **self.kwargs)
+        if self.location is not None:
+            set_location(widget, self.location)
+        return widget
 
 
 class WidgetBase(Extension):
@@ -83,8 +87,6 @@ class Widget(WidgetBase):
 
     validate = ProxyVal()
 
-    NON_PROP_FIELDS = set(['states'])
-
     class __metaclass__(Extension.__metaclass__):
 
         def __new__(mcs, name, bases, members):
@@ -116,9 +118,6 @@ class Widget(WidgetBase):
                     OneOfVal(IntVal, StrVal),
                     name='id')
 
-            # inject state configuration field
-            cls.states = cls.fields['states'] = StatesConfigurationField()
-
             cls.record_fields = [f.record_field for f in cls.fields.values()]
             return cls
 
@@ -146,7 +145,8 @@ class Widget(WidgetBase):
         else:
             return cls.validate(stream)
 
-    def __init__(self, *args, **kwds):
+    def __init__(self, context, *args, **kwds):
+        self.context = context
         # Convert any keywords to positional arguments.
         args_tail = []
         for field in self.record_fields[len(args):]:
@@ -170,7 +170,7 @@ class Widget(WidgetBase):
             raise TypeError("expected %d arguments, got %d"
                             % (len(self.record_fields), len(args)))
         self.values = {
-            field.attribute: arg
+            field.attribute: arg(context) if isinstance(arg, WidgetFactory) else arg
             for arg, field in zip(args, self.record_fields)}
 
     @cached
@@ -180,8 +180,6 @@ class Widget(WidgetBase):
         own_graph = MutableStateGraph()
 
         for name, value in self.values.items():
-            if name in self.NON_PROP_FIELDS:
-                continue
             field = self.fields[name]
             name = to_camelcase(name)
 
@@ -197,11 +195,6 @@ class Widget(WidgetBase):
         if own_graph:
             own_graph = assign_aliases(own_graph, self.id) # pylint: disable=no-member
             graph.update(own_graph)
-
-        # override states from state configuration
-        for state_id, conf in self.states.items(): # pylint: disable=no-member
-            if state_id in graph:
-                graph[state_id] = graph[state_id]._replace(alias=conf.alias) # pylint: disable=protected-access
 
         return WidgetDescriptor(
             ui=UIDescriptor(self.js_type, props),
@@ -222,7 +215,7 @@ class Widget(WidgetBase):
             if descriptor.is_writable:
                 props[prop_name] = StateReadWrite(descriptor.id)
             else:
-                props[prop_name] = StateRead(descriptor.id)
+                props[prop_name] = DataRead(descriptor.id)
 
     __call__ = handle
 
@@ -252,6 +245,10 @@ class GroupWidget(Widget):
 
     children = Field(Widget.validate)
 
+    def __init__(self, context, children):
+        children = [child(context) for child in children]
+        super(GroupWidget, self).__init__(context, children)
+
     @cached
     def descriptor(self):
         graph = MutableStateGraph()
@@ -275,6 +272,9 @@ class NullWidget(Widget):
         if cls.singleton is None:
             cls.singleton = Widget.__new__(cls)
         return cls.singleton
+
+    def __init__(self, context=None):
+        super(NullWidget, self).__init__(context)
 
     @cached
     def descriptor(self):

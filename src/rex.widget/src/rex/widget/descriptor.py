@@ -53,3 +53,4 @@ class UIDescriptorChildren(_UIDescriptorChildren):
 
 StateRead = namedtuple('StateRead', ['id'])
 StateReadWrite = namedtuple('StateReadWrite', ['id'])
+DataRead = namedtuple('DataRead', ['id'])

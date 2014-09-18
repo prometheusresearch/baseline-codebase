@@ -9,8 +9,8 @@
 
 import json
 import yaml
-from rex.core import Validate, StrVal, Location, Error, guard, set_location
-from .widget import Widget, GroupWidget, NullWidget
+from rex.core import Validate, StrVal, Location, Error, guard
+from .widget import Widget, WidgetFactory, GroupWidget, NullWidget
 
 
 class WidgetVal(Validate):
@@ -19,7 +19,7 @@ class WidgetVal(Validate):
         widget_classes = Widget.map_all()
         with guard("Got:", repr(data)):
             if data is None:
-                return NullWidget()
+                return WidgetFactory(NullWidget)
             if isinstance(data, (str, unicode)) and data in widget_classes:
                 widget_class = widget_classes[data]
                 data = {}
@@ -30,7 +30,7 @@ class WidgetVal(Validate):
                     except ValueError:
                         raise Error("Expected a JSON object")
                 if isinstance(data, list):
-                    return GroupWidget([self(item) for item in data])
+                    return WidgetFactory(GroupWidget, [self(item) for item in data])
                 if not (isinstance(data, dict) and len(data) == 1 and
                         next(data.keys()) in widget_classes):
                     raise Error("Expected a widget mapping")
@@ -63,7 +63,7 @@ class WidgetVal(Validate):
                     values[attribute] = field.default
                 else:
                     raise Error("Missing mandatory field:", field.name)
-        return widget_class(**values)
+        return WidgetFactory(widget_class, **values)
 
     def construct(self, loader, node):
         widget_classes = Widget.map_all()
@@ -72,7 +72,7 @@ class WidgetVal(Validate):
         pairs = []
         if isinstance(node, yaml.ScalarNode):
             if node.tag == u'tag:yaml.org,2002:null':
-                return NullWidget()
+                return WidgetFactory(NullWidget)
             if node.tag.isalnum():
                 name = node.tag
                 if node.value:
@@ -83,8 +83,9 @@ class WidgetVal(Validate):
                     pairs = [(None, value)]
         elif isinstance(node, yaml.SequenceNode):
             if node.tag == u'tag:yaml.org,2002:seq':
-                return GroupWidget([loader.construct_object(item, deep=True)
-                                    for item in node.value])
+                return WidgetFactory(GroupWidget, [
+                    loader.construct_object(item, deep=True)
+                    for item in node.value])
             if node.tag.isalnum():
                 name = node.tag
                 value = yaml.SequenceNode(
@@ -148,9 +149,9 @@ class WidgetVal(Validate):
                 else:
                     raise Error("Missing mandatory field:", field.name) \
                             .wrap("Of widget:", widget_class.name)
-        widget = widget_class(**values)
-        set_location(widget, location)
-        return widget
+        factory = WidgetFactory(widget_class, **values)
+        factory.location = location
+        return factory
 
 
 Widget.validate.set(WidgetVal())

@@ -14,7 +14,7 @@ from .state import State, StateGraph, unknown
 from .computator import Data, Append
 from .descriptor import (
     UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
-    StateRead, StateReadWrite)
+    DataRead, StateRead, StateReadWrite)
 from .jsval import JSValue
 
 
@@ -36,6 +36,8 @@ class WidgetJSONEncoder(json.JSONEncoder):
             return {"__state_read_write__": obj.id}
         if isinstance(obj, StateRead):
             return {"__state_read__": obj.id}
+        if isinstance(obj, DataRead):
+            return {"__data_read__": obj.id}
         if isinstance(obj, UIDescriptor):
             return {"__type__": obj.type, "props": obj.props}
         if isinstance(obj, UIDescriptorChildren):

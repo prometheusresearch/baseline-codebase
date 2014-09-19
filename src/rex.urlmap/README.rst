@@ -219,6 +219,7 @@ To do this, we add the following lines to the ``paths`` section of
         - total_study := count(study?!closed)
         - total_individual := count(individual)
         access: anybody
+        read-only: true
 
 We use field ``port`` to describe the subset of data provided through the port.
 The URL ``/data/study`` provides all records from ``study`` table that satisfy
@@ -229,7 +230,8 @@ port definition syntax, see documentation to :mod:`rex.port`.
 
 In the last definition, we used field ``access`` to override the default access
 permissions to the port.  Value *anybody* means that the port could be accessed
-by unauthenticated users.
+by unauthenticated users.  This port is also marked *read-only*, which means it
+cannot be used for CRUD operations.
 
 While ports provide a convenient and comprehensive way to access database, you
 can also use :mod:`rex.urlmap` to map URLs to raw HTSQL queries.  For example,
@@ -566,6 +568,14 @@ fields are expected:
 
         unsafe: true
 
+`read-only`
+    Prohibits CRUD operations on the port.  If enabled, only read-only queries
+    can be executed on the port.  By default, CRUD operations are permitted.
+
+    Example::
+
+        read-only: true
+
 
 Override handler
 ================
@@ -581,7 +591,7 @@ the fields of a template handler or a port handler:
 
     ``query``, ``parameters``, ``access``, ``unsafe``.
 
-    ``port``, ``access``, ``unsafe``.
+    ``port``, ``access``, ``unsafe``, ``read-only``.
 
 None of the fields is mandatory.  Fields that are omitted are inherited from
 the original template handler.

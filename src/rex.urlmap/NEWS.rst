@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.5.0 (2014-09-19)
+==================
+
+* Added ``read-only`` flag for port definitions.
+
+
 2.4.0 (2014-09-16)
 ==================
 

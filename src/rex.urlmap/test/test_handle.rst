@@ -192,6 +192,10 @@ template handlers::
     ...     port: individual
     ...     access: anybody
     ...     unsafe: true
+    ...   /data/read-only-port:
+    ...     port: individual
+    ...     access: anybody
+    ...     read-only: true
     ...   /csrf-token:
     ...     template: templates:/template/universal.html
     ...     access: anybody
@@ -358,6 +362,19 @@ Ports marked as ``unsafe`` require a CSRF token::
       ]
     }
     <BLANKLINE>
+
+Ports could be marked as *read-only*, which forbids using CRUD operations::
+
+    >>> req = Request.blank('/data/read-only-port', accept='application/json')
+    >>> print req.get_response(data_auth_demo)      # doctest: +ELLIPSIS
+    200 OK
+    ...
+
+    >>> req = Request.blank('/data/read-only-port', accept='application/json',
+    ...                     POST={'new': {'code': 999, 'sex': 'male'}})
+    >>> print req.get_response(data_auth_demo)      # doctest: +ELLIPSIS
+    405 Method Not Allowed
+    ...
 
 
 Parameters

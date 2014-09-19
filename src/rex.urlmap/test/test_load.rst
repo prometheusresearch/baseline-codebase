@@ -284,6 +284,7 @@ Overriding a port definition adds more arms to the port::
     ...     - max_code := max(individual.code)
     ...     access: anybody
     ...     unsafe: false
+    ...     read-only: true
     ... """)
     >>> req = Request.blank('/data/individual_info', accept='application/json')
     >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE

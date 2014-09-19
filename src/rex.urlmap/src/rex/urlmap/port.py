@@ -7,19 +7,21 @@ from rex.core import Error, guard, MaybeVal, StrVal, BoolVal, MapVal, locate
 from rex.web import authorize, trusted
 from rex.port import GrowVal, Port
 from .map import Map
-from webob.exc import HTTPUnauthorized, HTTPForbidden
+from webob.exc import HTTPUnauthorized, HTTPForbidden, HTTPMethodNotAllowed
 
 
 class PortRenderer(object):
     # Renders a database port.
 
-    def __init__(self, port, access, unsafe):
+    def __init__(self, port, access, unsafe, read_only=False):
         # Database port.
         self.port = port
         # Permission to request the URL.
         self.access = access
         # If set, enables CSRF protection.
         self.unsafe = unsafe
+        # If set, forbid CRUD requests.
+        self.read_only = read_only
 
     def __call__(self, req):
         # Check permissions.
@@ -37,6 +39,9 @@ class PortRenderer(object):
         # Protect against CSRF attacts.
         if self.unsafe and not trusted(req):
             raise HTTPForbidden()
+        # Forbid POST requests for read-only ports:
+        if self.read_only and req.method == 'POST':
+            raise HTTPMethodNotAllowed()
 
 
 class MapPort(Map):
@@ -45,6 +50,7 @@ class MapPort(Map):
             ('port', GrowVal),
             ('access', StrVal, None),
             ('unsafe', BoolVal, False),
+            ('read_only', BoolVal, False),
     ]
 
     def __call__(self, spec, path, context):
@@ -54,7 +60,8 @@ class MapPort(Map):
         return PortRenderer(
                 port=port,
                 access=access,
-                unsafe=spec.unsafe)
+                unsafe=spec.unsafe,
+                read_only=spec.read_only)
 
     def override(self, spec, override_spec):
         if override_spec.port is not None:
@@ -69,6 +76,8 @@ class MapPort(Map):
             spec = spec.__clone__(access=override_spec.access)
         if override_spec.unsafe is not None:
             spec = spec.__clone__(unsafe=override_spec.unsafe)
+        if override_spec.read_only is not None:
+            spec = spec.__clone__(read_only=override_spec.read_only)
         return spec
 
 

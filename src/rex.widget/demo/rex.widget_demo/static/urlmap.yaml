@@ -1,57 +1,58 @@
 paths:
 
   /:
-    widget: !<TwoColumnLayout>
-      sidebar_width: 3
-      sidebar:
-        - !<Header> {text: Sidebar}
-        - !<Filters>
-          id: filters
-          show_apply_button: true
-          show_clear_button: true
-          filters:
-            - !<Filter>
-              title: "Choose study to show by id:"
-              filter: !<Select>
-                id: study_code
-                data:
-                  url: rex.widget_demo:/data/study_options
-            - !<Filter>
-              title: "Choose study to show by another id:"
-              filter: !<TextInput>
-                id: study_code_x
+    widget: !<Page>
+      id: home
+      params:
+        selected_study: study_list/selected
 
-      main:
-        - !<Header> {text: Studies}
+      children: !<TwoColumnLayout>
+        sidebar_width: 3
+        sidebar:
+          - !<Header> {text: Sidebar}
+          - !<Filters>
+            id: filters
+            show_apply_button: true
+            show_clear_button: true
+            filters:
+              - !<Filter>
+                title: "Choose study to show by id:"
+                filter: !<Select>
+                  id: study_code
+                  data:
+                    url: rex.widget_demo:/data/study_options
+              - !<Filter>
+                title: "Choose study to show by another id:"
+                filter: !<TextInput>
+                  id: study_code_x
 
-        - !<Table>
-          id: study_list
-          selectable: true
-          data:
-            url: rex.widget_demo:/data/study
-            refs:
-              'study:id': filters/value:study_code
-              'study:xid':
-                - filters/value:study_code_x
-                - filters/value:study_code
-          columns:
-            - key: code
-              title: Code
-            - key: title
-              title: Title
-            - key: closed
-              title: Closed
+        main:
+          - !<Header> Studies
 
-        - !<StudyInfo>
-          id: study
-          data:
-            url: rex.widget_demo:/data/study
-            refs:
-              'study:id': study_list/selected
+          - !<Table>
+            id: study_list
+            selectable: true
+            data:
+              url: rex.widget_demo:/data/study
+              refs:
+                'study:id': filters/value:study_code
+                'study:xid':
+                  - filters/value:study_code_x
+                  - filters/value:study_code
+            columns:
+              - key: code
+                title: Code
+              - key: title
+                title: Title
+              - key: closed
+                title: Closed
 
-      states:
-        study_list/selected:
-          alias: selected_study
+          - !<StudyInfo>
+            id: study
+            data:
+              url: rex.widget_demo:/data/study
+              refs:
+                'study:id': study_list/selected
 
 
   /data/study:

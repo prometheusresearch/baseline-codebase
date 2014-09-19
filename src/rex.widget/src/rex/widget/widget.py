@@ -33,6 +33,15 @@ def state(validator, dependencies=None, default=NotImplemented):
     return register_computator
 
 
+class ContextValue(object):
+
+    def __init__(self, key):
+        self.key = key
+
+    def __call__(self, context):
+        return context[self.key]
+
+
 class WidgetFactory(object):
 
     def __init__(self, widget_class, *args, **kwargs):
@@ -169,9 +178,14 @@ class Widget(WidgetBase):
         if len(args) != len(self.record_fields):
             raise TypeError("expected %d arguments, got %d"
                             % (len(self.record_fields), len(args)))
-        self.values = {
-            field.attribute: arg(context) if isinstance(arg, WidgetFactory) else arg
-            for arg, field in zip(args, self.record_fields)}
+
+        self.values = {}
+        for arg, field in zip(args, self.record_fields):
+            if isinstance(arg, WidgetFactory):
+                arg = arg(context)
+            elif isinstance(arg, ContextValue):
+                arg = arg(context)
+            self.values[field.attribute] = arg
 
     @cached
     def descriptor(self):

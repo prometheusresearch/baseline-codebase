@@ -14,7 +14,9 @@ from __future__ import absolute_import
 from rex.core import Validate, Setting
 from .parse import WidgetVal
 from .library import Page
-from .widget import Widget, NullWidget, GroupWidget, Field, StateField
+from .widget import (
+    Widget, NullWidget, GroupWidget, Field, StateField,
+    ContextValue)
 from .fields import (
     Field, StateField, CollectionField,
     PaginatedCollectionField, EntityField)

@@ -1,11 +1,19 @@
+context:
+  application_name: Rex Widget Demo
+  menu:
+  - dashboard
+  - forms
+  - about
+
 paths:
 
   /:
-    widget: !<Page>
-      id: home
+    widget: !<RexPage>
+      id: dashboard
+      title: Dashboard
       params:
         selected_study: study_list/selected
-
+      navigation: !<Navigation>
       children: !<TwoColumnLayout>
         sidebar_width: 3
         sidebar:
@@ -53,6 +61,19 @@ paths:
               url: rex.widget_demo:/data/study
               refs:
                 'study:id': study_list/selected
+
+
+  /forms:
+    widget: !<RexPage>
+      id: forms
+      title: Forms
+      navigation: !<Navigation>
+
+  /about:
+    widget: !<RexPage>
+      id: about
+      title: About
+      navigation: !<Navigation>
 
 
   /data/study:

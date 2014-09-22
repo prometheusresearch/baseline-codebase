@@ -1,4 +1,10 @@
+@import url(http://fonts.googleapis.com/css?family=Fira+Sans:400,700,400italic);
 @import (less) "~rex-widget/style/index.less";
+@import (less) "./variables.less";
+
+body {
+  font-family: 'Fira Sans', sans-serif;
+}
 
 .rex-widget-demo-StudyInfo {
   position: relative;
@@ -17,4 +23,13 @@
 .rex-widget-demo-InfoItem__name {
   font-weight: bold;
   margin-right: @padding;
+}
+
+.rw-Navigation {
+  font-family: 'Fira Sans', sans-serif;
+}
+.rw-Navigation__title {
+  overflow: hidden;
+  position: relative;
+  font-weight: bold;
 }

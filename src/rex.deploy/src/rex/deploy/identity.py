@@ -3,8 +3,8 @@
 #
 
 
-from rex.core import Error, SeqVal
-from .fact import Fact, LabelVal, QLabelVal
+from rex.core import Error, MaybeVal, UChoiceVal, SeqVal
+from .fact import Fact, LabelVal, QLabelVal, PairVal
 from .image import SET_DEFAULT, CASCADE
 from .sql import (mangle, sql_add_unique_constraint,
         sql_add_foreign_key_constraint, sql_drop_constraint)
@@ -21,7 +21,9 @@ class IdentityFact(Fact):
     """
 
     fields = [
-            ('identity', SeqVal(QLabelVal)),
+            ('identity',
+             SeqVal(PairVal(QLabelVal,
+                            MaybeVal(UChoiceVal('offset', 'random'))))),
             ('of', LabelVal, None),
     ]
 
@@ -31,7 +33,7 @@ class IdentityFact(Fact):
         labels = []
         if not spec.identity:
             raise Error("Got missing identity fields")
-        for label in spec.identity:
+        for label, generator in spec.identity:
             if u'.' in label:
                 current_table_label = table_label
                 table_label, label = label.split(u'.')

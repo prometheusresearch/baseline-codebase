@@ -8,6 +8,7 @@ from rex.core import (LatentRex, get_rex, Extension, Validate, UStrVal,
 from .introspect import introspect
 import sys
 import psycopg2
+import yaml
 
 
 class FactVal(Validate):
@@ -42,6 +43,69 @@ class TitleVal(UStrVal):
     # Entity title.
 
     pattern = r'\S(.*\S)?'
+
+
+class PairVal(Validate):
+    # A `key: value` pair.
+
+    def __init__(self, validate_key=None, validate_value=None):
+        if isinstance(validate_key, type):
+            validate_key = validate_key()
+        if isinstance(validate_value, type):
+            validate_value = validate_value()
+        self.validate_key = validate_key
+        self.validate_value = validate_value
+
+    def __call__(self, data):
+        with guard("Got:", repr(data)):
+            if isinstance(data, tuple):
+                if len(data) != 2:
+                    raise Error("Expected a pair")
+                key, value = data
+            elif isinstance(data, dict):
+                if len(data) != 1:
+                    raise Error("Expected a pair")
+                [(key, value)] = data.items()
+            else:
+                key = data
+                value = None
+        if self.validate_key is not None:
+            with guard("While validating pair key:", repr(key)):
+                key = self.validate_key(key)
+        if self.validate_value is not None:
+            with guard("While validating pair value for key:", repr(key)):
+                value = self.validate_value(value)
+        return (key, value)
+
+    def construct(self, loader, node):
+        if isinstance(node, yaml.ScalarNode):
+            key_node = node
+            value_node = yaml.ScalarNode(u'tag:yaml.org,2002:null', u"",
+                                         node.start_mark, node.end_mark, u'')
+        elif (isinstance(node, yaml.MappingNode) and
+              node.tag == u'tag:yaml.org,2002:map' and
+              len(node.value) == 1):
+            [(key_node, value_node)] = node.value
+        else:
+            error = Error("Expected a pair")
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            error.wrap("While parsing:", Location.from_node(node))
+            raise error
+        with loader.validating(self.validate_key):
+            key = loader.construct_object(key_node, deep=True)
+        with loader.validating(self.validate_value):
+            value = loader.construct_object(value_node, deep=True)
+        return (key, value)
+
+    def __repr__(self):
+        args = []
+        if self.validate_key is not None or self.validate_value is not None:
+            args.append(str(self.validate_key))
+        if self.validate_value is not None:
+            args.append(str(self.validate_value))
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
 def label_to_title(label):

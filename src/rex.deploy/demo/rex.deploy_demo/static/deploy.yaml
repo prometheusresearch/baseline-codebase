@@ -19,7 +19,7 @@
   with:
   - column: code
     type: text
-  - identity: [code]
+  - identity: [code: random]
   - column: sex
     type: [not-known, male, female, not-applicable]
   - link: mother
@@ -86,7 +86,7 @@
   - link: case_type
   - column: code
     type: text
-  - identity: [case_type, code]
+  - identity: [case_type, code: offset]
   - link: study
     required: false
   - data: ./deploy/case.csv
@@ -112,7 +112,7 @@
   - link: sample_type
   - column: code
     type: text
-  - identity: [individual, sample_type, code]
+  - identity: [individual, sample_type, code: offset]
 
 - table: measure_type
   with:
@@ -127,7 +127,7 @@
   - link: measure_type
   - column: version
     type: integer
-  - identity: [measure_type, version]
+  - identity: [measure_type, version: offset]
   - column: json
     type: text
 
@@ -137,7 +137,7 @@
   - link: measure_type_version
   - column: 'no'
     type: integer
-  - identity: [individual, measure_type_version, 'no']
+  - identity: [individual, measure_type_version, 'no': offset]
   - column: json
     type: text
     required: false

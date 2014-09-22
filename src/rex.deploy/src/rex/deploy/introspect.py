@@ -63,6 +63,23 @@ def introspect(connection):
             type = schema.add_type(typname)
         type_by_oid[oid] = type
 
+    # Extract stored procedures.
+    procedure_by_oid = {}
+    cursor.execute("""
+        SELECT p.oid, p.pronamespace, p.proname,
+               p.proargtypes, p.prorettype, p.prosrc
+        FROM pg_catalog.pg_proc p
+        ORDER BY p.pronamespace, p.proname
+    """)
+    for (oid, pronamespace, proname,
+         proargtypes, prorettype, prosrc) in cursor.fetchall():
+        schema = schema_by_oid[pronamespace]
+        types = tuple([type_by_oid[int(proargtype)]
+                       for proargtype in proargtypes.split()])
+        return_type = type_by_oid[prorettype]
+        procedure = schema.add_procedure(proname, types, return_type, prosrc)
+        procedure_by_oid[oid] = procedure
+
     # Extract tables.
     table_by_oid = {}
     cursor.execute("""
@@ -139,6 +156,18 @@ def introspect(connection):
                                         on_update=on_update,
                                         on_delete=on_delete)
             constraint_by_oid[oid] = key
+
+    # Extract triggers.
+    cursor.execute("""
+        SELECT t.tgrelid, t.tgname, t.tgfoid
+        FROM pg_catalog.pg_trigger AS t
+        WHERE NOT t.tgisinternal
+        ORDER BY t.tgrelid, t.tgname
+    """)
+    for tgrelid, tgname, tgfoid in cursor.fetchall():
+        table = table_by_oid[tgrelid]
+        procedure = procedure_by_oid[tgfoid]
+        table.add_trigger(tgname, procedure)
 
     # Extract comments.
     cursor.execute("""

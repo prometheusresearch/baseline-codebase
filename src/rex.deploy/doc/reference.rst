@@ -36,6 +36,7 @@ Introspection and database catalog
 .. autofunction:: introspect
 .. autofunction:: make_catalog
 .. autoclass:: Image
+.. autoclass:: IndexedImage
 .. autoclass:: NamedImage
 .. autoclass:: ImageMap
    :special-members: __contains__, __getitem__, __iter__, __len__, __nonzero__
@@ -46,6 +47,7 @@ Introspection and database catalog
 .. autoclass:: TypeImage
 .. autoclass:: DomainTypeImage
 .. autoclass:: EnumTypeImage
+.. autoclass:: ProcedureImage
 .. autoclass:: TableImage
    :special-members: __contains__, __getitem__, __iter__, __len__
 .. autoclass:: ColumnImage
@@ -54,6 +56,7 @@ Introspection and database catalog
    :special-members: __contains__, __getitem__, __iter__, __len__
 .. autoclass:: ForeignKeyImage
    :special-members: __contains__, __getitem__, __iter__, __len__
+.. autoclass:: TriggerImage
 .. autoclass:: DataImage
 
 

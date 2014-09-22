@@ -4,6 +4,7 @@
 
 
 import htsql.core.util
+import collections
 import weakref
 
 
@@ -29,7 +30,24 @@ class Image(object):
                         delattr(self, slot)
 
 
-class NamedImage(Image):
+class IndexedImage(Image):
+    """Database object indexed by some key."""
+
+    __slots__ = ('handle',)
+
+    def __init__(self, owner, handle):
+        super(IndexedImage, self).__init__(owner)
+        #: Object key.
+        self.handle = handle
+
+    def __str__(self):
+        return str(self.handle)
+
+    def __repr__(self):
+        return "<%s %s>" % (self.__class__.__name__, self)
+
+
+class NamedImage(IndexedImage):
     """Database object with a name."""
 
     __slots__ = ('name',)
@@ -39,106 +57,93 @@ class NamedImage(Image):
     def __init__(self, owner, name):
         assert isinstance(name, unicode) and len(name) <= self.max_name_length, \
                 repr(name)
-        super(NamedImage, self).__init__(owner)
+        super(NamedImage, self).__init__(owner, name)
         #: Object name.
         self.name = name
 
     def __str__(self):
         return self.name.encode('utf-8')
 
-    def __repr__(self):
-        return "<%s %s>" % (self.__class__.__name__, self)
-
     def rename(self, name):
         """Renames the object."""
-        self.name = name
+        self.handle = self.name = name
         return self
 
 
 class ImageMap(object):
-    """Ordered collection of named database objects."""
+    """Ordered collection of indexed database objects."""
 
-    __slots__ = ('_image_by_name', '_names')
+    __slots__ = ('_images')
 
     def __init__(self):
-        self._image_by_name = {}
-        self._names = []
+        self._images = collections.OrderedDict()
 
     def __str__(self):
-        return "{%s}" % ", ".join(name.encode('utf-8') for name in self._names)
+        return "{%s}" % ", ".join(str(image)
+                                  for image in self._images.values())
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self)
 
-    def __contains__(self, name):
-        """Does the collection have an object with the given name?"""
-        return (name in self._image_by_name)
+    def __contains__(self, handle):
+        """Does the collection have an object with the given handle?"""
+        return (handle in self._images)
 
-    def __getitem__(self, name):
-        """Finds an object by position or name."""
-        if isinstance(name, int):
-            name = self._names[name]
-        return self._image_by_name[name]
+    def __getitem__(self, handle):
+        """Finds an object by handle."""
+        return self._images[handle]
 
     def __iter__(self):
         """Iterates over the elements of the collection."""
-        return (self._image_by_name[name] for name in self._names)
+        return self._images.itervalues()
 
     def __len__(self):
         """Number of elements in the collection."""
-        return len(self._names)
+        return len(self._images)
 
     def __nonzero__(self):
         """Is the collection empty?"""
-        return bool(self._names)
+        return bool(self._images)
 
-    def index(self, name):
-        """Returns the position of an object with the given name."""
-        return self._names.index(name)
+    def keys(self):
+        """Gets the list of handles."""
+        return self._images.keys()
 
     def add(self, image):
         """Adds an object to the collection."""
-        name = image.name
-        if name in self._image_by_name:
-            raise KeyError(name)
-        self._image_by_name[name] = image
-        self._names.append(name)
+        handle = image.handle
+        if handle in self._images:
+            raise KeyError(handle)
+        self._images[handle] = image
 
     def remove(self, image):
         """Removes an object from the collection."""
-        name = image.name
-        if name not in self._image_by_name:
-            raise KeyError(name)
-        assert self._image_by_name[name] is image, repr(image)
-        del self._image_by_name[name]
-        if name == self._names[-1]:
-            self._names.pop()
-        else:
-            self._names.remove(name)
+        handle = image.handle
+        if handle not in self._images:
+            raise KeyError(handle)
+        assert self._images[handle] is image, repr(image)
+        del self._images[handle]
 
-    def replace(self, name, image):
+    def replace(self, handle, image):
         """Replaces an object in the collection."""
-        if name not in self._image_by_name:
-            raise KeyError(name)
-        index = self._names.index(name)
-        del self._image_by_name[name]
-        name = image.name
-        if name in self._image_by_name:
-            raise KeyError(name)
-        self._image_by_name[name] = image
-        self._names[index] = name
+        if handle not in self._images:
+            raise KeyError(handle)
+        del self._images[handle]
+        self._images[image.handle] = image
 
     def first(self):
         """Returns the first object in the collection."""
-        if not self._names:
+        if not self._images:
             raise KeyError()
-        return self._image_by_name[self._names[0]]
+        handle = next(iter(self._images))
+        return self._images[handle]
 
     def last(self):
         """Returns the last object in the collection."""
-        if not self._names:
+        if not self._images:
             raise KeyError()
-        return self._image_by_name[self._names[-1]]
+        handle = next(reversed(self._images))
+        return self._images[handle]
 
 
 class CatalogImage(Image):
@@ -180,7 +185,7 @@ class CatalogImage(Image):
 class SchemaImage(NamedImage):
     """Database schema."""
 
-    __slots__ = ('tables', 'types', 'comment', '__weakref__')
+    __slots__ = ('tables', 'types', 'procedures', 'comment', '__weakref__')
 
     def __init__(self, catalog, name):
         super(SchemaImage, self).__init__(weakref.ref(catalog), name)
@@ -188,6 +193,8 @@ class SchemaImage(NamedImage):
         self.tables = ImageMap()
         #: Collection of types in the schema.
         self.types = ImageMap()
+        #: Collections of procedures in the schema.
+        self.procedures = ImageMap()
         #: Schema comment.
         self.comment = None
         catalog.schemas.add(self)
@@ -215,13 +222,15 @@ class SchemaImage(NamedImage):
 
     def rename(self, name):
         old_name = self.name
-        self.name = name
+        self.handle = self.name = name
         self.catalog.schemas.replace(old_name, self)
         return self
 
     def remove(self):
         while self.tables:
             self.tables.last().remove()
+        while self.procedures:
+            self.procedures.last().remove()
         while self.types:
             self.types.last().remove()
         self.catalog.schemas.remove(self)
@@ -242,6 +251,10 @@ class SchemaImage(NamedImage):
     def add_enum_type(self, name, labels):
         """Adds an ``ENUM`` type."""
         return EnumTypeImage(self, name, labels)
+
+    def add_procedure(self, name, types, return_type, body):
+        """Adds a stored procedure."""
+        return ProcedureImage(self, name, types, return_type, body)
 
     def set_comment(self, text):
         """Sets the comment."""
@@ -285,9 +298,18 @@ class TypeImage(NamedImage):
                      if isinstance(type, DomainTypeImage) and
                         type.base_type is self]
 
+    @property
+    def procedures(self):
+        """List of procedures that use this type."""
+        # FIXME? expensive.
+        return [procedure for schema in self.schema.catalog
+                          for procedure in schema.procedures
+                          if self in procedure.types or
+                             self is procedure.return_type]
+
     def rename(self, name):
         old_name = self.name
-        self.name = name
+        self.handle = self.name = name
         self.schema.types.replace(old_name, self)
         return self
 
@@ -296,6 +318,8 @@ class TypeImage(NamedImage):
             column.remove()
         for domain in self.domains:
             domain.remove()
+        for procedure in self.procedures:
+            procedure.remove()
         self.schema.types.remove(self)
         super(TypeImage, self).remove()
 
@@ -336,12 +360,66 @@ class EnumTypeImage(TypeImage):
                                  self, " | ".join(self.labels))
 
 
+class ProcedureSignature(
+        collections.namedtuple('ProcedureSignature', ['name', 'types'])):
+
+    __slots__ = ()
+
+    def __str__(self):
+        return "%s(%s)" % (self.name.encode('utf-8'),
+                           ", ".join(str(type) for type in self.types))
+
+    def __repr__(self):
+        return "<%s %s>" % (self.__class__.__name__, self)
+
+
+class ProcedureImage(IndexedImage):
+    """Stored procedure."""
+
+    __slots__ = ('name', 'types', 'return_type', 'body')
+
+    def __init__(self, schema, name, types, return_type, body):
+        signature = ProcedureSignature(name, types)
+        super(ProcedureImage, self).__init__(weakref.ref(schema), signature)
+        self.name = name
+        self.types = types
+        self.return_type = return_type
+        self.body = body
+
+    @property
+    def schema(self):
+        """Procedure owner."""
+        return self.owner()
+
+    @property
+    def triggers(self):
+        """List of triggers that call this procedure."""
+        # FIXME? expensive.
+        return [trigger for schema in self.schema.catalog
+                        for table in schema.tables
+                        for trigger in table.triggers
+                        if self is trigger.procedure]
+
+    def rename(self, name):
+        old_handle = self.handle
+        self.handle = ProcedureSignature(name, self.types)
+        self.name = name
+        self.schema.procedures.replace(old_handle, self)
+        return self
+
+    def remove(self):
+        for trigger in self.triggers:
+            trigger.remove()
+        self.schema.procedures.remove(self)
+        super(ProcedureImage, self).remove()
+
+
 class TableImage(NamedImage):
     """Database table."""
 
     __slots__ = ('columns', 'constraints', 'primary_key', 'unique_keys',
-                 'foreign_keys', 'referring_foreign_keys', 'data', 'comment',
-                 'is_unlogged', '__weakref__')
+                 'foreign_keys', 'referring_foreign_keys', 'triggers',
+                 'data', 'comment', 'is_unlogged', '__weakref__')
 
     def __init__(self, schema, name):
         super(TableImage, self).__init__(weakref.ref(schema), name)
@@ -357,6 +435,8 @@ class TableImage(NamedImage):
         self.foreign_keys = []
         #: List of foreign keys referring to the table.
         self.referring_foreign_keys = []
+        #: Collection of triggers.
+        self.triggers = ImageMap()
         #: Table rows.
         self.data = None
         #: Table comment.
@@ -388,11 +468,13 @@ class TableImage(NamedImage):
 
     def rename(self, name):
         old_name = self.name
-        self.name = name
+        self.handle = self.name = name
         self.schema.tables.replace(old_name, self)
         return self
 
     def remove(self):
+        while self.triggers:
+            self.trigger.last().remove()
         while self.constraints:
             self.constraints.last().remove()
         while self.columns:
@@ -423,6 +505,10 @@ class TableImage(NamedImage):
         """Adds a ``FOREIGN KEY`` constraint."""
         return ForeignKeyImage(self, name, columns, target, target_columns,
                                on_update=on_update, on_delete=on_delete)
+
+    def add_trigger(self, name, procedure):
+        """Add a table trigger."""
+        return TriggerImage(self, name, procedure)
 
     def add_data(self, rows):
         """Adds table rows."""
@@ -490,7 +576,7 @@ class ColumnImage(NamedImage):
 
     def rename(self, name):
         old_name = self.name
-        self.name = name
+        self.handle = self.name = name
         self.table.columns.replace(old_name, self)
         return self
 
@@ -543,7 +629,7 @@ class ConstraintImage(NamedImage):
 
     def rename(self, name):
         old_name = self.name
-        self.name = name
+        self.handle = self.name = name
         self.origin.constraints.replace(old_name, self)
         return self
 
@@ -680,6 +766,36 @@ class ForeignKeyImage(ConstraintImage):
         return self
 
 
+class TriggerImage(NamedImage):
+    """Table trigger."""
+
+    __slots__ = ('procedure',)
+
+    def __init__(self, table, name, procedure):
+        super(TriggerImage, self).__init__(weakref.ref(table), name)
+        #: Procedure to call.
+        self.procedure = procedure
+        table.triggers.add(self)
+
+    @property
+    def table(self):
+        """Trigger owner."""
+        return self.owner()
+
+    def __repr__(self):
+        return "<%s %s.%s>" % (self.__class__.__name__, self.table, self)
+
+    def rename(self, name):
+        old_name = self.name
+        self.handle = self.name = name
+        self.table.triggers.replace(old_name, self)
+        return self
+
+    def remove(self):
+        self.table.triggers.remove(self)
+        super(TriggerImage, self).remove()
+
+
 class DataImage(Image):
     """Table rows."""
 
@@ -690,7 +806,8 @@ class DataImage(Image):
         self.masks = {}
         self.indexes = {}
         for key in table.unique_keys:
-            mask = tuple(table.columns.index(column.name) for column in key)
+            names = table.columns.keys()
+            mask = tuple(names.index(column.name) for column in key)
             index = {}
             for row in rows:
                 handle = tuple(row[idx] for idx in mask)

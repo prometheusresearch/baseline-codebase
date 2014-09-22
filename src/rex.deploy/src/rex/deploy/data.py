@@ -141,10 +141,11 @@ class DataFact(Fact):
         self._fetch(driver, table)
 
         # Indexes of the primary key columns.
-        key_mask = [table.columns.index(column.name)
+        column_names = table.columns.keys()
+        key_mask = [column_names.index(column.name)
                     for column in table.primary_key]
         # Indexes of columns that do not belong to the PK.
-        nonkey_mask = [table.columns.index(column.name)
+        nonkey_mask = [column_names.index(column.name)
                        for column in table
                        if column not in table.primary_key]
 
@@ -161,7 +162,7 @@ class DataFact(Fact):
                 for idx in key_mask:
                     if row[idx] is None or row[idx] is SKIP:
                         raise Error("Detected column with missing value:",
-                                    table[idx])
+                                    table.columns.keys()[idx])
                 # Convert links to FK values.
                 if targets:
                     items = []

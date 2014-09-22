@@ -45,10 +45,6 @@ More operations are available for ``catalog.schemas`` container object::
 
     >>> catalog.schemas
     <ImageMap {pg_catalog, public}>
-    >>> catalog.schemas.index(u'public')
-    1
-    >>> catalog.schemas[1]
-    <SchemaImage public>
     >>> catalog.schemas.first()
     <SchemaImage pg_catalog>
     >>> catalog.schemas.last()

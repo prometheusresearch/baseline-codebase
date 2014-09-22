@@ -13,10 +13,10 @@ from .column import ColumnFact
 from .data import DataFact, SKIP
 from .fact import Fact, Driver, label_to_title
 from .identity import IdentityFact
-from .image import (make_catalog, Image, NamedImage, ImageMap, CatalogImage,
-        SchemaImage, TypeImage, DomainTypeImage, EnumTypeImage, TableImage,
-        ColumnImage, ConstraintImage, UniqueKeyImage, ForeignKeyImage,
-        DataImage)
+from .image import (make_catalog, Image, IndexedImage, NamedImage, ImageMap,
+        CatalogImage, SchemaImage, TypeImage, DomainTypeImage, EnumTypeImage,
+        ProcedureImage, TableImage, ColumnImage, ConstraintImage,
+        UniqueKeyImage, ForeignKeyImage, TriggerImage, DataImage)
 from .meta import Meta, TableMeta, ColumnMeta
 from .introspect import introspect
 from .link import LinkFact

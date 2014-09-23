@@ -5,6 +5,12 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
+0.2.1 (9/23/2014)
+=================
+
+* Added support for rex.web v3.
+
+
 0.2.0 (8/27/2014)
 =================
 

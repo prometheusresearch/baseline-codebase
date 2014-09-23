@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.restful',
-    version='0.2.0',
+    version='0.2.1',
     description='A framework for providing RESTful services in a RexDB app.',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
@@ -24,7 +24,7 @@ setup(
     ],
     install_requires=[
         'rex.core>=1,<2',
-        'rex.web>=2,<3',
+        'rex.web>=2,<4',
         'pyyaml',
         'python-dateutil',
     ],

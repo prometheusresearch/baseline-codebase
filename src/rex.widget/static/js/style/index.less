@@ -1,6 +1,10 @@
 @import (less) "~bootstrap/less/bootstrap";
 @import (less) "~react-grid/themes/bootstrap";
 @import (less) "~react-autocomplete/themes/bootstrap";
+@import (less) "./layout";
+@import (less) "./grid";
+@import (less) "./table";
+@import (less) "./variables";
 
 @border-radius-base:        3px;
 @border-radius-large:       3px;
@@ -27,106 +31,44 @@ html, body, #__main__ {
   height: 100%;
 }
 
-
-.position-top-right {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
 /**
- * Tabs widget
+ * <Select />
  */
-.rex-widget-Tabs {
-  height: 100%;
-  position: relative;
-}
-.rex-widget-Tabs__tab {
-  // !important due to Bootstrap specifity :(
-  padding: @paddingS @padding !important;
-  margin-right: 0 !important;
-}
-
-.rex-widget-Tabs__tab--active {
-  background-color: @colorSelectedHighlight;
-}
-
-.rex-widget-Tabs__tabs {
-  height: 26px;
-}
-
-.rex-widget-Tabs__tabs li {
-  margin-bottom: 0;
-}
-.rex-widget-Tabs__content {
-  overflow: auto;
-  position: absolute;
-  top: 26px;
-  bottom: 0;
-  width: 100%;
-}
-
-/** 
- * Tab widget
- */
-.rex-widget-Tab {
-  padding: @paddingS;
-}
-
-/**
- * TwoColumnLayout widget
- */
-.rex-widget-TwoColumnLayout {
-  height: 100%;
-}
-.rex-widget-TwoColumnLayout__container {
-  height: 100%;
-}
-.rex-widget-TwoColumnLayout__sidebar,
-.rex-widget-TwoColumnLayout__main {
-  position: relative;
-  height: 100%;
-  overflow-y: auto;
-}
-
-/**
- * Select widget
- */
-.rex-widget-Select {
+.rw-Select {
   width: 100%;
 }
 
 /**
- * TextInput widget
+ * <TextInput />
  */
-.rex-widget-TextInput {
-  width: 100%;
+.rw-TextInput {
   .form-control;
   .input-sm;
+  width: 100%;
   height: 22px;
   padding: 4px 6px;
 }
 
-.rex-widget-TextInput--verticalResize {
+.rw-TextInput--verticalResize {
   resize: vertical;
 }
 
-.rex-widget-TextInput--horizontalResize {
+.rw-TextInput--horizontalResize {
   resize: horizontal;
 }
 
-.rex-widget-TextInput--noResize {
+.rw-TextInput--noResize {
   resize: none;
 }
 
 /**
- * List widget
+ * <List />
  */
-.rex-widget-List {
+.rw-List {
   padding: 0;
   list-style-type: none;
 }
-.rex-widget-List__item {
+.rw-List__item {
   padding: @paddingS @padding;
   list-style-type: none;
   cursor: pointer;
@@ -134,490 +76,94 @@ html, body, #__main__ {
     background-color: @colorHoverHighlight;
   }
 }
-.rex-widget-List__item--selected {
+.rw-List__item--selected {
   background-color: @colorSelectedHighlight;
 }
 
 /**
- * Panel widget
+ * <LoadingIndicator />
  */
-.rex-widget-Panel {
-  padding: @padding;
-}
-
-.rex-widget-Panel__header {
-  position: relative;
-  margin-bottom: @paddingL;
-}
-
-.rex-widget-Panel__title {
-  font-weight: bold;
-}
-
-.rex-widget-Panel__headerToolbar {
-  .position-top-right();
-}
-
-.rex-widget-Panel__footer {
-  position: relative;
-  margin-top: @paddingL;
-}
-
-.rex-widget-Panel--inline {
-  .rex-widget-Panel__header,
-  .rex-widget-Panel__children,
-  .rex-widget-Panel__footer {
-    display: inline-block;
-    margin: 0;
-  }
-  .rex-widget-Panel__footer {
-    margin-left: @paddingS;
-  }
-  .rex-widget-Panel__headerToolbar {
-    position: static;
-  }
-}
-
-/**
- * Filters widget
- */
-.rex-widget-Filters__clearButton {
-  .btn();
-  .btn-xs();
-  .btn-link();
-}
-
-.rex-widget-Filters__clearButtonText {
-  margin-left: @paddingS;
-}
-
-.rex-widget-Filters__applyButton {
-  .btn();
-  .btn-xs();
-  .btn-default();
-}
-
-.rex-widget-Filters--inline {
-  .rex-widget-Filters__clearButtonText {
-    display: none;
-  }
-}
-
-/**
- * Row Filters widget
- */
-.rex-widget-RowFilters {
-  margin-bottom: @paddingS;
-  margin-top: @paddingS;
-}
-
-.rex-widget-RowFilters__header {
-  margin-bottom: @paddingL;
-}
-
-.rex-widget-RowFilters__clearButton {
-  .btn();
-  .btn-xs();
-  .btn-link();
-}
-
-.rex-widget-RowFilters__applyButton {
-  .btn();
-  .btn-xs();
-  .btn-default();
-}
-
-.rex-widget-RowFilters__buttonList {
-  width: 100%;
-  text-align: left;
-}
-
-.rex-widget-RowFilters__title {
-  font-size: 120%;
-  margin-right: @padding;
-}
-
-/**
- * Filter widget
- */
-.rex-widget-Filter {
-  margin-bottom: @paddingL;
-}
-
-.rex-widget-Filter__title {
-  font-size: 90%;
-}
-
-.rex-widget-Filter--inline {
-  display: inline-block;
-  margin-bottom: @paddingS;
-  margin-right: @paddingL;
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  .rex-widget-Filter__title {
-    display: none;
-  }
-}
-
-
-/**
- * RowFilter widget
- */
-
-.rex-widget-RowFilter {
-  display: block-inline;
-  margin-right: @paddingL;
-  .rex-widget-Select {
-    width: auto;
-  }
-
-  .rex-widget-TextInput {
-    width: auto;
-  }
-}
-
-.rex-widget-RowFilter__title {
-  margin-right: @paddingS;
-  color: @colorGrey;
-}
-
-/**
- * Table widget
- */
-.rex-widget-Table {
-  width: 100%;
-
-  border-top: @border;
-  border-bottom: @border;
-  border-right: @border;
-
-  td {
-    border-left: @border;
-    border-top: @border;
-    padding: 5px;
-    text-align: center;
-  }
-
-  th {
-    border-left: @border;
-    padding: 5px;
-    text-align: center;
-  }
-
-  thead {
-    tr {
-      background-color: @colorHoverHighlight;
-      th {
-        font-weight: bold;
-      }
-    }
-  }
-
-  tbody {
-    tr:hover {
-      background-color: @colorHoverHighlight;
-    }
-  }
-    
-  .first {
-    border-left: none;
-    text-align: left;
-    border-right: 1px solid #777;
-  }
-
-}
-
-.rex-widget-Table__row--selected {
-  background-color: @colorSelectedHighlight;
-}
-
-.rex-widget-Table__calculatedColumn {
-  border-left: 2px solid black;
-}
-
-.rex-widget-Table__calculatedRow {
-  border-top: 2px solid black;
-}
-
-.rex-widget-Table__calculatedColumn,
-.rex-widget-Table__calculatedRow {
-  font-weight: bold;
-  background-color: @colorHoverHighlight;
-}
-
-/**
- * LoadingIndicator
- */
-.rex-widget-LoadingIndicator {
+.rw-LoadingIndicator {
   width: 100%;
   text-align: center;
 }
 
 /**
- * Preloader
+ * <Preloader />
  */
-.rex-widget-Preloader {
+.rw-Preloader {
   width: 100%;
   height: 100%;
   color: #aaa;
   font-weight: bold;
   text-align: center;
-  padding: @paddingL;
+  padding: @padding-base-vertical @padding-base-horizontal;
 }
-.rex-widget-Preloader__caption {
-  padding: @paddingL;
-}
-
-/**
- * Grid widget
- */
-
-.react-grid-Cell__value,
-.react-grid-HeaderCell__value {
-  -webkit-transform: translateY(-50%);
-}
-.rex-widget-Grid {
-
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100%;
-
-  .react-grid-HeaderCell {
-    padding: @padding;
-    cursor: default;
-    background-color: @colorHoverHighlight;
-    border-top: 1px solid darken(@colorHoverHighlight, 10%);
-    border-bottom: 1px solid darken(@colorHoverHighlight, 10%);
-    border-left: 1px solid darken(@colorHoverHighlight, 10%);
-    &:hover {
-      background-color: darken(@colorHoverHighlight, 10%);
-    }
-    &:last-child {
-      border-right: 1px solid darken(@colorHoverHighlight, 10%);
-    }
-  }
-
-  .react-grid-Cell {
-    padding: @padding;
-    border-left: 1px dotted @colorHoverHighlight;
-    &:last-child {
-      border-right: 1px dotted @colorHoverHighlight;
-    }
-  }
+.rw-Preloader__caption {
+  padding: @padding-base-vertical @padding-base-horizontal;
 }
 
-.rex-widget-Grid__sortableIndicator {
-  color: lighten(@colorShadow, 10%);
-}
-.rex-widget-Grid__sortIcon {
-  padding: @padding;
-}
-
-.rex-widget-GridRow {
-  border-bottom: 1px solid @colorHoverHighlight;
-  cursor: default;
-}
-
-.rex-widget-GridRow:hover {
-  background-color: @colorHoverHighlight;
-}
-
-.rex-widget-GridRow--selected {
-  .react-grid-Cell {
-    background-color: @colorSelectedHighlight;
-  }
-}
-
-.rex-widget-Button {
+.rw-Button {
   .btn();
-  .btn-xs();
 }
 
-.rex-widget-Button--default {
+.rw-Button--default {
   .btn-default();
 }
 
-.rex-widget-Button--link {
+.rw-Button--link {
   .btn-link();
 }
 
-.rex-widget-Button--success {
+.rw-Button--success {
   .btn-success();
 }
 
 /**
- * CheckboxGroup
+ * <CheckboxGroup />
  */
-
-.rex-widget-CheckboxGroup--inline {
-  & > .rex-widget-CheckboxGroup__checkbox {
+.rw-CheckboxGroup--inline {
+  & > .rw-CheckboxGroup__checkbox {
     display: inline-block;
   }
 }
-
-.rex-widget-CheckboxGroup__checkbox {
-  padding: @paddingS;
+.rw-CheckboxGroup__checkbox {
+  padding: @padding-base-vertical @padding-base-horizontal;
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
 }
-
-.rex-widget-CheckboxGroup__label {
+.rw-CheckboxGroup__label {
   cursor: pointer;
   font-weight: normal;
 }
-
-.rex-widget-CheckboxGroup__checkbox input {
-  margin: 0 @paddingS;
+.rw-CheckboxGroup__checkbox input {
+  margin: 0 @padding-base-horizontal;
 }
 
 /**
- * Modal
+ * <Shim />
  */
-
-.rex-widget-Shim {
-  background: @colorGrey;
-  opacity: 0.4;
+.rw-Shim {
+  background: @modal-backdrop-bg;
+  opacity: @modal-backdrop-opacity;
 }
 
-.rex-widget-Modal {
+/**
+ * <Modal />
+ */
+.rw-Modal {
   .modal-dialog;
 }
-.rex-widget-Modal__content {
+.rw-Modal__content {
   .modal-content;
 }
-.rex-widget-Modal__header {
+.rw-Modal__header {
   .modal-header;
 }
-.rex-widget-Modal__title {
+.rw-Modal__title {
   .modal-title;
 }
-.rex-widget-Modal__body {
+.rw-Modal__body {
   .modal-body;
-}
-
-/**
- * Flex Layout
- */
-.rex-widget-Container {
-  position: relative;
-  display: flex;
-  display: -webkit-flex;
-  height: 100%;
-  overflow: hidden;
-}
-
-.rex-widget-Block {
-  position: relative;
-  overflow: auto;
-
-  & > .rex-widget-Container {
-    position: absolute;
-    width: 100%;
-  }
-}
-
-.rex-widget-ResizeableBlock {
-  position: relative;
-}
-
-.rex-widget-ResizeableBlock--resize {
-  .rex-widget-ResizeableBlock__handle {
-    background: @colorHoverHighlight;
-  }
-}
-
-.rex-widget-ResizeableBlock--left {
-  .rex-widget-ResizeableBlock__handle {
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    cursor: col-resize;
-  }
-}
-
-.rex-widget-ResizeableBlock--top {
-  .rex-widget-ResizeableBlock__handle {
-    left: 0;
-    top: 0;
-    right: 0;
-    height: 4px;
-    cursor: row-resize;
-  }
-}
-
-.rex-widget-ResizeableBlock--right {
-  .rex-widget-ResizeableBlock__handle {
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    cursor: col-resize;
-  }
-}
-
-.rex-widget-ResizeableBlock--bottom {
-  .rex-widget-ResizeableBlock__handle {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 4px;
-    cursor: row-resize;
-  }
-}
-
-.rex-widget-ResizeableBlock__handle {
-  position: absolute;
-}
-
-.rex-widget-ResizeableBlock__service:hover {
-  & > .rex-widget-ResizeableBlock__handle {
-    background: @colorHoverHighlight;
-  }
-}
-
-.rex-widget-CollapsibleBlock {
-  overflow: visible;
-}
-
-.rex-widget-CollapsibleBlock__button {
-  cursor: pointer;
-  padding: 6px;
-  position: absolute;
-  bottom: -20px;
-  left: -30px;
-  height: 30px;
-  overflow: hidden;
-  transform: rotate(-90deg);
-  -webkit-transform: rotate(-90deg);
-  transform-origin: 0 0;
-  -webkit-transform-origin: 0 0;
-}
-
-.rex-widget-CollapsibleBlock--vertical {
-  .rex-widget-CollapsibleBlock__button {
-    left: 10px;
-    top: -30px;
-    transform: none;
-    -webkit-transform: none;
-  }
-}
-
-.rex-widget-CollapsibleBlock__buttonInner {
-  height: 40px;
-  background: white;
-  padding: 6px;
-  box-shadow: @standardShadow;
-}
-
-.rex-widget-ResizeableBlock__service:hover,
-.rex-widget-ResizeableBlock--resize {
-  .rex-widget-CollapsibleBlock__buttonInner {
-    background: @colorHoverHighlight;
-  }
 }

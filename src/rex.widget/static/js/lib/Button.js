@@ -8,7 +8,7 @@ var cx    = React.addons.classSet;
 var Icon  = require('./Icon');
 
 var Button = React.createClass({
-  
+
   propTypes: {
     onClick: React.PropTypes.func,
     link: React.PropTypes.bool,
@@ -18,10 +18,10 @@ var Button = React.createClass({
 
   render: function() {
     var className = cx({
-      'rex-widget-Button': true,
-      'rex-widget-Button--default': !this.props.link && !this.props.success,
-      'rex-widget-Button--success': this.props.success,
-      'rex-widget-Button--link': this.props.link
+      'rw-Button': true,
+      'rw-Button--default': !this.props.link && !this.props.success,
+      'rw-Button--success': this.props.success,
+      'rw-Button--link': this.props.link
     });
     return (
       <button

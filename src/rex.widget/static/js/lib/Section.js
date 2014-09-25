@@ -9,7 +9,7 @@ var Section = React.createClass({
 
   render: function() {
     return (
-      <div className="rex-widget-Section">
+      <div className="rw-Section">
         {this.props.content}
       </div>
     );

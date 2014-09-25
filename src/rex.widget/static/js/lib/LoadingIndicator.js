@@ -10,7 +10,7 @@ var LoadingIndicator = React.createClass({
 
   render: function() {
     return this.transferPropsTo(
-      <div className="rex-widget-LoadingIndicator">
+      <div className="rw-LoadingIndicator">
         <img src={loadingIndicator} />
       </div>
     );

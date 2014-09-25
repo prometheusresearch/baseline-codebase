@@ -32,7 +32,7 @@ var Select = React.createClass({
     }
 
     return this.transferPropsTo(
-      <select className="rex-widget-Select" value={value} onChange={this.onChange}>
+      <select className="rw-Select" value={value} onChange={this.onChange}>
         {emptyValue && !this.props.noEmptyValue &&
           <option key={sentinel} value={sentinel}>
             {titleForEmpty ? titleForEmpty : emptyValue.title}

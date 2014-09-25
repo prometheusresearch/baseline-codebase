@@ -54,8 +54,8 @@ var GridRow = React.createClass({
       && this.props.selected === this.props.row.id
     );
     var className = cx({
-      'rex-widget-GridRow': true,
-      'rex-widget-GridRow--selected': selected
+      'rw-GridRow': true,
+      'rw-GridRow--selected': selected
     });
 
     return this.transferPropsTo(
@@ -86,7 +86,7 @@ var SortableGridHeaderCell = React.createClass({
       (sorted === '+' ?
         <Icon name="sort-by-attributes" /> :
         <Icon name="sort-by-attributes-alt" />) :
-        <Icon name="sort" className="rex-widget-Grid__sortableIndicator" />;
+        <Icon name="sort" className="rw-Grid__sortableIndicator" />;
 
     return (
       <div title={name} className="react-grid-HeaderCell__value" onClick={this.onClick}>
@@ -141,7 +141,7 @@ var Grid = React.createClass({
         rows={this.getRows}
         onRows={this.onRows}
         length={this.getData().length}
-        className={cx('rex-widget-Grid', this.props.className)}
+        className={cx('rw-Grid', this.props.className)}
         rowRenderer={rowRenderer}
         />
     );

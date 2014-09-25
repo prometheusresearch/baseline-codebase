@@ -22,7 +22,7 @@ var Link = React.createClass({
 
   render() {
     return this.transferPropsTo(
-      <a className="rex-widget-Link" href={this.href()}>
+      <a className="rw-Link" href={this.href()}>
         {this.props.children || this.props.text}
       </a>
     );

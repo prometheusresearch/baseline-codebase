@@ -22,12 +22,12 @@ setup(
         'rex.setup >=1.2, <2',
     ],
     install_requires=[
-        'rex.core >=1.6, <2',
-        'rex.web >=3.0, <4',
-        'rex.urlmap >=2.4, <3',
-        'simplejson >= 3.0',
-        'jquery-unparam >=1.0, <2',
-        'pyquerystring >= 0.3.0, < 0.4.0'
+        'rex.core       >= 1.6, < 2',
+        'rex.web        >= 3.0, < 4',
+        'rex.urlmap     >= 2.4, < 3',
+        'simplejson     >= 3.0, < 4',
+        'jsonpublish    >= 0.2, < 0.3',
+        'pyquerystring  >= 0.3, < 0.4'
     ],
     rex_init='rex.widget',
     rex_static='static',

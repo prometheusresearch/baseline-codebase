@@ -7,18 +7,17 @@
 
 """
 
-import re
 import yaml
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
+
 from rex.core import (
-    Validate, Extension, cached, set_location,
-    RecordField, OneOfVal, ProxyVal, MapVal, StrVal, IntVal, RecordVal)
+    Extension, cached, set_location,
+    OneOfVal, ProxyVal, StrVal, IntVal)
+
 from .state import StateGraph, MutableStateGraph
-from .descriptor import (
-    UIDescriptor, UIDescriptorChildren, WidgetDescriptor,
-    StateReadWrite, StateRead, DataRead)
-from .fields import Field, StateField, StateFieldBase
-from .handle import handle
+from .field import Field, StateField, StatefulField
+from .util import to_camelcase
+from .json import register_adapter
 
 
 def state(validator, dependencies=None, default=NotImplemented):
@@ -31,6 +30,83 @@ def state(validator, dependencies=None, default=NotImplemented):
             computator=computator,
             dependencies=dependencies)
     return register_computator
+
+
+_WidgetDescriptor = namedtuple('WidgetDescriptor', [
+    'ui',
+    'state',
+])
+
+class WidgetDescriptor(_WidgetDescriptor):
+    """ Descriptor for a widget.
+
+    :attr ui: UI description
+    :attr state: State graph
+    """
+
+    __slots__ = ()
+
+@register_adapter(WidgetDescriptor)
+def _encode_WidgetDescriptor(desc):
+    return {
+        'ui': desc.ui,
+        'state': desc.state
+    }
+
+
+_UIDescriptor = namedtuple('UIDescriptor', ['type', 'props'])
+
+class UIDescriptor(_UIDescriptor):
+    """ UI descriptiton.
+
+    :attr type: CommonJS module which exports React component
+    :attr props: Properties which should be passed to a React component
+    """
+
+    __slots__ = ()
+
+@register_adapter(UIDescriptor)
+def _encode_UIDescriptor(desc):
+    return {
+        '__type__': desc.type,
+        'props': desc.props
+    }
+
+
+_UIDescriptorChildren = namedtuple('UIDescriptorChildren', ['children'])
+
+class UIDescriptorChildren(_UIDescriptorChildren):
+    """ List of UI descriptitons.
+
+    :attr children: A list of UI descriptors.
+    """
+
+    __slots__ = ()
+
+@register_adapter(UIDescriptorChildren)
+def _encode_UIDescriptorChildren(desc):
+    return {'__children__': desc.children}
+
+
+StateRead = namedtuple('StateRead', ['id'])
+
+@register_adapter(StateRead)
+def _encode_StateRead(directive):
+    return {'__state_read__': directive.id}
+
+
+StateReadWrite = namedtuple('StateReadWrite', ['id'])
+
+@register_adapter(StateReadWrite)
+def _encode_StateReadWrite(directive):
+    return {'__state_read_write__': directive.id}
+
+
+DataRead = namedtuple('DataRead', ['id'])
+
+@register_adapter(DataRead)
+def _encode_DataRead(directive):
+    return {'__data_read__': directive.id}
 
 
 class ContextValue(object):
@@ -115,7 +191,7 @@ class Widget(WidgetBase):
             need_id_field = False
 
             for name, field in own_fields + fields:
-                if isinstance(field, StateFieldBase):
+                if isinstance(field, StatefulField):
                     need_id_field = True
                 if field.name is None:
                     field.name = name
@@ -124,7 +200,7 @@ class Widget(WidgetBase):
             # if we have at least one state field we need to inject id field
             if need_id_field and not 'id' in cls.fields:
                 cls.id = cls.fields['id'] = Field(
-                    OneOfVal(IntVal, StrVal),
+                    OneOfVal(IntVal(), StrVal()),
                     name='id')
 
             cls.record_fields = [f.record_field for f in cls.fields.values()]
@@ -201,7 +277,7 @@ class Widget(WidgetBase):
             # exclusive
             if isinstance(value, Widget):
                 self.on_widget(props, graph, name, value)
-            elif isinstance(field, StateFieldBase):
+            elif isinstance(field, StatefulField):
                 self.on_state(props, own_graph, name, value, field)
             else:
                 props[name] = value
@@ -230,8 +306,6 @@ class Widget(WidgetBase):
                 props[prop_name] = StateReadWrite(descriptor.id)
             else:
                 props[prop_name] = DataRead(descriptor.id)
-
-    __call__ = handle
 
     def __str__(self):
         text = yaml.dump(self, Dumper=WidgetYAMLDumper)
@@ -335,9 +409,3 @@ WidgetYAMLDumper.add_representer(
     unicode, WidgetYAMLDumper.represent_unicode)
 WidgetYAMLDumper.add_multi_representer(
     Widget, WidgetYAMLDumper.represent_widget)
-
-
-to_camelcase_re = re.compile(r'_([a-zA-Z])')
-
-def to_camelcase(value):
-    return to_camelcase_re.sub(lambda m: m.group(1).upper(), value)

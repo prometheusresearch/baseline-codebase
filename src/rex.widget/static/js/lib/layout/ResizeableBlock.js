@@ -23,17 +23,17 @@ var ResizeableBlock = React.createClass({
   render() {
     var direction = this.props.direction;
     var className = cx(
-      'rex-widget-ResizeableBlock',
-      `rex-widget-ResizeableBlock--${this.props.direction}`,
-      this.state.resize && 'rex-widget-ResizeableBlock--resize'
+      'rw-ResizeableBlock',
+      `rw-ResizeableBlock--${this.props.direction}`,
+      this.state.resize && 'rw-ResizeableBlock--resize'
     );
     return this.transferPropsTo(
       <Block className={className} fixedSize={this.state.size}>
         {this.props.children}
-        <div className="rex-widget-ResizeableBlock__service">
+        <div className="rw-ResizeableBlock__service">
           <Draggable
             title="Drag to resize"
-            className="rex-widget-ResizeableBlock__handle"
+            className="rw-ResizeableBlock__handle"
             onDrag={this.onResize}
             onDragEnd={this.onResizeEnd}
             />

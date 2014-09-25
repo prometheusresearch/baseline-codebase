@@ -28,7 +28,7 @@ var List = React.createClass({
     }
     var items = this.renderItems();
     return (
-      <ul className={cx("rex-widget-List", this.props.className)}>
+      <ul className={cx('rw-List', this.props.className)}>
         {items}
       </ul>
     );
@@ -43,8 +43,8 @@ var List = React.createClass({
       var selected = this.props.selected === item.id;
       var selectable = this.props.selectable;
       var className = cx({
-        'rex-widget-List__item': true,
-        'rex-widget-List__item--selected': selectable && selected
+        'rw-List__item': true,
+        'rw-List__item--selected': selectable && selected
       });
       var onClick = selectable ?
         this.props.onSelected.bind(null, item.id) :

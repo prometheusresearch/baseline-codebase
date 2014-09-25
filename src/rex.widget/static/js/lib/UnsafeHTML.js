@@ -10,7 +10,7 @@ var UnsafeHTML = React.createClass({
   render: function() {
     return (
       <div
-        className="rex-widget-UnsafeHTML"
+        className="rw-UnsafeHTML"
         dangerouslySetInnerHTML={{__html: this.props.html}}
         />
     );

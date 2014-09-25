@@ -26,10 +26,10 @@ var CheckboxGroup = React.createClass({
 
   render() {
     var options = this.props.options.filter((option) => option).map((option) =>
-      <div key={option.id} className="rex-widget-CheckboxGroup__checkbox">
-        <label className="rex-widget-CheckboxGroup__label">
+      <div key={option.id} className="rw-CheckboxGroup__checkbox">
+        <label className="rw-CheckboxGroup__label">
           <input
-            className="rex-widget-CheckboxGroup__input"
+            className="rw-CheckboxGroup__input"
             checked={this.isActive(option.id)}
             type="checkbox"
             onChange={this.onCheckboxChange.bind(null, option.id)}
@@ -39,8 +39,8 @@ var CheckboxGroup = React.createClass({
       </div>
     );
     var className = cx({
-      'rex-widget-CheckboxGroup': true,
-      'rex-widget-CheckboxGroup--inline': this.props.layout !== 'vertical'
+      'rw-CheckboxGroup': true,
+      'rw-CheckboxGroup--inline': this.props.layout !== 'vertical'
     });
     return <div className={className}>{options}</div>;
   },

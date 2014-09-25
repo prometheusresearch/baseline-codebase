@@ -1,7 +1,7 @@
 """
 
-    rex.widget.state.graph
-    ======================
+    rex.widget.state
+    ================
 
     Data structures for representing a whole application state and computations
     over them.
@@ -13,6 +13,7 @@
 from collections import namedtuple, MutableMapping, Mapping
 from rex.core import AnyVal, Error
 from .logging import getLogger
+from .json import register_adapter
 
 
 log = getLogger(__name__)
@@ -93,6 +94,10 @@ class StateGraph(Mapping):
         _merge_state_into(result, state)
         return result
 
+@register_adapter(StateGraph)
+def _encode_StateGraph(graph):
+    return graph.storage
+
 
 class MutableStateGraph(StateGraph, MutableMapping):
     """ A mutable version of state graph.
@@ -150,9 +155,10 @@ class StateGraphComputation(Mapping):
     :keyword user: user
     """
 
-    def __init__(self, input, output=None, dirty=None, values=None, user=None):
+    def __init__(self, input, request, output=None, dirty=None, values=None, user=None):
         self.input = input
         self.output = output or MutableStateGraph()
+        self.request = request
         self.dirty = set() if not dirty else set(dirty)
         self.user = user
 
@@ -172,9 +178,9 @@ class StateGraphComputation(Mapping):
         if not defer and st.defer:
             st = st._replace(defer=None)
         log.debug('computing: %s', id)
-        is_active = st.is_active(self)
+        st = st._replace(is_active=st.is_active(self))
         if st.computator is not None:
-            value = st.computator(st.widget, st, self, dirty=self.dirty, is_active=is_active)
+            value = st.computator(st.widget, st, self, self.request)
         elif st.value is not unknown:
             value = st.value
         else:
@@ -232,7 +238,7 @@ class StateGraphComputation(Mapping):
             return self.output.get_value(ref)
 
         if not ref.id in self.input:
-            raise Error('invalid reference: %s' % (ref,))
+            raise RuntimeError('invalid reference: %s' % (ref,))
 
         self.compute(ref.id)
 
@@ -259,6 +265,10 @@ class Unknown(object):
         return "Unknown()"
 
     __repr__ = __str__
+
+@register_adapter(Unknown)
+def _encode_Unknown(unknown):
+    return '__unknown__'
 
 
 #: A state value which is used as a placeholder while actual value isn't yet
@@ -372,6 +382,20 @@ class State(_State):
             is_writable=is_writable,
             alias=alias)
 
+@register_adapter(State)
+def _encode_State(state):
+    return {
+        'id': state.id,
+        'dependencies': [
+            dep.id
+            for dep in state.dependencies
+            if not dep.reset_only],
+        'persistence': state.persistence,
+        'isWritable': state.is_writable,
+        'defer': state.defer,
+        'alias': state.alias,
+    }
+
 
 _Dep = namedtuple('Dep', ['id', 'reset_only'])
 
@@ -411,7 +435,7 @@ class Reset(_Reset):
     __slots__ = ()
 
 
-def compute(graph, values=None, user=None, defer=False):
+def compute(graph, request, values=None, user=None, defer=False):
     """ Compute entire state graph.
 
     :param graph: Application state
@@ -419,7 +443,7 @@ def compute(graph, values=None, user=None, defer=False):
     :param user: Current user
     :param defer: Allow state marked with `defer` tag to be deferred
     """
-    computation = StateGraphComputation(graph, values=values, user=user)
+    computation = StateGraphComputation(graph, request, values=values, user=user)
 
     for state_id in computation.input:
         if not computation.is_computed(state_id):
@@ -428,9 +452,9 @@ def compute(graph, values=None, user=None, defer=False):
     return computation.get_output()
 
 
-def compute_update(graph, origins, user=None):
+def compute_update(graph, request, origins, user=None):
     """ Compute state graph update which were originated from ``origins``."""
-    computation = StateGraphComputation(graph, dirty=origins, user=user)
+    computation = StateGraphComputation(graph, request, dirty=origins, user=user)
 
     def _compute(state_id, recompute_deps=True):
         if computation.is_computed(state_id):

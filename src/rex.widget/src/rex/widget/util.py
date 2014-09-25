@@ -7,6 +7,7 @@
 
 """
 
+import re
 import time
 import contextlib
 from .logging import getLogger
@@ -51,3 +52,9 @@ class cached_property(object):
             value = self.func(obj)
             obj.__dict__[self.__name__] = value
         return value
+
+
+to_camelcase_re = re.compile(r'_([a-zA-Z])')
+
+def to_camelcase(value):
+    return to_camelcase_re.sub(lambda m: m.group(1).upper(), value)

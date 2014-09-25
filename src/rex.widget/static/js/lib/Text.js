@@ -8,7 +8,7 @@ var React = require('react');
 var Text = React.createClass({
 
   render: function() {
-    return <p className="rex-widget-Text">{this.props.text}</p>;
+    return <p className="rw-Text">{this.props.text}</p>;
   }
 });
 

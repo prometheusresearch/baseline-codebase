@@ -7,6 +7,8 @@
 
 """
 
+from __future__ import absolute_import
+
 import json
 import yaml
 from rex.core import Validate, StrVal, Location, Error, guard
@@ -14,6 +16,10 @@ from .widget import Widget, WidgetFactory, GroupWidget, NullWidget
 
 
 class WidgetVal(Validate):
+
+    def __init__(self, widget_class=None):
+        super(WidgetVal, self).__init__()
+        self.widget_class = widget_class
 
     def __call__(self, data):
         widget_classes = Widget.map_all()
@@ -94,21 +100,24 @@ class WidgetVal(Validate):
                     node.flow_style)
                 pairs = [(None, value)]
         elif isinstance(node, yaml.MappingNode):
-            if node.tag.isalnum():
+            if node.tag.isalnum() or self.widget_class:
                 name = node.tag
                 pairs = node.value
-        if not name:
+        if name in widget_classes:
+            widget_class = widget_classes[name]
+        elif self.widget_class is not None:
+            widget_class = self.widget_class
+        elif not name:
             error = Error("Expected a widget")
             error.wrap("Got:", node.value
-                               if isinstance(node, yaml.ScalarNode)
-                               else "a %s" % node.id)
+                            if isinstance(node, yaml.ScalarNode)
+                            else "a %s" % node.id)
             error.wrap("While parsing:", location)
             raise error
-        if name not in widget_classes:
+        else:
             error = Error("Found unknown widget:", name)
             error.wrap("While parsing:", location)
             raise error
-        widget_class = widget_classes[name]
         field_by_name = dict((field.name, field)
                              for field in widget_class.record_fields)
         fields_with_no_defaults = [

@@ -21,7 +21,7 @@ var Container = React.createClass({
       WebkitFlexDirection: this.props.vertical ? 'column' : 'row'
     };
     return (
-      <div style={style} className={cx('rex-widget-Container', this.props.className)}>
+      <div style={style} className={cx('rw-Container', this.props.className)}>
         {this.renderChildren(this.props.children)}
       </div>
     );

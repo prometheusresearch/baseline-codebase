@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var React                 = require('react/addons');
-var cx                    = React.addons.classSet;
+var React                 = require('react');
+var cx                    = require('react/lib/cx');
 var LayeredComponentMixin = require('./LayeredComponentMixin');
 var merge                 = require('./merge');
 
@@ -20,7 +20,7 @@ var Shim = React.createClass({
 
   render() {
     return this.transferPropsTo(
-      <div className="rex-widget-Shim" style={merge(expandStyle, this.props.style)}>
+      <div className="rw-Shim" style={merge(expandStyle, this.props.style)}>
         {this.props.children}
       </div>
     );
@@ -44,20 +44,20 @@ var Modal = React.createClass({
     return (
       <div style={merge(expandStyle, {zIndex: 10000})}>
         <Shim onClick={this.props.onClose} />
-        <div className={cx('rex-widget-Modal', this.props.className)} style={this.style}>
-          <div className="rex-widget-Modal__content">
+        <div className={cx('rw-Modal', this.props.className)} style={this.style}>
+          <div className="rw-Modal__content">
             {this.props.showTitle &&
-              <div className="rex-widget-Modal__header">
+              <div className="rw-Modal__header">
                 <button
                   type="button"
                   onClick={this.props.onClose}
                   className="close"><span aria-hidden="true">×</span><span className="sr-only">Close</span>
                 </button>
-                <h4 className="rex-widget-Modal__title">
+                <h4 className="rw-Modal__title">
                   {this.props.title}
                 </h4>
               </div>}
-            <div className="rex-widget-Modal__body">
+            <div className="rw-Modal__body">
               {this.props.children}
             </div>
           </div>

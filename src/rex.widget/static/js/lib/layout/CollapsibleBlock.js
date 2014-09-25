@@ -17,13 +17,13 @@ var CollapsibleBlock = React.createClass({
 
   render() {
     var className = cx({
-      'rex-widget-CollapsibleBlock': true,
-      'rex-widget-CollapsibleBlock--collapsed': this.state.collapsed,
-      'rex-widget-CollapsibleBlock--vertical': this.props.vertical
+      'rw-CollapsibleBlock': true,
+      'rw-CollapsibleBlock--collapsed': this.state.collapsed,
+      'rw-CollapsibleBlock--vertical': this.props.vertical
     });
     var service = (
-      <div title="Show/hide" onClick={this.toggle} className="rex-widget-CollapsibleBlock__button">
-        <div className="rex-widget-CollapsibleBlock__buttonInner">
+      <div title="Show/hide" onClick={this.toggle} className="rw-CollapsibleBlock__button">
+        <div className="rw-CollapsibleBlock__buttonInner">
           {this.state.collapsed ?
             <Icon name="chevron-up" /> :
             <Icon name="chevron-down" />}

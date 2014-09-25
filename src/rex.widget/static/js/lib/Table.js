@@ -37,14 +37,14 @@ var Table = React.createClass({
 
     var transposedData = {};
     return (
-      <table className={cx('rex-widget-Table', this.props.className)}>
+      <table className={cx('rw-Table', this.props.className)}>
         <thead>
           <tr>
             {columns.map((column) =>
               <th key={column.key}>{column.title}</th>
             )}
             {calculatedColumns.map((column) =>
-              <th key={column.key} className="rex-widget-Table__calculatedColumn">{column.title}</th>
+              <th key={column.key} className="rw-Table__calculatedColumn">{column.title}</th>
             )}
           </tr>
         </thead>
@@ -52,8 +52,8 @@ var Table = React.createClass({
           {rows.map((row, rowIndex) => {
             var selected = this.props.selectable && this.props.selected == row.id;
             var className=cx({
-              'rex-widget-Table__row': true,
-              'rex-widget-Table__row--selected': selected
+              'rw-Table__row': true,
+              'rw-Table__row--selected': selected
             });
             return (
               <tr className={className} onClick={this.onSelected.bind(null, row.id)} key={rowIndex}>
@@ -80,7 +80,7 @@ var Table = React.createClass({
                     transposedData[column.key].push(value);
                   }
                   return (
-                    <td className="rex-widget-Table__calculatedColumn" key={column.key}>
+                    <td className="rw-Table__calculatedColumn" key={column.key}>
                       {column.formatter ?
                         column.formatter(value, column.key, row, rowIndex) :
                         value}
@@ -91,7 +91,7 @@ var Table = React.createClass({
             );
           })}
           {calculatedRows.map((row, rowIndex) =>
-            <tr key={rowIndex} className="rex-widget-Table__calculatedRow">
+            <tr key={rowIndex} className="rw-Table__calculatedRow">
               {columns.map((column, index) => {
                 var value = row.calculate(transposedData[column.key], column.key, index, column);
                 if (column.skipInTotal)
@@ -105,7 +105,7 @@ var Table = React.createClass({
               {calculatedColumns.map((column, index) => {
                 var value = row.calculate(transposedData[column.key], column.key, columns.length + index);
                 return (
-                  <td className="rex-widget-Table__calculatedColumn" key={column.key}>
+                  <td className="rw-Table__calculatedColumn" key={column.key}>
                     {column.formatter ? column.formatter(value, column.key, row) : value}
                   </td>
                 )

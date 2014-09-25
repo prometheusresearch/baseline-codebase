@@ -24,11 +24,11 @@ var TextInput = React.createClass({
     var value = this.getValue();
     var component = this.props.textarea ? React.DOM.textarea : React.DOM.input;
     var className = cx({
-      'rex-widget-TextInput': true,
-      'rex-widget-TextInput--textarea': this.props.textarea,
-      'rex-widget-TextInput--verticalResize': this.props.textarea && this.props.resize === 'vertical',
-      'rex-widget-TextInput--horizontalResize': this.props.textarea && this.props.resize === 'horizontal',
-      'rex-widget-TextInput--noResize': this.props.textarea && this.props.resize === 'none'
+      'rw-TextInput': true,
+      'rw-TextInput--textarea': this.props.textarea,
+      'rw-TextInput--verticalResize': this.props.textarea && this.props.resize === 'vertical',
+      'rw-TextInput--horizontalResize': this.props.textarea && this.props.resize === 'horizontal',
+      'rw-TextInput--noResize': this.props.textarea && this.props.resize === 'none'
     });
     return this.transferPropsTo(
       <component

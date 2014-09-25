@@ -13,7 +13,8 @@ lint::
 	pylint src/rex/widget
 
 unittest::
-	@py.test ./test
+	@py.test $(shell find ./src -name '*_tests.py')
+	@#py.test ./src
 
 doctest::
 	@python -m doctest $(shell find ./test -name '*.rst')

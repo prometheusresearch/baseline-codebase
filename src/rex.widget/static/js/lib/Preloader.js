@@ -11,10 +11,10 @@ var Preloader = React.createClass({
 
   render() {
     return (
-      <div className={cx("rex-widget-Preloader", this.props.className)}>
+      <div className={cx("rw-Preloader", this.props.className)}>
         <LoadingIndicator /> 
         {this.props.caption &&
-          <div className="rex-widget-Preloader__caption">
+          <div className="rw-Preloader__caption">
             {this.props.caption}
           </div>}
       </div>

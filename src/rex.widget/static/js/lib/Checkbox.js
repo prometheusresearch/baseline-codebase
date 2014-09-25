@@ -12,7 +12,7 @@ var Checkbox = React.createClass({
     return this.transferPropsTo(
       <input
         type="checkbox"
-        className="rex-widget-Checkbox"
+        className="rw-Checkbox"
         placeholder={this.props.placeholder}
         checked={value}
         onChange={this.onChange}

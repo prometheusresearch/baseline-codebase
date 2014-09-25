@@ -53,7 +53,7 @@ var Block = React.createClass({
       }
     }
     return (
-      <div style={style} className={cx('rex-widget-Block', this.props.className)}>
+      <div style={style} className={cx('rw-Block', this.props.className)}>
         {this.props.children}
       </div>
     );

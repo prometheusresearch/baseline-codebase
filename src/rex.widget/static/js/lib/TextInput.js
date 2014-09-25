@@ -50,12 +50,19 @@ var TextInput = React.createClass({
   },
 
   getInitialState() {
-    return {value: this.props.value};
+    return {value: null};
+  },
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({value: null});
   },
 
   getValue() {
     if (this.state.value !== null) {
       return this.state.value;
+    }
+    if (this.props.value === null) {
+      return '';
     }
     return this.props.value;
   },
@@ -69,6 +76,7 @@ var TextInput = React.createClass({
     var value = e.target.value === '' ? null : e.target.value;
     if (this.props.value !== value) {
       this.props.onValue(value, e.target.id);
+      this.setState({value: null});
     }
   }
 

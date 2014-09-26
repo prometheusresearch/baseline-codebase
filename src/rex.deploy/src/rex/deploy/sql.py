@@ -157,7 +157,7 @@ def sql_comment_on_schema(name, text):
 
         COMMENT ON SCHEMA {name} IS {text}
     """
-    return "COMMENT ON SCHEMA {} IS {};".format(sql_name(name), sql_value(text))
+    return u"COMMENT ON SCHEMA {} IS {};".format(sql_name(name), sql_value(text))
 
 
 def sql_create_table(name, definitions, is_unlogged=False):
@@ -183,7 +183,7 @@ def sql_drop_table(name):
 
         DROP TABLE {name}
     """
-    return "DROP TABLE {};".format(sql_name(name))
+    return u"DROP TABLE {};".format(sql_name(name))
 
 
 def sql_comment_on_table(name, text):
@@ -192,7 +192,7 @@ def sql_comment_on_table(name, text):
 
         COMMENT ON TABLE {name} IS {text}
     """
-    return "COMMENT ON TABLE {} IS {};".format(sql_name(name), sql_value(text))
+    return u"COMMENT ON TABLE {} IS {};".format(sql_name(name), sql_value(text))
 
 
 def sql_define_column(name, type_name, is_not_null):
@@ -246,10 +246,31 @@ def sql_comment_on_column(table_name, name, text):
 
         COMMENT ON COLUMN {table_name}.{name} IS {text}
     """
-    return "COMMENT ON COLUMN {}.{} IS {};" \
+    return u"COMMENT ON COLUMN {}.{} IS {};" \
             .format(sql_name(table_name),
                     sql_name(name),
                     sql_value(text))
+
+
+def sql_create_index(name, table_name, column_names):
+    """
+    Generates::
+
+        CREATE INDEX {name} ON {table_name} ({column_name}, ...)
+    """
+    return u"CREATE INDEX {} ON {} ({});" \
+            .format(sql_name(name),
+                    sql_name(table_name),
+                    sql_name(column_names))
+
+
+def sql_drop_index(name):
+    """
+    Generates::
+
+        DROP INDEX {name}
+    """
+    return u"DROP INDEX {};".format(sql_name(name))
 
 
 def sql_add_unique_constraint(table_name, name, column_names, is_primary):
@@ -305,7 +326,7 @@ def sql_comment_on_constraint(table_name, name, text):
 
         COMMENT ON CONSTRAINT {name} ON {table_name} IS {text}
     """
-    return "COMMENT ON CONSTRAINT {} ON {} IS {};" \
+    return u"COMMENT ON CONSTRAINT {} ON {} IS {};" \
             .format(sql_name(name),
                     sql_name(table_name),
                     sql_value(text))
@@ -338,7 +359,7 @@ def sql_comment_on_type(name, text):
 
         COMMENT ON TYPE {name} IS {text}
     """
-    return "COMMENT ON TYPE {} IS {};".format(sql_name(name), sql_value(text))
+    return u"COMMENT ON TYPE {} IS {};".format(sql_name(name), sql_value(text))
 
 
 def sql_create_function(name, types, return_type, language, source):
@@ -349,7 +370,7 @@ def sql_create_function(name, types, return_type, language, source):
         LANGUAGE {language}
         AS {source}
     """
-    return u"CREATE FUNCTION {}({}) RETURNS {} LANGUAGE {} AS {}" \
+    return u"CREATE FUNCTION {}({}) RETURNS {} LANGUAGE {} AS {};" \
             .format(sql_name(name),
                     sql_name(types),
                     sql_name(return_type),
@@ -363,7 +384,7 @@ def sql_drop_function(name, types):
 
         DROP FUNCTION {name}({type}, ...)
     """
-    return u"DROP FUNCTION {}({})".format(sql_name(name), sql_name(types))
+    return u"DROP FUNCTION {}({});".format(sql_name(name), sql_name(types))
 
 
 def sql_create_trigger(table_name, name, when, event,
@@ -376,7 +397,7 @@ def sql_create_trigger(table_name, name, when, event,
         FOR EACH ROW EXECUTE PROCEDURE {function_name}({argument}, ...)
     """
     return u"CREATE TRIGGER {} {} {} ON {}" \
-            u" FOR EACH ROW EXECUTE PROCEDURE {}({})" \
+            u" FOR EACH ROW EXECUTE PROCEDURE {}({});" \
             .format(sql_name(name), when, event, sql_name(table_name),
                     sql_name(function_name), sql_value(arguments))
 
@@ -387,7 +408,7 @@ def sql_drop_trigger(table_name, name):
 
         DROP TRIGGER {name} ON {table_name}
     """
-    return u"DROP TRIGGER {} ON {}" \
+    return u"DROP TRIGGER {} ON {};" \
             .format(sql_name(name), sql_name(table_name))
 
 

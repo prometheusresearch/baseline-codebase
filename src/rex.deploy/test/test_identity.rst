@@ -177,8 +177,8 @@ values, a trigger is created::
         END IF;
         RETURN NEW;
     END;
-    '
-    CREATE TRIGGER "individual_pk" BEFORE INSERT ON "individual" FOR EACH ROW EXECUTE PROCEDURE "individual_pk"()
+    ';
+    CREATE TRIGGER "individual_pk" BEFORE INSERT ON "individual" FOR EACH ROW EXECUTE PROCEDURE "individual_pk"();
 
 It is not possible to create or remove a generator while the driver is locked::
 
@@ -204,14 +204,14 @@ Changing or removing the generator respectively updates or removes the
 trigger::
 
     >>> driver("""{ identity: [individual.code: offset] }""")       # doctest: +ELLIPSIS
-    DROP TRIGGER "individual_pk" ON "individual"
-    DROP FUNCTION "individual_pk"()
+    DROP TRIGGER "individual_pk" ON "individual";
+    DROP FUNCTION "individual_pk"();
     CREATE FUNCTION "individual_pk"() ...
     CREATE TRIGGER "individual_pk" ...
 
     >>> driver("""{ identity: [individual.code] }""")
-    DROP TRIGGER "individual_pk" ON "individual"
-    DROP FUNCTION "individual_pk"()
+    DROP TRIGGER "individual_pk" ON "individual";
+    DROP FUNCTION "individual_pk"();
 
 Generators could be applied to *text* or *integer* columns::
 

@@ -9,6 +9,7 @@
 ==================
 
 * Added support for generated identity columns.
+* Create an index for each ``FOREIGN KEY`` constraint.
 
 
 1.5.0 (2014-07-18)

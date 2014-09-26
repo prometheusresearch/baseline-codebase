@@ -148,8 +148,8 @@ If a database exists, it can be renamed::
     ALTER DATABASE "deploy_demo" RENAME TO "new_deploy_demo";
 
 
-Tables, columns, and constraints
-================================
+Tables, columns, indexes, and constraints
+=========================================
 
 With ``rex.deploy``, you can generate a ``CREATE TABLE`` and ``DROP TABLE``
 statement::
@@ -212,6 +212,16 @@ columns and constraints::
     >>> print sql_drop_constraint(u'case', fk_name)
     ALTER TABLE "case" DROP CONSTRAINT "case_study_fk";
 
+``rex.deploy`` can create and drop indexes::
+
+    >>> from rex.deploy import sql_create_index, sql_drop_index
+
+    >>> print sql_create_index(fk_name, u'study', [u'study_id'])
+    CREATE INDEX "case_study_fk" ON "study" ("study_id");
+
+    >>> print sql_drop_index(fk_name)
+    DROP INDEX "case_study_fk";
+
 
 Data types
 ==========
@@ -221,11 +231,37 @@ Data types
     >>> from rex.deploy import sql_create_enum_type, sql_drop_type
 
     >>> enum_name = mangle([u'individual', u'sex'], u'enum')
-    >>> print sql_create_enum_type(enum_name, [u'male', u'female', u'intersex'])
-    CREATE TYPE "individual_sex_enum" AS ENUM ('male', 'female', 'intersex');
+    >>> print sql_create_enum_type(enum_name, [u'male', u'female', u'unknown'])
+    CREATE TYPE "individual_sex_enum" AS ENUM ('male', 'female', 'unknown');
 
     >>> print sql_drop_type(enum_name)
     DROP TYPE "individual_sex_enum";
+
+
+Stored procedures and triggers
+==============================
+
+``rex.deploy`` can create and drop functions and triggers::
+
+    >>> from rex.deploy import sql_create_function, sql_drop_function, \
+    ...                        sql_create_trigger, sql_drop_trigger
+
+    >>> trigger_name = mangle(u'individual', u'pk')
+    >>> print sql_create_function(trigger_name, (), u'trigger', u'plpgsql',
+    ...                           u'\nBEGIN NEW."sex" := COALESCE(NEW."sex", \'unknown\'); END;\n')
+    CREATE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    BEGIN NEW."sex" := COALESCE(NEW."sex", ''unknown''); END;
+    ';
+
+    >>> print sql_create_trigger(u'individual', trigger_name, u'BEFORE', u'INSERT',
+    ...                          trigger_name, ())
+    CREATE TRIGGER "individual_pk" BEFORE INSERT ON "individual" FOR EACH ROW EXECUTE PROCEDURE "individual_pk"();
+
+    >>> print sql_drop_trigger(u'individual', trigger_name)
+    DROP TRIGGER "individual_pk" ON "individual";
+
+    >>> print sql_drop_function(trigger_name, ())
+    DROP FUNCTION "individual_pk"();
 
 
 Comments

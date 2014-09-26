@@ -83,6 +83,8 @@ SQL Serialization
 .. autofunction:: sql_define_column
 .. autofunction:: sql_add_column
 .. autofunction:: sql_drop_column
+.. autofunction:: sql_create_index
+.. autofunction:: sql_drop_index
 .. autofunction:: sql_add_unique_constraint
 .. autofunction:: sql_add_foreign_key_constraint
 .. autofunction:: sql_drop_constraint

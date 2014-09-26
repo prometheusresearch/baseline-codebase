@@ -6,36 +6,57 @@
   - identity: [code]
   - column: title
     type: text
+    required: false
   - column: closed
     type: boolean
-  - data: |
-      code,title,closed
-      fos,Family Obesity Study,false
-      asdl,Autism Spectrum Disorder Lab,false
-      schizo,Schizophrenia and Schizoaffective Disorders Clinical Trial,true
+  - data: ./deploy/study.csv
 
 - table: individual
   with:
   - column: code
     type: text
   - identity: [code]
-  - column: first_name
-    type: text
-  - column: last_name
-    type: text
   - column: sex
-    type: [not-known, male, female]
+    type: [not-known, male, female, not-applicable]
   - link: mother
     to: individual
     required: false
   - link: father
     to: individual
     required: false
-  - data: |
-      code,first_name,last_name,sex,mother,father
-      1000,May,Kanaris,female,,
-      1001,Joseph,Kanaris,male,,
-      1002,Vanessa,Kanaris,female,1000,1001
-      1003,James,Kanaris,male,1000,1001
-      1004,Emanuel,Kanaris,male,1000,1001
+  - data: ./deploy/individual.csv
+
+- table: identity
+  with:
+  - link: individual
+  - identity: [individual]
+  - column: givenname
+    type: text
+    required: false
+  - column: surname
+    type: text
+    required: false
+  - column: birthdate
+    type: date
+    required: false
+  - data: ./deploy/identity.csv
+
+- table: protocol
+  with:
+  - link: study
+  - column: code
+    type: text
+  - identity: [study, code]
+  - column: title
+    type: text
+  - data: ./deploy/protocol.csv
+
+- table: participation
+  with:
+  - link: individual
+  - link: protocol
+  - column: code
+    type: text
+  - identity: [individual, protocol, code]
+  - data: ./deploy/participation.csv
 

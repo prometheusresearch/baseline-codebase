@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.widget',
-    version="0.1.13",
+    version="0.2.0",
     description="Widget toolkit for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -24,7 +24,7 @@ setup(
     install_requires=[
         'rex.core       >= 1.6, < 2',
         'rex.web        >= 3.0, < 4',
-        'rex.urlmap     >= 2.4, < 3',
+        'rex.urlmap     >= 2.5, < 3',
         'simplejson     >= 3.0, < 4',
         'jsonpublish    >= 0.2, < 0.3',
         'pyquerystring  >= 0.3, < 0.4'

@@ -5,7 +5,7 @@ REX.EXRESSION Change Log
 .. contents:: Table of Contents
 
 
-1.2.0 (9/xx/2014)
+1.2.0 (9/26/2014)
 =================
 
 - Added support for rex.web v3.

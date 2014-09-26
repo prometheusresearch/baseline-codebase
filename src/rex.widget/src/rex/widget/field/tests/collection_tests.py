@@ -11,6 +11,7 @@ import mock
 
 from rex.core import Rex
 from rex.widget.state import StateGraphComputation, MutableStateGraph
+from rex.widget.state import Reference, State
 from rex.widget.field.data import Data, DataSpec
 from rex.widget.field.collection import CollectionField
 
@@ -128,3 +129,25 @@ def test_computes_via_predefined_port_with_meta():
     spec = make_spec(route='rex.widget_demo:/port/study')
     computation = make_computation(spec, field=field)
     assert computation['widget_id/field_name'].meta is not None
+
+
+def test_no_available_params():
+    spec = make_spec(
+        route='rex.widget_demo:/port/study',
+        refs={'study:code': [Reference('code')]})
+    computation = make_computation(spec)
+    computation.input['code'] = State(id='code', value=None)
+    data = computation['widget_id/field_name']
+    assert len(data.data) == 3
+
+
+def test_available_params():
+    spec = make_spec(
+        route='rex.widget_demo:/port/study',
+        refs={'study:code': [Reference('code')]})
+    computation = make_computation(spec)
+    computation.input['code'] = State(id='code', value='fos')
+    data = computation['widget_id/field_name']
+    assert len(data.data) == 1
+    assert 'code' in data.data[0]
+    assert data.data[0]['code'] == 'fos'

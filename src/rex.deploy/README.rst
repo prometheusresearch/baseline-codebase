@@ -112,8 +112,8 @@ practice, a ``with`` clause is often used.
 Deploying the schema
 ====================
 
-In order to use :mod:`rex.deploy`, we need to add :mod:`rex.deploy` and
-:mod:`rex.db` to the list of dependencies of the application.
+In order to use :mod:`rex.deploy`, we need to add :mod:`rex.deploy` to the list
+of dependencies of the application.
 
 Then we use the ``rex`` command-line tool from package :mod:`rex.ctl`.  To
 deploy the schema for :mod:`rex.deploy_demo` application, run::
@@ -263,8 +263,12 @@ of the table.  In the simplest case, it consists of a single column::
       of: individual
       type: text
 
-    - identity: [code]
+    - identity: [code: random]
       of: individual
+
+In this case, the identity of the ``individual`` table is its ``code`` column.
+The ``random`` clause indicates that the column value is to be randomly
+generated when a record is inserted to the table.
 
 In more complex cases, table identity may include links to other tables.  In
 particular, a table which identity consists of two links establishes a
@@ -659,10 +663,14 @@ Identity fact describes identity of a table.
 Table identity is a set of table columns and links which could uniquely
 identify every row in the table.
 
-`identity`: [``<label>`` or ``<table_label>.<label>``]
+`identity`: [``<label>`` or ``<table_label>.<label>`` or ``<label>: <generator>``]
     Names of columns and links that form the table identity.
 
     Each name may include the table name separated by a period.
+
+    Each column may have an associated generator, which populates an empty
+    column value when a new record are inserted.  Currently two generators
+    are supported: ``offset`` and ``random``.
 
 `of`: ``<table_label>``
     The name of the table.
@@ -679,8 +687,27 @@ Deploying:
     If the table already has a ``PRIMARY KEY`` constraint on a different set of
     columns, the old constraint is deleted and the new one is added.
 
+    If there are any generators, a ``BEFORE INSERT`` trigger is created.  The
+    trigger sets the generated column value for new records unless the value is
+    provided explicitly.
+
     It is an error if table ``<table_label>`` or any of the columns do not
     exist.
+
+The following generators are supported:
+
+`offset` (for *integer* and *text* columns)
+    Column values are populated from sequence ``1``, ``2``, ``3``, and so on
+    (``'001'``, ``'002'``, ``'003'`` for text columns).
+
+    Values are grouped by the prior identity columns and links.
+
+`random` (for *integer* and *text* columns)
+    For an integer column, the generated value is a random number in the
+    range from 1 to 999999999.
+
+    For a text column, the generated value is a sequence of random letters
+    and numbers that follows pattern ``A00A0000``.
 
 Examples:
 
@@ -701,6 +728,15 @@ Examples:
         - link: case
         - link: individual
         - identity: [case, individual]
+
+    #. Creating a generated identity::
+
+        identity: [individual, sample_type, code: offset]
+        of: sample
+
+       When you insert a record to the ``sample`` table, the ``code`` column
+       will be automatically populated by values ``001``, ``002``, and so on
+       within each group of ``individual`` and ``sample_type``.
 
     #. Creating a *trunk* table::
 

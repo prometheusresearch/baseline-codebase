@@ -105,6 +105,10 @@ class ImageMap(object):
         """Is the collection empty?"""
         return bool(self._images)
 
+    def get(self, handle, default=None):
+        """Finds an object by handle, returns default value if not found."""
+        return self._images.get(handle, default)
+
     def keys(self):
         """Gets the list of handles."""
         return self._images.keys()
@@ -369,22 +373,20 @@ class ProcedureSignature(
         return "%s(%s)" % (self.name.encode('utf-8'),
                            ", ".join(str(type) for type in self.types))
 
-    def __repr__(self):
-        return "<%s %s>" % (self.__class__.__name__, self)
-
 
 class ProcedureImage(IndexedImage):
     """Stored procedure."""
 
-    __slots__ = ('name', 'types', 'return_type', 'body')
+    __slots__ = ('name', 'types', 'return_type', 'source')
 
-    def __init__(self, schema, name, types, return_type, body):
+    def __init__(self, schema, name, types, return_type, source):
         signature = ProcedureSignature(name, types)
         super(ProcedureImage, self).__init__(weakref.ref(schema), signature)
         self.name = name
         self.types = types
         self.return_type = return_type
-        self.body = body
+        self.source = source
+        schema.procedures.add(self)
 
     @property
     def schema(self):
@@ -474,7 +476,7 @@ class TableImage(NamedImage):
 
     def remove(self):
         while self.triggers:
-            self.trigger.last().remove()
+            self.triggers.last().remove()
         while self.constraints:
             self.constraints.last().remove()
         while self.columns:

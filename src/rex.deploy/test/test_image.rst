@@ -24,6 +24,13 @@ You can new schemas to the catalog::
     >>> catalog.add_schema(u'public')
     <SchemaImage public>
 
+Two schemas cannot share the same name::
+
+    >>> catalog.add_schema(u'public')
+    Traceback (most recent call last):
+      ...
+    KeyError: u'public'
+
 The catalog object supports some container operations::
 
     >>> u'public' in catalog
@@ -75,8 +82,16 @@ and ``DOMAIN`` types::
     <TypeImage text>
     >>> public_schema.add_domain_type(u'name_t', system_schema.types[u'text'])
     <DomainTypeImage name_t <: text>
-    >>> public_schema.add_enum_type(u'sex_enum', [u'male', u'female'])
-    <EnumTypeImage sex_enum = male | female>
+    >>> public_schema.add_enum_type(u'sex_enum', [u'male', u'female', u'unknown'])
+    <EnumTypeImage sex_enum = male | female | unknown>
+
+You can add stored procedures::
+
+    >>> trigger_type = system_schema.add_type(u'trigger')
+
+    >>> public_schema.add_procedure(u'individual_pk', (), trigger_type,
+    ...                             u'BEGIN NEW.sex := COALESCE(NEW.sex, \'unknown\'); END')
+    <ProcedureImage individual_pk()>
 
 Schema objects support container operations::
 
@@ -136,6 +151,12 @@ You can populate the tables with columns and constraints::
     ...                              [sample_table[u'individual_id']],
     ...                              individual_table, [individual_table[u'id']])
     <ForeignKeyImage sample.sample_individual_fk (individual_id) -> individual (id)>
+
+You can add a trigger on a table::
+
+    >>> individual_procedure = public_schema.procedures[u'individual_pk', ()]
+    >>> individual_table.add_trigger(u'individual_pk', individual_procedure)
+    <TriggerImage individual.individual_pk>
 
 Table objects support container operations::
 
@@ -198,13 +219,19 @@ You can change properties of a column::
     <ColumnImage individual.sex : text>
 
 
-Constraint images
-=================
+Constraint and trigger images
+=============================
 
 ``UniqueKeyImage`` and ``ForeignKeyImage`` represent database constraints::
 
     >>> sample_pk = sample_table.constraints[u'sample_pk']
     >>> sample_individual_fk = sample_table.constraints[u'sample_individual_fk']
+
+For foreign key constraints, you can change the ``ON UPDATE`` and ``ON DELETE``
+actions::
+
+    >>> sample_individual_fk.set_on_update(u'RESTRICT').set_on_delete(u'RESTRICT')
+    <ForeignKeyImage sample.sample_individual_fk (individual_id) -> individual (id)>
 
 Constraint objects provide container interface::
 
@@ -226,6 +253,9 @@ Constraint objects provide container interface::
     >>> len(sample_individual_fk)
     1
 
+A table object also contains its triggers::
+
+    >>> individual_trigger = individual_table.triggers[u'individual_pk']
 
 
 Manipulating data
@@ -282,12 +312,18 @@ All objects with a name could be renamed::
 
     >>> public_schema.rename(u'private')
     <SchemaImage private>
+    >>> sex_enum_type.rename(u'gender')
+    <EnumTypeImage gender = male | female | unknown>
     >>> individual_table.rename(u'subject')
     <TableImage subject>
     >>> individual_id_column.rename(u'subject_id')
     <ColumnImage sample.subject_id : int4>
+    >>> individual_procedure.rename(u'subject_pk')
+    <ProcedureImage subject_pk()>
     >>> sample_individual_fk.rename(u'sample_subject_fk')
     <ForeignKeyImage sample.sample_subject_fk (subject_id) -> subject (id)>
+    >>> individual_trigger.rename(u'subject_pk')
+    <TriggerImage subject.subject_pk>
 
 You can destroy individual types, columns, tables as well as the catalog object
 itself::

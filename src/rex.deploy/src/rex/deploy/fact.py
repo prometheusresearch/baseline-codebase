@@ -4,7 +4,8 @@
 
 
 from rex.core import (LatentRex, get_rex, Extension, Validate, UStrVal,
-        OneOrSeqVal, RecordVal, UnionVal, Error, guard, locate, set_location)
+        OneOrSeqVal, RecordVal, UnionVal, Error, guard, Location, locate,
+        set_location)
 from .introspect import introspect
 import sys
 import psycopg2

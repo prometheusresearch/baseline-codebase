@@ -8,6 +8,8 @@
 1.6.0 (2014-XX-XX)
 ==================
 
+* Added support for generated identity columns.
+
 
 1.5.0 (2014-07-18)
 ==================

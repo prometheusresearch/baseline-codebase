@@ -88,6 +88,10 @@ SQL Serialization
 .. autofunction:: sql_drop_constraint
 .. autofunction:: sql_create_enum_type
 .. autofunction:: sql_drop_type
+.. autofunction:: sql_create_function
+.. autofunction:: sql_drop_function
+.. autofunction:: sql_create_trigger
+.. autofunction:: sql_drop_trigger
 .. autofunction:: sql_select
 .. autofunction:: sql_insert
 .. autofunction:: sql_update

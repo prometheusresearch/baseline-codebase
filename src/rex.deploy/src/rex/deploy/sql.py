@@ -341,6 +341,162 @@ def sql_comment_on_type(name, text):
     return "COMMENT ON TYPE {} IS {};".format(sql_name(name), sql_value(text))
 
 
+def sql_create_function(name, types, return_type, language, source):
+    """
+    Generates::
+
+        CREATE FUNCTION {name}({type}, ...) RETURNS {return_type}
+        LANGUAGE {language}
+        AS {source}
+    """
+    return u"CREATE FUNCTION {}({}) RETURNS {} LANGUAGE {} AS {}" \
+            .format(sql_name(name),
+                    sql_name(types),
+                    sql_name(return_type),
+                    language,
+                    sql_value(source))
+
+
+def sql_drop_function(name, types):
+    """
+    Generates::
+
+        DROP FUNCTION {name}({type}, ...)
+    """
+    return u"DROP FUNCTION {}({})".format(sql_name(name), sql_name(types))
+
+
+def sql_create_trigger(table_name, name, when, event,
+                       function_name, arguments):
+    """
+    Generates::
+
+        CREATE TRIGGER {name} { BEFORE | AFTER } { INSERT | UPDATE | DELETE }
+        ON {table_name}
+        FOR EACH ROW EXECUTE PROCEDURE {function_name}({argument}, ...)
+    """
+    return u"CREATE TRIGGER {} {} {} ON {}" \
+            u" FOR EACH ROW EXECUTE PROCEDURE {}({})" \
+            .format(sql_name(name), when, event, sql_name(table_name),
+                    sql_name(function_name), sql_value(arguments))
+
+
+def sql_drop_trigger(table_name, name):
+    """
+    Generates::
+
+        DROP TRIGGER {name} ON {table_name}
+    """
+    return u"DROP TRIGGER {} ON {}" \
+            .format(sql_name(name), sql_name(table_name))
+
+
+def sql_primary_key_procedure(*parts):
+    # Stored procedure for generating the primary key for a new record.
+    lines = []
+    lines.append(u"\n")
+    lines.append(u"BEGIN\n")
+    for part in parts:
+        for line in part.splitlines():
+            lines.append(u"    {}\n".format(line))
+    lines.append(u"    RETURN NEW;\n")
+    lines.append(u"END;\n")
+    return u"".join(lines)
+
+
+def sql_integer_random_key(table_name, name):
+    # Code for generating a random integer key.
+    table_name = sql_name(table_name)
+    name = sql_name(name)
+
+    lines = []
+    lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
+    lines.append(u"    NEW.{} := TRUNC((RANDOM()*999999999) + 1);\n"
+                .format(name))
+    lines.append(u"END IF;\n")
+    return u"".join(lines)
+
+
+def sql_text_random_key(table_name, name):
+    # Code for creating a random text key.
+    table_name = sql_name(table_name)
+    name = sql_name(name)
+    letters = u"ABCDEFGHJKLMNPQRSTUVWXYZ"
+    digits = u"0123456789"
+    one_letter = u"_letters[1 + TRUNC(RANDOM()*%s)]" % len(letters)
+    one_digit = u"_digits[1 + TRUNC(RANDOM()*%s)]" % len(digits)
+
+    lines = []
+    lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
+    lines.append(u"    DECLARE\n")
+    lines.append(u"        _letters text[] := '{%s}';\n" % u",".join(letters))
+    lines.append(u"        _digits text[] := '{%s}';\n" % u",".join(digits))
+    lines.append(u"    BEGIN\n")
+    lines.append(u"        NEW.{} :=\n".format(name))
+    lines.append(u"            %s ||\n" % one_letter)
+    lines.append(u"            %s ||\n" % one_digit)
+    lines.append(u"            %s ||\n" % one_digit)
+    lines.append(u"            %s ||\n" % one_letter)
+    lines.append(u"            %s ||\n" % one_digit)
+    lines.append(u"            %s ||\n" % one_digit)
+    lines.append(u"            %s ||\n" % one_digit)
+    lines.append(u"            %s;\n" % one_digit)
+    lines.append(u"    END;\n")
+    lines.append(u"END IF;\n")
+    return u"".join(lines)
+
+
+def sql_integer_offset_key(table_name, name, basis_names):
+    # Code for creating an integer offset key.
+    table_name = sql_name(table_name)
+    name = sql_name(name)
+    basis_names = [sql_name(basis_name) for basis_name in basis_names]
+    conditions = [u"{} = NEW.{}".format(basis_name, basis_name)
+                  for basis_name in basis_names]
+
+    lines = []
+    lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
+    lines.append(u"    DECLARE\n")
+    lines.append(u"        _offset int4;\n")
+    lines.append(u"    BEGIN\n")
+    lines.append(u"        SELECT MAX({}) INTO _offset\n".format(name))
+    if conditions:
+        lines.append(u"            FROM {}\n".format(table_name))
+        lines.append(u"            WHERE %s;\n" % u" AND ".join(conditions))
+    else:
+        lines.append(u"            FROM {};\n".format(table_name))
+    lines.append(u"        NEW.{} := COALESCE(_offset, 0) + 1;\n".format(name))
+    lines.append(u"    END;\n")
+    lines.append(u"END IF;\n")
+    return u"".join(lines)
+
+
+def sql_text_offset_key(table_name, name, basis_names):
+    # Code for creating a text offset key.
+    table_name = sql_name(table_name)
+    name = sql_name(name)
+    basis_names = [sql_name(basis_name) for basis_name in basis_names]
+    conditions = [u"{} = NEW.{}".format(basis_name, basis_name)
+                  for basis_name in basis_names]
+    conditions.append(u"{} ~ '^[0-9]{{3}}$'".format(name))
+
+    lines = []
+    lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
+    lines.append(u"    DECLARE\n")
+    lines.append(u"        _offset int4;\n")
+    lines.append(u"    BEGIN\n")
+    lines.append(u"        SELECT CAST(MAX({}) AS int4) INTO _offset\n"
+                .format(name))
+    lines.append(u"            FROM {}\n".format(table_name))
+    lines.append(u"            WHERE %s;\n" % u" AND ".join(conditions))
+    lines.append(u"        NEW.{} :="
+                 u" TO_CHAR(COALESCE(_offset, 0) + 1, 'FM000');\n"
+                .format(name))
+    lines.append(u"    END;\n")
+    lines.append(u"END IF;\n")
+    return u"".join(lines)
+
+
 def sql_select(table_name, names):
     """
     Generates::

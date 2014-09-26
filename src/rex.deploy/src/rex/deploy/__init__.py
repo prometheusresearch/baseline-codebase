@@ -27,7 +27,9 @@ from .sql import (mangle, sql_name, sql_value, sql_create_database,
         sql_drop_column, sql_comment_on_column, sql_add_unique_constraint,
         sql_add_foreign_key_constraint, sql_drop_constraint,
         sql_comment_on_constraint, sql_create_enum_type, sql_drop_type,
-        sql_comment_on_type, sql_select, sql_insert, sql_update, sql_delete)
+        sql_comment_on_type, sql_create_function, sql_drop_function,
+        sql_create_trigger, sql_drop_trigger, sql_select, sql_insert,
+        sql_update, sql_delete)
 from .table import TableFact
 
 

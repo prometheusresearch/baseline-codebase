@@ -1,7 +1,7 @@
 'use strict';
 
 var deepmerge = require('deepmerge');
-var Promise = require('native-promise-only');
+var Promise = require('es6-promise-polyfill').Promise;
 
 
 var ASYNC_DEFAULTS = {

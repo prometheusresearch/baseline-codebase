@@ -1,4 +1,5 @@
-var webpackConfig = require('./webpack.config.js');
+var rexSetup = require('rex-setup');
+
 
 module.exports = function (config) {
   'use strict';
@@ -16,7 +17,7 @@ module.exports = function (config) {
     preprocessors: {
       'test/**/*_spec.js': ['webpack']
     },
-    webpack: webpackConfig,
+    webpack: rexSetup.configureWebpack({}),
     reporters: ['progress'],
     port: 9876,
     colors: true,

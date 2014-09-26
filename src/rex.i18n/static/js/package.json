@@ -1,6 +1,6 @@
 {
   "name": "rex-i18n",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "JavaScript I18N Utilities for the RexDB Framework",
   "author": "Prometheus Research, LLC",
   "license": "AGPLv3",

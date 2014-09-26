@@ -2,7 +2,7 @@
 
 
 var jstz = require('jstimezonedetect').jstz;
-var Promise = require('native-promise-only');
+var Promise = require('es6-promise-polyfill').Promise;
 var deepmerge = require('deepmerge');
 
 var JedWrapper = require('./jed');

@@ -29,6 +29,15 @@ LAST_MODIFIED_DATE = datetime.now()
 
 
 class SwitchLocaleCommand(Command):
+    """
+    When the ``/switch`` URL is accessed via GET or POST, the Locale specified
+    by the ``locale`` parameter will be persisted in the current user's session
+    so that it is used by future HTTP requests.
+
+    After saving the Locale, the user will be redirected to the URL specified
+    by the ``redirect`` parameter, or the the REFERER, if not specified.
+    """
+
     path = '/switch'
     access = 'anybody'
     parameters = (
@@ -58,6 +67,15 @@ class SwitchLocaleCommand(Command):
 
 
 class GetTranslationsCommand(Command):
+    """
+    When the ``/translations/{locale}`` URL is accessed via GET, a JSON object
+    will be returned that contains the string translations for the specified
+    ``locale`` in the ``frontend`` domain.
+
+    This JSON object is compatible with the Jed JavaScript library, as well as
+    the JavaScript components provided by the ``rex.i18n`` package.
+    """
+
     path = '/translations/{locale}'
     access = 'anybody'
     parameters = (
@@ -115,6 +133,16 @@ class CldrPackagerCommand(Command):
 
 
 class GetLocaleCommonCommand(CldrPackagerCommand):
+    """
+    When the ``/locale`` URL is accessed via GET, a JSON array of three CLDR
+    objects will be returned. These objects contain the likelySubtags,
+    timeData, and weekData CLDR data.
+
+    These objects are compatible with the cldr.js and globalize.js JavaScript
+    libraries, as well as the JavaScript components provided by the
+    ``rex.i18n`` package.
+    """
+
     path = '/locale'
     access = 'anybody'
 
@@ -127,6 +155,19 @@ class GetLocaleCommonCommand(CldrPackagerCommand):
 
 
 class GetLocaleDetailCommand(CldrPackagerCommand):
+    """
+    When the ``/locale/{locale}`` URL is access via GET, a JSON array of two
+    CLDR objects will be returned. These objects contain the ca-gregorian and
+    numbers CLDR data for the specified ``locale``.
+
+    If the data for the specified ``locale`` is not available, the data for the
+    ``en`` Locale is returned.
+
+    These objects are compatible with the cldr.js and globalize.js JavaScript
+    libraries, as well as the JavaScript components provided by the
+    ``rex.i18n`` package.
+    """
+
     path = '/locale/{locale}'
     access = 'anybody'
     parameters = (

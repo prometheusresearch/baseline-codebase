@@ -3,17 +3,19 @@
 #
 
 
+import threading
+
 from babel import Locale
 from babel.support import Translations, NullTranslations
+from gettext import GNUTranslations
 from speaklater import make_lazy_string
 
-from rex.core import get_rex, get_settings, get_packages, cached
+from rex.core import get_settings, get_packages, cached
 
 
 __all__ = (
     'KEY_LOCALE',
     'KEY_TIMEZONE',
-    'KEY_TRANSLATIONS',
 
     'DIRECTION_LTR',
     'DIRECTION_RTL',
@@ -23,6 +25,7 @@ __all__ = (
     'DOMAIN_FRONTEND',
     'ALL_DOMAINS',
 
+    'get_i18n_context',
     'get_locale',
     'get_locale_direction',
     'get_timezone',
@@ -32,12 +35,13 @@ __all__ = (
     'gettext',
     'ngettext',
     'lazy_gettext',
+
+    'RexTranslations',
 )
 
 
 KEY_LOCALE = 'i18n_locale'
 KEY_TIMEZONE = 'i18n_timezone'
-KEY_TRANSLATIONS = 'i18n_translations'
 
 
 DIRECTION_LTR = 'ltr'
@@ -61,6 +65,103 @@ ALL_DOMAINS = (
 )
 
 
+class I18NContext(threading.local):
+    """
+    A class that manages the I18N configuration for the current thread.
+    """
+
+    _locale = None
+    _timezone = None
+
+    def reset(self):
+        """
+        Resets the configuration back to its vanilla state, as if none of the
+        ``set_*()`` methods had been called.
+        """
+
+        self._locale = None
+        self._timezone = None
+
+    def get_locale(self):
+        """
+        Retrieves the current locale. If none has been explicitly set, then
+        this will return the default as defined in the ``i18n_default_locale``
+        setting.
+
+        :rtype: Locale
+        """
+
+        if not self._locale:
+            return get_settings().i18n_default_locale
+        return self._locale
+
+    def has_locale(self):
+        """
+        Indicates whether or not the ``set_locale()`` method has been used to
+        explicitly set the current locale.
+
+        :rtype: bool
+        """
+
+        return self._locale is not None
+
+    def set_locale(self, locale):
+        """
+        Sets the locale to use for the current thread.
+
+        :param locale: the locale the current thread should use
+        :type locale: Locale
+        """
+
+        self._locale = locale
+
+    def get_timezone(self):
+        """
+        Retrieves the current timezone. If none has been explicitly set, then
+        this will return the default as defined in the
+        ``i18n_default_timezone`` setting.
+
+        :rtype: tzinfo
+        """
+
+        if not self._timezone:
+            return get_settings().i18n_default_timezone
+        return self._timezone
+
+    def has_timezone(self):
+        """
+        Indicates whether or not the ``set_timezone()`` method has been used to
+        explicitly set the current timezone.
+
+        :rtype: bool
+        """
+
+        return self._timezone is not None
+
+    def set_timezone(self, timezone):
+        """
+        Sets the timezone to use for the current thread.
+
+        :param timezone: the timezone the current thread should use
+        :type timezone: tzinfo
+        """
+
+        self._timezone = timezone
+
+
+_CONTEXT = I18NContext()
+
+
+def get_i18n_context():
+    """
+    Retrieves the current context of the I18N framework.
+
+    :rtype: I18NContext
+    """
+
+    return _CONTEXT
+
+
 def get_locale():
     """
     Retrieves the locale being used on the current thread.
@@ -68,10 +169,7 @@ def get_locale():
     :rtype: Locale
     """
 
-    rex = get_rex()
-    if not hasattr(rex, KEY_LOCALE):
-        setattr(rex, KEY_LOCALE, get_settings().i18n_default_locale)
-    return getattr(rex, KEY_LOCALE)
+    return get_i18n_context().get_locale()
 
 
 def get_locale_direction(locale=None):
@@ -103,27 +201,59 @@ def get_timezone():
     :rtype: tzinfo
     """
 
-    rex = get_rex()
-    if not hasattr(rex, KEY_TIMEZONE):
-        setattr(rex, KEY_TIMEZONE, get_settings().i18n_default_timezone)
-    return getattr(rex, KEY_TIMEZONE)
+    return get_i18n_context().get_timezone()
 
 
-def get_translations():
+def get_translations(locale=None, domain=DOMAIN_BACKEND):
     """
-    Retrieves the gettext translations for the current locale.
+    Retrieves the gettext translations for a locale.
 
+    :param locale:
+        the locale to retrieve the translations for; if not specified, defaults
+        to the locale being used on te current thread
+    :type locale: string
+    :param domain:
+        the translation domain to retrieve; if not specified, defaults to
+        ``backend``
+    :type domain: string
     :rtype: Translations
     """
 
-    rex = get_rex()
-    if not hasattr(rex, KEY_TRANSLATIONS):
-        setattr(
-            rex,
-            KEY_TRANSLATIONS,
-            collect_translations(str(get_locale()), DOMAIN_BACKEND),
-        )
-    return getattr(rex, KEY_TRANSLATIONS)
+    if not locale:
+        locale = str(get_locale())
+
+    return collect_translations(locale, domain)
+
+
+class RexTranslations(Translations):
+    """
+    This is a custom implementation of ``babel.support.Translations`` that
+    won't overwrite existing keys  with default values during merges of
+    catalogs.
+
+    Example: if we have a catalog with a key of "foo" that has a translated
+    string, and we attempt to merge in another catalog that also has a key of
+    "foo", but with no translated string, then we want to keep the translation
+    we have from the first catalog, rather than overwrite it with the default
+    (which is what the Babel logic does).
+    """
+
+    # pylint: disable=R0904
+
+    def _safe_catalog_update(self, incoming_catalog):
+        for key, value in incoming_catalog.items():
+            if (value != key) or (key not in self._catalog):
+                self._catalog[key] = value
+
+    # Override the merge implementation.
+    def merge(self, translations):
+        if isinstance(translations, GNUTranslations):
+            # pylint: disable=W0212
+            self._safe_catalog_update(translations._catalog)
+            if isinstance(translations, Translations):
+                self.files.extend(translations.files)
+
+        return self
 
 
 @cached
@@ -134,7 +264,7 @@ def collect_translations(locale, domain):
         if not package.exists('i18n'):
             continue
 
-        pkg_tx = Translations.load(
+        pkg_tx = RexTranslations.load(
             dirname=package.abspath('i18n'),
             locales=[locale],
             domain=domain,
@@ -178,6 +308,7 @@ def get_json_translations(locale, domain):
         }
     }
 
+    # pylint: disable=W0212
     for key, val in translations._catalog.items():
         if not key:
             # We don't want to kill our '' key.
@@ -202,6 +333,7 @@ def get_json_translations(locale, domain):
         contents[key] = val
 
     # Update the plural forms expression if we have one.
+    # pylint: disable=W0212
     plural_forms = translations._info.get('plural-forms', None)
     if plural_forms:
         contents['']['plural_forms'] = plural_forms
@@ -216,7 +348,7 @@ def gettext(string, **variables):
     interpolation.
 
     :param string: the string to translate
-    :param string: string
+    :type string: string
     :returns:
         the translated string; or the original string if the current locale
         does not have a translation for it
@@ -259,7 +391,7 @@ def lazy_gettext(string, **variables):
     value is evaluated based on the currently active locale.
 
     :param string: the string to translate
-    :param string: string
+    :type string: string
     :returns:
         the translated string; or the original string if the current locale
         does not have a translation for it

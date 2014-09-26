@@ -9,7 +9,7 @@ Set up the environment::
 
     >>> from rex.core import Rex
     >>> from webob import Request
-    >>> rex = Rex('rex.i18n', i18n_supported_locales=['en', 'fr'])
+    >>> rex = Rex('rex.i18n', i18n_supported_locales=['en', 'fr', 'fil'])
     >>> rex.on()
 
 
@@ -140,6 +140,22 @@ a 400 error::
     >>> req = Request.blank('/locale/ar')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     400 Bad Request
+    ...
+
+If you specify a locale that *is* configured in the system, but does not have
+CLDR data available, you will receive the CLDR data for English::
+
+    >>> req = Request.blank('/locale/fil')
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    200 OK
+    Content-type: application/json
+    Content-Length: ...
+    Last-Modified: ...
+    Set-Cookie: ...
+    <BLANKLINE>
+    [{
+      "main": {
+        "en": {
     ...
 
 

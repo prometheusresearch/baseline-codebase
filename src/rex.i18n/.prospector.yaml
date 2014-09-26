@@ -16,6 +16,7 @@ pylint:
     - R0921
     - R0922
     - R0903
+    - E1101
 
   options:
     max-public-methods: 30

@@ -3,10 +3,9 @@
 #
 
 
-from rex.core import get_rex
-from rex.web import Route
+from rex import web
 
-from .core import KEY_LOCALE, KEY_TIMEZONE, KEY_TRANSLATIONS
+from .core import get_i18n_context, KEY_LOCALE, KEY_TIMEZONE
 from .extensions import LocaleDetector, TimezoneDetector
 
 
@@ -15,49 +14,71 @@ __all__ = (
 )
 
 
-class I18NRoute(Route):
-    priority = 5
+# TODO: After some time, we'll abandon support for rex.web < 3
 
-    def __call__(self, package, fallback):
-        if fallback is not None:
-            return I18NDetector(package, fallback)
-        return fallback
+if not hasattr(web, 'get_routes'):
+    # We're in an environment with rex.web < 3.
+    class I18NRoute(web.Route):
+        priority = 5
+
+        def __call__(self, package, fallback):
+            if fallback is not None:
+                return I18NDetector(fallback)
+            return fallback
+
+else:
+    # We're in a environment with rex.web >= 3.
+    from rex.web import PathMap
+
+    class I18NRoute(web.Route):
+        priority = 5
+
+        def __call__(self, package):
+            route_types = [
+                router
+                for router in reversed(web.Route.ordered())
+                if not issubclass(router, self.__class__)
+            ]
+
+            handle_map = PathMap()
+            for route_type in route_types:
+                route = route_type(self.open)
+                handle_map.update(route(package))
+
+            wrapped_handle_map = PathMap()
+            for path in handle_map:
+                wrapped_handle_map.add(path, I18NDetector(handle_map[path]))
+
+            return wrapped_handle_map
 
 
 class I18NDetector(object):
-    def __init__(self, package, fallback=None):
-        self.package = package
-        self.fallback = fallback
+    def __init__(self, handler):
+        self.handler = handler
 
     def establish_locale(self, request):
-        rex = get_rex()
-        if not hasattr(rex, KEY_LOCALE):
-            setattr(rex, KEY_LOCALE, LocaleDetector.detect_locale(request))
-        locale = getattr(rex, KEY_LOCALE)
+        i18n = get_i18n_context()
+        if not i18n.has_locale():
+            i18n.set_locale(LocaleDetector.detect_locale(request))
+        locale = i18n.get_locale()
         request.environ['rex.session'][KEY_LOCALE] = str(locale)
 
     def establish_timezone(self, request):
-        rex = get_rex()
-        if not hasattr(rex, KEY_TIMEZONE):
-            setattr(
-                rex,
-                KEY_TIMEZONE,
-                TimezoneDetector.detect_timezone(request),
-            )
-        timezone = getattr(rex, KEY_TIMEZONE)
+        i18n = get_i18n_context()
+        if not i18n.has_timezone():
+            i18n.set_timezone(TimezoneDetector.detect_timezone(request))
+        timezone = i18n.get_timezone()
         request.environ['rex.session'][KEY_TIMEZONE] = timezone.zone
 
     def cleanup(self):
-        rex = get_rex()
-        for key in (KEY_LOCALE, KEY_TIMEZONE, KEY_TRANSLATIONS):
-            if hasattr(rex, key):
-                delattr(rex, key)
+        i18n = get_i18n_context()
+        i18n.reset()
 
     def __call__(self, request):
         try:
             self.establish_locale(request)
             self.establish_timezone(request)
-            return self.fallback(request)
+            return self.handler(request)
         finally:
             self.cleanup()
 

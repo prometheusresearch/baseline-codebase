@@ -1,0 +1,12 @@
+msgid "foo"
+msgstr "spanish foo"
+
+msgid "bar"
+msgstr ""
+
+msgid "baz"
+msgstr "spanish baz"
+
+msgid "foobar"
+msgstr "spanish foobar"
+

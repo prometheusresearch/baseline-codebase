@@ -2,7 +2,7 @@
 
 
 var Jed = require('jed');
-var Promise = require('native-promise-only');
+var Promise = require('es6-promise-polyfill').Promise;
 
 var util = require('./util');
 

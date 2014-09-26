@@ -1,0 +1,9 @@
+msgid "foo"
+msgstr "french foo"
+
+msgid "bar"
+msgstr "french bar"
+
+msgid "baz"
+msgstr ""
+

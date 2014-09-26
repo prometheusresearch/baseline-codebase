@@ -41,8 +41,8 @@ specified gettext domain::
     extensions=jinja2.ext.do,jinja2.ext.loopcontrols
 
     >>> print BabelMapper.domain_mapper_config('frontend')
-    [javascript: static/js/lib/**.js]
-    [javascript: static/js/lib/**.jsx]
+    [jsx: static/js/lib/**.js]
+    [jsx: static/js/lib/**.jsx]
 
 
 CoreBabelMapper
@@ -84,8 +84,8 @@ This mapper produces the configuration for scanning JavaScript source files::
     >>> JavaScriptBabelMapper.domain
     'frontend'
     >>> print JavaScriptBabelMapper.mapper_config()
-    [javascript: static/js/lib/**.js]
-    [javascript: static/js/lib/**.jsx]
+    [jsx: static/js/lib/**.js]
+    [jsx: static/js/lib/**.jsx]
 
 
 LocaleDetector

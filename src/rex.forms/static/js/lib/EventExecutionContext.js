@@ -1,10 +1,12 @@
 /**
  * @jsx React.DOM
  */
+
 'use strict';
 
 var RexExpression     = require('rex-expression');
 var traverseQuestions = require('./traverseQuestions');
+
 
 /**
  * Execution context encapsulates information about events define in form
@@ -27,7 +29,7 @@ class EventExecutionContext {
     try {
       return RexExpression.evaluate(
         expression,
-        this._resolveWith(resolver)
+        resolver
       );
     } catch (exc) {
       if (console && console.error) {
@@ -36,43 +38,24 @@ class EventExecutionContext {
     }
   }
 
-  execute(targetID, actionName, resolver, processor) {
-    var actions = this.getAction(targetID, actionName);
-    for (var i = 0, len = actions.length; i < len; i++) {
-      var action = actions[i];
-      var value = this.evaluate(action.trigger, resolver);
-      if (value !== undefined) {
-        if (processor) {
-          return processor(action, value);
-        }
-        return value;
-      }
-    }
-    return undefined;
+  getLiveEvents(targetID, actionName, resolver) {
+    var events = this.getEvents(targetID, actionName);
+
+    var live = events.filter((event) => {
+      var result = this.evaluate(event.trigger, resolver);
+      return (result === true);
+    });
+
+    return live;
   }
 
   has(targetID, actionName) {
-    return this.getAction(targetID, actionName).length > 0;
+    return this.getEvents(targetID, actionName).length > 0;
   }
 
-  getAction(targetID, actionName) {
+  getEvents(targetID, actionName) {
     var actions = this.context[targetID];
     return actions ? actions[actionName] || [] : [];
-  }
-
-  _resolveWith(resolver) {
-    return function(name) {
-      var value = resolver(name);
-      if (value === false || value === true) {
-        return RexExpression.Boolean.value(value);
-      } else if (typeof value === 'string') {
-        return RexExpression.String.value(value);
-      } else if (typeof value === 'number') {
-        return RexExpression.Number.value(value);
-      } else {
-        return RexExpression.Untyped.value(value);
-      }
-    };
   }
 
   static fromForm(form) {
@@ -145,4 +128,6 @@ function _enrichActionContext(context, questions, action, events) {
   }
 }
 
+
 module.exports = EventExecutionContext;
+

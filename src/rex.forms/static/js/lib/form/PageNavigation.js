@@ -33,11 +33,18 @@ var PageNavigation = React.createClass({
             {this.props.children}
           </div>
           <div className="col-sm-5 rex-forms-PageNavigation__next">
-            {around.next ?
+            {around.next && !enabledAround.next &&
+              <div className="rex-forms-PageNavigation__errors">
+                {_('Please address all required questions and errors on this page in order to continue.')}
+              </div>
+            }
+            {around.next &&
               <NavigationButton
                 disabled={!enabledAround.next}
                 onClick={this.nextPage}
-                label={_('Next Page')} /> : null}
+                label={_('Next Page')}
+              />
+            }
           </div>
         </div>
       </div>

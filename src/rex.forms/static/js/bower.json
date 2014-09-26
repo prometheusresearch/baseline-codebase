@@ -1,6 +1,6 @@
 {
   "name": "rex-forms",
-  "version": "0.22.2",
+  "version": "0.23.0",
   "description": "JavaScript functionality for the rex.forms framework",
   "authors": [
     "Prometheus Research, LLC"
@@ -14,6 +14,7 @@
     "emitter": "https://github.com/component/emitter.git#1.1.2",
     "jscreole": "prometheusresearch/jscreole#inline-markup",
     "rex-expression": "*",
+    "rex-i18n": "*",
     "assert": "*",
     "mocha": "*"
   },

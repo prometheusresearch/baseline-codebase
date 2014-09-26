@@ -5,6 +5,35 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.23.0 (9/26/2014)
+==================
+
+- The JavaScript components are now using the RexI18N framework for
+  localization.
+- Fixed issues with referencing enumerationSet enumerations and matrix
+  sub-fields in REXL expressions.
+- Fixed some issues with REXL identifier resolution not returning correct data
+  type.
+- The radioGroup widget now includes the ability for users to clear out their
+  selection.
+- The progress bar is now measured as the current page over the total number of
+  pages.
+- Fixed the issue that prevented multiple events targetting the same field.
+- The discrepancies listed on the Reconciliation screen are now in the same
+  order as the fields appear in the original Form.
+- Added text to screen to explain why the Next Page button is disabled.
+- The "Complete Form" button now says "Review Responses" when in entry mode,
+  and "Complete Form" when in review mode.
+- Fixed issue of not being able to disable checkGroup, dropDown, or radioGroup
+  widgets.
+- The reconciliation screen now requires the user to explictly address each
+  discrepancy listed, whether they choose an entered value or manually
+  override the value. The "complete" button will now not appear until all
+  discrepancies have been dealt with.
+- The display of multi-line text on the review/read-only screen now actually
+  shows the linebreaks instead of one continue string of text.
+
+
 0.22.2 (9/17/2014)
 ==================
 

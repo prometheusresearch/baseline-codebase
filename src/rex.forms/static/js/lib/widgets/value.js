@@ -1,12 +1,14 @@
 /**
  * @jsx React.DOM
  */
+
 'use strict';
 
-var React               = require('react');
-var ReactForms          = require('react-forms');
+var React = require('react');
+var ReactForms = require('react-forms');
 var LabelRenderingMixin = require('./LabelRenderingMixin');
-var _                   = require('../localization')._;
+var _ = require('../localization')._;
+var MultiLineText = require('./MultiLineText');
 
 
 var value = React.createClass({
@@ -23,7 +25,8 @@ var value = React.createClass({
       <div className="rex-forms-value">
         {this.renderLabel()}
         <div>
-          {hasValue ? val :
+          {hasValue ?
+            <MultiLineText text={val} /> :
             <span className="rex-forms-value__novalue">
               {_('No value provided.')}
             </span>}
@@ -33,4 +36,6 @@ var value = React.createClass({
   }
 });
 
+
 module.exports = value;
+

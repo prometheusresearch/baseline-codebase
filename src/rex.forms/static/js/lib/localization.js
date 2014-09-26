@@ -5,11 +5,12 @@
 
 var React     = require('react');
 var isString  = require('./utils').isString;
+var RexI18N   = require('rex-i18n');
 
-// TODO: Replace with actual gettext function
+
 function _(msg, params) {
-  params = params || {};
-  return msg.replace(/%\(([a-zA-Z0-9]+)\)s/g, (m, k) => params[k]);
+  var i18n = RexI18N.getInstance();
+  return i18n.gettext(msg, params).toString();
 }
 
 var ContextTypes = {

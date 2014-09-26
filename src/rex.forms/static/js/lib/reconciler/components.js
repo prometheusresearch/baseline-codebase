@@ -89,12 +89,14 @@ var Header = React.createClass({
 var DiscrepancyTitle = React.createClass({
   propTypes: {
     title: React.PropTypes.string.isRequired,
-    required: React.PropTypes.bool
+    required: React.PropTypes.bool,
+    complete: React.PropTypes.bool
   },
 
   getDefaultProps: function () {
     return {
-      required: false
+      required: false,
+      complete: false
     };
   },
 
@@ -105,7 +107,12 @@ var DiscrepancyTitle = React.createClass({
     });
     return (
       <div className={classes}>
-        <p>{this.props.title}</p>
+        <p>
+          {this.props.title}
+          {this.props.complete &&
+            <span className="rex-forms-Discrepancy__complete"></span>
+          }
+        </p>
       </div>
     );
   }
@@ -121,12 +128,14 @@ var DiscrepancyChoices = React.createClass({
     discrepancy: React.PropTypes.object.isRequired,
     question: React.PropTypes.object.isRequired,
     onSelect: React.PropTypes.func.isRequired,
-    targetWidget: React.PropTypes.component.isRequired
+    targetWidget: React.PropTypes.component.isRequired,
+    onStatus: React.PropTypes.func
   },
 
   getInitialState: function () {
     return {
-      selectedEntry: null
+      selectedEntry: null,
+      overridden: false
     };
   },
 
@@ -169,21 +178,39 @@ var DiscrepancyChoices = React.createClass({
       classes[this.getColumnSizeClass()] = true;
       classes = classSet(classes);
 
-      var clickHandler = function () {
-        this.setState({
-          selectedEntry: key
-        });
-        this.props.onSelect(key);
-      }.bind(this);
+      var clickHandler = this.makeChoice.bind(this, false, key);
 
       return (
         <div key={key} className={classes}>
           <p onClick={clickHandler}>{value || _('No value provided.')}</p>
         </div>
-        );
+      );
     });
 
     return values;
+  },
+
+  makeChoice: function (doOverride, selectedEntry) {
+    selectedEntry = selectedEntry || null;
+    this.setState({
+      overridden: doOverride,
+      selectedEntry: doOverride ? null : selectedEntry
+    }, () => {
+      if (!doOverride) {
+        this.props.onSelect(selectedEntry);
+      }
+      if (this.props.onStatus) {
+        this.props.onStatus(this.isComplete());
+      }
+    });
+  },
+
+  onOverride: function (event) {
+    this.makeChoice(event.target.checked);
+  },
+
+  isComplete: function () {
+    return this.state.overridden || (this.state.selectedEntry !== null);
   },
 
   render: function () {
@@ -196,13 +223,25 @@ var DiscrepancyChoices = React.createClass({
         this.setState({
           selectedEntry: null
         });
-      }
+      },
+      disabled: !this.state.overridden
     });
 
     return (
       <div className="rex-forms-DiscrepancyValues">
         {values}
         <div key='_fv' className={classes}>
+          <div className="rex-forms-DiscrepancyValues__override">
+            <label>
+              <input
+                type="checkbox"
+                checked={this.state.overridden}
+                refs="manualOverride"
+                onChange={this.onOverride}
+                />
+              {_('Manual Override')}
+            </label>
+          </div>
           {widget}
         </div>
       </div>
@@ -217,19 +256,43 @@ var SimpleDiscrepancy = React.createClass({
     l10n.LocalizedMixin
   ],
 
+  propTypes: {
+    onStatus: React.PropTypes.func
+  },
+
+  getInitialState: function () {
+    return {
+      complete: false
+    };
+  },
+
   onSelect: function (entryUid) {
     var value = this.value(),
       discrepancy = value.schema.props.discrepancy,
       choice = discrepancy[entryUid];
 
     var type = types.getForInstrumentType(value.schema.props.instrumentType);
-    if (choice === null) {
+    if ((choice === null) || (choice === undefined)) {
       choice = type.getDefaultValue();
     }
     choice = type.serialize(choice);
 
     choice = value.updateSerialized(choice);
     this.onValueUpdate(choice);
+  },
+
+  onChildStatus: function (isComplete) {
+    this.setState({
+      complete: isComplete
+    }, function () {
+      if (this.props.onStatus) {
+        this.props.onStatus(isComplete);
+      }
+    });
+  },
+
+  isComplete: function () {
+    return this.state.complete;
   },
 
   render: function () {
@@ -254,11 +317,14 @@ var SimpleDiscrepancy = React.createClass({
         <div className="rex-forms-Discrepancy__inner">
           <DiscrepancyTitle
             title={this.localize(question.text)}
-            required={schema.props.required} />
+            required={schema.props.required}
+            complete={this.isComplete()}
+            />
           <DiscrepancyChoices
             discrepancy={discrepancy}
             question={question}
             onSelect={this.onSelect}
+            onStatus={this.onChildStatus}
             targetWidget={widget}>
           </DiscrepancyChoices>
         </div>
@@ -268,21 +334,127 @@ var SimpleDiscrepancy = React.createClass({
 });
 
 
+var ParentDiscrepancyMixin = {
+  /*
+   * Implementers need to provide this function:
+   *
+  isComplete: function () {
+    return aBoolean;
+  },
+  */
+
+  propTypes: {
+    childComparator: React.PropTypes.func
+  },
+
+  getDefaultProps: function () {
+    return {
+      childComparator: undefined
+    };
+  },
+
+  getInitialState: function () {
+    return {
+      childFields: [],
+      childComparator: this.props.childComparator,
+      childStatus: {}
+    };
+  },
+
+  componentWillMount: function () {
+    this._initParentDiscrepancy(this.props, this.value().schema);
+  },
+
+  _initParentDiscrepancy: function (props, schema) {
+    var children = Object.keys(schema.children).sort(
+      this.state.childComparator
+    );
+
+    this.setState({
+      childFields: children,
+      childStatus: children.reduce(function (previous, current) {
+        previous[current] = previous[current] || false;
+        return previous;
+      }, {})
+    });
+  },
+
+  onChildStatus: function (childID, isComplete) {
+    var newStatus = utils.merge(this.state.childStatus, {});
+    newStatus[childID] = isComplete;
+
+    this.setState({
+      childStatus: newStatus
+    }, function () {
+      if (this.props.onStatus) {
+        this.props.onStatus(this.isComplete());
+      }
+    });
+  },
+
+  areChildrenComplete: function () {
+    var childrenStatus = this.state.childFields.reduce((previous, current) => {
+      return previous && this.state.childStatus[current];
+    }, true);
+
+    return childrenStatus;
+  }
+};
+
+
 var RecordListDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldsetMixin,
-    l10n.LocalizedMixin
+    l10n.LocalizedMixin,
+    ParentDiscrepancyMixin
   ],
+
+  getInitialState: function () {
+    return {
+      childComparator: this._recordComparator
+    };
+  },
+
+  isComplete: function () {
+    return this.areChildrenComplete();
+  },
+
+  _getFieldIndex: function (fieldID) {
+    var question = this.value().schema.props.question;
+    var index = 0;
+
+    for (var f = 0; f < question.questions.length; f++) {
+      var field = question.questions[f];
+
+      if (field.fieldId === fieldID) {
+        return index;
+      }
+
+      index += 1;
+    }
+  },
+
+  _fieldComparator: function (a, b) {
+    var aIndex = this._getFieldIndex(a);
+    var bIndex = this._getFieldIndex(b);
+    return (aIndex - bIndex);
+  },
+
+  _recordComparator: function (a, b) {
+    return (parseInt(a) - parseInt(b));
+  },
 
   render: function () {
     var schema = this.value().schema,
       question = schema.props.question,
-      children = Object.keys(schema.children).map((key) => {
+      records = this.state.childFields.map((recordNumber) => {
         return (
           <FormFor
-            key={key}
-            name={key}
-          />
+            key={recordNumber}
+            name={recordNumber}
+            childComparator={this._fieldComparator}
+            onStatus={this.onChildStatus.bind(this, recordNumber)}
+            />
         );
       });
 
@@ -292,8 +464,10 @@ var RecordListDiscrepancy = React.createClass({
         <div className='rex-forms-RecordListDiscrepancy__inner'>
           <DiscrepancyTitle
             title={this.localize(question.text)}
-            required={schema.props.required} />
-          {children}
+            required={schema.props.required}
+            complete={this.isComplete()}
+            />
+          {records}
         </div>
       </div>
     );
@@ -304,20 +478,26 @@ var RecordListDiscrepancy = React.createClass({
 var RecordListRecordDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldsetMixin,
-    l10n.LocalizedMixin
+    l10n.LocalizedMixin,
+    ParentDiscrepancyMixin
   ],
+
+  isComplete: function () {
+    return this.areChildrenComplete();
+  },
 
   render: function () {
     var schema = this.value().schema,
       title = _('Record #%(recordNumber)s', {
         recordNumber: parseInt(this.props.name) + 1
       }),
-      children = Object.keys(schema.children).map((key) => {
+      fields = this.state.childFields.map((fieldID) => {
         return (
           <FormFor
-            key={key}
-            name={key}
-          />
+            key={fieldID}
+            name={fieldID}
+            onStatus={this.onChildStatus.bind(this, fieldID)}
+            />
         );
       });
 
@@ -327,8 +507,10 @@ var RecordListRecordDiscrepancy = React.createClass({
         <div className='rex-forms-RecordListRecordDiscrepancy__inner'>
           <DiscrepancyTitle
             title={title}
-            required={schema.props.required} />
-          {children}
+            required={schema.props.required}
+            complete={this.isComplete()}
+            />
+          {fields}
         </div>
       </div>
     );
@@ -339,18 +521,68 @@ var RecordListRecordDiscrepancy = React.createClass({
 var MatrixDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldsetMixin,
-    l10n.LocalizedMixin
+    l10n.LocalizedMixin,
+    ParentDiscrepancyMixin
   ],
+
+  getInitialState: function () {
+    return {
+      childComparator: this._comparator.bind(this, this._getRowIndex)
+    };
+  },
+
+  isComplete: function () {
+    return this.areChildrenComplete();
+  },
+
+  _getRowIndex: function (rowID) {
+    var question = this.value().schema.props.question;
+    var index = 0;
+
+    for (var r = 0; r < question.rows.length; r++) {
+      var row = question.rows[r];
+
+      if (row.id === rowID) {
+        return index;
+      }
+
+      index += 1;
+    }
+  },
+
+  _getColumnIndex: function (columnID) {
+    var question = this.value().schema.props.question;
+    var index = 0;
+
+    for (var c = 0; c < question.questions.length; c++) {
+      var column = question.questions[c];
+
+      if (column.fieldId === columnID) {
+        return index;
+      }
+
+      index += 1;
+    }
+  },
+
+  _comparator: function (indexer, a, b) {
+    var aIndex = indexer(a);
+    var bIndex = indexer(b);
+    return (aIndex - bIndex);
+  },
 
   render: function () {
     var schema = this.value().schema,
       question = schema.props.question,
-      children = Object.keys(schema.children).map((key) => {
+      columnComparator = this._comparator.bind(this, this._getColumnIndex),
+      rows = this.state.childFields.map((rowID) => {
         return (
           <FormFor
-            key={key}
-            name={key}
-          />
+            key={rowID}
+            name={rowID}
+            childComparator={columnComparator}
+            onStatus={this.onChildStatus.bind(this, rowID)}
+            />
         );
       });
 
@@ -359,8 +591,10 @@ var MatrixDiscrepancy = React.createClass({
         className='rex-forms-ReconcilerSection rex-forms-MatrixDiscrepancy'>
         <div className='rex-forms-MatrixDiscrepancy__inner'>
           <DiscrepancyTitle
-            title={this.localize(question.text)} />
-          {children}
+            title={this.localize(question.text)}
+            complete={this.isComplete()}
+            />
+          {rows}
         </div>
       </div>
     );
@@ -371,18 +605,24 @@ var MatrixDiscrepancy = React.createClass({
 var MatrixRowDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldsetMixin,
-    l10n.LocalizedMixin
+    l10n.LocalizedMixin,
+    ParentDiscrepancyMixin
   ],
+
+  isComplete: function () {
+    return this.areChildrenComplete();
+  },
 
   render: function () {
     var schema = this.value().schema,
       title = this.localize(schema.props.row.text),
-      children = Object.keys(schema.children).map((key) => {
+      columns = this.state.childFields.map((columnID) => {
         return (
           <FormFor
-            key={key}
-            name={key}
-          />
+            key={columnID}
+            name={columnID}
+            onStatus={this.onChildStatus.bind(this, columnID)}
+            />
         );
       });
 
@@ -392,8 +632,10 @@ var MatrixRowDiscrepancy = React.createClass({
         <div className='rex-forms-MatrixRowDiscrepancy__inner'>
           <DiscrepancyTitle
             title={title}
-            required={schema.props.required} />
-          {children}
+            required={schema.props.required}
+            complete={this.isComplete()}
+            />
+          {columns}
         </div>
       </div>
     );
@@ -403,12 +645,23 @@ var MatrixRowDiscrepancy = React.createClass({
 
 var DiscrepancyList = React.createClass({
   mixins: [
-    Forms.FormMixin
+    Forms.FormMixin,
+    ParentDiscrepancyMixin
   ],
+
+  getInitialState: function () {
+    return {
+      childComparator: this._fieldComparator
+    };
+  },
 
   isValid: function () {
     var validation = this.value().validation;
     return Forms.validation.isSuccess(validation);
+  },
+
+  isComplete: function () {
+    return this.areChildrenComplete() && this.isValid();
   },
 
   getReconciledDiscrepancies: function () {
@@ -438,9 +691,47 @@ var DiscrepancyList = React.createClass({
     return fillMissing(collectedValues, schema);
   },
 
+  _getSortIndex: function (fieldId) {
+    var form = this.props.schema.props.form;
+    var index = 0;
+
+    for (var p = 0; p < form.pages.length; p++) {
+      var page = form.pages[p];
+
+      for (var e = 0; e < page.elements.length; e++) {
+        var element = page.elements[e];
+
+        if ((element.type === 'question')
+            && (element.options.fieldId === fieldId)) {
+          return index;
+        }
+
+        index += 1;
+      }
+    }
+  },
+
+  _fieldComparator: function (a, b) {
+    var aIndex = this._getSortIndex(a);
+    var bIndex = this._getSortIndex(b);
+    return (aIndex - bIndex);
+  },
+
   render: function () {
+    var discrepancies = this.state.childFields.map((fieldID) => {
+      return (
+        <FormFor
+          name={fieldID}
+          key={fieldID}
+          onStatus={this.onChildStatus.bind(this, fieldID)}
+          />
+      );
+    });
+
     return (
-      <FormFor />
+      <div className="rex-forms-ReconcilerDiscrepancyList">
+        {discrepancies}
+      </div>
     );
   }
 });

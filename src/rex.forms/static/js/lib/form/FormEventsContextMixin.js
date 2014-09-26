@@ -1,11 +1,13 @@
 /**
  * @jsx React.DOM
  */
+
 'use strict';
 
 var React                 = require('react');
 var EventExecutionContext = require('../EventExecutionContext');
 var _                     = require('../localization')._;
+var Resolver              = require('../expressions').Resolver;
 
 
 var FormEventsContextMixin = {
@@ -30,12 +32,11 @@ var FormEventsContextMixin = {
 
   formEvents: function() {
     return {
-      execute: this.executeEventExpression,
       has: this.hasEventExpression,
       isHidden: this.isHiddenByEvents,
-      isFailed: this.isFailedByEvents,
-      isDisabled: this.isDisabledByEvents,
       isEnumerationHidden: this.isEnumerationHiddenByEvents,
+      isDisabled: this.isDisabledByEvents,
+      isFailed: this.isFailedByEvents,
       isCalculated: this.isCalculatedByEvents,
       calculate: this.calculateByEvents
     };
@@ -52,90 +53,81 @@ var FormEventsContextMixin = {
     return this.getEventExecutionContext().has(targetID, action);
   },
 
-  /**
-   * Execute event expression.
-   *
-   * @param {String} targetID
-   * @param {String} action
-   * @param {Value?} value Optional form value, if not provide current form
-   *                       value will be used.
-   * @returns {Any}
-   */
-  executeEventExpression: function(targetID, action, value, processor) {
-    var executionContext = this.getEventExecutionContext();
-    value = value || this.value().value;
-    return executionContext.execute(
+  _hasLiveEvents: function (targetID, value, actionName) {
+    var events = this.getEventExecutionContext().getLiveEvents(
       targetID,
-      action,
-      this._resolveIdentifier.bind(null, value),
-      processor
+      actionName,
+      this.getIdentifierResolver(value)
     );
-  },
 
-  isEnumerationHiddenByEvents: function(targetID, enumeration, value) {
-    return this.executeEventExpression(
-      targetID,
-      'hideEnumeration',
-      value,
-      (action, triggerResult) => {
-        if (!triggerResult) { return false; }
-
-        var options = action.options || {},
-          targettedEnumerations = options.enumerations || [];
-
-        return (targettedEnumerations.indexOf(enumeration) > -1);
-      }
-    );
-  },
-
-  isDisabledByEvents: function(targetID, value) {
-    return this.executeEventExpression(targetID, 'disable', value);
+    return (events.length > 0);
   },
 
   isHiddenByEvents: function(targetID, value) {
-    return this.executeEventExpression(targetID, 'hide', value);
+    return this._hasLiveEvents(targetID, value, 'hide');
+  },
+
+  isEnumerationHiddenByEvents: function(targetID, enumeration, value) {
+    var events = this.getEventExecutionContext().getLiveEvents(
+      targetID,
+      'hideEnumeration',
+      this.getIdentifierResolver(value)
+    );
+
+    for (var i = 0; i < events.length; i++) {
+      var options = events[i].options || {};
+      var targettedEnumerations = options.enumerations || [];
+
+      if (targettedEnumerations.indexOf(enumeration) > -1) {
+        return true;
+      }
+    }
+
+    return false;
+  },
+
+  isDisabledByEvents: function(targetID, value) {
+    return this._hasLiveEvents(targetID, value, 'disable');
   },
 
   isFailedByEvents: function(targetID, value) {
-    return this.executeEventExpression(
+    var events = this.getEventExecutionContext().getLiveEvents(
       targetID,
       'fail',
-      value,
-      (action, triggerResult) => {
-        if (!triggerResult) { return false; }
-
-        var options = action.options || {},
-          message = this.localize(options.text) || _('Invalid value.');
-
-        return {
-          message: message
-        };
-      }
+      this.getIdentifierResolver(value)
     );
+
+    for (var i = 0; i < events.length; i++) {
+      var options = events[i].options || {};
+      var message = this.localize(options.text) || _('Invalid value.');
+
+      return {message};
+    }
+
+    return false;
   },
 
   isCalculatedByEvents: function(targetID, value) {
-    return this.executeEventExpression(targetID, 'calculate', value);
+    return this._hasLiveEvents(targetID, value, 'calculate');
   },
 
   calculateByEvents: function(targetID, value) {
-    return this.executeEventExpression(
+    var resolver = this.getIdentifierResolver(value);
+    var events = this.getEventExecutionContext().getLiveEvents(
       targetID,
       'calculate',
-      value,
-      (action, triggerResult) => {
-        if (!triggerResult) { return false; }
-
-        var options = action.options || {},
-          calculation = options.calculation;
-
-        value = value || this.value().value;
-        return this.getEventExecutionContext().evaluate(
-          calculation,
-          this._resolveIdentifier.bind(null, value)
-        );
-      }
+      resolver
     );
+
+    for (var i = 0; i < events.length; i++) {
+      var options = events[i].options || {};
+      var calculation = options.calculation;
+
+      return this.getEventExecutionContext().evaluate(
+        calculation,
+        resolver
+      );
+    }
   },
 
   /**
@@ -152,48 +144,19 @@ var FormEventsContextMixin = {
     return this._eventExecutionContext;
   },
 
-  /**
-   * Resolve identifier for rex.expression evaluator
-   *
-   * We check if we reference a value of form and if we fail we try to resolve
-   * form parameter.
-   *
-   * @private
-   *
-   * @param {Array} value
-   * @param {String} name
-   * @returns {Object}
-   */
-  _resolveIdentifier: function(value, name) {
-    var parameters = this.props.parameters;
-    var schema = this.props.schema;
+  getIdentifierResolver: function(value) {
+    var resolver = new Resolver(
+      this.props.schema,
+      value || this.value().value,
+      this.props.parameters
+    );
 
-    var isValue = false;
-
-    for (var i = 0, len = name.length; i < len; i++) {
-      value = value[name[i]];
-
-      if (value === undefined) {
-        if (i === 0 && parameters[name[i]] !== undefined) {
-          value = parameters[name[i]];
-        } else {
-          return null;
-        }
-      } else {
-        isValue = true;
-      }
-
-      if (isValue) {
-        schema = schema.get(name[i]);
-      }
-    }
-
-    if (isValue && schema.props.isQuestion) {
-      value = value.value;
-    }
-
-    return value;
+    return (name) => {
+      return resolver.resolveIdentifier(name);
+    };
   }
 };
 
+
 module.exports = FormEventsContextMixin;
+

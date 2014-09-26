@@ -1,11 +1,14 @@
 /**
  * @jsx React.DOM
  */
+
 'use strict';
 
-var React       = require('react');
-var ReactForms  = require('react-forms');
-var _           = require('../localization')._;
+var React = require('react');
+var ReactForms = require('react-forms');
+var _ = require('../localization')._;
+var MultiLineText = require('./MultiLineText');
+
 
 var readOnlyExplanation = React.createClass({
   mixins: [ReactForms.FieldMixin],
@@ -18,10 +21,12 @@ var readOnlyExplanation = React.createClass({
     return this.transferPropsTo(
       <div className="rex-forms-readOnlyExplanation">
         <label>{_('Explanation:')}</label>
-        <div>{this.value().value}</div>
+        <MultiLineText text={this.value().value} />
       </div>
     );
   }
 });
 
+
 module.exports = readOnlyExplanation;
+

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: rex.forms 0.22.0\n"
+"Project-Id-Version: rex.forms 0.23.0\n"
 "Report-Msgid-Bugs-To: contact@prometheusresearch.com\n"
-"POT-Creation-Date: 2014-08-22 16:58-0400\n"
+"POT-Creation-Date: 2014-09-25 14:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,33 +17,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: static/js/lib/types.js:27
+#: static/js/lib/types.js:36
 msgid "Please enter a valid number."
 msgstr ""
 
-#: static/js/lib/types.js:52
+#: static/js/lib/types.js:68
 msgid "Please enter a valid whole number."
 msgstr ""
 
-#: static/js/lib/types.js:82
+#: static/js/lib/types.js:106
 msgid "Only true or false values are allowed."
 msgstr ""
 
-#: static/js/lib/types.js:146
+#: static/js/lib/types.js:174
 msgid "Dates must be entered in YYYY-MM-DD format."
 msgstr ""
 
-#: static/js/lib/types.js:150
+#: static/js/lib/types.js:178
 msgid "Please enter a valid date."
 msgstr ""
 
-#: static/js/lib/types.js:177
+#: static/js/lib/types.js:205
 msgid ""
 "Times must be entered in HH:MM:SS format. They are 24-hour based, and "
 "seconds are optional."
 msgstr ""
 
-#: static/js/lib/types.js:217
+#: static/js/lib/types.js:245
 msgid ""
 "Date/Time values must be entered in YYYY-MM-DD HH:MM:SS format. Times are"
 " 24-hour based, and seconds are optional."
@@ -95,11 +95,24 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: static/js/lib/form/Form.js:73
+#: static/js/lib/form/EditableQuestionWrapper.js:44
+msgid "Cancel"
+msgstr ""
+
+#: static/js/lib/form/Form.js:64
 msgid "Complete Form"
 msgstr ""
 
-#: static/js/lib/form/FormEventsContextMixin.js:108
+#: static/js/lib/form/Form.js:65
+msgid "Review Responses"
+msgstr ""
+
+#: static/js/lib/form/FormEntry.js:148
+#, python-format
+msgid "Page %(page)s of %(total)s"
+msgstr ""
+
+#: static/js/lib/form/FormEventsContextMixin.js:102
 msgid "Invalid value."
 msgstr ""
 
@@ -114,40 +127,62 @@ msgstr ""
 msgid "Previous Page"
 msgstr ""
 
-#: static/js/lib/form/PageNavigation.js:40
-msgid "Next Page"
+#: static/js/lib/form/PageNavigation.js:38
+msgid ""
+"Please address all required questions and errors on this page in order to"
+" continue."
 msgstr ""
 
-#: static/js/lib/form/Pagination.js:32
-#, python-format
-msgid "You are currently viewing page %(index)s"
+#: static/js/lib/form/PageNavigation.js:45
+msgid "Next Page"
 msgstr ""
 
 #: static/js/lib/form/Pagination.js:33
 #, python-format
-msgid "Jump to page %(index)s"
+msgid "You are currently viewing page %(index)s."
 msgstr ""
 
-#: static/js/lib/form/ProgressBar.js:16
+#: static/js/lib/form/Pagination.js:35
+msgid ""
+"Please address all required questions and errors on the current page in "
+"order to jump forward."
+msgstr ""
+
+#: static/js/lib/form/Pagination.js:37
+#, python-format
+msgid "Jump to page %(index)s."
+msgstr ""
+
+#: static/js/lib/form/ProgressBar.js:23
 #, python-format
 msgid "%(percent)s%% complete"
 msgstr ""
 
-#: static/js/lib/reconciler/components.js:57
+#: static/js/lib/reconciler/components.js:59
 #, python-format
 msgid "Entered By: %(user)s"
 msgstr ""
 
-#: static/js/lib/reconciler/components.js:64
+#: static/js/lib/reconciler/components.js:66
 msgid "Final Value"
 msgstr ""
 
-#: static/js/lib/reconciler/components.js:272
+#: static/js/lib/reconciler/components.js:185
+#: static/js/lib/widgets/enumeratedValue.js:50
+#: static/js/lib/widgets/value.js:31
+msgid "No value provided."
+msgstr ""
+
+#: static/js/lib/reconciler/components.js:242
+msgid "Manual Override"
+msgstr ""
+
+#: static/js/lib/reconciler/components.js:492
 #, python-format
 msgid "Record #%(recordNumber)s"
 msgstr ""
 
-#: static/js/lib/reconciler/index.js:84
+#: static/js/lib/reconciler/index.js:91
 msgid "Complete Reconciliation"
 msgstr ""
 
@@ -168,11 +203,15 @@ msgid "I would like to explain my response to this question."
 msgstr ""
 
 #: static/js/lib/widgets/explanation.js:16
-#: static/js/lib/widgets/readOnlyExplanation.js:20
+#: static/js/lib/widgets/readOnlyExplanation.js:23
 msgid "Explanation:"
 msgstr ""
 
-#: static/js/lib/widgets/readOnlyAnnotation.js:21
+#: static/js/lib/widgets/radioGroup.js:64
+msgid "Clear My Selection"
+msgstr ""
+
+#: static/js/lib/widgets/readOnlyAnnotation.js:24
 msgid "I can't (or won't) respond to this question because:"
 msgstr ""
 
@@ -182,9 +221,5 @@ msgstr ""
 
 #: static/js/lib/widgets/recordList.js:43
 msgid "Add"
-msgstr ""
-
-#: static/js/lib/widgets/value.js:28
-msgid "No value provided."
 msgstr ""
 

@@ -28,9 +28,14 @@ var Pagination = React.createClass({
       var disabled = enabledPages.indexOf(page) === -1;
       var active = page.id === currentPage.id;
 
-      var title = active ?
-        _('You are currently viewing page %(index)s', {index}) :
-        _('Jump to page %(index)s', {index});
+      var title;
+      if (active) {
+        title = _('You are currently viewing page %(index)s.', {index});
+      } else if (disabled) {
+        title = _('Please address all required questions and errors on the current page in order to jump forward.');
+      } else {
+        title = _('Jump to page %(index)s.', {index});
+      }
 
       var onClick = disabled ? preventDefault : this.onClick.bind(null, page);
 

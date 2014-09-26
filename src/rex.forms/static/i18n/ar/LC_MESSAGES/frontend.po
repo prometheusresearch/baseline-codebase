@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the rex.forms project.
 # 
 # Translators:
+# BobbiB <bobbi@prometheusresearch.com>, 2014
 # Jason Simeone, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: rex.forms\n"
 "Report-Msgid-Bugs-To: contact@prometheusresearch.com\n"
-"POT-Creation-Date: 2014-08-22 16:58-0400\n"
-"PO-Revision-Date: 2014-08-22 20:59+0000\n"
+"POT-Creation-Date: 2014-09-25 14:44-0400\n"
+"PO-Revision-Date: 2014-09-25 18:51+0000\n"
 "Last-Translator: Jason Simeone\n"
 "Language-Team: Arabic (http://www.transifex.com/projects/p/rexforms/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -19,173 +20,208 @@ msgstr ""
 "Language: ar\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: static/js/lib/types.js:27
+#: static/js/lib/types.js:36
 msgid "Please enter a valid number."
-msgstr ""
+msgstr "يرجى إدخال رقم صحيح"
 
-#: static/js/lib/types.js:52
+#: static/js/lib/types.js:68
 msgid "Please enter a valid whole number."
-msgstr ""
+msgstr "يرجى إدخال رقم صحيح كامل."
 
-#: static/js/lib/types.js:82
+#: static/js/lib/types.js:106
 msgid "Only true or false values are allowed."
-msgstr ""
+msgstr "فقط يسمح قيم صحيحة أو خاطئة."
 
-#: static/js/lib/types.js:146
+#: static/js/lib/types.js:174
 msgid "Dates must be entered in YYYY-MM-DD format."
-msgstr ""
+msgstr "يجب إدخال التواريخ في شكل  يوم-شهر- سنة"
 
-#: static/js/lib/types.js:150
+#: static/js/lib/types.js:178
 msgid "Please enter a valid date."
-msgstr ""
+msgstr "يرجى إدخال تاريخ صالح."
 
-#: static/js/lib/types.js:177
+#: static/js/lib/types.js:205
 msgid ""
 "Times must be entered in HH:MM:SS format. They are 24-hour based, and "
 "seconds are optional."
-msgstr ""
+msgstr "يجب إدخال الوقت في شكل  ساعات: دقائق: ثواني.علي مدار ٢٤ ساعة و استخدام الثواني اختياري. "
 
-#: static/js/lib/types.js:217
+#: static/js/lib/types.js:245
 msgid ""
 "Date/Time values must be entered in YYYY-MM-DD HH:MM:SS format. Times are "
 "24-hour based, and seconds are optional."
-msgstr ""
+msgstr "يجب إدخال قيم التاريخ / الوقت في شكل يوم-شهر- سنة  ساعات: دقائق: ثواني . الأوقات علي مدار ٢٤ ساعة ، والثواني اختيارية."
 
 #: static/js/lib/validators.js:41
 #, python-format
 msgid "Cannot measure length of \"%(value)s\""
-msgstr ""
+msgstr "لا يمكن قياس طول \"%(value)s\""
 
 #: static/js/lib/validators.js:46
 #, python-format
 msgid "Cannot be less than a length of %(value)s"
-msgstr ""
+msgstr "الطول لا يمكن أن يكون أقل من  %(value)s"
 
 #: static/js/lib/validators.js:51
 #, python-format
 msgid "Cannot be more than a length of %(value)s"
-msgstr ""
+msgstr "الطول لا يمكن أن يكون أكثر من %(value)s"
 
 #: static/js/lib/validators.js:62
 msgid "Does not match the accepted pattern"
-msgstr ""
+msgstr "لا يتطابق مع النمط المقبول."
 
 #: static/js/lib/validators.js:74
 #, python-format
 msgid "\"%(value)s\" is not an acceptable value"
-msgstr ""
+msgstr "\"%(value)s\" ليست قيمة مقبولة"
 
 #: static/js/lib/validators.js:101
 #, python-format
 msgid "Cannot be less than %(value)s"
-msgstr ""
+msgstr "لا يمكن أن يكون أقل من  %(value)s "
 
 #: static/js/lib/validators.js:107
 #, python-format
 msgid "Cannot be greater than %(value)s"
-msgstr ""
+msgstr "لا يمكن أن يكون أكبر من %(value)s "
 
 #: static/js/lib/validators.js:191
 msgid "This number is outside the acceptible bounds for an integer."
-msgstr ""
+msgstr "هذا العدد هو خارج الحدود المقبولة لعدد صحيح."
 
 #: static/js/lib/form/EditableQuestionWrapper.js:39
 msgid "Save"
-msgstr ""
+msgstr "احفظ"
 
 #: static/js/lib/form/EditableQuestionWrapper.js:39
 msgid "Edit"
+msgstr "تعديل"
+
+#: static/js/lib/form/EditableQuestionWrapper.js:44
+msgid "Cancel"
 msgstr ""
 
-#: static/js/lib/form/Form.js:73
+#: static/js/lib/form/Form.js:64
 msgid "Complete Form"
+msgstr "ملء الاستمارة"
+
+#: static/js/lib/form/Form.js:65
+msgid "Review Responses"
 msgstr ""
 
-#: static/js/lib/form/FormEventsContextMixin.js:108
-msgid "Invalid value."
+#: static/js/lib/form/FormEntry.js:148
+#, python-format
+msgid "Page %(page)s of %(total)s"
 msgstr ""
+
+#: static/js/lib/form/FormEventsContextMixin.js:102
+msgid "Invalid value."
+msgstr "قيمة غير صالحة."
 
 #: static/js/lib/form/FormOverview.js:15
 msgid ""
 "Please review your entered values before completing the form. You can press "
 "the <strong>Edit</strong> button at the top-right corner of the question to "
 "edit its value."
-msgstr ""
+msgstr "يرجي مراجعة القيمة التي ادخلتها قبل استكمال الاستمارة. يمكنك الضغط على<strong> تعديل الزر</strong>في الزاوية العلوية  اليمنى من السؤال حتي يتم تعديل قيمته."
 
 #: static/js/lib/form/PageNavigation.js:30
 msgid "Previous Page"
+msgstr "الصفحة السابقة"
+
+#: static/js/lib/form/PageNavigation.js:38
+msgid ""
+"Please address all required questions and errors on this page in order to "
+"continue."
 msgstr ""
 
-#: static/js/lib/form/PageNavigation.js:40
+#: static/js/lib/form/PageNavigation.js:45
 msgid "Next Page"
-msgstr ""
-
-#: static/js/lib/form/Pagination.js:32
-#, python-format
-msgid "You are currently viewing page %(index)s"
-msgstr ""
+msgstr "الصفحة التالية"
 
 #: static/js/lib/form/Pagination.js:33
 #, python-format
-msgid "Jump to page %(index)s"
+msgid "You are currently viewing page %(index)s."
+msgstr "كنت تقوم حاليا بعرض الصفحة %(index)s"
+
+#: static/js/lib/form/Pagination.js:35
+msgid ""
+"Please address all required questions and errors on the current page in "
+"order to jump forward."
 msgstr ""
 
-#: static/js/lib/form/ProgressBar.js:16
+#: static/js/lib/form/Pagination.js:37
+#, python-format
+msgid "Jump to page %(index)s."
+msgstr "إذهب إلى الصفحة %(index)s"
+
+#: static/js/lib/form/ProgressBar.js:23
 #, python-format
 msgid "%(percent)s%% complete"
-msgstr ""
+msgstr "%(percent)s%% كاملة "
 
-#: static/js/lib/reconciler/components.js:57
+#: static/js/lib/reconciler/components.js:59
 #, python-format
 msgid "Entered By: %(user)s"
-msgstr ""
+msgstr "تم إدخاله من قبل: %(user)s"
 
-#: static/js/lib/reconciler/components.js:64
+#: static/js/lib/reconciler/components.js:66
 msgid "Final Value"
+msgstr "القيمة النهائية"
+
+#: static/js/lib/reconciler/components.js:185
+#: static/js/lib/widgets/enumeratedValue.js:50
+#: static/js/lib/widgets/value.js:31
+msgid "No value provided."
+msgstr "ليس هناك قيمة مقدمة."
+
+#: static/js/lib/reconciler/components.js:242
+msgid "Manual Override"
 msgstr ""
 
-#: static/js/lib/reconciler/components.js:272
+#: static/js/lib/reconciler/components.js:492
 #, python-format
 msgid "Record #%(recordNumber)s"
-msgstr ""
+msgstr "سجل #%(recordNumber)s"
 
-#: static/js/lib/reconciler/index.js:84
+#: static/js/lib/reconciler/index.js:91
 msgid "Complete Reconciliation"
-msgstr ""
+msgstr " تصالح كامل"
 
 #: static/js/lib/widgets/ToggleText.js:22
 msgid "I don't want to provide this information."
-msgstr ""
+msgstr "أنا لا أريد أن اقدم هذه المعلومات."
 
 #: static/js/lib/widgets/annotation.js:13
 msgid "I can't (or won't) respond to this question."
-msgstr ""
+msgstr "لا أستطيع (أو لن) الرد على هذا السؤال."
 
 #: static/js/lib/widgets/annotation.js:14
 msgid "Please explain why you can't or won't respond to this question:"
-msgstr ""
+msgstr "يرجى توضيح لماذا  لا تستطيع أو لن ترد على هذا السؤال:"
 
 #: static/js/lib/widgets/explanation.js:15
 msgid "I would like to explain my response to this question."
-msgstr ""
+msgstr "أود أن أشرح ردي على هذا السؤال."
 
 #: static/js/lib/widgets/explanation.js:16
-#: static/js/lib/widgets/readOnlyExplanation.js:20
+#: static/js/lib/widgets/readOnlyExplanation.js:23
 msgid "Explanation:"
+msgstr "شرح:"
+
+#: static/js/lib/widgets/radioGroup.js:64
+msgid "Clear My Selection"
 msgstr ""
 
-#: static/js/lib/widgets/readOnlyAnnotation.js:21
+#: static/js/lib/widgets/readOnlyAnnotation.js:24
 msgid "I can't (or won't) respond to this question because:"
-msgstr ""
+msgstr "لا أستطيع (أو لن) الرد على هذا السؤال لان:"
 
 #: static/js/lib/widgets/record.js:25
 msgid "Remove"
-msgstr ""
+msgstr "ازالة"
 
 #: static/js/lib/widgets/recordList.js:43
 msgid "Add"
-msgstr ""
-
-#: static/js/lib/widgets/value.js:28
-msgid "No value provided."
-msgstr ""
+msgstr "إضافة"

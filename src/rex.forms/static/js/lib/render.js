@@ -3,12 +3,14 @@
  */
 'use strict';
 
+var RexI18N   = require('rex-i18n');
 var React     = require('react');
 var emitter   = require('emitter');
 var Form      = require('./form').Form;
 var utils     = require('./utils');
 var merge     = utils.merge;
 var invariant = utils.invariant;
+
 
 function isCompatible(reference, obj) {
   // XXX: && reference.version === obj.version;
@@ -115,6 +117,10 @@ function render(options) {
       node.scrollIntoView(true);
     });
   }
+
+  RexI18N.onLoad(options.locale, function () {
+    form.forceUpdate();
+  });
 
   return form;
 }

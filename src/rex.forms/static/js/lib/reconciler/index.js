@@ -8,6 +8,7 @@
 
 
 var React = require('react/addons');
+var RexI18N = require('rex-i18n');
 
 var FormLocalizerMixin = require('../form/FormLocalizerMixin');
 var merge = require('../utils').merge;
@@ -26,6 +27,7 @@ var Reconciler = React.createClass({
 
   getInitialState: function () {
     return {
+      complete: false,
       processingComplete: false
     };
   },
@@ -57,6 +59,12 @@ var Reconciler = React.createClass({
     });
   },
 
+  onChildStatus: function (isComplete) {
+    this.setState({
+      complete: isComplete
+    });
+  },
+
   render: function () {
     var sb = new SchemaBuilder(
       this.props.discrepancies,
@@ -68,12 +76,15 @@ var Reconciler = React.createClass({
     return (
       <div className='rex-forms-Reconciler'>
         <Header
-          entries={this.props.entries} />
+          entries={this.props.entries}
+          />
         <DiscrepancyList
           ref='discrepancyForm'
-          schema={schema} />
+          schema={schema}
+          onStatus={this.onChildStatus}
+          />
         <div className='rex-forms-ReconcilerControls'>
-          {!this.state.processingComplete &&
+          {this.state.complete && !this.state.processingComplete &&
             <button
               className='rex-forms-ReconcilerComplete'
               onClick={this.onComplete}>
@@ -108,6 +119,10 @@ var render = function (options) {
       React.unmountComponentAtNode(element);
     }
   };
+
+  RexI18N.onLoad(options.locale, function () {
+    reconciler.forceUpdate();
+  });
 
   return reconciler;
 };

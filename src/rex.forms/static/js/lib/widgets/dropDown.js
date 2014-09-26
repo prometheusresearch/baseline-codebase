@@ -27,6 +27,7 @@ var dropDown = React.createClass({
         id={this.getInputName()}
         name={this.getInputName()}
         onChange={this.onChange}
+        disabled={this.props.disabled}
         value={this.getValue()}>
 
         <option></option>

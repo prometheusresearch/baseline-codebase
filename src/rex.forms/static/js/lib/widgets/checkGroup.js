@@ -45,6 +45,7 @@ var checkGroup = React.createClass({
         <label>
           <input
             checked={checked}
+            disabled={this.props.disabled}
             type="checkbox"
             name={this.getInputName()}
             onChange={this.onChangeCheck}

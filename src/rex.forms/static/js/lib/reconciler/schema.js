@@ -38,7 +38,7 @@ class SchemaBuilder {
     });
 
     return (
-      <Schema>
+      <Schema form={this.form}>
         {properties}
       </Schema>
     );
@@ -149,16 +149,14 @@ class SchemaBuilder {
       return sb.buildProperty(key, values[key]);
     });
 
-    var row = null;
-    for (var i = 0; i < matrixFieldQuestion.rows.length; i += 1) {
+    var i, required, row = null;
+    for (i = 0; i < matrixFieldQuestion.rows.length; i += 1) {
       if (matrixFieldQuestion.rows[i].id === rowId) {
         row = matrixFieldQuestion.rows[i];
         break;
       }
     }
-
-    var required;
-    for (var i = 0; i < matrixFieldType.rows.length; i += 1) {
+    for (i = 0; i < matrixFieldType.rows.length; i += 1) {
       if (matrixFieldType.rows[i].id === rowId) {
         required = matrixFieldType.rows[i].required;
         break;
@@ -207,7 +205,7 @@ class SchemaBuilder {
     return {
       fieldId: field.id,
       text: field.id
-    }
+    };
   }
 }
 

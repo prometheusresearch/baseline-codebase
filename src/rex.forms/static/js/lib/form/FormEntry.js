@@ -12,6 +12,7 @@ var Page                = require('./Page');
 var PageNavigation      = require('./PageNavigation');
 var ProgressBar         = require('./ProgressBar');
 var Pagination          = require('./Pagination');
+var _                   = require('../localization')._;
 
 var FormEntryPagesMixin = {
 
@@ -139,8 +140,15 @@ var FormEntry = React.createClass({
   },
 
   render: function() {
-    var percentComplete = this.getCompleteness();
-    var currentPage = this.getCurrentPage();
+    var currentPage = this.getCurrentPage(true);
+    var totalPages = this.props.form.pages.length;
+    var percentComplete = Math.floor(
+      ((currentPage.index + 1) / totalPages) * 100
+    );
+    var percentLabel = _('Page %(page)s of %(total)s', {
+      page: currentPage.index + 1,
+      total: totalPages
+    });
     var navigation = this.getPageNavigation();
     var title = this.props.form.title ?
       this.props.form.title :
@@ -150,9 +158,12 @@ var FormEntry = React.createClass({
       <div className="rex-forms-FormEntry">
         <Title text={title} />
         <PageNavigation navigation={navigation}>
-          <ProgressBar percentComplete={percentComplete} />
+          <ProgressBar
+            percentComplete={percentComplete}
+            label={percentLabel}
+            />
         </PageNavigation>
-        <Page page={currentPage} />
+        <Page page={currentPage.page} />
         <PageNavigation navigation={navigation}>
           {navigation.pages.length > 1
             && <Pagination navigation={navigation} />}

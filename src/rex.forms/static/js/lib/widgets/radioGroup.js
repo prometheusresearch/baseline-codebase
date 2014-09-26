@@ -7,6 +7,7 @@ var React                  = require('react');
 var EnumerationWidgetMixin = require('./EnumerationWidgetMixin');
 var ItemLabel              = require('./ItemLabel');
 var ensureInView           = require('../utils').ensureInView;
+var _                      = require('../localization')._;
 
 var radioGroup = React.createClass({
   mixins: [EnumerationWidgetMixin],
@@ -15,6 +16,12 @@ var radioGroup = React.createClass({
 
   onFocus: function () {
     ensureInView(this.getDOMNode());
+  },
+
+  onClearSelection: function (event) {
+    event.preventDefault();
+    var value = this.value().updateValue(null);
+    this.onValueUpdate(value);
   },
 
   /**
@@ -28,6 +35,7 @@ var radioGroup = React.createClass({
         <label>
           <input
             checked={this.getValue() === enumeration.id}
+            disabled={this.props.disabled}
             type="radio"
             name={this.getInputName()}
             onChange={this.onChange.bind(null, enumeration.id)}
@@ -45,9 +53,17 @@ var radioGroup = React.createClass({
   },
 
   renderInput: function() {
+    var value = this.getValue();
+
     return (
       <div className="rex-forms-radioGroup">
         {this.getEnumerations().map(this.renderEnumeration)}
+        {value && !this.props.disabled &&
+          <div className="rex-forms-radioGroup__clear">
+            <a href="#" onClick={this.onClearSelection}>
+              {_('Clear My Selection')}
+            </a>
+          </div>}
       </div>
     );
   }

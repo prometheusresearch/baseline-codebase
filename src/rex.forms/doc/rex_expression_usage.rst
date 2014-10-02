@@ -128,12 +128,16 @@ You could write expressions like these::
 EnumerationSet Fields
 ---------------------
 
-To reference the value of ``enumerationSet`` fields, you use a combination of
-the field's unique ID joined with the ID of the enumeration you're interested
-in. You must specify both parts joined with a period. If you only use the ID of
-the field in your expression, it will always return ``null``, regardless of
-what is actually selected in the Form. The reference will return a Boolean
-indicating whether or not the enumeration has been selected.
+There are two ways to reference the value of ``enumerationSet`` fields:
+
+1. Much like the `Simple Fields`_, you can reference the field's unique ID. The
+   reference will return a List containing all the selected enumerations in the
+   set. If none are selected, this will return ``null``.
+
+2. You use a combination of the field's unique ID joined with the ID of the
+   enumeration you're interested in. You must specify both parts joined with a
+   period. The reference will return a Boolean indicating whether or not the
+   enumeration has been selected.
 
 Given an Instrument like the following::
 
@@ -164,6 +168,8 @@ You could write expressions like these::
     if(q_enumset.green, 'They chose GREEN!', 'Not green')
 
     q_enumset.blue|q_enumset.red
+
+    length(q_enumset)>1
 
 
 Matrix Fields
@@ -223,7 +229,46 @@ You could write expressions like these::
 RecordList Fields
 -----------------
 
-It is not currently possible to reference ``recordList`` fields or any of the
-individual sub-fields contained within. Any attempt to do so will return
-``null``.
+To reference the individual sub-fields within a ``recordList`` Question, you
+use a combination of the field's unique ID joined with the ID of the sub-field
+you're interested in. You must specify both parts joined with a period. If you
+only refer to the ID of the recordList in your expression, it will always
+return ``null``. When addressed correctly, these references will return Lists
+that contain elements of the appropriate type according to the behavior of the
+`Simple Fields`_
+
+Given an Instrument like the following::
+
+    {
+        "id": "urn:rexl-example",
+        "version": "1.0",
+        "title": "An Example",
+        "record": [
+            {
+                "id": "q_recordlist",
+                "type": {
+                    "base": "recordList",
+                    "record": [
+                        {
+                            "id": "q_text",
+                            "type": "text",
+                        },
+                        {
+                            "id": "q_int",
+                            "type": "integer"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+
+
+You could write expressions like these::
+
+    length(q_recordlist.q_text)>1
+
+    exists(q_recordlist.q_int<10)
+
+    count(q_recordlist.q_text=='foo'&q_recordlist.q_int>25)
 

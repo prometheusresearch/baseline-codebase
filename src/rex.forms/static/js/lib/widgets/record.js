@@ -7,12 +7,14 @@ var React      = require('react');
 var ReactForms = require('react-forms');
 var DirtyState = require('./DirtyState');
 var _          = require('../localization')._;
+var FormEventsMixin = require('./../form/FormEventsMixin');
 
 
 var record = React.createClass({
   mixins: [
     ReactForms.FieldsetMixin,
-    DirtyState
+    DirtyState,
+    FormEventsMixin
   ],
 
   onRemove: function () {
@@ -40,13 +42,22 @@ var record = React.createClass({
   renderQuestions: function() {
     // prevent circular import
     var Question = require('../elements').Question;
+
+    var events = this.formEvents();
+    var localValue = this.value();
+
     return this.props.questions.map((question, idx) => {
+      var disabled = events.isDisabled(question.fieldId, localValue);
+      var hidden = events.isHidden(question.fieldId, localValue);
+
       return (
         <Question
           readOnly={this.props.readOnly}
           key={question.fieldId}
           name={question.fieldId}
           options={question}
+          disabled={disabled}
+          hidden={hidden}
           widgetProps={{
             onDirty: this.markDirty,
             dirty: this.isDirty()

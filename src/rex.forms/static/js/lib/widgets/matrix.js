@@ -11,6 +11,7 @@ var SelfErrorRenderingMixin = require('./SelfErrorRenderingMixin');
 var matrixHeaderRow         = require('./matrixHeaderRow');
 var matrixRow               = require('./matrixRow');
 var DirtyState              = require('./DirtyState');
+var FormEventsMixin         = require('./../form/FormEventsMixin');
 
 /**
  * Matrix
@@ -21,7 +22,8 @@ var matrix = React.createClass({
     ReactForms.FieldsetMixin,
     LabelRenderingMixin,
     SelfErrorRenderingMixin,
-    DirtyState
+    DirtyState,
+    FormEventsMixin
   ],
 
   render: function() {
@@ -36,7 +38,21 @@ var matrix = React.createClass({
       error ? 'rex-forms-matrix--error' : null
     );
 
-    var questions = this.props.options.questions;
+    var events = this.formEvents();
+
+    var questions = this.props.options.questions.filter((question) => {
+      var rows = this.props.options.rows;
+
+      for (var r = 0; r < rows.length; r++) {
+        var val = this.value().get(rows[r].id);
+        if (!events.isHidden(question.fieldId, val)) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
     var rows = this.props.options.rows.map((row) =>
       <matrixRow
         key={row.id}
@@ -47,6 +63,7 @@ var matrix = React.createClass({
         questions={questions}
         />
     );
+
     return (
       <div className={className}>
         {this.renderLabel()}

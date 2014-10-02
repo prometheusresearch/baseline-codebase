@@ -9,7 +9,16 @@ var React = require('react');
 
 var MultiLineText = React.createClass({
   propTypes: {
-    text: React.PropTypes.string.isRequired
+    text: React.PropTypes.oneOfType([
+      React.PropTypes.string,
+      React.PropTypes.number
+    ])
+  },
+
+  getDefaultProps: function () {
+    return {
+      text: ''
+    };
   },
 
   formatText: function (text) {

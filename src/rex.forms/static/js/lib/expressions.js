@@ -12,7 +12,9 @@ var INSTRUMENT_REXL_TYPE_MAP = {
   'boolean': REXL.Boolean,
   'date': REXL.Date,
   'time': REXL.Time,
-  'dateTime': REXL.DateTime
+  'dateTime': REXL.DateTime,
+  'enumerationSet': REXL.List,
+  'recordList': REXL.List
 };
 
 
@@ -71,8 +73,39 @@ class Resolver {
           return undefined;
 
         } else if (instrumentType.rootType === 'recordList') {
-          // TODO
-          return undefined;
+          // The parent token was a recordList, so look for this token as a
+          // sub-field and return a List of this field's value across all
+          // records.
+
+          if ((value === null) || (value.length === 0)) {
+            // No records in this recordList.
+            return REXL.List.value(null);
+          }
+
+          var subField = instrumentType.record.filter((field) => {
+            return (field.id === identifier[i]);
+          });
+          if (subField.length === 0) {
+            // No sub-field exists by this name.
+            return REXL.List.value(null);
+          }
+
+          var ret = [];
+          for (var r = 0; r < value.length; r++) {
+            var v = value[r][identifier[i]];
+            if (v === undefined) {
+              v = null;
+            } else {
+              v = v.value;
+            }
+
+            ret.push(v);
+          }
+
+          return this.convertInstrumentValueToRexl(
+            instrumentType,
+            ret
+          );
         }
       }
 
@@ -92,6 +125,11 @@ class Resolver {
     }
 
     if (schema.props.instrumentType) {
+      if (schema.props.instrumentType.rootType === 'recordList') {
+        // Not a fully addressed field.
+        return undefined;
+      }
+
       return this.convertInstrumentValueToRexl(
         schema.props.instrumentType,
         value
@@ -127,6 +165,12 @@ class Resolver {
 
     if (type === undefined) {
       return REXL.Untyped.value(null);
+    } else if ((type === REXL.List) && (value !== null)) {
+      var ret = Array(value.length);
+      for (var i = 0; i < ret.length; i++) {
+        ret[i] = this.convertValueToRexl(value[i]);
+      }
+      value = ret.length > 0 ? ret : null;
     }
 
     return type.value(value);

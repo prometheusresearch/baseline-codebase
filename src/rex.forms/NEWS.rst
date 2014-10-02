@@ -5,6 +5,17 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.24.0 (10/2/2014)
+==================
+
+- Added ability to reference enumerationSet fields in REXL expressions to
+  receive a List of the selected enumerations.
+- Added ability to reference recordList sub-fields in REXL expressions to
+  receive a List of that field's values across the records in the recordList.
+- Added ability to target ``hide``, ``disable``, and ``hideEnumeration``
+  actions at the subfields within recordList and matrix questions.
+
+
 0.23.0 (9/26/2014)
 ==================
 

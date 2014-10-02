@@ -21,16 +21,19 @@ class EventExecutionContext {
 
   forEachTarget(func, context) {
     for (var name in this.context) {
-      func.call(context, name, this);
+      if (!this.context[name]['_IS_DEEP']) {
+        func.call(context, name, this);
+      }
     }
   }
 
   evaluate(expression, resolver) {
     try {
-      return RexExpression.evaluate(
+      var result = RexExpression.evaluate(
         expression,
         resolver
       );
+      return result;
     } catch (exc) {
       if (console && console.error) {
         console.error(exc.toString() + ' (' + expression + ')');
@@ -59,7 +62,8 @@ class EventExecutionContext {
   }
 
   static fromForm(form) {
-    return createExecutionContextFromForm(form);
+    var context = createExecutionContextFromForm(form);
+    return context;
   }
 }
 
@@ -70,7 +74,7 @@ function createExecutionContextFromForm(form) {
   var pageToQuestions = {};
 
   // traverse all questions and collect all events into context
-  traverseQuestions(form, (question, page) => {
+  traverseQuestions(form, (question, page, isDeep) => {
 
     pageToQuestions[page] = pageToQuestions[page] || [];
     pageToQuestions[page].push(question);
@@ -84,6 +88,7 @@ function createExecutionContextFromForm(form) {
 
         for (var j = 0; j < ids.length; j++) {
           context[ids[j]] = context[ids[j]] || {};
+          context[ids[j]]._IS_DEEP = isDeep;
           context[ids[j]][action] = context[ids[j]][action] || [];
           context[ids[j]][action].push(event);
         }

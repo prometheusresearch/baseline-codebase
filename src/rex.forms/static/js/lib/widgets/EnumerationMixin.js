@@ -35,9 +35,29 @@ var EnumerationMixin = {
 
     var name = this.context.value.schema.name || this.props.name;
 
-    var isHidden = this.formEvents() ?
-      this.formEvents().isEnumerationHidden.bind(null, name)
-      : function () { return false; };
+    var isHidden;
+    var events = this.formEvents();
+    if (events) {
+      var localValue = this.value();
+
+      // HACK
+      if (localValue.path.length === 5) {
+        // This enumeration is embedded in a matrix or recordList, so, we want
+        // the value of the record/row we're contained in.
+        localValue = localValue.parent.parent;
+      } else {
+        localValue = null;
+      }
+
+      isHidden = (enumId) => {
+        return events.isEnumerationHidden(name, enumId, localValue);
+      };
+    } else {
+      isHidden = function () {
+        return false;
+      };
+    }
+
     return enumerations.filter((enumeration) => !isHidden(enumeration.id));
   }
 };

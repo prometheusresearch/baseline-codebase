@@ -21,24 +21,28 @@ function traverseQuestions(form, cb) {
     }
   }
 
-  _traverseQuestions(questions, cb);
+  _traverseQuestions(questions, cb, false);
 }
 
-function _traverseQuestions(questions, cb) {
+function _traverseQuestions(questions, cb, isDeep) {
   questions.forEach((question) => {
 
-    cb(question.question, question.page);
+    cb(question.question, question.page, isDeep);
 
     if (question.question.columns) {
       _traverseQuestions(
         _questionsWithPage(question.question.columns, question.page),
-        cb);
+        cb,
+        true
+      );
     }
 
     if (question.question.questions) {
       _traverseQuestions(
         _questionsWithPage(question.question.questions, question.page),
-        cb);
+        cb,
+        true
+      );
     }
   });
 }

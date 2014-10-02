@@ -116,8 +116,19 @@ var Form = React.createClass({
   getFormState: function(value) {
     var events = this.formEvents();
     this.getEventExecutionContext().forEachTarget((name) => {
-      if (events.isCalculated(name, value.value)) {
-        var newValue = events.calculate(name, value.value);
+      if (/\./.test(name)) {
+        // TODO: For the time being, we don't allow calculations or failures of
+        // subfields.
+        return;
+      }
+      if (!(name in value.schema.children)) {
+        // If it's a name we don't recognize at this level, we'll ignore it,
+        // assuming it's a subfield.
+        return;
+      }
+
+      if (events.isCalculated(name, value)) {
+        var newValue = events.calculate(name, value);
 
         if (newValue !== undefined
             && (!value.value[name] || !value.value[name].value !== newValue)) {
@@ -129,9 +140,9 @@ var Form = React.createClass({
         }
       }
 
-      var failed = events.isFailed(name, value.value);
+      var failed = events.isFailed(name, value);
       if (failed) {
-        value = value.get(name).get('value')
+        value = value.get(name).get('value');
         value = value
           .updateValidation({validation: {failure: failed.message, forceError: true}})
           .root();
@@ -169,8 +180,8 @@ var Form = React.createClass({
     value = value || this.value();
     var events = this.formEvents();
     return validation.isSuccess(value.validation.children[fieldId])
-      || events.isHidden(fieldId, value.value)
-      || events.isDisabled(fieldId, value.value);
+      || events.isHidden(fieldId, value)
+      || events.isDisabled(fieldId, value);
   },
 
   /**
@@ -179,7 +190,7 @@ var Form = React.createClass({
    * @returns {Assessment}
    */
   getAssessment: function(value) {
-    value = value || this.value().value;
+    value = value || this.value();
     // We iterate over all actions and decide if we should remove assessment
     // values from hidden/disabled fields.
     //
@@ -197,7 +208,7 @@ var Form = React.createClass({
     });
 
     return makeAssessment(
-      value,
+      value.value,
       this.props.instrument,
       valueOverlay
     );
@@ -210,12 +221,12 @@ var Form = React.createClass({
       if (this.props.showOverviewOnCompletion && !this.state.showOverview) {
         this.setState({showOverview: true});
         if (this.props.onReview) {
-          this.props.onReview(this.getAssessment(value.value));
+          this.props.onReview(this.getAssessment(value));
         }
       } else {
         this.setState({completed: true});
         if (this.props.onComplete) {
-          this.props.onComplete(this.getAssessment(value.value));
+          this.props.onComplete(this.getAssessment(value));
         }
       }
     }
@@ -223,7 +234,7 @@ var Form = React.createClass({
 
   valueUpdated: function(value) {
     var isValid = this.isValid(value);
-    var assessment = this.getAssessment(value.value);
+    var assessment = this.getAssessment(value);
     if (this.props.onChange && isValid) {
       this.props.onChange(assessment);
     }

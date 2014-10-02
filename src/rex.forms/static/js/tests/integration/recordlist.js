@@ -325,8 +325,70 @@ describe('recordList integration tests', function() {
           }
         });
       });
+    });
+  });
 
+  describe('events', function() {
+    beforeEach(function() {
+      setup();
     });
 
+    function evaluate(expression) {
+      var ctx = form.getEventExecutionContext();
+      var resolver = form.getIdentifierResolver();
+      return ctx.evaluate(expression, resolver);
+    }
+
+    function addRecord() {
+      var button = TestUtils.findRenderedDOMComponentWithClass(
+        qList,
+        'rex-forms-recordList__add'
+      );
+      TestUtils.Simulate.click(button);
+      setupElements();
+      setupWidgets();
+    }
+
+    function setRecordValue(recordIndex, fieldID, value) {
+      var qWidget = (fieldID === 'q_thing') ? qThingWidget : qLikeWidget;
+      var qInput = TestUtils.findRenderedDOMComponentWithTag(
+        qWidget[recordIndex],
+        'input'
+      );
+      TestUtils.Simulate.change(qInput, {target: {value: value}});
+    }
+
+    it('root field references returns null', function () {
+      assert.equal(evaluate('q_list'), null);
+
+      addRecord();
+      assert.equal(evaluate('q_list'), null);
+    });
+
+    it('field references return null when no records', function () {
+      assert.equal(evaluate('q_list.q_thing'), null);
+      assert.equal(evaluate('q_list.q_like'), null);
+    });
+
+    it('field references return a list when there are records', function () {
+      assert.equal(evaluate('q_list.q_thing'), null);
+      assert.equal(evaluate('q_list.q_like'), null);
+
+      addRecord();
+      assert.deepEqual(evaluate('q_list.q_thing'), [null]);
+      assert.deepEqual(evaluate('q_list.q_like'), [null]);
+
+      setRecordValue(0, 'q_thing', 'foo');
+      setRecordValue(0, 'q_like', 'bar');
+      assert.deepEqual(evaluate('q_list.q_thing'), ['foo']);
+      assert.deepEqual(evaluate('q_list.q_like'), ['bar']);
+
+      addRecord();
+      setRecordValue(1, 'q_like', 'baz');
+      assert.deepEqual(evaluate('q_list.q_thing'), ['foo', null]);
+      assert.deepEqual(evaluate('q_list.q_like'), ['bar', 'baz']);
+    });
   });
+
 });
+

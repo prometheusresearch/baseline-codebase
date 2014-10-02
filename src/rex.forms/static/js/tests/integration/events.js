@@ -47,13 +47,14 @@ describe('form events', function() {
     TestUtils.Simulate.change(input, {target: {value: value}});
   }
 
-  function setEnumSetValue(id, value) {
+  function setEnumSetValue(id, value, checked) {
+    checked = checked === undefined ? true : (checked ? true : false);
     var question = getQuestion(id);
     var inputs = TestUtils.scryRenderedDOMComponentsWithTag(question, 'input');
     inputs.forEach((input) => {
       var node = input.getDOMNode();
-      if (node.value === value) {
-        node.checked = true;
+      if ((node.value === value) && (node.checked !== checked)) {
+        node.checked = checked;
         TestUtils.Simulate.change(input);
       }
     });
@@ -772,9 +773,18 @@ describe('form events', function() {
         assert.equal(evaluate("q_enumset.green"), true);
       });
 
-      it('returns null if no enumeration specified', function () {
-        setEnumSetValue('q_enumset', 'red');
+      it('returns a list of all selected if no enumeration specified', function () {
         assert.equal(evaluate("q_enumset"), null);
+
+        setEnumSetValue('q_enumset', 'red');
+        assert.deepEqual(evaluate("q_enumset"), ['red']);
+
+        setEnumSetValue('q_enumset', 'red', false);
+        assert.equal(evaluate("q_enumset"), null);
+
+        setEnumSetValue('q_enumset', 'red');
+        setEnumSetValue('q_enumset', 'green');
+        assert.deepEqual(evaluate("q_enumset"), ['red', 'green']);
       });
     });
 

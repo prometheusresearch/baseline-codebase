@@ -7,6 +7,7 @@ var React      = require('react');
 var cx         = React.addons.classSet;
 var ReactForms = require('react-forms');
 var ItemLabel  = require('./ItemLabel');
+var FormEventsMixin = require('./../form/FormEventsMixin');
 
 /**
  * Row renders inputs for each questions of matrix.
@@ -14,7 +15,10 @@ var ItemLabel  = require('./ItemLabel');
  * @private
  */
 var matrixRow = React.createClass({
-  mixins: [ReactForms.FieldsetMixin],
+  mixins: [
+    ReactForms.FieldsetMixin,
+    FormEventsMixin
+  ],
 
   render: function() {
     var className = cx({
@@ -39,22 +43,33 @@ var matrixRow = React.createClass({
     // prevent circular import
     var Question = require('../elements').Question;
     var style = {width: `${100 / (this.props.questions.length + 1)}%`};
-    return this.props.questions.map((question, idx) =>
-      <div key={idx} style={style} className="rex-forms-matrixRow__cell">
-        <Question 
-          readOnly={this.props.readOnly}
-          key={question.fieldId}
-          name={question.fieldId}
-          options={question}
-          widgetProps={{
-            noLabel: true,
-            noHelp: true,
-            onDirty: this.props.onDirty,
-            dirty: this.props.dirty
-          }}
-          />
-      </div>
-    );
+
+    var events = this.formEvents();
+    var localValue = this.value();
+
+    return this.props.questions.map((question, idx) => {
+      var disabled = events.isDisabled(question.fieldId, localValue);
+      var hidden = events.isHidden(question.fieldId, localValue);
+
+      return (
+        <div key={idx} style={style} className="rex-forms-matrixRow__cell">
+          <Question
+            readOnly={this.props.readOnly}
+            key={question.fieldId}
+            name={question.fieldId}
+            options={question}
+            disabled={disabled}
+            hidden={hidden}
+            widgetProps={{
+              noLabel: true,
+              noHelp: true,
+              onDirty: this.props.onDirty,
+              dirty: this.props.dirty
+            }}
+            />
+        </div>
+      );
+    });
   }
 });
 

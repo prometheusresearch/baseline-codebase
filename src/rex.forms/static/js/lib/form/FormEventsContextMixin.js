@@ -53,26 +53,36 @@ var FormEventsContextMixin = {
     return this.getEventExecutionContext().has(targetID, action);
   },
 
-  _hasLiveEvents: function (targetID, value, actionName) {
-    var events = this.getEventExecutionContext().getLiveEvents(
-      targetID,
-      actionName,
-      this.getIdentifierResolver(value)
-    );
+  _getLiveEvents: function (targetID, actionName, scopedValue) {
+    var scopes = [];
+    scopes.push([targetID, scopedValue]);
+    if (scopedValue && scopedValue.parent) {
+      scopes.push([this.getFullTargetID(targetID, scopedValue), null]);
+    }
 
+    var events = [];
+    for (var i = 0; i < scopes.length; i++) {
+      events = events.concat(this.getEventExecutionContext().getLiveEvents(
+        scopes[i][0],
+        actionName,
+        this.getIdentifierResolver(scopes[i][1])
+      ));
+    }
+
+    return events;
+  },
+
+  _hasLiveEvents: function (targetID, actionName, scopedValue) {
+    var events = this._getLiveEvents(targetID, actionName, scopedValue);
     return (events.length > 0);
   },
 
-  isHiddenByEvents: function(targetID, value) {
-    return this._hasLiveEvents(targetID, value, 'hide');
+  isHiddenByEvents: function(targetID, scopedValue) {
+    return this._hasLiveEvents(targetID, 'hide', scopedValue);
   },
 
-  isEnumerationHiddenByEvents: function(targetID, enumeration, value) {
-    var events = this.getEventExecutionContext().getLiveEvents(
-      targetID,
-      'hideEnumeration',
-      this.getIdentifierResolver(value)
-    );
+  isEnumerationHiddenByEvents: function(targetID, enumeration, scopedValue) {
+    var events = this._getLiveEvents(targetID, 'hideEnumeration', scopedValue);
 
     for (var i = 0; i < events.length; i++) {
       var options = events[i].options || {};
@@ -86,15 +96,15 @@ var FormEventsContextMixin = {
     return false;
   },
 
-  isDisabledByEvents: function(targetID, value) {
-    return this._hasLiveEvents(targetID, value, 'disable');
+  isDisabledByEvents: function(targetID, scopedValue) {
+    return this._hasLiveEvents(targetID, 'disable', scopedValue);
   },
 
-  isFailedByEvents: function(targetID, value) {
+  isFailedByEvents: function(targetID, scopedValue) {
     var events = this.getEventExecutionContext().getLiveEvents(
       targetID,
       'fail',
-      this.getIdentifierResolver(value)
+      this.getIdentifierResolver(scopedValue)
     );
 
     for (var i = 0; i < events.length; i++) {
@@ -107,12 +117,12 @@ var FormEventsContextMixin = {
     return false;
   },
 
-  isCalculatedByEvents: function(targetID, value) {
-    return this._hasLiveEvents(targetID, value, 'calculate');
+  isCalculatedByEvents: function(targetID, scopedValue) {
+    return this._hasLiveEvents(targetID, 'calculate', scopedValue);
   },
 
-  calculateByEvents: function(targetID, value) {
-    var resolver = this.getIdentifierResolver(value);
+  calculateByEvents: function(targetID, scopedValue) {
+    var resolver = this.getIdentifierResolver(scopedValue);
     var events = this.getEventExecutionContext().getLiveEvents(
       targetID,
       'calculate',
@@ -135,19 +145,39 @@ var FormEventsContextMixin = {
    *
    * @returns {EventExecutionContext}
    */
-  getEventExecutionContext: function() {
+  getEventExecutionContext: function () {
     if (!this._eventExecutionContext
         || this._eventExecutionContext.form !== this.props.form) {
       this._eventExecutionContext = EventExecutionContext.fromForm(
           this.props.form);
     }
+
+    // Install a sidedoor that lets us tap into REXL from the browser console.
+    global.REX_FORMS_EVALUATOR = (expression) => {
+      return this._eventExecutionContext.evaluate(
+        expression,
+        this.getIdentifierResolver()
+      );
+    };
+
     return this._eventExecutionContext;
   },
 
-  getIdentifierResolver: function(value) {
+  getFullTargetID: function (targetID, value) {
+    var fullID = targetID;
+
+    if (value.path[0] !== targetID) {
+      fullID = value.path[0] + '.' + targetID;
+    }
+
+    return fullID;
+  },
+
+  getIdentifierResolver: function (value) {
+    value = value || this.value();
     var resolver = new Resolver(
-      this.props.schema,
-      value || this.value().value,
+      value.schema,
+      value.value,
       this.props.parameters
     );
 

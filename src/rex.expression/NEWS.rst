@@ -5,6 +5,14 @@ REX.EXRESSION Change Log
 .. contents:: Table of Contents
 
 
+1.3.0 (10/2/2014)
+=================
+
+- Added a new data type named ``List``, which acts as an array.
+- Added several new functions to operate on list values: ``exists``, ``every``,
+  ``count``, ``sum``, ``avg``, ``min``, ``max``.
+
+
 1.2.0 (9/26/2014)
 =================
 

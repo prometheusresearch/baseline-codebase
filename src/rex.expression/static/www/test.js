@@ -7,6 +7,24 @@ Array.prototype.toString = function() {
 
 rexl.test = {};
 
+rexl.test.resultsMatch = function (expected, actual) {
+  if ((expected instanceof Array) && (actual instanceof Array)) {
+    if (expected.length !== actual.length) {
+      return false;
+    }
+
+    for (var i = 0; i < expected.length; i++) {
+      if (expected[i] !== actual[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  return expected === actual;
+};
+
 rexl.test.run = function(op, show_js, show_names, first_only) {
 	var output = document.getElementById('output');
     var tests = rexl.test.tests;
@@ -21,12 +39,13 @@ rexl.test.run = function(op, show_js, show_names, first_only) {
             if(show_names)
                 output.innerHTML += ('<em>' + node.getNames() + '</em><br/>\n');
 			var value = node[op](rexl.test.callback);
-            if(value instanceof rexl.TypeInstance)
-                value = value.cls;
+      if(value instanceof rexl.TypeInstance)
+          value = value.cls;
 			output.innerHTML += ('Expected: <strong>' + item.expect + '</strong>&nbsp;&nbsp;&nbsp;&nbsp;');
 			output.innerHTML += ('Got: <strong>' + value + '</strong>&nbsp;&nbsp;&nbsp;&nbsp;');
-			var color = value === item.expect ? 'green':'red';
-			var text = value === item.expect ? 'Passed':'Failed';
+      var match = rexl.test.resultsMatch(item.expect, value);
+			var color = match ? 'green':'red';
+			var text = match ? 'Passed':'Failed';
 			output.innerHTML += ('Test: <strong style=\"color:' + color + '\">' + text + '</strong>');
 		}
 		catch(err) {

@@ -6,7 +6,14 @@ rexl.test.data = {
 	'n':{value:100, type:rexl.Number},
 	'true.column':{value:true, type:rexl.Boolean},
 	'false.column':{value:false, type:rexl.Boolean},
-	'null.column':{value:null, type:rexl.Boolean}
+	'null.column':{value:null, type:rexl.Boolean},
+  'nulllist.column': {value: null, type: rexl.List},
+  'emptylist.column': {value: [], type: rexl.List},
+  'list.column': {value: [rexl.Number.value(0), rexl.Number.value(1), rexl.Number.value(2)], type: rexl.List},
+  'list2.column': {value: [rexl.Number.value(0), rexl.Number.value(1), rexl.Number.value(0)], type: rexl.List},
+  'list3.column': {value: [rexl.Number.value(0), rexl.Number.value(1)], type: rexl.List},
+  'liststring.column': {value: [rexl.String.value('foo'), rexl.String.value('bar'), rexl.String.value('baz')], type: rexl.List},
+  'listfalse.column': {value: [rexl.Boolean.value(false), rexl.String.value(null)], type: rexl.List}
 }
 
 rexl.test.tests = [
@@ -201,7 +208,127 @@ rexl.test.tests = [
 	{
 		query:"null()&true()",
 		expect:null
-	}
+	},
+  {
+    query: "list.column|list2.column",
+    expect: [false, true, true]
+  },
+  {
+    query: "list.column&true()",
+    expect: true
+  },
+  {
+    query: "emptylist.column&true()",
+    expect: false
+  },
+  {
+    query: "list.column&list2.column",
+    expect: [false, true, false]
+  },
+  {
+    query: "list.column>1",
+    expect: [false, false, true]
+  },
+  {
+    query: "list2.column==0",
+    expect: [true, false, true]
+  },
+  {
+    query: "nulllist.column==null()",
+    expect: null
+  },
+  {
+    query: "liststring.column=='bar'",
+    expect: [false, true, false]
+  },
+  {
+    query: "list.column==list2.column",
+    expect: [true, true, false]
+  },
+  {
+    query: "list.column==list3.column",
+    expect: [true, true, false]
+  },
+  {
+    query: "liststring.column=~'^b.*'",
+    expect: [false, true, true]
+  },
+  {
+    query: "length(list.column)",
+    expect: 3
+  },
+  {
+    query: "length(nulllist.column)",
+    expect: 0
+  },
+  {
+    query: "count(list.column)",
+    expect: 2
+  },
+  {
+    query: "count(nulllist.column)",
+    expect: 0
+  },
+  {
+    query: "exists(list.column)",
+    expect: true
+  },
+  {
+    query: "exists(listfalse.column)",
+    expect: false
+  },
+  {
+    query: "exists(nulllist.column)",
+    expect: false
+  },
+  {
+    query: "every(list.column)",
+    expect: false
+  },
+  {
+    query: "every(nulllist.column)",
+    expect: true
+  },
+  {
+    query: "every(liststring.column)",
+    expect: true
+  },
+  {
+    query: "min(list.column)",
+    expect: 0
+  },
+  {
+    query: "min(nulllist.column)",
+    expect: null
+  },
+  {
+    query: "max(list.column)",
+    expect: 2
+  },
+  {
+    query: "max(nulllist.column)",
+    expect: null
+  },
+  {
+    query: "sum(list.column)",
+    expect: 3
+  },
+  {
+    query: "sum(list2.column)",
+    expect: 1
+  },
+  {
+    query: "sum(nulllist.column)",
+    expect: 0
+  },
+  {
+    query: "avg(list.column)",
+    expect: 1
+  },
+  {
+    query: "avg(nulllist.column)",
+    expect: null
+  }
 ]
 
 rexl.test.callback = function(data) {

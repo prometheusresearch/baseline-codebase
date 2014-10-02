@@ -37,7 +37,6 @@ rexl.evaluate = function(s, callback, obj) {
 
 rexl.parse = function(s) {
 	var tokens = rexl.tokenize(s);
-	//rexl.log(tokens);
 	var node = rexl._parse_test(tokens);
 	return node;
 }
@@ -67,7 +66,8 @@ rexl.types = {
     'Untyped': 'Untyped',
     'String': 'String',
     'Number': 'Number',
-    'Boolean': 'Boolean'
+    'Boolean': 'Boolean',
+    'List': 'List'
 };
 
 rexl._separator = '.';
@@ -116,9 +116,7 @@ rexl.tokenize = function(s) {
 			if(matches && matches.length) {
 				token_found = true;
 				var match = matches[0];
-				//rexl.log(match);
 				s = s.substr(match.length);
-				//rexl.log(s);
 					
 				tokens.push(new rexl.Token(token_type, match, index, index + match.length - 1));
 				index += match.length;
@@ -519,9 +517,7 @@ rexl._parse_atom = function(tokens) {
 	else {
 		var _parent = rexl._parse_identifier(tokens);
 	}
-	//rexl.log(tokens);
 	while(symbol = rexl._check(tokens, 'SYMBOL', ['[', '(', rexl._separator])){
-		//rexl.log(symbol);
 		switch(symbol.value) {
 			case '[': {
 				var index = rexl._parse_test();
@@ -547,7 +543,6 @@ rexl._parse_atom = function(tokens) {
 
 // identifier ::= NAME
 rexl._parse_identifier = function(tokens) {
-	//rexl.log(tokens);
 	var token = rexl._expect(tokens, 'NAME');
 	return new rexl.Node('IDENTIFIER', token.value, token.start, token.end);
 }
@@ -664,8 +659,17 @@ rexl.Type.value = function(value, remainder, typeData) {
     return new rexl.Value(value, rexl.type(this, typeData));
 }
 
-rexl.Array = rexl.Class(null, rexl.Type);
-rexl.Array.toString = function() {return 'Array';}
+rexl.List = rexl.Class(null, rexl.Type);
+rexl.List.toString = function() {return 'List';}
+rexl.List.cast = function(value) {
+  if (value.isNull()) {
+    return this.value(null);
+  }
+  if (value.is(this)) {
+    return value;
+  }
+  return this.value([value.value]);
+};
 
 rexl.Untyped = rexl.Class(null, rexl.Type);
 rexl.Untyped.toString = function() {return 'Untyped';}
@@ -698,8 +702,14 @@ rexl.Boolean = rexl.Class(null, rexl.Type);
 rexl.Boolean.cast = function(value) {
 	if(value.is(this))
 		return value;
-    if(value.is(rexl.Untyped) && value.value == null)
-        return this.value(null);
+  if(value.is(rexl.Untyped) && value.value == null)
+    return this.value(null);
+  if (value.is(rexl.List)) {
+    if (!value.isNull() && (value.value.length > 0)) {
+      return this.value(true);
+    }
+    return this.value(false);
+  }
 	return this.value(value.value ? true:false);
 }
 rexl.Boolean.toString = function() {return 'Boolean'};
@@ -738,7 +748,6 @@ rexl.EvalBase.prototype.check = function(values) {
 		if(value instanceof this.cls)
 			ret.push(value);
 		else {
-			//rexl.log(this.obj);
 			ret.push(this.callback.call(this.obj, value.data));
 		}
 	}
@@ -836,18 +845,51 @@ rexl.Evaluator.prototype._f = {
         return common.value(ret);
     },
     '|': function() {
-		var e = arguments[0];
-		var args = e.check(e.argList(arguments));
-		var ret = false;
-		for(var i = 0, l = args.length; i < l; i++) {
-			var v = rexl.Boolean.cast(args[i]);
-			if(v.value == true)
-				return rexl.Boolean.value(true);
-			else if(v.value == null)
-				ret = null;
-		}
-		return rexl.Boolean.value(ret);
-	},
+      var e = arguments[0];
+      var data = e.check(e.argList(arguments));
+      var argTypes = data.map(function (item) { return item.type; });
+      var common = e.findCommon(argTypes, [rexl.Boolean, rexl.List]);
+
+      if (!common || common.is(rexl.Boolean)) {
+        var ret = false;
+
+        for(var i = 0, l = data.length; i < l; i++) {
+          var v = rexl.Boolean.cast(data[i]);
+
+          if (v.value === true) {
+            ret = true;
+            break;
+          } else if (v.isNull()) {
+            ret = null;
+          }
+        }
+
+        return rexl.Boolean.value(ret);
+
+      } else if (common.is(rexl.List)) {
+        var length = 0;
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].value.length > length) {
+            length = data[i].value.length;
+          }
+        }
+
+        var ret = Array(length);
+        for (i = 0; i < length; i++) {
+          ret[i] = rexl.Boolean.value(false);
+
+          for (var d = 0; d < data.length; d++) {
+            var v = rexl.Boolean.cast(data[d].value[i]);
+            if (v.value === true) {
+              ret[i] = rexl.Boolean.value(true);
+              break;
+            }
+          }
+        }
+
+        return rexl.List.value(ret);
+      }
+    },
     'count_true': function () {
         var e = arguments[0];
         var args = e.check(e.argList(arguments));
@@ -868,19 +910,52 @@ rexl.Evaluator.prototype._f = {
             return args[2];
         return rexl.Untyped.value(null);
     },
-	'&': function() {
-		var e = arguments[0];
-		var args = e.check(e.argList(arguments));
-		var ret = true;
-		for(var i = 0, l = args.length; i < l; i++) {
-			var v = rexl.Boolean.cast(args[i]);
-			if(v.value == false)
-				return rexl.Boolean.value(false);
-			else if(v.value == null)
-				ret = null;
-		}
-		return rexl.Boolean.value(ret);
-	},
+    '&': function() {
+      var e = arguments[0];
+      var data = e.check(e.argList(arguments));
+      var argTypes = data.map(function (item) { return item.type; });
+      var common = e.findCommon(argTypes, [rexl.Boolean, rexl.List]);
+
+      if (!common || common.is(rexl.Boolean)) {
+        var ret = true;
+
+        for(var i = 0, l = data.length; i < l; i++) {
+          var v = rexl.Boolean.cast(data[i]);
+
+          if (v.value === false) {
+            ret = false;
+            break;
+          } else if (v.isNull()) {
+            ret = null;
+          }
+        }
+
+        return rexl.Boolean.value(ret);
+
+      } else if (common.is(rexl.List)) {
+        var length = 0;
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].value.length > length) {
+            length = data[i].value.length;
+          }
+        }
+
+        var ret = Array(length);
+        for (i = 0; i < length; i++) {
+          ret[i] = rexl.Boolean.value(true);
+
+          for (var d = 0; d < data.length; d++) {
+            var v = rexl.Boolean.cast(data[d].value[i]);
+            if (v.value === false) {
+              ret[i] = rexl.Boolean.value(false);
+              break;
+            }
+          }
+        }
+
+        return rexl.List.value(ret);
+      }
+    },
 	'!()': function() {
 		var e = arguments[0];
 		var args = e.check(e.argList(arguments));
@@ -945,10 +1020,9 @@ rexl.Evaluator.prototype._f = {
     'length':function() {
         // TODO: check args count and type
         // or probably leave this to validator?
-        // TODO: Array support
         var e = arguments[0];
         var s = e.check(e.argList(arguments))[0];
-        var value = s.value == null ? null:s.value.length;        
+        var value = s.isNull() ? 0 : s.value.length;
         return rexl.Number.value(value);
     },
 
@@ -980,6 +1054,118 @@ rexl.Evaluator.prototype._f = {
         var d2 = e.check(e.argList(arguments))[1];
         var num = (Date.parse(d1.value) - Date.parse(d2.value))/86400000;
         return rexl.Number.value(num);
+    },
+
+    // List functions
+    'exists': function () {
+        var e = arguments[0];
+        var list = rexl.List.cast(e.check(e.argList(arguments))[0]);
+        var len = list.isNull() ? 0 : list.value.length;
+        var ret = false;
+        for (var i = 0; i < len; i++) {
+            var v = rexl.Boolean.cast(list.value[i]);
+            if (v.value === true) {
+              ret = true;
+              break;
+            }
+        }
+        return rexl.Boolean.value(ret);
+    },
+    'every': function () {
+      var e = arguments[0];
+      var list = rexl.List.cast(e.check(e.argList(arguments))[0]);
+      var len = list.isNull() ? 0 : list.value.length;
+      var ret = true;
+      for (var i = 0; i < len; i++) {
+        var v = rexl.Boolean.cast(list.value[i]);
+        if (v.value === false) {
+          ret = false;
+          break;
+        }
+      }
+      return rexl.Boolean.value(ret);
+    },
+    'count': function () {
+      var e = arguments[0];
+      var list = rexl.List.cast(e.check(e.argList(arguments))[0]);
+      var len = list.isNull() ? 0 : list.value.length;
+      var count = 0;
+      for (var i = 0; i < len; i++) {
+        var v = rexl.Boolean.cast(list.value[i]);
+        if (v.value === true) {
+          count += 1;
+        }
+      }
+      return rexl.Number.value(count);
+    },
+    'min': function () {
+      var e = arguments[0];
+      var list = rexl.List.cast(e.check(e.argList(arguments))[0]);
+      var min = null;
+
+      if (!list.isNull()) {
+        var listTypes = list.value.map(function (item) { return item.type; });
+        var common = e.findCommon(listTypes, [rexl.Number])
+        for (var i = 0; i < list.value.length; i++) {
+          if ((min === null) || (list.value[i].value < min)) {
+            min = list.value[i].value;
+          }
+        }
+      }
+
+      return rexl.Number.value(min);
+    },
+    'max': function () {
+      var e = arguments[0];
+      var list = rexl.List.cast(e.check(e.argList(arguments))[0]);
+      var max = null;
+
+      if (!list.isNull()) {
+        var listTypes = list.value.map(function (item) { return item.type; });
+        var common = e.findCommon(listTypes, [rexl.Number])
+        for (var i = 0; i < list.value.length; i++) {
+          if ((max === null) || (list.value[i].value > max)) {
+            max = list.value[i].value;
+          }
+        }
+      }
+
+      return rexl.Number.value(max);
+    },
+    'sum': function () {
+      var e = arguments[0];
+      var list = rexl.List.cast(e.check(e.argList(arguments))[0]);
+      var sum = 0;
+
+      if (!list.isNull()) {
+        var listTypes = list.value.map(function (item) { return item.type; });
+        var common = e.findCommon(listTypes, [rexl.Number])
+        for (var i = 0; i < list.value.length; i++) {
+          if (!list.value[i].isNull()) {
+            sum += list.value[i].value;
+          }
+        }
+      }
+
+      return rexl.Number.value(sum);
+    },
+    'avg': function () {
+      var e = arguments[0];
+      var list = rexl.List.cast(e.check(e.argList(arguments))[0]);
+      var sum = 0, num = 0;
+
+      if (!list.isNull()) {
+        var listTypes = list.value.map(function (item) { return item.type; });
+        var common = e.findCommon(listTypes, [rexl.Number])
+        for (var i = 0; i < list.value.length; i++) {
+          if (!list.value[i].isNull()) {
+            sum += list.value[i].value;
+            num += 1;
+          }
+        }
+      }
+
+      return rexl.Number.value(num > 0 ? sum/num : null);
     },
 
     // Math functions
@@ -1025,7 +1211,14 @@ rexl.Evaluator.prototype.error = function(message) {
 }
 
 rexl.Evaluator.prototype.evaluate = function() {
-    var r = this.eval();//rexl.EvalBase.prototype.evaluate.call(this);
+    var r = this.eval();
+    if (r.is(rexl.List) && !r.isNull()) {
+      var ret = Array(r.value.length);
+      for (var i = 0; i < r.value.length; i++) {
+        ret[i] = r.value[i].value;
+      }
+      return ret;
+    }
     return r.value;
 }
 
@@ -1047,22 +1240,51 @@ rexl.Evaluator.prototype.p = function(obj, name) {
 rexl.Evaluator.prototype.comp2 = function(op, jsOp, left, right) {
 	if(op != '!==' && op != '==' && (left.isNull() || right.isNull()))
 		return rexl.Boolean.value(null);
-	// Type cast
+
 	if(left.is(rexl.Untyped) && right.is(rexl.Untyped)) {
 		left = rexl.String.cast(left);
 		right = rexl.String.cast(right);
-	}
-	else if(left.is(rexl.Untyped)) {
+
+	} else if(left.is(rexl.Untyped)) {
 		left = right.getTypeClass().cast(left);
-	}
-	else if(right.is(rexl.Untyped)) {
+
+	} else if (left.is(rexl.List) && !right.is(rexl.List)) {
+    if (left.isNull()) {
+      return rexl.List.value(null);
+    }
+    var ret = Array(left.value.length);
+    for (var i = 0; i < left.value.length; i++) {
+      ret[i] = this.comp2(op, jsOp, left.value[i], right);
+    }
+    return rexl.List.value(ret);
+
+  } else if(right.is(rexl.Untyped)) {
 		right = left.getTypeClass().cast(right);
 	}
-	if(right.getTypeClass() != left.getTypeClass())
+
+	if (right.getTypeClass() != left.getTypeClass()) {
 		rexl.evaluator.error('Operation: ' + op + '. Type mismatch: ' + left.getTypeClass() + ' and ' + right.getTypeClass());
-	
-	var value = eval("left.value" + jsOp + "right.value");
-	return rexl.Boolean.value(value);
+
+  } else if (left.is(rexl.List)) {
+    if (left.isNull() || right.isNull()) {
+      return rexl.List.value(null);
+    }
+    var length = left.value.length > right.value.length ? left.value.length : right.value.length;
+    var ret = Array(length);
+    for (var i = 0; i < length; i++) {
+      ret[i] = this.comp2(
+        op,
+        jsOp,
+        left.value[i] || rexl.Untyped.value(null),
+        right.value[i] || rexl.Untyped.value(null)
+      );
+    }
+    return rexl.List.value(ret);
+
+  } else {
+    var value = eval("left.value" + jsOp + "right.value");
+	  return rexl.Boolean.value(value);
+  }
 }
 
 rexl.Evaluator.prototype.comp = function(op, args) {
@@ -1089,6 +1311,7 @@ rexl.Evaluator.prototype.comp = function(op, args) {
 }
 
 rexl.Evaluator.prototype.re = function(op, args) {
+  var e = args[0];
 	args = this.check(this.argList(args));
 	var left = args.shift();
 	var right = args.shift();
@@ -1097,15 +1320,24 @@ rexl.Evaluator.prototype.re = function(op, args) {
 		left = rexl.String.cast(left);
 	if(right.is(rexl.Untyped))
 		right = rexl.String.cast(right);
-	if(!left.is(rexl.String) || !right.is(rexl.String))
+
+	if(!(left.is(rexl.String) || left.is(rexl.List)) || !right.is(rexl.String))
 		rexl.evaluator.error('Operation: ' + op + '. Type mismatch: ' + left.getTypeClass() + ' and ' + right.getTypeClass());
+
+  if (left.is(rexl.List)) {
+    var ret = Array(left.value.length);
+    for (var i = 0; i < left.value.length; i++) {
+      ret[i] = this.re(op, [e, left.value[i], right]);
+    }
+    return rexl.List.value(ret);
+  }
 	
 	var not = (op[0] == '!');
 	var flag = (op.substr(-2) == '~~' ? "":"i");
 	var value = (new RegExp(right.value, flag)).test(left.value);
 	if(not)
 		value = !value;
-    return new rexl.Boolean.value(value);
+    return rexl.Boolean.value(value);
 }
 
 rexl.Validator = rexl.Class(function(node, callback, obj) {
@@ -1128,10 +1360,6 @@ rexl.Validator.prototype.num = function(n) {
 rexl.Validator.prototype.evaluate = function() {
     return this.eval();
 }
-
-/*rexl.Validator.prototype.match = function(count ) {
-
-}*/
 
 rexl.Validator.prototype.trueFalseBase = function(name, args) {
     var data = this.check(this.argList(args));
@@ -1162,7 +1390,7 @@ rexl.Validator.prototype.compBase = function(name, args) {
         rexl._error('validator', name + ' expects exactly 2 arguments');
     var common = this.findCommon(data, [rexl.String, rexl.Number, rexl.Boolean, rexl.Binary,
             rexl.BitString, rexl.Date, rexl.Time, rexl.DateTime,
-            rexl.TimeDelta, rexl.Array]);
+            rexl.TimeDelta, rexl.List]);
     if(common == null)
         rexl._error("Can't find common type for " + data[0].cls.toString() 
                     + " and " + data[1].cls.toString());

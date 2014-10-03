@@ -99,9 +99,11 @@ Deploying a table fact creates the table::
 
     >>> driver("""{ table: individual }""")
     CREATE TABLE "individual" (
-        "id" "serial4" NOT NULL
+        "id" "int4" NOT NULL
     );
-    ALTER TABLE "individual" ADD CONSTRAINT "individual_id_uk" UNIQUE ("id");
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_uk" UNIQUE ("id");
+    CREATE SEQUENCE "individual_seq" OWNED BY "individual"."id";
+    ALTER TABLE "individual" ALTER COLUMN "id" SET DEFAULT nextval('individual_seq'::regclass);
 
     >>> schema = driver.get_schema()
     >>> u'individual' in schema
@@ -123,11 +125,11 @@ comment.  Similarly, the table title is stored in the comment::
 
 To create a fast, but not crash-safe table, unset option ``present``::
 
-    >>> driver("""{ table: history, reliable: false }""")
+    >>> driver("""{ table: history, reliable: false }""")           # doctest: +ELLIPSIS
     CREATE UNLOGGED TABLE "history" (
-        "id" "serial4" NOT NULL
+        "id" "int4" NOT NULL
     );
-    ALTER TABLE "history" ADD CONSTRAINT "history_id_uk" UNIQUE ("id");
+    ...
 
 It is impossible to change this characteristic after the table is created::
 

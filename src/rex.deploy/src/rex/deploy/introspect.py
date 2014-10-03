@@ -80,6 +80,18 @@ def introspect(connection):
         procedure = schema.add_procedure(proname, types, return_type, prosrc)
         procedure_by_oid[oid] = procedure
 
+    # Extract sequences.
+    class_by_oid = {}
+    cursor.execute("""
+        SELECT c.oid, c.relnamespace, c.relname
+        FROM pg_catalog.pg_class c
+        WHERE c.relkind = 'S'
+        ORDER BY c.relnamespace, c.relname
+    """)
+    for oid, relnamespace, relname in cursor.fetchall():
+        schema = schema_by_oid[relnamespace]
+        class_by_oid[oid] = schema.add_sequence(relname)
+
     # Extract tables.
     table_by_oid = {}
     cursor.execute("""
@@ -94,7 +106,7 @@ def introspect(connection):
         table = schema.add_table(relname)
         if relpersistence == 'u':
             table.set_is_unlogged(True)
-        table_by_oid[oid] = table
+        class_by_oid[oid] = table_by_oid[oid] = table
 
     # Extract columns.
     column_by_num = {}
@@ -117,6 +129,34 @@ def introspect(connection):
         is_not_null = bool(attnotnull)
         column = table.add_column(attname, type, is_not_null)
         column_by_num[attrelid, attnum] = column
+
+    # Extract default values.
+    cursor.execute("""
+        SELECT a.adrelid, a.adnum, pg_get_expr(a.adbin, a.adrelid)
+        FROM pg_catalog.pg_attrdef a
+        ORDER BY a.adrelid, a.adnum
+    """)
+    for adrelid, adnum, adsrc in cursor.fetchall():
+        column = column_by_num.get((adrelid, adnum))
+        if column is not None:
+            column.set_default(adsrc)
+
+    # Extract indexes.
+    cursor.execute("""
+        SELECT c.oid, c.relnamespace, c.relname, i.indrelid, i.indkey
+        FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_index i ON (c.oid = i.indexrelid)
+        WHERE c.relkind = 'i'
+        ORDER BY c.relnamespace, c.relname
+    """)
+    for oid, relnamespace, relname, indrelid, indkeys in cursor.fetchall():
+        if indrelid not in table_by_oid:
+            continue
+        schema = schema_by_oid[relnamespace]
+        table = table_by_oid[indrelid]
+        columns = [column_by_num.get((indrelid, int(indkey)))
+                   for indkey in indkeys.split()]
+        class_by_oid[oid] = schema.add_index(relname, table, columns)
 
     # Extract constraints.
     constraint_by_oid = {}
@@ -158,33 +198,39 @@ def introspect(connection):
             constraint_by_oid[oid] = key
 
     # Extract triggers.
+    trigger_by_oid = {}
     cursor.execute("""
-        SELECT t.tgrelid, t.tgname, t.tgfoid
+        SELECT t.oid, t.tgrelid, t.tgname, t.tgfoid
         FROM pg_catalog.pg_trigger AS t
         WHERE NOT t.tgisinternal
         ORDER BY t.tgrelid, t.tgname
     """)
-    for tgrelid, tgname, tgfoid in cursor.fetchall():
+    for oid, tgrelid, tgname, tgfoid in cursor.fetchall():
         table = table_by_oid[tgrelid]
         procedure = procedure_by_oid[tgfoid]
-        table.add_trigger(tgname, procedure)
+        trigger_by_oid[oid] = table.add_trigger(tgname, procedure)
 
     # Extract comments.
     cursor.execute("""
         SELECT CAST('pg_catalog.pg_namespace'::regclass AS OID),
                CAST('pg_catalog.pg_type'::regclass AS OID),
+               CAST('pg_catalog.pg_proc'::regclass AS OID),
                CAST('pg_catalog.pg_class'::regclass AS OID),
-               CAST('pg_catalog.pg_constraint'::regclass AS OID)
+               CAST('pg_catalog.pg_constraint'::regclass AS OID),
+               CAST('pg_catalog.pg_trigger'::regclass AS OID)
     """)
-    pg_namespace, pg_type, pg_class, pg_constraint = cursor.fetchone()
+    (pg_namespace, pg_type, pg_proc,
+     pg_class, pg_constraint, pg_trigger) = cursor.fetchone()
 
     cursor.execute("""
         SELECT d.objoid, d.classoid, d.objsubid, d.description
         FROM pg_catalog.pg_description d
         WHERE d.classoid IN ('pg_catalog.pg_namespace'::regclass,
                              'pg_catalog.pg_type'::regclass,
+                             'pg_catalog.pg_proc'::regclass,
                              'pg_catalog.pg_class'::regclass,
-                             'pg_catalog.pg_constraint'::regclass)
+                             'pg_catalog.pg_constraint'::regclass,
+                             'pg_catalog.pg_trigger'::regclass)
         ORDER BY d.objoid, d.classoid, d.objsubid
     """)
     for objoid, classoid, objsubid, description in cursor.fetchall():
@@ -192,12 +238,16 @@ def introspect(connection):
             entity = schema_by_oid.get(objoid)
         elif classoid == pg_type:
             entity = type_by_oid.get(objoid)
+        elif classoid == pg_proc:
+            entity = procedure_by_oid.get(objoid)
         elif classoid == pg_class and objsubid == 0:
-            entity = table_by_oid.get(objoid)
+            entity = class_by_oid.get(objoid)
         elif classoid == pg_class:
             entity = column_by_num.get((objoid, objsubid))
         elif classoid == pg_constraint:
-            entity = constraint_by_oid.get(oid)
+            entity = constraint_by_oid.get(objoid)
+        elif classoid == pg_trigger:
+            entity = trigger_by_oid.get(objoid)
         if entity is not None:
             entity.set_comment(description)
 

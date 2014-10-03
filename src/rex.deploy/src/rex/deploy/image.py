@@ -189,12 +189,17 @@ class CatalogImage(Image):
 class SchemaImage(NamedImage):
     """Database schema."""
 
-    __slots__ = ('tables', 'types', 'procedures', 'comment', '__weakref__')
+    __slots__ = ('tables', 'indexes', 'sequences',
+                 'types', 'procedures', 'comment', '__weakref__')
 
     def __init__(self, catalog, name):
         super(SchemaImage, self).__init__(weakref.ref(catalog), name)
         #: Collection of tables in the schema.
         self.tables = ImageMap()
+        #: Collection of table indexes (share table namespace).
+        self.indexes = ImageMap()
+        #: Collection of sequence objects (share table namespace).
+        self.sequences = ImageMap()
         #: Collection of types in the schema.
         self.types = ImageMap()
         #: Collections of procedures in the schema.
@@ -233,6 +238,10 @@ class SchemaImage(NamedImage):
     def remove(self):
         while self.tables:
             self.tables.last().remove()
+        while self.indexes:
+            self.indexes.last().remove()
+        while self.sequences:
+            self.sequences.last().remove()
         while self.procedures:
             self.procedures.last().remove()
         while self.types:
@@ -243,6 +252,14 @@ class SchemaImage(NamedImage):
     def add_table(self, name):
         """Adds a table."""
         return TableImage(self, name)
+
+    def add_index(self, name, table, columns):
+        """Adds an index."""
+        return IndexImage(self, name, table, columns)
+
+    def add_sequence(self, name):
+        """Adds a sequence."""
+        return SequenceImage(self, name)
 
     def add_type(self, name):
         """Adds a type."""
@@ -259,6 +276,73 @@ class SchemaImage(NamedImage):
     def add_procedure(self, name, types, return_type, body):
         """Adds a stored procedure."""
         return ProcedureImage(self, name, types, return_type, body)
+
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
+        return self
+
+
+class IndexImage(NamedImage):
+    """Index."""
+
+    __slots__ = ('table', 'columns', 'comment')
+
+    def __init__(self, schema, name, table, columns):
+        super(IndexImage, self).__init__(weakref.ref(schema), name)
+        #: Indexed table.
+        self.table = table
+        #: Indexed columns.
+        self.columns = columns
+        #: Index comment.
+        self.comment = None
+        schema.indexes.add(self)
+
+    @property
+    def schema(self):
+        """Index owner."""
+        return self.owner()
+
+    def rename(self, name):
+        old_name = self.name
+        self.handle = self.name = name
+        self.schema.indexes.replace(old_name, self)
+        return self
+
+    def remove(self):
+        self.schema.indexes.remove(self)
+        super(IndexImage, self).remove()
+
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
+        return self
+
+
+class SequenceImage(NamedImage):
+    """Sequence."""
+
+    __slots__ = ('comment',)
+
+    def __init__(self, schema, name):
+        super(SequenceImage, self).__init__(weakref.ref(schema), name)
+        self.comment = None
+        schema.sequences.add(self)
+
+    @property
+    def schema(self):
+        """Sequence owner."""
+        return self.owner()
+
+    def rename(self, name):
+        old_name = self.name
+        self.handle = self.name = name
+        self.schema.sequences.replace(old_name, self)
+        return self
+
+    def remove(self):
+        self.schema.sequences.remove(self)
+        super(SequenceImage, self).remove()
 
     def set_comment(self, text):
         """Sets the comment."""
@@ -377,15 +461,21 @@ class ProcedureSignature(
 class ProcedureImage(IndexedImage):
     """Stored procedure."""
 
-    __slots__ = ('name', 'types', 'return_type', 'source')
+    __slots__ = ('name', 'types', 'return_type', 'source', 'comment')
 
     def __init__(self, schema, name, types, return_type, source):
         signature = ProcedureSignature(name, types)
         super(ProcedureImage, self).__init__(weakref.ref(schema), signature)
+        #: Procedure name.
         self.name = name
+        #: Types of procedure arguments.
         self.types = types
+        #: Type of the return value.
         self.return_type = return_type
+        #: Procedure body.
         self.source = source
+        #: Comment on the procedure.
+        self.comment = None
         schema.procedures.add(self)
 
     @property
@@ -414,6 +504,11 @@ class ProcedureImage(IndexedImage):
             trigger.remove()
         self.schema.procedures.remove(self)
         super(ProcedureImage, self).remove()
+
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
+        return self
 
 
 class TableImage(NamedImage):
@@ -468,6 +563,15 @@ class TableImage(NamedImage):
         """Number of columns."""
         return len(self.columns)
 
+    @property
+    def indexes(self):
+        """List of all indexes that cover the table."""
+        catalog = self.schema.catalog
+        return [index
+                for schema in catalog.schemas
+                for index in schema.indexes
+                if self is index.table]
+
     def rename(self, name):
         old_name = self.name
         self.handle = self.name = name
@@ -486,9 +590,9 @@ class TableImage(NamedImage):
         self.schema.tables.remove(self)
         super(TableImage, self).remove()
 
-    def add_column(self, name, type, is_not_null):
+    def add_column(self, name, type, is_not_null, default=None):
         """Adds a new column to the table."""
-        return ColumnImage(self, name, type, is_not_null)
+        return ColumnImage(self, name, type, is_not_null, default)
 
     def add_constraint(self, name):
         """Adds a table constraint."""
@@ -530,15 +634,17 @@ class TableImage(NamedImage):
 class ColumnImage(NamedImage):
     """Database column."""
 
-    __slots__ = ('type', 'is_not_null', 'comment')
+    __slots__ = ('type', 'is_not_null', 'default', 'comment')
 
-    def __init__(self, table, name, type, is_not_null):
+    def __init__(self, table, name, type, is_not_null, default=None):
         super(ColumnImage, self).__init__(weakref.ref(table), name)
         table.columns.add(self)
         #: Column type.
         self.type = type
         #: Has ``NOT NULL`` constraint?
         self.is_not_null = is_not_null
+        #: Default column value.
+        self.default = default
         #: Column comment.
         self.comment = None
         if table.data is not None:
@@ -576,6 +682,15 @@ class ColumnImage(NamedImage):
                 for foreign_key in self.table.referring_foreign_keys
                 if self in foreign_key.target_columns]
 
+    @property
+    def indexes(self):
+        """List of all indexes that cover the column."""
+        catalog = self.table.schema.catalog
+        return [index
+                for schema in catalog.schemas
+                for index in schema.indexes
+                if self in index.columns]
+
     def rename(self, name):
         old_name = self.name
         self.handle = self.name = name
@@ -589,6 +704,8 @@ class ColumnImage(NamedImage):
             foreign_key.remove()
         for foreign_key in self.referring_foreign_keys[:]:
             foreign_key.remove()
+        for index in self.indexes[:]:
+            index.remove()
         if self.table.data is not None:
             self.table.data.remove()
         self.table.columns.remove(self)
@@ -602,6 +719,11 @@ class ColumnImage(NamedImage):
     def set_is_not_null(self, is_not_null):
         """Sets or unsets ``NOT NULL`` constraint."""
         self.is_not_null = is_not_null
+        return self
+
+    def set_default(self, default):
+        """Sets the default value expression."""
+        self.default = default
         return self
 
     def set_comment(self, text):
@@ -771,12 +893,14 @@ class ForeignKeyImage(ConstraintImage):
 class TriggerImage(NamedImage):
     """Table trigger."""
 
-    __slots__ = ('procedure',)
+    __slots__ = ('procedure', 'comment')
 
     def __init__(self, table, name, procedure):
         super(TriggerImage, self).__init__(weakref.ref(table), name)
         #: Procedure to call.
         self.procedure = procedure
+        #: Comment on the trigger.
+        self.comment = None
         table.triggers.add(self)
 
     @property
@@ -796,6 +920,11 @@ class TriggerImage(NamedImage):
     def remove(self):
         self.table.triggers.remove(self)
         super(TriggerImage, self).remove()
+
+    def set_comment(self, text):
+        """Sets the comment."""
+        self.comment = text
+        return self
 
 
 class DataImage(Image):

@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import RecordVal, Error
+from rex.core import UChoiceVal, MaybeVal, SeqVal, RecordVal, Error
 from .fact import LabelVal, TitleVal
 import operator
 import yaml
@@ -134,6 +134,17 @@ class ColumnMeta(Meta):
     fields = [
             ('label', LabelVal, None),
             ('title', TitleVal, None),
+    ]
+
+
+class PrimaryKeyMeta(Meta):
+    """Metadata for primary key constraints."""
+
+    __slots__ = ()
+
+    fields = [
+            ('generators',
+             SeqVal(MaybeVal(UChoiceVal('offset', 'random'))), None),
     ]
 
 

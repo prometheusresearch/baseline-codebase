@@ -11,7 +11,8 @@ import hashlib
 def mangle(fragments, suffix=None,
            max_length=63,
            forbidden_prefixes=[u"pg"],
-           forbidden_suffixes=[u"id", u"pk", u"uk", u"fk", u"chk", u"enum"]):
+           forbidden_suffixes=[u"id", u"pk", u"uk", u"fk", u"chk",
+                               u"seq", u"enum"]):
     """
     Generates a SQL name from fragments and a suffix.
 
@@ -240,6 +241,20 @@ def sql_drop_column(table_name, name):
                     sql_name(name))
 
 
+def sql_set_column_default(table_name, name, expression):
+    """
+    Generates::
+
+        ALTER TABLE {table_name} ALTER COLUMN {name} SET DEFAULT {expression}
+    """
+    if expression is not None:
+        return u"ALTER TABLE {} ALTER COLUMN {} SET DEFAULT {};" \
+                .format(sql_name(table_name), sql_name(name), expression)
+    else:
+        return u"ALTER TABLE {} ALTER COLUMN {} DROP DEFAULT;" \
+                .format(sql_name(table_name), sql_name(name))
+
+
 def sql_comment_on_column(table_name, name, text):
     """
     Generates::
@@ -362,6 +377,38 @@ def sql_comment_on_type(name, text):
     return u"COMMENT ON TYPE {} IS {};".format(sql_name(name), sql_value(text))
 
 
+def sql_create_sequence(name, owner_table_name=None, owner_name=None):
+    """
+    Generates::
+
+        CREATE SEQUENCE {name} OWNED BY {owner_table_name}.{owner_name}
+    """
+    return u"CREATE SEQUENCE {}{};" \
+            .format(sql_name(name),
+                    u" OWNED BY {}.{}"
+                        .format(sql_name(owner_table_name),
+                                sql_name(owner_name))
+                        if owner_name is not None else u"")
+
+
+def sql_drop_sequence(name):
+    """
+    Generates::
+
+        DROP SEQUENCE {name}
+    """
+    return u"DROP SEQUENCE {};".format(sql_name(name))
+
+
+def sql_nextval(name):
+    """
+    Generates::
+
+        NEXTVAL({name})
+    """
+    return u"nextval({}::regclass)".format(sql_value(name))
+
+
 def sql_create_function(name, types, return_type, language, source):
     """
     Generates::
@@ -432,7 +479,7 @@ def sql_integer_random_key(table_name, name):
 
     lines = []
     lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
-    lines.append(u"    NEW.{} := TRUNC((RANDOM()*999999999) + 1);\n"
+    lines.append(u"    NEW.{} := trunc((random()*999999999) + 1);\n"
                 .format(name))
     lines.append(u"END IF;\n")
     return u"".join(lines)
@@ -444,8 +491,8 @@ def sql_text_random_key(table_name, name):
     name = sql_name(name)
     letters = u"ABCDEFGHJKLMNPQRSTUVWXYZ"
     digits = u"0123456789"
-    one_letter = u"_letters[1 + TRUNC(RANDOM()*%s)]" % len(letters)
-    one_digit = u"_digits[1 + TRUNC(RANDOM()*%s)]" % len(digits)
+    one_letter = u"_letters[1 + trunc(random()*%s)]" % len(letters)
+    one_digit = u"_digits[1 + trunc(random()*%s)]" % len(digits)
 
     lines = []
     lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
@@ -480,13 +527,13 @@ def sql_integer_offset_key(table_name, name, basis_names):
     lines.append(u"    DECLARE\n")
     lines.append(u"        _offset int4;\n")
     lines.append(u"    BEGIN\n")
-    lines.append(u"        SELECT MAX({}) INTO _offset\n".format(name))
+    lines.append(u"        SELECT max({}) INTO _offset\n".format(name))
     if conditions:
         lines.append(u"            FROM {}\n".format(table_name))
         lines.append(u"            WHERE %s;\n" % u" AND ".join(conditions))
     else:
         lines.append(u"            FROM {};\n".format(table_name))
-    lines.append(u"        NEW.{} := COALESCE(_offset, 0) + 1;\n".format(name))
+    lines.append(u"        NEW.{} := coalesce(_offset, 0) + 1;\n".format(name))
     lines.append(u"    END;\n")
     lines.append(u"END IF;\n")
     return u"".join(lines)
@@ -506,12 +553,12 @@ def sql_text_offset_key(table_name, name, basis_names):
     lines.append(u"    DECLARE\n")
     lines.append(u"        _offset int4;\n")
     lines.append(u"    BEGIN\n")
-    lines.append(u"        SELECT CAST(MAX({}) AS int4) INTO _offset\n"
+    lines.append(u"        SELECT CAST(max({}) AS int4) INTO _offset\n"
                 .format(name))
     lines.append(u"            FROM {}\n".format(table_name))
     lines.append(u"            WHERE %s;\n" % u" AND ".join(conditions))
     lines.append(u"        NEW.{} :="
-                 u" TO_CHAR(COALESCE(_offset, 0) + 1, 'FM000');\n"
+                 u" to_char(coalesce(_offset, 0) + 1, 'FM000');\n"
                 .format(name))
     lines.append(u"    END;\n")
     lines.append(u"END IF;\n")

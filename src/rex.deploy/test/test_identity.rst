@@ -179,6 +179,10 @@ values, a trigger is created::
     END;
     ';
     CREATE TRIGGER "individual_pk" BEFORE INSERT ON "individual" FOR EACH ROW EXECUTE PROCEDURE "individual_pk"();
+    COMMENT ON CONSTRAINT "individual_pk" ON "individual" IS '---
+    generators:
+    - random
+    ';
 
 It is not possible to create or remove a generator while the driver is locked::
 
@@ -208,10 +212,13 @@ trigger::
     DROP FUNCTION "individual_pk"();
     CREATE FUNCTION "individual_pk"() ...
     CREATE TRIGGER "individual_pk" ...
+    COMMENT ON CONSTRAINT "individual_pk" ON "individual" IS ...
+
 
     >>> driver("""{ identity: [individual.code] }""")
     DROP TRIGGER "individual_pk" ON "individual";
     DROP FUNCTION "individual_pk"();
+    COMMENT ON CONSTRAINT "individual_pk" ON "individual" IS NULL;
 
 Generators could be applied to *text* or *integer* columns::
 

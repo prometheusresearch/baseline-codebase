@@ -85,13 +85,16 @@ and ``DOMAIN`` types::
     >>> public_schema.add_enum_type(u'sex_enum', [u'male', u'female', u'unknown'])
     <EnumTypeImage sex_enum = male | female | unknown>
 
-You can add stored procedures::
+You can also add stored procedures and sequences::
 
     >>> trigger_type = system_schema.add_type(u'trigger')
 
     >>> public_schema.add_procedure(u'individual_pk', (), trigger_type,
     ...                             u'BEGIN NEW.sex := COALESCE(NEW.sex, \'unknown\'); END')
     <ProcedureImage individual_pk()>
+
+    >>> public_schema.add_sequence(u'individual_seq')
+    <SequenceImage individual_seq>
 
 Schema objects support container operations::
 
@@ -219,13 +222,18 @@ You can change properties of a column::
     <ColumnImage individual.sex : text>
 
 
-Constraint and trigger images
-=============================
+Constraints, indexes and triggers
+=================================
 
 ``UniqueKeyImage`` and ``ForeignKeyImage`` represent database constraints::
 
     >>> sample_pk = sample_table.constraints[u'sample_pk']
     >>> sample_individual_fk = sample_table.constraints[u'sample_individual_fk']
+
+A constraint usually has an associated index::
+
+    >>> public_schema.add_index(sample_pk.name, sample_pk.origin, sample_pk.origin_columns)
+    <IndexImage sample_pk>
 
 For foreign key constraints, you can change the ``ON UPDATE`` and ``ON DELETE``
 actions::

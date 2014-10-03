@@ -47,6 +47,7 @@ Introspection and database catalog
 .. autoclass:: TypeImage
 .. autoclass:: DomainTypeImage
 .. autoclass:: EnumTypeImage
+.. autoclass:: SequenceImage
 .. autoclass:: ProcedureImage
 .. autoclass:: TableImage
    :special-members: __contains__, __getitem__, __iter__, __len__
@@ -56,6 +57,7 @@ Introspection and database catalog
    :special-members: __contains__, __getitem__, __iter__, __len__
 .. autoclass:: ForeignKeyImage
    :special-members: __contains__, __getitem__, __iter__, __len__
+.. autoclass:: IndexImage
 .. autoclass:: TriggerImage
 .. autoclass:: DataImage
 
@@ -67,6 +69,7 @@ Entity metadata
 .. autoclass:: Meta
 .. autoclass:: TableMeta
 .. autoclass:: ColumnMeta
+.. autoclass:: PrimaryKeyMeta
 
 
 SQL Serialization
@@ -78,16 +81,24 @@ SQL Serialization
 .. autofunction:: sql_create_database
 .. autofunction:: sql_drop_database
 .. autofunction:: sql_select_database
+.. autofunction:: sql_comment_on_schema
 .. autofunction:: sql_create_table
 .. autofunction:: sql_drop_table
+.. autofunction:: sql_comment_on_table
 .. autofunction:: sql_define_column
 .. autofunction:: sql_add_column
 .. autofunction:: sql_drop_column
+.. autofunction:: sql_set_column_default
+.. autofunction:: sql_comment_on_column
+.. autofunction:: sql_create_sequence
+.. autofunction:: sql_drop_sequence
+.. autofunction:: sql_nextval
 .. autofunction:: sql_create_index
 .. autofunction:: sql_drop_index
 .. autofunction:: sql_add_unique_constraint
 .. autofunction:: sql_add_foreign_key_constraint
 .. autofunction:: sql_drop_constraint
+.. autofunction:: sql_comment_on_constraint
 .. autofunction:: sql_create_enum_type
 .. autofunction:: sql_drop_type
 .. autofunction:: sql_create_function

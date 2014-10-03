@@ -170,7 +170,7 @@ class LinkFact(Fact):
                                   on_delete=SET_DEFAULT)
             driver.submit(sql_create_index(self.constraint_name,
                     self.table_name, [self.name]))
-            # FIXME: keep track of indexes?
+            schema.add_index(self.constraint_name, table, [column])
         # Store the original link label and the link title.
         meta = ColumnMeta.parse(column)
         preferred_label = self.name[:-2].rstrip(u'_') \

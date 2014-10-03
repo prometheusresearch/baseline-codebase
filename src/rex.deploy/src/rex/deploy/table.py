@@ -7,7 +7,8 @@ from rex.core import Error, BoolVal, SeqVal, locate
 from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
 from .meta import TableMeta
 from .sql import (mangle, sql_create_table, sql_drop_table,
-        sql_comment_on_table, sql_define_column, sql_add_unique_constraint,
+        sql_comment_on_table, sql_define_column, sql_set_column_default,
+        sql_add_unique_constraint, sql_create_sequence, sql_nextval,
         sql_drop_type)
 
 
@@ -91,6 +92,8 @@ class TableFact(Fact):
         self.is_present = is_present
         self.related = related
         self.name = mangle(label)
+        self.constraint_name = mangle(label, u'uk')
+        self.sequence_name = mangle(label, u'seq')
 
     def __repr__(self):
         args = []
@@ -118,22 +121,29 @@ class TableFact(Fact):
         if self.name not in schema:
             if driver.is_locked:
                 raise Error("Detected missing table:", self.name)
-            # Submit `CREATE TABLE {name} (id serial4 NOT NULL)` and
+            # Submit `CREATE TABLE {name} (id int4 NOT NULL)` and
             # `ADD CONSTRAINT UNIQUE (id)`.
-            body = [sql_define_column(u'id', u'serial4', True)]
+            body = [sql_define_column(u'id', u'int4', True)]
             is_unlogged = (not self.is_reliable)
-            key_name = mangle([self.label, u'id'], u'uk')
             driver.submit(sql_create_table(
                     self.name, body, is_unlogged=is_unlogged))
             driver.submit(sql_add_unique_constraint(
-                    self.name, key_name, [u'id'], False))
+                    self.name, self.constraint_name, [u'id'], False))
+            # Submit `CREATE SEQUENCE` and `ALTER COLUMN SET DEFAULT`.
+            default = sql_nextval(self.sequence_name)
+            driver.submit(sql_create_sequence(
+                    self.sequence_name, self.name, u'id'))
+            driver.submit(sql_set_column_default(
+                    self.name, u'id', default))
             # Update the catalog image.
             system_schema = driver.get_catalog()[u'pg_catalog']
             table = schema.add_table(self.name)
             table.set_is_unlogged(is_unlogged)
             int4_type = system_schema.types[u'int4']
-            id_column = table.add_column(u'id', int4_type, True)
-            table.add_unique_key(key_name, [id_column])
+            id_column = table.add_column(u'id', int4_type, True, default)
+            table.add_unique_key(self.constraint_name, [id_column])
+            schema.add_index(self.constraint_name, table, [id_column])
+            schema.add_sequence(self.sequence_name)
         # Verify that the table has `id` column with a UNIQUE contraint.
         table = schema[self.name]
         if u'id' not in table:
@@ -187,5 +197,8 @@ class TableFact(Fact):
         table.remove()
         for enum_type in enum_types:
             enum_type.remove()
+        # Remove any associated sequences.
+        if self.sequence_name in schema.sequences:
+            schema.sequences[self.sequence_name].remove()
 
 

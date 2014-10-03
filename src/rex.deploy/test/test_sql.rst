@@ -148,8 +148,8 @@ If a database exists, it can be renamed::
     ALTER DATABASE "deploy_demo" RENAME TO "new_deploy_demo";
 
 
-Tables, columns, indexes, and constraints
-=========================================
+Tables, columns, indexes, constraints, and sequences
+====================================================
 
 With ``rex.deploy``, you can generate a ``CREATE TABLE`` and ``DROP TABLE``
 statement::
@@ -182,10 +182,11 @@ statement::
         "title" "text"
     );
 
-``rex.deploy`` can also generate ``ALTER TABLE`` statements to add and remove
-columns and constraints::
+``rex.deploy`` can also generate ``ALTER TABLE`` statements to manage columns
+and constraints::
 
     >>> from rex.deploy import sql_add_column, sql_drop_column, \
+    ...                        sql_set_column_default, \
     ...                        sql_add_unique_constraint, \
     ...                        sql_add_foreign_key_constraint, \
     ...                        sql_drop_constraint
@@ -194,6 +195,10 @@ columns and constraints::
     ALTER TABLE "study" ADD COLUMN "code" "varchar"(8) NOT NULL;
     >>> print sql_add_column(u'study', u'title', u'text', False)
     ALTER TABLE "study" ADD COLUMN "title" "text";
+    >>> print sql_set_column_default(u'study', u'closed', sql_value(True))
+    ALTER TABLE "study" ALTER COLUMN "closed" SET DEFAULT TRUE;
+    >>> print sql_set_column_default(u'study', u'id', None)
+    ALTER TABLE "study" ALTER COLUMN "id" DROP DEFAULT;
     >>> print sql_drop_column(u'study', u'closed')
     ALTER TABLE "study" DROP COLUMN "closed";
 
@@ -218,9 +223,19 @@ columns and constraints::
 
     >>> print sql_create_index(fk_name, u'study', [u'study_id'])
     CREATE INDEX "case_study_fk" ON "study" ("study_id");
-
     >>> print sql_drop_index(fk_name)
     DROP INDEX "case_study_fk";
+
+``rex.deploy`` can be used to create and drop sequence objects::
+
+    >>> from rex.deploy import sql_create_sequence, sql_drop_sequence
+
+    >>> print sql_create_sequence(u"study_seq")
+    CREATE SEQUENCE "study_seq";
+    >>> print sql_create_sequence(u"individual_seq", u"individual", u"id")
+    CREATE SEQUENCE "individual_seq" OWNED BY "individual"."id";
+    >>> print sql_drop_sequence(u"measure_seq")
+    DROP SEQUENCE "measure_seq";
 
 
 Data types

@@ -3,13 +3,16 @@
 #
 
 
-from rex.core import Error, BoolVal
+from rex.core import Error, BoolVal, OneOrSeqVal
+from .identity import _generate
 from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
 from .image import SET_DEFAULT
-from .meta import ColumnMeta, TableMeta
-from .sql import (mangle, sql_add_column, sql_drop_column,
+from .meta import ColumnMeta, TableMeta, PrimaryKeyMeta
+from .sql import (mangle, sql_add_column, sql_drop_column, sql_rename_column,
         sql_comment_on_column, sql_add_foreign_key_constraint,
-        sql_create_index)
+        sql_rename_constraint, sql_create_index, sql_rename_index,
+        sql_create_function, sql_drop_function, sql_create_trigger,
+        sql_drop_trigger)
 
 
 class LinkFact(Fact):
@@ -23,6 +26,8 @@ class LinkFact(Fact):
     `target_table_label`: ``unicode`` or ``None``
         The name of the target table.  Must be ``None``
         if ``is_present`` is not set.
+    `former_labels`: [``unicode``]
+        Names that the link may have had in the past.
     `is_required`: ``bool`` or ``None``
         Indicates if ``NULL`` values are not allowed.  Must be ``None``
         if ``is_present`` is not set.
@@ -37,6 +42,7 @@ class LinkFact(Fact):
             ('link', QLabelVal),
             ('of', LabelVal, None),
             ('to', LabelVal, None),
+            ('was', OneOrSeqVal(LabelVal), None),
             ('required', BoolVal, None),
             ('title', TitleVal, None),
             ('present', BoolVal, True),
@@ -55,6 +61,12 @@ class LinkFact(Fact):
             if spec.of is None:
                 raise Error("Got missing table name")
         target_table_label = spec.to
+        if isinstance(spec.was, list):
+            former_labels = spec.was
+        elif spec.was:
+            former_labels = [spec.was]
+        else:
+            former_labels = []
         is_required = spec.required
         title = spec.title
         is_present = spec.present
@@ -66,14 +78,18 @@ class LinkFact(Fact):
         else:
             if target_table_label is not None:
                 raise Error("Got unexpected clause:", "to")
+            if former_labels:
+                raise Error("Got unexpected clause:", "was")
             if is_required is not None:
                 raise Error("Got unexpected clause:", "required")
             if title is not None:
                 raise Error("Got unexpected clause:", "title")
         return cls(table_label, label, target_table_label,
-                   is_required=is_required, title=title, is_present=is_present)
+                    former_labels=former_labels, is_required=is_required,
+                    title=title, is_present=is_present)
 
     def __init__(self, table_label, label, target_table_label=None,
+                 former_labels=[],
                  is_required=None, title=None, is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
@@ -81,16 +97,21 @@ class LinkFact(Fact):
         if is_present:
             assert (isinstance(target_table_label, unicode)
                     and len(target_table_label) > 0)
+            assert (isinstance(former_labels, list) and
+                    all(isinstance(former_label, unicode)
+                        for former_label in former_labels))
             assert isinstance(is_required, bool)
             assert (title is None or
                     (isinstance(title, unicode) and len(title) > 0))
         else:
             assert target_table_label is None
+            assert former_labels == []
             assert is_required is None
             assert title is None
         self.table_label = table_label
         self.label = label
         self.target_table_label = target_table_label
+        self.former_labels = former_labels
         self.is_required = is_required
         self.title = title
         self.is_present = is_present
@@ -110,6 +131,8 @@ class LinkFact(Fact):
         args.append(repr(self.label))
         if self.target_table_label is not None:
             args.append(repr(self.target_table_label))
+        if self.former_labels:
+            args.append("former_labels=%r" % self.former_labels)
         if self.is_required is not None:
             args.append("is_required=%r" % self.is_required)
         if self.title is not None:
@@ -139,10 +162,68 @@ class LinkFact(Fact):
         # Verify that we don't have a regular column under the same name.
         if self.name_for_column in table:
             raise Error("Detected unexpected column", self.name_for_column)
-        # Create the link column if it does not exist.
+        # Verify if we need to rename the link.
         if self.name not in table:
             if driver.is_locked:
                 raise Error("Detected missing column:", self.name)
+            for former_label in self.former_labels:
+                former_name = mangle(former_label, u"id")
+                if former_name not in table:
+                    continue
+                column = table[former_name]
+                # Rename the column.
+                driver.submit(sql_rename_column(
+                        self.table_name, former_name, self.name))
+                column.rename(self.name)
+                # Rename the `FOREIGN KEY` constraint and its index.
+                former_constraint_name = mangle(
+                        [self.table_label, former_label], u'fk')
+                constraint = table.constraints.get(former_constraint_name)
+                if constraint is not None:
+                    driver.submit(sql_rename_constraint(
+                            self.table_name, former_constraint_name,
+                            self.constraint_name))
+                    constraint.rename(self.constraint_name)
+                index = schema.indexes.get(former_constraint_name)
+                if index is not None:
+                    driver.submit(sql_rename_index(
+                            former_constraint_name, self.constraint_name))
+                    index.rename(self.constraint_name)
+                # Rebuild `PRIMARY KEY` generator.
+                source = None
+                if table.primary_key is not None and \
+                        column in table.primary_key:
+                    meta = PrimaryKeyMeta.parse(table.primary_key)
+                    if meta.generators:
+                        source = _generate(table, meta.generators)
+                if source is not None:
+                    procedure_name = mangle(self.table_name, u'pk')
+                    signature = (procedure_name, ())
+                    trigger = table.triggers.get(procedure_name)
+                    procedure = schema.procedures.get(signature)
+                    if trigger is not None:
+                        driver.submit(sql_drop_trigger(
+                                self.table_name, procedure_name))
+                        trigger.remove()
+                    if procedure is not None:
+                        driver.submit(sql_drop_function(
+                                procedure_name, ()))
+                        procedure.remove()
+                    driver.submit(sql_create_function(
+                            procedure_name, (), u"trigger", u"plpgsql",
+                            source))
+                    system_schema = driver.get_catalog()['pg_catalog']
+                    procedure = schema.add_procedure(
+                            procedure_name, (),
+                            system_schema.types[u'trigger'], source)
+                    driver.submit(sql_create_trigger(
+                            self.table_name, procedure_name,
+                            u"BEFORE", u"INSERT",
+                            procedure_name, ()))
+                    table.add_trigger(procedure_name, procedure)
+                break
+        # Create the link column if it does not exist.
+        if self.name not in table:
             driver.submit(sql_add_column(
                     self.table_name, self.name, target_column.type.name,
                     self.is_required))

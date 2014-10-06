@@ -161,17 +161,17 @@ hold true.  If not, it will try to alter the database to make them true.  If
 the database has no table ``individual``, it will be created.  If the database
 has a table called ``family``, it will be deleted.
 
-*(TODO)* Another variant of a table fact allows you to get the table renamed::
+Another variant of a table fact allows you to get the table renamed::
 
     table: instrument
     was: measure_type
 
-*(TODO)* It reads as: The database has a table called ``instrument``, which was
+It reads as: The database has a table called ``instrument``, which was
 previously called ``measure_type``.
 
-*(TODO)* When ``was`` clause is specified, the behavior of :mod:`rex.deploy` is
-slightly more complicated than usual.  In case when the database has no table
-called ``instrument``, :mod:`rex.deploy` checks if there is a table called
+When ``was`` clause is present, the behavior of :mod:`rex.deploy` is slightly
+more complicated than usual.  In case when the database has no table called
+``instrument``, :mod:`rex.deploy` checks if there is a table called
 ``measure_type.``.  If there is, it is renamed to ``instrument``.  Otherwise, a
 new table ``instrument`` is created.
 
@@ -345,7 +345,7 @@ A table fact describes a database table.
 `table`: ``<label>``
     The name of the table.
 
-`was`: ``<former_label>`` *(TODO)*
+`was`: ``<former_label>`` or [``<former_label>``]
     The previous name of the table.
 
 `present`: ``true`` (default) or ``false``
@@ -374,6 +374,9 @@ Deploying when ``present`` is ``true``:
     Ensures that the database has a table called ``<label>``.  If the table
     does not exist, it is created.
 
+    If table ``<label>`` does not exist, but there is a table called
+    ``<former_label>``, the table is renamed to ``<label>``.
+
     The table must have a surrogate key column ``id``.  It is created
     automatically when the table is created.
 
@@ -398,7 +401,7 @@ Examples:
         table: family
         present: false
 
-    #. *(TODO)* Renaming or creating a table::
+    #. Renaming or creating a table::
 
         table: instrument
         was: measure_type
@@ -470,6 +473,9 @@ A column fact describes a column of a table.
 
     This clause cannot be used if ``present`` is ``false``.
 
+`was`: ``<former_label>`` or [``<former_label>``]
+    The previous name of the column.
+
 `required`: ``true`` (default) or ``false``
     Indicates whether or not the column forbids ``NULL`` values.
 
@@ -485,6 +491,9 @@ Deploying when ``present`` is ``true``:
 
     Ensures that table ``<table_label>`` has a column ``<label>`` of type
     ``<type_label>``.  If the column does not exist, it is created.
+
+    If the table has no column ``<label>``, but contains a column called
+    ``<former_label>``, the column is renamed to ``<label>``.
 
     If ``required`` is set to ``true``, which is the default, the column
     should have a ``NOT NULL`` constraint.
@@ -521,6 +530,13 @@ Examples:
         with:
         - column: title
           type: text
+
+    #. Creating or renaming a column::
+
+        column: last_name
+        of: identity
+        was: surname
+        type: text
 
     #. Setting the column title::
 
@@ -576,6 +592,9 @@ A link fact describes a link between two tables.
 
     This clause cannot be used if ``present`` is ``false``.
 
+`was`: ``<former_label>`` or [``<former_label>``]
+    The previous name of the link.
+
 `required`: ``true`` (default) or ``false``
     Indicates whether or not the link forbids ``NULL`` values.
 
@@ -593,6 +612,9 @@ Deploying when ``present`` is ``true``:
     ``FOREIGN KEY`` constraint from ``<table_label>.<label>_id`` to
     ``<target_table_label>.id``.  If the column and the constraint do not
     exist, they are created.
+
+    Column ``<former_label>_id`` is renamed to ``<label>_id`` if the former
+    exists and the latter does not.
 
     If ``required`` is set to ``true`` (default), the column should have
     a ``NOT NULL`` constraint.
@@ -631,6 +653,13 @@ Examples:
         table: sample
         with:
         - link: individual
+
+    #. Creating or renaming a link::
+
+        link: birth_mother
+        of: individual
+        to: individual
+        was: mother
 
     #. Removing a link::
 

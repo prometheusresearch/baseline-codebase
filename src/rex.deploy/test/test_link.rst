@@ -50,6 +50,14 @@ the link name.  Otherwise, it could be set using ``to`` field::
     >>> driver.parse("""{ link: individual.mother, to: individual }""")
     LinkFact(u'individual', u'mother', u'individual', is_required=True)
 
+You can indicate any old names of the link using ``was`` clause::
+
+    >>> driver.parse("""{ link: measure.individual, was: subject }""")
+    LinkFact(u'measure', u'individual', u'individual', former_labels=[u'subject'], is_required=True)
+
+    >>> driver.parse("""{ link: individual.birth_mother, was: [parent, mother], to: individual }""")
+    LinkFact(u'individual', u'birth_mother', u'individual', former_labels=[u'parent', u'mother'], is_required=True)
+
 By default, a link does not permit ``NULL`` values.  Turn off flag
 ``required`` to allow ``NULL`` values::
 
@@ -73,6 +81,14 @@ Field ``present: false`` cannot coexist with other link parameters::
       ...
     Error: Got unexpected clause:
         to
+    While parsing link fact:
+        "<byte string>", line 1
+
+    >>> driver.parse("""{ link: sample.individual, was: subject, present: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        was
     While parsing link fact:
         "<byte string>", line 1
 
@@ -102,12 +118,15 @@ Deploying a link fact creates a column and a foreign key::
     ... - { table: individual }
     ... - { table: sample }
     ... - { link: sample.individual }
+    ... - { column: sample.code, type: text }
+    ... - { identity: [sample.individual, sample.code: offset] }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE TABLE "individual" ...
     CREATE TABLE "sample" ...
     ALTER TABLE "sample" ADD COLUMN "individual_id" "int4" NOT NULL;
     ALTER TABLE "sample" ADD CONSTRAINT "sample_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
     CREATE INDEX "sample_individual_fk" ON "sample" ("individual_id");
+    ...
 
     >>> schema = driver.get_schema()
     >>> sample_table = schema[u'sample']
@@ -227,14 +246,35 @@ You cannot create a link if there is a regular column with the same name::
         "<byte string>", line 4
 
 
+Renaming the link
+=================
+
+To rename a link, specify the current name as ``was`` field and the new name as
+``link`` field::
+
+    >>> driver("""{ link: sample.subject, to: individual, was: individual }""")     # doctest: +ELLIPSIS
+    ALTER TABLE "sample" RENAME COLUMN "individual_id" TO "subject_id";
+    ALTER TABLE "sample" RENAME CONSTRAINT "sample_individual_fk" TO "sample_subject_fk";
+    ALTER INDEX "sample_individual_fk" RENAME TO "sample_subject_fk";
+    DROP TRIGGER "sample_pk" ON "sample";
+    DROP FUNCTION "sample_pk"();
+    CREATE FUNCTION "sample_pk"() RETURNS "trigger" LANGUAGE plpgsql AS ...
+    CREATE TRIGGER "sample_pk" BEFORE INSERT ON "sample" FOR EACH ROW EXECUTE PROCEDURE "sample_pk"();
+    COMMENT ON COLUMN "sample"."subject_id" IS NULL;
+
+Applying the same fact second time will have no effect::
+
+    >>> driver("""{ link: sample.subject, to: individual, was: individual }""")
+
+
 Dropping the link
 =================
 
 We can use link facts to drop a ``FOREIGN KEY`` constraint and associated
 column::
 
-    >>> driver("""{ link: sample.individual, present: false }""")
-    ALTER TABLE "sample" DROP COLUMN "individual_id";
+    >>> driver("""{ link: sample.subject, present: false }""")
+    ALTER TABLE "sample" DROP COLUMN "subject_id";
 
     >>> schema = driver.get_schema()
     >>> sample_table = schema[u'sample']
@@ -243,11 +283,11 @@ column::
 
 Deploing the same fact again has no effect::
 
-    >>> driver("""{ link: sample.individual, present: false }""")
+    >>> driver("""{ link: sample.subject, present: false }""")
 
 Deleting a link from a table which does not exist is NOOP::
 
-    >>> driver("""{ link: measure.individual, present: false }""")
+    >>> driver("""{ link: measure.subject, present: false }""")
 
 A locked driver cannot delete a link::
 

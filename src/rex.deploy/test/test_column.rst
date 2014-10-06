@@ -43,6 +43,14 @@ If the table is not set or set twice, an error is raised::
     While parsing column fact:
         "<byte string>", line 1
 
+You could indicate possible old names of the column using ``was`` field::
+
+    >>> driver.parse("""{ column: identity.last_name, was: [surname], type: text }""")
+    ColumnFact(u'identity', u'last_name', u'text', former_labels=[u'surname'], is_required=True)
+
+    >>> driver.parse("""{ column: identity.date_of_birth, was: [dob, birth], type: date }""")
+    ColumnFact(u'identity', u'date_of_birth', u'date', former_labels=[u'dob', u'birth'], is_required=True)
+
 The ``type`` field is the name of the column type or a list of labels
 of ``ENUM`` type::
 
@@ -92,6 +100,14 @@ Turn of flag ``present`` to indicate that the column should not exist::
     ColumnFact(u'individual', u'code', is_present=False)
 
 Field ``present: false`` cannot coexist with other column parameters::
+
+    >>> driver.parse("""{ column: individual.code, was: ident, present: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        was
+    While parsing column fact:
+        "<byte string>", line 1
 
     >>> driver.parse("""{ column: individual.code, type: text, present: false }""")
     Traceback (most recent call last):
@@ -175,17 +191,6 @@ type is created::
     >>> u'individual_sex_enum' in schema.types
     True
 
-An error is raised when the driver is locked and cannot create a new type::
-
-    >>> driver("""{ column: individual.status, type: [in-process, completed] }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing ENUM type:
-        individual_status_enum
-    While validating column fact:
-        "<byte string>", line 1
-
 In the future, if the column already exists, but does not match the column fact,
 the column is altered to match the fact.  Currently, it's not yet functional::
 
@@ -237,20 +242,53 @@ You cannot create a column if there is already a link with the same name::
         "<byte string>", line 3
 
 
+Renaming the column
+===================
+
+If you want to rename an existing column, specify the current name as ``was``
+field::
+
+    >>> driver("""{ column: individual.gender, was: sex, type: [male, female] }""")
+    ALTER TABLE "individual" RENAME COLUMN "sex" TO "gender";
+    ALTER TYPE "individual_sex_enum" RENAME TO "individual_gender_enum";
+
+If you rename a column that is part of table identity, the corresponding
+identity trigger will be rebuilt::
+
+    >>> driver("""{ identity: [individual.code: random] }""")       # doctest: +ELLIPSIS
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code");
+    ...
+
+    >>> driver("""{ column: individual.ident, was: code, type: text }""")   # doctest: +ELLIPSIS
+    ALTER TABLE "individual" RENAME COLUMN "code" TO "ident";
+    DROP TRIGGER "individual_pk" ON "individual";
+    DROP FUNCTION "individual_pk"();
+    CREATE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    BEGIN
+        IF NEW."ident" IS NULL THEN
+            ...
+        END IF;
+        RETURN NEW;
+    END;
+    ';
+    CREATE TRIGGER "individual_pk" BEFORE INSERT ON "individual" FOR EACH ROW EXECUTE PROCEDURE "individual_pk"();
+    COMMENT ON COLUMN "individual"."ident" IS NULL;
+
+
 Dropping the column
 ===================
 
 We can use column facts to drop a column::
 
-    >>> driver("""{ column: individual.code, present: false }""")
-    ALTER TABLE "individual" DROP COLUMN "code";
+    >>> driver("""{ column: individual.ident, present: false }""")
+    ALTER TABLE "individual" DROP COLUMN "ident";
 
-    >>> u'code' in individual_table
+    >>> u'ident' in individual_table
     False
 
 Deploing the same fact again has no effect::
 
-    >>> driver("""{ column: individual.code, present: false }""")
+    >>> driver("""{ column: individual.ident, present: false }""")
 
 Deleting a column from a table which does not exist is NOOP::
 
@@ -258,21 +296,21 @@ Deleting a column from a table which does not exist is NOOP::
 
 A locked driver cannot delete a column::
 
-    >>> driver("""{ column: individual.sex, present: false }""",
+    >>> driver("""{ column: individual.gender, present: false }""",
     ...        is_locked=True)
     Traceback (most recent call last):
       ...
     Error: Detected unexpected column:
-        sex
+        gender
     While validating column fact:
         "<byte string>", line 1
 
 When you delete a column of ``ENUM`` type, the type is dropped too::
 
-    >>> driver("""{ column: individual.sex, present: false }""")
-    ALTER TABLE "individual" DROP COLUMN "sex";
-    DROP TYPE "individual_sex_enum";
-    >>> u'individual_sex_enum' in schema.types
+    >>> driver("""{ column: individual.gender, present: false }""")
+    ALTER TABLE "individual" DROP COLUMN "gender";
+    DROP TYPE "individual_gender_enum";
+    >>> u'individual_gender_enum' in schema.types
     False
 
 You cannot delete a column if there is a link with the same name::

@@ -187,6 +187,16 @@ def sql_drop_table(name):
     return u"DROP TABLE {};".format(sql_name(name))
 
 
+def sql_rename_table(name, new_name):
+    """
+    Generates::
+
+        ALTER TABLE {name} RENAME TO {new_name}
+    """
+    return u"ALTER TABLE {} RENAME TO {};" \
+            .format(sql_name(name), sql_name(new_name))
+
+
 def sql_comment_on_table(name, text):
     """
     Generates::
@@ -241,6 +251,18 @@ def sql_drop_column(table_name, name):
                     sql_name(name))
 
 
+def sql_rename_column(table_name, name, new_name):
+    """
+    Generates::
+
+        ALTER TABLE {table_name} RENAME COLUMN {name} TO {new_name}
+    """
+    return u"ALTER TABLE {} RENAME COLUMN {} TO {};" \
+            .format(sql_name(table_name),
+                    sql_name(name),
+                    sql_name(new_name))
+
+
 def sql_set_column_default(table_name, name, expression):
     """
     Generates::
@@ -286,6 +308,16 @@ def sql_drop_index(name):
         DROP INDEX {name}
     """
     return u"DROP INDEX {};".format(sql_name(name))
+
+
+def sql_rename_index(name, new_name):
+    """
+    Generates::
+
+        ALTER INDEX {name} RENAME TO {new_name}
+    """
+    return u"ALTER INDEX {} RENAME TO {};" \
+            .format(sql_name(name), sql_name(new_name))
 
 
 def sql_add_unique_constraint(table_name, name, column_names, is_primary):
@@ -335,6 +367,16 @@ def sql_drop_constraint(table_name, name):
                     sql_name(name))
 
 
+def sql_rename_constraint(table_name, name, new_name):
+    """
+    Generates::
+
+        ALTER TABLE {name} RENAME CONSTRAINT {name} TO {new_name}
+    """
+    return u"ALTER TABLE {} RENAME CONSTRAINT {} TO {};" \
+            .format(sql_name(table_name), sql_name(name), sql_name(new_name))
+
+
 def sql_comment_on_constraint(table_name, name, text):
     """
     Generates::
@@ -368,6 +410,16 @@ def sql_drop_type(name):
             .format(sql_name(name))
 
 
+def sql_rename_type(name, new_name):
+    """
+    Generates::
+
+        ALTER TYPE {name} RENAME TO {new_name}
+    """
+    return u"ALTER TYPE {} RENAME TO {};" \
+            .format(sql_name(name), sql_name(new_name))
+
+
 def sql_comment_on_type(name, text):
     """
     Generates::
@@ -398,6 +450,16 @@ def sql_drop_sequence(name):
         DROP SEQUENCE {name}
     """
     return u"DROP SEQUENCE {};".format(sql_name(name))
+
+
+def sql_rename_sequence(name, new_name):
+    """
+    Generates::
+
+        ALTER SEQUENCE {name} RENAME TO {new_name}
+    """
+    return u"ALTER SEQUENCE {} RENAME TO {};" \
+            .format(sql_name(name), sql_name(new_name))
 
 
 def sql_nextval(name):

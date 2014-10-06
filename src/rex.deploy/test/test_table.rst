@@ -20,6 +20,14 @@ Field ``table`` denotes a table fact::
     >>> driver.parse("""{ table: individual }""")
     TableFact(u'individual')
 
+You could indicate possible old names of the table using ``was`` field::
+
+    >>> driver.parse("""{ table: individual, was: subject }""")
+    TableFact(u'individual', former_labels=[u'subject'])
+
+    >>> driver.parse("""{ table: measure, was: [assessment, test] }""")
+    TableFact(u'measure', former_labels=[u'assessment', u'test'])
+
 Use field ``table`` to specify the table title::
 
     >>> driver.parse("""{ table: individual, title: Test Subjects }""")
@@ -61,8 +69,17 @@ Turn off flag ``present`` to indicate that the table is to be deleted::
     >>> driver.parse("""{ table: individual, present: false }""")
     TableFact(u'individual', is_present=False)
 
-You cannot combine ``present: false`` with the ``reliable``, ``title`` or
-``with`` fields::
+You cannot combine ``present: false`` with the ``was``, ``reliable``, ``title``
+or ``with`` fields::
+
+    >>> driver.parse("""{ table: individual, present: false,
+    ...                   was: subject }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        was
+    While parsing table fact:
+        "<byte string>", line 1
 
     >>> driver.parse("""{ table: individual, present: false,
     ...                   reliable: false }""")
@@ -189,6 +206,49 @@ up-to-date::
         title: Test Subjects
     While validating table fact:
         "<byte string>", line 1
+
+
+Renaming the table
+==================
+
+If you want to rename an existing table, specify the current name as ``was``
+field.  We start with creating a new table ``measure``::
+
+    >>> driver("""
+    ... - { table: measure }
+    ... - { link: measure.individual }
+    ... - { column: measure.code, type: text }
+    ... - { identity: [measure.individual, measure.code: offset] }
+    ... - { column: measure.status, type: [in-process, processed, completed] }
+    ... """)                # doctest: +ELLIPSIS
+    CREATE TABLE "measure" ...
+
+Now let us rename ``measure`` to ``assessment``::
+
+    >>> driver("""{ table: assessment, was: measure }""")       # doctest: +ELLIPSIS
+    ALTER TABLE "measure" RENAME TO "assessment";
+    ALTER SEQUENCE "measure_seq" RENAME TO "assessment_seq";
+    ALTER TABLE "assessment" RENAME CONSTRAINT "measure_uk" TO "assessment_uk";
+    ALTER TABLE "assessment" RENAME CONSTRAINT "measure_pk" TO "assessment_pk";
+    ALTER TABLE "assessment" RENAME CONSTRAINT "measure_individual_fk" TO "assessment_individual_fk";
+    ALTER INDEX "measure_individual_fk" RENAME TO "assessment_individual_fk";
+    ALTER TYPE "measure_status_enum" RENAME TO "assessment_status_enum";
+    DROP TRIGGER "measure_pk" ON "assessment";
+    DROP FUNCTION "measure_pk"();
+    CREATE FUNCTION "assessment_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    BEGIN
+        ...
+    END;
+    ';
+    CREATE TRIGGER "assessment_pk" BEFORE INSERT ON "assessment" FOR EACH ROW EXECUTE PROCEDURE "assessment_pk"();
+
+Note that applying the same fact second time has no effect::
+
+    >>> driver("""{ table: assessment, was: measure }""")
+
+    >>> driver("""{ table: assessment, present: false }""")
+    DROP TABLE "assessment";
+    DROP TYPE "assessment_status_enum";
 
 
 Dropping the table

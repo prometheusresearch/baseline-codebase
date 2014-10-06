@@ -3,13 +3,16 @@
 #
 
 
-from rex.core import Error, BoolVal, SeqVal, locate
+from rex.core import Error, BoolVal, SeqVal, OneOrSeqVal, locate
+from .identity import _generate
 from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
-from .meta import TableMeta
-from .sql import (mangle, sql_create_table, sql_drop_table,
+from .meta import TableMeta, ColumnMeta, PrimaryKeyMeta
+from .sql import (mangle, sql_create_table, sql_drop_table, sql_rename_table,
         sql_comment_on_table, sql_define_column, sql_set_column_default,
-        sql_add_unique_constraint, sql_create_sequence, sql_nextval,
-        sql_drop_type)
+        sql_add_unique_constraint, sql_rename_constraint, sql_rename_index,
+        sql_create_sequence, sql_rename_sequence, sql_nextval, sql_drop_type,
+        sql_rename_type, sql_create_function, sql_drop_function,
+        sql_create_trigger, sql_drop_trigger)
 
 
 class TableFact(Fact):
@@ -18,6 +21,8 @@ class TableFact(Fact):
 
     `label`: ``unicode``
         The name of the table.
+    `former_labels`: [``unicode``]
+        Names that the table may have had in the past.
     `is_reliable`: ``bool``
         Indicates whether the table is crush-safe.
     `title`: ``unicode`` or ``None``
@@ -31,6 +36,7 @@ class TableFact(Fact):
 
     fields = [
             ('table', LabelVal),
+            ('was', OneOrSeqVal(LabelVal), None),
             ('reliable', BoolVal, None),
             ('title', TitleVal, None),
             ('present', BoolVal, True),
@@ -48,6 +54,14 @@ class TableFact(Fact):
         else:
             if is_reliable is not None:
                 raise Error("Got unexpected clause:", "reliable")
+        if not is_present and spec.was:
+            raise Error("Got unexpected clause:", "was")
+        if isinstance(spec.was, list):
+            former_labels = spec.was
+        elif spec.was:
+            former_labels = [spec.was]
+        else:
+            former_labels = []
         if not is_present and spec.title:
             raise Error("Got unexpected clause:", "title")
         title = spec.title
@@ -67,15 +81,19 @@ class TableFact(Fact):
                                 locate(related_spec))
                 related_fact = driver.build(related_spec)
                 related.append(related_fact)
-        return cls(label, is_reliable=is_reliable, title=title,
+        return cls(label, former_labels=former_labels,
+                   is_reliable=is_reliable, title=title,
                    is_present=is_present, related=related)
 
-    def __init__(self, label, is_reliable=True, title=None, is_present=True,
-                 related=None):
+    def __init__(self, label, former_labels=[], is_reliable=True,
+                 title=None, is_present=True, related=None):
         # Validate input constraints.
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
+            assert (isinstance(former_labels, list) and
+                    all(isinstance(former_label, unicode)
+                        for former_label in former_labels))
             assert isinstance(is_reliable, bool)
             assert (title is None or
                     (isinstance(title, unicode) and len(title) > 0))
@@ -83,10 +101,12 @@ class TableFact(Fact):
                     (isinstance(related, list) and
                      all(isinstance(fact, Fact) for fact in related)))
         else:
+            assert former_labels == []
             assert is_reliable is None or isinstance(is_reliable, bool)
             assert title is None
             assert related is None
         self.label = label
+        self.former_labels = former_labels
         self.is_reliable = is_reliable
         self.title = title
         self.is_present = is_present
@@ -98,6 +118,8 @@ class TableFact(Fact):
     def __repr__(self):
         args = []
         args.append(repr(self.label))
+        if self.former_labels:
+            args.append("former_labels=%r" % self.former_labels)
         if self.is_reliable is False:
             args.append("is_reliable=%r" % self.is_reliable)
         if self.title is not None:
@@ -117,10 +139,118 @@ class TableFact(Fact):
     def create(self, driver):
         # Ensures that the table exists.
         schema = driver.get_schema()
-        # Create the table if it does not exist.
+
+        # Check if we need to rename the table.
         if self.name not in schema:
             if driver.is_locked:
                 raise Error("Detected missing table:", self.name)
+            for former_label in self.former_labels:
+                former_name = mangle(former_label)
+                if former_name not in schema:
+                    continue
+                table = schema[former_name]
+                # Rename the table itself.
+                driver.submit(sql_rename_table(
+                        former_name, self.name))
+                table.rename(self.name)
+                # Find and rename the table sequence.
+                former_sequence_name = mangle(former_label, u'seq')
+                sequence = schema.sequences.get(former_sequence_name)
+                if sequence is not None:
+                    driver.submit(sql_rename_sequence(
+                            former_sequence_name, self.sequence_name))
+                    sequence.rename(self.sequence_name)
+                # Find and rename `UNIQUE` and `PRIMARY KEY` constraints.
+                for suffix in [u'uk', u'pk']:
+                    former_constraint_name = mangle(former_label, suffix)
+                    constraint_name = mangle(self.label, suffix)
+                    constraint = table.constraints.get(former_constraint_name)
+                    if constraint is not None:
+                        driver.submit(sql_rename_constraint(
+                                self.name, former_constraint_name,
+                                constraint_name))
+                        constraint.rename(constraint_name)
+                    index = schema.indexes.get(former_constraint_name)
+                    if index is not None:
+                        index.rename(constraint_name)
+                # Rename constraints and other objects associated with
+                # each column.
+                for column in table.columns:
+                    # Demangle the field label.
+                    meta = ColumnMeta.parse(column)
+                    if meta.label is not None:
+                        field_label = meta.label
+                    else:
+                        field_label = column.name
+                        if field_label.endswith(u'_id'):
+                            field_label = field_label[:-2].rstrip(u'_')
+                    column_name = mangle(field_label)
+                    link_name = mangle(field_label, u'id')
+                    if column.name == column_name:
+                        # Rename `ENUM` types.
+                        if column.type.is_enum:
+                            former_enum_name = mangle(
+                                    [former_label, field_label], u'enum')
+                            if column.type.name == former_enum_name:
+                                enum_name = mangle(
+                                        [self.label, field_label], u'enum')
+                                driver.submit(sql_rename_type(
+                                        former_enum_name, enum_name))
+                                column.type.rename(enum_name)
+                    elif column.name == link_name:
+                        # Rename `FOREIGN KEY` constraints.
+                        former_constraint_name = mangle(
+                                [former_label, field_label], u'fk')
+                        constraint_name = mangle(
+                                [self.label, field_label], u'fk')
+                        constraint = table.constraints.get(former_constraint_name)
+                        if constraint is not None:
+                            driver.submit(sql_rename_constraint(
+                                    self.name, former_constraint_name,
+                                    constraint_name))
+                            constraint.rename(constraint_name)
+                        index = schema.indexes.get(former_constraint_name)
+                        if index is not None:
+                            driver.submit(sql_rename_index(
+                                    former_constraint_name, constraint_name))
+                            index.rename(constraint_name)
+                # Rebuild `PRIMARY KEY` generator.
+                source = None
+                if table.primary_key is not None:
+                    meta = PrimaryKeyMeta.parse(table.primary_key)
+                    if meta.generators:
+                        source = _generate(table, meta.generators)
+                if source is not None:
+                    former_procedure_name = mangle(former_label, u'pk')
+                    former_signature = (former_procedure_name, ())
+                    procedure_name = mangle(self.label, u'pk')
+                    signature = (procedure_name, ())
+                    trigger = table.triggers.get(former_procedure_name)
+                    procedure = schema.procedures.get(former_signature)
+                    if trigger is not None:
+                        driver.submit(sql_drop_trigger(
+                                self.name, former_procedure_name))
+                        trigger.remove()
+                    if procedure is not None:
+                        driver.submit(sql_drop_function(
+                                former_procedure_name, ()))
+                        procedure.remove()
+                    driver.submit(sql_create_function(
+                            procedure_name, (), u"trigger", u"plpgsql",
+                            source))
+                    system_schema = driver.get_catalog()['pg_catalog']
+                    procedure = schema.add_procedure(
+                            procedure_name, (),
+                            system_schema.types[u'trigger'], source)
+                    driver.submit(sql_create_trigger(
+                            self.name, procedure_name,
+                            u"BEFORE", u"INSERT",
+                            procedure_name, ()))
+                    table.add_trigger(procedure_name, procedure)
+                break
+
+        # Create the table if it does not exist.
+        if self.name not in schema:
             # Submit `CREATE TABLE {name} (id int4 NOT NULL)` and
             # `ADD CONSTRAINT UNIQUE (id)`.
             body = [sql_define_column(u'id', u'int4', True)]

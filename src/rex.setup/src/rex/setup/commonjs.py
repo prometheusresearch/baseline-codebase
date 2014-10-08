@@ -41,15 +41,22 @@ def find_executable(executables, title=None):
 def get_commonjs_environment():
     # Returns environment variables in which we execute `node` and `npm`.
     env = {}
-    # If Python is installed in a virtualenv, make sure NodeJS loads and
-    # installs modules within the virtualenv tree.
     if hasattr(sys, 'real_prefix'):
+        # If Python is installed in a virtualenv, make sure NodeJS loads and
+        # installs modules within the virtualenv tree.
         env['NODE_PATH'] = os.path.join(sys.prefix, 'lib', 'node_modules')
         env['NPM_CONFIG_PREFIX'] = sys.prefix
         env['PATH'] = '%s:%s' % (
             os.path.join(sys.prefix, 'bin'),
             os.environ.get('PATH', '')
         )
+    else:
+        # Even if we are outside virtualenv, make sure we pick up any
+        # environment customizations
+        if 'NODE_PATH' in os.environ:
+            env['NODE_PATH'] = os.environ['NODE_PATH']
+        if 'NPM_CONFIG_PREFIX' in os.environ:
+            env['NPM_CONFIG_PREFIX'] = os.environ['NPM_CONFIG_PREFIX']
     return env
 
 
@@ -122,8 +129,8 @@ def npm(args, cwd=None, env=None):
 
 def bower(args, cwd=None, env=None):
     # Executes `bower args...`.
-    args = [find_executable('bower'), '--config.interactive=false'] + args
-    return node(args, cwd, env=env)
+    base_args = [find_executable('bower'), '--allow-root', '--config.interactive=false']
+    return node(base_args + args, cwd, env=env)
 
 
 def install_bower_components(req):

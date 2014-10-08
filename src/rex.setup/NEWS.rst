@@ -4,6 +4,15 @@
 
 .. contents:: Table of Contents
 
+1.3.0 (unreleased)
+==================
+
+* Allow bower to be executed under ``root`` user.
+
+* Fix executing Node.js outside of virtualenv in customized environments by
+  propagating ``NODE_PATH`` and ``NPM_CONFIG_PREFIX`` environment variables to
+  Node.js processes.
+
 
 1.2.1 (2014-09-03)
 ==================

@@ -8,8 +8,11 @@ var IntrospectablePlugin = require('rex-setup/introspection/plugin');
 var DEV           = !!process.env.REX_SETUP_DEV;
 var BUNDLE_PREFIX = process.env.REX_SETUP_BUNDLE_PREFIX || '/bundle/';
 
+// If we are inside virtualenv then $NPM_CONFIG_PREFIX is set, otherwise look
+// into /usr/lib/bower_components as this is the place where bower will place
+// downloaded packages during installation
 var global_modules = path.join(
-  process.env.NPM_CONFIG_PREFIX,
+  process.env.NPM_CONFIG_PREFIX || '/usr',
   'lib/bower_components');
 
 

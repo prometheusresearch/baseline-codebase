@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-1.3.0 (unreleased)
+1.2.2 (2014-10-08)
 ==================
 
 * Allow bower to be executed under ``root`` user.

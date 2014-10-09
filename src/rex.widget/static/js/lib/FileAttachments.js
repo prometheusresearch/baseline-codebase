@@ -43,7 +43,15 @@ var FileAttachments = React.createClass({
   },
 
   onChange(event) {
-    this.props.onChoose(event.target.files[0], event.target.value);
+    var file = event.target.files[0];
+    var maxSize = this.props.maxSize || 50000000; //50MB
+    if (file.size > maxSize) {
+      alert('the ' + file.name + ' is too large');
+      event.target.value = null;
+      event.target.files = null;
+      return
+    }
+    this.props.onChoose(file, event.target.value);
     event.target.value = null;
     event.target.files = null;
   },

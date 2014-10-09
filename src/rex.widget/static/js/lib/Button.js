@@ -6,6 +6,7 @@
 var React = require('react/addons');
 var cx    = React.addons.classSet;
 var Icon  = require('./Icon');
+var $     = require('jquery');
 
 var Button = React.createClass({
 
@@ -38,6 +39,9 @@ var Button = React.createClass({
 
   onClick: function(e) {
     var id = e.target.id;
+    var tagName = $(e.target).prop('tagName');
+    if (tagName == 'I')
+      id = $(e.target).parent().attr('id');
     this.props.onClick(id);
   }
 

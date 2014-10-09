@@ -173,3 +173,11 @@ class Grid(Widget):
     sortable_columns = Field(BoolVal, default=False)
     hide_columns = Field(SeqVal(StrVal), default=[])
     show_columns = Field(MaybeVal(SeqVal(StrVal)), default=None)
+
+class FileAttachments(Widget):
+    
+    name = 'FileAttachments'
+    js_type = 'rex-widget/lib/FileAttachments'
+
+    attachments = Field(SeqVal(StrVal), default=[]);
+

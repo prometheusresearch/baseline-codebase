@@ -6,7 +6,8 @@
 from rex.core import Error, MaybeVal, UChoiceVal, SeqVal
 from .fact import Fact, LabelVal, QLabelVal, PairVal
 from .image import SET_DEFAULT, CASCADE
-from .meta import PrimaryKeyMeta
+from .meta import uncomment
+from .recover import recover
 from .sql import (mangle, sql_add_unique_constraint,
         sql_add_foreign_key_constraint, sql_drop_constraint,
         sql_comment_on_constraint, sql_create_function, sql_drop_function,
@@ -93,6 +94,23 @@ class IdentityFact(Fact):
         if table_label is None:
             raise Error("Got missing table name")
         return cls(table_label, labels, generators)
+
+    @classmethod
+    def recover(cls, driver, primary_key):
+        table_fact = recover(driver, primary_key.origin)
+        if table_fact is None:
+            return None
+        field_facts = [recover(driver, column)
+                       for column in primary_key.origin_columns]
+        if None in field_facts:
+            return None
+        meta = uncomment(primary_key)
+        generators = meta.generators
+        if generators is not None and len(generators) != len(field_facts):
+            generators = None
+        return cls(table_fact.label,
+                   [field_fact.label for field_fact in field_facts],
+                   generators)
 
     def __init__(self, table_label, labels, generators=None):
         assert isinstance(table_label, unicode) and len(table_label) > 0
@@ -226,7 +244,7 @@ class IdentityFact(Fact):
                         self.procedure_name, ()))
                 procedure.remove()
         # Save the generators on the `PRIMARY KEY` metadata.
-        meta = PrimaryKeyMeta.parse(table.primary_key)
+        meta = uncomment(table.primary_key)
         if any(generator is not None for generator in self.generators):
             generators = self.generators
         else:
@@ -239,5 +257,26 @@ class IdentityFact(Fact):
             driver.submit(sql_comment_on_constraint(
                     self.table_name, self.constraint_name, comment))
             table.primary_key.set_comment(comment)
+
+    def purge(self, driver):
+        # Remove the remains of the identity after the table or some identity
+        # column is dropped.
+        schema = driver.get_schema()
+        # Remove the generator trigger and procedure.
+        if any(generator is not None for generator in self.generators):
+            table = schema.tables.get(self.table_name)
+            trigger = None
+            if table is not None:
+                trigger = table.triggers.get(self.procedure_name)
+            signature = (self.procedure_name, ())
+            procedure = schema.procedures.get(signature)
+            if trigger is not None:
+                driver.submit(sql_drop_trigger(
+                        self.table_name, self.procedure_name))
+                trigger.remove()
+            if procedure is not None:
+                driver.submit(sql_drop_function(
+                        self.procedure_name, ()))
+                procedure.remove()
 
 

@@ -7,7 +7,8 @@ from rex.core import (Error, BoolVal, UStrVal, UChoiceVal, SeqVal, OneOrSeqVal,
         UnionVal, OnSeq)
 from .identity import _generate
 from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
-from .meta import ColumnMeta, PrimaryKeyMeta
+from .meta import uncomment
+from .recover import recover
 from .sql import (mangle, sql_add_column, sql_drop_column, sql_rename_column,
         sql_comment_on_column, sql_create_enum_type, sql_drop_type,
         sql_rename_type, sql_create_function, sql_drop_function,
@@ -38,15 +39,19 @@ class ColumnFact(Fact):
 
     # HTSQL name -> SQL name.
     TYPE_MAP = {
-            "boolean": "bool",
-            "integer": "int4",
-            "decimal": "numeric",
-            "float": "float8",
-            "text": "text",
-            "date": "date",
-            "time": "time",
-            "datetime": "timestamp",
+            u"boolean": u"bool",
+            u"integer": u"int4",
+            u"decimal": u"numeric",
+            u"float": u"float8",
+            u"text": u"text",
+            u"date": u"date",
+            u"time": u"time",
+            u"datetime": u"timestamp",
     }
+
+    # SQL type name -> HTSQL name.
+    REVERSE_TYPE_MAP = dict((sql_name, htsql_name)
+                            for htsql_name, sql_name in TYPE_MAP.items())
 
     fields = [
             ('column', QLabelVal),
@@ -106,6 +111,29 @@ class ColumnFact(Fact):
         return cls(table_label, label, former_labels=former_labels,
                    title=title, type=type,
                    is_required=is_required, is_present=is_present)
+
+    @classmethod
+    def recover(cls, driver, column):
+        table_fact = recover(driver, column.table)
+        if table_fact is None:
+            return None
+        meta = uncomment(column)
+        label = meta.label or column.name
+        if mangle(label) != column.name:
+            return None
+        type = None
+        if column.type.is_enum:
+            if (column.type.schema is column.table.schema and
+                column.type.name == mangle([table_fact.label, label], u'enum')):
+                type = column.type.labels
+        else:
+            system_schema = driver.get_catalog()[u'pg_catalog']
+            if column.type.schema is system_schema:
+                type = cls.REVERSE_TYPE_MAP.get(column.type.name)
+        if type is None:
+            return None
+        return cls(table_fact.label, label, type,
+                   is_required=column.is_not_null, title=meta.title)
 
     def __init__(self, table_label, label, type=None, former_labels=[],
                  is_required=None, title=None, is_present=True):
@@ -206,7 +234,7 @@ class ColumnFact(Fact):
                 source = None
                 if table.primary_key is not None and \
                         column in table.primary_key:
-                    meta = PrimaryKeyMeta.parse(table.primary_key)
+                    meta = uncomment(table.primary_key)
                     if meta.generators:
                         source = _generate(table, meta.generators)
                 if source is not None:
@@ -267,7 +295,7 @@ class ColumnFact(Fact):
             raise Error("Detected column with mismatched"
                         " NOT NULL constraint:", column)
         # Store the original column label and the column title.
-        meta = ColumnMeta.parse(column)
+        meta = uncomment(column)
         saved_label = self.label if self.label != self.name else None
         saved_title = self.title if self.title != label_to_title(self.label) \
                       else None
@@ -295,6 +323,10 @@ class ColumnFact(Fact):
         column = table[self.name]
         if driver.is_locked:
             raise Error("Detected unexpected column:", column)
+        # Check if we need to purge the identity.
+        identity_fact = None
+        if table.primary_key is not None and column in table.primary_key:
+            identity_fact = recover(driver, table.primary_key)
         # Drop the column.
         type = column.type
         driver.submit(sql_drop_column(self.table_name, self.name))
@@ -303,5 +335,18 @@ class ColumnFact(Fact):
         if type.is_enum:
             driver.submit(sql_drop_type(type.name))
             type.remove()
+        # Purge the identity.
+        if identity_fact is not None:
+            identity_fact.purge(driver)
+
+    def purge(self, driver):
+        # Removes remains of a column after the table is dropped.
+        schema = driver.get_schema()
+        # Drop the ENUM type.
+        if isinstance(self.type, list):
+            enum_type = schema.types.get(self.type_name)
+            if enum_type is not None:
+                driver.submit(sql_drop_type(self.type_name))
+                enum_type.remove()
 
 

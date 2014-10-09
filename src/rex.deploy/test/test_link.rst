@@ -275,6 +275,8 @@ column::
 
     >>> driver("""{ link: sample.subject, present: false }""")
     ALTER TABLE "sample" DROP COLUMN "subject_id";
+    DROP TRIGGER "sample_pk" ON "sample";
+    DROP FUNCTION "sample_pk"();
 
     >>> schema = driver.get_schema()
     >>> sample_table = schema[u'sample']

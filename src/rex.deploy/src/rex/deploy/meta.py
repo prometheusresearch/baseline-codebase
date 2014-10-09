@@ -5,6 +5,7 @@
 
 from rex.core import UChoiceVal, MaybeVal, SeqVal, RecordVal, Error
 from .fact import LabelVal, TitleVal
+from .image import TableImage, ColumnImage, UniqueKeyImage
 import operator
 import yaml
 
@@ -146,5 +147,16 @@ class PrimaryKeyMeta(Meta):
             ('generators',
              SeqVal(MaybeVal(UChoiceVal('offset', 'random'))), None),
     ]
+
+
+def uncomment(image):
+    # Returns entity metadata.
+    if isinstance(image, TableImage):
+        return TableMeta.parse(image.comment)
+    elif isinstance(image, ColumnImage):
+        return ColumnMeta.parse(image.comment)
+    elif isinstance(image, UniqueKeyImage) and image.is_primary:
+        return PrimaryKeyMeta.parse(image.comment)
+    raise NotImplementedError(image)
 
 

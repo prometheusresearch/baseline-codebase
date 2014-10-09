@@ -282,6 +282,8 @@ We can use column facts to drop a column::
 
     >>> driver("""{ column: individual.ident, present: false }""")
     ALTER TABLE "individual" DROP COLUMN "ident";
+    DROP TRIGGER "individual_pk" ON "individual";
+    DROP FUNCTION "individual_pk"();
 
     >>> u'ident' in individual_table
     False

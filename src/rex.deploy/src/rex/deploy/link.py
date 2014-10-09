@@ -7,7 +7,8 @@ from rex.core import Error, BoolVal, OneOrSeqVal
 from .identity import _generate
 from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
 from .image import SET_DEFAULT
-from .meta import ColumnMeta, TableMeta, PrimaryKeyMeta
+from .meta import uncomment
+from .recover import recover
 from .sql import (mangle, sql_add_column, sql_drop_column, sql_rename_column,
         sql_comment_on_column, sql_add_foreign_key_constraint,
         sql_rename_constraint, sql_create_index, sql_rename_index,
@@ -87,6 +88,32 @@ class LinkFact(Fact):
         return cls(table_label, label, target_table_label,
                     former_labels=former_labels, is_required=is_required,
                     title=title, is_present=is_present)
+
+    @classmethod
+    def recover(cls, driver, column):
+        table_fact = recover(driver, column.table)
+        if table_fact is None:
+            return None
+        meta = uncomment(column)
+        label = meta.label
+        if label is None:
+            if not column.name.endswith(u'_id'):
+                return None
+            label = column.name[:-2].rstrip(u'_')
+        if mangle(label, u'id') != column.name:
+            return None
+        foreign_keys = column.foreign_keys
+        if len(foreign_keys) != 1:
+            return None
+        [foreign_key] = foreign_keys
+        if (foreign_key.origin_columns != [column] or
+            foreign_key.target_columns[0].name != u'id'):
+            return None
+        target_table_fact = recover(driver, foreign_key.target)
+        if target_table_fact is None:
+            return None
+        return cls(table_fact.label, label, target_table_fact.label,
+                   is_required=column.is_not_null, title=meta.title)
 
     def __init__(self, table_label, label, target_table_label=None,
                  former_labels=[],
@@ -193,7 +220,7 @@ class LinkFact(Fact):
                 source = None
                 if table.primary_key is not None and \
                         column in table.primary_key:
-                    meta = PrimaryKeyMeta.parse(table.primary_key)
+                    meta = uncomment(table.primary_key)
                     if meta.generators:
                         source = _generate(table, meta.generators)
                 if source is not None:
@@ -253,13 +280,13 @@ class LinkFact(Fact):
                     self.table_name, [self.name]))
             schema.add_index(self.constraint_name, table, [column])
         # Store the original link label and the link title.
-        meta = ColumnMeta.parse(column)
+        meta = uncomment(column)
         preferred_label = self.name[:-2].rstrip(u'_') \
                                 if self.name.endswith(u'_id') else None
         saved_label = self.label if self.label != preferred_label else None
         preferred_title = label_to_title(self.label)
         if self.label == self.target_table_label:
-            target_meta = TableMeta.parse(target_table)
+            target_meta = uncomment(target_table)
             if target_meta.title:
                 preferred_title = target_meta.title
         saved_title = self.title if self.title != preferred_title else None
@@ -287,8 +314,19 @@ class LinkFact(Fact):
         column = table[self.name]
         if driver.is_locked:
             raise Error("Detected unexpected column:", column)
+        # Check if we need to purge the identity.
+        identity_fact = None
+        if table.primary_key is not None and column in table.primary_key:
+            identity_fact = recover(driver, table.primary_key)
         # Drop the link.
         driver.submit(sql_drop_column(self.table_name, self.name))
         column.remove()
+        # Purge the identity.
+        if identity_fact is not None:
+            identity_fact.purge(driver)
+
+    def purge(self, driver):
+        # Removes remains of a link after the table is dropped.
+        pass
 
 

@@ -6,7 +6,8 @@
 from rex.core import Error, BoolVal, SeqVal, OneOrSeqVal, locate
 from .identity import _generate
 from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
-from .meta import TableMeta, ColumnMeta, PrimaryKeyMeta
+from .meta import uncomment
+from .recover import recover
 from .sql import (mangle, sql_create_table, sql_drop_table, sql_rename_table,
         sql_comment_on_table, sql_define_column, sql_set_column_default,
         sql_add_unique_constraint, sql_rename_constraint, sql_rename_index,
@@ -84,6 +85,26 @@ class TableFact(Fact):
         return cls(label, former_labels=former_labels,
                    is_reliable=is_reliable, title=title,
                    is_present=is_present, related=related)
+
+    @classmethod
+    def recover(cls, driver, table):
+        # Recovers the fact from an existing database table.
+        schema = driver.get_schema()
+        if table.schema is not schema:
+            return None
+        meta = uncomment(table)
+        label = meta.label or table.name
+        name = mangle(label)
+        if name != table.name:
+            return None
+        if u'id' not in table:
+            return None
+        id_column = table['id']
+        if not any(unique_key.origin_columns == [id_column]
+                   for unique_key in table.unique_keys):
+            return None
+        is_reliable = (not table.is_unlogged)
+        return cls(label, is_reliable=is_reliable, title=meta.title)
 
     def __init__(self, label, former_labels=[], is_reliable=True,
                  title=None, is_present=True, related=None):
@@ -177,7 +198,7 @@ class TableFact(Fact):
                 # each column.
                 for column in table.columns:
                     # Demangle the field label.
-                    meta = ColumnMeta.parse(column)
+                    meta = uncomment(column)
                     if meta.label is not None:
                         field_label = meta.label
                     else:
@@ -217,7 +238,7 @@ class TableFact(Fact):
                 # Rebuild `PRIMARY KEY` generator.
                 source = None
                 if table.primary_key is not None:
-                    meta = PrimaryKeyMeta.parse(table.primary_key)
+                    meta = uncomment(table.primary_key)
                     if meta.generators:
                         source = _generate(table, meta.generators)
                 if source is not None:
@@ -286,7 +307,7 @@ class TableFact(Fact):
             raise Error("Detected table with mismatched"
                         " reliability characteristic:", table)
         # Store the original table label and the table title.
-        meta = TableMeta.parse(table)
+        meta = uncomment(table)
         saved_label = self.label if self.label != self.name else None
         saved_title = self.title if self.title != label_to_title(self.label) \
                       else None
@@ -307,28 +328,29 @@ class TableFact(Fact):
             return
         if driver.is_locked:
             raise Error("Detected unexpected table:", self.name)
-        # Bail if there are links to the table.
         table = schema[self.name]
-        if any(foreign_key
-               for foreign_key in table.referring_foreign_keys
-               if foreign_key.origin != table):
-            raise Error("Cannot delete a table with links into it:", self.name)
-        # Find `ENUM` types to be deleted with the table.
-        enum_types = []
-        for column in table:
-            if column.type.is_enum:
-                enum_types.append(column.type)
+        # Remove links to the table.
+        for foreign_key in table.referring_foreign_keys:
+            if foreign_key.origin is table:
+                continue
+            for column in foreign_key.origin_columns:
+                link_fact = recover(driver, column)
+                if link_fact is not None:
+                    link_fact.drop(driver)
+        # Gather facts to be purged.
+        field_facts = [recover(driver, column) for column in table]
+        identity_fact = recover(driver, table.primary_key)
         # Submit `DROP TABLE {name}`.
         driver.submit(sql_drop_table(self.name))
-        # Submit `DROP TYPE` statements.
-        for enum_type in enum_types:
-            driver.submit(sql_drop_type(enum_type.name))
-        # Update the catalog image.
         table.remove()
-        for enum_type in enum_types:
-            enum_type.remove()
-        # Remove any associated sequences.
-        if self.sequence_name in schema.sequences:
-            schema.sequences[self.sequence_name].remove()
+        # Purge the remains.
+        sequence = schema.sequences.get(self.sequence_name)
+        if sequence is not None:
+            sequence.remove()
+        for field_fact in field_facts:
+            if field_fact is not None:
+                field_fact.purge(driver)
+        if identity_fact is not None:
+            identity_fact.purge(driver)
 
 

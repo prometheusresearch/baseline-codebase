@@ -246,10 +246,6 @@ Note that applying the same fact second time has no effect::
 
     >>> driver("""{ table: assessment, was: measure }""")
 
-    >>> driver("""{ table: assessment, present: false }""")
-    DROP TABLE "assessment";
-    DROP TYPE "assessment_status_enum";
-
 
 Dropping the table
 ==================
@@ -257,11 +253,10 @@ Dropping the table
 You can use ``TableFact`` to remove a table::
 
     >>> driver("""{ table: individual, present: false }""")
+    ALTER TABLE "assessment" DROP COLUMN "individual_id";
+    DROP TRIGGER "assessment_pk" ON "assessment";
+    DROP FUNCTION "assessment_pk"();
     DROP TABLE "individual";
-
-    >>> schema = driver.get_schema()
-    >>> u'individual' in schema
-    False
 
 Deploying the same fact second time has no effect::
 
@@ -280,33 +275,25 @@ Deploying the same fact second time has no effect::
     While validating table fact:
         "<byte string>", line 1
 
-It will also refuse to drop the table that has any links onto it::
+If a table has links into it, the links are dropped first::
 
     >>> driver("""
     ... - { table: identity }
     ... - { link: identity.individual }
-    ... - { table: individual, present: false }
-    ... """)
-    Traceback (most recent call last):
-      ...
-    Error: Cannot delete a table with links into it:
-        individual
-    While deploying table fact:
-        "<byte string>", line 4
+    ... """)            # doctest: +ELLIPSIS
+    CREATE TABLE "identity" ...
+    >>> driver("""{ table: individual, present: false }""")
+    ALTER TABLE "identity" DROP COLUMN "individual_id";
+    DROP TABLE "individual";
 
 If a table has any columns of ``ENUM`` type, the type is
 deleted when the table is dropped::
 
-    >>> driver("""{ column: identity.sex, type: [male, female] }""")
-    CREATE TYPE "identity_sex_enum" AS ENUM ('male', 'female');
-    ALTER TABLE "identity" ADD COLUMN "sex" "identity_sex_enum" NOT NULL;
-    >>> u'identity_sex_enum' in schema.types
-    True
+    >>> driver("""{ table: assessment, present: false }""")
+    DROP TABLE "assessment";
+    DROP TYPE "assessment_status_enum";
 
-    >>> driver("""{ table: identity, present: false }""")
-    DROP TABLE "identity";
-    DROP TYPE "identity_sex_enum";
-    >>> u'identity_sex_enum' in schema.types
+    >>> u'assessment_status_enum' in schema.types
     False
 
 Let's destroy the test database::

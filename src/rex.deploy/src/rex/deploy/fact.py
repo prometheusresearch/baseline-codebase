@@ -8,6 +8,7 @@ from rex.core import (LatentRex, get_rex, Extension, Validate, UStrVal,
         set_location)
 from .introspect import introspect
 import sys
+import inspect
 import psycopg2
 import yaml
 
@@ -363,6 +364,17 @@ class Fact(Extension):
         Must be overriden in subclasses.
         """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
+
+    def clone(self, **kwds):
+        """
+        Makes a copy of the :class:`Fact` instance with some fields overridden.
+        """
+        if not kwds:
+            return self
+        spec = inspect.getargspec(self.__init__)
+        for arg in spec.args[1:]:
+            kwds.setdefault(arg, getattr(self, arg))
+        return self.__class__(**kwds)
 
     def __repr__(self):
         return "%s()" % self.__class__.__name__

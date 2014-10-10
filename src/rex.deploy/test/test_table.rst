@@ -220,6 +220,8 @@ field.  We start with creating a new table ``measure``::
     ... - { column: measure.code, type: text }
     ... - { identity: [measure.individual, measure.code: offset] }
     ... - { column: measure.status, type: [in-process, processed, completed] }
+    ... - { table: visit }
+    ... - { link: visit.measure }
     ... """)                # doctest: +ELLIPSIS
     CREATE TABLE "measure" ...
 
@@ -241,6 +243,17 @@ Now let us rename ``measure`` to ``assessment``::
     END;
     ';
     CREATE TRIGGER "assessment_pk" BEFORE INSERT ON "assessment" FOR EACH ROW EXECUTE PROCEDURE "assessment_pk"();
+    ALTER TABLE "visit" RENAME COLUMN "measure_id" TO "assessment_id";
+    ALTER TABLE "visit" RENAME CONSTRAINT "visit_measure_fk" TO "visit_assessment_fk";
+    ALTER INDEX "visit_measure_fk" RENAME TO "visit_assessment_fk";
+
+Link ``visit.measure`` got renamed as well::
+
+    >>> schema = driver.get_schema()
+    >>> u'measure_id' in schema[u'visit']
+    False
+    >>> u'assessment_id' in schema[u'visit']
+    True
 
 Note that applying the same fact second time has no effect::
 
@@ -252,20 +265,15 @@ Dropping the table
 
 You can use ``TableFact`` to remove a table::
 
-    >>> driver("""{ table: individual, present: false }""")
-    ALTER TABLE "assessment" DROP COLUMN "individual_id";
-    DROP TRIGGER "assessment_pk" ON "assessment";
-    DROP FUNCTION "assessment_pk"();
-    DROP TABLE "individual";
+    >>> driver("""{ table: visit, present: false }""")
+    DROP TABLE "visit";
 
 Deploying the same fact second time has no effect::
 
-    >>> driver("""{ table: individual, present: false }""")
+    >>> driver("""{ table: visit, present: false }""")
 
 ``Driver`` will refuse to drop a table when in locked mode::
 
-    >>> driver("""{ table: individual }""")     # doctest: +ELLIPSIS
-    CREATE TABLE "individual" ...
     >>> driver("""{ table: individual, present: false }""",
     ...        is_locked=True)
     Traceback (most recent call last):
@@ -275,26 +283,30 @@ Deploying the same fact second time has no effect::
     While validating table fact:
         "<byte string>", line 1
 
+If a table has any columns of ``ENUM`` type, the type is
+deleted when the table is dropped.  Any generated procedure
+is deleted as well::
+
+    >>> driver("""{ table: assessment, present: false }""")
+    DROP TABLE "assessment";
+    DROP TYPE "assessment_status_enum";
+    DROP FUNCTION "assessment_pk"();
+
+    >>> u'assessment_status_enum' in schema.types
+    False
+
 If a table has links into it, the links are dropped first::
 
     >>> driver("""
     ... - { table: identity }
     ... - { link: identity.individual }
+    ... - { link: individual.mother, to: individual }
+    ... - { link: individual.father, to: individual }
     ... """)            # doctest: +ELLIPSIS
     CREATE TABLE "identity" ...
     >>> driver("""{ table: individual, present: false }""")
     ALTER TABLE "identity" DROP COLUMN "individual_id";
     DROP TABLE "individual";
-
-If a table has any columns of ``ENUM`` type, the type is
-deleted when the table is dropped::
-
-    >>> driver("""{ table: assessment, present: false }""")
-    DROP TABLE "assessment";
-    DROP TYPE "assessment_status_enum";
-
-    >>> u'assessment_status_enum' in schema.types
-    False
 
 Let's destroy the test database::
 

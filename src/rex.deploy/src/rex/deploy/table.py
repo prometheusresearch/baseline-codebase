@@ -184,6 +184,17 @@ class TableFact(Fact):
                 identity_fact = recover(driver, table.primary_key)
                 if identity_fact is not None:
                     identity_fact.rebase(driver, former_label)
+                # Rename links into the table.
+                for foreign_key in table.referring_foreign_keys:
+                    if foreign_key.origin is table:
+                        continue
+                    for column in foreign_key.origin_columns:
+                        link_fact = recover(driver, column)
+                        if link_fact is None or link_fact.label != former_label:
+                            continue
+                        link_fact = link_fact.clone(
+                                label=self.label, former_labels=[former_label])
+                        link_fact(driver)
                 break
 
         # Create the table if it does not exist.
@@ -300,6 +311,6 @@ class TableFact(Fact):
             index.rename(self.constraint_name)
 
     def purge(self, driver):
-        pass
+        raise NotImplementedError()
 
 

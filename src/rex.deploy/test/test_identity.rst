@@ -58,6 +58,13 @@ Identity label could be supplied with an associated generator::
     >>> driver.parse("""{ identity: [code: random], of: individual }""")
     IdentityFact(u'individual', [u'code'], [u'random'])
 
+When you provide an identity specification as a YAML structure, specify the
+column and the generator as a pair::
+
+    >>> driver.parse({ 'identity': ['individual', {'measure_type': None}, ('code', 'offset')],
+    ...                 'of': 'measure' })
+    IdentityFact(u'measure', [u'individual', u'measure_type', u'code'], [None, None, u'offset'])
+
 Ill-formed generators are rejected::
 
     >>> driver.parse("""{ identity: [[code, random]], of: individual }""")

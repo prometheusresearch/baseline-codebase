@@ -17,6 +17,17 @@ database.  To create a new database image, use function ``make_catalog()``::
     >>> catalog
     <CatalogImage>
 
+Initially, the catalog is empty::
+
+    >>> catalog.schemas.first()
+    Traceback (most recent call last):
+      ...
+    KeyError
+    >>> catalog.schemas.last()
+    Traceback (most recent call last):
+      ...
+    KeyError
+
 You can new schemas to the catalog::
 
     >>> catalog.add_schema(u'pg_catalog')
@@ -48,7 +59,7 @@ The catalog object supports some container operations::
     >>> len(catalog)
     2
 
-More operations are available for ``catalog.schemas`` container object::
+More operations are available for ``catalog.schemas``, container object::
 
     >>> catalog.schemas
     <ImageMap {pg_catalog, public}>

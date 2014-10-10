@@ -229,10 +229,10 @@ Now let us rename ``measure`` to ``assessment``::
     ALTER TABLE "measure" RENAME TO "assessment";
     ALTER SEQUENCE "measure_seq" RENAME TO "assessment_seq";
     ALTER TABLE "assessment" RENAME CONSTRAINT "measure_uk" TO "assessment_uk";
-    ALTER TABLE "assessment" RENAME CONSTRAINT "measure_pk" TO "assessment_pk";
     ALTER TABLE "assessment" RENAME CONSTRAINT "measure_individual_fk" TO "assessment_individual_fk";
     ALTER INDEX "measure_individual_fk" RENAME TO "assessment_individual_fk";
     ALTER TYPE "measure_status_enum" RENAME TO "assessment_status_enum";
+    ALTER TABLE "assessment" RENAME CONSTRAINT "measure_pk" TO "assessment_pk";
     DROP TRIGGER "measure_pk" ON "assessment";
     DROP FUNCTION "measure_pk"();
     CREATE FUNCTION "assessment_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '

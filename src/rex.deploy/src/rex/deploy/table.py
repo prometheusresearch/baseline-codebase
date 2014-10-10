@@ -174,100 +174,16 @@ class TableFact(Fact):
                 driver.submit(sql_rename_table(
                         former_name, self.name))
                 table.rename(self.name)
-                # Find and rename the table sequence.
-                former_sequence_name = mangle(former_label, u'seq')
-                sequence = schema.sequences.get(former_sequence_name)
-                if sequence is not None:
-                    driver.submit(sql_rename_sequence(
-                            former_sequence_name, self.sequence_name))
-                    sequence.rename(self.sequence_name)
-                # Find and rename `UNIQUE` and `PRIMARY KEY` constraints.
-                for suffix in [u'uk', u'pk']:
-                    former_constraint_name = mangle(former_label, suffix)
-                    constraint_name = mangle(self.label, suffix)
-                    constraint = table.constraints.get(former_constraint_name)
-                    if constraint is not None:
-                        driver.submit(sql_rename_constraint(
-                                self.name, former_constraint_name,
-                                constraint_name))
-                        constraint.rename(constraint_name)
-                    index = schema.indexes.get(former_constraint_name)
-                    if index is not None:
-                        index.rename(constraint_name)
-                # Rename constraints and other objects associated with
-                # each column.
+                # Rename auxiliary objects.
+                self.rebase(driver, former_label)
                 for column in table.columns:
-                    # Demangle the field label.
-                    meta = uncomment(column)
-                    if meta.label is not None:
-                        field_label = meta.label
-                    else:
-                        field_label = column.name
-                        if field_label.endswith(u'_id'):
-                            field_label = field_label[:-2].rstrip(u'_')
-                    column_name = mangle(field_label)
-                    link_name = mangle(field_label, u'id')
-                    if column.name == column_name:
-                        # Rename `ENUM` types.
-                        if column.type.is_enum:
-                            former_enum_name = mangle(
-                                    [former_label, field_label], u'enum')
-                            if column.type.name == former_enum_name:
-                                enum_name = mangle(
-                                        [self.label, field_label], u'enum')
-                                driver.submit(sql_rename_type(
-                                        former_enum_name, enum_name))
-                                column.type.rename(enum_name)
-                    elif column.name == link_name:
-                        # Rename `FOREIGN KEY` constraints.
-                        former_constraint_name = mangle(
-                                [former_label, field_label], u'fk')
-                        constraint_name = mangle(
-                                [self.label, field_label], u'fk')
-                        constraint = table.constraints.get(former_constraint_name)
-                        if constraint is not None:
-                            driver.submit(sql_rename_constraint(
-                                    self.name, former_constraint_name,
-                                    constraint_name))
-                            constraint.rename(constraint_name)
-                        index = schema.indexes.get(former_constraint_name)
-                        if index is not None:
-                            driver.submit(sql_rename_index(
-                                    former_constraint_name, constraint_name))
-                            index.rename(constraint_name)
-                # Rebuild `PRIMARY KEY` generator.
-                source = None
-                if table.primary_key is not None:
-                    meta = uncomment(table.primary_key)
-                    if meta.generators:
-                        source = _generate(table, meta.generators)
-                if source is not None:
-                    former_procedure_name = mangle(former_label, u'pk')
-                    former_signature = (former_procedure_name, ())
-                    procedure_name = mangle(self.label, u'pk')
-                    signature = (procedure_name, ())
-                    trigger = table.triggers.get(former_procedure_name)
-                    procedure = schema.procedures.get(former_signature)
-                    if trigger is not None:
-                        driver.submit(sql_drop_trigger(
-                                self.name, former_procedure_name))
-                        trigger.remove()
-                    if procedure is not None:
-                        driver.submit(sql_drop_function(
-                                former_procedure_name, ()))
-                        procedure.remove()
-                    driver.submit(sql_create_function(
-                            procedure_name, (), u"trigger", u"plpgsql",
-                            source))
-                    system_schema = driver.get_catalog()['pg_catalog']
-                    procedure = schema.add_procedure(
-                            procedure_name, (),
-                            system_schema.types[u'trigger'], source)
-                    driver.submit(sql_create_trigger(
-                            self.name, procedure_name,
-                            u"BEFORE", u"INSERT",
-                            procedure_name, ()))
-                    table.add_trigger(procedure_name, procedure)
+                    field_fact = recover(driver, column)
+                    if field_fact is not None:
+                        field_fact.rebase(driver,
+                                former_label, field_fact.label)
+                identity_fact = recover(driver, table.primary_key)
+                if identity_fact is not None:
+                    identity_fact.rebase(driver, former_label)
                 break
 
         # Create the table if it does not exist.
@@ -352,5 +268,38 @@ class TableFact(Fact):
                 field_fact.purge(driver)
         if identity_fact is not None:
             identity_fact.purge(driver)
+
+    def rebase(self, driver, former_label):
+        # Renames auxiliary objects after the table is renamed.
+        schema = driver.get_schema()
+        assert self.name in schema
+        table = schema[self.name]
+        assert u'id' in table
+        id_column = table[u'id']
+        # Rename the sequence.
+        former_sequence_name = mangle(former_label, u'seq')
+        sequence = schema.sequences.get(former_sequence_name)
+        if sequence is not None and \
+                self.sequence_name != former_sequence_name:
+            driver.submit(sql_rename_sequence(
+                    former_sequence_name, self.sequence_name))
+            sequence.rename(self.sequence_name)
+            if id_column.default == sql_nextval(former_sequence_name):
+                id_column.set_default(sql_nextval(self.sequence_name))
+        # Rename the `UNIQUE` constraint.
+        former_constraint_name = mangle(former_label, u'uk')
+        constraint = table.constraints.get(former_constraint_name)
+        if constraint is not None and \
+                self.constraint_name != former_constraint_name:
+            driver.submit(sql_rename_constraint(
+                    self.name, former_constraint_name,
+                    self.constraint_name))
+            constraint.rename(self.constraint_name)
+        index = schema.indexes.get(former_constraint_name)
+        if index is not None:
+            index.rename(self.constraint_name)
+
+    def purge(self, driver):
+        pass
 
 

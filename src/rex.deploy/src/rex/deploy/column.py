@@ -123,8 +123,7 @@ class ColumnFact(Fact):
             return None
         type = None
         if column.type.is_enum:
-            if (column.type.schema is column.table.schema and
-                column.type.name == mangle([table_fact.label, label], u'enum')):
+            if column.type.schema is column.table.schema:
                 type = column.type.labels
         else:
             system_schema = driver.get_catalog()[u'pg_catalog']
@@ -222,46 +221,11 @@ class ColumnFact(Fact):
                 driver.submit(sql_rename_column(
                         self.table_name, former_name, self.name))
                 column.rename(self.name)
-                # Rename the type if necessary.
-                if column.type.is_enum:
-                    former_type_name = mangle(
-                            [self.table_label, former_label], u'enum')
-                    if column.type.name == former_type_name:
-                        driver.submit(sql_rename_type(
-                                former_type_name, self.type_name))
-                        column.type.rename(self.type_name)
-                # Rebuild `PRIMARY KEY` generator.
-                source = None
-                if table.primary_key is not None and \
-                        column in table.primary_key:
-                    meta = uncomment(table.primary_key)
-                    if meta.generators:
-                        source = _generate(table, meta.generators)
-                if source is not None:
-                    procedure_name = mangle(self.table_name, u'pk')
-                    signature = (procedure_name, ())
-                    trigger = table.triggers.get(procedure_name)
-                    procedure = schema.procedures.get(signature)
-                    if trigger is not None:
-                        driver.submit(sql_drop_trigger(
-                                self.table_name, procedure_name))
-                        trigger.remove()
-                    if procedure is not None:
-                        driver.submit(sql_drop_function(
-                                procedure_name, ()))
-                        procedure.remove()
-                    driver.submit(sql_create_function(
-                            procedure_name, (), u"trigger", u"plpgsql",
-                            source))
-                    system_schema = driver.get_catalog()['pg_catalog']
-                    procedure = schema.add_procedure(
-                            procedure_name, (),
-                            system_schema.types[u'trigger'], source)
-                    driver.submit(sql_create_trigger(
-                            self.table_name, procedure_name,
-                            u"BEFORE", u"INSERT",
-                            procedure_name, ()))
-                    table.add_trigger(procedure_name, procedure)
+                # Rename auxiliary objects.
+                self.rebase(driver, self.table_label, former_label)
+                identity_fact = recover(driver, table.primary_key)
+                if identity_fact is not None:
+                    identity_fact.rebase(driver, self.table_label)
                 break
         # Determine the column type.
         if self.enum_labels:
@@ -338,6 +302,23 @@ class ColumnFact(Fact):
         # Purge the identity.
         if identity_fact is not None:
             identity_fact.purge(driver)
+
+    def rebase(self, driver, former_table_label, former_label):
+        # Updates the names after the table or the column is renamed.
+        schema = driver.get_schema()
+        assert self.table_name in schema
+        table = schema[self.table_name]
+        assert self.name in table
+        column = table[self.name]
+        # Rename the `ENUM` type.
+        if isinstance(self.type, list):
+            former_type_name = mangle(
+                    [former_table_label, former_label], u'enum')
+            enum_type = schema.types.get(former_type_name)
+            if enum_type is not None and self.type_name != former_type_name:
+                driver.submit(sql_rename_type(
+                        former_type_name, self.type_name))
+                column.type.rename(self.type_name)
 
     def purge(self, driver):
         # Removes remains of a column after the table is dropped.

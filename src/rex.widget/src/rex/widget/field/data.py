@@ -229,6 +229,8 @@ class DataField(StatefulField):
 
         def execute_query(self, handler, spec, **params):
             query = dict(handler.parameters)
+            if spec.params:
+                query.update(spec.params)
             query.update(query)
             query.update(params)
 

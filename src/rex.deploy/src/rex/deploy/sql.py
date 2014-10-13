@@ -81,6 +81,9 @@ def sql_value(value):
         SQL value.  Accepted types are ``bool``, ``int``, ``long``, ``float``,
         ``decimal.Decimal``, ``str``, ``unicode`` or ``None``.  Also accepted
         are lists or tuples of acceptable values.
+
+        Special values ``datetime.date.today`` and ``datetime.datetime.now``
+        are converted to the current date and timestamp respectively.
     """
     if value is None:
         return u"NULL"
@@ -103,8 +106,13 @@ def sql_value(value):
             return u"'%s'" % value
     if isinstance(value, (list, tuple)):
         return u", ".join(sql_value(item) for item in value)
+    if value == datetime.date.today:
+        return u"'now'::text::date"
+    if value == datetime.datetime.now:
+        return u"'now'::text::timestamp"
     raise NotImplementedError("sql_value() is not implemented"
-                              " for values of type %s" % type(value).__name__)
+                              " for value %s of type %s"
+                              % (value, type(value).__name__))
 
 
 def sql_create_database(name, template=None):
@@ -223,13 +231,14 @@ def sql_define_column(name, type_name, is_not_null):
                     u" NOT NULL" if is_not_null else u"")
 
 
-def sql_add_column(table_name, name, type_name, is_not_null):
+def sql_add_column(table_name, name, type_name, is_not_null, default=None):
     """
     Generates::
 
         ALTER TABLE {table_name} ADD COLUMN {name} {type_name} [NOT NULL]
+        DEFAULT {default}
     """
-    return u"ALTER TABLE {} ADD COLUMN {} {}{};" \
+    return u"ALTER TABLE {} ADD COLUMN {} {}{}{};" \
             .format(sql_name(table_name),
                     sql_name(name),
                     sql_name(type_name)
@@ -237,7 +246,9 @@ def sql_add_column(table_name, name, type_name, is_not_null):
                         else u"{}({})"
                                 .format(sql_name(type_name[0]),
                                         sql_value(type_name[1:])),
-                    u" NOT NULL" if is_not_null else u"")
+                    u" NOT NULL" if is_not_null else u"",
+                    u" DEFAULT {}".format(default)
+                        if default is not None else u"")
 
 
 def sql_drop_column(table_name, name):

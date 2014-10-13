@@ -219,7 +219,7 @@ field.  We start with creating a new table ``measure``::
     ... - { link: measure.individual }
     ... - { column: measure.code, type: text }
     ... - { identity: [measure.individual, measure.code: offset] }
-    ... - { column: measure.status, type: [in-process, processed, completed] }
+    ... - { column: measure.status, type: [in-process, processed, completed], default: in-process }
     ... - { table: visit }
     ... - { link: visit.measure }
     ... """)                # doctest: +ELLIPSIS

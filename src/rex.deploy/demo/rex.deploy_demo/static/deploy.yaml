@@ -8,6 +8,7 @@
     type: text
   - column: closed
     type: boolean
+    default: false
   - data: |
       code,title,closed
       fos,Family Obesity Study,false
@@ -22,6 +23,7 @@
   - identity: [code: random]
   - column: sex
     type: [not-known, male, female, not-applicable]
+    default: not-known
   - link: mother
     to: individual
     required: false
@@ -151,6 +153,7 @@
     type: [in-process, processed, completed]
   - column: last_modified
     type: datetime
+    default: now()
     required: false
   - link: originating_study
     to: study

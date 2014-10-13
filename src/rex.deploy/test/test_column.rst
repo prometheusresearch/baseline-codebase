@@ -83,6 +83,21 @@ or ``ENUM`` labels are not specified correctly::
     While parsing column fact:
         "<byte string>", line 1
 
+You can set the default value of the column::
+
+    >>> driver.parse("""{ column: study.closed, type: boolean, default: false }""")
+    ColumnFact(u'study', u'closed', u'boolean', default=False, is_required=True)
+
+The default value must be compatible with the column type::
+
+    >>> driver.parse("""{ column: individual.sex, type: [male, female], default: not-known }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got ill-typed default value:
+        not-known
+    While parsing column fact:
+        "<byte string>", line 1
+
 By default, a column does not permit ``NULL`` values.  Turn off flag
 ``required`` to allow ``NULL`` values::
 
@@ -185,11 +200,38 @@ or the driver is locked, an error is raised::
 When the column type is a list of ``ENUM`` labels, a corresponding ``ENUM``
 type is created::
 
-    >>> driver("""{ column: individual.sex, type: [male, female] }""")
-    CREATE TYPE "individual_sex_enum" AS ENUM ('male', 'female');
+    >>> driver("""{ column: individual.sex, type: [not-known, male, female] }""")
+    CREATE TYPE "individual_sex_enum" AS ENUM ('not-known', 'male', 'female');
     ALTER TABLE "individual" ADD COLUMN "sex" "individual_sex_enum" NOT NULL;
     >>> u'individual_sex_enum' in schema.types
     True
+
+You can create a column with a default value::
+
+    >>> driver("""{ column: individual.birth_date, type: date, default: today() }""")
+    ALTER TABLE "individual" ADD COLUMN "birth_date" "date" NOT NULL DEFAULT 'now'::text::date;
+    COMMENT ON COLUMN "individual"."birth_date" IS '---
+    default: today()
+    ';
+
+You can also set the default value of an existing column::
+
+    >>> driver("""{ column: individual.sex, type: [not-known, male, female], default: not-known }""")
+    ALTER TABLE "individual" ALTER COLUMN "sex" SET DEFAULT 'not-known';
+    COMMENT ON COLUMN "individual"."sex" IS '---
+    default: not-known
+    ';
+
+However you cannot change the default value when the driver is locked::
+
+    >>> driver("""{ column: individual.sex, type: [not-known, male, female] }""",
+    ...        is_locked=True)
+    Traceback (most recent call last):
+      ...
+    Error: Detected column with unexpected default value:
+        sex
+    While validating column fact:
+        "<byte string>", line 1
 
 In the future, if the column already exists, but does not match the column fact,
 the column is altered to match the fact.  Currently, it's not yet functional::
@@ -210,7 +252,7 @@ the column is altered to match the fact.  Currently, it's not yet functional::
     While deploying column fact:
         "<byte string>", line 1
 
-    >>> driver("""{ column: individual.sex, type: [male, female], required: false }""")
+    >>> driver("""{ column: individual.sex, type: [not-known, male, female], required: false }""")
     Traceback (most recent call last):
       ...
     Error: Detected column with mismatched NOT NULL constraint:
@@ -248,7 +290,7 @@ Renaming the column
 If you want to rename an existing column, specify the current name as ``was``
 field::
 
-    >>> driver("""{ column: individual.gender, was: sex, type: [male, female] }""")
+    >>> driver("""{ column: individual.gender, was: sex, type: [not-known, male, female], default: not-known }""")
     ALTER TABLE "individual" RENAME COLUMN "sex" TO "gender";
     ALTER TYPE "individual_sex_enum" RENAME TO "individual_gender_enum";
 

@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import UChoiceVal, MaybeVal, SeqVal, RecordVal, Error
+from rex.core import AnyVal, UChoiceVal, MaybeVal, SeqVal, RecordVal, Error
 from .fact import LabelVal, TitleVal
 from .image import TableImage, ColumnImage, UniqueKeyImage
 import operator
@@ -135,6 +135,7 @@ class ColumnMeta(Meta):
     fields = [
             ('label', LabelVal, None),
             ('title', TitleVal, None),
+            ('default', AnyVal, None),
     ]
 
 

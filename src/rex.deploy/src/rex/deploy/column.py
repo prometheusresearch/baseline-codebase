@@ -3,16 +3,21 @@
 #
 
 
-from rex.core import (Error, BoolVal, UStrVal, UChoiceVal, SeqVal, OneOrSeqVal,
-        UnionVal, OnSeq)
+from rex.core import (Error, AnyVal, BoolVal, UStrVal, UChoiceVal, SeqVal,
+        OneOrSeqVal, UnionVal, OnSeq)
 from .identity import _generate
 from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
 from .meta import uncomment
 from .recover import recover
-from .sql import (mangle, sql_add_column, sql_drop_column, sql_rename_column,
-        sql_comment_on_column, sql_create_enum_type, sql_drop_type,
-        sql_rename_type, sql_create_function, sql_drop_function,
-        sql_create_trigger, sql_drop_trigger)
+from .sql import (mangle, sql_value, sql_add_column, sql_drop_column,
+        sql_rename_column, sql_set_column_default, sql_comment_on_column,
+        sql_create_enum_type, sql_drop_type, sql_rename_type,
+        sql_create_function, sql_drop_function, sql_create_trigger,
+        sql_drop_trigger)
+from htsql.core.domain import (BooleanDomain, IntegerDomain, DecimalDomain,
+        FloatDomain, TextDomain, DateDomain, TimeDomain, DateTimeDomain,
+        EnumDomain)
+import datetime
 
 
 class ColumnFact(Fact):
@@ -27,6 +32,8 @@ class ColumnFact(Fact):
         The type of the column; one of: *boolean*, *integer*,
         *decimal*, *float*, *text*, *date*, *time*, *datetime*.
         For an ``ENUM`` type, specify a list of ``ENUM`` labels.
+    `default`: literal value compatible with the column type
+        Column default value.
     `former_labels`: [``unicode``]
         Names that the column may had in the past.
     `is_required`: ``bool``
@@ -53,12 +60,31 @@ class ColumnFact(Fact):
     REVERSE_TYPE_MAP = dict((sql_name, htsql_name)
                             for htsql_name, sql_name in TYPE_MAP.items())
 
+    # HTSQL name -> HTSQL domain.
+    DOMAIN_MAP = {
+            u'boolean': BooleanDomain(),
+            u'integer': IntegerDomain(),
+            u'decimal': DecimalDomain(),
+            u'float': FloatDomain(),
+            u'text': TextDomain(),
+            u'date': DateDomain(),
+            u'time': TimeDomain(),
+            u'datetime': DateTimeDomain(),
+    }
+
+    # Special values.
+    VALUE_MAP = {
+            "today()": datetime.date.today,
+            "now()": datetime.datetime.now,
+    }
+
     fields = [
             ('column', QLabelVal),
             ('of', LabelVal, None),
             ('was', OneOrSeqVal(LabelVal), None),
             ('type', UnionVal((OnSeq, SeqVal(UStrVal(r'[0-9A-Za-z_-]+'))),
                               UChoiceVal(*sorted(TYPE_MAP))), None),
+            ('default', AnyVal, None),
             ('required', BoolVal, None),
             ('title', TitleVal, None),
             ('present', BoolVal, True),
@@ -84,6 +110,41 @@ class ColumnFact(Fact):
         else:
             former_labels = []
         type = spec.type
+        domain = None
+        if isinstance(type, list):
+            domain = EnumDomain(type)
+        elif type is not None:
+            domain = cls.DOMAIN_MAP[type]
+        default = spec.default
+        if isinstance(default, str):
+            default = default.decode('utf-8', 'replace')
+        if isinstance(default, unicode):
+            try:
+                default = domain.parse(default)
+            except ValueError:
+                pass
+        if not (default is None or
+                (type == u'boolean' and
+                    isinstance(default, bool)) or
+                (type == u'integer' and
+                    isinstance(default, (int, long))) or
+                (type in (u'decimal', u'float') and
+                    isinstance(default, (int, long, decimal.Decimal, float))) or
+                (type == u'text' and
+                    isinstance(default, unicode)) or
+                (type == u'date' and
+                    isinstance(default, datetime.date)) or
+                (type == u'date' and
+                    default == u'today()') or
+                (type == u'time' and
+                    isinstance(default, datetime.time)) or
+                (type == u'datetime' and
+                    isinstance(default, datetime.datetime)) or
+                (type == u'datetime' and
+                    default == u'now()') or
+                (isinstance(type, list) and
+                    isinstance(default, unicode) and default in type)):
+            raise Error("Got ill-typed default value:", default)
         title = spec.title
         if is_present:
             if type is None:
@@ -99,6 +160,8 @@ class ColumnFact(Fact):
                 raise Error("Got unexpected clause:", "was")
             if type is not None:
                 raise Error("Got unexpected clause:", "type")
+            if default is not None:
+                raise Error("Got unexpected clause:", "default")
             if title is not None:
                 raise Error("Got unexpected clause:", "title")
         is_required = spec.required
@@ -109,7 +172,7 @@ class ColumnFact(Fact):
             if is_required is not None:
                 raise Error("Got unexpected clause:", "required")
         return cls(table_label, label, former_labels=former_labels,
-                   title=title, type=type,
+                   title=title, type=type, default=default,
                    is_required=is_required, is_present=is_present)
 
     @classmethod
@@ -125,17 +188,28 @@ class ColumnFact(Fact):
         if column.type.is_enum:
             if column.type.schema is column.table.schema:
                 type = column.type.labels
+                domain = EnumDomain(type)
         else:
             system_schema = driver.get_catalog()[u'pg_catalog']
             if column.type.schema is system_schema:
                 type = cls.REVERSE_TYPE_MAP.get(column.type.name)
+                domain = cls.DOMAIN_MAP.get(type)
         if type is None:
             return None
-        return cls(table_fact.label, label, type,
+        default = meta.default
+        if isinstance(default, str):
+            default = default.decode('utf-8', 'replace')
+        if isinstance(default, unicode):
+            try:
+                default = domain.parse(default)
+            except ValueError:
+                pass
+        return cls(table_fact.label, label, type, default=default,
                    is_required=column.is_not_null, title=meta.title)
 
-    def __init__(self, table_label, label, type=None, former_labels=[],
-                 is_required=None, title=None, is_present=True):
+    def __init__(self, table_label, label, type=None, default=None,
+                 former_labels=[], is_required=None, title=None,
+                 is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
@@ -154,11 +228,13 @@ class ColumnFact(Fact):
         else:
             assert former_labels == []
             assert type is None
+            assert default is None
             assert is_required is None
             assert title is None
         self.table_label = table_label
         self.label = label
         self.type = type
+        self.default = default
         self.former_labels = former_labels
         self.is_required = is_required
         self.title = title
@@ -169,12 +245,15 @@ class ColumnFact(Fact):
         if type is None:
             self.type_name = None
             self.enum_labels = None
+            self.domain = None
         elif isinstance(type, list):
             self.type_name = mangle([table_label, label], u'enum')
             self.enum_labels = type
+            self.domain = EnumDomain(type)
         else:
-            self.type_name = self.TYPE_MAP[self.type]
+            self.type_name = self.TYPE_MAP[type]
             self.enum_labels = None
+            self.domain = self.DOMAIN_MAP[type]
 
     def __repr__(self):
         args = []
@@ -182,6 +261,8 @@ class ColumnFact(Fact):
         args.append(repr(self.label))
         if self.type is not None:
             args.append(repr(self.type))
+        if self.default is not None:
+            args.append("default=%r" % self.default)
         if self.former_labels:
             args.append("former_labels=%r" % self.former_labels)
         if self.is_required is not None:
@@ -245,12 +326,18 @@ class ColumnFact(Fact):
             # A regular system type.
             system_schema = driver.get_catalog()['pg_catalog']
             type = system_schema.types[self.type_name]
+        # Format the default value.
+        default = self.default
+        if default is not None:
+            if self.type != u'text':
+                default = self.VALUE_MAP.get(default, default)
+            default = sql_value(default)
         # Create the column if it does not exist.
         if self.name not in table:
             driver.submit(sql_add_column(
                     self.table_name, self.name, self.type_name,
-                    self.is_required))
-            table.add_column(self.name, type, self.is_required)
+                    self.is_required, default))
+            table.add_column(self.name, type, self.is_required, default)
         # Check that the column has the right type and constraints.
         column = table[self.name]
         if column.type != type:
@@ -258,12 +345,34 @@ class ColumnFact(Fact):
         if column.is_not_null != self.is_required:
             raise Error("Detected column with mismatched"
                         " NOT NULL constraint:", column)
-        # Store the original column label and the column title.
+        # Check if we need to change the default value.
         meta = uncomment(column)
+        saved_default = meta.default
+        if isinstance(saved_default, str):
+            saved_default = saved_default.decode('utf-8')
+        if isinstance(saved_default, unicode):
+            try:
+                saved_default = self.domain.parse(saved_default)
+            except ValueError:
+                pass
+        if saved_default != self.default and column.default != default:
+            if driver.is_locked:
+                raise Error("Detected column with unexpected default value:",
+                            column)
+            driver.submit(sql_set_column_default(
+                    self.table_name, self.name, default))
+            column.set_default(default)
+        # Store the original column label, column title and default value.
         saved_label = self.label if self.label != self.name else None
         saved_title = self.title if self.title != label_to_title(self.label) \
                       else None
-        if meta.update(label=saved_label, title=saved_title):
+        if isinstance(self.default, (bool, int, unicode,
+                                     datetime.date, datetime.datetime)):
+            saved_default = self.default
+        else:
+            saved_default = self.domain.dump(self.default)
+        if meta.update(label=saved_label, title=saved_title,
+                       default=saved_default):
             comment = meta.dump()
             if driver.is_locked:
                 raise Error("Detected missing metadata:", comment)

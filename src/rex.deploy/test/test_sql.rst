@@ -100,6 +100,13 @@ Date, time and datetime values are also accepted::
     >>> print sql_value(datetime.datetime(2010, 4, 15, 20, 13))
     '2010-04-15 20:13:00'
 
+You can also generate a SQL expression for the current date and timestamp::
+
+    >>> print sql_value(datetime.date.today)
+    'now'::text::date
+    >>> print sql_value(datetime.datetime.now)
+    'now'::text::timestamp
+
 Text values are escaped properly::
 
     >>> print sql_value(u'RexDB')
@@ -119,7 +126,7 @@ Values of any other type are rejected::
     >>> print sql_value({})
     Traceback (most recent call last):
       ...
-    NotImplementedError: sql_value() is not implemented for values of type dict
+    NotImplementedError: sql_value() is not implemented for value {} of type dict
 
 
 Database management

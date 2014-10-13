@@ -216,6 +216,16 @@ consists of a set of distinct named values.  For example, let's define a column
     of: individual
     type: [male, female, intersex]
 
+Besides the column type, you can also specify the default value of the column.
+When you add a new row to the table, the default value is used when the row
+does not contain an explicit column value.  For example, we can make new study
+records marked as not closed::
+
+    column: closed
+    of: individual
+    type: boolean
+    default: false
+
 You can also express the fact that a column does not exist.  For example::
 
     column: middle
@@ -473,6 +483,13 @@ A column fact describes a column of a table.
 
     This clause cannot be used if ``present`` is ``false``.
 
+`default`:
+    The default value of the column.  The value must be compatible
+    with the column type.
+
+    For *date* and *datetime* columns, you can use special values ``today()``
+    and ``now()``, which generate the current date and timestamp respectively.
+
 `was`: ``<former_label>`` or [``<former_label>``]
     The previous name of the column.
 
@@ -563,6 +580,28 @@ Examples:
         of: identity
         type: text
         required: false
+
+    #. Setting the column default value::
+
+        column: closed
+        of: study
+        type: boolean
+        default: false
+
+       For ``ENUM`` columns, you can use one of the labels
+       as the default value::
+
+        column: sex
+        of: individual
+        type: [not-known, male, female, not-applicable]
+        default: not-known
+
+       To use the current timestamp as the default value, write::
+
+        column: last_updated
+        of: measure
+        type: datetime
+        default: now()
 
 
 Link fact

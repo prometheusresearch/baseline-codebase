@@ -12,6 +12,7 @@ var FormEntry              = require('./FormEntry');
 var FormOverview           = require('./FormOverview');
 var FormEventsContextMixin = require('./FormEventsContextMixin');
 var FormLocalizerMixin     = require('./FormLocalizerMixin');
+var WidgetConfiguration    = require('./WidgetConfiguration');
 var _                      = require('../localization')._;
 
 
@@ -19,7 +20,8 @@ var Form = React.createClass({
   mixins: [
     FormLocalizerMixin,
     ReactForms.FormMixin,
-    FormEventsContextMixin
+    FormEventsContextMixin,
+    WidgetConfiguration.ContextMixin
   ],
 
   propTypes: {
@@ -82,12 +84,34 @@ var Form = React.createClass({
   },
 
   getDefaultProps: function() {
+    var schema = this.props.schema || createSchema(
+      this.props.instrument,
+      this.props.form
+    );
+
+    var defaultValue = {};
+    if (this.props.assessment) {
+      defaultValue = this.props.assessment.values;
+
+      for (var fieldID in defaultValue) {
+        if (defaultValue[fieldID].value !== null) {
+          continue;
+        }
+
+        var type = schema.get(fieldID).children.value.props.instrumentType;
+        if (type.rootType === 'matrix') {
+          // There are situations that may lead to the value of a matrix field
+          // being set to null. While this is perfectly valid for an
+          // Assessment Document, this can cause problems down the line (e.g.,
+          // event processing), so we'll swap it out for an empty object.
+          defaultValue[fieldID].value = {};
+        }
+      }
+    }
+
     return {
-      defaultValue: this.props.assessment ?
-        this.props.assessment.values :
-        {},
-      schema: this.props.schema
-        || createSchema(this.props.instrument, this.props.form),
+      defaultValue: defaultValue,
+      schema: schema,
       parameters: {},
       locale: 'en'
     };
@@ -115,7 +139,7 @@ var Form = React.createClass({
 
   getFormState: function(value) {
     var events = this.formEvents();
-    this.getEventExecutionContext().forEachTarget((name) => {
+    this.getEventExecutionContext().forEachField((name) => {
       if (/\./.test(name)) {
         // TODO: For the time being, we don't allow calculations or failures of
         // subfields.
@@ -201,7 +225,7 @@ var Form = React.createClass({
 
     var events = this.formEvents();
 
-    this.getEventExecutionContext().forEachTarget((name) => {
+    this.getEventExecutionContext().forEachField((name) => {
       if (events.isHidden(name, value) || events.isDisabled(name, value)) {
         valueOverlay[name] = {value: null};
       }

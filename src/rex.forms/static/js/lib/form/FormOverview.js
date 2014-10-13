@@ -4,6 +4,7 @@
 'use strict';
 
 var React                   = require('react');
+var cx                      = React.addons.classSet;
 var ReactForms              = require('react-forms');
 var utils                   = require('../utils');
 var componentMap            = require('../elements').defaultElementComponentMap;
@@ -35,16 +36,20 @@ var FormOverview = React.createClass({
       this.props.instrument.title;
 
     var elements = [];
-
     for (var i = 0, lenP = this.props.form.pages.length; i < lenP; i++) {
       var page = this.props.form.pages[i];
       for (var j = 0, lenE = page.elements.length; j < lenE; j++) {
-        elements.push(this.renderElement(page.elements[j], `${i}_${j}`));
+        elements.push(this.renderElement(page.elements[j], page, `${i}_${j}`));
       }
     }
 
+    var classes = cx({
+      'rex-forms-FormOverview': true,
+      'rex-forms-FormOverview__readonly': this.props.readOnly
+    });
+
     return (
-      <div className="rex-forms-FormOverview">
+      <div className={classes}>
         <Title text={title} />
         {!this.props.readOnly && <div
           className="rex-forms-FormOverview__note"
@@ -54,10 +59,11 @@ var FormOverview = React.createClass({
     );
   },
 
-  renderElement: function(element, idx) {
+  renderElement: function(element, page, idx) {
     var elementComponent = element.type === 'question' ?
       EditableQuestionWrapper :
       componentMap[element.type];
+    var events = this.formEvents();
 
     utils.invariant(
       elementComponent !== undefined,
@@ -69,24 +75,53 @@ var FormOverview = React.createClass({
       key: idx
     };
 
+    var tags = element.tags || [];
+
+    var disabled = events.isDisabled(page.id);
+    var hidden = events.isHidden(page.id);
+
+    disabled = tags.reduce((previousValue, currentValue) => {
+      return previousValue || events.isDisabled(currentValue);
+    }, disabled);
+    hidden = tags.reduce((previousValue, currentValue) => {
+      return previousValue || events.isHidden(currentValue);
+    }, hidden);
+
     if (element.type === 'question') {
-      var events = this.formEvents();
       var name = element.options.fieldId;
 
-      var disabled = (
-        this.props.readOnly
+      disabled = (
+        disabled
+        || this.props.readOnly
         || events.isDisabled(name)
         || events.isCalculated(name)
       );
 
+      hidden = hidden || events.isHidden(name);
+
       utils.mergeInto(props, {
-        name, disabled,
-        hidden: events.isHidden(name),
+        name,
+        disabled,
+        hidden,
         active: this.state.active === name && !this.props.readOnly,
         onEdit: this.onEdit,
         onSave: this.onSave,
         onCancel: this.onCancel,
         isValid: this.props.isFieldValid(name)
+      });
+
+    } else if (hidden) {
+      // Show nothing.
+      return (
+        <div
+          key={idx}
+          />
+      );
+
+    } else {
+      utils.mergeInto(props, {
+        disabled,
+        hidden
       });
     }
 

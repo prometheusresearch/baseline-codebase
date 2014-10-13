@@ -14,6 +14,29 @@ generic.getDefaultValue = function () {
   return null;
 };
 
+var text = {
+
+  deserialize: function (value) {
+    if ((value === '') || (value === null) || (value === undefined)) {
+      return null;
+    }
+
+    if (!utils.isString(value)) {
+      value = value.toString();
+    }
+
+    return value;
+  },
+
+  serialize: function (value) {
+    return value ? value : '';
+  },
+
+  getDefaultValue: function () {
+    return null;
+  }
+};
+
 var numberFloat = {
 
   // TODO: Use I18N lib to parse numbers
@@ -272,7 +295,7 @@ var dateTime = {
 function getForInstrumentType(instrumentType) {
   switch (instrumentType.rootType) {
     case 'text':
-      return generic;
+      return text;
 
     case 'float':
       return numberFloat;
@@ -281,7 +304,7 @@ function getForInstrumentType(instrumentType) {
       return numberInteger;
 
     case 'enumeration':
-      return generic;
+      return text;
 
     case 'enumerationSet':
       return array;
@@ -320,6 +343,7 @@ module.exports = {
   array: array,
   date: date,
   time: time,
+  text: text,
   dateTime: dateTime,
   getForAnnotation: getForAnnotation,
   getForExplanation: getForExplanation,

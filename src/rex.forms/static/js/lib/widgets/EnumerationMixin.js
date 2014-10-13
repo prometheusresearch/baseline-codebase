@@ -11,7 +11,7 @@ var EnumerationMixin = {
     FormEventsMixin
   ],
 
-  getEnumerations: function() {
+  getEnumerations: function(allEnumerations) {
     var enumerations = this.props.options.enumerations;
     if (!enumerations) {
       var instrumentType;
@@ -37,7 +37,7 @@ var EnumerationMixin = {
 
     var isHidden;
     var events = this.formEvents();
-    if (events) {
+    if (events && !allEnumerations) {
       var localValue = this.value();
 
       // HACK

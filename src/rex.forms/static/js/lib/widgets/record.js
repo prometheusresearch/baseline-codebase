@@ -3,11 +3,12 @@
  */
 'use strict';
 
-var React      = require('react');
-var ReactForms = require('react-forms');
-var DirtyState = require('./DirtyState');
-var _          = require('../localization')._;
+var React           = require('react');
+var ReactForms      = require('react-forms');
+var DirtyState      = require('./DirtyState');
+var _               = require('../localization')._;
 var FormEventsMixin = require('./../form/FormEventsMixin');
+var utils           = require('../utils');
 
 
 var record = React.createClass({
@@ -30,6 +31,7 @@ var record = React.createClass({
         {!this.props.readOnly &&
           <button
             className="rex-forms-recordList__remove"
+            disabled={this.props.disabled}
             onClick={this.onRemove}
             type="button">
             &times; {removeText}
@@ -47,7 +49,8 @@ var record = React.createClass({
     var localValue = this.value();
 
     return this.props.questions.map((question, idx) => {
-      var disabled = events.isDisabled(question.fieldId, localValue);
+      var disabled = this.props.disabled ||
+        events.isDisabled(question.fieldId, localValue);
       var hidden = events.isHidden(question.fieldId, localValue);
 
       return (
@@ -55,9 +58,11 @@ var record = React.createClass({
           readOnly={this.props.readOnly}
           key={question.fieldId}
           name={question.fieldId}
+          ref={question.fieldId}
           options={question}
           disabled={disabled}
           hidden={hidden}
+          onNext={this.onNext}
           widgetProps={{
             onDirty: this.markDirty,
             dirty: this.isDirty()
@@ -67,8 +72,28 @@ var record = React.createClass({
     });
   },
 
+  getDefaultProps: function() {
+    return {onNext: utils.emptyFunction};
+  },
+
   getInitialDirtyState: function() {
     return false;
+  },
+
+  focus: function() {
+    if (this.props.questions.length > 0) {
+      var fieldId = this.props.questions[0].fieldId;
+      this.refs[fieldId].focus();
+    }
+  },
+
+  onNext: function(name) {
+    var next = utils.findAfter(this.props.questions, (q) => q.fieldId, name);
+    if (next) {
+      this.refs[next].focus();
+    } else {
+      this.props.onNext(this.props.name);
+    }
   }
 });
 

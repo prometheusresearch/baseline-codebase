@@ -9,7 +9,9 @@ module.exports = {
   elements: require('./elements'),
   widgets: require('./widgets'),
   services: require('./services'),
-  reconciler: require('./reconciler')
+  reconciler: require('./reconciler'),
+  widgetTypes: require('./elements/widgetTypes'),
+  readOnlyWidgetTypes: require('./elements/readOnlyWidgetTypes')
 };
 
 if (window) {

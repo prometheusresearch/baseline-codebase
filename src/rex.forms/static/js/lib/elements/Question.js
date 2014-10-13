@@ -9,10 +9,11 @@ var cx                   = React.addons.classSet;
 var widgetMap            = require('../widgets').defaultWidgetMap;
 var utils                = require('../utils');
 var ElementMixin         = require('./ElementMixin');
-var widgetTypes          = require('./widgetTypes');
-var readOnlyWidgetTypes  = require('./readOnlyWidgetTypes');
+var WidgetConfiguration  = require('../form/WidgetConfiguration');
 
-function determineWidgetType(instrumentRootType, elementOptions, readOnly) {
+function determineWidgetType(
+    widgetTypes, readOnlyWidgetTypes,
+    instrumentRootType, elementOptions, readOnly) {
   var widgetType;
   var types = readOnly ? readOnlyWidgetTypes : widgetTypes;
   var possibleWidgets = types[instrumentRootType] || types.text;
@@ -28,26 +29,28 @@ function determineWidgetType(instrumentRootType, elementOptions, readOnly) {
 }
 
 var Question = React.createClass({
-  mixins: [ElementMixin, ReactForms.FieldsetMixin],
+  mixins: [
+    ElementMixin,
+    ReactForms.FieldsetMixin,
+    WidgetConfiguration.Mixin
+  ],
 
   propTypes: {
     readOnly: React.PropTypes.bool
   },
 
   render: function () {
-    var className = cx(
-      'rex-forms-Element',
-      'rex-forms-Question',
-      'rex-forms-Question-' + this.props.name,
-      this.props.disabled ? 'rex-forms-Question__disabled' : null
-    );
+    var classes = this.getBaseClasses();
+    classes['rex-forms-Question'] = true;
+    classes['rex-forms-Question-' + this.props.name] = true;
+    classes = cx(classes);
 
     var style = {
       display: this.props.hidden ? 'none' : 'block'
     };
 
     return this.transferPropsTo(
-      <div className={className} style={style}>
+      <div className={classes} style={style}>
         {this.renderValue()}
         {this.renderExplanation()}
         {this.renderAnnotation()}
@@ -102,6 +105,8 @@ var Question = React.createClass({
 
     var props = {
       name: 'value',
+      ref: 'widget',
+      onNext: this.onNext,
       disabled: this.props.disabled,
       key: `${this.props.name}[value]`,
       options: this.props.options
@@ -114,13 +119,28 @@ var Question = React.createClass({
     return Widget(props);
   },
 
+  getDefaultProps: function() {
+    return {
+      onNext: utils.emptyFunction
+    };
+  },
+
   getWidget: function(instrumentRootType, readOnly) {
     var widgetType = determineWidgetType(
+      this.getWidgetTypes(), this.getReadOnlyWidgetTypes(),
       instrumentRootType || 'text',
       this.props.options,
       readOnly
     );
     return widgetMap[widgetType];
+  },
+
+  onNext: function() {
+    this.props.onNext(this.props.name);
+  },
+
+  focus: function() {
+    this.refs.widget.focus();
   }
 });
 

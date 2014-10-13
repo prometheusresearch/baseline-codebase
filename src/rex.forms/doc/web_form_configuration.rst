@@ -330,20 +330,22 @@ type
     :Constraints: Required
     :Description: This property indicates the type of the front-end widget that
                   should be used.
-    :PossibleValues: ============== ======================= ===========
-                     Type           Applicable Field Types  Description
-                     ============== ======================= ===========
-                     inputText      text*                   A single-line text box.
-                     inputNumber    integer*, float*        A single-line text box optimized for numeric input.
-                     textArea       text                    A multi-line text box.
-                     radioGroup     enumeration*, boolean*  A group of radio button options that only allows one selection.
-                     checkGroup     enumerationSet*         A group of checkbox options that allows multiple selections.
-                     dropDown       enumeration, boolean    A drop-down selection box that only allows one selection.
-                     datePicker     date*                   TBD
-                     timePicker     time*                   TBD
-                     dateTimePicker dateTime*               TBD
-                     recordList     recordList*             A complex widget that allows the editing of repeated sets of questions in a vertically-scrolling fashion.
-                     matrix         matrix*                 A grid of Fields where the Questions are presented horizontally and repeated for each row in the matrix.
+    :PossibleValues: ================== ======================= ===========
+                     Type               Applicable Field Types  Description
+                     ================== ======================= ===========
+                     inputText          text*                   A single-line text box.
+                     inputNumber        integer*, float*        A single-line text box optimized for numeric input.
+                     textArea           text                    A multi-line text box.
+                     radioGroup         enumeration*, boolean*  A group of radio button options that only allows one selection.
+                     entryRadioGroup    enumeration, boolean    The same as radioGroup, but has keyboard hotkey support.
+                     checkGroup         enumerationSet*         A group of checkbox options that allows multiple selections.
+                     entryCheckGroup    enumerationSet          The same as checkGroup, but has keyboard hotkey support.
+                     dropDown           enumeration, boolean    A drop-down selection box that only allows one selection.
+                     datePicker         date*                   TBD
+                     timePicker         time*                   TBD
+                     dateTimePicker     dateTime*               TBD
+                     recordList         recordList*             A complex widget that allows the editing of repeated sets of questions in a vertically-scrolling fashion.
+                     matrix             matrix*                 A grid of Fields where the Questions are presented horizontally and repeated for each row in the matrix.
                      ============== ======================= ===========
 
                      Field types notated with a ``*`` use that widget by default.

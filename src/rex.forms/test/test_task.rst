@@ -380,6 +380,23 @@ and solved::
     >>> task.solve_discrepancies({'q_matrix': {'row1': {'dah': 'hey'}}}, entries=entries) == expected_solution
     True
 
+    >>> entry3.data['values']['q_matrix']['value'] = None
+    >>> task.get_discrepancies(entries=entries)
+    {'q_matrix': {'row1': {'dah': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': None}, 'doo': {u'entry444': 42.1, u'entry333': 42.1, u'entry555': None}}, 'row2': {'dah': {u'entry444': 'goodbye', u'entry333': 'goodbye', u'entry555': None}, 'doo': {u'entry444': 63, u'entry333': 63, u'entry555': None}}}}
+    >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'value': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': 'hello'}, 'doo': {'explanation': None, 'annotation': None, 'value': 42.1}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': 'goodbye'}, 'doo': {'explanation': None, 'annotation': None, 'value': 63}}}}}}
+    >>> task.solve_discrepancies({}, entries=entries) == expected_solution
+    True
+    >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'value': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': 'hey'}, 'doo': {'explanation': None, 'annotation': None, 'value': 42.1}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': 'goodbye'}, 'doo': {'explanation': None, 'annotation': None, 'value': 63}}}}}}
+    >>> task.solve_discrepancies({'q_matrix': {'row1': {'dah': 'hey'}}}, entries=entries) == expected_solution
+    True
+
+    >>> entry1.data['values']['q_matrix']['value'] = None
+    >>> entry2.data['values']['q_matrix']['value'] = None
+    >>> task.get_discrepancies(entries=entries)
+    {}
+    >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'value': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': None}, 'doo': {'explanation': None, 'annotation': None, 'value': None}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': None}, 'doo': {'explanation': None, 'annotation': None, 'value': None}}}}}}
+    >>> task.solve_discrepancies({}, entries=entries) == expected_solution
+    True
 
 Tasks can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::

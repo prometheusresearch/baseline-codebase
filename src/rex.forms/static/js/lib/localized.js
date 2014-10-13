@@ -6,6 +6,7 @@
 var React        = require('react');
 var localization = require('./localization');
 var creole       = require('./creole');
+var utils        = require('./utils');
 
 var localized = React.createClass({
   mixins: [localization.LocalizedMixin],
@@ -13,13 +14,16 @@ var localized = React.createClass({
   render: function() {
     return this.transferPropsTo(
       <creole inline={!this.props.block}>
-        {this.localize(this.props.children)}
+        {this.props.formatter(this.localize(this.props.children))}
       </creole>
     );
   },
 
   getDefaultProps: function() {
-    return {component: React.DOM.span};
+    return {
+      component: React.DOM.span,
+      formatter: utils.emptyFunction.thatReturnsArgument
+    };
   }
 });
 

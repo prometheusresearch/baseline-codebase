@@ -7,7 +7,7 @@
  * Traverse all questions in a form and fire callback
  *
  * @param {Form} form
- * @param {Function<Question, PageId>}
+ * @param {Function<Question, PageId, isDeep>}
  */
 function traverseQuestions(form, cb) {
   var questions = [];

@@ -150,7 +150,7 @@ def _get_matrix_discrepancies(field, entries):
 
     def accessor(entry, name, row_id):
         rows = entry.data['values'][field['id']]['value']
-        return rows[row_id][name]['value']
+        return rows[row_id][name]['value'] if rows else None
 
     # pylint: disable=W0640
     for row in field['type']['rows']:
@@ -283,7 +283,7 @@ def _solve_simple_discrepancy(
                 break
     if 'value' not in solution:
         # We couldn't find a value anywhere to use.
-        return None
+        solution['value'] = None
 
     def _merge_supporting_text(name):
         supported_entries = [
@@ -355,7 +355,8 @@ def _solve_matrix_discrepancy(field, entries, reconciled_discrepancy):
     reconciled_discrepancy = reconciled_discrepancy or {}
 
     def accessor(entry, name, row_id):
-        return entry.data['values'][field['id']]['value'][row_id][name]
+        rows = entry.data['values'][field['id']]['value']
+        return rows[row_id][name] if rows else {}
 
     # pylint: disable=W0640
     for row in field['type']['rows']:

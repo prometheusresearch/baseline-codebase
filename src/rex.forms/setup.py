@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.forms',
-    version='0.24.0',
+    version='0.25.0',
     description='Class interfaces and framework for using Instrument-based'
     ' Web Forms',
     long_description=open('README.rst', 'r').read(),

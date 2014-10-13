@@ -22,6 +22,9 @@ var radioGroup = React.createClass({
     event.preventDefault();
     var value = this.value().updateValue(null);
     this.onValueUpdate(value);
+    if (this.props.onChange) {
+      this.props.onChange(event);
+    }
   },
 
   /**

@@ -172,6 +172,16 @@ Possible options are:
 ``scrollToTopOnPage``
   Scroll at the top of the form on page transition. (default: ``true``)
 
+``widgetTypes``
+  Widget configuration. A mapping from instrument type to an array of suitable
+  widgets. One can use ``Rex.Forms.widgetTypes`` as a base to customize
+  configuration.
+
+``readOnlyWidgetTypes``
+  Read-only widget configuration. A mapping from instrument type to an array of suitable
+  widgets. One can use ``Rex.Forms.readOnlyWidgetTypes`` as a base to customize
+  configuration.
+
 To remove form from DOM call ``unmount()`` method::
 
   form.unmount()
@@ -200,6 +210,43 @@ where available events are:
 ``page(page, pageIndex, form)``
   Page transition happened.
 
+Available widgets
+-----------------
+
+Regular widgets:
+
+* ``inputText``
+* ``inputNumber``
+* ``textArea``
+* ``radioGroup``
+* ``checkGroup``
+* ``dropDown``
+* ``datePicker``
+* ``timePicker``
+* ``dateTimePicker``
+* ``recordList``
+* ``matrix``
+
+Widgets for entering ``enumeration`` and ``enumerationSet`` instrument record
+types with keyboard shortcuts suitable for fast entry:
+
+* ``entryRadioGroup``
+* ``entryCheckGroup``
+
+Widgets for rendering assessment in read-only mode (these are used by default in
+``readOnlyWidgetTypes`` configuration):
+
+* ``readOnlyInputText``
+* ``readOnlyInputNumber``
+* ``readOnlyTextArea``
+* ``readOnlyRadioGroup``
+* ``readOnlyDropDown``
+* ``readOnlyCheckGroup``
+* ``readOnlyDatePicker``
+* ``readOnlyTimePicker``
+* ``readOnlyDateTimePicker``
+* ``readOnlyRecordList``
+* ``readOnlyMatrix``
 
 Command Line Tools
 ==================

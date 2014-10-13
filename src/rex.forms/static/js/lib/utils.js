@@ -62,6 +62,34 @@ function ensureInView(element) {
   }
 }
 
+/**
+ * And element by key in an array `elements`.
+ *
+ * @param {Array<V>} elements
+ * @param {Function<V, K>} keyFunc
+ * @param {V} key
+ *
+ * @returns V|Null
+ */
+function findAfter(elements, keyFunc, key) {
+  var found;
+  for (var i = 0, len = elements.length; i < len; i++) {
+    var current = elements[i];
+    var next = elements[i + 1];
+    if (keyFunc(current, i) === key && next !== undefined) {
+      found = keyFunc(next, i + 1);
+      break;
+    }
+  }
+  return found || null;
+}
+
+function emptyFunction() {
+}
+
+emptyFunction.thatReturnsArgument = function emptyFunctionThatReturnsArgument(arg) {
+  return arg;
+}
 
 module.exports = {
   mergeInto,
@@ -71,6 +99,8 @@ module.exports = {
   isString,
   isNumber,
   isObject,
-  ensureInView
+  ensureInView,
+  findAfter,
+  emptyFunction
 };
 

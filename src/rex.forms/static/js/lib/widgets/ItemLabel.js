@@ -11,7 +11,7 @@ var ItemLabel = React.createClass({
   render: function() {
     return this.transferPropsTo(
       <div className="rex-forms-ItemLabel">
-        <localized className="rex-forms-ItemLabel__label">
+        <localized formatter={this.props.formatter} className="rex-forms-ItemLabel__label">
           {this.props.label}
         </localized>
         {!this.props.hideHelp && (

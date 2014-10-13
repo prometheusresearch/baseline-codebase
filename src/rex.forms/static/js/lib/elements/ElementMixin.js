@@ -17,6 +17,13 @@ var ElementMixin = {
     return {
       options: {}
     };
+  },
+
+  getBaseClasses: function () {
+    return {
+      'rex-forms-Element': true,
+      'rex-forms-Element__disabled': this.props.disabled
+    };
   }
 };
 

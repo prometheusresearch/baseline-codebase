@@ -14,14 +14,16 @@ var traverseQuestions = require('./traverseQuestions');
  */
 class EventExecutionContext {
 
-  constructor(context, form) {
+  constructor(context, targetCatalog, form) {
     this.context = context;
+    this.targetCatalog = targetCatalog;
     this.form = form;
   }
 
-  forEachTarget(func, context) {
+  forEachField(func, context) {
     for (var name in this.context) {
-      if (!this.context[name]['_IS_DEEP']) {
+      if ((this.targetCatalog[name] === 'FIELD') ||
+          (this.targetCatalog[name] === 'FIELD_CALCULATED')) {
         func.call(context, name, this);
       }
     }
@@ -68,16 +70,23 @@ class EventExecutionContext {
 }
 
 function createExecutionContextFromForm(form) {
-  // id -> action -> event mapping
+  // id -> action -> [event] mapping
   var context = {};
-  // page id -> [question] mapping
-  var pageToQuestions = {};
+
+  // id -> type identifier
+  var targetCatalog = {};
+
+  // page id / tag id -> [question] mapping
+  var tagToQuestions = {};
 
   // traverse all questions and collect all events into context
   traverseQuestions(form, (question, page, isDeep) => {
+    targetCatalog[question.fieldId] = isDeep ? 'FIELD_DEEP' : 'FIELD';
 
-    pageToQuestions[page] = pageToQuestions[page] || [];
-    pageToQuestions[page].push(question);
+    if (!isDeep) {
+        tagToQuestions[page] = tagToQuestions[page] || [];
+        tagToQuestions[page].push(question);
+    }
 
     if (question.events && question.events.length > 0) {
       for (var i = 0, len = question.events.length; i < len; i++) {
@@ -88,7 +97,6 @@ function createExecutionContextFromForm(form) {
 
         for (var j = 0; j < ids.length; j++) {
           context[ids[j]] = context[ids[j]] || {};
-          context[ids[j]]._IS_DEEP = isDeep;
           context[ids[j]][action] = context[ids[j]][action] || [];
           context[ids[j]][action].push(event);
         }
@@ -96,14 +104,33 @@ function createExecutionContextFromForm(form) {
     }
   });
 
-  // we iterate over all page events and append them to corresponding question
-  // events
-  for (var page in pageToQuestions) {
-    if (context[page]) {
-      for (var action in context[page]) {
+  // Catalog the other target types.
+  for (var p = 0; p < form.pages.length; p++) {
+    var page = form.pages[p];
+    targetCatalog[page.id] = 'PAGE';
+
+    for (var e = 0; e < page.elements.length; e++) {
+      var element = page.elements[e];
+
+      var tags = element.tags || [];
+      for (var t = 0; t < tags.length; t++) {
+        targetCatalog[tags[t]] = 'TAG';
+
+        if (element.type === 'question') {
+          tagToQuestions[tag[t]] = tagToQuestions[tag[t]] || [];
+          tagToQuestions[tag[t]].push(element.options);
+        }
+      }
+    }
+  }
+
+  // For map the events on target groups to questions within them.
+  for (var tag in tagToQuestions) {
+    if (context[tag]) {
+      for (var action in context[tag]) {
         _enrichActionContext(
-          context, pageToQuestions[page],
-          action, context[page][action]
+          context, tagToQuestions[tag],
+          action, context[tag][action]
         );
       }
     }
@@ -111,6 +138,8 @@ function createExecutionContextFromForm(form) {
 
   // Add in the unprompted fields.
   Object.keys(form.unprompted || {}).forEach((name) => {
+    targetCatalog[name] = 'FIELD_CALCULATED';
+
     var event = form.unprompted[name];
     event.trigger = 'true()';  // This is a little hacky.
     context[name] = context[name] || {};
@@ -118,8 +147,9 @@ function createExecutionContextFromForm(form) {
     context[name][event.action].push(event);
   });
 
-  return new EventExecutionContext(context, form);
+  return new EventExecutionContext(context, targetCatalog, form);
 }
+
 
 function _enrichActionContext(context, questions, action, events) {
   for (var i = 0, len = questions.length; i < len; i++) {

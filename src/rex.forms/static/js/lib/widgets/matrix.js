@@ -12,6 +12,7 @@ var matrixHeaderRow         = require('./matrixHeaderRow');
 var matrixRow               = require('./matrixRow');
 var DirtyState              = require('./DirtyState');
 var FormEventsMixin         = require('./../form/FormEventsMixin');
+var utils                   = require('../utils');
 
 /**
  * Matrix
@@ -56,11 +57,14 @@ var matrix = React.createClass({
     var rows = this.props.options.rows.map((row) =>
       <matrixRow
         key={row.id}
+        ref={row.id}
         name={row.id}
         dirty={this.isDirty()}
         onDirty={this.markDirty}
+        disabled={this.props.disabled}
         row={row}
         questions={questions}
+        onNext={this.onNext}
         />
     );
 
@@ -76,6 +80,26 @@ var matrix = React.createClass({
         {error}
       </div>
     );
+  },
+
+  getDefaultProps: function() {
+    return {onNext: utils.emptyFunction};
+  },
+
+  focus: function() {
+    if (this.props.options.rows.length > 0) {
+      var rowId = this.props.options.rows[0].id;
+      this.refs[rowId].focus();
+    }
+  },
+
+  onNext: function(rowId) {
+    var next = utils.findAfter(this.props.options.rows, (row) => row.id, rowId);
+    if (next) {
+      this.refs[next].focus();
+    } else {
+      this.props.onNext(this.props.name);
+    }
   },
 
   getInitialDirtyState: function() {

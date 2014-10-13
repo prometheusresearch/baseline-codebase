@@ -14,6 +14,7 @@ var Forms = require('react-forms');
 var FormFor = Forms.FormFor;
 
 var determineWidgetType = require('../elements/Question').determineWidgetType;
+var WidgetConfiguration = require('../form/WidgetConfiguration');
 var utils = require('../utils');
 var widgetMap = require('../widgets').defaultWidgetMap;
 var l10n = require('../localization');
@@ -222,6 +223,10 @@ var DiscrepancyChoices = React.createClass({
       onChange: () => {
         this.setState({
           selectedEntry: null
+        }, () => {
+          if (this.props.onStatus) {
+            this.props.onStatus(this.isComplete());
+          }
         });
       },
       disabled: !this.state.overridden
@@ -253,7 +258,8 @@ var DiscrepancyChoices = React.createClass({
 var SimpleDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldMixin,
-    l10n.LocalizedMixin
+    l10n.LocalizedMixin,
+    WidgetConfiguration.Mixin
   ],
 
   propTypes: {
@@ -286,13 +292,18 @@ var SimpleDiscrepancy = React.createClass({
       complete: isComplete
     }, function () {
       if (this.props.onStatus) {
-        this.props.onStatus(isComplete);
+        this.props.onStatus(this.isComplete());
       }
     });
   },
 
+  isValid: function () {
+    var validation = this.value().validation;
+    return Forms.validation.isSuccess(validation);
+  },
+
   isComplete: function () {
-    return this.state.complete;
+    return this.state.complete && this.isValid();
   },
 
   render: function () {
@@ -301,6 +312,7 @@ var SimpleDiscrepancy = React.createClass({
       discrepancy = schema.props.discrepancy;
 
     var widget = determineWidgetType(
+      this.getWidgetTypes(), this.getReadOnlyWidgetTypes(),
       schema.props.instrumentType.rootType,
       question
     );

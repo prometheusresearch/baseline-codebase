@@ -46,21 +46,66 @@ var Page = React.createClass({
       key: idx
     };
 
+    var tags = element.tags || [];
+
+    var disabled = events.isDisabled(this.props.page.id);
+    var hidden = events.isHidden(this.props.page.id);
+
+    disabled = tags.reduce((previousValue, currentValue) => {
+      return previousValue || events.isDisabled(currentValue);
+    }, disabled);
+    hidden = tags.reduce((previousValue, currentValue) => {
+      return previousValue || events.isHidden(currentValue);
+    }, hidden);
+
     if (element.type === 'question') {
       utils.mergeInto(props, {
         name,
-        disabled: events.isDisabled(name) || events.isCalculated(name),
-        hidden: events.isHidden(name)
+        ref: element.options.fieldId,
+        onNext: this.onNext,
+        disabled: disabled || events.isDisabled(name) || events.isCalculated(name),
+        hidden: hidden || events.isHidden(name)
       });
 
     } else if (element.type === 'rawValueDisplay') {
       utils.mergeInto(props, {
         value: this.value()
       });
+
+    } else if (hidden) {
+      // Show nothing.
+      return (
+        <div
+          key={idx}
+          />
+      );
+
+    } else {
+      utils.mergeInto(props, {
+        disabled,
+        hidden
+      });
     }
 
     return elementComponent(props);
+  },
+
+  onNext: function(name) {
+    var questions = this.props.page.elements.filter((el) => el.type === 'question');
+    var next = utils.findAfter(questions, (q) => q.options.fieldId, name);
+    if (next) {
+      this.refs[next].focus();
+    } else {
+      this.props.onNext(this.props.page.id);
+    }
+  },
+
+  getDefaultProps: function() {
+    return {
+      onNext: utils.emptyFunction
+    };
   }
+
 });
 
 

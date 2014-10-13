@@ -5,6 +5,28 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.25.0 (10/13/2014)
+===================
+
+- Added/Fixed the ability to target pages and element tag groups in events.
+- Fixed an issue when trying to view Forms w/ Assessments that had matrix
+  values set to null.
+- Fixed an issue that caused the read-only view of form data to crash if the
+  selected enumeration had hideEnumeration events associated with it.
+- Fixed an issue where disabling recordList or matrix fields only partially
+  did so.
+- Loosened up text-based fields so that they can accept calculations that
+  result in numeric values.
+- Added enumeration-based widgets that support keyboard hotkeys.
+- Fixed a crash that occurred when trying to reconcile matrix fields that are
+  null.
+- Fixed an issue where under certain circumstances the reconciler would get
+  confused of the status of recordList/matrix sub-fields that had validations
+  on them.
+- Fixed issue where the Remove button for records in a recordList question
+  would appear to be disabled if the first question in the recod is disabled.
+
+
 0.24.0 (10/2/2014)
 ==================
 

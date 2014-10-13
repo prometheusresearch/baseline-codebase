@@ -123,6 +123,11 @@
   border-bottom: 1px solid @colorBgHover;
 }
 
+.rex-forms-Element__disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .rex-forms-Divider:last-child {
   border-bottom: none;
 }
@@ -210,11 +215,6 @@
 
 .rex-forms-Widget__label {
   margin-bottom: @padding / 2;
-
-  .rex-forms-Question__disabled & {
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
 }
 
 .rex-forms-Widget__help {
@@ -338,6 +338,8 @@
   .btn-xs();
   margin: @padding;
   float: right;
+  position: relative;
+  z-index: 100;
 
   [dir='rtl'] & {
     float: left;
@@ -425,6 +427,13 @@
 
 .rex-forms-FormOverview {
 
+}
+
+.rex-forms-FormOverview__readonly {
+  .rex-forms-Element__disabled {
+    opacity: 1;
+    cursor: auto;
+  }
 }
 
 .rex-forms-FormOverview__note {

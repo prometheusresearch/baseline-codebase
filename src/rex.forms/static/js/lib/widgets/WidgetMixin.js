@@ -35,6 +35,7 @@ var WidgetMixin = {
     var input = this.renderInput();
 
     input = cloneWithProps(input, {
+      ref: 'input',
       onBlur: chain(chain(input.props.onChange, this.markDirty), this.props.onChange),
       onChange: chain(chain(input.props.onChange, this.markDirty), this.props.onChange)
     });
@@ -131,6 +132,20 @@ var WidgetMixin = {
     }
 
     return `${dimension}-${defaultSize}`;
+  },
+
+  next: function() {
+    // let's not do that in the same tick as "focus" DOM event is synchronous
+    setTimeout(this.props.onNext, 0);
+  },
+
+  focus: function() {
+    var input = this.refs.input;
+    if (input.focus) {
+      input.focus();
+    } else {
+      input.getDOMNode().focus();
+    }
   }
 };
 

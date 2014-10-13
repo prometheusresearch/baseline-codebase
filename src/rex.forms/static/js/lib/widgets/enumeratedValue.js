@@ -28,7 +28,7 @@ var enumeratedValue = React.createClass({
     }
     var hasValue = (value.length > 0);
 
-    var enumerations = this.getEnumerations();
+    var enumerations = this.getEnumerations(true);
     var choices = value.map((choice) => {
       var enums = enumerations.filter((e) => {
         return e.id === String(choice);

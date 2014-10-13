@@ -11,6 +11,7 @@ var React = require('react/addons');
 var RexI18N = require('rex-i18n');
 
 var FormLocalizerMixin = require('../form/FormLocalizerMixin');
+var WidgetConfiguration = require('../form/WidgetConfiguration');
 var merge = require('../utils').merge;
 var components = require('./components');
 var Header = components.Header;
@@ -22,7 +23,8 @@ var _ = l10n._;
 
 var Reconciler = React.createClass({
   mixins: [
-    FormLocalizerMixin
+    FormLocalizerMixin,
+    WidgetConfiguration.ContextMixin
   ],
 
   getInitialState: function () {

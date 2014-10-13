@@ -3,11 +3,12 @@
  */
 'use strict';
 
-var React      = require('react');
-var cx         = React.addons.classSet;
-var ReactForms = require('react-forms');
-var ItemLabel  = require('./ItemLabel');
+var React           = require('react');
+var cx              = React.addons.classSet;
+var ReactForms      = require('react-forms');
+var ItemLabel       = require('./ItemLabel');
 var FormEventsMixin = require('./../form/FormEventsMixin');
+var utils           = require('../utils');
 
 /**
  * Row renders inputs for each questions of matrix.
@@ -48,18 +49,21 @@ var matrixRow = React.createClass({
     var localValue = this.value();
 
     return this.props.questions.map((question, idx) => {
-      var disabled = events.isDisabled(question.fieldId, localValue);
+      var disabled = this.props.disabled ||
+        events.isDisabled(question.fieldId, localValue);
       var hidden = events.isHidden(question.fieldId, localValue);
 
       return (
         <div key={idx} style={style} className="rex-forms-matrixRow__cell">
           <Question
             readOnly={this.props.readOnly}
+            ref={question.fieldId}
             key={question.fieldId}
             name={question.fieldId}
             options={question}
             disabled={disabled}
             hidden={hidden}
+            onNext={this.onNext}
             widgetProps={{
               noLabel: true,
               noHelp: true,
@@ -70,6 +74,28 @@ var matrixRow = React.createClass({
         </div>
       );
     });
+  },
+
+  getDefaultProps: function() {
+    return {
+      onNext: utils.emptyFunction
+    };
+  },
+
+  onNext: function(name) {
+    var next = utils.findAfter(this.props.questions, (q) => q.fieldId, name);
+    if (next) {
+      this.refs[next].focus();
+    } else {
+      this.props.onNext(this.props.row.id);
+    }
+  },
+
+  focus: function() {
+    if (this.props.questions.length > 0) {
+      var fieldId = this.props.questions[0].fieldId;
+      this.refs[fieldId].focus();
+    }
   }
 });
 

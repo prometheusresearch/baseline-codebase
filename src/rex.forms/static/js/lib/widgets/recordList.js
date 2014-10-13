@@ -11,6 +11,7 @@ var LabelRenderingMixin     = require('./LabelRenderingMixin');
 var SelfErrorRenderingMixin = require('./SelfErrorRenderingMixin');
 var localization            = require('../localization');
 var _ = localization._;
+var utils                   = require('../utils');
 
 
 var recordList = React.createClass({
@@ -52,6 +53,7 @@ var recordList = React.createClass({
           <button
             type="button"
             className="rex-forms-recordList__add"
+            disabled={this.props.disabled}
             onClick={this.onAdd}>{addText}</button>
         </div>
       </div>
@@ -68,13 +70,36 @@ var recordList = React.createClass({
       return (
         <record
           key={name}
+          ref={name}
           name={name}
+          onNext={this.onNext}
           onRemove={this.remove}
           removeLabelText={removeText}
+          disabled={this.props.disabled}
           questions={this.props.options.questions}
           />
       );
     });
+  },
+
+  getDefaultProps: function() {
+    return {onNext: utils.emptyFunction};
+  },
+
+  focus: function() {
+    if (this.value().value.length > 0) {
+      this.refs[0].focus();
+    }
+  },
+
+  onNext: function(name) {
+    var value = this.value().value;
+    var next = utils.findAfter(value, (_, idx) => idx, name);
+    if (next) {
+      this.refs[next].focus();
+    } else {
+      this.props.onNext(this.props.name);
+    }
   },
 
   onAdd: function () {

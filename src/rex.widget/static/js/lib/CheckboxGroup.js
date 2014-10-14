@@ -56,6 +56,10 @@ var CheckboxGroup = React.createClass({
     return {value: null};
   },
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({value: null});
+  },
+
   getValue() {
     if (this.state.value !== null) {
       return this.state.value;
@@ -68,7 +72,7 @@ var CheckboxGroup = React.createClass({
     if (!value) {
       return false;
     } else if (this.props.valueAsMapping) {
-      return value[id];
+      return value[id] || false;
     } else {
       return value.indexOf(id) > -1;
     }

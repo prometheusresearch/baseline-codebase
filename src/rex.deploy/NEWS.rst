@@ -10,6 +10,8 @@
 
 * Added support for generated identity columns.
 * Create an index for each ``FOREIGN KEY`` constraint.
+* Added ``default`` field for column facts.
+* Added raw SQL facts.
 
 
 1.5.0 (2014-07-18)

@@ -982,6 +982,78 @@ Examples:
         of: participation
 
 
+Raw Fact
+========
+
+A raw fact allows you to execute raw SQL code.
+
+`sql`: ``<sql_path>`` or ``<sql>``
+    Path to a SQL file *or* a SQL command containing DDL statement.
+`unless`: ``<check_sql_path>`` or ``<check_sql>``.
+    Path to a SQL file *or* a SQL command that verifies the fact postcondition.
+
+You can use raw facts if regular :mod:`rex.deploy` facts do not provide
+necessary capabilities.  For example, you can use raw facts to install
+indexes and triggers.
+
+Both ``sql`` and ``unless`` fields permit both a SQL statement and a path to a
+SQL file.
+
+The ``sql`` statement is executed unless the ``unless`` statement produces
+at least one ``TRUE`` value.
+
+Deploying:
+
+    Executes the ``unless`` statement and fetches the output.
+
+    If ``unless`` produces no ``TRUE`` values or no values at all, the ``sql``
+    statement is executed.
+
+Examples:
+
+    #. Creating a full-text search index::
+
+        sql: |
+          CREATE INDEX study_title_idx ON study
+          USING gin(to_tsvector('english', title));
+        unless: |
+          SELECT TRUE FROM pg_catalog.pg_class
+          WHERE relname = 'study_title_idx';
+
+    #. Creating a trigger::
+
+        sql: ./deploy/measure__last_modified__proc.sql
+        unless: |
+          SELECT obj_description(oid, 'pg_proc') ~ '^revision: 2014-10-14$'
+          FROM pg_catalog.pg_proc
+          WHERE proname = 'measure__last_modified__proc';
+
+       File ``./deploy/measure__last_modified__proc.sql`` contains the trigger
+       itself::
+
+        CREATE OR REPLACE FUNCTION measure__last_modified__proc() RETURNS trigger
+        LANGUAGE plpgsql
+        AS $_$
+            BEGIN
+                IF NEW.last_modified IS NULL THEN
+                    NEW.last_modified := 'now'::text::timestamp;
+                END IF;
+                RETURN NEW;
+            END;
+        $_$;
+
+        COMMENT ON FUNCTION measure__last_modified__proc()
+        IS 'revision: 2014-10-14';
+
+        DROP TRIGGER IF EXISTS measure__last_modified__proc ON measure;
+
+        CREATE TRIGGER measure__last_modified__proc BEFORE UPDATE ON measure
+        FOR EACH ROW EXECUTE PROCEDURE measure__last_modified__proc();
+
+       Note that we use a comment on the trigger procedure to verify if the
+       latest version of the trigger has been already deployed.
+
+
 Introduction to Python API
 ==========================
 

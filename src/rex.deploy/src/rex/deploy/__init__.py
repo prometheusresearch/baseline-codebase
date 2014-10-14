@@ -21,6 +21,7 @@ from .image import (make_catalog, Image, IndexedImage, NamedImage, ImageMap,
 from .meta import Meta, TableMeta, ColumnMeta, PrimaryKeyMeta
 from .introspect import introspect
 from .link import LinkFact
+from .raw import RawFact
 from .sql import (mangle, sql_name, sql_value, sql_create_database,
         sql_drop_database, sql_rename_database, sql_select_database,
         sql_comment_on_schema, sql_create_table, sql_drop_table,

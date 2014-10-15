@@ -76,19 +76,23 @@ The output format could also be specified using ``:FORMAT`` constraint::
     200 OK
     Content-Type: text/csv; charset=UTF-8
     ...
-    id,code,title,closed
+    id,Code,Title,Closed
     asdl,asdl,Autism Spectrum Disorder Lab,1
     ...
 
 A port can also be used to evaluate calculated attributes::
 
     >>> count_port = Port("""
-    ... - num_study := count(study)
-    ... - num_individual := count(individual)
+    ... - num_study := count(study) :as 'Number of Studies'
+    ... - num_individual := count(individual) :as 'Number of Individuals'
     ... - num_participation := count(participation)
     ... """)
-    >>> print count_port.produce()
-    {3, 98, 97}
+    >>> print count_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    Content-Type: text/csv; charset=UTF-8
+    ...
+    Number of Studies,Number of Individuals,num_participation
+    3,98,97
 
 Nested entities are supported::
 
@@ -114,7 +118,7 @@ Constraints
 ===========
 
 To get a subset of all records available through the port, apply port
-*constraints*::
+*constraints*.
 
 For example, to get the first 5 ``individual`` records from
 ``individual_port``, use constraint ``individual:top``::

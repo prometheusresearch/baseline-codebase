@@ -461,7 +461,7 @@ You can also define a calculated field for an entity::
     ... entity: study
     ... select: [title]
     ... with:
-    ... - num_individual := count(protocol.participation)
+    ... - num_individual := count(protocol.participation) :as 'Number of Participants'
     ... """)
 
     >>> print study_stats_port
@@ -469,7 +469,7 @@ You can also define a calculated field for an entity::
     select: [title]
     with:
     - calculation: num_individual
-      expression: count(protocol.participation)
+      expression: count(protocol.participation) :as 'Number of Participants'
 
     >>> print study_stats_port.produce()            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[asdl], 'Autism Spectrum Disorder Lab', 0},

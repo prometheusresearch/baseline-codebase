@@ -7,11 +7,13 @@ from .arm import RootArm, TableArm, LinkArm
 from .condition import (Condition, FilterCondition, TopSkipCondition,
         ReferenceCondition)
 from htsql.core.domain import Product, BooleanDomain, RecordDomain, ListDomain
-from htsql.core.syn.syntax import Syntax, VoidSyntax, IdentifierSyntax
+from htsql.core.syn.syntax import (Syntax, VoidSyntax, IdentifierSyntax,
+        StringSyntax)
 from htsql.core.tr.bind import BindingState
-from htsql.core.tr.binding import (RootBinding, TitleBinding, SelectionBinding,
-        CollectBinding, SieveBinding, ImplicitCastBinding)
-from htsql.core.tr.lookup import prescribe, identify
+from htsql.core.tr.binding import (RootBinding, AliasBinding, TitleBinding,
+        SelectionBinding, CollectBinding, SieveBinding, ImplicitCastBinding,
+        WrappingBinding)
+from htsql.core.tr.lookup import prescribe, identify, guess_header
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.translate import translate
 from htsql.core.fmt.accept import Accept
@@ -56,6 +58,14 @@ class Bind(object):
         # Bare binding from the arm.
         recipe = prescribe(self.arm.arc, binding)
         binding = self.state.use(recipe, binding.syntax)
+        # Unmask the title for calculated nodes.
+        if isinstance(binding, AliasBinding):
+            base = binding
+            while isinstance(base, WrappingBinding):
+                if isinstance(base, TitleBinding):
+                    binding = base
+                    break
+                base = base.base
         if isinstance(self.arm, TableArm):
             # For tables, apply the unconditional filter.
             if self.arm.mask is not None:
@@ -122,21 +132,28 @@ class Bind(object):
         recipe = identify(binding)
         # For links, return `.id()`.
         if isinstance(self.arm, LinkArm):
-            return self.state.use(recipe, binding.syntax, scope=binding)
+            header = guess_header(binding)
+            binding = self.state.use(recipe, binding.syntax, scope=binding)
+            if header:
+                binding = TitleBinding(binding, StringSyntax(header),
+                        binding.syntax)
+            return binding
         self.state.push_scope(binding)
         elements = []
         # For tables, add `id := id()`.
         if recipe is not None:
             element = self.state.use(recipe, binding.syntax)
-            element = TitleBinding(element, IdentifierSyntax(u'id'),
-                    element.syntax)
+            element = AliasBinding(element, IdentifierSyntax(u'id'))
             elements.append(element)
         # Bind nested arms.
         for name, arm in self.arm.items():
             bind = Bind(arm, self.state, self.constraints_by_name[name])
             element = bind()
-            element = TitleBinding(element, IdentifierSyntax(name),
-                    element.syntax)
+            header = guess_header(element)
+            element = AliasBinding(element, IdentifierSyntax(name))
+            if header:
+                element = TitleBinding(element, StringSyntax(header),
+                        element.syntax)
             elements.append(element)
         # Create a selector expression.
         fields = [decorate(element) for element in elements]

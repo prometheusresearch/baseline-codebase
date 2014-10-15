@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.0.1 (2014-XX-XX)
+==================
+
+* Retain titles of regular columns and calculated fields.
+
+
 1.0.0 (2014-09-16)
 ==================
 

@@ -11,7 +11,7 @@ import yaml
 from collections import OrderedDict, namedtuple
 
 from rex.core import (
-    Extension, cached, set_location,
+    Error, Extension, cached, set_location,
     OneOfVal, ProxyVal, StrVal, IntVal)
 
 from .state import StateGraph, MutableStateGraph
@@ -111,11 +111,17 @@ def _encode_DataRead(directive):
 
 class ContextValue(object):
 
-    def __init__(self, key):
+    def __init__(self, key, default=NotImplemented):
         self.key = key
+        self.default = default
 
     def __call__(self, context):
-        return context[self.key]
+        if self.default is not NotImplemented:
+            return context.get(self.key, self.default)
+        elif key not in context:
+            raise Error('missing key "%s" in context' % key)
+        else:
+            return context[key]
 
 
 class WidgetFactory(object):

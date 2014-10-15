@@ -1,5 +1,5 @@
-****************************
-  REX.WIDGET API Reference
-****************************
+*****************
+  API Reference
+*****************
 
 .. contents:: Table of Contents

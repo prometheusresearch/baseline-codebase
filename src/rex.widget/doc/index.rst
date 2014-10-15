@@ -1,7 +1,9 @@
 ****************************
-  REX.WIDGET Documentation
+  Rex Widget Documentation
 ****************************
 
+Rex Widget provides a widget toolkit for the RexDB platform. It allows to
+configure application screens composed of reusable widgets.
 
 Programming guide
 =================
@@ -9,44 +11,10 @@ Programming guide
 .. toctree::
 
    guide
-
-
-Widget library
-==============
-
-.. toctree::
-
    library
-
-API reference
-=============
-
-.. toctree::
-
    reference
-
-
-Examples
-========
-
-.. toctree::
-
    test/index
-
-
-Release notes
-=============
-
-.. toctree::
-
    changes
-
-
-Copyright and license
-=====================
-
-.. toctree::
-
    license
 
 

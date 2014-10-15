@@ -1,6 +1,6 @@
-*************************
-  REX.WIDGET Change Log
-*************************
+**************
+  Change Log
+**************
 
 .. contents:: Table of Contents
 

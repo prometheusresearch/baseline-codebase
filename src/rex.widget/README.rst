@@ -1,16 +1,16 @@
-********************************
-  REX.WIDGET Programming Guide
-********************************
+*********************
+  Programming Guide
+*********************
 
 .. contents:: Table of Contents
+   :local:
 .. role:: mod(literal)
 
 Overview
 ========
 
-This package provides a widget toolkit for the RexDB platform.
-
-Rex Widget allows to configure application screens composed of reusable widgets.
+Rex Widget provides a widget toolkit for the RexDB platform. It allows to
+configure application screens composed of reusable widgets.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -49,15 +49,17 @@ A concrete widget which will be rendered is specified with ``<Container>``
 annotation syntax.
 
 Widgets can be provided with parameters, a set of allowed parameters is defined
-by a widget author. The ``<Container>`` widget accepts ``children`` parameter
-which specify what should be rendered inside of it, an other widget or a list of
-those.
+by a widget author.
+
+The ``<Container>`` widget accepts ``children`` parameter which specify what
+should be rendered inside of it, an other widget or a list of those.
 
 Shorthand configuration syntax
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``<Header>`` and ``<Text>`` widgets above are configured via shorthand
-syntax. This is allowed only for widgets which accept a single required field.
+syntax sugar. This is allowed only for widgets which accept a single required
+field.
 
 The configuration::
 

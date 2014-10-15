@@ -29,7 +29,7 @@ class Page(BasePage):
     APPLETS = 'APPLETS'
 
     application_name = Field(
-        StrVal(), default=ContextValue('application_name'),
+        StrVal(), default=ContextValue('application_name', 'Application'),
         doc='Application name')
 
     navigation = Field(
@@ -76,17 +76,20 @@ class Page(BasePage):
         assert request is not None
         applets = []
         active = None
+        settings = get_settings()
 
-        for app in get_settings().registered_apps:
-            info = {
-                'name': app['name'],
-                'title': app['title'],
-                'href': url_for(request, app['home_route']),
-            }
-            if app.get('show') and authorize(request, app['package']):
-                applets.append(info)
-            if app['package'] == request.environ.get('rex.package'):
-                active = info
+        if hasattr(settings, 'registered_apps'):
+
+            for app in settings.registered_apps:
+                info = {
+                    'name': app['name'],
+                    'title': app['title'],
+                    'href': url_for(request, app['home_route']),
+                }
+                if app.get('show') and authorize(request, app['package']):
+                    applets.append(info)
+                if app['package'] == request.environ.get('rex.package'):
+                    active = info
 
         return {
             'active': active,

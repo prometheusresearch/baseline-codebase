@@ -24,7 +24,7 @@ R43MH099826.
 .. |R| unicode:: 0xAE .. registered trademark sign
 
 Usage
------
+=====
 
 Rex Widget adds a new type of URL mapping handler which can be used to define
 application screens.
@@ -71,7 +71,7 @@ Expands into::
     text: About Page
 
 Authoring new widgets
----------------------
+=====================
 
 Rex Widget allows to extend a set of available widgets. This can be used by
 library developers who want to provide their own sets of widgets or by
@@ -337,7 +337,7 @@ changes, ``EntityField`` field only fetches data when all parameters are present
 want only to fetch data when some item in selected in list, for example.
 
 Linking between application pages
----------------------------------
+=================================
 
 Because Rex Widget stores application state in URL query string and manages
 browser history stack it is advised that applications use ``<Link>`` component

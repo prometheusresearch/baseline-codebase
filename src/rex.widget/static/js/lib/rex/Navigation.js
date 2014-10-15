@@ -50,9 +50,11 @@ var Navigation = React.createClass({
               <span className="icon-bar" />
             </button>
             <Link unsafe href="/" className="rw-Navigation__title navbar-brand">
-              {applicationName} &mdash; {applets.active.title}
+              {applets.active ?
+                <span>{applicationName} &mdash; {applets.active.title}</span> :
+                <span>{applicationName}</span>}
             </Link>
-            <AppletSwitcher applets={applets.applets} />
+            {applets.applets.length > 0 && <AppletSwitcher applets={applets.applets} />}
           </div>
           <div className={navBarClassName}>
             <NavigationBar sitemap={sitemap} active={active} />

@@ -56,7 +56,6 @@ var Table = React.createClass({
               row.id !== undefined &&
               this.props.selected == row.id
             );
-            console.log(this.props.selected, row.id);
             var className=cx({
               'rw-Table__row': true,
               'rw-Table__row--selected': selected

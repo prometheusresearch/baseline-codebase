@@ -50,11 +50,30 @@ var TextInput = React.createClass({
   },
 
   getInitialState() {
-    return {value: null};
+    return {
+      value: null,
+      waitForValues: []
+    };
   },
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps({value}) {
+    if (this.markAsDone(value) || this.state.value === value) {
+      return;
+    }
     this.setState({value: null});
+  },
+
+  onChangeImmediate(e) {
+    var value = e.target.value;
+    this.setState({value});
+  },
+
+  onChangeAmortized(e) {
+    var value = this.state.value;
+    if (this.props.value !== value) {
+      this.props.onValue(value, e.target.id);
+      this.markAsWait(value);
+    }
   },
 
   getValue() {
@@ -67,17 +86,25 @@ var TextInput = React.createClass({
     return this.props.value;
   },
 
-  onChangeImmediate(e) {
-    var value = e.target.value;
-    this.setState({value});
+  markAsWait(value) {
+    value = value || '';
+    value = value.trim();
+    if (this.state.waitForValues.indexOf(value) === -1) {
+      var waitForValues = this.state.waitForValues.concat(value);
+      this.setState({waitForValues});
+    }
   },
 
-  onChangeAmortized(e) {
-    var value = e.target.value === '' ? null : e.target.value;
-    if (this.props.value !== value) {
-      this.props.onValue(value, e.target.id);
-      this.setState({value: null});
+  markAsDone(value) {
+    value = value || '';
+    value = value.trim();
+    var idx = this.state.waitForValues.indexOf(value);
+    if (idx !== -1) {
+      var waitForValues = this.state.waitForValues.slice(0);
+      waitForValues.splice(idx, 1);
+      this.setState({waitForValues});
     }
+    return idx !== -1;
   }
 
 });

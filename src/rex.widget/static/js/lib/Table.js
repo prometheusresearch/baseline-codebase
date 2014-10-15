@@ -50,7 +50,13 @@ var Table = React.createClass({
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => {
-            var selected = this.props.selectable && this.props.selected == row.id;
+            var selected = (
+              this.props.selectable &&
+              this.props.selected !== undefined &&
+              row.id !== undefined &&
+              this.props.selected == row.id
+            );
+            console.log(this.props.selected, row.id);
             var className=cx({
               'rw-Table__row': true,
               'rw-Table__row--selected': selected

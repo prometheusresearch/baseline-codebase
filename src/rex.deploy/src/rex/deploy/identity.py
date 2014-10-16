@@ -155,6 +155,11 @@ class IdentityFact(Fact):
             else:
                 raise Error("Detected missing column:", column_name)
             columns.append(column)
+        # Verify that all columns are `NOT NULL`.
+        for column in columns:
+            if not column.is_not_null:
+                raise Error("Detected column without NOT NULL constraint:",
+                            column)
         # Drop the `PRIMARY KEY` constraint if it does not match the identity.
         if (table.primary_key is not None and
                 list(table.primary_key) != columns):
@@ -310,9 +315,16 @@ class IdentityFact(Fact):
         # Remove the remains of the identity after the table or some identity
         # column is dropped.
         schema = driver.get_schema()
+        table = schema.tables.get(self.table_name)
+        if table is not None and table.primary_key is not None:
+            driver.submit(sql_drop_constraint(
+                    self.table_name, table.primary_key.name))
+            index = schema.indexes.get(table.primary_key.name)
+            if index is not None:
+                index.remove()
+            table.primary_key.remove()
         # Remove the generator trigger and procedure.
         if any(generator is not None for generator in self.generators):
-            table = schema.tables.get(self.table_name)
             trigger = None
             if table is not None:
                 trigger = table.triggers.get(self.constraint_name)

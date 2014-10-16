@@ -88,6 +88,7 @@ on a table::
     >>> driver("""
     ... - { table: individual }
     ... - { column: individual.code, type: text }
+    ... - { column: individual.notes, type: text, required: false }
     ... - { identity: [individual.code] }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE TABLE "individual" ...
@@ -101,6 +102,16 @@ on a table::
 Deploying the same fact again has no effect::
 
     >>> driver("""{ identity: [individual.code] }""")
+
+Notably, the identity columns must have ``NOT NULL`` constraint::
+
+    >>> driver("""{ identity: [individual.notes] }""")
+    Traceback (most recent call last):
+      ...
+    Error: Detected column without NOT NULL constraint:
+        notes
+    While deploying identity fact:
+        "<byte string>", line 1
 
 Table identity may include both columns and links.  Respective ``FOREIGN KEY``
 constraints are set to ``ON DELETE CASCADE``::
@@ -247,7 +258,7 @@ Generators could be applied to *text* or *integer* columns::
     ... - { link: measure.individual }
     ... - { link: measure.measure_type }
     ... - { column: measure.no, type: text }
-    ... - { column: measure.date_of_evaluation, type: date, required: false }
+    ... - { column: measure.date_of_evaluation, type: date, default: today() }
     ... - { identity: [measure.individual, measure.measure_type, measure.no: offset] }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE FUNCTION "individual_pk"() ...

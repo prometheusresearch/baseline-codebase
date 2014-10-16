@@ -18,13 +18,13 @@ Start with creating a test database and a driver::
 Link facts are denoted by field ``link``::
 
     >>> driver.parse("""{ link: sample.individual }""")
-    LinkFact(u'sample', u'individual', u'individual', is_required=True)
+    LinkFact(u'sample', u'individual', u'individual')
 
 The origin of the link could be set as a prefix of the ``link`` field
 or as a separate ``of`` field::
 
     >>> driver.parse("""{ link: individual, of: sample }""")
-    LinkFact(u'sample', u'individual', u'individual', is_required=True)
+    LinkFact(u'sample', u'individual', u'individual')
 
 It is an error if ``link`` has no prefix and ``of`` is not specified.
 It is also an error if they are both specified::
@@ -48,15 +48,15 @@ The target of the link could be omitted if its name coincides with
 the link name.  Otherwise, it could be set using ``to`` field::
 
     >>> driver.parse("""{ link: individual.mother, to: individual }""")
-    LinkFact(u'individual', u'mother', u'individual', is_required=True)
+    LinkFact(u'individual', u'mother', u'individual')
 
 You can indicate any old names of the link using ``was`` clause::
 
     >>> driver.parse("""{ link: measure.individual, was: subject }""")
-    LinkFact(u'measure', u'individual', u'individual', former_labels=[u'subject'], is_required=True)
+    LinkFact(u'measure', u'individual', u'individual', former_labels=[u'subject'])
 
     >>> driver.parse("""{ link: individual.birth_mother, was: [parent, mother], to: individual }""")
-    LinkFact(u'individual', u'birth_mother', u'individual', former_labels=[u'parent', u'mother'], is_required=True)
+    LinkFact(u'individual', u'birth_mother', u'individual', former_labels=[u'parent', u'mother'])
 
 By default, a link does not permit ``NULL`` values.  Turn off flag
 ``required`` to allow ``NULL`` values::
@@ -67,7 +67,7 @@ By default, a link does not permit ``NULL`` values.  Turn off flag
 You can explicitly specify the link title::
 
     >>> driver.parse("""{ link: sample.individual, title: Subject }""")
-    LinkFact(u'sample', u'individual', u'individual', is_required=True, title=u'Subject')
+    LinkFact(u'sample', u'individual', u'individual', title=u'Subject')
 
 Turn off flag ``present`` to indicate that the link should not exist::
 
@@ -185,8 +185,8 @@ An error is raised if the target table has no ``id`` column::
     While deploying link fact:
         "<byte string>", line 1
 
-If the link column exists, the driver verifies that is has a
-correct type and ``NOT NULL`` constraint::
+If the link column exists, the driver verifies that is has a correct type and
+``NOT NULL`` constraint and, if necessary, changes them::
 
     >>> driver.submit("""ALTER TABLE individual ADD COLUMN mother_id text NOT NULL;""")
     ALTER TABLE individual ADD COLUMN mother_id text NOT NULL;
@@ -199,12 +199,39 @@ correct type and ``NOT NULL`` constraint::
     While deploying link fact:
         "<byte string>", line 1
 
-    >>> driver("""{ link: sample.individual, required: false }""")
+    >>> driver("""{ link: sample.individual, title: Subject, required: false }""")
+    ALTER TABLE "sample" DROP CONSTRAINT "sample_pk";
+    DROP TRIGGER "sample_pk" ON "sample";
+    DROP FUNCTION "sample_pk"();
+    ALTER TABLE "sample" ALTER COLUMN "individual_id" DROP NOT NULL;
+
+    >>> driver("""{ link: sample.individual, title: Subject, required: true }""",
+    ...        is_locked=True)
     Traceback (most recent call last):
       ...
     Error: Detected column with mismatched NOT NULL constraint:
         individual_id
-    While deploying link fact:
+    While validating link fact:
+        "<byte string>", line 1
+
+Similarly, it may apply a ``UNIQUE`` constraint::
+
+    >>> driver("""{ link: sample.individual, title: Subject, unique: true }""")
+    ALTER TABLE "sample" ALTER COLUMN "individual_id" SET NOT NULL;
+    DROP INDEX "sample_individual_fk";
+    ALTER TABLE "sample" ADD CONSTRAINT "sample_individual_uk" UNIQUE ("individual_id");
+
+    >>> driver("""{ link: sample.individual, title: Subject, unique: false }""")
+    ALTER TABLE "sample" DROP CONSTRAINT "sample_individual_uk";
+    CREATE INDEX "sample_individual_fk" ON "sample" ("individual_id");
+
+    >>> driver("""{ link: sample.individual, title: Subject, unique: true }""",
+    ...        is_locked=True)
+    Traceback (most recent call last):
+      ...
+    Error: Detected column with mismatched UNIQUE constraint:
+        individual_id
+    While validating link fact:
         "<byte string>", line 1
 
 It also verifies that the ``FOREIGN KEY`` constraint exists::
@@ -252,14 +279,10 @@ Renaming the link
 To rename a link, specify the current name as ``was`` field and the new name as
 ``link`` field::
 
-    >>> driver("""{ link: sample.subject, to: individual, was: individual }""")     # doctest: +ELLIPSIS
+    >>> driver("""{ link: sample.subject, to: individual, was: individual }""")
     ALTER TABLE "sample" RENAME COLUMN "individual_id" TO "subject_id";
     ALTER TABLE "sample" RENAME CONSTRAINT "sample_individual_fk" TO "sample_subject_fk";
     ALTER INDEX "sample_individual_fk" RENAME TO "sample_subject_fk";
-    DROP TRIGGER "sample_pk" ON "sample";
-    DROP FUNCTION "sample_pk"();
-    CREATE FUNCTION "sample_pk"() RETURNS "trigger" LANGUAGE plpgsql AS ...
-    CREATE TRIGGER "sample_pk" BEFORE INSERT ON "sample" FOR EACH ROW EXECUTE PROCEDURE "sample_pk"();
     COMMENT ON COLUMN "sample"."subject_id" IS NULL;
 
 Applying the same fact second time will have no effect::
@@ -275,8 +298,6 @@ column::
 
     >>> driver("""{ link: sample.subject, present: false }""")
     ALTER TABLE "sample" DROP COLUMN "subject_id";
-    DROP TRIGGER "sample_pk" ON "sample";
-    DROP FUNCTION "sample_pk"();
 
     >>> schema = driver.get_schema()
     >>> sample_table = schema[u'sample']

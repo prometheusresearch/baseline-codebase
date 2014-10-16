@@ -42,7 +42,7 @@ Use field ``with`` to list facts to deployed together with the table fact::
 
     >>> driver.parse("""{ table: individual,
     ...                   with: [{ column: code, type: text}] }""")
-    TableFact(u'individual', related=[ColumnFact(u'individual', u'code', u'text', is_required=True)])
+    TableFact(u'individual', related=[ColumnFact(u'individual', u'code', u'text')])
 
 Nested facts must deploy columns, links or data of the table being deployed::
 

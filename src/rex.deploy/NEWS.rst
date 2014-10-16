@@ -11,6 +11,7 @@
 * Added support for generated identity columns.
 * Create an index for each ``FOREIGN KEY`` constraint.
 * Added ``default`` field for column facts.
+* Added ``unique`` constraints for columns and links.
 * Added raw SQL facts.
 
 

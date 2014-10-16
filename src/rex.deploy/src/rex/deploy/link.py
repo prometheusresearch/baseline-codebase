@@ -10,10 +10,11 @@ from .image import SET_DEFAULT
 from .meta import uncomment
 from .recover import recover
 from .sql import (mangle, sql_add_column, sql_drop_column, sql_rename_column,
-        sql_comment_on_column, sql_add_foreign_key_constraint,
-        sql_rename_constraint, sql_create_index, sql_rename_index,
-        sql_create_function, sql_drop_function, sql_create_trigger,
-        sql_drop_trigger)
+        sql_set_column_not_null, sql_comment_on_column,
+        sql_add_unique_constraint, sql_add_foreign_key_constraint,
+        sql_drop_constraint, sql_rename_constraint, sql_create_index,
+        sql_drop_index, sql_rename_index, sql_create_function,
+        sql_drop_function, sql_create_trigger, sql_drop_trigger)
 
 
 class LinkFact(Fact):
@@ -32,6 +33,8 @@ class LinkFact(Fact):
     `is_required`: ``bool`` or ``None``
         Indicates if ``NULL`` values are not allowed.  Must be ``None``
         if ``is_present`` is not set.
+    `is_unique`: ``bool`` or ``None``
+        Indicates that each value must be unique across all rows in the table.
     `title`: ``unicode`` or ``None``
         The title of the link.  If not set, borrowed from the target title
         or generated from the label.
@@ -45,6 +48,7 @@ class LinkFact(Fact):
             ('to', LabelVal, None),
             ('was', OneOrSeqVal(LabelVal), None),
             ('required', BoolVal, None),
+            ('unique', BoolVal, None),
             ('title', TitleVal, None),
             ('present', BoolVal, True),
     ]
@@ -69,13 +73,12 @@ class LinkFact(Fact):
         else:
             former_labels = []
         is_required = spec.required
+        is_unique = spec.unique
         title = spec.title
         is_present = spec.present
         if is_present:
             if target_table_label is None:
                 target_table_label = label
-            if is_required is None:
-                is_required = True
         else:
             if target_table_label is not None:
                 raise Error("Got unexpected clause:", "to")
@@ -83,11 +86,13 @@ class LinkFact(Fact):
                 raise Error("Got unexpected clause:", "was")
             if is_required is not None:
                 raise Error("Got unexpected clause:", "required")
+            if is_unique is not None:
+                raise Error("Got unexpected clause:", "unique")
             if title is not None:
                 raise Error("Got unexpected clause:", "title")
         return cls(table_label, label, target_table_label,
                     former_labels=former_labels, is_required=is_required,
-                    title=title, is_present=is_present)
+                    is_unique=is_unique, title=title, is_present=is_present)
 
     @classmethod
     def recover(cls, driver, column):
@@ -112,12 +117,16 @@ class LinkFact(Fact):
         target_table_fact = recover(driver, foreign_key.target)
         if target_table_fact is None:
             return None
+        is_unique = any(unique_key.origin_columns == [column]
+                        for unique_key in column.unique_keys
+                        if not unique_key.is_primary)
         return cls(table_fact.label, label, target_table_fact.label,
-                   is_required=column.is_not_null, title=meta.title)
+                   is_required=column.is_not_null,
+                   is_unique=is_unique, title=meta.title)
 
     def __init__(self, table_label, label, target_table_label=None,
-                 former_labels=[],
-                 is_required=None, title=None, is_present=True):
+                 former_labels=[], is_required=None, is_unique=None,
+                 title=None, is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
@@ -127,19 +136,26 @@ class LinkFact(Fact):
             assert (isinstance(former_labels, list) and
                     all(isinstance(former_label, unicode)
                         for former_label in former_labels))
+            if is_required is None:
+                is_required = True
             assert isinstance(is_required, bool)
+            if is_unique is None:
+                is_unique = False
+            assert isinstance(is_unique, bool)
             assert (title is None or
                     (isinstance(title, unicode) and len(title) > 0))
         else:
             assert target_table_label is None
             assert former_labels == []
             assert is_required is None
+            assert is_unique is None
             assert title is None
         self.table_label = table_label
         self.label = label
         self.target_table_label = target_table_label
         self.former_labels = former_labels
         self.is_required = is_required
+        self.is_unique = is_unique
         self.title = title
         self.is_present = is_present
         self.table_name = mangle(table_label)
@@ -148,9 +164,12 @@ class LinkFact(Fact):
         if is_present:
             self.target_table_name = mangle(target_table_label)
             self.constraint_name = mangle([table_label, label], u'fk')
+            self.unique_constraint_name = mangle(
+                    [table_label, label],u'uk')
         else:
             self.target_table_name = None
             self.constraint_name = None
+            self.unique_constraint_name = None
 
     def __repr__(self):
         args = []
@@ -160,8 +179,10 @@ class LinkFact(Fact):
             args.append(repr(self.target_table_label))
         if self.former_labels:
             args.append("former_labels=%r" % self.former_labels)
-        if self.is_required is not None:
+        if self.is_required is not None and self.is_required is not True:
             args.append("is_required=%r" % self.is_required)
+        if self.is_unique is not None and self.is_unique is not False:
+            args.append("is_unique=%r" % self.is_unique)
         if self.title is not None:
             args.append("title=%r" % self.title)
         if not self.is_present:
@@ -219,10 +240,19 @@ class LinkFact(Fact):
         if column.type != target_column.type:
             raise Error("Detected column with mismatched type:", column)
         if column.is_not_null != self.is_required:
-            raise Error("Detected column with mismatched"
-                        " NOT NULL constraint:", column)
-        # Create a `FOREIGN KEY` constraint and an associated index
-        # if necessary.
+            if driver.is_locked:
+                raise Error("Detected column with mismatched"
+                            " NOT NULL constraint:", column)
+            if (not self.is_required and table.primary_key is not None and
+                    column in table.primary_key):
+                identity_fact = recover(driver, table.primary_key)
+                if identity_fact is not None:
+                    identity_fact.purge(driver)
+            driver.submit(sql_set_column_not_null(
+                    self.table_name, self.name, self.is_required))
+            column.set_is_not_null(self.is_required)
+        # Create a `FOREIGN KEY` constraint and, if necessary,
+        # an associated index.
         if not any(foreign_key
                    for foreign_key in table.foreign_keys
                    if list(foreign_key) == [(column, target_column)]):
@@ -235,9 +265,41 @@ class LinkFact(Fact):
             table.add_foreign_key(self.constraint_name, [column],
                                   target_table, [target_column],
                                   on_delete=SET_DEFAULT)
-            driver.submit(sql_create_index(self.constraint_name,
-                    self.table_name, [self.name]))
-            schema.add_index(self.constraint_name, table, [column])
+            if not self.is_unique:
+                driver.submit(sql_create_index(self.constraint_name,
+                        self.table_name, [self.name]))
+                schema.add_index(self.constraint_name, table, [column])
+        # Create a `UNIQUE` constraint or a regular index.
+        is_unique = any(unique_key.origin_columns == [column]
+                        for unique_key in column.unique_keys
+                        if not unique_key.is_primary)
+        if is_unique != self.is_unique:
+            if driver.is_locked:
+                raise Error("Detected column with mismatched"
+                            " UNIQUE constraint:", column)
+            index = schema.indexes.get(self.constraint_name)
+            if self.is_unique:
+                if index is not None:
+                    driver.submit(sql_drop_index(
+                            self.constraint_name))
+                    index.remove()
+                driver.submit(sql_add_unique_constraint(
+                        self.table_name, self.unique_constraint_name,
+                        [self.name], False))
+                table.add_unique_key(self.unique_constraint_name,
+                        [column], False)
+            else:
+                for unique_key in column.unique_keys:
+                    if unique_key.is_primary:
+                        continue
+                    if unique_key.origin_columns == [column]:
+                        driver.submit(sql_drop_constraint(
+                                self.table_name, unique_key.name))
+                        unique_key.remove()
+                if index is None:
+                    driver.submit(sql_create_index(self.constraint_name,
+                            self.table_name, [self.name]))
+                    schema.add_index(self.constraint_name, table, [column])
         # Store the original link label and the link title.
         meta = uncomment(column)
         preferred_label = self.name[:-2].rstrip(u'_') \
@@ -305,6 +367,16 @@ class LinkFact(Fact):
             driver.submit(sql_rename_index(
                     former_constraint_name, self.constraint_name))
             index.rename(self.constraint_name)
+        # Rename the `UNIQUE` constraint.
+        former_unique_constraint_name = mangle(
+                [former_table_label, former_label], u'uk')
+        constraint = table.constraints.get(former_unique_constraint_name)
+        if constraint is not None and \
+                self.unique_constraint_name != former_unique_constraint_name:
+            driver.submit(sql_rename_constraint(
+                    self.table_name, former_unique_constraint_name,
+                    self.unique_constraint_name))
+            constraint.rename(self.unique_constraint_name)
 
     def purge(self, driver):
         # Removes remains of a link after the table is dropped.

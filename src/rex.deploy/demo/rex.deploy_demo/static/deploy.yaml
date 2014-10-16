@@ -52,15 +52,18 @@
   - column: givenname
     type: text
     required: false
+    title: Given Name
   - column: middle
     type: text
     required: false
+    title: Middle Name
   - column: surname
     type: text
     required: false
   - column: birthdate
     type: date
     required: false
+    title: Date of Birth
   - column: notes
     type: text
     required: false

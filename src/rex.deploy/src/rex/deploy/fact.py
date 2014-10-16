@@ -168,6 +168,12 @@ class Driver(object):
         """Unlocks the driver."""
         self.is_locked = False
 
+    def set_lock(self, is_locked):
+        """Undates the driver lock."""
+        was_locked = self.is_locked
+        self.is_locked = is_locked
+        return was_locked
+
     def reset(self):
         """Resets the locking state and cached catalog mirror."""
         self.catalog = None

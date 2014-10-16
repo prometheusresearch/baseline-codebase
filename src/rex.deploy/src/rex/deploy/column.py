@@ -10,13 +10,14 @@ from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
 from .meta import uncomment
 from .recover import recover
 from .sql import (mangle, sql_value, sql_add_column, sql_drop_column,
-        sql_rename_column, sql_set_column_default, sql_comment_on_column,
-        sql_create_enum_type, sql_drop_type, sql_rename_type,
-        sql_create_function, sql_drop_function, sql_create_trigger,
-        sql_drop_trigger)
-from htsql.core.domain import (BooleanDomain, IntegerDomain, DecimalDomain,
-        FloatDomain, TextDomain, DateDomain, TimeDomain, DateTimeDomain,
-        EnumDomain)
+        sql_rename_column, sql_set_column_default, sql_set_column_not_null,
+        sql_comment_on_column, sql_create_enum_type, sql_drop_type,
+        sql_rename_type, sql_create_function, sql_drop_function,
+        sql_create_trigger, sql_drop_trigger, sql_add_unique_constraint,
+        sql_drop_constraint, sql_rename_constraint)
+from htsql.core.domain import (UntypedDomain, BooleanDomain, IntegerDomain,
+        DecimalDomain, FloatDomain, TextDomain, DateDomain, TimeDomain,
+        DateTimeDomain, EnumDomain)
 import datetime
 
 
@@ -38,6 +39,8 @@ class ColumnFact(Fact):
         Names that the column may had in the past.
     `is_required`: ``bool``
         Indicates if ``NULL`` values are not allowed.
+    `is_unique`: ``bool``
+        Indicates that each value must be unique across all rows in the table.
     `title`: ``unicode`` or ``None``
         The title of the column.  If not set, generated from the label.
     `is_present`: ``bool``
@@ -86,6 +89,7 @@ class ColumnFact(Fact):
                               UChoiceVal(*sorted(TYPE_MAP))), None),
             ('default', AnyVal, None),
             ('required', BoolVal, None),
+            ('unique', BoolVal, None),
             ('title', TitleVal, None),
             ('present', BoolVal, True),
     ]
@@ -110,7 +114,7 @@ class ColumnFact(Fact):
         else:
             former_labels = []
         type = spec.type
-        domain = None
+        domain = UntypedDomain()
         if isinstance(type, list):
             domain = EnumDomain(type)
         elif type is not None:
@@ -123,28 +127,6 @@ class ColumnFact(Fact):
                 default = domain.parse(default)
             except ValueError:
                 pass
-        if not (default is None or
-                (type == u'boolean' and
-                    isinstance(default, bool)) or
-                (type == u'integer' and
-                    isinstance(default, (int, long))) or
-                (type in (u'decimal', u'float') and
-                    isinstance(default, (int, long, decimal.Decimal, float))) or
-                (type == u'text' and
-                    isinstance(default, unicode)) or
-                (type == u'date' and
-                    isinstance(default, datetime.date)) or
-                (type == u'date' and
-                    default == u'today()') or
-                (type == u'time' and
-                    isinstance(default, datetime.time)) or
-                (type == u'datetime' and
-                    isinstance(default, datetime.datetime)) or
-                (type == u'datetime' and
-                    default == u'now()') or
-                (isinstance(type, list) and
-                    isinstance(default, unicode) and default in type)):
-            raise Error("Got ill-typed default value:", default)
         title = spec.title
         if is_present:
             if type is None:
@@ -155,6 +137,29 @@ class ColumnFact(Fact):
                 if len(set(type)) < len(type):
                     raise Error("Got duplicate enum labels:",
                                 ", ".join(type))
+            if not (default is None or
+                    (type == u'boolean' and
+                        isinstance(default, bool)) or
+                    (type == u'integer' and
+                        isinstance(default, (int, long))) or
+                    (type in (u'decimal', u'float') and
+                        isinstance(default, (int, long,
+                                             decimal.Decimal, float))) or
+                    (type == u'text' and
+                        isinstance(default, unicode)) or
+                    (type == u'date' and
+                        isinstance(default, datetime.date)) or
+                    (type == u'date' and
+                        default == u'today()') or
+                    (type == u'time' and
+                        isinstance(default, datetime.time)) or
+                    (type == u'datetime' and
+                        isinstance(default, datetime.datetime)) or
+                    (type == u'datetime' and
+                        default == u'now()') or
+                    (isinstance(type, list) and
+                        isinstance(default, unicode) and default in type)):
+                raise Error("Got ill-typed default value:", default)
         else:
             if former_labels:
                 raise Error("Got unexpected clause:", "was")
@@ -165,15 +170,16 @@ class ColumnFact(Fact):
             if title is not None:
                 raise Error("Got unexpected clause:", "title")
         is_required = spec.required
-        if is_present:
-            if is_required is None:
-                is_required = True
-        else:
+        is_unique = spec.unique
+        if not is_present:
             if is_required is not None:
                 raise Error("Got unexpected clause:", "required")
+            if is_unique is not None:
+                raise Error("Got unexpected clause:", "unique")
         return cls(table_label, label, former_labels=former_labels,
                    title=title, type=type, default=default,
-                   is_required=is_required, is_present=is_present)
+                   is_required=is_required, is_unique=is_unique,
+                   is_present=is_present)
 
     @classmethod
     def recover(cls, driver, column):
@@ -196,6 +202,9 @@ class ColumnFact(Fact):
                 domain = cls.DOMAIN_MAP.get(type)
         if type is None:
             return None
+        is_unique = any(unique_key.origin_columns == [column]
+                        for unique_key in column.unique_keys
+                        if not unique_key.is_primary)
         default = meta.default
         if isinstance(default, str):
             default = default.decode('utf-8', 'replace')
@@ -205,11 +214,12 @@ class ColumnFact(Fact):
             except ValueError:
                 pass
         return cls(table_fact.label, label, type, default=default,
-                   is_required=column.is_not_null, title=meta.title)
+                   is_required=column.is_not_null,
+                   is_unique=is_unique, title=meta.title)
 
     def __init__(self, table_label, label, type=None, default=None,
-                 former_labels=[], is_required=None, title=None,
-                 is_present=True):
+                 former_labels=[], is_required=None, is_unique=None,
+                 title=None, is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
@@ -222,7 +232,12 @@ class ColumnFact(Fact):
                     all(isinstance(label, unicode) and len(label) > 0
                         for label in type) and
                     len(set(type)) == len(type))
+            if is_required is None:
+                is_required = True
             assert isinstance(is_required, bool)
+            if is_unique is None:
+                is_unique = False
+            assert isinstance(is_unique, bool)
             assert (title is None or
                     (isinstance(title, unicode) and len(title) > 0))
         else:
@@ -230,6 +245,7 @@ class ColumnFact(Fact):
             assert type is None
             assert default is None
             assert is_required is None
+            assert is_unique is None
             assert title is None
         self.table_label = table_label
         self.label = label
@@ -237,6 +253,7 @@ class ColumnFact(Fact):
         self.default = default
         self.former_labels = former_labels
         self.is_required = is_required
+        self.is_unique = is_unique
         self.title = title
         self.is_present = is_present
         self.table_name = mangle(table_label)
@@ -254,6 +271,7 @@ class ColumnFact(Fact):
             self.type_name = self.TYPE_MAP[type]
             self.enum_labels = None
             self.domain = self.DOMAIN_MAP[type]
+        self.unique_constraint_name = mangle([table_label, label], u'uk')
 
     def __repr__(self):
         args = []
@@ -265,8 +283,10 @@ class ColumnFact(Fact):
             args.append("default=%r" % self.default)
         if self.former_labels:
             args.append("former_labels=%r" % self.former_labels)
-        if self.is_required is not None:
+        if self.is_required is not None and self.is_required is not True:
             args.append("is_required=%r" % self.is_required)
+        if self.is_unique is not None and self.is_unique is not False:
+            args.append("is_unique=%r" % self.is_unique)
         if self.title is not None:
             args.append("title=%r" % self.title)
         if not self.is_present:
@@ -343,8 +363,38 @@ class ColumnFact(Fact):
         if column.type != type:
             raise Error("Detected column with mismatched type:", column)
         if column.is_not_null != self.is_required:
-            raise Error("Detected column with mismatched"
-                        " NOT NULL constraint:", column)
+            if driver.is_locked:
+                raise Error("Detected column with mismatched"
+                            " NOT NULL constraint:", column)
+            if (not self.is_required and table.primary_key is not None and
+                    column in table.primary_key):
+                identity_fact = recover(driver, table.primary_key)
+                if identity_fact is not None:
+                    identity_fact.purge(driver)
+            driver.submit(sql_set_column_not_null(
+                    self.table_name, self.name, self.is_required))
+            column.set_is_not_null(self.is_required)
+        is_unique = any(unique_key.origin_columns == [column]
+                        for unique_key in column.unique_keys
+                        if not unique_key.is_primary)
+        if is_unique != self.is_unique:
+            if driver.is_locked:
+                raise Error("Detected column with mismatched"
+                            " UNIQUE constraint:", column)
+            if self.is_unique:
+                driver.submit(sql_add_unique_constraint(
+                        self.table_name, self.unique_constraint_name,
+                        [self.name], False))
+                table.add_unique_key(self.unique_constraint_name,
+                        [column], False)
+            else:
+                for unique_key in column.unique_keys:
+                    if unique_key.is_primary:
+                        continue
+                    if unique_key.origin_columns == [column]:
+                        driver.submit(sql_drop_constraint(
+                                self.table_name, unique_key.name))
+                        unique_key.remove()
         # Check if we need to change the default value.
         meta = uncomment(column)
         saved_default = meta.default
@@ -420,14 +470,23 @@ class ColumnFact(Fact):
         assert self.name in table
         column = table[self.name]
         # Rename the `ENUM` type.
-        if isinstance(self.type, list):
-            former_type_name = mangle(
-                    [former_table_label, former_label], u'enum')
-            enum_type = schema.types.get(former_type_name)
-            if enum_type is not None and self.type_name != former_type_name:
-                driver.submit(sql_rename_type(
-                        former_type_name, self.type_name))
-                column.type.rename(self.type_name)
+        former_type_name = mangle(
+                [former_table_label, former_label], u'enum')
+        enum_type = schema.types.get(former_type_name)
+        if enum_type is not None and self.type_name != former_type_name:
+            driver.submit(sql_rename_type(
+                    former_type_name, self.type_name))
+            column.type.rename(self.type_name)
+        # Rename the `UNIQUE` constraint.
+        former_unique_constraint_name = mangle(
+                [former_table_label, former_label], u'uk')
+        constraint = table.constraints.get(former_unique_constraint_name)
+        if constraint is not None and \
+                self.unique_constraint_name != former_unique_constraint_name:
+            driver.submit(sql_rename_constraint(
+                    self.table_name, former_unique_constraint_name,
+                    self.unique_constraint_name))
+            constraint.rename(self.unique_constraint_name)
 
     def purge(self, driver):
         # Removes remains of a column after the table is dropped.

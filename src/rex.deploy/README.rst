@@ -498,6 +498,12 @@ A column fact describes a column of a table.
 
     This clause cannot be used if ``present`` is ``false``.
 
+`unique`: ``true`` or ``false`` (default)
+    Indicates that each column value must be unique across all rows of the
+    table.
+
+    This clause cannot be used if ``present`` is ``false``.
+
 `title`: ``<title>``
     Header used in tabular output.  If not provided, the header is generated
     from the column name.
@@ -515,8 +521,11 @@ Deploying when ``present`` is ``true``:
     If ``required`` is set to ``true``, which is the default, the column
     should have a ``NOT NULL`` constraint.
 
-    *(TODO)* If the column exists, but does not match the description,
-    it is converted to match the description when possible.
+    If ``unique`` is set to ``true``, a ``UNIQUE`` constraint is added on the
+    column.
+
+    If the column exists, but does not match the description, it is converted
+    to match the description when possible.
 
     It is an error if table ``<table_label>`` does not exist.
 
@@ -581,6 +590,13 @@ Examples:
         type: text
         required: false
 
+    #. Adding a column with unique values::
+
+        column: email
+        of: user
+        type: text
+        unique: true
+
     #. Setting the column default value::
 
         column: closed
@@ -639,6 +655,11 @@ A link fact describes a link between two tables.
 
     This clause cannot be used if ``present`` is ``false``.
 
+`unique`: ``true`` or ``false`` (default)
+    Indicates that each link value must be unique across all rows of the table.
+
+    This clause cannot be used if ``present`` is ``false``.
+
 `title`: ``<title>``
     Header used in tabular output.  If not provided, the header is generated
     from the link name.
@@ -657,6 +678,9 @@ Deploying when ``present`` is ``true``:
 
     If ``required`` is set to ``true`` (default), the column should have
     a ``NOT NULL`` constraint.
+
+    If ``unique`` is set to ``true``, a ``UNIQUE`` constraint is added on the
+    column.
 
     It is an error if either ``<table_label>`` or ``<target_table_label>``
     tables do not exist.
@@ -712,6 +736,12 @@ Examples:
         of: measure
         to: study
         required: false
+
+    #. Adding a unique link::
+
+        link: user
+        of: staff
+        unique: true
 
     #. Adding a self-referential link::
 

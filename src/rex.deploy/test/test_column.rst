@@ -18,13 +18,13 @@ Start with creating a test database and a driver::
 Column facts are denoted by field ``column``::
 
     >>> driver.parse("""{ column: individual.code, type: text }""")
-    ColumnFact(u'individual', u'code', u'text', is_required=True)
+    ColumnFact(u'individual', u'code', u'text')
 
 The table of the column could be set in the ``column`` field
 or as a separate ``of`` field::
 
     >>> driver.parse("""{ column: code, of: individual, type: text }""")
-    ColumnFact(u'individual', u'code', u'text', is_required=True)
+    ColumnFact(u'individual', u'code', u'text')
 
 If the table is not set or set twice, an error is raised::
 
@@ -46,16 +46,16 @@ If the table is not set or set twice, an error is raised::
 You could indicate possible old names of the column using ``was`` field::
 
     >>> driver.parse("""{ column: identity.last_name, was: [surname], type: text }""")
-    ColumnFact(u'identity', u'last_name', u'text', former_labels=[u'surname'], is_required=True)
+    ColumnFact(u'identity', u'last_name', u'text', former_labels=[u'surname'])
 
     >>> driver.parse("""{ column: identity.date_of_birth, was: [dob, birth], type: date }""")
-    ColumnFact(u'identity', u'date_of_birth', u'date', former_labels=[u'dob', u'birth'], is_required=True)
+    ColumnFact(u'identity', u'date_of_birth', u'date', former_labels=[u'dob', u'birth'])
 
 The ``type`` field is the name of the column type or a list of labels
 of ``ENUM`` type::
 
     >>> driver.parse("""{ column: individual.sex, type: [male, female] }""")
-    ColumnFact(u'individual', u'sex', [u'male', u'female'], is_required=True)
+    ColumnFact(u'individual', u'sex', [u'male', u'female'])
 
 It is an error if the type is not specified or the type name is not recognized
 or ``ENUM`` labels are not specified correctly::
@@ -86,7 +86,7 @@ or ``ENUM`` labels are not specified correctly::
 You can set the default value of the column::
 
     >>> driver.parse("""{ column: study.closed, type: boolean, default: false }""")
-    ColumnFact(u'study', u'closed', u'boolean', default=False, is_required=True)
+    ColumnFact(u'study', u'closed', u'boolean', default=False)
 
 The default value must be compatible with the column type::
 
@@ -104,10 +104,16 @@ By default, a column does not permit ``NULL`` values.  Turn off flag
     >>> driver.parse("""{ column: individual.code, type: text, required: false }""")
     ColumnFact(u'individual', u'code', u'text', is_required=False)
 
+You can also declare that the column value must be unique across all rows in
+the table::
+
+    >>> driver.parse("""{ column: user.email, type: text, unique: true }""")
+    ColumnFact(u'user', u'email', u'text', is_unique=True)
+
 Use field ``title`` to specify the column title::
 
     >>> driver.parse("""{ column: individual.code, type: text, title: Individual ID }""")
-    ColumnFact(u'individual', u'code', u'text', is_required=True, title=u'Individual ID')
+    ColumnFact(u'individual', u'code', u'text', title=u'Individual ID')
 
 Turn of flag ``present`` to indicate that the column should not exist::
 
@@ -137,6 +143,22 @@ Field ``present: false`` cannot coexist with other column parameters::
       ...
     Error: Got unexpected clause:
         required
+    While parsing column fact:
+        "<byte string>", line 1
+
+    >>> driver.parse("""{ column: individual.code, unique: true, present: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        unique
+    While parsing column fact:
+        "<byte string>", line 1
+
+    >>> driver.parse("""{ column: individual.code, default: '-', present: false }""")
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected clause:
+        default
     While parsing column fact:
         "<byte string>", line 1
 
@@ -206,6 +228,12 @@ type is created::
     >>> u'individual_sex_enum' in schema.types
     True
 
+You can declare that column values must be unique across all rows in the table::
+
+    >>> driver("""{ column: individual.email, type: text, unique: true }""")
+    ALTER TABLE "individual" ADD COLUMN "email" "text" NOT NULL;
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_email_uk" UNIQUE ("email");
+
 You can create a column with a default value::
 
     >>> driver("""{ column: individual.birth_date, type: date, default: today() }""")
@@ -233,6 +261,44 @@ However you cannot change the default value when the driver is locked::
     While validating column fact:
         "<byte string>", line 1
 
+You can alter the ``NOT NULL`` and ``UNIQUE`` constraints on the column, but
+only if the driver is not locked.  Notably, a column without ``NOT NULL``
+constraint cannot be a part of the ``PRIMARY KEY`` of the table::
+
+    >>> driver("""{ identity: [individual.code] }""")
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code");
+
+    >>> driver("""{ column: individual.code, type: text, title: Individual ID, required: false }""")
+    ALTER TABLE "individual" DROP CONSTRAINT "individual_pk";
+    ALTER TABLE "individual" ALTER COLUMN "code" DROP NOT NULL;
+
+    >>> driver("""{ column: individual.code, type: text, title: Individual ID, required: true }""")
+    ALTER TABLE "individual" ALTER COLUMN "code" SET NOT NULL;
+
+    >>> driver("""{ column: individual.code, type: text, required: false }""",
+    ...        is_locked=True)
+    Traceback (most recent call last):
+      ...
+    Error: Detected column with mismatched NOT NULL constraint:
+        code
+    While validating column fact:
+        "<byte string>", line 1
+
+    >>> driver("""{ column: individual.email, type: text, unique: false }""")
+    ALTER TABLE "individual" DROP CONSTRAINT "individual_email_uk";
+
+    >>> driver("""{ column: individual.email, type: text, unique: true }""")
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_email_uk" UNIQUE ("email");
+
+    >>> driver("""{ column: individual.email, type: text }""",
+    ...        is_locked=True)
+    Traceback (most recent call last):
+      ...
+    Error: Detected column with mismatched UNIQUE constraint:
+        email
+    While validating column fact:
+        "<byte string>", line 1
+
 In the future, if the column already exists, but does not match the column fact,
 the column is altered to match the fact.  Currently, it's not yet functional::
 
@@ -248,14 +314,6 @@ the column is altered to match the fact.  Currently, it's not yet functional::
     Traceback (most recent call last):
       ...
     Error: Detected column with mismatched type:
-        sex
-    While deploying column fact:
-        "<byte string>", line 1
-
-    >>> driver("""{ column: individual.sex, type: [not-known, male, female], required: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Detected column with mismatched NOT NULL constraint:
         sex
     While deploying column fact:
         "<byte string>", line 1
@@ -288,11 +346,16 @@ Renaming the column
 ===================
 
 If you want to rename an existing column, specify the current name as ``was``
-field::
+field.  As the column is renamed, associated types and constraints are renamed
+as well::
 
     >>> driver("""{ column: individual.gender, was: sex, type: [not-known, male, female], default: not-known }""")
     ALTER TABLE "individual" RENAME COLUMN "sex" TO "gender";
     ALTER TYPE "individual_sex_enum" RENAME TO "individual_gender_enum";
+
+    >>> driver("""{ column: individual.login_email, was: email, type: text, unique: true }""")
+    ALTER TABLE "individual" RENAME COLUMN "email" TO "login_email";
+    ALTER TABLE "individual" RENAME CONSTRAINT "individual_email_uk" TO "individual__login_email__uk";
 
 If you rename a column that is part of table identity, the corresponding
 identity trigger will be rebuilt::

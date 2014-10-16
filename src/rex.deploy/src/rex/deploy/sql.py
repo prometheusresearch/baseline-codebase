@@ -274,6 +274,17 @@ def sql_rename_column(table_name, name, new_name):
                     sql_name(new_name))
 
 
+def sql_set_column_not_null(table_name, name, is_not_null):
+    """
+    Generates::
+
+        ALTER TABLE {table_name} ALTER COLUMN {name} { SET | DROP } NOT NULL
+    """
+    return u"ALTER TABLE {} ALTER COLUMN {} {} NOT NULL;" \
+            .format(sql_name(table_name), sql_name(name),
+                    u"SET" if is_not_null else u"DROP")
+
+
 def sql_set_column_default(table_name, name, expression):
     """
     Generates::

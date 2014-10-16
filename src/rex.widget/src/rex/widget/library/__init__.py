@@ -123,10 +123,10 @@ class Select(Widget):
     title_for_empty = Field(StrVal, default=None)
     no_empty_value = Field(BoolVal(), default=False)
 
-    @state(OneOfVal(StrVal()), default=None)
+    @state(OneOfVal(StrVal()))
     def value(self, state, graph, request):
         if state.value is unknown:
-            return Reset(None)
+            return Reset(self.default_value(state, graph, request))
 
         data = '%s/data' % self.id
 
@@ -140,6 +140,21 @@ class Select(Widget):
                 return Reset(None)
 
         return state.value
+
+    def default_value(self, state, graph, request):
+        """ Compute the default value if one isn't provided.
+
+        The default implementation does nothing but subclasses can define own
+        logic to define default value.
+        
+        :param state: Value state of the widget
+        :type state: :class:`rex.widget.State`
+        :param graph: State graph
+        :type graph: :class:`rex.widget.StateGraph`
+        :param graph: WSGI request
+        :type request: :class:`webob.Request`
+        """
+        return None
 
     @value.set_dependencies
     def value_dependencies(self):

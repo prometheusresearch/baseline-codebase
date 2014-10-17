@@ -15,7 +15,7 @@ from rex.core import Setting, MaybeVal, StrVal
 
 class FormbuilderApplet(Applet):
 
-    title = 'Formbuilder'
+    title = 'Formbuilder (Experimental)'
     name = 'formbuilder'
     icon = '/images/icon.png'
 

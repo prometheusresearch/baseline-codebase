@@ -19,6 +19,7 @@ var CustomRepFieldset = React.createClass({
         <Button onClick={this.onAdd}>{this.props.addTitle}</Button>
       </div>
     );
+    var warning = this.props.getWarning ? this.props.getWarning(value) : null;
     return this.transferPropsTo(
       <div className={cx('rfb-CustomRepFieldset',this.props.className)}>
         {this.props.renderHead ?
@@ -40,6 +41,10 @@ var CustomRepFieldset = React.createClass({
               value={value}
               />}
         </div>
+        {warning &&
+          <div className="rfb-CustomRepFieldset__warning">
+            {warning}
+          </div>}
         {(!topButton || this.props.renderFooter)  &&
           <div className="rfb-CustomRepFieldset__footer">
             {!topButton && button}

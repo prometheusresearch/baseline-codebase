@@ -436,6 +436,12 @@ function QuestionElementSchema({localizations, record}) {
   });
 }
 
+function validateListOfQuestions(v) {
+  if (!v || v.length == 0)
+    return new Error('Empty list of questions');
+  return true;
+}
+
 function ListOfQuestionsSchema({localizations, records}) {
   var component = (
     <QuestionsFieldset
@@ -444,16 +450,43 @@ function ListOfQuestionsSchema({localizations, records}) {
       addTitle="Add Question"
       />
   );
-  return List({defaultValue: [], component, records},
+  return List({
+      defaultValue: [],
+      validate: validateListOfQuestions,
+      component,
+      records
+    },
     DynamicQuestionSchema({localizations, records}))
 }
 
 function ListOfRows({localizations, rows}) {
+  var getWarning = function (value) {
+    var used = {};
+    if (rows) {
+      rows = rows.toJS();
+      rows.forEach((row) => {
+        used[row.id] = 0;
+      });
+    }
+    var total = value.value.length;
+    for (var i = 0; i < total; i++) {
+      var item = value.value.get(i);
+      var id = item.get('id');
+      if (used.hasOwnProperty(id))
+        ++used[id];
+    }
+    for (var id in used) {
+      if (used.hasOwnProperty(id) && used[id] == 0)
+        return 'Not all defined rows are used!';
+    }
+    return null;
+  }
   var component = (
     <CustomRepFieldset
       elementsTitle="Rows:"
       className="rfb-Enumerations"
       addTitle="Add Row"
+      getWarning={getWarning}
       floatAddButton={true}
       noItemsTitle="No Rows"
       />

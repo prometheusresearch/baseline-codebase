@@ -46,28 +46,25 @@ class TableFact(Fact):
 
     @classmethod
     def build(cls, driver, spec):
+        if not spec.present:
+            for field in ['was', 'reliable', 'title']:
+                if getattr(spec, field) is not None:
+                    raise Error("Got unexpected clause:", field)
+            if spec.with_ is not None:
+                raise Error("Got unexpected clause:", "with")
         label = spec.table
         is_present = spec.present
         is_reliable = spec.reliable
         if is_present:
             if is_reliable is None:
                 is_reliable = True
-        else:
-            if is_reliable is not None:
-                raise Error("Got unexpected clause:", "reliable")
-        if not is_present and spec.was:
-            raise Error("Got unexpected clause:", "was")
         if isinstance(spec.was, list):
             former_labels = spec.was
         elif spec.was:
             former_labels = [spec.was]
         else:
             former_labels = []
-        if not is_present and spec.title:
-            raise Error("Got unexpected clause:", "title")
         title = spec.title
-        if not is_present and spec.with_:
-            raise Error("Got unexpected clause:", "with")
         related = None
         after = None
         if spec.with_:
@@ -112,7 +109,7 @@ class TableFact(Fact):
         is_reliable = (not table.is_unlogged)
         return cls(label, is_reliable=is_reliable, title=meta.title)
 
-    def __init__(self, label, former_labels=[], is_reliable=True,
+    def __init__(self, label, former_labels=[], is_reliable=None,
                  title=None, is_present=True, related=None):
         # Validate input constraints.
         assert isinstance(label, unicode) and len(label) > 0
@@ -121,6 +118,8 @@ class TableFact(Fact):
             assert (isinstance(former_labels, list) and
                     all(isinstance(former_label, unicode)
                         for former_label in former_labels))
+            if is_reliable is None:
+                is_reliable = True
             assert isinstance(is_reliable, bool)
             assert (title is None or
                     (isinstance(title, unicode) and len(title) > 0))
@@ -129,7 +128,7 @@ class TableFact(Fact):
                      all(isinstance(fact, Fact) for fact in related)))
         else:
             assert former_labels == []
-            assert is_reliable is None or isinstance(is_reliable, bool)
+            assert is_reliable is None
             assert title is None
             assert related is None
         self.label = label
@@ -169,8 +168,6 @@ class TableFact(Fact):
 
         # Check if we need to rename the table.
         if self.name not in schema:
-            if driver.is_locked:
-                raise Error("Detected missing table:", self.name)
             for former_label in self.former_labels:
                 former_name = mangle(former_label)
                 if former_name not in schema:
@@ -246,8 +243,6 @@ class TableFact(Fact):
                       else None
         if meta.update(label=saved_label, title=saved_title):
             comment = meta.dump()
-            if driver.is_locked:
-                raise Error("Detected missing metadata:", comment)
             driver.submit(sql_comment_on_table(self.name, comment))
             table.set_comment(comment)
         # Apply nested facts.
@@ -259,8 +254,6 @@ class TableFact(Fact):
         schema = driver.get_schema()
         if self.name not in schema:
             return
-        if driver.is_locked:
-            raise Error("Detected unexpected table:", self.name)
         table = schema[self.name]
         # Remove links to the table.
         for foreign_key in table.referring_foreign_keys:

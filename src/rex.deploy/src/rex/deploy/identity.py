@@ -163,18 +163,12 @@ class IdentityFact(Fact):
         # Drop the `PRIMARY KEY` constraint if it does not match the identity.
         if (table.primary_key is not None and
                 list(table.primary_key) != columns):
-            if driver.is_locked:
-                raise Error("Detected table with mismatched"
-                            " PRIMARY KEY constraint:", table)
             driver.submit(sql_drop_constraint(
                     self.table_name, table.primary_key.name))
             table.primary_key.remove()
             schema.indexes[self.constraint_name].remove()
         # Create the `PRIMARY KEY` constraint if necessary.
         if table.primary_key is None:
-            if driver.is_locked:
-                raise Error("Detected table with missing"
-                            " PRIMARY KEY constraint:", table)
             driver.submit(sql_add_unique_constraint(
                     self.table_name, self.constraint_name,
                     [column.name for column in columns], True))
@@ -188,9 +182,6 @@ class IdentityFact(Fact):
             else:
                 on_delete = SET_DEFAULT
             if foreign_key.on_delete != on_delete:
-                if driver.is_locked:
-                    raise Error("Detected FOREIGN KEY with wrong"
-                                " ON DELETE rule:", foreign_key)
                 driver.submit(sql_drop_constraint(
                         self.table_name, foreign_key.name))
                 driver.submit(sql_add_foreign_key_constraint(
@@ -209,9 +200,6 @@ class IdentityFact(Fact):
             # Check if we need to create or update the trigger.
             if (procedure is None or trigger is None or
                     procedure.source != source):
-                if driver.is_locked:
-                    raise Error("Detected missing identity trigger:",
-                                self.constraint_name)
                 # Clear the old trigger.
                 if trigger is not None:
                     driver.submit(sql_drop_trigger(
@@ -236,10 +224,6 @@ class IdentityFact(Fact):
                 table.add_trigger(self.constraint_name, procedure)
         else:
             # Remove the current trigger, if any.
-            if driver.is_locked:
-                if procedure is not None or trigger is not None:
-                    raise Error("Detected an unexpected identity trigger:",
-                                self.constraint_name)
             if trigger is not None:
                 driver.submit(sql_drop_trigger(
                         self.table_name, self.constraint_name))
@@ -256,9 +240,6 @@ class IdentityFact(Fact):
             generators = None
         if meta.update(generators=generators):
             comment = meta.dump()
-            if driver.is_locked:
-                raise Error("Detected PRIMARY KEY with wrong metadata:",
-                            self.constraint_name)
             driver.submit(sql_comment_on_constraint(
                     self.table_name, self.constraint_name, comment))
             table.primary_key.set_comment(comment)

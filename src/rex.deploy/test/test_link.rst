@@ -84,30 +84,6 @@ Field ``present: false`` cannot coexist with other link parameters::
     While parsing link fact:
         "<byte string>", line 1
 
-    >>> driver.parse("""{ link: sample.individual, was: subject, present: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        was
-    While parsing link fact:
-        "<byte string>", line 1
-
-    >>> driver.parse("""{ link: sample.individual, required: true, present: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        required
-    While parsing link fact:
-        "<byte string>", line 1
-
-    >>> driver.parse("""{ link: sample.individual, title: Subject, present: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        title
-    While parsing link fact:
-        "<byte string>", line 1
-
 
 Creating the link
 =================
@@ -145,7 +121,7 @@ The title of the link is stored in the column comment::
     ';
 
 The driver cannot create the link if either the origin or the target
-table does not exist, or if the driver is locked::
+table does not exist::
 
     >>> driver("""{ link: measure.individual }""")
     Traceback (most recent call last):
@@ -161,15 +137,6 @@ table does not exist, or if the driver is locked::
     Error: Detected missing table:
         family
     While deploying link fact:
-        "<byte string>", line 1
-
-    >>> driver("""{ link: individual.mother, to: individual }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing column:
-        mother_id
-    While validating link fact:
         "<byte string>", line 1
 
 An error is raised if the target table has no ``id`` column::
@@ -205,15 +172,6 @@ If the link column exists, the driver verifies that is has a correct type and
     DROP FUNCTION "sample_pk"();
     ALTER TABLE "sample" ALTER COLUMN "individual_id" DROP NOT NULL;
 
-    >>> driver("""{ link: sample.individual, title: Subject, required: true }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected column with mismatched NOT NULL constraint:
-        individual_id
-    While validating link fact:
-        "<byte string>", line 1
-
 Similarly, it may apply a ``UNIQUE`` constraint::
 
     >>> driver("""{ link: sample.individual, title: Subject, unique: true }""")
@@ -224,39 +182,6 @@ Similarly, it may apply a ``UNIQUE`` constraint::
     >>> driver("""{ link: sample.individual, title: Subject, unique: false }""")
     ALTER TABLE "sample" DROP CONSTRAINT "sample_individual_uk";
     CREATE INDEX "sample_individual_fk" ON "sample" ("individual_id");
-
-    >>> driver("""{ link: sample.individual, title: Subject, unique: true }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected column with mismatched UNIQUE constraint:
-        individual_id
-    While validating link fact:
-        "<byte string>", line 1
-
-It also verifies that the ``FOREIGN KEY`` constraint exists::
-
-    >>> driver.submit("""ALTER TABLE individual ADD COLUMN father_id int4 NOT NULL;""")
-    ALTER TABLE individual ADD COLUMN father_id int4 NOT NULL;
-    >>> driver.reset()
-    >>> driver("""{ link: individual.father, to: individual }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected column with missing FOREIGN KEY constraint:
-        father_id
-    While validating link fact:
-        "<byte string>", line 1
-
-When the driver is locked, it verifies that the metadata is up-to-date::
-
-    >>> driver("""{ link: sample.individual }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing metadata:
-    While validating link fact:
-        "<byte string>", line 1
 
 You cannot create a link if there is a regular column with the same name::
 
@@ -311,17 +236,6 @@ Deploing the same fact again has no effect::
 Deleting a link from a table which does not exist is NOOP::
 
     >>> driver("""{ link: measure.subject, present: false }""")
-
-A locked driver cannot delete a link::
-
-    >>> driver("""{ link: individual.father, present: false }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected unexpected column:
-        father_id
-    While validating link fact:
-        "<byte string>", line 1
 
 You cannot delete a link if there is a regular column with the same name::
 

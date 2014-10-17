@@ -194,8 +194,6 @@ class DataFact(Fact):
                     if not names:
                         continue
                     # Update an existing row.
-                    if driver.is_locked:
-                        raise Error("Detected modified row")
                     returning_names = [column.name for column in table]
                     output = driver.submit(sql_update(
                             table.name, u'id', old_row[0], names, values,
@@ -204,8 +202,6 @@ class DataFact(Fact):
                     table.data.update(old_row, output[0])
                 else:
                     # Add a new row.
-                    if driver.is_locked:
-                        raise Error("Detected missing row")
                     names = []
                     values = []
                     for column, data in zip(table, row):
@@ -503,9 +499,11 @@ class DataFact(Fact):
     def _fetch(self, driver, table):
         # Pre-loads table data if necessary.
         if table.data is None:
+            was_locked = driver.set_lock(False)
             data = driver.submit(sql_select(
                     table.name, [column.name for column in table]))
             table.add_data(data)
+            driver.set_lock(was_locked)
 
     def drop(self, driver):
         raise NotImplementedError("%s.drop()" % self.__class__.__name__)

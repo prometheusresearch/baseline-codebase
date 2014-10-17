@@ -152,33 +152,6 @@ the old ``PRIMARY KEY`` is deleted::
     ALTER TABLE "identity" DROP CONSTRAINT "identity_pk";
     ALTER TABLE "identity" ADD CONSTRAINT "identity_pk" PRIMARY KEY ("individual_id");
 
-If the driver is locked and the primary key does not exist or does not
-match the identity, an error is raised::
-
-    >>> driver("""
-    ... - { table: sample }
-    ... - { column: sample.code, type: text }
-    ... """)                                            # doctest: +ELLIPSIS
-    CREATE TABLE "sample" ...
-
-    >>> driver("""{ identity: [sample.code] }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected table with missing PRIMARY KEY constraint:
-        sample
-    While validating identity fact:
-        "<byte string>", line 1
-
-    >>> driver("""{ identity: [identity.code] }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected table with mismatched PRIMARY KEY constraint:
-        identity
-    While validating identity fact:
-        "<byte string>", line 1
-
 
 Identity generators
 ===================
@@ -201,26 +174,6 @@ values, a trigger is created::
     generators:
     - random
     ';
-
-It is not possible to create or remove a generator while the driver is locked::
-
-    >>> driver("""{ identity: [individual.code: offset] }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing identity trigger:
-        individual_pk
-    While validating identity fact:
-        "<byte string>", line 1
-
-    >>> driver("""{ identity: [individual.code] }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected an unexpected identity trigger:
-        individual_pk
-    While validating identity fact:
-        "<byte string>", line 1
 
 Changing or removing the generator respectively updates or removes the
 trigger::

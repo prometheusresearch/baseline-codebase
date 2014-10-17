@@ -79,7 +79,9 @@ class RawFact(Fact):
         action_sql = self._load(self.action_sql, self.action_sql_path)
         check_sql = self._load(self.check_sql, self.check_sql_path)
         # Check the postcondition and execute DDL.
+        was_locked = driver.set_lock(False)
         postcondition = driver.submit(check_sql)
+        driver.set_lock(was_locked)
         if all(not item for row in postcondition or []
                         for item in row):
             if driver.is_locked:

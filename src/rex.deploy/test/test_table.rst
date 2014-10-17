@@ -73,24 +73,6 @@ You cannot combine ``present: false`` with the ``was``, ``reliable``, ``title``
 or ``with`` fields::
 
     >>> driver.parse("""{ table: individual, present: false,
-    ...                   was: subject }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        was
-    While parsing table fact:
-        "<byte string>", line 1
-
-    >>> driver.parse("""{ table: individual, present: false,
-    ...                   reliable: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        reliable
-    While parsing table fact:
-        "<byte string>", line 1
-
-    >>> driver.parse("""{ table: individual, present: false,
     ...                   title: Test Subjects }""")
     Traceback (most recent call last):
       ...
@@ -164,8 +146,10 @@ When the driver is locked and the table does not exist, an error is raised::
     ...        is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Detected missing table:
-        sample
+    Error: Refused to execute SQL in read-only mode:
+        CREATE TABLE "sample" (
+            "id" "int4" NOT NULL
+        );
     While validating table fact:
         "<byte string>", line 1
 
@@ -192,19 +176,6 @@ column with ``UNIQUE`` constraint::
     Error: Detected missing column UNIQUE constraint:
         id
     While deploying table fact:
-        "<byte string>", line 1
-
-When the driver is locked, the driver verifies that the metadata is
-up-to-date::
-
-    >>> driver("""{ table: individual, title: Test Subjects }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing metadata:
-        ---
-        title: Test Subjects
-    While validating table fact:
         "<byte string>", line 1
 
 
@@ -271,17 +242,6 @@ You can use ``TableFact`` to remove a table::
 Deploying the same fact second time has no effect::
 
     >>> driver("""{ table: visit, present: false }""")
-
-``Driver`` will refuse to drop a table when in locked mode::
-
-    >>> driver("""{ table: individual, present: false }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected unexpected table:
-        individual
-    While validating table fact:
-        "<byte string>", line 1
 
 If a table has any columns of ``ENUM`` type, the type is
 deleted when the table is dropped.  Any generated procedure

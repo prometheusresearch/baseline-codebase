@@ -56,6 +56,10 @@ class LinkFact(Fact):
 
     @classmethod
     def build(cls, driver, spec):
+        if not spec.present:
+            for field in ['to', 'was', 'after', 'required', 'unique', 'title']:
+                if getattr(spec, field) is not None:
+                    raise Error("Got unexpected clause:", field)
         if u'.' in spec.link:
             table_label, label = spec.link.split(u'.')
             if spec.of is not None and spec.of != table_label:
@@ -80,17 +84,6 @@ class LinkFact(Fact):
         if is_present:
             if target_table_label is None:
                 target_table_label = label
-        else:
-            if target_table_label is not None:
-                raise Error("Got unexpected clause:", "to")
-            if former_labels:
-                raise Error("Got unexpected clause:", "was")
-            if is_required is not None:
-                raise Error("Got unexpected clause:", "required")
-            if is_unique is not None:
-                raise Error("Got unexpected clause:", "unique")
-            if title is not None:
-                raise Error("Got unexpected clause:", "title")
         return cls(table_label, label, target_table_label,
                     former_labels=former_labels, is_required=is_required,
                     is_unique=is_unique, title=title, is_present=is_present)
@@ -213,8 +206,6 @@ class LinkFact(Fact):
             raise Error("Detected unexpected column", self.name_for_column)
         # Verify if we need to rename the link.
         if self.name not in table:
-            if driver.is_locked:
-                raise Error("Detected missing column:", self.name)
             for former_label in self.former_labels:
                 former_name = mangle(former_label, u"id")
                 if former_name not in table:
@@ -241,9 +232,6 @@ class LinkFact(Fact):
         if column.type != target_column.type:
             raise Error("Detected column with mismatched type:", column)
         if column.is_not_null != self.is_required:
-            if driver.is_locked:
-                raise Error("Detected column with mismatched"
-                            " NOT NULL constraint:", column)
             if (not self.is_required and table.primary_key is not None and
                     column in table.primary_key):
                 identity_fact = recover(driver, table.primary_key)
@@ -257,9 +245,6 @@ class LinkFact(Fact):
         if not any(foreign_key
                    for foreign_key in table.foreign_keys
                    if list(foreign_key) == [(column, target_column)]):
-            if driver.is_locked:
-                raise Error("Detected column with missing"
-                            " FOREIGN KEY constraint:", column)
             driver.submit(sql_add_foreign_key_constraint(
                     self.table_name, self.constraint_name, [self.name],
                     self.target_table_name, [u'id'], on_delete=SET_DEFAULT))
@@ -275,9 +260,6 @@ class LinkFact(Fact):
                         for unique_key in column.unique_keys
                         if not unique_key.is_primary)
         if is_unique != self.is_unique:
-            if driver.is_locked:
-                raise Error("Detected column with mismatched"
-                            " UNIQUE constraint:", column)
             index = schema.indexes.get(self.constraint_name)
             if self.is_unique:
                 if index is not None:
@@ -314,8 +296,6 @@ class LinkFact(Fact):
         saved_title = self.title if self.title != preferred_title else None
         if meta.update(label=saved_label, title=saved_title):
             comment = meta.dump()
-            if driver.is_locked:
-                raise Error("Detected missing metadata:", comment)
             driver.submit(sql_comment_on_column(
                     self.table_name, self.name, comment))
             column.set_comment(comment)
@@ -334,8 +314,6 @@ class LinkFact(Fact):
         if self.name not in table:
             return
         column = table[self.name]
-        if driver.is_locked:
-            raise Error("Detected unexpected column:", column)
         # Check if we need to purge the identity.
         identity_fact = None
         if table.primary_key is not None and column in table.primary_key:

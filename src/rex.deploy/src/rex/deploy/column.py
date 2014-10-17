@@ -97,6 +97,11 @@ class ColumnFact(Fact):
 
     @classmethod
     def build(cls, driver, spec):
+        if not spec.present:
+            for field in ['was', 'after', 'type', 'default',
+                          'required', 'unique', 'title']:
+                if getattr(spec, field) is not None:
+                    raise Error("Got unexpected clause:", field)
         if u'.' in spec.column:
             table_label, label = spec.column.split(u'.')
             if spec.of is not None and spec.of != table_label:
@@ -161,22 +166,8 @@ class ColumnFact(Fact):
                     (isinstance(type, list) and
                         isinstance(default, unicode) and default in type)):
                 raise Error("Got ill-typed default value:", default)
-        else:
-            if former_labels:
-                raise Error("Got unexpected clause:", "was")
-            if type is not None:
-                raise Error("Got unexpected clause:", "type")
-            if default is not None:
-                raise Error("Got unexpected clause:", "default")
-            if title is not None:
-                raise Error("Got unexpected clause:", "title")
         is_required = spec.required
         is_unique = spec.unique
-        if not is_present:
-            if is_required is not None:
-                raise Error("Got unexpected clause:", "required")
-            if is_unique is not None:
-                raise Error("Got unexpected clause:", "unique")
         return cls(table_label, label, former_labels=former_labels,
                    title=title, type=type, default=default,
                    is_required=is_required, is_unique=is_unique,
@@ -312,8 +303,6 @@ class ColumnFact(Fact):
             raise Error("Detected unexpected column:", self.name_for_link)
         # Verify if we need to rename the column.
         if self.name not in table:
-            if driver.is_locked:
-                raise Error("Detected missing column:", self.name)
             for former_label in self.former_labels:
                 former_name = mangle(former_label)
                 if former_name not in table:
@@ -334,8 +323,6 @@ class ColumnFact(Fact):
             # Make sure the ENUM type exists.
             # Create the type if it does not exist and update the catalog.
             if self.type_name not in schema.types:
-                if driver.is_locked:
-                    raise Error("Detected missing ENUM type:", self.type_name)
                 driver.submit(sql_create_enum_type(
                         self.type_name, self.enum_labels))
                 schema.add_enum_type(self.type_name, self.enum_labels)
@@ -364,9 +351,6 @@ class ColumnFact(Fact):
         if column.type != type:
             raise Error("Detected column with mismatched type:", column)
         if column.is_not_null != self.is_required:
-            if driver.is_locked:
-                raise Error("Detected column with mismatched"
-                            " NOT NULL constraint:", column)
             if (not self.is_required and table.primary_key is not None and
                     column in table.primary_key):
                 identity_fact = recover(driver, table.primary_key)
@@ -379,9 +363,6 @@ class ColumnFact(Fact):
                         for unique_key in column.unique_keys
                         if not unique_key.is_primary)
         if is_unique != self.is_unique:
-            if driver.is_locked:
-                raise Error("Detected column with mismatched"
-                            " UNIQUE constraint:", column)
             if self.is_unique:
                 driver.submit(sql_add_unique_constraint(
                         self.table_name, self.unique_constraint_name,
@@ -407,9 +388,6 @@ class ColumnFact(Fact):
             except ValueError:
                 pass
         if saved_default != self.default and column.default != default:
-            if driver.is_locked:
-                raise Error("Detected column with unexpected default value:",
-                            column)
             driver.submit(sql_set_column_default(
                     self.table_name, self.name, default))
             column.set_default(default)
@@ -425,8 +403,6 @@ class ColumnFact(Fact):
         if meta.update(label=saved_label, title=saved_title,
                        default=saved_default):
             comment = meta.dump()
-            if driver.is_locked:
-                raise Error("Detected missing metadata:", comment)
             driver.submit(sql_comment_on_column(
                     self.table_name, self.name, comment))
             column.set_comment(comment)
@@ -445,8 +421,6 @@ class ColumnFact(Fact):
         if self.name not in table:
             return
         column = table[self.name]
-        if driver.is_locked:
-            raise Error("Detected unexpected column:", column)
         # Check if we need to purge the identity.
         identity_fact = None
         if table.primary_key is not None and column in table.primary_key:

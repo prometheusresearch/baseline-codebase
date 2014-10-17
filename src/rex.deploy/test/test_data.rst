@@ -180,7 +180,11 @@ If the driver is locked, it cannot modify existing or add new records::
     ... """, is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Detected modified row
+    Error: Refused to execute SQL in read-only mode:
+        UPDATE "family"
+            SET "notes" = 'Crawfords'
+            WHERE "id" = 3
+            RETURNING "id", "code", "notes";
     While processing row #1:
         {'1003', 'Crawfords'}
     While validating data fact:
@@ -194,7 +198,10 @@ If the driver is locked, it cannot modify existing or add new records::
     ... """, is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Detected missing row
+    Error: Refused to execute SQL in read-only mode:
+        INSERT INTO "family" ("code", "notes")
+            VALUES ('1004', 'Dixons')
+            RETURNING "id", "code", "notes";
     While processing row #1:
         {'1004', 'Dixons'}
     While validating data fact:

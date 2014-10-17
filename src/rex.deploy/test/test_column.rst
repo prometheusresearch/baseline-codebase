@@ -115,58 +115,18 @@ Use field ``title`` to specify the column title::
     >>> driver.parse("""{ column: individual.code, type: text, title: Individual ID }""")
     ColumnFact(u'individual', u'code', u'text', title=u'Individual ID')
 
-Turn of flag ``present`` to indicate that the column should not exist::
+Turn off flag ``present`` to indicate that the column should not exist::
 
     >>> driver.parse("""{ column: individual.code, present: false }""")
     ColumnFact(u'individual', u'code', is_present=False)
 
 Field ``present: false`` cannot coexist with other column parameters::
 
-    >>> driver.parse("""{ column: individual.code, was: ident, present: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        was
-    While parsing column fact:
-        "<byte string>", line 1
-
     >>> driver.parse("""{ column: individual.code, type: text, present: false }""")
     Traceback (most recent call last):
       ...
     Error: Got unexpected clause:
         type
-    While parsing column fact:
-        "<byte string>", line 1
-
-    >>> driver.parse("""{ column: individual.code, required: true, present: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        required
-    While parsing column fact:
-        "<byte string>", line 1
-
-    >>> driver.parse("""{ column: individual.code, unique: true, present: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        unique
-    While parsing column fact:
-        "<byte string>", line 1
-
-    >>> driver.parse("""{ column: individual.code, default: '-', present: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        default
-    While parsing column fact:
-        "<byte string>", line 1
-
-    >>> driver.parse("""{ column: individual.code, title: Individual ID, present: false }""")
-    Traceback (most recent call last):
-      ...
-    Error: Got unexpected clause:
-        title
     While parsing column fact:
         "<byte string>", line 1
 
@@ -199,8 +159,8 @@ The title of the column is stored in the column comment::
     title: Individual ID
     ';
 
-If the driver cannot create the column because the column table does not exist
-or the driver is locked, an error is raised::
+If the driver cannot create the column because the column table does not exist,
+an error is raised::
 
     >>> driver("""{ column: identity.first_name, type: text }""")
     Traceback (most recent call last):
@@ -208,15 +168,6 @@ or the driver is locked, an error is raised::
     Error: Detected missing table:
         identity
     While deploying column fact:
-        "<byte string>", line 1
-
-    >>> driver("""{ column: individual.birth, type: date }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing column:
-        birth
-    While validating column fact:
         "<byte string>", line 1
 
 When the column type is a list of ``ENUM`` labels, a corresponding ``ENUM``
@@ -250,17 +201,6 @@ You can also set the default value of an existing column::
     default: not-known
     ';
 
-However you cannot change the default value when the driver is locked::
-
-    >>> driver("""{ column: individual.sex, type: [not-known, male, female] }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected column with unexpected default value:
-        sex
-    While validating column fact:
-        "<byte string>", line 1
-
 You can alter the ``NOT NULL`` and ``UNIQUE`` constraints on the column, but
 only if the driver is not locked.  Notably, a column without ``NOT NULL``
 constraint cannot be a part of the ``PRIMARY KEY`` of the table::
@@ -275,29 +215,11 @@ constraint cannot be a part of the ``PRIMARY KEY`` of the table::
     >>> driver("""{ column: individual.code, type: text, title: Individual ID, required: true }""")
     ALTER TABLE "individual" ALTER COLUMN "code" SET NOT NULL;
 
-    >>> driver("""{ column: individual.code, type: text, required: false }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected column with mismatched NOT NULL constraint:
-        code
-    While validating column fact:
-        "<byte string>", line 1
-
     >>> driver("""{ column: individual.email, type: text, unique: false }""")
     ALTER TABLE "individual" DROP CONSTRAINT "individual_email_uk";
 
     >>> driver("""{ column: individual.email, type: text, unique: true }""")
     ALTER TABLE "individual" ADD CONSTRAINT "individual_email_uk" UNIQUE ("email");
-
-    >>> driver("""{ column: individual.email, type: text }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected column with mismatched UNIQUE constraint:
-        email
-    While validating column fact:
-        "<byte string>", line 1
 
 In the future, if the column already exists, but does not match the column fact,
 the column is altered to match the fact.  Currently, it's not yet functional::
@@ -316,16 +238,6 @@ the column is altered to match the fact.  Currently, it's not yet functional::
     Error: Detected column with mismatched type:
         sex
     While deploying column fact:
-        "<byte string>", line 1
-
-When the driver is locked, it has to verify that the column metadata is
-up-to-date::
-
-    >>> driver("""{ column: individual.code, type: text }""", is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected missing metadata:
-    While validating column fact:
         "<byte string>", line 1
 
 You cannot create a column if there is already a link with the same name::
@@ -400,17 +312,6 @@ Deploing the same fact again has no effect::
 Deleting a column from a table which does not exist is NOOP::
 
     >>> driver("""{ column: measure.date_of_evaluation, present: false }""")
-
-A locked driver cannot delete a column::
-
-    >>> driver("""{ column: individual.gender, present: false }""",
-    ...        is_locked=True)
-    Traceback (most recent call last):
-      ...
-    Error: Detected unexpected column:
-        gender
-    While validating column fact:
-        "<byte string>", line 1
 
 When you delete a column of ``ENUM`` type, the type is dropped too::
 

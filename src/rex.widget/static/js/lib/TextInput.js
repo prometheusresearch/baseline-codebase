@@ -69,7 +69,9 @@ var TextInput = React.createClass({
   },
 
   onChangeAmortized(e) {
-    var value = this.state.value;
+    var value = this._pendingState ?
+      this._pendingState.value :
+      this.state.value;
     if (this.props.value !== value) {
       this.props.onValue(value, e.target.id);
       this.markAsWait(value);

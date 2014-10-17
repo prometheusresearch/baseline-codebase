@@ -69,6 +69,7 @@ class TableFact(Fact):
         if not is_present and spec.with_:
             raise Error("Got unexpected clause:", "with")
         related = None
+        after = None
         if spec.with_:
             related = []
             for related_spec in spec.with_:
@@ -80,8 +81,13 @@ class TableFact(Fact):
                 if related_spec.of != label:
                     raise Error("Got unrelated fact:",
                                 locate(related_spec))
+                if 'after' in related_spec._fields:
+                    if after is not None and related_spec.after is None:
+                        related_spec = related_spec.__clone__(after=after)
                 related_fact = driver.build(related_spec)
                 related.append(related_fact)
+                if hasattr(related_fact, 'label'):
+                    after = related_fact.label
         return cls(label, former_labels=former_labels,
                    is_reliable=is_reliable, title=title,
                    is_present=is_present, related=related)

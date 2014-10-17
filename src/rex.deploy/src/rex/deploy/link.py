@@ -47,6 +47,7 @@ class LinkFact(Fact):
             ('of', LabelVal, None),
             ('to', LabelVal, None),
             ('was', OneOrSeqVal(LabelVal), None),
+            ('after', OneOrSeqVal(LabelVal), None),
             ('required', BoolVal, None),
             ('unique', BoolVal, None),
             ('title', TitleVal, None),

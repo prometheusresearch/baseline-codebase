@@ -85,6 +85,7 @@ class ColumnFact(Fact):
             ('column', QLabelVal),
             ('of', LabelVal, None),
             ('was', OneOrSeqVal(LabelVal), None),
+            ('after', OneOrSeqVal(LabelVal), None),
             ('type', UnionVal((OnSeq, SeqVal(UStrVal(r'[0-9A-Za-z_-]+'))),
                               UChoiceVal(*sorted(TYPE_MAP))), None),
             ('default', AnyVal, None),

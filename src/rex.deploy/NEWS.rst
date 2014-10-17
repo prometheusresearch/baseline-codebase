@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.6.0 (2014-XX-XX)
+1.6.0 (2014-10-17)
 ==================
 
 * Added support for generated identity columns.

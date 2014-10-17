@@ -1,0 +1,13 @@
+{
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    "quotes": false,
+    "no-mixed-requires": [1, true],
+    "no-underscore-dangle": false,
+    "max-len": [1, 80, 4]
+  }
+}
+

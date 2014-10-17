@@ -1,0 +1,23 @@
+mount:
+  rex.formbuilder: /
+  rex.formbuilder_demo: /
+
+access:
+  rex.formbuilder: demo_test_access
+  rex.formbuilder_demo: demo_test_access
+
+instrument_implementation:
+  user: rex.formbuilder_demo.User
+  subject: rex.formbuilder_demo.Subject
+  instrument: rex.formbuilder_demo.Instrument
+  instrumentversion: rex.formbuilder_demo.InstrumentVersion
+  assessment: rex.formbuilder_demo.Assessment
+  draftinstrumentversion: rex.formbuilder_demo.DraftInstrumentVersion
+
+forms_implementation:
+  channel: rex.formbuilder_demo.Channel
+  form: rex.formbuilder_demo.Form
+  #task: rex.formbuilder_demo.Task
+  #entry: rex.formbuilder_demo.Entry
+  draftform: rex.formbuilder_demo.DraftForm
+

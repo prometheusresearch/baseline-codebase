@@ -1,4 +1,0 @@
-
-modules = [
-    'core.yaml',
-]

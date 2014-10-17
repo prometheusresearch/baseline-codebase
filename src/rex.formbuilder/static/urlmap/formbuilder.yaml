@@ -1,15 +1,21 @@
 context:
-    brand_title: Formbuilder
-    role: rex.study_admin
+  brand_title: Formbuilder
+  role: rex.study_admin
 
 paths:
 
-    /:
-      template: rex.formbuilder:/template/formbuilder.html
-      context:
-        title: Formbuilder Instrument List
+  /:
+    template: /templates/index.html
+    context:
+      title: List of Instruments
 
-    /edit/$id/:
-      template: rex.formbuilder:/template/formbuilder.html
-      context:
-        manual_edit_conditions: false
+  /edit/$type/$instrument/:
+    template: /templates/edit.html
+    context:
+      title: Edit Instrument
+      formbuilder_props:
+        channels:
+        - id: entry
+          title: RexEntry
+        - id: survey
+          title: RexSurvey

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013, Prometheus Research, LLC
+# Copyright (c) 2014, Prometheus Research, LLC
 #
 
 
@@ -8,32 +8,34 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='2.0.9',
-    description='A GUI for constructing RexAcquire Forms',
+    version='3.0.0',
+    description='The RexFormbuilder application, a tool for creating and'
+    'managing the Instruments and Forms in the RexDB platform',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
     maintainer_email='contact@prometheusresearch.com',
     license='AGPLv3',
-    url='https://bitbucket.org/prometheus/rex.formbuilder',
-    packages=find_packages('src'),
+    url='https://bitbucket.org/rexdb/rex.formbuilder-provisional',
     package_dir={'': 'src'},
-    namespace_packages=['rex'],
+    packages=find_packages('src'),
     include_package_data=True,
+    namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup>=1,<2',
+        'rex.setup>=1.1,<2',
     ],
     install_requires=[
-        'rex.core>=1.6.0,<2',
-        'rex.web>=2.1.0,<3',
-        'rex.vendor>=1.5.0,<3',
-        'HTSQL>=2.3.3,<3',
-        'rex.forms>=0.11.1,<0.19',
-        'rex.instrument>=0.1.7,<0.9',
-        'rex.rdoma>=0.13.2,<2',
-        'simplejson',
-        'rex.application>=0.4.1,<2'
+        'rex.core>=1.4,<2',
+        'rex.web>=2,<4',
+        'rex.forms>=0.22.0,<2',
+        'rex.restful>=0.2.1,<2',
+        'rex.application>=1,<2',
     ],
+    rex_bundle={
+        './www/bundle': [
+            'webpack:rex-formbuilder',
+        ],
+    },
     rex_init='rex.formbuilder',
-    rex_static='static',
+    rex_static='static'
 )
 

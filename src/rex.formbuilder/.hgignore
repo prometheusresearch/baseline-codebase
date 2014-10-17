@@ -1,5 +1,8 @@
 syntax: glob
 *.pyc
+*.orig
 *.egg-info
 build
 dist
+static/js/node_modules
+static/www/bundle

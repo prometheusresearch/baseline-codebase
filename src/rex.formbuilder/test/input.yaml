@@ -1,0 +1,26 @@
+#
+# Copyright (c) 2014, Prometheus Research, LLC
+#
+
+title: REX.FORMBUILDER
+tests:
+  - coverage: setup.cfg
+
+  - sh: pip install -q -e ./demo/rex.formbuilder_demo
+
+  - sh: rex rdoma-dropdb rex.formbuilder_demo --set=db=pgsql:formbuilder_demo
+    ignore: true
+    unless: ALREADY_HAVE_DB
+  - sh: rex rdoma-deploy rex.formbuilder_demo --set=db=pgsql:formbuilder_demo
+    ignore: true
+    unless: ALREADY_HAVE_DB
+
+  - doctest: README.rst
+  #- doctest: test/test_*.rst
+  - doctest: test/api/test_*.rst
+
+  - sh: pip uninstall -q -y rex.formbuilder_demo
+
+  - coverage-check: 90.0
+  - coverage-report: ./build/coverage
+

@@ -1,0 +1,23 @@
+{
+  "name": "rex-formbuilder",
+  "version": "3.0.0",
+  "private": true,
+  "description": "JavaScript functionality for the rex.formbuilder application",
+  "license": "AGPLv3",
+  "main": "index.js",
+  "styleEntry": "style/index.less",
+  "moduleType": [
+    "node"
+  ],
+  "dependencies": {
+    "bootstrap": "3.x",
+    "deepmerge": "*",
+    "immutable": "2.3.2"
+  },
+  "license": "AGPLv3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ]
+}

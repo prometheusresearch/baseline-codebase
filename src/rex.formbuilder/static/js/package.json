@@ -1,0 +1,16 @@
+{
+  "name": "rex.formbuilder",
+  "version": "3.0.0",
+  "description": "JavaScript functionality for the rex.formbuilder application",
+  "author": "Prometheus Research, LLC",
+  "license": "AGPLv3",
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/rexdb/rex.formbuilder-provisional"
+  },
+  "main": "lib/index.js",
+  "devDependencies": {
+    "eslint-jsx": "git+https://github.com/andreypopp/eslint#jsx",
+    "mocha-loader": "^0.6.4"
+  }
+}

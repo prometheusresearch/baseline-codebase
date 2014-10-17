@@ -5,6 +5,12 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.25.1 (10/17/2014)
+===================
+
+- Fixed issue that caused crashes when tags were assigned to Questions.
+
+
 0.25.0 (10/13/2014)
 ===================
 

@@ -117,8 +117,8 @@ function createExecutionContextFromForm(form) {
         targetCatalog[tags[t]] = 'TAG';
 
         if (element.type === 'question') {
-          tagToQuestions[tag[t]] = tagToQuestions[tag[t]] || [];
-          tagToQuestions[tag[t]].push(element.options);
+          tagToQuestions[tags[t]] = tagToQuestions[tags[t]] || [];
+          tagToQuestions[tags[t]].push(element.options);
         }
       }
     }

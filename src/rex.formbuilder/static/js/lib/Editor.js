@@ -125,16 +125,6 @@ var Editor = React.createClass({
           serverConfig: null,
         };
         var {uid, type} = this.getUIDType();
-        /*
-        if (this.props.uid && this.props.type) {
-           uid = this.props.uid;
-           type = this.props.type;
-        }
-        else if (this.state.uid && this.state.type) {
-           uid = this.state.uid;
-           type = this.state.type;
-        }
-        */
         if (uid && type) {
           var path = type === 'published' ?
                         'instrumentversion': 'draftinstrumentversion';
@@ -534,6 +524,15 @@ var Editor = React.createClass({
 
   },
 
+  countEnabledChannels() {
+    var count = 0;
+    this.state.channels.forEach((channel) => {
+      if (channel.enabled)
+        ++count;
+    });
+    return count;
+  },
+
   onSave() {
     var serverConfig = this.state.serverConfig || {};
     var serverInstrument = serverConfig.instrument || {};
@@ -547,39 +546,42 @@ var Editor = React.createClass({
       return;
     }
 
-    var stat = this.getValueStat(formValue);
-    for (var name in stat.records) {
-      if (stat.records.hasOwnProperty(name)) {
-        var recordStat = stat.records[name];
-        if (recordStat.used == 0) {
-          this.showMessage(`Fix it: instrument field '${name}'` +
-                           ' is never used', 'error');
-          return;
-        }
-        var channelStat = recordStat.channels;
-        for (var chanName in channelStat) {
-          if (channelStat.hasOwnProperty(chanName)) {
-            var used = channelStat[chanName];
-            if (used == 0) {
-              this.showMessage(`Fix it: instrument field '${name}'` +
-                               ` is never used in the '${chanName}' channel`, 'error');
-              return;
-            }
-            else if (used > 1) {
-              this.showMessage(`Fix it: instrument field '${name}' can not be` +
-                               ` used more than once in the '${chanName}' channel`, 'error');
-              return;
+    var totalEnabled = this.countEnabledChannels();
+    if (totalEnabled) {
+      var stat = this.getValueStat(formValue);
+      for (var name in stat.records) {
+        if (stat.records.hasOwnProperty(name)) {
+          var recordStat = stat.records[name];
+          if (recordStat.used == 0) {
+            this.showMessage(`Fix it: instrument field '${name}'` +
+                             ' is never used', 'error');
+            return;
+          }
+          var channelStat = recordStat.channels;
+          for (var chanName in channelStat) {
+            if (channelStat.hasOwnProperty(chanName)) {
+              var used = channelStat[chanName];
+              if (used == 0) {
+                this.showMessage(`Fix it: instrument field '${name}'` +
+                                 ` is never used in the '${chanName}' channel`, 'error');
+                return;
+              }
+              else if (used > 1) {
+                this.showMessage(`Fix it: instrument field '${name}' can not be` +
+                                 ` used more than once in the '${chanName}' channel`, 'error');
+                return;
+              }
             }
           }
-        }
-        if (recordStat.defined == 0) {
-          this.showMessage(`Fix it: instrument field '${name}' is used but never defined`,
-                           'error');
-          return;
+          if (recordStat.defined == 0) {
+            this.showMessage(`Fix it: instrument field '${name}' is used but never defined`,
+                             'error');
+            return;
+          }
         }
       }
+      console.log('stat', stat);
     }
-    console.log('stat', stat);
 
     var definition = formValue.instrument;
     var body, path, method;

@@ -59,6 +59,7 @@
 .rfb-CustomRepFieldset__noItems,
 .rfb-EnumerationsConstraint__list--empty {
   font-style: italic;
+  .text-danger();
 }
 
 .rfb-CustomRepFieldset__footer {
@@ -1006,6 +1007,12 @@
 
   .rfb-CustomRepFieldset__add .btn {
     .btn-xs();
+  }
+
+  > .rfb-CustomRepFieldset__items {
+    > .rfb-CustomRepFieldset__noItems {
+      .text-danger();
+    }
   }
 
   .rfb-CustomRepFieldset__head {

@@ -19,6 +19,8 @@ var CustomRepFieldset                 = require('./CustomRepFieldset');
 var EnumerationConstraintFieldset     = require('./EnumerationConstraintFieldset');
 var SortableRepeatingFieldset         = require('./SortableRepeatingFieldset');
 var BoundsConstraint                  = require('./BoundsConstraint');
+var countKeys                         = require('./countKeys');
+var {OrderedMap}                      = require('immutable');
 
 var MatrixColumnsFieldset = React.createClass({
 
@@ -199,17 +201,23 @@ function MatrixColumnSchema(props) {
   });
 }
 
+function validateList(v) {
+  if (!v || v.length == 0)
+    return new Error('At least one item should be specified');
+  return true;
+}
+
 function MatrixColumnsSchema() {
   var component = (
     <CustomRepFieldset
       className="rfb-MatrixColumns"
-      noItemsTitle="No Columns"
+      noItemsTitle="At least one column should be added"
       addTitle="Add Column"
       floatAddButton={true}
       elementsTitle="Columns:"
       />
   );
-  return List({component},
+  return List({component, validate: validateList},
     MatrixColumnSchema({includeType: true}));
 }
 
@@ -217,13 +225,13 @@ function MatrixRowsSchema() {
   var component = (
     <CustomRepFieldset
       className="rfb-MatrixRows"
-      noItemsTitle="No Rows"
+      noItemsTitle="At least one row should be added"
       addTitle="Add Row"
       floatAddButton={true}
       elementsTitle="Rows:"
       />
   );
-  return List({component},
+  return List({component, validate: validateList},
     MatrixColumnSchema());
 }
 
@@ -282,13 +290,36 @@ function validateEnumerationTypeValue(v) {
   return true;
 }
 
+function validateEnumerationList(v) {
+  if (!v)
+    return new Error('Enumeration list is not set');
+  v = v.toJS();
+  if (countKeys(v) == 0)
+    return new Error('Enumeration list is empty');
+  return true;
+}
+
+function validateEnumerationTypeProps(v) {
+  if (v instanceof OrderedMap)
+    v = v.toJS();
+  if (!v)
+    return new Error('No type properties');
+  if (!v.enumerations || countKeys(v.enumerations) == 0)
+    return new Error('Empty enumeration list');
+  return true;
+}
+
 function EnumerationTypeSchema(props) {
-  props = merge({component: InstrumentTypeFieldset}, props);
+  props = merge({
+    component: InstrumentTypeFieldset,
+    validate: validateEnumerationTypeProps,
+  }, props);
   return Mapping(props, {
     base: BaseTypeSchema(props),
     enumerations: Scalar({
       type: FormHelpers.AsIsValueType,
-      validate: validateEnumerationTypeValue,
+      validate: validateEnumerationList,
+      // validate: validateEnumerationTypeValue,
       label: "Enumerations:",
       component: <EnumerationConstraintFieldset />
     })
@@ -296,11 +327,15 @@ function EnumerationTypeSchema(props) {
 }
 
 function EnumerationSetTypeSchema(props) {
-  props = merge({component: InstrumentTypeFieldset}, props);
+  props = merge({
+    component: InstrumentTypeFieldset,
+    validate: validateEnumerationTypeProps,
+  }, props);
   return Mapping(props, {
     base: BaseTypeSchema(props),
     length: RangeSchema({label: 'Length'}),
     enumerations: Scalar({
+      validate: validateEnumerationList,
       type: FormHelpers.AsIsValueType,
       label: "Enumerations:",
       component: <EnumerationConstraintFieldset />

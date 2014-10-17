@@ -155,6 +155,8 @@ class Driver(object):
         #: Indicates whether the driver is locked.  When the driver
         #: is locked, mutating operations are not allowed.
         self.is_locked = False
+        # Cursor output.
+        self._rows = None
 
     def chdir(self, directory):
         """Sets the current working directory."""
@@ -275,6 +277,21 @@ class Driver(object):
             raise error
         finally:
             cursor.close()
+
+    def execute(self, sql):
+        """
+        Executes a SQL query.
+        """
+        self._rows = self.submit(sql)
+
+    def fetchall(self):
+        """
+        Returns the output of the last SQL query.
+        """
+        if isinstance(self._rows, list):
+            rows = self._rows
+            self._rows = []
+            return rows
 
     def __call__(self, facts, is_locked=None):
         """

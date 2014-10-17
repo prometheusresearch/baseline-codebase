@@ -257,7 +257,7 @@ class IdentityFact(Fact):
             driver.submit(sql_rename_constraint(
                     self.table_name, former_constraint_name,
                     self.constraint_name))
-            constraint.rename(self.constraint_name)
+            constraint.set_name(self.constraint_name)
         # Rebuild the trigger.
         source = _generate(table, self.generators)
         if source is None:

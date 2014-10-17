@@ -176,7 +176,7 @@ class TableFact(Fact):
                 # Rename the table itself.
                 driver.submit(sql_rename_table(
                         former_name, self.name))
-                table.rename(self.name)
+                table.set_name(self.name)
                 # Rename auxiliary objects.
                 self.rebase(driver, former_label)
                 for column in table.columns:
@@ -293,7 +293,7 @@ class TableFact(Fact):
                 self.sequence_name != former_sequence_name:
             driver.submit(sql_rename_sequence(
                     former_sequence_name, self.sequence_name))
-            sequence.rename(self.sequence_name)
+            sequence.set_name(self.sequence_name)
             if id_column.default == sql_nextval(former_sequence_name):
                 id_column.set_default(sql_nextval(self.sequence_name))
         # Rename the `UNIQUE` constraint.
@@ -304,10 +304,10 @@ class TableFact(Fact):
             driver.submit(sql_rename_constraint(
                     self.name, former_constraint_name,
                     self.constraint_name))
-            constraint.rename(self.constraint_name)
+            constraint.set_name(self.constraint_name)
         index = schema.indexes.get(former_constraint_name)
         if index is not None:
-            index.rename(self.constraint_name)
+            index.set_name(self.constraint_name)
 
     def purge(self, driver):
         raise NotImplementedError()

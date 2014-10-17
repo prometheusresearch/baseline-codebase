@@ -11,16 +11,50 @@ import weakref
 class Image(object):
     """Mirrors a database object."""
 
-    __slots__ = ('owner',)
+    __slots__ = ('owner', 'linkages', 'containers', '__weakref__')
 
     def __init__(self, owner):
-        self.owner = owner
+        self.owner = weakref.ref(owner)
+        self.linkages = []
+        self.containers = []
+
+    def __nonzero__(self):
+        # Is the image alive?
+        return hasattr(self, 'owner')
 
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
 
+    def link(self, other):
+        """Links a dependent object."""
+        self.linkages.append(weakref.ref(other))
+
+    def find(self, types):
+        """Finds dependent objects of the given type or types."""
+        result = []
+        for linkage in self.linkages:
+            image = linkage()
+            if image and isinstance(image, types):
+                result.append(image)
+        return result
+
+    def place(self, collection):
+        """Adds the image to a collection."""
+        collection.add(self)
+        self.containers.append(weakref.ref(collection))
+
     def remove(self):
         """Removes the object from the catalog."""
+        # Remove dependent objects.
+        for linkage in self.linkages:
+            image = linkage()
+            if image:
+                image.remove()
+        # Remove the object from all collections.
+        for container in self.containers:
+            collection = container()
+            if collection:
+                collection.remove(self)
         # Destroy all fields to release references and ensure the object
         # is never used again.
         for cls in self.__class__.__mro__:
@@ -46,6 +80,16 @@ class IndexedImage(Image):
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self)
 
+    def set_handle(self, handle):
+        """Sets the image handle."""
+        old_handle = self.handle
+        self.handle = handle
+        for container in self.containers:
+            collection = container()
+            if collection:
+                collection.replace(old_handle, self)
+        return self
+
 
 class NamedImage(IndexedImage):
     """Database object with a name."""
@@ -64,16 +108,30 @@ class NamedImage(IndexedImage):
     def __str__(self):
         return self.name.encode('utf-8')
 
-    def rename(self, name):
+    def set_name(self, name):
         """Renames the object."""
-        self.handle = self.name = name
-        return self
+        self.name = name
+        return self.set_handle(name)
+
+
+class ImageList(list):
+    """List of database objects."""
+
+    __slots__ = ('__weakref__',)
+
+    def add(self, image):
+        """Adds an object to the list."""
+        self.append(image)
+
+    def replace(self, handle, image):
+        """Replaces an object in the list."""
+        pass
 
 
 class ImageMap(object):
     """Ordered collection of indexed database objects."""
 
-    __slots__ = ('_images')
+    __slots__ = ('_images', '__weakref__')
 
     def __init__(self):
         self._images = collections.OrderedDict()
@@ -112,6 +170,10 @@ class ImageMap(object):
     def keys(self):
         """Gets the list of handles."""
         return self._images.keys()
+
+    def values(self):
+        """Gets the list of images."""
+        return self._images.values()
 
     def add(self, image):
         """Adds an object to the collection."""
@@ -153,10 +215,10 @@ class ImageMap(object):
 class CatalogImage(Image):
     """Database catalog."""
 
-    __slots__ = ('schemas', '__weakref__')
+    __slots__ = ('schemas',)
 
     def __init__(self):
-        super(CatalogImage, self).__init__(weakref.ref(self))
+        super(CatalogImage, self).__init__(self)
         #: Collection of database schemas.
         self.schemas = ImageMap()
 
@@ -176,11 +238,6 @@ class CatalogImage(Image):
         """Number of schemas."""
         return len(self.schemas)
 
-    def remove(self):
-        while self.schemas:
-            self.schemas.last().remove()
-        super(CatalogImage, self).remove()
-
     def add_schema(self, name):
         """Adds a new schema."""
         return SchemaImage(self, name)
@@ -190,10 +247,12 @@ class SchemaImage(NamedImage):
     """Database schema."""
 
     __slots__ = ('tables', 'indexes', 'sequences',
-                 'types', 'procedures', 'comment', '__weakref__')
+                 'types', 'procedures', 'comment')
 
     def __init__(self, catalog, name):
-        super(SchemaImage, self).__init__(weakref.ref(catalog), name)
+        super(SchemaImage, self).__init__(catalog, name)
+        self.place(catalog.schemas)
+        catalog.link(self)
         #: Collection of tables in the schema.
         self.tables = ImageMap()
         #: Collection of table indexes (share table namespace).
@@ -206,7 +265,6 @@ class SchemaImage(NamedImage):
         self.procedures = ImageMap()
         #: Schema comment.
         self.comment = None
-        catalog.schemas.add(self)
 
     @property
     def catalog(self):
@@ -228,26 +286,6 @@ class SchemaImage(NamedImage):
     def __len__(self):
         """Number of tables."""
         return len(self.tables)
-
-    def rename(self, name):
-        old_name = self.name
-        self.handle = self.name = name
-        self.catalog.schemas.replace(old_name, self)
-        return self
-
-    def remove(self):
-        while self.tables:
-            self.tables.last().remove()
-        while self.indexes:
-            self.indexes.last().remove()
-        while self.sequences:
-            self.sequences.last().remove()
-        while self.procedures:
-            self.procedures.last().remove()
-        while self.types:
-            self.types.last().remove()
-        self.catalog.schemas.remove(self)
-        super(SchemaImage, self).remove()
 
     def add_table(self, name):
         """Adds a table."""
@@ -289,29 +327,24 @@ class IndexImage(NamedImage):
     __slots__ = ('table', 'columns', 'comment')
 
     def __init__(self, schema, name, table, columns):
-        super(IndexImage, self).__init__(weakref.ref(schema), name)
+        super(IndexImage, self).__init__(schema, name)
+        self.place(schema.indexes)
+        schema.link(self)
+        table.link(self)
+        for column in columns:
+            if column is not None:
+                column.link(self)
         #: Indexed table.
         self.table = table
         #: Indexed columns.
         self.columns = columns
         #: Index comment.
         self.comment = None
-        schema.indexes.add(self)
 
     @property
     def schema(self):
         """Index owner."""
         return self.owner()
-
-    def rename(self, name):
-        old_name = self.name
-        self.handle = self.name = name
-        self.schema.indexes.replace(old_name, self)
-        return self
-
-    def remove(self):
-        self.schema.indexes.remove(self)
-        super(IndexImage, self).remove()
 
     def set_comment(self, text):
         """Sets the comment."""
@@ -325,24 +358,16 @@ class SequenceImage(NamedImage):
     __slots__ = ('comment',)
 
     def __init__(self, schema, name):
-        super(SequenceImage, self).__init__(weakref.ref(schema), name)
+        super(SequenceImage, self).__init__(schema, name)
+        self.place(schema.sequences)
+        schema.link(self)
+        #: Sequence comment.
         self.comment = None
-        schema.sequences.add(self)
 
     @property
     def schema(self):
         """Sequence owner."""
         return self.owner()
-
-    def rename(self, name):
-        old_name = self.name
-        self.handle = self.name = name
-        self.schema.sequences.replace(old_name, self)
-        return self
-
-    def remove(self):
-        self.schema.sequences.remove(self)
-        super(SequenceImage, self).remove()
 
     def set_comment(self, text):
         """Sets the comment."""
@@ -358,10 +383,11 @@ class TypeImage(NamedImage):
     is_enum = False
 
     def __init__(self, schema, name):
-        super(TypeImage, self).__init__(weakref.ref(schema), name)
+        super(TypeImage, self).__init__(schema, name)
+        self.place(schema.types)
+        schema.link(self)
         #: Type comment.
         self.comment = None
-        schema.types.add(self)
 
     @property
     def schema(self):
@@ -371,45 +397,17 @@ class TypeImage(NamedImage):
     @property
     def columns(self):
         """List of existing columns of this type."""
-        # FIXME? expensive.
-        return [column for schema in self.schema.catalog
-                       for table in schema
-                       for column in table
-                       if column.type is self]
+        return self.find(ColumnImage)
 
     @property
     def domains(self):
         """List of domains that wrap this type."""
-        # FIXME? expensive.
-        return [type for schema in self.schema.catalog
-                     for type in schema.types
-                     if isinstance(type, DomainTypeImage) and
-                        type.base_type is self]
+        return self.find(DomainTypeImage)
 
     @property
     def procedures(self):
         """List of procedures that use this type."""
-        # FIXME? expensive.
-        return [procedure for schema in self.schema.catalog
-                          for procedure in schema.procedures
-                          if self in procedure.types or
-                             self is procedure.return_type]
-
-    def rename(self, name):
-        old_name = self.name
-        self.handle = self.name = name
-        self.schema.types.replace(old_name, self)
-        return self
-
-    def remove(self):
-        for column in self.columns:
-            column.remove()
-        for domain in self.domains:
-            domain.remove()
-        for procedure in self.procedures:
-            procedure.remove()
-        self.schema.types.remove(self)
-        super(TypeImage, self).remove()
+        return self.find(ProcedureImage)
 
     def set_comment(self, text):
         """Sets the comment."""
@@ -425,6 +423,7 @@ class DomainTypeImage(TypeImage):
 
     def __init__(self, schema, name, base_type):
         super(DomainTypeImage, self).__init__(schema, name)
+        base_type.link(self)
         #: Wrapped type.
         self.base_type = base_type
 
@@ -465,7 +464,12 @@ class ProcedureImage(IndexedImage):
 
     def __init__(self, schema, name, types, return_type, source):
         signature = ProcedureSignature(name, types)
-        super(ProcedureImage, self).__init__(weakref.ref(schema), signature)
+        super(ProcedureImage, self).__init__(schema, signature)
+        self.place(schema.procedures)
+        schema.link(self)
+        for type in types:
+            type.link(self)
+        return_type.link(self)
         #: Procedure name.
         self.name = name
         #: Types of procedure arguments.
@@ -476,7 +480,6 @@ class ProcedureImage(IndexedImage):
         self.source = source
         #: Comment on the procedure.
         self.comment = None
-        schema.procedures.add(self)
 
     @property
     def schema(self):
@@ -486,24 +489,13 @@ class ProcedureImage(IndexedImage):
     @property
     def triggers(self):
         """List of triggers that call this procedure."""
-        # FIXME? expensive.
-        return [trigger for schema in self.schema.catalog
-                        for table in schema.tables
-                        for trigger in table.triggers
-                        if self is trigger.procedure]
+        return self.find(TriggerImage)
 
-    def rename(self, name):
-        old_handle = self.handle
-        self.handle = ProcedureSignature(name, self.types)
+    def set_name(self, name):
+        """Renames the procedure."""
         self.name = name
-        self.schema.procedures.replace(old_handle, self)
-        return self
-
-    def remove(self):
-        for trigger in self.triggers:
-            trigger.remove()
-        self.schema.procedures.remove(self)
-        super(ProcedureImage, self).remove()
+        handle = ProcedureSignature(name, self.types)
+        return self.set_handle(handle)
 
     def set_comment(self, text):
         """Sets the comment."""
@@ -516,10 +508,12 @@ class TableImage(NamedImage):
 
     __slots__ = ('columns', 'constraints', 'primary_key', 'unique_keys',
                  'foreign_keys', 'referring_foreign_keys', 'triggers',
-                 'data', 'comment', 'is_unlogged', '__weakref__')
+                 'data', 'comment', 'is_unlogged')
 
     def __init__(self, schema, name):
-        super(TableImage, self).__init__(weakref.ref(schema), name)
+        super(TableImage, self).__init__(schema, name)
+        self.place(schema.tables)
+        schema.link(self)
         #: Collection of table columns.
         self.columns = ImageMap()
         #: Collection of table constraints.
@@ -527,11 +521,11 @@ class TableImage(NamedImage):
         #: Primary key constraint.
         self.primary_key = None
         #: List of unique constraints.
-        self.unique_keys = []
+        self.unique_keys = ImageList()
         #: List of foreign keys owned by the table.
-        self.foreign_keys = []
+        self.foreign_keys = ImageList()
         #: List of foreign keys referring to the table.
-        self.referring_foreign_keys = []
+        self.referring_foreign_keys = ImageList()
         #: Collection of triggers.
         self.triggers = ImageMap()
         #: Table rows.
@@ -540,7 +534,6 @@ class TableImage(NamedImage):
         self.comment = None
         #: The table was created as `UNLOGGED`?
         self.is_unlogged = False
-        schema.tables.add(self)
 
     @property
     def schema(self):
@@ -566,29 +559,7 @@ class TableImage(NamedImage):
     @property
     def indexes(self):
         """List of all indexes that cover the table."""
-        catalog = self.schema.catalog
-        return [index
-                for schema in catalog.schemas
-                for index in schema.indexes
-                if self is index.table]
-
-    def rename(self, name):
-        old_name = self.name
-        self.handle = self.name = name
-        self.schema.tables.replace(old_name, self)
-        return self
-
-    def remove(self):
-        while self.triggers:
-            self.triggers.last().remove()
-        while self.constraints:
-            self.constraints.last().remove()
-        while self.columns:
-            self.columns.last().remove()
-        if self.data is not None:
-            self.data.remove()
-        self.schema.tables.remove(self)
-        super(TableImage, self).remove()
+        return self.find(IndexImage)
 
     def add_column(self, name, type, is_not_null, default=None):
         """Adds a new column to the table."""
@@ -637,8 +608,12 @@ class ColumnImage(NamedImage):
     __slots__ = ('type', 'is_not_null', 'default', 'comment')
 
     def __init__(self, table, name, type, is_not_null, default=None):
-        super(ColumnImage, self).__init__(weakref.ref(table), name)
-        table.columns.add(self)
+        super(ColumnImage, self).__init__(table, name)
+        self.place(table.columns)
+        table.link(self)
+        type.link(self)
+        if table.data is not None:
+            table.data.remove()
         #: Column type.
         self.type = type
         #: Has ``NOT NULL`` constraint?
@@ -647,8 +622,6 @@ class ColumnImage(NamedImage):
         self.default = default
         #: Column comment.
         self.comment = None
-        if table.data is not None:
-            table.data.remove()
 
     @property
     def table(self):
@@ -664,57 +637,26 @@ class ColumnImage(NamedImage):
     @property
     def unique_keys(self):
         """List of unique keys that include the column."""
-        return [unique_key
-                for unique_key in self.table.unique_keys
-                if self in unique_key.origin_columns]
+        return self.find(UniqueKeyImage)
 
     @property
     def foreign_keys(self):
         """List of foreign keys that include the column."""
         return [foreign_key
-                for foreign_key in self.table.foreign_keys
+                for foreign_key in self.find(ForeignKeyImage)
                 if self in foreign_key.origin_columns]
 
     @property
     def referring_foreign_keys(self):
         """List of foreign keys that refer to the column."""
         return [foreign_key
-                for foreign_key in self.table.referring_foreign_keys
+                for foreign_key in self.find(ForeignKeyImage)
                 if self in foreign_key.target_columns]
 
     @property
     def indexes(self):
         """List of all indexes that cover the column."""
-        catalog = self.table.schema.catalog
-        return [index
-                for schema in catalog.schemas
-                for index in schema.indexes
-                if self in index.columns]
-
-    def rename(self, name):
-        old_name = self.name
-        self.handle = self.name = name
-        self.table.columns.replace(old_name, self)
-        return self
-
-    def remove(self):
-        for unique_key in self.unique_keys[:]:
-            unique_key.remove()
-        for foreign_key in self.foreign_keys[:]:
-            foreign_key.remove()
-        for foreign_key in self.referring_foreign_keys[:]:
-            foreign_key.remove()
-        for index in self.indexes[:]:
-            index.remove()
-        if self.table.data is not None:
-            self.table.data.remove()
-        self.table.columns.remove(self)
-        super(ColumnImage, self).remove()
-
-    def set_type(self, type):
-        """Sets new column type."""
-        self.type = type
-        return self
+        return self.find(IndexImage)
 
     def set_is_not_null(self, is_not_null):
         """Sets or unsets ``NOT NULL`` constraint."""
@@ -738,10 +680,11 @@ class ConstraintImage(NamedImage):
     __slots__ = ('comment',)
 
     def __init__(self, origin, name):
-        super(ConstraintImage, self).__init__(weakref.ref(origin), name)
+        super(ConstraintImage, self).__init__(origin, name)
+        self.place(origin.constraints)
+        origin.link(self)
         #: Constraint comment.
         self.comment = None
-        origin.constraints.add(self)
 
     @property
     def origin(self):
@@ -750,16 +693,6 @@ class ConstraintImage(NamedImage):
 
     def __repr__(self):
         return "<%s %s.%s>" % (self.__class__.__name__, self.origin, self)
-
-    def rename(self, name):
-        old_name = self.name
-        self.handle = self.name = name
-        self.origin.constraints.replace(old_name, self)
-        return self
-
-    def remove(self):
-        self.origin.constraints.remove(self)
-        super(ConstraintImage, self).remove()
 
     def set_comment(self, text):
         """Sets the comment."""
@@ -774,6 +707,11 @@ class UniqueKeyImage(ConstraintImage):
 
     def __init__(self, origin, name, origin_columns, is_primary):
         super(UniqueKeyImage, self).__init__(origin, name)
+        self.place(origin.unique_keys)
+        for column in origin_columns:
+            column.link(self)
+        if origin.data is not None:
+            origin.data.remove()
         #: Key columns.
         self.origin_columns = origin_columns
         #: ``UNIQUE`` or ``PRIMARY KEY``
@@ -781,9 +719,6 @@ class UniqueKeyImage(ConstraintImage):
         if is_primary:
             assert origin.primary_key is None
             origin.primary_key = self
-        origin.unique_keys.append(self)
-        if origin.data is not None:
-            origin.data.remove()
 
     def __repr__(self):
         origin_list = ", ".join(str(column) for column in self.origin_columns)
@@ -809,9 +744,6 @@ class UniqueKeyImage(ConstraintImage):
         return len(self.origin_columns)
 
     def remove(self):
-        if self.origin.data is not None:
-            self.origin.data.remove()
-        self.origin.unique_keys.remove(self)
         if self.is_primary:
             self.origin.primary_key = None
         super(UniqueKeyImage, self).remove()
@@ -833,6 +765,16 @@ class ForeignKeyImage(ConstraintImage):
     def __init__(self, origin, name, origin_columns, target, target_columns,
                  on_update=None, on_delete=None):
         super(ForeignKeyImage, self).__init__(origin, name)
+        self.place(origin.foreign_keys)
+        for column in origin_columns:
+            column.link(self)
+        self.place(target.referring_foreign_keys)
+        if target is not origin:
+            target.link(self)
+        for column in target_columns:
+            column.link(self)
+        if origin.data is not None:
+            origin.data.remove()
         #: Key columns.
         self.origin_columns = origin_columns
         self.coowner = weakref.ref(target)
@@ -843,7 +785,6 @@ class ForeignKeyImage(ConstraintImage):
         #: Action to perform when the referenced row is deleted.
         self.on_delete = on_delete or NO_ACTION
         origin.foreign_keys.append(self)
-        target.referring_foreign_keys.append(self)
 
     @property
     def target(self):
@@ -874,11 +815,6 @@ class ForeignKeyImage(ConstraintImage):
         """Number of columns in the key."""
         return len(self.origin_columns)
 
-    def remove(self):
-        self.origin.foreign_keys.remove(self)
-        self.target.referring_foreign_keys.remove(self)
-        super(ForeignKeyImage, self).remove()
-
     def set_on_update(self, action):
         """Sets ``ON UPDATE`` action."""
         self.on_update = action
@@ -896,12 +832,14 @@ class TriggerImage(NamedImage):
     __slots__ = ('procedure', 'comment')
 
     def __init__(self, table, name, procedure):
-        super(TriggerImage, self).__init__(weakref.ref(table), name)
+        super(TriggerImage, self).__init__(table, name)
+        self.place(table.triggers)
+        table.link(self)
+        procedure.link(self)
         #: Procedure to call.
         self.procedure = procedure
         #: Comment on the trigger.
         self.comment = None
-        table.triggers.add(self)
 
     @property
     def table(self):
@@ -910,16 +848,6 @@ class TriggerImage(NamedImage):
 
     def __repr__(self):
         return "<%s %s.%s>" % (self.__class__.__name__, self.table, self)
-
-    def rename(self, name):
-        old_name = self.name
-        self.handle = self.name = name
-        self.table.triggers.replace(old_name, self)
-        return self
-
-    def remove(self):
-        self.table.triggers.remove(self)
-        super(TriggerImage, self).remove()
 
     def set_comment(self, text):
         """Sets the comment."""
@@ -933,7 +861,13 @@ class DataImage(Image):
     __slots__ = ('masks', 'indexes')
 
     def __init__(self, table, rows):
-        super(DataImage, self).__init__(weakref.ref(table))
+        super(DataImage, self).__init__(table)
+        table.data = self
+        table.link(self)
+        for column in table.columns:
+            column.link(self)
+        for unique_key in table.unique_keys:
+            unique_key.link(self)
         self.masks = {}
         self.indexes = {}
         for key in table.unique_keys:
@@ -946,7 +880,6 @@ class DataImage(Image):
                     index[handle] = row
             self.masks[key] = mask
             self.indexes[key] = index
-        table.data = self
 
     @property
     def table(self):
@@ -960,7 +893,7 @@ class DataImage(Image):
         self.table.data = None
         super(DataImage, self).remove()
 
-    def insert(self, new_row):
+    def append_row(self, new_row):
         """Adds a new row."""
         for key in self.table.unique_keys:
             mask = self.masks[key]
@@ -969,7 +902,7 @@ class DataImage(Image):
             if None not in handle:
                 index[handle] = new_row
 
-    def update(self, old_row, new_row):
+    def replace_row(self, old_row, new_row):
         """Replaces a row."""
         for key in self.table.unique_keys:
             mask = self.masks[key]
@@ -981,7 +914,7 @@ class DataImage(Image):
             if None not in new_handle:
                 index[new_handle] = new_row
 
-    def delete(self, old_row):
+    def remove_row(self, old_row):
         """Removes a row."""
         for key in self.table.unique_keys:
             mask = self.masks[key]

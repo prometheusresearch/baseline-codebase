@@ -199,7 +199,7 @@ class DataFact(Fact):
                             table.name, u'id', old_row[0], names, values,
                             returning_names))
                     assert len(output) == 1
-                    table.data.update(old_row, output[0])
+                    table.data.replace_row(old_row, output[0])
                 else:
                     # Add a new row.
                     names = []
@@ -213,7 +213,7 @@ class DataFact(Fact):
                     output = driver.submit(sql_insert(
                             table.name, names, values, returning_names))
                     assert len(output) == 1
-                    table.data.insert(output[0])
+                    table.data.append_row(output[0])
             except Error, error:
                 # Add the row being processed to the error trace.
                 items = []

@@ -311,7 +311,7 @@ class ColumnFact(Fact):
                 # Rename the column.
                 driver.submit(sql_rename_column(
                         self.table_name, former_name, self.name))
-                column.rename(self.name)
+                column.set_name(self.name)
                 # Rename auxiliary objects.
                 self.rebase(driver, self.table_label, former_label)
                 identity_fact = recover(driver, table.primary_key)
@@ -451,7 +451,7 @@ class ColumnFact(Fact):
         if enum_type is not None and self.type_name != former_type_name:
             driver.submit(sql_rename_type(
                     former_type_name, self.type_name))
-            column.type.rename(self.type_name)
+            column.type.set_name(self.type_name)
         # Rename the `UNIQUE` constraint.
         former_unique_constraint_name = mangle(
                 [former_table_label, former_label], u'uk')
@@ -461,7 +461,7 @@ class ColumnFact(Fact):
             driver.submit(sql_rename_constraint(
                     self.table_name, former_unique_constraint_name,
                     self.unique_constraint_name))
-            constraint.rename(self.unique_constraint_name)
+            constraint.set_name(self.unique_constraint_name)
 
     def purge(self, driver):
         # Removes remains of a column after the table is dropped.

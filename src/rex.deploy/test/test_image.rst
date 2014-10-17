@@ -229,8 +229,8 @@ You can change properties of a column::
 
     >>> individual_table[u'sex']
     <ColumnImage individual.sex : sex_enum?>
-    >>> individual_table[u'sex'].set_type(text_type).set_is_not_null(True)
-    <ColumnImage individual.sex : text>
+    >>> individual_table[u'sex'].set_is_not_null(True).set_default('male')
+    <ColumnImage individual.sex : sex_enum>
 
 
 Constraints, indexes and triggers
@@ -305,21 +305,21 @@ After that, you can find a table row by a key value::
 
 You can add, modify and remove rows from a table::
 
-    >>> individual_data.insert((4, '1004', None))
+    >>> individual_data.append_row((4, '1004', None))
     >>> individual_data.get(individual_pk, ('1004',))
     (4, '1004', None)
 
-    >>> individual_data.update((4, '1004', None), (4, '1004', 'female'))
+    >>> individual_data.replace_row((4, '1004', None), (4, '1004', 'female'))
     >>> individual_data.get(individual_pk, ('1004',))
     (4, '1004', 'female')
 
-    >>> individual_data.update((4, '1004', 'female'), (5, '1005', 'female'))
+    >>> individual_data.replace_row((4, '1004', 'female'), (5, '1005', 'female'))
     >>> individual_data.get(individual_pk, ('1004',), 'NOT FOUND!')
     'NOT FOUND!'
     >>> individual_data.get(individual_pk, ('1005',))
     (5, '1005', 'female')
 
-    >>> individual_data.delete((5, '1005', 'female'))
+    >>> individual_data.remove_row((5, '1005', 'female'))
     >>> individual_data.get(individual_pk, ('1005',), 'NOT FOUND!')
     'NOT FOUND!'
 
@@ -329,19 +329,19 @@ Renaming and removing images
 
 All objects with a name could be renamed::
 
-    >>> public_schema.rename(u'private')
+    >>> public_schema.set_name(u'private')
     <SchemaImage private>
-    >>> sex_enum_type.rename(u'gender')
+    >>> sex_enum_type.set_name(u'gender')
     <EnumTypeImage gender = male | female | unknown>
-    >>> individual_table.rename(u'subject')
+    >>> individual_table.set_name(u'subject')
     <TableImage subject>
-    >>> individual_id_column.rename(u'subject_id')
+    >>> individual_id_column.set_name(u'subject_id')
     <ColumnImage sample.subject_id : int4>
-    >>> individual_procedure.rename(u'subject_pk')
+    >>> individual_procedure.set_name(u'subject_pk')
     <ProcedureImage subject_pk()>
-    >>> sample_individual_fk.rename(u'sample_subject_fk')
+    >>> sample_individual_fk.set_name(u'sample_subject_fk')
     <ForeignKeyImage sample.sample_subject_fk (subject_id) -> subject (id)>
-    >>> individual_trigger.rename(u'subject_pk')
+    >>> individual_trigger.set_name(u'subject_pk')
     <TriggerImage subject.subject_pk>
 
 You can destroy individual types, columns, tables as well as the catalog object

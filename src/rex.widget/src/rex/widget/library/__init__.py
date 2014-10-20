@@ -125,7 +125,7 @@ class Select(Widget):
 
     @state(OneOfVal(StrVal()))
     def value(self, state, graph, request):
-        if state.value is unknown:
+        if (state.value is unknown):
             return Reset(self.default_value(state, graph, request))
 
         data = '%s/data' % self.id
@@ -188,11 +188,4 @@ class Grid(Widget):
     sortable_columns = Field(BoolVal, default=False)
     hide_columns = Field(SeqVal(StrVal), default=[])
     show_columns = Field(MaybeVal(SeqVal(StrVal)), default=None)
-
-class FileAttachments(Widget):
-    
-    name = 'FileAttachments'
-    js_type = 'rex-widget/lib/FileAttachments'
-
-    attachments = Field(SeqVal(StrVal), default=[]);
 

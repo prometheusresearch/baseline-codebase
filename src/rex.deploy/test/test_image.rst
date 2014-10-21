@@ -219,7 +219,7 @@ You can find constraints associated with a column::
     [<ForeignKeyImage sample.sample_individual_fk (individual_id) -> individual (id)>]
 
     >>> individual_id_column.unique_keys
-    [<UniqueKeyImage sample.sample_pk (individual_id, code)!>]
+    []
     >>> individual_id_column.foreign_keys
     [<ForeignKeyImage sample.sample_individual_fk (individual_id) -> individual (id)>]
     >>> individual_id_column.referring_foreign_keys

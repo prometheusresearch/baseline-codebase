@@ -135,7 +135,7 @@ It is impossible to change this characteristic after the table is created::
     >>> driver("""{ table: history, reliable: true }""")
     Traceback (most recent call last):
       ...
-    Error: Detected table with mismatched reliability characteristic:
+    Error: Discovered table with mismatched reliability mode:
         history
     While deploying table fact:
         "<byte string>", line 1
@@ -162,8 +162,8 @@ column with ``UNIQUE`` constraint::
     >>> driver("""{ table: sample }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing column:
-        id
+    Error: Discovered table without surrogate key:
+        sample
     While deploying table fact:
         "<byte string>", line 1
 
@@ -173,8 +173,8 @@ column with ``UNIQUE`` constraint::
     >>> driver("""{ table: sample }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing column UNIQUE constraint:
-        id
+    Error: Discovered table without surrogate key:
+        sample
     While deploying table fact:
         "<byte string>", line 1
 
@@ -206,14 +206,13 @@ Now let us rename ``measure`` to ``assessment``::
     ALTER INDEX "measure_individual_fk" RENAME TO "assessment_individual_fk";
     ALTER TYPE "measure_status_enum" RENAME TO "assessment_status_enum";
     ALTER TABLE "assessment" RENAME CONSTRAINT "measure_pk" TO "assessment_pk";
-    DROP TRIGGER "measure_pk" ON "assessment";
-    DROP FUNCTION "measure_pk"();
-    CREATE FUNCTION "assessment_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    ALTER FUNCTION "measure_pk"() RENAME TO "assessment_pk";
+    CREATE OR REPLACE FUNCTION "assessment_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
     BEGIN
         ...
     END;
     ';
-    CREATE TRIGGER "assessment_pk" BEFORE INSERT ON "assessment" FOR EACH ROW EXECUTE PROCEDURE "assessment_pk"();
+    ALTER TRIGGER "measure_pk" ON "assessment" RENAME TO "assessment_pk";
     ALTER TABLE "visit" RENAME COLUMN "measure_id" TO "assessment_id";
     ALTER TABLE "visit" RENAME CONSTRAINT "visit_measure_fk" TO "visit_assessment_fk";
     ALTER INDEX "visit_measure_fk" RENAME TO "visit_assessment_fk";

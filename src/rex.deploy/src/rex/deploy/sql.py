@@ -214,21 +214,23 @@ def sql_comment_on_table(name, text):
     return u"COMMENT ON TABLE {} IS {};".format(sql_name(name), sql_value(text))
 
 
-def sql_define_column(name, type_name, is_not_null):
+def sql_define_column(name, type_name, is_not_null, default=None):
     """
     Generates::
 
-        {name} {type_name} [NOT NULL]
+        {name} {type_name} [NOT NULL] [DEFAULT {default}]
     """
     # Generates column definition for `CREATE TABLE` body.
-    return u"{} {}{}" \
+    return u"{} {}{}{}" \
             .format(sql_name(name),
                     sql_name(type_name)
                         if not isinstance(type_name, tuple)
                         else u"{}({})"
                                 .format(sql_name(type_name[0]),
                                         sql_value(type_name[1:])),
-                    u" NOT NULL" if is_not_null else u"")
+                    u" NOT NULL" if is_not_null else u"",
+                    u" DEFAULT {}".format(default)
+                        if default is not None else u"")
 
 
 def sql_add_column(table_name, name, type_name, is_not_null, default=None):
@@ -236,7 +238,7 @@ def sql_add_column(table_name, name, type_name, is_not_null, default=None):
     Generates::
 
         ALTER TABLE {table_name} ADD COLUMN {name} {type_name} [NOT NULL]
-        DEFAULT {default}
+        [DEFAULT {default}]
     """
     return u"ALTER TABLE {} ADD COLUMN {} {}{}{};" \
             .format(sql_name(table_name),
@@ -501,7 +503,7 @@ def sql_create_function(name, types, return_type, language, source):
         LANGUAGE {language}
         AS {source}
     """
-    return u"CREATE FUNCTION {}({}) RETURNS {} LANGUAGE {} AS {};" \
+    return u"CREATE OR REPLACE FUNCTION {}({}) RETURNS {} LANGUAGE {} AS {};" \
             .format(sql_name(name),
                     sql_name(types),
                     sql_name(return_type),
@@ -516,6 +518,16 @@ def sql_drop_function(name, types):
         DROP FUNCTION {name}({type}, ...)
     """
     return u"DROP FUNCTION {}({});".format(sql_name(name), sql_name(types))
+
+
+def sql_rename_function(name, types, new_name):
+    """
+    Generates::
+
+        ALTER FUNCTION {name}({type}, ...) RENAME TO {new_name}
+    """
+    return u"ALTER FUNCTION {}({}) RENAME TO {};" \
+            .format(sql_name(name), sql_name(types), sql_name(new_name))
 
 
 def sql_create_trigger(table_name, name, when, event,
@@ -541,6 +553,16 @@ def sql_drop_trigger(table_name, name):
     """
     return u"DROP TRIGGER {} ON {};" \
             .format(sql_name(name), sql_name(table_name))
+
+
+def sql_rename_trigger(table_name, name, new_name):
+    """
+    Generates::
+
+        ALTER TRIGGER {name} ON {table_name} RENAME TO {new_name}
+    """
+    return u"ALTER TRIGGER {} ON {} RENAME TO {};" \
+            .format(sql_name(name), sql_name(table_name), sql_name(new_name))
 
 
 def sql_primary_key_procedure(*parts):

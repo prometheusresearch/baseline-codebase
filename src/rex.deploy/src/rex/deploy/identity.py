@@ -5,15 +5,11 @@
 
 from rex.core import Error, MaybeVal, UChoiceVal, SeqVal
 from .fact import Fact, LabelVal, QLabelVal, PairVal
-from .image import SET_DEFAULT, CASCADE
+from .image import SET_DEFAULT, CASCADE, BEFORE, INSERT
 from .meta import uncomment
 from .recover import recover
-from .sql import (mangle, sql_add_unique_constraint,
-        sql_add_foreign_key_constraint, sql_drop_constraint,
-        sql_rename_constraint, sql_comment_on_constraint, sql_create_function,
-        sql_drop_function, sql_create_trigger, sql_drop_trigger,
-        sql_primary_key_procedure, sql_integer_random_key, sql_text_random_key,
-        sql_integer_offset_key, sql_text_offset_key)
+from .sql import (mangle, sql_primary_key_procedure, sql_integer_random_key,
+        sql_text_random_key, sql_integer_offset_key, sql_text_offset_key)
 
 
 def _make_offset_key(table, column):
@@ -129,8 +125,7 @@ class IdentityFact(Fact):
         self.table_name = mangle(table_label)
         self.names = [(mangle(label), mangle(label, u'id'))
                       for label in labels]
-        self.constraint_name = mangle(table_label, u'pk')
-        self.signature = (self.constraint_name, ())
+        self.pk_name = mangle(table_label, u'pk')
 
     def __repr__(self):
         args = []
@@ -143,95 +138,68 @@ class IdentityFact(Fact):
     def __call__(self, driver):
         # Ensures the `PRIMARY KEY` constraint exists.
         schema = driver.get_schema()
+        system_schema = driver.get_catalog()['pg_catalog']
         if self.table_name not in schema:
-            raise Error("Detected missing table:", self.table_name)
+            raise Error("Discovered missing table:", self.table_label)
         table = schema[self.table_name]
         columns = []
-        for column_name, link_name in self.names:
+        for label, (column_name, link_name) in zip(self.labels, self.names):
             if column_name in table:
                 column = table[column_name]
             elif link_name in table:
                 column = table[link_name]
             else:
-                raise Error("Detected missing column:", column_name)
+                raise Error("Discovered missing field:", label)
+            # Make sure `NOT NULL` constraint is set.
+            column.alter_is_not_null(driver, True)
             columns.append(column)
-        # Verify that all columns are `NOT NULL`.
-        for column in columns:
-            if not column.is_not_null:
-                raise Error("Detected column without NOT NULL constraint:",
-                            column)
         # Drop the `PRIMARY KEY` constraint if it does not match the identity.
         if (table.primary_key is not None and
                 list(table.primary_key) != columns):
-            driver.submit(sql_drop_constraint(
-                    self.table_name, table.primary_key.name))
-            table.primary_key.remove()
-            schema.indexes[self.constraint_name].remove()
+            table.primary_key.drop(driver)
         # Create the `PRIMARY KEY` constraint if necessary.
         if table.primary_key is None:
-            driver.submit(sql_add_unique_constraint(
-                    self.table_name, self.constraint_name,
-                    [column.name for column in columns], True))
-            table.add_primary_key(self.constraint_name, columns)
-            schema.add_index(self.constraint_name, table, columns)
+            table.create_primary_key(driver,  self.pk_name, columns)
         # Make sure that foreign keys contained in `PRIMARY KEY` columns
         # are set with `ON DELETE CASCADE` rule.
-        for foreign_key in table.foreign_keys:
+        for foreign_key in list(table.foreign_keys):
             if set(foreign_key.origin_columns).issubset(columns):
                 on_delete = CASCADE
             else:
                 on_delete = SET_DEFAULT
             if foreign_key.on_delete != on_delete:
-                driver.submit(sql_drop_constraint(
-                        self.table_name, foreign_key.name))
-                driver.submit(sql_add_foreign_key_constraint(
-                        self.table_name, foreign_key.name,
-                        [column.name for column in foreign_key.origin_columns],
-                        foreign_key.target.name,
-                        [column.name for column in foreign_key.target_columns],
-                        on_update=foreign_key.on_update, on_delete=on_delete))
-                foreign_key.set_on_delete(on_delete)
+                key_name = foreign_key.name
+                key_origin_columns = foreign_key.origin_columns
+                key_target = foreign_key.target
+                key_target_columns = foreign_key.target_columns
+                on_update = foreign_key.on_update
+                foreign_key.drop(driver)
+                table.create_foreign_key(
+                        driver, key_name, key_origin_columns,
+                        key_target, key_target_columns,
+                        on_update=on_update, on_delete=on_delete)
         # Build a trigger for autogenerated identity columns.
         source = _generate(table, self.generators)
-        signature = (self.constraint_name, ())
-        procedure = schema.procedures.get(signature)
-        trigger = table.triggers.get(self.constraint_name)
+        procedure = schema.procedures.get((self.pk_name, ()))
+        trigger = table.triggers.get(self.pk_name)
         if source is not None:
             # Check if we need to create or update the trigger.
-            if (procedure is None or trigger is None or
-                    procedure.source != source):
-                # Clear the old trigger.
-                if trigger is not None:
-                    driver.submit(sql_drop_trigger(
-                        self.table_name, self.constraint_name))
-                    trigger.remove()
-                if procedure is not None:
-                    driver.submit(sql_drop_function(
-                        self.constraint_name, ()))
-                    procedure.remove()
-                # Install a new trigger.
-                driver.submit(sql_create_function(
-                        self.constraint_name, (), u"trigger", u"plpgsql",
-                        source))
-                system_schema = driver.get_catalog()['pg_catalog']
-                procedure = schema.add_procedure(
-                        self.constraint_name, (),
+            if procedure is None:
+                procedure = schema.create_procedure(
+                        driver, self.pk_name, [],
                         system_schema.types[u'trigger'], source)
-                driver.submit(sql_create_trigger(
-                        self.table_name, self.constraint_name,
-                        u"BEFORE", u"INSERT",
-                        self.constraint_name, ()))
-                table.add_trigger(self.constraint_name, procedure)
+            else:
+                procedure.alter_source(driver, source)
+            if trigger is None:
+                table.create_trigger(
+                        driver, self.pk_name, BEFORE, INSERT,
+                        procedure, [])
         else:
             # Remove the current trigger, if any.
             if trigger is not None:
-                driver.submit(sql_drop_trigger(
-                        self.table_name, self.constraint_name))
-                trigger.remove()
+                trigger.drop(driver)
             if procedure is not None:
-                driver.submit(sql_drop_function(
-                        self.constraint_name, ()))
-                procedure.remove()
+                procedure.drop(driver)
         # Save the generators on the `PRIMARY KEY` metadata.
         meta = uncomment(table.primary_key)
         if any(generator is not None for generator in self.generators):
@@ -240,57 +208,28 @@ class IdentityFact(Fact):
             generators = None
         if meta.update(generators=generators):
             comment = meta.dump()
-            driver.submit(sql_comment_on_constraint(
-                    self.table_name, self.constraint_name, comment))
-            table.primary_key.set_comment(comment)
+            table.primary_key.alter_comment(driver, comment)
 
-    def rebase(self, driver, former_table_label):
+    def rebase(self, driver, former=None, **kwds):
         # Updates the names and the triggers after renames.
+        if former is None:
+            former = self.clone(**kwds)
         schema = driver.get_schema()
         assert self.table_name in schema
         table = schema[self.table_name]
         # Rename the constraint.
-        former_constraint_name = mangle(former_table_label, u'pk')
-        constraint = table.constraints.get(former_constraint_name)
-        if constraint is not None and \
-                self.constraint_name != former_constraint_name:
-            driver.submit(sql_rename_constraint(
-                    self.table_name, former_constraint_name,
-                    self.constraint_name))
-            constraint.set_name(self.constraint_name)
-        # Rebuild the trigger.
+        constraint = table.constraints.get(former.pk_name)
+        if constraint is not None:
+            constraint.alter_name(driver, self.pk_name)
+        # Rename the trigger.
         source = _generate(table, self.generators)
-        if source is None:
-            return
-        former_signature = (former_constraint_name, ())
-        trigger = table.triggers.get(former_constraint_name)
-        procedure = schema.procedures.get(former_signature)
-        if (trigger is None or trigger.name != self.constraint_name or
-                procedure is None or
-                procedure.name != self.constraint_name or
-                procedure.source != source):
-            # Clear the old trigger.
-            if trigger is not None:
-                driver.submit(sql_drop_trigger(
-                    self.table_name, former_constraint_name))
-                trigger.remove()
-            if procedure is not None:
-                driver.submit(sql_drop_function(
-                    former_constraint_name, ()))
-                procedure.remove()
-            # Install a new trigger.
-            driver.submit(sql_create_function(
-                    self.constraint_name, (), u"trigger", u"plpgsql",
-                    source))
-            system_schema = driver.get_catalog()['pg_catalog']
-            procedure = schema.add_procedure(
-                    self.constraint_name, (),
-                    system_schema.types[u'trigger'], source)
-            driver.submit(sql_create_trigger(
-                    self.table_name, self.constraint_name,
-                    u"BEFORE", u"INSERT",
-                    self.constraint_name, ()))
-            table.add_trigger(self.constraint_name, procedure)
+        procedure = schema.procedures.get((former.pk_name, ()))
+        trigger = table.triggers.get(former.pk_name)
+        if procedure is not None:
+            procedure.alter_name(driver, self.pk_name)
+            procedure.alter_source(driver, source)
+        if trigger is not None:
+            trigger.alter_name(driver, self.pk_name)
 
     def purge(self, driver):
         # Remove the remains of the identity after the table or some identity
@@ -298,26 +237,16 @@ class IdentityFact(Fact):
         schema = driver.get_schema()
         table = schema.tables.get(self.table_name)
         if table is not None and table.primary_key is not None:
-            driver.submit(sql_drop_constraint(
-                    self.table_name, table.primary_key.name))
-            index = schema.indexes.get(table.primary_key.name)
-            if index is not None:
-                index.remove()
-            table.primary_key.remove()
+            table.primary_key.drop(driver)
         # Remove the generator trigger and procedure.
         if any(generator is not None for generator in self.generators):
             trigger = None
             if table is not None:
-                trigger = table.triggers.get(self.constraint_name)
-            signature = (self.constraint_name, ())
-            procedure = schema.procedures.get(signature)
+                trigger = table.triggers.get(self.pk_name)
+            procedure = schema.procedures.get((self.pk_name, ()))
             if trigger is not None:
-                driver.submit(sql_drop_trigger(
-                        self.table_name, self.constraint_name))
-                trigger.remove()
+                trigger.drop(driver)
             if procedure is not None:
-                driver.submit(sql_drop_function(
-                        self.constraint_name, ()))
-                procedure.remove()
+                procedure.drop(driver)
 
 

@@ -138,7 +138,7 @@ It is an error if the data table does not exist or lacks identity::
     >>> driver("""{ data: measure.csv }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing table:
+    Error: Discovered missing table:
         measure
     While deploying data fact:
         "<byte string>", line 1
@@ -148,7 +148,7 @@ It is an error if the data table does not exist or lacks identity::
     >>> driver("""{ data: measure.csv }""")
     Traceback (most recent call last):
       ...
-    Error: Detected table without PRIMARY KEY constraint:
+    Error: Discovered table without identity:
         measure
     While deploying data fact:
         "<byte string>", line 1
@@ -163,7 +163,7 @@ A row must contain the value of the ``PRIMARY KEY``::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected column with missing value:
+    Error: Discovered missing value for identity field:
         code
     While processing row #1:
         {'Dixons'}
@@ -240,7 +240,7 @@ reported::
     >>> driver("""{ data: ./deploy/family.xsl }""")     # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected unknown data file format:
+    Error: Failed to recognize file format:
         /.../deploy/family.xsl
     While deploying data fact:
         "<byte string>", line 1
@@ -251,7 +251,7 @@ Ill-formed input data raises an exception::
     >>> driver("""{ data: ./deploy/broken/family.json }""") # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected ill-formed JSON:
+    Error: Discovered ill-formed JSON:
         Expecting property name: line 1 column 2 (char 1)
     While parsing JSON data:
         /.../deploy/broken/family.json
@@ -307,8 +307,8 @@ Invalid links are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected unknown link:
-        1001.01
+    Error: Discovered missing record:
+        individual[1001.01]
     While processing row #1:
         {'1001', '01', '1001.01', '1001.01'}
     While deploying data fact:
@@ -391,9 +391,9 @@ Invalid values are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected invalid input:
+    Error: Discovered invalid input:
         invalid enum literal: expected one of 'male', 'female'; got 'f'
-    While converting column:
+    While converting field:
         sex
     While parsing row #1:
         1001,01,f
@@ -408,9 +408,9 @@ Invalid values are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected invalid input:
+    Error: Discovered invalid input:
         datetime.date(1990, 3, 13)
-    While converting column:
+    While converting field:
         code
     While parsing row #1:
         {u'code': datetime.date(1990, 3, 13), u'individual': '1003.03'}
@@ -436,7 +436,7 @@ Unknown and duplicate columns are detected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected missing column:
+    Error: Discovered missing field:
         name
     While parsing row #1:
         1001,Johnsons
@@ -451,7 +451,7 @@ Unknown and duplicate columns are detected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected duplicate column:
+    Error: Discovered duplicate field:
         code
     While parsing row #1:
         1001,2002
@@ -468,8 +468,8 @@ All columns from the ``PRIMARY KEY`` must be included::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected missing PRIMARY KEY column:
-        family_id
+    Error: Discovered missing value for identity field:
+        family
     While parsing row #1:
         01,f,,
     While deploying data fact:
@@ -485,7 +485,7 @@ Each CSV row must have correct number of entries::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected too many entries:
+    Error: Discovered too many entries:
         2 > 1
     While parsing row #1:
         1001,Andersons
@@ -500,7 +500,7 @@ Each CSV row must have correct number of entries::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected too few entries:
+    Error: Discovered too few entries:
         2 < 3
     While parsing row #1:
         1001,01

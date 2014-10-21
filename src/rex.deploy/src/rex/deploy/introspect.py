@@ -80,19 +80,8 @@ def introspect(connection):
         procedure = schema.add_procedure(proname, types, return_type, prosrc)
         procedure_by_oid[oid] = procedure
 
-    # Extract sequences.
-    class_by_oid = {}
-    cursor.execute("""
-        SELECT c.oid, c.relnamespace, c.relname
-        FROM pg_catalog.pg_class c
-        WHERE c.relkind = 'S'
-        ORDER BY c.relnamespace, c.relname
-    """)
-    for oid, relnamespace, relname in cursor.fetchall():
-        schema = schema_by_oid[relnamespace]
-        class_by_oid[oid] = schema.add_sequence(relname)
-
     # Extract tables.
+    class_by_oid = {}
     table_by_oid = {}
     cursor.execute("""
         SELECT c.oid, c.relnamespace, c.relname, c.relpersistence
@@ -103,9 +92,8 @@ def introspect(connection):
     """)
     for oid, relnamespace, relname, relpersistence in cursor.fetchall():
         schema = schema_by_oid[relnamespace]
-        table = schema.add_table(relname)
-        if relpersistence == 'u':
-            table.set_is_unlogged(True)
+        is_unlogged = (relpersistence == 'u')
+        table = schema.add_table(relname, is_unlogged=is_unlogged)
         class_by_oid[oid] = table_by_oid[oid] = table
 
     # Extract columns.
@@ -141,11 +129,39 @@ def introspect(connection):
         if column is not None:
             column.set_default(adsrc)
 
+    # Extract sequences.
+    cursor.execute("""
+        SELECT c.oid, c.relnamespace, c.relname
+        FROM pg_catalog.pg_class c
+        WHERE c.relkind = 'S'
+        ORDER BY c.relnamespace, c.relname
+    """)
+    for oid, relnamespace, relname in cursor.fetchall():
+        schema = schema_by_oid[relnamespace]
+        class_by_oid[oid] = schema.add_sequence(relname)
+
+    # Associate sequences with columns that own them.
+    cursor.execute("""
+        SELECT d.objid, d.refobjid, d.refobjsubid
+        FROM pg_catalog.pg_depend d
+        JOIN pg_catalog.pg_class c
+        ON (d.classid = 'pg_class'::regclass AND d.objid = c.oid)
+        WHERE c.relkind = 'S' AND
+              d.refclassid = 'pg_class'::regclass AND
+              d.objsubid IS NOT NULL
+        ORDER BY d.objid, d.refobjid, d.objsubid
+    """)
+    for objid, refobjid, refobjsubid in cursor.fetchall():
+        sequence = class_by_oid[objid]
+        column = column_by_num.get((refobjid, refobjsubid))
+        column.link(sequence)
+
     # Extract indexes.
     cursor.execute("""
         SELECT c.oid, c.relnamespace, c.relname, i.indrelid, i.indkey
         FROM pg_catalog.pg_class c
-        JOIN pg_catalog.pg_index i ON (c.oid = i.indexrelid)
+        JOIN pg_catalog.pg_index i
+        ON (c.oid = i.indexrelid)
         WHERE c.relkind = 'i'
         ORDER BY c.relnamespace, c.relname
     """)
@@ -182,6 +198,10 @@ def introspect(connection):
             is_primary = (contype == 'p')
             key = table.add_unique_key(conname, columns, is_primary)
             constraint_by_oid[oid] = key
+            # Each `UNIQUE` constraint own an index with the same name.
+            index = table.schema.indexes.get(conname)
+            if index is not None:
+                key.link(index)
         elif contype == 'f':
             if confrelid not in table_by_oid:
                 continue

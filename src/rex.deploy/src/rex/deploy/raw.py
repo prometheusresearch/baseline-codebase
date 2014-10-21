@@ -85,7 +85,7 @@ class RawFact(Fact):
         if all(not item for row in postcondition or []
                         for item in row):
             if driver.is_locked:
-                raise Error("Detected unsatisfied condition:",
+                raise Error("Discovered failed assertion:",
                             self.check_sql or self.check_sql_path)
             driver.submit(action_sql)
 

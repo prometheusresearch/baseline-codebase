@@ -6,7 +6,8 @@
 from rex.core import (Error, guard, StrVal, BoolVal, OneOrSeqVal, MapVal,
         UnionVal, OnScalar)
 from .fact import Fact, LabelVal
-from .sql import mangle, sql_select, sql_insert, sql_update
+from .recover import recover
+from .sql import mangle
 import os.path
 import csv
 import re
@@ -126,13 +127,13 @@ class DataFact(Fact):
         # Find the table.
         schema = driver.get_schema()
         if self.table_name not in schema:
-            raise Error("Detected missing table:", self.table_name)
+            raise Error("Discovered missing table:", self.table_label)
         table = schema[self.table_name]
         if table.primary_key is None:
-            raise Error("Detected table without PRIMARY KEY constraint:", table)
+            raise Error("Discovered table without identity:", self.table_label)
 
         # Load input data.
-        rows = self._load(table)
+        rows = self._load(driver, table)
         # If no input, assume NOOP.
         if not rows:
             return
@@ -161,8 +162,11 @@ class DataFact(Fact):
                 # Verify that PK is provided.
                 for idx in key_mask:
                     if row[idx] is None or row[idx] is SKIP:
-                        raise Error("Detected column with missing value:",
-                                    table.columns.keys()[idx])
+                        column = table.columns.values()[idx]
+                        field_fact = recover(driver, column)
+                        raise Error("Discovered missing value"
+                                    " for identity field:",
+                                    field_fact.label)
                 # Convert links to FK values.
                 if targets:
                     items = []
@@ -173,9 +177,11 @@ class DataFact(Fact):
                             target = targets[column]
                             item = self._resolve(driver, target, data)
                             if item is None:
+                                table_fact = recover(driver, target)
                                 dumper = self._domain(column).dump
-                                raise Error("Detected unknown link:",
-                                            dumper(data))
+                                raise Error("Discovered missing record:",
+                                            "%s[%s]" % (table_fact.label,
+                                                        dumper(data)))
                         items.append(item)
                     row = tuple(items)
                 # The primary key value.
@@ -184,36 +190,27 @@ class DataFact(Fact):
                 old_row = table.data.get(table.primary_key, handle)
                 if old_row is not None:
                     # Find columns and values that changed.
-                    names = []
+                    columns = []
                     values = []
                     for column, data, old_data in zip(table, row, old_row):
                         if data is SKIP or data == old_data:
                             continue
-                        names.append(column.name)
+                        columns.append(column)
                         values.append(data)
-                    if not names:
+                    if not columns:
                         continue
                     # Update an existing row.
-                    returning_names = [column.name for column in table]
-                    output = driver.submit(sql_update(
-                            table.name, u'id', old_row[0], names, values,
-                            returning_names))
-                    assert len(output) == 1
-                    table.data.replace_row(old_row, output[0])
+                    table.data.update(driver, old_row, columns, values)
                 else:
                     # Add a new row.
-                    names = []
+                    columns = []
                     values = []
                     for column, data in zip(table, row):
                         if data is SKIP:
                             continue
-                        names.append(column.name)
+                        columns.append(column)
                         values.append(data)
-                    returning_names = [column.name for column in table]
-                    output = driver.submit(sql_insert(
-                            table.name, names, values, returning_names))
-                    assert len(output) == 1
-                    table.data.append_row(output[0])
+                    table.data.insert(driver, columns, values)
             except Error, error:
                 # Add the row being processed to the error trace.
                 items = []
@@ -230,7 +227,7 @@ class DataFact(Fact):
                            u"{%s}" % u", ".join(items))
                 raise
 
-    def _load(self, table):
+    def _load(self, driver, table):
         # Loads input data and produces a list of tuples.
 
         # Detect data source and format.
@@ -245,14 +242,14 @@ class DataFact(Fact):
                     try:
                         data = json.load(stream)
                     except ValueError, exc:
-                        raise Error("Detected ill-formed JSON:", exc)
+                        raise Error("Discovered ill-formed JSON:", exc)
                     data = self.data_validate(data)
             elif extension == '.yaml':
                 stream = open(self.data_path)
                 with guard("While parsing YAML data:", self.data_path):
                     data = self.data_validate.parse(stream)
             else:
-                raise Error("Detected unknown data file format:",
+                raise Error("Failed to recognize file format:",
                             self.data_path)
 
         rows = []
@@ -275,7 +272,7 @@ class DataFact(Fact):
                       for slice in reader]
             # Convert a slice into a table row.
             try:
-                for row in self._convert(table, labels, slices):
+                for row in self._convert(driver, table, labels, slices):
                     rows.append(row)
             except Error, error:
                 idx = len(rows)+1
@@ -306,7 +303,7 @@ class DataFact(Fact):
                 # Convert a record into a table row.
                 labels, slice = zip(*items)
                 try:
-                    rows.extend(self._convert(table, labels, [slice]))
+                    rows.extend(self._convert(driver, table, labels, [slice]))
                 except Error, error:
                     if self.data_path is not None:
                         location = "\"%s\"" % self.data_path
@@ -318,7 +315,7 @@ class DataFact(Fact):
 
         return rows
 
-    def _convert(self, table, labels, slices):
+    def _convert(self, driver, table, labels, slices):
         # Converts raw input into a list of table rows.
 
         # We don't want any errors on empty input.
@@ -337,24 +334,26 @@ class DataFact(Fact):
             elif link_name in table:
                 column = table[link_name]
             else:
-                raise Error("Detected missing column:", column_name)
+                raise Error("Discovered missing field:", label)
             if column in masks:
-                raise Error("Detected duplicate column:", column_name)
+                raise Error("Discovered duplicate field:", label)
             masks[column] = idx
             domains[column] = self._domain(column)
 
         # Verify that we got PK columns.
         for column in table.primary_key:
             if column not in masks:
-                raise Error("Detected missing PRIMARY KEY column:", column)
+                field_fact = recover(driver, column)
+                raise Error("Discovered missing value for identity field:",
+                            field_fact.label)
 
         # Convert raw slices into native form.
         for slice in slices:
             if len(slice) < len(masks):
-                raise Error("Detected too few entries:",
+                raise Error("Discovered too few entries:",
                             "%s < %s" % (len(slice), len(masks)))
             elif len(slice) > len(masks):
-                raise Error("Detected too many entries:",
+                raise Error("Discovered too many entries:",
                             "%s > %s" % (len(slice), len(masks)))
             # Convert the row.
             row = []
@@ -376,8 +375,10 @@ class DataFact(Fact):
                             else:
                                 data = self._adapt(data, domain)
                         except ValueError, exc:
-                            error = Error("Detected invalid input:", exc)
-                            error.wrap("While converting column:", column)
+                            field_fact = recover(driver, column)
+                            error = Error("Discovered invalid input:", exc)
+                            error.wrap("While converting field:",
+                                       field_fact.label)
                             raise error
                         # If the value is a TZ-aware datetime, we convert
                         # it to the local timezone and then strip the
@@ -500,9 +501,7 @@ class DataFact(Fact):
         # Pre-loads table data if necessary.
         if table.data is None:
             was_locked = driver.set_lock(False)
-            data = driver.submit(sql_select(
-                    table.name, [column.name for column in table]))
-            table.add_data(data)
+            table.select(driver)
             driver.set_lock(was_locked)
 
     def drop(self, driver):

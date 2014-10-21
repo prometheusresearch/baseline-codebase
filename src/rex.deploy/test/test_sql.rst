@@ -271,7 +271,7 @@ Stored procedures and triggers
     >>> trigger_name = mangle(u'individual', u'pk')
     >>> print sql_create_function(trigger_name, (), u'trigger', u'plpgsql',
     ...                           u'\nBEGIN NEW."sex" := COALESCE(NEW."sex", \'unknown\'); END;\n')
-    CREATE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    CREATE OR REPLACE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
     BEGIN NEW."sex" := COALESCE(NEW."sex", ''unknown''); END;
     ';
 

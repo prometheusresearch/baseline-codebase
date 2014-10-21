@@ -8,12 +8,7 @@ from .identity import _generate
 from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
 from .meta import uncomment
 from .recover import recover
-from .sql import (mangle, sql_create_table, sql_drop_table, sql_rename_table,
-        sql_comment_on_table, sql_define_column, sql_set_column_default,
-        sql_add_unique_constraint, sql_rename_constraint, sql_rename_index,
-        sql_create_sequence, sql_rename_sequence, sql_nextval, sql_drop_type,
-        sql_rename_type, sql_create_function, sql_drop_function,
-        sql_create_trigger, sql_drop_trigger)
+from .sql import mangle
 
 
 class TableFact(Fact):
@@ -138,8 +133,8 @@ class TableFact(Fact):
         self.is_present = is_present
         self.related = related
         self.name = mangle(label)
-        self.constraint_name = mangle(label, u'uk')
-        self.sequence_name = mangle(label, u'seq')
+        self.uk_name = mangle(label, u'uk')
+        self.seq_name = mangle(label, u'seq')
 
     def __repr__(self):
         args = []
@@ -165,77 +160,58 @@ class TableFact(Fact):
     def create(self, driver):
         # Ensures that the table exists.
         schema = driver.get_schema()
-
+        system_schema = driver.get_system_schema()
         # Check if we need to rename the table.
         if self.name not in schema:
             for former_label in self.former_labels:
-                former_name = mangle(former_label)
-                if former_name not in schema:
+                former = self.clone(label=former_label)
+                if former.name not in schema:
                     continue
-                table = schema[former_name]
+                table = schema[former.name]
                 # Rename the table itself.
-                driver.submit(sql_rename_table(
-                        former_name, self.name))
-                table.set_name(self.name)
+                table.alter_name(driver, self.name)
                 # Rename auxiliary objects.
-                self.rebase(driver, former_label)
+                self.rebase(driver, former)
                 for column in table.columns:
                     field_fact = recover(driver, column)
                     if field_fact is not None:
-                        field_fact.rebase(driver,
-                                former_label, field_fact.label)
+                        field_fact.rebase(driver, table_label=former_label)
                 identity_fact = recover(driver, table.primary_key)
                 if identity_fact is not None:
-                    identity_fact.rebase(driver, former_label)
+                    identity_fact.rebase(driver, table_label=former_label)
                 # Rename links into the table.
                 for foreign_key in table.referring_foreign_keys:
                     if foreign_key.origin is table:
                         continue
                     for column in foreign_key.origin_columns:
-                        link_fact = recover(driver, column)
-                        if link_fact is None or link_fact.label != former_label:
+                        field_fact = recover(driver, column)
+                        if field_fact is None or \
+                                field_fact.label != former_label:
                             continue
-                        link_fact = link_fact.clone(
+                        field_fact = field_fact.clone(
                                 label=self.label, former_labels=[former_label])
-                        link_fact(driver)
+                        field_fact(driver)
                 break
 
         # Create the table if it does not exist.
         if self.name not in schema:
-            # Submit `CREATE TABLE {name} (id int4 NOT NULL)` and
-            # `ADD CONSTRAINT UNIQUE (id)`.
-            body = [sql_define_column(u'id', u'int4', True)]
-            is_unlogged = (not self.is_reliable)
-            driver.submit(sql_create_table(
-                    self.name, body, is_unlogged=is_unlogged))
-            driver.submit(sql_add_unique_constraint(
-                    self.name, self.constraint_name, [u'id'], False))
-            # Submit `CREATE SEQUENCE` and `ALTER COLUMN SET DEFAULT`.
-            default = sql_nextval(self.sequence_name)
-            driver.submit(sql_create_sequence(
-                    self.sequence_name, self.name, u'id'))
-            driver.submit(sql_set_column_default(
-                    self.name, u'id', default))
-            # Update the catalog image.
-            system_schema = driver.get_catalog()[u'pg_catalog']
-            table = schema.add_table(self.name)
-            table.set_is_unlogged(is_unlogged)
+            # Create a table with an ``id`` column, a `UNIQUE` constraint and
+            # a sequence on the column.
             int4_type = system_schema.types[u'int4']
-            id_column = table.add_column(u'id', int4_type, True, default)
-            table.add_unique_key(self.constraint_name, [id_column])
-            schema.add_index(self.constraint_name, table, [id_column])
-            schema.add_sequence(self.sequence_name)
-        # Verify that the table has `id` column with a UNIQUE contraint.
+            definitions = [(u'id', int4_type, True, None)]
+            is_unlogged = (not self.is_reliable)
+            table = schema.create_table(
+                    driver, self.name, definitions, is_unlogged=is_unlogged)
+            id_column = table[u'id']
+            table.create_unique_key(driver, self.uk_name, [id_column])
+            schema.create_sequence(driver, self.seq_name, id_column)
+        # Verify that the table has a surrogate key.
         table = schema[self.name]
-        if u'id' not in table:
-            raise Error("Detected missing column:", "id")
-        id_column = table['id']
-        if not any(unique_key.origin_columns == [id_column]
-                   for unique_key in table.unique_keys):
-            raise Error("Detected missing column UNIQUE constraint:", "id")
+        if u'id' not in table or not table[u'id'].unique_keys:
+            raise Error("Discovered table without surrogate key:", self.label)
         if table.is_unlogged != (not self.is_reliable):
-            raise Error("Detected table with mismatched"
-                        " reliability characteristic:", table)
+            raise Error("Discovered table with mismatched"
+                        " reliability mode:", self.label)
         # Store the original table label and the table title.
         meta = uncomment(table)
         saved_label = self.label if self.label != self.name else None
@@ -243,8 +219,7 @@ class TableFact(Fact):
                       else None
         if meta.update(label=saved_label, title=saved_title):
             comment = meta.dump()
-            driver.submit(sql_comment_on_table(self.name, comment))
-            table.set_comment(comment)
+            table.alter_comment(driver, comment)
         # Apply nested facts.
         if self.related:
             driver(self.related)
@@ -266,50 +241,33 @@ class TableFact(Fact):
         # Gather facts to be purged.
         field_facts = [recover(driver, column) for column in table]
         identity_fact = recover(driver, table.primary_key)
-        # Submit `DROP TABLE {name}`.
-        driver.submit(sql_drop_table(self.name))
-        table.remove()
+        # Execute `DROP TABLE`.
+        table.drop(driver)
         # Purge the remains.
-        sequence = schema.sequences.get(self.sequence_name)
-        if sequence is not None:
-            sequence.remove()
         for field_fact in field_facts:
             if field_fact is not None:
                 field_fact.purge(driver)
         if identity_fact is not None:
             identity_fact.purge(driver)
 
-    def rebase(self, driver, former_label):
+    def rebase(self, driver, former=None, **kwds):
         # Renames auxiliary objects after the table is renamed.
+        if former is None:
+            former = self.clone(**kwds)
         schema = driver.get_schema()
         assert self.name in schema
         table = schema[self.name]
-        assert u'id' in table
-        id_column = table[u'id']
         # Rename the sequence.
-        former_sequence_name = mangle(former_label, u'seq')
-        sequence = schema.sequences.get(former_sequence_name)
-        if sequence is not None and \
-                self.sequence_name != former_sequence_name:
-            driver.submit(sql_rename_sequence(
-                    former_sequence_name, self.sequence_name))
-            sequence.set_name(self.sequence_name)
-            if id_column.default == sql_nextval(former_sequence_name):
-                id_column.set_default(sql_nextval(self.sequence_name))
-        # Rename the `UNIQUE` constraint.
-        former_constraint_name = mangle(former_label, u'uk')
-        constraint = table.constraints.get(former_constraint_name)
-        if constraint is not None and \
-                self.constraint_name != former_constraint_name:
-            driver.submit(sql_rename_constraint(
-                    self.name, former_constraint_name,
-                    self.constraint_name))
-            constraint.set_name(self.constraint_name)
-        index = schema.indexes.get(former_constraint_name)
-        if index is not None:
-            index.set_name(self.constraint_name)
+        sequence = schema.sequences.get(former.seq_name)
+        if sequence is not None:
+            sequence.alter_name(driver, self.seq_name)
+        # Rename the surrogate key constraint.
+        constraint = table.constraints.get(former.uk_name)
+        if constraint is not None:
+            constraint.alter_name(driver, self.uk_name)
 
     def purge(self, driver):
+        # No-op.
         raise NotImplementedError()
 
 

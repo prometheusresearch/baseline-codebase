@@ -259,6 +259,12 @@ class Driver(object):
         """
         return self.get_catalog()[u"public"]
 
+    def get_system_schema(self):
+        """
+        Returns the system PostgreSQL schema.
+        """
+        return self.get_catalog()[u"pg_catalog"]
+
     def submit(self, sql):
         """
         Executes the given SQL expression; returns the result.

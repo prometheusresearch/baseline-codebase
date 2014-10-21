@@ -4,17 +4,11 @@
 
 
 from rex.core import Error, BoolVal, OneOrSeqVal
-from .identity import _generate
 from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
 from .image import SET_DEFAULT
 from .meta import uncomment
 from .recover import recover
-from .sql import (mangle, sql_add_column, sql_drop_column, sql_rename_column,
-        sql_set_column_not_null, sql_comment_on_column,
-        sql_add_unique_constraint, sql_add_foreign_key_constraint,
-        sql_drop_constraint, sql_rename_constraint, sql_create_index,
-        sql_drop_index, sql_rename_index, sql_create_function,
-        sql_drop_function, sql_create_trigger, sql_drop_trigger)
+from .sql import mangle
 
 
 class LinkFact(Fact):
@@ -157,13 +151,13 @@ class LinkFact(Fact):
         self.name_for_column = mangle(label)
         if is_present:
             self.target_table_name = mangle(target_table_label)
-            self.constraint_name = mangle([table_label, label], u'fk')
-            self.unique_constraint_name = mangle(
+            self.fk_name = mangle([table_label, label], u'fk')
+            self.uk_name = mangle(
                     [table_label, label],u'uk')
         else:
             self.target_table_name = None
-            self.constraint_name = None
-            self.unique_constraint_name = None
+            self.fk_name = None
+            self.uk_name = None
 
     def __repr__(self):
         args = []
@@ -193,96 +187,72 @@ class LinkFact(Fact):
         # Ensures that the link is present.
         schema = driver.get_schema()
         if self.table_name not in schema:
-            raise Error("Detected missing table:", self.table_name)
+            raise Error("Discovered missing table:", self.table_label)
         table = schema[self.table_name]
         if self.target_table_name not in schema:
-            raise Error("Detected missing table:", self.target_table_name)
+            raise Error("Discovered missing table:", self.target_table_label)
         target_table = schema[self.target_table_name]
-        if u'id' not in target_table:
-            raise Error("Detected missing column:", "id")
+        if u'id' not in target_table or not target_table[u'id'].unique_keys:
+            raise Error("Discovered table without surrogate key:",
+                        self.target_table_label)
         target_column = target_table[u'id']
         # Verify that we don't have a regular column under the same name.
         if self.name_for_column in table:
-            raise Error("Detected unexpected column", self.name_for_column)
+            raise Error("Discovered column with the same name:", self.label)
         # Verify if we need to rename the link.
         if self.name not in table:
             for former_label in self.former_labels:
-                former_name = mangle(former_label, u"id")
-                if former_name not in table:
+                former = self.clone(label=former_label)
+                if former.name not in table:
                     continue
-                column = table[former_name]
+                column = table[former.name]
                 # Rename the column.
-                driver.submit(sql_rename_column(
-                        self.table_name, former_name, self.name))
-                column.set_name(self.name)
+                column.alter_name(driver, self.name)
                 # Rename auxiliary objects.
-                self.rebase(driver, self.table_label, former_label)
-                identity_fact = recover(driver, table.primary_key)
-                if identity_fact is not None:
-                    identity_fact.rebase(driver, self.table_label)
+                self.rebase(driver, former)
+                identity = recover(driver, table.primary_key)
+                if identity is not None:
+                    identity.rebase(driver)
                 break
         # Create the link column if it does not exist.
         if self.name not in table:
-            driver.submit(sql_add_column(
-                    self.table_name, self.name, target_column.type.name,
-                    self.is_required))
-            table.add_column(self.name, target_column.type, self.is_required)
+            table.create_column(
+                    driver, self.name, target_column.type, self.is_required)
         column = table[self.name]
         # Verify the column type and `NOT NULL` constraint.
         if column.type != target_column.type:
-            raise Error("Detected column with mismatched type:", column)
+            raise Error("Discovered link with mismatched type:", self.label)
         if column.is_not_null != self.is_required:
-            if (not self.is_required and table.primary_key is not None and
-                    column in table.primary_key):
+            # If necessary, drop `PRIMARY KEY` before dropping `NOT NULL`.
+            if not self.is_required and column in (table.primary_key or []):
                 identity_fact = recover(driver, table.primary_key)
                 if identity_fact is not None:
                     identity_fact.purge(driver)
-            driver.submit(sql_set_column_not_null(
-                    self.table_name, self.name, self.is_required))
-            column.set_is_not_null(self.is_required)
+            column.alter_is_not_null(driver, self.is_required)
         # Create a `FOREIGN KEY` constraint and, if necessary,
         # an associated index.
-        if not any(foreign_key
-                   for foreign_key in table.foreign_keys
-                   if list(foreign_key) == [(column, target_column)]):
-            driver.submit(sql_add_foreign_key_constraint(
-                    self.table_name, self.constraint_name, [self.name],
-                    self.target_table_name, [u'id'], on_delete=SET_DEFAULT))
-            table.add_foreign_key(self.constraint_name, [column],
-                                  target_table, [target_column],
-                                  on_delete=SET_DEFAULT)
+        has_key = any(foreign_key
+                      for foreign_key in table.foreign_keys
+                      if list(foreign_key) == [(column, target_column)])
+        if not has_key:
+            table.create_foreign_key(
+                    driver, self.fk_name, [column],
+                    target_table, [target_column],
+                    on_delete=SET_DEFAULT)
             if not self.is_unique:
-                driver.submit(sql_create_index(self.constraint_name,
-                        self.table_name, [self.name]))
-                schema.add_index(self.constraint_name, table, [column])
+                schema.create_index(driver, self.fk_name, table, [column])
         # Create a `UNIQUE` constraint or a regular index.
-        is_unique = any(unique_key.origin_columns == [column]
-                        for unique_key in column.unique_keys
-                        if not unique_key.is_primary)
-        if is_unique != self.is_unique:
-            index = schema.indexes.get(self.constraint_name)
-            if self.is_unique:
-                if index is not None:
-                    driver.submit(sql_drop_index(
-                            self.constraint_name))
-                    index.remove()
-                driver.submit(sql_add_unique_constraint(
-                        self.table_name, self.unique_constraint_name,
-                        [self.name], False))
-                table.add_unique_key(self.unique_constraint_name,
-                        [column], False)
-            else:
-                for unique_key in column.unique_keys:
-                    if unique_key.is_primary:
-                        continue
-                    if unique_key.origin_columns == [column]:
-                        driver.submit(sql_drop_constraint(
-                                self.table_name, unique_key.name))
-                        unique_key.remove()
-                if index is None:
-                    driver.submit(sql_create_index(self.constraint_name,
-                            self.table_name, [self.name]))
-                    schema.add_index(self.constraint_name, table, [column])
+        is_unique = (len(column.unique_keys) > 0)
+        index = schema.indexes.get(self.fk_name)
+        if self.is_unique and not is_unique:
+            if index is not None:
+                index.drop(driver)
+            table.create_unique_key(driver, self.uk_name, [column])
+        elif not self.is_unique and is_unique:
+            for unique_key in column.unique_keys:
+                unique_key.drop(driver)
+            if index is None:
+                schema.create_index(driver, self.fk_name, table, [column])
         # Store the original link label and the link title.
         meta = uncomment(column)
         preferred_label = self.name[:-2].rstrip(u'_') \
@@ -296,9 +266,7 @@ class LinkFact(Fact):
         saved_title = self.title if self.title != preferred_title else None
         if meta.update(label=saved_label, title=saved_title):
             comment = meta.dump()
-            driver.submit(sql_comment_on_column(
-                    self.table_name, self.name, comment))
-            column.set_comment(comment)
+            column.alter_comment(driver, comment)
 
     def drop(self, driver):
         # Ensures that the link is absent.
@@ -309,7 +277,7 @@ class LinkFact(Fact):
         table = schema[self.table_name]
         # Verify that we don't have a regular column under the same name.
         if self.name_for_column in table:
-            raise Error("Detected unexpected column", self.name_for_column)
+            raise Error("Discovered column with the same name:", self.label)
         # Find the column.
         if self.name not in table:
             return
@@ -319,43 +287,29 @@ class LinkFact(Fact):
         if table.primary_key is not None and column in table.primary_key:
             identity_fact = recover(driver, table.primary_key)
         # Drop the link.
-        driver.submit(sql_drop_column(self.table_name, self.name))
-        column.remove()
+        column.drop(driver)
         # Purge the identity.
         if identity_fact is not None:
             identity_fact.purge(driver)
 
-    def rebase(self, driver, former_table_label, former_label):
+    def rebase(self, driver, former=None, **kwds):
         # Updates the names after the table or the column gets renamed.
+        if former is None:
+            former = self.clone(**kwds)
         schema = driver.get_schema()
         assert self.table_name in schema
         table = schema[self.table_name]
         # Rename the `FOREIGN KEY` constraint and its index.
-        former_constraint_name = mangle(
-                [former_table_label, former_label], u'fk')
-        constraint = table.constraints.get(former_constraint_name)
-        if constraint is not None and \
-                self.constraint_name != former_constraint_name:
-            driver.submit(sql_rename_constraint(
-                    self.table_name, former_constraint_name,
-                    self.constraint_name))
-            constraint.set_name(self.constraint_name)
-        index = schema.indexes.get(former_constraint_name)
-        if index is not None and \
-                self.constraint_name != former_constraint_name:
-            driver.submit(sql_rename_index(
-                    former_constraint_name, self.constraint_name))
-            index.set_name(self.constraint_name)
+        constraint = table.constraints.get(former.fk_name)
+        if constraint is not None:
+            constraint.alter_name(driver, self.fk_name)
+        index = schema.indexes.get(former.fk_name)
+        if index is not None:
+            index.alter_name(driver, self.fk_name)
         # Rename the `UNIQUE` constraint.
-        former_unique_constraint_name = mangle(
-                [former_table_label, former_label], u'uk')
-        constraint = table.constraints.get(former_unique_constraint_name)
-        if constraint is not None and \
-                self.unique_constraint_name != former_unique_constraint_name:
-            driver.submit(sql_rename_constraint(
-                    self.table_name, former_unique_constraint_name,
-                    self.unique_constraint_name))
-            constraint.set_name(self.unique_constraint_name)
+        constraint = table.constraints.get(former.uk_name)
+        if constraint is not None:
+            constraint.alter_name(self, self.uk_name)
 
     def purge(self, driver):
         # Removes remains of a link after the table is dropped.

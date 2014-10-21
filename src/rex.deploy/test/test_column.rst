@@ -165,7 +165,7 @@ an error is raised::
     >>> driver("""{ column: identity.first_name, type: text }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing table:
+    Error: Discovered missing table:
         identity
     While deploying column fact:
         "<byte string>", line 1
@@ -227,15 +227,15 @@ the column is altered to match the fact.  Currently, it's not yet functional::
     >>> driver("""{ column: individual.sex, type: [male, female, intersex] }""")
     Traceback (most recent call last):
       ...
-    Error: Detected mismatched ENUM type:
-        individual_sex_enum
+    Error: Discovered column with mismatched type:
+        sex
     While deploying column fact:
         "<byte string>", line 1
 
     >>> driver("""{ column: individual.sex, type: text }""")
     Traceback (most recent call last):
       ...
-    Error: Detected column with mismatched type:
+    Error: Discovered column with mismatched type:
         sex
     While deploying column fact:
         "<byte string>", line 1
@@ -248,8 +248,8 @@ You cannot create a column if there is already a link with the same name::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected unexpected column:
-        mother_id
+    Error: Discovered link with the same name:
+        mother
     While deploying column fact:
         "<byte string>", line 3
 
@@ -278,9 +278,7 @@ identity trigger will be rebuilt::
 
     >>> driver("""{ column: individual.ident, was: code, type: text }""")   # doctest: +ELLIPSIS
     ALTER TABLE "individual" RENAME COLUMN "code" TO "ident";
-    DROP TRIGGER "individual_pk" ON "individual";
-    DROP FUNCTION "individual_pk"();
-    CREATE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    CREATE OR REPLACE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
     BEGIN
         IF NEW."ident" IS NULL THEN
             ...
@@ -288,7 +286,6 @@ identity trigger will be rebuilt::
         RETURN NEW;
     END;
     ';
-    CREATE TRIGGER "individual_pk" BEFORE INSERT ON "individual" FOR EACH ROW EXECUTE PROCEDURE "individual_pk"();
     COMMENT ON COLUMN "individual"."ident" IS NULL;
 
 
@@ -326,8 +323,8 @@ You cannot delete a column if there is a link with the same name::
     >>> driver("""{ column: individual.mother, present: false }""")
     Traceback (most recent call last):
       ...
-    Error: Detected unexpected column
-        mother_id
+    Error: Discovered link with the same name:
+        mother
     While deploying column fact:
         "<byte string>", line 1
 

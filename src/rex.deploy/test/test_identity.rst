@@ -88,7 +88,6 @@ on a table::
     >>> driver("""
     ... - { table: individual }
     ... - { column: individual.code, type: text }
-    ... - { column: individual.notes, type: text, required: false }
     ... - { identity: [individual.code] }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE TABLE "individual" ...
@@ -105,13 +104,13 @@ Deploying the same fact again has no effect::
 
 Notably, the identity columns must have ``NOT NULL`` constraint::
 
-    >>> driver("""{ identity: [individual.notes] }""")
-    Traceback (most recent call last):
-      ...
-    Error: Detected column without NOT NULL constraint:
-        notes
-    While deploying identity fact:
-        "<byte string>", line 1
+    >>> driver("""{ column: individual.code, type: text, required: false }""")
+    ALTER TABLE "individual" DROP CONSTRAINT "individual_pk";
+    ALTER TABLE "individual" ALTER COLUMN "code" DROP NOT NULL;
+
+    >>> driver("""{ identity: [individual.code] }""")
+    ALTER TABLE "individual" ALTER COLUMN "code" SET NOT NULL;
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code");
 
 Table identity may include both columns and links.  Respective ``FOREIGN KEY``
 constraints are set to ``ON DELETE CASCADE``::
@@ -125,14 +124,14 @@ constraints are set to ``ON DELETE CASCADE``::
     CREATE TABLE "identity" ...
     ALTER TABLE "identity" ADD CONSTRAINT "identity_pk" PRIMARY KEY ("individual_id", "code");
     ALTER TABLE "identity" DROP CONSTRAINT "identity_individual_fk";
-    ALTER TABLE "identity" ADD CONSTRAINT "identity_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON UPDATE NO ACTION ON DELETE CASCADE;
+    ALTER TABLE "identity" ADD CONSTRAINT "identity_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE CASCADE;
 
 It is an error if identity refers to an unknown table or a column::
 
     >>> driver("""{ identity: [sample.code] }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing table:
+    Error: Discovered missing table:
         sample
     While deploying identity fact:
         "<byte string>", line 1
@@ -140,7 +139,7 @@ It is an error if identity refers to an unknown table or a column::
     >>> driver("""{ identity: [individual.family, individual.code] }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing column:
+    Error: Discovered missing field:
         family
     While deploying identity fact:
         "<byte string>", line 1
@@ -161,7 +160,7 @@ two generators: *random* and *offset*.  To provide automatically generated
 values, a trigger is created::
 
     >>> driver("""{ identity: [individual.code: random] }""")       # doctest: +ELLIPSIS
-    CREATE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    CREATE OR REPLACE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
     BEGIN
         IF NEW."code" IS NULL THEN
             ...
@@ -179,12 +178,8 @@ Changing or removing the generator respectively updates or removes the
 trigger::
 
     >>> driver("""{ identity: [individual.code: offset] }""")       # doctest: +ELLIPSIS
-    DROP TRIGGER "individual_pk" ON "individual";
-    DROP FUNCTION "individual_pk"();
-    CREATE FUNCTION "individual_pk"() ...
-    CREATE TRIGGER "individual_pk" ...
+    CREATE OR REPLACE FUNCTION "individual_pk"() ...
     COMMENT ON CONSTRAINT "individual_pk" ON "individual" IS ...
-
 
     >>> driver("""{ identity: [individual.code] }""")
     DROP TRIGGER "individual_pk" ON "individual";
@@ -214,7 +209,7 @@ Generators could be applied to *text* or *integer* columns::
     ... - { column: measure.date_of_evaluation, type: date, default: today() }
     ... - { identity: [measure.individual, measure.measure_type, measure.no: offset] }
     ... """)                                            # doctest: +ELLIPSIS
-    CREATE FUNCTION "individual_pk"() ...
+    CREATE OR REPLACE FUNCTION "individual_pk"() ...
     ...
     >>> driver.commit()
 

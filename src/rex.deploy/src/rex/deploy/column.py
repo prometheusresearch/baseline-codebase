@@ -5,16 +5,10 @@
 
 from rex.core import (Error, AnyVal, BoolVal, UStrVal, UChoiceVal, SeqVal,
         OneOrSeqVal, UnionVal, OnSeq)
-from .identity import _generate
 from .fact import Fact, LabelVal, QLabelVal, TitleVal, label_to_title
 from .meta import uncomment
 from .recover import recover
-from .sql import (mangle, sql_value, sql_add_column, sql_drop_column,
-        sql_rename_column, sql_set_column_default, sql_set_column_not_null,
-        sql_comment_on_column, sql_create_enum_type, sql_drop_type,
-        sql_rename_type, sql_create_function, sql_drop_function,
-        sql_create_trigger, sql_drop_trigger, sql_add_unique_constraint,
-        sql_drop_constraint, sql_rename_constraint)
+from .sql import mangle, sql_value
 from htsql.core.domain import (UntypedDomain, BooleanDomain, IntegerDomain,
         DecimalDomain, FloatDomain, TextDomain, DateDomain, TimeDomain,
         DateTimeDomain, EnumDomain)
@@ -263,7 +257,7 @@ class ColumnFact(Fact):
             self.type_name = self.TYPE_MAP[type]
             self.enum_labels = None
             self.domain = self.DOMAIN_MAP[type]
-        self.unique_constraint_name = mangle([table_label, label], u'uk')
+        self.uk_name = mangle([table_label, label], u'uk')
 
     def __repr__(self):
         args = []
@@ -294,45 +288,38 @@ class ColumnFact(Fact):
     def create(self, driver):
         # Ensures that the column is present.
         schema = driver.get_schema()
+        system_schema = driver.get_system_schema()
         # Find the table.
         if self.table_name not in schema:
-            raise Error("Detected missing table:", self.table_name)
+            raise Error("Discovered missing table:", self.table_label)
         table = schema[self.table_name]
         # Verify that we don't have a link under the same name.
         if self.name_for_link in table:
-            raise Error("Detected unexpected column:", self.name_for_link)
+            raise Error("Discovered link with the same name:", self.label)
         # Verify if we need to rename the column.
         if self.name not in table:
             for former_label in self.former_labels:
-                former_name = mangle(former_label)
-                if former_name not in table:
+                former = self.clone(label=former_label)
+                if former.name not in table:
                     continue
-                column = table[former_name]
+                column = table[former.name]
                 # Rename the column.
-                driver.submit(sql_rename_column(
-                        self.table_name, former_name, self.name))
-                column.set_name(self.name)
+                column.alter_name(driver, self.name)
                 # Rename auxiliary objects.
-                self.rebase(driver, self.table_label, former_label)
-                identity_fact = recover(driver, table.primary_key)
-                if identity_fact is not None:
-                    identity_fact.rebase(driver, self.table_label)
+                self.rebase(driver, former)
+                identity = recover(driver, table.primary_key)
+                if identity is not None:
+                    identity.rebase(driver)
                 break
         # Determine the column type.
         if self.enum_labels:
             # Make sure the ENUM type exists.
-            # Create the type if it does not exist and update the catalog.
             if self.type_name not in schema.types:
-                driver.submit(sql_create_enum_type(
-                        self.type_name, self.enum_labels))
-                schema.add_enum_type(self.type_name, self.enum_labels)
-            # Check that the type is the one we expect.
+                schema.create_enum_type(driver,
+                        self.type_name, self.enum_labels)
             type = schema.types[self.type_name]
-            if not (type.is_enum and type.labels == self.enum_labels):
-                raise Error("Detected mismatched ENUM type:", self.type_name)
         else:
             # A regular system type.
-            system_schema = driver.get_catalog()['pg_catalog']
             type = system_schema.types[self.type_name]
         # Format the default value.
         default = self.default
@@ -342,42 +329,31 @@ class ColumnFact(Fact):
             default = sql_value(default)
         # Create the column if it does not exist.
         if self.name not in table:
-            driver.submit(sql_add_column(
-                    self.table_name, self.name, self.type_name,
-                    self.is_required, default))
-            table.add_column(self.name, type, self.is_required, default)
-        # Check that the column has the right type and constraints.
+            table.create_column(
+                    driver, self.name, type, self.is_required, default)
         column = table[self.name]
+        # Check that the column has the right type.
+        if self.enum_labels is not None:
+            if not (type.is_enum and type.labels == self.enum_labels):
+                type = None
         if column.type != type:
-            raise Error("Detected column with mismatched type:", column)
+            raise Error("Discovered column with mismatched type:", self.label)
+        # Update `NOT NULL` constraint.
         if column.is_not_null != self.is_required:
-            if (not self.is_required and table.primary_key is not None and
-                    column in table.primary_key):
+            # If necessary, drop `PRIMARY KEY` before dropping `NOT NULL`.
+            if not self.is_required and column in (table.primary_key or []):
                 identity_fact = recover(driver, table.primary_key)
                 if identity_fact is not None:
                     identity_fact.purge(driver)
-            driver.submit(sql_set_column_not_null(
-                    self.table_name, self.name, self.is_required))
-            column.set_is_not_null(self.is_required)
-        is_unique = any(unique_key.origin_columns == [column]
-                        for unique_key in column.unique_keys
-                        if not unique_key.is_primary)
-        if is_unique != self.is_unique:
-            if self.is_unique:
-                driver.submit(sql_add_unique_constraint(
-                        self.table_name, self.unique_constraint_name,
-                        [self.name], False))
-                table.add_unique_key(self.unique_constraint_name,
-                        [column], False)
-            else:
-                for unique_key in column.unique_keys:
-                    if unique_key.is_primary:
-                        continue
-                    if unique_key.origin_columns == [column]:
-                        driver.submit(sql_drop_constraint(
-                                self.table_name, unique_key.name))
-                        unique_key.remove()
-        # Check if we need to change the default value.
+            column.alter_is_not_null(driver, self.is_required)
+        # Update `UNIQUE` constraint.
+        is_unique = (len(column.unique_keys) > 0)
+        if self.is_unique and not is_unique:
+            table.create_unique_key(driver, self.uk_name, [column], False)
+        elif not self.is_unique and is_unique:
+            for unique_key in column.unique_keys:
+                unique_key.drop(driver)
+        # Update the default value.
         meta = uncomment(column)
         saved_default = meta.default
         if isinstance(saved_default, str):
@@ -387,10 +363,8 @@ class ColumnFact(Fact):
                 saved_default = self.domain.parse(saved_default)
             except ValueError:
                 pass
-        if saved_default != self.default and column.default != default:
-            driver.submit(sql_set_column_default(
-                    self.table_name, self.name, default))
-            column.set_default(default)
+        if saved_default != self.default:
+            column.alter_default(driver, default)
         # Store the original column label, column title and default value.
         saved_label = self.label if self.label != self.name else None
         saved_title = self.title if self.title != label_to_title(self.label) \
@@ -403,9 +377,7 @@ class ColumnFact(Fact):
         if meta.update(label=saved_label, title=saved_title,
                        default=saved_default):
             comment = meta.dump()
-            driver.submit(sql_comment_on_column(
-                    self.table_name, self.name, comment))
-            column.set_comment(comment)
+            column.alter_comment(driver, comment)
 
     def drop(self, driver):
         # Ensures that the column is absent.
@@ -416,52 +388,43 @@ class ColumnFact(Fact):
         table = schema[self.table_name]
         # Verify that we don't have a link under the same name.
         if self.name_for_link in table:
-            raise Error("Detected unexpected column", self.name_for_link)
+            raise Error("Discovered link with the same name:",
+                        self.label)
         # Find the column.
         if self.name not in table:
             return
         column = table[self.name]
+        type = column.type
         # Check if we need to purge the identity.
         identity_fact = None
-        if table.primary_key is not None and column in table.primary_key:
+        if column in (table.primary_key or []):
             identity_fact = recover(driver, table.primary_key)
         # Drop the column.
-        type = column.type
-        driver.submit(sql_drop_column(self.table_name, self.name))
-        column.remove()
+        column.drop(driver)
         # Drop the dependent ENUM type.
         if type.is_enum:
-            driver.submit(sql_drop_type(type.name))
-            type.remove()
+            type.drop(driver)
         # Purge the identity.
         if identity_fact is not None:
             identity_fact.purge(driver)
 
-    def rebase(self, driver, former_table_label, former_label):
+    def rebase(self, driver, former=None, **kwds):
         # Updates the names after the table or the column is renamed.
+        if former is None:
+            former = self.clone(**kwds)
         schema = driver.get_schema()
         assert self.table_name in schema
         table = schema[self.table_name]
         assert self.name in table
         column = table[self.name]
         # Rename the `ENUM` type.
-        former_type_name = mangle(
-                [former_table_label, former_label], u'enum')
-        enum_type = schema.types.get(former_type_name)
-        if enum_type is not None and self.type_name != former_type_name:
-            driver.submit(sql_rename_type(
-                    former_type_name, self.type_name))
-            column.type.set_name(self.type_name)
+        enum_type = schema.types.get(former.type_name)
+        if enum_type is not None:
+            enum_type.alter_name(driver, self.type_name)
         # Rename the `UNIQUE` constraint.
-        former_unique_constraint_name = mangle(
-                [former_table_label, former_label], u'uk')
-        constraint = table.constraints.get(former_unique_constraint_name)
-        if constraint is not None and \
-                self.unique_constraint_name != former_unique_constraint_name:
-            driver.submit(sql_rename_constraint(
-                    self.table_name, former_unique_constraint_name,
-                    self.unique_constraint_name))
-            constraint.set_name(self.unique_constraint_name)
+        constraint = table.constraints.get(former.uk_name)
+        if constraint is not None:
+            constraint.alter_name(driver, self.uk_name)
 
     def purge(self, driver):
         # Removes remains of a column after the table is dropped.
@@ -470,7 +433,6 @@ class ColumnFact(Fact):
         if isinstance(self.type, list):
             enum_type = schema.types.get(self.type_name)
             if enum_type is not None:
-                driver.submit(sql_drop_type(self.type_name))
-                enum_type.remove()
+                enum_type.drop(driver)
 
 

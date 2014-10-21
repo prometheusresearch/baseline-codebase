@@ -126,7 +126,7 @@ table does not exist::
     >>> driver("""{ link: measure.individual }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing table:
+    Error: Discovered missing table:
         measure
     While deploying link fact:
         "<byte string>", line 1
@@ -134,7 +134,7 @@ table does not exist::
     >>> driver("""{ link: individual.family }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing table:
+    Error: Discovered missing table:
         family
     While deploying link fact:
         "<byte string>", line 1
@@ -147,8 +147,8 @@ An error is raised if the target table has no ``id`` column::
     >>> driver("""{ link: individual.family }""")
     Traceback (most recent call last):
       ...
-    Error: Detected missing column:
-        id
+    Error: Discovered table without surrogate key:
+        family
     While deploying link fact:
         "<byte string>", line 1
 
@@ -161,8 +161,8 @@ If the link column exists, the driver verifies that is has a correct type and
     >>> driver("""{ link: individual.mother, to: individual }""")
     Traceback (most recent call last):
       ...
-    Error: Detected column with mismatched type:
-        mother_id
+    Error: Discovered link with mismatched type:
+        mother
     While deploying link fact:
         "<byte string>", line 1
 
@@ -192,7 +192,7 @@ You cannot create a link if there is a regular column with the same name::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Detected unexpected column
+    Error: Discovered column with the same name:
         individual
     While deploying link fact:
         "<byte string>", line 4
@@ -242,7 +242,7 @@ You cannot delete a link if there is a regular column with the same name::
     >>> driver("""{ link: identity.individual, present: false }""")
     Traceback (most recent call last):
       ...
-    Error: Detected unexpected column
+    Error: Discovered column with the same name:
         individual
     While deploying link fact:
         "<byte string>", line 1

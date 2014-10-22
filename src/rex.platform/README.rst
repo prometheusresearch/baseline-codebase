@@ -17,6 +17,6 @@ First, install ``rex.setup``::
 
 Next, install ``rexdb.platform``::
 
-    pip install rexdb.platfomr==3.3.0.0
+    pip install rexdb.platform==3.3.0.0
 
 

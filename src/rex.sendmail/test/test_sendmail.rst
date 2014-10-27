@@ -11,7 +11,7 @@
 In these examples, we configure ``rex.sendmail`` to dump outgoing email to
 stdout::
 
-    >>> from rex.core import Rex
+    >>> from rex.core import Rex, LatentRex
 
     >>> demo = Rex('rex.sendmail_demo', sendmail='-')
 
@@ -124,7 +124,7 @@ Mailers
 
 The default mailer uses the local SMTP server to send outgoing mail::
 
-    >>> default_demo = Rex('rex.sendmail_demo')
+    >>> default_demo = LatentRex('rex.sendmail_demo')
 
     >>> with default_demo:
     ...     mailer = get_mailer()

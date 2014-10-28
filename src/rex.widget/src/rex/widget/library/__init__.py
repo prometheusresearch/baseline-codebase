@@ -9,7 +9,7 @@
 
 from rex.core import (
     AnyVal, OneOfVal, SeqVal, StrVal, UStrVal, IntVal, BoolVal, MaybeVal,
-    MapVal)
+    MapVal, ChoiceVal)
 
 from ..widget import Widget, NullWidget, state, iterate, StateRead
 from ..field import Field, StateField, CollectionField, PaginatedCollectionField
@@ -100,16 +100,39 @@ class Link(Widget):
 
 
 class Table(Widget):
+    """ Table widget.
+    """
+
+    ON_DATA_UPDATE = 'on_data_update'
 
     name = 'Table'
     js_type = 'rex-widget/lib/Table'
 
-    id = Field(StrVal)
-    data = CollectionField()
-    columns = Field(SeqVal)
-    selectable = Field(BoolVal, default=False)
-    auto_select = Field(BoolVal, default=False)
-    selected = StateField(StrVal, default=None)
+    id = Field(
+        StrVal(),
+        doc="Widget identifier")
+
+    data = CollectionField(
+        doc="Table data")
+
+    columns = Field(
+        SeqVal(),
+        doc="Columns specification")
+
+    selectable = Field(
+        BoolVal(), default=False,
+        doc="Make rows selectable")
+
+    auto_select = Field(
+        OneOfVal(BoolVal(), ChoiceVal(ON_DATA_UPDATE)), default=False,
+        doc="""Pass true to make table autoselect first row if no row is selected,
+        pass 'on_data_update' to make it autoselect first row on each data
+        update.
+        """)
+
+    selected = StateField(
+        StrVal(), default=None,
+        doc="Selected row")
 
 
 class Select(Widget):

@@ -12,6 +12,12 @@ var Preloader        = require('./Preloader');
 var WidgetPropTypes  = require('./PropTypes');
 var ApplicationState = require('./ApplicationState');
 
+var AUTO_SELECT = {
+  TRUE: true,
+  FALSE: false,
+  ON_DATA_UPDATE: 'on_data_update'
+};
+
 var Table = React.createClass({
 
   propTypes: {
@@ -136,16 +142,27 @@ var Table = React.createClass({
   },
 
   componentDidMount() {
-    this.checkAutoSelect();
+    this.checkAutoSelect(true);
   },
 
-  componentDidUpdate() {
-    this.checkAutoSelect();
+  componentDidUpdate(prevProps) {
+    this.checkAutoSelect(prevProps.data.updating && !this.props.data.updating);
   },
 
-  checkAutoSelect() {
+  /**
+   * Check if need to autoselect the first row of the table.
+   *
+   * @param {Boolean} dataUpdated If data was just updated
+   */
+  checkAutoSelect(dataUpdated) {
     var {autoSelect, selected, selectable} = this.props;
-    if (autoSelect && selectable && selected == null) {
+    if (!selectable) {
+      return;
+    }
+    if (
+      (autoSelect === AUTO_SELECT.TRUE && selected === null) ||
+      (autoSelect === AUTO_SELECT.ON_DATA_UPDATE && dataUpdated)
+    ) {
       var firstRow = this.props.data.data[0];
       if (firstRow) {
         this.props.onSelected(firstRow.id, {persistence: ApplicationState.PERSISTENCE.INVISIBLE});
@@ -156,3 +173,4 @@ var Table = React.createClass({
 });
 
 module.exports = Table;
+module.exports.AUTO_SELECT = AUTO_SELECT;

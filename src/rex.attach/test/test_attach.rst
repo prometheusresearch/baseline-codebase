@@ -47,16 +47,6 @@ should be writable::
         ./sandbox/missing
     ...
 
-    >>> import os
-    >>> os.mkdir("./sandbox/readonly", 0666)
-    >>> Rex('rex.attach_demo', attach_dir="./sandbox/readonly")     # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-      ...
-    Error: Attachment storage is not accessible:
-        ./sandbox/readonly
-    ...
-    >>> os.rmdir("./sandbox/readonly")
-
     >>> demo = Rex('rex.attach_demo', attach_dir="./sandbox/attachments")
 
 To manage attachment, obtain a storage object::

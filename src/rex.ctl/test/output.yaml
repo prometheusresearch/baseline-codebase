@@ -453,10 +453,6 @@ tests:
       stdout: |+
         FATAL ERROR: invalid value for setting --http-port: expected a port number
 
-    - rex: serve rex.ctl_demo
-      stdout: |
-        Serving rex.ctl_demo on 127.0.0.1:80
-        [Errno 13] Permission denied
   - suite: using-remote-user
     tests:
     - rex: serve rex.ctl_demo --remote-user=Aladdin

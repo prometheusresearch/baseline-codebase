@@ -197,10 +197,6 @@ tests:
       data: 'http-port: 15.31'
     - rex: serve rex.ctl_demo
       exit: 1
-    - write: ./sandbox/rex.yaml
-      data: 'http-port: 80'
-    - rex: serve rex.ctl_demo
-      exit: 1
     - rm: ./sandbox/rex.yaml
 
   - title: Using `--remote-user`

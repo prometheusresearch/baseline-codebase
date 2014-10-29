@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.4.3 (2014-XX-XX)
+==================
+
+* Removed tests that fail when run under root.
+
+
 1.4.2 (2014-09-16)
 ==================
 

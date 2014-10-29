@@ -145,7 +145,7 @@ On startup, we check if we could connect to the SMTP server::
 
 To test the server, we'll create a fake SMTP server::
 
-    >>> import smtpd, asyncore, threading
+    >>> import smtpd, asyncore, threading, socket
 
     >>> def smtpd_target():
     ...     server = smtpd.DebuggingServer(('127.0.0.1', 22225), None)
@@ -154,6 +154,9 @@ To test the server, we'll create a fake SMTP server::
     >>> smtpd_thread = threading.Thread(target=smtpd_target)
     >>> smtpd_thread.daemon = True
     >>> smtpd_thread.start()
+
+    >>> while socket.socket().connect_ex(('127.0.0.1', 22225)) != 0:
+    ...     pass
 
 Now we can test the client code::
 

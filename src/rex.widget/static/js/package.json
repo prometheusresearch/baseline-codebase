@@ -9,7 +9,9 @@
   "devDependencies": {
     "mocha": "^1.21.4",
     "mochify": "^1.0.2",
-    "reactify": "^0.14.0"
+    "react": "^0.11.0",
+    "reactify": "^0.14.0",
+    "sinon": "^1.11.1"
   },
   "scripts": {
     "test": "make test"

@@ -22,7 +22,7 @@ describe('<ValidatedTextInput />', function() {
       component,
       'rw-ValidatedTextInput__error'
     );
-    assert.equal(error.length, 1);
+    assert.equal(error.length, 1, 'error should be rendered');
     error = error[0];
     assert.equal(error.getDOMNode().innerHTML, message);
   }
@@ -32,7 +32,7 @@ describe('<ValidatedTextInput />', function() {
       component,
       'rw-ValidatedTextInput__error'
     );
-    assert.equal(error.length, 0);
+    assert.equal(error.length, 0, 'error should not be rendered');
   }
 
   function assertInput(component, text) {
@@ -83,9 +83,11 @@ describe('<ValidatedTextInput />', function() {
 
     component.setProps({value: '1000'});
     assertInput(component, '1000');
+    assertNoError(component);
 
     component.setProps({value: null});
     assertInput(component, '');
+    assertNoError(component);
   });
 
   it('works in amortized mode', function(done) {

@@ -71,7 +71,7 @@ var ValidatedTextInput = React.createClass({
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.value !== this.props.value) {
-      this.setState({value: null});
+      this.setState({value: null, error: null});
     }
   },
 

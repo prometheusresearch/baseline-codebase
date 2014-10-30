@@ -46,12 +46,10 @@ var BoolType = {
 
 var OptionalList = {
   serialize(value) {
-    console.log('serialize');
     return value;
   },
 
   deserialize(value) {
-    console.log('deserialize');
     return value;
   }
 };

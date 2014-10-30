@@ -115,7 +115,7 @@
 
 .rfb-ChannelForm-enableChkBox {
   display: inline-block;
-  line-height: 20px;
+  line-height: 30px;
   font-weight: bold;
   float: left !important;
   margin-right: 2*@padding;
@@ -405,6 +405,7 @@
 
 .rfb-InstrumentForm__title {
   input {
+    width: 300px !important;
     display: inline-block !important;
     margin-left: 5px !important;
   }
@@ -1052,4 +1053,47 @@
 .rfb-CustomRepFieldset__warning {
   margin-top: @padding;
   .text-warning();
+}
+
+.rfb-TargetFieldset {
+  margin: @padding;
+}
+
+.rfb-TargetFieldset__list--empty {
+  font-style: italic;
+}
+
+.rfb-TargetFieldset__add {
+  .btn-sm();
+}
+
+.rfb-TargetFieldset__header {
+  .clearfix();
+  .rfb-TargetFieldset__header__add {
+    .pull-right();
+  }
+  .rfb-TargetFieldset__header__label {
+    .pull-left();
+  }
+}
+
+.rfb-TargetFieldset__footer {
+  .btn {
+    margin-top: @padding;
+  }
+}
+
+.rfb-TargetItem {
+  input[type=text] {
+    width: 200px !important;
+    margin-left: 0px !important;
+  }
+}
+
+.rfb-TargetItem__delete .btn {
+  margin-left: @padding;
+  padding: 3px;
+  color: #404040 !important;
+  border: none;
+  background: transparent;
 }

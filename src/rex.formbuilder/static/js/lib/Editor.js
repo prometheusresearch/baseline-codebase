@@ -533,6 +533,42 @@ var Editor = React.createClass({
     return count;
   },
 
+  postValidation(formValue) {
+    var stat = this.getValueStat(formValue);
+    for (var name in stat.records) {
+      if (stat.records.hasOwnProperty(name)) {
+        var recordStat = stat.records[name];
+        if (recordStat.used == 0) {
+          this.showMessage(`Fix it: instrument field '${name}'` +
+                           ' is never used', 'error');
+          return false;
+        }
+        var channelStat = recordStat.channels;
+        for (var chanName in channelStat) {
+          if (channelStat.hasOwnProperty(chanName)) {
+            var used = channelStat[chanName];
+            if (used == 0) {
+              this.showMessage(`Fix it: instrument field '${name}'` +
+                     ` is never used in the '${chanName}' channel`, 'error');
+              return false;
+            }
+            else if (used > 1) {
+              this.showMessage(`Fix it: instrument field '${name}' can not be` +
+                 ` used more than once in the '${chanName}' channel`, 'error');
+              return false;
+            }
+          }
+        }
+        if (recordStat.defined == 0) {
+          this.showMessage(`Fix it: instrument field '${name}'` 
+                            + ' is used but never defined', 'error');
+          return false;
+        }
+      }
+    }
+    return true;
+  },
+
   onSave() {
     var serverConfig = this.state.serverConfig || {};
     var serverInstrument = serverConfig.instrument || {};
@@ -548,39 +584,8 @@ var Editor = React.createClass({
 
     var totalEnabled = this.countEnabledChannels();
     if (totalEnabled) {
-      var stat = this.getValueStat(formValue);
-      for (var name in stat.records) {
-        if (stat.records.hasOwnProperty(name)) {
-          var recordStat = stat.records[name];
-          if (recordStat.used == 0) {
-            this.showMessage(`Fix it: instrument field '${name}'` +
-                             ' is never used', 'error');
-            return;
-          }
-          var channelStat = recordStat.channels;
-          for (var chanName in channelStat) {
-            if (channelStat.hasOwnProperty(chanName)) {
-              var used = channelStat[chanName];
-              if (used == 0) {
-                this.showMessage(`Fix it: instrument field '${name}'` +
-                                 ` is never used in the '${chanName}' channel`, 'error');
-                return;
-              }
-              else if (used > 1) {
-                this.showMessage(`Fix it: instrument field '${name}' can not be` +
-                                 ` used more than once in the '${chanName}' channel`, 'error');
-                return;
-              }
-            }
-          }
-          if (recordStat.defined == 0) {
-            this.showMessage(`Fix it: instrument field '${name}' is used but never defined`,
-                             'error');
-            return;
-          }
-        }
-      }
-      console.log('stat', stat);
+      if (!this.postValidation(formValue))
+        return;
     }
 
     var definition = formValue.instrument;

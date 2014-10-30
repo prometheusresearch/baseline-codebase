@@ -15,7 +15,8 @@ var AddlResponseSelect                = require('./AddlResponseSelect');
 var Button                            = require('./Button');
 var ButtonGroup                       = require('./ButtonGroup');
 var {SimpleScalar, HiddenScalar,
-     OptionalList, ReadOnlyScalar}    = require('./FormHelpers');
+     OptionalList, validateIdentifier,
+     AsIsValueType, ReadOnlyScalar}   = require('./FormHelpers');
 var localization                      = require('./localization');
 var LocalizedStringInput              = require('./LocalizedStringInput');
 var CustomRepFieldset                 = require('./CustomRepFieldset');
@@ -23,6 +24,7 @@ var ElementTypeSelect                 = require('./ElementTypeSelect');
 var Autocomplete                      = require('./Autocomplete');
 var merge                             = require('./merge');
 var buildRecordIndex                  = require('./buildRecordIndex');
+var TargetFieldset                    = require('./TargetFieldset');
 
 var PageElementsFieldset = React.createClass({
 
@@ -69,7 +71,6 @@ var PageElementsFieldset = React.createClass({
   },
 
   renderHead() {
-    // var fieldIdentifiers = this.props.fieldIdentifiers || [];
     var cls = {
       'rfb-CustomRepFieldset__head': true,
       'rfb-questions-only': this.props.questionsOnly
@@ -136,7 +137,6 @@ var QuestionsFieldset = React.createClass({
 
   renderFooter() {
     var addQuestionDisabled = this.state.fieldToAdd ? false : true;
-    // var fieldIdentifiers = this.props.fieldIdentifiers || [];
     var records = this.props.value.schema.props.get('records').keySeq();
     var options = records.map((id) => ({id, title: id})).toJS();
     return (
@@ -510,14 +510,8 @@ function EnumerationsSchema({localizations, enumerations}) {
 
   var plain = enumerations.toJS();
   var variants = [];
-  // var defaultValue = [];
   for (var name in plain) {
     if (plain.hasOwnProperty(name)) {
-      /*
-      defaultValue.push({
-        id: name
-      });
-      */
       variants.push(name)
     }
   }
@@ -641,6 +635,29 @@ function validateExpression(v) {
   return true;
 }
 
+function cleanEmptyEventLists(v) {
+  var lists = ['tags', 'targets'];
+  lists.forEach((name) => {
+    var l = v.get(name);
+    if (l && l.length === 0)
+      v = v.remove(name);
+  });
+  return v;
+}
+
+function validateTargets(v) {
+  var used = {};
+  var wrong = [];
+  v.forEach((item, idx) => {
+    if (used[item] || !item || validateIdentifier(item) instanceof Error)
+      wrong.push(item);
+    used[item] = true;
+  });
+  if (wrong.length)
+    return new Error('Duplicated or wrong identifiers: ' + wrong.join(', '));
+  return true;
+}
+
 function EventsSchema(props) {
   var eventsComponent = (
     <CustomRepFieldset
@@ -655,10 +672,15 @@ function EventsSchema(props) {
       component: eventsComponent,
       type: OptionalList
     },
-    Mapping({}, {
+    Mapping({onUpdate: cleanEmptyEventLists}, {
       trigger: Scalar({label: 'Trigger:', required: true, validate: validateExpression}),
       action: ActionSchema(props),
-      targets: SimpleScalar(),
+      targets: Scalar({
+        type: AsIsValueType,
+        validate: validateTargets,
+        label: "Targets:",
+        component: <TargetFieldset />
+      }),
       options: SimpleScalar(),
     })
   );

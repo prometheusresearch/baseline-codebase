@@ -191,7 +191,7 @@ var EnumerationConstraintFieldset = React.createClass({
   add() {
     var enumerations = this.state.enumerations.slice(0);
     enumerations.push({});
-    this.setState({enumerations});
+    this.setState({enumerations}, this.valueChanged);
   }
 });
 

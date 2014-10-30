@@ -319,7 +319,6 @@ function EnumerationTypeSchema(props) {
     enumerations: Scalar({
       type: FormHelpers.AsIsValueType,
       validate: validateEnumerationList,
-      // validate: validateEnumerationTypeValue,
       label: "Enumerations:",
       component: <EnumerationConstraintFieldset />
     })

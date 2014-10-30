@@ -123,7 +123,7 @@ def node(args, cwd=None, daemon=False, env=None):
 
 def npm(args, cwd=None, env=None):
     # Executes `npm args...`.
-    args = ['--quiet', '--color', 'false'] + args
+    args = ['--loglevel', 'error', '--color', 'false'] + args
     return exe('npm', args, cwd=cwd, env=env)
 
 

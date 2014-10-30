@@ -4,6 +4,12 @@
 
 .. contents:: Table of Contents
 
+1.2.3 (2014-XX-XX)
+==================
+
+* Do not show ``npm`` warnings.
+
+
 1.2.2 (2014-10-08)
 ==================
 

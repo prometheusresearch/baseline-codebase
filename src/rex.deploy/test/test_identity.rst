@@ -91,7 +91,7 @@ on a table::
     ... - { identity: [individual.code] }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE TABLE "individual" ...
-    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code");
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code"), CLUSTER ON "individual_pk";
 
     >>> schema = driver.get_schema()
     >>> individual_table = schema[u'individual']
@@ -109,8 +109,18 @@ Notably, the identity columns must have ``NOT NULL`` constraint::
     ALTER TABLE "individual" ALTER COLUMN "code" DROP NOT NULL;
 
     >>> driver("""{ identity: [individual.code] }""")
+    Traceback (most recent call last):
+      ...
+    Error: Discovered nullable field:
+        code
+    While deploying identity fact:
+        "<byte string>", line 1
+
+    >>> driver("""{ column: individual.code, type: text, required: true }""")
     ALTER TABLE "individual" ALTER COLUMN "code" SET NOT NULL;
-    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code");
+
+    >>> driver("""{ identity: [individual.code] }""")
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code"), CLUSTER ON "individual_pk";
 
 Table identity may include both columns and links.  Respective ``FOREIGN KEY``
 constraints are set to ``ON DELETE CASCADE``::
@@ -122,7 +132,7 @@ constraints are set to ``ON DELETE CASCADE``::
     ... - { identity: [individual, code], of: identity }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE TABLE "identity" ...
-    ALTER TABLE "identity" ADD CONSTRAINT "identity_pk" PRIMARY KEY ("individual_id", "code");
+    ALTER TABLE "identity" ADD CONSTRAINT "identity_pk" PRIMARY KEY ("individual_id", "code"), CLUSTER ON "identity_pk";
     ALTER TABLE "identity" DROP CONSTRAINT "identity_individual_fk";
     ALTER TABLE "identity" ADD CONSTRAINT "identity_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE CASCADE;
 
@@ -149,7 +159,7 @@ the old ``PRIMARY KEY`` is deleted::
 
     >>> driver("""{ identity: [identity.individual] }""")
     ALTER TABLE "identity" DROP CONSTRAINT "identity_pk";
-    ALTER TABLE "identity" ADD CONSTRAINT "identity_pk" PRIMARY KEY ("individual_id");
+    ALTER TABLE "identity" ADD CONSTRAINT "identity_pk" PRIMARY KEY ("individual_id"), CLUSTER ON "identity_pk";
 
 
 Identity generators

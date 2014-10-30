@@ -214,7 +214,7 @@ and constraints::
     ALTER TABLE "study" ADD CONSTRAINT "study_id_uk" UNIQUE ("id");
     >>> pk_name = mangle(u'study', u'pk')
     >>> print sql_add_unique_constraint(u'study', pk_name, [u'code'], True)
-    ALTER TABLE "study" ADD CONSTRAINT "study_pk" PRIMARY KEY ("code");
+    ALTER TABLE "study" ADD CONSTRAINT "study_pk" PRIMARY KEY ("code"), CLUSTER ON "study_pk";
 
     >>> fk_name = mangle([u'case', u'study'], u'fk')
     >>> print sql_add_foreign_key_constraint(u'case', fk_name, [u'study_id'],

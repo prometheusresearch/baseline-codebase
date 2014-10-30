@@ -206,7 +206,7 @@ only if the driver is not locked.  Notably, a column without ``NOT NULL``
 constraint cannot be a part of the ``PRIMARY KEY`` of the table::
 
     >>> driver("""{ identity: [individual.code] }""")
-    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code");
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code"), CLUSTER ON "individual_pk";
 
     >>> driver("""{ column: individual.code, type: text, title: Individual ID, required: false }""")
     ALTER TABLE "individual" DROP CONSTRAINT "individual_pk";
@@ -273,11 +273,12 @@ If you rename a column that is part of table identity, the corresponding
 identity trigger will be rebuilt::
 
     >>> driver("""{ identity: [individual.code: random] }""")       # doctest: +ELLIPSIS
-    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code");
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code"), CLUSTER ON "individual_pk";
     ...
 
     >>> driver("""{ column: individual.ident, was: code, type: text }""")   # doctest: +ELLIPSIS
     ALTER TABLE "individual" RENAME COLUMN "code" TO "ident";
+    COMMENT ON COLUMN "individual"."ident" IS NULL;
     CREATE OR REPLACE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
     BEGIN
         IF NEW."ident" IS NULL THEN
@@ -286,7 +287,6 @@ identity trigger will be rebuilt::
         RETURN NEW;
     END;
     ';
-    COMMENT ON COLUMN "individual"."ident" IS NULL;
 
 
 Dropping the column

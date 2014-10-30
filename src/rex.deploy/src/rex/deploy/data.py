@@ -6,8 +6,7 @@
 from rex.core import (Error, guard, StrVal, BoolVal, OneOrSeqVal, MapVal,
         UnionVal, OnScalar)
 from .fact import Fact, LabelVal
-from .recover import recover
-from .sql import mangle
+from .model import model
 import os.path
 import csv
 import re
@@ -102,7 +101,6 @@ class DataFact(Fact):
         self.data_path = data_path
         self.data = data
         self.is_present = is_present
-        self.table_name = mangle(table_label)
 
     def __repr__(self):
         args = []
@@ -125,74 +123,72 @@ class DataFact(Fact):
         # Ensures that the table contains the given data.
 
         # Find the table.
-        schema = driver.get_schema()
-        if self.table_name not in schema:
+        schema = model(driver)
+        table = schema.table(self.table_label)
+        if not table:
             raise Error("Discovered missing table:", self.table_label)
-        table = schema[self.table_name]
-        if table.primary_key is None:
+        if not table.identity():
             raise Error("Discovered table without identity:", self.table_label)
+        image = table.image
 
         # Load input data.
-        rows = self._load(driver, table)
+        rows = self._load(table)
         # If no input, assume NOOP.
         if not rows:
             return
 
         # Load existing table content.
-        self._fetch(driver, table)
+        self._fetch(table)
 
         # Indexes of the primary key columns.
-        column_names = table.columns.keys()
+        column_names = image.columns.keys()
         key_mask = [column_names.index(column.name)
-                    for column in table.primary_key]
+                    for column in image.primary_key]
         # Indexes of columns that do not belong to the PK.
         nonkey_mask = [column_names.index(column.name)
-                       for column in table
-                       if column not in table.primary_key]
+                       for column in image
+                       if column not in image.primary_key]
 
-        # Target table for a link column.
+        # Links for columns with foreign keys.
         targets = {}
-        for column in table:
-            foreign_keys = column.foreign_keys
-            if foreign_keys:
-                targets[column] = foreign_keys[0].target
+        for field in table.fields():
+            if field.is_link:
+                targets[field.image] = field.target_table
 
         for row_idx, row in enumerate(rows):
             try:
                 # Verify that PK is provided.
                 for idx in key_mask:
                     if row[idx] is None or row[idx] is SKIP:
-                        column = table.columns.values()[idx]
-                        field_fact = recover(driver, column)
+                        column = image.columns.values()[idx]
+                        field = schema(column)
                         raise Error("Discovered missing value"
-                                    " for identity field:",
-                                    field_fact.label)
+                                    " for identity field:", field.label)
                 # Convert links to FK values.
                 if targets:
                     items = []
-                    for column, data in zip(table, row):
+                    for column, data in zip(image, row):
                         item = data
                         if (column in targets and
                                 data is not None and data is not SKIP):
                             target = targets[column]
-                            item = self._resolve(driver, target, data)
+                            item = self._resolve(target, data)
                             if item is None:
-                                table_fact = recover(driver, target)
                                 dumper = self._domain(column).dump
                                 raise Error("Discovered missing record:",
-                                            "%s[%s]" % (table_fact.label,
+                                            "%s[%s]" % (target.label,
                                                         dumper(data)))
                         items.append(item)
                     row = tuple(items)
                 # The primary key value.
                 handle = tuple(row[idx] for idx in key_mask)
                 # Find an existing row by the PK.
-                old_row = table.data.get(table.primary_key, handle)
+                old_row = image.data.get(image.primary_key, handle)
                 if old_row is not None:
                     # Find columns and values that changed.
                     columns = []
                     values = []
-                    for column, data, old_data in zip(table, row, old_row):
+                    for column, data, old_data in zip(image, row, old_row):
                         if data is SKIP or data == old_data:
                             continue
                         columns.append(column)
@@ -200,21 +196,21 @@ class DataFact(Fact):
                     if not columns:
                         continue
                     # Update an existing row.
-                    table.data.update(driver, old_row, columns, values)
+                    image.data.update(old_row, columns, values)
                 else:
                     # Add a new row.
                     columns = []
                     values = []
-                    for column, data in zip(table, row):
+                    for column, data in zip(image, row):
                         if data is SKIP:
                             continue
                         columns.append(column)
                         values.append(data)
-                    table.data.insert(driver, columns, values)
+                    image.data.insert(columns, values)
             except Error, error:
                 # Add the row being processed to the error trace.
                 items = []
-                for column, data in zip(table, rows[row_idx]):
+                for column, data in zip(image, rows[row_idx]):
                     if data is SKIP:
                         continue
                     if data is None:
@@ -227,7 +223,7 @@ class DataFact(Fact):
                            u"{%s}" % u", ".join(items))
                 raise
 
-    def _load(self, driver, table):
+    def _load(self, table):
         # Loads input data and produces a list of tuples.
 
         # Detect data source and format.
@@ -272,7 +268,7 @@ class DataFact(Fact):
                       for slice in reader]
             # Convert a slice into a table row.
             try:
-                for row in self._convert(driver, table, labels, slices):
+                for row in self._convert(table, labels, slices):
                     rows.append(row)
             except Error, error:
                 idx = len(rows)+1
@@ -303,7 +299,7 @@ class DataFact(Fact):
                 # Convert a record into a table row.
                 labels, slice = zip(*items)
                 try:
-                    rows.extend(self._convert(driver, table, labels, [slice]))
+                    rows.extend(self._convert(table, labels, [slice]))
                 except Error, error:
                     if self.data_path is not None:
                         location = "\"%s\"" % self.data_path
@@ -315,7 +311,7 @@ class DataFact(Fact):
 
         return rows
 
-    def _convert(self, driver, table, labels, slices):
+    def _convert(self, table, labels, slices):
         # Converts raw input into a list of table rows.
 
         # We don't want any errors on empty input.
@@ -325,27 +321,25 @@ class DataFact(Fact):
         masks = {}
         # Maps a table column to its HTSQL domain.
         domains = {}
+        # Maps a table column to its field model.
+        fields = {}
         # Find table columns corresponding to the input labels.
         for idx, label in enumerate(labels):
-            column_name = mangle(label)
-            link_name = mangle(label, u'id')
-            if column_name in table:
-                column = table[column_name]
-            elif link_name in table:
-                column = table[link_name]
-            else:
+            field = table.column(label) or table.link(label)
+            if not field:
                 raise Error("Discovered missing field:", label)
+            column = field.image
             if column in masks:
                 raise Error("Discovered duplicate field:", label)
             masks[column] = idx
             domains[column] = self._domain(column)
+            fields[column] = field
 
         # Verify that we got PK columns.
-        for column in table.primary_key:
-            if column not in masks:
-                field_fact = recover(driver, column)
+        for field in table.identity().fields:
+            if field.image not in fields:
                 raise Error("Discovered missing value for identity field:",
-                            field_fact.label)
+                            field.label)
 
         # Convert raw slices into native form.
         for slice in slices:
@@ -357,7 +351,7 @@ class DataFact(Fact):
                             "%s > %s" % (len(slice), len(masks)))
             # Convert the row.
             row = []
-            for column in table.columns:
+            for column in table.image.columns:
                 if column not in masks:
                     data = SKIP
                 else:
@@ -375,10 +369,9 @@ class DataFact(Fact):
                             else:
                                 data = self._adapt(data, domain)
                         except ValueError, exc:
-                            field_fact = recover(driver, column)
                             error = Error("Discovered invalid input:", exc)
                             error.wrap("While converting field:",
-                                       field_fact.label)
+                                       fields[column].label)
                             raise error
                         # If the value is a TZ-aware datetime, we convert
                         # it to the local timezone and then strip the
@@ -473,35 +466,35 @@ class DataFact(Fact):
                              for item, label in zip(data, domain.labels))
         raise ValueError(repr(data))
 
-    def _resolve(self, driver, table, identity):
+    def _resolve(self, table, identity):
         # Finds a row by identity.
 
         # Pre-load table data if necessary.
-        self._fetch(driver, table)
+        self._fetch(table)
 
         # Determine the PK value.
         handle = []
-        for item, column in zip(identity, table.primary_key):
-            if not column.foreign_keys:
+        for item, field in zip(identity, table.identity().fields):
+            if field.is_column:
                 handle.append(item)
             else:
-                target = column.foreign_keys[0].target
-                item = self._resolve(driver, target, item)
+                item = self._resolve(field.target_table, item)
                 handle.append(item)
         handle = tuple(handle)
         # Find the row by PK.
-        row = table.data.get(table.primary_key, handle)
+        row = table.image.data.get(table.image.primary_key, handle)
         # Return the row ID.
         if row is None:
             return None
         else:
             return row[0]
 
-    def _fetch(self, driver, table):
+    def _fetch(self, table):
         # Pre-loads table data if necessary.
-        if table.data is None:
+        driver = table.schema.driver
+        if table.image.data is None:
             was_locked = driver.set_lock(False)
-            table.select(driver)
+            table.image.select()
             driver.set_lock(was_locked)
 
     def drop(self, driver):

@@ -351,11 +351,13 @@ def sql_add_unique_constraint(table_name, name, column_names, is_primary):
         ALTER TABLE {table_name} ADD CONSTRAINT {name}
         { UNIQUE | PRIMARY KEY } ({column_name}, ...)
     """
-    return u"ALTER TABLE {} ADD CONSTRAINT {} {} ({});" \
+    return u"ALTER TABLE {} ADD CONSTRAINT {} {} ({}){};" \
             .format(sql_name(table_name),
                     sql_name(name),
                     u"UNIQUE" if not is_primary else u"PRIMARY KEY",
-                    sql_name(column_names))
+                    sql_name(column_names),
+                    u", CLUSTER ON {}".format(sql_name(name))
+                        if is_primary else u"")
 
 
 def sql_add_foreign_key_constraint(table_name, name, column_names,

@@ -250,7 +250,13 @@ class Driver(object):
         Returns the image of the database catalog.
         """
         if self.catalog is None:
-            self.catalog = introspect(self.connection)
+            logging = self.logging
+            was_locked = self.is_locked
+            self.logging = False
+            self.is_locked = False
+            self.catalog = introspect(self)
+            self.logging = logging
+            self.is_locked = was_locked
         return self.catalog
 
     def get_schema(self):
@@ -289,6 +295,13 @@ class Driver(object):
         Executes a SQL query.
         """
         self._rows = self.submit(sql)
+
+    def fetchone(self):
+        """
+        Returns the first row of the result of the last SQL query.
+        """
+        if isinstance(self._rows, list) and len(self._rows) > 0:
+            return self._rows.pop(0)
 
     def fetchall(self):
         """

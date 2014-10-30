@@ -1126,7 +1126,8 @@ the structure of the database::
     >>> from rex.deploy import introspect
 
     >>> connection = cluster.connect()
-    >>> catalog = introspect(connection)
+    >>> cursor = connection.cursor()
+    >>> catalog = introspect(cursor)
 
 The :class:`rex.deploy.CatalogImage` object contains database schemas, tables,
 columns, types and constraints::
@@ -1164,28 +1165,6 @@ Then you can use it to deploy database facts::
     >>> from rex.deploy import TableFact
 
     >>> driver(TableFact(u'individual'))
-
-:mod:`rex.deploy` contains a number of functions for building SQL commands.
-For example, :func:`rex.deploy.sql_create_table` generates a ``CREATE TABLE``
-statemement.  This function takes two arguments: the table name and a list of
-definitions for the body of the statement.  To populate the body with column
-definitions, you can use :func:`rex.deploy.sql_define_column`::
-
-    >>> from rex.deploy import sql_create_table, sql_define_column
-
-    >>> body = [
-    ...     sql_define_column(u'id', u'serial4', True),
-    ...     sql_define_column(u'code', (u'varchar', 8), True),
-    ...     sql_define_column(u'title', u'text', False),
-    ... ]
-    >>> print sql_create_table(u'study', body)
-    CREATE TABLE "study" (
-        "id" "serial4" NOT NULL,
-        "code" "varchar"(8) NOT NULL,
-        "title" "text"
-    );
-
-Many common DDL and CRUD expressions are supported.
 
 :mod:`rex.deploy` also provides a :func:`rex.deploy.mangle` utility for
 generating a valid SQL name from a list of fragments and an optional suffix::

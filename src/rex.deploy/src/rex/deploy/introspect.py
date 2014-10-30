@@ -16,13 +16,11 @@ conftype_to_action = {
 }
 
 
-def introspect(connection):
+def introspect(cursor):
     """
     Returns a catalog image that reflects the structure of the database.
     """
-    cursor = connection.cursor()
-
-    catalog = make_catalog()
+    catalog = make_catalog(cursor)
 
     # Extract schemas.
     cursor.execute("""

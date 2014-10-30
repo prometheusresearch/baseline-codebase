@@ -155,22 +155,14 @@ An error is raised if the target table has no ``id`` column::
 If the link column exists, the driver verifies that is has a correct type and
 ``NOT NULL`` constraint and, if necessary, changes them::
 
-    >>> driver.submit("""ALTER TABLE individual ADD COLUMN mother_id text NOT NULL;""")
-    ALTER TABLE individual ADD COLUMN mother_id text NOT NULL;
-    >>> driver.reset()
-    >>> driver("""{ link: individual.mother, to: individual }""")
-    Traceback (most recent call last):
-      ...
-    Error: Discovered link with mismatched type:
-        mother
-    While deploying link fact:
-        "<byte string>", line 1
-
     >>> driver("""{ link: sample.individual, title: Subject, required: false }""")
     ALTER TABLE "sample" DROP CONSTRAINT "sample_pk";
     DROP TRIGGER "sample_pk" ON "sample";
     DROP FUNCTION "sample_pk"();
+    ALTER TABLE "sample" DROP CONSTRAINT "sample_individual_fk";
+    ALTER TABLE "sample" ADD CONSTRAINT "sample_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
     ALTER TABLE "sample" ALTER COLUMN "individual_id" DROP NOT NULL;
+
 
 Similarly, it may apply a ``UNIQUE`` constraint::
 

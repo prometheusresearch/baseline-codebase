@@ -100,9 +100,9 @@ Deploying a table fact creates the table::
     CREATE TABLE "individual" (
         "id" "int4" NOT NULL
     );
-    ALTER TABLE "individual" ADD CONSTRAINT "individual_uk" UNIQUE ("id");
     CREATE SEQUENCE "individual_seq" OWNED BY "individual"."id";
     ALTER TABLE "individual" ALTER COLUMN "id" SET DEFAULT nextval('individual_seq'::regclass);
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_uk" UNIQUE ("id");
 
     >>> schema = driver.get_schema()
     >>> u'individual' in schema
@@ -202,20 +202,20 @@ Now let us rename ``measure`` to ``assessment``::
     ALTER TABLE "measure" RENAME TO "assessment";
     ALTER SEQUENCE "measure_seq" RENAME TO "assessment_seq";
     ALTER TABLE "assessment" RENAME CONSTRAINT "measure_uk" TO "assessment_uk";
+    ALTER TABLE "visit" RENAME COLUMN "measure_id" TO "assessment_id";
+    ALTER TABLE "visit" RENAME CONSTRAINT "visit_measure_fk" TO "visit_assessment_fk";
+    ALTER INDEX "visit_measure_fk" RENAME TO "visit_assessment_fk";
     ALTER TABLE "assessment" RENAME CONSTRAINT "measure_individual_fk" TO "assessment_individual_fk";
     ALTER INDEX "measure_individual_fk" RENAME TO "assessment_individual_fk";
     ALTER TYPE "measure_status_enum" RENAME TO "assessment_status_enum";
     ALTER TABLE "assessment" RENAME CONSTRAINT "measure_pk" TO "assessment_pk";
     ALTER FUNCTION "measure_pk"() RENAME TO "assessment_pk";
+    ALTER TRIGGER "measure_pk" ON "assessment" RENAME TO "assessment_pk";
     CREATE OR REPLACE FUNCTION "assessment_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
     BEGIN
         ...
     END;
     ';
-    ALTER TRIGGER "measure_pk" ON "assessment" RENAME TO "assessment_pk";
-    ALTER TABLE "visit" RENAME COLUMN "measure_id" TO "assessment_id";
-    ALTER TABLE "visit" RENAME CONSTRAINT "visit_measure_fk" TO "visit_assessment_fk";
-    ALTER INDEX "visit_measure_fk" RENAME TO "visit_assessment_fk";
 
 Link ``visit.measure`` got renamed as well::
 

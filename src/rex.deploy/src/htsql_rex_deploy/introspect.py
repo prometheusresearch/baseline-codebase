@@ -18,7 +18,9 @@ def get_image():
     # Returns `rex.deploy` catalog image.
     connection = connect()
     driver = Driver(connection)
-    return driver.get_catalog()
+    catalog = driver.get_catalog()
+    connection.close()
+    return catalog
 
 
 class IntrospectDeploy(IntrospectPGSQL):

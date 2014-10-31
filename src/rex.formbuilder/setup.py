@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='3.0.1',
+    version='3.0.2',
     description='The RexFormbuilder application, a tool for creating and'
     'managing the Instruments and Forms in the RexDB platform',
     long_description=open('README.rst', 'r').read(),

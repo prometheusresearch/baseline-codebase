@@ -206,21 +206,21 @@ var Grid = React.createClass({
     var decorator = this.props.columns[column.key];
     if (decorator) {
       column = merge(column, decorator);
-      if (column.sortable) {
-        mergeInto(column, {
-          sorted: sort.key === column.key ? sort.direction : undefined,
-          headerRenderer: SortableGridHeaderCell,
-          onSort: this.props.onDataSort
-        });
-      }
-      if (column.formatter && isString(column.formatter)) {
-        var formatter = formatters.resolve(column.formatter);
-        invariant(
-          formatter !== undefined,
-          'invalid formatter "%s"', column.formatter
-        );
-        mergeInto(column, {formatter});
-      }
+    }
+    if (column.sortable) {
+      mergeInto(column, {
+        sorted: sort.key === column.key ? sort.direction : undefined,
+        headerRenderer: SortableGridHeaderCell,
+        onSort: this.props.onDataSort
+      });
+    }
+    if (column.formatter && isString(column.formatter)) {
+      var formatter = formatters.resolve(column.formatter);
+      invariant(
+        formatter !== undefined,
+        'invalid formatter "%s"', column.formatter
+      );
+      mergeInto(column, {formatter});
     }
     return column;
   },

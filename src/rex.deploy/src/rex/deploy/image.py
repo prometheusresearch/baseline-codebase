@@ -5,9 +5,10 @@
 
 from .sql import (sql_create_table, sql_drop_table, sql_rename_table,
         sql_comment_on_table, sql_define_column, sql_add_column,
-        sql_drop_column, sql_rename_column, sql_set_column_not_null,
-        sql_set_column_default, sql_comment_on_column, sql_create_enum_type,
-        sql_drop_type, sql_rename_type, sql_add_unique_constraint,
+        sql_drop_column, sql_rename_column, sql_copy_column,
+        sql_set_column_type, sql_set_column_not_null, sql_set_column_default,
+        sql_comment_on_column, sql_create_enum_type, sql_drop_type,
+        sql_rename_type, sql_add_unique_constraint,
         sql_add_foreign_key_constraint, sql_drop_constraint,
         sql_rename_constraint, sql_comment_on_constraint, sql_create_index,
         sql_drop_index, sql_rename_index, sql_create_sequence,
@@ -41,6 +42,10 @@ class Image(object):
     def link(self, other):
         """Links a dependent object."""
         self.linkages.append(weakref.ref(other))
+
+    def unlink(self, other):
+        """Unlinks a dependent object."""
+        self.linkages.remove(weakref.ref(other))
 
     def find(self, types):
         """Finds dependent objects of the given type or types."""
@@ -421,6 +426,12 @@ class IndexImage(NamedImage):
         sql = sql_drop_index(self.name)
         self.cursor.execute(sql)
         self.remove()
+
+    def reset(self):
+        """Rebuilds the index."""
+        column_names = [column.name for column in self.columns]
+        sql = sql_create_index(self.name, self.table.name, column_names)
+        self.cursor.execute(sql)
 
 
 class SequenceImage(NamedImage):
@@ -867,12 +878,23 @@ class ColumnImage(NamedImage):
 
     def set_position(self, position):
         "Sets the column position."""
-        if position != len(self.table.columns):
+        if position != len(self.table.columns)-1:
             raise NotImplementedError()
         if self.position == position:
             return self
         self.table.columns.remove(self)
         self.table.columns.add(self)
+        if self.table.data is not None:
+            self.table.data.remove()
+        return self
+
+    def set_type(self, type):
+        """Changes the column type."""
+        self.type.unlink(self)
+        type.link(self)
+        self.type = type
+        if self.table.data is not None:
+            self.table.data.remove()
         return self
 
     def set_is_not_null(self, is_not_null):
@@ -889,6 +911,27 @@ class ColumnImage(NamedImage):
         """Sets the comment."""
         self.comment = comment
         return self
+
+    def alter_position(self, position):
+        if position == self.position:
+            return self
+        sql = sql_add_column(self.table.name, u"?", self.type.name, False)
+        self.cursor.execute(sql)
+        sql = sql_copy_column(self.table.name, u"?", self.name)
+        self.cursor.execute(sql)
+        sql = sql_drop_column(self.table.name, self.name)
+        self.cursor.execute(sql)
+        self.reset(u"?")
+        return self.set_position(position)
+
+    def alter_type(self, type, expression=None):
+        """Updates the column type."""
+        if self.type is type:
+            return self
+        sql = sql_set_column_type(
+                self.table.name, self.name, type.name, expression)
+        self.cursor.execute(sql)
+        return self.set_type(type)
 
     def alter_is_not_null(self, is_not_null):
         """Updates the ``NOT NULL`` constraint."""
@@ -927,6 +970,45 @@ class ColumnImage(NamedImage):
         sql = sql_drop_column(self.table.name, self.name)
         self.cursor.execute(sql)
         self.remove()
+
+    def reset(self, temp_name=None):
+        """Rebuilds the column."""
+        if temp_name is None:
+            sql = sql_add_column(
+                    self.table.name, self.name, self.type.name,
+                    self.is_not_null, self.default)
+            self.cursor.execute(sql)
+        else:
+            sql = sql_rename_column(
+                    self.table.name, temp_name, self.name)
+            self.cursor.execute(sql)
+            if self.is_not_null:
+                sql = sql_set_column_not_null(
+                        self.table.name, self.name, True)
+                self.cursor.execute(sql)
+            if self.default is not None:
+                sql = sql_set_column_default(
+                        self.table.name, self.name, self.default)
+                self.cursor.execute(sql)
+        if self.comment is not None:
+            sql = sql_comment_on_column(
+                    self.table.name, self.name, self.comment)
+            self.cursor.execute(sql)
+        unique_key_indexes = []
+        for unique_key in self.table.unique_keys:
+            if self in unique_key.origin_columns:
+                unique_key.reset()
+                unique_key_indexes.extend(unique_key.indexes)
+        for foreign_key in self.table.foreign_keys:
+            if self in foreign_key.origin_columns:
+                foreign_key.reset()
+        for foreign_key in self.table.referring_foreign_keys:
+            if self not in foreign_key.origin_columns and \
+                    self in foreign_key.target_columns:
+                foreign_key.reset()
+        for index in self.indexes:
+            if index not in unique_key_indexes:
+                index.reset()
 
 
 class ConstraintImage(NamedImage):
@@ -1037,6 +1119,18 @@ class UniqueKeyImage(ConstraintImage):
         if index is not None:
             index.set_name(name)
         return super(UniqueKeyImage, self).alter_name(name)
+
+    def reset(self):
+        """Rebuilds the constraint."""
+        column_names = [column.name for column in self.origin_columns]
+        sql = sql_add_unique_constraint(
+                self.origin.name, self.name, column_names, self.is_primary)
+        self.cursor.execute(sql)
+        if self.comment is not None:
+            sql = sql_comment_on_constraint(
+                    self.origin.name, self.name, self.comment)
+            self.cursor.execute(sql)
+        return self
 
 
 NO_ACTION = u'NO ACTION'

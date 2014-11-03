@@ -221,25 +221,6 @@ constraint cannot be a part of the ``PRIMARY KEY`` of the table::
     >>> driver("""{ column: individual.email, type: text, unique: true }""")
     ALTER TABLE "individual" ADD CONSTRAINT "individual_email_uk" UNIQUE ("email");
 
-In the future, if the column already exists, but does not match the column fact,
-the column is altered to match the fact.  Currently, it's not yet functional::
-
-    >>> driver("""{ column: individual.sex, type: [male, female, intersex] }""")
-    Traceback (most recent call last):
-      ...
-    Error: Discovered column with mismatched type:
-        sex
-    While deploying column fact:
-        "<byte string>", line 1
-
-    >>> driver("""{ column: individual.sex, type: text }""")
-    Traceback (most recent call last):
-      ...
-    Error: Discovered column with mismatched type:
-        sex
-    While deploying column fact:
-        "<byte string>", line 1
-
 You cannot create a column if there is already a link with the same name::
 
     >>> driver("""
@@ -287,6 +268,77 @@ identity trigger will be rebuilt::
         RETURN NEW;
     END;
     ';
+
+
+Converting the column
+=====================
+
+It is possible to change the type of the column.  First, we create a text
+column::
+
+    >>> driver("""
+    ... - { table: address }
+    ... - { column: address.code, type: text }
+    ... - { identity: [address.code] }
+    ... - { column: address.city, type: text }
+    ... - { column: address.zip, type: text }
+    ... - { column: address.state, type: text }
+    ... - { data: [{ code: chi, city: Chicago, zip: '60614', state: IL }], of: address }
+    ... """)                # doctest: +ELLIPSIS
+    CREATE TABLE "address" ...
+
+    >>> zip_table = schema[u'address']
+    >>> zip_key = zip_table.primary_key
+    >>> zip_table.select()
+    SELECT "id", "code", "city", "zip", "state"
+        FROM "address";
+    <DataImage address>
+
+    >>> zip_table.data.get(zip_key, (u'chi',))
+    (1, u'chi', u'Chicago', u'60614', u'IL')
+
+Then we could convert the ``zip`` column to integer::
+
+    >>> driver("""{ column: address.zip, type: integer }""")
+    ALTER TABLE "address" ALTER COLUMN "zip" SET DATA TYPE "int4" USING "zip"::"int4";
+
+    >>> zip_table.select()
+    SELECT "id", "code", "city", "zip", "state"
+        FROM "address";
+    <DataImage address>
+
+    >>> zip_table.data.get(zip_key, (u'chi',))
+    (1, u'chi', u'Chicago', 60614, u'IL')
+
+We can also convert a column to an ``ENUM`` type::
+
+    >>> driver("""{ column: address.state, type: [IL] }""")
+    CREATE TYPE "address_state_enum" AS ENUM ('IL');
+    ALTER TABLE "address" ALTER COLUMN "state" SET DATA TYPE "address_state_enum" USING "state"::"address_state_enum";
+
+We can add more labels to an ``ENUM`` type too::
+
+    >>> driver("""{ column: address.state, type: [IL, MI] }""")
+    CREATE TYPE "?" AS ENUM ('IL', 'MI');
+    ALTER TABLE "address" ALTER COLUMN "state" SET DATA TYPE "?" USING "state"::"text"::"?";
+    DROP TYPE "address_state_enum";
+    ALTER TYPE "?" RENAME TO "address_state_enum";
+
+Or convert an ``ENUM`` column into text::
+
+    >>> driver("""{ column: address.state, type: text }""")
+    ALTER TABLE "address" ALTER COLUMN "state" SET DATA TYPE "text" USING "state"::"text";
+    DROP TYPE "address_state_enum";
+
+Unsupported conversions are rejected::
+
+    >>> driver("""{ column: address.zip, type: date }""")
+    Traceback (most recent call last):
+      ...
+    Error: Cannot convert column of type integer to date:
+        zip
+    While deploying column fact:
+        "<byte string>", line 1
 
 
 Dropping the column

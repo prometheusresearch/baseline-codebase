@@ -29,6 +29,8 @@ class LinkFact(Fact):
     `title`: ``unicode`` or ``None``
         The title of the link.  If not set, borrowed from the target title
         or generated from the label.
+    `front_labels`: [``unicode``]
+        List of fields that should be positioned in front of the link.
     `is_present`: ``bool``
         Indicates whether the link exists.
     """
@@ -75,13 +77,19 @@ class LinkFact(Fact):
         if is_present:
             if target_table_label is None:
                 target_table_label = label
+        front_labels = spec.after
+        if front_labels is None:
+            front_labels = []
+        elif not isinstance(front_labels, list):
+            front_labels = [front_labels]
         return cls(table_label, label, target_table_label,
                     former_labels=former_labels, is_required=is_required,
-                    is_unique=is_unique, title=title, is_present=is_present)
+                    is_unique=is_unique, title=title, front_labels=front_labels,
+                    is_present=is_present)
 
     def __init__(self, table_label, label, target_table_label=None,
                  former_labels=[], is_required=None, is_unique=None,
-                 title=None, is_present=True):
+                 title=None, front_labels=[], is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
@@ -99,12 +107,16 @@ class LinkFact(Fact):
             assert isinstance(is_unique, bool)
             assert (title is None or
                     (isinstance(title, unicode) and len(title) > 0))
+            assert (isinstance(front_labels, list) and
+                    all(isinstance(front_label, unicode)
+                        for front_label in front_labels))
         else:
             assert target_table_label is None
             assert former_labels == []
             assert is_required is None
             assert is_unique is None
             assert title is None
+            assert front_labels == []
         self.table_label = table_label
         self.label = label
         self.target_table_label = target_table_label
@@ -112,6 +124,7 @@ class LinkFact(Fact):
         self.is_required = is_required
         self.is_unique = is_unique
         self.title = title
+        self.front_labels = front_labels
         self.is_present = is_present
 
     def __repr__(self):
@@ -128,6 +141,8 @@ class LinkFact(Fact):
             args.append("is_unique=%r" % self.is_unique)
         if self.title is not None:
             args.append("title=%r" % self.title)
+        if self.front_labels:
+            args.append("front_labels=%r" % self.front_labels)
         if not self.is_present:
             args.append("is_present=%r" % self.is_present)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
@@ -160,12 +175,21 @@ class LinkFact(Fact):
                         is_unique=self.is_unique,
                         title=self.title)
             else:
-                table.build_link(
+                link = table.build_link(
                         label=self.label,
                         target_table=target_table,
                         is_required=self.is_required,
                         is_unique=self.is_unique,
                         title=self.title)
+            front_fields = []
+            for front_label in self.front_labels:
+                front_field = (table.column(front_label) or
+                               table.link(front_label))
+                if not front_field:
+                    raise Error("Discovered missing field:", front_label)
+                front_fields.append(front_field)
+            if front_fields:
+                table.move_after(link, front_fields)
         else:
             if link:
                 link.erase()

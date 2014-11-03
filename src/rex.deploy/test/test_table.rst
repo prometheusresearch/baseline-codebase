@@ -230,6 +230,43 @@ Note that applying the same fact second time has no effect::
     >>> driver("""{ table: assessment, was: measure }""")
 
 
+Reordering columns and links
+============================
+
+When table columns and links are specified within ``with`` clause, the relative
+order is enforced.  If necessary, the respective table columns are reordered::
+
+    >>> driver("""
+    ... table: assessment
+    ... with:
+    ... - { column: code, type: text }
+    ... - { link: individual }
+    ... - { column: status, type: [in-process, processed, completed], default: in-process }
+    ... """)
+    ALTER TABLE "assessment" ADD COLUMN "?" "int4";
+    UPDATE "assessment" SET "?" = "individual_id";
+    ALTER TABLE "assessment" DROP COLUMN "individual_id";
+    ALTER TABLE "assessment" RENAME COLUMN "?" TO "individual_id";
+    ALTER TABLE "assessment" ALTER COLUMN "individual_id" SET NOT NULL;
+    ALTER TABLE "assessment" ADD CONSTRAINT "assessment_pk" PRIMARY KEY ("individual_id", "code"), CLUSTER ON "assessment_pk";
+    COMMENT ON CONSTRAINT "assessment_pk" ON "assessment" IS '---
+    generators:
+    - null
+    - offset
+    ';
+    ALTER TABLE "assessment" ADD CONSTRAINT "assessment_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE CASCADE;
+    CREATE INDEX "assessment_individual_fk" ON "assessment" ("individual_id");
+    ALTER TABLE "assessment" ADD COLUMN "?" "assessment_status_enum";
+    UPDATE "assessment" SET "?" = "status";
+    ALTER TABLE "assessment" DROP COLUMN "status";
+    ALTER TABLE "assessment" RENAME COLUMN "?" TO "status";
+    ALTER TABLE "assessment" ALTER COLUMN "status" SET NOT NULL;
+    ALTER TABLE "assessment" ALTER COLUMN "status" SET DEFAULT 'in-process';
+    COMMENT ON COLUMN "assessment"."status" IS '---
+    default: in-process
+    ';
+
+
 Dropping the table
 ==================
 

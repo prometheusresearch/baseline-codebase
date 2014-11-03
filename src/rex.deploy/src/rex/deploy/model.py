@@ -6,10 +6,9 @@
 from rex.core import Record, Error
 from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
 from .meta import uncomment
-from .recover import recover
-from .sql import (mangle, sql_value, sql_primary_key_procedure,
-        sql_integer_random_key, sql_text_random_key, sql_integer_offset_key,
-        sql_text_offset_key)
+from .sql import (mangle, sql_value, sql_name, sql_cast,
+        sql_primary_key_procedure, sql_integer_random_key, sql_text_random_key,
+        sql_integer_offset_key, sql_text_offset_key)
 from .image import (TableImage, ColumnImage, UniqueKeyImage, CASCADE,
         SET_DEFAULT, BEFORE, INSERT)
 import datetime
@@ -347,6 +346,14 @@ class TableModel(EntityModel):
         # Creates table identity.
         return IdentityModel.do_build(self, **kwds)
 
+    def move_after(self, field, other_fields):
+        # Move a field after the given set of fields.
+        position = field.image.position
+        for other_field in other_fields:
+            if other_field.image.position > position:
+                field.image.alter_position(len(field.image.table.columns)-1)
+                break
+
 
 class ColumnModel(EntityModel):
     # Wraps a database column.
@@ -380,7 +387,8 @@ class ColumnModel(EntityModel):
     class data(object):
         # Derives auxiliary objects associated with the type and default value.
 
-        __slots__ = ('type', 'name', 'labels', 'domain', 'default', 'value')
+        __slots__ = ('type', 'name', 'enumerators',
+                     'domain', 'default', 'value')
 
         # HTSQL name -> SQL name.
         TYPE_MAP = {
@@ -416,15 +424,28 @@ class ColumnModel(EntityModel):
                 "now()": datetime.datetime.now,
         }
 
+        # Valid type conversions.
+        CAST_MAP = {
+            u'boolean': set([u'integer', u'text']),
+            u'integer': set([u'boolean', u'decimal', u'float', u'text']),
+            u'decimal': set([u'integer', u'float', u'text']),
+            u'float': set([u'integer', u'decimal', u'text']),
+            u'text': set([u'boolean', u'integer', u'decimal', u'float',
+                          u'date', u'time', u'datetime']),
+            u'date': set([u'text', u'datetime']),
+            u'time': set([u'text']),
+            u'datetime': set([u'text', u'date', u'time']),
+        }
+
         def __init__(self, type, default):
             self.type = type
             if isinstance(type, list):
                 self.name = None
-                self.labels = type
+                self.enumerators = type
                 self.domain = EnumDomain(type)
             else:
                 self.name = self.TYPE_MAP[type]
-                self.labels = None
+                self.enumerators = None
                 self.domain = self.DOMAIN_MAP[type]
             # Normalize the default value as a string (or `None`).
             if isinstance(default, str):
@@ -475,9 +496,9 @@ class ColumnModel(EntityModel):
         names = cls.names(table.label, label)
         data = cls.data(type, default)
         # Determine the column type, create an ENUM type if necessary.
-        if data.labels is not None:
+        if data.enumerators is not None:
             type_image = schema.image.create_enum_type(
-                    names.enum_name, data.labels)
+                    names.enum_name, data.enumerators)
         else:
             type_image = schema.system_image.types[data.name]
         # Create the column.
@@ -541,9 +562,11 @@ class ColumnModel(EntityModel):
         meta = uncomment(self.image)
         data = self.data(type, default)
         if type != self.type:
-            raise Error("Discovered column with mismatched type:", label)
-        if data.default != meta.default:
-            self.image.alter_default(data.value)
+            self._convert(names, data)
+            #raise Error("Discovered column with mismatched type:", label)
+        else:
+            if data.default != meta.default:
+                self.image.alter_default(data.value)
         # Update other constraints.
         self.image.alter_is_not_null(is_required)
         if is_unique and not self.uk_image:
@@ -558,6 +581,48 @@ class ColumnModel(EntityModel):
         if meta.update(label=saved_label, title=saved_title,
                        default=saved_default):
             self.image.alter_comment(meta.dump())
+
+    def _convert(self, names, data):
+        # Converts the column data type.
+        schema = self.table.schema
+        old_data = self.data(self.type, self.default)
+        has_cast = False
+        if old_data.enumerators is None and data.enumerators is None:
+            has_cast = (data.type in old_data.CAST_MAP[old_data.type])
+        elif old_data.enumerators is None:
+            has_cast = (old_data.type == u'text')
+        elif data.enumerators is None:
+            has_cast = (data.type == u'text')
+        else:
+            has_cast = True
+        if not has_cast:
+            raise Error("Cannot convert column of type %s to %s:"
+                        % (old_data.domain, data.domain), names.label)
+        self.image.alter_default(None)
+        if old_data.enumerators is None and data.enumerators is None:
+            type_image = self.table.schema.system_image.types[data.name]
+            expression = sql_cast(sql_name(self.image.name), type_image.name)
+            self.image.alter_type(type_image, expression)
+        elif old_data.enumerators is None:
+            self.enum_image = self.table.schema.image.create_enum_type(
+                    names.enum_name, data.enumerators)
+            expression = sql_cast(sql_name(self.image.name), names.enum_name)
+            self.image.alter_type(self.enum_image, expression)
+        elif data.enumerators is None:
+            type_image = schema.system_image.types[data.name]
+            expression = sql_cast(sql_name(self.image.name), type_image.name)
+            self.image.alter_type(type_image, expression)
+            self.enum_image.drop()
+        else:
+            new_enum_image = schema.image.create_enum_type(
+                    u"?", data.enumerators)
+            expression = sql_cast(
+                    sql_cast(sql_name(self.image.name), u"text"), u"?")
+            self.image.alter_type(new_enum_image, expression)
+            self.enum_image.drop()
+            self.enum_image = new_enum_image
+            self.enum_image.alter_name(names.enum_name)
+        self.image.alter_default(data.value)
 
     def do_erase(self):
         # Deletes the column and auxiliary objects.

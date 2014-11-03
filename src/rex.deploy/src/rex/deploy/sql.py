@@ -276,6 +276,38 @@ def sql_rename_column(table_name, name, new_name):
                     sql_name(new_name))
 
 
+def sql_copy_column(table_name, name, source_name):
+    """
+    Generates::
+
+        UPDATE {table_name} SET {name} = {source_name}
+    """
+    return u"UPDATE {} SET {} = {};" \
+            .format(sql_name(table_name), sql_name(name), sql_name(source_name))
+
+
+def sql_set_column_type(table_name, name, type_name, expression=None):
+    """
+    Generates::
+
+        ALTER TABLE {table_name} ALTER COLUMN {name} SET DATA TYPE {type_name}
+        [USING {expression}]
+    """
+    return u"ALTER TABLE {} ALTER COLUMN {} SET DATA TYPE {}{};" \
+            .format(sql_name(table_name), sql_name(name), sql_name(type_name),
+                    u" USING {}".format(expression) if expression is not None
+                    else u"")
+
+
+def sql_cast(expression, type_name):
+    """
+    Generates::
+
+        {expression}::{type_name}
+    """
+    return u"{}::{}".format(expression, sql_name(type_name))
+
+
 def sql_set_column_not_null(table_name, name, is_not_null):
     """
     Generates::

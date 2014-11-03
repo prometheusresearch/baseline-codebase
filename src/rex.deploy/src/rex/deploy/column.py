@@ -13,6 +13,25 @@ from htsql.core.domain import (UntypedDomain, BooleanDomain, IntegerDomain,
 import datetime
 
 
+class EnumValue(object):
+
+    def __init__(self, value, former_values=[], title=None):
+        self.value = value
+        self.former_values = former_values
+        self.title = title
+
+    def __repr__(self):
+        args = []
+        args.append(repr(self.value))
+        if self.former_values:
+            args.append("former_values=%r" % self.former_values)
+        if self.title is not None:
+            args.append("title=%r" % title)
+        if len(args) == 1:
+            return args[0]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+
 class ColumnFact(Fact):
     """
     Describes a table column.
@@ -35,6 +54,8 @@ class ColumnFact(Fact):
         Indicates that each value must be unique across all rows in the table.
     `title`: ``unicode`` or ``None``
         The title of the column.  If not set, generated from the label.
+    `front_labels`: [``unicode``]
+        List of fields which should be positioned in front of the column.
     `is_present`: ``bool``
         Indicates whether the column exists.
     """
@@ -129,14 +150,19 @@ class ColumnFact(Fact):
                 raise Error("Got ill-typed default value:", default)
         is_required = spec.required
         is_unique = spec.unique
+        front_labels = spec.after
+        if front_labels is None:
+            front_labels = []
+        elif not isinstance(front_labels, list):
+            front_labels = [front_labels]
         return cls(table_label, label, former_labels=former_labels,
                    title=title, type=type, default=default,
                    is_required=is_required, is_unique=is_unique,
-                   is_present=is_present)
+                   front_labels=front_labels, is_present=is_present)
 
     def __init__(self, table_label, label, type=None, default=None,
                  former_labels=[], is_required=None, is_unique=None,
-                 title=None, is_present=True):
+                 title=None, front_labels=[], is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
@@ -157,6 +183,9 @@ class ColumnFact(Fact):
             assert isinstance(is_unique, bool)
             assert (title is None or
                     (isinstance(title, unicode) and len(title) > 0))
+            assert (isinstance(front_labels, list) and
+                    all(isinstance(front_label, unicode)
+                        for front_label in front_labels))
         else:
             assert former_labels == []
             assert type is None
@@ -164,6 +193,7 @@ class ColumnFact(Fact):
             assert is_required is None
             assert is_unique is None
             assert title is None
+            assert front_labels == []
         self.table_label = table_label
         self.label = label
         self.type = type
@@ -172,6 +202,7 @@ class ColumnFact(Fact):
         self.is_required = is_required
         self.is_unique = is_unique
         self.title = title
+        self.front_labels = front_labels
         self.is_present = is_present
 
     def __repr__(self):
@@ -190,6 +221,8 @@ class ColumnFact(Fact):
             args.append("is_unique=%r" % self.is_unique)
         if self.title is not None:
             args.append("title=%r" % self.title)
+        if self.front_labels:
+            args.append("front_labels=%r" % self.front_labels)
         if not self.is_present:
             args.append("is_present=%r" % self.is_present)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
@@ -219,13 +252,22 @@ class ColumnFact(Fact):
                         is_unique=self.is_unique,
                         title=self.title)
             else:
-                table.build_column(
+                column = table.build_column(
                         label=self.label,
                         type=self.type,
                         default=self.default,
                         is_required=self.is_required,
                         is_unique=self.is_unique,
                         title=self.title)
+            front_fields = []
+            for front_label in self.front_labels:
+                front_field = (table.column(front_label) or
+                               table.link(front_label))
+                if not front_field:
+                    raise Error("Discovered missing field:", front_label)
+                front_fields.append(front_field)
+            if front_fields:
+                table.move_after(column, front_fields)
         else:
             if column:
                 column.erase()

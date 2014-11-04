@@ -114,12 +114,6 @@ class DataFact(Fact):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
     def __call__(self, driver):
-        if self.is_present:
-            return self.create(driver)
-        else:
-            return self.drop(driver)
-
-    def create(self, driver):
         # Ensures that the table contains the given data.
 
         # Find the table.
@@ -129,99 +123,107 @@ class DataFact(Fact):
             raise Error("Discovered missing table:", self.table_label)
         if not table.identity():
             raise Error("Discovered table without identity:", self.table_label)
+        fields = table.fields()
         image = table.image
 
         # Load input data.
-        rows = self._load(table)
+        records = self._load(table)
         # If no input, assume NOOP.
-        if not rows:
+        if not records:
             return
 
-        # Load existing table content.
+        # Load table content.
         self._fetch(table)
 
-        # Indexes of the primary key columns.
-        column_names = image.columns.keys()
-        key_mask = [column_names.index(column.name)
-                    for column in image.primary_key]
-        # Indexes of columns that do not belong to the PK.
-        nonkey_mask = [column_names.index(column.name)
-                       for column in image
-                       if column not in image.primary_key]
+        # Do we need to drop table content afterwards?
+        is_invalid = False
 
-        # Links for columns with foreign keys.
-        targets = {}
-        for field in table.fields():
-            if field.is_link:
-                targets[field.image] = field.target_table
+        # Column indexes.
+        indexes = dict((field.image, idx)
+                       for idx, field in enumerate(fields))
+        key_mask = [column_image.position
+                    for column_image in image.primary_key]
 
-        for row_idx, row in enumerate(rows):
+        for record_idx, record in enumerate(records):
             try:
-                # Verify that PK is provided.
-                for idx in key_mask:
-                    if row[idx] is None or row[idx] is SKIP:
-                        column = image.columns.values()[idx]
-                        field = schema(column)
-                        raise Error("Discovered missing value"
-                                    " for identity field:", field.label)
-                # Convert links to FK values.
-                if targets:
-                    items = []
-                    for column, data in zip(image, row):
-                        item = data
-                        if (column in targets and
-                                data is not None and data is not SKIP):
-                            target = targets[column]
-                            item = self._resolve(target, data)
-                            if item is None:
-                                dumper = self._domain(column).dump
+                # Convert field values to raw column values.
+                row = []
+                for column_image in image.columns:
+                    index = indexes.get(column_image)
+                    if index is not None:
+                        data = record[index]
+                        field = fields[index]
+                        # Resolve links.
+                        if field.is_link and \
+                                data is not None and data is not SKIP:
+                            target = field.target_table
+                            data_id = self._resolve(target, data)
+                            if data_id is None:
+                                target = field.target_table
+                                domain = self._domain(field)
                                 raise Error("Discovered missing record:",
                                             "%s[%s]" % (target.label,
-                                                        dumper(data)))
-                        items.append(item)
-                    row = tuple(items)
+                                                        domain.dump(data)))
+                            data = data_id
+                    else:
+                        data = SKIP
+                    row.append(data)
+                row = tuple(row)
                 # The primary key value.
-                handle = tuple(row[idx] for idx in key_mask)
+                handle = tuple([row[idx] for idx in key_mask])
                 # Find an existing row by the PK.
                 old_row = image.data.get(image.primary_key, handle)
-                if old_row is not None:
-                    # Find columns and values that changed.
-                    columns = []
-                    values = []
-                    for column, data, old_data in zip(image, row, old_row):
-                        if data is SKIP or data == old_data:
+                if self.is_present:
+                    if old_row is not None:
+                        # Find columns and values that changed.
+                        columns = []
+                        values = []
+                        for column, data, old_data in zip(image, row, old_row):
+                            if data is SKIP or data == old_data:
+                                continue
+                            columns.append(column)
+                            values.append(data)
+                        if not columns:
                             continue
-                        columns.append(column)
-                        values.append(data)
-                    if not columns:
-                        continue
-                    # Update an existing row.
-                    image.data.update(old_row, columns, values)
+                        # Update an existing row.
+                        image.data.update(old_row, columns, values)
+                    else:
+                        # Add a new row.
+                        columns = []
+                        values = []
+                        for column, data in zip(image, row):
+                            if data is SKIP:
+                                continue
+                            columns.append(column)
+                            values.append(data)
+                        image.data.insert(columns, values)
                 else:
-                    # Add a new row.
-                    columns = []
-                    values = []
-                    for column, data in zip(image, row):
-                        if data is SKIP:
-                            continue
-                        columns.append(column)
-                        values.append(data)
-                    image.data.insert(columns, values)
+                    if old_row is not None:
+                        # Remove the row.
+                        image.data.delete(old_row)
+                        # Data might be invalid.
+                        is_invalid = True
             except Error, error:
                 # Add the row being processed to the error trace.
                 items = []
-                for column, data in zip(image, rows[row_idx]):
+                for field, data in zip(fields, record):
                     if data is SKIP:
                         continue
                     if data is None:
                         item = u'null'
                     else:
-                        dumper = self._domain(column).dump
+                        dumper = self._domain(field).dump
                         item = htsql.core.util.to_literal(dumper(data))
                     items.append(item)
-                error.wrap("While processing row #%s:" % (row_idx+1),
+                error.wrap("While processing row #%s:" % (record_idx+1),
                            u"{%s}" % u", ".join(items))
                 raise
+
+        # Invalidate cached data.
+        if is_invalid:
+            for dependent in table.dependents():
+                if dependent.is_link and dependent.target_table is table:
+                    self._invalidate(dependent.table)
 
     def _load(self, table):
         # Loads input data and produces a list of tuples.
@@ -248,7 +250,7 @@ class DataFact(Fact):
                 raise Error("Failed to recognize file format:",
                             self.data_path)
 
-        rows = []
+        records = []
         # Process tabular input (CSV).
         if isinstance(data, str) or hasattr(data, 'read'):
 
@@ -268,10 +270,10 @@ class DataFact(Fact):
                       for slice in reader]
             # Convert a slice into a table row.
             try:
-                for row in self._convert(table, labels, slices):
-                    rows.append(row)
+                for record in self._convert(table, labels, slices):
+                    records.append(record)
             except Error, error:
-                idx = len(rows)+1
+                idx = len(records)+1
                 if self.data_path is not None:
                     location = "\"%s\", line #%s" % (self.data_path, idx+1)
                 else:
@@ -299,17 +301,17 @@ class DataFact(Fact):
                 # Convert a record into a table row.
                 labels, slice = zip(*items)
                 try:
-                    rows.extend(self._convert(table, labels, [slice]))
+                    records.extend(self._convert(table, labels, [slice]))
                 except Error, error:
                     if self.data_path is not None:
                         location = "\"%s\"" % self.data_path
                     else:
                         location = record
                     error.wrap("While parsing row #%s:"
-                               % (len(rows)+1), location)
+                               % (len(records)+1), location)
                     raise
 
-        return rows
+        return records
 
     def _convert(self, table, labels, slices):
         # Converts raw input into a list of table rows.
@@ -317,29 +319,30 @@ class DataFact(Fact):
         # We don't want any errors on empty input.
         if not slices:
             return
-        # Maps a table column to a position in the slice.
+        # Table fields.
+        fields = table.fields()
+        field_by_label = dict((field.label, field) for field in fields)
+        # Table identity.
+        identity = table.identity()
+        # Maps a table field to a position in the slice.
         masks = {}
-        # Maps a table column to its HTSQL domain.
+        # Maps a table field to its HTSQL domain.
         domains = {}
-        # Maps a table column to its field model.
-        fields = {}
         # Find table columns corresponding to the input labels.
         for idx, label in enumerate(labels):
-            field = table.column(label) or table.link(label)
+            field = field_by_label.get(label)
             if not field:
                 raise Error("Discovered missing field:", label)
-            column = field.image
-            if column in masks:
+            if field in masks:
                 raise Error("Discovered duplicate field:", label)
-            masks[column] = idx
-            domains[column] = self._domain(column)
-            fields[column] = field
+            # Forbid non-identity fields when removing rows.
+            if not self.is_present and field not in identity.fields:
+                raise Error("Discovered unexpected field:", label)
+            masks[field] = idx
+            domains[field] = self._domain(field)
 
-        # Verify that we got PK columns.
-        for field in table.identity().fields:
-            if field.image not in fields:
-                raise Error("Discovered missing value for identity field:",
-                            field.label)
+        # Mandatory PK columns.
+        required = set(identity.fields)
 
         # Convert raw slices into native form.
         for slice in slices:
@@ -349,15 +352,15 @@ class DataFact(Fact):
             elif len(slice) > len(masks):
                 raise Error("Discovered too many entries:",
                             "%s > %s" % (len(slice), len(masks)))
-            # Convert the row.
-            row = []
-            for column in table.image.columns:
-                if column not in masks:
+            # Prepare the record.
+            record = []
+            for field in fields:
+                if field not in masks:
                     data = SKIP
                 else:
-                    data = slice[masks[column]]
+                    data = slice[masks[field]]
                     if data is not None and data is not SKIP:
-                        domain = domains[column]
+                        domain = domains[field]
                         try:
                             # If it's a text value, let the domain parse it.
                             if isinstance(data, str):
@@ -370,8 +373,7 @@ class DataFact(Fact):
                                 data = self._adapt(data, domain)
                         except ValueError, exc:
                             error = Error("Discovered invalid input:", exc)
-                            error.wrap("While converting field:",
-                                       fields[column].label)
+                            error.wrap("While converting field:", field.label)
                             raise error
                         # If the value is a TZ-aware datetime, we convert
                         # it to the local timezone and then strip the
@@ -382,20 +384,23 @@ class DataFact(Fact):
                             data.tzinfo is not None):
                             tz = psycopg2.tz.LocalTimezone()
                             data = data.astimezone(tz).replace(tzinfo=None)
-                row.append(data)
-            yield tuple(row)
+                if field in required and (data is None or data is SKIP):
+                    raise Error("Discovered missing value for identity field:",
+                                field.label)
+                record.append(data)
+            yield tuple(record)
 
-    def _domain(self, column):
+    def _domain(self, field):
         # Determines HTSQL domain of the column.
 
         # FK column -> identity of the target table.
-        if column.foreign_keys:
-            target = column.foreign_keys[0].target
-            labels = [self._domain(column)
-                      for column in target.primary_key]
+        if field.is_link:
+            target = field.target_table
+            labels = [self._domain(identity_field)
+                      for identity_field in target.identity().fields]
             return htsql.core.domain.IdentityDomain(labels)
         # Type image.
-        type = column.type
+        type = field.image.type
         # Unwrap a domain type.
         while type.is_domain:
             type = type.base_type
@@ -466,7 +471,7 @@ class DataFact(Fact):
                              for item, label in zip(data, domain.labels))
         raise ValueError(repr(data))
 
-    def _resolve(self, table, identity):
+    def _resolve(self, table, items):
         # Finds a row by identity.
 
         # Pre-load table data if necessary.
@@ -474,7 +479,7 @@ class DataFact(Fact):
 
         # Determine the PK value.
         handle = []
-        for item, field in zip(identity, table.identity().fields):
+        for field, item in zip(table.identity().fields, items):
             if field.is_column:
                 handle.append(item)
             else:
@@ -497,7 +502,12 @@ class DataFact(Fact):
             table.image.select()
             driver.set_lock(was_locked)
 
-    def drop(self, driver):
-        raise NotImplementedError("%s.drop()" % self.__class__.__name__)
+    def _invalidate(self, table):
+        # Invalidates table data.
+        if table.image.data is not None:
+            table.image.data.remove()
+            for dependent in table.dependents():
+                if dependent.is_link and dependent.target_table is table:
+                    self._invalidate(dependent.table)
 
 

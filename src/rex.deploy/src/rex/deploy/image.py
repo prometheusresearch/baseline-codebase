@@ -1395,6 +1395,7 @@ class DataImage(Image):
         assert key_value is not None
         sql = sql_delete(self.table.name, key_column.name, key_value)
         self.cursor.execute(sql)
+        self.remove_row(old_row)
 
 
 def make_catalog(cursor):

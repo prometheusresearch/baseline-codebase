@@ -31,20 +31,16 @@ application database::
     Error: Expected a PostgreSQL database; got:
         mysql:///deploy_demo
 
-You can use the ``Cluster`` object to test, create and destroy databases
-in the database cluster::
+You can use the ``Cluster`` object to test and create databases in the database
+cluster::
 
     >>> cluster.create('deploy_demo_cluster')
     >>> cluster.exists('deploy_demo_cluster')
     True
 
-    >>> cluster.drop('deploy_demo_cluster')
-    >>> cluster.exists('deploy_demo_cluster')
-    False
-
 You can also clone an existing database::
 
-    >>> cluster.clone('deploy_demo', 'deploy_demo_clone')
+    >>> cluster.clone('deploy_demo_cluster', 'deploy_demo_clone')
     >>> cluster.exists('deploy_demo_clone')
     True
 
@@ -56,7 +52,13 @@ Or rename it::
     >>> cluster.exists('deploy_demo_renamed')
     True
 
+Or delete it::
+
     >>> cluster.drop('deploy_demo_renamed')
+
+    >>> cluster.drop('deploy_demo_cluster')
+    >>> cluster.exists('deploy_demo_cluster')
+    False
 
 It is an error if you try to create a database which already exists or
 drop a database which does not exist::

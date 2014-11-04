@@ -165,8 +165,8 @@ A row must contain the value of the ``PRIMARY KEY``::
       ...
     Error: Discovered missing value for identity field:
         code
-    While processing row #1:
-        {'Dixons'}
+    While parsing row #1:
+        ,Dixons
     While deploying data fact:
         "<byte string>", line 2
 
@@ -414,6 +414,50 @@ Invalid values are rejected::
         code
     While parsing row #1:
         {u'code': datetime.date(1990, 3, 13), u'individual': '1003.03'}
+    While deploying data fact:
+        "<byte string>", line 2
+
+
+Removing data
+=============
+
+To remove data from a table, use ``data`` fact with unset ``present`` field::
+
+    >>> driver("""
+    ... data: |
+    ...   code
+    ...   1003
+    ... of: family
+    ... present: false
+    ... """)
+    DELETE FROM "family"
+        WHERE "id" = 3;
+
+Applying the same fact again has no effect::
+
+    >>> driver("""
+    ... data: |
+    ...   code
+    ...   1003
+    ... of: family
+    ... present: false
+    ... """)
+
+It is an error to specify non-identity fields when removing data::
+
+    >>> driver("""
+    ... data: |
+    ...   code,notes
+    ...   1003,Clarks
+    ... of: family
+    ... present: false
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Discovered unexpected field:
+        notes
+    While parsing row #1:
+        1003,Clarks
     While deploying data fact:
         "<byte string>", line 2
 

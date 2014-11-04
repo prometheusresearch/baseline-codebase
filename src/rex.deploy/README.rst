@@ -1166,6 +1166,9 @@ Then you can use it to deploy database facts::
 
     >>> driver(TableFact(u'individual'))
 
+    >>> driver.commit()
+    >>> driver.close()
+
 :mod:`rex.deploy` also provides a :func:`rex.deploy.mangle` utility for
 generating a valid SQL name from a list of fragments and an optional suffix::
 

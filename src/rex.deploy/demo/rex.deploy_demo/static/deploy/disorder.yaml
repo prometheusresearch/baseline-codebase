@@ -1,0 +1,26 @@
+
+- table: disorder_type
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+
+- table: disorder
+  with:
+  - link: disorder_type
+  - column: code
+    type: text
+  - identity: [disorder_type, code]
+  - column: title
+    type: text
+
+- table: condition
+  with:
+  - link: individual
+  - link: disorder_type
+  - column: code
+    type: text
+  - identity: [individual, disorder_type, code]
+

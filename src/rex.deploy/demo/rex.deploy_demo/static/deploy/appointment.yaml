@@ -1,0 +1,53 @@
+
+- table: staff
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+
+- table: appointment_type
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+
+- table: appointment
+  with:
+  - link: appointment_type
+  - column: code
+    type: text
+  - identity: [appointment_type, code]
+  - column: date
+    type: date
+  - column: start_time
+    type: text
+  - column: end_time
+    type: text
+  - column: outcome
+    type: [scheduled, cancelled, rescheduled, held]
+  - column: date_scheduled
+    type: date
+  - column: time_scheduled
+    type: text
+
+- table: individual_appointment
+  with:
+  - link: individual
+  - link: appointment
+  - identity: [individual, appointment]
+
+- table: staff_appointment
+  with:
+  - link: staff
+  - link: appointment
+  - identity: [staff, appointment]
+  - column: role
+    type: text
+    required: false
+
+- table: requirement_appointment
+  with:
+  - link: todo
+  - link: appointment
+  - identity: [todo, appointment]
+

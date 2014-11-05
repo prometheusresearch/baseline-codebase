@@ -13,6 +13,7 @@ from .column import ColumnFact
 from .data import DataFact, SKIP
 from .fact import Fact, Driver, label_to_title
 from .identity import IdentityFact
+from .include import IncludeFact
 from .image import (make_catalog, Image, IndexedImage, NamedImage, ImageMap,
         CatalogImage, SchemaImage, TypeImage, DomainTypeImage, EnumTypeImage,
         IndexImage, SequenceImage, ProcedureImage, TableImage, ColumnImage,

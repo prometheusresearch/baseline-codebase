@@ -1,0 +1,44 @@
+
+- table: case_type
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - link: study
+    required: false
+  - data: |
+      code,study
+      family,
+      household,
+      genetic-group,
+
+- table: role
+  with:
+  - link: case_type
+  - column: code
+    type: text
+  - identity: [case_type, code]
+  - column: title
+    type: text
+  - column: singular
+    type: boolean
+
+- table: case
+  with:
+  - link: case_type
+  - column: code
+    type: text
+  - identity: [case_type, code: offset]
+  - link: study
+    required: false
+  - data: case.csv
+
+- table: participation
+  with:
+  - link: case
+  - link: individual
+  - identity: [case, individual]
+  - link: role
+    required: false
+  - data: participation.csv
+

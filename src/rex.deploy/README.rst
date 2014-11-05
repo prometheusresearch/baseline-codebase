@@ -395,10 +395,7 @@ Deploying when ``present`` is ``true``:
 Deploying when ``present`` is ``false``:
 
     Ensures that the database has no table ``<label>``.  If a table with this
-    name exists, it is deleted.
-
-    Any links to the table (except for self links) will prevent the table from
-    being deleted. *(FIXME?)*
+    name exists, it is deleted.  All links to the table are deleted as well.
 
 Examples:
 
@@ -442,6 +439,7 @@ Examples:
         - column: code
           of: protocol
           type: text
+          after: [study]
 
         - identity: [study, code]
           of: protocol
@@ -449,6 +447,7 @@ Examples:
         - column: title
           of: protocol
           type: text
+          after: [study, code]
 
     #. Adding a table with fast updates (but not crash-safe)::
 
@@ -510,6 +509,14 @@ A column fact describes a column of a table.
 
     This clause cannot be set if ``present`` is ``false``.
 
+`after`: ``<front_label>`` or [``<front_label>``]
+    List of fields that should appear before the column.
+
+    If the column fact is specified within a ``with`` clause, this field
+    is populated automatically.
+
+    This clause cannot be set if ``present`` is ``false``.
+
 Deploying when ``present`` is ``true``:
 
     Ensures that table ``<table_label>`` has a column ``<label>`` of type
@@ -526,6 +533,9 @@ Deploying when ``present`` is ``true``:
 
     If the column exists, but does not match the description, it is converted
     to match the description when possible.
+
+    If the column appears before any of the fields in the ``after`` list, the
+    column is moved to the end of the table.
 
     It is an error if table ``<table_label>`` does not exist.
 
@@ -666,6 +676,14 @@ A link fact describes a link between two tables.
 
     This clause cannot be set if ``present`` is ``false``.
 
+`after`: ``<front_label>`` or [``<front_label>``]
+    List of fields that should appear before the link.
+
+    If the fact is specified within a ``with`` clause, this field is populated
+    automatically.
+
+    This clause cannot be set if ``present`` is ``false``.
+
 Deploying when ``present`` is ``true``:
 
     Ensures that table ``<table_label>`` has column ``<label>_id`` and a
@@ -676,11 +694,21 @@ Deploying when ``present`` is ``true``:
     Column ``<former_label>_id`` is renamed to ``<label>_id`` if the former
     exists and the latter does not.
 
+    The ``FOREIGN KEY`` constraint is created with ``ON DELETE SET DEFAULT`` if
+    the link is not a part of the table identity, otherwise it is created with
+    ``ON DELETE CASCADE``.
+
+    Together with the ``FOREIGN KEY`` constraint, an index on ``<label>_id`` is
+    created.
+
     If ``required`` is set to ``true`` (default), the column should have
     a ``NOT NULL`` constraint.
 
     If ``unique`` is set to ``true``, a ``UNIQUE`` constraint is added on the
     column.
+
+    If the link appears before any of the fields in the ``after`` list, it is
+    moved to the end of the table.
 
     It is an error if either ``<table_label>`` or ``<target_table_label>``
     tables do not exist.
@@ -1082,6 +1110,23 @@ Examples:
 
        Note that we use a comment on the trigger procedure to verify if the
        latest version of the trigger has been already deployed.
+
+
+Include Fact
+============
+
+You can use ``include`` directive to load facts from a file.
+
+`include`: ``<path>``
+    Path to a YAML file containing a collection of facts.
+
+Examples:
+
+    #. Splitting ``deploy.yaml``::
+
+        - include: ./deploy/study.yaml
+        - include: ./deploy/individual.yaml
+        - include: ./deploy/measure.yaml
 
 
 Introduction to Python API

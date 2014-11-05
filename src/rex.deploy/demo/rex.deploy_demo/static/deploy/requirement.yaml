@@ -1,0 +1,74 @@
+
+- table: visit
+  with:
+  - link: study
+  - column: code
+    type: text
+  - identity: [study, code]
+  - column: title
+    type: text
+
+- table: protocol
+  with:
+  - link: study
+  - column: code
+    type: text
+  - identity: [study, code]
+  - column: title
+    type: text
+
+- table: requirement_type
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+
+- table: requirement
+  with:
+  - link: protocol
+  - link: requirement_type
+  - column: code
+    type: text
+  - identity: [protocol, requirement_type, code]
+  - column: title
+    type: text
+  - link: visit
+    required: false
+  - column: priority
+    type: integer
+
+- table: measure_requirement
+  with:
+  - link: requirement
+  - link: measure_type
+  - identity: [requirement, measure_type]
+
+- table: protocol_participation
+  with:
+  - link: individual
+  - link: protocol
+  - column: code
+    type: text
+  - identity: [individual, protocol, code]
+  - column: legacy_id
+    type: text
+    required: false
+
+- table: todo
+  with:
+  - link: protocol_participation
+  - column: code
+    type: text
+  - identity: [protocol_participation, code]
+  - column: title
+    type: text
+  - column: status
+    type: [not-started, complete, skipped]
+  - link: requirement
+    required: false
+
+- table: measure_todo
+  with:
+  - link: todo
+  - identity: [todo]
+

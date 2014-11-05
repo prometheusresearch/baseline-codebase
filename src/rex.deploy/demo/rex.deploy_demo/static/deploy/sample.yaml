@@ -1,0 +1,15 @@
+
+- table: sample_type
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+
+- table: sample
+  with:
+  - link: individual
+  - link: sample_type
+  - column: code
+    type: text
+  - identity: [individual, sample_type, code: offset]
+

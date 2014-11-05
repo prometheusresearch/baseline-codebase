@@ -1,0 +1,42 @@
+
+- table: consent_type
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+  - column: language
+    type: text
+    required: false
+  - column: expires_in_month
+    type: integer
+    required: false
+
+- table: consent
+  with:
+  - link: individual
+  - link: consent_type
+  - column: date_signed
+    type: date
+  - identity: [individual, consent_type, date_signed]
+  - column: expires
+    type: date
+    required: false
+  - column: status
+    type: [confirmed, rejected, in-progress]
+
+- table: consent_presented
+  with:
+  - link: individual
+  - link: consent_type
+  - column: date_signed
+    type: date
+  - identity: [individual, consent_type, date_signed]
+
+- table: study_consent
+  with:
+  - link: study
+  - link: consent_type
+  - identity: [study, consent_type]
+

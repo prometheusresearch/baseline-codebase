@@ -5,6 +5,14 @@
 .. contents:: Table of Contents
 
 
+1.9.0 (2014-XX-XX)
+==================
+
+* Updated ``Extension.all()``, ``Extension.top()``; added
+  ``Extension.mapped()``, ``Extension.ordered()``; deprecated
+  ``Extension.by_package()``, ``Extension.map_all()``.
+
+
 1.8.0 (2014-08-28)
 ==================
 

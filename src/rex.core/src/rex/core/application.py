@@ -38,9 +38,11 @@ class Rex(object):
         # Calls `Initialize` implementations.
         with self:
             try:
-                for initialize_type in Initialize.one_per_package():
-                    initialize = initialize_type()
-                    initialize()
+                for package in reversed(get_packages()):
+                    initialize_type = Initialize.top(package)
+                    if initialize_type is not None:
+                        initialize = initialize_type()
+                        initialize()
             except Error, error:
                 if self.requirements:
                     error.wrap("While initializing RexDB application:",
@@ -122,21 +124,6 @@ class Initialize(Extension):
     created.  No more than one implementation per package should be
     defined.
     """
-
-    @classmethod
-    @cached
-    def one_per_package(cls):
-        """
-        Returns a list of implementations.
-        """
-        extensions = []
-        for package in reversed(get_packages()):
-            package_extensions = cls.by_package(package)
-            assert len(package_extensions) <= 1, \
-                    "too many implementations per package: %s" \
-                    % package_extensions
-            extensions.extend(package_extensions)
-        return extensions
 
     def __call__(self):
         """

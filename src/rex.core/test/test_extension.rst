@@ -61,8 +61,8 @@ the extension was defined::
     SandboxPackage()
 
 
-``Extension.all()``, ``Extension.by_package()``, etc
-====================================================
+``Extension.all()``
+===================
 
 Use method ``Extension.all()`` on the interface to obtain all implementations
 of the interface.  For example, to list all settings, use::
@@ -74,11 +74,11 @@ of the interface.  For example, to list all settings, use::
     ...     print Setting.all()
     [rex.core.setting.DebugSetting, rex.core_demo.DemoFolderSetting]
 
-Use method ``Extension.by_package()`` to find all implementations defined
+You can also use ``Extension.all()`` to find all implementations defined
 in a specific package::
 
     >>> with demo:
-    ...     print Setting.by_package('rex.core_demo')
+    ...     print Setting.all('rex.core_demo')
     [rex.core_demo.DemoFolderSetting]
 
 You could also pass a ``Package`` object::
@@ -86,14 +86,14 @@ You could also pass a ``Package`` object::
     >>> from rex.core import get_packages
     >>> with demo:
     ...     demo_package = get_packages()['rex.core_demo']
-    ...     print Setting.by_package(demo_package)
+    ...     print Setting.all(demo_package)
     [rex.core_demo.DemoFolderSetting]
 
 Some interfaces may add additional lookup methods.  For instance, ``Setting``
-defines method ``Setting.map_all()``::
+defines method ``Setting.mapped()``::
 
     >>> with demo:
-    ...     setting_map = Setting.map_all()
+    ...     setting_map = Setting.mapped()
     >>> setting_map['debug']
     rex.core.setting.DebugSetting
     >>> setting_map['demo_folder']
@@ -130,15 +130,54 @@ both ``Hello`` and ``Howdy``, it becomes the top implementation::
     >>> greet('Alice')
     'Hi, Alice!'
 
-
-Diamond inheritance
-===================
-
 The set of available implementations is defined correctly even when you use
 diamond inheritance::
 
     >>> with main:
     ...     print Greet.all()
     [__main__.Hello, __main__.Howdy, __main__.Hi]
+
+
+``Extension.ordered()``
+=======================
+
+You can use method ``Extension.ordered()`` to get in their priority order.
+However to use it, extensions must declare their priorities using attributes
+``after`` and ``before``::
+
+    >>> with main:
+    ...     print Greet.ordered()
+    Traceback (most recent call last):
+      ...
+    AssertionError: order is not total: [__main__.Hello, __main__.Howdy]
+
+    >>> Hi.after = [Howdy]
+    >>> Hi.before = [Hello]
+
+    >>> with main:
+    ...     print Greet.ordered()
+    [__main__.Howdy, __main__.Hi, __main__.Hello]
+
+Priority loops are detected::
+
+    >>> Howdy.after = [Hello]
+    >>> main.reset()
+
+    >>> with main:
+    ...     print Greet.ordered()
+    Traceback (most recent call last):
+      ...
+    AssertionError: order has cycles: [__main__.Hello, __main__.Hi, __main__.Howdy, __main__.Hello]
+
+You can achieve the same effect using ``Extension.priority`` attribute::
+
+    >>> Hi.after = Hi.before = Howdy.after = []
+    >>> Howdy.priority = 10
+    >>> Hi.priority = 20
+    >>> Hello.priority = 30
+
+    >>> with main:
+    ...     print Greet.ordered()
+    [__main__.Howdy, __main__.Hi, __main__.Hello]
 
 

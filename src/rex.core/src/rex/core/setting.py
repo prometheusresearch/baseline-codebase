@@ -79,17 +79,14 @@ class Setting(Extension):
         return (cls.name is not None)
 
     @classmethod
-    @cached
+    def signature(cls):
+        # For `mapped()`.
+        return cls.name
+
+    @classmethod
     def map_all(cls):
-        """
-        Returns a dictionary that maps setting names to setting types.
-        """
-        mapping = {}
-        for extension in cls.all():
-            assert extension.name not in mapping, \
-                    "duplicate setting: %r" % extension.name
-            mapping[extension.name] = extension
-        return mapping
+        # Deprecated.
+        return cls.mapped()
 
     def __call__(self, values):
         # No explicit setting values were provided.
@@ -135,7 +132,7 @@ class SettingCollection(object):
     @classmethod
     def build(cls):
         # Mapping from the setting name to the setting type.
-        setting_map = Setting.map_all()
+        setting_map = Setting.mapped()
 
         # Setting values from different sources.
         sources = []

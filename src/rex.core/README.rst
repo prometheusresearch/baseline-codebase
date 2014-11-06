@@ -334,7 +334,7 @@ RexDB applications.  This extension mechanism allows packages to:
 To declare a new interface, create a subclass of :class:`rex.core.Extension`.
 For example, :mod:`rex.core_demo` defines the following ``Command`` interface::
 
-    from rex.core import Extension, cached
+    from rex.core import Extension
 
     class Command(Extension):
         """Interface for named commands."""
@@ -350,15 +350,8 @@ For example, :mod:`rex.core_demo` defines the following ``Command`` interface::
             return (cls.name is not None)
 
         @classmethod
-        @cached
-        def by_name(cls, name):
-            command_types = [command_type for command_type in cls.all()
-                                          if command_type.name == name]
-            assert len(command_types) >= 1, \
-                    "command not found: %s" % name
-            assert len(command_types) <= 1, \
-                    "duplicate command: %s" % name
-            return command_types[0]
+        def signature(cls):
+            return cls.name
 
         def __init__(self):
             pass
@@ -383,12 +376,14 @@ several methods and attributes:
     and mixin classes.  We assume that any subclass with defined ``name``
     attribute must be a complete implementation.
 
-``by_name(name)``
-    This method finds an implementation with the given name.  You can also use
-    existing methods :meth:`.Extension.all()`, :meth:`.Extension.top()`,
-    :meth:`.Extension.by_package()` to find implementations of a specific
-    interface.  Use method :meth:`.Extension.package()` on the implementation
-    class to find the package which owns the implementation.
+:meth:`rex.core.Extension.signature()`
+    This method must return a unique identifier (in this case, the command
+    name) of the implementation.  You can use :meth:`.Extension.mapped()`` to
+    get a dictionary that maps signatures to implementations.  There are other
+    methods for finding a specific implementation: :meth:`.Extension.all()`,
+    :meth:`.Extension.top()`, :meth:`.Extension.ordered()`.  Use method
+    :meth:`.Extension.package()` on the implementation class to find the
+    package which owns the implementation.
 
 To declare an implementation, create a subclass of the interface class::
 
@@ -412,7 +407,8 @@ use :meth:`rex.core.Extension.all()` method::
 To find a command by name, use::
 
     >>> with demo:
-    ...    command_type = Command.by_name('hello')
+    ...    command_map = Command.mapped()
+    ...    command_type = command_map['hello']
 
     >>> command = command_type()
     >>> command()

@@ -65,12 +65,20 @@ class Extension(object):
 
     @classmethod
     @cached
-    def all(cls):
+    def all(cls, package=None):
         """
         Returns a list of all implementations for the given interface.
+
+        `package`: :class:`Package`, ``str`` or ``None``
+            If provided, the function returns implementations defined
+            in the given package.
         """
-        packages = get_packages()
-        modules = packages.modules
+        # Determine modules that may contain extensions.
+        if package is None:
+            package = get_packages()
+        elif not isinstance(package, Package):
+            package = get_packages()[package]
+        modules = package.modules
         # Find all subclasses of `cls`.
         subclasses = [cls]
         # Used to weed out duplicates (due to diamond inheritance).
@@ -90,14 +98,18 @@ class Extension(object):
 
     @classmethod
     @cached
-    def top(cls):
+    def top(cls, package=None):
         """
         Returns the most specific implementation for the given interface.
 
         The most specific implementation must be a subclass of all the other
         implementations of the same interface.
+
+        `package`: :class:`Package`, ``str`` or ``None``
+            If provided, consider only implementations defined in
+            the given package.
         """
-        extensions = cls.all()
+        extensions = cls.all(package)
         # Find all the leaves in the inheritance tree.
         candidates = []
         for extension in extensions:
@@ -106,24 +118,127 @@ class Extension(object):
                 candidates = [candidate for candidate in candidates
                                         if not issubclass(extension, candidate)]
                 candidates.append(extension)
-        # Ensure there is only one leaf and return it.
-        assert len(candidates) >= 1, "no implementations found"
+        # Ensure there is no more than one leaf and return it.
         assert len(candidates) <= 1, "too many implementations found: %s" \
                 % ", ".join(repr(candidate) for candidate in candidates)
-        return candidates[0]
+        if candidates:
+            return candidates[0]
+
+    @classmethod
+    def by_package(cls, package):
+        # Deprecated.
+        return cls.all(package)
+
+    @classmethod
+    def signature(cls):
+        """
+        Returns a (unique) identifier of the implementation.
+        """
+        raise NotImplementedError("%s.signature()" % cls)
 
     @classmethod
     @cached
-    def by_package(cls, package):
+    def mapped(cls, package=None):
         """
-        Returns implementations defined in the given package.
+        Returns a dictionary mapping extension signatures to extensions.
+        """
+        mapping = {}
+        for extension in cls.all(package):
+            signature = extension.signature()
+            assert signature not in mapping, \
+                    "%s and %s have identical signatures: %r" \
+                    % (mapping[signature], extension, signature)
+            mapping[signature] = extension
+        return mapping
 
-        `package`
-            Package name or :class:`Package` object.
+    #: Relative sorting priority of the implementation.
+    priority = None
+    #: Implementations that should appear after the given implementation.
+    after = []
+    #: Implementations that should appear before the given implementation.
+    before = []
+
+    @classmethod
+    @cached
+    def ordered(cls, package=None):
         """
-        if not isinstance(package, Package):
-            package = get_packages()[package]
-        return [extension for extension in cls.all()
-                          if extension.__module__ in package.modules]
+        Returns implementations in the order that respects ``priority``,
+        ``after`` and ``before`` attributes.
+        """
+        extensions = cls.all(package)
+        # Generate a partial order relationship from `priority`.
+        order = {}
+        for extension in extensions:
+            order[extension] = []
+            if extension.priority is not None:
+                order[extension] = [other for other in extensions
+                                    if other.priority is not None and
+                                       other.priority < extension.priority]
+        # Add `after` and `before` conditions.
+        for extension in extensions:
+            for others in (extension.after, extension.before):
+                for other in others:
+                    if isinstance(other, str):
+                        module, name = other.rsplit('.', 1)
+                        module = __import__(module, fromlist=[name])
+                        other = getattr(module, name, None)
+                    if other in extensions:
+                        if others is extension.after:
+                            order[extension].append(other)
+                        else:
+                            order[other].append(extension)
+        # Sort the extensions.
+        return toposort(extensions, order)
+
+
+def toposort(elements, order):
+    # Sorts elements with respect to the given order.
+
+    # The sorted list.
+    ordered = []
+    # The set of nodes which the DFS has already processed.
+    visited = set()
+    # The set of nodes currently being processed by the DFS.
+    active = set()
+    # The path to the current node.  Note that `set(path) == active`.
+    path = []
+
+    # Implements the depth-first search.
+    def dfs(node):
+        # Check if the node has already been processed.
+        if node in visited:
+            return
+
+        # Update the path; check for cycles.
+        path.append(node)
+        assert node not in active, \
+                "order has cycles: %s" % path[path.index(node):]
+        active.add(node)
+
+        # Visit the adjacent nodes.
+        adjacents = order[node]
+        for adjacent in adjacents:
+            dfs(adjacent)
+
+        # Check that the order is total.
+        assert not ordered or ordered[-1] in adjacents, \
+                "order is not total: %s" % [ordered[-1], node]
+
+        # Add the node to the sorted list.
+        ordered.append(node)
+
+        # Remove the node from the path; add it to the set of processed nodes.
+        path.pop()
+        active.remove(node)
+        visited.add(node)
+
+    # Apply the DFS to the whole DAG.
+    for element in elements:
+        dfs(element)
+
+    # Break the cycle created by a recursive nested function.
+    dfs = None
+
+    return ordered
 
 

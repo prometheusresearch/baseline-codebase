@@ -1,6 +1,6 @@
 
 from rex.core import Setting, StrVal
-from rex.core import Extension, cached
+from rex.core import Extension
 
 class DemoFolderSetting(Setting):
     """Directory with demo data."""
@@ -23,15 +23,8 @@ class Command(Extension):
         return (cls.name is not None)
 
     @classmethod
-    @cached
-    def by_name(cls, name):
-        command_types = [command_type for command_type in cls.all()
-                                      if command_type.name == name]
-        assert len(command_types) >= 1, \
-                "command not found: %s" % name
-        assert len(command_types) <= 1, \
-                "duplicate command: %s" % name
-        return command_types[0]
+    def signature(cls):
+        return cls.name
 
     def __init__(self):
         pass

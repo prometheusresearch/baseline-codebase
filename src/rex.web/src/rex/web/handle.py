@@ -50,17 +50,12 @@ class HandleFile(Extension):
     ext = None
 
     @classmethod
-    @cached
+    def signature(cls):
+        return cls.ext
+
+    @classmethod
     def map_all(cls):
-        """
-        Returns a dictionary mapping file extensions to handler types.
-        """
-        mapping = {}
-        for extension in cls.all():
-            assert extension.ext not in mapping, \
-                    "duplicate file handler: %r" % extension.ext
-            mapping[extension.ext] = extension
-        return mapping
+        return cls.mapped()
 
     @classmethod
     def enabled(cls):
@@ -90,20 +85,12 @@ class HandleError(Extension):
     code = None
 
     @classmethod
-    @cached
-    def map_all(cls):
-        """
-        Returns a dictionary mapping error codes to handler types.
+    def signature(cls):
+        return cls.code
 
-        `error`
-            The original HTTP exception.
-        """
-        mapping = {}
-        for extension in cls.all():
-            assert extension.code not in mapping, \
-                    "duplicate error handler: %r" % extension.code
-            mapping[extension.code] = extension
-        return mapping
+    @classmethod
+    def map_all(cls):
+        return cls.mapped()
 
     @classmethod
     def enabled(cls):

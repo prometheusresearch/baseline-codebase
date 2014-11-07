@@ -94,18 +94,14 @@ class Authorize(Extension):
     access = None
 
     @classmethod
-    @cached
+    def signature(cls):
+        # For `cls.mapped()`.
+        return cls.access
+
+    @classmethod
     def map_all(cls):
-        """
-        Returns a dictionary mapping the permission name to the respective
-        :class:`Authorize` subclass.
-        """
-        mapping = {}
-        for extension in cls.all():
-            assert extension.access not in mapping, \
-                    "duplicate permission: %r" % extension.access
-            mapping[extension.access] = extension
-        return mapping
+        # Deprecated.
+        return cls.mapped()
 
     @classmethod
     def enabled(cls):
@@ -201,7 +197,7 @@ def authorize(req, access, default='authenticated'):
     if 'rex.access' not in req.environ:
         req.environ['rex.access'] = {}
     if access not in req.environ['rex.access']:
-        auth_type_map = Authorize.map_all()
+        auth_type_map = Authorize.mapped()
         assert access in auth_type_map, "undefined permission %r" % access
         auth_type = auth_type_map[access]
         req.environ['rex.access'][access] = auth_type()(req)

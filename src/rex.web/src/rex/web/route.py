@@ -87,13 +87,34 @@ class MountSetting(Setting):
         return mount
 
 
-class SessionManager(object):
-    # Adds `rex.session` and `rex.mount` to the request environment.
+class Pipe(Extension):
+    """
+    Implements a component of the request pipeline.
+
+    `handle`
+        The next component in the pipeline.
+    """
+
+    @classmethod
+    def enabled(cls):
+        return (cls is not Pipe)
+
+    def __init__(self, handle):
+        self.handle = handle
+
+    def __call__(self, req):
+        """
+        Processes the request.  Implementations must override this method.
+        """
+        return self.handle(req)
+
+
+class PipeSession(Pipe):
+    """
+    Adds ``rex.session`` and ``rex.mount`` to the request environment.
+    """
 
     SESSION_COOKIE = 'rex.session'
-
-    def __init__(self, trunk):
-        self.trunk = trunk
 
     def __call__(self, req):
         # Do not mangle the original request object.
@@ -116,7 +137,7 @@ class SessionManager(object):
                 mount[name] = req.application_url
         req.environ['rex.mount'] = mount
         # Process the request.
-        resp = self.trunk(req)
+        resp = self.handle(req)
         # Update the session cookie if necessary.
         new_session = req.environ['rex.session']
         if new_session != session:
@@ -136,18 +157,22 @@ class SessionManager(object):
         return resp
 
 
-class ErrorCatcher(object):
-    # Catches HTTP exceptions and delegates them to appropriate `HandleError`.
+class PipeError(Pipe):
+    """
+    Catches HTTP exceptions and delegates them to appropriate
+    :class:`HandleError`.
+    """
 
-    def __init__(self, trunk, error_handler_map):
-        # Main request handler.
-        self.trunk = trunk
+    after = [PipeSession]
+
+    def __init__(self, handle):
+        super(PipeError, self).__init__(handle)
         # Maps error codes to handler types.
-        self.error_handler_map = error_handler_map
+        self.error_handler_map = HandleError.mapped()
 
     def __call__(self, req):
         try:
-            return self.trunk(req)
+            return self.handle(req)
         except WSGIHTTPException, error:
             if error.code in self.error_handler_map:
                 # Handler for a specific error code.
@@ -161,33 +186,39 @@ class ErrorCatcher(object):
                 raise
 
 
-def not_found(req):
+class PipePackage(Pipe):
     """
-    Raises 404.  Use as the default fallback.
+    Uses the first segment of the URL to determine the request handler.
     """
-    raise HTTPNotFound()
 
+    after = [PipeError]
 
-class SegmentMapper(object):
-    # Uses the first segment of the URL to determine the request handler.
-
-    def __init__(self, route_map, fallback=None):
+    def __init__(self, handle):
+        super(PipePackage, self).__init__(handle)
         # Maps URL segments to handlers.
-        self.route_map = route_map
-        # Fallback handler.
-        self.fallback = fallback or not_found
+        self.route_map = get_routes(None)
 
     def __call__(self, req):
         segment = req.path_info_peek()
 
-        if segment in self.route_map:
+        if segment and segment in self.route_map:
             # Preserve the original request object.
             req = req.copy()
             req.path_info_pop()
             route = self.route_map[segment]
             return route(req)
+        elif '' in self.route_map:
+            route = self.route_map['']
+            return route(req)
 
-        return self.fallback(req)
+        return self.handle(req)
+
+
+def not_found(req):
+    """
+    Raises 404.  Use as the default fallback.
+    """
+    raise HTTPNotFound()
 
 
 class RoutingTable(object):
@@ -339,28 +370,9 @@ class Route(Extension):
         source files.
     """
 
-    #: The relative position of the component (lower is earlier).
-    priority = None
-
-    @classmethod
-    def sanitize(cls):
-        # `priority` must be an integer.
-        assert cls.priority is None or isinstance(cls.priority, int)
-
     @classmethod
     def enabled(cls):
-        return (cls.priority is not None)
-
-    @classmethod
-    @cached
-    def ordered(cls):
-        """
-        Returns implementations in the priority order.
-        """
-        extensions = cls.all()
-        priorities = set([extension.priority for extension in extensions])
-        assert len(priorities) == len(extensions)
-        return sorted(extensions, key=(lambda e: e.priority))
+        return (cls is not Route)
 
     def __init__(self, open=open):
         self.open = open
@@ -382,7 +394,7 @@ class RouteFiles(Route):
     def __call__(self, package):
         path_map = PathMap()
         if package.exists(StaticServer.www_root):
-            file_handler_map = HandleFile.map_all()
+            file_handler_map = HandleFile.mapped()
             server = StaticServer(package, file_handler_map)
             guard = StaticGuard(package)
             mask = PathMask('/**', guard)
@@ -397,7 +409,7 @@ class RouteCommands(Route):
 
     def __call__(self, package):
         path_map = PathMap()
-        for extension in HandleLocation.by_package(package.name):
+        for extension in HandleLocation.all(package):
             path_map.add(extension.path, CommandDispatcher(extension))
         return path_map
 
@@ -412,33 +424,11 @@ class StandardWSGI(WSGI):
         mount = get_settings().mount
 
         # Generators for package routing pipeline.
+        pipe = not_found
+        for pipe_type in reversed(Pipe.ordered()):
+            pipe = pipe_type(pipe)
 
-        # Prepare routing map for `SegmentMapper`.
-        packages = get_packages()
-        route_map = {}
-        default = None
-        for package in reversed(packages):
-            # Mount point and its handler.
-            segment = mount[package.name]
-            if segment:
-                route = route_map.get(segment)
-            else:
-                route = default
-            # Generate routing map for the package.
-            if get_routes(package):
-                route = RoutingTable(package, route)
-            # Add to the routing table.
-            if route is not None:
-                if segment:
-                    route_map[segment] = route
-                else:
-                    default = route
-        mapper = SegmentMapper(route_map, default)
-        # Place `ErrorCatcher` and `SessionManager` on top.
-        error_handler_map = HandleError.map_all()
-        catcher = ErrorCatcher(mapper, error_handler_map)
-        manager = SessionManager(catcher)
-        return cls(manager)
+        return cls(pipe)
 
     def __init__(self, handler):
         self.handler = handler
@@ -500,11 +490,30 @@ def get_routes(package, open=open):
     """
     Returns the routing table for the given package.
     """
-    handle_map = PathMap()
-    for route_type in reversed(Route.ordered()):
-        route = route_type(open)
-        handle_map.update(route(package))
-    return handle_map
+    if package is not None:
+        # Build a URL map for an individual package.
+        handle_map = PathMap()
+        for route_type in reversed(Route.ordered()):
+            route = route_type(open)
+            handle_map.update(route(package))
+        return handle_map
+    else:
+        # Prepare routing map for `PipePackage`.
+        mount = get_settings().mount
+        route_map = {}
+        for package in reversed(get_packages()):
+            # Mount point and its handler.
+            segment = mount[package.name]
+            route = route_map.get(segment)
+            # Generate routing map for the package.
+            if get_routes(package):
+                # To enable autoreloading, we don't save the current
+                # routing map.
+                route = RoutingTable(package, route)
+            # Add to the routing table.
+            if route is not None:
+                route_map[segment] = route
+        return route_map
 
 
 def route(package_url):

@@ -4,7 +4,7 @@
 ---
 suite: rex.web
 tests:
-- sh: pip install -q -e ./demo/rex.web_demo
+- sh: pip install -q -e ./demo
   stdout: ''
 - sh: pip uninstall -q -y rex.web_demo
   stdout: ''

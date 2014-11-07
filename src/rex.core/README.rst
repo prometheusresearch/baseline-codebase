@@ -378,7 +378,7 @@ several methods and attributes:
 
 :meth:`rex.core.Extension.signature()`
     This method must return a unique identifier (in this case, the command
-    name) of the implementation.  You can use :meth:`.Extension.mapped()`` to
+    name) of the implementation.  You can use :meth:`.Extension.mapped()` to
     get a dictionary that maps signatures to implementations.  There are other
     methods for finding a specific implementation: :meth:`.Extension.all()`,
     :meth:`.Extension.top()`, :meth:`.Extension.ordered()`.  Use method

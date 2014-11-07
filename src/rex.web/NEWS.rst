@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.1.0 (2014-XX-XX)
+==================
+
+* Added middleware interface ``Pipe``.
+
+
 3.0.0 (2014-08-27)
 ==================
 

@@ -14,11 +14,11 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     stdout: ''
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_init.txt
     data: rex.setup_demo
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_static.txt
     data: /home/xi/xitology/prometheus/rex/rex.setup-opensource/sandbox/share/rex/rex.setup_demo
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.0.0-py2.7.egg-info/rex_bundle.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_bundle.txt
     data: |
       {
         "./www/bootstrap": [
@@ -206,11 +206,11 @@ tests:
     stdout: ''
   - sh: ../../bin/python setup.py -q sdist --format=zip
     stdout: ''
-  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-1.0.0.zip
+  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-1.2.3.zip
     stdout: ''
-  - sh: ls -R ./rex.setup_demo-1.0.0
+  - sh: ls -R ./rex.setup_demo-1.2.3
     stdout: |
-      ./rex.setup_demo-1.0.0:
+      ./rex.setup_demo-1.2.3:
       PKG-INFO
       README
       setup.cfg
@@ -218,15 +218,15 @@ tests:
       src
       static
 
-      ./rex.setup_demo-1.0.0/src:
+      ./rex.setup_demo-1.2.3/src:
       rex
       rex.setup_demo.egg-info
 
-      ./rex.setup_demo-1.0.0/src/rex:
+      ./rex.setup_demo-1.2.3/src/rex:
       __init__.py
       setup_demo.py
 
-      ./rex.setup_demo-1.0.0/src/rex.setup_demo.egg-info:
+      ./rex.setup_demo-1.2.3/src/rex.setup_demo.egg-info:
       PKG-INFO
       SOURCES.txt
       dependency_links.txt
@@ -236,60 +236,60 @@ tests:
       rex_static.txt
       top_level.txt
 
-      ./rex.setup_demo-1.0.0/static:
+      ./rex.setup_demo-1.2.3/static:
       js
       www
 
-      ./rex.setup_demo-1.0.0/static/js:
+      ./rex.setup_demo-1.2.3/static/js:
       bower.json
       lib
 
-      ./rex.setup_demo-1.0.0/static/js/lib:
+      ./rex.setup_demo-1.2.3/static/js/lib:
       index.js
       index.less
 
-      ./rex.setup_demo-1.0.0/static/www:
+      ./rex.setup_demo-1.2.3/static/www:
       _access.yaml
       bootstrap
       bundle
       index.html
       jquery
 
-      ./rex.setup_demo-1.0.0/static/www/bootstrap:
+      ./rex.setup_demo-1.2.3/static/www/bootstrap:
       LICENSE
       css
       fonts
       js
 
-      ./rex.setup_demo-1.0.0/static/www/bootstrap/css:
+      ./rex.setup_demo-1.2.3/static/www/bootstrap/css:
       bootstrap-theme.css
       bootstrap-theme.min.css
       bootstrap.css
       bootstrap.min.css
 
-      ./rex.setup_demo-1.0.0/static/www/bootstrap/fonts:
+      ./rex.setup_demo-1.2.3/static/www/bootstrap/fonts:
       glyphicons-halflings-regular.eot
       glyphicons-halflings-regular.svg
       glyphicons-halflings-regular.ttf
       glyphicons-halflings-regular.woff
 
-      ./rex.setup_demo-1.0.0/static/www/bootstrap/js:
+      ./rex.setup_demo-1.2.3/static/www/bootstrap/js:
       bootstrap.js
       bootstrap.min.js
 
-      ./rex.setup_demo-1.0.0/static/www/bundle:
+      ./rex.setup_demo-1.2.3/static/www/bundle:
       bundle.css
       bundle.js
       bundle.js.map
       font
 
-      ./rex.setup_demo-1.0.0/static/www/bundle/font:
+      ./rex.setup_demo-1.2.3/static/www/bundle/font:
       68ed1dac06bf0409c18ae7bc62889170.woff
       7ad17c6085dee9a33787bac28fb23d46.eot
       e49d52e74b7689a0727def99da31f3eb.ttf
       ff423a4251cf2986555523dfe315c42b.svg
 
-      ./rex.setup_demo-1.0.0/static/www/jquery:
+      ./rex.setup_demo-1.2.3/static/www/jquery:
       MIT-LICENSE.txt
       jquery-1.10.2.js
       jquery-1.10.2.min.js

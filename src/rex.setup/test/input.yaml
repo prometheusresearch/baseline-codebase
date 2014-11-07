@@ -16,7 +16,7 @@ tests:
     sh: ./bin/pip install -q -e ..
     cd: sandbox
   - &prepare-demo
-    sh: cp -a ./demo ./sandbox/src
+    sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
   # Install rex.setup_demo; verify layout and egg-info files.
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     cd: sandbox

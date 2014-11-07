@@ -10,7 +10,7 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
-  - sh: cp -a ./demo ./sandbox/src
+  - sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
     stdout: ''
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     stdout: ''
@@ -114,7 +114,7 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
-  - sh: cp -a ./demo ./sandbox/src
+  - sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
     stdout: ''
   - sh: ./bin/pip install -q -e ./src/rex.setup_demo
     stdout: ''
@@ -202,7 +202,7 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q -e ..
     stdout: ''
-  - sh: cp -a ./demo ./sandbox/src
+  - sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
     stdout: ''
   - sh: ../../bin/python setup.py -q sdist --format=zip
     stdout: ''

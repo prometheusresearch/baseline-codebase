@@ -18,6 +18,7 @@ from ..parse import WidgetVal
 
 from .page import * # pylint: disable=wildcard-import
 from .layout import * # pylint: disable=wildcard-import
+from .WidgetDoc import * # pylint: disable=wildcard-import
 
 
 class Label(Widget):

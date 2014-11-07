@@ -57,6 +57,7 @@ module.exports = {
   layout:           require('./layout'),
   PageStateMixin:   require('./PageStateMixin'),
   Container:        require('./layout/Container'),
+  WidgetDoc:        require('./WidgetDoc'),
   Block:            require('./layout/Block')
 };
 

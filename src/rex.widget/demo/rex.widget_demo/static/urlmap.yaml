@@ -1,80 +1,26 @@
+# Common Context Elements
 context:
   application_name: Rex Widget Demo
   menu:
   - dashboard
   - about
+  - chart
+  - doc
+  - sample
 
-paths:
+include:
+# Port Definitions
+- port/studylist.yaml
+- port/studyheader.yaml
+- port/male_view.yaml
+- port/chart_query.yaml
 
-  #
-  # Screens
-  # -------
-  #
-  # Screens are described with ``widget`` handler which specify what set of
-  # widgets should be rendered then user hits the corresponding URL.
-  #
+# Page Definitions
+- page/home.yaml
+- page/about.yaml
+- page/doc.yaml
+- page/sample.yaml
+- page/chart.yaml
 
-  /:
-    widget: !<RexPage>
-      id: dashboard
-      title: Dashboard
-      params:
-        selected_study: study_list/selected
-      children: !<Container>
-        children:
 
-        - !<Block>
-          size: 1
-          children:
-          - !<Header> Sidebar
 
-        - !<Block>
-          size: 3
-          children:
-          - !<Header> Studies
-
-          - !<Table>
-            id: study_list
-            selectable: true
-            data:
-              url: rex.widget_demo:/port/study
-            columns:
-              - key: code
-                title: Code
-              - key: title
-                title: Title
-              - key: closed
-                title: Closed
-
-          - !<StudyInfo>
-            id: study
-            data:
-              url: rex.widget_demo:/port/study
-              refs:
-                study:code: study_list/selected
-
-  /about:
-    widget: !<RexPage>
-      title: About
-      id: about
-      children: !<Container>
-        children:
-        - !<Block>
-          children: !<Header> About
-
-  #
-  # Data
-  # ----
-  #
-  # Data routes are defined with either ``query`` handler which allows to
-  # execute HTSQL queries or ``port`` handler which allows to describe a port.
-  #
-
-  /query/study:
-    query: /study
-
-  /port/study:
-    port:
-    - entity: study
-      filters:
-      - "code($code) := guard($code, code=$code)"

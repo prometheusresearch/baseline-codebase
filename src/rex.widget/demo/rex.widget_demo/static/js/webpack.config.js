@@ -15,7 +15,8 @@ module.exports = configureWebpack({
     // be great if rex.widget somehow can inject its own into webpack bundle.
     path.join(__dirname, 'style/index.less'),
     'rex-setup/introspection/loader?all!rex-widget-demo',
-    'rex-setup/introspection/loader?all!rex-widget'
+    'rex-setup/introspection/loader?all!rex-widget',
+    'rex-setup/introspection/loader?all!rex-charts'
   ],
 
   resolve: {

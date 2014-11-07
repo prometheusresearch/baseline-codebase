@@ -1,0 +1,48 @@
+
+paths:
+
+  /chart:
+    widget: !<RexPage>
+      id: chart
+      title: Sample Chart
+      children:
+      - !<Block>
+        size: 1
+        
+      - !<Block>
+        size: 6
+        children:
+        - !<Header> This is an example using Rex.Chart
+
+        - !<Header> 
+          text: Individuals by Gender
+          level: 4
+
+        - !<Table>
+          id: tab1
+          selectable: false
+          data:
+            url: rex.widget_demo:/query/chartdata2
+          columns:
+            - key: gender
+              title: Gender
+            - key: count
+              title: Count
+
+        - !<Header>
+          level: 3
+          text: Individuals by Gender
+
+        - !<PieChart>
+          id: pie_chart
+          width: 400
+          data:
+            url: rex.widget_demo:/query/chartdata
+          columns:
+          - Male
+          - Female
+
+      - !<Block>
+        size: 6
+
+

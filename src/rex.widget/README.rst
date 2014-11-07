@@ -389,3 +389,165 @@ Or from inside another custom widget definition::
   <Link unsafe href="/somepage" params={{someparam: somevalue}}>
     Some page
   </Link>
+
+
+Demo Application
+================
+
+Rex Widget includes a demo application rex.widget_demo. It uses the standard 
+rex.platform structure and demonstrates using rex widgets and rex ports in 
+urlmap, creating a custom widget for the app, and adding a rex chart to the app.
+
+
+Installing, deploying, and serving rex.widget_demo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In your virtual environment 
+First, install ``rex.setup``::
+
+   pip install rex.setup
+
+Next, check out and install ``rex.widget_demo``::
+
+    hg clone ssh://hg@bitbucket.org/rexdb/rex.widget-provisional
+    pip install -e rex.widget-provisional/demo/rex.widget_demo
+
+Next, create a ``rex.yaml`` file with contents::
+
+    project: rex.widget-demo
+    parameters:
+      db: pgsql:<YOUR DATABASE>
+    uwsgi:
+      buffer-size: 65535
+      daemonize2: rex.log
+      threads: 4
+      uwsgi-socket: localhost:<YOUR PORT>
+      pidfile: rex.pid
+
+
+Next deploy a demo database::
+
+   rex deploy
+
+Next start the app::
+
+   rex serve-uwsgi
+
+
+URLMAP Structure
+~~~~~~~~~~~~~~~~
+
+rex.widget_demo employs the preferred rex.platform urlmap structure::
+
+``/static/urlmap.yaml`` contains::
+
+      # Common Context Elements
+      context:
+        application_name: Rex Widget Demo
+        menu:
+        - dashboard
+        ...
+      
+      include:
+      # Port Definitions
+      - port/studylist.yaml
+      ... all port definitions files
+      
+      # Page Definitions
+      - page/home.yaml
+      ... all page definitions files
+
+
+Creating Custom Widgets For Your App
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Rex.widget_demo add some custom widget for use in the app.
+
+The python components are added in file 
+``/src/rex/widget_demo.py``. The StudyInfo widget is::
+
+
+    class StudyInfo(Widget):
+    """ Show information about the study"""
+
+    name = 'StudyInfo'
+    js_type = 'rex-widget-demo/lib/StudyInfo'
+
+    id      = Field(StrVal)
+    data    = EntityField()
+
+
+The javascript components are added in file 
+``/static/js/lib/StudyInfo.js``. The StudyInfo widget code is::
+
+    /**
+     * @jsx React.DOM
+     */
+    'use strict';
+    
+    var React = require('react');
+    
+    var StudyInfo = React.createClass({
+    
+      render: function() {
+        var contents;
+        if (this.props.data.data) {
+          contents = (
+            <div className="rex-widget-demo-StudyInfo__study">
+              {Object.keys(this.props.data.data).map((name) =>
+                <InfoItem key={name} name={name} value={this.props.data.data[name]} />)}
+            </div>
+          );
+        } else {
+          contents = (
+            <div className="rex-widget-demo-StudyInfo__message">
+              No study is selected, select one above.
+            </div>
+          );
+        }
+        return (
+          <div className="rex-widget-demo-StudyInfo">
+            <h2>Study Information</h2>
+            {contents}
+          </div>
+        );
+      }
+    });
+    
+    var InfoItem = React.createClass({
+    
+      render: function() {
+        return (
+          <div className="rex-widget-demo-InfoItem">
+            <span className="rex-widget-demo-InfoItem__name">{this.props.name}:</span>
+            <span className="rex-widget-demo-InfoItem__value">{this.props.value}</span>
+          </div>
+        );
+      }
+    });
+    
+    module.exports = StudyInfo;
+
+
+    
+WidgetDoc Widget
+~~~~~~~~~~~~~~~~
+
+Rex.Widget includes a WidgetDoc widget that lists all available rex widgets in
+your application along with a detailed description of each widget's parameters.
+
+``WidgetDoc`` can be included in a page::
+
+      - !<WidgetDoc>
+        id: widgetdoc
+
+
+
+
+
+
+
+
+
+
+

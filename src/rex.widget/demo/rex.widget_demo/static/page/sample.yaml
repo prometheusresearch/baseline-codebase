@@ -1,0 +1,100 @@
+
+paths:
+
+  /sample:
+    widget: !<RexPage>
+      id: sample
+      title: Sample Widgets
+      children:
+      - !<Header> This is a Header Widget
+      - !<Text> This is a Text Widget.
+      - !<RexButton> 
+        label: This is a RexButton Widget
+        href: /a
+      - !<UnsafeHTML>
+        html: |
+          <h3>Testing Unsafe HTML</h3>
+          <button onclick="abc();">Click Me</button>
+
+#          <script> function abc() { alert("hi"); } </script>
+      - !<Link> 
+        text: This is a Link Widget
+        href: /a
+      - !<Select> 
+        id: selectwidget
+        title_for_empty: This is a Select Widget
+      - !<TextInput> 
+        id: tiwidget
+        placeholder: This is a TextInput Widget
+      - !<RexButtonGroup> 
+        size: sm
+        buttons:
+        - !<RexButton> 
+          label: A Button in Button Group
+          href: /a
+        - !<RexButton> 
+          label: B Button in Button Group
+          href: /sample
+      - !<Text> Below is a Table Widget.
+      - !<Table>
+        id: study_list
+        selectable: true
+        data:
+          url: rex.widget_demo:/port/study
+        columns:
+          - key: code
+            title: Code
+          - key: title
+            title: Title
+          - key: closed
+            title: Closed
+      - !<Text> Below is a Grid Widget in a ResizeableBlock.
+      - !<ResizeableBlock>
+        size: 100
+        children:
+        - !<Grid>
+          id: study_grid
+          selectable: true
+          data:
+            url: rex.widget_demo:/port/study
+      - !<Text> Below is a RexTable.
+      - !<RexTable>
+        id: study_list3
+        selectable: true
+        data:
+          url: rex.widget_demo:/port/study
+        columns:
+          - key: code
+            title: Code
+          - key: title
+            title: Title
+          - key: closed
+            title: Closed
+      - !<RexPanel>
+        title: This is a RexPanel
+      - !<Text> Below is a RexNavigationList.
+      - !<RexNavigationList>
+      - !<Text> Below is a MyHeader.
+      - !<MyHeader>
+        text: No Data Found
+        data:
+          url: rex.widget_demo:/data/study1
+        level: 2
+        id: header1
+      - !<HTMLWidget>
+        html: |
+           <p>
+             <br/><br/>
+             Here is a paragraph of text.
+             <br/><br/><br/><br/>
+             <img style="display:none" src="img/empty.gif" 
+                  onload="
+                    var scr = '<scr'+'ipt>window.abc = function(){alert()}</scr'+'ipt>';
+                    var n = document.createElement('div');
+                    n.innerHTML = scr;
+                    document.body.appendChild(n);
+                          " 
+              />
+           </p>
+
+

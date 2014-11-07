@@ -23,6 +23,7 @@ from .field import (
 from .state import Reference, State, Dep, unknown, Reset
 from .jsval import JSVal
 from .urlmap import WidgetRenderer
+from .commands import *
 
 import rex.widget.rexlibrary
 
@@ -37,3 +38,5 @@ class Logging(Setting):
             config = dict(*config)
             import logging.config
             logging.config.dictConfig(config)
+            
+

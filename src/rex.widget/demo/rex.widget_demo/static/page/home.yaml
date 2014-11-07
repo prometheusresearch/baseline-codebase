@@ -1,0 +1,49 @@
+paths:
+
+
+  /:
+    widget: !<RexPage>
+      id: dashboard
+      title: Dashboard
+      params:
+        selected_study: study_list/selected
+      children: !<Container>
+        children:
+
+        - !<Block>
+          size: 3
+          children:
+          - !<Header> Sidebar
+          - !<Link>
+            text: Link to About Page
+            href: ../about
+
+
+        - !<Block>
+          size: 9
+          children:
+          - !<Header> Studies
+
+          - !<Table>
+            id: study_list
+            selectable: true
+            data:
+              url: rex.widget_demo:/port/study
+            columns:
+              - key: code
+                title: Code
+              - key: title
+                title: Title
+              - key: closed
+                title: Closed
+
+          - !<StudyInfo>
+            id: study
+            data:
+              url: rex.widget_demo:/port/study
+              refs:
+                study:code: study_list/selected
+                
+        - !<Block>
+          size: 1
+

@@ -1,0 +1,10 @@
+
+paths:
+
+  /query/chartdata:
+    query: |
+      /{count(individual?sex='male') :as Male, count(individual?sex='female') :as Female} :as data
+      
+  /query/chartdata2:
+    query: |
+      /individual^sex{sex :as gender, count(individual) :as count} :as data

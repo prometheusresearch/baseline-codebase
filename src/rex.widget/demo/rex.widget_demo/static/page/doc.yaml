@@ -1,0 +1,12 @@
+
+paths:
+
+
+  /WidgetDoc:
+    widget: !<RexPage>
+      id: doc
+      title: Widget Doc
+      children:
+      - !<WidgetDoc>
+        id: widgetdoc
+

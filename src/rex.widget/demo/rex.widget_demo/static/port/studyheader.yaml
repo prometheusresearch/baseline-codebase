@@ -1,0 +1,9 @@
+
+paths:
+
+
+  /data/study1:
+    query: |
+      /study {'Data driven Header for Study:'+' '+title}
+          .filter(code='fos')
+

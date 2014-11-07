@@ -60,3 +60,12 @@
   - identity: [individual, protocol, code]
   - data: ./deploy/participation.csv
 
+
+# example of creating a view  to be used in query objects.
+# Note:  Views can not be used in ports because of no real id()
+- sql: |
+    create view males as select * from individual where sex='male';
+  unless: |
+    SELECT TRUE FROM pg_catalog.pg_class
+    WHERE relname = 'males';
+  

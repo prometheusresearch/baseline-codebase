@@ -461,7 +461,7 @@ rex.widget_demo employs the preferred rex.platform urlmap structure::
 Creating Custom Widgets For Your App
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Rex.widget_demo add some custom widget for use in the app.
+Rex.widget_demo adds several custom widgets for use in the app.
 
 The python components are added in file 
 ``/src/rex/widget_demo.py``. The StudyInfo widget is::
@@ -528,7 +528,8 @@ The javascript components are added in file
     
     module.exports = StudyInfo;
 
-
+Need further description of the above code.
+    
     
 WidgetDoc Widget
 ~~~~~~~~~~~~~~~~

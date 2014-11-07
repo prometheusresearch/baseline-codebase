@@ -204,6 +204,7 @@ class RexCase(MatchCase):
         elif process_key in self.processes:
             process, path = self.processes.pop(process_key)
             if process.poll() is None:
+                time.sleep(0.1)
                 process.send_signal(signal.SIGINT)
                 process.wait()
             stdout = open("%s/output" % path).read()

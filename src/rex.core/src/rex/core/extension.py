@@ -17,8 +17,8 @@ class Extension(object):
     To create an implementation of the interface, declare a subclass of the
     interface class.
 
-    Use methods :meth:`all()`, :meth:`by_package()`, :meth:`top()` to find
-    implementations for the given interface.
+    Use methods :meth:`all()`, :meth:`top()`, :meth:`mapped()`,
+    :meth:`ordered()` to find implementations for the given interface.
     """
 
     class __metaclass__(type):

@@ -348,7 +348,7 @@ def upload(attachment):
 
 def download(handle):
     """
-    Returns an HTTP response containing the attachment with the given handle.
+    Returns an HTTP handler that produces the attachment with the given handle.
     """
     storage = get_storage()
     # FIXME: 404 if not found or invalid?

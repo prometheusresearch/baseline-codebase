@@ -8,6 +8,7 @@
 2.0.2 (2014-XX-XX)
 ==================
 
+* Fixed a problem with setting a cookie on an attachment.
 * Removed tests that fail under root.
 
 

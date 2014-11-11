@@ -81,7 +81,7 @@ class OpenFileApp(object):
                 content_encoding=content_encoding,
                 content_disposition=content_disposition,
                 accept_ranges=accept_ranges,
-        ).conditional_response_app
+                conditional_response=True)
 
 
 class LocalStorage(object):

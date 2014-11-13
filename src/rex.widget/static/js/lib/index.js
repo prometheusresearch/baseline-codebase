@@ -50,6 +50,7 @@ module.exports = {
   LoadingIndicator: require('./LoadingIndicator'),
   Icon:             require('./Icon'),
   TextInput:        require('./TextInput'),
+  ValidatedTextInput:        require('./ValidatedTextInput'),
   Button:           require('./Button'),
   Checkbox:         require('./Checkbox'),
   CheckboxGroup:    require('./CheckboxGroup'),

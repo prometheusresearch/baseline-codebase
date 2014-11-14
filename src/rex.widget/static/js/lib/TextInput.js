@@ -90,7 +90,7 @@ var TextInput = React.createClass({
 
   markAsWait(value) {
     value = value || '';
-    value = value.trim();
+    value = (value + '').trim();
     if (this.state.waitForValues.indexOf(value) === -1) {
       var waitForValues = this.state.waitForValues.concat(value);
       this.setState({waitForValues});
@@ -99,7 +99,7 @@ var TextInput = React.createClass({
 
   markAsDone(value) {
     value = value || '';
-    value = value.trim();
+    value = (value + '').trim();
     var idx = this.state.waitForValues.indexOf(value);
     if (idx !== -1) {
       var waitForValues = this.state.waitForValues.slice(0);

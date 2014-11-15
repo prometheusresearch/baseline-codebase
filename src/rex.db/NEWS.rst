@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.0.0 (2014-XX-XX)
+==================
+
+* Added middleware that wraps requests in a transaction.
+
+
 2.1.1 (2014-08-29)
 ==================
 

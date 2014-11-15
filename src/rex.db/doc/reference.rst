@@ -11,7 +11,17 @@ HTSQL instance
 ==============
 
 .. autoclass:: RexHTSQL
+   :members:
 .. autofunction:: get_db
+.. autoclass:: PipeTransaction
+
+
+Masking
+=======
+
+.. autoclass:: Mask
+   :members:
+   :special-members: __call__
 
 
 Querying

@@ -8,18 +8,22 @@ This package provides database access to RexDB applications.
 """
 
 
-from rex.core import (Setting, Initialize, cached, get_settings, get_packages,
-        Error, Validate, StrVal, MaybeVal, OneOfVal, SeqVal, MapVal, RecordVal)
-from rex.web import HandleFile, HandleLocation, authorize, get_jinja
-from webob import Response
+from rex.core import (Extension, Setting, Initialize, cached, get_settings,
+        get_packages, Error, Validate, StrVal, MaybeVal, OneOfVal, SeqVal,
+        MapVal, RecordVal)
+from rex.web import (Pipe, PipeError, PipePackage, HandleFile, HandleLocation,
+        authenticate, authorize, get_jinja)
+from webob import Request, Response
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPBadRequest
-import htsql
-import htsql.core.error
-import htsql.core.util
-import htsql.core.wsgi
-import htsql.core.cmd.act
-import htsql.core.fmt.accept
-import htsql.core.fmt.emit
+from htsql import HTSQL
+from htsql.core.error import HTTPError
+from htsql.core.util import DB
+from htsql.core.cmd.act import produce
+from htsql.core.fmt.accept import accept
+from htsql.core.fmt.emit import emit, emit_headers
+from htsql.core.context import context
+from htsql.core.connect import connect, transaction
+from htsql_rex import isolate, mask, session
 import re
 import urllib
 
@@ -31,7 +35,7 @@ class DBVal(Validate):
 
     def __call__(self, data):
         try:
-            return htsql.core.util.DB.parse(data)
+            return DB.parse(data)
         except ValueError, exc:
             raise Error(str(exc))
 
@@ -157,6 +161,22 @@ class InitializeDB(Initialize):
         })
 
 
+class PipeTransaction(Pipe):
+    """
+    Wraps HTTP request in a transaction.
+    """
+
+    after = [PipeError]
+    before = [PipePackage]
+
+    def __call__(self, req):
+        user = lambda authenticate=authenticate, req=req: authenticate(req)
+        masks = [lambda mask_type=mask_type, req=req: mask_type()(req)
+                 for mask_type in Mask.all()]
+        with get_db(), transaction(is_lazy=True), session(user), mask(*masks):
+            return self.handle(req)
+
+
 class HandleHTSQLLocation(HandleLocation):
     # Gateway to HTSQL service.
 
@@ -250,13 +270,13 @@ class Query(object):
         # Execute the query and render the output.
         with get_db():
             try:
-                product = htsql.core.cmd.act.produce(self.query, parameters)
-                format = htsql.core.fmt.accept.accept(req.environ)
-                headerlist = htsql.core.fmt.emit.emit_headers(format, product)
+                product = produce(self.query, parameters)
+                format = accept(req.environ)
+                headerlist = emit_headers(format, product)
                 # Pull whole output to avoid random "HTSQL application is not
                 # activated" errors.  FIXME: how?
-                app_iter = list(htsql.core.fmt.emit.emit(format, product))
-            except htsql.core.error.HTTPError, error:
+                app_iter = list(emit(format, product))
+            except HTTPError, error:
                 return req.get_response(error)
             resp = Response(headerlist=headerlist, app_iter=app_iter)
         return resp
@@ -270,7 +290,7 @@ class Query(object):
         """
         parameters = self._merge(environment, **arguments)
         with get_db():
-            return htsql.core.cmd.act.produce(self.query, parameters)
+            return produce(self.query, parameters)
 
     def format(self, content_type, environment=None, **arguments):
         """
@@ -289,8 +309,8 @@ class Query(object):
         parameters = self._merge(environment, **arguments)
         # Execute the query and render the output.
         with get_db():
-            product = htsql.core.cmd.act.produce(self.query, parameters)
-            return "".join(htsql.core.fmt.emit.emit(content_type, product))
+            product = produce(self.query, parameters)
+            return "".join(emit(content_type, product))
 
     def _merge(self, environment, **arguments):
         # Validates the input parameters, merge them with default parameters.
@@ -311,12 +331,104 @@ class Query(object):
         return parameters
 
 
-class RexHTSQL(htsql.HTSQL):
+class RexHTSQL(HTSQL):
     """
     Customized variant of HTSQL application.
     """
 
     # We can add our own methods here.
+
+    def __enter__(self):
+        if context.active_app is self:
+            context.push(context.active_app, context.active_env)
+        else:
+            super(RexHTSQL, self).__enter__()
+
+    def isolate(self):
+        """
+        Creates a fresh HTSQL context.
+
+        Use this method with a ``with`` clause.
+        """
+        return isolate(self)
+
+    def mask(self, *masks):
+        """
+        Creates a unconditional filter on a table.
+
+        `masks`
+            A sequence of masks.  Each mask must be an HTSQL expression
+            of the form ``<table>?<filter>``.
+
+        Use this method with a ``with`` clause.
+        """
+        return mask(*masks)
+
+    def session(self, user):
+        """
+        Sets the value of ``$USER``.
+
+        `user`
+            The name of the user or ``None``.  This value is available
+            in HTSQL queries as ``$USER`` parameter.
+
+        Use this method with a ``with`` clause.
+        """
+        return session(user)
+
+    def accept(self, environ):
+        """
+        Determines the preferable HTSQL output format.
+
+        `environ`
+            WSGI ``environ`` object or ``Request`` object.
+        """
+        if isinstance(environ, Request):
+            environ = environ.environ
+        with self:
+            return accept(environ)
+
+    def emit(self, format, product):
+        """
+        Generates the body of the HTSQL output in the specified format.
+        """
+        with self:
+            return emit(format, product)
+
+    def emit_headers(self, format, product):
+        """
+        Generates HTTP headers for the HTSQL output.
+        """
+        with self:
+            return emit_headers(format, product)
+
+    def connect(self, with_autocommit=False):
+        """
+        Opens a connection to the database.
+        """
+        with self:
+            return connect(with_autocommit=with_autocommit)
+
+    def transaction(self, is_lazy=False):
+        """
+        Creates a transactional context.
+
+        Use this method with a ``with`` clause.
+        """
+        return transaction(is_lazy=is_lazy)
+
+
+class Mask(Extension):
+    """
+    Generates a list of masks to apply to the given HTTP request.
+    """
+
+    def __call__(self, req):
+        """
+        Implementations should override this method to return a list
+        of masks for the given HTTP request.
+        """
+        return []
 
 
 @cached

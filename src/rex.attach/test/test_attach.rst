@@ -119,7 +119,7 @@ response with attachment content::
 
     >>> req = Request.blank('/download')
     >>> app = storage.route(handle_str)
-    >>> print req.get_response(app)                     # doctest: +ELLIPSIS
+    >>> print app(req)                          # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 18
@@ -222,7 +222,7 @@ an attachment::
     >>> from rex.attach import download
 
     >>> with demo:
-    ...     print req.get_response(download(handle1))   # doctest: +ELLIPSIS
+    ...     print download(handle1)(req)        # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 18

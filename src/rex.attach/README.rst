@@ -71,7 +71,7 @@ the attachment::
 
     >>> req = Request.blank('/download')
     >>> app = storage.route(handle)
-    >>> print req.get_response(app)         # doctest: +ELLIPSIS
+    >>> print app(req)              # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 14
@@ -111,7 +111,7 @@ produces an HTTP response that contains the attachment::
     >>> req = Request.blank('/download')
 
     >>> with demo:
-    ...     print req.get_response(download(handle))    # doctest: +ELLIPSIS
+    ...     print download(handle)(req)     # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 14

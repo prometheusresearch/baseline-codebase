@@ -14,16 +14,16 @@ import pkg_resources
 def webpack_config(package):
     # get a webpack config for a package or use default config bundled with
     # rex.setup
-    config = commonjs.bower_component_filename(package, 'webpack.config.js')
+    config = commonjs.package_filename(package, 'webpack.config.js')
     if config is not None:
         return ['--config', config]
     else:
-        component_path = commonjs.bower_component_filename(package)
+        component_path = commonjs.package_filename(package)
         # let webpack get entry via "main" key in bower.json
         entry = [component_path]
         # check if we have entry for stylesheets via "styleEntry" key in
         # bower.json
-        meta = commonjs.bower_component_metadata(package)
+        (_bower_json, meta) = commonjs.bower_package_metadata(package)
         if 'styleEntry' in meta:
             entry = entry + [
                 os.path.join(component_path, meta['styleEntry'])
@@ -32,7 +32,7 @@ def webpack_config(package):
         config = commonjs.node([
             '-p',
             'require.resolve("rex-setup/webpack.config.js")'
-        ]).strip()
+        ], quiet=True).strip()
         return [
             '--config', config,
             '--context', component_path
@@ -40,24 +40,26 @@ def webpack_config(package):
 
 
 def webpack(module, target):
+    cwd = commonjs.package_filename(module)
     return commonjs.node([
         commonjs.find_executable('webpack'),
         '--bail',
         '--optimize-minimize',
         '--devtool', 'source-map',
         '--output-path', target
-    ] + webpack_config(module))
+    ] + webpack_config(module), cwd=cwd)
 
 
 def webpack_watch(module, target):
     env = {'REX_SETUP_DEV': '1'}
+    cwd = commonjs.package_filename(module)
     return commonjs.node([
         commonjs.find_executable('webpack'),
         '--devtool', 'eval',
         '--output-path', target,
         '--hide-modules',
         '--watch'
-    ] + webpack_config(module), daemon=True, env=env)
+    ] + webpack_config(module), cwd=cwd, daemon=True, env=env)
 
 
 class GenerateWebpack(Generate):
@@ -69,17 +71,15 @@ class GenerateWebpack(Generate):
         # If the package is being installed from a repository
         # with `python setup.py install`, our CommonJS packages
         # has not been installed yet.
-        commonjs.install_bower_components(self.dist)
+        commonjs.install_package(self.dist, skip_if_installed=True)
         # Build the bundle.
-        module = self.url.split(':', 1)[1]
-        webpack(module, self.target)
+        webpack(self.dist, self.target)
 
     def watch(self):
         # If we are at this point, the package has been installed
         # with `python setup.py develop` and so CommonJS packages
         # must have been installed already.
-        module = self.url.split(':', 1)[1]
-        proc = webpack_watch(module, self.target)
+        proc = webpack_watch(self.dist, self.target)
         def terminate():
             try:
                 proc.terminate()
@@ -87,5 +87,4 @@ class GenerateWebpack(Generate):
                 # The server process must have died already.
                 pass
         return terminate
-
 

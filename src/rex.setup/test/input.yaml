@@ -28,7 +28,16 @@ tests:
   - sh: ls -R ./lib/python2.7/site-packages/rex
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls -R ./share/rex
+  - sh: ls ./share/rex
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/js
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     environ: { LC_ALL: C }
     cd: sandbox
   - sh: ls ./lib
@@ -50,16 +59,19 @@ tests:
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_init.txt
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_static.txt
     ignore: *ignore-prefix
-  - sh: ls -R ./share/rex
+  - sh: ls ./share/rex
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls -R ./share/rex/rex.setup_demo
+  - sh: ls ./share/rex/rex.setup_demo
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/js
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     environ: { LC_ALL: C }
     cd: sandbox
   - sh: ls ./lib
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ls ./lib/bower_components
     environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.

@@ -17,7 +17,7 @@ tests:
   - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_init.txt
     data: rex.setup_demo
   - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_static.txt
-    data: /home/xi/xitology/prometheus/rex/rex.setup-opensource/sandbox/share/rex/rex.setup_demo
+    data: /home/xi/xitology/prometheus/rex/opensource/rex.setup/sandbox/share/rex/rex.setup_demo
   - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_bundle.txt
     data: |
       {
@@ -26,7 +26,7 @@ tests:
           "https://github.com/twbs/bootstrap/releases/download/v3.0.0/bootstrap-3.0.0-dist.zip#md5=6b17c05bb1a1ddb123b7cadea187ff68"
         ],
         "./www/bundle": [
-          "webpack:rex-setup-demo"
+          "webpack:"
         ],
         "./www/jquery": [
           "https://raw.github.com/jquery/jquery/1.10.2/MIT-LICENSE.txt#md5=e43aa437a6a1ba421653bd5034333bf9",
@@ -40,72 +40,25 @@ tests:
       ./lib/python2.7/site-packages/rex:
       setup_demo.py
       setup_demo.pyc
-  - sh: ls -R ./share/rex
+  - sh: ls ./share/rex
     stdout: |
-      ./share/rex:
       rex.setup_demo
-
-      ./share/rex/rex.setup_demo:
+  - sh: ls ./share/rex/rex.setup_demo
+    stdout: |
       js
       www
-
-      ./share/rex/rex.setup_demo/js:
+  - sh: ls ./share/rex/rex.setup_demo/js
+    stdout: |
       bower.json
+      bower_components
       lib
-
-      ./share/rex/rex.setup_demo/js/lib:
-      index.js
-      index.less
-
-      ./share/rex/rex.setup_demo/www:
-      _access.yaml
+  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
+    stdout: |
       bootstrap
-      bundle
-      index.html
       jquery
-
-      ./share/rex/rex.setup_demo/www/bootstrap:
-      LICENSE
-      css
-      fonts
-      js
-
-      ./share/rex/rex.setup_demo/www/bootstrap/css:
-      bootstrap-theme.css
-      bootstrap-theme.min.css
-      bootstrap.css
-      bootstrap.min.css
-
-      ./share/rex/rex.setup_demo/www/bootstrap/fonts:
-      glyphicons-halflings-regular.eot
-      glyphicons-halflings-regular.svg
-      glyphicons-halflings-regular.ttf
-      glyphicons-halflings-regular.woff
-
-      ./share/rex/rex.setup_demo/www/bootstrap/js:
-      bootstrap.js
-      bootstrap.min.js
-
-      ./share/rex/rex.setup_demo/www/bundle:
-      bundle.css
-      bundle.js
-      bundle.js.map
-      font
-
-      ./share/rex/rex.setup_demo/www/bundle/font:
-      68ed1dac06bf0409c18ae7bc62889170.woff
-      7ad17c6085dee9a33787bac28fb23d46.eot
-      e49d52e74b7689a0727def99da31f3eb.ttf
-      ff423a4251cf2986555523dfe315c42b.svg
-
-      ./share/rex/rex.setup_demo/www/jquery:
-      MIT-LICENSE.txt
-      jquery-1.10.2.js
-      jquery-1.10.2.min.js
-      jquery-1.10.2.min.map
+      rex-setup-demo
   - sh: ls ./lib
     stdout: |
-      bower_components
       node_modules
       python2.7
 - suite: develop
@@ -122,80 +75,27 @@ tests:
     data: rex.setup_demo
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_static.txt
     data: /home/xi/xitology/prometheus/rex/rex.setup-opensource/sandbox/share/rex/rex.setup_demo
-  - sh: ls -R ./share/rex
+  - sh: ls ./share/rex
     stdout: |
-      ./share/rex:
       rex.setup_demo
-  - sh: ls -R ./share/rex/rex.setup_demo
+  - sh: ls ./share/rex/rex.setup_demo
     stdout: |
-      ./share/rex/rex.setup_demo:
       js
       www
-
-      ./share/rex/rex.setup_demo/js:
-      bower.json
-      lib
-
-      ./share/rex/rex.setup_demo/js/lib:
-      index.js
-      index.less
-
-      ./share/rex/rex.setup_demo/www:
-      _access.yaml
-      bootstrap
-      bundle
-      index.html
-      jquery
-
-      ./share/rex/rex.setup_demo/www/bootstrap:
-      LICENSE
-      css
-      fonts
-      js
-
-      ./share/rex/rex.setup_demo/www/bootstrap/css:
-      bootstrap-theme.css
-      bootstrap-theme.min.css
-      bootstrap.css
-      bootstrap.min.css
-
-      ./share/rex/rex.setup_demo/www/bootstrap/fonts:
-      glyphicons-halflings-regular.eot
-      glyphicons-halflings-regular.svg
-      glyphicons-halflings-regular.ttf
-      glyphicons-halflings-regular.woff
-
-      ./share/rex/rex.setup_demo/www/bootstrap/js:
-      bootstrap.js
-      bootstrap.min.js
-
-      ./share/rex/rex.setup_demo/www/bundle:
-      bundle.css
-      bundle.js
-      bundle.js.map
-      font
-
-      ./share/rex/rex.setup_demo/www/bundle/font:
-      68ed1dac06bf0409c18ae7bc62889170.woff
-      7ad17c6085dee9a33787bac28fb23d46.eot
-      e49d52e74b7689a0727def99da31f3eb.ttf
-      ff423a4251cf2986555523dfe315c42b.svg
-
-      ./share/rex/rex.setup_demo/www/jquery:
-      MIT-LICENSE.txt
-      jquery-1.10.2.js
-      jquery-1.10.2.min.js
-      jquery-1.10.2.min.map
-  - sh: ls ./lib
+  - sh: ls ./share/rex/rex.setup_demo/js
     stdout: |
+      bower.json
       bower_components
-      node_modules
-      python2.7
-  - sh: ls ./lib/bower_components
+      lib
+  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     stdout: |
       bootstrap
       jquery
       rex-setup-demo
+  - sh: ls ./lib
+    stdout: |
+      node_modules
+      python2.7
 - suite: sdist
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox
@@ -279,6 +179,7 @@ tests:
 
       ./rex.setup_demo-1.2.3/static/www/bundle:
       bundle.css
+      bundle.css.map
       bundle.js
       bundle.js.map
       font
@@ -296,6 +197,5 @@ tests:
       jquery-1.10.2.min.map
   - sh: ls ./lib
     stdout: |
-      bower_components
       node_modules
       python2.7

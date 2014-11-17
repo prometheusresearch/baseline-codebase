@@ -8,30 +8,36 @@ var IntrospectablePlugin = require('rex-setup/introspection/plugin');
 var DEV           = !!process.env.REX_SETUP_DEV;
 var BUNDLE_PREFIX = process.env.REX_SETUP_BUNDLE_PREFIX || '/bundle/';
 
-// If we are inside virtualenv then $NPM_CONFIG_PREFIX is set, otherwise look
-// into /usr/lib/bower_components as this is the place where bower will place
-// downloaded packages during installation
-var global_modules = path.join(
-  process.env.NPM_CONFIG_PREFIX || '/usr',
-  'lib/bower_components');
+var packageDirectory = path.join(process.cwd(), 'bower_components');
 
-
-function global(p) {
-  return path.join(global_modules, p);
+/**
+ * Return path to an installed package specified by name.
+ *
+ * @param {String} name Name of the installed package
+ * @returns {String} Path to the installed package
+ */
+function packagePath(name) {
+  return path.join(packageDirectory, name);
 }
 
+/**
+ * Produce WebPack configuration.
+ *
+ * @param {WebPackConfiguration} config WebPack configuration override
+ * @returns {WebPackConfiguration}
+ */
 function configureWebpack(config) {
   set(config, 'watchDelay', 800);
 
-  set(config, 'resolve.alias.react/addons', global('react/react-with-addons.js'));
-  set(config, 'resolve.alias.react', global('react/react-with-addons.js'));
+  set(config, 'resolve.alias.react/addons', packagePath('react/react-with-addons.js'));
+  set(config, 'resolve.alias.react', packagePath('react/react-with-addons.js'));
 
   set(config, 'output.path', process.cwd());
   set(config, 'output.filename', 'bundle.js');
   unshift(config, 'module.loaders', [
     {
       test: /\.js$/,
-      loader: 'jsx-loader?harmony=true'
+      loader: 'jsx-loader?harmony=true&es5=true'
     },
     { test: /\.less$/,
       loaders: [
@@ -56,8 +62,9 @@ function configureWebpack(config) {
   ]);
 
   unshift(config, 'resolveLoader.root', process.env.NODE_PATH);
+  unshift(config, 'resolveLoader.root', path.join(process.cwd(), 'node_modules'));
 
-  unshift(config, 'resolve.root', global_modules);
+  unshift(config, 'resolve.root', packageDirectory);
   set(config, 'resolve.modulesDirectories', []);
   unshift(config, 'resolve.extensions', ['', '.js']);
 
@@ -117,5 +124,6 @@ function unshift(config, path, defaultValue) {
 }
 
 module.exports = {
-  configureWebpack: configureWebpack
+  configureWebpack: configureWebpack,
+  packagePath: packagePath
 };

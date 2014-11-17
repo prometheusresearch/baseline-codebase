@@ -4,10 +4,25 @@
 
 .. contents:: Table of Contents
 
-1.2.3 (2014-XX-XX)
+2.0.0 (2014-XX-XX)
 ==================
 
-* Do not show ``npm`` warnings.
+Breaking changes:
+
+* Bower components are now installed into per package ``bower_components``
+  directory. This is to avoid false version conflicts where incompatible
+  versions are actually end up in the different bundles.
+
+* If JS package has ``package.json`` then it will be installed locally via
+  ``npm``. This is done to allow packages to specify own JS transformations at a
+  bundle time.
+
+* WebPack loaders now can be resolved from package-level ``node_modules``. This
+  is done to allow packages to specify own JS transformations at a bundle time.
+
+* WebPack generator does not take parameters anymore and only applies to the
+  package which defines it in its ``setup.py``. The only valid usage now is
+  ``webpack:``.
 
 
 1.2.2 (2014-10-08)

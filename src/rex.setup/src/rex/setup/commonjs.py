@@ -8,6 +8,7 @@ import os, os.path
 import shutil
 import stat
 import subprocess
+import tempfile
 import json
 import email
 import distutils.log, distutils.errors
@@ -91,7 +92,7 @@ def setup_commonjs():
             os.chmod(path, stat.S_IMODE(mode|0o111))
 
 
-def exe(cmd, args, cwd=None, daemon=False, env=None):
+def exe(cmd, args, cwd=None, daemon=False, env=None, quiet=False):
     # Executes the command; returns the output or, if `daemon` is set,
     # the process object.
     setup_commonjs()
@@ -101,7 +102,8 @@ def exe(cmd, args, cwd=None, daemon=False, env=None):
     _env.update(get_commonjs_environment())
     if env:
         _env.update(env)
-    distutils.log.info("executing %s" % " ".join(args))
+    if not quiet:
+        distutils.log.info("executing %s" % " ".join(args))
     proc = subprocess.Popen(args,
             env=_env, cwd=cwd,
             stdout=subprocess.PIPE if not daemon else None)
@@ -116,121 +118,188 @@ def exe(cmd, args, cwd=None, daemon=False, env=None):
     return out
 
 
-def node(args, cwd=None, daemon=False, env=None):
+def node(args, cwd=None, daemon=False, env=None, quiet=False):
     # Executes `node args...`.
-    return exe('node', args, cwd=cwd, daemon=daemon, env=env)
+    return exe('node', args, cwd=cwd, daemon=daemon, env=env, quiet=quiet)
 
 
-def npm(args, cwd=None, env=None):
+def npm(args, cwd=None, env=None, quiet=False):
     # Executes `npm args...`.
     args = ['--loglevel', 'error', '--color', 'false'] + args
-    return exe('npm', args, cwd=cwd, env=env)
+    return exe('npm', args, cwd=cwd, env=env, quiet=quiet)
 
 
-def bower(args, cwd=None, env=None):
+def bower(args, cwd=None, env=None, quiet=False):
     # Executes `bower args...`.
     base_args = [find_executable('bower'), '--allow-root', '--config.interactive=false']
-    return node(base_args + args, cwd, env=env)
+    return node(base_args + args, cwd, env=env, quiet=quiet)
 
 
-def install_bower_components(req):
-    # Resolve a requirement string.
+def static_filename(req):
     dist = get_distribution(req)
     if dist is None:
         raise distutils.errors.DistutilsSetupError(
-                "failed to find package with Bower component: %s" % req)
+            "failed to find a Python package with embedded JS package: %s" % req)
     # Skip packages without CommonJS components.
     if not dist.has_metadata('rex_static.txt'):
         return
     static = dist.get_metadata('rex_static.txt')
     if not os.path.exists(static):
         return
+    return static
+
+
+def package_filename(req, *filename):
+    """ Return the absolute path to the JS package embedded in the Python
+    package.
+
+    If ``filename`` is provided then it will returned as absolute path to the
+    filename inside the package.
+
+    If Python package doesn't have JS package embedded then ``None`` will be
+    returned.
+
+    :param req: Name of the Python package
+    :keyword filename: Optional filename inside the JS package
+    """
+    static = static_filename(req)
+    if static is None:
+        return
     if not os.path.exists(os.path.join(static, 'js', 'bower.json')):
         return
-    # Make sure `rex-setup` NPM package that comes with rex.setup is installed.
-    path = node(['-p',
-                 'try { require.resolve("rex-setup") } catch (e) {""}'])
-    if not path.strip():
-        cwd = pkg_resources.resource_filename('rex.setup', 'commonjs')
-        npm(['install', '--global'], cwd=cwd)
-    # Validate the component descriptor.
-    component_name = dist.key.replace('.', '-')
-    js = os.path.abspath(os.path.join(static, 'js'))
-    bower_json = os.path.join(js, 'bower.json')
-    with open(bower_json) as stream:
-        try:
-            package = json.load(stream)
-            if not isinstance(package, dict):
-                raise ValueError("an object expected")
-        except ValueError, exc:
-            raise distutils.errors.DistutilsSetupError(
-                    "ill-formed JSON in %s: %s" % (bower_json, exc))
-    if package.get('name') != component_name:
-        raise distutils.errors.DistutilsSetupError(
-                "unexpected package name in %s: expected %s; got %s"
-                % (bower_json, component_name, package.get('name')))
-    if package.get('version') != dist.version:
-        raise distutils.errors.DistutilsSetupError(
-                "unexpected package version in %s: expected %s; got %s"
-                % (bower_json, dist.version, package.get('version')))
-    # Install Bower dependencies that are packaged in Python distributions.
-    if isinstance(package.get('dependencies'), dict):
-        dependencies = set(package['dependencies'])
-        for req in dist.requires():
-            dependency_name = req.key.replace('.', '-')
-            if dependency_name not in dependencies:
-                continue
-            # Check if the dependency is already installed.
-            path = os.path.join(
-                    sys.prefix, 'lib', 'bower_components', dependency_name)
-            if os.path.exists(path):
-                continue
-            install_bower_components(req)
-    # Install the component into `$PREFIX/lib/bower_components`.
-    distutils.log.info("installing bower component: %s" % component_name)
-    cwd = os.path.join(sys.prefix, 'lib')
-    # If the Python package has been installed with `python setup.py develop`,
-    # install its Bower component with `bower link`, otherwise, use
-    # `bower install`.
-    if os.path.islink(static):
-        # `bower link` is broken, we install first and then link manually.
-        bower(['install', js], cwd=cwd)
-        installed_path = bower_component_filename(component_name)
-        if os.path.islink(installed_path):
-            os.unlink(installed_path)
-        else:
-            shutil.rmtree(installed_path)
-        os.symlink(js, installed_path)
-    else:
-        bower(['install', js], cwd=cwd)
+    js_filename = os.path.abspath(os.path.join(static, 'js'))
+    if filename is not None:
+        js_filename = os.path.join(js_filename, *filename)
+        if not os.path.exists(js_filename):
+            return
+    return js_filename
 
 
-def bower_component_filename(component_name, filename=None):
-    path = os.path.join(
-            sys.prefix, 'lib', 'bower_components', component_name)
-    if not os.path.exists(path):
-        raise distutils.errors.DistutilsSetupError(
-                "bower component '%s' is not installed" % component_name)
-    if filename is None:
-        return path
-    path = os.path.join(path, filename)
-    if not os.path.exists(path):
-        return None
-    return path
+def bower_package_metadata(req):
+    """ Return contents of ``bower.json`` metadata for a JS package.
 
+    Returns ``None`` if JS package is not a bower component.
 
-def bower_component_metadata(component_name):
-    """ Return contents of ``bower.json`` metadata for a component.
-
-    :param component_name: Name of the installed bower component
-    :type component_name: str
+    :param req: Name of the Python package
+    :type req: str
     :return: Component metdata
     :rtype: dict
     """
-    bower_json = bower_component_filename(component_name, 'bower.json')
-    if bower_json:
-        with open(bower_json, 'r') as f:
-            return json.load(f)
+    filename = package_filename(req, 'bower.json')
+    if not filename:
+        return
+    with open(filename, 'r') as stream:
+        try:
+            meta = json.load(stream)
+            if not isinstance(meta, dict):
+                raise ValueError("an object expected")
+        except ValueError, exc:
+            raise distutils.errors.DistutilsSetupError(
+                    "ill-formed JSON in %s: %s" % (filename, exc))
+        else:
+            return (filename, meta)
+
+
+def validate_bower_package_metadata(req, expected_name, expected_version):
+    """ Validate bower package metadata against ``expected_name`` and
+    ``expected_version``.
+    """
+    filename, meta = bower_package_metadata(req)
+    if meta.get('name') != expected_name:
+        raise distutils.errors.DistutilsSetupError(
+                "unexpected meta name in %s: expected %s; got %s"
+                % (filename, expected_name, meta.get('name')))
+    if meta.get('version') != expected_version:
+        raise distutils.errors.DistutilsSetupError(
+                "unexpected meta version in %s: expected %s; got %s"
+                % (filename, expected_version, meta.get('version')))
+    if meta.get('dependencies') and not isinstance(meta['dependencies'], dict):
+        raise distutils.errors.DistutilsSetupError(
+                "\"dependencies\" key should be a JSON object in %s"
+                % filename)
+
+
+def ensure_rex_setup_commonjs_installed():
+    """ Make sure `rex-setup` NPM package that comes with rex.setup is installed.
+    """
+    path = node(['-p',
+                 'try { require.resolve("rex-setup") } catch (e) {""}'],
+                 quiet=True)
+    if not path.strip():
+        cwd = pkg_resources.resource_filename('rex.setup', 'commonjs')
+        npm(['install', '--global'], cwd=cwd)
+
+
+def install_package(req, skip_if_installed=False):
+    if package_filename(req, 'package.json'):
+        install_npm_package(req, skip_if_installed=skip_if_installed)
+    if package_filename(req, 'bower.json'):
+        install_bower_component(req, skip_if_installed=skip_if_installed)
+
+
+def install_npm_package(req, skip_if_installed=False):
+    distutils.log.info("installing npm package for: %s" % req)
+    cwd = package_filename(req)
+    npm(['install'], cwd=cwd)
+
+
+def install_bower_component(req, dest=None, skip_if_installed=False):
+    dist = get_distribution(req)
+    src = package_filename(req)
+    if src is None:
+        return
+    root_install = dest is None
+    # We install into temp directory because:
+    # 1. We want to have components in `static/js/bower_components` but executing
+    #    bower in `static/js` while we install components from python deps triggers
+    #    installation of the package itself (`static/js/bower.json`)
+    # 2. We can maintain bower_components in a consistent state regarding
+    #    failures between multiple `bower install` calls
+    if root_install:
+        if skip_if_installed and \
+                os.path.exists(os.path.join(src, 'bower_components')):
+            return
+        dest = tempfile.mkdtemp('rexsetup')
+    ensure_rex_setup_commonjs_installed()
+    component_name = dist.key.replace('.', '-')
+    validate_bower_package_metadata(req, component_name, dist.version)
+    _bower_json, meta = bower_package_metadata(req)
+    # Install Bower dependencies that are packaged in Python distributions.
+    dependencies = set(meta.get('dependencies', {}))
+    for dep_req in dist.requires():
+        dep_component_name = dep_req.key.replace('.', '-')
+        if dep_component_name not in dependencies:
+            continue
+        # Check if the dependency is already installed.
+        if os.path.exists(os.path.join(dest, 'bower_components', dep_component_name)):
+            continue
+        install_bower_component(dep_req, dest)
+    distutils.log.info("installing bower component for: %s" % req)
+    # Install component into dest/bower_components
+    bower(['install', src], cwd=dest)
+    # Move bower_components from temp dir to src/bower_components
+    if root_install:
+        dest_bower_components = os.path.join(src, 'bower_components')
+        _rmtree_or_unlink(dest_bower_components)
+        shutil.move(
+            os.path.join(dest, 'bower_components'),
+            dest_bower_components)
+        shutil.rmtree(dest)
+    # Check if Python package was installed in dev mode and link bower component
+    # source instead of installing it. (a simpler alternative to `bower link`)
+    is_dev_install = os.path.islink(static_filename(req))
+    if is_dev_install:
+        installed_path = os.path.join(src, 'bower_components', component_name)
+        _rmtree_or_unlink(installed_path)
+        os.symlink(src, installed_path)
+
+
+def _rmtree_or_unlink(directory):
+    if os.path.exists(directory):
+        if os.path.islink(directory):
+            os.unlink(directory)
+        else:
+            shutil.rmtree(directory)
 
 
 def get_distribution(req):

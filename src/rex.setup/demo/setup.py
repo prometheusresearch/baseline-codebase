@@ -46,7 +46,7 @@ setup(
             'https://github.com/twbs/bootstrap/releases/download/v3.0.0/bootstrap-3.0.0-dist.zip#md5=6b17c05bb1a1ddb123b7cadea187ff68',
         ],
         './www/bundle': [
-            'webpack:rex-setup-demo',
+            'webpack:',
         ],
     },
 )

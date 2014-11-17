@@ -3,13 +3,13 @@
 #
 
 
-from .commonjs import install_bower_components, npm
 import os, os.path
 import fnmatch
 import distutils.log, distutils.errors, distutils.dir_util
 import setuptools, setuptools.command.install, setuptools.command.develop, \
         setuptools.command.sdist, setuptools.archive_util
 import pkg_resources
+from .commonjs import install_package as install_commonjs_package
 
 
 def check_static(dist, attr, value):
@@ -136,10 +136,8 @@ class develop_static(setuptools.Command):
         filename = os.path.abspath(self.rex_static)
         self.execute(os.symlink, (filename, target),
                 "Linking %s to %s" % (filename, target))
-        # Install CommonJS modules as a bower component
-        if os.path.exists(os.path.join(self.rex_static,
-                                       'js', 'bower.json')):
-            install_bower_components(self._make_dummy_dist())
+        # Install CommonJS package
+        install_commonjs_package(self._make_dummy_dist())
         # Build generated files.
         self.run_command('bundle')
 
@@ -166,7 +164,7 @@ setuptools.command.develop.develop.install_for_development = \
 
 # Files and directories in `static` that we don't want to add to the
 # source distribution.
-SDIST_STATIC_SKIP = ['node_modules']
+SDIST_STATIC_SKIP = ['node_modules', 'bower_components']
 
 # Patch `sdist` to include static files.
 _add_defaults = setuptools.command.sdist.sdist.add_defaults

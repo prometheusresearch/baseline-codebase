@@ -12,7 +12,6 @@ from rex.core import (get_settings, Setting, Initialize, Validate, StrVal,
         MaybeVal, Error, cached)
 from rex.web import HandleLocation, authorize
 from webob import Response
-from webob.dec import wsgify
 from webob.static import FileIter, BLOCK_SIZE
 from webob.exc import HTTPMethodNotAllowed, HTTPNotFound, HTTPUnauthorized
 import re
@@ -59,7 +58,6 @@ class OpenFileApp(object):
     def __init__(self, file):
         self.file = file
 
-    @wsgify
     def __call__(self, req):
         # Adapted from `FileApp.__call__()`.
         if 'wsgi.file_wrapper' in req.environ:

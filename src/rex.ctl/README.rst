@@ -170,6 +170,18 @@ then daemonize with a master process and several worker processes::
       threads: 2
       socket: :3031
 
+Commands ``rex start`` and ``rex stop`` allow you to start and stop a uWSGI
+daemon::
+
+    $ rex start
+    Starting rex.ctl_demo (/run/rex/760aba.pid)
+
+    $ rex stop
+    Stopping rex.ctl_demo (/home/xi/run/rex/760aba.pid)
+
+If you use ``rex start`` to start a uWSGI daemon, you don't need to set uWSGI
+parameters ``daemonize`` and ``pidfile``.
+
 
 Database management
 ===================

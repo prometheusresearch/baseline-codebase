@@ -5,9 +5,10 @@
 .. contents:: Table of Contents
 
 
-1.4.3 (2014-XX-XX)
+1.5.0 (2014-XX-XX)
 ==================
 
+* Added ``rex start`` and ``rex stop`` tasks.
 * Removed tests that fail when run under root.
 
 

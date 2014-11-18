@@ -53,6 +53,8 @@ tests:
   - rex: help serve
   - rex: help wsgi
   - rex: help serve-uwsgi
+  - rex: help start
+  - rex: help stop
   - rex: help packages
   - rex: help settings
   - rex: help http-host
@@ -298,6 +300,31 @@ tests:
       ignore: true
     - rex: serve-uwsgi rex.ctl_demo --uwsgi version
       ignore: true
+
+
+#
+# rex start/stop
+#
+
+- title: rex start/stop
+  tests:
+
+  - title: Missing configuration
+    tests:
+    - rex: start rex.ctl_demo
+      exit: 1
+
+  - title: Starting and stopping uWSGI daemon
+    tests:
+    - rex: start rex.ctl_demo --set-uwsgi http-socket=:8080
+      ignore: &pid-ignore |
+        \((\w+).pid\)
+    - rex: start rex.ctl_demo --set-uwsgi http-socket=:8080
+      exit: 1
+    - rex: stop rex.ctl_demo
+      ignore: *pid-ignore
+    - rex: stop rex.ctl_demo
+      exit: 1
 
 
 #

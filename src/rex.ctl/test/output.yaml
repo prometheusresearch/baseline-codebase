@@ -144,7 +144,7 @@ tests:
       SERVE-UWSGI - start a uWSGI server
       Usage: rex serve-uwsgi [<project>]
 
-      The uwsgi task starts a RexDB application with a uWSGI server.
+      The serve-uwsgi task starts a RexDB application with a uWSGI server.
 
       This task takes one argument: the name of the primary RexDB package.
       Alternatively, the package could be specified using project setting.
@@ -166,6 +166,41 @@ tests:
         --set=PARAM=VALUE        : set a configuration parameter
         --set-uwsgi=PARAM=VALUE  : set a uWSGI option
         -w/--watch               : rebuild generated files on the fly
+
+  - rex: help start
+    stdout: |+
+      START - start a uWSGI server in daemon mode
+      Usage: rex start [<project>]
+
+      The start task starts a RexDB application under a uWSGI server
+      running in daemon mode.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Use option --set or setting parameters to specify configuration
+      parameters of the application.
+
+      Use option --set-uwsgi or setting uwsgi to specify configuration
+      of the uWSGI server.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        --set-uwsgi=PARAM=VALUE  : set a uWSGI option
+
+  - rex: help stop
+    stdout: |+
+      STOP - stop a running uWSGI daemon
+      Usage: rex stop [<project>]
+
+      The start task stops a uWSGI server running in daemon mode.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
 
   - rex: help packages
     stdout: |+
@@ -773,6 +808,30 @@ tests:
       stdout: |
         Starting uWSGI server for rex.ctl_demo
         1.9.11
+- suite: rex-start-stop
+  tests:
+  - suite: missing-configuration
+    tests:
+    - rex: start rex.ctl_demo
+      stdout: |+
+        FATAL ERROR: missing uWSGI configuration
+
+  - suite: starting-and-stopping-uwsgi-daemon
+    tests:
+    - rex: start rex.ctl_demo --set-uwsgi http-socket=:8080
+      stdout: |
+        Starting rex.ctl_demo (/home/xi/run/rex/760aba.pid)
+    - rex: start rex.ctl_demo --set-uwsgi http-socket=:8080
+      stdout: |+
+        FATAL ERROR: application is already running
+
+    - rex: stop rex.ctl_demo
+      stdout: |
+        Stopping rex.ctl_demo (/home/xi/run/rex/760aba.pid)
+    - rex: stop rex.ctl_demo
+      stdout: |+
+        FATAL ERROR: application is not running
+
 - suite: rex-packages
   tests:
   - suite: run-with-no-project

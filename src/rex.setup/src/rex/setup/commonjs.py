@@ -277,6 +277,13 @@ def install_bower_component(req, dest=None, skip_if_installed=False):
     distutils.log.info("installing bower component for: %s" % req)
     # Install component into dest/bower_components
     bower(['install', src], cwd=dest)
+    # Check if Python package was installed in dev mode and link bower component
+    # source instead of installing it. (a simpler alternative to `bower link`)
+    is_dev_install = os.path.islink(static_filename(req))
+    if is_dev_install:
+        installed_path = os.path.join(dest, 'bower_components', component_name)
+        _rmtree_or_unlink(installed_path)
+        os.symlink(src, installed_path)
     # Move bower_components from temp dir to src/bower_components
     if root_install:
         dest_bower_components = os.path.join(src, 'bower_components')
@@ -285,13 +292,6 @@ def install_bower_component(req, dest=None, skip_if_installed=False):
             os.path.join(dest, 'bower_components'),
             dest_bower_components)
         shutil.rmtree(dest)
-    # Check if Python package was installed in dev mode and link bower component
-    # source instead of installing it. (a simpler alternative to `bower link`)
-    is_dev_install = os.path.islink(static_filename(req))
-    if is_dev_install:
-        installed_path = os.path.join(src, 'bower_components', component_name)
-        _rmtree_or_unlink(installed_path)
-        os.symlink(src, installed_path)
 
 
 def _rmtree_or_unlink(directory):

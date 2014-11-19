@@ -103,3 +103,18 @@ out. To change this, you alter the value of the ``sms_provider`` setting. The
 You can implement your own Provider by writing a class that inherits from the
 ``rex.sms.SmsProvider`` extension. See the API Reference for details.
 
+
+Settings
+========
+
+Aside from ``sms_provider`` and the other settings discussed in the
+`Configuring Providers`_ section, this package also has the following settings
+available:
+
+``sms_force_recipient``
+    This setting can contain a telephone number that will be used to override
+    any number that is passed in as a recipient to the ``send_sms()`` function.
+    This is useful in development and testing situations to avoid sending
+    messages accidentally to people who may not be expecting messages from your
+    application.
+

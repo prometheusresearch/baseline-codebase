@@ -191,16 +191,46 @@ tests:
         --require=PACKAGE        : include an additional package
         --set=PARAM=VALUE        : set a configuration parameter
         --set-uwsgi=PARAM=VALUE  : set a uWSGI option
+        -w/--watch               : rebuild generated files on the fly
 
   - rex: help stop
     stdout: |+
       STOP - stop a running uWSGI daemon
       Usage: rex stop [<project>]
 
-      The start task stops a uWSGI server running in daemon mode.
+      The stop task stops a uWSGI server running in daemon mode.
 
       This task takes one argument: the name of the primary RexDB package.
       Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+
+  - rex: help status
+    stdout: |+
+      STATUS - check if a uWSGI daemon is running
+      Usage: rex status [<project>]
+
+      The status task verifies if there is an active UWSGI server
+      running in daemon model.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Use option --pid to print the process ID of the uWSGI daemon.
+
+      Use option --log to print the name of the file with uWSGI logs.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --pid                    : print the daemon PID
+        --log                    : print path to the log file
 
   - rex: help packages
     stdout: |+
@@ -814,24 +844,36 @@ tests:
     tests:
     - rex: start rex.ctl_demo
       stdout: |+
-        FATAL ERROR: missing uWSGI configuration
+        FATAL ERROR: uWSGI sockets are not configured
 
   - suite: starting-and-stopping-uwsgi-daemon
     tests:
     - rex: start rex.ctl_demo --set-uwsgi http-socket=:8080
       stdout: |
-        Starting rex.ctl_demo (/home/xi/run/rex/760aba.pid)
+        Starting rex.ctl_demo (http-socket: :8080, logto: /home/xi/run/rex/rex.ctl_demo.log)
     - rex: start rex.ctl_demo --set-uwsgi http-socket=:8080
       stdout: |+
-        FATAL ERROR: application is already running
+        FATAL ERROR: rex.ctl_demo is already running
 
+    - rex: status rex.ctl_demo
+      stdout: |
+        rex.ctl_demo is running (http-socket: :8080, logto: /home/xi/run/rex/rex.ctl_demo.log)
+    - rex: status rex.ctl_demo --pid
+      stdout: |
+        7848
+    - rex: status rex.ctl_demo --log
+      stdout: |
+        /home/xi/run/rex/rex.ctl_demo.log
     - rex: stop rex.ctl_demo
       stdout: |
-        Stopping rex.ctl_demo (/home/xi/run/rex/760aba.pid)
+        Stopping rex.ctl_demo (http-socket: :8080, logto: /home/xi/run/rex/rex.ctl_demo.log)
     - rex: stop rex.ctl_demo
       stdout: |+
-        FATAL ERROR: application is not running
+        FATAL ERROR: rex.ctl_demo is not running
 
+    - rex: status rex.ctl_demo
+      stdout: |
+        rex.ctl_demo is not running
 - suite: rex-packages
   tests:
   - suite: run-with-no-project

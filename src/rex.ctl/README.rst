@@ -174,13 +174,18 @@ Commands ``rex start`` and ``rex stop`` allow you to start and stop a uWSGI
 daemon::
 
     $ rex start
-    Starting rex.ctl_demo (/run/rex/760aba.pid)
+    Starting rex.ctl_demo (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
 
     $ rex stop
-    Stopping rex.ctl_demo (/home/xi/run/rex/760aba.pid)
+    Stopping rex.ctl_demo (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
 
 If you use ``rex start`` to start a uWSGI daemon, you don't need to set uWSGI
 parameters ``daemonize`` and ``pidfile``.
+
+Use command ``rex status`` to verify if the uWSGI daemon is running::
+
+    $ rex status
+    rex.ctl_demo is running (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
 
 
 Database management

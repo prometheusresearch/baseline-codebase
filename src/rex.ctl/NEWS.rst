@@ -8,7 +8,7 @@
 1.5.0 (2014-XX-XX)
 ==================
 
-* Added ``rex start`` and ``rex stop`` tasks.
+* Added ``rex start``, ``rex stop`` and ``rex status`` tasks.
 * Removed tests that fail when run under root.
 
 

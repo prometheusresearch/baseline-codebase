@@ -38,7 +38,7 @@ try:
 except ImportError:
     pass
 else:
-    from . import serve, wsgi
+    from . import serve, wsgi, daemon
 
 # Enable `shell` task if `rex.db` is installed.
 try:

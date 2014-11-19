@@ -3,17 +3,26 @@
 #
 
 title: REX.SMS
+suite: all
 tests:
-  - coverage: setup.cfg
+  - title: Base Unit Tests
+    suite: base
+    tests:
+      - coverage: setup.cfg
 
-  - sh: pip install -q mock
-  - sh: pip install -q -e ./demo/rex.sms_demo
+      - sh: pip install -q mock
+      - sh: pip install -q -e ./demo/rex.sms_demo
 
-  - doctest: README.rst
-  - doctest: test/test_*.rst
+      - doctest: README.rst
+      - doctest: test/test_*.rst
 
-  - sh: pip uninstall -q -y rex.sms_demo
+      - sh: pip uninstall -q -y rex.sms_demo
 
-  - coverage-check: 90.0
-  - coverage-report: ./build/coverage
+      - coverage-check: 90.0
+      - coverage-report: ./build/coverage
+
+  - title: Twilio Integration Tests
+    suite: twilio
+    tests:
+      - doctest: test/integration/test_twilio.rst
 

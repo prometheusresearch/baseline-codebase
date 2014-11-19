@@ -369,7 +369,7 @@ tests:
     tests:
     - rex: serve
       stdout: |+
-        FATAL ERROR: package rex.web must be included with the application
+        FATAL ERROR: project is not specified
 
   - suite: run-with-a-project
     tests:
@@ -734,7 +734,7 @@ tests:
     tests:
     - rex: wsgi
       stdout: |+
-        FATAL ERROR: package rex.web must be included with the application
+        FATAL ERROR: project is not specified
 
     - rex: wsgi rex.ctl_demo
       stdout: |2+

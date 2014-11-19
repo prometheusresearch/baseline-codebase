@@ -127,8 +127,11 @@ def make_rex(project=None, require_list=None, set_list=None,
             except Error, error:
                 raise fail(str(error))
         if ensure not in packages:
-            raise fail("package `{}` must be included with the application",
-                       ensure)
+            if requirements:
+                raise fail("package `{}` must be included with the application",
+                           ensure)
+            else:
+                raise fail("project is not specified")
 
     # Start watchers for generated files.
     if attached_watch or detached_watch:

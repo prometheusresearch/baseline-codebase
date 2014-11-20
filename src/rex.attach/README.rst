@@ -159,6 +159,6 @@ attachments.  It is implemented as follows::
         def render(self, req, code):
             db = get_db()
             handle = db.produce('file[$code].handle', code=code).data
-            return download(handle)
+            return download(handle)(req)
 
 

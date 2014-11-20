@@ -53,6 +53,6 @@ class DownloadCmd(Command):
         handle = db.produce('file[$code].handle', code=code).data
         if handle is None:
             raise HTTPNotFound("invalid file code")
-        return download(handle)
+        return download(handle)(req)
 
 

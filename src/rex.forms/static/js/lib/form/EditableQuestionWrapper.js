@@ -16,7 +16,7 @@ var EditableQuestionWrapper = React.createClass({
 
   render: function() {
     var question = this.transferPropsTo(
-      <Question readOnly={!this.props.active} />
+      <Question readOnly={!this.props.active} ref="question" />
     );
     return (
       <div className="rex-forms-EditableQuestionWrapper">
@@ -50,6 +50,7 @@ var EditableQuestionWrapper = React.createClass({
 
   onEdit: function() {
     this.props.onEdit(this.props.name);
+    setTimeout(this.refs.question.focus, 1);
   },
 
   onSave: function() {

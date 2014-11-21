@@ -17,9 +17,9 @@ var determineWidgetType = require('../elements/Question').determineWidgetType;
 var WidgetConfiguration = require('../form/WidgetConfiguration');
 var utils = require('../utils');
 var widgetMap = require('../widgets').defaultWidgetMap;
-var l10n = require('../localization');
-var _ = l10n._;
+var _ = require('../localization')._;
 var types = require('../types');
+var localized = require('../localized');
 
 
 var HeaderColumn = React.createClass({
@@ -89,7 +89,10 @@ var Header = React.createClass({
 
 var DiscrepancyTitle = React.createClass({
   propTypes: {
-    title: React.PropTypes.string.isRequired,
+    title: React.PropTypes.oneOfType([
+      React.PropTypes.string,
+      React.PropTypes.object
+    ]),
     required: React.PropTypes.bool,
     complete: React.PropTypes.bool
   },
@@ -109,7 +112,7 @@ var DiscrepancyTitle = React.createClass({
     return (
       <div className={classes}>
         <p>
-          {this.props.title}
+          <localized>{this.props.title}</localized>
           {this.props.complete &&
             <span className="rex-forms-Discrepancy__complete"></span>
           }
@@ -121,10 +124,6 @@ var DiscrepancyTitle = React.createClass({
 
 
 var DiscrepancyChoices = React.createClass({
-  mixins: [
-    l10n.LocalizedMixin
-  ],
-
   propTypes: {
     discrepancy: React.PropTypes.object.isRequired,
     question: React.PropTypes.object.isRequired,
@@ -152,18 +151,29 @@ var DiscrepancyChoices = React.createClass({
     }
 
     var enumerations = this.props.question.enumerations;
-    var decoded = value.map((part) => {
+
+    return value.map((part, idx) => {
       if (enumerations) {
         for (var i = 0; i < enumerations.length; i += 1) {
           if (enumerations[i].id === part) {
-            return this.localize(enumerations[i].text);
+            return (
+              <localized
+                key={idx}
+                className="rex-forms-DiscrepancyValues__choice--value">
+                {enumerations[i].text}
+              </localized>
+            );
           }
         }
       }
-      return part;
+      return (
+        <span
+          key={idx}
+          className="rex-forms-DiscrepancyValues__choice--value">
+          {part}
+        </span>
+      );
     });
-
-    return decoded.join(', ');
   },
 
   buildValues: function (discrepancy) {
@@ -232,11 +242,16 @@ var DiscrepancyChoices = React.createClass({
       disabled: !this.state.overridden
     });
 
+    var overrideClasses = classSet({
+      'rex-forms-DiscrepancyValues__override': true,
+      'rex-forms-DiscrepancyValues__override--active': this.state.overridden
+    });
+
     return (
       <div className="rex-forms-DiscrepancyValues">
         {values}
         <div key='_fv' className={classes}>
-          <div className="rex-forms-DiscrepancyValues__override">
+          <div className={overrideClasses}>
             <label>
               <input
                 type="checkbox"
@@ -258,7 +273,6 @@ var DiscrepancyChoices = React.createClass({
 var SimpleDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldMixin,
-    l10n.LocalizedMixin,
     WidgetConfiguration.Mixin
   ],
 
@@ -328,7 +342,7 @@ var SimpleDiscrepancy = React.createClass({
       <div className="rex-forms-ReconcilerSection rex-forms-Discrepancy">
         <div className="rex-forms-Discrepancy__inner">
           <DiscrepancyTitle
-            title={this.localize(question.text)}
+            title={question.text}
             required={schema.props.required}
             complete={this.isComplete()}
             />
@@ -417,7 +431,6 @@ var ParentDiscrepancyMixin = {
 var RecordListDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldsetMixin,
-    l10n.LocalizedMixin,
     ParentDiscrepancyMixin
   ],
 
@@ -475,7 +488,7 @@ var RecordListDiscrepancy = React.createClass({
         className='rex-forms-ReconcilerSection rex-forms-RecordListDiscrepancy'>
         <div className='rex-forms-RecordListDiscrepancy__inner'>
           <DiscrepancyTitle
-            title={this.localize(question.text)}
+            title={question.text}
             required={schema.props.required}
             complete={this.isComplete()}
             />
@@ -490,7 +503,6 @@ var RecordListDiscrepancy = React.createClass({
 var RecordListRecordDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldsetMixin,
-    l10n.LocalizedMixin,
     ParentDiscrepancyMixin
   ],
 
@@ -533,7 +545,6 @@ var RecordListRecordDiscrepancy = React.createClass({
 var MatrixDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldsetMixin,
-    l10n.LocalizedMixin,
     ParentDiscrepancyMixin
   ],
 
@@ -603,7 +614,7 @@ var MatrixDiscrepancy = React.createClass({
         className='rex-forms-ReconcilerSection rex-forms-MatrixDiscrepancy'>
         <div className='rex-forms-MatrixDiscrepancy__inner'>
           <DiscrepancyTitle
-            title={this.localize(question.text)}
+            title={question.text}
             complete={this.isComplete()}
             />
           {rows}
@@ -617,7 +628,6 @@ var MatrixDiscrepancy = React.createClass({
 var MatrixRowDiscrepancy = React.createClass({
   mixins: [
     Forms.FieldsetMixin,
-    l10n.LocalizedMixin,
     ParentDiscrepancyMixin
   ],
 
@@ -627,7 +637,7 @@ var MatrixRowDiscrepancy = React.createClass({
 
   render: function () {
     var schema = this.value().schema,
-      title = this.localize(schema.props.row.text),
+      title = schema.props.row.text,
       columns = this.state.childFields.map((columnID) => {
         return (
           <FormFor
@@ -720,6 +730,12 @@ var DiscrepancyList = React.createClass({
 
         index += 1;
       }
+    }
+
+    var unprompted = Object.keys(form.unprompted || {}).sort();
+    var unpromptedIndex = unprompted.indexOf(fieldId);
+    if (unpromptedIndex >= 0) {
+      return (index + unpromptedIndex);
     }
   },
 

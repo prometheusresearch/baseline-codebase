@@ -12,8 +12,14 @@ var instrumentSchema = require('./createSchema');
 function coerceEmptyValueToNull(value) {
   if (value === undefined
       || value === ''
-      || (utils.isObject(value) && Object.getOwnPropertyNames(value).length === 0)
-      || (Array.isArray(value) && value.length === 0)) {
+      || (
+        utils.isObject(value)
+        && (Object.getOwnPropertyNames(value).length === 0)
+      )
+      || (
+        Array.isArray(value)
+        && (value.length === 0)
+      )) {
     return null;
   }
 

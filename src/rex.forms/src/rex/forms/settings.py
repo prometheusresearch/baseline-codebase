@@ -3,13 +3,14 @@
 #
 
 
-from rex.core import Setting, RecordVal, StrVal
+from rex.core import Setting, RecordVal, StrVal, IntVal
 
 from .interface import Channel, Form, Task, Entry, DraftForm
 
 
 __all__ = (
     'FormsImplementationSetting',
+    'FormsDefaultRequiredEntriesSetting',
 )
 
 
@@ -67,4 +68,17 @@ class FormsImplementationSetting(Setting):
                 setattr(value, name, interface.top())
 
         return value
+
+
+class FormsDefaultRequiredEntriesSetting(Setting):
+    """
+    The default number of Entries to require for each Task if not explicitly
+    defined by the Task.
+
+    Defaults to: 1
+    """
+
+    name = 'forms_default_required_entries'
+    default = 1
+    validate = IntVal(min_bound=1)
 

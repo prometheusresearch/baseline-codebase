@@ -100,7 +100,8 @@ def _get_simple_discrepancies(field, entries, accessor=None):
     ])
 
     unique_values = set([
-        v if not isinstance(v, list) else tuple(v)  # lists aren't hashable, tuples are
+        # lists aren't hashable, tuples are
+        v if not isinstance(v, list) else tuple(v)
         for v in values.values()
     ])
 

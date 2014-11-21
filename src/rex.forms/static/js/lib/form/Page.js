@@ -21,6 +21,25 @@ var Page = React.createClass({
     page: React.PropTypes.object.isRequired
   },
 
+  componentDidMount: function () {
+    this.focusFirstQuestion();
+  },
+
+  componentDidUpdate: function (prevProps) {
+    if (prevProps.page.id !== this.props.page.id) {
+      this.focusFirstQuestion();
+    }
+  },
+
+  focusFirstQuestion: function () {
+    var questions = this.props.page.elements.filter((element) => {
+      return element.type === 'question';
+    });
+    if (questions.length > 0) {
+      this.refs[questions[0].options.fieldId].focus();
+    }
+  },
+
   render: function() {
     var elements = this.props.page.elements
       .map(this.renderElement);
@@ -91,7 +110,9 @@ var Page = React.createClass({
   },
 
   onNext: function(name) {
-    var questions = this.props.page.elements.filter((el) => el.type === 'question');
+    var questions = this.props.page.elements.filter((el) => {
+      return el.type === 'question';
+    });
     var next = utils.findAfter(questions, (q) => q.options.fieldId, name);
     if (next) {
       this.refs[next].focus();

@@ -33,7 +33,8 @@ var Form = React.createClass({
     onComplete: React.PropTypes.func,
     showOverview: React.PropTypes.bool,
     showOverviewOnCompletion: React.PropTypes.bool,
-    readOnly: React.PropTypes.bool
+    readOnly: React.PropTypes.bool,
+    subtitle: React.PropTypes.string
   },
 
   render: function() {
@@ -113,7 +114,8 @@ var Form = React.createClass({
       defaultValue: defaultValue,
       schema: schema,
       parameters: {},
-      locale: 'en'
+      locale: 'en',
+      subtitle: null
     };
   },
 
@@ -168,7 +170,9 @@ var Form = React.createClass({
       if (failed) {
         value = value.get(name).get('value');
         value = value
-          .updateValidation({validation: {failure: failed.message, forceError: true}})
+          .updateValidation({
+            validation: {failure: failed.message, forceError: true}
+          })
           .root();
       } else if (validation.isFailure(value.get(name).get('value').validation)) {
         value = value.get(name).get('value');

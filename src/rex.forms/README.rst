@@ -95,6 +95,13 @@ Settings
     When a key is not specified, ``rex.forms`` will use the ``top()``-most
     implementation that exists in the application instance.
 
+``forms_default_required_entries``
+    This setting controls internal workflow logic which requires that Tasks
+    have at least some minimal number of Preliminary Entries completed before
+    they can be reconciled/completed. This setting defaults to ``1`` and is
+    only referenced if the Task implementation does not specify a value for its
+    ``num_required_entries`` property.
+
 
 JavaScript Components
 =====================

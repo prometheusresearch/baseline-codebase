@@ -68,7 +68,7 @@ var FormEntryPagesMixin = {
   setPage: function(pageOrId) {
     var id = pageOrId.id || pageOrId;
     if (this.props.onPage) {
-      var pageInfo = this.getPage(id);
+      var pageInfo = this.getPage(id, true);
       this.props.onPage(pageInfo.page, pageInfo.index);
     }
     this.setState({currentPageId: id});
@@ -153,10 +153,11 @@ var FormEntry = React.createClass({
     var title = this.props.form.title ?
       this.props.form.title :
       this.props.instrument.title;
+    var subtitle = this.props.subtitle;
 
     return (
       <div className="rex-forms-FormEntry">
-        <Title text={title} />
+        <Title text={title} subtitle={subtitle} />
         <PageNavigation navigation={navigation}>
           <ProgressBar
             percentComplete={percentComplete}

@@ -28,6 +28,7 @@ function render(options) {
     showOverview: false,
     readOnly: false,
     scrollToTopOnPage: true,
+    subtitle: null,
     debug: false
   };
 

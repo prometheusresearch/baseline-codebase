@@ -14,6 +14,10 @@ var FormLocalizerMixin = {
     return this.props.locale;
   },
 
+  getParameters: function () {
+    return this.props.parameters || {};
+  },
+
   localize: function(localizedString) {
     if (!localizedString) {
       return '';

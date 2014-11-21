@@ -15,16 +15,18 @@ var EnumerationMixin = {
     var enumerations = this.props.options.enumerations;
     if (!enumerations) {
       var instrumentType;
-      if (this.context.value.schema.children.value) {
-        instrumentType = this.context.value.schema.children.value.props.instrumentType;
+      var children = this.context.value.schema.children;
+      if (children.value) {
+        instrumentType = children.value.props.instrumentType;
       } else {
-        instrumentType = this.context.value.schema.children[this.props.name].props.instrumentType;
+        instrumentType = children[this.props.name].props.instrumentType;
       }
 
       if (instrumentType.rootType === 'boolean') {
         enumerations = defaultBooleanEnumeration;
       } else if (instrumentType.enumerations) {
-        enumerations = Object.keys(instrumentType.enumerations).sort().map((id) => {
+        enumerations = Object.keys(instrumentType.enumerations).sort();
+        enumerations = enumerations.map((id) => {
           return {
             id: id,
             text: id

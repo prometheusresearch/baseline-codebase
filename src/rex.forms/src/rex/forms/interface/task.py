@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Extension
+from rex.core import Extension, get_settings
 from rex.instrument.interface import Subject, Instrument, Assessment
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
@@ -31,9 +31,6 @@ class Task(Extension, Comparable, Displayable, Dictable):
     #: Work has been started on the task.
     STATUS_STARTED = u'started'
 
-    #: Data has been collected and is awaiting reconciliation.
-    STATUS_VALIDATING = u'validating'
-
     #: The Task has been satisfied.
     STATUS_COMPLETE = u'complete'
 
@@ -44,7 +41,6 @@ class Task(Extension, Comparable, Displayable, Dictable):
     ALL_STATUSES = (
         STATUS_NOT_STARTED,
         STATUS_STARTED,
-        STATUS_VALIDATING,
         STATUS_COMPLETE,
         STATUS_SKIPPED,
     )
@@ -54,6 +50,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         'instrument',
         'priority',
         'status',
+        'num_required_entries',
     )
 
     @classmethod
@@ -86,7 +83,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         * subject (UID or instance; exact matches)
         * channel (UID or instance; exact matches)
         * instrument (UID or instance; exact matches)
-        * status (exact matches)
+        * status (exact matches; can accept a list of statuses to match)
 
         Must be implemented by concrete classes.
 
@@ -113,7 +110,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             subject,
             instrument,
             priority=None,
-            status=None):
+            status=None,
+            num_required_entries=None):
         """
         Creates a Task in the datastore and returns the corresponding Task
         instance.
@@ -130,6 +128,9 @@ class Task(Extension, Comparable, Displayable, Dictable):
             the status of the Task; if not specified, defaults to
             ``STATUS_NOT_STARTED``
         :type status: string
+        :param num_required_entries:
+            the number of Entries this Task requires be completed
+        :type num_required_entries: int
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Task
@@ -144,7 +145,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             instrument,
             priority,
             assessment=None,
-            status=None):
+            status=None,
+            num_required_entries=None):
         self._uid = to_unicode(uid)
 
         if not isinstance(subject, (Subject, basestring)):
@@ -171,6 +173,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
         self._assessment = assessment
 
         self.status = status or self.__class__.STATUS_NOT_STARTED
+
+        self._num_required_entries = num_required_entries or None
 
     @property
     def uid(self):
@@ -232,6 +236,19 @@ class Task(Extension, Comparable, Displayable, Dictable):
 
         return self._status
 
+    @property
+    def num_required_entries(self):
+        """
+        The number of Entries this Task requires be completed. Read only.
+
+        :rtype: int
+        """
+
+        if not self._num_required_entries:
+            # pylint: disable=E1101
+            return get_settings().forms_default_required_entries
+        return self._num_required_entries
+
     @status.setter
     def status(self, value):
         if value not in self.__class__.ALL_STATUSES:
@@ -257,18 +274,30 @@ class Task(Extension, Comparable, Displayable, Dictable):
         )
 
     @property
+    def can_enter_data(self):
+        """
+        Indicates whether or not this Task is in a state that allows for new
+        preliminary Entries to be created. Read only.
+
+        Must be implemented by concrete classes.
+
+        :rtype: bool
+        """
+
+        raise NotImplementedError()
+
+    @property
     def can_reconcile(self):
         """
         Indicates whether or not this Task is in a state that allows for
         reconciliation to occur. Read only.
 
+        Must be implemented by concrete classes.
+
         :rtype: bool
         """
 
-        # TODO: add check for number of entries
-        return self.status in (
-            self.__class__.STATUS_VALIDATING,
-        )
+        raise NotImplementedError()
 
     @memoized_property
     def assessment(self):
@@ -278,6 +307,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :returns: the associated Assessment, or None if one does not exist yet
         :rtype: Assessment
         """
+
         if isinstance(self._assessment, basestring):
             assessment_impl = get_implementation('assessment')
             return assessment_impl.get_by_uid(self._assessment)
@@ -327,7 +357,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def start_entry(self, user, entry_type=None):
+    def start_entry(self, user, entry_type=None, override_workflow=False):
         """
         Creates a new Entry for the Assessment associated with this Task.
 
@@ -337,9 +367,18 @@ class Task(Extension, Comparable, Displayable, Dictable):
             the type of Entry to create; if not specified, defaults to
             ``TYPE_PRELIMINARY``
         :type entry_type: string
+        :param override_workflow:
+            indicates whether or not the normal workflow rules should be
+            overridden when starting a new Entry. This essentially overrides
+            the check of the ``can_enter_data`` property. If not specified,
+            defaults to ``False``.
+        :type override_workflow: bool
         :rtype: Entry
         :raises:
             DataStoreError if there was an error writing to the datastore
+        :raises:
+            FormError if the current state of the Task does not allow an
+            Entry to be created
         """
 
         raise NotImplementedError()
@@ -482,17 +521,30 @@ class Task(Extension, Comparable, Displayable, Dictable):
             reconciled_discrepancies,
         )
 
-    def reconcile(self, user, reconciled_discrepancies=None):
+    def reconcile(
+            self,
+            user,
+            reconciled_discrepancies=None,
+            override_workflow=False):
         """
         Marks the Task as being complete, creates a Reconciliation Entry, and
         completes the associated Assessment with the specified data.
 
-        :param reconciled_discrepancies:
-        :type reconciled_discrepancies: dict
         :param user: the User who completed the Task
         :type user: User
+        :param reconciled_discrepancies:
+        :type reconciled_discrepancies: dict
+        :param override_workflow:
+            indicates whether or not the normal workflow rules should be
+            overridden when reconciling the Task. This essentially overrides
+            the check of the ``can_reconcile`` property. If not specified,
+            defaults to ``False``.
+        :type override_workflow: bool
         :raises:
             DataStoreError if there was an error writing to the datastore
+        :raises:
+            FormError if the current state of the Task does not allow
+            reconciliation
         """
 
         raise NotImplementedError()

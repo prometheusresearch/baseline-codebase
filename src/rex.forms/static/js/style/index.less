@@ -26,7 +26,21 @@
  */
 
 .rex-forms-Title {
-  padding-bottom: 1em;
+  padding-bottom: 2em;
+
+  .rex-forms-Title__subtitle {
+    margin: 0;
+    padding-left: 30px;
+    color: grey;
+    font-size: 26px;
+    font-weight: normal;
+    font-style: italic;
+
+    [dir='rtl'] & {
+      padding-right: 30px;
+      padding-left: 0;
+    }
+  }
 }
 
 .rex-forms-Form__toolbar {
@@ -280,6 +294,12 @@
     }
 }
 
+.rex-forms-inputText,
+.rex-forms-inputNumber,
+.rex-forms-inputDateTime {
+    .form-control();
+}
+
 .rex-forms-radioGroup__option,
 .rex-forms-radioGroup__clear,
 .rex-forms-checkGroup__option {
@@ -310,6 +330,27 @@
 
 .rex-forms-radioGroup__clear {
   font-style: italic;
+}
+
+.rex-forms-radioGroup__hotkey,
+.rex-forms-checkGroup__hotkey {
+  margin-right: 8px;
+  color: #999;
+
+  [dir='rtl'] & {
+    margin-right: 0;
+    margin-left: 8px;
+  }
+
+  .rex-forms-ItemLabel__label {
+    &::before {
+      content: '[ ';
+    }
+
+    &::after {
+      content: ' ]';
+    }
+  }
 }
 
 .rex-forms-dropDown {
@@ -615,6 +656,16 @@
   &.num-choices-3 { .make-sm-column(3); }
   &.num-choices-4 { .make-sm-column(2); }
   &.num-choices-5 { .make-sm-column(2); }
+
+  .rex-forms-DiscrepancyValues__choice--value {
+    &::after {
+      content: ', ';
+    }
+
+    &:last-child::after {
+      content: ''
+    }
+  }
 }
 .rex-forms-DiscrepancyValues__input {
   &.num-choices-2 { .make-sm-column(4); }
@@ -623,6 +674,24 @@
   &.num-choices-5 { .make-sm-column(2); }
 }
 .rex-forms-DiscrepancyValues__override {
+  border-radius: 3px;
+  min-height: 2em;
+  line-height: 2em;
+  margin-bottom: 3px;
+
+  &:hover {
+    background-color: #DDF0FF;
+  }
+
+  &.rex-forms-DiscrepancyValues__override--active {
+    background-color: #B8DAF6;
+  }
+
+  & > label {
+    cursor: pointer;
+    margin-bottom: 0;
+  }
+
   input {
     margin-right: 5px;
 
@@ -631,6 +700,7 @@
       margin-right: 0;
     }
   }
+
   span {
     font-weight: normal;
   }

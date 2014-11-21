@@ -153,9 +153,9 @@ options
                      =============== ==================
                      question        The options are in the form of a `Question Object`_.
                      header          The only option allowed is a single property named ``text`` that
-                                     is a `Localized String Object`_.
+                                     is a `Localized String Object`_. This property can be marked up.
                      text            The only option allowed is a single property named ``text`` that
-                                     is a `Localized String Object`_.
+                                     is a `Localized String Object`_. This property can be marked up.
                      divider         N/A
                      =============== ==================
 
@@ -185,20 +185,22 @@ text
     :Constraints: Required
     :Description: This property allows the Form author to provide a more
                   detailed description for the Question. Often, it is an
-                  explicit question that is being asked of the Subject.
+                  explicit question that is being asked of the Subject. This
+                  text can be marked up.
     :Example: What is the your age?
 
 help
     :Type: `Localized String Object`_
     :Description: This property allows the Form author to supply additional
                   text that will be provided as help content for the Question.
-                  This property is optional.
+                  This property is optional and can contain marked up text.
 
 error
     :Type: `Localized String Object`_
     :Description: This property allows the Form author to supply text that will
                   be presented to the user when the value they've input is not
-                  valid. This property is optional.
+                  valid. This property is optional and can contain marked up
+                  text.
 
 enumerations
     :Type: Array of `Descriptor Object`_
@@ -257,13 +259,14 @@ text
     :Constraints: Required
     :Description: This property allows the Form author to provide a more
                   detailed description for the Enumeration/Row rather than
-                  displaying a code.
+                  displaying a code. This text can be marked up.
 
 help
     :Type: `Localized String Object`_
     :Description: This property allows the Form author to supply additional
                   text that will be provided as help content for the
-                  Enumeration/Row. This property is optional.
+                  Enumeration/Row. This property is optional and can contain
+                  marked up text.
 
 
 Event Object
@@ -346,7 +349,7 @@ type
                      dateTimePicker     dateTime*               TBD
                      recordList         recordList*             A complex widget that allows the editing of repeated sets of questions in a vertically-scrolling fashion.
                      matrix             matrix*                 A grid of Fields where the Questions are presented horizontally and repeated for each row in the matrix.
-                     ============== ======================= ===========
+                     ================== ======================= ===========
 
                      Field types notated with a ``*`` use that widget by default.
 
@@ -364,6 +367,7 @@ options:
                      height         textArea                            medium      Specifies the height of the widget. Allows ``small``, ``medium``, or ``large``.
                      addLabel       recordList                          Add         A `Localized String Object` that specifies the text to use on the button that adds a new record to the list.
                      removeLabel    recordList                          Remove      A `Localized String Object` that specifies the text to use on the button that removes a record from the list.
+                     hotkeys        entryRadioGroup, entryCheckGroup                A mapping of Enumeration IDs to the numeric digits that will act as hotkeys to select the enumeration via keyboard entry. This option is ignored if there are more than 10 enumerations. If an enumeration is not listed in the mapping, it will automatically be assigned one.
                      ============== =================================== =========== ===========
 
 
@@ -477,6 +481,55 @@ Example Unique Identifiers:
 * page1
 * grp_a
 * ref-1-2-alpha
+
+
+Text Formatting and Parameters
+==============================
+
+In numerous places throughout this document, there are properties that contain
+text that is displayed to the user under varying conditions. When one of these
+properties is noted as allowing "marked up" text, this means that the property
+supports two pieces of functionality:
+
+* You can use the `Creole`_ markup language to add simple formatting to the
+  text, such as bold/italic font decorations, links, line breaks, etc. The
+  syntax for performing this `can be found here`_.
+
+* You can perform parameter substitution to have the values of various
+  ``parameters`` be inserted into your text. This is done by using the
+  following notation::
+
+    How old is <<Parameter subject_name>>?
+
+  or::
+
+    How old is <<Parameter subject_name this subject>>?
+
+  The first token after the ``Parameter`` keyword is the name of the parameter
+  to insert into the text. If the parameter does not exist, then the token(s)
+  after the parameter name are inserted into the text. If nothing is listed
+  after the parameter name, then nothing is insert.
+
+  If ``subject_name`` was set to "Jason" then the two examples would both look
+  like::
+
+    How old is Jason?
+
+  If ``subject_name`` was not available for the Form to use, then the first
+  example would look like::
+
+    How old is?
+
+  And the second exaple would look like::
+
+    How old is this subject?
+
+  There are no parameters available by default by the system. If you need to
+  use parameter substitution in your Form, then you'll need to extend the
+  ``ParameterSupplier`` class provided by the ``rex.forms`` package.
+
+.. _`Creole`: http://www.wikicreole.org
+.. _`can be found here`: http://www.wikicreole.org/wiki/Creole1.0
 
 
 JSON Schema

@@ -14,7 +14,8 @@ var creole = React.createClass({
   propTypes: {
     children: React.PropTypes.string.isRequired,
     component: React.PropTypes.component,
-    inline: React.PropTypes.bool
+    inline: React.PropTypes.bool,
+    parameters: React.PropTypes.object
   },
 
   render: function() {
@@ -23,13 +24,56 @@ var creole = React.createClass({
   },
 
   getDefaultProps: function() {
-    return {component: React.DOM.span};
+    return {
+      component: React.DOM.span,
+      inline: false,
+      parameters: {}
+    };
+  },
+
+  /*
+   * This function implements a rudimentary variable-subsitution Creole macro.
+   *
+   * It searches for markup that looks like:
+   *    <<Parameter name>>
+   *  or
+   *    <<Parameter name default>>
+   *
+   * If the specified <name> exists in the dictionary of parameters that the
+   * Form was initialized with, it will insert the parameter's value in place
+   * of the macro.
+   *
+   * If the <name> does not exist, but a <default> is specified, the <default>
+   * value is inserted in the macro's place.
+   *
+   * If the <name> does not exist, and no <default> is specified, then an empty
+   * string is inserted in the macro's place.
+   */
+  substituteVariables: function (text) {
+    text = text.replace(
+      /<<Parameter ([a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9])\s*([^>]+)?>>/g,
+      (macro, parameter, defaultValue) => {
+        if (parameter in this.props.parameters) {
+          return this.props.parameters[parameter];
+        }
+
+        if (defaultValue !== undefined) {
+          return defaultValue;
+        }
+
+        return '';
+      }
+    );
+
+    return text;
   },
 
   update: function() {
     var node = this.getDOMNode();
     removeChildren(node);
+
     var text = this.props.children;
+    text = this.substituteVariables(text);
     parser.parse(node, text, {inline: this.props.inline});
   },
 

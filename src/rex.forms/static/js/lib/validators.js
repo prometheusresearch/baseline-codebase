@@ -182,8 +182,9 @@ function timeRange(options) {
 }
 
 
-var INT_MAX = Math.pow(2, 53);
-var INT_MIN = Math.pow(-2, 53);
+// These bounds conveniently align to the 4-byte integers used in Postgres.
+var INT_MAX = 2147483647;
+var INT_MIN = -2147483648;
 
 function integerCheck(value) {
   if (isNaN(value) || value > INT_MAX || value < INT_MIN) {

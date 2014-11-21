@@ -46,7 +46,7 @@ and string-rendering methods::
 
     >>> from rex.forms.interface import Entry
     >>> from datetime import datetime
-    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
     >>> entry.get_display_name()
     u'entry333'
     >>> unicode(entry)
@@ -67,20 +67,20 @@ and string-rendering methods::
     u'hi mom'
 
     >>> entry.as_dict()
-    {'status': u'in-progress', 'modified_by': u'bob', 'uid': u'entry333', 'date_modified': datetime.datetime(2014, 5, 22, 12, 34, 56), 'created_by': u'bob', 'date_created': datetime.datetime(2014, 5, 22, 12, 34, 56), 'type': u'preliminary'}
+    {'ordinal': 1, 'status': u'in-progress', 'modified_by': u'bob', 'uid': u'entry333', 'date_modified': datetime.datetime(2014, 5, 22, 12, 34, 56), 'created_by': u'bob', 'date_created': datetime.datetime(2014, 5, 22, 12, 34, 56), 'type': u'preliminary'}
     >>> entry.as_json()
-    u'{"status": "in-progress", "modified_by": "bob", "uid": "entry333", "date_modified": "2014-05-22T12:34:56", "created_by": "bob", "date_created": "2014-05-22T12:34:56", "type": "preliminary"}'
+    u'{"ordinal": 1, "status": "in-progress", "modified_by": "bob", "uid": "entry333", "date_modified": "2014-05-22T12:34:56", "created_by": "bob", "date_created": "2014-05-22T12:34:56", "type": "preliminary"}'
 
 
 The Assessments passed to the constructor must actually be an instance of that
 class or a string containing a UID::
 
-    >>> entry = Entry('entry333', object(), Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry = Entry('entry333', object(), Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
     Traceback (most recent call last):
       ...
     ValueError: assessment must be an instance of Assessment or a UID of one
 
-    >>> entry = Entry('entry333', 'assessment1', Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry = Entry('entry333', 'assessment1', Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
     >>> entry.assessment
     MyAssessment(u'assessment1', MySubject(u'fake_subject_1a'), MyInstrumentVersion(u'fake_instrument_version_1a', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1))
 
@@ -88,7 +88,7 @@ class or a string containing a UID::
 The data can be passed to the contructor as either a JSON-encoded string
 or the dict equivalent::
 
-    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "values": {"q_fake": {"value": "my answer"}}}', 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "values": {"q_fake": {"value": "my answer"}}}', 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
     >>> entry.validate()
 
 
@@ -107,7 +107,7 @@ equivalent::
 Entries have date_modified, modified_by, status, and memo properties which are
 both readable and writable::
 
-    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
 
     >>> entry.date_modified
     datetime.datetime(2014, 5, 22, 12, 34, 56)
@@ -154,7 +154,7 @@ Entries have a ``complete()`` method that performs some end-of-data-collection
 tasks on the Entry and its Assessment Data::
 
     >>> user = User('fakeuser', 'fakelogin')
-    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
 
     >>> entry.status
     u'in-progress'
@@ -179,7 +179,7 @@ tasks on the Entry and its Assessment Data::
 Entries have some convenience methods for setting and retrieving metadata
 properties on the Assessment Document::
 
-    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
 
     >>> entry.get_meta('foo') is None
     True
@@ -211,9 +211,9 @@ structure expected for the specified InstrumentVersion::
 Entry can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::
 
-    >>> entry1 = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
-    >>> entry2 = Entry('entry444', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
-    >>> entry3 = Entry('entry333', assessment, Entry.TYPE_RECONCILED, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), memo='hi mom')
+    >>> entry1 = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
+    >>> entry2 = Entry('entry444', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 2, memo='hi mom')
+    >>> entry3 = Entry('entry333', assessment, Entry.TYPE_RECONCILED, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 3, memo='hi mom')
     >>> entry1 == entry2
     False
     >>> entry1 == entry3

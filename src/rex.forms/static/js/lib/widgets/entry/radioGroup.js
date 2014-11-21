@@ -4,28 +4,39 @@
 'use strict';
 
 var React                  = require('react');
-var EnumerationWidgetMixin = require('../EnumerationWidgetMixin');
+var HotkeyEnumerationWidgetMixin = require('./HotkeyEnumerationWidgetMixin');
 var ItemLabel              = require('../ItemLabel');
 var ensureInView           = require('../../utils').ensureInView;
 var _                      = require('../../localization')._;
 
+
 var radioGroup = React.createClass({
-  mixins: [EnumerationWidgetMixin],
+  mixins: [
+    HotkeyEnumerationWidgetMixin
+  ],
 
   className: 'rex-forms-radioGroup',
 
   renderInput: function() {
     var value = this.getValue();
 
+    var contents = this.getEnumerations().map(this.renderEnumeration);
+    if (value && !this.props.disabled) {
+      contents.push((
+        <div className="rex-forms-radioGroup__clear" key="clear-all">
+          <a href="#" onClick={this.onClearSelection}>
+            {_('Clear My Selection')}
+          </a>
+        </div>
+      ));
+    }
+
     return (
-      <div tabIndex={0} className="rex-forms-radioGroup__input" onKeyPress={this.onKeyPress}>
-        {this.getEnumerations().map(this.renderEnumeration)}
-        {value && !this.props.disabled &&
-          <div className="rex-forms-radioGroup__clear">
-            <a href="#" onClick={this.onClearSelection}>
-              {_('Clear My Selection')}
-            </a>
-          </div>}
+      <div
+        tabIndex={0}
+        className="rex-forms-radioGroup__input"
+        onKeyPress={this.onKeyPress}>
+        {contents}
       </div>
     );
   },
@@ -35,7 +46,8 @@ var radioGroup = React.createClass({
    *
    * @param {Descriptor} enumeration
    */
-  renderEnumeration: function(enumeration, idx) {
+  renderEnumeration: function(enumeration) {
+    var hotkey = String.fromCharCode(this.hotkeyForEnumeration(enumeration));
     return (
       <div className="rex-forms-radioGroup__option" key={enumeration.id}>
         <label>
@@ -48,8 +60,13 @@ var radioGroup = React.createClass({
             onFocus={this.onFocus}
             value={enumeration.id}
             />
+          {this.hotkeysEnabled() &&
+            <ItemLabel
+              label={hotkey}
+              className="rex-forms-radioGroup__hotkey"
+              />
+          }
           <ItemLabel
-            formatter={function(label) { return `[${idx + 1}] ${label}`; }}
             className="rex-forms-radioGroup__optionLabel"
             label={enumeration.text}
             help={enumeration.help}
@@ -59,16 +76,7 @@ var radioGroup = React.createClass({
     );
   },
 
-  onKeyPress: function(e) {
-    var key = e.charCode - 48;
-    if (key < 1 || key > 9) {
-      return;
-    }
-    var enumerations = this.getEnumerations();
-    if (key > enumerations.length) {
-      return;
-    }
-    var enumeration = enumerations[key - 1];
+  onHotkey: function (enumeration) {
     this.onChange(enumeration.id);
     this.next();
   },

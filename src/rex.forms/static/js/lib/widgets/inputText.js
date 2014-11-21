@@ -10,14 +10,12 @@ var WidgetMixin = require('./WidgetMixin');
 var inputText = React.createClass({
   mixins: [WidgetMixin],
 
-  className: 'rex-forms-inputText',
-
   propTypes: {
     inputType: React.PropTypes.string
   },
 
   renderInput: function() {
-    var className = cx('form-control', this.getSize('width'));
+    var className = cx('rex-forms-inputText', this.getSize('width'));
     return (
       <input
         disabled={this.props.disabled}

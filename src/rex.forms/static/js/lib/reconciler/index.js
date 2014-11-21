@@ -27,6 +27,12 @@ var Reconciler = React.createClass({
     WidgetConfiguration.ContextMixin
   ],
 
+  getDefaultProps: function () {
+    return {
+      parameters: {}
+    };
+  },
+
   getInitialState: function () {
     return {
       complete: false,
@@ -40,7 +46,8 @@ var Reconciler = React.createClass({
     instrument: React.PropTypes.object.isRequired,
     form: React.PropTypes.object.isRequired,
     locale: React.PropTypes.string.isRequired,
-    onComplete: React.PropTypes.func.isRequired
+    onComplete: React.PropTypes.func.isRequired,
+    parameters: React.PropTypes.object
   },
 
   onComplete: function () {
@@ -75,6 +82,8 @@ var Reconciler = React.createClass({
     );
     var schema = sb.build();
 
+    var canComplete = this.state.complete && !this.state.processingComplete;
+
     return (
       <div className='rex-forms-Reconciler'>
         <Header
@@ -86,13 +95,12 @@ var Reconciler = React.createClass({
           onStatus={this.onChildStatus}
           />
         <div className='rex-forms-ReconcilerControls'>
-          {this.state.complete && !this.state.processingComplete &&
-            <button
-              className='rex-forms-ReconcilerComplete'
-              onClick={this.onComplete}>
-              {_('Complete Reconciliation')}
-            </button>
-          }
+          <button
+            className='rex-forms-ReconcilerComplete'
+            disabled={!canComplete}
+            onClick={this.onComplete}>
+            {_('Complete Reconciliation')}
+          </button>
         </div>
       </div>
     );

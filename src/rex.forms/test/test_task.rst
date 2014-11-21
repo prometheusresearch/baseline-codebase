@@ -65,9 +65,9 @@ and string-rendering methods::
     Instrument(u'fake123', u'My Instrument Title')
 
     >>> task.as_dict()
-    {'priority': 100, 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'status': u'not-started', 'uid': u'bar999', 'subject': {'uid': u'fake123'}}
+    {'status': u'not-started', 'uid': u'bar999', 'priority': 100, 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'num_required_entries': 1, 'subject': {'uid': u'fake123'}}
     >>> task.as_json()
-    u'{"priority": 100, "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "status": "not-started", "uid": "bar999", "subject": {"uid": "fake123"}}'
+    u'{"status": "not-started", "uid": "bar999", "priority": 100, "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "num_required_entries": 1, "subject": {"uid": "fake123"}}'
 
 
 The Subjects, Instruments, and Assessments passed to the constructor must
@@ -117,24 +117,29 @@ Tasks have a status property which is readable and writable::
     u'not-started'
     >>> task.is_done
     False
-    >>> task.can_reconcile
-    False
-    >>> task.status = Task.STATUS_VALIDATING
+    >>> task.status = Task.STATUS_STARTED
     >>> task.is_done
     False
-    >>> task.can_reconcile
-    True
     >>> task.status = Task.STATUS_COMPLETE
     >>> task.status
     u'complete'
     >>> task.is_done
     True
-    >>> task.can_reconcile
-    False
     >>> task.status = 'something else'
     Traceback (most recent call last):
       ...
     ValueError: "something else" is not a valid Task status
+
+
+Tasks have a num_required_entries property which is readable only::
+
+    >>> task = Task('bar999', subject, instrument, 100)
+    >>> task.num_required_entries
+    1
+
+    >>> task = Task('bar999', subject, instrument, 100, num_required_entries=3)
+    >>> task.num_required_entries
+    3
 
 
 After a Task has collected a series of Entries, the ``get_discrepancies()``
@@ -187,9 +192,9 @@ method can then be used to merge the Assessment Data in the Entries together::
     >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> assessment = Assessment('fake123', subject, iv, DATA)
     >>> task = Task('bar999', subject, instrument, 100, assessment)
-    >>> entry1 = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, DATA, 'bob', datetime(2014, 5, 22, 12, 34, 56))
-    >>> entry2 = Entry('entry444', assessment, Entry.TYPE_PRELIMINARY, DATA, 'joe', datetime(2014, 5, 22, 12, 34, 56))
-    >>> entry3 = Entry('entry555', assessment, Entry.TYPE_PRELIMINARY, DATA, 'jim', datetime(2014, 5, 22, 12, 34, 56))
+    >>> entry1 = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, DATA, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1)
+    >>> entry2 = Entry('entry444', assessment, Entry.TYPE_PRELIMINARY, DATA, 'joe', datetime(2014, 5, 22, 12, 34, 56), 2)
+    >>> entry3 = Entry('entry555', assessment, Entry.TYPE_PRELIMINARY, DATA, 'jim', datetime(2014, 5, 22, 12, 34, 56),3 )
     >>> entries = [entry1, entry2, entry3]
 
 Identical Entries should yield no discrepancies and a solution that is

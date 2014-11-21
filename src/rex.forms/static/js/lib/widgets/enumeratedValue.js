@@ -7,6 +7,7 @@ var React               = require('react');
 var ReactForms          = require('react-forms');
 var LabelRenderingMixin = require('./LabelRenderingMixin');
 var EnumerationMixin    = require('./EnumerationMixin');
+var localized           = require('../localized');
 var localization        = require('../localization');
 var _ = localization._;
 
@@ -35,9 +36,9 @@ var enumeratedValue = React.createClass({
       });
 
       return (
-        <span key={choice} className="rex-forms-value__choice">
-          {this.localize(enums[0].text)}
-        </span>
+        <localized key={choice} className="rex-forms-value__choice">
+          {enums[0].text}
+        </localized>
       );
     });
 

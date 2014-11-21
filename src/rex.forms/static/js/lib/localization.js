@@ -15,7 +15,8 @@ function _(msg, params) {
 
 var ContextTypes = {
   localize: React.PropTypes.func,
-  locale: React.PropTypes.string
+  locale: React.PropTypes.string,
+  parameters: React.PropTypes.object
 };
 
 var LocalizerMixin = {
@@ -25,7 +26,8 @@ var LocalizerMixin = {
   getChildContext: function() {
     return {
       localize: this.localize,
-      locale: this.getLocale()
+      locale: this.getLocale(),
+      parameters: this.getParameters()
     };
   }
 };

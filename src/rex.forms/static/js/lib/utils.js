@@ -49,7 +49,8 @@ function isObject(o) {
 
 function ensureInView(element) {
   var rect = element.getBoundingClientRect();
-  var viewportBottom = window.innerHeight || document.documentElement.clientHeight;
+  var viewportBottom = window.innerHeight ||
+    document.documentElement.clientHeight;
 
   var isInView = (
     rect.top >= 0 &&
@@ -87,9 +88,9 @@ function findAfter(elements, keyFunc, key) {
 function emptyFunction() {
 }
 
-emptyFunction.thatReturnsArgument = function emptyFunctionThatReturnsArgument(arg) {
+emptyFunction.thatReturnsArgument = function (arg) {
   return arg;
-}
+};
 
 module.exports = {
   mergeInto,

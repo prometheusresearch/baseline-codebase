@@ -12,6 +12,7 @@ var chain               = require('../utils').chain;
 var localization        = require('../localization');
 var LabelRenderingMixin = require('./LabelRenderingMixin');
 var DirtyState          = require('./DirtyState');
+var localized           = require('../localized');
 
 var WidgetMixin = {
   mixins: [
@@ -36,8 +37,14 @@ var WidgetMixin = {
 
     input = cloneWithProps(input, {
       ref: 'input',
-      onBlur: chain(chain(input.props.onChange, this.markDirty), this.props.onChange),
-      onChange: chain(chain(input.props.onChange, this.markDirty), this.props.onChange)
+      onBlur: chain(
+        chain(input.props.onChange, this.markDirty),
+        this.props.onChange
+      ),
+      onChange: chain(
+        chain(input.props.onChange, this.markDirty),
+        this.props.onChange
+      )
     });
 
     var className = cx(
@@ -70,15 +77,21 @@ var WidgetMixin = {
 
     if (ReactForms.validation.isFailure(validation)) {
       if (this.props.options.error) {
-        text = this.localize(this.props.options.error);
+        text = this.props.options.error;
       } else {
         text = validation.validation.failure;
       }
     }
 
-    return text
-      ? <div className="rex-forms-Widget__error">{text}</div>
-      : null;
+    if (text) {
+      return (
+        <div className="rex-forms-Widget__error">
+          <localized>{text}</localized>
+        </div>
+      );
+    } else {
+      return null;
+    }
   },
 
   getDefaultProps: function() {
@@ -92,9 +105,10 @@ var WidgetMixin = {
     return this.value().serialized;
   },
 
-  getWidgetOptions: function() {
-    if (this.props.options && this.props.options.widget) {
-      return this.props.options.widget.options || {};
+  getWidgetOptions: function (props) {
+    props = props || this.props;
+    if (props.options && props.options.widget) {
+      return props.options.widget.options || {};
     }
     return {};
   },
@@ -111,7 +125,9 @@ var WidgetMixin = {
           // We're inside of a complex type. We need to add an extra identifier
           // to our name to distinguish us from other copies of this widget
           // within the complex type.
-          name = `${this.context.value.path[0]}[${this.context.value.path[2]}[${name}]]`;
+          name = this.context.value.path[0] +
+            '[' + this.context.value.path[2] +
+            '[' + name + ']]';
         }
 
         return name;

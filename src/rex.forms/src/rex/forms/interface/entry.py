@@ -14,7 +14,7 @@ from rex.instrument.meta import get_assessment_meta, set_assessment_meta, \
     set_assessment_application
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
-    get_implementation
+    get_implementation, get_current_datetime
 
 from ..errors import FormError
 
@@ -59,6 +59,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
     )
 
     dict_properties = (
+        'ordinal',
         'status',
         'type',
         'created_by',
@@ -208,6 +209,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
             data,
             created_by,
             date_created,
+            ordinal,
             modified_by=None,
             date_modified=None,
             status=None,
@@ -228,6 +230,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         self._type = entry_type
         self._created_by = to_unicode(created_by)
         self._date_created = date_created
+        self._ordinal = ordinal
         self.modified_by = modified_by or self.created_by
         self.date_modified = date_modified or self.date_created
         self.status = status or Entry.STATUS_IN_PROGRESS
@@ -243,6 +246,17 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         """
 
         return self._uid
+
+    @property
+    def ordinal(self):
+        """
+        The ordinal position of this Entry in the scope of all Entries for the
+        associated task. Read only.
+
+        :rtype: integer
+        """
+
+        return self._ordinal
 
     @memoized_property
     def assessment(self):
@@ -489,7 +503,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
 
         if self.status != Entry.STATUS_COMPLETE:
             self.status = Entry.STATUS_COMPLETE
-            self.set_meta('dateCompleted', datetime.utcnow().isoformat()[:19])
+            self.set_meta('dateCompleted', get_current_datetime().isoformat())
             self.set_application_token('rex.forms')
             self.modify(user)
             self.validate()
@@ -508,7 +522,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         """
 
         self.modified_by = user.login
-        self.date_modified = datetime.utcnow()
+        self.date_modified = get_current_datetime()
 
     def save(self):
         """

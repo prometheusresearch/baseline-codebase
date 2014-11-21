@@ -5,6 +5,49 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.26.0 (11/21/2014)
+===================
+
+- Integer values are now automatically bounded between -2147483648 and
+  +2147483647 to provide better compatibility with downstream applications.
+- Fixed issue where some browsers would sort the discrepancies on the
+  reconciliation screen in odd ways when the form contains unprompted fields.
+- "Complete Reconciliation" button is now disabled when the screen is first
+  loaded, and becomes enabled when all discrepancies are addressed -- instead
+  of the prior behavior of being hidden until all discrepancies are addressed.
+- Client implementations can now pass a subtitle to display under the main
+  title.
+- Question error text now allows Creole markup.
+- Text properties that allow Creole markup now also support Parameter
+  substitution using the <<Parameter name>> macro.
+- The "Manual Override" option on the reconciliation screen now highlights in
+  the same manner as selecting a value from one of the Entries.
+- The entryRadioGroup and entryCheckGroup widgets now accept a ``hotkeys``
+  option that allows the custom configuration of the hotkeys to assign the
+  enumerations in the widget.
+- When switching Pages in a Form, the first Question on the Page is now
+  automatically put into focus.
+- The Entry interface class now has an ``ordinal`` property that contains the
+  Entry's ordinal position in the collection of Entries associated with the
+  Task.
+- Implementations of the Task.find() method must now allow a list of statuses
+  to match on.
+- Removed the VALIDATING status from Tasks.
+- Added a property named ``num_required_entries`` to the Task class that allows
+  implementations to indicate how many Entries must be created and reconciled
+  in order to complete the Task.
+- Added a setting named ``forms_default_required_entries`` which gives the
+  system a default value to use if a Task doesn't specify a value for its
+  ``num_required_entries`` property.
+- Added a property named ``can_enter_data`` to the Task class that allows
+  implementations to provide an indicator for whether or not the Task is in a
+  state that allows the creation of new Preliminary Entries.
+- The ``can_reconcile`` property on the Task class is now abstract and must be
+  implemented by concrete classes.
+- Fixed issues where defaulted dates were timezone-naive, and thus causing
+  confusing shifts in date/time.
+
+
 0.25.1 (10/17/2014)
 ===================
 

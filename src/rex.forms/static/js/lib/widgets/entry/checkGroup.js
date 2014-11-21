@@ -4,12 +4,14 @@
 'use strict';
 
 var React                  = require('react');
-var EnumerationWidgetMixin = require('../EnumerationWidgetMixin');
+var HotkeyEnumerationWidgetMixin = require('./HotkeyEnumerationWidgetMixin');
 var ItemLabel              = require('../ItemLabel');
 var ensureInView           = require('../../utils').ensureInView;
 
 var checkGroup = React.createClass({
-  mixins: [EnumerationWidgetMixin],
+  mixins: [
+    HotkeyEnumerationWidgetMixin
+  ],
 
   className: 'rex-forms-checkGroup',
 
@@ -26,9 +28,10 @@ var checkGroup = React.createClass({
    *
    * @param {Descriptor} enumeration
    */
-  renderEnumeration: function(enumeration, idx) {
+  renderEnumeration: function(enumeration) {
     var value = this.getValue();
     var checked = value && value.indexOf(enumeration.id) >= 0;
+    var hotkey = String.fromCharCode(this.hotkeyForEnumeration(enumeration));
     return (
       <div className="rex-forms-checkGroup__option" key={enumeration.id}>
         <label>
@@ -41,9 +44,14 @@ var checkGroup = React.createClass({
             value={enumeration.id}
             onFocus={this.onFocusCheck}
             />
+          {this.hotkeysEnabled() &&
+            <ItemLabel
+              label={hotkey}
+              className="rex-forms-checkGroup__hotkey"
+              />
+          }
           <ItemLabel
             className="rex-forms-checkGroup__optionLabel"
-            formatter={function(label) { return `[${idx + 1}] ${label}`; }}
             label={enumeration.text}
             help={enumeration.help}
             />
@@ -71,16 +79,7 @@ var checkGroup = React.createClass({
     ensureInView(this.getDOMNode());
   },
 
-  onKeyPress: function(e) {
-    var key = e.charCode - 48;
-    if (key < 1 || key > 9) {
-      return;
-    }
-    var enumerations = this.getEnumerations();
-    if (key > enumerations.length) {
-      return;
-    }
-    var enumeration = enumerations[key - 1];
+  onHotkey: function (enumeration) {
     var nextValue = (this.getValue() || []).slice(0);
     var idx = nextValue.indexOf(enumeration.id);
     if (idx === -1) {
@@ -97,7 +96,6 @@ var checkGroup = React.createClass({
       this.next();
     }
   }
-
 });
 
 module.exports = checkGroup;

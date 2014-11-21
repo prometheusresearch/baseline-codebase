@@ -153,7 +153,7 @@ var array = {
       return [value];
     }
 
-    if (value.length == 0) {
+    if (value.length === 0) {
       return null;
     }
 

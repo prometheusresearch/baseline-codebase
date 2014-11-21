@@ -9,17 +9,17 @@ This package provides database access to RexDB applications.
 
 
 from rex.core import (Extension, Setting, Initialize, cached, get_settings,
-        get_packages, Error, Validate, StrVal, MaybeVal, OneOfVal, SeqVal,
-        MapVal, RecordVal)
-from rex.web import (Pipe, PipeError, PipePackage, HandleFile, HandleLocation,
-        authenticate, authorize, get_jinja)
+        get_packages, Error, Validate, StrVal, MaybeVal, OneOrSeqVal,
+        MapVal, RecordVal, UnionVal, OnScalar, OnField)
+from rex.web import (Pipe, HandleFile, HandleLocation, authenticate, authorize,
+        get_jinja)
 from webob import Request, Response
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPBadRequest
 from htsql import HTSQL
-from htsql.core.error import HTTPError
+from htsql.core.error import Error as HTSQLError, HTTPError
 from htsql.core.util import DB
 from htsql.core.cmd.act import produce
-from htsql.core.fmt.accept import accept
+from htsql.core.fmt.accept import accept, Accept
 from htsql.core.fmt.emit import emit, emit_headers
 from htsql.core.context import context
 from htsql.core.connect import connect, transaction
@@ -42,7 +42,11 @@ class DBVal(Validate):
 
 class DBSetting(Setting):
     """
-    Database connection URI; must have the form::
+    Database configuration.
+
+    The must be either database connection URI or full HTSQL configuration.
+
+    Database connection URI must have the form::
 
         <engine>://<username>:<password>@<host>:<port>/<database>
 
@@ -60,6 +64,10 @@ class DBSetting(Setting):
     The connection parameters could be also provided as a record with fields
     ``engine``, ``username``, ``password``, ``host``, ``port``, ``database``.
 
+    HTSQL configuration is a dictionary that maps addon names to addon
+    configuration.  Addon configuration is a dictionary that maps addon
+    parameters to parameter values.
+
     Examples::
 
         db: sqlite:///sandbox/htsql_demo.sqlite
@@ -69,15 +77,94 @@ class DBSetting(Setting):
         db:
             engine: mysql
             database: htsql_demo
+
+        db:
+            htsql:
+              db: pgsql:rexdb_demo
+            tweak.meta:
+            tweak.shell.default:
+            tweak.timeout:
+                timeout: 600
+            tweak.autolimit:
+                limit: 10000
+
+    This setting could be specified more than once.  Configuration
+    parameters preset by different packages are merged into one.
     """
 
     name = 'db'
-    validate = DBVal()
+    validate = UnionVal(
+            (OnScalar, DBVal),
+            (OnField('database'), DBVal),
+            OneOrSeqVal(MapVal(StrVal, MaybeVal(MapVal(StrVal)))))
+
+    @classmethod
+    def merge(cls, old_value, new_value):
+        # Merges configuration preset in different packages.
+        value = []
+        for old_or_new_value in [new_value, old_value]:
+            if old_or_new_value:
+                if isinstance(old_or_new_value, list):
+                    value.extend(old_or_new_value)
+                elif isinstance(old_or_new_value, dict):
+                    value.append(old_or_new_vale)
+                else:
+                    value.append({'htsql': {'db': old_or_new_value}})
+        return value
+
+
+class DBGatewaysSetting(Setting):
+    """
+    Database configuration for secondary databases.
+
+    Use this setting to specify additional application databases.
+
+    The setting value is a dictionary that maps a name to connection
+    URI or full HTSQL configuration.
+
+    Examples::
+
+        db_gateways:
+
+            input:
+                tweak.filedb:
+                    sources:
+                    - file: ./csv/family.csv
+                    - file: ./csv/individua.csv
+                    - file: ./csv/measure.csv
+
+            target: mssql://10.0.0.2/target
+
+    This setting could be specified more than once.  Configuration
+    parameters preset by different packages are merged into one.
+    """
+
+    name = 'db_gateways'
+    validate = MapVal(StrVal(r'[A-Za-z_][0-9A-Za-z_]*'),
+                      MaybeVal(DBSetting.validate))
+    default = {}
+
+    @classmethod
+    def merge(cls, old_value, new_value):
+        # Merges configuration preset in different packages.
+        if not (isinstance(old_value, dict) and isinstance(new_value, dict)):
+            return new_value
+        value = dict((key, old_value[key])
+                     for key in old_value if old_value[key])
+        for key in sorted(new_value):
+            if key in value:
+                if new_value[key] is None:
+                    del value[key]
+                else:
+                    value[key] = DBSetting.merge(value[key], new_value[key])
+            else:
+                value[key] = new_value[key]
+        return value
 
 
 class HTSQLExtensionsSetting(Setting):
     """
-    Configuration of HTSQL extensions.
+    Configuration of HTSQL extensions for the primary database.
 
     Use this setting to preset HTSQL configuration for a particular
     application or to override the preset HTSQL configuration.
@@ -101,12 +188,11 @@ class HTSQLExtensionsSetting(Setting):
     """
 
     name = 'htsql_extensions'
-    validate = MaybeVal(OneOfVal(
-        MapVal(StrVal(), MaybeVal(MapVal(StrVal()))),
-        SeqVal(MapVal(StrVal(), MaybeVal(MapVal(StrVal()))))))
+    validate = OneOrSeqVal(MapVal(StrVal, MaybeVal(MapVal(StrVal))))
     default = None
 
-    def merge(self, old_value, new_value):
+    @classmethod
+    def merge(cls, old_value, new_value):
         # Merges configuration preset in different packages.
         value = []
         for old_or_new_value in [new_value, old_value]:
@@ -166,8 +252,9 @@ class PipeTransaction(Pipe):
     Wraps HTTP request in a transaction.
     """
 
-    after = [PipeError]
-    before = [PipePackage]
+    priority = 'transaction'
+    after = 'error'
+    before = 'routing'
 
     def __call__(self, req):
         user = lambda authenticate=authenticate, req=req: authenticate(req)
@@ -190,6 +277,18 @@ class HandleHTSQLLocation(HandleLocation):
         # Check if the request has access to the service.
         if not authorize(req, self.package()):
             raise HTTPUnauthorized()
+        # Obtain HTSQL instance.
+        gateway = None
+        segment = req.path_info_peek()
+        if re.match(r'\A@[A-Za-z_][0-9A-Za-z_]*\Z', segment):
+            req = req.copy()
+            req = req.path_info_pop()
+            if not req.path_info:
+                raise HTTPMovedPermanently(add_slash=True)
+            gateway = segment[1:]
+        db = get_db(gateway)
+        if db is None:
+            raise HTTPNotFound()
         # Unpack HTSQL queries tunneled in a POST body.
         if (req.method == 'POST' and
                 req.path_info == '/' and req.query_string == ''):
@@ -203,7 +302,7 @@ class HandleHTSQLLocation(HandleLocation):
             req.path_info = path_info
             req.query_string = query_string
         # Gateway to HTSQL.
-        return req.get_response(get_db())
+        return req.get_response(db)
 
 
 class HandleHTSQLFile(HandleFile):
@@ -344,6 +443,45 @@ class RexHTSQL(HTSQL):
         else:
             super(RexHTSQL, self).__enter__()
 
+    def produce(self, command, environment=None, **parameters):
+        product = None
+        with self:
+            if hasattr(command, 'read'):
+                blocks = []
+                lines = []
+                stream = command
+                block_idx = 0
+                for idx, line in enumerate(stream):
+                    if not line.strip() or line.startswith('#'):
+                        if lines:
+                            lines.append(line)
+                    elif line == line.lstrip():
+                        if lines:
+                            blocks.append((block_idx, lines))
+                        block_idx = idx
+                        lines = [line]
+                    else:
+                        if not lines:
+                            raise HTSQLError("Got unexpected indentation",
+                                             "%s, line %s"
+                                             % (stream.name, idx+1))
+                        lines.append(line)
+                if lines:
+                    blocks.append((block_idx, lines))
+                for idx, lines in blocks:
+                    while lines and not lines[-1]:
+                        lines.pop()
+                    command = "\n".join(lines)
+                    try:
+                        product = produce(command, environment, **parameters)
+                    except HTSQLError, error:
+                        error.wrap("While executing",
+                                   "%s, line %s" % (stream.name, idx+1))
+                        raise
+            else:
+                product = produce(command, environment, **parameters)
+        return product
+
     def isolate(self):
         """
         Creates a fresh HTSQL context.
@@ -383,6 +521,12 @@ class RexHTSQL(HTSQL):
         `environ`
             WSGI ``environ`` object or ``Request`` object.
         """
+        if isinstance(environ, (str, unicode)):
+            content_type = environ
+            if '/' not in content_type:
+                content_type = "x-htsql/"+content_type
+            with self:
+                return Accept.__invoke__(content_type)
         if isinstance(environ, Request):
             environ = environ.environ
         with self:
@@ -432,21 +576,49 @@ class Mask(Extension):
 
 
 @cached
-def get_db():
+def get_db(name=None):
     """
     Builds and returns an HTSQL instance.
+
+    `name`
+        If ``name`` is not provided, returns the primary application
+        database.  Otherwise, returns the named gateway.
     """
     # Build configuration from settings `db`, `htsql_extensions` and
     # `htsql_base_extensions`.  Also include `rex` HTSQL addon.
     settings = get_settings()
     configuration = []
-    configuration.append(settings.db)
-    configuration.append({'rex': {}})
-    if settings.htsql_extensions:
-        if isinstance(settings.htsql_extensions, list):
-            configuration.extend(settings.htsql_extensions)
+    if name is None:
+        if isinstance(settings.db, list):
+            configuration.append(None)
+            configuration.extend(settings.db)
+        elif isinstance(settings.db, dict):
+            configuration.append(None)
+            configuration.append(settings.db)
         else:
-            configuration.append(settings.htsql_extensions)
+            configuration.append(settings.db)
+        gateways = dict((key, get_db(key))
+                        for key in sorted(settings.db_gateways)
+                        if settings.db_gateways[key])
+        configuration.append({'rex': {'gateways': gateways}})
+        if settings.htsql_extensions:
+            if isinstance(settings.htsql_extensions, list):
+                configuration.extend(settings.htsql_extensions)
+            else:
+                configuration.append(settings.htsql_extensions)
+    else:
+        gateway = settings.db_gateways.get(name)
+        if not gateway:
+            return None
+        if isinstance(gateway, list):
+            configuration.append(None)
+            configuration.extend(gateway)
+        elif isinstance(gateway, dict):
+            configuration.append(None)
+            configuration.append(gateway)
+        else:
+            configuration.append(gateway)
+        configuration.append({'rex': {}})
     return RexHTSQL(*configuration)
 
 

@@ -9,8 +9,9 @@ none so far.
 """
 
 
-from htsql.core.addon import Addon, Variable
-from htsql.core.application import Environment
+from htsql.core.addon import Addon, Variable, Parameter
+from htsql.core.application import Environment, Application
+from htsql.core.validator import NameVal, ClassVal, MapVal
 from htsql.core.adapter import Adapter, adapt
 from htsql.core.context import context
 from htsql.core.error import Error
@@ -20,7 +21,8 @@ from htsql.core.model import Node, HomeNode, TableNode, TableArc, ChainArc
 from htsql.core.classify import relabel, classify
 from htsql.core.syn.syntax import Syntax, IdentifierSyntax, FilterSyntax
 from htsql.core.syn.parse import parse
-from htsql.core.cmd.summon import SummonJSON
+from htsql.core.cmd.act import Act
+from htsql.core.cmd.summon import Summon, SummonJSON
 from htsql.core.tr.lookup import (Lookup, Probe, ReferenceProbe,
         ReferenceSetProbe, ExpansionProbe, lookup, identify, localize,
         prescribe)
@@ -32,6 +34,7 @@ from htsql.core.tr.bind import (BindByFreeTable, BindByAttachedTable,
 from htsql.core.fmt.accept import AcceptJSON
 from htsql.core.fmt.format import JSONFormat
 from htsql.core.fmt.json import EmitJSON, to_json
+from htsql.tweak.gateway.command import SummonGateway, ActGateway
 
 
 class LazyConnection(object):
@@ -368,6 +371,12 @@ class SieveRecipe(Recipe):
 
 class MaskedBindByTable(BindByFreeTable):
 
+    @classmethod
+    def __enabled__(component):
+        if hasattr(context.app, 'rex_rdoma'):
+            return False
+        return super(MaskedBindByTable, component).__enabled__()
+
     def __call__(self):
         binding = TableBinding(self.state.scope,
                                self.recipe.table,
@@ -378,6 +387,12 @@ class MaskedBindByTable(BindByFreeTable):
 
 
 class MaskedBindByChain(BindByAttachedTable):
+
+    @classmethod
+    def __enabled__(component):
+        if hasattr(context.app, 'rex_rdoma'):
+            return False
+        return super(MaskedBindByChain, component).__enabled__()
 
     def __call__(self):
         binding = self.state.scope
@@ -406,6 +421,14 @@ class BindBySieve(BindByRecipe):
         return SieveBinding(self.state.scope, filter, self.syntax)
 
 
+class RexSummonGateway(SummonGateway, Summon):
+    pass
+
+
+class RexActGateway(ActGateway, Act):
+    pass
+
+
 class RexAddon(Addon):
 
     name = 'rex'
@@ -416,5 +439,23 @@ class RexAddon(Addon):
             Variable('session'),
             Variable('masks'),
     ]
+
+    parameters = [
+            Parameter('gateways', MapVal(NameVal(), ClassVal(Application)),
+                      default={}),
+    ]
+
+    def __init__(self, app, attributes):
+        super(RexAddon, self).__init__(app, attributes)
+        self.functions = {}
+        for name in sorted(self.gateways):
+            instance = self.gateways[name]
+            class_name = "Summon%s" % name.title().replace('_', '').encode('utf-8')
+            namespace = {
+                '__names__': [name.encode('utf-8')],
+                'instance': instance,
+            }
+            summon_class = type(class_name, (RexSummonGateway,), namespace)
+            self.functions[name] = summon_class
 
 

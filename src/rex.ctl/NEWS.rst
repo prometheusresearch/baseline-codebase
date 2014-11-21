@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.5.0 (2014-XX-XX)
+1.5.0 (2014-11-21)
 ==================
 
 * Added ``rex start``, ``rex stop`` and ``rex status`` tasks.

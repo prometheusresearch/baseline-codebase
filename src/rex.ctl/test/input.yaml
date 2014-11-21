@@ -13,7 +13,7 @@ tests:
 
 - coverage: setup.cfg
 
-- sh: pip install -q -e ./demo/rex.ctl_demo
+- sh: pip install -q -e ./demo
 
 # Drop the demo database (if exists).
 - rex: dropdb rex.ctl_demo

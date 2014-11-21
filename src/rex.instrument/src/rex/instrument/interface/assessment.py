@@ -20,7 +20,8 @@ from ..meta import get_assessment_meta, set_assessment_meta, \
     set_assessment_application
 from ..mixins import Comparable, Displayable, Dictable
 from ..schema import ASSESSMENT_SCHEMA
-from ..util import to_unicode, memoized_property, get_implementation
+from ..util import to_unicode, memoized_property, get_implementation, \
+    get_current_datetime
 
 
 __all__ = (
@@ -28,26 +29,37 @@ __all__ = (
 )
 
 
+RE_DATE = re.compile(
+    r'^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])$'
+)
+RE_TIME = re.compile(
+    r'^(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$'
+)
+RE_DATETIME = re.compile(
+    r'^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])'
+    'T(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$'
+)
+
+
 SIMPLE_TYPE_CHECKS = {
-    'float': (int, long, float),
-    'text': basestring,
-    'enumeration': basestring,
-    'enumerationSet': list,
-    'boolean': bool,
-}
+    'float': lambda x: isinstance(x, (int, long, float)),
 
+    'integer': lambda x: isinstance(x, (int, long))
+               or (isinstance(x, float) and x.is_integer()),  # noqa
 
-REGEX_TYPE_CHECKS = {
-    'date':  re.compile(
-        r'^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])$'
-    ),
-    'time': re.compile(
-        r'^(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$'
-    ),
-    'dateTime': re.compile(
-        r'^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])'
-        'T(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$'
-    ),
+    'text': lambda x: isinstance(x, basestring),
+
+    'enumeration': lambda x: isinstance(x, basestring),
+
+    'enumerationSet': lambda x: isinstance(x, list),
+
+    'boolean': lambda x: isinstance(x, bool),
+
+    'date': RE_DATE.match,
+
+    'time': RE_TIME.match,
+
+    'dateTime': RE_DATETIME.match,
 }
 
 
@@ -260,17 +272,8 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
 
         # TODO: check type constraints
 
-        if field_type in SIMPLE_TYPE_CHECKS \
-                and isinstance(value, SIMPLE_TYPE_CHECKS[field_type]):
-            return
-
-        if field_type in REGEX_TYPE_CHECKS \
-                and REGEX_TYPE_CHECKS[field_type].match(value):
-            return
-
-        if field_type == 'integer' and (
-                isinstance(value, (int, long))
-                or (isinstance(value, float) and value.is_integer())):
+        type_checker = SIMPLE_TYPE_CHECKS.get(field_type, None)
+        if type_checker and type_checker(value):
             return
 
         if field_type == 'recordList' and isinstance(value, list):
@@ -283,8 +286,15 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             return
 
         if field_type == 'matrix' and isinstance(value, dict):
-            # TODO: check missing/extra rows
-            for columns in value.values():
+            for row in field['type']['rows']:
+                columns = value.get(row['id'], None)
+                if not columns:
+                    raise ValidationError(
+                        'Row "%s" missing in matrix "%s"' % (
+                            row['id'],
+                            field['id'],
+                        )
+                    )
                 cls._check_assessment_record(
                     columns,
                     field['type']['columns'],
@@ -668,7 +678,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
 
         if self.status != Assessment.STATUS_COMPLETE:
             self.status = Assessment.STATUS_COMPLETE
-            self.set_meta('dateCompleted', datetime.now().isoformat()[:19])
+            self.set_meta('dateCompleted', get_current_datetime().isoformat())
             self.set_application_token('rex.instrument')
             self.validate()
         else:

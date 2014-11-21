@@ -94,3 +94,20 @@ class implementations in the currently-executing application::
 
     >>> rex.off()
 
+
+Dates/Times
+===========
+
+The ``util`` module provides some convenience functions for retrieving
+``datetime`` and ``time`` objects that are non-naive::
+
+    >>> from rex.instrument.util import get_current_datetime, get_current_time
+
+    >>> test = get_current_datetime()
+    >>> test.tzinfo
+    <UTC>
+
+    >>> test = get_current_time()
+    >>> test.tzinfo
+    <UTC>
+

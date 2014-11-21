@@ -6,6 +6,7 @@
 import json
 import codecs
 import pkg_resources
+import pytz
 
 from datetime import date, time, datetime
 from decimal import Decimal
@@ -23,6 +24,8 @@ __all__ = (
     'memoized_property',
     'forget_memoized_property',
     'get_implementation',
+    'get_current_datetime',
+    'get_current_time',
 )
 
 
@@ -199,4 +202,28 @@ def get_implementation(class_name, package_name='instrument'):
         return getattr(setting, class_name.lower(), None)
 
     return None
+
+
+def get_current_datetime():
+    """
+    A convenience function for retrieving the current date/time as a non-naive
+    datetime object. The object is set to the UTC timezone.
+
+    :rtype: datetime
+    """
+
+    now = datetime.utcnow()
+    return pytz.utc.localize(now)
+
+
+def get_current_time():
+    """
+    A convenience function for retrieving the current time as a non-naive time
+    object. The object is set to the UTC timezone.
+
+    :rtype: time
+    """
+
+    now = datetime.utcnow().time()
+    return now.replace(tzinfo=pytz.utc)
 

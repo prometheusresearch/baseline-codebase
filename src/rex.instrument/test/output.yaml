@@ -90,6 +90,10 @@ tests:
       correct type (float)'}
   - {all_types/bad_integer.json: 'ValidationError: The value for "q_integer" is not
       the correct type (integer)'}
+  - {all_types/bad_matrix_missing_column.json: 'ValidationError: Assessment is missing
+      values for: column1'}
+  - {all_types/bad_matrix_missing_row.json: 'ValidationError: Row "row2" missing in
+      matrix "q_matrix"'}
   - {all_types/bad_recordlist.json: 'ValidationError: The value for "q_recordlist"
       is not the correct type (recordList)'}
   - {all_types/bad_recordlist_element.json: 'ValidationError: [{u''hello'': {u''value'':

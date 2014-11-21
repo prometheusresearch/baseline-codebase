@@ -9,6 +9,7 @@ Set up the environment::
 
     >>> from rex.core import Rex
     >>> from datetime import datetime
+    >>> from pytz import utc
     >>> rex = Rex('__main__', 'rex.instrument_demo')
     >>> rex.on()
 
@@ -126,7 +127,7 @@ both readable and writable::
     >>> div.modify(user)
     >>> div.modified_by
     u'someguy'
-    >>> div.date_modified > datetime(2014, 6, 1)
+    >>> div.date_modified > datetime(2014, 6, 1, tzinfo=utc)
     True
 
 

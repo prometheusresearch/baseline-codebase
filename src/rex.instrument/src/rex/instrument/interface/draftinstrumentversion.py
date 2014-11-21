@@ -12,7 +12,8 @@ from rex.core import Extension
 from .instrument import Instrument
 from .instrumentversion import InstrumentVersion
 from ..mixins import Comparable, Displayable, Dictable
-from ..util import to_unicode, memoized_property, get_implementation
+from ..util import to_unicode, memoized_property, get_implementation, \
+    get_current_datetime
 
 
 __all__ = (
@@ -315,7 +316,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         """
 
         self.modified_by = user.login
-        self.date_modified = datetime.utcnow()
+        self.date_modified = get_current_datetime()
 
     def validate(self):
         """

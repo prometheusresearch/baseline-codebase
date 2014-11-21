@@ -6,7 +6,6 @@
 import json
 import sys
 
-from datetime import datetime
 from getpass import getuser
 
 from cogs import task, argument, option
@@ -16,7 +15,7 @@ from rex.ctl.common import make_rex, pair
 
 from .errors import ValidationError
 from .interface import InstrumentVersion
-from .util import get_implementation
+from .util import get_implementation, get_current_datetime
 
 
 __all__ = (
@@ -294,7 +293,7 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
             if instrument_version and self.version:
                 instrument_version.definition_json = definition_json
                 instrument_version.published_by = self.published_by
-                instrument_version.date_published = datetime.utcnow()
+                instrument_version.date_published = get_current_datetime()
                 instrument_version.save()
                 print 'Updated version: %s' % instrument_version.version
             else:

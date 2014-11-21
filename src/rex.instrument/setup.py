@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.instrument',
-    version='0.11.2',
+    version='0.12.0',
     description='Class interfaces and framework for using EDC components',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
@@ -32,6 +32,7 @@ setup(
         'rex.ctl>=1,<2',
         'jsonschema>=2.3,<3',
         'rfc3987>=1.3.3,<2',
+        'pytz>=0a',
     ],
     rex_init='rex.instrument',
 )

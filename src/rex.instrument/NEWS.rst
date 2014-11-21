@@ -5,6 +5,14 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.12.0 (11/21/2014)
+===================
+
+- Improved Assessment schema validation logic to be more thorough.
+- Fixed issues where defaulted dates were timezone-naive, and thus causing
+  confusing shifts in date/time.
+
+
 0.11.2 (9/17/2014)
 ==================
 

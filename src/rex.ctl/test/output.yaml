@@ -68,10 +68,14 @@ tests:
 
       Use option --extend (-E) to enable an HTSQL extension.
 
+      Use option --gateway (-G) to connect to a secondary application
+      database.
+
       Options:
         --require=PACKAGE        : include an additional package
         --set=PARAM=VALUE        : set a configuration parameter
         -E/--extend=EXT:PARAM=VALUE : include an HTSQL extension
+        -G/--gateway=NAME        : connect to a gateway database
 
   - rex: help serve
     stdout: |+
@@ -1212,7 +1216,11 @@ tests:
         Value:
           'pgsql:ctl_demo'
         Description:
-          Database connection URI; must have the form::
+          Database configuration.
+
+          The must be either database connection URI or full HTSQL configuration.
+
+          Database connection URI must have the form::
 
               <engine>://<username>:<password>@<host>:<port>/<database>
 
@@ -1230,6 +1238,10 @@ tests:
           The connection parameters could be also provided as a record with fields
           ``engine``, ``username``, ``password``, ``host``, ``port``, ``database``.
 
+          HTSQL configuration is a dictionary that maps addon names to addon
+          configuration.  Addon configuration is a dictionary that maps addon
+          parameters to parameter values.
+
           Examples::
 
               db: sqlite:///sandbox/htsql_demo.sqlite
@@ -1239,6 +1251,46 @@ tests:
               db:
                   engine: mysql
                   database: htsql_demo
+
+              db:
+                  htsql:
+                    db: pgsql:rexdb_demo
+                  tweak.meta:
+                  tweak.shell.default:
+                  tweak.timeout:
+                      timeout: 600
+                  tweak.autolimit:
+                      limit: 10000
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
+
+        [db_gateways]
+        Declared in:
+          rex.db
+        Description:
+          Database configuration for secondary databases.
+
+          Use this setting to specify additional application databases.
+
+          The setting value is a dictionary that maps a name to connection
+          URI or full HTSQL configuration.
+
+          Examples::
+
+              db_gateways:
+
+                  input:
+                      tweak.filedb:
+                          sources:
+                          - file: ./csv/family.csv
+                          - file: ./csv/individua.csv
+                          - file: ./csv/measure.csv
+
+                  target: mssql://10.0.0.2/target
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
 
         [debug]
         Declared in:
@@ -1262,7 +1314,7 @@ tests:
         Declared in:
           rex.db
         Description:
-          Configuration of HTSQL extensions.
+          Configuration of HTSQL extensions for the primary database.
 
           Use this setting to preset HTSQL configuration for a particular
           application or to override the preset HTSQL configuration.
@@ -1365,7 +1417,11 @@ tests:
         Value:
           'pgsql:ctl_demo'
         Description:
-          Database connection URI; must have the form::
+          Database configuration.
+
+          The must be either database connection URI or full HTSQL configuration.
+
+          Database connection URI must have the form::
 
               <engine>://<username>:<password>@<host>:<port>/<database>
 
@@ -1383,6 +1439,10 @@ tests:
           The connection parameters could be also provided as a record with fields
           ``engine``, ``username``, ``password``, ``host``, ``port``, ``database``.
 
+          HTSQL configuration is a dictionary that maps addon names to addon
+          configuration.  Addon configuration is a dictionary that maps addon
+          parameters to parameter values.
+
           Examples::
 
               db: sqlite:///sandbox/htsql_demo.sqlite
@@ -1392,6 +1452,46 @@ tests:
               db:
                   engine: mysql
                   database: htsql_demo
+
+              db:
+                  htsql:
+                    db: pgsql:rexdb_demo
+                  tweak.meta:
+                  tweak.shell.default:
+                  tweak.timeout:
+                      timeout: 600
+                  tweak.autolimit:
+                      limit: 10000
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
+
+        [db_gateways]
+        Declared in:
+          rex.db
+        Description:
+          Database configuration for secondary databases.
+
+          Use this setting to specify additional application databases.
+
+          The setting value is a dictionary that maps a name to connection
+          URI or full HTSQL configuration.
+
+          Examples::
+
+              db_gateways:
+
+                  input:
+                      tweak.filedb:
+                          sources:
+                          - file: ./csv/family.csv
+                          - file: ./csv/individua.csv
+                          - file: ./csv/measure.csv
+
+                  target: mssql://10.0.0.2/target
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
 
         [debug]
         Declared in:
@@ -1415,7 +1515,7 @@ tests:
         Declared in:
           rex.db
         Description:
-          Configuration of HTSQL extensions.
+          Configuration of HTSQL extensions for the primary database.
 
           Use this setting to preset HTSQL configuration for a particular
           application or to override the preset HTSQL configuration.
@@ -1518,7 +1618,11 @@ tests:
         Value:
           'pgsql:ctl_demo'
         Description:
-          Database connection URI; must have the form::
+          Database configuration.
+
+          The must be either database connection URI or full HTSQL configuration.
+
+          Database connection URI must have the form::
 
               <engine>://<username>:<password>@<host>:<port>/<database>
 
@@ -1536,6 +1640,10 @@ tests:
           The connection parameters could be also provided as a record with fields
           ``engine``, ``username``, ``password``, ``host``, ``port``, ``database``.
 
+          HTSQL configuration is a dictionary that maps addon names to addon
+          configuration.  Addon configuration is a dictionary that maps addon
+          parameters to parameter values.
+
           Examples::
 
               db: sqlite:///sandbox/htsql_demo.sqlite
@@ -1545,6 +1653,46 @@ tests:
               db:
                   engine: mysql
                   database: htsql_demo
+
+              db:
+                  htsql:
+                    db: pgsql:rexdb_demo
+                  tweak.meta:
+                  tweak.shell.default:
+                  tweak.timeout:
+                      timeout: 600
+                  tweak.autolimit:
+                      limit: 10000
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
+
+        [db_gateways]
+        Declared in:
+          rex.db
+        Description:
+          Database configuration for secondary databases.
+
+          Use this setting to specify additional application databases.
+
+          The setting value is a dictionary that maps a name to connection
+          URI or full HTSQL configuration.
+
+          Examples::
+
+              db_gateways:
+
+                  input:
+                      tweak.filedb:
+                          sources:
+                          - file: ./csv/family.csv
+                          - file: ./csv/individua.csv
+                          - file: ./csv/measure.csv
+
+                  target: mssql://10.0.0.2/target
+
+          This setting could be specified more than once.  Configuration
+          parameters preset by different packages are merged into one.
 
         [debug]
         Declared in:
@@ -1568,7 +1716,7 @@ tests:
         Declared in:
           rex.db
         Description:
-          Configuration of HTSQL extensions.
+          Configuration of HTSQL extensions for the primary database.
 
           Use this setting to preset HTSQL configuration for a particular
           application or to override the preset HTSQL configuration.

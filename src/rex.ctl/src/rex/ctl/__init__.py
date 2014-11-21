@@ -46,7 +46,7 @@ try:
 except ImportError:
     pass
 else:
-    from . import shell
+    from . import shell, query
 
 # Enable `deploy` and other database management tasks if `rex.deploy`
 # is installed.

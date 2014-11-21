@@ -6,7 +6,8 @@
 from cogs import task, argument, option
 from cogs.log import fail
 from .common import make_rex, pair
-from rex.core import get_settings, Error
+from rex.core import Error
+from rex.db import get_db
 import htsql.core.validator, htsql.ctl, htsql.ctl.error, htsql.ctl.shell
 import sys
 
@@ -14,6 +15,19 @@ import sys
 def extension(value):
     validate = htsql.core.validator.ExtensionVal()
     return dict([validate(value)])
+
+
+class RexShellRoutine(htsql.ctl.shell.ShellRoutine):
+
+    arguments = []
+    options = []
+
+    def __init__(self, script, app):
+        super(RexShellRoutine, self).__init__(script, {})
+        self.app = app
+
+    def run(self):
+        self.start(self.app)
 
 
 @task
@@ -32,6 +46,9 @@ class SHELL:
     parameters of the application.
 
     Use option `--extend` (`-E`) to enable an HTSQL extension.
+
+    Use option `--gateway` (`-G`) to connect to a secondary application
+    database.
     """
 
     project = argument(str, default=None)
@@ -44,40 +61,34 @@ class SHELL:
     extend = option('E', extension, default=[], plural=True,
             value_name="EXT:PARAM=VALUE",
             hint="include an HTSQL extension")
+    gateway = option('G', str, default=None,
+            value_name="NAME",
+            hint="connect to a gateway database")
 
-    def __init__(self, project, require, set, extend):
+    def __init__(self, project, require, set, extend, gateway):
         self.project = project
         self.require = require
         self.set = set
         self.extend = list(extend)
+        self.gateway = gateway
 
     def __call__(self):
         # Build the application and extract HTSQL configuration.
+        set_list = dict(self.set)
+        if self.extend:
+            set_list['htsql_extensions'] = self.extend
         app = make_rex(self.project, self.require, self.set, False,
                        ensure='rex.db')
         try:
             with app:
-                settings = get_settings()
+                db = get_db(self.gateway)
         except Error, error:
             raise fail(str(error))
-        extensions = []
-        extensions.extend(self.extend)
-        extensions.append({'rex': {}})
-        if settings.htsql_extensions:
-            if isinstance(settings.htsql_extensions, list):
-                extensions.extend(settings.htsql_extensions)
-            else:
-                extensions.append(settings.htsql_extensions)
-        # Parameters for `shell` invocation.
-        attributes = {
-                'db': settings.db,
-                'password': False,
-                'extensions': extensions,
-                'config': None,
-        }
+        if db is None:
+            raise fail("unknown gateway: `{}`", self.gateway)
         # Run `htsql-ctl shell`.
         script = htsql.ctl.HTSQL_CTL(sys.stdin, sys.stdout, sys.stderr)
-        routine = htsql.ctl.shell.ShellRoutine(script, attributes)
+        routine = RexShellRoutine(script, db)
         try:
             routine.run()
         except htsql.ctl.error.ScriptError, error:

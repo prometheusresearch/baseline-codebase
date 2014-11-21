@@ -110,9 +110,9 @@ class Pipe(Extension):
 
 
 class PipeSession(Pipe):
-    """
-    Adds ``rex.session`` and ``rex.mount`` to the request environment.
-    """
+    # Adds `rex.session` and `rex.mount` to the request environment.
+
+    priority = 'session'
 
     SESSION_COOKIE = 'rex.session'
 
@@ -158,12 +158,10 @@ class PipeSession(Pipe):
 
 
 class PipeError(Pipe):
-    """
-    Catches HTTP exceptions and delegates them to appropriate
-    :class:`HandleError`.
-    """
+    # Catches HTTP exceptions and delegates them to appropriate `HandlError`.
 
-    after = [PipeSession]
+    priority = 'error'
+    after = 'session'
 
     def __init__(self, handle):
         super(PipeError, self).__init__(handle)
@@ -186,15 +184,14 @@ class PipeError(Pipe):
                 raise
 
 
-class PipePackage(Pipe):
-    """
-    Uses the first segment of the URL to determine the request handler.
-    """
+class PipeRouting(Pipe):
+    # Forwards the request to the routing table.
 
-    after = [PipeError]
+    priority = 'routing'
+    after = 'error'
 
     def __init__(self, handle):
-        super(PipePackage, self).__init__(handle)
+        super(PipeRouting, self).__init__(handle)
         # Maps URL segments to handlers.
         self.route_map = get_routes(None)
 
@@ -389,7 +386,7 @@ class Route(Extension):
 class RouteFiles(Route):
     # Adds a handler for serving files from `static/www` directory.
 
-    priority = 10
+    priority = [10, 'files']
 
     def __call__(self, package):
         path_map = PathMap()
@@ -405,7 +402,7 @@ class RouteFiles(Route):
 class RouteCommands(Route):
     # Adds `HandleLocation` and `Command` handlers.
 
-    priority = 20
+    priority = [20, 'commands']
 
     def __call__(self, package):
         path_map = PathMap()

@@ -145,7 +145,7 @@ The following diagram shows how :mod:`rex.web` routes incoming HTTP requests::
     .  .                  .
     |  |                  |
     |  v                  |
-    | PipePackage         |
+    | PipeRouting         |
     |  |  |  |            |
     +--|--|--|------------+
        |  |  |
@@ -200,7 +200,7 @@ Let us describe individual components of the pipeline:
     specific HTTP errors such as as ``401 Not Authorized`` or ``404 Not
     Found``.
 
-``PipePackage``
+``PipeRouting``
     Determines which package will handle the incoming request.
 
     By default, the first package in the requirement list is mounted at ``/``,

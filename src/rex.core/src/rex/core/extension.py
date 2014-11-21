@@ -153,12 +153,10 @@ class Extension(object):
 
     #: Sorting weight or signature of the implementation.
     priority = None
-    #: Signatures of implementations that should appear
-    #: after the given implementation.
-    after = []
-    #: Signatures of implementations that should appear
-    #: before the given implementation.
-    before = []
+    #: Signature of implementation that should follow the given implementation.
+    after = None
+    #: Signature of implementation that should preceed the given implementation.
+    before = None
 
     @classmethod
     @cached
@@ -193,7 +191,9 @@ class Extension(object):
         # Add `after` and `before` conditions.
         for extension in extensions:
             for others in (extension.after, extension.before):
-                for other in others:
+                if not others:
+                    continue
+                for other in (others if isinstance(others, list) else [others]):
                     if isinstance(other, str):
                         other = signatures.get(other)
                     if other in extensions:

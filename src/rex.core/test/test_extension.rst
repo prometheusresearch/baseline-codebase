@@ -185,8 +185,8 @@ signature that could be used with ``after`` and ``before``::
 
     >>> Howdy.priority = 'howdy'
     >>> Hello.priority = 'hello'
-    >>> Hi.after = ['howdy']
-    >>> Hi.before = ['hello']
+    >>> Hi.after = 'howdy'
+    >>> Hi.before = 'hello'
     >>> main.reset()
 
     >>> with main:

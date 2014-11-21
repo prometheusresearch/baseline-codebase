@@ -151,11 +151,13 @@ class Extension(object):
             mapping[signature] = extension
         return mapping
 
-    #: Relative sorting priority of the implementation.
+    #: Sorting weight or signature of the implementation.
     priority = None
-    #: Implementations that should appear after the given implementation.
+    #: Signatures of implementations that should appear
+    #: after the given implementation.
     after = []
-    #: Implementations that should appear before the given implementation.
+    #: Signatures of implementations that should appear
+    #: before the given implementation.
     before = []
 
     @classmethod
@@ -166,22 +168,34 @@ class Extension(object):
         ``after`` and ``before`` attributes.
         """
         extensions = cls.all(package)
-        # Generate a partial order relationship from `priority`.
+        # Extract signatures and weights from `priority`.
+        signatures = {}
+        weights = {}
+        for extension in extensions:
+            priority = extension.priority
+            if priority:
+                if not isinstance(priority, list):
+                    priority = [priority]
+                for signature_or_weight in priority:
+                    if isinstance(signature_or_weight, (int, float)):
+                        weights[extension] = signature_or_weight
+                    else:
+                        signatures[signature_or_weight] = extension
+        # Generate a partial order relationship from weights.
         order = {}
         for extension in extensions:
             order[extension] = []
-            if extension.priority is not None:
+            weight = weights.get(extension, None)
+            if weight is not None:
                 order[extension] = [other for other in extensions
-                                    if other.priority is not None and
-                                       other.priority < extension.priority]
+                                    if other in weights and
+                                       weights[other] < weight]
         # Add `after` and `before` conditions.
         for extension in extensions:
             for others in (extension.after, extension.before):
                 for other in others:
                     if isinstance(other, str):
-                        module, name = other.rsplit('.', 1)
-                        module = __import__(module, fromlist=[name])
-                        other = getattr(module, name, None)
+                        other = signatures.get(other)
                     if other in extensions:
                         if others is extension.after:
                             order[extension].append(other)

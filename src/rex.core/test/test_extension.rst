@@ -180,4 +180,17 @@ You can achieve the same effect using ``Extension.priority`` attribute::
     ...     print Greet.ordered()
     [__main__.Howdy, __main__.Hi, __main__.Hello]
 
+Alternatively, you could use ``priority`` attribute as the extension
+signature that could be used with ``after`` and ``before``::
+
+    >>> Howdy.priority = 'howdy'
+    >>> Hello.priority = 'hello'
+    >>> Hi.after = ['howdy']
+    >>> Hi.before = ['hello']
+    >>> main.reset()
+
+    >>> with main:
+    ...     print Greet.ordered()
+    [__main__.Howdy, __main__.Hi, __main__.Hello]
+
 

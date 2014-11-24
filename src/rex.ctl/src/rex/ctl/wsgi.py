@@ -164,6 +164,7 @@ class SERVE_UWSGI:
         if not env.uwsgi and not self.set_uwsgi:
             raise fail("missing uWSGI configuration")
         uwsgi_parameters = {}
+        uwsgi_parameters['need-app'] = True
         uwsgi_parameters['plugin'] = 'python'
         if hasattr(sys, 'real_prefix'):
             uwsgi_parameters['virtualenv'] = sys.prefix

@@ -94,6 +94,7 @@ class START:
                 raise fail("{} is already running", form.name)
         # Prepare uWSGI configuration file.
         uwsgi_cfg = {}
+        uwsgi_cfg['need-app'] = True
         uwsgi_cfg['plugin'] = 'python'
         if hasattr(sys, 'real_prefix'):
             uwsgi_cfg['virtualenv'] = sys.prefix

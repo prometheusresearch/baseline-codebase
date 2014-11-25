@@ -4,7 +4,7 @@
 ---
 suite: rex.port
 tests:
-- sh: pip install -q -e ./demo/rex.port_demo
+- sh: pip install -q -e ./demo
   stdout: ''
 - sh: rex dropdb -q rex.port_demo
   stdout: ''

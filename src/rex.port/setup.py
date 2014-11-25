@@ -19,12 +19,12 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup >=1.0, <2',
+        'rex.setup >=1.0, <3',
     ],
     install_requires=[
         'rex.core >=1.6, <2',
         'rex.web >=2.1, <4',
-        'rex.db >=2.1, <3',
+        'rex.db >=2.1, <4',
     ],
     rex_init='rex.port',
     rex_static='static',

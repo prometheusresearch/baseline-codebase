@@ -31,7 +31,7 @@ class demo(Command):
 
 setup(
     name='rex.sendmail_demo',
-    version="1.0.0",
+    version="1.0.3",
     description="Demo package for testing rex.sendmail",
     setup_requires=[
         'rex.setup',

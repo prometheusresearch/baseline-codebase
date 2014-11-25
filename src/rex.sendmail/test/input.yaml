@@ -7,7 +7,7 @@ tests:
 
 - coverage: setup.cfg
 
-- sh: pip install -q -e ./demo/rex.sendmail_demo
+- sh: pip install -q -e ./demo
 - mkdir: ./sandbox
 
 - doctest: README.rst

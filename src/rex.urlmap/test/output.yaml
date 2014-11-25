@@ -4,7 +4,7 @@
 ---
 suite: rex.urlmap
 tests:
-- sh: pip install -q -e ./demo/rex.urlmap_demo
+- sh: pip install -q -e ./demo
   stdout: ''
 - sh: rex deploy -q rex.urlmap_demo
   stdout: ''

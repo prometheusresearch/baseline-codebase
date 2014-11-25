@@ -22,7 +22,7 @@ class demo(Command):
 
 setup(
     name='rex.urlmap_demo',
-    version = "1.0.0",
+    version = "2.5.1",
     description="Demo package for testing rex.urlmap",
     package_dir={'': 'src'},
     packages=find_packages('src'),

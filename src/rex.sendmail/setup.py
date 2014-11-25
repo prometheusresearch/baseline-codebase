@@ -19,7 +19,7 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup >=1.0, <2',
+        'rex.setup >=1.0, <3',
     ],
     install_requires=[
         'rex.core >=1.2, <2',

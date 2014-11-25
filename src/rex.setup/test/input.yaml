@@ -20,11 +20,11 @@ tests:
   # Install rex.setup_demo; verify layout and egg-info files.
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     cd: sandbox
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_init.txt
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-2.0.0-py2.7.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-2.0.0-py2.7.egg-info/rex_static.txt
     ignore: &ignore-prefix |
       /(.*)/sandbox/
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-1.2.3-py2.7.egg-info/rex_bundle.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-2.0.0-py2.7.egg-info/rex_bundle.txt
   - sh: ls -R ./lib/python2.7/site-packages/rex
     environ: { LC_ALL: C }
     cd: sandbox
@@ -87,9 +87,9 @@ tests:
   # Build source distribution for rex.setup_demo; verify content.
   - sh: ../../bin/python setup.py -q sdist --format=zip
     cd: ./sandbox/src/rex.setup_demo
-  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-1.2.3.zip
+  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-2.0.0.zip
     cd: sandbox
-  - sh: ls -R ./rex.setup_demo-1.2.3
+  - sh: ls -R ./rex.setup_demo-2.0.0
     environ: { LC_ALL: C }
     cd: sandbox
   - sh: ls ./lib

@@ -4,7 +4,7 @@
 ---
 suite: rex.deploy
 tests:
-- sh: pip install -q -e ./demo/rex.deploy_demo
+- sh: pip install -q -e ./demo
   stdout: ''
 - py: deploying-rex.deploy-demo
   stdout: ''

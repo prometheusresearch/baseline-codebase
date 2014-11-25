@@ -120,8 +120,22 @@ def get_cluster():
     """
     Get a cluster associated with the application database.
     """
-    db = get_settings().db
-    if not db.engine == 'pgsql':
+    settings = get_settings()
+    # Extract the connection URI from `db` setting.
+    db = None
+    if isinstance(settings.db, (list, dict)):
+        for parameters in ([settings.db] if isinstance(settings.db, dict)
+                           else settings.db):
+            db = parameters.get('htsql', {}).get('db')
+            if db is not None:
+                try:
+                    db = htsql.core.util.DB.parse(db)
+                    break
+                except ValueError:
+                    pass
+    else:
+        db = settings.db
+    if db is None or db.engine != 'pgsql':
         raise Error("Expected a PostgreSQL database; got:", db)
     return Cluster(db)
 

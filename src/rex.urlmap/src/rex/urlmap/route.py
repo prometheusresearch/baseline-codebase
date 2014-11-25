@@ -10,7 +10,8 @@ from .load import load_map
 class RouteURLMap(Route):
     # Adds a `urlmap.yaml` handler to the package routing pipeline.
 
-    priority = 40
+    priority = [40, "urlmap"]
+    after = 'commands'
 
     def __call__(self, package):
         if package.exists('urlmap.yaml'):

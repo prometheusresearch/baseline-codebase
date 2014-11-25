@@ -235,7 +235,8 @@ class LookupReferenceInRoot(Lookup):
 
     def __call__(self):
         if self.probe.key == u'user':
-            session = context.env.session()
+            session = (context.env.session()
+                       if context.env.session is not None else None)
             if isinstance(session, str):
                 session = session.decode('utf-8', 'replace')
             if session is not None:

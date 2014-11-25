@@ -40,6 +40,12 @@ should be writable::
 
     >>> from rex.core import Rex
 
+    >>> Rex('rex.attach_demo')                                      # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Attachment storage is not specified
+    ...
+
     >>> Rex('rex.attach_demo', attach_dir="./sandbox/missing")      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...

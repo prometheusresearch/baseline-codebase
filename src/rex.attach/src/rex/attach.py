@@ -259,6 +259,7 @@ class AttachDirSetting(Setting):
 
     name = 'attach_dir'
     validate = StrVal()
+    default = None
 
 
 class InitializeAttach(Initialize):
@@ -267,6 +268,8 @@ class InitializeAttach(Initialize):
     def __call__(self):
         settings = get_settings()
         attach_dir = settings.attach_dir
+        if attach_dir is None:
+            raise Error("Attachment storage is not specified")
         if not os.path.isdir(attach_dir):
             raise Error("Attachment storage does not exist:", attach_dir)
         if not os.access(attach_dir, os.R_OK|os.W_OK|os.X_OK):

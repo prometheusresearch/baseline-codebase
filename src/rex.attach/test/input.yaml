@@ -7,18 +7,9 @@ tests:
 
 - coverage: setup.cfg
 
-- sh: pip install -q -e ./demo/rex.attach_demo
+- sh: pip install -q -e ./demo
 - mkdir: ./sandbox
-
-- py: |
-    # Deploying rex.attach_demo
-    from rex.core import LatentRex
-    from rex.deploy import deploy, get_cluster
-
-    with LatentRex('rex.attach_demo', attach_dir='./sandbox/attachments'):
-        cluster = get_cluster()
-        cluster.overwrite()
-        deploy()
+- sh: rex deploy -q rex.attach_demo
 
 - doctest: README.rst
 - doctest: test/test_*.rst

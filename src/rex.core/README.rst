@@ -133,6 +133,11 @@ you to include the package name with the path::
 
     >>> index_file = packages.open('rex.core_demo:/www/index.html')
 
+RexDB platform supports other types of packages.  You can create a RexDB
+package from any Python module or a directory on the file system.  For testing,
+it is convenient to use the *sandbox* package created from the ``__main__``
+module and a temporary static directory.
+
 
 Application configuration
 =========================

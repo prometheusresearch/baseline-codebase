@@ -8,6 +8,11 @@
 2.0.0 (2014-XX-XX)
 ==================
 
+* Refactored implementation and Python API.
+* Support for type conversion and column reordering.
+* Support for removing table data.
+* Added ``include`` directive.
+
 
 1.6.0 (2014-10-17)
 ==================

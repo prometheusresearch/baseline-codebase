@@ -19,11 +19,11 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup >=1.0, <2',
+        'rex.setup >=1.0, <3',
     ],
     install_requires=[
         'rex.core >=1.2, <2',
-        'rex.db >=2.0.1, <3',
+        'rex.db >=2.0.1, <4',
         'HTSQL >=2.3.3, <2.5',
         'HTSQL-PGSQL >=2.3.3, <2.5',
         'psycopg2 >=2.4.2',

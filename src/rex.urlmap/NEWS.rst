@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.5.1 (2014-XX-XX)
+==================
+
+* Fixed dependencies.
+
+
 2.5.0 (2014-09-19)
 ==================
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.urlmap',
-    version = "2.5.0",
+    version = "2.5.1",
     description="Configures URL handlers",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -19,12 +19,12 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup >=1.0, <2',
+        'rex.setup >=1.0, <3',
     ],
     install_requires=[
-        'rex.core >=1.5, <2',
+        'rex.core >=1.8, <2',
         'rex.web >=3.0, <4',
-        'rex.db >=2.1, <3',
+        'rex.db >=2.1, <4',
         'rex.port >=1.0, <2',
     ],
     rex_init='rex.urlmap',

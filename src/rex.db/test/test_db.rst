@@ -73,6 +73,131 @@ Settings specified in different packages are merged together::
     2
 
 
+Gateways
+========
+
+In addition to the main application database, you can configure secondary
+databases called *gateways*.  For example, you can create a gateway to
+a set of CSV files::
+
+    >>> gateway = Rex('rex.db_demo', './test/data/gateway/',
+    ...               db='sqlite:./sandbox/db_demo.sqlite')
+
+The data can be accessed through the main database using the gateway
+function::
+
+    >>> with gateway:
+    ...     db = get_db()
+    ...     print db.produce('gateway(count(instructor))')
+    123
+
+Alternatively, you could get an HTSQL instance for the gateway database::
+
+    >>> with gateway:
+    ...     gateway_db = get_db('gateway')
+    ...     print gateway_db.produce('count(instructor)')
+    123
+
+If the gateway is configured in several places, the configuration is merged::
+
+    >>> autolimit_gateway = Rex('rex.db_demo', './test/data/gateway/',
+    ...                         db='sqlite:./sandbox/db_demo.sqlite',
+    ...                         db_gateways={'gateway': {'tweak.autolimit': {'limit': 5}}})
+    >>> with autolimit_gateway:
+    ...     gateway_db = get_db('gateway')
+    ...     print len(gateway_db.produce('/instructor'))
+    5
+
+You could disable a gateway by setting the gateway parameters to ``None``::
+
+    >>> no_gateway = Rex('rex.db_demo', './test/data/gateway/',
+    ...                  db='sqlite:./sandbox/db_demo.sqlite',
+    ...                  db_gateways={'gateway': None})
+
+    >>> with no_gateway:
+    ...     no_db = get_db('gateway')
+    >>> no_db is None
+    True
+
+
+Querying the database
+=====================
+
+You can use the method ``produce()`` to query the database::
+
+    >>> with demo:
+    ...     db = get_db()
+
+    >>> db.produce('/school')           # doctest: +ELLIPSIS
+    <Product ({'art', 'School of Art & Design', 'old'}, ...>
+
+Method ``produce()`` also admits file streams::
+
+    >>> import io
+    >>> input = io.StringIO(u'/school')
+    >>> db.produce(input)               # doctest: +ELLIPSIS
+    <Product ({'art', 'School of Art & Design', 'old'}, ...>
+
+The input may contain more than one query.  The output of the last
+query is returned::
+
+    >>> input = io.StringIO(u'/school\n\n/department\n\n')
+    >>> db.produce(input)               # doctest: +ELLIPSIS
+    <Product ({'acc', 'Accounting', 'bus'}, ...>
+
+Comments are denoted by ``#`` starting at the beginning of the line::
+
+    >>> input = io.StringIO(u'# Get all schools\n/school\n\n# Get all departments\n/department\n')
+    >>> db.produce(input)               # doctest: +ELLIPSIS
+    <Product ({'acc', 'Accounting', 'bus'}, ...>
+
+If the query spans multiple lines, all lines but the first one must be indented
+with at least one space::
+
+    >>> input = io.StringIO(u'/school{\n code,\n name}\n')
+    >>> db.produce(input)               # doctest: +ELLIPSIS
+    <Product ({'art', 'School of Art & Design'}, ...>
+
+Invalid indentation is reported::
+
+    >>> input = io.StringIO(u' /school ')
+    >>> db.produce(input)               # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Got unexpected indentation:
+        <input>, line 1
+
+When an error occurs, the file name and the line of the query are reported::
+
+    >>> input = io.StringIO(u'/class')
+    >>> db.produce(input)               # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Found unknown attribute:
+        class
+    While translating:
+        /class
+         ^^^^^
+    While executing:
+        <input>, line 1
+
+The input may contain no queries::
+
+    >>> db.produce(io.StringIO())
+
+The result can be rendered in different formats::
+
+    >>> product = db.produce('/school')
+    >>> format = db.accept('csv')
+    >>> db.emit_headers(format, product)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    [('Content-Type', 'text/csv; charset=UTF-8'),
+     ('Content-Disposition', 'attachment; filename="school.csv"')]
+    >>> list(db.emit(format, product))      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    ['code,name,campus\r\n',
+     'art,School of Art & Design,old\r\n',
+     ...]
+
+
 HTSQL service
 =============
 
@@ -143,6 +268,36 @@ the service, set the permission to ``nobody``::
     ...                 access={'rex.db': 'nobody'})
     >>> print auth_req.get_response(noservice)  # doctest: +ELLIPSIS
     401 Unauthorized
+    ...
+
+The HTSQL service also provides access to the gateway databases::
+
+    >>> req = Request.blank('/db/@gateway/instructor')
+    >>> print req.get_response(gateway)         # doctest: +ELLIPSIS
+    200 OK
+    ...
+     | instructor                                                                  |
+     +------------+-------+--------------------+----------+------------------------+
+     | code       | title | full_name          | phone    | email                  |
+    -+------------+-------+--------------------+----------+------------------------+-
+     | alott      | ms    | Ann Lott           | 856-7634 | alott@example.com      |
+     | amarcum    | dr    | Allen Marcum       | 140-1768 | amarcum@example.com    |
+     | aphelps    | prof  | Ann Phelps         | 455-3127 | aphelps@example.com    |
+    ...
+
+A gateway URL without trailing ``/`` causes redirection::
+
+    >>> req = Request.blank('/db/@gateway')
+    >>> print req.get_response(gateway)         # doctest: +ELLIPSIS
+    301 Moved Permanently
+    Location: http://localhost/db/@gateway/
+    ...
+
+Unknown gateways are rejected::
+
+    >>> req = Request.blank('/db/@unknown/')
+    >>> print req.get_response(gateway)         # doctest: +ELLIPSIS
+    404 Not Found
     ...
 
 

@@ -1,0 +1,12 @@
+db_gateways:
+  gateway:
+    tweak.filedb:
+      sources:
+      - file: ./test/data/gateway/instructor.csv
+      - file: ./test/data/gateway/appointment.csv
+    tweak.override:
+      unique-keys:
+      - instructor(code)!
+      - appointment(department_code,instructor_code)!
+      foreign-keys:
+      - appointment(instructor_code) -> instructor(code)

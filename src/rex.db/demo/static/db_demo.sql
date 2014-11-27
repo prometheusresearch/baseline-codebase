@@ -60,6 +60,32 @@ CREATE TABLE course (
       REFERENCES department(code)
 );
 
+CREATE TABLE instructor (
+    code                VARCHAR(16) NOT NULL,
+    title               VARCHAR(4) NOT NULL,
+    full_name           VARCHAR(64) NOT NULL,
+    phone               VARCHAR(16),
+    email               VARCHAR(64),
+    CONSTRAINT instructor_pk
+      PRIMARY KEY (code),
+    CONSTRAINT instructor_title_ck
+      CHECK (title IN ('mr', 'dr', 'prof', 'ms'))
+);
+
+CREATE TABLE appointment (
+    department_code     VARCHAR(16) NOT NULL,
+    instructor_code     VARCHAR(16) NOT NULL,
+    fraction            FLOAT,
+    CONSTRAINT appointment_pk
+      PRIMARY KEY (department_code, instructor_code),
+    CONSTRAINT appointment_department_fk
+      FOREIGN KEY (department_code)
+      REFERENCES department(code),
+    CONSTRAINT appointment_instructor_fk
+      FOREIGN KEY (instructor_code)
+      REFERENCES instructor(code)
+);
+
 INSERT INTO school VALUES
     ('art','School of Art & Design','old'),
     ('bus','School of Business','south'),

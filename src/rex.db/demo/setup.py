@@ -17,13 +17,13 @@ class demo(Command):
         import os, os.path, shutil
         import sqlite3
         sql = open('./static/db_demo.sql').read()
-        if os.path.exists('../../sandbox'):
-            shutil.rmtree('../../sandbox')
-        os.mkdir('../../sandbox')
-        connection = sqlite3.connect('../../sandbox/db_demo.sqlite')
+        if os.path.exists('../sandbox'):
+            shutil.rmtree('../sandbox')
+        os.mkdir('../sandbox')
+        connection = sqlite3.connect('../sandbox/db_demo.sqlite')
         connection.executescript(sql)
         connection.commit()
-        cmd = "rex serve rex.db_demo --set db=sqlite:../../sandbox/db_demo.sqlite"
+        cmd = "rex serve rex.db_demo --set db=sqlite:../sandbox/db_demo.sqlite"
         print "$", cmd
         os.spawnvp(0, cmd.split()[0], cmd.split())
 

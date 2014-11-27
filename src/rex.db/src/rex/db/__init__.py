@@ -14,7 +14,8 @@ from rex.core import (Extension, Setting, Initialize, cached, get_settings,
 from rex.web import (Pipe, HandleFile, HandleLocation, authenticate, authorize,
         get_jinja)
 from webob import Request, Response
-from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPBadRequest
+from webob.exc import (HTTPUnauthorized, HTTPNotFound, HTTPBadRequest,
+        HTTPMovedPermanently)
 from htsql import HTSQL
 from htsql.core.error import Error as HTSQLError, HTTPError
 from htsql.core.util import DB
@@ -26,6 +27,21 @@ from htsql.core.connect import connect, transaction
 from htsql_rex import isolate, mask, session
 import re
 import urllib
+
+
+def _merge(*values):
+    # Merges HTSQL configuration from different sources.
+    merged = []
+    for value in values:
+        if not value:
+            continue
+        if isinstance(value, list):
+            merged.extend(value)
+        elif isinstance(value, dict):
+            merged.append(value)
+        else:
+            merged.append({'htsql': {'db': value}})
+    return merged
 
 
 class DBVal(Validate):
@@ -97,20 +113,7 @@ class DBSetting(Setting):
             (OnScalar, DBVal),
             (OnField('database'), DBVal),
             OneOrSeqVal(MapVal(StrVal, MaybeVal(MapVal(StrVal)))))
-
-    @classmethod
-    def merge(cls, old_value, new_value):
-        # Merges configuration preset in different packages.
-        value = []
-        for old_or_new_value in [new_value, old_value]:
-            if old_or_new_value:
-                if isinstance(old_or_new_value, list):
-                    value.extend(old_or_new_value)
-                elif isinstance(old_or_new_value, dict):
-                    value.append(old_or_new_vale)
-                else:
-                    value.append({'htsql': {'db': old_or_new_value}})
-        return value
+    merge = staticmethod(_merge)
 
 
 class DBGatewaysSetting(Setting):
@@ -152,13 +155,10 @@ class DBGatewaysSetting(Setting):
         value = dict((key, old_value[key])
                      for key in old_value if old_value[key])
         for key in sorted(new_value):
-            if key in value:
-                if new_value[key] is None:
-                    del value[key]
-                else:
-                    value[key] = DBSetting.merge(value[key], new_value[key])
+            if new_value[key] is None:
+                value.pop(key, None)
             else:
-                value[key] = new_value[key]
+                value[key] = _merge(value.get(key), new_value[key])
         return value
 
 
@@ -190,18 +190,7 @@ class HTSQLExtensionsSetting(Setting):
     name = 'htsql_extensions'
     validate = OneOrSeqVal(MapVal(StrVal, MaybeVal(MapVal(StrVal))))
     default = None
-
-    @classmethod
-    def merge(cls, old_value, new_value):
-        # Merges configuration preset in different packages.
-        value = []
-        for old_or_new_value in [new_value, old_value]:
-            if old_or_new_value:
-                if isinstance(old_or_new_value, list):
-                    value.extend(old_or_new_value)
-                else:
-                    value.append(old_or_new_value)
-        return value
+    merge = staticmethod(_merge)
 
 
 def jinja_global_htsql(path_or_query, content_type=None,
@@ -282,7 +271,7 @@ class HandleHTSQLLocation(HandleLocation):
         segment = req.path_info_peek()
         if re.match(r'\A@[A-Za-z_][0-9A-Za-z_]*\Z', segment):
             req = req.copy()
-            req = req.path_info_pop()
+            req.path_info_pop()
             if not req.path_info:
                 raise HTTPMovedPermanently(add_slash=True)
             gateway = segment[1:]
@@ -447,12 +436,14 @@ class RexHTSQL(HTSQL):
         product = None
         with self:
             if hasattr(command, 'read'):
+                stream = command
+                name = getattr(stream, 'name', '<input>')
                 blocks = []
                 lines = []
-                stream = command
                 block_idx = 0
                 for idx, line in enumerate(stream):
-                    if not line.strip() or line.startswith('#'):
+                    line = line.rstrip()
+                    if not line or line.startswith('#'):
                         if lines:
                             lines.append(line)
                     elif line == line.lstrip():
@@ -464,7 +455,7 @@ class RexHTSQL(HTSQL):
                         if not lines:
                             raise HTSQLError("Got unexpected indentation",
                                              "%s, line %s"
-                                             % (stream.name, idx+1))
+                                             % (name, idx+1))
                         lines.append(line)
                 if lines:
                     blocks.append((block_idx, lines))
@@ -476,7 +467,7 @@ class RexHTSQL(HTSQL):
                         product = produce(command, environment, **parameters)
                     except HTSQLError, error:
                         error.wrap("While executing",
-                                   "%s, line %s" % (stream.name, idx+1))
+                                   "%s, line %s" % (name, idx+1))
                         raise
             else:
                 product = produce(command, environment, **parameters)
@@ -589,36 +580,17 @@ def get_db(name=None):
     settings = get_settings()
     configuration = []
     if name is None:
-        if isinstance(settings.db, list):
-            configuration.append(None)
-            configuration.extend(settings.db)
-        elif isinstance(settings.db, dict):
-            configuration.append(None)
-            configuration.append(settings.db)
-        else:
-            configuration.append(settings.db)
         gateways = dict((key, get_db(key))
                         for key in sorted(settings.db_gateways)
                         if settings.db_gateways[key])
-        configuration.append({'rex': {'gateways': gateways}})
-        if settings.htsql_extensions:
-            if isinstance(settings.htsql_extensions, list):
-                configuration.extend(settings.htsql_extensions)
-            else:
-                configuration.append(settings.htsql_extensions)
+        configuration = _merge(settings.db,
+                               settings.htsql_extensions,
+                               {'rex': {'gateways': gateways}})
     else:
         gateway = settings.db_gateways.get(name)
         if not gateway:
             return None
-        if isinstance(gateway, list):
-            configuration.append(None)
-            configuration.extend(gateway)
-        elif isinstance(gateway, dict):
-            configuration.append(None)
-            configuration.append(gateway)
-        else:
-            configuration.append(gateway)
-        configuration.append({'rex': {}})
-    return RexHTSQL(*configuration)
+        configuration = _merge(gateway, {'rex': {}})
+    return RexHTSQL(None, *reversed(configuration))
 
 

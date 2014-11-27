@@ -35,14 +35,17 @@ class QUERY:
     Use option `--gateway` (`-G`) to connect to a secondary application
     database.
 
-    Use option `--input` (`-i`) to read the query from a file.  If `--input`
-    is not provided, the query is read from the standard input.  You may
-    specify the option multiple times.
+    Use option `--input` (`-i`) to read the query from a file.  If
+    `--input` is not provided, the query is read from the standard input.
+    This option may be specified multiple times.
 
     Use option `--output` (`-o`) to write the query output to a file.
 
     Use option `--format` (`-f`) to specify the format of the output.
     Valid formats include: `txt`, `html`, `xml`, `csv`, `json`, `raw`.
+
+    If neither `--output` nor `--format` are provided, the output is
+    supressed.
     """
 
     project = argument(str, default=None)
@@ -84,7 +87,7 @@ class QUERY:
         self.define = define
 
     def __call__(self):
-        # Build the application and extract HTSQL configuration.
+        # Build the application and extract HTSQL instance..
         set_list = dict(self.set)
         if self.extend:
             set_list['htsql_extensions'] = self.extend
@@ -98,6 +101,7 @@ class QUERY:
             raise fail(str(error))
         if db is None:
             raise fail("unknown gateway: `{}`", self.gateway)
+        # Prepare input.
         if not self.input:
             sources = ['-']
         else:
@@ -106,6 +110,7 @@ class QUERY:
         parameters = dict(self.define)
         with db, db.transaction():
             try:
+                # Execute input.
                 for source in sources:
                     if source == '-':
                         stream = sys.stdin
@@ -113,7 +118,10 @@ class QUERY:
                         stream = packages.open(source)
                     else:
                         stream = open(source)
-                    product = db.produce(stream, parameters) or product
+                    source_product = db.produce(stream, parameters)
+                    if source_product is not None:
+                        product = source_product
+                # Render output.
                 if product is not None and (self.format is not None or
                                             self.output is not None):
                     format = self.format or os.path.splitext(self.output)[1][1:]

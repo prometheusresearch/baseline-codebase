@@ -50,6 +50,7 @@ tests:
   - rex: ''
   - rex: help deploy
   - rex: help shell
+  - rex: help query
   - rex: help serve
   - rex: help wsgi
   - rex: help serve-uwsgi
@@ -102,6 +103,27 @@ tests:
     stdin: |
         describe
 
+#
+# rex query
+#
+
+- title: rex shell
+  tests:
+  - rex: query rex.ctl_demo
+    stdin: |
+        count(school)
+  - rex: query rex.ctl_demo -o -
+    stdin: |
+        count(school)
+  - rex: query rex.ctl_demo -o - -f json
+    stdin: |
+        count(school)
+  - rex: query rex.ctl_demo -i ../demo/static/db/num_schools.htsql -o -
+  - rex: query rex.ctl_demo -i rex.ctl_demo:/db/num_schools.htsql -o -
+  - rex: query rex.ctl_demo
+    stdin: |
+        count(study)
+    exit: 1
 
 #
 # rex serve

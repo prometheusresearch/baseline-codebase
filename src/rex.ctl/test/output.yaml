@@ -77,6 +77,50 @@ tests:
         -E/--extend=EXT:PARAM=VALUE : include an HTSQL extension
         -G/--gateway=NAME        : connect to a gateway database
 
+  - rex: help query
+    stdout: |+
+      QUERY - run an HTSQL query
+      Usage: rex query [<project>]
+
+      The query task executes an HTSQL query against the application
+      database.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Use option --set or setting parameters to specify configuration
+      parameters of the application.
+
+      Use option --extend (-E) to enable an HTSQL extension.
+
+      Use option --gateway (-G) to connect to a secondary application
+      database.
+
+      Use option --input (-i) to read the query from a file.  If
+      --input is not provided, the query is read from the standard input.
+      This option may be specified multiple times.
+
+      Use option --output (-o) to write the query output to a file.
+
+      Use option --format (-f) to specify the format of the output.
+      Valid formats include: txt, html, xml, csv, json, raw.
+
+      If neither --output nor --format are provided, the output is
+      supressed.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -E/--extend=EXT:PARAM=VALUE : include an HTSQL extension
+        -G/--gateway=NAME        : connect to a gateway database
+        -i/--input=FILE          : read query from a file
+        -o/--output=FILE         : write query output to a file
+        -f/--format=FORMAT       : set output format
+        -D/--define=PARAM=VALUE  : set a query parameter
+
   - rex: help serve
     stdout: |+
       SERVE - start an HTTP server
@@ -366,6 +410,43 @@ tests:
         department               : table
         program                  : table
         school                   : table
+
+- suite: rex-shell
+  tests:
+  - rex: query rex.ctl_demo
+    stdout: ''
+  - rex: query rex.ctl_demo -o -
+    stdout: |2+
+       | count(school) |
+      -+---------------+-
+       |             0 |
+
+  - rex: query rex.ctl_demo -o - -f json
+    stdout: |
+      {
+        "0": 0
+      }
+  - rex: query rex.ctl_demo -i ../demo/static/db/num_schools.htsql -o -
+    stdout: |2+
+       | count(school) |
+      -+---------------+-
+       |             0 |
+
+  - rex: query rex.ctl_demo -i rex.ctl_demo:/db/num_schools.htsql -o -
+    stdout: |2+
+       | count(school) |
+      -+---------------+-
+       |             0 |
+
+  - rex: query rex.ctl_demo
+    stdout: |+
+      FATAL ERROR: Found unknown attribute:
+          study
+      While translating:
+          count(study)
+                ^^^^^
+      While executing:
+          <stdin>, line 1
 
 - suite: rex-serve
   tests:

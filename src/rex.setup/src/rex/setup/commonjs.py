@@ -131,7 +131,13 @@ def npm(args, cwd=None, env=None, quiet=False):
 
 def bower(args, cwd=None, env=None, quiet=False):
     # Executes `bower args...`.
-    base_args = [find_executable('bower'), '--allow-root', '--config.interactive=false']
+    base_args = [
+        find_executable('bower'),
+        '--allow-root',
+        '--config.interactive=false',
+        '--config.storage.cache=%s' % cwd,
+        '--config.tmp=%s' % cwd,
+    ]
     return node(base_args + args, cwd, env=env, quiet=quiet)
 
 
@@ -231,10 +237,10 @@ def ensure_rex_setup_commonjs_installed():
 
 
 def install_package(req, skip_if_installed=False):
-    if package_filename(req, 'package.json'):
-        install_npm_package(req, skip_if_installed=skip_if_installed)
     if package_filename(req, 'bower.json'):
         install_bower_component(req, skip_if_installed=skip_if_installed)
+    if package_filename(req, 'package.json'):
+        install_npm_package(req, skip_if_installed=skip_if_installed)
 
 
 def install_npm_package(req, skip_if_installed=False):
@@ -259,7 +265,8 @@ def install_bower_component(req, dest=None, skip_if_installed=False):
         if skip_if_installed and \
                 os.path.exists(os.path.join(src, 'bower_components')):
             return
-        dest = tempfile.mkdtemp('rexsetup')
+        dest = os.path.join(src, '.rex-setup')
+        os.mkdir(dest)
     ensure_rex_setup_commonjs_installed()
     component_name = dist.key.replace('.', '-')
     validate_bower_package_metadata(req, component_name, dist.version)

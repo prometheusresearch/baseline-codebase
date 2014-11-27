@@ -266,6 +266,8 @@ def install_bower_component(req, dest=None, skip_if_installed=False):
                 os.path.exists(os.path.join(src, 'bower_components')):
             return
         dest = os.path.join(src, '.rex-setup')
+        if os.path.exists(dest):
+            shutil.rmtree(dest)
         os.mkdir(dest)
     ensure_rex_setup_commonjs_installed()
     component_name = dist.key.replace('.', '-')

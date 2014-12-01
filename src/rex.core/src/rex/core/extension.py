@@ -72,20 +72,28 @@ class Extension(object):
         `package`: :class:`Package`, ``str`` or ``None``
             If provided, the function returns implementations defined
             in the given package.
+
+        Subclasses may override this method to generate implementations
+        on the fly.
         """
         # Determine modules that may contain extensions.
         if package is None:
-            package = get_packages()
+            modules = get_packages().modules
         elif not isinstance(package, Package):
-            package = get_packages()[package]
-        modules = package.modules
+            modules = get_packages()[package].modules
+        else:
+            modules = package.modules
         # Find all subclasses of `cls`.
         subclasses = [cls]
         # Used to weed out duplicates (due to diamond inheritance).
         seen = set([cls])
         idx = 0
         while idx < len(subclasses):
-            for subclass in subclasses[idx].__subclasses__():
+            base = subclasses[idx]
+            # Allow subclasses to override `all()`.
+            for subclass in (base.__subclasses__()
+                             if base.all.__func__ is cls.all.__func__
+                             else base.all(package)):
                 if subclass not in seen:
                     subclasses.append(subclass)
                     seen.add(subclass)

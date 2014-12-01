@@ -89,6 +89,42 @@ You could also pass a ``Package`` object::
     ...     print Setting.all(demo_package)
     [rex.core_demo.DemoFolderSetting]
 
+One can override the ``Extension.all()`` method to generate extensions on the
+fly::
+
+    >>> class GreetTemplates(Greet):
+    ...
+    ...     template = None
+    ...     templates = ["Hey, {}!", "Aloha!"]
+    ...
+    ...     @classmethod
+    ...     def enabled(cls):
+    ...         return cls.template is not None
+    ...
+    ...     @classmethod
+    ...     def all(cls, package=None):
+    ...         if cls.template is not None:
+    ...             return
+    ...         for template in cls.templates:
+    ...             name = template.title().translate(None, ' ,{}!')
+    ...             yield type(name, (cls,), {'__module__': __name__, 'template': template})
+    ...
+    ...     def __call__(self, name):
+    ...         return self.template.format(name)
+
+``GreetTemplates.all()`` generates implementations for each entry in
+``GreetTemplates.templates``::
+
+    >>> main.reset()
+    >>> with main:
+    ...     print Greet.all()
+    [__main__.Hello, __main__.Howdy, __main__.Hey, __main__.Aloha]
+
+Now let us disable the extension::
+
+    >>> GreetTemplates.templates = []
+    >>> main.reset()
+
 Some interfaces may add additional lookup methods.  For instance, ``Setting``
 defines method ``Setting.mapped()``::
 

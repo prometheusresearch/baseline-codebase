@@ -98,10 +98,8 @@ class Authorize(Extension):
         # For `cls.mapped()`.
         return cls.access
 
-    @classmethod
-    def map_all(cls):
-        # Deprecated.
-        return cls.mapped()
+    # Deprecated.
+    map_all = classmethod(Extension.mapped.__func__)
 
     @classmethod
     def enabled(cls):

@@ -600,3 +600,28 @@ Set ``path`` to ``'*'`` to make a catch-all handler::
     How can I help you?
 
 
+Routing tables
+==============
+
+You can get a URL handler using function ``route()``::
+
+    >>> from rex.web import route
+
+    >>> with demo:
+    ...     print route('rex.web_demo:/ping')
+    ...     print route('rex.web_demo:/index.html')     # doctest: +ELLIPSIS
+    <rex.web.route.CommandDispatcher object at ...>
+    <rex.web.route.StaticServer object at ...>
+
+If the URL is invalid or has no associated handler, ``route()`` returns
+``None``::
+
+    >>> with demo:
+    ...     print route('index.html')
+    ...     print route('rex.web:/index.html')
+    ...     print route('rex.ctl:/index.html')
+    None
+    None
+    None
+
+

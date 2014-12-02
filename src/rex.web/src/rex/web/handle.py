@@ -53,9 +53,8 @@ class HandleFile(Extension):
     def signature(cls):
         return cls.ext
 
-    @classmethod
-    def map_all(cls):
-        return cls.mapped()
+    # Deprecated.
+    map_all = classmethod(Extension.mapped.__func__)
 
     @classmethod
     def enabled(cls):
@@ -88,9 +87,8 @@ class HandleError(Extension):
     def signature(cls):
         return cls.code
 
-    @classmethod
-    def map_all(cls):
-        return cls.mapped()
+    # Deprecated.
+    map_all = classmethod(Extension.mapped.__func__)
 
     @classmethod
     def enabled(cls):

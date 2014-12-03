@@ -1346,7 +1346,13 @@ tests:
           This setting could be specified more than once.  Configuration
           parameters preset by different packages are merged into one.
 
-        [db_gateways]
+        [debug]
+        Declared in:
+          rex.core
+        Description:
+          Turn on debug mode.
+
+        [gateways]
         Declared in:
           rex.db
         Description:
@@ -1359,7 +1365,7 @@ tests:
 
           Examples::
 
-              db_gateways:
+              gateways:
 
                   input:
                       tweak.filedb:
@@ -1372,12 +1378,6 @@ tests:
 
           This setting could be specified more than once.  Configuration
           parameters preset by different packages are merged into one.
-
-        [debug]
-        Declared in:
-          rex.core
-        Description:
-          Turn on debug mode.
 
         [hello_access]
         Declared in:
@@ -1547,7 +1547,15 @@ tests:
           This setting could be specified more than once.  Configuration
           parameters preset by different packages are merged into one.
 
-        [db_gateways]
+        [debug]
+        Declared in:
+          rex.core
+        Value:
+          True
+        Description:
+          Turn on debug mode.
+
+        [gateways]
         Declared in:
           rex.db
         Description:
@@ -1560,7 +1568,7 @@ tests:
 
           Examples::
 
-              db_gateways:
+              gateways:
 
                   input:
                       tweak.filedb:
@@ -1573,14 +1581,6 @@ tests:
 
           This setting could be specified more than once.  Configuration
           parameters preset by different packages are merged into one.
-
-        [debug]
-        Declared in:
-          rex.core
-        Value:
-          True
-        Description:
-          Turn on debug mode.
 
         [hello_access]
         Declared in:
@@ -1748,7 +1748,15 @@ tests:
           This setting could be specified more than once.  Configuration
           parameters preset by different packages are merged into one.
 
-        [db_gateways]
+        [debug]
+        Declared in:
+          rex.core
+        Value:
+          True
+        Description:
+          Turn on debug mode.
+
+        [gateways]
         Declared in:
           rex.db
         Description:
@@ -1761,7 +1769,7 @@ tests:
 
           Examples::
 
-              db_gateways:
+              gateways:
 
                   input:
                       tweak.filedb:
@@ -1774,14 +1782,6 @@ tests:
 
           This setting could be specified more than once.  Configuration
           parameters preset by different packages are merged into one.
-
-        [debug]
-        Declared in:
-          rex.core
-        Value:
-          True
-        Description:
-          Turn on debug mode.
 
         [hello_access]
         Declared in:

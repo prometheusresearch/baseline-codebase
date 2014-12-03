@@ -206,6 +206,13 @@ To open HTSQL shell to the application database, use ``rex shell``::
     Type 'help' for more information, 'exit' to quit the shell.
     ctl_demo$
 
+To execute one or a set of HTSQL queries, use ``rex query``::
+
+    $ rex query rex.ctl_demo -i school.htsql -f json
+    {
+      "school": []
+    }
+
 To dump the content of the application database to a file,
 use ``rex dumpdb``::
 

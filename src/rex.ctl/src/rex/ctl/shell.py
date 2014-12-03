@@ -77,7 +77,7 @@ class SHELL:
         set_list = dict(self.set)
         if self.extend:
             set_list['htsql_extensions'] = self.extend
-        app = make_rex(self.project, self.require, self.set, False,
+        app = make_rex(self.project, self.require, set_list, False,
                        ensure='rex.db')
         try:
             with app:

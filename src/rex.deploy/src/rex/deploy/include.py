@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import StrVal
+from rex.core import StrVal, get_packages
 from .fact import Fact
 import os.path
 
@@ -24,6 +24,9 @@ class IncludeFact(Fact):
     @classmethod
     def build(cls, driver, spec):
         path = spec.include
+        if ':' in path:
+            packages = get_packages()
+            path = packages.abspath(path)
         if driver.cwd is not None:
             path = os.path.join(driver.cwd, path)
         return cls(path)

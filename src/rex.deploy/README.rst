@@ -1179,6 +1179,7 @@ columns, types and constraints::
 
     >>> for schema in catalog:
     ...     print schema                        # doctest: +ELLIPSIS
+    audit
     information_schema
     pg_catalog
     ...

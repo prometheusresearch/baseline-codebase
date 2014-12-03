@@ -81,7 +81,8 @@ class SHELL:
                        ensure='rex.db')
         try:
             with app:
-                db = get_db(self.gateway)
+                db = (get_db(self.gateway) if self.gateway is not None
+                      else get_db())
         except Error, error:
             raise fail(str(error))
         if db is None:

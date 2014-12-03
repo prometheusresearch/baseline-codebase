@@ -95,7 +95,8 @@ class QUERY:
                        ensure='rex.db')
         try:
             with app:
-                db = get_db(self.gateway)
+                db = (get_db(self.gateway) if self.gateway is not None
+                      else get_db())
                 packages = get_packages()
         except Error, error:
             raise fail(str(error))

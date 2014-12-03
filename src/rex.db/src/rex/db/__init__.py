@@ -249,7 +249,7 @@ class PipeTransaction(Pipe):
         user = lambda authenticate=authenticate, req=req: authenticate(req)
         masks = [lambda mask_type=mask_type, req=req: mask_type()(req)
                  for mask_type in Mask.all()]
-        with get_db(), transaction(is_lazy=True), session(user), mask(*masks):
+        with get_db(), session(user), mask(*masks), transaction(is_lazy=True):
             return self.handle(req)
 
 

@@ -41,11 +41,20 @@ class LazyConnection(object):
 
     def __init__(self):
         self.connection = None
+        self.session = context.env.session
         self.scope = 0
 
     def __call__(self):
         if self.connection is None:
             self.connection = connect()
+            if (context.app.htsql.db.engine == 'pgsql' and
+                self.session is not None):
+                session = self.session()
+                if session:
+                    cursor = self.connection.cursor()
+                    cursor.execute("""
+                        SELECT set_config('rex.session', %s, TRUE);
+                    """, (session,))
         return self.connection
 
     def up(self):

@@ -1,9 +1,8 @@
-db_gateways:
+gateways:
   gateway:
     tweak.filedb:
       sources:
-      - file: ./test/data/gateway/instructor.csv
-      - file: ./test/data/gateway/appointment.csv
+      - file: ./test/data/gateway/*.csv
     tweak.override:
       unique-keys:
       - instructor(code)!

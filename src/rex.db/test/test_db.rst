@@ -102,7 +102,7 @@ If the gateway is configured in several places, the configuration is merged::
 
     >>> autolimit_gateway = Rex('rex.db_demo', './test/data/gateway/',
     ...                         db='sqlite:./sandbox/db_demo.sqlite',
-    ...                         db_gateways={'gateway': {'tweak.autolimit': {'limit': 5}}})
+    ...                         gateways={'gateway': {'tweak.autolimit': {'limit': 5}}})
     >>> with autolimit_gateway:
     ...     gateway_db = get_db('gateway')
     ...     print len(gateway_db.produce('/instructor'))
@@ -112,7 +112,7 @@ You could disable a gateway by setting the gateway parameters to ``None``::
 
     >>> no_gateway = Rex('rex.db_demo', './test/data/gateway/',
     ...                  db='sqlite:./sandbox/db_demo.sqlite',
-    ...                  db_gateways={'gateway': None})
+    ...                  gateways={'gateway': None})
 
     >>> with no_gateway:
     ...     no_db = get_db('gateway')

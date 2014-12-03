@@ -43,6 +43,7 @@ Configuration
 
 .. autoclass:: DBSetting
 .. autoclass:: HTSQLExtensionsSetting
+.. autoclass:: GatewaysSetting
 
 
 Utilities

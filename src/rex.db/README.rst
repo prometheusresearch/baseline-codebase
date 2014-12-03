@@ -68,6 +68,50 @@ a specific deployment.  For example, you can add to ``rex.yaml``::
             tweak.timeout:
                 timeout: 600
 
+You can use :func:`rex.db.get_db()` to get an HTSQL instance associated with
+the application database::
+
+    >>> from rex.db import get_db
+
+    >>> with demo:
+    ...     db = get_db()
+
+    >>> print db.produce("count(department)")
+    27
+
+
+Gateway databases
+=================
+
+Aside from the main application database, you can also declare auxiliary
+databases called *gateways*.  Each gateway database must have a unique name.
+Use setting ``gateways`` to specify HTSQL configuration for each gateway.
+For example::
+
+    gateways:
+
+        input:
+            tweak.filedb:
+                sources:
+                - file: ./csv/*.csv
+
+        target: mssql://10.0.0.2/target
+
+Here, we declare two gateway databases: ``input`` and ``target``.  The former
+is a SQLite database, which content is loaded from a set of CSV files.  The
+latter is a MS SQL database.
+
+You can configure gateways both in a package's configuration file
+``settings.yaml`` and in deployment-specific configuration file ``rex.yaml``.
+When the same gateway is configured in multiple files, all configuration
+parameters are merged.  It is recommended to specify permanent gateway
+configuration in ``settings.yaml`` and connection parameters in ``rex.yaml``.
+
+Each gateway database provides an HTSQL gateway function connecting it to the
+main application database.  Alternatively, you can pass the gateway name as a
+parameter to :func:`rex.db.get_db()` to get an HTSQL instance associated with
+the gateway database.
+
 
 HTSQL service
 =============
@@ -114,6 +158,9 @@ server or the browser::
 HTSQL service requires the ``rex.db`` package permissions, which could be
 configured using the ``access`` setting.  To disable HTSQL service, set
 ``access`` to ``{'rex.db': 'nobody'}``.
+
+HTSQL service for gateway databases is available under URL ``/@<name>/``, where
+``<name>`` is the name of the gateway.
 
 
 ``*.htsql`` files

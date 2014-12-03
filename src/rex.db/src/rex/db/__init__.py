@@ -116,7 +116,7 @@ class DBSetting(Setting):
     merge = staticmethod(_merge)
 
 
-class DBGatewaysSetting(Setting):
+class GatewaysSetting(Setting):
     """
     Database configuration for secondary databases.
 
@@ -127,7 +127,7 @@ class DBGatewaysSetting(Setting):
 
     Examples::
 
-        db_gateways:
+        gateways:
 
             input:
                 tweak.filedb:
@@ -142,7 +142,7 @@ class DBGatewaysSetting(Setting):
     parameters preset by different packages are merged into one.
     """
 
-    name = 'db_gateways'
+    name = 'gateways'
     validate = MapVal(StrVal(r'[A-Za-z_][0-9A-Za-z_]*'),
                       MaybeVal(DBSetting.validate))
     default = {}
@@ -433,13 +433,24 @@ class RexHTSQL(HTSQL):
             super(RexHTSQL, self).__enter__()
 
     def produce(self, command, environment=None, **parameters):
+        """
+        Executes a query, returns the result.
+
+        `command`
+            A string or an open file.  If a file, may contain multiple
+            queries.
+        """
         product = None
         with self:
             if hasattr(command, 'read'):
+                # Read queries from a file.
                 stream = command
                 name = getattr(stream, 'name', '<input>')
+                # Statements.
                 blocks = []
+                # Lines in the current statement.
                 lines = []
+                # Location of the current statement.
                 block_idx = 0
                 for idx, line in enumerate(stream):
                     line = line.rstrip()
@@ -581,13 +592,13 @@ def get_db(name=None):
     configuration = []
     if name is None:
         gateways = dict((key, get_db(key))
-                        for key in sorted(settings.db_gateways)
-                        if settings.db_gateways[key])
+                        for key in sorted(settings.gateways)
+                        if settings.gateways[key])
         configuration = _merge(settings.db,
                                settings.htsql_extensions,
                                {'rex': {'gateways': gateways}})
     else:
-        gateway = settings.db_gateways.get(name)
+        gateway = settings.gateways.get(name)
         if not gateway:
             return None
         configuration = _merge(gateway, {'rex': {}})

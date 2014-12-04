@@ -34,60 +34,49 @@ class OpenSpy(object):
     # NOTE: not resistant to race conditions -- use only to enable development
     # without restarting the server.
 
+    # Global dictionary that maps file names to their stats.
+    stats = {}
+    stats_version = 1
+    stats_lock = threading.RLock()
+
     def __init__(self, callback, *args):
         # Function that generates the result.  Must have a parameter called
         # `open`.
         self.callback = callback
         # Arguments to the function.
         self.args = args
-        # Set of source files.
-        self.paths = None
-        # Time of the last update of the files from this set.
-        self.last_modified = 0
-        # The total size of all opened files.
-        self.total_size = 0
         # Cached data.
         self.result = None
-        self.lock = threading.Lock()
+        # The version of the data.
+        self.version = 0
 
     def open(self, path):
-        # Opens the file; notes the time of the last update and
-        # updates the total size.
+        # Opens the file; saves its stats.
         stream = open(path)
-        if path not in self.paths:
-            self.paths.append(path)
-            stat = os.fstat(stream.fileno())
-            self.last_modified = max(self.last_modified, stat.st_mtime)
-            self.total_size += stat.st_size
+        path = os.path.abspath(path)
+        if path not in OpenSpy.stats:
+            OpenSpy.stats[path] = os.fstat(stream.fileno())
         return stream
 
     def __call__(self):
-        with self.lock:
+        with OpenSpy.stats_lock:
             # Check if we can use the cached result.
-            if self.paths is not None:
-                try:
-                    last_modified = 0
-                    total_size = 0
-                    for path in self.paths:
-                        stat = os.stat(path)
-                        last_modified = max(last_modified, stat.st_mtime)
-                        total_size += stat.st_size
-                    if (last_modified, total_size) == \
-                            (self.last_modified, self.total_size):
+            if self.version > 0:
+                stats = {}
+                for path in OpenSpy.stats.keys():
+                    try:
+                        stats[path] = os.stat(path)
+                    except OSError:
+                        pass
+                if stats == OpenSpy.stats:
+                    if self.version == OpenSpy.stats_version:
                         return self.result
-                except OSError:
-                    pass
+                else:
+                    OpenSpy.stats = stats
+                    OpenSpy.stats_version += 1
             # If not, generate and cache the result.
-            self.paths = []
-            self.last_modified = 0
-            self.total_size = 0
-            try:
-                self.result = self.callback(*self.args, open=self.open)
-            except:
-                self.paths = None
-                self.last_modified = 0
-                self.total_size = 0
-                raise
+            self.result = self.callback(*self.args, open=self.open)
+            self.version = OpenSpy.stats_version
             return self.result
 
 

@@ -7,8 +7,9 @@ from rex.core import Record, Error
 from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
 from .meta import uncomment
 from .sql import (mangle, sql_value, sql_name, sql_cast,
-        sql_primary_key_procedure, sql_integer_random_key, sql_text_random_key,
-        sql_integer_offset_key, sql_text_offset_key)
+        plpgsql_primary_key_procedure, plpgsql_integer_random_key,
+        plpgsql_text_random_key, plpgsql_integer_offset_key,
+        plpgsql_text_offset_key)
 from .image import (TableImage, ColumnImage, UniqueKeyImage, CASCADE,
         SET_DEFAULT, BEFORE, INSERT)
 import datetime
@@ -1013,9 +1014,9 @@ def _make_offset_key(table, column):
     is_link = len(column.foreign_keys) > 0
     type_qname = (column.type.schema.name, column.type.name)
     if type_qname == (u'pg_catalog', u'int4') and not is_link:
-        return sql_integer_offset_key(table.name, column.name, basis_names)
+        return plpgsql_integer_offset_key(table.name, column.name, basis_names)
     elif type_qname == (u'pg_catalog', u'text') and not is_link:
-        return sql_text_offset_key(table.name, column.name, basis_names)
+        return plpgsql_text_offset_key(table.name, column.name, basis_names)
     else:
         raise Error("Expected an integer or text column:", column)
 
@@ -1025,9 +1026,9 @@ def _make_random_key(table, column):
     is_link = len(column.foreign_keys) > 0
     type_qname = (column.type.schema.name, column.type.name)
     if type_qname == (u'pg_catalog', u'int4') and not is_link:
-        return sql_integer_random_key(table.name, column.name)
+        return plpgsql_integer_random_key(table.name, column.name)
     elif type_qname == (u'pg_catalog', u'text') and not is_link:
-        return sql_text_random_key(table.name, column.name)
+        return plpgsql_text_random_key(table.name, column.name)
     else:
         raise Error("Expected an integer or text column:", column)
 
@@ -1042,7 +1043,7 @@ def _generate(table, generators):
             source.append(_make_random_key(table, column))
     if not source:
         return None
-    return sql_primary_key_procedure(*source)
+    return plpgsql_primary_key_procedure(*source)
 
 
 def model(driver):

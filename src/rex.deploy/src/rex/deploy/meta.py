@@ -151,7 +151,9 @@ class PrimaryKeyMeta(Meta):
 
 
 def uncomment(image):
-    # Returns entity metadata.
+    """
+    Returns entity metadata.
+    """
     if isinstance(image, TableImage):
         return TableMeta.parse(image.comment)
     elif isinstance(image, ColumnImage):

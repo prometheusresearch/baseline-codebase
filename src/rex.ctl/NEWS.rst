@@ -9,6 +9,7 @@
 ==================
 
 * Added ``rex query``.
+* ``rex start`` sets ``master: true`` parameter.
 
 
 1.5.0 (2014-11-21)

@@ -104,6 +104,7 @@ class START:
         uwsgi_cfg['logto'] = form.log_path
         uwsgi_cfg['daemonize2'] = form.log_path
         uwsgi_cfg['pidfile'] = form.pid_path
+        uwsgi_cfg['master'] = True
         sockets = ["%s: %s" % (key, value)
                    for key, value in sorted(uwsgi_cfg.items())
                    if key == 'socket' or key.endswith('-socket')]

@@ -81,13 +81,18 @@ Masks
 
 You could use the ``Mask`` extension to define a table mask applied to all queries::
 
-    >>> from rex.web import authorize
+    >>> from rex.web import authenticate, authorize
     >>> from rex.db import Mask
 
     >>> class MaskSchool(Mask):
     ...     def __call__(self, req):
     ...         if not authorize(req, 'authenticated'):
     ...             return ["school?campus='south'"]
+    ...         user = authenticate(req)
+    ...         if user == 'Bad Syntax':
+    ...             return ["!school"]
+    ...         if user == 'Bad Table':
+    ...             return ["individual?sex='male'"]
     ...         return []
     >>> demo.reset()
 
@@ -160,5 +165,23 @@ Masks are also applied to regular links::
      | bus.gecon  |           :
     ...
      | bus.uecon  | bus.gecon |
+
+Invalid masks are detected::
+
+    >>> req = Request.blank('/db/school', remote_user='Bad Syntax')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    400 Bad Request
+    ...
+    Expected a mask expression:
+        !school
+    ...
+
+    >>> req = Request.blank('/db/school', remote_user='Bad Table')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    400 Bad Request
+    ...
+    Got unknown table:
+        individual?sex='male'
+    ...
 
 

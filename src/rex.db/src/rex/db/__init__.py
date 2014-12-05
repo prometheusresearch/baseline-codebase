@@ -69,6 +69,11 @@ class HTSQLVal(Validate):
         # Unifies configuration value.
         if data is None:
             data = {}
+        if isinstance(data, (str, unicode)):
+            try:
+                data = DB.parse(data)
+            except ValueError:
+                pass
         if isinstance(data, DB):
             data = {'htsql': {'db': data}}
         if isinstance(data, dict):

@@ -29,21 +29,6 @@ import re
 import urllib
 
 
-def _merge(*values):
-    # Merges HTSQL configuration from different sources.
-    merged = []
-    for value in values:
-        if not value:
-            continue
-        if isinstance(value, list):
-            merged.extend(value)
-        elif isinstance(value, dict):
-            merged.append(value)
-        else:
-            merged.append({'htsql': {'db': value}})
-    return merged
-
-
 class DBVal(Validate):
     """
     Accepts and parses HTSQL connection URI.
@@ -54,6 +39,55 @@ class DBVal(Validate):
             return DB.parse(data)
         except ValueError, exc:
             raise Error(str(exc))
+
+
+class HTSQLVal(Validate):
+    # Generates HTSQL configuration.
+
+    validate = UnionVal(
+            (OnScalar, DBVal),
+            (OnField('database'), DBVal),
+            MapVal(StrVal, MaybeVal(MapVal(StrVal))))
+
+    def __call__(self, data):
+        return self._normalize(self.validate(data))
+
+    def construct(self, loader, node):
+        return self._normalize(self.validate.construct(loader, node))
+
+    @classmethod
+    def merge(cls, *values):
+        # Merge configuration parameters.
+        merged = {}
+        for value in values:
+            value = cls._normalize(value)
+            merged = cls._merge_pair(merged, value)
+        return merged
+
+    @classmethod
+    def _normalize(cls, data):
+        # Unifies configuration value.
+        if data is None:
+            data = {}
+        if isinstance(data, DB):
+            data = {'htsql': {'db': data}}
+        if isinstance(data, dict):
+            data = dict((key, value if value is not None else {})
+                        for key, value in data.items())
+        return data
+
+    @classmethod
+    def _merge_pair(cls, old, new):
+        # Merges nested lists and dictionaries.
+        if isinstance(old, list) and isinstance(new, list):
+            return old+new
+        elif isinstance(old, dict) and isinstance(new, dict):
+            merged = old.copy()
+            for key, value in sorted(new.items()):
+                merged[key] = cls._merge_pair(merged.get(key), value)
+            return merged
+        else:
+            return new
 
 
 class DBSetting(Setting):
@@ -109,11 +143,8 @@ class DBSetting(Setting):
     """
 
     name = 'db'
-    validate = UnionVal(
-            (OnScalar, DBVal),
-            (OnField('database'), DBVal),
-            OneOrSeqVal(MapVal(StrVal, MaybeVal(MapVal(StrVal)))))
-    merge = staticmethod(_merge)
+    validate = HTSQLVal()
+    merge = HTSQLVal.merge
 
 
 class GatewaysSetting(Setting):
@@ -144,7 +175,7 @@ class GatewaysSetting(Setting):
 
     name = 'gateways'
     validate = MapVal(StrVal(r'[A-Za-z_][0-9A-Za-z_]*'),
-                      MaybeVal(DBSetting.validate))
+                      MaybeVal(HTSQLVal()))
     default = {}
 
     @classmethod
@@ -158,7 +189,7 @@ class GatewaysSetting(Setting):
             if new_value[key] is None:
                 value.pop(key, None)
             else:
-                value[key] = _merge(value.get(key), new_value[key])
+                value[key] = HTSQLVal.merge(value.get(key), new_value[key])
         return value
 
 
@@ -188,9 +219,9 @@ class HTSQLExtensionsSetting(Setting):
     """
 
     name = 'htsql_extensions'
-    validate = OneOrSeqVal(MapVal(StrVal, MaybeVal(MapVal(StrVal))))
+    validate = MaybeVal(MapVal(StrVal, MaybeVal(MapVal(StrVal))))
     default = None
-    merge = staticmethod(_merge)
+    merge = HTSQLVal.merge
 
 
 def jinja_global_htsql(path_or_query, content_type=None,
@@ -594,14 +625,14 @@ def get_db(name=None):
         gateways = dict((key, get_db(key))
                         for key in sorted(settings.gateways)
                         if settings.gateways[key])
-        configuration = _merge(settings.db,
-                               settings.htsql_extensions,
-                               {'rex': {'gateways': gateways}})
+        configuration = HTSQLVal.merge({'rex': {'gateways': gateways}},
+                                       settings.htsql_extensions,
+                                       settings.db)
     else:
         gateway = settings.gateways.get(name)
         if not gateway:
             return None
-        configuration = _merge(gateway, {'rex': {}})
-    return RexHTSQL(None, *reversed(configuration))
+        configuration = HTSQLVal.merge({'rex': {}}, gateway)
+    return RexHTSQL(None, configuration)
 
 

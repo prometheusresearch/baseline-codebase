@@ -197,6 +197,15 @@ The result can be rendered in different formats::
      'art,School of Art & Design,old\r\n',
      ...]
 
+If necessary, you can get a raw SQL connection to the database and execute SQL
+queries::
+
+    >>> with db:
+    ...     connection = db.connect()
+    ...     cursor = connection.cursor()
+    ...     cursor.execute("""SELECT abs(-1)""").fetchall()
+    [(1,)]
+
 
 HTSQL service
 =============

@@ -1128,6 +1128,13 @@ Examples:
         - include: ./deploy/individual.yaml
         - include: ./deploy/measure.yaml
 
+    #. Deploying the audit trigger::
+
+        - include: rex.deploy:/deploy/audit.yaml
+
+       The audit trigger logs all ``INSERT``, ``UPDATE`` and ``DELETE`` actions
+       into SQL table ``audit.audit``.
+
 
 Introduction to Python API
 ==========================

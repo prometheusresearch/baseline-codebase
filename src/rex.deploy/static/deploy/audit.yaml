@@ -13,84 +13,116 @@
 
 
 - sql: |
-    CREATE SCHEMA audit;
-    COMMENT ON SCHEMA audit IS 'version: 2.0.0';
-
-    CREATE TYPE audit.audit_action_enum AS ENUM ('insert', 'update', 'delete');
-
-    CREATE SEQUENCE audit.audit_seq;
-    CREATE TABLE audit.audit (
-        id int8 NOT NULL DEFAULT nextval('audit.audit_seq'::regclass),
-        timestamp timestamp NOT NULL DEFAULT 'now'::text::timestamp,
-        session text NOT NULL,
-        action audit.audit_action_enum NOT NULL,
-        name text NOT NULL,
-        old json,
-        new json,
-        CONSTRAINT audit_uk UNIQUE (id)
-    );
-    ALTER SEQUENCE audit.audit_seq OWNED BY audit.audit.id;
-    CREATE INDEX audit_timestamp_idx ON audit.audit (timestamp);
-    CREATE INDEX audit_session_idx ON audit.audit (session);
-    CREATE INDEX audit_name_idx ON audit.audit (name);
-
-    CREATE FUNCTION audit.audit() RETURNS trigger LANGUAGE plpgsql AS $$
+    DO LANGUAGE plpgsql $_$
     DECLARE
-        session text;
+        current_version text;
     BEGIN
-        IF TG_OP = 'UPDATE' AND OLD = NEW THEN
-            RETURN NULL;
+        -- Fetch the current trigger version.
+        SELECT obj_description(n.oid, 'pg_namespace') INTO current_version
+        FROM pg_catalog.pg_namespace n
+        WHERE n.nspname = 'audit';
+
+        -- Create the schema and update the version number.
+        CREATE SCHEMA IF NOT EXISTS audit;
+        COMMENT ON SCHEMA audit IS 'version: 2.0.0';
+
+        IF current_version IS NULL THEN
+            -- Creating the table from scratch.
+
+            CREATE TYPE audit.audit_action_enum AS ENUM ('insert', 'update', 'delete');
+
+            CREATE SEQUENCE audit.audit_seq;
+
+            -- Keeps `INSERT`, `UPDATE`, and `DELETE` action logs.
+            CREATE TABLE audit.audit (
+                id int8 NOT NULL DEFAULT nextval('audit.audit_seq'::regclass),
+                timestamp timestamp NOT NULL DEFAULT 'now'::text::timestamp,
+                session text NOT NULL,
+                action audit.audit_action_enum NOT NULL,
+                name text NOT NULL,
+                old json,
+                new json,
+                CONSTRAINT audit_uk UNIQUE (id)
+            );
+
+            ALTER SEQUENCE audit.audit_seq OWNED BY audit.audit.id;
+
+            CREATE INDEX audit_timestamp_idx ON audit.audit (timestamp);
+            CREATE INDEX audit_session_idx ON audit.audit (session);
+            CREATE INDEX audit_name_idx ON audit.audit (name);
+
+        ELSIF current_version ~ '^version: 2[.]0[.]0$' THEN
+            -- Upgrading from version 2.0.0.
         END IF;
+
+        -- (Re)build trigger functions.
+
+        -- Row trigger that logs `INSERT`, `UPDATE` and `DELETE` actions.
+        CREATE OR REPLACE FUNCTION audit.audit() RETURNS trigger LANGUAGE plpgsql AS $$
+        DECLARE
+            session text;
         BEGIN
-            SELECT current_setting('rex.session') INTO session;
-        EXCEPTION WHEN undefined_object THEN
+            IF TG_OP = 'UPDATE' AND OLD = NEW THEN
+                RETURN NULL;
+            END IF;
+            BEGIN
+                SELECT current_setting('rex.session') INTO session;
+            EXCEPTION WHEN undefined_object THEN
+            END;
+            IF session IS NULL THEN
+                SELECT session_user INTO session;
+            END IF;
+            INSERT INTO audit.audit (session, action, name, old, new)
+            VALUES (session,
+                    LOWER(TG_OP)::audit.audit_action_enum,
+                    TG_TABLE_NAME::text,
+                    CASE WHEN TG_OP IN ('UPDATE', 'DELETE') THEN row_to_json(OLD.*) END,
+                    CASE WHEN TG_OP IN ('INSERT', 'UPDATE') THEN row_to_json(NEW.*) END);
+            RETURN NULL;
         END;
-        IF session IS NULL THEN
-            SELECT session_user INTO session;
-        END IF;
-        INSERT INTO audit.audit (session, action, name, old, new)
-        VALUES (session,
-                LOWER(TG_OP)::audit.audit_action_enum,
-                TG_TABLE_NAME::text,
-                CASE WHEN TG_OP IN ('UPDATE', 'DELETE') THEN row_to_json(OLD.*) END,
-                CASE WHEN TG_OP IN ('INSERT', 'UPDATE') THEN row_to_json(NEW.*) END);
-        RETURN NULL;
-    END;
-    $$;
+        $$;
 
-    CREATE FUNCTION audit.deploy_audit(class regclass) RETURNS void LANGUAGE plpgsql AS $$
-    BEGIN
-        IF class IS NOT NULL THEN
-            EXECUTE 'CREATE TRIGGER audit AFTER INSERT OR UPDATE OR DELETE ON ' ||
-                    class ||
-                    ' FOR EACH ROW EXECUTE PROCEDURE audit.audit()';
-        ELSE
-            FOR class IN SELECT c.oid
-                         FROM pg_catalog.pg_class c
-                         JOIN pg_catalog.pg_namespace n ON (c.relnamespace = n.oid)
-                         WHERE c.relkind = 'r' AND n.nspname = 'public' AND
-                               NOT EXISTS(SELECT TRUE
-                                          FROM pg_catalog.pg_trigger t
-                                          WHERE c.oid = t.tgrelid AND t.tgname = 'audit')
-                         ORDER BY 1
-            LOOP
-                PERFORM audit.deploy_audit(class);
-            END LOOP;
-        END IF;
-    END;
-    $$;
+        -- Installs the audit trigger onto the given table (`NULL` for all tables).
+        CREATE OR REPLACE FUNCTION audit.deploy_audit(class regclass) RETURNS void LANGUAGE plpgsql AS $$
+        BEGIN
+            IF class IS NOT NULL THEN
+                EXECUTE 'CREATE TRIGGER audit AFTER INSERT OR UPDATE OR DELETE ON ' ||
+                        class ||
+                        ' FOR EACH ROW EXECUTE PROCEDURE audit.audit()';
+            ELSE
+                FOR class IN SELECT c.oid
+                             FROM pg_catalog.pg_class c
+                             JOIN pg_catalog.pg_namespace n ON (c.relnamespace = n.oid)
+                             WHERE c.relkind = 'r' AND n.nspname = 'public' AND
+                                   NOT EXISTS(SELECT TRUE
+                                              FROM pg_catalog.pg_trigger t
+                                              WHERE c.oid = t.tgrelid AND t.tgname = 'audit')
+                             ORDER BY 1
+                LOOP
+                    PERFORM audit.deploy_audit(class);
+                END LOOP;
+            END IF;
+        END;
+        $$;
 
-    CREATE FUNCTION audit.deploy_audit() RETURNS event_trigger LANGUAGE plpgsql AS $$
-    BEGIN
+        -- Event trigger that installs the audit trigger on new tables.
+        CREATE OR REPLACE FUNCTION audit.deploy_audit() RETURNS event_trigger LANGUAGE plpgsql AS $$
+        BEGIN
+            PERFORM audit.deploy_audit(NULL);
+        END;
+        $$;
+
+        IF current_version IS NULL THEN
+            -- Install the trigger on `CREATE TABLE`.
+            CREATE EVENT TRIGGER deploy_audit ON ddl_command_end
+            WHEN TAG IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+            EXECUTE PROCEDURE audit.deploy_audit();
+        END IF;
+
+        -- Install the audit trigger.
         PERFORM audit.deploy_audit(NULL);
     END;
-    $$;
-
-    CREATE EVENT TRIGGER deploy_audit ON ddl_command_end
-    WHEN TAG IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
-    EXECUTE PROCEDURE audit.deploy_audit();
-
-    SELECT audit.deploy_audit(NULL);
+    $_$;
 
   unless: |
     SELECT obj_description(n.oid, 'pg_namespace') ~ '^version: 2[.]0[.]0$'

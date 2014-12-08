@@ -5,10 +5,12 @@
 .. contents:: Table of Contents
 
 
-3.0.0 (2014-XX-XX)
+3.0.0 (2014-12-08)
 ==================
 
 * Added middleware that wraps requests in a transaction.
+* Added support for gateway databases.
+* Support for session users, masks.
 
 
 2.1.1 (2014-08-29)

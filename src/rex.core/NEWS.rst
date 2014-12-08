@@ -5,12 +5,14 @@
 .. contents:: Table of Contents
 
 
-1.9.0 (2014-XX-XX)
+1.9.0 (2014-12-08)
 ==================
 
 * Updated ``Extension.all()``, ``Extension.top()``; added
   ``Extension.mapped()``, ``Extension.ordered()``; deprecated
   ``Extension.by_package()``, ``Extension.map_all()``.
+* ``@autoreload`` resets all caches when any file that was ever touched
+  is modified.
 
 
 1.8.0 (2014-08-28)

@@ -296,7 +296,7 @@ def urlencode(query):
         v = [map_param(x) for x in v if x is not None]
         if v:
             params[k] = v
-    return urllib.urlencode(params, doseq=True)
+    return urllib.urlencode(params, doseq=True).replace('+', '%20')
 
 
 def product_to_json(product):

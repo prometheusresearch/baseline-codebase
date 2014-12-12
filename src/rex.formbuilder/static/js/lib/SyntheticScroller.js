@@ -7,6 +7,7 @@
 'use strict';
 
 var React            = require('react/addons');
+var cx              = React.addons.classSet;
 var SetIntervalMixin = require('./SetIntervalMixin');
 
 var ContextTypes = {
@@ -20,7 +21,7 @@ var SyntheticScroller = React.createClass({
     scrollOnDragDelta: React.PropTypes.number,
     scrollOnDragInterval: React.PropTypes.number,
     scrollOnDragThreshold: React.PropTypes.number,
-    children: React.PropTypes.component,
+    children: React.PropTypes.element,
     active: React.PropTypes.bool.isRequired
   },
 
@@ -28,21 +29,21 @@ var SyntheticScroller = React.createClass({
   childContextTypes: ContextTypes,
 
   render() {
-    var {component, children} = this.props;
+    var {component: Component, className, children, ...props} = this.props;
     children = React.Children.only(children);
     children = React.addons.cloneWithProps(children, {ref: 'underlying'});
-    return this.transferPropsTo(
-      <component
-        className="rfb-ScrollOnDrag"
+    return (
+      <Component {...props}
+        className={cx("rfb-ScrollOnDrag", className)}
         onMouseMove={this.props.active && this.onMouseMove}>
         {children}
-      </component>
+      </Component>
     );
   },
 
   getDefaultProps() {
     return {
-      component: React.DOM.div,
+      component: 'div',
       scrollOnDragDelta: 30,
       scrollOnDragInterval: 100,
       scrollOnDragThreshold: 50

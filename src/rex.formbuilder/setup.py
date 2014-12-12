@@ -32,7 +32,7 @@ setup(
     ],
     rex_bundle={
         './www/bundle': [
-            'webpack:rex-formbuilder',
+            'webpack:',
         ],
     },
     rex_init='rex.formbuilder',

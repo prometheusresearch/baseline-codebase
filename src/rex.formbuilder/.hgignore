@@ -5,4 +5,5 @@ syntax: glob
 build
 dist
 static/js/node_modules
+static/js/bower_components
 static/www/bundle

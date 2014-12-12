@@ -2,24 +2,25 @@
 
 {% block formbuilder_code %}
 
-  React.renderComponent(
-    Rex.FormBuilder.Editor(
-      $.extend(
-        {
-          home: {{ PACKAGE_URL|json }},
-          type: {{ type|json }},
-          uid: {{ instrument|json }},
-          getURL:
-            {% block geturl_code %}
-              function (type, uid) {
-                return {{ PACKAGE_URL|json }} + '/edit/' + type + '/' + uid + '/';
-              }
-            {% endblock %},
-          user: {{ USER|json }},
-          undoRedo: false
-        },
-        {{ (formbuilder_props|json) if formbuilder_props else '{}' }}
-      )
+  Rex.FormBuilder.startEditor(
+    $.extend(
+      {
+        home: {{ PACKAGE_URL|json }},
+        group: {{ type|json }},
+        uid: {{ instrument|json }},
+        {% if localizations %}
+          localizations: {{ localizations|json }},
+        {% endif %}
+        getURL:
+          {% block geturl_code %}
+            function (type, uid) {
+              return {{ PACKAGE_URL|json }} + '/edit/' + type + '/' + uid + '/';
+            }
+          {% endblock %},
+        user: {{ USER|json }},
+        undoRedo: false
+      },
+      {{ (formbuilder_props|json) if formbuilder_props else '{}' }}
     ),
     document.getElementById('formbuilder')
   );

@@ -12,11 +12,13 @@ var emptyFunction = require('./emptyFunction');
 var CheckBox = React.createClass({
 
   render() {
-    return this.transferPropsTo(
+    var {value, ...props} = this.props;
+    return (
       <input
+        {...props}
         type="checkbox"
         className="rfb-CheckBox"
-        checked={this.props.value}
+        checked={value}
         onChange={this.onChange}
         />
     );

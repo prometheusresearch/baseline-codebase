@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React  = require('react');
+var React  = require('react/addons');
 var cx     = React.addons.classSet;
 
 var InfoMessage = React.createClass({

@@ -1,54 +1,75 @@
 /** @jsx React.DOM */
 'use strict';
 
-var React = require('react');
-var cx = React.addons.classSet;
+var React     = require('react/addons');
+var Immutable = require('immutable');
+var cx        = React.addons.classSet;
 
 var ViewSource = React.createClass({
 
-  getInitialState: function () {
-    var tabs = this.props.tabs;
-    return {active: tabs.length ? tabs[0].id : null};
-  },
+  render() {
+    var {instrumentDefinition, channelConfigurations} = this.props;
 
-  onTabSelected: function (id) {
-    this.setState({active: id});
-  },
-
-  render: function () {
-    var tabs = this.props.tabs.map((tab) => {
-      var classes = {
-        'rfb-active': tab.id === this.state.active
-      };
-      return (
-        <button className={cx(classes)}
-           onClick={this.onTabSelected.bind(this, tab.id)}
-           key={tab.id}>
-          {tab.title}
-        </button>
-      );
-    });
-
-    var source;
-    for (var i in this.props.tabs) {
-      var tab = this.props.tabs[i];
-      if (tab.id === this.state.active) {
-        source = tab.content;
+    var data = Immutable.OrderedMap({
+      instrument: {
+        id: 'instrument',
+        title: 'Instrument',
+        content: jsonPrettyPrint(instrumentDefinition.value)
       }
-    }
+    })
+    .merge(channelConfigurations.map((channel, uid) => {
+      if (channel) {
+        return {
+          id: uid,
+          title: uid,
+          content: jsonPrettyPrint(channel.value)
+        };
+      }
+    })
+    .filter(tab => tab !== undefined));
+
+    var tabs = data.map((tab) => {
+      return <button
+        className={cx({'rfb-active': tab.id === this.state.active})}
+        onClick={this.onTabSelected.bind(this, tab.id)}
+        key={tab.id}>
+        {tab.title}
+      </button>
+    }).valueSeq().toJS()
+
+    var content = data.get(this.state.active).content;
+
     return (
       <div className={cx("rfb-ViewSource", this.props.className)}>
         <pre className="rfb-ViewSource__text">
-          {source}
+          {content}
         </pre>
         <div className="rfb-ViewSource__buttons">
           {tabs}
-          <button className="rfb-ViewSource__close"
-                  onClick={this.props.onClose}>&times;</button>
+          <button
+            className="rfb-ViewSource__close"
+            onClick={this.props.onClose}>
+            &times;
+          </button>
         </div>
       </div>
     );
-  }
+  },
+
+  getInitialState() {
+    return {active: 'instrument'};
+  },
+
+  onTabSelected(id) {
+    this.setState({active: id});
+  },
 });
+
+function jsonPrettyPrint(value) {
+  if (value && typeof value.toJS === 'function') {
+    value = value.toJS();
+  }
+  return JSON.stringify(value, null, '  ');
+}
 
 module.exports = ViewSource;

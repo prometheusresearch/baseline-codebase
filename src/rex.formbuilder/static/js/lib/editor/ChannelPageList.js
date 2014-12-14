@@ -15,6 +15,7 @@ var ChannelPageList = React.createClass({
       <RepeatingFieldset
         {...props}
         shouldRenderRemoveButton={this.shouldRenderRemoveButton}
+        itemClassName={"rfb-ChannelPageList__item"}
         className={cx("rfb-ChannelPageList", className)}
         buttonCaption="Add new page"
         />

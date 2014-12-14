@@ -145,6 +145,7 @@ class TypeObjectNode extends ReactForms.schema.Node {
 function TypeNode(props) {
   var allowComplexTypes = props.get('allowComplexTypes');
   return ScalarNode.create({
+    transactionalField: true,
     label: 'Type:',
     input: allowComplexTypes ? TYPE_SELECT : SIMPLE_TYPE_SELECT
   });
@@ -421,6 +422,7 @@ class ColumnObjectNode extends MappingNode {
       required: ScalarNode.create({
         type: 'bool',
         label: 'Required:',
+        transactionalField: true,
         defaultValue: false,
         required: true,
         input: CheckBox
@@ -493,6 +495,7 @@ class InstrumentRecordNode extends MappingNode {
       required: ScalarNode.create({
         type: 'bool',
         label: 'Required:',
+        transactionalField: true,
         defaultValue: false,
         required: true,
         input: CheckBox
@@ -501,6 +504,7 @@ class InstrumentRecordNode extends MappingNode {
       identifiable: ScalarNode.create({
         type: 'bool',
         label: 'Identifiable:',
+        transactionalField: true,
         defaultValue: false,
         required: true,
         input: CheckBox
@@ -508,6 +512,7 @@ class InstrumentRecordNode extends MappingNode {
 
       explanation: ScalarNode.create({
         label: 'Explanation:',
+        transactionalField: true,
         defaultValue: 'none',
         required: false,
         input: TERNARY_VALUE_SELECT
@@ -515,6 +520,7 @@ class InstrumentRecordNode extends MappingNode {
 
       annotation: ScalarNode.create({
         label: 'Annotation:',
+        transactionalField: true,
         defaultValue: 'none',
         required: false,
         input: TERNARY_VALUE_SELECT

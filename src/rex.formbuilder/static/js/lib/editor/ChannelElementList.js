@@ -69,12 +69,6 @@ var ChannelElementListToolbar = React.createClass({
     var {className, ...props} = this.props;
     return (
       <div className={cx('rfb-ChannelElementListToolbar', className)}>
-        <div className="rfb-ChannelElementListToolbar__questionAdd">
-          <span className="rfb-ChannelElementListToolbar__questionAddLabel">
-            Add question:
-          </span>
-          <RecordAutocomplete onSelect={this.onSelect} />
-        </div>
         <button
           className="rfb-ChannelElementListToolbar__button"
           onClick={this.onClick.bind(null, 'header')}>
@@ -129,6 +123,7 @@ var ChannelElementList = React.createClass({
           showTopButton={false}
           showBottomButton={false}
           value={value}
+          itemClassName="rfb-ChannelElementList__fieldsetItem"
           className="rfb-ChannelElementList__fieldset"
           buttonCaption="Add new element"
           />

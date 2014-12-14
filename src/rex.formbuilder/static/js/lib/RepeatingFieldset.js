@@ -15,7 +15,7 @@ var RepeatingFieldset = React.createClass({
 
   render() {
     var {
-      value, className,
+      value, className, itemClassName,
       showTopButton, showBottomButton, buttonCaption,
       noLabel, shouldRenderRemoveButton,
       ...props
@@ -33,7 +33,7 @@ var RepeatingFieldset = React.createClass({
           shouldRenderRemoveButton={shouldRenderRemoveButton}
           noAddButton
           noLabel={noLabel}
-          itemClassName="rfb-RepeatingFieldset__item"
+          itemClassName={cx("rfb-RepeatingFieldset__item", itemClassName)}
           value={value}
           />
         {showBottomButton &&

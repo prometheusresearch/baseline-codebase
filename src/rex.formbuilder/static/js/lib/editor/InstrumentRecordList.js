@@ -16,6 +16,7 @@ var InstrumentRecordList = React.createClass({
         {...props}
         onAdd={this.onAdd}
         onRemove={this.onRemove}
+        itemClassName={"rfb-InstrumentRecordList__item"}
         className={cx("rfb-InstrumentRecordList", className)}
         buttonCaption="Add new field"
         />

@@ -82,6 +82,10 @@ var InstrumentStore = Reflux.createStore({
     return Map({base: type});
   },
 
+  getRecords() {
+    return this.state.definition.value.get('record');
+  },
+
   getRecord(path, where) {
     var where = where || this.state.definition.value.get('record');
     if (!where || path.size == 0)

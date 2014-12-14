@@ -410,6 +410,7 @@ class ChannelNode extends MappingNode {
       parameters: ScalarNode.create(),
 
       pages: ListNode.create({
+        required: true,
         component: ChannelPageList,
         label: 'Pages:',
         children: ChannelPageNode.create({localizations})

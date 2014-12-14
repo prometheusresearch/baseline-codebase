@@ -573,6 +573,7 @@ input[type="color"] {
   overflow: auto;
 }
 .rfb-SortableRepeatingFieldset__handle {
+  /* .area(0px,auto,0px,0px); */
   background-image: @handleImage;
   margin: 4px 4px 0px 4px;
   height: 12px;
@@ -834,6 +835,11 @@ input[type="color"] {
   padding: @padding;
 }
 
+.rfb-ChannelElementList__fieldsetItem {
+  .rfb-LocalizedString {
+    .rf-Field;
+  }
+}
 
 /**
  * <ChannelElementListToolbar />
@@ -885,3 +891,20 @@ input[type="color"] {
   background-color: rgba(0,0,0,0.5);
   color: white;
 }
+
+/**
+ * <InstrumentRecordList />
+ */
+
+.rfb-InstrumentRecordList__item {
+  background-color: white;
+}
+
+/**
+ * <ChannelPageList />
+ */
+
+.rfb-ChannelPageList__item {
+  background-color: #f8f8e0;
+}
+

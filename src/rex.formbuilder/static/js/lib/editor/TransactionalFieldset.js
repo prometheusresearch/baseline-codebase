@@ -28,6 +28,12 @@ var TransactionalFieldsetToolbar = React.createClass({
   render() {
     var {value: {isValid, hasDirty}, className, ...props} = this.props;
     var showInvalid = !isValid && hasDirty;
+    /*
+    if (showInvalid) {
+      console.log('showInvalid:', showInvalid, 'isValid:', isValid, 'hasDirty:', hasDirty);
+      console.log('invalid value:', this.props.value.validation.toString());
+    }
+    */
     var classNames = cx({
       'rfb-TransactionalFieldsetToolbar': true,
       'rfb-TransactionalFieldsetToolbar--invalid': showInvalid

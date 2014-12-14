@@ -96,7 +96,8 @@ var ChannelStore = Reflux.createStore({
       var configuration = channel.get('configuration');
       if (!configuration)
         return;
-      var found = this.findQuestions(configuration.value, id);
+      var value = configuration.value;
+      var found = this.findQuestions(value, id);
       if (found.length) {
         for (var i in found) {
           value = value.removeIn(found[i].path);
@@ -106,12 +107,9 @@ var ChannelStore = Reflux.createStore({
     });
   },
 
-  getUniquePageId(channelName) {
+  getUniquePageId(value) {
     // TODO
-    var total = this.state.channels
-      .get(channelName)
-      .get('configuration').value
-      .get('pages').size;
+    var total = value.get('pages').size;
     return `page_${total}`;
   },
 
@@ -182,18 +180,24 @@ var ChannelStore = Reflux.createStore({
     return question;
   },
 
+  addQuestionToValue(value, record) {
+    if (!value.get('pages'))
+      value = value.set('pages', Immutable.List.of());
+    var totalPages = value.get('pages').size;
+    var page = Immutable.fromJS({
+      id: this.getUniquePageId(value),
+      elements: [this.questionFromRecord(record)]
+    });
+    return value.setIn(['pages', totalPages], page);
+  },
+
   addQuestion(id, data) {
-    var self = this;
     this.state.channels.forEach((channel, channelName) => {
       var configuration = channel.get('configuration');
       if (!configuration)
         return;
-      var totalPages = configuration.value.get('pages').size;
-      var page = Immutable.fromJS({
-        id: self.getUniquePageId(channelName),
-        elements: [self.questionFromRecord(data)]
-      });
-      configuration.transform(value => value.setIn(['pages', totalPages], page));
+      var newValue = this.addQuestionToValue(configuration.value, data);
+      configuration.transform(value => newValue);
     });
   },
 
@@ -235,9 +239,13 @@ var ChannelStore = Reflux.createStore({
   },
 
   onChannelEnabled(channelName) {
-    var value = this.createFormValue(channelName, undefined);
+    var value = Immutable.fromJS({pages:[]});
+    InstrumentStore.getRecords().forEach((record) => {
+      value = this.addQuestionToValue(value, record);
+    });
+    var configuration = this.createFormValue(channelName, value);
     this.transform(state =>
-      state.setIn(['channels', channelName, 'configuration'], value));
+      state.setIn(['channels', channelName, 'configuration'], configuration));
   },
 
   onChannelDisabled(channelName) {

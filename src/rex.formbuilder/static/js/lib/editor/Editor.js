@@ -28,6 +28,12 @@ var Editor = React.createClass({
     Reflux.connect(UndoStore, 'undo')
   ],
 
+  getDefaultProps() {
+    return {
+      home: ''
+    };
+  },
+
   render() {
     var {uid, group} = this.props;
     var {channels, instrument, visibleSource} = this.state;
@@ -108,6 +114,7 @@ var Editor = React.createClass({
   },
 
   componentDidMount() {
+    API.home = this.props.home;
     var {uid, group, localizations} = this.props;
     if (localizations)
       Actions.setLocalizations(OrderedMap(localizations));

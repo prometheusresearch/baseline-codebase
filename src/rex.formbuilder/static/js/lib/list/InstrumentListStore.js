@@ -23,7 +23,6 @@ var React   = require('react/addons');
 var Emitter = require('emitter');
 var merge   = require('../merge');
 var API     = require('../API');
-var makeURL = require('../makeURL');
 
 var CHANGE = 'change';
 
@@ -218,7 +217,7 @@ var InstrumentListStore = merge({
 
   _onInstrumentVersionCreated(response) {
     var {uid} = response.body;
-    window.location.href = makeURL('edit', 'drafts', uid);
+    window.location.href = API.makeURL('edit', 'drafts', uid);
   },
 
   _onInstrumentVersionCreatedError(error) {

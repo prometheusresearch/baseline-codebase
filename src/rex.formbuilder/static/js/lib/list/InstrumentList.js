@@ -9,7 +9,7 @@ var cx                  = React.addons.classSet;
 var merge               = require('../merge');
 var StoreListenerMixin  = require('../StoreListenerMixin');
 var stopPropagation     = require('../stopPropagation');
-var makeURL             = require('../makeURL');
+var API                 = require('../API');
 var Button              = require('../Button');
 var LoadingScreen       = require('../LoadingScreen');
 var Icon                = require('../Icon');
@@ -38,7 +38,7 @@ var InstrumentVersions = React.createClass({
         <div className="col-md-4">{item.desc}</div>
         <div className="col-md-4">
           <a className="btn btn-default"
-              href={makeURL('edit', groupName, item.uid)}>
+              href={API.makeURL('edit', groupName, item.uid)}>
               {groupName === 'published' ? 'Open': 'Edit'}
           </a>
         </div>
@@ -206,6 +206,12 @@ var InstrumentList = React.createClass({
     );
   },
 
+  getDefaultProps() {
+    return {
+      home: ''
+    }
+  },
+
   getInitialState() {
     return {
       expanded: {},
@@ -214,6 +220,8 @@ var InstrumentList = React.createClass({
   },
 
   componentDidMount() {
+    console.log('home', this.props.home, this.props);
+    API.home = this.props.home;
     InstrumentListStore.loadInstruments();
   },
 

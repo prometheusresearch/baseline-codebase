@@ -11,11 +11,12 @@
 'use strict';
 
 var request = require('./request');
-var makeURL = require('./makeURL');
 var {InvalidResponse} = require('./request');
 var Promise = require('bluebird');
 
 var API = {
+
+  home: '',
 
   listInstruments() {
     return this
@@ -292,9 +293,14 @@ var API = {
       .end();
   },
 
+  makeURL(...segments) {
+    var home = API.home;
+    return `${home}/${segments.join('/')}`;
+  },
+
   request(method, ...endpoint) {
     endpoint = ['api'].concat(endpoint);
-    var url  = makeURL.apply(this, endpoint);
+    var url = API.makeURL.apply(this, home, endpoint);
     return request(method, url)
       .set('Accept', 'application/json; charset=utf8');
   }

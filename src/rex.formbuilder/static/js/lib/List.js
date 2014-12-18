@@ -27,7 +27,7 @@ var List = React.createClass({
 
   componentDidMount: function () {
     this.apiRequest({
-      path: 'instrument',
+      path: 'instrument?limit=1000000',
       success: function (data) {
         var instruments = data.map(function (item) {
           return {

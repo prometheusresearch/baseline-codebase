@@ -19,6 +19,3 @@ paths:
           title: RexEntry
         - id: survey
           title: RexSurvey
-      # localizations:
-      #   en: English
-      #   ar: العَرَبِيةُ

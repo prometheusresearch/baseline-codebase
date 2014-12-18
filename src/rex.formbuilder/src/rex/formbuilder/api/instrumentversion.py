@@ -3,8 +3,7 @@
 #
 
 
-from rex.core import StrVal
-from rex.instrument.util import get_implementation
+from rex.core import get_settings, StrVal
 from rex.restful import SimpleResource
 from rex.web import Parameter
 
@@ -44,7 +43,7 @@ class InstrumentVersionResource(SimpleResource, BaseResource):
             create_args=[
                 (
                     'instrument',
-                    get_implementation('instrument'),
+                    get_settings().instrument_implementation.instrument,
                 ),
                 'definition',
                 'published_by',

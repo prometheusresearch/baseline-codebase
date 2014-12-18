@@ -11,40 +11,28 @@ var cx                = React.addons.classSet;
 var ReactForms        = require('react-forms');
 var Draggable         = require('./Draggable');
 var SyntheticScroller = require('./SyntheticScroller');
-var emptyFunction     = require('./emptyFunction');
 
 var SortableItem = React.createClass({
 
   render() {
-    var {sorting, shouldRenderRemoveButton, value} = this.props;
-    var className = cx(
-      'rfb-SortableRepeatingFieldset__item',
-      this.props.className
-    );
-    var noRemoveButton = !shouldRenderRemoveButton({value});
+    var {sorting} = this.props;
     return (
       <Draggable
         onDragStart={this.onSortStart}
         onDrag={this.props.onSort}
         onDragEnd={this.props.onSortEnd}
         onMouseMove={sorting !== null && this.onMouseMove}
-        className={className}>
+        className="rfb-SortableRepeatingFieldset__item">
         {sorting && sorting.index === this.props.index ?
           <div className="rfb-SortableRepeatingFieldset__placeholder" /> :
           <div>
             <div ref="handle" className="rfb-SortableRepeatingFieldset__handle" />
-            <ReactForms.RepeatingFieldset.Item
-              noRemoveButton={noRemoveButton}
-              onRemove={this.props.onRemove}>
+            <ReactForms.RepeatingFieldset.Item onRemove={this.props.onRemove}>
               {this.props.children}
             </ReactForms.RepeatingFieldset.Item>
           </div>}
       </Draggable>
     );
-  },
-
-  getDefaultProps() {
-    return {shouldRenderRemoveButton: emptyFunction.thatReturnsTrue};
   },
 
   onSortStart(e) {
@@ -72,14 +60,9 @@ var SortableItem = React.createClass({
 var SortableRepeatingFieldset = React.createClass({
   render() {
     var {sorting} = this.state;
-    var {
-      value, itemClassName, noAddButton, noLabel,
-      shouldRenderRemoveButton, ...props
-    } = this.props;
+    var {value} = this.props;
     var item = (
       <SortableItem
-        shouldRenderRemoveButton={shouldRenderRemoveButton}
-        className={itemClassName}
         sorting={sorting}
         onSortStart={this.onSortStart}
         onSort={this.onSort}
@@ -91,14 +74,10 @@ var SortableRepeatingFieldset = React.createClass({
       'rfb-SortableRepeatingFieldset': true,
       'rfb-SortableRepeatingFieldset--sorting': this.state.sorting !== null
     });
-    return (
-      <SyntheticScroller {...props}
-        className={className}
-        ref="scroller"
-        active={sorting !== null}>
+    return this.transferPropsTo(
+      <SyntheticScroller ref="scroller" active={sorting !== null} className={className}>
         <ReactForms.RepeatingFieldset
-          noLabel={noLabel}
-          noAddButton={noAddButton}
+          noAddButton={this.props.noAddButton}
           className="rfb-SortableRepeatingFieldset__fieldset"
           item={item}
           value={value}
@@ -144,13 +123,23 @@ var SortableRepeatingFieldset = React.createClass({
     if (index < newIndex && !topSide || index > newIndex && topSide) {
       var focus = value.value.get(index);
       var over = value.value.get(newIndex);
-      value.transform(value => value
+      value
         .splice(newIndex, 1, focus)
-        .splice(index, 1, over));
+        .splice(index, 1, over)
+        .notify();
       this.setState({sorting: {index: newIndex}});
     }
   }
 });
+
+function swapArrayValues(array, left, right) {
+  array = array.slice();
+  var leftIdx = array.indexOf(left);
+  var rightIdx = array.indexOf(right);
+  array.splice(1, leftIdx, array[rightIdx]);
+  array.splice(1, rightIdx, array[leftIdx]);
+  return array;
+}
 
 function createAndAppendSortImage(size, position) {
   var node = document.createElement('div');

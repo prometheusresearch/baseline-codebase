@@ -10,23 +10,14 @@
     "node"
   ],
   "dependencies": {
-    "react": "~0.12.1",
     "bootstrap": "3.x",
     "deepmerge": "*",
-    "immutable": "3.3.0",
-    "superagent": "~0.20.0",
-    "emitter": "component/emitter#1.1.2",
-    "bluebird": "^2.3.2",
-    "react-forms": "prometheusresearch/react-forms#master",
-    "react-autocomplete": "git+https://github.com/rackt/react-autocomplete.git#*",
-    "reflux": "^0.2.0"
+    "immutable": "2.3.2"
   },
+  "license": "AGPLv3",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components"
-  ],
-  "resolutions": {
-    "immutable": "~3.3.0"
-  }
+  ]
 }

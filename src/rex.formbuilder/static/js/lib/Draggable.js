@@ -20,21 +20,21 @@ var Draggable = React.createClass({
     onDragStart: PropTypes.func,
     onDragEnd: PropTypes.func,
     onDrag: PropTypes.func,
-    component: PropTypes.node
+    component: PropTypes.oneOfType([PropTypes.func, PropTypes.constructor])
   },
 
   render() {
-    var {component: Component, onDragStart, onDrag, onDragEnd, ...props} = this.props;
-    return (
-      <Component {...props} onMouseDown={this.onMouseDown}>
+    var component = this.props.component;
+    return this.transferPropsTo(
+      <component onMouseDown={this.onMouseDown}>
         {this.props.children}
-      </Component>
+      </component>
     );
   },
 
   getDefaultProps() {
     return {
-      component: 'div',
+      component: React.DOM.div,
       onDragStart: emptyFunction.thatReturnsTrue,
       onDragEnd: emptyFunction,
       onDrag: emptyFunction

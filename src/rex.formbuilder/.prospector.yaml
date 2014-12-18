@@ -1,7 +1,6 @@
 ignore:
   - ^doc/conf\.py$
   - ^demo/.*$
-  - ^static/.*$
   # Have to ignore the rex.ctl commands because pylint crashes when it tries to import cogs.
   - ^src/rex/forms/ctl.py$
 
@@ -14,8 +13,9 @@ pylint:
     - W0401
     - W0142
     - C0111
-    - W0613
-    - R0201
+    - R0921
+    - R0922
+    - R0903
 
   options:
     max-public-methods: 30

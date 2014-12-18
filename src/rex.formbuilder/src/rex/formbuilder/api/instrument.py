@@ -5,9 +5,8 @@
 
 from webob.exc import HTTPNotFound, HTTPBadRequest
 
-from rex.core import StrVal
+from rex.core import get_settings, StrVal
 from rex.instrument import ValidationError
-from rex.instrument.util import get_implementation
 from rex.restful import SimpleResource, RestfulLocation
 from rex.web import Parameter
 
@@ -70,7 +69,7 @@ class InstrumentValidationResource(RestfulLocation):
                 'No Instrument Definition provided to validate'
             )
 
-        iv_impl = get_implementation('instrumentversion')
+        iv_impl = get_settings().instrument_implementation.instrumentversion
         try:
             iv_impl.validate_definition(
                 request.payload['instrument'],

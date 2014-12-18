@@ -6,7 +6,6 @@
 from webob.exc import HTTPNotFound, HTTPBadRequest
 
 from rex.core import get_settings, StrVal, IntVal
-from rex.instrument.util import get_implementation
 from rex.web import Parameter, authenticate
 
 
@@ -18,7 +17,7 @@ __all__ = (
 
 def get_instrument_user(request):
     login = authenticate(request)
-    user_impl = get_implementation('user')
+    user_impl = get_settings().instrument_implementation.user
     return user_impl.get_by_login(login)
 
 

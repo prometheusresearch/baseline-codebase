@@ -5,9 +5,8 @@
 
 from webob.exc import HTTPNotFound
 
-from rex.core import StrVal
+from rex.core import get_settings, StrVal
 from rex.instrument import InstrumentError
-from rex.instrument.util import get_implementation
 from rex.restful import SimpleResource, RestfulLocation
 from rex.web import Parameter
 
@@ -48,7 +47,7 @@ class DraftInstrumentVersionResource(SimpleResource, BaseResource):
             create_args=[
                 (
                     'instrument',
-                    get_implementation('instrument'),
+                    get_settings().instrument_implementation.instrument,
                 ),
                 'created_by',
             ],
@@ -56,7 +55,7 @@ class DraftInstrumentVersionResource(SimpleResource, BaseResource):
                 'definition',
                 (
                     'parent_instrument_version',
-                    get_implementation('instrumentversion'),
+                    get_settings().instrument_implementation.instrumentversion,
                 ),
                 'date_created',
             ],

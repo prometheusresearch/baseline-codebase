@@ -375,12 +375,12 @@ class DraftForm(forms_interface.DraftForm):
     } 
 
     @classmethod
-    def get_by_uid(cls, uid, user=None, channel='fake_channel_1'):
+    def get_by_uid(cls, uid, user=None):
         if uid == 'doesntexist':
             return None
         return cls(
             uid,
-            Channel.get_by_uid(channel),
+            Channel.get_by_uid('fake_channel_1'),
             DraftInstrumentVersion.get_by_uid('fake_draft_instrument_version_1'),
             DraftForm.CONFIGURATION
         )
@@ -389,7 +389,7 @@ class DraftForm(forms_interface.DraftForm):
     def find(cls, offset=0, limit=100, user=None, **search_criteria):
         return [
             cls.get_by_uid('fake_draft_form_1'),
-            cls.get_by_uid('fake_draft_form_2', channel='fake_channel_2'),
+            cls.get_by_uid('fake_draft_form_2'),
         ][offset:(offset+limit)]
 
     @classmethod

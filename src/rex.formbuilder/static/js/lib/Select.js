@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React = require('react/addons');
+var React = require('react');
 var merge = require('./merge');
 var cx    = React.addons.classSet;
 
@@ -18,30 +18,24 @@ var Select = React.createClass({
       React.PropTypes.string,
       React.PropTypes.number
     ]),
-    emptyValue: React.PropTypes.oneOfType([
-      React.PropTypes.object,
-      React.PropTypes.bool
-    ]),
+    emptyValue: React.PropTypes.object,
     options: React.PropTypes.array,
     onChange: React.PropTypes.func,
     wrongToEmpty: React.PropTypes.bool,
   },
 
   render: function() {
-    var {
-      emptyValue, value, className,
-      wrongToEmpty, options,
-      ...props
-    } = this.props;
+    var empty = this.props.emptyValue;
+    var value = this.props.value;
     var wrong = false;
 
     if (value === null) {
       value = sentinel;
     }
-    else if (wrongToEmpty) {
+    else if (this.props.wrongToEmpty) {
       var found = false;
-      for (var i in options) {
-        if (options[i].id === value) {
+      for (var i in this.props.options) {
+        if (this.props.options[i].id === value) {
           found = true;
           break;
         }
@@ -52,17 +46,16 @@ var Select = React.createClass({
       }
     }
 
-    var classNames = cx({
+    var cls = {
       'rfb-Select': true,
       'rfb-Select--wrong': wrong
-    });
-    classNames = cx(classNames, className);
+    }
 
-    return (
-      <select {...props} className={classNames} value={value} onChange={this.onChange}>
-        {(emptyValue || wrong) && <option key={sentinel}
-                          value={sentinel}>{wrong ? '###WRONG###' : emptyValue.title}</option>}
-        {options.map((o) =>
+    return this.transferPropsTo(
+      <select className={cx(cls)} value={value} onChange={this.onChange}>
+        {(empty || wrong) && <option key={sentinel}
+                          value={sentinel}>{wrong ? '###WRONG###' : empty.title}</option>}
+        {this.props.options.map((o) =>
           <option key={o.id} value={o.id}>{o.title}</option>
         )}
       </select>
@@ -88,11 +81,4 @@ var Select = React.createClass({
   }
 });
 
-function optionsFromObject(obj) {
-  return Object
-    .keys(obj)
-    .map(key => ({id: obj[key], title: obj[key]}));
-}
-
 module.exports = Select;
-module.exports.optionsFromObject = optionsFromObject;

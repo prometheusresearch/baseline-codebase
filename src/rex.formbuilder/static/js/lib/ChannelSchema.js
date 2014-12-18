@@ -213,11 +213,13 @@ var ElementFieldset = React.createClass({
 
   render() {
     var {value} = this.props;
+    var type = value.value.get('type')
     return (
       <div className={cx('rfb-ElementFieldset',
-                         'rfb-ElementFieldset-' + value.value.get('type'))}>
+                         'rfb-ElementFieldset-' + type)}>
         {this.renderElementHead()}
-        <ReactForms.Element value={value.child('options')} />
+        {type !== 'divider' ?
+          <ReactForms.Element value={value.child('options')} /> : null}
       </div>
     );
   },
@@ -329,7 +331,7 @@ function ElementOptionsSchema(children) {
 function DividerElementSchema(props) {
   return Mapping({component: ElementFieldset}, {
     type: ElementTypeSchema(),
-    options: ElementOptionsSchema({}),
+    // options: ElementOptionsSchema({}),
     tags: SimpleScalar()
   });
 }

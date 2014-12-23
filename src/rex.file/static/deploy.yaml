@@ -1,0 +1,13 @@
+
+- table: attachment
+  with:
+  - column: handle
+    type: text
+  - identity: [handle]
+  - column: owner_table
+    type: text
+  - column: owner_column
+    type: text
+  - column: owner_identity
+    type: text
+

@@ -1,0 +1,20 @@
+#
+# Copyright (c) 2014, Prometheus Research, LLC
+#
+
+title: REX.FILE
+tests:
+
+- coverage: setup.cfg
+
+- sh: pip install -q -e ./demo
+- sh: rex deploy -q rex.file_demo
+
+- doctest: README.rst
+- doctest: test/test_*.rst
+
+- sh: pip uninstall -q -y rex.file_demo
+
+- coverage-check: 95.0
+- coverage-report: ./build/coverage
+

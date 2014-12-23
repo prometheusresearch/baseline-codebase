@@ -1,0 +1,18 @@
+
+- table: study
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+  - column: closed
+    type: boolean
+    default: false
+  - data: |
+      code,title,closed
+      fos,Family Obesity Study,false
+      asdl,Autism Spectrum Disorder Lab,false
+      des,Dennis Exercise Study,false
+      puis,Prometheus University Intelligence Study,true
+

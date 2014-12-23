@@ -122,7 +122,9 @@ def get_cluster():
     """
     settings = get_settings()
     # Extract the connection URI from `db` setting.
-    db = settings.db.get('htsql', {}).get('db')
+    db = settings.db
+    if isinstance(db, dict):
+        db = db.get('htsql', {}).get('db')
     if db is None or db.engine != 'pgsql':
         raise Error("Expected a PostgreSQL database; got:", db)
     return Cluster(db)

@@ -12,6 +12,7 @@
 * Support for type conversion and column reordering.
 * Support for removing table data.
 * Added ``include`` directive.
+* Added ``audit`` trigger.
 
 
 1.6.0 (2014-10-17)

@@ -1040,7 +1040,7 @@ Examples:
         of: participation
 
 
-Raw Fact
+Raw fact
 ========
 
 A raw fact allows you to execute raw SQL code.
@@ -1112,7 +1112,7 @@ Examples:
        latest version of the trigger has been already deployed.
 
 
-Include Fact
+Include fact
 ============
 
 You can use ``include`` directive to load facts from a file.
@@ -1134,6 +1134,43 @@ Examples:
 
        The audit trigger logs all ``INSERT``, ``UPDATE`` and ``DELETE`` actions
        into SQL table ``audit.audit``.
+
+
+Auditing CRUD operations
+========================
+
+:mod:`rex.deploy` includes a mechanism for recording a log of ``INSERT``,
+``UPDATE``, ``DELETE`` operations.  To enable it, add to ``deploy.yaml``::
+
+    include: rex.deploy:/deploy/audit.yaml
+
+This line:
+
+1) Creates schema ``audit`` and table ``audit.audit``.
+
+2) Creates trigger function ``audit`` and attaches it to all current
+   and future tables in the ``public`` schema.
+
+The trigger is invoked on every ``INSERT``, ``UPDATE`` and ``DELETE``
+operations and records the following information into the ``audit`` table:
+
+`timestamp`
+    The time the current transaction started.
+`session`
+    The current Rex user from ``rex.session`` variable set by :mod:`rex.db`; if
+    not set, the current database user.
+`action`
+    ``'insert'``, ``'update'``, ``'delete'``.
+`name`
+    The name of the table.
+`old`
+    The current record in JSON format; ``NULL`` for ``INSERT`` operations.
+`new`
+    The new or updated record in JSON format; ``NULL`` for ``DELETE``
+    operations.
+
+The table is not exposed via HTSQL.  Any application that wants to use the
+audit mechanism should query the table directly using SQL.
 
 
 Introduction to Python API

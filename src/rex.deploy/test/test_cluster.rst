@@ -133,6 +133,10 @@ Using the driver, you can deploy any database facts or raw SQL::
     While executing SQL:
         CREATE TABLE individual (id int4 NOT NULL);
 
+Deploying an empty YAML input is no-op::
+
+    >>> driver(""" """)
+
 After manipulating the database with the driver, you need to commit or rollback
 and close the driver connection::
 

@@ -32,6 +32,8 @@ import common
 # Enable package and configuration help.
 import describe
 
+from . import python
+
 # Enable `serve` and `wsgi` tasks (only when `rex.web` is installed).
 try:
     import rex.web
@@ -56,5 +58,3 @@ except ImportError:
     pass
 else:
     from . import deploy
-
-

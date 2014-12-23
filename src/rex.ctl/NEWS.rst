@@ -4,6 +4,10 @@
 
 .. contents:: Table of Contents
 
+1.7.0 (2014-12-XX)
+==================
+
+* Added ``rex python`` command.
 
 1.6.0 (2014-12-08)
 ==================

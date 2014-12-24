@@ -9,6 +9,7 @@ tests:
 
 - sh: pip install -q -e ./demo
 - sh: rex deploy -q rex.file_demo
+- mkdir: ./build/attach_dir
 
 - doctest: README.rst
 - doctest: test/test_*.rst

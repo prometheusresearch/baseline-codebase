@@ -9,6 +9,8 @@
   - column: closed
     type: boolean
     default: false
+  - link: file
+    required: false
   - data: |
       code,title,closed
       fos,Family Obesity Study,false

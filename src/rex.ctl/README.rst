@@ -223,6 +223,11 @@ use ``rex loaddb``::
 
     $ rex loaddb rex.ctl_demo -i ctl_demo.sql
 
+You can generate a database schema diagram for the application database
+using ``rex graphdb``::
+
+    $ rex graphdb rex.ctl_demo -o ctl_demo.png
+
 
 Packages and settings
 =====================

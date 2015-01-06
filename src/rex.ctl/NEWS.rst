@@ -4,10 +4,13 @@
 
 .. contents:: Table of Contents
 
-1.7.0 (2014-12-XX)
+
+1.7.0 (2015-XX-XX)
 ==================
 
 * Added ``rex python`` command.
+* Added ``rex graphdb`` command.
+
 
 1.6.0 (2014-12-08)
 ==================

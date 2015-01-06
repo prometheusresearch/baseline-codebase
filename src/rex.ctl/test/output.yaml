@@ -27,6 +27,48 @@ tests:
 
       Run rex help for general usage and a list of tasks and settings.
       Run rex help <topic> for help on a specific task or setting.
+  - rex: help createdb
+    stdout: |+
+      CREATEDB - create application database
+      Usage: rex createdb [<project>]
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -q/--quiet               : suppress logging
+
+  - rex: help dropdb
+    stdout: |+
+      DROPDB - delete application database
+      Usage: rex dropdb [<project>]
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -q/--quiet               : suppress logging
+
+  - rex: help loaddb
+    stdout: |+
+      LOADDB - load application database
+      Usage: rex loaddb [<project>]
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -i/--input=FILE          : load input from a file
+        -q/--quiet               : suppress logging
+
+  - rex: help dumpdb
+    stdout: |+
+      DUMPDB - dump application database
+      Usage: rex dumpdb [<project>]
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -o/--output=FILE         : dump output to a file
+        -q/--quiet               : suppress logging
+
   - rex: help deploy
     stdout: |+
       DEPLOY - deploy database schema
@@ -120,6 +162,41 @@ tests:
         -o/--output=FILE         : write query output to a file
         -f/--format=FORMAT       : set output format
         -D/--define=PARAM=VALUE  : set a query parameter
+
+  - rex: help graphdb
+    stdout: |+
+      GRAPHDB - draw schema diagram using GraphViz
+      Usage: rex graphdb [<project>]
+
+      The graphdb task to draw a schema graph for the application database.
+
+      This task takes one argument: the name of the primary RexDB package.
+      Alternatively, the package could be specified using project setting.
+
+      Use option --require or setting requirements to specify additional
+      packages to include with the application.
+
+      Use option --set or setting parameters to specify configuration
+      parameters of the application.
+
+      Use option --extend (-E) to enable an HTSQL extension.
+
+      Use option --gateway (-G) to connect to a secondary application
+      database.
+
+      Use option --output (-o) to write the diagram to a file.
+
+      Use option --format (-f) to specify the format of the output.
+      Valid formats include png, jpg, pdf, svg.  If the -f option
+      is not specified, the task dumps the graph definition.
+
+      Options:
+        --require=PACKAGE        : include an additional package
+        --set=PARAM=VALUE        : set a configuration parameter
+        -E/--extend=EXT:PARAM=VALUE : include an HTSQL extension
+        -G/--gateway=NAME        : connect to a gateway database
+        -o/--output=FILE         : write query output to a file
+        -f/--format=FORMAT       : set output format
 
   - rex: help serve
     stdout: |+
@@ -411,7 +488,7 @@ tests:
         program                  : table
         school                   : table
 
-- suite: rex-shell
+- suite: rex-query
   tests:
   - rex: query rex.ctl_demo
     stdout: ''
@@ -448,6 +525,22 @@ tests:
       While executing:
           <stdin>, line 1
 
+- suite: rex-graphdb
+  tests:
+  - rex: graphdb rex.ctl_demo
+    stdout: |
+      digraph "ctl_demo" {
+          "course"
+          "department"
+          "program"
+          "school"
+          "course" -> "department"
+          "program" -> "program" [label="part_of",constraint=false]
+          "department" -> "school" [constraint=false]
+          "program" -> "school"
+      }
+  - rex: graphdb rex.ctl_demo -o ctl_demo.dot -f dot
+    stdout: ''
 - suite: rex-serve
   tests:
   - suite: run-with-no-project

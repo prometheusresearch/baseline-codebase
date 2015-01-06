@@ -6,7 +6,7 @@
 from cogs import task, argument, option
 from cogs.log import fail
 from .common import make_rex, pair
-from .shell import extension
+from .shell import extension, merge_extensions
 from rex.core import Error, get_packages
 from rex.db import get_db
 import htsql.core.error
@@ -79,7 +79,7 @@ class QUERY:
         self.project = project
         self.require = require
         self.set = set
-        self.extend = list(extend)
+        self.extend = merge_extensions(extend)
         self.gateway = gateway
         self.input = input
         self.output = output

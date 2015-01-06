@@ -48,7 +48,7 @@ try:
 except ImportError:
     pass
 else:
-    from . import shell, query
+    from . import shell, query, graphdb
 
 # Enable `deploy` and other database management tasks if `rex.deploy`
 # is installed.
@@ -58,3 +58,5 @@ except ImportError:
     pass
 else:
     from . import deploy
+
+

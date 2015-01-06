@@ -8,6 +8,10 @@ from cogs.log import fail
 from .common import make_rex, pair
 from rex.core import Error
 from rex.db import get_db
+try:
+    from rex.db import HTSQLVal
+except ImportError:
+    HTSQLVal = None
 import htsql.core.validator, htsql.ctl, htsql.ctl.error, htsql.ctl.shell
 import sys
 
@@ -15,6 +19,10 @@ import sys
 def extension(value):
     validate = htsql.core.validator.ExtensionVal()
     return dict([validate(value)])
+
+
+def merge_extensions(values):
+    return HTSQLVal.merge(*values) if HTSQLVal is not None else list(values)
 
 
 class RexShellRoutine(htsql.ctl.shell.ShellRoutine):
@@ -69,7 +77,7 @@ class SHELL:
         self.project = project
         self.require = require
         self.set = set
-        self.extend = list(extend)
+        self.extend = merge_extensions(extend)
         self.gateway = gateway
 
     def __call__(self):

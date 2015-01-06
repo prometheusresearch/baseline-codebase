@@ -48,9 +48,14 @@ tests:
 - title: rex help
   tests:
   - rex: ''
+  - rex: help createdb
+  - rex: help dropdb
+  - rex: help loaddb
+  - rex: help dumpdb
   - rex: help deploy
   - rex: help shell
   - rex: help query
+  - rex: help graphdb
   - rex: help serve
   - rex: help wsgi
   - rex: help serve-uwsgi
@@ -107,7 +112,7 @@ tests:
 # rex query
 #
 
-- title: rex shell
+- title: rex query
   tests:
   - rex: query rex.ctl_demo
     stdin: |
@@ -124,6 +129,15 @@ tests:
     stdin: |
         count(study)
     exit: 1
+
+#
+# rex graphdb
+#
+
+- title: rex graphdb
+  tests:
+  - rex: graphdb rex.ctl_demo
+  - rex: graphdb rex.ctl_demo -o ctl_demo.dot -f dot
 
 #
 # rex serve

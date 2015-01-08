@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.10.0 (2015-XX-XX)
+===================
+
+* Support for skipping package registration.
+
+
 1.9.0 (2014-12-08)
 ==================
 

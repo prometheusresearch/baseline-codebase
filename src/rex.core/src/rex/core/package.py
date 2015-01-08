@@ -219,21 +219,13 @@ class PackageCollection(object):
             return
         seen.add(name)
 
-        # Process package dependencies first.  That ensures that the packages
-        # are ordered with respect to the dependency relations.
-        for req in dist.requires():
-            try:
-                for package in cls._build_package_tree(req, seen):
-                    yield package
-            except Error, error:
-                error.wrap("Required for:", name)
-                raise
-
         # Determine modules where we will look for extensions.
         init = None
         modules = set()
         if dist.has_metadata('rex_init.txt'):
             init = dist.get_metadata('rex_init.txt')
+        if init == '-':
+            return
         if init is not None:
             __import__(init)
             modules = set(module for module in sys.modules
@@ -248,6 +240,16 @@ class PackageCollection(object):
             static = os.path.abspath(static)
             if not os.path.exists(static):
                 raise Error("Cannot find static directory:", static)
+
+        # Process package dependencies first.  That ensures that the packages
+        # are ordered with respect to the dependency relations.
+        for req in dist.requires():
+            try:
+                for package in cls._build_package_tree(req, seen):
+                    yield package
+            except Error, error:
+                error.wrap("Required for:", name)
+                raise
 
         # Skip packages without extensions or static packages, emit the rest.
         # FIXME: should include all packages which depend on ``rex.core``.

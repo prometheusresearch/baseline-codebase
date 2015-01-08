@@ -81,6 +81,44 @@ It is an error to call a cached function when no application is active::
     AssertionError: no active RexDB application
 
 
+``cached`` with expiration
+==========================
+
+You can set an expiration period for a cached value::
+
+    >>> COUNT = 0
+
+    >>> @cached(expires=1)
+    ... def product(*xs):
+    ...     global COUNT
+    ...     COUNT += 1
+    ...     p = 1
+    ...     for x in xs:
+    ...         p *= x
+    ...     return p
+
+It works the same way as the regular cached function until the value expires::
+
+    >>> demo.on()
+    >>> product(1, 2, 3)
+    6
+    >>> product(1, 2, 3)
+    6
+    >>> product(1, 2, 3)
+    6
+    >>> COUNT
+    1
+
+    >>> import time
+    >>> time.sleep(1)
+
+    >>> product(1, 2, 3)
+    6
+    >>> COUNT
+    2
+    >>> demo.off()
+
+
 ``autoreload``
 ==============
 

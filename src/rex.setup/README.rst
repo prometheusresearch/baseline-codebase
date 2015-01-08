@@ -51,6 +51,9 @@ To use :mod:`rex.setup`, add the following lines to ``setup.py``::
     defined in this module or its submodules are registered for use with the
     application.
 
+    Use special value ``'-'`` to indicate that the package and all its
+    dependencies should not be registered with the application.
+
     The value of this parameter is stored in ``*.egg-info/rex_init.txt`` file.
 
     For example, package :mod:`rex.setup_demo` contains some RexDB extensions,

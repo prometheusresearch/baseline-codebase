@@ -13,8 +13,8 @@ setup(
         'rex.setup >= 2.0.0',
     ],
     install_requires=[ 
-        'HTSQL==2.3.3.20141204',
-        'HTSQL-PGSQL==2.3.3.20141204',
+        'HTSQL==2.3.3.20150109',
+        'HTSQL-PGSQL==2.3.3.20150109',
         'COGS==0.3.0',
         'rex.applet==0.0.1',
 #        'rex.convert==3.0.8',

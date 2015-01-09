@@ -13,10 +13,10 @@ RexDB suite available on it.
 
 First, install ``rex.setup``::
 
-    pip install rex.setup==1.2.2
+    pip install rex.setup
 
 Next, install ``rexdb.platform``::
 
-    pip install rexdb.platform==3.3.0.0
+    pip install rexdb.platform==4.0.0.0
 
 

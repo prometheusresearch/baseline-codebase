@@ -1,3 +1,3 @@
-RexDB Platform 3.0.0 Release Notes
+RexDB Platform 4.0.0.0 Release Notes
 ==================================
 

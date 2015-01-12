@@ -2,20 +2,10 @@
 paths:
 
   /about:
-    widget: !<RexPage>
+    widget: !<DemoPage>
       title: About
       id: about
-      children: !<Container>
+      children: !<Element>
+        margin: 10
         children:
-        - !<Block>
-          children: 
-          - !<Header> About
-          - !<HTMLWidget>
-            html: |
-              <p style="margin-left: 20px;"> 
-              Here is an example of using a HTMLWidget to insert 
-              some <i>static</i><br/>
-              HTML that <b>does not change</b> during the life of the page.
-              <br/><br/>
-              This widget should be used only sparingly and with caution.</p>
-
+        - !<Header> About

@@ -3,17 +3,27 @@
  */
 'use strict';
 
-var React = require('react');
+var React = require('react/addons');
+var cx = React.addons.classSet;
+var Element = require('./layout/Element');
 
 var Header = React.createClass({
 
   render: function() {
-    var h = React.DOM['h' + this.props.level];
-    return <h className="rw-Header">{this.props.text}</h>;
+    var {text, level, className, ...props} = this.props;
+    var component = `h${level}`;
+    return (
+      <Element {...props} Component={component} className={cx(className, 'rw-Header')}>
+        {text}
+      </Element>
+    );
   },
 
   getDefaultProps() {
-    return {level: 1};
+    return {
+      level: 1,
+      margin: '10 0'
+    };
   }
 });
 

@@ -7,13 +7,14 @@ var React = require('react');
 
 var StudyInfo = React.createClass({
 
-  render: function() {
+  render() {
     var contents;
-    if (this.props.data.data) {
+    var {data} = this.props;
+    if (data && data.data) {
       contents = (
         <div className="rex-widget-demo-StudyInfo__study">
-          {Object.keys(this.props.data.data).map((name) =>
-            <InfoItem key={name} name={name} value={this.props.data.data[name]} />)}
+          <InfoItem name="id" value={data.data.id} />
+          <InfoItem name="title" value={data.data.title} />
         </div>
       );
     } else {
@@ -34,7 +35,7 @@ var StudyInfo = React.createClass({
 
 var InfoItem = React.createClass({
 
-  render: function() {
+  render() {
     return (
       <div className="rex-widget-demo-InfoItem">
         <span className="rex-widget-demo-InfoItem__name">{this.props.name}:</span>

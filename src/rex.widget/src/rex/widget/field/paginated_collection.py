@@ -8,15 +8,17 @@
 """
 
 from rex.core import IntVal, StrVal, MapVal, MaybeVal
+from ..descriptors import StateRead, StateReadWrite
 from ..state import unknown, State, Reference, Reset
-from .data import DataField, Data, Append
+from ..data import Collection, Append
+from .data import DataField
 
 
 class PaginatedCollectionField(DataField):
 
     class computator(DataField.computator):
 
-        inactive_value = Data([], has_more=False)
+        inactive_value = Collection([], has_more=False)
 
         def fetch(self, handler, spec, graph): # pylint: disable=arguments-differ
             is_pagination = (
@@ -70,13 +72,10 @@ class PaginatedCollectionField(DataField):
             return DataField.computator.execute_port(
                 self, handler, spec, **params)
 
-    def describe(self, name, spec, widget):
-        if spec is None:
-            return []
-
-        state_id = '%s/%s' % (widget.id, name)
-        pagination_state_id = '%s/%s/pagination' % (widget.id, name)
-        sort_state_id = '%s/%s/sort' % (widget.id, name)
+    def apply(self, widget, spec):
+        state_id = '%s/%s' % (widget.widget_id, self.name)
+        pagination_state_id = '%s/%s/pagination' % (widget.widget_id, self.name)
+        sort_state_id = '%s/%s/sort' % (widget.widget_id, self.name)
 
         dependencies = [r.id for refs in spec.refs.values() for r in refs]
 
@@ -87,45 +86,41 @@ class PaginatedCollectionField(DataField):
             'sort': (Reference('%s' % sort_state_id),),
         })
         spec = spec._replace(refs=refs)
-
-        return [
-            (
-                name,
-                State(
-                    state_id,
-                    widget=widget,
-                    computator=self.computator(
-                        spec,
-                        self,
-                        pagination_state_id=pagination_state_id),
-                    dependencies=dependencies + [
-                        pagination_state_id,
-                        sort_state_id],
-                    is_writable=False,
-                    defer=spec.defer)
-            ),
-            (
-                '%sPagination' % name,
-                State(
+        props = {
+            self.name: StateRead(state_id),
+            '%s_pagination': StateReadWrite(pagination_state_id),
+            '%s_sort': StateReadWrite(sort_state_id),
+        }
+        states = [
+            State(
+                state_id,
+                widget=widget,
+                computator=self.computator(
+                    spec,
+                    self,
+                    pagination_state_id=pagination_state_id),
+                dependencies=dependencies + [
                     pagination_state_id,
-                    widget=widget,
-                    computator=self.compute_pagination,
-                    validator=MaybeVal(MapVal(StrVal, IntVal)),
-                    dependencies=dependencies + [sort_state_id],
-                    persistence=State.INVISIBLE,
-                    is_writable=True)
-            ),
-            (
-                '%sSort' % name,
-                State(
-                    sort_state_id,
-                    value=_extract_sort_state(spec),
-                    widget=widget,
-                    validator=MaybeVal(StrVal()),
-                    dependencies=dependencies,
-                    is_writable=True)
-            ),
+                    sort_state_id],
+                is_writable=False,
+                defer=spec.defer),
+            State(
+                pagination_state_id,
+                widget=widget,
+                computator=self.compute_pagination,
+                validator=MaybeVal(MapVal(StrVal, IntVal)),
+                dependencies=dependencies + [sort_state_id],
+                persistence=State.INVISIBLE,
+                is_writable=True),
+            State(
+                sort_state_id,
+                value=_extract_sort_state(spec),
+                widget=widget,
+                validator=MaybeVal(StrVal()),
+                dependencies=dependencies,
+                is_writable=True),
         ]
+        return props, state
 
     def compute_pagination(self, widget, state, graph, request): # pylint: disable=no-self-use,unused-argument
         if state.value is unknown:

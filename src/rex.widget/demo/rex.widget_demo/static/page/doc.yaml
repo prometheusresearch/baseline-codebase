@@ -3,10 +3,7 @@ paths:
 
 
   /WidgetDoc:
-    widget: !<RexPage>
+    widget: !<DemoPage>
       id: doc
       title: Widget Doc
-      children:
-      - !<WidgetDoc>
-        id: widgetdoc
-
+      children: !<WidgetDoc>

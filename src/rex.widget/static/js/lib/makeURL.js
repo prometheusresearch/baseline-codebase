@@ -6,6 +6,9 @@
 var qs = require('./qs');
 
 function makeURL(url, params, options) {
+  if (/^https?:\/\//.exec(url)) {
+    return url;
+  }
   if (typeof __MOUNT_PREFIX__ !== 'undefined') {
     url = __MOUNT_PREFIX__ + url;
   }

@@ -1,26 +1,29 @@
-# Common Context Elements
-context:
-  application_name: Rex Widget Demo
-  menu:
-  - dashboard
-  - about
-  - chart
-  - doc
-  - sample
-
 include:
-# Port Definitions
-- port/studylist.yaml
-- port/studyheader.yaml
-- port/male_view.yaml
-- port/chart_query.yaml
+# Data Definitions
+- data/study.yaml
+- data/protocol.yaml
 
 # Page Definitions
 - page/home.yaml
+- page/forms.yaml
+- page/forms_master_details.yaml
 - page/about.yaml
 - page/doc.yaml
 - page/sample.yaml
 - page/chart.yaml
 
+##################################################################
+### DO NOT EDIT UNLESS YOU ARE WORKING ON TESTS FOR REX.WIDGET ###
+######### PATHS BELOW ARE USED BY REX.WIDGET TEST SUITE ##########
+##################################################################
 
+paths:
 
+  /__tests__/query/study:
+    query: /study
+
+  /__tests__/port/study:
+    port:
+    - entity: study
+      filters:
+      - "code($code) := guard($code, code=$code)"

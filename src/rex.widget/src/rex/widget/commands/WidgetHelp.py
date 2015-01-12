@@ -15,8 +15,8 @@ from rex.core import StrVal, AnyVal, IntVal, cached
 from rex.web import Command, Parameter
 from webob import Response
 from rex.widget import (
-    Widget, Page, Field, EntityField, WidgetVal, NullWidget,
-    ContextValue)
+    Widget, Page, Field, EntityField, WidgetVal, NullWidget)
+    
         
 
 class WidgetHelp(Command):
@@ -91,7 +91,7 @@ class WidgetHelp(Command):
           
           for name, field in w.fields.items():
             paramName = str(name)
-            paramType = str(field.validator)
+            paramType = str(field.validate)
             paramDefault = "<b> REQUIRED </b>" if str(field.default) == "NotImplemented" else " <i>Default</i>: " +str(field.default)
             paramDoc = " <i>Description</i>: " +str(field.__doc__).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") if len(str(field.__doc__)) and field.__doc__ != None else ""
             

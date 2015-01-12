@@ -3,164 +3,161 @@
     rex.widget.parse
     ================
 
+    Parse YAML into widget object model which contains location-annotated data
+    with explicit WidgetDesc nodes. WidgetDesc nodes just hold widget name along
+    with associated widget fields.
+
+    For example the following YAML snippet::
+
+        !<Container>
+        size: 2
+        children:
+        - !<Label> text
+
+    will be parsed into the following structure::
+
+        WidgetDesc(
+            name='Container',
+            fields=[
+                ('size', 2),
+                ('children', [
+                    WidgetDesc(
+                        name='Label',
+                        fields=[(None, 'text')])
+                ])
+            ])
+
+    Such structure can be later interpretated by :mod:`rex.widget.validate` or
+    :mod:`rex.widget.template` modules either to widget instance or widget
+    template.
+
     :copyright: 2014, Prometheus Research, LLC
 
 """
 
-from __future__ import absolute_import
+from collections import namedtuple, OrderedDict
 
-import json
 import yaml
-from rex.core import Validate, StrVal, Location, Error, guard
-from .widget import Widget, WidgetFactory, GroupWidget, NullWidget
+
+from rex.core import Error, Location, Validate, ValidatingLoader, guard
+from rex.core import RecordVal, StrVal, AnyVal
+
+from .undefined import undefined
+from .location import set_location, location_info_guard
 
 
-class WidgetVal(Validate):
+__all__ = ('WidgetDesc', 'WidgetDescVal', 'parse')
 
-    def __init__(self, widget_class=None):
-        super(WidgetVal, self).__init__()
-        self.widget_class = widget_class
 
-    def __call__(self, data):
-        widget_classes = Widget.map_all()
-        with guard("Got:", repr(data)):
-            if data is None:
-                return WidgetFactory(NullWidget)
-            if isinstance(data, (str, unicode)) and data in widget_classes:
-                widget_class = widget_classes[data]
-                data = {}
-            else:
-                if isinstance(data, (str, unicode)):
-                    try:
-                        data = json.loads(data)
-                    except ValueError:
-                        raise Error("Expected a JSON object")
-                if isinstance(data, list):
-                    return WidgetFactory(GroupWidget, [self(item) for item in data])
-                if not (isinstance(data, dict) and len(data) == 1 and
-                        next(data.keys()) in widget_classes):
-                    raise Error("Expected a widget mapping")
-                name, data = next(data.items())
-                widget_class = widget_classes[name]
-                fields_with_no_defaults = [
-                    f for f in widget_class.record_fields if not f.has_default]
-                if not isinstance(data, dict):
-                    if not len(fields_with_no_defaults) == 1:
-                        raise Error("Expected a widget mapping")
-                    data = {fields_with_no_defaults[0].name: data}
-        field_by_name = dict((field.name, field)
-                             for field in widget_class.record_fields)
-        values = {}
-        with guard("Of widget:", widget_class.name):
-            for name in sorted(data):
-                value = data[name]
-                name = name.replace('-', '_').replace(' ', '_')
-                if name not in field_by_name:
-                    raise Error("Got unexpected field:", name)
-                attribute = self.field_by_name[name].attribute
-                values[attribute] = value
-            for field in widget_class.record_fields:
-                attribute = field.attribute
-                if attribute in values:
-                    validate = field.validate
-                    with guard("While validating field:", field.name):
-                        values[attribute] = validate(values[attribute])
-                elif field.has_default:
-                    values[attribute] = field.default
-                else:
-                    raise Error("Missing mandatory field:", field.name)
-        return WidgetFactory(widget_class, **values)
+class WidgetDesc(namedtuple( 'WidgetDesc', ['name', 'fields'])):
+    """ Widget description.
+
+    A parsed widget description which have unresolved widget name and field
+    values.
+    """
+
+    __slots__ = ()
+
+
+Slot = namedtuple('Slot', ['name', 'default'])
+
+
+class WidgetDescVal(Validate):
+    """ Parser and validator for widget object model."""
+
+    _validate_slot = RecordVal(
+        ('name', StrVal()),
+        ('default', AnyVal(), undefined)
+    )
+
+    def __init__(self, allow_slots=False):
+        self.allow_slots = allow_slots
+
+    def __call__(self, value):
+        return value
 
     def construct(self, loader, node):
-        widget_classes = Widget.map_all()
         location = Location.from_node(node)
-        name = None
-        pairs = []
+        constructed = self._construct(loader, node)
+        constructed = set_location(constructed, location)
+        return constructed
+
+    def _construct(self, loader, node):
+        location = Location.from_node(node)
+
         if isinstance(node, yaml.ScalarNode):
-            if node.tag == u'tag:yaml.org,2002:null':
-                return WidgetFactory(NullWidget)
             if node.tag.isalnum():
                 name = node.tag
                 if node.value:
-                    value = yaml.ScalarNode(
+                    node = yaml.ScalarNode(
                         u'tag:yaml.org,2002:str',
                         node.value, node.start_mark, node.end_mark,
                         node.style)
-                    pairs = [(None, value)]
+                    value = super(WidgetDescVal, self).construct(loader, node)
+                    value = set_location(value, Location.from_node(node))
+                    fields = OrderedDict([(None, value)])
+                else:
+                    fields = OrderedDict()
+                return WidgetDesc(name, fields)
+            elif node.tag == '!slot':
+                if not self.allow_slots:
+                    raise Error("Slots are not allowed in this context")
+                return Slot(node.value, NotImplemented)
+            elif node.tag == '!undefined':
+                return undefined
+            else:
+                return super(WidgetDescVal, self).construct(loader, node)
+
         elif isinstance(node, yaml.SequenceNode):
-            if node.tag == u'tag:yaml.org,2002:seq':
-                return WidgetFactory(GroupWidget, [
-                    loader.construct_object(item, deep=True)
-                    for item in node.value])
             if node.tag.isalnum():
                 name = node.tag
-                value = yaml.SequenceNode(
+                node = yaml.SequenceNode(
                     u'tag:yaml.org,2002:seq',
                     node.value, node.start_mark, node.end_mark,
                     node.flow_style)
-                pairs = [(None, value)]
-        elif isinstance(node, yaml.MappingNode):
-            if node.tag.isalnum() or self.widget_class:
-                name = node.tag
-                pairs = node.value
-        if name in widget_classes:
-            widget_class = widget_classes[name]
-        elif self.widget_class is not None:
-            widget_class = self.widget_class
-        elif not name:
-            error = Error("Expected a widget")
-            error.wrap("Got:", node.value
-                            if isinstance(node, yaml.ScalarNode)
-                            else "a %s" % node.id)
-            error.wrap("While parsing:", location)
-            raise error
-        else:
-            error = Error("Found unknown widget:", name)
-            error.wrap("While parsing:", location)
-            raise error
-        field_by_name = dict((field.name, field)
-                             for field in widget_class.record_fields)
-        fields_with_no_defaults = [
-            f for f in widget_class.record_fields if not f.has_default]
-        values = {}
-        for key_node, value_node in pairs:
-            if key_node is None:
-                if len(fields_with_no_defaults) == 1:
-                    name = fields_with_no_defaults[0].name
-                    key_node = node
-                else:
-                    error = Error("Expected a mapping")
-                    error.wrap("Got:", node.value
-                                       if isinstance(node, yaml.ScalarNode)
-                                       else "a %s" % node.id)
-                    error.wrap("While parsing:", location)
-                    raise error
+                value = super(WidgetDescVal, self).construct(loader, node)
+                value = set_location(value, Location.from_node(node))
+                return WidgetDesc(name, OrderedDict([(None, value)]))
+            elif node.tag == u'tag:yaml.org,2002:seq':
+                return [self.construct(loader, item) for item in node.value]
             else:
-                with loader.validating(StrVal()):
-                    name = loader.construct_object(key_node, deep=True)
-            name = name.replace('-', '_').replace(' ', '_')
-            with guard("While parsing:", Location.from_node(key_node)):
-                if name not in field_by_name:
-                    raise Error("Got unexpected field:", name)
-                if name in values:
-                    raise Error("Got duplicate field:", name)
-            field = field_by_name[name]
-            with guard("Of widget:", widget_class.name), \
-                 guard("While validating field:", name), \
-                 loader.validating(field.validate):
-                value = loader.construct_object(value_node, deep=True)
-            values[field.attribute] = value
-        for field in widget_class.record_fields:
-            attribute = field.attribute
-            if attribute not in values:
-                if field.has_default:
-                    values[attribute] = field.default
-                else:
-                    raise Error("Missing mandatory field:", field.name) \
-                            .wrap("Of widget:", widget_class.name)
-        factory = WidgetFactory(widget_class, **values)
-        factory.location = location
-        return factory
+                return super(WidgetVal, self).construct(loader, node)
+
+        elif isinstance(node, yaml.MappingNode):
+            if node.tag.isalnum():
+                name = node.tag
+                fields = OrderedDict()
+                for key_node, value_node in node.value:
+                    with loader.validating(StrVal()):
+                        key = loader.construct_object(key_node, deep=True)
+                    key = key.replace('-', '_').replace(' ', '_')
+                    value = self.construct(loader, value_node)
+                    value = set_location(value, Location.from_node(value_node))
+                    if key in fields:
+                        with location_info_guard(Location.from_node(node)), \
+                                guard("While parsing widget:", "<%s>" % name), \
+                                location_info_guard(Location.from_node(value_node)):
+                            raise Error("Got duplicate field:", key)
+                    fields[key] = value
+                return WidgetDesc(name, fields)
+            elif node.tag == '!slot':
+                if not self.allow_slots:
+                    raise Error("Slots are not allowed in this context")
+                value = {
+                    loader.construct_scalar(k): self.construct(loader, v)
+                    for k, v in node.value
+                }
+                value = self._validate_slot(value)
+                return Slot(value.name, value.default)
+            else:
+                return {
+                    self.construct(loader, k): self.construct(loader, v)
+                    for k, v in node.value
+                }
+        else:
+            return super(WidgetDescVal, self).construct(loader, node)
 
 
-Widget.validate.set(WidgetVal())
+def parse(stream, allow_slots=False):
+    """ Parse ``stream`` into widget object model."""
+    return WidgetDescVal(allow_slots=allow_slots).parse(stream)

@@ -96,7 +96,7 @@ def test_computes_via_inline_query_with_meta():
 
 
 def test_computes_via_predefined_query():
-    spec = make_spec(route='rex.widget_demo:/query/study')
+    spec = make_spec(route='rex.widget_demo:/__tests__/query/study')
     computation = make_computation(spec)
     data = computation['widget_id/field_name']
     assert isinstance(data, Data)
@@ -108,13 +108,13 @@ def test_computes_via_predefined_query():
 
 def test_computes_via_predefined_query_with_meta():
     field = CollectionField(include_meta=True)
-    spec = make_spec(route='rex.widget_demo:/query/study')
+    spec = make_spec(route='rex.widget_demo:/__tests__/query/study')
     computation = make_computation(spec, field=field)
     assert computation['widget_id/field_name'].meta is not None
 
 
 def test_computes_via_predefined_port():
-    spec = make_spec(route='rex.widget_demo:/port/study')
+    spec = make_spec(route='rex.widget_demo:/__tests__/port/study')
     computation = make_computation(spec)
     data = computation['widget_id/field_name']
     assert isinstance(data, Data)
@@ -126,14 +126,14 @@ def test_computes_via_predefined_port():
 
 def test_computes_via_predefined_port_with_meta():
     field = CollectionField(include_meta=True)
-    spec = make_spec(route='rex.widget_demo:/port/study')
+    spec = make_spec(route='rex.widget_demo:/__tests__/port/study')
     computation = make_computation(spec, field=field)
     assert computation['widget_id/field_name'].meta is not None
 
 
 def test_no_available_params():
     spec = make_spec(
-        route='rex.widget_demo:/port/study',
+        route='rex.widget_demo:/__tests__/port/study',
         refs={'study:code': [Reference('code')]})
     computation = make_computation(spec)
     computation.input['code'] = State(id='code', value=None)
@@ -143,7 +143,7 @@ def test_no_available_params():
 
 def test_available_params():
     spec = make_spec(
-        route='rex.widget_demo:/port/study',
+        route='rex.widget_demo:/__tests__/port/study',
         refs={'study:code': [Reference('code')]})
     computation = make_computation(spec)
     computation.input['code'] = State(id='code', value='fos')

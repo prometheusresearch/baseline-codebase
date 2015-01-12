@@ -10,13 +10,30 @@ var PropTypes        = React.PropTypes;
 var cx               = React.addons.classSet;
 var Preloader        = require('./Preloader');
 var WidgetPropTypes  = require('./PropTypes');
-var ApplicationState = require('./ApplicationState');
+var runtime          = require('./runtime');
 
 var AUTO_SELECT = {
   TRUE: true,
   FALSE: false,
   ON_DATA_UPDATE: 'on_data_update'
 };
+
+function getValueByKey(row, key) {
+  var len = key.length;
+  if (len === 1) {
+    return row[key[0]];
+  } else if (len === 2) {
+    return row[key[0]][key[1]];
+  } else if (len === 3) {
+    return row[key[0]][key[1]][key[2]];
+  } else {
+    var val = row;
+    for (var i = 0; i < len; i++) {
+      val = val[key[i]];
+    }
+    return val;
+  }
+}
 
 var Table = React.createClass({
 
@@ -32,7 +49,7 @@ var Table = React.createClass({
   },
 
   render() {
-    if (this.props.data.updating) {
+    if (!this._dataLoaded()) {
       return <Preloader />;
     }
     var columns = this.props.columns
@@ -69,16 +86,20 @@ var Table = React.createClass({
             return (
               <tr className={className} onClick={this.onSelected.bind(null, row.id)} key={rowIndex}>
                 {columns.map((column) => {
+                  var value = getValueByKey(row, column.key);
+                  if (typeof value === 'boolean') {
+                    value = value.toString();
+                  }
                   if (transposedData[column.key] === undefined) {
-                    transposedData[column.key] = [row[column.key]];
+                    transposedData[column.key] = [value];
                   } else {
-                    transposedData[column.key].push(row[column.key]);
+                    transposedData[column.key].push(value);
                   }
                   return (
                     <td key={column.key}>
                       {column.formatter ?
-                        column.formatter(row[column.key], column.key, row, rowIndex) :
-                        row[column.key]}
+                        column.formatter(value, column.key, row, rowIndex) :
+                        value}
                     </td>
                   );
                 })}
@@ -128,6 +149,12 @@ var Table = React.createClass({
     );
   },
 
+  _dataLoaded(props) {
+    props = props || this.props;
+    var {data} = this.props;
+    return data !== null && !data.updating;
+  },
+
   getDefaultProps() {
     return {
       calculatedColumns: [],
@@ -139,6 +166,9 @@ var Table = React.createClass({
     if (this.props.selectable && rowID != this.props.selected) {
       this.props.onSelected(rowID);
     }
+    if (this.props.onSelect) {
+      this.props.onSelect();
+    }
   },
 
   componentDidMount() {
@@ -146,7 +176,7 @@ var Table = React.createClass({
   },
 
   componentDidUpdate(prevProps) {
-    this.checkAutoSelect(prevProps.data.updating && !this.props.data.updating);
+    this.checkAutoSelect(!this._dataLoaded(prevProps) && this._dataLoaded());
   },
 
   /**
@@ -165,7 +195,7 @@ var Table = React.createClass({
     ) {
       var firstRow = this.props.data.data[0];
       if (firstRow) {
-        this.props.onSelected(firstRow.id, {persistence: ApplicationState.PERSISTENCE.INVISIBLE});
+        this.props.onSelected(firstRow.id, {persistence: runtime.ApplicationState.PERSISTENCE.INVISIBLE});
       }
     }
   }

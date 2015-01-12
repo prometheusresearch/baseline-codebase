@@ -22,21 +22,24 @@ var TextInput = React.createClass({
 
   render() {
     var value = this.getValue();
-    var component = this.props.textarea ? React.DOM.textarea : React.DOM.input;
+    var {textarea, resize, placeholder, disabled, ...props} = this.props;
+    var Component = textarea ? 'textarea' : 'input';
     var className = cx({
       'rw-TextInput': true,
-      'rw-TextInput--textarea': this.props.textarea,
-      'rw-TextInput--verticalResize': this.props.textarea && this.props.resize === 'vertical',
-      'rw-TextInput--horizontalResize': this.props.textarea && this.props.resize === 'horizontal',
-      'rw-TextInput--noResize': this.props.textarea && this.props.resize === 'none'
+      'rw-TextInput--textarea': textarea,
+      'rw-TextInput--verticalResize': textarea && resize === 'vertical',
+      'rw-TextInput--horizontalResize': textarea && resize === 'horizontal',
+      'rw-TextInput--noResize': textarea && resize === 'none'
     });
-    return this.transferPropsTo(
-      <component
+    return (
+      <Component
+        {...props}
         className={className}
-        placeholder={this.props.placeholder}
+        placeholder={placeholder}
         value={value}
-        disabled={this.props.disabled}
+        disabled={disabled}
         onChange={this.onChange}
+        onValue={undefined}
         />
     );
   },

@@ -2,33 +2,45 @@ paths:
 
 
   /:
-    widget: !<RexPage>
+    widget: !<DemoPage>
       id: dashboard
       title: Dashboard
       params:
         selected_study: study_list/selected
-      children: !<Container>
+      children: !<Element>
+        direction: horizontal
         children:
 
-        - !<Block>
-          size: 3
+        - !<Element>
+          size: 4
           children:
           - !<Header> Sidebar
           - !<Link>
             text: Link to About Page
             href: ../about
 
-
-        - !<Block>
+        - !<Element>
           size: 9
           children:
+
           - !<Header> Studies
+
+          - !<Link>
+            id: forms_link
+            href:
+              url: rex.widget_demo:/forms
+              refs:
+                x: study_list/selected
+              params:
+                y: asdad
+            text: Forms
 
           - !<Table>
             id: study_list
             selectable: true
             data:
-              url: rex.widget_demo:/port/study
+              entity: studies
+              data: rex.widget_demo:/data/study/list
             columns:
               - key: code
                 title: Code
@@ -40,10 +52,5 @@ paths:
           - !<StudyInfo>
             id: study
             data:
-              url: rex.widget_demo:/port/study
-              refs:
-                study:code: study_list/selected
-                
-        - !<Block>
-          size: 1
-
+              data: rex.widget_demo:/data/study
+              entity_id: study_list/selected

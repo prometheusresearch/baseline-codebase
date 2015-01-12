@@ -5,10 +5,10 @@
  */
 'use strict';
 
-var invariant         = require('./invariant');
-var merge             = require('./merge');
-var makeURL           = require('./makeURL');
-var ApplicationState  = require('./ApplicationState');
+var invariant = require('./invariant');
+var merge     = require('./merge');
+var makeURL   = require('./makeURL');
+var runtime   = require('./runtime');
 
 var Sitemap = {
 
@@ -18,7 +18,7 @@ var Sitemap = {
    * Get entire sitemap structure.
    */
   getSitemap() {
-    var sitemap = ApplicationState.getValues()[this.SITEMAP];
+    var sitemap = runtime.ApplicationState.getValues()[this.SITEMAP];
     if (sitemap === undefined) {
       return null;
     }

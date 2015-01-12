@@ -4,11 +4,11 @@
 'use strict';
 
 var React             = require('react');
-var ApplicationState  = require('./ApplicationState');
 var invariant         = require('./invariant');
 var merge             = require('./merge');
 var Reference         = require('./Reference');
-var Data              = require('./Data');
+var Entity            = require('./Entity');
+var runtime           = require('./runtime');
 
 var Application = React.createClass({
 
@@ -35,13 +35,13 @@ var Application = React.createClass({
 
   _removeStateListeners(listenTo) {
     for (var i = 0, len = listenTo.length; i < len; i++) {
-      ApplicationState.off(listenTo[i], this.update);
+      runtime.ApplicationState.off(listenTo[i], this.update);
     }
   },
 
   _setupStateListeners(listenTo) {
     for (var i = 0, len = listenTo.length; i < len; i++) {
-      ApplicationState.on(listenTo[i], this.update);
+      runtime.ApplicationState.on(listenTo[i], this.update);
     }
   },
 
@@ -67,6 +67,16 @@ var Application = React.createClass({
  * @returns {ReactDescriptor}
  */
 function constructComponent(ui, key) {
+  if (ui === null) {
+    return;
+  }
+
+  if (ui.__children__ !== undefined) {
+    return flatMapChildren(ui.__children__, function(child, key) {
+      return constructComponent(child, key);
+    });
+  }
+
   if (ui.__type__ === undefined) {
     throw new Error('ui should have "__type__" attribute');
   }
@@ -83,62 +93,136 @@ function constructComponent(ui, key) {
 
   for (var name in ui.props) {
     var prop = ui.props[name];
+    // Action call
+    if (prop !== null && prop.__action__) {
+      mkAction(props, name, prop.__action__, prop.params);
+    // Action call seq
+    } else if (prop !== null && prop.__actions__) {
+      mkActionSeq(props, name, prop.__actions__);
     // Widget
-    if (prop !== null && prop.__type__) {
-      props[name] = constructComponent(prop);
+    } else if (prop !== null && prop.__type__) {
+      mkComponent(props, name, prop, prop.defer);
     // An array of widgets
     } else if (prop !== null && prop.__children__) {
-      props[name] = prop.__children__.map(function(child, key) {
-        return constructComponent(child, key);
-      });
+      mkComponentChildren(props, name, prop.__children__, prop.defer);
     // js value reference
     } else if (prop !== null && prop.__reference__) {
-      props[name] = __require__(prop.__reference__);
-    // Write to state
+      mkReference(props, name, prop.__reference__);
+    // Read from state
     } else if (prop !== null && prop.__state_read__) {
-      var stateID = prop.__state_read__;
-      props[name] = ApplicationState.get(stateID);
+      mkStateRead(props, name, prop.__state_read__);
     // Write to state
     } else if (prop !== null && prop.__state_read_write__) {
-      var stateID = prop.__state_read_write__;
-      var state = ApplicationState.getState(stateID);
-      props[name] = ApplicationState.get(stateID);
-      props[stateWriterName(name)] = makeAction(stateID, state.persistence);
+      mkStateReadWrite(props, name, prop.__state_read_write__);
     // Read from data
-    } else if (prop !== null && prop.__data_read__) {
-      props[name] = dataRead(prop.__data_read__);
+    } else if (prop !== null && prop.__data__) {
+      mkDataRead(props, name, prop.__data__, prop.wrapper);
+    // Regular prop
     } else {
-      props[name] = prop;
+      mkProp(props, name, prop);
     }
   }
 
   var Component = __require__(ui.__type__);
-  return Component(props);
+  return React.createElement(Component, props);
 }
 
-function dataRead(ref) {
-  // XXX: think of a better to pass updating flag to widget
-  var state = ApplicationState.getState(ref);
-  ref = Reference.as(ref);
-  if (ref.path.length > 0) {
-    // if this is deep reference we just dereference it
-    return ApplicationState.get(ref);
+function mkComponent(props, name, desc, defer) {
+  if (defer) {
+    props[name] = function() {
+      return constructComponent(desc);
+    };
   } else {
-    // if this state read we also include updating state
-    var {value, updating} = ApplicationState.getValue(ref.id);
-    if (value === null || value === ApplicationState.UNKNOWN) {
-      return null
-    } else {
-      return new Data(merge(value, {updating}));
-    }
+    props[name] = constructComponent(desc);
   }
+}
+
+function mkComponentChildren(props, name, descs, defer) {
+  if (defer) {
+    props[name] = function() {
+      return _mkComponentChildren(descs);
+    };
+  } else {
+    props[name] = _mkComponentChildren(descs);
+  }
+}
+
+function _mkComponentChildren(descs) {
+  return flatMapChildren(descs, function(child, key) {
+    return constructComponent(child, key);
+  });
+}
+
+function mkAction(props, name, ref, params) {
+  props[name] = __require__(ref)(params);
+}
+
+function mkProp(props, name, prop) {
+  props[name] = prop;
+}
+
+function mkReference(props, name, ref) {
+  props[name] = __require__(prop.__reference__);
+}
+
+function mkStateRead(props, name, ref) {
+  var value = runtime.ApplicationState.get(ref);
+  if (value !== null && value.__data__) {
+    mkDataRead(props, name, value.__data__, value.wrapper);
+  } else {
+    props[name] = value;
+  }
+}
+
+function mkStateReadWrite(props, name, ref) {
+  mkStateRead(props, name, ref);
+  var state = runtime.ApplicationState.getState(ref);
+  props[stateWriterName(name)] = stateWriter(ref, state.persistence);
 }
 
 function stateWriterName(name) {
   return 'on' + name[0].toUpperCase() + name.slice(1);
 }
 
-function makeAction(id, persistence) {
+function mkDataRead(props, name, ref, wrapper) {
+  ref = runtime.Storage.createRef(ref);
+  var data = runtime.Storage.resolve(ref);
+  if (wrapper) {
+    wrapper = __require__(wrapper);
+    data = new wrapper(ref, data);
+  } else {
+    data = new Entity(ref, data);
+  }
+  props[name] = data;
+}
+
+function mkActionSeq(props, name, actions) {
+  actions = actions.map(function(action) {
+    return __require__(action.__action__)(action.params);
+  });
+  props[name] = function() {
+    for (var i = 0, len = actions.length; i < len; i++) {
+      actions[i]();
+    }
+  }
+}
+
+function flatMapChildren(collection, mapper, _key) {
+  _key = _key || '/';
+  var result = [];
+  for (var i = 0, len = collection.length; i < len; i++) {
+    var key = _key + i + '/';
+    var item = collection[i];
+    if (item && item.__children__) {
+      result = result.concat(flatMapChildren(item.__children__, mapper, key));
+    } else {
+      result.push(mapper(item, key));
+    }
+  }
+  return result;
+}
+
+function stateWriter(id, persistence) {
   function produce(value) {
     var update = {};
     update[id] = value;
@@ -147,16 +231,16 @@ function makeAction(id, persistence) {
 
   function execute(value, options) {
     options = options || {};
-    ApplicationState.updateMany(produce(value), options);
+    runtime.ApplicationState.updateMany(produce(value), options);
     var updatePersistence = options.persistence || persistence;
     switch (updatePersistence) {
-      case ApplicationState.PERSISTENCE.PERSISTENT:
-        ApplicationState.history.pushState();
+      case runtime.ApplicationState.PERSISTENCE.PERSISTENT:
+        runtime.ApplicationState.history.pushState();
         break;
-      case ApplicationState.PERSISTENCE.EPHEMERAL:
-        ApplicationState.history.replaceState();
+      case runtime.ApplicationState.PERSISTENCE.EPHEMERAL:
+        runtime.ApplicationState.history.replaceState();
         break;
-      case ApplicationState.PERSISTENCE.INVISIBLE:
+      case runtime.ApplicationState.PERSISTENCE.INVISIBLE:
         break;
       default:
         invariant(
@@ -174,3 +258,4 @@ function makeAction(id, persistence) {
 }
 
 module.exports = Application;
+module.exports.constructComponent = constructComponent;

@@ -34,7 +34,6 @@ setup(
         'rex.widget',
         'rex.urlmap',
         'rex.deploy',
-        'rex.charts',
     ],
     cmdclass={'demo': demo},
     rex_init='rex.widget_demo',

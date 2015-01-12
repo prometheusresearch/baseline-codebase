@@ -1,11 +1,11 @@
 /**
- * @jsx React.DOM
+ * @copyright Prometheus Research, LLC
  */
 'use strict';
 
 var request                = require('superagent/superagent');
 var React                  = require('react/addons');
-var ReactUpdates           = require('react/lib/ReactUpdates');
+var batchedUpdates         = React.addons.batchedUpdates;
 var Emitter                = require('emitter');
 var invariant              = require('./invariant');
 var merge                  = require('./merge');
@@ -13,64 +13,58 @@ var mergeInto              = require('./mergeInto');
 var History                = require('./History');
 var Reference              = require('./Reference');
 var StateUpdateTransaction = require('./StateUpdateTransaction');
+var Actions                = require('./runtime/Actions');
+var ActionTypes            = require('./runtime/ActionTypes');
 
 var UNKNOWN = '__unknown__';
+
 var PERSISTENCE = {
   PERSISTENT: 'persistent',
   EPHEMERAL: 'ephemeral',
   INVISIBLE: 'invisible'
 };
 
-// a mapping from state ids to state configurations
-var states = undefined;
-// a mapping from state ids to arrays of dependent state ids
-var dependents = {};
-// a mapping from state ids to state values
-var values = {};
+class ApplicationState extends Emitter {
 
-function mergeValue(value, update) {
-  // If this is an object we should process update directives, otherwise we just
-  // replace value with an updated one
-  if (typeof update === 'object' && update !== null && value !== UNKNOWN) {
-    var updatedValue = {};
-    mergeInto(updatedValue, value);
-    Object.keys(update).forEach(function(key) {
-      var val = update[key];
-      if (val && val.__append__) {
-        invariant(
-          value === undefined || Array.isArray(updatedValue[key]),
-          '__append__ directive only allowed on arrays'
-        );
+  constructor(dispatcher) {
+    dispatcher.register(this._onAction.bind(this));
+    // a mapping from state ids to state configurations
+    this.states = undefined;
+    // a mapping from state ids to arrays of dependent state ids
+    this.dependents = {};
+    // a mapping from state ids to state values
+    this.values = {};
 
-        updatedValue[key] = (updatedValue[key] || []).concat(val.__append__);
-      } else {
-        updatedValue[key] = val;
-      }
-    });
-    return updatedValue;
-  } else {
-    return update;
+    this.history = new History(this);
   }
-}
 
-var ApplicationState = merge({
+  _onAction(action) {
+    switch (action.type) {
+      case ActionTypes.PAGE_INIT:
+        var {stateDescriptor, state, versions} = action.payload;
+        this._onPageInit(stateDescriptor, state, versions);
+        break;
+      case ActionTypes.PAGE_UPDATE_COMPLETE:
+        var {state, versions} = action.payload;
+        this._onPageUpdateComplete(state, versions);
+        break;
+    }
+  }
 
-  PERSISTENCE,
-  UNKNOWN,
+  _onPageUpdateComplete(state, versions) {
+    this.hydrate(state, versions, true);
+    batchedUpdates(() => {
+      Object.keys(state).forEach(this.notifyStateChanged, this);
+    });
+  }
 
-  /**
-   * Start application.
-   *
-   * @param {State} state
-   * @param {Values} values
-   */
-  start(state, values, versions) {
+  _onPageInit(stateDescriptor, state, versions) {
     this.history.preventPopState = true;
-    this.configure(state);
-    this.hydrate(values, versions, false);
+    this.configure(stateDescriptor);
+    this.hydrate(state, versions, false);
     this.loadDeferred();
     setTimeout(() => this.history.preventPopState = false, 1000);
-  },
+  }
 
   /**
    * Update applicaiton state
@@ -79,62 +73,69 @@ var ApplicationState = merge({
    */
   configure(conf) {
     invariant(
-      states === undefined,
+      this.states === undefined,
       'state is already configured'
     );
-    states = {};
+    this.states = {};
     Object.keys(conf).forEach((id) => this._configureState(conf[id]));
-  },
+  }
 
   _configureState(state) {
     var {id, dependencies} = state;
-    states[id] = state;
-    values[id] = {
+    var managerClass;
+    if (state.manager) {
+      managerClass = __require__(state.manager);
+    } else {
+      managerClass = require('./StateManager');
+    }
+    state.manager = new managerClass(this, state);
+    this.states[id] = state;
+    this.values[id] = {
       id,
       value: UNKNOWN,
-      updating: state.defer !== null,
+      updating: state.defer != null,
       version: 0
     };
     // TODO: Check for cycles.
     if (dependencies.length > 0) {
-      dependencies.forEach(function(dep) {
-        var list = dependents[dep] = dependents[dep] || [];
-        if (dependents[dep].indexOf(id) === -1) {
-          dependents[dep].push(id);
+      dependencies.forEach(dep => {
+        var list = this.dependents[dep] = this.dependents[dep] || [];
+        if (this.dependents[dep].indexOf(id) === -1) {
+          this.dependents[dep].push(id);
         }
       });
     }
-  },
+  }
 
   getState(id) {
     if (id.indexOf(':') > -1) {
       id = id.split(':', 1)[0];
     }
-    var state = states[id];
+    var state = this.states[id];
     invariant(
       state !== undefined,
       `no state with id "${id}" found`
     );
     return state;
-  },
+  }
 
   getValue(id) {
-    var value = values[id];
+    var value = this.values[id];
     invariant(
       value !== undefined,
       `no value for state id "${id}" found`
     );
     return value;
-  },
+  }
 
   get(ref) {
     ref = Reference.as(ref);
     invariant(
-      states[ref.id] !== undefined,
+      this.states[ref.id] !== undefined,
       `cannot dereference state by ref: ${ref}`
     );
 
-    var value = values[ref.id].value;
+    var value = this.values[ref.id].value;
 
     if (value === UNKNOWN) {
       return null;
@@ -150,16 +151,16 @@ var ApplicationState = merge({
     }
 
     return value;
-  },
+  }
 
   hydrate(update, versions, remote) {
     var nextValues = {};
-    mergeInto(nextValues, values);
-    ReactUpdates.batchedUpdates(() => {
+    mergeInto(nextValues, this.values);
+    batchedUpdates(() => {
       Object.keys(update).forEach((id) => {
         var value = update[id];
         var version = versions[id];
-        var state = states[id];
+        var state = this.states[id];
 
         invariant(
           state !== undefined,
@@ -172,7 +173,7 @@ var ApplicationState = merge({
           var prevValue = nextValues[id].value;
           nextValues[id] = merge(nextValues[id], {
             id,
-            value: mergeValue(nextValues[id].value, value),
+            value: state.manager.hydrate(nextValues[id].value, value),
             version
           });
 
@@ -187,9 +188,9 @@ var ApplicationState = merge({
           );
         }
       });
-      values = nextValues;
+      this.values = nextValues;
     });
-  },
+  }
 
   /**
    * Update multiple states at once.
@@ -197,16 +198,16 @@ var ApplicationState = merge({
   updateMany(update, options) {
     options = options || {};
     var nextValues = {};
-    mergeInto(nextValues, values);
+    mergeInto(nextValues, this.values);
 
     var queue = Object.keys(update);
     var toNotify = [];
 
-    var needRemoteUpdate = false;
+    var needRemoteUpdate = !!options.forceRemoteUpdate;
 
     while (queue.length > 0) {
       var sID = queue.shift();
-      var state = states[sID];
+      var state = this.states[sID];
       var version = nextValues[sID].version;
 
       invariant(
@@ -219,42 +220,44 @@ var ApplicationState = merge({
       // it in some way
       if (update[sID] !== undefined) {
         version = version + 1;
-        nextValues[sID] = merge(nextValues[sID], {value: update[sID], updating: false});
+        nextValues[sID] = state.manager.update(
+          nextValues[sID], {value: update[sID], updating: false});
       } else if (!state.isWritable) {
-        nextValues[sID] = merge(nextValues[sID], {value: values[sID].value, updating: true});
+        nextValues[sID] = state.manager.updateWritable(
+          nextValues[sID], {value: this.values[sID].value, updating: true});
         needRemoteUpdate = true;
       }
 
       toNotify.push(sID);
-      queue = queue.concat(dependents[sID] || []);
+      queue = queue.concat(this.dependents[sID] || []);
     }
 
-    values = nextValues;
+    this.values = nextValues;
 
     // notify listeners so that they can show loading indicators if needed
-    ReactUpdates.batchedUpdates(() => {
+    batchedUpdates(() => {
       toNotify.forEach(this.notifyStateChanged, this);
     });
 
     if (needRemoteUpdate) {
       this.remoteUpdate(update, options);
     }
-  },
+  }
 
   update(id, value, options) {
     var update = {}
     update[id] = value;
     this.updateMany(update, options);
-  },
+  }
 
   createUpdateTransaction(ref, func) {
     ref = Reference.as(ref);
     return new StateUpdateTransaction(ref, this, func);
-  },
+  }
 
   notifyStateChanged(id) {
-    this.emit(id, id, values[id].value);
-  },
+    this.emit(id, id, this.values[id].value);
+  }
 
   remoteReload(ids) {
     if (!(ids instanceof Array)) {
@@ -262,22 +265,22 @@ var ApplicationState = merge({
     }
     var update = {};
     ids.map((id) => {
-      for (var dep in dependents) {
+      for (var dep in this.dependents) {
         // TODO: fix user handling
-        if (dep !== 'USER' && dependents[dep].indexOf(id) != -1) {
-          update[dep] = values[dep].value;
+        if (dep !== 'USER' && this.dependents[dep].indexOf(id) != -1) {
+          update[dep] = this.values[dep].value;
         }
       }
     });
     this.remoteUpdate(update);
-  },
+  }
 
   loadDeferred() {
     var updates = {};
 
-    for (var id in states) {
-      var {defer} = states[id];
-      if (defer !== null) {
+    for (var id in this.states) {
+      var {defer} = this.states[id];
+      if (defer != null) {
         var update = updates[defer] || {};
         update[id] = UNKNOWN;
         updates[defer] = update;
@@ -289,75 +292,52 @@ var ApplicationState = merge({
         this.remoteUpdate(updates[group]);
       }
     }
-  },
+  }
 
   remoteUpdate(update, options) {
     options = options || {};
-    var params = {};
+
+    var includeState = options.includeState || [];
+
+    var values = {};
+    var updates = {};
     var versions = {};
 
     this.forEach((state, id, {value, version}) => {
       versions[id] = version;
-      if (state.isWritable && update[id] === undefined) {
-        params[id] = value;
+      if (state.isWritable && update[id] === undefined || includeState.indexOf(id) > -1) {
+        values[id] = value;
       }
     });
 
     Object.keys(update).forEach((id) => {
-      params[`update:${id}`] = update[id];
+      var state = this.states[id];
+      updates[id] = state.manager.prepareUpdate(update[id]);
     });
 
-
-    request
-      .post(window.location.pathname)
-      .send({values: params, versions})
-      .set('Accept', 'application/json')
-      .end(this._remoteUpdateCompleted.bind(this, options));
-  },
-
-  _remoteUpdateCompleted(options, err, response) {
-    // FIXME: We need to do proper error handling instead: store error in state
-    // so UI can render appropriate message
-    if (err) {
-      throw err;
-    }
-
-    if (response.status !== 200) {
-      throw new Error(`cannot update state: ${response.text}`);
-    }
-
-    var {values, versions} = response.body;
-    this.hydrate(values, versions, true);
-    ReactUpdates.batchedUpdates(() => {
-      Object.keys(values).forEach(this.notifyStateChanged, this);
-    });
-    if (options.persistence !== PERSISTENCE.PERSISTENT.INVISIBLE) {
-      this.history.replaceState();
-    }
-  },
-
-  forEach(func, context) {
-    Object.keys(states).forEach((id) =>
-      func.call(context, states[id], id, values[id]));
-  },
-
-  getStates() {
-    return states;
-  },
-
-  getDependents() {
-    return dependents;
-  },
-
-  getValues() {
-    return values;
+    Actions.pageUpdate({values, updates, versions});
   }
 
-}, Emitter.prototype);
+  forEach(func, context) {
+    Object.keys(this.states).forEach((id) =>
+      func.call(context, this.states[id], id, this.values[id]));
+  }
 
-ApplicationState.history = new History(ApplicationState);
+  getStates() {
+    return this.states;
+  }
 
+  getDependents() {
+    return this.dependents;
+  }
 
+  getValues() {
+    return this.values;
+  }
 
+}
+
+ApplicationState.prototype.PERSISTENCE = PERSISTENCE;
+ApplicationState.prototype.UNKNOWN = UNKNOWN;
 
 module.exports = ApplicationState;

@@ -7,13 +7,18 @@
 
 """
 
-from rex.core import RecordField
+from rex.core import Validate, RecordField, AnyVal, StrVal, MaybeVal
 from ..util import cached_property
+from ..json_encoder import register_adapter
+from ..undefined import MaybeUndefinedVal, undefined
+
 
 class Field(object):
     """ Widget field definition.
 
-    :param validator: Validator
+    :param validate: Validator
+    :keyword configurable: If field is meant to be configurable
+    :keyword doc: Field docstring
     :keyword default: Default value
     :keyword name: Name of the field
     """
@@ -31,37 +36,59 @@ class Field(object):
         self.order = cls.order
         return self
 
-    def __init__(self, validator, default=NotImplemented, doc=None, name=None):
-        if isinstance(validator, type):
-            validator = validator()
-        self.validator = validator
+    def __init__(self, validate, default=NotImplemented, configurable=True, doc=None, name=None):
+        if isinstance(validate, type):
+            validate = validate()
+        self.validate = MaybeUndefinedVal(validate)
         self.default = default
+        self.configurable = configurable
         self.__doc__ = doc
         # name will be defined by Widget metaclass
         self.name = name
-
-        # TODO: remove lines below after state refactor
-        if hasattr(validator, 'default'):
-            self.default = validator.default
 
     def __get__(self, widget, widget_cls):
         if widget is None:
             return self
         return widget.values[self.name]
 
-    @cached_property
-    def record_field(self):
-        """ Create record field validator.
+    def __repr__(self):
+        rep = '%s' % self.validate
+        if self.default is not NotImplemented:
+            rep += ' default=%r' % self.default
+        return '%s(%s)' % (self.__class__.__name__, rep)
 
-        This is used to construct validator of the whole widget (via
-        :class:`rex.core.RecordVal`).
-        """
-        return RecordField(self.name, self.validator, self.default)
+    @property
+    def has_default(self):
+        return not self.default is NotImplemented
+
+    __str__ = __repr__
+    __unicode__ = __repr__
+
+    def reassign(self, name, default=NotImplemented):
+        default = self.default if default is NotImplemented else default
+        return self.__class__(
+            self.validate,
+            default=default,
+            configurable=self.configurable,
+            doc=self.__doc__,
+            name=name,
+        )
+
+    def apply(self, widget, value):
+        from ..widget import Widget
+        if isinstance(value, Widget):
+            descriptor = value.descriptor()
+            return {self.name: descriptor.ui}, descriptor.state.values()
+        elif not value is undefined:
+            return {self.name: value}, []
+        else:
+            return {}, []
 
 
-class StatefulField(Field):
-    """ Base class for state fields."""
+class IDField(Field):
+    """ ID field."""
 
-    def describe(self, name, value, widget):
-        """ Describe state."""
-        raise NotImplementedError()
+    def __init__(self, required=False):
+        super(IDField, self).__init__(
+            StrVal(),
+            default=NotImplemented if required else undefined)

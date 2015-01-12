@@ -1,14 +1,16 @@
 @import (less) "~bootstrap/less/bootstrap";
+@import (less) "~bootstrap-datepicker/less/datepicker3.less";
 @import (less) "~react-grid/themes/bootstrap";
-@import (less) "~react-autocomplete/themes/bootstrap";
+@import (less) "~react-forms/themes/bootstrap/index.less";
+@import (less) "~react-autocomplete/lib/styles.css";
 @import (less) "./layout";
 @import (less) "./grid";
 @import (less) "./table";
 @import (less) "./variables";
 
-@border-radius-base:        3px;
-@border-radius-large:       3px;
-@border-radius-small:       3px;
+@border-radius-base:        2px;
+@border-radius-large:       2px;
+@border-radius-small:       2px;
 
 @standardShadow: none;
 
@@ -31,6 +33,26 @@ html, body, #__main__ {
   height: 100%;
 }
 
+#__main__ {
+  box-sizing: border-box;
+  position: relative;
+  border: 0 solid black;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+/**
+ * <ReactForms.Field />
+ */
+.rf-Field {
+  padding: 0;
+}
+
 /**
  * <Select />
  */
@@ -43,9 +65,8 @@ html, body, #__main__ {
  */
 .rw-TextInput {
   .form-control;
-  .input-sm;
   width: 100%;
-  height: 22px;
+  height: 30px;
   padding: 4px 6px;
 }
 
@@ -113,6 +134,13 @@ html, body, #__main__ {
 
 .rw-Button {
   .btn();
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+
+.rw-Button__icon {
+  margin-right: @paddingL;
 }
 
 .rw-Button--default {
@@ -126,6 +154,11 @@ html, body, #__main__ {
 .rw-Button--success {
   .btn-success();
 }
+
+.rw-Button--danger {
+  .btn-danger();
+}
+
 
 /**
  * <CheckboxGroup />
@@ -174,4 +207,103 @@ html, body, #__main__ {
 }
 .rw-Modal__body {
   .modal-body;
+}
+
+/**
+ * <Form />
+ */
+.rw-Form {
+  
+}
+
+.rw-RepeatingFieldsetItem {
+  border-bottom: 1px solid @colorShadow;
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.rw-RepeatingFieldset__removeButton {
+  padding: 2px 4px;
+  font-size: 80%;
+  position: absolute;
+  right: 10px;
+  top: 5px;
+}
+
+.rw-Form__controls {
+  padding: @paddingS;
+
+  & > * {
+    margin-right: @padding;
+  }
+}
+
+/**
+ * <CheckboxField />
+ */
+.rw-CheckboxField__checkbox {
+  display: block;
+}
+
+/**
+ * <SelectField />
+ */
+.rw-SelectField__select {
+  .form-control;
+}
+
+/**
+ *
+ */
+.rw-TextareaField__textarea {
+  resize: vertical;
+  min-height: 4.5em;
+}
+
+/**
+ * <Navigation />
+ */
+.rw-Navigation__container {
+  margin-left: 0;
+  width: 100%;
+}
+
+/**
+ * <Datepicker />
+ */
+.rw-Datepicker {
+  .form-control;
+}
+
+/**
+ * <Notice />
+ */
+.rw-Notice {
+  font-size: 16pt;
+  color: lighten(@colorGrey, 20%);
+}
+.rw-Notice__text {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+}
+
+/**
+ * <ReactAutocomplete />
+ */
+.rf-combobox-input {
+  .form-control();
+}
+.rf-combobox-button {
+  top: 6px;
+  right: 9px;
+}
+.rf-combobox-list {
+  font-size: @font-size-base;
+  background-color: @dropdown-bg;
+  border: 1px solid @dropdown-border;
+  border-radius: @border-radius-base;
+  .box-shadow(0 6px 12px rgba(0,0,0,.175));
 }

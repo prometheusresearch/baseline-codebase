@@ -1,0 +1,12 @@
+
+paths:
+
+  /data/study:
+    port:
+      entity: study
+      with:
+      - entity: protocol
+
+  /data/study/list:
+    port:
+      entity: study

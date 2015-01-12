@@ -1,8 +1,0 @@
-
-paths:
-
-  /port/study:
-    port:
-    - entity: study
-      filters:
-      - "code($code) := guard($code, code=$code)"

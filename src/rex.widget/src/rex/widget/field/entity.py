@@ -7,31 +7,86 @@
 
 """
 
-from .data import DataField, Data
+from urlparse import urlparse, parse_qsl
+from urllib import urlencode
+
+from rex.core import Error, Validate
+from rex.core import RecordVal, RecordField, OneOfVal, MapVal, StrVal
+
+from ..descriptors import DataRead
+from ..json_encoder import register_adapter
+from ..state import Reference
+from ..util import cached_property
+from .data import DataField, DataRef, DataSpec, product_to_json
+
+__all__ = ('EntitySpec', 'EntitySpecVal', 'EntityField')
+
+
+class EntitySpec(DataSpec):
+    """ Specification for fetching an entity."""
+
+    ENTITY_ID = 'ENTITY_ID'
+
+
+class EntitySpecVal(Validate):
+    """ Valudator for :class:`EntitySpec`."""
+
+    _validate = RecordVal(
+        RecordField('data', StrVal()),
+        RecordField('entity_id', StrVal()),
+        RecordField('defer', StrVal(), default=None),
+    )
+
+    def __call__(self, data):
+        if isinstance(data, EntitySpec):
+            return data
+
+        data = self._validate(data)
+
+        parsed = urlparse(data.data)
+        if parsed.scheme:
+            route = '%s:%s' % (parsed.scheme, parsed.path)
+        else:
+            route = parsed.path
+        params = {
+            k: v if isinstance(v, list) else [v]
+            for k, v in parse_qsl(parsed.query)
+        }
+
+        entity_id = DataRef(ref=Reference(data.entity_id), required=False)
+
+        return EntitySpec(
+            route=route,
+            refs={EntitySpec.ENTITY_ID: (entity_id,)},
+            params=params,
+            defer=data.defer
+        )
 
 
 class EntityField(DataField):
 
-    class computator(DataField.computator):
+    spec_validator = EntitySpecVal
 
-        inactive_value = Data(None)
-        no_value = Data(None)
+    ENTITY_ID = 'ENTITY_ID'
 
-        def fetch(self, handler, spec, graph):
-            params = {}
-            for name, refs in spec.refs.items():
-                for ref in refs:
-                    value = graph[ref]
-                    if value is None:
-                        return self.no_value
-                    params.setdefault(name, []).append(value)
+    def produce(self, spec, widget, state, graph, request):
+        query = {}
 
-            data = self.execute(handler, spec, **params)
+        if spec.params:
+            query.update(spec.params)
 
-            if isinstance(data.data, list):
-                if len(data.data) == 0:
-                    data = self.no_value
-                else:
-                    data = data._replace(data=data.data[0])
+        entity_id = graph[spec.refs[EntitySpec.ENTITY_ID][0].ref]
+        if entity_id is None:
+            return None
+        query[spec.entity] = entity_id
 
-            return data
+        data = product_to_json(spec.port.produce(urlencode(query, doseq=True)))
+
+        if len(data[spec.entity]) > 1:
+            raise Error('expected 0 or 1 result')
+        elif len(data[spec.entity]) == 0:
+            data = None
+        else:
+            data = data[spec.entity][0]
+
+        return DataRead(spec.entity, query[spec.entity][0], data, None)

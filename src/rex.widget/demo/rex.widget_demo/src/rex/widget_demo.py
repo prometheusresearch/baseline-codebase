@@ -9,12 +9,10 @@
 
 from rex.core import StrVal, AnyVal, IntVal, cached
 from rex.widget import (
-    Widget, Page, Field, EntityField, WidgetVal, NullWidget,
-    ContextValue)
+    Widget, Page, Field, EntityField, WidgetVal, NullWidget)
 
 from rex.web import Command, Parameter
 from webob import Response
-from rex.widget.widget import state
 
 
 class StudyInfo(Widget):
@@ -25,8 +23,6 @@ class StudyInfo(Widget):
 
     id      = Field(StrVal)
     data    = EntityField()
-
-
 
 
 class MyHeader(Widget):

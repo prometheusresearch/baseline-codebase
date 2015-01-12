@@ -4,14 +4,18 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ REQUEST.script_name }}/bundle/bundle.css">
+  {% if bundle.css %}
+      <link rel="stylesheet" href="{{ bundle.css|url }}">
+  {% endif %}
 </head>
 <body>
   <div id="__main__"></div>
   <script>
     var __MOUNT_PREFIX__ = "{{ REQUEST.script_name }}";
   </script>
-  <script src="{{ REQUEST.script_name }}/bundle/bundle.js"></script>
+  {% if bundle.js %}
+      <script src="{{ bundle.js|url }}"></script>
+  {% endif %}
   <script>
     var __REX_WIDGET__ = {{ payload }};
     if (window.Rex === undefined || window.Rex.Widget === undefined) {

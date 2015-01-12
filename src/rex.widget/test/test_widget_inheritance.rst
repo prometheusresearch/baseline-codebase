@@ -12,7 +12,7 @@ We need to import ``Widget`` and ``Field``
 classes from ``rex.widget`` package::
 
     >>> from rex.core import StrVal
-    >>> from rex.widget import Widget, Field
+    >>> from rex.widget import Widget, Field, parse
 
 Inheritance
 -----------
@@ -21,6 +21,7 @@ We define a super class::
 
     >>> class Super(Widget):
     ...   name = 'Super'
+    ...   js_type = 'Super'
     ...
     ...   super_required = Field(StrVal())
     ...   super_optional = Field(StrVal(), default='OK')
@@ -29,6 +30,7 @@ We define a subclass::
 
     >>> class Sub(Super):
     ...   name = 'Sub'
+    ...   js_type = 'Sub'
     ...
     ...   sub_required = Field(StrVal())
     ...   sub_optional = Field(StrVal(), default='NOPE')
@@ -49,10 +51,10 @@ Check if we inherited fields::
 
 We can use ``Super``::
 
-    >>> w = Widget.parse("""
+    >>> w = parse("""
     ... !<Super>
     ... super_required: ME
-    ... """)(None)
+    ... """)
 
     >>> w.super_required
     'ME'
@@ -61,11 +63,11 @@ We can use ``Super``::
 
 We can use ``Sub``::
 
-    >>> w = Widget.parse("""
+    >>> w = parse("""
     ... !<Sub>
     ... super_required: ME
     ... sub_required: MEOW
-    ... """)(None)
+    ... """)
 
     >>> w.super_required
     'ME'
@@ -88,6 +90,7 @@ base class::
 
     >>> class Concrete(Abstract):
     ...   name = 'Concrete'
+    ...   js_type = 'Concrete'
     ...
     ...   another_field = Field(StrVal())
 

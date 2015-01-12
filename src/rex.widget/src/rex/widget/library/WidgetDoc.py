@@ -14,8 +14,6 @@
 
 from rex.core import StrVal, AnyVal, IntVal, cached
 from ..widget import Widget
-from rex.widget.widget import state
-
 
 
 class WidgetDoc(Widget):
@@ -26,7 +24,7 @@ class WidgetDoc(Widget):
     name = 'WidgetDoc'
     js_type = 'rex-widget/lib/WidgetDoc'
             
-    @state(StrVal())
+    @Widget.define_state(StrVal())
     def doc(self, state, graph, request):
         
         css = """

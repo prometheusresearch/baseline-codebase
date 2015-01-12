@@ -3,10 +3,11 @@
  */
 'use strict';
 
-var React = require('react/addons');
-var cx    = React.addons.classSet;
-var Icon  = require('./Icon');
-var $     = require('jquery');
+var React         = require('react/addons');
+var cx            = React.addons.classSet;
+var Icon          = require('./Icon');
+var emptyFunction = require('./emptyFunction');
+var $             = require('jquery');
 
 var Button = React.createClass({
 
@@ -14,35 +15,38 @@ var Button = React.createClass({
     onClick: React.PropTypes.func,
     link: React.PropTypes.bool,
     success: React.PropTypes.bool,
+    danger: React.PropTypes.bool,
     icon: React.PropTypes.string
   },
 
-  render: function() {
-    var className = cx({
+  render() {
+    var {
+      link, success, danger, className, disabled,
+      placeholder, id, icon, text, children, ...props
+    } = this.props;
+    var classNames = cx({
       'rw-Button': true,
-      'rw-Button--default': !this.props.link && !this.props.success,
-      'rw-Button--success': this.props.success,
-      'rw-Button--link': this.props.link
+      'rw-Button--default': !link && !success,
+      'rw-Button--success': success,
+      'rw-Button--danger': danger,
+      'rw-Button--link': link
     });
     return (
       <button
-        disabled={this.props.disabled}
-        className={cx(className, this.props.className)}
-        placeholder={this.props.placeholder}
-        onClick={this.onClick}
-        id={this.props.id}>
-        {this.props.icon && <Icon name={this.props.icon} />}
-        {this.props.children}
+        {...props}
+        title={children || text}
+        disabled={disabled}
+        className={cx(classNames, className)}
+        placeholder={placeholder}
+        id={id}>
+        {icon && <Icon className="rw-Button__icon" name={icon} />}
+        {children || text}
       </button>
     );
   },
 
-  onClick: function(e) {
-    var id = e.target.id;
-    var tagName = $(e.target).prop('tagName');
-    if (tagName == 'I')
-      id = $(e.target).parent().attr('id');
-    this.props.onClick(id);
+  getDefaultProps() {
+    return {onClick: emptyFunction};
   }
 
 });

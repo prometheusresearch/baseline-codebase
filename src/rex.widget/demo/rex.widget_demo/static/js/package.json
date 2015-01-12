@@ -1,0 +1,14 @@
+{
+  "name": "rex-widget-demo",
+  "version": "1.0.0",
+  "description": "Demo for Rex Widget",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "AGPLv3",
+  "devDependencies": {
+    "jsx-loader": "^0.12.1"
+  }
+}

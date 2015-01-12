@@ -5,19 +5,18 @@
   var MyHeader = React.createClass({
 
     onClick: function(){
-      eval( this.props.code );
+      eval(this.props.code);
     },
 
     render: function() {
-      var component = React.DOM['h' + this.props.level]
-      if (this.props.data.data) {
-        if ( this.props.code ) {
-          return <component onClick={this.onClick}>{this.props.data.data}</component>
-        } else {
-          return <component>{this.props.data.data}</component>          
-        }
+      var {level, data, text, code, ...props} = this.props;
+      var Component = 'h' + level;
+      if (data.data) {
+        return code ?
+          <Component {...props} onClick={this.onClick}>{data.data}</Component> :
+          <Component {...props}>{data.data}</Component>          
       } else {
-        return <component>{this.props.text}</component>
+        return <Component {...props}>{text}</Component>
       }
     }
 

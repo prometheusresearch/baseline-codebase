@@ -37,34 +37,39 @@ Now we define a simple widget with two fields::
     >>> 'MyHeader' in Widget.map_all()
     True
 
+Constructing widget instances
+-----------------------------
+
+TBD
+
+Parsing widget instances from YAML
+----------------------------------
+
 We can get a factory for our widget out of its YAML representation::
 
-    >>> w_factory = Widget.parse("""
+    >>> from rex.widget import parse
+
+    >>> widget = parse("""
     ... !<MyHeader>
     ... text: 'Hello, world!'
     ... """)
 
-We need to pass ``context`` to factory to obtain a widget instance. For the test
-purposes ``context`` can be ``None``::
-
-    >>> w = w_factory(None)
-
 Constructed widget should have correct type::
 
-    >>> isinstance(w, MyHeader)
+    >>> isinstance(widget, MyHeader)
     True
 
 We can access field values through properties::
 
-    >>> w.text
+    >>> widget.text
     'Hello, world!'
 
-    >>> w.level
+    >>> widget.level
     1
 
 Or we can get all widget values via ``values`` attribute::
 
-    >>> w.values
+    >>> widget.values
     {'text': 'Hello, world!', 'level': 1}
 
 Overriding default field values
@@ -72,18 +77,16 @@ Overriding default field values
 
 We can specify ``level`` field and override its default value::
 
-    >>> w = Widget.parse("""
+    >>> widget = parse("""
     ... !<MyHeader>
     ... text: 'Hello, world!'
     ... level: 2
     ... """)
 
-    >>> w = w(None)
-
-    >>> w.level
+    >>> widget.level
     2
 
-    >>> w.values
+    >>> widget.values
     {'text': 'Hello, world!', 'level': 2}
 
 Shortcut YAML representation
@@ -92,20 +95,18 @@ Shortcut YAML representation
 Alternatively we can use shortcut for YAML representation which allows only
 specify the first field::
 
-    >>> w = Widget.parse("""
+    >>> widget = parse("""
     ... !<MyHeader> "Hello, world!"
     ... """)
 
-    >>> w = w(None)
-
-    >>> isinstance(w, MyHeader)
+    >>> isinstance(widget, MyHeader)
     True
 
-    >>> w.text
+    >>> widget.text
     'Hello, world!'
 
-    >>> w.level
+    >>> widget.level
     1
 
-    >>> w.values
+    >>> widget.values
     {'text': 'Hello, world!', 'level': 1}

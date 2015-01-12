@@ -1,0 +1,11 @@
+
+
+paths:
+
+  /data/protocol:
+    port:
+      entity: protocol
+
+  /data/protocol/list:
+    port:
+      entity: protocol

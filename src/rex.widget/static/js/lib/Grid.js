@@ -3,19 +3,19 @@
  */
 'use strict';
 
-var React            = require('react/addons');
-var PropTypes        = React.PropTypes;
-var cx               = React.addons.classSet;
-var BaseGrid         = require('react-grid');
-var BaseRow          = require('react-grid/lib/Row');
-var Icon             = require('./Icon');
-var emptyFunction    = require('./emptyFunction');
-var merge            = require('./merge');
-var invariant        = require('./invariant');
-var mergeInto        = require('./mergeInto');
-var isString         = require('./isString');
-var formatters       = require('./formatters');
-var ApplicationState = require('./ApplicationState');
+var React         = require('react/addons');
+var PropTypes     = React.PropTypes;
+var cx            = React.addons.classSet;
+var BaseGrid      = require('react-grid');
+var BaseRow       = require('react-grid/lib/Row');
+var Icon          = require('./Icon');
+var emptyFunction = require('./emptyFunction');
+var merge         = require('./merge');
+var invariant     = require('./invariant');
+var mergeInto     = require('./mergeInto');
+var isString      = require('./isString');
+var formatters    = require('./formatters');
+var runtime       = require('./runtime');
 
 function sameColumn(a, b) {
   var k;
@@ -171,7 +171,7 @@ var Grid = React.createClass({
     if (autoSelect && selectable && selected == null) {
       var firstRow = this.getData()[0];
       if (firstRow) {
-        this.props.onSelected(firstRow.id, {persistence: ApplicationState.PERSISTENCE.INVISIBLE});
+        this.props.onSelected(firstRow.id, {persistence: runtime.ApplicationState.PERSISTENCE.INVISIBLE});
       }
     }
   },

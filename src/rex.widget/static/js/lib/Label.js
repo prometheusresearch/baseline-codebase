@@ -4,11 +4,22 @@
 'use strict';
 
 var React = require('react');
+var cx = React.addons.classSet;
+var Element = require('./layout/Element');
 
 var Label = React.createClass({
 
   render: function() {
-    return <span className="rw-Label">{this.props.text}</span>;
+    var {text, className, ...props} = this.props;
+    return (
+      <Element {...props} Component="span" className={cx(className, 'rw-Label')}>
+        {text}
+      </Element>
+    );
+  },
+
+  getDefaultProps() {
+    return {margin: '0 0 1em 0'};
   }
 });
 

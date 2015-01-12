@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.widget',
-    version="0.2.9-dev",
+    version="0.2.9",
     description="Widget toolkit for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -19,15 +19,16 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup >=1.2, <2',
+        'rex.setup >=2, <3',
     ],
     install_requires=[
-        'rex.core       >= 1.6, < 2',
-        'rex.web        >= 3.0, < 4',
-        'rex.urlmap     >= 2.5, < 3',
-        'simplejson     >= 3.0, < 4',
-        'jsonpublish    >= 0.2, < 0.3',
-        'pyquerystring  >= 0.3, < 0.4'
+        'rex.expression >= 1.3,   < 2',
+        'rex.core       >= 1.6,   < 2',
+        'rex.web        >= 3.0,   < 4',
+        'rex.urlmap     >= 2.5,   < 3',
+        'simplejson     >= 3.0,   < 4',
+        'jsonpublish    >= 0.2.1, < 0.3',
+        'pyquerystring  >= 0.3,   < 0.4'
     ],
     rex_init='rex.widget',
     rex_static='static',

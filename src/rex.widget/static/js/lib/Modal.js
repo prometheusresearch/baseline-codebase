@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var React                 = require('react');
-var cx                    = require('react/lib/cx');
+var React                 = require('react/addons');
+var cx                    = React.addons.classSet;
 var LayeredComponentMixin = require('./LayeredComponentMixin');
 var merge                 = require('./merge');
 

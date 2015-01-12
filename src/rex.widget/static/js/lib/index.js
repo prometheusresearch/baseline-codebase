@@ -6,15 +6,11 @@
 __webpack_require__.p = __MOUNT_PREFIX__ + __BUNDLE_PREFIX__;
 
 var React            = require('react');
-var ApplicationState = require('./ApplicationState');
+var Storage          = require('./Storage');
 var Application      = require('./Application');
 var Sitemap          = require('./Sitemap');
 var invariant        = require('./invariant');
-
-if (__DEV__) {
-  // Needed for React Dev Tools
-  window.React = React;
-}
+var Actions          = require('./runtime/Actions');
 
 invariant(
   window.__require__ !== undefined,
@@ -23,43 +19,56 @@ invariant(
 );
 
 /**
+ * Fix for scroll position.
+ */
+window.addEventListener('beforeunload', function() {
+  window.scrollTo(0, 0);
+}, false);
+
+/**
  * Render Rex Widget application into DOM.
  */
-function render({descriptor: {state, ui}, map, values, versions}, element) {
-  ApplicationState.start(state, values, versions);
-  return React.renderComponent(
-    <Application listenTo={Object.keys(state)} ui={ui} />,
-    element);
+function render(spec, element) {
+  var {descriptor, state, data, versions} = spec;
+
+  Actions.pageInit({
+    stateDescriptor: descriptor.state,
+    state, versions, data
+  });
+
+  return React.render(
+    <Application listenTo={Object.keys(descriptor.state)} ui={descriptor.ui} />,
+    element
+  );
 }
 
 module.exports = {
   render,
-  ApplicationState,
   Application,
-  Sitemap:          Sitemap,
-  request:          require('./request'),
-  Reference:        require('./Reference'),
-  Link:             require('./Link'),
-  History:          require('./History'),
-  PropTypes:        require('./PropTypes'),
-  Table:            require('./Table'),
-  Select:           require('./Select'),
-  Grid:             require('./Grid'),
-  Preloader:        require('./Preloader'),
-  DataPreloader:    require('./DataPreloader'),
-  LoadingIndicator: require('./LoadingIndicator'),
-  Icon:             require('./Icon'),
-  TextInput:        require('./TextInput'),
-  ValidatedTextInput:        require('./ValidatedTextInput'),
-  Button:           require('./Button'),
-  Checkbox:         require('./Checkbox'),
-  CheckboxGroup:    require('./CheckboxGroup'),
-  Modal:            require('./Modal'),
-  layout:           require('./layout'),
-  PageStateMixin:   require('./PageStateMixin'),
-  Container:        require('./layout/Container'),
-  WidgetDoc:        require('./WidgetDoc'),
-  Block:            require('./layout/Block')
+  Sitemap:            Sitemap,
+  request:            require('./request'),
+  Reference:          require('./Reference'),
+  Link:               require('./Link'),
+  History:            require('./History'),
+  PropTypes:          require('./PropTypes'),
+  Table:              require('./Table'),
+  Select:             require('./Select'),
+  Grid:               require('./Grid'),
+  Preloader:          require('./Preloader'),
+  DataPreloader:      require('./DataPreloader'),
+  LoadingIndicator:   require('./LoadingIndicator'),
+  Icon:               require('./Icon'),
+  TextInput:          require('./TextInput'),
+  ValidatedTextInput: require('./ValidatedTextInput'),
+  Button:             require('./Button'),
+  Checkbox:           require('./Checkbox'),
+  CheckboxGroup:      require('./CheckboxGroup'),
+  Modal:              require('./Modal'),
+  layout:             require('./layout'),
+  PageStateMixin:     require('./PageStateMixin'),
+  WidgetDoc:          require('./WidgetDoc'),
+  merge:              require('./merge'),
+  runtime:            require('./runtime')
 };
 
 window.Rex = window.Rex || {};

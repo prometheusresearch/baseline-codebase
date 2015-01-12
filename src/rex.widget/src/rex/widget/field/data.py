@@ -3,300 +3,41 @@
     rex.widget.field.data
     =====================
 
+    Base classes and utilities for widget fields which fetch data from a
+    database.
+
     :copyright: 2014, Prometheus Research, LLC
 
 """
 
-import re
 import urllib
-import json
-from urlparse import urlparse, parse_qsl
+import simplejson as json
 from collections import namedtuple
+from functools import partial
+from logging import getLogger
+from urlparse import urlparse, parse_qsl
 
-import htsql.core.cmd.act
 from htsql.core.fmt.emit import emit
-from rex.core import (
-    Validate, Error,
-    OneOfVal, RecordVal, RecordField, SeqVal, MapVal,
-    StrVal, BoolVal)
-from rex.web import route
-from rex.db import get_db
 
-from ..json import register_adapter
-from ..util import measure_execution_time
-from ..logging import getLogger
-from ..state import Reference, State
-from .base import StatefulField
+from rex.core import Error, Validate
+from rex.core import RecordVal, OneOfVal, MapVal, SeqVal, StrVal, BoolVal
+from rex.db import get_db
+from rex.web import route
+
+from ..undefined import undefined
+from ..state import State, Reference
+from ..descriptors import StateRead
+from ..util import cached_property
+from ..json_encoder import register_adapter
+from .base import Field
 
 
 log = getLogger(__name__)
 
-
-_Data = namedtuple('Data', ['id', 'data', 'meta', 'has_more'])
-
-class Data(_Data):
-    """ Container for data."""
-
-    __slots__ = ()
-
-    def __new__(cls, data, meta=None, has_more=False, id=None): # pylint: disable=redefined-builtin
-        return _Data.__new__(
-            cls, id=id, data=data, meta=meta, has_more=has_more)
-
-    def get(self, name, default=None):
-        if name in self._fields: # pylint: disable=no-member
-            return self[name]
-        return default
-
-    def __getitem__(self, name):
-        # Python weirdness, __getattr__ is implemented in terms of __getitem__
-        if isinstance(name, int):
-            return _Data.__getitem__(self, name)
-        if name in self._fields: # pylint: disable=no-member
-            return getattr(self, name)
-        else:
-            raise KeyError(name)
-
-@register_adapter(Data)
-def _encode_Data(data):
-    return {
-        'id': data.id,
-        'data': data.data,
-        'meta': data.meta,
-        'hasMore': data.has_more
-    }
-
-
-Append = namedtuple('Append', ['data'])
-
-@register_adapter(Append)
-def _encode_Append(directive):
-    return {'__append__': directive.data}
-
-
-DataSpec = namedtuple('DataSpec', ['route', 'query', 'params', 'refs', 'defer'])
-
-
-class DataSpecVal(Validate):
-    """ Data specification value.
-
-    There are two forms are allowed. One is the full form::
-
-        data:
-          url: pkg:/url
-          refs:
-            param: widget/state
-
-    and another one is shorthand::
-
-        data: pkg:/url
-
-    which gets expanded into::
-
-        data:
-          url: pkg:/url
-          refs: {}
-
-    """
-
-    IS_ROUTE_RE = re.compile('^[a-zA-Z_][a-zA-Z_\.0-0]*:+')
-
-    refs_val = MapVal(StrVal(), OneOfVal(StrVal(), SeqVal(StrVal())))
-
-    data_spec = RecordVal(
-        RecordField('url', StrVal()),
-        RecordField('refs', refs_val, default={}),
-        RecordField('defer', OneOfVal(StrVal(), BoolVal()), default=None))
-
-    data_spec_with_shorthand = OneOfVal(StrVal(), data_spec)
-
-    def __call__(self, data):
-        data = self.data_spec_with_shorthand(data)
-        if isinstance(data, basestring):
-            data = self.data_spec({'url': data})
-
-        refs = {}
-        for name, ref in data.refs.items():
-            if not isinstance(ref, (tuple, list)):
-                ref = [ref]
-            refs[name] = tuple(Reference(r) for r in ref)
-
-
-        if self.IS_ROUTE_RE.match(data.url) is not None:
-            ps = urlparse(data.url)
-            params = {k: v if isinstance(v, list) else [v]
-                    for k, v in parse_qsl(ps.query)}
-            return DataSpec(
-                route='%s:%s' % (ps.scheme, ps.path) if ps.scheme else ps.path,
-                query=None,
-                params=params,
-                refs=refs,
-                defer=data.defer
-            )
-        else:
-            return DataSpec(
-                route=None,
-                query=data.url,
-                params={},
-                refs=refs,
-                defer=data.defer
-            )
-
-
-class QueryHandler(object):
-
-    def __init__(self, spec):
-        self.query = spec.query
-        self.parameters = spec.params
-
-
-class DataField(StatefulField):
-    """ Base class for fields with data.
-
-    :keyword include_meta: Pass ``True`` if metadata should be provided to
-                           widget. [default: ``False``]
-    """
-
-    class computator(object):
-
-        inactive_value = NotImplemented
-
-        def __init__(self, spec, field, **params):
-            self.spec = spec
-            self.field = field
-            self.params = params
-
-        def __call__(self, widget, state, graph, request):
-            if not state.is_active or state.defer is not None:
-                return self.inactive_value
-            if self.spec.route:
-                handler = route(self.spec.route)
-                if handler is None:
-                    raise Error("Invalid data reference:", self.spec.route)
-            else:
-                handler = QueryHandler(self.spec)
-            data = self.fetch(handler, self.spec, graph)
-            if data.id is None:
-                data = data._replace(id=state.id) # pylint: disable=protected-access
-            return data
-
-        def fetch(self, handler, spec, graph):
-            """ Fetch data using ``handler`` in context of the current
-            application state ``graph``.
-            """
-            raise NotImplementedError(
-                "%s.fetch(handler, graph) is not implemented" % \
-                self.__class__.__name__)
-
-        def execute(self, handler, spec, **params):
-            """ Execute ``handler`` with given ``params``.
-
-            This method is often used by :class:`DataComputator` subclasses to
-            implement :method:`fetch`.
-            """
-            if hasattr(handler, 'port'):
-                return self.execute_port(handler, spec, **params)
-            elif hasattr(handler, 'query'):
-                return self.execute_query(handler, spec, **params)
-            else:
-                raise NotImplementedError('Unknown data reference: %s' % spec.route)
-
-        def execute_port(self, handler, spec, **params):
-            query = dict(spec.params)
-
-            predefined_sort_params = sort_params(query)
-            override_sort_params = sort_params(params)
-
-            if predefined_sort_params and override_sort_params:
-                for k in predefined_sort_params:
-                    del query[k]
-
-            query.update(params)
-            query = urlencode(query)
-
-            log.debug('fetching port: %s?%s', spec.route, query)
-
-            with measure_execution_time(log=log):
-                product = handler.port.produce(query)
-            data = product_to_json(product)
-            data = data[product.meta.domain.fields[0].tag]
-            if self.field.include_meta:
-                meta = product_meta_to_json(handler.port.describe())
-                meta = meta['domain']['fields'][0]
-                return Data(data, meta=meta)
-            else:
-                return Data(data)
-
-        def execute_query(self, handler, spec, **params):
-            query = dict(handler.parameters)
-            if spec.params:
-                query.update(spec.params)
-            query.update(query)
-            query.update(params)
-
-            for k, v in query.items():
-                v = v[0] if isinstance(v, list) else v
-                if v == False or v is None or v == 'false':
-                    v = ''
-                query[k] = v
-
-            log.debug(
-                'fetching query: %s?%s',
-                spec.route,
-                urllib.urlencode(query, doseq=True)
-            )
-
-            with measure_execution_time(log=log), get_db():
-                product = htsql.core.cmd.act.produce(handler.query, **query)
-
-            data = product_to_json(product)
-            data = data[product.meta.tag]
-
-            if self.field.include_meta:
-                meta = product_meta_to_json(product)
-                return Data(data, meta=meta)
-            else:
-                return Data(data)
-
-    def __init__(self, include_meta=False, default=NotImplemented, doc=None):
-        super(DataField, self).__init__(DataSpecVal(), default=default, doc=doc)
-        self.include_meta = include_meta
-
-    def describe(self, name, spec, widget):
-        if spec is None:
-            return []
-        state_id = "%s/%s" % (widget.id, name)
-        dependencies = [r.id for refs in spec.refs.values() for r in refs]
-        st = State(
-            id=state_id,
-            widget=widget,
-            computator=self.computator(spec, self),
-            dependencies=dependencies,
-            is_writable=False,
-            defer=spec.defer)
-        return [(name, st)]
-
-
-def sort_params(params):
-    return {k: v for k, v in params.items() if k[-5:] == ':sort'}
-
-
-def map_param(param):
-    # 0 == False, thanks Python
-    if param is False or param == 'false':
-        return ''
-    if param is True:
-        return 'true'
-    return param
-
-
-def urlencode(query):
-    params = {}
-    for k, v in query.items():
-        v = [map_param(x) for x in v if x is not None]
-        if v:
-            params[k] = v
-    return urllib.urlencode(params, doseq=True).replace('+', '%20')
+__all__ = (
+    'DataField', 'DataSpec', 'DataRefVal',
+    'product_to_json', 'product_meta_to_json',
+)
 
 
 def product_to_json(product):
@@ -323,3 +64,182 @@ def product_meta_to_json(product):
         data = ''.join(emit('x-htsql/raw', product))
     data = json.loads(data)
     return data['meta']
+
+
+class DataSpec(object):
+    """ Specification for fetching an entity."""
+
+    def __init__(self, route, refs=None, defer=None, params=None):
+        self.route = route
+        self.refs = refs or {}
+        self.params = params
+        self.defer = defer
+
+    @cached_property
+    def port(self):
+        handler = route(self.route)
+        if handler is None:
+            raise Error(
+                "Entity reference '%s' cannot be resolved against URL "
+                "Mapping configuration" % self.route)
+        if not hasattr(handler, 'port'):
+            raise Error(
+                "Collection reference '%s' should point to a port" % self.route)
+        return handler.port
+
+    @cached_property
+    def entity(self):
+        meta = self.port.describe()
+        return meta.domain.fields[0].tag
+
+    def __repr__(self):
+        return '%s(route=%r, refs=%r, params=%r, defer=%r)' % (
+            self.__class__.__name__,
+            self.route, self.refs, self.params, self.defer)
+
+    __str__ = __repr__
+    __unicode__ = __repr__
+
+
+@register_adapter(DataSpec)
+def _encode_DataSpec(spec):
+    return {
+        'route': spec.route,
+        'refs': spec.refs,
+        'params': spec.params,
+        'defer': spec.defer,
+    }
+
+
+class DataRef(namedtuple('DataRef', ['ref', 'required'])):
+    """ Reference to a state."""
+
+
+class DataRefVal(Validate):
+
+    class _ValidateSingle(Validate):
+
+        _validate = RecordVal(
+            ('ref', StrVal()),
+            ('required', BoolVal(), False)
+        )
+
+        _validate_or_shorthand = OneOfVal(StrVal(), _validate)
+
+        def __call__(self, value):
+            value = self._validate_or_shorthand(value)
+            if isinstance(value, basestring):
+                value = self._validate.record_type(ref=value, required=False)
+            return value
+
+    _validate_single = _ValidateSingle()
+    _validate = OneOfVal(_validate_single, SeqVal(_validate_single))
+
+    def __call__(self, value):
+        value = self._validate(value)
+        if not isinstance(value, (tuple, list)):
+            value = [value]
+
+        references = []
+        for v in value:
+            references.append(DataRef(
+                ref=Reference(v.ref),
+                required=v.required,
+            ))
+
+        return tuple(references)
+
+
+class DataSpecVal(Validate):
+    """ Valudator for :class:`EntitySpec`."""
+
+    refs_val = MapVal(StrVal(), DataRefVal())
+
+    data_spec = RecordVal(
+        ('data', StrVal()),
+        ('refs', refs_val, {}),
+    )
+
+    data_spec_with_shorthand = OneOfVal(StrVal(), data_spec)
+
+    def __call__(self, data):
+        if isinstance(data, DataSpec):
+            return data
+        data = self.data_spec_with_shorthand(data)
+        if isinstance(data, basestring):
+            data = self.data_spec({'data': data})
+
+        parsed = urlparse(data.data)
+        route = '%s:%s' % (parsed.scheme, parsed.path) if parsed.scheme else parsed.path
+        params = {k: v if isinstance(v, list) else [v]
+                for k, v in parse_qsl(parsed.query)}
+        return DataSpec(
+            route=route,
+            params=params,
+            refs=data.refs,
+            defer=None,
+        )
+
+
+
+
+class DataField(Field):
+    """ Base class for fields which fetch data from database.
+    """
+
+    spec_validator = NotImplemented
+
+    def __init__(self, include_meta=False, default=NotImplemented, doc=None,
+            manager=None, name=None):
+        super(DataField, self).__init__(
+            self.spec_validator(),
+            default=default,
+            doc=doc,
+            name=name
+        )
+        self.manager = manager
+        self.include_meta = include_meta
+
+    def apply(self, widget, spec):
+        if spec is undefined:
+            return {}, []
+        dependencies = [r.ref.id for refs in spec.refs.values() for r in refs]
+        state = State(
+            id='%s/%s' % (widget.widget_id, self.name),
+            widget=widget,
+            computator=partial(self.produce, spec),
+            dependencies=dependencies,
+            is_writable=False,
+            manager=self.manager,
+            defer=spec.defer
+        )
+        return {self.name: StateRead(state.id)}, [state]
+
+    def reassign(self, name, default=NotImplemented):
+        default = self.default if default is NotImplemented else default
+        return self.__class__(
+            include_meta=self.include_meta,
+            default=default,
+            doc=self.__doc__,
+            name=name
+        )
+
+    def produce(self, spec, widget, state, graph, request):
+        """ Produce an :class:`rex.widget.descriptors.DataRead` descriptor.
+
+        :param spec: Data specification
+        :type spec: rex.widget.field.data.DataSpec
+        :param widget: Current widget
+        :type spec: rex.widget.widget.Widget
+        :param state: State
+        :type state: rex.widget.state.State
+        :param graph: Application state graph
+        :type graph: rex.widget.state.StateGraph
+        :param request: WSGI request
+        :type request: webob.Requesy
+        """
+        raise NotImplementedError(
+            'Subclasses of DataField should implement'
+            ' produce(spec, widget, state, graph, request) method')
+
+

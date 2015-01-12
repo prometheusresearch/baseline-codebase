@@ -7,140 +7,28 @@
 
 """
 
+from __future__ import absolute_import
+
 import yaml
+import warnings
 from collections import OrderedDict, namedtuple
 
-from rex.core import (
-    Error, Extension, cached, set_location,
-    OneOfVal, ProxyVal, StrVal, IntVal)
+from rex.core import cached, set_location
+from rex.core import ValidatingLoader, get_packages
+from rex.core import Extension, Error, Validate, RecordVal, RecordField, MapVal
+from rex.core import OneOfVal, ProxyVal, StrVal, IntVal
 
 from .state import StateGraph, MutableStateGraph
-from .field import Field, StateField, StatefulField
-from .util import to_camelcase
-from .json import register_adapter
-
-
-def state(validator, dependencies=None, default=NotImplemented):
-    """ Decorator for defining :class:`StateField` instances with inline
-    computator."""
-    def register_computator(computator):
-        return StateField(
-            validator,
-            default=default,
-            computator=computator,
-            dependencies=dependencies)
-    return register_computator
-
-
-_WidgetDescriptor = namedtuple('WidgetDescriptor', [
-    'ui',
-    'state',
-])
-
-class WidgetDescriptor(_WidgetDescriptor):
-    """ Descriptor for a widget.
-
-    :attr ui: UI description
-    :attr state: State graph
-    """
-
-    __slots__ = ()
-
-@register_adapter(WidgetDescriptor)
-def _encode_WidgetDescriptor(desc):
-    return {
-        'ui': desc.ui,
-        'state': desc.state
-    }
-
-
-_UIDescriptor = namedtuple('UIDescriptor', ['type', 'props'])
-
-class UIDescriptor(_UIDescriptor):
-    """ UI descriptiton.
-
-    :attr type: CommonJS module which exports React component
-    :attr props: Properties which should be passed to a React component
-    """
-
-    __slots__ = ()
-
-@register_adapter(UIDescriptor)
-def _encode_UIDescriptor(desc):
-    return {
-        '__type__': desc.type,
-        'props': desc.props
-    }
-
-
-_UIDescriptorChildren = namedtuple('UIDescriptorChildren', ['children'])
-
-class UIDescriptorChildren(_UIDescriptorChildren):
-    """ List of UI descriptitons.
-
-    :attr children: A list of UI descriptors.
-    """
-
-    __slots__ = ()
-
-@register_adapter(UIDescriptorChildren)
-def _encode_UIDescriptorChildren(desc):
-    return {'__children__': desc.children}
-
-
-StateRead = namedtuple('StateRead', ['id'])
-
-@register_adapter(StateRead)
-def _encode_StateRead(directive):
-    return {'__state_read__': directive.id}
-
-
-StateReadWrite = namedtuple('StateReadWrite', ['id'])
-
-@register_adapter(StateReadWrite)
-def _encode_StateReadWrite(directive):
-    return {'__state_read_write__': directive.id}
-
-
-DataRead = namedtuple('DataRead', ['id'])
-
-@register_adapter(DataRead)
-def _encode_DataRead(directive):
-    return {'__data_read__': directive.id}
-
-
-class ContextValue(object):
-
-    def __init__(self, key, default=NotImplemented):
-        self.key = key
-        self.default = default
-
-    def __call__(self, context):
-        if self.default is not NotImplemented:
-            return context.get(self.key, self.default)
-        elif key not in context:
-            raise Error('missing key "%s" in context' % key)
-        else:
-            return context[key]
-
-
-class WidgetFactory(object):
-
-    def __init__(self, widget_class, *args, **kwargs):
-        self.widget_class = widget_class
-        self.args = args
-        self.kwargs = kwargs
-        self.location = None
-
-    def __call__(self, context):
-        widget = self.widget_class(context, *self.args, **self.kwargs)
-        if self.location is not None:
-            set_location(widget, self.location)
-        return widget
+from .field import Field
+from .util import PropsContainer, cached_property
+from .descriptors import WidgetDescriptor, UIDescriptor, UIDescriptorChildren
 
 
 class WidgetBase(Extension):
-    pass
+    """ An abstract base class for widgets.
+    
+    Serves as a marker for Widget's metaclass.
+    """
 
 
 class Widget(WidgetBase):
@@ -163,7 +51,7 @@ class Widget(WidgetBase):
 
     This will allow to use widget from the URL mapping::
 
-        <!Label>
+        !<Label>
         text: Hello, world!
 
     Also the React component counter part should be defined in
@@ -174,9 +62,8 @@ class Widget(WidgetBase):
     js_type = NotImplemented
 
     fields = OrderedDict()
-    record_fields = []
 
-    validate = ProxyVal()
+    _validate = ProxyVal()
 
     class __metaclass__(Extension.__metaclass__):
 
@@ -184,32 +71,25 @@ class Widget(WidgetBase):
             cls = Extension.__metaclass__.__new__(mcs, name, bases, members)
             cls.fields = OrderedDict()
 
+            if 'name' in members and not 'js_type' in members:
+                raise Error("missing 'js_type' attribute of the conrete Widget class")
+
             fields = []
 
             for base in bases:
                 if issubclass(base, WidgetBase) and not base is WidgetBase:
                     fields = base.fields.items() + fields
 
-            own_fields = [(name, field) for name, field in members.items()
-                      if isinstance(field, Field)]
+            own_fields = [
+                (name, field) for name, field in members.items()
+                if isinstance(field, Field)]
             own_fields = sorted(own_fields, key=lambda (_, field): field.order)
 
-            need_id_field = False
-
             for name, field in own_fields + fields:
-                if isinstance(field, StatefulField):
-                    need_id_field = True
                 if field.name is None:
                     field.name = name
                 cls.fields[name] = field
 
-            # if we have at least one state field we need to inject id field
-            if need_id_field and not 'id' in cls.fields:
-                cls.id = cls.fields['id'] = Field(
-                    OneOfVal(IntVal(), StrVal()),
-                    name='id')
-
-            cls.record_fields = [f.record_field for f in cls.fields.values()]
             return cls
 
     @classmethod
@@ -221,127 +101,86 @@ class Widget(WidgetBase):
     def map_all(cls):
         mapping = {}
         for extension in cls.all():
-            # FIXME: include full module path to already registered and to-be
-            # registered module classes
             assert extension.name not in mapping, \
                 "duplicate widget %r defined by '%r' and '%r'" % (
                     extension.name, mapping[extension.name], extension)
             mapping[extension.name] = extension
         return mapping
 
-    @classmethod
-    def parse(cls, stream):
-        if isinstance(stream, (str, unicode)) or hasattr(stream, 'read'):
-            return cls.validate.parse(stream)
-        else:
-            return cls.validate(stream)
+    def __init__(self, **values):
+        for field in self.fields.values():
+            if not field.name in values and field.has_default:
+                values[field.name] = field.default
+        self.values = values
+        self.package = None
 
-    def __init__(self, context, *args, **kwds):
-        self.context = context
-        # Convert any keywords to positional arguments.
-        args_tail = []
-        for field in self.record_fields[len(args):]:
-            attribute = field.attribute
-            if attribute in kwds:
-                args_tail.append(kwds.pop(attribute))
-            elif field.has_default:
-                args_tail.append(field.default)
-            else:
-                raise TypeError("missing field %r" % attribute)
-        args = args + tuple(args_tail)
-        # Complain if there are any keywords left.
-        if kwds:
-            attr = sorted(kwds)[0]
-            if any(field.attribute == attr for field in self.record_fields):
-                raise TypeError("duplicate field %r" % attr)
-            else:
-                raise TypeError("unknown field %r" % attr)
-        # Assign field values.
-        if len(args) != len(self.record_fields):
-            raise TypeError("expected %d arguments, got %d"
-                            % (len(self.record_fields), len(args)))
+    @cached_property
+    def widget_id(self):
+        if 'id' in self.values:
+            return self.id
+        return '%s_%s' % (self.__class__.__name__, id(self))
 
-        self.values = {}
-        for arg, field in zip(args, self.record_fields):
-            if isinstance(arg, WidgetFactory):
-                arg = arg(context)
-            elif isinstance(arg, ContextValue):
-                arg = arg(context)
-            self.values[field.attribute] = arg
+    def validate(self):
+        """ This method allows widgets to customize validation.
+        
+        The default implementation does nothing.
+        """
 
     @cached
     def descriptor(self):
-        props = {}
+        props = PropsContainer()
         graph = MutableStateGraph()
         own_graph = MutableStateGraph()
 
-        for name, value in self.values.items():
-            field = self.fields[name]
-            name = to_camelcase(name)
-
-            # XXX: we shouldn't make Widget and StateField to be mutually
-            # exclusive
-            if isinstance(value, Widget):
-                self.on_widget(props, graph, name, value)
-            elif isinstance(field, StatefulField):
-                self.on_state(props, own_graph, name, value, field)
-            else:
-                props[name] = value
-
-        if own_graph:
-            own_graph = assign_aliases(own_graph, self.id) # pylint: disable=no-member
-            graph.update(own_graph)
+        for name, field in self.fields.items():
+            if not name in self.values:
+                continue
+            field_props, field_state = field.apply(self, self.values[name])
+            graph.update({s.id: s for s in field_state})
+            props.update(field_props)
 
         return WidgetDescriptor(
-            ui=UIDescriptor(self.js_type, props),
+            ui=UIDescriptor(self.js_type, props, self, defer=False),
             state=graph.immutable())
 
-    @property
-    def state(self):
-        return self.descriptor().state
-
-    def on_widget(self, props, graph, name, widget): # pylint: disable=no-self-use
-        descriptor = widget.descriptor()
-        props[name] = descriptor.ui
-        graph.update(descriptor.state)
-
-    def on_state(self, props, graph, name, value, field): # pylint: disable=too-many-arguments
-        for prop_name, descriptor in field.describe(name, value, self):
-            graph[descriptor.id] = descriptor
-            if descriptor.is_writable:
-                props[prop_name] = StateReadWrite(descriptor.id)
-            else:
-                props[prop_name] = DataRead(descriptor.id)
+    @staticmethod
+    def define_state(validate, dependencies=None, default=NotImplemented, **params):
+        """ Decorator for defining :class:`StateField` instances with inline
+        computator."""
+        from .field import StateField
+        def register_computator(computator):
+            return StateField(
+                validate,
+                default=default,
+                computator=computator,
+                dependencies=dependencies,
+                **params)
+        return register_computator
 
     def __str__(self):
         text = yaml.dump(self, Dumper=WidgetYAMLDumper)
         return text.rstrip()
 
+    __unicode__ = __str__
+
     def __repr__(self):
         args = []
-        for field in self.record_fields:
-            value = getattr(self, field.attribute)
+        for field in self.fields.values():
+            if not field.name in self.values:
+                continue
+            value = getattr(self, field.name)
             if field.has_default and field.default == value:
                 continue
-            args.append("%s=%r" % (field.attribute, value))
+            args.append("%s=%r" % (field.name, value))
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
-
-
-def assign_aliases(graph, widget_id):
-    writable_state = [s for s in graph.values() if s.is_writable]
-    if len(writable_state) == 1:
-        key = writable_state[0].id
-        graph[key] = graph[key]._replace(alias=widget_id) # pylint: disable=protected-access
-    return graph
 
 
 class GroupWidget(Widget):
 
-    children = Field(Widget.validate)
+    name = 'GroupWidget'
+    js_type = '__group__'
 
-    def __init__(self, context, children):
-        children = [child(context) for child in children]
-        super(GroupWidget, self).__init__(context, children)
+    children = Field(Widget._validate)
 
     @cached
     def descriptor(self):
@@ -354,7 +193,7 @@ class GroupWidget(Widget):
             children.append(descriptor.ui)
 
         return WidgetDescriptor(
-            ui=UIDescriptorChildren(children),
+            ui=UIDescriptorChildren(children, defer=False),
             state=graph.immutable())
 
 
@@ -367,24 +206,12 @@ class NullWidget(Widget):
             cls.singleton = Widget.__new__(cls)
         return cls.singleton
 
-    def __init__(self, context=None):
-        super(NullWidget, self).__init__(context)
+    def __init__(self):
+        super(NullWidget, self).__init__()
 
     @cached
     def descriptor(self):
-        return WidgetDescriptor(None, StateGraph())
-
-
-def iterate(widget):
-    """ Iterate widget or a group of widgets."""
-    if isinstance(widget, GroupWidget):
-        for child in widget.children:
-            for grand_child in iterate(child):
-                yield grand_child
-    elif isinstance(widget, NullWidget):
-        pass
-    else:
-        yield widget
+        return WidgetDescriptor(ui=None, state=StateGraph())
 
 
 class WidgetYAMLDumper(yaml.Dumper): # pylint: disable=too-many-ancestors,too-many-public-methods
@@ -400,8 +227,8 @@ class WidgetYAMLDumper(yaml.Dumper): # pylint: disable=too-many-ancestors,too-ma
             return self.represent_scalar(u'tag:yaml.org,2002:null', u'')
         tag = unicode(data.name)
         mapping = []
-        for field in data.record_fields:
-            value = getattr(data, field.attribute)
+        for field in data.fields.values():
+            value = getattr(data, field.name)
             if field.has_default and field.default == value:
                 continue
             mapping.append((field.name, value))

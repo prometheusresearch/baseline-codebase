@@ -9,7 +9,7 @@
 
 from collections import namedtuple
 from rex.core import Validate
-from .json import register_adapter
+from .json_encoder import register_adapter
 
 
 JSValue = namedtuple('JSValue', ['reference'])

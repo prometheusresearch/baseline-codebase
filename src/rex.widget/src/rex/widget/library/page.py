@@ -7,51 +7,49 @@
 
 """
 
-from rex.core import StrVal, MapVal
-from rex.core import get_packages, cached
-from rex.web import get_routes
+from rex.core import AnyVal, StrVal, MapVal, SeqVal
+from rex.core import get_packages, cached, get_settings
+from rex.web import get_routes, authorize, url_for
 
-from ..widget import Widget, NullWidget, StateRead
-from ..field import Field
-from ..parse import WidgetVal
+from ..descriptors import StateRead
+from ..widget import Widget, NullWidget
+from ..field import Field, undefined
+from ..validate import WidgetVal
 from ..state import State
 from ..urlmap import WidgetRenderer
+from ..template import WidgetTemplate
+from .layout import Element
 
 __all__ = ('Page',)
 
 
-class Page(Widget):
+class Page(Element):
     """ Widget which represents entire page."""
 
     name = 'Page'
     js_type = 'rex-widget/lib/Page'
 
     SITEMAP = 'SITEMAP'
+    APPLETS = 'APPLETS'
 
     id = Field(
         StrVal(),
         doc='Page identifier')
 
-    children = Field(
-        WidgetVal(), default=NullWidget(),
-        doc='Page contents')
+    title = Field(
+        StrVal(),
+        doc='Page title')
 
     params = Field(
         MapVal(StrVal(), StrVal()), default={},
         doc='Mapping from query string parameters to state identifiers')
 
-    class_name = Field(
-        StrVal(), default=None,
-        doc='CSS class name')
-
-    @property
-    def metadata(self):
-        return {}
 
     @cached
     def descriptor(self):
         descriptor = super(Page, self).descriptor()
 
+        # add SITEMAP state
         state = descriptor.state.add(State(
             self.SITEMAP,
             widget=self,
@@ -59,8 +57,18 @@ class Page(Widget):
             persistence=State.INVISIBLE,
             value=self.sitemap()))
 
+
+        # add APPLETS state
+        state = state.add(State(
+            self.APPLETS,
+            widget=self,
+            is_writable=False,
+            persistence=State.INVISIBLE,
+            computator=self.applets))
+
         props = dict(descriptor.ui.props)
         props['sitemap'] = StateRead(self.SITEMAP)
+        props['applets'] = StateRead(self.APPLETS)
         ui = descriptor.ui._replace(props=props)
 
         if self.params:
@@ -81,17 +89,60 @@ class Page(Widget):
             routes = get_routes(package)
             for location, handler in iter_pathmap_tree(routes.tree):
                 if not isinstance(handler, WidgetRenderer):
-                    params = None
-                elif not isinstance(handler.widget, Page):
-                    params = None
-                else:
-                    page = handler.widget
-                    metadata = {'location': location}
-                    metadata.update(page.metadata)
-                    pages[page.id] = metadata
-                    params = {k: True for k in page.params}
+                    locations[location] = None
+                    continue
+                widget = handler.widget
+                if isinstance(widget, WidgetTemplate):
+                    widget = widget.underlying()
+                if not isinstance(widget, Page):
+                    locations[location] = None
+                    continue
+                metadata = {'location': location, 'title': widget.title}
+                pages[widget.id] = metadata
+                params = {k: True for k in widget.params}
                 locations[location] = params
         return {'locations': locations, 'pages': pages}
+
+    def applets(self, widget, state, graph, request=None, **kwargs):
+        assert request is not None
+        applets = []
+        active = None
+        settings = get_settings()
+
+        if hasattr(settings, 'registered_apps'):
+
+            for app in settings.registered_apps:
+                info = {
+                    'name': app['name'],
+                    'title': app['title'],
+                    'href': url_for(request, app['home_route']),
+                }
+                if app.get('show') and authorize(request, app['package']):
+                    applets.append(info)
+                if app['package'] == request.environ.get('rex.package'):
+                    active = info
+
+        return {
+            'active': active,
+            'applets': applets,
+        }
+
+
+class Navigation(Widget):
+
+    name = 'Navigation'
+    js_type = 'rex-widget/lib/Navigation'
+
+    application_name = Field(
+        StrVal(), default='Rex Widget Application',
+        doc="Application name")
+
+    menu = Field(
+        SeqVal(StrVal()), default=undefined,
+        doc="Menu")
+
+    applets = Field(AnyVal(), default=StateRead(Page.APPLETS))
+    sitemap = Field(AnyVal(), default=StateRead(Page.SITEMAP))
 
 
 def iter_pathmap_tree(tree, _prefix=''):

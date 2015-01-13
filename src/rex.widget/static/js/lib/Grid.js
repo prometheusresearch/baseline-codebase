@@ -16,6 +16,7 @@ var mergeInto     = require('./mergeInto');
 var isString      = require('./isString');
 var formatters    = require('./formatters');
 var runtime       = require('./runtime');
+var {Box}         = require('./layout');
 
 function sameColumn(a, b) {
   var k;
@@ -128,22 +129,26 @@ var Grid = React.createClass({
   },
 
   render() {
+    var {height, selectable, selected, onSelected, className} = this.props;
     var rowRenderer = (
       <GridRow
-        selected={this.props.selectable && this.props.selected}
-        onSelected={this.props.selectable && this.props.onSelected}
+        selected={selectable && selected}
+        onSelected={selectable && onSelected}
         />
     );
     return (
-      <BaseGrid
-        columnEquality={sameColumn}
-        columns={this.getColumns()}
-        rows={this.getRows}
-        onRows={this.onRows}
-        length={this.getData().length}
-        className={cx('rw-Grid', this.props.className)}
-        rowRenderer={rowRenderer}
-        />
+      <Box height={height}>
+        <BaseGrid
+          style={{height}}
+          columnEquality={sameColumn}
+          columns={this.getColumns()}
+          rows={this.getRows}
+          onRows={this.onRows}
+          length={this.getData().length}
+          className={cx('rw-Grid', className)}
+          rowRenderer={rowRenderer}
+          />
+      </Box>
     );
   },
 

@@ -23,21 +23,24 @@ paths:
           size: 9
           children:
 
-          - !<Header> Studies
+          - !<Box>
+            children:
+            - !<Header> Studies
 
-          - !<Link>
-            id: forms_link
-            href:
-              url: rex.widget_demo:/forms
-              refs:
-                x: study_list/selected
-              params:
-                y: asdad
-            text: Forms
+            - !<Link>
+              id: forms_link
+              href:
+                url: rex.widget_demo:/forms
+                refs:
+                  x: study_list/selected
+                params:
+                  y: asdad
+              text: Forms
 
-          - !<Table>
+          - !<Grid>
             id: study_list
             selectable: true
+            height: 400
             data:
               entity: studies
               data: rex.widget_demo:/data/study/list

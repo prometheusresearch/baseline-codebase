@@ -272,7 +272,19 @@ class Grid(Widget):
     js_type = 'rex-widget/lib/Grid'
 
     id = Field(StrVal)
-    data = PaginatedCollectionField(include_meta=True)
+
+    data = CollectionField(
+        include_meta=True,
+        doc="""
+        Dataset for a grid.
+        """)
+
+    height = Field(
+        IntVal(),
+        doc="""
+        Grid's height in pixels.
+        """)
+
     selectable = Field(BoolVal, default=False)
     auto_select = Field(BoolVal, default=False)
     selected = StateField(AnyVal)

@@ -93,7 +93,7 @@ var NavigationBar = React.createClass({
       var page = pages[item.id];
       return (
         <li className={className} key={item.id}>
-          <Link to={item.id}>{item.title || page.title}</Link>
+          {page && <Link to={item.id}>{item.title || page.title}</Link>}
         </li>
       );
     });

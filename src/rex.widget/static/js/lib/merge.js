@@ -5,13 +5,21 @@
 
 var mergeInto = require('./mergeInto');
 
-function merge(a, b) {
-  if (!b) {
-    return a;
-  }
+function merge(a, b, c, d, e) {
   var r = {};
   mergeInto(r, a);
-  mergeInto(r, b);
+  if (b) {
+    mergeInto(r, b);
+  }
+  if (c) {
+    mergeInto(r, c);
+  }
+  if (d) {
+    mergeInto(r, d);
+  }
+  if (e) {
+    mergeInto(r, e);
+  }
   return r;
 }
 

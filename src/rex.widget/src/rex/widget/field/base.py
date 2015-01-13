@@ -64,7 +64,8 @@ class Field(object):
     __str__ = __repr__
     __unicode__ = __repr__
 
-    def reassign(self, name, default=NotImplemented):
+    def reassign(self, name=None, default=NotImplemented):
+        name = self.name if name is None else name
         default = self.default if default is NotImplemented else default
         return self.__class__(
             self.validate,

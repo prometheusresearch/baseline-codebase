@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.6.0 (2015-XX-XX)
+==================
+
+* Added ``gateway`` parameter for port and query definitions.
+
+
 2.5.1 (2015-01-08)
 ==================
 

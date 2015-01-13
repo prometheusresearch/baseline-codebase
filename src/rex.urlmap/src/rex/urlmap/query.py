@@ -87,6 +87,7 @@ class MapQuery(Map):
 
     fields = [
             ('query', StrVal),
+            ('gateway', StrVal(r'[A-Za-z_][0-9A-Za-z_]*'), None),
             ('parameters', MapVal(StrVal(r'[A-Za-z_][0-9A-Za-z_]*'),
                                   MaybeVal(StrVal)), {}),
             ('access', StrVal, None),
@@ -96,7 +97,7 @@ class MapQuery(Map):
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
         return QueryRenderer(
-                db=get_db(),
+                db=get_db(spec.gateway),
                 path=path,
                 query=spec.query,
                 parameters=spec.parameters,
@@ -106,6 +107,8 @@ class MapQuery(Map):
     def override(self, spec, override_spec):
         if override_spec.query is not None:
             spec = spec.__clone__(query=override_spec.query)
+        if override_spec.gateway is not None:
+            spec = spec.__clone__(gateway=override_spec.gateway)
         if override_spec.parameters is not None:
             parameters = {}
             parameters.update(spec.parameters)

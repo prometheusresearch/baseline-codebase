@@ -5,6 +5,7 @@
 
 from rex.core import Error, guard, MaybeVal, StrVal, BoolVal, MapVal, locate
 from rex.web import authorize, trusted
+from rex.db import get_db
 from rex.port import GrowVal, Port
 from .map import Map
 from webob.exc import HTTPUnauthorized, HTTPForbidden, HTTPMethodNotAllowed
@@ -48,6 +49,7 @@ class MapPort(Map):
 
     fields = [
             ('port', GrowVal),
+            ('gateway', StrVal(r'[A-Za-z_][0-9A-Za-z_]*'), None),
             ('access', StrVal, None),
             ('unsafe', BoolVal, False),
             ('read_only', BoolVal, False),
@@ -55,7 +57,7 @@ class MapPort(Map):
 
     def __call__(self, spec, path, context):
         with guard("While creating port:", locate(spec)):
-            port = Port(spec.port)
+            port = Port(spec.port, get_db(spec.gateway))
         access = spec.access or self.package.name
         return PortRenderer(
                 port=port,
@@ -72,6 +74,8 @@ class MapPort(Map):
                 else:
                     port.append(port_spec.port)
             spec = spec.__clone__(port=port)
+        if override_spec.gateway is not None:
+            spec = spec.__clone__(gateway=override_spec.gateway)
         if override_spec.access is not None:
             spec = spec.__clone__(access=override_spec.access)
         if override_spec.unsafe is not None:

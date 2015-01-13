@@ -518,6 +518,14 @@ following fields are expected:
 
     This field is mandatory.
 
+`gateway`
+    The name of a gateway database.  If not set, the query is executed against
+    the main application database.
+
+    Example::
+
+        gateway: input
+
 `access`
     Permission required to execute the query.  If not set, the permission of
     the package that owns the handler is assumed.
@@ -551,6 +559,14 @@ fields are expected:
         port: study?!closed
 
     This field is mandatory.
+
+`gateway`
+    The name of a gateway database.  If not set, the port is defined over the
+    main application database.
+
+    Example::
+
+        gateway: input
 
 `access`
     Permission required to access the port.  If not set, the permission of the

@@ -48,10 +48,10 @@ def _encode_DimensionShorthandProperty(value):
         value.top, value.right, value.bottom, value.left)
 
 
-class Element(Widget):
+class Box(Widget):
 
-    name = 'Element'
-    js_type = 'rex-widget/lib/layout/Element'
+    name = 'Box'
+    js_type = 'rex-widget/lib/layout/Box'
 
     children = Field(
         WidgetVal(),
@@ -90,49 +90,28 @@ class Element(Widget):
         """)
 
 
-class _DepreactedLayoutWidget(Element):
+class VBox(Box):
 
-    name = None
-    js_type = None
+    name = 'VBox'
+    js_type = Box.js_type
+
+
+class HBox(Box):
+
+    name = 'HBox'
+    js_type = Box.js_type
+
+    direction = Box.direction.reassign(default='horizontal')
+
+
+class Element(Box):
+
+    name = 'Element'
+    js_type = Box.js_type
 
     def descriptor(self):
-        desc = super(_DepreactedLayoutWidget, self).descriptor()
+        desc = super(Element, self).descriptor()
         warnings.warn(
             "<%s /> is deprecated, use <Element /> instead" % self.name,
             DeprecationWarning)
         return desc
-
-
-class Container(_DepreactedLayoutWidget):
-
-    name = 'Container'
-    js_type = Element.js_type
-
-    vertical = Field(AnyVal(), default=None)
-
-
-class Block(_DepreactedLayoutWidget):
-
-    name = 'Block'
-    js_type = Element.js_type
-
-    grow = Field(AnyVal(), default=None)
-    shrink = Field(AnyVal(), default=None)
-
-
-class ResizeableBlock(_DepreactedLayoutWidget):
-
-    name = 'ResizeableBlock'
-    js_type = Element.js_type
-
-    grow = Field(AnyVal(), default=None)
-    shrink = Field(AnyVal(), default=None)
-
-
-class CollapsibleBlock(_DepreactedLayoutWidget):
-
-    name = 'CollapsibleBlock'
-    js_type = Element.js_type
-
-    grow = Field(AnyVal(), default=None)
-    shrink = Field(AnyVal(), default=None)

@@ -4,5 +4,8 @@
 'use strict';
 
 module.exports = {
-  Element: require('./Element')
+  Box:      require('./Box'),
+  VBox:     require('./VBox'),
+  HBox:     require('./HBox'),
+  Element:  require('./Element')
 };

@@ -1,9 +1,0 @@
-
-paths:
-
-
-  /WidgetDoc:
-    widget: !<DemoPage>
-      id: doc
-      title: Widget Doc
-      children: !<WidgetDoc>

@@ -8,7 +8,6 @@ include:
 - page/forms.yaml
 - page/forms_master_details.yaml
 - page/about.yaml
-- page/doc.yaml
 - page/sample.yaml
 - page/chart.yaml
 

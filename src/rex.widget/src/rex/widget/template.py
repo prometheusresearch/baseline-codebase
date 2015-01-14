@@ -13,7 +13,7 @@ import yaml
 
 from rex.core import (ValidatingLoader, get_packages, cached, autoreload,
                       guard, Error)
-from rex.core import RecordVal, MapVal, StrVal, AnyVal
+from rex.core import RecordVal, MapVal, SeqVal, StrVal, AnyVal
 
 from .field import Field
 from .undefined import undefined
@@ -21,6 +21,7 @@ from .widget import Widget
 from .validate import WidgetVal
 from .parse import WidgetDescVal, WidgetDesc, Slot
 from .location import location_info_guard, locate, strip_location
+from .util import get_validator_for_key
 
 
 validate_widget_templates = RecordVal(
@@ -74,7 +75,7 @@ def fill_slots(value, context):
         return value
 
 
-def _make_fields(value, scope):
+def _make_fields(value, scope, validator=AnyVal(), default=NotImplemented):
     fields = []
     if isinstance(value, WidgetDesc):
         if value.name not in scope:
@@ -100,23 +101,19 @@ def _make_fields(value, scope):
                             fields = fields + _make_fields(item, scope)
                         elif isinstance(item, Slot):
                             fields.append(field.reassign(item.name))
-                if isinstance(v, WidgetDesc):
+                elif isinstance(v, WidgetDesc):
                     fields = fields + _make_fields(v, scope)
-                if isinstance(v, Slot):
-                    field = scope[value.name].fields[n]
-                    fields.append(field.reassign(
-                        strip_location(v.name),
-                        default=strip_location(v.default, recursive=True)))
                 else:
-                    fields = fields + _make_fields(v, scope)
+                    fields = fields + _make_fields(v, scope, validator=field.validate, default=field.default)
     elif isinstance(value, dict):
         for k, v in value.items():
-            if isinstance(v, Slot):
-                fields.append(Field(AnyVal(), default=v.default, name=strip_location(v.name)))
+            fields += _make_fields(v, scope, validator=get_validator_for_key(validator, k))
     elif isinstance(value, list):
-        for item in value:
-            if isinstance(item, Slot):
-                fields.append(Field(AnyVal(), default=item.default, name=strip_location(item.name)))
+        for k, v in enumerate(value):
+            fields += _make_fields(v, scope, validator=get_validator_for_key(validator, k))
+    elif isinstance(value, Slot):
+        default = default if value.default is NotImplemented else value.default
+        fields.append(Field(validator, default=default, name=str(strip_location(value.name))))
     return fields
 
 

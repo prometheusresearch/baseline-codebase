@@ -29,6 +29,7 @@ from ..state import State
 from ..json_encoder import register_adapter
 from ..action import Action
 from ..field.entity import EntitySpecVal 
+from ..util import get_validator_for_key
 from .layout import Element
 from .base import Button
 
@@ -348,6 +349,9 @@ class AutocompleteSpecVal(Validate):
 
     def __call__(self, value):
         return self._validate(value)
+
+    def __getitem__(self, key):
+        return get_validator_for_key(self._validate, key)
 
 
 class AutocompleteSpecField(StateFieldBase):

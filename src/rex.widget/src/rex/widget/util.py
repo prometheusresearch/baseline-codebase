@@ -13,6 +13,8 @@ import contextlib
 from collections import MutableMapping
 from logging import getLogger
 
+from rex.core import MapVal, SeqVal, RecordVal, MaybeVal, AnyVal
+
 from .json_encoder import register_adapter
 
 
@@ -115,3 +117,19 @@ class PropsContainer(MutableMapping):
 @register_adapter(PropsContainer)
 def _encode_PropsContainer(container):
     return container._storage
+
+
+def get_validator_for_key(validator, key):
+    """ Return a validator for a specified key."""
+    if hasattr(validator, '__getitem__'):
+        return validator[key]
+    if isinstance(validator, MapVal):
+        return validator.validate_value
+    elif isinstance(validator, SeqVal):
+        return validator.validate_item
+    elif isinstance(validator, RecordVal):
+        return validator.fields[key].validate
+    elif isinstance(validator, MaybeVal):
+        return get_validator_for_key(validator.validate, key)
+    else:
+        return AnyVal()

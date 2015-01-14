@@ -27,7 +27,7 @@ from rex.web import route
 from ..undefined import undefined
 from ..state import State, Reference
 from ..descriptors import StateRead
-from ..util import cached_property
+from ..util import cached_property, get_validator_for_key
 from ..json_encoder import register_adapter
 from .base import Field
 
@@ -136,6 +136,8 @@ class DataRefVal(Validate):
     _validate = OneOfVal(_validate_single, SeqVal(_validate_single))
 
     def __call__(self, value):
+        if isinstance(value, (tuple, list)) and all(isinstance(x, DataRef) for x in value):
+            return value
         value = self._validate(value)
         if not isinstance(value, (tuple, list)):
             value = [value]
@@ -180,7 +182,8 @@ class DataSpecVal(Validate):
             defer=None,
         )
 
-
+    def __getitem__(self, key):
+        return get_validator_for_key(self.data_spec, key)
 
 
 class DataField(Field):

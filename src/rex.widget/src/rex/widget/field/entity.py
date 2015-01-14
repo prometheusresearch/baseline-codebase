@@ -11,12 +11,12 @@ from urlparse import urlparse, parse_qsl
 from urllib import urlencode
 
 from rex.core import Error, Validate
-from rex.core import RecordVal, RecordField, OneOfVal, MapVal, StrVal
+from rex.core import RecordVal, OneOfVal, MapVal, StrVal
 
 from ..descriptors import DataRead
 from ..json_encoder import register_adapter
 from ..state import Reference
-from ..util import cached_property
+from ..util import cached_property, get_validator_for_key
 from .data import DataField, DataRef, DataSpec, product_to_json
 
 __all__ = ('EntitySpec', 'EntitySpecVal', 'EntityField')
@@ -32,9 +32,9 @@ class EntitySpecVal(Validate):
     """ Valudator for :class:`EntitySpec`."""
 
     _validate = RecordVal(
-        RecordField('data', StrVal()),
-        RecordField('entity_id', StrVal()),
-        RecordField('defer', StrVal(), default=None),
+        ('data', StrVal()),
+        ('entity_id', StrVal()),
+        ('defer', StrVal(), None),
     )
 
     def __call__(self, data):
@@ -61,6 +61,9 @@ class EntitySpecVal(Validate):
             params=params,
             defer=data.defer
         )
+
+    def __getitem__(self, key):
+        return get_validator_for_key(self._validate, key)
 
 
 class EntityField(DataField):

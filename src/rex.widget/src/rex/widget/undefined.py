@@ -10,6 +10,8 @@
 
 from rex.core import Validate, AnyVal
 
+from .util import get_validator_for_key
+
 
 __all__ = ('undefined', 'MaybeUndefinedVal')
 
@@ -54,6 +56,9 @@ class MaybeUndefinedVal(Validate):
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.validate)
+
+    def __getitem__(self, key):
+        return get_validator_for_key(self.validate, key)
 
     __str__ = __repr__
     __unicode__ = __repr__

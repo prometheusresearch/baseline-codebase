@@ -11,6 +11,7 @@ from functools import partial
 from rex.core import MaybeVal, Validate
 from ..descriptors import StateRead, StateReadWrite
 from ..state import unknown, Dep, State, Reference
+from ..util import get_validator_for_key
 from .base import Field
 
 
@@ -25,6 +26,9 @@ class StateVal(Validate):
         if value is unknown:
             return value
         return self.underlying(value)
+
+    def __getitem__(self, key):
+        return get_validator_for_key(self.underlying, key)
 
 
 class StateFieldBase(Field):

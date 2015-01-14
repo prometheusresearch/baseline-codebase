@@ -15,6 +15,7 @@ from rex.core import AnyVal, RecordVal, StrVal, OneOfVal, ChoiceVal, IntVal
 from ..validate import WidgetVal
 from ..widget import Widget, NullWidget
 from ..field import Field, undefined
+from ..util import get_validator_for_key
 from ..json_encoder import register_adapter
 
 __all__ = ('DimensionShorthandPropertyVal', 'Element')
@@ -40,6 +41,9 @@ class DimensionShorthandPropertyVal(Validate):
         if isinstance(value, int):
             value = self._validate_four.record_type(value, value, value, value)
         return value
+
+    def __getitem__(self, key):
+        return get_validator_for_key(self._validate_four, key)
 
 
 @register_adapter(DimensionShorthandPropertyVal._validate_four.record_type)

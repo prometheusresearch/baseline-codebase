@@ -17,10 +17,10 @@ from rex.core import BoolVal, StrVal, IntVal
 from ..descriptors import DataRead, DataAppend, StateReadWrite
 from ..state import State, Reference, unknown, Reset
 from ..json_encoder import register_adapter
+from ..util import get_validator_for_key
 from .data import DataField, DataRef, DataRefVal, DataSpec, product_to_json
 
 __all__ = ('CollectionSpec', 'CollectionSpecVal', 'CollectionField')
-
 
 
 class CollectionSpec(DataSpec):
@@ -103,6 +103,9 @@ class CollectionSpecVal(Validate):
             refs=data.refs,
             defer=data.defer,
         )
+
+    def __getitem__(self, key):
+        return get_validator_for_key(self.data_spec, key)
 
 
 class CollectionField(DataField):

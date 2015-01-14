@@ -13,7 +13,7 @@ First we need to define a few widgets which will be used in templates::
 
     >>> from rex.core import StrVal, IntVal, MapVal
     >>> from rex.widget.widget import Widget, GroupWidget
-    >>> from rex.widget.field import Field
+    >>> from rex.widget.field import Field, CollectionField
 
     >>> class Text(Widget):
     ...   name = 'Text'
@@ -32,11 +32,17 @@ First we need to define a few widgets which will be used in templates::
     ...   text = Field(StrVal())
     ...   size = Field(IntVal(), default=None)
 
-    >>> class ComplexBase(Widget):
-    ...   name = 'ComplexBase'
-    ...   js_type = 'ComplexBase'
+    >>> class WidgetWithMapValBase(Widget):
+    ...   name = 'WidgetWithMapValBase'
+    ...   js_type = 'WidgetWithMapValBase'
     ...
     ...   field = Field(MapVal(StrVal(), StrVal()))
+
+    >>> class WidgetWithCollectionFieldBase(Widget):
+    ...   name = 'WidgetWithCollectionFieldBase'
+    ...   js_type = name
+    ...
+    ...   data = CollectionField()
 
  Now we can use ``parse_template`` function from::
 
@@ -55,7 +61,7 @@ Widget is parsed and is registered::
     True
     >>> MyHeader = Widget.map_all()['MyHeader']
     >>> MyHeader.fields.keys()
-    [u'text']
+    ['text']
 
 Now we can try to instantiate it from YAML::
 
@@ -79,7 +85,8 @@ Now we can try to instantiate it from YAML::
     >>> my_header.descriptor() # doctest: +NORMALIZE_WHITESPACE
     WidgetDescriptor(ui=UIDescriptor(type='Header',
         props=<PropsContainer {'content': 'Hello', 'level': 2}>,
-        widget=Header(content='Hello', level=2)),
+        widget=Header(content='Hello', level=2),
+        defer=False),
       state=StateGraph(storage={}, dependents={}))
 
 It also validates everything up::
@@ -158,7 +165,8 @@ It also validates everything up::
     >>> a.descriptor() # doctest: +NORMALIZE_WHITESPACE
     WidgetDescriptor(ui=UIDescriptor(type='Text',
         props=<PropsContainer {'content': 'Hello, A'}>,
-        widget=Text(content='Hello, A')),
+        widget=Text(content='Hello, A'),
+        defer=False),
       state=StateGraph(storage={}, dependents={}))
 
     >>> b = make_widget("""
@@ -170,7 +178,8 @@ It also validates everything up::
 
     >>> b.descriptor() # doctest: +NORMALIZE_WHITESPACE
     WidgetDescriptor(ui=UIDescriptor(type='Text', props=<PropsContainer {'content': 'Hello, A'}>,
-        widget=Text(content='Hello, A')),
+        widget=Text(content='Hello, A'),
+        defer=False),
       state=StateGraph(storage={}, dependents={}))
 
 ::
@@ -187,7 +196,6 @@ It also validates everything up::
     >>> 'D' in Widget.map_all()
     True
 
-
     >>> c = make_widget("""
     ... !<C>
     ... """)
@@ -197,7 +205,8 @@ It also validates everything up::
     >>> c.descriptor() # doctest: +NORMALIZE_WHITESPACE
     WidgetDescriptor(ui=UIDescriptor(type='Text',
         props=<PropsContainer {'content': 'Hello, A'}>,
-        widget=Text(content='Hello, A')),
+        widget=Text(content='Hello, A'),
+        defer=False),
       state=StateGraph(storage={}, dependents={}))
 
     >>> d = make_widget("""
@@ -210,14 +219,15 @@ It also validates everything up::
     >>> d.descriptor() # doctest: +NORMALIZE_WHITESPACE
     WidgetDescriptor(ui=UIDescriptor(type='Text',
         props=<PropsContainer {'content': 'Hello, A'}>,
-        widget=Text(content='Hello, A')),
+        widget=Text(content='Hello, A'),
+        defer=False),
       state=StateGraph(storage={}, dependents={}))
 
 ::
 
     >>> parse_template("""
     ... widgets:
-    ...   Complex: !<ComplexBase>
+    ...   WidgetWithMap: !<WidgetWithMapValBase>
     ...     field:
     ...       a: !slot a
     ...       b: !slot
@@ -225,42 +235,46 @@ It also validates everything up::
     ...         default: B
     ... """)
 
-    >>> 'Complex' in Widget.map_all()
+    >>> 'WidgetWithMap' in Widget.map_all()
     True
 
-    >>> Complex = Widget.map_all()['Complex']
-    >>> Complex.fields # doctest: +NORMALIZE_WHITESPACE
-    OrderedDict([(u'a', Field(MaybeUndefinedVal(AnyVal()))),
-                 ('b', Field(MaybeUndefinedVal(AnyVal()) default='B'))])
+    >>> WidgetWithMap = Widget.map_all()['WidgetWithMap']
+    >>> WidgetWithMap.fields # doctest: +NORMALIZE_WHITESPACE
+    OrderedDict([('a', Field(MaybeUndefinedVal(StrVal()))),
+                 ('b', Field(MaybeUndefinedVal(StrVal()), default='B'))])
 
 
     >>> widget = make_widget("""
-    ... !<Complex>
+    ... !<WidgetWithMap>
     ... a: "a"
     ... b: "b"
     ... """)
     >>> widget
-    Complex(a='a', b='b')
+    WidgetWithMap(a='a', b='b')
 
     >>> widget.descriptor() # doctest: +NORMALIZE_WHITESPACE
-    WidgetDescriptor(ui=UIDescriptor(type='ComplexBase',
-                     props=<PropsContainer {'field': {'a': 'a', 'b': 'b'}}>,
-                     widget=ComplexBase(field={'a': 'a', 'b': 'b'})), state=StateGraph(storage={}, dependents={}))
+    WidgetDescriptor(ui=UIDescriptor(type='WidgetWithMapValBase',
+                       props=<PropsContainer {'field': {'a': 'a', 'b': 'b'}}>,
+                       widget=WidgetWithMapValBase(field={'a': 'a', 'b': 'b'}),
+                       defer=False),
+                     state=StateGraph(storage={}, dependents={}))
 
     >>> widget = make_widget("""
-    ... !<Complex>
+    ... !<WidgetWithMap>
     ... a: "a"
     ... """)
     >>> widget
-    Complex(a='a')
+    WidgetWithMap(a='a')
 
     >>> widget.descriptor() # doctest: +NORMALIZE_WHITESPACE
-    WidgetDescriptor(ui=UIDescriptor(type='ComplexBase',
-                     props=<PropsContainer {'field': {'a': 'a', 'b': 'B'}}>,
-                     widget=ComplexBase(field={'a': 'a', 'b': 'B'})), state=StateGraph(storage={}, dependents={}))
+    WidgetDescriptor(ui=UIDescriptor(type='WidgetWithMapValBase',
+                       props=<PropsContainer {'field': {'a': 'a', 'b': 'B'}}>,
+                       widget=WidgetWithMapValBase(field={'a': 'a', 'b': 'B'}),
+                       defer=False),
+                     state=StateGraph(storage={}, dependents={}))
 
     >>> widget = make_widget("""
-    ... !<Complex>
+    ... !<WidgetWithMap>
     ... a: 1
     ... """) # doctest: +ELLIPSIS
     Traceback (most recent call last):
@@ -268,14 +282,40 @@ It also validates everything up::
     Error: Expected a string
     Got:
         1
-    While validating mapping value for key:
-        'a'
-    While constructing widget
-        <ComplexBase>
-    While constructing widget:
-        <Complex>
     While parsing:
-        "<byte string>", line 2
+        "<byte string>", line 3
+    While constructing widget
+        <WidgetWithMap>
+
+::
+
+    >>> parse_template("""
+    ... widgets:
+    ...   WidgetWithCollectionField: !<WidgetWithCollectionFieldBase>
+    ...     data:
+    ...       entity: some_entity
+    ...       data: !slot data
+    ...       refs:
+    ...         x: !slot x
+    ... """)
+
+    >>> 'WidgetWithCollectionField' in Widget.map_all()
+    True
+
+    >>> WidgetWithCollectionField = Widget.map_all()['WidgetWithCollectionField']
+    >>> WidgetWithCollectionField.fields # doctest: +NORMALIZE_WHITESPACE
+    OrderedDict([('x', Field(MaybeUndefinedVal(DataRefVal()))),
+                 ('data', Field(MaybeUndefinedVal(StrVal())))])
+
+    >>> widget = make_widget("""
+    ... !<WidgetWithCollectionField>
+    ... data: "data"
+    ... x: "x"
+    ... """)
+
+    >>> widget # doctest: +NORMALIZE_WHITESPACE
+    WidgetWithCollectionField(x=(DataRef(ref=Reference('x'), required=False),),
+                              data='data')
 
 ::
 

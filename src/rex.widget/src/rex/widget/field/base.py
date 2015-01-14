@@ -54,7 +54,7 @@ class Field(object):
     def __repr__(self):
         rep = '%s' % self.validate
         if self.default is not NotImplemented:
-            rep += ' default=%r' % self.default
+            rep += ', default=%r' % self.default
         return '%s(%s)' % (self.__class__.__name__, rep)
 
     @property

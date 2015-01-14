@@ -85,7 +85,7 @@ class Widget(WidgetBase):
                 if isinstance(field, Field)]
             own_fields = sorted(own_fields, key=lambda (_, field): field.order)
 
-            for name, field in own_fields + fields:
+            for name, field in fields + own_fields:
                 if field.name is None:
                     field.name = name
                 cls.fields[name] = field

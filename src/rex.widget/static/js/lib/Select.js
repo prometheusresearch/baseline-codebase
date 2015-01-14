@@ -13,7 +13,8 @@ var sentinel = '__empty_value_sentinel__';
 var Select = React.createClass({
 
   propTypes: {
-    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
+    value: React.PropTypes.oneOfType([React.PropTypes.string,
+                                      React.PropTypes.number]),
     emptyValue: React.PropTypes.object,
     noEmptyValue: React.PropTypes.bool,
     titleForEmpty: React.PropTypes.string,
@@ -37,7 +38,9 @@ var Select = React.createClass({
           <option key={sentinel} value={sentinel}>
             {titleForEmpty ? titleForEmpty : emptyValue.title}
           </option>}
-        {options.concat(data).map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
+        {options.concat(data).map((o) =>
+          <option key={o.id} value={o.id}>{o.title}</option>
+        )}
       </select>
     );
   },

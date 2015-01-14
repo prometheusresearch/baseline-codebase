@@ -23,7 +23,7 @@ from .library import Page
 from .state import Reference, State, Dep, Unknown, unknown, Reset
 from .jsval import JSVal
 from .urlmap import WidgetRenderer
-from .commands import *
+#from .commands import *
 from .template import WidgetTemplate, parse as parse_template
 
 

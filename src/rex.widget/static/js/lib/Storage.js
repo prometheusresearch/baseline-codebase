@@ -6,7 +6,7 @@
 'use strict';
 
 var Port        = require('./Port');
-var merge       = require('./merge');
+var mergeInto   = require('./mergeInto');
 var invariant   = require('./invariant');
 var ActionTypes = require('./runtime/ActionTypes');
 
@@ -164,6 +164,17 @@ class Storage {
               this._add(key, attr);
               return new Ref(this, key, attr.id);
             });
+          // One-to-many relation (append)
+          } else if (
+            attribute.__append__ &&
+            Array.isArray(attribute.__append__)
+          ) {
+            entity[key] = {
+              __append__: attribute.__append__.map(attr => {
+                this._add(key, attr);
+                return new Ref(this, key, attr.id);
+              })
+            };
           // Regular attribute
           } else {
             entity[key] = attribute;
@@ -174,11 +185,33 @@ class Storage {
       if (storage[item.id] === undefined) {
         storage[item.id] = entity;
       } else {
-        storage[item.id] = merge(storage[item.id], entity);
+        storage[item.id] = mergeEntity(storage[item.id], entity);
       }
     }
   }
 
+}
+
+function mergeEntity(prev, update) {
+  var result = {};
+  mergeInto(result, prev);
+  for (var key in update) {
+    if (!update.hasOwnProperty(key)) {
+      continue;
+    }
+    if (update[key].__append__) {
+      if (result[key] === undefined) {
+        result[key] = update[key].__append__;
+      } else if (Array.isArray(result[key])) {
+        result[key] = result[key].concat(update[key].__append__);
+      } else {
+        invariant(false, 'trying to append to a non-array entity attribute');
+      }
+    } else {
+      result[key] = update[key];
+    }
+  }
+  return result;
 }
 
 module.exports = Storage;

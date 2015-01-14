@@ -6,12 +6,10 @@ title: REX.RESTFUL
 tests:
   - coverage: setup.cfg
 
-  - sh: pip install -q -e ./demo/rex.restful_demo
+  - sh: pip install --quiet --editable ./demo
 
   - doctest: README.rst
   - doctest: test/test_*.rst
-
-  - sh: pip uninstall -q -y rex.restful_demo
 
   - coverage-check: 90.0
   - coverage-report: ./build/coverage

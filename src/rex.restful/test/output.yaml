@@ -4,7 +4,5 @@
 ---
 suite: rex.restful
 tests:
-- sh: pip install -q -e ./demo/rex.restful_demo
-  stdout: ''
-- sh: pip uninstall -q -y rex.restful_demo
+- sh: pip install --quiet --editable ./demo
   stdout: ''

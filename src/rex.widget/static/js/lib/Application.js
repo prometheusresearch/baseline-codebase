@@ -116,7 +116,7 @@ function constructComponent(ui, key) {
       mkStateReadWrite(props, name, prop.__state_read_write__);
     // Read from data
     } else if (prop !== null && prop.__data__) {
-      mkDataRead(props, name, prop.__data__, prop.wrapper);
+      mkDataRead(props, name, prop.__data__, prop.wrapper, false);
     // Regular prop
     } else {
       mkProp(props, name, prop);
@@ -167,8 +167,9 @@ function mkReference(props, name, ref) {
 
 function mkStateRead(props, name, ref) {
   var value = runtime.ApplicationState.get(ref);
+  var valueMeta = runtime.ApplicationState.getValue(ref);
   if (value !== null && value.__data__) {
-    mkDataRead(props, name, value.__data__, value.wrapper);
+    mkDataRead(props, name, value.__data__, value.wrapper, valueMeta.updating);
   } else {
     props[name] = value;
   }
@@ -184,14 +185,14 @@ function stateWriterName(name) {
   return 'on' + name[0].toUpperCase() + name.slice(1);
 }
 
-function mkDataRead(props, name, ref, wrapper) {
+function mkDataRead(props, name, ref, wrapper, updating) {
   ref = runtime.Storage.createRef(ref);
   var data = runtime.Storage.resolve(ref);
   if (wrapper) {
     wrapper = __require__(wrapper);
-    data = new wrapper(ref, data);
+    data = new wrapper(ref, data, updating);
   } else {
-    data = new Entity(ref, data);
+    data = new Entity(ref, data, updating);
   }
   props[name] = data;
 }

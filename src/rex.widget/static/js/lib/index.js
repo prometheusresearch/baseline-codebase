@@ -66,6 +66,11 @@ module.exports = {
   Modal:              require('./Modal'),
   layout:             require('./layout'),
   PageStateMixin:     require('./PageStateMixin'),
+
+  // TODO: expose form using require('./form')
+  FormContextMixin:   require('./form/FormContextMixin'),
+
+
   merge:              require('./merge'),
   runtime:            require('./runtime')
 };

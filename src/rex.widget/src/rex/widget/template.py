@@ -35,6 +35,14 @@ class WidgetTemplate(Widget):
 
     create_widget = WidgetVal()
 
+    @property
+    def package(self):
+        return self.underlying().package
+
+    @package.setter
+    def package(self, value):
+        self.underlying().package = value
+
     def validate(self):
         self.underlying()
 

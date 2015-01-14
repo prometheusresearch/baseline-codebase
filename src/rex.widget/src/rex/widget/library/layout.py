@@ -49,6 +49,8 @@ def _encode_DimensionShorthandProperty(value):
 
 
 class Box(Widget):
+    """ Layout primitive.
+    """
 
     name = 'Box'
     js_type = 'rex-widget/lib/layout/Box'

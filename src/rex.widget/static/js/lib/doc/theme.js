@@ -4,11 +4,14 @@
 'use strict';
 
 var theme = {
-  common: {
-    colors: {
-      selected: '#CCCCCC',
-      hover: '#DDDDDD',
-    }
+  colors: {
+    selected: '#CCCCCC',
+    hover: '#DDDDDD',
+
+    brandSuccess: '#5cb85c',
+    brandInfo: '#5bc0de',
+    brandWarning: '#f0ad4e',
+    brandDanger: '#d9534f'
   }
 };
 

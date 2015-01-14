@@ -17,11 +17,11 @@ var WidgetItem = React.createClass({
   },
 
   styleSelected: {
-    background: theme.common.colors.selected
+    background: theme.colors.selected
   },
 
   styleHover: {
-    background: theme.common.colors.hover
+    background: theme.colors.hover
   },
 
   render() {

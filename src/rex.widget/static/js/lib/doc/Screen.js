@@ -42,7 +42,7 @@ var Screen = React.createClass({
 
   getInitialState() {
     return {
-      selectedWidget: null
+      selectedWidget: this.props.widgets[3]
     };
   },
 

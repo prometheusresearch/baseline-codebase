@@ -11,12 +11,13 @@ from collections import namedtuple
 from urlparse import urlparse, parse_qsl
 from urllib import urlencode
 
-from rex.core import Error, Validate
-from rex.core import RecordVal, RecordField, OneOfVal, MapVal, BoolVal, StrVal
+from rex.core import Error, Validate, RecordVal, MaybeVal, OneOfVal, MapVal
+from rex.core import BoolVal, StrVal, IntVal
 
-from ..descriptors import DataRead
+from ..descriptors import DataRead, DataAppend, StateReadWrite
+from ..state import State, Reference, unknown, Reset
 from ..json_encoder import register_adapter
-from .data import DataField, DataRefVal, DataSpec, product_to_json
+from .data import DataField, DataRef, DataRefVal, DataSpec, product_to_json
 
 __all__ = ('CollectionSpec', 'CollectionSpecVal', 'CollectionField')
 
@@ -76,10 +77,10 @@ class CollectionSpecVal(Validate):
     refs_val = MapVal(StrVal(), DataRefVal())
 
     data_spec = RecordVal(
-        RecordField('entity', StrVal()),
-        RecordField('data', StrVal()),
-        RecordField('refs', refs_val, default={}),
-        RecordField('defer', OneOfVal(StrVal(), BoolVal()), default=None)
+        ('entity', StrVal()),
+        ('data', StrVal()),
+        ('refs', refs_val, {}),
+        ('defer', OneOfVal(StrVal(), BoolVal()), None)
     )
 
     data_spec_with_shorthand = OneOfVal(StrVal(), data_spec)
@@ -107,6 +108,8 @@ class CollectionSpecVal(Validate):
 class CollectionField(DataField):
 
     spec_validator = CollectionSpecVal
+
+    INITIAL_PAGINATION = {'top': 100, 'skip': 0}
 
     def __init__(self, include_meta=False, paginate=False, default=NotImplemented, doc=None,
             manager=None, name=None):
@@ -136,10 +139,86 @@ class CollectionField(DataField):
                         continue
                 query.setdefault(name, []).append(value)
 
+        top_filter = '%s:top' % spec.entity
+        skip_filter = '%s:skip' % spec.entity
+
+        if self.paginate:
+            query[top_filter] = [query[top_filter][0] + 1]
+
         data = product_to_json(spec.port.produce(urlencode(query, doseq=True)))
+
+        has_more = False
+        if self.paginate:
+            has_more = len(data[spec.entity]) == query[top_filter][0]
+            data[spec.entity] = data[spec.entity][:-1]
+            if query[skip_filter][0] > 0:
+                data[spec.entity] = DataAppend(data[spec.entity])
+
         data.update({
             'id': spec.entity_name,
-            'hasMore': False,
+            'hasMore': has_more,
             'entity': spec.entity,
         })
         return DataRead(spec.entity_name, spec.entity_name, data, wrapper='rex-widget/lib/Collection')
+
+    def apply(self, widget, spec):
+        if self.paginate:
+            pagination_state_id = '%s/%s/pagination' % (widget.widget_id, self.name)
+            sort_state_id = '%s/%s/sort' % (widget.widget_id, self.name)
+
+            dependencies = [r.id for refs in spec.refs.values() for r in refs]
+
+            refs = dict(spec.refs)
+            refs.update({
+                '%s:top' % spec.entity: (DataRef(Reference('%s:top' % pagination_state_id), False),),
+                '%s:skip' % spec.entity: (DataRef(Reference('%s:skip' % pagination_state_id), False),),
+                '%s:sort' % spec.entity: (DataRef(Reference('%s' % sort_state_id), False),),
+            })
+            spec = CollectionSpec(
+                    spec.entity_name, route=spec.route,
+                    params=spec.params, refs=refs, defer=spec.defer)
+
+            props, state = super(CollectionField, self).apply(widget, spec)
+
+            state = state + [
+                State(
+                    pagination_state_id,
+                    widget=widget,
+                    computator=self.compute_pagination,
+                    validator=MaybeVal(MapVal(StrVal, IntVal)),
+                    dependencies=dependencies + [sort_state_id],
+                    persistence=State.INVISIBLE,
+                    is_writable=True),
+                State(
+                    sort_state_id,
+                    value=_extract_sort_state(spec),
+                    widget=widget,
+                    validator=MaybeVal(StrVal()),
+                    dependencies=dependencies,
+                    is_writable=True)
+            ]
+
+            props.update({
+                '%s_sort' % self.name: StateReadWrite(sort_state_id),
+                '%s_pagination' % self.name: StateReadWrite(pagination_state_id),
+            })
+            return props, state
+        else:
+            return super(CollectionField, self).apply(widget, spec)
+
+
+    def compute_pagination(self, widget, state, graph, request):
+        if state.value is unknown:
+            return Reset(self.INITIAL_PAGINATION)
+        if set(d.id for d in state.dependencies) & graph.dirty:
+            return Reset(self.INITIAL_PAGINATION)
+        return state.value
+
+
+def _extract_sort_state(spec):
+    for k, v in spec.params.items():
+        if not k[-5:] == ':sort':
+            continue
+        _, field_name = k[:-5].split('.', 1)
+        return ('+' if v[0] == 'asc' else '-') + field_name
+    return unknown

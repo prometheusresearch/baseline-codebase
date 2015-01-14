@@ -149,7 +149,7 @@ def _encode_DataRead(directive):
     return result
 
 
-class DataAppend(namedtuple('Append', ['data'])):
+class DataAppend(namedtuple('DataAppend', ['data'])):
     """ Represents a data append."""
 
     __slots__ = ()

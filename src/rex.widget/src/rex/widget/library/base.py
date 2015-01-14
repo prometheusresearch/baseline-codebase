@@ -274,6 +274,7 @@ class Grid(Widget):
     id = Field(StrVal)
 
     data = CollectionField(
+        paginate=True,
         include_meta=True,
         doc="""
         Dataset for a grid.

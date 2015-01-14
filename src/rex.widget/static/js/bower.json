@@ -21,7 +21,7 @@
     "emitter": "component/emitter#1.1.2",
     "bluebird": "^2.3.2",
     "react-autocomplete": "https://github.com/rackt/react-autocomplete.git",
-    "react-grid": "prometheusresearch/react-grid#34349b155350194048251def387f39a3a0dc248e"
+    "react-grid": "prometheusresearch/react-grid#234f2d843a3f1f4e7acdbec3baaca165c71f1a4e"
   },
   "moduleType": [
     "node"

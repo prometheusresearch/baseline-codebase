@@ -166,7 +166,7 @@ def get_date_or_string(value):
 
     if RE_DATETIME.match(value):
         try:
-            return parse_date(value)
+            return parse_date(value, ignoretz=True)
         except ValueError:  # pragma: no cover
             pass
 

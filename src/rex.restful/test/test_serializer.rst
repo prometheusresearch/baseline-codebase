@@ -127,7 +127,7 @@ Python equivalents (dicts & lists)::
     {u'a_time': datetime.time(12, 34, 56)}
 
     >>> serializer.deserialize('{"a_date": "2014-05-22T12:34:56.000Z"}')
-    {u'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56, tzinfo=tzutc())}
+    {u'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56)}
 
 
 YamlSerializer

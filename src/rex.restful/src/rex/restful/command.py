@@ -6,7 +6,7 @@
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed, HTTPException, HTTPBadRequest
 
-from rex.core import cached, StrVal, Error
+from rex.core import StrVal, Error
 from rex.web import Command, Parameter
 
 from .serializer import Serializer
@@ -137,8 +137,6 @@ class RestfulLocation(Command):
             not be sent to the client.
     """
 
-    priority = 1000
-
     #: The permission required to access this location.
     access = 'authenticated'
 
@@ -188,16 +186,6 @@ class RestfulLocation(Command):
                 cls.parameters.append(
                     Parameter('format', StrVal(), None),
                 )
-
-    @classmethod
-    @cached
-    def all(cls):
-        extensions = [
-            extension
-            for extension in Command.all()
-            if issubclass(extension, RestfulLocation)
-        ]
-        return sorted(extensions, key=lambda e: e.priority)
 
     def get_response_serializer(self, request):
         for mime_type in request.accept:

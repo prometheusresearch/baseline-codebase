@@ -5,6 +5,15 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
+0.3.0 (2015-01-xx)
+==================
+
+* Added support for rex.setup v2.
+* Refactored Serializer mapping.
+* Removed custom ``priority`` implementation on RestfulLocation in favor of
+  ``rex.core``'s ``priority`` and ``ordered()`` functionality.
+
+
 0.2.1 (9/23/2014)
 =================
 

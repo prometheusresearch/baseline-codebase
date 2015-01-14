@@ -39,8 +39,12 @@ class Serializer(Extension):
     mime_type = None
 
     @classmethod
+    def signature(cls):
+        return cls.mime_type
+
+    @classmethod
     @cached
-    def map_by_format(cls):
+    def mapped_format(cls):
         """
         Returns mapping of format identifiers to the Serializer implementation
         that supports them.
@@ -57,23 +61,6 @@ class Serializer(Extension):
 
     @classmethod
     @cached
-    def map_by_mime_type(cls):
-        """
-        Returns a mapping of MIME types to the Serializer implementation that
-        supports them.
-
-        :rtype: dict
-        """
-
-        mapping = {}
-        for ext in cls.all():
-            assert ext.mime_type not in mapping, \
-                'duplicate mime type: %s' % ext.mime_type
-            mapping[ext.mime_type] = ext
-        return mapping
-
-    @classmethod
-    @cached
     def get_for_mime_type(cls, mime_type):
         """
         Retrieves the Serializer implementation that supports the specified
@@ -85,7 +72,7 @@ class Serializer(Extension):
         """
 
         mime_type = mime_type.split(';')[0]
-        return cls.map_by_mime_type().get(mime_type)
+        return cls.mapped().get(mime_type)
 
     @classmethod
     @cached
@@ -100,7 +87,7 @@ class Serializer(Extension):
         :rtype: Serializer
         """
 
-        return cls.map_by_format().get(fmt)
+        return cls.mapped_format().get(fmt)
 
     @classmethod
     def enabled(cls):

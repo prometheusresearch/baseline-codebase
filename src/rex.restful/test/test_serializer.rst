@@ -20,11 +20,11 @@ Serializer
 The base class has methods to return lookup-dicts for the available
 serializers::
 
-    >>> Serializer.map_by_format()
-    {'yaml': rex.restful.serializer.YamlSerializer, 'json': rex.restful.serializer.JsonSerializer}
-
-    >>> Serializer.map_by_mime_type()
+    >>> Serializer.mapped()
     {'application/x-yaml': rex.restful.serializer.YamlSerializer, 'application/json': rex.restful.serializer.JsonSerializer}
+
+    >>> Serializer.mapped_format()
+    {'yaml': rex.restful.serializer.YamlSerializer, 'json': rex.restful.serializer.JsonSerializer}
 
 
 The base class has methods to retrieve serializers for specified formats or

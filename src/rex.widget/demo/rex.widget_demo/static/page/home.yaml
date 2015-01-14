@@ -8,6 +8,7 @@ paths:
       params:
         selected_study: study_list/selected
       children: !<Element>
+        size: 1
         direction: horizontal
         children:
 

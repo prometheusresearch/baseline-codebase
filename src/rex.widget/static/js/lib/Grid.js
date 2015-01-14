@@ -3,15 +3,21 @@
  */
 'use strict';
 
-var React         = require('react/addons');
-var PropTypes     = React.PropTypes;
-var cx            = React.addons.classSet;
-var BaseGrid      = require('react-grid');
-var BaseRow       = require('react-grid/lib/Row');
+var React           = require('react/addons');
+var PropTypes       = React.PropTypes;
+var cx              = React.addons.classSet;
+
+var BaseRow         = require('react-grid/lib/Row');
+var Header          = require('react-grid/lib/Header');
+var Viewport        = require('react-grid/lib/Viewport');
+var ColumnMetrics   = require('react-grid/lib/ColumnMetrics');
+var DOMMetrics      = require('react-grid/lib/DOMMetrics');
+var GridScrollMixin = require('react-grid/lib/GridScrollMixin');
+
 var Icon          = require('./Icon');
 var emptyFunction = require('./emptyFunction');
-var merge         = require('./merge');
 var invariant     = require('./invariant');
+var merge         = require('./merge');
 var mergeInto     = require('./mergeInto');
 var isString      = require('./isString');
 var formatters    = require('./formatters');
@@ -98,10 +104,57 @@ var SortableGridHeaderCell = React.createClass({
 
   onClick: function() {
     var sorted = this.props.column.sorted;
-    var direction = sorted === '+' ?
-      '-' : '+';
+    var direction = sorted === '+' ?  '-' : '+';
     this.props.column.onSort(`${direction}${this.props.column.key}`);
   }
+});
+
+var BaseGrid = React.createClass({
+  mixins: [
+    GridScrollMixin,
+    ColumnMetrics.Mixin,
+    DOMMetrics.MetricsComputatorMixin
+  ],
+
+  style: {
+    overflow: 'hidden',
+    outline: 0
+  },
+
+  render() {
+    return this.transferPropsTo(
+      <Box size={1} style={this.style}>
+        <Header
+          style={Box.makeBoxStyle({height: this.props.rowHeight})}
+          ref="header"
+          columns={this.state.columns}
+          onColumnResize={this.onColumnResize}
+          height={this.props.rowHeight}
+          totalWidth={this.DOMMetrics.gridWidth()}
+          />
+        <Viewport
+          style={merge(Box.makeBoxStyle({size: 1}), {top: 0})}
+          ref="viewport"
+          width={this.state.columns.width}
+          rowHeight={this.props.rowHeight}
+          rowRenderer={this.props.rowRenderer}
+          cellRenderer={this.props.cellRenderer}
+          rows={this.props.rows}
+          length={this.props.length}
+          columns={this.state.columns}
+          totalWidth={this.DOMMetrics.gridWidth()}
+          onScroll={this.onScroll}
+          onRows={this.props.onRows}
+          />
+      </Box>
+    );
+  },
+
+  getDefaultProps() {
+    return {
+      rowHeight: 35
+    };
+  },
 });
 
 var Grid = React.createClass({
@@ -129,7 +182,7 @@ var Grid = React.createClass({
   },
 
   render() {
-    var {height, selectable, selected, onSelected, className} = this.props;
+    var {selectable, selected, onSelected, className} = this.props;
     var rowRenderer = (
       <GridRow
         selected={selectable && selected}
@@ -137,18 +190,15 @@ var Grid = React.createClass({
         />
     );
     return (
-      <Box height={height}>
-        <BaseGrid
-          style={{height}}
-          columnEquality={sameColumn}
-          columns={this.getColumns()}
-          rows={this.getRows}
-          onRows={this.onRows}
-          length={this.getData().length}
-          className={cx('rw-Grid', className)}
-          rowRenderer={rowRenderer}
-          />
-      </Box>
+      <BaseGrid
+        columnEquality={sameColumn}
+        columns={this.getColumns()}
+        rows={this.getRows}
+        onRows={this.onRows}
+        length={this.getData().length}
+        className={cx('rw-Grid', className)}
+        rowRenderer={rowRenderer}
+        />
     );
   },
 

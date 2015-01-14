@@ -21,40 +21,58 @@ var defaultStyle = {
   flexShrink: 0
 };
 
+/**
+ * Make <Box /> style from props.
+ */
+function makeBoxStyle(props) {
+  props = props || {};
+  var {
+    direction, size, margin,
+    width, height,
+    centerHorizontally, centerVertically
+  } = props;
+  var style = {};
+  mergeInto(style, defaultStyle);
+  if (direction === 'horizontal') {
+    style.flexDirection = 'row';
+  }
+  if (width !== undefined) {
+    style.width = width;
+  }
+  if (height !== undefined) {
+    style.height = height;
+  }
+  if (size !== undefined) {
+    style.flex = size;
+  }
+  if (margin !== undefined) {
+    style.margin = margin;
+  }
+  if (centerHorizontally) {
+    style.alignItems = 'center';
+  }
+  if (centerVertically) {
+    style.justifyContent = 'center';
+  }
+  return style;
+}
+
 var Box = React.createClass({
 
   render() {
     var {
-      children, direction, style: extraStyle,
+      direction, size, margin, width, height,
       centerHorizontally, centerVertically,
-      width, height, size, margin, Component, ...props
+      children, style: extraStyle,
+      Component, ...props
     } = this.props;
-
-    var style = {};
-    mergeInto(style, defaultStyle);
-    if (direction === 'horizontal') {
-      style.flexDirection = 'row';
-    }
-    if (width !== undefined) {
-      style.width = width;
-    }
-    if (height !== undefined) {
-      style.height = height;
-    }
-    if (size !== undefined) {
-      style.flex = size;
-    }
-    if (margin !== undefined) {
-      style.margin = margin;
-    }
+    var style = makeBoxStyle({
+      direction, size, margin,
+      width, height,
+      centerHorizontally, centerVertically
+    });
     if (extraStyle !== undefined) {
       mergeInto(style, extraStyle);
-    }
-    if (centerHorizontally) {
-      style.alignItems = 'center';
-    }
-    if (centerVertically) {
-      style.justifyContent = 'center';
     }
     return (
       <Component {...props} style={style}>
@@ -69,4 +87,4 @@ var Box = React.createClass({
 });
 
 module.exports = Box;
-
+module.exports.makeBoxStyle = makeBoxStyle;

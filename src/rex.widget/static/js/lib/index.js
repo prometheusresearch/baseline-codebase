@@ -66,7 +66,6 @@ module.exports = {
   Modal:              require('./Modal'),
   layout:             require('./layout'),
   PageStateMixin:     require('./PageStateMixin'),
-  WidgetDoc:          require('./WidgetDoc'),
   merge:              require('./merge'),
   runtime:            require('./runtime')
 };

@@ -6,7 +6,7 @@
 from babel import Locale, UnknownLocaleError
 from pytz import timezone, UnknownTimeZoneError
 
-from rex.core import Extension, get_settings, cached
+from rex.core import Extension, get_settings
 from rex.web import HandleTemplate
 
 from .core import KEY_LOCALE, KEY_TIMEZONE, DOMAIN_BACKEND, DOMAIN_FRONTEND
@@ -95,6 +95,10 @@ class CoreBabelMapper(BabelMapper):
     def mapper_config(cls):
         return '[python: src/**.py]'
 
+    @classmethod
+    def signature(cls):
+        return 'python'
+
 
 class WebBabelMapper(BabelMapper):
     """
@@ -124,6 +128,10 @@ class WebBabelMapper(BabelMapper):
 
         return '\n'.join(lines)
 
+    @classmethod
+    def signature(cls):
+        return 'temmplate'
+
 
 class JavaScriptBabelMapper(BabelMapper):
     """
@@ -145,6 +153,10 @@ class JavaScriptBabelMapper(BabelMapper):
 
         return '\n'.join(lines)
 
+    @classmethod
+    def signature(cls):
+        return 'javascript'
+
 
 class LocaleDetector(Extension):
     """
@@ -152,18 +164,9 @@ class LocaleDetector(Extension):
     a Locale for each incoming HTTP request.
     """
 
-    #: A number representing the order in which ``LocaleDetectors`` are
-    #: executed. Lower numbers are executed before higher. Must be specified by
-    #: concrete classes.
-    priority = None
-
     @classmethod
-    @cached
-    def all(cls):
-        return sorted(
-            super(LocaleDetector, cls).all(),
-            key=lambda e: e.priority,
-        )
+    def signature(cls):
+        return cls.priority
 
     @classmethod
     def enabled(cls):
@@ -189,11 +192,11 @@ class LocaleDetector(Extension):
             Locale could be determined.
         """
 
-        for detector in cls.all():
+        for detector in cls.ordered():
             locale = detector.detect_locale(request)
             if locale:
                 return locale
-        return None
+        return None  # pragma: no cover
 
 
 class SessionLocaleDetector(LocaleDetector):
@@ -202,7 +205,7 @@ class SessionLocaleDetector(LocaleDetector):
     ``rex.session`` by a previous request.
     """
 
-    priority = 100
+    priority = 'session'
 
     @classmethod
     def detect_locale(cls, request):
@@ -222,7 +225,8 @@ class AcceptLanguageLocaleDetector(LocaleDetector):
     Accept-Language HTTP header sent by the client browser.
     """
 
-    priority = 500
+    priority = 'accept-language'
+    after = 'session'
 
     @classmethod
     def detect_locale(cls, request):
@@ -232,9 +236,9 @@ class AcceptLanguageLocaleDetector(LocaleDetector):
         if lid:
             try:
                 return Locale.parse(lid)
-            except UnknownLocaleError:
+            except UnknownLocaleError:  # pragma: no cover
                 return None
-        return None
+        return None  # pragma: no cover
 
 
 class DefaultLocaleDetector(LocaleDetector):
@@ -243,7 +247,8 @@ class DefaultLocaleDetector(LocaleDetector):
     the application.
     """
 
-    priority = 1000
+    priority = 'default'
+    after = 'accept-language'
 
     @classmethod
     def detect_locale(cls, request):
@@ -256,18 +261,9 @@ class TimezoneDetector(Extension):
     a Timezone for each incoming HTTP request.
     """
 
-    #: A number representing the order in which ``TimezoneDetectors`` are
-    #: executed. Lower numbers are executed before higher. Must be specified by
-    #: concrete classes.
-    priority = None
-
     @classmethod
-    @cached
-    def all(cls):
-        return sorted(
-            super(TimezoneDetector, cls).all(),
-            key=lambda e: e.priority,
-        )
+    def signature(cls):
+        return cls.priority
 
     @classmethod
     def enabled(cls):
@@ -293,11 +289,11 @@ class TimezoneDetector(Extension):
             Timezone could be determined.
         """
 
-        for detector in cls.all():
+        for detector in cls.ordered():
             zone = detector.detect_timezone(request)
             if zone:
                 return zone
-        return None
+        return None  # pragma: no cover
 
 
 class SessionTimezoneDetector(TimezoneDetector):
@@ -306,7 +302,7 @@ class SessionTimezoneDetector(TimezoneDetector):
     in ``rex.session`` by a previous request.
     """
 
-    priority = 100
+    priority = 'session'
 
     @classmethod
     def detect_timezone(cls, request):
@@ -326,7 +322,8 @@ class DefaultTimezoneDetector(TimezoneDetector):
     for the application.
     """
 
-    priority = 1000
+    priority = 'default'
+    after = 'session'
 
     @classmethod
     def detect_timezone(cls, request):

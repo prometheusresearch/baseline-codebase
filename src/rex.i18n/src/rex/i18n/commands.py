@@ -13,7 +13,8 @@ from webob.exc import HTTPBadRequest, HTTPFound
 from rex.core import get_settings, StrVal, get_packages, cached
 from rex.web import Command, Parameter
 
-from .core import KEY_LOCALE, DOMAIN_FRONTEND, get_json_translations
+from .core import KEY_LOCALE, DOMAIN_FRONTEND, get_json_translations, \
+    get_locale
 from .validators import LocaleVal
 
 
@@ -44,6 +45,10 @@ class SwitchLocaleCommand(Command):
         Parameter('locale', LocaleVal()),
         Parameter('redirect', StrVal(), None),
     )
+
+    @classmethod
+    def signature(cls):
+        return 'i18n_switch_locale'
 
     # pylint: disable=W0221
     def render(self, request, locale, redirect):
@@ -82,7 +87,11 @@ class GetTranslationsCommand(Command):
         Parameter('locale', LocaleVal()),
     )
 
-    # pylint: disable=W0221
+    @classmethod
+    def signature(cls):
+        return 'i18n_translations'
+
+    # pylint: disable=W0221,W0613
     def render(self, request, locale):
         if locale not in get_settings().i18n_supported_locales:
             raise HTTPBadRequest('"%s" is not a supported locale' % locale)
@@ -108,6 +117,7 @@ class CldrPackagerCommand(Command):
     def get_cldr_components(self, parameters):
         raise NotImplementedError()
 
+    # pylint: disable=R0201
     def get_cldr_path(self, filename):
         return 'rex.i18n:/cldr/%s' % filename
 
@@ -120,6 +130,7 @@ class CldrPackagerCommand(Command):
             parts.append(get_file(self.get_cldr_path(component)))
         return '[%s]' % (','.join(parts),)
 
+    # pylint: disable=W0613
     def render(self, request, **parameters):
         package = self.build_package(self.get_cldr_components(parameters))
         return Response(
@@ -146,6 +157,10 @@ class GetLocaleCommonCommand(CldrPackagerCommand):
     path = '/locale'
     access = 'anybody'
 
+    @classmethod
+    def signature(cls):
+        return 'i18n_cldr_common'
+
     def get_cldr_components(self, parameters):
         return (
             'supplemental/likelySubtags.json',
@@ -156,7 +171,7 @@ class GetLocaleCommonCommand(CldrPackagerCommand):
 
 class GetLocaleDetailCommand(CldrPackagerCommand):
     """
-    When the ``/locale/{locale}`` URL is access via GET, a JSON array of two
+    When the ``/locale/{locale}`` URL is accessed via GET, a JSON array of two
     CLDR objects will be returned. These objects contain the ca-gregorian and
     numbers CLDR data for the specified ``locale``.
 
@@ -173,6 +188,10 @@ class GetLocaleDetailCommand(CldrPackagerCommand):
     parameters = (
         Parameter('locale', LocaleVal(), None),
     )
+
+    @classmethod
+    def signature(cls):
+        return 'i18n_cldr_locale'
 
     def get_cldr_components(self, parameters):
         if parameters['locale'] not in get_settings().i18n_supported_locales:
@@ -192,4 +211,57 @@ class GetLocaleDetailCommand(CldrPackagerCommand):
                 components[idx] = mask % 'en'
 
         return components
+
+
+class GetActiveLocalesCommand(Command):
+    """
+    When the ``/locale/active`` URL is accessed via GET, a JSON object is
+    returned that contains three properties:
+
+    active
+        This is the ID of the locale that is being used for the current
+        user/session.
+    default
+        This is the ID of the locale that is configured as the system default.
+    available
+        This is an array of the locales that are available for use in the
+        system.
+    """
+
+    path = '/locale/active'
+    access = 'anybody'
+
+    @classmethod
+    def signature(cls):
+        return 'i18n_locales'
+
+    # pylint: disable=W0613
+    def render(self, request):
+        locales = []
+
+        default_locale = get_settings().i18n_default_locale
+        active_locale = get_locale()
+
+        for locale in get_settings().i18n_supported_locales:
+            locales.append({
+                'id': locale.language,
+                'name': {
+                    'native': locale.get_display_name(),
+                    'default': locale.get_display_name(default_locale),
+                    'current': locale.get_display_name(active_locale),
+                }
+            })
+
+        payload = {
+            'active': active_locale.language,
+            'default': default_locale.language,
+            'available': locales,
+        }
+
+        return Response(
+            json.dumps(payload, ensure_ascii=False),
+            headerlist=[
+                ('Content-type', 'application/json'),
+            ],
+        )
 

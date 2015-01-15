@@ -1,3 +1,6 @@
+inherits:
+  - strictness_veryhigh
+
 ignore:
   - ^doc/conf\.py$
   - ^demo/.*$
@@ -13,12 +16,12 @@ pylint:
   disable:
     - W0401
     - C0111
-    - R0921
-    - R0922
-    - R0903
     - E1101
+  enable:
+    - W0511
 
   options:
+    min-public-methods: 0
     max-public-methods: 30
     max-args: 10
     max-attributes: 10
@@ -30,4 +33,11 @@ pyflakes:
 frosted:
   disable:
     - E103
+
+pyroma:
+  run: true
+  disable:
+    - PYR09
+    - PYR14
+    - PYR15
 

@@ -178,7 +178,12 @@ Settings
 Command Line Tools
 ==================
 
-This package contains a series of command line tools (exposed via ``rex.ctl``):
+This package contains a series of command line tools (exposed via ``rex.ctl``)
+that can be used in the development of a RexDB package. These tools assume:
+
+* The package you're working on is installed as editable (``pip install -e``,
+  ``python setup.py develop``, etc).
+* You are executing these tools from the root of the package repository.
 
 
 i18n-extract

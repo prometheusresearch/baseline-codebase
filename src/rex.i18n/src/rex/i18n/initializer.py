@@ -20,6 +20,10 @@ __all__ = (
 
 
 class I18NInitialize(Initialize):
+    @classmethod
+    def signature(cls):
+        return 'i18n'
+
     def __call__(self):
         # pylint: disable=W0108
 

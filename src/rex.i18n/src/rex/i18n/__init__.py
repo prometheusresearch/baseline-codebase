@@ -7,7 +7,7 @@ from .commands import *
 from .core import *
 from .extensions import *
 from .initializer import *
-from .routes import *
+from .middleware import *
 from .settings import *
 from .validators import *
 

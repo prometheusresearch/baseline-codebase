@@ -5,6 +5,18 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.4.0 (2014-01-XX)
+==================
+
+* Added a JSON API that allows the retrieval of the current and available
+  locales in the system.
+* Pinned working version of PyExecJS to fix crashes when extracting strings
+  from JSX files.
+* Updated integration with ``rex.web`` to use new ``Pipe`` interface. This
+  package now requires >=3.1 of ``rex.web``.
+* Added support for ``rex.setup`` v2.
+
+
 0.3.0 (9/26/2014)
 =================
 

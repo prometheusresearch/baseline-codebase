@@ -12,6 +12,18 @@ Set up the environment::
     >>> rex = Rex('rex.i18n', i18n_supported_locales=['en', 'fr', 'fil'])
     >>> rex.on()
 
+Make sure all the Commands are available::
+
+    >>> from rex.web import Command
+    >>> for signature, impl in Command.mapped().items():
+    ...     if signature.startswith('i18n'):
+    ...         print '%s: %s' % (signature, impl)
+    i18n_cldr_common: rex.i18n.commands.GetLocaleCommonCommand
+    i18n_cldr_locale: rex.i18n.commands.GetLocaleDetailCommand
+    i18n_switch_locale: rex.i18n.commands.SwitchLocaleCommand
+    i18n_locales: rex.i18n.commands.GetActiveLocalesCommand
+    i18n_translations: rex.i18n.commands.GetTranslationsCommand
+
 
 SwitchLocale
 ============
@@ -157,6 +169,22 @@ CLDR data available, you will receive the CLDR data for English::
       "main": {
         "en": {
     ...
+
+
+GetActiveLocales
+================
+
+The GetActiveLocales command will return a JSON object containing the
+locales supported by the application::
+
+    >>> req = Request.blank('/locale/active')
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    200 OK
+    Content-type: application/json
+    Content-Length: ...
+    Set-Cookie: ...
+    <BLANKLINE>
+    {"active": "en", "default": "en", "available": [{"id": "en", "name": {"default": "English", "current": "English", "native": "English"}}, {"id": "fr", "name": {"default": "French", "current": "French", "native": "français"}}, {"id": "fil", "name": {"default": "Filipino", "current": "Filipino", "native": "Filipino"}}]}
 
 
 

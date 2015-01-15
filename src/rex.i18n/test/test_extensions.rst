@@ -23,6 +23,9 @@ Included in this package are the following::
 
     >>> BabelMapper.all()
     [rex.i18n.extensions.CoreBabelMapper, rex.i18n.extensions.WebBabelMapper, rex.i18n.extensions.JavaScriptBabelMapper]
+    >>> BabelMapper.mapped()
+    {'python': rex.i18n.extensions.CoreBabelMapper, 'temmplate': rex.i18n.extensions.WebBabelMapper, 'javascript': rex.i18n.extensions.JavaScriptBabelMapper}
+
 
 The base class has a method that will generate the full configuration for a
 specified gettext domain::
@@ -97,6 +100,8 @@ Included in this package are the following::
 
     >>> LocaleDetector.all()
     [rex.i18n.extensions.SessionLocaleDetector, rex.i18n.extensions.AcceptLanguageLocaleDetector, rex.i18n.extensions.DefaultLocaleDetector]
+    >>> LocaleDetector.mapped()
+    {'default': rex.i18n.extensions.DefaultLocaleDetector, 'session': rex.i18n.extensions.SessionLocaleDetector, 'accept-language': rex.i18n.extensions.AcceptLanguageLocaleDetector}
 
 
 SessionLocaleDetector
@@ -154,6 +159,8 @@ Included in this package are the following::
 
     >>> TimezoneDetector.all()
     [rex.i18n.extensions.SessionTimezoneDetector, rex.i18n.extensions.DefaultTimezoneDetector]
+    >>> TimezoneDetector.mapped()
+    {'default': rex.i18n.extensions.DefaultTimezoneDetector, 'session': rex.i18n.extensions.SessionTimezoneDetector}
 
 
 SessionTimezoneDetector

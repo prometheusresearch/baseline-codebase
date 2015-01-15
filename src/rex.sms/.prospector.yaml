@@ -1,3 +1,6 @@
+inherits:
+  - strictness_veryhigh
+
 ignore:
   - ^doc/conf.py$
   - ^demo/.*$
@@ -10,6 +13,9 @@ pylint:
   disable:
     - W0401
     - C0111
+    - R0903
+  enable:
+    - W0511
 
 pyflakes:
   disable:
@@ -18,4 +24,11 @@ pyflakes:
 frosted:
   disable:
     - E103
+
+pyroma:
+  run: true
+  disable:
+    - PYR09
+    - PYR14
+    - PYR15
 

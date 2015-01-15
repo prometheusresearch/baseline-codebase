@@ -14,7 +14,7 @@ from urllib import urlencode
 from rex.core import Error, Validate, RecordVal, MaybeVal, OneOfVal, MapVal
 from rex.core import BoolVal, StrVal, IntVal
 
-from ..descriptors import DataRead, DataAppend, StateReadWrite
+from ..descriptors import CollectionRead, DataAppend, StateReadWrite
 from ..state import State, Reference, unknown, Reset
 from ..json_encoder import register_adapter
 from ..util import get_validator_for_key
@@ -162,7 +162,12 @@ class CollectionField(DataField):
             'hasMore': has_more,
             'entity': spec.entity,
         })
-        return DataRead(spec.entity_name, spec.entity_name, data, wrapper='rex-widget/lib/Collection')
+        return CollectionRead(
+            entity=spec.entity_name,
+            id=spec.entity_name,
+            data=data,
+            wrapper='rex-widget/lib/Collection'
+        )
 
     def apply(self, widget, spec):
         if self.paginate:

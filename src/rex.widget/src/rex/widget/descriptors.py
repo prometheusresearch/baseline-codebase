@@ -149,6 +149,15 @@ def _encode_DataRead(directive):
     return result
 
 
+class CollectionRead(DataRead):
+
+    __slots__ = ()
+
+    @property
+    def collection(self):
+        return self.data[self.data['entity']]
+
+
 class DataAppend(namedtuple('DataAppend', ['data'])):
     """ Represents a data append."""
 

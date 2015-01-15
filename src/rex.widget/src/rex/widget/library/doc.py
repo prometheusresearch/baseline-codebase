@@ -25,7 +25,7 @@ class DocScreen(Widget):
 
     @Widget.define_state(AnyVal())
     def widgets(self, state, graph, request):
-        widgets = Widget.all()
+        widgets = Widget.map_all().values()
         widgets = sorted(widgets, key=lambda w: w.name)
         return [self._format_widget(w) for w in widgets]
 

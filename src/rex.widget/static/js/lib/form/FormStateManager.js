@@ -30,6 +30,9 @@ class FormStateManager extends StateManager {
 
   updateValue(update) {
     this.applicationState.update(this.state.id, update);
+    if (this.state.params.submitOnChange) {
+      this.submit();
+    }
   }
 
   prepareUpdate(value) {

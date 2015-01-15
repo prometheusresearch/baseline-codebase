@@ -29,7 +29,7 @@ from ..state import State
 from ..json_encoder import register_adapter
 from ..action import Action
 from ..field.entity import EntitySpecVal 
-from ..util import get_validator_for_key
+from ..util import get_validator_for_key, PropsContainer
 from .layout import Element
 from .base import Button
 
@@ -531,6 +531,12 @@ class Form(FormContainerWidget):
         Widgets to render into controls.
         """)
 
+    submit_on_change = Field(
+        BoolVal(), default=False,
+        doc="""
+        If form should automatically submit its value on each change.
+        """)
+
     @Widget.define_state(
         AnyVal(),
         manager='rex-widget/lib/form/FormStateManager',
@@ -538,7 +544,7 @@ class Form(FormContainerWidget):
         persistence=State.INVISIBLE,
         dependencies=['value_data'],
         doc="""
-        Initial form value
+        Initial form value.
         """)
     def value(self, state, graph, request):
         if self.value_data:
@@ -573,7 +579,11 @@ class Form(FormContainerWidget):
         desc = super(Form, self).descriptor()
         desc = desc._replace(ui=transform_ui(desc.ui, self._transform_ui))
         schema = self.form_schema()
-        value = desc.state[self.id].value._replace(params={'schema': schema})
+        params = PropsContainer({
+            'schema': schema,
+            'submit_on_change': self.submit_on_change,
+        })
+        value = desc.state[self.id].value._replace(params=params)
         return desc._replace(state=desc.state.add(value))
 
     def _transform_ui(self, ui):

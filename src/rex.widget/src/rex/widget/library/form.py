@@ -234,6 +234,20 @@ class FormWidget(Element):
         Default value.
         """)
 
+    compact = Field(
+        BoolVal(), default=False,
+        doc="""
+        If form widget should be rendered in "compact" style.
+
+        This is up to widget to decide how to do so.
+        """)
+
+    no_label = Field(
+        BoolVal(), default=False,
+        doc="""
+        Disable rendering label.
+        """)
+
     def form_schema(self):
         """ Return form schema."""
         raise NotImplementedError()

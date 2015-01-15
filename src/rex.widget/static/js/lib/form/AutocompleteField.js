@@ -11,6 +11,7 @@ var Element           = require('../layout/Element');
 var runtime           = require('../runtime');
 var invariant         = require('../invariant');
 var FormContextMixin  = require('./FormContextMixin');
+var FieldBase         = require('./FieldBase');
 
 var AutocompleteInput = React.createClass({
 
@@ -81,32 +82,23 @@ var AutocompleteInput = React.createClass({
 });
 
 var AutocompleteField = React.createClass({
-  mixins: [FormContextMixin],
 
   render() {
     var {className, data, titleAttribute, valueAttribute, ...props} = this.props;
-    var value = this.getValue();
-    return (
-      <Element {...props} className={cx('rw-AutocompleteField', className)}>
-        <ReactForms.Field 
-          value={value}
-          input={
-            <AutocompleteInput
-              data={data}
-              titleAttribute={titleAttribute}
-              valueAttribute={valueAttribute}
-              />
-          }
-          />
-      </Element>
+    var input = (
+      <AutocompleteInput
+        data={data}
+        titleAttribute={titleAttribute}
+        valueAttribute={valueAttribute}
+        />
     );
-  },
-
-  getDefaultProps() {
-    return {
-      size: 1,
-      margin: 10
-    }
+    return (
+      <FieldBase
+        {...props}
+        input={input}
+        className={cx('rw-AutocompleteField', className)}
+        />
+    );
   }
 });
 

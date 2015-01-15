@@ -10,6 +10,10 @@ __all__ = (
 
 
 class SmsInitialize(Initialize):
+    @classmethod
+    def signature(cls):  # pragma: no cover
+        return 'sms'
+
     def __call__(self):
         provider = get_sms_provider()
         provider.initialize()

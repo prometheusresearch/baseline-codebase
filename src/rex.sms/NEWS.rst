@@ -9,6 +9,7 @@ REX.SMS Change Log
 ==================
 
 * Added support for ``rex.setup`` v2.
+* Now leveraging ``rex.core`` 1.9+ features.
 
 
 0.1.0 (2014-12-16)

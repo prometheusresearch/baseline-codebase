@@ -26,7 +26,7 @@ setup(
         'rex.setup>=1,<3',
     ],
     install_requires=[
-        'rex.core>=1.1,<2',
+        'rex.core>=1.9,<2',
         'rex.web>=1,<4',
         'phonenumberslite>=6.3,<7',
         'twilio>=3.6,<4',

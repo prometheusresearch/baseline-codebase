@@ -56,11 +56,10 @@ def get_sms_provider():
     """
 
     setting = get_settings().sms_provider  # pylint: disable=E1101
-    for provider in SmsProvider.all():
-        if provider.name == setting:
-            provider = provider()
-            return provider
-    raise Error(
-        'No SMS Provider known by "%s"' % (setting,)
-    )
+    provider = SmsProvider.mapped().get(setting)
+    if not provider:
+        raise Error(
+            'No SMS Provider known by "%s"' % (setting,)
+        )
+    return provider()
 

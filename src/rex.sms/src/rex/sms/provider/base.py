@@ -30,6 +30,10 @@ class SmsProvider(Extension):
             'abstract method %s.__call__()' % cls
 
     @classmethod
+    def signature(cls):
+        return cls.name
+
+    @classmethod
     def enabled(cls):
         return cls.name is not None
 

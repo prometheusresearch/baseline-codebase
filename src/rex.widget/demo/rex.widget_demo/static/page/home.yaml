@@ -43,7 +43,6 @@ paths:
             selectable: true
             height: 400
             data:
-              entity: studies
               data: rex.widget_demo:/data/study/list
             columns:
               - key: code

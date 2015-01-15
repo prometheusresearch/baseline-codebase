@@ -18,9 +18,7 @@ paths:
           - !<Table>
             id: study_list
             selectable: true
-            data:
-              entity: studies
-              data: rex.widget_demo:/data/study/list
+            data: rex.widget_demo:/data/study/list
             columns:
               - key: code
                 title: Code

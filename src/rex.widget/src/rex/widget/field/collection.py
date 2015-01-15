@@ -77,7 +77,6 @@ class CollectionSpecVal(Validate):
     refs_val = MapVal(StrVal(), DataRefVal())
 
     data_spec = RecordVal(
-        ('entity', StrVal()),
         ('data', StrVal()),
         ('refs', refs_val, {}),
         ('defer', OneOfVal(StrVal(), BoolVal()), None)
@@ -96,8 +95,9 @@ class CollectionSpecVal(Validate):
         route = '%s:%s' % (parsed.scheme, parsed.path) if parsed.scheme else parsed.path
         params = {k: v if isinstance(v, list) else [v]
                 for k, v in parse_qsl(parsed.query)}
+        entity_name = route.replace('/', '__')
         return CollectionSpec(
-            data.entity,
+            entity_name,
             route=route,
             params=params,
             refs=data.refs,

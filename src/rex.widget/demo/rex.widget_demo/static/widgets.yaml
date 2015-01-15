@@ -1,22 +1,2 @@
-widgets:
-
-  DemoPage: !<Page>
-    id: !slot id
-    title: !slot title
-    params: !slot params
-    children:
-    - !<Navigation>
-      application_name: Rex Widget Demo
-      menu:
-      - dashboard
-      - forms
-      - forms-master-detail
-      - workflow
-      - chart
-      - doc
-      - sample
-      - about
-    - !<Element>
-      size: 1
-      margin: 10
-      children: !slot children
+include:
+- widgets/DemoPage.yaml

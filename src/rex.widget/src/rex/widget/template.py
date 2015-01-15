@@ -13,7 +13,7 @@ import yaml
 
 from rex.core import (ValidatingLoader, get_packages, cached, autoreload,
                       guard, Error)
-from rex.core import RecordVal, MapVal, SeqVal, StrVal, AnyVal
+from rex.core import RecordVal, MapVal, SeqVal, OneOrSeqVal, StrVal, AnyVal
 
 from .field import Field
 from .undefined import undefined
@@ -25,7 +25,8 @@ from .util import get_validator_for_key
 
 
 validate_widget_templates = RecordVal(
-    ('widgets', MapVal(StrVal(), WidgetDescVal(allow_slots=True)))
+    ('include', OneOrSeqVal(StrVal(r'[/0-9A-Za-z:._-]+')), []),
+    ('widgets', MapVal(StrVal(), WidgetDescVal(allow_slots=True)), {}),
 )
 
 
@@ -60,10 +61,39 @@ def _widget_templates_from_packages(filename, open=open):
     for package in get_packages():
         if not package.exists(filename):
             continue
-        stream = open(package.abspath(filename))
-        spec = validate_widget_templates.parse(stream)
-        for widget_name, widget_template in spec.widgets.items():
-            yield widget_name, widget_template
+        templates = _widget_templates_from_package(package, filename, open=open)
+        for template in templates:
+            yield template
+
+
+def _widget_templates_from_package(package, filename, open=open):
+    filename = package.abspath(filename)
+    stream = open(filename)
+    spec = validate_widget_templates.parse(stream)
+    if spec.include:
+        packages = get_packages()
+        for include in spec.include:
+            if not ':' in include:
+                include = '%s:%s' % (package.name, include)
+            include_package, include_path = include.split(':', 1)
+            if not include_package in packages:
+                raise Error(
+                    "cannot include %s from %s" % (
+                        spec.include, filename),
+                    "no %s package found" % (
+                        include_package,))
+            include_package = packages[include_package]
+            if not include_package.exists(include_path):
+                raise Error(
+                    "cannot include %s from %s" % (
+                        spec.include, filename),
+                    "file %s cannot be found inside %s package" % (
+                        include_path, include_package.name))
+            templates = _widget_templates_from_package(include_package, include_path, open=open)
+            for template in templates:
+                yield template
+    for template in spec.widgets.items():
+        yield template
 
 
 def fill_slots(value, context):

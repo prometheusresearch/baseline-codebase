@@ -221,6 +221,7 @@ def _build_widget_class(name, template, scope):
     )
 
     scope[name] = widget_class
+    # FIXME: this is hacky, we need another solution
     Widget.map_all()[name] = widget_class
 
 

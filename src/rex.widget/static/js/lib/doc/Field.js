@@ -5,6 +5,7 @@
 
 var React         = require('react');
 var {VBox, HBox}  = require('../layout');
+var theme         = require('./theme');
 
 var Field = React.createClass({
 
@@ -19,7 +20,9 @@ var Field = React.createClass({
   styleType: {
     fontWeight: 'bold',
     background: '#CCCCCC',
-    padding: '2px 4px'
+    padding: '2px 4px',
+    fontFamily: theme.fonts.monospace,
+    fontSize: '80%'
   },
 
   styleMeta: {

@@ -12,6 +12,9 @@ var theme = {
     brandInfo: '#5bc0de',
     brandWarning: '#f0ad4e',
     brandDanger: '#d9534f'
+  },
+  fonts: {
+    monospace: 'Menlo, Monaco, monospace'
   }
 };
 

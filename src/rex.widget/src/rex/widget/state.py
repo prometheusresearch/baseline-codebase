@@ -548,7 +548,6 @@ def compute_update(graph, updates, request, user=None):
     for state_id in cause_effect_sort(computation.input, origins):
         _compute(state_id)
 
-    #import ipdb; ipdb.set_trace()
     return computation.get_output(dirty_only=True)
 
 

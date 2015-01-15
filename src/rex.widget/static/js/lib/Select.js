@@ -24,7 +24,7 @@ var Select = React.createClass({
   },
 
   render() {
-    var {emptyValue, titleForEmpty, value} = this.props;
+    var {emptyValue, titleForEmpty, noEmptyValue, value} = this.props;
     var options = this.props.options ? this.props.options : [];
     var data = this.props.data ? (this.props.data.data || []) : [];
 
@@ -34,7 +34,7 @@ var Select = React.createClass({
 
     return this.transferPropsTo(
       <select className="rw-Select" value={value} onChange={this.onChange}>
-        {emptyValue && !this.props.noEmptyValue &&
+        {emptyValue && !noEmptyValue &&
           <option key={sentinel} value={sentinel}>
             {titleForEmpty ? titleForEmpty : emptyValue.title}
           </option>}

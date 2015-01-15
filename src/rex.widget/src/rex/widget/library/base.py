@@ -199,19 +199,19 @@ class Select(Widget):
 
     @Widget.define_state(OneOfVal(StrVal()))
     def value(self, state, graph, request):
-        if (state.value is unknown):
+        if state.value is unknown:
             return Reset(self.default_value(state, graph, request))
 
         data = '%s/data' % self.id
 
         # if data is marked as dirty we need to check if current value is
         # still valid and reset it otherwise
-        if state.value is not None and data in graph.dirty:
+        if data in graph.dirty:
             options = [o['id'] for o in graph[self.id].data.collection]
             if self.options:
                 options = options + [o['id'] for o in self.options]
             if state.value not in options:
-                return Reset(None)
+                return Reset(self.default_value(state, graph, request))
 
         return state.value
 
@@ -228,6 +228,14 @@ class Select(Widget):
         :param graph: WSGI request
         :type request: :class:`webob.Request`
         """
+        if self.no_empty_value:
+            options = []
+            if self.options:
+                options += self.options
+            if self.data:
+                options += graph[self.id].data.collection
+            if options:
+                return options[0]['id']
         return None
 
     @value.set_dependencies

@@ -33,7 +33,7 @@ setup(
         'rex.port==1.0.2',
 #        'rex.restful==0.2.1',
 #        'rex.sendmail==1.0.2',
-        'rex.urlmap==2.5.1',
+        'rex.urlmap==2.6.0',
 #        'rex.vendor==2.0.1',
         'rex.web==3.1.0',
         'rex.widget==0.2.9',

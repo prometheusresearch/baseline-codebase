@@ -32,6 +32,7 @@ class DocScreen(Widget):
     def _format_widget(self, widget):
         return {
             'name': widget.name,
+            'module': widget.__module__,
             'doc': widget.__doc__,
             'js_type': widget.js_type,
             'fields': [self._format_field(f) for f in widget.fields.values()],

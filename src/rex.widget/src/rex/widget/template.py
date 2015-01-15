@@ -3,6 +3,9 @@
     rex.widget.template
     ===================
 
+    Widget templates is the mechanism of defining new widgets by composing
+    already existent widgets. Such compositions can be parametrised by slots.
+
     :copyright: 2014, Prometheus Research, LLC
 
 """
@@ -11,17 +14,17 @@ from collections import namedtuple, OrderedDict
 
 import yaml
 
-from rex.core import (ValidatingLoader, get_packages, cached, autoreload,
-                      guard, Error)
+from rex.core import get_packages, cached, autoreload, guard, Error
 from rex.core import RecordVal, MapVal, SeqVal, OneOrSeqVal, StrVal, AnyVal
 
 from .field import Field
-from .undefined import undefined
 from .widget import Widget
 from .validate import WidgetVal
 from .parse import WidgetDescVal, WidgetDesc, Slot
-from .location import location_info_guard, locate, strip_location
+from .location import locate, strip_location
 from .util import get_validator_for_key
+
+__all__ = ('parse', 'load')
 
 
 validate_widget_templates = RecordVal(
@@ -49,7 +52,7 @@ class WidgetTemplate(Widget):
 
     @cached
     def underlying(self):
-        template = fill_slots(self.template, self.values)
+        template = _fill_slots(self.template, self.values)
         return self.create_widget(template)
 
     @cached
@@ -58,6 +61,11 @@ class WidgetTemplate(Widget):
 
 
 def _widget_templates_from_packages(filename, open=open):
+    """ Return all widget templates defined within the active Rex app.
+    
+    :param filename: Filename to load widget templates from
+    :returns: Pairs of template name and widget object model
+    """
     for package in get_packages():
         if not package.exists(filename):
             continue
@@ -67,6 +75,12 @@ def _widget_templates_from_packages(filename, open=open):
 
 
 def _widget_templates_from_package(package, filename, open=open):
+    """ Return all widget templates defined within the package.
+
+    :param package: Package to return widget templates from
+    :param filename: Filename to load widget templates from
+    :returns: Pairs of template name and widget object model
+    """
     filename = package.abspath(filename)
     stream = open(filename)
     spec = validate_widget_templates.parse(stream)
@@ -96,37 +110,47 @@ def _widget_templates_from_package(package, filename, open=open):
         yield template
 
 
-def fill_slots(value, context):
-    if isinstance(value, WidgetDesc):
+def _fill_slots(node, context):
+    """ Fill slots in widget object model with values from ``context``.
+
+    :param node: Widget object model
+    :param context: Dictionary with values for slots
+    """
+    if isinstance(node, WidgetDesc):
         fields = OrderedDict([
-            (k, fill_slots(v, context))
-            for k, v in value.fields.items()
+            (k, _fill_slots(v, context))
+            for k, v in node.fields.items()
         ])
-        return value._replace(fields=fields)
-    elif isinstance(value, dict):
-        return {k: fill_slots(v, context) for k, v in value.items()}
-    elif isinstance(value, list):
-        return [fill_slots(v, context) for v in value]
-    elif isinstance(value, Slot):
-        return context[value.name]
+        return node._replace(fields=fields)
+    elif isinstance(node, dict):
+        return {k: _fill_slots(v, context) for k, v in node.items()}
+    elif isinstance(node, list):
+        return [_fill_slots(v, context) for v in node]
+    elif isinstance(node, Slot):
+        return context[node.name]
     else:
-        return value
+        return node
 
 
-def _make_fields(value, scope, validator=AnyVal(), default=NotImplemented):
+def _make_fields(node, scope, _validator=AnyVal(), _default=NotImplemented):
+    """ Construct fields by inspecting slot position in widget object model.
+
+    :param node: Widget object model
+    :param scope: Dictionary of already built widgets/widget templates.
+    """
     fields = []
-    if isinstance(value, WidgetDesc):
-        if value.name not in scope:
-            with guard("While parsing:", locate(value)):
-                raise Error("Unknown widget", "<%s>" % value.name)
+    if isinstance(node, WidgetDesc):
+        if node.name not in scope:
+            with guard("While parsing:", locate(node)):
+                raise Error("Unknown widget", "<%s>" % node.name)
         # TODO: check if widget is built already
-        widget_class = scope[value.name]
+        widget_class = scope[node.name]
         if isinstance(widget_class, WidgetDesc):
-            _build_widget_class(value.name, widget_class, scope)
-            widget_class = scope[value.name]
+            _build_widget_class(node.name, widget_class, scope)
+            widget_class = scope[node.name]
         with guard("While constructing widget:", "<%s>" % widget_class.name):
             required_fields = [f.name for f in widget_class.fields.values() if not f.has_default]
-            for n, v in value.fields.items():
+            for n, v in node.fields.items():
                 if n == None and len(required_fields) == 1:
                     n = required_fields[0]
                 if not n in widget_class.fields:
@@ -142,16 +166,18 @@ def _make_fields(value, scope, validator=AnyVal(), default=NotImplemented):
                 elif isinstance(v, WidgetDesc):
                     fields = fields + _make_fields(v, scope)
                 else:
-                    fields = fields + _make_fields(v, scope, validator=field.validate, default=field.default)
-    elif isinstance(value, dict):
-        for k, v in value.items():
-            fields += _make_fields(v, scope, validator=get_validator_for_key(validator, k))
-    elif isinstance(value, list):
-        for k, v in enumerate(value):
-            fields += _make_fields(v, scope, validator=get_validator_for_key(validator, k))
-    elif isinstance(value, Slot):
-        default = default if value.default is NotImplemented else value.default
-        fields.append(Field(validator, default=default, name=str(strip_location(value.name))))
+                    fields = fields + _make_fields(
+                        v, scope,
+                        _validator=field.validate, _default=field.default)
+    elif isinstance(node, dict):
+        for k, v in node.items():
+            fields += _make_fields(v, scope, _validator=get_validator_for_key(_validator, k))
+    elif isinstance(node, list):
+        for k, v in enumerate(node):
+            fields += _make_fields(v, scope, _validator=get_validator_for_key(_validator, k))
+    elif isinstance(node, Slot):
+        default = _default if node.default is NotImplemented else node.default
+        fields.append(Field(_validator, default=default, name=str(strip_location(node.name))))
     return fields
 
 

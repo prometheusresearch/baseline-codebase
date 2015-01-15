@@ -9,6 +9,8 @@
 
 from rex.core import AnyVal
 from ..widget import Widget
+from ..undefined import MaybeUndefinedVal
+
 
 __all__ = ('DocScreen',)
 
@@ -39,7 +41,11 @@ class DocScreen(Widget):
         }
 
     def _format_field(self, field):
+        validate = field.validate
+        if isinstance(validate, MaybeUndefinedVal):
+            validate = validate.validate
         return {
             'name': field.name,
             'doc': field.__doc__,
+            'type': repr(validate),
         }

@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var React   = require('react');
-var {VBox}  = require('../layout');
+var React         = require('react');
+var {VBox, HBox}  = require('../layout');
 
 var Field = React.createClass({
 
@@ -16,12 +16,25 @@ var Field = React.createClass({
     fontWeight: 'bold'
   },
 
+  styleType: {
+    fontWeight: 'bold',
+    background: '#CCCCCC',
+    padding: '2px 4px'
+  },
+
+  styleMeta: {
+    justifyContent: 'space-between'
+  },
+
   render() {
     var {field, ...props} = this.props;
     return (
       <VBox {...props} style={this.style} margin="10px 0px">
         <VBox margin={10}>
-          <VBox style={this.styleName}>{field.name}</VBox>
+          <HBox style={this.styleMeta}>
+            <VBox style={this.styleName}>{field.name}</VBox>
+            <VBox style={this.styleType}>{field.type}</VBox>
+          </HBox>
           <VBox>{field.doc}</VBox>
         </VBox>
       </VBox>

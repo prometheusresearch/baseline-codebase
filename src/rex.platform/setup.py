@@ -25,7 +25,7 @@ setup(
 #        'rex.entry==0.14.0',
 #        'rex.explore==3.2.0',
 #        'rex.explore_ui==5.0.0',
-        'rex.expression==1.3.0',
+        'rex.expression==1.4.0',
 #        'rex.formbuilder==3.0.2',
 #        'rex.forms==0.9.9',
 #        'rex.i18n==0.3.0',

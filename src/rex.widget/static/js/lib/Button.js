@@ -21,7 +21,7 @@ var Button = React.createClass({
 
   render() {
     var {
-      link, success, danger, className, disabled,
+      link, success, danger, quiet, size, className, disabled,
       placeholder, id, icon, text, children, ...props
     } = this.props;
     var classNames = cx({
@@ -29,7 +29,10 @@ var Button = React.createClass({
       'rw-Button--default': !link && !success,
       'rw-Button--success': success,
       'rw-Button--danger': danger,
-      'rw-Button--link': link
+      'rw-Button--link': link,
+      'rw-Button--quiet': quiet,
+      'rw-Button--small': size === 'small',
+      'rw-Button--extraSmall': size === 'extra-small'
     });
     return (
       <button

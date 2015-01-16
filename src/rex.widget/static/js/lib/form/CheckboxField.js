@@ -1,35 +1,29 @@
 /**
- * <CheckboxField />
+ * @copyright Prometheus Research, LLC 2014
  */
-'use strict';
 
 var React             = require('react/addons');
 var cx                = React.addons.classSet;
-var ReactForms        = require('react-forms');
 var Checkbox          = require('react-forms/lib/Checkbox');
-var Element           = require('../layout/Element');
-var FormContextMixin  = require('./FormContextMixin');
+var FieldBase         = require('./FieldBase');
 
 var CheckboxField = React.createClass({
-  mixins: [FormContextMixin],
 
   render() {
-    var {value, className, ...props} = this.props;
-    return (
-      <Element {...props} className={cx('rw-CheckboxField', className)}>
-        <ReactForms.Field
-          value={value.getIn(this.getValueKey())}
-          input={<Checkbox className="rw-CheckboxField__checkbox" />}
-          />
-      </Element>
+    var {className, ...props} = this.props;
+    var input = (
+      <Checkbox
+        className="rw-CheckboxField__checkbox"
+        style={{marginTop: 11}}
+        />
     );
-  },
-
-  getDefaultProps() {
-    return {
-      size: 1,
-      margin: 10
-    }
+    return (
+      <FieldBase
+        {...props}
+        className={cx('rw-CheckboxField', className)}
+        input={input}
+        />
+    );
   }
 });
 

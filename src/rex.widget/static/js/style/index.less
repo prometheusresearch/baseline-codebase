@@ -132,6 +132,9 @@ html, body, #__main__ {
   padding: @padding-base-vertical @padding-base-horizontal;
 }
 
+/**
+ * <Button />
+ */
 .rw-Button {
   .btn();
   text-overflow: ellipsis;
@@ -140,7 +143,7 @@ html, body, #__main__ {
 
 
 .rw-Button__icon {
-  margin-right: @paddingL;
+  margin-right: @padding;
 }
 
 .rw-Button--default {
@@ -157,6 +160,17 @@ html, body, #__main__ {
 
 .rw-Button--danger {
   .btn-danger();
+}
+.rw-Button--quiet {
+  background: transparent;
+  color: #888;
+  border: 1px solid transparent;
+}
+.rw-Button--small {
+  .btn-sm();
+}
+.rw-Button--extraSmall {
+  .btn-xs();
 }
 
 
@@ -217,18 +231,16 @@ html, body, #__main__ {
 }
 
 .rw-RepeatingFieldsetItem {
-  border-bottom: 1px solid @colorShadow;
-  &:last-child {
-    border-bottom: none;
-  }
+  border-bottom: 1px solid rgba(208, 208, 208, 0.16);
 }
 
 .rw-RepeatingFieldset__removeButton {
   padding: 2px 4px;
   font-size: 80%;
-  position: absolute;
-  right: 10px;
-  top: 5px;
+}
+
+.rw-RepeatingFieldset__controls {
+  padding: 5px 0px;
 }
 
 .rw-Form__controls {

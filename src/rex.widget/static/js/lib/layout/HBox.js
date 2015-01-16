@@ -9,11 +9,7 @@ var Box    = require('./Box');
 var HBox = React.createClass({
 
   render() {
-    return <Box {...this.props} />;
-  },
-
-  getDefaultProps() {
-    return {direction: 'horizontal'};
+    return <Box {...this.props} direction="horizontal" />;
   }
 });
 

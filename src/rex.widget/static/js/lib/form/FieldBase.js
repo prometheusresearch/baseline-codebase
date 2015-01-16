@@ -8,12 +8,22 @@ var cx                  = React.addons.classSet;
 var Message             = require('react-forms/lib/Message');
 var Label               = require('react-forms/lib/Label');
 var Input               = require('react-forms/lib/Input');
+var merge               = require('../merge');
 var {Box, HBox}         = require('../layout');
 var FormContextMixin    = require('./FormContextMixin');
 var evaluateExpression  = require('./evaluateExpression');
 
 var FieldBase = React.createClass({
   mixins: [FormContextMixin],
+
+  compactLabelStyle: merge(
+    Box.makeBoxStyle(),
+    {
+      textAlign: 'right',
+      marginTop: 7,
+      marginRight: 10
+    }
+  ),
 
   render(): ?ReactElement {
     var {compact, hint, label, noLabel, input, className, disableIf, ...props} = this.props;
@@ -31,34 +41,66 @@ var FieldBase = React.createClass({
 
     var id = this._rootNodeID;
 
-    var Layout = compact ? HBox : Box;
-
-    return (
-      <Box {...props} className={cx(classNames, className)}>
-        <Layout>
-          {!noLabel &&
-            <Label
-              htmlFor={id}
-              className="rf-Field__label"
-              label={label || node.props.get('label')}
-              hint={hint || node.props.get('hint')}
-              />}
-          <Input
-            ref="input"
-            id={id}
-            disable={disable}
-            value={value}
-            input={input}
-            dirtyOnBlur={node.props.get('dirtyOnBlur', true)}
-            dirtyOnChange={node.props.get('dirtyOnChange', true)}
-            />
-        </Layout>
-        {validation.isFailure && isDirty &&
-          <Message>{validation.error}</Message>}
-        {externalValidation.isFailure &&
-          <Message>{externalValidation.error}</Message>}
-      </Box>
-    );
+    if (compact) {
+      return (
+        <Box {...props} className={cx(classNames, className)}>
+          <HBox>
+            {!noLabel &&
+              <Box size={1}>
+                <Label
+                  style={this.compactLabelStyle}
+                  htmlFor={id}
+                  className="rf-Field__label"
+                  label={label || node.props.get('label')}
+                  hint={hint || node.props.get('hint')}
+                  />
+              </Box>}
+            <Box size={3}>
+              <Input
+                ref="input"
+                id={id}
+                disable={disable}
+                value={value}
+                input={input}
+                dirtyOnBlur={node.props.get('dirtyOnBlur', true)}
+                dirtyOnChange={node.props.get('dirtyOnChange', true)}
+                />
+              {validation.isFailure && isDirty &&
+                <Message>{validation.error}</Message>}
+              {externalValidation.isFailure &&
+                <Message>{externalValidation.error}</Message>}
+            </Box>
+          </HBox>
+        </Box>
+      );
+    } else {
+      return (
+        <Box {...props} className={cx(classNames, className)}>
+          <Box>
+            {!noLabel &&
+              <Label
+                htmlFor={id}
+                className="rf-Field__label"
+                label={label || node.props.get('label')}
+                hint={hint || node.props.get('hint')}
+                />}
+            <Input
+              ref="input"
+              id={id}
+              disable={disable}
+              value={value}
+              input={input}
+              dirtyOnBlur={node.props.get('dirtyOnBlur', true)}
+              dirtyOnChange={node.props.get('dirtyOnChange', true)}
+              />
+          </Box>
+          {validation.isFailure && isDirty &&
+            <Message>{validation.error}</Message>}
+          {externalValidation.isFailure &&
+            <Message>{externalValidation.error}</Message>}
+        </Box>
+      );
+    }
   },
 
   getDefaultProps() {

@@ -10,7 +10,7 @@
 from webob import Request
 
 from rex.core import StrVal, Rex
-from rex.widget import Widget, Field, StateField
+from rex.widget import Widget, Field, StateField, IDField
 from rex.widget.urlmap import WidgetRenderer
 
 
@@ -19,6 +19,7 @@ class MyWidget(Widget):
     name = 'MyWidget'
     js_type = 'rex-widget-tests/lib/MyWidget'
 
+    id = IDField()
     label = Field(StrVal())
     value = StateField(StrVal())
 
@@ -39,7 +40,7 @@ def teardown_function(function):
 
 
 def test_get_page_state():
-    widget = MyWidget(None, id='widget', label='Label')
+    widget = MyWidget(id='widget', label='Label')
     renderer = WidgetRenderer(widget, 'access')
     req = Request.blank('/')
     req.environ['rex.access'] = {'access': True}
@@ -64,7 +65,7 @@ def test_get_page_state():
 
 
 def test_get_page_state_with_values():
-    widget = MyWidget(None, id='widget', label='Label')
+    widget = MyWidget(id='widget', label='Label')
     renderer = WidgetRenderer(widget, 'access')
     req = Request.blank('/?widget/value=ok')
     req.environ['rex.access'] = {'access': True}
@@ -77,7 +78,7 @@ def test_get_page_state_with_values():
 
 
 def test_get_page_state_with_values_by_alias():
-    widget = MyWidget(None, id='widget', label='Label')
+    widget = MyWidget(id='widget', label='Label')
     renderer = WidgetRenderer(widget, 'access')
     req = Request.blank('/?widget=ok')
     req.environ['rex.access'] = {'access': True}
@@ -90,7 +91,7 @@ def test_get_page_state_with_values_by_alias():
 
 
 def test_update_page_state_no_updates():
-    widget = MyWidget(None, id='widget', label='Label')
+    widget = MyWidget(id='widget', label='Label')
     renderer = WidgetRenderer(widget, 'access')
     req = Request.blank('/')
     req.method = 'POST'
@@ -106,9 +107,9 @@ def test_update_page_state_no_updates():
     assert 'descriptor' in res.json
     assert res.json['descriptor'] == None
 
-    assert 'values' in res.json
-    assert 'widget/value' in res.json['values']
-    assert res.json['values']['widget/value'] == 'nope'
+    assert 'state' in res.json
+    assert 'widget/value' in res.json['state']
+    assert res.json['state']['widget/value'] == 'nope'
 
     assert 'versions' in res.json
     assert 'widget/value' in res.json['versions']
@@ -116,7 +117,7 @@ def test_update_page_state_no_updates():
 
 
 def test_update_page_state():
-    widget = MyWidget(None, id='widget', label='Label')
+    widget = MyWidget(id='widget', label='Label')
     renderer = WidgetRenderer(widget, 'access')
     req = Request.blank('/')
     req.method = 'POST'
@@ -132,9 +133,9 @@ def test_update_page_state():
     assert 'descriptor' in res.json
     assert res.json['descriptor'] == None
 
-    assert 'values' in res.json
-    assert 'widget/value' in res.json['values']
-    assert res.json['values']['widget/value'] == 'nope'
+    assert 'state' in res.json
+    assert 'widget/value' in res.json['state']
+    assert res.json['state']['widget/value'] == 'nope'
 
     assert 'versions' in res.json
     assert 'widget/value' in res.json['versions']

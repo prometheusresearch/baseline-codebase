@@ -26,3 +26,8 @@ paths:
     - entity: study
       filters:
       - "code($code) := guard($code, code=$code)"
+
+  /__tests__/study_options:
+    port:
+      entity: study
+

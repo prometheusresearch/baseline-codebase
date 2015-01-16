@@ -27,7 +27,7 @@ function packagePath(name) {
  * @returns {WebPackConfiguration}
  */
 function configureWebpack(config) {
-  set(config, 'watchDelay', 800);
+  set(config, 'watchDelay', 200);
 
   set(config, 'resolve.alias.react/addons', packagePath('react/react-with-addons.js'));
   set(config, 'resolve.alias.react', packagePath('react/react-with-addons.js'));

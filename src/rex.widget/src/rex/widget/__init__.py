@@ -15,7 +15,7 @@ from rex.core import Setting
 
 from .widget import Widget, NullWidget, GroupWidget
 from .action import Action
-from .field import Field, StateField
+from .field import IDField, Field, StateField
 from .field import CollectionField, EntityField, PaginatedCollectionField
 from .parse import WidgetDescVal
 from .validate import WidgetVal

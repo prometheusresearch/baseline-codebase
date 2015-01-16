@@ -240,7 +240,7 @@ class Select(Widget):
 
     @value.set_dependencies
     def value_dependencies(self):
-        return ['data'] if self.data is not None else []
+        return ['data'] if self.data else []
 
 
 class TextInput(Widget):

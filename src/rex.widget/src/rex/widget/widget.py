@@ -99,9 +99,12 @@ class Widget(WidgetBase):
     @classmethod
     @cached
     def map_all(cls):
+        from .template import WidgetTemplate
         mapping = {}
         for extension in cls.all():
-            assert extension.name not in mapping, \
+            # FIXME: remove WidgetTemplate check, this is done due to errorneous
+            # widget re-registration somewhere
+            assert extension.name not in mapping or issubclass(extension, WidgetTemplate), \
                 "duplicate widget %r defined by '%r' and '%r'" % (
                     extension.name, mapping[extension.name], extension)
             mapping[extension.name] = extension

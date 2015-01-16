@@ -399,3 +399,15 @@ def lazy_gettext(string, **variables):
 
     return make_lazy_string(gettext, string, **variables)
 
+
+# If rex.widget is in use, register a JSON encoder to handle lazy strings.
+try:
+    # pylint: disable=W0611
+    import rex.widget
+except ImportError:  # pragma: no cover
+    pass
+else:
+    from rex.widget.json_encoder import register_adapter
+    from speaklater import _LazyString
+    register_adapter(_LazyString, unicode)
+

@@ -22,7 +22,7 @@ class demo(Command):
 
 setup(
     name='rex.widget_demo',
-    version = "1.0.0",
+    version = "0.2.9"
     description="Demo package for testing rex.widget",
     namespace_packages=['rex'],
     package_dir={'': 'src'},
@@ -34,6 +34,7 @@ setup(
         'rex.widget',
         'rex.urlmap',
         'rex.deploy',
+        'rex.ctl',
     ],
     cmdclass={'demo': demo},
     rex_init='rex.widget_demo',

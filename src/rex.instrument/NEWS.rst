@@ -4,6 +4,10 @@ REX.INSTRUMENT Change Log
 
 .. contents:: Table of Contents
 
+0.13.0 (????-??-??)
+===================
+
+- Updated dependency to permit ``rex.setup`` version 2.
 
 0.12.0 (11/21/2014)
 ===================

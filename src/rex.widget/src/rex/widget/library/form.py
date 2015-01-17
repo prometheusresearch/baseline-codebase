@@ -124,16 +124,15 @@ def _unwrap_validate(validate):
     return validate
 
 
-def _is_widget_val(field):
-    validate = _unwrap_validate(field.validate)
-    return isinstance(validate, WidgetVal)
-
-
 def _child_widgets(widget):
     for field in widget.fields.values():
-        if not _is_widget_val(field):
+        if hasattr(field, 'iterate_widgets'):
+            children = widget.values[field.name]
+            children = field.iterate_widgets(children)
+        elif isinstance(_unwrap_validate(field.validate), WidgetVal):
+            children = widget.values[field.name]
+        else:
             continue
-        children = widget.values[field.name]
         if isinstance(children, list):
             for child in children:
                 yield child

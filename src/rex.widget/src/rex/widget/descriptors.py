@@ -10,6 +10,7 @@
 
 """
 
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 
 from .json_encoder import register_adapter
@@ -45,9 +46,17 @@ def _encode_WidgetDescriptor(desc):
     }
 
 
+class UIDescriptorBase(object):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def transform(self, transformer):
+        pass
+
+
 _UIDescriptor = namedtuple('UIDescriptor', ['type', 'props', 'widget', 'defer'])
 
-class UIDescriptor(_UIDescriptor):
+class UIDescriptor(_UIDescriptor, UIDescriptorBase):
     """ UI descriptiton.
 
     :attr type: CommonJS module which exports React component
@@ -55,6 +64,13 @@ class UIDescriptor(_UIDescriptor):
     """
 
     __slots__ = ()
+
+    def transform(self, transformer):
+        ui = transformer(self)
+        props = {k: v if not isinstance(v, UIDescriptorBase)
+                      else v.transform(transformer)
+                 for k, v in ui.props.items()}
+        return ui._replace(props=props)
 
     def _replace_props(self, **props):
         next_props = PropsContainer(self.props)
@@ -75,13 +91,18 @@ def _encode_UIDescriptor(desc):
 
 _UIDescriptorChildren = namedtuple('UIDescriptorChildren', ['children', 'defer'])
 
-class UIDescriptorChildren(_UIDescriptorChildren):
+class UIDescriptorChildren(_UIDescriptorChildren, UIDescriptorBase):
     """ List of UI descriptitons.
 
     :attr children: A list of UI descriptors.
     """
 
     __slots__ = ()
+
+    def transform(self, transformer):
+        children = [child.transform(transformer) for child in self.children]
+        return self._replace(children=children)
+
 
 @register_adapter(UIDescriptorChildren)
 def _encode_UIDescriptorChildren(desc):
@@ -91,27 +112,14 @@ def _encode_UIDescriptorChildren(desc):
     return encoded
 
 
-def transform_ui(ui, transform):
+def transform_ui(ui, transformer):
     """ Transform UI descriptor tree ``ui`` using ``transform`` function.
 
     Function ``transform`` is called on each ``UIDescriptor`` instance in the
     ``ui`` tree and should return an instance of ``UIDescriptor`` which then is
     traversed further.
     """
-    if isinstance(ui, UIDescriptor):
-        ui = transform(ui)
-        props = {k: v if not isinstance(v, (UIDescriptorChildren, UIDescriptor))
-                      else transform_ui(v, transform)
-                 for k, v in ui.props.items()}
-        ui = ui._replace(props=props)
-        return ui
-    elif isinstance(ui, UIDescriptorChildren):
-        children = [transform_ui(child, transform) for child in ui.children]
-        ui = ui._replace(children=children)
-        return ui
-    else:
-        raise TypeError(
-            'expected UIDescriptor or UIDescriptorChildren, got: %r', ui)
+    return ui.transform(transformer)
 
 
 class StateRead(namedtuple('StateRead', ['id'])):

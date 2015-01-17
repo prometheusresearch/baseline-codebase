@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+2.1.0 (2015-XX-XX)
+==================
+
+* Do not use ``S`` in the random text generator.
+* Include links to the default selector.
+
+
 2.0.0 (2015-01-05)
 ==================
 

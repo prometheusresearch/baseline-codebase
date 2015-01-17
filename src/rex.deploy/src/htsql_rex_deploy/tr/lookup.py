@@ -4,10 +4,34 @@
 
 
 from htsql.core.adapter import adapt
-from htsql.core.tr.lookup import Lookup, GuessHeaderProbe
+from htsql.core.tr.lookup import lookup, Lookup, GuessHeaderProbe, IdentityProbe
 from htsql.core.tr.binding import TableBinding, ColumnBinding, ChainBinding
 from ..classify import get_meta
 from rex.deploy import label_to_title
+
+
+class SelectIdentityProbe(IdentityProbe):
+    pass
+
+
+class SelectIdentityForTable(Lookup):
+
+    adapt(TableBinding, SelectIdentityProbe)
+
+    def __call__(self):
+        if isinstance(self.binding, ChainBinding):
+            return super(SelectIdentityForTable, self).__call__()
+        return None
+
+
+class SelectIdentityForChain(Lookup):
+
+    adapt(ChainBinding, SelectIdentityProbe)
+
+    def __call__(self):
+        if self.binding.joins[-1].is_reverse:
+            return None
+        return super(SelectIdentityForChain, self).__call__()
 
 
 class GuessHeaderForTable(Lookup):
@@ -66,5 +90,9 @@ class GuessHeaderForChain(Lookup):
         # FIXME: for reverse links, use the target title only when the
         # link label coincides with the target table label.
         return target_meta.title or label_to_title(target_label)
+
+
+def select_identity(binding):
+    return lookup(binding, SelectIdentityProbe())
 
 

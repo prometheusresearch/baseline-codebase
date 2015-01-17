@@ -6,7 +6,8 @@
 from rex.deploy import TableMeta, ColumnMeta
 from htsql.core.cache import once
 from htsql.core.entity import TableEntity, ColumnEntity
-from htsql.core.classify import CallTable, CallColumn, CallChain
+from htsql.core.model import ColumnArc, ChainArc
+from htsql.core.classify import CallTable, CallColumn, CallChain, OrderTable
 from .introspect import get_image
 
 
@@ -89,5 +90,28 @@ class DeployCallChain(CallChain):
         if not is_direct and link_label:
             label = u"%s %s %s" % (target_label, self.path_word, link_label)
             yield label, 1
+
+
+class OrderTableWithLinks(OrderTable):
+
+    def __call__(self):
+        order = {}
+        for idx, column in enumerate(self.node.table.columns):
+            order[column] = idx
+        max_order = len(self.node.table.columns)
+        labels = []
+        for label in self.labels:
+            if isinstance(label.arc, ColumnArc):
+                label = label.clone(is_public=True)
+                order[label] = order.get(label.arc.column, max_order)
+            elif isinstance(label.arc, ChainArc) and label.arc.is_direct:
+                label = label.clone(is_public=True)
+                column = label.arc.joins[0].origin_columns[0]
+                order[label] = order.get(column, max_order)
+            else:
+                order[label] = max_order
+            labels.append(label)
+        labels.sort(key=(lambda l: order[l]))
+        return labels
 
 

@@ -3,6 +3,6 @@
 #
 
 
-from . import lookup
+from . import bind, lookup
 
 

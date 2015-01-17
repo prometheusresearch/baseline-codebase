@@ -490,7 +490,7 @@ def plpgsql_text_random_key(table_name, name):
     # Code for creating a random text key.
     table_name = sql_name(table_name)
     name = sql_name(name)
-    letters = u"ABCDEFGHJKLMNPQRSTUVWXYZ"
+    letters = u"ABCDEFGHJKLMNPQRTUVWXYZ"
     digits = u"0123456789"
     one_letter = u"_letters[1 + trunc(random()*%s)]" % len(letters)
     one_digit = u"_digits[1 + trunc(random()*%s)]" % len(digits)

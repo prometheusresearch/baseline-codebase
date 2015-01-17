@@ -10,7 +10,7 @@
 import warnings
 
 from rex.core import Validate
-from rex.core import AnyVal, RecordVal, StrVal, OneOfVal, ChoiceVal, IntVal
+from rex.core import AnyVal, RecordVal, BoolVal, StrVal, OneOfVal, ChoiceVal, IntVal
 
 from ..validate import WidgetVal
 from ..widget import Widget, NullWidget
@@ -93,6 +93,18 @@ class Box(Widget):
         DimensionShorthandPropertyVal(), default=undefined,
         doc="""
         Margin.
+        """)
+
+    center_vertically = Field(
+        BoolVal(), default=undefined,
+        doc="""
+        Center children along vertical axis.
+        """)
+
+    center_horizontally = Field(
+        BoolVal(), default=undefined,
+        doc="""
+        Center children along horizontal axis.
         """)
 
 

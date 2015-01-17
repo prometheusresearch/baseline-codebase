@@ -22,7 +22,7 @@ var Button = React.createClass({
   render() {
     var {
       link, success, danger, quiet, size, className, disabled,
-      placeholder, id, icon, text, children, ...props
+      placeholder, id, icon, iconRight, text, children, ...props
     } = this.props;
     var classNames = cx({
       'rw-Button': true,
@@ -42,8 +42,17 @@ var Button = React.createClass({
         className={cx(classNames, className)}
         placeholder={placeholder}
         id={id}>
-        {icon && <Icon className="rw-Button__icon" name={icon} />}
+        {icon &&
+          <Icon
+            name={icon}
+            style={{marginRight: children || text || iconRight ? 10 : 0}}
+            />}
         {children || text}
+        {iconRight &&
+          <Icon
+            name={iconRight}
+            style={{marginLeft: children || text ? 10 : 0}}
+            />}
       </button>
     );
   },

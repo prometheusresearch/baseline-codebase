@@ -66,6 +66,9 @@ class Button(Widget):
     icon = Field(
         StrVal(), default=undefined)
 
+    icon_right = Field(
+        StrVal(), default=undefined)
+
     success = Field(
         BoolVal(), default=undefined)
 

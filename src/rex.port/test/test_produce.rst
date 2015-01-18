@@ -102,7 +102,7 @@ Nested entities are supported::
     >>> print individual_port.produce()     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
-       ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+       ({[1000.(fos.mother).1], [fos.mother], '1'},)},
       ...)}
 
 An entity may have an unconditional filter::
@@ -126,11 +126,11 @@ For example, to get the first 5 ``individual`` records from
     >>> print individual_port.produce("individual:top=5")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
-       ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+       ({[1000.(fos.mother).1], [fos.mother], '1'},)},
       ...
       {[1004], '1004', 'male', [1000], [1001],
        {[1004], 'Emanuel', 'Kanaris', '2001-05-02'},
-       ({[1004.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1004.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 To select a specific individual by ``id``, use the ``individual:eq``
 constraint, which could also be written as ``individual`` (``:eq`` is the
@@ -146,11 +146,11 @@ written as::
     >>> print individual_port.produce(("individual", "top", 5)) # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
-       ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+       ({[1000.(fos.mother).1], [fos.mother], '1'},)},
       ...
       {[1004], '1004', 'male', [1000], [1001],
        {[1004], 'Emanuel', 'Kanaris', '2001-05-02'},
-       ({[1004.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1004.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
     >>> print individual_port.produce(("individual", '1050'))   # doctest: +ELLIPSIS
     {({[1050], '1050', 'male', null, null, ...},)}
@@ -178,10 +178,10 @@ Path can be a string or a tuple::
     >>> print individual_port.produce((("individual", "mother"), "1025"))   # doctest: +NORMALIZE_WHITESPACE
     {({[1027], '1027', 'male', [1025], [1026],
        {[1027], 'Joseph', 'Donota', '1975-01-02'},
-       ({[1027.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)},
+       ({[1027.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)},
       {[1028], '1028', 'male', [1025], [1026],
        {[1028], 'Will', 'Donota', '1978-03-31'},
-       ({[1028.(fos.proband).1], '1', [fos.proband]},)})}
+       ({[1028.(fos.proband).1], [fos.proband], '1'},)})}
 
 A constraint may have no arguments::
 
@@ -202,18 +202,18 @@ Or multiple arguments::
     >>> print individual_port.produce("individual=1000&individual=1050")    # doctest: +NORMALIZE_WHITESPACE
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
-       ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+       ({[1000.(fos.mother).1], [fos.mother], '1'},)},
       {[1050], '1050', 'male', null, null,
        {[1050], 'Rodney', 'Dymond', '1959-02-02'},
-       ({[1050.(fos.father).1], '1', [fos.father]},)})}
+       ({[1050.(fos.father).1], [fos.father], '1'},)})}
 
     >>> print individual_port.produce(("individual", ["1000", "1050"]))     # doctest: +NORMALIZE_WHITESPACE
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
-       ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+       ({[1000.(fos.mother).1], [fos.mother], '1'},)},
       {[1050], '1050', 'male', null, null,
        {[1050], 'Rodney', 'Dymond', '1959-02-02'},
-       ({[1050.(fos.father).1], '1', [fos.father]},)})}
+       ({[1050.(fos.father).1], [fos.father], '1'},)})}
 
 Constraints are extracted from the query string of the HTTP request::
 
@@ -240,8 +240,8 @@ Constraints are extracted from the query string of the HTTP request::
           "participation": [
             {
               "id": "1050.(fos.father).1",
-              "code": "1",
-              "protocol": "fos.father"
+              "protocol": "fos.father",
+              "code": "1"
             }
           ]
         }
@@ -254,11 +254,11 @@ A constraint on a nested singular entity is applied to the containing record::
     >>> print individual_port.produce("individual.identity.surname=Argenbright")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1042], '1042', 'female', null, null,
        {[1042], 'Loris', 'Argenbright', '1951-01-01'},
-       ({[1042.(fos.mother).1], '1', [fos.mother]},)},
+       ({[1042.(fos.mother).1], [fos.mother], '1'},)},
        ...
       {[1046], '1046', 'male', [1042], [1045],
        {[1046], 'Oscar', 'Argenbright', '1971-06-06'},
-       ({[1046.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1046.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 However a constraint on a nested plural entity is applied to itself::
 
@@ -271,7 +271,7 @@ However a constraint on a nested plural entity is applied to itself::
        ()},
       {[1002], '1002', 'female', [1000], [1001],
        {[1002], 'Vanessa', 'Kanaris', '1991-01-02'},
-       ({[1002.(fos.proband).1], '1', [fos.proband]},)},
+       ({[1002.(fos.proband).1], [fos.proband], '1'},)},
       ...)}
 
 Unknown constraints and paths are rejected::
@@ -298,7 +298,7 @@ However you can use wildcard symbol ``*`` to select a path::
     {(...
       {[1004], '1004', 'male', [1000], [1001],
        {[1004], 'Emanuel', 'Kanaris', '2001-05-02'},
-       ({[1004.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1004.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 
 Top and skip constraints
@@ -310,11 +310,11 @@ both ``individual:top`` and ``individual:skip``::
     >>> print individual_port.produce("individual:top=5&individual:skip=10")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1010], '1010', 'male', null, null,
        {[1010], 'John', 'Porreca', '1975-02-02'},
-       ({[1010.(fos.father).1], '1', [fos.father]},)},
+       ({[1010.(fos.father).1], [fos.father], '1'},)},
       ...
       {[1014], '1014', 'male', [1012], [1013],
        {[1014], 'Michael', 'Secundo', '1991-01-02'},
-       ({[1014.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1014.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 ``:top`` and ``:skip`` constraints can only be applied to plural entities and
 require a single non-negative integer as an argument::
@@ -383,10 +383,10 @@ by column and link values::
     >>> print individual_port.produce("individual.mother=1025") # doctest: +NORMALIZE_WHITESPACE
     {({[1027], '1027', 'male', [1025], [1026],
        {[1027], 'Joseph', 'Donota', '1975-01-02'},
-       ({[1027.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)},
+       ({[1027.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)},
       {[1028], '1028', 'male', [1025], [1026],
        {[1028], 'Will', 'Donota', '1978-03-31'},
-       ({[1028.(fos.proband).1], '1', [fos.proband]},)})}
+       ({[1028.(fos.proband).1], [fos.proband], '1'},)})}
 
 You can pass more than one arguments to the ``eq`` constraint::
 
@@ -394,10 +394,10 @@ You can pass more than one arguments to the ``eq`` constraint::
     ...                               "individual.identity.givenname=Brian")    # doctest: +NORMALIZE_WHITESPACE
     {({[1066], '1066', 'female', [1065], [1068],
       {[1066], 'Anne', 'Sauter', '2003-03-31'},
-      ({[1066.(fos.proband).1], '1', [fos.proband]},)},
+      ({[1066.(fos.proband).1], [fos.proband], '1'},)},
      {[1074], '1074', 'male', null, null,
       {[1074], 'Brian', 'Casaceli', '1961-02-02'},
-      ({[1074.(fos.father).1], '1', [fos.father]},)})}
+      ({[1074.(fos.father).1], [fos.father], '1'},)})}
 
 When applied to entities, it allows you to select records by ``id``::
 
@@ -461,13 +461,13 @@ text and date values::
     >>> print individual_port.produce("individual.identity.birthdate:ge=2000-01-01")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1004], '1004', 'male', [1000], [1001],
        {[1004], 'Emanuel', 'Kanaris', '2001-05-02'},
-       ({[1004.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)},
+       ({[1004.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)},
       ...)}
 
     >>> print individual_port.produce("individual.identity.birthdate:lt=1950-01-01")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1026], '1026', 'male', null, null,
        {[1026], 'Charles', 'Donota', '1941-02-02'},
-       ({[1026.(fos.father).1], '1', [fos.father]},)},
+       ({[1026.(fos.father).1], [fos.father], '1'},)},
       ...)}
 
 It is an error to apply a comparison constraint to a value of unexpected
@@ -511,11 +511,11 @@ You can use constraint ``:sort`` to reorder the records::
     >>> print individual_port.produce("individual.identity.birthdate:sort=asc")     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1026], '1026', 'male', null, null,
        {[1026], 'Charles', 'Donota', '1941-02-02'},
-       ({[1026.(fos.father).1], '1', [fos.father]},)},
+       ({[1026.(fos.father).1], [fos.father], '1'},)},
       ...
       {[1093], '1093', 'male', [1091], [1092],
        {[1093], 'Modesto', 'Dahl', '2009-03-03'},
-       ({[1093.(fos.proband).1], '1', [fos.proband]},)})}
+       ({[1093.(fos.proband).1], [fos.proband], '1'},)})}
 
 
 Custom filters
@@ -544,11 +544,11 @@ With custom filters, output is limited to records matching the filter::
     >>> print filtered_port.produce("individual:search=ch")     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1006], '1006', 'female', [1007], [1008],
        {[1006], 'Josefine', 'Kirschke', '2000-01-02'},
-       ({[1006.(fos.proband).1], '1', [fos.proband]},)},
+       ({[1006.(fos.proband).1], [fos.proband], '1'},)},
       ...
       {[1090], '1090', 'male', [1088], [1089],
        {[1090], 'Fletcher', 'Archibold', '2007-03-03'},
-       ({[1090.(fos.proband).1], '1', [fos.proband]},)})}
+       ({[1090.(fos.proband).1], [fos.proband], '1'},)})}
 
 To apply a filter with more than one argument, you need to repeat
 the filter expression::
@@ -556,20 +556,20 @@ the filter expression::
     >>> print filtered_port.produce("individual:birthrange=1979-01-01&individual:birthrange=1980-01-01")    # doctest: +NORMALIZE_WHITESPACE
     {({[1020], '1020', 'male', null, null,
        {[1020], 'David', 'Bedwell', '1979-05-06'},
-       ({[1020.(fos.father).1], '1', [fos.father]},)},
+       ({[1020.(fos.father).1], [fos.father], '1'},)},
       {[1086], '1086', 'male', [1084], [1085],
        {[1086], 'Matthew', 'Burrough', '1979-01-02'},
-       ({[1086.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1086.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 You don't need to repeat the expression when you apply the filter programmatically::
 
     >>> print filtered_port.produce(("individual", "birthrange", ["1979-01-01", "1980-01-01"]))     # doctest: +NORMALIZE_WHITESPACE
     {({[1020], '1020', 'male', null, null,
        {[1020], 'David', 'Bedwell', '1979-05-06'},
-       ({[1020.(fos.father).1], '1', [fos.father]},)},
+       ({[1020.(fos.father).1], [fos.father], '1'},)},
       {[1086], '1086', 'male', [1084], [1085],
        {[1086], 'Matthew', 'Burrough', '1979-01-02'},
-       ({[1086.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1086.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 A filter with incorrect number or type of arguments is rejected::
 

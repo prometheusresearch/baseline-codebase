@@ -203,16 +203,16 @@ You can also update facet and branch tables::
     ...     # doctest: +NORMALIZE_WHITESPACE
     <Product {({[3000], '3000', 'male', null, null,
                 {[3000], 'Nikolaus', 'Harald', '1951-12-04'},
-                ({[3000.(fos.father).1], '1', [fos.father]},), 1},
+                ({[3000.(fos.father).1], [fos.father], '1'},), 1},
                {[3001], '3001', 'female', null, null,
                 {[3001], 'Nora', 'Karin', '1954-05-15'},
-                ({[3001.(fos.mother).1], '1', [fos.mother]},), 1},
+                ({[3001.(fos.mother).1], [fos.mother], '1'},), 1},
                {[3002], '3002', 'female', [3001], [3000],
                 {[3002], 'Janne', 'Harald', '1976-07-25'},
-                ({[3002.(fos.proband).1], '1', [fos.proband]},), 1},
+                ({[3002.(fos.proband).1], [fos.proband], '1'},), 1},
                {[3003], '3003', 'male', [3001], [3000],
                 {[3003], 'Vincent', 'Harald', '1979-03-13'},
-                ({[3003.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},), 1}), 102}>
+                ({[3003.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},), 1}), 102}>
 
     >>> individual_port.replace(
     ...     {'individual': [
@@ -229,16 +229,16 @@ You can also update facet and branch tables::
     ...          'participation': {'id': '3003.(fos.unaffected-sib).1', 'protocol': 'fos.proband'}}]})
     ...     # doctest: +NORMALIZE_WHITESPACE
     <Product {({[3002], '3002', 'female', [3001], [3000], {[3002], 'Janne', 'Harald', '1976-07-25'},
-                ({[3002.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},), 1},
+                ({[3002.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},), 1},
                {[3003], '3003', 'male', [3001], [3000], {[3003], 'Vincent', 'Harald', '1979-03-31'},
-                ({[3003.(fos.proband).1], '1', [fos.proband]},), 1}), 102}>
+                ({[3003.(fos.proband).1], [fos.proband], '1'},), 1}), 102}>
 
     >>> individual_port.produce(
     ...     ('individual', ['3000', '3001', '3002', '3003']))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     <Product {(...
                {[3003], '3003', 'male', [3001], [3000],
                 {[3003], 'Vincent', 'Harald', '1979-03-31'},
-                ({[3003.(fos.proband).1], '1', [fos.proband]},), 1}), 102}>
+                ({[3003.(fos.proband).1], [fos.proband], '1'},), 1}), 102}>
 
     >>> individual_port.delete(
     ...     {'individual': [{'id': '3003'}, {'id': '3002'}, {'id': '3001'}, {'id': '3000'}]})

@@ -77,13 +77,13 @@ A port may contain more than one entity::
     - entity: study
       select: [code, title, closed]
     - entity: protocol
-      select: [code, title, study]
+      select: [study, code, title]
     - entity: individual
       select: [code, sex, mother, father]
     - entity: identity
-      select: [givenname, surname, birthdate, individual]
+      select: [individual, givenname, surname, birthdate]
     - entity: participation
-      select: [code, individual, protocol]
+      select: [individual, protocol, code]
 
 A port may also contain calculated fields::
 
@@ -166,7 +166,7 @@ An entity may include other entities and calculated fields::
     - entity: identity
       select: [givenname, surname, birthdate]
     - entity: participation
-      select: [code, protocol]
+      select: [protocol, code]
     - calculation: num_participation
       expression: count(participation)
 
@@ -185,7 +185,7 @@ One can also use path notation::
     - entity: identity
       select: [givenname, surname, birthdate]
     - entity: participation
-      select: [code, protocol]
+      select: [protocol, code]
     - calculation: num_participation
       expression: count(participation)
 
@@ -208,7 +208,7 @@ Alternatively, one could also use ``at`` attribute::
     - entity: identity
       select: [givenname, surname, birthdate]
     - entity: participation
-      select: [code, protocol]
+      select: [protocol, code]
     - calculation: num_participation
       expression: count(participation)
 

@@ -337,12 +337,12 @@ example, to create a port from ``individual`` table with associated
     - entity: identity
       select: [givenname, surname, birthdate]
     - entity: participation
-      select: [code, protocol]
+      select: [protocol, code]
 
     >>> print individual_port.produce()         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
-       ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+       ({[1000.(fos.mother).1], [fos.mother], '1'},)},
     ...)}
 
 ``rex.port`` provides multiple ways to define ports.  For example, all of the
@@ -359,7 +359,7 @@ following expressions define the same port structure::
     - entity: identity
       select: [givenname, surname, birthdate]
     - entity: participation
-      select: [code, protocol]
+      select: [protocol, code]
 
     >>> print Port(["individual",
     ...             "individual.identity",
@@ -370,7 +370,7 @@ following expressions define the same port structure::
     - entity: identity
       select: [givenname, surname, birthdate]
     - entity: participation
-      select: [code, protocol]
+      select: [protocol, code]
 
     >>> print Port("""
     ... - entity: individual
@@ -385,7 +385,7 @@ following expressions define the same port structure::
     - entity: identity
       select: [givenname, surname, birthdate]
     - entity: participation
-      select: [code, protocol]
+      select: [protocol, code]
 
 Sometimes you may want to limit access to a particular subset of all records in
 the table.  For this purpose, use attribute ``mask`` when you define the
@@ -522,11 +522,11 @@ to get the first 5 ``individual`` records from ``individual_port``, write::
     >>> print individual_port.produce("individual:top=5")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
-       ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+       ({[1000.(fos.mother).1], [fos.mother], '1'},)},
       ...
       {[1004], '1004', 'male', [1000], [1001],
        {[1004], 'Emanuel', 'Kanaris', '2001-05-02'},
-       ({[1004.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1004.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 Here, ``individual:top=5`` is a constraint expression, where ``individual`` is
 a path in the schema slice, ``top`` is a constraint operator and ``5`` is an
@@ -543,11 +543,11 @@ constraint ``skip``::
     >>> print individual_port.produce("individual:top=5&individual:skip=10")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1010], '1010', 'male', null, null,
        {[1010], 'John', 'Porreca', '1975-02-02'},
-       ({[1010.(fos.father).1], '1', [fos.father]},)},
+       ({[1010.(fos.father).1], [fos.father], '1'},)},
       ...
       {[1014], '1014', 'male', [1012], [1013],
        {[1014], 'Michael', 'Secundo', '1991-01-02'},
-       ({[1014.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1014.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 To select a specific individual, use the equality constraint::
 
@@ -595,11 +595,11 @@ The following constraint operators are supported:
         ...                               "&individual.identity.birthdate:lt=1976-01-01")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
         {({[1007], '1007', 'female', null, null,
            {[1007], 'Niesha', 'Kirschke', '1975-01-01'},
-           ({[1007.(fos.mother).1], '1', [fos.mother]},)},
+           ({[1007.(fos.mother).1], [fos.mother], '1'},)},
           ...
           {[1063], '1063', 'male', [1061], [1062],
            {[1063], 'Kenneth', 'Rednour', '1975-01-02'},
-           ({[1063.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+           ({[1063.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 `:contains`
     To search for a given substring in a text field, use operator
@@ -608,11 +608,11 @@ The following constraint operators are supported:
         >>> print individual_port.produce("individual.identity.surname:contains=ar")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
         {({[1000], '1000', 'female', null, null,
            {[1000], 'May', 'Kanaris', '1961-01-01'},
-           ({[1000.(fos.mother).1], '1', [fos.mother]},)},
+           ({[1000.(fos.mother).1], [fos.mother], '1'},)},
           ...
           {[1090], '1090', 'male', [1088], [1089],
            {[1090], 'Fletcher', 'Archibold', '2007-03-03'},
-           ({[1090.(fos.proband).1], '1', [fos.proband]},)})}
+           ({[1090.(fos.proband).1], [fos.proband], '1'},)})}
 
 `:null`
     Use ``:null`` operator to filter out ``null`` values.
@@ -640,11 +640,11 @@ range.  Now we could use these filters in constraint expressions::
     >>> print filtered_port.produce("individual:search=ch")     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1006], '1006', 'female', [1007], [1008],
        {[1006], 'Josefine', 'Kirschke', '2000-01-02'},
-       ({[1006.(fos.proband).1], '1', [fos.proband]},)},
+       ({[1006.(fos.proband).1], [fos.proband], '1'},)},
       ...
       {[1090], '1090', 'male', [1088], [1089],
        {[1090], 'Fletcher', 'Archibold', '2007-03-03'},
-       ({[1090.(fos.proband).1], '1', [fos.proband]},)})}
+       ({[1090.(fos.proband).1], [fos.proband], '1'},)})}
 
 To use a constraint with more than one argument, you need to write a constraint
 expression with each argument::
@@ -652,10 +652,10 @@ expression with each argument::
     >>> print filtered_port.produce("individual:birthrange=1979-01-01&individual:birthrange=1980-01-01")    # doctest: +NORMALIZE_WHITESPACE
     {({[1020], '1020', 'male', null, null,
        {[1020], 'David', 'Bedwell', '1979-05-06'},
-       ({[1020.(fos.father).1], '1', [fos.father]},)},
+       ({[1020.(fos.father).1], [fos.father], '1'},)},
       {[1086], '1086', 'male', [1084], [1085],
        {[1086], 'Matthew', 'Burrough', '1979-01-02'},
-       ({[1086.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}
+       ({[1086.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
 
 Alternatively, you can submit a constraint expression in a tuple form::
 
@@ -792,16 +792,16 @@ that includes a set of records with subrecords.  For example::
     ...     # doctest: +NORMALIZE_WHITESPACE
     <Product {({[3000], '3000', 'male', null, null,
                 {[3000], 'Nikolaus', 'Harald', '1951-12-04'},
-                ({[3000.(fos.father).1], '1', [fos.father]},)},
+                ({[3000.(fos.father).1], [fos.father], '1'},)},
                {[3001], '3001', 'female', null, null,
                 {[3001], 'Nora', 'Karin', '1954-05-15'},
-                ({[3001.(fos.mother).1], '1', [fos.mother]},)},
+                ({[3001.(fos.mother).1], [fos.mother], '1'},)},
                {[3002], '3002', 'female', [3001], [3000],
                 {[3002], 'Janne', 'Harald', '1976-07-25'},
-                ({[3002.(fos.proband).1], '1', [fos.proband]},)},
+                ({[3002.(fos.proband).1], [fos.proband], '1'},)},
                {[3003], '3003', 'male', [3001], [3000],
                 {[3003], 'Vincent', 'Harald', '1979-03-13'},
-                ({[3003.(fos.unaffected-sib).1], '1', [fos.unaffected-sib]},)})}>
+                ({[3003.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}>
 
     >>> individual_port.delete([{'id': '2000'}, {'id': '2001'}, {'id': '2002'}, {'id': '2003'},
     ...                         {'id': '3000'}, {'id': '3001'}, {'id': '3002'}, {'id': '3003'}])

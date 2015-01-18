@@ -1,5 +1,6 @@
 secret:
     For the sake of demonstration only.  Normally,
     you would never preset this parameter.
-hello_access: authenticated
 db: pgsql:ctl_demo
+htsql_extensions:
+    rex_deploy: {}

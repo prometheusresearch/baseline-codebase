@@ -11,6 +11,22 @@ Usage guide
    guide
 
 
+API reference
+=============
+
+.. toctree::
+
+   reference
+
+
+Examples
+========
+
+.. toctree::
+
+   test/index
+
+
 Release notes
 =============
 

@@ -1,48 +1,12 @@
 
-- table: school
-- column: school.code
-  type: text
-- column: school.name
-  type: text
-- column: school.campus
-  type: [north, old, south]
-  required: false
-- identity: [school.code]
-
-- table: department
-- column: department.code
-  type: text
-- link: department.school
-- column: department.name
-  type: text
-  required: false
-- identity: [department.code]
-
-- table: program
-- link: program.school
-- column: program.code
-  type: text
-- column: program.title
-  type: text
-- column: program.degree
-  type: [ba, bs, ct, ma, ms, pb, ph]
-  required: false
-- link: program.part_of
-  to: program
-  required: false
-- identity: [program.school, program.code]
-
-- table: course
-- link: course.department
-- column: course.no
-  type: integer
-- column: course.title
-  type: text
-- column: course.credits
-  type: integer
-  required: false
-- column: course.description
-  type: text
-  required: false
-- identity: [course.department, course.no]
+- table: user
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: name
+    type: text
+  - column: enabled
+    type: boolean
+    default: true
 

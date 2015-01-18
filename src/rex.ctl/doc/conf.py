@@ -5,8 +5,10 @@
 
 project = 'rex.ctl'
 html_title = "REX.CTL Documentation"
+extensions = ['sphinx.ext.autodoc']
 master_doc = 'index'
 default_role = 'obj'
-highlight_language = 'console'
+autodoc_default_flags = ['members']
+autodoc_member_order = 'bysource'
 
 

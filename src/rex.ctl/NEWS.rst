@@ -5,11 +5,14 @@
 .. contents:: Table of Contents
 
 
-1.7.0 (2015-XX-XX)
+2.0.0 (2015-XX-XX)
 ==================
 
-* Added ``rex python`` command.
-* Added ``rex graphdb`` command.
+* Added ``rex pyshell`` command.
+* Added ``--verbose`` flag for ``rex packages`` and ``rex settings``.
+* Moved package-specific commands to the respective packages.
+* Added class-based API that wraps Cogs API.
+* Improved ``doctest`` testing with coverage support.
 
 
 1.6.0 (2014-12-08)

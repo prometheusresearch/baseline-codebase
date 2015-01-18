@@ -4,7 +4,7 @@ from distutils.core import Command
 
 class demo(Command):
 
-    description = "show how to serve a Rex application"
+    description = "show how to use a custom rex command"
     user_options = []
 
     def initialize_options(self):
@@ -18,13 +18,13 @@ class demo(Command):
         cmd = "rex deploy rex.ctl_demo"
         print "$", cmd
         os.spawnvp(0, cmd.split()[0], cmd.split())
-        cmd = "rex serve rex.ctl_demo --set hello_access=anybody"
+        cmd = "rex demo-user-list rex.ctl_demo"
         print "$", cmd
         os.spawnvp(0, cmd.split()[0], cmd.split())
 
 setup(
     name='rex.ctl_demo',
-    version = "1.6.0",
+    version = "2.0.0",
     # Do not write `Summary` field to `PKG-INFO` file (for coverage testing):
     #description="Demo package for testing rex.ctl",
     package_dir={'': 'src'},
@@ -34,10 +34,10 @@ setup(
         'rex.setup',
     ],
     install_requires=[
-        'rex.web',
-        'rex.db',
         'rex.deploy',
+        'rex.port',
     ],
+    entry_points={'rex.ctl': ['rex = rex.ctl_demo']},
     cmdclass={'demo': demo},
     rex_init='rex.ctl_demo',
     rex_static='static',

@@ -3,10 +3,10 @@
 #
 
 
-from cogs import setting, env
+from cogs import env
 from cogs.log import debug, fail
 from rex.setup import watch
-from rex.core import Rex, LatentRex, get_packages, PythonPackage, Setting, Error
+from rex.core import Rex, LatentRex, get_packages, PythonPackage, Error
 import sys
 import os
 import shlex
@@ -55,37 +55,6 @@ def collection(value):
             all(isinstance(key, basestring) for key in value)):
         raise ValueError("expected a collection of parameters")
     return value
-
-
-@setting
-def PROJECT(name=None):
-    """primary package
-
-    The primary package of the application.
-    """
-    if not name:
-        name = None
-    if not (name is None or isinstance(name, str)):
-        raise ValueError("expected a project name")
-    env.project = name
-
-
-@setting
-def REQUIREMENTS(names=None):
-    """additional application components
-
-    Additional packages to include with the application.
-    """
-    env.requirements = sequence(names)
-
-
-@setting
-def PARAMETERS(config=None):
-    """application configuration
-
-    A dictionary with application parameters.
-    """
-    env.parameters = collection(config)
 
 
 def make_rex(project=None, require_list=None, set_list=None,

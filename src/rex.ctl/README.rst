@@ -1,8 +1,13 @@
-***********************
-  REX.CTL Usage Guide
-***********************
+*****************************
+  REX.CTL Programming Guide
+*****************************
 
 .. contents:: Table of Contents
+.. role:: mod(literal)
+.. role:: class(literal)
+.. role:: meth(literal)
+.. role:: attr(literal)
+.. role:: func(literal)
 
 
 Overview
@@ -25,13 +30,16 @@ R43MH099826.
 Getting help
 ============
 
+.. highlight:: console
+
+The ``rex`` utility provides a command-line interface for RexDB applications.
 All invocations of the ``rex`` utility follow the same pattern::
 
     $ rex <task> [<arguments>...]
 
 Parameter ``<task>`` indicates the action to perform, ``<arguments>...`` are
 parameters specific to the action.  One of the most useful tasks is ``rex
-help``, which allows you to list available tasks, settings and help topics::
+help``, which lists available tasks, settings and help topics::
 
     $ rex help
     Rex - Command-line administration utility for the RexDB platform
@@ -60,194 +68,489 @@ You can also use ``rex help`` to describe a global setting::
            REX_DEBUG=1 (environment)
 
 
-Starting HTTP server
-====================
+Using and configuring ``rex`` utility
+=====================================
 
-Use ``rex serve`` to serve a RexDB application via HTTP::
+To productively use the ``rex`` utility with a RexDB application, you need to
+configure the application.  To do so, create file ``rex.yaml`` in the current
+directory.  The file may contain the application name, the application
+configuration and other global parameters.
 
-    $ rex serve rex.ctl_demo
-    Serving rex.ctl_demo on localhost:8088
+.. highlight:: yaml
 
-Press ``Ctrl-C`` to stop the server.
-
-You can use options ``--host`` and ``--port`` to override the address of the
-HTTP server::
-
-    $ rex serve rex.ctl_demo --host localhost --port 8088
-    Serving rex.ctl_demo on localhost:8088
-
-Use option ``--set`` to specify a parameter of the application::
-
-    $ rex serve rex.ctl_demo --set hello_access=anybody
-
-When you test a RexDB application, it is often convenient to preset user
-credentials from the command line.  You can do it using option
-``--remote-user``::
-
-    $ rex serve rex.ctl_demo --remote-user=admin
-
-
-Configuration file
-==================
-
-You can specify the project name, application configuration and other
-parameters in a configuration file.  For example, create a file ``rex.yaml``
-with the following content::
+For example, create ``rex.yaml`` with the following content::
 
     project: rex.ctl_demo
     parameters:
-        hello_access: anybody
+        db: pgsql:ctl_demo
     http-host: localhost
     http-port: 8088
 
-Now you can start ``rex serve`` with no arguments at all::
+.. highlight:: console
+
+Now you can use ``rex`` to perform various tasks on the :mod:`rex.ctl_demo`
+application.   For example, to deploy the application database and start a
+development HTTP server with the application, run::
+
+    $ rex deploy
+    Deploying application database to pgsql:///ctl_demo.
+    Deploying rex.ctl_demo.
+    Validating rex.ctl_demo.
+    Done.
 
     $ rex serve
     Serving rex.ctl_demo on localhost:8088
+
+If you wish to name the configuration file differently, or the file is not in
+the current directory, you can use ``--config`` parameter to specify the
+location of the configuration file::
+
+    $ rex deploy --config=/path/to/rex.yaml
+    ...
+
+    $ rex serve --config=/path/to/rex.yaml
+    ...
 
 Alternatively, configuration parameters could be specified using environment
 variables::
 
     $ export REX_PROJECT=rex.ctl_demo
-    $ export REX_PARAMETERS='{"hello_access": "anybody"}'
+    $ export REX_PARAMETERS='{"db": "pgsql:ctl_demo"}'
     $ export REX_HTTP_HOST=localhost
     $ export REX_HTTP_PORT=8088
-    $ rex serve
-    Serving rex.ctl_demo on localhost:8088
 
-or command-line parameters::
-
-    $ rex serve --project=rex.ctl_demo \
-                --parameters='{"hello_access": "anybody"}' \
-                --http-host=localhost \
-                --http-port=8088
-    Serving rex.ctl_demo on localhost:8088
-
-
-WSGI scripts
-============
-
-For running a RexDB application in production, the built-in HTTP server ``rex
-serve`` may not be the best choice.  Instead, you can use one of the industry
-standard tools such as mod_wsgi_, uwsgi_, or Gunicorn_.
-
-.. _mod_wsgi: http://code.google.com/p/modwsgi/
-.. _uwsgi: http://uwsgi-docs.readthedocs.org/
-.. _Gunicorn: http://gunicorn.org/
-
-To serve a Python application, these tools require you to create a *WSGI
-script*, a small Python program that creates and configures an application
-object.  Use ``rex wsgi`` for that purpose::
-
-    $ rex wsgi rex.ctl_demo -o ctl_demo.wsgi
-
-This commands generates a WSGI script for ``rex.ctl_demo`` and saves it as
-``ctl_demo.wsgi``.
-
-You could combine generating a WSGI script and starting a uwsgi_ server with
-``rex serve-uwsgi`` command.  To specify uWSGI configuration, add section
-``uwsgi`` to the ``rex.yaml`` configuration file.  For example, to serve
-``rex.ctl_demo`` via HTTP on port 8080, add to ``rex.yaml``::
-
-    project: rex.ctl_demo
-    uwsgi:
-      http-socket: :8080
-
-Then start::
-
-    $ rex serve-uwsgi
-    Starting uWSGI server for rex.ctl_demo
-    *** Starting uWSGI 2.0.3-debian (64bit) on [Fri Jun 27 15:53:27 2014] ***
-    [...]
-
-A more complete uWSGI configuration might construct the application,
-then daemonize with a master process and several worker processes::
-
-    uwsgi:
-      master: true
-      daemonize2: uwsgi.log
-      processes: 4
-      threads: 2
-      socket: :3031
-
-Commands ``rex start`` and ``rex stop`` allow you to start and stop a uWSGI
-daemon::
-
-    $ rex start
-    Starting rex.ctl_demo (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
-
-    $ rex stop
-    Stopping rex.ctl_demo (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
-
-If you use ``rex start`` to start a uWSGI daemon, you don't need to set uWSGI
-parameters ``daemonize`` and ``pidfile``.
-
-Use command ``rex status`` to verify if the uWSGI daemon is running::
-
-    $ rex status
-    rex.ctl_demo is running (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
-
-
-Database management
-===================
-
-If the RexDB application uses ``rex.db`` and ``rex.deploy`` packages
-to manage and access a database, you can use ``rex`` to perform various
-database-related tasks.
-
-To deploy the application database, use ``rex deploy``::
-
-    $ rex deploy rex.ctl_demo
-    deploying database schema to pgsql:///ctl_demo
-
-To open HTSQL shell to the application database, use ``rex shell``::
-
-    $ rex shell rex.ctl_demo
-    Type 'help' for more information, 'exit' to quit the shell.
-    ctl_demo$
-
-To execute one or a set of HTSQL queries, use ``rex query``::
-
-    $ rex query rex.ctl_demo -i school.htsql -f json
-    {
-      "school": []
-    }
-
-To dump the content of the application database to a file,
-use ``rex dumpdb``::
-
-    $ rex dumpdb rex.ctl_demo -o ctl_demo.sql
-
-To load the content of the application database from a file,
-use ``rex loaddb``::
-
-    $ rex loaddb rex.ctl_demo -i ctl_demo.sql
-
-You can generate a database schema diagram for the application database
-using ``rex graphdb``::
-
-    $ rex graphdb rex.ctl_demo -o ctl_demo.png
-
-
-Packages and settings
-=====================
-
-To list the packages that compose the RexDB application, run::
-
-    $ rex packages rex.ctl_demo
-    [rex.ctl_demo]
-    Version:
-      1.0.0
+    $ rex deploy
     ...
 
-To list all configuration parameters of the application, run::
+    $ rex serve
+    ...
+
+Another option is to specify the application name and configuration using
+command-line arguments and options::
+
+    $ rex deploy rex.ctl_demo --set db=pgsql:ctl_demo
+    ...
+
+    $ rex serve rex.ctl_demo --set db=pgsql:ctl_demo -h localhost -p 8088
+    ...
+
+To get a list of all configuration parameters supported by the application, use
+``rex setting`` task, e.g.::
 
     $ rex settings rex.ctl_demo
-    [debug]
-    Declared in:
-      rex.core
-    Description:
-      Turn on debug mode.
+    access:
+    db*:
+      'pgsql:ctl_demo'
+    debug:
+    gateways:
     ...
+
+    $ rex settings rex.ctl_demo --verbose
+    [access]
+    Declared in:
+      rex.web
+    Description:
+      Access table with permissions required to access package resources.
+    ...
+
+To get a list of all packages that constitute the application, use ``rex
+packages`` task, e.g.::
+
+    $ rex packages rex.ctl_demo
+    rex.ctl_demo == 1.7.0
+    rex.port == 1.0.2
+    rex.deploy == 2.0.0
+    rex.db == 3.0.0
+    ...
+
+    $ rex packages rex.ctl_demo --verbose
+    [rex.ctl_demo]
+    Version:
+      1.7.0
+    Location:
+      /home/xi/prometheus/rex/rex.ctl/demo/src
+    ...
+
+.. highlight:: python
+
+To interact with the application from Python shell, use ``rex pyshell`` task,
+e.g.::
+
+    $ rex pyshell rex.ctl_demo
+    Type 'help' for more information, Ctrl-D to exit.
+    >>> ctl_demo
+    LatentRex('rex.ctl_demo')
+    >>> from rex.db import get_db
+    >>> for user in get_db().produce('/user'):
+    ...     print user
+    ...
+    user(code=u'alice@rexdb.com', name=u'Alice Amter', enabled=True)
+    user(code=u'bob@rexdb.com', name=u'Bob Barker', enabled=False)
+    user(code=u'carol@rexdb.com', name=u'Carol Costello', enabled=True)
+    >>>
+
+
+Creating tasks
+==============
+
+.. highlight:: console
+
+To add a ``rex`` task, you need to define a subclass of :class:`rex.ctl.Task`
+class.  For example, :mod:`rex.ctl_demo` defines a simple task ``hello``, which
+greets the user that runs it::
+
+    $ rex hello world
+    Hello, World!
+
+    $ rex hello
+    Hello, Alice!
+
+    $ rex help hello
+    HELLO - greet someone
+    Usage: rex hello [<name>]
+
+    Run rex hello to greet the current user.  Alternatively,
+    run rex hello <name> to greet the specified user.
+
+.. highlight:: python
+
+Here is the task definition from ``rex/ctl_demo/ctl.py``::
+
+    from rex.ctl import Task, argument
+    import os
+
+    class HelloTask(Task):
+        """greet someone
+
+        Run `rex hello` to greet the current user.  Alternatively,
+        run `rex hello <name>` to greet the specified user.
+        """
+
+        name = 'hello'
+
+        class arguments:
+            name = argument(default=None)
+
+        def __call__(self):
+            name = self.name or os.environ['USER']
+            print "Hello, %s!" % name.capitalize()
+
+To define a task, we need to specify the task name, its arguments and optional
+parameters, write the task description and the code to execute when the task is
+invoked.
+
+Class attribute :attr:`rex.ctl.Task.name` specifies the task name.  Task
+arguments are defined as attributes of a nested class ``arguments``.  Task
+description for ``rex help`` command is derived from the class docstring.
+When the task is invoked, ``rex`` executes the :meth:`rex.ctl.Task.__call__`
+method of the class.  The value of the parameter is stored as an attribute
+on the task instance.
+
+To let the ``rex`` utility find the task definition, add an entry point
+``rex.ctl`` to the package's ``setup.py`` file.  For ``rex.ctl_demo`` package,
+we add::
+
+    setup(
+        name='rex.ctl_demo',
+        [...]
+        entry_points={'rex.ctl': ['rex = rex.ctl_demo']},
+        [...]
+    )
+
+The ``rex`` utility is developed using Cogs_ toolkit; see Cogs_ documentation
+for more information.
+
+.. _Cogs: https://pypi.python.org/pypi/Cogs
+
+
+Optional parameters
+===================
+
+Many ``rex`` tasks accept optional parameters, or *options*.  You can define a
+task option using the ``options`` container; here is an example::
+
+    from rex.ctl import Task, argument, option
+    import sys
+    import os
+
+    class WriteHelloTask(Task):
+
+        name = 'write-hello'
+
+        class arguments:
+            name = argument(default=None)
+
+        class options:
+            output = option('o', default=None)
+
+        def __call__(self):
+            name = self.name or os.environ['USER']
+            stream = (open(self.output, 'w')
+                      if self.output is not None else sys.stdout)
+            stream.write("Hello, %s!\n" % name.capitalize())
+
+.. highlight:: console
+
+The task ``rex write-hello`` has a single option ``--output`` that lets you
+specify the name of the file where the task writes the greeting.  You can use
+either a long form (``--output``) or a short form (``-o``) or you could omit
+the option entirely.  For example::
+
+    $ rex write-hello --output=hello.txt
+    $ cat hello.txt
+    Hello, Alice!
+
+    $ rex write-hello -o hello.txt
+    $ cat hello.txt
+    Hello, Alice!
+
+    $ rex write-hello
+    Hello, Alice!
+
+.. highlight:: python
+
+You can also define a global option, which is visible for all tasks.  Let's
+define an option ``default-hello-name`` that could be used by a greeting task
+when the user omits the name.  Here is its definition from
+``rex/ctl_demo/ctl.py``::
+
+    from rex.ctl import Global
+    import os
+
+    class DefaultHelloNameGlobal(Global):
+        """the name to use for greetings (if not set: login name)"""
+
+        name = 'default-hello-name'
+        default = os.environ['USER']
+
+Values of global options are stored as attributes of a global object ``env``.
+For example, ``env.default_hello_name`` keeps the value of the
+``default-hello-name`` option.
+
+Here is an example of a command that uses a global option::
+
+    from rex.ctl import Task, argument, env
+
+    class GlobalHelloTask(Task):
+
+        name = 'global-hello'
+
+        class arguments:
+            name = argument(default=None)
+
+        def __call__(self):
+            name = self.name or env.default_hello_name
+            print "Hello, %s!" % name.capitalize()
+
+.. highlight:: console
+
+There are several ways you could pass a value of a global option to ``rex``.
+You can add it as a command-line parameter::
+
+    $ rex --default-hello-name=world global-hello
+    Hello, World!
+
+Anternatively you can pass it using an environment variable::
+
+    $ export REX_DEFAULT_HELLO_NAME=world
+    $ rex global-hello
+    Hello, World!
+
+.. highlight:: yaml
+
+Finally, you can put a global option to a configuration file ``rex.yaml``::
+
+    default-hello-name: world
+
+.. highlight:: console
+
+Then run ``rex`` in the same directory::
+
+    $ rex global-hello
+    Hello, World!
+
+
+Arguments and options
+=====================
+
+We use :class:`rex.ctl.argument` and :class:`rex.ctl.option` to define task
+parameters.  The :class:`rex.ctl.argument` descriptor accepts the following
+arguments:
+
+``check``
+    A function called to validate and transform the value of the argument.
+    The function must return the transformed value or raise ``ValueError``
+    exception on error.
+``default``
+    The default value of the argument.  If not specified, the argument
+    is considered mandatory.
+``plural``
+    If set, the argument may consume more than one command-line parameters.
+
+The :class:`rex.ctl.option` descriptor accepts the following arguments:
+
+``key``
+    A one-character shorthand.
+``check``
+    A function called to validate and transform the value of the argument.
+    The function must return the transformed value or raise ``ValueError``
+    exception on error.
+``default``
+    The default value of the option.  If not specified, the option is treated
+    as a toggle and does not accept a value.  A toggle option produces ``True``
+    ``True`` when it is provided and ``False`` when it's not provided.
+``plural``
+    If set, indicates that the option could be provided more than once.
+``value_name``
+    The name of the option value; used by ``rex help``.
+``hint``
+    A one-line description of the option; used by ``rex help``.
+
+For more information on using arguments and options, see Cogs_ documentation.
+
+
+Working with RexDB projects
+===========================
+
+.. highlight:: console
+
+To define an application-specific task, inherit the task class from
+:class:`rex.ctl.RexTask`.  :class:`rex.ctl.RexTask` defines standard arguments
+and options for configuring a RexDB application and lets you easily generate an
+application instance.
+
+For example, :mod:`rex.ctl_demo` project needs to provide a way to initialize
+the database as well as to list, add, enable and disable application users.
+The user manipulation actions are implemented as a Python API, but we need to
+expose them through a command-line interface.
+
+We define tasks:
+
+``rex demo-init``
+    Initializes the application database and adds some default users.
+
+``rex demo-user-list``
+    Lists all users in the database.
+
+``rex demo-user-add``
+    Adds a new user to the database.
+
+``rex demo-user-enable``
+    Enables an existing user in the database.
+
+``rex demo-user-disable``
+    Disables an existing user in the database.
+
+Let us show how they work::
+
+    $ export REX_PROJECT=rex.ctl_demo
+
+    $ rex demo-init
+    Creating database pgsql:///ctl_demo.
+    Deploying application database to pgsql:///ctl_demo.
+    Deploying rex.ctl_demo.
+    Validating rex.ctl_demo.
+    Done.
+    Added user: alice@rexdb.com
+    Added user: bob@rexdb.com
+
+    $ rex demo-user-list
+    Alice Amter (alice@rexdb.com)
+    Bob Barker (bob@rexdb.com)
+
+    $ rex demo-user-add carol@rexdb.com "Carol Costello"
+    Added user: carol@rexdb.com
+
+    $ rex demo-user-list
+    Alice Amter (alice@rexdb.com)
+    Bob Barker (bob@rexdb.com)
+    Carol Costello (carol@rexdb.com)
+
+    $ rex demo-user-disable bob@rexdb.com
+    Disabled user: bob@rexdb.com
+
+    $ rex demo-user-list
+    Alice Amter (alice@rexdb.com)
+    Bob Barker (bob@rexdb.com) [disabled]
+    Carol Costello (carol@rexdb.com)
+
+The application detects and reports user errors::
+
+    $ rex demo-user-add alice@rexdb.com "Alice Zhang"
+    FATAL ERROR: User already exists:
+        alice@rexdb.com
+
+    $ rex demo-user-disable dave@rexdb.com
+    FATAL ERROR: User does not exist:
+        dave@rexdb.com
+
+.. highlight:: python
+
+We start with implementing ``rex demo-user-list`` task, which takes no
+arguments or options::
+
+    from rex.ctl import RexTask, log
+    from .user import Users
+
+    class UserListTask(RexTask):
+        """list all users"""
+
+        name = 'demo-user-list'
+
+        def __call__(self):
+            with self.make():
+                for user in Users():
+                    if user.enabled:
+                        log("{} (`{}`)", user.name, user.code)
+                    else:
+                        log("{} ({}) [disabled]", user.name, user.code)
+
+To generate an application instance, we call method
+:meth:`rex.ctl.RexTask.make()`.  We activate the instance using ``with`` clause
+and invoke internal application API to get a list of users.  The utility
+function :func:`rex.ctl.log()` provided by Cogs_ is used to display output and
+to add some highlighting.
+
+Next, let's review ``rex demo-init`` task::
+
+    class InitTask(RexTask):
+        """initialize the database"""
+
+        name = 'demo-init'
+
+        def __call__(self):
+            self.do('deploy')
+            self.do('demo-user-add', code='alice@rexdb.com', name="Alice Amter")
+            self.do('demo-user-add', code='bob@rexdb.com', name="Bob Barker")
+
+The ``rex demo-init`` task is implemented entirely in terms of other tasks:
+``rex deploy`` and ``rex demo-user-add``.  We use :meth:`rex.ctl.RexTask.do()`
+to invoke a subtask, passing values for arguments and options as keyword
+parameters.  Note that if the task itself and a subtask have a parameter with
+the same name, the parameter value is passed from the task to its subtask.
+
+Finally, let's look at ``rex demo-user-add``::
+
+    class UserAddTask(RexTask):
+        """add a new user"""
+
+        name = 'demo-user-add'
+
+        class arguments:
+            code = argument()
+            name = argument()
+
+        class options:
+            disabled = option(hint="disable the new user")
+
+        def __call__(self):
+            with self.make():
+                users = Users()
+                users.add(self.code, self.name, not self.disabled)
+                log("Added user: `{}`", self.code)
+
+This task has two arguments ``<code>`` and ``<name>`` and a toggle
+``--disabled``.  Their values are stored as attributes ``self.code``,
+``self.name`` and ``self.disabled`` on the task instance.
 
 

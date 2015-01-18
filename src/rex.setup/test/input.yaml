@@ -40,9 +40,6 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls ./lib
-    environ: { LC_ALL: C }
-    cd: sandbox
   # Cleanup.
   - rmdir: sandbox
 
@@ -71,9 +68,6 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls ./lib
-    environ: { LC_ALL: C }
-    cd: sandbox
   # Cleanup.
   - rmdir: sandbox
 
@@ -90,9 +84,6 @@ tests:
   - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-2.0.0.zip
     cd: sandbox
   - sh: ls -R ./rex.setup_demo-2.0.0
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ls ./lib
     environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.

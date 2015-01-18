@@ -57,10 +57,6 @@ tests:
       bootstrap
       jquery
       rex-setup-demo
-  - sh: ls ./lib
-    stdout: |
-      node_modules
-      python2.7
 - suite: develop
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox
@@ -92,10 +88,6 @@ tests:
       bootstrap
       jquery
       rex-setup-demo
-  - sh: ls ./lib
-    stdout: |
-      node_modules
-      python2.7
 - suite: sdist
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox
@@ -195,7 +187,3 @@ tests:
       jquery-1.10.2.js
       jquery-1.10.2.min.js
       jquery-1.10.2.min.map
-  - sh: ls ./lib
-    stdout: |
-      node_modules
-      python2.7

@@ -18,7 +18,7 @@ class HelloTask(Task):
         name = argument(default=None)
 
     def __call__(self):
-        name = self.name or os.environ['USER']
+        name = self.name or os.environ.get('USER', 'nobody')
         print "Hello, %s!" % name.capitalize()
 
 class WriteHelloTask(Task):
@@ -32,7 +32,7 @@ class WriteHelloTask(Task):
         output = option('o', default=None)
 
     def __call__(self):
-        name = self.name or os.environ['USER']
+        name = self.name or os.environ.get('USER', 'nobody')
         stream = (open(self.output, 'w')
                   if self.output not in [None, '-'] else sys.stdout)
         stream.write("Hello, %s!\n" % name.capitalize())
@@ -41,7 +41,7 @@ class DefaultHelloNameGlobal(Global):
     """the name to use for greetings (if not set: login name)"""
 
     name = 'default-hello-name'
-    default = os.environ['USER']
+    default = os.environ.get('USER', 'nobody')
 
 class HelloWithConfigurationTask(Task):
 

@@ -83,7 +83,7 @@ in the response::
     Traceback (most recent call last):
       ...
     RuntimeError: some unexpected problem occurred
-    localhost - - [...] "GET /error HTTP/1.0" 500 1595
+    localhost - - [...] "GET /error HTTP/1.0" 500 ...
 
 Use option ``--remote-user`` to set user credentials for all HTTP queries::
 

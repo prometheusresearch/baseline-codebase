@@ -38,7 +38,6 @@ setup(
     install_requires=[
         'rex.attach',
         'rex.db',
-        'rex.ctl',
         'rex.deploy',
     ],
     cmdclass={'demo': demo},

@@ -296,7 +296,9 @@ Ports marked as ``unsafe`` require a CSRF token::
           "code": "1000",
           "first_name": "May",
           "last_name": "Kanaris",
-          "sex": "female"
+          "sex": "female",
+          "mother": null,
+          "father": null
         },
         ...
       ]
@@ -450,7 +452,9 @@ The parameters are passed to the query::
         "code": "1000",
         "first_name": "May",
         "last_name": "Kanaris",
-        "sex": "female"
+        "sex": "female",
+        "mother": null,
+        "father": null
       }
     }
 
@@ -464,7 +468,9 @@ The parameters are passed to the query::
           "code": "1001",
           "first_name": "Joseph",
           "last_name": "Kanaris",
-          "sex": "male"
+          "sex": "male",
+          "mother": null,
+          "father": null
         },
         ...
       ]

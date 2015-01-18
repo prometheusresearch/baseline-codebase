@@ -17,5 +17,31 @@ from .generate import Generate, watch
 from .download import GenerateDownload
 from .webpack import GenerateWebpack
 from .commonjs import node, npm
+import os
+
+
+# Patch distutils.filelist.findall to prevent infinite loops over symlinks.
+
+def findall(dir = os.curdir):
+    """Find all files under 'dir' and return the list of full filenames
+    (relative to 'dir').
+    """
+    seen = set()
+    all_files = []
+    for base, dirs, files in os.walk(dir, followlinks=True):
+        seen.add(os.path.realpath(base))
+        for dir in dirs[:]:
+            realpath = os.path.realpath(os.path.join(base, dir))
+            if realpath in seen:
+                dirs.remove(dir)
+        if base==os.curdir or base.startswith(os.curdir+os.sep):
+            base = base[2:]
+        if base:
+            files = [os.path.join(base, f) for f in files]
+        all_files.extend(filter(os.path.isfile, files))
+    return all_files
+
+import setuptools, distutils.filelist
+distutils.filelist.findall = findall
 
 

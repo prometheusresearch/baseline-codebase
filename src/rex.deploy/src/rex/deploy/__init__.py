@@ -10,6 +10,7 @@ This package provides database schema management.
 
 from .cluster import Cluster, get_cluster, deploy
 from .column import ColumnFact
+from .ctl import CreateDBTask, DropDBTask, DumpDBTask, LoadDBTask, DeployTask
 from .data import DataFact, SKIP
 from .fact import Fact, Driver, label_to_title
 from .identity import IdentityFact

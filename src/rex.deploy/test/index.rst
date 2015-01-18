@@ -6,6 +6,7 @@
 
    test_cluster
    test_column
+   test_ctl
    test_data
    test_htsql_rex_deploy
    test_identity

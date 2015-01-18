@@ -9,5 +9,6 @@
    test_path
    test_route
    test_template
+   test_ctl
 
 

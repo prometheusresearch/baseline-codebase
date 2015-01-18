@@ -95,3 +95,12 @@ class UnsafeCmd(Command):
         return Response("I trust you!", content_type='text/plain')
 
 
+class ErrorCmd(Command):
+
+    path = '/error'
+    access = 'anybody'
+
+    def render(self, req):
+        raise RuntimeError("some unexpected problem occurred")
+
+

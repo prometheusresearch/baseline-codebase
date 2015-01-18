@@ -31,9 +31,6 @@ Routing and handlers
    :special-members: __call__
 .. autoclass:: rex.web.Pipe
    :special-members: __call__
-.. autoclass:: rex.web.PipeSession
-.. autoclass:: rex.web.PipeError
-.. autoclass:: rex.web.PipePackage
 .. autofunction:: rex.web.not_found
 .. autofunction:: url_for
 .. autofunction:: get_routes

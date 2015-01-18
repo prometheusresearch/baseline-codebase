@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.2.0 (2015-XX-XX)
+==================
+
+* Added ``rex`` commands for serving the application.
+
+
 3.1.0 (2014-12-08)
 ==================
 

@@ -5,7 +5,12 @@
 title: REX.WEB
 tests:
 
+- rmdir: ./build/sandbox
+- mkdir: ./build/sandbox
+- rmdir: ./build/coverage
+- mkdir: ./build/coverage
 - coverage: setup.cfg
+  auto-data: true
 
 - sh: pip install -q -e ./demo
 

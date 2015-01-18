@@ -723,3 +723,92 @@ Settings
     be set if the application is running under a multi-process server.
 
 
+Deploying RexDB applications
+============================
+
+.. highlight:: console
+
+:mod:`rex.web` provides several ways to start a :mod:`rex.web` application on a
+web server.  The easiest way is to use the built-in development HTTP server,
+which you can start with ``rex serve`` command.  For example, to start the
+:mod:`rex.ctl_demo` application, you can run::
+
+    $ rex serve rex.ctl_demo
+    Serving rex.ctl_demo on localhost:8080
+
+To stop the server, press ``Ctrl-C``.
+
+To override the address of the development web server, you can use options
+``--host`` and ``--port``.  For example::
+
+    $ rex serve rex.ctl_demo --host localhost --port 8088
+    Serving rex.ctl_demo on localhost:8088
+
+Alternatively, the address of the server could be configured using
+``http-host`` and ``http-port`` global options::
+
+    $ export REX_HTTP_HOST=localhost
+    $ export REX_HTTP_PORT=8088
+
+    $ rex serve rex.ctl_demo
+    Serving rex.ctl_demo on localhost:8088
+
+When you develop and test a RexDB application, it is often convenient to
+manually specify the user credentials.  You can do it from the command line
+using option ``--remote-user``::
+
+    $ rex serve rex.ctl_demo --remote-user=Alice
+
+The built-in HTTP server is not suitable for running web applications
+in production environment.  Since :mod:`rex.web` applications implement
+WSGI_ interface, you can run them with any WSGI_ server such as mod_wsgi_,
+uWSGI_ or Gunicorn_.
+
+In order to run an application with a WSGI_ server, you need to create a
+``.wsgi`` file, a small Python program that creates and configures a WSGI_
+application object.  ``rex wsgi`` task can generate a ``.wsgi`` file for a
+RexDB application.  For example::
+
+    $ rex wsgi rex.ctl_demo -o ctl_demo.wsgi
+
+This command generates a WSGI script for the :mod:`rex.ctl_demo` application
+and saves it as ``ctl_demo.wsgi``.  You can now use it with any WSGI_ server to
+run the application.  For example, if you use uWSGI_ server, you can run::
+
+    $ uwsgi_python --http-socket=:8080 --wsgi-file=./ctl_demo.wsgi
+
+A more complete uWSGI_ configuration may use the ``uwsgi`` protocol with a
+proxy web server, or run several worker processes and threads.
+
+.. highlight:: yaml
+
+You can save uWSGI configuration in ``rex.yaml`` file::
+
+    uwsgi:
+        processes: 4
+        threads: 2
+        socket: :3031
+
+.. highlight:: console
+
+Then you can manage the uWSGI_ server using ``rex start``, ``rex stop`` and
+``rex status`` tasks::
+
+    $ rex start rex.ctl_demo
+    Starting rex.ctl_demo (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
+
+    $ rex status rex.ctl_demo
+    rex.ctl_demo is running (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
+
+    $ rex stop rex.ctl_demo
+    Stopping rex.ctl_demo (socket: :3031, logto: /run/rex/rex.ctl_demo.log)
+
+    $ rex status rex.ctl_demo
+    rex.ctl_demo is not running
+
+.. _WSGI: https://www.python.org/dev/peps/pep-0333/
+.. _mod_wsgi: http://code.google.com/p/modwsgi/
+.. _uWSGI: http://uwsgi-docs.readthedocs.org/
+.. _Gunicorn: http://gunicorn.org/
+
+

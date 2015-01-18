@@ -23,5 +23,8 @@ from .secret import SecretSetting
 from .template import (
     get_jinja, render_to_response, HandleTemplate, jinja_filter_json,
     jinja_filter_urlencode, jinja_filter_url)
+from .ctl import (
+        HTTPHostGlobal, HTTPPortGlobal, UWSGIGlobal, ServeTask, WSGITask,
+        ServeUWSGITask, StartTask, StopTask, StatusTask)
 
 

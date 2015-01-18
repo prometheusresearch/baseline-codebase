@@ -15,7 +15,10 @@ tests:
     connection.executescript(sql)
     connection.commit()
 
+- rmdir: ./build/coverate
+- mkdir: ./build/coverage
 - coverage: setup.cfg
+  auto-data: true
 
 - sh: pip install -q -e ./demo
 

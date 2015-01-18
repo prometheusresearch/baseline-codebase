@@ -79,6 +79,37 @@ the application database::
     >>> print db.produce("count(department)")
     27
 
+.. highlight:: console
+
+To inspect to the database from the command line, start an HTSQL shell
+with command ``rex shell``::
+
+    $ rex shell rex.db_demo --set db=sqlite:./sandbox/db_demo.sqlite
+    db_demo$ /count(department)
+     | count(department) |
+    -+-------------------+-
+     |                27 |
+
+You can also execute a batch query command using command ``rex query``::
+
+    $ echo 'count(department)' >count.htsql
+
+    $ rex query rex.db_demo --set db=sqlite:./sandbox/db_demo.sqlite \
+                            -i count.htsql \
+                            -f csv
+    count(department)
+    27
+
+Another way to inspect the database schema is to generate a schema diagram
+using ``rex graphdb``::
+
+    $ rex graphdb rex.db_demo --set db=sqlite:./sandbox/db_demo.sqlite \
+                              -o db_demo.png
+
+``rex graphdb`` uses GraphViz_ utility to render the diagram.
+
+.. _GraphViz: http://www.graphviz.org/
+
 
 Gateway databases
 =================

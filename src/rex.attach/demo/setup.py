@@ -15,7 +15,7 @@ class demo(Command):
         pass
 
     def run(self):
-        attach_dir = '../../sandbox/attachments'
+        attach_dir = '../sandbox/attachments'
         if not os.path.exists(attach_dir):
             os.makedirs(attach_dir)
             print "Created attachment storage:"
@@ -40,7 +40,6 @@ setup(
         'rex.db',
         'rex.ctl',
         'rex.deploy',
-        'rex.vendor',
     ],
     cmdclass={'demo': demo},
     rex_init='rex.attach_demo',

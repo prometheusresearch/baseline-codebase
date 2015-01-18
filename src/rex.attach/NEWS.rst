@@ -5,11 +5,12 @@
 .. contents:: Table of Contents
 
 
-2.0.2 (2014-XX-XX)
+2.0.2 (2015-XX-XX)
 ==================
 
 * Fixed a problem with setting a cookie on an attachment.
 * Removed tests that fail under root.
+* Removed ``rex.vendor`` from the list of dependencies for ``rex.attach_demo``.
 
 
 2.0.1 (2014-09-16)

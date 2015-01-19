@@ -18,7 +18,7 @@ from .util import PropsContainer
 
 __all__ = (
     'WidgetDescriptor', 'UIDescriptor', 'UIDescriptorChildren',
-    'transform_ui',
+    'transform_ui', 'visit_ui',
     'StateRead', 'StateReadWrite',
     'DataRead', 'DataAppend',
     )
@@ -54,7 +54,7 @@ class UIDescriptorBase(object):
         raise NotImplementedError()
 
     @abstractmethod
-    def visit(self, visitor):
+    def visit(self, visitor, parent=None):
         raise NotImplementedError()
 
 
@@ -76,12 +76,12 @@ class UIDescriptor(_UIDescriptor, UIDescriptorBase):
                  for k, v in ui.props.items()}
         return ui._replace(props=props)
 
-    def visit(self, visitor):
-        visitor(self)
-        for k, v in self.props.items():
-            if not isinstance(v, UIDescriptorBase):
-                continue
-            v.visit(visitor)
+    def visit(self, visitor, parent=None):
+        if visitor(self, parent) is not False:
+            for k, v in self.props.items():
+                if not isinstance(v, UIDescriptorBase):
+                    continue
+                v.visit(visitor, parent=self)
 
     def _replace_props(self, **props):
         next_props = PropsContainer(self.props)
@@ -114,9 +114,9 @@ class UIDescriptorChildren(_UIDescriptorChildren, UIDescriptorBase):
         children = [child.transform(transformer) for child in self.children]
         return self._replace(children=children)
 
-    def visit(self, visitor):
+    def visit(self, visitor, parent=None):
         for child in self.children:
-            child.visit(visitor)
+            child.visit(visitor, parent=parent)
 
 
 @register_adapter(UIDescriptorChildren)
@@ -135,6 +135,14 @@ def transform_ui(ui, transformer):
     traversed further.
     """
     return ui.transform(transformer)
+
+
+def visit_ui(ui, visitor, recurse=True):
+    def _visitor(node, parent):
+        if not recurse and parent is not ui and parent is not None:
+            return False
+        visitor(node)
+    ui.visit(_visitor)
 
 
 class StateRead(namedtuple('StateRead', ['id'])):

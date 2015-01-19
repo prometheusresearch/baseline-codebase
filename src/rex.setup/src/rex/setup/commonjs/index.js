@@ -58,7 +58,8 @@ function configureWebpack(config) {
 		{ test: /\.eot$/, loader: 'file-loader?prefix=font/' },
 		{ test: /\.ttf$/, loader: 'file-loader?prefix=font/' },
 		{ test: /\.svg$/, loader: 'file-loader?prefix=font/' },
-		{ test: /\.woff$/, loader: 'url-loader?prefix=font/&limit=5000' }
+		{ test: /\.woff$/, loader: 'url-loader?prefix=font/&limit=5000' },
+		{ test: /\.woff2$/, loader: 'url-loader?prefix=font/&limit=5000' }
   ]);
 
   unshift(config, 'resolveLoader.root', process.env.NODE_PATH);

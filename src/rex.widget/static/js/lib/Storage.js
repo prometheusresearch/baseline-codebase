@@ -166,6 +166,7 @@ class Storage {
             });
           // One-to-many relation (append)
           } else if (
+            attribute &&
             attribute.__append__ &&
             Array.isArray(attribute.__append__)
           ) {

@@ -61,7 +61,7 @@ class Button(Widget):
     js_type = 'rex-widget/lib/Button'
 
     text = Field(
-        StrVal())
+        StrVal(), default=undefined)
 
     icon = Field(
         StrVal(), default=undefined)
@@ -70,6 +70,12 @@ class Button(Widget):
         StrVal(), default=undefined)
 
     success = Field(
+        BoolVal(), default=undefined)
+
+    danger = Field(
+        BoolVal(), default=undefined)
+
+    quiet = Field(
         BoolVal(), default=undefined)
 
     on_click = Field(

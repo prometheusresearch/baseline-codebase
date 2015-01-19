@@ -229,7 +229,7 @@ class Select(Widget):
 
         The default implementation does nothing but subclasses can define own
         logic to define default value.
-        
+
         :param state: Value state of the widget
         :type state: :class:`rex.widget.State`
         :param graph: State graph
@@ -417,3 +417,11 @@ class Tabs(Widget):
         StrVal(), doc="""
         Currently active tab.
         """)
+
+
+class IFrame(Widget):
+
+    name = 'IFrame'
+    js_type = 'rex-widget/lib/IFrame'
+
+    src = URLField(doc="iframe#src attribute")

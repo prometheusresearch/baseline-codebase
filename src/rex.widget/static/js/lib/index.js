@@ -67,6 +67,9 @@ module.exports = {
   layout:             require('./layout'),
   PageStateMixin:     require('./PageStateMixin'),
 
+  Text:               require('./Text'),
+  Header:             require('./Header'),
+
   // TODO: expose form using require('./form')
   FormContextMixin:   require('./form/FormContextMixin'),
 

@@ -19,6 +19,7 @@ from ..undefined import undefined
 from ..state import unknown, State, Reset, Dep
 from ..validate import WidgetVal
 from ..action import ActionVal
+from .layout import Box
 
 
 class Label(Widget):
@@ -108,6 +109,15 @@ class Button(Widget):
         doc="""
         CSS class name.
         """)
+
+
+class ButtonGroup(Box):
+    """ Button group widget."""
+
+    name = 'ButtonGroup'
+    js_type = 'rex-widget/lib/ButtonGroup'
+
+    buttons = Field(WidgetVal(Button))
 
 
 class UnsafeHTML(Widget):

@@ -25,6 +25,7 @@ var Button = React.createClass({
       placeholder, id, icon, iconRight, text, children, ...props
     } = this.props;
     var classNames = cx({
+      'btn': true,
       'rw-Button': true,
       'rw-Button--default': !link && !success,
       'rw-Button--success': success,

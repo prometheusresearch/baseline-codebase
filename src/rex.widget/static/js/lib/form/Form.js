@@ -7,6 +7,7 @@ var React             = require('react/addons');
 var ReactForms        = require('react-forms');
 var cloneWithProps    = React.addons.cloneWithProps;
 var cx                = React.addons.classSet;
+var {Box}             = require('../layout');
 var Fieldset          = require('./Fieldset');
 var FormContextMixin  = require('./FormContextMixin');
 
@@ -27,7 +28,7 @@ var Form = React.createClass({
       ...props
     } = this.props;
     return (
-      <div {...props} className={cx('rw-Form', className)}>
+      <Box {...props} className={cx('rw-Form', className)}>
         <Fieldset
           label={label}
           hint={hint}
@@ -38,7 +39,7 @@ var Form = React.createClass({
         <div className="rw-Form__controls">
           {controls}
         </div>
-      </div>
+      </Box>
     );
   },
 

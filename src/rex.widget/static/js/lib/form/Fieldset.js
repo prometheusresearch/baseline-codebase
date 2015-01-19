@@ -6,6 +6,7 @@ var React             = require('react/addons');
 var ReactForms        = require('react-forms');
 var cloneWithProps    = React.addons.cloneWithProps;
 var cx                = React.addons.classSet;
+var {Box}             = require('../layout');
 var FormContextMixin  = require('./FormContextMixin');
 
 var Fieldset = React.createClass({
@@ -16,16 +17,16 @@ var Fieldset = React.createClass({
     value = value.getIn(valueKey);
     className = cx('rw-Fieldset', className);
     return (
-      <div {...props} className={className}>
+      <Box {...props} className={className}>
         <ReactForms.Label
           className="rw-Fieldset__label"
           label={label || value.node.props.get('label')}
           hint={hint || value.node.props.get('hint')}
           />
-        <div className="rw-Fieldset__fieldset">
+        <Box className="rw-Fieldset__fieldset">
           {fieldset()}
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   },
 

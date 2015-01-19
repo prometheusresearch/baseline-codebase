@@ -56,33 +56,58 @@ class Text(Widget):
 
 
 class Button(Widget):
+    """ Button widget."""
 
     name = 'Button'
     js_type = 'rex-widget/lib/Button'
 
     text = Field(
-        StrVal(), default=undefined)
+        StrVal(), default=undefined,
+        doc="""
+        Button text.
+        """)
 
     icon = Field(
-        StrVal(), default=undefined)
+        StrVal(), default=undefined,
+        doc="""
+        Button icon.
+        """)
 
     icon_right = Field(
-        StrVal(), default=undefined)
+        StrVal(), default=undefined,
+        doc="""
+        Button icon (to the right of the text).
+        """)
 
     success = Field(
-        BoolVal(), default=undefined)
+        BoolVal(), default=undefined,
+        doc="""
+        If button should be rendered in "Success" style.
+        """)
 
     danger = Field(
-        BoolVal(), default=undefined)
+        BoolVal(), default=undefined,
+        doc="""
+        If button should be rendered in "Danger" style.
+        """)
 
     quiet = Field(
-        BoolVal(), default=undefined)
+        BoolVal(), default=undefined,
+        doc="""
+        If button should be rendered in "Quiet" style.
+        """)
 
     on_click = Field(
-        ActionVal(), default=undefined)
+        ActionVal(), default=undefined,
+        doc="""
+        Action on click.
+        """)
 
     class_name = Field(
-        StrVal(), default=undefined)
+        StrVal(), default=undefined,
+        doc="""
+        CSS class name.
+        """)
 
 
 class UnsafeHTML(Widget):

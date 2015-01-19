@@ -4,9 +4,7 @@
 
 var React = require('react/addons');
 var cx = React.addons.classSet;
-var ReactForms = require('react-forms');
-var Checkbox = require('react-forms/lib/Checkbox');
-var Element = require('../layout/Element');
+var FieldBase = require('./FieldBase');
 
 var Select = React.createClass({
 
@@ -30,28 +28,21 @@ var Select = React.createClass({
 var SelectField = React.createClass({
 
   render() {
-    var {value, className, options, allowEmpty, ...props} = this.props;
-    return (
-      <Element {...props} className={cx('rw-Field', className)}>
-        <ReactForms.Field 
-          value={value.getIn(this.getValueKey())}
-          input={
-            <Select
-              className="rw-SelectField__select"
-              allowEmpty={allowEmpty}
-              options={options}
-              />
-          }
-          />
-      </Element>
+    var {autosize, className, allowEmpty, options, ...props} = this.props;
+    var input = (
+      <Select
+        className="rw-SelectField__select"
+        allowEmpty={allowEmpty}
+        options={options}
+        />
     );
-  },
-
-  getDefaultProps() {
-    return {
-      size: 1,
-      margin: 10
-    }
+    return (
+      <FieldBase
+        {...props}
+        className={cx('rw-SelectField', className)}
+        input={input}
+        />
+    );
   }
 });
 

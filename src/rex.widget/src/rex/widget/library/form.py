@@ -331,6 +331,17 @@ class CheckboxField(FormField):
         return schema
 
 
+class IntegerField(FormField):
+
+    name = 'IntegerField'
+    js_type = 'rex-widget/lib/form/IntegerField'
+
+    def form_schema(self, node):
+        schema = super(IntegerField, self).form_schema(node)
+        schema.props['type'] = 'number'
+        return schema
+
+
 class SelectField(FormField):
     """ Select form field.
     """

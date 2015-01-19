@@ -119,7 +119,10 @@ var RepeatingFieldset = React.createClass({
   onAdd() {
     var value = this.getValue();
     var newIdx = value.size;
-    var valueToAdd = defaultValue(value.node.get(newIdx));
+    var valueToAdd = value.node.props.get('defaultChildValue');
+    if (valueToAdd === undefined) {
+      valueToAdd = defaultValue(value.node.get(newIdx));
+    }
     value.transform(value => value.push(valueToAdd));
   },
   

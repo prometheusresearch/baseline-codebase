@@ -3,6 +3,7 @@
  */
 'use strict';
 
+var Immutable  = require('immutable');
 var ReactForms = require('react-forms');
 
 /**
@@ -33,7 +34,8 @@ function buildSchema(desc) {
       var children = buildSchema(desc.children);
       return ReactForms.schema.List({
         required: desc.required,
-        defaultValue: desc.defaultValue,
+        defaultValue: Immutable.fromJS(desc.defaultValue),
+        defaultChildValue: Immutable.fromJS(desc.defaultChildValue),
         label: desc.label,
         hint: desc.hint
       }, children);

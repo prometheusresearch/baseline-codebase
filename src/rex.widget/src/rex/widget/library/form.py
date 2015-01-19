@@ -473,11 +473,19 @@ class RepeatingFieldset(FormContainerWidget):
         The key of the value this form element should handle.
         """)
 
+    default_child_value = Field(
+        AnyVal(), default=undefined,
+        doc="""
+        Default child value.
+        """)
+
     def form_schema(self, node):
         children = _build_schema(node)
         schema = ListNode(children=children)
         if self.default_value is not undefined:
             schema.props['defaultValue'] = self.default_value
+        if self.default_child_value is not undefined:
+            schema.props['defaultChildValue'] = self.default_child_value
         return schema
 
 

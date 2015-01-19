@@ -87,11 +87,10 @@ class MappingNode(SchemaNode):
         return key in self.children
 
     def merge(self, node):
-        if not isinstance(node, MappingNode):
-            raise TypeError(
-                'node must be of type MappingNode, got %r instead' % type(self))
         if not isinstance(node, self.__class__):
-            raise ValueError('incompatible node type')
+            raise TypeError(
+                'node must be of type %s, got %r instead' %
+                (self.__class__.__name__, type(self)))
 
         children = OrderedDict()
         children.update(self.children)
@@ -117,13 +116,49 @@ class ListNode(SchemaNode):
 
     type = 'list'
 
+    CHILDREN_KEY = 'children'
 
-def _merge_deep(result, ks, v, identity):
+    @property
+    def children(self):
+        return self.props[self.CHILDREN_KEY]
+
+    def __getitem__(self, key):
+        return self.children[key]
+
+    def __setitem__(self, key, value):
+        self.children[key] = value
+
+    def __contains__(self, key):
+        return key in self.children
+
+    @classmethod
+    def empty(cls):
+        return cls(children=MappingNode.empty())
+
+    def merge(self, node):
+        if not isinstance(node, self.__class__):
+            raise TypeError(
+                'node must be of type %s, got %r instead' %
+                (self.__class__.__name__, type(self)))
+
+        props = dict(self.props)
+        props['children'] = self.children.merge(node.children)
+        return self.__class__(**props)
+
+    __add__ = merge
+
+
+def _merge_deep(result, ks, v):
     k, ks = ks[0], ks[1:]
+    while k.isdigit() and ks:
+        k, ks = ks[0], ks[1:]
     if ks:
         if not k in result:
-            result[k] = identity()
-        _merge_deep(result[k], ks, v, identity)
+            if ks and ks[0].isdigit():
+                result[k] = ListNode.empty()
+            else:
+                result[k] = MappingNode.empty()
+        _merge_deep(result[k], ks, v)
     else:
         result[k] = v if k not in result else (result[k] + v)
 
@@ -149,7 +184,7 @@ def _build_schema(root_node):
             k = ks[0]
             children[k] = v if k not in children else (children[k] + v)
         else:
-            _merge_deep(children, ks, v, MappingNode.empty)
+            _merge_deep(children, ks, v)
 
     return MappingNode(children=children)
 
@@ -547,6 +582,9 @@ class Form(FormContainerWidget):
                     value[key] = graph[r]
         # determine tag of the entity
         tag = spec.port.describe().meta.domain.fields[0].tag
+        from pprint import pprint
+        pprint(prev_value)
+        pprint(value)
         if value is None:
             spec.port.delete([{'id': prev_value['id']}])
             return prev_value

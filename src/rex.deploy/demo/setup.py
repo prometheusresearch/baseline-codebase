@@ -28,6 +28,7 @@ setup(
     ],
     install_requires=[
         'rex.deploy',
+        'rex.port',
     ],
     cmdclass={'demo': demo},
     rex_static='static',

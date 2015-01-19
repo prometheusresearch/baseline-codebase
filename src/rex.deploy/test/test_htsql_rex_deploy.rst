@@ -44,7 +44,7 @@ We start with creating a database schema::
     ... - { column: sample.sleep, type: time, default: '00:00' }
     ... - { column: sample.timestamp, type: datetime, default: now() }
     ... - { column: sample.current, type: boolean, default: false }
-    ... - { column: sample.other, type: json, default: {} }
+    ... - { column: sample.other, type: json, default: {}, required: false }
     ... """)
     >>> driver.commit()
     >>> driver.close()
@@ -53,9 +53,9 @@ Now we make a Rex application over the created database::
 
     >>> from rex.core import Rex
 
-    >>> demo = Rex('rex.db', 'rex.deploy',
+    >>> demo = Rex('rex.db', 'rex.deploy', 'rex.port',
     ...            db='pgsql:deploy_demo_htsql',
-    ...            htsql_extensions={'rex_deploy': {}, 'tweak.etl': {}})
+    ...            htsql_extensions={'rex_deploy': {}})
     >>> demo.on()
 
 Now we can make some queries to see how ``rex.deploy`` metadata changes HTSQL
@@ -196,6 +196,39 @@ untyped JSON literals::
       "1": "{}",
       "2": {}
     }
+
+You can access JSON data through ports::
+
+    >>> from rex.port import Port
+
+    >>> json_port = Port('''
+    ... entity: sample
+    ... select: [individual, code, other]
+    ... ''')
+
+    >>> sample = json_port.produce(('sample', '01.1000.S')).data.sample[0]
+
+    >>> import json
+    >>> print json.dumps(sample.other, sort_keys=True)
+    {"errors": [-0.3, 0.12], "notes": null, "set": false, "type": "speed", "value": 5}
+
+You can also use port interface to add and modify JSON data::
+
+    >>> updated_sample = json_port.replace(
+    ...     { 'sample': sample },
+    ...     { 'sample': { 'id': sample.id, 'other': {"type": "acceleration", "value": -3.5} } }).data.sample[0]
+
+    >>> print json.dumps(updated_sample.other, sort_keys=True)
+    {"type": "acceleration", "value": -3.5}
+
+``NULL`` values could also be stored::
+
+    >>> removed_sample = json_port.replace(
+    ...     { 'sample': updated_sample },
+    ...     { 'sample': { 'id': updated_sample.id, 'other': None } }).data.sample[0]
+
+    >>> print removed_sample.other
+    None
 
 Finally we delete the test database::
 

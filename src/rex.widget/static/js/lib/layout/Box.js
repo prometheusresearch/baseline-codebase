@@ -4,8 +4,9 @@
 'use strict';
 
 var React           = require('react/addons');
-var cx              = React.addons.classSet;
 var PropTypes       = React.PropTypes;
+var cx              = React.addons.classSet;
+var cloneWithProps  = React.addons.cloneWithProps;
 var mergeInto       = require('../mergeInto');
 
 var defaultStyle = {
@@ -69,7 +70,7 @@ var Box = React.createClass({
     var {
       direction, size, margin, width, height, aligned,
       centerHorizontally, centerVertically,
-      children, style: extraStyle,
+      children, childrenMargin, style: extraStyle,
       Component, ...props
     } = this.props;
     var style = makeBoxStyle({
@@ -79,6 +80,15 @@ var Box = React.createClass({
     });
     if (extraStyle !== undefined) {
       mergeInto(style, extraStyle);
+    }
+    if (childrenMargin !== undefined) {
+      childrenMargin = direction === 'horizontal' ?
+        `0px 0px 0px ${childrenMargin}px` :
+        `${childrenMargin}px 0px 0px 0px`;
+      children = React.Children.map(children, (child, idx) =>
+        idx === 0 ?
+          child :
+          cloneWithProps(child, {margin: childrenMargin}));
     }
     return (
       <Component {...props} style={style}>

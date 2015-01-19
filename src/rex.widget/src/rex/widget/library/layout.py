@@ -95,6 +95,12 @@ class Box(Widget):
         Margin.
         """)
 
+    children_margin = Field(
+        IntVal(), default=undefined,
+        doc="""
+        Margin for children (depends on Box's direction).
+        """)
+
     aligned = Field(
         ChoiceVal('left', 'right'), default=undefined,
         doc="""

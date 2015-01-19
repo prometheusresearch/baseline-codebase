@@ -18,7 +18,7 @@ from rex.core import StrVal, BoolVal, AnyVal
 from rex.db import get_db
 from rex.web import url_for
 
-from ..descriptors import StateRead, transform_ui
+from ..descriptors import StateRead, transform_ui, visit_ui
 from ..widget import Widget, NullWidget, GroupWidget
 from ..action import ActionVal
 from ..field import Field, IDField, EntityField, CollectionField, undefined
@@ -128,14 +128,18 @@ def _merge_deep(result, ks, v, identity):
         result[k] = v if k not in result else (result[k] + v)
 
 
-def _build_schema(node):
+def _build_schema(root_node):
     def visitor(node):
-        if isinstance(node.widget, FormWidget) and hasattr(node.widget, 'value_key'):
+        if (
+            isinstance(node.widget, FormWidget)
+            and hasattr(node.widget, 'value_key')
+            and not node is root_node
+        ):
             items.append((
                 tuple(node.widget.value_key),
                 node.widget.form_schema(node)))
     items = []
-    node.visit(visitor)
+    visit_ui(root_node, visitor, recurse=False)
     items = sorted(items, key=lambda (ks, v): len(ks))
     children = OrderedDict()
     for ks, v in items:
@@ -287,7 +291,7 @@ class CheckboxField(FormField):
     js_type = 'rex-widget/lib/form/CheckboxField'
 
     def form_schema(self, node):
-        schema = super(CheckboxField, self).form_schema()
+        schema = super(CheckboxField, self).form_schema(node)
         schema.props['type'] = 'bool'
         return schema
 

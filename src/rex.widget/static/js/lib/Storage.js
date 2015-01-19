@@ -200,7 +200,7 @@ function mergeEntity(prev, update) {
     if (!update.hasOwnProperty(key)) {
       continue;
     }
-    if (update[key].__append__) {
+    if (update[key] && update[key].__append__) {
       if (result[key] === undefined) {
         result[key] = update[key].__append__;
       } else if (Array.isArray(result[key])) {

@@ -95,6 +95,12 @@ class Box(Widget):
         Margin.
         """)
 
+    aligned = Field(
+        ChoiceVal('left', 'right'), default=undefined,
+        doc="""
+        If a box should be aligned to left or right side.
+        """)
+
     center_vertically = Field(
         BoolVal(), default=undefined,
         doc="""

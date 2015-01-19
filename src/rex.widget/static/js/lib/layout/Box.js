@@ -28,7 +28,7 @@ function makeBoxStyle(props) {
   props = props || {};
   var {
     direction, size, margin,
-    width, height,
+    width, height, aligned,
     centerHorizontally, centerVertically
   } = props;
   var style = {};
@@ -54,6 +54,12 @@ function makeBoxStyle(props) {
   if (centerVertically) {
     style.justifyContent = 'center';
   }
+  if (aligned === 'right') {
+    style.marginLeft = 'auto';
+  }
+  if (aligned === 'left') {
+    style.alignSelf = 'flex-start';
+  }
   return style;
 }
 
@@ -61,13 +67,13 @@ var Box = React.createClass({
 
   render() {
     var {
-      direction, size, margin, width, height,
+      direction, size, margin, width, height, aligned,
       centerHorizontally, centerVertically,
       children, style: extraStyle,
       Component, ...props
     } = this.props;
     var style = makeBoxStyle({
-      direction, size, margin,
+      direction, size, margin, aligned,
       width, height,
       centerHorizontally, centerVertically
     });

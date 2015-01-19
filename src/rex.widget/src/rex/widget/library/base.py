@@ -98,6 +98,12 @@ class Button(Widget):
         If button should be rendered in "Quiet" style.
         """)
 
+    size = Field(
+        ChoiceVal('small', 'extra-small'), default=undefined,
+        doc="""
+        Size of the button.
+        """)
+
     on_click = Field(
         ActionVal(), default=undefined,
         doc="""

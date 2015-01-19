@@ -476,7 +476,7 @@ A column fact describes a column of a table.
 
 `type`: ``<type_label>`` or [``<enum_label>``]
     The type of the column.  Valid types: *boolean*, *integer*, *decimal*,
-    *float*, *text*, *date*, *time*, *datetime*.
+    *float*, *text*, *date*, *time*, *datetime*, *json*.
 
     If the column has an ``ENUM`` type, specify a list of ``ENUM`` labels.
 

@@ -15,7 +15,9 @@ import decimal
 import datetime
 import htsql.core.domain
 import htsql.core.util
+import htsql_rex_deploy
 import psycopg2.tz
+import json
 
 
 class _skip_type(object):
@@ -426,6 +428,8 @@ class DataFact(Fact):
                 return htsql.core.domain.TimeDomain()
             elif type.name in ['timestamp', 'timestamptz']:
                 return htsql.core.domain.DateTimeDomain()
+            elif type.name in ['json', 'jsonb']:
+                return htsql_rex_deploy.domain.JSONDomain()
         # Fallback to opaque domain.
         return htsql.core.domain.OpaqueDomain()
 
@@ -469,6 +473,9 @@ class DataFact(Fact):
                     None not in data):
                 return tuple(cls._adapt(item, label)
                              for item, label in zip(data, domain.labels))
+        elif isinstance(domain, htsql_rex_deploy.domain.JSONDomain):
+            return json.dumps(
+                    data, indent=2, separators=(',', ': '), sort_keys=True)
         raise ValueError(repr(data))
 
     def _resolve(self, table, items):

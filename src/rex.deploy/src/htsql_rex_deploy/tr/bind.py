@@ -3,13 +3,15 @@
 #
 
 
-from htsql.core.adapter import adapt
+from htsql.core.adapter import adapt, call
 from htsql.core.domain import EntityDomain
 from htsql.core.syn.syntax import StringSyntax
 from htsql.core.tr.binding import TitleBinding
 from htsql.core.tr.bind import SelectRecord
 from htsql.core.tr.lookup import guess_header
+from htsql.core.tr.fn.bind import BindCast
 from .lookup import select_identity
+from ..domain import JSONDomain
 
 
 class SelectEntity(SelectRecord):
@@ -27,5 +29,11 @@ class SelectEntity(SelectRecord):
             binding = TitleBinding(
                     binding, StringSyntax(header), self.binding.syntax)
         return binding
+
+
+class BindJSONCast(BindCast):
+
+    call('json')
+    codomain = JSONDomain()
 
 

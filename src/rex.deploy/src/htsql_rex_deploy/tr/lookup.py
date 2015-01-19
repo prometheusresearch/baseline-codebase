@@ -7,7 +7,6 @@ from htsql.core.adapter import adapt
 from htsql.core.tr.lookup import lookup, Lookup, GuessHeaderProbe, IdentityProbe
 from htsql.core.tr.binding import TableBinding, ColumnBinding, ChainBinding
 from ..classify import get_meta
-from rex.deploy import label_to_title
 
 
 class SelectIdentityProbe(IdentityProbe):
@@ -40,6 +39,7 @@ class GuessHeaderForTable(Lookup):
     adapt(TableBinding, GuessHeaderProbe)
 
     def __call__(self):
+        from rex.deploy import label_to_title
         table = self.binding.table
         meta = get_meta(table)
         if meta.title is not None:
@@ -55,6 +55,7 @@ class GuessHeaderForColumn(Lookup):
     adapt(ColumnBinding, GuessHeaderProbe)
 
     def __call__(self):
+        from rex.deploy import label_to_title
         column = self.binding.column
         meta = get_meta(column)
         if meta.title is not None:
@@ -70,6 +71,7 @@ class GuessHeaderForChain(Lookup):
     adapt(ChainBinding, GuessHeaderProbe)
 
     def __call__(self):
+        from rex.deploy import label_to_title
         target_table = self.binding.joins[-1].target
         target_meta = get_meta(target_table)
         target_label = target_meta.label or target_table.name

@@ -3,7 +3,6 @@
 #
 
 
-from rex.deploy import TableMeta, ColumnMeta
 from htsql.core.cache import once
 from htsql.core.entity import TableEntity, ColumnEntity
 from htsql.core.model import ColumnArc, ChainArc
@@ -14,6 +13,7 @@ from .introspect import get_image
 @once
 def get_meta(entity):
     # Returns rex.deploy metadata for an HTSQL entity object.
+    from rex.deploy import TableMeta, ColumnMeta
     catalog_image = get_image()
     if isinstance(entity, TableEntity):
         schema_image = catalog_image[entity.schema.name]

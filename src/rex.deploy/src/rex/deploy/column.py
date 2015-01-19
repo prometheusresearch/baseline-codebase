@@ -11,6 +11,8 @@ from htsql.core.domain import (UntypedDomain, BooleanDomain, IntegerDomain,
         DecimalDomain, FloatDomain, TextDomain, DateDomain, TimeDomain,
         DateTimeDomain, EnumDomain)
 import datetime
+import decimal
+import json
 
 
 class EnumValue(object):
@@ -145,9 +147,20 @@ class ColumnFact(Fact):
                         isinstance(default, datetime.datetime)) or
                     (type == u'datetime' and
                         default == u'now()') or
+                    type == u'json' or
                     (isinstance(type, list) and
                         isinstance(default, unicode) and default in type)):
                 raise Error("Got ill-typed default value:", default)
+        if default is not None:
+            if type == u'decimal':
+                default = decimal.Decimal(default)
+            elif type == u'float':
+                default = float(default)
+            elif type == u'json':
+                try:
+                    json.dumps(default)
+                except ValueError:
+                    raise Error("Got ill-typed default value:", default)
         is_required = spec.required
         is_unique = spec.unique
         front_labels = spec.after

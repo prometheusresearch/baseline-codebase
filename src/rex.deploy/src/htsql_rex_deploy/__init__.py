@@ -4,7 +4,7 @@
 
 
 from htsql.core.addon import Addon
-from . import classify, introspect, tr
+from . import classify, connect, domain, introspect, fmt, tr
 
 
 class DeployAddon(Addon):
@@ -15,7 +15,7 @@ class DeployAddon(Addon):
     This addon provides metadata configuration for database
     schemas generated with `rex.deploy`.
     """
-    packages = ['.', '.tr']
+    packages = ['.', '.fmt', '.tr']
 
     @classmethod
     def get_extension(cls, app, attributes):

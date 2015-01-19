@@ -14,9 +14,11 @@ from .image import (TableImage, ColumnImage, UniqueKeyImage, CASCADE,
         SET_DEFAULT, BEFORE, INSERT)
 import datetime
 import weakref
+import json
 from htsql.core.domain import (UntypedDomain, BooleanDomain, IntegerDomain,
         DecimalDomain, FloatDomain, TextDomain, DateDomain, TimeDomain,
         DateTimeDomain, EnumDomain)
+from htsql_rex_deploy.domain import JSONDomain
 
 
 class Signal(object):
@@ -401,6 +403,7 @@ class ColumnModel(EntityModel):
                 u"date": u"date",
                 u"time": u"time",
                 u"datetime": u"timestamp",
+                u"json": u"json",
         }
 
         # SQL type name -> HTSQL name.
@@ -417,6 +420,7 @@ class ColumnModel(EntityModel):
                 u'date': DateDomain(),
                 u'time': TimeDomain(),
                 u'datetime': DateTimeDomain(),
+                u'json': JSONDomain(),
         }
 
         # Special `default` values.
@@ -432,10 +436,11 @@ class ColumnModel(EntityModel):
             u'decimal': set([u'integer', u'float', u'text']),
             u'float': set([u'integer', u'decimal', u'text']),
             u'text': set([u'boolean', u'integer', u'decimal', u'float',
-                          u'date', u'time', u'datetime']),
+                          u'date', u'time', u'datetime', u'json']),
             u'date': set([u'text', u'datetime']),
             u'time': set([u'text']),
             u'datetime': set([u'text', u'date', u'time']),
+            u'json': set([u'text']),
         }
 
         def __init__(self, type, default):
@@ -460,8 +465,10 @@ class ColumnModel(EntityModel):
                 value = self.domain.parse(default)
             except ValueError:
                 pass
-            if type != u'text':
+            if type != u'text' and isinstance(value, (str, unicode)):
                 value = self.VALUE_MAP.get(value, value)
+            if type == u'json' and value is not None:
+                value = json.dumps(value, sort_keys=True)
             if value is not None:
                 value = sql_value(value)
             self.value = value

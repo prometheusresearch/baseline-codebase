@@ -3,6 +3,6 @@
 #
 
 
-from . import bind, lookup
+from . import bind, dump, encode, lookup
 
 

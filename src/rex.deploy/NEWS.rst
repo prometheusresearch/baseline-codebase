@@ -11,6 +11,7 @@
 * Do not use ``S`` in the random text generator.
 * Include links to the default selector.
 * Moved ``rex deploy`` and other commands from ``rex.ctl``.
+* Added ``json`` data type.
 
 
 2.0.0 (2015-01-05)

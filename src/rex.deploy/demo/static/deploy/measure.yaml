@@ -6,6 +6,9 @@
   - identity: [code]
   - column: title
     type: text
+  - data:
+    - code: demographics-form
+      title: Demographics Form
 
 - table: measure_type_version
   with:
@@ -14,7 +17,11 @@
     type: integer
   - identity: [measure_type, version: offset]
   - column: json
-    type: text
+    type: json
+  - data:
+    - measure_type: demographics-form
+      version: 1
+      json: !include demographics-form-instrument.json
 
 - table: measure
   with:
@@ -24,7 +31,7 @@
     type: integer
   - identity: [individual, measure_type_version, 'no': offset]
   - column: json
-    type: text
+    type: json
     required: false
   - column: date_of_evaluation
     type: date
@@ -41,6 +48,25 @@
   - link: originating_study
     to: study
     required: false
+  - data:
+    - individual: '1000'
+      measure_type_version: 'demographics-form.1'
+      'no': 1
+      json: !include 1000.demographics-form.1.1.json
+      data_entry_status: completed
+      originating_study: asdl
+    - individual: '1001'
+      measure_type_version: 'demographics-form.1'
+      'no': 1
+      json: !include 1001.demographics-form.1.1.json
+      data_entry_status: completed
+      originating_study: asdl
+    - individual: '1002'
+      measure_type_version: 'demographics-form.1'
+      'no': 1
+      json: {}
+      data_entry_status: in-process
+      originating_study: asdl
 
 - sql: measure__last_modified__proc.sql
   unless: |

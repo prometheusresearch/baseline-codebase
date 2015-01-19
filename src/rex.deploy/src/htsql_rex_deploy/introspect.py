@@ -3,7 +3,6 @@
 #
 
 
-from rex.deploy import Driver
 from htsql.core.cache import once
 from htsql.core.entity import make_catalog
 from htsql.core.connect import connect
@@ -11,11 +10,13 @@ from htsql.core.domain import (BooleanDomain, IntegerDomain, FloatDomain,
         DecimalDomain, TextDomain, EnumDomain, DateDomain, TimeDomain,
         DateTimeDomain, OpaqueDomain)
 from htsql_pgsql.core.introspect import IntrospectPGSQL
+from .domain import JSONDomain
 
 
 @once
 def get_image():
     # Returns `rex.deploy` catalog image.
+    from rex.deploy import Driver
     connection = connect()
     driver = Driver(connection)
     catalog = driver.get_catalog()
@@ -67,6 +68,9 @@ class IntrospectDeploy(IntrospectPGSQL):
                     elif type_code in [('pg_catalog', 'timestamp'),
                                        ('pg_catalog', 'timestamptz')]:
                         domain = DateTimeDomain()
+                    elif type_code in [('pg_catalog', 'json'),
+                                       ('pg_catalog', 'jsonb')]:
+                        domain = JSONDomain()
                     else:
                         domain = OpaqueDomain()
                 is_nullable = (not column_image.is_not_null)

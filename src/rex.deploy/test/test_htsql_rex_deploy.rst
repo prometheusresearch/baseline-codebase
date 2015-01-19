@@ -37,13 +37,14 @@ We start with creating a database schema::
     ... - { link: sample.individual }
     ... - { column: sample.code, type: text }
     ... - { identity: [sample.individual, sample.code] }
-    ... - { column: sample.age, type: integer }
-    ... - { column: sample.height, type: float }
-    ... - { column: sample.salary, type: decimal }
-    ... - { column: sample.birth, type: date }
-    ... - { column: sample.sleep, type: time }
-    ... - { column: sample.timestamp, type: datetime }
-    ... - { column: sample.current, type: boolean }
+    ... - { column: sample.age, type: integer, default: 0 }
+    ... - { column: sample.height, type: float, default: 0.0 }
+    ... - { column: sample.salary, type: decimal, default: 0.0 }
+    ... - { column: sample.birth, type: date, default: today() }
+    ... - { column: sample.sleep, type: time, default: '00:00' }
+    ... - { column: sample.timestamp, type: datetime, default: now() }
+    ... - { column: sample.current, type: boolean, default: false }
+    ... - { column: sample.other, type: json, default: {} }
     ... """)
     >>> driver.commit()
     >>> driver.close()
@@ -54,7 +55,7 @@ Now we make a Rex application over the created database::
 
     >>> demo = Rex('rex.db', 'rex.deploy',
     ...            db='pgsql:deploy_demo_htsql',
-    ...            htsql_extensions={'rex_deploy': {}})
+    ...            htsql_extensions={'rex_deploy': {}, 'tweak.etl': {}})
     >>> demo.on()
 
 Now we can make some queries to see how ``rex.deploy`` metadata changes HTSQL
@@ -92,27 +93,109 @@ labels and headers::
     >>> q = Query('''
     ...     /individual_id{individual{id()}, unique_id, first_name, last_name}
     ... ''')
-    >>> print q.format('txt')                           # doctest: +ELLIPSIS
+    >>> print q.format('txt')                           # doctest: +NORMALIZE_WHITESPACE
      | Individual Id                                |
      +---------+-----------+------------+-----------+
      | Subject |           |            |           |
      +---------+           |            |           |
      | id()    | Unique Id | First Name | Last Name |
     -+---------+-----------+------------+-----------+-
-    ...
 
     >>> q = Query('''
     ...     /sample{id(), individual{id()},
-    ...             age, height, salary, birth, sleep, timestamp, current}
+    ...             age, height, salary, birth, sleep, timestamp, current, other}
     ... ''')
-    >>> print q.format('txt')                           # doctest: +ELLIPSIS
-     | Assessment                                                                   |
-     +------+---------+-----+--------+--------+-------+-------+-----------+---------+
-     |      | Subject |     |        |        |       |       |           |         |
-     |      +---------+     |        |        |       |       |           |         |
-     | id() | id()    | Age | Height | Salary | Birth | Sleep | Timestamp | Current |
-    -+------+---------+-----+--------+--------+-------+-------+-----------+---------+-
-    ...
+    >>> print q.format('txt')                           # doctest: +NORMALIZE_WHITESPACE
+     | Assessment                                                                           |
+     +------+---------+-----+--------+--------+-------+-------+-----------+---------+-------+
+     |      | Subject |     |        |        |       |       |           |         |       |
+     |      +---------+     |        |        |       |       |           |         |       |
+     | id() | id()    | Age | Height | Salary | Birth | Sleep | Timestamp | Current | Other |
+    -+------+---------+-----+--------+--------+-------+-------+-----------+---------+-------+-
+
+
+Links in HTSQL selector
+=======================
+
+The default selector may now include links::
+
+    >>> q = Query(''' /individual.sample ''')
+    >>> print q.format('txt')                           # doctest: +NORMALIZE_WHITESPACE
+     | Assessment                                                                           |
+     +---------+------+-----+--------+--------+-------+-------+-----------+---------+-------+
+     | Subject | Code | Age | Height | Salary | Birth | Sleep | Timestamp | Current | Other |
+    -+---------+------+-----+--------+--------+-------+-------+-----------+---------+-------+-
+
+    >>> q = Query(''' /sample.individual ''')
+    >>> print q.format('txt')                           # doctest: +NORMALIZE_WHITESPACE
+     | Subject |
+    -+---------+-
+
+
+JSON support
+============
+
+``rex.deploy`` provides support for the JSON data type.  We can add JSON values
+to the database::
+
+    >>> q = Query('''
+    ...     do(
+    ...         $family_id := insert(family:={code:='01'}),
+    ...         $individual_id := insert(individual:={family:=$family_id, code:='1000'}),
+    ...         $sample_id := insert(
+    ...             sample:={
+    ...                 individual:=$individual_id,
+    ...                 code:='S',
+    ...                 other:='{"type": "speed", "value": 5, "errors": [-0.3, 0.12], "notes": null, "set": false}'}),
+    ...         sample[$sample_id]{id(), other}) ''')
+    >>> print q.format('txt')                                           # doctest: +NORMALIZE_WHITESPACE
+     | Assessment                     |
+     +-----------+--------------------+
+     | id()      | Other              |
+    -+-----------+--------------------+-
+     | 01.1000.S | {                  |
+     :           :   "errors": [      :
+     :           :     -0.3,          :
+     :           :     0.12           :
+     :           :   ],               :
+     :           :   "notes": null,   :
+     :           :   "set": false,    :
+     :           :   "type": "speed", :
+     :           :   "value": 5       :
+     :           : }                  :
+
+In JSON format, JSON data is serialized as a native JSON object::
+
+    >>> q = Query(''' /sample{id(), other} ''')
+    >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
+    {
+      "sample": [
+        {
+          "0": "01.1000.S",
+          "other": {
+            "errors": [
+              -0.3,
+              0.12
+            ],
+            "notes": null,
+            "set": false,
+            "type": "speed",
+            "value": 5
+          }
+        }
+      ]
+    }
+
+You can convert JSON values to text and vice versa.  You can also use
+untyped JSON literals::
+
+    >>> q = Query(''' {json('{}'), text(json('{}')), json(text(json('{}')))} ''')
+    >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
+    {
+      "0": {},
+      "1": "{}",
+      "2": {}
+    }
 
 Finally we delete the test database::
 

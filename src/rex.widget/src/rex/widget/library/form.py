@@ -28,9 +28,9 @@ from ..validate import WidgetVal
 from ..state import State
 from ..json_encoder import register_adapter
 from ..action import Action
-from ..field.entity import EntitySpecVal 
+from ..field.entity import EntitySpecVal
 from ..util import get_validator_for_key, PropsContainer
-from .layout import Element
+from .layout import Box
 from .base import Button
 
 
@@ -118,37 +118,6 @@ class ListNode(SchemaNode):
     type = 'list'
 
 
-def _unwrap_validate(validate):
-    while isinstance(getattr(validate, 'validate', None), Validate):
-        validate = validate.validate
-    return validate
-
-
-def _child_widgets(widget):
-    for field in widget.fields.values():
-        if hasattr(field, 'iterate_widgets'):
-            children = widget.values[field.name]
-            children = field.iterate_widgets(children)
-        elif isinstance(_unwrap_validate(field.validate), WidgetVal):
-            children = widget.values[field.name]
-        else:
-            continue
-        if isinstance(children, list):
-            for child in children:
-                yield child
-        else:
-            yield children
-
-
-def _extract_flat_schema(widgets):
-    for widget in _child_widgets(widgets):
-        if isinstance(widget, FormWidget):
-            yield tuple(widget.value_key), widget.form_schema()
-        else:
-            for pair in _extract_flat_schema(widget):
-                yield pair
-
-
 def _merge_deep(result, ks, v, identity):
     k, ks = ks[0], ks[1:]
     if ks:
@@ -159,29 +128,25 @@ def _merge_deep(result, ks, v, identity):
         result[k] = v if k not in result else (result[k] + v)
 
 
-def _unflatten_schema(items):
-    if hasattr(items, 'items'):
-        items = items.items()
-
-    result = OrderedDict()
-
+def _build_schema(node):
+    def visitor(node):
+        if isinstance(node.widget, FormWidget) and hasattr(node.widget, 'value_key'):
+            items.append((
+                tuple(node.widget.value_key),
+                node.widget.form_schema(node)))
+    items = []
+    node.visit(visitor)
     items = sorted(items, key=lambda (ks, v): len(ks))
-
+    children = OrderedDict()
     for ks, v in items:
         if not ks:
             raise ValueError('composite key cannot be empty')
         if len(ks) == 1:
             k = ks[0]
-            result[k] = v if k not in result else (result[k] + v)
+            children[k] = v if k not in children else (children[k] + v)
         else:
-            _merge_deep(result, ks, v, MappingNode.empty)
+            _merge_deep(children, ks, v, MappingNode.empty)
 
-    return result
-
-
-def _build_mapping(widgets):
-    children = _extract_flat_schema(widgets)
-    children = _unflatten_schema(children)
     return MappingNode(children=children)
 
 
@@ -199,7 +164,7 @@ class ValueKeyVal(Validate):
             return [value]
 
 
-class FormWidget(Element):
+class FormWidget(Box):
     """ Base class for form widgets."""
 
     name = None
@@ -247,7 +212,7 @@ class FormWidget(Element):
         Disable rendering label.
         """)
 
-    def form_schema(self):
+    def form_schema(self, node):
         """ Return form schema."""
         raise NotImplementedError()
 
@@ -272,8 +237,8 @@ class FormContainerWidget(FormWidget):
         descriptor.ui.props.fieldset = descriptor.ui.props.fieldset._replace(defer=True)
         return descriptor
 
-    def form_schema(self):
-        schema = _build_mapping(self)
+    def form_schema(self, node):
+        schema = _build_schema(node)
         if self.default_value is not undefined:
             schema.props['defaultValue'] = self.default_value
         return schema
@@ -288,7 +253,7 @@ class FormFieldBase(FormWidget):
         The key of the value this form element should handle.
         """)
 
-    def form_schema(self):
+    def form_schema(self, node):
         schema = ScalarNode(
             label=self.label,
             hint=self.hint,
@@ -321,7 +286,7 @@ class CheckboxField(FormField):
     name = 'CheckboxField'
     js_type = 'rex-widget/lib/form/CheckboxField'
 
-    def form_schema(self):
+    def form_schema(self, node):
         schema = super(CheckboxField, self).form_schema()
         schema.props['type'] = 'bool'
         return schema
@@ -458,8 +423,8 @@ class RepeatingFieldset(FormContainerWidget):
         The key of the value this form element should handle.
         """)
 
-    def form_schema(self):
-        children = _build_mapping(self)
+    def form_schema(self, node):
+        children = _build_schema(node)
         schema = ListNode(children=children)
         if self.default_value is not undefined:
             schema.props['defaultValue'] = self.default_value
@@ -591,7 +556,7 @@ class Form(FormContainerWidget):
     def descriptor(self):
         desc = super(Form, self).descriptor()
         desc = desc._replace(ui=transform_ui(desc.ui, self._transform_ui))
-        schema = self.form_schema()
+        schema = self.form_schema(desc.ui)
         params = PropsContainer({
             'schema': schema,
             'submit_on_change': self.submit_on_change,

@@ -51,7 +51,11 @@ class UIDescriptorBase(object):
 
     @abstractmethod
     def transform(self, transformer):
-        pass
+        raise NotImplementedError()
+
+    @abstractmethod
+    def visit(self, visitor):
+        raise NotImplementedError()
 
 
 _UIDescriptor = namedtuple('UIDescriptor', ['type', 'props', 'widget', 'defer'])
@@ -71,6 +75,13 @@ class UIDescriptor(_UIDescriptor, UIDescriptorBase):
                       else v.transform(transformer)
                  for k, v in ui.props.items()}
         return ui._replace(props=props)
+
+    def visit(self, visitor):
+        visitor(self)
+        for k, v in self.props.items():
+            if not isinstance(v, UIDescriptorBase):
+                continue
+            v.visit(visitor)
 
     def _replace_props(self, **props):
         next_props = PropsContainer(self.props)
@@ -102,6 +113,10 @@ class UIDescriptorChildren(_UIDescriptorChildren, UIDescriptorBase):
     def transform(self, transformer):
         children = [child.transform(transformer) for child in self.children]
         return self._replace(children=children)
+
+    def visit(self, visitor):
+        for child in self.children:
+            child.visit(visitor)
 
 
 @register_adapter(UIDescriptorChildren)

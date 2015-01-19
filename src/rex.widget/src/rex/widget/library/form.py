@@ -544,7 +544,7 @@ class Form(FormContainerWidget):
         # determine tag of the entity
         tag = spec.port.describe().meta.domain.fields[0].tag
         if value is None:
-            spec.port.replace({tag: prev_value}, {tag: value})
+            spec.port.delete([{'id': prev_value['id']}])
             return prev_value
         elif prev_value is None:
             spec.port.insert({tag: value})

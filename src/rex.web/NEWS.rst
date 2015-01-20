@@ -9,6 +9,7 @@
 ==================
 
 * Added ``rex`` commands for serving the application.
+* Interpret files with unknown mime type as ``application/octet-stream``.
 
 
 3.1.0 (2014-12-08)

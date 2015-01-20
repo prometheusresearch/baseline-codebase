@@ -335,7 +335,7 @@ class StaticServer(object):
             stat = os.fstat(stream.fileno())
             return Response(
                     app_iter=app_iter,
-                    content_type=content_type,
+                    content_type=content_type or 'application/octet-stream',
                     content_encoding=content_encoding,
                     last_modified=stat.st_mtime,
                     content_length=stat.st_size,

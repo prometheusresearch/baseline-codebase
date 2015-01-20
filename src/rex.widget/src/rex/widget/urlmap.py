@@ -110,19 +110,34 @@ class WidgetRenderer(object):
                 'data': _extract_data(values),
             }
         elif request.method == 'POST':
-            update = self._validate_state_update(request.json)
-            state = state.merge_values(update.values)
-            if not update.updates:
-                state = compute(state, request, user=user)
+            if request.content_type == 'application/x-www-form-urlencoded':
+                values = _validate_values(state, parse_qs(request.body))
+                state = compute(
+                    state, request, values=values, user=user, defer=True)
+                values = state.get_values()
+                versions = {k: 1 for k in values}
+                return {
+                    'descriptor': descriptor._replace(state=state),
+                    'state': values,
+                    'versions': versions,
+                    'data': _extract_data(values),
+                }
+            elif request.content_type == 'application/json':
+                update = self._validate_state_update(request.json)
+                state = state.merge_values(update.values)
+                if not update.updates:
+                    state = compute(state, request, user=user)
+                else:
+                    state = compute_update(state, update.updates, request, user=user)
+                values = state.get_values()
+                return {
+                    'descriptor': None,
+                    'state': values,
+                    'versions': update.versions,
+                    'data': _extract_data(values),
+                }
             else:
-                state = compute_update(state, update.updates, request, user=user)
-            values = state.get_values()
-            return {
-                'descriptor': None,
-                'state': values,
-                'versions': update.versions,
-                'data': _extract_data(values),
-            }
+                raise HTTPBadRequest()
         else:
             raise HTTPMethodNotAllowed()
 

@@ -162,6 +162,15 @@ class Section(Widget):
     content = Field(WidgetVal, default=NullWidget())
 
 
+class Icon(Widget):
+    """ Icon."""
+
+    name = 'Ico'
+    js_type = 'rex-widget/lib/Icon'
+
+    name = Field(StrVal())
+
+
 class Link(Widget):
     """ Navigation link"""
 
@@ -184,6 +193,15 @@ class Link(Widget):
     unsafe = Field(
         BoolVal(), default=False,
         doc="Do not validate ``href`` and ``params`` fields")
+
+
+class LinkButton(Button):
+
+    name = 'LinkButton'
+    js_type = 'rex-widget/lib/LinkButton'
+
+    href = URLField(
+        doc="Link URL")
 
 
 class ValueKeyVal(Validate):

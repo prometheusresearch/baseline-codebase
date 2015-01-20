@@ -64,7 +64,7 @@ var Draggable = React.createClass({
       e.preventDefault();
     }
 
-    this.props.onDrag(e);
+    this.props.onDrag(e, this.state.drag);
   },
 
   onMouseUp(e) {

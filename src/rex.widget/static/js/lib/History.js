@@ -65,7 +65,7 @@ class History {
       }
       var value = query[alias || key];
       if (value === '' || value === undefined) {
-        value = null;
+        return;
       }
       update[key] = value;
     });

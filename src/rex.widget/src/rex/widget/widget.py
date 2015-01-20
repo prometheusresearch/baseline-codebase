@@ -133,7 +133,6 @@ class Widget(WidgetBase):
     def descriptor(self):
         props = PropsContainer()
         graph = MutableStateGraph()
-        own_graph = MutableStateGraph()
 
         for name, field in self.fields.items():
             if not name in self.values:

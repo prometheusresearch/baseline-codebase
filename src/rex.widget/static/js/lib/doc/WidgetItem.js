@@ -6,7 +6,7 @@
 var React     = require('react');
 var {VBox}    = require('../layout');
 var merge     = require('../merge');
-var Hoverable = require('./Hoverable');
+var Hoverable = require('../Hoverable');
 var theme     = require('./theme');
 
 var WidgetItem = React.createClass({

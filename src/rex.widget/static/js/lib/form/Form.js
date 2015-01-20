@@ -34,6 +34,7 @@ var Form = React.createClass({
           hint={hint}
           fieldset={fieldset}
           className="rw-Form__fieldset"
+          size={1}
           value={value}
           />
         <div className="rw-Form__controls">

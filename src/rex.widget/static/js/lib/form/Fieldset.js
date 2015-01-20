@@ -23,7 +23,7 @@ var Fieldset = React.createClass({
           label={label || value.node.props.get('label')}
           hint={hint || value.node.props.get('hint')}
           />
-        <Box className="rw-Fieldset__fieldset">
+        <Box size={1} className="rw-Fieldset__fieldset">
           {fieldset()}
         </Box>
       </Box>

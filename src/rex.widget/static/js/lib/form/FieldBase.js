@@ -76,7 +76,7 @@ var FieldBase = React.createClass({
     } else {
       return (
         <Box {...props} className={cx(classNames, className)}>
-          <Box>
+          <Box size={1}>
             {!noLabel &&
               <Label
                 htmlFor={id}

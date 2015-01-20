@@ -1,0 +1,9 @@
+
+paths:
+
+  /study:
+    port: study
+
+  /study-file:
+    file: study
+

@@ -9,7 +9,7 @@
   - column: closed
     type: boolean
     default: false
-  - link: file
+  - file: file
     required: false
   - data: |
       code,title,closed

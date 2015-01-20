@@ -8,81 +8,55 @@
     >>> demo = Rex('rex.file_demo')
     >>> demo.on()
 
-    >>> from rex.file import get_file
-
-    >>> file = get_file('study', 'fos')
-    >>> file
-    File(FileMap(u'study', u'file'), ID(u'fos'), None)
-
-    >>> file.exists()
-    False
-
-    >>> file.upload('obesity.txt', "What is obesity?\n")
-    >>> file                                                # doctest: +ELLIPSIS
-    File(FileMap(u'study', u'file'), ID(u'fos'), '/.../obesity.txt')
-
-    >>> file = get_file('study', 'fos')
-    >>> file                                                # doctest: +ELLIPSIS
-    File(FileMap(u'study', u'file'), ID(u'fos'), u'/.../obesity.txt')
-
-    >>> file.exists()
-    True
-
-    >>> file.open()                                         # doctest: +ELLIPSIS
-    <open file '.../obesity.txt', ...>
-
-    >>> file.stat()                                         # doctest: +ELLIPSIS
-    posix.stat_result(..., st_size=17, ...)
-
-    >>> file.abspath()                                      # doctest: +ELLIPSIS
-    '.../obesity.txt'
-
     >>> from webob import Request
-    >>> req = Request.blank('/')
-    >>> print file.download()(req)                          # doctest: +ELLIPSIS
+
+    >>> req = Request.blank('/file/', POST={'file': ('hello.txt', 'Hello, World!')},
+    ...                     remote_user='Alice')
+    >>> resp = req.get_response(demo)
+    >>> print resp                                                      # doctest: +ELLIPSIS
     200 OK
-    Content-Type: text/plain; charset=UTF-8
-    Content-Length: 17
-    Content-Disposition: attachment; filename=obesity.txt
-    ...
-    What is obesity?
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 71
     <BLANKLINE>
+    {"file":"'/.../hello.txt'"}
 
-    >>> file.remove()
+    >>> import json
+    >>> data = json.loads(resp.body)
 
-    >>> file
-    File(FileMap(u'study', u'file'), ID(u'fos'), None)
-
-
-Errors
-======
-
-::
-
-    >>> get_file('study', 'fos', link_name='title')
-    Traceback (most recent call last):
-      ...
-    Error: Expected a link to the file table; got:
-        study.title
-
-    >>> get_file('study', 'uss')
-    Traceback (most recent call last):
-      ...
-    Error: Cannot find record:
-        study[uss]
+    >>> handle = data['file']
+    >>> print handle                                                    # doctest: +ELLIPSIS
+    '/.../hello.txt'
 
     >>> from rex.port import Port
-    >>> study_port = Port('study')
-    >>> file = get_file('study', 'fos')
-    >>> file.upload(('obesity.txt', "What is obesity?\n"))
-    >>> fos_data = study_port.produce('study=fos').data.study[0]
-    >>> study_port.update([{'id': 'asdl', 'file': fos_data.file}])      # doctest: +ELLIPSIS
-    <Product ...>
-    >>> get_file('study', 'asdl')
+    >>> file_port = Port('file')
+    >>> print file_port.produce(('file', handle))                       # doctest: +ELLIPSIS
+    {({['/.../hello.txt'], '/.../hello.txt', '...', 'Alice', true},)}
+
+    >>> port = Port('study')
+    >>> port.replace(None, {'study': {'id': 'asdl', 'file': handle}})   # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got link to a stolen file:
-        study[asdl]
+    EngineError: Got an error from the database driver:
+        study.file cannot be set to '/.../hello.txt'
 
-    >>> file.remove()
+    >>> from rex.db import get_db
+    >>> db = get_db()
+
+    >>> with db, db.session('Alice'):
+    ...     port.replace(None, {'study': {'id': 'asdl', 'file': handle}}, USER='Alice') # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    <Product {({[asdl],
+                'asdl',
+                'Autism Spectrum Disorder Lab',
+                false,
+                ['/.../hello.txt']},)}>
+
+    >>> with db, db.session('Alice'):
+    ...     port.replace(None, {'study': {'id': 'fos', 'file': handle}}, USER='Alice')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    EngineError: Got an error from the database driver:
+        study.file cannot be set to '/.../hello.txt'
+
+    >>> print file_port.produce(('file', handle))                       # doctest: +ELLIPSIS
+    {({['/.../hello.txt'], '/.../hello.txt', '...', 'Alice', false},)}
 

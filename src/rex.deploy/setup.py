@@ -28,6 +28,7 @@ setup(
         'HTSQL >=2.3.3, <2.5',
         'HTSQL-PGSQL >=2.3.3, <2.5',
         'psycopg2 >=2.4.2',
+        'jinja2 >=2.7, <2.8',
     ],
     entry_points = {
         'htsql.addons': ['rex_deploy = htsql_rex_deploy:DeployAddon'],

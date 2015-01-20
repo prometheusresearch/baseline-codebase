@@ -6,6 +6,9 @@
 import decimal
 import datetime
 import hashlib
+import functools
+import inspect
+import jinja2
 
 
 def mangle(fragments, suffix=None,
@@ -115,454 +118,558 @@ def sql_value(value):
                               % (value, type(value).__name__))
 
 
+# Customized Jinja environment for rendering SQL.
+sql_jinja = jinja2.Environment(
+        line_statement_prefix='#')
+sql_jinja.globals.update({
+    'zip': zip,
+    'unicode': unicode,
+})
+sql_jinja.filters.update({
+    'name': sql_name,
+    'n': sql_name,
+    'value': sql_value,
+    'v': sql_value,
+})
+sql_jinja.tests.update({
+    'instanceof': isinstance,
+})
+
+
+def sql_render(template, **context):
+    """
+    Renders a SQL statement or fragment from a Jinja template.
+
+    In the template, you can use filter ``|n`` and ``|v`` to render
+    SQL names and values respectively using :func:`sql_name` and
+    :func:`sql_value`.
+
+    `template`
+        A template string.
+    `context`
+        Template parameters.
+    """
+    template = sql_jinja.from_string(inspect.cleandoc(template))
+    return template.render(context)
+
+
+def sql_template(fn):
+    """
+    Decorator for making parameterized SQL templates.
+
+    The docstring of the decorated function must be a SQL template
+    suitable for use with :func:`sql_render`.  Function parameters
+    are converted to template parameters.  The function body is
+    never called.
+    """
+    template = sql_jinja.from_string(inspect.getdoc(fn))
+    @functools.wraps(fn)
+    def render(*args, **kwds):
+        context = inspect.getcallargs(fn, *args, **kwds)
+        return template.render(context).rstrip()
+    return render
+
+
+@sql_template
 def sql_create_database(name, template=None):
-    options = []
-    options.append(u"ENCODING = 'UTF-8'")
-    if template is not None:
-        options.append(u"TEMPLATE = {}".format(sql_name(template)))
-    return u"CREATE DATABASE {} WITH {};" \
-            .format(sql_name(name), u" ".join(options))
+    """
+    CREATE DATABASE {{ name|n }} WITH ENCODING = 'UTF-8'
+        {%- if template %} TEMPLATE = {{ template|n }}{% endif %};
+    """
 
 
+@sql_template
 def sql_drop_database(name):
-    return u"DROP DATABASE {};".format(sql_name(name))
+    """
+    DROP DATABASE {{ name|n }};
+    """
 
 
+@sql_template
 def sql_rename_database(name, new_name):
-    return u"ALTER DATABASE {} RENAME TO {};".format(sql_name(name),
-                                                     sql_name(new_name))
+    """
+    ALTER DATABASE {{ name|n }} RENAME TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_select_database(name):
-    return u"SELECT TRUE FROM pg_catalog.pg_database AS d" \
-            u" WHERE d.datname = {};" \
-            .format(sql_value(name))
+    """
+    SELECT TRUE FROM pg_catalog.pg_database AS d WHERE d.datname = {{ name|v }};
+    """
 
 
+@sql_template
 def sql_comment_on_schema(name, text):
-    return u"COMMENT ON SCHEMA {} IS {};".format(sql_name(name), sql_value(text))
+    """
+    COMMENT ON SCHEMA {{ name|n }} IS {{ text|v }};
+    """
 
 
+@sql_template
 def sql_create_table(name, definitions, is_unlogged=False):
-    lines = []
-    lines.append(u"CREATE{} TABLE {} ("
-            .format(u" UNLOGGED" if is_unlogged else u"",
-                    sql_name(name)))
-    for line in definitions[:-1]:
-        lines.append(u"    {},".format(line))
-    lines.append(u"    {}".format(definitions[-1]))
-    lines.append(u");")
-    return u"\n".join(lines)
+    """
+    CREATE{% if is_unlogged %} UNLOGGED{% endif %} TABLE {{ name|n }} (
+    # for line in definitions
+        {{ line }}{% if not loop.last %},{% endif %}
+    # endfor
+    );
+    """
 
 
+@sql_template
 def sql_drop_table(name):
-    return u"DROP TABLE {};".format(sql_name(name))
+    """
+    DROP TABLE {{ name|n }};
+    """
 
 
+@sql_template
 def sql_rename_table(name, new_name):
-    return u"ALTER TABLE {} RENAME TO {};" \
-            .format(sql_name(name), sql_name(new_name))
+    """
+    ALTER TABLE {{ name|n }} RENAME TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_comment_on_table(name, text):
-    return u"COMMENT ON TABLE {} IS {};".format(sql_name(name), sql_value(text))
+    """
+    COMMENT ON TABLE {{ name|n }} IS {{ text|v }};
+    """
 
 
+@sql_template
 def sql_define_column(name, type_name, is_not_null, default=None):
-    # Generates column definition for `CREATE TABLE` body.
-    return u"{} {}{}{}" \
-            .format(sql_name(name),
-                    sql_name(type_name)
-                        if not isinstance(type_name, tuple)
-                        else u"{}({})"
-                                .format(sql_name(type_name[0]),
-                                        sql_value(type_name[1:])),
-                    u" NOT NULL" if is_not_null else u"",
-                    u" DEFAULT {}".format(default)
-                        if default is not None else u"")
+    """
+    {{ name|n }}
+    #- if type_name is instanceof(unicode)
+     {{ type_name|n }}
+    #- else
+     {{ type_name[0]|n }}({{ type_name[1]|v }})
+    #- endif
+    #- if is_not_null
+     NOT NULL
+    #- endif
+    #- if default is not none
+     DEFAULT {{ default }}
+    #- endif
+    """
 
 
+@sql_template
 def sql_add_column(table_name, name, type_name, is_not_null, default=None):
-    return u"ALTER TABLE {} ADD COLUMN {} {}{}{};" \
-            .format(sql_name(table_name),
-                    sql_name(name),
-                    sql_name(type_name)
-                        if not isinstance(type_name, tuple)
-                        else u"{}({})"
-                                .format(sql_name(type_name[0]),
-                                        sql_value(type_name[1:])),
-                    u" NOT NULL" if is_not_null else u"",
-                    u" DEFAULT {}".format(default)
-                        if default is not None else u"")
+    """
+    ALTER TABLE {{ table_name|n }} ADD COLUMN {{ name|n }}
+    #- if type_name is instanceof(unicode)
+     {{ type_name|n }}
+    #- else
+     {{ type_name[0]|n }}({{ type_name[1]|v }})
+    #- endif
+    #- if is_not_null
+     NOT NULL
+    #- endif
+    #- if default is not none
+     DEFAULT {{ default }}
+    #- endif
+    {{- ';' }}
+    """
 
 
+@sql_template
 def sql_drop_column(table_name, name):
-    return u"ALTER TABLE {} DROP COLUMN {};" \
-            .format(sql_name(table_name),
-                    sql_name(name))
+    """
+    ALTER TABLE {{ table_name|n }} DROP COLUMN {{ name|n }};
+    """
 
 
+@sql_template
 def sql_rename_column(table_name, name, new_name):
-    return u"ALTER TABLE {} RENAME COLUMN {} TO {};" \
-            .format(sql_name(table_name),
-                    sql_name(name),
-                    sql_name(new_name))
+    """
+    ALTER TABLE {{ table_name|n }} {{- ' ' -}}
+    RENAME COLUMN {{ name|n }} TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_copy_column(table_name, name, source_name):
-    return u"UPDATE {} SET {} = {};" \
-            .format(sql_name(table_name), sql_name(name), sql_name(source_name))
+    """
+    UPDATE {{ table_name|n }} SET {{ name|n }} = {{ source_name|n }};
+    """
 
 
+@sql_template
 def sql_set_column_type(table_name, name, type_name, expression=None):
-    return u"ALTER TABLE {} ALTER COLUMN {} SET DATA TYPE {}{};" \
-            .format(sql_name(table_name), sql_name(name), sql_name(type_name),
-                    u" USING {}".format(expression) if expression is not None
-                    else u"")
+    """
+    ALTER TABLE {{ table_name|n }} {{- ' ' -}}
+    ALTER COLUMN {{ name|n }} SET DATA TYPE {{ type_name|n }}
+    #- if expression is not none
+     USING {{ expression }}
+    #- endif
+    {{- ';' }}
+    """
 
 
+@sql_template
 def sql_cast(expression, type_name):
-    return u"{}::{}".format(expression, sql_name(type_name))
+    """
+    {{ expression }}::{{ type_name|n }}
+    """
 
 
+@sql_template
 def sql_set_column_not_null(table_name, name, is_not_null):
-    return u"ALTER TABLE {} ALTER COLUMN {} {} NOT NULL;" \
-            .format(sql_name(table_name), sql_name(name),
-                    u"SET" if is_not_null else u"DROP")
+    """
+    ALTER TABLE {{ table_name|n }} ALTER COLUMN {{ name|n }}
+    #- if is_not_null
+     SET NOT NULL;
+    #- else
+     DROP NOT NULL;
+    #- endif
+    """
 
 
+@sql_template
 def sql_set_column_default(table_name, name, expression):
-    if expression is not None:
-        return u"ALTER TABLE {} ALTER COLUMN {} SET DEFAULT {};" \
-                .format(sql_name(table_name), sql_name(name), expression)
-    else:
-        return u"ALTER TABLE {} ALTER COLUMN {} DROP DEFAULT;" \
-                .format(sql_name(table_name), sql_name(name))
+    """
+    ALTER TABLE {{ table_name|n }} ALTER COLUMN {{ name|n }}
+    #- if expression is not none
+     SET DEFAULT {{ expression }};
+    #- else
+     DROP DEFAULT;
+    #- endif
+    """
 
 
+@sql_template
 def sql_comment_on_column(table_name, name, text):
-    return u"COMMENT ON COLUMN {}.{} IS {};" \
-            .format(sql_name(table_name),
-                    sql_name(name),
-                    sql_value(text))
+    """
+    COMMENT ON COLUMN {{ table_name|n }}.{{ name|n }} IS {{ text|v }};
+    """
 
 
+@sql_template
 def sql_create_index(name, table_name, column_names):
-    return u"CREATE INDEX {} ON {} ({});" \
-            .format(sql_name(name),
-                    sql_name(table_name),
-                    sql_name(column_names))
+    """
+    CREATE INDEX {{ name|n }} ON {{ table_name|n }} ({{ column_names|n }});
+    """
 
 
+@sql_template
 def sql_drop_index(name):
-    return u"DROP INDEX {};".format(sql_name(name))
+    """
+    DROP INDEX {{ name|n }};
+    """
 
 
+@sql_template
 def sql_rename_index(name, new_name):
-    return u"ALTER INDEX {} RENAME TO {};" \
-            .format(sql_name(name), sql_name(new_name))
+    """
+    ALTER INDEX {{ name|n }} RENAME TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_add_unique_constraint(table_name, name, column_names, is_primary):
-    return u"ALTER TABLE {} ADD CONSTRAINT {} {} ({}){};" \
-            .format(sql_name(table_name),
-                    sql_name(name),
-                    u"UNIQUE" if not is_primary else u"PRIMARY KEY",
-                    sql_name(column_names),
-                    u", CLUSTER ON {}".format(sql_name(name))
-                        if is_primary else u"")
+    """
+    ALTER TABLE {{ table_name|n }} ADD CONSTRAINT {{ name|n }}
+    #- if is_primary
+     PRIMARY KEY
+    #- else
+     UNIQUE
+    #- endif
+     ({{ column_names|n }})
+    #- if is_primary
+    , CLUSTER ON {{ name|n }}
+    #- endif
+    {{- ';' }}
+    """
 
 
+@sql_template
 def sql_add_foreign_key_constraint(table_name, name, column_names,
                                    target_table_name, target_column_names,
                                    on_update=None, on_delete=None):
-    return u"ALTER TABLE {} ADD CONSTRAINT {}" \
-            u" FOREIGN KEY ({}) REFERENCES {} ({}){}{};" \
-            .format(sql_name(table_name),
-                    sql_name(name),
-                    sql_name(column_names),
-                    sql_name(target_table_name),
-                    sql_name(target_column_names),
-                    u" ON UPDATE "+on_update if on_update is not None else u"",
-                    u" ON DELETE "+on_delete if on_delete is not None else u"")
+    """
+    ALTER TABLE {{ table_name|n }} ADD CONSTRAINT {{ name|n }} {{- ' ' -}}
+    FOREIGN KEY ({{ column_names|n }}) {{- ' ' -}}
+    REFERENCES {{ target_table_name|n }} ({{ target_column_names|n }}) {{- '' -}}
+    #- if on_update is not none
+     ON UPDATE {{ on_update }}
+    #- endif
+    #- if on_delete is not none
+     ON DELETE {{ on_delete }}
+    #- endif
+    {{- ';' }}
+    """
 
 
+@sql_template
 def sql_drop_constraint(table_name, name):
-    return u"ALTER TABLE {} DROP CONSTRAINT {};" \
-            .format(sql_name(table_name),
-                    sql_name(name))
+    """
+    ALTER TABLE {{ table_name|n }} DROP CONSTRAINT {{ name|n }};
+    """
 
 
+@sql_template
 def sql_rename_constraint(table_name, name, new_name):
-    return u"ALTER TABLE {} RENAME CONSTRAINT {} TO {};" \
-            .format(sql_name(table_name), sql_name(name), sql_name(new_name))
+    """
+    ALTER TABLE {{ table_name|n }} RENAME CONSTRAINT {{ name|n }} {{- ' ' -}}
+    TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_comment_on_constraint(table_name, name, text):
-    return u"COMMENT ON CONSTRAINT {} ON {} IS {};" \
-            .format(sql_name(name),
-                    sql_name(table_name),
-                    sql_value(text))
+    """
+    COMMENT ON CONSTRAINT {{ name|n }} ON {{ table_name|n }} IS {{ text|v }};
+    """
 
 
+@sql_template
 def sql_create_enum_type(name, labels):
-    return u"CREATE TYPE {} AS ENUM ({});" \
-            .format(sql_name(name),
-                    sql_value(labels))
+    """
+    CREATE TYPE {{ name|n }} AS ENUM ({{ labels|v }});
+    """
 
 
+@sql_template
 def sql_drop_type(name):
-    return u"DROP TYPE {};" \
-            .format(sql_name(name))
+    """
+    DROP TYPE {{ name|n }};
+    """
 
 
+@sql_template
 def sql_rename_type(name, new_name):
-    return u"ALTER TYPE {} RENAME TO {};" \
-            .format(sql_name(name), sql_name(new_name))
+    """
+    ALTER TYPE {{ name|n }} RENAME TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_comment_on_type(name, text):
-    return u"COMMENT ON TYPE {} IS {};".format(sql_name(name), sql_value(text))
+    """
+    COMMENT ON TYPE {{ name|n }} IS {{ text|v }};
+    """
 
 
+@sql_template
 def sql_create_sequence(name, owner_table_name=None, owner_name=None):
-    return u"CREATE SEQUENCE {}{};" \
-            .format(sql_name(name),
-                    u" OWNED BY {}.{}"
-                        .format(sql_name(owner_table_name),
-                                sql_name(owner_name))
-                        if owner_name is not None else u"")
+    """
+    CREATE SEQUENCE {{ name|n }}
+    #- if owner_name is not none
+     OWNED BY {{ owner_table_name|n }}.{{ owner_name|n }}
+    #- endif
+    {{- ';' }}
+    """
 
 
+@sql_template
 def sql_drop_sequence(name):
-    return u"DROP SEQUENCE {};".format(sql_name(name))
+    """
+    DROP SEQUENCE {{ name|n }};
+    """
 
 
+@sql_template
 def sql_rename_sequence(name, new_name):
-    return u"ALTER SEQUENCE {} RENAME TO {};" \
-            .format(sql_name(name), sql_name(new_name))
+    """
+    ALTER SEQUENCE {{ name|n }} RENAME TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_nextval(name):
-    return u"nextval({}::regclass)".format(sql_value(name))
+    """
+    nextval({{ name|v }}::regclass)
+    """
 
 
+@sql_template
 def sql_create_function(name, types, return_type, language, source):
-    return u"CREATE OR REPLACE FUNCTION {}({}) RETURNS {} LANGUAGE {} AS {};" \
-            .format(sql_name(name),
-                    sql_name(types),
-                    sql_name(return_type),
-                    language,
-                    sql_value(source))
+    """
+    CREATE OR REPLACE FUNCTION {{ name|n }}({{ types|n }}) {{- ' ' -}}
+    RETURNS {{ return_type|n }} LANGUAGE {{ language }} AS {{ source|v }};
+    """
 
 
+@sql_template
 def sql_drop_function(name, types):
-    return u"DROP FUNCTION {}({});".format(sql_name(name), sql_name(types))
+    """
+    DROP FUNCTION {{ name|n }}({{ types|n }});
+    """
 
 
+@sql_template
 def sql_rename_function(name, types, new_name):
-    return u"ALTER FUNCTION {}({}) RENAME TO {};" \
-            .format(sql_name(name), sql_name(types), sql_name(new_name))
+    """
+    ALTER FUNCTION {{ name|n }}({{ types|n }}) RENAME TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_create_trigger(table_name, name, when, event,
                        function_name, arguments):
-    return u"CREATE TRIGGER {} {} {} ON {}" \
-            u" FOR EACH ROW EXECUTE PROCEDURE {}({});" \
-            .format(sql_name(name), when, event, sql_name(table_name),
-                    sql_name(function_name), sql_value(arguments))
+    """
+    CREATE TRIGGER {{ name|n }} {{ when }} {{ event }} {{- ' ' -}}
+    ON {{ table_name|n }} {{- ' ' -}}
+    FOR EACH ROW EXECUTE PROCEDURE {{ function_name|n }}({{ arguments|v }});
+    """
 
 
+@sql_template
 def sql_drop_trigger(table_name, name):
-    return u"DROP TRIGGER {} ON {};" \
-            .format(sql_name(name), sql_name(table_name))
+    """
+    DROP TRIGGER {{ name|n }} ON {{ table_name|n }};
+    """
 
 
+@sql_template
 def sql_rename_trigger(table_name, name, new_name):
-    return u"ALTER TRIGGER {} ON {} RENAME TO {};" \
-            .format(sql_name(name), sql_name(table_name), sql_name(new_name))
+    """
+    ALTER TRIGGER {{ name|n }} ON {{ table_name|n }} RENAME TO {{ new_name|n }};
+    """
 
 
+@sql_template
 def sql_select(table_name, names):
     """
-    Generates::
-
-        SELECT {name}, ... FROM {table_name}
+    SELECT {{ names|n }}
+        FROM {{ table_name|n }};
     """
-    return u"SELECT {}\n    FROM {};" \
-            .format(sql_name(names),
-                    sql_name(table_name))
 
 
+@sql_template
 def sql_insert(table_name, names, values, returning_names=None):
     """
-    Generates::
-
-        INSERT INTO {table_name} ({name}, ...)
-        VALUES ({value}, ...)
-        RETURNING {returning_name}, ...
+    INSERT INTO {{ table_name|name }}
+        {%- if names %} ({{ names|name }}){% endif %}
+    # if values
+        VALUES ({{ values|value }}) {%- if not returning_names %};{% endif %}
+    # else
+        DEFAULT VALUES {%- if not returning_names %};{% endif %}
+    # endif
+    # if returning_names
+        RETURNING {{ returning_names|name }};
+    # endif
     """
-    lines = []
-    if names:
-        lines.append(u"INSERT INTO {} ({})"
-                    .format(sql_name(table_name),
-                            sql_name(names)))
-    else:
-        lines.append(u"INSERT INTO {}".format(sql_name(table_name)))
-    if values:
-        lines.append(u"    VALUES ({})".format(sql_value(values)))
-    else:
-        lines.append(u"    DEFAULT VALUES")
-    if returning_names:
-        lines.append(u"    RETURNING {}".format(sql_name(returning_names)))
-    return u"\n".join(lines)+u";"
 
 
+@sql_template
 def sql_update(table_name, key_name, key_value, names, values,
                returning_names=None):
     """
-    Generates::
-
-        UPDATE {table_name} SET {name} = {value}, ...
-        WHERE {key_name} = {key_value}
-        RETURNING {returning_name}, ...
+    # if not names and not values
+    # set names = [key_name]
+    # set values = [key_value]
+    # endif
+    UPDATE {{ table_name|n }}
+        SET {% for name, value in zip(names, values) -%}
+                {{ name|n }} = {{ value|v }}{% if not loop.last %}, {% endif %}
+            {%- endfor %}
+        WHERE {{ key_name|n }} = {{ key_value|v }}
+        {%- if not returning_names %};{% endif %}
+    # if returning_names
+        RETURNING {{ returning_names|n }};
+    # endif
     """
-    if not (names and values):
-        names = [key_name]
-        values = [key_value]
-    lines = []
-    lines.append(u"UPDATE {}".format(sql_name(table_name)))
-    lines.append(u"    SET {}"
-                .format(u", ".join(u"{} = {}"
-                                    .format(sql_name(name),
-                                            sql_value(value))
-                                   for name, value in zip(names, values))))
-    lines.append(u"    WHERE {} = {}"
-                .format(sql_name(key_name),
-                        sql_value(key_value)))
-    if returning_names:
-        lines.append(u"    RETURNING {}".format(sql_name(returning_names)))
-    return u"\n".join(lines)+u";"
 
 
+@sql_template
 def sql_delete(table_name, key_name, key_value):
     """
-    Generates::
-
-        DELETE FROM {table_name}
-        WHERE {key_name} = {key_value}
+    DELETE FROM {{ table_name|n }}
+        WHERE {{ key_name|n }} = {{ key_value|v }};
     """
-    lines = []
-    lines.append(u"DELETE FROM {}".format(sql_name(table_name)))
-    lines.append(u"    WHERE {} = {}"
-                .format(sql_name(key_name),
-                        sql_value(key_value)))
-    return u"\n".join(lines)+u";"
 
 
 def plpgsql_primary_key_procedure(*parts):
-    # Stored procedure for generating the primary key for a new record.
-    lines = []
-    lines.append(u"\n")
-    lines.append(u"BEGIN\n")
-    for part in parts:
-        for line in part.splitlines():
-            lines.append(u"    {}\n".format(line))
-    lines.append(u"    RETURN NEW;\n")
-    lines.append(u"END;\n")
-    return u"".join(lines)
+    return u"\n%s\n" % sql_render("""
+    BEGIN
+    # for part in parts
+    # for line in part.splitlines()
+        {{ line }}
+    # endfor
+    # endfor
+        RETURN NEW;
+    END;
+    """, parts=parts)
 
 
+@sql_template
 def plpgsql_integer_random_key(table_name, name):
-    # Code for generating a random integer key.
-    table_name = sql_name(table_name)
-    name = sql_name(name)
-
-    lines = []
-    lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
-    lines.append(u"    NEW.{} := trunc((random()*999999999) + 1);\n"
-                .format(name))
-    lines.append(u"END IF;\n")
-    return u"".join(lines)
+    """
+    IF NEW.{{ name|n }} IS NULL THEN
+        NEW.{{ name|n }} := trunc((random()*999999999) + 1);
+    END IF;
+    """
 
 
+@sql_template
 def plpgsql_text_random_key(table_name, name):
-    # Code for creating a random text key.
-    table_name = sql_name(table_name)
-    name = sql_name(name)
-    letters = u"ABCDEFGHJKLMNPQRTUVWXYZ"
-    digits = u"0123456789"
-    one_letter = u"_letters[1 + trunc(random()*%s)]" % len(letters)
-    one_digit = u"_digits[1 + trunc(random()*%s)]" % len(digits)
-
-    lines = []
-    lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
-    lines.append(u"    DECLARE\n")
-    lines.append(u"        _letters text[] := '{%s}';\n" % u",".join(letters))
-    lines.append(u"        _digits text[] := '{%s}';\n" % u",".join(digits))
-    lines.append(u"    BEGIN\n")
-    lines.append(u"        NEW.{} :=\n".format(name))
-    lines.append(u"            %s ||\n" % one_letter)
-    lines.append(u"            %s ||\n" % one_digit)
-    lines.append(u"            %s ||\n" % one_digit)
-    lines.append(u"            %s ||\n" % one_letter)
-    lines.append(u"            %s ||\n" % one_digit)
-    lines.append(u"            %s ||\n" % one_digit)
-    lines.append(u"            %s ||\n" % one_digit)
-    lines.append(u"            %s;\n" % one_digit)
-    lines.append(u"    END;\n")
-    lines.append(u"END IF;\n")
-    return u"".join(lines)
+    """
+    # set letters = "ABCDEFGHJKLMNPQRTUVWXYZ"
+    # set digits = "0123456789"
+    # set one_letter = "_letters[1 + trunc(random()*%s)]" % letters|length
+    # set one_digit = "_digits[1 + trunc(random()*%s)]" % digits|length
+    IF NEW.{{ name|n }} IS NULL THEN
+        DECLARE
+            _letters text[] := '{{ '{' + (letters|join(',')) + '}' }}';
+            _digits text[] := '{{ '{' + (digits|join(',')) + '}' }}';
+        BEGIN
+            NEW.{{ name|n }} :=
+                {{ one_letter }} ||
+                {{ one_digit }} ||
+                {{ one_digit }} ||
+                {{ one_letter }} ||
+                {{ one_digit }} ||
+                {{ one_digit }} ||
+                {{ one_digit }} ||
+                {{ one_digit }};
+        END;
+    END IF;
+    """
 
 
+@sql_template
 def plpgsql_integer_offset_key(table_name, name, basis_names):
-    # Code for creating an integer offset key.
-    table_name = sql_name(table_name)
-    name = sql_name(name)
-    basis_names = [sql_name(basis_name) for basis_name in basis_names]
-    conditions = [u"{} = NEW.{}".format(basis_name, basis_name)
-                  for basis_name in basis_names]
-
-    lines = []
-    lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
-    lines.append(u"    DECLARE\n")
-    lines.append(u"        _offset int4;\n")
-    lines.append(u"    BEGIN\n")
-    lines.append(u"        SELECT max({}) INTO _offset\n".format(name))
-    if conditions:
-        lines.append(u"            FROM {}\n".format(table_name))
-        lines.append(u"            WHERE %s;\n" % u" AND ".join(conditions))
-    else:
-        lines.append(u"            FROM {};\n".format(table_name))
-    lines.append(u"        NEW.{} := coalesce(_offset, 0) + 1;\n".format(name))
-    lines.append(u"    END;\n")
-    lines.append(u"END IF;\n")
-    return u"".join(lines)
+    """
+    IF NEW.{{ name|n }} IS NULL THEN
+        DECLARE
+            _offset int4;
+        BEGIN
+            SELECT max({{ name|n }}) INTO _offset
+    # if basis_names
+                FROM {{ table_name|n }}
+                WHERE {% for basis_name in basis_names -%}
+                      {% if not loop.first %} AND {% endif -%}
+                      {{ basis_name|n }} = NEW.{{ basis_name|n -}}
+                      {% endfor %};
+    # else
+                FROM {{ table_name|n }};
+    # endif
+            NEW.{{ name|n }} := coalesce(_offset, 0) + 1;
+        END;
+    END IF;
+    """
 
 
+@sql_template
 def plpgsql_text_offset_key(table_name, name, basis_names):
-    # Code for creating a text offset key.
-    table_name = sql_name(table_name)
-    name = sql_name(name)
-    basis_names = [sql_name(basis_name) for basis_name in basis_names]
-    conditions = [u"{} = NEW.{}".format(basis_name, basis_name)
-                  for basis_name in basis_names]
-    conditions.append(u"{} ~ '^[0-9]{{3}}$'".format(name))
-
-    lines = []
-    lines.append(u"IF NEW.{} IS NULL THEN\n".format(name))
-    lines.append(u"    DECLARE\n")
-    lines.append(u"        _offset int4;\n")
-    lines.append(u"    BEGIN\n")
-    lines.append(u"        SELECT CAST(max({}) AS int4) INTO _offset\n"
-                .format(name))
-    lines.append(u"            FROM {}\n".format(table_name))
-    lines.append(u"            WHERE %s;\n" % u" AND ".join(conditions))
-    lines.append(u"        NEW.{} :="
-                 u" to_char(coalesce(_offset, 0) + 1, 'FM000');\n"
-                .format(name))
-    lines.append(u"    END;\n")
-    lines.append(u"END IF;\n")
-    return u"".join(lines)
+    """
+    IF NEW.{{ name|n }} IS NULL THEN
+        DECLARE
+            _offset int4;
+        BEGIN
+            SELECT CAST(max({{ name|n }}) AS int4) INTO _offset
+                FROM {{ table_name|n }}
+                WHERE {{ name|n }} ~ '^[0-9]{3}$'
+                      {%- for basis_name in basis_names %} {{- ' ' -}}
+                      AND {{ basis_name|n }} = NEW.{{ basis_name|n }}
+                      {%- endfor %};
+            NEW.{{ name|n }} := to_char(coalesce(_offset, 0) + 1, 'FM000');
+        END;
+    END IF;
+    """
 
 

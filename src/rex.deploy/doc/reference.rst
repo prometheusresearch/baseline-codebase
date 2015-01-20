@@ -74,11 +74,13 @@ Entity metadata
 .. autoclass:: PrimaryKeyMeta
 
 
-SQL Serialization
+SQL serialization
 =================
 
 .. autofunction:: mangle
 .. autofunction:: sql_name
 .. autofunction:: sql_value
+.. autofunction:: sql_render
+.. autofunction:: sql_template
 
 

@@ -24,7 +24,8 @@ from .meta import Meta, TableMeta, ColumnMeta, PrimaryKeyMeta, uncomment
 from .introspect import introspect
 from .link import LinkFact
 from .raw import RawFact
-from .sql import mangle, sql_name, sql_value
+from .sql import (mangle, sql_name, sql_value, sql_jinja, sql_render,
+        sql_template)
 from .table import TableFact
 
 

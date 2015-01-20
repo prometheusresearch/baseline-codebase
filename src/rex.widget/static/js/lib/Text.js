@@ -4,11 +4,24 @@
 'use strict';
 
 var React = require('react');
+var {Box} = require('./layout');
 
 var Text = React.createClass({
 
   render: function() {
-    return <p className="rw-Text">{this.props.text}</p>;
+    var style = {};
+    var {text, color, fontSize, ...props} = this.props;
+    if (color) {
+      style.color = color;
+    }
+    if (fontSize) {
+      style.fontSize = fontSize;
+    }
+    return (
+      <Box {...props} className="rw-Text" style={style}>
+        {text}
+      </Box>
+    );
   }
 });
 

@@ -45,7 +45,7 @@ class Header(Widget):
         doc="Level")
 
 
-class Text(Widget):
+class Text(Box):
     """ Text."""
 
     name = 'Text'
@@ -53,7 +53,15 @@ class Text(Widget):
 
     text = Field(
         UStrVal,
-        doc="Content")
+        doc="Content.")
+
+    font_size = Field(
+        StrVal(), default=undefined,
+        doc="Font size.")
+
+    color = Field(
+        StrVal(), default=undefined,
+        doc="Color.")
 
 
 class Button(Widget):

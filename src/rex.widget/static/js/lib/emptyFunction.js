@@ -7,4 +7,8 @@ function emptyFunction() {
 
 }
 
+emptyFunction.thatReturnsTrue = function() {
+  return true;
+};
+
 module.exports = emptyFunction;

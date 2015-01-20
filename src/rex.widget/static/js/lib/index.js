@@ -65,6 +65,7 @@ module.exports = {
   CheckboxGroup:      require('./CheckboxGroup'),
   Modal:              require('./Modal'),
   Hoverable:          require('./Hoverable'),
+  Draggable:          require('./Draggable'),
   layout:             require('./layout'),
   form:               require('./form'),
   PageStateMixin:     require('./PageStateMixin'),

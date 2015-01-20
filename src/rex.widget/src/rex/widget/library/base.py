@@ -200,6 +200,8 @@ class LinkButton(Button):
     name = 'LinkButton'
     js_type = 'rex-widget/lib/LinkButton'
 
+    id = IDField()
+
     href = URLField(
         doc="Link URL")
 

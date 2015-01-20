@@ -29,11 +29,12 @@ class DocScreen(Widget):
     def widgets(self, state, graph, request):
         widgets = Widget.map_all().values()
         widgets = sorted(widgets, key=lambda w: w.name)
+        #return []
         return [self._format_widget(w) for w in widgets]
 
     def _format_widget(self, widget):
         return {
-            'name': widget.name,
+            'name': str(widget.name),
             'module': widget.__module__,
             'doc': widget.__doc__,
             'js_type': widget.js_type,
@@ -42,7 +43,7 @@ class DocScreen(Widget):
 
     def _format_field(self, field):
         validate = field.validate
-        if isinstance(validate, MaybeUndefinedVal):
+        while isinstance(validate, MaybeUndefinedVal):
             validate = validate.validate
         return {
             'name': field.name,

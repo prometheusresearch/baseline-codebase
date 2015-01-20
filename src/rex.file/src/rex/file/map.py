@@ -3,7 +3,8 @@
 #
 
 
-from rex.core import Error, StrVal, BoolVal
+from rex.core import Error, guard, locate, StrVal, BoolVal
+from rex.web import authorize, trusted
 from rex.urlmap import Map
 from rex.port import Port
 from rex.attach import get_storage
@@ -12,7 +13,7 @@ from webob.exc import HTTPNotFound, HTTPUnauthorized, HTTPForbidden
 
 class FileVal(StrVal):
 
-    pattern = r'[A-Za-z_][0-9A-Za-z_]*(\.[A-Za-z_][0-9A-Za-z_]*)'
+    pattern = r'[A-Za-z_][0-9A-Za-z_]*(\.[A-Za-z_][0-9A-Za-z_]*)?'
 
 
 class MapFile(Map):
@@ -58,12 +59,13 @@ class FileRenderer(object):
         self.authorize(req)
         try:
             identity = req.query_string
-            data = self.port.produce(('*', identity)).data
-            if not data[0]:
+            data = self.port.produce(('*', identity)).data[0]
+            if not data:
                 raise HTTPNotFound()
-            handle = data[0][1]
-            if not handle:
+            handle_id = data[0][1]
+            if not handle_id:
                 raise HTTPNotFound()
+            handle = handle_id[0]
             storage = get_storage()
             return storage.route(handle)(req)
         except Error, error:

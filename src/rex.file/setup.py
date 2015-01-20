@@ -28,6 +28,7 @@ setup(
         'rex.deploy >=1.6, <3',
         'rex.web >=3.1, <4',
         'rex.attach >=2.0, <3',
+        'rex.urlmap >=2.6, <3',
     ],
     rex_init='rex.file',
     rex_static='static',

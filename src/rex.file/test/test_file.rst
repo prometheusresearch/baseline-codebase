@@ -60,3 +60,9 @@
     >>> print file_port.produce(('file', handle))                       # doctest: +ELLIPSIS
     {({['/.../hello.txt'], '/.../hello.txt', '...', 'Alice', false},)}
 
+    >>> req = Request.blank('/study-file?asdl', remote_user='Alice')
+    >>> print req.get_response(demo)                                    # doctest: +ELLIPSIS
+    200 OK
+    ...
+    Hello, World!
+

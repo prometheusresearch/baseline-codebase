@@ -177,10 +177,11 @@ tests:
       font
 
       ./rex.setup_demo-2.0.0/static/www/bundle/font:
-      68ed1dac06bf0409c18ae7bc62889170.woff
-      7ad17c6085dee9a33787bac28fb23d46.eot
-      e49d52e74b7689a0727def99da31f3eb.ttf
-      ff423a4251cf2986555523dfe315c42b.svg
+      448c34a56d699c29117adc64c43affeb.woff2
+      89889688147bd7575d6327160d64e760.svg
+      e18bbf611f2a2e43afc071aa2f4e1512.ttf
+      f4769f9bdb7466be65088239c12046d1.eot
+      fa2772327f55d8198301fdb8bcfc8158.woff
 
       ./rex.setup_demo-2.0.0/static/www/jquery:
       MIT-LICENSE.txt

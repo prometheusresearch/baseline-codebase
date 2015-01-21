@@ -35,7 +35,7 @@ setup(
     ],
     install_requires=[
         'rex.core>=1.9,<2',
-        'rex.ctl>=1,<2',
+        'rex.ctl>=2,<3',
         'rex.web>=3.1,<4',
         'babel>=1,<2',
         'speaklater>=1.3,<2',

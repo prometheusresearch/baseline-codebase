@@ -15,6 +15,10 @@ REX.I18N Change Log
 * Updated integration with ``rex.web`` to use new ``Pipe`` interface. This
   package now requires >=3.1 of ``rex.web``.
 * Added support for ``rex.setup`` v2.
+* Upgraded to v2 of ``rex.ctl``. In doing so, the arguments/options to the
+  i18n-* commands have been altered slightly.
+* The ``BabelMapper`` extension has been removed. It is no longer possible to
+  add custom string extractors to your projects.
 
 
 0.3.0 (9/26/2014)

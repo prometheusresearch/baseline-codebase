@@ -7,17 +7,11 @@ from babel import Locale, UnknownLocaleError
 from pytz import timezone, UnknownTimeZoneError
 
 from rex.core import Extension, get_settings
-from rex.web import HandleTemplate
 
-from .core import KEY_LOCALE, KEY_TIMEZONE, DOMAIN_BACKEND, DOMAIN_FRONTEND
+from .core import KEY_LOCALE, KEY_TIMEZONE
 
 
 __all__ = (
-    'BabelMapper',
-    'CoreBabelMapper',
-    'WebBabelMapper',
-    'JavaScriptBabelMapper',
-
     'LocaleDetector',
     'SessionLocaleDetector',
     'AcceptLanguageLocaleDetector',
@@ -27,135 +21,6 @@ __all__ = (
     'SessionTimezoneDetector',
     'DefaultTimezoneDetector',
 )
-
-
-class BabelMapper(Extension):
-    """
-    This extension provides a mechanism to dynamically configure the string
-    extraction tool in the Babel package so that strings can be extracted from
-    any number of source file types.
-    """
-
-    #: The gettext domain that this mapper applies to. Must be specified by
-    #: concrete classes.
-    domain = None
-
-    @classmethod
-    def sanitize(cls):
-        if cls.__name__ != 'BabelMapper':
-            assert cls.mapper_config != BabelMapper.mapper_config, \
-                'abstract method %s.mapper_config()' % cls
-
-    @classmethod
-    def enabled(cls):
-        return cls.domain is not None
-
-    @classmethod
-    def mapper_config(cls):
-        """
-        Returns the Babel configuration entries used for extracting strings
-        from source files.
-
-        Must be implemented by concrete classes.
-
-        :rtype: string
-        """
-
-        raise NotImplementedError()
-
-    @classmethod
-    def domain_mapper_config(cls, domain):
-        """
-        Returns the entire Babel configuration for the current RexDB instance.
-
-        :param domain: the domain to generate the configuration for
-        :type domain: string
-        :rtype: string
-        """
-
-        parts = []
-        for mapper in cls.all():
-            if mapper.domain == domain:
-                parts.append(mapper.mapper_config())
-        return '\n'.join(parts)
-
-
-class CoreBabelMapper(BabelMapper):
-    """
-    A ``BabelMapper`` that provides the configuration for extracting strings
-    from Python source code. Specifically, those in the ``src`` directory of
-    the project.
-
-    These strings will be collected into the ``backend`` domain.
-    """
-
-    domain = DOMAIN_BACKEND
-
-    @classmethod
-    def mapper_config(cls):
-        return '[python: src/**.py]'
-
-    @classmethod
-    def signature(cls):
-        return 'python'
-
-
-class WebBabelMapper(BabelMapper):
-    """
-    A ``BabelMapper`` that provides the configuration for extracting strings
-    from Jinja Templates. Specifically, ``*.html`` files in the
-    ``static/template`` or ``static/templates`` directories of the project.
-
-    These strings will be collected into the ``backend`` domain.
-    """
-
-    domain = DOMAIN_BACKEND
-
-    @classmethod
-    def mapper_config(cls):
-        jinja_extensions = 'extensions=jinja2.ext.do,jinja2.ext.loopcontrols'
-
-        lines = [
-            '[jinja2: static/template/**.html]',
-            jinja_extensions,
-            '[jinja2: static/templates/**.html]',
-            jinja_extensions,
-        ]
-
-        for handler in HandleTemplate.all():
-            lines.append('[jinja2: static/www/**%s]' % handler.ext)
-            lines.append(jinja_extensions)
-
-        return '\n'.join(lines)
-
-    @classmethod
-    def signature(cls):
-        return 'temmplate'
-
-
-class JavaScriptBabelMapper(BabelMapper):
-    """
-    A ``BabelMapper`` that provides the configuration for extracting strings
-    from JavaScript source files. Specifically, ``*.js`` or ``*.jsx`` files in
-    the ``static/js/lib`` directory of the project.
-
-    These strings will be collected into the ``frontend`` domain.
-    """
-
-    domain = DOMAIN_FRONTEND
-
-    @classmethod
-    def mapper_config(cls):
-        lines = [
-            '[jsx: static/js/lib/**.js]',
-            '[jsx: static/js/lib/**.jsx]',
-        ]
-
-        return '\n'.join(lines)
-
-    @classmethod
-    def signature(cls):
-        return 'javascript'
 
 
 class LocaleDetector(Extension):

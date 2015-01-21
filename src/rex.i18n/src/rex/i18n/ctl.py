@@ -3,41 +3,50 @@
 #
 
 
-import os.path
+import os
 import pkg_resources
+import re
 
 from email import message_from_string
 from tempfile import NamedTemporaryFile
 
-from cogs import task, argument, option
-from cogs.log import fail, warn
 from babel.messages.frontend import CommandLineInterface
 
-from rex.core import get_packages
-from rex.ctl.common import make_rex, pair
+from rex.core import Error
+from rex.ctl import Task, argument, option
 
-from .core import ALL_DOMAINS
-from .extensions import BabelMapper
+from .core import ALL_DOMAINS, DOMAIN_BACKEND, DOMAIN_FRONTEND
 
 
 __all__ = (
-    'I18N_EXTRACT',
-    'I18N_INIT',
-    'I18N_UPDATE',
-    'I18N_COMPILE',
+    'I18NExtractTask',
+    'I18NInitTask',
+    'I18NUpdateTask',
+    'I18NCompileTask',
 )
 
 
-# pylint: disable=C0103
-
-# TODO: should try to restrict these command to only work on projects installed
-# as editable. don't want these commands to operate on truly installed packages
+# pylint: disable=E1101,C0103
 
 
-def _get_pot_location(package, domain):
-    pot_dir = package.abspath('i18n')
-    pot_file = os.path.join(pot_dir, '%s.pot' % domain)
-    return pot_dir, pot_file
+BABEL_MAPPERS = dict([(d, '') for d in ALL_DOMAINS])
+
+BABEL_MAPPERS[DOMAIN_BACKEND] = """[python: src/**.py]
+[jinja2: static/template/**.html]
+extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+[jinja2: static/templates/**.html]
+extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+[jinja2: static/www/**.html]
+extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+[jinja2: static/www/**.js_t]
+extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+[jinja2: static/www/**.css_t]
+extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+"""
+
+BABEL_MAPPERS[DOMAIN_FRONTEND] = """[jsx: static/js/lib/**.js]
+[jsx: static/js/lib/**.jsx]
+"""
 
 
 def check_domain(domain):
@@ -46,133 +55,129 @@ def check_domain(domain):
     raise ValueError('%s is not a valid domain' % domain)
 
 
-class I18N_TASK(object):
-    project = argument(str)
-
-    require = option(
-        None,
-        str,
-        default=[],
-        plural=True,
-        value_name='PACKAGE',
-        hint='include an additional package',
-    )
-    setting = option(
-        None,
-        pair,
-        default={},
-        plural=True,
-        value_name='PARAM=VALUE',
-        hint='set a configuration parameter',
-    )
-    domain = option(
-        None,
-        check_domain,
-        default=ALL_DOMAINS,
-        plural=True,
-        value_name='DOMAIN',
-        hint='the gettext domain(s) to operate on; can choose from: %s' % (
-            ', '.join(ALL_DOMAINS),
-        ),
-    )
-
-    def __init__(self, project, require, setting, domain):
-        self.project = project
-        self.require = require
-        self.setting = setting
-        self.domain = domain
-
-    def get_rex(self):
-        return make_rex(
-            self.project,
-            self.require,
-            self.setting,
-            False,
-            ensure='rex.i18n',
+class I18NTask(Task):
+    class options(object):  # noqa
+        domain = option(
+            None,
+            check_domain,
+            default=ALL_DOMAINS,
+            plural=True,
+            value_name='DOMAIN',
+            hint='the gettext domain(s) to operate on; can choose from: %s' % (
+                ', '.join(ALL_DOMAINS),
+            ),
         )
 
+    def get_pot_location(self, domain):
+        pot_dir = os.path.join(self.project_path, 'static', 'i18n')
+        pot_file = os.path.join(pot_dir, '%s.pot' % domain)
+        return pot_dir, pot_file
 
-@task
-class I18N_EXTRACT(I18N_TASK):
+
+class I18NExtractTask(I18NTask):
     """
-    extracts translatable strings from a project and creates a POT file
+    extracts translatable strings from a project and creates POT file(s)
+
+    The project-path argument is the path to the project source repository. If
+    not specified, it will assume the current directory.
     """
+
+    name = 'i18n-extract'
+
+    class arguments(object):  # noqa
+        project_path = argument(str, default=os.getcwd())
 
     def __call__(self):
-        mapper_config = {}
-        with self.get_rex():
-            app_package = get_packages()[self.project]
-            for domain in self.domain:
-                mapper_config[domain] = \
-                    BabelMapper.domain_mapper_config(domain)
-
-        base_args = ['pybabel', 'extract']
-
+        base_args = ['pybabel', 'extract', '--no-location']
         base_args.append('--keyword=lazy_gettext')
-
-        base_args.append('--project=%s' % app_package.name)
-
-        try:
-            dist = pkg_resources.get_distribution(app_package.name)
-
-            base_args.append('--version=%s' % dist.version)
-
-            try:
-                pkg_info = dist.get_metadata('PKG-INFO')
-            except IOError:
-                pass
-            else:
-                pkg_info = message_from_string(pkg_info)
-
-                if 'Author' in pkg_info:
-                    base_args.append(
-                        '--copyright-holder=%s' % pkg_info['Author'],
-                    )
-                if 'Author-Email' in pkg_info:
-                    base_args.append(
-                        '--msgid-bugs-address=%s' % pkg_info['Author-Email'],
-                    )
-
-        # pylint: disable=W0704
-        except pkg_resources.DistributionNotFound:
-            pass
+        base_args.extend(self.get_package_metadata())
 
         for domain in self.domain:
             args = base_args[:]
 
             config_file = NamedTemporaryFile(delete=False)
-            config_file.write(mapper_config[domain])
+            config_file.write(BABEL_MAPPERS[domain])
             config_file.close()
             args.append('--mapping=%s' % config_file.name)
 
-            pot_dir, pot_file = _get_pot_location(app_package, domain)
+            pot_dir, pot_file = self.get_pot_location(domain)
             if not os.path.exists(pot_dir):
                 os.makedirs(pot_dir)
             args.append('--output=%s' % pot_file)
 
-            args.append('.')  # TODO: can't assume running from project root
+            args.append(self.project_path)
 
             CommandLineInterface().run(args)
 
             os.remove(config_file.name)
 
+    def get_package_metadata(self):
+        metadata = []
 
-@task
-class I18N_INIT(I18N_TASK):
+        setup = os.path.join(self.project_path, 'setup.py')
+
+        if os.path.exists(setup):
+            setup = open(setup, 'r').read()
+            match = re.search(
+                r"name\s*=\s*['\"]([^'\"]*)['\"]",
+                setup,
+                re.DOTALL,
+            )
+
+            if match:
+                package_name = match.groups()[0]
+
+                metadata.append('--project=%s' % package_name)
+
+                try:
+                    dist = pkg_resources.get_distribution(package_name)
+
+                    metadata.append('--version=%s' % dist.version)
+
+                    try:
+                        pkg_info = dist.get_metadata('PKG-INFO')
+                    except IOError:  # pragma: no cover
+                        pass
+                    else:
+                        pkg_info = message_from_string(pkg_info)
+
+                        if 'Author' in pkg_info:
+                            metadata.append(
+                                '--copyright-holder=%s' % (
+                                    pkg_info['Author'],
+                                ),
+                            )
+                        if 'Author-Email' in pkg_info:
+                            metadata.append(
+                                '--msgid-bugs-address=%s' % (
+                                    pkg_info['Author-Email'],
+                                ),
+                            )
+
+                # pylint: disable=W0704
+                except pkg_resources.DistributionNotFound:  # pragma: no cover
+                    pass
+
+        return metadata
+
+
+class I18NInitTask(I18NTask):
     """
     initializes a translation locale for a project
+
+    The locale argument is the code of the locale to initialize.
+
+    The project-path argument is the path to the project source repository. If
+    not specified, it will assume the current directory.
     """
 
-    locale = argument(str)
+    name = 'i18n-init'
 
-    def __init__(self, project, require, setting, domain, locale):
-        super(I18N_INIT, self).__init__(project, require, setting, domain)
-        self.locale = locale
+    class arguments(object):  # noqa
+        locale = argument(str)
+        project_path = argument(str, default=os.getcwd())
 
     def __call__(self):
-        with self.get_rex():
-            app_package = get_packages()[self.project]
-
         base_args = ['pybabel', 'init']
 
         base_args.append('--locale=%s' % self.locale)
@@ -182,9 +187,9 @@ class I18N_INIT(I18N_TASK):
 
             args.append('--domain=%s' % domain)
 
-            pot_dir, pot_file = _get_pot_location(app_package, domain)
+            pot_dir, pot_file = self.get_pot_location(domain)
             if not os.path.exists(pot_file):
-                raise fail(
+                raise Error(
                     'The POT file is missing for domain "%s" -- you should run'
                     ' the \'i18n-extract\' task first.' % (
                         domain,
@@ -196,22 +201,29 @@ class I18N_INIT(I18N_TASK):
             CommandLineInterface().run(args)
 
 
-@task
-class I18N_UPDATE(I18N_TASK):
+class I18NUpdateTask(I18NTask):
     """
     updates a translation locale based on an updated POT file
+
+    The project-path argument is the path to the project source repository. If
+    not specified, it will assume the current directory.
     """
 
-    locale = argument(str, None)
+    name = 'i18n-update'
 
-    def __init__(self, project, require, setting, domain, locale):
-        super(I18N_UPDATE, self).__init__(project, require, setting, domain)
-        self.locale = locale
+    class arguments(object):  # noqa
+        project_path = argument(str, default=os.getcwd())
+
+    class options(object):  # noqa
+        locale = option(
+            None,
+            str,
+            default=None,
+            hint='the locale to update; if not specified, all locales in the'
+            ' project are updated',
+        )
 
     def __call__(self):
-        with self.get_rex():
-            app_package = get_packages()[self.project]
-
         base_args = ['pybabel', 'update']
 
         if self.locale:
@@ -222,9 +234,9 @@ class I18N_UPDATE(I18N_TASK):
 
             args.append('--domain=%s' % domain)
 
-            pot_dir, pot_file = _get_pot_location(app_package, domain)
+            pot_dir, pot_file = self.get_pot_location(domain)
             if not os.path.exists(pot_file):
-                raise fail(
+                raise Error(
                     'The POT file is missing for domain "%s" -- you should run'
                     ' the \'i18n-extract\' task first.' % (
                         domain,
@@ -236,22 +248,29 @@ class I18N_UPDATE(I18N_TASK):
             CommandLineInterface().run(args)
 
 
-@task
-class I18N_COMPILE(I18N_TASK):
+class I18NCompileTask(I18NTask):
     """
     compiles a translation locale for runtime use
+
+    The project-path argument is the path to the project source repository. If
+    not specified, it will assume the current directory.
     """
 
-    locale = argument(str, None)
+    name = 'i18n-compile'
 
-    def __init__(self, project, require, setting, domain, locale):
-        super(I18N_COMPILE, self).__init__(project, require, setting, domain)
-        self.locale = locale
+    class arguments(object):  # noqa
+        project_path = argument(str, default=os.getcwd())
+
+    class options(object):  # noqa
+        locale = option(
+            None,
+            str,
+            default=None,
+            hint='the locale to compile; if not specified, all locales in the'
+            ' project are compiled',
+        )
 
     def __call__(self):
-        with self.get_rex():
-            app_package = get_packages()[self.project]
-
         base_args = ['pybabel', 'compile', '--use-fuzzy']
 
         if self.locale:
@@ -262,9 +281,9 @@ class I18N_COMPILE(I18N_TASK):
 
             args.append('--domain=%s' % domain)
 
-            pot_dir, _ = _get_pot_location(app_package, domain)
+            pot_dir, _ = self.get_pot_location(domain)
             if not os.path.exists(pot_dir):
-                raise fail(
+                raise Error(
                     'The I18N directory is missing -- you should run the'
                     ' \'i18n-extract\' task first.',
                 )
@@ -272,10 +291,9 @@ class I18N_COMPILE(I18N_TASK):
 
             try:
                 CommandLineInterface().run(args)
-            except:
-                warn(
+            except:  # pylint: disable=W0702
+                print \
                     'There was a failure when trying to compile domain: %s' % (
                         domain,
                     )
-                )
 

@@ -5,8 +5,7 @@ ignore:
   - ^doc/conf\.py$
   - ^demo/.*$
   - ^static/js/.*$
-  # Have to ignore the rex.ctl commands because pylint crashes when it tries to import cogs.
-  - ^src/rex/i18n/ctl.py$
+  - ^test/sandbox/.*$
 
 pep8:
   disable:

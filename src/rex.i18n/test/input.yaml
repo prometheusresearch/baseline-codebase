@@ -4,8 +4,14 @@
 
 title: REX.I18N
 tests:
+  - rmdir: ./build/coverage
+  - mkdir: ./build/coverage
   - coverage: setup.cfg
+    auto-data: true
 
+  - rmdir: ./test/sandbox
+  - sh: cp -r ./demo ./test/sandbox
+  - rmdir: ./test/sandbox/static/i18n
   - sh: pip install --quiet --editable ./demo
 
   - doctest: README.rst

@@ -11,4 +11,5 @@ REX.I18N Examples
     test_settings
     test_validators
     test_initializer
+    test_ctl
 

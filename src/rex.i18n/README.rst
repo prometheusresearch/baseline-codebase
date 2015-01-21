@@ -200,11 +200,11 @@ domain to extract by using the ``--domain`` option.
 
 Example::
 
-    $ rex i18n-extract rex.survey
+    $ rex i18n-extract
     extracting messages from ...
-    writing PO template file to rex.survey/i18n/backend.pot
+    writing PO template file to static/i18n/backend.pot
     extracting messages from ...
-    writing PO template file to rex.survey/i18n/frontend.pot
+    writing PO template file to static/i18n/frontend.pot
 
 
 i18n-init
@@ -221,9 +221,9 @@ domain to extract by using the ``--domain`` option.
 
 Example::
 
-    $ rex i18n-init rex.survey it
-    creating catalog 'rex.survey/i18n/it/LC_MESSAGES/backend.po' based on 'rex.survey/i18n/backend.pot'
-    creating catalog 'rex.survey/i18n/it/LC_MESSAGES/frontend.po' based on 'rex.survey/i18n/frontend.pot'
+    $ rex i18n-init it
+    creating catalog 'static/i18n/it/LC_MESSAGES/backend.po' based on 'static/i18n/backend.pot'
+    creating catalog 'static/i18n/it/LC_MESSAGES/frontend.po' based on 'static/i18n/frontend.pot'
 
 
 i18n-update
@@ -238,7 +238,7 @@ command to then update the individual locales' PO files.
 
 By default, this command will update all locales found in the project. If
 necessary, you can choose a specific locale to update by passing that locale
-as an additional argument to the command.
+code via the ``--locale`` option.
 
 By default it will process both gettext domains that this package establishes;
 ``backend`` and ``frontend``. If necessary, you can explicitly choose which
@@ -246,9 +246,9 @@ domain to extract by using the ``--domain`` option.
 
 Example::
 
-    $ rex i18n-update rex.survey it
-    updating catalog 'rex.survey/i18n/it/LC_MESSAGES/backend.po' based on 'rex.survey/i18n/backend.pot'
-    updating catalog 'rex.survey/i18n/it/LC_MESSAGES/frontend.po' based on 'rex.survey/i18n/frontend.pot'
+    $ rex i18n-update
+    updating catalog 'static/i18n/it/LC_MESSAGES/backend.po' based on 'static/i18n/backend.pot'
+    updating catalog 'static/i18n/it/LC_MESSAGES/frontend.po' based on 'static/i18n/frontend.pot'
 
 
 i18n-compile
@@ -261,7 +261,7 @@ executed prior to packaging the project for distribution/deployment.
 
 By default, this command will compile all locales found in the project. If
 necessary, you can choose a specific locale to compile by passing that locale
-as an additional argument to the command.
+code via the ``--locale`` option.
 
 By default it will process both gettext domains that this package establishes;
 ``backend`` and ``frontend``. If necessary, you can explicitly choose which
@@ -269,9 +269,9 @@ domain to extract by using the ``--domain`` option.
 
 Example::
 
-    $ rex i18n-compile rex.survey it
-    compiling catalog 'rex.survey/i18n/it/LC_MESSAGES/backend.po' to 'rex.survey/i18n/it/LC_MESSAGES/backend.mo'
-    compiling catalog 'rex.survey/i18n/it/LC_MESSAGES/frontend.po' to 'rex.survey/i18n/it/LC_MESSAGES/frontend.mo'
+    $ rex i18n-compile
+    compiling catalog 'static/i18n/it/LC_MESSAGES/backend.po' to 'static/i18n/it/LC_MESSAGES/backend.mo'
+    compiling catalog 'static/i18n/it/LC_MESSAGES/frontend.po' to 'static/i18n/it/LC_MESSAGES/frontend.mo'
 
 
 Typical Development Workflow

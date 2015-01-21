@@ -6,4 +6,5 @@ dist
 static/cldr
 static/js/bower_components
 static/js/node_modules
+test/sandbox
 

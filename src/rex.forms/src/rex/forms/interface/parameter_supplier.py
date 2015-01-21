@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Extension, cached
+from rex.core import Extension
 
 
 __all__ = (
@@ -18,14 +18,6 @@ class ParameterSupplier(Extension):
     """
 
     priority = 1000
-
-    @classmethod
-    @cached
-    def all(cls):
-        return sorted(
-            super(ParameterSupplier, cls).all(),
-            key=lambda e: e.priority,
-        )
 
     @classmethod
     def enabled(cls):
@@ -52,7 +44,7 @@ class ParameterSupplier(Extension):
 
         parameters = {}
 
-        for supplier in cls.all():
+        for supplier in cls.ordered():
             supplier = supplier()
             if supplier.is_applicable(task):
                 parameters.update(supplier.get_parameters(task))

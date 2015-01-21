@@ -1,0 +1,43 @@
+{
+    "instrument": {
+        "id": "urn:test-instrument-enum",
+        "version": "1.1"
+    },
+    "defaultLocalization": "en",
+    "pages": [
+        {
+            "id": "page1",
+            "elements": [
+                {
+                    "type": "question",
+                    "options": {
+                        "fieldId": "q_fake",
+                        "text": {
+                            "en": "How do you feel today?"
+                        },
+                        "enumerations": [
+                            {
+                                "id": "foo",
+                                "text": {
+                                    "en": "Foo!"
+                                },
+                                "audio": {
+                                    "en": [
+                                        "http://example.com/foo.mp3"
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "bar",
+                                "text": {
+                                    "en": "Bar?"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
+

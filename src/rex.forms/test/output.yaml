@@ -4,8 +4,20 @@
 ---
 suite: rex.forms
 tests:
+- sh: pip install --quiet --editable ./demo
+  stdout: ''
+- sh: rex dropdb --quiet rex.forms_demo
+  stdout: ''
+- sh: rex deploy --quiet rex.forms_demo
+  stdout: ''
 - forms: test/forms/*.json
   validations:
+  - {test/forms/audio.json: VALIDATED}
+  - {test/forms/audio_element.json: VALIDATED}
+  - {test/forms/audio_enumeration.json: VALIDATED}
+  - {test/forms/bad_audio.json: 'ValidationError: {u''text'': {u''en'': u''How do
+      you feel today?''}, u''audio'': {u''en'': u''http://example.com/howfeel.mp3''},
+      u''fieldId'': u''q_fake''} is not valid under any of the given schemas'}
   - {test/forms/bad_instrument.json: 'ValidationError: u''version'' is a required
       property'}
   - {test/forms/broken_instrument.json: 'ValidationError: Invalid Instrument JSON
@@ -18,6 +30,8 @@ tests:
       could be decoded'}
   - {test/forms/instrument_not_an_object.json: 'ValidationError: Instrument Definitions
       must be mapped objects.'}
+  - {test/forms/missing_audio_localization.json: 'ValidationError: Element audio missing
+      localization for en'}
   - {test/forms/missing_defaultlocalization.json: 'ValidationError: u''defaultLocalization''
       is a required property'}
   - {test/forms/missing_element_options.json: 'ValidationError: "header" Element missing
@@ -67,7 +81,8 @@ tests:
     stdout: |+
       FATAL ERROR: missing argument <configuration>
 
-- sh: pip install -q -e ./demo/rex.forms_demo
-  stdout: ''
-- sh: pip uninstall -q -y rex.forms_demo
-  stdout: ''
+- suite: rex-forms-retrieve
+  tests:
+  - sh: rex forms-retrieve simple survey rex.forms_demo
+    stdout: |
+      {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}

@@ -17,6 +17,9 @@ __all__ = (
 )
 
 
+# pylint: disable=E1101
+
+
 FORM_SCHEMA_JSON = pkg_resources.resource_string(
     __name__,
     'schemas/form.json',
@@ -37,6 +40,7 @@ FORM_ELEMENT_OPTIONS = {
         'rows',
         'widget',
         'events',
+        'audio',
     ]),
 
     'header': set([
@@ -48,6 +52,10 @@ FORM_ELEMENT_OPTIONS = {
     ]),
 
     'divider': set([
+    ]),
+
+    'audio': set([
+        'source',
     ]),
 }
 
@@ -67,6 +75,10 @@ FORM_ELEMENT_REQUIRED = {
     ]),
 
     'divider': set([
+    ]),
+
+    'audio': set([
+        'source',
     ]),
 }
 

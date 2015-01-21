@@ -6,6 +6,8 @@
 
 var React = require('react');  // Don't remove this, no matter what eslint says.
 var localized = require('../localized');
+var AudioPlayer = require('../AudioPlayer');
+
 
 /**
  * Mixin which provides methods for rendering label and help elements.
@@ -19,11 +21,18 @@ var LabelRenderingMixin = {
       return null;
     }
     return this.props.options.text ? (
-      <label
-          htmlFor={htmlFor}
-          className="control-label rex-forms-Widget__label">
-        <localized>{this.props.options.text}</localized>
-      </label>
+      <div>
+        <label
+            htmlFor={htmlFor}
+            className="control-label rex-forms-Widget__label">
+          <localized>{this.props.options.text}</localized>
+        </label>
+        {this.props.options.audio &&
+          <AudioPlayer
+            source={this.props.options.audio}
+            />
+        }
+      </div>
     ) : null;
   },
 

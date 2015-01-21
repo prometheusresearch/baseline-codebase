@@ -4,35 +4,20 @@
 
 title: REX.FORMS
 tests:
+  - rmdir: ./build/coverage
+  - mkdir: ./build/coverage
   - coverage: setup.cfg
+    auto-data: true
 
-  - sh: pip install -q -e ./demo/rex.forms_demo
+  - sh: pip install --quiet --editable ./demo
+
+  - sh: rex dropdb --quiet rex.forms_demo
+  - sh: rex deploy --quiet rex.forms_demo
 
   - doctest: README.rst
   - doctest: test/test_*.rst
 
   - forms: test/forms/*.json
-
-  - title: rex forms-validate
-    tests:
-      - sh: rex forms-validate test/forms/simplest.json
-      - sh: rex forms-validate test/forms/missing_pages.json
-        exit: 1
-      - sh: rex forms-validate /tmp/does/not/actually/exist.json
-        exit: 1
-      - sh: rex forms-validate
-        exit: 1
-
-  # Without actually implementing the interface fully, it's rather hard to
-  # test these.
-  #- title: rex forms-retrieve
-  #  tests:
-  #    - sh: rex forms-retrieve someinstrument somechannel
-  #- title: rex forms-store
-  #  tests:
-  #    - sh: rex forms-store someinstrument somechannel myconfiguration.json
-
-  - sh: pip uninstall -q -y rex.forms_demo
 
   - coverage-check: 90.0
   - coverage-report: ./build/coverage

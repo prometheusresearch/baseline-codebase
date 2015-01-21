@@ -7,6 +7,8 @@
 
 var FormAutoSaveService = require('./FormAutoSaveService');
 var FormCompletionService = require('./FormCompletionService');
+var log = require('../log');
+
 
 class FormPersistenceService {
 
@@ -19,7 +21,7 @@ class FormPersistenceService {
 
   start() {
     if (this.options.saveCallback) {
-      this.debug('initializing autosave service');
+      log('initializing autosave service');
       this._saveService = new FormAutoSaveService(
         this.form,
         this.onSave.bind(this),
@@ -28,7 +30,7 @@ class FormPersistenceService {
     }
 
     if (this.options.completeCallback) {
-      this.debug('initializing completion service');
+      log('initializing completion service');
       this._completeService = new FormCompletionService(
         this.form,
         this.onComplete.bind(this),
@@ -39,7 +41,7 @@ class FormPersistenceService {
 
   killSaveService() {
     if (this._saveService) {
-      this.debug('shutting down autosave service');
+      log('shutting down autosave service');
       this._saveService.stop();
       this._saveService = null;
     }
@@ -47,7 +49,7 @@ class FormPersistenceService {
 
   killCompleteService() {
     if (this._completeService) {
-      this.debug('shutting down completion service');
+      log('shutting down completion service');
       this._completeService.stop();
       this._completeService = null;
     }
@@ -56,12 +58,6 @@ class FormPersistenceService {
   stop() {
     this.killSaveService();
     this.killCompleteService();
-  }
-
-  debug() {
-    if (process.env.NODE_ENV !== 'production') {
-      console.debug.apply(console, arguments);
-    }
   }
 
   onSave(assessment) {

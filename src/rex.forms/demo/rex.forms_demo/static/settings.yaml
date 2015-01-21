@@ -1,7 +1,0 @@
-forms_implementation:
-  channel: rex.forms_demo.MyChannel
-  form: rex.forms_demo.MyForm
-  task: rex.forms_demo.MyTask
-  entry: rex.forms_demo.MyEntry
-  draftform: rex.forms_demo.MyDraftForm
-

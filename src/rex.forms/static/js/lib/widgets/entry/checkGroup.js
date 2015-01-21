@@ -54,6 +54,7 @@ var checkGroup = React.createClass({
             className="rex-forms-checkGroup__optionLabel"
             label={enumeration.text}
             help={enumeration.help}
+            audio={enumeration.audio}
             />
         </label>
       </div>

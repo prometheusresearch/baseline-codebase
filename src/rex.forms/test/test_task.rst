@@ -7,7 +7,7 @@ Task
 
 Set up the environment::
 
-    >>> from rex.instrument.interface import Subject, Instrument, InstrumentVersion, Assessment
+    >>> from rex.instrument.interface import Subject, Instrument, InstrumentVersion, Assessment, User
     >>> from datetime import datetime
     >>> from rex.forms.interface import Entry, Task
     >>> from datetime import datetime
@@ -65,9 +65,9 @@ and string-rendering methods::
     Instrument(u'fake123', u'My Instrument Title')
 
     >>> task.as_dict()
-    {'status': u'not-started', 'uid': u'bar999', 'priority': 100, 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'num_required_entries': 1, 'subject': {'uid': u'fake123'}}
+    {'status': u'not-started', 'uid': u'bar999', 'facilitator': None, 'priority': 100, 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'num_required_entries': 1, 'subject': {'uid': u'fake123'}}
     >>> task.as_json()
-    u'{"status": "not-started", "uid": "bar999", "priority": 100, "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "num_required_entries": 1, "subject": {"uid": "fake123"}}'
+    u'{"status": "not-started", "uid": "bar999", "facilitator": null, "priority": 100, "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "num_required_entries": 1, "subject": {"uid": "fake123"}}'
 
 
 The Subjects, Instruments, and Assessments passed to the constructor must
@@ -86,13 +86,13 @@ actually be instances of those classes or strings containing UIDs::
       ...
     ValueError: assessment must be an instance of Assessment or a UID of one
 
-    >>> task = Task('bar999', 'subject1', 'instrument1', 100, assessment='assessment1')
+    >>> task = Task('bar999', 'subject1', 'simple', 100, assessment='assessment1')
     >>> task.subject
-    MySubject(u'subject1')
+    DemoSubject(u'subject1')
     >>> task.instrument
-    MyInstrument(u'instrument1', u'Title for instrument1')
+    DemoInstrument(u'simple', u'Simple Instrument')
     >>> task.assessment
-    MyAssessment(u'assessment1', MySubject(u'fake_subject_1a'), MyInstrumentVersion(u'fake_instrument_version_1a', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1))
+    DemoAssessment(u'assessment1', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
 
 
 The priority passed to the constructor must be an integer::
@@ -110,7 +110,8 @@ Tasks have a property to retrieve the InstrumentVersion they're associated with:
     InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)
 
 
-Tasks have a status property which is readable and writable::
+Tasks have a ``status`` and ``facilitator`` property which is readable and
+writable::
 
     >>> task = Task('bar999', subject, instrument, 100)
     >>> task.status
@@ -129,6 +130,24 @@ Tasks have a status property which is readable and writable::
     Traceback (most recent call last):
       ...
     ValueError: "something else" is not a valid Task status
+
+    >>> task.facilitator is None
+    True
+    >>> user = User('rex.jay', 'jay')
+    >>> task.facilitator = user
+    >>> task.facilitator
+    User(u'rex.jay', u'jay')
+    >>> task.facilitator = 'user1'
+    >>> task.facilitator
+    DemoUser(u'user1', u'user1')
+    >>> task.facilitator = None
+    >>> task.facilitator is None
+    True
+    >>> task.facilitator = 123
+    Traceback (most recent call last):
+      ...
+    ValueError: "123" is not a valid Facilitator
+
 
 
 Tasks have a num_required_entries property which is readable only::

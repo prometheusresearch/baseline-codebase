@@ -1,0 +1,4 @@
+uid,assessment,entry_type,status,ordinal,created_by,date_created,modified_by,date_modified,memo,data
+entry1,assessment1,preliminary,complete,1,someone,"2015-01-01",someone,"2015-01-01",,"{}"
+entry2,assessment1,reconciled,complete,2,someone,"2015-01-01",someone,"2015-01-01",,"{}"
+entry3,assessment2,preliminary,in-progress,1,someone,"2015-01-01",someone,"2015-01-01",,"{}"

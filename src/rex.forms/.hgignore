@@ -3,5 +3,6 @@ syntax: glob
 *.egg-info
 build
 dist
+static/js/bower_components
 static/js/node_modules
-demo/rex.forms_demo/static/www/bundle/
+demo/static/www/bundle

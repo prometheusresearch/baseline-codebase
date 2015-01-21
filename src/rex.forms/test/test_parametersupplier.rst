@@ -84,5 +84,5 @@ ParameterSupplier has a slightly modified ``all()`` method that returns the
 classes sorted in order of their ``priority``::
 
     >>> ParameterSupplier.all()
-    [__main__.UnusedSupplier, __main__.MyOtherSupplier, __main__.MySupplier]
+    [__main__.MySupplier, __main__.UnusedSupplier, __main__.MyOtherSupplier]
 

@@ -21,13 +21,13 @@ Typically an app would have these implementations specified in its
     >>> test = Rex('__main__', 'rex.forms_demo')
     >>> test.on()
     >>> get_settings().forms_implementation
-    Record(channel=rex.forms_demo.MyChannel, form=rex.forms_demo.MyForm, task=rex.forms_demo.MyTask, entry=rex.forms_demo.MyEntry, draftform=rex.forms_demo.MyDraftForm)
+    Record(channel=rex.forms_demo.DemoChannel, form=rex.forms_demo.DemoForm, task=rex.forms_demo.DemoTask, entry=rex.forms_demo.DemoEntry, draftform=rex.forms_demo.DemoDraftForm)
 
 
 The setting can be specified by multiple apps and will be merged::
 
-    >>> test = Rex('__main__', 'rex.forms_demo', forms_implementation={'channel': 'rex.forms_demo.MyOtherChannel'})
+    >>> test = Rex('__main__', 'rex.forms_demo', forms_implementation={'channel': 'rex.forms_demo.OtherDemoChannel'})
     >>> test.on()
     >>> get_settings().forms_implementation
-    Record(channel=rex.forms_demo.MyOtherChannel, form=rex.forms_demo.MyForm, task=rex.forms_demo.MyTask, entry=rex.forms_demo.MyEntry, draftform=rex.forms_demo.MyDraftForm)
+    Record(channel=rex.forms_demo.OtherDemoChannel, form=rex.forms_demo.DemoForm, task=rex.forms_demo.DemoTask, entry=rex.forms_demo.DemoEntry, draftform=rex.forms_demo.DemoDraftForm)
 

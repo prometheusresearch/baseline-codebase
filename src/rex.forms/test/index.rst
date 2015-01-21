@@ -12,4 +12,5 @@ REX.FORMS Examples
     test_settings
     test_parametersupplier
     test_taskcompletionprocessor
+    test_ctl
 

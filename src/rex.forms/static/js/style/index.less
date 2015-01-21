@@ -6,6 +6,7 @@
 @import (reference) "~bootstrap/less/tables";
 @import (reference) "~bootstrap/less/progress-bars";
 @import (reference) "~bootstrap/less/glyphicons";
+@import (reference) "~bootstrap/less/button-groups";
 
 @questionIndent: 20px;
 
@@ -270,18 +271,33 @@
 .rex-forms-ItemLabel {
   display: inline-block;
   vertical-align: top;
-}
 
-.rex-forms-ItemLabel__label,
-.rex-forms-ItemLabel__help {
-  display: block;
-  font-weight: normal;
-  cursor: pointer;
-}
+  .rex-forms-ItemLabel__label {
+    display: inline-block;
+    font-weight: normal;
+    cursor: pointer;
+  }
 
-.rex-forms-ItemLabel__help {
-  font-size: 90%;
-  color: @colorTextMinor;
+  .rex-forms-ItemLabel__help {
+    display: block;
+    font-weight: normal;
+    cursor: pointer;
+    font-size: 90%;
+    color: @colorTextMinor;
+  }
+
+  .rex-forms-AudioPlayer {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-right: 8px;
+
+    .btn {
+      padding: 1px 5px;
+      font-size: 12px;
+      line-height: 1.5;
+      border-radius: 3px;
+    }
+  }
 }
 
 .rex-forms-Widget-explanation,
@@ -417,6 +433,15 @@
 
   .rex-forms-ItemLabel__label {
     font-weight: bold;
+    display: table-header-group;
+  }
+
+  .rex-forms-AudioPlayer {
+    display: table-footer-group;
+
+    .rex-forms-AudioPlayerControls {
+      margin-top: 0.25em;
+    }
   }
 }
 
@@ -431,9 +456,18 @@
 
   .rex-forms-ItemLabel__label {
     font-weight: bold;
+    display: table-header-group;
 
     .rex-forms-matrixRow__required & {
       .rex-forms-required-mixin();
+    }
+  }
+
+  .rex-forms-AudioPlayer {
+    display: table-footer-group;
+
+    .rex-forms-AudioPlayerControls {
+      margin-top: 0.25em;
     }
   }
 }
@@ -709,5 +743,34 @@
 .rex-forms-ReconcilerControls {
   text-align: center;
   margin-top: 2em;
+}
+
+
+.rex-forms-AudioPlayer {
+  margin-bottom: 0.5em;
+
+  .btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+  }
+
+  .rex-forms-AudioPlayerControls {
+    .icon-play {
+      .glyphicon();
+      .glyphicon-play();
+    }
+
+    .icon-pause {
+      .glyphicon();
+      .glyphicon-pause();
+    }
+
+    .icon-restart {
+      .glyphicon();
+      .glyphicon-backward();
+    }
+  }
 }
 

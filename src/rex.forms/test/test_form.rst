@@ -100,11 +100,11 @@ instances of those classes or strings containing UIDs::
       ...
     ValueError: instrument_version must be an instance of InstrumentVersion or a UID of one
 
-    >>> form = Form('foo789', 'channel1', 'instrumentversion1', FORM)
+    >>> form = Form('foo789', 'survey', 'simple1', FORM)
     >>> form.channel
-    MyChannel(u'channel1', u'Title for channel1')
+    DemoChannel(u'survey', u'RexSurvey')
     >>> form.instrument_version
-    MyInstrumentVersion(u'instrumentversion1', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1)
+    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
 
 
 The configuration can be passed to the contructor as either a JSON-encoded

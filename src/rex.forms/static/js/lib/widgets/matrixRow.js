@@ -33,6 +33,7 @@ var matrixRow = React.createClass({
           className="rex-forms-matrixRow__cell rex-forms-matrixRow__label"
           label={this.props.row.text}
           help={this.props.row.help}
+          audio={this.props.row.audio}
           hideHelp={this.props.readOnly}
           />
         {this.renderCells()}

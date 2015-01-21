@@ -85,5 +85,5 @@ TaskCompletionProcessor has a slightly modified ``all()`` method that returns
 the classes sorted in order of their ``priority``::
 
     >>> TaskCompletionProcessor.all()
-    [__main__.UnusedProcessor, __main__.MyOtherProcessor, __main__.MyProcessor]
+    [__main__.MyProcessor, __main__.UnusedProcessor, __main__.MyOtherProcessor]
 

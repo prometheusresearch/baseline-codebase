@@ -142,6 +142,7 @@ type
                      header      A header/title text entry. Analogous to an H1 HTML tag.
                      text        A paragraph or group of text that should be displayed to the user.
                      divider     A horizontal screen divider. Analogous to an HR HTML tag.
+                     audio       An audio recording exposed via a simple player.
                      =========== ===========
 
 options
@@ -157,6 +158,8 @@ options
                      text            The only option allowed is a single property named ``text`` that
                                      is a `Localized String Object`_. This property can be marked up.
                      divider         N/A
+                     audio           The only option allowed is a single property named ``source`` that
+                                     is an `Audio Source Object`_.
                      =============== ==================
 
 tags
@@ -188,6 +191,12 @@ text
                   explicit question that is being asked of the Subject. This
                   text can be marked up.
     :Example: What is the your age?
+
+audio
+    :Type: `Audio Source Object`_
+    :Description: This property allows the Form author to supply audio
+                  recordings of the (or in support of) the question that the
+                  end user can play. This property is optional.
 
 help
     :Type: `Localized String Object`_
@@ -260,6 +269,12 @@ text
     :Description: This property allows the Form author to provide a more
                   detailed description for the Enumeration/Row rather than
                   displaying a code. This text can be marked up.
+
+audio
+    :Type: `Audio Source Object`_
+    :Description: This property allows the Form author to supply audio
+                  recordings of the (or in support of) the Enumeration/Row that
+                  the end user can play. This property is optional.
 
 help
     :Type: `Localized String Object`_
@@ -369,6 +384,36 @@ options:
                      removeLabel    recordList                          Remove      A `Localized String Object` that specifies the text to use on the button that removes a record from the list.
                      hotkeys        entryRadioGroup, entryCheckGroup                A mapping of Enumeration IDs to the numeric digits that will act as hotkeys to select the enumeration via keyboard entry. This option is ignored if there are more than 10 enumerations. If an enumeration is not listed in the mapping, it will automatically be assigned one.
                      ============== =================================== =========== ===========
+
+
+Audio Source Object
+-------------------
+An Audio Source Object is a container that allows the configuration author to
+specify the source files to play in components that provide audio playback
+functionality. It is structured much like a `Localized String Object`_, where
+each property is a `RFC5646`_ Language Tag. The value of each property is an
+array of strings that contain URLs to the files for each locale. Each URL in
+the array should point to a file that has the same recording, but a different
+encoding (e.g., MP3 vs. OGG vs. WAV).
+
+Example::
+
+    {
+        "en": [
+            "http://example.com/foo.mp3",
+            "http://example.com/foo.wav"
+        ],
+        "fr": [
+            "http://example.com/foo-fr.mp3"
+        ]
+    }
+
+Note: The URLs for the audio files can technically be path-relative,
+domain-relative, or fully-qualified. It is advised, though, that you only use
+fully-qualified (e.g., ``http://example.com/foo.mp3``) or domain-relative
+(e.g., ``/somewhere/foo.mp3``). Using path-relative URLs
+(e.g, ``../../foo.mp3``) can be troublesome to configure in environments where
+subpaths or mount points may not be predictable or stable.
 
 
 Unprompted Collection Object

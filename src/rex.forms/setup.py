@@ -8,13 +8,16 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.forms',
-    version='0.26.0',
+    version='0.27.0',
     description='Class interfaces and framework for using Instrument-based'
     ' Web Forms',
     long_description=open('README.rst', 'r').read(),
-    maintainer='Prometheus Research, LLC',
-    maintainer_email='contact@prometheusresearch.com',
+    author='Prometheus Research, LLC',
+    author_email='contact@prometheusresearch.com',
     license='AGPLv3',
+    classifiers=[
+        'Programming Language :: Python :: 2.7',
+    ],
     url='https://bitbucket.org/rexdb/rex.forms-provisional',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -26,11 +29,11 @@ setup(
         ],
     },
     setup_requires=[
-        'rex.setup>=1.1,<2',
+        'rex.setup>=1.1,<3',
     ],
     install_requires=[
-        'rex.core>=1.4,<2',
-        'rex.ctl>=1,<2',
+        'rex.core>=1.9,<2',
+        'rex.ctl>=2,<3',
         'rex.instrument>=0.12,<2',
         'rex.expression>=1.3,<2',
         'rex.i18n>=0.3,<2',

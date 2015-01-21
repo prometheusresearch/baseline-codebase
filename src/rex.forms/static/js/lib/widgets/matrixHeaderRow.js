@@ -29,6 +29,7 @@ var matrixHeaderRow = React.createClass({
           className={className}
           label={question.text}
           help={question.help}
+          audio={question.audio}
           hideHelp={this.props.readOnly}
           />
       );

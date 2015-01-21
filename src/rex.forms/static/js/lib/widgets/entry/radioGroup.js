@@ -70,6 +70,7 @@ var radioGroup = React.createClass({
             className="rex-forms-radioGroup__optionLabel"
             label={enumeration.text}
             help={enumeration.help}
+            audio={enumeration.audio}
             />
         </label>
       </div>

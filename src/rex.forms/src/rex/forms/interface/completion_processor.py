@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Extension, cached
+from rex.core import Extension
 
 
 __all__ = (
@@ -17,14 +17,6 @@ class TaskCompletionProcessor(Extension):
     """
 
     priority = 1000
-
-    @classmethod
-    @cached
-    def all(cls):
-        return sorted(
-            super(TaskCompletionProcessor, cls).all(),
-            key=lambda e: e.priority,
-        )
 
     @classmethod
     def enabled(cls):
@@ -51,7 +43,7 @@ class TaskCompletionProcessor(Extension):
         :rtype: dict
         """
 
-        for processor in cls.all():
+        for processor in cls.ordered():
             processor = processor()
             if processor.is_applicable(task, user):
                 processor.execute(task, user)

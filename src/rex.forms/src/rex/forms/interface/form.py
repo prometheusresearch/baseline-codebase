@@ -112,10 +112,13 @@ class Form(Extension, Comparable, Displayable, Dictable):
                 ensure_localization(options, 'text', 'Element')
                 ensure_localization(options, 'help', 'Element')
                 ensure_localization(options, 'error', 'Element')
+                ensure_localization(options, 'audio', 'Element')
+                ensure_localization(options, 'source', 'Element')
 
                 for enumeration in options.get('enumerations', []):
                     ensure_localization(enumeration, 'text', 'Enumeration')
                     ensure_localization(enumeration, 'help', 'Enumeration')
+                    ensure_localization(enumeration, 'audio', 'Enumeration')
 
     @classmethod
     def _validate_element_options(cls, configuration):

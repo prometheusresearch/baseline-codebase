@@ -6,10 +6,9 @@
 import json
 import sys
 
-from cogs import task, argument, option
-from cogs.log import fail
 
-from rex.ctl.common import make_rex, pair
+from rex.core import Error
+from rex.ctl import Task, RexTask, argument, option
 from rex.instrument.util import get_implementation
 
 from .errors import ValidationError
@@ -17,52 +16,48 @@ from .interface import Form
 
 
 __all__ = (
-    'FORMS_VALIDATE',
-    'FORMS_RETRIEVE',
-    'FORMS_STORE',
+    'FormsValidateTask',
+    'FormsRetrieveTask',
+    'FormsStoreTask',
 )
 
 
-# pylint: disable=C0103
+# pylint: disable=E1101,C0103
 
 
-class FormsTaskTools(object):
-    """
-    This is a mixin class containing utility functions for the rex.forms
-    rex.ctl tasks.
-    """
+def open_and_validate(
+        filename,
+        instrument_definition=None,
+        instrument_file=None):
+    try:
+        configuration = open(filename, 'r').read()
+    except Exception as exc:
+        raise Error('Could not open "%s": %s' % (
+            filename,
+            str(exc),
+        ))
 
-    def open_and_validate(self, filename, instrument_definition=None, instrument_file=None):
+    if (not instrument_definition) and instrument_file:
         try:
-            configuration = open(filename, 'r').read()
+            instrument_definition = open(instrument_file, 'r').read()
         except Exception as exc:
-            raise fail('Could not open "%s": %s' % (
-                filename,
+            raise Error('Could not open "%s": %s' % (
+                instrument_file,
                 str(exc),
             ))
 
-        if (not instrument_definition) and instrument_file:
-            try:
-                instrument_definition = open(instrument_file, 'r').read()
-            except Exception as exc:
-                raise fail('Could not open "%s": %s' % (
-                    filename,
-                    str(exc),
-                ))
+    try:
+        Form.validate_configuration(
+            configuration,
+            instrument_definition=instrument_definition,
+        )
+    except ValidationError as exc:
+        raise Error(exc.message)
 
-        try:
-            Form.validate_configuration(
-                configuration,
-                instrument_definition=instrument_definition,
-            )
-        except ValidationError as exc:
-            raise fail(exc.message)
-
-        return configuration
+    return configuration
 
 
-@task
-class FORMS_VALIDATE(FormsTaskTools):
+class FormsValidateTask(Task):
     """
     validate a Web Form Configuration
 
@@ -73,24 +68,24 @@ class FORMS_VALIDATE(FormsTaskTools):
     The only argument to this task is the filename to validate.
     """
 
-    configuration = argument(str)
+    name = 'forms-validate'
 
-    instrument = option(
-        None,
-        str,
-        default=None,
-        value_name='FILE',
-        hint='the file containing the associated Instrument Definition JSON;'
-        ' if not specified, then the Web Form Configuration will only be'
-        ' checked for schema violations',
-    )
+    class arguments(object):  # noqa
+        configuration = argument(str)
 
-    def __init__(self, configuration, instrument):
-        self.configuration = configuration
-        self.instrument = instrument
+    class options(object):  # noqa
+        instrument = option(
+            None,
+            str,
+            default=None,
+            value_name='FILE',
+            hint='the file containing the associated Instrument Definition'
+            ' JSON; if not specified, then the Web Form Configuration will'
+            ' only be checked for schema violations',
+        )
 
     def __call__(self):
-        self.open_and_validate(
+        open_and_validate(
             self.configuration,
             instrument_file=self.instrument,
         )
@@ -100,41 +95,7 @@ class FORMS_VALIDATE(FormsTaskTools):
         )
 
 
-class FormsInstanceTask(object):
-    require = option(
-        None,
-        str,
-        default=[],
-        plural=True,
-        value_name='PACKAGE',
-        hint='include an additional package',
-    )
-    setting = option(
-        None,
-        pair,
-        default={},
-        plural=True,
-        value_name='PARAM=VALUE',
-        hint='set a configuration parameter',
-    )
-
-    def __init__(self, project, require, setting):
-        self.project = project
-        self.require = require
-        self.setting = setting
-
-    def get_rex(self):
-        return make_rex(
-            self.project,
-            self.require,
-            self.setting,
-            False,
-            ensure='rex.forms',
-        )
-
-
-@task
-class FORMS_RETRIEVE(FormsInstanceTask):
+class FormsRetrieveTask(RexTask):
     """
     retrieves a Form from the datastore
 
@@ -148,59 +109,42 @@ class FORMS_RETRIEVE(FormsInstanceTask):
     assigned to.
     """
 
-    instrument_uid = argument(str)
-    channel_uid = argument(str)
-    project = argument(str, default=None)
+    name = 'forms-retrieve'
 
-    version = option(
-        None,
-        str,
-        default=None,
-        value_name='VERSION',
-        hint='the version of the Instrument to retrieve; if not specified,'
-        ' defaults to the latest version',
-    )
-    output = option(
-        None,
-        str,
-        default=None,
-        value_name='OUTPUT_FILE',
-        hint='the file to write the JSON to; if not specified, stdout is used',
-    )
-    pretty = option(
-        None,
-        bool,
-        hint='if specified, the outputted JSON will be formatted with newlines'
-        ' and indentation',
-    )
+    class arguments(object):  # noqa
+        instrument_uid = argument(str)
+        channel_uid = argument(str)
 
-    def __init__(
-            self,
-            instrument_uid,
-            channel_uid,
-            project,
-            require,
-            setting,
-            version,
-            output,
-            pretty):
-        super(FORMS_RETRIEVE, self).__init__(
-            project,
-            require,
-            setting,
+    class options(object):  # noqa
+        version = option(
+            None,
+            str,
+            default=None,
+            value_name='VERSION',
+            hint='the version of the Instrument to retrieve; if not specified,'
+            ' defaults to the latest version',
         )
-        self.instrument_uid = instrument_uid
-        self.channel_uid = channel_uid
-        self.version = version
-        self.output = output
-        self.pretty = pretty
+        output = option(
+            None,
+            str,
+            default=None,
+            value_name='OUTPUT_FILE',
+            hint='the file to write the JSON to; if not specified, stdout is'
+            ' used',
+        )
+        pretty = option(
+            None,
+            bool,
+            hint='if specified, the outputted JSON will be formatted with'
+            ' newlines and indentation',
+        )
 
     def __call__(self):
-        with self.get_rex():
+        with self.make():
             instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
-                raise fail('Instrument "%s" does not exist.' % (
+                raise Error('Instrument "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
 
@@ -209,14 +153,14 @@ class FORMS_RETRIEVE(FormsInstanceTask):
             else:
                 instrument_version = instrument.get_version(self.version)
             if not instrument_version:
-                raise fail('The desired version of "%s" does not exist.' % (
+                raise Error('The desired version of "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
 
             channel_impl = get_implementation('channel', package_name='forms')
             channel = channel_impl.get_by_uid(self.channel_uid)
             if not channel:
-                raise fail('Channel "%s" does not exist.' % (
+                raise Error('Channel "%s" does not exist.' % (
                     self.channel_uid,
                 ))
 
@@ -229,7 +173,7 @@ class FORMS_RETRIEVE(FormsInstanceTask):
             if form:
                 form = form[0]
             else:
-                raise fail(
+                raise Error(
                     'No Form exists for Instrument "%s", Version %s,'
                     ' Channel "%s"' % (
                         instrument.uid,
@@ -242,7 +186,7 @@ class FORMS_RETRIEVE(FormsInstanceTask):
                 try:
                     output = open(self.output, 'w')
                 except Exception as exc:
-                    raise fail('Could not open "%s" for writing: %s' % (
+                    raise Error('Could not open "%s" for writing: %s' % (
                         self.output,
                         str(exc),
                     ))
@@ -259,8 +203,7 @@ class FORMS_RETRIEVE(FormsInstanceTask):
             output.write('\n')
 
 
-@task
-class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
+class FormsStoreTask(RexTask):
     """
     stores a Form in the data store
 
@@ -277,45 +220,29 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
     Configuration to use.
     """
 
-    instrument_uid = argument(str)
-    channel_uid = argument(str)
-    configuration = argument(str)
-    project = argument(str, default=None)
+    name = 'forms-store'
 
-    version = option(
-        None,
-        str,
-        default=None,
-        value_name='VERSION',
-        hint='the version of the Instrument to associate the Form with; if not'
-        ' specified, then the latest version will be used',
-    )
+    class arguments(object):  # noqa
+        instrument_uid = argument(str)
+        channel_uid = argument(str)
+        configuration = argument(str)
 
-    def __init__(
-            self,
-            instrument_uid,
-            channel_uid,
-            configuration,
-            project,
-            require,
-            setting,
-            version):
-        super(FORMS_STORE, self).__init__(
-            project,
-            require,
-            setting,
+    class options(object):  # noqa
+        version = option(
+            None,
+            str,
+            default=None,
+            value_name='VERSION',
+            hint='the version of the Instrument to associate the Form with; if'
+            ' not specified, then the latest version will be used',
         )
-        self.instrument_uid = instrument_uid
-        self.channel_uid = channel_uid
-        self.configuration = configuration
-        self.version = version
 
     def __call__(self):
-        with self.get_rex():
+        with self.make():
             instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
-                raise fail('Instrument "%s" does not exist.' % (
+                raise Error('Instrument "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
             print 'Using Instrument: %s' % instrument
@@ -325,12 +252,12 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
             else:
                 instrument_version = instrument.get_version(self.version)
             if not instrument_version:
-                raise fail('The desired version of "%s" does not exist.' % (
+                raise Error('The desired version of "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
             print 'Instrument Version: %s' % instrument_version.version
 
-            configuration_json = self.open_and_validate(
+            configuration_json = open_and_validate(
                 self.configuration,
                 instrument_definition=instrument_version.definition,
             )
@@ -338,7 +265,7 @@ class FORMS_STORE(FormsInstanceTask, FormsTaskTools):
             channel_impl = get_implementation('channel', package_name='forms')
             channel = channel_impl.get_by_uid(self.channel_uid)
             if not channel:
-                raise fail('Channel "%s" does not exist.' % (
+                raise Error('Channel "%s" does not exist.' % (
                     self.channel_uid,
                 ))
             print 'Using Channel: %s' % channel

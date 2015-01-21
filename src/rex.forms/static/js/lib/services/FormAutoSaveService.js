@@ -5,6 +5,9 @@
  */
 'use strict';
 
+var log = require('../log');
+
+
 class FormAutoSaveService {
 
   constructor(form, saveCallback, options) {
@@ -37,12 +40,6 @@ class FormAutoSaveService {
     this.form.off('update', this.onFormUpdate);
   }
 
-  debug() {
-    if (process.env.NODE_ENV !== 'production') {
-      console.debug.apply(console, arguments);
-    }
-  }
-
   onFormUpdate(assessment) {
     this._currentData = assessment;
   }
@@ -51,14 +48,14 @@ class FormAutoSaveService {
     if (this._currentData !== this._savedData) {
       var assessment = this._currentData;
 
-      this.debug('saving form');
+      log('saving form');
 
       this.saveCallback(assessment).then(
         (result) => {
-          this.debug('form save success', result);
+          log('form save success', result);
           this._savedData = assessment;
         },
-        (err) => this.debug('form save failure', err)
+        (err) => log('form save failure', err)
       );
     }
   }

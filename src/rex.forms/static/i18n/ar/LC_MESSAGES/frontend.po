@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rex.forms\n"
 "Report-Msgid-Bugs-To: contact@prometheusresearch.com\n"
-"POT-Creation-Date: 2014-09-25 14:44-0400\n"
-"PO-Revision-Date: 2014-10-07 21:56+0000\n"
-"Last-Translator: BobbiB <bobbi@prometheusresearch.com>\n"
+"POT-Creation-Date: 2014-12-18 13:45-0500\n"
+"PO-Revision-Date: 2014-12-18 18:46+0000\n"
+"Last-Translator: Jason Simeone\n"
 "Language-Team: Arabic (http://www.transifex.com/projects/p/rexforms/language/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,33 +20,45 @@ msgstr ""
 "Language: ar\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: static/js/lib/types.js:36
+#: static/js/lib/AudioPlayer.js:199
+msgid "Play the Recording"
+msgstr ""
+
+#: static/js/lib/AudioPlayer.js:205
+msgid "Pause the Recording"
+msgstr ""
+
+#: static/js/lib/AudioPlayer.js:218
+msgid "Restart the Recording"
+msgstr ""
+
+#: static/js/lib/types.js:59
 msgid "Please enter a valid number."
 msgstr "يرجى إدخال رقم صحيح"
 
-#: static/js/lib/types.js:68
+#: static/js/lib/types.js:91
 msgid "Please enter a valid whole number."
 msgstr "يرجى إدخال رقم صحيح كامل."
 
-#: static/js/lib/types.js:106
+#: static/js/lib/types.js:129
 msgid "Only true or false values are allowed."
 msgstr "فقط يسمح قيم صحيحة أو خاطئة."
 
-#: static/js/lib/types.js:174
+#: static/js/lib/types.js:197
 msgid "Dates must be entered in YYYY-MM-DD format."
 msgstr "يجب إدخال التواريخ في شكل  يوم-شهر- سنة"
 
-#: static/js/lib/types.js:178
+#: static/js/lib/types.js:201
 msgid "Please enter a valid date."
 msgstr "يرجى إدخال تاريخ صالح."
 
-#: static/js/lib/types.js:205
+#: static/js/lib/types.js:228
 msgid ""
 "Times must be entered in HH:MM:SS format. They are 24-hour based, and "
 "seconds are optional."
 msgstr "يجب إدخال الوقت في شكل  ساعات: دقائق: ثواني.علي مدار ٢٤ ساعة و استخدام الثواني اختياري. "
 
-#: static/js/lib/types.js:245
+#: static/js/lib/types.js:268
 msgid ""
 "Date/Time values must be entered in YYYY-MM-DD HH:MM:SS format. Times are "
 "24-hour based, and seconds are optional."
@@ -86,7 +98,7 @@ msgstr "لا يمكن أن يكون أقل من  %(value)s "
 msgid "Cannot be greater than %(value)s"
 msgstr "لا يمكن أن يكون أكبر من %(value)s "
 
-#: static/js/lib/validators.js:191
+#: static/js/lib/validators.js:192
 msgid "This number is outside the acceptible bounds for an integer."
 msgstr "هذا العدد هو خارج الحدود المقبولة لعدد صحيح."
 
@@ -102,11 +114,11 @@ msgstr "تعديل"
 msgid "Cancel"
 msgstr "إلغاء"
 
-#: static/js/lib/form/Form.js:64
+#: static/js/lib/form/Form.js:67
 msgid "Complete Form"
 msgstr "ملء الاستمارة"
 
-#: static/js/lib/form/Form.js:65
+#: static/js/lib/form/Form.js:68
 msgid "Review Responses"
 msgstr " مراجعة الردود"
 
@@ -115,11 +127,11 @@ msgstr " مراجعة الردود"
 msgid "Page %(page)s of %(total)s"
 msgstr "صفحة  %(page)s من %(total)s"
 
-#: static/js/lib/form/FormEventsContextMixin.js:102
+#: static/js/lib/form/FormEventsContextMixin.js:112
 msgid "Invalid value."
 msgstr "قيمة غير صالحة."
 
-#: static/js/lib/form/FormOverview.js:15
+#: static/js/lib/form/FormOverview.js:16
 msgid ""
 "Please review your entered values before completing the form. You can press "
 "the <strong>Edit</strong> button at the top-right corner of the question to "
@@ -161,31 +173,31 @@ msgstr "إذهب إلى الصفحة %(index)s"
 msgid "%(percent)s%% complete"
 msgstr "%(percent)s%% كاملة "
 
-#: static/js/lib/reconciler/components.js:59
+#: static/js/lib/reconciler/components.js:60
 #, python-format
 msgid "Entered By: %(user)s"
 msgstr "تم إدخاله من قبل: %(user)s"
 
-#: static/js/lib/reconciler/components.js:66
+#: static/js/lib/reconciler/components.js:67
 msgid "Final Value"
 msgstr "القيمة النهائية"
 
-#: static/js/lib/reconciler/components.js:185
-#: static/js/lib/widgets/enumeratedValue.js:50
+#: static/js/lib/reconciler/components.js:196
+#: static/js/lib/widgets/enumeratedValue.js:51
 #: static/js/lib/widgets/value.js:31
 msgid "No value provided."
 msgstr "ليس هناك قيمة مقدمة."
 
-#: static/js/lib/reconciler/components.js:242
+#: static/js/lib/reconciler/components.js:262
 msgid "Manual Override"
 msgstr "تجاوز اليدوي"
 
-#: static/js/lib/reconciler/components.js:492
+#: static/js/lib/reconciler/components.js:516
 #, python-format
 msgid "Record #%(recordNumber)s"
 msgstr "سجل #%(recordNumber)s"
 
-#: static/js/lib/reconciler/index.js:91
+#: static/js/lib/reconciler/index.js:102
 msgid "Complete Reconciliation"
 msgstr " تصالح كامل"
 
@@ -210,7 +222,8 @@ msgstr "أود أن أشرح ردي على هذا السؤال."
 msgid "Explanation:"
 msgstr "شرح:"
 
-#: static/js/lib/widgets/radioGroup.js:64
+#: static/js/lib/widgets/radioGroup.js:68
+#: static/js/lib/widgets/entry/radioGroup.js:28
 msgid "Clear My Selection"
 msgstr "محو اختياري"
 
@@ -218,10 +231,10 @@ msgstr "محو اختياري"
 msgid "I can't (or won't) respond to this question because:"
 msgstr "لا أستطيع (أو لن) الرد على هذا السؤال لان:"
 
-#: static/js/lib/widgets/record.js:25
+#: static/js/lib/widgets/record.js:28
 msgid "Remove"
 msgstr "ازالة"
 
-#: static/js/lib/widgets/recordList.js:43
+#: static/js/lib/widgets/recordList.js:44
 msgid "Add"
 msgstr "إضافة"

@@ -100,11 +100,11 @@ actually be instances of those classes or strings containing UIDs::
       ...
     ValueError: draft_instrument_version must be an instance of DraftInstrumentVersion or a UID of one
 
-    >>> df = DraftForm('foo789', 'channel1', 'div1', FORM)
+    >>> df = DraftForm('foo789', 'survey', 'draftiv1', FORM)
     >>> df.channel
-    MyChannel(u'channel1', u'Title for channel1')
+    DemoChannel(u'survey', u'RexSurvey')
     >>> df.draft_instrument_version
-    MyDraftInstrumentVersion(u'div1', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'))
+    DemoDraftInstrumentVersion(u'draftiv1', DemoInstrument(u'simple', u'Simple Instrument'))
 
 
 The configuration can be passed to the contructor as either a JSON-encoded

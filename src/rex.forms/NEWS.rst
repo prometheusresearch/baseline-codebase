@@ -5,6 +5,28 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.27.0 (2014-01-xx)
+===================
+
+- Added an optional ``facilitator`` property to the Task interface class.
+- Added the ability to play audio files in the form by:
+
+  - Added a new page element of type ``audio`` to allow the insertion of an
+    audio file player at any position in the page.
+  - Added a new ``audio`` property to Question element options, as well as
+    enumeration and matrix row descriptors, which will show audio file players
+    with the text of these objects.
+
+- Added support for ``rex.setup`` v2.
+- Refactored how the demo/test package works.
+- The Task interface class no longer has a ``start()`` method.
+- Implementations of the ``find()`` method on Tasks must now accept an
+  ``asssessment`` search criteria.
+- Fixed an issue where fields with textArea widgets weren't being disabled
+  appropriately.
+- Now using v2 of ``rex.ctl``.
+
+
 0.26.0 (11/21/2014)
 ===================
 

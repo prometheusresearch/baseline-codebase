@@ -4,10 +4,10 @@
 
 
 from rex.core import Extension, get_settings
-from rex.instrument.interface import Subject, Instrument, Assessment
+from rex.instrument.interface import Subject, Instrument, Assessment, User
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
-    get_implementation
+    get_implementation, forget_memoized_property
 
 from .entry import Entry
 from ..discrepancies import find_discrepancies, solve_discrepancies
@@ -51,6 +51,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         'priority',
         'status',
         'num_required_entries',
+        'facilitator',
     )
 
     @classmethod
@@ -83,6 +84,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         * subject (UID or instance; exact matches)
         * channel (UID or instance; exact matches)
         * instrument (UID or instance; exact matches)
+        * assessment (UID or instance; exact matches)
         * status (exact matches; can accept a list of statuses to match)
 
         Must be implemented by concrete classes.
@@ -111,7 +113,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             instrument,
             priority=None,
             status=None,
-            num_required_entries=None):
+            num_required_entries=None,
+            facilitator=None):
         """
         Creates a Task in the datastore and returns the corresponding Task
         instance.
@@ -131,6 +134,9 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :param num_required_entries:
             the number of Entries this Task requires be completed
         :type num_required_entries: int
+        :param facilitator:
+            the User that facilitated this Task
+        :type facilitator: User
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Task
@@ -146,7 +152,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             priority,
             assessment=None,
             status=None,
-            num_required_entries=None):
+            num_required_entries=None,
+            facilitator=None):
         self._uid = to_unicode(uid)
 
         if not isinstance(subject, (Subject, basestring)):
@@ -175,6 +182,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
         self.status = status or self.__class__.STATUS_NOT_STARTED
 
         self._num_required_entries = num_required_entries or None
+
+        self.facilitator = facilitator
 
     @property
     def uid(self):
@@ -227,16 +236,6 @@ class Task(Extension, Comparable, Displayable, Dictable):
         return self._priority
 
     @property
-    def status(self):
-        """
-        The status of this Task.
-
-        :rtype: unicode
-        """
-
-        return self._status
-
-    @property
     def num_required_entries(self):
         """
         The number of Entries this Task requires be completed. Read only.
@@ -248,6 +247,45 @@ class Task(Extension, Comparable, Displayable, Dictable):
             # pylint: disable=E1101
             return get_settings().forms_default_required_entries
         return self._num_required_entries
+
+    @memoized_property
+    def facilitator(self):
+        """
+        The User that facilitated this Task.
+
+        :rtype: User
+        """
+
+        # pylint: disable=E0202
+
+        if isinstance(self._facilitator, basestring):
+            user_impl = get_implementation('user')
+            return user_impl.get_by_uid(self._facilitator)
+        else:
+            return self._facilitator
+
+    @facilitator.setter
+    def facilitator(self, value):
+        if not isinstance(value, (basestring, User)) and value is not None:
+            raise ValueError(
+                '"%s" is not a valid Facilitator' % (
+                    value,
+                )
+            )
+
+        # pylint: disable=W0201
+        self._facilitator = value
+        forget_memoized_property(self, 'facilitator')
+
+    @property
+    def status(self):
+        """
+        The status of this Task.
+
+        :rtype: unicode
+        """
+
+        return self._status
 
     @status.setter
     def status(self, value):
@@ -341,18 +379,6 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :returns:
             the Form for the specified Channel; None if one does not exist
         :rtype: Form
-        """
-
-        raise NotImplementedError()
-
-    def start(self, user):
-        """
-        Marks the Task as having been started.
-
-        :param user: the User who started the Task
-        :type user: User
-        :raises:
-            DataStoreError if there was an error writing to the datastore
         """
 
         raise NotImplementedError()

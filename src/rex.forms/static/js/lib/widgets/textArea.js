@@ -20,6 +20,7 @@ var textArea = React.createClass({
     );
     return (
       <textarea
+        disabled={this.props.disabled}
         className={className}
         id={this.getInputName()}
         name={this.getInputName()}

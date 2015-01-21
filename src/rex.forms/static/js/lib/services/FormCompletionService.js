@@ -5,6 +5,9 @@
  */
 'use strict';
 
+var log = require('../log');
+
+
 class FormCompletionService {
 
   constructor(form, completeCallback, options) {
@@ -26,18 +29,12 @@ class FormCompletionService {
     this.form.off('complete', this.onFormComplete);
   }
 
-  debug() {
-    if (process.env.NODE_ENV !== 'production') {
-      console.debug.apply(console, arguments);
-    }
-  }
-
   onFormComplete(assessment) {
-    this.debug('completing form');
+    log('completing form');
 
     this.completeCallback(assessment).then(
-      (result) => this.debug('form completion success', result),
-      (err) => this.debug('form completion failure', err)
+      (result) => log('form completion success', result),
+      (err) => log('form completion failure', err)
     );
   }
 }

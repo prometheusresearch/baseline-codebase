@@ -68,6 +68,29 @@
             "additionalProperties": false
         },
 
+        "audioSourceType": {
+            "type": "object",
+
+            "patternProperties": {
+                "^[a-z]{2}(-[a-zA-Z]{2})?$": {
+                    "type": "array",
+
+                    "items": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+
+                    "minItems": 1,
+
+                    "additionalItems": false
+                }
+            },
+
+            "minProperties": 1,
+
+            "additionalProperties": false
+        },
+
         "descriptorType": {
             "type": "object",
 
@@ -79,6 +102,10 @@
 
                 "text": {
                     "$ref": "#/definitions/localizedStringType"
+                },
+
+                "audio": {
+                    "$ref": "#/definitions/audioSourceType"
                 },
 
                 "help": {
@@ -180,6 +207,10 @@
                     "$ref": "#/definitions/localizedStringType"
                 },
 
+                "audio": {
+                    "$ref": "#/definitions/audioSourceType"
+                },
+
                 "help": {
                     "$ref": "#/definitions/localizedStringType"
                 },
@@ -244,6 +275,22 @@
             "additionalProperties": false
         },
 
+        "audioElementType": {
+            "type": "object",
+
+            "properties": {
+                "source": {
+                    "$ref": "#/definitions/audioSourceType"
+                }
+            },
+
+            "required": [
+                "source"
+            ],
+
+            "additionalProperties": false
+        },
+
         "tagListType": {
             "type": "array",
 
@@ -266,13 +313,15 @@
                         "question",
                         "header",
                         "text",
-                        "divider"
+                        "divider",
+                        "audio"
                     ]
                 },
 
                 "options": {
                     "anyOf": [
                         { "$ref": "#/definitions/questionElementType" },
+                        { "$ref": "#/definitions/audioElementType" },
                         { "$ref": "#/definitions/textElementType" }
                     ]
                 },

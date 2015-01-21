@@ -16,7 +16,7 @@ var Icon = React.createClass({
   render() {
     var {className, name, ...props} = this.props;
     className = cx('glyphicon', `glyphicon-${name}`, className);
-    return <i {...props} className={className} />;
+    return <i {...props} aria-hidden={true} className={className} />;
   }
 });
 

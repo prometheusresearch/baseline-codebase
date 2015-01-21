@@ -366,12 +366,6 @@ class Grid(Widget):
         Dataset for a grid.
         """)
 
-    height = Field(
-        IntVal(),
-        doc="""
-        Grid's height in pixels.
-        """)
-
     selectable = Field(BoolVal, default=False)
     auto_select = Field(BoolVal, default=False)
     selected = StateField(AnyVal)
@@ -381,6 +375,9 @@ class Grid(Widget):
     sortable_columns = Field(BoolVal, default=False)
     hide_columns = Field(SeqVal(StrVal), default=[])
     show_columns = Field(MaybeVal(SeqVal(StrVal)), default=undefined)
+
+    on_select = Field(
+        ActionVal(), default=undefined)
 
 
 class PanesField(Field):

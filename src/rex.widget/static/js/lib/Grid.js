@@ -56,18 +56,21 @@ function sameColumn(a, b) {
 var GridRow = React.createClass({
 
   render() {
-    var selected = (
-      this.props.selected !== undefined
-      && this.props.selected === this.props.row.id
+    var {selected, row, ...props} = this.props;
+    selected = (
+      selected !== undefined
+      && selected == this.props.row.id
     );
     var className = cx({
       'rw-GridRow': true,
       'rw-GridRow--selected': selected
     });
 
-    return this.transferPropsTo(
+    return (
       <BaseRow
+        {...props}
         ref="row"
+        row={row}
         className={className}
         onMouseEnter={this.onMouseEnter}
         onClick={this.onClick}
@@ -186,13 +189,14 @@ var Grid = React.createClass({
     var rowRenderer = (
       <GridRow
         selected={selectable && selected}
-        onSelected={selectable && onSelected}
+        onSelected={selectable && this.onSelected}
         />
     );
+    var columns = this.getColumns();
     return (
       <BaseGrid
         columnEquality={sameColumn}
-        columns={this.getColumns()}
+        columns={columns}
         rows={this.getRows}
         onRows={this.onRows}
         length={this.getData().length}
@@ -219,6 +223,13 @@ var Grid = React.createClass({
 
   componentDidUpdate() {
     this.checkAutoSelect();
+  },
+
+  onSelected(rowID) {
+    this.props.onSelected(rowID);
+    if (this.props.onSelect) {
+      this.props.onSelect();
+    }
   },
 
   checkAutoSelect() {

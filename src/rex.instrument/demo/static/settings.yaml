@@ -1,0 +1,13 @@
+instrument_implementation:
+  user: rex.instrument_demo.DemoUser
+  subject: rex.instrument_demo.DemoSubject
+  instrument: rex.instrument_demo.DemoInstrument
+  instrumentversion: rex.instrument_demo.DemoInstrumentVersion
+  assessment: rex.instrument_demo.DemoAssessment
+  draftinstrumentversion: rex.instrument_demo.DemoDraftInstrumentVersion
+
+db: pgsql:instrument_demo
+
+htsql_extensions:
+  rex_deploy:
+

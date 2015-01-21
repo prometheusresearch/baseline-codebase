@@ -1,8 +1,9 @@
+inherits:
+  - strictness_veryhigh
+
 ignore:
   - ^doc/conf.py$
   - ^demo/.*$
-  # Have to ignore the rex.ctl commands because pylint crashes when it tries to import cogs.
-  - ^src/rex/instrument/ctl.py$
 
 pep8:
   disable:
@@ -15,6 +16,8 @@ pylint:
     - C0111
     - R0903
     - R0921
+  enable:
+    - W0511
 
   options:
     max-public-methods: 30
@@ -28,4 +31,11 @@ pyflakes:
 frosted:
   disable:
     - E103
+
+pyroma:
+  run: true
+  disable:
+    - PYR09
+    - PYR14
+    - PYR15
 

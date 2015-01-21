@@ -4,7 +4,11 @@
 ---
 suite: rex.instrument
 tests:
-- sh: pip install -q -e ./demo/rex.instrument_demo
+- sh: pip install --quiet --editable ./demo
+  stdout: ''
+- sh: rex dropdb --quiet rex.instrument_demo
+  stdout: ''
+- sh: rex deploy --quiet rex.instrument_demo
   stdout: ''
 - instrumentversions: test/instruments
   validations:
@@ -149,23 +153,3 @@ tests:
       q_foo, q_bar'}
   - {small/unnecessary_annotation.json: 'ValidationError: An annotation for field
       "q_foo" is not required because it has a value'}
-- suite: rex-instrument-validate
-  tests:
-  - sh: rex instrument-validate test/instruments/simplest.json
-    stdout: |+
-      "test/instruments/simplest.json" contains a valid Common Instrument Definition.
-
-  - sh: rex instrument-validate test/instruments/missing_title.json
-    stdout: |+
-      FATAL ERROR: u'title' is a required property
-
-  - sh: rex instrument-validate /tmp/does/not/actually/exist.json
-    stdout: |+
-      FATAL ERROR: Could not open "/tmp/does/not/actually/exist.json": [Errno 2] No such file or directory: '/tmp/does/not/actually/exist.json'
-
-  - sh: rex instrument-validate
-    stdout: |+
-      FATAL ERROR: missing argument <definition>
-
-- sh: pip uninstall -q -y rex.instrument_demo
-  stdout: ''

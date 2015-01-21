@@ -22,6 +22,9 @@ __all__ = (
 )
 
 
+# pylint: disable=E1101
+
+
 INSTRUMENT_SCHEMA_JSON = pkg_resources.resource_string(
     __name__,
     'schemas/instrument.json',

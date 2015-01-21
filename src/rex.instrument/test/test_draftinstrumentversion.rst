@@ -14,10 +14,10 @@ Set up the environment::
     >>> rex.on()
 
 
-InstrumentVersion
-=================
+DraftInstrumentVersion
+======================
 
-The semi-abstract base InstrumentVersion class only implements a simple
+The semi-abstract base DraftInstrumentVersion class only implements a simple
 constructor and string-rendering methods::
 
     >>> from rex.instrument.interface import Instrument, InstrumentVersion, DraftInstrumentVersion
@@ -67,11 +67,15 @@ be an instance or a string containing a UID::
       ...
     ValueError: parent_instrument_version must be an instance of InstrumentVersion or a UID of one
 
-    >>> div = DraftInstrumentVersion('notreal456', 'instrument1', 'someguy', datetime(2014, 5, 2), parent_instrument_version='instrumentversion11')
+    >>> div = DraftInstrumentVersion('notreal456', 'simple', 'someguy', datetime(2014, 5, 2), parent_instrument_version='simple1')
     >>> div.instrument
-    MyInstrument(u'instrument1', u'Title for instrument1')
+    DemoInstrument(u'simple', u'Simple Instrument')
     >>> div.parent_instrument_version
-    MyInstrumentVersion(u'instrumentversion11', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1)
+    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
+
+    >>> from rex.instrument.util import get_implementation
+    >>> div.publish(get_implementation('user').get_by_uid('user1'))
+    DemoInstrumentVersion(u'fake_instrument_version_1', DemoInstrument(u'simple', u'Simple Instrument'), 2)
 
 
 The definition can be passed to the contructor as either a JSON-encoded string

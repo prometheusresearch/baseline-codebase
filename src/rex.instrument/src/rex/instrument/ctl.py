@@ -8,10 +8,8 @@ import sys
 
 from getpass import getuser
 
-from cogs import task, argument, option
-from cogs.log import fail
-
-from rex.ctl.common import make_rex, pair
+from rex.core import Error
+from rex.ctl import Task, RexTask, argument, option
 
 from .errors import ValidationError
 from .interface import InstrumentVersion
@@ -19,40 +17,33 @@ from .util import get_implementation, get_current_datetime
 
 
 __all__ = (
-    'INSTRUMENT_VALIDATE',
-    'INSTRUMENT_RETRIEVE',
-    'INSTRUMENT_STORE',
+    'InstrumentValidateTask',
+    'InstrumentRetrieveTask',
+    'InstrumentStoreTask',
 )
 
 
-# pylint: disable=C0103
+# pylint: disable=E1101,C0103
 
 
-class InstrumentTaskTools(object):
-    """
-    This is a mixin class containing utility functions for the rex.instrument
-    rex.ctl tasks.
-    """
+def open_and_validate(filename):
+    try:
+        definition = open(filename, 'r').read()
+    except Exception as exc:
+        raise Error('Could not open "%s": %s' % (
+            filename,
+            str(exc),
+        ))
 
-    def open_and_validate(self, filename):
-        try:
-            definition = open(filename, 'r').read()
-        except Exception as exc:
-            raise fail('Could not open "%s": %s' % (
-                filename,
-                str(exc),
-            ))
+    try:
+        InstrumentVersion.validate_definition(definition)
+    except ValidationError as exc:
+        raise Error(exc.message)
 
-        try:
-            InstrumentVersion.validate_definition(definition)
-        except ValidationError as exc:
-            raise fail(exc.message)
-
-        return definition
+    return definition
 
 
-@task
-class INSTRUMENT_VALIDATE(InstrumentTaskTools):
+class InstrumentValidateTask(Task):
     """
     validate a Common Instrument Definition
 
@@ -63,54 +54,20 @@ class INSTRUMENT_VALIDATE(InstrumentTaskTools):
     The only argument to this task is the filename to validate.
     """
 
-    definition = argument(str)
+    name = 'instrument-validate'
 
-    def __init__(self, definition):
-        self.definition = definition
+    class arguments(object):  # noqa
+        definition = argument(str)
 
     def __call__(self):
-        self.open_and_validate(self.definition)
+        open_and_validate(self.definition)
 
         print '"%s" contains a valid Common Instrument Definition.\n' % (
             self.definition,
         )
 
 
-class InstrumentInstanceTask(object):
-    require = option(
-        None,
-        str,
-        default=[],
-        plural=True,
-        value_name='PACKAGE',
-        hint='include an additional package',
-    )
-    setting = option(
-        None,
-        pair,
-        default={},
-        plural=True,
-        value_name='PARAM=VALUE',
-        hint='set a configuration parameter',
-    )
-
-    def __init__(self, project, require, setting):
-        self.project = project
-        self.require = require
-        self.setting = setting
-
-    def get_rex(self):
-        return make_rex(
-            self.project,
-            self.require,
-            self.setting,
-            False,
-            ensure='rex.instrument',
-        )
-
-
-@task
-class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
+class InstrumentRetrieveTask(RexTask):
     """
     retrieves an InstrumentVersion from the datastore
 
@@ -121,56 +78,41 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
     the data store.
     """
 
-    instrument_uid = argument(str)
-    project = argument(str, default=None)
+    name = 'instrument-retrieve'
 
-    version = option(
-        None,
-        str,
-        default=None,
-        value_name='VERSION',
-        hint='the version of the Instrument to retrieve; if not specified,'
-        ' defaults to the latest version',
-    )
-    output = option(
-        None,
-        str,
-        default=None,
-        value_name='OUTPUT_FILE',
-        hint='the file to write the JSON to; if not specified, stdout is used',
-    )
-    pretty = option(
-        None,
-        bool,
-        hint='if specified, the outputted JSON will be formatted with newlines'
-        ' and indentation',
-    )
+    class arguments(object):  # noqa
+        instrument_uid = argument(str)
 
-    def __init__(
-            self,
-            instrument_uid,
-            project,
-            require,
-            setting,
-            version,
-            output,
-            pretty):
-        super(INSTRUMENT_RETRIEVE, self).__init__(
-            project,
-            require,
-            setting,
+    class options(object):  # noqa
+        version = option(
+            None,
+            str,
+            default=None,
+            value_name='VERSION',
+            hint='the version of the Instrument to retrieve; if not specified,'
+            ' defaults to the latest version',
         )
-        self.instrument_uid = instrument_uid
-        self.version = version
-        self.output = output
-        self.pretty = pretty
+        output = option(
+            None,
+            str,
+            default=None,
+            value_name='OUTPUT_FILE',
+            hint='the file to write the JSON to; if not specified, stdout is'
+            ' used',
+        )
+        pretty = option(
+            None,
+            bool,
+            hint='if specified, the outputted JSON will be formatted with'
+            ' newlines and indentation',
+        )
 
     def __call__(self):
-        with self.get_rex():
+        with self.make():
             instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
-                raise fail('Instrument "%s" does not exist.' % (
+                raise Error('Instrument "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
 
@@ -179,7 +121,7 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
             else:
                 instrument_version = instrument.get_version(self.version)
             if not instrument_version:
-                raise fail('The desired version of "%s" does not exist.' % (
+                raise Error('The desired version of "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
 
@@ -187,7 +129,7 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
                 try:
                     output = open(self.output, 'w')
                 except Exception as exc:
-                    raise fail('Could not open "%s" for writing: %s' % (
+                    raise Error('Could not open "%s" for writing: %s' % (
                         self.output,
                         str(exc),
                     ))
@@ -204,8 +146,7 @@ class INSTRUMENT_RETRIEVE(InstrumentInstanceTask):
             output.write('\n')
 
 
-@task
-class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
+class InstrumentStoreTask(RexTask):
     """
     stores an InstrumentVersion in the data store
 
@@ -220,62 +161,42 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
     Instrument Definition to use.
     """
 
-    instrument_uid = argument(str)
-    definition = argument(str)
-    project = argument(str, default=None)
+    name = 'instrument-store'
 
-    version = option(
-        None,
-        str,
-        default=None,
-        value_name='VERSION',
-        hint='the version to store the InstrumentVersion as; if not specified,'
-        ' one will be calculated',
-    )
+    class arguments(object):  # noqa
+        instrument_uid = argument(str)
+        definition = argument(str)
 
-    title = option(
-        None,
-        str,
-        default=None,
-        value_name='TITLE',
-        hint='the title to give the Instrument, if one is being created; if'
-        ' not specified, the instrument UID will be used',
-    )
-
-    published_by = option(
-        None,
-        str,
-        default=getuser(),
-        value_name='NAME',
-        hint='the name to record as the publisher of the InstrumentVersion; if'
-        ' not specified, the username of the executing user will be used',
-    )
-
-    def __init__(
-            self,
-            instrument_uid,
-            definition,
-            project,
-            require,
-            setting,
-            version,
-            title,
-            published_by):
-        super(INSTRUMENT_STORE, self).__init__(
-            project,
-            require,
-            setting,
+    class options(object):  # noqa
+        version = option(
+            None,
+            str,
+            default=None,
+            value_name='VERSION',
+            hint='the version to store the InstrumentVersion as; if not'
+            ' specified, one will be calculated',
         )
-        self.instrument_uid = instrument_uid
-        self.definition = definition
-        self.version = version
-        self.title = title
-        self.published_by = published_by
+        title = option(
+            None,
+            str,
+            default=None,
+            value_name='TITLE',
+            hint='the title to give the Instrument, if one is being created;'
+            ' if not specified, the instrument UID will be used',
+        )
+        published_by = option(
+            None,
+            str,
+            default=getuser(),
+            value_name='NAME',
+            hint='the name to record as the publisher of the'
+            ' InstrumentVersion; if not specified, the username of the'
+            ' executing user will be used',
+        )
 
     def __call__(self):
-        with self.get_rex():
-
-            definition_json = self.open_and_validate(self.definition)
+        with self.make():
+            definition_json = open_and_validate(self.definition)
 
             instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
@@ -289,21 +210,30 @@ class INSTRUMENT_STORE(InstrumentInstanceTask, InstrumentTaskTools):
                 )
             print 'Using Instrument: %s' % instrument
 
-            instrument_version = instrument.get_version(self.version)
-            if instrument_version and self.version:
-                instrument_version.definition_json = definition_json
-                instrument_version.published_by = self.published_by
-                instrument_version.date_published = get_current_datetime()
-                instrument_version.save()
-                print 'Updated version: %s' % instrument_version.version
+            instrumentversion_impl = \
+                get_implementation('instrumentversion')
+
+            if self.version:
+                instrument_version = instrument.get_version(self.version)
+                if instrument_version:
+                    instrument_version.definition_json = definition_json
+                    instrument_version.published_by = self.published_by
+                    instrument_version.date_published = get_current_datetime()
+                    instrument_version.save()
+                    print 'Updated version: %s' % instrument_version.version
+                else:
+                    instrument_version = instrumentversion_impl.create(
+                        instrument,
+                        definition_json,
+                        self.published_by,
+                        version=self.version,
+                    )
+                    print 'Created version: %s' % instrument_version.version
             else:
-                instrumentversion_impl = \
-                    get_implementation('instrumentversion')
                 instrument_version = instrumentversion_impl.create(
                     instrument,
                     definition_json,
                     self.published_by,
-                    version=self.version,
                 )
-                print 'Created new version: %s' % instrument_version.version
+                print 'Created version: %s' % instrument_version.version
 

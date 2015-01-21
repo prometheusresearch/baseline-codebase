@@ -80,10 +80,10 @@ class implementations in the currently-executing application::
     >>> rex.on()
 
     >>> get_implementation('user', package_name='instrument')
-    rex.instrument_demo.MyUser
+    rex.instrument_demo.DemoUser
 
     >>> get_implementation('instrument')
-    rex.instrument_demo.MyInstrument
+    rex.instrument_demo.DemoInstrument
 
     >>> get_implementation('doesntexist') is None
     True

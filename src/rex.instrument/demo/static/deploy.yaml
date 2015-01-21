@@ -1,0 +1,80 @@
+- table: user
+  with:
+    - column: remote_user
+      type: text
+    - identity: [remote_user]
+    - data: ./deploy/user.csv
+
+- table: subject
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - data: ./deploy/subject.csv
+
+- table: instrument
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - column: code
+      type: text
+    - column: title
+      type: text
+    - column: status
+      type: [active, disabled]
+    - data: ./deploy/instrument.csv
+
+- table: instrumentversion
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - link: instrument
+    - column: version
+      type: integer
+    - column: published_by
+      type: text
+    - column: date_published
+      type: datetime
+    - column: definition
+      type: text
+    - data: ./deploy/instrumentversion.csv
+
+- table: assessment
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - link: subject
+    - link: instrumentversion
+    - column: data
+      type: text
+    - column: evaluation_date
+      type: date
+      required: false
+    - column: status
+      type: [in-progress, completed]
+    - data: ./deploy/assessment.csv
+
+- table: draftinstrumentversion
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - link: instrument
+    - link: parent_instrumentversion
+      to: instrumentversion
+      required: false
+    - column: created_by
+      type: text
+    - column: date_created
+      type: datetime
+    - column: modified_by
+      type: text
+    - column: date_modified
+      type: datetime
+    - column: definition
+      type: text
+    - data: ./deploy/draftinstrumentversion.csv
+

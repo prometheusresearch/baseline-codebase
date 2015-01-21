@@ -5,10 +5,16 @@ User
 .. contents:: Table of Contents
 
 
+Set up the environment::
+
+    >>> from rex.core import Rex
+    >>> from rex.instrument.interface import User
+    >>> from rex.instrument.util import get_implementation
+
+
 The semi-abstract base User class only implements a simple constructor and
 string-rendering methods::
 
-    >>> from rex.instrument.interface import User
     >>> user = User('fake123', 'username')
     >>> user.get_display_name()
     u'username'
@@ -28,11 +34,17 @@ string-rendering methods::
 Users have methods that allow you to retrieve other interface objects, but
 filtered by what that User has access to see::
 
-    >>> user.get_object_by_uid('fake123', 'instrument')
-    MyInstrument(u'fake123', u'Title for fake123')
+    >>> rex = Rex('rex.instrument_demo', db='pgsql:instrument_demo')
+    >>> rex.on()
+
+    >>> user = get_implementation('user').get_by_uid('user1')
+    >>> user.get_object_by_uid('simple', 'instrument')
+    DemoInstrument(u'simple', u'Simple Instrument')
 
     >>> user.find_objects('assessment')
-    [MyAssessment(u'fake_assessment_1', MySubject(u'fake_subject_1a'), MyInstrumentVersion(u'fake_instrument_version_1a', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1)), MyAssessment(u'fake_assessment_2', MySubject(u'fake_subject_2a'), MyInstrumentVersion(u'fake_instrument_version_2a', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1))]
+    [DemoAssessment(u'assessment1', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)), DemoAssessment(u'assessment2', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))]
+
+    >>> rex.off()
 
 
 Users can be checked for equality. Note that equality is only defined as

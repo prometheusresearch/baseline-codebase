@@ -9,6 +9,14 @@ REX.INSTRUMENT Change Log
 
 - Updated dependency to permit ``rex.setup`` version 2.
 
+0.13.0 (2015-01-xx)
+===================
+
+- Added support for ``rex.setup`` v2.
+- Refactored the demo/test package.
+- Now using v2 of ``rex.ctl``.
+
+
 0.12.0 (11/21/2014)
 ===================
 

@@ -12,5 +12,6 @@ REX.INSTRUMENT Examples
    test_draftinstrumentversion
    test_cache
    test_settings
+   test_ctl
    test_util
 

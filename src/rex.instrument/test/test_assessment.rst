@@ -70,11 +70,11 @@ instances of those classes or strings containing UIDs::
       ...
     ValueError: instrument_version must be an instance of InstrumentVersion or a UID of one
 
-    >>> assessment = Assessment('fake123', 'subject1', 'instrumentversion1', ASSESSMENT)
+    >>> assessment = Assessment('fake123', 'subject1', 'simple1', ASSESSMENT)
     >>> assessment.subject
-    MySubject(u'subject1')
+    DemoSubject(u'subject1')
     >>> assessment.instrument_version
-    MyInstrumentVersion(u'instrumentversion1', MyInstrument(u'fake_instrument_1iv', u'Title for fake_instrument_1iv'), 1)
+    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
 
 
 The Evaluation Date must actually be a date (or datetime)::

@@ -1,0 +1,3 @@
+uid,subject,instrumentversion,status,evaluation_date,data
+assessment1,subject1,simple1,completed,,"{}"
+assessment2,subject1,simple1,in-progress,,"{}"

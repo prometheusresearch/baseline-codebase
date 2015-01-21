@@ -59,9 +59,9 @@ instance or a string containing a UID::
       ...
     ValueError: instrument must be an instance of Instrument or a UID of one
 
-    >>> iv = InstrumentVersion('notreal456', 'instrument1', {}, 1, 'jay', datetime(2014, 5, 22))
+    >>> iv = InstrumentVersion('notreal456', 'simple', {}, 1, 'jay', datetime(2014, 5, 22))
     >>> iv.instrument
-    MyInstrument(u'instrument1', u'Title for instrument1')
+    DemoInstrument(u'simple', u'Simple Instrument')
 
 
 The definition can be passed to the contructor as either a JSON-encoded string

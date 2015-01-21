@@ -28,10 +28,8 @@ var WidgetItem = React.createClass({
     var {widget, selected, ...props} = this.props;
     var {hover} = this.state;
     return (
-      <VBox {...props}
+      <VBox {...props} {...this.hoverable}
         style={merge(this.style, selected && this.styleSelected, hover && this.styleHover)}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
         onClick={this.onClick}>
         <VBox margin={5}>
           {widget.name}

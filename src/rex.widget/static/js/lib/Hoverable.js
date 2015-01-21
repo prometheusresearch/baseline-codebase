@@ -1,4 +1,30 @@
 /**
+ * Hoverable mixin for React components
+ *
+ *   var Button = React.createClass({
+ *     mixins: [Hoverable],
+ *
+ *     render() {
+ *        var {hover} = this.state
+ *        return <div {...this.hoverable} />
+ *     }
+ *   })
+ *
+ * or more granular approach
+ *
+ *   var Button = React.createClass({
+ *     mixins: [Hoverable],
+ *
+ *     render() {
+ *       return (
+ *         <div
+ *           onMouseEnter={this.hoverableOnMouseEnter}
+ *           onMouseLeave={this.hoverableOnMouseLeave}
+ *           />
+ *       )
+ *     }
+ *   })
+ *
  * @copyright 2015, Prometheus Research, LLC
  */
 'use strict';
@@ -11,8 +37,8 @@ var Hoverable = {
 
   componentWillMount() {
     this.hoverable = {
-      onMouseEnter: this.onMouseEnter,
-      onMouseLeave: this.onMouseLeave
+      onMouseEnter: this.hoverableOnMouseEnter,
+      onMouseLeave: this.hoverableOnMouseLeave
     };
   },
 
@@ -20,11 +46,11 @@ var Hoverable = {
     this.hoverable = undefined;
   },
 
-  onMouseEnter() {
+  hoverableOnMouseEnter() {
     this.setState({hover: true});
   },
 
-  onMouseLeave() {
+  hoverableOnMouseLeave() {
     this.setState({hover: false});
   }
 };

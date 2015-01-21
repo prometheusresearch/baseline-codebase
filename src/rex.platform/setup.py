@@ -30,7 +30,7 @@ setup(
 #        'rex.forms==0.9.9',
 #        'rex.i18n==0.3.0',
 #        'rex.instrument==0.12.0',
-        'rex.port==1.0.2',
+        'rex.port==1.0.3',
 #        'rex.restful==0.2.1',
 #        'rex.sendmail==1.0.2',
         'rex.urlmap==2.6.0',

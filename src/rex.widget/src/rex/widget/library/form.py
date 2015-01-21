@@ -601,9 +601,6 @@ class Form(FormContainerWidget):
                     value[key] = graph[r]
         # determine tag of the entity
         tag = spec.port.describe().meta.domain.fields[0].tag
-        from pprint import pprint
-        pprint(prev_value)
-        pprint(value)
         if value is None:
             spec.port.delete([{'id': prev_value['id']}])
             return prev_value

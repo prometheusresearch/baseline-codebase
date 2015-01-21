@@ -1,0 +1,74 @@
+id: urn:demographics-form
+version: '1.0'
+title: Demo Demographic Form
+record:
+- id: first_name
+  type: text
+- id: last_name
+  type: text
+- id: gender
+  type:
+    base: enumeration
+    enumerations:
+      female: {}
+      male: {}
+- id: age
+  type:
+    base: enumeration
+    enumerations:
+      age18-29: {}
+      age30-49: {}
+      age50-64: {}
+      age65-and-over: {}
+- id: education
+  type:
+    base: enumeration
+    enumerations:
+      bachelor-degree: {}
+      hs-grad: {}
+      less-than-hs: {}
+      post-graduate-degree: {}
+- id: ethnicity
+  type:
+    base: enumeration
+    enumerations:
+      african-american: {}
+      asian: {}
+      hispanic: {}
+      native-american: {}
+      other: {}
+      white: {}
+- id: employment
+  type:
+    base: enumeration
+    enumerations:
+      full-time: {}
+      homemaker: {}
+      part-time: {}
+      retired: {}
+      student: {}
+      unemployed: {}
+- id: marital_status
+  type:
+    base: enumeration
+    enumerations:
+      divorced: {}
+      married: {}
+      separated: {}
+      single: {}
+      widowed: {}
+- id: children
+  type:
+    base: enumeration
+    enumerations:
+      'no': {}
+      'yes': {}
+- id: number_of_children
+  type:
+    base: enumeration
+    enumerations:
+      five-or-more: {}
+      four: {}
+      one: {}
+      three: {}
+      two: {}

@@ -21,7 +21,7 @@
   - data:
     - measure_type: demographics-form
       version: 1
-      json: !include demographics-form-instrument.json
+      json: !include demographics-form-instrument.yaml
 
 - table: measure
   with:

@@ -9,6 +9,17 @@ var Hoverable = {
     return {hover: false};
   },
 
+  componentWillMount() {
+    this.hoverable = {
+      onMouseEnter: this.onMouseEnter,
+      onMouseLeave: this.onMouseLeave
+    };
+  },
+
+  componentWillUnmount() {
+    this.hoverable = undefined;
+  },
+
   onMouseEnter() {
     this.setState({hover: true});
   },

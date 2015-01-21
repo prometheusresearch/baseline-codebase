@@ -157,7 +157,7 @@ class CollectionField(DataField):
         has_more = False
         if self.paginate:
             has_more = len(data[spec.entity]) == query[top_filter][0]
-            data[spec.entity] = data[spec.entity][:-1]
+            data[spec.entity] = data[spec.entity][:query[top_filter][0]]
             if query[skip_filter][0] > 0:
                 data[spec.entity] = DataAppend(data[spec.entity])
 

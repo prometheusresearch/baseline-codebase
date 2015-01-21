@@ -26,6 +26,7 @@ var AutocompleteInput = React.createClass({
     return (
       <Element>
         <ReactAutocomplete.Combobox
+          ref="underlying"
           autocomplete="both"
           value={value}
           onInput={this.onInput}
@@ -40,15 +41,44 @@ var AutocompleteInput = React.createClass({
     return {options: []};
   },
 
-  requestOptions(value) {
+  componentDidMount() {
+    var {value} = this.props;
+    if (value) {
+      var params = {};
+      var {refs, filter, data} = this.props.data;
+      for (var key in refs) {
+        params[key] = ApplicationState.get(refs[key]);
+      }
+      params[filter.replace(/\..+$/, '')] = value;
+      this._getPort()
+        .produce(params)
+        .then(this._onRequestOptionsComplete, this._onRequestOptionsError)
+        .then(this._fixInputValue);
+    }
+  },
+
+  /**
+   * Because react-autocomplete doesn't update its input value we need to fix it
+   * manually.
+   */
+  _fixInputValue() {
+    var inputValue = this.refs.underlying.findInitialInputValue();
+    this.refs.underlying.setState({inputValue});
+  },
+
+  _getPort() {
+    var {data} = this.props.data;
+    return runtime.Storage.createPort(data);
+  },
+
+  _requestOptions(value) {
     var params = {};
     var {refs, filter, data} = this.props.data;
     for (var key in refs) {
       params[key] = ApplicationState.get(refs[key]);
     }
     params[`${filter}:contains`] = value;
-    var port = runtime.Storage.createPort(data);
-    port
+    this._getPort()
       .produce(params)
       .then(this._onRequestOptionsComplete, this._onRequestOptionsError);
   },
@@ -76,7 +106,7 @@ var AutocompleteInput = React.createClass({
   },
 
   onInput(value) {
-    this.requestOptions(value);
+    this._requestOptions(value);
   }
 
 });

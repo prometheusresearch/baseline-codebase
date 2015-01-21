@@ -19,8 +19,10 @@ from .image import (make_catalog, Image, IndexedImage, NamedImage, ImageList,
         ImageMap, CatalogImage, SchemaImage, TypeImage, DomainTypeImage,
         EnumTypeImage, IndexImage, SequenceImage, ProcedureImage, TableImage,
         ColumnImage, ConstraintImage, UniqueKeyImage, ForeignKeyImage,
-        TriggerImage, DataImage)
+        TriggerImage, DataImage, BEFORE, AFTER, INSERT, UPDATE, DELETE,
+        INSERT_UPDATE, INSERT_DELETE, UPDATE_DELETE, INSERT_UPDATE_DELETE)
 from .meta import Meta, TableMeta, ColumnMeta, PrimaryKeyMeta, uncomment
+from .model import model
 from .introspect import introspect
 from .link import LinkFact
 from .raw import RawFact

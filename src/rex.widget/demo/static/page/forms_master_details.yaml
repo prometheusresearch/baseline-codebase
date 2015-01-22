@@ -30,7 +30,6 @@ paths:
           margin: 10
           size: 1
           children: !<Form>
-            id: study
             label: Study
             hint: Edit study and hit save button
             fieldset:
@@ -70,7 +69,6 @@ paths:
           margin: 10
           size: 1
           children: !<Form>
-            id: protocol
             label: Protocol
             hint: Edit protocol and hit save button
             fieldset:

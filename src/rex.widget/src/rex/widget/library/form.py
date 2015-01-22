@@ -555,7 +555,7 @@ class Form(FormContainerWidget):
     js_type = 'rex-widget/lib/form/Form'
     schema_type = MappingNode
 
-    id = Field(StrVal())
+    id = IDField()
 
     value_data = EntityField(
         default=undefined,

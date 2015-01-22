@@ -29,7 +29,6 @@ paths:
             - !<Header> Studies
 
             - !<Link>
-              id: forms_link
               href:
                 url: rex.widget_demo:/forms
                 refs:
@@ -52,7 +51,6 @@ paths:
                 title: Closed
 
           - !<StudyInfo>
-            id: study
             data:
               data: rex.widget_demo:/data/study
               entity_id: study_list/selected

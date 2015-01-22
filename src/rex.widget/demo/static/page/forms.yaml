@@ -34,7 +34,6 @@ paths:
           - !<Header> Edit study
 
           - !<Form>
-            id: study_form
             label: Study
             hint: Edit study and hit save button
             fieldset:

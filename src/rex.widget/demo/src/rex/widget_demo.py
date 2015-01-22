@@ -11,7 +11,7 @@ import cgi
 
 from rex.core import Validate, StrVal, AnyVal, IntVal
 from rex.widget import (
-    Widget, Page, Field, EntityField, WidgetVal, NullWidget)
+    Widget, Page, IDField, Field, EntityField, WidgetVal, NullWidget)
 
 from rex.web import Command, Parameter
 from webob import Response
@@ -43,7 +43,7 @@ class StudyInfo(Widget):
     name = 'StudyInfo'
     js_type = 'rex-widget-demo/lib/StudyInfo'
 
-    id      = Field(StrVal)
+    id      = IDField()
     data    = EntityField()
 
 

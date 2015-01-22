@@ -17,6 +17,7 @@ import yaml
 from rex.core import Location
 from rex.core import Validate, Error, guard, RecordVal, RecordField, StrVal
 
+from .context import get_context
 from .undefined import undefined
 from .parse import WidgetDesc
 from .widget import Widget, GroupWidget, NullWidget
@@ -119,6 +120,11 @@ class WidgetVal(Validate):
                     raise Error(
                         "Missing mandatory fields:",
                         ", ".join(missing_mandatory_fields))
+
+            context = get_context()
+
+            if 'id' in widget_class.fields and 'id' not in values:
+                values['id'] = context.generate_widget_id(widget_class)
 
             return widget_class(**values)
 

@@ -9,6 +9,7 @@
 
 import yaml
 import collections
+import weakref
 
 from pyquerystring import parse as parse_qs
 from webob.exc import HTTPUnauthorized, HTTPBadRequest, HTTPMethodNotAllowed
@@ -19,12 +20,28 @@ from rex.core import get_packages
 from rex.web import authorize, render_to_response
 from rex.urlmap import Map
 
+from .context import Context, activated_context
 from .descriptors import DataRead
 from .state import compute, compute_update, unknown
 from .parse import WidgetDescVal
 from .validate import WidgetVal
 from .json_encoder import dumps
 from .template import load as load_templates
+
+
+class PageContext(Context):
+
+    def __init__(self):
+        self.widget_count = weakref.WeakKeyDictionary()
+
+    def generate_widget_id(self, widget_class):
+        widget_count = self.widget_count.get(widget_class, 0)
+        widgen_name = widget_class.name
+        self.widget_count[widget_class] = widget_count + 1
+        if widget_count == 0:
+            return widgen_name
+        else:
+            return '%s%s' % (widgen_name, widget_count)
 
 
 class MapWidget(Map):
@@ -40,7 +57,8 @@ class MapWidget(Map):
     def __call__(self, spec, path, context):
         load_templates('widgets.yaml')
         access = spec.access or self.package.name
-        widget = self.validate_widget_desc(spec.widget)
+        with activated_context(PageContext()):
+            widget = self.validate_widget_desc(spec.widget)
         widget.package = self.package
         return WidgetRenderer(
             widget=widget,

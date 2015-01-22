@@ -5,6 +5,7 @@
 var React             = require('react');
 var ReactForms        = require('react-forms');
 var defaultValue      = require('react-forms/lib/defaultValue');
+var Message           = require('react-forms/lib/Message');
 var cloneWithProps    = React.addons.cloneWithProps;
 var cx                = React.addons.classSet;
 var FormContextMixin  = require('./FormContextMixin');
@@ -15,20 +16,21 @@ var RepeatingFieldsetItem = React.createClass({
   mixins: [FormContextMixin],
 
   render() {
-    var {fieldset} = this.props;
+    var {fieldset, required} = this.props;
     return (
       <Box className="rw-RepeatingFieldsetItem" style={{padding: '5px 0px'}}>
-        <Box>
-          <div>
-          <Button
-            className="rw-RepeatingFieldset__removeButton"
-            danger quiet
-            icon="remove"
-            onClick={this.onRemove}>
-            Remove
-          </Button>
-          </div>
-        </Box>
+        {!required &&
+          <Box>
+            <div>
+            <Button
+              className="rw-RepeatingFieldset__removeButton"
+              danger quiet
+              icon="remove"
+              onClick={this.onRemove}>
+              Remove
+            </Button>
+            </div>
+          </Box>}
         {fieldset()}
       </Box>
     );
@@ -68,8 +70,8 @@ var RepeatingFieldset = React.createClass({
   mixins: [FormContextMixin],
 
   render() {
-    var {value, label, hint, fieldset, className, ...props} = this.props;
-    value = value.getIn(this.getValueKey());
+    var {label, hint, fieldset, minChildren, className, ...props} = this.props;
+    var value = this.getValue();
     className = cx('rw-RepeatingFieldset', className);
     var hasItems = value.value.size > 0;
     return (
@@ -79,12 +81,15 @@ var RepeatingFieldset = React.createClass({
           label={label || value.node.props.get('label')}
           hint={hint || value.node.props.get('hint')}
           />
+        {value.validation.error && value.isDirty &&
+          <Message>{value.validation.error}</Message>}
         {hasItems ?
           <Box>
             <div className="rw-RepeatingFieldset__fieldset">
               {value.map((value, idx) =>
                 <RepeatingFieldsetItem
                   onRemove={this.onRemove}
+                  required={minChildren !== undefined && idx < minChildren}
                   key={idx}
                   fieldset={fieldset}
                   valueKey={idx}

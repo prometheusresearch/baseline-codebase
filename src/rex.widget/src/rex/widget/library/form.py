@@ -14,7 +14,7 @@ from htsql.core import domain
 
 from rex.core import Error, Validate, cached
 from rex.core import ChoiceVal, MaybeVal, ProxyVal, MapVal, SeqVal, RecordVal
-from rex.core import StrVal, BoolVal, AnyVal
+from rex.core import IntVal, StrVal, BoolVal, AnyVal
 from rex.db import get_db
 from rex.web import url_for
 
@@ -40,7 +40,7 @@ class SchemaNode(object):
     type = NotImplemented
 
     def __init__(self, **props):
-        self.props = props
+        self.props = PropsContainer(props)
 
     def __str__(self):
         return '<%s %r>' % (self.__class__.__name__, self.props)
@@ -479,6 +479,12 @@ class RepeatingFieldset(FormContainerWidget):
         Default child value.
         """)
 
+    min_children = Field(
+        IntVal(), default=undefined,
+        doc="""
+        The minimum required number of children to be valid.
+        """)
+
     def form_schema(self, node):
         children = _build_schema(node)
         schema = ListNode(children=children)
@@ -486,6 +492,8 @@ class RepeatingFieldset(FormContainerWidget):
             schema.props['defaultValue'] = self.default_value
         if self.default_child_value is not undefined:
             schema.props['defaultChildValue'] = self.default_child_value
+        if self.min_children is not undefined:
+            schema.props['min_children'] = self.min_children
         return schema
 
 

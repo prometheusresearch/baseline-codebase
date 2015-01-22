@@ -28,7 +28,15 @@ var Select = React.createClass({
 var SelectField = React.createClass({
 
   render() {
-    var {autosize, className, allowEmpty, options, ...props} = this.props;
+    var {
+      className, allowEmpty,
+      options, data,
+      ...props
+    } = this.props;
+    var options = []
+      .concat(options)
+      .concat(data && data.data.map(this._formatData))
+      .filter(Boolean);
     var input = (
       <Select
         className="rw-SelectField__select"
@@ -43,6 +51,16 @@ var SelectField = React.createClass({
         input={input}
         />
     );
+  },
+
+  _formatData(option) {
+    var {nameAttribute, valueAttribute} = this.props;
+    nameAttribute = nameAttribute || 'title';
+    valueAttribute = valueAttribute || 'id';
+    return {
+      name: option[nameAttribute],
+      value: option[valueAttribute]
+    };
   }
 });
 

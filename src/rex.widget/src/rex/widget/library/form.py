@@ -358,14 +358,36 @@ class SelectField(FormField):
 
     options = Field(
         SeqVal(option_type),
+        default=undefined,
         doc="""
         Manually specified options.
+        """)
+
+    data = CollectionField(
+        doc="""
+        Options loaded from database.
         """)
 
     allow_empty = Field(
         BoolVal(), default=False,
         doc="""
         If widget allows an empty option.
+        """)
+
+    value_attribute = Field(
+        StrVal(), default=undefined,
+        doc="""
+        The name of the attribute which is used as a value.
+
+        If no value is set then id attribute is used.
+        """)
+
+    name_attribute = Field(
+        StrVal(), default=undefined,
+        doc="""
+        The name of the attribute which is used as a title.
+
+        If no value is set then title attribute is used.
         """)
 
 
@@ -622,6 +644,9 @@ class Form(FormContainerWidget):
                     value[key] = graph[r]
         # determine tag of the entity
         tag = spec.port.describe().meta.domain.fields[0].tag
+        from pprint import pprint
+        pprint(prev_value)
+        pprint(value)
         if value is None:
             spec.port.delete([{'id': prev_value['id']}])
             return prev_value

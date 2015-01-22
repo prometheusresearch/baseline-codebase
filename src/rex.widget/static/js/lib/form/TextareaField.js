@@ -1,6 +1,7 @@
 /**
  * @copyright Prometheus Research, LLC 2014
  */
+'use strict';
 
 var React             = require('react/addons');
 var cx                = React.addons.classSet;

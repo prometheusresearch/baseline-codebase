@@ -135,6 +135,7 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         * assessment (UID or instance; exact matches)
         * type (exact matches)
         * status (exact matches)
+        * ordinal (exact matches)
 
         Must be implemented by concrete classes.
 
@@ -164,7 +165,8 @@ class Entry(Extension, Comparable, Displayable, Dictable):
             date_created=None,
             data=None,
             status=None,
-            memo=None):
+            memo=None,
+            ordinal=None):
         """
         Creates an Entry in the datastore and returns the corresponding Entry
         instance.
@@ -193,6 +195,10 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         :type status: string
         :param memo: human-readable notes about this Entry
         :type memo: string
+        :param ordinal:
+            the number to use as the ordinal position in the scope of all
+            Entries for an Assessment; if not specified, one will be generated
+        :type ordinal: int
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Entry

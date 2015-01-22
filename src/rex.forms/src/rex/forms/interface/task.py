@@ -383,7 +383,12 @@ class Task(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def start_entry(self, user, entry_type=None, override_workflow=False):
+    def start_entry(
+            self,
+            user,
+            entry_type=None,
+            override_workflow=False,
+            ordinal=None):
         """
         Creates a new Entry for the Assessment associated with this Task.
 
@@ -399,6 +404,10 @@ class Task(Extension, Comparable, Displayable, Dictable):
             the check of the ``can_enter_data`` property. If not specified,
             defaults to ``False``.
         :type override_workflow: bool
+        :param ordinal:
+            the number to use as the ordinal position in the scope of all
+            Entries for an Assessment; if not specified, one will be generated
+        :type ordinal: int
         :rtype: Entry
         :raises:
             DataStoreError if there was an error writing to the datastore

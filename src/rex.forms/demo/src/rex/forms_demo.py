@@ -298,7 +298,7 @@ class DemoTask(Task):
             return DemoEntry.find(**search_criteria)
         return []
 
-    def start_entry(self, user, entry_type=None, override_workflow=False):
+    def start_entry(self, user, entry_type=None, override_workflow=False, ordinal=None):
         entry_type = entry_type or Entry.TYPE_PRELIMINARY
         if entry_type == Entry.TYPE_PRELIMINARY \
                 and not self.can_enter_data \
@@ -310,7 +310,8 @@ class DemoTask(Task):
         entry = DemoEntry.create(
             self.assessment,
             entry_type,
-            user.login
+            user.login,
+            ordinal=ordinal,
         )
 
         return entry
@@ -353,9 +354,10 @@ class DemoEntry(Entry):
                 'assessment': safe_uid(DemoAssessment, search_criteria.get('assessment')),
                 'type': search_criteria.get('type'),
                 'status': search_criteria.get('status'),
+                'ordinal': search_criteria.get('ordinal'),
             }
             data = db.produce(
-                '/entry.sort(uid).guard($assessment, filter(assessment=$assessment)).guard($type, filter(entry_type=$type)).guard($status, filter(status=$status))',
+                '/entry.sort(uid).guard($assessment, filter(assessment=$assessment)).guard($type, filter(entry_type=$type)).guard($status, filter(status=$status)).guard($ordinal, filter(ordinal=$ordinal))',
                 **params
             )
         return [
@@ -384,7 +386,8 @@ class DemoEntry(Entry):
             date_created=None,
             data=None,
             status=None,
-            memo=None):
+            memo=None,
+            ordinal=None):
         return cls(
             'fake_entry_1',
             assessment,
@@ -392,7 +395,7 @@ class DemoEntry(Entry):
             data or {},
             created_by,
             date_created or datetime(2014, 5, 22),
-            1,
+            ordinal or 1,
             status=status,
             memo=memo,
         )

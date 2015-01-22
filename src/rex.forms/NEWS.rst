@@ -28,6 +28,10 @@ REX.FORMS Change Log
 - The ``forms-validate`` and ``forms-store`` commands will now accept
   YAML-formatted Form and Instrument files, provided they adhere to the same
   structural requirements as the specifications.
+- The ``start_entry()`` method on Tasks now accepts an optional ``ordinal``
+  argument.
+- The ``find()`` and ``create()`` method on Entry now accepts an optional
+  ``ordinal`` argument.
 
 
 0.26.0 (11/21/2014)

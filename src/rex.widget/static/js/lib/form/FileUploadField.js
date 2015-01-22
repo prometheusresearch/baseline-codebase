@@ -104,6 +104,11 @@ var FileUploadInput = React.createClass({
     color: '#AAAAAA'
   },
 
+  styleError: {
+    fontSize: '90%',
+    color: 'rgb(234, 69, 69)'
+  },
+
   render() {
     var {value, required, ...props} = this.props;
     var {file, progress, error} = this.state;
@@ -114,7 +119,11 @@ var FileUploadInput = React.createClass({
             Choose file
           </Button>
         </Box>
-        {file &&
+        {error ?
+          <Box centerVertically margin="0 0 0 10px" size={1}>
+            <Box style={this.styleError}>{error.message}</Box>
+          </Box> :
+          file ?
           <File
             size={1}
             margin="0 0 0 10px"
@@ -122,8 +131,7 @@ var FileUploadInput = React.createClass({
             progress={progress}
             file={file}
             onRemove={this.onRemove}
-            />}
-        {!file &&
+            /> :
           <Box centerVertically margin="0 0 0 10px" size={1}>
             <Box style={this.stylePlaceholder}>No file choosen</Box>
           </Box>}

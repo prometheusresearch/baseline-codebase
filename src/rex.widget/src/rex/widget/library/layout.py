@@ -119,6 +119,12 @@ class Box(Widget):
         Center children along horizontal axis.
         """)
 
+    scrollable = Field(
+        BoolVal(), default=undefined,
+        doc="""
+        If Box should be made scrollable.
+        """)
+
 
 class VBox(Box):
 

@@ -30,7 +30,8 @@ function makeBoxStyle(props) {
   var {
     direction, size, margin,
     width, height, aligned,
-    centerHorizontally, centerVertically
+    centerHorizontally, centerVertically,
+    scrollable
   } = props;
   var style = {};
   mergeInto(style, defaultStyle);
@@ -61,6 +62,9 @@ function makeBoxStyle(props) {
   if (aligned === 'left') {
     style.alignSelf = 'flex-start';
   }
+  if (aligned === 'scrollable') {
+    style.overflow = 'auto';
+  }
   return style;
 }
 
@@ -69,14 +73,15 @@ var Box = React.createClass({
   render() {
     var {
       direction, size, margin, width, height, aligned,
-      centerHorizontally, centerVertically,
+      centerHorizontally, centerVertically, scrollable,
       children, childrenMargin, style: extraStyle,
       Component, ...props
     } = this.props;
     var style = makeBoxStyle({
       direction, size, margin, aligned,
       width, height,
-      centerHorizontally, centerVertically
+      centerHorizontally, centerVertically,
+      scrollable
     });
     if (extraStyle !== undefined) {
       mergeInto(style, extraStyle);

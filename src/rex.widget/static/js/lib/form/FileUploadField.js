@@ -29,7 +29,11 @@ function uploadFile(url, file, onProgress) {
         }
       };
     }
-    xhr.send(data);
+    try {
+      xhr.send(data);
+    } catch(err) {
+      reject(err);
+    }
   });
 }
 
@@ -60,8 +64,9 @@ var File = React.createClass({
   },
 
   styleIcon: {
-    marginRight: 10,
-    top: -3
+    marginRight: 5,
+    marginLeft: 5,
+    top: -2
   },
 
   render() {
@@ -156,7 +161,10 @@ var FileUploadInput = React.createClass({
   onChange(e) {
     var files = e.target.files;
     var file = files[0];
-    this.setState({file});
+    this.setState({
+      file,
+      error: null
+    });
     uploadFile(this.props.storage, file, this._onUploadProgress)
       .then(response => JSON.parse(response.target.responseText))
       .then(this._onUploadComplete, this._onUploadError);

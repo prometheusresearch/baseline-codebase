@@ -106,7 +106,8 @@ var FieldBase = React.createClass({
   getDefaultProps() {
     return {
       size: 1,
-      margin: 5
+      margin: 5,
+      compact: true
     }
   }
 });

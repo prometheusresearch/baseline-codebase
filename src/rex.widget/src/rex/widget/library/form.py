@@ -240,7 +240,7 @@ class FormWidget(Box):
         """)
 
     compact = Field(
-        BoolVal(), default=False,
+        BoolVal(), default=undefined,
         doc="""
         If form widget should be rendered in "compact" style.
 

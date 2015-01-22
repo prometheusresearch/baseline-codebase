@@ -54,7 +54,8 @@ var ReadOnlyField = React.createClass({
   getDefaultProps() {
     return {
       size: 1,
-      margin: 10
+      margin: 10,
+      compact: true
     }
   }
 });

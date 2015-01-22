@@ -8,6 +8,8 @@ import sys
 
 from getpass import getuser
 
+import yaml
+
 from rex.core import Error
 from rex.ctl import Task, RexTask, argument, option
 
@@ -35,6 +37,12 @@ def open_and_validate(filename):
             str(exc),
         ))
 
+    if filename.endswith('.yaml') or filename.endswith('.yml'):
+        definition = json.dumps(
+            yaml.safe_load(definition),
+            ensure_ascii=False,
+        )
+
     try:
         InstrumentVersion.validate_definition(definition)
     except ValidationError as exc:
@@ -48,8 +56,8 @@ class InstrumentValidateTask(Task):
     validate a Common Instrument Definition
 
     The instrument-validate task will validate the structure and content of the
-    Common Instrument Definition in a JSON file and report back if any errors
-    are found.
+    Common Instrument Definition in a JSON (or YAML) file and report back if
+    any errors are found.
 
     The only argument to this task is the filename to validate.
     """
@@ -151,7 +159,7 @@ class InstrumentStoreTask(RexTask):
     stores an InstrumentVersion in the data store
 
     The instrument-store task will write a Common Instrument Definition JSON
-    file to an InstrumentVersion in the project's data store.
+    (or YAML) file to an InstrumentVersion in the project's data store.
 
     The instrument-uid argument is the UID of the desired Instrument to use in
     the data store. If the UID does not already exist, a new Instrument will be

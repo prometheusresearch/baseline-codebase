@@ -4,10 +4,6 @@ REX.INSTRUMENT Change Log
 
 .. contents:: Table of Contents
 
-0.13.0 (????-??-??)
-===================
-
-- Updated dependency to permit ``rex.setup`` version 2.
 
 0.13.0 (2015-01-xx)
 ===================
@@ -15,6 +11,9 @@ REX.INSTRUMENT Change Log
 - Added support for ``rex.setup`` v2.
 - Refactored the demo/test package.
 - Now using v2 of ``rex.ctl``.
+- The ``instrument-validate`` and ``instrument-store`` commands will now accept
+  YAML-formatted Instrument files, provided they adhere to the same structural
+  requirements as the Common Instrument Specification.
 
 
 0.12.0 (11/21/2014)

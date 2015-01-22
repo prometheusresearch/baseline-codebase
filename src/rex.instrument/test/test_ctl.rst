@@ -21,8 +21,8 @@ against the Common Instrument Definition::
     Usage: rex instrument-validate <definition>
     <BLANKLINE>
     The instrument-validate task will validate the structure and content of the
-    Common Instrument Definition in a JSON file and report back if any errors
-    are found.
+    Common Instrument Definition in a JSON (or YAML) file and report back if
+    any errors are found.
     <BLANKLINE>
     The only argument to this task is the filename to validate.
     <BLANKLINE>
@@ -36,6 +36,10 @@ It requires a single argument which is the path to the file::
 
     >>> ctl('instrument-validate ./test/instruments/simplest.json')
     "./test/instruments/simplest.json" contains a valid Common Instrument Definition.
+    <BLANKLINE>
+
+    >>> ctl('instrument-validate ./test/instruments_yaml/simplest.yaml')
+    "./test/instruments_yaml/simplest.yaml" contains a valid Common Instrument Definition.
     <BLANKLINE>
 
 
@@ -147,7 +151,7 @@ to an InstrumentVersion in the project data store::
     Usage: rex instrument-store [<project>] <instrument-uid> <definition>
     <BLANKLINE>
     The instrument-store task will write a Common Instrument Definition JSON
-    file to an InstrumentVersion in the project's data store.
+    (or YAML) file to an InstrumentVersion in the project's data store.
     <BLANKLINE>
     The instrument-uid argument is the UID of the desired Instrument to use in
     the data store. If the UID does not already exist, a new Instrument will be
@@ -177,6 +181,10 @@ the file containing the JSON::
     <BLANKLINE>
 
     >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments/simplest.json')
+    Using Instrument: Complex Instrument
+    Created version: 3
+
+    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments_yaml/simplest.yaml')
     Using Instrument: Complex Instrument
     Created version: 3
 

@@ -364,6 +364,7 @@ class SelectField(FormField):
         """)
 
     data = CollectionField(
+        default=undefined,
         doc="""
         Options loaded from database.
         """)

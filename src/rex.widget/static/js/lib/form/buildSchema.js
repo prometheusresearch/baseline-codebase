@@ -62,7 +62,6 @@ function buildListNode(desc) {
     hint,
     required,
     validate(node, value) {
-      console.log(value.toJS(), desc, minChildren);
       if (minChildren !== undefined && value.size < minChildren) {
         return new Error(`At least ${minChildren} items are required`);
       }

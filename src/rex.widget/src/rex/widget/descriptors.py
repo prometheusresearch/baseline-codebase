@@ -141,7 +141,7 @@ def visit_ui(ui, visitor, recurse=True):
     def _visitor(node, parent):
         if not recurse and parent is not ui and parent is not None:
             return False
-        visitor(node)
+        visitor(node, parent)
     ui.visit(_visitor)
 
 

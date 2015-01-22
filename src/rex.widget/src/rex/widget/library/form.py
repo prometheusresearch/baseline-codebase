@@ -165,7 +165,7 @@ def _merge_deep(result, ks, v):
 
 
 def _build_schema(root_node):
-    def visitor(node):
+    def visitor(node, parent):
         if (
             isinstance(node.widget, FormWidget)
             and hasattr(node.widget, 'value_key')
@@ -174,8 +174,9 @@ def _build_schema(root_node):
             items.append((
                 tuple(node.widget.value_key),
                 node.widget.form_schema(node)))
+            return False
     items = []
-    visit_ui(root_node, visitor, recurse=False)
+    visit_ui(root_node, visitor, recurse=True)
     items = sorted(items, key=lambda (ks, v): len(ks))
     children = OrderedDict()
     for ks, v in items:

@@ -58,7 +58,8 @@ class WidgetFieldDocumenter(sphinx.ext.autodoc.AttributeDocumenter):
 
     def render_validator(self):
         sourcename = u'docstring of %s' % self.fullname
-        self.add_line('* **Validator**: ``%r``' % self.object.validator, sourcename)
+        self.add_line('* **Validator**: ``%r``' % self.object.validate,
+                       sourcename)
 
     def render_default_value(self):
         sourcename = u'docstring of %s' % self.fullname

@@ -23,6 +23,7 @@ from ..widget import Widget, NullWidget, GroupWidget
 from ..action import ActionVal
 from ..field import Field, IDField, EntityField, CollectionField, undefined
 from ..field.data import DataRefVal, DataSpecVal
+from ..field.url import URLField
 from ..field.state import StateFieldBase
 from ..validate import WidgetVal
 from ..state import State
@@ -443,6 +444,17 @@ class TextareaField(FormField):
         BoolVal(), default=False,
         doc="""
         Should the textarea resize as user adds more lines.
+        """)
+
+
+class FileUploadField(FormField):
+
+    name = 'FileUploadField'
+    js_type = 'rex-widget/lib/form/FileUploadField'
+
+    storage = URLField(
+        doc="""
+        URL for a file storage which handles file uploads.
         """)
 
 

@@ -21,13 +21,13 @@ against the Web Form Configuration specification::
     Usage: rex forms-validate <configuration>
     <BLANKLINE>
     The forms-validate task will validate the structure and content of the
-    Web Form Configuration in a JSON file and report back if any errors
-    are found.
+    Web Form Configuration in a JSON (or YAML) file and report back if any
+    errors are found.
     <BLANKLINE>
     The only argument to this task is the filename to validate.
     <BLANKLINE>
     Options:
-      --instrument=FILE        : the file containing the associated Instrument Definition JSON; if not specified, then the Web Form Configuration will only be checked for schema violations
+      --instrument=FILE        : the file containing the associated Instrument Definition JSON (or YAML); if not specified, then the Web Form Configuration will only be checked for schema violations
     <BLANKLINE>
 
 
@@ -41,12 +41,28 @@ It requires a single argument which is the path to the file::
     "./test/forms/simplest.json" contains a valid Web Form Configuration.
     <BLANKLINE>
 
+    >>> ctl('forms-validate ./test/forms_yaml/simplest.yaml')
+    "./test/forms_yaml/simplest.yaml" contains a valid Web Form Configuration.
+    <BLANKLINE>
+
 
 You can optionally specify the file containing the corresponding Common
 Instrument Definition, to ensure that the Form satisfies the Instrument::
 
     >>> ctl('forms-validate ./test/forms/simplest.json --instrument=./test/forms/instruments/test-instrument-1.1.json')
     "./test/forms/simplest.json" contains a valid Web Form Configuration.
+    <BLANKLINE>
+
+    >>> ctl('forms-validate ./test/forms_yaml/simplest.yaml --instrument=./test/forms_yaml/instruments/test-instrument-1.1.yaml')
+    "./test/forms_yaml/simplest.yaml" contains a valid Web Form Configuration.
+    <BLANKLINE>
+
+    >>> ctl('forms-validate ./test/forms/simplest.json --instrument=./test/forms_yaml/instruments/test-instrument-1.1.yaml')
+    "./test/forms/simplest.json" contains a valid Web Form Configuration.
+    <BLANKLINE>
+
+    >>> ctl('forms-validate ./test/forms_yaml/simplest.yaml --instrument=./test/forms/instruments/test-instrument-1.1.json')
+    "./test/forms_yaml/simplest.yaml" contains a valid Web Form Configuration.
     <BLANKLINE>
 
 
@@ -211,8 +227,8 @@ in the project data store::
     FORMS-STORE - stores a Form in the data store
     Usage: rex forms-store [<project>] <instrument-uid> <channel-uid> <configuration>
     <BLANKLINE>
-    The forms-store task will write a Web Form Configuration JSON file to a
-    Form in the project's data store.
+    The forms-store task will write a Web Form Configuration JSON (or YAML)
+    file to a Form in the project's data store.
     <BLANKLINE>
     The instrument-uid argument is the UID of the desired Instrument that the
     Form will be associated with.
@@ -220,7 +236,7 @@ in the project data store::
     The channel-uid argument is the UID of the Channel that the Form will be
     associated with.
     <BLANKLINE>
-    The configuration is the path to the JSON file containing the Web Form
+    The configuration is the path to the JSON/YAML file containing the Web Form
     Configuration to use.
     <BLANKLINE>
     Options:
@@ -246,6 +262,13 @@ and the path to the file containing the JSON::
     <BLANKLINE>
 
     >>> ctl('forms-store --project=rex.forms_demo simple survey ./test/forms/simplest.json')
+    Using Instrument: Simple Instrument
+    Instrument Version: 1
+    Using Channel: RexSurvey
+    ### SAVED FORM simple1survey
+    Updated existing Form
+
+    >>> ctl('forms-store --project=rex.forms_demo simple survey ./test/forms_yaml/simplest.yaml')
     Using Instrument: Simple Instrument
     Instrument Version: 1
     Using Channel: RexSurvey

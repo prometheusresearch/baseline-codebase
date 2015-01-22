@@ -6,6 +6,7 @@
 import json
 import sys
 
+import yaml
 
 from rex.core import Error
 from rex.ctl import Task, RexTask, argument, option
@@ -37,9 +38,17 @@ def open_and_validate(
             str(exc),
         ))
 
+    if filename.endswith('.yaml') or filename.endswith('.yml'):
+        configuration = json.dumps(
+            yaml.safe_load(configuration),
+            ensure_ascii=False,
+        )
+
     if (not instrument_definition) and instrument_file:
         try:
-            instrument_definition = open(instrument_file, 'r').read()
+            instrument_definition = yaml.safe_load(
+                open(instrument_file, 'r').read()
+            )
         except Exception as exc:
             raise Error('Could not open "%s": %s' % (
                 instrument_file,
@@ -62,8 +71,8 @@ class FormsValidateTask(Task):
     validate a Web Form Configuration
 
     The forms-validate task will validate the structure and content of the
-    Web Form Configuration in a JSON file and report back if any errors
-    are found.
+    Web Form Configuration in a JSON (or YAML) file and report back if any
+    errors are found.
 
     The only argument to this task is the filename to validate.
     """
@@ -80,8 +89,8 @@ class FormsValidateTask(Task):
             default=None,
             value_name='FILE',
             hint='the file containing the associated Instrument Definition'
-            ' JSON; if not specified, then the Web Form Configuration will'
-            ' only be checked for schema violations',
+            ' JSON (or YAML); if not specified, then the Web Form'
+            ' Configuration will only be checked for schema violations',
         )
 
     def __call__(self):
@@ -207,8 +216,8 @@ class FormsStoreTask(RexTask):
     """
     stores a Form in the data store
 
-    The forms-store task will write a Web Form Configuration JSON file to a
-    Form in the project's data store.
+    The forms-store task will write a Web Form Configuration JSON (or YAML)
+    file to a Form in the project's data store.
 
     The instrument-uid argument is the UID of the desired Instrument that the
     Form will be associated with.
@@ -216,7 +225,7 @@ class FormsStoreTask(RexTask):
     The channel-uid argument is the UID of the Channel that the Form will be
     associated with.
 
-    The configuration is the path to the JSON file containing the Web Form
+    The configuration is the path to the JSON/YAML file containing the Web Form
     Configuration to use.
     """
 

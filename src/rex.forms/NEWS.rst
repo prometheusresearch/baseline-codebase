@@ -25,6 +25,9 @@ REX.FORMS Change Log
 - Fixed an issue where fields with textArea widgets weren't being disabled
   appropriately.
 - Now using v2 of ``rex.ctl``.
+- The ``forms-validate`` and ``forms-store`` commands will now accept
+  YAML-formatted Form and Instrument files, provided they adhere to the same
+  structural requirements as the specifications.
 
 
 0.26.0 (11/21/2014)

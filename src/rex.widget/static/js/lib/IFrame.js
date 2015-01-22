@@ -19,7 +19,7 @@ var IFrame = React.createClass({
         height="100%"
         width="100%"
         border="0"
-        frameborder="0"
+        frameBorder="0"
       />);
 
   }

@@ -116,7 +116,7 @@ class WidgetRenderer(object):
         descriptor = self.widget.descriptor()
         state = descriptor.state
         if request.method == 'GET':
-            values = _validate_values(state, parse_qs(request.query_string))
+            values = _validate_qs_values(state, parse_qs(request.query_string))
             state = compute(
                 state, request, values=values, user=user, defer=True)
             values = state.get_values()
@@ -129,7 +129,7 @@ class WidgetRenderer(object):
             }
         elif request.method == 'POST':
             if request.content_type == 'application/x-www-form-urlencoded':
-                values = _validate_values(state, parse_qs(request.body))
+                values = _validate_qs_values(state, parse_qs(request.body))
                 state = compute(
                     state, request, values=values, user=user, defer=True)
                 values = state.get_values()
@@ -205,14 +205,15 @@ def _extract_data(values):
     return data
 
 
-def _validate_values(state, values):
+def _validate_qs_values(state, values):
     aliases = {s.alias: s.id for s in state.values() if s.alias}
     validated = {}
     for k, value in values.items():
         state_id = aliases.get(k, k)
-        if not state_id in state:
-            raise HTTPBadRequest(
-                'invalid state id or state alias: %s' % state_id)
-        with guard('While validating state: %s' % state_id):
-            validated[state_id] = state[state_id].validator(value)
+        #if not state_id in state:
+        #    raise HTTPBadRequest(
+        #        'invalid state id or state alias: %s' % state_id)
+        if state_id in state:
+            with guard('While validating state: %s' % state_id):
+                validated[state_id] = state[state_id].validator(value)
     return validated

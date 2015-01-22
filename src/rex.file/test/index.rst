@@ -4,6 +4,7 @@
 
 .. toctree::
 
-   test_file
+   test_fact
+   test_handle
 
 

@@ -1,9 +1,9 @@
 
 paths:
 
-  /study:
-    port: study
+  /consent:
+    port: consent
 
-  /study-file:
-    file: study
+  /consent-file:
+    file: consent.consent_form_scan
 

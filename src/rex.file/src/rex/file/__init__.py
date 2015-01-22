@@ -3,6 +3,9 @@
 #
 
 
-from . import fact, handle, map
+from .fact import FileFact
+from .handle import HandleUpload
+from .map import MapFile
+from .model import FileTableConstraintModel, FileLinkConstraintModel
 
 

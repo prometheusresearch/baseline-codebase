@@ -5,8 +5,10 @@
 
 from rex.core import Error, BoolVal, UStrVal, OneOrSeqVal
 from rex.deploy import (
-        Fact, TableFact, ColumnFact, LinkFact, IdentityFact, mangle,
-        sql_template, model, BEFORE, INSERT_UPDATE)
+        Fact, TableFact, ColumnFact, LinkFact, IdentityFact, mangle, model,
+        BEFORE, INSERT_UPDATE)
+from .sql import plpgsql_file_table_check, plpgsql_file_link_check
+from .model import FileTableConstraintModel, FileLinkConstraintModel
 
 
 class LabelVal(UStrVal):
@@ -25,72 +27,6 @@ class TitleVal(UStrVal):
     # Entity title.
 
     pattern = r'\S(.*\S)?'
-
-
-@sql_template
-def plpgsql_file_container_procedure():
-    """
-    DECLARE
-        _session text;
-    BEGIN
-        IF TG_OP = 'INSERT' THEN
-            IF NEW.timestamp <> 'now'::text::timestamp THEN
-                RAISE EXCEPTION 'file.timestamp cannot be directly assigned';
-            END IF;
-            IF NEW.fresh <> TRUE THEN
-                RAISE EXCEPTION 'file.fresh cannot be directly assigned';
-            END IF;
-            IF NEW.session IS NOT NULL THEN
-                RAISE EXCEPTION 'file.session cannot be directly assigned';
-            END IF;
-            BEGIN
-                SELECT current_setting('rex.session') INTO _session;
-            EXCEPTION WHEN undefined_object THEN
-            END;
-            IF _session IS NULL THEN
-                SELECT session_user INTO _session;
-            END IF;
-            NEW.session := _session;
-        ELSIF TG_OP = 'UPDATE' THEN
-            IF NEW.handle <> OLD.handle THEN
-                RAISE EXCEPTION 'file.handle cannot be modified';
-            END IF;
-            IF NEW.fresh <> OLD.fresh AND NEW.fresh <> FALSE THEN
-                RAISE EXCEPTION 'file.fresh cannot be reset';
-            END IF;
-        END IF;
-        RETURN NEW;
-    END;
-    """
-
-@sql_template
-def plpgsql_file_procedure(table_name, name, table_label, label):
-    """
-    DECLARE
-        _session text;
-        _file file%ROWTYPE;
-    BEGIN
-        IF NEW.{{ name|n }} IS NOT NULL
-           AND (TG_OP = 'INSERT' OR
-                TG_OP = 'UPDATE' AND NEW.{{ name|n }} IS DISTINCT FROM OLD.{{ name|n }}) THEN
-            BEGIN
-                SELECT current_setting('rex.session') INTO _session;
-            EXCEPTION WHEN undefined_object THEN
-            END;
-            IF _session IS NULL THEN
-                SELECT session_user INTO _session;
-            END IF;
-            SELECT * INTO _file FROM file WHERE file.id = NEW.{{ name|n }};
-            IF NOT (_file.timestamp+'1d' > 'now'::text::timestamp AND
-                    _file.session = _session AND
-                    _file.fresh IS TRUE) THEN
-                RAISE EXCEPTION '{{ table_label }}.{{ label }} cannot be set to ''%''', _file.handle;
-            END IF;
-            UPDATE file SET fresh = FALSE WHERE handle = _file.handle;
-        END IF;
-        RETURN NEW;
-    END;
-    """
 
 
 class FileFact(Fact):
@@ -112,7 +48,7 @@ class FileFact(Fact):
                 if getattr(spec, field) is not None:
                     raise Error("Got unexpected clause:", field)
         if u'.' in spec.file:
-            table_label, label = spec.link.split(u'.')
+            table_label, label = spec.file.split(u'.')
             if spec.of is not None and spec.of != table_label:
                 raise Error("Got mismatched table names:",
                             ", ".join((table_label, spec.of)))
@@ -190,44 +126,37 @@ class FileFact(Fact):
     def __call__(self, driver):
         if self.is_present:
             schema = model(driver)
-            driver(TableFact(u"file"))
-            driver(ColumnFact(u"file", u"handle", type=u"text"))
-            driver(IdentityFact(u"file", [u"handle"]))
-            driver(ColumnFact(
-                u"file", u"timestamp", type=u"datetime", default=u"now()"))
-            driver(ColumnFact(u"file", u"session", type=u"text"))
-            driver(ColumnFact(u"file", u"fresh", type=u"boolean", default=True))
-            container_table = schema.table(u'file')
-            chk_name = mangle(u'file', u'chk')
-            type_image = schema.system_image.types[u'trigger']
-            source = plpgsql_file_container_procedure()
-            if (chk_name, ()) not in schema.image.procedures:
-                procedure_image = schema.image.create_procedure(
-                        chk_name, [], type_image, source)
-                container_table.image.create_trigger(
-                        chk_name, BEFORE, INSERT_UPDATE, procedure_image, [])
-            link = LinkFact(
+            driver([
+                TableFact(u"file"),
+                ColumnFact(u"file", u"handle", type=u"text"),
+                IdentityFact(u"file", [u"handle"]),
+                ColumnFact(
+                    u"file", u"timestamp", type=u"datetime", default=u"now()"),
+                ColumnFact(u"file", u"session", type=u"text"),
+                ColumnFact(u"file", u"fresh", type=u"boolean", default=True),
+            ])
+            table = schema.table(u'file')
+            constraint = table.constraint(FileTableConstraintModel)
+            if not constraint:
+                FileTableConstraintModel.do_build(table)
+            fact = LinkFact(
                     self.table_label, self.label, u"file",
                     former_labels=self.former_labels,
                     is_required=self.is_required,
                     title=self.title,
                     front_labels=self.front_labels)
-            link(driver)
+            fact(driver)
             table = schema.table(self.table_label)
             link = table.link(self.label)
-            table_name = table.names(self.table_label).name
-            link_name = link.names(self.table_label, self.label).name
-            chk_name = mangle([table_name, link_name, u'file'], u'chk')
-            source = plpgsql_file_procedure(
-                    table_name, link_name, self.table_label, self.label)
-            if (chk_name, ()) not in schema.image.procedures:
-                procedure_image = schema.image.create_procedure(
-                        chk_name, [], type_image, source)
-                table.image.create_trigger(
-                        chk_name, BEFORE, INSERT_UPDATE, procedure_image, [])
+            table = schema.table(self.table_label)
+            link = table.link(self.label)
+            if not any(constraint.link is link
+                       for constraint
+                            in table.constraints(FileLinkConstraintModel)):
+                FileLinkConstraintModel.do_build(link)
         else:
             link = LinkFact(
-                    self.table_label, self.label, u"file", is_present=False)
+                    self.table_label, self.label, is_present=False)
             link(driver)
 
 

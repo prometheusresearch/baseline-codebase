@@ -18,3 +18,12 @@
       des,Dennis Exercise Study,false
       puis,Prometheus University Intelligence Study,true
 
+- table: consent
+  with:
+  - link: study
+  - column: code
+    type: integer
+  - identity: [study, code: offset]
+  - file: consent_form_scan
+    required: false
+

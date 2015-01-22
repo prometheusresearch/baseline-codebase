@@ -121,9 +121,13 @@ class WidgetVal(Validate):
                         "Missing mandatory fields:",
                         ", ".join(missing_mandatory_fields))
 
+            for field in widget_class.fields.values():
+                if not field.name in values and field.has_default:
+                    values[field.name] = field.default
+
             context = get_context()
 
-            if 'id' in widget_class.fields and 'id' not in values:
+            if 'id' in widget_class.fields and not values.get('id'):
                 values['id'] = context.generate_widget_id(widget_class)
 
             return widget_class(**values)

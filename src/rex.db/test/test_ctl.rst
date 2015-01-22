@@ -23,7 +23,11 @@ To inspect the content of the application database, open HTSQL shell with
      |             9 |
 
 You could enable additional HTSQL plugins from the command line using
-``--extend`` option::
+``--extend`` option.  Plugins specified by ``--extend`` option and through
+``htsql_extensions`` setting are combined::
+
+    >>> os.environ['REX_PARAMETERS'] = '''{"db": "sqlite:./sandbox/db_demo.sqlite",
+    ...                                    "htsql_extensions": {"tweak.hello": null}}'''
 
     >>> ctl("shell --extend tweak.autolimit:limit=3",
     ...     input="/school")                        # doctest: +NORMALIZE_WHITESPACE
@@ -34,6 +38,10 @@ You could enable additional HTSQL plugins from the command line using
      | art  | School of Art & Design | old    |
      | bus  | School of Business     | south  |
      | edu  | College of Education   | old    |
+
+    >>> ctl("shell --extend tweak.autolimit:limit=3",
+    ...     input="/hello()")                      # doctest: +NORMALIZE_WHITESPACE
+    Hello, World!
 
 Using ``--gateway`` option, you could connect to an auxiliary application database
 if it is configured::

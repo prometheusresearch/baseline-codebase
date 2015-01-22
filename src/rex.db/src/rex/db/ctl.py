@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, get_packages, StrVal
-from rex.ctl import RexTask, Topic, argument, option, fail
+from rex.ctl import RexTask, Topic, argument, option, fail, env
 from .database import get_db
 from .setting import HTSQLVal
 import sys
@@ -57,9 +57,15 @@ class RexDBTask(RexTask):
                 hint="connect to a gateway database")
 
     def make(self, extra_requirements=[], extra_parameters={}, *args, **kwds):
-        # Converts `--extend` to `htsql_extension` parameter.
-        extra_parameters = extra_parameters.copy()
-        extra_parameters['htsql_extensions'] = HTSQLVal.merge(*self.extend)
+        # Converts and merges `--extend` to `htsql_extension` parameter.
+        htsql_extensions = []
+        htsql_extensions.append(env.parameters.get('htsql_extensions', {}))
+        htsql_extensions.append(env.parameters.get('htsql-extensions', {}))
+        htsql_extensions.extend(self.extend)
+        htsql_extensions = HTSQLVal.merge(*htsql_extensions)
+        if htsql_extensions:
+            extra_parameters = extra_parameters.copy()
+            extra_parameters['htsql_extensions'] = htsql_extensions
         return super(RexDBTask, self).make(
                 extra_requirements, extra_parameters, *args, **kwds)
 

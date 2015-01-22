@@ -14,8 +14,8 @@ from .sql import (sql_create_table, sql_drop_table, sql_rename_table,
         sql_drop_index, sql_rename_index, sql_create_sequence,
         sql_rename_sequence, sql_nextval, sql_create_function,
         sql_drop_function, sql_rename_function, sql_create_trigger,
-        sql_drop_trigger, sql_rename_trigger, sql_select, sql_insert,
-        sql_update, sql_delete)
+        sql_drop_trigger, sql_rename_trigger, sql_comment_on_trigger,
+        sql_select, sql_insert, sql_update, sql_delete)
 import htsql.core.util
 import collections
 import weakref
@@ -1277,6 +1277,14 @@ class TriggerImage(NamedImage):
         """Sets the comment."""
         self.comment = comment
         return self
+
+    def alter_comment(self, comment):
+        """Updates the comment on the trigger."""
+        if self.comment == comment:
+            return self
+        sql = sql_comment_on_trigger(self.table.name, self.name, comment)
+        self.cursor.execute(sql)
+        return self.set_comment(comment)
 
     def alter_name(self, name):
         """Renames the trigger."""

@@ -532,6 +532,13 @@ def sql_rename_trigger(table_name, name, new_name):
 
 
 @sql_template
+def sql_comment_on_trigger(table_name, name, text):
+    """
+    COMMENT ON TRIGGER {{ name|n }} ON {{ table_name|n }} IS {{ text|v }};
+    """
+
+
+@sql_template
 def sql_select(table_name, names):
     """
     SELECT {{ names|n }}

@@ -12,7 +12,7 @@ from .cluster import Cluster, get_cluster, deploy
 from .column import ColumnFact
 from .ctl import CreateDBTask, DropDBTask, DumpDBTask, LoadDBTask, DeployTask
 from .data import DataFact, SKIP
-from .fact import Fact, Driver, label_to_title
+from .fact import Fact, Driver, label_to_title, LabelVal, QLabelVal, TitleVal
 from .identity import IdentityFact
 from .include import IncludeFact
 from .image import (make_catalog, Image, IndexedImage, NamedImage, ImageList,
@@ -22,7 +22,8 @@ from .image import (make_catalog, Image, IndexedImage, NamedImage, ImageList,
         TriggerImage, DataImage, BEFORE, AFTER, INSERT, UPDATE, DELETE,
         INSERT_UPDATE, INSERT_DELETE, UPDATE_DELETE, INSERT_UPDATE_DELETE)
 from .meta import Meta, TableMeta, ColumnMeta, PrimaryKeyMeta, uncomment
-from .model import model
+from .model import (model, TableModel, ColumnModel, LinkModel, IdentityModel,
+        ConstraintModel)
 from .introspect import introspect
 from .link import LinkFact
 from .raw import RawFact

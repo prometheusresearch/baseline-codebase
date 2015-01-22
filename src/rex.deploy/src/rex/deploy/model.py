@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Record, Error
+from rex.core import Record, Error, Extension, LatentRex, get_rex
 from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
 from .meta import uncomment
 from .sql import (mangle, sql_value, sql_name, sql_cast,
@@ -24,7 +24,8 @@ from htsql_rex_deploy.domain import JSONDomain
 class Signal(object):
     # Notifies a dependent about a change in the master.
 
-    __slot__ = ('before', 'after', 'modify', 'erase')
+    __slot__ = ('before', 'after', 'modify', 'erase',
+                'before_modify', 'before_erase', 'after_modify', 'after_erase')
 
     def __init__(self, before=False, after=False, modify=False, erase=False):
         assert before != after
@@ -33,29 +34,42 @@ class Signal(object):
         self.after = after
         self.modify = modify
         self.erase = erase
+        self.before_modify = before and modify
+        self.before_erase = before and erase
+        self.after_modify = after and modify
+        self.after_erase = after and erase
 
 
-class EntityModel(object):
+class Model(Extension):
     # Represents high-level entities: tables, fields, identities.
 
     __slots__ = ('owner', 'image')
 
     properties = None
-
-    class __metaclass__(type):
-        # Generates a `State` record class from `properties`.
-
-        def __new__(mcls, name, bases, members):
-            cls = type.__new__(mcls, name, bases, members)
-            if cls.__dict__.get('properties'):
-                cls.State = Record.make(None, cls.properties)
-            return cls
-
-
     is_table = False
     is_column = False
     is_link = False
     is_identity = False
+    is_constraint = False
+
+    @classmethod
+    def sanitize(cls):
+        # Generates a `State` record class from `properties`.
+        if cls.__dict__.get('properties'):
+            cls.State = Record.make(None, cls.properties)
+
+    @classmethod
+    def enabled(cls):
+        return (cls.properties is not None)
+
+    @classmethod
+    def all(cls):
+        if not get_rex:
+            # Allow it to work even when there is no active Rex application.
+            with LatentRex('rex.deploy'):
+                return super(Model, cls).all()
+        else:
+            return super(Model, cls).all()
 
     def __init__(self, schema, image):
         self.owner = weakref.ref(schema)
@@ -119,8 +133,6 @@ class EntityModel(object):
         for dependent in dependents:
             if dependent:
                 dependent.do_react(self, signal, old, None)
-            if dependent:
-                dependent.remove()
 
     def remove(self):
         # Kills the entity.
@@ -146,7 +158,7 @@ class EntityModel(object):
         raise NotImplementedError()
 
 
-class SchemaModel(object):
+class ModelSchema(object):
 
     __slots__ = (
             'driver', 'image', 'system_image', 'image_to_entity',
@@ -179,9 +191,19 @@ class SchemaModel(object):
         if image is None:
             return None
         # Check if any of the entities recognizes the database object.
-        for EntityClass in EntityModel.__subclasses__():
-            if EntityClass.recognizes(self, image):
-                return EntityClass(self, image)
+        candidates = []
+        for ModelClass in Model.all():
+            if ModelClass.recognizes(self, image):
+                candidates = [Candidate
+                              for Candidate in candidates
+                              if not issubclass(Candidate, ModelClass)]
+                if not any([issubclass(ModelClass, Candidate)
+                            for Candidate in candidates]):
+                    candidates.append(ModelClass)
+        assert len(candidates) <= 1
+        if candidates:
+            [ModelClass] = candidates
+            return ModelClass(self, image)
 
     def table(self, label):
         return TableModel.find(self, label)
@@ -190,7 +212,15 @@ class SchemaModel(object):
         return TableModel.do_build(self, **kwds)
 
 
-class TableModel(EntityModel):
+class ConstraintModel(Model):
+    # Wraps some constraint on the database.
+
+    __slots__ = ()
+
+    is_constraint = True
+
+
+class TableModel(Model):
     # Wraps a database table.
 
     __slots__ = (
@@ -308,6 +338,19 @@ class TableModel(EntityModel):
         # Table identity.
         return self.schema(self.image.primary_key)
 
+    def constraints(self, ModelClass=None):
+        constraints = []
+        for trigger_image in self.image.triggers:
+            if trigger_image.comment is not None:
+                constraint = self.schema(trigger_image)
+                if ModelClass is None or isinstance(constraint, ModelClass):
+                    constraints.append(constraint)
+        return constraints
+
+    def constraint(self, ModelClass):
+        constraints = self.constraints(ModelClass)
+        return constraints[0] if constraints else None
+
     def dependents(self):
         # List of dependent entities.
         dependents = []
@@ -327,6 +370,12 @@ class TableModel(EntityModel):
         identity = self.schema(self.image.primary_key)
         if identity:
             dependents.append(identity)
+        # Constraints.
+        for trigger_image in self.image.triggers:
+            if trigger_image.comment is not None:
+                constraint = self.schema(trigger_image)
+                if constraint:
+                    dependents.append(constraint)
         return dependents
 
     def column(self, label):
@@ -358,7 +407,7 @@ class TableModel(EntityModel):
                 break
 
 
-class ColumnModel(EntityModel):
+class ColumnModel(Model):
     # Wraps a database column.
 
     __slots__ = (
@@ -643,16 +692,17 @@ class ColumnModel(EntityModel):
         # Reacts on changes of the parent table.
         assert master is self.table
         # After the table is renamed, refresh the names.
-        if signal.after and signal.modify and old.label != new.label:
+        if signal.after_modify and old.label != new.label:
             names = self.names(new.label, self.label)
             if self.enum_image:
                 self.enum_image.alter_name(names.enum_name)
             if self.uk_image:
                 self.uk_image.alter_name(names.uk_name)
         # After the table is deleted, delete the `ENUM` type.
-        if signal.after and signal.erase:
+        if signal.after_erase:
             if self.enum_image:
                 self.enum_image.drop()
+            self.remove()
 
     def dependents(self):
         # Column dependencies.
@@ -662,10 +712,16 @@ class ColumnModel(EntityModel):
             identity = self.schema(self.image.table.primary_key)
             if identity:
                 dependents.append(identity)
+        # Also add all table constraints.
+        for trigger_image in self.image.table.triggers:
+            if trigger_image.comment is not None:
+                constraint = self.schema(trigger_image)
+                if constraint:
+                    dependents.append(constraint)
         return dependents
 
 
-class LinkModel(EntityModel):
+class LinkModel(Model):
     # Represents a column with a foreign key constraint.
 
     __slots__ = (
@@ -813,17 +869,16 @@ class LinkModel(EntityModel):
         # Reacts on changes of the origin and target tables.
         if master is self.target_table:
             # When the target table is about to be deleted, delete the link.
-            if master is not self.table and signal.before and signal.erase:
+            if master is not self.table and signal.before_erase:
                 self.erase()
                 return
             # When the target is renamed and the target name coincides with
             # the link name, rename the link.
-            if signal.after and signal.modify and \
-                    self.label == old.label != new.label:
+            if signal.after_modify and self.label == old.label != new.label:
                 self.modify(label=new.label)
         if master is self.table:
             # After the table is renamed, refresh the names.
-            if signal.after and signal.modify and old.label != new.label:
+            if signal.after_modify and old.label != new.label:
                 names = self.names(new.label, self.label)
                 if self.fk_image:
                     self.fk_image.alter_name(names.fk_name)
@@ -831,6 +886,8 @@ class LinkModel(EntityModel):
                     self.index_image.alter_name(names.fk_name)
                 if self.uk_image:
                     self.uk_image.alter_name(names.uk_name)
+        if signal.after_erase:
+            self.remove()
 
     def dependents(self):
         # Entities that depend on the link.
@@ -840,10 +897,16 @@ class LinkModel(EntityModel):
             identity = self.schema(self.image.table.primary_key)
             if identity:
                 dependents.append(identity)
+        # Also add all table constraints.
+        for trigger_image in self.image.table.triggers:
+            if trigger_image.comment is not None:
+                constraint = self.schema(trigger_image)
+                if constraint:
+                    dependents.append(constraint)
         return dependents
 
 
-class IdentityModel(EntityModel):
+class IdentityModel(Model):
     # Wraps the primary key.
 
     __slots__ = (
@@ -916,7 +979,7 @@ class IdentityModel(EntityModel):
         if self.trigger_image:
             self.procedure_image = self.trigger_image.procedure
         meta = uncomment(image)
-        self.generators = meta.generators
+        self.generators = meta.generators or [None]*len(self.fields)
 
     def do_modify(self, table, fields, generators):
         # Updates the identity properties.
@@ -989,12 +1052,12 @@ class IdentityModel(EntityModel):
         # Reacts on changes in the master table or one of the identity fields.
         # When a column loses `NOT NULL` constraint, delete the identity.
         if master in self.fields:
-            if signal.before and signal.modify and not new.is_required:
+            if signal.before_modify and not new.is_required:
                 self.erase()
                 return
         # If any name changes, see if we need to rename the constraint
         # and rebuild the trigger.
-        if signal.after and signal.modify and old.label != new.label: 
+        if signal.after_modify and old.label != new.label:
             names = self.names(self.table.label)
             self.image.alter_name(names.name)
             if self.procedure_image:
@@ -1005,11 +1068,12 @@ class IdentityModel(EntityModel):
             if source:
                 self.procedure_image.alter_source(source)
         # After the constraint is delete, clear the trigger and the procedure.
-        if signal.after and signal.erase:
+        if signal.after_erase:
             if self.trigger_image:
                 self.trigger_image.drop()
             if self.procedure_image:
                 self.procedure_image.drop()
+            self.remove()
 
 
 def _make_offset_key(table, column):
@@ -1054,6 +1118,6 @@ def _generate(table, generators):
 
 
 def model(driver):
-    return SchemaModel(driver)
+    return ModelSchema(driver)
 
 

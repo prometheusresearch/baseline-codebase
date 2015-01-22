@@ -41,7 +41,6 @@ paths:
           - !<Grid>
             id: study_list
             selectable: true
-            height: 400
             data:
               data: rex.widget_demo:/data/study/list
             columns:

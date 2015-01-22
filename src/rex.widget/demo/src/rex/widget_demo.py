@@ -7,12 +7,34 @@
 
 """
 
-from rex.core import StrVal, AnyVal, IntVal, cached
+import cgi
+
+from rex.core import Validate, StrVal, AnyVal, IntVal
 from rex.widget import (
     Widget, Page, Field, EntityField, WidgetVal, NullWidget)
 
 from rex.web import Command, Parameter
 from webob import Response
+
+class FileVal(Validate):
+
+    def __call__(self, value):
+        if not isinstance(value, cgi.FieldStorage):
+            raise Error('not a file')
+        if value.file is None or value.filename is None:
+            raise Error('not a file')
+        return value
+
+
+class ApplicationAttachmentCommand(Command):
+
+    path = '/data/application/attachment'
+    parameters = [
+        Parameter('file', FileVal())
+    ]
+
+    def render(self, request, file=None):
+        return Response(json={'id': file.filename})
 
 
 class StudyInfo(Widget):

@@ -1,0 +1,28 @@
+paths:
+
+  /upload:
+    widget: !<DemoPage>
+      id: upload
+      title: Forms Upload Example
+      children: !<Box>
+        center_horizontally: true
+        children: !<Form>
+          width: 50%;
+          id: application-form
+          label: Application
+          fieldset:
+          - !<Field>
+            value_key: title
+            label: Title
+            required: true
+            compact: true
+            hint: Application title
+          - !<FileUploadField>
+            value_key: attachment
+            compact: true
+            label: Attachment
+            hint: Application in PDF format
+            storage: rex.widget_demo:/data/application/attachment
+          save_to:
+            data: rex.widget_demo:/data/application
+

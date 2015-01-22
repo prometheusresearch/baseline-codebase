@@ -7,6 +7,7 @@ include:
 - page/home.yaml
 - page/forms.yaml
 - page/forms_master_details.yaml
+- page/upload.yaml
 - page/about.yaml
 - page/sample.yaml
 - page/chart.yaml

@@ -23,6 +23,7 @@ var isString      = require('./isString');
 var formatters    = require('./formatters');
 var runtime       = require('./runtime');
 var {Box}         = require('./layout');
+var {Ref}         = require('./Storage');
 
 function sameColumn(a, b) {
   var k;
@@ -168,7 +169,7 @@ var Grid = React.createClass({
       PropTypes.array.isRequired
     ]),
 
-    columns: PropTypes.object,
+    columns: PropTypes.array,
     hideColumns: PropTypes.array,
     showColumns: PropTypes.array,
     resizeableColumns: PropTypes.bool,
@@ -185,14 +186,28 @@ var Grid = React.createClass({
   },
 
   render() {
-    var {selectable, selected, onSelected, className} = this.props;
+    var {selectable, columns, selected, onSelected, className} = this.props;
     var rowRenderer = (
       <GridRow
         selected={selectable && selected}
         onSelected={selectable && this.onSelected}
         />
     );
-    var columns = this.getColumns();
+    columns = columns.map(column => ({
+      name: column.name,
+      key(value) {
+        for (var i = 0; i < column.key.length; i++) {
+          if (value instanceof Ref) {
+            value = value.resolve();
+          }
+          if (value === null || value === undefined) {
+            break;
+          }
+          value = value[column.key[i]];
+        }
+        return value;
+      }
+    }));
     return (
       <BaseGrid
         columnEquality={sameColumn}
@@ -255,7 +270,9 @@ var Grid = React.createClass({
           this.props.hideColumns.indexOf(column.key) === -1);
     }
     if (this.props.showColumns) {
-      return this.props.showColumns.map((key) => this.decorateColumn(index[key]));
+      return this.props.showColumns
+        .filter(key => index[key])
+        .map(key => this.decorateColumn(index[key]));
     } else {
       return columns.map(this.decorateColumn);
     }
@@ -307,81 +324,6 @@ var Grid = React.createClass({
     } else {
       return {key: null, direction: '+'};
     }
-  },
-
-  getColumns() {
-    if (this.props.data.meta) {
-      return this.getColumnsFromMeta(this.props.data.meta);
-    } else if (Array.isArray(this.props.data)) {
-      return this.getColumnsFromKeys(this.props.data);
-    } else {
-      return this.getColumnsFromData(this.props.data);
-    }
-  },
-
-  getColumnsFromMeta(meta) {
-    if (!this._columns || this._columns.meta !== meta) {
-      var index = {};
-      var columns = [];
-      columns.index = index;
-      columns.meta = meta;
-
-      // XXX: find a way to do this for a general case
-      // (need hierarchical columns in react-grid)
-      var fields = meta.domain.item.domain.fields;
-
-      for (var i = 0, len = fields.length; i < len; i++) {
-        var column = {
-          key: fields[i].tag,
-          name: fields[i].header
-        };
-        columns.push(column);
-        index[column.key] = column;
-      }
-
-      this._columns = this.decorateColumns(columns);
-    }
-    return this._columns;
-  },
-
-  getColumnsFromKeys(data) {
-    if (data.length === 0)
-      return [];
-    var keys = Object.keys(data[0]);
-    var columns = [];
-    var index = {}
-    columns.index = index;
-    for (var i = 0, len = keys.length; i < len; i++) {
-      var column = {
-        key: keys[i],
-        name: keys[i]
-      };
-      columns.push(column);
-      index[column.key] = column;
-    }
-    this._columns = this.decorateColumns(columns);
-    return this._columns;
-  },
-
-  getColumnsFromData(data) {
-    var data = data.data;
-    if (data.length === 0) {
-      return [];
-    }
-    var keys = Object.keys(data[0]);
-    var columns = [];
-    var index = {};
-    columns.index = index;
-    for (var i = 0, len = keys.length; i < len; i++) {
-      var column = {
-        key: keys[i],
-        name: keys[i]
-      };
-      columns.push(column);
-      index[column.key] = column;
-    }
-    this._columns = this.decorateColumns(columns);
-    return this._columns;
   },
 
   getData() {

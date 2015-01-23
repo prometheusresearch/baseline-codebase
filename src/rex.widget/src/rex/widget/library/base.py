@@ -351,6 +351,37 @@ class TextInput(Widget):
         """)
 
 
+class KeyPathVal(Validate):
+
+    _validate = OneOfVal(StrVal(), SeqVal(StrVal()))
+
+    def __call__(self, value):
+        if isinstance(value, tuple):
+            return value
+        value = self._validate(value)
+        if isinstance(value, basestring):
+            if '.' in value:
+                value = tuple(value.split('.'))
+            else:
+                value = (value,)
+        return value
+
+
+class ColumnVal(Validate):
+
+    _validate_column = RecordVal(
+        ('key', KeyPathVal()),
+        ('name', StrVal()),
+    )
+    _validate = OneOfVal(_validate_column, KeyPathVal())
+
+    def __call__(self, value):
+        value = self._validate(value)
+        if not isinstance(value, self._validate_column.record_type):
+            value = self._validate_column.record_type(key=value)
+        return value
+
+
 class Grid(Widget):
     """ Data Grid."""
 
@@ -361,20 +392,30 @@ class Grid(Widget):
 
     data = CollectionField(
         paginate=True,
-        include_meta=True,
         doc="""
         Dataset for a grid.
         """)
 
-    selectable = Field(BoolVal, default=False)
-    auto_select = Field(BoolVal, default=False)
-    selected = StateField(AnyVal)
-    search = StateField(StrVal)
-    columns = Field(AnyVal, default={})
-    resizeable_columns = Field(BoolVal, default=False)
-    sortable_columns = Field(BoolVal, default=False)
-    hide_columns = Field(SeqVal(StrVal), default=[])
-    show_columns = Field(MaybeVal(SeqVal(StrVal)), default=undefined)
+    selectable = Field(
+        BoolVal(), default=False)
+
+    auto_select = Field(
+        BoolVal(), default=False)
+
+    selected = StateField(
+        AnyVal())
+
+    search = StateField(
+        StrVal())
+
+    columns = Field(
+        SeqVal(ColumnVal()), default={})
+
+    resizeable_columns = Field(
+        BoolVal(), default=False)
+
+    sortable_columns = Field(
+        BoolVal(), default=False)
 
     on_select = Field(
         ActionVal(), default=undefined)

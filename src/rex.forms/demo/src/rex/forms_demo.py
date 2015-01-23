@@ -12,7 +12,8 @@ from webob.exc import HTTPNotFound
 from rex.core import StrVal, BoolVal
 from rex.db import get_db
 from rex.web import Command, Parameter, render_to_response
-from rex.forms.interface import Channel, Form, Task, Entry, DraftForm
+from rex.forms.interface import Channel, Form, Task, Entry, DraftForm, \
+    TaskCompletionProcessor
 
 from rex.instrument_demo import *
 
@@ -220,9 +221,10 @@ class DemoTask(Task):
         with db:
             params = {
                 'status': search_criteria.get('status'),
+                'assessment': safe_uid(DemoAssessment, search_criteria.get('assessment')),
             }
             data = db.produce(
-                '/task.sort(uid).guard($status, filter(status=$status))',
+                '/task.sort(uid).guard($status, filter(status=$status)).guard($assessment, filter(assessment=$assessment))',
                 **params
             )
         return [
@@ -319,6 +321,32 @@ class DemoTask(Task):
     def complete_entry(self, entry, user):
         entry.complete(user)
         entry.save()
+
+    def reconcile(
+            self,
+            user,
+            reconciled_discrepancies=None,
+            override_workflow=False):
+        if not self.can_reconcile and not override_workflow:
+            raise errors.FormError(
+                'This Task cannot be reconciled in its current state.',
+            )
+
+        reconciled_data = self.solve_discrepancies(reconciled_discrepancies)
+
+        entry = self.start_entry(user, Entry.TYPE_RECONCILED)
+        entry.data = reconciled_data
+        entry.complete(user)
+        entry.save()
+
+        self.assessment.data = reconciled_data
+        self.assessment.complete(user)
+        self.assessment.save()
+
+        self.status = Task.STATUS_COMPLETE
+        self.save()
+
+        TaskCompletionProcessor.execute_processors(self, user)
 
     def save(self):
         print '### SAVED TASK ' + self.uid

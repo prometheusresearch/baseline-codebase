@@ -356,6 +356,8 @@ class SelectField(FormField):
         ('name', StrVal(), None)
     )
 
+    id = IDField()
+
     options = Field(
         SeqVal(option_type),
         default=undefined,

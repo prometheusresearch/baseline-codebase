@@ -119,9 +119,7 @@ class Widget(WidgetBase):
 
     @cached_property
     def widget_id(self):
-        if 'id' in self.values:
-            return self.id
-        return '%s_%s' % (self.__class__.__name__, id(self))
+        return self.id
 
     def validate(self):
         """ This method allows widgets to customize validation.

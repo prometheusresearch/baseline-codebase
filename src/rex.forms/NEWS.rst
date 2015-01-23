@@ -32,6 +32,8 @@ REX.FORMS Change Log
   argument.
 - The ``find()`` and ``create()`` method on Entry now accepts an optional
   ``ordinal`` argument.
+- The progress bar now only shows on the screen if there is more than one page
+  in the Form.
 
 
 0.26.0 (11/21/2014)

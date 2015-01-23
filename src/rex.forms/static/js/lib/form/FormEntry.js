@@ -159,15 +159,18 @@ var FormEntry = React.createClass({
       <div className="rex-forms-FormEntry">
         <Title text={title} subtitle={subtitle} />
         <PageNavigation navigation={navigation}>
-          <ProgressBar
-            percentComplete={percentComplete}
-            label={percentLabel}
-            />
+          {navigation.pages.length > 1 &&
+            <ProgressBar
+              percentComplete={percentComplete}
+              label={percentLabel}
+              />
+          }
         </PageNavigation>
         <Page page={currentPage.page} />
         <PageNavigation navigation={navigation}>
-          {navigation.pages.length > 1
-            && <Pagination navigation={navigation} />}
+          {navigation.pages.length > 1 &&
+            <Pagination navigation={navigation} />
+          }
         </PageNavigation>
       </div>
     );

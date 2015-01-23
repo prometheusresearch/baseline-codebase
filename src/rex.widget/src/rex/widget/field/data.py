@@ -88,9 +88,12 @@ class DataSpec(object):
         return handler.port
 
     @cached_property
+    def meta(self):
+        return self.port.describe()
+
+    @property
     def entity(self):
-        meta = self.port.describe()
-        return meta.domain.fields[0].tag
+        return self.meta.domain.fields[0].tag
 
     def __repr__(self):
         return '%s(route=%r, refs=%r, params=%r, defer=%r)' % (
@@ -207,7 +210,7 @@ class DataField(Field):
         if spec is undefined:
             return {}, []
         dependencies = [r.ref.id for refs in spec.refs.values() for r in refs]
-        state = State(
+        data = State(
             id='%s/%s' % (widget.widget_id, self.name),
             widget=widget,
             computator=partial(self.produce, spec),
@@ -216,7 +219,20 @@ class DataField(Field):
             manager=self.manager,
             defer=spec.defer
         )
-        return {self.name: StateRead(state.id)}, [state]
+
+        props = {self.name: StateRead(data.id)}
+        state = [data]
+
+        if self.include_meta:
+            meta = State(
+                id='%s/%s/meta' % (widget.widget_id, self.name),
+                widget=widget,
+                value=product_meta_to_json(spec.meta)['domain']['fields'][0]['domain']['item']['domain'],
+                is_writable=False
+            )
+            state.append(meta)
+            props['%s_meta' % self.name] = StateRead(meta.id)
+        return props, state
 
     def reassign(self, name, default=NotImplemented):
         default = self.default if default is NotImplemented else default

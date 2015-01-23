@@ -13,8 +13,8 @@ var Fieldset = React.createClass({
   mixins: [FormContextMixin],
 
   render() {
-    var {value, valueKey, label, hint, fieldset, className, ...props} = this.props;
-    value = value.getIn(valueKey);
+    var {label, hint, fieldset, className, ...props} = this.props;
+    var value = this.getValue();
     className = cx('rw-Fieldset', className);
     return (
       <Box {...props} className={className}>

@@ -72,6 +72,7 @@ var RepeatingFieldset = React.createClass({
   render() {
     var {label, hint, fieldset, minChildren, className, ...props} = this.props;
     var value = this.getValue();
+    var size = value.value.size;
     className = cx('rw-RepeatingFieldset', className);
     var hasItems = value.value.size > 0;
     return (
@@ -90,7 +91,7 @@ var RepeatingFieldset = React.createClass({
                 <RepeatingFieldsetItem
                   onRemove={this.onRemove}
                   required={minChildren !== undefined && idx < minChildren}
-                  key={idx}
+                  key={`${idx}_${size}`}
                   fieldset={fieldset}
                   valueKey={idx}
                   />

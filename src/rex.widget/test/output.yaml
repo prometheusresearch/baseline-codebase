@@ -4,7 +4,9 @@
 ---
 suite: rex.widget
 tests:
-- sh: pip install -q -e ./demo/rex.widget_demo
+- sh: pip install -q -e ./demo
+  stdout: ''
+- sh: rex dropdb rex.widget_demo -q
   stdout: ''
 - sh: rex deploy -q rex.widget_demo
   stdout: ''

@@ -8,7 +8,7 @@ tests:
 - coverage: setup.cfg
 
 - sh: pip install -q -e ./demo
-- sh: rex deploy -q rex.widget_demo
+- sh: rex dropdb rex.widget_demo -q
 
 - doctest: README.rst
 - doctest: test/test_*.rst

@@ -7,7 +7,7 @@ tests:
 
 - coverage: setup.cfg
 
-- sh: pip install -q -e ./demo/rex.widget_demo
+- sh: pip install -q -e ./demo
 - sh: rex deploy -q rex.widget_demo
 
 - doctest: README.rst

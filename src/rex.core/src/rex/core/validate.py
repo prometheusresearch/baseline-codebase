@@ -100,6 +100,9 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
         Function used to open external files.
     """
 
+    # Overrides YAML 1.1 implicit tags.
+    yaml_implicit_resolvers = {}
+
     class ValidatingContext(object):
         # Sets the parser validator on the `with` block.
 
@@ -209,6 +212,40 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
             raise yaml.constructor.ConstructorError(None, None,
                     "unable to open file: %s" % filename, node.start_mark)
         return stream
+
+
+# Set implicit tags based on YAML 1.2.
+ValidatingLoader.add_implicit_resolver(
+        u'tag:yaml.org,2002:bool',
+        re.compile(ur'''^(?:true|True|TRUE|false|False|FALSE)$''', re.X),
+        list(u'tTfF'))
+ValidatingLoader.add_implicit_resolver(
+        u'tag:yaml.org,2002:float',
+        re.compile(ur'''^(?:[-+]?(?:[0-9][0-9]*)\.[0-9]*(?:[eE][-+][0-9]+)?
+                    |\.[0-9]+(?:[eE][-+][0-9]+)?
+                    |[-+]?\.(?:inf|Inf|INF)
+                    |\.(?:nan|NaN|NAN))$''', re.X),
+        list(u'-+0123456789.'))
+ValidatingLoader.add_implicit_resolver(
+        u'tag:yaml.org,2002:int',
+        re.compile(ur'''^(?:[-+]?0b[0-1_]+
+                    |[-+]?(?:[0-9]+)
+                    |[-+]?0x[0-9a-fA-F]+)$''', re.X),
+        list(u'-+0123456789'))
+ValidatingLoader.add_implicit_resolver(
+        u'tag:yaml.org,2002:null',
+        re.compile(ur'''^(?: ~
+                    |null|Null|NULL
+                    | )$''', re.X),
+        [u'~', u'n', u'N', u''])
+ValidatingLoader.add_implicit_resolver(
+        u'tag:yaml.org,2002:timestamp',
+        re.compile(ur'''^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]
+                    |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?
+                     (?:[Tt]|[ \t]+)[0-9][0-9]?
+                     :[0-9][0-9] :[0-9][0-9] (?:\.[0-9]*)?
+                     (?:[ \t]*(?:Z|[-+][0-9][0-9]?(?::[0-9][0-9])?))?)$''', re.X),
+        list(u'0123456789'))
 
 
 class Validate(object):

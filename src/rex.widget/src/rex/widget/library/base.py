@@ -269,11 +269,18 @@ class Select(Widget):
     name = 'Select'
     js_type = 'rex-widget/lib/Select'
 
-    id = Field(StrVal)
-    options = Field(SeqVal, default=undefined)
-    data = CollectionField(default=undefined)
-    title_for_empty = Field(StrVal, default=undefined)
-    no_empty_value = Field(BoolVal(), default=False)
+    id = IDField()
+
+    options = Field(
+        SeqVal(), default=undefined)
+
+    data = CollectionField()
+
+    title_for_empty = Field(
+        StrVal(), default=undefined)
+
+    no_empty_value = Field(
+        BoolVal(), default=False)
 
     @Widget.define_state(OneOfVal(StrVal()))
     def value(self, state, graph, request):

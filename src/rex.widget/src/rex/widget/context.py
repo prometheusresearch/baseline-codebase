@@ -30,8 +30,10 @@ def get_context():
 def activated_context(context):
     global _context
     _context = context
-    yield
-    _context = None
+    try:
+        yield
+    finally:
+        _context = None
 
 
 class Context(object):
@@ -41,4 +43,9 @@ class Context(object):
 
     @abstractmethod
     def generate_widget_id(self, widget_class):
+        """ Generate widget id for a widget of type ``widget_class``.
+        
+        This method is called for each widget which expects ``id`` field to be
+        set but the value wasn't provided by the user.
+        """
         pass

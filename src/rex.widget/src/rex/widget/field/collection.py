@@ -178,7 +178,7 @@ class CollectionField(DataField):
             pagination_state_id = '%s/%s/pagination' % (widget.widget_id, self.name)
             sort_state_id = '%s/%s/sort' % (widget.widget_id, self.name)
 
-            dependencies = [r.id for refs in spec.refs.values() for r in refs]
+            dependencies = [r.ref.id for refs in spec.refs.values() for r in refs]
 
             refs = dict(spec.refs)
             refs.update({

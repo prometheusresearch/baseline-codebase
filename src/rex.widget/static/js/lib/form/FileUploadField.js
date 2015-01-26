@@ -117,6 +117,9 @@ var FileUploadInput = React.createClass({
   render() {
     var {value, required, ...props} = this.props;
     var {file, progress, error} = this.state;
+    if (!file && value) {
+      file = {name: value};
+    }
     return (
       <HBox {...props} storage={undefined} onChange={undefined}>
         <Box>
@@ -185,7 +188,7 @@ var FileUploadInput = React.createClass({
 
   _onUploadComplete(response) {
     this.setState({progress: null});
-    this.props.onChange(response.id);
+    this.props.onChange(response.file);
   },
 
   _onUploadError(error) {

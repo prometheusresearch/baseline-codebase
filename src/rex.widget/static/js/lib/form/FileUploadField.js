@@ -43,8 +43,8 @@ function unquote(str) {
 }
 
 function filename(file) {
-  filename = unquote(file.name);
-  return filename.replace(/.*\/([^\/]+)$/i, '$1');
+  var result = unquote(file.name);
+  return result.replace(/.*\/([^\/]+)$/i, '$1');
 }
 
 var Progress = React.createClass({

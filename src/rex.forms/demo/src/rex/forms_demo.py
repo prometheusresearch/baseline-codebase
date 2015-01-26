@@ -222,9 +222,11 @@ class DemoTask(Task):
             params = {
                 'status': search_criteria.get('status'),
                 'assessment': safe_uid(DemoAssessment, search_criteria.get('assessment')),
+                'subject': safe_uid(DemoSubject, search_criteria.get('subject')),
+                'channel': safe_uid(DemoChannel, search_criteria.get('channel')),
             }
             data = db.produce(
-                '/task.sort(uid).guard($status, filter(status=$status)).guard($assessment, filter(assessment=$assessment))',
+                '/task.sort(uid).guard($status, filter(status=$status)).guard($assessment, filter(assessment=$assessment)).guard($subject, filter(subject=$subject)).guard($channel, filter(exists(instrument.instrumentversion.form.filter(channel=$channel))))',
                 **params
             )
         return [

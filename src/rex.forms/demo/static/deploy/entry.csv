@@ -1,7 +1,7 @@
 uid,assessment,entry_type,status,ordinal,created_by,date_created,modified_by,date_modified,memo,data
 entry1,assessment1,preliminary,complete,1,someone,"2015-01-01",someone,"2015-01-01",,"{}"
 entry2,assessment1,reconciled,complete,2,someone,"2015-01-01",someone,"2015-01-01",,"{}"
-entry3,assessment2,preliminary,in-progress,1,someone,"2015-01-01",someone,"2015-01-01",,"{}"
+entry3,assessment2,preliminary,in-progress,1,someone,"2015-01-01",someone,"2015-01-01",,"{""instrument"":{""id"": ""urn:test-instrument"",""version"": ""1.1""}, ""values"":{""q_fake"":{""value"": null}}}"
 entry4,assessment5,preliminary,complete,1,someone,"2015-01-01",someone,"2015-01-01",,"{""instrument"":{""id"": ""urn:test-instrument"",""version"": ""1.1""}, ""values"":{""q_fake"":{""value"": ""foo""}}}"
 entry5,assessment5,preliminary,complete,2,someone,"2015-01-01",someone,"2015-01-01",,"{""instrument"":{""id"": ""urn:test-instrument"",""version"": ""1.1""}, ""values"":{""q_fake"":{""value"": ""bar""}}}"
 entry6,assessment6,preliminary,complete,1,someone,"2015-01-01",someone,"2015-01-01",,"{""instrument"":{""id"": ""urn:test-instrument"",""version"": ""1.1""}, ""values"":{""q_fake"":{""value"": ""foo""}}}"

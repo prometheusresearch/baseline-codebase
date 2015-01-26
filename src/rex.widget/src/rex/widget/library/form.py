@@ -496,6 +496,8 @@ class FileUploadField(FormField):
     name = 'FileUploadField'
     js_type = 'rex-widget/lib/form/FileUploadField'
 
+    id = IDField()
+
     storage = URLField(
         doc="""
         URL for a file storage which handles file uploads.
@@ -745,6 +747,14 @@ def update_value(value, key_path, update):
                 raise ValueError(
                     'attempting to process a non-list with the * key')
             value = [update_value(v, ks, update) for v in value]
+        elif isinstance(value, list):
+            value = value[:]
+            try:
+                k = int(k, 10)
+            except ValueError:
+                raise ValueError(
+                    'found a non number key when trying to update a list value')
+            value[k] = update_value(value[k], ks, update)
         else:
             value = dict(value)
             value[k] = update_value(value[k], ks, update)

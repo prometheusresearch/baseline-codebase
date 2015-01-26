@@ -8,9 +8,7 @@ import sys
 
 from getpass import getuser
 
-import yaml
-
-from rex.core import Error
+from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
 
 from .errors import ValidationError
@@ -39,7 +37,7 @@ def open_and_validate(filename):
 
     if filename.endswith('.yaml') or filename.endswith('.yml'):
         definition = json.dumps(
-            yaml.safe_load(definition),
+            AnyVal().parse(definition),
             ensure_ascii=False,
         )
 

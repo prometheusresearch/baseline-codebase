@@ -503,6 +503,12 @@ class FileUploadField(FormField):
         URL for a file storage which handles file uploads.
         """)
 
+    download = URLField(
+        default=undefined,
+        doc="""
+        URL for a download entry point.
+        """)
+
 
 class Fieldset(FormContainerWidget):
     """ Fieldset form widget."""

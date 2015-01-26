@@ -3,15 +3,16 @@
  */
 'use strict';
 
-var Promise     = require('bluebird');
-var React       = require('react/addons');
-var cx          = React.addons.classSet;
-var merge       = require('../merge');
-var {Box, HBox} = require('../layout');
-var Button      = require('../Button');
-var Icon        = require('../Icon');
-var Hoverable   = require('../Hoverable');
-var FieldBase   = require('./FieldBase');
+var Promise           = require('bluebird');
+var React             = require('react/addons');
+var cx                = React.addons.classSet;
+var merge             = require('../merge');
+var {Box, HBox}       = require('../layout');
+var Button            = require('../Button');
+var Icon              = require('../Icon');
+var Hoverable         = require('../Hoverable');
+var FieldBase         = require('./FieldBase');
+var FormContextMixin  = require('./FormContextMixin');
 
 function uploadFile(url, file, onProgress) {
   return new Promise(function(resolve, reject) {
@@ -35,6 +36,15 @@ function uploadFile(url, file, onProgress) {
       reject(err);
     }
   });
+}
+
+function unquote(str) {
+  return str.replace(/^'/, '').replace(/'$/, '');
+}
+
+function filename(file) {
+  filename = unquote(file.name);
+  return filename.replace(/.*\/([^\/]+)$/i, '$1');
 }
 
 var Progress = React.createClass({
@@ -70,7 +80,7 @@ var File = React.createClass({
   },
 
   render() {
-    var {file, required, onRemove, progress, ...props} = this.props;
+    var {file, icon, required, children, onRemove, progress, ...props} = this.props;
     var {hover} = this.state;
     return (
       <Box {...props}>
@@ -80,7 +90,9 @@ var File = React.createClass({
           style={this.style}
           onClick={!required && !progress && onRemove}>
           <Box centerVertically style={this.styleIcon}>
-            {progress ?
+            {icon ?
+              <Icon name={icon} /> :
+              progress ?
               <Icon name="repeat" /> :
               required || !hover ?
               <Icon name="ok" /> :
@@ -88,12 +100,26 @@ var File = React.createClass({
           </Box>
           <Box centerVertically>
             {progress || required || !hover ?
-              file.name :
+              children || file.name :
               'Remove file'}
           </Box>
         </HBox>
         <Progress progress={progress} />
       </Box>
+    );
+  }
+});
+
+var StoredFile = React.createClass({
+
+  render() {
+    var {download, file, ownerRecordID, ...props} = this.props;
+    return (
+      <File icon="download" required {...props} file={file}>
+        <a href={`${download}?${ownerRecordID}`}>
+          {filename(file)}
+        </a>
+      </File>
     );
   }
 });
@@ -115,13 +141,15 @@ var FileUploadInput = React.createClass({
   },
 
   render() {
-    var {value, required, ...props} = this.props;
+    var {value, required, download, ownerRecordID, ...props} = this.props;
     var {file, progress, error} = this.state;
-    if (!file && value) {
+    // the case when we need to render a file stored in storage
+    var renderStoredFile = !file && value;
+    if (renderStoredFile) {
       file = {name: value};
     }
     return (
-      <HBox {...props} storage={undefined} onChange={undefined}>
+      <HBox {...props} onChange={undefined} storage={undefined}>
         <Box>
           <Button disabled={progress} icon="hdd" onClick={this.onClick}>
             Choose file
@@ -131,6 +159,12 @@ var FileUploadInput = React.createClass({
           <Box centerVertically margin="0 0 0 10px" size={1}>
             <Box style={this.styleError}>{error.message}</Box>
           </Box> :
+          renderStoredFile ?
+          <StoredFile
+            file={file}
+            download={download}
+            ownerRecordID={ownerRecordID}
+            /> :
           file ?
           <File
             size={1}
@@ -197,12 +231,15 @@ var FileUploadInput = React.createClass({
 });
 
 var FileUploadField = React.createClass({
+  contextTypes: FormContextMixin.contextTypes,
 
   render() {
-    var {className, storage, required, ...props} = this.props;
+    var {className, storage, download, required, ...props} = this.props;
     var input = (
       <FileUploadInput
+        ownerRecordID={this._getOwnerRecordID()}
         storage={storage}
+        download={download}
         required={required}
         />
     );
@@ -213,6 +250,14 @@ var FileUploadField = React.createClass({
         input={input}
         />
     );
+  },
+
+  _getOwnerRecordID() {
+    var valueKey = this.context && this.context.valueKey ?
+      this.context.valueKey.concat(this.props.valueKey) :
+      [];
+    valueKey.pop();
+    return this.props.value.value.getIn(valueKey).get('id');
   }
 });
 

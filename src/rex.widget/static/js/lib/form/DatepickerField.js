@@ -8,11 +8,11 @@
 var $ = window.jQuery = require('jquery');
 require('bootstrap-datepicker/js/bootstrap-datepicker');
 
-var React = require('react/addons');
-var cx = React.addons.classSet;
-var ReactForms = require('react-forms');
-var FormContextMixin    = require('./FormContextMixin');
-var Element = require('../layout/Element');
+var React             = require('react/addons');
+var cx                = React.addons.classSet;
+var FormContextMixin  = require('./FormContextMixin');
+var Element           = require('../layout/Element');
+var FieldBase         = require('./FieldBase');
 
 function padl(v, n) {
   v = String(v);
@@ -39,7 +39,7 @@ var Datepicker = React.createClass({
       value = formatDate(value, format);
     }
     return (
-      <input {...props} value={value} className={className} />
+      <input {...props} defaultValue={value} className={className} />
     );
   },
 
@@ -65,7 +65,7 @@ var Datepicker = React.createClass({
     if (formatDate(value) !== formatDate(this.props.value)) {
       var node = this.getDOMNode();
       this.__ignoreOnChange = true;
-      $(node).datepicker('setDate', value);
+      $(node).datepicker('setDate', new Date(value));
     }
   },
 
@@ -79,24 +79,22 @@ var Datepicker = React.createClass({
 });
 
 var DatepickerField = React.createClass({
-  mixins: [FormContextMixin],
 
   render() {
-    var {value, className, startView, ...props} = this.props;
+    var {startView, className, ...props} = this.props;
     return (
-      <Element {...props} className={cx('rw-Field', className)}>
-        <ReactForms.Field
-          value={value.getIn(this.getValueKey())}
-          input={
-            <Datepicker
-              format="yyyy-mm-dd"
-              autoclose={true}
-              startView={startView}
-              className="rw-DatepickerField__datepicker"
-              />
-          }
-          />
-      </Element>
+      <FieldBase
+        {...props}
+        className={cx('rw-DatepickerField', className)}
+        input={
+          <Datepicker
+            format="yyyy-mm-dd"
+            autoclose={true}
+            startView={startView}
+            className="rw-DatepickerField__datepicker"
+            />
+        }
+        />
     );
   },
 

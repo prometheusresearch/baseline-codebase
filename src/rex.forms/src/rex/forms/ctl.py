@@ -6,9 +6,7 @@
 import json
 import sys
 
-import yaml
-
-from rex.core import Error
+from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
 from rex.instrument.util import get_implementation
 
@@ -40,13 +38,13 @@ def open_and_validate(
 
     if filename.endswith('.yaml') or filename.endswith('.yml'):
         configuration = json.dumps(
-            yaml.safe_load(configuration),
+            AnyVal().parse(configuration),
             ensure_ascii=False,
         )
 
     if (not instrument_definition) and instrument_file:
         try:
-            instrument_definition = yaml.safe_load(
+            instrument_definition = AnyVal().parse(
                 open(instrument_file, 'r').read()
             )
         except Exception as exc:

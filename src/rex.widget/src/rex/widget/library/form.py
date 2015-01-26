@@ -26,7 +26,7 @@ from ..field.data import DataRefVal, DataSpecVal
 from ..field.url import URLField
 from ..field.state import StateFieldBase
 from ..validate import WidgetVal
-from ..state import State
+from ..state import State, Reference
 from ..json_encoder import register_adapter
 from ..action import Action
 from ..field.entity import EntitySpecVal
@@ -196,13 +196,13 @@ class ValueKeyVal(Validate):
     underlying_validator = StrVal()
 
     def __call__(self, value):
-        if isinstance(value, list):
-            return value
+        if isinstance(value, (list, tuple)):
+            return tuple(value)
         value = self.underlying_validator(value)
         if '.' in value:
-            return value.split('.')
+            return tuple(value.split('.'))
         else:
-            return [value]
+            return (value,)
 
 
 class FormWidget(Box):
@@ -283,6 +283,24 @@ class FormContainerWidget(FormWidget):
         if self.default_value is not undefined:
             schema.props['defaultValue'] = self.default_value
         return schema
+
+    @cached
+    def state_refs(self):
+        refs = {}
+        root_node = self.descriptor().ui
+        def visitor(node, parent):
+            if isinstance(node.widget, StateField):
+                refs[node.widget.value_key] = Reference(node.widget.ref)
+                return False
+            if isinstance(node.widget, FormContainerWidget) \
+                    and not node is root_node:
+                refs.update({
+                    node.widget.value_key + k: v
+                    for k, v in node.widget.state_refs().items()
+                })
+                return False
+        visit_ui(root_node, visitor)
+        return refs
 
 
 class FormFieldBase(FormWidget):
@@ -534,6 +552,30 @@ class RepeatingFieldset(FormContainerWidget):
             schema.props['min_children'] = self.min_children
         return schema
 
+    @cached
+    def state_refs(self):
+        refs = super(RepeatingFieldset, self).state_refs()
+        return {('*',) + k: v for k, v in refs.items()}
+
+
+class StateField(Widget):
+    """ A field."""
+
+    name = 'StateField'
+    js_type = 'rex-widget/lib/Null'
+
+    value_key = Field(
+        ValueKeyVal(),
+        doc="""
+        The key of the value this form element should handle.
+        """)
+
+    ref = Field(
+        StrVal(),
+        doc="""
+        The reference to appliation state from which this field's value should
+        be popuated from.
+        """)
 
 class SubmitButton(Button):
     """ Form submit button."""
@@ -567,6 +609,8 @@ class SubmitRemoveForm(Action):
     js_type = 'rex-widget/lib/actions/submitRemoveForm'
 
 
+
+
 class ResetForm(Action):
     """ Action to reset page state."""
 
@@ -590,7 +634,7 @@ class Form(FormContainerWidget):
         """)
 
     save_to = Field(
-        DataSpecVal(), default=undefined,
+        DataSpecVal(enable_refs=False), default=undefined,
         doc="""
         Optional port/query which is used to save form value.
         """)
@@ -639,17 +683,13 @@ class Form(FormContainerWidget):
         prev_value = graph[self.id].value_data.data if graph[self.id].get('value_data') else None
         spec = self.save_to if self.save_to else self.value_data
         value = state.value
-        if value is not None:
-            value = dict(value)
-            # copy refs over to value
-            for key, ref in spec.refs.items():
-                for r in ref:
-                    value[key] = graph[r]
-        # determine tag of the entity
+        for ref_key, ref in self.state_refs().items():
+            value = update_value(value, ref_key, graph[ref])
         tag = spec.port.describe().meta.domain.fields[0].tag
         from pprint import pprint
         pprint(prev_value)
         pprint(value)
+        pprint(self.state_refs())
         if value is None:
             spec.port.delete([{'id': prev_value['id']}])
             return prev_value
@@ -684,3 +724,31 @@ class Form(FormContainerWidget):
             )
         else:
             return ui
+
+
+def update_value(value, key_path, update):
+    """ Update value by a keypath.
+
+    :param value: Value to update
+    :param key_path: Key path deep into value which specifies a focus in value
+                     to update. If '*' specified then it asserts that that the
+                     current focus is a list value and maps the remaining key
+                     path.
+    :param update: Update.
+    """
+    if not isinstance(key_path, (tuple, list)):
+        key_path = key_path.split('.')
+    k, ks = key_path[0], key_path[1:]
+    if ks:
+        if k == '*':
+            if not isinstance(value, list):
+                raise ValueError(
+                    'attempting to process a non-list with the * key')
+            value = [update_value(v, ks, update) for v in value]
+        else:
+            value = dict(value)
+            value[k] = update_value(value[k], ks, update)
+    else:
+        value = dict(value)
+        value[k] = update
+    return value

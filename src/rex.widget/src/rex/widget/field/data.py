@@ -167,12 +167,17 @@ class DataSpecVal(Validate):
 
     data_spec_with_shorthand = OneOfVal(StrVal(), data_spec)
 
+    def __init__(self, enable_refs=True):
+        self.enable_refs = enable_refs
+
     def __call__(self, data):
         if isinstance(data, DataSpec):
             return data
         data = self.data_spec_with_shorthand(data)
         if isinstance(data, basestring):
             data = self.data_spec({'data': data})
+        if not self.enable_refs and data.refs:
+            raise Error('refs are not enabled for this data specification')
 
         parsed = urlparse(data.data)
         route = '%s:%s' % (parsed.scheme, parsed.path) if parsed.scheme else parsed.path

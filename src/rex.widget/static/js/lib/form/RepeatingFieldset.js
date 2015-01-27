@@ -99,6 +99,7 @@ var RepeatingFieldset = React.createClass({
             </div>
             <div className="rw-RepeatingFieldset__controls">
               <Button
+                quiet
                 size="small"
                 icon="plus"
                 onClick={this.onAdd}

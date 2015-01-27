@@ -14,6 +14,15 @@ REX.INSTRUMENT Change Log
 - The ``instrument-validate`` and ``instrument-store`` commands will now accept
   YAML-formatted Instrument files, provided they adhere to the same structural
   requirements as the Common Instrument Specification.
+- Added an ``output`` module with function and classes that can be used to
+  output Instrument definitions in a human-friendly way, with either JSON or
+  YAML.
+- Added an ``instrument-format`` rex command to convert and/or reformat
+  Instrument definitions.
+- The ``instrument-retrieve`` rex command now accepts a ``format`` option to
+  indicate that you want JSON or YAML returned.
+- Added a ``definition_yaml`` propert to the InstrumentVersion class to get or
+  set the Instrument definition using YAML.
 
 
 0.12.0 (11/21/2014)

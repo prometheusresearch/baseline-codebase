@@ -13,15 +13,15 @@ tests:
 - instrumentversions: test/instruments
   validations:
   - {annotation.json: VALIDATED}
-  - {annotation_bad.json: 'ValidationError: u''sure'' is not one of [u''required'',
+  - {annotation_bad.json: 'ValidationError: ''sure'' is not one of [u''required'',
       u''optional'', u''none'']'}
   - {annotation_required_mismatch.json: 'ValidationError: A field cannot both be required
       and allow annotations.'}
   - {bad_description.json: 'ValidationError: True is not of type u''string'''}
-  - {bad_id.json: 'ValidationError: u''bad'' is not a u''uri'''}
-  - {bad_question_id.json: 'ValidationError: u''Q--FAKE'' does not match u''^[a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9]$'''}
+  - {bad_id.json: 'ValidationError: ''bad'' is not a u''uri'''}
+  - {bad_question_id.json: 'ValidationError: ''Q--FAKE'' does not match u''^[a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9]$'''}
   - {bad_question_type.json: 'ValidationError: "foobar" is not a known field type.'}
-  - {bad_version.json: 'ValidationError: u''bad'' does not match u''^[0-9]+\\.[0-9]+$'''}
+  - {bad_version.json: 'ValidationError: ''bad'' does not match u''^[0-9]+\\.[0-9]+$'''}
   - {constraint_enumerations.json: VALIDATED}
   - {constraint_enumerations_missing.json: 'ValidationError: "enumeration" Field missing
       required options: enumerations'}
@@ -31,8 +31,8 @@ tests:
   - {constraint_length_notallowed.json: 'ValidationError: "integer" Fields cannot
       have constraints: length'}
   - {constraint_range.json: VALIDATED}
-  - {constraint_range_bad.json: 'ValidationError: {u''range'': {u''min'': u''1''},
-      u''base'': u''integer''} is not valid under any of the given schemas'}
+  - {constraint_range_bad.json: 'ValidationError: {''range'': {''min'': ''1''}, ''base'':
+      ''integer''} is not valid under any of the given schemas'}
   - {constraint_range_notallowed.json: 'ValidationError: "text" Fields cannot have
       constraints: range'}
   - {constraint_record.json: VALIDATED}
@@ -40,9 +40,8 @@ tests:
       required options: record'}
   - {constraint_record_notallowed.json: 'ValidationError: "integer" Fields cannot
       have constraints: record'}
-  - {empty_title.json: 'ValidationError: u'''' is too short'}
-  - {garbage.json: 'ValidationError: Invalid JSON provided: No JSON object could be
-      decoded'}
+  - {empty_title.json: 'ValidationError: '''' is too short'}
+  - {garbage.json: 'ValidationError: Instrument Definitions must be mapped objects.'}
   - {identifiable.json: VALIDATED}
   - {matrix.json: VALIDATED}
   - {matrix_complex_column.json: 'ValidationError: Complex type "recordList" cannot
@@ -75,7 +74,7 @@ tests:
   - {types_extend_missing_inline.json: 'ValidationError: "myOtherCustomType" does
       not exist as a type to inherit from.'}
   - {types_override.json: 'ValidationError: Additional properties are not allowed
-      (u''text'' was unexpected)'}
+      (''text'' was unexpected)'}
 - assessments: test/assessments
   validations:
   - {all_types/bad_boolean.json: 'ValidationError: The value for "q_boolean" is not

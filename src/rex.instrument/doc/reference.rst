@@ -38,3 +38,9 @@ Utilities
 .. automodule:: rex.instrument.cache
 .. automodule:: rex.instrument.util
 
+
+Output
+======
+
+.. automodule:: rex.instrument.output
+

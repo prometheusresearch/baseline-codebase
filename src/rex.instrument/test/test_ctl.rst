@@ -13,7 +13,7 @@ Set up the environment::
 instrument-validate
 ===================
 
-The ``instrument-validate`` command will validate the structure of a JSON file
+The ``instrument-validate`` command will validate the structure of a file
 against the Common Instrument Definition::
 
     >>> ctl('help instrument-validate')
@@ -21,10 +21,11 @@ against the Common Instrument Definition::
     Usage: rex instrument-validate <definition>
     <BLANKLINE>
     The instrument-validate task will validate the structure and content of the
-    Common Instrument Definition in a JSON (or YAML) file and report back if
+    Common Instrument Definition in a file and report back if
     any errors are found.
     <BLANKLINE>
-    The only argument to this task is the filename to validate.
+    The definition is the path to the file containing the Common Instrument
+    Definition to validate.
     <BLANKLINE>
 
 
@@ -43,7 +44,7 @@ It requires a single argument which is the path to the file::
     <BLANKLINE>
 
 
-It fails if the JSON structure violates the specification in any way::
+It fails if the structure violates the specification in any way::
 
     >>> ctl('instrument-validate ./test/instruments/missing_title.json', expect=1)
     FATAL ERROR: u'title' is a required property
@@ -53,6 +54,143 @@ It fails if the JSON structure violates the specification in any way::
 Or if the file doesn't actually exist::
 
     >>> ctl('instrument-validate /tmp/does/not/actually/exist.json', expect=1)
+    FATAL ERROR: Could not open "/tmp/does/not/actually/exist.json": [Errno 2] No such file or directory: '/tmp/does/not/actually/exist.json'
+    <BLANKLINE>
+
+
+instrument-format
+=================
+
+The ``instrument-format`` command will format the specified definition in the
+way specified::
+
+    >>> ctl('help instrument-format')
+    INSTRUMENT-FORMAT - render a Common Instrument Definition into various formats
+    Usage: rex instrument-format <definition>
+    <BLANKLINE>
+    The instrument-format task will take an input Common Instrument Definition
+    file and output it as either JSON or YAML.
+    <BLANKLINE>
+    The definition is the path to the file containing the Common Instrument
+    Definition to format.
+    <BLANKLINE>
+    Options:
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the definition in; can be either JSON or YAML; if not specified, defaults to JSON
+      --pretty                 : if specified, the outputted definition will be formatted with newlines and indentation
+    <BLANKLINE>
+
+
+It requires a single argument which is the path to the file::
+
+    >>> ctl('instrument-format', expect=1)
+    FATAL ERROR: too few arguments for task instrument-format: missing <definition>
+    <BLANKLINE>
+
+    >>> ctl('instrument-format ./test/instruments/simplest.json')
+    {"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}
+
+    >>> ctl('instrument-format ./test/instruments_yaml/simplest.yaml')
+    {"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}
+
+
+It accepts options that dictate the various properties of the output format::
+
+    >>> ctl('instrument-format ./test/instruments/simplest.json --format=YAML')
+    id: urn:test-instrument
+    version: '1.1'
+    title: The InstrumentVersion Title
+    record:
+    - {id: q_fake, type: text}
+
+    >>> ctl('instrument-format ./test/instruments_yaml/simplest.yaml --format=YAML')
+    id: urn:test-instrument
+    version: '1.1'
+    title: The InstrumentVersion Title
+    record:
+    - {id: q_fake, type: text}
+
+    >>> ctl('instrument-format ./test/instruments/simplest.json --format=JSON --pretty')
+    {
+      "id": "urn:test-instrument",
+      "version": "1.1",
+      "title": "The InstrumentVersion Title",
+      "record": [
+        {
+          "id": "q_fake",
+          "type": "text"
+        }
+      ]
+    }
+
+    >>> ctl('instrument-format ./test/instruments/simplest.json --format=YAML --pretty')
+    id: urn:test-instrument
+    version: '1.1'
+    title: The InstrumentVersion Title
+    record:
+    - id: q_fake
+      type: text
+
+    >>> ctl('instrument-format ./test/instruments/types.json --format=YAML --pretty')
+    id: urn:test-instrument
+    version: '1.1'
+    title: The InstrumentVersion Title
+    types:
+      myCustomType:
+        base: text
+        pattern: '[a-z]+'
+    record:
+    - id: q_fake
+      type: text
+    - id: q_blah
+      type: myCustomType
+
+    >>> ctl('instrument-format ./test/instruments/matrix.json --format=YAML --pretty')
+    id: urn:test-instrument
+    version: '1.1'
+    title: The InstrumentVersion Title
+    record:
+    - id: q_fake
+      type:
+        base: matrix
+        columns:
+        - id: blah
+          type: text
+          required: true
+        - id: foobar
+          type:
+            base: integer
+            range:
+              min: 10
+        rows:
+        - id: somerow
+          required: true
+
+    >>> ctl('instrument-format ./test/instruments/recordlist.json --format=YAML --pretty')
+    id: urn:test-instrument
+    version: '1.1'
+    title: The InstrumentVersion Title
+    record:
+    - id: q_fake
+      type:
+        base: recordList
+        record:
+        - id: quest1
+          type: text
+        - id: quest2
+          type: integer
+
+
+It fails if the input structure violates the specification in any way::
+
+    >>> ctl('instrument-format ./test/instruments/missing_title.json', expect=1)
+    FATAL ERROR: u'title' is a required property
+    <BLANKLINE>
+
+
+Or if the file doesn't actually exist::
+
+    >>> ctl('instrument-format /tmp/does/not/actually/exist.json', expect=1)
     FATAL ERROR: Could not open "/tmp/does/not/actually/exist.json": [Errno 2] No such file or directory: '/tmp/does/not/actually/exist.json'
     <BLANKLINE>
 
@@ -68,7 +206,7 @@ Definition JSON from an InstrumentVersion in the project data store::
     Usage: rex instrument-retrieve [<project>] <instrument-uid>
     <BLANKLINE>
     The instrument-retrieve task will retrieve an InstrumentVersion from a
-    project's data store and return the Common Instrument Definition JSON.
+    project's data store and return the Common Instrument Definition.
     <BLANKLINE>
     The instrument-uid argument is the UID of the desired Instrument in
     the data store.
@@ -77,8 +215,9 @@ Definition JSON from an InstrumentVersion in the project data store::
       --require=PACKAGE        : include an additional parameter
       --set=PARAM=VALUE        : set a configuration parameter
       --version=VERSION        : the version of the Instrument to retrieve; if not specified, defaults to the latest version
-      --output=OUTPUT_FILE     : the file to write the JSON to; if not specified, stdout is used
-      --pretty                 : if specified, the outputted JSON will be formatted with newlines and indentation
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the definition in; can be either JSON or YAML; if not specified, defaults to JSON
+      --pretty                 : if specified, the outputted definition will be formatted with newlines and indentation
     <BLANKLINE>
 
 
@@ -89,41 +228,56 @@ It requires a single argument which is the UID of the Instrument to retrieve::
     <BLANKLINE>
 
     >>> ctl('instrument-retrieve --project=rex.instrument_demo simple')
-    {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}
+    {"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}
 
 
 It takes a ``version`` option to specify which InstrumentVersion of the
 Instrument to retrieve::
 
     >>> ctl('instrument-retrieve --project=rex.instrument_demo complex')
-    {"record": [{"type": "text", "id": "q_foo"}, {"type": "integer", "id": "q_bar"}, {"type": "boolean", "id": "q_baz"}], "version": "1.2", "id": "urn:another-test-instrument", "title": "The Other Instrument"}
+    {"id": "urn:another-test-instrument", "version": "1.2", "title": "The Other Instrument", "record": [{"id": "q_foo", "type": "text"}, {"id": "q_bar", "type": "integer"}, {"id": "q_baz", "type": "boolean"}]}
 
     >>> ctl('instrument-retrieve --project=rex.instrument_demo complex --version=1')
-    {"record": [{"type": "text", "id": "q_foo"}, {"type": "integer", "id": "q_bar"}], "version": "1.1", "id": "urn:another-test-instrument", "title": "The Other Instrument"}
+    {"id": "urn:another-test-instrument", "version": "1.1", "title": "The Other Instrument", "record": [{"id": "q_foo", "type": "text"}, {"id": "q_bar", "type": "integer"}]}
 
 
 It can also print the JSON in a prettier way::
 
     >>> ctl('instrument-retrieve --project=rex.instrument_demo complex --pretty')
     {
+      "id": "urn:another-test-instrument",
+      "version": "1.2",
+      "title": "The Other Instrument",
       "record": [
         {
-          "type": "text", 
-          "id": "q_foo"
-        }, 
+          "id": "q_foo",
+          "type": "text"
+        },
         {
-          "type": "integer", 
-          "id": "q_bar"
-        }, 
+          "id": "q_bar",
+          "type": "integer"
+        },
         {
-          "type": "boolean", 
-          "id": "q_baz"
+          "id": "q_baz",
+          "type": "boolean"
         }
-      ], 
-      "version": "1.2", 
-      "id": "urn:another-test-instrument", 
-      "title": "The Other Instrument"
+      ]
     }
+
+
+It can also print the definition in YAML format::
+
+    >>> ctl('instrument-retrieve --project=rex.instrument_demo complex --pretty --format=YAML')
+    id: urn:another-test-instrument
+    version: '1.2'
+    title: The Other Instrument
+    record:
+    - id: q_foo
+      type: text
+    - id: q_bar
+      type: integer
+    - id: q_baz
+      type: boolean
 
 
 It fails if the instrument doesn't exist::
@@ -140,6 +294,13 @@ Or if the version doesn't exist::
     <BLANKLINE>
 
 
+Or if you specify a bogus format::
+
+    >>> ctl('instrument-retrieve --project=rex.instrument_demo complex --pretty --format=XML', expect=1)
+    FATAL ERROR: invalid value for option --format: Invalid format type "XML" specified
+    <BLANKLINE>
+
+
 instrument-store
 ================
 
@@ -150,14 +311,14 @@ to an InstrumentVersion in the project data store::
     INSTRUMENT-STORE - stores an InstrumentVersion in the data store
     Usage: rex instrument-store [<project>] <instrument-uid> <definition>
     <BLANKLINE>
-    The instrument-store task will write a Common Instrument Definition JSON
-    (or YAML) file to an InstrumentVersion in the project's data store.
+    The instrument-store task will write a Common Instrument Definition file to
+    an InstrumentVersion in the project's data store.
     <BLANKLINE>
     The instrument-uid argument is the UID of the desired Instrument to use in
     the data store. If the UID does not already exist, a new Instrument will be
     created using that UID.
     <BLANKLINE>
-    The definition is the path to the JSON file containing the Common
+    The definition is the path to the file containing the Common
     Instrument Definition to use.
     <BLANKLINE>
     Options:

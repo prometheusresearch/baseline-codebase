@@ -23,6 +23,7 @@ pylint:
     max-public-methods: 30
     max-args: 10
     max-attributes: 10
+    max-parents: 10
 
 pyflakes:
   disable:

@@ -3,18 +3,17 @@
 #
 
 
-import json
-
 from copy import deepcopy
 from datetime import datetime
 
 import jsonschema
 
-from rex.core import Extension
+from rex.core import Extension, AnyVal
 
 from .instrument import Instrument
 from ..errors import ValidationError
 from ..mixins import Comparable, Displayable, Dictable
+from ..output import dump_instrument_yaml, dump_instrument_json
 from ..schema import INSTRUMENT_SCHEMA, INSTRUMENT_BASE_TYPES, \
     INSTRUMENT_FIELD_CONSTRAINTS, INSTRUMENT_REQUIRED_CONSTRAINTS, \
     INSTRUMENT_COMPLEX_TYPES
@@ -202,7 +201,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         Definition.
 
         :param definition: the Instrument definition to validate
-        :type definition: dict or JSON string
+        :type definition: dict or JSON/YAML string
         :raises:
             ValidationError if the specified definition fails any of the
             requirements
@@ -211,10 +210,10 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         # Make sure we're working with a dict.
         if isinstance(definition, basestring):
             try:
-                definition = json.loads(definition)
+                definition = AnyVal().parse(definition)
             except ValueError as exc:
                 raise ValidationError(
-                    'Invalid JSON provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % unicode(exc)
                 )
         if not isinstance(definition, dict):
             raise ValidationError(
@@ -322,7 +321,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         :param instrument: the Instrument the instance will be a version of
         :type instrument: Instrument
         :param definition: the Common Instrument Definition for the version
-        :type definition: dict or JSON-encoded string
+        :type definition: dict or JSON/YAML-encoded string
         :param published_by: the user/application that published the version
         :type published_by: string
         :param version:
@@ -359,7 +358,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         self._version = version
 
         if isinstance(definition, basestring):
-            self._definition = json.loads(definition)
+            self._definition = AnyVal().parse(definition)
         else:
             self._definition = deepcopy(definition)
 
@@ -421,11 +420,25 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         :rtype: JSON-encoded string
         """
 
-        return json.dumps(self._definition, ensure_ascii=False)
+        return dump_instrument_json(self._definition)
 
     @definition_json.setter
     def definition_json(self, value):
-        self.definition = json.loads(value)
+        self.definition = AnyVal().parse(value)
+
+    @property
+    def definition_yaml(self):
+        """
+        The Common Instrument Definition of this Instrument.
+
+        :rtype: YAML-encoded string
+        """
+
+        return dump_instrument_yaml(self._definition)
+
+    @definition_yaml.setter
+    def definition_yaml(self, value):
+        self.definition = AnyVal().parse(value)
 
     @property
     def published_by(self):

@@ -14,4 +14,5 @@ REX.INSTRUMENT Examples
    test_settings
    test_ctl
    test_util
+   test_output
 

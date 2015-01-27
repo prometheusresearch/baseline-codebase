@@ -3,7 +3,6 @@
 #
 
 
-import json
 import sys
 
 from getpass import getuser
@@ -13,11 +12,13 @@ from rex.ctl import Task, RexTask, argument, option
 
 from .errors import ValidationError
 from .interface import InstrumentVersion
+from .output import dump_instrument_json, dump_instrument_yaml
 from .util import get_implementation, get_current_datetime
 
 
 __all__ = (
     'InstrumentValidateTask',
+    'InstrumentFormatTask',
     'InstrumentRetrieveTask',
     'InstrumentStoreTask',
 )
@@ -35,13 +36,8 @@ def open_and_validate(filename):
             str(exc),
         ))
 
-    if filename.endswith('.yaml') or filename.endswith('.yml'):
-        definition = json.dumps(
-            AnyVal().parse(definition),
-            ensure_ascii=False,
-        )
-
     try:
+        definition = AnyVal().parse(definition)
         InstrumentVersion.validate_definition(definition)
     except ValidationError as exc:
         raise Error(exc.message)
@@ -54,10 +50,11 @@ class InstrumentValidateTask(Task):
     validate a Common Instrument Definition
 
     The instrument-validate task will validate the structure and content of the
-    Common Instrument Definition in a JSON (or YAML) file and report back if
+    Common Instrument Definition in a file and report back if
     any errors are found.
 
-    The only argument to this task is the filename to validate.
+    The definition is the path to the file containing the Common Instrument
+    Definition to validate.
     """
 
     name = 'instrument-validate'
@@ -73,12 +70,90 @@ class InstrumentValidateTask(Task):
         )
 
 
+def output_forms(val):
+    val = val.upper()
+    if val in ('JSON', 'YAML'):
+        return val
+    raise ValueError('Invalid format type "%s" specified' % val)
+
+
+class InstrumentFormatTask(Task):
+    """
+    render a Common Instrument Definition into various formats
+
+    The instrument-format task will take an input Common Instrument Definition
+    file and output it as either JSON or YAML.
+
+    The definition is the path to the file containing the Common Instrument
+    Definition to format.
+    """
+
+    name = 'instrument-format'
+
+    class arguments(object):  # noqa
+        definition = argument(str)
+
+    class options(object):  # noqa
+        output = option(
+            None,
+            str,
+            default=None,
+            value_name='OUTPUT_FILE',
+            hint='the file to write to; if not specified, stdout is used',
+        )
+        format = option(
+            None,
+            output_forms,
+            default='JSON',
+            value_name='FORMAT',
+            hint='the format to output the definition in; can be either JSON'
+            ' or YAML; if not specified, defaults to JSON',
+        )
+        pretty = option(
+            None,
+            bool,
+            hint='if specified, the outputted definition will be formatted'
+            ' with newlines and indentation',
+        )
+
+    def __call__(self):
+        definition = open_and_validate(self.definition)
+
+        if self.output:
+            try:
+                output = open(self.output, 'w')
+            except Exception as exc:
+                raise Error('Could not open "%s" for writing: %s' % (
+                    self.output,
+                    str(exc),
+                ))
+        else:
+            output = sys.stdout
+
+        if self.format == 'JSON':
+            output.write(
+                dump_instrument_json(
+                    definition,
+                    pretty=self.pretty,
+                )
+            )
+        elif self.format == 'YAML':
+            output.write(
+                dump_instrument_yaml(
+                    definition,
+                    pretty=self.pretty,
+                )
+            )
+
+        output.write('\n')
+
+
 class InstrumentRetrieveTask(RexTask):
     """
     retrieves an InstrumentVersion from the datastore
 
     The instrument-retrieve task will retrieve an InstrumentVersion from a
-    project's data store and return the Common Instrument Definition JSON.
+    project's data store and return the Common Instrument Definition.
 
     The instrument-uid argument is the UID of the desired Instrument in
     the data store.
@@ -103,14 +178,21 @@ class InstrumentRetrieveTask(RexTask):
             str,
             default=None,
             value_name='OUTPUT_FILE',
-            hint='the file to write the JSON to; if not specified, stdout is'
-            ' used',
+            hint='the file to write to; if not specified, stdout is used',
+        )
+        format = option(
+            None,
+            output_forms,
+            default='JSON',
+            value_name='FORMAT',
+            hint='the format to output the definition in; can be either JSON'
+            ' or YAML; if not specified, defaults to JSON',
         )
         pretty = option(
             None,
             bool,
-            hint='if specified, the outputted JSON will be formatted with'
-            ' newlines and indentation',
+            hint='if specified, the outputted definition will be formatted'
+            ' with newlines and indentation',
         )
 
     def __call__(self):
@@ -142,13 +224,21 @@ class InstrumentRetrieveTask(RexTask):
             else:
                 output = sys.stdout
 
-            output.write(
-                json.dumps(
-                    instrument_version.definition,
-                    ensure_ascii=False,
-                    indent=2 if self.pretty else None,
+            if self.format == 'JSON':
+                output.write(
+                    dump_instrument_json(
+                        instrument_version.definition,
+                        pretty=self.pretty,
+                    )
                 )
-            )
+            elif self.format == 'YAML':
+                output.write(
+                    dump_instrument_yaml(
+                        instrument_version.definition,
+                        pretty=self.pretty,
+                    )
+                )
+
             output.write('\n')
 
 
@@ -156,14 +246,14 @@ class InstrumentStoreTask(RexTask):
     """
     stores an InstrumentVersion in the data store
 
-    The instrument-store task will write a Common Instrument Definition JSON
-    (or YAML) file to an InstrumentVersion in the project's data store.
+    The instrument-store task will write a Common Instrument Definition file to
+    an InstrumentVersion in the project's data store.
 
     The instrument-uid argument is the UID of the desired Instrument to use in
     the data store. If the UID does not already exist, a new Instrument will be
     created using that UID.
 
-    The definition is the path to the JSON file containing the Common
+    The definition is the path to the file containing the Common
     Instrument Definition to use.
     """
 
@@ -202,7 +292,7 @@ class InstrumentStoreTask(RexTask):
 
     def __call__(self):
         with self.make():
-            definition_json = open_and_validate(self.definition)
+            definition = open_and_validate(self.definition)
 
             instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
@@ -222,7 +312,7 @@ class InstrumentStoreTask(RexTask):
             if self.version:
                 instrument_version = instrument.get_version(self.version)
                 if instrument_version:
-                    instrument_version.definition_json = definition_json
+                    instrument_version.definition = definition
                     instrument_version.published_by = self.published_by
                     instrument_version.date_published = get_current_datetime()
                     instrument_version.save()
@@ -230,7 +320,7 @@ class InstrumentStoreTask(RexTask):
                 else:
                     instrument_version = instrumentversion_impl.create(
                         instrument,
-                        definition_json,
+                        definition,
                         self.published_by,
                         version=self.version,
                     )
@@ -238,7 +328,7 @@ class InstrumentStoreTask(RexTask):
             else:
                 instrument_version = instrumentversion_impl.create(
                     instrument,
-                    definition_json,
+                    definition,
                     self.published_by,
                 )
                 print 'Created version: %s' % instrument_version.version

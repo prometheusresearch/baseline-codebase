@@ -130,7 +130,7 @@ instrument-store
 
 This tool will store a Common Instrument Definition file to the datastore. The
 ``instrument-uid`` parameter is the UID to store the Instrument under (it can
-be existing or new). The ``definition`` parameter is the path to a JSON file
+be existing or new). The ``definition`` parameter is the path to a file
 containing the Common Instrument Definition to store. By default, the defition
 will be stored as a new version under the UID, unless the ``--version`` option
 is used.
@@ -146,11 +146,24 @@ be installed and referenced by the project or ``rex.yaml``.
 instrument-validate
 -------------------
 
-This tool will validate the structure of a JSON file against the rules and
-schema of the Common Instrument Definition format. The ``definition`` argument
-is the path to the JSON file to validate.
+This tool will validate the structure of a definition file against the rules
+and schema of the Common Instrument Definition format. The ``definition``
+argument is the path to the file to validate.
 
 ::
 
   rex instrument-validate <definition>
+
+
+instrument-format
+-----------------
+
+This tool will (re)format a definition according to the options you give it.
+You can specify to output in either JSON or YAML, and whether or not the output
+should be "prettified". The ``definition`` argument is the path to the file to
+format.
+
+::
+
+    rex instrument-format <defintition>
 

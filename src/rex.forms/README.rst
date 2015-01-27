@@ -286,7 +286,7 @@ forms-store
 This tool will store a Web Form Configuration file to the datastore. The
 ``instrument-uid`` parameter is the UID of the Instrument to associate the Form
 with, and the ``channel-uid`` parameter is the UID of the Channel to associate
-the Form with. The ``configuration`` parameter is the path to a JSON file
+the Form with. The ``configuration`` parameter is the path to a file
 containing the Web Form Configuration to store. By default, the configuration
 will be associated with the latest version of the Instrument, unless the
 ``--version`` option is used.
@@ -300,11 +300,11 @@ be installed and referenced by the project or ``rex.yaml``.
 
 
 forms-validate
--------------------
+--------------
 
-This tool will validate the structure of a JSON file against the rules and
-schema of the Web Form Configuration format. The ``configuration`` argument
-is the path to the JSON file to validate. By default, the file will only be
+This tool will validate the structure of a configuration file against the rules
+and schema of the Web Form Configuration format. The ``configuration`` argument
+is the path to the file to validate. By default, the file will only be
 validated against the base schema. If you want to also validate it against a
 Common Instrument Definition, then you can use the ``--instrument`` parameter
 to point this tool at the file containing the definition.
@@ -312,4 +312,17 @@ to point this tool at the file containing the definition.
 ::
 
     rex forms-validate <configuration>
+
+
+forms-format
+------------
+
+This tool will (re)format a definition according to the optiosn you give it.
+You can specify to output in either JSON or YAML, and whether or not the
+output should be "prettified". The ``configuration`` argument is the path to
+the file to format.
+
+::
+
+    rex forms-format <configuration>
 

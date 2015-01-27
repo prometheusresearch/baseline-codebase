@@ -39,12 +39,12 @@ var Datepicker = React.createClass({
     if (value instanceof Date) {
       value = formatDate(value, format);
     }
-    console.log(props);
+    console.log(value);
     return (
       <div onChange={undefined} className="input-group">
         <input ref="datepicker" {...props} defaultValue={value} className={className} />
         <span className="input-group-btn" id="sizing-addon2">
-          <Button onClick={this.onButtonClick} icon="calendar" />
+          <Button tabIndex={-1} onClick={this.onButtonClick} icon="calendar" />
         </span>
       </div>
     );

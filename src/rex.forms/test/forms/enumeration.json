@@ -1,0 +1,38 @@
+{
+    "instrument": {
+        "id": "urn:test-instrument-enum",
+        "version": "1.1"
+    },
+    "defaultLocalization": "en",
+    "pages": [
+        {
+            "id": "page1",
+            "elements": [
+                {
+                    "type": "question",
+                    "options": {
+                        "fieldId": "q_fake",
+                        "text": {
+                            "en": "How do you feel today?"
+                        },
+                        "enumerations": [
+                            {
+                                "id": "good",
+                                "text": {
+                                    "en": "Good"
+                                }
+                            },
+                            {
+                                "id": "bad",
+                                "text": {
+                                    "en": "Bad"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
+

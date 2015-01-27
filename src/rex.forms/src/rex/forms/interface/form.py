@@ -3,14 +3,12 @@
 #
 
 
-import json
-
 from collections import Counter
 from copy import deepcopy
 
 import jsonschema
 
-from rex.core import Extension
+from rex.core import Extension, AnyVal
 from rex.instrument.interface import InstrumentVersion
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
@@ -18,6 +16,7 @@ from rex.instrument.util import to_unicode, memoized_property, \
 
 from .channel import Channel
 from ..errors import ValidationError
+from ..output import dump_form_yaml, dump_form_json
 from ..schema import FORM_SCHEMA, FORM_ELEMENT_OPTIONS, FORM_ELEMENT_REQUIRED
 
 
@@ -163,7 +162,7 @@ class Form(Extension, Comparable, Displayable, Dictable):
 
         if isinstance(configuration, basestring):
             try:
-                configuration = json.loads(configuration)
+                configuration = AnyVal().parse(configuration)
             except ValueError as exc:
                 raise ValidationError(
                     'Invalid JSON provided: %s' % unicode(exc)
@@ -192,7 +191,9 @@ class Form(Extension, Comparable, Displayable, Dictable):
         if instrument_definition:
             if isinstance(instrument_definition, basestring):
                 try:
-                    instrument_definition = json.loads(instrument_definition)
+                    instrument_definition = AnyVal().parse(
+                        instrument_definition
+                    )
                 except ValueError as exc:
                     raise ValidationError(
                         'Invalid Instrument JSON provided: %s' % unicode(exc)
@@ -295,7 +296,7 @@ class Form(Extension, Comparable, Displayable, Dictable):
         self._instrument_version = instrument_version
 
         if isinstance(configuration, basestring):
-            self._configuration = json.loads(configuration)
+            self._configuration = AnyVal().parse(configuration)
         else:
             self._configuration = deepcopy(configuration)
 
@@ -361,11 +362,25 @@ class Form(Extension, Comparable, Displayable, Dictable):
         :rtype: JSON-encoded string
         """
 
-        return json.dumps(self._configuration, ensure_ascii=False)
+        return dump_form_json(self._configuration)
 
     @configuration_json.setter
     def configuration_json(self, value):
-        self.configuration = json.loads(value)
+        self.configuration = AnyVal().parse(value)
+
+    @property
+    def configuration_yaml(self):
+        """
+        The Web Form Configuration of this Form.
+
+        :rtype: YAML-encoded string
+        """
+
+        return dump_form_yaml(self._configuration)
+
+    @configuration_yaml.setter
+    def configuration_yaml(self, value):
+        self.configuration = AnyVal().parse(value)
 
     def validate(self, instrument_definition=None):
         """

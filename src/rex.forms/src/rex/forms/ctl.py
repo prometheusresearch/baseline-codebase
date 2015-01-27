@@ -3,7 +3,6 @@
 #
 
 
-import json
 import sys
 
 from rex.core import Error, AnyVal
@@ -12,6 +11,7 @@ from rex.instrument.util import get_implementation
 
 from .errors import ValidationError
 from .interface import Form
+from .output import dump_form_yaml, dump_form_json
 
 
 __all__ = (
@@ -36,12 +36,6 @@ def open_and_validate(
             str(exc),
         ))
 
-    if filename.endswith('.yaml') or filename.endswith('.yml'):
-        configuration = json.dumps(
-            AnyVal().parse(configuration),
-            ensure_ascii=False,
-        )
-
     if (not instrument_definition) and instrument_file:
         try:
             instrument_definition = AnyVal().parse(
@@ -54,6 +48,7 @@ def open_and_validate(
             ))
 
     try:
+        configuration = AnyVal().parse(configuration)
         Form.validate_configuration(
             configuration,
             instrument_definition=instrument_definition,
@@ -68,11 +63,11 @@ class FormsValidateTask(Task):
     """
     validate a Web Form Configuration
 
-    The forms-validate task will validate the structure and content of the
-    Web Form Configuration in a JSON (or YAML) file and report back if any
-    errors are found.
+    The forms-validate task will validate the structure and content of the Web
+    Form Configuration in a file and report back if any errors are found.
 
-    The only argument to this task is the filename to validate.
+    The configuration is the path to the file containing the Web Form
+    Configuration to validate.
     """
 
     name = 'forms-validate'
@@ -86,9 +81,9 @@ class FormsValidateTask(Task):
             str,
             default=None,
             value_name='FILE',
-            hint='the file containing the associated Instrument Definition'
-            ' JSON (or YAML); if not specified, then the Web Form'
-            ' Configuration will only be checked for schema violations',
+            hint='the file containing the associated Instrument Definition;'
+            ' if not specified, then the Web Form Configuration will only be'
+            ' checked for schema violations',
         )
 
     def __call__(self):
@@ -102,12 +97,90 @@ class FormsValidateTask(Task):
         )
 
 
+def output_forms(val):
+    val = val.upper()
+    if val in ('JSON', 'YAML'):
+        return val
+    raise ValueError('Invalid format type "%s" specified' % val)
+
+
+class FormsFormatTask(Task):
+    """
+    render a Web Form Configuration into various formats
+
+    The forms-format task will take an input Web Form Configuration file and
+    output it as either JSON or YAML.
+
+    The configuration is the path to the file containing the Web Form
+    Configuration to format.
+    """
+
+    name = 'forms-format'
+
+    class arguments(object):  # noqa
+        configuration = argument(str)
+
+    class options(object):  # noqa
+        output = option(
+            None,
+            str,
+            default=None,
+            value_name='OUTPUT_FILE',
+            hint='the file to write to; if not specified, stdout is used',
+        )
+        format = option(
+            None,
+            output_forms,
+            default='JSON',
+            value_name='FORMAT',
+            hint='the format to output the configuration in; can be either'
+            ' JSON or YAML; if not specified, defaults to JSON',
+        )
+        pretty = option(
+            None,
+            bool,
+            hint='if specified, the outputted configuration will be formatted'
+            ' with newlines and indentation',
+        )
+
+    def __call__(self):
+        configuration = open_and_validate(self.configuration)
+
+        if self.output:
+            try:
+                output = open(self.output, 'w')
+            except Exception as exc:
+                raise Error('Could not open "%s" for writing: %s' % (
+                    self.output,
+                    str(exc),
+                ))
+        else:
+            output = sys.stdout
+
+        if self.format == 'JSON':
+            output.write(
+                dump_form_json(
+                    configuration,
+                    pretty=self.pretty,
+                )
+            )
+        elif self.format == 'YAML':
+            output.write(
+                dump_form_yaml(
+                    configuration,
+                    pretty=self.pretty,
+                )
+            )
+
+        output.write('\n')
+
+
 class FormsRetrieveTask(RexTask):
     """
     retrieves a Form from the datastore
 
     The forms-retrieve task will retrieve a Form from a project's data store
-    and return the Web Form Configuration JSON.
+    and return the Web Form Configuration.
 
     The instrument-uid argument is the UID of the desired Instrument in the
     data store.
@@ -138,6 +211,14 @@ class FormsRetrieveTask(RexTask):
             value_name='OUTPUT_FILE',
             hint='the file to write the JSON to; if not specified, stdout is'
             ' used',
+        )
+        format = option(
+            None,
+            output_forms,
+            default='JSON',
+            value_name='FORMAT',
+            hint='the format to output the configuration in; can be either'
+            ' JSON or YAML; if not specified, defaults to JSON',
         )
         pretty = option(
             None,
@@ -200,13 +281,21 @@ class FormsRetrieveTask(RexTask):
             else:
                 output = sys.stdout
 
-            output.write(
-                json.dumps(
-                    form.configuration,
-                    ensure_ascii=False,
-                    indent=2 if self.pretty else None,
+            if self.format == 'JSON':
+                output.write(
+                    dump_form_json(
+                        form.configuration,
+                        pretty=self.pretty,
+                    )
                 )
-            )
+            elif self.format == 'YAML':
+                output.write(
+                    dump_form_yaml(
+                        form.configuration,
+                        pretty=self.pretty,
+                    )
+                )
+
             output.write('\n')
 
 
@@ -214,8 +303,8 @@ class FormsStoreTask(RexTask):
     """
     stores a Form in the data store
 
-    The forms-store task will write a Web Form Configuration JSON (or YAML)
-    file to a Form in the project's data store.
+    The forms-store task will write a Web Form Configuration file to a Form in
+    the project's data store.
 
     The instrument-uid argument is the UID of the desired Instrument that the
     Form will be associated with.
@@ -223,7 +312,7 @@ class FormsStoreTask(RexTask):
     The channel-uid argument is the UID of the Channel that the Form will be
     associated with.
 
-    The configuration is the path to the JSON/YAML file containing the Web Form
+    The configuration is the path to the file containing the Web Form
     Configuration to use.
     """
 
@@ -264,7 +353,7 @@ class FormsStoreTask(RexTask):
                 ))
             print 'Instrument Version: %s' % instrument_version.version
 
-            configuration_json = open_and_validate(
+            configuration = open_and_validate(
                 self.configuration,
                 instrument_definition=instrument_version.definition,
             )
@@ -284,14 +373,14 @@ class FormsStoreTask(RexTask):
                 limit=1
             )
             if form:
-                form[0].configuration_json = configuration_json
+                form[0].configuration = configuration
                 form[0].save()
                 print 'Updated existing Form'
             else:
                 form = form_impl.create(
                     channel,
                     instrument_version,
-                    configuration_json,
+                    configuration,
                 )
                 print 'Created new Form'
 

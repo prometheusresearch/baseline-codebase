@@ -34,6 +34,15 @@ REX.FORMS Change Log
   ``ordinal`` argument.
 - The progress bar now only shows on the screen if there is more than one page
   in the Form.
+- Added an ``output`` module with function and classes that can be used to
+  output Form configurations in a human-friendly way, with either JSON or
+  YAML.
+- Added a ``forms-format`` rex command to convert and/or reformat Form
+  configurations.
+- The ``forms-retrieve`` rex command now accepts a ``format`` option to
+  indicate that you want JSON or YAML returned.
+- Added a ``configuration_yaml`` property to the Form class to get or set the
+  Form configuration using YAML.
 
 
 0.26.0 (11/21/2014)

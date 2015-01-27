@@ -15,19 +15,21 @@ tests:
   - {test/forms/audio.json: VALIDATED}
   - {test/forms/audio_element.json: VALIDATED}
   - {test/forms/audio_enumeration.json: VALIDATED}
-  - {test/forms/bad_audio.json: 'ValidationError: {u''text'': {u''en'': u''How do
-      you feel today?''}, u''audio'': {u''en'': u''http://example.com/howfeel.mp3''},
-      u''fieldId'': u''q_fake''} is not valid under any of the given schemas'}
+  - {test/forms/bad_audio.json: 'ValidationError: {''text'': {''en'': ''How do you
+      feel today?''}, ''audio'': {''en'': ''http://example.com/howfeel.mp3''}, ''fieldId'':
+      ''q_fake''} is not valid under any of the given schemas'}
   - {test/forms/bad_instrument.json: 'ValidationError: u''version'' is a required
       property'}
-  - {test/forms/broken_instrument.json: 'ValidationError: Invalid Instrument JSON
-      provided: No JSON object could be decoded'}
+  - {test/forms/broken_instrument.json: 'ValidationError: Instrument Definitions must
+      be mapped objects.'}
+  - {test/forms/enumeration.json: VALIDATED}
+  - {test/forms/event.json: VALIDATED}
   - {test/forms/extra_element_options.json: 'ValidationError: "header" Element cannot
       have options: fieldId'}
   - {test/forms/extra_field.json: 'ValidationError: There are fields that are not
       in the Instrument: q_doesntexist'}
-  - {test/forms/garbage.json: 'ValidationError: Invalid JSON provided: No JSON object
-      could be decoded'}
+  - {test/forms/garbage.json: 'ValidationError: Form Configurations must be mapped
+      objects.'}
   - {test/forms/instrument_not_an_object.json: 'ValidationError: Instrument Definitions
       must be mapped objects.'}
   - {test/forms/missing_audio_localization.json: 'ValidationError: Element audio missing
@@ -63,6 +65,8 @@ tests:
   - {test/forms/repeat_page.json: 'ValidationError: Page identifiers are used multiple
       times: page1'}
   - {test/forms/simplest.json: VALIDATED}
+  - {test/forms/unprompted.json: VALIDATED}
+  - {test/forms/widget.json: VALIDATED}
 - suite: rex-forms-validate
   tests:
   - sh: rex forms-validate test/forms/simplest.json

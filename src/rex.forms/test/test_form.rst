@@ -122,12 +122,21 @@ The configuration can be set or retrieved as either a JSON-encoded string or a
 dict equivalent::
 
     >>> form.configuration
-    {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'defaultLocalization': u'en', u'pages': [{u'elements': [{u'type': u'question', u'options': {u'text': {u'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', u'en': u'What is your favorite word?'}, u'fieldId': u'q_fake'}}], u'id': u'page1'}], u'title': {u'fr': u'Ma grande forme', u'en': u'Our Test Form'}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Our Test Form'}}
     >>> form.configuration = {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'defaultLocalization': u'en', u'pages': [{u'elements': [{u'type': u'question', u'options': {u'text': {u'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', u'en': u'What is your favorite word?'}, u'fieldId': u'q_fake'}}], u'id': u'page1'}], u'title': {u'fr': u'Ma grande forme', u'en': u'A Different Title'}}
 
     >>> form.configuration_json
-    u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "A Different Title"}}'
+    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "A Different Title", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}]}'
+    >>> form.configuration_yaml
+    'instrument: {id: \'urn:test-instrument\', version: \'1.1\'}\ndefaultLocalization: en\ntitle: {en: A Different Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: \'What is your favorite word?\', fr: "Quel est votre mot pr\\xC3\\xA9\\\n          f\\xC3\\xA9r\\xC3\\xA9?"}'
+
     >>> form.configuration_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "Not an Original Title"}}'
+    >>> form.configuration
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Not an Original Title'}}
+
+    >>> form.configuration_yaml = 'instrument: {id: \'urn:test-instrument\', version: \'1.1\'}\ndefaultLocalization: en\ntitle: {en: Some New Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: \'What is your favorite word?\', fr: "Quel est votre mot pr\\xC3\\xA9\\\n          f\\xC3\\xA9r\\xC3\\xA9?"}'
+    >>> form.configuration
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Some New Title'}}
 
 
 Forms can be checked for equality. Note that equality is only defined as

@@ -1,0 +1,32 @@
+{
+    "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.2"
+    },
+    "defaultLocalization": "en",
+    "pages": [
+        {
+            "id": "page1",
+            "elements": [
+                {
+                    "type": "question",
+                    "options": {
+                        "fieldId": "q_fake",
+                        "text": {
+                            "en": "How do you feel today?"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "unprompted": {
+        "q_foobar": {
+            "action": "calculate",
+            "options": {
+                "calculation": "42"
+            }
+        }
+    }
+}
+

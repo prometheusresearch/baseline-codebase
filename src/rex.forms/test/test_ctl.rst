@@ -20,14 +20,14 @@ against the Web Form Configuration specification::
     FORMS-VALIDATE - validate a Web Form Configuration
     Usage: rex forms-validate <configuration>
     <BLANKLINE>
-    The forms-validate task will validate the structure and content of the
-    Web Form Configuration in a JSON (or YAML) file and report back if any
-    errors are found.
+    The forms-validate task will validate the structure and content of the Web
+    Form Configuration in a file and report back if any errors are found.
     <BLANKLINE>
-    The only argument to this task is the filename to validate.
+    The configuration is the path to the file containing the Web Form
+    Configuration to validate.
     <BLANKLINE>
     Options:
-      --instrument=FILE        : the file containing the associated Instrument Definition JSON (or YAML); if not specified, then the Web Form Configuration will only be checked for schema violations
+      --instrument=FILE        : the file containing the associated Instrument Definition; if not specified, then the Web Form Configuration will only be checked for schema violations
     <BLANKLINE>
 
 
@@ -91,6 +91,210 @@ Or if the files doesn't actually exist::
     <BLANKLINE>
 
 
+forms-format
+============
+
+The ``forms-format`` command will format the specified configuration in the way
+specified::
+
+    >>> ctl('help forms-format')
+    FORMS-FORMAT - render a Web Form Configuration into various formats
+    Usage: rex forms-format <configuration>
+    <BLANKLINE>
+    The forms-format task will take an input Web Form Configuration file and
+    output it as either JSON or YAML.
+    <BLANKLINE>
+    The configuration is the path to the file containing the Web Form
+    Configuration to format.
+    <BLANKLINE>
+    Options:
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
+      --pretty                 : if specified, the outputted configuration will be formatted with newlines and indentation
+    <BLANKLINE>
+
+
+It requires a single argument which is the path to the file::
+
+    >>> ctl('forms-format', expect=1)
+    FATAL ERROR: too few arguments for task forms-format: missing <configuration>
+    <BLANKLINE>
+
+    >>> ctl('forms-format ./test/forms/simplest.json')
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "How do you feel today?"}}}]}]}
+
+    >>> ctl('forms-format ./test/forms_yaml/simplest.yaml')
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "How do you feel today?"}}}]}]}
+
+
+It accepts options that dictate the various properties of the output format::
+
+    >>> ctl('forms-format ./test/forms/simplest.json --format=YAML')
+    instrument: {id: 'urn:test-instrument', version: '1.1'}
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text: {en: 'How do you feel today?'}
+
+    >>> ctl('forms-format ./test/forms_yaml/simplest.yaml --format=YAML')
+    instrument: {id: 'urn:test-instrument', version: '1.1'}
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text: {en: 'How do you feel today?'}
+
+    >>> ctl('forms-format ./test/forms/simplest.json --format=JSON --pretty')
+    {
+      "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.1"
+      },
+      "defaultLocalization": "en",
+      "pages": [
+        {
+          "id": "page1",
+          "elements": [
+            {
+              "type": "question",
+              "options": {
+                "fieldId": "q_fake",
+                "text": {
+                  "en": "How do you feel today?"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+    >>> ctl('forms-format ./test/forms/simplest.json --format=YAML --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: How do you feel today?
+
+
+    >>> ctl('forms-format ./test/forms/enumeration.json --format=YAML --pretty')
+    instrument:
+      id: urn:test-instrument-enum
+      version: '1.1'
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: How do you feel today?
+          enumerations:
+          - id: good
+            text:
+              en: Good
+          - id: bad
+            text:
+              en: Bad
+
+
+    >>> ctl('forms-format ./test/forms/audio.json --format=YAML --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: How do you feel today?
+          audio:
+            en:
+            - http://example.com/howfeel.mp3
+            - http://example.com/howfeel.wav
+            fr:
+            - http://example.com/howfeel-fr.mp3
+
+
+    >>> ctl('forms-format ./test/forms/widget.json --format=YAML --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: How do you feel today?
+          widget:
+            type: textArea
+            options:
+              height: large
+              width: small
+
+
+    >>> ctl('forms-format ./test/forms/event.json --format=YAML --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: How do you feel today?
+          events:
+          - trigger: q_fake=='bad'
+            action: fail
+            options:
+              text:
+                en: You cannot feel bad.
+
+
+    >>> ctl('forms-format ./test/forms/unprompted.json --format=YAML --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.2'
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: How do you feel today?
+    unprompted:
+      q_foobar:
+        action: calculate
+        options:
+          calculation: '42'
+
+
 forms-retrieve
 ==============
 
@@ -102,7 +306,7 @@ from a Form in the project data store::
     Usage: rex forms-retrieve [<project>] <instrument-uid> <channel-uid>
     <BLANKLINE>
     The forms-retrieve task will retrieve a Form from a project's data store
-    and return the Web Form Configuration JSON.
+    and return the Web Form Configuration.
     <BLANKLINE>
     The instrument-uid argument is the UID of the desired Instrument in the
     data store.
@@ -115,8 +319,10 @@ from a Form in the project data store::
       --set=PARAM=VALUE        : set a configuration parameter
       --version=VERSION        : the version of the Instrument to retrieve; if not specified, defaults to the latest version
       --output=OUTPUT_FILE     : the file to write the JSON to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
       --pretty                 : if specified, the outputted JSON will be formatted with newlines and indentation
     <BLANKLINE>
+
 
 It requires two arguments which are the UID of the Instrument and UID of the
 Channel::
@@ -130,17 +336,17 @@ Channel::
     <BLANKLINE>
 
     >>> ctl('forms-retrieve --project=rex.forms_demo simple survey')
-    {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "How do you feel today?"}}}]}]}
 
 
 It takes a ``version`` option to specify which InstrumentVersion of the
 Instrument to retrieve the Form for::
 
     >>> ctl('forms-retrieve --project=rex.forms_demo complex survey')
-    {"instrument": {"version": "1.2", "id": "urn:another-test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_foo"}}, {"type": "question", "options": {"text": {"en": "What is your favorite number?"}, "fieldId": "q_bar"}}, {"type": "question", "options": {"text": {"en": "Is water wet?"}, "fieldId": "q_baz"}}], "id": "page1"}]}
+    {"instrument": {"id": "urn:another-test-instrument", "version": "1.2"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_foo", "text": {"en": "How do you feel today?"}}}, {"type": "question", "options": {"fieldId": "q_bar", "text": {"en": "What is your favorite number?"}}}, {"type": "question", "options": {"fieldId": "q_baz", "text": {"en": "Is water wet?"}}}]}]}
 
     >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --version=1')
-    {"instrument": {"version": "1.1", "id": "urn:another-test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_foo"}}, {"type": "question", "options": {"text": {"en": "What is your favorite number?"}, "fieldId": "q_bar"}}], "id": "page1"}]}
+    {"instrument": {"id": "urn:another-test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_foo", "text": {"en": "How do you feel today?"}}}, {"type": "question", "options": {"fieldId": "q_bar", "text": {"en": "What is your favorite number?"}}}]}]}
 
 
 It can also print the JSON in a prettier way::
@@ -148,45 +354,72 @@ It can also print the JSON in a prettier way::
     >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --pretty')
     {
       "instrument": {
-        "version": "1.2", 
-        "id": "urn:another-test-instrument"
-      }, 
-      "defaultLocalization": "en", 
+        "id": "urn:another-test-instrument",
+        "version": "1.2"
+      },
+      "defaultLocalization": "en",
       "pages": [
         {
+          "id": "page1",
           "elements": [
             {
-              "type": "question", 
+              "type": "question",
               "options": {
+                "fieldId": "q_foo",
                 "text": {
                   "en": "How do you feel today?"
-                }, 
-                "fieldId": "q_foo"
+                }
               }
-            }, 
+            },
             {
-              "type": "question", 
+              "type": "question",
               "options": {
+                "fieldId": "q_bar",
                 "text": {
                   "en": "What is your favorite number?"
-                }, 
-                "fieldId": "q_bar"
+                }
               }
-            }, 
+            },
             {
-              "type": "question", 
+              "type": "question",
               "options": {
+                "fieldId": "q_baz",
                 "text": {
                   "en": "Is water wet?"
-                }, 
-                "fieldId": "q_baz"
+                }
               }
             }
-          ], 
-          "id": "page1"
+          ]
         }
       ]
     }
+
+
+It can also print the definition in YAML format::
+
+    >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --pretty --format=YAML')
+    instrument:
+      id: urn:another-test-instrument
+      version: '1.2'
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_foo
+          text:
+            en: How do you feel today?
+      - type: question
+        options:
+          fieldId: q_bar
+          text:
+            en: What is your favorite number?
+      - type: question
+        options:
+          fieldId: q_baz
+          text:
+            en: Is water wet?
 
 
 It fails if the instrument doesn't exist::
@@ -217,6 +450,13 @@ Or if the version doesn't exist::
     <BLANKLINE>
 
 
+Or if you specify a bogus format::
+
+    >>> ctl('forms-retrieve --project=rex.forms_demo complex survey --pretty --format=XML', expect=1)
+    FATAL ERROR: invalid value for option --format: Invalid format type "XML" specified
+    <BLANKLINE>
+
+
 forms-store
 ===========
 
@@ -227,8 +467,8 @@ in the project data store::
     FORMS-STORE - stores a Form in the data store
     Usage: rex forms-store [<project>] <instrument-uid> <channel-uid> <configuration>
     <BLANKLINE>
-    The forms-store task will write a Web Form Configuration JSON (or YAML)
-    file to a Form in the project's data store.
+    The forms-store task will write a Web Form Configuration file to a Form in
+    the project's data store.
     <BLANKLINE>
     The instrument-uid argument is the UID of the desired Instrument that the
     Form will be associated with.
@@ -236,7 +476,7 @@ in the project data store::
     The channel-uid argument is the UID of the Channel that the Form will be
     associated with.
     <BLANKLINE>
-    The configuration is the path to the JSON/YAML file containing the Web Form
+    The configuration is the path to the file containing the Web Form
     Configuration to use.
     <BLANKLINE>
     Options:

@@ -39,7 +39,6 @@ var Datepicker = React.createClass({
     if (value instanceof Date) {
       value = formatDate(value, format);
     }
-    console.log(value);
     return (
       <div onChange={undefined} className="input-group">
         <input ref="datepicker" {...props} defaultValue={value} className={className} />

@@ -12,6 +12,7 @@ var React             = require('react/addons');
 var cx                = React.addons.classSet;
 var FormContextMixin  = require('./FormContextMixin');
 var Element           = require('../layout/Element');
+var Button            = require('../Button');
 var FieldBase         = require('./FieldBase');
 
 function padl(v, n) {
@@ -38,35 +39,44 @@ var Datepicker = React.createClass({
     if (value instanceof Date) {
       value = formatDate(value, format);
     }
+    console.log(props);
     return (
-      <input {...props} defaultValue={value} className={className} />
+      <div onChange={undefined} className="input-group">
+        <input ref="datepicker" {...props} defaultValue={value} className={className} />
+        <span className="input-group-btn" id="sizing-addon2">
+          <Button onClick={this.onButtonClick} icon="calendar" />
+        </span>
+      </div>
     );
   },
 
   componentDidMount() {
+    var {autoclose, startView, format} = this.props;
     this.__ignoreOnChange = false;
-    var node = this.getDOMNode();
-    $(node)
-      .datepicker({
-        autoclose: this.props.autoclose,
-        startView: this.props.startView,
-        format: this.props.format
-      })
+    this._callDatepicker({autoclose, startView, format})
       .on('changeDate', (e) => this.onChange(e.date ? formatDate(e.date) : null))
       .on('clearDate', () => this.onChange(null));
   },
 
   componentWillUnmount() {
-    var node = this.getDOMNode();
-    $(node).datepicker('remove');
+    this._callDatepicker('remove');
   },
 
   componentWillReceiveProps({value}) {
     if (formatDate(value) !== formatDate(this.props.value)) {
-      var node = this.getDOMNode();
       this.__ignoreOnChange = true;
-      $(node).datepicker('setDate', new Date(value));
+      this._callDatepicker('setDate', new Date(value));
     }
+  },
+
+  _callDatepicker(a, b, c, d, e) {
+    var node = this.refs.datepicker.getDOMNode();
+    return $(node).datepicker(a, b, c, d, e);
+  },
+
+  onButtonClick(e) {
+    e.stopPropagation();
+    this.refs.datepicker.getDOMNode().focus();
   },
 
   onChange(date) {
@@ -96,14 +106,8 @@ var DatepickerField = React.createClass({
         }
         />
     );
-  },
-
-  getDefaultProps() {
-    return {
-      size: 1,
-      margin: 10
-    }
   }
+
 });
 
 module.exports = DatepickerField;

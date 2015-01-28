@@ -3,8 +3,8 @@
 #
 
 
-from rex.instrument.output import DefinedOrderDict, SortedDict, dump_yaml, \
-    dump_json
+from rex.instrument.output import DefinedOrderDict, TypedDefinedOrderDict, \
+    SortedDict, TypedSortedDict, dump_yaml, dump_json
 
 
 __all__ = (
@@ -21,7 +21,7 @@ class InstrumentDeclaration(DefinedOrderDict):
     ]
 
 
-class Descriptor(DefinedOrderDict):
+class Descriptor(TypedDefinedOrderDict):
     order = [
         'id',
         'text',
@@ -29,14 +29,14 @@ class Descriptor(DefinedOrderDict):
         'audio',
     ]
 
-    def __init__(self, desc):
-        super(Descriptor, self).__init__(desc)
-        for field in ('text', 'help', 'audio'):
-            if field in self:
-                self[field] = SortedDict(self[field])
+    key_types = {
+        'text': SortedDict,
+        'help': SortedDict,
+        'audio': SortedDict,
+    }
 
 
-class Event(DefinedOrderDict):
+class Event(TypedDefinedOrderDict):
     order = [
         'trigger',
         'action',
@@ -44,25 +44,23 @@ class Event(DefinedOrderDict):
         'options',
     ]
 
-    def __init__(self, event):
-        super(Event, self).__init__(event)
-        if 'options' in self:
-            self['options'] = SortedDict(self['options'])
+    key_types = {
+        'options': SortedDict,
+    }
 
 
-class Widget(DefinedOrderDict):
+class Widget(TypedDefinedOrderDict):
     order = [
         'type',
         'options',
     ]
 
-    def __init__(self, widget):
-        super(Widget, self).__init__(widget)
-        if 'options' in self:
-            self['options'] = SortedDict(self['options'])
+    key_types = {
+        'options': SortedDict,
+    }
 
 
-class ElementOptions(DefinedOrderDict):
+class ElementOptions(TypedDefinedOrderDict):
     order = [
         'fieldId',
         'text',
@@ -76,79 +74,59 @@ class ElementOptions(DefinedOrderDict):
         'events',
     ]
 
-    def __init__(self, options):
-        super(ElementOptions, self).__init__(options)
-        for field in ('text', 'help', 'error', 'audio'):
-            if field in self:
-                self[field] = SortedDict(self[field])
-        for field in ('enumerations', 'rows'):
-            if field in self:
-                self[field] = [
-                    Descriptor(desc)
-                    for desc in self[field]
-                ]
-        if 'widget' in self:
-            self['widget'] = Widget(self['widget'])
-        if 'questions' in self:
-            self['questions'] = [
-                ElementOptions(question)
-                for question in self['questions']
-            ]
-        if 'events' in self:
-            self['events'] = [
-                Event(event)
-                for event in self['events']
-            ]
+    key_types = {
+        'text': SortedDict,
+        'help': SortedDict,
+        'error': SortedDict,
+        'audio': SortedDict,
+        'enumerations': [Descriptor],
+        'rows': [Descriptor],
+        'widget': Widget,
+        'events': [Event],
+    }
+
+ElementOptions.key_types['questions'] = [ElementOptions]
 
 
-class Element(DefinedOrderDict):
+class Element(TypedDefinedOrderDict):
     order = [
         'type',
         'tags',
         'options',
     ]
 
-    def __init__(self, element):
-        super(Element, self).__init__(element)
-        if 'options' in self:
-            self['options'] = ElementOptions(self['options'])
+    key_types = {
+        'options': ElementOptions,
+    }
 
 
-class Page(DefinedOrderDict):
+class Page(TypedDefinedOrderDict):
     order = [
         'id',
         'elements',
     ]
 
-    def __init__(self, page):
-        super(Page, self).__init__(page)
-        if 'elements' in self:
-            self['elements'] = [
-                Element(element)
-                for element in self['elements']
-            ]
+    key_types = {
+        'elements': [Element],
+    }
 
 
-class Unprompted(DefinedOrderDict):
+class Unprompted(TypedDefinedOrderDict):
     order = [
         'action',
         'options',
     ]
 
-    def __init__(self, unprompted):
-        super(Unprompted, self).__init__(unprompted)
-        if 'options' in self:
-            self['options'] = SortedDict(self['options'])
+    key_types = {
+        'options': SortedDict,
+    }
 
 
-class UnpromptedCollection(SortedDict):
-    def __init__(self, unprompted):
-        super(UnpromptedCollection, self).__init__(unprompted)
-        for name, defn in self.iteritems():
-            self[name] = Unprompted(defn)
+class UnpromptedCollection(TypedSortedDict):
+    subtype = Unprompted
 
 
-class Form(DefinedOrderDict):
+class Form(TypedDefinedOrderDict):
     order = [
         'instrument',
         'defaultLocalization',
@@ -157,19 +135,12 @@ class Form(DefinedOrderDict):
         'unprompted',
     ]
 
-    def __init__(self, form):
-        super(Form, self).__init__(form)
-        if 'instrument' in self:
-            self['instrument'] = InstrumentDeclaration(self['instrument'])
-        if 'title' in self:
-            self['title'] = SortedDict(self['title'])
-        if 'pages' in self:
-            self['pages'] = [
-                Page(page)
-                for page in self['pages']
-            ]
-        if 'unprompted' in self:
-            self['unprompted'] = UnpromptedCollection(self['unprompted'])
+    key_types = {
+        'instrument': InstrumentDeclaration,
+        'title': SortedDict,
+        'pages': [Page],
+        'unprompted': UnpromptedCollection,
+    }
 
 
 def dump_form_yaml(form, **kwargs):

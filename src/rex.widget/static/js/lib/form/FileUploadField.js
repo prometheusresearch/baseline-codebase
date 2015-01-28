@@ -257,7 +257,8 @@ var FileUploadField = React.createClass({
       this.context.valueKey.concat(this.props.valueKey) :
       [];
     valueKey.pop();
-    return this.props.value.value.getIn(valueKey).get('id');
+    var record = this.props.value.value.getIn(valueKey);
+    return record ? record.get('id') : undefined;
   }
 });
 

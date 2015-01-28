@@ -19,7 +19,7 @@ from rex.core import Extension, Error, Validate, RecordVal, RecordField, MapVal
 from rex.core import OneOfVal, ProxyVal, StrVal, IntVal
 
 from .state import StateGraph, MutableStateGraph
-from .field import Field
+from .field import Field, IDField
 from .util import PropsContainer, cached_property
 from .descriptors import WidgetDescriptor, UIDescriptor, UIDescriptorChildren
 
@@ -62,6 +62,8 @@ class Widget(WidgetBase):
     js_type = NotImplemented
 
     fields = OrderedDict()
+
+    id = IDField()
 
     _validate = ProxyVal()
 

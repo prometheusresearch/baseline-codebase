@@ -11,9 +11,10 @@ var emptyFunction     = require('./emptyFunction');
 var Filter = React.createClass({
 
   render() {
-    var {property, filter, ...props} = this.props;
+    var {property, filter, value, ...props} = this.props;
     filter = cloneWithProps(filter, {
-      onValue: this.onValue.bind(null, filter.props.onValue)
+      value: value,
+      onValue: this.onValue
     });
     return (
       <Box {...props}>
@@ -28,11 +29,8 @@ var Filter = React.createClass({
     };
   },
 
-  onValue(onValue, value) {
-    if (onValue) {
-      onValue(value);
-    }
-    this.props.onValue(value);
+  onValue(value) {
+    this.props.onValue(this.props.property, value);
   }
 
 });

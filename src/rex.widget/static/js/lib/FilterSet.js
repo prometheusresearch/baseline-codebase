@@ -58,21 +58,22 @@ var FilterSet = React.createClass({
     this.setState({value: null});
   },
 
-  _nextValue() {
+  _value() {
     var value = this.state.value !== null ?
       this.state.value :
       this.props.value;
-    return merge({}, value);
+    return value || {};
   },
 
   _setupFilter(filter) {
     return cloneWithProps(filter, {
-      onValue: this._onValue.bind(null, filter.props.property)
+      onValue: this._onValue,
+      value: this._value()[filter.props.property]
     });
   },
 
   _onValue(property, propertyValue) {
-    var nextValue = this._nextValue();
+    var nextValue = merge({}, this._value());
     if (propertyValue === '' || propertyValue == null) {
       delete nextValue[property];
     } else {

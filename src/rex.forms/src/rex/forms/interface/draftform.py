@@ -3,17 +3,16 @@
 #
 
 
-import json
-
 from copy import deepcopy
 
-from rex.core import Extension
+from rex.core import Extension, AnyVal
 from rex.instrument.interface import DraftInstrumentVersion
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
 
 from .channel import Channel
+from ..output import dump_form_yaml, dump_form_json
 
 
 __all__ = (
@@ -118,8 +117,8 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         :param draft_instrument_version:
             the DraftInstrumentVersion the DraftForm is an implementation of
         :type draft_instrument_version: DraftInstrumentVersion
-        :param configuration: the JSON Web Form Configuration for the Form
-        :type configuration: dict or JSON string
+        :param configuration: the Web Form Configuration for the Form
+        :type configuration: dict or JSON/YAML string
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: DraftForm
@@ -146,7 +145,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         self._draft_instrument_version = draft_instrument_version
 
         if isinstance(configuration, basestring):
-            self._configuration = json.loads(configuration)
+            self._configuration = AnyVal().parse(configuration)
         else:
             self._configuration = deepcopy(configuration)
 
@@ -213,12 +212,28 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         """
 
         if self._configuration:
-            return json.dumps(self._configuration, ensure_ascii=False)
+            return dump_form_json(self._configuration)
         return None
 
     @configuration_json.setter
     def configuration_json(self, value):
-        self.configuration = json.loads(value)
+        self.configuration = AnyVal().parse(value)
+
+    @property
+    def configuration_yaml(self):
+        """
+        The Web Form Configuration of this DraftForm.
+
+        :rtype: YAML-encoded string
+        """
+
+        if self._configuration:
+            return dump_form_yaml(self._configuration)
+        return None
+
+    @configuration_yaml.setter
+    def configuration_yaml(self, value):
+        self.configuration = AnyVal().parse(value)
 
     def validate(self, instrument_definition=None):
         """

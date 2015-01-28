@@ -107,19 +107,18 @@ instances of those classes or strings containing UIDs::
     DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
 
 
-The configuration can be passed to the contructor as either a JSON-encoded
+The configuration can be passed to the contructor as either a JSON/YAML-encoded
 string or the dict equivalent::
 
-    >>> import json
-    >>> FORM_JSON = json.dumps(FORM)
-    >>> FORM_JSON
-    '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot pr\\u00c3\\u00a9f\\u00c3\\u00a9r\\u00c3\\u00a9?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "Our Test Form"}}'
-    >>> form = Form('foo789', channel, iv, FORM_JSON)
+    >>> from rex.forms.output import dump_form_json, dump_form_yaml
+    >>> form = Form('foo789', channel, iv, dump_form_json(FORM))
+    >>> form.validate()
+    >>> form = Form('foo789', channel, iv, dump_form_yaml(FORM))
     >>> form.validate()
 
 
-The configuration can be set or retrieved as either a JSON-encoded string or a
-dict equivalent::
+The configuration can be set or retrieved as either a JSON/YAML-encoded string
+or a dict equivalent::
 
     >>> form.configuration
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Our Test Form'}}

@@ -9,6 +9,7 @@
 ==================
 
 * Moved ``rex shell``, ``rex query`` and ``rex graphdb`` from ``rex.ctl``.
+* Moved ``describe()`` and ``pivot()`` commands from ``rex.htraf``.
 
 
 3.0.0 (2014-12-08)

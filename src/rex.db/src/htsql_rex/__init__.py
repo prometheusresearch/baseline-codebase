@@ -12,17 +12,20 @@ none so far.
 from htsql.core.addon import Addon, Variable, Parameter
 from htsql.core.application import Environment, Application
 from htsql.core.validator import NameVal, ClassVal, MapVal
-from htsql.core.adapter import Adapter, adapt
+from htsql.core.adapter import Adapter, adapt, call
 from htsql.core.context import context
 from htsql.core.error import Error
 from htsql.core.connect import Transact, connect
-from htsql.core.domain import RecordDomain, TextDomain, BooleanDomain
+from htsql.core.domain import (ListDomain, RecordDomain, TextDomain,
+        BooleanDomain, Product)
 from htsql.core.model import Node, HomeNode, TableNode, TableArc, ChainArc
 from htsql.core.classify import relabel, classify
-from htsql.core.syn.syntax import Syntax, IdentifierSyntax, FilterSyntax
+from htsql.core.syn.syntax import (Syntax, IntegerSyntax, IdentifierSyntax,
+        FilterSyntax)
 from htsql.core.syn.parse import parse
-from htsql.core.cmd.act import Act
-from htsql.core.cmd.summon import Summon, SummonJSON
+from htsql.core.cmd.act import Act, ProduceAction, analyze, act
+from htsql.core.cmd.command import Command
+from htsql.core.cmd.summon import Summon, SummonJSON, recognize
 from htsql.core.tr.lookup import (Lookup, Probe, ReferenceProbe,
         ReferenceSetProbe, ExpansionProbe, lookup, identify, localize,
         prescribe)
@@ -31,6 +34,7 @@ from htsql.core.tr.binding import (Recipe, LiteralRecipe, ChainRecipe, Binding,
         ImplicitCastBinding)
 from htsql.core.tr.bind import (BindByFreeTable, BindByAttachedTable,
         BindByRecipe)
+from htsql.core.tr.decorate import decorate_void
 from htsql.core.fmt.accept import AcceptJSON
 from htsql.core.fmt.format import JSONFormat
 from htsql.core.fmt.json import EmitJSON, to_json
@@ -437,6 +441,154 @@ class RexSummonGateway(SummonGateway, Summon):
 
 class RexActGateway(ActGateway, Act):
     pass
+
+
+class DescribeCmd(Command):
+
+    def __init__(self, feed):
+        self.feed = feed
+
+
+class SummonDescribe(Summon):
+
+    call('describe')
+
+    def __call__(self):
+        if len(self.arguments) != 1:
+            raise Error("Expected one argument")
+        [syntax] = self.arguments
+        feed = recognize(syntax)
+        return DescribeCmd(feed)
+
+
+class ProduceDescribe(Act):
+
+    adapt(DescribeCmd, ProduceAction)
+
+    def __call__(self):
+        plan = analyze(self.command.feed)
+        return Product(plan.meta, None)
+
+
+class PivotCmd(Command):
+
+    def __init__(self, feed, on=-2, by=-1):
+        self.feed = feed
+        self.on = on
+        self.by = by
+
+
+class SummonPivot(Summon):
+
+    call('pivot')
+
+    def __call__(self):
+        if not (1 <= len(self.arguments) <= 3):
+            raise Error("Expected 1 to 3 arguments")
+        feed = recognize(self.arguments[0])
+        if len(self.arguments) >= 2:
+            syntax = self.arguments[1]
+            if not isinstance(syntax, IntegerSyntax):
+                raise Error("Expected an integer", syntax)
+            on = syntax.value
+        else:
+            on = -2
+        if len(self.arguments) >= 3:
+            syntax = self.arguments[2]
+            if not isinstance(syntax, IntegerSyntax):
+                raise Error("Expected an integer", syntax)
+            by = syntax.value
+        else:
+            by = -1
+        return PivotCmd(feed, on, by)
+
+
+class ProducePivot(Act):
+
+    adapt(PivotCmd, ProduceAction)
+
+    def __call__(self):
+        product = act(self.command.feed, self.action)
+        if product.data is None:
+            return product
+        profile = product.meta
+        if not (isinstance(profile.domain, ListDomain) and
+                isinstance(profile.domain.item_domain, RecordDomain)):
+            raise Error("Expected a list of records; got", str(profile.domain))
+        source_fields = profile.domain.item_domain.fields
+        on = self.command.on
+        if on > 0:
+            on -= 1
+        else:
+            on += len(source_fields)
+        by = self.command.by
+        if by > 0:
+            by -= 1
+        else:
+            by += len(source_fields)
+        if not (0 <= on < len(source_fields)):
+            raise Error("'on' is out of range", self.command.on)
+        if not (0 <= by < len(source_fields)):
+            raise Error("'by' is out of range", self.command.by)
+        if on == by:
+            raise Error("'on' and 'by' should not coincide", self.command.on)
+        pivot_domain = source_fields[on].domain
+        pivot_values = set()
+        for row in product.data:
+            try:
+                pivot_values.add(row[on])
+            except TypeError:
+                raise Error("Cannot pivot on type", pivot_domain)
+        pivot_values = sorted(pivot_values)
+        value_domain = source_fields[by].domain
+        value_fields = []
+        for value in pivot_values:
+            value_header = pivot_domain.dump(value)
+            if value_header is None:
+                value_header = u""
+            value_field = decorate_void()
+            value_field = value_field.clone(header=value_header,
+                                            domain=value_domain)
+            value_fields.append(value_field)
+        value_record = RecordDomain(value_fields)
+        target_fields = []
+        for idx, field in enumerate(source_fields):
+            if idx == on:
+                target_fields.append(field.clone(domain=value_record))
+            elif idx != by:
+                target_fields.append(field)
+        target_record = RecordDomain(target_fields)
+        target_profile = profile.clone(domain=
+                profile.domain.clone(item_domain=target_record))
+        keys = []
+        values = []
+        key_to_position = {}
+        for row in product.data:
+            key = tuple(item for idx, item in enumerate(row)
+                             if idx not in (on, by))
+            try:
+                position = key_to_position.get(key)
+            except TypeError:
+                raise Error("Cannot use pivot with",
+                            profile.domain.item_domain)
+            if position is None:
+                position = key_to_position[key] = len(keys)
+                keys.append(key)
+                values.append([None]*len(value_fields))
+            value_index = pivot_values.index(row[on])
+            if row[by] is not None:
+                if (values[position][value_index] is not None and
+                        values[position][value_index] != row[by]):
+                    raise Error("Got duplicate row",
+                                profile.domain.item_domain.dump(row))
+                values[position][value_index] = row[by]
+        target_rows = []
+        for position, key in enumerate(keys):
+            target_row = list(key)
+            target_row.insert(on, tuple(values[position]))
+            target_row = tuple(target_row)
+            target_rows.append(target_row)
+        return product.clone(meta=target_profile, data=target_rows)
 
 
 class RexAddon(Addon):

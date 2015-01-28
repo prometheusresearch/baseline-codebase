@@ -4,7 +4,7 @@ from distutils.core import Command
 
 class demo(Command):
 
-    description = "show how to access a database"
+    description = "open HTSQL shell"
     user_options = []
 
     def initialize_options(self):
@@ -23,7 +23,7 @@ class demo(Command):
         connection = sqlite3.connect('../sandbox/db_demo.sqlite')
         connection.executescript(sql)
         connection.commit()
-        cmd = "rex serve rex.db_demo --set db=sqlite:../sandbox/db_demo.sqlite"
+        cmd = "rex shell rex.db_demo --set db=sqlite:../sandbox/db_demo.sqlite"
         print "$", cmd
         os.spawnvp(0, cmd.split()[0], cmd.split())
 

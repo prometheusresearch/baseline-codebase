@@ -185,3 +185,170 @@ Invalid masks are detected::
     ...
 
 
+``describe()``
+==============
+
+To determine the shape of the output, you can use the ``describe()`` command::
+
+    >>> req = Request.blank('/db/school/:describe', accept='x-htsql/raw')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    {
+      "meta": {
+        "domain": {
+          "type": "list",
+          "item": {
+            "domain": {
+              "type": "record",
+              ...
+            }
+          }
+        },
+        ...
+      }
+    }
+
+The ``describe()`` command requires one argument::
+
+    >>> req = Request.blank('/db/describe()')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    Expected one argument
+    While parsing:
+        /describe()
+         ^^^^^^^^^^
+
+
+``pivot()``
+===========
+
+Use ``pivot()`` command to create a pivot table::
+
+    >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot', remote_user='Alice')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+     | school^campus       |
+     +---------------------+
+     | campus              |
+     +-------+-----+-------+
+     | north | old | south |
+    -+-------+-----+-------+-
+     |     1 |   4 |     2 |
+
+By default, ``pivot()`` command uses the last two fields as the column label and a
+summary value respectively.  You can explicitly specify which fields to use::
+
+    >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(1,2)', remote_user='Alice')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+     | school^campus       |
+     +---------------------+
+     | campus              |
+     +-------+-----+-------+
+     | north | old | south |
+    -+-------+-----+-------+-
+     |     1 |   4 |     2 |
+
+Out of range or non-numeric indexes are forbidden::
+
+    >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(5)')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    'on' is out of range:
+        5
+    While processing:
+        /school^campus{campus, count(^)}/:pivot(5)
+                                          ^^^^^
+
+    >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(1,5)')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    'by' is out of range:
+        5
+    While processing:
+        /school^campus{campus, count(^)}/:pivot(1,5)
+                                          ^^^^^
+
+    >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(1,1)')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    'on' and 'by' should not coincide:
+        1
+    While processing:
+        /school^campus{campus, count(^)}/:pivot(1,1)
+                                          ^^^^^
+
+    >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(code)')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    Expected an integer:
+        code
+    While parsing:
+        /school^campus{campus, count(^)}/:pivot(code)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(1,code)')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    Expected an integer:
+        code
+    While parsing:
+        /school^campus{campus, count(^)}/:pivot(1,code)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+From one to three arguments are expected::
+
+    >>> req = Request.blank('/db/pivot()')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    Expected 1 to 3 arguments
+    While parsing:
+        /pivot()
+         ^^^^^^^
+
+The query must produce a list of records and the transformed fields must be
+scalar::
+
+    >>> req = Request.blank('/db/pivot(count(school))')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    Expected a list of records; got:
+        integer
+    While processing:
+        /pivot(count(school))
+         ^^^^^
+
+    >>> req = Request.blank('/db/school^campus{/school,campus,count(school)}/:pivot')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    Cannot use pivot with:
+        record(list(record(text, text, text)), text, integer)
+    While processing:
+        /school^campus{/school,campus,count(school)}/:pivot
+                                                      ^^^^^
+
+Unaffected fields must identify a row uniquely::
+
+    >>> req = Request.blank('/db/school{campus,count(program)}/:pivot', remote_user='Alice')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    400 Bad Request
+    ...
+    Got duplicate row:
+        {'old', 7}
+    While processing:
+        /school{campus,count(program)}/:pivot
+                                        ^^^^^
+
+

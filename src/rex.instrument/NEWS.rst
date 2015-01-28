@@ -21,8 +21,9 @@ REX.INSTRUMENT Change Log
   Instrument definitions.
 - The ``instrument-retrieve`` rex command now accepts a ``format`` option to
   indicate that you want JSON or YAML returned.
-- Added a ``definition_yaml`` property to the InstrumentVersion class to get or
-  set the Instrument definition using YAML.
+- Added a ``definition_yaml`` property to the InstrumentVersion and
+  DraftInstrumentVersion classes to get or set the Instrument definition using
+  YAML.
 
 
 0.12.0 (11/21/2014)

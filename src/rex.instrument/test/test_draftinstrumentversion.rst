@@ -78,28 +78,42 @@ be an instance or a string containing a UID::
     DemoInstrumentVersion(u'fake_instrument_version_1', DemoInstrument(u'simple', u'Simple Instrument'), 2)
 
 
-The definition can be passed to the contructor as either a JSON-encoded string
-or the dict equivalent::
+The definition can be passed to the contructor as either a JSON/YAML-encoded
+string or the dict equivalent::
 
     >>> div = DraftInstrumentVersion('notreal456', instrument, 'someguy', datetime(2014, 5, 22), definition='{"id": "urn:test-instrument", "version": "1.1", "title": "The DraftInstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}')
     >>> div.validate()
 
+    >>> div = DraftInstrumentVersion('notreal456', instrument, 'someguy', datetime(2014, 5, 22), definition="id: urn:test-instrument\nversion: '1.1'\ntitle: The DraftInstrumentVersion Title\nrecord:\n- {id: q_fake, type: text}")
+    >>> div.validate()
 
-The definition can be set or retrieved as either a JSON-encoded string, or a
-dict equivalent::
+
+The definition can be set or retrieved as either a JSON/YAML-encoded string, or
+a dict equivalent::
 
     >>> div.definition_json
-    u'{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The DraftInstrumentVersion Title"}'
-    >>> div.definition_json = u'{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
+    '{"id": "urn:test-instrument", "version": "1.1", "title": "The DraftInstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}'
+    >>> div.definition_yaml
+    "id: urn:test-instrument\nversion: '1.1'\ntitle: The DraftInstrumentVersion Title\nrecord:\n- {id: q_fake, type: text}"
 
+    >>> div.definition_json = u'{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
     >>> div.definition
-    {u'record': [{u'type': u'text', u'id': u'q_fake'}], u'version': u'1.1', u'id': u'urn:test-instrument', u'title': u'A Different Title'}
-    >>> div.definition = {u'record': [{u'type': u'text', u'id': u'q_foo'}], u'version': u'1.1', u'id': u'urn:test-instrument', u'title': u'A Different Title'}
+    {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
+
+    >>> div.definition_yaml = "id: urn:test-instrument\nversion: '1.1'\ntitle: A Third Title\nrecord:\n- {id: q_fake, type: text}"
+    >>> div.definition
+    {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Third Title'}
+
+    >>> div.definition = {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
+    >>> div.definition
+    {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
 
     >>> div.definition = None
     >>> div.definition is None
     True
     >>> div.definition_json is None
+    True
+    >>> div.definition_yaml is None
     True
 
 

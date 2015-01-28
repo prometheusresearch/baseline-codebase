@@ -2,16 +2,15 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-import json
-
 from copy import deepcopy
 from datetime import datetime
 
-from rex.core import Extension
+from rex.core import Extension, AnyVal
 
 from .instrument import Instrument
 from .instrumentversion import InstrumentVersion
 from ..mixins import Comparable, Displayable, Dictable
+from ..output import dump_instrument_yaml, dump_instrument_json
 from ..util import to_unicode, memoized_property, get_implementation, \
     get_current_datetime
 
@@ -44,7 +43,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         Definition.
 
         :param definition: the Instrument definition to validate
-        :type definition: dict or JSON string
+        :type definition: dict or JSON/YAML string
         :raises:
             ValidationError if the specified definition fails any of the
             requirements
@@ -128,7 +127,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         :type created_by: string
         :param definition:
             the Common Instrument Definition for this draft version
-        :type definition: dict or JSON-encoded string
+        :type definition: dict or JSON/YAML-encoded string
         :param parent_instrument_version:
             the InstrumentVersion that this draft was forked from
         :type parent_instrument_version: InstrumentVersion
@@ -169,7 +168,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         self._parent_instrument_version = parent_instrument_version
 
         if isinstance(definition, basestring):
-            self._definition = json.loads(definition)
+            self._definition = AnyVal().parse(definition)
         else:
             self._definition = deepcopy(definition)
 
@@ -240,12 +239,28 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         """
 
         if self._definition:
-            return json.dumps(self._definition, ensure_ascii=False)
+            return dump_instrument_json(self._definition)
         return None
 
     @definition_json.setter
     def definition_json(self, value):
-        self.definition = json.loads(value)
+        self.definition = AnyVal().parse(value)
+
+    @property
+    def definition_yaml(self):
+        """
+        The Common Instrument Definition of this Instrument.
+
+        :rtype: YAML-encoded string
+        """
+
+        if self._definition:
+            return dump_instrument_yaml(self._definition)
+        return None
+
+    @definition_yaml.setter
+    def definition_yaml(self, value):
+        self.definition = AnyVal().parse(value)
 
     @property
     def created_by(self):

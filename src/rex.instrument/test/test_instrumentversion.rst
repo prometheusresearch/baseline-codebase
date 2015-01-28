@@ -64,15 +64,18 @@ instance or a string containing a UID::
     DemoInstrument(u'simple', u'Simple Instrument')
 
 
-The definition can be passed to the contructor as either a JSON-encoded string
-or the dict equivalent::
+The definition can be passed to the contructor as either a JSON/YAML-encoded
+string or the dict equivalent::
 
     >>> iv = InstrumentVersion('notreal456', instrument, '{"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}', 1, 'jay', datetime(2014, 5, 22))
     >>> iv.validate()
 
+    >>> iv = InstrumentVersion('notreal456', instrument, "id: urn:test-instrument\nversion: '1.1'\ntitle: The InstrumentVersion Title\nrecord:\n- {id: q_fake, type: text}", 1, 'jay', datetime(2014, 5, 22))
+    >>> iv.validate()
 
-The definition can be set or retrieved as either a JSON-encoded string, or a
-dict equivalent::
+
+The definition can be set or retrieved as either a JSON/YAML-encoded string, or
+a dict equivalent::
 
     >>> iv.definition_json
     '{"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}'
@@ -87,7 +90,9 @@ dict equivalent::
     >>> iv.definition
     {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Third Title'}
 
-    >>> iv.definition = {u'record': [{u'type': u'text', u'id': u'q_foo'}], u'version': u'1.1', u'id': u'urn:test-instrument', u'title': u'A Different Title'}
+    >>> iv.definition = {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
+    >>> iv.definition
+    {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
 
 
 Entries have date_modified, modified_by, status, and memo properties which are

@@ -68,6 +68,18 @@ html, body, #__main__ {
   width: 100%;
   height: 30px;
   padding: 4px 6px;
+  ::-webkit-input-placeholder {
+    color: #DDD;
+  }
+  :-moz-placeholder { /* Firefox 18- */
+    color: #DDD;
+  }
+  ::-moz-placeholder {  /* Firefox 19+ */
+    color: #DDD;
+  }
+  :-ms-input-placeholder {  
+    color: #DDD;
+  }
 }
 
 .rw-TextInput--verticalResize {
@@ -80,6 +92,10 @@ html, body, #__main__ {
 
 .rw-TextInput--noResize {
   resize: none;
+}
+
+.rw-TextInput--quiet {
+  border: none;
 }
 
 /**
@@ -159,6 +175,9 @@ html, body, #__main__ {
 .rw-Button--quiet {
   background: transparent;
   color: #888;
+  border: 1px solid transparent;
+}
+.rw-Button--quiet[disabled] {
   border: 1px solid transparent;
 }
 .rw-Button--small {

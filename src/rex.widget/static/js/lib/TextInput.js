@@ -22,11 +22,12 @@ var TextInput = React.createClass({
 
   render() {
     var value = this.getValue();
-    var {textarea, resize, placeholder, disabled, ...props} = this.props;
+    var {textarea, resize, placeholder, disabled, quiet, ...props} = this.props;
     var Component = textarea ? 'textarea' : 'input';
     var className = cx({
       'rw-TextInput': true,
       'rw-TextInput--textarea': textarea,
+      'rw-TextInput--quiet': quiet,
       'rw-TextInput--verticalResize': textarea && resize === 'vertical',
       'rw-TextInput--horizontalResize': textarea && resize === 'horizontal',
       'rw-TextInput--noResize': textarea && resize === 'none'

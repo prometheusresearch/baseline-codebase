@@ -177,8 +177,6 @@ class Link(Widget):
     name = 'Link'
     js_type = 'rex-widget/lib/Link'
 
-    id = IDField()
-
     href = URLField(
         doc="Link URL")
 
@@ -199,8 +197,6 @@ class LinkButton(Button):
 
     name = 'LinkButton'
     js_type = 'rex-widget/lib/LinkButton'
-
-    id = IDField()
 
     href = URLField(
         doc="Link URL")
@@ -234,10 +230,6 @@ class Table(Widget):
     name = 'Table'
     js_type = 'rex-widget/lib/Table'
 
-    id = Field(
-        StrVal(),
-        doc="Widget identifier")
-
     data = CollectionField(
         doc="Table data")
 
@@ -269,12 +261,10 @@ class Select(Widget):
     name = 'Select'
     js_type = 'rex-widget/lib/Select'
 
-    id = IDField()
-
     options = Field(
         SeqVal(), default=undefined)
 
-    data = CollectionField()
+    data = CollectionField(default=undefined)
 
     title_for_empty = Field(
         StrVal(), default=undefined)
@@ -333,12 +323,6 @@ class TextInput(Widget):
     name = 'TextInput'
     js_type = 'rex-widget/lib/TextInput'
 
-    id = Field(
-        StrVal(),
-        doc="""
-        Widget ID.
-        """)
-
     value = StateField(
         StrVal(), persistence=State.EPHEMERAL,
         doc="""
@@ -346,10 +330,13 @@ class TextInput(Widget):
         """)
 
     placeholder = Field(
-        StrVal, default='',
+        StrVal, default=undefined,
         doc="""
         Placeholder value.
         """)
+
+    quiet = Field(
+        BoolVal(), default=undefined)
 
     amortization_enabled = Field(
         BoolVal(), default=False,
@@ -394,8 +381,6 @@ class Grid(Widget):
 
     name = 'Grid'
     js_type = 'rex-widget/lib/Grid'
-
-    id = Field(StrVal)
 
     data = CollectionField(
         paginate=True,
@@ -451,9 +436,6 @@ class Pane(Widget):
     name = 'Pane'
     js_type = 'rex-widget/lib/Pane'
 
-    id = Field(
-        StrVal())
-
     panes = PanesField()
 
     active_pane = StateField(
@@ -490,12 +472,6 @@ class Tab(Widget):
 
     name = 'Tab'
     js_type = 'rex-widget/lib/Tab'
-
-    id = Field(
-        StrVal(),
-        doc="""
-        Tab identifier.
-        """)
 
     title = Field(
         StrVal(), default=undefined,

@@ -77,22 +77,7 @@ def output_forms(val):
     raise ValueError('Invalid format type "%s" specified' % val)
 
 
-class InstrumentFormatTask(Task):
-    """
-    render a Common Instrument Definition into various formats
-
-    The instrument-format task will take an input Common Instrument Definition
-    file and output it as either JSON or YAML.
-
-    The definition is the path to the file containing the Common Instrument
-    Definition to format.
-    """
-
-    name = 'instrument-format'
-
-    class arguments(object):  # noqa
-        definition = argument(str)
-
+class InstrumentOutputter(object):
     class options(object):  # noqa
         output = option(
             None,
@@ -116,9 +101,7 @@ class InstrumentFormatTask(Task):
             ' with newlines and indentation',
         )
 
-    def __call__(self):
-        definition = open_and_validate(self.definition)
-
+    def do_output(self, structure):
         if self.output:
             try:
                 output = open(self.output, 'w')
@@ -133,14 +116,14 @@ class InstrumentFormatTask(Task):
         if self.format == 'JSON':
             output.write(
                 dump_instrument_json(
-                    definition,
+                    structure,
                     pretty=self.pretty,
                 )
             )
         elif self.format == 'YAML':
             output.write(
                 dump_instrument_yaml(
-                    definition,
+                    structure,
                     pretty=self.pretty,
                 )
             )
@@ -148,7 +131,28 @@ class InstrumentFormatTask(Task):
         output.write('\n')
 
 
-class InstrumentRetrieveTask(RexTask):
+class InstrumentFormatTask(Task, InstrumentOutputter):
+    """
+    render a Common Instrument Definition into various formats
+
+    The instrument-format task will take an input Common Instrument Definition
+    file and output it as either JSON or YAML.
+
+    The definition is the path to the file containing the Common Instrument
+    Definition to format.
+    """
+
+    name = 'instrument-format'
+
+    class arguments(object):  # noqa
+        definition = argument(str)
+
+    def __call__(self):
+        definition = open_and_validate(self.definition)
+        self.do_output(definition)
+
+
+class InstrumentRetrieveTask(RexTask, InstrumentOutputter):
     """
     retrieves an InstrumentVersion from the datastore
 
@@ -173,27 +177,6 @@ class InstrumentRetrieveTask(RexTask):
             hint='the version of the Instrument to retrieve; if not specified,'
             ' defaults to the latest version',
         )
-        output = option(
-            None,
-            str,
-            default=None,
-            value_name='OUTPUT_FILE',
-            hint='the file to write to; if not specified, stdout is used',
-        )
-        format = option(
-            None,
-            output_forms,
-            default='JSON',
-            value_name='FORMAT',
-            hint='the format to output the definition in; can be either JSON'
-            ' or YAML; if not specified, defaults to JSON',
-        )
-        pretty = option(
-            None,
-            bool,
-            hint='if specified, the outputted definition will be formatted'
-            ' with newlines and indentation',
-        )
 
     def __call__(self):
         with self.make():
@@ -213,33 +196,7 @@ class InstrumentRetrieveTask(RexTask):
                     self.instrument_uid,
                 ))
 
-            if self.output:
-                try:
-                    output = open(self.output, 'w')
-                except Exception as exc:
-                    raise Error('Could not open "%s" for writing: %s' % (
-                        self.output,
-                        str(exc),
-                    ))
-            else:
-                output = sys.stdout
-
-            if self.format == 'JSON':
-                output.write(
-                    dump_instrument_json(
-                        instrument_version.definition,
-                        pretty=self.pretty,
-                    )
-                )
-            elif self.format == 'YAML':
-                output.write(
-                    dump_instrument_yaml(
-                        instrument_version.definition,
-                        pretty=self.pretty,
-                    )
-                )
-
-            output.write('\n')
+            self.do_output(instrument_version.definition)
 
 
 class InstrumentStoreTask(RexTask):

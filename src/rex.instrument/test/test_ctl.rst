@@ -214,10 +214,10 @@ Definition JSON from an InstrumentVersion in the project data store::
     Options:
       --require=PACKAGE        : include an additional parameter
       --set=PARAM=VALUE        : set a configuration parameter
-      --version=VERSION        : the version of the Instrument to retrieve; if not specified, defaults to the latest version
       --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the definition in; can be either JSON or YAML; if not specified, defaults to JSON
       --pretty                 : if specified, the outputted definition will be formatted with newlines and indentation
+      --version=VERSION        : the version of the Instrument to retrieve; if not specified, defaults to the latest version
     <BLANKLINE>
 
 

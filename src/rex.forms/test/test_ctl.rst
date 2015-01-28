@@ -317,10 +317,10 @@ from a Form in the project data store::
     Options:
       --require=PACKAGE        : include an additional parameter
       --set=PARAM=VALUE        : set a configuration parameter
-      --version=VERSION        : the version of the Instrument to retrieve; if not specified, defaults to the latest version
-      --output=OUTPUT_FILE     : the file to write the JSON to; if not specified, stdout is used
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
-      --pretty                 : if specified, the outputted JSON will be formatted with newlines and indentation
+      --pretty                 : if specified, the outputted configuration will be formatted with newlines and indentation
+      --version=VERSION        : the version of the Instrument to retrieve; if not specified, defaults to the latest version
     <BLANKLINE>
 
 
@@ -563,10 +563,10 @@ Configuration from an Instrument Definintion::
     The only argument to this task is the filename of the Instrument.
     <BLANKLINE>
     Options:
-      --localization=LOCALE    : preset input file localization.
       --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
       --pretty                 : if specified, the outputted configuration will be formatted with newlines and indentation
+      --localization=LOCALE    : preset input file localization.
     <BLANKLINE>
 
 

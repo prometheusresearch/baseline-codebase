@@ -109,22 +109,7 @@ def output_forms(val):
     raise ValueError('Invalid format type "%s" specified' % val)
 
 
-class FormsFormatTask(Task):
-    """
-    render a Web Form Configuration into various formats
-
-    The forms-format task will take an input Web Form Configuration file and
-    output it as either JSON or YAML.
-
-    The configuration is the path to the file containing the Web Form
-    Configuration to format.
-    """
-
-    name = 'forms-format'
-
-    class arguments(object):  # noqa
-        configuration = argument(str)
-
+class FormOutputter(object):
     class options(object):  # noqa
         output = option(
             None,
@@ -148,9 +133,7 @@ class FormsFormatTask(Task):
             ' with newlines and indentation',
         )
 
-    def __call__(self):
-        configuration = open_and_validate(self.configuration)
-
+    def do_output(self, structure):
         if self.output:
             try:
                 output = open(self.output, 'w')
@@ -165,14 +148,14 @@ class FormsFormatTask(Task):
         if self.format == 'JSON':
             output.write(
                 dump_form_json(
-                    configuration,
+                    structure,
                     pretty=self.pretty,
                 )
             )
         elif self.format == 'YAML':
             output.write(
                 dump_form_yaml(
-                    configuration,
+                    structure,
                     pretty=self.pretty,
                 )
             )
@@ -180,7 +163,28 @@ class FormsFormatTask(Task):
         output.write('\n')
 
 
-class FormsRetrieveTask(RexTask):
+class FormsFormatTask(Task, FormOutputter):
+    """
+    render a Web Form Configuration into various formats
+
+    The forms-format task will take an input Web Form Configuration file and
+    output it as either JSON or YAML.
+
+    The configuration is the path to the file containing the Web Form
+    Configuration to format.
+    """
+
+    name = 'forms-format'
+
+    class arguments(object):  # noqa
+        configuration = argument(str)
+
+    def __call__(self):
+        configuration = open_and_validate(self.configuration)
+        self.do_output(configuration)
+
+
+class FormsRetrieveTask(RexTask, FormOutputter):
     """
     retrieves a Form from the datastore
 
@@ -208,28 +212,6 @@ class FormsRetrieveTask(RexTask):
             value_name='VERSION',
             hint='the version of the Instrument to retrieve; if not specified,'
             ' defaults to the latest version',
-        )
-        output = option(
-            None,
-            str,
-            default=None,
-            value_name='OUTPUT_FILE',
-            hint='the file to write the JSON to; if not specified, stdout is'
-            ' used',
-        )
-        format = option(
-            None,
-            output_forms,
-            default='JSON',
-            value_name='FORMAT',
-            hint='the format to output the configuration in; can be either'
-            ' JSON or YAML; if not specified, defaults to JSON',
-        )
-        pretty = option(
-            None,
-            bool,
-            hint='if specified, the outputted JSON will be formatted with'
-            ' newlines and indentation',
         )
 
     def __call__(self):
@@ -275,33 +257,7 @@ class FormsRetrieveTask(RexTask):
                     )
                 )
 
-            if self.output:
-                try:
-                    output = open(self.output, 'w')
-                except Exception as exc:
-                    raise Error('Could not open "%s" for writing: %s' % (
-                        self.output,
-                        str(exc),
-                    ))
-            else:
-                output = sys.stdout
-
-            if self.format == 'JSON':
-                output.write(
-                    dump_form_json(
-                        form.configuration,
-                        pretty=self.pretty,
-                    )
-                )
-            elif self.format == 'YAML':
-                output.write(
-                    dump_form_yaml(
-                        form.configuration,
-                        pretty=self.pretty,
-                    )
-                )
-
-            output.write('\n')
+            self.do_output(form.configuration)
 
 
 class FormsStoreTask(RexTask):
@@ -390,7 +346,7 @@ class FormsStoreTask(RexTask):
                 print 'Created new Form'
 
 
-class InstrumentFormSkeleton(Task):
+class InstrumentFormSkeleton(Task, FormOutputter):
     """
     generate a basic Web Form Configuration from an Instrument Definintion
 
@@ -410,27 +366,6 @@ class InstrumentFormSkeleton(Task):
             value_name="LOCALE",
             hint='preset input file localization.',
         )
-        output = option(
-            None,
-            str,
-            default=None,
-            value_name='OUTPUT_FILE',
-            hint='the file to write to; if not specified, stdout is used',
-        )
-        format = option(
-            None,
-            output_forms,
-            default='JSON',
-            value_name='FORMAT',
-            hint='the format to output the configuration in; can be either'
-            ' JSON or YAML; if not specified, defaults to JSON',
-        )
-        pretty = option(
-            None,
-            bool,
-            hint='if specified, the outputted configuration will be formatted'
-            ' with newlines and indentation',
-        )
 
     def __call__(self):
         instrument = open_and_validate_instrument(self.definition)
@@ -444,33 +379,7 @@ class InstrumentFormSkeleton(Task):
                 'Unable to validate form configuration: %s' % exc.message
             )
 
-        if self.output:
-            try:
-                output = open(self.output, 'w')
-            except Exception as exc:
-                raise Error('Could not open "%s" for writing: %s' % (
-                    self.output,
-                    str(exc),
-                ))
-        else:
-            output = sys.stdout
-
-        if self.format == 'JSON':
-            output.write(
-                dump_form_json(
-                    configuration,
-                    pretty=self.pretty,
-                )
-            )
-        elif self.format == 'YAML':
-            output.write(
-                dump_form_yaml(
-                    configuration,
-                    pretty=self.pretty,
-                )
-            )
-
-        output.write('\n')
+        self.do_output(configuration)
 
     def _text(self, text):
         return {

@@ -326,3 +326,15 @@ the file to format.
 
     rex forms-format <configuration>
 
+
+instrument-formskeleton
+-----------------------
+
+This tool will generate a basic Form configuration based on an existing
+Instrument definition. The ``definition`` argument is the path to the file
+containing the Instrument definition.
+
+::
+
+    rex instrument-formskeleton <definition>
+

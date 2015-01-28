@@ -7,6 +7,9 @@ import sys
 
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
+from rex.instrument.ctl import \
+    open_and_validate as open_and_validate_instrument
+from rex.instrument.schema import INSTRUMENT_BASE_TYPES
 from rex.instrument.util import get_implementation
 
 from .errors import ValidationError
@@ -16,8 +19,10 @@ from .output import dump_form_yaml, dump_form_json
 
 __all__ = (
     'FormsValidateTask',
+    'FormsFormatTask',
     'FormsRetrieveTask',
     'FormsStoreTask',
+    'InstrumentFormSkeleton',
 )
 
 
@@ -383,4 +388,172 @@ class FormsStoreTask(RexTask):
                     configuration,
                 )
                 print 'Created new Form'
+
+
+class InstrumentFormSkeleton(Task):
+    """
+    generate a basic Web Form Configuration from an Instrument Definintion
+
+    The only argument to this task is the filename of the Instrument.
+    """
+
+    name = 'instrument-formskeleton'
+
+    class arguments(object):  # noqa
+        definition = argument(str)
+
+    class options(object):  # noqa
+        localization = option(
+            None,
+            str,
+            default='en',
+            value_name="LOCALE",
+            hint='preset input file localization.',
+        )
+        output = option(
+            None,
+            str,
+            default=None,
+            value_name='OUTPUT_FILE',
+            hint='the file to write to; if not specified, stdout is used',
+        )
+        format = option(
+            None,
+            output_forms,
+            default='JSON',
+            value_name='FORMAT',
+            hint='the format to output the configuration in; can be either'
+            ' JSON or YAML; if not specified, defaults to JSON',
+        )
+        pretty = option(
+            None,
+            bool,
+            hint='if specified, the outputted configuration will be formatted'
+            ' with newlines and indentation',
+        )
+
+    def __call__(self):
+        instrument = open_and_validate_instrument(self.definition)
+
+        configuration = self.make_form(instrument)
+        try:
+            # Double check what we produced to make sure it's valid.
+            Form.validate_configuration(configuration, instrument)
+        except ValidationError as exc:  # pragma: no cover
+            raise Error(
+                'Unable to validate form configuration: %s' % exc.message
+            )
+
+        if self.output:
+            try:
+                output = open(self.output, 'w')
+            except Exception as exc:
+                raise Error('Could not open "%s" for writing: %s' % (
+                    self.output,
+                    str(exc),
+                ))
+        else:
+            output = sys.stdout
+
+        if self.format == 'JSON':
+            output.write(
+                dump_form_json(
+                    configuration,
+                    pretty=self.pretty,
+                )
+            )
+        elif self.format == 'YAML':
+            output.write(
+                dump_form_yaml(
+                    configuration,
+                    pretty=self.pretty,
+                )
+            )
+
+        output.write('\n')
+
+    def _text(self, text):
+        return {
+            self.localization: text,
+        }
+
+    def make_form(self, instrument):
+        form = {}
+
+        form['instrument'] = {
+            'id': instrument['id'],
+            'version': instrument['version'],
+        }
+
+        form['defaultLocalization'] = self.localization
+
+        if 'title' in instrument:
+            form['title'] = self._text(instrument['title'])
+
+        page = {
+            'id': 'page1',
+            'elements': [],
+        }
+
+        for field in instrument['record']:
+            page['elements'].append({
+                'type': 'question',
+                'options': self.make_question_options(
+                    field,
+                    instrument.get('types', {}),
+                ),
+            })
+
+        form['pages'] = [page]
+
+        return form
+
+    def make_question_options(self, field, types):
+        opts = {
+            'fieldId': field['id'],
+            'text': self._text(field.get('description', field['id'])),
+        }
+
+        field_type = self.get_field_type(field['type'], types)
+
+        if 'enumerations' in field_type:
+            opts['enumerations'] = [
+                {
+                    'id': key,
+                    'text': self._text(defn.get('description', key))
+                }
+                for key, defn in field_type['enumerations'].items()
+            ]
+
+        if 'rows' in field_type:
+            opts['rows'] = [
+                {
+                    'id': row['id'],
+                    'text': self._text(row.get('description', row['id']))
+                }
+                for row in field_type['rows']
+            ]
+
+        for name in ('record', 'columns'):
+            if name in field_type:
+                opts['questions'] = [
+                    self.make_question_options(subfield, types)
+                    for subfield in field_type[name]
+                ]
+
+        return opts
+
+    def get_field_type(self, field_type, types):
+        if isinstance(field_type, dict):
+            ft = dict(self.get_field_type(field_type['base'], types))
+            ft.update(field_type)
+            return ft
+
+        elif field_type in types:
+            return types[field_type]
+
+        elif field_type in INSTRUMENT_BASE_TYPES:
+            return {
+                'rootType': field_type,
+            }
 

@@ -544,7 +544,199 @@ will be created::
 
 Or if the version doesn't exist::
 
-    >>> ctl('forms-retrieve --project=rex.forms_demo simple survey --version=99', expect=1)
+    >>> ctl('forms-store --project=rex.forms_demo simple survey ./test/forms/simplest.json --version=99', expect=1)
+    Using Instrument: Simple Instrument
     FATAL ERROR: The desired version of "simple" does not exist.
     <BLANKLINE>
+
+
+instrument-formskeleton
+=======================
+
+The ``instrument-formskeleton`` command will generate a basic Web Form
+Configuration from an Instrument Definintion::
+
+    >>> ctl('help instrument-formskeleton')
+    INSTRUMENT-FORMSKELETON - generate a basic Web Form Configuration from an Instrument Definintion
+    Usage: rex instrument-formskeleton <definition>
+    <BLANKLINE>
+    The only argument to this task is the filename of the Instrument.
+    <BLANKLINE>
+    Options:
+      --localization=LOCALE    : preset input file localization.
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
+      --pretty                 : if specified, the outputted configuration will be formatted with newlines and indentation
+    <BLANKLINE>
+
+
+It requires one argument, path to the instrument file in json or yaml format::
+
+    >>> ctl('instrument-formskeleton', expect=1)
+    FATAL ERROR: too few arguments for task instrument-formskeleton: missing <definition>
+    <BLANKLINE>
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/test-instrument-1.1.json')
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "The InstrumentVersion Title"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "q_fake"}}}]}]}
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments_yaml/simplest.yaml')
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "The InstrumentVersion Title"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "q_fake"}}}]}]}
+
+
+It accepts options that dictate the various properties of the output format::
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/test-instrument-1.1.json --pretty')
+    {
+      "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.1"
+      },
+      "defaultLocalization": "en",
+      "title": {
+        "en": "The InstrumentVersion Title"
+      },
+      "pages": [
+        {
+          "id": "page1",
+          "elements": [
+            {
+              "type": "question",
+              "options": {
+                "fieldId": "q_fake",
+                "text": {
+                  "en": "q_fake"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/test-instrument-1.1.json --format=YAML')
+    instrument: {id: 'urn:test-instrument', version: '1.1'}
+    defaultLocalization: en
+    title: {en: The InstrumentVersion Title}
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text: {en: q_fake}
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments_yaml/simplest.yaml --format=YAML')
+    instrument: {id: 'urn:test-instrument', version: '1.1'}
+    defaultLocalization: en
+    title: {en: The InstrumentVersion Title}
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text: {en: q_fake}
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/constraint_enumerations.json --pretty --format=YAML')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    title:
+      en: The InstrumentVersion Title
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_enumeration
+          text:
+            en: q_enumeration
+          enumerations:
+          - id: foo
+            text:
+              en: foo
+      - type: question
+        options:
+          fieldId: q_enumerationset
+          text:
+            en: q_enumerationset
+          enumerations:
+          - id: foo
+            text:
+              en: foo
+          - id: bar
+            text:
+              en: bar
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/matrix.json --pretty --format=YAML')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    title:
+      en: The InstrumentVersion Title
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: q_fake
+          questions:
+          - fieldId: blah
+            text:
+              en: blah
+          - fieldId: foobar
+            text:
+              en: foobar
+          rows:
+          - id: somerow
+            text:
+              en: somerow
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/recordlist.json --pretty --format=YAML')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    title:
+      en: The InstrumentVersion Title
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: q_fake
+          questions:
+          - fieldId: quest1
+            text:
+              en: quest1
+          - fieldId: quest2
+            text:
+              en: quest2
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/types_extend.json --pretty --format=YAML')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    title:
+      en: The InstrumentVersion Title
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_blah
+          text:
+            en: q_blah
+      - type: question
+        options:
+          fieldId: q_happy
+          text:
+            en: q_happy
 

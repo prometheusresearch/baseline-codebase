@@ -43,6 +43,8 @@ REX.FORMS Change Log
   indicate that you want JSON or YAML returned.
 - Added a ``configuration_yaml`` property to the Form class to get or set the
   Form configuration using YAML.
+- Added an ``instrument-formskeleton`` rex command that will generate a very
+  basic Form configuration based on a specified Instrument definition.
 
 
 0.26.0 (11/21/2014)

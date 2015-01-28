@@ -17,7 +17,7 @@ from htsql.core.context import context
 from htsql.core.error import Error
 from htsql.core.connect import Transact, connect
 from htsql.core.domain import (ListDomain, RecordDomain, TextDomain,
-        BooleanDomain, Product)
+        BooleanDomain, EnumDomain, Product)
 from htsql.core.model import Node, HomeNode, TableNode, TableArc, ChainArc
 from htsql.core.classify import relabel, classify
 from htsql.core.syn.syntax import (Syntax, IntegerSyntax, IdentifierSyntax,
@@ -37,7 +37,8 @@ from htsql.core.tr.bind import (BindByFreeTable, BindByAttachedTable,
 from htsql.core.tr.decorate import decorate_void
 from htsql.core.fmt.accept import AcceptJSON
 from htsql.core.fmt.format import JSONFormat
-from htsql.core.fmt.json import EmitJSON, to_json
+from htsql.core.fmt.json import (EmitJSON, to_json, DomainToRaw, JS_MAP,
+        JS_SEQ, JS_END)
 from htsql.tweak.gateway.command import SummonGateway, ActGateway
 
 
@@ -240,6 +241,22 @@ class RexEmitJSON(EmitJSON):
             product_to_json = to_json(self.meta.domain)
             for token in product_to_json(self.data):
                 yield token
+
+
+class EnumDomainToRaw(DomainToRaw):
+
+    adapt(EnumDomain)
+
+    def __call__(self):
+        yield JS_MAP
+        yield u"type"
+        yield unicode(self.domain.__class__)
+        yield u"labels"
+        yield JS_SEQ
+        for label in self.domain.labels:
+            yield label
+        yield JS_END
+        yield JS_END
 
 
 class LookupReferenceInRoot(Lookup):

@@ -12,7 +12,9 @@ import yaml
 __all__ = (
     'OrderedDict',
     'SortedDict',
+    'TypedSortedDict',
     'DefinedOrderDict',
+    'TypedDefinedOrderDict',
     'dump_yaml',
     'dump_json',
 
@@ -78,6 +80,27 @@ class SortedDict(dict):
             yield (key, self[key])
 
 
+class TypedSortedDict(SortedDict):
+    """
+    A variety of the ``SortedDict`` class that automatically casts the value of
+    all keys to the type specified on the ``subtype`` property.
+    """
+
+    #: The type to cast all values in the dictionary to.
+    subtype = None
+
+    def __init__(self, obj=None):
+        super(TypedSortedDict, self).__init__(obj or {})
+        for key in self:
+            self[key] = self[key]
+
+    def __setitem__(self, key, value):
+        if self.subtype:
+            # pylint: disable=E1102
+            value = self.subtype(value)
+        super(TypedSortedDict, self).__setitem__(key, value)
+
+
 class DefinedOrderDict(SortedDict):
     """
     A dictionary class that orders its keys according to its ``order``
@@ -97,6 +120,44 @@ class DefinedOrderDict(SortedDict):
             if key not in self.order:
                 keys.append(key)
         return keys
+
+
+class TypedDefinedOrderDict(DefinedOrderDict):
+    """
+    A variety of the ``DefinedOrderDict`` class that provides for the automatic
+    casting of values in the dictionary based on their key. This conversion is
+    driven by the ``key_types`` property. E.g.:
+
+    key_types = {
+        'foo': SortedOrderDict,
+        'bar': [SortedOrderDict],
+    }
+
+    """
+
+    #: The mapping of key names to types. To indicate that the key should
+    #: contain a list of casted values, place the type in a list with one
+    # element.
+    key_types = {}
+
+    def __init__(self, obj=None):
+        super(TypedDefinedOrderDict, self).__init__(obj or {})
+        for key in self.key_types:
+            if key in self:
+                # Force an invokation of our __setitem__
+                self[key] = self[key]
+
+    def __setitem__(self, key, value):
+        if key in self.key_types:
+            type_ = self.key_types[key]
+            if isinstance(type_, list):
+                value = [
+                    type_[0](val)
+                    for val in value
+                ]
+            else:
+                value = type_(value)
+        super(TypedDefinedOrderDict, self).__setitem__(key, value)
 
 
 def dump_yaml(data, pretty=False, **kwargs):
@@ -169,13 +230,18 @@ class InstrumentField(DefinedOrderDict):
         'identifiable',
     ]
 
-    def __init__(self, field):
-        super(InstrumentField, self).__init__(field)
-        if 'type' in self and isinstance(self['type'], dict):
-            self['type'] = InstrumentType(self['type'])
+    def __init__(self, field=None):
+        super(InstrumentField, self).__init__(field or {})
+        if 'type' in self:
+            self['type'] = self['type']
+
+    def __setitem__(self, key, value):
+        if key == 'type' and isinstance(value, dict):
+            value = InstrumentType(value)
+        super(InstrumentField, self).__setitem__(key, value)
 
 
-class InstrumentType(DefinedOrderDict):
+class InstrumentType(TypedDefinedOrderDict):
     order = [
         'base',
         'range',
@@ -187,32 +253,20 @@ class InstrumentType(DefinedOrderDict):
         'rows',
     ]
 
-    def __init__(self, definition):
-        super(InstrumentType, self).__init__(definition)
-        for field in ('record', 'columns'):
-            if field in self:
-                self[field] = [
-                    InstrumentField(fld)
-                    for fld in self[field]
-                ]
-        for field in ('length', 'range'):
-            if field in self:
-                self[field] = BoundConstraint(self[field])
-        if 'rows' in self:
-            self['rows'] = [
-                MatrixRow(row)
-                for row in self['rows']
-            ]
+    key_types = {
+        'record': [InstrumentField],
+        'columns': [InstrumentField],
+        'length': BoundConstraint,
+        'range': BoundConstraint,
+        'rows': [MatrixRow],
+    }
 
 
-class InstrumentTypeCollection(SortedDict):
-    def __init__(self, types):
-        super(InstrumentTypeCollection, self).__init__(types)
-        for name, defn in self.iteritems():
-            self[name] = InstrumentType(defn)
+class InstrumentTypeCollection(TypedSortedDict):
+    subtype = InstrumentType
 
 
-class Instrument(DefinedOrderDict):
+class Instrument(TypedDefinedOrderDict):
     order = [
         'id',
         'version',
@@ -222,15 +276,11 @@ class Instrument(DefinedOrderDict):
         'record',
     ]
 
-    def __init__(self, instrument):
-        super(Instrument, self).__init__(instrument)
-        if 'types' in self:
-            self['types'] = InstrumentTypeCollection(self['types'])
-        if 'record' in self:
-            self['record'] = [
-                InstrumentField(field)
-                for field in self['record']
-            ]
+    key_types = {
+        'version': str,
+        'types': InstrumentTypeCollection,
+        'record': [InstrumentField],
+    }
 
 
 def dump_instrument_yaml(instrument, **kwargs):

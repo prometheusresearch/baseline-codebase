@@ -47,6 +47,28 @@ sorted alphabetically::
     [('one', 1), ('three', 3), ('two', 2)]
 
 
+TypedSortedDict
+===============
+
+The ``TypedSortedDict`` class operates identically to the ``SortedDict``, but
+will automatically cast all values to the specified type::
+
+    >>> test = TypedSortedDict()
+    >>> test.subtype = str
+    >>> test['one'] = 1
+    >>> test['two'] = 2
+    >>> test['three'] = 3
+
+    >>> test.keys()
+    ['one', 'three', 'two']
+
+    >>> test.items()
+    [('one', '1'), ('three', '3'), ('two', '2')]
+
+    >>> all([isinstance(val, str) for val in test.values()])
+    True
+
+
 DefinedOrderDict
 ================
 
@@ -72,6 +94,37 @@ keys will then follow sorted alphabetically::
     [('two', 2), ('one', 1), ('three', 3)]
 
 
+TypedDefinedOrderDict
+=====================
+
+The ``TypedDefinedOrderDict`` class operates identically to the
+``DefinedOrderDict``, but will automatically cast select keys to specified
+types::
+
+    >>> test = TypedDefinedOrderDict()
+    >>> test.key_types = {'one': str, 'three': float}
+    >>> test['one'] = 1
+    >>> test['two'] = 2
+    >>> test['three'] = 3
+
+    >>> test.order = ['three', 'one']
+    >>> test.keys()
+    ['three', 'one', 'two']
+    >>> test.items()
+    [('three', 3.0), ('one', '1'), ('two', 2)]
+
+    >>> test.order = ['two']
+    >>> test.keys()
+    ['two', 'one', 'three']
+    >>> test.items()
+    [('two', 2), ('one', '1'), ('three', 3.0)]
+
+    >>> isinstance(test['one'], str)
+    True
+    >>> isinstance(test['three'], float)
+    True
+
+
 dump_yaml, dump_json
 ====================
 
@@ -81,21 +134,21 @@ this module produce, as well as expose a ``pretty`` argument that enable
 formatting options in the encoders to output nicely indented text::
 
     >>> print dump_yaml(test)
-    {two: 2, one: 1, three: 3}
+    {two: 2, one: '1', three: 3.0}
 
     >>> print dump_yaml(test, pretty=True)
     two: 2
-    one: 1
-    three: 3
+    one: '1'
+    three: 3.0
 
     >>> print dump_json(test)
-    {"two": 2, "one": 1, "three": 3}
+    {"two": 2, "one": "1", "three": 3.0}
 
     >>> print dump_json(test, pretty=True)
     {
       "two": 2,
-      "one": 1,
-      "three": 3
+      "one": "1",
+      "three": 3.0
     }
 
 

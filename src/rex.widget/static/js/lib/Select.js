@@ -3,7 +3,8 @@
  */
 'use strict';
 
-var React = require('react');
+var React = require('react/addons');
+var cx    = React.addons.classSet;
 var merge = require('./merge');
 
 // we use this to mark empty value, otherwise DOM will use option's title as
@@ -24,7 +25,7 @@ var Select = React.createClass({
   },
 
   render() {
-    var {emptyValue, titleForEmpty, noEmptyValue, value} = this.props;
+    var {emptyValue, titleForEmpty, noEmptyValue, quiet, value} = this.props;
     var options = this.props.options ? this.props.options : [];
     var data = this.props.data ? (this.props.data.data || []) : [];
 
@@ -32,8 +33,13 @@ var Select = React.createClass({
       value = sentinel;
     }
 
+    var className = cx({
+      'rw-Select': true,
+      'rw-Select--quiet': quiet
+    });
+
     return this.transferPropsTo(
-      <select className="rw-Select" value={value} onChange={this.onChange}>
+      <select className={className} value={value} onChange={this.onChange}>
         {emptyValue && !noEmptyValue &&
           <option key={sentinel} value={sentinel}>
             {titleForEmpty ? titleForEmpty : emptyValue.title}

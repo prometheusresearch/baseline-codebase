@@ -272,6 +272,9 @@ class Select(Widget):
     no_empty_value = Field(
         BoolVal(), default=False)
 
+    quiet = Field(
+        BoolVal(), default=undefined)
+
     @Widget.define_state(OneOfVal(StrVal()))
     def value(self, state, graph, request):
         if state.value is unknown:

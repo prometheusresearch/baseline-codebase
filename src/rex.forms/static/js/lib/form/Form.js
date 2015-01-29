@@ -63,9 +63,14 @@ var Form = React.createClass({
       );
     }
 
-    var buttonLabel = (this.state.showOverview || this.props.showOverview) ?
-      _('Complete Form') :
-      _('Review Responses');
+    if (
+        this.state.showOverview ||
+        this.props.showOverview ||
+        !this.props.showOverviewOnCompletion) {
+      var buttonLabel = _('Complete Form');
+    } else {
+      var buttonLabel = _('Review Responses');
+    }
 
     return (
       <div className="rex-forms-Form">

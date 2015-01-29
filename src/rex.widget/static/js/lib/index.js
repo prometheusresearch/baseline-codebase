@@ -52,6 +52,8 @@ module.exports = {
   History:            require('./History'),
   PropTypes:          require('./PropTypes'),
   Table:              require('./Table'),
+  Tabs:               require('./Tabs'),
+  Tab:                require('./Tab'),
   Select:             require('./Select'),
   Grid:               require('./Grid'),
   Preloader:          require('./Preloader'),

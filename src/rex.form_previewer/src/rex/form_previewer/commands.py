@@ -12,6 +12,7 @@ from rex.web import Command, Parameter, render_to_response, authenticate
 
 __all__ = (
     'ViewFormCommand',
+    'RootViewFormCommand',
 )
 
 
@@ -61,7 +62,7 @@ class BaseCommand(Command):
 
         return context
 
-    def get_template_path(self, package=None):
+    def get_template_path(self, package=None, name=None):  # pragma: no cover
         """
         Returns the RexDB path to the Jinja template to use for this Command.
 
@@ -73,9 +74,10 @@ class BaseCommand(Command):
         :rtype: string
         """
 
-        name = self.__class__.__name__.lower()
-        if name.endswith('command'):
-            name = name[:-7]
+        if not name:
+            name = self.__class__.__name__.lower()
+            if name.endswith('command'):
+                name = name[:-7]
         # pylint: disable=E1101
         config = get_settings().form_previewer_templates
         if name in config:
@@ -84,7 +86,7 @@ class BaseCommand(Command):
             package = package or 'rex.form_previewer'
             return '%s:/template/%s.html' % (package, name)
 
-    def template_response(self, request, context):
+    def template_response(self, request, context, name=None):
         """
         A convenience method for rendering this Command's template (as
         identified by ``get_template_path()``) using the specified context and
@@ -99,15 +101,13 @@ class BaseCommand(Command):
         """
 
         return render_to_response(
-            self.get_template_path(),
+            self.get_template_path(name=name),
             request,
             **context
         )
 
 
-class ViewFormCommand(BaseCommand):
-    path = '/preview'
-
+class BaseViewFormCommand(BaseCommand):
     parameters = (
         Parameter('form_id', StrVal(), None),
         Parameter('instrument_id', StrVal(), None),
@@ -120,6 +120,7 @@ class ViewFormCommand(BaseCommand):
 
         context['return_url'] = return_url
 
+        form = instrument = None
         if form_id:
             form = context['user'].get_object_by_uid(
                 form_id,
@@ -133,7 +134,6 @@ class ViewFormCommand(BaseCommand):
                 instrument_id,
                 'draftinstrumentversion',
             )
-            form = None
 
         if (form_id and not form) or (not instrument):
             raise HTTPNotFound('Could not find a DraftForm for the given ID')
@@ -156,5 +156,13 @@ class ViewFormCommand(BaseCommand):
         context['channels'] = [f.channel.as_dict() for f in all_forms]
         context['initial_channel'] = form.channel.uid
 
-        return self.template_response(request, context)
+        return self.template_response(request, context, name='viewform')
+
+
+class ViewFormCommand(BaseViewFormCommand):
+    path = '/preview'
+
+
+class RootViewFormCommand(BaseViewFormCommand):
+    path = '/'
 

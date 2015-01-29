@@ -86,6 +86,14 @@ error::
     ...
 
 
+If you don't specify either UID, you get an error::
+
+    >>> req = Request.blank('/preview', remote_user='user1')
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    404 Not Found
+    ...
+
+
 If you specify a DraftInstrumentVersion that doesn't doesn't have any
 associated DraftForms, you get an error::
 

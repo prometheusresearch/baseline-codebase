@@ -22,8 +22,8 @@ R43MH099826.
 .. |R| unicode:: 0xAE .. registered trademark sign
 
 
-Applet Entry Points
-===================
+Applet-Embeddable Entry Points
+==============================
 
 rex.form_previewer:/
 -----------------------

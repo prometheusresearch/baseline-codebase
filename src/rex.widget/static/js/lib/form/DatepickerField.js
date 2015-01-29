@@ -64,7 +64,7 @@ var Datepicker = React.createClass({
   componentWillReceiveProps({value}) {
     if (formatDate(value) !== formatDate(this.props.value)) {
       this.__ignoreOnChange = true;
-      this._callDatepicker('setDate', new Date(value));
+      this._callDatepicker('setDate', value ? new Date(value) : null);
     }
   },
 

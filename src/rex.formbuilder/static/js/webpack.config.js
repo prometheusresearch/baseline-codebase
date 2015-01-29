@@ -10,8 +10,7 @@ function local(p) {
 module.exports = RexSetup.configureWebpack({
   entry: [
     'style/index.less',
-    'lib/index.js',
-    'rex-setup/introspection/loader?all!rex-applet'
+    'lib/index.js'
   ].map(local),
 
   resolve: {

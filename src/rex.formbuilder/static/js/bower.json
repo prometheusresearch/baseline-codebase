@@ -1,6 +1,6 @@
 {
   "name": "rex-formbuilder",
-  "version": "3.0.2",
+  "version": "4.0.0",
   "private": true,
   "description": "JavaScript functionality for the rex.formbuilder application",
   "license": "AGPLv3",
@@ -10,11 +10,15 @@
     "node"
   ],
   "dependencies": {
+    "react": "~0.12.1",
     "bootstrap": "3.x",
     "deepmerge": "*",
-    "immutable": "2.3.2"
+    "superagent": "^0.18.2",
+    "emitter": "component/emitter#1.1.2",
+    "bluebird": "^2.3.2",
+    "react-forms": "prometheusresearch/react-forms#master",
+    "rex-applet": "*"
   },
-  "license": "AGPLv3",
   "ignore": [
     "**/.*",
     "node_modules",

@@ -13,4 +13,8 @@ emptyFunction.thatReturnsTrue = function() {
   return true;
 };
 
+emptyFunction.thatReturnsNull = function() {
+  return null;
+};
+
 module.exports = emptyFunction;

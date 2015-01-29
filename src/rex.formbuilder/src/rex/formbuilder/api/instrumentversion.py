@@ -55,9 +55,11 @@ class InstrumentVersionResource(SimpleResource, BaseResource):
         return self.do_retrieve(request, uid)
 
     def update(self, request, uid, **kwargs):
+        user = get_instrument_user(request).get_display_name()
         return self.do_update(
             request,
             uid,
-            properties=['definition', 'published_by', 'date_published'],
+            properties=['definition', 'date_published',
+                        ConstantArg('published_by', user)],
         )
 

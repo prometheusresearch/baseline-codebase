@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='3.0.2',
+    version='4.0.0',
     description='The RexFormbuilder application, a tool for creating and'
     'managing the Instruments and Forms in the RexDB platform',
     long_description=open('README.rst', 'r').read(),
@@ -21,18 +21,18 @@ setup(
     include_package_data=True,
     namespace_packages=['rex'],
     setup_requires=[
-        'rex.setup>=1.1,<2',
+        'rex.setup>=2,<3',
     ],
     install_requires=[
-        'rex.core>=1.4,<2',
-        'rex.web>=2,<4',
-        'rex.forms>=0.22.0,<2',
-        'rex.restful>=0.2.1,<2',
-        'rex.application>=1,<2',
+        'rex.core>=1.10,<2',
+        'rex.web>=3.2.0,<4',
+        'rex.forms>=0.27.0,<2',
+        'rex.restful>=0.3.0,<2',
+        'rex.applet >0, <1',
     ],
     rex_bundle={
         './www/bundle': [
-            'webpack:rex-formbuilder',
+            'webpack:',
         ],
     },
     rex_init='rex.formbuilder',

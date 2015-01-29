@@ -5,27 +5,60 @@
 
 from webob.exc import HTTPNotFound, HTTPBadRequest
 
-from rex.core import get_settings, StrVal, IntVal
+from rex.core import get_settings, StrVal, IntVal, AnyVal
+from rex.instrument.util import get_implementation
 from rex.web import Parameter, authenticate
 
+from copy import deepcopy
+from .dumper import FancyDumper
+import yaml
+
+import yaml
 
 __all__ = (
     'BaseResource',
     'get_instrument_user',
+    'response_with_yaml',
+    'payload_without_yaml',
+    'ConstantArg',
 )
-
 
 def get_instrument_user(request):
     login = authenticate(request)
-    user_impl = get_settings().instrument_implementation.user
+    user_impl = get_implementation('user')
     return user_impl.get_by_login(login)
 
+def response_with_yaml(result):
+    instrument = result['instrument_version']
+    instrument['version'] = instrument['definition']['version']
+    instrument['definition'] = \
+        yaml.dump(instrument['definition'], Dumper=FancyDumper, \
+                       default_flow_style=False)
+    for name, form in result['forms'].items():
+        form['configuration'] = \
+            yaml.dump(form['configuration'], Dumper=FancyDumper, \
+                           default_flow_style=False)
+    return result
+
+def payload_without_yaml(source):
+    payload = deepcopy(source)
+    payload['instrument_version']['definition'] = \
+        AnyVal().parse(payload['instrument_version']['definition'])
+    for name, form in payload.get('forms', {}).items():
+        form['configuration'] = AnyVal().parse(form['configuration'])
+    return payload
+
+class ConstantArg(object):
+
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
 
 class BaseResource(object):
     base_parameters = (
         Parameter('uid', StrVal(), None),
         Parameter('offset', IntVal(0), 0),
-        Parameter('limit', IntVal(1), 25),
+        Parameter('limit', IntVal(1), 1000000),
     )
 
     parameters = (
@@ -75,7 +108,9 @@ class BaseResource(object):
         return instance.as_dict(extra_properties=self.extra_properties)
 
     def get_arg_from_payload(self, arg, payload, required=False):
-        if isinstance(arg, tuple):
+        if isinstance(arg, ConstantArg):
+            return arg.name, arg.value
+        elif isinstance(arg, tuple):
             name, impl = arg
         else:
             name, impl = arg, None
@@ -144,6 +179,13 @@ class BaseResource(object):
 
         updated = False
         for prop in properties:
+            if isinstance(prop, ConstantArg):
+                setattr(
+                    instance,
+                    prop.name,
+                    prop.value,
+                )
+                updated = True
             if prop in request.payload:
                 setattr(
                     instance,

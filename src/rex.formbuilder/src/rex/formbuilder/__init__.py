@@ -4,5 +4,5 @@
 
 
 from .api import *
-from .applet import *
+from .widget import *
 

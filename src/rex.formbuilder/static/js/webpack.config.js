@@ -7,22 +7,31 @@ function local(p) {
   return path.join(__dirname, p);
 }
 
-function vendor(p) {
-  return path.join(__dirname, 'vendor', p);
-}
-
 module.exports = RexSetup.configureWebpack({
   entry: [
     'style/index.less',
-    'lib/index.js'
+    'lib/index.js',
+    'rex-setup/introspection/loader?all!rex-applet'
   ].map(local),
 
   resolve: {
     alias: {
       // this is because we are using npm dist of React
-      'react$': vendor('react/react-with-addons'),
-      'react/addons$': vendor('react/react-with-addons'),
-      'react-forms': vendor('react-forms')
+      'react/addons': RexSetup.packagePath('react/react-with-addons.js'),
+      'react': RexSetup.packagePath('react/react-with-addons.js')
     }
+  },
+
+  module: {
+    loaders: [
+      {
+        test: /\.js$/,
+        loader: 'jsx-loader?harmony=true&es5=true&stripTypes=true'
+      },
+      {
+        test: /\.woff2$/,
+        loader: 'url-loader?prefix=font/&limit=5000'
+      }
+    ]
   }
 });

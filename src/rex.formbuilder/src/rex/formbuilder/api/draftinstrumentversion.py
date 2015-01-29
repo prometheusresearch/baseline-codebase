@@ -10,7 +10,7 @@ from rex.instrument import InstrumentError
 from rex.restful import SimpleResource, RestfulLocation
 from rex.web import Parameter
 
-from .base import BaseResource, get_instrument_user
+from .base import BaseResource, get_instrument_user, ConstantArg
 
 
 __all__ = (
@@ -42,6 +42,7 @@ class DraftInstrumentVersionResource(SimpleResource, BaseResource):
         )
 
     def create(self, request, **kwargs):
+        user = get_instrument_user(request).get_display_name()
         return self.do_create(
             request,
             create_args=[
@@ -49,7 +50,7 @@ class DraftInstrumentVersionResource(SimpleResource, BaseResource):
                     'instrument',
                     get_settings().instrument_implementation.instrument,
                 ),
-                'created_by',
+                ConstantArg('created_by', user),
             ],
             create_kwargs=[
                 'definition',
@@ -65,10 +66,12 @@ class DraftInstrumentVersionResource(SimpleResource, BaseResource):
         return self.do_retrieve(request, uid)
 
     def update(self, request, uid, **kwargs):
+        user = get_instrument_user(request).get_display_name()
         return self.do_update(
             request,
             uid,
-            properties=['definition', 'modified_by', 'date_modified'],
+            properties=['definition', 'date_modified',
+                        ConstantArg('modified_by', user)],
         )
 
     def delete(self, request, uid, **kwargs):

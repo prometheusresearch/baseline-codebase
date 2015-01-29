@@ -3,22 +3,17 @@
  */
 'use strict';
 
-/*
-var React = window.React = require('react');
-window.FormBuilder = require('./FormBuilder');
+var React         = require('react');
+var List          = require('./list');
+var Editor        = require('./editor/InstrumentEditor');
 
-React.renderComponent(
-  <FormBuilder channels={[
-    {id: 'entry', title: 'RexEntry'},
-    {id: 'survey', title: 'RexSurvey'}
-  ]} />,
-  document.body
-);
-*/
+function startEditor(props, domElement) {
+  return React.render(<Editor {...props} />, domElement);
+}
 
 module.exports = {
-  List: require('./List'),
-  Editor: require('./Editor'),
+  List,
+  startEditor
 };
 
 if (window) {

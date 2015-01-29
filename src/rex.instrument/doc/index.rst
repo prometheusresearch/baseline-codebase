@@ -19,8 +19,8 @@ API Reference
    reference
 
 
-Examples
-========
+Examples/Tests
+==============
 
 .. toctree::
 

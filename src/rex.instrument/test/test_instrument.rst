@@ -2,8 +2,6 @@
 Instrument
 **********
 
-.. contents:: Table of Contents
-
 
 The semi-abstract base Instrument class only implements a simple constructor
 and string-rendering methods::

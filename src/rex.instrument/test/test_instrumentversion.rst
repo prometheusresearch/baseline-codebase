@@ -2,8 +2,6 @@
 InstrumentVersion
 *****************
 
-.. contents:: Table of Contents
-
 
 Set up the environment::
 
@@ -12,9 +10,6 @@ Set up the environment::
     >>> rex = Rex('__main__', 'rex.instrument_demo')
     >>> rex.on()
 
-
-InstrumentVersion
-=================
 
 The semi-abstract base InstrumentVersion class only implements a simple
 constructor and string-rendering methods::

@@ -126,13 +126,12 @@ class TypedDefinedOrderDict(DefinedOrderDict):
     """
     A variety of the ``DefinedOrderDict`` class that provides for the automatic
     casting of values in the dictionary based on their key. This conversion is
-    driven by the ``key_types`` property. E.g.:
+    driven by the ``key_types`` property. E.g.::
 
-    key_types = {
-        'foo': SortedOrderDict,
-        'bar': [SortedOrderDict],
-    }
-
+        key_types = {
+            'foo': SortedOrderDict,
+            'bar': [SortedOrderDict],
+        }
     """
 
     #: The mapping of key names to types. To indicate that the key should

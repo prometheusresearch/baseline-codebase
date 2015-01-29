@@ -2,8 +2,6 @@
 User
 ****
 
-.. contents:: Table of Contents
-
 
 Set up the environment::
 

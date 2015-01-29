@@ -5,7 +5,7 @@
 
 var React   = require('react/addons');
 var cx      = React.addons.classSet;
-var Element = require('./layout/Element');
+var Box     = require('./layout/Box');
 
 var Tabs = React.createClass({
 
@@ -28,14 +28,14 @@ var Tabs = React.createClass({
     );
     var tab = tabs.filter(tab => tab.props.id === active)[0];
     return (
-      <Element {...props} size={size} className={cx('rw-Tabs', className)}>
+      <Box {...props} size={size} className={cx('rw-Tabs', className)}>
         <ul className="rw-Tabs__buttons nav nav-tabs">
           {buttons}
         </ul>
-        <Element className="rw-Tabs__children">
+        <Box className="rw-Tabs__children">
           {tab}
-        </Element>
-      </Element>
+        </Box>
+      </Box>
     );
   },
 

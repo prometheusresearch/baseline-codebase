@@ -9,6 +9,8 @@
   - data:
     - code: demographics-form
       title: Demographics Form
+    - code: demo
+      title: Demo Measure
 
 - table: measure_type_version
   with:
@@ -22,6 +24,9 @@
     - measure_type: demographics-form
       version: 1
       json: !include demographics-form-instrument.yaml
+  - data: |
+      measure_type,version,json
+      demo,1,"{""id"": ""urn:rex_instrument_study_demo:demo"",""version"": ""1.1"",""title"": ""Awesome Demo Instrument v1.1"",""record"": [{""id"": ""q_fake"",""type"": ""text""}]}"
 
 - table: measure
   with:
@@ -67,6 +72,15 @@
       json: {}
       data_entry_status: in-process
       originating_study: asdl
+    - individual: '1003'
+      measure_type_version: 'demographics-form.1'
+      'no': 1
+      json: '{}'
+      data_entry_status: in-process
+      originating_study: asdl
+  - data: |
+      individual,measure_type_version,no,json,data_entry_status,originating_study
+      1004,demographics-form.1,1,"{}",in-process,asdl
 
 - sql: measure__last_modified__proc.sql
   unless: |

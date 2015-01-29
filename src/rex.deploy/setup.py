@@ -27,7 +27,7 @@ setup(
         'rex.ctl >=2.0, <3',
         'HTSQL >=2.3.3, <2.5',
         'HTSQL-PGSQL >=2.3.3, <2.5',
-        'psycopg2 >=2.4.2',
+        'psycopg2 >=2.4.2, <2.5',
         'jinja2 >=2.7, <2.8',
     ],
     entry_points = {

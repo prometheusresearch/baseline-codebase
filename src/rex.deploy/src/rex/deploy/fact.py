@@ -278,7 +278,7 @@ class Driver(object):
         Executes the given SQL expression; returns the result.
         """
         if self.is_locked:
-            raise Error("Refused to execute SQL in read-only mode:", sql)
+            raise Error("Detected inconsistent data model:", sql)
         cursor = self.connection.cursor()
         try:
             self.log_sql("{}", sql)

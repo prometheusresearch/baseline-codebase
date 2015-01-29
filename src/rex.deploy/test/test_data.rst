@@ -74,6 +74,7 @@ We create tables with columns and links::
     ... - { column: sample.sleep, type: time }
     ... - { column: sample.timestamp, type: datetime }
     ... - { column: sample.current, type: boolean }
+    ... - { column: sample.other, type: json }
     ... """)                                            # doctest: +ELLIPSIS
     CREATE TABLE "family" ...
     CREATE TABLE "individual" ...
@@ -180,7 +181,7 @@ If the driver is locked, it cannot modify existing or add new records::
     ... """, is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Refused to execute SQL in read-only mode:
+    Error: Detected inconsistent data model:
         UPDATE "family"
             SET "notes" = 'Crawfords'
             WHERE "id" = 3
@@ -198,7 +199,7 @@ If the driver is locked, it cannot modify existing or add new records::
     ... """, is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Refused to execute SQL in read-only mode:
+    Error: Detected inconsistent data model:
         INSERT INTO "family" ("code", "notes")
             VALUES ('1004', 'Dixons')
             RETURNING "id", "code", "notes";
@@ -318,15 +319,15 @@ Values of different types are accepted::
 
     >>> driver("""
     ... data: |
-    ...   individual,code,age,height,salary,birth,sleep,timestamp,current
-    ...   1003.03,01,30,175.05,95000,1990-03-13,22:30,2010-12-03 20:37,false
+    ...   individual,code,age,height,salary,birth,sleep,timestamp,current,other
+    ...   1003.03,01,30,175.05,95000,1990-03-13,22:30,2010-12-03 20:37,false,{}
     ... of: sample
     ... """)
-    SELECT "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current"
+    SELECT "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other"
         FROM "sample";
-    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current")
-        VALUES (3, '01', 30, 175.05, 95000, '1990-03-13', '22:30:00', '2010-12-03 20:37:00', FALSE)
-        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current";
+    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other")
+        VALUES (3, '01', 30, 175.05, 95000, '1990-03-13', '22:30:00', '2010-12-03 20:37:00', FALSE, '{}')
+        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other";
 
 Values could be specified in a structured format::
 
@@ -341,11 +342,12 @@ Values could be specified in a structured format::
     ...   sleep: '23:15'
     ...   timestamp: 2013-12-17 12:50:03
     ...   current: false
+    ...   other: {}
     ... of: sample
     ... """)
-    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current")
-        VALUES (3, '02', 33, 175.05, 130000, '1990-03-13', '23:15:00', '2013-12-17 12:50:03', FALSE)
-        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current";
+    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other")
+        VALUES (3, '02', 33, 175.05, 130000, '1990-03-13', '23:15:00', '2013-12-17 12:50:03', FALSE, '{}')
+        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other";
 
 You could also supply data directly from HTSQL query::
 
@@ -360,12 +362,13 @@ You could also supply data directly from HTSQL query::
     ... /{[1003.03] :as individual, '03' :as code,
     ...   33 :as age, 175.05 :as height, 130000 :as salary,
     ...   date('1990-03-13') :as birth, time('23:45') :as sleep,
-    ...   datetime('2013-12-19 13:22') :as timestamp, true: as current}
+    ...   datetime('2013-12-19 13:22') :as timestamp, true :as current,
+    ...   json('{}') :as other}
     ... """)
     >>> driver({ 'data': list(data), 'of': u"sample" })
-    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current")
-        VALUES (3, '03', 33, 175.05, 130000, '1990-03-13', '23:45:00', '2013-12-19 13:22:00', TRUE)
-        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current";
+    INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other")
+        VALUES (3, '03', 33, 175.05, 130000, '1990-03-13', '23:45:00', '2013-12-19 13:22:00', TRUE, '{}')
+        RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other";
 
 Values of ``datetime`` type may contain a timezone, in which case, the value
 is converted to the local timezone::
@@ -414,6 +417,24 @@ Invalid values are rejected::
         code
     While parsing row #1:
         {u'code': datetime.date(1990, 3, 13), u'individual': '1003.03'}
+    While deploying data fact:
+        "<byte string>", line 2
+
+    >>> driver("""
+    ... data:
+    ...   individual: '1003.03'
+    ...   code: '02'
+    ...   other: 1990-03-13
+    ... of: sample
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Discovered invalid JSON input:
+        datetime.date(1990, 3, 13) is not JSON serializable
+    While converting field:
+        other
+    While parsing row #1:
+        {u'code': '02', u'individual': '1003.03', u'other': datetime.date(1990, 3, 13)}
     While deploying data fact:
         "<byte string>", line 2
 

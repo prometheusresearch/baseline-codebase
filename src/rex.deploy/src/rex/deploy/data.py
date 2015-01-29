@@ -377,6 +377,19 @@ class DataFact(Fact):
                             error = Error("Discovered invalid input:", exc)
                             error.wrap("While converting field:", field.label)
                             raise error
+                        # Serialize and validate JSON values.
+                        if isinstance(
+                                domain, htsql_rex_deploy.domain.JSONDomain):
+                            try:
+                                data = json.dumps(
+                                        data, indent=2, separators=(',', ': '),
+                                        sort_keys=True)
+                            except TypeError, exc:
+                                error = Error(
+                                        "Discovered invalid JSON input:", exc)
+                                error.wrap(
+                                        "While converting field:", field.label)
+                                raise error
                         # If the value is a TZ-aware datetime, we convert
                         # it to the local timezone and then strip the
                         # timezone.  This is compatible with PostgreSQL
@@ -474,8 +487,7 @@ class DataFact(Fact):
                 return tuple(cls._adapt(item, label)
                              for item, label in zip(data, domain.labels))
         elif isinstance(domain, htsql_rex_deploy.domain.JSONDomain):
-            return json.dumps(
-                    data, indent=2, separators=(',', ': '), sort_keys=True)
+            return data
         raise ValueError(repr(data))
 
     def _resolve(self, table, items):

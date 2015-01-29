@@ -146,7 +146,7 @@ When the driver is locked and the table does not exist, an error is raised::
     ...        is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Refused to execute SQL in read-only mode:
+    Error: Detected inconsistent data model:
         CREATE TABLE "sample" (
             "id" "int4" NOT NULL
         );

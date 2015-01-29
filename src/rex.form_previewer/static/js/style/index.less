@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) 2015, Prometheus Research, LLC
+ */
+
+
+@import "~bootstrap/less/bootstrap";
+@icon-font-path: "~bootstrap/fonts/";
+
+@import "~rex-forms/style/index.less";
+
+
+.form-previewer {
+    .channel-chooser {
+        text-align: right;
+        padding-top: 1em;
+
+        [dir='rtl'] & {
+            text-align: left;
+        }
+
+        select {
+            .form-control();
+
+            width: auto;
+            display: inline-block;
+            margin-left: 8px;
+
+            [dir='rtl'] & {
+                margin-right: 8px;
+                margin-left: 0;
+            }
+        }
+    }
+
+    .returner {
+        text-align: center;
+        margin-top: 2em;
+    }
+}
+

@@ -1,0 +1,42 @@
+inherits:
+  - strictness_veryhigh
+
+ignore:
+  - ^doc/conf.py$
+  - ^demo/.*$
+  - ^static/js/.*$
+
+pep8:
+  disable:
+    - W391
+
+pylint:
+  disable:
+    - W0401
+    - R0922
+    - C0111
+    - W0142
+    - R0903
+  enable:
+    - W0511
+
+  options:
+    max-public-methods: 30
+    max-args: 10
+    max-attributes: 10
+
+pyflakes:
+  disable:
+    - FL0005
+
+frosted:
+  disable:
+    - E103
+
+pyroma:
+  run: true
+  disable:
+    - PYR09
+    - PYR14
+    - PYR15
+

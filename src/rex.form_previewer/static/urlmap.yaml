@@ -1,0 +1,6 @@
+paths:
+  /:
+    widget: !<IFramePage>
+      title: Form Configuration Preview
+      src: rex.form_previewer:/preview
+

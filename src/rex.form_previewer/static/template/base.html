@@ -1,0 +1,28 @@
+{%- import 'rex.i18n:/template/macros.html' as i18n with context -%}
+
+<!DOCTYPE html>
+<html lang="{{ CURRENT_LOCALE }}" dir="{{ CURRENT_LOCALE_DIRECTION }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}Form Previewer{% endblock %}</title>
+
+    {{ i18n.setup() }}
+    <script type="text/javascript" src="{{ MOUNT['rex.form_previewer'] }}/bundle/bundle.js"></script>
+    <link rel="stylesheet" href="{{ MOUNT['rex.form_previewer'] }}/bundle/bundle.css" media="screen">
+</head>
+<body>
+
+<div class="container-fluid main-content">
+    <div class="row">
+        <div class="col-sm-12">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

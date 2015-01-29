@@ -1,0 +1,11 @@
+mount:
+  rex.form_previewer: /
+
+access:
+  rex.form_previewer: authenticated
+
+db: pgsql:form_previewer_demo
+
+form_previewer_templates:
+  viewform: rex.form_previewer_demo:/template/viewform.html
+

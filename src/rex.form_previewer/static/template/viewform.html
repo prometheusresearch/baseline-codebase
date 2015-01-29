@@ -1,0 +1,29 @@
+{% extends 'rex.form_previewer:/template/base.html' %}
+
+{% block content %}
+
+<div id="form-container" />
+
+<script type="text/javascript">
+    var INSTRUMENT = {{ instrument_version.definition|json }};
+    var FORMS = {{ forms|json }};
+    var LOCALE = '{{ CURRENT_LOCALE }}';
+    var CHANNELS = {{ channels|json }};
+    var INITIAL_CHANNEL = {{ initial_channel|json }};
+    var RETURN_URL = {{ return_url|json }};
+
+    $(function () {
+        Rex.FormPreviewer.renderForm({
+            element: document.getElementById('form-container'),
+            instrument: INSTRUMENT,
+            forms: FORMS,
+            locale: LOCALE,
+            channels: CHANNELS,
+            initialChannel: INITIAL_CHANNEL,
+            returnUrl: RETURN_URL
+        });
+    });
+</script>
+
+{% endblock %}
+

@@ -445,7 +445,7 @@ class DemoDraftForm(DraftForm):
         return cls(
             data[0].uid,
             DemoChannel.get_by_uid(data[0].channel),
-            DemoDraftInstrumentVersion.get_by_uid(data[0].draft_instrument_version),
+            DemoDraftInstrumentVersion.get_by_uid(data[0].draftinstrumentversion),
             data[0].configuration,
         )
 
@@ -453,12 +453,18 @@ class DemoDraftForm(DraftForm):
     def find(cls, offset=0, limit=100, user=None, **search_criteria):
         db = get_db()
         with db:
-            data = db.produce('/entry.sort(uid)')
+            params = {
+                'draftinstrumentversion': safe_uid(DemoDraftInstrumentVersion, search_criteria.get('draft_instrument_version')),
+            }
+            data = db.produce(
+                '/draftform.sort(uid).guard($draftinstrumentversion, filter(draftinstrumentversion=$draftinstrumentversion))',
+                **params
+            )
         return [
            cls(
                 d.uid,
                 DemoChannel.get_by_uid(d.channel),
-                DemoDraftInstrumentVersion.get_by_uid(d.draft_instrument_version),
+                DemoDraftInstrumentVersion.get_by_uid(d.draftinstrumentversion),
                 d.configuration,
             ) 
             for d in data

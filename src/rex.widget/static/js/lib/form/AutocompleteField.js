@@ -5,7 +5,8 @@
 
 var React             = require('react/addons');
 var cx                = React.addons.classSet;
-var ReactAutocomplete = require('react-autocomplete');
+var Selectbox         = require('react-selectbox');
+
 var ReactForms        = require('react-forms');
 var Element           = require('../layout/Element');
 var runtime           = require('../runtime');
@@ -16,54 +17,49 @@ var FieldBase         = require('./FieldBase');
 var AutocompleteInput = React.createClass({
 
   render() {
-    var {value, data, titleAttribute, valueAttribute, ...props} = this.props;
-    var {options} = this.state;
-    options = options.map(option =>
-      <ReactAutocomplete.Option key={option.value} value={option.value}>
-        {option.title}
-      </ReactAutocomplete.Option>
-    );
+    var {value, data, onChange, titleAttribute, valueAttribute, ...props} = this.props;
+    var {valueTitle} = this.state;
     return (
       <Element>
-        <ReactAutocomplete.Combobox
+        <Selectbox
           ref="underlying"
-          autocomplete="both"
-          value={value}
-          onInput={this.onInput}
-          onSelect={this.onSelect}>
-          {options}
-        </ReactAutocomplete.Combobox>
+          value={{id: value, title: valueTitle}}
+          search={this._search}
+          onChange={this.onChange}
+          />
       </Element>
     );
   },
 
+  getDefaultProps() {
+    return {
+      titleAttribute: 'title',
+      valueAttribute: 'id'
+    };
+  },
+
   getInitialState() {
-    return {options: []};
+    return {
+      valueTitle: null
+    };
+  },
+
+  componentWillMount() {
+    this._searchTimer = null;
   },
 
   componentDidMount() {
-    var {value} = this.props;
-    if (value) {
-      var params = {};
-      var {refs, filter, data} = this.props.data;
-      for (var key in refs) {
-        params[key] = ApplicationState.get(refs[key]);
-      }
-      params[filter.replace(/\..+$/, '')] = value;
-      this._getPort()
-        .produce(params)
-        .then(this._onRequestOptionsComplete, this._onRequestOptionsError)
-        .then(this._fixInputValue);
-    }
+    this._requestValue();
   },
 
-  /**
-   * Because react-autocomplete doesn't update its input value we need to fix it
-   * manually.
-   */
-  _fixInputValue() {
-    var inputValue = this.refs.underlying.findInitialInputValue();
-    this.refs.underlying.setState({inputValue});
+
+  componentWillUnmount() {
+    this._searchTimer = null;
+  },
+
+  onChange(value) {
+    this.setState({valueTitle: value.title});
+    this.props.onChange(value.id);
   },
 
   _getPort() {
@@ -71,14 +67,47 @@ var AutocompleteInput = React.createClass({
     return runtime.Storage.createPort(data);
   },
 
+  _requestValue() {
+    var {value,} = this.props;
+    if (value) {
+      var params = {};
+      var {refs, data} = this.props.data;
+      for (var key in refs) {
+        params[key] = ApplicationState.get(refs[key]);
+      }
+      params['*'] = value;
+      this._getPort()
+        .produce(params)
+        .then(this._onRequestValueComplete, this._onRequestValueError);
+    }
+  },
+
+  _onRequestValueComplete(response) {
+    var {titleAttribute} = this.props;
+    var key = Object.keys(response)[0];
+    var entity = response[key][0];
+    var valueTitle = titleAttribute ? entity[titleAttribute] : entity.title;
+    this.setState({valueTitle});
+  },
+
+  _onRequestValueError(error) {
+    // TODO: handle error properly
+    console.error(error);
+  },
+
   _requestOptions(value) {
-    var params = {};
-    var {refs, filter, data} = this.props.data;
+    var {titleAttribute} = this.props;
+    var {refs, data} = this.props.data;
+    var params = {
+      '*:top': 50
+    };
     for (var key in refs) {
       params[key] = ApplicationState.get(refs[key]);
     }
-    params[`${filter}:contains`] = value;
-    this._getPort()
+    if (value) {
+      params[`*.${titleAttribute}:contains`] = value;
+    }
+    return this._getPort()
       .produce(params)
       .then(this._onRequestOptionsComplete, this._onRequestOptionsError);
   },
@@ -90,10 +119,11 @@ var AutocompleteInput = React.createClass({
     var options = data[key];
     var {valueAttribute, titleAttribute} = this.props;
     options = options.map(option => ({
-      value: valueAttribute ? option[valueAttribute] : option.id,
+      id: valueAttribute ? option[valueAttribute] : option.id,
       title: titleAttribute ? option[titleAttribute] : option.title
     }));
     this.setState({options});
+    return options;
   },
 
   _onRequestOptionsError(error) {
@@ -101,12 +131,13 @@ var AutocompleteInput = React.createClass({
     console.error(error);
   },
 
-  onSelect(value) {
-    this.props.onChange(value);
-  },
-
-  onInput(value) {
-    this._requestOptions(value);
+  _search(_options, value, cb) {
+    if (this._searchTimer !== null) {
+      clearTimeout(this._searchTimer);
+    }
+    this._searchTimer = setTimeout(() => {
+      this._requestOptions(value).nodeify(cb)
+    }, 300);
   }
 
 });

@@ -328,19 +328,36 @@ html, body, #__main__ {
 }
 
 /**
- * <ReactAutocomplete />
+ * <ReactSelectbox />
  */
-.rf-combobox-input {
+.react-selectbox-Selectbox__search {
   .form-control();
+  font-size: inherit;
+  height: auto;
 }
-.rf-combobox-button {
-  top: 6px;
-  right: 9px;
+
+.react-selectbox-Selectbox__results {
+  .dropdown-menu();
+  width: 100%;
+  max-height: 200px;
+  overflow: auto;
+  font-size: inherit;
+  padding: inherit;
+  height: auto;
 }
-.rf-combobox-list {
-  font-size: @font-size-base;
-  background-color: @dropdown-bg;
-  border: 1px solid @dropdown-border;
-  border-radius: @border-radius-base;
-  .box-shadow(0 6px 12px rgba(0,0,0,.175));
+
+.react-selectbox-ResultList {
+  overflow-x: hidden;
+}
+
+.react-selectbox-Result {
+  cursor: pointer;
+  & > a {
+    text-decoration: none;
+  }
+}
+
+.react-selectbox-Result--active {
+  color: @dropdown-link-hover-color;
+  background-color: @dropdown-link-hover-bg;
 }

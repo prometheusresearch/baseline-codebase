@@ -20,7 +20,7 @@
     "superagent": "^0.18.2",
     "emitter": "component/emitter#1.1.2",
     "bluebird": "^2.3.2",
-    "react-autocomplete": "https://github.com/rackt/react-autocomplete.git",
+    "react-selectbox": "^1.0.0",
     "react-grid": "prometheusresearch/react-grid#9150b37dfc40bca20d5a6f28c376df6bc43dee57"
   },
   "moduleType": [

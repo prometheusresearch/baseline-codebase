@@ -13,7 +13,7 @@ from collections import OrderedDict
 from htsql.core import domain
 
 from rex.core import Error, Validate, cached
-from rex.core import ChoiceVal, MaybeVal, ProxyVal, MapVal, SeqVal, RecordVal
+from rex.core import OneOfVal, ChoiceVal, MaybeVal, ProxyVal, MapVal, SeqVal, RecordVal
 from rex.core import IntVal, StrVal, BoolVal, AnyVal
 from rex.db import get_db
 from rex.web import url_for
@@ -414,17 +414,21 @@ class SelectField(FormField):
 
 class AutocompleteSpecVal(Validate):
 
-    _validate = RecordVal(
+    _validate_spec = RecordVal(
         ('data', StrVal()),
-        ('filter', StrVal()),
         ('refs', MapVal(StrVal(), DataRefVal()), {}),
     )
 
+    _validate = OneOfVal(StrVal(), _validate_spec)
+
     def __call__(self, value):
-        return self._validate(value)
+        value = self._validate(value)
+        if isinstance(value, basestring):
+            value = self._validate_spec.record_type(data=value, refs={})
+        return value
 
     def __getitem__(self, key):
-        return get_validator_for_key(self._validate, key)
+        return get_validator_for_key(self._validate_spec, key)
 
 
 class AutocompleteSpecField(StateFieldBase):

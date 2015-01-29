@@ -62,7 +62,7 @@ function makeBoxStyle(props) {
   if (aligned === 'left') {
     style.alignSelf = 'flex-start';
   }
-  if (aligned === 'scrollable') {
+  if (scrollable) {
     style.overflow = 'auto';
   }
   return style;

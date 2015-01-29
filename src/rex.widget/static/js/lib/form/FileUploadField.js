@@ -234,7 +234,7 @@ var FileUploadField = React.createClass({
   contextTypes: FormContextMixin.contextTypes,
 
   render() {
-    var {className, storage, download, required, ...props} = this.props;
+    var {className, storage, download, required, value, ...props} = this.props;
     var input = (
       <FileUploadInput
         ownerRecordID={this._getOwnerRecordID()}
@@ -248,6 +248,8 @@ var FileUploadField = React.createClass({
         {...props}
         className={cx('rw-FileUploadField', className)}
         input={input}
+        value={value}
+        key={value.value.get('id')}
         />
     );
   },

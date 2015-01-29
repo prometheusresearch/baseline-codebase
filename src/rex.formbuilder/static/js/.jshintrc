@@ -1,0 +1,6 @@
+{
+  "globalstrict": false,
+  "node": true,
+  "browser": true,
+  "newcap": false
+}

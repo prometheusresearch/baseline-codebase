@@ -10,7 +10,8 @@
   },
   "main": "lib/index.js",
   "devDependencies": {
-    "eslint-jsx": "git+https://github.com/andreypopp/eslint#jsx",
+    "jsx-loader": "^0.12.1",
+    "jsxhint": "^0.4.15",
     "mocha-loader": "^0.6.4"
   }
 }

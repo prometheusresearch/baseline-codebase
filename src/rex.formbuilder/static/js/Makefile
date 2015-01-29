@@ -1,3 +1,3 @@
 lint:
-	@./node_modules/.bin/eslint-jsx lib/
+	@./node_modules/.bin/jsxhint lib/
 

@@ -8,26 +8,65 @@ var cx                = React.addons.classSet;
 var Selectbox         = require('react-selectbox');
 
 var ReactForms        = require('react-forms');
-var Element           = require('../layout/Element');
+var Box               = require('../layout/Box');
 var runtime           = require('../runtime');
+var merge             = require('../merge');
+var Icon              = require('../Icon');
 var invariant         = require('../invariant');
+var Hoverable         = require('../Hoverable');
 var FormContextMixin  = require('./FormContextMixin');
 var FieldBase         = require('./FieldBase');
 
-var AutocompleteInput = React.createClass({
+
+var MutedIcon = React.createClass({
+  mixins: [Hoverable],
+
+  style: {
+    opacity: '0.2'
+  },
+
+  styleOnHover: {
+    opacity: '1'
+  },
 
   render() {
-    var {value, data, onChange, titleAttribute, valueAttribute, ...props} = this.props;
+    var {style, styleOnHover, ...props} = this.props;
+    var {hover} = this.state;
+    style = merge(
+      this.style, style,
+      hover && this.styleOnHover, hover && styleOnHover
+    );
+    return <Icon {...props} {...this.hoverable} style={style} />;
+  }
+});
+
+
+var AutocompleteInput = React.createClass({
+
+  styleIcon: {
+    cursor: 'pointer',
+    position: 'absolute',
+    top: 10,
+    right: 10
+  },
+
+  render() {
+    var {value, data, onChange, required, titleAttribute, valueAttribute, ...props} = this.props;
     var {valueTitle} = this.state;
     return (
-      <Element>
+      <Box>
         <Selectbox
           ref="underlying"
           value={{id: value, title: valueTitle}}
           search={this._search}
           onChange={this.onChange}
           />
-      </Element>
+        {value && !required && <MutedIcon
+          name="remove"
+          style={this.styleIcon}
+          onClick={this._clear}
+          />}
+      </Box>
     );
   },
 
@@ -52,6 +91,9 @@ var AutocompleteInput = React.createClass({
     this._requestValue();
   },
 
+  componentDidUpdate() {
+    this._requestValue();
+  },
 
   componentWillUnmount() {
     this._searchTimer = null;
@@ -62,14 +104,20 @@ var AutocompleteInput = React.createClass({
     this.props.onChange(value.id);
   },
 
+  _clear() {
+    this.setState({valueTitle: null});
+    this.props.onChange(null);
+  },
+
   _getPort() {
     var {data} = this.props.data;
     return runtime.Storage.createPort(data);
   },
 
   _requestValue() {
-    var {value,} = this.props;
-    if (value) {
+    var {value} = this.props;
+    var {valueTitle} = this.state;
+    if (value && valueTitle === null) {
       var params = {};
       var {refs, data} = this.props.data;
       for (var key in refs) {
@@ -145,7 +193,7 @@ var AutocompleteInput = React.createClass({
 var AutocompleteField = React.createClass({
 
   render() {
-    var {className, data, titleAttribute, valueAttribute, ...props} = this.props;
+    var {className, data, titleAttribute, valueAttribute, value, ...props} = this.props;
     var input = (
       <AutocompleteInput
         data={data}
@@ -158,6 +206,8 @@ var AutocompleteField = React.createClass({
         {...props}
         input={input}
         className={cx('rw-AutocompleteField', className)}
+        value={value}
+        key={value.value.get('id')}
         />
     );
   }

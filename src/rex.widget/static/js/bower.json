@@ -21,7 +21,7 @@
     "emitter": "component/emitter#1.1.2",
     "bluebird": "^2.3.2",
     "react-selectbox": "^1.0.0",
-    "react-grid": "prometheusresearch/react-grid#9150b37dfc40bca20d5a6f28c376df6bc43dee57"
+    "react-grid": "prometheusresearch/react-grid#7a349e68d4415527523c77471dce780841c14fdf"
   },
   "moduleType": [
     "node"

@@ -2,8 +2,6 @@
 TaskCompletionProcessor
 ***********************
 
-.. contents:: Table of Contents
-
 
 An implementation of TaskCompletionProcessor must implement both the
 ``is_applicable()`` and ``execute()`` methods::

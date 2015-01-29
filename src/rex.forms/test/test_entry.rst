@@ -2,8 +2,6 @@
 Entry
 *****
 
-.. contents:: Table of Contents
-
 
 Set up the environment::
 

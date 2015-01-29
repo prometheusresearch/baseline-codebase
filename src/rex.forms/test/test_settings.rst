@@ -5,7 +5,10 @@ Settings
 .. contents:: Table of Contents
 
 
-The default contents of the s_implementation record will point to the
+forms_implementation
+====================
+
+The default contents of the forms_implementation record will point to the
 abstract interface classes, which, of course, are mostly useless::
 
     >>> from rex.core import Rex, get_settings

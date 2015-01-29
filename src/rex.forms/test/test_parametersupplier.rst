@@ -2,8 +2,6 @@
 ParameterSupplier
 *****************
 
-.. contents:: Table of Contents
-
 
 An implementation of ParameterSupplier must implement both the
 ``is_applicable()`` and ``get_parameters()`` methods::

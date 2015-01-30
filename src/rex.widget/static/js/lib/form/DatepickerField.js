@@ -31,6 +31,10 @@ function formatDate(date, format) {
   return `${date.getFullYear()}-${padl(date.getMonth() + 1, 2)}-${padl(date.getDate(), 2)}`;
 }
 
+function isValidDate(value) {
+  return /^\d\d\d\d-\d\d-\d\d$/.exec(value) !== null;
+}
+
 var Datepicker = React.createClass({
 
   render() {
@@ -40,10 +44,16 @@ var Datepicker = React.createClass({
       value = formatDate(value, format);
     }
     return (
-      <div onChange={undefined} className="input-group">
-        <input ref="datepicker" {...props} defaultValue={value} className={className} />
+      <div className="input-group">
+        <input
+          type="text"
+          ref="datepicker" {...props}
+          defaultValue={value}
+          className={className}
+          onChange={undefined}
+          />
         <span className="input-group-btn" id="sizing-addon2">
-          <Button tabIndex={-1} onClick={this.onButtonClick} icon="calendar" />
+          <Button tabIndex={-1} onClick={this._onButtonClick} icon="calendar" />
         </span>
       </div>
     );
@@ -53,8 +63,8 @@ var Datepicker = React.createClass({
     var {autoclose, startView, format} = this.props;
     this.__ignoreOnChange = false;
     this._callDatepicker({autoclose, startView, format})
-      .on('changeDate', (e) => this.onChange(e.date ? formatDate(e.date) : null))
-      .on('clearDate', () => this.onChange(null));
+      .on('changeDate', this._onDateChange)
+      .on('clearDate', this._clear)
   },
 
   componentWillUnmount() {
@@ -62,10 +72,14 @@ var Datepicker = React.createClass({
   },
 
   componentWillReceiveProps({value}) {
-    if (formatDate(value) !== formatDate(this.props.value)) {
+    if (isValidDate(value) && formatDate(value) !== this._inputValue()) {
       this.__ignoreOnChange = true;
       this._callDatepicker('setDate', value ? new Date(value) : null);
     }
+  },
+
+  _inputValue() {
+    return this.refs.datepicker.getDOMNode().value;
   },
 
   _callDatepicker(a, b, c, d, e) {
@@ -73,17 +87,28 @@ var Datepicker = React.createClass({
     return $(node).datepicker(a, b, c, d, e);
   },
 
-  onButtonClick(e) {
+  _onButtonClick(e) {
     e.stopPropagation();
     this.refs.datepicker.getDOMNode().focus();
   },
 
-  onChange(date) {
+  _onDateChange(e) {
+    var value = this._inputValue();
+    if (isValidDate(value)) {
+      this._onChange(e.date ? formatDate(e.date) : null);
+    }
+  },
+
+  _onChange(date) {
     if (this.__ignoreOnChange) {
       this.__ignoreOnChange = false;
       return;
     }
     this.props.onChange(date);
+  },
+
+  _clear() {
+    this._onChange(null);
   }
 });
 

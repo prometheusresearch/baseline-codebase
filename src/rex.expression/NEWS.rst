@@ -5,6 +5,12 @@ REX.EXRESSION Change Log
 .. contents:: Table of Contents
 
 
+1.4.0 (2015-01-30)
+==================
+
+- Added support for ``rex.setup`` v2.
+
+
 1.3.0 (10/2/2014)
 =================
 

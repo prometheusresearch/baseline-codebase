@@ -68,7 +68,7 @@ class OpenGate(object):
                 stats = {}
                 for path in OpenGate.stats.keys():
                     try:
-                        stats[path] = os.stat(path)
+                        stats[path] = os.stat(path).st_mtime
                     except OSError:
                         pass
                 if stats == OpenGate.stats:

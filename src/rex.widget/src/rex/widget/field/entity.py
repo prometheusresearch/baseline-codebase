@@ -102,4 +102,4 @@ class EntityField(DataField):
         else:
             data = data[spec.entity][0]
 
-        return DataRead(spec.entity, query[spec.entity][0], data, None)
+        return DataRead(spec.entity, query[spec.entity], data, None)

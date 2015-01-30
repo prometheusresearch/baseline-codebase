@@ -9,8 +9,8 @@
 
 from collections import namedtuple
 
-from rex.core import Error, Extension, cached
-from rex.core import Validate, OneOfVal, SeqVal, MapVal, StrVal, AnyVal
+from rex.core import Error, Extension, cached, guard
+from rex.core import RecordVal, Validate, OneOfVal, SeqVal, MapVal, StrVal, AnyVal
 
 from .json_encoder import register_adapter
 
@@ -22,6 +22,7 @@ class Action(Extension):
 
     name = NotImplemented
     js_type = NotImplemented
+    validate = NotImplemented
 
     @classmethod
     def enabled(cls):
@@ -35,6 +36,10 @@ class Action(Extension):
             assert extension.name not in mapping, \
                 "duplicate action %r defined by '%r' and '%r'" % (
                     extension.name, mapping[extension.name], extension)
+            assert extension.validate is not NotImplemented, \
+                "action %r doesn't define validate routine" % extension
+            assert extension.js_type is not NotImplemented, \
+                "action %r doesn't define its js_type" % extension
             mapping[extension.name] = extension
         return mapping
 
@@ -78,6 +83,7 @@ class ActionVal(Validate):
     _validate_action_name = StrVal()
 
     def _construct_call(self, value):
+        value = dict(value)
         if not 'action' in value:
             raise Error('Missing "action" key')
         action = self._validate_action_name(value.pop('action'))
@@ -85,6 +91,8 @@ class ActionVal(Validate):
         if not action in actions:
             raise Error('Invalid action:', action)
         action = actions[action]
+        with guard('Whole validating parameters for action:', action.name):
+            value = action.validate(value)
         return ActionCall(action, value)
 
     def _construct_call_seq(self, value):
@@ -105,3 +113,8 @@ class Set(Action):
 
     name = 'set'
     js_type = 'rex-widget/lib/actions/set'
+
+    validate = RecordVal(
+        ('id', StrVal()),
+        ('value', StrVal())
+    )

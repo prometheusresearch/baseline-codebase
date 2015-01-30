@@ -616,10 +616,30 @@ class RemoveButton(Button):
         ActionVal(), default=undefined)
 
 
+class NotificationVal(Validate):
+
+    _validate_notification = RecordVal(
+        ('text', StrVal()),
+        ('icon', StrVal(), None),
+    )
+    _validate = OneOfVal(StrVal(), _validate_notification)
+
+    def __call__(self, value):
+        value = self._validate(value)
+        if isinstance(value, basestring):
+            value = self._validate_notification(text=value, icon=None)
+        return value
+
+
 class SubmitForm(Action):
 
     name = 'submit-form'
     js_type = 'rex-widget/lib/actions/submitForm'
+
+    validate = RecordVal(
+        ('id', StrVal()),
+        ('notification_on_complete', NotificationVal())
+    )
 
 
 class SubmitRemoveForm(Action):
@@ -627,7 +647,9 @@ class SubmitRemoveForm(Action):
     name = 'submit-remove-form'
     js_type = 'rex-widget/lib/actions/submitRemoveForm'
 
-
+    validate = RecordVal(
+        ('id', StrVal()),
+    )
 
 
 class ResetForm(Action):
@@ -635,6 +657,10 @@ class ResetForm(Action):
 
     name = 'reset-form'
     js_type = 'rex-widget/lib/actions/resetForm'
+
+    validate = RecordVal(
+        ('id', StrVal()),
+    )
 
 
 class Form(FormContainerWidget):

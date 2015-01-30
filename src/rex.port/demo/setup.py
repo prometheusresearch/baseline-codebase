@@ -32,7 +32,7 @@ class demo(Command):
 
 setup(
     name='rex.port_demo',
-    version = "1.0.2",
+    version = "1.0.3",
     description="Demo package for testing rex.port",
     setup_requires=[
         'rex.setup',

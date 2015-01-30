@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.0.3 (2015-XX-XX)
+1.0.3 (2015-01-30)
 ==================
 
 * Updated test output.

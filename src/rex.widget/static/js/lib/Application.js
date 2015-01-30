@@ -3,12 +3,14 @@
  */
 'use strict';
 
-var React             = require('react');
-var invariant         = require('./invariant');
-var merge             = require('./merge');
-var Reference         = require('./Reference');
-var Entity            = require('./Entity');
-var runtime           = require('./runtime');
+var React       = require('react');
+var invariant   = require('./invariant');
+var merge       = require('./merge');
+var mergeInto   = require('./mergeInto');
+var Reference   = require('./Reference');
+var Entity      = require('./Entity');
+var runtime     = require('./runtime');
+var StateWriter = require('./StateWriter');
 
 var Application = React.createClass({
 
@@ -177,12 +179,13 @@ function mkStateRead(props, name, ref) {
 
 function mkStateReadWrite(props, name, ref) {
   mkStateRead(props, name, ref);
-  var state = runtime.ApplicationState.getState(ref);
-  props[stateWriterName(name)] = stateWriter(ref, state.persistence);
+  mkStateWrite(props, name, ref);
 }
 
-function stateWriterName(name) {
-  return 'on' + name[0].toUpperCase() + name.slice(1);
+function mkStateWrite(props, name, ref) {
+  var writerName = 'on' + name[0].toUpperCase() + name.slice(1)
+  var stateWriter = StateWriter.createStateWriter(ref);
+  props[writerName] = stateWriter;
 }
 
 function mkDataRead(props, name, ref, wrapper, updating) {
@@ -221,41 +224,6 @@ function flatMapChildren(collection, mapper, _key) {
     }
   }
   return result;
-}
-
-function stateWriter(id, persistence) {
-  function produce(value) {
-    var update = {};
-    update[id] = value;
-    return update;
-  }
-
-  function execute(value, options) {
-    options = options || {};
-    runtime.ApplicationState.updateMany(produce(value), options);
-    var updatePersistence = options.persistence || persistence;
-    switch (updatePersistence) {
-      case runtime.ApplicationState.PERSISTENCE.PERSISTENT:
-        runtime.ApplicationState.history.pushState();
-        break;
-      case runtime.ApplicationState.PERSISTENCE.EPHEMERAL:
-        runtime.ApplicationState.history.replaceState();
-        break;
-      case runtime.ApplicationState.PERSISTENCE.INVISIBLE:
-        break;
-      default:
-        invariant(
-          false,
-          "Invalid persistence configuration for state '%s': %s",
-          updatePersistence 
-        );
-    }
-  }
-
-  execute.produce = produce;
-  execute.execute = execute;
-
-  return execute;
 }
 
 module.exports = Application;

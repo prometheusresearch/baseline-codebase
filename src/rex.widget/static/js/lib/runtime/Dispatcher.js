@@ -5,10 +5,13 @@
 
 var flux = require('flux');
 
+var _actionID = 0;
+
 class Dispatcher extends flux.Dispatcher {
 
   dispatch(action) {
-    console.debug('%c ACTION:', 'background: #eee; color: red;', action.type, action.payload);
+    action.id = _actionID++;
+    console.debug('%c ACTION:', 'background: #eee; color: red;', action.id, action.type, action.payload);
     return super(action);
   }
 }

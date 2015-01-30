@@ -80,8 +80,11 @@ class Storage {
   _onAction(action) {
     switch (action.type) {
       case ActionTypes.PAGE_INIT:
-      case ActionTypes.PAGE_UPDATE_COMPLETE:
         var {data} = action.payload;
+        this.add(data);
+        break;
+      case ActionTypes.PAGE_STATE_UPDATE_COMPLETE:
+        var {payload: {data}} = action.payload;
         this.add(data);
         break;
     }

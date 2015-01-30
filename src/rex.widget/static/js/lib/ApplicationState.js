@@ -44,14 +44,25 @@ class ApplicationState extends Emitter {
         var {stateDescriptor, state, versions} = action.payload;
         this._onPageInit(stateDescriptor, state, versions);
         break;
-      case ActionTypes.PAGE_UPDATE_COMPLETE:
-        var {state, versions} = action.payload;
-        this._onPageUpdateComplete(state, versions);
+      case ActionTypes.PAGE_STATE_UPDATE_COMPLETE:
+        var {payload: {state, versions}} = action.payload;
+        this._onPageStateUpdateComplete(state, versions);
+        break;
+      case ActionTypes.PAGE_STATE_UPDATE:
+        this._onPageStateUpdate(action.payload);
         break;
     }
   }
 
-  _onPageUpdateComplete(state, versions) {
+  _onPageStateUpdate({update, forceRemoteUpdate, includeState, notificationsOnComplete}) {
+    this.updateMany(update, {
+      forceRemoteUpdate,
+      includeState,
+      notificationsOnComplete
+    });
+  }
+
+  _onPageStateUpdateComplete(state, versions) {
     this.hydrate(state, versions, true);
     batchedUpdates(() => {
       Object.keys(state).forEach(this.notifyStateChanged, this);
@@ -315,7 +326,22 @@ class ApplicationState extends Emitter {
       updates[id] = state.manager.prepareUpdate(update[id]);
     });
 
-    Actions.pageUpdate({values, updates, versions});
+    request
+      .post(window.location.pathname)
+      .send({values, updates, versions})
+      .set('Accept', 'application/json')
+      .end(this._onRemoteUpdateComplete.bind(this, options));
+  }
+
+  _onRemoteUpdateComplete(options, err, response) {
+    if (err) {
+      Actions.pageStateUpdateError(err);
+    } else if (response.status !== 200) {
+      var err = new Error(`cannot update state: ${response.text}`);
+      Actions.pageStateUpdateError(err);
+    } else {
+      Actions.pageStateUpdateComplete(response.body, options.notificationsOnComplete);
+    }
   }
 
   forEach(func, context) {

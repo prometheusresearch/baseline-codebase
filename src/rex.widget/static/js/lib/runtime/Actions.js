@@ -21,31 +21,31 @@ var Actions = {
   },
 
   /**
-   * Update page.
+   * Page state update.
    */
-  pageUpdate(params) {
+  pageStateUpdate(payload) {
     Dispatcher.dispatch({
-      type: ActionTypes.PAGE_UPDATE,
-      payload: {params}
-    });
-  },
-
-  /**
-   * Page update complete.
-   */
-  pageUpdateComplete(payload) {
-    Dispatcher.dispatch({
-      type: ActionTypes.PAGE_UPDATE_COMPLETE,
+      type: ActionTypes.PAGE_STATE_UPDATE,
       payload
     });
   },
 
   /**
-   * Page update error.
+   * Page state update complete.
    */
-  pageUpdateError(error) {
+  pageStateUpdateComplete(payload, notifications) {
     Dispatcher.dispatch({
-      type: ActionTypes.PAGE_UPDATE_ERROR,
+      type: ActionTypes.PAGE_STATE_UPDATE_COMPLETE,
+      payload: {payload, notifications}
+    });
+  },
+
+  /**
+   * Page state update error.
+   */
+  pageStateUpdateError(error) {
+    Dispatcher.dispatch({
+      type: ActionTypes.PAGE_STATE_UPDATE_ERROR,
       payload: {error}
     });
   }

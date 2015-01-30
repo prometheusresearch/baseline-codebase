@@ -91,6 +91,15 @@ var Editor = React.createClass({
     window.location.href = API.editorURL(uid, group);
   },
 
+  hasForms() {
+    var {forms} = this.state;
+    for(var name in forms) {
+      if (forms.hasOwnProperty(name) && forms[name])
+        return true;
+    }
+    return false;
+  },
+
   renderHead() {
     var {uid, group, indexURL} = this.props;
     var {changed, operationInProgress} = this.state;
@@ -125,7 +134,7 @@ var Editor = React.createClass({
             <Button
               className="rfb-Editor__preview"
               target="_blank"
-              disabled={!(uid && group) || operationInProgress || changed}
+              disabled={!(uid && group) || operationInProgress || changed || !this.hasForms()}
               href={this.previewURL(uid)}>
                 Preview
             </Button>}

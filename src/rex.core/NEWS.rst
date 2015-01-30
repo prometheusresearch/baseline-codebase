@@ -9,6 +9,9 @@
 ===================
 
 * Support for skipping package registration.
+* Fixed ``@autoreload`` on Mac.
+* Update YAML implicit tags to YAML 1.2 specification.
+* Added ``cached(expires=N)`` decorator.
 
 
 1.9.0 (2014-12-08)

@@ -104,11 +104,17 @@ var Editor = React.createClass({
           <a className="rfb-Editor__return" href={indexURL}>
             Return to all instruments list
           </a>
-          <Button
-            onClick={isPublished ? this.onCreateDraft : this.onSave}
-            disabled={!(uid && group) || operationInProgress || !changed}>
-            {isPublished ? 'Draft': 'Save'}
-          </Button>
+          {isPublished?
+            <Button
+              onClick={this.onCreateDraft}
+              disabled={!(uid && group) || operationInProgress}>
+                Draft
+            </Button>:
+            <Button
+              onClick={this.onSave}
+              disabled={!(uid && group) || operationInProgress || !changed}>
+                Save
+            </Button>}
           {!isPublished && 
               <Button
                 className="rfb-Editor__publish"
@@ -170,7 +176,7 @@ var Editor = React.createClass({
           onChannelSelected={this.onChannelSelected}
           active={activeChannel}
           />
-        <Button disabled={operationInProgress}
+        <Button disabled={operationInProgress || isPublished}
            onClick={this.onEmptyFormTemplate}>
           Empty Template
         </Button>
@@ -205,20 +211,19 @@ var Editor = React.createClass({
       !confirm("Do you really want to replace the form "
              + "configuration with an empty template?"))
       return;
-    var template = "\
-defaultLocalization: en\n\
-instrument:\n\
-  id: \"urn:${instrument}\"\n\
-  version: '${version}'\n\
-pages:\n\
-- id: page1\n\
-  elements:\n\
-  - type: question\n\
-    options:\n\
-      fieldId: DUMMY\n\
-      text:\n\
-        en: TEXT\n\
-";
+    var template = 
+      "defaultLocalization: en\n" +
+      "instrument:\n" +
+      "  id: \"urn:${instrument}\"\n" +
+      "  version: '${version}'\n" +
+      "pages:\n" +
+      "- id: page1\n" +
+      "  elements:\n" +
+      "  - type: question\n" +
+      "    options:\n" +
+      "      fieldId: DUMMY\n" +
+      "      text:\n" +
+      "        en: TEXT\n";
     var value = format(template, {
       instrument: instrumentName,
       version

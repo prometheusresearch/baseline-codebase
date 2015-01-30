@@ -9,6 +9,7 @@
 
 from functools import partial
 from collections import OrderedDict
+from logging import getLogger
 
 from htsql.core import domain
 
@@ -30,9 +31,15 @@ from ..state import State, Reference
 from ..json_encoder import register_adapter
 from ..action import Action
 from ..field.entity import EntitySpecVal
-from ..util import get_validator_for_key, PropsContainer
+from ..util import get_validator_for_key, PropsContainer, measure_execution_time
 from .layout import Box
 from .base import Button
+
+
+__all__ = ('Form', 'FormFieldBase', 'Field', 'Fieldset', 'RepeatingFieldset')
+
+
+log = getLogger(__name__)
 
 
 class SchemaNode(object):
@@ -698,17 +705,16 @@ class Form(FormContainerWidget):
         for ref_key, ref in self.state_refs().items():
             value = update_value(value, ref_key, graph[ref])
         tag = spec.port.describe().meta.domain.fields[0].tag
-        from pprint import pprint
-        pprint(prev_value)
-        pprint(value)
-        pprint(self.state_refs())
-        if value is None:
-            spec.port.delete([{'id': prev_value['id']}])
-            return prev_value
-        elif prev_value is None:
-            spec.port.insert({tag: value})
-        else:
-            spec.port.replace({tag: prev_value}, {tag: value})
+        message = 'execution time %%f while persisting entity into %s' % (
+            spec.route,)
+        with measure_execution_time(message=message, log=log):
+            if value is None:
+                spec.port.delete([{'id': prev_value['id']}])
+                return prev_value
+            elif prev_value is None:
+                spec.port.insert({tag: value})
+            else:
+                spec.port.replace({tag: prev_value}, {tag: value})
         return value
 
     @cached

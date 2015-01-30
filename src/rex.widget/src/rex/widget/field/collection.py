@@ -10,6 +10,7 @@
 from collections import namedtuple
 from urlparse import urlparse, parse_qsl
 from urllib import urlencode
+from logging import getLogger
 
 from rex.core import Error, Validate, RecordVal, MaybeVal, OneOfVal, MapVal
 from rex.core import BoolVal, StrVal, IntVal
@@ -17,11 +18,12 @@ from rex.core import BoolVal, StrVal, IntVal
 from ..descriptors import CollectionRead, DataAppend, StateReadWrite
 from ..state import State, Reference, unknown, Reset
 from ..json_encoder import register_adapter
-from ..util import get_validator_for_key
+from ..util import get_validator_for_key, measure_execution_time
 from .data import DataField, DataRef, DataRefVal, DataSpec, product_to_json
 
 __all__ = ('CollectionSpec', 'CollectionSpecVal', 'CollectionField')
 
+log = getLogger(__name__)
 
 class CollectionSpec(DataSpec):
     """ Collection specification.
@@ -152,7 +154,13 @@ class CollectionField(DataField):
         if self.paginate:
             query[top_filter] = [query[top_filter][0] + 1]
 
-        data = product_to_json(spec.port.produce(urlencode(query, doseq=True)))
+        encoded_query = urlencode(query, doseq=True)
+
+        message = 'execution time %%f while fetching collection %s?%s' % (
+            spec.route, encoded_query.replace('%', '%%'))
+        with measure_execution_time(message=message, log=log):
+            data = spec.port.produce(encoded_query)
+        data = product_to_json(data)
 
         has_more = False
         if self.paginate:

@@ -9,6 +9,7 @@
 
 from urlparse import urlparse, parse_qsl
 from urllib import urlencode
+from logging import getLogger
 
 from rex.core import Error, Validate
 from rex.core import RecordVal, OneOfVal, MapVal, StrVal
@@ -16,10 +17,13 @@ from rex.core import RecordVal, OneOfVal, MapVal, StrVal
 from ..descriptors import DataRead
 from ..json_encoder import register_adapter
 from ..state import Reference
-from ..util import cached_property, get_validator_for_key
+from ..util import cached_property, get_validator_for_key, measure_execution_time
 from .data import DataField, DataRef, DataSpec, product_to_json
 
 __all__ = ('EntitySpec', 'EntitySpecVal', 'EntityField')
+
+
+log = getLogger(__name__)
 
 
 class EntitySpec(DataSpec):
@@ -83,7 +87,13 @@ class EntityField(DataField):
             return None
         query[spec.entity] = entity_id
 
-        data = product_to_json(spec.port.produce(urlencode(query, doseq=True)))
+        encoded_query = urlencode(query, doseq=True)
+
+        message = 'execution time %%f while fetching entity %s?%s' % (
+            spec.route, encoded_query.replace('%', '%%'))
+        with measure_execution_time(message=message, log=log):
+            data = spec.port.produce(encoded_query)
+        data = product_to_json(data)
 
         if len(data[spec.entity]) > 1:
             raise Error('expected 0 or 1 result')

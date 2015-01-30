@@ -5,7 +5,7 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
-0.4.0 (2015-01-XX)
+0.4.0 (2015-01-30)
 ==================
 
 * Added a JSON API that allows the retrieval of the current and available

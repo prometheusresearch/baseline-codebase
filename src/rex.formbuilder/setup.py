@@ -29,6 +29,7 @@ setup(
         'rex.forms>=0.27.0,<2',
         'rex.restful>=0.3.0,<2',
         'rex.applet >0, <1',
+        'rex.form_previewer >=0.1, <2',
     ],
     rex_bundle={
         './www/bundle': [

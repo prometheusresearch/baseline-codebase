@@ -31,6 +31,9 @@ class InstrumentEditorWidget(Widget):
     indexURL = URLField(
         default=URLVal()('rex.formbuilder:/')
     )
+    previewURLTemplate = URLField(
+        default=URLVal()('rex.form_previewer:/?instrument_id=${uid}')
+    )
     editorURLTemplate = URLField()
     group = StateField(ChoiceVal(['published', 'drafts']))
     uid = StateField(StrVal())

@@ -44,6 +44,7 @@ def payload_without_yaml(source):
     payload = deepcopy(source)
     payload['instrument_version']['definition'] = \
         AnyVal().parse(payload['instrument_version']['definition'])
+    print "form", payload.get('forms', {})
     for name, form in payload.get('forms', {}).items():
         form['configuration'] = AnyVal().parse(form['configuration'])
     return payload

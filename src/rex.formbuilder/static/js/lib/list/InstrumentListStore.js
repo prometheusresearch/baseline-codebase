@@ -230,7 +230,7 @@ var InstrumentListStore = merge({
 
   _onInstrumentVersionCreated(response) {
     var {uid} = response.body;
-    window.location.href = API.makeURL('edit', 'drafts', uid);
+    window.location.href = API.editorURL(uid, 'drafts');
   },
 
   _onInstrumentVersionCreatedError(error) {

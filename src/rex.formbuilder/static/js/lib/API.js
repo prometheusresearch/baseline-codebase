@@ -13,10 +13,12 @@
 var request = require('./request');
 var {InvalidResponse} = require('./request');
 var Promise = require('bluebird');
+var format = require('./format');
 
 var API = {
 
   home: '',
+  editorURLTemplate: '',
 
   listInstruments(limit) {
     limit = limit || 1000000;
@@ -285,6 +287,13 @@ var API = {
     if (home.slice(-1) !== "/")
       home += "/";
     return `${home}${segments.join('/')}`;
+  },
+
+  editorURL(uid, group) {
+    return format(this.editorURLTemplate, {
+      uid: encodeURIComponent(uid),
+      group: encodeURIComponent(group)
+    });
   },
 
   request(method, ...endpoint) {

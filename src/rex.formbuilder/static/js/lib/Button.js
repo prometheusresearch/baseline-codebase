@@ -12,6 +12,7 @@ var Button = React.createClass({
       style: 'default',
       onClick: null,
       disabled: false,
+      target: null,
     };
   },
 
@@ -40,6 +41,7 @@ var Button = React.createClass({
     if (this.props.href) {
       return (
         <a href={this.props.href}
+          target={this.props.target}
           className={cx(classSet)}
           onClick={this.props.onClick}
           disabled={this.isDisabled()}

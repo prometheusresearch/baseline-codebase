@@ -240,8 +240,9 @@ var InstrumentList = React.createClass({
   },
 
   componentDidMount() {
-    var {home} = this.props;
+    var {home, editorURLTemplate} = this.props;
     API.home = home;
+    API.editorURLTemplate = editorURLTemplate;
     InstrumentListStore.loadInstruments();
   },
 

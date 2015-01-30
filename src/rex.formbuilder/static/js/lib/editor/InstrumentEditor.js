@@ -22,6 +22,7 @@ var Editor = React.createClass({
     home: PropTypes.string.isRequired,
     indexURL: PropTypes.string.isRequired,
     editorURLTemplate: PropTypes.string.isRequired,
+    previewURLTemplate: PropTypes.string.isRequired,
     uid: PropTypes.string.isRequired,
     group: PropTypes.string.isRequired
   },
@@ -59,10 +60,11 @@ var Editor = React.createClass({
     );
   },
 
-  showMessage(message, type) {
-    var kind = type || 'error';
-    var icon = kind === 'error' ? 'exclamation-sign' : null;
-    var ttl = Infinity;
+  showMessage(message, props) {
+    var kind = props.type || 'error';
+    var icon = props.icon ||
+      (kind === 'error' ? 'exclamation-sign' : null);
+    var ttl = props.ttl || Infinity;
     Applet.Actions.showNotification(message, {icon, kind, ttl});
   },
 
@@ -76,15 +78,17 @@ var Editor = React.createClass({
       details = response.text;
     }
     var text = `${text}: ${details}`;
-    this.showMessage(text, 'error');
+    this.showMessage(text, {type:'error'});
+  },
+
+  previewURL(uid) {
+    return format(this.props.previewURLTemplate, {
+      uid: encodeURIComponent(uid)
+    });
   },
 
   redirectTo(uid, group) {
-    var url = format(this.props.editorURLTemplate, {
-      uid: encodeURIComponent(uid),
-      group: encodeURIComponent(group)
-    });
-    window.location.href = url;
+    window.location.href = API.editorURL(uid, group);
   },
 
   renderHead() {
@@ -106,14 +110,24 @@ var Editor = React.createClass({
           </a>
           {isPublished?
             <Button
+              className="rfb-Editor__draft"
               onClick={this.onCreateDraft}
               disabled={!(uid && group) || operationInProgress}>
                 Draft
             </Button>:
             <Button
+              className="rfb-Editor__save"
               onClick={this.onSave}
               disabled={!(uid && group) || operationInProgress || !changed}>
                 Save
+            </Button>}
+          {!isPublished &&
+            <Button
+              className="rfb-Editor__preview"
+              target="_blank"
+              disabled={!(uid && group) || operationInProgress || changed}
+              href={this.previewURL(uid)}>
+                Preview
             </Button>}
           {!isPublished && 
               <Button
@@ -294,10 +308,11 @@ var Editor = React.createClass({
     var outForms = {};
     channels.forEach((channel) => {
       var value = forms[channel.uid];
-      if (value && !/^\s*$/.test(value))
+      if (value && !/^\s*$/.test(value)) {
         outForms[channel.uid] = value;
+      }
     });
-    return {instrument, forms};
+    return {instrument, forms: outForms};
   },
 
   onSave() {
@@ -314,10 +329,15 @@ var Editor = React.createClass({
   },
 
   onSaved() {
+    this.showMessage("Saved", {
+      type:"success",
+      icon:"save",
+      ttl:1000
+    });
     this.setState({
       changed: false,
       operationInProgress: false
-    })
+    });
   },
 
   onSaveError(response) {

@@ -58,7 +58,7 @@ class OpenGate(object):
         stream = open(path)
         path = os.path.abspath(path)
         if path not in OpenGate.stats:
-            OpenGate.stats[path] = os.fstat(stream.fileno())
+            OpenGate.stats[path] = os.fstat(stream.fileno()).st_mtime
         return stream
 
     def __call__(self):

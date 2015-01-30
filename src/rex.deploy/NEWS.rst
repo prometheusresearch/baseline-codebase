@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.1.0 (2015-XX-XX)
+2.1.0 (2015-01-30)
 ==================
 
 * Do not use ``S`` in the random text generator.

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.0.3 (2014-XX-XX)
+1.0.3 (2015-01-30)
 ==================
 
 * Fixed tests to work without SMTP server on localhost:25.

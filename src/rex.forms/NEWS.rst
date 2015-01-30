@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.27.0 (2015-01-xx)
+0.27.0 (2015-01-30)
 ===================
 
 - Added an optional ``facilitator`` property to the Task interface class.

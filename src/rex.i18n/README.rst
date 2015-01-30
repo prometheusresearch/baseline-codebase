@@ -179,12 +179,10 @@ Command Line Tools
 ==================
 
 This package contains a series of command line tools (exposed via ``rex.ctl``)
-that can be used in the development of a RexDB package. These tools assume:
-
-* The package you're working on is installed as editable (``pip install -e``,
-  ``python setup.py develop``, etc).
-* You are executing these tools from the root of the package repository.
-
+that can be used in the development of a RexDB package. All of these commands
+assume that they are being executed from the root of the target project's
+source repository. You can specify the path to this directory if this is not
+the case.
 
 i18n-extract
 ------------

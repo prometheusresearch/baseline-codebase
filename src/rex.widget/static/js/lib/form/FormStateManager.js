@@ -3,10 +3,12 @@
  */
 'use strict';
 
-var ReactForms = require('react-forms');
-var StateManager = require('../StateManager');
-var merge = require('../merge');
-var buildSchema = require('./buildSchema');
+var ReactForms    = require('react-forms');
+var StateManager  = require('../StateManager');
+var merge         = require('../merge');
+var buildSchema   = require('./buildSchema');
+var StateWriter   = require('../StateWriter');
+var submitForm    = require('../actions/submitForm');
 
 class FormStateManager extends StateManager {
 
@@ -29,10 +31,11 @@ class FormStateManager extends StateManager {
   }
 
   updateValue(update) {
-    this.applicationState.update(this.state.id, update);
+    var writer = StateWriter.createStateWriter(this.state.id);
     if (this.state.params.submitOnChange) {
-      this.submit();
+      writer = submitForm({id: this.state.id}).merge(writer);
     }
+    writer(update);
   }
 
   prepareUpdate(value) {

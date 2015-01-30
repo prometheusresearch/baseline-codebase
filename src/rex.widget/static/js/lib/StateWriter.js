@@ -12,7 +12,7 @@ class StateWriter {
   constructor() {
     this.execute = this.execute.bind(this);
     this.produce = this.produce.bind(this);
-    this.merge = this.produce.bind(this);
+    this.merge = this.merge.bind(this);
     // expose produce and merge via bound execute
     this.execute.produce = this.produce;
     this.execute.merge = this.merge;
@@ -23,7 +23,7 @@ class StateWriter {
   }
 
   merge(writer) {
-    return new MergedStateWriter(this, writer);
+    return new MergedStateWriter(this, writer).execute;
   }
 
   execute(value) {
@@ -66,6 +66,7 @@ class AtomicStateWriter extends StateWriter {
 class MergedStateWriter extends StateWriter {
 
   constructor(x, y) {
+    super();
     this.x = x;
     this.y = y;
   }
@@ -104,8 +105,8 @@ var PERSISTENCE_ORDER = [
 ];
 
 function mergePersistence(a, b) {
-  aPriority = PERSISTENCE_ORDER.indexOf(a);
-  bPriority = PERSISTENCE_ORDER.indexOf(b);
+  var aPriority = PERSISTENCE_ORDER.indexOf(a);
+  var bPriority = PERSISTENCE_ORDER.indexOf(b);
   if (aPriority > bPriority) {
     return a;
   } else if (aPriority <= bPriority) {

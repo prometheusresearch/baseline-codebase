@@ -733,6 +733,9 @@ class Form(FormContainerWidget):
         tag = spec.port.describe().meta.domain.fields[0].tag
         message = 'execution time %%f while persisting entity into %s' % (
             spec.route,)
+        from pprint import pprint
+        pprint(prev_value)
+        pprint(value)
         with measure_execution_time(message=message, log=log):
             if value is None:
                 spec.port.delete([{'id': prev_value['id']}])

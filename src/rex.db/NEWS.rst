@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.1.0 (2015-XX-XX)
+3.1.0 (2015-01-30)
 ==================
 
 * Moved ``rex shell``, ``rex query`` and ``rex graphdb`` from ``rex.ctl``.

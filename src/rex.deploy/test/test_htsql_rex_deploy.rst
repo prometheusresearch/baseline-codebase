@@ -292,14 +292,14 @@ in a selector::
 
 The selector must contain one element::
 
-    >>> q = Query(''' join(family{code, notes}, ', ') ''')
+    >>> q = Query('''join(family{code, notes}, ', ')''')
     >>> print q.format('txt')
     Traceback (most recent call last):
       ...
     Error: Function 'join' expects 1 field for its first argument; got 2
     While translating:
-         join(family{code, notes}, ', ')
-                    ^^^^^^^^^^^^^
+        join(family{code, notes}, ', ')
+                   ^^^^^^^^^^^^^
 
 Finally we delete the test database::
 

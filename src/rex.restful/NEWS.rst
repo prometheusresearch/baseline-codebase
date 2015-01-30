@@ -5,7 +5,7 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
-0.3.0 (2015-01-xx)
+0.3.0 (2015-01-30)
 ==================
 
 * Added support for rex.setup v2.

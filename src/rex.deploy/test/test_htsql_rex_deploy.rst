@@ -230,6 +230,77 @@ You can also use port interface to add and modify JSON data::
     >>> print removed_sample.other
     None
 
+
+Text functions
+==============
+
+``rex.deploy`` wraps a number of SQL functions and operators.
+
+To search for a text field with a regular expression, use function
+``re_matches``::
+
+    >>> q = Query(''' {re_matches('42', '\\d+'), re_matches('ten', '\\d+')} ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | re_matches('42','\d+') | re_matches('ten','\d+') |
+    -+------------------------+-------------------------+-
+     | true                   | false                   |
+
+``rex.deploy`` also provides interface for full-text search::
+
+    >>> q = Query(''' {ft_matches('queries', 'query'), ft_matches('requests', 'query')} ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | ft_matches('queries','query') | ft_matches('requests','query') |
+    -+-------------------------------+--------------------------------+-
+     | true                          | false                          |
+
+Functions ``ft_headline`` and ``ft_rank`` return text extracts and search rank
+respectively::
+
+    >>> q = Query(''' {ft_headline('queries', 'query'), ft_rank('queries', 'query')} ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | ft_headline('queries','query') | ft_rank('queries','query') |
+    -+--------------------------------+----------------------------+-
+     | <b>queries</b>                 |                  0.0607927 |
+
+Use functions ``ft_query_matches``, ``ft_query_headline``, ``ft_query_rank``
+if you want to use query syntax for searching::
+
+    >>> q = Query(''' {ft_query_matches('queries', 'q:*'),
+    ...                ft_query_headline('queries', 'q:*'),
+    ...                ft_query_rank('queries', 'q:*')} ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | ft_query_matches('queries','q:*') | ft_query_headline('queries','q:*') | ft_query_rank('queries','q:*') |
+    -+-----------------------------------+------------------------------------+--------------------------------+-
+     | true                              | <b>queries</b>                     |                      0.0607927 |
+
+Use function ``join()`` to concatenate a set of strings::
+
+    >>> q = Query(''' join(family.code, ', ') ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | join(family.code,', ') |
+    -+------------------------+-
+     | 01                     |
+
+As with other aggregate functions, the first argument could be wrapped
+in a selector::
+
+    >>> q = Query(''' join(family{code}, ', ') ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | join(family{code},', ') |
+    -+-------------------------+-
+     | 01                      |
+
+The selector must contain one element::
+
+    >>> q = Query(''' join(family{code, notes}, ', ') ''')
+    >>> print q.format('txt')
+    Traceback (most recent call last):
+      ...
+    Error: Function 'join' expects 1 field for its first argument; got 2
+    While translating:
+         join(family{code, notes}, ', ')
+                    ^^^^^^^^^^^^^
+
 Finally we delete the test database::
 
     >>> demo.off()

@@ -13,6 +13,9 @@
 * Moved ``rex deploy`` and other commands from ``rex.ctl``.
 * Added ``json`` data type.
 * Made ``Model`` an extension.
+* Moved functions ``re_matches()``, ``ft_matches()``, ``ft_headline()``,
+  ``ft_rank()``, ``ft_query_matches()``, ``ft_query_headline()``,
+  ``ft_query_rank()``, ``join()`` from ``rex.rdoma``.
 
 
 2.0.0 (2015-01-05)

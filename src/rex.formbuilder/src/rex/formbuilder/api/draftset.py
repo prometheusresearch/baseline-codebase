@@ -5,7 +5,7 @@
 
 from webob.exc import HTTPNotFound, HTTPBadRequest
 
-from rex.core import StrVal, MaybeVal, BoolVal
+from rex.core import Error, StrVal, MaybeVal, BoolVal
 from rex.forms import FormError, ValidationError as FormValidationError
 from rex.instrument import InstrumentError, \
     ValidationError as InstrumentValidationError
@@ -68,13 +68,13 @@ class DraftSetResource(SimpleResource, BaseResource):
         # RestfulLocation it creates in a sensible way, we have to dig into
         # private members...
         # pylint: disable=E1101,W0212
-        handler = DraftInstrumentVersionResource. \
-            _SimpleResource__base_handler()
-        user = get_instrument_user(request)
-        payload = payload_without_yaml(request.payload)
-        instrument_version = payload.get('instrument_version', {})
-        fake_request = FakeRequest(instrument_version, user.get_display_name())
         try:
+            handler = DraftInstrumentVersionResource. \
+                _SimpleResource__base_handler()
+            user = get_instrument_user(request)
+            payload = payload_without_yaml(request.payload)
+            instrument_version = payload.get('instrument_version', {})
+            fake_request = FakeRequest(instrument_version, user.get_display_name())
             div = handler.create(fake_request)
             handler = DraftFormResource._SimpleResource__base_handler()
             forms = {}
@@ -87,7 +87,7 @@ class DraftSetResource(SimpleResource, BaseResource):
                 fake_request = FakeRequest(fake_request_payload, \
                                            user.get_display_name())
                 forms[channel_uid] = handler.create(fake_request)
-        except (InstrumentValidationError, FormValidationError) as exc:
+        except (Error, InstrumentValidationError, FormValidationError) as exc:
             raise HTTPBadRequest(unicode(exc))
         return {
             'instrument_version': div,
@@ -133,11 +133,11 @@ class DraftSetResource(SimpleResource, BaseResource):
             for draft_form in draft_forms
         ])
         payload = request.payload
-        if with_yaml:
-            payload = payload_without_yaml(payload)
-        submitted_forms = set(payload.get('forms', {}).keys())
         output_forms = {}
         try:
+            if with_yaml:
+                payload = payload_without_yaml(payload)
+            submitted_forms = set(payload.get('forms', {}).keys())
             self.update_instance(
                 div,
                 payload['instrument_version'],
@@ -164,7 +164,7 @@ class DraftSetResource(SimpleResource, BaseResource):
                     div.uid,
                     user.get_display_name()
                 )
-        except (InstrumentValidationError, FormValidationError) as exc:
+        except (Error, InstrumentValidationError, FormValidationError) as exc:
             raise HTTPBadRequest(unicode(exc))
         result = {
             'instrument_version': div.as_dict(extra_properties=['definition']),

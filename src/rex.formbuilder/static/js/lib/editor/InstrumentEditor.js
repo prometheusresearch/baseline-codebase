@@ -200,7 +200,7 @@ var Editor = React.createClass({
           active={activeChannel}
           />
         <Button disabled={operationInProgress || isPublished}
-           onClick={this.onEmptyFormTemplate}>
+           onClick={this.onCreateSkeleton}>
           Empty Template
         </Button>
       </div>
@@ -226,32 +226,6 @@ var Editor = React.createClass({
         }
       </div>
     );
-  },
-
-  onEmptyFormTemplate() {
-    var {instrumentName, version, activeChannel, forms} = this.state;
-    if (forms[activeChannel] &&
-      !confirm("Do you really want to replace the form "
-             + "configuration with an empty template?"))
-      return;
-    var template = 
-      "defaultLocalization: en\n" +
-      "instrument:\n" +
-      "  id: \"urn:${instrument}\"\n" +
-      "  version: '${version}'\n" +
-      "pages:\n" +
-      "- id: page1\n" +
-      "  elements:\n" +
-      "  - type: question\n" +
-      "    options:\n" +
-      "      fieldId: DUMMY\n" +
-      "      text:\n" +
-      "        en: TEXT\n";
-    var value = format(template, {
-      instrument: instrumentName,
-      version
-    });
-    this.onFormChanged(activeChannel, value);
   },
 
   onInstrumentChanged(value) {
@@ -322,6 +296,44 @@ var Editor = React.createClass({
       }
     });
     return {instrument, forms: outForms};
+  },
+
+  onSkeletonReceived(response) {
+    this.showMessage("Skeleton was created successfully", {
+      type:"success",
+      icon:"save",
+      ttl:1000
+    });
+    this.setState({
+      operationInProgress: false
+    });
+    var channel = this.state.activeChannel;
+    var value = response.body.form;
+    this.onFormChanged(channel, value);
+  },
+
+  onSkeletonError(response) {
+    this.showResponseError(response, "Skeleton creation error");
+    this.setState({
+      operationInProgress: false
+    });
+  },
+
+  onCreateSkeleton() {
+    var {instrument, forms, activeChannel} = this.state;
+    if (forms[activeChannel] &&
+      !confirm("Do you really want to replace the form "
+             + "configuration with an empty template?"))
+      return;
+    this.setState({
+      operationInProgress: true
+    }, function () {
+      API.requestFormSkeleton(instrument)
+         .then(
+           this.onSkeletonReceived,
+           this.onSkeletonError
+         );
+    });
   },
 
   onSave() {

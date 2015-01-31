@@ -201,6 +201,19 @@ var API = {
       .end();
   },
 
+  requestFormSkeleton(instrument) {
+    var data = {
+        "instrument_version": {
+            "definition": instrument
+        }
+    };
+    var endpoint = `skeleton?with_yaml=1`;
+    return this
+      .request('POST', endpoint)
+      .send(data)
+      .end();
+  },
+
   createDraftset(instrumentName, parentUID, instrument, forms) {
     var data = this._prepareDataToCreateDraft(instrumentName, parentUID,
                                               instrument, forms);

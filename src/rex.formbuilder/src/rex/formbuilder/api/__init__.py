@@ -12,4 +12,5 @@ from .form import *
 from .instrument import *
 from .instrumentversion import *
 from .dumper import *
+from .skeleton import *
 

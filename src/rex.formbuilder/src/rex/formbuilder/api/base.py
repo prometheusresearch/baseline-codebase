@@ -20,8 +20,12 @@ __all__ = (
     'get_instrument_user',
     'response_with_yaml',
     'payload_without_yaml',
+    'dump_pretty_yaml',
     'ConstantArg',
 )
+
+def dump_pretty_yaml(obj):
+    return yaml.dump(obj, Dumper=FancyDumper, default_flow_style=False)
 
 def get_instrument_user(request):
     login = authenticate(request)
@@ -31,13 +35,9 @@ def get_instrument_user(request):
 def response_with_yaml(result):
     instrument = result['instrument_version']
     instrument['version'] = instrument['definition']['version']
-    instrument['definition'] = \
-        yaml.dump(instrument['definition'], Dumper=FancyDumper, \
-                       default_flow_style=False)
+    instrument['definition'] = dump_pretty_yaml(instrument['definition'])
     for name, form in result['forms'].items():
-        form['configuration'] = \
-            yaml.dump(form['configuration'], Dumper=FancyDumper, \
-                           default_flow_style=False)
+        form['configuration'] = dump_pretty_yaml(form['configuration'])
     return result
 
 def payload_without_yaml(source):

@@ -49,6 +49,7 @@ var Editor = React.createClass({
 
   componentDidMount() {
     API.home = this.props.home;
+    API.editorURLTemplate = this.props.editorURLTemplate;
     this.loadData();
   },
 

@@ -5,7 +5,7 @@
 
 from webob.exc import HTTPNotFound, HTTPBadRequest
 
-from rex.core import Error, StrVal, MaybeVal, BoolVal
+from rex.core import get_settings, Error, StrVal, MaybeVal, BoolVal
 from rex.forms import FormError, ValidationError as FormValidationError
 from rex.instrument import InstrumentError, \
     ValidationError as InstrumentValidationError
@@ -17,6 +17,8 @@ from .base import BaseResource, get_instrument_user, response_with_yaml, \
 
 from .draftform import DraftFormResource
 from .draftinstrumentversion import DraftInstrumentVersionResource
+
+from ..draftcache import DraftCache
 
 __all__ = (
     'DraftSetResource',
@@ -44,6 +46,15 @@ def get_channels(user):
         package_name='forms',
     )
 
+def draftset_yamls(payload):
+    result = {
+        "forms": {}
+    }
+    result['instrument'] = payload['instrument_version']['definition']
+    for name, form in payload.get('forms', {}).items():
+        result['forms'][name] = form['configuration']
+    return result
+
 class FakeRequest(object):
     def __init__(self, payload, user):
         self.payload = payload
@@ -62,6 +73,24 @@ class DraftSetResource(SimpleResource, BaseResource):
         Parameter('draftinstrumentversion_uid', StrVal()),
         Parameter('with_yaml', BoolVal(), False)
     )
+
+    def get_cache(self):
+        drafts_dir = get_settings().formbuilder_draft_cache
+        if not drafts_dir:
+            return None
+        return DraftCache(drafts_dir)
+
+    def get_from_cache(self, uid):
+        cache = self.get_cache()
+        if not cache:
+            return None
+        return cache.get(uid)
+
+    def put_to_cache(self, uid, instrument, forms):
+        cache = self.get_cache()
+        if not cache:
+            return
+        cache.put(uid, instrument, forms)
 
     def create(self, request, with_yaml, **kwargs):
         # Until rex.restful.SimpleResource exposes the additional
@@ -102,6 +131,11 @@ class DraftSetResource(SimpleResource, BaseResource):
             )
         return result
 
+    def cached_to_response(self, cached, result):
+        result['instrument_version']['definition'] = cached['instrument']
+        for channel, form in result['forms'].items():
+            form['configuration'] = cached['forms'].get(channel)
+        return result
 
     def retrieve(self, request, draftinstrumentversion_uid, with_yaml, **kwargs):
         user = get_instrument_user(request)
@@ -115,6 +149,9 @@ class DraftSetResource(SimpleResource, BaseResource):
             'forms': self.make_forms_dict(draft_forms),
         }
         if with_yaml:
+            cached = self.get_from_cache(draftinstrumentversion_uid)
+            if cached:
+                return self.cached_to_response(cached, result)
             return response_with_yaml(result)
         return result
 
@@ -134,8 +171,10 @@ class DraftSetResource(SimpleResource, BaseResource):
         ])
         payload = request.payload
         output_forms = {}
+        yamls = None
         try:
             if with_yaml:
+                yamls = draftset_yamls(payload)
                 payload = payload_without_yaml(payload)
             submitted_forms = set(payload.get('forms', {}).keys())
             self.update_instance(
@@ -166,11 +205,16 @@ class DraftSetResource(SimpleResource, BaseResource):
                 )
         except (Error, InstrumentValidationError, FormValidationError) as exc:
             raise HTTPBadRequest(unicode(exc))
+        if yamls:
+            self.put_to_cache(draftinstrumentversion_uid,
+                yamls['instrument'], yamls['forms'])
         result = {
             'instrument_version': div.as_dict(extra_properties=['definition']),
-            'forms': output_forms # self.make_forms_dict(draft_forms),
+            'forms': output_forms
         }
         if with_yaml:
+            if yamls:
+                return self.cached_to_response(yamls, result)
             return response_with_yaml(result)
         return result
 

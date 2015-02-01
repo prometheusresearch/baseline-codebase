@@ -70,7 +70,6 @@ var RepeatingFieldset = React.createClass({
   mixins: [FormContextMixin],
 
   render() {
-    console.log('In render ',this.props);
     var {label, hint, fieldset, minChildren, className, addButtonText, removeButtonText, ...props} = this.props;
     var value = this.getValue();
     var size = value.value.size;

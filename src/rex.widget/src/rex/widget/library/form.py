@@ -560,6 +560,25 @@ class RepeatingFieldset(FormContainerWidget):
         The minimum required number of children to be valid.
         """)
 
+    remove_button_text = Field(
+        StrVal(), default='Remove',
+        doc="""
+        remove_button_text
+
+        Text that appears on the remove button to delete a row from the 
+        repeating group.
+        """)
+
+    add_button_text = Field(
+        StrVal(), default='Add',
+        doc="""
+        add_button_text
+
+        Text that appears on the add button to add a row to the 
+        repeating group.
+        """)
+
+
     def form_schema(self, node):
         children = _build_schema(node)
         schema = ListNode(children=children)

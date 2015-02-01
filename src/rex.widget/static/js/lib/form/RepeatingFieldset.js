@@ -1,4 +1,4 @@
-/**
+ /**
  * <RepeatingFieldset />
  */
 
@@ -16,7 +16,7 @@ var RepeatingFieldsetItem = React.createClass({
   mixins: [FormContextMixin],
 
   render() {
-    var {fieldset, required} = this.props;
+    var {fieldset, required, removeButtonText} = this.props;
     return (
       <Box className="rw-RepeatingFieldsetItem" style={{padding: '5px 0px'}}>
         {!required &&
@@ -27,7 +27,7 @@ var RepeatingFieldsetItem = React.createClass({
               danger quiet
               icon="remove"
               onClick={this.onRemove}>
-              Remove
+              {removeButtonText}
             </Button>
             </div>
           </Box>}
@@ -55,7 +55,7 @@ var RepeatingFieldsetPlaceholder = React.createClass({
             icon="plus"
             onClick={this.props.onAdd}
             className="rw-RepeatingFieldset__addButton">
-            Add
+            {this.props.addButtonText}
           </Button>
           <Box centerVertically style={{marginLeft: 5}}>
             button to add one.
@@ -70,7 +70,8 @@ var RepeatingFieldset = React.createClass({
   mixins: [FormContextMixin],
 
   render() {
-    var {label, hint, fieldset, minChildren, className, ...props} = this.props;
+    console.log('In render ',this.props);
+    var {label, hint, fieldset, minChildren, className, addButtonText, removeButtonText, ...props} = this.props;
     var value = this.getValue();
     var size = value.value.size;
     className = cx('rw-RepeatingFieldset', className);
@@ -94,6 +95,7 @@ var RepeatingFieldset = React.createClass({
                   key={`${idx}_${size}`}
                   fieldset={fieldset}
                   valueKey={idx}
+                  removeButtonText={removeButtonText}
                   />
               )}
             </div>
@@ -104,12 +106,13 @@ var RepeatingFieldset = React.createClass({
                 icon="plus"
                 onClick={this.onAdd}
                 className="rw-RepeatingFieldset__addButton">
-                Add
+                {addButtonText}
               </Button>
             </div>
           </Box> :
           <RepeatingFieldsetPlaceholder
             onAdd={this.onAdd}
+            addButtonText={addButtonText}
             />}
       </Box>
     );
@@ -119,7 +122,9 @@ var RepeatingFieldset = React.createClass({
     return {
       valueKey: [],
       margin: 10,
-      size: 1
+      size: 1,
+      addButtonText: 'Add',
+      removeButtonText: 'Remove'
     };
   },
 

@@ -14,7 +14,7 @@ from rex.core import (
 
 from ..descriptors import StateRead
 from ..widget import Widget, NullWidget
-from ..field import Field, IDField, StateField, CollectionField, PaginatedCollectionField, URLField
+from ..field import Field, IDField, StateField, CollectionField, URLField
 from ..undefined import undefined
 from ..state import unknown, State, Reset, Dep
 from ..validate import WidgetVal

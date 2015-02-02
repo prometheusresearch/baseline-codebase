@@ -12,5 +12,4 @@ from .state import StateField
 from .data import DataField
 from .entity import EntityField
 from .collection import CollectionField
-from .collection import CollectionField as PaginatedCollectionField
 from .url import URLField

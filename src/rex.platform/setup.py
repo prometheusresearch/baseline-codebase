@@ -14,7 +14,7 @@ setup(
     ],
     install_requires=[ 
         'HTSQL==2.3.3.20150130',
-        'HTSQL-PGSQL==2.3.3.20150109',
+        'HTSQL-PGSQL==2.3.3.20150130',
         'COGS==0.4.0',
         'rex.applet==0.0.1',
         'rex.core==1.10.0',

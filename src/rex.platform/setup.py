@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.platform',
-    version='4.0.0',
+    version='4.0.1',
     description='RexDB Capstone Project',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

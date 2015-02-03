@@ -1,0 +1,24 @@
+{
+  "name": "rex-form-builder-demo",
+  "version": "4.0.0",
+  "authors": [
+    "Prometheus Research, LLC"
+  ],
+  "description": "Form Builder Demo",
+  "main": "./lib/index.js",
+  "moduleType": [
+    "node"
+  ],
+  "dependencies": {
+    "react": "^0.12.0",
+    "rex-study": "*"
+  },
+  "license": "AGPLv3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

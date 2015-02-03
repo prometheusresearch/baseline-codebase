@@ -11,7 +11,7 @@ Set up the environment::
     >>> import json
     >>> from webob import Request
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.formbuilder_demo', db='pgsql:formbuilder_demo')
+    >>> rex = Rex('rex.form_builder_demo', db='pgsql:form_builder_demo', remote_user='demo')
     >>> rex.on()
 
     >>> CONFIGURATION = {
@@ -58,7 +58,7 @@ DraftInstrumentVersion and its associated DraftForms::
     ...     }
     ... }
 
-    >>> req = Request.blank('/api/draftset', method='POST', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset', method='POST', remote_user='test.testing')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps(payload)
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -76,7 +76,7 @@ DraftInstrumentVersion and its associated DraftForms::
 The ``/api/draftset/{uid}`` URI will accept GETs to retrieve the specified
 DraftInstrumentVersion and its associated DraftForms::
 
-    >>> req = Request.blank('/api/draftset/123', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset/123', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
@@ -85,7 +85,7 @@ DraftInstrumentVersion and its associated DraftForms::
     <BLANKLINE>
     {"instrument_version": {"parent_instrument_version": null, "definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "modified_by": "some_person", "uid": "123", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}, "forms": {"fake_channel_1": {"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": null, "modified_by": "some_person", "uid": "fake_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}, "uid": "fake_draft_form_1", "channel": {"uid": "fake_channel_1", "title": "Title for fake_channel_1"}}, "fake_channel_2": {"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": null, "modified_by": "some_person", "uid": "fake_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}, "uid": "fake_draft_form_2", "channel": {"uid": "fake_channel_2", "title": "Title for fake_channel_2"}}}}
 
-    >>> req = Request.blank('/api/draftset/doesntexist', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset/doesntexist', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
@@ -105,7 +105,7 @@ DraftInstrumentVersion and its associated DraftForms::
     ...         'fake_channel_2': {'configuration': CONFIGURATION}
     ...     }
     ... }
-    >>> req = Request.blank('/api/draftset/123', method='PUT', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset/123', method='PUT', remote_user='test.testing')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps(payload)
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -121,7 +121,7 @@ DraftInstrumentVersion and its associated DraftForms::
 
     >>> payload2 = deepcopy(payload)
     >>> del payload2['forms']['fake_channel_2']
-    >>> req = Request.blank('/api/draftset/123', method='PUT', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset/123', method='PUT', remote_user='test.testing')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps(payload2)
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -136,7 +136,7 @@ DraftInstrumentVersion and its associated DraftForms::
 The ``/api/draftset/{uid}`` URI will accept DELETEs to delete the specified
 DraftInstrumentVersion and its associated DraftForms::
 
-    >>> req = Request.blank('/api/draftset/123', method='DELETE', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset/123', method='DELETE', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     ### DELETED DRAFTFORM fake_draft_form_1
     ### DELETED DRAFTFORM fake_draft_form_2
@@ -149,7 +149,7 @@ DraftInstrumentVersion and its associated DraftForms::
 
 The ``/api/draftset/{uid}`` URI will not accept POSTs::
 
-    >>> req = Request.blank('/api/draftset/123', method='POST', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset/123', method='POST', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
@@ -159,7 +159,7 @@ The ``/api/draftset/{uid}/publish`` URI will accept POSTs to execute
 the publishing process on a DraftInstrumentVersion and its associated
 DraftForms::
 
-    >>> req = Request.blank('/api/draftset/123/publish', method='POST', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset/123/publish', method='POST', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     ### CREATED INSTRUMENTVERSION
     ### CREATED FORM
@@ -171,7 +171,7 @@ DraftForms::
     <BLANKLINE>
     {"status": "SUCCESS", "instrument_version": {"definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "uid": "new_instrument_version_1", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "test.testing", "version": 1}, "forms": {"fake_channel_1": {"instrument_version": {"instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "test.testing", "version": 1, "uid": "new_instrument_version_1", "date_published": "2014-05-22T00:00:00.000Z"}, "configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "uid": "new_form_1", "channel": {"uid": "fake_channel_1", "title": "Title for fake_channel_1"}}, "fake_channel_2": {"instrument_version": {"instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "test.testing", "version": 1, "uid": "new_instrument_version_1", "date_published": "2014-05-22T00:00:00.000Z"}, "configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "uid": "new_form_1", "channel": {"uid": "fake_channel_2", "title": "Title for fake_channel_2"}}}}
 
-    >>> req = Request.blank('/api/draftset/doesntexist/publish', method='POST', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/draftset/doesntexist/publish', method='POST', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     Content-Type: application/json; charset=UTF-8

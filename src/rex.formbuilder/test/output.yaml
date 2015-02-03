@@ -4,23 +4,23 @@
 ---
 suite: rex.formbuilder
 tests:
-- sh: pip install -q -e ./demo/rex.formbuilder_demo
+- sh: pip install -q -e ./demo
   stdout: ''
-- sh: rex rdoma-dropdb rex.formbuilder_demo --set=db=pgsql:formbuilder_demo
+- sh: rex dropdb rex.form_builder_demo --set=db=pgsql:form_builder_demo
   stdout: |
-    Dropping database formbuilder_demo.
-    Dropping role formbuilder_demo:meta.owner.
-    Dropping role formbuilder_demo:meta.architect.
-    Dropping role formbuilder_demo:meta.auditor.
-    Dropping role formbuilder_demo:meta.documentation.
-    Dropping role formbuilder_demo:meta.root.
-    Dropping role formbuilder_demo:meta.surveyor.
-    Dropping role formbuilder_demo:meta.user_admin.
-    Dropping role formbuilder_demo:meta.user_info.
-- sh: rex rdoma-deploy rex.formbuilder_demo --set=db=pgsql:formbuilder_demo
+    Dropping database form_builder_demo.
+    Dropping role form_builder_demo:meta.owner.
+    Dropping role form_builder_demo:meta.architect.
+    Dropping role form_builder_demo:meta.auditor.
+    Dropping role form_builder_demo:meta.documentation.
+    Dropping role form_builder_demo:meta.root.
+    Dropping role form_builder_demo:meta.surveyor.
+    Dropping role form_builder_demo:meta.user_admin.
+    Dropping role form_builder_demo:meta.user_info.
+- sh: rex deploy rex.form_builder_demo --set=db=pgsql:form_builder_demo
   stdout: |
-    Creating the owner of formbuilder_demo.
-    Creating database formbuilder_demo.
+    Creating the owner of form_builder_demo.
+    Creating database form_builder_demo.
     Creating language plpythonu.
     Deploying meta.core #1...
     Deploying meta.core #2...
@@ -34,5 +34,5 @@ tests:
     Deploying meta.core #20131008...
     Deploying meta.core #20140605...
     Total time: 0:00:07.294191
-- sh: pip uninstall -q -y rex.formbuilder_demo
+- sh: pip uninstall -q -y rex.form_builder_demo
   stdout: ''

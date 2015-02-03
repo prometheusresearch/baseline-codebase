@@ -9,13 +9,13 @@ Set up the environment::
 
     >>> from webob import Request
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.formbuilder_demo', db='pgsql:formbuilder_demo')
+    >>> rex = Rex('rex.form_builder_demo', db='pgsql:form_builder_demo', remote_user='demo')
     >>> rex.on()
 
 
 The ``/instrumentversion`` URI will accept GETs for listing::
 
-    >>> req = Request.blank('/api/instrumentversion', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
@@ -26,7 +26,7 @@ The ``/instrumentversion`` URI will accept GETs for listing::
 
 The ``/instrumentversion`` URI will accept POSTs for creating new instances::
 
-    >>> req = Request.blank('/api/instrumentversion', method='POST', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion', method='POST', remote_user='test.testing')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"instrument": "inst1", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "published_by": "someone"}'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -37,7 +37,7 @@ The ``/instrumentversion`` URI will accept POSTs for creating new instances::
     <BLANKLINE>
     {"definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "uid": "new_instrument_version_1", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "inst1", "uid": "inst1", "title": "Title for inst1"}, "published_by": "someone", "version": 1}
 
-    >>> req = Request.blank('/api/instrumentversion', method='POST', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion', method='POST', remote_user='test.testing')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"definition": {}, "published_by": "someone"}'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -50,12 +50,12 @@ The ``/instrumentversion`` URI will accept POSTs for creating new instances::
 
 The ``/instrumentversion`` URI will not accept PUTs or DELETEs::
 
-    >>> req = Request.blank('/api/instrumentversion', method='PUT', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion', method='PUT', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/api/instrumentversion', method='DELETE', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion', method='DELETE', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
@@ -64,7 +64,7 @@ The ``/instrumentversion`` URI will not accept PUTs or DELETEs::
 The ``/instrumentversion/{uid}`` URI will accept GETs to retrieve an individual
 InstrumentVersion::
 
-    >>> req = Request.blank('/api/instrumentversion/123', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion/123', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
@@ -72,7 +72,7 @@ InstrumentVersion::
     <BLANKLINE>
     {"definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "uid": "123", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "someone", "version": 1}
 
-    >>> req = Request.blank('/api/instrumentversion/doesntexist', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion/doesntexist', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
@@ -81,7 +81,7 @@ InstrumentVersion::
 The ``/instrumentversion/{uid}`` URI will accept PUTs to update an
 InstrumentVersion::
 
-    >>> req = Request.blank('/api/instrumentversion/123', method='PUT', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion/123', method='PUT', remote_user='test.testing')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"published_by": "someone else"}'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -95,12 +95,12 @@ InstrumentVersion::
 
 The ``/instrumentversion/{uid}`` URI will not accept POSTs or DELETEs::
 
-    >>> req = Request.blank('/api/instrumentversion/123', method='POST', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion/123', method='POST', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/api/instrumentversion/123', method='DELETE', remote_user='test.testing')
+    >>> req = Request.blank('/formbuilder/api/instrumentversion/123', method='DELETE', remote_user='test.testing')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...

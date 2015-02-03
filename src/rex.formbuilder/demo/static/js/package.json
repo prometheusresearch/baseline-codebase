@@ -1,0 +1,14 @@
+{
+  "name": "rex-form-builder-demo",
+  "version": "4.0.0",
+  "description": "Form Builder Demo",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "AGPLv3",
+  "devDependencies": {
+    "jsx-loader": "^0.12.1"
+  }
+}

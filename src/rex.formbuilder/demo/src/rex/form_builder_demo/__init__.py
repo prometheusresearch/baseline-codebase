@@ -9,14 +9,6 @@ from rex.instrument import interface as instrument_interface
 from rex.forms import interface as forms_interface
 from rex.web import Authorize
 
-
-class DemoAuthorize(Authorize):
-    access = 'demo_test_access'
-
-    def __call__(self, request):
-        return True
-
-
 class User(instrument_interface.User):
     @classmethod
     def get_by_uid(cls, uid, user=None):

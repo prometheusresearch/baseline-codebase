@@ -32,7 +32,6 @@ setup(
     ],
     install_requires=[
         'rex.urlmap',
-        'rex.vendor',
         'rex.deploy',
         'rex.ctl',
     ],

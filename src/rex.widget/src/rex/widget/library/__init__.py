@@ -13,3 +13,5 @@ from .form      import * # pylint: disable=wildcard-import
 from .layout    import * # pylint: disable=wildcard-import
 from .doc       import * # pylint: disable=wildcard-import
 from .filterset import * # pylint: disable=wildcard-import
+from .popup      import * # pylint: disable=wildcard-import
+

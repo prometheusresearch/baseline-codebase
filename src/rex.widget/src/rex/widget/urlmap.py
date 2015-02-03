@@ -16,7 +16,7 @@ from webob.exc import HTTPUnauthorized, HTTPBadRequest, HTTPMethodNotAllowed
 from webob import Response
 
 from rex.core import Validate, Error, StrVal, MapVal, AnyVal, RecordVal, guard
-from rex.core import get_packages
+from rex.core import get_packages, get_settings
 from rex.web import authorize, render_to_response
 from rex.urlmap import Map
 
@@ -181,17 +181,19 @@ class WidgetRenderer(object):
         """
         load_templates('widgets.yaml')
         self.authorize(request)
+        settings = get_settings()
         try:
             accept = request.accept.best_match(
                 ['text/html', 'application/json'])
             payload = self.payload(request)
+            payload = dumps(payload, debug=settings.debug)
             if accept == 'application/json':
-                return Response(dumps(payload), content_type='application/json')
+                return Response(payload, content_type='application/json')
             else:
                 return render_to_response(self.TEMPLATE,
                                           request,
                                           bundle=self.find_bundle(),
-                                          payload=dumps(payload))
+                                          payload=payload)
         except Error, error:
             raise
             return request.get_response(error)

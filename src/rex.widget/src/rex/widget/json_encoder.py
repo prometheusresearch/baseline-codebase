@@ -45,12 +45,26 @@ _encoder = JSONEncoder(
     adapters=_adapters,
 )
 
+_debug_encoder = JSONEncoder(
+    skipkeys=False,
+    ensure_ascii=True,
+    check_circular=True,
+    allow_nan=True,
+    indent=2,
+    separators=None,
+    encoding='utf-8',
+    default=None,
+    namedtuple_as_object=False,
+    tuple_as_array=False,
+    adapters=_adapters,
+)
 
 register_adapter = _adapters.register_adapter
 
 
-def dumps(obj):
-    return _encoder.encode(obj)
+def dumps(obj, debug=False):
+    encoder = _encoder if not debug else _debug_encoder
+    return encoder.encode(obj)
 
 @register_adapter(Record)
 def _encode_Record(record):

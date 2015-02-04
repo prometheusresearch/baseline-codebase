@@ -8,6 +8,12 @@ from datetime import datetime
 from rex.instrument import interface as instrument_interface
 from rex.forms import interface as forms_interface
 from rex.web import Authorize
+import re
+
+COOKIE_REGEXP = re.compile(r"^Set-Cookie\: .*$\n{0,1}", re.MULTILINE)
+
+def strip_cookies(response):
+    return COOKIE_REGEXP.sub(r"", str(response))
 
 class User(instrument_interface.User):
     @classmethod

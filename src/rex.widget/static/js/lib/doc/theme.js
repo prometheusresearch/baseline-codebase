@@ -5,13 +5,21 @@
 
 var theme = {
   colors: {
-    selected: '#CCCCCC',
-    hover: '#DDDDDD',
+    selected: '#FAFAFA',
+    hover: '#FAFAFA',
+    shadow: '#AAAAAA',
+
+    muted: '#EEEEEE',
+    mutedText: '#9E9E9E',
 
     brandSuccess: '#5cb85c',
+    brandSuccessText: '#FFFFFF',
     brandInfo: '#5bc0de',
+    brandInfoText: '#FFFFFF',
     brandWarning: '#f0ad4e',
-    brandDanger: '#d9534f'
+    brandWarningText: '#FFFFFF',
+    brandDanger: '#d9534f',
+    brandDangerText: '#FFFFFF'
   },
   fonts: {
     monospace: 'Menlo, Monaco, monospace'

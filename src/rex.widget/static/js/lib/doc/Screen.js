@@ -5,6 +5,8 @@
 
 var React         = require('react');
 var {VBox, HBox}  = require('../layout');
+var theme         = require('./theme');
+var StyleUtils    = require('./StyleUtils');
 var Sidebar       = require('./Sidebar');
 var Widget        = require('./Widget');
 var Placeholder   = require('./Placeholder');
@@ -13,6 +15,10 @@ var Screen = React.createClass({
 
   style: {
     overflow: 'hidden'
+  },
+
+  styleSidebar: {
+    boxShadow: StyleUtils.boxShadow(0, 0, 2, 0, theme.colors.shadow)
   },
 
   render() {
@@ -25,6 +31,7 @@ var Screen = React.createClass({
           selectedWidget={selectedWidget}
           widgets={widgets}
           onSelect={this.onWidgetSelect}
+          style={this.styleSidebar}
           />
         <VBox size={4}>
           {selectedWidget === null && <Placeholder />}

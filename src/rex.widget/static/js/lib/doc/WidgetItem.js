@@ -13,7 +13,8 @@ var WidgetItem = React.createClass({
   mixins: [Hoverable],
 
   style: {
-    cursor: 'pointer'
+    cursor: 'pointer',
+    fontSize: '90%'
   },
 
   styleSelected: {

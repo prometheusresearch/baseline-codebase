@@ -4,7 +4,10 @@
 'use strict';
 
 var React      = require('react');
+var merge      = require('../merge');
 var {VBox}     = require('../layout');
+var theme      = require('./theme');
+var StyleUtils = require('./StyleUtils');
 var WidgetItem = require('./WidgetItem');
 
 var WidgetList = React.createClass({
@@ -14,11 +17,11 @@ var WidgetList = React.createClass({
   },
 
   render() {
-    var {widgets, selectedWidget, onSelect, ...props} = this.props;
+    var {widgets, selectedWidget, onSelect, style, ...props} = this.props;
     widgets = sortBy(widgets, (w) => w.module);
     widgets = groupBy(widgets, (w) => w.module);
     return (
-      <VBox {...props} style={this.style}>
+      <VBox {...props} style={merge(this.style, style)}>
         {widgets.map((widgets) =>
           <VBox key={widgets.key}>
             <WidgetListSeparator>
@@ -43,9 +46,9 @@ var WidgetListSeparator = React.createClass({
   style: {
     fontWeight: 'bold',
     fontSize: '80%',
-    color: 'white',
-    background: '#888',
-    padding: '2px 4px'
+    padding: '2px 4px',
+    color: theme.colors.mutedText,
+    background: theme.colors.muted
   },
 
   render() {

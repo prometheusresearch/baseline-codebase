@@ -9,7 +9,7 @@
 
 import warnings
 
-from rex.core import Validate
+from rex.core import Validate, Error
 from rex.core import AnyVal, RecordVal, BoolVal, StrVal, OneOfVal, ChoiceVal, IntVal
 
 from ..validate import WidgetVal
@@ -21,9 +21,25 @@ from ..json_encoder import register_adapter
 __all__ = ('DimensionShorthandPropertyVal', 'Element')
 
 
+class SizeVal(Validate):
+
+    _validate = OneOfVal(StrVal(), IntVal())
+
+    def __call__(self, value):
+        value = self._validate(value)
+        if isinstance(value, int):
+            value = str(value)
+        if value[-2:] != 'px' and value[-1] != '%' and not value.isdigit():
+            raise Error(
+                'expected pixel of percentage size, '
+                'value should ends with "px" or "%%" sign or be an integer, '
+                'got: %r' % value)
+        return value
+
+
 class DimensionShorthandPropertyVal(Validate):
 
-    _validate_one = IntVal()
+    _validate_one = SizeVal()
 
     _validate_four = RecordVal(
         ('top', _validate_one, 0),
@@ -53,7 +69,11 @@ def _encode_DimensionShorthandProperty(value):
 
 
 class Box(Widget):
-    """ Layout primitive.
+    """
+    Box widget is the layout primitive of Rex Widget.
+
+    It can be used as a container for other widgets as well as a base for
+    block-like widgets.
     """
 
     name = 'Box'
@@ -69,7 +89,10 @@ class Box(Widget):
     class_name = Field(
         StrVal(),
         default=undefined,
-        doc='CSS class name')
+        doc=
+        """
+        CSS class name.
+        """)
 
     direction = Field(
         ChoiceVal('horizontal', 'vertical'), default='vertical',
@@ -81,30 +104,46 @@ class Box(Widget):
         IntVal(), default=undefined,
         doc="""
         Size.
+
+        It accepts a unitless value that serves as a proportion. It dictates
+        what amount of the available space inside the flex container the item
+        should take up.
         """)
 
     height = Field(
-        StrVal(), default=undefined)
+        SizeVal(), default=undefined,
+        doc="""
+        Height set in pixels or percents.
+        
+        It overrides ``size`` if inside the container with ``vertical``
+        direction.
+        """)
 
     width = Field(
-        StrVal(), default=undefined)
+        SizeVal(), default=undefined,
+        doc="""
+        Width set in pixels or percents.
+
+        It overrides ``size`` if inside the container with ``horizontal``
+        direction.
+        """)
 
     margin = Field(
         DimensionShorthandPropertyVal(), default=undefined,
         doc="""
-        Margin.
+        Margin defines the space around widget.
         """)
 
     children_margin = Field(
         IntVal(), default=undefined,
         doc="""
-        Margin for children (depends on Box's direction).
+        Margin which is set on ``children``.
         """)
 
     aligned = Field(
         ChoiceVal('left', 'right'), default=undefined,
         doc="""
-        If a box should be aligned to left or right side.
+        If a widget should be aligned to ``left`` or ``right`` side.
         """)
 
     center_vertically = Field(
@@ -134,7 +173,9 @@ class VBox(Box):
 
 
 class HBox(Box):
-    """ Like <Box> widget but defaults direction to 'horizontal'."""
+    """
+    Like <Box> widget but defaults direction to 'horizontal'.
+    """
 
     name = 'HBox'
     js_type = Box.js_type

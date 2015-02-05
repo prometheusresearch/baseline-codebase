@@ -106,12 +106,18 @@ function compareFields(widget, a, b) {
     } else if (a.owner_widget !== widget.name && b.owner_widget === widget.name) {
       return 1;
     } else {
-      if (a.name > b.name) {
+      if (a.owner_widget > b.owner_widget) {
         return -1;
-      } else if (a.name < b.name) {
+      } else if (a.owner_widget < b.owner_widget) {
         return 1;
       } else {
-        return 0;
+        if (a.name > b.name) {
+          return -1;
+        } else if (a.name < b.name) {
+          return 1;
+        } else {
+          return 0;
+        }
       }
     }
   }

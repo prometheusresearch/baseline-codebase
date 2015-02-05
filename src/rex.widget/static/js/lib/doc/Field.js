@@ -71,7 +71,7 @@ var Field = React.createClass({
                 </span>
               </VBox> :
               null}
-            {field.owner_widget !== widget.name ?
+            {field.owner_widget !== widget.name && field.owner_widget !== 'None' ?
               <HBox style={this.styleOwnerWidget}>
                 <span>{' '}via {'<'}{field.owner_widget}{'>'} widget</span>
               </HBox> :

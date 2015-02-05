@@ -60,6 +60,10 @@ class WidgetTemplate(Widget):
         return self.underlying().descriptor()
 
 
+WidgetTemplateDesc = namedtuple(
+    'WidgetTemplateDesc', ['name', 'package', 'filename', 'template'])
+
+
 def _widget_templates_from_packages(filename, open=open):
     """ Return all widget templates defined within the active Rex app.
     
@@ -81,8 +85,8 @@ def _widget_templates_from_package(package, filename, open=open):
     :param filename: Filename to load widget templates from
     :returns: Pairs of template name and widget object model
     """
-    filename = package.abspath(filename)
-    stream = open(filename)
+    abs_filename = package.abspath(filename)
+    stream = open(abs_filename)
     spec = validate_widget_templates.parse(stream)
     if spec.include:
         packages = get_packages()
@@ -93,21 +97,25 @@ def _widget_templates_from_package(package, filename, open=open):
             if not include_package in packages:
                 raise Error(
                     "cannot include %s from %s" % (
-                        spec.include, filename),
+                        spec.include, abs_filename),
                     "no %s package found" % (
                         include_package,))
             include_package = packages[include_package]
             if not include_package.exists(include_path):
                 raise Error(
                     "cannot include %s from %s" % (
-                        spec.include, filename),
+                        spec.include, abs_filename),
                     "file %s cannot be found inside %s package" % (
                         include_path, include_package.name))
             templates = _widget_templates_from_package(include_package, include_path, open=open)
             for template in templates:
                 yield template
-    for template in spec.widgets.items():
-        yield template
+    for name, template in spec.widgets.items():
+        yield WidgetTemplateDesc(
+            name=name,
+            package=package,
+            filename=filename,
+            template=template)
 
 
 def _fill_slots(node, context):
@@ -145,8 +153,8 @@ def _make_fields(node, scope, _validator=AnyVal(), _default=NotImplemented):
                 raise Error("Unknown widget", "<%s>" % node.name)
         # TODO: check if widget is built already
         widget_class = scope[node.name]
-        if isinstance(widget_class, WidgetDesc):
-            _build_widget_class(node.name, widget_class, scope)
+        if isinstance(widget_class, WidgetTemplateDesc):
+            _build_widget_class(widget_class, scope)
             widget_class = scope[node.name]
         with guard("While constructing widget:", "<%s>" % widget_class.name):
             required_fields = [f.name for f in widget_class.fields.values() if not f.has_default]
@@ -182,14 +190,15 @@ def _make_fields(node, scope, _validator=AnyVal(), _default=NotImplemented):
 
 
 def _build_widget_classes(iterator):
-    items = OrderedDict(iterator)
-    scope = dict(items)
+    items = list(iterator)
+    scope = {}
+    scope.update({d.name: d for d in items})
     scope.update(Widget.map_all())
-    for name, template in items.items():
-        _build_widget_class(name, template, scope)
+    for desc in items:
+        _build_widget_class(desc, scope)
 
 
-def _build_widget_class(name, template, scope):
+def _build_widget_class(desc, scope):
     """ Build and register a widget class
 
     :param name: Widget name
@@ -197,32 +206,33 @@ def _build_widget_class(name, template, scope):
     :param scope: Currently registered or to be registered widgets
     """
     # TODO: check for conflicts
-    with guard("While processing widget template:", "<%s>" % name):
-        if not isinstance(template, WidgetDesc):
+    with guard("While processing widget template:", "<%s>" % desc.name):
+        if not isinstance(desc.template, WidgetDesc):
             error = Error("template should define a widget")
-            error.wrap("Got:", repr(template))
-            error.wrap("While parsing:", locate(template))
+            error.wrap("Got:", repr(desc.template))
+            error.wrap("While parsing:", locate(desc.template))
             raise error
 
-        fields = {field.name: field for field in _make_fields(template, scope)}
+        fields = {field.name: field for field in _make_fields(desc.template, scope)}
 
     members = {
-        'name': name,
+        'name': desc.name,
         'js_type': '__template__',
-        'template': template
+        'template': desc.template,
+        'template_location': '%s:%s' % (desc.package.name, desc.filename)
     }
     members.update(fields)
 
     widget_class = Widget.__metaclass__.__new__(
         Widget.__metaclass__,
-        str(name),
+        str(desc.name),
         (WidgetTemplate,),
         members
     )
 
-    scope[name] = widget_class
+    scope[desc.name] = widget_class
     # FIXME: this is hacky, we need another solution
-    Widget.map_all()[name] = widget_class
+    Widget.map_all()[desc.name] = widget_class
 
 
 def parse(stream):

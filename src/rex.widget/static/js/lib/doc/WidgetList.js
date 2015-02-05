@@ -18,8 +18,8 @@ var WidgetList = React.createClass({
 
   render() {
     var {widgets, selectedWidget, onSelect, style, ...props} = this.props;
-    widgets = sortBy(widgets, (w) => w.module);
-    widgets = groupBy(widgets, (w) => w.module);
+    widgets = sortBy(widgets, w => w.module);
+    widgets = groupBy(widgets, w => w.module);
     return (
       <VBox {...props} style={merge(this.style, style)}>
         {widgets.map((widgets) =>
@@ -27,7 +27,7 @@ var WidgetList = React.createClass({
             <WidgetListSeparator>
               {widgets.key}
             </WidgetListSeparator>
-            {widgets.group.map(widget =>
+            {sortBy(widgets.group, w => w.name).map(widget =>
               <WidgetItem
                 selected={selectedWidget && widget.name === selectedWidget.name}
                 key={widget.name}

@@ -89,7 +89,8 @@ class Field(object):
 class IDField(Field):
     """ ID field."""
 
-    def __init__(self, required=False):
+    def __init__(self, doc=None, required=False):
         super(IDField, self).__init__(
             StrVal(),
+            doc=doc,
             default=NotImplemented if required else undefined)

@@ -63,7 +63,11 @@ class Widget(WidgetBase):
 
     fields = OrderedDict()
 
-    id = IDField()
+    id = IDField(
+        doc="""
+        Specify widget identifier. If you plan to refer to widget you need to
+        specify its id first.
+        """)
 
     _validate = ProxyVal()
 

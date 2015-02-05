@@ -7,8 +7,9 @@
 
 """
 
-from rex.core import AnyVal
+from rex.core import AnyVal, StrVal
 from ..widget import Widget
+from ..field import StateField
 from ..undefined import MaybeUndefinedVal
 
 
@@ -24,6 +25,12 @@ class DocScreen(Widget):
 
     name = 'DocScreen'
     js_type = 'rex-widget/lib/doc/Screen'
+
+    selected = StateField(
+        StrVal(), default=None,
+        doc="""
+        Currently selected widget.
+        """)
 
     @Widget.define_state(AnyVal())
     def widgets(self, state, graph, request):
@@ -49,4 +56,6 @@ class DocScreen(Widget):
             'name': field.name,
             'doc': field.__doc__,
             'type': repr(validate),
+            'required': not field.has_default,
+            'default': repr(field.default),
         }

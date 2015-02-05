@@ -62,9 +62,10 @@ var Widget = React.createClass({
         <VBox>
           <VBox margin={10} childrenMargin={10}>
             <VBox style={this.styleName}>{widget.name}</VBox>
-            <VBox>
-              <p style={this.styleDoc}>{widget.doc}</p>
-            </VBox>
+            <VBox
+              style={this.styleDoc}
+              dangerouslySetInnerHTML={{__html: widget.doc}}
+              />
           </VBox>
           <Section title="Fields">
             {fields.map(field =>

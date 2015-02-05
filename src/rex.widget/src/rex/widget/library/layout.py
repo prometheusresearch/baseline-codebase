@@ -127,12 +127,14 @@ class Box(Widget):
 
 
 class VBox(Box):
+    """ Synonym for <Box> widget."""
 
     name = 'VBox'
     js_type = Box.js_type
 
 
 class HBox(Box):
+    """ Like <Box> widget but defaults direction to 'horizontal'."""
 
     name = 'HBox'
     js_type = Box.js_type

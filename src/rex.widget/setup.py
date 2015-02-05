@@ -26,6 +26,7 @@ setup(
         'rex.core       >= 1.6,   < 2',
         'rex.web        >= 3.0,   < 4',
         'rex.urlmap     >= 2.5,   < 3',
+        'docutils       >= 0.12,  < 0.13',
         'simplejson     >= 3.0,   < 4',
         'jsonpublish    >= 0.2.1, < 0.3',
         'pyquerystring  >= 0.3,   < 0.4'

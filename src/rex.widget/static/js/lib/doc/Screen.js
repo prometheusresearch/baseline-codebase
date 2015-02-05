@@ -24,7 +24,7 @@ var Screen = React.createClass({
   },
 
   render() {
-    var {widgets, selected, ...props} = this.props;
+    var {widgets, widget, selected, ...props} = this.props;
     var selectedWidget = null;
     for (var i = 0, len = widgets.length; i < len; i++) {
       if (widgets[i].name === selected) {
@@ -36,7 +36,7 @@ var Screen = React.createClass({
       <HBox {...props} style={this.style} width="100%" height="100%">
         <VBox size={4}>
           {selectedWidget == null && <Placeholder />}
-          {selectedWidget != null && <Widget widget={selectedWidget} />}
+          {selectedWidget != null && <Widget widget={widget} />}
         </VBox>
         <Sidebar
           size={1}

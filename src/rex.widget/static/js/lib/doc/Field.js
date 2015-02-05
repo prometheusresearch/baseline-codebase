@@ -78,7 +78,10 @@ var Field = React.createClass({
               null}
             <VBox style={this.styleType}>{field.type}</VBox>
           </HBox>
-          <VBox style={this.styleDoc}>{field.doc}</VBox>
+          <VBox
+            style={this.styleDoc}
+            dangerouslySetInnerHTML={{__html: field.doc}}
+            />
         </VBox>
       </VBox>
     );

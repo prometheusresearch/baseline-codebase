@@ -7,6 +7,8 @@
 
 """
 
+from docutils.core import publish_parts
+
 from rex.core import AnyVal, StrVal
 from ..template import WidgetTemplate
 from ..undefined import undefined
@@ -39,16 +41,27 @@ class DocScreen(Widget):
     def widgets(self, state, graph, request):
         widgets = Widget.map_all().values()
         widgets = sorted(widgets, key=lambda w: w.name)
-        return [self._format_widget(w) for w in widgets]
+        return [self._format_widget(w, brief=True) for w in widgets]
 
-    def _format_widget(self, widget):
-        return {
+    @Widget.define_state(AnyVal(), is_writable=False, dependencies=['selected'])
+    def widget(self, state, graph, request):
+        selected = graph[self.id].selected
+        if selected:
+            widget = Widget.map_all()[selected]
+            return self._format_widget(widget)
+
+    def _format_widget(self, widget, brief=False):
+        result = {
             'name': str(widget.name),
             'module': widget.__module__ if not issubclass(widget, WidgetTemplate) else widget.template_location,
-            'doc': widget.__doc__,
             'js_type': widget.js_type,
-            'fields': [self._format_field(widget, f) for f in widget.fields.values()],
         }
+        if not brief:
+            result.update({
+                'doc': render_rst(widget.__doc__),
+                'fields': [self._format_field(widget, f) for f in widget.fields.values()],
+            })
+        return result
 
     def _format_field(self, widget, field):
         validate = field.validate
@@ -56,7 +69,7 @@ class DocScreen(Widget):
             validate = validate.validate
         result = {
             'name': field.name,
-            'doc': field.__doc__,
+            'doc': render_rst(field.__doc__),
             'type': repr(validate),
             'required': not field.has_default,
         }
@@ -65,3 +78,18 @@ class DocScreen(Widget):
         if field.default not in (NotImplemented, undefined, unknown):
             result['default'] = repr(field.default)
         return result
+
+
+def render_rst(rst):
+    if not rst:
+        return rst
+    lines = rst.split('\n')
+    first_line, rest_lines = lines[0], lines[1:]
+    if first_line.lstrip() != first_line:
+        indent = len(first_line) - len(first_line.lstrip())
+    elif rest_lines:
+        indent = len(rest_lines[0]) - len(rest_lines[0].lstrip())
+    else:
+        indent = 0
+    rst = '\n'.join(line[indent:] for line in lines)
+    return publish_parts(rst, writer_name='html')['html_body']

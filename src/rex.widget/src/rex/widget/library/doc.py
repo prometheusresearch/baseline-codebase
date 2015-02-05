@@ -8,6 +8,7 @@
 """
 
 from rex.core import AnyVal, StrVal
+from ..template import WidgetTemplate
 from ..widget import Widget
 from ..field import StateField
 from ..undefined import MaybeUndefinedVal
@@ -41,7 +42,7 @@ class DocScreen(Widget):
     def _format_widget(self, widget):
         return {
             'name': str(widget.name),
-            'module': widget.__module__,
+            'module': widget.__module__ if not issubclass(widget, WidgetTemplate) else widget.template_location,
             'doc': widget.__doc__,
             'js_type': widget.js_type,
             'fields': [self._format_field(f) for f in widget.fields.values()],

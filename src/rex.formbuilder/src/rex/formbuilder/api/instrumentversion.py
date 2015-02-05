@@ -7,7 +7,7 @@ from rex.core import get_settings, StrVal
 from rex.restful import SimpleResource
 from rex.web import Parameter
 
-from .base import BaseResource
+from .base import BaseResource, get_instrument_user, ConstantArg
 
 
 __all__ = (

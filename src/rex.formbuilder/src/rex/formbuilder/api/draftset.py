@@ -101,7 +101,10 @@ class DraftSetResource(SimpleResource, BaseResource):
             handler = DraftInstrumentVersionResource. \
                 _SimpleResource__base_handler()
             user = get_instrument_user(request)
-            payload = payload_without_yaml(request.payload)
+            if with_yaml:
+                payload = payload_without_yaml(request.payload)
+            else:
+                payload = request.payload
             instrument_version = payload.get('instrument_version', {})
             fake_request = FakeRequest(instrument_version, user.get_display_name())
             div = handler.create(fake_request)

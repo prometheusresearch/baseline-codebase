@@ -8,14 +8,13 @@ tests:
 - sh: pip install -q -e ./demo
 - sh: rex dropdb rex.form_builder_demo --set=db=pgsql:form_builder_demo
   ignore: true
-#  unless: ALREADY_HAVE_DB
+  unless: ALREADY_HAVE_DB
 - sh: rex deploy rex.form_builder_demo --set=db=pgsql:form_builder_demo
   ignore: true
-#  unless: ALREADY_HAVE_DB
+  unless: ALREADY_HAVE_DB
 - doctest: README.rst
-#- doctest: test/test_*.rst
+# - doctest: test/test_*.rst
 - doctest: test/api/test_*.rst
 - sh: pip uninstall -q -y rex.form_builder_demo
-- coverage-check: 90.0
+#- coverage-check: 90.0
 - coverage-report: ./build/coverage
-

@@ -31,24 +31,24 @@ instances::
 
     >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', method='POST', remote_user='demo')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{"instrument": "inst1", "created_by": "someone", "parent_instrument_version": "instver2", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}}'
+    >>> req.body = '{"instrument": "inst1", "parent_instrument_version": "instver2", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     ### CREATED DRAFTINSTRUMENTVERSION
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"parent_instrument_version": {"instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "someone", "version": 1, "uid": "instver2", "date_published": "2014-05-22T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "modified_by": "someone", "uid": "new_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "inst1", "uid": "inst1", "title": "Title for inst1"}, "date_created": "2014-05-22T00:00:00.000Z"}
+    {"parent_instrument_version": {"instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "someone", "version": 1, "uid": "instver2", "date_published": "2014-05-22T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "modified_by": "demo", "uid": "new_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "demo", "instrument": {"status": "active", "code": "inst1", "uid": "inst1", "title": "Title for inst1"}, "date_created": "2014-05-22T00:00:00.000Z"}
 
     >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', method='POST', remote_user='demo')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{"instrument": "inst1"}'
+    >>> req.body = '{}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"error": "Missing required parameter: created_by"}
+    {"error": "Missing required parameter: instrument"}
 
     >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', method='POST', remote_user='demo')
     >>> req.headers['Content-Type'] = 'application/json'
@@ -96,14 +96,14 @@ DraftInstrumentVersion::
 
     >>> req = Request.blank('/formbuilder/api/draftinstrumentversion/123', method='PUT', remote_user='demo')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{"modified_by": "someone else"}'
+    >>> req.body = '{}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     ### SAVED DRAFTINSTRUMENTVERSION 123
     202 Accepted
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"parent_instrument_version": null, "definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "modified_by": "someone else", "uid": "123", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}
+    {"parent_instrument_version": null, "definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "modified_by": "demo", "uid": "123", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}
 
 
 The ``/draftinstrumentversion/{uid}`` URI will accept DELETEs to delete a

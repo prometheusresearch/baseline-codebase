@@ -85,14 +85,14 @@ InstrumentVersion::
 
     >>> req = Request.blank('/formbuilder/api/instrumentversion/123', method='PUT', remote_user='demo')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{"published_by": "someone else"}'
+    >>> req.body = '{}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     ### SAVED INSTRUMENTVERSION 123
     202 Accepted
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "uid": "123", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "someone else", "version": 1}
+    {"definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "uid": "123", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "demo", "version": 1}
 
 
 The ``/instrumentversion/{uid}`` URI will not accept POSTs or DELETEs::

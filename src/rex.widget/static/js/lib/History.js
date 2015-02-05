@@ -1,20 +1,36 @@
 /**
- * @jsx React.DOM
+ * @copyright 2015, Prometheus Research LLC
  */
 'use strict';
 
-var qs = require('./qs');
+var qs                = require('./qs');
+var ActionTypes       = require('./runtime/ActionTypes');
+var PersistenceTypes  = require('./runtime/PersistenceTypes');
 
 class History {
 
-  constructor(state) {
-    this.state = state;
-    this.preventPopState = false;
-    this.start();
+  constructor(dispatcher) {
+    this.preventPopState = true;
+    dispatcher.register(this._onAction.bind(this));
   }
 
-  start() {
-    window.addEventListener('popstate', this._handlePopState.bind(this));
+  _onAction(action) {
+    switch (action.type) {
+      case ActionTypes.PAGE_INIT:
+        window.addEventListener('popstate', this._handlePopState.bind(this));
+        setTimeout(() => this.preventPopState = false, 1000);
+        break;
+      case ActionTypes.PAGE_STATE_UPDATE_COMPLETE:
+        break;
+      case ActionTypes.PAGE_STATE_UPDATE:
+        var {persistence} = action.payload;
+        if (persistence === PersistenceTypes.PERSISTENT) {
+          this.pushState();
+        } else if (persistence === PersistenceTypes.EPHEMERAL) {
+          this.replaceState();
+        }
+        break;
+    }
   }
 
   replaceState() {
@@ -28,20 +44,21 @@ class History {
   }
 
   pathname() {
+    var ApplicationState = require('./runtime/ApplicationState');
     var pathname = window.location.pathname;
     var query = {};
-    this.state.forEach(({persistence, alias, isWritable}, key, {value}) => {
+    ApplicationState.forEach(({persistence, alias, isWritable}, key, {value}) => {
       if (!isWritable) {
         return;
       }
-      if (value !== null
-          && value !== this.state.UNKNOWN
-          && persistence !== this.state.PERSISTENCE.INVISIBLE) {
-
+      if (
+        value !== null
+        && value !== ApplicationState.UNKNOWN
+        && persistence !== PersistenceTypes.INVISIBLE
+      ) {
         if (alias) {
           key = alias;
         }
-
         query[key] = value;
       }
     });
@@ -53,13 +70,14 @@ class History {
   }
 
   _handlePopState() {
+    var ApplicationState = require('./runtime/ApplicationState');
     if (this.preventPopState) {
       this.preventPopState = false;
       return;
     }
     var update = {};
     var query = qs.parse(window.location.search.slice(1));
-    this.state.forEach(({isWritable, alias}, key) => {
+    ApplicationState.forEach(({isWritable, alias}, key) => {
       if (!isWritable) {
         return;
       }
@@ -69,7 +87,8 @@ class History {
       }
       update[key] = value;
     });
-    this.state.updateMany(update);
+    // TODO: update via action
+    ApplicationState.updateMany(update);
   }
 };
 

@@ -32,11 +32,10 @@ class DocScreen(Widget):
         Currently selected widget.
         """)
 
-    @Widget.define_state(AnyVal())
+    @Widget.define_state(AnyVal(), is_writable=False)
     def widgets(self, state, graph, request):
         widgets = Widget.map_all().values()
         widgets = sorted(widgets, key=lambda w: w.name)
-        #return []
         return [self._format_widget(w) for w in widgets]
 
     def _format_widget(self, widget):

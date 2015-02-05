@@ -1,5 +1,5 @@
 /**
- * @copyright Prometheus Research, LLC
+ * @copyright 2015, Prometheus Research, LLC
  */
 'use strict';
 
@@ -34,8 +34,6 @@ class ApplicationState extends Emitter {
     this.dependents = {};
     // a mapping from state ids to state values
     this.values = {};
-
-    this.history = new History(this);
   }
 
   _onAction(action) {
@@ -70,11 +68,9 @@ class ApplicationState extends Emitter {
   }
 
   _onPageInit(stateDescriptor, state, versions) {
-    this.history.preventPopState = true;
     this.configure(stateDescriptor);
     this.hydrate(state, versions, false);
     this.loadDeferred();
-    setTimeout(() => this.history.preventPopState = false, 1000);
   }
 
   /**

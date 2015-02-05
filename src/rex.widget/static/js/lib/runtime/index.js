@@ -8,5 +8,7 @@ module.exports = {
   ApplicationState: require('./ApplicationState'),
   Dispatcher: require('./Dispatcher'),
   ActionTypes: require('./ActionTypes'),
-  Actions: require('./Actions')
+  PersistenceTypes: require('./PersistenceTypes'),
+  Actions: require('./Actions'),
+  History: require('./History')
 };

@@ -3,15 +3,19 @@
  */
 'use strict';
 
-var runtime = require('../runtime');
+var runtime           = require('../runtime');
+var StateWriter       = require('../StateWriter');
+
+var DEFAULT_WORKFLOW = 'DEFAULT_WORKFLOW';
 
 function transition({id, to}) {
-  return function transition() {
-    id = id || 'DEFAULT_WORKFLOW';
+  id = id || DEFAULT_WORKFLOW;
+  return StateWriter.createStateWriterFromFunction(function() {
     var state = runtime.ApplicationState.getState(`${id}/active`);
-    state.manager.set(to);
-    runtime.ApplicationState.history.pushState();
-  }
+    var update = {};
+    update[id] = to;
+    return {update};
+  });
 }
 
 module.exports = transition;

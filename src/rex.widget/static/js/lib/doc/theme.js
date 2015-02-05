@@ -5,6 +5,7 @@
 
 var theme = {
   colors: {
+    text: '#666666',
     selected: '#FAFAFA',
     hover: '#FAFAFA',
     shadow: '#AAAAAA',

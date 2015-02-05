@@ -49,6 +49,10 @@ var Field = React.createClass({
     fontSize: '90%'
   },
 
+  styleDefaultValue: {
+    color: theme.colors.text
+  },
+
   render() {
     var {field, widget, ...props} = this.props;
     var {hover} = this.state;
@@ -59,7 +63,12 @@ var Field = React.createClass({
             <VBox style={this.styleName}>{field.name}</VBox>
             {!field.required ?
               <VBox style={this.styleOptional}>
-                <span> (optional{field.default !== undefined ? <span>, default value is {field.default}</span> : null})</span>
+                <span>
+                  {' '}
+                  (optional{field.default !== undefined ?
+                    <span>, default value is <span style={this.styleDefaultValue}>{field.default}</span></span> :
+                    null})
+                </span>
               </VBox> :
               null}
             {field.owner_widget !== widget.name ?

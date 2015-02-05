@@ -12,6 +12,7 @@ from ..template import WidgetTemplate
 from ..undefined import undefined
 from ..widget import Widget
 from ..field import StateField
+from ..state import unknown
 from ..undefined import MaybeUndefinedVal
 
 
@@ -46,10 +47,10 @@ class DocScreen(Widget):
             'module': widget.__module__ if not issubclass(widget, WidgetTemplate) else widget.template_location,
             'doc': widget.__doc__,
             'js_type': widget.js_type,
-            'fields': [self._format_field(f) for f in widget.fields.values()],
+            'fields': [self._format_field(widget, f) for f in widget.fields.values()],
         }
 
-    def _format_field(self, field):
+    def _format_field(self, widget, field):
         validate = field.validate
         while isinstance(validate, MaybeUndefinedVal):
             validate = validate.validate
@@ -58,8 +59,9 @@ class DocScreen(Widget):
             'doc': field.__doc__,
             'type': repr(validate),
             'required': not field.has_default,
-            'owner_widget': str(field.widget_class.name),
         }
-        if field.default not in (NotImplemented, undefined):
+        if field.widget_class is not None:
+            result['owner_widget'] = str(field.widget_class.name)
+        if field.default not in (NotImplemented, undefined, unknown):
             result['default'] = repr(field.default)
         return result

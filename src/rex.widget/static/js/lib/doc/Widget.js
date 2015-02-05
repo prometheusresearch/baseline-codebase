@@ -1,11 +1,12 @@
 /**
- * @copyright 2015, prometheus research, llc
+ * @copyright 2015, Prometheus Research, LLC
  */
 'use strict';
 
 var React         = require('react');
 var {VBox, HBox}  = require('../layout');
 var Icon          = require('../Icon');
+var groupBy       = require('../groupBy');
 var Field         = require('./Field');
 var Label         = require('./Label');
 var theme         = require('./theme');
@@ -55,6 +56,7 @@ var Widget = React.createClass({
     var {widget} = this.props;
     var {showFields} = this.state;
     var fields = widget.fields.slice(0);
+    fields.sort(compareFields.bind(null, widget));
     return (
       <VBox style={this.style} size={1}>
         <VBox>
@@ -65,8 +67,9 @@ var Widget = React.createClass({
             </VBox>
           </VBox>
           <Section title="Fields">
-            {widget.fields.map(field =>
+            {fields.map(field =>
               <Field
+                widget={widget}
                 key={field.name}
                 field={field}
                 />
@@ -89,5 +92,28 @@ var Widget = React.createClass({
     this.setState({showFields});
   }
 });
+
+
+function compareFields(widget, a, b) {
+  if (a.required && !b.required) {
+    return -1;
+  } else if (!a.required && b.required) {
+    return 1;
+  } else {
+    if (a.owner_widget === widget.name && b.owner_widget !== widget.name) {
+      return -1;
+    } else if (a.owner_widget !== widget.name && b.owner_widget === widget.name) {
+      return 1;
+    } else {
+      if (a.name > b.name) {
+        return -1;
+      } else if (a.name < b.name) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  }
+}
 
 module.exports = Widget;

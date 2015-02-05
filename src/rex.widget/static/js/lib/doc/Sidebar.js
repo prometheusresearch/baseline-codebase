@@ -92,8 +92,7 @@ var Sidebar = React.createClass({
     var {widgets, onSelect, selectedWidget, style, ...props} = this.props;
     var {query} = this.state;
     if (query !== '') {
-      var queryRe = new RegExp(query, 'i');
-      widgets = widgets.filter(w => queryRe.exec(w.name));
+      widgets = widgets.filter(makeWidgetFilterFromQuery(query));
     }
     return (
       <VBox {...props} style={merge(this.style, style)} height="100%">
@@ -121,5 +120,12 @@ var Sidebar = React.createClass({
     this.setState({query});
   }
 });
+
+function makeWidgetFilterFromQuery(query) {
+  query = new RegExp(query, 'i');
+  return function filter(widget) {
+    return query.exec(widget.name) || query.exec(widget.module);
+  }
+}
 
 module.exports = Sidebar;

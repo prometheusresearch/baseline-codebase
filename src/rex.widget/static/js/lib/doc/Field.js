@@ -40,18 +40,36 @@ var Field = React.createClass({
     color: theme.colors.mutedText
   },
 
+  styleOwnerWidget: {
+    marginLeft: 5
+  },
+
+  styleDoc: {
+    marginTop: 5,
+    fontSize: '90%'
+  },
+
   render() {
-    var {field, ...props} = this.props;
+    var {field, widget, ...props} = this.props;
     var {hover} = this.state;
     return (
       <VBox {...this.hoverable} {...props} style={merge(this.style, hover && this.styleOnHover)}>
         <VBox margin="10px 10px">
           <HBox style={this.styleMeta}>
             <VBox style={this.styleName}>{field.name}</VBox>
-            {!field.required ? <VBox style={this.styleOptional}> (optional)</VBox> : null}
+            {!field.required ?
+              <VBox style={this.styleOptional}>
+                <span> (optional{field.default !== undefined ? <span>, default value is {field.default}</span> : null})</span>
+              </VBox> :
+              null}
+            {field.owner_widget !== widget.name ?
+              <HBox style={this.styleOwnerWidget}>
+                <span>{' '}via {'<'}{field.owner_widget}{'>'} widget</span>
+              </HBox> :
+              null}
             <VBox style={this.styleType}>{field.type}</VBox>
           </HBox>
-          <VBox>{field.doc}</VBox>
+          <VBox style={this.styleDoc}>{field.doc}</VBox>
         </VBox>
       </VBox>
     );

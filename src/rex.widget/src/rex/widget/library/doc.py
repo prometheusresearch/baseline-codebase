@@ -9,6 +9,7 @@
 
 from rex.core import AnyVal, StrVal
 from ..template import WidgetTemplate
+from ..undefined import undefined
 from ..widget import Widget
 from ..field import StateField
 from ..undefined import MaybeUndefinedVal
@@ -52,10 +53,13 @@ class DocScreen(Widget):
         validate = field.validate
         while isinstance(validate, MaybeUndefinedVal):
             validate = validate.validate
-        return {
+        result = {
             'name': field.name,
             'doc': field.__doc__,
             'type': repr(validate),
             'required': not field.has_default,
-            'default': repr(field.default),
+            'owner_widget': str(field.widget_class.name),
         }
+        if field.default not in (NotImplemented, undefined):
+            result['default'] = repr(field.default)
+        return result

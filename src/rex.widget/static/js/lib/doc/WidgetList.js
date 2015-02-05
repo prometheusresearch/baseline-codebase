@@ -6,6 +6,8 @@
 var React      = require('react');
 var merge      = require('../merge');
 var {VBox}     = require('../layout');
+var sortBy     = require('../sortBy');
+var groupBy    = require('../groupBy');
 var theme      = require('./theme');
 var StyleUtils = require('./StyleUtils');
 var WidgetItem = require('./WidgetItem');
@@ -52,41 +54,12 @@ var WidgetListSeparator = React.createClass({
   },
 
   render() {
-    return <VBox style={this.style}>{this.props.children}</VBox>
+    return (
+      <VBox style={this.style}>
+        {this.props.children}
+      </VBox>
+    );
   }
 });
-
-function sortBy(items, keyFunc) {
-  items = items.slice(0);
-  items.sort(function(a, b) {
-    var aKey = keyFunc(a);
-    var bKey = keyFunc(b);
-    if (aKey > bKey) {
-      return 1;
-    }
-    if (aKey < bKey) {
-      return -1;
-    }
-    return 0;
-  });
-  return items;
-}
-
-function groupBy(items, keyFunc) {
-  var result = [];
-  var key;
-  var group;
-  for (var i = 0; i < items.length; i++) {
-    var item = items[i];
-    var itemKey = keyFunc(item);
-    if (itemKey !== key) {
-      key = itemKey;
-      group = [];
-      result.push({key, group});
-    }
-    group.push(item);
-  }
-  return result;
-}
 
 module.exports = WidgetList;

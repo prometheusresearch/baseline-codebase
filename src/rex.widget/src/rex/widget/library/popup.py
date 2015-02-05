@@ -38,7 +38,7 @@ class Popup(Widget):
     style   = Field(StrVal(), default='button', doc="Optional - Style as link or button.")
     text   = Field(StrVal(), default='Popup', doc="Optional text on popup button or link.")
     closeText   = Field(StrVal(), default='Close ', doc="Optional text to prefix close button or link.")
-    className   = Field(StrVal(), default=None, doc="Optional class(s).")
+    className   = Field(StrVal(), default='', doc="Optional class(s).")
     children = Field(
         WidgetVal(),
         default=NullWidget(),

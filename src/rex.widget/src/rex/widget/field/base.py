@@ -36,15 +36,17 @@ class Field(object):
         self.order = cls.order
         return self
 
-    def __init__(self, validate, default=NotImplemented, configurable=True, doc=None, name=None):
+    def __init__(self, validate, default=NotImplemented, configurable=True,
+            doc=None, name=None, widget_class=None):
         if isinstance(validate, type):
             validate = validate()
         self.validate = MaybeUndefinedVal(validate)
         self.default = default
         self.configurable = configurable
         self.__doc__ = doc
-        # name will be defined by Widget metaclass
+        # ``name`` and ``widget_class`` will be defined by Widget metaclass
         self.name = name
+        self.widget_class = widget_class
 
     def __get__(self, widget, widget_cls):
         if widget is None:
@@ -73,6 +75,7 @@ class Field(object):
             configurable=self.configurable,
             doc=self.__doc__,
             name=name,
+            widget_class=self.widget_class
         )
 
     def apply(self, widget, value):

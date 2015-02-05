@@ -160,5 +160,6 @@ class StateField(Field):
             configurable=self.configurable,
             doc=self.__doc__,
             name=name,
+            widget_class=self.widget_class,
             **self.params
         )

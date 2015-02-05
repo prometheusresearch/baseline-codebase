@@ -245,7 +245,8 @@ class DataField(Field):
             include_meta=self.include_meta,
             default=default,
             doc=self.__doc__,
-            name=name
+            name=name,
+            widget_class=self.widget_class,
         )
 
     def produce(self, spec, widget, state, graph, request):

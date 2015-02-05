@@ -5,10 +5,39 @@
 
 var React         = require('react');
 var merge         = require('../merge');
-var {VBox}        = require('../layout');
+var {VBox, HBox}  = require('../layout');
+var Icon          = require('../Icon');
+var Hoverable     = require('../Hoverable');
 var theme         = require('./theme');
 var StyleUtils    = require('./StyleUtils');
 var WidgetList    = require('./WidgetList');
+
+var SearchInputClearButton = React.createClass({
+  mixins: [Hoverable],
+
+  style: {
+    cursor: 'pointer',
+    opacity: 0.3
+  },
+
+  styleOnHover: {
+    opacity: 1
+  },
+
+  render() {
+    var {style, ...props} = this.props;
+    var {hover} = this.state;
+    return (
+      <VBox
+        {...props}
+        {...this.hoverable}
+        style={merge(this.style, style, hover && this.styleOnHover)}
+        role="button">
+        ✖
+      </VBox>
+    );
+  }
+});
 
 var SearchInput = React.createClass({
 
@@ -17,18 +46,37 @@ var SearchInput = React.createClass({
     outline: 'none'
   },
 
+  styleButton: {
+    top: 2
+  },
+
   render() {
     var {value, onChange, placeholder, ...props} = this.props;
     return (
-      <VBox {...props}>
-        <input
-          style={this.styleInput}
-          value={value}
-          placeholder={placeholder}
-          onChange={onChange}
-          />
-      </VBox>
+      <HBox {...props} onChange={undefined}>
+        <VBox size={1}>
+          <input
+            style={this.styleInput}
+            value={value}
+            placeholder={placeholder}
+            onChange={this._onChange}
+            />
+        </VBox>
+        {value !== '' &&
+          <SearchInputClearButton
+            style={this.styleButton}
+            onClick={this._clear}
+            />}
+      </HBox>
     );
+  },
+
+  _clear() {
+    this.props.onChange('');
+  },
+
+  _onChange(e) {
+    this.props.onChange(e.target.value);
   }
 });
 
@@ -69,8 +117,7 @@ var Sidebar = React.createClass({
     return {query: ''};
   },
 
-  onQueryChange(e) {
-    var query = e.target.value;
+  onQueryChange(query) {
     this.setState({query});
   }
 });

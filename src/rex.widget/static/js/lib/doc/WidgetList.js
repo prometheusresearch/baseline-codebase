@@ -8,8 +8,8 @@ var merge      = require('../merge');
 var {VBox}     = require('../layout');
 var sortBy     = require('../sortBy');
 var groupBy    = require('../groupBy');
+var StyleUtils = require('../StyleUtils');
 var theme      = require('./theme');
-var StyleUtils = require('./StyleUtils');
 var WidgetItem = require('./WidgetItem');
 
 var WidgetList = React.createClass({

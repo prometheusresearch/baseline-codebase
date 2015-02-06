@@ -8,8 +8,8 @@ var merge         = require('../merge');
 var {VBox, HBox}  = require('../layout');
 var Icon          = require('../Icon');
 var Hoverable     = require('../Hoverable');
+var StyleUtils    = require('../StyleUtils');
 var theme         = require('./theme');
-var StyleUtils    = require('./StyleUtils');
 var WidgetList    = require('./WidgetList');
 
 var SearchInputClearButton = React.createClass({

@@ -5,8 +5,8 @@
 
 var React         = require('react');
 var {VBox, HBox}  = require('../layout');
+var StyleUtils    = require('../StyleUtils');
 var theme         = require('./theme');
-var StyleUtils    = require('./StyleUtils');
 var Sidebar       = require('./Sidebar');
 var Widget        = require('./Widget');
 var Placeholder   = require('./Placeholder');

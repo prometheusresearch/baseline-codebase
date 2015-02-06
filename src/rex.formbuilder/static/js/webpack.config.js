@@ -17,7 +17,8 @@ module.exports = RexSetup.configureWebpack({
     alias: {
       // this is because we are using npm dist of React
       'react/addons': RexSetup.packagePath('react/react-with-addons.js'),
-      'react': RexSetup.packagePath('react/react-with-addons.js')
+      'react': RexSetup.packagePath('react/react-with-addons.js'),
+      // 'codemirror': RexSetup.packagePath('codemirror/'),
     }
   },
 

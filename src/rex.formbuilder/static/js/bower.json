@@ -16,6 +16,7 @@
     "superagent": "^0.18.2",
     "emitter": "component/emitter#1.1.2",
     "bluebird": "^2.3.2",
+    "codemirror": "^4.12.0",
     "react-forms": "prometheusresearch/react-forms#master",
     "rex-applet": "*"
   },

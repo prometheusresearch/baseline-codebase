@@ -18,12 +18,12 @@ from ..validate import WidgetVal
 from ..state import State
 from ..urlmap import WidgetRenderer
 from ..template import WidgetTemplate
-from .layout import Element
+from .layout import Box
 
 __all__ = ('Page',)
 
 
-class Page(Element):
+class Page(Box):
     """ Widget which represents entire page."""
 
     name = 'Page'

@@ -18,7 +18,7 @@ from ..field import Field, undefined
 from ..util import get_validator_for_key
 from ..json_encoder import register_adapter
 
-__all__ = ('DimensionShorthandPropertyVal', 'Element')
+__all__ = ('DimensionShorthandPropertyVal', 'SizeVal', 'Box', 'VBox', 'HBox')
 
 
 class SizeVal(Validate):
@@ -181,16 +181,3 @@ class HBox(Box):
     js_type = Box.js_type
 
     direction = Box.direction.reassign(default='horizontal')
-
-
-class Element(Box):
-
-    name = 'Element'
-    js_type = Box.js_type
-
-    def descriptor(self):
-        desc = super(Element, self).descriptor()
-        warnings.warn(
-            "<%s /> is deprecated, use <Element /> instead" % self.name,
-            DeprecationWarning)
-        return desc

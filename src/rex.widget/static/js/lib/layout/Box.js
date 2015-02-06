@@ -91,7 +91,7 @@ var Box = React.createClass({
         `0px 0px 0px ${childrenMargin}px` :
         `${childrenMargin}px 0px 0px 0px`;
       children = React.Children.map(children, (child, idx) =>
-        idx === 0 ?
+        idx === 0 || !child ?
           child :
           cloneWithProps(child, {margin: childrenMargin}));
     }

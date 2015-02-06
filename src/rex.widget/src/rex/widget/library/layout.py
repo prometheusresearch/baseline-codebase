@@ -14,11 +14,31 @@ from rex.core import AnyVal, RecordVal, BoolVal, StrVal, OneOfVal, ChoiceVal, In
 
 from ..validate import WidgetVal
 from ..widget import Widget, NullWidget
-from ..field import Field, undefined
+from ..field import Field, StateField, undefined
 from ..util import get_validator_for_key
 from ..json_encoder import register_adapter
 
 __all__ = ('DimensionShorthandPropertyVal', 'SizeVal', 'Box', 'VBox', 'HBox')
+
+
+class PercentVal(Validate):
+
+    _validate = StrVal()
+
+    def __init__(self, convert_to_ratio=False):
+        self.convert_to_ratio = convert_to_ratio
+
+    def __call__(self, value):
+        if self.convert_to_ratio and isinstance(value, float):
+            return value
+        value = self._validate(value)
+        if not value[-1] == '%' or not value[:-1].isdigit():
+            raise Error(
+                'expected percentage, '
+                'but got %r instead' % value)
+        if self.convert_to_ratio:
+            value = float(value[:-1]) / 100
+        return value
 
 
 class SizeVal(Validate):
@@ -32,7 +52,7 @@ class SizeVal(Validate):
         if value[-2:] != 'px' and value[-1] != '%' and not value.isdigit():
             raise Error(
                 'expected pixel of percentage size, '
-                'value should ends with "px" or "%%" sign or be an integer, '
+                'value should end with "px" or "%%" sign or be an integer, '
                 'got: %r' % value)
         return value
 
@@ -181,3 +201,46 @@ class HBox(Box):
     js_type = Box.js_type
 
     direction = Box.direction.reassign(default='horizontal')
+
+
+class MasterDetail(Box):
+    """
+    Configurable two column layout which represents "master-detail" UI pattern.
+    """
+
+    name = 'MasterDetail'
+    js_type = 'rex-widget/lib/layout/MasterDetail'
+
+    master = Field(
+        WidgetVal(), default=NullWidget(),
+        doc="""
+        Widgets which represent "master" in "master-detail" UI pattern.
+        """)
+
+    detail = Field(
+        WidgetVal(), default=NullWidget(),
+        doc="""
+        Widgets which represent "detail" in "master-detail" UI pattern.
+        """)
+
+    resizable = Field(
+        BoolVal(), default=True,
+        doc="""
+        """)
+
+    master_size = Field(
+        PercentVal(convert_to_ratio=True), default=0.5,
+        doc="""
+        The size of the box with "master".
+
+        This allows to specify initial value and if this view is configured to
+        be resizable then users can override this value by resizing master view
+        as they see fit.
+        """)
+
+    mode = StateField(
+        ChoiceVal('master', 'detail', None), default=None,
+        doc="""
+        Should the layout expand "master" or "detail" view or set the sizing of
+        "master" relative to the container.
+        """)

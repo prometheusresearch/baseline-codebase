@@ -3,22 +3,22 @@
  */
 'use strict';
 
-var React   = require('react/addons');
-var cx      = React.addons.classSet;
-var Element = require('./layout/Element');
+var React = require('react/addons');
+var cx    = React.addons.classSet;
+var {Box} = require('./layout');
 
 var Tab = React.createClass({
 
   render() {
     var {tabs, size, className, children, ...props} = this.props;
     return (
-      <Element {...props}
+      <Box {...props}
         size={size}
         title={undefined}
         id={undefined}
         className={cx('rw-Tab', className)}>
         {children}
-      </Element>
+      </Box>
     );
   },
 

@@ -7,7 +7,7 @@ var React     = require('react/addons');
 var cx        = React.addons.classSet;
 var isString  = require('rex-widget/lib/isString');
 var Link      = require('rex-widget/lib/Link');
-var Element   = require('./layout/Element');
+var {Box}     = require('./layout');
 
 var AppletSwitcher = React.createClass({
 
@@ -38,7 +38,7 @@ var Navigation = React.createClass({
       'navbar-collapse': true
     });
     return (
-      <Element className="rw-Navigation navbar navbar-default" role="navigation">
+      <Box className="rw-Navigation navbar navbar-default" role="navigation">
         <div className="rw-Navigation__container container-fluid">
           <div className="navbar-header">
             <button
@@ -61,7 +61,7 @@ var Navigation = React.createClass({
             <NavigationBar menu={menu} sitemap={sitemap} active={active} />
           </div>
         </div>
-      </Element>
+      </Box>
     );
   },
 

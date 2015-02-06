@@ -11,7 +11,6 @@ require('bootstrap-datepicker/js/bootstrap-datepicker');
 var React             = require('react/addons');
 var cx                = React.addons.classSet;
 var FormContextMixin  = require('./FormContextMixin');
-var Element           = require('../layout/Element');
 var Button            = require('../Button');
 var FieldBase         = require('./FieldBase');
 

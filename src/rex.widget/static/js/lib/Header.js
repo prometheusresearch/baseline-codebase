@@ -4,8 +4,8 @@
 'use strict';
 
 var React = require('react/addons');
-var cx = React.addons.classSet;
-var Element = require('./layout/Element');
+var cx    = React.addons.classSet;
+var {Box} = require('./layout');
 
 var Header = React.createClass({
 
@@ -13,9 +13,9 @@ var Header = React.createClass({
     var {text, level, className, ...props} = this.props;
     var component = `h${level}`;
     return (
-      <Element {...props} Component={component} className={cx(className, 'rw-Header')}>
+      <Box {...props} Component={component} className={cx(className, 'rw-Header')}>
         {text}
-      </Element>
+      </Box>
     );
   },
 

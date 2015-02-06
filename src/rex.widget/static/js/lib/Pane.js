@@ -3,10 +3,10 @@
  */
 'use strict';
 
-var React = require('react/addons');
-var cx = React.addons.classSet;
-var {constructComponent} = require('./Application');
-var Element = require('./layout/Element');
+var React                 = require('react/addons');
+var cx                    = React.addons.classSet;
+var {constructComponent}  = require('./Application');
+var {Box}                 = require('./layout');
 
 var Pane = React.createClass({
 
@@ -14,9 +14,9 @@ var Pane = React.createClass({
     var {panes, size, activePane, className, ...props} = this.props;
     activePane = activePane || Object.keys(panes)[0];
     return (
-      <Element {...props} size={size} className={cx('rw-Pane', className)}>
+      <Box {...props} size={size} className={cx('rw-Pane', className)}>
         {constructComponent(panes[activePane])}
-      </Element>
+      </Box>
     );
   },
 

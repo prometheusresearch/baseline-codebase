@@ -4,15 +4,15 @@
 'use strict';
 
 var React = require('react');
-var Element = require('./layout/Element');
+var {Box} = require('./layout');
 
 var Page = React.createClass({
 
   render() {
     return (
-      <Element {...this.props} title={undefined}>
+      <Box {...this.props} title={undefined}>
         {this.props.children}
-      </Element>
+      </Box>
     );
   },
 

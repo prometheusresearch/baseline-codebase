@@ -3,9 +3,9 @@
  */
 'use strict';
 
-var React   = require('react/addons');
-var cx      = React.addons.classSet;
-var Element = require('./layout/Element');
+var React = require('react/addons');
+var cx    = React.addons.classSet;
+var {Box} = require('./layout');
 
 var Notice = React.createClass({
 
@@ -13,9 +13,9 @@ var Notice = React.createClass({
     var {text, className, ...props} = this.props;
     className = cx(className, 'rw-Notice');
     return (
-      <Element {...props} style={{alignItems: 'center', justifyContent: 'center'}} size={1} className={className}>
-        <Element>{text}</Element>
-      </Element>
+      <Box {...props} style={{alignItems: 'center', justifyContent: 'center'}} size={1} className={className}>
+        <Box>{text}</Box>
+      </Box>
     );
   }
 

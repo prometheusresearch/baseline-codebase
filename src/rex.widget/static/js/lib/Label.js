@@ -4,17 +4,17 @@
 'use strict';
 
 var React = require('react');
-var cx = React.addons.classSet;
-var Element = require('./layout/Element');
+var cx    = React.addons.classSet;
+var {Box} = require('./layout');
 
 var Label = React.createClass({
 
   render: function() {
     var {text, className, ...props} = this.props;
     return (
-      <Element {...props} Component="span" className={cx(className, 'rw-Label')}>
+      <Box {...props} Component="span" className={cx(className, 'rw-Label')}>
         {text}
-      </Element>
+      </Box>
     );
   },
 

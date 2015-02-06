@@ -1,11 +1,10 @@
 /**
- * @jsx React.DOM
+ * @copyright 2015, Prometheus Research, LLC
  */
 'use strict';
 
 module.exports = {
   Box:      require('./Box'),
   VBox:     require('./VBox'),
-  HBox:     require('./HBox'),
-  Element:  require('./Element')
+  HBox:     require('./HBox')
 };

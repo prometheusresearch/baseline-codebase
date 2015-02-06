@@ -4,7 +4,7 @@
 'use strict';
 
 var React   = require('react/addons');
-var Element = require('./layout/Element');
+var {Box}   = require('./layout');
 var runtime = require('./runtime');
 
 var Placeholder = React.createClass({
@@ -13,9 +13,9 @@ var Placeholder = React.createClass({
     var {states, children, placeholder, size, ...props} = this.props;
     var showChildren = states.every(id => runtime.ApplicationState.getValue(id).value != null);
     return (
-      <Element {...props} size={size}>
+      <Box {...props} size={size}>
         {showChildren ? children : placeholder}
-      </Element>
+      </Box>
     );
   },
 

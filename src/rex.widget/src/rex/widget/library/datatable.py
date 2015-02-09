@@ -65,6 +65,12 @@ class DataTable(Box):
         Dataset specification.
         """)
 
+    sortable = Field(
+        BoolVal(), default=False,
+        doc="""
+        If data table should allow sorting an underlying dataset.
+        """)
+
     selectable = Field(
         BoolVal(), default=False,
         doc="""

@@ -5,9 +5,17 @@
 
 var React                   = require('react');
 window.React                = React;
-var {Column, Table}         = require('fixed-data-table/dist/fixed-data-table');
+var {Column, Table}         = require('../vendor/fixed-data-table');
 var {Box, LayoutAwareMixin} = require('./layout');
+var Icon                    = require('./Icon');
+var emptyFunction           = require('./emptyFunction');
 
+var DataTableStyle = {
+  sortIcon: {
+    color: '#AAA',
+    fontSize: 10
+  }
+};
 
 var DataTable = React.createClass({
   mixins: [LayoutAwareMixin],
@@ -17,6 +25,7 @@ var DataTable = React.createClass({
     var {width, height} = this.state;
     columns = columns.map(column =>
       <Column
+        headerRenderer={this._headerRenderer}
         cellDataGetter={this._cellDataGetter}
         key={column.key}
         resizable={column.resizable}
@@ -50,7 +59,8 @@ var DataTable = React.createClass({
   getDefaultProps() {
     return {
       rowHeight: 35,
-      headerHeight: 35
+      headerHeight: 35,
+      onDataSort: emptyFunction
     };
   },
 
@@ -68,6 +78,23 @@ var DataTable = React.createClass({
 
   onLayoutChange() {
     this._recomputeGeometry();
+  },
+
+  _headerRenderer(cellData, cellDataKey, rowData, columnData) {
+    var {dataSort, sortable} = this.props;
+    if (!sortable) {
+      return (
+        <div>
+          {cellData}
+        </div>
+      );
+    } else {
+      return (
+        <div onClick={this.props.onDataSort.bind(null, cellDataKey.join('.'))}>
+          {cellData} <Icon name="sort" style={DataTableStyle.sortIcon} />
+        </div>
+      );
+    }
   },
 
   _checkNeedPagination() {

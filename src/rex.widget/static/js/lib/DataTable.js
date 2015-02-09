@@ -9,6 +9,7 @@ var {Column, Table}         = require('../vendor/fixed-data-table');
 var {Box, LayoutAwareMixin} = require('./layout');
 var Icon                    = require('./Icon');
 var emptyFunction           = require('./emptyFunction');
+var {Ref}                   = require('./Storage');
 
 var DataTableStyle = {
   sortIcon: {
@@ -84,13 +85,6 @@ var DataTable = React.createClass({
 
   onLayoutChange() {
     this._recomputeGeometry();
-  },
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.dataSort !== this.props.dataSort) {
-      console.log('forceUpdate', prevProps.dataSort, this.props.dataSort);
-      this.refs.table.forceUpdate();
-    }
   },
 
   _headerDataGetter() {
@@ -175,26 +169,18 @@ var DataTable = React.createClass({
 
 function getByKeyPath(row, keyPath) {
   if (!Array.isArray(keyPath)) {
-    return row[keyPath];
+    keyPath = [keyPath];
   }
-  switch (keyPath.length) {
-    case 0:
+  for (var i = 0, len = keyPath.length; i < len; i++) {
+    if (row == null) {
       return row;
-    case 1:
-      return row[keyPath[0]];
-    case 2:
-      return row[keyPath[0]][keyPath[1]];
-    case 3:
-      return row[keyPath[0]][keyPath[1]][keyPath[2]];
-    default:
-      for (var i = 0, len = row.length; i < len; i++) {
-        if (row == null) {
-          return row;
-        }
-        row = row[keyPath[i]];
-      }
-      return row;
+    }
+    row = row[keyPath[i]];
+    if (row instanceof Ref) {
+      row = row.resolve();
+    }
   }
+  return row;
 }
 
 module.exports = DataTable;

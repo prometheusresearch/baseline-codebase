@@ -3,6 +3,7 @@
 @import (less) "~react-grid/themes/bootstrap";
 @import (less) "~react-forms/themes/bootstrap/index.less";
 /*@import (less) "~react-selectbox/lib/styles.css";*/
+@import "~fixed-data-table/dist/fixed-data-table.css";
 @import (less) "./layout";
 @import (less) "./grid";
 @import (less) "./table";
@@ -365,4 +366,11 @@ html, body, #__main__ {
 .rw-PopupActivate .resizable {
   overflow: scroll;
   resize: both;
+}
+
+/**
+ * <DataTable />
+ */
+.DataTable__row--selected .public_fixedDataTableCell_main {
+  background-color: @colorSelectedHighlight;
 }

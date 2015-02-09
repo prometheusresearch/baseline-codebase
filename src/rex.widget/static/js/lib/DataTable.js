@@ -46,11 +46,13 @@ var DataTable = React.createClass({
         <Box size={1}>
           <Table
             {...props}
+            ref="table"
             onRowClick={selectable && this._onRowClick}
             height={height}
             width={width}
             rowGetter={this._rowGetter}
             rowClassNameGetter={this._rowClassNameGetter}
+            headerDataGetter={this._headerDataGetter}
             onScrollEnd={this._checkNeedPagination}
             rowsCount={data.data.length}>
             {columns}
@@ -82,6 +84,17 @@ var DataTable = React.createClass({
 
   onLayoutChange() {
     this._recomputeGeometry();
+  },
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.dataSort !== this.props.dataSort) {
+      console.log('forceUpdate', prevProps.dataSort, this.props.dataSort);
+      this.refs.table.forceUpdate();
+    }
+  },
+
+  _headerDataGetter() {
+    return {sort: this.props.dataSort};
   },
 
   _headerRenderer(cellData, cellDataKey, rowData, columnData) {

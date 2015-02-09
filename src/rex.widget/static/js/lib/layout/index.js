@@ -4,7 +4,8 @@
 'use strict';
 
 module.exports = {
-  Box:      require('./Box'),
-  VBox:     require('./VBox'),
-  HBox:     require('./HBox')
+  Box:                  require('./Box'),
+  VBox:                 require('./VBox'),
+  HBox:                 require('./HBox'),
+  LayoutAwareMixin:     require('./LayoutAwareMixin')
 };

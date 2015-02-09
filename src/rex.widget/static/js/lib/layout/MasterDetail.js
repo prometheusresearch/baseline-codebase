@@ -10,9 +10,10 @@ var Hoverable             = require('../Hoverable');
 var merge                 = require('../merge');
 var StyleUtils            = require('../StyleUtils');
 var Icon                  = require('../Icon');
+var PersistentStateMixin  = require('../PersistentStateMixin');
 var HBox                  = require('./HBox');
 var VBox                  = require('./VBox');
-var PersistentStateMixin  = require('../PersistentStateMixin');
+var notifyLayoutChange    = require('./notifyLayoutChange');
 
 var ResizeHandle = React.createClass({
   mixins: [Hoverable],
@@ -155,10 +156,12 @@ var MasterDetail = React.createClass({
     var detailSize = box.width - e.clientX + box.left;
     var masterSize = box.width - detailSize;
     this.setPersistentState({masterSize, detailSize});
+    notifyLayoutChange();
   },
 
   _onResizeEnd(e, box) {
     this.setState({resize: false});
+    notifyLayoutChange();
   },
 
   _getHandleDOMNode() {

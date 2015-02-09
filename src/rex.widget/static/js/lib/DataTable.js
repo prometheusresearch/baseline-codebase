@@ -63,6 +63,7 @@ var DataTable = React.createClass({
 
   componentDidMount() {
     this._recomputeGeometry();
+    this._checkNeedPagination();
   },
 
   onLayoutChange() {
@@ -70,7 +71,6 @@ var DataTable = React.createClass({
   },
 
   _checkNeedPagination() {
-    console.log(this._lastRowIndex);
     var {updating, hasMore, data} = this.props.data;
     if (
       Array.isArray(data)

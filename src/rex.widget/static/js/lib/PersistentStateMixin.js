@@ -9,7 +9,6 @@ var PersistentStateMixin = {
 
   getInitialState() {
     var state = _loads(this._getPersistentStateKey());
-    console.log('x', state);
     if (state === null) {
       if (typeof this.getInitialPersistentState === 'function') {
         state = this.getInitialPersistentState();

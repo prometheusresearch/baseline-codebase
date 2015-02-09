@@ -148,9 +148,11 @@ class CollectionField(DataField):
                         continue
                 query.setdefault(name, []).append(value)
 
+        sort_spec = graph['%s/%s/sort' % (widget.widget_id, self.name)]
+        _apply_sort_spec(query, sort_spec, spec)
+
         top_filter = '%s:top' % spec.entity
         skip_filter = '%s:skip' % spec.entity
-
         if self.paginate:
             query[top_filter] = [query[top_filter][0] + 1]
 
@@ -192,7 +194,6 @@ class CollectionField(DataField):
             refs.update({
                 '%s:top' % spec.entity: (DataRef(Reference('%s:top' % pagination_state_id), False),),
                 '%s:skip' % spec.entity: (DataRef(Reference('%s:skip' % pagination_state_id), False),),
-                '%s:sort' % spec.entity: (DataRef(Reference('%s' % sort_state_id), False),),
             })
             spec = CollectionSpec(
                     spec.entity_name, route=spec.route,
@@ -242,3 +243,14 @@ def _extract_sort_state(spec):
         _, field_name = k[:-5].split('.', 1)
         return ('+' if v[0] == 'asc' else '-') + field_name
     return unknown
+
+
+def _apply_sort_spec(query, sort_spec, spec):
+    if not sort_spec:
+        return
+    elif sort_spec[0] == '-':
+        query['%s.%s:sort' % (spec.entity, sort_spec[1:])] = 'desc'
+    elif sort_spec[0] == '+':
+        query['%s.%s:sort' % (spec.entity, sort_spec[1:])] = 'asc'
+    else:
+        query['%s.%s:sort' % (spec.entity, sort_spec)] = 'asc'

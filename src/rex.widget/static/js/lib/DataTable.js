@@ -14,6 +14,10 @@ var DataTableStyle = {
   sortIcon: {
     color: '#AAA',
     fontSize: 10
+  },
+  sortIconActive: {
+    color: '#000',
+    fontSize: 10
   }
 };
 
@@ -89,9 +93,21 @@ var DataTable = React.createClass({
         </div>
       );
     } else {
+      cellDataKey = cellDataKey.join('.');
+      var icon = <Icon name="sort" style={DataTableStyle.sortIcon} />;
+      var isDesc = true;
+      if (dataSort && (cellDataKey === dataSort || cellDataKey === dataSort.slice(1))) {
+        if (dataSort[0] === '-') {
+          isDesc = true;
+          icon = <Icon name="sort-by-attributes-alt" style={DataTableStyle.sortIconActive} />;
+        } else {
+          isDesc = false;
+          icon = <Icon name="sort-by-attributes" style={DataTableStyle.sortIconActive} />;
+        }
+      }
       return (
-        <div onClick={this.props.onDataSort.bind(null, cellDataKey.join('.'))}>
-          {cellData} <Icon name="sort" style={DataTableStyle.sortIcon} />
+        <div onClick={this.props.onDataSort.bind(null, (isDesc ? '+' : '-') + cellDataKey)}>
+          {cellData} {icon}
         </div>
       );
     }

@@ -30,7 +30,7 @@ setup(
 #        'rex.sendmail==1.0.2',
         'rex.urlmap==2.6.0',
         'rex.web==3.2.0',
-        'rex.widget==0.2.9',
+        'rex.widget==0.2.11',
     ],
 )
 

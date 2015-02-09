@@ -8,7 +8,7 @@
 """
 
 from rex.core import Validate, AnyVal, RecordVal, OneOfVal, SeqVal, StrVal
-from rex.core import StrVal, BoolVal
+from rex.core import StrVal, BoolVal, IntVal
 from ..action import ActionVal
 from ..undefined import undefined
 from ..field import Field, StateField, CollectionField
@@ -39,7 +39,8 @@ class ColumnVal(Validate):
     _validate_column = RecordVal(
         ('key', KeyPathVal()),
         ('name', StrVal()),
-        ('resizable', BoolVal(), False),
+        ('width', IntVal(), None),
+        ('fixed', BoolVal(), False),
     )
     _validate = OneOfVal(_validate_column, KeyPathVal())
 

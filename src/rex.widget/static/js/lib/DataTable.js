@@ -32,11 +32,11 @@ var DataTable = React.createClass({
         headerRenderer={this._headerRenderer}
         cellDataGetter={this._cellDataGetter}
         key={column.key}
-        resizable={column.resizable}
+        fixed={column.fixed}
         dataKey={column.key}
         label={column.name}
-        width={column.width || 100}
-        flexGrow={1}
+        width={column.width}
+        flexGrow={column.width ? undefined : 1}
         />
     );
     if (width === null || height === null) {

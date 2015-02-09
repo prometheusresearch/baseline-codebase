@@ -148,8 +148,9 @@ class CollectionField(DataField):
                         continue
                 query.setdefault(name, []).append(value)
 
-        sort_spec = graph['%s/%s/sort' % (widget.widget_id, self.name)]
-        _apply_sort_spec(query, sort_spec, spec)
+        if self.paginate:
+            sort_spec = graph['%s/%s/sort' % (widget.widget_id, self.name)]
+            _apply_sort_spec(query, sort_spec, spec)
 
         top_filter = '%s:top' % spec.entity
         skip_filter = '%s:skip' % spec.entity

@@ -451,6 +451,18 @@ class Tabs(Widget):
         Currently active tab.
         """)
 
+    buttons_style = Field(
+        ChoiceVal('tabs', 'pills'), default='tabs',
+        doc="""
+        Style for tab buttons.
+        """)
+
+    buttons_position = Field(
+        ChoiceVal('top', 'right', 'bottom', 'left'), default='top',
+        doc="""
+        Tab buttons position.
+        """)
+
 
 class IFrame(Widget):
 

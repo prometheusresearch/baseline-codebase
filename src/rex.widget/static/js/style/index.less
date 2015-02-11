@@ -372,3 +372,104 @@ html, body, #__main__ {
 .DataTable__row--selected .public_fixedDataTableCell_main {
   background-color: @colorSelectedHighlight;
 }
+
+/**
+ * <Tabs />
+ */
+/* custom inclusion of right, left and below tabs */
+
+.rw-Tabs--bottomPosition > .nav-tabs,
+.rw-Tabs--rightPosition > .nav-tabs,
+.rw-Tabs--leftPosition > .nav-tabs {
+  border-bottom: 0;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs {
+  border-top: 1px solid #ddd;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs > li {
+  margin-top: -1px;
+  margin-bottom: 0;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs > li > a {
+  -webkit-border-radius: 0 0 4px 4px;
+     -moz-border-radius: 0 0 4px 4px;
+          border-radius: 0 0 4px 4px;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs > li > a:hover,
+.rw-Tabs--bottomPosition > .nav-tabs > li > a:focus {
+  border-top-color: #ddd;
+  border-bottom-color: transparent;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs > .active > a,
+.rw-Tabs--bottomPosition > .nav-tabs > .active > a:hover,
+.rw-Tabs--bottomPosition > .nav-tabs > .active > a:focus {
+  border-color: transparent #ddd #ddd #ddd;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs > li,
+.rw-Tabs--leftPosition > .nav-pills > li,
+.rw-Tabs--rightPosition > .nav-pills > li,
+.rw-Tabs--rightPosition > .nav-tabs > li {
+  float: none;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs > li > a,
+.rw-Tabs--rightPosition > .nav-tabs > li > a {
+  min-width: 74px;
+  margin-right: 0;
+  margin-bottom: 3px;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs {
+  float: left;
+  margin-right: 19px;
+  border-right: 1px solid #ddd;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs > li > a {
+  margin-right: -1px;
+  -webkit-border-radius: 4px 0 0 4px;
+     -moz-border-radius: 4px 0 0 4px;
+          border-radius: 4px 0 0 4px;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs > li > a:hover,
+.rw-Tabs--leftPosition > .nav-tabs > li > a:focus {
+  border-color: #eeeeee #dddddd #eeeeee #eeeeee;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs .active > a,
+.rw-Tabs--leftPosition > .nav-tabs .active > a:hover,
+.rw-Tabs--leftPosition > .nav-tabs .active > a:focus {
+  border-color: #ddd transparent #ddd #ddd;
+  *border-right-color: #ffffff;
+}
+
+.rw-Tabs--rightPosition > .nav-tabs {
+  margin-left: 19px;
+  border-left: 1px solid #ddd;
+}
+
+.rw-Tabs--rightPosition > .nav-tabs > li > a {
+  margin-left: -1px;
+  -webkit-border-radius: 0 4px 4px 0;
+     -moz-border-radius: 0 4px 4px 0;
+          border-radius: 0 4px 4px 0;
+}
+
+.rw-Tabs--rightPosition > .nav-tabs > li > a:hover,
+.rw-Tabs--rightPosition > .nav-tabs > li > a:focus {
+  border-color: #eeeeee #eeeeee #eeeeee #dddddd;
+}
+
+.rw-Tabs--rightPosition > .nav-tabs .active > a,
+.rw-Tabs--rightPosition > .nav-tabs .active > a:hover,
+.rw-Tabs--rightPosition > .nav-tabs .active > a:focus {
+  border-color: #ddd #ddd #ddd transparent;
+  *border-left-color: #ffffff;
+}

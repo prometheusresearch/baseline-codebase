@@ -5,12 +5,16 @@
 
 __webpack_require__.p = __MOUNT_PREFIX__ + __BUNDLE_PREFIX__;
 
-var React            = require('react');
-var Storage          = require('./Storage');
-var Application      = require('./Application');
-var Sitemap          = require('./Sitemap');
-var invariant        = require('./invariant');
-var Actions          = require('./runtime/Actions');
+if (Object.assign === undefined) {
+  Object.assign = require('object-assign');
+}
+
+var React        = require('react');
+var Storage      = require('./Storage');
+var Application  = require('./Application');
+var Sitemap      = require('./Sitemap');
+var invariant    = require('./invariant');
+var Actions      = require('./runtime/Actions');
 
 invariant(
   window.__require__ !== undefined,
@@ -55,7 +59,7 @@ module.exports = {
   Tabs:               require('./Tabs'),
   Tab:                require('./Tab'),
   Select:             require('./Select'),
-  Grid:               require('./Grid'),
+  DataTable:          require('./DataTable'),
   Preloader:          require('./Preloader'),
   DataPreloader:      require('./DataPreloader'),
   LoadingIndicator:   require('./LoadingIndicator'),

@@ -241,6 +241,6 @@ class MasterDetail(Box):
     mode = StateField(
         ChoiceVal('master', 'detail', None), default=None,
         doc="""
-        Should the layout expand "master" or "detail" view or set the sizing of
-        "master" relative to the container.
+        Should the layout expand ``'master'`` or ``'detail'`` or ``None`` to
+        disable expanding.
         """)

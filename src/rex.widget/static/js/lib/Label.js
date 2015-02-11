@@ -3,9 +3,10 @@
  */
 'use strict';
 
-var React = require('react');
-var cx    = React.addons.classSet;
-var {Box} = require('./layout');
+var React                 = require('react');
+var cx                    = React.addons.classSet;
+var {Box}                 = require('./layout');
+var renderTemplatedString = require('./renderTemplatedString');
 
 var Label = React.createClass({
 
@@ -13,7 +14,7 @@ var Label = React.createClass({
     var {text, className, ...props} = this.props;
     return (
       <Box {...props} Component="span" className={cx(className, 'rw-Label')}>
-        {text}
+        {renderTemplatedString(text)}
       </Box>
     );
   },

@@ -85,7 +85,9 @@ module.exports = {
 
 
   merge:              require('./merge'),
-  runtime:            require('./runtime')
+  runtime:            require('./runtime'),
+
+  renderTemplatedString: require('./renderTemplatedString')
 };
 
 window.Rex = window.Rex || {};

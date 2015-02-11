@@ -3,9 +3,10 @@
  */
 'use strict';
 
-var React = require('react/addons');
-var cx    = React.addons.classSet;
-var {Box} = require('./layout');
+var React                 = require('react/addons');
+var cx                    = React.addons.classSet;
+var {Box}                 = require('./layout');
+var renderTemplatedString = require('./renderTemplatedString');
 
 var Header = React.createClass({
 
@@ -14,7 +15,7 @@ var Header = React.createClass({
     var component = `h${level}`;
     return (
       <Box {...props} Component={component} className={cx(className, 'rw-Header')}>
-        {text}
+        {renderTemplatedString(text)}
       </Box>
     );
   },

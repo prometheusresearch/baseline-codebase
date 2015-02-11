@@ -2,15 +2,16 @@
  * <RepeatingFieldset />
  */
 
-var React             = require('react');
-var ReactForms        = require('react-forms');
-var defaultValue      = require('react-forms/lib/defaultValue');
-var Message           = require('react-forms/lib/Message');
-var cloneWithProps    = React.addons.cloneWithProps;
-var cx                = React.addons.classSet;
-var FormContextMixin  = require('./FormContextMixin');
-var Button            = require('../Button');
-var {Box, HBox}       = require('../layout');
+var React                 = require('react');
+var ReactForms            = require('react-forms');
+var defaultValue          = require('react-forms/lib/defaultValue');
+var Message               = require('react-forms/lib/Message');
+var cloneWithProps        = React.addons.cloneWithProps;
+var cx                    = React.addons.classSet;
+var FormContextMixin      = require('./FormContextMixin');
+var Button                = require('../Button');
+var {Box, HBox}           = require('../layout');
+var renderTemplatedString = require('../renderTemplatedString');
 
 var RepeatingFieldsetItem = React.createClass({
   mixins: [FormContextMixin],
@@ -27,7 +28,7 @@ var RepeatingFieldsetItem = React.createClass({
               danger quiet
               icon="remove"
               onClick={this.onRemove}>
-              {removeButtonText}
+              {renderTemplatedString(removeButtonText)}
             </Button>
             </div>
           </Box>}
@@ -55,7 +56,7 @@ var RepeatingFieldsetPlaceholder = React.createClass({
             icon="plus"
             onClick={this.props.onAdd}
             className="rw-RepeatingFieldset__addButton">
-            {this.props.addButtonText}
+            {renderTemplatedString(this.props.addButtonText)}
           </Button>
           <Box centerVertically style={{marginLeft: 5}}>
             button to add one.

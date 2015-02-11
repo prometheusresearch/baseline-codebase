@@ -153,7 +153,13 @@ class ApplicationState extends Emitter {
         if (value === null || value === undefined) {
           return value;
         }
-        value = value[ref.path[i]];
+        if (value[ref.path[i]] !== undefined) {
+          value = value[ref.path[i]];
+        } else if (typeof value.get === 'function') {
+          value = value.get(ref.path[i]);
+        } else {
+          value = undefined;
+        }
       }
     }
 

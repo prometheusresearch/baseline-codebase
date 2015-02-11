@@ -5,11 +5,12 @@
  */
 'use strict';
 
-var React     = require('react/addons');
-var cx        = React.addons.classSet;
-var PropTypes = React.PropTypes;
-var invariant = require('./invariant');
-var Sitemap   = require('./Sitemap');
+var React                 = require('react/addons');
+var cx                    = React.addons.classSet;
+var PropTypes             = React.PropTypes;
+var invariant             = require('./invariant');
+var Sitemap               = require('./Sitemap');
+var renderTemplatedString = require('./renderTemplatedString');
 
 var Link = React.createClass({
 
@@ -25,7 +26,7 @@ var Link = React.createClass({
     var {children, text, unsafe, plain, params, href, to, className, ...props} = this.props;
     return (
       <a {...props} className={cx(className, "rw-Link")} href={this.href()}>
-        {this.props.children || this.props.text}
+        {children ? children : text ? renderTemplatedString(text) : null}
       </a>
     );
   },

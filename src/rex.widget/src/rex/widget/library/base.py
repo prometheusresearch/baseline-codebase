@@ -20,6 +20,7 @@ from ..state import unknown, State, Reset, Dep
 from ..validate import WidgetVal
 from ..action import ActionVal
 from .layout import Box
+from .validators import TemplatedStrVal
 
 
 class Label(Widget):
@@ -28,7 +29,8 @@ class Label(Widget):
     name = 'Label'
     js_type = 'rex-widget/lib/Label'
 
-    text = Field(UStrVal)
+    text = Field(
+        TemplatedStrVal())
 
 
 class Header(Widget):
@@ -38,7 +40,7 @@ class Header(Widget):
     js_type = 'rex-widget/lib/Header'
 
     text = Field(
-        UStrVal(),
+        TemplatedStrVal(),
         doc="Content")
     level = Field(
         IntVal(), default=1,
@@ -52,7 +54,7 @@ class Text(Box):
     js_type = 'rex-widget/lib/Text'
 
     text = Field(
-        UStrVal,
+        TemplatedStrVal(),
         doc="Content.")
 
     font_size = Field(
@@ -71,7 +73,7 @@ class Button(Widget):
     js_type = 'rex-widget/lib/Button'
 
     text = Field(
-        StrVal(), default=undefined,
+        TemplatedStrVal(), default=undefined,
         doc="""
         Button text.
         """)
@@ -158,14 +160,19 @@ class Section(Widget):
     name = 'Section'
     js_type = 'rex-widget/lib/Section'
 
-    class_name = Field(StrVal, default=undefined)
-    content = Field(WidgetVal, default=NullWidget())
+    class_name = Field(
+        StrVal(),
+        default=undefined)
+
+    content = Field(
+        WidgetVal(),
+        default=NullWidget())
 
 
 class Icon(Widget):
     """ Icon."""
 
-    name = 'Ico'
+    name = 'Icon'
     js_type = 'rex-widget/lib/Icon'
 
     name = Field(StrVal())
@@ -181,7 +188,7 @@ class Link(Widget):
         doc="Link URL")
 
     text = Field(
-        UStrVal(), default=undefined,
+        TemplatedStrVal(), default=undefined,
         doc="Link text")
 
     params = Field(
@@ -400,7 +407,8 @@ class Notice(Widget):
     name = 'Notice'
     js_type = 'rex-widget/lib/Notice'
 
-    text = Field(StrVal())
+    text = Field(
+        TemplatedStrVal())
 
 
 class Tab(Widget):

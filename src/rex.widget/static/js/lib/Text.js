@@ -3,8 +3,9 @@
  */
 'use strict';
 
-var React = require('react');
-var {Box} = require('./layout');
+var React                 = require('react');
+var {Box}                 = require('./layout');
+var renderTemplatedString = require('./renderTemplatedString');
 
 var Text = React.createClass({
 
@@ -19,7 +20,7 @@ var Text = React.createClass({
     }
     return (
       <Box {...props} className="rw-Text" style={style}>
-        {text}
+        {renderTemplatedString(text)}
       </Box>
     );
   }

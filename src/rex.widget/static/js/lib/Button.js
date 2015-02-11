@@ -3,11 +3,12 @@
  */
 'use strict';
 
-var React         = require('react/addons');
-var cx            = React.addons.classSet;
-var Icon          = require('./Icon');
-var emptyFunction = require('./emptyFunction');
-var $             = require('jquery');
+var React                 = require('react/addons');
+var cx                    = React.addons.classSet;
+var Icon                  = require('./Icon');
+var emptyFunction         = require('./emptyFunction');
+var $                     = require('jquery');
+var renderTemplatedString = require('./renderTemplatedString');
 
 var Button = React.createClass({
 
@@ -48,7 +49,7 @@ var Button = React.createClass({
             name={icon}
             style={{marginRight: children || text || iconRight ? 10 : 0}}
             />}
-        {children || text}
+        {children ? children : text ? renderTemplatedString(text) : null}
         {iconRight &&
           <Icon
             name={iconRight}

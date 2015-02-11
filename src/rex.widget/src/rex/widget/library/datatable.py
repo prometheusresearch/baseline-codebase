@@ -8,10 +8,11 @@
 """
 
 from rex.core import Validate, AnyVal, RecordVal, OneOfVal, SeqVal, StrVal
-from rex.core import StrVal, BoolVal, IntVal
+from rex.core import StrVal, BoolVal, IntVal, ChoiceVal
 from ..action import ActionVal
-from ..undefined import undefined
+from ..undefined import undefined, MaybeUndefinedVal
 from ..field import Field, StateField, CollectionField
+from ..json_encoder import register_adapter
 from .layout import Box
 
 __all__ = ('DataTable',)
@@ -39,6 +40,7 @@ class ColumnVal(Validate):
     _validate_column = RecordVal(
         ('key', KeyPathVal()),
         ('name', StrVal()),
+        ('sortable', MaybeUndefinedVal(BoolVal()), undefined),
         ('width', IntVal(), None),
         ('fixed', BoolVal(), False),
     )
@@ -49,6 +51,11 @@ class ColumnVal(Validate):
         if not isinstance(value, self._validate_column.record_type):
             value = self._validate_column.record_type(key=value)
         return value
+
+
+@register_adapter(ColumnVal._validate_column.record_type)
+def _encode_ColumnVal(val):
+    return {k: v for k, v in val._asdict().items() if v is not undefined}
 
 
 class DataTable(Box):

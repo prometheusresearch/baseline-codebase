@@ -38,6 +38,7 @@ var DataTable = React.createClass({
         label={column.name}
         width={column.width}
         flexGrow={column.width ? undefined : 1}
+        columnData={column}
         />
     );
     if (width === null || height === null) {
@@ -87,12 +88,16 @@ var DataTable = React.createClass({
     this._recomputeGeometry();
   },
 
-  _headerDataGetter() {
+  _headerDataGetter(cellDataKey) {
     return {sort: this.props.dataSort};
   },
 
   _headerRenderer(cellData, cellDataKey, rowData, columnData) {
-    var {dataSort, sortable} = this.props;
+    var sortable = rowData.sortable;
+    if (sortable === undefined) {
+      sortable = this.props.sortable;
+    }
+    var {dataSort} = this.props;
     if (!sortable) {
       return (
         <div>

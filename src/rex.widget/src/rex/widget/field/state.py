@@ -17,18 +17,23 @@ from .base import Field
 
 class StateVal(Validate):
 
-    def __init__(self, underlying):
-        if isinstance(underlying, type):
-            underlying = underlying()
-        self.underlying = MaybeVal(underlying)
+    def __init__(self, validate):
+        if isinstance(validate, type):
+            validate = validate()
+        self.validate = MaybeVal(validate)
+
+    def __repr__(self):
+        return '%s(%r)' % (
+            self.__class__.__name__,
+            self.validate.validate.validate)
 
     def __call__(self, value):
         if value is unknown:
             return value
-        return self.underlying(value)
+        return self.validate(value)
 
     def __getitem__(self, key):
-        return get_validator_for_key(self.underlying, key)
+        return get_validator_for_key(self.validate, key)
 
 
 class StateFieldBase(Field):

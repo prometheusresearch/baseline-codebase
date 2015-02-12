@@ -13,6 +13,8 @@ from ..action import ActionVal
 from ..undefined import undefined, MaybeUndefinedVal
 from ..field import Field, StateField, CollectionField
 from ..json_encoder import register_adapter
+from ..state import Reset
+from ..widget import Widget
 from .layout import Box
 
 __all__ = ('DataTable',)
@@ -92,12 +94,6 @@ class DataTable(Box):
         If data table should allow selecting rows.
         """)
 
-    selected = StateField(
-        AnyVal(),
-        doc="""
-        Identifier of the currently selected record or `None`.
-        """)
-
     columns = Field(
         SeqVal(ColumnVal()),
         doc="""
@@ -110,4 +106,20 @@ class DataTable(Box):
         Action to execute when row is selected.
         """)
 
+    on_deselect = Field(
+        ActionVal(), default=undefined,
+        doc="""
+        Action to execute when row is deselected.
+        """)
 
+    @Widget.define_state(AnyVal())
+    def selected(self, state, graph, request):
+        if state.has_unknown_value:
+            return Reset(None)
+        if set(d.id for d in state.dependencies) & graph.dirty:
+            return Reset(None)
+        return state.value
+
+    @selected.set_dependencies
+    def _selected_dependencies(self):
+        return [ref.ref.id for refs in self.data.refs.values() for ref in refs]

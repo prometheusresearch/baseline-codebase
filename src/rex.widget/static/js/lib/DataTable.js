@@ -84,7 +84,9 @@ var DataTable = React.createClass({
     return {
       rowHeight: 35,
       headerHeight: 35,
-      onDataSort: emptyFunction
+      onDataSort: emptyFunction,
+      onSelect: emptyFunction,
+      onDeselect: emptyFunction
     };
   },
 
@@ -97,6 +99,12 @@ var DataTable = React.createClass({
 
   getInitialPersistentState() {
     return {columnsWidths: {}};
+  },
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.selected != null && this.props.selected == null) {
+      setTimeout(() => this.props.onDeselect(), 0);
+    }
   },
 
   componentDidMount() {

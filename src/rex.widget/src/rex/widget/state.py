@@ -427,6 +427,10 @@ class State(_State):
             alias=alias,
             params=params)
 
+    @property
+    def has_unknown_value(self):
+        return self.value is unknown
+
 @register_adapter(State)
 def _encode_State(state):
     encoded = {

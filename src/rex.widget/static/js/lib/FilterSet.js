@@ -24,7 +24,9 @@ var FilterSet = React.createClass({
             onClick={this._clear}
             />
         </Box>
-        {filters}
+        <Box onKeyPress={this._onKeyPress}>
+          {filters}
+        </Box>
         {!applyOnChange &&
           <Box>
             <Button
@@ -46,6 +48,12 @@ var FilterSet = React.createClass({
 
   getInitialState() {
     return {value: null};
+  },
+
+  _onKeyPress(e) {
+    if (e.key === 'Enter') {
+      this._apply();
+    }
   },
 
   _clear() {

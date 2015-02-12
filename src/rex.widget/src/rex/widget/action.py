@@ -116,5 +116,5 @@ class Set(Action):
 
     validate = RecordVal(
         ('id', StrVal()),
-        ('value', StrVal())
+        ('value', AnyVal())
     )

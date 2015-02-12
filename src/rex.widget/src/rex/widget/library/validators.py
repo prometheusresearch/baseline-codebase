@@ -9,10 +9,11 @@
 
 import re
 from collections import namedtuple
-from rex.core import Validate, UStrVal
+from rex.core import Validate, Error
+from rex.core import UStrVal, OneOfVal, StrVal, IntVal
 from ..json_encoder import register_adapter
 
-__all__ = ('TemplatedStrVal',)
+__all__ = ('TemplatedStrVal', 'SizeVal')
 
 
 class TemplatedStr(namedtuple('TemplatedStr', ['template', 'refs'])):
@@ -49,3 +50,19 @@ class TemplatedStrVal(Validate):
                 len(refs) - 1,
                 value[match.end():])
         return TemplatedStr(value, refs)
+
+
+class SizeVal(Validate):
+
+    _validate = OneOfVal(StrVal(), IntVal())
+
+    def __call__(self, value):
+        value = self._validate(value)
+        if isinstance(value, int):
+            value = str(value)
+        if value[-2:] != 'px' and value[-1] != '%' and not value.isdigit():
+            raise Error(
+                'expected pixel of percentage size, '
+                'value should end with "px" or "%%" sign or be an integer, '
+                'got: %r' % value)
+        return value

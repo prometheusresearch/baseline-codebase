@@ -15,3 +15,4 @@ from .doc       import * # pylint: disable=wildcard-import
 from .filterset import * # pylint: disable=wildcard-import
 from .popup     import * # pylint: disable=wildcard-import
 from .datatable import * # pylint: disable=wildcard-import
+from .modal     import * # pylint: disable=wildcard-import

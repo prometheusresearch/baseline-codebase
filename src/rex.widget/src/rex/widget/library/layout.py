@@ -17,8 +17,9 @@ from ..widget import Widget, NullWidget
 from ..field import Field, StateField, undefined
 from ..util import get_validator_for_key
 from ..json_encoder import register_adapter
+from .validators import SizeVal
 
-__all__ = ('DimensionShorthandPropertyVal', 'SizeVal', 'Box', 'VBox', 'HBox')
+__all__ = ('DimensionShorthandPropertyVal', 'Box', 'VBox', 'HBox')
 
 
 class PercentVal(Validate):
@@ -38,22 +39,6 @@ class PercentVal(Validate):
                 'but got %r instead' % value)
         if self.convert_to_ratio:
             value = float(value[:-1]) / 100
-        return value
-
-
-class SizeVal(Validate):
-
-    _validate = OneOfVal(StrVal(), IntVal())
-
-    def __call__(self, value):
-        value = self._validate(value)
-        if isinstance(value, int):
-            value = str(value)
-        if value[-2:] != 'px' and value[-1] != '%' and not value.isdigit():
-            raise Error(
-                'expected pixel of percentage size, '
-                'value should end with "px" or "%%" sign or be an integer, '
-                'got: %r' % value)
         return value
 
 

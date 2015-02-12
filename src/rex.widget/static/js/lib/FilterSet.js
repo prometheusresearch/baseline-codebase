@@ -26,7 +26,7 @@ var FilterSet = React.createClass({
               onClick={this._apply}
               />
           </Box>}
-        <HBox onKeyPress={this._onKeyPress}>
+        <HBox size={1} onKeyPress={this._onKeyPress}>
           {filters}
         </HBox>
         <Box>

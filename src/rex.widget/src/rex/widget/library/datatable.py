@@ -41,7 +41,8 @@ class ColumnVal(Validate):
         ('key', KeyPathVal()),
         ('name', StrVal()),
         ('sortable', MaybeUndefinedVal(BoolVal()), undefined),
-        ('width', IntVal(), None),
+        ('resizable', MaybeUndefinedVal(BoolVal()), undefined),
+        ('width', IntVal(), undefined),
         ('fixed', BoolVal(), False),
     )
     _validate = OneOfVal(_validate_column, KeyPathVal())
@@ -71,6 +72,12 @@ class DataTable(Box):
         paginate=True,
         doc="""
         Dataset specification.
+        """)
+
+    resizable_columns = Field(
+        BoolVal(), default=False,
+        doc="""
+        If data table should allow resizing columns.
         """)
 
     sortable = Field(

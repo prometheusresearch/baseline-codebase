@@ -10,6 +10,7 @@ var {Box, LayoutAwareMixin} = require('./layout');
 var Icon                    = require('./Icon');
 var emptyFunction           = require('./emptyFunction');
 var {Ref}                   = require('./Storage');
+var PersistentStateMixin    = require('./PersistentStateMixin');
 
 var DataTableStyle = {
   sortIcon: {
@@ -23,24 +24,37 @@ var DataTableStyle = {
 };
 
 var DataTable = React.createClass({
-  mixins: [LayoutAwareMixin],
+  mixins: [LayoutAwareMixin, PersistentStateMixin],
+
+  persistentStateKeys: {
+    columnsWidths: null
+  },
 
   render() {
-    var {data, columns, selectable, ...props} = this.props;
+    var {data, columns, selectable, resizableColumns, ...props} = this.props;
     var {width, height} = this.state;
-    columns = columns.map(column =>
-      <Column
-        headerRenderer={this._headerRenderer}
-        cellDataGetter={this._cellDataGetter}
-        key={column.key}
-        fixed={column.fixed}
-        dataKey={column.key}
-        label={column.name}
-        width={column.width}
-        flexGrow={column.width ? undefined : 1}
-        columnData={column}
-        />
-    );
+    columns = columns.map(column => {
+      var computedWidth = this.state.columnsWidths[column.key.join('.')];
+      var width = computedWidth !== undefined ? computedWidth : column.width;
+      var flexGrow = width !== undefined ? 0 : 1;
+      var isResizable = column.resizable !== undefined ?
+        column.resizable :
+        resizableColumns;
+      return (
+        <Column
+          headerRenderer={this._headerRenderer}
+          cellDataGetter={this._cellDataGetter}
+          key={column.key}
+          fixed={column.fixed}
+          dataKey={column.key}
+          label={column.name}
+          width={width || 0}
+          flexGrow={flexGrow}
+          isResizable={isResizable}
+          columnData={column}
+          />
+      );
+    });
     if (width === null || height === null) {
       return <Box size={1} />;
     } else {
@@ -56,6 +70,8 @@ var DataTable = React.createClass({
             rowClassNameGetter={this._rowClassNameGetter}
             headerDataGetter={this._headerDataGetter}
             onScrollEnd={this._checkNeedPagination}
+            onColumnResizeEndCallback={this._onColumnResizeEndCallback}
+            isColumnResizing={false}
             rowsCount={data.data.length}>
             {columns}
           </Table>
@@ -79,6 +95,10 @@ var DataTable = React.createClass({
     };
   },
 
+  getInitialPersistentState() {
+    return {columnsWidths: {}};
+  },
+
   componentDidMount() {
     this._recomputeGeometry();
     this._checkNeedPagination();
@@ -86,6 +106,13 @@ var DataTable = React.createClass({
 
   onLayoutChange() {
     this._recomputeGeometry();
+  },
+
+  _onColumnResizeEndCallback(newWidth, dataKey) {
+    dataKey = dataKey.join('.');
+    var columnsWidths = {...this.state.columnsWidths};
+    columnsWidths[dataKey] = newWidth;
+    this.setPersistentState({columnsWidths});
   },
 
   _headerDataGetter(cellDataKey) {

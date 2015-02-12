@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rex.expression',
-    version='1.4.0',
+    version='1.5.0',
     description='JavaScript library to parse HTSQL-like expressions',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

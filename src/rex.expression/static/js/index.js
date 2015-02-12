@@ -468,14 +468,14 @@ rexl._parse_expr = function(tokens) {
 // term ::= factor (('*'|'div'|'mod') factor)*
 rexl._parse_term = function(tokens) {
 	var left = rexl._parse_factor(tokens);
-	var op = rexl._check(tokens, 'SYMBOL', ['*', 'div', 'mod']);
+	var op = rexl._check(tokens, 'SYMBOL', ['*', '/', 'mod']);
 	if(!op)
 		return left;
 	do {
 		var right = rexl._parse_factor(tokens);
 		left = new rexl.Node('OPERATION', op.value, left.start, right.end, [left, right]);
 	}
-	while(op = rexl._check(tokens, 'SYMBOL', ['*', 'div', 'mod']));
+	while(op = rexl._check(tokens, 'SYMBOL', ['*', '/', 'mod']));
 	return left;
 }
 
@@ -840,6 +840,43 @@ rexl.Evaluator.prototype._f = {
                 ret -= values[i].value;
                 if (i == 0)
                     ret *= -1;
+            }
+        }
+        return common.value(ret);
+    },
+    '*': function() {
+        var e = arguments[0];
+        var data = e.check(e.argList(arguments));
+        var argTypes = data.map(function (item) { return item.type; });
+        var common = e.findCommon(argTypes, [rexl.Number]);
+        var values = data.map(function (i) { return common.cast(i); }),
+            ret = null;
+        if (common.is(rexl.Number)) {
+            ret = 1;
+            for (var i = 0, l = values.length; i < l; i++) {
+                if(values[i].isNull())
+                    return common.value(null);
+                ret *= values[i].value;
+            }
+        }
+        return common.value(ret);
+    },
+    '/': function() {
+        var e = arguments[0];
+        var data = e.check(e.argList(arguments));
+        var argTypes = data.map(function (item) { return item.type; });
+        var common = e.findCommon(argTypes, [rexl.Number]);
+        var values = data.map(function (i) { return common.cast(i); }),
+            ret = null;
+        if (common.is(rexl.Number)) {
+            if (values[0].isNull()) {
+                return common.value(null);
+            }
+            ret = values[0].value;
+            for (var i = 1, l = values.length; i < l; i++) {
+                if(values[i].isNull())
+                    return common.value(null);
+                ret /= values[i].value;
             }
         }
         return common.value(ret);

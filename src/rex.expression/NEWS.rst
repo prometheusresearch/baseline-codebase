@@ -5,6 +5,13 @@ REX.EXRESSION Change Log
 .. contents:: Table of Contents
 
 
+1.5.0 (2015-xx-xx)
+==================
+
+- Added support for multiplcation and division using the ``*`` and ``/``
+  operators, respectively.
+
+
 1.4.0 (2015-01-30)
 ==================
 

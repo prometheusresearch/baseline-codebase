@@ -70,6 +70,30 @@ rexl.test.tests = [
         expect:200
     },
     {
+        query:"n*4",
+        expect:400
+    },
+    {
+        query:"4*n",
+        expect:400
+    },
+    {
+        query:"n*n",
+        expect:10000
+    },
+    {
+        query:"n/4",
+        expect:25
+    },
+    {
+        query:"4/n",
+        expect:0.04
+    },
+    {
+        query:"n/n",
+        expect:1
+    },
+    {
 		query:'yet.another.long.column > 99',
 		expect:true
     },

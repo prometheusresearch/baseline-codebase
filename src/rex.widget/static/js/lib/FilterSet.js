@@ -12,22 +12,12 @@ var merge             = require('./merge');
 var FilterSet = React.createClass({
 
   render() {
-    var {filters, applyOnChange, ...props} = this.props;
+    var {filters, applyOnChange, hideApplyButton, ...props} = this.props;
     filters = React.Children.map(filters, this._setupFilter);
+    console.log(hideApplyButton, applyOnChange);
     return (
       <HBox {...props}>
-        <Box>
-          <Button
-            quiet
-            size="small"
-            icon="remove"
-            onClick={this._clear}
-            />
-        </Box>
-        <Box onKeyPress={this._onKeyPress}>
-          {filters}
-        </Box>
-        {!applyOnChange &&
+        {(!applyOnChange && !hideApplyButton) &&
           <Box>
             <Button
               quiet
@@ -36,6 +26,17 @@ var FilterSet = React.createClass({
               onClick={this._apply}
               />
           </Box>}
+        <HBox onKeyPress={this._onKeyPress}>
+          {filters}
+        </HBox>
+        <Box>
+          <Button
+            quiet
+            size="small"
+            icon="remove"
+            onClick={this._clear}
+            />
+        </Box>
       </HBox>
     );
   },

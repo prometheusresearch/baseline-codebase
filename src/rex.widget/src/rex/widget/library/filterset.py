@@ -33,6 +33,14 @@ class FilterSet(HBox):
 
     value = StateField(AnyVal())
 
+    hide_apply_button = Field(
+        BoolVal(), default=False,
+        doc="""
+        If filter set should not render apply button (this could be useful
+        when filterset consist of text filters which can be applied by pressing
+        Enter key).
+        """)
+
     apply_on_change = Field(
         BoolVal(), default=False,
         doc="""

@@ -3,13 +3,14 @@
 #
 
 
-from rex.core import Setting, RecordVal, StrVal
+from rex.core import Setting, RecordVal, StrVal, BoolVal
 
 from .interface import *
 
 
 __all__ = (
     'InstrumentImplementationSetting',
+    'InstrumentValidateOnStartupSetting'
 )
 
 
@@ -70,4 +71,20 @@ class InstrumentImplementationSetting(Setting):
                 setattr(value, name, interface.top())
 
         return value
+
+
+class InstrumentValidateOnStartupSetting(Setting):
+    """
+    A boolean indicating whether or not the system should automatically
+    validate all InstrumentVersion definitions in the system when the server
+    starts up. If not specified, defaults to ``True``.
+
+    Example::
+
+        instrument_validate_on_startup: false
+    """
+
+    name = 'instrument_validate_on_startup'
+    validate = BoolVal()
+    default = True
 

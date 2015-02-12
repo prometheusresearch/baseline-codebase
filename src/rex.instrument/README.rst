@@ -101,6 +101,11 @@ Settings
     When a key is not specified, ``rex.instrument`` will use the ``top()``-most
     implementation that exists in the application instance.
 
+``instrument_vaildate_on_startup``
+    This setting governs whether or not the system will automatically validate
+    all InstrumentVersion definitions found in the datastore upon server
+    startup. If not specified, it defaults to ``True``.
+
 
 Command Line Tools
 ==================

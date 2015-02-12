@@ -1,0 +1,49 @@
+#
+# Copyright (c) 2015, Prometheus Research, LLC
+#
+
+
+from rex.core import Initialize, Error, get_settings
+
+from .errors import ValidationError
+from .interface import InstrumentVersion
+from .util import get_implementation
+
+
+__all__ = (
+    'InstrumentInitialize',
+)
+
+
+class InstrumentInitialize(Initialize):
+    @classmethod
+    def signature(cls):
+        return 'instrument'
+
+    def __call__(self):
+        if not get_settings().instrument_validate_on_startup:
+            return
+
+        iv_impl = get_implementation('instrumentversion')
+        if iv_impl == InstrumentVersion:
+            # We don't have an implementation, don't bother.
+            return
+
+        try:
+            ivs = iv_impl.find()
+        except Error as exc:
+            exc.wrap('While validating system InstrumentVersions.')
+            raise
+
+        for version in ivs:
+            try:
+                version.validate()
+            except ValidationError as exc:
+                raise Error(
+                    'InstrumentVersion "%s" contains an invalid'
+                    ' definition: %s' % (
+                        version.uid,
+                        exc.message,
+                    )
+                )
+

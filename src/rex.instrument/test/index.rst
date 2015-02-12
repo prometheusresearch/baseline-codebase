@@ -15,4 +15,5 @@ REX.INSTRUMENT Examples/Tests
    test_ctl
    test_util
    test_output
+   test_initializer
 

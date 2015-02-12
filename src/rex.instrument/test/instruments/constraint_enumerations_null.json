@@ -19,13 +19,8 @@
             "type": {
                 "base": "enumerationSet",
                 "enumerations": {
-                    "f": {},
-                    "bb": {},
-                    "1": {},
-                    "12": {},
-                    "a12": {},
-                    "1_1": {},
-                    "a_1": {}
+                    "foo": {},
+                    "bar": null
                 }
             }
         }

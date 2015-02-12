@@ -5,6 +5,21 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.14.0 (2015-xx-xx)
+===================
+
+* Matrix columns can now be marked individually as identifiable.
+* If not specifying the description of an enumeration in an Instrument
+  definition, the value associated with the enumeration ID no longer has to be
+  an empty dictionary/mapping. It can be null.
+* The system will now automatically validate all InstrumentVersion definitions
+  found in the datastore upon server startup. This can be disabled through a
+  new setting named ``instrument_validate_on_startup``.
+* Enumeration IDs now have slightly loosened format restrictions. They no
+  longer must start with a letter, and they can be one character long. This
+  means that you can now use numeric-looking strings as IDs (e.g., "1", "32").
+
+
 0.13.0 (2015-01-30)
 ===================
 

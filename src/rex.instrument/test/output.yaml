@@ -27,6 +27,7 @@ tests:
       required options: enumerations'}
   - {constraint_enumerations_notallowed.json: 'ValidationError: "integer" Fields cannot
       have constraints: enumerations'}
+  - {constraint_enumerations_null.json: VALIDATED}
   - {constraint_length.json: VALIDATED}
   - {constraint_length_notallowed.json: 'ValidationError: "integer" Fields cannot
       have constraints: length'}
@@ -43,6 +44,18 @@ tests:
   - {empty_title.json: 'ValidationError: '''' is too short'}
   - {garbage.json: 'ValidationError: Instrument Definitions must be mapped objects.'}
   - {identifiable.json: VALIDATED}
+  - {identifiable_bad.json: 'ValidationError: ''yes'' is not of type u''boolean'''}
+  - {identifiable_matrix.json: VALIDATED}
+  - {identifiable_matrix_bad.json: 'ValidationError: {''rows'': [{''required'': True,
+      ''id'': ''somerow''}], ''columns'': [{''identifiable'': ''yes'', ''required'':
+      True, ''type'': ''text'', ''id'': ''blah''}, {''type'': {''range'': {''min'':
+      10}, ''base'': ''integer''}, ''id'': ''foobar''}], ''base'': ''matrix''} is
+      not valid under any of the given schemas'}
+  - {identifiable_recordlist.json: VALIDATED}
+  - {identifiable_recordlist_bad.json: 'ValidationError: {''record'': [{''identifiable'':
+      True, ''type'': ''text'', ''id'': ''quest1''}, {''identifiable'': ''no'', ''type'':
+      ''integer'', ''id'': ''quest2''}], ''base'': ''recordList''} is not valid under
+      any of the given schemas'}
   - {matrix.json: VALIDATED}
   - {matrix_complex_column.json: 'ValidationError: Complex type "recordList" cannot
       be used within another complex type.'}

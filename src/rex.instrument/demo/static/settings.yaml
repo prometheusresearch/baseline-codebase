@@ -9,5 +9,6 @@ instrument_implementation:
 db: pgsql:instrument_demo
 
 htsql_extensions:
+  tweak.etl:
   rex_deploy:
 

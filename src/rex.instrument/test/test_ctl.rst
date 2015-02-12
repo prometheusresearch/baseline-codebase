@@ -180,6 +180,29 @@ It accepts options that dictate the various properties of the output format::
         - id: quest2
           type: integer
 
+    >>> ctl('instrument-format ./test/instruments_yaml/enumerations.yaml --format=YAML --pretty')
+    id: urn:test-instrument:enumeration
+    version: '1.1'
+    title: Enumeration Test
+    record:
+    - id: q_enum
+      type:
+        base: enumeration
+        enumerations:
+          blue: {}
+          green: null
+          red: null
+    - id: q_enumset
+      type:
+        base: enumerationSet
+        length:
+          max: 2
+        enumerations:
+          circle: null
+          octogon: {}
+          square: null
+          triangle: {}
+
 
 It fails if the input structure violates the specification in any way::
 

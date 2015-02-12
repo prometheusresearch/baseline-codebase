@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
 
-    "id": "http://rexdb.com/instrument/0.6.0#",
+    "id": "http://rexdb.com/instrument/0.7.0#",
     "title": "Common Instrument Definition",
 
     "definitions": {
@@ -258,6 +258,10 @@
 
                 "required": {
                     "type": "boolean"
+                },
+
+                "identifiable": {
+                    "type": "boolean"
                 }
             },
 
@@ -314,8 +318,11 @@
                     "type": "object",
 
                     "patternProperties": {
-                        "^[a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9]$": {
-                            "$ref": "#/definitions/enumerationType"
+                        "^(?:[a-z0-9]{1,2}|[a-z0-9](?:[a-z0-9]|[_-](?![_-]))+[a-z0-9])$": {
+                            "oneOf": [
+                                { "$ref": "#/definitions/enumerationType" },
+                                { "type": "null" }
+                            ]
                         }
                     },
 

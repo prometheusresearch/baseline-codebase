@@ -2,7 +2,7 @@
 Common Instrument Definition
 ****************************
 
-DRAFT v0.6.0
+DRAFT v0.7.0
 
 
 .. contents:: Table of Contents
@@ -160,7 +160,10 @@ identifiable
                   "Protected Health Information" (`HIPAA PHI`_), "Personally
                   Identifiable Information" (`NIST PII`_), "Personal Data"
                   (`EU Data Protection Directive`_), etc. This property is
-                  optional, and, if not specified, is assumed to be false.
+                  optional, and, if not specified, is assumed to be false. If a
+                  ``recordList`` or ``matrix`` field is marked as
+                  ``identifiable``, then that means that all sub-fields are
+                  considered to be ``identifiable``.
 
 .. _`HIPAA PHI`: http://www.gpo.gov/fdsys/pkg/CFR-2002-title45-vol1/pdf/CFR-2002-title45-vol1-sec164-514.pdf
 .. _`NIST PII`: http://csrc.nist.gov/publications/nistpubs/800-122/sp800-122.pdf
@@ -305,6 +308,17 @@ required
                   Column. This property is optional, and, if not specified,
                   is assumed to be false.
 
+identifiable
+    :Type: Boolean
+    :Description: Indicates whether or not the reponse for this Field will (or
+                  can) contain information that can be used to identify the
+                  subject or respondant. This is typically used to flag fields
+                  that would contain information that could be classified as
+                  "Protected Health Information" (`HIPAA PHI`_), "Personally
+                  Identifiable Information" (`NIST PII`_), "Personal Data"
+                  (`EU Data Protection Directive`_), etc. This property is
+                  optional, and, if not specified, is assumed to be false.
+
 
 Row Object
 ----------
@@ -397,11 +411,11 @@ Enumeration Collection Object
 An Enumeration Collection Object consists of one or more properties where the
 property name serves as a unique identifier for the enumeration, and the
 value of the property is the definition of the enumeration, in the format of a
-`Enumeration Object`_.
+`Enumeration Object`_ (or null).
 
 This identifier is a string that adheres to the following restrictions:
 
-* Consists of 2 or more of the following characters:
+* Consists of 1 or more of the following characters:
 
   * Lowercase latin alphabetic characters ("a" through "z"; Unicode 0061
     through 007A)
@@ -409,7 +423,6 @@ This identifier is a string that adheres to the following restrictions:
   * Underscore characters ("_"; Unicode 005F)
   * Hyphen characters ("-"; Unicode 002D)
 
-* The first character is a lowercase latin alphabetic character.
 * The last character is a lowercase latin alphabetic character or latin numeric
   digit.
 * Does not contain consecutive underscore and/or hyphen characters.
@@ -423,6 +436,8 @@ Example Unique Identifiers:
 * blue_green
 * abc123
 * ref-1-2-alpha
+* 42
+* a
 
 
 Enumeration Object

@@ -90,9 +90,13 @@ def _get_field_discrepancies(field, entries, known_types):
     return None
 
 
+def _default_get_accessor(entry, name):
+    return entry.data['values'][name]['value']
+
+
 def _get_simple_discrepancies(field, entries, accessor=None):
     if not accessor:
-        accessor = lambda entry, name: entry.data['values'][name]['value']
+        accessor = _default_get_accessor
 
     values = dict([
         (entry.uid, accessor(entry, field['id']))
@@ -261,6 +265,10 @@ def safe_empty(value):
     return value
 
 
+def _default_solve_accessor(entry, name):
+    return entry.data['values'].get(name, {})
+
+
 def _solve_simple_discrepancy(
         field,
         entries,
@@ -268,7 +276,7 @@ def _solve_simple_discrepancy(
         accessor=None,
         has_override=False):
     if not accessor:
-        accessor = lambda entry, name: entry.data['values'].get(name, {})
+        accessor = _default_solve_accessor
 
     solution = {}
 

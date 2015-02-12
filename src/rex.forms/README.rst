@@ -102,6 +102,11 @@ Settings
     only referenced if the Task implementation does not specify a value for its
     ``num_required_entries`` property.
 
+``forms_validate_on_startup``
+    This setting governs whether or not the system will automatically validate
+    all Form configurations found in the datastore upon server startup. If not
+    specified, it defaults to ``True``.
+
 
 JavaScript Components
 =====================

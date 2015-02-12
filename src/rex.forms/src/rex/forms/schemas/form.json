@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
 
-    "id": "http://rexdb.com/form/0.4.0#",
+    "id": "http://rexdb.com/form/0.5.0#",
     "title": "Form Configuration Definition",
 
     "definitions": {
@@ -97,7 +97,7 @@
             "properties": {
                 "id": {
                     "type": "string",
-                    "pattern": "^[a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9]$"
+                    "minLength": 1
                 },
 
                 "text": {

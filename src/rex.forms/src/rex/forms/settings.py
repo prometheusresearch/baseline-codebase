@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Setting, RecordVal, StrVal, IntVal
+from rex.core import Setting, RecordVal, StrVal, IntVal, BoolVal
 
 from .interface import Channel, Form, Task, Entry, DraftForm
 
@@ -11,6 +11,7 @@ from .interface import Channel, Form, Task, Entry, DraftForm
 __all__ = (
     'FormsImplementationSetting',
     'FormsDefaultRequiredEntriesSetting',
+    'FormsValidateOnStartupSetting',
 )
 
 
@@ -81,4 +82,20 @@ class FormsDefaultRequiredEntriesSetting(Setting):
     name = 'forms_default_required_entries'
     default = 1
     validate = IntVal(min_bound=1)
+
+
+class FormsValidateOnStartupSetting(Setting):
+    """
+    A boolean indicating whether or not the system should automatically
+    validate all Form configurations in the system when the server
+    starts up. If not specified, defaults to ``True``.
+
+    Example::
+
+        forms_validate_on_startup: false
+    """
+
+    name = 'forms_validate_on_startup'
+    validate = BoolVal()
+    default = True
 

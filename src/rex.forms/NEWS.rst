@@ -5,6 +5,19 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.28.0 (2015-xx-xx)
+===================
+
+- Updated ``instrument-formskeleton`` task to handle situations where
+  enumeration definitions have null values in an Instrument Definition.
+- When clicking the player controls on audio clips for enumerations, it will
+  no longer select that enumeration.
+- The system will now automatically validated all Form configurations found in
+  the datastore upon server startup. This can be disabled through a new
+  setting named ``forms_validate_on_startup``.
+- Added support for the loosened format of Enumeration IDs.
+
+
 0.27.0 (2015-01-30)
 ===================
 

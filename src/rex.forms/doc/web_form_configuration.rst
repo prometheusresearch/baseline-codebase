@@ -2,7 +2,7 @@
 Web Form Configuration
 **********************
 
-DRAFT v0.4.0
+DRAFT v0.5.0
 
 
 .. contents:: Table of Contents

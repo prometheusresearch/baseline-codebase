@@ -30,6 +30,7 @@ class Descriptor(TypedDefinedOrderDict):
     ]
 
     key_types = {
+        'id': str,
         'text': SortedDict,
         'help': SortedDict,
         'audio': SortedDict,

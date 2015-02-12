@@ -211,6 +211,12 @@ It accepts options that dictate the various properties of the output format::
           - id: bad
             text:
               en: Bad
+          - id: '1'
+            text:
+              en: OK
+          - id: a
+            text:
+              en: Super
 
 
     >>> ctl('forms-format ./test/forms/audio.json --format=YAML --pretty')
@@ -656,6 +662,38 @@ It accepts options that dictate the various properties of the output format::
           - id: foo
             text:
               en: foo
+      - type: question
+        options:
+          fieldId: q_enumerationset
+          text:
+            en: q_enumerationset
+          enumerations:
+          - id: foo
+            text:
+              en: foo
+          - id: bar
+            text:
+              en: bar
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/constraint_enumerations_null.json --pretty --format=YAML')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    title:
+      en: The InstrumentVersion Title
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_enumeration
+          text:
+            en: q_enumeration
+          enumerations:
+          - id: foo
+            text:
+              en: Foo!
       - type: question
         options:
           fieldId: q_enumerationset

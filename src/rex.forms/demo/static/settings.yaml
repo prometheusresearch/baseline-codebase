@@ -8,5 +8,6 @@ forms_implementation:
 db: pgsql:forms_demo
 
 htsql_extensions:
+  tweak.etl:
   rex_deploy:
 

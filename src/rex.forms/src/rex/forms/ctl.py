@@ -429,7 +429,9 @@ class InstrumentFormSkeleton(Task, FormOutputter):
             opts['enumerations'] = [
                 {
                     'id': key,
-                    'text': self._text(defn.get('description', key))
+                    'text': self._text(
+                        defn.get('description', key) if defn else key
+                    )
                 }
                 for key, defn in field_type['enumerations'].items()
             ]

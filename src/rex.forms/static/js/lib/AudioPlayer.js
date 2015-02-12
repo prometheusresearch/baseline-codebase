@@ -140,7 +140,8 @@ if (!AUDIO_SUPPORTED) {
       });
     },
 
-    onPlayPause: function () {
+    onPlayPause: function (event) {
+      event.preventDefault();
       var audio = this.getAudio();
       if (this.state.playing) {
         audio.pause();
@@ -149,7 +150,8 @@ if (!AUDIO_SUPPORTED) {
       }
     },
 
-    onRestart: function () {
+    onRestart: function (event) {
+      event.preventDefault();
       var audio = this.getAudio();
       audio.currentTime = 0;
       if (!this.state.playing) {

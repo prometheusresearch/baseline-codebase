@@ -1,6 +1,6 @@
-*************************************
-  Rex.expression Programming Guide
-*************************************
+**************************
+REX.EXPRESSION Usage Guide
+**************************
 
 .. contents:: Table of Contents
 

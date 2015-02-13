@@ -816,6 +816,7 @@ class Form(FormContainerWidget):
             return ui._replace_props(value=StateRead('%s/value' % self.id))
         elif isinstance(ui.widget, SubmitButton):
             return ui._replace_props(
+                value=StateRead('%s/value' % self.id),
                 on_click=SubmitForm.make_call(id='%s/value' % self.id)
             )
         elif isinstance(ui.widget, RemoveButton):

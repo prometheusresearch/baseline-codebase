@@ -209,6 +209,30 @@ class LinkButton(Button):
         doc="Link URL")
 
 
+class ActionLink(Widget):
+    """ Link that allows execution of an action instead of standard link"""
+
+
+    name = 'ActionLink'
+    js_type = 'rex-widget/lib/ActionLink'
+
+    text = Field(
+        TemplatedStrVal(), default=undefined,
+        doc="Link text")
+
+    on_click = Field(
+        ActionVal(), default=undefined,
+        doc="""
+        Action on click.
+        """)
+
+    class_name = Field(
+        StrVal(), default=undefined,
+        doc="""
+        CSS class name.
+        """)
+
+
 class ValueKeyVal(Validate):
 
     underlying_validator = StrVal()

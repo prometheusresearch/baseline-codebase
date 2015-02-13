@@ -20,7 +20,11 @@ var ModalStyle = {
   self: {
     flex: 1,
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)'
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    overflow: 'hidden'
+  },
+  body: {
+    overflow: 'auto'
   }
 };
 
@@ -34,7 +38,8 @@ var Modal = React.createClass({
   renderLayer() {
     var {
       open, children, showTitle, title, className,
-      width, height, ...props
+      width, height, minWidth, minHeight, maxWidth, maxHeight,
+      ...props
     } = this.props;
     if (!open) {
       return <noscript />;
@@ -49,7 +54,13 @@ var Modal = React.createClass({
           className={cx('rw-Modal', className)}>
           <Box
             className="rw-Modal__content"
-            style={{width, height}}
+            style={{
+              ...ModalStyle.content,
+              width, height,
+              minWidth, minHeight,
+              maxWidth, maxHeight
+            }}
+            onScroll={preventDefault}
             onClick={stopPropagation}>
             {showTitle &&
               <div className="rw-Modal__header">
@@ -62,7 +73,7 @@ var Modal = React.createClass({
                   {title}
                 </h4>
               </div>}
-            <div className="rw-Modal__body">
+            <div className="rw-Modal__body" style={ModalStyle.body}>
               {children}
             </div>
           </Box>
@@ -80,8 +91,14 @@ var Modal = React.createClass({
   }
 });
 
+function preventDefault(e) {
+  if (e && e.preventDefault) {
+    e.preventDefault();
+  }
+}
+
 function stopPropagation(e) {
-  if (e.stopPropagation) {
+  if (e && e.stopPropagation) {
     e.stopPropagation();
   }
 }

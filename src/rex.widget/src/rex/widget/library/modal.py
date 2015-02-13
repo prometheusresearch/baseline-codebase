@@ -49,6 +49,18 @@ class Modal(Widget):
         Title for modal window.
         """)
 
+    min_width = Field(
+        SizeVal(), default=undefined)
+
+    min_height = Field(
+        SizeVal(), default=undefined)
+
+    max_width = Field(
+        SizeVal(), default=undefined)
+
+    max_height = Field(
+        SizeVal(), default=undefined)
+
     width = Field(
         SizeVal(), default=undefined,
         doc="""

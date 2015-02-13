@@ -14,7 +14,6 @@ var FilterSet = React.createClass({
   render() {
     var {filters, applyOnChange, hideApplyButton, ...props} = this.props;
     filters = React.Children.map(filters, this._setupFilter);
-    console.log(hideApplyButton, applyOnChange);
     return (
       <HBox {...props}>
         {(!applyOnChange && !hideApplyButton) &&

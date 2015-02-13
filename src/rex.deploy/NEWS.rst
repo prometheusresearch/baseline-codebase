@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.2.0 (2015-XX-XX)
+==================
+
+* Wrapped mathematical functions.
+
+
 2.1.0 (2015-01-30)
 ==================
 

@@ -1268,3 +1268,54 @@ generating a valid SQL name from a list of fragments and an optional suffix::
     u'individual_mother_fk'
 
 
+HTSQL functions
+===============
+
+In addition to database management, :mod:`rex.deploy` wraps a number of
+PostgreSQL functions:
+
+``json(text)``
+    Converts a text value to JSON.
+``json_get(obj, name)``
+    Extracts field ``name`` from a JSON object as a text value.
+``re_matches(text, pat)``
+    Checks if ``text`` matches the regular expression ``pat``.
+``ft_matches(text, key)``
+    Checks if ``text`` contains ``key`` by performing full-text search on
+    ``text`` value.
+``ft_headline(text, key)``
+    Extracts a matching substring from ``text`` in HTML format.
+``ft_rank(text, key)``
+    Estimates the relevance of the match.
+``ft_query_matches(text, q)``, ``ft_query_headline(text, q)``, ``ft_query_rank(text, q)``
+    Performs full-text search on ``text`` using full-text search query ``q``.
+``join(text, sep)``
+    Concatenates a set of text values.
+``abs(x)``
+    The absolute value of ``x``.
+``sign(x)``
+    The sign of ``x``.
+``ceil(x)``
+    Smallest integer not less than ``x``.
+``floor(x)``
+    Largest integer not greater than ``x``.
+``div(x,y)``
+    Integer quotient of ``x/y``.
+``mod(x,y)``
+    Remainder of ``x/y``.
+``exp(x)``
+    Exponential.
+``pow(x,y)``
+    ``x`` raised to the power of ``y``.
+``ln(x)``
+    Natural logarithm.
+``log10(x)``
+    Base 10 logarithm.
+``log(x,y)``
+    Logarithm to base ``y``.
+``pi()``, ``acos(x)``, ``asin(x)``, ``atan(x)``, ``atan2(y,x)``, ``cos(x)``, ``cot(x)``, ``sin(x)``, ``tan(x)``
+    Trigonometric functions.
+``random()``
+    Random value in the range from 0 to 1.
+
+

@@ -6,7 +6,7 @@
 from htsql.core.adapter import adapt, call
 from htsql.core.error import Error, translate_guard
 from htsql.core.domain import (UntypedDomain, BooleanDomain, TextDomain,
-        FloatDomain, EntityDomain)
+        IntegerDomain, DecimalDomain, FloatDomain, EntityDomain)
 from htsql.core.syn.syntax import StringSyntax
 from htsql.core.tr.binding import TitleBinding, FormulaBinding
 from htsql.core.tr.bind import SelectRecord
@@ -17,7 +17,10 @@ from htsql.core.tr.fn.bind import (BindCast, BindMonoFunction,
 from ..domain import JSONDomain
 from .lookup import select_identity
 from .signature import (REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
-        FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig)
+        FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
+        AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
+        LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
+        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig)
 
 
 class SelectEntity(SelectRecord):
@@ -41,6 +44,14 @@ class BindJSONCast(BindCast):
 
     call('json')
     codomain = JSONDomain()
+
+
+class BindJSONGet(BindMonoFunction):
+
+    call('json_get')
+    signature = JSONGetSig
+    domains = [JSONDomain(), TextDomain()]
+    codomain = TextDomain()
 
 
 class BindREMatches(BindMonoFunction):
@@ -127,5 +138,329 @@ class CorrelateTextJoin(CorrelateFunction):
     signature = JoinSig
     domains = [TextDomain(), TextDomain()]
     codomain = TextDomain()
+
+
+class BindAbs(BindPolyFunction):
+
+    call('abs')
+    signature = AbsSig
+
+
+class CorrelateIntegerAbs(CorrelateFunction):
+
+    match(AbsSig, IntegerDomain)
+    signature = AbsSig
+    domains = [IntegerDomain()]
+    codomain = IntegerDomain()
+
+
+class CorrelateDecimalAbs(CorrelateFunction):
+
+    match(AbsSig, DecimalDomain)
+    signature = AbsSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class CorrelateFloatAbs(CorrelateFunction):
+
+    match(AbsSig, FloatDomain)
+    signature = AbsSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindSign(BindPolyFunction):
+
+    call('sign')
+    signature = SignSig
+
+
+class CorrelateDecimalSign(CorrelateFunction):
+
+    match(SignSig, IntegerDomain,
+                   DecimalDomain)
+    signature = SignSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class CorrelateFloatSign(CorrelateFunction):
+
+    match(SignSig, FloatDomain)
+    signature = SignSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindCeil(BindPolyFunction):
+
+    call('ceil')
+    signature = CeilSig
+
+
+class CorrelateDecimalCeil(CorrelateFunction):
+
+    match(CeilSig, IntegerDomain,
+                   DecimalDomain)
+    signature = CeilSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class CorrelateFloatCeil(CorrelateFunction):
+
+    match(CeilSig, FloatDomain)
+    signature = CeilSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindFloor(BindPolyFunction):
+
+    call('floor')
+    signature = FloorSig
+
+
+class CorrelateDecimalFloor(CorrelateFunction):
+
+    match(FloorSig, IntegerDomain,
+                    DecimalDomain)
+    signature = FloorSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class CorrelateFloatFloor(CorrelateFunction):
+
+    match(FloorSig, FloatDomain)
+    signature = FloorSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindDiv(BindPolyFunction):
+
+    call('div')
+    signature = DivSig
+
+
+class CorrelateDecimalDiv(CorrelateFunction):
+
+    match(DivSig, IntegerDomain,
+                  DecimalDomain)
+    signature = DivSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class BindMod(BindPolyFunction):
+
+    call('mod')
+    signature = ModSig
+
+
+class CorrelateDecimalMod(CorrelateFunction):
+
+    match(ModSig, IntegerDomain,
+                  DecimalDomain)
+    signature = ModSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class BindExp(BindPolyFunction):
+
+    call('exp')
+    signature = ExpSig
+
+
+class CorrelateDecimalExp(CorrelateFunction):
+
+    match(ExpSig, IntegerDomain,
+                  DecimalDomain)
+    signature = ExpSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class CorrelateFloatExp(CorrelateFunction):
+
+    match(ExpSig, FloatDomain)
+    signature = ExpSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindPow(BindPolyFunction):
+
+    call('pow')
+    signature = PowSig
+
+
+class CorrelateDecimalPow(CorrelateFunction):
+
+    match(PowSig, (IntegerDomain, IntegerDomain),
+                  (IntegerDomain, DecimalDomain),
+                  (DecimalDomain, IntegerDomain),
+                  (DecimalDomain, DecimalDomain))
+    signature = PowSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class CorrelateFloatPow(CorrelateFunction):
+
+    match(PowSig, (IntegerDomain, FloatDomain),
+                  (DecimalDomain, FloatDomain),
+                  (FloatDomain, IntegerDomain),
+                  (FloatDomain, DecimalDomain),
+                  (FloatDomain, FloatDomain))
+    signature = PowSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindLn(BindPolyFunction):
+
+    call('ln')
+    signature = LnSig
+
+
+class CorrelateDecimalLn(CorrelateFunction):
+
+    match(LnSig, IntegerDomain,
+                 DecimalDomain)
+    signature = LnSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class CorrelateFloatLn(CorrelateFunction):
+
+    match(LnSig, FloatDomain)
+    signature = LnSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindLog10(BindPolyFunction):
+
+    call('log10')
+    signature = Log10Sig
+
+
+class CorrelateDecimalLog10(CorrelateFunction):
+
+    match(Log10Sig, IntegerDomain,
+                    DecimalDomain)
+    signature = Log10Sig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class CorrelateFloatLog10(CorrelateFunction):
+
+    match(Log10Sig, FloatDomain)
+    signature = Log10Sig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindLog(BindPolyFunction):
+
+    call('log')
+    signature = LogSig
+
+
+class CorrelateDecimalLog(CorrelateFunction):
+
+    match(LogSig, (IntegerDomain, IntegerDomain),
+                  (IntegerDomain, DecimalDomain),
+                  (DecimalDomain, IntegerDomain),
+                  (DecimalDomain, DecimalDomain))
+    signature = LogSig
+    domains = [DecimalDomain()]
+    codomain = DecimalDomain()
+
+
+class BindPi(BindMonoFunction):
+
+    call('pi')
+    signature = PiSig
+    domains = []
+    codomain = FloatDomain()
+
+
+class BindACos(BindMonoFunction):
+
+    call('acos')
+    signature = ACosSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindASin(BindMonoFunction):
+
+    call('asin')
+    signature = ASinSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindATan(BindMonoFunction):
+
+    call('atan')
+    signature = ATanSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindATan2(BindMonoFunction):
+
+    call('atan2')
+    signature = ATan2Sig
+    domains = [FloatDomain(), FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindCos(BindMonoFunction):
+
+    call('cos')
+    signature = CosSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindCot(BindMonoFunction):
+
+    call('cot')
+    signature = CotSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindSin(BindMonoFunction):
+
+    call('sin')
+    signature = SinSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindTan(BindMonoFunction):
+
+    call('tan')
+    signature = TanSig
+    domains = [FloatDomain()]
+    codomain = FloatDomain()
+
+
+class BindRandom(BindMonoFunction):
+
+    call('random')
+    signature = RandomSig
+    domains = []
+    codomain = FloatDomain()
 
 

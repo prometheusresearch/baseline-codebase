@@ -197,6 +197,14 @@ untyped JSON literals::
       "2": {}
     }
 
+You can extract values from a JSON object using ``json_get()`` function::
+
+    >>> q = Query(''' boolean(json_get(json('{"victory": true}'), 'victory')) ''')
+    >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
+    {
+      "0": true
+    }
+
 You can access JSON data through ports::
 
     >>> from rex.port import Port
@@ -300,6 +308,37 @@ The selector must contain one element::
     While translating:
         join(family{code, notes}, ', ')
                    ^^^^^^^^^^^^^
+
+
+Math functions
+==============
+
+Some math functions provided by PostgreSQL are exposed to HTSQL.  They include
+``abs()``, ``sign()``, ``ceil()``, ``floor()``, ``div()``, ``mod()``,
+``exp()``, ``pow()``, ``ln()``, ``log10()``, ``log()``::
+
+    >>> q = Query(''' {abs(-5), sign(-5), ceil(3.5), floor(3.5), div(5,2), mod(5,2),
+    ...                exp(0), pow(2,4), ln(1), log10(100), log(27,3)} ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | abs(-5) | sign(-5) | ceil(3.5) | floor(3.5) | div(5,2) | mod(5,2) | exp(0) | pow(2,4) | ln(1) | log10(100) | log(27,3) |
+    -+---------+----------+-----------+------------+----------+----------+--------+----------+-------+------------+-----------+-
+     |       5 |       -1 |         4 |          3 |        2 |        1 |      1 |       16 |     0 |          2 |         3 |
+
+Regular trigonometric functions are also available::
+
+    >>> q = Query(''' {pi(), acos(1), asin(0), atan(0), atan2(0,1),
+    ...                cos(pi()), cot(0.5*pi()), sin(0), tan(0)} ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | pi()          | acos(1) | asin(0) | atan(0) | atan2(0,1) | cos(pi()) | cot(0.5*pi())     | sin(0) | tan(0) |
+    -+---------------+---------+---------+---------+------------+-----------+-------------------+--------+--------+-
+     | 3.14159265359 |     0.0 |     0.0 |     0.0 |        0.0 |      -1.0 | 6.12323399574e-17 |    0.0 |    0.0 |
+
+Function ``random()`` generates a random value::
+
+    >>> q = Query(''' random() ''')
+    >>> r = q.produce().data
+    >>> 0 <= r <= 1
+    True
 
 Finally we delete the test database::
 

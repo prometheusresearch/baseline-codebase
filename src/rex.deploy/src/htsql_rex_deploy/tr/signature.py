@@ -3,7 +3,8 @@
 #
 
 
-from htsql.core.tr.signature import Signature, Slot, BinarySig
+from htsql.core.tr.signature import (
+        Signature, Slot, NullarySig, UnarySig, BinarySig)
 
 
 class REMatchesSig(BinarySig):
@@ -41,5 +42,93 @@ class JoinSig(Signature):
             Slot('op'),
             Slot('delimiter'),
     ]
+
+
+class AbsSig(UnarySig):
+    pass
+
+
+class SignSig(UnarySig):
+    pass
+
+
+class CeilSig(UnarySig):
+    pass
+
+
+class FloorSig(UnarySig):
+    pass
+
+
+class DivSig(BinarySig):
+    pass
+
+
+class ModSig(BinarySig):
+    pass
+
+
+class ExpSig(UnarySig):
+    pass
+
+
+class PowSig(BinarySig):
+    pass
+
+
+class LnSig(UnarySig):
+    pass
+
+
+class Log10Sig(UnarySig):
+    pass
+
+
+class LogSig(BinarySig):
+    pass
+
+
+class PiSig(NullarySig):
+    pass
+
+
+class ACosSig(UnarySig):
+    pass
+
+
+class ASinSig(UnarySig):
+    pass
+
+
+class ATanSig(UnarySig):
+    pass
+
+
+class ATan2Sig(BinarySig):
+    pass
+
+
+class CosSig(UnarySig):
+    pass
+
+
+class CotSig(UnarySig):
+    pass
+
+
+class SinSig(UnarySig):
+    pass
+
+
+class TanSig(UnarySig):
+    pass
+
+
+class RandomSig(NullarySig):
+    pass
+
+
+class JSONGetSig(BinarySig):
+    pass
 
 

@@ -44,6 +44,7 @@ var DataTable = React.createClass({
         <Column
           headerRenderer={this._headerRenderer}
           cellDataGetter={this._cellDataGetter}
+          cellRenderer={this._cellRenderer}
           key={column.key}
           fixed={column.fixed}
           dataKey={column.key}
@@ -136,7 +137,7 @@ var DataTable = React.createClass({
     if (!sortable) {
       return (
         <div>
-          {cellData}
+          {String(cellData)}
         </div>
       );
     } else {
@@ -176,6 +177,10 @@ var DataTable = React.createClass({
   _recomputeGeometry() {
     var {height, width} = this.getDOMNode().getBoundingClientRect();
     this.setState({height, width});
+  },
+
+  _cellRenderer(cellData, cellDataKey, rowData, rowIndex, columnData, width) {
+    return <span title={cellData}>{renderToString(cellData)}</span>;
   },
 
   _cellDataGetter(key, row) {
@@ -221,6 +226,10 @@ function getByKeyPath(row, keyPath) {
     }
   }
   return row;
+}
+
+function renderToString(value) {
+  return value === null || value === undefined ?  '' : String(value);
 }
 
 module.exports = DataTable;

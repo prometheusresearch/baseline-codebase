@@ -17,8 +17,8 @@ function submitForm({id, notificationOnComplete}) {
     var state = ApplicationState.getState(id);
     var value = ApplicationState.get(id);
     var update = {};
-    update[id] = value;
     if (value.isValid) {
+      update[id] = value;
       return {
         update,
         forceRemoteUpdate: true,
@@ -26,6 +26,7 @@ function submitForm({id, notificationOnComplete}) {
         notificationsOnComplete: [notificationOnComplete]
       };
     } else {
+      update[id] = value.makeDirty();
       return {update};
     }
   });

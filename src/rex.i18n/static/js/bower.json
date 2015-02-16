@@ -1,6 +1,6 @@
 {
   "name": "rex-i18n",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "JavaScript I18N Utilities for the RexDB Framework",
   "authors": [
@@ -13,7 +13,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "jed": "^1.0.2",
+    "jed": "1.0.2",
     "jstimezonedetect": "^1.0.5",
     "globalize": "https://github.com/jayclassless/globalize.git#webpack_compatibility",
     "es6-promise-polyfill": "^1.0.0",

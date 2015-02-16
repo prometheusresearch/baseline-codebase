@@ -5,6 +5,13 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.4.1 (2015-xx-xx)
+==================
+
+* Fixed a JavaScript string translation issue by pinning an exact version of a
+  dependency.
+
+
 0.4.0 (2015-01-30)
 ==================
 

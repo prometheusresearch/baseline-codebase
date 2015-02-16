@@ -261,12 +261,24 @@ input[type="color"] {
  */
 
 .rfb-YAMLEditor {
-  .area(0px, 0px, 0px, 0px, @width:100%, @height:100%, @bgColor:white);
-  font-family: monospace;
+  .area(0px, 0px, 0px, 0px, @bgColor:white);
+  textarea {
+    .area(0px, 0px, 0px, 0px, @width:100%, @height:100%, @bgColor:white);
+    font-family: monospace;
+  }
+  .CodeMirror {
+    height: 100%;
+  }
 }
 
 .rfb-YAMLEditor--hidden {
   display: none;
+}
+
+.rfb-YAMLEditor--readOnly {
+  .CodeMirror {
+    background-color: #ddd;
+  }
 }
 
 /**

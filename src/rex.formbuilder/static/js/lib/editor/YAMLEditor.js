@@ -11,29 +11,42 @@ var YAMLCodeMirror = require('codemirror/mode/yaml/yaml.js');
 var YAMLEditor = React.createClass({
 
   componentDidMount() {
+    var readOnly = this.props.readOnly || false;
     this.editor = CodeMirror.fromTextArea(this.refs.editor.getDOMNode(), {
-      mode: 'text/x-yaml'
+      mode: 'text/x-yaml',
+      readOnly: readOnly
     });
     this.editor.on('change', this.handleChange);
-    console.log('editor', this.editor);
+  },
+
+  componentDidUpdate(prevProps) {
+    var readOnly = this.props.readOnly || false;
+    if (this.editor.getOption("readOnly") !== readOnly) {
+      this.editor.setOption("readOnly", readOnly);
+    }
+    if (prevProps.hidden && !this.props.hidden) {
+      this.editor.refresh();
+    }
   },
 
   render() {
-    var {value, className, hidden, ...props} = this.props;
+    var {value, className, hidden, readOnly, ...props} = this.props;
     var style = hidden ? 'display: none' : null;
     var classSet = {
       "rfb-YAMLEditor": true,
-      "rfb-YAMLEditor--hidden": hidden
+      "rfb-YAMLEditor--hidden": hidden,
+      "rfb-YAMLEditor--readOnly": readOnly
     };
     if (className)
       classSet[className] = true;
     return (
-      <textarea
-        {...props}
-        className={cx(classSet)}
-        value={value}
-        ref="editor"
+      <div className={cx(classSet)}>
+        <textarea
+          {...props}
+          value={value}
+          ref="editor"
         />
+      </div>
     );
     /* onChange={this.onChange} */
   },

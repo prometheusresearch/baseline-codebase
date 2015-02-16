@@ -12,6 +12,7 @@
 * rex.forms==0.28.0
 * rex.expression==1.5.0
 * rex.deploy==2.2.0
+* rex.i18n==0.4.1
 
 
 4.0.1 (2015-02-01)

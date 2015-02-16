@@ -12,6 +12,7 @@ __all__ = (
     'FormsImplementationSetting',
     'FormsDefaultRequiredEntriesSetting',
     'FormsValidateOnStartupSetting',
+    'FormsLocalResourcePrefixSetting',
 )
 
 
@@ -98,4 +99,20 @@ class FormsValidateOnStartupSetting(Setting):
     name = 'forms_validate_on_startup'
     validate = BoolVal()
     default = True
+
+
+class FormsLocalResourcePrefixSetting(Setting):
+    """
+    A URL prefix to prepend to any resource that is included in form
+    configurations (e.g., Audio files). This prefix is *only* applied to
+    resource URLs that start with ``/``.
+
+    Example::
+
+        forms_local_resource_prefix: /some-subpath
+    """
+
+    name = 'forms_local_resource_prefix'
+    validate = StrVal()
+    default = None
 

@@ -16,6 +16,10 @@ REX.FORMS Change Log
   the datastore upon server startup. This can be disabled through a new
   setting named ``forms_validate_on_startup``.
 - Added support for the loosened format of Enumeration IDs.
+- Added a new setting named ``forms_local_resource_prefix`` that can be used
+  to prepend a string to the resource URLs referenced in Form configurations
+  (such as Audio files). This value of this setting must be passed to the
+  localResourcePrefix prop of the Form JS component.
 
 
 0.27.0 (2015-01-30)

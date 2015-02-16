@@ -14,6 +14,7 @@ var FormEventsContextMixin = require('./FormEventsContextMixin');
 var FormLocalizerMixin     = require('./FormLocalizerMixin');
 var WidgetConfiguration    = require('./WidgetConfiguration');
 var _                      = require('../localization')._;
+var resourcer              = require('../resourcer');
 
 
 var Form = React.createClass({
@@ -21,7 +22,8 @@ var Form = React.createClass({
     FormLocalizerMixin,
     ReactForms.FormMixin,
     FormEventsContextMixin,
-    WidgetConfiguration.ContextMixin
+    WidgetConfiguration.ContextMixin,
+    resourcer.ResourcerMixin
   ],
 
   propTypes: {
@@ -34,7 +36,8 @@ var Form = React.createClass({
     showOverview: React.PropTypes.bool,
     showOverviewOnCompletion: React.PropTypes.bool,
     readOnly: React.PropTypes.bool,
-    subtitle: React.PropTypes.string
+    subtitle: React.PropTypes.string,
+    localResourcePrefix: React.PropTypes.string
   },
 
   render: function() {
@@ -274,6 +277,10 @@ var Form = React.createClass({
     if (this.props.onUpdate) {
       this.props.onUpdate(assessment, isValid);
     }
+  },
+
+  getLocalResourcePrefix: function () {
+    return this.props.localResourcePrefix;
   }
 });
 

@@ -6,6 +6,7 @@
 
 var React        = require('react');
 var log          = require('./log');
+var resourcer    = require('./resourcer');
 var localization = require('./localization');
 var _            = localization._;
 
@@ -60,7 +61,8 @@ if (!AUDIO_SUPPORTED) {
 
   AudioPlayer = React.createClass({
     mixins: [
-      localization.LocalizedMixin
+      localization.LocalizedMixin,
+      resourcer.ResourcedMixin
     ],
 
     propTypes: {
@@ -129,11 +131,11 @@ if (!AUDIO_SUPPORTED) {
 
       var localSources = this.localize(this.props.source) || [];
 
-      return localSources.map(function (source, idx) {
+      return localSources.map((source, idx) => {
         return (
           <source
             key={idx}
-            src={source}
+            src={this.getResourceUrl(source)}
             type={getMimeTypeForName(source)}
             />
         );

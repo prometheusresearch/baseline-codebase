@@ -11,6 +11,7 @@
     var CHANNELS = {{ channels|json }};
     var INITIAL_CHANNEL = {{ initial_channel|json }};
     var RETURN_URL = {{ return_url|json }};
+    var RESOURCE_PREFIX = {{ SETTINGS.forms_local_resource_prefix|json }};
 
     $(function () {
         Rex.FormPreviewer.renderForm({
@@ -20,7 +21,8 @@
             locale: LOCALE,
             channels: CHANNELS,
             initialChannel: INITIAL_CHANNEL,
-            returnUrl: RETURN_URL
+            returnUrl: RETURN_URL,
+            localResourcePrefix: RESOURCE_PREFIX
         });
     });
 </script>

@@ -20,7 +20,8 @@ var FormPreviewer = React.createClass({
     locale: React.PropTypes.string,
     channels: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     initialChannel: React.PropTypes.string.isRequired,
-    returnUrl: React.PropTypes.string
+    returnUrl: React.PropTypes.string,
+    localResourcePrefix: React.PropTypes.string
   },
 
   getDefaultProps: function () {
@@ -68,6 +69,7 @@ var FormPreviewer = React.createClass({
           showOverviewOnCompletion={true}
           locale={this.props.locale}
           onComplete={this.onComplete}
+          localResourcePrefix={this.props.localResourcePrefix}
           />
         {this.props.returnUrl &&
           <div className="returner">

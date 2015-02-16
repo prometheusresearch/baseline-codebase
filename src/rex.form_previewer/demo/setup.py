@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.form_previewer_demo',
-    version='0.1.0',
+    version='0.1.1',
     description='Demo package for testing rex.form_previewer',
     package_dir={'': 'src'},
     packages=find_packages('src'),

@@ -107,6 +107,11 @@ Settings
     all Form configurations found in the datastore upon server startup. If not
     specified, it defaults to ``True``.
 
+``forms_local_resource_prefix``
+    This setting contains a URL prefix that will be automatically applied to
+    all resources referenced by Form configurations (e.g., Audio files) that
+    start with a ``/``. If not specified, it defaults to ``None``.
+
 
 JavaScript Components
 =====================

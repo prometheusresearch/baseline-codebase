@@ -24,6 +24,9 @@ class History {
         break;
       case ActionTypes.PAGE_STATE_UPDATE:
         var {persistence} = action.payload;
+        if (persistence === undefined) {
+          persistence = identifyPersistenceLevel(Object.keys(action.payload.update));
+        }
         if (persistence === PersistenceTypes.PERSISTENT) {
           this.pushState();
         } else if (persistence === PersistenceTypes.EPHEMERAL) {
@@ -91,5 +94,32 @@ class History {
     ApplicationState.updateMany(update);
   }
 };
+
+function identifyPersistenceLevel(stateIDs) {
+  if (stateIDs.length === 0) {
+    return;
+  }
+  var {ApplicationState} = require('./runtime');
+  var levels = stateIDs.map(id => ApplicationState.getState(id).persistence);
+  levels.sort(comparePersistenceLevel);
+  return levels[0];
+}
+
+var PersistenceTypesPriority = {};
+PersistenceTypesPriority[PersistenceTypes.PERSISTENT] = 0;
+PersistenceTypesPriority[PersistenceTypes.EPHEMERAL] = 1;
+PersistenceTypesPriority[PersistenceTypes.INVISIBLE] = 2;
+
+function comparePersistenceLevel(a, b) {
+  a = PersistenceTypesPriority[a];
+  b = PersistenceTypesPriority[b];
+  if (a > b) {
+    return 1;
+  } else if (a < b) {
+    return -1;
+  } else {
+    return 0;
+  }
+}
 
 module.exports = History;

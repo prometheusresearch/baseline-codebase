@@ -544,6 +544,22 @@ class FileUploadField(FormField):
         """)
 
 
+class FileDownloadField(FormField):
+    """
+    Form field which allows downloading files.
+
+    Might be considered a read-only version of <FileUploadField />.
+    """
+
+    name = 'FileDownloadField'
+    js_type = 'rex-widget/lib/form/FileDownloadField'
+
+    download = URLField(
+        doc="""
+        URL for a download entry point.
+        """)
+
+
 class Fieldset(FormContainerWidget):
     """
     Groups a related set of fields.

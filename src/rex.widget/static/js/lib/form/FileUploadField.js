@@ -3,16 +3,14 @@
  */
 'use strict';
 
-var Promise           = require('bluebird');
-var React             = require('react/addons');
-var cx                = React.addons.classSet;
-var merge             = require('../merge');
-var {Box, HBox}       = require('../layout');
-var Button            = require('../Button');
-var Icon              = require('../Icon');
-var Hoverable         = require('../Hoverable');
-var FieldBase         = require('./FieldBase');
-var FormContextMixin  = require('./FormContextMixin');
+var Promise             = require('bluebird');
+var React               = require('react/addons');
+var cx                  = React.addons.classSet;
+var {Box, HBox}         = require('../layout');
+var Button              = require('../Button');
+var FieldBase           = require('./FieldBase');
+var FormContextMixin    = require('./FormContextMixin');
+var {File, StoredFile}  = require('./File');
 
 function uploadFile(url, file, onProgress) {
   return new Promise(function(resolve, reject) {
@@ -46,83 +44,6 @@ function filename(file) {
   var result = unquote(file.name);
   return result.replace(/.*\/([^\/]+)$/i, '$1');
 }
-
-var Progress = React.createClass({
-
-  style: {
-    height: 2,
-    background: 'rgb(142, 142, 226)'
-  },
-
-  render() {
-    var {progress, style, ...props} = this.props;
-    progress = progress || 0;
-    var style = merge(this.style, style, {
-      width: `${progress * 100}%`
-    });
-    return <Box {...props} style={style} />;
-  }
-});
-
-var File = React.createClass({
-  mixins: [Hoverable],
-
-  style: {
-    fontSize: '90%',
-    cursor: 'pointer',
-    top: 2
-  },
-
-  styleIcon: {
-    marginRight: 5,
-    marginLeft: 5,
-    top: -2
-  },
-
-  render() {
-    var {file, icon, required, children, onRemove, progress, ...props} = this.props;
-    var {hover} = this.state;
-    return (
-      <Box {...props}>
-        <HBox
-          {...this.hoverable}
-          size={1}
-          style={this.style}
-          onClick={!required && !progress && onRemove}>
-          <Box centerVertically style={this.styleIcon}>
-            {icon ?
-              <Icon name={icon} /> :
-              progress ?
-              <Icon name="repeat" /> :
-              required || !hover ?
-              <Icon name="ok" /> :
-              <Icon name="remove" />}
-          </Box>
-          <Box centerVertically>
-            {progress || required || !hover ?
-              children || file.name :
-              'Remove file'}
-          </Box>
-        </HBox>
-        <Progress progress={progress} />
-      </Box>
-    );
-  }
-});
-
-var StoredFile = React.createClass({
-
-  render() {
-    var {download, file, ownerRecordID, ...props} = this.props;
-    return (
-      <File icon="download" required {...props} file={file}>
-        <a href={`${download}?${ownerRecordID}`}>
-          {filename(file)}
-        </a>
-      </File>
-    );
-  }
-});
 
 var FileUploadInput = React.createClass({
 

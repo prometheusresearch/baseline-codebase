@@ -41,7 +41,7 @@ var Modal = React.createClass({
       width, height, minWidth, minHeight, maxWidth, maxHeight,
       ...props
     } = this.props;
-    if (!open) {
+    if (!open || open === 'false') {
       return <noscript />;
     }
     return (

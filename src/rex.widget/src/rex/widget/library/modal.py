@@ -24,7 +24,7 @@ class Modal(Widget):
 
     name = 'Modal'
     js_type = 'rex-widget/lib/Modal'
-    
+
     children = Field(
         WidgetVal(), default=NullWidget(),
         doc="""
@@ -33,6 +33,7 @@ class Modal(Widget):
 
     open = StateField(
         BoolVal(), default=False,
+        persistence='invisible',
         doc="""
         If modal window should be shown.
         """)

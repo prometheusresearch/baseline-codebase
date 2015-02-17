@@ -17,6 +17,7 @@ var Tabs = React.createClass({
     active = active || tabs[0].props.id;
     var buttons = tabs.map(tab =>
       <li
+        key={tab.props.id}
         role="presentation"
         className={cx({
           active: tab.props.id === active,
@@ -32,8 +33,8 @@ var Tabs = React.createClass({
     var tab = tabs.filter(tab => tab.props.id === active)[0];
     className = cx('rw-Tabs', className);
     var tabs = (
-      <Box className={`rw-Tabs--${buttonsPosition}Position`}>
-        <ul className={`rw-Tabs__buttons nav nav-${buttonsStyle}`} key="tabs">
+      <Box className={`rw-Tabs--${buttonsPosition}Position`} key="tabs">
+        <ul className={`rw-Tabs__buttons nav nav-${buttonsStyle}`}>
           {buttons}
         </ul>
       </Box>

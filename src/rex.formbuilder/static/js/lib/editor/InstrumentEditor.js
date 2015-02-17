@@ -21,6 +21,7 @@ var Editor = React.createClass({
   propTypes: {
     home: PropTypes.string.isRequired,
     indexURL: PropTypes.string.isRequired,
+    helpURL: PropTypes.string.isRequired,
     editorURLTemplate: PropTypes.string.isRequired,
     previewURLTemplate: PropTypes.string.isRequired,
     uid: PropTypes.string.isRequired,
@@ -102,7 +103,7 @@ var Editor = React.createClass({
   },
 
   renderHead() {
-    var {uid, group, indexURL} = this.props;
+    var {uid, group, indexURL, helpURL} = this.props;
     var {changed, operationInProgress} = this.state;
     var isPublished = group === "published";
     return (
@@ -118,6 +119,13 @@ var Editor = React.createClass({
           <a className="rfb-Editor__return" href={indexURL}>
             Return to all instruments list
           </a>
+          {helpURL &&
+            <Button
+              className="rfb-Editor__help"
+              target="_blank"
+              href={helpURL}>
+                Help
+            </Button>}
           {isPublished?
             <Button
               className="rfb-Editor__draft"

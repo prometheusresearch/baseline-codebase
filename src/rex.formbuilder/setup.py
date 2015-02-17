@@ -29,7 +29,9 @@ setup(
         'rex.forms>=0.27.0,<2',
         'rex.restful>=0.3.0,<2',
         'rex.applet >0, <1',
+        'rex.widget >0, <1',
         'rex.form_previewer >=0.1, <2',
+        'docutils',
         'simplejson'
     ],
     rex_bundle={

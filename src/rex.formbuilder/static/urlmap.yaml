@@ -1,0 +1,8 @@
+paths:
+  /help/:
+    widget: !<AppletPage>
+      title: Rex Form Builder Help
+      children:
+      - !<RstPage>
+        content: rex.formbuilder:/help.rst
+        preformatted: true

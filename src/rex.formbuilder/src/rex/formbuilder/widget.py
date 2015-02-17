@@ -1,12 +1,16 @@
 
-from rex.core import IntVal, StrVal, ChoiceVal, MaybeVal, MapVal
+from rex.core import StrVal, ChoiceVal, BoolVal
 from rex.widget import Widget, Field, StateField
 from rex.widget.field.url import URLField, URLVal
 
+from .rst import RstPage
+
 __all__ = (
     'InstrumentListWidget',
-    'InstrumentEditorWidget'
+    'InstrumentEditorWidget',
+    'RstPage'
 )
+
 
 class InstrumentListWidget(Widget):
     """Formbuilder List Widget"""
@@ -19,6 +23,7 @@ class InstrumentListWidget(Widget):
     )
     editorURLTemplate = URLField()
 
+
 class InstrumentEditorWidget(Widget):
     """Formbuilder Editor Widget"""
 
@@ -30,6 +35,9 @@ class InstrumentEditorWidget(Widget):
     )
     indexURL = URLField(
         default=URLVal()('rex.formbuilder:/')
+    )
+    helpURL = URLField(
+        default=URLVal()('rex.formbuilder:/help/')
     )
     previewURLTemplate = URLField(
         default=URLVal()('rex.form_previewer:/?instrument_id=${uid}')

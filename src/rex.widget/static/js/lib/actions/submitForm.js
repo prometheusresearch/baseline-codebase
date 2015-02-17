@@ -14,19 +14,23 @@ var DEFAULT_NOTIFICATION = {
 function submitForm({id, notificationOnComplete}) {
   notificationOnComplete = notificationOnComplete || DEFAULT_NOTIFICATION;
   return StateWriter.createStateWriterFromFunction(function() {
-    var state = ApplicationState.getState(id);
-    var value = ApplicationState.get(id);
-    var update = {};
+    var value = ApplicationState.get(`${id}/value`);
     if (value.isValid) {
-      update[id] = value;
+      var update = {};
+      update[`${id}/value`] = value;
+      update[`${id}/submitting`] = true;
+      var onSuccess = {};
+      onSuccess[`${id}/submitting`] = false;
       return {
         update,
         forceRemoteUpdate: true,
         includeState: [`${id}/value_data`],
-        notificationsOnComplete: [notificationOnComplete]
+        notificationsOnComplete: [notificationOnComplete],
+        onSuccess
       };
     } else {
-      update[id] = value.makeDirty();
+      var update = {};
+      update[`${id}/value`] = value.makeDirty();
       return {update};
     }
   });

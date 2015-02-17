@@ -10,8 +10,8 @@ var emptyFunction = require('../emptyFunction');
 var SubmitButton = React.createClass({
 
   render() {
-    var {value: {validation, isDirty}, ...props} = this.props;
-    var disabled = !validation.isSuccess && isDirty;
+    var {value: {validation, isDirty}, submitting, ...props} = this.props;
+    var disabled = !validation.isSuccess && isDirty || submitting;
     return (
       <Button
         {...props}

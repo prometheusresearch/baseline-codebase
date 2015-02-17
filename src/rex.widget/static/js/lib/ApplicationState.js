@@ -43,7 +43,8 @@ class ApplicationState extends Emitter {
         this._onPageInit(stateDescriptor, state, versions);
         break;
       case ActionTypes.PAGE_STATE_UPDATE_COMPLETE:
-        var {payload: {state, versions}} = action.payload;
+        var {payload: {state, versions}, stateOverride} = action.payload;
+        state = {...state, ...stateOverride};
         this._onPageStateUpdateComplete(state, versions);
         break;
       case ActionTypes.PAGE_STATE_UPDATE:
@@ -52,11 +53,12 @@ class ApplicationState extends Emitter {
     }
   }
 
-  _onPageStateUpdate({update, forceRemoteUpdate, includeState, notificationsOnComplete}) {
+  _onPageStateUpdate({update, forceRemoteUpdate, includeState, onSuccess, notificationsOnComplete}) {
     this.updateMany(update, {
       forceRemoteUpdate,
       includeState,
-      notificationsOnComplete
+      notificationsOnComplete,
+      onSuccess
     });
   }
 
@@ -342,7 +344,11 @@ class ApplicationState extends Emitter {
       var err = new Error(`cannot update state: ${response.text}`);
       Actions.pageStateUpdateError(err);
     } else {
-      Actions.pageStateUpdateComplete(response.body, options.notificationsOnComplete);
+      Actions.pageStateUpdateComplete(
+        response.body,
+        options.notificationsOnComplete,
+        options.onSuccess
+      );
     }
   }
 

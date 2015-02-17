@@ -7,7 +7,8 @@ var runtime = require('../runtime');
 
 function submitRemoveForm({id}) {
   return function submitRemoveForm() {
-    var state = runtime.ApplicationState.getState(id);
+    var stateID = `${id}/value`;
+    var state = runtime.ApplicationState.getState(stateID);
     return state.manager.submitRemove();
   }
 }

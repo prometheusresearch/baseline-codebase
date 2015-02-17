@@ -25,7 +25,7 @@ from ..action import ActionVal
 from ..field import Field, IDField, EntityField, CollectionField, undefined
 from ..field.data import DataRefVal, DataSpecVal
 from ..field.url import URLField
-from ..field.state import StateFieldBase
+from ..field.state import StateFieldBase, StateField as _StateField
 from ..validate import WidgetVal
 from ..state import State, Reference
 from ..json_encoder import register_adapter
@@ -761,6 +761,13 @@ class Form(FormContainerWidget):
         If form should automatically submit its value on each change.
         """)
 
+    submitting = _StateField(
+        BoolVal(), default=False,
+        persistence=State.INVISIBLE,
+        doc="""
+        If form is currently submitting its value to server.
+        """)
+
     @Widget.define_state(
         AnyVal(),
         manager='rex-widget/lib/form/FormStateManager',
@@ -816,12 +823,13 @@ class Form(FormContainerWidget):
             return ui._replace_props(value=StateRead('%s/value' % self.id))
         elif isinstance(ui.widget, SubmitButton):
             return ui._replace_props(
+                submitting=StateRead('%s/submitting' % self.id),
                 value=StateRead('%s/value' % self.id),
-                on_click=SubmitForm.make_call(id='%s/value' % self.id)
+                on_click=SubmitForm.make_call(id=self.id)
             )
         elif isinstance(ui.widget, RemoveButton):
             return ui._replace_props(
-                on_click=SubmitRemoveForm.make_call(id='%s/value' % self.id)
+                on_click=SubmitRemoveForm.make_call(id=self.id)
             )
         else:
             return ui

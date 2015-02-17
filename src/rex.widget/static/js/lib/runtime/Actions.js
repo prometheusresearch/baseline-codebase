@@ -33,10 +33,10 @@ var Actions = {
   /**
    * Page state update complete.
    */
-  pageStateUpdateComplete(payload, notifications) {
+  pageStateUpdateComplete(payload, notifications, stateOverride) {
     Dispatcher.dispatch({
       type: ActionTypes.PAGE_STATE_UPDATE_COMPLETE,
-      payload: {payload, notifications}
+      payload: {payload, notifications, stateOverride}
     });
   },
 

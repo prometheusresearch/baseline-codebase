@@ -56,10 +56,10 @@ class Modal(Widget):
         SizeVal(), default=undefined)
 
     max_width = Field(
-        SizeVal(), default=undefined)
+        SizeVal(), default='90%')
 
     max_height = Field(
-        SizeVal(), default=undefined)
+        SizeVal(), default='90%')
 
     width = Field(
         SizeVal(), default=undefined,

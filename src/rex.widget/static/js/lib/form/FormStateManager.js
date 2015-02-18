@@ -33,7 +33,7 @@ class FormStateManager extends StateManager {
   updateValue(update) {
     var writer = StateWriter.createStateWriter(this.state.id);
     if (this.state.params.submitOnChange) {
-      writer = submitForm({id: this.state.id}).merge(writer);
+      writer = submitForm({id: this.state.params.formId}).merge(writer);
     }
     writer(update);
   }

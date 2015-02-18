@@ -828,6 +828,7 @@ class FormBase(FormContainerWidget):
         desc = desc._replace(ui=transform_ui(desc.ui, self._transform_ui))
         schema = self.form_schema(desc.ui)
         params = PropsContainer({
+            'form_id': self.id,
             'schema': schema,
             'submit_on_change': self.submit_on_change,
         })

@@ -53,6 +53,9 @@ var AutocompleteInput = React.createClass({
   render() {
     var {value, data, onChange, required, titleAttribute, valueAttribute, ...props} = this.props;
     var {valueTitle} = this.state;
+    if (value === null) {
+      valueTitle = null;
+    }
     return (
       <Box>
         <Selectbox

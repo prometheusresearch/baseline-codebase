@@ -207,7 +207,6 @@ tests:
       comment-bright.png
       comment-close.png
       comment.png
-      default.css
       doctools.js
       down-pressed.png
       down.png
@@ -216,8 +215,9 @@ tests:
       minus.png
       plus.png
       pygments.css
+      rextheme.css
+      rextheme.js
       searchtools.js
-      sidebar.js
       underscore.js
       up-pressed.png
       up.png

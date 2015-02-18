@@ -16,6 +16,7 @@ from .bundle import check_bundle, write_bundle, bundle
 from .generate import Generate, watch
 from .download import GenerateDownload
 from .webpack import GenerateWebpack
+from .doc import GenerateDoc
 from .commonjs import node, npm
 import os
 

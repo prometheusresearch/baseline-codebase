@@ -22,7 +22,7 @@ class demo(Command):
 setup(
     name='rex.setup_demo',
     description="This package demonstrates capabilities of rex.setup",
-    version='2.0.1',
+    version='2.1.0',
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
     url="http://bitbucket.org/prometheus/rex.setup",
@@ -47,6 +47,9 @@ setup(
         ],
         './www/bundle': [
             'webpack:',
+        ],
+        './www/doc': [
+            'doc:html',
         ],
     },
 )

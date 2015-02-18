@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.setup',
-    version = "2.0.1",
+    version = "2.1.0",
     description="Distutils extension for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -37,6 +37,9 @@ setup(
             'rex_bundle.txt = rex.setup:write_bundle',
         ],
     },
+    install_requires=[
+        'Sphinx >=1.2, <2',
+    ],
 )
 
 

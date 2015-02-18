@@ -5,7 +5,7 @@
 
 from .generate import Generate
 import os, os.path
-import distutils.log
+import distutils.log, distutils.errors
 from sphinx.application import Sphinx
 
 
@@ -17,7 +17,13 @@ class GenerateDoc(Generate):
     def __call__(self):
         # The builder and the source directory.
         builder = self.url.split(':', 2)[1] or 'html'
-        source = os.path.abspath('doc')
+        for source in ['.', './doc', './docs']:
+            if os.path.exists(os.path.join(source, 'conf.py')):
+                break
+        else:
+            raise distutils.errors.DistutilsSetupError(
+                    "cannot find package documentation")
+        source = os.path.abspath(source)
         # Build the documentation.
         distutils.log.info("building %s documentation" % builder)
         sphinx = Sphinx(source, source, self.target, self.target, builder,

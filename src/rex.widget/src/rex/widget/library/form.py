@@ -730,13 +730,11 @@ class ResetForm(Action):
     )
 
 
-class Form(FormContainerWidget):
+class FormBase(FormContainerWidget):
     """
     Form widget.
     """
 
-    name = 'Form'
-    js_type = 'rex-widget/lib/form/Form'
     schema_type = MappingNode
 
     id = IDField()
@@ -800,31 +798,33 @@ class Form(FormContainerWidget):
                 return value.data
 
     @value.set_updater
-    def update_value(self, state, graph, request):
-        prev_value = graph[self.id].value_data.data if graph[self.id].get('value_data') else None
+    def _update_value(self, state, graph, request):
+        if graph[self.id].get('value_data'):
+            prev_value = graph[self.id].value_data.data
+        else:
+            prev_value = None
         spec = self.save_to if self.save_to else self.value_data
         value = state.value
         for ref_key, ref in self.state_refs().items():
             value = update_value(value, ref_key, graph[ref])
-        tag = spec.port.describe().meta.domain.fields[0].tag
-        message = 'execution time %%f while persisting entity into %s' % (
-            spec.route,)
-        from pprint import pprint
-        pprint(prev_value)
-        pprint(value)
-        with measure_execution_time(message=message, log=log):
-            if value is None:
-                spec.port.delete([{'id': prev_value['id']}])
-                return prev_value
-            elif prev_value is None:
-                spec.port.insert({tag: value})
-            else:
-                spec.port.replace({tag: prev_value}, {tag: value})
-        return value
+        return self.update_value(spec, value, prev_value)
+
+    def update_value(self, spec, value, prev_value):
+        """ Persist new value in database.
+
+        Subclasses must provide implementation for this method.
+
+        :param spec: Data specification
+        :type spec: DataSpec
+        :param value: Form value to persist, `None` if this is remove action
+        :param prev_value: Previous form value, `None` if this is create action
+        :returns: New value which will be sent back to browser
+        """
+        raise NotImplementedError()
 
     @cached
     def descriptor(self):
-        desc = super(Form, self).descriptor()
+        desc = super(FormBase, self).descriptor()
         desc = desc._replace(ui=transform_ui(desc.ui, self._transform_ui))
         schema = self.form_schema(desc.ui)
         params = PropsContainer({
@@ -849,6 +849,26 @@ class Form(FormContainerWidget):
             )
         else:
             return ui
+
+
+class Form(FormBase):
+
+    name = 'Form'
+    js_type = 'rex-widget/lib/form/Form'
+
+    def update_value(self, spec, value, prev_value):
+        tag = spec.port.describe().meta.domain.fields[0].tag
+        message = 'execution time %%f while persisting entity into %s' % (
+            spec.route,)
+        with measure_execution_time(message=message, log=log):
+            if value is None:
+                spec.port.delete([{'id': prev_value['id']}])
+                return prev_value
+            elif prev_value is None:
+                spec.port.insert({tag: value})
+            else:
+                spec.port.replace({tag: prev_value}, {tag: value})
+        return value
 
 
 def update_value(value, key_path, update):

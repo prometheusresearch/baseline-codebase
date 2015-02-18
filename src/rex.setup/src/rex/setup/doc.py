@@ -6,7 +6,6 @@
 from .generate import Generate
 import os, os.path
 import distutils.log, distutils.errors
-from sphinx.application import Sphinx
 
 
 class GenerateDoc(Generate):
@@ -26,6 +25,7 @@ class GenerateDoc(Generate):
         source = os.path.abspath(source)
         # Build the documentation.
         distutils.log.info("building %s documentation" % builder)
+        from sphinx.application import Sphinx
         sphinx = Sphinx(source, source, self.target, self.target, builder,
                         status=None)
         sphinx.build()

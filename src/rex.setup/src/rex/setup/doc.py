@@ -28,6 +28,23 @@ class GenerateDoc(Generate):
         from sphinx.application import Sphinx
         sphinx = Sphinx(source, source, self.target, self.target, builder,
                         status=None)
+        sphinx.connect('html-page-context', self.on_context)
+        sphinx.connect('build-finished', self.on_finished)
         sphinx.build()
+
+    def on_context(self, app, pagename, templatename, context, doctree):
+        # Replaces `pathto` implementation.
+        _pathto = context.get('pathto')
+        def pathto(uri, *args, **kwds):
+            return _pathto(uri.lstrip('_'), *args, **kwds)
+        context['pathto'] = pathto
+
+    def on_finished(self, app, exc):
+        # Renames `_<name>` to `<name>`.
+        for name in ['sources', 'static']:
+            src = os.path.join(app.builder.outdir, '_'+name)
+            dst = os.path.join(app.builder.outdir, name)
+            if os.path.exists(src):
+                os.rename(src, dst)
 
 

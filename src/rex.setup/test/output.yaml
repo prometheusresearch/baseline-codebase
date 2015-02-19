@@ -204,8 +204,6 @@ tests:
       fa2772327f55d8198301fdb8bcfc8158.woff
 
       ./rex.setup_demo-2.1.0/static/www/doc:
-      _sources
-      _static
       environment.pickle
       genindex.html
       index.doctree
@@ -213,11 +211,13 @@ tests:
       objects.inv
       search.html
       searchindex.js
+      sources
+      static
 
-      ./rex.setup_demo-2.1.0/static/www/doc/_sources:
+      ./rex.setup_demo-2.1.0/static/www/doc/sources:
       index.txt
 
-      ./rex.setup_demo-2.1.0/static/www/doc/_static:
+      ./rex.setup_demo-2.1.0/static/www/doc/static:
       ajax-loader.gif
       basic.css
       comment-bright.png

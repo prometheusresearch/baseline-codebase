@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+3.3.0 (2015-XX-XX)
+==================
+
+* Do not hide files starting with ``_`` (but only if ``static/www.yaml``
+  is present).
+
+
 3.2.0 (2015-01-30)
 ==================
 

@@ -257,9 +257,11 @@ class StaticGuard(object):
         path = os.path.normpath(path)
 
         # Immediately reject anything starting with `.` or `_`.
-        if any(segment.startswith('.') or segment.startswith('_')
-               for segment in path.split('/')):
+        if any(segment.startswith('.') for segment in path.split('/')):
             return False
+        if not self.package.exists('www.yaml'):
+            if any(segment.startswith('_') for segment in path.split('/')):
+                return False
 
         # Convert the URL into the filesystem path.
         local_path = StaticServer.www_root + path
@@ -292,8 +294,8 @@ class StaticServer(object):
             url += self.index_file
         url = os.path.normpath(url)
 
-        # Path containing `/.` or `/_` should have been rejected by the guard.
-        assert not any(segment.startswith('.') or segment.startswith('_')
+        # Path containing `/.` should have been rejected by the guard.
+        assert not any(segment.startswith('.')
                        for segment in url.split('/'))
 
         # Convert the URL into the filesystem path.
@@ -303,14 +305,15 @@ class StaticServer(object):
 
         # Detemine and check access permissions for the requested URL.
         access = None
-        access_path = self.www_root + self.access_file
-        if self.package.exists(access_path):
-            access_map = self.access_val.parse(
-                    self.package.open(access_path))
-            for pattern in access_map:
-                if fnmatch.fnmatchcase(url, pattern):
-                    access = access_map[pattern]
-                    break
+        if not self.package.exists('www.yaml'):
+            access_path = self.www_root + self.access_file
+            if self.package.exists(access_path):
+                access_map = self.access_val.parse(
+                        self.package.open(access_path))
+                for pattern in access_map:
+                    if fnmatch.fnmatchcase(url, pattern):
+                        access = access_map[pattern]
+                        break
         if access is None:
             access = self.package
         if not authorize(req, access):

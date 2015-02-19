@@ -50,6 +50,7 @@ setup(
         ],
         './www/doc': [
             'doc:html',
+            'doc:latex',
         ],
     },
 )

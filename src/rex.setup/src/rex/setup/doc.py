@@ -4,7 +4,9 @@
 
 
 from .generate import Generate
+from .commonjs import exe
 import os, os.path
+import subprocess
 import distutils.log, distutils.errors
 
 
@@ -40,11 +42,13 @@ class GenerateDoc(Generate):
         context['pathto'] = pathto
 
     def on_finished(self, app, exc):
-        # Renames `_<name>` to `<name>`.
+        # Renames `_<name>` to `<name>`; builds PDF.
         for name in ['sources', 'static']:
             src = os.path.join(app.builder.outdir, '_'+name)
             dst = os.path.join(app.builder.outdir, name)
             if os.path.exists(src):
                 os.rename(src, dst)
+        if app.builder.name == 'latex':
+            exe('make', ['all-pdf'], cwd=app.builder.outdir, commonjs=False)
 
 

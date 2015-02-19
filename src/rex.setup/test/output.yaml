@@ -26,7 +26,8 @@ tests:
           "https://github.com/twbs/bootstrap/releases/download/v3.0.0/bootstrap-3.0.0-dist.zip#md5=6b17c05bb1a1ddb123b7cadea187ff68"
         ],
         "./www/doc": [
-          "doc:html"
+          "doc:html",
+          "doc:latex"
         ],
         "./www/bundle": [
           "webpack:"
@@ -204,15 +205,31 @@ tests:
       fa2772327f55d8198301fdb8bcfc8158.woff
 
       ./rex.setup_demo-2.1.0/static/www/doc:
+      Makefile
       environment.pickle
+      fncychap.sty
       genindex.html
       index.doctree
       index.html
       objects.inv
+      python.ist
       search.html
       searchindex.js
+      setup_demo.aux
+      setup_demo.idx
+      setup_demo.ilg
+      setup_demo.ind
+      setup_demo.log
+      setup_demo.out
+      setup_demo.pdf
+      setup_demo.tex
+      setup_demo.toc
       sources
+      sphinx.sty
+      sphinxhowto.cls
+      sphinxmanual.cls
       static
+      tabulary.sty
 
       ./rex.setup_demo-2.1.0/static/www/doc/sources:
       index.txt

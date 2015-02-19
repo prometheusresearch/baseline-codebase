@@ -92,20 +92,25 @@ def setup_commonjs():
             os.chmod(path, stat.S_IMODE(mode|0o111))
 
 
-def exe(cmd, args, cwd=None, daemon=False, env=None, quiet=False):
+def exe(cmd, args,
+        cwd=None, daemon=False, env=None, quiet=False, commonjs=True):
     # Executes the command; returns the output or, if `daemon` is set,
     # the process object.
-    setup_commonjs()
+    if commonjs:
+        setup_commonjs()
     args = [cmd] + args
     _env = {}
     _env.update(os.environ)
-    _env.update(get_commonjs_environment())
+    if commonjs:
+        _env.update(get_commonjs_environment())
     if env:
         _env.update(env)
     if not quiet:
         distutils.log.info("executing %s" % " ".join(args))
     proc = subprocess.Popen(args,
             env=_env, cwd=cwd,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.STDOUT if not daemon else None,
             stdout=subprocess.PIPE if not daemon else None)
     if daemon:
         return proc

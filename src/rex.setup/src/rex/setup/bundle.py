@@ -85,6 +85,12 @@ class bundle(setuptools.Command):
         if not self.rex_static:
             raise distutils.errors.DistutilsSetupError(
                     "parameter `rex_static` is not set")
+        # If `--clean` is set, remove `bower_components` directory.
+        if self.clean:
+            bower_components = os.path.join(
+                    self.rex_static, 'js/bower_components')
+            if os.path.exists(bower_components):
+                distutils.dir_util.remove_tree(bower_components)
         # Bundle generators require a `pkg_resources.Distribution` object
         # corresponding to the package being installed.  It may be tricky to
         # create so we only make it if we really need it.

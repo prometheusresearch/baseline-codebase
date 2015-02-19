@@ -43,7 +43,7 @@ class GenerateDoc(Generate):
 
     def on_finished(self, app, exc):
         # Renames `_<name>` to `<name>`; builds PDF.
-        for name in ['sources', 'static']:
+        for name in ['sources', 'static', 'images']:
             src = os.path.join(app.builder.outdir, '_'+name)
             dst = os.path.join(app.builder.outdir, name)
             if os.path.exists(src):

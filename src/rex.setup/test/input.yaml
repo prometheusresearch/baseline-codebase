@@ -34,6 +34,9 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo
     environ: { LC_ALL: C }
     cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/www
+    environ: { LC_ALL: C }
+    cd: sandbox
   - sh: ls ./share/rex/rex.setup_demo/js
     environ: { LC_ALL: C }
     cd: sandbox
@@ -62,6 +65,9 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo
     environ: { LC_ALL: C }
     cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/www
+    environ: { LC_ALL: C }
+    cd: sandbox
   - sh: ls ./share/rex/rex.setup_demo/js
     environ: { LC_ALL: C }
     cd: sandbox
@@ -84,6 +90,42 @@ tests:
   - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-2.1.0.zip
     cd: sandbox
   - sh: ls -R ./rex.setup_demo-2.1.0
+    environ: { LC_ALL: C }
+    cd: sandbox
+  # Cleanup.
+  - rmdir: sandbox
+
+- title: Test `bdist_wheel` command
+  suite: sdist
+  tests:
+  # Create a virtual environment, install rex.setup, prepare rex.setup_demo.
+  - *create-virtualenv
+  - *install-self
+  - *prepare-demo
+  # Make sure `bdist_wheel` is available.
+  - sh: ./bin/pip install -q wheel
+    cd: sandbox
+  # Build a wheel package for rex.setup_demo; install it and verify content.
+  - sh: ../../bin/python setup.py -q bdist_wheel
+    cd: ./sandbox/src/rex.setup_demo
+  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-2.1.0-py2-none-any.whl
+    cd: sandbox
+  - sh: ls ./lib/python2.7/site-packages/rex
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/www
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/js
+    environ: { LC_ALL: C }
+    cd: sandbox
+  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.

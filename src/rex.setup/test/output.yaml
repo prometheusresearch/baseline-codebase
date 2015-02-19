@@ -50,6 +50,14 @@ tests:
     stdout: |
       js
       www
+  - sh: ls ./share/rex/rex.setup_demo/www
+    stdout: |
+      _access.yaml
+      bootstrap
+      bundle
+      doc
+      index.html
+      jquery
   - sh: ls ./share/rex/rex.setup_demo/js
     stdout: |
       bower.json
@@ -81,6 +89,14 @@ tests:
     stdout: |
       js
       www
+  - sh: ls ./share/rex/rex.setup_demo/www
+    stdout: |
+      _access.yaml
+      bootstrap
+      bundle
+      doc
+      index.html
+      jquery
   - sh: ls ./share/rex/rex.setup_demo/js
     stdout: |
       bower.json
@@ -228,3 +244,47 @@ tests:
       jquery-1.10.2.js
       jquery-1.10.2.min.js
       jquery-1.10.2.min.map
+- suite: sdist
+  tests:
+  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
+    stdout: ''
+  - sh: ./bin/pip install -q -e ..
+    stdout: ''
+  - sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
+    stdout: ''
+  - sh: ./bin/pip install -q wheel
+    stdout: ''
+  - sh: ../../bin/python setup.py -q bdist_wheel
+    stdout: |
+      Skipping installation of build/bdist.linux-x86_64/wheel/rex/__init__.py (namespace package)
+  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-2.1.0-py2-none-any.whl
+    stdout: ''
+  - sh: ls ./lib/python2.7/site-packages/rex
+    stdout: |
+      setup_demo.py
+      setup_demo.pyc
+  - sh: ls ./share/rex
+    stdout: |
+      rex.setup_demo
+  - sh: ls ./share/rex/rex.setup_demo
+    stdout: |
+      js
+      www
+  - sh: ls ./share/rex/rex.setup_demo/www
+    stdout: |
+      _access.yaml
+      bootstrap
+      bundle
+      doc
+      index.html
+      jquery
+  - sh: ls ./share/rex/rex.setup_demo/js
+    stdout: |
+      bower.json
+      bower_components
+      lib
+  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
+    stdout: |
+      bootstrap
+      jquery
+      rex-setup-demo

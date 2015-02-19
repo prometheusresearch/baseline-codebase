@@ -37,18 +37,18 @@ setup(
             'rex_bundle.txt = rex.setup:write_bundle',
         ],
     },
-#    install_requires=[
-#        'sphinxcontrib-rextheme >=0.1.0, <0.2',
-#        'sphinxcontrib-texfigure >=0.1.0, <0.2',
-#        'sphinxcontrib-jsdemo >=0.1.0, <0.2',
-#        'sphinxcontrib-htsql >=0.1.0, <0.2',
-#        'sphinxcontrib-newsfeed >=0.1.0, <0.2',
-#        'sphinxcontrib-seqdiag >=0.8, <0.9',
-#        'sphinxcontrib-blockdiag >=1.5, <1.6',
-#        'sphinxcontrib-nwdiag >=0.9, <0.10',
-#        'sphinxcontrib-actdiag >=0.8, <0.9',
-#        'Sphinx >=1.2, <1.3',
-#    ],
+    install_requires=[
+        'sphinxcontrib-rextheme >=0.1.0, <0.2',
+        'sphinxcontrib-texfigure >=0.1.0, <0.2',
+        'sphinxcontrib-jsdemo >=0.1.0, <0.2',
+        'sphinxcontrib-htsql >=0.1.0, <0.2',
+        'sphinxcontrib-newsfeed >=0.1.0, <0.2',
+        'sphinxcontrib-seqdiag >=0.8, <0.9',
+        'sphinxcontrib-blockdiag >=1.5, <1.6',
+        'sphinxcontrib-nwdiag >=0.9, <0.10',
+        'sphinxcontrib-actdiag >=0.8, <0.9',
+        'Sphinx >=1.2, <1.3',
+    ],
 )
 
 

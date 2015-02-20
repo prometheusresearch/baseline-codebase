@@ -239,7 +239,13 @@ class PackageCollection(object):
             static = dist.get_metadata('rex_static.txt')
             static = os.path.abspath(static)
             if not os.path.exists(static):
-                raise Error("Cannot find static directory:", static)
+                # Maybe we can find it in the standard location?
+                standard_static = os.path.join(
+                        sys.prefix, 'share/rex', os.path.basename(static))
+                if os.path.exists(standard_static):
+                    static = standard_static
+                else:
+                    raise Error("Cannot find static directory:", static)
 
         # Process package dependencies first.  That ensures that the packages
         # are ordered with respect to the dependency relations.

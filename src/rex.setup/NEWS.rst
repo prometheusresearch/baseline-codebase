@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.1.0 (2015-XX-XX)
+2.1.0 (2015-02-20)
 ==================
 
 * Added ``doc:`` generator that builds Sphinx documentation.

@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-0.14.0 (2015-xx-xx)
+0.14.0 (2015-02-20)
 ===================
 
 * Matrix columns can now be marked individually as identifiable.

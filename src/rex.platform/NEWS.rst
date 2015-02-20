@@ -8,11 +8,13 @@
 4.1.0 (2015-xx-xx)
 ==================
 
+* rex.setup==2.1.0
 * rex.instrument==0.14.0
 * rex.forms==0.28.0
 * rex.expression==1.5.0
 * rex.deploy==2.2.0
 * rex.i18n==0.4.1
+* rex.web==3.3.0
 
 
 4.0.1 (2015-02-01)

@@ -114,10 +114,6 @@ class MappingNode(SchemaNode):
 
     __add__ = merge
 
-    @classmethod
-    def empty(cls):
-        return cls()
-
 
 class ListNode(SchemaNode):
     """ List node"""
@@ -125,6 +121,10 @@ class ListNode(SchemaNode):
     type = 'list'
 
     CHILDREN_KEY = 'children'
+
+    def __init__(self, **props):
+        props.setdefault(self.CHILDREN_KEY, MappingNode())
+        super(ListNode, self).__init__(**props)
 
     @property
     def children(self):
@@ -138,10 +138,6 @@ class ListNode(SchemaNode):
 
     def __contains__(self, key):
         return key in self.children
-
-    @classmethod
-    def empty(cls):
-        return cls(children=MappingNode.empty())
 
     def merge(self, node):
         if not isinstance(node, self.__class__):
@@ -163,9 +159,9 @@ def _merge_deep(result, ks, v):
     if ks:
         if not k in result:
             if ks and ks[0].isdigit():
-                result[k] = ListNode.empty()
+                result[k] = ListNode(required=v.props['required'])
             else:
-                result[k] = MappingNode.empty()
+                result[k] = MappingNode(required=v.props['required'])
         _merge_deep(result[k], ks, v)
     else:
         result[k] = v if k not in result else (result[k] + v)

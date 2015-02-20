@@ -334,6 +334,12 @@ class FormField(FormFieldBase):
     name = 'Field'
     js_type = 'rex-widget/lib/form/Field'
 
+    pattern = Field(
+        StrVal(), default=undefined,
+        doc="""
+        Regular expression used to validate form field value.
+        """)
+
     disable_if = Field(
         StrVal(), default=undefined,
         doc="""
@@ -341,6 +347,11 @@ class FormField(FormFieldBase):
 
         If it evaluates to ``True`` then form field will be disabled.
         """)
+
+    def form_schema(self, node):
+        schema = super(FormField, self).form_schema(node)
+        schema.props['pattern'] = self.pattern
+        return schema
 
 
 class ReadOnlyField(FormFieldBase):
@@ -352,7 +363,7 @@ class ReadOnlyField(FormFieldBase):
     js_type = 'rex-widget/lib/form/ReadOnlyField'
 
 
-class CheckboxField(FormField):
+class CheckboxField(FormFieldBase):
     """
     Form field which renders into checkbox.
     """
@@ -366,7 +377,7 @@ class CheckboxField(FormField):
         return schema
 
 
-class IntegerField(FormField):
+class IntegerField(FormFieldBase):
 
     name = 'IntegerField'
     js_type = 'rex-widget/lib/form/IntegerField'
@@ -377,7 +388,7 @@ class IntegerField(FormField):
         return schema
 
 
-class SelectField(FormField):
+class SelectField(FormFieldBase):
     """
     Form field which renders into a selectbox.
     """
@@ -460,7 +471,7 @@ class AutocompleteSpecField(StateFieldBase):
         return value
 
 
-class AutocompleteField(FormField):
+class AutocompleteField(FormFieldBase):
     """
     Form field which renders into an autocomplete.
     """
@@ -492,7 +503,7 @@ class AutocompleteField(FormField):
         """)
 
 
-class DatepickerField(FormField):
+class DatepickerField(FormFieldBase):
     """
     Form field which renders into a datepicker.
     """
@@ -507,7 +518,7 @@ class DatepickerField(FormField):
         """)
 
 
-class TextareaField(FormField):
+class TextareaField(FormFieldBase):
     """
     Form field which renders into a textarea.
     """
@@ -522,7 +533,7 @@ class TextareaField(FormField):
         """)
 
 
-class FileUploadField(FormField):
+class FileUploadField(FormFieldBase):
     """
     Form field which handles file uploads.
     """
@@ -544,7 +555,7 @@ class FileUploadField(FormField):
         """)
 
 
-class FileDownloadField(FormField):
+class FileDownloadField(FormFieldBase):
     """
     Form field which allows downloading files.
 

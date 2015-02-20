@@ -24,12 +24,23 @@ function buildSchema(desc) {
 }
 
 function buildScalarNode(desc) {
+  var {required, defaultValue, label, hint, type, pattern} = desc;
+  if (pattern) {
+    pattern = new RegExp(pattern);
+  }
   return ReactForms.schema.Scalar({
-    required: desc.required,
-    defaultValue: desc.defaultValue,
-    label: desc.label,
-    hint: desc.hint,
-    type: desc.type
+    required,
+    defaultValue,
+    label,
+    hint,
+    type,
+    validate(node, value) {
+      if (pattern !== undefined) {
+        if (!pattern.exec(value)) {
+          return new Error(`value should match ${pattern} pattern`);
+        }
+      }
+    }
   });
 }
 

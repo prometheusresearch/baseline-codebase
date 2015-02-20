@@ -16,7 +16,7 @@ from htsql.core import domain
 from rex.core import Error, Validate, cached
 from rex.core import OneOfVal, ChoiceVal, MaybeVal, ProxyVal, MapVal, SeqVal, RecordVal
 from rex.core import IntVal, StrVal, BoolVal, AnyVal
-from rex.db import get_db
+from rex.db import Query
 from rex.web import url_for
 
 from ..descriptors import StateRead, transform_ui, visit_ui
@@ -756,7 +756,7 @@ class FormBase(FormContainerWidget):
     save_to = Field(
         DataSpecVal(enable_refs=False), default=undefined,
         doc="""
-        Optional port/query which is used to save form value.
+        Optional port which is used to save form value.
         """)
 
     class_name = Field(
@@ -878,6 +878,18 @@ class Form(FormBase):
             else:
                 spec.port.replace({tag: prev_value}, {tag: value})
         return value
+
+
+class HtsqlFileForm(FormBase):
+
+    name = 'HtsqlFileForm'
+    js_type = 'rex-widget/lib/form/Form'
+
+    save_to = Field(StrVal(), doc="*.htsql file to save the data")
+
+    def update_value(self, spec, value, prev_value):
+        query = Query(spec)
+        query.produce(environment=value)
 
 
 def update_value(value, key_path, update):

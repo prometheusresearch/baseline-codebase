@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.1.1 (2015-02-20)
+==================
+
+* Permit pure distributions without Python code.
+
+
 2.1.0 (2015-02-20)
 ==================
 

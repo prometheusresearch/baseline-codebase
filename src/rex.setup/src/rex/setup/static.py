@@ -5,7 +5,7 @@
 
 import os, os.path
 import fnmatch
-import distutils.log, distutils.errors, distutils.dir_util
+import distutils.log, distutils.errors, distutils.dir_util, distutils.dist
 import setuptools, setuptools.command.install, setuptools.command.develop, \
         setuptools.command.sdist, setuptools.archive_util
 import pkg_resources
@@ -182,5 +182,13 @@ def add_defaults(self):
                     continue
                 self.filelist.append(os.path.join(path, file))
 setuptools.command.sdist.sdist.add_defaults = add_defaults
+
+
+# Patch `Distribution.is_pure` to allow pure distributions without Python code.
+def is_pure(self):
+    return ((self.has_pure_modules() or self.rex_static) and
+            not self.has_ext_modules() and
+            not self.has_c_libraries())
+distutils.dist.Distribution.is_pure = is_pure
 
 

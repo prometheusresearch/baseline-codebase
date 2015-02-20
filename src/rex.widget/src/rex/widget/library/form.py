@@ -279,6 +279,7 @@ class FormContainerWidget(FormWidget):
 
     def form_schema(self, node):
         schema = _build_schema(node)
+        schema.props['required'] = self.required
         if self.default_value is not undefined:
             schema.props['defaultValue'] = self.default_value
         return schema

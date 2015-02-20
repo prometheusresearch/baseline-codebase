@@ -98,6 +98,12 @@ var AutocompleteInput = React.createClass({
     this._requestValue();
   },
 
+  componentWillReceiveProps({value}) {
+    if (value !== this.props.value) {
+      this.setState({valueTitle: null});
+    }
+  },
+
   componentWillUnmount() {
     this._searchTimer = null;
   },

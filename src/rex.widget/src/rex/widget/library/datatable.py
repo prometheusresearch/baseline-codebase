@@ -8,7 +8,7 @@
 """
 
 from rex.core import Validate, AnyVal, RecordVal, OneOfVal, SeqVal, StrVal
-from rex.core import StrVal, BoolVal, IntVal, ChoiceVal
+from rex.core import StrVal, BoolVal, IntVal, ChoiceVal, Error
 from ..action import ActionVal
 from ..undefined import undefined, MaybeUndefinedVal
 from ..field import Field, StateField, CollectionField
@@ -53,6 +53,8 @@ class ColumnVal(Validate):
         value = self._validate(value)
         if not isinstance(value, self._validate_column.record_type):
             value = self._validate_column.record_type(key=value)
+        if value.key[-1] == 'id':
+            raise Error('column with the key "id" is not allowed')
         return value
 
 

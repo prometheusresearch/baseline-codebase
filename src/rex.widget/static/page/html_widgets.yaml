@@ -1,0 +1,53 @@
+paths:
+
+  /Box:
+    widget: !<WidgetDocPage>
+      page_title: Box Widget
+      configuration_content:
+      - !<UnsafeHTML> 
+        html: |
+          <p>A Box widget is used for page layout control.
+          It uses a flexgrid model.</p>
+          <h4> Sample Configuration for Box widget. Result of configuration shown at right.</h4>
+          <pre style="font-size:75%">
+            - !&lt;Box&gt;
+              size: 1
+              children:
+              - !&lt;Header&gt;
+                text: I am in a Box widget
+                level: 4 
+                
+          </pre>
+      
+      sample_usage_content:
+      - !<Box>
+        size: 1
+        children:
+        - !<Header>
+          text: I am in a Box widget
+          level: 4 
+      
+  /Header:
+    widget: !<WidgetDocPage>
+      page_title: Header Widget
+      configuration_content:
+      - !<UnsafeHTML> 
+        html: |
+          <p>A Header widget is displays an HTML <Hx>  header.
+          x represents the size H1 - H6.</p>
+          <h4> Sample Configuration for Header widget. Result of configuration shown at right.</h4>
+          <pre style="font-size:75%">
+            - !&lt;Box&gt;
+              size: 1
+              children:
+              - !&lt;Header&gt;
+                text: I am a Header widget
+                level: 2 
+          </pre>
+      
+      sample_usage_content:
+      - !<Header>
+        text: I am a Header widget
+        level: 2 
+      
+      

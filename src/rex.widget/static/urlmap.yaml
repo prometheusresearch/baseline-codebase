@@ -1,5 +1,3 @@
-paths:
-
-  /doc:
-    widget: !<DocScreen>
-      id: doc
+include:
+- page/doc.yaml
+- page/html_widgets.yaml

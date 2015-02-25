@@ -1,0 +1,46 @@
+widgets:
+
+
+  WidgetDocPage: !<AppletPage>
+    title: !slot page_title
+    children: 
+    - !<HBox>
+      children:
+      - !<Box>
+        size: 1
+      - !<Box>
+        size: 20
+        children:
+        - !<Header> 
+          text: !slot
+            name: left_title
+            default: Sample Configuration
+          level: 3
+        - !<Box>
+          size: 1
+          children: !slot configuration_content
+
+      - !<Box>
+        size: 3
+             
+
+      - !<Box>
+        size: 30
+        children:
+
+        - !<Header> 
+          text: !slot
+            name: right_title
+            default: Widget Example 
+          level: 3
+
+        - !<Box>
+          size: 1
+          children: !slot sample_usage_content
+
+            
+             
+              
+      - !<Box>
+        size: 1
+

@@ -31,7 +31,7 @@ function makeBoxStyle(props) {
     direction, size, margin,
     width, height, aligned,
     centerHorizontally, centerVertically,
-    scrollable
+    scrollable, backgroundColor
   } = props;
   var style = {};
   mergeInto(style, defaultStyle);
@@ -65,6 +65,9 @@ function makeBoxStyle(props) {
   if (scrollable) {
     style.overflow = 'auto';
   }
+  if (backgroundColor !== undefined) {
+    style.backgroundColor = backgroundColor;
+  }
   return style;
 }
 
@@ -75,13 +78,13 @@ var Box = React.createClass({
       direction, size, margin, width, height, aligned,
       centerHorizontally, centerVertically, scrollable,
       children, childrenMargin, style: extraStyle,
-      Component, ...props
+      backgroundColor, Component, ...props
     } = this.props;
     var style = makeBoxStyle({
       direction, size, margin, aligned,
       width, height,
       centerHorizontally, centerVertically,
-      scrollable
+      scrollable, backgroundColor
     });
     if (extraStyle !== undefined) {
       mergeInto(style, extraStyle);

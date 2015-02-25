@@ -22,10 +22,11 @@ paths:
       sample_usage_content:
       - !<Box>
         size: 1
+        background_color: lightgrey
         children:
         - !<Header>
           text: I am in a Box widget
-          level: 4 
+          level: 4
       
   /Header:
     widget: !<WidgetDocPage>
@@ -39,6 +40,7 @@ paths:
           <pre style="font-size:75%">
             - !&lt;Box&gt;
               size: 1
+              background_color: lightgrey
               children:
               - !&lt;Header&gt;
                 text: I am a Header widget

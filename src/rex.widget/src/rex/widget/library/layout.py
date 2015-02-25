@@ -169,6 +169,12 @@ class Box(Widget):
         If Box should be made scrollable.
         """)
 
+    background_color = Field(
+        StrVal(), default=undefined,
+        doc="""
+        If Box should have a background color.
+        """)
+
 
 class VBox(Box):
     """ Synonym for <Box> widget."""

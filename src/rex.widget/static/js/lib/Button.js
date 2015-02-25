@@ -39,7 +39,7 @@ var Button = React.createClass({
     return (
       <button
         {...props}
-        title={children || text}
+        //title={children || text}
         disabled={disabled}
         className={cx(classNames, className)}
         placeholder={placeholder}

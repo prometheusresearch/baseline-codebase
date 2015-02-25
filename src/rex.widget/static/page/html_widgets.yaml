@@ -1,6 +1,6 @@
 paths:
 
-  /Box:
+  /doc/Box:
     widget: !<WidgetDocPage>
       page_title: Box Widget
       configuration_content:
@@ -28,7 +28,7 @@ paths:
           text: I am in a Box widget
           level: 4
       
-  /Header:
+  /doc/Header:
     widget: !<WidgetDocPage>
       page_title: Header Widget
       configuration_content:

@@ -130,7 +130,7 @@ var AutocompleteInput = React.createClass({
       var params = {};
       var {refs, data} = this.props.data;
       for (var key in refs) {
-        params[key] = ApplicationState.get(refs[key]);
+        params[key] = runtime.ApplicationState.get(refs[key]);
       }
       params['*'] = value;
       this._getPort()
@@ -159,7 +159,7 @@ var AutocompleteInput = React.createClass({
       '*:top': 50
     };
     for (var key in refs) {
-      params[key] = ApplicationState.get(refs[key]);
+      params[key] = runtime.ApplicationState.get(refs[key]);
     }
     if (value) {
       params[`*.${titleAttribute}:contains`] = value;

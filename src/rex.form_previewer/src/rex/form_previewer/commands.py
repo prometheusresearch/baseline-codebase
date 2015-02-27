@@ -5,7 +5,7 @@
 
 from webob.exc import HTTPNotFound
 
-from rex.core import StrVal, get_settings
+from rex.core import StrVal, ChoiceVal, get_settings
 from rex.instrument.util import get_implementation
 from rex.web import Command, Parameter, render_to_response, authenticate
 
@@ -24,6 +24,8 @@ class BaseCommand(Command):
     An abstract base class that contains a variety of utility methods used
     across a number of Commands that make up the Form Previewer.
     """
+
+    # pylint: disable=no-self-use
 
     def get_instrument_user(self, request):
         """
@@ -112,17 +114,15 @@ class BaseViewFormCommand(BaseCommand):
         Parameter('form_id', StrVal(), None),
         Parameter('instrument_id', StrVal(), None),
         Parameter('return_url', StrVal(), None),
+        Parameter('category', ChoiceVal('draft', 'published'), 'draft'),
     )
 
-    # pylint: disable=W0221
-    def render(self, request, form_id, instrument_id, return_url):
-        context = self.get_common_context(request)
+    # pylint: disable=no-self-use
 
-        context['return_url'] = return_url
-
+    def get_draft(self, user, form_id, instrument_id):
         form = instrument = None
         if form_id:
-            form = context['user'].get_object_by_uid(
+            form = user.get_object_by_uid(
                 form_id,
                 'draftform',
                 'forms',
@@ -130,7 +130,7 @@ class BaseViewFormCommand(BaseCommand):
             instrument = form.draft_instrument_version if form else None
 
         elif instrument_id:
-            instrument = context['user'].get_object_by_uid(
+            instrument = user.get_object_by_uid(
                 instrument_id,
                 'draftinstrumentversion',
             )
@@ -138,7 +138,7 @@ class BaseViewFormCommand(BaseCommand):
         if (form_id and not form) or (not instrument):
             raise HTTPNotFound('Could not find a DraftForm for the given ID')
 
-        all_forms = context['user'].find_objects(
+        all_forms = user.find_objects(
             'draftform',
             'forms',
             draft_instrument_version=instrument,
@@ -148,6 +148,60 @@ class BaseViewFormCommand(BaseCommand):
 
         if not form:
             form = all_forms[0]
+
+        return (instrument, form, all_forms)
+
+    def get_published(self, user, form_id, instrument_id):
+        form = instrument = None
+        if form_id:
+            form = user.get_object_by_uid(
+                form_id,
+                'form',
+                'forms',
+            )
+            instrument = form.instrument_version if form else None
+
+        elif instrument_id:
+            instrument = user.get_object_by_uid(
+                instrument_id,
+                'instrumentversion',
+            )
+
+        if (form_id and not form) or (not instrument):
+            raise HTTPNotFound('Could not find a Form for the given ID')
+
+        all_forms = user.find_objects(
+            'form',
+            'forms',
+            instrument_version=instrument,
+        )
+        if not all_forms:
+            raise HTTPNotFound('Could not find a Form for the given ID')
+
+        if not form:
+            form = all_forms[0]
+
+        return (instrument, form, all_forms)
+
+    # pylint: disable=arguments-differ
+    def render(self, request, form_id, instrument_id, return_url, category):
+        context = self.get_common_context(request)
+
+        context['return_url'] = return_url
+        context['category'] = category
+
+        if category == 'draft':
+            instrument, form, all_forms = self.get_draft(
+                context['user'],
+                form_id,
+                instrument_id,
+            )
+        elif category == 'published':
+            instrument, form, all_forms = self.get_published(
+                context['user'],
+                form_id,
+                instrument_id,
+            )
 
         context['instrument_version'] = instrument
         context['forms'] = dict(

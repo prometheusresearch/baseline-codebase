@@ -38,6 +38,11 @@ instrument_id
     The UID of the DraftInstrumentVersion that you want to view. Either this
     parameter or ``form_id`` must be specified.
 
+category
+    This is either ``draft`` or ``published``, indicating whether or not the
+    ``form_id``/``instrument_id`` that is specified is a draft configuration or
+    a published configuration. If not specified, it defaults to ``draft``.
+
 return_url
     The URL to send the user back to when they press the "Return" button. This
     is optional.

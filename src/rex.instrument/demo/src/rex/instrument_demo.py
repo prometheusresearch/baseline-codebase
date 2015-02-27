@@ -288,10 +288,11 @@ class DemoDraftInstrumentVersion(DraftInstrumentVersion):
             parent_instrument_version=None,
             date_created=None):
         return cls(
-            uid,
+            'draftiv1',
             instrument,
             created_by,
             date_created or datetime(2014, 5, 22),
+            definition=definition,
             parent_instrument_version=parent_instrument_version,
         )
 
@@ -302,9 +303,10 @@ class DemoDraftInstrumentVersion(DraftInstrumentVersion):
         print '### DELETED DRAFTINSTRUMENTVERSION ' + self.uid
 
     def publish(self, user):
-        return DemoInstrumentVesion(
+        return DemoInstrumentVersion(
             'fake_published_draft_instrument_1',
             self.instrument,
+            self.definition,
             1,
             user.login,
             datetime(2014, 5, 22)

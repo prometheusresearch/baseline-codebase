@@ -482,3 +482,6 @@ class DemoDraftForm(DraftForm):
     def save(self):
         print '### SAVED DRAFTFORM ' + self.uid
 
+    def delete(self):
+        print '### DELETED DRAFTFORM ' + self.uid
+

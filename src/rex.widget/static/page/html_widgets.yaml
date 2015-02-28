@@ -12,6 +12,7 @@ paths:
           <pre style="font-size:75%">
             - !&lt;Box&gt;
               size: 1
+              background_color: lightgrey
               children:
               - !&lt;Header&gt;
                 text: I am in a Box widget
@@ -38,13 +39,9 @@ paths:
           x represents the size H1 - H6.</p>
           <h4> Sample Configuration for Header widget. Result of configuration shown at right.</h4>
           <pre style="font-size:75%">
-            - !&lt;Box&gt;
-              size: 1
-              background_color: lightgrey
-              children:
-              - !&lt;Header&gt;
-                text: I am a Header widget
-                level: 2 
+            - !&lt;Header&gt;
+              text: I am a Header widget
+              level: 2 
           </pre>
       
       sample_usage_content:

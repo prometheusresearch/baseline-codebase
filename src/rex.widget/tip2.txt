@@ -1,0 +1,12 @@
+rex.core
+rex.ctl
+rex.web
+rex.db
+rex.deploy
+rex.port
+rex.urlmap
+rex.attach
+rex.file-provisional
+rex.restful-provisional
+rex.i18n-provisional
+rex.expression-provisional

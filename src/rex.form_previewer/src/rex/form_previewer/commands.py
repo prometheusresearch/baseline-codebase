@@ -138,11 +138,15 @@ class BaseViewFormCommand(BaseCommand):
         if (form_id and not form) or (not instrument):
             raise HTTPNotFound('Could not find a DraftForm for the given ID')
 
-        all_forms = user.find_objects(
-            'draftform',
-            'forms',
-            draft_instrument_version=instrument,
-        )
+        all_forms = [
+            frm
+            for frm in user.find_objects(
+                'draftform',
+                'forms',
+                draft_instrument_version=instrument,
+            )
+            if frm.configuration
+        ]
         if not all_forms:
             raise HTTPNotFound('Could not find a DraftForm for the given ID')
 
@@ -170,11 +174,15 @@ class BaseViewFormCommand(BaseCommand):
         if (form_id and not form) or (not instrument):
             raise HTTPNotFound('Could not find a Form for the given ID')
 
-        all_forms = user.find_objects(
-            'form',
-            'forms',
-            instrument_version=instrument,
-        )
+        all_forms = [
+            frm
+            for frm in user.find_objects(
+                'form',
+                'forms',
+                instrument_version=instrument,
+            )
+            if frm.configuration
+        ]
         if not all_forms:
             raise HTTPNotFound('Could not find a Form for the given ID')
 

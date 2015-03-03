@@ -9,6 +9,8 @@ REX.FORM_PREVIEWER Change Log
 ==================
 
 * Added the ability to preview published forms.
+* App now displays an error rather than a blank screen if there are no Forms
+  w/ configurations for the desired Instrument.
 
 
 0.1.1 (2015-02-20)

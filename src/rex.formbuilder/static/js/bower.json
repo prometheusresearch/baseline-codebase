@@ -15,7 +15,7 @@
     "deepmerge": "*",
     "superagent": "^0.18.2",
     "emitter": "component/emitter#1.1.2",
-    "bluebird": "^2.3.2",
+    "bluebird": "http://registry.npmjs.org/bluebird/-/bluebird-2.9.13.tgz#*",
     "codemirror": "^4.12.0",
     "react-forms": "prometheusresearch/react-forms#master",
     "rex-applet": "*"

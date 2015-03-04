@@ -19,7 +19,6 @@ var Fieldset = React.createClass({
     className = cx('rw-Fieldset', className);
     var {node, validation, hasDirty, externalValidation} = value;
     var isInvalid = hasDirty && (validation.isFailure || externalValidation.isFailure);
-    console.log(validation.isFailure, hasDirty, validation);
     return (
       <Box {...props} className={className}>
         <ReactForms.Label

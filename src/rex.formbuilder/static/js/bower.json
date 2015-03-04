@@ -10,7 +10,7 @@
     "node"
   ],
   "dependencies": {
-    "react": "~0.12.1",
+    "react": "http://registry.npmjs.org/react/-/react-0.12.2.tgz#*",
     "bootstrap": "3.x",
     "deepmerge": "*",
     "superagent": "^0.18.2",

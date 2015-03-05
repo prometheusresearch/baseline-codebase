@@ -3,7 +3,7 @@
  */
 'use strict';
 
-__webpack_require__.p = __MOUNT_PREFIX__ + __BUNDLE_PREFIX__;
+window.__webpack_public_path__ = __PUBLIC_PATH__;
 
 if (Object.assign === undefined) {
   Object.assign = require('object-assign');

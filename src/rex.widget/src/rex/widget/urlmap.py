@@ -29,6 +29,30 @@ from .json_encoder import dumps
 from .template import load as load_templates
 
 
+BUNDLE_ROOT = '/www/bundle/'
+CSS_BUNDLE = '/www/bundle/bundle.css'
+JS_BUNDLE = '/www/bundle/bundle.js'
+
+Bundle = collections.namedtuple('Bundle', ['root', 'js', 'css'])
+
+def find_bundle():
+    packages = get_packages()
+    root = css = js = None
+    www = '/www'
+    for package in packages:
+        root_exists = package.exists(BUNDLE_ROOT)
+        js_exists = package.exists(CSS_BUNDLE)
+        css_exists = package.exists(JS_BUNDLE)
+        if root_exists and (js_exists or css_exists):
+            root = '%s:%s' % (package.name, BUNDLE_ROOT[len(www):])
+            if css_exists:
+                css = '%s:%s' % (package.name, CSS_BUNDLE[len(www):])
+            if js_exists:
+                js = '%s:%s' % (package.name, JS_BUNDLE[len(www):])
+            return Bundle(root=root, js=js, css=css)
+
+
+
 class PageContext(Context):
 
     def __init__(self):
@@ -42,7 +66,6 @@ class PageContext(Context):
             return widgen_name
         else:
             return '%s%s' % (widgen_name, widget_count)
-
 
 class MapWidget(Map):
     """ Parses an URL mapping record."""
@@ -82,8 +105,6 @@ class WidgetRenderer(object):
     """
 
     TEMPLATE = 'rex.widget:/templates/index.html'
-    CSS_BUNDLE = '/www/bundle/bundle.css'
-    JS_BUNDLE = '/www/bundle/bundle.js'
 
     _validate_mapping = MapVal(StrVal(), AnyVal())
 
@@ -159,18 +180,6 @@ class WidgetRenderer(object):
         else:
             raise HTTPMethodNotAllowed()
 
-    def find_bundle(self):
-        packages = get_packages()
-        css = js = None
-        www = '/www'
-        for package in packages:
-            if css is None and package.exists(self.CSS_BUNDLE):
-                css = '%s:%s' % (package.name, self.CSS_BUNDLE[len(www):])
-            if js is None and package.exists(self.JS_BUNDLE):
-                js = '%s:%s' % (package.name, self.JS_BUNDLE[len(www):])
-        Bundle = collections.namedtuple('Bundle', 'js css')
-        return Bundle(js=js, css=css)
-
     def __call__(self, request):
         """ Handle WSGI request
 
@@ -192,7 +201,7 @@ class WidgetRenderer(object):
             else:
                 return render_to_response(self.TEMPLATE,
                                           request,
-                                          bundle=self.find_bundle(),
+                                          bundle=find_bundle(),
                                           payload=payload)
         except Error, error:
             raise

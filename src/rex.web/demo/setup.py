@@ -25,14 +25,11 @@ class demo(Command):
 
 setup(
     name='rex.web_demo',
-    version="3.3.0",
+    version="3.3.1",
     description="Demo package for testing rex.web",
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
-    setup_requires=[
-        'rex.setup',
-    ],
     install_requires=[
         'rex.web',
         'docutils',

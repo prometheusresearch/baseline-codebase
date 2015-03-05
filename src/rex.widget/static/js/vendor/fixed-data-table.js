@@ -5168,10 +5168,7 @@ var FixedDataTable =
 	    /**
 	     * The key to retrieve the cell data from the `rowData`.
 	     */
-	    cellDataKey: PropTypes.oneOfType([
-	      PropTypes.string.isRequired,
-	      PropTypes.number.isRequired,
-	    ]),
+	    cellDataKey: PropTypes.any,
 
 	    /**
 	     * The function to render the `cellData`.

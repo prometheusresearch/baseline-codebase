@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.core',
-    version="1.10.1",
+    version="1.10.2",
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -18,9 +18,6 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
-    setup_requires=[
-        'rex.setup >=1.0, <3',
-    ],
     install_requires=[
         'rex.setup >=1.0, <3',  # For use by `rex.core` descendants.
         'pyyaml',

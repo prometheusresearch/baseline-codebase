@@ -7,6 +7,7 @@ var React             = require('react/addons');
 var ReactForms        = require('react-forms');
 var cloneWithProps    = React.addons.cloneWithProps;
 var cx                = React.addons.classSet;
+var Preloader         = require('../Preloader');
 var {Box}             = require('../layout');
 var Fieldset          = require('./Fieldset');
 var FormContextMixin  = require('./FormContextMixin');
@@ -24,9 +25,16 @@ var Form = React.createClass({
   render() {
     var {
       id, value, label, hint, fieldset,
-      className, Fieldset, controls,
+      className, Fieldset, controls, valueData,
       ...props
     } = this.props;
+    if (valueData && valueData.updating) {
+      return (
+        <Box {...props} className={cx('rw-Form', className)}>
+          <Preloader />
+        </Box>
+      );
+    }
     return (
       <Box {...props} className={cx('rw-Form', className)}>
         <Fieldset

@@ -188,8 +188,7 @@ class ApplicationState extends Emitter {
           var prevValue = nextValues[id].value;
           nextValues[id] = merge(nextValues[id], {
             id,
-            value: state.manager.hydrate(nextValues[id].value, value),
-            version
+            value: state.manager.hydrate(nextValues[id].value, value)
           });
 
           if (remote) {
@@ -236,7 +235,10 @@ class ApplicationState extends Emitter {
       if (update[sID] !== undefined) {
         version = version + 1;
         nextValues[sID] = state.manager.update(
-          nextValues[sID], {value: update[sID], updating: false});
+          nextValues[sID], {value: update[sID], updating: false, version});
+        this.forEachDependent(sID, (state) => {
+          nextValues[state.id].version = nextValues[state.id].version + 1;
+        });
       } else if (!state.isWritable) {
         nextValues[sID] = state.manager.updateWritable(
           nextValues[sID], {value: this.values[sID].value, updating: true});
@@ -355,6 +357,22 @@ class ApplicationState extends Emitter {
   forEach(func, context) {
     Object.keys(this.states).forEach((id) =>
       func.call(context, this.states[id], id, this.values[id]));
+  }
+
+  forEachDependent(origin, func, context) {
+    var seen = {};
+    var queue = [origin];
+    while (queue.length > 0) {
+      var id = queue.shift();
+      if (seen[id]) {
+        continue;
+      }
+      if (id !== origin) {
+        func.call(context, this.states[id], id, this.values[id]);
+      }
+      queue = queue.concat(this.dependents[id] || []);
+      seen[id] = true;
+    }
   }
 
   getStates() {

@@ -10,6 +10,8 @@ REX.INSTRUMENT Change Log
 
 * Publishing a DraftInstrumentVersion now automatically sets the version
   embedded in the definition to something appropriate.
+* Fixed some issues with the outputting/formatting of definitions with
+  non-ASCII characters.
 
 
 0.14.0 (2015-02-20)

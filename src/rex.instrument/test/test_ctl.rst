@@ -203,6 +203,29 @@ It accepts options that dictate the various properties of the output format::
           square: null
           triangle: {}
 
+    >>> ctl('instrument-format ./test/instruments/description_unicode.json --format=YAML --pretty')
+    id: urn:test-instrument
+    version: '1.1'
+    title: The InstrumentVersion Title
+    description: مرحبا
+    record:
+    - id: q_fake
+      type: text
+
+    >>> ctl('instrument-format ./test/instruments/description_unicode.json --format=JSON --pretty')
+    {
+      "id": "urn:test-instrument",
+      "version": "1.1",
+      "title": "The InstrumentVersion Title",
+      "description": "مرحبا",
+      "record": [
+        {
+          "id": "q_fake",
+          "type": "text"
+        }
+      ]
+    }
+
 
 It fails if the input structure violates the specification in any way::
 

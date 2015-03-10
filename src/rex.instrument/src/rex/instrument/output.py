@@ -173,6 +173,7 @@ def dump_yaml(data, pretty=False, **kwargs):
     """
 
     kwargs['Dumper'] = OrderedDumper
+    kwargs['allow_unicode'] = True
 
     if pretty:
         kwargs['default_flow_style'] = False
@@ -200,7 +201,7 @@ def dump_json(data, pretty=False, **kwargs):
         kwargs['indent'] = 2
         kwargs['separators'] = (',', ': ')
 
-    return json.dumps(data, **kwargs)
+    return json.dumps(data, **kwargs).encode('utf-8')
 
 
 class MatrixRow(DefinedOrderDict):

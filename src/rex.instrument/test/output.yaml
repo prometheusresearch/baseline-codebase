@@ -41,6 +41,8 @@ tests:
       required options: record'}
   - {constraint_record_notallowed.json: 'ValidationError: "integer" Fields cannot
       have constraints: record'}
+  - {description.json: VALIDATED}
+  - {description_unicode.json: VALIDATED}
   - {empty_title.json: 'ValidationError: '''' is too short'}
   - {garbage.json: 'ValidationError: Instrument Definitions must be mapped objects.'}
   - {identifiable.json: VALIDATED}

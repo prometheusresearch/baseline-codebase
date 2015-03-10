@@ -13,6 +13,8 @@ REX.FORMS Change Log
   was published against.
 - Fixed signature of ``DraftForm.create()`` to make configuration an optional
   kwarg.
+- Fixed some issues with the outputting/formatting of configurations with
+  non-ASCII characters.
 
 
 0.28.0 (2015-02-20)

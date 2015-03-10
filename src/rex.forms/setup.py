@@ -34,7 +34,7 @@ setup(
     install_requires=[
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',
-        'rex.instrument>=0.12,<2',
+        'rex.instrument>=0.14.1,<2',
         'rex.expression>=1.3,<2',
         'rex.i18n>=0.3,<2',
         'jsonschema>=2.3,<3',

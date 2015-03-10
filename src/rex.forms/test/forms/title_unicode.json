@@ -1,0 +1,28 @@
+{
+    "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.1"
+    },
+    "defaultLocalization": "en",
+    "title": {
+      "en": "Hello",
+      "ar": "مرحبا"
+    },
+    "pages": [
+        {
+            "id": "page1",
+            "elements": [
+                {
+                    "type": "question",
+                    "options": {
+                        "fieldId": "q_fake",
+                        "text": {
+                            "en": "How do you feel today?"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
+

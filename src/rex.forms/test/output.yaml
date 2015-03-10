@@ -65,5 +65,7 @@ tests:
   - {test/forms/repeat_page.json: 'ValidationError: Page identifiers are used multiple
       times: page1'}
   - {test/forms/simplest.json: VALIDATED}
+  - {test/forms/title.json: VALIDATED}
+  - {test/forms/title_unicode.json: VALIDATED}
   - {test/forms/unprompted.json: VALIDATED}
   - {test/forms/widget.json: VALIDATED}

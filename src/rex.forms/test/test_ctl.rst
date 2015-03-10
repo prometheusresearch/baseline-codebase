@@ -300,6 +300,52 @@ It accepts options that dictate the various properties of the output format::
         options:
           calculation: '42'
 
+    >>> ctl('forms-format ./test/forms/title_unicode.json --format=YAML --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    title:
+      ar: مرحبا
+      en: Hello
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: How do you feel today?
+
+    >>> ctl('forms-format ./test/forms/title_unicode.json --format=JSON --pretty')
+    {
+      "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.1"
+      },
+      "defaultLocalization": "en",
+      "title": {
+        "ar": "مرحبا",
+        "en": "Hello"
+      },
+      "pages": [
+        {
+          "id": "page1",
+          "elements": [
+            {
+              "type": "question",
+              "options": {
+                "fieldId": "q_fake",
+                "text": {
+                  "en": "How do you feel today?"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+
 
 forms-retrieve
 ==============

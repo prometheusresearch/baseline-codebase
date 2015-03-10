@@ -12,6 +12,7 @@ REX.INSTRUMENT Change Log
   embedded in the definition to something appropriate.
 * Fixed some issues with the outputting/formatting of definitions with
   non-ASCII characters.
+* Fixed some issues with string encoding/decoding.
 
 
 0.14.0 (2015-02-20)

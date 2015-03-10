@@ -42,7 +42,7 @@ def to_unicode(value, encoding='utf-8'):
     :rtype: unicode
     """
 
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         return codecs.decode(value, encoding)
     elif value is None:
         return None
@@ -62,7 +62,7 @@ def to_str(value, encoding='utf-8'):
     :rtype: str
     """
 
-    if isinstance(value, basestring):
+    if isinstance(value, unicode):
         return codecs.encode(value, encoding)
     elif value is None:
         return None

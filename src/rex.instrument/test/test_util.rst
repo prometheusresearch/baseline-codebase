@@ -29,10 +29,27 @@ strings from and to their unicode representations::
     '{}'
     >>> to_str(None)
 
-    >>> to_unicode('f\xcf\x8c\xd1\xbbb\xc7\x9fr')
-    u'f\u03cc\u047bb\u01dfr'
-    >>> to_str(u'f\u03cc\u047bb\u01dfr')
-    'f\xcf\x8c\xd1\xbbb\xc7\x9fr'
+    >>> sfoo = 'foo\xe2\x80\x94bar'
+    >>> type(sfoo), repr(sfoo)
+    (<type 'str'>, "'foo\\xe2\\x80\\x94bar'")
+
+    >>> ufoo = u'foo\u2014bar'
+    >>> type(ufoo), repr(ufoo)
+    (<type 'unicode'>, "u'foo\\u2014bar'")
+
+    >>> sfoo
+    'foo\xe2\x80\x94bar'
+    >>> to_str(sfoo)
+    'foo\xe2\x80\x94bar'
+    >>> to_unicode(sfoo)
+    u'foo\u2014bar'
+
+    >>> ufoo
+    u'foo\u2014bar'
+    >>> to_str(ufoo)
+    'foo\xe2\x80\x94bar'
+    >>> to_unicode(ufoo)
+    u'foo\u2014bar'
 
 
 JSON Encoding

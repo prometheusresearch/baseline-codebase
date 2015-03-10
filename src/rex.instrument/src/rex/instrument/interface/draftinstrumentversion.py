@@ -384,6 +384,13 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
         :returns: the InstrumentVersion that results from the publishing
         """
 
+        latest = self.instrument.latest_version
+        if latest:
+            latest_version = float(latest.definition['version'])
+            current_version = float(self.definition['version'])
+            if current_version <= latest_version:
+                self.definition['version'] = str(latest_version + 0.1)
+
         iv_impl = get_implementation('instrumentversion')
 
         instrument_version = iv_impl.create(

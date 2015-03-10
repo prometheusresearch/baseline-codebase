@@ -5,6 +5,13 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.14.1 (2015-xx-xx)
+===================
+
+* Publishing a DraftInstrumentVersion now automatically sets the version
+  embedded in the definition to something appropriate.
+
+
 0.14.0 (2015-02-20)
 ===================
 

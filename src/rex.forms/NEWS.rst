@@ -11,6 +11,8 @@ REX.FORMS Change Log
 - Publishing a DraftForm now automatically sets the instrument ID/Version
   embedded in the configuration to match the InstrumentVersion the DraftForm
   was published against.
+- Fixed signature of ``DraftForm.create()`` to make configuration an optional
+  kwarg.
 
 
 0.28.0 (2015-02-20)

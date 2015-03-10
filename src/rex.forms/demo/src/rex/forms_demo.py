@@ -471,7 +471,7 @@ class DemoDraftForm(DraftForm):
         ]
 
     @classmethod
-    def create(cls, channel, draft_instrument_version, configuration):
+    def create(cls, channel, draft_instrument_version, configuration=None):
         return cls(
             'fake_draftform_1',
             channel,

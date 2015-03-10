@@ -104,7 +104,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, channel, draft_instrument_version, configuration):
+    def create(cls, channel, draft_instrument_version, configuration=None):
         """
         Creates a DraftForm in the datastore and returns a corresponding
         DraftForm instance.

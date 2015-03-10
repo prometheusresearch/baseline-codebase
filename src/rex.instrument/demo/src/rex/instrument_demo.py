@@ -296,6 +296,10 @@ class DemoDraftInstrumentVersion(DraftInstrumentVersion):
             parent_instrument_version=parent_instrument_version,
         )
 
+    def modify(self, user):
+        self.modified_by = user.login
+        self.date_modified = datetime(2014, 5, 22, 12, 34, 56)
+
     def save(self):
         print '### SAVED DRAFTINSTRUMENTVERSION ' + self.uid
 

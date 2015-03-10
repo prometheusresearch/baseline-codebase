@@ -5,6 +5,14 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.28.1 (2015-xx-xx)
+===================
+
+- Publishing a DraftForm now automatically sets the instrument ID/Version
+  embedded in the configuration to match the InstrumentVersion the DraftForm
+  was published against.
+
+
 0.28.0 (2015-02-20)
 ===================
 

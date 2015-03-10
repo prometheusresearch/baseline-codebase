@@ -104,6 +104,16 @@ actually be instances of those classes or strings containing UIDs::
     >>> df.draft_instrument_version
     DemoDraftInstrumentVersion(u'draftiv1', DemoInstrument(u'simple', u'Simple Instrument'))
 
+    >>> iv = df.draft_instrument_version.instrument.latest_version
+    >>> iv.definition['version'] = '1.3'
+    >>> df.configuration['instrument']
+    {'version': '1.1', 'id': 'urn:test-instrument'}
+    >>> form = df.publish(iv)
+    >>> form
+    DemoForm(u'fake_form_1', DemoChannel(u'survey', u'RexSurvey'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    >>> form.configuration['instrument']
+    {'version': '1.3', 'id': 'urn:test-instrument'}
+
 
 The configuration can be passed to the contructor as either a JSON/YAML-encoded
 string or the dict equivalent::

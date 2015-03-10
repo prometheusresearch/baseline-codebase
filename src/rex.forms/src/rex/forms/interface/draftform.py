@@ -296,6 +296,11 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         :returns: the Form that results from the publishing
         """
 
+        self.configuration['instrument']['id'] = \
+            instrument_version.definition['id']
+        self.configuration['instrument']['version'] = \
+            instrument_version.definition['version']
+
         form_impl = get_implementation('form', package_name='forms')
         form = form_impl.create(
             self.channel,

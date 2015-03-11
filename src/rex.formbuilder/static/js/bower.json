@@ -1,6 +1,6 @@
 {
   "name": "rex-formbuilder",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "private": true,
   "description": "JavaScript functionality for the rex.formbuilder application",
   "license": "AGPLv3",

@@ -1,9 +1,11 @@
-inherits:
-  - strictness_veryhigh
+strictness: veryhigh
+doc-warnings: true
+test-warnings: true
 
-ignore:
-  - ^doc/conf.py$
+ignore-patterns:
+  - ^doc/conf\.py$
   - ^demo/.*$
+  - ^static/js/.*$
 
 pep8:
   disable:
@@ -11,22 +13,24 @@ pep8:
 
 pylint:
   disable:
-    - W0401
-    - R0922
-    - C0111
-    - R0903
-    - R0921
+    - wildcard-import
+    - star-args
+    - missing-docstring
+    - abstract-class-not-used
+    - abstract-class-little-used
   enable:
-    - W0511
+    - fixme
 
   options:
+    min-public-methods: 0
     max-public-methods: 30
     max-args: 10
     max-attributes: 10
+    max-parents: 10
 
 pyflakes:
   disable:
-    - FL0005
+    - F403
 
 frosted:
   disable:
@@ -38,4 +42,7 @@ pyroma:
     - PYR09
     - PYR14
     - PYR15
+
+pep257:
+  run: false
 

@@ -201,6 +201,8 @@ class RestfulLocation(Command):
         return Serializer.get_for_format(self.default_format)()
 
     def parse_payload(self, request):
+        # pylint: disable=no-self-use
+
         content_type = None
         payload = {}
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.db',
-    version = "3.1.0",
+    version = "3.1.1",
     description="Database access for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -26,14 +26,14 @@ setup(
             'rex.db = rex.db',
         ],
     },
-    setup_requires=[
-        'rex.setup >=1.0, <3',
-    ],
     install_requires=[
         'rex.core >=1.4, <2',
         'rex.ctl >=2.0, <3',
         'rex.web >=3.1, <4',
-        'HTSQL >=2.3.3, <2.5',
+        'HTSQL >2.3.3, <2.5',
+    ],
+    dependency_links=[
+        'https://bitbucket.org/rexdb/htsql-rexdb/downloads',
     ],
     rex_init='rex.db',
 )

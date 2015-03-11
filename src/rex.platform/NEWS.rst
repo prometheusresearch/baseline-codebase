@@ -5,7 +5,13 @@
 .. contents:: Table of Contents
 
 
-4.1.0 (2015-xx-xx)
+4.1.1 (2015-03-11)
+------------------
+
+* More packages updated.
+
+
+4.1.0 (2015-02-23)
 ==================
 
 * rex.setup==2.1.0

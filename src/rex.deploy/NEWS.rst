@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.2.1 (2015-03-11)
+==================
+
+* ``setup.py``: removed ``setup_requires``, added ``dependency_links``.
+
+
 2.2.0 (2015-02-20)
 ==================
 

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.10.2 (2015-XX-XX)
+1.10.2 (2015-03-11)
 ===================
 
 * Removed ``setup_requires`` from ``setup.py``.

@@ -206,7 +206,7 @@ class RestfulLocation(Command):
 
         if request.method.upper() in ('POST', 'PUT'):
             content_type = request.headers.get('Content-Type')
-            if content_type:
+            if content_type and request.body:
                 serializer = Serializer.get_for_mime_type(content_type)
                 if serializer:
                     serializer = serializer()

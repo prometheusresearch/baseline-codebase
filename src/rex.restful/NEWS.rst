@@ -5,6 +5,14 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
+0.3.1 (2015-xx-xx)
+==================
+
+* Fixed an issue where if a Content-Type is sent on a PUT/POST, but no there is
+  no request body, the response would vary depending on the Serializer used.
+  Now, the payload will always be an empty dict.
+
+
 0.3.0 (2015-01-30)
 ==================
 

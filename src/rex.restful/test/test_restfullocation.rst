@@ -179,6 +179,30 @@ header, or by adding a ``format`` querystring parameter::
     <BLANKLINE>
     {"foo": "42"}
 
+Sending an empty body will be interpreted as an empty dictionary::
+
+    >>> req = Request.blank('/foo/42', method='POST')
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    ### CREATING FOO 42
+    ###   PAYLOAD: {}
+    201 Created
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 13
+    <BLANKLINE>
+    {"foo": "42"}
+
+    >>> req = Request.blank('/foo/42', method='POST')
+    >>> req.headers['Content-Type'] = 'application/x-yaml'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    ### CREATING FOO 42
+    ###   PAYLOAD: {}
+    201 Created
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 13
+    <BLANKLINE>
+    {"foo": "42"}
+
 Sending an invalidly-formatted body will result in an HTTP 400::
 
     >>> req = Request.blank('/foo/42', method='POST')

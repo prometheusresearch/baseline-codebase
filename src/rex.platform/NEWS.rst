@@ -5,8 +5,16 @@
 .. contents:: Table of Contents
 
 
+4.1.2 (2015-xx-xx)
+==================
+
+* rex.instrument==0.14.1
+* rex.forms==0.28.1
+* rex.restful==0.3.1
+
+
 4.1.1 (2015-03-11)
-------------------
+==================
 
 * More packages updated.
 

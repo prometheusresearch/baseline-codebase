@@ -8,6 +8,7 @@
     var INSTRUMENT = {{ instrument_version.definition|json }};
     var FORMS = {{ forms|json }};
     var LOCALE = '{{ CURRENT_LOCALE }}';
+    var AVAILABLE_LOCALES = {{ SUPPORTED_LOCALES|list|json }};
     var CHANNELS = {{ channels|json }};
     var INITIAL_CHANNEL = {{ initial_channel|json }};
     var RETURN_URL = {{ return_url|json }};
@@ -19,6 +20,7 @@
             instrument: INSTRUMENT,
             forms: FORMS,
             locale: LOCALE,
+            availableLocales: AVAILABLE_LOCALES,
             channels: CHANNELS,
             initialChannel: INITIAL_CHANNEL,
             returnUrl: RETURN_URL,

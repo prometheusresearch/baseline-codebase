@@ -49,7 +49,7 @@ var ChannelChooser = React.createClass({
   render: function () {
     return (
       <div className="channel-chooser">
-        <span>{_('Display Form as Rendered in:')}</span>
+        <span>{_('Display as Rendered in:')}</span>
         <select
           value={this.state.currentChannel}
           onChange={this.onChange}>

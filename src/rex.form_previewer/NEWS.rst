@@ -5,6 +5,12 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.3.0 (2015-xx-xx)
+==================
+
+* Added ability to switch between the Locales configured in the system.
+
+
 0.2.0 (2015-03-09)
 ==================
 

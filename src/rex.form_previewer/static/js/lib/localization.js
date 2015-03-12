@@ -17,9 +17,15 @@ var gettext = function (msg, variables) {
   return getI18N().gettext(msg, variables).toString();
 };
 
+var switchLocale = function (locale, callback) {
+  RexI18N.setDefaultLocale(locale);
+  RexI18N.onLoad(locale, callback);
+};
+
 
 module.exports = {
   getI18N: getI18N,
-  gettext: gettext
+  gettext: gettext,
+  switchLocale
 };
 

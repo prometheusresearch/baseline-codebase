@@ -19,6 +19,13 @@ var webpackConfig = RexSetup.configureWebpack({
     'rex-setup/introspection/loader?all!rex-formbuilder'
   ],
 
+  resolve: {
+    alias: {
+      'react/addons': RexSetup.packagePath('react/addons.js'),
+      'react': RexSetup.packagePath('react/addons.js')
+    }
+  },
+
   module: {
     loaders: [
       {

@@ -14,7 +14,7 @@
   "main": "lib/index.js",
   "styleEntry": "style/index.less",
   "dependencies": {
-    "react": "~0.12.2",
+    "react": "http://registry.npmjs.org/react/-/react-0.12.2.tgz#*",
     "flux": "~2.0.2",
     "object-assign": "^1.0.0",
     "object-path": "~0.8.1",

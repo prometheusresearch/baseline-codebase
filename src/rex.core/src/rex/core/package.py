@@ -14,6 +14,11 @@ import atexit
 import pkg_resources
 
 
+# Disable PEP440Warning.
+import warnings
+warnings.filterwarnings("ignore", category=pkg_resources.PEP440Warning)
+
+
 class Package(object):
     """
     Component of a RexDB application.

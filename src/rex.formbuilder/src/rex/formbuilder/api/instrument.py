@@ -20,6 +20,9 @@ __all__ = (
 )
 
 
+# pylint: disable=unused-argument
+
+
 class InstrumentResource(SimpleResource, BaseResource):
     base_path = '/api/instrument'
     base_parameters = BaseResource.base_parameters + (
@@ -64,6 +67,8 @@ class InstrumentValidationResource(RestfulLocation):
     path = '/api/instrument/validate'
 
     def create(self, request, **kwargs):
+        # pylint: disable=no-self-use
+
         if not request.payload or not request.payload.get('instrument'):
             raise HTTPBadRequest(
                 'No Instrument Definition provided to validate'
@@ -97,6 +102,8 @@ class InstrumentLatestVersionResource(RestfulLocation):
     )
 
     def retrieve(self, request, uid, **kwargs):
+        # pylint: disable=no-self-use
+
         user = get_instrument_user(request)
 
         instrument = user.get_object_by_uid(uid, 'instrument')

@@ -5,60 +5,44 @@
 
 from webob.exc import HTTPNotFound, HTTPBadRequest
 
-from rex.core import get_settings, StrVal, IntVal, AnyVal
-from rex.instrument.util import get_implementation
+from rex.core import get_settings, StrVal, IntVal
 from rex.web import Parameter, authenticate
+from rex.instrument.util import get_implementation
 
-from copy import deepcopy
-from .dumper import FancyDumper
-import yaml
-
-import yaml
 
 __all__ = (
     'BaseResource',
     'get_instrument_user',
-    'response_with_yaml',
-    'payload_without_yaml',
-    'dump_pretty_yaml',
     'ConstantArg',
+    'FakeRequest',
 )
 
-def dump_pretty_yaml(obj):
-    return yaml.dump(obj, Dumper=FancyDumper, default_flow_style=False)
 
 def get_instrument_user(request):
     login = authenticate(request)
     user_impl = get_implementation('user')
     return user_impl.get_by_login(login)
 
-def response_with_yaml(result):
-    instrument = result['instrument_version']
-    instrument['version'] = instrument['definition']['version']
-    instrument['definition'] = dump_pretty_yaml(instrument['definition'])
-    for name, form in result['forms'].items():
-        form['configuration'] = dump_pretty_yaml(form['configuration'])
-    return result
-
-def payload_without_yaml(source):
-    payload = deepcopy(source)
-    payload['instrument_version']['definition'] = \
-        AnyVal().parse(payload['instrument_version']['definition'])
-    for name, form in payload.get('forms', {}).items():
-        form['configuration'] = AnyVal().parse(form['configuration'])
-    return payload
 
 class ConstantArg(object):
-
     def __init__(self, name, value):
         self.name = name
         self.value = value
+
+
+class FakeRequest(object):
+    def __init__(self, payload, user):
+        self.payload = payload
+        self.environ = {
+            'rex.user': user.login
+        }
+
 
 class BaseResource(object):
     base_parameters = (
         Parameter('uid', StrVal(), None),
         Parameter('offset', IntVal(0), 0),
-        Parameter('limit', IntVal(1), 1000000),
+        Parameter('limit', IntVal(1), 100),
     )
 
     parameters = (
@@ -80,6 +64,8 @@ class BaseResource(object):
         return instance
 
     def get_criteria(self, params, allowed_params):
+        # pylint: disable=no-self-use
+
         criteria = {}
         for allowed_param in allowed_params:
             if allowed_param in params:
@@ -102,12 +88,16 @@ class BaseResource(object):
             for instance in instances
         ]
 
-    def do_retrieve(self, request, uid, extra_properties=None, **kwargs):
+    def do_retrieve(self, request, uid):
+        # pylint: disable=no-self-use
+
         user = get_instrument_user(request)
         instance = self.get_or_404(user, uid)
         return instance.as_dict(extra_properties=self.extra_properties)
 
     def get_arg_from_payload(self, arg, payload, required=False):
+        # pylint: disable=no-self-use
+
         if isinstance(arg, ConstantArg):
             return arg.name, arg.value
         elif isinstance(arg, tuple):
@@ -185,7 +175,7 @@ class BaseResource(object):
                     prop.name,
                     prop.value,
                 )
-                updated = True
+
             if prop in request.payload:
                 setattr(
                     instance,
@@ -195,6 +185,8 @@ class BaseResource(object):
                 updated = True
 
         if updated:
+            if hasattr(instance, 'modify'):
+                instance.modify(user)
             instance.save()
 
         return instance.as_dict(extra_properties=self.extra_properties)

@@ -10,36 +10,35 @@ Set up the environment::
     >>> from webob import Request
     >>> from rex.core import Rex
     >>> import rex.formbuilder
-    >>> from rex.form_builder_demo import strip_cookies
-    >>> rex = Rex('rex.form_builder_demo', db='pgsql:form_builder_demo')
+    >>> from rex.formbuilder_demo import strip_cookies
+    >>> rex = Rex('rex.formbuilder_demo')
     >>> rex.on()
 
 
 The ``/instrumentversion`` URI will accept GETs for listing::
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    [{"definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "uid": "fake_instrument_version_1", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "some_person", "version": 1}, {"definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "uid": "fake_instrument_version_2", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "fake_instrument_2iv", "uid": "fake_instrument_2iv", "title": "Title for fake_instrument_2iv"}, "published_by": "some_person", "version": "2"}]
+    [{"definition": {"record": [{"type": "text", "id": "q_foo"}, {"type": "integer", "id": "q_bar"}], "version": "1.1", "id": "urn:another-test-instrument", "title": "The Other Instrument"}, "uid": "complex1", "date_published": "2015-01-02T00:00:00.000Z", "instrument": {"status": "active", "code": "complex", "uid": "complex", "title": "Complex Instrument"}, "published_by": "someone", "version": 1}, {"definition": {"record": [{"type": "text", "id": "q_foo"}, {"type": "integer", "id": "q_bar"}, {"type": "boolean", "id": "q_baz"}], "version": "1.2", "id": "urn:another-test-instrument", "title": "The Other Instrument"}, "uid": "complex2", "date_published": "2015-01-03T00:00:00.000Z", "instrument": {"status": "active", "code": "complex", "uid": "complex", "title": "Complex Instrument"}, "published_by": "someone", "version": 2}, {"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}, "uid": "disabled1", "date_published": "2014-12-12T00:00:00.000Z", "instrument": {"status": "disabled", "code": "disabled", "uid": "disabled", "title": "Disabled Instrument"}, "published_by": "someone", "version": 1}, {"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1}]
 
 
 The ``/instrumentversion`` URI will accept POSTs for creating new instances::
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{"instrument": "inst1", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "published_by": "someone"}'
+    >>> req.body = '{"instrument": "simple", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "published_by": "someone"}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### CREATED INSTRUMENTVERSION
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "uid": "new_instrument_version_1", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "inst1", "uid": "inst1", "title": "Title for inst1"}, "published_by": "someone", "version": 1}
+    {"definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "uid": "fake_instrument_version_1", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 2}
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"definition": {}, "published_by": "someone"}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
@@ -52,12 +51,12 @@ The ``/instrumentversion`` URI will accept POSTs for creating new instances::
 
 The ``/instrumentversion`` URI will not accept PUTs or DELETEs::
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion', method='PUT', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion', method='PUT', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion', method='DELETE', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion', method='DELETE', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
@@ -66,15 +65,15 @@ The ``/instrumentversion`` URI will not accept PUTs or DELETEs::
 The ``/instrumentversion/{uid}`` URI will accept GETs to retrieve an individual
 InstrumentVersion::
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion/123', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion/simple1', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "uid": "123", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "someone", "version": 1}
+    {"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1}
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion/doesntexist', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion/doesntexist', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
@@ -83,28 +82,51 @@ InstrumentVersion::
 The ``/instrumentversion/{uid}`` URI will accept PUTs to update an
 InstrumentVersion::
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion/123', method='PUT', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion/simple1', method='PUT', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{}'
+    >>> req.body = '{"date_published": "2015-03-01T00:00:00.000Z"}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### SAVED INSTRUMENTVERSION 123
+    ### SAVED INSTRUMENTVERSION simple1
     202 Accepted
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "uid": "123", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "demo", "version": 1}
+    {"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}, "uid": "simple1", "date_published": "2015-03-01T00:00:00.000Z", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "user1", "version": 1}
 
 
 The ``/instrumentversion/{uid}`` URI will not accept POSTs or DELETEs::
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion/123', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion/123', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/formbuilder/api/instrumentversion/123', method='DELETE', remote_user='demo')
+    >>> req = Request.blank('/api/instrumentversion/123', method='DELETE', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
+    ...
+
+
+The ``/instrumentversion/{uid}/draft`` will accept POSTs that will create
+DraftInstrumentVersion and associated DraftForms for the specified
+InstrumentVersion::
+
+    >>> req = Request.blank('/api/instrumentversion/simple1/draft', method='POST', remote_user='user1')
+    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    201 Created
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 2422
+    <BLANKLINE>
+    {"instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}, "modified_by": "user1", "uid": "draftiv1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "user1", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2014-05-22T00:00:00.000Z"}, "forms": {"entry": {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How does the subject feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "fake_draftform_1", "channel": {"uid": "entry", "title": "RexEntry"}}, "survey": {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "fake_draftform_1", "channel": {"uid": "survey", "title": "RexSurvey"}}}}
+
+    >>> req = Request.blank('/api/instrumentversion/doesntexist/draft', method='POST', remote_user='user1')
+    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    404 Not Found
+    ...
+
+    >>> req = Request.blank('/api/instrumentversion/draftiv2/draft', method='POST', remote_user='user1')
+    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    404 Not Found
     ...
 
 

@@ -12,8 +12,8 @@ Set up the environment::
     >>> from webob import Request
     >>> from rex.core import Rex
     >>> import rex.formbuilder
-    >>> from rex.form_builder_demo import strip_cookies
-    >>> rex = Rex('rex.form_builder_demo', db='pgsql:form_builder_demo')
+    >>> from rex.formbuilder_demo import strip_cookies
+    >>> rex = Rex('rex.formbuilder_demo')
     >>> rex.on()
     >>> CONFIGURATION = {
     ...     'instrument': {
@@ -42,46 +42,46 @@ Set up the environment::
 
 The ``/api/draftform`` URI will accept GETs for listing::
 
-    >>> req = Request.blank('/formbuilder/api/draftform', remote_user='demo')
+    >>> req = Request.blank('/api/draftform', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    [{"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": null, "modified_by": "some_person", "uid": "fake_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}, "uid": "fake_draft_form_1", "channel": {"uid": "fake_channel_1", "title": "Title for fake_channel_1"}}, {"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": null, "modified_by": "some_person", "uid": "fake_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}, "uid": "fake_draft_form_2", "channel": {"uid": "fake_channel_2", "title": "Title for fake_channel_2"}}]
+    [{"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "draftform1", "channel": {"uid": "survey", "title": "RexSurvey"}}, {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How does the Subject feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "draftform2", "channel": {"uid": "entry", "title": "RexEntry"}}]
+
 
 The ``/draft`` URI will accept POSTs for creating new instances::
 
-    >>> req = Request.blank('/formbuilder/api/draftform', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftform', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = json.dumps({'channel': 'channel1', 'draft_instrument_version': 'iv1', 'configuration': CONFIGURATION})
+    >>> req.body = json.dumps({'channel': 'entry', 'draft_instrument_version': 'draftiv1', 'configuration': CONFIGURATION})
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### CREATED DRAFTFORM
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": null, "modified_by": "some_person", "uid": "iv1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}, "uid": "new_draft_form_1", "channel": {"uid": "channel1", "title": "Title for channel1"}}
+    {"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "fake_draftform_1", "channel": {"uid": "entry", "title": "RexEntry"}}
 
-    >>> req = Request.blank('/formbuilder/api/draftform', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftform', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = json.dumps({'channel': 'channel1', 'draft_instrument_version': 'iv1'})
+    >>> req.body = json.dumps({'channel': 'entry', 'draft_instrument_version': 'draftiv1'})
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    400 Bad Request
+    201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"error": "Missing required parameter: configuration"}
+    {"configuration": null, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "fake_draftform_1", "channel": {"uid": "entry", "title": "RexEntry"}}
 
 
 The ``/draftform`` URI will not accept PUTs or DELETEs::
 
-    >>> req = Request.blank('/formbuilder/api/draftform', method='PUT', remote_user='demo')
+    >>> req = Request.blank('/api/draftform', method='PUT', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/formbuilder/api/draftform', method='DELETE', remote_user='demo')
+    >>> req = Request.blank('/api/draftform', method='DELETE', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
@@ -90,15 +90,15 @@ The ``/draftform`` URI will not accept PUTs or DELETEs::
 The ``/draftform/{uid}`` URI will accept GETs to retrieve an individual
 DraftForm::
 
-    >>> req = Request.blank('/formbuilder/api/draftform/123', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/draftform1', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": null, "modified_by": "some_person", "uid": "fake_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}, "uid": "123", "channel": {"uid": "fake_channel_1", "title": "Title for fake_channel_1"}}
+    {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "draftform1", "channel": {"uid": "survey", "title": "RexSurvey"}}
 
-    >>> req = Request.blank('/formbuilder/api/draftform/doesntexist', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/doesntexist', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
@@ -106,26 +106,26 @@ DraftForm::
 
 The ``/draftform/{uid}`` URI will accept PUTs to update a DraftForm::
 
-    >>> req = Request.blank('/formbuilder/api/draftform/123', method='PUT', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/draftform1', method='PUT', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> new_config = deepcopy(CONFIGURATION)
     >>> new_config['pages'][0]['elements'][0]['options']['text']['en'] = 'New question text'
     >>> req.body = json.dumps({'configuration': new_config})
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### SAVED DRAFTFORM 123
+    ### SAVED DRAFTFORM draftform1
     202 Accepted
     Content-Type: application/json; charset=UTF-8
-    Content-Length: ...
+    Content-Length: 843
     <BLANKLINE>
-    {"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "New question text"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": null, "modified_by": "some_person", "uid": "fake_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}, "uid": "123", "channel": {"uid": "fake_channel_1", "title": "Title for fake_channel_1"}}
+    {"configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "New question text"}, "fieldId": "foo"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "draftform1", "channel": {"uid": "survey", "title": "RexSurvey"}}
 
 
 The ``/draftform/{uid}`` URI will accept DELETEs to delete a
 DraftForm::
 
-    >>> req = Request.blank('/formbuilder/api/draftform/123', method='DELETE', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/draftform1', method='DELETE', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### DELETED DRAFTFORM 123
+    ### DELETED DRAFTFORM draftform1
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
@@ -134,7 +134,7 @@ DraftForm::
 
 The ``/draftform/{uid}`` URI will not accept POSTs::
 
-    >>> req = Request.blank('/formbuilder/api/draftform/123', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/draftform1', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
@@ -143,18 +143,17 @@ The ``/draftform/{uid}`` URI will not accept POSTs::
 The ``/draftform/{uid}/publish`` URI will accept POSTs to execute
 the publishing process on a DraftForm::
 
-    >>> req = Request.blank('/formbuilder/api/draftform/123/publish', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/draftform1/publish', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = json.dumps({'instrument_version': '123'})
+    >>> req.body = json.dumps({'instrument_version': 'simple1'})
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### CREATED FORM
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"status": "SUCCESS", "form": {"instrument_version": {"instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "someone", "version": 1, "uid": "123", "date_published": "2014-05-22T00:00:00.000Z"}, "uid": "new_form_1", "channel": {"uid": "fake_channel_1", "title": "Title for fake_channel_1"}}}
+    {"status": "SUCCESS", "form": {"instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "uid": "fake_form_1", "channel": {"uid": "survey", "title": "RexSurvey"}}}
 
-    >>> req = Request.blank('/formbuilder/api/draftform/123/publish', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/draftform1/publish', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps({'instrument_version': 'doesntexist'})
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
@@ -164,7 +163,7 @@ the publishing process on a DraftForm::
     <BLANKLINE>
     {"error": "doesntexist is not the UID of a valid InstrumentVersion"}
 
-    >>> req = Request.blank('/formbuilder/api/draftform/123/publish', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/draftform1/publish', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
@@ -172,7 +171,7 @@ the publishing process on a DraftForm::
     <BLANKLINE>
     {"error": "No InstrumentVersion specified to publish against."}
 
-    >>> req = Request.blank('/formbuilder/api/draftform/doesntexist/publish', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftform/doesntexist/publish', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     Content-Type: application/json; charset=UTF-8

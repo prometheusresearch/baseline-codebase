@@ -1,37 +1,34 @@
+/*
+ * Copyright (c) 2015, Prometheus Research, LLC
+ */
+
 'use strict';
 
-var path      = require('path');
-var RexSetup  = require('rex-setup');
+var path = require('path');
+var RexSetup = require('rex-setup');
 
-function local(p) {
-  return path.join(__dirname, p);
-}
 
-module.exports = RexSetup.configureWebpack({
+var webpackConfig = RexSetup.configureWebpack({
   entry: [
-    'style/index.less',
-    'lib/index.js'
-  ].map(local),
-
-  resolve: {
-    alias: {
-      // this is because we are using npm dist of React
-      'react/addons': RexSetup.packagePath('react/addons.js'),
-      'react': RexSetup.packagePath('react/addons.js'),
-      // 'codemirror': RexSetup.packagePath('codemirror/'),
-    }
-  },
+    // FIXME: This is kinda a boilerplate we require at the moment, but it
+    // would be great if rex.widget somehow can inject its own into webpack
+    // bundle.
+    path.join(__dirname, 'style/index.less'),
+    path.join(__dirname, 'lib/index.js'),
+    'rex-setup/introspection/loader?all!rex-widget',
+    'rex-setup/introspection/loader?all!rex-formbuilder'
+  ],
 
   module: {
     loaders: [
       {
         test: /\.js$/,
         loader: 'jsx-loader?harmony=true&es5=true&stripTypes=true'
-      },
-      {
-        test: /\.woff2$/,
-        loader: 'url-loader?prefix=font/&limit=5000'
       }
     ]
   }
 });
+
+
+module.exports = webpackConfig;
+

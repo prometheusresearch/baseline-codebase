@@ -19,6 +19,9 @@ __all__ = (
 )
 
 
+# pylint: disable=unused-argument
+
+
 class DraftFormResource(SimpleResource, BaseResource):
     base_path = '/api/draftform'
     base_parameters = BaseResource.base_parameters + (
@@ -55,8 +58,10 @@ class DraftFormResource(SimpleResource, BaseResource):
                     get_settings()
                     .instrument_implementation.draftinstrumentversion,
                 ),
-                'configuration',
             ],
+            create_kwargs=[
+                'configuration',
+            ]
         )
 
     def retrieve(self, request, uid, **kwargs):
@@ -80,6 +85,8 @@ class DraftFormPublishResource(RestfulLocation):
     )
 
     def create(self, request, uid, **kwargs):
+        # pylint: disable=no-self-use
+
         user = get_instrument_user(request)
 
         draft_form = user.get_object_by_uid(

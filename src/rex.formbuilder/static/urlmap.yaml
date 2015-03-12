@@ -1,8 +1,21 @@
 paths:
-  /help/:
-    widget: !<AppletPage>
-      title: Rex Form Builder Help
+  /:
+    widget: !<I18NPage>
+      id: instrument_menu
+      title: FormBuilder - Select an Instrument
+      params:
+        uid: menu/uid
       children:
-      - !<RstPage>
-        content: rex.formbuilder:/help.rst
-        preformatted: true
+        - !<InstrumentMenu>
+          id: menu
+
+  /edit:
+    widget: !<I18NPage>
+      id: draft_set_editor
+      title: FormBuilder - Editor
+      params:
+        uid: editor/uid
+      children:
+        - !<DraftSetEditor>
+          id: editor
+

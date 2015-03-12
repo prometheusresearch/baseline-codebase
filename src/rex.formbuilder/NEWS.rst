@@ -4,6 +4,16 @@ REX.FORMBUILDER Change Log
 
 .. contents:: Table of Contents
 
+
+5.0.0 (2015-xx-xx)
+==================
+
+* Completely redesigned, refocused, and rebuilt.
+
+  We can rebuild him. We have the technology. We can make him better than he
+  was. Better... stronger... faster.
+
+
 4.1.1 (2015-03-11)
 ==================
 

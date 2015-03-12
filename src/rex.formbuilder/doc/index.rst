@@ -1,9 +1,9 @@
-********************************************************
-  REX.FORM_BUILDER Documentation
-********************************************************
+*****************************
+REX.FORMBUILDER Documentation
+*****************************
 
 
-Usage guide
+Usage Guide
 ===========
 
 .. toctree::
@@ -11,15 +11,15 @@ Usage guide
    guide
 
 
-Examples
-========
+Examples/Tests
+==============
 
 .. toctree::
 
    test/index
 
 
-Release notes
+Release Notes
 =============
 
 .. toctree::
@@ -27,7 +27,7 @@ Release notes
    changes
 
 
-Copyright and license
+Copyright and License
 =====================
 
 .. toctree::
@@ -35,7 +35,7 @@ Copyright and license
    license
 
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`

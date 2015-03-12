@@ -19,6 +19,9 @@ __all__ = (
 )
 
 
+# pylint: disable=unused-argument
+
+
 class FormResource(SimpleResource, BaseResource):
     base_path = '/api/form'
     base_parameters = BaseResource.base_parameters + (
@@ -73,6 +76,8 @@ class FormValidationResource(RestfulLocation):
     path = '/api/form/validate'
 
     def create(self, request, **kwargs):
+        # pylint: disable=no-self-use
+
         if not request.payload or not request.payload.get('form'):
             raise HTTPBadRequest(
                 'No Form Configuration provided to validate'

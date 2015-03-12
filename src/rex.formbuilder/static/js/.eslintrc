@@ -3,11 +3,22 @@
     "browser": true,
     "node": true
   },
+  "ecmaFeatures": {
+    "arrowFunctions": true,
+    "classes": true,
+    "destructuring": true,
+    "templateStrings": true,
+    "objectLiteralShorthandProperties": true,
+    "restParams": true,
+    "spread": true,
+    "jsx": true
+  },
   "rules": {
-    "quotes": false,
-    "no-mixed-requires": [1, true],
-    "no-underscore-dangle": false,
-    "max-len": [1, 80, 4]
+    "indent": [2, 2, {"indentSwitchCase": true}],
+    "max-len": [1, 80, 2],
+    "quotes": [2, "single", "avoid-escape"],
+    "space-after-keywords": [2, "always", {"checkFunctionKeyword": true}],
+    "eol-last": false,
+    "no-underscore-dangle": false
   }
 }
-

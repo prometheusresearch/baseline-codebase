@@ -1,23 +1,22 @@
-/**
- * @jsx React.DOM
+/*
+ * Copyright (c) 2015, Prometheus Research, LLC
  */
+
 'use strict';
 
-var React         = require('react');
-var List          = require('./list');
-var Editor        = require('./editor/InstrumentEditor');
+require('rex-widget');
 
-function startEditor(props, domElement) {
-  return React.render(<Editor {...props} />, domElement);
-}
+var errors = require('./errors');
+var GUI = require('./gui');
+var widget = require('./widget');
+
 
 module.exports = {
-  List,
-  startEditor
+  GUI,
+  widget,
+  errors
 };
 
-if (window) {
-  window.React = window.React || require('react');
-  window.Rex = window.Rex || {};
-  window.Rex.FormBuilder = module.exports;
-}
+global.Rex = global.Rex || {};
+global.Rex.FormBuilder = module.exports;
+

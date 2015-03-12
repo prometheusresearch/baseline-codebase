@@ -1,5 +1,0 @@
-- table: user
-  with:
-  - data:
-    - remote_user: demo
-      site_admin: true

@@ -15,6 +15,9 @@ __all__ = (
 )
 
 
+# pylint: disable=unused-argument
+
+
 class ChannelResource(SimpleResource, BaseResource):
     base_path = '/api/channel'
     base_parameters = BaseResource.base_parameters + (

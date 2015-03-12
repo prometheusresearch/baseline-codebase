@@ -10,35 +10,35 @@ Set up the environment::
     >>> from webob import Request
     >>> from rex.core import Rex
     >>> import rex.formbuilder
-    >>> from rex.form_builder_demo import strip_cookies
-    >>> rex = Rex('rex.form_builder_demo', db='pgsql:form_builder_demo')
+    >>> from rex.formbuilder_demo import strip_cookies
+    >>> rex = Rex('rex.formbuilder_demo')
     >>> rex.on()
 
 
 The ``/api/channel`` URI will accept GETs for listing::
 
-    >>> req = Request.blank('/formbuilder/api/channel', remote_user='demo')
+    >>> req = Request.blank('/api/channel', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    [{"uid": "fake_channel_1", "title": "Title for fake_channel_1"}, {"uid": "fake_channel_2", "title": "Title for fake_channel_2"}]
+    [{"uid": "entry", "title": "RexEntry"}, {"uid": "fake", "title": "FakeChannel"}, {"uid": "survey", "title": "RexSurvey"}]
 
 
 The ``/api/channel`` URI will not accept POSTs, PUTs, or DELETEs::
 
-    >>> req = Request.blank('/formbuilder/api/channel', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/channel', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/formbuilder/api/channel', method='PUT', remote_user='demo')
+    >>> req = Request.blank('/api/channel', method='PUT', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/formbuilder/api/channel', method='DELETE', remote_user='demo')
+    >>> req = Request.blank('/api/channel', method='DELETE', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
@@ -47,15 +47,15 @@ The ``/api/channel`` URI will not accept POSTs, PUTs, or DELETEs::
 The ``/api/channel/{uid}`` URI will accept GETs to retrieve an individual
 Channel::
 
-    >>> req = Request.blank('/formbuilder/api/channel/123', remote_user='demo')
+    >>> req = Request.blank('/api/channel/entry', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"uid": "123", "title": "Title for 123"}
+    {"uid": "entry", "title": "RexEntry"}
 
-    >>> req = Request.blank('/formbuilder/api/channel/doesntexist', remote_user='demo')
+    >>> req = Request.blank('/api/channel/doesntexist', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
@@ -63,17 +63,17 @@ Channel::
 
 The ``/api/channel/{uid}`` URI will not accept POSTs, PUTs, or DELETEs::
 
-    >>> req = Request.blank('/formbuilder/api/channel/123', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/channel/123', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/formbuilder/api/channel/123', method='PUT', remote_user='demo')
+    >>> req = Request.blank('/api/channel/123', method='PUT', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/formbuilder/api/channel/123', method='DELETE', remote_user='demo')
+    >>> req = Request.blank('/api/channel/123', method='DELETE', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...

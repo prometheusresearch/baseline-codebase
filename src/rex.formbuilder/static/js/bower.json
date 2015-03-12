@@ -1,28 +1,38 @@
 {
   "name": "rex-formbuilder",
-  "version": "4.1.1",
+  "version": "5.0.0",
   "private": true,
   "description": "JavaScript functionality for the rex.formbuilder application",
-  "license": "AGPLv3",
-  "main": "index.js",
-  "styleEntry": "style/index.less",
-  "moduleType": [
-    "node"
+  "authors": [
+    "Prometheus Research, LLC"
   ],
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/rexdb/rex.formbuilder"
+  },
+  "main": "lib/index.js",
+  "styleEntry": "style/index.less",
   "dependencies": {
-    "react": "http://registry.npmjs.org/react/-/react-0.12.2.tgz#*",
-    "bootstrap": "3.x",
-    "deepmerge": "*",
-    "superagent": "^0.18.2",
+    "react": "~0.12.2",
+    "flux": "~2.0.2",
+    "object-assign": "^1.0.0",
+    "object-path": "~0.8.1",
     "emitter": "component/emitter#1.1.2",
-    "bluebird": "http://registry.npmjs.org/bluebird/-/bluebird-2.9.13.tgz#*",
-    "codemirror": "^4.12.0",
+    "deep-equal": "0.0.0",
+    "deep-copy": "*",
+    "n-deep-merge": "*",
+    "qwest": "~1.5.4",
+    "react-dnd": "~0.8.1",
     "react-forms": "prometheusresearch/react-forms#master",
-    "rex-applet": "*"
+    "rex-i18n": "*",
+    "rex-widget": "*"
   },
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components"
+    "bower_components",
+    "test",
+    "tests"
   ]
 }

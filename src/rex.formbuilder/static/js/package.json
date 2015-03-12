@@ -1,18 +1,32 @@
 {
   "name": "rex.formbuilder",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "JavaScript functionality for the rex.formbuilder application",
   "author": "Prometheus Research, LLC",
-  "license": "AGPLv3",
+  "license": "AGPL-3.0",
   "repository": {
     "type": "hg",
-    "url": "https://bitbucket.org/rexdb/rex.formbuilder-provisional"
+    "url": "https://bitbucket.org/rexdb/rex.formbuilder"
   },
   "main": "lib/index.js",
   "devDependencies": {
-    "jsx-loader": "^0.12.1",
-    "codemirror": "^4.12.0",
-    "jsxhint": "^0.4.15",
-    "mocha-loader": "^0.6.4"
+    "webpack": "1.4.x",
+    "istanbul-instrumenter-loader": "~0.1.2",
+    "json-loader": "~0.5.1",
+    "jsx-loader": "~0.12.1",
+    "karma": "~0.12.31",
+    "karma-phantomjs-launcher": "~0.1.4",
+    "karma-webpack": "~1.5.0",
+    "karma-mocha": "~0.1.10",
+    "karma-coverage": "~0.2.7",
+    "karma-sourcemap-loader": "~0.3.3",
+    "karma-phantomjs-shim": "~1.0.0",
+    "chai": "~2.0.0",
+    "grunt": "~0.4.5",
+    "grunt-karma": "~0.10.1",
+    "grunt-eslint": "~6.0.0",
+    "grunt-lesslint": "~1.1.14",
+    "grunt-jsonlint": "~1.0.4",
+    "grunt-contrib-watch": "~0.6.1"
   }
 }

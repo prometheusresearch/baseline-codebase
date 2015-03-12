@@ -10,37 +10,36 @@ Set up the environment::
     >>> from webob import Request
     >>> from rex.core import Rex
     >>> import rex.formbuilder
-    >>> from rex.form_builder_demo import strip_cookies
-    >>> rex = Rex('rex.form_builder_demo', db='pgsql:form_builder_demo')
+    >>> from rex.formbuilder_demo import strip_cookies
+    >>> rex = Rex('rex.formbuilder_demo')
     >>> rex.on()
 
 
 The ``/draftinstrumentversion`` URI will accept GETs for listing::
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    [{"parent_instrument_version": null, "definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "modified_by": "some_person", "uid": "fake_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1div", "uid": "fake_instrument_1div", "title": "Title for fake_instrument_1div"}, "date_created": "2014-05-22T00:00:00.000Z"}, {"parent_instrument_version": null, "definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "modified_by": "some_person", "uid": "fake_draft_instrument_version_2", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_2div", "uid": "fake_instrument_2div", "title": "Title for fake_instrument_2div"}, "date_created": "2014-05-22T00:00:00.000Z"}]
+    [{"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The NEW InstrumentVersion Title"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}, "modified_by": "someone", "uid": "draftiv2", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}]
 
 
 The ``/draftinstrumentversion`` URI will accept POSTs for creating new
 instances::
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{"instrument": "inst1", "parent_instrument_version": "instver2", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}}'
+    >>> req.body = '{"instrument": "simple", "parent_instrument_version": "simple1", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### CREATED DRAFTINSTRUMENTVERSION
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"parent_instrument_version": {"instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "someone", "version": 1, "uid": "instver2", "date_published": "2014-05-22T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "modified_by": "demo", "uid": "new_draft_instrument_version_1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "demo", "instrument": {"status": "active", "code": "inst1", "uid": "inst1", "title": "Title for inst1"}, "date_created": "2014-05-22T00:00:00.000Z"}
+    {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "modified_by": "user1", "uid": "draftiv1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "user1", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2014-05-22T00:00:00.000Z"}
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
@@ -50,9 +49,9 @@ instances::
     <BLANKLINE>
     {"error": "Missing required parameter: instrument"}
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{"instrument": "inst1", "created_by": "someone", "parent_instrument_version": "doesntexist"}'
+    >>> req.body = '{"instrument": "simple", "created_by": "someone", "parent_instrument_version": "doesntexist"}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
@@ -63,12 +62,12 @@ instances::
 
 The ``/draftinstrumentversion`` URI will not accept PUTs or DELETEs::
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', method='PUT', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion', method='PUT', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion', method='DELETE', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion', method='DELETE', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
@@ -77,15 +76,15 @@ The ``/draftinstrumentversion`` URI will not accept PUTs or DELETEs::
 The ``/draftinstrumentversion/{uid}`` URI will accept GETs to retrieve an
 individual DraftInstrumentVersion::
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion/123', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion/draftiv1', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"parent_instrument_version": null, "definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "modified_by": "some_person", "uid": "123", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}
+    {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The NEW InstrumentVersion Title"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion/doesntexist', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion/doesntexist', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
@@ -94,24 +93,24 @@ individual DraftInstrumentVersion::
 The ``/draftinstrumentversion/{uid}`` URI will accept PUTs to update a
 DraftInstrumentVersion::
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion/123', method='PUT', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion/draftiv1', method='PUT', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = '{}'
+    >>> req.body = '{"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "NEWER InstrumentVersion Title"}}'
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### SAVED DRAFTINSTRUMENTVERSION 123
+    ### SAVED DRAFTINSTRUMENTVERSION draftiv1
     202 Accepted
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"parent_instrument_version": null, "definition": {"record": [{"type": "text", "id": "foo"}], "version": "1.0", "id": "urn:some-instrument", "title": "Some Fake Instrument"}, "modified_by": "demo", "uid": "123", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "some_person", "instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "date_created": "2014-05-22T00:00:00.000Z"}
+    {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "NEWER InstrumentVersion Title"}, "modified_by": "user1", "uid": "draftiv1", "date_modified": "2014-05-22T12:34:56.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}
 
 
 The ``/draftinstrumentversion/{uid}`` URI will accept DELETEs to delete a
 DraftInstrumentVersion::
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion/123', method='DELETE', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion/draftiv1', method='DELETE', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### DELETED DRAFTINSTRUMENTVERSION 123
+    ### DELETED DRAFTINSTRUMENTVERSION draftiv1
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
@@ -120,7 +119,7 @@ DraftInstrumentVersion::
 
 The ``/draftinstrumentversion/{uid}`` URI will not accept POSTs::
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion/123', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion/draftiv1', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
@@ -129,16 +128,15 @@ The ``/draftinstrumentversion/{uid}`` URI will not accept POSTs::
 The ``/draftinstrumentversion/{uid}/publish`` URI will accept POSTs to execute
 the publishing process on a DraftInstrumentVersion::
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion/123/publish', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion/draftiv1/publish', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
-    ### CREATED INSTRUMENTVERSION
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"status": "SUCCESS", "instrument_version": {"instrument": {"status": "active", "code": "fake_instrument_1iv", "uid": "fake_instrument_1iv", "title": "Title for fake_instrument_1iv"}, "published_by": "demo", "version": 1, "uid": "new_instrument_version_1", "date_published": "2014-05-22T00:00:00.000Z"}}
+    {"status": "SUCCESS", "instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "user1", "version": 1, "uid": "fake_published_draft_instrument_1", "date_published": "2014-05-22T00:00:00.000Z"}}
 
-    >>> req = Request.blank('/formbuilder/api/draftinstrumentversion/doesntexist/publish', method='POST', remote_user='demo')
+    >>> req = Request.blank('/api/draftinstrumentversion/doesntexist/publish', method='POST', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     Content-Type: application/json; charset=UTF-8

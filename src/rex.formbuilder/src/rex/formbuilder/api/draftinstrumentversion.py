@@ -19,6 +19,9 @@ __all__ = (
 )
 
 
+# pylint: disable=unused-argument
+
+
 class DraftInstrumentVersionResource(SimpleResource, BaseResource):
     base_path = '/api/draftinstrumentversion'
     base_parameters = BaseResource.base_parameters + (
@@ -66,12 +69,10 @@ class DraftInstrumentVersionResource(SimpleResource, BaseResource):
         return self.do_retrieve(request, uid)
 
     def update(self, request, uid, **kwargs):
-        user = get_instrument_user(request).get_display_name()
         return self.do_update(
             request,
             uid,
-            properties=['definition', 'date_modified',
-                        ConstantArg('modified_by', user)],
+            properties=['definition'],
         )
 
     def delete(self, request, uid, **kwargs):
@@ -85,6 +86,8 @@ class DraftInstrumentVersionPublishResource(RestfulLocation):
     )
 
     def create(self, request, uid, **kwargs):
+        # pylint: disable=no-self-use
+
         user = get_instrument_user(request)
 
         div = user.get_object_by_uid(uid, 'draftinstrumentversion')

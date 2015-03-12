@@ -1,19 +1,5 @@
-htsql_extensions:
-  rex_deploy: {}
+mount:
+  rex.formbuilder: /
 
-instrument_implementation:
-  user: rex.form_builder_demo.User
-  subject: rex.form_builder_demo.Subject
-  instrument: rex.form_builder_demo.Instrument
-  instrumentversion: rex.form_builder_demo.InstrumentVersion
-  assessment: rex.form_builder_demo.Assessment
-  draftinstrumentversion: rex.form_builder_demo.DraftInstrumentVersion
+db: pgsql:formbuilder_demo
 
-forms_implementation:
-  channel: rex.form_builder_demo.Channel
-  form: rex.form_builder_demo.Form
-  #task: rex.form_builder_demo.Task
-  #entry: rex.form_builder_demo.Entry
-  draftform: rex.form_builder_demo.DraftForm
-
-attach_dir: .

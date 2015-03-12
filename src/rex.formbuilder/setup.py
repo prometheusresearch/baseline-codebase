@@ -8,13 +8,16 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='4.1.1',
-    description='The RexFormbuilder application, a tool for creating and'
-    'managing the Instruments and Forms in the RexDB platform',
+    version='5.0.0',
+    description='A tool for creating and managing the Instruments and Forms in'
+    ' a RexDB application.',
     long_description=open('README.rst', 'r').read(),
-    maintainer='Prometheus Research, LLC',
-    maintainer_email='contact@prometheusresearch.com',
+    author='Prometheus Research, LLC',
+    author_email='contact@prometheusresearch.com',
     license='AGPLv3',
+    classifiers=[
+        'Programming Language :: Python :: 2.7',
+    ],
     url='https://bitbucket.org/rexdb/rex.formbuilder-provisional',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -25,16 +28,19 @@ setup(
     ],
     install_requires=[
         'rex.core>=1.10,<2',
-        'rex.web>=3.2.0,<4',
-        'rex.forms>=0.27.0,<2',
-        'rex.restful>=0.3.0,<2',
-        'rex.applet >0, <1',
-        'rex.widget >0, <1',
-        'rex.form_previewer >=0.1, <2',
-        'docutils',
-        'simplejson'
+        'rex.web>=3.2,<4',
+        'rex.forms>=0.28.1,<2',
+        'rex.restful>=0.3,<0.4',
+        'rex.widget>=0.2,<0.3',
+        'rex.i18n>=0.4,<0.5',
+        'rex.form_previewer>=0.2,<0.4',
     ],
     rex_init='rex.formbuilder',
-    rex_static='static'
+    rex_static='static',
+    rex_bundle={
+        './www/bundle': [
+            'webpack:',
+        ],
+    },
 )
 

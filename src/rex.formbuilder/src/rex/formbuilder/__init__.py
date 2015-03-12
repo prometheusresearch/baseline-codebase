@@ -4,7 +4,5 @@
 
 
 from .api import *
-from .widget import *
-from .rst import *
-from .settings import *
-from .draftcache import *
+from .widgets import *
+

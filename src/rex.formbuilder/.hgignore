@@ -1,9 +1,8 @@
 syntax: glob
-*.pyc
-*.orig
-*.egg-info
 build
 dist
-static/js/node_modules
-static/js/bower_components
+node_modules
+bower_components
 static/www/bundle
+static/js/coverage
+

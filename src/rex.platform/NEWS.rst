@@ -12,6 +12,7 @@
 * rex.forms==0.28.1
 * rex.restful==0.3.1
 * rex.applet==0.2.1
+* rex.core==1.10.3
 
 
 4.1.1 (2015-03-11)

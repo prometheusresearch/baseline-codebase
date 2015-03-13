@@ -1,12 +1,12 @@
 /**
  * Low-level bindings to Rex Port.
  *
- * @copyright 2014, Prometheus Research LLC
+ * @copyright 2015, Prometheus Research LLC
  */
 'use strict';
 
 var request   = require('./request');
-var mergeInto = require('./mergeInto');
+var invariant = require('./invariant');
 
 /**
  * An object which represent a port.
@@ -52,12 +52,38 @@ class Port {
       .then(this.handleResponse);
   }
 
+  produceCollection(params, options) {
+    return this.produce(params, options)
+      .then(result => {
+        var keys = Object.keys(result);
+        invariant(
+          keys.length === 1,
+          'Port.produceCollection() can only query ports which return a single dataset'
+        );
+        result = result[keys[0]];
+        return result;
+      });
+  }
+
+  produceEntity(params, options) {
+    return this.produce(params, options)
+      .then(result => {
+        var keys = Object.keys(result);
+        invariant(
+          keys.length === 1,
+          'Port.produceEntity() can only query ports which return a single dataset'
+        );
+        result = result[keys[0]];
+        return result[0] || null;
+      });
+  }
+
   /**
    * Replace an entity through a port.
    */
   replace(prevEntity, entity, params, options) {
     return this.request('POST')
-      .data({old: prevEntity, new: entity})
+      .send({old: prevEntity, new: entity})
       .promise()
       .then(this.handleResponse);
   }
@@ -102,11 +128,10 @@ Port.FORMAT = {
  */
 function _prepareQuery(params, options) {
   options = options || {};
-  var query = {};
-  mergeInto(query, params);
-  var format = options.format || Port.FORMAT.JSON;
-  query[':FORMAT'] = format;
-  return query;
+  return {
+    ...params,
+    ':FORMAT': options.format || Port.FORMAT.JSON
+  };
 }
 
 module.exports = Port;

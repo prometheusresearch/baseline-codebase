@@ -22,9 +22,6 @@ html, body {
 
 
 body {
-    font-family: Helvetica, Arial, sans-serif;
-    font-size: 12px;
-
     & > div {
         height: 100%;
     }
@@ -91,6 +88,8 @@ body {
         align-items: center;
 
         .rfb-menu-header-title {
+            font-size: 2em;
+            font-weight: bold;
             margin: 0;
         }
     }
@@ -101,6 +100,85 @@ body {
 
         button {
             margin-left: 5px;
+        }
+    }
+}
+
+
+.rfb-instrument-menu, .rfb-draftset-editor {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+
+    .rf-Form {
+        .rf-Fieldset {
+            margin-bottom: 0;
+
+            & > .rf-Field {
+                padding: 0.5em;
+            }
+
+            &.rf-Fieldset--invalid {
+                color: red;
+            }
+        }
+
+        .rf-Field {
+            margin-bottom: 0;
+
+            &.rf-Field--required span {
+                &::before {
+                    content: '* ';
+                    color: red;
+                }
+
+                &::after {
+                    content: '';
+                    padding: 0;
+                }
+            }
+
+            .rf-Field__label {
+                padding-right: 10px;
+                min-width: 125px;
+                display: inline-block;
+                text-align: right;
+
+                &::after {
+                    content: ':';
+                }
+            }
+
+            input {
+                width: 50%;
+                display: inline-block;
+            }
+
+            &.rf-Field--invalid {
+                color: red;
+            }
+
+            .rf-Message {
+                padding-left: 10px;
+            }
+        }
+
+        .rf-RepeatingFieldset {
+            .rf-RepeatingFieldset__item {
+                display: flex;
+                margin-left: 1em;
+
+                input {
+                    width: auto;
+                }
+            }
+
+            .rf-RepeatingFieldset__remove {
+                margin-left: 1em;
+            }
+
+            .rf-RepeatingFieldset__add {
+                margin-left: 1em;
+            }
         }
     }
 }
@@ -127,6 +205,11 @@ body {
             align-items: center;
             justify-content: center;
 
+            h2 {
+                font-size: 1.5em;
+                font-weight: bold;
+            }
+
             &.disabled {
                 color: #999;
                 text-decoration: line-through;
@@ -152,7 +235,7 @@ body {
         margin: 0 0.5%;
 
         .rfb-menu-header {
-            font-size: 0.7em;
+            font-size: 0.8em;
             min-height: 48px;
         }
 
@@ -167,13 +250,19 @@ body {
         margin-top: 0.5em;
 
         th {
+            text-align: center;
             line-height: 2em;
             border: 1px solid #eee;
+            padding: 1px;
         }
 
         tbody {
             tr {
                 line-height: 2em;
+
+                td {
+                    padding: 1px;
+                }
 
                 &:hover {
                     background-color: #dcf6ff;
@@ -231,6 +320,11 @@ body {
 .rfb-element-toolbox {
     .rfb-element-group {
         margin-bottom: 2em;
+
+        h3 {
+            font-size: 1.25em;
+            font-weight: bold;
+        }
 
         .rfb-element-group-container {
             .rfb-element-type {
@@ -317,7 +411,7 @@ body {
         .rf-Field {
             input {
                 display: block;
-                width: 90%;
+                width: 100%;
             }
         }
 
@@ -326,8 +420,17 @@ body {
         }
     }
 
-    button {
+    .rf-RepeatingFieldset__remove {
+        top: inherit;
+        right: inherit;
+        position: inherit;
+        opacity: 1;
         .rfb-button();
+    }
+
+    .rf-RepeatingFieldset__add {
+        .rfb-button();
+        color: black;
         font-size: 0.9em;
     }
 }
@@ -345,6 +448,7 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
     overflow: auto;
     z-index: 9999;
+    text-align: left;
 
     &.rfb-modal__active {
         display: block;
@@ -441,68 +545,6 @@ body {
         }
     }
 
-}
-
-
-.rf-Form {
-    .rf-Fieldset {
-        & > .rf-Field {
-            padding: 0.5em 0;
-        }
-
-        &.rf-Fieldset--invalid {
-            color: red;
-        }
-    }
-
-    .rf-Field {
-        &.rf-Field--required span::before {
-            content: '* ';
-            color: red;
-        }
-
-        .rf-Field__label {
-            padding-right: 10px;
-            min-width: 125px;
-            display: inline-block;
-            text-align: right;
-
-            &::after {
-                content: ':';
-            }
-        }
-
-        input {
-            width: 50%;
-        }
-
-        &.rf-Field--invalid {
-            color: red;
-        }
-
-        .rf-Message {
-            padding-left: 10px;
-        }
-    }
-
-    .rf-RepeatingFieldset {
-        .rf-RepeatingFieldset__item {
-            display: flex;
-            margin-left: 1em;
-
-            input {
-                width: auto;
-            }
-        }
-
-        .rf-RepeatingFieldset__remove {
-            margin-left: 1em;
-        }
-
-        .rf-RepeatingFieldset__add {
-            margin-left: 1em;
-        }
-    }
 }
 
 

@@ -77,8 +77,6 @@ var Form = React.createClass({
     value = {...submitTo.produceParams().toJS(), ...value.value};
     value = onSubmit(value);
     if (value !== false) {
-      require('rex-applet').Actions.showNotification(
-        this.props.progressNotificationText, {icon: 'info-sign'});
       this.setState({submitInProgress: true});
       if (submitTo.port instanceof Port) {
         if (this.props.insert) {
@@ -105,15 +103,11 @@ var Form = React.createClass({
   onSubmitComplete() {
     this.setState({submitInProgress: false});
     this.props.onSubmitComplete()
-    require('rex-applet').Actions.showNotification(
-      this.props.completeNotificationText, {icon: 'ok-sign'});
   },
 
   onSubmitError() {
     this.setState({submitInProgress: false});
     this.props.onSubmitError()
-    require('rex-applet').Actions.showNotification(
-      this.props.errorNotificationText, {icon: 'exclamation-sign'});
   }
 });
 

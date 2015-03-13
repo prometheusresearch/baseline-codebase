@@ -195,7 +195,7 @@ class WidgetRenderer(object):
             accept = request.accept.best_match(
                 ['text/html', 'application/json'])
             payload = self.payload(request)
-            payload = dumps(payload, debug=settings.debug)
+            payload = dumps(payload, request, debug=settings.debug)
             if accept == 'application/json':
                 return Response(payload, content_type='application/json')
             else:

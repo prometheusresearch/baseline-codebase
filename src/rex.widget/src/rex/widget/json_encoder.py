@@ -25,8 +25,11 @@
 
 from __future__ import absolute_import
 
+import inspect
+
 from jsonpublish.encoder import AdapterRegistry, JSONEncoder
 from rex.core import Record
+from .local import context, get_request
 
 _adapters = AdapterRegistry()
 
@@ -59,12 +62,25 @@ _debug_encoder = JSONEncoder(
     adapters=_adapters,
 )
 
-register_adapter = _adapters.register_adapter
+
+def register_adapter(*type):
+    _registration = _adapters.register_adapter(*type)
+    def registration(encoder):
+        argspec = inspect.getargspec(encoder)
+        need_request = len(argspec.args) > 1 and argspec.args[1] == 'request'
+        def _encoder(value):
+            if need_request:
+                return encoder(value, get_request())
+            else:
+                return encoder(value)
+        return _registration(_encoder)
+    return registration
 
 
-def dumps(obj, debug=False):
+def dumps(obj, request, debug=False):
     encoder = _encoder if not debug else _debug_encoder
-    return encoder.encode(obj)
+    with context(request):
+        return encoder.encode(obj)
 
 @register_adapter(Record)
 def _encode_Record(record):

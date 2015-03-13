@@ -28,7 +28,7 @@ var defaultStyle = {
 function makeBoxStyle(props) {
   props = props || {};
   var {
-    direction, size, margin,
+    direction, size, margin, padding,
     width, height, aligned,
     centerHorizontally, centerVertically,
     scrollable, backgroundColor
@@ -49,6 +49,9 @@ function makeBoxStyle(props) {
   }
   if (margin !== undefined) {
     style.margin = margin;
+  }
+  if (padding !== undefined) {
+    style.padding = padding;
   }
   if (centerHorizontally) {
     style.alignItems = 'center';
@@ -75,13 +78,13 @@ var Box = React.createClass({
 
   render() {
     var {
-      direction, size, margin, width, height, aligned,
+      direction, size, margin, padding, width, height, aligned,
       centerHorizontally, centerVertically, scrollable,
       children, childrenMargin, style: extraStyle,
       backgroundColor, Component, ...props
     } = this.props;
     var style = makeBoxStyle({
-      direction, size, margin, aligned,
+      direction, size, margin, padding, aligned,
       width, height,
       centerHorizontally, centerVertically,
       scrollable, backgroundColor

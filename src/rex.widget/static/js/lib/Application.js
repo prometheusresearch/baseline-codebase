@@ -3,14 +3,16 @@
  */
 'use strict';
 
-var React       = require('react');
-var invariant   = require('./invariant');
-var merge       = require('./merge');
-var mergeInto   = require('./mergeInto');
-var Reference   = require('./Reference');
-var Entity      = require('./Entity');
-var runtime     = require('./runtime');
-var StateWriter = require('./StateWriter');
+var React             = require('react');
+var invariant         = require('./invariant');
+var merge             = require('./merge');
+var mergeInto         = require('./mergeInto');
+var Reference         = require('./Reference');
+var Entity            = require('./Entity');
+var runtime           = require('./runtime');
+var StateWriter       = require('./StateWriter');
+var DataSpecification = require('./modern/DataSpecification');
+var Query             = require('./modern/Query');
 
 var Application = React.createClass({
 
@@ -119,6 +121,8 @@ function constructComponent(ui, key) {
     // Read from data
     } else if (prop !== null && prop.__data__) {
       mkDataRead(props, name, prop.__data__, prop.wrapper, false);
+    } else if (prop !== null && prop.__dataspec__) {
+      mkDataSpec(props, name, prop.__dataspec__);
     // Regular prop
     } else {
       mkProp(props, name, prop);
@@ -127,6 +131,26 @@ function constructComponent(ui, key) {
 
   var Component = __require__(ui.__type__);
   return React.createElement(Component, props);
+}
+
+function mkDataSpec(props, name, dataSpec) {
+  var [type, route, params, kind] = dataSpec;
+  var port;
+  if (kind === 'port') {
+    port = runtime.Storage.createPort(route);
+  } else if (kind === 'query') {
+    port = new Query(route);
+  }
+  if (type === 'collection') {
+    props[name] = new DataSpecification.Collection(port, params);
+  } else if (type === 'entity') {
+    props[name] = new DataSpecification.Entity(port, params);
+  } else {
+    invariant(
+      false,
+      'invalid type for data specification: %s', type
+    );
+  }
 }
 
 function mkComponent(props, name, desc, defer) {

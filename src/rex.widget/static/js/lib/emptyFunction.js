@@ -11,4 +11,8 @@ emptyFunction.thatReturnsTrue = function() {
   return true;
 };
 
+emptyFunction.thatReturnsArgument = function(arg) {
+  return arg;
+};
+
 module.exports = emptyFunction;

@@ -22,7 +22,7 @@ var Button = React.createClass({
 
   render() {
     var {
-      link, success, danger, quiet, size, className, disabled,
+      link, success, danger, quiet, size, className, style, disabled, align,
       placeholder, id, icon, iconRight, text, children, ...props
     } = this.props;
     var classNames = cx({
@@ -39,6 +39,7 @@ var Button = React.createClass({
     return (
       <button
         {...props}
+        style={{...style, textAlign: align ? align : undefined}}
         //title={children || text}
         disabled={disabled}
         className={cx(classNames, className)}
@@ -60,7 +61,10 @@ var Button = React.createClass({
   },
 
   getDefaultProps() {
-    return {onClick: emptyFunction};
+    return {
+      onClick: emptyFunction,
+      type: 'button'
+    };
   }
 
 });

@@ -184,6 +184,10 @@ class PackageCollection(object):
     def _build_package_tree(cls, key, seen):
         # Emits packages for the given requirement.
 
+        # Make sure PEP440Warning stays disabled.
+        import warnings
+        warnings.filterwarnings("ignore", category=pkg_resources.PEP440Warning)
+
         # If `key` is already a `Package` object, we are done.
         if isinstance(key, Package):
             yield key

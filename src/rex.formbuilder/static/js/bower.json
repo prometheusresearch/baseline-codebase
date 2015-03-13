@@ -23,7 +23,7 @@
     "deep-copy": "*",
     "n-deep-merge": "*",
     "qwest": "~1.5.4",
-    "react-dnd": "http://registry.npmjs.org/react-dnd/-/react-dnd-0.8.1.tgz#*",
+    "react-dnd": "prometheusresearch/react-dnd#npm_react_hack",
     "react-forms": "prometheusresearch/react-forms#master",
     "rex-i18n": "*",
     "rex-widget": "*"

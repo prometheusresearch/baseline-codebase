@@ -5,7 +5,13 @@ paths:
     widget: !<DemoPage>
       title: About
       id: about
-      children: !<Element>
+      children: !<Box>
         margin: 10
         children:
-        - !<Header> About
+        - !<Box>
+          center_horizontally: True
+          children:
+            - !<Header> 
+              text: About
+              level: 3
+        - !<Label> This is a Label in about.yaml and it could have contained something about this demo.

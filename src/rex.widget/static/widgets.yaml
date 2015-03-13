@@ -1,7 +1,8 @@
 widgets:
 
 
-  WidgetDocPage: !<AppletPage>
+  WidgetDocPage: !<Page>
+    id: my_widget_doc_page
     title: !slot page_title
     children: 
     - !<HBox>

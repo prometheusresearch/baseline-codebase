@@ -3,54 +3,61 @@ paths:
 
   /:
     widget: !<DemoPage>
-      id: dashboard
-      title: Dashboard
+      id: demo
+      title: Rex Widget Demo
       params:
         selected_study: study_list/selected
-      children: !<Element>
-        size: 1
-        direction: horizontal
-        children:
-
-        - !<Element>
-          size: 4
+      children:
+        - !<Box>
+          center_horizontally: True
           children:
-          - !<Header> Sidebar
-          - !<Link>
-            text: Link to About Page
-            href: ../about
-
-        - !<Element>
-          size: 9
+          - !<Header> 
+            text: Rex Widget Demo
+            level: 3
+        - !<Box>
+          size: 1
+          direction: horizontal
           children:
 
           - !<Box>
+            size: 4
             children:
-            - !<Header> Studies
-
+            - !<Header> Sidebar
             - !<Link>
-              href:
-                url: rex.widget_demo:/forms
-                refs:
-                  x: study_list/selected
-                params:
-                  y: asdad
-              text: Forms
+              text: Link to About Page
+              href: /about
 
-          - !<Grid>
-            id: study_list
-            selectable: true
-            data:
-              data: rex.widget_demo:/data/study/list
-            columns:
-              - key: code
-                title: Code
-              - key: title
-                title: Title
-              - key: closed
-                title: Closed
+          - !<Box>
+            size: 9
+            children:
 
-          - !<StudyInfo>
-            data:
-              data: rex.widget_demo:/data/study
-              entity_id: study_list/selected
+            - !<Box>
+              children:
+              - !<Header> Studies
+
+              - !<Link>
+                href:
+                  url: rex.widget_demo:/forms
+                  refs:
+                    x: study_list/selected
+                  params:
+                    y: asdad
+                text: Forms
+
+            - !<Table>
+              id: study_list
+              selectable: true
+              data:
+                data: rex.widget_demo:/data/study/list
+              columns:
+                - key: code
+                  title: Code
+                - key: title
+                  title: Title
+                - key: closed
+                  title: Closed
+
+            - !<StudyInfo>
+              data:
+                data: rex.widget_demo:/data/study
+                entity_id: study_list/selected

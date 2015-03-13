@@ -2,7 +2,7 @@
   Rex Widget Documentation
 ****************************
 
-Rex Widget provides a widget toolkit for the RexDB platform. It allows to
+Rex Widget provides a widget toolkit for the RexDB platform. It allows one to
 configure application screens composed of reusable widgets.
 
 Programming guide

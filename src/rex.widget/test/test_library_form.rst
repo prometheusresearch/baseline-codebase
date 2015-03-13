@@ -21,8 +21,8 @@ Initialize the Rex application::
 Define form
 -----------
 
-We define form using form widgets ``<Form />``, ``<Fieldset />`` and ``<Field
-/>``::
+We define the form using the form widgets ``<Form />``, ``<Fieldset />`` 
+and ``<Field />``::
 
     >>> form = parse("""
     ... !<Form>

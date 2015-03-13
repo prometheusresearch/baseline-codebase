@@ -1,6 +1,6 @@
 {
   "name": "rex-widget",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "authors": [
     "Prometheus Research LLC"
   ],
@@ -8,8 +8,8 @@
   "main": "./lib/index.js",
   "styleEntry": "./style/index.less",
   "dependencies": {
-    "bootstrap-datepicker": "^1.3.0",
     "rex-expression": "*",
+    "bootstrap-datepicker": "^1.3.0",
     "object-assign": "^1.0.0",
     "react": "http://registry.npmjs.org/react/-/react-0.12.2.tgz#*",
     "flux": "http://registry.npmjs.org/flux/-/flux-2.0.1.tgz#*",

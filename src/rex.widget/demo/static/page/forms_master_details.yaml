@@ -7,81 +7,92 @@ paths:
       params:
         study: studies/selected
         protocol: protocols/selected
-      children: !<Element>
-        direction: horizontal
-        children:
-        - !<Element>
-          margin: 10
-          size: 1
+      children:
+        - !<Box>
+          center_horizontally: True
           children:
-          - !<Table>
-            id: studies
-            selectable: true
-            data: rex.widget_demo:/data/study/list
-            columns:
-              - key: code
-                title: Code
-              - key: title
-                title: Title
-              - key: closed
-                title: Closed
-
-        - !<Element>
-          margin: 10
-          size: 1
-          children: !<Form>
-            label: Study
-            hint: Edit study and hit save button
-            fieldset:
-            - !<Field>
-              value_key: code
-              label: Code
-              required: true
-            - !<Field>
-              value_key: title
-              label: Title
-              required: true
-              hint: Study title as you want it to appear
-            - !<CheckboxField>
-              value_key: closed
-              label: Closed
-              hint: If study is finished or not
-              default_value: false
+            - !<Header> 
+              text: Forms Master-detail Example
+              level: 3
+            - !<Label> Select a study, then you can edit the study and select and edit its protocols
+        - !<Box>
+          direction: horizontal
+          children:
+          - !<Box>
+            margin: 10
+            size: 1
+            children:
+            - !<Header> 
+              text: Select a study
+              level: 2
             - !<Table>
-              id: protocols
+              id: studies
               selectable: true
-              data:
-                data: rex.widget_demo:/data/protocol/list
-                refs:
-                  protocol.study:
-                    ref: studies/selected
-                    required: true
+              data: rex.widget_demo:/data/study/list
               columns:
                 - key: code
                   title: Code
                 - key: title
                   title: Title
-            value_data:
-              data: rex.widget_demo:/data/study
-              entity_id: studies/selected
+                - key: closed
+                  title: Closed
 
-        - !<Element>
-          margin: 10
-          size: 1
-          children: !<Form>
-            label: Protocol
-            hint: Edit protocol and hit save button
-            fieldset:
-            - !<Field>
-              value_key: code
-              label: Code
-              required: true
-            - !<Field>
-              value_key: title
-              label: Title
-              required: true
-              hint: Study title as you want it to appear
-            value_data:
-              data: rex.widget_demo:/data/protocol
-              entity_id: protocols/selected
+          - !<Box>
+            margin: 10
+            size: 1
+            children: !<Form>
+              label: Study
+              hint: Edit study and hit save button
+              fieldset:
+              - !<Field>
+                value_key: code
+                label: Code
+                required: true
+              - !<Field>
+                value_key: title
+                label: Title
+                required: true
+                hint: Study title as you want it to appear
+              - !<CheckboxField>
+                value_key: closed
+                label: Closed
+                hint: If study is finished or not
+                default_value: false
+              - !<Table>
+                id: protocols
+                selectable: true
+                data:
+                  data: rex.widget_demo:/data/protocol/list
+                  refs:
+                    protocol.study:
+                      ref: studies/selected
+                      required: true
+                columns:
+                  - key: code
+                    title: Code
+                  - key: title
+                    title: Title
+              value_data:
+                data: rex.widget_demo:/data/study
+                entity_id: studies/selected
+
+          - !<Box>
+            margin: 10
+            size: 1
+            children: !<Form>
+              label: Protocol
+              hint: Edit protocol and hit save button
+              fieldset:
+              - !<Field>
+                value_key: code
+                label: Code
+                required: true
+              - !<Field>
+                value_key: title
+                label: Title
+                required: true
+                hint: Study title as you want it to appear
+              value_data:
+                data: rex.widget_demo:/data/protocol
+                entity_id: protocols/selected
 

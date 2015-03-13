@@ -9,7 +9,7 @@ Initialize the Rex app::
     >>> app = Rex('-')
     >>> app.on()
 
-First we need to define a few widgets which will be used in templates::
+First we need to define a few widgets which will be used in our templates::
 
     >>> from rex.core import StrVal, IntVal, MapVal
     >>> from rex.widget.widget import Widget, GroupWidget
@@ -35,16 +35,14 @@ First we need to define a few widgets which will be used in templates::
     >>> class WidgetWithMapValBase(Widget):
     ...   name = 'WidgetWithMapValBase'
     ...   js_type = 'WidgetWithMapValBase'
-    ...
     ...   field = Field(MapVal(StrVal(), StrVal()))
 
     >>> class WidgetWithCollectionFieldBase(Widget):
     ...   name = 'WidgetWithCollectionFieldBase'
     ...   js_type = name
-    ...
     ...   data = CollectionField()
 
- Now we can use ``parse_template`` function from::
+Now we can use the ``parse_template`` function::
 
     >>> from rex.widget import parse_template
 
@@ -55,7 +53,7 @@ First we need to define a few widgets which will be used in templates::
     ...     level: 2
     ... """)
 
-Widget is parsed and is registered::
+The widget is parsed and is registered::
 
     >>> 'MyHeader' in Widget.map_all()
     True
@@ -63,7 +61,7 @@ Widget is parsed and is registered::
     >>> MyHeader.fields.keys()
     ['text']
 
-Now we can try to instantiate it from YAML::
+Now we can try to instantiate it using YAML::
 
     >>> from rex.widget.parse import parse as parse_widget
     >>> from rex.widget.validate import validate as validate_widget
@@ -89,7 +87,7 @@ Now we can try to instantiate it from YAML::
         defer=False),
       state=StateGraph(storage={}, dependents={}))
 
-It also validates everything up::
+It also validates the input::
 
     >>> make_widget("""
     ... !<MyHeader>

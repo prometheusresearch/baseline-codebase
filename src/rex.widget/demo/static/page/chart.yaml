@@ -5,3 +5,12 @@ paths:
     widget: !<DemoPage>
       id: chart
       title: Sample Chart
+      children: !<Box>
+        margin: 10
+        children:
+        - !<Box>
+          center_horizontally: True
+          children:
+            - !<Header> 
+              text: Sample Chart
+              level: 3

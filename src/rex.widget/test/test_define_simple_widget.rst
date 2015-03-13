@@ -1,15 +1,15 @@
 Define simple widget
 ====================
 
-First of all we need to initialize new Rex application::
+First of all we need to initialize a new Rex application::
 
     >>> from rex.core import Rex
 
     >>> demo = Rex('-')
     >>> demo.on()
 
-Now to define our first widget we need to import ``Widget`` and ``Field``
-classes from ``rex.widget`` package::
+Now to define our first widget we need to import the ``Widget`` and ``Field``
+classes from the ``rex.widget`` package::
 
     >>> from rex.core import IntVal, StrVal
     >>> from rex.widget import Widget, Field
@@ -54,7 +54,7 @@ We can get a factory for our widget out of its YAML representation::
     ... text: 'Hello, world!'
     ... """)
 
-Constructed widget should have correct type::
+The constructed widget should have the correct type::
 
     >>> isinstance(widget, MyHeader)
     True
@@ -67,7 +67,7 @@ We can access field values through properties::
     >>> widget.level
     1
 
-Or we can get all widget values via ``values`` attribute::
+Or we can get all widget values via the ``values`` attribute::
 
     >>> widget.values
     {'text': 'Hello, world!', 'level': 1}
@@ -75,7 +75,7 @@ Or we can get all widget values via ``values`` attribute::
 Overriding default field values
 -------------------------------
 
-We can specify ``level`` field and override its default value::
+We can specify the ``level`` field and override its default value::
 
     >>> widget = parse("""
     ... !<MyHeader>
@@ -92,8 +92,8 @@ We can specify ``level`` field and override its default value::
 Shortcut YAML representation
 ----------------------------
 
-Alternatively we can use shortcut for YAML representation which allows only
-specify the first field::
+Alternatively, for widgets which only have one required field, we can use 
+a shortcut representation::
 
     >>> widget = parse("""
     ... !<MyHeader> "Hello, world!"
@@ -110,3 +110,4 @@ specify the first field::
 
     >>> widget.values
     {'text': 'Hello, world!', 'level': 1}
+

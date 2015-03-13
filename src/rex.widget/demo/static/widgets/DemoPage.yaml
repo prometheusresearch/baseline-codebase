@@ -8,16 +8,15 @@ widgets:
     - !<Navigation>
       application_name: Rex Widget Demo
       menu:
-      - dashboard
+      - doc
       - forms
       - forms-master-detail
       - upload
       - workflow
-      - chart
-      - doc
+      - experiment
       - sample
       - about
-    - !<Element>
+    - !<Box>
       size: 1
       margin: 10
       children: !slot children

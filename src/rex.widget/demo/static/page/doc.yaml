@@ -1,0 +1,26 @@
+
+paths:
+
+  /doc:
+    widget: !<DemoPage>
+      title: Built-In Widgets
+      id: doc
+      children: !<Box>
+        margin: 10
+        children:
+        - !<Box>
+          size: 1
+          background_color: grey
+          center_horizontally: True
+          children:
+          - !<Header> 
+            text: Built-In Widgets
+            level: 3
+          - !<UnsafeHTML>
+            html: |
+              <iframe 
+                  src="widget/doc" 
+                  height=600 
+                  width=1200
+                  >
+              </iframe>

@@ -1,0 +1,21 @@
+
+paths:
+
+  /experiment:
+    widget: !<DemoPage>
+      id: experiment
+      title: Experiment
+      children: !<Box>
+        margin: 10
+        children:
+        - !<Box>
+          center_horizontally: True
+          children:
+            - !<Header> 
+              text: Experiment
+              level: 3
+        - !<Link>
+          text: This is demo/static/page/experiment.yaml
+          href: page/experiment.txt
+        - !<Label>
+          text: Feel free to change it to experiment with the widgets.

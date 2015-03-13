@@ -11,6 +11,8 @@ include:
 - page/about.yaml
 - page/sample.yaml
 - page/chart.yaml
+- page/doc.yaml
+- page/experiment.yaml
 
 ##################################################################
 ### DO NOT EDIT UNLESS YOU ARE WORKING ON TESTS FOR REX.WIDGET ###

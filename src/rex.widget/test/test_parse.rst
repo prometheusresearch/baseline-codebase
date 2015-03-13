@@ -9,21 +9,18 @@ Initialize the Rex application::
     >>> app = Rex('-')
     >>> app.on()
 
-Widgets can be instantiated through the YAML configuration. The first step is to
-parse YAML into sensible object model which can be processed later.
-
-The module :mod:`rex.widget.parse` exposes interface to parse YAML into object
-model and to query the latter.
+Widgets can be instantiated through the YAML configuration. The first step is 
+to parse the YAML into a sensible object model which can be processed later.
 
 Parsing
 -------
 
-The ``parse`` function is used to parse YAML representation of widget into
-object model::
+The ``parse`` function is used to convert the YAML representation of a widget 
+into an object model::
 
     >>> from rex.widget.parse import parse
 
-It performs no validations but just provides us with "syntactically valid"
+It performs no validations but just provides us with a "syntactically valid"
 object model::
 
     >>> parse("""
@@ -33,15 +30,15 @@ object model::
     ... """)
     WidgetDesc(name=u'Person', fields=OrderedDict([('first_name', 'John'), ('last_name', 'Doe')]))
 
-It also can parse shorthand widget notation::
+It also can parse a shorthand widget notation::
 
     >>> parse("""
     ... !<Person> John Doe
     ... """)
     WidgetDesc(name=u'Person', fields=OrderedDict([(None, 'John Doe')]))
 
-When parsing shorthand widget notation which is followed by a sequence, the
-sequence becomes the only field of ``WidgetDesc`` object::
+When parsing a shorthand widget notation which is followed by a sequence, the
+sequence becomes the only field of the ``WidgetDesc`` object::
 
     >>> parse("""
     ... !<Person>
@@ -81,7 +78,7 @@ How ``null`` is parsed::
 Parsing slots
 -------------
 
-By default slot parsing are not enabled::
+By default slot parsing is not enabled::
 
     >>> parse("""
     ... a: !slot a
@@ -97,7 +94,7 @@ But can be enabled via ``allow_slots=True``::
     ... """, allow_slots=True) # doctest: +NORMALIZE_WHITESPACE
     {'a': Slot(name=u'a', default=NotImplemented)}
     
-Slots are can be specified with default values::
+Slots with default values can be specified::
 
     >>> parse("""
     ... a: !slot
@@ -125,8 +122,8 @@ Parsing ``undefined``
 Attached location
 -----------------
 
-Parsed object model has location attached to it which can be queries via
-``locate`` function of :mod:`rex.widget.location.locate` module::
+A parsed object model has a location attached to it which can be queries via
+the ``locate`` function of the :mod:`rex.widget.location.locate` module::
 
     >>> from rex.widget.location import locate
 
@@ -170,6 +167,6 @@ data::
 Cleanup
 -------
 
-Shutdown Rex application::
+Shutdown the Rex application::
 
     >>> app.off()

@@ -33,7 +33,7 @@ A series of action calls::
     ActionCallSeq(calls=[ActionCall(action=rex.widget.action.Set, params={}),
                          ActionCall(action=rex.widget.action.Reset, params={})])
 
-What if action call refers to an action which doesn't exist::
+If the action call refers to an action which doesn't exist::
 
     >>> parse("""
     ... action: xxx

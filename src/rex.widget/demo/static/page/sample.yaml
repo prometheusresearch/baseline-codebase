@@ -5,3 +5,144 @@ paths:
     widget: !<DemoPage>
       id: sample
       title: Sample Widgets
+      children:
+        - !<Box>
+          center_horizontally: True
+          children:
+          - !<Header>
+            text: Sample Widgets
+            level: 3
+        - !<HBox>
+          children_margin: 10 # put some space between the Labels.
+          children:
+          - !<Label> Here are Labels followed by a Link in a HBOX (horizontal Box).  
+          - !<Label> 'Everything you see here is declared in'
+          - !<Box> # put the Link in a Box so there is space between it and the Label.
+            children:
+            - !<Link>
+              text: demo/static/page/sample.yaml
+              href: /page/sample.txt
+        - !<Notice> This is a Notice widget.  It centers itself.
+        - !<Box>
+          background_color: orange
+          aligned: left
+          center_horizontally: True
+          children:
+          - !<Label> |
+              Oops, Popup is deprecated.
+          - !<Label> |
+              Next is a Popup, it could have been a link but its style is "button".
+          - !<Label> |
+              It is placed inside a Box with "background_color" set to "orange", "aligned" 
+              set to "left", and "center_horizontally" set to "True".
+          - !<Popup>
+            style: button
+            init_open: True
+            xOffset: 200 
+            yOffset: -400
+            w: 300
+            h: 350
+            text: This is the popup text.  Click HERE for a popup.
+            closeText: 'This is "closeText". Seems wrong to prepend this to the "text"! '
+            children: 
+            - !<Box>
+              size: 1
+              background_color: pink
+              children:
+              - !<Label> This is the pop-up.  Just a bunch of Labels in a pink Box.
+              - !<Label> BUG? although init_open is True this popup did not open initially.  
+              - !<Label> 'The Popup settings are:'
+              - !<Label> 'xOffset: 200'
+              - !<Label> 'yOffset: -400'
+              - !<Label> 'w: 300'
+              - !<Label> 'h: 350'
+              - !<Label> Click on the X on the right, or on the popup button to remove this Popup.
+        - !<Link>
+          text: This Link widget is a link to the Home page
+          href: /
+        - !<Label>
+          text: |
+            This Label widget contains some arbitrary python code.  
+            As you can see all the formatting is lost.
+            import yaml
+            import collections
+            import weakref
+
+            from pyquerystring import parse as parse_qs
+            from webob.exc import HTTPUnauthorized, HTTPBadRequest, HTTPMethodNotAllowed
+            from webob import Response
+        - !<Box>
+          aligned: right
+          children:
+          - !<UnsafeHTML>
+            html: |
+              This is the UnsafeHTML widget in which you can embed HTML tags such as &lt;br>. <br>
+              It is inside a Box with "aligned" set to "right" <br>
+              Here comes the &lt;pre> tag with nicely formatted Python:
+              <pre>
+              class PageContext(Context):
+
+                  def __init__(self):
+                      self.widget_count = weakref.WeakKeyDictionary()
+              </pre>
+#        - !<Label> Next comes buttons, and the three modals.
+        - !<Box>
+          direction: horizontal
+          children:
+          - !<Button>
+            text: Button Raz
+            success: True
+          - !<Button>
+            text: Button Dva
+            danger: True
+          - !<Button>
+            text: Button Tre
+            quiet: True
+#        - !<Box>
+#          children:
+#          - !<Modal>
+#            open: True
+#            show_title: True
+#            title: Another Sample Page Modal
+#            children:
+#            - !<Box>
+#              size: 1
+#              background_color: pink
+#              children:
+#              - !<Label>
+#                text: This <Modal> appears as soon as you visit the page 
+#                      because its "open" attribute is set to True.
+#                      It was declared first but gains control last. 
+#                      Its title is displayed because its "show_title" 
+#                      attribute is set to True.
+#          - !<Modal>
+#            open: True
+#            show_title: False
+#            title: Another Sample Page Modal
+#            children:
+#            - !<Box>
+#              size: 1
+#              background_color: grey
+#              children:
+#              - !<Label>
+#                text: This <Modal> appears as soon as you visit the page 
+#                      because its "open" attribute is set to True.
+#                      It gains control second. Its title is not 
+#                      displayed because its "show_title" attribute is set 
+#                      to False.
+#          - !<Modal>
+#            open: True
+#            show_title: True
+#            title: The Sample Page Modal
+#            children:
+#            - !<Box>
+#              size: 1
+#              background_color: yellow
+#              children:
+#              - !<Label>
+#                text: This <Modal> appears as soon as you visit the page 
+#                      because its "open" attribute is set to True.
+#                      It gains control first because it was  declared last. 
+#                      Its title is displayed because its "show_title"  
+#                      attribute is set to True.
+#

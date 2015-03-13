@@ -25,7 +25,7 @@ class Request extends superagent.Request {
   }
 
   promise() {
-    return new Promise((resolve, reject) =>
+    var promise = new Promise((resolve, reject) =>
       this.end((err, response) => {
         if (err) {
           reject(err);
@@ -35,6 +35,8 @@ class Request extends superagent.Request {
           resolve(response);
         }
       }));
+    promise = promise.cancellable();
+    return promise;
   }
 
   end(...args) {

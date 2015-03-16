@@ -83,7 +83,9 @@ class Port {
    */
   replace(prevEntity, entity, params, options) {
     return this.request('POST')
-      .send({old: prevEntity, new: entity})
+      .type('form')
+      .send({'old': JSON.stringify(prevEntity)})
+      .send({'new': JSON.stringify(entity)})
       .promise()
       .then(this.handleResponse);
   }

@@ -69,28 +69,22 @@ class Element {
     };
   }
 
-  static get ICON_NAME() {
+  static getTypeID() {
     return null;
   }
 
-  static getIconComponent() {
+  static getToolboxComponent() {
     var classes = {
-      'rfb-icon': true
+      'rfb-toolbox-component': true
     };
-    if (this.ICON_NAME) {
-      classes['icon-' + this.ICON_NAME] = true;
+    if (this.getTypeID()) {
+      classes['rfb-toolbox-component-' + this.getTypeID()] = true;
     }
     classes = classSet(classes);
 
     return (
-      <span className={classes} />
-    );
-  }
-
-  static getToolboxComponent() {
-    return (
-      <div>
-        {this.getIconComponent()}
+      <div className={classes}>
+        <span className='rfb-icon' />
         {this.getName()}
       </div>
     );

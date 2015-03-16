@@ -135,9 +135,9 @@ var WorkspaceElement = React.createClass({
       'rfb-dragging': isDragging,
       'rfb-movable': this.props.canMove
     };
-    if (this.props.element.constructor.name) {
-      var name = this.props.element.constructor.name;
-      classes['rfb-workspace-element-' + name.toLowerCase()] = true;
+    var typeId = this.props.element.constructor.getTypeID();
+    if (typeId) {
+      classes['rfb-workspace-element-' + typeId] = true;
     }
     classes = classSet(classes);
 

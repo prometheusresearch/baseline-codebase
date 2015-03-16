@@ -18,8 +18,8 @@ class CheckBoxGroup extends Enumeration {
     return _('Choose Many');
   }
 
-  static get ICON_NAME() {
-    return 'question-enumerationset';
+  static getTypeID() {
+    return 'question-checkboxgroup';
   }
 
   static getPropertyConfiguration() {

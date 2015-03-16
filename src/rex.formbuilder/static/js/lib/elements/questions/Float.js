@@ -15,6 +15,10 @@ class Float extends Numeric {
     return _('Float');
   }
 
+  static getTypeID() {
+    return 'question-float';
+  }
+
   serialize(instrument, form) {
     return super(instrument, form, 'float');
   }

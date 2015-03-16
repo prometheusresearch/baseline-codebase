@@ -13,7 +13,7 @@ class BooleanQuestion extends Question {
     return _('Boolean');
   }
 
-  static get ICON_NAME() {
+  static getTypeID() {
     return 'question-boolean';
   }
 

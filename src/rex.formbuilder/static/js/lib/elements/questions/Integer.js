@@ -15,6 +15,10 @@ class Integer extends Numeric {
     return _('Integer');
   }
 
+  static getTypeID() {
+    return 'question-integer';
+  }
+
   serialize(instrument, form) {
     return super(instrument, form, 'integer');
   }

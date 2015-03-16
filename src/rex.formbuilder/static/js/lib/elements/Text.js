@@ -15,8 +15,8 @@ class Text extends TextBasedContentElement {
     return _('Text');
   }
 
-  static get ICON_NAME() {
-    return 'element-text';
+  static getTypeID() {
+    return 'text';
   }
 
   serialize(instrument, form) {

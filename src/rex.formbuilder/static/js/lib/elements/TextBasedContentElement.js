@@ -59,11 +59,9 @@ class TextBasedContentElement extends ContentElement {
   getWorkspaceComponent() {
     return (
       <div className='rfb-workspace-element-details'>
-        {this.constructor.ICON_NAME &&
-          <div className='rfb-workspace-element-icon'>
-            {this.constructor.getIconComponent()}
-          </div>
-        }
+        <div className='rfb-workspace-element-icon'>
+          <span className='rfb-icon' />
+        </div>
         <div className='rfb-workspace-element-content'>
           <span>{this.text[getCurrentLocale()]}</span>
         </div>

@@ -15,8 +15,8 @@ class Header extends TextBasedContentElement {
     return _('Header');
   }
 
-  static get ICON_NAME() {
-    return 'element-header';
+  static getTypeID() {
+    return 'header';
   }
 
   serialize(instrument, form) {

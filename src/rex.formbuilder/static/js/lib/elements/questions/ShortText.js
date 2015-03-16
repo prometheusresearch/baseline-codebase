@@ -14,6 +14,10 @@ class ShortText extends Text {
   static getName() {
     return _('Short Text');
   }
+
+  static getTypeID() {
+    return 'question-short-text';
+  }
 }
 
 

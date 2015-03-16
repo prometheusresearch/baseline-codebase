@@ -14,6 +14,70 @@
     font-style: normal;
 }
 
+.rfb-icon {
+    font-family: 'icons';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    & + span {
+        padding-left: 0.5em;
+    }
+}
+
+.icon-edit:before {
+    content: "\e905";
+}
+
+.icon-publish:before {
+    content: "\e909";
+}
+
+.icon-new:before {
+    content: "\e924";
+}
+
+.icon-clone:before {
+    content: "\e92c";
+}
+
+.icon-go-back:before {
+    content: "\e96a";
+}
+
+.icon-delete:before {
+    content: "\e9ac";
+}
+
+.icon-save:before {
+    content: "\e9c7";
+}
+
+.icon-view:before {
+    content: "\e9ce";
+}
+
+.icon-question-time:before {
+    content: "\e94e";
+}
+
+.icon-question-date:before {
+    content: "\e953";
+}
+
+.icon-question-recordlist:before {
+    content: "\e603";
+}
+
+.icon-question-matrix:before {
+    content: "\ea71";
+}
+
 
 html, body {
     height: 100%;
@@ -341,6 +405,78 @@ body {
                     border-color: lightblue;
                     box-shadow: 1px 1px 1px #ddd;
                 }
+
+                .rfb-toolbox-component-page-start {
+                    .rfb-icon:before {
+                        content: "\ea68";
+                    }
+                }
+
+                .rfb-toolbox-component-header {
+                    .rfb-icon:before {
+                        content: "\ea5f";
+                    }
+                }
+
+                .rfb-toolbox-component-divider {
+                    .rfb-icon:before {
+                        content: "\ea6e";
+                    }
+                }
+
+                .rfb-toolbox-component-text {
+                    .rfb-icon:before {
+                        content: "\ea73";
+                    }
+                }
+
+                .rfb-toolbox-component-question-short-text {
+                    .rfb-icon:before {
+                        content: "\e601";
+                    }
+                }
+
+                .rfb-toolbox-component-question-long-text {
+                    .rfb-icon:before {
+                        content: "\e601";
+                    }
+                }
+
+                .rfb-toolbox-component-question-boolean {
+                    .rfb-icon:before {
+                        content: "\e602";
+                    }
+                }
+
+                .rfb-toolbox-component-question-integer {
+                    .rfb-icon:before {
+                        content: "\e600";
+                    }
+                }
+
+                .rfb-toolbox-component-question-float {
+                    .rfb-icon:before {
+                        content: "\e600";
+                    }
+                }
+
+                .rfb-toolbox-component-question-dropdown {
+                    .rfb-icon:before {
+                        content: "\e9bf";
+                    }
+                }
+
+                .rfb-toolbox-component-question-checkboxgroup {
+                    .rfb-icon:before {
+                        content: "\ea52";
+                    }
+                }
+
+                .rfb-toolbox-component-question-radiobuttongroup {
+                    .rfb-icon:before {
+                        content: "\ea54";
+                    }
+                }
             }
         }
     }
@@ -393,8 +529,84 @@ body {
             }
         }
 
-        &.rfb-workspace-element-pagestart {
+        &.rfb-workspace-element-page-start {
             margin-left: 0;
+
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\ea68";
+            }
+        }
+
+        &.rfb-workspace-element-header {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\ea5f";
+            }
+        }
+
+        &.rfb-workspace-element-divider {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\ea6e";
+            }
+        }
+
+        &.rfb-workspace-element-text {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\ea73";
+            }
+        }
+
+        &.rfb-workspace-element-audio {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e910";
+            }
+        }
+
+        &.rfb-workspace-element-question-short-text {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e601";
+            }
+        }
+
+        &.rfb-workspace-element-question-long-text {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e601";
+            }
+        }
+
+        &.rfb-workspace-element-question-boolean {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e602";
+            }
+        }
+
+        &.rfb-workspace-element-question-integer {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e600";
+            }
+        }
+
+        &.rfb-workspace-element-question-float {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e600";
+            }
+        }
+
+        &.rfb-workspace-element-question-dropdown {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e9bf";
+            }
+        }
+
+        &.rfb-workspace-element-question-checkboxgroup {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\ea52";
+            }
+        }
+
+        &.rfb-workspace-element-question-radiobuttongroup {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\ea54";
+            }
         }
     }
 }
@@ -545,114 +757,5 @@ body {
         }
     }
 
-}
-
-
-.rfb-icon {
-    font-family: 'icons';
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-
-    & + span {
-        padding-left: 0.5em;
-    }
-}
-
-.icon-question-boolean:before {
-    content: "\e602";
-}
-
-.icon-question-recordlist:before {
-    content: "\e603";
-}
-
-.icon-question-number:before {
-    content: "\e600";
-}
-
-.icon-question-text:before {
-    content: "\e601";
-}
-
-.icon-edit:before {
-    content: "\e905";
-}
-
-.icon-publish:before {
-    content: "\e909";
-}
-
-.icon-element-audio:before {
-    content: "\e910";
-}
-
-.icon-new:before {
-    content: "\e924";
-}
-
-.icon-clone:before {
-    content: "\e92c";
-}
-
-.icon-question-time:before {
-    content: "\e94e";
-}
-
-.icon-question-date:before {
-    content: "\e953";
-}
-
-.icon-go-back:before {
-    content: "\e96a";
-}
-
-.icon-delete:before {
-    content: "\e9ac";
-}
-
-.icon-question-enumerationset:before {
-    content: "\ea52";
-}
-
-.icon-question-enumeration:before {
-    content: "\ea54";
-}
-
-.icon-question-dropdown:before {
-    content: "\e9bf";
-}
-
-.icon-save:before {
-    content: "\e9c7";
-}
-
-.icon-view:before {
-    content: "\e9ce";
-}
-
-.icon-element-header:before {
-    content: "\ea5f";
-}
-
-.icon-element-page-start:before {
-    content: "\ea68";
-}
-
-.icon-element-divider:before {
-    content: "\ea6e";
-}
-
-.icon-question-matrix:before {
-    content: "\ea71";
-}
-
-.icon-element-text:before {
-    content: "\ea73";
 }
 

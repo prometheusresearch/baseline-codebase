@@ -15,8 +15,8 @@ class Divider extends ContentElement {
     return _('Horizontal Divider');
   }
 
-  static get ICON_NAME() {
-    return 'element-divider';
+  static getTypeID() {
+    return 'divider';
   }
 
   constructor() {

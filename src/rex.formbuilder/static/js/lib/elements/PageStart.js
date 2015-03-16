@@ -30,8 +30,8 @@ class PageStart extends ContentElement {
     return cfg;
   }
 
-  static get ICON_NAME() {
-    return 'element-page-start';
+  static getTypeID() {
+    return 'page-start';
   }
 
   constructor() {

@@ -44,10 +44,6 @@ class Text extends Question {
     return cfg;
   }
 
-  static get ICON_NAME() {
-    return 'question-text';
-  }
-
   constructor() {
     super();
     this.length = {};

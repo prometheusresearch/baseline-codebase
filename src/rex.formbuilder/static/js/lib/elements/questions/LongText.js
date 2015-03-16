@@ -15,6 +15,10 @@ class LongText extends Text {
     return _('Long Text');
   }
 
+  static getTypeID() {
+    return 'question-long-text';
+  }
+
   serialize(instrument, form) {
     var {instrument, form} = super(instrument, form);
 

@@ -15,8 +15,8 @@ class RadioButtonGroup extends Enumeration {
     return _('Choose One');
   }
 
-  static get ICON_NAME() {
-    return 'question-enumeration';
+  static getTypeID() {
+    return 'question-radiobuttongroup';
   }
 
   serialize(instrument, form) {

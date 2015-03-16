@@ -28,10 +28,6 @@ class Numeric extends Question {
     return cfg;
   }
 
-  static get ICON_NAME() {
-    return 'question-number';
-  }
-
   constructor() {
     super();
     this.range = {};

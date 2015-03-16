@@ -15,7 +15,7 @@ class DropDownMenu extends Enumeration {
     return _('DropDown Menu');
   }
 
-  static get ICON_NAME() {
+  static getTypeID() {
     return 'question-dropdown';
   }
 

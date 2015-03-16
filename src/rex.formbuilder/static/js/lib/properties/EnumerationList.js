@@ -14,9 +14,11 @@ var _ = require('../i18n').gettext;
 
 class EnumerationList extends ReactForms.schema.ListNode {
   static create(props) {
-    props = props || {}
+    props = props || {};
     props.children = Enumeration.create();
     props.component = RepeatingEnumerationFieldset;
+
+    /*eslint new-cap:0 */
     return new this(Map(props));
   }
 
@@ -39,7 +41,7 @@ class EnumerationList extends ReactForms.schema.ListNode {
       ids.push(id);
     }
   }
-};
+}
 
 
 module.exports = EnumerationList;

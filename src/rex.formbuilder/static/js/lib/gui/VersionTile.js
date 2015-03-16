@@ -72,7 +72,10 @@ var VersionTile = React.createClass({
             visible={this.state.cloning}
             onAccept={this.onCloneAccepted}
             onReject={this.onCloneRejected}>
-            <p>{_('Are you sure you want to create a Draft copy of this Published Revision?')}</p>
+            <p>{_(
+              'Are you sure you want to create a Draft copy of this Published'
+              + ' Revision?'
+            )}</p>
           </ConfirmationModal>
         </td>
       </tr>

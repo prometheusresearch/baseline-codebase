@@ -33,16 +33,19 @@ class RadioButtonGroup extends Enumeration {
 }
 
 
-Enumeration.registerElement(RadioButtonGroup, function (element, instrument, field) {
-  if (field.type.rootType === 'enumeration') {
-    var widget = objectPath.get(element, 'options.widget.type');
-    if (!widget || (widget === 'radioGroup')) {
-      var elm = new RadioButtonGroup();
-      elm.parse(element, instrument, field);
-      return elm;
+Enumeration.registerElement(
+  RadioButtonGroup,
+  function (element, instrument, field) {
+    if (field.type.rootType === 'enumeration') {
+      var widget = objectPath.get(element, 'options.widget.type');
+      if (!widget || (widget === 'radioGroup')) {
+        var elm = new RadioButtonGroup();
+        elm.parse(element, instrument, field);
+        return elm;
+      }
     }
   }
-});
+);
 
 
 module.exports = RadioButtonGroup;

@@ -19,6 +19,11 @@
     "quotes": [2, "single", "avoid-escape"],
     "space-after-keywords": [2, "always", {"checkFunctionKeyword": true}],
     "eol-last": false,
-    "no-underscore-dangle": false
+    "no-underscore-dangle": false,
+
+    // These rules are buggy at the moment.
+    "no-unused-vars": false,
+    "no-duplicate-case": false,
+    "no-redeclare": false
   }
 }

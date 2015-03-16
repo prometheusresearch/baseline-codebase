@@ -13,7 +13,12 @@ var _actionID = 0;
 class Dispatcher extends flux.Dispatcher {
   dispatch (action) {
     action.id = _actionID++;
-    //console.debug('%c ACTION:', 'background: #eee; color: red;', action.id, action);
+    /*console.debug(
+      '%c ACTION:',
+      'background: #eee; color: red;',
+      action.id,
+      action
+    );*/
     return super(action);
   }
 }

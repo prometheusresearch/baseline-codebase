@@ -31,13 +31,16 @@ class BooleanQuestion extends Question {
 }
 
 
-Question.registerElement(BooleanQuestion, function (element, instrument, field) {
-  if (field.type.rootType === 'boolean') {
-    var elm = new BooleanQuestion();
-    elm.parse(element, instrument, field);
-    return elm;
+Question.registerElement(
+  BooleanQuestion,
+  function (element, instrument, field) {
+    if (field.type.rootType === 'boolean') {
+      var elm = new BooleanQuestion();
+      elm.parse(element, instrument, field);
+      return elm;
+    }
   }
-});
+);
 
 
 module.exports = BooleanQuestion;

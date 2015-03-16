@@ -43,7 +43,7 @@ class PageStart extends ContentElement {
     var page = {
       id: this.id,
       elements: []
-    }
+    };
 
     form.pages.push(page);
 

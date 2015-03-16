@@ -69,16 +69,19 @@ class CheckBoxGroup extends Enumeration {
 }
 
 
-Enumeration.registerElement(CheckBoxGroup, function (element, instrument, field) {
-  if (field.type.rootType === 'enumerationSet') {
-    var widget = objectPath.get(element, 'options.widget.type');
-    if (!widget || (widget === 'checkGroup')) {
-      var elm = new CheckBoxGroup();
-      elm.parse(element, instrument, field);
-      return elm;
+Enumeration.registerElement(
+  CheckBoxGroup,
+  function (element, instrument, field) {
+    if (field.type.rootType === 'enumerationSet') {
+      var widget = objectPath.get(element, 'options.widget.type');
+      if (!widget || (widget === 'checkGroup')) {
+        var elm = new CheckBoxGroup();
+        elm.parse(element, instrument, field);
+        return elm;
+      }
     }
   }
-});
+);
 
 
 module.exports = CheckBoxGroup;

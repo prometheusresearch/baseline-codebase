@@ -17,7 +17,8 @@ class Regex extends ReactForms.schema.ScalarNode {
     }
 
     try {
-      var re = RegExp(value);
+      /*eslint new-cap:0 */
+      RegExp(value);
     } catch (err) {
       return new Error(_('Not a valid regular expression.'));
     }

@@ -4,8 +4,6 @@
 
 'use strict';
 
-var objectPath = require('object-path');
-
 var Numeric = require('./Numeric');
 var _ = require('../../i18n').gettext;
 

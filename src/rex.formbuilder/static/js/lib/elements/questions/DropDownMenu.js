@@ -36,16 +36,19 @@ class DropDownMenu extends Enumeration {
 }
 
 
-Enumeration.registerElement(DropDownMenu, function (element, instrument, field) {
-  if (field.type.rootType === 'enumeration') {
-    var widget = objectPath.get(element, 'options.widget.type');
-    if (widget === 'dropDown') {
-      var elm = new DropDownMenu();
-      elm.parse(element, instrument, field);
-      return elm;
+Enumeration.registerElement(
+  DropDownMenu,
+  function (element, instrument, field) {
+    if (field.type.rootType === 'enumeration') {
+      var widget = objectPath.get(element, 'options.widget.type');
+      if (widget === 'dropDown') {
+        var elm = new DropDownMenu();
+        elm.parse(element, instrument, field);
+        return elm;
+      }
     }
   }
-});
+);
 
 
 module.exports = DropDownMenu;

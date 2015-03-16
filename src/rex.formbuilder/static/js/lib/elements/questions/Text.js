@@ -11,8 +11,7 @@ var deepCopy = require('deep-copy');
 var Question = require('./Question');
 var properties = require('../../properties');
 var {isEmpty} = require('../../util');
-var {gettext, getCurrentLocale} = require('../../i18n')
-var _ = gettext;
+var _ = require('../../i18n').gettext;
 
 
 class Text extends Question {

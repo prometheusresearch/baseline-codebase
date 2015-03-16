@@ -10,9 +10,10 @@ var deepCopy = require('deep-copy');
 
 var Element = require('../Element');
 var ELEMENT_TYPES = require('../types');
+var errors = require('../../errors');
 var properties = require('../../properties');
 var {isEmpty} = require('../../util');
-var {gettext, getCurrentLocale} = require('../../i18n')
+var {gettext, getCurrentLocale} = require('../../i18n');
 var _ = gettext;
 
 

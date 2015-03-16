@@ -17,13 +17,14 @@ class NumericRange extends ReactForms.schema.MappingNode {
 
     props.component = Fieldset;
 
+    /*eslint new-cap:0 */
     props.children = OrderedMap({
       min: ReactForms.schema.NumberNode.create({
         label: props.minLabel || _('Minimum')
       }),
       max: ReactForms.schema.NumberNode.create({
         label: props.maxLabel || _('Maximum')
-      }),
+      })
     });
 
     return new this(Map(props));

@@ -32,7 +32,7 @@ class Divider extends ContentElement {
     return {
       instrument,
       form
-    }
+    };
   }
 }
 

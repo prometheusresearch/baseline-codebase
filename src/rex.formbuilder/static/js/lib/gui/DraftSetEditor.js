@@ -213,7 +213,11 @@ var DraftSetEditor = React.createClass({
             visible={this.state.publishing}
             onAccept={this.onPublishAccepted}
             onReject={this.onPublishRejected}>
-            <p>{_('Publishing this Draft will make it publicly available for use in data collection. Are you sure you want to publish this Draft?')}</p>
+            <p>{_(
+              'Publishing this Draft will make it publicly available for use'
+              + ' in data collection. Are you sure you want to publish this'
+              + ' Draft?'
+            )}</p>
           </ConfirmationModal>
           {this.props.formPreviewerUrlTemplate &&
             <button

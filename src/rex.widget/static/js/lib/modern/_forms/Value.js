@@ -45,8 +45,10 @@ class Value {
     if (!this.allErrors) {
       return null;
     }
-    var field = `data.${this.keyPath.join('.')}`;
-    return this.allErrors.filter(error => error.field === field);
+    var exactKeyPath = `data.${this.keyPath.join('.')}`;
+    var wildcardKeyPath = `data.${makeWildcardFromKeyPath(this.keyPath).join('.')}`;
+    return this.allErrors.filter(error =>
+      error.field === exactKeyPath || error.field === wildcardKeyPath);
   }
 
   select(key) {
@@ -90,6 +92,19 @@ class Value {
   }
 }
 
+function makeWildcardFromKeyPath(keyPath) {
+  var wildcard = [];
+  for (var i = 0, len = keyPath.length; i < len; i++) {
+    var item = keyPath[i];
+    if (!isNaN(item)) {
+      wildcard.push('*');
+    } else {
+      wildcard.push(item);
+    }
+  }
+  return wildcard;
+}
+
 function subSchemaByKeyPath(schema, keyPath) {
   for (var i = 0, len = keyPath.length; i < len; i++) {
     if (!schema) {
@@ -102,14 +117,26 @@ function subSchemaByKeyPath(schema, keyPath) {
 
 function subSchemaByKey(schema, key) {
   if (schema) {
-    if (schema.type === 'object' && schema.properties) {
-      return schema.properties[key];
+    if (schema.type === 'object') {
+      var subSchema = schema.properties ?
+        (schema.properties[key] || {}) :
+        {};
+      if (schema.required) {
+        // transfer required info onto schema
+        subSchema = {
+          ...subSchema,
+          required: schema.required.indexOf(key) !== -1
+        };
+      }
+      return subSchema;
     } else if (schema.type === 'array' && schema.items) {
       if (Array.isArray(schema.items)) {
         return schema.items[key];
       } else {
         return schema.items;
       }
+    } else {
+      throw new Error(`${JSON.stringify(schema)} ${key}`);
     }
   }
 }

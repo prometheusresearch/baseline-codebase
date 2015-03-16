@@ -10,6 +10,15 @@ var {HBox, VBox}    = require('../Layout');
 var FieldStyle = {
   self: {
     marginBottom: 5
+  },
+  requiredTag: {
+    color: 'red',
+    marginLeft: 3
+  },
+  errors: {
+    marginTop: 3,
+    color: 'red',
+    fontSize: '90%'
   }
 };
 
@@ -18,7 +27,7 @@ var Field = React.createClass({
   render() {
     var {label, children, ...props} = this.props;
     var {dirty} = this.state;
-    var {value, errors, params} = this.props.formValue;
+    var {value, errors, params, schema} = this.props.formValue;
     var showErrors = dirty || params.forceShowErrors;
     children = cloneWithProps(
       React.Children.only(children),
@@ -28,16 +37,22 @@ var Field = React.createClass({
         <HBox>
           {label &&
             <VBox size={1}>
-              <label>{label}</label>
+              <label>
+                {label}
+                {schema.required ?
+                  <span style={FieldStyle.requiredTag}>*</span> :
+                  null}
+              </label>
             </VBox>}
           <VBox size={3}>
             {children}
+            {showErrors && errors &&
+              <VBox style={FieldStyle.errors}>
+                {errors.map((error, idx) =>
+                  <VBox key={idx}>{error.message}</VBox>)}
+              </VBox>}
           </VBox>
         </HBox>
-        {showErrors && errors &&
-          <VBox>
-            {errors.map(error => <VBox>{error.message}</VBox>)}
-          </VBox>}
       </VBox>
     );
   },

@@ -13,15 +13,15 @@ var DataTable = React.createClass({
   mixins: [DataSpecificationMixin],
 
   dataSpecs: {
-    data: DataSpecification.collection()
+    dataSpec: DataSpecification.collection()
   },
 
   fetchDataSpecs: {
-    data: true
+    dataSpec: true
   },
 
   render() {
-    var {data} = this.data;
+    var {dataSpec: data} = this.data;
     if (data.loading) {
       return <Preloader />;
     } else {

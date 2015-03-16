@@ -21,6 +21,13 @@ var webpackConfig = RexSetup.configureWebpack({
 
   resolve: {
     alias: {
+      'util': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/util.js'),
+      'console': require.resolve('webpack/node_modules/node-libs-browser/node_modules/console-browserify'),
+      'date-now': require.resolve('webpack/node_modules/node-libs-browser/node_modules/console-browserify/node_modules/date-now'),
+      'inherits': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/node_modules/inherits/inherits_browser.js'),
+      'is-array': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/is-array'),
+      'ieee754': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/ieee754'),
+      'base64-js': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/base64-js'),
       'react/addons': RexSetup.packagePath('react/addons.js'),
       'react': RexSetup.packagePath('react/addons.js')
     }

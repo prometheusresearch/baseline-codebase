@@ -10,6 +10,7 @@ var {border, insetBoxShadow, rgba}  = require('./StyleUtils');
 var Focusable                       = require('./Focusable');
 var Hoverable                       = require('./Hoverable');
 var Icon                            = require('./Icon');
+var TimeoutMixin                    = require('./TimeoutMixin');
 
 var SearchInputStyle = {
   input: {
@@ -93,14 +94,18 @@ var Input = React.createClass({
 Input = Focusable(Input);
 
 var SearchInput = React.createClass({
+  mixins: [TimeoutMixin],
 
   render() {
     var {value, placeholder, disabled, focus, ...props} = this.props;
+    if (this.state.value !== undefined) {
+      value = this.state.value;
+    }
     if (value == null) {
       value = '';
     }
     return (
-      <VBox {...props}>
+      <VBox {...props} onChange={undefined}>
         <Input
           type="search"
           style={SearchInputStyle.input}
@@ -127,12 +132,43 @@ var SearchInput = React.createClass({
     };
   },
 
+  getInitialState() {
+    return {
+      value: undefined
+    };
+  },
+
+  componentWillMount() {
+    this._timeout = null;
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if (this._timeout !== null && nextProps.value !== this.state.value) {
+      this._clearTimeout();
+    }
+  },
+
+  _clearTimeout() {
+    this.clearTimeout(this._timeout);
+    this._timeout = null;
+    this.setState({value: undefined});
+  },
+
   _onChange(e) {
     var value = e.target.value;
     if (value === '') {
       value = null;
     }
-    this.props.onChange(value);
+    if (this.props.throttleOnChange) {
+      this.clearTimeout(this._timeout);
+      this.setState({value});
+      this._timeout = this.setTimeout(() => {
+        this._clearTimeout();
+        this.props.onChange(value);
+      }, this.props.throttleOnChange);
+    } else {
+      this.props.onChange(value);
+    }
   },
 
   _remove() {

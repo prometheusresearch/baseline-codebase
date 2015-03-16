@@ -24,6 +24,7 @@ var TimeoutMixin = {
   },
 
   clearTimeout(timeoutID) {
+    clearTimeout(timeoutID);
     var idx = this._timeouts.indexOf(timeoutID);
     if (idx > -1) {
       this._timeouts.splice(idx, 1);

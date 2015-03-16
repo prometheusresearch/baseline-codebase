@@ -140,13 +140,17 @@ var DataSpecificationMixin = {
   },
 
   _onFetchComplete(key, result) {
-    this.data[key] = new DataSet(result, false, null);
-    this.forceUpdate();
+    if (this.isMounted()) {
+      this.data[key] = new DataSet(result, false, null);
+      this.forceUpdate();
+    }
   },
 
   _onFetchError(key, error) {
-    this.data[key] = new DataSet(null, false, error);
-    this.forceUpdate();
+    if (this.isMounted()) {
+      this.data[key] = new DataSet(null, false, error);
+      this.forceUpdate();
+    }
   }
 };
 

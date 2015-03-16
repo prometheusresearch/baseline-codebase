@@ -100,8 +100,10 @@ var DataSpecificationMixin = {
 
   forceRefreshData() {
     _dataComponentsRegistry.forEach(component => {
-      component.fetchData(true);
-      component.forceUpdate();
+      if (component.isMounted()) {
+        component.fetchData(true);
+        component.forceUpdate();
+      }
     });
   },
 

@@ -5,6 +5,8 @@
 
 var React           = require('react/addons');
 var cloneWithProps  = React.addons.cloneWithProps;
+var isString        = require('../isString');
+var isArray         = require('../isArray');
 var mapElement      = require('./mapElement');
 
 var Fieldset = React.createClass({
@@ -24,8 +26,9 @@ var Fieldset = React.createClass({
   _propagateFormValue(element) {
     if (element && element.props && element.props.selectFormValue) {
       var formValue = this.props.formValue;
-      if (typeof element.props.selectFormValue === 'string') {
-        formValue = formValue.select(element.props.selectFormValue);
+      var selectFormValue = element.props.selectFormValue;
+      if (isString(selectFormValue) || isArray(selectFormValue)) {
+        formValue = formValue.select(selectFormValue);
       }
       element = cloneWithProps(element, {formValue});
     }

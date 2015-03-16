@@ -3,15 +3,16 @@
  */
 'use strict';
 
-var React           = require('react/addons');
-var cloneWithProps  = React.addons.cloneWithProps;
-var emptyFunction   = require('../emptyFunction');
-var BaseForm        = require('../_forms/Form');
-var Value           = require('../_forms/Value');
-var Button          = require('../Button');
-var {VBox, HBox}    = require('../Layout');
-var Port            = require('../Port');
-var Query           = require('../Query');
+var React               = require('react/addons');
+var cloneWithProps      = React.addons.cloneWithProps;
+var emptyFunction       = require('../emptyFunction');
+var BaseForm            = require('../_forms/Form');
+var Value               = require('../_forms/Value');
+var Button              = require('../Button');
+var {VBox, HBox}        = require('../Layout');
+var Port                = require('../Port');
+var Query               = require('../Query');
+var NotificationCenter  = require('../NotificationCenter');
 
 var FormStyle = {
   controls: {
@@ -53,9 +54,28 @@ var Form = React.createClass({
         <Button success>Submit</Button>
       ),
       onSubmit: emptyFunction.thatReturnsArgument,
-      progressNotificationText: 'Data saving is in progress',
-      completeNotificationText: 'Data saved successfully',
-      errorNotificationText: 'There was an error whild submitting data to server'
+      progressNotification: (
+        <NotificationCenter.Notification
+          kind="info"
+          text="Data saving is in progress"
+          icon="cog"
+          ttl={Infinity}
+          />
+      ),
+      completeNotification: (
+        <NotificationCenter.Notification
+          kind="success"
+          text="Data saved successfully"
+          icon="ok"
+          />
+      ),
+      errorNotification: (
+        <NotificationCenter.Notification
+          kind="danger"
+          text="There was an error whild submitting data to server"
+          icon="remove"
+          />
+      )
     };
   },
 
@@ -77,6 +97,7 @@ var Form = React.createClass({
     value = {...submitTo.produceParams().toJS(), ...value.value};
     value = onSubmit(value);
     if (value !== false) {
+      this._progressNotification = NotificationCenter.showNotification(this.props.progressNotification);
       this.setState({submitInProgress: true});
       if (submitTo.port instanceof Port) {
         if (this.props.insert) {
@@ -102,11 +123,15 @@ var Form = React.createClass({
 
   onSubmitComplete() {
     this.setState({submitInProgress: false});
+    NotificationCenter.removeNotification(this._progressNotification);
+    NotificationCenter.showNotification(this.props.completeNotification);
     this.props.onSubmitComplete()
   },
 
   onSubmitError() {
     this.setState({submitInProgress: false});
+    NotificationCenter.removeNotification(this._progressNotification);
+    NotificationCenter.showNotification(this.props.errorNotification);
     this.props.onSubmitError()
   }
 });

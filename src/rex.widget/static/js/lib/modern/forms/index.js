@@ -8,6 +8,7 @@ module.exports = {
   Field: require('./Field'),
   Fieldset: require('../_forms/Fieldset'),
   DatepickerField: require('./DatepickerField'),
+  SelectField: require('./SelectField'),
   FileUploadField: require('./FileUploadField'),
   ReadOnlyField: require('./ReadOnlyField')
 };

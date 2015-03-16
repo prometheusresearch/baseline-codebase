@@ -16,5 +16,9 @@ module.exports = {
   Button: require('./Button'),
   Port: require('./Port'),
   Query: require('./Query'),
-  Forms: require('./forms')
+  Forms: require('./forms'),
+  NotificationCenter: require('./NotificationCenter'),
+  StyleUtils: require('./StyleUtils')
 };
+
+window.RexWidget = module.exports;

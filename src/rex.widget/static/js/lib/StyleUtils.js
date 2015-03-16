@@ -11,6 +11,10 @@ var StyleUtils = {
 
   insetBoxShadow(offsetX, offsetY, blurRadius, spreadRadius, color) {
     return `inset ${StyleUtils.boxShadow(offsetX, offsetY, blurRadius, spreadRadius, color)}`;
+  },
+
+  rgba(r, g, b, a) {
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
   }
 };
 

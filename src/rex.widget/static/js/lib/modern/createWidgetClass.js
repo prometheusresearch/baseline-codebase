@@ -3,11 +3,13 @@
  */
 'use strict';
 
-var React = require('react');
-var DataSpecificationMixin = require('./DataSpecificationMixin');
+var React                   = require('react');
+var DataSpecificationMixin  = require('./DataSpecificationMixin');
+var Cell                    = require('./Cell');
 
 function createWidgetClass(spec) {
   var mixins = spec.mixins || [];
+  mixins.push(Cell.Mixin);
   if (spec.dataSpecs) {
     mixins.push(DataSpecificationMixin);
   }

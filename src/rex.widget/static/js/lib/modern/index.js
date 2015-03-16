@@ -18,7 +18,9 @@ module.exports = {
   Query: require('./Query'),
   Forms: require('./forms'),
   NotificationCenter: require('./NotificationCenter'),
-  StyleUtils: require('./StyleUtils')
+  StyleUtils: require('./StyleUtils'),
+  Cell: require('./Cell'),
+  cell: require('./Cell').cell
 };
 
 window.RexWidget = module.exports;

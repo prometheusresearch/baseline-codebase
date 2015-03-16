@@ -98,6 +98,9 @@ class PropBinding extends Binding {
 class Value {
 
   constructor(value, options) {
+    if (value && value.valueOf) {
+      value = value.valueOf();
+    }
     this.value = value;
     this.options = options || {};
   }

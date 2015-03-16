@@ -14,6 +14,7 @@ module.exports = {
   Select: require('./Select'),
   Modal: require('./Modal'),
   Button: require('./Button'),
+  SearchInput: require('./SearchInput'),
   Port: require('./Port'),
   Query: require('./Query'),
   Forms: require('./forms'),

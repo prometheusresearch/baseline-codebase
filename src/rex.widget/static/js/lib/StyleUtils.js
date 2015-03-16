@@ -15,6 +15,10 @@ var StyleUtils = {
 
   rgba(r, g, b, a) {
     return `rgba(${r}, ${g}, ${b}, ${a})`;
+  },
+
+  border(width, style, color) {
+    return `${width}px ${style} ${color}`;
   }
 };
 

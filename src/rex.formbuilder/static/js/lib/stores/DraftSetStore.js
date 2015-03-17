@@ -61,7 +61,7 @@ function draftToConfiguration() {
     configuration = new Configuration(
       'urn:' + draftSet.instrument_version.instrument.uid,
       '1.0',
-      _('Untitled'),
+      draftSet.instrument_version.instrument.title,
       getCurrentLocale()
     );
   }

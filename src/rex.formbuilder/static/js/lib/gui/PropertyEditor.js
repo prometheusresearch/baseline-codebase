@@ -93,13 +93,34 @@ var PropertyEditor = React.createClass({
     return allValid;
   },
 
+  marshalFormValue: function (form) {
+    var value = form.getValue().toJS();
+
+    function clean(v) {
+      for (var key in v) {
+        if (v[key] === undefined) {
+          // If someone happens to click into an empty field, and then
+          // click out of it, react-forms still could send us the key
+          // with nothing in it. We don't want that.
+          delete v[key];
+        } else if (typeof v[key] === 'object') {
+          clean(v[key]);
+        }
+      }
+    }
+
+    clean(value);
+
+    return value;
+  },
+
   getProperties: function () {
     var properties = {};
 
     this.state.tabs.forEach((category) => {
       properties = deepMerge(
         properties,
-        this.refs[category].getValue().toJS()
+        this.marshalFormValue(this.refs[category])
       );
     });
 

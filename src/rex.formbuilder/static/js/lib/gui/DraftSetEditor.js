@@ -200,7 +200,7 @@ var DraftSetEditor = React.createClass({
             {_('Save')}
           </button>
           <button
-            disabled={this.state.modified}
+            disabled={this.state.modified || !this.state.valid}
             className='rfb-button'
             title={
               _('Publish the current state of this Draft for use by end-users')
@@ -221,7 +221,7 @@ var DraftSetEditor = React.createClass({
           </ConfirmationModal>
           {this.props.formPreviewerUrlTemplate &&
             <button
-              disabled={this.state.modified}
+              disabled={this.state.modified || !this.state.valid}
               className='rfb-button'
               title={_('Explore a rendered, interactive view of this Draft')}
               onClick={this.onPreview}>

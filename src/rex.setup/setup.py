@@ -6,9 +6,11 @@
 from setuptools import setup, find_packages
 
 
+
+
 setup(
     name='rex.setup',
-    version = "2.1.1",
+    version = "2.2.0",
     description="Distutils extension for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -29,6 +31,7 @@ setup(
         'distutils.commands': [
             'install_static = rex.setup:install_static',
             'develop_static = rex.setup:develop_static',
+            'develop_namespace = rex.setup:develop_namespace',
             'bundle = rex.setup:bundle',
         ],
         'egg_info.writers': [
@@ -47,7 +50,7 @@ setup(
         'sphinxcontrib-blockdiag >=1.5, <1.6',
         'sphinxcontrib-nwdiag >=0.9, <0.10',
         'sphinxcontrib-actdiag >=0.8, <0.9',
-        'Sphinx >=1.2, <1.3',
+        'Sphinx >=1.2, !=1.3.0',
     ],
 )
 

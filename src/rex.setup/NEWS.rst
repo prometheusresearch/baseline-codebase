@@ -5,6 +5,14 @@
 .. contents:: Table of Contents
 
 
+2.2.0 (2015-XX-XX)
+==================
+
+* Fixed lookup issues when a namespace package is installed in development
+  mode (see https://github.com/pypa/pip/issues/3,
+  https://bitbucket.org/pypa/setuptools/issue/250/develop-and-install-single-version).
+
+
 2.1.1 (2015-02-20)
 ==================
 

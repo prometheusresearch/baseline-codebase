@@ -44,7 +44,7 @@ var WorkspaceElement = React.createClass({
           },
 
           canDrag: function (component) {
-            return component.props.canMove;
+            return component.canMove();
           }
         },
 
@@ -57,7 +57,7 @@ var WorkspaceElement = React.createClass({
           },
 
           canDrop: function (component) {
-            return component.props.canMove;
+            return component.canMove();
           }
         }
       });
@@ -83,6 +83,10 @@ var WorkspaceElement = React.createClass({
         editing: true
       });
     }
+  },
+
+  canMove: function () {
+    return this.props.canMove && !this.state.editing && !this.state.deleting;
   },
 
   onCompleteEditing: function (element) {

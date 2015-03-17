@@ -127,6 +127,12 @@ class Button(Widget):
         CSS class name used to render the button.
         """)
 
+    on_click = Field(
+        ActionVal(), default=undefined,
+        doc="""
+        Action on click.
+        """)
+
 
 class ButtonGroup(Box):
     """A !<Box> widget to display a list of buttons.

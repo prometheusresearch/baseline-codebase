@@ -26,6 +26,7 @@
     "react-dnd": "prometheusresearch/react-dnd#npm_react_hack",
     "react-forms": "prometheusresearch/react-forms#master",
     "rex-i18n": "*",
+    "rex-applet": "*",
     "rex-widget": "*"
   },
   "ignore": [

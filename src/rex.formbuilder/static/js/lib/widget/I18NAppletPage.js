@@ -6,10 +6,10 @@
 
 var React = require('react');
 var RexI18N = require('rex-i18n');
-var {Page} = require('rex-widget');
+var {AppletPage} = require('rex-applet');
 
 
-var I18NPage = React.createClass({
+var I18NAppletPage = React.createClass({
   propTypes: {
     locale: React.PropTypes.string.isRequired,
     i18nBaseUrl: React.PropTypes.string.isRequired
@@ -36,11 +36,11 @@ var I18NPage = React.createClass({
     var {locale, i18nBaseUrl, ...props} = this.props;
 
     return (
-      <Page {...props} />
+      <AppletPage {...props} />
     );
   }
 });
 
 
-module.exports = I18NPage;
+module.exports = I18NAppletPage;
 

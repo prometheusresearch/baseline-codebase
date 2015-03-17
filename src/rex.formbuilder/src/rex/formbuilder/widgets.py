@@ -3,6 +3,7 @@
 #
 
 
+from rex.applet import AppletPage
 from rex.core import StrVal, SeqVal
 from rex.i18n import get_locale
 from rex.instrument.util import get_implementation
@@ -13,7 +14,6 @@ from rex.widget.field.url import URLVal
 __all__ = (
     'InstrumentMenuWidget',
     'DraftSetEditorWidget',
-    'I18NPage',
 )
 
 
@@ -31,18 +31,18 @@ class InstrumentMenuWidget(Widget):
         doc='The UID of the Instrument to immediately show the details for.',
     )
 
-    apiBaseUrl = URLField(
+    api_base_url = URLField(
         default=URLVal()('rex.formbuilder:/api'),
         doc='The base URL of the FormBuilder server-side APIs. You should not'
         ' ever need to set or change this.',
     )
 
-    draftSetEditorUrlTemplate = URLField(
+    draft_set_editor_url_template = URLField(
         default=URLVal()('rex.formbuilder:/edit?uid=${uid}'),
         doc='The URL to the screen that contains the DraftSetEditorWidget.',
     )
 
-    formPreviewerUrlTemplate = URLField(
+    form_previewer_url_template = URLField(
         default=URLVal()(
             'rex.form_previewer:/?instrument_id=${uid}&category=${category}'
         ),
@@ -72,18 +72,18 @@ class DraftSetEditorWidget(Widget):
         doc='The UID of the DraftInstrumentVersion that is to be edited.',
     )
 
-    apiBaseUrl = URLField(
+    api_base_url = URLField(
         default=URLVal()('rex.formbuilder:/api'),
         doc='The base URL of the FormBuilder server-side APIs. You should not'
         ' ever need to set or change this.',
     )
 
-    instrumentMenuUrlTemplate = URLField(
+    instrument_menu_url_template = URLField(
         default=URLVal()('rex.formbuilder:/?uid=${uid}'),
         doc='The URL to the screen that contains the InstrumentMenu.',
     )
 
-    formPreviewerUrlTemplate = URLField(
+    form_previewer_url_template = URLField(
         default=URLVal()(
             'rex.form_previewer:/?instrument_id=${uid}&category=${category}'
         ),
@@ -100,7 +100,8 @@ class DraftSetEditorWidget(Widget):
         ]
 
 
-# TODO Move this someplace better
+
+# TODO Move these someplace better
 
 class I18NPage(Page):
     """
@@ -111,7 +112,28 @@ class I18NPage(Page):
     name = 'I18NPage'
     js_type = 'rex-formbuilder/lib/widget/I18NPage'
 
-    i18nBaseUrl = URLField(
+    i18n_base_url = URLField(
+        default=URLVal()('rex.i18n:/'),
+        doc='The base URL of the I18N server-side APIs. You should not ever'
+        ' need to set or change this.',
+    )
+
+    @Widget.define_state(StrVal(), persistence=State.INVISIBLE)
+    def locale(self, state, graph, request):
+        # pylint: disable=unused-argument
+        return str(get_locale())
+
+
+class I18NAppletPage(AppletPage):
+    """
+    Represents a top-level AppletPage Widget that will automatically initialize
+    the rex.i18n framework.
+    """
+
+    name = 'I18NAppletPage'
+    js_type = 'rex-formbuilder/lib/widget/I18NAppletPage'
+
+    i18n_base_url = URLField(
         default=URLVal()('rex.i18n:/'),
         doc='The base URL of the I18N server-side APIs. You should not ever'
         ' need to set or change this.',

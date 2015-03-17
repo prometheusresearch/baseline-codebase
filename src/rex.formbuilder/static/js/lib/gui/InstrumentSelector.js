@@ -47,9 +47,11 @@ var InstrumentSelector = React.createClass({
   },
 
   _onInstrumentsChange: function () {
-    this.setState({
-      instruments: this.getInstruments()
-    });
+    if (this.isMounted()) {
+      this.setState({
+        instruments: this.getInstruments()
+      });
+    }
   },
 
   _onInstrumentCreate: function (instrument) {

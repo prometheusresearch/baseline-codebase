@@ -30,7 +30,21 @@ class ReferenceVal(Validate):
 
 
 class URLVal(Validate):
-
+    """.. _URLVal:
+    
+    A URL value is a dict with the following keys.
+    
+    url
+        The URL.  This key is required.
+        
+    refs
+        ???
+        This key is optional.
+        
+    params
+        An dict used to construct the Query string portion of the URL.
+        This key is optional.
+    """
     _validate_full = RecordVal(
         ('url', StrVal()),
         ('refs', MapVal(StrVal(), ReferenceVal()), {}),

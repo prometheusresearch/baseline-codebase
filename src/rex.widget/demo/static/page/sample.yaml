@@ -47,7 +47,9 @@ paths:
             children: 
             - !<Box>
               size: 1
-              background_color: pink
+              background_color: '#90EE90'
+              #background_color: 'rgb(144, 238, 144)'
+              #background_color: 'lightgreen'
               children:
               - !<Label> This is the pop-up.  Just a bunch of Labels in a pink Box.
               - !<Label> BUG? although init_open is True this popup did not open initially.  
@@ -98,6 +100,11 @@ paths:
           - !<Button>
             text: Button Tre
             quiet: True
+          - !<Button>
+            text: Button SD   #Q
+            success: True
+            danger: True
+            #quiet: True
 #        - !<Box>
 #          children:
 #          - !<Modal>

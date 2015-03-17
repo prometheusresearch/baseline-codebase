@@ -129,7 +129,8 @@ class Page(Box):
 
 
 class Navigation(Widget):
-
+    """A Navigation menu.  Each menu item is a link to another page.
+    """
     name = 'Navigation'
     js_type = 'rex-widget/lib/Navigation'
 
@@ -139,7 +140,7 @@ class Navigation(Widget):
 
     menu = Field(
         SeqVal(StrVal()), default=undefined,
-        doc="Menu")
+        doc="""Menu.  A list of widget ids.""")
 
     applets = Field(AnyVal(), default=StateRead(Page.APPLETS))
     sitemap = Field(AnyVal(), default=StateRead(Page.SITEMAP))
@@ -167,6 +168,4 @@ def iter_pathmap_tree(tree, _prefix=''):
                 if len(prefix) > 1 and prefix[-1] == '/':
                     prefix = prefix[:-1]
                 yield prefix, handler
-
-
 

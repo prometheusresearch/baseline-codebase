@@ -1,7 +1,7 @@
 """
 
     rex.widget.library.popup
-    =======================
+    ========================
 
     :copyright: 2014, Prometheus Research, LLC
 

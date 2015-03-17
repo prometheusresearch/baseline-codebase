@@ -24,50 +24,57 @@ from .validators import TemplatedStrVal
 
 
 class Label(Widget):
-    """ Label."""
+    """A widget to hold text.
+    """
 
     name = 'Label'
     js_type = 'rex-widget/lib/Label'
 
     text = Field(
-        TemplatedStrVal())
+            TemplatedStrVal(),
+            doc='The text to display.')
 
 
 class Header(Widget):
-    """ Header."""
-
+    """A widget to display a header tag <h1>, <h2>, ...
+    """
     name = 'Header'
     js_type = 'rex-widget/lib/Header'
 
     text = Field(
         TemplatedStrVal(),
-        doc="Content")
+        doc="The text of the header.")
     level = Field(
         IntVal(), default=1,
-        doc="Level")
+        doc="The level of the header 1, 2, ...")
+    color = Field(
+        StrVal(), default=undefined,
+        doc="Text Color. (A CSS color)")
 
 
 class Text(Box):
-    """ Text."""
+    """A !<Box> widget to display text.
+    """
 
     name = 'Text'
     js_type = 'rex-widget/lib/Text'
 
     text = Field(
         TemplatedStrVal(),
-        doc="Content.")
+        doc='The text to display.')
 
     font_size = Field(
         StrVal(), default=undefined,
-        doc="Font size.")
+        doc="Font size. (A CSS font-size)")
 
     color = Field(
         StrVal(), default=undefined,
-        doc="Color.")
+        doc="Color. (A CSS color)")
 
 
 class Button(Widget):
-    """ Button widget."""
+    """A widget to display a button.
+    """
 
     name = 'Button'
     js_type = 'rex-widget/lib/Button'
@@ -75,37 +82,37 @@ class Button(Widget):
     text = Field(
         TemplatedStrVal(), default=undefined,
         doc="""
-        Button text.
+        The text to appear on the button.
         """)
 
     icon = Field(
         StrVal(), default=undefined,
         doc="""
-        Button icon.
+        Path to an image file of the button.
         """)
 
     icon_right = Field(
         StrVal(), default=undefined,
         doc="""
-        Button icon (to the right of the text).
+        Path to an image file displayed to the right of the button text.
         """)
 
     success = Field(
         BoolVal(), default=undefined,
         doc="""
-        If button should be rendered in "Success" style.
+        True/False => do/not render button in "Success" style.
         """)
 
     danger = Field(
         BoolVal(), default=undefined,
         doc="""
-        If button should be rendered in "Danger" style.
+        True/False => do/not render button in "Danger" style.
         """)
 
     quiet = Field(
         BoolVal(), default=undefined,
         doc="""
-        If button should be rendered in "Quiet" style.
+        True/False => do/not render button in "Quiet" style.
         """)
 
     size = Field(
@@ -114,31 +121,29 @@ class Button(Widget):
         Size of the button.
         """)
 
-    on_click = Field(
-        ActionVal(), default=undefined,
-        doc="""
-        Action on click.
-        """)
-
     class_name = Field(
         StrVal(), default=undefined,
         doc="""
-        CSS class name.
+        CSS class name used to render the button.
         """)
 
 
 class ButtonGroup(Box):
-    """ Button group widget."""
+    """A !<Box> widget to display a list of buttons.
+    """
 
     name = 'ButtonGroup'
     js_type = 'rex-widget/lib/ButtonGroup'
 
-    buttons = Field(WidgetVal(Button))
+    buttons = Field(
+            WidgetVal(Button),
+            doc='')
 
 
 class UnsafeHTML(Widget):
-    """ Widget which allows injecting raw HTML content into page.
-
+    """A widget which is like the !<Label> widget except the content may
+    be raw HTML.
+        
     This can be used to embed YouTube/Vimeo videos for example::
 
         !<UnsafeHTML>
@@ -152,11 +157,14 @@ class UnsafeHTML(Widget):
     name = 'UnsafeHTML'
     js_type = 'rex-widget/lib/UnsafeHTML'
 
-    html = Field(UStrVal)
+    html = Field(
+            UStrVal(),
+            doc='The raw HTML content.')
 
 
 class Section(Widget):
-
+    """Section.
+    """
     name = 'Section'
     js_type = 'rex-widget/lib/Section'
 
@@ -170,7 +178,7 @@ class Section(Widget):
 
 
 class Icon(Widget):
-    """ Icon."""
+    """Icon."""
 
     name = 'Icon'
     js_type = 'rex-widget/lib/Icon'
@@ -179,7 +187,7 @@ class Icon(Widget):
 
 
 class Link(Widget):
-    """ Navigation link"""
+    """Navigation link"""
 
     name = 'Link'
     js_type = 'rex-widget/lib/Link'
@@ -201,17 +209,18 @@ class Link(Widget):
 
 
 class LinkButton(Button):
-
+    """A button which sends a request when the user clicks on it.
+    """
+    
     name = 'LinkButton'
     js_type = 'rex-widget/lib/LinkButton'
 
     href = URLField(
-        doc="Link URL")
+        doc="The Request URL.  See URLVal `<reference.html#urlval>`_")
 
 
 class ActionLink(Widget):
-    """ Link that allows execution of an action instead of standard link"""
-
+    """Link that allows execution of an action instead of standard link"""
 
     name = 'ActionLink'
     js_type = 'rex-widget/lib/ActionLink'
@@ -248,7 +257,7 @@ class ValueKeyVal(Validate):
 
 
 class Table(Widget):
-    """ Table widget.
+    """Table widget.
     """
 
     ON_DATA_UPDATE = 'on_data_update'
@@ -288,7 +297,8 @@ class Table(Widget):
 
 
 class Select(Widget):
-
+    """Select.
+    """
     name = 'Select'
     js_type = 'rex-widget/lib/Select'
 
@@ -353,7 +363,8 @@ class Select(Widget):
 
 
 class TextInput(Widget):
-
+    """TextInput.
+    """
     name = 'TextInput'
     js_type = 'rex-widget/lib/TextInput'
 
@@ -380,6 +391,8 @@ class TextInput(Widget):
 
 
 class PanesField(Field):
+    """PanesField.
+    """
 
     _validate = MapVal(StrVal(), WidgetVal())
 
@@ -397,7 +410,8 @@ class PanesField(Field):
 
 
 class Pane(Widget):
-    """ Pane."""
+    """Pane.
+    """
 
     name = 'Pane'
     js_type = 'rex-widget/lib/Pane'
@@ -412,7 +426,8 @@ class Pane(Widget):
 
 
 class Placeholder(Widget):
-    """ Placeholder."""
+    """Placeholder.
+    """
 
     name = 'Placeholder'
     js_type = 'rex-widget/lib/Placeholder'
@@ -427,6 +442,8 @@ class Placeholder(Widget):
 
 
 class Notice(Widget):
+    """Notice.
+    """
 
     name = 'Notice'
     js_type = 'rex-widget/lib/Notice'
@@ -436,6 +453,8 @@ class Notice(Widget):
 
 
 class Tab(Widget):
+    """Tab.
+    """
 
     name = 'Tab'
     js_type = 'rex-widget/lib/Tab'
@@ -460,6 +479,8 @@ class Tab(Widget):
 
 
 class Tabs(Widget):
+    """Tabs.
+    """
 
     name = 'Tabs'
     js_type = 'rex-widget/lib/Tabs'
@@ -489,6 +510,8 @@ class Tabs(Widget):
 
 
 class IFrame(Widget):
+    """IFrame.
+    """
 
     name = 'IFrame'
     js_type = 'rex-widget/lib/IFrame'

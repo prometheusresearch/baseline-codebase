@@ -11,15 +11,19 @@ var renderTemplatedString = require('./renderTemplatedString');
 var Header = React.createClass({
 
   render: function() {
-    var {text, level, className, ...props} = this.props;
+    var style = {};
+    var {text, level, color, className, ...props} = this.props;
     var component = `h${level}`;
+    if (color) {
+      style.color = color;
+    }    
     return (
-      <Box {...props} Component={component} className={cx(className, 'rw-Header')}>
+      <Box {...props} Component={component} className={cx(className, 'rw-Header')} style={style}>
         {renderTemplatedString(text)}
       </Box>
     );
   },
-
+  
   getDefaultProps() {
     return {
       level: 1,

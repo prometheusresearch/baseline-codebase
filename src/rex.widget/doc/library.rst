@@ -50,6 +50,10 @@ Link
 ----
 .. autoclass:: rex.widget.library.base.Link
 
+LinkButton
+----------
+.. autoclass:: rex.widget.library.base.LinkButton
+
 Modal
 -----
 .. autoclass:: rex.widget.library.modal.Modal

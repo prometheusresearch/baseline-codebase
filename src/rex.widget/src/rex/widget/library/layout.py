@@ -148,7 +148,7 @@ class Box(Widget):
     aligned = Field(
         ChoiceVal('left', 'right'), default=undefined,
         doc="""
-        If a widget should be aligned to ``left`` or ``right`` side.
+        How the widget should be aligned: to the ``left`` or ``right`` side.
         """)
 
     center_vertically = Field(
@@ -172,16 +172,17 @@ class Box(Widget):
     background_color = Field(
         StrVal(), default=undefined,
         doc="""
-        If Box should have a background color.
+        The CSS background color (e.g. "lightgreen", "rgb(144, 238, 144)", "#90EE90").
         """)
 
 
 class VBox(Box):
-    """ Synonym for <Box> widget."""
+    """Like <Box> widget but defaults direction to 'vertical'."""
 
     name = 'VBox'
     js_type = Box.js_type
 
+    direction = Box.direction.reassign(default='vertical')
 
 class HBox(Box):
     """

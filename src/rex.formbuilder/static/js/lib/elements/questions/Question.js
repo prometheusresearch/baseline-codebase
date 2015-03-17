@@ -167,9 +167,26 @@ class Question extends Element {
   clone(exact) {
     var newElm = super(exact);
     newElm.id = this.id;
+
     if (!exact) {
-      newElm.id += '_clone';
+      var newId = newElm.id;
+      var unique = false;
+
+      while (!unique) {
+        newId += '_clone';
+
+        var {DraftSetStore} = require('../../stores');
+        var matches = DraftSetStore.getActiveElements().filter((element) => {
+          return (element instanceof Question)
+              && (element.id === newId);
+        });
+
+        unique = (matches.length === 0);
+      }
+
+      newElm.id = newId;
     }
+
     newElm.text = deepCopy(this.text);
     newElm.help = deepCopy(this.help);
     newElm.error = deepCopy(this.error);

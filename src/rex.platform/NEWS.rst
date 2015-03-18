@@ -10,9 +10,11 @@
 
 * rex.instrument==0.14.1
 * rex.forms==0.28.1
-* rex.restful==0.3.1
-* rex.applet==0.2.1
+* rex.restful==0.4.0
+* rex.applet==0.3.0
 * rex.core==1.10.3
+* rex.widget==0.2.14
+* rex.setup==2.2.0
 
 
 4.1.1 (2015-03-11)

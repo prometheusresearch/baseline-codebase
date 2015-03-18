@@ -156,7 +156,12 @@ def static_filename(req):
         return
     static = dist.get_metadata('rex_static.txt')
     if not os.path.exists(static):
-        return
+        # rex_static.txt is broken when a req is installed via wheel dist format
+        # so # maybe we can find static dir it in the standard location?
+        static = os.path.join(
+                sys.prefix, 'share/rex', os.path.basename(static))
+        if not os.path.exists(static):
+            return
     return static
 
 

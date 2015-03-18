@@ -7,7 +7,7 @@ from webob.exc import HTTPNotFound
 
 from rex.core import get_settings, StrVal
 from rex.instrument import InstrumentError
-from rex.restful import SimpleResource, RestfulLocation
+from rex.restful import SimpleResource, RestfulLocation, DateTimeVal
 from rex.web import Parameter
 
 from .base import BaseResource, get_instrument_user, ConstantArg
@@ -36,6 +36,9 @@ class DraftInstrumentVersionResource(SimpleResource, BaseResource):
 
     interface_name = 'draftinstrumentversion'
     extra_properties = ['definition']
+    serializer_kwargs = {
+        'deserialize_datetimes': False,
+    }
 
     def list(self, request, **kwargs):
         return self.do_list(
@@ -46,6 +49,12 @@ class DraftInstrumentVersionResource(SimpleResource, BaseResource):
 
     def create(self, request, **kwargs):
         user = get_instrument_user(request).get_display_name()
+
+        if 'date_created' in request.payload:
+            request.payload['date_created'] = DateTimeVal()(
+                request.payload['date_created']
+            )
+
         return self.do_create(
             request,
             create_args=[

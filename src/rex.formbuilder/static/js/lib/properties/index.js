@@ -12,6 +12,9 @@ var LocalizedText = require('./LocalizedText');
 var Enumeration = require('./Enumeration');
 var EnumerationList = require('./EnumerationList');
 var NumericRange = require('./NumericRange');
+var DateRange = require('./DateRange');
+var TimeRange = require('./TimeRange');
+var DateTimeRange = require('./DateTimeRange');
 
 
 module.exports = {
@@ -22,6 +25,9 @@ module.exports = {
   LocalizedText,
   Enumeration,
   EnumerationList,
-  NumericRange
+  NumericRange,
+  DateRange,
+  TimeRange,
+  DateTimeRange
 };
 

@@ -30,7 +30,7 @@ setup(
         'rex.core>=1.10,<2',
         'rex.web>=3.2,<4',
         'rex.forms>=0.28.1,<0.29',
-        'rex.restful>=0.3,<0.4',
+        'rex.restful>=0.4,<0.5',
         'rex.applet>=0.2,<0.4',
         'rex.widget>=0.2,<0.3',
         'rex.i18n>=0.4,<0.5',

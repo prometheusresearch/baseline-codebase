@@ -62,14 +62,6 @@
     content: "\e9ce";
 }
 
-.icon-question-time:before {
-    content: "\e94e";
-}
-
-.icon-question-date:before {
-    content: "\e953";
-}
-
 .icon-question-recordlist:before {
     content: "\e603";
 }
@@ -476,6 +468,24 @@ body {
                         content: "\ea54";
                     }
                 }
+
+                .rfb-toolbox-component-question-date {
+                    .rfb-icon:before {
+                        content: "\e953";
+                    }
+                }
+
+                .rfb-toolbox-component-question-time {
+                    .rfb-icon:before {
+                        content: "\e94e";
+                    }
+                }
+
+                .rfb-toolbox-component-question-datetime {
+                    .rfb-icon:before {
+                        content: "\e953\e94e";
+                    }
+                }
             }
         }
     }
@@ -605,6 +615,24 @@ body {
         &.rfb-workspace-element-question-radiobuttongroup {
             .rfb-workspace-element-icon .rfb-icon:before {
                 content: "\ea54";
+            }
+        }
+
+        &.rfb-workspace-element-question-date {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e953";
+            }
+        }
+
+        &.rfb-workspace-element-question-time {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e94e";
+            }
+        }
+
+        &.rfb-workspace-element-question-datetime {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e953\e94e";
             }
         }
     }

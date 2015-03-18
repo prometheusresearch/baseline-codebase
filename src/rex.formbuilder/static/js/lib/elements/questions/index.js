@@ -13,6 +13,9 @@ var BooleanQuestion = require('./Boolean');
 var RadioButtonGroup = require('./RadioButtonGroup');
 var DropDownMenu = require('./DropDownMenu');
 var CheckBoxGroup = require('./CheckBoxGroup');
+var DateQuestion = require('./Date');
+var Time = require('./Time');
+var DateTime = require('./DateTime');
 
 
 module.exports = {
@@ -24,6 +27,9 @@ module.exports = {
   Boolean: BooleanQuestion,
   RadioButtonGroup,
   DropDownMenu,
-  CheckBoxGroup
+  CheckBoxGroup,
+  Date: DateQuestion,
+  Time,
+  DateTime
 };
 

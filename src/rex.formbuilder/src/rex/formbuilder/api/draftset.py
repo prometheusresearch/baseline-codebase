@@ -50,6 +50,10 @@ class DraftSetResource(SimpleResource, BaseResource):
         Parameter('draftinstrumentversion_uid', StrVal()),
     )
 
+    serializer_kwargs = {
+        'deserialize_datetimes': False,
+    }
+
     def create(self, request, **kwargs):
         # pylint: disable=no-self-use
 

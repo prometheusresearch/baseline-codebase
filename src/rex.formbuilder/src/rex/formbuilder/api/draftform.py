@@ -37,6 +37,9 @@ class DraftFormResource(SimpleResource, BaseResource):
     interface_name = 'draftform'
     interface_package = 'forms'
     extra_properties = ['configuration']
+    serializer_kwargs = {
+        'deserialize_datetimes': False,
+    }
 
     def list(self, request, **kwargs):
         return self.do_list(

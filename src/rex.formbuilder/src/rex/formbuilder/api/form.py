@@ -37,6 +37,9 @@ class FormResource(SimpleResource, BaseResource):
     interface_name = 'form'
     interface_package = 'forms'
     extra_properties = ['configuration']
+    serializer_kwargs = {
+        'deserialize_datetimes': False,
+    }
 
     def list(self, request, **kwargs):
         return self.do_list(
@@ -74,6 +77,10 @@ class FormResource(SimpleResource, BaseResource):
 
 class FormValidationResource(RestfulLocation):
     path = '/api/form/validate'
+
+    serializer_kwargs = {
+        'deserialize_datetimes': False,
+    }
 
     def create(self, request, **kwargs):
         # pylint: disable=no-self-use

@@ -4,19 +4,18 @@
 
 'use strict';
 
-var ReactForms = require('react-forms');
-
 var RangedProperty = require('./RangedProperty');
+var DateNode = require('./form/DateNode');
 
 
-class NumericRange extends RangedProperty {
+class DateRange extends RangedProperty {
   static create(props) {
     props = props || {};
-    props.scalarType = ReactForms.schema.NumberNode;
+    props.scalarType = DateNode;
     return RangedProperty.create(props);
   }
 }
 
 
-module.exports = NumericRange;
+module.exports = DateRange;
 

@@ -66,6 +66,10 @@ class InstrumentResource(SimpleResource, BaseResource):
 class InstrumentValidationResource(RestfulLocation):
     path = '/api/instrument/validate'
 
+    serializer_kwargs = {
+        'deserialize_datetimes': False,
+    }
+
     def create(self, request, **kwargs):
         # pylint: disable=no-self-use
 

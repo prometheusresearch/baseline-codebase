@@ -7,4 +7,5 @@ REX.RESTFUL Examples/Tests
     test_restfullocation
     test_simpleresource
     test_serializer
+    test_validators
 

@@ -234,6 +234,70 @@ Calling a method that is not implemented on the resource will result in a HTTP
     ...
 
 
+Payload Validation
+==================
+
+When POST or PUT requests are sent to the resource, the incoming payload is
+processed through the validators designated by the ``create_payload_validator``
+and ``update_payload_validator`` properties::
+
+    >>> req = Request.blank('/validate-me', method='POST')
+    >>> req.body = '{"foo": "red", "bar": "blue", "baz": 1}'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    ### CREATING VID
+    ###   PAYLOAD: Record(foo='red', bar='blue', baz=1)
+    201 Created
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 14
+    <BLANKLINE>
+    {"vid": "new"}
+
+    >>> req = Request.blank('/validate-me', method='POST')
+    >>> req.body = '{"foo": "red", "baz": 1}'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    ### CREATING VID
+    ###   PAYLOAD: Record(foo='red', bar=None, baz=1)
+    201 Created
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 14
+    <BLANKLINE>
+    {"vid": "new"}
+
+    >>> req = Request.blank('/validate-me', method='POST')
+    >>> req.body = '{"baz": 1}'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    400 Bad Request
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 87
+    <BLANKLINE>
+    {"error": "The incoming payload failed validation (Missing mandatory field:\n    foo)"}
+
+    >>> req = Request.blank('/validate-me', method='POST')
+    >>> req.body = '{"foo": "red", "baz": "purple"}'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    400 Bad Request
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 128
+    <BLANKLINE>
+    {"error": "The incoming payload failed validation (Expected an integer\nGot:\n    u'purple'\nWhile validating field:\n    baz)"}
+
+    >>> req = Request.blank('/validate-me/123', method='PUT')
+    >>> req.body = '{"foo": "red", "bar": "blue", "baz": 1}'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    ### UPDATING VID 123
+    ###   PAYLOAD: Record(foo='red', bar='blue', baz=1, blah=123)
+    202 Accepted
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 14
+    <BLANKLINE>
+    {"vid": "123"}
+
+
 Errors
 ======
 

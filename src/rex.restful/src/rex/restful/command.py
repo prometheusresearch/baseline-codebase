@@ -6,7 +6,7 @@
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed, HTTPException, HTTPBadRequest
 
-from rex.core import StrVal, Error
+from rex.core import StrVal, Error, AnyVal
 from rex.web import Command, Parameter
 
 from .serializer import Serializer
@@ -152,11 +152,21 @@ class RestfulLocation(Command):
     #: ``path`` variables and/or URL querystring parameters.
     parameters = []
 
+    #: The validator to use on the incoming payload for create actions.
+    create_payload_validator = AnyVal()
+
+    #: The validator to use on the incoming payload for update actions.
+    update_payload_validator = AnyVal()
+
     _METHOD_MAP = {
         'POST': 'create',
         'GET': 'retrieve',
         'PUT': 'update',
         'DELETE': 'delete',
+    }
+    _PAYLOAD_METHODS = {
+        'POST': 'create_payload_validator',
+        'PUT': 'update_payload_validator',
     }
     _STATUS_MAP = {
         'POST': 201,
@@ -201,12 +211,11 @@ class RestfulLocation(Command):
         return Serializer.get_for_format(self.default_format)()
 
     def parse_payload(self, request):
-        # pylint: disable=no-self-use
-
         content_type = None
         payload = {}
+        method = request.method.upper()
 
-        if request.method.upper() in ('POST', 'PUT'):
+        if method in RestfulLocation._PAYLOAD_METHODS.keys():
             content_type = request.headers.get('Content-Type')
             if content_type and request.body:
                 serializer = Serializer.get_for_mime_type(content_type)
@@ -223,8 +232,18 @@ class RestfulLocation(Command):
                             )
                         )
 
-        # TODO: we should be able to validate the payload
-        # in the same sort of way that we validate the parameters.
+            validator = getattr(
+                self,
+                RestfulLocation._PAYLOAD_METHODS[method],
+            )
+            try:
+                payload = validator(payload)
+            except Error as exc:
+                raise HTTPBadRequest(
+                    'The incoming payload failed validation (%s)' % (
+                        unicode(exc),
+                    )
+                )
 
         return payload, content_type
 
@@ -406,8 +425,14 @@ class SimpleResource(RestfulLocation):
 
             base_attrs = dict(cls.__dict__)
 
-            # Remove unsupported methods from the base.
-            for attr in ['retrieve', 'update', 'delete']:
+            # Remove unsupported features from the base.
+            bad_base_features = [
+                'retrieve',
+                'update',
+                'update_payload_validator',
+                'delete',
+            ]
+            for attr in bad_base_features:
                 if attr in base_attrs:
                     del base_attrs[attr]
 
@@ -417,11 +442,21 @@ class SimpleResource(RestfulLocation):
                 del base_attrs['list']
                 delattr(cls, 'list')
 
-            # Remove the create method from the detail handler.
-            if 'create' in base_attrs:
-                delattr(cls, 'create')
+            # Remove unsupported features from the detail.
+            bad_detail_features = [
+                'create',
+                'create_payload_validator',
+            ]
+            for attr in bad_detail_features:
+                if attr in base_attrs:
+                    delattr(cls, attr)
 
-            for attr in ['path', 'parameters']:
+            # Set up the base's prefixed features.
+            prefixed_features = [
+                'path',
+                'parameters',
+            ]
+            for attr in prefixed_features:
                 battr = 'base_%s' % attr
                 if battr in base_attrs:
                     base_attrs[attr] = base_attrs[battr]

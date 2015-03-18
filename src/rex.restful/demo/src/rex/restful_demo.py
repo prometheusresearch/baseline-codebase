@@ -1,6 +1,6 @@
 from webob.exc import HTTPPaymentRequired
 
-from rex.core import StrVal
+from rex.core import StrVal, IntVal, RecordVal
 from rex.restful import RestfulLocation, SimpleResource
 from rex.web import Parameter
 
@@ -84,4 +84,36 @@ class BazResource(SimpleResource):
 
     def delete(self, request, baz_id, **kwarg):
         print '### DELETING BAZ %s' % baz_id
+
+
+class ValidatedPayloadResource(SimpleResource):
+    access = 'anybody'
+    base_path = '/validate-me'
+    path = '/validate-me/{vid}'
+    parameters = (
+        Parameter('vid', StrVal()),
+    )
+
+    create_payload_validator = RecordVal(
+        ('foo', StrVal),
+        ('bar', StrVal, None),
+        ('baz', IntVal),
+    )
+
+    update_payload_validator = RecordVal(
+        ('foo', StrVal),
+        ('bar', StrVal),
+        ('baz', IntVal),
+        ('blah', IntVal, 123),
+    )
+
+    def create(self, request, **kwargs):
+        print '### CREATING VID'
+        print '###   PAYLOAD: %s' % request.payload
+        return {'vid': 'new'}
+
+    def update(self, request, vid, **kwargs):
+        print '### UPDATING VID %s' % vid
+        print '###   PAYLOAD: %s' % request.payload
+        return {'vid': vid}
 

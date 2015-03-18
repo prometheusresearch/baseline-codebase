@@ -5,4 +5,5 @@
 
 from .command import *
 from .serializer import *
+from .validators import *
 

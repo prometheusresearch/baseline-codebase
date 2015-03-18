@@ -130,6 +130,21 @@ Python equivalents (dicts & lists)::
     {u'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56)}
 
 
+If initialized with ``deserialize_datetimes=False``, then this deserializer
+will return date/time fields as the original strings they were received as::
+
+    >>> serializer = JsonSerializer(deserialize_datetimes=False)
+
+    >>> serializer.deserialize('{"a_date": "2014-05-22"}')
+    {u'a_date': u'2014-05-22'}
+
+    >>> serializer.deserialize('{"a_time": "12:34:56"}')
+    {u'a_time': u'12:34:56'}
+
+    >>> serializer.deserialize('{"a_date": "2014-05-22T12:34:56.000Z"}')
+    {u'a_date': u'2014-05-22T12:34:56.000Z'}
+
+
 YamlSerializer
 ==============
 
@@ -221,4 +236,19 @@ Python equivalents (dicts & lists)::
 
     >>> serializer.deserialize("{a_date: !!timestamp '2014-05-22 12:34:56'}\n")
     {'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56)}
+
+
+If initialized with ``deserialize_datetimes=False``, then this deserializer
+will return date/time fields as the original strings they were received as::
+
+    >>> serializer = YamlSerializer(deserialize_datetimes=False)
+
+    >>> serializer.deserialize('{a_date: 2014-05-22}\n')
+    {'a_date': u'2014-05-22'}
+
+    >>> serializer.deserialize("{a_time: '12:34:56'}\n")
+    {'a_time': '12:34:56'}
+
+    >>> serializer.deserialize("{a_date: !!timestamp '2014-05-22 12:34:56'}\n")
+    {'a_date': u'2014-05-22 12:34:56'}
 

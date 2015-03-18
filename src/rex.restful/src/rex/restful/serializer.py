@@ -101,6 +101,9 @@ class Serializer(Extension):
             assert cls.deserialize != Serializer.deserialize, \
                 'abstract method %s.deserialize()' % cls
 
+    def __init__(self, **kwargs):
+        pass
+
     def serialize(self, value):
         """
         Encodes/Formats the data from the result of the API for transmission
@@ -220,11 +223,17 @@ class JsonSerializer(Serializer):
     #:
     mime_type = 'application/json'
 
+    def __init__(self, deserialize_datetimes=True, **kwargs):
+        self.deserialize_datetimes = deserialize_datetimes
+
     def serialize(self, value):
         return json.dumps(value, cls=RestfulJSONEncoder)
 
     def deserialize(self, value):
-        return json.loads(value, object_hook=restful_json_decoder)
+        object_hook = None
+        if self.deserialize_datetimes:
+            object_hook = restful_json_decoder
+        return json.loads(value, object_hook=object_hook)
 
 
 class YamlSerializer(Serializer):
@@ -238,14 +247,20 @@ class YamlSerializer(Serializer):
     #:
     mime_type = 'application/x-yaml'
 
+    def __init__(self, deserialize_datetimes=True, **kwargs):
+        self.deserialize_datetimes = deserialize_datetimes
+
     def serialize(self, value):
         return yaml.dump(value, Dumper=RestfulYamlDumper, allow_unicode=True)
 
     def deserialize(self, value):
-        return yaml.safe_load(value)
+        # TODO: deserialize '12:34:56' into datetime.time()
+        loader = yaml.SafeLoader
+        if not self.deserialize_datetimes:
+            loader = StringedDatesYamlLoader
+        return yaml.load(value, Loader=loader)
 
 
-# pylint: disable=R0901,R0904
 class RestfulYamlDumper(yaml.SafeDumper):
     def decimal_representer(self, data):
         return self.represent_scalar('tag:yaml.org,2002:float', str(data))
@@ -260,5 +275,15 @@ RestfulYamlDumper.add_representer(
 RestfulYamlDumper.add_representer(
     time,
     RestfulYamlDumper.time_representer,
+)
+
+
+class StringedDatesYamlLoader(yaml.SafeLoader):
+    def timestamp_constructor(self, node):
+        return self.construct_scalar(node)
+
+StringedDatesYamlLoader.add_constructor(
+    'tag:yaml.org,2002:timestamp',
+    StringedDatesYamlLoader.timestamp_constructor,
 )
 

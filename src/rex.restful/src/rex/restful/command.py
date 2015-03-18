@@ -148,6 +148,10 @@ class RestfulLocation(Command):
     #: cannot be detected via the request headers or format parameter.
     default_format = 'json'
 
+    #: The keyward arguments to pass to the constructor of the Serializer used
+    #: for requests handled by this resource.
+    serializer_kwargs = {}
+
     #: The list of ``Parameter`` that are expected to be received through both
     #: ``path`` variables and/or URL querystring parameters.
     parameters = []
@@ -220,7 +224,7 @@ class RestfulLocation(Command):
             if content_type and request.body:
                 serializer = Serializer.get_for_mime_type(content_type)
                 if serializer:
-                    serializer = serializer()
+                    serializer = serializer(**self.serializer_kwargs)
                     content_type = serializer.mime_type
                     try:
                         payload = serializer.deserialize(request.body)

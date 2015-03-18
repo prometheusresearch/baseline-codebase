@@ -14,6 +14,8 @@ REX.RESTFUL Change Log
 * Fixed issue with unicode in YAML serialization.
 * Added the ability to define validators that will be used upon the incoming
   payloads of PUT/POST requests.
+* Added the ability to pass arguments to the serializers from resource
+  implementations.
 
 
 0.3.0 (2015-01-30)

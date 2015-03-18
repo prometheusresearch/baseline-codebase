@@ -12,6 +12,8 @@
   mode (see https://github.com/pypa/pip/issues/3,
   https://bitbucket.org/pypa/setuptools/issue/250/develop-and-install-single-version).
 
+* Fixed lookup of a static dir for packages installed via wheel distribution
+  format.
 
 2.1.1 (2015-02-20)
 ==================

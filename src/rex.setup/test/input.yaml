@@ -60,7 +60,7 @@ tests:
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_static.txt
     ignore: *ignore-prefix
   # Verify fixup of namespace packages.
-  - read: ./sandbox/lib/python2.7/site-packages/nsdev-rex.pth
+  - read: ./sandbox/lib/python2.7/site-packages/rex/__init__.py
   - sh: ls ./share/rex
     environ: { LC_ALL: C }
     cd: sandbox

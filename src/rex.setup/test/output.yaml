@@ -83,9 +83,9 @@ tests:
     data: rex.setup_demo
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_static.txt
     data: /home/xi/xitology/prometheus/rex/rex.setup-opensource/sandbox/share/rex/rex.setup_demo
-  - read: ./sandbox/lib/python2.7/site-packages/nsdev-rex.pth
+  - read: ./sandbox/lib/python2.7/site-packages/rex/__init__.py
     data: |
-      import pkg_resources; pkg_resources.declare_namespace('rex')
+      __import__('pkg_resources').declare_namespace(__name__)
   - sh: ls ./share/rex
     stdout: |
       rex.setup_demo

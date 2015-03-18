@@ -239,7 +239,7 @@ class YamlSerializer(Serializer):
     mime_type = 'application/x-yaml'
 
     def serialize(self, value):
-        return yaml.dump(value, Dumper=RestfulYamlDumper)
+        return yaml.dump(value, Dumper=RestfulYamlDumper, allow_unicode=True)
 
     def deserialize(self, value):
         return yaml.safe_load(value)

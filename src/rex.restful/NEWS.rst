@@ -11,6 +11,7 @@ REX.RESTFUL Change Log
 * Fixed an issue where if a Content-Type is sent on a PUT/POST, but no there is
   no request body, the response would vary depending on the Serializer used.
   Now, the payload will always be an empty dict.
+* Fixed issue with unicode in YAML serialization.
 
 
 0.3.0 (2015-01-30)

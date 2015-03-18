@@ -3,6 +3,6 @@
 #
 
 
-from . import embed
+from . import clarify, embed
 
 

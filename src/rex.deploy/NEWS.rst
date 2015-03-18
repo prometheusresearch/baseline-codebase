@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.3.0 (2015-XX-XX)
+==================
+
+* Allow automatic text to JSON conversion for ETL commands.
+
+
 2.2.1 (2015-03-11)
 ==================
 

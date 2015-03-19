@@ -14,6 +14,12 @@ class DataSet {
     this.error = error || null;
   }
 
+  get length() {
+    return Array.isArray(this.data) ?
+      this.data.length :
+      0;
+  }
+
   get loaded() {
     return !this.loading && this.data != null;
   }

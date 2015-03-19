@@ -60,7 +60,7 @@ class Text extends Question {
     var {instrument, form} = super(instrument, form);
 
     var field = this.getCurrentSerializationField(instrument);
-    if (!isEmpty(this.length) || field.pattern) {
+    if (!isEmpty(this.length) || this.pattern) {
       objectPath.set(field, 'type.base', 'text');
       if (!isEmpty(this.length)) {
         objectPath.set(field, 'type.length', this.length);

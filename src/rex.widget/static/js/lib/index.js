@@ -79,6 +79,7 @@ module.exports = {
   Text:               require('./Text'),
   Header:             require('./Header'),
   IFrame:             require('./IFrame'),
+  Page:               require('./Page'),
 
   // TODO: expose form using require('./form')
   FormContextMixin:   require('./form/FormContextMixin'),

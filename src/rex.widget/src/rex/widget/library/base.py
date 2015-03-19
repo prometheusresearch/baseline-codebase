@@ -24,7 +24,8 @@ from .validators import TemplatedStrVal
 
 
 class Label(Widget):
-    """A widget to hold text.
+    """
+    A widget to hold text.
     """
 
     name = 'Label'
@@ -36,7 +37,8 @@ class Label(Widget):
 
 
 class Header(Widget):
-    """A widget to display a header tag <h1>, <h2>, ...
+    """
+    A widget to display a header tag <h1>, <h2>, ...
     """
     name = 'Header'
     js_type = 'rex-widget/lib/Header'
@@ -53,7 +55,8 @@ class Header(Widget):
 
 
 class Text(Box):
-    """A !<Box> widget to display text.
+    """
+    A !<Box> widget to display text.
     """
 
     name = 'Text'
@@ -73,7 +76,8 @@ class Text(Box):
 
 
 class Button(Widget):
-    """A widget to display a button.
+    """
+    A widget to display a button.
     """
 
     name = 'Button'
@@ -135,7 +139,8 @@ class Button(Widget):
 
 
 class ButtonGroup(Box):
-    """A !<Box> widget to display a list of buttons.
+    """
+    A !<Box> widget to display a list of buttons.
     """
 
     name = 'ButtonGroup'
@@ -147,7 +152,8 @@ class ButtonGroup(Box):
 
 
 class UnsafeHTML(Widget):
-    """A widget which is like the !<Label> widget except the content may
+    """
+    A widget which is like the !<Label> widget except the content may
     be raw HTML.
         
     This can be used to embed YouTube/Vimeo videos for example::
@@ -169,7 +175,8 @@ class UnsafeHTML(Widget):
 
 
 class Section(Widget):
-    """Section.
+    """
+    Section
     """
     name = 'Section'
     js_type = 'rex-widget/lib/Section'
@@ -184,7 +191,9 @@ class Section(Widget):
 
 
 class Icon(Widget):
-    """Icon."""
+    """
+    Icon
+    """
 
     name = 'Icon'
     js_type = 'rex-widget/lib/Icon'
@@ -193,7 +202,9 @@ class Icon(Widget):
 
 
 class Link(Widget):
-    """Navigation link"""
+    """
+    Navigation link
+    """
 
     name = 'Link'
     js_type = 'rex-widget/lib/Link'
@@ -215,7 +226,8 @@ class Link(Widget):
 
 
 class LinkButton(Button):
-    """A button which sends a request when the user clicks on it.
+    """
+    A button which sends a request when the user clicks on it.
     """
     
     name = 'LinkButton'
@@ -226,7 +238,9 @@ class LinkButton(Button):
 
 
 class ActionLink(Widget):
-    """Link that allows execution of an action instead of standard link"""
+    """
+    Link that allows execution of an action instead of standard link
+    """
 
     name = 'ActionLink'
     js_type = 'rex-widget/lib/ActionLink'
@@ -263,7 +277,8 @@ class ValueKeyVal(Validate):
 
 
 class Table(Widget):
-    """Table widget.
+    """
+    Table widget.
     """
 
     ON_DATA_UPDATE = 'on_data_update'
@@ -303,7 +318,8 @@ class Table(Widget):
 
 
 class Select(Widget):
-    """Select.
+    """
+    Select.
     """
     name = 'Select'
     js_type = 'rex-widget/lib/Select'
@@ -369,7 +385,8 @@ class Select(Widget):
 
 
 class TextInput(Widget):
-    """TextInput.
+    """
+    TextInput.
     """
     name = 'TextInput'
     js_type = 'rex-widget/lib/TextInput'
@@ -397,7 +414,8 @@ class TextInput(Widget):
 
 
 class PanesField(Field):
-    """PanesField.
+    """
+    PanesField.
     """
 
     _validate = MapVal(StrVal(), WidgetVal())
@@ -416,7 +434,8 @@ class PanesField(Field):
 
 
 class Pane(Widget):
-    """Pane.
+    """
+    Pane.
     """
 
     name = 'Pane'
@@ -432,7 +451,8 @@ class Pane(Widget):
 
 
 class Placeholder(Widget):
-    """Placeholder.
+    """
+    Placeholder.
     """
 
     name = 'Placeholder'
@@ -448,7 +468,8 @@ class Placeholder(Widget):
 
 
 class Notice(Widget):
-    """Notice.
+    """
+    Notice.
     """
 
     name = 'Notice'
@@ -459,7 +480,8 @@ class Notice(Widget):
 
 
 class Tab(Widget):
-    """Tab.
+    """
+    Tab.
     """
 
     name = 'Tab'
@@ -485,7 +507,8 @@ class Tab(Widget):
 
 
 class Tabs(Widget):
-    """Tabs.
+    """
+    Tabs.
     """
 
     name = 'Tabs'
@@ -516,7 +539,8 @@ class Tabs(Widget):
 
 
 class IFrame(Widget):
-    """IFrame.
+    """
+    IFrame.
     """
 
     name = 'IFrame'

@@ -21,6 +21,8 @@ __all__ = ('Modal',)
 
 
 class Modal(Widget):
+    """Modal widget
+    """
 
     name = 'Modal'
     js_type = 'rex-widget/lib/Modal'
@@ -41,13 +43,13 @@ class Modal(Widget):
     show_title = Field(
         BoolVal(), default=True,
         doc="""
-        If modal should render title along with close button.
+        If modal should render the title along with the close button.
         """)
 
     title = Field(
         StrVal(), default=None,
         doc="""
-        Title for modal window.
+        Title for the modal window.
         """)
 
     min_width = Field(

@@ -28,7 +28,14 @@ from .template import WidgetTemplate, parse as parse_template
 
 
 def parse(stream):
-    """ Parse YAML stream into a widget instance."""
+    """ Parse YAML stream into a widget instance.
+
+    :param stream: YAML stream to parse
+    :type stream: str, unicode, object with read() (e.g. open file)
+
+    :return: widget instance
+    :rtype: instance of rex.widget.widget.Widget
+    """
     if isinstance(stream, (str, unicode)) or hasattr(stream, 'read'):
         parser = WidgetDescVal()
         stream = parser.parse(stream)

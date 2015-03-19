@@ -14,4 +14,6 @@ paths:
             - !<Header> 
               text: About
               level: 3
-        - !<Label> This is a Label in about.yaml and it could have contained something about this demo.
+        - !<Label> |
+          This is a Label in about.yaml and it should 
+          have contained something about this demo.

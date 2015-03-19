@@ -37,27 +37,15 @@ application screen will have its own YAML file which declares all the
 components to be displayed.  Each component can be composed of other 
 components, built-in widgets, or custom widgets.
 
-Here is the urlmap for rex.widget_demo::
+Here is the urlmap for rex.widget_demo:
 
-    include:
-    # Data Definitions
-    - data/study.yaml
-    - data/protocol.yaml
-
-    # Page Definitions
-    - page/home.yaml
-    - page/forms.yaml
-    - page/forms_master_details.yaml
-    - page/upload.yaml
-    - page/about.yaml
-    - page/sample.yaml
-    - page/chart.yaml
+.. literalinclude:: ../demo/static/urlmap.yaml
 
 The files under Data Definitions declare the application's ports which 
 connect the application to the database.  See `rex.port`_ for more 
 information.
 
-.. _rex.port: https://bitbucket.org/rexdb/rex.port 
+.. _rex.port: ../../rex.port/html/index.html 
 
 Each file under Page Definitions declares an application page and the
 URL it is mapped to.  We'll consider the page declared in page/about.yaml 
@@ -71,10 +59,9 @@ As in urlmap.yaml, we can use the ``include:`` key and break up the
 configuration into separate files.  The Demo only has one special widget.
 It is DemoPage and it is declared in its own file.
 
-Here is widgets.yaml for rex.widget_demo::
+Here is widgets.yaml for rex.widget_demo:
 
-    include:
-    - widgets/DemoPage.yaml
+.. literalinclude:: ../demo/static/widgets.yaml
 
 DemoPage is an example of a widget template.  We wanted all of the top 
 level pages in the demo to share the same layout.  To do this, we created
@@ -86,25 +73,9 @@ page an instance of a DemoPage.
 Widget Composition
 ~~~~~~~~~~~~~~~~~~
 
-Here is page/about.yaml, this page is a DemoPage::
+Here is page/about.yaml, this page is a DemoPage:
 
-    paths:
-
-      /about:
-        widget: !<DemoPage>
-          title: About
-          id: about
-          children: !<Box>
-            margin: 10
-            children:
-            - !<Box>
-              center_horizontally: True
-              children:
-                - !<Header> 
-                  text: About
-                  level: 3
-            - !<Label> 
-              text: This is a Label in about.yaml.
+.. literalinclude:: ../demo/static/page/about.yaml
 
 This maps the DemoPage widget whose id is "about" to the "/about" URL.
 The title, id, and children are assigned specific values.
@@ -118,28 +89,9 @@ which centers its children horizontally.
 Widget Templates
 ~~~~~~~~~~~~~~~~
 
-Here is static/widgets/DemoPage.yaml, the DemoPage template::
+Here is static/widgets/DemoPage.yaml, the DemoPage template:
 
-    widgets:
-
-      DemoPage: !<Page>
-        id: !slot id
-        title: !slot title
-        params: !slot params
-        children:
-        - !<Navigation>
-          application_name: Rex Widget Demo
-          menu:
-          - doc
-          - forms
-          - forms-master-detail
-          - upload
-          - sample
-          - about
-        - !<Box>
-          size: 1
-          margin: 10
-          children: !slot children
+.. literalinclude:: ../demo/static/widgets/DemoPage.yaml
 
 The DemoPage widget is a Page widget and so takes up the entire screen.  It 
 displays a fixed Navigation widget and a dynamic Box of children widgets.
@@ -192,11 +144,10 @@ children) can then be placed as a unit.
 By placing your Boxes in Boxes, you can achieve your desired layout. 
 
 
-.. _!<Box>: library.html#box 
-.. _!<HBox>: library.html#hbox 
-.. _!<Page>: library.html#page 
-.. _!<VBox>: library.html#vbox 
-
+.. _!<Box>: reference.html#rex.widget.library.layout.Box
+.. _!<HBox>: reference.html#rex.widget.library.layout.HBox
+.. _!<Page>: reference.html#rex.widget.library.page.Page
+.. _!<VBox>: reference.html#rex.widget.library.layout.VBox
 
 Relative addressing
 ~~~~~~~~~~~~~~~~~~~

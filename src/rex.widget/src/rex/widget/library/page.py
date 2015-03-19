@@ -24,7 +24,7 @@ __all__ = ('Page',)
 
 
 class Page(Box):
-    """ Widget which represents entire page."""
+    """ Widget which represents an entire page."""
 
     name = 'Page'
     js_type = 'rex-widget/lib/Page'
@@ -81,7 +81,21 @@ class Page(Box):
 
     @cached
     def sitemap(self):
-        """ Iterate over URL mapping and collect sitemap."""
+        """Iterate over URL mapping and collect sitemap.
+
+        :return: the sitemap
+
+        :rtype: dict
+        
+          locations: 
+            a dict of widget parameters indexed by location where
+            widget parameters is a dict of values indexed by 
+            parameter name.
+
+          pages: 
+            a dict of metadata indexed by widget.id where metadata
+            is a dict with keys "location", and  "title". 
+        """
         locations = {}
         pages = {}
         packages = get_packages()
@@ -104,6 +118,24 @@ class Page(Box):
         return {'locations': locations, 'pages': pages}
 
     def applets(self, widget, state, graph, request=None, **kwargs):
+        """Iterate over registered apps and collect applet information.
+
+        The info collected for each app is a dict with keys "name", 
+        "title", and "href".  "href" contains the url for the 
+        app's "home_route".
+        
+        :return: applet info
+
+        :rtype: dict
+        
+          active: 
+            the info of the currently active app.
+
+          applets: 
+            a list of info for each registered app.
+
+             
+        """
         assert request is not None
         applets = []
         active = None

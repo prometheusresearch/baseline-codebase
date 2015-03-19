@@ -19,6 +19,17 @@ __all__ = ('ActionCall', 'ActionVal', 'Action')
 
 
 class Action(Extension):
+    """Action base class.  Sub classes must provide:
+
+    name
+        the name of the class 
+
+    js_type
+        JSCommon reference to the .js implementation
+
+    validate
+        Validator (instance of rex.core.validate.Validate)
+    """
 
     name = NotImplemented
     js_type = NotImplemented

@@ -4,8 +4,8 @@
 
 .. contents:: Table of Contents
 
-Modules
-*******
+rex.widget
+**********
 
 .. automodule:: rex.widget
 .. automodule:: rex.widget.action
@@ -23,6 +23,10 @@ Modules
 .. automodule:: rex.widget.util
 .. automodule:: rex.widget.validate
 .. automodule:: rex.widget.widget
+
+rex.widget.field
+****************
+
 .. automodule:: rex.widget.field
 .. automodule:: rex.widget.field.base
 .. automodule:: rex.widget.field.collection
@@ -30,6 +34,10 @@ Modules
 .. automodule:: rex.widget.field.entity
 .. automodule:: rex.widget.field.state
 .. automodule:: rex.widget.field.url
+
+rex.widget.library
+******************
+
 .. automodule:: rex.widget.library
 .. automodule:: rex.widget.library.base
 .. automodule:: rex.widget.library.datatable
@@ -41,8 +49,11 @@ Modules
 .. automodule:: rex.widget.library.page
 .. automodule:: rex.widget.library.popup
 
+Classes
+*******
+
 URLVal
-~~~~~~
+------
 
 .. autoclass:: rex.widget.field.url.URLVal
 

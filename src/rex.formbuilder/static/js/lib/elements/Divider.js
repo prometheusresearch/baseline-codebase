@@ -24,6 +24,7 @@ class Divider extends ContentElement {
   }
 
   serialize(instrument, form) {
+    /*eslint no-redeclare:0 */
     var {instrument, form} = super(instrument, form);
 
     var elm = this.getCurrentSerializationElement(form);

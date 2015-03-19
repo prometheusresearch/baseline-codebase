@@ -134,6 +134,7 @@ class Question extends Element {
   }
 
   serialize(instrument, form) {
+    /*eslint no-redeclare:0 */
     var {instrument, form} = super(instrument, form);
 
     var field = {
@@ -177,6 +178,7 @@ class Question extends Element {
 
         var {DraftSetStore} = require('../../stores');
         var matches = DraftSetStore.getActiveElements().filter((element) => {
+          /*eslint no-loop-func:0 */
           return (element instanceof Question)
               && (element.id === newId);
         });

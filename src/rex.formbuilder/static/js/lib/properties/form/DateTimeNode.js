@@ -27,18 +27,18 @@ class DateTimeNode extends ReactForms.schema.ScalarNode {
     if (!(value instanceof Date)) {
       var match = RE_DATETIME.exec(value);
       if (!match) {
-          return new Error(_(
-            'Date/Time values must be entered in YYYY-MM-DD HH:MM:SS format.'
-            + ' Times are 24-hour based, and seconds are optional.'
-          ));
+        return new Error(_(
+          'Date/Time values must be entered in YYYY-MM-DD HH:MM:SS format.'
+          + ' Times are 24-hour based, and seconds are optional.'
+        ));
       }
 
       var datePart = DateNode.deserialize(match[1]);
       var timePart;
       if (match[2]) {
-          timePart = TimeNode.deserialize(match[2]);
+        timePart = TimeNode.deserialize(match[2]);
       } else {
-          timePart = '00:00:00';
+        timePart = '00:00:00';
       }
 
       return datePart + 'T' + timePart;

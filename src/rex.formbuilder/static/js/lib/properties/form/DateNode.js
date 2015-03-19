@@ -19,22 +19,22 @@ class DateNode extends ReactForms.schema.DateNode {
 
   static deserialize(value) {
     if (value === '') {
-        return null;
+      return null;
     }
 
     if (!(value instanceof Date)) {
       if (!RE_DATE.test(value)) {
-          return new Error(_(
-            'Dates must be entered in YYYY-MM-DD format.'
-          ));
+        return new Error(_(
+          'Dates must be entered in YYYY-MM-DD format.'
+        ));
       }
 
       value = new Date(value);
 
       if (isNaN(value.getTime())) {
-          return new Error(_(
-            'Please enter a valid date.'
-          ));
+        return new Error(_(
+          'Please enter a valid date.'
+        ));
       }
     }
 

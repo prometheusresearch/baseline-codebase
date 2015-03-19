@@ -56,6 +56,7 @@ class Text extends Question {
   }
 
   serialize(instrument, form) {
+    /*eslint no-redeclare:0 */
     var {instrument, form} = super(instrument, form);
 
     var field = this.getCurrentSerializationField(instrument);

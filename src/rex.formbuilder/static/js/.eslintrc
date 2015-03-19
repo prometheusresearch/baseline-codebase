@@ -22,8 +22,6 @@
     "no-underscore-dangle": false,
 
     // These rules are buggy at the moment.
-    "no-unused-vars": false,
-    "no-duplicate-case": false,
-    "no-redeclare": false
+    "no-unused-vars": false
   }
 }

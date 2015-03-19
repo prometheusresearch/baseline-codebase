@@ -39,6 +39,7 @@ class Numeric extends Question {
   }
 
   serialize(instrument, form, baseType) {
+    /*eslint no-redeclare:0 */
     var {instrument, form} = super(instrument, form);
 
     var field = this.getCurrentSerializationField(instrument);

@@ -46,7 +46,8 @@ class DateQuestion extends Question {
     this.range = objectPath.get(field, 'type.range', {});
   }
 
-  serialize(instrument, form, baseType) {
+  serialize(instrument, form) {
+    /*eslint no-redeclare:0 */
     var {instrument, form} = super(instrument, form);
 
     var field = this.getCurrentSerializationField(instrument);

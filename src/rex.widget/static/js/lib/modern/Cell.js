@@ -87,10 +87,20 @@ var Mixin = {
   }
 };
 
+/**
+ * Returns `true` if argument is a cell value.
+ */
+function isCell(maybeCell) {
+  return maybeCell instanceof Cell;
+}
+
+/**
+ * Constructs a new cell value.
+ */
 function cell(value) {
   return new Cell(value);
 }
 
 module.exports = {
-  Mixin, Cell, cell
+  Mixin, Cell, cell, isCell
 };

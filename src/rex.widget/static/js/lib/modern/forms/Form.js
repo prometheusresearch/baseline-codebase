@@ -54,6 +54,8 @@ var Form = React.createClass({
         <Button success>Submit</Button>
       ),
       onSubmit: emptyFunction.thatReturnsArgument,
+      onSubmitComplete: emptyFunction,
+      onSubmitError: emptyFunction,
       progressNotification: (
         <NotificationCenter.Notification
           kind="info"

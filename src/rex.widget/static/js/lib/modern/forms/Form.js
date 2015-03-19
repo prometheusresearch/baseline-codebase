@@ -91,25 +91,23 @@ var Form = React.createClass({
   submit() {
     var {value} = this.state;
     var {submitTo, onSubmit, onSubmitComplete, onSubmitError} = this.props;
-    if (value.allErrors) {
-      value = value.setParams({forceShowErrors: true});
-      this.setState({value});
+    var nextValue = value.set(
+      onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
+      false);
+    if (nextValue.allErrors) {
+      this.setState({value: value.setParams({forceShowErrors: true})});
       return;
     }
-    value = {...submitTo.produceParams().toJS(), ...value.value};
-    value = onSubmit(value);
-    if (value !== false) {
-      this._progressNotification = NotificationCenter.showNotification(this.props.progressNotification);
-      this.setState({submitInProgress: true});
-      if (submitTo.port instanceof Port) {
-        if (this.props.insert) {
-          submitTo.port.insert(value).then(this.onSubmitComplete, this.onSubmitError);
-        } else {
-          submitTo.port.update(value).then(this.onSubmitComplete, this.onSubmitError);
-        }
-      } else if (submitTo.port instanceof Query) {
-        submitTo.port.produce(value).then(this.onSubmitComplete, this.onSubmitError);
+    this._progressNotification = NotificationCenter.showNotification(this.props.progressNotification);
+    this.setState({submitInProgress: true});
+    if (submitTo.port instanceof Port) {
+      if (this.props.insert) {
+        submitTo.port.insert(nextValue.value).then(this.onSubmitComplete, this.onSubmitError);
+      } else {
+        submitTo.port.update(nextValue.value).then(this.onSubmitComplete, this.onSubmitError);
       }
+    } else if (submitTo.port instanceof Query) {
+      submitTo.port.produce(nextValue.value).then(this.onSubmitComplete, this.onSubmitError);
     }
   },
 

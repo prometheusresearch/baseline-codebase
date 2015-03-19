@@ -1,6 +1,6 @@
 {
   "name": "rex-widget-demo",
-  "version": "1.0.0",
+  "version": "0.2.14",
   "description": "Demo for Rex Widget",
   "main": "./lib/index.js",
   "scripts": {
@@ -9,6 +9,7 @@
   "author": "",
   "license": "AGPLv3",
   "devDependencies": {
-    "jsx-loader": "^0.12.1"
+    "jsx-loader": "git+https://github.com/andreypopp/jsx-loader.git#442c510e0a",
+    "codemirror": "^4.12.0"
   }
 }

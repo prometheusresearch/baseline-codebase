@@ -16,6 +16,10 @@ class ContentElement extends Element {
     return ELEMENT_TYPES.TYPE_CONTENT;
   }
 
+  static registerElement(type, parser) {
+    return Element.registerElement(type, parser);
+  }
+
   getWorkspaceComponent() {
     return (
       <div className='rfb-workspace-element-details'>

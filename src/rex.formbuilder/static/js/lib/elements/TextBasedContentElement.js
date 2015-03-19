@@ -28,6 +28,10 @@ class TextBasedContentElement extends ContentElement {
     return cfg;
   }
 
+  static registerElement(type, parser) {
+    return ContentElement.registerElement(type, parser);
+  }
+
   constructor() {
     super();
     this.text = {};

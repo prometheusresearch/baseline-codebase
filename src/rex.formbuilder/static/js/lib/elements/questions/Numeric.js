@@ -28,6 +28,10 @@ class Numeric extends Question {
     return cfg;
   }
 
+  static registerElement(type, parser) {
+    return Question.registerElement(type, parser);
+  }
+
   constructor() {
     super();
     this.range = {};

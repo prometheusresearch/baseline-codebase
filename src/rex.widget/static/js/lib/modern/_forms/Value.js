@@ -63,11 +63,18 @@ class Value {
     );
   }
 
-  set(value) {
+  set(value, quiet) {
     var root = clone(this.root);
-    ObjectPath.set(root, this.keyPath, value);
+    if (this.keyPath.length === 0) {
+      root = value;
+    } else {
+      ObjectPath.set(root, this.keyPath, value);
+    }
     var nextValue = wrapValue(this.rootSchema, root, this.onChange, this.params);
-    this.onChange(nextValue);
+    if (!quiet) {
+      this.onChange(nextValue);
+    }
+    return nextValue;
   }
 
   setParams(params) {

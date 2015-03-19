@@ -64,11 +64,23 @@ var DraftSetEditor = React.createClass({
   componentDidMount: function () {
     DraftSetStore.addChangeListener(this._onDraftSetChange);
     DraftSetStore.addConfigurationFailureListener(this._onConfigFailure);
+    window.addEventListener('beforeunload', this._onWindowUnload);
   },
 
   componentWillUnmount: function () {
+    window.removeEventListener('beforeunload', this._onWindowUnload);
     DraftSetStore.removeConfigurationFailureListener(this._onConfigFailure);
     DraftSetStore.removeChangeListener(this._onDraftSetChange);
+  },
+
+  _onWindowUnload: function (event) {
+    if (this.state.modified) {
+      var msg = _(
+        'You\'ve made changes to this Draft, but haven\'t saved them yet.'
+      );
+      event.returnValue = msg;
+      return msg;
+    }
   },
 
   _onDraftSetChange: function () {

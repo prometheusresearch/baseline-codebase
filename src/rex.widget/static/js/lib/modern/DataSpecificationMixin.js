@@ -117,6 +117,10 @@ var DataSpecificationMixin = {
         continue;
       }
       var spec = this.dataSpecs[key];
+      if (!spec.port) {
+        this.data[key] = DataSet.EMPTY_DATASET;
+        continue;
+      }
       var params = spec.produceParams();
       if (force || !Immutable.is(this._dataParams[key], params)) {
         if (this._dataTasks[key]) {

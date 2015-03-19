@@ -8,7 +8,7 @@ var expect = require('chai').expect;
 var deepCopy = require('deep-copy');
 
 var Configuration = require('../lib/Configuration');
-var {PageStart, Questions} = require('../lib/elements');
+var {PageStart, Text, Questions} = require('../lib/elements');
 var errors = require('../lib/errors');
 
 
@@ -52,20 +52,59 @@ describe('Configuration', function () {
   });
 
 
-  describe('serialize', function () {
-    it('works', function () {
-      var cfg = new Configuration('urn:hello', '1.0', 'Hello', 'en');
+  describe('checkValidity', function () {
+    var cfg;
 
-      var elm = new PageStart();
-      elm.id = 'page1';
+    beforeEach(function () {
+      cfg = new Configuration('my-id', '1.1', 'my title', 'en');
+    });
+
+    it('should pass on a good configuration', function () {
+      var elm = new Questions.Integer();
+      elm.text = {'en': 'Test'};
       cfg.elements.push(elm);
 
-      elm = new Questions.LongText();
-      elm.id = 'first_field';
+      expect(cfg.checkValidity.bind(cfg)).to.not.throw(Error);
+    });
+
+    it('should fail if it contains no elements', function () {
+      cfg.elements = [];
+      expect(cfg.checkValidity.bind(cfg)).to.throw(errors.ConfigurationError, /must contain at least two/i);
+    });
+
+    it('should fail if it only contains a PageStart', function () {
+      expect(cfg.checkValidity.bind(cfg)).to.throw(errors.ConfigurationError, /must contain at least two/i);
+    });
+
+    it('should fail if it doesn\'t start with a PageStart', function () {
+      var elm = new Questions.Integer();
+      elm.text = {'en': 'Test'};
+      cfg.elements.unshift(elm);
+
+      expect(cfg.checkValidity.bind(cfg)).to.throw(errors.ConfigurationError, /must start with a pagestart element/i);
+    });
+
+    it('should fail if it has no field-based elements', function () {
+      var elm = new Text();
+      elm.text = {'en': 'Test'};
       cfg.elements.push(elm);
 
-      var {instrument, form} = cfg.serialize();
-      // TODO
+      expect(cfg.checkValidity.bind(cfg)).to.throw(errors.ConfigurationError, /must contain at least one field-based/i);
+    });
+
+    it('should fail if it has an empty page', function () {
+      var elm = new Questions.Integer();
+      elm.text = {'en': 'Test'};
+      cfg.elements.push(elm);
+
+      elm = new PageStart();
+      elm.id = 'test';
+      cfg.elements.push(elm);
+
+      expect(cfg.checkValidity.bind(cfg)).to.throw(errors.ConfigurationError, /page must contain at least one/i);
+
+      cfg.elements.splice(1, 1);
+      expect(cfg.checkValidity.bind(cfg)).to.throw(errors.ConfigurationError, /page must contain at least one/i);
     });
   });
 });

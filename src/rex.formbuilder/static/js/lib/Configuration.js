@@ -4,7 +4,7 @@
 
 'use strict';
 
-var {PageStart} = require('./elements');
+var elements = require('./elements');
 var {ConfigurationError} = require('./errors');
 var _ = require('./i18n').gettext;
 
@@ -16,7 +16,7 @@ class Configuration {
     this.title = title;
     this.locale = locale;
 
-    var page = new PageStart();
+    var page = new elements.PageStart();
     page.id = 'page1';
     this.elements = [page];
   }
@@ -52,10 +52,27 @@ class Configuration {
   }
 
   checkValidity() {
+    if (!this.elements || (this.elements.length < 2)) {
+      throw new ConfigurationError(
+        _('Configuration must contain at least two Elements.')
+      );
+    }
+
+    if (!(this.elements[0] instanceof elements.PageStart)) {
+      throw new ConfigurationError(
+        _('Configuration must start with a PageStart Element.')
+      );
+    }
+
     var lastPageStart = null;
+    var sawFieldBasedElement = false;
 
     this.elements.forEach((element, idx) => {
-      if (element instanceof PageStart) {
+      if (element instanceof elements.Questions.Question) {
+        sawFieldBasedElement = true;
+      }
+
+      if (element instanceof elements.PageStart) {
         if ((lastPageStart !== null) && (lastPageStart === (idx - 1))) {
           // If the last PageStart we saw was the previous element,
           // that's a problem.
@@ -67,6 +84,12 @@ class Configuration {
         lastPageStart = idx;
       }
     });
+
+    if (!sawFieldBasedElement) {
+      throw new ConfigurationError(
+        _('Configuration must contain at least one field-based Element.')
+      );
+    }
 
     if (lastPageStart === (this.elements.length - 1)) {
       // If the last element on the form was a PageStart,

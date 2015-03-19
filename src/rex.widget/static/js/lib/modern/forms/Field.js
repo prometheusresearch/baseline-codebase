@@ -35,7 +35,7 @@ var InputStyle = {
     backgroundColor: '#fff',
     backgroundImage: 'none',
     border: '1px solid #ccc',
-    borderRadius: '4px',
+    borderRadius: '2px',
     boxShadow: 'inset 0 1px 1px rgba(0,0,0,.075)',
     transition: 'border-color ease-in-out .15s,box-shadow ease-in-out .15s'
   }
@@ -126,4 +126,3 @@ var Field = React.createClass({
 });
 
 module.exports = Field;
-

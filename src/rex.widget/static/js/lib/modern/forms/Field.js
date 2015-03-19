@@ -72,7 +72,7 @@ var Field = React.createClass({
       <VBox {...props} onBlur={this.onBlur} style={FieldStyle.self}>
         <HBox>
           {label &&
-            <VBox size={1}>
+            <VBox size={1} centerVertically>
               <label>
                 {label}
                 {schema && schema.required ?

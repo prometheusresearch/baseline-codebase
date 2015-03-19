@@ -5,6 +5,7 @@
 
 var isString = require('../isString');
 var isArray = require('../isArray');
+var invariant = require('../invariant');
 
 var IS_NUMBER = /[0-9]+/;
 
@@ -25,10 +26,13 @@ function makeKeyPath(keyPath) {
       keyPath = [toNumber(keyPath)];
     }
     return keyPath;
+  } else if (typeof keyPath === 'number') {
+    return [keyPath];
   } else {
     invariant(
       false,
-      'keyPath can be either an array or string'
+      'keyPath can be either an array or string, got: %s',
+      keyPath
     );
   }
 }

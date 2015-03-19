@@ -74,14 +74,11 @@
 html, body {
     height: 100%;
     margin: 0;
+    padding: 0;
 }
 
 
 body {
-    & > div {
-        height: 100%;
-    }
-
     &.rfb-modal__active {
         overflow: hidden;
     }
@@ -241,8 +238,6 @@ body {
 
 
 .rfb-instrument-menu {
-    height: 100%;
-
     .rfb-instrument-container {
         height: 100%;
         display: flex;
@@ -343,6 +338,7 @@ body {
 .rfb-draftset-editor {
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
 
     & > .rfb-menu-header {
         .rfb-menu-header-title {

@@ -6,7 +6,7 @@
 var clone           = require('clone');
 var ObjectPath      = require('object-path');
 var createValidator = require('is-my-json-valid');
-var isString        = require('../isString');
+var makeKeyPath     = require('./makeKeyPath');
 
 /**
  * Thin wrapper over form value with associated validation information and flag
@@ -52,14 +52,7 @@ class Value {
   }
 
   select(key) {
-    if (isString(key)) {
-      if (key.indexOf('.') !== -1) {
-        key = key.split('.').filter(Boolean);
-      } else {
-        key = [key];
-      }
-    }
-    var keyPath = this.keyPath.concat(key);
+    var keyPath = this.keyPath.concat(makeKeyPath(key));
     return new Value(
       keyPath,
       this.rootSchema,

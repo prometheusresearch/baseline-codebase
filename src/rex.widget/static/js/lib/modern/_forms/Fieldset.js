@@ -31,6 +31,7 @@ var Fieldset = React.createClass({
         formValue = formValue.select(selectFormValue);
       }
       element = cloneWithProps(element, {formValue});
+      return [false, element];
     }
     return element;
   }

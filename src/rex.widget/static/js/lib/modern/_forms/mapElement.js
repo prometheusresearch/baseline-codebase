@@ -8,8 +8,13 @@ var cloneWithProps  = React.addons.cloneWithProps;
 
 function mapElement(element, func) {
   return React.Children.map(element, function(element) {
+    var recurse = true;
     element = func(element);
-    if (element && element.props && element.props.children) {
+    if (Array.isArray(element)) {
+      recurse = element[0];
+      element = element[1];
+    }
+    if (recurse && element && element.props && element.props.children) {
       element = cloneWithProps(element, {
         children: React.Children.map(
           element.props.children,

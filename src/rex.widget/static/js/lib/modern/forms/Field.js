@@ -59,7 +59,7 @@ Input = Focusable(Input);
 var Field = React.createClass({
 
   render() {
-    var {label, children, ...props} = this.props;
+    var {label, children, onChange, ...props} = this.props;
     var {dirty} = this.state;
     var {value, errors, params, schema} = this.props.formValue;
     var showErrors = dirty || params.forceShowErrors;
@@ -67,7 +67,7 @@ var Field = React.createClass({
       children ?
         React.Children.only(children) :
         <Input />,
-      {value, onChange: this.onChange});
+      {value, onChange: this.onChange.bind(null, onChange)});
     return (
       <VBox {...props} onBlur={this.onBlur} style={FieldStyle.self}>
         <HBox>
@@ -108,7 +108,7 @@ var Field = React.createClass({
     this.setState({dirty: true});
   },
 
-  onChange(e) {
+  onChange(onChange, e) {
     var value;
     if (e && e.target && e.target.value !== undefined) {
       e.stopPropagation();
@@ -120,6 +120,9 @@ var Field = React.createClass({
       value = e;
     }
     this.setState({dirty: true});
+    if (onChange) {
+      onChange(value);
+    }
     this.props.formValue.set(value);
   }
 

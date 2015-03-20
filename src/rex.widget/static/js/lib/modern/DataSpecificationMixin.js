@@ -67,7 +67,11 @@ function _bindDataSpecs(component, props, state) {
 }
 
 function _getDataSpecs(component) {
-  return component._currentElement.type.prototype.dataSpecs;
+  if (component._currentElement && component._currentElement.type) {
+    return component._currentElement.type.prototype.dataSpecs;
+  } else {
+    return component.constructor.prototype.dataSpecs;
+  }
 }
 
 var DataSpecificationMixin = {

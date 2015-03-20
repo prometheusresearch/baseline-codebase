@@ -25,7 +25,7 @@ var Select = React.createClass({
   },
 
   render() {
-    var {emptyValue, titleForEmpty, noEmptyValue, quiet, value} = this.props;
+    var {emptyValue, titleForEmpty, noEmptyValue, quiet, value, ...props} = this.props;
     var options = this.props.options ? this.props.options : [];
     var data = this.props.data ? (this.props.data.data || []) : [];
 
@@ -38,8 +38,8 @@ var Select = React.createClass({
       'rw-Select--quiet': quiet
     });
 
-    return this.transferPropsTo(
-      <select className={className} value={value} onChange={this.onChange}>
+    return (
+      <select {...props} className={className} value={value} onChange={this.onChange}>
         {emptyValue && !noEmptyValue &&
           <option key={sentinel} value={sentinel}>
             {titleForEmpty ? titleForEmpty : emptyValue.title}

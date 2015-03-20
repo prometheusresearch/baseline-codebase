@@ -22,7 +22,7 @@ var LayeredComponentMixin = {
   },
 
   _renderLayer: function() {
-    React.renderComponent(this.renderLayer(), this._layer);
+    React.render(this.renderLayer(), this._layer);
 
     if (this.layerDidMount) {
       this.layerDidMount(this._layer);

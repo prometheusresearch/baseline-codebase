@@ -1,0 +1,24 @@
+{
+  "id": "urn:test-instrument",
+  "version": "1.1",
+  "title": "The Instrument Title",
+  "record": [
+    {
+      "id": "q_fake",
+      "type": "float"
+    },
+    {
+      "id": "q_fake2",
+      "type": "float"
+    },
+    {
+      "id": "q_fake3",
+      "type": {
+        "base": "float",
+        "range": {
+          "max": 20
+        }
+      }
+    }
+  ]
+}

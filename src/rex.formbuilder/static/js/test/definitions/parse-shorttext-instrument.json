@@ -1,0 +1,31 @@
+{
+  "id": "urn:test-instrument",
+  "version": "1.1",
+  "title": "The Instrument Title",
+  "record": [
+    {
+      "id": "q_fake",
+      "type": "text"
+    },
+    {
+      "id": "q_fake2",
+      "type": "text"
+    },
+    {
+      "id": "q_fake3",
+      "type": {
+        "base": "text",
+        "pattern": "foo"
+      }
+    },
+    {
+      "id": "q_fake4",
+      "type": {
+        "base": "text",
+        "length": {
+          "max": 20
+        }
+      }
+    }
+  ]
+}

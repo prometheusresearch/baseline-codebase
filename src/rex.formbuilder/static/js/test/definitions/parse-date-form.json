@@ -1,0 +1,44 @@
+{
+  "instrument": {
+    "id": "urn:test-instrument",
+    "version": "1.1"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake",
+            "text": {
+              "en": "Question Text"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake2",
+            "text": {
+              "en": "Question2 Text"
+            },
+            "widget": {
+              "type": "datePicker"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake3",
+            "text": {
+              "en": "Question3 Text"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

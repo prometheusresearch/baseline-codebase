@@ -4,6 +4,8 @@
 
 'use strict';
 
+var objectPath = require('object-path');
+
 var Numeric = require('./Numeric');
 var _ = require('../../i18n').gettext;
 
@@ -25,9 +27,12 @@ class Integer extends Numeric {
 
 Numeric.registerElement(Integer, function (element, instrument, field) {
   if (field.type.rootType === 'integer') {
-    var elm = new Integer();
-    elm.parse(element, instrument, field);
-    return elm;
+    var widget = objectPath.get(element, 'options.widget.type');
+    if (!widget || (widget === 'inputNumber')) {
+      var elm = new Integer();
+      elm.parse(element, instrument, field);
+      return elm;
+    }
   }
 });
 

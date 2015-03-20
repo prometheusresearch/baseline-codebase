@@ -1,0 +1,20 @@
+{
+  "id": "urn:test-instrument",
+  "version": "1.1",
+  "title": "The Instrument Title",
+  "types": {
+    "myText": {
+      "base": "text",
+      "length": {
+        "min": 2
+      },
+      "pattern": "^[A-Z]+$"
+    }
+  },
+  "record": [
+    {
+      "id": "q_fake",
+      "type": "myText"
+    }
+  ]
+}

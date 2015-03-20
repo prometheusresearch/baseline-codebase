@@ -1,0 +1,31 @@
+{
+  "instrument": {
+    "id": "urn:test-instrument",
+    "version": "1.1"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "text",
+          "options": {
+            "text": {
+              "en": "Just Some Text"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake",
+            "text": {
+              "en": "Question Text"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

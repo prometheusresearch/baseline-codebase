@@ -1,0 +1,27 @@
+{
+  "id": "urn:test-instrument",
+  "version": "1.1",
+  "title": "The Instrument Title",
+  "record": [
+    {
+      "id": "q_fake",
+      "type": {
+        "base": "enumeration",
+        "enumerations": {
+          "foo": {},
+          "bar": {}
+        }
+      }
+    },
+    {
+      "id": "q_fake2",
+      "type": {
+        "base": "enumeration",
+        "enumerations": {
+          "foo": {},
+          "bar": {}
+        }
+      }
+    }
+  ]
+}

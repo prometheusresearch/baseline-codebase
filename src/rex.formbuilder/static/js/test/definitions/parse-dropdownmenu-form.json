@@ -1,0 +1,49 @@
+{
+  "instrument": {
+    "id": "urn:test-instrument",
+    "version": "1.1"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake",
+            "text": {
+              "en": "Question Text"
+            },
+            "widget": {
+              "type": "dropDown"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake2",
+            "text": {
+              "en": "Question2 Text"
+            },
+            "widget": {
+              "type": "dropDown"
+            },
+            "enumerations": [
+              {
+                "id": "bar",
+                "text": {
+                  "en": "Bar?"
+                },
+                "help": {
+                  "en": "This is help."
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

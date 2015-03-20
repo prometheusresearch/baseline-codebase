@@ -4,6 +4,8 @@
 
 'use strict';
 
+var objectPath = require('object-path');
+
 var Question = require('./Question');
 var _ = require('../../i18n').gettext;
 
@@ -36,9 +38,12 @@ Question.registerElement(
   BooleanQuestion,
   function (element, instrument, field) {
     if (field.type.rootType === 'boolean') {
-      var elm = new BooleanQuestion();
-      elm.parse(element, instrument, field);
-      return elm;
+      var widget = objectPath.get(element, 'options.widget.type');
+      if (!widget || (widget === 'radioGroup')) {
+        var elm = new BooleanQuestion();
+        elm.parse(element, instrument, field);
+        return elm;
+      }
     }
   }
 );

@@ -54,7 +54,8 @@ class Enumeration extends Question {
   parse(element, instrument, field) {
     super(element, instrument, field);
 
-    var enumerations = element.options.enumerations.map((enumeration) => {
+    var enumerations = objectPath.get(element, 'options.enumerations', []);
+    enumerations = enumerations.map((enumeration) => {
       if (!isEmpty(enumeration.audio)) {
         throw new errors.UnsupportedConfigurationError(
           _('Audio properties are not currently supported.')

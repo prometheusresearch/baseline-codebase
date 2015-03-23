@@ -78,8 +78,8 @@ class Text extends Question {
     };
   }
 
-  clone(exact) {
-    var newElm = super(exact);
+  clone(exact, configurationScope) {
+    var newElm = super(exact, configurationScope);
     newElm.length = deepCopy(this.length);
     newElm.pattern = this.pattern;
     return newElm;

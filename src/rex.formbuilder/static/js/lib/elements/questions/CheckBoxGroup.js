@@ -40,8 +40,8 @@ class CheckBoxGroup extends Enumeration {
     this.length = {};
   }
 
-  clone(exact) {
-    var newElm = super(exact);
+  clone(exact, configurationScope) {
+    var newElm = super(exact, configurationScope);
     newElm.length = deepCopy(this.length);
     return newElm;
   }

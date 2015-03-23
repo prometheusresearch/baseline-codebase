@@ -45,8 +45,8 @@ class Enumeration extends Question {
     this.enumerations = [];
   }
 
-  clone(exact) {
-    var newElm = super(exact);
+  clone(exact, configurationScope) {
+    var newElm = super(exact, configurationScope);
     newElm.enumerations = deepCopy(this.enumerations);
     return newElm;
   }

@@ -8,6 +8,7 @@ var chai = require('chai');
 var expect = chai.expect;
 chai.config.truncateThreshold = 0;
 
+var Configuration = require('../lib/Configuration');
 var elements = require('../lib/elements');
 
 
@@ -73,11 +74,12 @@ function makeQuestion(questionType) {
 
 
 describe('PageStart', function () {
-  var elm;
+  var elm, cfg;
 
   beforeEach(function () {
     elm = makeElement(elements.PageStart);
-    elm.id = 'bar';
+    elm.id = 'page1';
+    cfg = new Configuration('my-id', '1.0', 'My Title', 'en');
   });
 
   it('clones', function () {
@@ -90,6 +92,18 @@ describe('PageStart', function () {
     var clone = elm.clone(true);
     checkElement(clone, elm, true);
     expect(clone.id).to.equal(elm.id);
+  });
+
+  it('clones within scope of a configuration', function () {
+    var clone = elm.clone(false, cfg);
+    checkElement(clone, elm, false);
+    expect(clone.id).to.equal(elm.id + '_clone');
+
+    cfg.elements.push(clone);
+
+    var clone2 = elm.clone(false, cfg);
+    checkElement(clone, elm, false);
+    expect(clone2.id).to.equal(elm.id + '_clone_clone');
   });
 });
 
@@ -153,6 +167,40 @@ describe('Text', function () {
     var clone = elm.clone(true);
     checkElement(clone, elm, true);
     checkObject(clone, elm, 'text');
+  });
+});
+
+
+describe('Question', function () {
+  var elm, cfg;
+
+  beforeEach(function () {
+    elm = makeQuestion(elements.Questions.ShortText);
+    cfg = new Configuration('my-id', '1.0', 'My Title', 'en');
+  });
+
+  it('clones', function () {
+    var clone = elm.clone();
+    checkQuestion(clone, elm, false);
+  });
+
+  it('clones exactly', function () {
+    var clone = elm.clone(true);
+    checkQuestion(clone, elm, true);
+  });
+
+  it('clones within scope of a configuration', function () {
+    cfg.elements.push(elm);
+
+    var clone = elm.clone(false, cfg);
+    checkElement(clone, elm, false);
+    expect(clone.id).to.equal(elm.id + '_clone');
+
+    cfg.elements.push(clone);
+
+    var clone2 = elm.clone(false, cfg);
+    checkElement(clone, elm, false);
+    expect(clone2.id).to.equal(elm.id + '_clone_clone');
   });
 });
 

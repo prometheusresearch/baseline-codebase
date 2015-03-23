@@ -163,7 +163,7 @@ function addElement(element) {
 function cloneElement(element) {
   var elements = _activeConfiguration.elements.slice(),
       elementIndex = elements.indexOf(element),
-      clone = element.clone();
+      clone = element.clone(false, _activeConfiguration);
 
   elements.splice(elementIndex + 1, 0, clone);
 

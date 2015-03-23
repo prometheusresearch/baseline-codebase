@@ -165,25 +165,29 @@ class Question extends Element {
     };
   }
 
-  clone(exact) {
-    var newElm = super(exact);
+  clone(exact, configurationScope) {
+    var newElm = super(exact, configurationScope);
     newElm.id = this.id;
 
     if (!exact) {
       var newId = newElm.id;
-      var unique = false;
 
-      while (!unique) {
+      if (configurationScope) {
+        var unique = false;
+
+        while (!unique) {
+          newId += '_clone';
+
+          var matches = configurationScope.elements.filter((element) => {
+            /*eslint no-loop-func:0 */
+            return (element instanceof Question)
+                && (element.id === newId);
+          });
+
+          unique = (matches.length === 0);
+        }
+      } else {
         newId += '_clone';
-
-        var {DraftSetStore} = require('../../stores');
-        var matches = DraftSetStore.getActiveElements().filter((element) => {
-          /*eslint no-loop-func:0 */
-          return (element instanceof Question)
-              && (element.id === newId);
-        });
-
-        unique = (matches.length === 0);
       }
 
       newElm.id = newId;

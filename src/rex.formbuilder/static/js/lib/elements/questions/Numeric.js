@@ -60,8 +60,8 @@ class Numeric extends Question {
     };
   }
 
-  clone(exact) {
-    var newElm = super(exact);
+  clone(exact, configurationScope) {
+    var newElm = super(exact, configurationScope);
     newElm.range = deepCopy(this.range);
     return newElm;
   }

@@ -37,8 +37,8 @@ class TextBasedContentElement extends ContentElement {
     this.text = {};
   }
 
-  clone(exact) {
-    var newElm = super(exact);
+  clone(exact, configurationScope) {
+    var newElm = super(exact, configurationScope);
     newElm.text = deepCopy(this.text);
     return newElm;
   }

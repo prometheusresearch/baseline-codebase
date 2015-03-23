@@ -53,12 +53,34 @@ class PageStart extends ContentElement {
     };
   }
 
-  clone(exact) {
-    var newElm = super(exact);
+  clone(exact, configurationScope) {
+    var newElm = super(exact, configurationScope);
     newElm.id = this.id;
+
     if (!exact) {
-      newElm.id += '_clone';
+      var newId = newElm.id;
+
+      if (configurationScope) {
+        var unique = false;
+
+        while (!unique) {
+          newId += '_clone';
+
+          var matches = configurationScope.elements.filter((element) => {
+            /*eslint no-loop-func:0 */
+            return (element instanceof PageStart)
+                && (element.id === newId);
+          });
+
+          unique = (matches.length === 0);
+        }
+      } else {
+        newId += '_clone';
+      }
+
+      newElm.id = newId;
     }
+
     return newElm;
   }
 }

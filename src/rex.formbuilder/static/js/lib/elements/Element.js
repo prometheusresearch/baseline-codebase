@@ -134,7 +134,7 @@ class Element {
     };
   }
 
-  clone(exact) {
+  clone(exact, configurationScope) {
     var newElm = new this.constructor();
     newElm.tags = this.tags.slice();
     if (exact) {

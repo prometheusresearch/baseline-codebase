@@ -31,7 +31,7 @@ var DataTable = React.createClass({
   },
 
   render() {
-    var {data, columns, selectable, resizableColumns, ...props} = this.props;
+    var {data, columns, selectable, resizableColumns, className, ...props} = this.props;
     var {width, height} = this.state;
     columns = columns.map(column => {
       var computedWidth = this.state.columnsWidths[column.key.join('.')];
@@ -60,7 +60,7 @@ var DataTable = React.createClass({
       return <Box size={1} />;
     } else {
       return (
-        <Box size={1}>
+        <Box size={1} className={className}>
           <Table
             {...props}
             ref="table"

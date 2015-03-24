@@ -559,3 +559,11 @@ class IFrame(Widget):
     js_type = 'rex-widget/lib/IFrame'
 
     src = URLField(doc="iframe#src attribute")
+
+
+class StateParam(Widget):
+
+    name = 'StateParam'
+    js_type = 'rex-widget/lib/StateParam'
+
+    value = StateField(StrVal())

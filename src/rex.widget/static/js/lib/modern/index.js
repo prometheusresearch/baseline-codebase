@@ -19,6 +19,7 @@ module.exports = {
   Query: require('./Query'),
   Forms: require('./forms'),
   Link: require('./Link'),
+  Authorized: require('./Authorized'),
   NotificationCenter: require('./NotificationCenter'),
   StyleUtils: require('./StyleUtils'),
   Cell: require('./Cell'),

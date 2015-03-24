@@ -137,9 +137,9 @@ var DataSpecificationMixin = {
         } else {
           this.data[key] = DataSet.EMPTY_UPDATING_DATASET;
           this._dataTasks[key] = _fetch(spec, params)
-            .then(this._onFetchComplete.bind(null, key))
             .catch(Promise.CancellationError, this._onFetchCancel.bind(null, key))
-            .catch(this._onFetchError.bind(null, key));
+            .catch(this._onFetchError.bind(null, key))
+            .then(this._onFetchComplete.bind(null, key));
         }
       }
     }

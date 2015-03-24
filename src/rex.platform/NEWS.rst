@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-4.1.2 (2015-xx-xx)
+4.3.0 (2015-xx-xx)
 ==================
 
 * rex.instrument==0.14.1
@@ -15,6 +15,12 @@
 * rex.core==1.10.3
 * rex.widget==0.2.14
 * rex.setup==2.2.0
+
+
+4.2.1 (2015-03-23)
+==================
+
+* Updated ``rex.deploy`` to 2.3.0.
 
 
 4.1.1 (2015-03-11)

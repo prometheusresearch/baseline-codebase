@@ -24,8 +24,11 @@ paths:
             children:
             - !<Header> Sidebar
             - !<Link>
-              text: Link to About Page
-              href: /about
+              text: Link to Sample Widgets
+              href: /sample
+            - !<Link>
+              text: Link to Sample Widgets Link Example
+              href: /sample#example_link
 
           - !<Box>
             size: 9

@@ -432,6 +432,12 @@ field value.
 The ``text`` field is required because it doesn't have a ``default`` value
 specified; while ``level`` is optional, as it has ``1`` as its default value.
 
+.. warning::
+  React converts underscores to camelcase.  If you use underscores in your field
+  names, your Javascript component MUST use the camelcase names instead.  It is 
+  therefore recommended that you eschew underscores and use camelcase names for 
+  your python widget field names.
+
 .. note::
   :class:`rex.widget.Widget` is a subclass of :class:`rex.core.Extension` which
   provides the standard mechanism of extending RexDB-based applications. Widget

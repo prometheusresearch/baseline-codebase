@@ -22,6 +22,18 @@ from ..action import ActionVal
 from .layout import Box
 from .validators import TemplatedStrVal
 
+class Anchor(Widget):
+    """
+    A widget to create a link target..
+    """
+
+    name = 'Anchor'
+    js_type = 'rex-widget/lib/Anchor'
+
+    fragmentId = Field(
+            UStrVal(),
+            doc='The fragment identifier')
+
 
 class Label(Widget):
     """

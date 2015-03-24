@@ -12,99 +12,351 @@ paths:
           - !<Header>
             text: Sample Widgets
             level: 3
-        - !<HBox>
-          children_margin: 10 # put some space between the Labels.
-          children:
-          - !<Label> Here are Labels followed by a Link in a HBOX (horizontal Box).  
-          - !<Label> 'Everything you see here is declared in'
-          - !<Box> # put the Link in a Box so there is space between it and the Label.
+          - !<HBox>
             children:
-            - !<Link>
-              text: demo/static/page/sample.yaml
-              href: /page/sample.txt
-        - !<Notice> This is a Notice widget.  It centers itself.
-        - !<Box>
-          background_color: orange
-          aligned: left
-          center_horizontally: True
-          children:
-          - !<Label> |
-              Oops, Popup is deprecated.
-          - !<Label> |
-              Next is a Popup, it could have been a link but its style is "button".
-          - !<Label> |
-              It is placed inside a Box with "background_color" set to "orange", "aligned" 
-              set to "left", and "center_horizontally" set to "True".
-          - !<Popup>
-            style: button
-            init_open: True
-            xOffset: 200 
-            yOffset: -400
-            w: 300
-            h: 350
-            text: This is the popup text.  Click HERE for a popup.
-            closeText: 'This is "closeText". Seems wrong to prepend this to the "text"! '
-            children: 
             - !<Box>
-              size: 1
-              background_color: '#90EE90'
-              #background_color: 'rgb(144, 238, 144)'
-              #background_color: 'lightgreen'
+              margin: 2
+              background_color: white
               children:
-              - !<Label> This is the pop-up.  Just a bunch of Labels in a pink Box.
-              - !<Label> BUG? although init_open is True this popup did not open initially.  
-              - !<Label> 'The Popup settings are:'
-              - !<Label> 'xOffset: 200'
-              - !<Label> 'yOffset: -400'
-              - !<Label> 'w: 300'
-              - !<Label> 'h: 350'
-              - !<Label> Click on the X on the right, or on the popup button to remove this Popup.
-        - !<Link>
-          text: This Link widget is a link to the Home page
-          href: /
-        - !<Label>
-          text: |
-            This Label widget contains some arbitrary python code.  
-            As you can see all the formatting is lost.
-            import yaml
-            import collections
-            import weakref
+              - !<Header>
+                level: 4
+                text: |
+                  The markup shown in the
+            - !<Box>
+              margin: 2
+              background_color: '#f8f8f8'
+              children:
+              - !<Header>
+                level: 4
+                text: |
+                  grey boxes 
+            - !<Box>
+              margin: 2
+              background_color: white
+              children:
+              - !<Header>
+                level: 4
+                text: |
+                  produces the display shown in the
+            - !<Box>
+              margin: 2
+              background_color: lightgreen
+              children:
+              - !<Header>
+                level: 4
+                text: |
+                  light green boxes. 
 
-            from pyquerystring import parse as parse_qs
-            from webob.exc import HTTPUnauthorized, HTTPBadRequest, HTTPMethodNotAllowed
-            from webob import Response
-        - !<Box>
-          aligned: right
-          children:
+          - !<HBox>
+            children_margin: 10 # put some space between the Labels.
+            children:
+            - !<Label> 'The configuration for this page is in'
+            - !<Box>   # put the Link in a Box so there is space between it and the Label.
+              children:
+              - !<Link>
+                text: demo/static/page/sample.yaml
+                href: /page/sample.txt
+
+        - !<WidgetExample>
+          widget_name: Anchor
+          widget_description: |
+            The Anchor widget is used to create a target for a Link widget.
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+                - !&lt;Anchor>
+                  fragmentId: anchor_example
+                - !&lt;Label> This Label widget immediately follows the Anchor widget.
+                - !&lt;Link>
+                  text: This is a link to the Anchor.  Click it!
+                  href: 'sample#anchor_example'
+              </pre>
+          sample_usage_content:
+          - !<Anchor>
+            fragmentId: anchor_example
+          - !<Label> This Label widget immediately follows the Anchor widget.
+          - !<Link>
+            text: This is a link to the Anchor.  Click it!
+            href: 'sample#anchor_example'
+
+        - !<WidgetExample>
+          widget_name: Box
+          widget_description: |
+            The Box widget is used for page layout control.
+            It uses a flexgrid model.
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+                - !&lt;Box&gt;
+                  size: 1
+                  background_color: lightblue
+                  children:
+                  - !&lt;Header&gt;
+                    text: |
+                      This is the text of a Header widget 
+                      in a light blue Box widget
+                    level: 4 
+              </pre>
+          sample_usage_content:
+          - !<Box>
+            size: 1
+            background_color: lightblue
+            children:
+            - !<Header>
+              text: |
+                This is the text of a Header widget 
+                in a light blue Box widget
+              level: 4 
+
+        - !<WidgetExample>
+          widget_name: Header
+          widget_description: |
+            The Header widget displays an HTML <Hx>  header.
+            x represents the size 1 - 6.
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+                - !&lt;Header&gt;
+                  text: 'This is a Header widget with level: 1'
+                  level: 1
+                - !&lt;Header&gt;
+                  text: 'This is a Header widget with level: 2'
+                  level: 2 
+                - !&lt;Header&gt;
+                  text: 'This is a Header widget with level: 3'
+                  level: 3 
+                - !&lt;Header&gt;
+                  text: 'This is a Header widget with level: 4'
+                  level: 4 
+                - !&lt;Header&gt;
+                  text: 'This is a Header widget with level: 5'
+                  level: 5 
+                - !&lt;Header&gt;
+                  text: 'This is a Header widget with level: 6'
+                  level: 6 
+              </pre>
+          
+          sample_usage_content:
+          - !<Header>
+            text: 'This is a Header widget with level: 1'
+            level: 1
+          - !<Header>
+            text: 'This is a Header widget with level: 2'
+            level: 2
+          - !<Header>
+            text: 'This is a Header widget with level: 3'
+            level: 3
+          - !<Header>
+            text: 'This is a Header widget with level: 4'
+            level: 4
+          - !<Header>
+            text: 'This is a Header widget with level: 5'
+            level: 5
+          - !<Header>
+            text: 'This is a Header widget with level: 6'
+            level: 6
+
+        - !<WidgetExample>
+          widget_name: Label
+          widget_description: |
+            The Label widget displays any text.
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+                - !&lt;Label>
+                text: This is the text of this Label widget 
+              </pre>
+          sample_usage_content:
+          - !<Label>
+            text: This is the text of this Label widget 
+        
+        - !<Anchor> 
+          fragmentId: example_link
+        - !<WidgetExample>
+          widget_name: Link
+          widget_description: |
+            The Link widget creates a hyperlink to its href target.
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+                - !&lt;Link>
+                text: |
+                  This Link widget is a link to the Home page.
+                  Click it!
+                href: /
+              </pre>
+          sample_usage_content:
+          - !<Link>
+            text: |
+              This Link widget is a link to the Home page.
+              Click it!
+            href: /
+        
+        - !<WidgetExample>
+          widget_name: Notice
+          widget_description: |
+            The Notice widget centers itself and selects its style.
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+              - !&lt;Notice&gt; This is a Notice widget.
+              </pre>
+          sample_usage_content:
+          - !<Notice> This is a Notice widget.
+
+        - !<WidgetExample>
+          widget_name: Text
+          widget_description: |
+            The Text widget is like the Label widget 
+            but you may set the font-size and color of the text.
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+              - !&lt;Text>
+                color: blue
+                text: this is blue text
+              - !&lt;Text>
+                font_size: 18pt
+                color: red
+                text: this is 18pt red text
+              - !&lt;Text>
+                font_size: 40px
+                color: rgb(144, 238, 144)
+                text: this is 40px rgb(144, 238, 144) text
+              </pre>
+          sample_usage_content:
+          - !<Text>
+            color: blue
+            text: this is blue text
+          - !<Text>
+            font_size: 18pt
+            color: red
+            text: this is 18pt red text
+          - !<Text>
+            font_size: 40px
+            color: rgb(144, 238, 144)
+            text: this is 40px rgb(144, 238, 144) text
+
+        - !<WidgetExample>
+          widget_name: UnsafeHTML
+          widget_description: |
+            The UnsafeHTML widget lets you include raw HTML
+            into your document.
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+              - !&lt;UnsafeHTML>
+                html: |
+                  This is the UnsafeHTML widget in which you can embed 
+                  HTML tags such as &amp;lt;br>. &lt;br> Here 
+                  comes the &amp;lt;pre> tag with nicely formatted Python:
+                  &lt;pre>
+                  class PageContext(Context):
+
+                      def __init__(self):
+                          self.widget_count = weakref.WeakKeyDictionary()
+                  &lt;pre>
+              </pre>
+          sample_usage_content:
           - !<UnsafeHTML>
             html: |
-              This is the UnsafeHTML widget in which you can embed HTML tags such as &lt;br>. <br>
-              It is inside a Box with "aligned" set to "right" <br>
-              Here comes the &lt;pre> tag with nicely formatted Python:
+              This is the UnsafeHTML widget in which you can embed 
+              HTML tags such as &lt;br>. <br> Here
+              comes the &lt;pre> tag with nicely formatted Python:
               <pre>
               class PageContext(Context):
 
                   def __init__(self):
                       self.widget_count = weakref.WeakKeyDictionary()
               </pre>
+
+#        - !<Box>
+#          background_color: orange
+#          aligned: left
+#          center_horizontally: True
+#          children:
+#          - !<Label> |
+#              Oops, Popup is deprecated.
+#          - !<Label> |
+#              Next is a Popup, it could have been a link but its style is "button".
+#          - !<Label> |
+#              It is placed inside a Box with "background_color" set to "orange", "aligned" 
+#              set to "left", and "center_horizontally" set to "True".
+#          - !<Popup>
+#            style: button
+#            init_open: True
+#            xOffset: 200 
+#            yOffset: -400
+#            w: 300
+#            h: 350
+#            text: This is the popup text.  Click HERE for a popup.
+#            closeText: 'This is "closeText". Seems wrong to prepend this to the "text"! '
+#            children: 
+#            - !<Box>
+#              size: 1
+#              background_color: '#90EE90'
+#              #background_color: 'rgb(144, 238, 144)'
+#              #background_color: 'lightgreen'
+#              children:
+#              - !<Label> This is the pop-up.  Just a bunch of Labels in a lightgreen Box.
+#              - !<Label> BUG? although init_open is True this popup did not open initially.  
+#              - !<Label> 'The Popup settings are:'
+#              - !<Label> 'xOffset: 200'
+#              - !<Label> 'yOffset: -400'
+#              - !<Label> 'w: 300'
+#              - !<Label> 'h: 350'
+#              - !<Label> Click on the X on the right, or on the popup button to remove this Popup.
+#        - !<Label>
+#          text: |
+#            This Label widget contains some arbitrary python code.  
+#            As you can see all the formatting is lost.
+#            import yaml
+#            import collections
+#            import weakref
+#
+#            from pyquerystring import parse as parse_qs
+#            from webob.exc import HTTPUnauthorized, HTTPBadRequest, HTTPMethodNotAllowed
+#            from webob import Response
+#        - !<Box>
+#          aligned: right
+#          children:
+#          - !<UnsafeHTML>
+#            html: |
+#              This is the UnsafeHTML widget in which you can embed HTML tags such as &lt;br>. <br>
+#              It is inside a Box with "aligned" set to "right" <br>
+#              Here comes the &lt;pre> tag with nicely formatted Python:
+#              <pre>
+#              class PageContext(Context):
+#
+#                  def __init__(self):
+#                      self.widget_count = weakref.WeakKeyDictionary()
+#              </pre>
 #        - !<Label> Next comes buttons, and the three modals.
-        - !<Box>
-          direction: horizontal
-          children:
-          - !<Button>
-            text: Button Raz
-            success: True
-          - !<Button>
-            text: Button Dva
-            danger: True
-          - !<Button>
-            text: Button Tre
-            quiet: True
-          - !<Button>
-            text: Button SD   #Q
-            success: True
-            danger: True
-            #quiet: True
+#        - !<Box>
+#          direction: horizontal
+#          children:
+#          - !<Button>
+#            text: Button Raz
+#            success: True
+#          - !<Button>
+#            text: Button Dva
+#            danger: True
+#          - !<Button>
+#            text: Button Tre
+#            quiet: True
+#          - !<Button>
+#            text: Button SD   #Q
+#            success: True
+#            danger: True
+#            #quiet: True
 #        - !<Box>
 #          children:
 #          - !<Modal>

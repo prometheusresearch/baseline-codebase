@@ -2,6 +2,8 @@
   Writing a Composed Widget
 *******************************************
 
+.. contents:: Table of Contents
+
 Rationale
 =========
 

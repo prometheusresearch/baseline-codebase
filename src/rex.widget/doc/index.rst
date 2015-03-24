@@ -11,6 +11,7 @@ Programming guide
 .. toctree::
 
    guide
+   composed_widget
    library
    reference
    test/index

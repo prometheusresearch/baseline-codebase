@@ -159,7 +159,7 @@ function validate(schema, value) {
     return value.__errors;
   } else {
     if (schema.__validator === undefined) {
-      cache(schema, '__validator', createValidator(schema, {greedy: true}));
+      cache(schema, '__validator', createValidator(schema, {greedy: true, formats: schema.formats}));
     }
     schema.__validator(value);
     var errors = schema.__validator.errors;

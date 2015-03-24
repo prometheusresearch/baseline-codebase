@@ -9,11 +9,10 @@ var Button        = require('../Button');
 var Fieldset      = require('../_forms/Fieldset');
 
 var RepeatingFieldsetStyle = {
-  self: {
-
-  },
-  button: {
-
+  errors: {
+    marginTop: 3,
+    color: 'red',
+    fontSize: '90%'
   }
 };
 
@@ -43,6 +42,11 @@ var RepeatingFieldset = React.createClass({
         <VBox>
           {fieldsets}
         </VBox>
+        {formValue.errors &&
+          <VBox style={RepeatingFieldsetStyle.errors}>
+            {formValue.errors.map((error, idx) =>
+              <VBox key={idx}>{error.message}</VBox>)}
+          </VBox>}
         <VBox>
           <Button quiet icon="plus" onClick={this.addItem}>
             Add

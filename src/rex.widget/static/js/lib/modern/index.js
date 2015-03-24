@@ -20,6 +20,7 @@ module.exports = {
   Forms: require('./forms'),
   Link: require('./Link'),
   Authorized: require('./Authorized'),
+  Info: require('./Info'),
   NotificationCenter: require('./NotificationCenter'),
   StyleUtils: require('./StyleUtils'),
   Cell: require('./Cell'),

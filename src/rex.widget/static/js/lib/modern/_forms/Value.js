@@ -119,9 +119,9 @@ function subSchemaByKey(schema, key) {
   if (schema) {
     if (schema.type === 'object') {
       var subSchema = schema.properties ?
-        (schema.properties[key] || {}) :
-        {};
-      if (schema.required) {
+        schema.properties[key] :
+        undefined;
+      if (subSchema && schema.required) {
         // transfer required info onto schema
         subSchema = {
           ...subSchema,

@@ -22,6 +22,8 @@ module.exports = {
   Link: require('./Link'),
   Authorized: require('./Authorized'),
   Info: require('./Info'),
+  Tab: require('./Tab'),
+  Tabs: require('./Tabs'),
   NotificationCenter: require('./NotificationCenter'),
   StyleUtils: require('./StyleUtils'),
   Cell: require('./Cell'),

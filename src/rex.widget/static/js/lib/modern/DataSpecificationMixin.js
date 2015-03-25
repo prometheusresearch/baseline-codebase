@@ -4,9 +4,9 @@
 'use strict';
 
 var Immutable         = require('immutable');
-var Promise           = require('bluebird');
 var invariant         = require('../invariant');
 var Port              = require('../Port');
+var Promise           = require('./Promise');
 var DataSpecification = require('./DataSpecification');
 var DataSet           = require('./DataSet');
 

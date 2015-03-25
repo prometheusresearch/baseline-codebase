@@ -3,9 +3,9 @@
  */
 'use strict';
 
-var Promise             = require('bluebird');
 var React               = require('react/addons');
 var cx                  = React.addons.classSet;
+var Promise             = require('../Promise');
 var {Box, HBox}         = require('../Layout');
 var Button              = require('../Button');
 var {File, StoredFile}  = require('../File');

@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var Promise = require('bluebird');
 var React = require('react');
+var Promise = require('./Promise');
 var request = require('../request');
 
 var Authorized = React.createClass({

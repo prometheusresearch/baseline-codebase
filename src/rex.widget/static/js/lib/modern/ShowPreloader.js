@@ -11,12 +11,15 @@ var {VBox}    = require('./Layout');
 var ShowPreloader = React.createClass({
 
   render() {
-    var {children, ...props} = this.props;
-    var showPreloader = Object
+    var {children, showPreloaderWhenNoData, ...props} = this.props;
+    var datasets = Object
       .keys(props)
       .map(key => props[key])
-      .filter(prop => (prop instanceof DataSet))
-      .some(dataset => dataset.loading);
+      .filter(prop => (prop instanceof DataSet));
+    var showPreloader = (
+      datasets.some(d => d.loading) ||
+      showPreloaderWhenNoData && datasets.some(d => d.data === null)
+    );
     if (showPreloader) {
       return <Preloader />
     } else {
@@ -26,6 +29,10 @@ var ShowPreloader = React.createClass({
         return children;
       }
     }
+  },
+
+  getDefaultProps() {
+    return {showPreloaderWhenNoData: false};
   }
 });
 

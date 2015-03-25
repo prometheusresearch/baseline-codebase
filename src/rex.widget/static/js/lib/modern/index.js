@@ -9,6 +9,7 @@ module.exports = {
   DataTable: require('./DataTable'),
   createWidgetClass: require('./createWidgetClass'),
   Layout: require('./Layout'),
+  Autocomplete: require('./Autocomplete'),
   Preloader: require('./Preloader'),
   ShowPreloader: require('./ShowPreloader'),
   Select: require('./Select'),

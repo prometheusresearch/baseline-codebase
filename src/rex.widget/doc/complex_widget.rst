@@ -1,5 +1,5 @@
 *******************************************
-  Writing a Composed Widget
+  Writing a Complex Widget
 *******************************************
 
 .. contents:: Table of Contents
@@ -7,27 +7,31 @@
 Rationale
 =========
 
-Real use-cases of using Rex Widget have proved that basic functionality and
-configurability of widgets is not enough for creatring rich and functional
-screens. Another issue with using the current approach is that amount of
-configurational parameters grows very quickly and reduces the
-maintainability. The flexibitlity of the `urlmap.yaml`-defined screens is
-still very low and adding even a small feature to it may become quite
-difficult task.
+Real use-cases of using Rex Widget have proved that the functionality and
+configurability of widgets is not enough for creating rich and functional
+screens. For screens whose fields require logic to smooth the user 
+experience, the yaml configuration is insufficient. 
 
-The solution for it is to let developer create the functional screen with as
-much flexibility and functionality as needed. Rex Widget in this case should
-make the life of the software developer as easy as possible: provide the
-widget library, automate data loading, improve state management, while still
-having the power of the `React.js`.
+Another issue with enhancing the yaml configuration is that number of
+configuration parameters can grow very quickly and then making changes can 
+be cumbersome.
+
+The flexibility of the `urlmap.yaml`-defined screens is still low and 
+adding even a small feature to it may become quite a difficult task.
+
+The solution is to let the developer create screens with as much 
+flexibility and functionality as needed.  Rex Widget will provide the widget 
+library, automated data loading, and improved state management, while the 
+Javascript components can have the full power of the `React.js` framework.
 
 
 Getting Started
 ===============
 
-Adding the composed widget is not different from adding any other widget. It
-has the Python part::
+Adding a complex widget is not different from adding any other widget. It
+has the Python part:
 
+.. code-block:: python
 
     from rex.widget.widget import Widget
     from rex.widget import Field
@@ -47,9 +51,12 @@ has the Python part::
             doc="""
             Heading.
             """)
+
     ...
 
-And the JavaScript part::
+And the JavaScript part:
+
+.. code-block:: javascript
 
     var React             = require('react/addons');
     var RexWidget         = require('rex-widget/lib/modern');
@@ -62,18 +69,23 @@ And the JavaScript part::
 
     });
 
-As you may see, the Python part is just the same us usual, whether JavaScript 
-part has some differences. The first one is how you importing RexWidget. Make
-sure to import from the *'rex-widget/lib/modern'*. The other difference is
-how you create the widget class. Usually, we do `React.createClass`. Now to
-get all helper mixins do the following: `RexWidget.createWidgetClass` instead.
-The argument for this function is exactly the same as for the former statement.
-I.e. this is basically common `React` component with all its methods and 
-requirements. You can use all of `React` capabilities and restrictions inside 
-of it.
+As you may see, the Python part is just the same us usual, while the 
+JavaScript part has some differences.  The first one is how you import 
+RexWidget.  Make sure to import from *'rex-widget/lib/modern'*. 
+The other difference is how you create the widget class.  To get all 
+the helper mixins use `RexWidget.createWidgetClass` instead of
+`React.createClass`. 
 
-Now when widget is defined, you can use it in the `urlmap.yaml` just as you
-usually do. Here is the real-world example of using `EnrollmentAdminPage`::
+`RexWidget.createWidgetClass` takes all the same arguments as 
+`React.createClass`.  Each instance is basically a common `React` component 
+with all its methods and requirements; you can use all of the `React` 
+capabilities and restrictions inside of it.
+
+Once the complex widget is defined, you can use it in the `urlmap.yaml` just 
+as you usually do.  Here is a real-world example of using 
+`EnrollmentAdminPage`:
+
+.. code-block:: yaml
 
     paths:
 
@@ -131,9 +143,12 @@ usually do. Here is the real-world example of using `EnrollmentAdminPage`::
 Database operations
 ===================
 
-Let's see how you can work with database. All database opeartions are done.
-using ports. It is wise to define the ports as configurational parameters. 
-Here is how we modify the Python description of the widget to do it::
+Let's see how you can work with the database.  All database opeartions are 
+done using ports.  It is wise to define the ports as configuration
+parameters.  Here is how we modify the Python description of the widget to 
+do it:
+
+.. code-block:: python
 
     from rex.widget.modern import CollectionSpecVal, EntitySpecVal, URLVal
     ...
@@ -171,15 +186,16 @@ Here is how we modify the Python description of the widget to do it::
             Dataset for studies individual is enrolled in.
             """)
 
-This is how you let your widget know about the fact that following properties
-will accept ports. The only thing to underline here is the difference between
-`EntitySpecVal` and `CollectionSpecVal`. You need to use former only in cases
-when you know that 1 entity will be returned, i.e. you query some database
-record/entity by its primary key. The latter should be used in all other
-cases (i.e. you query the list of records which may have 0+ items).
+To connect a field to a port use either `EntitySpecVal` or 
+`CollectionSpecVal`.  Use the former only in cases when you know that 
+exactly one entity will be returned, i.e. you query some database
+record/entity by its primary key.  The latter should be used in all other
+cases, i.e. you query the list of records which may have zero or more items.
 
 So, while Python part is quite trivial, the JavaScript part is a bit more
-complex and defines relationships between all those queries::
+complex and defines relationships between all those queries:
+
+.. code-block:: javascript
 
     var EnrollmentAdminPage = RexWidget.createWidgetClass({
 
@@ -209,15 +225,19 @@ complex and defines relationships between all those queries::
       ...
     });
 
-So, there is a `dataSpecs` widget attribute which corresponds to previously
-defined widget propeties. This is the description of data properties and how
-they are dependent on a page state. So the first one says::
+So, there is the `dataSpecs` widget attribute which corresponds to the 
+previously defined widget propeties.  This is the description of the data 
+properties and how they are dependent on a page state. So the first one says:
+
+.. code-block:: javascript
 
     studyList: collection(),
 
-which means: this is an independent collection of `study` objects.
+which means `studyList` is an independent collection of study objects.
 
-The second one is more descriptive::
+The second one is more descriptive:
+
+.. code-block:: javascript
 
     individualList: collection({
       'individual:studyval': state('selectedStudy', {required: true}),
@@ -225,19 +245,22 @@ The second one is more descriptive::
     }),
 
 `individualList` is a collection of individual objects which depends on the
-page state. Specifically on 2 of page state variables: `selectedStudy` (and it
+page state.  Specifically on two page state variables: `selectedStudy` (and it
 is required, i.e. set to non-null value before downloading the list of
-individuals) and `searchIndividual` (which is not required and can be `null`).
+individuals) and `searchIndividual` (which is not required and can be null).
+
 Values of those variables should be passed to the port url as
 `individual:studyval` and `individual:search` filters respectively when
-obtaining the data. We'll consider the page state variables in the next chapter,
-for now just think of them as usual `React` state variables which you can
-access with `this.state.selectedStudy` or similar call.
+obtaining the data.  We'll consider the page state variables in the next 
+section, for now just think of them as usual `React` state variables which 
+you can access with `this.state.selectedStudy` or similar call.
 
-Another important part to understand is how/when the data gets fetched?
-The answer is: you have full control of it. The data is fetched after the widget
-is rendered and `this.fetchDataSpecs.<data spec name>` is `true`. Specifically,
-our top-most example widget fetchs 3 of 5 data specs initially::
+You have complete control of how and when the data is fetched.  The data is 
+fetched after the widget is rendered and 
+`this.fetchDataSpecs.\<data spec name\>` is `true`.  Specifically, our top-most 
+example widget fetches three of five data specs initially:
+
+.. code-block:: javascript
 
   ...
   fetchDataSpecs: {
@@ -247,11 +270,12 @@ our top-most example widget fetchs 3 of 5 data specs initially::
   },
   ...
 
-Remaining 2 are been passed to children widget and fetched *only* in case those
+The remaining two are passed to children and are fetched *only* if those
 widgets are rendered.
 
-The last thing I want to stop on is how to access the data. Here is an 
-example::
+Here is an example of how to access the data:
+
+.. code-block:: javascript
 
   /**
    * Select first study from the list.
@@ -266,34 +290,40 @@ So, everything defined in `dataSpec` appears as `this.data.*` at runtime. Each
 of those data entities has 3 properties: `loading` (useful for showing the 
 preloader), `data` or `value` (for collections or entities respectively) and 
 `length`. Also there is one method which is specifically useful for 
-collections::
+collections:
+
+.. code-block:: javascript
 
     var study = data.studyList.findByID(state.selectedStudy.value);
 
 It returns the needed object with all properties defined in the related port.
-You can use `study.id` or `study.title` or anything else you're sure will be in
-the object. This is specifically useful for page optimization and minimizing
-the count of needed HTTP requests.
+You can use `study.id` or `study.title` or anything else you're sure will be 
+in the object. This is specifically useful for page optimization and 
+minimizing the count of needed HTTP requests.
 
 
 Using page state
-=================
+================
 
 In the previous chapter we briefly stopped on using the page state variables
-when fetching the data. This is very common, but not exclusive use of them.
-There are many different situations when their use is needed (is modal dialog
-open, is checkbox checked, which tab is selected etc).
+when fetching the data. This is very common, but not the only use of them.
+They are needed in many different situations (e.g. is modal dialog open, is 
+checkbox checked, which tab is selected, etc.).
 
-Basically, React defines 2 types of variables which drive component behavior:
-`props` (immutable set of component arguments) and `state` (mutable set of
-variables which can be changed from inside component and drive its re-rendering).
-We're completely following this paradigm, but adding one more set: `data`. The
-set of data collections/entities received from the database. It acts much like
-the `state` does (triggers re-rendering), but never modified directly from the
-component code. And described using `dataSpecs` and `fetchDataSpecs` class
-attributes.
+Basically, React defines two types of variables which drive component 
+behavior: `props` (an immutable set of component arguments) and `state` 
+(a mutable set of variables which can be changed from inside the component 
+and drive its re-rendering).  
 
-Let's stop more on `state` this time::
+We're completely following this paradigm, but adding one more set: `data`.  
+The set of data collections/entities received from the database.  It acts 
+much like the `state` does (triggers re-rendering), but is never modified 
+directly from the component code.  It is described using the `dataSpecs` 
+and `fetchDataSpecs` class attributes.
+
+Let's stop more on `state` this time:
+
+.. code-block:: javascript
 
   getInitialState() {
     return {
@@ -306,14 +336,17 @@ Let's stop more on `state` this time::
     };
   }
 
-This piece of code is very simple and likely femiliar to the most of developers
-who use React. The only interesting part is is `cell`. Why it is used? What
-benefits does it have? Basically, it is here for optimization reasons.
+This piece of code is very simple and is likely familiar to most React 
+developers. The only interesting part is `cell`.  Why is it used?  What
+benefits does it have?  Basically, it is here for optimization reasons.
 Components which react on state changes can subscribe to a specific state
-variable and re-render only when this variable is updated. Another neat thing
-is that you can update state granularly this way, i.e. instead of doing
-`this.setState({x: value})` you can do `this.state.x.update(value)`. Also,
-most of the widgets know about this interface and are using it. For example::
+variable and re-render only when this variable is updated.  Another neat 
+thing is that you can update the state granularly this way, i.e. instead 
+of doing `this.setState({x: value})` you can do `this.state.x.update(value)`. 
+Also, most of the widgets know about this interface and are using it. For 
+example:
+
+.. code-block:: html
 
     <HelpModal
       title={props.helpModalTitle}
@@ -321,8 +354,10 @@ most of the widgets know about this interface and are using it. For example::
       open={state.showHelpModal}
       />
 
-If `cell` is not used for `state.showHelpModal` this piece of code would look
-as following::
+If `cell` were not used for `state.showHelpModal` this piece of code would 
+look like this:
+
+.. code-block:: html
 
     <HelpModal
       title={props.helpModalTitle}
@@ -332,22 +367,24 @@ as following::
       />
 
 Which is of course legitimate, but less obvious and more verbose.
-`cell()` object provides the `value` property to directly read the value and
-`update()` method to update it. If value is boolean you can also use
-`cell.toggle()` helper for a true/false switching.
+The `cell()` object provides the `value` property to directly read the value 
+and the `update()` method to update it. If the value is boolean you can also 
+use the `cell.toggle()` helper to switch the value between true and false.
 
 
-Using forms
+Using Forms
 ===========
 
-Let's consider real-world example together with forms usage overview. Here is
-the task. We need a modal dialog with form, which will add the
-`study_enrollment` record of 3 fields: date, consent (uploaded file) and
-the participant_group. For participant group there may be one more groups, if
-there is only one group we should not show the select box, but pre-set the
-value automatically.
+Let's consider a real-world example along with a forms usage overview. Here 
+is the task. We need a modal dialog with a form, which will add the
+`study_enrollment` record of 3 fields: date, consent (uploaded file), and
+participant_group.  For the participant group there may be one or more 
+groups to select from.  When there is only one group we should not show the 
+select box, but pre-set the value automatically.
 
-Here is the code::
+Here is the code:
+
+.. code-block:: javascript
 
     var EnrollModal = RexWidget.createWidgetClass({
 
@@ -444,37 +481,40 @@ Here is the code::
       }
     });
 
-So, the first interesting thing here is `dataSpec`. First of all it defines 
+So, the first interesting thing here is `dataSpecs`.  First of all it defines 
 `groupList` as the collection with no dependencies in this component (while it
 has the dependency in higher-level one). And also it will be fetched *only* 
 after this component will be rendered. In other words, if user never opens
 this modal dialog, `groupList`'s HTTP request will never be executed.
 
-Now, if we look at the `render()` method we can see that this component renders
-`<Modal>` with the `<Form>` inside. The `Form` constructor take certain
-parameters:
+Now, if we look at the `render()` method we can see that this component 
+renders `<Modal>` with the `<Form>` inside.  The `Form` constructor take 
+certain parameters:
 
- - `insert` says that form is going to act in insert mode (as opposed to 'update')
+ - `insert` says that the form is going to act in insert mode (as opposed to 
+   'update').
 
- - `schema` takes JSON schema (json-schema.org) which describes an object
-   this form is going to produce
+ - `schema` takes a `JSON schema`_ which describes the object this form is 
+   going to produce.
 
- - `value` is initial value to operate on
+ - `value` is the initial value to operate on.
 
- - `submitButton` component which defines the submit button
+ - `submitButton` defines the submit button.
 
- - `onSubmit` callback takes the value created using the form right before the
-   submission. The value it returns will be submitted. If you need to do any
-   modifications of the value, this is a right place to do it.
+ - `onSubmit` is a callback which takes the value created using the form 
+   right before the submission.  The value it returns will be submitted. If 
+   you need to do any modifications of the value, this is the place to do it.
 
- - `onSubmitComplete` callback which is called when submission is successful
+ - `onSubmitComplete` is a callback which is called when the submission is 
+   successful.
 
- - `submitTo` port where to submit
+ - `submitTo` the port where to submit.
 
-Also, in the `children` property of a `Form` you can see a some `Field` or
-`Fieldset` components. The most important part of those is `selectFormValue`
-property. It defines the path in the resulting object to take value from. 
-`children` may contain any needed components/layout elements as needed by the 
+Also, in the `children` property of a `Form` you can see some `Field` or
+`Fieldset` components.  The most important property is `selectFormValue`.
+It defines the path in the resulting object to take the value from. 
+`children` may contain any needed component/layout elements as needed by the 
 form designer.
 
+.. _JSON schema: http://json-schema.org
 

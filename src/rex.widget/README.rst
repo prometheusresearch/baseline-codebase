@@ -9,8 +9,10 @@
 Overview
 ========
 
-Rex Widget provides a widget toolkit for the RexDB platform. It allows one to
+Rex Widget provides a widget_ toolkit for the RexDB platform. It allows one to
 configure application screens composed of reusable widgets.
+
+.. _widget: http://en.wikipedia.org/wiki/Web_widget
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -39,6 +41,8 @@ components, built-in widgets, or custom widgets.
 
 Here is the urlmap for rex.widget_demo:
 
+.. highlight:: yaml
+
 .. literalinclude:: ../demo/static/urlmap.yaml
 
 The files under Data Definitions declare the application's ports which 
@@ -61,6 +65,8 @@ It is DemoPage and it is declared in its own file.
 
 Here is widgets.yaml for rex.widget_demo:
 
+.. highlight:: yaml
+
 .. literalinclude:: ../demo/static/widgets.yaml
 
 DemoPage is an example of a widget template.  We wanted all of the top 
@@ -74,6 +80,8 @@ Widget Composition
 ~~~~~~~~~~~~~~~~~~
 
 Here is page/about.yaml, this page is a DemoPage:
+
+.. highlight:: yaml
 
 .. literalinclude:: ../demo/static/page/about.yaml
 
@@ -90,6 +98,8 @@ Widget Templates
 ~~~~~~~~~~~~~~~~
 
 Here is static/widgets/DemoPage.yaml, the DemoPage template:
+
+.. highlight:: yaml
 
 .. literalinclude:: ../demo/static/widgets/DemoPage.yaml
 
@@ -225,10 +235,10 @@ the ``<Link>`` component to generate links between pages and states inside
 a page::
 
   !<Link>
-  text: John Doe
-  to: users
-  params:
-    username: johndoe
+    text: John Doe
+    to: users
+    params:
+      username: johndoe
 
 Or from inside another custom widget definition::
 
@@ -260,11 +270,11 @@ Alternatively if you want to generate a link without any validations you can
 pass the ``unsafe`` prop to the component::
 
   !<Link>
-  text: Some page
-  href: /somepage
-  params:
-    someparam: somevalue
-  unsafe: true
+    text: Some page
+    href: /somepage
+    params:
+      someparam: somevalue
+    unsafe: true
 
 Or from inside another custom widget definition::
 
@@ -284,6 +294,8 @@ urlmap, creating a custom widget for the app, and adding a rex chart to the app.
 Installing, deploying, and serving rex.widget_demo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. highlight:: bash
+
 Set up your virtual environment and activate it::
 
     virtualenv --system-site-packages my_virt_env
@@ -298,6 +310,8 @@ Next, check out and install ``rex.widget_demo``::
 
     hg clone ssh://hg@bitbucket.org/rexdb/rex.widget-provisional rex.widget
     pip install -e rex.widget/demo
+
+.. highlight:: yaml
 
 Next, create a ``rex.yaml`` file with contents::
 
@@ -318,7 +332,9 @@ where <YOUR DATABASE> is replaced with the name of your database, and
       db: pgsql:your-database-name 
     uwsgi:
       uwsgi-socket: localhost:5432
-      
+
+.. highlight:: bash
+
 Next deploy a demo database::
 
    rex deploy
@@ -365,15 +381,21 @@ will be a part of the CommonJS module package built for the application.
 Python - React Linkage
 ~~~~~~~~~~~~~~~~~~~~~~
 
+.. highlight:: python
+
 The subclass of :class:`rex.widget.Widget` must set the  ``js_type`` 
 attribute which links the class to its Javascript implementation.  
 For example::
 
     js_type = 'rex-widget/lib/Tab'
 
+.. highlight:: bash
+
 means the Javascript code is in::
 
     rex.widget/static/js/lib/Tab.js
+
+.. highlight:: javascript
 
 The Javascript code should instantiate a React_ component using::
 
@@ -383,6 +405,9 @@ and it must implement the ``render()`` method which renders the widget's
 appearance.  It may also provide additional methods (e.g. onClick(),
 onChange(), ...) as necessary.  All the fields of the Python subclass 
 are directly available to the React class as attributes of ``this.props``
+except that React converts any underscores in attribute names to camelcase.
+For example ``self.foo_bar`` in python becomes ``this.props.fooBar`` 
+in React.
 
 
 Examples
@@ -401,6 +426,8 @@ Let us implement ``<MyHeader>``, a widget which renders into ``<h1>``,
 
 This widget is exactly the same as the built-in ``<Header>`` and is only 
 here as a demonstration.
+
+.. highlight:: python
 
 The complete widget declaration looks like::
 
@@ -444,6 +471,8 @@ specified; while ``level`` is optional, as it has ``1`` as its default value.
   authors need to make sure their widget definitions are imported when
   the application starts.
 
+.. highlight:: javascript
+
 Now let's see how we can implement ``MyHeader`` in JavaScript. The following
 code should be available by calling ``require("my-package/lib/MyHeader")``::
 
@@ -468,6 +497,8 @@ can use these to configure the appearance of the widget and user interactions.
 Refer to React_ documentation for the information on how to define React
 components.
 
+.. highlight:: yaml
+
 Finally you can use ``<MyHeader>`` widget via a URL mapping::
 
   widget:
@@ -487,6 +518,8 @@ A stateful widget manages some state which can be used to drive an
 application's data and user interactions.  The examples of stateful widgets 
 provided by Rex Widget are ``<TextInput>`` and ``<Select>``.
 
+.. highlight:: python
+
 We will replicate ``<TextInput>`` widget functionality in a new
 ``<MyTextInput>`` stateful widget::
 
@@ -503,6 +536,8 @@ We will replicate ``<TextInput>`` widget functionality in a new
 
 This is the minimal stateful widget. It defines a state ``value`` via
 ``StateField``.  Also stateful widgets are required to have an ``id`` field.
+
+.. highlight:: javascript
 
 The difference between ``Field`` and ``StateField`` becomes apparent when we 
 see the JavaScript definition of ``<MyTextInput>``::
@@ -533,6 +568,8 @@ callback allows us to signal when the new state value is available.
 We've connected ``onValue`` to an ``onChange`` event of the React ``<input />`` 
 component so when the user types into the text field, the application is 
 notified of a new state value.
+
+.. highlight:: yaml 
 
 Now we can use our ``<MyTextInput>`` widget::
 
@@ -568,6 +605,8 @@ Data widgets
 Data widgets are widgets which fetch data from the database.  Rex widget has
 two built in data widgets: ``<Grid>`` and ``<Table>``.
 
+.. highlight:: python
+
 We will define widget ``<MyTable>`` which replicates the functionality of
 the built-in ``<Table>`` data widget::
 
@@ -586,6 +625,8 @@ Data widgets are required to have an ``id`` field, similar to stateful widgets.
 
 The notable thing in the ``<MyTable>`` declaration is the usage of
 ``CollectionField`` to define the ``data`` field.
+
+.. highlight:: javascript
 
 The presence of such fields instructs Rex Widget to fetch data from the 
 database and transfer it to the browser to be rendered by the corresponding 
@@ -623,6 +664,8 @@ component. It is an object with ``data`` and ``updating`` attributes. Attribute
   via the ``include_meta`` option::
 
     data = CollectionField(include_meta=True)
+
+.. highlight:: yaml
 
 Finally we can use our ``<MyTable>`` widget in the URL mapping::
 
@@ -681,6 +724,8 @@ Creating Custom Widgets For Your App
 
 Rex.widget_demo adds several custom widgets for use in the app.
 
+.. highlight:: python
+
 The python components are added in file 
 ``/src/rex/widget_demo.py``. The StudyInfo widget is::
 
@@ -692,6 +737,8 @@ The python components are added in file
 
     id      = Field(StrVal)
     data    = EntityField()
+
+.. highlight:: javascript
 
 The javascript components are added in file 
 ``/static/js/lib/StudyInfo.js``. The StudyInfo widget code is::
@@ -752,6 +799,8 @@ WidgetDoc Widget
 
 Rex.Widget includes a WidgetDoc widget that lists all available rex widgets in
 your application along with a detailed description of each widget's parameters.
+
+.. highlight:: yaml
 
 ``WidgetDoc`` can be included in a page::
 

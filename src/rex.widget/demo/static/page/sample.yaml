@@ -47,15 +47,38 @@ paths:
                 text: |
                   light green boxes. 
 
+        - !<VBox>
+          margin: 15
+          children:
           - !<HBox>
-            children_margin: 10 # put some space between the Labels.
+            children_margin: 5 # put some space between the Labels.
             children:
-            - !<Label> 'The configuration for this page is in'
+            - !<Text> 'The configuration for this page is in'
             - !<Box>   # put the Link in a Box so there is space between it and the Label.
               children:
               - !<Link>
                 text: demo/static/page/sample.yaml
                 href: /page/sample.txt
+          - !<HBox>
+            children_margin: 5 # put some space between the Labels.
+            children:
+            - !<Text> |
+              which uses the DemoPage widget template which is declared in
+            - !<Box>   # put the Link in a Box so there is space between it and the Label.
+              children:
+              - !<Link>
+                text: demo/static/widgets/DemoPage.yaml
+                href: /page/DemoPage.txt
+          - !<HBox>
+            children_margin: 5 # put some space between the Labels.
+            children:
+            - !<Text> |
+              and the WidgetExample widget template which is declared in
+            - !<Box>   # put the Link in a Box so there is space between it and the Label.
+              children:
+              - !<Link>
+                text: static/widgets.yaml
+                href: /page/widgets.txt
 
         - !<WidgetExample>
           widget_name: Anchor
@@ -109,6 +132,53 @@ paths:
                 This is the text of a Header widget 
                 in a light blue Box widget
               level: 4 
+
+        - !<WidgetExample>
+          widget_name: HBox
+          widget_description: |
+            The HBox widget is just like the Box widget with the 'direction' 
+            pre-set to 'horizontal'
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+                - !&lt;HBox>
+                  children_margin: 10
+                  children:
+                  - !&lt;Label> 1
+                  - !&lt;Label> 2
+                  - !&lt;Label> 3
+              </pre>
+          sample_usage_content:
+          - !<HBox>
+            children_margin: 10
+            children:
+            - !<Label> 1
+            - !<Label> 2
+            - !<Label> 3
+        - !<WidgetExample>
+          widget_name: VBox
+          widget_description: |
+            The VBox widget is just like the Box widget with the 'direction' 
+            pre-set to 'vertical'
+          configuration_content:
+          - !<UnsafeHTML> 
+            html: |
+              <pre style="font-size:75%">
+                - !&lt;VBox>
+                  children_margin: 10
+                  children:
+                  - !&lt;Label> 1
+                  - !&lt;Label> 2
+                  - !&lt;Label> 3
+              </pre>
+          sample_usage_content:
+          - !<VBox>
+            children_margin: 10
+            children:
+            - !<Label> 1
+            - !<Label> 2
+            - !<Label> 3
 
         - !<WidgetExample>
           widget_name: Header

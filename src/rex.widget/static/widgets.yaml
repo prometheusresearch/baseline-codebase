@@ -9,7 +9,7 @@ widgets:
         size: 1
         children:
         - !<Header>
-          level: 2
+          level: 3
           text: !slot widget_name
         - !<Text>
           text: !slot widget_description

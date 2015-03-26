@@ -5,7 +5,7 @@ REX.SMS Change Log
 .. contents:: Table of Contents
 
 
-0.2.0 (2015-01-xx)
+0.2.0 (2015-03-26)
 ==================
 
 * Added support for ``rex.setup`` v2.

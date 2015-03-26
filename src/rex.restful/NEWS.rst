@@ -5,7 +5,7 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
-0.4.0 (2015-xx-xx)
+0.4.0 (2015-03-26)
 ==================
 
 * Fixed an issue where if a Content-Type is sent on a PUT/POST, but no there is

@@ -1,11 +1,8 @@
 - table: user
   with:
-    - column: name
-      type: text
     - column: remote_user
       type: text
-      unique: true
-    - identity: [name]
+    - identity: [remote_user]
     - data: ./deploy/user.csv
 
 - table: subject

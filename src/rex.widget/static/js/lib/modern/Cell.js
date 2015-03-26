@@ -3,17 +3,112 @@
  */
 'use strict';
 
-var Emitter = require('emitter');
+var React     = require('react/addons');
+var Emitter   = require('emitter');
+var invariant = require('./invariant');
+var qs        = require('../qs');
 
 var EVENT_NAME = 'change';
 
+class CellHistory {
+
+  constructor() {
+    this._paramToCell = {};
+    this._pendingUpdates = {};
+    this._scheduled = null;
+    this._updateLocation = this._updateLocation.bind(this);
+    this._ignoreChanges = false;
+    window.onpopstate = this._onPopState.bind(this);
+  }
+
+  ignoringChanges(func) {
+    this._ignoreChanges = true;
+    try {
+      func();
+    } finally {
+      this._ignoreChanges = false;
+    }
+  }
+
+  registerCell(param, cell, prevCell) {
+    invariant(
+      this._paramToCell[param] === prevCell,
+      'cell with param %s already exists'
+    );
+    this._paramToCell[param] = cell;
+  }
+
+  notifyChange(param, cell) {
+    if (this._ignoreChanges) {
+      return;
+    }
+    this._pendingUpdates[param] = cell.value;
+    clearTimeout(this._scheduled);
+    this._scheduled = setTimeout(this._updateLocation, 0);
+
+  }
+
+  _updateLocation() {
+    var nextLocation = updateQueryString(this._pendingUpdates);
+    history.pushState({}, '', nextLocation);
+    this._pendingUpdates = {};
+  }
+
+  _onPopState() {
+    var params = getQueryParams();
+    React.addons.batchedUpdates(() => {
+      this.ignoringChanges(() => {
+        Object.keys(params).forEach(param => {
+          if (this._paramToCell[param]) {
+            this._paramToCell[param].update(params[param]);
+          }
+        });
+      });
+    });
+  }
+}
+
+function getQueryParams() {
+  var params = {};
+  if (location.search.length > 0) {
+    params = qs.parse(location.search.slice(1));
+  }
+  return params;
+}
+
+function updateQueryString(update) {
+  var params = getQueryParams();
+  if (location.search.length > 0) {
+    params = qs.parse(location.search.slice(1));
+  }
+  for (var k in update) {
+    if (update[k] == null) {
+      delete params[k];
+    } else {
+      params[k] = update[k];
+    }
+  }
+  if (Object.keys(params).length === 0) {
+    return location.pathname;
+  } else {
+    return `${location.pathname}?${qs.stringify(params)}`;
+  }
+}
+
+var _history = new CellHistory();
+
 class Cell extends Emitter {
 
-  constructor(value) {
+  constructor(value, options, prev) {
     this.value = value;
+    this.options = options || {};
     this.update = this.update.bind(this);
     this.updateTo = this.updateTo.bind(this);
     this.toggle = this.toggle.bind(this);
+
+    if (this.options.param) {
+      _history.registerCell(this.options.param, this, prev);
+    }
   }
 
   valueOf() {
@@ -21,7 +116,10 @@ class Cell extends Emitter {
   }
 
   update(nextValue) {
-    var nextCell = new this.constructor(nextValue);
+    var nextCell = new this.constructor(nextValue, this.options, this);
+    if (this.options.param) {
+      _history.notifyChange(this.options.param, nextCell);
+    }
     this.emit(EVENT_NAME, nextCell, this);
   }
 
@@ -97,10 +195,16 @@ function isCell(maybeCell) {
 /**
  * Constructs a new cell value.
  */
-function cell(value) {
-  return new Cell(value);
+function cell(value, options) {
+  if (options && options.param) {
+    var params = getQueryParams();
+    if (Object.keys(params).indexOf(options.param) > -1) {
+      value = params[options.param];
+    }
+  }
+  return new Cell(value, options);
 }
 
 module.exports = {
-  Mixin, Cell, cell, isCell
+  Mixin, cell, isCell, history: _history
 };

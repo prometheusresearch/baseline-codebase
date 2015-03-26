@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.0.0 (2015-xx-xx)
+5.0.0 (2015-03-26)
 ==================
 
 * Completely redesigned, refocused, and rebuilt.

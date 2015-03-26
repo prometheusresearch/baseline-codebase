@@ -1,7 +1,7 @@
 widgets:
 
   WidgetExample: !<Box>
-    id: my_widget_example
+    id: !slot id 
     children:
     - !<VBox>
       children:
@@ -11,14 +11,14 @@ widgets:
         - !<Header>
           level: 3
           text: !slot widget_name
-        - !<Text>
-          text: !slot widget_description
       - !<HBox>
         children:
         - !<VBox>
           size: 1
           aligned: left
           children:
+          - !<Text>
+            text: !slot widget_description
           - !<Box>
             background_color: white 
             margin: 10

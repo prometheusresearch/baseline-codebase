@@ -6,8 +6,16 @@ paths:
       title: About
       id: about
       children: !<Box>
-        margin: 10
         children:
+        - !<HBox>
+          children_margin: 5 # put some space between the Labels.
+          children:
+          - !<Text> 'The configuration for this page is in'
+          - !<Box>   # put the Link in a Box so there is space between it and the Label.
+            children:
+            - !<Link>
+              text: demo/static/page/about.yaml
+              href: /page/about.txt
         - !<Box>
           center_horizontally: True
           children:

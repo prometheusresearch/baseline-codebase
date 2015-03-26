@@ -9,12 +9,12 @@ widgets:
       application_name: Rex Widget Demo
       menu:
       - doc
+      - sample
       - forms
       - forms-master-detail
       - upload
       - workflow
       - experiment
-      - sample
       - about
     - !<Box>
       size: 1

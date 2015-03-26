@@ -8,6 +8,15 @@ paths:
         study: studies/selected
         protocol: protocols/selected
       children:
+        - !<HBox>
+          children_margin: 5 # put some space between the Labels.
+          children:
+          - !<Text> 'The configuration for this page is in'
+          - !<Box>   # put the Link in a Box so there is space between it and the Label.
+            children:
+            - !<Link>
+              text: demo/static/page/forms_master_details.yaml
+              href: /page/forms_master_details.txt
         - !<Box>
           center_horizontally: True
           children:

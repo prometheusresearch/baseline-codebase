@@ -192,8 +192,8 @@ exactly one entity will be returned, i.e. you query some database
 record/entity by its primary key.  The latter should be used in all other
 cases, i.e. you query the list of records which may have zero or more items.
 
-So, while Python part is quite trivial, the JavaScript part is a bit more
-complex and defines relationships between all those queries:
+So, while the Python part is quite trivial, the JavaScript part is a bit more
+complex and defines the relationships between all the queries:
 
 .. code-block:: javascript
 
@@ -287,7 +287,7 @@ Here is an example of how to access the data:
   },
 
 So, everything defined in `dataSpec` appears as `this.data.*` at runtime. Each
-of those data entities has 3 properties: `loading` (useful for showing the 
+of those data entities has three properties: `loading` (useful for showing the 
 preloader), `data` or `value` (for collections or entities respectively) and 
 `length`. Also there is one method which is specifically useful for 
 collections:
@@ -377,8 +377,8 @@ Using Forms
 
 Let's consider a real-world example along with a forms usage overview. Here 
 is the task. We need a modal dialog with a form, which will add the
-`study_enrollment` record of 3 fields: date, consent (uploaded file), and
-participant_group.  For the participant group there may be one or more 
+`study_enrollment` record of three fields: `date`, `consent` (uploaded file), 
+and `participant_group`.  For the participant group there may be one or more 
 groups to select from.  When there is only one group we should not show the 
 select box, but pre-set the value automatically.
 

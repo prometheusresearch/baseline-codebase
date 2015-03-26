@@ -5,7 +5,17 @@ paths:
     widget: !<DemoPage>
       id: experiment
       title: Experiment
-      children: !<Box>
+      children: 
+      - !<HBox>
+        children_margin: 5 # put some space between the Labels.
+        children:
+        - !<Text> 'The configuration for this page is in'
+        - !<Box>   # put the Link in a Box so there is space between it and the Label.
+          children:
+          - !<Link>
+            text: demo/static/page/experiment.yaml
+            href: /page/experiment.txt
+      - !<Box>
         margin: 10
         children:
         - !<Box>
@@ -14,8 +24,5 @@ paths:
             - !<Header> 
               text: Experiment
               level: 3
-        - !<Link>
-          text: This is demo/static/page/experiment.yaml
-          href: page/experiment.txt
         - !<Label>
-          text: Feel free to change it to experiment with the widgets.
+          text: Feel free to change experiment.yaml to experiment with the widgets.

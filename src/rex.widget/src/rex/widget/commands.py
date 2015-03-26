@@ -7,26 +7,38 @@
 
 """
 
+import re
+
 from webob import Response
-from rex.web import Command, Authorize
 
-__all__ = ('Permissions',)
+from rex.core import StrVal
+from rex.web import Command, Parameter, authorize, route
+
+__all__ = ('Authorized',)
 
 
-class Permissions(Command):
+class Authorized(Command):
 
-    path = "/permissions"
-    access = "anybody"
+    path = '/authorized'
+    access = 'anybody'
 
-    def render(self, req):
-        permissions = [
-            (name, permission()(req))
-            for name, permission
-            in Authorize.map_all().items()
-        ]
-        return Response(json={
-            name: permission
-            for name, permission
-            in permissions
-            if permission
-        })
+    parameters = [
+        Parameter('access', StrVal())
+    ]
+
+    _IS_PACKAGE_URL = re.compile(r'^[a-zA-Z0-9_\-\.]+:.+$')
+
+    def render(self, req, access):
+        if not self._IS_PACKAGE_URL.match(access):
+            # assuming we always resolve URLs to the same app instance
+            if not access.startswith(req.host_url):
+                access = req.host_url + access
+            mounts = req.environ['rex.mount'].items()
+            mounts = sorted(mounts, key=lambda (k, v): -len(v))
+            for pkg, prefix in mounts:
+                if access.startswith(prefix):
+                    access = pkg + ':' + access[len(req.host_url):]
+                    break
+        handler = route(access)
+        authorized = authorize(req, handler)
+        return Response(json={'authorized': authorized})

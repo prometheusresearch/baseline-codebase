@@ -10,40 +10,70 @@ var request = require('../request');
 var Authorized = React.createClass({
 
   render() {
-    var {permission, children} = this.props;
-    var hasPersmission = checkPermission(permission);
-    if (hasPersmission && hasPersmission.then) {
-      hasPersmission.then(this._onPermissionsChecked);
+    if (!this.state.access) {
       return null;
+    } else {
+      return React.Children.only(this.props.children);
     }
-    if (!hasPersmission) {
-      return null;
-    }
-    return React.Children.only(children);
   },
 
-  _onPermissionsChecked() {
-    this.forceUpdate();
+  getInitialState() {
+    return this._stateFromProps(this.props);
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.access !== nextProps.access) {
+      this.setState(this._stateFromProps(nextProps));
+    }
+  },
+
+  componentDidMount() {
+    this._checkAccess();
+  },
+
+  componentDidUpdate() {
+    this._checkAccess();
+  },
+
+  _checkAccess() {
+    if (this.state.access === null) {
+      checkAccessTo(this.props.access).then(() => {
+        this.setState(this._stateFromProps(this.props));
+      });
+    }
+  },
+
+  _stateFromProps(props) {
+    return {access: hasAccessTo(props.access)};
   }
+
 });
 
-var PERMISSIONS_API_ENDPOINT = `${location.protocol}//${location.host}/widget/permissions`;
+var PERMISSIONS_API_ENDPOINT = `${location.protocol}//${location.host}/widget/authorized`;
 
-var _permissionsPromise;
+// Map<String, Boolean | Promise<Boolean>>
+var _access = {};
 
-function checkPermission(permission) {
-  if (!_permissionsPromise) {
-    _permissionsPromise = request('GET', PERMISSIONS_API_ENDPOINT)
+function hasAccessTo(access) {
+  var result = checkAccessTo(access);
+  if (result.isFulfilled()) {
+    return result.value();
+  } else if (result.isRejected()) {
+    throw result.reason();
+  } else {
+    return null;
+  }
+}
+
+function checkAccessTo(access) {
+  var result = _access[access];
+  if (result === undefined) {
+    result = _access[access] = request('GET', PERMISSIONS_API_ENDPOINT)
+      .query({access})
       .promise()
-      .then(response => response.body);
+      .then(response => response.body.authorized);
   }
-  if (_permissionsPromise.isFulfilled()) {
-    return !!_permissionsPromise.value()[permission];
-  }
-  if (_permissionsPromise.isRejected()) {
-    throw _permissionsPromise.reason();
-  }
-  return _permissionsPromise.then(permissions => !!permissions[permission]);
+  return result;
 }
 
 module.exports = Authorized;

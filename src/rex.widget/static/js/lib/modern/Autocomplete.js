@@ -80,8 +80,13 @@ var Autocomplete = React.createClass({
   },
 
   onChange(value) {
-    this.setState({valueTitle: value.title});
-    this.props.onChange(value.id);
+    if (value) {
+      this.props.onChange(value.id);
+      this.setState({valueTitle: value.title});
+    } else {
+      this.props.onChange(undefined);
+      this.setState({valueTitle: null});
+    }
   },
 
   _clear() {

@@ -376,7 +376,10 @@ In JavaScript, a React_ component should be defined which implements the
 appearance of the widget and the interactions with the user.  This component 
 will be a part of the CommonJS module package built for the application.
 
+Here is an excellent `React primer`_ and a source of further documentation.
+
 .. _React: http://facebook.github.io/react
+.. _React primer: https://github.com/mikechau/react-primer-draft
 
 Python - React Linkage
 ~~~~~~~~~~~~~~~~~~~~~~

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.2.0 (2015-XX-XX)
+2.2.0 (2015-03-26)
 ==================
 
 * Fixed lookup issues when a namespace package is installed in development
@@ -14,6 +14,7 @@
 
 * Fixed lookup of a static dir for packages installed via wheel distribution
   format.
+
 
 2.1.1 (2015-02-20)
 ==================

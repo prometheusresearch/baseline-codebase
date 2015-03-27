@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.10.3 (2015-XX-XX)
+1.10.3 (2015-03-26)
 ===================
 
 * Disable ``PEP440Warning``.

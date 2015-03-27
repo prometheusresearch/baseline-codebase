@@ -49,7 +49,7 @@ var Authorized = React.createClass({
 
 });
 
-var PERMISSIONS_API_ENDPOINT = `${location.protocol}//${location.host}/widget/authorized`;
+var PERMISSIONS_API_ENDPOINT = `${__REX_WIDGET_MOUNT_PREFIX__}/authorized`;
 
 // Map<String, Boolean | Promise<Boolean>>
 var _access = {};

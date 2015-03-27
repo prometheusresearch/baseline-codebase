@@ -13,6 +13,7 @@
   <script>
     var __PUBLIC_PATH__ = "{{ bundle.root|url }}";
     var __MOUNT_PREFIX__ = "{{ REQUEST.script_name }}";
+    var __REX_WIDGET_MOUNT_PREFIX__ = "{{ REQUEST.environ['rex.mount']['rex.widget'] }}";
   </script>
   {% if bundle.js %}
     <script src="{{ bundle.js|url }}"></script>

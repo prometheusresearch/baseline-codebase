@@ -58,6 +58,14 @@ Now we make a Rex application over the created database::
     ...            htsql_extensions={'rex_deploy': {}})
     >>> demo.on()
 
+We enable the audit trigger to verify how it handles updates for various
+data types::
+
+    >>> driver = cluster.drive()
+    >>> driver("""include: rex.deploy:/deploy/audit.yaml""")
+    >>> driver.commit()
+    >>> driver.close()
+
 Now we can make some queries to see how ``rex.deploy`` metadata changes HTSQL
 labels and headers::
 

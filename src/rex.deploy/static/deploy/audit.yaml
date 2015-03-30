@@ -24,7 +24,7 @@
 
         -- Create the schema and update the version number.
         CREATE SCHEMA IF NOT EXISTS audit;
-        COMMENT ON SCHEMA audit IS 'version: 2.0.0';
+        COMMENT ON SCHEMA audit IS 'version: 2.3.1';
 
         IF current_version IS NULL THEN
             -- Creating the table from scratch.
@@ -53,6 +53,7 @@
 
         ELSIF current_version ~ '^version: 2[.]0[.]0$' THEN
             -- Upgrading from version 2.0.0.
+            COMMENT ON SCHEMA audit IS 'version: 2.3.1';
         END IF;
 
         -- (Re)build trigger functions.
@@ -62,9 +63,13 @@
         DECLARE
             session text;
         BEGIN
-            IF TG_OP = 'UPDATE' AND OLD = NEW THEN
-                RETURN NULL;
-            END IF;
+            BEGIN
+                IF TG_OP = 'UPDATE' AND OLD = NEW THEN
+                    RETURN NULL;
+                END IF;
+            EXCEPTION WHEN undefined_function THEN
+                -- Records are not comparable (contain JSON values).
+            END;
             BEGIN
                 SELECT current_setting('rex.session') INTO session;
             EXCEPTION WHEN undefined_object THEN
@@ -125,7 +130,7 @@
     $_$;
 
   unless: |
-    SELECT obj_description(n.oid, 'pg_namespace') ~ '^version: 2[.]0[.]0$'
+    SELECT obj_description(n.oid, 'pg_namespace') ~ '^version: 2[.]3[.]1$'
     FROM pg_catalog.pg_namespace n
     WHERE n.nspname = 'audit';
 

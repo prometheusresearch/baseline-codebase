@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.2.0 (2015-XX-XX)
+==================
+
+* ``get_db(name)`` raises ``KeyError`` if the gateway is not configured.
+
+
 3.1.1 (2015-03-11)
 ==================
 

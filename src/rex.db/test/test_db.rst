@@ -116,8 +116,9 @@ You could disable a gateway by setting the gateway parameters to ``None``::
 
     >>> with no_gateway:
     ...     no_db = get_db('gateway')
-    >>> no_db is None
-    True
+    Traceback (most recent call last):
+      ...
+    KeyError: 'gateway'
 
 
 Querying the database

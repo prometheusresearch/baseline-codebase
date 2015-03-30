@@ -71,8 +71,9 @@ class RexDBTask(RexTask):
 
     def get_db(self):
         # Gets the HTSQL instance, possibly for a gateway database.
-        db = get_db(self.gateway)
-        if db is None:
+        try:
+            db = get_db(self.gateway)
+        except KeyError:
             raise fail("unknown gateway: `{}`", self.gateway)
         return db
 

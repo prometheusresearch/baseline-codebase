@@ -67,8 +67,9 @@ class HandleHTSQLLocation(HandleLocation):
             if not req.path_info:
                 raise HTTPMovedPermanently(add_slash=True)
             gateway = segment[1:]
-        db = get_db(gateway)
-        if db is None:
+        try:
+            db = get_db(gateway)
+        except KeyError:
             raise HTTPNotFound()
         # Unpack HTSQL queries tunneled in a POST body.
         if (req.method == 'POST' and

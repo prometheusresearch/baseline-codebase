@@ -199,7 +199,8 @@ def get_db(name=None):
 
     `name`
         If ``name`` is not provided, returns the primary application
-        database.  Otherwise, returns the named gateway.
+        database.  Otherwise, returns the named gateway.  If the gateway
+        is not configured, raises :exc:`KeyError`.
     """
     # Build configuration from settings `db`, `htsql_extensions` and
     # `htsql_base_extensions`.  Also include `rex` HTSQL addon.
@@ -215,7 +216,7 @@ def get_db(name=None):
     else:
         gateway = settings.gateways.get(name)
         if not gateway:
-            return None
+            raise KeyError(name)
         configuration = HTSQLVal.merge({'rex': {}}, gateway)
     return RexHTSQL(None, configuration)
 

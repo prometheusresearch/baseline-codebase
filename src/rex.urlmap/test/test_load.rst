@@ -358,6 +358,39 @@ or a port or a query with template data::
         "/.../urlmap.yaml", line 4
     ...
 
+You can override the gateway database for queries and ports, but
+specifying an unknown gateway will raise an error::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /data/individual: !override
+    ...     gateway: gateway
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Found undefined gateway:
+        gateway
+    While creating port:
+        "/.../urlmap/base.yaml", line 8
+    ...
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /data/total: !override
+    ...     gateway: gateway
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Found undefined gateway:
+        gateway
+    While creating query:
+        "/.../urlmap/base.yaml", line 10
+    ...
+
 Orphaned overrides are detected and reported::
 
     >>> sandbox.rewrite('/urlmap.yaml', """

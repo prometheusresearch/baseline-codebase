@@ -57,7 +57,13 @@ class MapPort(Map):
 
     def __call__(self, spec, path, context):
         with guard("While creating port:", locate(spec)):
-            port = Port(spec.port, get_db(spec.gateway))
+            try:
+                db = get_db(spec.gateway)
+            except KeyError:
+                db = None
+            if db is None:
+                raise Error("Found undefined gateway:", spec.gateway)
+            port = Port(spec.port, db)
         access = spec.access or self.package.name
         return PortRenderer(
                 port=port,

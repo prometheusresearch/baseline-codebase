@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Error, MaybeVal, StrVal, BoolVal, MapVal
+from rex.core import Error, MaybeVal, StrVal, BoolVal, MapVal, locate
 from rex.web import authorize, trusted
 from rex.db import get_db
 from .map import Map
@@ -96,8 +96,15 @@ class MapQuery(Map):
 
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
+        try:
+            db = get_db(spec.gateway)
+        except KeyError:
+            db = None
+        if db is None:
+            raise Error("Found undefined gateway:", spec.gateway) \
+                    .wrap("While creating query:", locate(spec))
         return QueryRenderer(
-                db=get_db(spec.gateway),
+                db=db,
                 path=path,
                 query=spec.query,
                 parameters=spec.parameters,

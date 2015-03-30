@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+1.10.4 (2015-XX-XX)
+===================
+
+* Dropped handling of ``PEP440Warning`` since it has been fixed in the latest
+  release of ``setuptools``.
+
+
 1.10.3 (2015-03-26)
 ===================
 

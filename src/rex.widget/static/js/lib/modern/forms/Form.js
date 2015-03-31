@@ -94,6 +94,7 @@ var Form = React.createClass({
         <Button success>Submit</Button>
       ),
       onChange: emptyFunction.thatReturnsArgument,
+      onUpdate: emptyFunction.thatReturnsArgument,
       onSubmit: emptyFunction.thatReturnsArgument,
       onSubmitComplete: emptyFunction,
       onSubmitError: emptyFunction,
@@ -129,6 +130,13 @@ var Form = React.createClass({
     };
   },
 
+  componentDidUpdate() {
+    var value = this.props.onUpdate(this.state.value.value);
+    if (value !== this.state.value.value) {
+      this.setState({value: this.state.value.set(value, true)});
+    }
+  },
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.schema !== this.props.schema) {
       var value = Value(nextProps.schema, this.state.value.value, this.onChange, this.state.value.params);
@@ -141,7 +149,7 @@ var Form = React.createClass({
     var {submitTo, onSubmit, onSubmitComplete, onSubmitError} = this.props;
     var nextValue = value.set(
       onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
-      false);
+      true);
     if (nextValue.allErrors) {
       this.setState({value: value.setParams({forceShowErrors: true})});
       return;
@@ -160,7 +168,7 @@ var Form = React.createClass({
   },
 
   onChange(value) {
-    value = value.set(this.props.onChange(value.value), true);
+    value = value.set(this.props.onChange(value.value, this.state.value.value), true);
     this.setState({value});
   },
 

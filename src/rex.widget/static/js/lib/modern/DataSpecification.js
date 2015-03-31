@@ -15,12 +15,12 @@ class DataSpecification {
 
   bindToContext(context) {
     var params = {};
-    for (var k in this.spec) {
-      var spec = this.spec[k];
+    for (var key in this.spec) {
+      var spec = this.spec[key];
       if (spec instanceof Binding) {
-        params[k] = spec.bindToContext(context);
+        params = {...params, ...spec.bindToContext(context, key)};
       } else {
-        params[k] = spec;
+        params[key] = spec;
       }
     }
     return new this.constructor(this.port, params);
@@ -78,8 +78,10 @@ class StateBinding extends Binding {
     this.keyPath = keyPath;
   }
 
-  bindToContext(context) {
-    return new Value(context.state[this.keyPath], this.options);
+  bindToContext(context, key) {
+    var bind = {};
+    bind[key] = new Value(context.state[this.keyPath], this.options);
+    return bind;
   }
 }
 
@@ -90,8 +92,10 @@ class PropBinding extends Binding {
     this.keyPath = keyPath;
   }
 
-  bindToContext(context) {
-    return new Value(context.props[this.keyPath], this.options);
+  bindToContext(context, key) {
+    var bind = {};
+    bind[key] = new Value(context.props[this.keyPath], this.options);
+    return bind;
   }
 }
 

@@ -129,6 +129,13 @@ var Form = React.createClass({
     };
   },
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.schema !== this.props.schema) {
+      var value = Value(nextProps.schema, this.state.value.value, this.onChange, this.state.value.params);
+      this.setState({value});
+    }
+  },
+
   submit() {
     var {value} = this.state;
     var {submitTo, onSubmit, onSubmitComplete, onSubmitError} = this.props;

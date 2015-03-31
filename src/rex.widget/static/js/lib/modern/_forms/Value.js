@@ -64,6 +64,9 @@ class Value {
   }
 
   set(value, quiet) {
+    if (value === this.root) {
+      return this;
+    }
     var root = clone(this.root);
     if (this.keyPath.length === 0) {
       root = value;
@@ -121,7 +124,7 @@ function subSchemaByKey(schema, key) {
       var subSchema = schema.properties ?
         schema.properties[key] :
         undefined;
-      if (subSchema && Array.isArray(schema.required)) {
+      if (Array.isArray(schema.required)) {
         // transfer required info onto schema
         subSchema = {
           ...subSchema,

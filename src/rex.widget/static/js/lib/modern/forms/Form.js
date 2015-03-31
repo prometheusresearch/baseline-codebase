@@ -115,7 +115,7 @@ var Form = React.createClass({
       errorNotification: (
         <NotificationCenter.Notification
           kind="danger"
-          text="There was an error whild submitting data to server"
+          text="There was an error while submitting data to server"
           icon="remove"
           />
       )

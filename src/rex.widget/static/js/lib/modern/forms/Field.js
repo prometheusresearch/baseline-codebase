@@ -75,7 +75,7 @@ var Field = React.createClass({
             <VBox size={1} centerVertically>
               <label>
                 {label}
-                {schema && schema.required ?
+                {schema && schema.isRequired ?
                   <span style={FieldStyle.requiredTag}>*</span> :
                   null}
               </label>

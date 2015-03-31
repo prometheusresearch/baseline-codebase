@@ -121,11 +121,11 @@ function subSchemaByKey(schema, key) {
       var subSchema = schema.properties ?
         schema.properties[key] :
         undefined;
-      if (subSchema && schema.required) {
+      if (subSchema && Array.isArray(schema.required)) {
         // transfer required info onto schema
         subSchema = {
           ...subSchema,
-          required: schema.required.indexOf(key) !== -1
+          isRequired: schema.required.indexOf(key) !== -1
         };
       }
       return subSchema;

@@ -22,6 +22,46 @@ var FormStyle = {
 
 var Form = React.createClass({
 
+  propTypes: {
+    /**
+     * Data specification to submit form value to.
+     */
+    submitTo: React.PropTypes.object,
+    /**
+     * Form schema in json schema format.
+     */
+    schema: React.PropTypes.object,
+    /**
+     * Initial form value.
+     */
+    value: React.PropTypes.object,
+
+    /**
+     * Submit button element.
+     */
+    submitButton: React.PropTypes.element,
+    /**
+     * Submit button title.
+     */
+    submitButtonTitle: React.PropTypes.string,
+
+    /**
+     * Callback which fires on form submit.
+     *
+     * This callback can alter form value before submitting it to server by
+     * returning a new value.
+     */
+    onSubmit: React.PropTypes.func,
+    /**
+     * Callback which fires after form submit is complete.
+     */
+    onSubmitComplete: React.PropTypes.func,
+    /**
+     * Callback which fires if form submit results in an error.
+     */
+    onSubmitError: React.PropTypes.func
+  },
+
   render() {
     var {children, schema, submitButton, submitButtonTitle, ...props} = this.props;
     var {value, submitInProgress} = this.state;
@@ -53,6 +93,7 @@ var Form = React.createClass({
       submitButton: (
         <Button success>Submit</Button>
       ),
+      onChange: emptyFunction.thatReturnsArgument,
       onSubmit: emptyFunction.thatReturnsArgument,
       onSubmitComplete: emptyFunction,
       onSubmitError: emptyFunction,
@@ -112,6 +153,7 @@ var Form = React.createClass({
   },
 
   onChange(value) {
+    value = value.set(this.props.onChange(value.value), true);
     this.setState({value});
   },
 

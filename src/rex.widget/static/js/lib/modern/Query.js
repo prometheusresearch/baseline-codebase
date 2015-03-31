@@ -13,12 +13,16 @@ class Query {
     this.path = path;
   }
 
+  handleResponse(response) {
+    return JSON.parse(response.text);
+  }
+
   produce(params) {
     return request('GET', this.path)
       .query(params)
       .set('Accept', 'application/json')
       .promise()
-      .then(this._handleResponse);
+      .then(this.handleResponse);
   }
 
   produceCollection(params) {

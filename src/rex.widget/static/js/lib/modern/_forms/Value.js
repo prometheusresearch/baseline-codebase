@@ -127,6 +127,7 @@ function subSchemaByKey(schema, key) {
       if (Array.isArray(schema.required)) {
         // transfer required info onto schema
         subSchema = {
+          type: 'object',
           ...subSchema,
           isRequired: schema.required.indexOf(key) !== -1
         };

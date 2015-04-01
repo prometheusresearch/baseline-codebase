@@ -105,8 +105,12 @@ var DataSpecificationMixin = {
   forceRefreshData() {
     _dataComponentsRegistry.forEach(component => {
       if (component.isMounted()) {
-        component.fetchData(true);
-        component.forceUpdate();
+        if (component.onForceRefreshData) {
+          component.onForceRefreshData();
+        } else {
+          component.fetchData(true);
+          component.forceUpdate();
+        }
       }
     });
   },
@@ -126,8 +130,9 @@ var DataSpecificationMixin = {
         continue;
       }
       var params = spec.produceParams();
-      if (force || !Immutable.is(this._dataParams[key], params)) {
-        if (this._dataTasks[key]) {
+      var prevParams = this._dataParams[key];
+      if (force || !Immutable.is(prevParams, params)) {
+        if (spec.options.strategy === DataSpecification.CANCEL_ON_UPDATE && this._dataTasks[key]) {
           this._dataTasks[key].cancel();
         }
         this._dataParams[key] = params
@@ -135,11 +140,20 @@ var DataSpecificationMixin = {
           this.data[key] = DataSet.EMPTY_DATASET;
           this._dataTasks[key] = null;
         } else {
-          this.data[key] = DataSet.EMPTY_UPDATING_DATASET;
-          this._dataTasks[key] = _fetch(spec, params)
+          if (this.onDataFetch) {
+            this.onDataFetch(key, params, prevParams);
+          } else {
+            this.data[key] = DataSet.EMPTY_UPDATING_DATASET;
+          }
+          if (spec.options.strategy === DataSpecification.QUEUE_ON_UPDATE && this._dataTasks[key]) {
+            this._dataTasks[key] = this._dataTasks[key].then(() => _fetch(spec, params));
+          } else {
+            this._dataTasks[key] = _fetch(spec, params);
+          }
+          this._dataTasks[key] = this._dataTasks[key]
             .catch(Promise.CancellationError, this._onFetchCancel.bind(null, key))
-            .catch(this._onFetchError.bind(null, key))
-            .then(this._onFetchComplete.bind(null, key));
+            .catch(this._onFetchError.bind(null, key, params, prevParams))
+            .then(this._onFetchComplete.bind(null, key, params, prevParams));
         }
       }
     }
@@ -149,14 +163,19 @@ var DataSpecificationMixin = {
     return null;
   },
 
-  _onFetchComplete(key, result) {
+  _onFetchComplete(key, params, prevParams, result) {
     if (this.isMounted()) {
-      this.data[key] = new DataSet(result, false, null);
+      if (this.onData) {
+        this.onData(result, key, params, prevParams);
+      } else {
+        this.data[key] = new DataSet(result, false, null);
+      }
       this.forceUpdate();
     }
   },
 
-  _onFetchError(key, error) {
+  _onFetchError(key, params, prevParams, error) {
+    console.error(error);
     if (this.isMounted()) {
       this.data[key] = new DataSet(null, false, error);
       this.forceUpdate();

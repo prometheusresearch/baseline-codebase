@@ -103,14 +103,17 @@ var DataTable = React.createClass({
   },
 
   componentDidUpdate(prevProps) {
+    setTimeout(() => this._checkNeedPagination(), 0);
     if (prevProps.selected != null && this.props.selected == null) {
-      setTimeout(() => this.props.onDeselect(), 0);
+      setTimeout(() => {
+        this.props.onDeselect();
+      }, 0);
     }
   },
 
   componentDidMount() {
     this._recomputeGeometry();
-    this._checkNeedPagination();
+    setTimeout(() => this._checkNeedPagination(), 0);
   },
 
   onLayoutChange() {
@@ -162,12 +165,12 @@ var DataTable = React.createClass({
   },
 
   _checkNeedPagination() {
-    var {updating, hasMore, data} = this.props.data;
+    var {updating, loading, hasMore, data} = this.props.data;
     if (
       Array.isArray(data)
       && data.length - this._lastRowIndex < 10
-      && !updating
-      && hasMore
+      && !(updating || loading)
+      && (hasMore || this.props.hasMore)
     ) {
       var {top, skip} = this.props.dataPagination;
       this.props.onDataPagination({top, skip: skip + top});
@@ -196,7 +199,8 @@ var DataTable = React.createClass({
 
   _rowClassNameGetter(rowIndex) {
     var {selectable, selected} = this.props;
-    if (selectable && this._rowGetter(rowIndex).id == selected) {
+    var row = this._rowGetter(rowIndex);
+    if (selectable && row && row.id == selected) {
       return 'DataTable__row--selected';
     }
   },

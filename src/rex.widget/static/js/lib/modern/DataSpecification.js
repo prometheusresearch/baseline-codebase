@@ -6,11 +6,19 @@
 var Immutable = require('immutable');
 var invariant = require('rex-widget/lib/invariant');
 
+var CANCEL_ON_UPDATE = 'CANCEL_ON_UPDATE';
+var QUEUE_ON_UPDATE = 'QUEUE_ON_UPDATE';
+
+var DEFAULT_OPTIONS = {
+  strategy: CANCEL_ON_UPDATE
+};
+
 class DataSpecification {
 
-  constructor(port, spec) {
+  constructor(port, spec, options) {
     this.port = port || null;
     this.spec = spec || {};
+    this.options = {...DEFAULT_OPTIONS, ...options};
   }
 
   bindToContext(context) {
@@ -23,7 +31,7 @@ class DataSpecification {
         params[key] = spec;
       }
     }
-    return new this.constructor(this.port, params);
+    return new this.constructor(this.port, params, this.options);
   }
 
   produceParams() {
@@ -52,7 +60,8 @@ class DataSpecification {
       'DataSpecification.merge(): can only merge specifications with the same port'
     );
     var spec = {...this.spec, ...other.spec};
-    return new this.constructor(this.port || other.port, spec);
+    var options = {...this.options, ...other.options};
+    return new this.constructor(this.port || other.port, spec, options);
   }
 }
 
@@ -112,6 +121,7 @@ class Value {
 
 module.exports = {
   DataSpecification, Collection, Entity,
+  CANCEL_ON_UPDATE, QUEUE_ON_UPDATE,
   Binding, StateBinding, PropBinding,
   Value,
 

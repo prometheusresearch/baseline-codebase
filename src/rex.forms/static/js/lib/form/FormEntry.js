@@ -133,6 +133,7 @@ var FormEntry = React.createClass({
   propTypes: {
     instrument: React.PropTypes.object.isRequired,
     form: React.PropTypes.object.isRequired,
+    subtitle: React.PropTypes.string,
     assessment: React.PropTypes.object,
     parameters: React.PropTypes.object,
     locale: React.PropTypes.string,

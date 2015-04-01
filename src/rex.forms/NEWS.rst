@@ -5,6 +5,12 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.28.2 (2015-xx-xx)
+===================
+
+- Fixed subtitle not being displayed on overview screen.
+
+
 0.28.1 (2015-03-26)
 ===================
 

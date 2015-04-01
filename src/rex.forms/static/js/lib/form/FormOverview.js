@@ -47,10 +47,11 @@ var FormOverview = React.createClass({
       'rex-forms-FormOverview': true,
       'rex-forms-FormOverview__readonly': this.props.readOnly
     });
+    var subtitle = this.props.subtitle;
 
     return (
       <div className={classes}>
-        <Title text={title} />
+        <Title text={title} subtitle={subtitle} />
         {!this.props.readOnly && <div
           className="rex-forms-FormOverview__note"
           dangerouslySetInnerHTML={{__html: NOTE}} />}

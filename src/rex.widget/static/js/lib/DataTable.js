@@ -183,7 +183,8 @@ var DataTable = React.createClass({
   },
 
   _cellRenderer(cellData, cellDataKey, rowData, rowIndex, columnData, width) {
-    return <span title={cellData}>{renderToString(cellData)}</span>;
+    var onCellClick = this.props.onCellClick && this.props.onCellClick.bind(null, cellDataKey, cellData, rowData);
+    return <span title={cellData} onClick={onCellClick}>{renderToString(cellData)}</span>;
   },
 
   _cellDataGetter(key, row) {

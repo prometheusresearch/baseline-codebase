@@ -22,11 +22,11 @@ var ReadOnlyFieldStyle = {
 var ReadOnlyField = React.createClass({
 
   render() {
-    var {label, renderValue} = this.props;
+    var {label, style, renderValue} = this.props;
     var {value} = this.props.formValue;
     return (
-      <HBox style={ReadOnlyFieldStyle.self}>
-        <div style={ReadOnlyFieldStyle.label}>{label}:</div>
+      <HBox style={{...ReadOnlyFieldStyle.self, ...(style && style.self)}}>
+        <div style={{...ReadOnlyFieldStyle.label, ...(style && style.label)}}>{label}:</div>
         <div>{renderValue(value)}</div>
       </HBox>
     );

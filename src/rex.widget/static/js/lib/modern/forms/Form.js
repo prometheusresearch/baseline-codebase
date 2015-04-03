@@ -160,7 +160,7 @@ var Form = React.createClass({
       if (this.props.insert) {
         submitTo.port.insert(nextValue.value).then(this.onSubmitComplete, this.onSubmitError);
       } else {
-        submitTo.port.update(nextValue.value).then(this.onSubmitComplete, this.onSubmitError);
+        submitTo.port.replace(this.props.value, nextValue.value).then(this.onSubmitComplete, this.onSubmitError);
       }
     } else if (submitTo.port instanceof Query) {
       submitTo.port.produce(nextValue.value).then(this.onSubmitComplete, this.onSubmitError);

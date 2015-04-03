@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.10.4 (2015-XX-XX)
+1.10.4 (2015-04-03)
 ===================
 
 * Dropped handling of ``PEP440Warning`` since it has been fixed in the latest

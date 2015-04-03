@@ -15,6 +15,8 @@ module.exports = {
   Select: require('./Select'),
   Modal: require('./Modal'),
   Button: require('./Button'),
+  Icon: require('./Icon'),
+  IconButton: require('./IconButton'),
   SearchInput: require('./SearchInput'),
   Port: require('./Port'),
   Query: require('./Query'),

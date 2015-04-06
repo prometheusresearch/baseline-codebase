@@ -81,6 +81,8 @@ tests:
   - {repeated_id_record.json: 'ValidationError: ID "q_fake" is defined multiple times.'}
   - {simplest.json: VALIDATED}
   - {types.json: VALIDATED}
+  - {types_bad_id.json: 'ValidationError: Additional properties are not allowed (''foo_''
+      was unexpected)'}
   - {types_extend.json: VALIDATED}
   - {types_extend_complex.json: 'ValidationError: The "myCustomType" custom type cannot
       be based on complex type "recordList".'}

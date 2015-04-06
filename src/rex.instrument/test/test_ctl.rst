@@ -139,6 +139,8 @@ It accepts options that dictate the various properties of the output format::
       myCustomType:
         base: text
         pattern: '[a-z]+'
+      my_Custom_Type_with_Underscores:
+        base: text
     record:
     - id: q_fake
       type: text

@@ -42,7 +42,7 @@
         "customDataType": {
             "type": "string",
 
-            "pattern": "^(?!(text|integer|float|boolean|enumeration|enumerationSet|date|time|dateTime|recordList|matrix)$)[a-zA-Z0-9]+$"
+            "pattern": "^(?!(text|integer|float|boolean|enumeration|enumerationSet|date|time|dateTime|recordList|matrix)$)[a-zA-Z0-9_]+[a-zA-Z0-9]$"
         },
 
         "requiredOptionalType": {
@@ -355,7 +355,7 @@
             "type": "object",
 
             "patternProperties": {
-                "^(?!(text|integer|float|boolean|enumeration|enumerationSet|date|time|dateTime|recordList|matrix)$)[a-zA-Z0-9]+$": {
+                "^(?!(text|integer|float|boolean|enumeration|enumerationSet|date|time|dateTime|recordList|matrix)$)[a-zA-Z0-9_]+[a-zA-Z0-9]$": {
                     "$ref": "#/definitions/typeDefinitionType"
                 }
             },

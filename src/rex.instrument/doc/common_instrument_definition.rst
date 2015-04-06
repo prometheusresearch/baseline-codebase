@@ -181,13 +181,15 @@ the format of a `Type Object`_.
 
 This identifier is a string that adheres to the following restrictions:
 
-* Consists of one or more of the following characters
+* Consists of two or more of the following characters
 
   * Lowercase latin alphabetic characters ("a" through "z"; Unicode 0061
     through 007A)
   * Uppercase latin alphabetic characters ("A" through "Z"; Unicode 0041
     through 005A)
+  * Underscore characters ("_"; Unicode 005F)
 
+* The last character is not an underscore.
 * Cannot be the identifier of one of the `Base Types`_
 
 

@@ -7,15 +7,11 @@
             "base": "text",
             "pattern": "[a-z]+"
         },
-        "my_Custom_Type_with_Underscores": {
+        "foo_": {
             "base": "text"
         }
     },
     "record": [
-        {
-            "id": "q_fake",
-            "type": "text"
-        },
         {
             "id": "q_blah",
             "type": "myCustomType"

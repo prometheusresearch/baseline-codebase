@@ -2,6 +2,7 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
+import yaml
 import json
 import os.path
 
@@ -27,16 +28,55 @@ __all__ = (
     'DemoDraftForm',
 )
 
+class BaseCommand(Command):
 
-class Examples(Command):
+    def get_data(self, dirname, filename):
+        data = None
+        path = self.package().abspath(os.path.join('examples', dirname))
+        json_file = os.path.join(path, filename + '.json')
+        if os.path.exists(json_file):
+            with open(json_file) as f:
+                data = json.loads(f.read())
+        if data is None:
+            yaml_file = os.path.join(path, filename + '.yaml')
+            if os.path.exists(yaml_file):
+                with open(yaml_file) as f:
+                    data = yaml.load(f.read())
+        return data
+
+    def get_form_json(self, name):
+        data = self.get_data(name, 'form')
+        return None if data is None else json.dumps(data)
+
+    def get_instrument_json(self, name):
+        data = self.get_data(name, 'instrument')
+        return None if data is None else json.dumps(data)
+
+    def get_form_title(self, name):
+        form = self.get_data(name, 'form')
+        title = form.get('title')
+        if not title:
+            return
+        if isinstance(title, basestring):
+            return title
+        return title.get('en')
+
+
+class Examples(BaseCommand):
     access = 'anybody'
     path = '/'
 
     def get_examples(self):
+        path = self.package().abspath('examples')
+        has_file = lambda dir, file: \
+                os.path.isfile(os.path.join(path, dir, '%s.json' % file)) \
+                or os.path.isfile(os.path.join(path, dir, '%s.yaml' % file))
+        has_instrument = lambda name: has_file(name, 'instrument')
+        has_form = lambda name: has_file(name, 'form')
         return [
-            self.read_example_metadata(example)
-            for example
-            in os.listdir(self.package().abspath('examples'))
+            {'title': self.get_form_title(example), 'name': example}
+            for example in os.listdir(path)
+            if has_instrument(example) and has_form(example)
         ]
 
     def read_example_metadata(self, name):
@@ -54,7 +94,7 @@ class Examples(Command):
             title='Rex Forms Demo', examples=self.get_examples())
 
 
-class Example(Command):
+class Example(BaseCommand):
     access = 'anybody'
     path = '/examples/{name}'
     parameters = [
@@ -66,20 +106,13 @@ class Example(Command):
     def render(self, req, name=None, overview=False, read_only=False):
         if not name:
             raise HTTPNotFound()
-
-        path = self.package().abspath(os.path.join('examples', name))
-
-        if not os.path.exists(path):
-            raise HTTPNotFound()
-
-        with open(os.path.join(path, 'form.json'), 'r') as f:
-            form = f.read()
-
-        with open(os.path.join(path, 'instrument.json'), 'r') as f:
-            instrument = f.read()
-
-        form_title = get_form_title(json.loads(form))
-
+        instrument = self.get_instrument_json(name)
+        if instrument is None:
+            raise HTTPNotFound("Instrument file not found")
+        form = self.get_form_json(name)
+        if form is None:
+            raise HTTPNotFound("Form file not found")
+        form_title = self.get_form_title(name)
         return render_to_response(
             'rex.forms_demo:/templates/example.html', req,
             title='Rex Forms Demo: %s' % form_title,
@@ -87,13 +120,7 @@ class Example(Command):
             form=form, instrument=instrument)
 
 
-def get_form_title(form):
-    title = form.get('title')
-    if not title:
-        return
-    if isinstance(title, basestring):
-        return title
-    return title.get('en')
+
 
 
 

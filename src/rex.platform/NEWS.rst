@@ -8,6 +8,7 @@
 4.3.2 (2015-xx-xx)
 ==================
 
+* rex.instrument==0.14.2
 * rex.forms==0.28.2
 * rex.deploy==2.3.1
 

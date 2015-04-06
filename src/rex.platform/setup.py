@@ -32,7 +32,7 @@ setup(
         'rex.expression==1.5.0',
         'rex.forms==0.28.2',
         'rex.i18n==0.4.1',
-        'rex.instrument==0.14.1',
+        'rex.instrument==0.14.2',
         'rex.port==1.0.4',
         'rex.restful==0.4.0',
         'rex.urlmap==2.6.1',

@@ -5,6 +5,12 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.14.2 (2015-04-06)
+===================
+
+* Fixed regular expression governing custom type IDs to allow underscores.
+
+
 0.14.1 (2015-03-26)
 ===================
 

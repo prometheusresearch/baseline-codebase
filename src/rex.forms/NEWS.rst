@@ -5,10 +5,11 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.28.2 (2015-xx-xx)
+0.28.2 (2015-04-06)
 ===================
 
 - Fixed subtitle not being displayed on overview screen.
+- Demo application can now read both JSON and YAML configuration files.
 
 
 0.28.1 (2015-03-26)

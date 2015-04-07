@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.3.1 (2015-XX-XX)
+2.3.1 (2015-04-07)
 ==================
 
 * Fixed the audit trigger to work with JSON values.

@@ -34,9 +34,16 @@ var ReadOnlyField = React.createClass({
 
   getDefaultProps() {
     return {
-      renderValue: emptyFunction.thatReturnsArgument
+      renderValue: renderValue
     };
   }
 });
+
+function renderValue(value) {
+  if (value == null) {
+    return value;
+  }
+  return String(value);
+}
 
 module.exports = ReadOnlyField;

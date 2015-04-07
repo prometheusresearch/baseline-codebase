@@ -7,6 +7,8 @@ module.exports = {
   DataSpecification: require('./DataSpecification'),
   DataSpecificationMixin: require('./DataSpecificationMixin'),
   DataTable: require('./DataTable'),
+  DataTableWithSearch: require('./DataTableWithSearch'),
+  ListWithInfo: require('./ListWithInfo'),
   createWidgetClass: require('./createWidgetClass'),
   Layout: require('./Layout'),
   Autocomplete: require('./Autocomplete'),
@@ -14,6 +16,8 @@ module.exports = {
   ShowPreloader: require('./ShowPreloader'),
   Select: require('./Select'),
   Modal: require('./Modal'),
+  ModalButton: require('./ModalButton'),
+  IFrame: require('./IFrame'),
   Button: require('./Button'),
   Icon: require('./Icon'),
   IconButton: require('./IconButton'),
@@ -29,7 +33,8 @@ module.exports = {
   NotificationCenter: require('./NotificationCenter'),
   StyleUtils: require('./StyleUtils'),
   Cell: require('./Cell'),
-  cell: require('./Cell').cell
+  cell: require('./Cell').cell,
+  cloneElement: require('./cloneElement')
 };
 
 window.RexWidget = module.exports;

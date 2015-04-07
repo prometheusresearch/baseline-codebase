@@ -3,9 +3,10 @@
  */
 'use strict';
 
-var React     = require('react');
-var {VBox}    = require('./Layout');
-var Preloader = require('./Preloader');
+var React           = require('react');
+var {VBox}          = require('./Layout');
+var Preloader       = require('./Preloader');
+var FileDownload    = require('./FileDownload');
 
 var InfoFieldStyle = {
   label: {
@@ -22,7 +23,7 @@ var InfoField = React.createClass({
     return (
       <div>
         {label && <span style={InfoFieldStyle.label}>{label}: </span>}
-        <span>{children}</span>
+        {children}
       </div>
     );
   }
@@ -42,10 +43,25 @@ var Info = React.createClass({
       <VBox {...props}>
         {fields.map(field =>
           <InfoField key={field.valueKey} label={field.label}>
-            {data.data[field.valueKey]}
+            {this.renderField(field, data.data[field.valueKey], data.data)}
           </InfoField>)}
       </VBox>
     );
+  },
+
+  renderField(field, value, data) {
+    switch (field.type) {
+      case 'file':
+        return (
+          <FileDownload
+            download={field.params.download}
+            ownerRecordID={data.id}
+            file={value}
+            />
+        );
+      default:
+        return <span>{value}</span>
+    }
   }
 });
 

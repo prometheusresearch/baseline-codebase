@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React = require('react');
+var React = require('react/addons');
 var qs    = require('../qs');
 
 var Link = React.createClass({
@@ -25,4 +25,21 @@ var Link = React.createClass({
 
 });
 
+function interpolateLinkParams(link, name, value) {
+  if (!link) {
+    return link;
+  }
+  var {params, href} = link.props;
+  var nextParams = {};
+  for (var n in params) {
+    if (params[n] === `$${name}`) {
+      nextParams[n] = value;
+    } else {
+      nextParams[n] = params[n];
+    }
+  }
+  return React.addons.cloneWithProps(link, {href, params: nextParams});
+}
+
 module.exports = Link;
+module.exports.interpolateLinkParams = interpolateLinkParams;

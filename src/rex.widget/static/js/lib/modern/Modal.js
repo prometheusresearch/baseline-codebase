@@ -96,7 +96,7 @@ var Modal = React.createClass({
                   {title}
                 </h4>
               </div>}
-            <div style={ModalStyle.body}>
+            <div style={{...ModalStyle.body, height: this.props.forceHeight ? '100%' : undefined}}>
               {children}
             </div>
           </VBox>

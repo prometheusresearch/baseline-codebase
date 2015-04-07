@@ -11,9 +11,10 @@ var Tabs = React.createClass({
 
   render() {
     var {
-      tabs, size, className, active,
+      tabs, children, size, className, active,
       buttonsStyle, buttonsPosition, ...props
     } = this.props;
+    tabs = tabs || children;
     active = active || tabs[0].props.id;
     var buttons = tabs.map(tab =>
       <li
@@ -40,7 +41,7 @@ var Tabs = React.createClass({
       </Box>
     );
     var content = (
-      <Box className="rw-Tabs__children tab-content" key="content" size={1}>
+      <Box className="rw-Tabs__children tab-content" key="content" scrollable size={1}>
         {tab}
       </Box>
     );
@@ -57,7 +58,11 @@ var Tabs = React.createClass({
   },
 
   getDefaultProps() {
-    return {size: 1};
+    return {
+      size: 1,
+      buttonsPosition: 'top',
+      buttonsStyle: 'tabs'
+    };
   },
 
   onClick(id, e) {

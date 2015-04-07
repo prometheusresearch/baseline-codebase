@@ -35,7 +35,7 @@ class EntitySpec(DataSpec):
 
 
 INVALID_DATASPEC_INVALID_HANDLER = """
-Handler for a dataspec should be either a port or a query but got %r instead.
+Handler for a dataspec %s should be either a port or a query but got %r instead.
 """.strip()
 
 INVALID_DATASPEC_UNKNOWN_TYPE = """
@@ -59,7 +59,7 @@ def _encode_DataSpec(value, request):
     elif hasattr(handler, 'query'):
         kind = 'query'
     else:
-        raise ValueError(INVALID_DATASPEC_INVALID_HANDLER % handler)
+        raise ValueError(INVALID_DATASPEC_INVALID_HANDLER % (route, handler))
     return {'__dataspec__': (tag, url, params, kind)}
 
 

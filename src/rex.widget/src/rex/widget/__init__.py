@@ -26,6 +26,8 @@ from .urlmap import WidgetRenderer
 from .commands import *
 from .template import WidgetTemplate, parse as parse_template
 
+import rex.widget.modern.library
+
 
 def parse(stream):
     """ Parse YAML stream into a widget instance.

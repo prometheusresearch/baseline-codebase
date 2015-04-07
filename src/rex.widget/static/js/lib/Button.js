@@ -8,6 +8,7 @@ var cx                    = React.addons.classSet;
 var Icon                  = require('./Icon');
 var emptyFunction         = require('./emptyFunction');
 var $                     = require('jquery');
+var qs                    = require('./qs');
 var renderTemplatedString = require('./renderTemplatedString');
 
 var Button = React.createClass({
@@ -23,8 +24,11 @@ var Button = React.createClass({
   render() {
     var {
       link, success, danger, quiet, size, className, style, disabled, align,
-      placeholder, id, icon, iconRight, text, children, ...props
+      placeholder, id, icon, iconRight, text, children, href, params, ...props
     } = this.props;
+    if (href && params) {
+      href = href + '?' + qs.stringify(params);
+    }
     var classNames = cx({
       'btn': true,
       'rw-Button': true,
@@ -36,9 +40,11 @@ var Button = React.createClass({
       'rw-Button--small': size === 'small',
       'rw-Button--extraSmall': size === 'extra-small'
     });
+    var Component = href ? 'a' : 'button';
     return (
-      <button
+      <Component
         {...props}
+        href={href}
         style={{...style, textAlign: align ? align : undefined}}
         //title={children || text}
         disabled={disabled}
@@ -56,7 +62,7 @@ var Button = React.createClass({
             name={iconRight}
             style={{marginLeft: children || text ? 10 : 0}}
             />}
-      </button>
+      </Component>
     );
   },
 

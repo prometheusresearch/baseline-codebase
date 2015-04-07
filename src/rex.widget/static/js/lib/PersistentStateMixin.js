@@ -41,11 +41,7 @@ var PersistentStateMixin = {
     } else if (this.props.id !== undefined) {
       return this.props.id;
     } else {
-      invariant(
-        false,
-        'Component which uses PersistentStateMixin should ' +
-        'define either getPersistentStateKey or have id prop defined'
-      );
+      return `${this._rootNodeID}__${this._mountDepth}`;
     }
   }
 };

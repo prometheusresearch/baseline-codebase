@@ -5,6 +5,7 @@
 
 var Immutable = require('immutable');
 var invariant = require('rex-widget/lib/invariant');
+var valueOf   = require('./valueOf');
 
 var CANCEL_ON_UPDATE = 'CANCEL_ON_UPDATE';
 var QUEUE_ON_UPDATE = 'QUEUE_ON_UPDATE';
@@ -39,13 +40,15 @@ class DataSpecification {
     for (var k in this.spec) {
       var v = this.spec[k];
       invariant(
-        (v instanceof Value),
+        !(v instanceof Binding),
         'trying to produce params from unbound data specification'
       );
-      if (v.options.required && v.value == null) {
+      var required = v && v.options && v.options.required;
+      var value = valueOf(v);
+      if (required && value == null) {
         return null;
       }
-      params[k] = v.value;
+      params[k] = value;
     }
     return Immutable.fromJS(params);
   }
@@ -77,6 +80,20 @@ class Binding {
 
   constructor(options) {
     this.options = options || {};
+  }
+}
+
+class ComputedBinding extends Binding {
+
+  constructor(func, options) {
+    super(options);
+    this.func = func;
+  }
+
+  bindToContext(context, key) {
+    var bind = {};
+    bind[key] = new Value(this.func(context.props, context.state), this.options);
+    return bind;
   }
 }
 
@@ -117,6 +134,10 @@ class Value {
     this.value = value;
     this.options = options || {};
   }
+
+  valueOf() {
+    return this.value;
+  }
 }
 
 module.exports = {
@@ -151,5 +172,9 @@ module.exports = {
    */
   prop(keyPath, options) {
     return new PropBinding(keyPath, options);
+  },
+
+  computed(func, options) {
+    return new ComputedBinding(func, options);
   }
 };

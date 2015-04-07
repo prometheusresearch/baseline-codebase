@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.11.0 (2015-XX-XX)
+1.11.0 (2015-04-07)
 ===================
 
 * Added support for ``!setting`` nodes in YAML files.

@@ -21,7 +21,7 @@ var AutocompleteStyle = {
 var Autocomplete = React.createClass({
 
   render() {
-    var {value, onChange, required} = this.props;
+    var {value, onChange, required, style} = this.props;
     var {valueTitle} = this.state;
     if (value === null) {
       valueTitle = null;
@@ -32,6 +32,7 @@ var Autocomplete = React.createClass({
           ref="underlying"
           value={{id: value, title: valueTitle}}
           search={this._search}
+          styleResultList={style && style.resultList}
           onChange={this.onChange}
           />
         {value && !required &&

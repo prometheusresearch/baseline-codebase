@@ -10,10 +10,11 @@ var Field        = require('./Field');
 var AutocompleteField = React.createClass({
 
   render() {
-    var {dataSpec, valueAttribute, titleAttribute, ...props} = this.props;
+    var {dataSpec, valueAttribute, titleAttribute, style, ...props} = this.props;
     return (
       <Field {...props} data={undefined}>
         <Autocomplete
+          style={{resultList: style && style.resultList}}
           dataSpec={dataSpec}
           valueAttribute={valueAttribute}
           titleAttribute={titleAttribute}

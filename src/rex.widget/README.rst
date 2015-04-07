@@ -177,6 +177,24 @@ when we start a RexDB application, we first cd to the base of the package
 
     rex serve-uwsgi
 
+Built-in Widget Documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every RexDB application using rex.widget has a built-in web page which 
+displays automatically generated documentation for each widget defined by 
+the application.  
+
+Therefore Python widget writers should definately use \__doc__ strings to 
+explain their widgets and widget attributes so this web page can be useful.
+
+Then developers may find this a handy reference for a list of the available
+widgets and an explanation of their attributes.  
+
+This web page is available in each application at ``/widget/doc``  
+
+For an example, see the  `Demo Application`_ which makes this page directly 
+available in an IFrame from the "Built-In Widgets" menu item.
+
 
 Usage
 =====

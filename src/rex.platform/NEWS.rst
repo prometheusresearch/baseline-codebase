@@ -11,6 +11,7 @@
 * rex.instrument==0.14.2
 * rex.forms==0.28.2
 * rex.deploy==2.3.1
+* rex.core==1.11.0
 
 
 4.3.1 (2015-03-27)

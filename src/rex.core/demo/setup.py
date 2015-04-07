@@ -23,7 +23,7 @@ class demo(Command):
 
 setup(
     name='rex.core_demo',
-    version = "1.10.4",
+    version = "1.11.0",
     description="Demo package for testing rex.core",
     package_dir={'': 'src'},
     packages=find_packages('src'),

@@ -1362,3 +1362,50 @@ Invalid ``!include`` directives are rejected::
           in "<byte string>", line 1, column 2
 
 
+``!setting``
+============
+
+If you read a YAML file from an active Rex application, you can
+set the value of a YAML node from a setting::
+
+    >>> from rex.core import Rex
+    >>> demo = Rex('rex.core_demo', demo_folder='demo')
+    >>> demo.on()
+
+    >>> sandbox.rewrite('setting.yaml', """ !setting demo_folder """)
+
+    >>> any_val.parse(sandbox.open('setting.yaml'))
+    'demo'
+
+The node content after ``!setting`` tag must be a valid setting name::
+
+    >>> sandbox.rewrite('setting.yaml', """ !setting {} """)
+    >>> any_val.parse(sandbox.open('setting.yaml'))             # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        expected a setting name, but found mapping
+          in "/.../setting.yaml", line 1, column 2
+
+    >>> sandbox.rewrite('setting.yaml', """ !setting unknown """)
+    >>> any_val.parse(sandbox.open('setting.yaml'))             # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Got unknown setting:
+        unknown
+    While parsing:
+        "/.../setting.yaml", line 1
+
+It is an error to use ``!setting`` when no Rex application is active::
+
+    >>> demo.off()
+
+    >>> sandbox.rewrite('setting.yaml', """ !setting demo_folder """)
+    >>> any_val.parse(sandbox.open('setting.yaml'))             # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        cannot read a setting value without an active Rex application
+          in "/.../setting.yaml", line 1, column 2
+
+

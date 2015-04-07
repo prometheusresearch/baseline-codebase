@@ -185,6 +185,8 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                 value = stream.read()
             node = yaml.ScalarNode(u"tag:yaml.org,2002:str", value,
                                    node.start_mark, node.end_mark, u'')
+        if node.tag == u'!setting':
+            return self.setting(node)
         if self.validate is not None:
             return self.validate.construct(self, node)
         return super(ValidatingLoader, self).construct_object(node, deep)
@@ -212,6 +214,27 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
             raise yaml.constructor.ConstructorError(None, None,
                     "unable to open file: %s" % filename, node.start_mark)
         return stream
+
+    def setting(self, node):
+        from .context import get_rex
+        from .setting import get_settings
+        if not isinstance(node, yaml.ScalarNode):
+            raise yaml.constructor.ConstructorError(None, None,
+                    "expected a setting name, but found %s" % node.id,
+                    node.start_mark)
+        if not get_rex:
+            raise yaml.constructor.ConstructorError(None, None,
+                    "cannot read a setting value without"
+                    " an active Rex application",
+                    node.start_mark)
+        settings = get_settings()
+        with guard("While parsing:", Location.from_node(node)):
+            if not hasattr(settings, node.value):
+                raise Error("Got unknown setting:", node.value.encode('utf-8'))
+            value = getattr(settings, node.value)
+            if self.validate is not None:
+                value = self.validate(value)
+        return value
 
 
 # Set implicit tags based on YAML 1.2.

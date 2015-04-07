@@ -176,4 +176,6 @@ Any errors when the function is evaluated invalidate the cache::
       ...
     IOError: [Errno 2] No such file or directory: '/.../load.txt'
 
+    >>> demo.off()
+
 

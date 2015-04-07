@@ -7,7 +7,7 @@ var React               = require('react/addons');
 var {File, StoredFile}  = require('./File');
 var Layout              = require('./Layout');
 
-let FileDownloadStyle =  {
+var FileDownloadStyle =  {
   placeholder: {
     fontSize: '90%',
     color: '#AAAAAA'

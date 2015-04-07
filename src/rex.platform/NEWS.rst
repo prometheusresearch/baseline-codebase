@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-4.3.2 (2015-xx-xx)
+4.3.2 (2015-04-07)
 ==================
 
 * rex.instrument==0.14.2

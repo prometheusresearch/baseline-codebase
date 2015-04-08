@@ -18,8 +18,15 @@ var RepeatingFieldsetStyle = {
 
 var RepeatingFieldset = React.createClass({
 
+  getDefaultProps() {
+    return {
+      addButtonText: 'Add',
+    };
+  },
+
   render() {
-    var {children, formValue, ...props} = this.props;
+    var {children, formValue, addButtonText,
+      removeButtonText, ...props} = this.props;
     var items = formValue.value || [];
     var fieldsets = items.map((item, idx) =>
       <Fieldset formValue={formValue.select(idx)} key={idx}>
@@ -29,6 +36,7 @@ var RepeatingFieldset = React.createClass({
               quiet
               size="small"
               icon="remove"
+              text={removeButtonText}
               onClick={this.removeItem.bind(null, idx)}/>
           </VBox>
           <VBox size={1}>
@@ -49,7 +57,7 @@ var RepeatingFieldset = React.createClass({
           </VBox>}
         <VBox>
           <Button quiet icon="plus" onClick={this.addItem}>
-            Add
+            {addButtonText}
           </Button>
         </VBox>
       </VBox>

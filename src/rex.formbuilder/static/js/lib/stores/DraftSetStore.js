@@ -43,7 +43,7 @@ function draftToConfiguration() {
 
   var configuration;
   if ((draftSet.instrument_version.definition !== null)
-      && (forms.length > 1)) {
+      && (forms.length > 0)) {
     try {
       var parser = new DefinitionParser(
         draftSet.instrument_version.definition,

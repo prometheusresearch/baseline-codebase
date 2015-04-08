@@ -59,7 +59,7 @@ Input = Focusable(Input);
 var Field = React.createClass({
 
   render() {
-    var {label, children, onChange, ...props} = this.props;
+    var {label, children, onChange, labelSize, inputSize, ...props} = this.props;
     var {dirty} = this.state;
     var {value, errors, params, schema} = this.props.formValue;
     var showErrors = dirty || params.forceShowErrors;
@@ -72,7 +72,7 @@ var Field = React.createClass({
       <VBox {...props} onBlur={this.onBlur} style={FieldStyle.self}>
         <HBox>
           {label &&
-            <VBox size={1} centerVertically>
+            <VBox size={labelSize} centerVertically>
               <label>
                 {label}
                 {schema && schema.isRequired ?
@@ -80,7 +80,7 @@ var Field = React.createClass({
                   null}
               </label>
             </VBox>}
-          <VBox size={3}>
+          <VBox size={inputSize}>
             {children}
             {showErrors && errors &&
               <VBox style={FieldStyle.errors}>
@@ -95,6 +95,8 @@ var Field = React.createClass({
 
   getDefaultProps() {
     return {
+      labelSize: 1,
+      inputSize: 3
     };
   },
 

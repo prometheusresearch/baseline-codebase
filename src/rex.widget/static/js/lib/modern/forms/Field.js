@@ -59,7 +59,8 @@ Input = Focusable(Input);
 var Field = React.createClass({
 
   render() {
-    var {label, children, onChange, labelSize, inputSize, ...props} = this.props;
+    var {label, children, onChange, labelSize, inputSize, 
+      serialize, ...props} = this.props;
     var {dirty} = this.state;
     var {value, errors, params, schema} = this.props.formValue;
     var showErrors = dirty || params.forceShowErrors;
@@ -67,7 +68,11 @@ var Field = React.createClass({
       children ?
         React.Children.only(children) :
         <Input />,
-      {value, onChange: this.onChange.bind(null, onChange)});
+      {
+        value: serialize(value),
+        onChange: this.onChange.bind(null, onChange)
+      }
+    );
     return (
       <VBox {...props} onBlur={this.onBlur} style={FieldStyle.self}>
         <HBox>
@@ -95,6 +100,8 @@ var Field = React.createClass({
 
   getDefaultProps() {
     return {
+      serialize: (value) => (value),
+      deserialize: (value) => (value),
       labelSize: 1,
       inputSize: 3
     };
@@ -121,6 +128,7 @@ var Field = React.createClass({
     } else {
       value = e;
     }
+    value = this.props.deserialize(value);
     this.setState({dirty: true});
     if (onChange) {
       onChange(value);

@@ -49,6 +49,13 @@ rex.widget.library
 .. automodule:: rex.widget.library.page
 .. automodule:: rex.widget.library.popup
 
+rex.widget.modern
+*****************
+
+.. automodule:: rex.widget.modern
+.. automodule:: rex.widget.modern.dataspec
+.. automodule:: rex.widget.modern.url
+
 Classes
 *******
 

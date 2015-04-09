@@ -60,9 +60,16 @@ var Info = React.createClass({
             />
         );
       default:
-        return <span>{value}</span>
+        return <span>{renderValue(value)}</span>
     }
   }
 });
+
+function renderValue(value) {
+  if (value == null) {
+    return value;
+  }
+  return String(value);
+}
 
 module.exports = Info;

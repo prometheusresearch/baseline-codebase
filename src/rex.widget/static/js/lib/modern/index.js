@@ -6,6 +6,7 @@
 module.exports = {
   DataSpecification: require('./DataSpecification'),
   DataSpecificationMixin: require('./DataSpecificationMixin'),
+  forceRefreshData: require('./DataSpecificationMixin').forceRefreshData,
   DataTable: require('./DataTable'),
   DataTableWithSearch: require('./DataTableWithSearch'),
   ListWithInfo: require('./ListWithInfo'),

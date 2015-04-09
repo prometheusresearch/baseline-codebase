@@ -48,6 +48,19 @@ function _fetch(spec, params) {
   }
 }
 
+function forceRefreshData() {
+  _dataComponentsRegistry.forEach(component => {
+    if (component.isMounted()) {
+      if (component.onForceRefreshData) {
+        component.onForceRefreshData();
+      } else {
+        component.fetchData(true);
+        component.forceUpdate();
+      }
+    }
+  });
+}
+
 function _bindDataSpecs(component, props, state) {
   var dataSpecs = _getDataSpecs(component);
   var boundDataSpecs = {};
@@ -102,18 +115,7 @@ var DataSpecificationMixin = {
     this.data = null;
   },
 
-  forceRefreshData() {
-    _dataComponentsRegistry.forEach(component => {
-      if (component.isMounted()) {
-        if (component.onForceRefreshData) {
-          component.onForceRefreshData();
-        } else {
-          component.fetchData(true);
-          component.forceUpdate();
-        }
-      }
-    });
-  },
+  forceRefreshData: forceRefreshData,
 
   fetchData(force) {
     if (!this.fetchDataSpecs) {

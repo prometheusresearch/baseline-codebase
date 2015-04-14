@@ -133,7 +133,7 @@ function constructComponent(ui, key) {
   return React.createElement(Component, props);
 }
 
-function mkDataSpec(props, name, dataSpec) {
+function constructDataSpec(dataSpec) {
   var [type, route, params, kind] = dataSpec;
   var port;
   if (kind === 'port') {
@@ -142,15 +142,19 @@ function mkDataSpec(props, name, dataSpec) {
     port = new Query(route);
   }
   if (type === 'collection') {
-    props[name] = new DataSpecification.Collection(port, params);
+    return new DataSpecification.Collection(port, params);
   } else if (type === 'entity') {
-    props[name] = new DataSpecification.Entity(port, params);
+    return new DataSpecification.Entity(port, params);
   } else {
     invariant(
       false,
       'invalid type for data specification: %s', type
     );
   }
+}
+
+function mkDataSpec(props, name, dataSpec) {
+  props[name] = constructDataSpec(dataSpec);
 }
 
 function mkComponent(props, name, desc, defer) {
@@ -252,3 +256,4 @@ function flatMapChildren(collection, mapper, _key) {
 
 module.exports = Application;
 module.exports.constructComponent = constructComponent;
+module.exports.constructDataSpec = constructDataSpec;

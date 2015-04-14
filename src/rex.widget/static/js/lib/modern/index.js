@@ -9,7 +9,6 @@ module.exports = {
   forceRefreshData: require('./DataSpecificationMixin').forceRefreshData,
   DataTable: require('./DataTable'),
   DataTableWithSearch: require('./DataTableWithSearch'),
-  ListWithInfo: require('./ListWithInfo'),
   createWidgetClass: require('./createWidgetClass'),
   Layout: require('./Layout'),
   Autocomplete: require('./Autocomplete'),
@@ -35,7 +34,9 @@ module.exports = {
   StyleUtils: require('./StyleUtils'),
   Cell: require('./Cell'),
   cell: require('./Cell').cell,
-  cloneElement: require('./cloneElement')
+  cloneElement: require('./cloneElement'),
+  emptyFunction: require('./emptyFunction'),
+  constructDataSpec: require('../Application').constructDataSpec
 };
 
 window.RexWidget = module.exports;

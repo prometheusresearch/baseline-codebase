@@ -22,6 +22,22 @@ var Select = React.createClass({
           />
       </VBox>
     );
+  },
+
+  componentDidMount() {
+    this._checkForAutovalue();
+  },
+
+  componentDidUpdate() {
+    this._checkForAutovalue();
+  },
+
+  _checkForAutovalue() {
+    var {value, noEmptyValue, options, onChange} = this.props;
+    if (value == null && noEmptyValue && options && options.length > 0) {
+      console.log('x');
+      onChange(options[0].id);
+    }
   }
 });
 

@@ -7,46 +7,32 @@
 
 """
 
-from rex.core import BoolVal, SeqVal
+from rex.core import StrVal, BoolVal, IntVal, AnyVal, SeqVal
 
 from ..widget import Widget
-from ..validate import WidgetVal
 from ..field import Field
 from ..undefined import undefined
 from ..library.datatable import ColumnVal
+from .info_field import InfoFieldVal as FieldVal
 from .dataspec import EntitySpecVal, CollectionSpecVal
-from .info_field import InfoFieldVal
 
-__all__ = ('ListWithInfo',)
-
-
-class ListWithInfo(Widget):
-
-    name = 'ModernListWithInfo'
-    js_type = 'rex-widget/lib/modern/ListWithInfo'
-
-    list_data = Field(CollectionSpecVal())
-
-    info_data = Field(EntitySpecVal(), default=undefined)
-
-    list = Field(WidgetVal(), default=undefined)
-
-    info = Field(WidgetVal(), default=undefined)
+__all__ = ('DataGrid',)
 
 
-class DataTable(Widget):
+class DataGrid(Widget):
 
-    name = 'ModernDataTable'
-    js_type = 'rex-widget/lib/modern/DataTable'
+    name = 'DataGrid'
+    js_type = 'rex-widget/lib/modern/library/DataGrid'
 
-    columns = Field(
-        SeqVal(ColumnVal()),
-        doc="""
-        Columns for individual list table.
-        """)
+    columns = Field(SeqVal(ColumnVal()))
+    data = Field(CollectionSpecVal(), default=undefined)
+    with_search_filter = Field(BoolVal(), default=False)
 
-    resizable_columns = Field(
-        BoolVal(), default=False)
 
-    selectable = Field(
-        BoolVal(), default=False)
+class Info(Widget):
+
+    name = 'Info'
+    js_type = 'rex-widget/lib/modern/Info'
+
+    data = Field(EntitySpecVal(), default=undefined)
+    fields = Field(SeqVal(FieldVal()))

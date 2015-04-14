@@ -18,6 +18,8 @@ var ModalButton = React.createClass({
       <Layout.VBox>
         <Button
           quiet={this.props.buttonQuiet}
+          success={this.props.buttonSuccess}
+          danger={this.props.buttonDanger}
           icon={this.props.buttonIcon}
           size={this.props.buttonSize}
           align={this.props.buttonAlign}
@@ -63,7 +65,6 @@ var ModalButton = React.createClass({
 
   getDefaultProps() {
     return {
-      buttonSize: 'small',
       buttonAlign: 'left'
     };
   },

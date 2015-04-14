@@ -84,7 +84,7 @@ var DataTable = React.createClass({
   render() {
     var {dataSpec: data} = this.data;
     var {sort, pagination, hasMore} = this.state;
-    if (data.loading && pagination.skip === 0) {
+    if (data.data === null || data.loading && pagination.skip === 0) {
       return <Preloader />;
     } else {
       return (

@@ -105,7 +105,7 @@ class Port {
    * This is a shortcut for `replace({id: entity.id}, null)`.
    */
   delete(entity, params, options) {
-    return this.replace({id: entity.id}, null, params, options);
+    return this.replace(entity, null, params, options);
   }
 
   /**

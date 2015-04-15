@@ -4,9 +4,9 @@
 'use strict';
 
 var clone           = require('clone');
-var ObjectPath      = require('object-path');
 var createValidator = require('is-my-json-valid');
 var makeKeyPath     = require('./makeKeyPath');
+var ObjectUtils     = require('./ObjectUtils');
 
 /**
  * Thin wrapper over form value with associated validation information and flag
@@ -18,7 +18,7 @@ class Value {
     this.rootSchema = rootSchema;
     this.schema = subSchemaByKeyPath(rootSchema, keyPath);
     this.root = root;
-    this.value = ObjectPath.get(root, keyPath);
+    this.value = ObjectUtils.get(root, keyPath);
     this.onChange = onChange;
     this.allErrors = allErrors;
     this.params = params;
@@ -71,7 +71,7 @@ class Value {
     if (this.keyPath.length === 0) {
       root = value;
     } else {
-      ObjectPath.set(root, this.keyPath, value);
+      ObjectUtils.set(root, this.keyPath, value);
     }
     var nextValue = wrapValue(this.rootSchema, root, this.onChange, this.params);
     if (!quiet) {

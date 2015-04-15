@@ -22,7 +22,6 @@
     "emitter": "component/emitter#1.1.2",
     "bluebird": "http://registry.npmjs.org/bluebird/-/bluebird-2.9.13.tgz#*",
     "react-selectbox": "prometheusresearch/react-selectbox#9a1dfe57",
-    "object-path": "http://registry.npmjs.org/object-path/-/object-path-0.9.0.tgz",
     "clone": "http://registry.npmjs.org/clone/-/clone-1.0.1.tgz",
     "jsonpointer": "http://registry.npmjs.org/jsonpointer/-/jsonpointer-1.1.0.tgz",
     "generate-function": "http://registry.npmjs.org/generate-function/-/generate-function-2.0.0.tgz",

@@ -10,8 +10,7 @@ var POSSIBLE_ERRORS = [
   '',
   'Things to look into:',
   '  - Check that the module exists',
-  '  - Check that the module or the package the module'
-  + ' in was loaded using "rex-setup/introspection/loader" webpack'
+  '  - Check that the package or the package the module'
 ].join('\n');
 
 IntrospectablePlugin.prototype.apply = function(compiler) {
@@ -40,7 +39,13 @@ IntrospectablePlugin.prototype.apply = function(compiler) {
           '  window.' + this.requireName + ' = function(id) {',
           '    var module = __introspectable_modules__[id];',
           '    if (module === undefined) {',
-          '      throw new Error("cannot find module " + id + " in a bundle." + ' + JSON.stringify(POSSIBLE_ERRORS) + ');',
+          '      throw new Error([',
+          '        "Cannot find module " + id + " in the application bundle.",',
+          '        "",',
+          '        "Things to look into:",',
+          '        "  - Check that the module exists",',
+          '        "  - Check that the package this module in has \\"rex\\": {\\"bundleAll\\": true} in its bower.json metadata",',
+          '      ].join("\\n"));',
           '    }',
           '    return __webpack_require__(module);',
           '  };',

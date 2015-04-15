@@ -44,7 +44,7 @@ IntrospectablePlugin.prototype.apply = function(compiler) {
           '        "",',
           '        "Things to look into:",',
           '        "  - Check that the module exists",',
-          '        "  - Check that the package this module in has \\"rex\\": {\\"bundleAll\\": true} in its bower.json metadata",',
+          '        "  - Check that the package this module belongs to has \\"rex\\": {\\"bundleAll\\": true} in its bower.json metadata",',
           '      ].join("\\n"));',
           '    }',
           '    return __webpack_require__(module);',

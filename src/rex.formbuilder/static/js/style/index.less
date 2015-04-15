@@ -62,10 +62,6 @@
     content: "\e9ce";
 }
 
-.icon-question-recordlist:before {
-    content: "\e603";
-}
-
 .icon-question-matrix:before {
     content: "\ea71";
 }
@@ -482,6 +478,12 @@ body {
                         content: "\e953\e94e";
                     }
                 }
+
+                .rfb-toolbox-component-question-repeatinggroup {
+                    .rfb-icon:before {
+                        content: "\e603";
+                    }
+                }
             }
         }
     }
@@ -503,7 +505,11 @@ body {
         }
 
         &.rfb-dragging {
-            opacity: 0;
+            border: 1px dashed #ccc;
+
+            * {
+                opacity: 0;
+            }
         }
 
         &:hover {
@@ -512,6 +518,10 @@ body {
 
         .rfb-modal {
             cursor: auto;
+        }
+
+        & > div:first-child {
+            flex-grow: 1;
         }
 
         .rfb-workspace-element-details {
@@ -531,6 +541,23 @@ body {
             .rfb-workspace-element-description {
                 font-style: italic;
                 opacity: 0.6;
+                padding-right: 0.5em;
+            }
+        }
+
+        .rfb-subfield-container {
+            margin-top: 1em;
+            min-height: 2em;
+            padding-left: 2em;
+
+            & .rfb-workspace-element {
+                margin-left: 0;
+            }
+        }
+
+        &.rfb-workspace-element-question-repeatinggroup {
+            .rfb-workspace-element-icon .rfb-icon:before {
+                content: "\e603";
             }
         }
 

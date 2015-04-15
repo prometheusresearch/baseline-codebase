@@ -59,7 +59,7 @@ class InstrumentTypeCatalog {
     // If it's an inline-style type definition with a base in our catalog,
     // then merge the customization and base.
     if (type.base && this.catalog.hasOwnProperty(type.base)) {
-      return merge(this.catalog[type.base], type);
+      return merge({}, this.catalog[type.base], type);
     }
 
     throw new ParsingError(_(

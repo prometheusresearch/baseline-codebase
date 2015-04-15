@@ -95,13 +95,13 @@ describe('PageStart', function () {
   });
 
   it('clones within scope of a configuration', function () {
-    var clone = elm.clone(false, cfg);
+    var clone = elm.clone(false, cfg.elements);
     checkElement(clone, elm, false);
     expect(clone.id).to.equal(elm.id + '_clone');
 
     cfg.elements.push(clone);
 
-    var clone2 = elm.clone(false, cfg);
+    var clone2 = elm.clone(false, cfg.elements);
     checkElement(clone, elm, false);
     expect(clone2.id).to.equal(elm.id + '_clone_clone');
   });
@@ -192,13 +192,13 @@ describe('Question', function () {
   it('clones within scope of a configuration', function () {
     cfg.elements.push(elm);
 
-    var clone = elm.clone(false, cfg);
+    var clone = elm.clone(false, cfg.elements);
     checkElement(clone, elm, false);
     expect(clone.id).to.equal(elm.id + '_clone');
 
     cfg.elements.push(clone);
 
-    var clone2 = elm.clone(false, cfg);
+    var clone2 = elm.clone(false, cfg.elements);
     checkElement(clone, elm, false);
     expect(clone2.id).to.equal(elm.id + '_clone_clone');
   });
@@ -482,6 +482,41 @@ describe('CheckBoxGroup', function () {
     checkQuestion(clone, elm, true);
     checkObject(clone, elm, 'enumerations');
     checkObject(clone, elm, 'length');
+  });
+});
+
+
+describe('RepeatingGroup', function () {
+  var elm;
+
+  beforeEach(function () {
+    elm = makeQuestion(elements.Questions.RepeatingGroup);
+    elm.length = { 'min': 3 };
+    elm.addLabel = { 'en': 'Add Something' };
+    var sub = makeQuestion(elements.Questions.ShortText);
+    elm.questions.push(sub);
+  });
+
+  it('clones', function () {
+    var clone = elm.clone();
+    checkQuestion(clone, elm, false);
+    checkObject(clone, elm, 'length');
+
+    expect(clone.questions).to.have.length(elm.questions.length);
+    elm.questions.forEach((question, idx) => {
+      checkQuestion(clone.questions[idx], question, false);
+    });
+  });
+
+  it('clones exactly', function () {
+    var clone = elm.clone(true);
+    checkQuestion(clone, elm, true);
+    checkObject(clone, elm, 'length');
+
+    expect(clone.questions).to.have.length(elm.questions.length);
+    elm.questions.forEach((question, idx) => {
+      checkQuestion(clone.questions[idx], question, true);
+    });
   });
 });
 

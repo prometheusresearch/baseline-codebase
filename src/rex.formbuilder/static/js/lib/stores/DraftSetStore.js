@@ -131,26 +131,65 @@ function editAttributes(attributes) {
 }
 
 
-function moveElement(eid, afterEid) {
-  var elements = _activeConfiguration.elements.slice(),
-      elm = elements.filter(e => e.EID === eid)[0],
-      afterElm = elements.filter(e => e.EID === afterEid)[0],
-      elmIndex = elements.indexOf(elm),
-      afterIndex = elements.indexOf(afterElm);
+function findElement(element, container) {
+  container = container || _activeConfiguration.elements;
 
-  elements.splice(elmIndex, 1);
-  elements.splice(afterIndex, 0, elm);
+  for (var i = 0; i < container.length; i++) {
+    if (container[i].EID === element.EID) {
+      return {
+        container: container,
+        index: i
+      };
+    } else if (container[i].questions) {
+      var sub = findElement(element, container[i].questions);
+      if (sub) {
+        return sub;
+      }
+    }
+  }
+}
 
-  _activeConfiguration.elements = elements;
+
+function putElement(element, afterElement, container) {
+  var elm = findElement(element);
+  var afterElm = afterElement ? findElement(afterElement) : null;
+
+  if (elm) {
+    elm.container.splice(elm.index, 1);
+  }
+  if (!afterElm) {
+    container = container || _activeConfiguration.elements;
+    container.push(element);
+  } else {
+    afterElm.container.splice(afterElm.index, 0, element);
+  }
+
   _isModified = true;
   configurationToDraft();
   DraftSetStore.emitChange();
 }
 
 
+function checkNewHome(element) {
+  var newHome = findElement(element);
+
+  var duplicateIDs = newHome.container.filter((elm) => {
+    return (element.id === elm.id)
+      && (element.EID !== elm.EID);
+  });
+
+  if (duplicateIDs.length > 0) {
+    element.forceEdit = true;
+
+    _isModified = true;
+    configurationToDraft();
+    DraftSetStore.emitChange();
+  }
+}
+
+
 function addElement(element) {
   var elements = _activeConfiguration.elements.slice();
-  element.isNew = true;
   elements.push(element);
 
   _activeConfiguration.elements = elements;
@@ -160,14 +199,17 @@ function addElement(element) {
 }
 
 
+function editElement(element) {
+  element.needsEdit = true;
+  DraftSetStore.emitChange();
+}
+
+
 function cloneElement(element) {
-  var elements = _activeConfiguration.elements.slice(),
-      elementIndex = elements.indexOf(element),
-      clone = element.clone(false, _activeConfiguration);
+  var result = findElement(element);
+  var clone = element.clone(false, result.container);
+  result.container.splice(result.index + 1, 0, clone);
 
-  elements.splice(elementIndex + 1, 0, clone);
-
-  _activeConfiguration.elements = elements;
   _isModified = true;
   configurationToDraft();
   DraftSetStore.emitChange();
@@ -175,14 +217,12 @@ function cloneElement(element) {
 
 
 function updateElement(element) {
-  var elements = _activeConfiguration.elements.slice(),
-      elm = elements.filter(e => e.EID === element.EID)[0],
-      elmIndex = elements.indexOf(elm);
+  var result = findElement(element);
+  result.container[result.index] = element;
 
-  delete element.isNew;
-  elements[elmIndex] = element;
+  delete element.needsEdit;
+  delete element.forceEdit;
 
-  _activeConfiguration.elements = elements;
   _isModified = true;
   configurationToDraft();
   DraftSetStore.emitChange();
@@ -190,15 +230,14 @@ function updateElement(element) {
 
 
 function deleteElement(element) {
-  var elements = _activeConfiguration.elements.slice(),
-      elementIndex = elements.indexOf(element);
+  var result = findElement(element);
+  if (result) {
+    result.container.splice(result.index, 1);
 
-  elements.splice(elementIndex, 1);
-
-  _activeConfiguration.elements = elements;
-  _isModified = true;
-  configurationToDraft();
-  DraftSetStore.emitChange();
+    _isModified = true;
+    configurationToDraft();
+    DraftSetStore.emitChange();
+  }
 }
 
 
@@ -272,6 +311,10 @@ var DraftSetStore = assign({}, EventEmitter.prototype, {
     return _activeConfiguration ? _activeConfiguration.elements : [];
   },
 
+  findElement: function (element) {
+    return findElement(element);
+  },
+
   activeIsModified: function () {
     return _isModified;
   },
@@ -330,6 +373,10 @@ var DraftSetStore = assign({}, EventEmitter.prototype, {
         addElement(action.element);
         break;
 
+      case constants.ACTION_DRAFTSET_EDITELEMENT:
+        editElement(action.element);
+        break;
+
       case constants.ACTION_DRAFTSET_CLONEELEMENT:
         cloneElement(action.element);
         break;
@@ -342,8 +389,12 @@ var DraftSetStore = assign({}, EventEmitter.prototype, {
         deleteElement(action.element);
         break;
 
-      case constants.ACTION_DRAFTSET_MOVEELEMENT:
-        moveElement(action.eid, action.afterEid);
+      case constants.ACTION_DRAFTSET_PUTELEMENT:
+        putElement(action.element, action.afterElement, action.container);
+        break;
+
+      case constants.ACTION_DRAFTSET_CHECKNEWHOME:
+        checkNewHome(action.element);
         break;
 
       case constants.ACTION_DRAFTSET_PUBLISH:

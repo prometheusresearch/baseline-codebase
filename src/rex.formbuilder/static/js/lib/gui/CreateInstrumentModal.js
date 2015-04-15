@@ -61,6 +61,7 @@ var CreateInstrumentModal = React.createClass({
     return (
       <div>
         <Form
+          component='div'
           schema={this.getSchema()}
           ref='form'
           />

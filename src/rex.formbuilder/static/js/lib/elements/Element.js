@@ -7,6 +7,7 @@
 var React = require('react');
 var classSet = React.addons.classSet;
 
+var SerializationContext = require('../SerializationContext');
 var {ParsingError} = require('../errors');
 var properties = require('../properties');
 var {isEmpty} = require('../util');
@@ -18,7 +19,7 @@ var PARSERS = [];
 var ELEMENT_COUNTER = 0;
 
 
-class Element {
+class Element extends SerializationContext {
   static parse(element, instrument) {
     for (var i = 0; i < PARSERS.length; i++) {
       var parsed = PARSERS[i](element, instrument);
@@ -73,6 +74,14 @@ class Element {
     return null;
   }
 
+  static isContainingElement() {
+    return false;
+  }
+
+  static canBeSubField() {
+    return false;
+  }
+
   static getToolboxComponent() {
     var classes = {
       'rfb-toolbox-component': true
@@ -100,15 +109,6 @@ class Element {
     this.tags = element.tags || this.tags;
   }
 
-  getCurrentSerializationPage(form) {
-    return form.pages[form.pages.length - 1];
-  }
-
-  getCurrentSerializationElement(form) {
-    var page = this.getCurrentSerializationPage(form);
-    return page.elements[page.elements.length - 1];
-  }
-
   getWorkspaceComponent() {
     return (
       <div className='rfb-workspace-element-details'>
@@ -119,14 +119,20 @@ class Element {
     );
   }
 
-  serialize(instrument, form) {
+  checkValidity() {
+    return true;
+  }
+
+  serialize(instrument, form, context) {
+    context = context || this;
+
     var elm = {};
     if (!isEmpty(this.tags)) {
       elm.tags = this.tags;
     }
 
-    var page = this.getCurrentSerializationPage(form);
-    page.elements.push(elm);
+    var elements = context.getCurrentSerializationElementContainer(form);
+    elements.push(elm);
 
     return {
       instrument,

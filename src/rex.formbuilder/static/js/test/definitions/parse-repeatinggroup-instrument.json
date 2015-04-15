@@ -1,0 +1,62 @@
+{
+  "id": "urn:test-instrument",
+  "version": "1.1",
+  "title": "The InstrumentVersion Title",
+  "record": [
+    {
+      "id": "q_fake",
+      "type": {
+        "base": "recordList",
+        "record": [
+          {
+            "id": "quest1",
+            "type": "text"
+          },
+          {
+            "id": "quest2",
+            "type": "integer"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q_fake2",
+      "type": {
+        "base": "recordList",
+        "record": [
+          {
+            "id": "quest21",
+            "type": "text"
+          },
+          {
+            "id": "quest22",
+            "type": "integer"
+          }
+        ]
+      }
+    },
+    {
+      "id": "q_fake3",
+      "type": {
+        "base": "recordList",
+        "record": [
+          {
+            "id": "quest31",
+            "type": {
+              "base": "text",
+              "pattern": "foo"
+            }
+          },
+          {
+            "id": "quest32",
+            "type": "integer"
+          }
+        ],
+        "length": {
+          "max": 5
+        }
+      }
+    }
+  ]
+}
+

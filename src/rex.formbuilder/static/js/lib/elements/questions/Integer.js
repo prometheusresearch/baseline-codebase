@@ -19,8 +19,8 @@ class Integer extends Numeric {
     return 'question-integer';
   }
 
-  serialize(instrument, form) {
-    return super(instrument, form, 'integer');
+  serialize(instrument, form, context) {
+    return super(instrument, form, context, 'integer');
   }
 }
 

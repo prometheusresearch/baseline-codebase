@@ -1,6 +1,6 @@
 {
   "name": "rex-formbuilder",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "private": true,
   "description": "JavaScript functionality for the rex.formbuilder application",
   "authors": [
@@ -25,7 +25,7 @@
     "deep-equal": "0.0.0",
     "deep-copy": "*",
     "n-deep-merge": "*",
-    "qwest": "~1.5.4",
+    "qwest": "1.5.11",
     "react-dnd": "prometheusresearch/react-dnd#npm_react_hack",
     "react-forms": "prometheusresearch/react-forms#master",
     "rex-i18n": "*",

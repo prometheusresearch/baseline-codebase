@@ -19,14 +19,16 @@ class DropDownMenu extends Enumeration {
     return 'question-dropdown';
   }
 
-  serialize(instrument, form) {
-    /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form);
+  serialize(instrument, form, context) {
+    context = context || this;
 
-    var field = this.getCurrentSerializationField(instrument);
+    /*eslint no-redeclare:0 */
+    var {instrument, form} = super(instrument, form, context);
+
+    var field = context.getCurrentSerializationField(instrument);
     objectPath.set(field, 'type.base', 'enumeration');
 
-    var elm = this.getCurrentSerializationElement(form);
+    var elm = context.getCurrentSerializationElement(form);
     objectPath.set(elm, 'options.widget.type', 'dropDown');
 
     return {

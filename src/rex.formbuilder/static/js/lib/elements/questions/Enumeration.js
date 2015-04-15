@@ -85,14 +85,16 @@ class Enumeration extends Question {
     this.enumerations = enumerations;
   }
 
-  serialize(instrument, form) {
-    /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form);
+  serialize(instrument, form, context) {
+    context = context || this;
 
-    var field = this.getCurrentSerializationField(instrument);
+    /*eslint no-redeclare:0 */
+    var {instrument, form} = super(instrument, form, context);
+
+    var field = context.getCurrentSerializationField(instrument);
     objectPath.set(field, 'type.enumerations', {});
 
-    var elm = this.getCurrentSerializationElement(form);
+    var elm = context.getCurrentSerializationElement(form);
     objectPath.set(elm, 'options.enumerations', []);
 
     this.enumerations.forEach((enumeration) => {

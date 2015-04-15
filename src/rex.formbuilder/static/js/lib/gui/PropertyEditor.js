@@ -56,7 +56,7 @@ var PropertyEditor = React.createClass({
     properties.forEach((property) => {
       var {name, schema, ...props} = property;
       cfg[name] = schema.create(props);
-      cfg[name].ELEMENT_EID = this.props.element.EID;
+      cfg[name].ELEMENT = this.props.element;
     });
 
     /*eslint new-cap:0 */
@@ -183,6 +183,7 @@ var PropertyEditor = React.createClass({
           className={classes}>
           <ReactForms.Form
             ref={category}
+            component='div'
             schema={this.makeFormSchema(config.properties[category])}
             defaultValue={this.getStartingValue(config.properties[category])}
             />

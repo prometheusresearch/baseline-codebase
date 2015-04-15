@@ -19,11 +19,13 @@ class RadioButtonGroup extends Enumeration {
     return 'question-radiobuttongroup';
   }
 
-  serialize(instrument, form) {
-    /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form);
+  serialize(instrument, form, context) {
+    context = context || this;
 
-    var field = this.getCurrentSerializationField(instrument);
+    /*eslint no-redeclare:0 */
+    var {instrument, form} = super(instrument, form, context);
+
+    var field = context.getCurrentSerializationField(instrument);
     objectPath.set(field, 'type.base', 'enumeration');
 
     return {

@@ -11,7 +11,7 @@ var PropertyEditor = require('./PropertyEditor');
 var _ = require('../i18n').gettext;
 
 
-var PropertyEditorModal = React.createClass({
+var PropertyEditorModalInner = React.createClass({
   mixins: [
     ModalMixin
   ],
@@ -62,13 +62,32 @@ var PropertyEditorModal = React.createClass({
             onClick={this.onSubmit}>
             {_('Update')}
           </button>
-          <button
-            className='rfb-button'
-            onClick={this.onCancel}>
-            {_('Cancel')}
-          </button>
+          {this.props.canCancel &&
+            <button
+              className='rfb-button'
+              onClick={this.onCancel}>
+              {_('Cancel')}
+            </button>
+          }
         </div>
       </div>
+    );
+  }
+});
+
+
+var PropertyEditorModal = React.createClass({
+  reset: function () {
+    this.refs.inner.reset();
+  },
+
+  render: function () {
+    return (
+      <PropertyEditorModalInner
+        ref='inner'
+        canCancel={!this.props.element.forceEdit}
+        {...this.props}
+        />
     );
   }
 });

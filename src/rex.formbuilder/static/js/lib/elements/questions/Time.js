@@ -46,11 +46,13 @@ class Time extends Question {
     this.range = objectPath.get(field, 'type.range', {});
   }
 
-  serialize(instrument, form) {
-    /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form);
+  serialize(instrument, form, context) {
+    context = context || this;
 
-    var field = this.getCurrentSerializationField(instrument);
+    /*eslint no-redeclare:0 */
+    var {instrument, form} = super(instrument, form, context);
+
+    var field = context.getCurrentSerializationField(instrument);
     if (!isEmpty(this.range)) {
       objectPath.set(field, 'type.base', 'time');
       objectPath.set(field, 'type.range', this.range);

@@ -22,12 +22,14 @@ var WorkspaceElement = React.createClass({
 
   propTypes: {
     element: React.PropTypes.object.isRequired,
-    canMove: React.PropTypes.bool
+    canMove: React.PropTypes.bool,
+    isSubField: React.PropTypes.bool
   },
 
   getDefaultProps: function () {
     return {
-      canMove: true
+      canMove: true,
+      isSubField: false
     };
   },
 
@@ -38,7 +40,7 @@ var WorkspaceElement = React.createClass({
           beginDrag: function (component) {
             return {
               item: {
-                EID: component.props.element.EID
+                element: component.props.element
               }
             };
           },
@@ -49,15 +51,68 @@ var WorkspaceElement = React.createClass({
         },
 
         dropTarget: {
-          over: function (component, item) {
-            DraftSetActions.moveElement(
-              item.EID,
-              component.props.element.EID
+          enter: function (component, item) {
+            if (component.props.element.EID === item.element.EID) {
+              return;
+            }
+
+            DraftSetActions.putElement(
+              item.element,
+              component.props.element
             );
           },
 
-          canDrop: function (component) {
-            return component.canMove();
+          acceptDrop: function (component, item) {
+            DraftSetActions.checkNewHome(item.element);
+          },
+
+          canDrop: function (component, item) {
+            return component.canMove()
+              && !component.props.element.constructor.isContainingElement()
+              && (
+                !item.element.constructor.isContainingElement()
+                || !component.props.isSubField
+              )
+              && (
+                item.element.constructor.canBeSubField()
+                || !component.props.isSubField
+              )
+            ;
+          }
+        }
+      });
+
+      register(DraggableTypes.ELEMENT_TYPE, {
+        dropTarget: {
+          enter: function (component, item) {
+            if (component.props.element.EID === item.element.EID) {
+              return;
+            }
+
+            DraftSetActions.putElement(
+              item.element,
+              component.props.element
+            );
+          },
+
+          leave: function (component, item) {
+            if (component.props.element.EID === item.element.EID) {
+              component.setState({isDragging: false});
+            }
+          },
+
+          acceptDrop: function (component) {
+            component.setState({isDragging: false});
+          },
+
+          canDrop: function (component, item) {
+            if (component.props.element.EID === item.element.EID) {
+              return true;
+            }
+
+            return !component.props.isSubField
+              && !component.props.element.constructor.isContainingElement()
+              && component.canMove();
           }
         }
       });
@@ -65,16 +120,23 @@ var WorkspaceElement = React.createClass({
   },
 
   getInitialState: function () {
-    var isNew = this.props.element.isNew || false;
-    var cfg = this.props.element.constructor.getPropertyConfiguration();
-    isNew = isNew && (
-      cfg.properties[cfg.defaultCategory].length > 0
-    );
+    var needsEdit = this.props.element.needsEdit
+      || this.props.element.forceEdit
+      || false;
 
     return {
-      editing: isNew,
-      deleting: false
+      editing: needsEdit,
+      deleting: false,
+      isDragging: false
     };
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    if (nextProps.element.needsEdit || nextProps.element.forceEdit) {
+      this.setState({
+        editing: true
+      });
+    }
   },
 
   onEdit: function () {
@@ -98,7 +160,7 @@ var WorkspaceElement = React.createClass({
   },
 
   onCancelEditing: function () {
-    if (this.props.element.isNew) {
+    if (this.props.element.needsEdit) {
       DraftSetActions.deleteElement(this.props.element);
     } else {
       this.setState({
@@ -134,6 +196,8 @@ var WorkspaceElement = React.createClass({
 
   render: function () {
     var {isDragging} = this.getDragState(DraggableTypes.WORKSPACE_ELEMENT);
+    isDragging |= this.state.isDragging;
+
     var classes = {
       'rfb-workspace-element': true,
       'rfb-dragging': isDragging,
@@ -148,7 +212,10 @@ var WorkspaceElement = React.createClass({
     return (
       <div
         {...this.dragSourceFor(DraggableTypes.WORKSPACE_ELEMENT)}
-        {...this.dropTargetFor(DraggableTypes.WORKSPACE_ELEMENT)}
+        {...this.dropTargetFor(
+          DraggableTypes.WORKSPACE_ELEMENT,
+          DraggableTypes.ELEMENT_TYPE
+        )}
         className={classes}>
         {this.props.element.getWorkspaceComponent()}
         <div className='rfb-workspace-element-tools'>

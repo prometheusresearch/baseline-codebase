@@ -49,13 +49,20 @@ class DefinitionParser {
       form = form[0];
     }
 
-    var catalog = new InstrumentTypeCatalog(instrument);
-    this.instrument = deepCopy(instrument);
-    for (i = 0; i < instrument.record.length; i++) {
-      this.instrument.record[i].type = catalog.getTypeDefinition(
-        this.instrument.record[i].type
-      );
+    function rebaseTypes(record, catalog) {
+      for (var r = 0; r < record.length; r++) {
+        record[r].type = catalog.getTypeDefinition(record[r].type);
+
+        if (record[r].type.base === 'recordList') {
+          rebaseTypes(record[r].type.record, catalog);
+        } else if (record[r].type.base === 'matrix') {
+          rebaseTypes(record[r].type.columns, catalog);
+        }
+      }
     }
+
+    this.instrument = deepCopy(instrument);
+    rebaseTypes(this.instrument.record, new InstrumentTypeCatalog(instrument));
 
     this.form = form;
 
@@ -94,6 +101,8 @@ class DefinitionParser {
               'Element #%(index)s is not currently supported.',
               {index}
             ));
+          } else {
+            throw exc;
           }
         }
       });

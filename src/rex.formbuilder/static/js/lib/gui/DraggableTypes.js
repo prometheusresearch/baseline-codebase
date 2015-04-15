@@ -6,6 +6,7 @@
 
 
 module.exports = {
-  WORKSPACE_ELEMENT: 'wse'
+  WORKSPACE_ELEMENT: 'wse',
+  ELEMENT_TYPE: 'et'
 };
 

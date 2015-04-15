@@ -4,8 +4,6 @@
 
 'use strict';
 
-require('rex-widget');
-
 var errors = require('./errors');
 var GUI = require('./gui');
 var widget = require('./widget');

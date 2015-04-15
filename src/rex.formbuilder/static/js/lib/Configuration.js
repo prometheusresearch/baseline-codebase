@@ -68,6 +68,8 @@ class Configuration {
     var sawFieldBasedElement = false;
 
     this.elements.forEach((element, idx) => {
+      element.checkValidity();
+
       if (element instanceof elements.Questions.Question) {
         sawFieldBasedElement = true;
       }

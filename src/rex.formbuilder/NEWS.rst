@@ -5,6 +5,16 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.1.0 (2015-xx-xx)
+==================
+
+* Added ability to configure Repeating Groups (aka, recordList fields).
+* Fixed issue with hitting enter in a modal form causing a browser submit.
+* Added ability to drag toolbox elements directly to the desired position in
+  the workspace.
+* Removed unused Tags property from Page Start elements.
+
+
 5.0.1 (2014-04-08)
 ==================
 

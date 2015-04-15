@@ -27,6 +27,9 @@ class PageStart extends ContentElement {
         uniqueAcrossElementType: PageStart
       }
     );
+    cfg.properties.advanced = cfg.properties.advanced.filter((prop) => {
+      return prop.name !== 'tags';
+    });
     return cfg;
   }
 
@@ -39,7 +42,7 @@ class PageStart extends ContentElement {
     this.id = null;
   }
 
-  serialize(instrument, form) {
+  serialize(instrument, form, context) {
     var page = {
       id: this.id,
       elements: []
@@ -66,7 +69,7 @@ class PageStart extends ContentElement {
         while (!unique) {
           newId += '_clone';
 
-          var matches = configurationScope.elements.filter((element) => {
+          var matches = configurationScope.filter((element) => {
             /*eslint no-loop-func:0 */
             return (element instanceof PageStart)
                 && (element.id === newId);

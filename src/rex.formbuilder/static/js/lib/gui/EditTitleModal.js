@@ -59,6 +59,7 @@ var EditTitleModal = React.createClass({
       <div>
         {(this.props.title !== null) &&
           <Form
+            component='div'
             schema={this.getSchema()}
             defaultValue={{title: this.props.title}}
             ref='form'

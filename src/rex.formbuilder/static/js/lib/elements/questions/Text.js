@@ -55,11 +55,13 @@ class Text extends Question {
     this.pattern = objectPath.get(field, 'type.pattern', null);
   }
 
-  serialize(instrument, form) {
-    /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form);
+  serialize(instrument, form, context) {
+    context = context || this;
 
-    var field = this.getCurrentSerializationField(instrument);
+    /*eslint no-redeclare:0 */
+    var {instrument, form} = super(instrument, form, context);
+
+    var field = context.getCurrentSerializationField(instrument);
     if (!isEmpty(this.length) || this.pattern) {
       objectPath.set(field, 'type.base', 'text');
       if (!isEmpty(this.length)) {

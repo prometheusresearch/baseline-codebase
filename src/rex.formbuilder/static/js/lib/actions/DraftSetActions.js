@@ -30,6 +30,13 @@ var DraftSetActions = {
     });
   },
 
+  editElement: function (element) {
+    Dispatcher.dispatch({
+      actionType: constants.ACTION_DRAFTSET_EDITELEMENT,
+      element: element
+    });
+  },
+
   cloneElement: function (element) {
     Dispatcher.dispatch({
       actionType: constants.ACTION_DRAFTSET_CLONEELEMENT,
@@ -51,11 +58,19 @@ var DraftSetActions = {
     });
   },
 
-  moveElement: function (eid, afterEid) {
+  putElement: function (element, afterElement, container) {
     Dispatcher.dispatch({
-      actionType: constants.ACTION_DRAFTSET_MOVEELEMENT,
-      eid: eid,
-      afterEid: afterEid
+      actionType: constants.ACTION_DRAFTSET_PUTELEMENT,
+      element: element,
+      afterElement: afterElement,
+      container: container
+    });
+  },
+
+  checkNewHome: function (element) {
+    Dispatcher.dispatch({
+      actionType: constants.ACTION_DRAFTSET_CHECKNEWHOME,
+      element: element
     });
   },
 

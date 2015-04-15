@@ -17,6 +17,9 @@ var {gettext, getCurrentLocale} = require('../../i18n');
 var _ = gettext;
 
 
+var QUESTION_PARSERS = [];
+
+
 function findField(instrument, id) {
   for (var i = 0; i < instrument.record.length; i++) {
     if (instrument.record[i].id === id) {
@@ -32,14 +35,32 @@ class Question extends Element {
   }
 
   static registerElement(type, parser) {
-    var wrappedParser = function (element, instrument) {
-      if (element.type === 'question') {
-        var field = findField(instrument, element.options.fieldId);
-        return parser(element, instrument, field);
-      }
-    };
+    var wrappedParser;
+
+    if (parser) {
+      QUESTION_PARSERS.push(parser);
+
+      wrappedParser = function (element, instrument) {
+        if (element.type === 'question') {
+          var field = findField(instrument, element.options.fieldId);
+          return parser(element, instrument, field);
+        }
+      };
+    }
 
     Element.registerElement(type, wrappedParser);
+  }
+
+  static parseQuestion(options, record) {
+    for (var i = 0; i < QUESTION_PARSERS.length; i++) {
+      var field = findField({record}, options.fieldId);
+      var parsed = QUESTION_PARSERS[i]({options}, {record}, field);
+      if (parsed) {
+        return parsed;
+      }
+    }
+
+    throw new errors.ParsingError('Could not parse Question');
   }
 
   static getPropertyConfiguration() {
@@ -90,6 +111,10 @@ class Question extends Element {
     return 'question';
   }
 
+  static canBeSubField() {
+    return true;
+  }
+
   constructor() {
     super();
     this.id = null;
@@ -116,10 +141,6 @@ class Question extends Element {
     }
   }
 
-  getCurrentSerializationField(instrument) {
-    return instrument.record[instrument.record.length - 1];
-  }
-
   getWorkspaceComponent() {
     return (
       <div className='rfb-workspace-element-details'>
@@ -133,9 +154,11 @@ class Question extends Element {
     );
   }
 
-  serialize(instrument, form) {
+  serialize(instrument, form, context) {
+    context = context || this;
+
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form);
+    var {instrument, form} = super(instrument, form, context);
 
     var field = {
       id: this.id
@@ -148,7 +171,7 @@ class Question extends Element {
     }
     instrument.record.push(field);
 
-    var elm = this.getCurrentSerializationElement(form);
+    var elm = context.getCurrentSerializationElement(form);
     elm.type = 'question';
     objectPath.set(elm, 'options.fieldId', this.id);
     objectPath.set(elm, 'options.text', this.text);
@@ -178,7 +201,7 @@ class Question extends Element {
         while (!unique) {
           newId += '_clone';
 
-          var matches = configurationScope.elements.filter((element) => {
+          var matches = configurationScope.filter((element) => {
             /*eslint no-loop-func:0 */
             return (element instanceof Question)
                 && (element.id === newId);

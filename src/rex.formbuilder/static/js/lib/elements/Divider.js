@@ -23,11 +23,13 @@ class Divider extends ContentElement {
     super();
   }
 
-  serialize(instrument, form) {
-    /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form);
+  serialize(instrument, form, context) {
+    context = context || this;
 
-    var elm = this.getCurrentSerializationElement(form);
+    /*eslint no-redeclare:0 */
+    var {instrument, form} = super(instrument, form, context);
+
+    var elm = context.getCurrentSerializationElement(form);
     elm.type = 'divider';
 
     return {

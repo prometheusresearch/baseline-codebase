@@ -19,8 +19,8 @@ class Float extends Numeric {
     return 'question-float';
   }
 
-  serialize(instrument, form) {
-    return super(instrument, form, 'float');
+  serialize(instrument, form, context) {
+    return super(instrument, form, context, 'float');
   }
 }
 

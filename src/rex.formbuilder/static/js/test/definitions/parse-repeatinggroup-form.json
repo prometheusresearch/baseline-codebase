@@ -1,0 +1,101 @@
+{
+  "instrument": {
+    "id": "urn:test-instrument",
+    "version": "1.1"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake",
+            "text": {
+              "en": "Question Text"
+            },
+            "questions": [
+              {
+                "fieldId": "quest1",
+                "text": {
+                  "en": "SubQuestion1 Text"
+                }
+              },
+              {
+                "fieldId": "quest2",
+                "text": {
+                  "en": "SubQuestion2 Text"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake2",
+            "text": {
+              "en": "Question2 Text"
+            },
+            "questions": [
+              {
+                "fieldId": "quest21",
+                "text": {
+                  "en": "SubQuestion21 Text"
+                }
+              },
+              {
+                "fieldId": "quest22",
+                "text": {
+                  "en": "SubQuestion22 Text"
+                }
+              }
+            ],
+            "widget": {
+              "type": "recordList"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake3",
+            "text": {
+              "en": "Question3 Text"
+            },
+            "questions": [
+              {
+                "fieldId": "quest31",
+                "text": {
+                  "en": "SubQuestion31 Text"
+                }
+              },
+              {
+                "fieldId": "quest32",
+                "text": {
+                  "en": "SubQuestion32 Text"
+                },
+                "help": {
+                  "en": "This needs help!"
+                }
+              }
+            ],
+            "widget": {
+              "type": "recordList",
+              "options": {
+                "addLabel": {
+                  "en": "Add Something New"
+                },
+                "removeLabel": {
+                  "en": "Remove a Thing"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

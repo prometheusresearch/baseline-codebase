@@ -13,7 +13,7 @@ var DEFAULT_OPTIONS = {
   baseUrl: '',
   responseType: 'json',
   cache: true,
-  retries: 1
+  attempts: 1
 };
 
 

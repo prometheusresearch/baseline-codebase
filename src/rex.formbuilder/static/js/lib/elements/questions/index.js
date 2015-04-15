@@ -16,6 +16,7 @@ var CheckBoxGroup = require('./CheckBoxGroup');
 var DateQuestion = require('./Date');
 var Time = require('./Time');
 var DateTime = require('./DateTime');
+var RepeatingGroup = require('./RepeatingGroup');
 
 
 module.exports = {
@@ -30,6 +31,7 @@ module.exports = {
   CheckBoxGroup,
   Date: DateQuestion,
   Time,
-  DateTime
+  DateTime,
+  RepeatingGroup
 };
 

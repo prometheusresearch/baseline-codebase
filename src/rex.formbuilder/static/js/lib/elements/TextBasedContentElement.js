@@ -48,11 +48,13 @@ class TextBasedContentElement extends ContentElement {
     this.text = element.options.text;
   }
 
-  serialize(instrument, form) {
-    /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form);
+  serialize(instrument, form, context) {
+    context = context || this;
 
-    var elm = this.getCurrentSerializationElement(form);
+    /*eslint no-redeclare:0 */
+    var {instrument, form} = super(instrument, form, context);
+
+    var elm = context.getCurrentSerializationElement(form);
     objectPath.set(elm, 'options.text', this.text);
 
     return {

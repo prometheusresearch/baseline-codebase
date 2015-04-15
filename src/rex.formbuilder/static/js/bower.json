@@ -12,6 +12,9 @@
     "url": "https://bitbucket.org/rexdb/rex.formbuilder"
   },
   "main": "lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
   "styleEntry": "style/index.less",
   "dependencies": {
     "react": "http://registry.npmjs.org/react/-/react-0.12.2.tgz#*",

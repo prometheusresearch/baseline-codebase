@@ -1,14 +1,38 @@
 'use strict';
 
+var fs                   = require('fs');
 var path                 = require('path');
 var webpack              = require('webpack');
 var ExtractTextPlugin    = require('extract-text-webpack-plugin');
 var IntrospectablePlugin = require('rex-setup/introspection/plugin');
 
+var introspectionLoader  = require.resolve('./introspection/loader');
+
 var DEV           = !!process.env.REX_SETUP_DEV;
 var BUNDLE_PREFIX = process.env.REX_SETUP_BUNDLE_PREFIX || '/bundle/';
 
-var packageDirectory = path.join(process.cwd(), 'bower_components');
+var cwd = process.cwd();
+var packageDirectory = path.join(cwd, 'bower_components');
+
+function getPackageMetadata(directory) {
+  var packageMetadataFilename = path.join(directory, 'bower.json');
+  if (!fs.existsSync(packageMetadataFilename)) {
+    return null;
+  }
+  var src = fs.readFileSync(packageMetadataFilename, 'utf8');
+  return JSON.parse(src);
+}
+
+function getListOfDependencies(packageMetadata) {
+  if (!packageMetadata || !packageMetadata.dependencies) {
+    return [];
+  }
+  var dependencies = Object.keys(packageMetadata.dependencies)
+    .map(packagePath)
+    .map(getPackageMetadata)
+    .filter(Boolean);
+  return unique(dependencies.concat(concat(dependencies.map(getListOfDependencies))));
+}
 
 /**
  * Return path to an installed package specified by name.
@@ -27,17 +51,49 @@ function packagePath(name) {
  * @returns {WebPackConfiguration}
  */
 function configureWebpack(config) {
+  var pkg = getPackageMetadata(cwd);
+  var deps = getListOfDependencies(pkg);
+  var pkgs = [pkg].concat(deps);
+
+  // add style entry either via rex.style key in package metadata or implicitly
+  if (pkg.rex && pkg.rex.style) {
+    addEntry(config, path.join(cwd, pkg.rex.style));
+  } else {
+    var indexLess = path.join(cwd, 'style', 'index.less');
+    if (fs.existsSync(indexLess)) {
+      addEntry(config, indexLess);
+    }
+  }
+
+  // add entry for each introspectable package in dependency chain
+  pkgs.forEach(function(pkg) {
+    if (pkg.rex && pkg.rex.bundleAll) {
+      addEntry(config, 'rex-setup/introspection/loader?all!' + pkg.name);
+    }
+  });
+
   set(config, 'watchDelay', 200);
 
-  set(config, 'resolve.alias.react/addons', packagePath('react/react-with-addons.js'));
-  set(config, 'resolve.alias.react', packagePath('react/react-with-addons.js'));
+  setResolveAliases(config, {
+    'util': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/util.js'),
+    'console': require.resolve('webpack/node_modules/node-libs-browser/node_modules/console-browserify'),
+    'date-now': require.resolve('webpack/node_modules/node-libs-browser/node_modules/console-browserify/node_modules/date-now'),
+    'inherits': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/node_modules/inherits/inherits_browser.js'),
+    'is-array': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/is-array'),
+    'ieee754': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/ieee754'),
+    'base64-js': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/base64-js'),
+    'react/addons': packagePath('react/addons.js'),
+    'react': packagePath('react/addons.js')
+  });
+
+  setResolveAliasesFromPackages(config, pkgs);
 
   set(config, 'output.path', process.cwd());
   set(config, 'output.filename', 'bundle.js');
   unshift(config, 'module.loaders', [
     {
       test: /\.js$/,
-      loader: 'jsx-loader?harmony=true&es5=true'
+      loader: 'jsx-loader?harmony=true&es5=true&stripTypes=true'
     },
     { test: /\.less$/,
       loaders: [
@@ -91,6 +147,22 @@ function configureWebpack(config) {
   return config;
 }
 
+function setResolveAliasesFromPackages(config, packages) {
+  // TODO: we need to check for conflicts here but let's not bother now as we
+  // don't want to advertise the feature
+  packages.forEach(function(pkg) {
+    if (pkg.rex && pkg.rex.alias) {
+      setResolveAliases(config, pkg.rex.alias);
+    }
+  });
+}
+
+function setResolveAliases(config, aliases) {
+  for (var name in aliases) {
+    set(config, 'resolve.alias.' + name, aliases[name]);
+  }
+}
+
 function set(config, path, defaultValue) {
   path = path.split('.');
   path.forEach(function(p, idx) {
@@ -122,6 +194,32 @@ function unshift(config, path, defaultValue) {
       config = config[p];
     }
   });
+}
+
+function addEntry(config, entry) {
+  if (!hasEntry(config, entry)) {
+    unshift(config, 'entry', entry);
+  }
+}
+
+function hasEntry(config, entry) {
+  return config.entry && config.entry.indexOf(entry) !== -1;
+}
+
+function unique(array) {
+  var nextArray = [];
+  for (var i = 0; i < array.length; i++) {
+    if (nextArray.indexOf(array[i]) === -1) {
+      nextArray.push(array[i]);
+    }
+  }
+  return nextArray;
+}
+
+function concat(arrays) {
+  return arrays.reduce(function(acc, array) {
+    return acc.concat(array);
+  }, []);
 }
 
 module.exports = {

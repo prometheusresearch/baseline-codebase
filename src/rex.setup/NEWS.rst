@@ -4,6 +4,33 @@
 
 .. contents:: Table of Contents
 
+2.3.0 (unreleased)
+==================
+
+* Webpack configuration: set aliases to support Node polyfills in browsers.
+
+* Webpack configuration: discover modules which we need to add entry points
+  through JS dependency chain. This is now configured per-package in bower.json
+  via "rex.bundleAll" key::
+
+    ...
+    "rex": {
+      "bundleAll": true
+    },
+    ...
+
+* Webpack configuration: discover style entry point through in application's
+  bower.json::
+
+    ...
+    "rex": {
+      "style": "style/index.less"
+    },
+    ...
+
+  or fallback to implicit configuration if "style/index.less" exists in JS
+  application root.
+
 
 2.2.0 (2015-03-26)
 ==================

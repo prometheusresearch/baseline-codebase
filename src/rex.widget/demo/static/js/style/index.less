@@ -1,44 +1,483 @@
-@import (less) "~rex-widget/style/index.less";
+@import (less) "~bootstrap/less/bootstrap";
+@import (less) "~bootstrap-datepicker/less/datepicker3.less"; 
+@import (less) "~react-forms/themes/bootstrap/index.less";
+/*@import (less) "~react-selectbox/lib/styles.css";*/
+@import "../vendor/fixed-data-table.css";
+@import (less) "./layout";
+@import (less) "./table";
+@import (less) "./variables";
 
-/* Add Your customizations Here */
+@border-radius-base:        2px;
+@border-radius-large:       2px;
+@border-radius-small:       2px;
 
-@border-radius-base:        4px;
-@border-radius-large:       6px;
-@border-radius-small:       3px;
+@standardShadow: none;
 
+@padding: 0.5em;
+@paddingS: 0.25em;
+@paddingL: 1em;
 
-body {
-  font-family: 'Fira Sans', sans-serif;
+@colorBackground: #ffffff;
+@colorShadow: #bcbcbc;
+@colorHoverHighlight: #eaeaea;
+@colorSelectedHighlight: #ffef8f;
+@colorLink: #1546CF;
+@colorGrey: #777777;
+
+@border: 1px solid #cccccc;
+
+@headerHeight: 60px;
+
+html, body, #__main__ {
+  height: 100%;
 }
 
-.rex-widget-demo-StudyInfo {
+#__main__ {
+  box-sizing: border-box;
   position: relative;
+  border: 0 solid black;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
 }
 
-.rex-widget-demo-StudyInfo__message {
+.todo-header {
+  color: #FFA888;
+  font-size: 64pt;
+}
+
+/**
+ * <ReactForms.Field />
+ */
+.rf-Field {
+  padding: 0;
+}
+
+/**
+ * <Select />
+ */
+.rw-Select {
+  .form-control;
+  width: 100%;
+}
+.rw-Select--quiet {
+  border: none;
+}
+
+/**
+ * <TextInput />
+ */
+.rw-TextInput {
+  .form-control;
+  width: 100%;
+  height: 30px;
+  padding: 4px 6px;
+  ::-webkit-input-placeholder {
+    color: #DDD;
+  }
+  :-moz-placeholder { /* Firefox 18- */
+    color: #DDD;
+  }
+  ::-moz-placeholder {  /* Firefox 19+ */
+    color: #DDD;
+  }
+  :-ms-input-placeholder {  
+    color: #DDD;
+  }
+}
+
+.rw-TextInput--verticalResize {
+  resize: vertical;
+}
+
+.rw-TextInput--horizontalResize {
+  resize: horizontal;
+}
+
+.rw-TextInput--noResize {
+  resize: none;
+}
+
+.rw-TextInput--quiet {
+  border: none;
+}
+
+/**
+ *
+ */
+.rw-ValidatedTextInput__error {
+  color: @brand-danger;
+  padding: @paddingS;
+}
+
+/**
+ * <List />
+ */
+.rw-List {
+  padding: 0;
+  list-style-type: none;
+}
+.rw-List__item {
+  padding: @paddingS @padding;
+  list-style-type: none;
+  cursor: pointer;
+  &:hover {
+    background-color: @colorHoverHighlight;
+  }
+}
+.rw-List__item--selected {
+  background-color: @colorSelectedHighlight;
+}
+
+/**
+ * <LoadingIndicator />
+ */
+.rw-LoadingIndicator {
+  width: 100%;
   text-align: center;
-  padding: @paddingL;
-  color: @colorShadow;
 }
 
-.rex-widget-demo-InfoItem {
-  margin-bottom: @padding;
-}
-
-.rex-widget-demo-InfoItem__name {
+/**
+ * <Preloader />
+ */
+.rw-Preloader {
+  width: 100%;
+  height: 100%;
+  color: #aaa;
   font-weight: bold;
-  margin-right: @padding;
+  text-align: center;
+  padding: @padding-base-vertical @padding-base-horizontal;
+}
+.rw-Preloader__caption {
+  padding: @padding-base-vertical @padding-base-horizontal;
 }
 
-.rw-Navigation {
-  font-family: 'Fira Sans', sans-serif;
-}
-.rw-Navigation__title {
+/**
+ * <Button />
+ */
+.rw-Button {
+  .btn();
+  text-overflow: ellipsis;
   overflow: hidden;
-  position: relative;
-  font-weight: bold;
 }
 
-.navbar {
-    margin-bottom: 0px;
+.rw-Button--default {
+  .btn-default();
 }
+
+.rw-Button--link {
+  .btn-link();
+}
+
+.rw-Button--success {
+  .btn-success();
+}
+
+.rw-Button--danger {
+  .btn-danger();
+}
+.rw-Button--quiet {
+  background: transparent;
+  color: #888;
+  border: 1px solid transparent;
+}
+.rw-Button--quiet[disabled] {
+  border: 1px solid transparent;
+}
+.rw-Button--small {
+  .btn-sm();
+}
+.rw-Button--extraSmall {
+  .btn-xs();
+}
+
+
+/**
+ * <ButtonGroup />
+ */
+.rw-ButtonGroup {
+  .btn-group();
+}
+
+/**
+ * <CheckboxGroup />
+ */
+.rw-CheckboxGroup--inline {
+  & > .rw-CheckboxGroup__checkbox {
+    display: inline-block;
+  }
+}
+.rw-CheckboxGroup__checkbox {
+  padding: @padding-base-vertical @padding-base-horizontal;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+.rw-CheckboxGroup__label {
+  cursor: pointer;
+  font-weight: normal;
+}
+.rw-CheckboxGroup__checkbox input {
+  margin: 0 @padding-base-horizontal;
+}
+
+/**
+ * <Shim />
+ */
+.rw-Shim {
+  background: @modal-backdrop-bg;
+  opacity: @modal-backdrop-opacity;
+}
+
+/**
+ * <Modal />
+ */
+.rw-Modal {
+  .modal-dialog;
+}
+.rw-Modal__content {
+  .modal-content;
+}
+.rw-Modal__header {
+  .modal-header;
+  white-space: nowrap;
+}
+.rw-Modal__title {
+  .modal-title;
+  margin-right: 35px;
+}
+.rw-Modal__body {
+  .modal-body;
+}
+
+/**
+ * <Form />
+ */
+.rw-Form {
+  
+}
+
+.rw-RepeatingFieldsetItem {
+  border-bottom: 1px solid rgba(208, 208, 208, 0.16);
+}
+
+.rw-RepeatingFieldset__removeButton {
+  padding: 2px 4px;
+  font-size: 80%;
+}
+
+.rw-RepeatingFieldset__controls {
+  padding: 5px 0px;
+}
+
+.rw-Form__controls {
+  padding: @paddingS;
+
+  & > * {
+    margin-right: @padding;
+  }
+}
+
+/**
+ * <CheckboxField />
+ */
+.rw-CheckboxField__checkbox {
+  display: block;
+}
+
+/**
+ * <SelectField />
+ */
+.rw-SelectField__select {
+  .form-control;
+}
+
+/**
+ *
+ */
+.rw-TextareaField__textarea {
+  resize: vertical;
+  min-height: 4.5em;
+}
+
+/**
+ * <Navigation />
+ */
+.rw-Navigation__container {
+  margin-left: 0;
+  width: 100%;
+}
+
+/**
+ * <Datepicker />
+ */
+.rw-Datepicker {
+  .form-control;
+}
+
+/**
+ * <Notice />
+ */
+.rw-Notice {
+  font-size: 16pt;
+  color: lighten(@colorGrey, 20%);
+}
+.rw-Notice__text {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+}
+
+/**
+ * <ReactSelectbox />
+ */
+.react-selectbox-Selectbox__search {
+  .form-control();
+  font-size: inherit;
+  height: auto;
+}
+
+.react-selectbox-Selectbox__results {
+  .dropdown-menu();
+  width: 100%;
+  max-height: 200px;
+  overflow: auto;
+  font-size: inherit;
+  padding: inherit;
+  height: auto;
+}
+
+.react-selectbox-ResultList {
+  overflow-x: hidden;
+}
+
+.react-selectbox-Result {
+  cursor: pointer;
+  & > a {
+    text-decoration: none;
+  }
+}
+
+.react-selectbox-Result--active {
+  color: @dropdown-link-hover-color;
+  background-color: @dropdown-link-hover-bg;
+}
+
+.rw-PopupActivate .resizable {
+  overflow: scroll;
+  resize: both;
+}
+
+/**
+ * <DataTable />
+ */
+.DataTable__row--selected .public_fixedDataTableCell_main {
+  background-color: @colorSelectedHighlight;
+}
+
+/**
+ * <Tabs />
+ */
+/* custom inclusion of right, left and below tabs */
+
+.rw-Tabs--bottomPosition > .nav-tabs,
+.rw-Tabs--rightPosition > .nav-tabs,
+.rw-Tabs--leftPosition > .nav-tabs {
+  border-bottom: 0;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs {
+  border-top: 1px solid #ddd;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs > li {
+  margin-top: -1px;
+  margin-bottom: 0;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs > li > a {
+  -webkit-border-radius: 0 0 4px 4px;
+     -moz-border-radius: 0 0 4px 4px;
+          border-radius: 0 0 4px 4px;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs > li > a:hover,
+.rw-Tabs--bottomPosition > .nav-tabs > li > a:focus {
+  border-top-color: #ddd;
+  border-bottom-color: transparent;
+}
+
+.rw-Tabs--bottomPosition > .nav-tabs > .active > a,
+.rw-Tabs--bottomPosition > .nav-tabs > .active > a:hover,
+.rw-Tabs--bottomPosition > .nav-tabs > .active > a:focus {
+  border-color: transparent #ddd #ddd #ddd;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs > li,
+.rw-Tabs--leftPosition > .nav-pills > li,
+.rw-Tabs--rightPosition > .nav-pills > li,
+.rw-Tabs--rightPosition > .nav-tabs > li {
+  float: none;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs > li > a,
+.rw-Tabs--rightPosition > .nav-tabs > li > a {
+  min-width: 74px;
+  margin-right: 0;
+  margin-bottom: 3px;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs {
+  float: left;
+  margin-right: 19px;
+  border-right: 1px solid #ddd;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs > li > a {
+  margin-right: -1px;
+  -webkit-border-radius: 4px 0 0 4px;
+     -moz-border-radius: 4px 0 0 4px;
+          border-radius: 4px 0 0 4px;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs > li > a:hover,
+.rw-Tabs--leftPosition > .nav-tabs > li > a:focus {
+  border-color: #eeeeee #dddddd #eeeeee #eeeeee;
+}
+
+.rw-Tabs--leftPosition > .nav-tabs .active > a,
+.rw-Tabs--leftPosition > .nav-tabs .active > a:hover,
+.rw-Tabs--leftPosition > .nav-tabs .active > a:focus {
+  border-color: #ddd transparent #ddd #ddd;
+  *border-right-color: #ffffff;
+}
+
+.rw-Tabs--rightPosition > .nav-tabs {
+  margin-left: 19px;
+  border-left: 1px solid #ddd;
+}
+
+.rw-Tabs--rightPosition > .nav-tabs > li > a {
+  margin-left: -1px;
+  -webkit-border-radius: 0 4px 4px 0;
+     -moz-border-radius: 0 4px 4px 0;
+          border-radius: 0 4px 4px 0;
+}
+
+.rw-Tabs--rightPosition > .nav-tabs > li > a:hover,
+.rw-Tabs--rightPosition > .nav-tabs > li > a:focus {
+  border-color: #eeeeee #eeeeee #eeeeee #dddddd;
+}
+
+.rw-Tabs--rightPosition > .nav-tabs .active > a,
+.rw-Tabs--rightPosition > .nav-tabs .active > a:hover,
+.rw-Tabs--rightPosition > .nav-tabs .active > a:focus {
+  border-color: #ddd #ddd #ddd transparent;
+  *border-left-color: #ffffff;
+}
+

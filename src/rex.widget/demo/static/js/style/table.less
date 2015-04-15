@@ -1,0 +1,62 @@
+/**
+ * <Table />
+ */
+.rw-Table {
+  width: 100%;
+
+  border-top: @border;
+  border-bottom: @border;
+  border-right: @border;
+
+  td {
+    border-left: @border;
+    border-top: @border;
+    padding: 5px;
+    text-align: center;
+  }
+
+  th {
+    border-left: @border;
+    padding: 5px;
+    text-align: center;
+  }
+
+  thead {
+    tr {
+      th {
+        font-weight: bold;
+      }
+    }
+  }
+
+  tbody {
+    tr:hover {
+      background-color: @colorHoverHighlight;
+    }
+  }
+
+  .first {
+    border-left: none;
+    text-align: left;
+    border-right: 1px solid #777;
+  }
+
+}
+
+.rw-Table__row--selected {
+  background-color: @colorSelectedHighlight;
+}
+
+.rw-Table__calculatedColumn {
+  border-left: 2px solid black;
+}
+
+.rw-Table__calculatedRow {
+  border-top: 2px solid black;
+}
+
+.rw-Table__calculatedColumn,
+.rw-Table__calculatedRow {
+  font-weight: bold;
+  background-color: @colorHoverHighlight;
+}

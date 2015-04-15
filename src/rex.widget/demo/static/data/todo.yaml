@@ -1,0 +1,9 @@
+paths:
+
+  /data/todo:
+    port:
+      entity: todo
+
+  /data/todo/list:
+    port:
+      entity: todo

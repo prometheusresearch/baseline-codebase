@@ -1,0 +1,25 @@
+paths:
+  /:
+    widget: !<App>
+      title: RexDB Todo Manager
+      footer_text: Made with RexDB technology
+      help_text: |
+        Create and manage your todos.
+
+      list: rex.widget_demo:/data/todo/list
+      item: rex.widget_demo:/data/todo/list
+
+      columns:
+      - key: description
+        name: Description
+      - key: completed
+        name: Completed
+
+      fields:
+      - value_key: id
+        label: ID
+      - value_key: description
+        label: Description
+      - value_key: completed
+        label: Completed
+        type: bool

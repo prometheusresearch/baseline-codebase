@@ -1,71 +1,9 @@
-
-- table: study
+- table: todo
   with:
-  - column: code
+  - column: description
     type: text
-  - identity: [code]
-  - column: title
-    type: text
-    required: false
-  - column: closed
+  - column: completed
     type: boolean
-  - data: ./deploy/study.csv
-
-- table: individual
-  with:
-  - column: code
-    type: text
-  - identity: [code]
-  - column: sex
-    type: [not-known, male, female, not-applicable]
-  - link: mother
-    to: individual
-    required: false
-  - link: father
-    to: individual
-    required: false
-  - data: ./deploy/individual.csv
-
-- table: identity
-  with:
-  - link: individual
-  - identity: [individual]
-  - column: givenname
-    type: text
-    required: false
-  - column: surname
-    type: text
-    required: false
-  - column: birthdate
-    type: date
-    required: false
-  - data: ./deploy/identity.csv
-
-- table: protocol
-  with:
-  - link: study
-  - column: code
-    type: text
-  - identity: [study, code]
-  - column: title
-    type: text
-  - data: ./deploy/protocol.csv
-
-- table: participation
-  with:
-  - link: individual
-  - link: protocol
-  - column: code
-    type: text
-  - identity: [individual, protocol, code]
-  - data: ./deploy/participation.csv
-
-
-# example of creating a view  to be used in query objects.
-# Note:  Views can not be used in ports because of no real id()
-- sql: |
-    create view males as select * from individual where sex='male';
-  unless: |
-    SELECT TRUE FROM pg_catalog.pg_class
-    WHERE relname = 'males';
-  
+  - column: id
+    type: integer
+  - identity: [id: offset]

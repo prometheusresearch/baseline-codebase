@@ -1,36 +1,4 @@
 include:
-# Data Definitions
-- data/study.yaml
-- data/protocol.yaml
-
-# Page Definitions
-- page/home.yaml
-- page/forms.yaml
-- page/forms_master_details.yaml
-- page/upload.yaml
-- page/about.yaml
-- page/sample.yaml
-- page/chart.yaml
-- page/doc.yaml
-- page/experiment.yaml
-
-##################################################################
-### DO NOT EDIT UNLESS YOU ARE WORKING ON TESTS FOR REX.WIDGET ###
-######### PATHS BELOW ARE USED BY REX.WIDGET TEST SUITE ##########
-##################################################################
-
-paths:
-
-  /__tests__/query/study:
-    query: /study
-
-  /__tests__/port/study:
-    port:
-    - entity: study
-      filters:
-      - "code($code) := guard($code, code=$code)"
-
-  /__tests__/study_options:
-    port:
-      entity: study
+- data/todo.yaml
+- page/index.yaml
 

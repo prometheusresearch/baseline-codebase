@@ -1,7 +1,7 @@
 {
-  "name": "rex-widget-demo",
-  "version": "0.2.14",
-  "description": "Demo for Rex Widget",
+  "name": "todomvc",
+  "version": "0.0.1",
+  "description": "TodoMVC in RexDB",
   "main": "./lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

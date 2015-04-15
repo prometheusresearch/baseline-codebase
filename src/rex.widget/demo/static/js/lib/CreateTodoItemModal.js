@@ -33,6 +33,7 @@ var CreateTodoItemModal = RexWidget.createWidgetClass({
       <RexWidget.ModalButton
         ref="modal"
         buttonQuiet
+        buttonSuccess
         modalWidth={400}
         buttonText="Create a Todo"
         modalTitle="Create a Todo"

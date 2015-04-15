@@ -62,7 +62,7 @@ var TodoList = RexWidget.createWidgetClass({
   render() {
     return (
       <VBox size={1}>
-        <HBox width={200}>
+        <HBox>
           <CreateTodoItemModal
             submitTo={this.props.item}
             />
@@ -71,6 +71,13 @@ var TodoList = RexWidget.createWidgetClass({
               submitTo={this.props.item}
               item={this.data.item.data}
               />}
+          {this.data.item.loaded &&
+            <RexWidget.Button
+              icon="remove"
+              onClick={this.removeItem.bind(null, this.data.item.data)}
+              quiet danger>
+              Delete
+            </RexWidget.Button>}
           {this.props.renderToolbar()}
         </HBox>
         <VBox size={1} style={{marginBottom: 20}}>
@@ -95,6 +102,13 @@ var TodoList = RexWidget.createWidgetClass({
         </VBox>
       </VBox>
     );
+  },
+
+  removeItem(item) {
+    this.props.item.port.delete({todo: [item]}).then(() => {
+      this.state.selected.update(null);
+      this.forceRefreshData()
+    });
   }
 });
 

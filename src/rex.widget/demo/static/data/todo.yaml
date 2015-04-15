@@ -7,3 +7,5 @@ paths:
   /data/todo/list:
     port:
       entity: todo
+      filters:
+      - mode($mode) := switch($mode, 'all', true, 'completed', completed, 'todo', !completed)

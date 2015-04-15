@@ -23,7 +23,9 @@ var TodoList = RexWidget.createWidgetClass({
     /*
      * List of todos.
      */
-    list: collection(),
+    list: collection({
+      '*:mode': state('mode')
+    }),
     /*
      * A selected todo, we use an additional data spec here as we may want to
      * see more info on selected todo vs. the info we see in the list.
@@ -98,6 +100,18 @@ var TodoList = RexWidget.createWidgetClass({
             onSelected={this.state.selected.update}
             dataSpec={this.dataSpecs.list}
             columns={this.props.columns}
+            />
+        </VBox>
+        <VBox>
+          <RexWidget.Select
+            noEmptyValue
+            value={this.state.mode.value}
+            onChange={this.state.mode.update}
+            options={[
+              {id: 'all', title: 'All'},
+              {id: 'completed', title: 'Completed'},
+              {id: 'todo', title: 'ToDo'}
+            ]}
             />
         </VBox>
       </VBox>

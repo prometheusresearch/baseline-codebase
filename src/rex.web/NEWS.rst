@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.4.0 (2015-XX-XX)
+==================
+
+* Added option ``--watch-package``.
+
+
 3.3.1 (2015-03-11)
 ==================
 

@@ -108,6 +108,22 @@ Use option ``--watch`` to automatically rebuild generated files; option
 
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
 
+You can use option ``--watch-package`` to rebuild generated files for a
+specific package::
+
+    >>> serve_ctl = Ctl("serve rex.web_demo --watch-package rex.web --quiet")
+
+    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+
+The package specified by ``--watch-package`` must exist.  It is also an error
+to use both ``--watch`` and ``--watch-package`` options.
+
+    >>> ctl("serve rex.web_demo -w -W rex.web", expect=1)   # doctest: +NORMALIZE_WHITESPACE
+    FATAL ERROR: both --watch and --watch-package are specified
+
+    >>> ctl("serve rex.web_demo -W rex.widget", expect=1)   # doctest: +NORMALIZE_WHITESPACE
+    FATAL ERROR: cannot find package to watch: rex.widget
+
 
 ``rex wsgi``
 ============

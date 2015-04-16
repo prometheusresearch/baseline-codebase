@@ -6,7 +6,7 @@
 from rex.setup import watch
 from rex.core import (
         get_packages, get_settings, Error, PythonPackage, StrVal, PIntVal,
-        BoolVal, MaybeVal, MapVal)
+        BoolVal, MaybeVal, MapVal, Validate)
 from rex.ctl import (
         env, RexTask, Global, Topic, argument, option, log, fail, exe)
 import sys
@@ -229,14 +229,28 @@ class RexWatchTask(RexTask):
         watch = option(
                 'w', BoolVal(),
                 hint="rebuild generated files on the fly")
+        watch_package = option(
+                'W', StrVal(),
+                value_name="PACKAGE",
+                plural=True,
+                default=[],
+                hint="rebuild generated files for a specific package")
 
     def make_with_watch(self, attached=True, *args, **kwds):
         app = self.make(*args, **kwds)
+        if self.watch and self.watch_package:
+            raise fail("both `--watch` and `--watch-package` are specified")
         # Start watchers for generated files.
-        if self.watch:
+        if self.watch or self.watch_package:
             with app:
                 to_watch = [package.name for package in get_packages()
                                          if isinstance(package, PythonPackage)]
+                if self.watch_package:
+                    for name in self.watch_package:
+                        if name not in to_watch:
+                            raise fail(
+                                    "cannot find package to watch: `{}`", name)
+                    to_warch = self.watch_package
             if attached:
                 terminate = watch(*to_watch)
                 if terminate is not None:

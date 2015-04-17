@@ -250,7 +250,7 @@ class RexWatchTask(RexTask):
                         if name not in to_watch:
                             raise fail(
                                     "cannot find package to watch: `{}`", name)
-                    to_warch = self.watch_package
+                    to_watch = self.watch_package
             if attached:
                 terminate = watch(*to_watch)
                 if terminate is not None:

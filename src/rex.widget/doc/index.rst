@@ -13,7 +13,7 @@ Programming guide
 .. toctree::
 
    guide
-   complex_widget
+   modern
    library
    reference
    test/index

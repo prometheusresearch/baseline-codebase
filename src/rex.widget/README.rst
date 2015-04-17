@@ -65,9 +65,11 @@ It is DemoPage and it is declared in its own file.
 
 Here is widgets.yaml for rex.widget_demo:
 
-.. highlight:: yaml
-
-.. literalinclude:: ../demo/static/widgets.yaml
+.. code-block:: yaml
+    :linenos:
+    
+    include:
+    - widgets/DemoPage.yaml
 
 DemoPage is an example of a widget template.  We wanted all of the top 
 level pages in the demo to share the same layout.  To do this, we created
@@ -81,9 +83,35 @@ Widget Composition
 
 Here is page/about.yaml, this page is a DemoPage:
 
-.. highlight:: yaml
+.. code-block:: yaml
+    :linenos:
+    
+    paths:
 
-.. literalinclude:: ../demo/static/page/about.yaml
+      /about:
+        widget: !<DemoPage>
+          title: About
+          id: about
+          children: !<Box>
+            children:
+            - !<HBox>
+              children_margin: 5 # put some space between the Labels.
+              children:
+              - !<Text> 'The configuration for this page is in'
+              - !<Box>   # put the Link in a Box so there is space between it and the Label.
+                children:
+                - !<Link>
+                  text: demo/static/page/about.yaml
+                  href: /page/about.txt
+            - !<Box>
+              center_horizontally: True
+              children:
+                - !<Header> 
+                  text: About
+                  level: 3
+            - !<Label> |
+              This is a Label in about.yaml and it should 
+              have contained something about this demo.
 
 This maps the DemoPage widget whose id is "about" to the "/about" URL.
 The title, id, and children are assigned specific values.
@@ -99,10 +127,32 @@ Widget Templates
 
 Here is static/widgets/DemoPage.yaml, the DemoPage template:
 
-.. highlight:: yaml
+.. code-block:: yaml
+    :linenos:
 
-.. literalinclude:: ../demo/static/widgets/DemoPage.yaml
+    widgets:
 
+      DemoPage: !<Page>
+        id: !slot id
+        title: !slot title
+        params: !slot params
+        children:
+        - !<Navigation>
+          application_name: Rex Widget Demo
+          menu:
+          - doc
+          - sample
+          - forms
+          - forms-master-detail
+          - upload
+          - workflow
+          - experiment
+          - about
+        - !<Box>
+          size: 1
+          margin: 10
+          children: !slot children
+    
 The DemoPage widget is a Page widget and so takes up the entire screen.  It 
 displays a fixed Navigation widget and a dynamic Box of children widgets.
 The Navigation widget displays a banner menu with links to separate pages.  

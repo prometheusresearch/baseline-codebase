@@ -429,6 +429,9 @@ We define tasks:
 ``rex demo-init``
     Initializes the application database and adds some default users.
 
+``rex demo-cron``
+    Runs an ETL script that could be started periodically from a CRON job.
+
 ``rex demo-user-list``
     Lists all users in the database.
 
@@ -473,6 +476,13 @@ Let us show how they work::
     Alice Amter (alice@rexdb.com)
     Bob Barker (bob@rexdb.com) [disabled]
     Carol Costello (carol@rexdb.com)
+
+If we need to execute a particular task periodically, we could add it
+as a cron job::
+
+    $ crontab -l
+    REX_PROJECT = rex.ctl_demo
+    0 5 * * * rex demo-cron
 
 The application detects and reports user errors::
 
@@ -528,6 +538,27 @@ The ``rex demo-init`` task is implemented entirely in terms of other tasks:
 to invoke a subtask, passing values for arguments and options as keyword
 parameters.  Note that if the task itself and a subtask have a parameter with
 the same name, the parameter value is passed from the task to its subtask.
+
+We use the same approach to implement ``rex demo-cron`` task.  We wish to
+create an equivalent of the following command-line command::
+
+    $ rex query -i rex.ctl_demo:/etl/disable-bots.htsql -i rex.ctl_demo:/etl/delete-spammers.htsql
+
+Presumably, ``disable-bots.htsql`` and ``delete-spammers.htsql`` are HTSQL
+scripts that we want to execute in the same transaction to perform some ETL
+task.  Using :meth:`rex.ctl.RexTask.do()`, we can invoke this command as
+follows::
+
+class CronTask(RexTask):
+    """run an ETL job"""
+
+    name = 'demo-cron'
+
+    def __call__(self):
+        self.do('query',
+                input=[
+                    'rex.ctl_demo:/etl/disable-bots.htsql',
+                    'rex.ctl_demo:/etl/delete-spammers.htsql'])
 
 Finally, let's look at ``rex demo-user-add``::
 

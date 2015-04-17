@@ -1,0 +1,9 @@
+
+/user
+    ?name~'bot'
+    {
+        id(),
+        enabled := false,
+    }
+    /:update
+

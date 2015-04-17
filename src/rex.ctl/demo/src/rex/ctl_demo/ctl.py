@@ -64,6 +64,17 @@ class InitTask(RexTask):
         self.do('demo-user-add', code='alice@rexdb.com', name="Alice Amter")
         self.do('demo-user-add', code='bob@rexdb.com', name="Bob Barker")
 
+class CronTask(RexTask):
+    """run an ETL job"""
+
+    name = 'demo-cron'
+
+    def __call__(self):
+        self.do('query',
+                input=[
+                    'rex.ctl_demo:/etl/disable-bots.htsql',
+                    'rex.ctl_demo:/etl/delete-spammers.htsql'])
+
 class UserListTask(RexTask):
     """list all users"""
 

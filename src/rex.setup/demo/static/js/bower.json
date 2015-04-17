@@ -1,6 +1,6 @@
 {
     "name": "rex-setup-demo",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "main": "./lib/index",
     "styleEntry": "./lib/index.less",
     "ignore": [

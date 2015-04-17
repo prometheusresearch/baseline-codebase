@@ -6,8 +6,6 @@
 from setuptools import setup, find_packages
 
 
-
-
 setup(
     name='rex.setup',
     version = "2.3.0",

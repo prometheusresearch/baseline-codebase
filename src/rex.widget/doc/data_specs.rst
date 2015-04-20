@@ -2,7 +2,7 @@ Data Specifications
 ===================
 
 Rex Widget provides a way to declaratively specify data dependencies for
-widgets. This is done through *data specifications API*.
+widgets. This is done through the *data specifications API*.
 
 Basic usage example
 -------------------
@@ -40,31 +40,42 @@ The basic example looks like::
 
 There are three things to note.
 
-By using ``dataSpecs`` class property we describe how to fetch data. Note that
-in this example we just define that ``users`` data is a collection. Later we
-will see more complex examples. Also note, that we don't define from which port
-or htsql query we want to fetch data, this information should be injected via
-``this.props.users`` usually from configuration in ``urlmap.yaml`` of the
-corresponding application. That way each data spec has a corresponding prop with
-the same name.
+The ``dataSpecs`` property describes how to fetch the data. 
+In this example we just declare that ``users`` is a collection of records. 
+Later we will see more complex examples. 
+Also note, that we don't define 
+from which port or htsql query we want to fetch the data. 
+This information should be injected via ``this.props.users``,
+usually from the configuration in ``urlmap.yaml`` 
+of the corresponding application. 
+That way each data spec 
+has a corresponding prop with the same name.
 
-By using ``fetchDataSpecs`` we tell widget that it should fetch data for
-specified keys. Why not to fetch data for each data spec defined in
-``dataSpecs``? In some cases we want just define a data spec but pass it further
-down the tree to enrich it with more info and only then to execute. This is the
-case with ``<DataTable />`` widget which expects a data spec via props and
+When the widget is rendered, 
+data will be fetched for each key in ``fetchDataSpecs`` 
+whose value is ``true``. 
+
+Why not fetch data for each data spec defined in ``dataSpecs``? 
+In some cases we want to just define a data spec but pass it further
+down the tree to enrich it with more info, and only then fetch the data. 
+This is the case with the ``<DataTable />`` widget 
+which expects a data spec via props and then
 applies pagination and sorting info to it.
 
-Finally the last piece is ``this.data``. It is a mapping from a data spec key to
-a corresponding dataset. Each dataset has ``loading`` boolean property which
-indicates if dataset is currently loading and ``data`` property which caries
-data.
+Finally the last piece is ``this.data``. 
+It is a mapping from a data spec key to a corresponding dataset. 
+Each dataset has a ``loading`` boolean property 
+which indicates if dataset is currently loading 
+and a ``data`` property which contains the fetched data.
 
-Binding to widget with data specs to YAML API
----------------------------------------------
+Binding a widget to the YAML API
+--------------------------------
 
-To expose widget with data specs to YAML API we define a widget with fields
-corresponding to data specs set as ``CollectionSpecVal``::
+To expose a widget with data specs to the YAML API 
+we must define a Python class 
+whose fields correspond exactly to the data specs.
+
+A ``collection()`` data spec corresponds to a ``CollectionSpecVal`` field::
 
     from rex.widget.modern import Widget, Field, CollectionSpecVal
 
@@ -84,12 +95,12 @@ Now we are ready to use it from YAML::
     !<Users>
     users: my-app:/data/users
 
-Data specs parametrized by props and state
-------------------------------------------
+Data specs parameterized by props and state
+-------------------------------------------
 
-Sometimes it is useful to parametrize data specs by component props, for example we
-build a widget which fetches a list of users which belong to some lab. We want
-to pass the lab's id via props.
+Sometimes it is useful to parameterize data specs by component props. 
+For example, a widget which fetches a list of users belonging to some lab. 
+We want to pass the lab's id via props.
 
 To do that we need to define our data spec in the following way::
 
@@ -105,14 +116,16 @@ To do that we need to define our data spec in the following way::
 
   })
 
-Now if we pass a ``lab`` prop to ``<Users lab="some-lab" ... />`` widget it will
-fetch data with the param ``?user:lab=some-lab``. Now it is a part of a contract
-for port authors to define ``:lab`` filter and do some calculations based on it.
+Now if we pass a ``lab`` prop to the ``<Users lab="some-lab" ... />`` widget 
+it will fetch data with the param ``?user:lab=some-lab``. 
+Now it is a part of a contract for port authors 
+to define the ``:lab`` filter and do some calculations based on it.
 
-Each time ``lab`` prop changed ``<Users />`` widget will re-fetch dataset.
+Each time the ``lab`` prop is changed, the ``<Users />`` widget will 
+re-fetch the dataset.
 
-The same way we can bind port params to component's state by using ``state``
-binder::
+In the same way we can bind port params to a component's state by using 
+the ``state`` binder::
 
   var Users = RexWidget.createWidgetClass({
 
@@ -134,8 +147,8 @@ Required params in data specs
 -----------------------------
 
 Sometimes you don't want to fetch data from ports unless some params are
-defined. Rex Widget allows you to mark such params with ``{required: true}``
-option::
+defined. Rex Widget allows you to mark such params with the 
+``{required: true}`` option::
 
   var Users = RexWidget.createWidgetClass({
 
@@ -149,18 +162,20 @@ option::
 
   })
 
-No if we don't pass ``lab`` prop to our widget ``<Users />`` then ``users``
-dataset won't be fetched.
+Now if we don't pass ``lab`` prop to our widget ``<Users />``, 
+then the ``users`` dataset won't be fetched.
 
 Fetching entities
 -----------------
 
-So far we have shown how to fetch collections of entities but sometimes it is
-needed just to fetch a single entity. For example as a result of a click on a
-datatable's row we want to fetch some detailed info on selected entity.
+So far we have shown how to fetch collections of entities 
+but sometimes it is required to fetch a single entity. 
+For example as a result of a click on a datatable's row 
+we want to fetch detailed information for the selected entity.
 
-There's ``entity`` data specification constructor which behaves similar to
-``collection`` but handles responses from ports which contain just a single object::
+To fetch a single entity use the ``entity`` data specification constructor 
+which behaves similar to ``collection`` but handles responses from ports 
+which contain just a single object::
 
   var UserInfo = RexWidget.createWidgetClass({
 
@@ -184,7 +199,7 @@ There's ``entity`` data specification constructor which behaves similar to
     }
   })
 
-To bind to YAML API you need to use ``EntitySpecVal`` instead of
+To bind to the YAML API you need to use ``EntitySpecVal`` instead of
 ``CollectionSpecVal``::
 
     from rex.widget.modern import Widget, Field, EntitySpecVal
@@ -203,8 +218,8 @@ To bind to YAML API you need to use ``EntitySpecVal`` instead of
 Data specs and state cells
 --------------------------
 
-Data specificaitons plays well with state cells feature of Rex Widget. You can
-bind to them as you would bind to ordinary values::
+Data specifications play well with the state cells feature of Rex Widget. 
+You can bind to them as you would bind to ordinary values::
 
   var Users = RexWidget.createWidgetClass({
 

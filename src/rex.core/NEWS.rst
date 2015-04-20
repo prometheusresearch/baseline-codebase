@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.11.1 (2015-XX-XX)
+===================
+
+* Look for static resources in ``/usr/local``.
+
+
 1.11.0 (2015-04-07)
 ===================
 

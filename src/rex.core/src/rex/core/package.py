@@ -238,14 +238,20 @@ class PackageCollection(object):
         if dist.has_metadata('rex_static.txt'):
             static = dist.get_metadata('rex_static.txt')
             static = os.path.abspath(static)
+            # When the package is installed from a wheel distribution,
+            # `rex.static.txt` will contain a wrong path.  Try to find
+            # the static directory in one of the standard locations.
             if not os.path.exists(static):
-                # Maybe we can find it in the standard location?
-                standard_static = os.path.join(
-                        sys.prefix, 'share/rex', os.path.basename(static))
-                if os.path.exists(standard_static):
-                    static = standard_static
-                else:
-                    raise Error("Cannot find static directory:", static)
+                suffix = ('share', 'rex', os.path.basename(static))
+                for prefix in [
+                        (sys.prefix,),
+                        (sys.prefix, 'local')]:
+                    standard_static = os.path.join(*prefix+suffix)
+                    if os.path.exists(standard_static):
+                        static = standard_static
+                        break
+            if not os.path.exists(static):
+                raise Error("Cannot find static directory:", static)
 
         # Process package dependencies first.  That ensures that the packages
         # are ordered with respect to the dependency relations.

@@ -21,13 +21,6 @@ def webpack_config(package):
         component_path = commonjs.package_filename(package)
         # let webpack get entry via "main" key in bower.json
         entry = [component_path]
-        # check if we have entry for stylesheets via "styleEntry" key in
-        # bower.json
-        (_bower_json, meta) = commonjs.bower_package_metadata(package)
-        if 'styleEntry' in meta:
-            entry = entry + [
-                os.path.join(component_path, meta['styleEntry'])
-            ]
         # resolve webpack.config.js installed as a part of rex-setup package
         config = commonjs.node([
             '-p',

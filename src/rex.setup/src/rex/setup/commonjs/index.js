@@ -53,11 +53,12 @@ function packagePath(name) {
 function configureWebpack(config) {
   var pkg = getPackageMetadata(cwd);
   var deps = getListOfDependencies(pkg);
-  var pkgs = [pkg].concat(deps);
 
   // add style entry either via rex.style key in package metadata or implicitly
   if (pkg.rex && pkg.rex.style) {
     addEntry(config, path.join(cwd, pkg.rex.style));
+  } else if (pkg.styleEntry) {
+    addEntry(config, path.join(cwd, pkg.styleEntry));
   } else {
     var indexLess = path.join(cwd, 'style', 'index.less');
     if (fs.existsSync(indexLess)) {
@@ -66,14 +67,22 @@ function configureWebpack(config) {
   }
 
   // add entry for each introspectable package in dependency chain
-  pkgs.forEach(function(pkg) {
+  deps.forEach(function(pkg) {
     if (pkg.rex && pkg.rex.bundleAll) {
       addEntry(config, 'rex-setup/introspection/loader?all!' + pkg.name);
     }
   });
 
+  // add package entry point
+  if (pkg.rex && pkg.rex.bundleAll) {
+    addEntry(config, 'rex-setup/introspection/loader?all!' + cwd);
+  } else {
+    addEntry(config, cwd);
+  }
+
   set(config, 'watchDelay', 200);
 
+  // set aliases for Node built-ins
   setResolveAliases(config, {
     'util': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/util.js'),
     'console': require.resolve('webpack/node_modules/node-libs-browser/node_modules/console-browserify'),
@@ -81,12 +90,25 @@ function configureWebpack(config) {
     'inherits': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/node_modules/inherits/inherits_browser.js'),
     'is-array': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/is-array'),
     'ieee754': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/ieee754'),
-    'base64-js': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/base64-js'),
-    'react/addons': packagePath('react/addons.js'),
-    'react': packagePath('react/addons.js')
+    'base64-js': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/base64-js')
   });
 
-  setResolveAliasesFromPackages(config, pkgs);
+  // set aliases for either bower or npm distribution of React
+  if (fs.existsSync(packagePath('react/react-with-addons.js'))) {
+    // because we want to bundle React once for addons and non-addons requires
+    setResolveAliases(config, {
+      'react/addons': packagePath('react/react-with-addons.js'),
+      'react': packagePath('react/react-with-addons.js')
+    });
+  } else {
+    // just to be consistent with bower version
+    setResolveAliases(config, {
+      'react/addons': packagePath('react/addons.js'),
+      'react': packagePath('react/addons.js')
+    });
+  }
+
+  setResolveAliasesFromPackages(config, [pkg].concat(deps));
 
   set(config, 'output.path', process.cwd());
   set(config, 'output.filename', 'bundle.js');

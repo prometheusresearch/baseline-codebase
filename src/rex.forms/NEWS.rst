@@ -5,6 +5,24 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.29.0 (2015-xx-xx)
+===================
+
+- Added common/default implementations of:
+
+  - Task.can_enter_data
+  - Task.can_reconcile
+  - Task.start_entry()
+  - Task.get_entries()
+  - Task.complete_entry()
+  - Task.reconcile()
+
+- All find() methods now default to a limit of ``None``, which means no limit.
+- The Task.assessment property is now writable.
+- Fixed issue in JS components so that when the form configuration changes, it
+  resets to the first page.
+
+
 0.28.2 (2015-04-06)
 ===================
 

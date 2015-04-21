@@ -9,6 +9,7 @@ from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation, forget_memoized_property
 
+from .completion_processor import TaskCompletionProcessor
 from .entry import Entry
 from ..discrepancies import find_discrepancies, solve_discrepancies
 from ..errors import FormError
@@ -75,7 +76,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         """
         Returns Tasks that match the specified criteria.
 
@@ -91,11 +92,12 @@ class Task(Extension, Comparable, Displayable, Dictable):
 
         :param offset:
             the offset in the list of Tasks to start the return set from
-            (useful for pagination purposes)
+            (useful for pagination purposes); if not specified, defaults to 0
         :type offset: int
         :param limit:
             the maximum number of Tasks to return (useful for pagination
-            purposes)
+            purposes); if not specified, defaults to ``None``, which means no
+            limit
         :type limit: int
         :param user: the User who should have access to the desired Tasks
         :type user: User
@@ -317,12 +319,14 @@ class Task(Extension, Comparable, Displayable, Dictable):
         Indicates whether or not this Task is in a state that allows for new
         preliminary Entries to be created. Read only.
 
-        Must be implemented by concrete classes.
-
         :rtype: bool
         """
 
-        raise NotImplementedError()
+        if not self.is_done:
+            entries = self.get_entries(type=Entry.TYPE_PRELIMINARY)
+            if self.num_required_entries > len(entries):
+                return True
+        return False
 
     @property
     def can_reconcile(self):
@@ -330,17 +334,26 @@ class Task(Extension, Comparable, Displayable, Dictable):
         Indicates whether or not this Task is in a state that allows for
         reconciliation to occur. Read only.
 
-        Must be implemented by concrete classes.
-
         :rtype: bool
         """
 
-        raise NotImplementedError()
+        if not self.is_done:
+            entries = self.get_entries(type=Entry.TYPE_PRELIMINARY)
+            completed = len([
+                entry
+                for entry in entries
+                if entry.is_done
+            ])
+            if completed > 0:
+                if completed == len(entries):
+                    if len(entries) >= self.num_required_entries:
+                        return True
+        return False
 
     @memoized_property
     def assessment(self):
         """
-        The Assessment associated with the Task. Read only.
+        The Assessment associated with the Task.
 
         :returns: the associated Assessment, or None if one does not exist yet
         :rtype: Assessment
@@ -351,6 +364,20 @@ class Task(Extension, Comparable, Displayable, Dictable):
             return assessment_impl.get_by_uid(self._assessment)
         else:
             return self._assessment
+
+    @assessment.setter
+    def assessment(self, value):
+        if not isinstance(value, (basestring, Assessment)) \
+                and value is not None:
+            raise ValueError(
+                '"%s" is not a valid Assessment' % (
+                    value,
+                )
+            )
+
+        # pylint: disable=W0201
+        self._assessment = value
+        forget_memoized_property(self, 'assessment')
 
     @memoized_property
     def instrument_version(self):
@@ -373,6 +400,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
     def get_form(self, channel):
         """
         Returns the Form associated with this Task for the specified Channel.
+
+        Must be implemented by concrete classes.
 
         :param channel: the Channel to retrieve the Form for
         :type channel: Channel
@@ -416,7 +445,23 @@ class Task(Extension, Comparable, Displayable, Dictable):
             Entry to be created
         """
 
-        raise NotImplementedError()
+        entry_type = entry_type or Entry.TYPE_PRELIMINARY
+        if entry_type == Entry.TYPE_PRELIMINARY \
+                and not self.can_enter_data \
+                and not override_workflow:
+            raise FormError(
+                'This Task does not allow an additional Preliminary Entry.'
+            )
+
+        entry_impl = get_implementation('entry', 'forms')
+        entry = entry_impl.create(
+            self.assessment,
+            entry_type,
+            user.login,
+            ordinal=ordinal,
+        )
+
+        return entry
 
     def get_entries(self, **search_criteria):
         """
@@ -425,7 +470,11 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :rtype: list of Entries
         """
 
-        raise NotImplementedError()
+        if self.assessment:
+            search_criteria['assessment'] = self.assessment.uid
+            entry_impl = get_implementation('entry', 'forms')
+            return entry_impl.find(**search_criteria)
+        return []
 
     def complete_entry(self, entry, user):
         """
@@ -438,7 +487,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :type user: User
         """
 
-        raise NotImplementedError()
+        entry.complete(user)
+        entry.save()
 
     def get_discrepancies(self, entries=None):
         """
@@ -582,7 +632,27 @@ class Task(Extension, Comparable, Displayable, Dictable):
             reconciliation
         """
 
-        raise NotImplementedError()
+        if not self.can_reconcile and not override_workflow:
+            raise FormError(
+                'This Task cannot be reconciled in its current state.',
+            )
+
+        reconciled_data = self.solve_discrepancies(reconciled_discrepancies)
+
+        entry = self.start_entry(user, Entry.TYPE_RECONCILED)
+        entry.data = reconciled_data
+        entry.complete(user)
+        entry.save()
+
+        self.assessment.data = reconciled_data
+        self.assessment.set_application_token('rex.forms')
+        self.assessment.complete(user)
+        self.assessment.save()
+
+        self.status = Task.STATUS_COMPLETE
+        self.save()
+
+        TaskCompletionProcessor.execute_processors(self, user)
 
     def save(self):
         """

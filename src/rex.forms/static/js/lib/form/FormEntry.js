@@ -140,6 +140,12 @@ var FormEntry = React.createClass({
     onComplete: React.PropTypes.func
   },
 
+  componentWillReceiveProps: function (nextProps) {
+    if (nextProps.form !== this.props.form) {
+      this.setPage(this.getPages()[0]);
+    }
+  },
+
   render: function() {
     var currentPage = this.getCurrentPage(true);
     var totalPages = this.props.form.pages.length;

@@ -108,6 +108,20 @@ Tasks have a property to retrieve the InstrumentVersion they're associated with:
     InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)
 
 
+Tasks have a proeprty to set or retrieve the Assessment they're associated with::
+
+    >>> task = Task('bar999', subject, instrument, 100, assessment)
+    >>> task.assessment
+    Assessment(u'fake123', Subject(u'fake123'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))
+    >>> task.assessment = Assessment('NEW456', subject, iv, ASSESSMENT)
+    >>> task.assessment
+    Assessment(u'NEW456', Subject(u'fake123'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))
+    >>> task.assessment = 42
+    Traceback (most recent call last):
+        ...
+    ValueError: "42" is not a valid Assessment
+
+
 Tasks have a ``status`` and ``facilitator`` property which is readable and
 writable::
 
@@ -419,6 +433,37 @@ and solved::
     >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'value': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': None}, 'doo': {'explanation': None, 'annotation': None, 'value': None}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': None}, 'doo': {'explanation': None, 'annotation': None, 'value': None}}}}}}
     >>> task.solve_discrepancies({}, entries=entries) == expected_solution
     True
+
+
+When all updates are complete, close out the Task (and associated Assessment)
+by using the ``reconcile()`` method::
+
+    >>> from rex.forms_demo import DemoTask
+    >>> task = DemoTask.get_by_uid('task4')
+    >>> task.reconcile(user)
+    ### SAVED ENTRY fake_entry_1
+    ### SAVED ASSESSMENT assessment5
+    ### SAVED TASK task4
+    >>> task.assessment.status == Assessment.STATUS_COMPLETE
+    True
+    >>> task.status == Task.STATUS_COMPLETE
+    True
+    >>> task.is_done
+    True
+    >>> task.can_enter_data
+    False
+    >>> task.can_reconcile
+    False
+
+    >>> task.reconcile(user)
+    Traceback (most recent call last):
+        ...
+    FormError: This Task cannot be reconciled in its current state.
+    >>> task.start_entry(user)
+    Traceback (most recent call last):
+        ...
+    FormError: This Task does not allow an additional Preliminary Entry.
+
 
 Tasks can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::

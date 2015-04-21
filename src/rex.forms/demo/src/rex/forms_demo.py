@@ -143,7 +143,7 @@ class DemoChannel(Channel):
         return cls(data[0].uid, data[0].title)
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             data = db.produce('/channel.sort(uid)')
@@ -189,7 +189,7 @@ class DemoForm(Form):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             params = {
@@ -243,7 +243,7 @@ class DemoTask(Task):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             params = {
@@ -289,29 +289,6 @@ class DemoTask(Task):
             facilitator=faciliator,
         )
 
-    @Task.can_enter_data.getter
-    def can_enter_data(self):
-        if not self.is_done:
-            entries = self.get_entries(type=Entry.TYPE_PRELIMINARY)
-            if self.num_required_entries > len(entries):
-                return True
-        return False
-
-    @Task.can_reconcile.getter
-    def can_reconcile(self):
-        if not self.is_done:
-            entries = self.get_entries(type=Entry.TYPE_PRELIMINARY)
-            completed = len([
-                entry
-                for entry in entries
-                if entry.is_done
-            ])
-            if completed > 0:
-                if completed == len(entries):
-                    if len(entries) >= self.num_required_entries:
-                        return True
-        return False
-
     def get_form(self, channel):
         if self.instrument_version:
             forms = DemoForm.find(
@@ -322,60 +299,6 @@ class DemoTask(Task):
             if forms:
                 return forms[0]
         return None
-
-    def get_entries(self, **search_criteria):
-        if self.assessment:
-            search_criteria['assessment'] = self.assessment.uid
-            return DemoEntry.find(**search_criteria)
-        return []
-
-    def start_entry(self, user, entry_type=None, override_workflow=False, ordinal=None):
-        entry_type = entry_type or Entry.TYPE_PRELIMINARY
-        if entry_type == Entry.TYPE_PRELIMINARY \
-                and not self.can_enter_data \
-                and not override_workflow:
-            raise errors.FormError(
-                'This Task does not allow an additional Preliminary Entry.'
-            )
-
-        entry = DemoEntry.create(
-            self.assessment,
-            entry_type,
-            user.login,
-            ordinal=ordinal,
-        )
-
-        return entry
-
-    def complete_entry(self, entry, user):
-        entry.complete(user)
-        entry.save()
-
-    def reconcile(
-            self,
-            user,
-            reconciled_discrepancies=None,
-            override_workflow=False):
-        if not self.can_reconcile and not override_workflow:
-            raise errors.FormError(
-                'This Task cannot be reconciled in its current state.',
-            )
-
-        reconciled_data = self.solve_discrepancies(reconciled_discrepancies)
-
-        entry = self.start_entry(user, Entry.TYPE_RECONCILED)
-        entry.data = reconciled_data
-        entry.complete(user)
-        entry.save()
-
-        self.assessment.data = reconciled_data
-        self.assessment.complete(user)
-        self.assessment.save()
-
-        self.status = Task.STATUS_COMPLETE
-        self.save()
-
-        TaskCompletionProcessor.execute_processors(self, user)
 
     def save(self):
         print '### SAVED TASK ' + self.uid
@@ -404,7 +327,7 @@ class DemoEntry(Entry):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             params = {
@@ -477,7 +400,7 @@ class DemoDraftForm(DraftForm):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             params = {

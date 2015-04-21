@@ -1,0 +1,138 @@
+#
+# Copyright (c) 2015, Prometheus Research, LLC
+#
+
+title: REX.SETUP
+tests:
+
+- title: Basic package (no webpack config, no rex config)
+  suite: basic
+  tests:
+  - sh: rm -rf ./sandbox && mkdir ./sandbox
+  - sh: virtualenv -q --system-site-packages ./sandbox
+  - sh: ./bin/pip install -q -e ..
+    cd: sandbox
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic ./src/pkg'
+    cd: sandbox
+  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
+    cd: sandbox/src/pkg/static
+  - sh: ./bin/pip install -q ./src/pkg
+    cd: sandbox
+  - sh: ls ./share/rex/pkg/www/bundle
+    cd: sandbox
+  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+    cd: sandbox
+
+- title: Package with "rex.bundleAll" directive in bower.json
+  suite: rex_bundle_all
+  tests:
+  - sh: rm -rf ./sandbox && mkdir ./sandbox
+  - sh: virtualenv -q --system-site-packages ./sandbox
+  - sh: ./bin/pip install -q -e ..
+    cd: sandbox
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_bundle_all ./src/pkg'
+    cd: sandbox
+  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
+    cd: sandbox/src/pkg/static
+  - sh: ./bin/pip install -q ./src/pkg
+    cd: sandbox
+  - sh: ls ./share/rex/pkg/www/bundle
+    cd: sandbox
+  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+    cd: sandbox
+
+- title: Package with "react" from bower
+  suite: react_bower
+  tests:
+  - sh: rm -rf ./sandbox && mkdir ./sandbox
+  - sh: virtualenv -q --system-site-packages ./sandbox
+  - sh: ./bin/pip install -q -e ..
+    cd: sandbox
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_bower ./src/pkg'
+    cd: sandbox
+  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
+    cd: sandbox/src/pkg/static
+  - sh: ./bin/pip install -q ./src/pkg
+    cd: sandbox
+  - sh: ls ./share/rex/pkg/www/bundle
+    cd: sandbox
+  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+    cd: sandbox
+
+- title: Package with "react" from npm
+  suite: react_npm
+  tests:
+  - sh: rm -rf ./sandbox && mkdir ./sandbox
+  - sh: virtualenv -q --system-site-packages ./sandbox
+  - sh: ./bin/pip install -q -e ..
+    cd: sandbox
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_npm ./src/pkg'
+    cd: sandbox
+  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
+    cd: sandbox/src/pkg/static
+  - sh: ./bin/pip install -q ./src/pkg
+    cd: sandbox
+  - sh: ls ./share/rex/pkg/www/bundle
+    cd: sandbox
+  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+    cd: sandbox
+
+- title: Package with style via "styleEntry" directive in bower.json
+  suite: style_entry
+  tests:
+  - sh: rm -rf ./sandbox && mkdir ./sandbox
+  - sh: virtualenv -q --system-site-packages ./sandbox
+  - sh: ./bin/pip install -q -e ..
+    cd: sandbox
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_entry ./src/pkg'
+    cd: sandbox
+  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
+    cd: sandbox/src/pkg/static
+  - sh: ./bin/pip install -q ./src/pkg
+    cd: sandbox
+  - sh: ls ./share/rex/pkg/www/bundle
+    cd: sandbox
+  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+    cd: sandbox
+  - sh: cat ./share/rex/pkg/www/bundle/bundle.css
+    cd: sandbox
+
+- title: Package with style via implicit style discovery (style/index.less)
+  suite: style_implicit
+  tests:
+  - sh: rm -rf ./sandbox && mkdir ./sandbox
+  - sh: virtualenv -q --system-site-packages ./sandbox
+  - sh: ./bin/pip install -q -e ..
+    cd: sandbox
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_implicit ./src/pkg'
+    cd: sandbox
+  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
+    cd: sandbox/src/pkg/static
+  - sh: ./bin/pip install -q ./src/pkg
+    cd: sandbox
+  - sh: ls ./share/rex/pkg/www/bundle
+    cd: sandbox
+  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+    cd: sandbox
+  - sh: cat ./share/rex/pkg/www/bundle/bundle.css
+    cd: sandbox
+
+- title: Package with style via "rex.style" directive in bower.json
+  suite: rex_style
+  tests:
+  - sh: rm -rf ./sandbox && mkdir ./sandbox
+  - sh: virtualenv -q --system-site-packages ./sandbox
+  - sh: ./bin/pip install -q -e ..
+    cd: sandbox
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_style ./src/pkg'
+    cd: sandbox
+  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
+    cd: sandbox/src/pkg/static
+  - sh: ./bin/pip install -q ./src/pkg
+    cd: sandbox
+  - sh: ls ./share/rex/pkg/www/bundle
+    cd: sandbox
+  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+    cd: sandbox
+  - sh: cat ./share/rex/pkg/www/bundle/bundle.css
+    cd: sandbox

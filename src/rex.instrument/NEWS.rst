@@ -5,6 +5,15 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.15.0 (2015-xx-xx)
+===================
+
+* Added a common/default implementation of Instrument.get_version().
+* All find() methods now default to a limit of ``None``, which means no limit.
+* Assessment.find() implementations must now support querying by instrument.
+* Assessment objects now have a delete() method that can be implemented.
+
+
 0.14.2 (2015-04-06)
 ===================
 

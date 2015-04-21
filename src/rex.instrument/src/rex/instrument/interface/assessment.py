@@ -374,12 +374,13 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         """
         Returns Asessments that match the specified criteria.
 
         ``search_criteria`` for this method will (at a minimum) support:
 
+        * instrument (UID or instance; exact matches)
         * instrument_version (UID or instance; exact matches)
         * subject (UID or instance; exact matches)
         * status (exact matches)
@@ -388,11 +389,12 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
 
         :param offset:
             the offset in the list of Assessments to start the return set from
-            (useful for pagination purposes)
+            (useful for pagination purposes); if not specified, defaults to 0
         :type offset: int
         :param limit:
             the maximum number of Assessments to return (useful for pagination
-            purposes)
+            purposes); if not specified, defaults to ``None``, which means no
+            limit
         :type limit: int
         :param user: the User who should have access to the desired Assessments
         :type user: User
@@ -692,6 +694,22 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         Persists the Assessment into the datastore.
 
         Must be implemented by concrete classes.
+
+        :raises:
+            DataStoreError if there was an error writing to the datastore
+        """
+
+        raise NotImplementedError()
+
+    def delete(self):
+        """
+        Removes this Assessment from the datastore.
+
+        Note: Once executed, this instance of Assessment becomes
+        invalid, and any attempts to ``save()``, or ``delete()``
+        will fail horribly.
+
+        Must be implemented by concreted classes
 
         :raises:
             DataStoreError if there was an error writing to the datastore

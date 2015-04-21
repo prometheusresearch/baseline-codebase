@@ -6,7 +6,7 @@
 from rex.core import Extension
 
 from ..mixins import Comparable, Displayable, Dictable
-from ..util import to_unicode
+from ..util import to_unicode, get_implementation
 
 
 __all__ = (
@@ -57,7 +57,7 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         """
         Returns Instruments that match the specified criteria.
 
@@ -71,11 +71,12 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
 
         :param offset:
             the offset in the list of Instrument to start the return set from
-            (useful for pagination purposes)
+            (useful for pagination purposes); if not specified, defaults to 0
         :type offset: int
         :param limit:
             the maximum number of Instruments to return (useful for pagination
-            purposes)
+            purposes); if not specified, defaults to ``None``, which means no
+            limit
         :type limit: int
         :param user: the User who should have access to the desired Instruments
         :type user: User
@@ -180,14 +181,19 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         Returns the InstrumentVersion for this Instrument of the specified
         version.
 
-        Must be implemented by concrete classes.
-
         :returns:
             an InstrumentVersion for the specified version; None if the
             specified version does not exist
         """
 
-        raise NotImplementedError()
+        iv_impl = get_implementation('instrumentversion')
+        iver = iv_impl.find(
+            instrument=self.uid,
+            version=version
+        )
+        if iver:
+            return iver[0]
+        return None
 
     @property
     def latest_version(self):
@@ -195,6 +201,8 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         The most recent InstrumentVersion for this Instrument. Read only.
 
         Must be implemented by concrete classes.
+
+        :rtype: InstrumentVersion
         """
 
         raise NotImplementedError()
@@ -219,7 +227,7 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         :rtype: unicode
         """
 
-        return self.title
+        return to_unicode(self.title)
 
     def __repr__(self):
         return '%s(%r, %r)' % (

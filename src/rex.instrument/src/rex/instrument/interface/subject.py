@@ -41,7 +41,7 @@ class Subject(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         """
         Returns Subjects that match the specified criteria.
 
@@ -53,11 +53,12 @@ class Subject(Extension, Comparable, Displayable, Dictable):
 
         :param offset:
             the offset in the list of Subjects to start the return set from
-            (useful for pagination purposes)
+            (useful for pagination purposes); if not specified, defaults to 0
         :type offset: int
         :param limit:
             the maximum number of Subjects to return (useful for pagination
-            purposes)
+            purposes); if not specified, defaults to ``None``, which means no
+            limit
         :type limit: int
         :param user: the User who should have access to the desired Subjects
         :type user: User

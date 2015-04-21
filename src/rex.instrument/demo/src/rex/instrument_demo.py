@@ -41,7 +41,7 @@ class DemoUser(User):
         return cls(data[0].remote_user, data[0].remote_user)
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             data = db.produce('/user.sort(remote_user)')
@@ -66,7 +66,7 @@ class DemoSubject(Subject):
         return cls(data[0].uid)
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             data = db.produce('/subject.sort(uid)')
@@ -92,7 +92,7 @@ class DemoInstrument(Instrument):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             data = db.produce('/instrument.sort(uid)')
@@ -109,15 +109,6 @@ class DemoInstrument(Instrument):
     @classmethod
     def create(cls, uid, title, status=None):
         return cls(uid, uid, title, status=status)
-
-    def get_version(self, version):
-        ivs = DemoInstrumentVersion.find(
-            instrument=self.uid,
-            version=version,
-        )
-        if ivs:
-            return ivs[0]
-        return None
 
     @property
     def latest_version(self):
@@ -153,7 +144,7 @@ class DemoInstrumentVersion(InstrumentVersion):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             params = {
@@ -212,7 +203,7 @@ class DemoAssessment(Assessment):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             data = db.produce('/assessment.sort(uid)')
@@ -261,7 +252,7 @@ class DemoDraftInstrumentVersion(DraftInstrumentVersion):
         )
 
     @classmethod
-    def find(cls, offset=0, limit=100, user=None, **search_criteria):
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
         db = get_db()
         with db:
             data = db.produce('/draftinstrumentversion.sort(uid)')

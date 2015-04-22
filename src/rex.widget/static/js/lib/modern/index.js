@@ -3,6 +3,10 @@
  */
 'use strict';
 
+if (Object.assign === undefined) {
+  Object.assign = require('object-assign');
+}
+
 module.exports = {
   DataSpecification: require('./DataSpecification'),
   DataSpecificationMixin: require('./DataSpecificationMixin'),

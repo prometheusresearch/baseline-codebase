@@ -144,19 +144,22 @@ For example, here is content of ``rex.setup_demo/static/js/bower.json``::
         "name": "rex-setup-demo",
         "version": "1.0.0",
         "main": "./lib/index",
-        "styleEntry": "./lib/index.less",
+        "rex": {
+          "style": "./lib/index.less"
+        },
         "dependencies": {
             "jquery": "2.x",
             "bootstrap": "*"
         }
     }
 
-Here we declare the entry point of the component ``static/js/lib/index.js``,
-the stylesheet of the component ``static/js/lib/index.jess``, and the component
-dependencies: jQuery_ and `Bootstrap`_.  The name of the component
-``rex-setup-demo`` is derived from the name of the package containing it
-:mod:`rex.setup_demo` and the version of the component coincides with the
-version of the package.
+Here we declare the entry point of the component ``static/js/lib/index.js`` via
+``main`` key, the stylesheet of the component ``static/js/lib/index.jess`` via
+``rex.style`` key, and the component dependencies: jQuery_ and `Bootstrap`_.
+
+The name of the component ``rex-setup-demo`` is derived from the name of the
+package containing it :mod:`rex.setup_demo` and the version of the component
+coincides with the version of the package.
 
 Alternatively, you can run command ``bower init`` in directory ``static/js``,
 which will guide you step by step through creating ``bower.json``.
@@ -293,7 +296,7 @@ By default, :mod:`rex.setup` uses the following Webpack configuration for
 bundling Bower components:
 
 * It generates ``bundle.js``.
-* It generates ``bundle.css`` if the component has ``styleEntry`` attribute in
+* It generates ``bundle.css`` if the component has ``rex.style`` attribute in
   ``bower.json`` pointing to a Less_ stylesheet.
 * It uses ``jsx-loader`` to transform JSX_ files into standard ES5 JavaScript
   (JSX is a syntax extension to JavaScript used to develop React_

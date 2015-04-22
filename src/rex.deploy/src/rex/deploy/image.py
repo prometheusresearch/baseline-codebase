@@ -931,6 +931,11 @@ class ColumnImage(NamedImage):
         sql = sql_set_column_type(
                 self.table.name, self.name, type.name, expression)
         self.cursor.execute(sql)
+        # PostgreSQL loses comments on constraints associated with
+        # the column.  We need to reapply them again.
+        for unique_key in self.table.unique_keys:
+            if self in unique_key.origin_columns:
+                unique_key.reset(only_comment=True)
         return self.set_type(type)
 
     def alter_is_not_null(self, is_not_null):
@@ -1120,12 +1125,13 @@ class UniqueKeyImage(ConstraintImage):
             index.set_name(name)
         return super(UniqueKeyImage, self).alter_name(name)
 
-    def reset(self):
+    def reset(self, only_comment=False):
         """Rebuilds the constraint."""
-        column_names = [column.name for column in self.origin_columns]
-        sql = sql_add_unique_constraint(
-                self.origin.name, self.name, column_names, self.is_primary)
-        self.cursor.execute(sql)
+        if not only_comment:
+            column_names = [column.name for column in self.origin_columns]
+            sql = sql_add_unique_constraint(
+                    self.origin.name, self.name, column_names, self.is_primary)
+            self.cursor.execute(sql)
         if self.comment is not None:
             sql = sql_comment_on_constraint(
                     self.origin.name, self.name, self.comment)

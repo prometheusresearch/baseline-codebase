@@ -71,7 +71,9 @@ class TableFact(Fact):
                     raise Error("Got unrelated fact:",
                                 locate(related_spec))
                 if 'after' in related_spec._fields:
-                    if after and related_spec.after is None:
+                    if after and \
+                            related_spec.after is None and \
+                            related_spec.present is not False:
                         related_spec = related_spec.__clone__(after=after[:])
                 related_fact = driver.build(related_spec)
                 related.append(related_fact)

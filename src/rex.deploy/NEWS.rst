@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+2.3.2 (2015-XX-XX)
+==================
+
+* Added a workaround for PostgreSQL dropping constraint comments.
+* Allow deleted fields in ``with`` clause.
+
+
 2.3.1 (2015-04-07)
 ==================
 

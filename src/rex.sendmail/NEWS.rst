@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.0.4 (2015-04-23)
+==================
+
+* Removed ``setup_requires`` entry from ``setup.py``.
+
+
 1.0.3 (2015-01-30)
 ==================
 

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.6.2 (2015-XX-XX)
+2.6.2 (2015-04-23)
 ==================
 
 * Handle undefined gateways.

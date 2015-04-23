@@ -51,9 +51,11 @@ function packagePath(name) {
  * @returns {WebPackConfiguration}
  */
 function configureWebpack(config) {
+  config = config || {};
   var pkg = getPackageMetadata(cwd);
   var deps = getListOfDependencies(pkg);
 
+  
   // add style entry either via rex.style key in package metadata or implicitly
   if (pkg.rex && pkg.rex.style) {
     addEntry(config, path.join(cwd, pkg.rex.style));

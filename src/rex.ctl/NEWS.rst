@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.0.1 (2015-XX-XX)
+2.0.1 (2015-04-23)
 ==================
 
 * Added an implementation of ``rex demo-cron`` command.

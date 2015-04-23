@@ -113,6 +113,10 @@ specific package::
 
     >>> serve_ctl = Ctl("serve rex.web_demo --watch-package rex.web --quiet")
 
+    >>> print get('/')              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    <!DOCTYPE html>
+    <title>Welcome to REX.WEB_DEMO!</title>
+
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
 
 The package specified by ``--watch-package`` must exist.  It is also an error

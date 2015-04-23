@@ -14,6 +14,7 @@
     "extract-text-webpack-plugin": "0.3.x"
   },
   "dependencies": {
+    "object-assign": "^2.0.0",
     "recursive-readdir": "1.1.x"
   }
 }

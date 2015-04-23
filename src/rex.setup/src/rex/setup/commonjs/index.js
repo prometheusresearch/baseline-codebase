@@ -82,6 +82,8 @@ function configureWebpack(config) {
     addEntry(config, cwd);
   }
 
+  addEntry(config, require.resolve('./polyfills/object-assign'));
+
   set(config, 'watchDelay', 200);
 
   // set aliases for Node built-ins
@@ -92,7 +94,8 @@ function configureWebpack(config) {
     'inherits': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/node_modules/inherits/inherits_browser.js'),
     'is-array': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/is-array'),
     'ieee754': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/ieee754'),
-    'base64-js': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/base64-js')
+    'base64-js': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/base64-js'),
+    'object-assign': require.resolve('object-assign')
   });
 
   // set aliases for either bower or npm distribution of React

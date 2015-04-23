@@ -15,8 +15,18 @@ tests:
   - &install-self
     sh: ./bin/pip install -q -e ..
     cd: sandbox
+    ignore: true
   - &prepare-demo
     sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
+  - &cleanup
+    sh: find sandbox '('
+        -wholename '*/static/www/jquery' -o
+        -wholename '*/static/www/bootstrap' -o
+        -wholename '*/static/www/doc' -o
+        -wholename '*/static/www/bundle' -o
+        -name node_modules -o
+        -name bower_components ')'
+        -exec rm -rf '{}' ';'
   # Install rex.setup_demo; verify layout and egg-info files.
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     cd: sandbox
@@ -53,6 +63,7 @@ tests:
   - *create-virtualenv
   - *install-self
   - *prepare-demo
+  - *cleanup
   # Install rex.setup_demo in editable mode; verify layout and egg-info files.
   - sh: ./bin/pip install -q -e ./src/rex.setup_demo
     cd: sandbox
@@ -86,6 +97,7 @@ tests:
   - *create-virtualenv
   - *install-self
   - *prepare-demo
+  - *cleanup
   # Build source distribution for rex.setup_demo; verify content.
   - sh: ../../bin/python setup.py -q sdist --format=zip
     cd: ./sandbox/src/rex.setup_demo
@@ -104,6 +116,7 @@ tests:
   - *create-virtualenv
   - *install-self
   - *prepare-demo
+  - *cleanup
   # Make sure `bdist_wheel` is available.
   - sh: ./bin/pip install -q wheel
     cd: sandbox
@@ -136,17 +149,15 @@ tests:
 - title: Basic package (no webpack config, no rex config)
   suite: js_basic
   tests:
-  - sh: rm -rf ./sandbox && mkdir ./sandbox
-  - sh: virtualenv -q --system-site-packages ./sandbox
-  - sh: ./bin/pip install -q -e ..
-    cd: sandbox
+  - *create-virtualenv
+  - *install-self
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic ./src/pkg'
     cd: sandbox
-  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
-    cd: sandbox/src/pkg/static
+  - *cleanup
   - sh: ./bin/pip install -q ./src/pkg
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
@@ -155,17 +166,15 @@ tests:
 - title: Package with "rex.bundleAll" directive in bower.json
   suite: js_rex_bundle_all
   tests:
-  - sh: rm -rf ./sandbox && mkdir ./sandbox
-  - sh: virtualenv -q --system-site-packages ./sandbox
-  - sh: ./bin/pip install -q -e ..
-    cd: sandbox
+  - *create-virtualenv
+  - *install-self
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_bundle_all ./src/pkg'
     cd: sandbox
-  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
-    cd: sandbox/src/pkg/static
+  - *cleanup
   - sh: ./bin/pip install -q ./src/pkg
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
@@ -174,17 +183,15 @@ tests:
 - title: Package with "react" from bower
   suite: js_react_bower
   tests:
-  - sh: rm -rf ./sandbox && mkdir ./sandbox
-  - sh: virtualenv -q --system-site-packages ./sandbox
-  - sh: ./bin/pip install -q -e ..
-    cd: sandbox
+  - *create-virtualenv
+  - *install-self
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_bower ./src/pkg'
     cd: sandbox
-  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
-    cd: sandbox/src/pkg/static
+  - *cleanup
   - sh: ./bin/pip install -q ./src/pkg
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
@@ -193,17 +200,15 @@ tests:
 - title: Package with "react" from npm
   suite: js_react_npm
   tests:
-  - sh: rm -rf ./sandbox && mkdir ./sandbox
-  - sh: virtualenv -q --system-site-packages ./sandbox
-  - sh: ./bin/pip install -q -e ..
-    cd: sandbox
+  - *create-virtualenv
+  - *install-self
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_npm ./src/pkg'
     cd: sandbox
-  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
-    cd: sandbox/src/pkg/static
+  - *cleanup
   - sh: ./bin/pip install -q ./src/pkg
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
@@ -212,17 +217,15 @@ tests:
 - title: Package with style via "styleEntry" directive in bower.json
   suite: js_style_entry
   tests:
-  - sh: rm -rf ./sandbox && mkdir ./sandbox
-  - sh: virtualenv -q --system-site-packages ./sandbox
-  - sh: ./bin/pip install -q -e ..
-    cd: sandbox
+  - *create-virtualenv
+  - *install-self
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_entry ./src/pkg'
     cd: sandbox
-  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
-    cd: sandbox/src/pkg/static
+  - *cleanup
   - sh: ./bin/pip install -q ./src/pkg
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
@@ -233,17 +236,15 @@ tests:
 - title: Package with style via implicit style discovery (style/index.less)
   suite: js_style_implicit
   tests:
-  - sh: rm -rf ./sandbox && mkdir ./sandbox
-  - sh: virtualenv -q --system-site-packages ./sandbox
-  - sh: ./bin/pip install -q -e ..
-    cd: sandbox
+  - *create-virtualenv
+  - *install-self
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_implicit ./src/pkg'
     cd: sandbox
-  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
-    cd: sandbox/src/pkg/static
+  - *cleanup
   - sh: ./bin/pip install -q ./src/pkg
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
@@ -254,20 +255,19 @@ tests:
 - title: Package with style via "rex.style" directive in bower.json
   suite: js_rex_style
   tests:
-  - sh: rm -rf ./sandbox && mkdir ./sandbox
-  - sh: virtualenv -q --system-site-packages ./sandbox
-  - sh: ./bin/pip install -q -e ..
-    cd: sandbox
+  - *create-virtualenv
+  - *install-self
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_style ./src/pkg'
     cd: sandbox
-  - sh: sh -c 'rm -rf js/bower_components && rm -rf www/bundle'
-    cd: sandbox/src/pkg/static
+  - *cleanup
   - sh: ./bin/pip install -q ./src/pkg
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
+    environ: { LC_ALL: C }
     cd: sandbox
   - sh: node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
     cd: sandbox
   - rmdir: sandbox
+

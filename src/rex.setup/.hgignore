@@ -9,6 +9,7 @@ dist
 node_modules
 bower_components
 sandbox
-bootstrap
-jquery
-bundle
+static/www/bootstrap
+static/www/jquery
+static/www/bundle
+static/www/doc

@@ -9,9 +9,9 @@
 
 """
 
-from cached_property import cached_property
-
+from rex.core import cached
 from rex.widget.modern import Widget
+from rex.widget.urlmap import WidgetRenderer
 
 from ..workflow import Workflow
 from ..action import Action
@@ -24,15 +24,17 @@ class _ActionDelegate(Action):
 
     widget_cls = NotImplemented
 
-    @cached_property
+    @cached
     def widget(self):
         return self.widget_cls(**self.params)
 
     def context(self):
-        return self.widget.action_context()
+        widget = self.widget()
+        return widget.action_context()
 
     def render(self):
-        return self.widget.descriptor().ui
+        widget = self.widget()
+        return widget.descriptor().ui
 
 
 class ActionWidget(Widget):
@@ -67,12 +69,14 @@ class _WorkflowDelegate(Workflow):
 
     widget_cls = NotImplemented
 
-    @cached_property
-    def widget(self):
-        return self.widget_cls(**self.params)
+    @cached
+    def widget_renderer(self):
+        widget = self.widget_cls(**self.params)
+        return WidgetRenderer(widget, access=None)
 
     def __call__(self, req):
-        return self.widget(req)
+        renderer = self.widget_renderer()
+        return renderer(req)
 
 
 class WorkflowWidget(Widget):

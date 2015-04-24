@@ -22,7 +22,6 @@ setup(
         'rex.core',
         'rex.widget',
         'rex.urlmap',
-        'cached-property >= 0.1.5, < 0.2',
     ],
     rex_init='rex.workflow',
 )

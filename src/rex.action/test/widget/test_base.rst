@@ -58,9 +58,6 @@ Action delegates to widget::
   >>> action.widget_cls is MyAction
   True
 
-  >>> action.widget
-  MyAction(id='id', field='field')
-
   >>> action.context()
   (['in'], ['out'])
 
@@ -71,10 +68,12 @@ Action delegates to widget::
 
 
 
-ActionWidget
-------------
+WorkflowWidget
+--------------
 
 ::
+
+  >>> from webob import Response, Request
 
   >>> class MyWorkflow(WorkflowWidget):
   ...   workflow_type = 'my'
@@ -83,7 +82,7 @@ ActionWidget
   ...   field = Field(StrVal())
   ...
   ...   def __call__(self, req):
-  ...       return 'processed'
+  ...       return Response('ok')
 
   >>> MyWorkflow.workflow_cls in Workflow.all()
   True
@@ -111,10 +110,7 @@ Workflow delegates to widget::
   >>> workflow.widget_cls is MyWorkflow
   True
 
-  >>> workflow.widget
-  MyWorkflow(field='field')
-
-  >>> workflow('request')
+  >>> workflow(Request.blank('/'))
   'processed'
 
 Cleanup

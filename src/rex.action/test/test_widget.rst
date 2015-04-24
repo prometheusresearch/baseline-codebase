@@ -10,8 +10,14 @@ Test rex.workflow.widget
   >>> from rex.core import StrVal
   >>> from rex.widget.modern import Field
 
-  >>> from rex.workflow.widget import ActionWidget
+  >>> from rex.workflow.widget import ActionWidget, WorkflowWidget
+  >>> from rex.workflow.workflow import Workflow, WorkflowVal
   >>> from rex.workflow.action import Action, ActionVal
+
+ActionWidget
+------------
+
+::
 
   >>> class MyAction(ActionWidget):
   ...   action_type = 'my'
@@ -62,6 +68,57 @@ Action delegates to widget::
   UIDescriptor(type='rex-workflow/actions/list',
                props=<PropsContainer {'field': 'field', 'id': 'id'}>,
                widget=MyAction(id='id', field='field'), defer=False)
+
+
+
+ActionWidget
+------------
+
+::
+
+  >>> class MyWorkflow(WorkflowWidget):
+  ...   workflow_type = 'my'
+  ...   js_type = 'rex-workflow/workflows/list'
+  ...
+  ...   field = Field(StrVal())
+  ...
+  ...   def __call__(self, req):
+  ...       return 'processed'
+
+  >>> MyWorkflow.workflow_cls in Workflow.all()
+  True
+
+Workflow delegates to widget::
+
+  >>> validate = WorkflowVal(MyWorkflow.workflow_cls)
+
+  >>> workflow = validate({
+  ...   'type': 'my',
+  ... })
+  Traceback (most recent call last):
+  ...
+  Error: Missing mandatory field:
+      field
+
+  >>> workflow = validate({
+  ...   'type': 'my',
+  ...   'field': 'field',
+  ... })
+
+  >>> workflow
+  MyWorkflowWorkflow(field='field')
+
+  >>> workflow.widget_cls is MyWorkflow
+  True
+
+  >>> workflow.widget
+  MyWorkflow(field='field')
+
+  >>> workflow('request')
+  'processed'
+
+Cleanup
+-------
 
   >>> rex.off()
 

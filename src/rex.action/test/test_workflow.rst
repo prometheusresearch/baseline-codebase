@@ -20,7 +20,7 @@ Test rex.workflow.workflow
   >>> Workflow.all()
   [__main__.MyWorkflow]
 
-  >>> Workflow.all_by_type()
+  >>> Workflow.mapped()
   {'my': __main__.MyWorkflow}
 
 Constructing from Python values::

@@ -41,9 +41,8 @@ class Workflow(Extension):
     __repr__ = __str__
 
     @classmethod
-    @cached
-    def all_by_type(cls):
-        return {cls.type: cls for cls in cls.all()}
+    def signature(cls):
+        return cls.type
 
     @classmethod
     def enabled(cls):
@@ -71,7 +70,7 @@ class WorkflowVal(Validate):
 
         value = self._validate(value)
 
-        workflows_by_type = Workflow.all_by_type()
+        workflows_by_type = Workflow.mapped()
 
         if value.type not in workflows_by_type:
             raise Error('unknown workflow type specified:', value.type)

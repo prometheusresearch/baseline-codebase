@@ -50,9 +50,8 @@ class Action(Extension):
     __repr__ = __str__
 
     @classmethod
-    @cached
-    def all_by_type(cls):
-        return {cls.type: cls for cls in cls.all()}
+    def signature(cls):
+        return cls.type
 
     @classmethod
     def enabled(cls):
@@ -81,7 +80,7 @@ class ActionVal(Validate):
 
         value = self._validate(value)
 
-        actions_by_type = Action.all_by_type()
+        actions_by_type = Action.mapped()
 
         if value.type not in actions_by_type:
             raise Error('unknown action type specified:', value.type)

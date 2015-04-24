@@ -15,7 +15,7 @@ Test rex.workflow.action
   >>> Action.all()
   [__main__.MyAction]
 
-  >>> Action.all_by_type()
+  >>> Action.mapped()
   {'my': __main__.MyAction}
 
 Constructing from Python values::

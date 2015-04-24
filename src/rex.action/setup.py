@@ -19,7 +19,9 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
+        'rex.core',
         'rex.widget',
+        'cached-property >= 0.1.5, < 0.2',
     ],
     rex_init='rex.workflow',
 )

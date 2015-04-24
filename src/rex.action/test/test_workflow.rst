@@ -1,9 +1,11 @@
 Test rex.workflow.workflow
-========================
+==========================
 
 ::
 
-  >>> from rex.core import Rex
+  >>> from webob import Request, Response
+
+  >>> from rex.core import Rex, SandboxPackage
   >>> rex = Rex('-')
   >>> rex.on()
 
@@ -11,6 +13,9 @@ Test rex.workflow.workflow
 
   >>> class MyWorkflow(Workflow):
   ...   type = 'my'
+  ...
+  ...   def __call__(self, req):
+  ...     return Response('ok')
 
   >>> Workflow.all()
   [__main__.MyWorkflow]
@@ -47,5 +52,31 @@ Constructing from YAML::
   ... type: my
   ... """)
   MyWorkflow()
+
+  >>> rex.off()
+
+Test workflow bindings to URLMap
+--------------------------------
+
+::
+
+  >>> sandbox = SandboxPackage()
+  >>> sandbox.rewrite('/urlmap.yaml', """
+  ... paths:
+  ...   /workflow:
+  ...     access: anybody
+  ...     workflow:
+  ...       type: my
+  ... """)
+  >>> rex = Rex(sandbox, 'rex.workflow_demo')
+  >>> rex.on()
+
+  >>> req = Request.blank('/workflow')
+  >>> print req.get_response(rex)
+  200 OK
+  Content-Type: text/html; charset=UTF-8
+  Content-Length: 2
+  <BLANKLINE>
+  ok
 
   >>> rex.off()

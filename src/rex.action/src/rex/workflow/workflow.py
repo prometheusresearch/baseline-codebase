@@ -10,8 +10,12 @@
 
 """
 
+from webob.exc import HTTPUnauthorized
+
 from rex.core import Error, Validate, RecordVal, StrVal
 from rex.core import Extension, cached
+from rex.urlmap import Map
+from rex.web import authorize
 
 __all__ = ('Workflow', 'WorkflowVal')
 
@@ -26,7 +30,7 @@ class Workflow(Extension):
         self.params = params
 
     def __call__(self, req):
-        raise NotImplementedError('%s.render() is not implemented' % \
+        raise NotImplementedError('%s.__call__() is not implemented' % \
                                   self.__class__.__name__)
 
     def __str__(self):
@@ -76,3 +80,36 @@ class WorkflowVal(Validate):
         params.pop('type')
 
         return workflows_by_type[value.type](**params)
+
+
+class MapWorkflow(Map):
+    """ URL Mapping bindings to workflow."""
+
+    fields = [
+        ('workflow', WorkflowVal()),
+        ('access', StrVal(), None),
+    ]
+
+    def __call__(self, spec, path, context):
+        access = spec.access or self.package.name
+        return WorkflowRenderer(spec.workflow, access)
+
+    def override(self, spec, override_spec):
+        if override_spec.workflow is not None:
+            spec = spec.__clone__(workflow=override_spec.workflow)
+        if override_spec.access is not None:
+            spec = spec.__clone__(access=override_spec.access)
+        return spec
+
+
+class WorkflowRenderer(object):
+    """ Renderer for workflow."""
+
+    def __init__(self, workflow, access):
+        self.workflow = workflow
+        self.access = access
+
+    def __call__(self, req):
+        if not authorize(req, self.access):
+            raise HTTPUnauthorized()
+        return self.workflow(req)

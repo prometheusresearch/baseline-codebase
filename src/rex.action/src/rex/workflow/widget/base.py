@@ -97,4 +97,3 @@ class WorkflowWidget(Widget):
             }
             cls.workflow_cls = type('%sWorkflow' % name, (_WorkflowDelegate,), workflow_members)
             return cls
-

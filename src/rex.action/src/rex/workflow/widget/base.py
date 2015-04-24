@@ -95,6 +95,7 @@ class WorkflowWidget(Widget):
                 cls.fields.values() if f.configurable and f.name != 'id'
             ]
             workflow_members = {
+                '__module__': members['__module__'],
                 'type': cls.workflow_type,
                 'fields': tuple(fields),
                 'widget_cls': cls,

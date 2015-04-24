@@ -12,7 +12,7 @@
 
 from webob.exc import HTTPUnauthorized
 
-from rex.core import Error, Validate, RecordVal, StrVal
+from rex.core import Error, Validate, RecordVal, StrVal, MapVal, AnyVal
 from rex.core import Extension, cached
 from rex.urlmap import Map
 from rex.web import authorize
@@ -56,29 +56,24 @@ class Workflow(Extension):
 class WorkflowVal(Validate):
     """ Validator for workflows."""
 
-    _common_fields = (
-        ('type', StrVal(), None),
-    )
+    _validate_pre = MapVal(StrVal(), AnyVal())
+    _validate_type = StrVal()
 
     def __init__(self, workflow_cls=Workflow):
         self.workflow_cls = workflow_cls
-        self._validate = RecordVal(*(self._common_fields + workflow_cls.fields))
 
     def __call__(self, value):
         if isinstance(value, self.workflow_cls):
             return value
-
-        value = self._validate(value)
-
-        workflows_by_type = Workflow.mapped()
-
-        if value.type not in workflows_by_type:
-            raise Error('unknown workflow type specified:', value.type)
-
-        params = value._asdict()
-        params.pop('type')
-
-        return workflows_by_type[value.type](**params)
+        value = self._validate_pre(value)
+        workflow_type = value.get('type', None)
+        if workflow_type not in Workflow.mapped():
+            raise Error('unknown workflow type specified:', workflow_type)
+        workflow_cls = Workflow.mapped()[workflow_type]
+        validate = RecordVal(*workflow_cls.fields)
+        value = {k: v for (k, v) in value.items() if k != 'type'}
+        params = validate(value)._asdict()
+        return workflow_cls(**params)
 
 
 class MapWorkflow(Map):

@@ -5,7 +5,7 @@ Test rex.workflow.workflow
 
   >>> from webob import Request, Response
 
-  >>> from rex.core import Rex, SandboxPackage
+  >>> from rex.core import LatentRex as Rex, SandboxPackage
   >>> rex = Rex('-')
   >>> rex.on()
 
@@ -72,11 +72,10 @@ Test workflow bindings to URLMap
   >>> rex.on()
 
   >>> req = Request.blank('/workflow')
-  >>> print req.get_response(rex)
+  >>> print req.get_response(rex) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
-  Content-Length: 2
-  <BLANKLINE>
+  ...
   ok
 
   >>> rex.off()

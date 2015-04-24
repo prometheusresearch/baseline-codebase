@@ -1,0 +1,6 @@
+paths:
+
+  /:
+    access: anybody
+    workflow:
+      actions:

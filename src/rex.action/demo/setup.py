@@ -9,6 +9,7 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.workflow',
+        'rex.study_demo',
     ],
     rex_init='rex.workflow_demo',
     rex_static='static',

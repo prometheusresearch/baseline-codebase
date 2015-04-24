@@ -15,16 +15,16 @@ from rex.core import cached, Validate
 from rex.core import OMapVal, StrVal, ProxyVal, OneOfVal, MaybeVal
 from rex.widget.modern import Field
 
+from ..action import Action
 from .base import WorkflowWidget
 
 __all__ = ('Workflow',)
 
-
-class ActivityTreeVal(Validate):
+class ActionTreeVal(Validate):
 
     _validate = ProxyVal()
-    _validate_activity = MaybeVal(_validate)
-    _validate.set(OMapVal(StrVal(), _validate_activity))
+    _validate_action = _validate
+    _validate.set(MaybeVal(OMapVal(StrVal(), _validate_action)))
 
     def __call__(self, value):
         # TODO: validate context requirements here
@@ -37,11 +37,10 @@ class Workflow(WorkflowWidget):
     js_type = 'rex-workflow/lib/Workflow'
     workflow_type = None
 
-
-    activities = Field(
-        ActivityTreeVal(),
+    actions = Field(
+        ActionTreeVal(),
         doc="""
-        A configuration of allowed activities within the workflows and
+        A configuration of allowed actions within the workflows and
         transitions between them.
         """)
 
@@ -49,11 +48,11 @@ class Workflow(WorkflowWidget):
     def descriptor(self):
         desc = super(Workflow, self).descriptor()
         props = desc.ui.props
-        used_activities_ids = _all_keys(props.activities)
-        props.activity_tree = props.activities
-        props.activities = {activity.id: activity.render()
-                            for activity in Activity.all()
-                            if activity.id in used_activities_ids}
+        used_action_ids = _all_keys(props.actions)
+        props.actions_tree = props.actions
+        props.actions = {action.id: action.render()
+                         for action in Action.all()
+                         if action.id in used_action_ids}
         return desc
 
 

@@ -9,4 +9,5 @@
 
 from rex.widget.modern import Field
 from .action import *
-from .widget import *
+from .workflow import *
+from . import widget

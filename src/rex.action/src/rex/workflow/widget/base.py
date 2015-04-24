@@ -1,7 +1,9 @@
 """
 
-    rex.workflow.action
-    ===================
+    rex.workflow.widget.base
+    ========================
+
+    Base classes for workflow and action widgets.
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -11,8 +13,8 @@ from cached_property import cached_property
 
 from rex.widget.modern import Widget
 
-from .workflow import Workflow
-from .action import Action
+from ..workflow import Workflow
+from ..action import Action
 
 __all__ = ('ActionWidget', 'WorkflowWidget')
 
@@ -95,3 +97,4 @@ class WorkflowWidget(Widget):
             }
             cls.workflow_cls = type('%sWorkflow' % name, (_WorkflowDelegate,), workflow_members)
             return cls
+

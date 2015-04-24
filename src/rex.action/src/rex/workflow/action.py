@@ -10,7 +10,8 @@
 
 """
 
-from rex.core import Error, Validate, RecordVal, StrVal, SeqVal
+from rex.core import Error, Validate
+from rex.core import RecordVal, StrVal, SeqVal, MapVal, AnyVal
 from rex.core import Extension, cached, autoreload, get_packages
 
 __all__ = ('Action', 'ActionVal', 'load_actions')
@@ -65,9 +66,9 @@ class Action(Extension):
 class ActionVal(Validate):
     """ Validator for actions."""
 
+    _validate_pre = MapVal(StrVal(), AnyVal())
     _common_fields = (
         ('id', StrVal()),
-        ('type', StrVal()),
     )
 
     def __init__(self, action_cls=Action):
@@ -77,18 +78,17 @@ class ActionVal(Validate):
     def __call__(self, value):
         if isinstance(value, self.action_cls):
             return value
-
-        value = self._validate(value)
-
-        actions_by_type = Action.mapped()
-
-        if value.type not in actions_by_type:
-            raise Error('unknown action type specified:', value.type)
-
-        params = value._asdict()
-        params.pop('type')
-
-        return actions_by_type[value.type](**params)
+        value = self._validate_pre(value)
+        action_type = value.pop('type', None)
+        if action_type is None:
+            raise Error('no action "type" specified')
+        if action_type not in Action.mapped():
+            raise Error('unknown action type specified:', action_type)
+        action_cls = Action.mapped()[action_type]
+        validate = RecordVal(*(self._common_fields + action_cls.fields))
+        value = {k: v for (k, v) in value.items() if k != 'type'}
+        params = validate(value)._asdict()
+        return action_cls(**params)
 
 
 def load_actions(package=None, filename='actions.yaml'):

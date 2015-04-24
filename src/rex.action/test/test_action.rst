@@ -33,8 +33,7 @@ Constructing from Python values::
   ... }) # doctest: +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  Error: Missing mandatory field:
-      type
+  Error: no action "type" specified
 
   >>> validate({
   ...   'type': 'my'

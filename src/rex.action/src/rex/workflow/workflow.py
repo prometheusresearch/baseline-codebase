@@ -59,11 +59,8 @@ class WorkflowVal(Validate):
     _validate_pre = MapVal(StrVal(), AnyVal())
     _validate_type = StrVal()
 
-    def __init__(self, workflow_cls=Workflow):
-        self.workflow_cls = workflow_cls
-
     def __call__(self, value):
-        if isinstance(value, self.workflow_cls):
+        if isinstance(value, Workflow):
             return value
         value = self._validate_pre(value)
         workflow_type = value.get('type', None)

@@ -12,11 +12,14 @@ Test rex.workflow.action
   >>> class MyAction(Action):
   ...   type = 'my'
 
-  >>> Action.all()
-  [__main__.MyAction]
+  >>> class AnotherAction(Action):
+  ...   type = 'another'
 
-  >>> Action.mapped()
-  {'my': __main__.MyAction}
+  >>> Action.all()
+  [__main__.MyAction, __main__.AnotherAction]
+
+  >>> sorted(Action.mapped().items())
+  [('another', __main__.AnotherAction), ('my', __main__.MyAction)]
 
 Constructing from Python values::
 
@@ -52,7 +55,33 @@ Constructing from Python values::
   Error: unknown action type specified:
         xmy
 
-Constructing from YAML::
+Subclass constraints
+--------------------
+
+::
+
+  >>> validate_another = ActionVal(AnotherAction)
+
+  >>> validate_another({
+  ...   'type': 'another',
+  ...   'id': 'id',
+  ... })
+  AnotherAction(id='id')
+
+  >>> validate_another({
+  ...   'type': 'my',
+  ...   'id': 'id',
+  ... }) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: action must be an instance of:
+      __main__.AnotherAction
+
+
+Constructing from YAML
+----------------------
+
+::
 
   >>> validate.parse("""
   ... type: my
@@ -61,6 +90,7 @@ Constructing from YAML::
   MyAction(id='id')
 
   >>> rex.off()
+
 
 Loading actions
 ---------------

@@ -85,6 +85,8 @@ class ActionVal(Validate):
         if action_type not in Action.mapped():
             raise Error('unknown action type specified:', action_type)
         action_cls = Action.mapped()[action_type]
+        if not issubclass(action_cls, self.action_cls):
+            raise Error('action must be an instance of:', self.action_cls)
         validate = RecordVal(*(self._common_fields + action_cls.fields))
         value = {k: v for (k, v) in value.items() if k != 'type'}
         params = validate(value)._asdict()

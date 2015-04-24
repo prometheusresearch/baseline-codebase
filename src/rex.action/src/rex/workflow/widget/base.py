@@ -72,6 +72,8 @@ class _WorkflowDelegate(Workflow):
     @cached
     def widget_renderer(self):
         widget = self.widget_cls(**self.params)
+        # call widget renderer with anybody as we already authorized request up
+        # the stack in WorkflowRenderer
         return WidgetRenderer(widget, access='anybody')
 
     def __call__(self, req):

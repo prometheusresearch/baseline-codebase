@@ -18,7 +18,7 @@ from rex.widget.modern import Field
 from ..action import load_actions
 from .base import WorkflowWidget
 
-__all__ = ('Workflow', 'WorkflowVal', 'WorkflowRenderer', 'MapWorkflow')
+__all__ = ('Workflow',)
 
 class ActionTreeVal(Validate):
 
@@ -58,6 +58,8 @@ class Workflow(WorkflowWidget):
 
 def collect_keys(d):
     keys = set()
+    if not d:
+        return keys
     queue = [d]
     while queue:
         c = queue.pop()

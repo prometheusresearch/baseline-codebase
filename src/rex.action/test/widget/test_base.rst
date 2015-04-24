@@ -3,8 +3,8 @@ Test rex.workflow.widget
 
 ::
 
-  >>> from rex.core import Rex
-  >>> rex = Rex('-')
+  >>> from rex.core import LatentRex as Rex
+  >>> rex = Rex('-', 'rex.workflow', db='pgsql:workflow_demo')
   >>> rex.on()
 
   >>> from rex.core import StrVal
@@ -89,7 +89,7 @@ WorkflowWidget
 
 Workflow delegates to widget::
 
-  >>> validate = WorkflowVal(MyWorkflow.workflow_cls)
+  >>> validate = WorkflowVal()
 
   >>> workflow = validate({
   ...   'type': 'my',
@@ -110,8 +110,14 @@ Workflow delegates to widget::
   >>> workflow.widget_cls is MyWorkflow
   True
 
-  >>> workflow(Request.blank('/'))
-  'processed'
+  >>> resp = workflow(Request.blank('/', accept='application/json'))
+  >>> resp.json # doctest: +NORMALIZE_WHITESPACE
+  {u'descriptor': {u'state': {},
+                   u'ui': {u'__type__': u'rex-workflow/workflows/list',
+                           u'props': {u'field': u'field'}}},
+   u'state': {},
+   u'data': {},
+   u'versions': {}}
 
 Cleanup
 -------

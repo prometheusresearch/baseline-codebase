@@ -72,7 +72,7 @@ class _WorkflowDelegate(Workflow):
     @cached
     def widget_renderer(self):
         widget = self.widget_cls(**self.params)
-        return WidgetRenderer(widget, access=None)
+        return WidgetRenderer(widget, access='anybody')
 
     def __call__(self, req):
         renderer = self.widget_renderer()

@@ -5,7 +5,7 @@ Test rex.workflow.workflow
 
   >>> from webob import Request, Response
 
-  >>> from rex.core import LatentRex as Rex, SandboxPackage
+  >>> from rex.core import LatentRex, Rex, SandboxPackage
   >>> rex = Rex('-')
   >>> rex.on()
 
@@ -68,8 +68,7 @@ Test workflow bindings to URLMap
   ...     workflow:
   ...       type: my
   ... """)
-  >>> rex = Rex(sandbox, 'rex.workflow_demo')
-  >>> rex.on()
+  >>> rex = LatentRex(sandbox, 'rex.workflow_demo')
 
   >>> req = Request.blank('/workflow')
   >>> print req.get_response(rex) # doctest: +ELLIPSIS
@@ -78,4 +77,26 @@ Test workflow bindings to URLMap
   ...
   ok
 
-  >>> rex.off()
+::
+
+  >>> sandbox.rewrite('/urlmap.yaml', """
+  ... paths:
+  ...   /workflow:
+  ...     access: anybody
+  ...     workflow:
+  ...       type: xmy
+  ... """)
+  >>> rex = Rex(sandbox, 'rex.workflow_demo') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: unknown workflow type specified:
+      xmy
+  While parsing:
+      "...", line 6
+  While validating field:
+      workflow
+  While validating field:
+      paths
+  While initializing RexDB application:
+      SandboxPackage()
+      rex.workflow_demo

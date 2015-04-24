@@ -3,11 +3,11 @@ Test rex.workflow.action
 
 ::
 
-  >>> from rex.core import Rex
+  >>> from rex.core import Rex, SandboxPackage
   >>> rex = Rex('-')
   >>> rex.on()
 
-  >>> from rex.workflow.action import Action, ActionVal
+  >>> from rex.workflow.action import Action, ActionVal, load_actions
 
   >>> class MyAction(Action):
   ...   type = 'my'
@@ -62,3 +62,32 @@ Constructing from YAML::
   MyAction(id='id')
 
   >>> rex.off()
+
+Loading actions
+---------------
+
+::
+
+  >>> sandbox = SandboxPackage()
+  >>> sandbox.rewrite('/actions.yaml', """
+  ... - id: my-action
+  ...   type: my
+  ... """)
+  >>> with Rex(sandbox):
+  ...   load_actions()
+  [MyAction(id='my-action')]
+
+::
+
+  >>> sandbox.rewrite('/actions.yaml', """
+  ... - id: my-action
+  ...   type: xmy
+  ... """)
+  >>> with Rex(sandbox):
+  ...   load_actions() # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: unknown action type specified:
+      xmy
+  While parsing:
+      "...", line 2

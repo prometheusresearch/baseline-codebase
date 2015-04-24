@@ -15,7 +15,7 @@ from rex.core import cached, Validate
 from rex.core import OMapVal, StrVal, ProxyVal, OneOfVal, MaybeVal
 from rex.widget.modern import Field
 
-from ..action import Action
+from ..action import load_actions
 from .base import WorkflowWidget
 
 __all__ = ('Workflow',)
@@ -48,15 +48,15 @@ class Workflow(WorkflowWidget):
     def descriptor(self):
         desc = super(Workflow, self).descriptor()
         props = desc.ui.props
-        used_action_ids = _all_keys(props.actions)
+        used_action_ids = collect_keys(props.actions)
         props.actions_tree = props.actions
         props.actions = {action.id: action.render()
-                         for action in Action.all()
+                         for action in load_actions()
                          if action.id in used_action_ids}
         return desc
 
 
-def _all_keys(d):
+def collect_keys(d):
     keys = set()
     queue = [d]
     while queue:

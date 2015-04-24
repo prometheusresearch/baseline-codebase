@@ -10,10 +10,10 @@
 
 """
 
-from rex.core import Error, Validate, RecordVal, StrVal
-from rex.core import Extension, cached
+from rex.core import Error, Validate, RecordVal, StrVal, SeqVal
+from rex.core import Extension, cached, autoreload, get_packages
 
-__all__ = ('Action', 'ActionVal')
+__all__ = ('Action', 'ActionVal', 'load_actions')
 
 
 class Action(Extension):
@@ -89,3 +89,19 @@ class ActionVal(Validate):
         params.pop('type')
 
         return actions_by_type[value.type](**params)
+
+
+def load_actions(package=None, filename='actions.yaml'):
+    """ Load all defined actions within the currently active app."""
+    return _load_actions(package, filename)
+
+
+@autoreload
+def _load_actions(package, filename, open=open):
+    if package is None:
+        return [a for p in get_packages()
+                  for a in _load_actions(p, filename)]
+    if not package.exists(filename):
+        return []
+    with open(package.abspath(filename)) as f:
+        return SeqVal(ActionVal()).parse(f)

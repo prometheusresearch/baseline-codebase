@@ -1,0 +1,12 @@
+{
+  "name": "rex-workflow",
+  "version": "0.1.0",
+  "main": "./lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
+  "dependencies": {
+    "rex-widget": "*"
+  }
+}
+

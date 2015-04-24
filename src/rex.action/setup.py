@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.workflow',
-    version="1.11.0",
+    version="0.1.0",
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -19,11 +19,14 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
+        'inflect',
+
         'rex.core',
         'rex.widget',
         'rex.urlmap',
     ],
     rex_init='rex.workflow',
+    rex_static='static',
 )
 
 

@@ -18,7 +18,7 @@ from rex.widget.modern import Field
 from ..action import load_actions
 from .base import WorkflowWidget
 
-__all__ = ('Workflow',)
+__all__ = ('Workflow', 'WorkflowVal', 'WorkflowRenderer', 'MapWorkflow')
 
 class ActionTreeVal(Validate):
 

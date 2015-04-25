@@ -7,14 +7,18 @@
 
 """
 
+import re
 from collections import namedtuple
+
+import docutils.core
+import docutils.writers.html4css1
 
 from rex.core import Validate, ProxyVal
 from rex.core import RecordVal, ChoiceVal, OneOfVal, StrVal, IntVal, SeqVal, BoolVal
 from rex.widget.modern import URLVal, undefined
 from rex.widget.json_encoder import register_adapter
 
-__all__ = ('KeyPathVal', 'FieldDescVal', 'ColumnVal')
+__all__ = ('KeyPathVal', 'FieldDescVal', 'ColumnVal', 'RSTVal')
 
 
 class KeyPathVal(Validate):
@@ -147,3 +151,41 @@ class FieldDescVal(Validate):
         if value.name is None:
             value = value.__clone__(name=KeyPathVal.to_string(value.key))
         return value
+
+
+class _HTMLTranslator(docutils.writers.html4css1.HTMLTranslator):
+
+    def __init__(self, document):
+        docutils.writers.html4css1.HTMLTranslator.__init__(self, document)
+        self.links = {}
+
+    def _generate_link_id(self):
+        return '__$%d__' % len(self.links)
+
+    def visit_reference(self, node):
+        link_id = self._generate_link_id()
+        self.links[link_id] = node['refuri']
+        node['refuri'] = link_id
+        return docutils.writers.html4css1.HTMLTranslator.visit_reference(self, node)
+
+
+RST = namedtuple('RST', ['src', 'links'])
+
+
+@register_adapter(RST)
+def _encode_RST(value, request):
+    return RSTVal._find_links.sub(lambda m: value.links[m.group()], value.src)
+
+
+class RSTVal(Validate):
+
+    _validate = StrVal()
+
+    _find_links = re.compile(r'__$(\d+)__')
+
+    def __call__(self, value):
+        value = self._validate(value)
+        _writer = docutils.writers.html4css1.Writer()
+        _writer.translator_class = _HTMLTranslator
+        src = docutils.core.publish_parts(value, writer=_writer)['body']
+        return RST(src, _writer.visitor.links)

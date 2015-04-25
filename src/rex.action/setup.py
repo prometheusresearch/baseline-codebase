@@ -20,6 +20,7 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'inflect',
+        'docutils',
 
         'rex.core',
         'rex.widget',

@@ -40,7 +40,6 @@
 - id: create-study-enrollment
   type: create
   title: Enroll
-  icon: plus
   entity: study_enrollment
 
   value:

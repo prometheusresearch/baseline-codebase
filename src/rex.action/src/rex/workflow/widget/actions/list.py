@@ -48,18 +48,6 @@ class List(ActionWidget):
         Name of the table in database from which to show records in the list.
         """)
 
-    sortable = Field(
-        BoolVal(), default=False,
-        doc="""
-        If set to ``true`` then list can be sorted by any column.
-        """)
-
-    resizable_columns = Field(
-        BoolVal(), default=False,
-        doc="""
-        If set to ``true`` then list has all its column resizable.
-        """)
-
     columns = Field(
         SeqVal(OneOfVal(ColumnVal(), KeyPathVal())), default=undefined,
         doc="""

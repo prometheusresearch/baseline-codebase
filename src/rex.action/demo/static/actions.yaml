@@ -7,20 +7,8 @@
     This is a subset of functionality of Rex Study Enrollment Admin implemented
     in terms of Rex Workflow configurable UI.
 
-    To the right you can see two next possible actions, namely "List studies" and "List individuals".
-
-    This is snippet which configures the workflow:: 
-
-      /:
-        workflow:
-          actions:
-            home:
-              list-individuals:
-                view-individual:
-              list-studies:
-                view-study:
-                list-individuals-to-enroll:
-                  create-study-enrollment:
+    To the right you can see two next possible actions, namely *"List studies"*
+    and *"List individuals"*.
 
 - id: list-individuals
   type: list
@@ -29,9 +17,7 @@
 - id: list-individuals-to-enroll
   type: list
   title: List individuals to enroll
-  entity: individual 
-  resizable_columns: true
-  sortable: true
+  entity: individual
   columns:
   - code
   - identity.givenname
@@ -65,23 +51,16 @@
   type: create
   title: Enroll
   entity: study_enrollment
-
+  fields:
+  - key: enrollment_date
+    type: date
+    name: Enrollment date
+  - key: consent_form_scan
+    name: Consent Form Scan
+    type: file
+    storage: rex.file:/
+    download: rex.study.enrollment_admin:/data/consent
   value:
     study: $study
     individual: $individual
 
-  # enumerate create form fields
-  fields:
-  - enrollment_date
-  - type: file
-    name: Consent Form Scan
-    key: consent_form_scan
-    storage: rex.file:/
-    download: rex.study.enrollment_admin:/data/consent
-
-  # provide form field overrides
-  fields_override:
-    enrollment_date:
-      key: enrollment_date
-      type: date
-      name: Enrollment date

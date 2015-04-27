@@ -14,8 +14,8 @@
 Overview
 ========
 
-This package provides a set of tools to compose screen workflows from reusable
-pieces.
+This package defines an abstract interfaces for actions and workflows and
+provides an implementation of such interfaces in terms of Rex Widget.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is

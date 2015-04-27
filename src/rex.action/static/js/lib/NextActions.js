@@ -35,7 +35,7 @@ var NextActions = React.createClass({
       return null;
     }
     return (
-      <ServiceSection title="Actions">
+      <ServiceSection title="Next Actions">
         {nextActions}
       </ServiceSection>
     );

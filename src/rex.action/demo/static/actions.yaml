@@ -5,7 +5,7 @@
 
 - id: list-individuals-to-enroll
   type: list
-  name: List individuals to enroll
+  title: List individuals to enroll
   entity: individual 
   resizable_columns: true
   sortable: true
@@ -39,7 +39,7 @@
 
 - id: create-study-enrollment
   type: create
-  name: Enroll
+  title: Enroll
   icon: plus
   entity: study_enrollment
 

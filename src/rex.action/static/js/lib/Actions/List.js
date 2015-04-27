@@ -33,7 +33,6 @@ var List = React.createClass({
     var bindings = this._compileBindings();
     var dataSpec = new RexWidget.DataSpecification.Collection(port, bindings);
     dataSpec = dataSpec.bindToContext(this);
-    console.log('DS', dataSpec);
     return (
       <VBox style={{...ListStyle.self, width: this.props.width}}>
         <HBox style={ListStyle.header}>

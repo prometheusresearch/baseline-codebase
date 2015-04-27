@@ -25,6 +25,8 @@ ActionWidget
   ...
   ...   field = Field(StrVal())
   ...
+  ...   default_title = 'Title'
+  ...
   ...   def context(self):
   ...     inputs = ['in']
   ...     outputs = ['out']
@@ -63,7 +65,7 @@ Action delegates to widget::
 
   >>> action.render() # doctest: +NORMALIZE_WHITESPACE
   UIDescriptor(type='rex-workflow/actions/list',
-               props=<PropsContainer {'field': 'field', 'id': 'id', 'icon': 'cog'}>,
+               props=<PropsContainer {'field': 'field', 'contextSpec': {'out': ['out'], 'in': ['in']}, 'title': 'Title', 'id': 'id', 'icon': 'cog'}>,
                widget=MyAction(id='id', field='field'),
                defer=False)
 

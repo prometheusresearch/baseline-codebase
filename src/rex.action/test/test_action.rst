@@ -26,13 +26,15 @@ Test rex.workflow.action
    __main__.AnotherAction,
    rex.core.extension.ListAction,
    rex.core.extension.ViewAction,
-   rex.core.extension.CreateAction]
+   rex.core.extension.CreateAction,
+   rex.core.extension.PageAction]
 
   >>> sorted(Action.mapped().items()) # doctest: +NORMALIZE_WHITESPACE
   [('another', __main__.AnotherAction),
    ('create', rex.core.extension.CreateAction),
    ('list', rex.core.extension.ListAction),
    ('my', __main__.MyAction),
+   ('page', rex.core.extension.PageAction),
    ('view', rex.core.extension.ViewAction)]
 
 Constructing from Python values::

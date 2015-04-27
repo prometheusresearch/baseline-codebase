@@ -129,7 +129,6 @@ function computeCanvas(actions, focus, size, getActionByID) {
 var Workflow = React.createClass({
 
   render() {
-    console.log(this.props, this.state);
     if (this.state.size === null) {
       return <VBox style={WorkflowStyle.self} />;
     }

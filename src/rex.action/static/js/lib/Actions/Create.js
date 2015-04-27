@@ -49,11 +49,11 @@ var Create = React.createClass({
   },
 
   render() {
-    var {fields, data} = this.props;
-    var port = new RexWidget.Port(data.path);
+    var {fields, entity} = this.props;
+    var port = new RexWidget.Port(entity.path);
     var spec = new RexWidget.DataSpecification.Entity(port);
     var value = {};
-    value[data.entity] = [buildValue(this.props.value, this.props.context)];
+    value[entity.entity] = [buildValue(this.props.value, this.props.context)];
     return (
       <VBox style={CreateStyle.self}>
         <HBox style={CreateStyle.header}>

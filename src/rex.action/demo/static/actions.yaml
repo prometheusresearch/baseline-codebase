@@ -46,6 +46,7 @@
 
 - id: list-studies
   type: list
+  title: List studies to enroll
   entity: study
   columns:
   - code

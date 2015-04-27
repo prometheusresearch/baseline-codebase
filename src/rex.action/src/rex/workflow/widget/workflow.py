@@ -12,7 +12,7 @@
 from collections import Mapping
 
 from rex.core import cached, Validate
-from rex.core import OMapVal, StrVal, ProxyVal, OneOfVal, MaybeVal
+from rex.core import MapVal, StrVal, ProxyVal, OneOfVal, MaybeVal
 from rex.widget.modern import Field
 
 from ..action import load_actions
@@ -20,11 +20,13 @@ from .base import WorkflowWidget
 
 __all__ = ('Workflow',)
 
+
 class ActionTreeVal(Validate):
 
     _validate = ProxyVal()
     _validate_action = _validate
-    _validate.set(MaybeVal(OMapVal(StrVal(), _validate_action)))
+    # TODO: we should use OMapVal here
+    _validate.set(MaybeVal(MapVal(StrVal(), _validate_action)))
 
     def __call__(self, value):
         # TODO: validate context requirements here
@@ -33,9 +35,9 @@ class ActionTreeVal(Validate):
 
 class Workflow(WorkflowWidget):
 
+    type = None
     name = 'Workflow'
     js_type = 'rex-workflow/lib/Workflow'
-    workflow_type = None
 
     actions = Field(
         ActionTreeVal(),
@@ -51,7 +53,7 @@ class Workflow(WorkflowWidget):
         used_action_ids = collect_keys(props.actions)
         props.actions_tree = props.actions
         props.actions = {action.id: action.render()
-                         for action in load_actions()
+                         for action in load_actions(self.package)
                          if action.id in used_action_ids}
         return desc
 

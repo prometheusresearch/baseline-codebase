@@ -26,7 +26,7 @@ class Workflow(Extension):
 
     fields = ()
 
-    def __init__(self, **params):
+    def __init__(self, params):
         self.params = params
 
     def __call__(self, req):
@@ -70,7 +70,7 @@ class WorkflowVal(Validate):
         validate = RecordVal(*workflow_cls.fields)
         value = {k: v for (k, v) in value.items() if k != 'type'}
         params = validate(value)._asdict()
-        return workflow_cls(**params)
+        return workflow_cls(params)
 
 
 class MapWorkflow(Map):
@@ -83,6 +83,7 @@ class MapWorkflow(Map):
 
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
+        spec.workflow.package = self.package
         return WorkflowRenderer(spec.workflow, access)
 
     def override(self, spec, override_spec):

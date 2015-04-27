@@ -20,28 +20,24 @@ from ..validate import FieldDescVal
 class View(ActionWidget):
     """ View information about specified entity."""
 
+    type = 'view'
     name = 'View'
     js_type = 'rex-workflow/lib/Actions/View'
 
-    @property
-    def default_activity_name(self):
-        return 'View %s info' % self.data.entity
+    default_name = property(lambda s: 'View %s info' % s.entity.entity)
 
-    @property
-    def context_in(self):
-        return [self.data.entity]
-
-    @property
-    def context_out(self):
-        return []
+    def context(self):
+        inputs = [self.entity.entity]
+        outputs = []
+        return inputs, outputs
 
     def assign_props(self, props):
-        if props.fields is undefined:
-            field = field_from_port(self.data.port)
+        if props.get('fields', undefined) is undefined:
+            field = field_from_port(self.entity.port)
             assert field.type == 'entity', 'Not implemented'
             props.fields = field.fields
 
-    data = PortField()
+    entity = PortField()
 
     fields = Field(
         SeqVal(FieldDescVal()), default=undefined,

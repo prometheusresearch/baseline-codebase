@@ -9,8 +9,8 @@
 
 """
 
-from rex.core import cached
-from rex.widget.modern import Widget
+from rex.core import cached, StrVal
+from rex.widget.modern import Widget, Field, undefined
 from rex.widget.urlmap import WidgetRenderer
 
 from ..workflow import Workflow
@@ -24,22 +24,53 @@ class _ActionDelegate(Action):
 
     widget_cls = NotImplemented
 
-    @cached
-    def widget(self):
-        return self.widget_cls(**self.params)
+    @property
+    def id(self):
+        widget = self._widget()
+        return widget.id
+
+    @property
+    def name(self):
+        widget = self._widget()
+        name = widget.name
+        if name is undefined:
+            name = widget.default_name
+        return name
+
+    @property
+    def icon(self):
+        widget = self._widget()
+        return widget.icon
 
     def context(self):
-        widget = self.widget()
-        return widget.action_context()
+        widget = self._widget()
+        return widget.context()
 
     def render(self):
-        widget = self.widget()
+        widget = self._widget()
         return widget.descriptor().ui
+
+    @cached
+    def _widget(self):
+        widget = self.widget_cls(**self.params)
+        widget.package = self.package
+        return widget
 
 
 class ActionWidget(Widget):
 
-    action_type = NotImplemented
+    type = NotImplemented
+
+    js_type = None
+
+    id = Field(StrVal())
+    name = Field(StrVal(), default=undefined)
+    icon = Field(StrVal(), default='cog')
+
+    @property
+    def default_name(self):
+        raise NotImplementedError('%s.default_name is not implemented' % \
+                                  self.__class__.__name__)
 
     class __metaclass__(Widget.__metaclass__):
 
@@ -50,18 +81,18 @@ class ActionWidget(Widget):
             fields = [
                 (f.name, f.validate, f.default)
                 for f in
-                cls.fields.values() if f.configurable and f.name != 'id'
+                cls.fields.values() if f.configurable
             ]
             action_members = {
-                'type': cls.action_type,
+                'type': cls.type,
                 'fields': tuple(fields),
                 'widget_cls': cls,
             }
             cls.action_cls = type('%sAction' % name, (_ActionDelegate,), action_members)
             return cls
 
-    def action_context(self):
-        raise NotImplementedError('%s.action_context() is not implemented' % \
+    def context(self):
+        raise NotImplementedError('%s.context() is not implemented' % \
                                   self.__class__.__name__)
 
 
@@ -72,6 +103,7 @@ class _WorkflowDelegate(Workflow):
     @cached
     def widget_renderer(self):
         widget = self.widget_cls(**self.params)
+        widget.package = self.package
         # call widget renderer with anybody as we already authorized request up
         # the stack in WorkflowRenderer
         return WidgetRenderer(widget, access='anybody')
@@ -83,7 +115,7 @@ class _WorkflowDelegate(Workflow):
 
 class WorkflowWidget(Widget):
 
-    workflow_type = NotImplemented
+    type = NotImplemented
 
     class __metaclass__(Widget.__metaclass__):
 
@@ -98,7 +130,7 @@ class WorkflowWidget(Widget):
             ]
             workflow_members = {
                 '__module__': members['__module__'],
-                'type': cls.workflow_type,
+                'type': cls.type,
                 'fields': tuple(fields),
                 'widget_cls': cls,
             }

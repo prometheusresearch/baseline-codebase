@@ -32,12 +32,17 @@ class List(ActionWidget):
     it, in that case the brief info is shown in service panel.
     """
 
+    type = 'list'
     name = 'List'
     js_type = 'rex-workflow/lib/Actions/List'
 
-    activity_icon = Field(StrVal(), default='list')
+    icon = Field(StrVal(), default='list')
 
-    data = Field(
+    default_name = property(lambda s: 'List %s' % \
+                                      inflector.plural(s.entity_name))
+
+
+    entity = Field(
         StrVal(),
         doc="""
         Name of the table in database from which to show records in the list.
@@ -63,7 +68,7 @@ class List(ActionWidget):
         If it's not provided then it will be inferred from database schema.
         """)
 
-    fields = Field(
+    info_fields = Field(
         SeqVal(OneOfVal(FieldDescVal())), default=undefined,
         doc="""
         A set of info field specifications to be shown when a record is
@@ -82,19 +87,12 @@ class List(ActionWidget):
     def entity_name(self):
         return self._compile_port()[1]['entity']
 
-    @property
-    def default_activity_name(self):
-        return 'List %s' % inflector.plural(self.entity_name)
-
-    @property
-    def context_in(self):
+    def context(self):
         bindings = self._compile_port()[1]['bindings']
-        return [(b.split('.')[0] if '.' in b else b)
-                for b in bindings.values()]
-
-    @property
-    def context_out(self):
-        return [self.entity_name]
+        inputs = [(b.split('.')[0] if '.' in b else b)
+                  for b in bindings.values()]
+        outputs = [self.entity_name]
+        return inputs, outputs
 
     _validate_grow_val = GrowVal()
 
@@ -123,10 +121,10 @@ class List(ActionWidget):
                     assert key not in with_
                     with_[key] = '%s := %s' % (key, c.expression)
 
-        if self.fields:
+        if self.info_fields:
             select = select or {}
             with_ = with_ or {}
-            for f in self.fields:
+            for f in self.info_fields:
                 assert len(f.key) < 3, 'Not implemented'
                 if len(f.key) == 1:
                     select[c[0]] = True
@@ -134,7 +132,7 @@ class List(ActionWidget):
                     with_.setdefault(f.key[0], {'select': [], 'entity': f.key[0]})['select'].append(f.key[1])
 
         grow_val = {
-            'entity': self.data,
+            'entity': self.entity,
             'filters': filters,
             'select': select.keys() if select else None,
             'with': with_.values() if with_ else None,
@@ -167,7 +165,7 @@ class List(ActionWidget):
 
         port, data = self._compile_port()
         port_columns = columns_from_port(port)
-        columns = props.columns
+        columns = props.get('columns', undefined)
         if columns is undefined:
             columns = port_columns
         built_columns = []
@@ -176,12 +174,11 @@ class List(ActionWidget):
                 built_columns.append(column_from_port(port, c))
             else:
                 built_columns.append(c)
-        if props.fields is undefined:
+        if props.get('fields', undefined) is undefined:
             props.fields = [_make_field_desc({'key': c.key, 'name': c.name})
                             for c in built_columns]
         props.columns = built_columns
         props.data = data
-        del props.requirements
         return desc
 
 

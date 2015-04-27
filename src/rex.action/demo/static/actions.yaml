@@ -1,0 +1,64 @@
+
+- id: list-individuals
+  type: list
+  entity: individual
+
+- id: list-individuals-to-enroll
+  type: list
+  name: List individuals to enroll
+  entity: individual 
+  resizable_columns: true
+  sortable: true
+  columns:
+  - code
+  - identity.givenname
+  - identity.surname
+  - sex
+  requirements:
+  - exists(study_recruitment.study=$study)
+
+- id: view-individual
+  type: view
+  entity: individual
+
+- id: list-studies
+  type: list
+  entity: study
+  columns:
+  - code
+  - title
+  - start_date
+  - closed
+  - key: lab
+    expression: lab.title
+    name: Lab
+
+- id: view-study
+  type: view
+  entity: study
+
+- id: create-study-enrollment
+  type: create
+  name: Enroll
+  icon: plus
+  entity: study_enrollment
+
+  value:
+    study: $study
+    individual: $individual
+
+  # enumerate create form fields
+  fields:
+  - enrollment_date
+  - type: file
+    name: Consent Form Scan
+    key: consent_form_scan
+    storage: rex.file:/
+    download: rex.study.enrollment_admin:/data/consent
+
+  # provide form field overrides
+  fields_override:
+    enrollment_date:
+      key: enrollment_date
+      type: date
+      name: Enrollment date

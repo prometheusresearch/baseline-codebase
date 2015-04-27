@@ -18,15 +18,36 @@ __all__ = ('Action', 'ActionVal', 'load_actions')
 
 
 class Action(Extension):
-    """ Action is a reusable piece of workflow.
+    """ Action is a reusable piece of UI.
+
+    Actions are consumed within a workflow.
     """
 
     type = NotImplemented
 
     fields = ()
 
-    def __init__(self, **params):
+    def __init__(self, params, package):
         self.params = params
+        self.package = package
+
+    @property
+    def id(self):
+        """ Specify what id to use for the action."""
+        raise NotImplementedError('%s.id is not implemented' % \
+                                  self.__class__.__name__)
+
+    @property
+    def name(self):
+        """ Specify what name to use for the action."""
+        raise NotImplementedError('%s.name is not implemented' % \
+                                  self.__class__.__name__)
+
+    @property
+    def icon(self):
+        """ Specify what icon to use for the action."""
+        raise NotImplementedError('%s.icon is not implemented' % \
+                                  self.__class__.__name__)
 
     def context(self):
         """ Compute context specification for an action.
@@ -67,13 +88,10 @@ class ActionVal(Validate):
     """ Validator for actions."""
 
     _validate_pre = MapVal(StrVal(), AnyVal())
-    _common_fields = (
-        ('id', StrVal()),
-    )
 
-    def __init__(self, action_cls=Action):
+    def __init__(self, action_cls=Action, package=None):
+        self.package = package or action_cls.package()
         self.action_cls = action_cls
-        self._validate = RecordVal(*(self._common_fields + action_cls.fields))
 
     def __call__(self, value):
         if isinstance(value, self.action_cls):
@@ -87,23 +105,26 @@ class ActionVal(Validate):
         action_cls = Action.mapped()[action_type]
         if not issubclass(action_cls, self.action_cls):
             raise Error('action must be an instance of:', self.action_cls)
-        validate = RecordVal(*(self._common_fields + action_cls.fields))
+        validate = RecordVal(*action_cls.fields)
         value = {k: v for (k, v) in value.items() if k != 'type'}
         params = validate(value)._asdict()
-        return action_cls(**params)
+        return action_cls(params, self.package)
 
 
-def load_actions(package=None, filename='actions.yaml'):
+def load_actions(package, filename='actions.yaml'):
+    assert package
     """ Load all defined actions within the currently active app."""
     return _load_actions(package, filename)
 
 
+def _load_actions(package, filename):
+    return [a for p in get_packages()
+              for a in _load_actions_from(package, p, filename)]
+
+
 @autoreload
-def _load_actions(package, filename, open=open):
-    if package is None:
-        return [a for p in get_packages()
-                  for a in _load_actions(p, filename)]
-    if not package.exists(filename):
+def _load_actions_from(package, load_from_package, filename, open=open):
+    if not load_from_package.exists(filename):
         return []
-    with open(package.abspath(filename)) as f:
-        return SeqVal(ActionVal()).parse(f)
+    with open(load_from_package.abspath(filename)) as f:
+        return SeqVal(ActionVal(package=package)).parse(f)

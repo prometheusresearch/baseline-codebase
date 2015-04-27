@@ -52,6 +52,7 @@ class PortField(Field):
 
 
 def register_port(package, port):
+    assert package is not None
     path = '/autodata/%s' % hashlib.md5(str(port)).hexdigest()
     routes = get_routes(package)
     if not path in routes:

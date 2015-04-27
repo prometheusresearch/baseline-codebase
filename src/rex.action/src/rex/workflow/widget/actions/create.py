@@ -21,12 +21,16 @@ __all__ = ('Create',)
 
 class Create(ActionWidget):
 
+    type = 'create'
     name = 'Create'
     js_type = 'rex-workflow/lib/Actions/Create'
 
-    activity_icon = Field(StrVal(), default='plus')
+    icon = Field(StrVal(), default='plus')
 
-    data = PortField()
+    default_name = property(lambda s: 'Create %s' % \
+                                      inflector.a(s.entity.entity))
+
+    entity = PortField()
 
     value = Field(MapVal(StrVal(), StrVal()), default={})
 
@@ -46,27 +50,20 @@ class Create(ActionWidget):
         """)
 
     def assign_props(self, props):
-        entity_field = field_from_port(self.data.port)
+        entity_field = field_from_port(self.entity.port)
         assert entity_field.type == 'entity', 'Not implemented'
-        if props.fields is undefined:
+        if props.get('fields', undefined) is undefined:
             props.fields = entity_field.fields
         else:
             fields_by_keypath = {KeyPathVal.to_string(f.key): f
                                  for f in entity_field.fields}
             props.fields = [fields_by_keypath[KeyPathVal.to_string(f)] if isinstance(f, list) else f
                             for f in props.fields]
-        if props.fields_override:
+        if props.get('fields_override', undefined):
             props.fields = [props.fields_override.get(KeyPathVal.to_string(f.key), f) for f in props.fields]
             del  props.fields_override
 
-    @property
-    def default_activity_name(self):
-        return 'Create %s' % inflector.a(self.data.entity)
-
-    @property
-    def context_in(self):
-        return [v[1:] for v in self.value.values() if v.startswith('$')]
-
-    @property
-    def context_out(self):
-        return [self.data.entity]
+    def context(self):
+        inputs = [v[1:] for v in self.value.values() if v.startswith('$')]
+        outputs = [self.entity.entity]
+        return inputs, outputs

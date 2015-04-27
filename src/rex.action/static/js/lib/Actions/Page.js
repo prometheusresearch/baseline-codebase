@@ -7,7 +7,7 @@ var React                       = require('react/addons');
 var RexWidget                   = require('rex-widget/lib/modern');
 var {VBox, HBox}                = RexWidget.Layout;
 
-var HomeStyle = {
+var PageStyle = {
   self: {
     flex: 1,
   },
@@ -23,20 +23,21 @@ var HomeStyle = {
   }
 };
 
-var Home = React.createClass({
+var Page = React.createClass({
 
   render() {
+    var {width, title, text} = this.props;
     return (
-      <VBox style={HomeStyle.self}>
-        <HBox style={HomeStyle.header}>
-          <VBox style={HomeStyle.title}>
+      <VBox style={{...PageStyle.self, width}}>
+        <HBox style={PageStyle.header}>
+          <VBox style={PageStyle.title}>
             <h4>
-              {this.props.title}
+              {title}
             </h4>
           </VBox>
         </HBox>
-        <VBox style={HomeStyle.content}>
-          <div dangerouslySetInnerHTML={{__html: this.props.text}} />
+        <VBox style={PageStyle.content}>
+          <div dangerouslySetInnerHTML={{__html: text}} />
         </VBox>
       </VBox>
     );
@@ -45,10 +46,10 @@ var Home = React.createClass({
   getDefaultProps() {
     return {
       width: 480,
-      title: 'Home',
-      icon: 'home'
+      title: 'Page',
+      icon: 'file'
     };
   }
 });
 
-module.exports = Home;
+module.exports = Page;

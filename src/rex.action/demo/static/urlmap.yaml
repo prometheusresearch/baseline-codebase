@@ -8,5 +8,5 @@ paths:
             view-individual:
           list-studies:
             view-study:
-          list-individuals-to-enroll:
-            create-study-enrollment:
+            list-individuals-to-enroll:
+              create-study-enrollment:

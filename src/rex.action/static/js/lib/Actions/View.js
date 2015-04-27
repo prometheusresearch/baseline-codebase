@@ -22,9 +22,10 @@ var ShowInfo = React.createClass({
   },
 
   render() {
+    var fields = this.props.fields.map(f => ({valueKey: f.key, label: f.name}));
     return (
       <VBox>
-        <RexWidget.Info data={this.data.dataSpec} />
+        <RexWidget.Info data={this.data.dataSpec} fields={fields} />
       </VBox>
     );
   }
@@ -69,6 +70,7 @@ var View = React.createClass({
           <ShowInfo
             dataSpec={dataSpec}
             entity={this.props.context[this.props.entity.entity]}
+            fields={this.props.fields}
             />
         </VBox>
       </VBox>

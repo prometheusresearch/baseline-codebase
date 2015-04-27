@@ -1,9 +1,26 @@
 
 - id: home
-  type: home
+  type: page
   title: Enrollment Admin
+  icon: home
   text: |
-    Hello, *world*!
+    This is a subset of functionality of Rex Study Enrollment Admin implemented
+    in terms of Rex Workflow configurable UI.
+
+    To the right you can see two next possible actions, namely "List studies" and "List individuals".
+
+    This is snippet which configures the workflow:: 
+
+      /:
+        workflow:
+          actions:
+            home:
+              list-individuals:
+                view-individual:
+              list-studies:
+                view-study:
+                list-individuals-to-enroll:
+                  create-study-enrollment:
 
 - id: list-individuals
   type: list

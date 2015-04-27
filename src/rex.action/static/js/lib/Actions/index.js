@@ -3,11 +3,11 @@
  */
 'use strict';
 
-var Home = require('./Home');
+var Page = require('./Page');
 var List = require('./List');
 var View = require('./View');
 var Create = require('./Create');
 
 module.exports = {
-  Create, List, View, Home
+  Create, List, View, Page 
 };

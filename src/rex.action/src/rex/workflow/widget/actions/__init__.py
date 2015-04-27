@@ -10,4 +10,4 @@
 from .list import *
 from .create import *
 from .view import *
-from .home import *
+from .page import *

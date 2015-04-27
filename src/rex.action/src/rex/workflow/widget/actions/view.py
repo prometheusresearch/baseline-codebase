@@ -24,7 +24,7 @@ class View(ActionWidget):
     name = 'View'
     js_type = 'rex-workflow/lib/Actions/View'
 
-    default_name = property(lambda s: 'View %s info' % s.entity.entity)
+    default_title = property(lambda s: 'View %s info' % s.entity.entity)
 
     def context(self):
         inputs = [self.entity.entity]

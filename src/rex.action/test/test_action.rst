@@ -3,7 +3,7 @@ Test rex.workflow.action
 
 ::
 
-  >>> from rex.core import Rex, SandboxPackage
+  >>> from rex.core import Rex, SandboxPackage, StrVal
   >>> rex = Rex('-')
   >>> rex.on()
 
@@ -11,15 +11,29 @@ Test rex.workflow.action
 
   >>> class MyAction(Action):
   ...   type = 'my'
+  ...   fields = (
+  ...     ('id', StrVal()),
+  ...   )
 
   >>> class AnotherAction(Action):
   ...   type = 'another'
+  ...   fields = (
+  ...     ('id', StrVal()),
+  ...   )
 
-  >>> Action.all()
-  [__main__.MyAction, __main__.AnotherAction]
+  >>> Action.all() # doctest: +NORMALIZE_WHITESPACE
+  [__main__.MyAction,
+   __main__.AnotherAction,
+   rex.core.extension.ListAction,
+   rex.core.extension.ViewAction,
+   rex.core.extension.CreateAction]
 
-  >>> sorted(Action.mapped().items())
-  [('another', __main__.AnotherAction), ('my', __main__.MyAction)]
+  >>> sorted(Action.mapped().items()) # doctest: +NORMALIZE_WHITESPACE
+  [('another', __main__.AnotherAction),
+   ('create', rex.core.extension.CreateAction),
+   ('list', rex.core.extension.ListAction),
+   ('my', __main__.MyAction),
+   ('view', rex.core.extension.ViewAction)]
 
 Constructing from Python values::
 
@@ -103,8 +117,12 @@ Loading actions
   ...   type: my
   ... """)
   >>> with Rex(sandbox):
-  ...   load_actions()
+  ...   actions = load_actions(sandbox)
+  >>> actions
   [MyAction(id='my-action')]
+  >>> action = actions[0]
+  >>> action.package is sandbox
+  True
 
 ::
 
@@ -113,7 +131,7 @@ Loading actions
   ...   type: xmy
   ... """)
   >>> with Rex(sandbox):
-  ...   load_actions() # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  ...   load_actions(sandbox) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
   Error: unknown action type specified:

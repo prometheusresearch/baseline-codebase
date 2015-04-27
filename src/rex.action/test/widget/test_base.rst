@@ -20,12 +20,12 @@ ActionWidget
 ::
 
   >>> class MyAction(ActionWidget):
-  ...   action_type = 'my'
+  ...   type = 'my'
   ...   js_type = 'rex-workflow/actions/list'
   ...
   ...   field = Field(StrVal())
   ...
-  ...   def action_context(self):
+  ...   def context(self):
   ...     inputs = ['in']
   ...     outputs = ['out']
   ...     return (inputs, outputs)
@@ -53,7 +53,7 @@ Action delegates to widget::
   ... })
 
   >>> action
-  MyActionAction(field='field', id='id')
+  MyActionAction(id='id', title=Undefined(), icon='cog', field='field')
 
   >>> action.widget_cls is MyAction
   True
@@ -63,9 +63,9 @@ Action delegates to widget::
 
   >>> action.render() # doctest: +NORMALIZE_WHITESPACE
   UIDescriptor(type='rex-workflow/actions/list',
-               props=<PropsContainer {'field': 'field', 'id': 'id'}>,
-               widget=MyAction(id='id', field='field'), defer=False)
-
+               props=<PropsContainer {'field': 'field', 'id': 'id', 'icon': 'cog'}>,
+               widget=MyAction(id='id', field='field'),
+               defer=False)
 
 
 WorkflowWidget
@@ -76,7 +76,7 @@ WorkflowWidget
   >>> from webob import Response, Request
 
   >>> class MyWorkflow(WorkflowWidget):
-  ...   workflow_type = 'my'
+  ...   type = 'my'
   ...   js_type = 'rex-workflow/workflows/list'
   ...
   ...   field = Field(StrVal())

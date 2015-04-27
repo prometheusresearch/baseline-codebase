@@ -38,8 +38,8 @@ class List(ActionWidget):
 
     icon = Field(StrVal(), default='list')
 
-    default_name = property(lambda s: 'List %s' % \
-                                      inflector.plural(s.entity_name))
+    default_title = property(lambda s: 'List %s' % \
+                                       inflector.plural(s.entity_name))
 
 
     entity = Field(

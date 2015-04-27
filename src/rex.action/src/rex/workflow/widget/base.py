@@ -30,12 +30,12 @@ class _ActionDelegate(Action):
         return widget.id
 
     @property
-    def name(self):
+    def title(self):
         widget = self._widget()
-        name = widget.name
-        if name is undefined:
-            name = widget.default_name
-        return name
+        title = widget.title
+        if title is undefined:
+            title = widget.default_title
+        return title
 
     @property
     def icon(self):
@@ -64,12 +64,12 @@ class ActionWidget(Widget):
     js_type = None
 
     id = Field(StrVal())
-    name = Field(StrVal(), default=undefined)
+    title = Field(StrVal(), default=undefined)
     icon = Field(StrVal(), default='cog')
 
     @property
-    def default_name(self):
-        raise NotImplementedError('%s.default_name is not implemented' % \
+    def default_title(self):
+        raise NotImplementedError('%s.default_title is not implemented' % \
                                   self.__class__.__name__)
 
     class __metaclass__(Widget.__metaclass__):

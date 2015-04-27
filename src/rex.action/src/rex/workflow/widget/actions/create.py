@@ -27,8 +27,8 @@ class Create(ActionWidget):
 
     icon = Field(StrVal(), default='plus')
 
-    default_name = property(lambda s: 'Create %s' % \
-                                      inflector.a(s.entity.entity))
+    default_title = property(lambda s: 'Create %s' % \
+                                       inflector.a(s.entity.entity))
 
     entity = PortField()
 

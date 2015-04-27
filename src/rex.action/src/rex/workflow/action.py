@@ -38,9 +38,9 @@ class Action(Extension):
                                   self.__class__.__name__)
 
     @property
-    def name(self):
-        """ Specify what name to use for the action."""
-        raise NotImplementedError('%s.name is not implemented' % \
+    def title(self):
+        """ Specify what title to use for the action."""
+        raise NotImplementedError('%s.title is not implemented' % \
                                   self.__class__.__name__)
 
     @property

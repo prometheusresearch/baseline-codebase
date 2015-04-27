@@ -49,14 +49,14 @@ var ViewStyle = {
 var View = React.createClass({
 
   render() {
-    var port = new RexWidget.Port(this.props.data.path);
+    var port = new RexWidget.Port(this.props.entity.path);
     var dataSpec = new DS.Entity(port);
     return (
       <VBox style={ViewStyle.self}>
         <HBox style={ViewStyle.header}>
           <VBox style={ViewStyle.title}>
             <h4>
-              {this.props.activityName}
+              {this.props.title}
             </h4>
           </VBox>
           <RexWidget.Button
@@ -68,7 +68,7 @@ var View = React.createClass({
         <VBox style={ViewStyle.content}>
           <ShowInfo
             dataSpec={dataSpec}
-            entity={this.props.context[this.props.data.entity]}
+            entity={this.props.context[this.props.entity.entity]}
             />
         </VBox>
       </VBox>

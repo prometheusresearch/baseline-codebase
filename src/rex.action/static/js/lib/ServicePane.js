@@ -3,12 +3,13 @@
  */
 'use strict';
 
-var React                       = require('react/addons');
-var RexWidget                   = require('rex-widget/lib/modern');
-var {VBox, HBox}                = RexWidget.Layout;
-var NextActivities              = require('./NextActivities');
+var React        = require('react/addons');
+var RexWidget    = require('rex-widget/lib/modern');
+var {VBox, HBox} = RexWidget.Layout;
+var NextActions  = require('./NextActions');
 
 var ServicePaneStyle = {
+
 };
 
 var ServicePane = React.createClass({
@@ -16,19 +17,19 @@ var ServicePane = React.createClass({
   render() {
     return (
       <VBox style={{...ServicePaneStyle.self, width: this.props.width}}>
-        {this.state.renderer(this.renderNextActivities())}
+        {this.state.renderer(this.renderNextActions())}
       </VBox>
     );
   },
 
-  renderNextActivities() {
+  renderNextActions() {
     return (
-      <NextActivities
+      <NextActions
         context={this.props.context}
-        activities={this.props.activities}
-        onOpenActivity={this.props.onOpenActivity}
-        nextActivities={this.props.nextActivities}
-        openedActivities={this.props.openedActivities}
+        actions={this.props.actions}
+        onOpenAction={this.props.onOpenAction}
+        nextActions={this.props.nextActions}
+        openedActions={this.props.openedActions}
         />
     );
   },
@@ -46,8 +47,8 @@ var ServicePane = React.createClass({
 
   getDefaultProps() {
     return {
-      activityIcon: 'chevron-right',
-      activityName: null,
+      icon: 'chevron-right',
+      title: null,
       width: 480
     };
   }

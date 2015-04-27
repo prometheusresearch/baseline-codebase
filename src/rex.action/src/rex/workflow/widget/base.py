@@ -32,10 +32,7 @@ class _ActionDelegate(Action):
     @property
     def title(self):
         widget = self._widget()
-        title = widget.title
-        if title is undefined:
-            title = widget.default_title
-        return title
+        return widget.get_title()
 
     @property
     def icon(self):
@@ -72,6 +69,10 @@ class ActionWidget(Widget):
         raise NotImplementedError('%s.default_title is not implemented' % \
                                   self.__class__.__name__)
 
+    def get_title(self):
+        return self.title if self.title is not undefined else self.default_title
+
+
     class __metaclass__(Widget.__metaclass__):
 
         def __new__(mcs, name, bases, members):
@@ -94,6 +95,18 @@ class ActionWidget(Widget):
     def context(self):
         raise NotImplementedError('%s.context() is not implemented' % \
                                   self.__class__.__name__)
+
+    def assign_props(self, props):
+        pass
+
+    @cached
+    def descriptor(self):
+        desc = super(ActionWidget, self).descriptor()
+        inputs, outputs = self.context()
+        desc.ui.props.context_spec = {'in': inputs, 'out': outputs}
+        desc.ui.props.title = self.get_title()
+        self.assign_props(desc.ui.props)
+        return desc
 
 
 class _WorkflowDelegate(Workflow):

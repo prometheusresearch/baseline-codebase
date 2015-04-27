@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.workflow_demo',
-    version = "1.11.0",
+    version = "0.1.0",
     description="Demo package for testing rex.workflow",
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -13,5 +13,10 @@ setup(
     ],
     rex_init='rex.workflow_demo',
     rex_static='static',
+    rex_bundle={
+        './www/bundle': [
+            'webpack:rex-workflow-demo'
+        ]
+    },
 )
 

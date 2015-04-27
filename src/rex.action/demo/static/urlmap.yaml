@@ -3,9 +3,10 @@ paths:
   /:
     workflow:
       actions:
-        list-individuals:
-          view-individual:
-        list-studies:
-          view-study:
-        list-individuals-to-enroll:
-          create-study-enrollment:
+        home:
+          list-individuals:
+            view-individual:
+          list-studies:
+            view-study:
+          list-individuals-to-enroll:
+            create-study-enrollment:

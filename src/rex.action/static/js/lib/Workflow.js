@@ -10,8 +10,6 @@ var RexWidget                   = require('rex-widget/lib/modern');
 var {VBox, HBox}                = RexWidget.Layout;
 var {boxShadow, border}         = RexWidget.StyleUtils;
 var Breadcrumb                  = require('./Breadcrumb');
-var NextActivities              = require('./NextActivities');
-var HomePane                    = require('./HomePane');
 var ServicePane                 = require('./ServicePane');
 
 var WorkfowItemStyle = {
@@ -85,20 +83,20 @@ var WorkflowStyle = {
   }
 };
 
-function computeCanvas(activities, focus, size, getActivityByID) {
+function computeCanvas(actions, focus, size, getActionByID) {
   var widthToDistribute;
   var scrollToIdx;
   var translateX = 0;
   var visibleIds = [];
-  for (var i = 0; i < activities.length; i++) {
-    var id = activities[i].id;
-    var activity = getActivityByID(id);
+  for (var i = 0; i < actions.length; i++) {
+    var id = actions[i].id;
+    var action = getActionByID(id);
     if (id === focus) {
       scrollToIdx = i;
       widthToDistribute = size.width;
     }
     if (widthToDistribute !== undefined) {
-      widthToDistribute = widthToDistribute - (activity.props.width || 480);
+      widthToDistribute = widthToDistribute - (action.props.width || 480);
       if (widthToDistribute >= 0) {
         visibleIds.push(id);
       } else {
@@ -108,12 +106,12 @@ function computeCanvas(activities, focus, size, getActivityByID) {
   }
   if (scrollToIdx > 0) {
     for (var i = scrollToIdx - 1; i >= 0; i--) {
-      var id = activities[i].id;
-      var activity = getActivityByID(id);
+      var id = actions[i].id;
+      var action = getActionByID(id);
 
-      translateX = translateX + (activity.props.width || 480) + WorkflowStyle.item.marginRight;
+      translateX = translateX + (action.props.width || 480) + WorkflowStyle.item.marginRight;
 
-      widthToDistribute = widthToDistribute - (activity.props.width || 480);
+      widthToDistribute = widthToDistribute - (action.props.width || 480);
       if (widthToDistribute >= 0) {
         visibleIds.unshift(id);
       }
@@ -131,17 +129,18 @@ function computeCanvas(activities, focus, size, getActivityByID) {
 var Workflow = React.createClass({
 
   render() {
+    console.log(this.props, this.state);
     if (this.state.size === null) {
       return <VBox style={WorkflowStyle.self} />;
     }
 
-    var activities = this._activities();
-    var {translateX, visibleIds, activityTree} = this.state;
+    var actions = this._actions();
+    var {translateX, visibleIds, actionsTree} = this.state;
 
-    console.log('RENDER', activityTree, this.state.context);
+    console.log('RENDER', actionsTree, this.state.context);
 
-    var activities = this._activities().map((a, idx) => {
-      var activity = this._activityByID(a.id);
+    var actions = this._actions().map((a, idx) => {
+      var action = this._actionByID(a.id);
       return (
         <WorkfowItem
           ref={a.id}
@@ -150,7 +149,7 @@ var Workflow = React.createClass({
           style={WorkflowStyle.item}
           active={visibleIds.indexOf(a.id) !== -1}
           onActivate={this.onActivate.bind(null, a.id)}>
-          {cloneWithProps(activity, {
+          {cloneWithProps(action, {
             ref: a.id,
             context: a.context,
             onContext: this.onContext.bind(null, a.id),
@@ -159,20 +158,20 @@ var Workflow = React.createClass({
         </WorkfowItem>
       );
     });
-    var breadcrumb = this._activities()
+    var breadcrumb = this._actions()
       .map(a => {
-        var activity = this._activityByID(a.id);
+        var action = this._actionByID(a.id);
         return {
           id: a.id,
-          icon: activity.props.activityIcon,
-          title: activity.props.activityName
+          icon: action.props.icon,
+          title: action.props.title
         };
       });
     return (
       <VBox style={WorkflowStyle.self}>
         <VBox ref="items" style={WorkflowStyle.items}>
           <HBox ref="itemsCanvas" style={{...WorkflowStyle.itemsCanvas, transform: `translate3d(-${translateX}px, 0, 0)`}}>
-            {activities}
+            {actions}
           </HBox>
         </VBox>
         <VBox style={WorkflowStyle.breadcrumb}>
@@ -187,12 +186,19 @@ var Workflow = React.createClass({
   },
 
   getInitialState() {
+    var scrollTo = Object.keys(this.props.actionsTree)[0];
+    var context = {};
+    var actionsTree = this.props.actionsTree[scrollTo];
     return {
       size: null,
-      scrollTo: '__home__',
-      context: {},
-      activities: [],
-      activityTree: this.props.activityTree
+      scrollTo,
+      context,
+      actions: [{
+        id: scrollTo,
+        context,
+        actionsTree
+      }],
+      actionsTree
     };
   },
 
@@ -202,108 +208,101 @@ var Workflow = React.createClass({
       var {width, height} = node.getBoundingClientRect();
       this.setState({
         size: {width, height},
-        ...this._getCanvasState(this._activities(), this.state.scrollTo, {width, height})
+        ...this._getCanvasState(this._actions(), this.state.scrollTo, {width, height})
       });
     }
   },
 
   componentDidUpdate() {
-    var active = this.state.activities[this.state.activities.length - 1].id;
-    var renderer = this.refs[active].renderService;
-    this.refs.__service__.renderInto(renderer);
+    if (this.state.actions.length > 0) {
+      var active = this.state.actions[this.state.actions.length - 1].id;
+      var renderer = this.refs[active].renderService;
+      this.refs.__service__.renderInto(renderer);
+    }
   },
 
-  _getCanvasState(activities, focus, size) {
+  _getCanvasState(actions, focus, size) {
     size = size || this.state.size;
-    return computeCanvas(activities, focus, size, this._activityByID);
+    return computeCanvas(actions, focus, size, this._actionByID);
   },
 
-  _activityByID(id) {
+  _actionByID(id) {
     if (id === '__service__') {
       return (
         <ServicePane
           context={this.state.context}
-          activities={this.props.activities}
-          onOpenActivity={this.onOpen}
-          openedActivities={this.state.activities.map(a => a.id)}
-          nextActivities={Object.keys(this.state.activityTree || {})}
+          actions={this.props.actions}
+          onOpenAction={this.onOpen}
+          openedActions={this.state.actions.map(a => a.id)}
+          nextActions={Object.keys(this.state.actionsTree || {})}
           />
       );
-    } else if (id === '__home__') {
-      return (
-        <HomePane />
-      );
     } else {
-      return constructComponent(this.props.activities[id]);
+      return constructComponent(this.props.actions[id]);
     }
   },
 
-  _activities(activities) {
-    activities = activities || this.state.activities;
-    activities = activities.slice(0);
-    activities.push({
+  _actions(actions) {
+    actions = actions || this.state.actions;
+    actions = actions.slice(0);
+    actions.push({
       id: '__service__',
       context: this.state.context,
-      activityTree: this.props.activityTree
+      actionsTree: this.props.actionsTree
     });
-    activities.unshift({
-      id: '__home__',
-      context: {},
-      activityTree: this.props.activityTree
-    });
-    return activities;
+    return actions;
   },
 
   onContext(id, context) {
-    var activities = this._activities();
-    var a = this._findActivityByID(id);
-    var activityTree;
+    var actions = this._actions();
+    var a = this._findActionByID(id);
+    var actionsTree;
     if (a.idx > -1) {
-      var nextActivities = [];
-      for (var idx = 0; idx < activities.length; idx++) {
-        var b = activities[idx];
-        if (b.id === '__service__' || b.id === '__home__') {
+      var nextActions = [];
+      for (var idx = 0; idx < actions.length; idx++) {
+        var b = actions[idx];
+        if (b.id === '__service__') {
           continue;
         }
         if (idx < a.idx) {
-          nextActivities.push(b);
+          nextActions.push(b);
         } else if (idx === a.idx) {
-          activityTree = b.activityTree;
-          nextActivities.push({...b, context});
+          actionsTree = b.actionsTree;
+          nextActions.push({...b, context});
         } else {
           break;
         }
       }
       this.setState({
         context,
-        activityTree,
-        activities: nextActivities,
-        ...this._getCanvasState(this._activities(nextActivities), this.state.scrollTo)
+        actionsTree,
+        actions: nextActions,
+        ...this._getCanvasState(this._actions(nextActions), this.state.scrollTo)
       });
     }
   },
 
   onOpen(id) {
     console.log('OPEN');
-    var {context, activityTree} = this.state;
-    activityTree = activityTree[id];
-    var activities = this.state.activities.concat({id, context, activityTree});
+    var {context, actionsTree} = this.state;
+    actionsTree = actionsTree[id];
+    var actions = this.state.actions.concat({id, context, actionsTree});
     this.setState({
-      activities,
-      activityTree,
+      actions,
+      actionsTree,
       scrollTo: id,
-        ...this._getCanvasState(this._activities(activities), id)
+        ...this._getCanvasState(this._actions(actions), id)
     });
   },
 
   onActivate(id) {
     if (id === '__service__') {
-      id = this.state.activities[this.state.activities.length - 1].id;
+      id = this.state.actions[this.state.actions.length - 1].id;
     }
-    var left = this._findActivityByID(this.state.visibleIds[0]);
-    var right = this._findActivityByID(this.state.visibleIds[this.state.visibleIds.length - 1]);
-    var active = this._findActivityByID(this.state.scrollTo);
-    var nextActive = this._findActivityByID(id);
+    var left = this._findActionByID(this.state.visibleIds[0]);
+    var right = this._findActionByID(this.state.visibleIds[this.state.visibleIds.length - 1]);
+    var active = this._findActionByID(this.state.scrollTo);
+    var nextActive = this._findActionByID(id);
     if (nextActive.idx > -1) {
       if (active.idx < nextActive.idx && Math.abs(right.idx - nextActive.idx) === 1) {
         id = active.next.id;
@@ -312,48 +311,47 @@ var Workflow = React.createClass({
       }
       this.setState({
         scrollTo: id,
-        ...this._getCanvasState(this._activities(), id)
+        ...this._getCanvasState(this._actions(), id)
       });
     }
   },
 
   onClose(id) {
     console.log('CLOSE', id);
-    var activities = this._activities();
-    var a = this._findActivityByID(id);
+    var actions = this._actions();
+    var a = this._findActionByID(id);
     if (a.idx > -1) {
-      var nextActivities = [];
-      for (var idx = 0; idx < activities.length; idx++) {
-        var b = activities[idx];
-        if (b.id === '__service__' || b.id === '__home__') {
+      var nextActions = [];
+      for (var idx = 0; idx < actions.length; idx++) {
+        var b = actions[idx];
+        if (b.id === '__service__') {
           continue;
         }
         if (idx < a.idx) {
-          nextActivities.push(b);
+          nextActions.push(b);
         } else {
           break;
         }
       }
-      console.log(a.prev.id, a.prev.activityTree, a.prev.context);
       this.setState({
         scrollTo: a.prev.id,
         context: a.prev.context,
-        activityTree: a.prev.activityTree,
-        activities: nextActivities,
-        ...this._getCanvasState(this._activities(nextActivities), a.prev.id)
+        actionsTree: a.prev.actionsTree,
+        actions: nextActions,
+        ...this._getCanvasState(this._actions(nextActions), a.prev.id)
       });
     }
   },
 
-  _findActivityByID(id) {
-    var activities = this._activities();
-    for (var i = 0; i < activities.length; i++) {
-      var activity = activities[i];
-      if (activity.id === id) {
-        return {idx: i, activity, prev: activities[i - 1], next: activities[i + 1]};
+  _findActionByID(id) {
+    var actions = this._actions();
+    for (var i = 0; i < actions.length; i++) {
+      var action = actions[i];
+      if (action.id === id) {
+        return {idx: i, action, prev: actions[i - 1], next: actions[i + 1]};
       }
     }
-    return {idx: -1, activity: null};
+    return {idx: -1, action: null};
   }
 });
 

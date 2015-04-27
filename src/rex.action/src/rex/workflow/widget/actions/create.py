@@ -61,7 +61,6 @@ class Create(ActionWidget):
                             for f in props.fields]
         if props.get('fields_override', undefined):
             props.fields = [props.fields_override.get(KeyPathVal.to_string(f.key), f) for f in props.fields]
-            del  props.fields_override
 
     def context(self):
         inputs = [v[1:] for v in self.value.values() if v.startswith('$')]

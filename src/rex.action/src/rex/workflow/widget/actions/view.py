@@ -16,6 +16,8 @@ from ..base import ActionWidget
 from ..port_field import PortField
 from ..validate import FieldDescVal
 
+__all__ = ('View',)
+
 
 class View(ActionWidget):
     """ View information about specified entity."""

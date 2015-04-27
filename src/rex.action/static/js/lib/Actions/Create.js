@@ -59,7 +59,7 @@ var Create = React.createClass({
         <HBox style={CreateStyle.header}>
           <VBox style={CreateStyle.title}>
             <h4>
-              {this.props.activityName}
+              {this.props.title}
             </h4>
           </VBox>
           <RexWidget.Button
@@ -82,17 +82,17 @@ var Create = React.createClass({
     );
   },
 
-  renderService(activities) {
+  renderService(actions) {
     var style = {marginBottom: 10, width: '30%'};
     return [
       <ServiceSection title="Form">
         <RexWidget.Button
           style={style}
           success
-          icon={this.props.activityIcon}
+          icon={this.props.icon}
           onClick={this.onSubmit}
           align="left">
-          {this.props.activityName}
+          {this.props.title}
         </RexWidget.Button>
         <RexWidget.Button
           style={style}
@@ -103,7 +103,7 @@ var Create = React.createClass({
           Cancel
         </RexWidget.Button>
       </ServiceSection>,
-      activities
+      actions
     ];
   },
 
@@ -114,7 +114,7 @@ var Create = React.createClass({
   },
 
   renderField(field) {
-    var selectFormValue = [this.props.data.entity, 0].concat(field.key);
+    var selectFormValue = [this.props.entity.entity, 0].concat(field.key);
     var key = selectFormValue.join('.');
     switch (field.type) {
       case 'file':

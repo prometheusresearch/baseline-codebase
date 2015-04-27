@@ -38,7 +38,7 @@ var List = React.createClass({
         <HBox style={ListStyle.header}>
           <VBox style={ListStyle.title}>
             <h4>
-              {this.props.activityName}
+              {this.props.title}
             </h4>
           </VBox>
           <RexWidget.Button
@@ -60,10 +60,9 @@ var List = React.createClass({
     );
   },
 
-  renderService(activities) {
-    console.log(this.props);
+  renderService(actions) {
     if (this.state.selected === null || !this.props.fields) {
-      return activities;
+      return actions;
     } else {
       var data = new RexWidget.DataSet(this.state.data, false, null);
       return [
@@ -73,7 +72,7 @@ var List = React.createClass({
             fields={this.props.fields.map(f => ({valueKey: f.key, label: f.name}))}
             />
         </ServiceSection>,
-        activities
+        actions
       ];
     }
   },

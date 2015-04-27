@@ -1,4 +1,10 @@
 
+- id: home
+  type: home
+  title: Enrollment Admin
+  text: |
+    Hello, *world*!
+
 - id: list-individuals
   type: list
   entity: individual

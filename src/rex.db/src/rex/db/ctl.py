@@ -3,8 +3,8 @@
 #
 
 
-from rex.core import Error, get_packages, StrVal
-from rex.ctl import RexTask, Topic, argument, option, fail, env
+from rex.core import Error, get_settings, get_packages, StrVal
+from rex.ctl import RexTask, Topic, argument, option, fail, env, exe
 from .database import get_db
 from .setting import HTSQLVal
 import sys
@@ -18,6 +18,7 @@ import htsql.ctl
 import htsql.ctl.error
 import htsql.ctl.shell
 import htsql.core.error
+import htsql.core.util
 import htsql.core.validator
 import htsql.core.model
 import htsql.core.classify
@@ -314,6 +315,104 @@ class GraphDBTask(RexDBTask):
                             if attributes else ''))
         lines.append('}')
         return ''.join(line+'\n' for line in lines)
+
+
+class SQLShellTask(RexTask):
+    """open SQL shell
+
+    The `sqlshell` task opens a native SQL shell to the application database.
+
+    Use option `--gateway` (`-G`) to connect to a secondary application
+    database.
+
+    Use option `--master` (`-M`) to connect to the master database on this
+    database server.
+    """
+
+    name = 'sqlshell'
+
+    class options:
+        gateway = option(
+                'G', StrVal(r'[0-9A-Za-z_]+'), default=None,
+                value_name="NAME",
+                hint="connect to a gateway database")
+        master = option('M', hint="connect to the master database")
+
+    def __call__(self):
+        # Build the application and extract HTSQL configuration.
+        with self.make(initialize=False):
+            settings = get_settings()
+        db = settings.db
+        if self.gateway is not None:
+            db = settings.gateways.get(self.gateway)
+        if isinstance(db, dict):
+            db = db.get('htsql', {}).get('db')
+        if db is None:
+            if self.gateway is None:
+                raise fail("application database is not configured")
+            else:
+                raise fail(
+                        "gateway database is not configured: `{}`",
+                        self.gateway)
+        db = htsql.core.util.DB.parse(db)
+        cmd = []
+        if db.engine == 'sqlite':
+            cmd.append('sqlite3')
+            cmd.append(db.database)
+        elif db.engine == 'pgsql':
+            cmd.append('psql')
+            if db.host:
+                cmd.extend(('-h', db.host))
+            if db.port:
+                cmd.extend(('-p', str(db.port)))
+            if db.username:
+                cmd.extend(('-U', db.username))
+            if self.master:
+                cmd.append('postgres')
+            else:
+                cmd.append(db.database)
+        elif db.engine == 'mysql':
+            cmd.append('mysql')
+            if db.host:
+                cmd.extend(('-h', db.host))
+            if db.port:
+                cmd.extend(('-P', db.port))
+            if db.username:
+                cmd.extend(('-u', db.username))
+            if db.password:
+                cmd.append('-p'+db.password)
+            if self.master:
+                cmd.append('mysql')
+            else:
+                cmd.append(db.database)
+        elif db.engine == 'oracle':
+            cmd.extend(('sqlplus', '-L'))
+            connect = ''
+            if db.username:
+                connect += db.username
+            if db.password:
+                connect += '/'+db.password
+            connect += '@' + (db.host or 'localhost')
+            if db.port:
+                connect += ':'+str(db.port)
+            connect += '/'+db.database
+            cmd.append(connect)
+        elif db.engine == 'mssql':
+            cmd.append('tsql')
+            cmd.extend(('-H', db.host or 'localhost'))
+            if db.port:
+                cmd.extend(('-p', str(db.port)))
+            if db.username:
+                cmd.extend(('-U', db.username))
+            if db.password:
+                cmd.extend(('-P', db.password))
+            if self.master:
+                cmd.extend(('-D', 'master'))
+            else:
+                cmd.extend(('-D', db.database))
+        else:
+            raise fail("unknown database engine: `{}`", db)
+        exe(cmd)
 
 
 class DatabaseAccessTopic(Topic):

@@ -108,6 +108,16 @@ using ``rex graphdb``::
 
 ``rex graphdb`` uses GraphViz_ utility to render the diagram.
 
+Sometimes you may need raw SQL access to the application database.  To start a
+native SQL shell, use command ``rex sqlshell``::
+
+    $ rex sqlshell rex.db_demo --set db=sqlite:./sandbox/db_demo.sqlite
+    SQLite version 3.8.2 2013-12-06 14:53:30
+    Enter ".help" for instructions
+    Enter SQL statements terminated with a ";"
+    sqlite> SELECT COUNT(1) FROM school;
+    9
+
 .. _GraphViz: http://www.graphviz.org/
 
 

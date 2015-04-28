@@ -27,7 +27,7 @@ tests:
 
 - sh: pip uninstall -q -y rex.db_demo
 
-- coverage-check: 90.0
+- coverage-check: 85.0
 - coverage-report: ./build/coverage
 
 - rmdir: ./sandbox

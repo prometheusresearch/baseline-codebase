@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.3.0 (2015-XX-XX)
+==================
+
+* Added ``rex sqlshell`` command.
+
+
 3.2.0 (2015-04-23)
 ==================
 

@@ -138,3 +138,19 @@ GraphViz will complain if you specify invalid format::
     Format: "csv" not recognized. Use one of: ...
     FATAL ERROR: non-zero exit code: dot -Tcsv ...
 
+
+``rex sqlshell``
+================
+
+Use command ``rex sqlshell`` to run a native SQL client against the application
+database::
+
+    >>> ctl("sqlshell")
+
+It is an error to run ``sqlshell`` if the application database is
+ill-configured::
+
+    >>> ctl("sqlshell --set db=csv:demo.csv", expect=1)     # doctest: +NORMALIZE_WHITESPACE
+    FATAL ERROR: unknown database engine: csv:///demo.csv
+
+

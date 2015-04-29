@@ -26,7 +26,7 @@ setup(
         'rex.setup>=2,<3',
     ],
     install_requires=[
-        'rex.applet>=0.3,<0.4',
+        'rex.applet>=0.3,<2',
         'rex.core>=1.9,<2',
         'rex.web>=2,<4',
         'rex.i18n>=0.4,<0.5',

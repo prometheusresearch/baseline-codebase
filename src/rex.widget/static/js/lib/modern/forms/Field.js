@@ -6,7 +6,7 @@
 var React           = require('react/addons');
 var cloneWithProps  = React.addons.cloneWithProps;
 var {HBox, VBox}    = require('../Layout');
-var Focusable       = require('../Focusable');
+var Input           = require('./Input');
 
 var FieldStyle = {
   self: {
@@ -23,39 +23,6 @@ var FieldStyle = {
   }
 };
 
-var InputStyle = {
-  self: {
-    display: 'block',
-    width: '100%',
-    height: '34px',
-    padding: '6px 12px',
-    fontSize: '14px',
-    lineHeight: 1.42857143,
-    color: '#555',
-    backgroundColor: '#fff',
-    backgroundImage: 'none',
-    border: '1px solid #ccc',
-    borderRadius: '2px',
-    boxShadow: 'inset 0 1px 1px rgba(0,0,0,.075)',
-    transition: 'border-color ease-in-out .15s,box-shadow ease-in-out .15s'
-  }
-}
-
-var Input = React.createClass({
-
-  render() {
-    var {style, focus, ...props} = this.props;
-    style = {...InputStyle.self, ...style};
-    return <input {...props} style={style} />;
-  },
-
-  getDefaultProps() {
-    return {type: "text"};
-  }
-});
-
-Input = Focusable(Input);
-
 var Field = React.createClass({
 
   render() {
@@ -65,14 +32,10 @@ var Field = React.createClass({
     var {value, errors, params, schema} = this.props.formValue;
     var showErrors = dirty || params.forceShowErrors;
     children = cloneWithProps(
-      children ?
-        React.Children.only(children) :
-        <Input />,
-      {
+      children ?  React.Children.only(children) : <Input />, {
         value: serialize(value),
         onChange: this.onChange.bind(null, onChange)
-      }
-    );
+      });
     return (
       <VBox {...props} onBlur={this.onBlur} style={FieldStyle.self}>
         <HBox>

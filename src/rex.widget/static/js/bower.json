@@ -31,7 +31,7 @@
     "generate-object-property": "http://registry.npmjs.org/generate-object-property/-/generate-object-property-1.1.0.tgz",
     "xtend": "http://registry.npmjs.org/xtend/-/xtend-4.0.0.tgz",
     "is-property": "http://registry.npmjs.org/is-property/-/is-property-1.0.2.tgz",
-    "is-my-json-valid": "http://registry.npmjs.org/is-my-json-valid/-/is-my-json-valid-2.10.0.tgz"
+    "is-my-json-valid": "prometheusresearch/is-my-json-valid#*"
   },
   "moduleType": [
     "node"

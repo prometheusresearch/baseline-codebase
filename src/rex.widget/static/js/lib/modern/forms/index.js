@@ -5,6 +5,8 @@
 
 module.exports = {
   Form: require('./Form'),
+  EntityForm: require('./EntityForm'),
+  Input: require('./Input'),
   Field: require('./Field'),
   TextareaField: require('./TextareaField'),
   Fieldset: require('../_forms/Fieldset'),

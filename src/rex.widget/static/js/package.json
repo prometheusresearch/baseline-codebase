@@ -4,7 +4,8 @@
   "description": "Rex Widget JavaScript library",
   "main": "lib/index.js",
   "dependencies": {
-    "mochify": "^1.0.2"
+    "mochify": "^1.0.2",
+    "zuul": "^2.1.1"
   },
   "devDependencies": {
     "jsx-loader": "^0.12.1",
@@ -12,7 +13,9 @@
     "mochify": "^1.0.2",
     "react": "^0.12.0",
     "reactify": "^0.17.1",
-    "sinon": "^1.11.1"
+    "sinon": "^1.11.1",
+    "zuul": "prometheusresearch/zuul",
+    "zuul-builder-webpack": "prometheusresearch/zuul-builder-webpack"
   },
   "scripts": {
     "test": "make test"

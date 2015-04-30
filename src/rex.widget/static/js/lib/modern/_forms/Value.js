@@ -4,9 +4,9 @@
 'use strict';
 
 var clone           = require('clone');
-var createValidator = require('is-my-json-valid');
 var makeKeyPath     = require('./makeKeyPath');
 var ObjectUtils     = require('./ObjectUtils');
+var SchemaUtils     = require('./SchemaUtils');
 
 /**
  * Thin wrapper over form value with associated validation information and flag
@@ -133,11 +133,15 @@ function subSchemaByKey(schema, key) {
         };
       }
       return subSchema;
-    } else if (schema.type === 'array' && schema.items) {
-      if (Array.isArray(schema.items)) {
-        return schema.items[key];
+    } else if (schema.type === 'array') {
+      if (schema.items) {
+        if (Array.isArray(schema.items)) {
+          return schema.items[key];
+        } else {
+          return schema.items;
+        }
       } else {
-        return schema.items;
+        return undefined;
       }
     } else {
       throw new Error(`${JSON.stringify(schema)} ${key}`);
@@ -163,7 +167,7 @@ function validate(schema, value) {
     return value.__errors;
   } else {
     if (schema.__validator === undefined) {
-      cache(schema, '__validator', createValidator(schema, {greedy: true, formats: schema.formats}));
+      cache(schema, '__validator', SchemaUtils.validator(schema, {formats: schema.formats}));
     }
     schema.__validator(value);
     var errors = schema.__validator.errors;

@@ -10,6 +10,9 @@ doc::
 install develop::
 	@python setup.py $@
 
+js-test:
+	$(MAKE) -C static/js test
+
 test:: unittest doctest
 
 lint::

@@ -10,9 +10,13 @@ var emptyFunction     = require('../emptyFunction');
 var Form              = require('./Form');
 var Fieldset          = require('../_forms/Fieldset');
 
+/**
+ * Form which operates on a single entity within the port response.
+ */
 var EntityForm = React.createClass({
 
   propTypes: {
+
     /**
      * Name of the entity as defined in port.
      */

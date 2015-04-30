@@ -18,7 +18,43 @@ var AutocompleteStyle = {
   }
 };
 
+/**
+ * Autocomplete component.
+ */
 var Autocomplete = React.createClass({
+
+  propTypes: {
+    /**
+     * Value.
+     */
+    value: React.PropTypes.string,
+
+    /**
+     * Callback to execute when value changes.
+     */
+    onChange: React.PropTypes.func,
+
+    /**
+     * Data specification from which to fetch options.
+     *
+     * The filter which would be applied to match against record is
+     * ``*.titleAttribute:contains=<term>`` where titleAttribute is passed via
+     * ``titleAttribute`` prop.
+     */
+    dataSpec: React.PropTypes.object,
+
+    /**
+     * Attribute used as a title of a record.
+     *
+     * Also used to specify a filter.
+     */
+    titleAttribute: React.PropTypes.string,
+
+    /**
+     * Attribute used as a value of a record.
+     */
+    valueAttribute: React.PropTypes.string,
+  },
 
   render() {
     var {value, onChange, required, style} = this.props;

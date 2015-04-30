@@ -170,7 +170,10 @@ def _make_fields(node, scope, _validator=AnyVal(), _default=NotImplemented):
                         if isinstance(item, WidgetDesc):
                             fields = fields + _make_fields(item, scope)
                         elif isinstance(item, Slot):
-                            fields.append(field.reassign(item.name))
+                            new_field = fields.reassign(item.name)
+                            if item.doc:
+                                new_field.__doc__ = item.doc
+                            fields.append(new_field)
                 elif isinstance(v, WidgetDesc):
                     fields = fields + _make_fields(v, scope)
                 else:
@@ -185,7 +188,10 @@ def _make_fields(node, scope, _validator=AnyVal(), _default=NotImplemented):
             fields += _make_fields(v, scope, _validator=get_validator_for_key(_validator, k))
     elif isinstance(node, Slot):
         default = _default if node.default is NotImplemented else node.default
-        fields.append(Field(_validator, default=default, name=str(strip_location(node.name))))
+        field = Field(_validator, default=default, name=str(strip_location(node.name)))
+        if node.doc:
+            field.__doc__ = node.doc
+        fields.append(field)
     return fields
 
 

@@ -29,7 +29,8 @@ class Authorized(Command):
     _IS_PACKAGE_URL = re.compile(r'^[a-zA-Z0-9_\-\.]+:.+$')
 
     def render(self, req, access):
-        if not self._IS_PACKAGE_URL.match(access):
+        if access.startswith('http:') or access.startswith('https:') \
+        or access.startswith('/'):
             # assuming we always resolve URLs to the same app instance
             if not access.startswith(req.host_url):
                 access = req.host_url + access
@@ -37,8 +38,11 @@ class Authorized(Command):
             mounts = sorted(mounts, key=lambda (k, v): -len(v))
             for pkg, prefix in mounts:
                 if access.startswith(prefix):
-                    access = pkg + ':' + access[len(req.host_url):]
+                    access = pkg + ':' + access[len(prefix):]
                     break
         handler = route(access)
+        if not hasattr(handler, 'access'):
+            return Response(status=501,
+                            body="Cannot obtain access for %s" % access)
         authorized = authorize(req, handler)
         return Response(json={'authorized': authorized})

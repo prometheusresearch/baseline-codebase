@@ -60,10 +60,9 @@ Application Widgets
 
 The application may declare additional widgets in ``static/widgets.yaml``  
 As in urlmap.yaml, we can use the ``include:`` key and break up the 
-configuration into separate files.  The Demo only has one special widget.
-It is DemoPage and it is declared in its own file.
-
-Here is widgets.yaml for rex.widget_demo:
+configuration into separate files.  
+In the following example of static/widgets.yaml, 
+only one file is included:
 
 .. code-block:: yaml
     :linenos:
@@ -418,12 +417,6 @@ Play with the Demo
 Once the demo server is running you can visit the application in your 
 browser at localhost:<YOUR PORT>
 
-Feel free to change the yaml files to experiment with the widgets.  If you 
-make syntax or other errors you may get a 502 Bad Gateway response when you 
-try to visit the page.  When that happens, consult rex.log (or whatever path 
-was used for the value of "daemonize2" in the rex.yaml file) and you will
-often see the cause of the problem.
-
 
 Authoring new widgets
 =====================
@@ -433,7 +426,10 @@ used by library developers who want to provide their own sets of widgets or by
 application developers who want to define custom widgets for specific
 application purposes.
 
-Widgets are defined by both Python and JavaScript code.
+Widgets are defined by both Python and JavaScript code; however new widgets 
+should use the modern js widget library in which the Python code is optional.  
+See `Complex Widgets`_ 
+for more information on using the modern js widget library.
 
 In Python, a subclass of :class:`rex.widget.Widget` must be implemented which
 provides a declarative description of all the widget's properties and state. 
@@ -446,6 +442,7 @@ will be a part of the CommonJS module package built for the application.
 
 Here is an excellent `React primer`_ and a source of further documentation.
 
+.. _Complex Widgets: ./modern.html
 .. _React: http://facebook.github.io/react
 .. _React primer: https://github.com/mikechau/react-primer-draft
 
@@ -797,7 +794,7 @@ Rex.widget_demo adds several custom widgets for use in the app.
 
 .. highlight:: python
 
-The python components are added in file 
+The python components are added in the file 
 ``/src/rex/widget_demo.py``. The StudyInfo widget is::
 
     class StudyInfo(Widget):
@@ -811,7 +808,7 @@ The python components are added in file
 
 .. highlight:: javascript
 
-The javascript components are added in file 
+The javascript components are added in the file 
 ``/static/js/lib/StudyInfo.js``. The StudyInfo widget code is::
 
     /**

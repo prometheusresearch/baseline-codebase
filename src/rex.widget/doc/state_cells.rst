@@ -45,3 +45,24 @@ The advantage of using cells for managing the UI state is that
 cells are first class values which represent 
 both ways to read and update operations. 
 We can pass them to other widgets via a single prop.
+
+Reflecting state cells value in URL parameters
+----------------------------------------------
+
+When defining a state cell, it can be configured to reflect its value to URL
+parameter::
+
+  getInitialState() {
+    return {
+      selected: RexWidget.cell(null, {param: 'user'})
+    }
+  }
+
+That way initial state cell value will be read from ``?user=...`` parameter. On
+updates to state cell parameter will be also updated.
+
+That makes browser history mechanism works with state cells. Browser back button
+now can be used to travel back in time through different ``selected`` values.
+
+Another use case for this is to pass parameters to widget from another page
+through a link as it can be generated with params for specific state cells.

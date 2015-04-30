@@ -8,6 +8,7 @@ if (Object.assign === undefined) {
 }
 
 module.exports = {
+  DataSet: require('./DataSet'),
   DataSpecification: require('./DataSpecification'),
   DataSpecificationMixin: require('./DataSpecificationMixin'),
   forceRefreshData: require('./DataSpecificationMixin').forceRefreshData,
@@ -15,6 +16,7 @@ module.exports = {
   DataTableWithSearch: require('./DataTableWithSearch'),
   createWidgetClass: require('./createWidgetClass'),
   Layout: require('./Layout'),
+  Hoverable: require('./Hoverable'),
   Autocomplete: require('./Autocomplete'),
   Preloader: require('./Preloader'),
   ShowPreloader: require('./ShowPreloader'),

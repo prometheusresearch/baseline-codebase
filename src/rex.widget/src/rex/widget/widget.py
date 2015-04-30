@@ -79,7 +79,7 @@ class Widget(WidgetBase):
             cls.fields = OrderedDict()
 
             if 'name' in members and not 'js_type' in members:
-                raise Error("missing 'js_type' attribute of the conrete Widget class")
+                raise Error("missing 'js_type' attribute of the conrete Widget class:", name)
 
             fields = []
 

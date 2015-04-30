@@ -1,0 +1,3 @@
+project: rex.widget_demo
+parameters:
+  db: pgsql:widget_demo

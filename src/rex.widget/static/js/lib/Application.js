@@ -138,7 +138,7 @@ function constructDataSpec(dataSpec) {
   var port;
   if (kind === 'port') {
     port = runtime.Storage.createPort(route);
-  } else if (kind === 'query') {
+  } else if (kind === 'query' || kind === 'handler') {
     port = new Query(route);
   }
   if (type === 'collection') {

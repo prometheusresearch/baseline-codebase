@@ -2,3 +2,9 @@ include:
 - data/todo.yaml
 - page/index.yaml
 
+paths:
+
+  /authenticated/only:
+    access: authenticated
+    port:
+      entity: todo

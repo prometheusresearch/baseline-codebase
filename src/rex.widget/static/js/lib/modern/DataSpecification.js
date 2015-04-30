@@ -97,6 +97,20 @@ class ComputedBinding extends Binding {
   }
 }
 
+function getByKeyPath(obj, keyPath) {
+  if (!Array.isArray(keyPath)) {
+    keyPath = keyPath.split('.').filter(Boolean);
+  }
+  for (var i = 0; i < keyPath.length; i++) {
+    if (!obj) {
+      return obj;
+    }
+    obj = obj[keyPath[i]];
+  }
+  return obj;
+}
+
+
 class StateBinding extends Binding {
 
   constructor(keyPath, options) {
@@ -106,7 +120,7 @@ class StateBinding extends Binding {
 
   bindToContext(context, key) {
     var bind = {};
-    bind[key] = new Value(context.state[this.keyPath], this.options);
+    bind[key] = new Value(getByKeyPath(context.state, this.keyPath), this.options);
     return bind;
   }
 }
@@ -120,7 +134,7 @@ class PropBinding extends Binding {
 
   bindToContext(context, key) {
     var bind = {};
-    bind[key] = new Value(context.props[this.keyPath], this.options);
+    bind[key] = new Value(getByKeyPath(context.props, this.keyPath), this.options);
     return bind;
   }
 }

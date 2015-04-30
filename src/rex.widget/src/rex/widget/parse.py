@@ -59,7 +59,7 @@ class WidgetDesc(namedtuple( 'WidgetDesc', ['name', 'fields'])):
     __slots__ = ()
 
 
-Slot = namedtuple('Slot', ['name', 'default'])
+Slot = namedtuple('Slot', ['name', 'default', 'doc'])
 
 
 class WidgetDescVal(Validate):
@@ -67,7 +67,8 @@ class WidgetDescVal(Validate):
 
     _validate_slot = RecordVal(
         ('name', StrVal()),
-        ('default', AnyVal(), undefined)
+        ('default', AnyVal(), undefined),
+        ('doc', StrVal(), None),
     )
 
     def __init__(self, allow_slots=False):
@@ -102,7 +103,7 @@ class WidgetDescVal(Validate):
             elif node.tag == '!slot':
                 if not self.allow_slots:
                     raise Error("Slots are not allowed in this context")
-                return Slot(node.value, NotImplemented)
+                return Slot(node.value, NotImplemented, None)
             elif node.tag == '!undefined':
                 return undefined
             else:
@@ -148,7 +149,7 @@ class WidgetDescVal(Validate):
                     for k, v in node.value
                 }
                 value = self._validate_slot(value)
-                return Slot(value.name, value.default)
+                return Slot(value.name, value.default, value.doc)
             else:
                 return {
                     self.construct(loader, k): self.construct(loader, v)

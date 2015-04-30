@@ -11,7 +11,7 @@ var LoadingIndicator = React.createClass({
   render: function() {
     return (
       <div {...this.props} className="rw-LoadingIndicator">
-        <img src={loadingIndicator} />
+        <img src={__PUBLIC_PATH__ + loadingIndicator} />
       </div>
     );
   }

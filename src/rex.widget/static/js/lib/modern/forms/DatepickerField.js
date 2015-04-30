@@ -63,9 +63,9 @@ var Datepicker = React.createClass({
   },
 
   componentDidMount() {
-    var {autoclose, startView, format} = this.props;
+    var {autoclose, startView, startDate, endDate, format} = this.props;
     this.__ignoreOnChange = false;
-    this._callDatepicker({autoclose, startView, format})
+    this._callDatepicker({autoclose, startView, startDate, endDate, format})
       .on('changeDate', this._onDateChange)
       .on('clearDate', this._clear)
   },
@@ -118,13 +118,15 @@ var Datepicker = React.createClass({
 var DatepickerField = React.createClass({
 
   render() {
-    var {startView, className, ...props} = this.props;
+    var {startView, startDate, endDate, className, ...props} = this.props;
     return (
       <Field {...props} className={cx('rw-DatepickerField', className)}>
         <Datepicker
           format="yyyy-mm-dd"
           autoclose={true}
           startView={startView}
+          startDate={startDate}
+          endDate={endDate}
           className="rw-DatepickerField__datepicker"
           />
       </Field>

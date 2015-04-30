@@ -41,8 +41,8 @@ def find_bundle():
     www = '/www'
     for package in packages:
         root_exists = package.exists(BUNDLE_ROOT)
-        js_exists = package.exists(CSS_BUNDLE)
-        css_exists = package.exists(JS_BUNDLE)
+        js_exists = package.exists(JS_BUNDLE)
+        css_exists = package.exists(CSS_BUNDLE)
         if root_exists and (js_exists or css_exists):
             root = '%s:%s' % (package.name, BUNDLE_ROOT[len(www):])
             if css_exists:

@@ -43,7 +43,7 @@ var Info = React.createClass({
       <VBox {...props}>
         {fields.map(field =>
           <InfoField key={field.valueKey} label={field.label}>
-            {this.renderField(field, data.data[field.valueKey], data.data)}
+            {this.renderField(field, getByKeyPath(data.data, field.valueKey), data.data)}
           </InfoField>)}
       </VBox>
     );
@@ -70,6 +70,19 @@ function renderValue(value) {
     return value;
   }
   return String(value);
+}
+
+function getByKeyPath(obj, keyPath) {
+  if (!Array.isArray(keyPath)) {
+    keyPath = [keyPath];
+  }
+  for (var i = 0; i < keyPath.length; i++) {
+    if (obj == null) {
+      return obj;
+    }
+    obj = obj[keyPath[i]];
+  }
+  return obj;
 }
 
 module.exports = Info;

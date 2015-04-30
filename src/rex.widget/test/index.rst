@@ -11,4 +11,4 @@ Examples/Tests
     test_template
     test_validate
     test_widget_inheritance
-
+    test_authorized

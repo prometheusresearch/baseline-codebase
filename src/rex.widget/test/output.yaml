@@ -6,6 +6,19 @@ suite: rex.widget
 tests:
 - sh: pip install -q -e ./demo
   stdout: ''
+- sh: rex dropdb --config=./demo/rex.yaml
+  stdout: |
+    Database pgsql:///widget_demo_test does not exist.
+- sh: rex deploy --config=./demo/rex.yaml
+  stdout: |
+    Creating database pgsql:///widget_demo.
+    Deploying application database to pgsql:///widget_demo.
+    Deploying rex.widget_demo.
+    Validating rex.widget_demo.
+    Done.
+- sh: rex dropdb --config=./demo/rex.yaml
+  stdout: |
+    Dropping database pgsql:///widget_demo_test.
 - sh: rex dropdb rex.widget_demo -q
   stdout: ''
 - sh: rex deploy -q rex.widget_demo

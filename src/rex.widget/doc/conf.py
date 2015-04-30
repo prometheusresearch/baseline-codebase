@@ -1,8 +1,9 @@
 #
-# Copyright (c) 2014, Prometheus Research, LLC
+# Copyright (c) 2015, Prometheus Research, LLC
 #
 
 import sphinx_rtd_theme
+import docutils_react_docgen
 
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"
@@ -15,5 +16,4 @@ master_doc = 'index'
 default_role = 'obj'
 autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
-
 

@@ -10,12 +10,14 @@ var {VBox}      = require('./Layout');
 var Select = React.createClass({
   
   render() {
-    var {noEmptyValue, data, value, options, onChange, ...props} = this.props;
+    var {noEmptyValue, data, value, options, onChange,
+      titleForEmpty, ...props} = this.props;
     return (
       <VBox {...props}>
         <BaseSelect
           options={options}
           noEmptyValue={noEmptyValue}
+          titleForEmpty={titleForEmpty}
           data={data}
           value={value}
           onValue={onChange}

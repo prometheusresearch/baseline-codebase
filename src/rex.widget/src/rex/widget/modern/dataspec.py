@@ -22,6 +22,11 @@ DataSpec = namedtuple(
     ['route', 'params'])
 
 
+KIND_PORT = 'port'
+KIND_QUERY = 'query'
+KIND_HANDLER = 'handler'
+
+
 class CollectionSpec(DataSpec):
     """ A specification for a collection dataset."""
 
@@ -34,16 +39,6 @@ class EntitySpec(DataSpec):
     __slots__ = ()
 
 
-INVALID_DATASPEC_INVALID_HANDLER = """
-Handler for a dataspec %s should be either a port or a query but got %r instead.
-""".strip()
-
-INVALID_DATASPEC_UNKNOWN_TYPE = """
-Unknown type of a dataspec provided, only EntitySpec and CollectionSpec are
-supported at the moment.
-"""
-
-
 def _encode_DataSpec(value, request):
     route, params = value
     url = url_for(request, route)
@@ -52,14 +47,16 @@ def _encode_DataSpec(value, request):
     elif isinstance(value, EntitySpec):
         tag = 'entity'
     else:
-        raise ValueError(INVALID_DATASPEC_UNKNOWN_TYPE)
+        raise ValueError(
+            'Unknown type of a dataspec provided, only EntitySpec and '
+            'CollectionSpec are supported at the moment.')
     handler = resolve_handler_for_route(route)
     if hasattr(handler, 'port'):
-        kind = 'port'
+        kind = KIND_PORT
     elif hasattr(handler, 'query'):
-        kind = 'query'
+        kind = KIND_QUERY
     else:
-        raise ValueError(INVALID_DATASPEC_INVALID_HANDLER % (route, handler))
+        kind = KIND_HANDLER
     return {'__dataspec__': (tag, url, params, kind)}
 
 

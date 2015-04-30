@@ -65,8 +65,51 @@ function isPagination(params, prevParams) {
   return diff.length === 1 && diff[0] === SKIP_PARAM;
 }
 
+/**
+ * DataTable component.
+ */
 var DataTable = React.createClass({
   mixins: [DataSpecificationMixin],
+
+  propTypes: {
+
+    /**
+     * An array of column specifications.
+     *
+     * Each column has a form of::
+     *
+     *   {
+     *     key: <column key>,
+     *     name: <column name>,
+     *     width: <column width>,
+     *     sortable: <if column should be made sortable>,
+     *     resizable: <if column should be made resizable>
+     *   }
+     *
+     */
+    columns: React.PropTypes.array.isRequired,
+
+    /**
+     * Data specification which is used to fetch data for datatable.
+     */
+    dataSpec: React.PropTypes.object.isRequired,
+
+    /**
+     * If DataTable should allow selecting its rows.
+     */
+    selectable: React.PropTypes.bool,
+
+    /**
+     * Callback which is executed when selected row changes, it is provided with
+     * row id and row itself as its arguments.
+     */
+    onSelected: React.PropTypes.func,
+
+    /**
+     * Currently selected row id.
+     */
+    selected: React.PropTypes.string
+  },
 
   dataSpecs: {
     dataSpec: new DataSpecification.Collection(null, {

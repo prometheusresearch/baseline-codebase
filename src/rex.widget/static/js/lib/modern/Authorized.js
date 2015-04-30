@@ -7,13 +7,44 @@ var React = require('react');
 var Promise = require('./Promise');
 var request = require('../request');
 
+/**
+ * Component which renders its children only if authorization check succeeds.
+ * Authorization check is performed against the URL passed in as ``access``
+ * prop.
+ */
 var Authorized = React.createClass({
 
+  propTypes: {
+    /**
+     * An URL in pkg:/path format to check if current user has access to.
+     */
+    access: React.PropTypes.string.isRequired,
+
+    /**
+     * Elements to render in case authorization check succeeds.
+     */
+    children: React.PropTypes.element,
+
+    /**
+     * Elements to render in case authorization check fails.
+     */
+    fallback: React.PropTypes.element
+  },
+
   render() {
-    if (!this.state.access) {
-      return null;
+    var {children, fallback} = this.props;
+    var {access} = this.state;
+    if (!access) {
+      return fallback;
     } else {
-      return React.Children.only(this.props.children);
+      return React.Children.only(children);
+    }
+  },
+
+  getDefaultProps() {
+    return {
+      access: null,
+      fallback: null
     }
   },
 

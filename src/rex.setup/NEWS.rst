@@ -32,6 +32,7 @@
   or fallback to implicit configuration if "style/index.less" exists in JS
   application root.
 
+* Add docutils_react_docgen package to deps (used to document React components).
 
 2.2.0 (2015-03-26)
 ==================

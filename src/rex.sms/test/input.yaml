@@ -11,6 +11,7 @@ tests:
       - coverage: setup.cfg
 
       - sh: pip install --quiet mock
+        ignore: true
       - sh: pip install --quiet --editable ./demo
 
       - doctest: README.rst

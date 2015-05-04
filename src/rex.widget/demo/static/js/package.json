@@ -1,5 +1,5 @@
 {
-  "name": "todomvc",
+  "name": "rex-widget-demo",
   "version": "0.2.20",
   "description": "TodoMVC in RexDB",
   "main": "./lib/index.js",

@@ -30,6 +30,7 @@ class DataGrid(Widget):
     columns = Field(SeqVal(ColumnVal()))
     data = Field(CollectionSpecVal(), default=undefined)
     with_search_filter = Field(BoolVal(), default=False)
+    search_placeholder = Field(StrVal(), default=undefined)
 
 
 class Info(Widget):

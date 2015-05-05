@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-0.15.0 (2015-xx-xx)
+0.15.0 (2015-05-05)
 ===================
 
 * Added a common/default implementation of Instrument.get_version().

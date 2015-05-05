@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.29.0 (2015-xx-xx)
+0.29.0 (2015-05-05)
 ===================
 
 - Added common/default implementations of:

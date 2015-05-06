@@ -37,11 +37,12 @@ var SelectField = React.createClass({
   },
 
   render() {
-    var {noEmptyValue, options, ...props} = this.props;
+    var {noEmptyValue, options, disabled, ...props} = this.props;
     var {dataSpec: data} = this.data;
     return (
       <Field {...props} data={undefined}>
         <Select
+          disabled={disabled}
           options={options}
           noEmptyValue={noEmptyValue}
           data={data}

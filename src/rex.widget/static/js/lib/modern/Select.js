@@ -11,10 +11,11 @@ var Select = React.createClass({
   
   render() {
     var {noEmptyValue, data, value, options, onChange,
-      titleForEmpty, ...props} = this.props;
+      titleForEmpty, disabled, ...props} = this.props;
     return (
       <VBox {...props}>
         <BaseSelect
+          disabled={disabled}
           options={options}
           noEmptyValue={noEmptyValue}
           titleForEmpty={titleForEmpty}

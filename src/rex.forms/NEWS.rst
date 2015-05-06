@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.29.1 (2015-xx-xx)
+0.29.1 (2015-05-06)
 ===================
 
 - Added Spanish translations.

@@ -5,7 +5,8 @@
 
 from rex.web import Pipe
 
-from .core import get_i18n_context, KEY_LOCALE, KEY_TIMEZONE
+from .core import get_i18n_context, KEY_LOCALE, KEY_TIMEZONE, \
+    get_locale_identifier
 from .extensions import LocaleDetector, TimezoneDetector
 
 
@@ -26,7 +27,8 @@ class I18NPipe(Pipe):
         if not i18n.has_locale():
             i18n.set_locale(LocaleDetector.detect_locale(request))
         locale = i18n.get_locale()
-        request.environ['rex.session'][KEY_LOCALE] = str(locale)
+        request.environ['rex.session'][KEY_LOCALE] = \
+            get_locale_identifier(locale)
 
     def establish_timezone(self, request):
         i18n = get_i18n_context()

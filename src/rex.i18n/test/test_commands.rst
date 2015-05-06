@@ -9,7 +9,7 @@ Set up the environment::
 
     >>> from rex.core import Rex
     >>> from webob import Request
-    >>> rex = Rex('rex.i18n', i18n_supported_locales=['en', 'fr', 'fil'])
+    >>> rex = Rex('rex.i18n', i18n_supported_locales=['en', 'fr', 'fil', 'en-GB'])
     >>> rex.on()
 
 Make sure all the Commands are available::
@@ -59,11 +59,11 @@ If you provide a locale that is not registered in the
 You can provide a ``redirect`` parameter to tell it where to redirect you to::
 
     >>> req = Request.blank('/switch', method='POST')
-    >>> req.POST['locale'] = 'fr'
+    >>> req.POST['locale'] = 'en-GB'
     >>> req.POST['redirect'] = 'http://google.com'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     302 Found
-    X-RexI18N-Locale: fr
+    X-RexI18N-Locale: en-GB
     ...
     Location: http://google.com
     ...
@@ -184,7 +184,7 @@ locales supported by the application::
     Content-Length: ...
     Set-Cookie: ...
     <BLANKLINE>
-    {"active": "en", "default": "en", "available": [{"id": "en", "name": {"default": "English", "current": "English", "native": "English"}}, {"id": "fr", "name": {"default": "French", "current": "French", "native": "français"}}, {"id": "fil", "name": {"default": "Filipino", "current": "Filipino", "native": "Filipino"}}]}
+    {"active": "en", "default": "en", "available": [{"id": "en", "name": {"default": "English", "current": "English", "native": "English"}}, {"id": "fr", "name": {"default": "French", "current": "French", "native": "français"}}, {"id": "fil", "name": {"default": "Filipino", "current": "Filipino", "native": "Filipino"}}, {"id": "en-GB", "name": {"default": "English (United Kingdom)", "current": "English (United Kingdom)", "native": "English (United Kingdom)"}}]}
 
 
 

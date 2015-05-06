@@ -3,12 +3,12 @@
 #
 
 
-from babel import Locale, UnknownLocaleError
 from pytz import timezone, UnknownTimeZoneError
 
-from rex.core import Extension, get_settings
+from rex.core import Extension, get_settings, Error
 
-from .core import KEY_LOCALE, KEY_TIMEZONE
+from .core import KEY_LOCALE, KEY_TIMEZONE, get_locale_identifier
+from .validators import LocaleVal
 
 
 __all__ = (
@@ -78,8 +78,8 @@ class SessionLocaleDetector(LocaleDetector):
                 and KEY_LOCALE in request.environ['rex.session']:
             lid = request.environ['rex.session'][KEY_LOCALE]
             try:
-                return Locale.parse(lid)
-            except UnknownLocaleError:
+                return LocaleVal()(lid)
+            except Error:
                 return None
         return None
 
@@ -95,13 +95,42 @@ class AcceptLanguageLocaleDetector(LocaleDetector):
 
     @classmethod
     def detect_locale(cls, request):
-        lid = request.accept_language.best_match(
-            [l.language for l in get_settings().i18n_supported_locales],
-        )
+        supported = [
+            get_locale_identifier(l).lower()
+            for l in get_settings().i18n_supported_locales
+        ]
+
+        lid = None
+        if request.accept_language:
+            # The request.accept_language.best_match() algorithm provided by
+            # WebOb isn't great. For a list of equal-quality offered languages,
+            # it doesn't give preference to exact matches. So, if both en and
+            # en_GB are offered, but the user prefers en_GB, the WebOb
+            # algorithm may return en, depending on the ordering of the offered
+            # list.
+            #
+            # So, before using WebOb's logic, we'll check on our own for exact
+            # matches.
+
+            # pylint: disable=protected-access
+            desired = sorted(
+                request.accept_language._parsed_nonzero,
+                key=lambda x: x[1],
+                reverse=True,
+            )
+
+            for lang, _ in desired:
+                if lang.lower() in supported:
+                    lid = lang
+                    break
+
+        if not lid:
+            lid = request.accept_language.best_match(supported)
+
         if lid:
             try:
-                return Locale.parse(lid)
-            except UnknownLocaleError:  # pragma: no cover
+                return LocaleVal()(lid)
+            except Error:  # pragma: no cover
                 return None
         return None  # pragma: no cover
 

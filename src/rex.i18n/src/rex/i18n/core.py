@@ -5,12 +5,13 @@
 
 import threading
 
-from babel import Locale
 from babel.support import Translations, NullTranslations
 from gettext import GNUTranslations
 from speaklater import make_lazy_string
 
 from rex.core import get_settings, get_packages, cached
+
+from .validators import LocaleVal
 
 
 __all__ = (
@@ -28,6 +29,7 @@ __all__ = (
     'get_i18n_context',
     'get_locale',
     'get_locale_direction',
+    'get_locale_identifier',
     'get_timezone',
     'get_translations',
     'get_json_translations',
@@ -179,7 +181,7 @@ def get_locale_direction(locale=None):
     :param locale:
         the locale to get the script direction of; if not specified the current
         locale is used
-    :type locale: string
+    :type locale: string or Locale
     :returns:
         ``lrt`` to indicate a left-to-right script or ``rtl`` to indicate a
         right-to-left script
@@ -188,10 +190,37 @@ def get_locale_direction(locale=None):
     if not locale:
         locale = get_locale()
     else:
-        locale = Locale.parse(locale)
+        locale = LocaleVal()(locale)
+
     if locale.language in RTL_LANGUAGES:
         return DIRECTION_RTL
     return DIRECTION_LTR
+
+
+def get_locale_identifier(locale=None, sep='-'):
+    """
+    Retrieves the string identifier for the specified locale.
+
+    :param locale:
+        the locale to get the identifier of; if not specified, the current
+        locale is used
+    :type locale: string or Locale
+    :param sep:
+        the token to use to separate the parts of the identifier; if not
+        specified, defaults to ``-``
+    :type sep: str
+    :returns: the string identifier for the locale
+    """
+
+    if not locale:
+        locale = get_locale()
+    else:
+        locale = LocaleVal()(locale)
+
+    identifier = locale.language
+    if locale.territory:
+        identifier = '%s%s%s' % (identifier, sep, locale.territory)
+    return identifier
 
 
 def get_timezone():
@@ -211,7 +240,7 @@ def get_translations(locale=None, domain=DOMAIN_BACKEND):
     :param locale:
         the locale to retrieve the translations for; if not specified, defaults
         to the locale being used on te current thread
-    :type locale: string
+    :type locale: string or Locale
     :param domain:
         the translation domain to retrieve; if not specified, defaults to
         ``backend``
@@ -220,7 +249,9 @@ def get_translations(locale=None, domain=DOMAIN_BACKEND):
     """
 
     if not locale:
-        locale = str(get_locale())
+        locale = get_locale()
+    else:
+        locale = LocaleVal()(locale)
 
     return collect_translations(locale, domain)
 
@@ -259,6 +290,7 @@ class RexTranslations(Translations):
 @cached
 def collect_translations(locale, domain):
     translations = None
+    locale = LocaleVal()(locale)
 
     for package in reversed(get_packages()):
         if not package.exists('i18n'):
@@ -274,7 +306,7 @@ def collect_translations(locale, domain):
         else:
             translations = pkg_tx
 
-    default = str(get_settings().i18n_default_locale)
+    default = get_settings().i18n_default_locale
     if locale != default:
         default_translations = collect_translations(default, domain)
         if not isinstance(default_translations, NullTranslations):
@@ -292,7 +324,7 @@ def get_json_translations(locale, domain):
     object.
 
     :param locale: the locale to to render into JSON
-    :type locale: string
+    :type locale: string or Locale
     :param domain: the gettext domain to render into JSON
     :type domain: string
     :returns: a JSON-encoded string of the gettext data
@@ -303,7 +335,7 @@ def get_json_translations(locale, domain):
     contents = {
         '': {
             'domain': domain,
-            'lang': locale,
+            'lang': get_locale_identifier(locale),
             'plural_forms': 'nplurals=2; plural=(n != 1)',
         }
     }

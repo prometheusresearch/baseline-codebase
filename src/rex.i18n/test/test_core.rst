@@ -39,6 +39,26 @@ specified locale::
     >>> get_locale_direction('ar')
     'rtl'
 
+    >>> get_locale_direction('en-GB')
+    'ltr'
+
+
+
+get_locale_identifier
+=====================
+
+This function will return the identifier string for the given locale object::
+
+    >>> from babel import Locale
+
+    >>> get_locale_identifier()
+    'fr'
+
+    >>> get_locale_identifier(Locale('en', 'GB'))
+    'en-GB'
+    >>> get_locale_identifier(Locale('en', 'GB'), sep='_')
+    'en_GB'
+
 
 get_timezone
 ============

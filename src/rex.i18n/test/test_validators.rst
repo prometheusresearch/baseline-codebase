@@ -8,19 +8,27 @@ Validators
 LocaleVal
 =========
 
-The LocaleVal validator takes in a POSIX locale identifier or a Babel
+The LocaleVal validator takes in a POSIX/RFC5646 locale identifier or a Babel
 ``Locale`` and normalizes it to a ``Locale``::
 
     >>> from rex.i18n import LocaleVal
     >>> validator = LocaleVal()
+
     >>> validator('en')
     Locale('en')
-    >>> validator('es_CO')
-    Locale('es', territory='CO')
+    >>> validator('en_GB')
+    Locale('en', territory='GB')
+    >>> validator('en_GB.UTF-8')
+    Locale('en', territory='GB')
+    >>> validator('en-GB')
+    Locale('en', territory='GB')
+    >>> validator('zh-Hans')
+    Locale('zh', script='Hans')
+
     >>> validator('foobar')
     Traceback (most recent call last):
         ...
-    Error: expected a POSIX locale identifier, got 'foobar'
+    Error: expected a POSIX or RFC5646 locale identifier, got 'foobar'
 
     >>> from babel import Locale
     >>> validator(Locale.parse('en'))

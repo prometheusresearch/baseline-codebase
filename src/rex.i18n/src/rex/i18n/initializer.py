@@ -11,7 +11,7 @@ from rex.web import get_jinja
 
 from . import filters
 from .core import get_translations, get_locale, get_timezone, \
-    get_locale_direction, DIRECTION_LTR, DIRECTION_RTL
+    get_locale_direction, DIRECTION_LTR, DIRECTION_RTL, get_locale_identifier
 
 
 __all__ = (
@@ -42,7 +42,7 @@ class I18NInitialize(Initialize):
 
         # Load in some globals.
         jinja.globals['CURRENT_LOCALE'] = make_lazy_string(
-            lambda: str(get_locale()),
+            lambda: get_locale_identifier(get_locale()),
         )
         jinja.globals['CURRENT_LOCALE_DIRECTION'] = make_lazy_string(
             lambda: get_locale_direction(),
@@ -74,7 +74,7 @@ class SupportedLocaleList(object):
     def __getitem__(self, key):
         if isinstance(key, int):
             locale = self.locales[key]
-            if locale == get_locale():
+            if locale.language == get_locale().language:
                 description = locale.get_display_name(get_locale())
             else:
                 description = u'%s (%s)' % (
@@ -83,7 +83,7 @@ class SupportedLocaleList(object):
                 )
 
             return (
-                locale.language,
+                get_locale_identifier(locale),
                 description,
             )
         else:

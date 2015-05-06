@@ -19,16 +19,20 @@ __all__ = (
 
 class LocaleVal(StrVal):
     """
-    Accepts POSIX locale identifiers and coerces them to ``babel.Locale``
-    objects.
+    Accepts POSIX or RFC5646 locale identifiers and coerces them to
+    ``babel.Locale`` objects.
     """
 
     def __call__(self, data):
+        if isinstance(data, basestring):
+            data = data.replace('-', '_')
         try:
             return Locale.parse(data)
         except UnknownLocaleError:
             raise Error(
-                'expected a POSIX locale identifier, got \'%s\'' % data
+                'expected a POSIX or RFC5646 locale identifier, got \'%s\'' % (
+                    data,
+                )
             )
 
 

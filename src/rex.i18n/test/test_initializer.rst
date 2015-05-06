@@ -9,7 +9,7 @@ Set up the environment::
 
     >>> from rex.core import Rex
     >>> from rex.web import get_jinja
-    >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['en', 'fr'])
+    >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['en', 'fr', 'en-GB'])
     >>> app.on()
     >>> jinja = get_jinja()
 
@@ -34,11 +34,15 @@ environment::
     >>> jinja.globals['CURRENT_TIMEZONE'] == 'UTC'
     True
     >>> supported = jinja.globals['SUPPORTED_LOCALES']
-    >>> len(supported) == 2
+    >>> len(supported) == 3
     True
     >>> supported[0][0] == 'en'
     True
     >>> supported[0][1] == u'English'
+    True
+    >>> supported[2][0] == 'en-GB'
+    True
+    >>> supported[2][1] == u'English (United Kingdom)'
     True
 
 
@@ -56,9 +60,9 @@ translation of locale names, as well as pseudo-dictionary-like access::
         ...
     KeyError: 'foo'
     >>> list(supported)
-    [('en', u'English'), ('fr', u'French (fran\xe7ais)')]
+    [('en', u'English'), ('fr', u'French (fran\xe7ais)'), ('en-GB', u'English (United Kingdom)')]
     >>> supported
-    (('en', u'English'), ('fr', u'French (fran\xe7ais)'))
+    (('en', u'English'), ('fr', u'French (fran\xe7ais)'), ('en-GB', u'English (United Kingdom)'))
 
 
 The initializer will inject a series of filters into the Jinja environment::

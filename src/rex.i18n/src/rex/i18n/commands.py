@@ -14,7 +14,7 @@ from rex.core import get_settings, StrVal, get_packages, cached
 from rex.web import Command, Parameter
 
 from .core import KEY_LOCALE, DOMAIN_FRONTEND, get_json_translations, \
-    get_locale
+    get_locale, get_locale_identifier
 from .validators import LocaleVal
 
 
@@ -56,7 +56,8 @@ class SwitchLocaleCommand(Command):
         if locale not in get_settings().i18n_supported_locales:
             raise HTTPBadRequest('"%s" is not a supported locale' % locale)
 
-        request.environ['rex.session'][KEY_LOCALE] = str(locale)
+        request.environ['rex.session'][KEY_LOCALE] = \
+            get_locale_identifier(locale)
 
         redirect = redirect or request.referer or '/'
 
@@ -97,7 +98,7 @@ class GetTranslationsCommand(Command):
         if locale not in get_settings().i18n_supported_locales:
             raise HTTPBadRequest('"%s" is not a supported locale' % locale)
 
-        translations = get_json_translations(str(locale), DOMAIN_FRONTEND)
+        translations = get_json_translations(locale, DOMAIN_FRONTEND)
 
         return Response(
             json.dumps(translations, ensure_ascii=False),
@@ -205,9 +206,10 @@ class GetLocaleDetailCommand(CldrPackagerCommand):
             'main/%s/numbers.json',
         ]
 
+        locale_id = get_locale_identifier(parameters['locale'], sep='_')
         for idx, mask in enumerate(components):
-            if self.component_exists(mask % parameters['locale']):
-                components[idx] = mask % parameters['locale']
+            if self.component_exists(mask % locale_id):
+                components[idx] = mask % locale_id
             else:
                 components[idx] = mask % 'en'
 
@@ -245,7 +247,7 @@ class GetActiveLocalesCommand(Command):
 
         for locale in get_settings().i18n_supported_locales:
             locales.append({
-                'id': locale.language,
+                'id': get_locale_identifier(locale),
                 'name': {
                     'native': locale.get_display_name(),
                     'default': locale.get_display_name(default_locale),
@@ -254,8 +256,8 @@ class GetActiveLocalesCommand(Command):
             })
 
         payload = {
-            'active': active_locale.language,
-            'default': default_locale.language,
+            'active': get_locale_identifier(active_locale),
+            'default': get_locale_identifier(default_locale),
             'available': locales,
         }
 

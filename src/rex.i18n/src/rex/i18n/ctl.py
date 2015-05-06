@@ -15,7 +15,9 @@ from babel.messages.frontend import CommandLineInterface
 from rex.core import Error
 from rex.ctl import Task, argument, option
 
-from .core import ALL_DOMAINS, DOMAIN_BACKEND, DOMAIN_FRONTEND
+from .core import ALL_DOMAINS, DOMAIN_BACKEND, DOMAIN_FRONTEND, \
+    get_locale_identifier
+from .validators import LocaleVal
 
 
 __all__ = (
@@ -32,9 +34,9 @@ __all__ = (
 BABEL_MAPPERS = dict([(d, '') for d in ALL_DOMAINS])
 
 BABEL_MAPPERS[DOMAIN_BACKEND] = """[python: src/**.py]
-[jinja2: static/template/**.html]
+[jinja2: static/template/**.*]
 extensions=jinja2.ext.do,jinja2.ext.loopcontrols
-[jinja2: static/templates/**.html]
+[jinja2: static/templates/**.*]
 extensions=jinja2.ext.do,jinja2.ext.loopcontrols
 [jinja2: static/www/**.html]
 extensions=jinja2.ext.do,jinja2.ext.loopcontrols
@@ -174,13 +176,15 @@ class I18NInitTask(I18NTask):
     name = 'i18n-init'
 
     class arguments(object):  # noqa
-        locale = argument(str)
+        locale = argument(LocaleVal())
         project_path = argument(str, default=os.getcwd())
 
     def __call__(self):
         base_args = ['pybabel', 'init']
 
-        base_args.append('--locale=%s' % self.locale)
+        base_args.append(
+            '--locale=%s' % get_locale_identifier(self.locale, sep='_')
+        )
 
         for domain in self.domain:
             args = base_args[:]
@@ -217,7 +221,7 @@ class I18NUpdateTask(I18NTask):
     class options(object):  # noqa
         locale = option(
             None,
-            str,
+            LocaleVal(),
             default=None,
             hint='the locale to update; if not specified, all locales in the'
             ' project are updated',
@@ -227,7 +231,9 @@ class I18NUpdateTask(I18NTask):
         base_args = ['pybabel', 'update']
 
         if self.locale:
-            base_args.append('--locale=%s' % self.locale)
+            base_args.append(
+                '--locale=%s' % get_locale_identifier(self.locale, sep='_')
+            )
 
         for domain in self.domain:
             args = base_args[:]
@@ -264,7 +270,7 @@ class I18NCompileTask(I18NTask):
     class options(object):  # noqa
         locale = option(
             None,
-            str,
+            LocaleVal(),
             default=None,
             hint='the locale to compile; if not specified, all locales in the'
             ' project are compiled',
@@ -274,7 +280,9 @@ class I18NCompileTask(I18NTask):
         base_args = ['pybabel', 'compile', '--use-fuzzy']
 
         if self.locale:
-            base_args.append('--locale=%s' % self.locale)
+            base_args.append(
+                '--locale=%s' % get_locale_identifier(self.locale, sep='_')
+            )
 
         for domain in self.domain:
             args = base_args[:]

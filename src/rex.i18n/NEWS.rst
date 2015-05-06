@@ -5,6 +5,15 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.4.2 (2015-xx-xx)
+==================
+
+* Numerous fixes to better support regional language variations (e.g., "en" vs
+  "en-GB", etc).
+* The i18n-extract command will now extract strings from any type of file in
+  the /static/template or /static/templates directories.
+
+
 0.4.1 (2015-02-20)
 ==================
 

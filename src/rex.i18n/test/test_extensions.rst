@@ -10,7 +10,7 @@ Set up the environment::
     >>> from rex.i18n.extensions import *
     >>> from rex.core import Rex
     >>> from webob import Request
-    >>> rex = Rex('rex.i18n', i18n_default_locale='en', i18n_supported_locales=['en', 'fr'])
+    >>> rex = Rex('rex.i18n', i18n_default_locale='en', i18n_supported_locales=['en', 'fr', 'en-GB'])
     >>> rex.on()
 
 
@@ -57,9 +57,13 @@ Accept-Language header sent by the browser::
     >>> AcceptLanguageLocaleDetector.detect_locale(req)
     Locale('en')
 
-    >>> req.accept_language = 'fr, en;q=0.5, ar'
+    >>> req.accept_language = 'fr,en;q=0.5,ar'
     >>> AcceptLanguageLocaleDetector.detect_locale(req)
     Locale('fr')
+
+    >>> req.accept_language = 'en-GB,en;q=0.5'
+    >>> AcceptLanguageLocaleDetector.detect_locale(req)
+    Locale('en', territory='GB')
 
 
 DefaultLocaleDetector

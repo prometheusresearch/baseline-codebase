@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+0.2.21 (2015-xx-xx)
+===================
+
+* <SelectField />: propagate disabled prop to DOM element
+
 0.2.20 (2015-05-05)
 ===================
 

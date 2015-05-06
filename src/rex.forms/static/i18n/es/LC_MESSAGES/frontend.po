@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the rex.forms project.
 # 
 # Translators:
+# Glorili Alejandro <glorili@prometheusresearch.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: rex.forms\n"
 "Report-Msgid-Bugs-To: contact@prometheusresearch.com\n"
 "POT-Creation-Date: 2014-12-18 13:45-0500\n"
-"PO-Revision-Date: 2014-12-18 18:46+0000\n"
-"Last-Translator: Jason Simeone\n"
+"PO-Revision-Date: 2015-05-05 20:16+0000\n"
+"Last-Translator: Glorili Alejandro <glorili@prometheusresearch.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/rexforms/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,219 +21,219 @@ msgstr ""
 
 #: static/js/lib/AudioPlayer.js:199
 msgid "Play the Recording"
-msgstr ""
+msgstr "Escuchar la grabación"
 
 #: static/js/lib/AudioPlayer.js:205
 msgid "Pause the Recording"
-msgstr ""
+msgstr "Pausar la grabación"
 
 #: static/js/lib/AudioPlayer.js:218
 msgid "Restart the Recording"
-msgstr ""
+msgstr "Reiniciar la grabación"
 
 #: static/js/lib/types.js:59
 msgid "Please enter a valid number."
-msgstr ""
+msgstr "Por favor entre un número válido."
 
 #: static/js/lib/types.js:91
 msgid "Please enter a valid whole number."
-msgstr ""
+msgstr "Por favor entre un número entero válido."
 
 #: static/js/lib/types.js:129
 msgid "Only true or false values are allowed."
-msgstr ""
+msgstr "Solo se aceptan las respuestas de cierto o falso."
 
 #: static/js/lib/types.js:197
 msgid "Dates must be entered in YYYY-MM-DD format."
-msgstr ""
+msgstr "La fecha debe estar en formato de YYYY-MM-DD."
 
 #: static/js/lib/types.js:201
 msgid "Please enter a valid date."
-msgstr ""
+msgstr "Por favor entre una fecha válida."
 
 #: static/js/lib/types.js:228
 msgid ""
 "Times must be entered in HH:MM:SS format. They are 24-hour based, and "
 "seconds are optional."
-msgstr ""
+msgstr "Horas deben estar en formato de HH:MM:SS. Las horas se calculan con una base de 24 horas, y es opcional notar los segundos."
 
 #: static/js/lib/types.js:268
 msgid ""
 "Date/Time values must be entered in YYYY-MM-DD HH:MM:SS format. Times are "
 "24-hour based, and seconds are optional."
-msgstr ""
+msgstr "Respuestas de fecha/hora deben estar en formato de YYYY-MM-DD HH:MM:SS. Las horas se calculan con una base de 24 horas, y es opcional notar los segundos."
 
 #: static/js/lib/validators.js:41
 #, python-format
 msgid "Cannot measure length of \"%(value)s\""
-msgstr ""
+msgstr "No se puede calcular la longitud de \"%(value)s\""
 
 #: static/js/lib/validators.js:46
 #, python-format
 msgid "Cannot be less than a length of %(value)s"
-msgstr ""
+msgstr "No puede ser menos de %(value)s"
 
 #: static/js/lib/validators.js:51
 #, python-format
 msgid "Cannot be more than a length of %(value)s"
-msgstr ""
+msgstr "No puede ser más de %(value)s"
 
 #: static/js/lib/validators.js:62
 msgid "Does not match the accepted pattern"
-msgstr ""
+msgstr "No coincide con el modelo aceptado"
 
 #: static/js/lib/validators.js:74
 #, python-format
 msgid "\"%(value)s\" is not an acceptable value"
-msgstr ""
+msgstr "\"%(value)s\" no es una respuesta aceptable"
 
 #: static/js/lib/validators.js:101
 #, python-format
 msgid "Cannot be less than %(value)s"
-msgstr ""
+msgstr "No puede ser menos de %(value)s"
 
 #: static/js/lib/validators.js:107
 #, python-format
 msgid "Cannot be greater than %(value)s"
-msgstr ""
+msgstr "No puede ser más de %(value)s"
 
 #: static/js/lib/validators.js:192
 msgid "This number is outside the acceptible bounds for an integer."
-msgstr ""
+msgstr "Este número está fuera de los límites aceptables para un numero entero."
 
 #: static/js/lib/form/EditableQuestionWrapper.js:39
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 #: static/js/lib/form/EditableQuestionWrapper.js:39
 msgid "Edit"
-msgstr ""
+msgstr "Editar"
 
 #: static/js/lib/form/EditableQuestionWrapper.js:44
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: static/js/lib/form/Form.js:67
 msgid "Complete Form"
-msgstr ""
+msgstr "Completar la forma"
 
 #: static/js/lib/form/Form.js:68
 msgid "Review Responses"
-msgstr ""
+msgstr "Revisar las respuestas"
 
 #: static/js/lib/form/FormEntry.js:148
 #, python-format
 msgid "Page %(page)s of %(total)s"
-msgstr ""
+msgstr "Página %(page)s de %(total)s"
 
 #: static/js/lib/form/FormEventsContextMixin.js:112
 msgid "Invalid value."
-msgstr ""
+msgstr "Respuesta inválida."
 
 #: static/js/lib/form/FormOverview.js:16
 msgid ""
 "Please review your entered values before completing the form. You can press "
 "the <strong>Edit</strong> button at the top-right corner of the question to "
 "edit its value."
-msgstr ""
+msgstr "Por favor revise sus respuestas antes de completar la forma. Puede hacer clic en el botón <strong>Edit</strong> en la parte superior derecha de la pregunta para cambiar su respuesta."
 
 #: static/js/lib/form/PageNavigation.js:30
 msgid "Previous Page"
-msgstr ""
+msgstr "Página anterior"
 
 #: static/js/lib/form/PageNavigation.js:38
 msgid ""
 "Please address all required questions and errors on this page in order to "
 "continue."
-msgstr ""
+msgstr "Por favor complete todas las preguntas requeridas y arregle todos los errores en esta página para continuar. "
 
 #: static/js/lib/form/PageNavigation.js:45
 msgid "Next Page"
-msgstr ""
+msgstr "Página próxima "
 
 #: static/js/lib/form/Pagination.js:33
 #, python-format
 msgid "You are currently viewing page %(index)s."
-msgstr ""
+msgstr "Está en la página %(index)s."
 
 #: static/js/lib/form/Pagination.js:35
 msgid ""
 "Please address all required questions and errors on the current page in "
 "order to jump forward."
-msgstr ""
+msgstr "Por favor complete todas las preguntas requeridas y arregle todos los errores en esta página para seguir adelante. "
 
 #: static/js/lib/form/Pagination.js:37
 #, python-format
 msgid "Jump to page %(index)s."
-msgstr ""
+msgstr "Ir a la página %(index)s."
 
 #: static/js/lib/form/ProgressBar.js:23
 #, python-format
 msgid "%(percent)s%% complete"
-msgstr ""
+msgstr "%(percent)s%% completo"
 
 #: static/js/lib/reconciler/components.js:60
 #, python-format
 msgid "Entered By: %(user)s"
-msgstr ""
+msgstr "Entrada hecha por: %(user)s"
 
 #: static/js/lib/reconciler/components.js:67
 msgid "Final Value"
-msgstr ""
+msgstr "Respuesta final"
 
 #: static/js/lib/reconciler/components.js:196
 #: static/js/lib/widgets/enumeratedValue.js:51
 #: static/js/lib/widgets/value.js:31
 msgid "No value provided."
-msgstr ""
+msgstr "Ninguna respuesta sometida. "
 
 #: static/js/lib/reconciler/components.js:262
 msgid "Manual Override"
-msgstr ""
+msgstr "Modificar manualmente"
 
 #: static/js/lib/reconciler/components.js:516
 #, python-format
 msgid "Record #%(recordNumber)s"
-msgstr ""
+msgstr "Récord #%(recordNumber)s"
 
 #: static/js/lib/reconciler/index.js:102
 msgid "Complete Reconciliation"
-msgstr ""
+msgstr "Completar reconciliación. "
 
 #: static/js/lib/widgets/ToggleText.js:22
 msgid "I don't want to provide this information."
-msgstr ""
+msgstr "No quiero proveer esta información. "
 
 #: static/js/lib/widgets/annotation.js:13
 msgid "I can't (or won't) respond to this question."
-msgstr ""
+msgstr "No puedo (o no quiero) dar respuesta a esta pregunta. "
 
 #: static/js/lib/widgets/annotation.js:14
 msgid "Please explain why you can't or won't respond to this question:"
-msgstr ""
+msgstr "Por favor explique por qué no quiere o no puede dar respuesta a esta pregunta:"
 
 #: static/js/lib/widgets/explanation.js:15
 msgid "I would like to explain my response to this question."
-msgstr ""
+msgstr "Quisiera explicar my respuesta a esta pregunta. "
 
 #: static/js/lib/widgets/explanation.js:16
 #: static/js/lib/widgets/readOnlyExplanation.js:23
 msgid "Explanation:"
-msgstr ""
+msgstr "Explicación: "
 
 #: static/js/lib/widgets/radioGroup.js:68
 #: static/js/lib/widgets/entry/radioGroup.js:28
 msgid "Clear My Selection"
-msgstr ""
+msgstr "Eliminar mi selección. "
 
 #: static/js/lib/widgets/readOnlyAnnotation.js:24
 msgid "I can't (or won't) respond to this question because:"
-msgstr ""
+msgstr "No puedo (o no quiero) dar respuesta a esta pregunta por qué:"
 
 #: static/js/lib/widgets/record.js:28
 msgid "Remove"
-msgstr ""
+msgstr "Quitar"
 
 #: static/js/lib/widgets/recordList.js:44
 msgid "Add"
-msgstr ""
+msgstr "Añadir"

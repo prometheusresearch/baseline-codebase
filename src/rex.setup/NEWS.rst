@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.3.0 (unreleased)
+2.3.0 (2015-05-08)
 ==================
 
 * Webpack configuration: set aliases to support Node polyfills in browsers.

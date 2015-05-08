@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+0.2.22 (2015-05-08)
+===================
+
+* Use sphinx_rtd_theme to style documentation
+
 0.2.21 (2015-xx-xx)
 ===================
 

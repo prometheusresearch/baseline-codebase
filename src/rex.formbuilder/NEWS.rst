@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.1.0 (2015-xx-xx)
+5.1.0 (2015-05-08)
 ==================
 
 * Added ability to configure Repeating Groups (aka, recordList fields).

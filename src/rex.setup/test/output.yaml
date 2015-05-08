@@ -21,7 +21,7 @@ tests:
   - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-2.3.0-py2.7.egg-info/rex_init.txt
     data: rex.setup_demo
   - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-2.3.0-py2.7.egg-info/rex_static.txt
-    data: /home/xi/xitology/prometheus/rex/opensource/rex.setup/sandbox/share/rex/rex.setup_demo
+    data: /home/andrey/rs/src/rex.setup/sandbox/share/rex/rex.setup_demo
   - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-2.3.0-py2.7.egg-info/rex_bundle.txt
     data: |
       {
@@ -90,7 +90,7 @@ tests:
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_init.txt
     data: rex.setup_demo
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_static.txt
-    data: /home/xi/xitology/prometheus/rex/rex.setup-opensource/sandbox/share/rex/rex.setup_demo
+    data: /home/andrey/rs/src/rex.setup/sandbox/share/rex/rex.setup_demo
   - read: ./sandbox/lib/python2.7/site-packages/rex/__init__.py
     data: |
       __import__('pkg_resources').declare_namespace(__name__)
@@ -259,7 +259,6 @@ tests:
       down-pressed.png
       down.png
       file.png
-      jquery-1.11.1.js
       jquery.js
       minus.png
       plus.png
@@ -267,7 +266,6 @@ tests:
       rextheme.css
       rextheme.js
       searchtools.js
-      underscore-1.3.1.js
       underscore.js
       up-pressed.png
       up.png
@@ -344,7 +342,7 @@ tests:
     stdout: |
       bundle.js
       bundle.js.map
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
 - suite: js_rex_bundle_all
@@ -365,7 +363,7 @@ tests:
     stdout: |
       bundle.js
       bundle.js.map
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
       HI
@@ -387,7 +385,7 @@ tests:
     stdout: |
       bundle.js
       bundle.js.map
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: ''
 - suite: js_react_npm
   tests:
@@ -407,7 +405,7 @@ tests:
     stdout: |
       bundle.js
       bundle.js.map
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: ''
 - suite: js_style_entry
   tests:
@@ -429,7 +427,7 @@ tests:
       bundle.css.map
       bundle.js
       bundle.js.map
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
@@ -456,7 +454,7 @@ tests:
       bundle.css.map
       bundle.js
       bundle.js.map
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
@@ -483,7 +481,7 @@ tests:
       bundle.css.map
       bundle.js
       bundle.js.map
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css

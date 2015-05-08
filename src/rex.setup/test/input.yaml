@@ -159,7 +159,7 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - rmdir: sandbox
 
@@ -176,7 +176,7 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - rmdir: sandbox
 
@@ -193,7 +193,7 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - rmdir: sandbox
 
@@ -210,7 +210,7 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - rmdir: sandbox
 
@@ -227,7 +227,7 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
     cd: sandbox
@@ -246,7 +246,7 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
     cd: sandbox
@@ -265,7 +265,7 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: node ./share/rex/pkg/www/bundle/bundle.js
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
     cd: sandbox

@@ -5,15 +5,15 @@
 .. contents:: Table of Contents
 
 
-4.4.0 (2015-xx-xx)
+4.4.0 (2015-05-08)
 ==================
 
-* rex.widget==0.2.19
+* rex.widget==0.2.21
 * rex.instrument==0.15.0
 * rex.forms==0.29.1
 * rex.setup==2.3.0
 * rex.web==3.4.0
-* rex.applet==1.0.0
+* rex.applet==1.0.1
 
 
 4.3.4 (2015-04-08)

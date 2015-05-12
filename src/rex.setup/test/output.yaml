@@ -259,6 +259,7 @@ tests:
       down-pressed.png
       down.png
       file.png
+      jquery-1.11.1.js
       jquery.js
       minus.png
       plus.png
@@ -266,6 +267,7 @@ tests:
       rextheme.css
       rextheme.js
       searchtools.js
+      underscore-1.3.1.js
       underscore.js
       up-pressed.png
       up.png

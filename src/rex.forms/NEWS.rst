@@ -5,6 +5,13 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.29.2 (2015-xx-xx)
+===================
+
+- Fixed some issues with the audio player JavaScript component that would cause
+  errors when it was unmounted before expected.
+
+
 0.29.1 (2015-05-06)
 ===================
 

@@ -80,7 +80,9 @@ if (!AUDIO_SUPPORTED) {
 
     getInitialState: function () {
       return {
-        playing: false
+        playing: false,
+        updaterInterval: null,
+        audioEvents: null
       };
     },
 
@@ -91,23 +93,31 @@ if (!AUDIO_SUPPORTED) {
     componentDidMount: function () {
       var audio = this.getAudio();
 
-      audio.addEventListener('playing', () => {
-        this.setState({
-          playing: true
-        });
-      });
-      audio.addEventListener('pause', () => {
-        this.setState({
-          playing: false
-        });
-      });
-      audio.addEventListener('ended', () => {
-        this.setState({
-          playing: false
-        });
-      });
-      audio.addEventListener('loadedmetadata', () => {
-        this.forceUpdate();
+      var audioEvents = {
+        'playing': () => {
+          this.setState({
+            playing: true
+          });
+        },
+
+        'pause': () => {
+          this.setState({
+            playing: false
+          });
+        },
+
+        'ended': () => {
+          this.setState({
+            playing: false
+          });
+        },
+
+        'loadedmetadata': () => {
+          this.forceUpdate();
+        }
+      };
+      Object.keys(audioEvents).forEach((eventName) => {
+        audio.addEventListener(eventName, audioEvents[eventName]);
       });
 
       var updaterInterval = setInterval(() => {
@@ -115,14 +125,24 @@ if (!AUDIO_SUPPORTED) {
           this.forceUpdate();
         }
       }, 333);
+
       this.setState({
-        updaterInterval: updaterInterval
+        updaterInterval: updaterInterval,
+        audioEvents: audioEvents
       });
     },
 
     componentWillUnmount: function () {
-      if (this.updaterInterval) {
-        clearInterval(this.updaterInterval);
+      if (this.state.updaterInterval) {
+        clearInterval(this.state.updaterInterval);
+      }
+
+      var audio = this.getAudio();
+      var audioEvents = this.state.audioEvents;
+      if (audio && audioEvents) {
+        Object.keys(audioEvents).forEach((eventName) => {
+          audio.removeEventListener(eventName, audioEvents[eventName]);
+        });
       }
     },
 
@@ -183,13 +203,12 @@ if (!AUDIO_SUPPORTED) {
         return (<div />);
       }
 
-      var position, duration, blah;
+      var position, duration, durationDisplay;
       if (this.props.showDuration && audio && audio.duration) {
         position = this.formatTime(audio.currentTime);
         duration = this.formatTime(audio.duration);
-        blah = position + ' / ' + duration;
+        durationDisplay = position + ' / ' + duration;
       }
-
 
       return (
         <div className="rex-forms-AudioPlayer">
@@ -213,7 +232,7 @@ if (!AUDIO_SUPPORTED) {
             </a>
             {this.props.showDuration &&
               <div className="btn btn-default">
-                <span>{blah || '???'}</span>
+                <span>{durationDisplay || '???'}</span>
               </div>
             }
             {this.props.showRestart &&

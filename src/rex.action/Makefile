@@ -1,6 +1,6 @@
 .PHONY: test
 
-TESTS = $(shell find test -name '*.rst')
+TESTS = $(wildcard test/*.rst)
 
 test/%.tested: test/%.rst
 	@echo 'Running $<'

@@ -18,10 +18,6 @@ from rex.widget import Widget, Field
 __all__ = ('Action', 'ActionVal', 'load_actions')
 
 
-def _action_sig(name):
-    return 'Action(%s)' % name
-
-
 class ActionMeta(Widget.__metaclass__):
 
     def __new__(mcs, name, bases, attrs):
@@ -29,6 +25,10 @@ class ActionMeta(Widget.__metaclass__):
             attrs['name'] = _action_sig(attrs['name'])
         cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
         return cls
+
+
+def _action_sig(name):
+    return 'Action(%s)' % name
 
 
 class Action(Widget):

@@ -7,6 +7,5 @@
 
 """
 
-from rex.widget import Field
-from .action import *
-from .workflow import *
+from .action import Action, ActionVal
+from .workflow import Workflow, WorkflowVal

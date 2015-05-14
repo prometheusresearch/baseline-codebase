@@ -29,7 +29,15 @@ def get_meta(entity):
         raise NotImplementedError(repr(entity))
 
 
-class DeployCallTable(CallTable):
+class DominateOverride(object):
+
+    @classmethod
+    def __dominates__(component, other):
+        return (issubclass(component, other) or
+                other.__module__.startswith('htsql.tweak.override.'))
+
+
+class DeployCallTable(DominateOverride, CallTable):
     # Generates a suitable label for a table.
 
     def __call__(self):
@@ -39,7 +47,7 @@ class DeployCallTable(CallTable):
         yield label, 1
 
 
-class DeployCallColumn(CallColumn):
+class DeployCallColumn(DominateOverride, CallColumn):
     # Generates a label for a column.
 
     def __call__(self):
@@ -50,7 +58,7 @@ class DeployCallColumn(CallColumn):
             yield label, 1
 
 
-class DeployCallChain(CallChain):
+class DeployCallChain(DominateOverride, CallChain):
     # Generates a label for a link.
 
     def __call__(self):
@@ -92,7 +100,7 @@ class DeployCallChain(CallChain):
             yield label, 1
 
 
-class OrderTableWithLinks(OrderTable):
+class OrderTableWithLinks(DominateOverride, OrderTable):
 
     def __call__(self):
         order = {}

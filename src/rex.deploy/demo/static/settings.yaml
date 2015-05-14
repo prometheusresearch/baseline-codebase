@@ -1,3 +1,9 @@
 db: pgsql:deploy_demo
 htsql_extensions:
   rex_deploy: {}
+  tweak.override:
+    field-labels:
+      individual.num_measure: (count(measure))
+      individual.num_sample: (count(sample))
+      individual.child_of($code): (mother=$code|father=$code)
+

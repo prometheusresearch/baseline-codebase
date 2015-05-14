@@ -10,44 +10,47 @@
 
 """
 
-from rex.core import Error, Validate
-from rex.core import RecordVal, StrVal, SeqVal, MapVal, AnyVal
-from rex.core import Extension, cached, autoreload, get_packages
+from rex.core import Error, Validate, autoreload, get_packages
+from rex.core import MaybeVal, StrVal, SeqVal, MapVal, AnyVal
+
+from rex.widget import Widget, Field
 
 __all__ = ('Action', 'ActionVal', 'load_actions')
 
 
-class Action(Extension):
+class ActionMeta(Widget.__metaclass__):
+
+    def __new__(mcs, name, bases, attrs):
+        if not 'name' in attrs and 'type' in attrs:
+            attrs['name'] = 'Action(%s)' % attrs['type']
+        cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
+        return cls
+
+
+class Action(Widget):
     """ Action is a reusable piece of UI.
 
     Actions are consumed within a workflow.
     """
 
+    __metaclass__ = ActionMeta
+
     type = NotImplemented
 
-    fields = ()
+    id = Field(
+        StrVal(),
+        doc="""
+        """)
 
-    def __init__(self, params, package):
-        self.params = params
-        self.package = package
+    title = Field(
+        MaybeVal(StrVal()), default=None,
+        doc="""
+        """)
 
-    @property
-    def id(self):
-        """ Specify what id to use for the action."""
-        raise NotImplementedError('%s.id is not implemented' % \
-                                  self.__class__.__name__)
-
-    @property
-    def title(self):
-        """ Specify what title to use for the action."""
-        raise NotImplementedError('%s.title is not implemented' % \
-                                  self.__class__.__name__)
-
-    @property
-    def icon(self):
-        """ Specify what icon to use for the action."""
-        raise NotImplementedError('%s.icon is not implemented' % \
-                                  self.__class__.__name__)
+    icon = Field(
+        MaybeVal(StrVal()), default=None,
+        doc="""
+        """)
 
     def context(self):
         """ Compute context specification for an action.
@@ -55,29 +58,9 @@ class Action(Extension):
         raise NotImplementedError('%s.context() is not implemented' % \
                                   self.__class__.__name__)
 
-    def render(self):
-        """ Return a renderable structure.
-
-        Renderable structure is an opaque data structure which is interpreted by
-        workflow.
-        """
-        raise NotImplementedError('%s.render() is not implemented' % \
-                                  self.__class__.__name__)
-
-    def __str__(self):
-        params = ', '.join('%s=%r' % kv for kv in self.params.items())
-        return '%s(%s)' % (self.__class__.__name__, params)
-
-    __unicode__ = __str__
-    __repr__ = __str__
-
     @classmethod
     def signature(cls):
         return cls.type
-
-    @classmethod
-    def enabled(cls):
-        return cls.type is not NotImplemented
 
     @classmethod
     def validate(cls, value):
@@ -89,8 +72,7 @@ class ActionVal(Validate):
 
     _validate_pre = MapVal(StrVal(), AnyVal())
 
-    def __init__(self, action_cls=Action, package=None):
-        self.package = package or action_cls.package()
+    def __init__(self, action_cls=Action):
         self.action_cls = action_cls
 
     def __call__(self, value):
@@ -105,26 +87,23 @@ class ActionVal(Validate):
         action_cls = Action.mapped()[action_type]
         if not issubclass(action_cls, self.action_cls):
             raise Error('action must be an instance of:', self.action_cls)
-        validate = RecordVal(*action_cls.fields)
-        value = {k: v for (k, v) in value.items() if k != 'type'}
-        params = validate(value)._asdict()
-        return action_cls(params, self.package)
+        values = {k: v for (k, v) in value.items() if k != 'type'}
+        return action_cls(**values)
 
 
-def load_actions(package, filename='actions.yaml'):
-    assert package
+def load_actions(filename='actions.yaml'):
     """ Load all defined actions within the currently active app."""
-    return _load_actions(package, filename)
+    return _load_actions(filename)
 
 
-def _load_actions(package, filename):
+def _load_actions(filename):
     return [a for p in get_packages()
-              for a in _load_actions_from(package, p, filename)]
+              for a in _load_actions_from(p, filename)]
 
 
 @autoreload
-def _load_actions_from(package, load_from_package, filename, open=open):
-    if not load_from_package.exists(filename):
+def _load_actions_from(package, filename, open=open):
+    if not package.exists(filename):
         return []
-    with open(load_from_package.abspath(filename)) as f:
-        return SeqVal(ActionVal(package=package)).parse(f)
+    with open(package.abspath(filename)) as f:
+        return SeqVal(ActionVal()).parse(f)

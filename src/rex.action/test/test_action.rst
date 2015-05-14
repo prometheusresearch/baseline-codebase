@@ -11,9 +11,10 @@ Test rex.workflow.action
 
   >>> class MyAction(Action):
   ...   type = 'my'
-  ...   fields = (
-  ...     ('id', StrVal()),
-  ...   )
+
+  >>> from rex.widget import Widget
+  >>> class W(Widget):
+  ...   name = 'x'
 
   >>> class AnotherAction(Action):
   ...   type = 'another'
@@ -23,19 +24,11 @@ Test rex.workflow.action
 
   >>> Action.all() # doctest: +NORMALIZE_WHITESPACE
   [__main__.MyAction,
-   __main__.AnotherAction,
-   rex.core.extension.ListAction,
-   rex.core.extension.ViewAction,
-   rex.core.extension.CreateAction,
-   rex.core.extension.PageAction]
+   __main__.AnotherAction]
 
   >>> sorted(Action.mapped().items()) # doctest: +NORMALIZE_WHITESPACE
   [('another', __main__.AnotherAction),
-   ('create', rex.core.extension.CreateAction),
-   ('list', rex.core.extension.ListAction),
-   ('my', __main__.MyAction),
-   ('page', rex.core.extension.PageAction),
-   ('view', rex.core.extension.ViewAction)]
+   ('my', __main__.MyAction)]
 
 Constructing from Python values::
 
@@ -45,7 +38,7 @@ Constructing from Python values::
   ...   'type': 'my',
   ...   'id': 'id',
   ... })
-  MyAction(id='id')
+  MyAction(icon=None, id='id', title=None)
 
   >>> validate({
   ...   'id': 'id'
@@ -61,6 +54,8 @@ Constructing from Python values::
   ...
   Error: Missing mandatory field:
       id
+  Of widget:
+      Action(my)
 
   >>> validate({
   ...   'type': 'xmy',
@@ -82,7 +77,7 @@ Subclass constraints
   ...   'type': 'another',
   ...   'id': 'id',
   ... })
-  AnotherAction(id='id')
+  AnotherAction(icon=None, id='id', title=None)
 
   >>> validate_another({
   ...   'type': 'my',
@@ -103,7 +98,7 @@ Constructing from YAML
   ... type: my
   ... id: id
   ... """)
-  MyAction(id='id')
+  MyAction(icon=None, id='id', title=None)
 
   >>> rex.off()
 
@@ -119,12 +114,9 @@ Loading actions
   ...   type: my
   ... """)
   >>> with Rex(sandbox):
-  ...   actions = load_actions(sandbox)
+  ...   actions = load_actions()
   >>> actions
-  [MyAction(id='my-action')]
-  >>> action = actions[0]
-  >>> action.package is sandbox
-  True
+  [MyAction(icon=None, id='my-action', title=None)]
 
 ::
 
@@ -133,7 +125,7 @@ Loading actions
   ...   type: xmy
   ... """)
   >>> with Rex(sandbox):
-  ...   load_actions(sandbox) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  ...   load_actions() # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
   Error: unknown action type specified:

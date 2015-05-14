@@ -25,9 +25,13 @@ class WorkflowMeta(Widget.__metaclass__):
 
     def __new__(mcs, name, bases, attrs):
         if 'name' in attrs:
-            attrs['name'] = 'Workflow(%s)' % attrs['name']
+            attrs['name'] = _workflow_sig(attrs['name'])
         cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
         return cls
+
+
+def _workflow_sig(name):
+    return 'Workflow(%s)' % name
 
 
 class Workflow(Widget):
@@ -53,7 +57,7 @@ class WorkflowVal(Validate):
             return value
         value = self._validate_pre(value)
         workflow_type = value.get('type', self.default_workflow_type)
-        workflow_sig = 'Workflow(%s)' % workflow_type
+        workflow_sig = _workflow_sig(workflow_type)
         if workflow_sig not in Workflow.mapped():
             raise Error('unknown workflow type specified:', workflow_type)
         workflow_cls = Workflow.mapped()[workflow_sig]

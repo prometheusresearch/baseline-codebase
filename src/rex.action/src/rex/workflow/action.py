@@ -10,7 +10,7 @@
 
 """
 
-from rex.core import Error, Validate, autoreload, get_packages
+from rex.core import Error, Validate, autoreload, get_packages, cached
 from rex.core import MaybeVal, StrVal, SeqVal, MapVal, AnyVal
 
 from rex.widget import Widget, Field
@@ -18,11 +18,15 @@ from rex.widget import Widget, Field
 __all__ = ('Action', 'ActionVal', 'load_actions')
 
 
+def _action_sig(name):
+    return 'Action(%s)' % name
+
+
 class ActionMeta(Widget.__metaclass__):
 
     def __new__(mcs, name, bases, attrs):
         if 'name' in attrs:
-            attrs['name'] = 'Action(%s)' % attrs['name']
+            attrs['name'] = _action_sig(attrs['name'])
         cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
         return cls
 
@@ -76,7 +80,7 @@ class ActionVal(Validate):
         action_type = value.pop('type', None)
         if action_type is None:
             raise Error('no action "type" specified')
-        action_sig = 'Action(%s)' % action_type
+        action_sig = _action_sig(action_type)
         if action_sig not in Action.mapped():
             raise Error('unknown action type specified:', action_type)
         action_cls = Action.mapped()[action_sig]

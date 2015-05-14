@@ -8,9 +8,7 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.workflow',
-        'rex.study',
-        'rex.study_demo',
+        'rex.workflow'
     ],
     rex_init='rex.workflow_demo',
     rex_static='static',

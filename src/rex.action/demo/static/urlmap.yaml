@@ -1,12 +1,12 @@
 paths:
 
-  /:
-    workflow:
-      actions:
-        home:
-          list-individuals:
-            view-individual:
-          list-studies:
-            view-study:
-            list-individuals-to-enroll:
-              create-study-enrollment:
+# /:
+#   workflow:
+#     actions:
+#       home:
+#         list-individuals:
+#           view-individual:
+#         list-studies:
+#           view-study:
+#           list-individuals-to-enroll:
+#             create-study-enrollment:

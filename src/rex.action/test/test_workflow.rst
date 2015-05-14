@@ -3,7 +3,7 @@ Test rex.workflow.workflow
 
 ::
 
-  >>> from webob import Request, Response
+  >>> from webob import Request
 
   >>> from rex.core import LatentRex, Rex, SandboxPackage
   >>> rex = Rex('-')
@@ -12,16 +12,13 @@ Test rex.workflow.workflow
   >>> from rex.workflow.workflow import Workflow, WorkflowVal
 
   >>> class MyWorkflow(Workflow):
-  ...   type = 'my'
-  ...
-  ...   def __call__(self, req):
-  ...     return Response('ok')
+  ...   name = 'my'
 
   >>> Workflow.all()
   [__main__.MyWorkflow]
 
   >>> Workflow.mapped()
-  {'my': __main__.MyWorkflow}
+  {'Workflow(my)': __main__.MyWorkflow}
 
 Constructing from Python values::
 
@@ -37,6 +34,7 @@ Constructing from Python values::
   Traceback (most recent call last):
   ...
   Error: unknown workflow type specified:
+      panels
 
   >>> validate({
   ...   'type': 'xmy',
@@ -70,12 +68,12 @@ Test workflow bindings to URLMap
   ... """)
   >>> rex = LatentRex(sandbox, 'rex.workflow_demo')
 
-  >>> req = Request.blank('/workflow')
+  >>> req = Request.blank('/workflow', accept='application/json')
   >>> print req.get_response(rex) # doctest: +ELLIPSIS
   200 OK
-  Content-Type: text/html; charset=UTF-8
+  Content-Type: application/json; charset=UTF-8
   ...
-  ok
+  ["~#widget",[null,["^ "]]]
 
 ::
 

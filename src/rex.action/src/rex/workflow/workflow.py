@@ -16,37 +16,23 @@ from rex.core import Error, Validate, RecordVal, StrVal, MapVal, AnyVal
 from rex.core import Extension, cached
 from rex.urlmap import Map
 from rex.web import authorize
+from rex.widget import Widget, render_widget
 
 __all__ = ('Workflow', 'WorkflowVal')
 
 
-class Workflow(Extension):
+class WorkflowMeta(Widget.__metaclass__):
 
-    type = NotImplemented
+    def __new__(mcs, name, bases, attrs):
+        if 'name' in attrs:
+            attrs['name'] = 'Workflow(%s)' % attrs['name']
+        cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
+        return cls
 
-    fields = ()
 
-    def __init__(self, params):
-        self.params = params
+class Workflow(Widget):
 
-    def __call__(self, req):
-        raise NotImplementedError('%s.__call__() is not implemented' % \
-                                  self.__class__.__name__)
-
-    def __str__(self):
-        params = ', '.join('%s=%r' % kv for kv in self.params.items())
-        return '%s(%s)' % (self.__class__.__name__, params)
-
-    __unicode__ = __str__
-    __repr__ = __str__
-
-    @classmethod
-    def signature(cls):
-        return cls.type
-
-    @classmethod
-    def enabled(cls):
-        return cls.type is not NotImplemented
+    __metaclass__ = WorkflowMeta
 
     @classmethod
     def validate(cls, value):
@@ -59,18 +45,20 @@ class WorkflowVal(Validate):
     _validate_pre = MapVal(StrVal(), AnyVal())
     _validate_type = StrVal()
 
+    def __init__(self, default_workflow_type='panels'):
+        self.default_workflow_type = default_workflow_type
+
     def __call__(self, value):
         if isinstance(value, Workflow):
             return value
         value = self._validate_pre(value)
-        workflow_type = value.get('type', None)
-        if workflow_type not in Workflow.mapped():
+        workflow_type = value.get('type', self.default_workflow_type)
+        workflow_sig = 'Workflow(%s)' % workflow_type
+        if workflow_sig not in Workflow.mapped():
             raise Error('unknown workflow type specified:', workflow_type)
-        workflow_cls = Workflow.mapped()[workflow_type]
-        validate = RecordVal(*workflow_cls.fields)
+        workflow_cls = Workflow.mapped()[workflow_sig]
         value = {k: v for (k, v) in value.items() if k != 'type'}
-        params = validate(value)._asdict()
-        return workflow_cls(params)
+        return workflow_cls(**value)
 
 
 class MapWorkflow(Map):
@@ -83,7 +71,6 @@ class MapWorkflow(Map):
 
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
-        spec.workflow.package = self.package
         return WorkflowRenderer(spec.workflow, access)
 
     def override(self, spec, override_spec):
@@ -104,4 +91,4 @@ class WorkflowRenderer(object):
     def __call__(self, req):
         if not authorize(req, self.access):
             raise HTTPUnauthorized()
-        return self.workflow(req)
+        return render_widget(self.workflow, req)

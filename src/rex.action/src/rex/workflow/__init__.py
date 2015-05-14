@@ -7,7 +7,6 @@
 
 """
 
-from rex.widget.modern import Field
+from rex.widget import Field
 from .action import *
 from .workflow import *
-from . import widget

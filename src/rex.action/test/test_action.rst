@@ -10,14 +10,14 @@ Test rex.workflow.action
   >>> from rex.workflow.action import Action, ActionVal, load_actions
 
   >>> class MyAction(Action):
-  ...   type = 'my'
+  ...   name = 'my'
 
   >>> from rex.widget import Widget
   >>> class W(Widget):
   ...   name = 'x'
 
   >>> class AnotherAction(Action):
-  ...   type = 'another'
+  ...   name = 'another'
   ...   fields = (
   ...     ('id', StrVal()),
   ...   )
@@ -27,8 +27,8 @@ Test rex.workflow.action
    __main__.AnotherAction]
 
   >>> sorted(Action.mapped().items()) # doctest: +NORMALIZE_WHITESPACE
-  [('another', __main__.AnotherAction),
-   ('my', __main__.MyAction)]
+  [('Action(another)', __main__.AnotherAction),
+   ('Action(my)', __main__.MyAction)]
 
 Constructing from Python values::
 

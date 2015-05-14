@@ -21,8 +21,8 @@ __all__ = ('Action', 'ActionVal', 'load_actions')
 class ActionMeta(Widget.__metaclass__):
 
     def __new__(mcs, name, bases, attrs):
-        if not 'name' in attrs and 'type' in attrs:
-            attrs['name'] = 'Action(%s)' % attrs['type']
+        if 'name' in attrs:
+            attrs['name'] = 'Action(%s)' % attrs['name']
         cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
         return cls
 
@@ -34,8 +34,6 @@ class Action(Widget):
     """
 
     __metaclass__ = ActionMeta
-
-    type = NotImplemented
 
     id = Field(
         StrVal(),
@@ -59,10 +57,6 @@ class Action(Widget):
                                   self.__class__.__name__)
 
     @classmethod
-    def signature(cls):
-        return cls.type
-
-    @classmethod
     def validate(cls, value):
         return ActionVal(action_cls=cls)(value)
 
@@ -82,13 +76,14 @@ class ActionVal(Validate):
         action_type = value.pop('type', None)
         if action_type is None:
             raise Error('no action "type" specified')
-        if action_type not in Action.mapped():
+        action_sig = 'Action(%s)' % action_type
+        if action_sig not in Action.mapped():
             raise Error('unknown action type specified:', action_type)
-        action_cls = Action.mapped()[action_type]
+        action_cls = Action.mapped()[action_sig]
         if not issubclass(action_cls, self.action_cls):
             raise Error('action must be an instance of:', self.action_cls)
-        values = {k: v for (k, v) in value.items() if k != 'type'}
-        return action_cls(**values)
+        value = {k: v for (k, v) in value.items() if k != 'type'}
+        return action_cls(**value)
 
 
 def load_actions(filename='actions.yaml'):

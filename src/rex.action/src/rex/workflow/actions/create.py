@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.actions.view
-    =========================
+    rex.workflow.actions.create
+    ===========================
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -9,21 +9,21 @@
 
 from cached_property import cached_property
 
-from rex.core import MaybeVal, SeqVal, StrVal
+from rex.core import MaybeVal, SeqVal, StrVal, MapVal
 from rex.port import Port
 from rex.widget import Field, FormFieldVal, responder, PortURL
 from rex.widget import formfield
 
 from ..action import Action
 
-__all__ = ('View',)
+__all__ = ('Create',)
 
 
-class View(Action):
-    """ View information about specified entity."""
+class Create(Action):
+    """ Create an entity."""
 
-    name = 'view'
-    js_type = 'rex-workflow/lib/Actions/View'
+    name = 'create'
+    js_type = 'rex-workflow/lib/Actions/Create'
 
     entity = Field(
         StrVal(),
@@ -37,8 +37,14 @@ class View(Action):
         automatically based on the data schema.
         """)
 
+    value = Field(
+        MapVal(StrVal(), StrVal()), default={},
+        doc="""
+        An initial value.
+        """)
+
     def __init__(self, **values):
-        super(View, self).__init__(**values)
+        super(Create, self).__init__(**values)
         if self.fields is None:
             fieldset = formfield.from_port(self.port)
             self.values['fields'] = fieldset.fields
@@ -55,6 +61,7 @@ class View(Action):
         return self.port(req)
 
     def context(self):
-        inputs = [self.entity]
-        outputs = []
+        inputs = [v[1:] for v in self.value.values() if v.startswith('$')]
+        outputs = [self.entity.entity]
         return inputs, outputs
+

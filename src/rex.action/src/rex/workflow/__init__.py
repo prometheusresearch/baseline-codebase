@@ -9,4 +9,4 @@
 
 from .action import Action, ActionVal
 from .workflow import Workflow, WorkflowVal
-from .actions import View, Create
+from .actions import View, Create, Page

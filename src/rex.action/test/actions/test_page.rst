@@ -1,0 +1,48 @@
+Page action
+===========
+
+::
+
+  >>> from webob import Request
+
+  >>> from rex.core import Rex
+  >>> from rex.widget import render_widget
+  >>> from rex.workflow import Action
+
+Init
+----
+
+::
+
+  >>> rex = Rex('-', 'rex.workflow_demo')
+  >>> rex.on()
+
+In case fields are not specified, they are generated from port::
+
+  >>> page = Action.validate("""
+  ... type: page
+  ... id: home
+  ... text: |
+  ...   Welcome to Rex Workflow!
+  ... """)
+
+  >>> page # doctest: +NORMALIZE_WHITESPACE
+  Page(icon=None,
+       id='home',
+       title=None,
+       text=RST(src=u'<p>Welcome to Rex Workflow!</p>', links={}))
+
+  >>> print render_widget(page, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget",["rex-workflow/lib/Actions/Page",["^ ","text","<p>Welcome to Rex Workflow!</p>","title",null,"id","home","icon",null]]]
+
+Cleanup
+-------
+
+::
+
+  >>> rex.off()
+

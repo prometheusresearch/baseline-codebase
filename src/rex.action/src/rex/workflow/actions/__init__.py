@@ -9,3 +9,4 @@
 
 from .view import View
 from .create import Create
+from .page import Page

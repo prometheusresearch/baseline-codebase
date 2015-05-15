@@ -1,0 +1,355 @@
+#
+# Copyright (c) 2015, Prometheus Research, LLC
+#
+
+
+import sys
+
+from rex.core import Error, AnyVal
+from rex.ctl import Task, RexTask, argument, option
+from rex.instrument.util import get_implementation
+
+from .errors import ValidationError
+from .interface import Interaction
+from .output import dump_interaction_yaml, dump_interaction_json
+
+
+__all__ = (
+    'MobileValidateTask',
+    'MobileFormatTask',
+    'MobileRetrieveTask',
+    'MobileStoreTask',
+)
+
+
+def open_and_validate(
+        filename,
+        instrument_definition=None,
+        instrument_file=None):
+    try:
+        configuration = open(filename, 'r').read()
+    except Exception as exc:
+        raise Error('Could not open "%s": %s' % (
+            filename,
+            str(exc),
+        ))
+
+    if (not instrument_definition) and instrument_file:
+        try:
+            instrument_definition = AnyVal().parse(
+                open(instrument_file, 'r').read()
+            )
+        except Exception as exc:
+            raise Error('Could not open "%s": %s' % (
+                instrument_file,
+                str(exc),
+            ))
+
+    try:
+        configuration = AnyVal().parse(configuration)
+        Interaction.validate_configuration(
+            configuration,
+            instrument_definition=instrument_definition,
+        )
+    except ValidationError as exc:
+        raise Error(exc.message)
+
+    return configuration
+
+
+class MobileValidateTask(Task):
+    """
+    validate an SMS Interaction Configuration
+
+    The mobile-validate task will validate the structure and content of the SMS
+    Interaction Configuration in a file and report back if any errors are
+    found.
+
+    The configuration is the path to the file containing the SMS Interaction
+    Configuration to validate.
+    """
+
+    name = 'mobile-validate'
+
+    class arguments(object):  # noqa
+        configuration = argument(str)
+
+    class options(object):  # noqa
+        instrument = option(
+            None,
+            str,
+            default=None,
+            value_name='FILE',
+            hint='the file containing the associated Instrument Definition;'
+            ' if not specified, then the SMS Interaction Configuration will'
+            ' only be checked for schema violations',
+        )
+
+    def __call__(self):
+        open_and_validate(
+            self.configuration,
+            instrument_file=self.instrument,
+        )
+
+        print '"%s" contains a valid SMS Interaction Configuration.\n' % (
+            self.configuration,
+        )
+
+
+def output_forms(val):
+    val = val.upper()
+    if val in ('JSON', 'YAML'):
+        return val
+    raise ValueError('Invalid format type "%s" specified' % val)
+
+
+class InteractionOutputter(object):
+    class options(object):  # noqa
+        output = option(
+            None,
+            str,
+            default=None,
+            value_name='OUTPUT_FILE',
+            hint='the file to write to; if not specified, stdout is used',
+        )
+        format = option(
+            None,
+            output_forms,
+            default='JSON',
+            value_name='FORMAT',
+            hint='the format to output the configuration in; can be either'
+            ' JSON or YAML; if not specified, defaults to JSON',
+        )
+        pretty = option(
+            None,
+            bool,
+            hint='if specified, the outputted configuration will be formatted'
+            ' with newlines and indentation',
+        )
+
+    def do_output(self, structure):
+        if self.output:
+            try:
+                output = open(self.output, 'w')
+            except Exception as exc:
+                raise Error('Could not open "%s" for writing: %s' % (
+                    self.output,
+                    str(exc),
+                ))
+        else:
+            output = sys.stdout
+
+        if self.format == 'JSON':
+            output.write(
+                dump_interaction_json(
+                    structure,
+                    pretty=self.pretty,
+                )
+            )
+        elif self.format == 'YAML':
+            output.write(
+                dump_interaction_yaml(
+                    structure,
+                    pretty=self.pretty,
+                )
+            )
+
+        output.write('\n')
+
+
+class MobileFormatTask(Task, InteractionOutputter):
+    """
+    render an SMS Interaction Configuration into various formats
+
+    The mobile-format task will take an input SMS Interaction Configuration
+    file and output it as either JSON or YAML.
+
+    The configuration is the path to the file containing the SMS Interaction
+    Configuration to format.
+    """
+
+    name = 'mobile-format'
+
+    class arguments(object):  # noqa
+        configuration = argument(str)
+
+    def __call__(self):
+        configuration = open_and_validate(self.configuration)
+        self.do_output(configuration)
+
+
+class MobileRetrieveTask(RexTask, InteractionOutputter):
+    """
+    retrieves an Interaction from the datastore
+
+    The mobile-retrieve task will retrieve an Interaction from a project's data
+    store and return the SMS Interaction Configuration.
+
+    The instrument-uid argument is the UID of the desired Instrument in the
+    data store.
+
+    The channel-uid argument is the UID of the Channel that the Interaction is
+    assigned to.
+    """
+
+    name = 'mobile-retrieve'
+
+    class arguments(object):  # noqa
+        instrument_uid = argument(str)
+        channel_uid = argument(str)
+
+    class options(object):  # noqa
+        version = option(
+            None,
+            str,
+            default=None,
+            value_name='VERSION',
+            hint='the version of the Instrument to retrieve; if not specified,'
+            ' defaults to the latest version',
+        )
+
+    def __call__(self):
+        with self.make():
+            instrument_impl = get_implementation('instrument')
+            instrument = instrument_impl.get_by_uid(self.instrument_uid)
+            if not instrument:
+                raise Error('Instrument "%s" does not exist.' % (
+                    self.instrument_uid,
+                ))
+
+            if not self.version:
+                instrument_version = instrument.latest_version
+            else:
+                instrument_version = instrument.get_version(self.version)
+            if not instrument_version:
+                raise Error('The desired version of "%s" does not exist.' % (
+                    self.instrument_uid,
+                ))
+
+            channel_impl = get_implementation('channel')
+            channel = channel_impl.get_by_uid(self.channel_uid)
+            if not channel:
+                raise Error('Channel "%s" does not exist.' % (
+                    self.channel_uid,
+                ))
+            if channel.presentation_type != channel_impl.PRESENTATION_TYPE_SMS:
+                raise Error('Channel "%s" is not a mobile channel.' % (
+                    channel.uid,
+                ))
+
+            inter_impl = get_implementation(
+                'interaction',
+                package_name='mobile',
+            )
+            interaction = inter_impl.find(
+                instrument_version=instrument_version,
+                channel=channel,
+                limit=1
+            )
+            if interaction:
+                interaction = interaction[0]
+            else:
+                raise Error(
+                    'No Interaction exists for Instrument "%s", Version %s,'
+                    ' Channel "%s"' % (
+                        instrument.uid,
+                        instrument_version.version,
+                        channel.uid,
+                    )
+                )
+
+            self.do_output(interaction.configuration)
+
+
+class MobileStoreTask(RexTask):
+    """
+    stores an Interaction in the data store
+
+    The mobile-store task will write an SMS Interaction Configuration file to
+    an Interaction in the project's data store.
+
+    The instrument-uid argument is the UID of the desired Instrument that the
+    Interaction will be associated with.
+
+    The channel-uid argument is the UID of the Channel that the Interaction
+    will be associated with.
+
+    The configuration is the path to the file containing the SMS Interaction
+    Configuration to use.
+    """
+
+    name = 'mobile-store'
+
+    class arguments(object):  # noqa
+        instrument_uid = argument(str)
+        channel_uid = argument(str)
+        configuration = argument(str)
+
+    class options(object):  # noqa
+        version = option(
+            None,
+            str,
+            default=None,
+            value_name='VERSION',
+            hint='the version of the Instrument to associate the Interaction'
+            ' with; if not specified, then the latest version will be used',
+        )
+
+    def __call__(self):
+        with self.make():
+            instrument_impl = get_implementation('instrument')
+            instrument = instrument_impl.get_by_uid(self.instrument_uid)
+            if not instrument:
+                raise Error('Instrument "%s" does not exist.' % (
+                    self.instrument_uid,
+                ))
+            print 'Using Instrument: %s' % instrument
+
+            if not self.version:
+                instrument_version = instrument.latest_version
+            else:
+                instrument_version = instrument.get_version(self.version)
+            if not instrument_version:
+                raise Error('The desired version of "%s" does not exist.' % (
+                    self.instrument_uid,
+                ))
+            print 'Instrument Version: %s' % instrument_version.version
+
+            configuration = open_and_validate(
+                self.configuration,
+                instrument_definition=instrument_version.definition,
+            )
+
+            channel_impl = get_implementation('channel')
+            channel = channel_impl.get_by_uid(self.channel_uid)
+            if not channel:
+                raise Error('Channel "%s" does not exist.' % (
+                    self.channel_uid,
+                ))
+            if channel.presentation_type != channel_impl.PRESENTATION_TYPE_SMS:
+                raise Error('Channel "%s" is not a mobile channel.' % (
+                    channel.uid,
+                ))
+            print 'Using Channel: %s' % channel
+
+            inter_impl = get_implementation(
+                'interaction',
+                package_name='mobile',
+            )
+            interaction = inter_impl.find(
+                instrument_version=instrument_version,
+                channel=channel,
+                limit=1
+            )
+            if interaction:
+                interaction[0].configuration = configuration
+                interaction[0].save()
+                print 'Updated existing Interaction'
+            else:
+                interaction = inter_impl.create(
+                    channel,
+                    instrument_version,
+                    configuration,
+                )
+                print 'Created new Interaction'
+

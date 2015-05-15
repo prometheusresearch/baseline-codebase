@@ -1,0 +1,3 @@
+include README.rst NEWS.rst LICENSE.rst
+include src/rex/forms/schemas/*.json
+

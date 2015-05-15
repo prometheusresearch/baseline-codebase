@@ -1,0 +1,9 @@
+mobile_implementation:
+  interaction: rex.mobile_demo.DemoInteraction
+
+db: pgsql:mobile_demo
+
+htsql_extensions:
+  tweak.etl:
+  rex_deploy:
+

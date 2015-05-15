@@ -1,0 +1,11 @@
+- table: interaction
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - link: instrumentversion
+    - link: channel
+    - column: configuration
+      type: text
+    - data: ./deploy/interaction.csv
+

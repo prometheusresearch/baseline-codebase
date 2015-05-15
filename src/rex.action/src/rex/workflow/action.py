@@ -62,7 +62,11 @@ class Action(Widget):
 
     @classmethod
     def validate(cls, value):
-        return ActionVal(action_cls=cls)(value)
+        validate = ActionVal(action_cls=cls)
+        if isinstance(value, basestring):
+            return validate.parse(value)
+        else:
+            return validate(value)
 
 
 class ActionVal(Validate):

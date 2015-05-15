@@ -1,9 +1,12 @@
 .PHONY: test
 
-TESTS = $(wildcard test/*.rst)
+TESTS = $(wildcard test/*.rst) $(wildcard test/actions/*.rst)
+
+test:
+	@pbbt test/input.yaml test/output.yaml
+
+test-fast: $(TESTS:%.rst=%.tested)
 
 test/%.tested: test/%.rst
 	@echo 'Running $<'
 	@python -m doctest $<
-
-test: $(TESTS:%.rst=%.tested)

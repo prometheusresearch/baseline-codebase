@@ -9,3 +9,6 @@
 
 from .action import Action, ActionVal
 from .workflow import Workflow, WorkflowVal
+from .actions import View
+
+import rex.workflow.actions

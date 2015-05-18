@@ -5,25 +5,28 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {% if bundle.css %}
-      <link rel="stylesheet" href="{{ bundle.css|url }}">
+  <link rel="stylesheet" href="{{ bundle.css|url }}">
   {% endif %}
 </head>
 <body>
   <div id="__main__"></div>
   <script>
+    {% if bundle.root %}
     var __PUBLIC_PATH__ = "{{ bundle.root|url }}";
+    {% endif %}
+    var __MOUNT_POINTS__ = {{ REQUEST.environ['rex.mount'] }};
     var __MOUNT_PREFIX__ = "{{ REQUEST.script_name }}";
     var __REX_WIDGET_MOUNT_PREFIX__ = "{{ REQUEST.environ['rex.mount']['rex.widget'] }}";
   </script>
   {% if bundle.js %}
-    <script src="{{ bundle.js|url }}"></script>
+  <script src="{{ bundle.js|url }}"></script>
   {% endif %}
   <script>
-    var __REX_WIDGET__ = {{ payload }};
-    if (window.Rex === undefined || window.Rex.Widget === undefined) {
+    if (window.RexWidget === undefined) {
       throw new Error('include rex-widget bower package in your application');
     }
-    Rex.Widget.render(
+    var __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify({{ payload }}));
+    RexWidget.render(
       __REX_WIDGET__,
       document.getElementById('__main__')
     );

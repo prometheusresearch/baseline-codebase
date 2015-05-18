@@ -1,5 +1,0 @@
-paths:
-
-  /doc:
-    widget: !<DocScreen>
-      id: doc

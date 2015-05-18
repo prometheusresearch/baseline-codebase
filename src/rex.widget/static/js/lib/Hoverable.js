@@ -1,58 +1,46 @@
 /**
- * Hoverable mixin for React components
- *
- *   var Button = React.createClass({
- *     mixins: [Hoverable],
- *
- *     render() {
- *        var {hover} = this.state
- *        return <div {...this.hoverable} />
- *     }
- *   })
- *
- * or more granular approach
- *
- *   var Button = React.createClass({
- *     mixins: [Hoverable],
- *
- *     render() {
- *       return (
- *         <div
- *           onMouseEnter={this.hoverableOnMouseEnter}
- *           onMouseLeave={this.hoverableOnMouseLeave}
- *           />
- *       )
- *     }
- *   })
- *
  * @copyright 2015, Prometheus Research, LLC
  */
 'use strict';
 
-var Hoverable = {
+var React         = require('react');
+var emptyFunction = require('./emptyFunction');
 
-  getInitialState() {
-    return {hover: false};
-  },
+module.exports = function Hoverable(Component) {
 
-  componentWillMount() {
-    this.hoverable = {
-      onMouseEnter: this.hoverableOnMouseEnter,
-      onMouseLeave: this.hoverableOnMouseLeave
-    };
-  },
+  return React.createClass({
+    displayName: `${Component.displayName}Hoverable`,
 
-  componentWillUnmount() {
-    this.hoverable = undefined;
-  },
+    render() {
+      return (
+        <Component
+          {...this.props}
+          hover={this.state.hover}
+          onMouseEnter={this.onMouseEnter}
+          onMouseLeave={this.onMouseLeave}
+          />
+      );
+    },
 
-  hoverableOnMouseEnter() {
-    this.setState({hover: true});
-  },
+    getDefaultProps() {
+      return {
+        onMouseEnter: emptyFunction,
+        onMouseLeave: emptyFunction
+      };
+    },
 
-  hoverableOnMouseLeave() {
-    this.setState({hover: false});
-  }
+    getInitialState() {
+      return {hover: false};
+    },
+
+    onMouseEnter(e) {
+      this.setState({hover: true});
+      this.props.onMouseEnter(e);
+    },
+
+    onMouseLeave(e) {
+      this.setState({hover: false});
+      this.props.onMouseLeave(e);
+    }
+  });
 };
-
-module.exports = Hoverable;

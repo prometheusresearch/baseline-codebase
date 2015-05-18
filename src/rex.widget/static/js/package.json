@@ -1,6 +1,6 @@
 {
   "name": "rex-widget",
-  "version": "0.2.22",
+  "version": "1.0.0",
   "description": "Rex Widget JavaScript library",
   "main": "lib/index.js",
   "devDependencies": {
@@ -11,8 +11,8 @@
     "react-docgen": "^1.2.0",
     "reactify": "^0.17.1",
     "sinon": "^1.11.1",
-    "zuul": "prometheusresearch/zuul#master",
-    "zuul-builder-webpack": "prometheusresearch/zuul-builder-webpack"
+    "zuul": "^3.0.0",
+    "zuul-builder-webpack": "^1.1.0"
   },
   "scripts": {
     "test": "make test"

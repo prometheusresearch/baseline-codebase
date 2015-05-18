@@ -5,7 +5,7 @@
 
 var React       = require('react/addons');
 var cx          = React.addons.classSet;
-var {Box, HBox} = require('./layout');
+var {Box, HBox} = require('./Layout');
 
 var Tabs = React.createClass({
 

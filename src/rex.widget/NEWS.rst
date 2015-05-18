@@ -4,17 +4,18 @@
 
 .. contents:: Table of Contents
 
-0.2.22 (2015-05-08)
-===================
+1.0.0
+=====
 
-* Use sphinx_rtd_theme to style documentation
+* (breaking) Removed application state handling, ``StateField`` and
+  ``Widget.define_state`` removed as well.
 
-0.2.21 (2015-xx-xx)
-===================
+* (breaking) Removed widget templates.
 
-* <SelectField />: propagate disabled prop to DOM element
+* (new feature) Slots are allowed with then URL mapping entries for widget.
+  Their values can be supplied via ``slots`` key in entry override.
 
-0.2.20 (2015-05-05)
+0.2.20 (2015-04-08)
 ===================
 
 * bug fixes

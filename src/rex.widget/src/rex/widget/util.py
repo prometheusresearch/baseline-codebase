@@ -1,70 +1,70 @@
 """
 
-    rex.widget.state.util
-    =====================
+    rex.widget.util
+    ===============
 
     :copyright: 2014, Prometheus Research, LLC
 
 """
 
 import re
-import time
-import contextlib
-from collections import MutableMapping
-from logging import getLogger
+from collections import MutableMapping, OrderedDict
 
-from rex.core import MapVal, SeqVal, RecordVal, MaybeVal, AnyVal
+from rex.core import Validate, AnyVal
 
-from .json_encoder import register_adapter
+from .transitionable import Transitionable, as_transitionable
 
 
-log = getLogger(__name__)
+__all__ = ('undefined', 'MaybeUndefinedVal', 'PropsContainer')
 
 
-@contextlib.contextmanager
-def measure_execution_time(message='execution time: %f seconds', log=log):
-    """ Measure and log execution time.
+class Undefined(Transitionable):
+    """ An undefined value.
 
-    Example::
-
-        with measure_execution_time():
-            potentially_expensive_computation()
-
-
-    :keyword message: Optional message template
-    :keyword log: Optional logger
+    Used to represent ``undefined`` value in JavaScript.
     """
-    start = time.clock()
-    yield
-    end = time.clock()
-    log.debug(message, end - start)
+
+    __slots__ = ()
+    __transit_tag__ = 'undefined'
+
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = object.__new__(cls)
+        return cls._instance
+
+    def __nonzero__(self):
+        return False
+
+    def __repr__(self):
+        return 'undefined'
+
+    def __transit_format__(self):
+        return []
+
+    __str__ = __repr__
+    __unicode__ = __repr__
 
 
-class cached_property(object):
-    """ Like @property decorator but evaluates its getter only once and caches
-    its value."""
-
-    def __init__(self, func, name=None, doc=None):
-        self.__name__ = name or func.__name__
-        self.__module__ = func.__module__
-        self.__doc__ = doc or func.__doc__
-        self.func = func
-
-    def __get__(self, obj, type=None):
-        if obj is None:
-            return self
-        value = obj.__dict__.get(self.__name__, NotImplemented)
-        if value is NotImplemented:
-            value = self.func(obj)
-            obj.__dict__[self.__name__] = value
-        return value
+undefined = Undefined()
 
 
-_to_camelcase_re = re.compile(r'_([a-zA-Z])')
+class MaybeUndefinedVal(Validate):
 
-def to_camelcase(value):
-    """ Return camelCased version of ``value``."""
-    return _to_camelcase_re.sub(lambda m: m.group(1).upper(), value)
+    def __init__(self, validate=AnyVal()):
+        self.validate = validate
+
+    def __call__(self, value):
+        if value is undefined:
+            return value
+        return self.validate(value)
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, self.validate)
+
+    __str__ = __repr__
+    __unicode__ = __repr__
 
 
 class PropsContainer(MutableMapping):
@@ -75,7 +75,7 @@ class PropsContainer(MutableMapping):
     """
 
     def __init__(self, mapping=None):
-        self.__dict__['_storage'] = {}
+        self.__dict__['_storage'] = OrderedDict()
         if mapping:
             for k, v in mapping.items():
                 self[k] = v
@@ -85,6 +85,9 @@ class PropsContainer(MutableMapping):
 
     def __setattr__(self, name, value):
         self[name] = value
+
+    def __delattr__(self, name):
+        del self[name]
         
     def __getitem__(self, name):
         return self._storage[to_camelcase(name)]
@@ -105,31 +108,22 @@ class PropsContainer(MutableMapping):
         return len(self._storage)
 
     def __str__(self):
-        return '<%s %s>' % (
-            self.__class__.__name__,
-            self._storage
-        )
+        storage = ', '.join('%r: %r' % (k, v)
+                            for k, v in sorted(self._storage.items()))
+        return '<%s {%s}>' % (self.__class__.__name__, storage)
 
     __unicode__ = __str__
     __repr__ = __str__
 
 
-@register_adapter(PropsContainer)
-def _encode_PropsContainer(container):
-    return container._storage
+_to_camelcase_re = re.compile(r'_([a-zA-Z])')
 
 
-def get_validator_for_key(validator, key):
-    """ Return a validator for a specified key."""
-    if hasattr(validator, '__getitem__'):
-        return validator[key]
-    if isinstance(validator, MapVal):
-        return validator.validate_value
-    elif isinstance(validator, SeqVal):
-        return validator.validate_item
-    elif isinstance(validator, RecordVal):
-        return validator.fields[key].validate
-    elif isinstance(validator, MaybeVal):
-        return get_validator_for_key(validator.validate, key)
-    else:
-        return AnyVal()
+def to_camelcase(value):
+    """ Return camelCased version of ``value``."""
+    return _to_camelcase_re.sub(lambda m: m.group(1).upper(), value)
+
+
+@as_transitionable(PropsContainer, tag='map')
+def _format_PropsContainer(value):
+    return value._storage

@@ -7,3 +7,85 @@
   - column: id
     type: integer
   - identity: [id: offset]
+
+- table: individual
+  with:
+  - column: code
+    type: text
+  - identity: [code: random]
+  - column: sex
+    type: [not-known, male, female, not-applicable]
+    default: not-known
+  - link: mother
+    to: individual
+    required: false
+  - link: father
+    to: individual
+    required: false
+  - link: adopted_mother
+    to: individual
+    required: false
+  - link: adopted_father
+    to: individual
+    required: false
+
+- table: identity
+  with:
+  - link: individual
+  - identity: [individual]
+  - column: givenname
+    type: text
+    required: false
+    title: Given Name
+  - column: middle
+    type: text
+    required: false
+    title: Middle Name
+  - column: surname
+    type: text
+    required: false
+  - column: birthdate
+    type: date
+    required: false
+    title: Date of Birth
+  - column: notes
+    type: text
+    required: false
+  - column: deathdate
+    type: date
+    required: false
+  - column: deceased
+    type: boolean
+    required: false
+
+- table: contact_info
+  with:
+  - link: individual
+  - identity: [individual]
+  - column: cellphone
+    type: text
+    required: false
+  - column: homephone
+    type: text
+    required: false
+  - column: email
+    type: text
+    required: false
+  - column: preferred_contact_method
+    type: text
+    required: false
+  - column: preferred_contact_person
+    type: text
+    required: false
+  - column: address
+    type: text
+    required: false
+  - column: city
+    type: text
+    required: false
+  - column: state
+    type: [id,ak,al,ar,az,ca,co,ct,de,fl,ga,hi,ia,il,in,ks,ky,la,ma,md,me,mi,mn,mo,ms,mt,nc,nd,ne,nh,nj,nm,nv,ny,oh,ok,or,pa,ri,sc,sd,tn,tx,ut,va,vt,wa,wi,wv,wy] 
+    required: false
+  - column: zipcode
+    type: text
+    required: false

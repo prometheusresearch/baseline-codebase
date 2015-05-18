@@ -8,10 +8,10 @@
 """
 
 from rex.core import StrVal, SeqVal
-from rex.widget.modern import (
+from rex.widget import (
     Widget, Field,
     EntitySpecVal, CollectionSpecVal,
-    InfoFieldVal, ColumnVal)
+    FormFieldVal, ColumnVal)
 
 class App(Widget):
 
@@ -56,7 +56,7 @@ class App(Widget):
         """)
 
     fields = Field(
-        SeqVal(InfoFieldVal()),
+        SeqVal(FormFieldVal()),
         doc="""
         A set of fields to show in todo info.
         """)

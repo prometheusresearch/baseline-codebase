@@ -1,27 +1,30 @@
 /**
- * @jsx React.DOM
+ * @copyright 2015, Prometheus Research, LLC
  */
 'use strict';
+
 var React = require('react');
 
 var LayeredComponentMixin = {
 
-  componentDidMount: function() {
+  componentDidMount() {
     this._layer = document.createElement('div');
+    this._layer.style.height = '0px';
+    this._layer.style.width = '0px';
     document.body.appendChild(this._layer);
     this._renderLayer();
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate() {
     this._renderLayer();
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     this._unrenderLayer();
     document.body.removeChild(this._layer);
   },
 
-  _renderLayer: function() {
+  _renderLayer() {
     React.render(this.renderLayer(), this._layer);
 
     if (this.layerDidMount) {
@@ -29,7 +32,7 @@ var LayeredComponentMixin = {
     }
   },
 
-  _unrenderLayer: function() {
+  _unrenderLayer() {
     if (this.layerWillUnmount) {
       this.layerWillUnmount(this._layer);
     }

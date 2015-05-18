@@ -1,6 +1,6 @@
 {
   "name": "rex-widget",
-  "version": "0.2.22",
+  "version": "1.0.0",
   "authors": [
     "Prometheus Research LLC"
   ],
@@ -31,7 +31,8 @@
     "generate-object-property": "http://registry.npmjs.org/generate-object-property/-/generate-object-property-1.1.0.tgz",
     "xtend": "http://registry.npmjs.org/xtend/-/xtend-4.0.0.tgz",
     "is-property": "http://registry.npmjs.org/is-property/-/is-property-1.0.2.tgz",
-    "is-my-json-valid": "prometheusresearch/is-my-json-valid#*"
+    "is-my-json-valid": "prometheusresearch/is-my-json-valid#95c5bca89dcb71bd19ae9fb420e61e70fd9ec095",
+    "transit-js": "^0.8.795"
   },
   "moduleType": [
     "node"

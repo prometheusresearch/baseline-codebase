@@ -1,0 +1,347 @@
+Widget
+======
+
+::
+
+  >>> from webob import Request, Response
+
+  >>> from rex.core import Rex, StrVal
+
+  >>> from rex.widget import Widget, WidgetVal, encode, render_widget
+  >>> from rex.widget import Field, computed_field, WidgetVal
+
+Init
+----
+
+::
+
+  >>> rex = Rex('-')
+  >>> rex.on()
+
+Widget
+------
+
+::
+
+  >>> class MyWidget(Widget):
+  ...
+  ...   name = 'MyWidget'
+  ...   js_type = 'rex-widget/MyWidget'
+  ...
+  ...   title = Field(StrVal())
+  ...
+  ...   desc = Field(StrVal(), default='no desc')
+  ...
+  ...   @computed_field
+  ...   def computed(self, req):
+  ...     return 'computed!'
+
+  >>> MyWidget in Widget.all()
+  True
+
+  >>> Widget.mapped().get('MyWidget') is MyWidget
+  True
+
+  >>> MyWidget.title
+  <Field title>
+
+  >>> MyWidget.computed
+  <ComputedField computed>
+
+  >>> MyWidget._fields # doctest: +NORMALIZE_WHITESPACE
+  OrderedDict([('desc', <Field desc>),
+               ('title', <Field title>),
+               ('computed', <ComputedField computed>)])
+
+  >>> MyWidget() # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Missing mandatory field:
+      title
+  Of widget:
+      MyWidget
+
+  >>> MyWidget(title=42) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a string
+  Got:
+      42
+  While validating field:
+      title
+  Of widget:
+      MyWidget
+
+  >>> w = MyWidget(title='Ok')
+  >>> w
+  MyWidget(desc='no desc', title='Ok')
+
+  >>> w.title
+  'Ok'
+
+  >>> req = Request.blank('/')
+  >>> encode(w(req), req)
+  u'["~#widget",["rex-widget/MyWidget",["^ ","desc","no desc","title","Ok","computed","computed!"]]]'
+
+  >>> w.__clone__(title='notok')
+  MyWidget(desc='no desc', title='notok')
+
+  >>> MyWidget.parse("""
+  ... title: OK
+  ... """)
+  MyWidget(desc='no desc', title='OK')
+
+  >>> MyWidget.parse("""
+  ... !<MyWidget>
+  ... title: OK
+  ... """)
+  MyWidget(desc='no desc', title='OK')
+
+  >>> MyWidget.parse("""
+  ... !<MyWidget> OK
+  ... """)
+  MyWidget(desc='no desc', title='OK')
+
+Null widget
+-----------
+
+::
+
+  >>> from rex.widget import NullWidget
+  >>> w = NullWidget()
+  >>> w
+  NullWidget()
+
+  >>> req = Request.blank('/')
+  >>> encode(w(req), req)
+  u'["~#\'",null]'
+
+Group widget
+------------
+
+::
+
+  >>> from rex.widget import GroupWidget
+  >>> w = GroupWidget(children=[NullWidget()])
+  >>> w
+  GroupWidget(children=[NullWidget()])
+
+  >>> req = Request.blank('/')
+  >>> encode(w(req), req)
+  u'[null]'
+
+Nested widget hierarchy
+-----------------------
+
+::
+
+  >>> rex.cache.clear()
+
+  >>> class ComplexWidget(Widget):
+  ...   name = 'ComplexWidget'
+  ...   js_type = 'ComplexWidget'
+  ...   children = Field(WidgetVal())
+
+  >>> w = ComplexWidget(children=MyWidget(title='title'))
+
+  >>> w
+  ComplexWidget(children=MyWidget(desc='no desc', title='title'))
+
+  >>> req = Request.blank('/')
+  >>> encode(w(req), req)
+  u'["~#widget",["ComplexWidget",["^ ","children",["^0",["rex-widget/MyWidget",["^ ","title","title","desc","no desc","computed","computed!"]]]]]]'
+
+  >>> w = ComplexWidget(children=[MyWidget(title='title')])
+
+  >>> w
+  ComplexWidget(children=GroupWidget(children=[MyWidget(desc='no desc', title='title')]))
+
+  >>> req = Request.blank('/')
+  >>> encode(w(req), req)
+  u'["~#widget",["ComplexWidget",["^ ","children",[["^0",["rex-widget/MyWidget",["^ ","title","title","desc","no desc","computed","computed!"]]]]]]]'
+
+Widget composition
+------------------
+
+::
+
+  >>> from rex.widget import WidgetComposition
+
+  >>> class MyWidgetComposition(WidgetComposition):
+  ...
+  ...   title = Field(StrVal())
+  ...
+  ...   def render(self):
+  ...     return MyWidget(title=self.title + '!')
+
+  >>> w = MyWidgetComposition(title='ok')
+
+  >>> w
+  MyWidgetComposition(title='ok')
+
+  >>> req = Request.blank('/')
+  >>> encode(w(req), req)
+  u'["~#widget",["rex-widget/MyWidget",["^ ","desc","no desc","title","ok!","computed","computed!"]]]'
+
+Select subwidgets
+-----------------
+
+::
+
+  >>> from rex.widget.widget import select_widget
+
+  >>> w = ComplexWidget(children=MyWidget(title='title'))
+
+  >>> select_widget(w, [])
+  ComplexWidget(children=MyWidget(desc='no desc', title='title'))
+
+  >>> select_widget(w, ['children'])
+  MyWidget(desc='no desc', title='title')
+
+  >>> w = ComplexWidget(children=[MyWidget(title='title')])
+
+  >>> select_widget(w, [])
+  ComplexWidget(children=GroupWidget(children=[MyWidget(desc='no desc', title='title')]))
+
+  >>> select_widget(w, ['children'])
+  GroupWidget(children=[MyWidget(desc='no desc', title='title')])
+
+  >>> select_widget(w, ['children', 0])
+  MyWidget(desc='no desc', title='title')
+
+
+Widget pointer
+--------------
+
+::
+
+  >>> from rex.widget.pointer import Pointer
+
+  >>> class WidgetWithPointer(Widget):
+  ...   name = 'WidgetWithPointer'
+  ...   js_type = 'WidgetWithPointer'
+  ...
+  ...   @computed_field
+  ...   def pointer(self):
+  ...     return Pointer(self)
+  ...
+  ...   def respond(self, req):
+  ...     return Response('ok')
+
+  >>> w = WidgetWithPointer()
+
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget",["WidgetWithPointer",["^ ","pointer",["~#url",["http://localhost/?__to__="]]]]]
+
+  >>> print render_widget(w, Request.blank('/?__to__=', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: text/html; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ok
+
+  >>> w = ComplexWidget(children=WidgetWithPointer())
+
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget",["ComplexWidget",["^ ","children",["^0",["WidgetWithPointer",["^ ","pointer",["~#url",["http://localhost/?__to__=children"]]]]]]]]
+
+  >>> print render_widget(w, Request.blank('/?__to__=children', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: text/html; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ok
+
+  >>> w = ComplexWidget(children=[WidgetWithPointer()])
+
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget",["ComplexWidget",["^ ","children",[["^0",["WidgetWithPointer",["^ ","pointer",["~#url",["http://localhost/?__to__=children.0"]]]]]]]]]
+
+  >>> print render_widget(w, Request.blank('/?__to__=children.0', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: text/html; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ok
+
+Responder field
+---------------
+
+::
+
+  >>> from rex.widget import responder
+
+  >>> class WidgetWithResponder(Widget):
+  ...   name = 'WidgetWithResponder'
+  ...   js_type = 'WidgetWithResponder'
+  ...
+  ...   title = Field(StrVal())
+  ...
+  ...   @responder
+  ...   def data(self, req):
+  ...     return Response('my title is: ' + self.title)
+
+  >>> w = WidgetWithResponder(title='Hi')
+
+  >>> w
+  WidgetWithResponder(title='Hi')
+
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget",["WidgetWithResponder",["^ ","title","Hi","data",["~#url",["http://localhost/?__to__=data"]]]]]
+
+  >>> print render_widget(w, Request.blank('/?__to__=data', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: text/html; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  my title is: Hi
+
+::
+
+  >>> from rex.widget import PortURL
+
+  >>> class WidgetWithPortResponder(Widget):
+  ...   name = 'WidgetWithPortResponder'
+  ...   js_type = 'WidgetWithPortResponder'
+  ...
+  ...   title = Field(StrVal())
+  ...
+  ...   @responder(url_type=PortURL)
+  ...   def data(self, req):
+  ...     return Response('my title is: ' + self.title)
+
+  >>> w = WidgetWithPortResponder(title='Hi')
+
+  >>> w
+  WidgetWithPortResponder(title='Hi')
+
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget",["WidgetWithPortResponder",["^ ","title","Hi","data",["~#port",["http://localhost/?__to__=data"]]]]]
+
+
+Cleanup
+-------
+
+::
+
+  >>> rex.off()

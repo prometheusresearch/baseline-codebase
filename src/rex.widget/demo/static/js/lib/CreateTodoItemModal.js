@@ -1,11 +1,8 @@
-/**
- * @jsx React.DOM
- */
 'use strict';
 
-var RexWidget                     = require('rex-widget/lib/modern');
-var {Forms}                       = RexWidget;
-var {HBox, VBox}                  = RexWidget.Layout;
+var RexWidget    = require('rex-widget');
+var {Forms}      = RexWidget;
+var {HBox, VBox} = RexWidget.Layout;
 
 var createTodoformSchema = {
   type: 'object',

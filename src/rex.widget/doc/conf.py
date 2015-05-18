@@ -2,8 +2,8 @@
 # Copyright (c) 2015, Prometheus Research, LLC
 #
 
-import docutils_react_docgen
 import sphinx_rtd_theme
+import docutils_react_docgen
 
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"
@@ -11,7 +11,7 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 templates_path = ['_templates']
 html_static_path = ['_static']
-extensions = ['sphinx.ext.autodoc', 'rex.widget.sphinx.autowidget']
+extensions = ['sphinx.ext.autodoc']
 master_doc = 'index'
 default_role = 'obj'
 autodoc_default_flags = ['members']

@@ -1,25 +1,17 @@
-demo::
-	@rex serve --watch --debug rex.widget_demo
-
-shell::
-	@rex python rex.widget_demo
-
 doc::
-	@sphinx-build -b html doc doc/_build
+	@sphinx-build doc doc/_build
 
 install develop::
 	@python setup.py $@
 
-js-test:
-	$(MAKE) -C static/js test
-
-test:: unittest doctest
-
 lint::
 	pylint src/rex/widget
 
-unittest::
-	@py.test $(shell find ./src -name '*_tests.py')
+test-fast::
+	@$(foreach test, \
+		$(wildcard test/*.rst), \
+		echo 'Running $(test)'; \
+		python -m doctest $(test);)
 
-doctest::
-	@python -m doctest $(shell find ./test -name '*.rst')
+test::
+	@pbbt

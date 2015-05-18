@@ -5,7 +5,7 @@
 
 var superagent = require('superagent/superagent');
 var Promise    = require('bluebird');
-var makeURL    = require('./makeURL');
+var resolveURL = require('./resolveURL');
 var isString   = require('./isString');
 
 function is2XXStatusCode(statusCode) {
@@ -50,7 +50,7 @@ class Request extends superagent.Request {
 }
 
 function request(method, url) {
-  return new Request(method, makeURL(url));
+  return new Request(method, resolveURL(url));
 }
 
 module.exports = request;

@@ -3,3 +3,6 @@ serve: deploy
 
 deploy:
 	rex deploy rex.widget_demo
+
+pyshell:
+	rex pyshell rex.widget_demo

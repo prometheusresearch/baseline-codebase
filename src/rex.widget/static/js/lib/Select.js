@@ -3,69 +3,43 @@
  */
 'use strict';
 
-var React = require('react/addons');
-var cx    = React.addons.classSet;
-var merge = require('./merge');
-
-// we use this to mark empty value, otherwise DOM will use option's title as
-// value
-var sentinel = '__empty_value_sentinel__';
+var React       = require('react');
+var BaseSelect  = require('./BaseSelect');
+var {VBox}      = require('./Layout');
 
 var Select = React.createClass({
-
-  propTypes: {
-    value: React.PropTypes.oneOfType([React.PropTypes.string,
-                                      React.PropTypes.number]),
-    emptyValue: React.PropTypes.object,
-    noEmptyValue: React.PropTypes.bool,
-    titleForEmpty: React.PropTypes.string,
-    data: React.PropTypes.object,
-    options: React.PropTypes.array,
-    onValue: React.PropTypes.func.isRequired,
-  },
-
+  
   render() {
-    var {emptyValue, titleForEmpty, noEmptyValue, quiet, value, ...props} = this.props;
-    var options = this.props.options ? this.props.options : [];
-    var data = this.props.data ? (this.props.data.data || []) : [];
-
-    if (value === undefined || value === null) {
-      value = sentinel;
-    }
-
-    var className = cx({
-      'rw-Select': true,
-      'rw-Select--quiet': quiet
-    });
-
+    var {noEmptyValue, data, value, options, onChange,
+      titleForEmpty, ...props} = this.props;
     return (
-      <select {...props} className={className} value={value} onChange={this.onChange}>
-        {emptyValue && !noEmptyValue &&
-          <option key={sentinel} value={sentinel}>
-            {titleForEmpty ? titleForEmpty : emptyValue.title}
-          </option>}
-        {options.concat(data).map((o) =>
-          <option key={o.id} value={o.id}>{o.title}</option>
-        )}
-      </select>
+      <VBox {...props}>
+        <BaseSelect
+          options={options}
+          noEmptyValue={noEmptyValue}
+          titleForEmpty={titleForEmpty}
+          data={data}
+          value={value}
+          onValue={onChange}
+          />
+      </VBox>
     );
   },
 
-  getDefaultProps() {
-    return {
-      emptyValue: {id: sentinel, title: ''},
-      options: [],
-      data: null
-    };
+  componentDidMount() {
+    this._checkForAutovalue();
   },
 
-  onChange(e) {
-    var value = e.target.value;
-    var id    = e.target.id;
-    if (value === sentinel) {
-      value = null;
+  componentDidUpdate() {
+    this._checkForAutovalue();
+  },
+
+  _checkForAutovalue() {
+    var {value, noEmptyValue, options, onChange} = this.props;
+    if (value == null && noEmptyValue && options && options.length > 0) {
+      console.log('x');
+      onChange(options[0].id);
     }
-    this.props.onValue(value, id);
   }
 });
 

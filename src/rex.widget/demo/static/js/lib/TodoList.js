@@ -1,9 +1,6 @@
-/**
- * @jsx React.DOM
- */
 'use strict';
 
-var RexWidget                     = require('rex-widget/lib/modern');
+var RexWidget                     = require('rex-widget');
 var {collection, entity, state}   = RexWidget.DataSpecification;
 var {HBox, VBox}                  = RexWidget.Layout;
 var TodoItem                      = require('./TodoItem');

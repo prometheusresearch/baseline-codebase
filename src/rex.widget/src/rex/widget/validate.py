@@ -1,10 +1,7 @@
 """
 
-    rex.widget.validate
-    ===================
-
-    Validate widget object model produced by :mod:`rex.widget.parse` and turn it
-    into a widget instance.
+    rex.widget.parse
+    ================
 
     :copyright: 2014, Prometheus Research, LLC
 
@@ -12,141 +9,268 @@
 
 from __future__ import absolute_import
 
+import types
+import contextlib
+import json
 import yaml
 
-from rex.core import Location
-from rex.core import Validate, Error, guard, RecordVal, RecordField, StrVal
+from rex.core import ValidatingLoader, Error, Location, guard
+from rex.core import Validate, AnyVal, StrVal, RecordVal, RecordField
 
-from .context import get_context
-from .undefined import undefined
-from .parse import WidgetDesc
 from .widget import Widget, GroupWidget, NullWidget
-from .location import locate, strip_location, location_info_guard
+from .field import Field
+
+__all__ = ('WidgetVal', 'Deferred', 'DeferredVal')
 
 
-__all__ = ('validate', 'WidgetVal')
+class Deferred(object):
+
+    __slots__ = ('loader', 'node')
+
+    def __init__(self, loader, node):
+        self.loader = loader
+        self.node = node
+
+    def construct(self, validate):
+        return validate.construct(self.loader, self.node)
+
+
+class DeferredVal(Validate):
+
+    def __call__(self, value):
+        return value
+
+    def construct(self, loader, node):
+        return Deferred(loader, node)
 
 
 class WidgetVal(Validate):
-    """ Validator for widgets."""
+    """ Validator for widget values.
+    
+    Can be used as a field value validator for widgets which want to have other
+    widgets as their values::
 
-    def __init__(self, widget_class=None, single=False):
-        self.widget_class = widget_class
-        self.single = single
+        class Panel(Widget):
+
+            children = Field(
+                WidgetVal(),
+                doc="Children widgets")
+
+        class Title(Widget):
+
+            title = Field(
+                StrVal(),
+                doc="Title")
+
+        panel = Panel(children=Title(title='Title'))
+
+    """
+
+    def __init__(self, widget_class=None, context=None):
         super(WidgetVal, self).__init__()
+        self.widget_class = widget_class
+        self.context = context or {}
 
-    def _validate_widget(self, widget, _validate_single=True):
-        if self.widget_class:
-            if isinstance(widget, GroupWidget):
-                for child in widget.children:
-                    self._validate_widget(child, _validate_single=False)
-            elif not isinstance(widget, self.widget_class):
-                error = Error("Invalid widget:", "<%s>" % widget.__class__.name)
-                error.wrap("Expected a widget of type:", "<%s>" % self.widget_class.name)
+    def __call__(self, data):
+        widget_classes = Widget.mapped()
+
+        with guard("Got:", repr(data)):
+            if data is None:
+                return NullWidget()
+            elif isinstance(data, list):
+                return GroupWidget.validated(children=[self(item) for item in data])
+            elif isinstance(data, Widget):
+                widget_class = data.__class__
+                data = data.values
+                data = self.validate_values(widget_class, data)
+                return widget_class.validated(**data)
+            else:
+                raise Error("Expected a widget")
+
+    def validate_values(self, widget_class, data):
+        record_fields = [RecordField(f.name, f.validate, f.default)
+                         for f in widget_class._fields.values()
+                         if isinstance(f, Field)]
+        field_by_name = {f.name: f for f in record_fields}
+        values = {}
+        with guard("Of widget:", widget_class.name):
+            for name in sorted(data):
+                value = data[name]
+                name = name.replace('-', '_').replace(' ', '_')
+                if name not in field_by_name:
+                    raise Error("Got unexpected field:", name)
+                attribute = field_by_name[name].attribute
+                values[attribute] = value
+
+            for field in record_fields:
+                attribute = field.attribute
+                if attribute in values:
+                    validate = field.validate
+                    with guard("While validating field:", field.name):
+                        values[attribute] = validate(values[attribute])
+                elif field.has_default:
+                    values[attribute] = field.default
+                else:
+                    raise Error("Missing mandatory field:", field.name)
+        return values
+
+    def construct(self, loader, node):
+        with patched_loader(loader, self.context):
+            return self._construct(loader, node)
+
+    def _construct(self, loader, node):
+        widget_classes = Widget.mapped()
+        location = Location.from_node(node)
+        name = None
+        pairs = []
+        if isinstance(node, yaml.ScalarNode):
+            if node.tag == u'tag:yaml.org,2002:null':
+                return NullWidget()
+            if node.tag.isalnum():
+                name = node.tag
+                if node.value:
+                    value = yaml.ScalarNode(
+                        u'tag:yaml.org,2002:str',
+                        node.value, node.start_mark, node.end_mark,
+                        node.style)
+                    pairs = [(None, value)]
+        elif isinstance(node, yaml.SequenceNode):
+            if node.tag == u'tag:yaml.org,2002:seq':
+                return GroupWidget.validated(children=[self.construct(loader, item)
+                                                       for item in node.value])
+            if node.tag.isalnum():
+                name = node.tag
+                value = yaml.SequenceNode(
+                    u'tag:yaml.org,2002:seq',
+                    node.value, node.start_mark, node.end_mark,
+                    node.flow_style)
+                pairs = [(None, value)]
+        elif isinstance(node, yaml.MappingNode):
+            if node.tag.isalnum() or self.widget_class:
+                name = node.tag
+                pairs = node.value
+        if name in widget_classes:
+            widget_class = widget_classes[name]
+        elif self.widget_class is not None:
+            widget_class = self.widget_class
+        elif not name:
+            error = Error("Expected a widget")
+            error.wrap("Got:", node.value
+                            if isinstance(node, yaml.ScalarNode)
+                            else "a %s" % node.id)
+            error.wrap("While parsing:", location)
+            raise error
+        else:
+            error = Error("Found unknown widget:", name)
+            error.wrap("While parsing:", location)
+            raise error
+        if self.widget_class is not None:
+            if not (widget_class is self.widget_class or issubclass(widget_class, self.widget_class)):
+                error = Error("Expected widget of type:", "<%s>" % self.widget_class.__name__)
+                error.wrap("Instead got widget of type:", "<%s>" % widget_class.__name__)
+                error.wrap("While parsing:", location)
                 raise error
-        if _validate_single and self.single and isinstance(widget, GroupWidget):
-            raise Error("Only single widget is allowed")
-        widget.validate()
+        record_fields = [RecordField(f.name, f.validate, f.default)
+                         for f in widget_class._fields.values()
+                         if isinstance(f, Field)]
+        field_by_name = {f.name: f for f in record_fields}
+        fields_with_no_defaults = [f for f in record_fields if not f.has_default]
+        values = {}
+        for key_node, value_node in pairs:
+            if key_node is None:
+                if len(fields_with_no_defaults) == 1:
+                    name = fields_with_no_defaults[0].name
+                    key_node = node
+                else:
+                    error = Error("Expected a mapping")
+                    error.wrap("Got:", node.value
+                                       if isinstance(node, yaml.ScalarNode)
+                                       else "a %s" % node.id)
+                    error.wrap("While parsing:", location)
+                    raise error
+            else:
+                with loader.validating(StrVal()):
+                    name = loader.construct_object(key_node, deep=True)
+            name = name.replace('-', '_').replace(' ', '_')
+            with guard("While parsing:", Location.from_node(key_node)):
+                if name not in field_by_name:
+                    raise Error("Got unexpected field:", name)
+                if name in values:
+                    raise Error("Got duplicate field:", name)
+            field = field_by_name[name]
+            with guard("Of widget:", widget_class.name), \
+                 guard("While validating field:", name), \
+                 loader.validating(field.validate):
+                value = loader.construct_object(value_node, deep=True)
+            values[field.attribute] = value
+        for field in record_fields:
+            attribute = field.attribute
+            if attribute not in values:
+                if field.has_default:
+                    values[attribute] = field.default
+                else:
+                    raise Error("Missing mandatory field:", field.name) \
+                            .wrap("Of widget:", widget_class.name)
+        widget = widget_class.validated(**values)
+        widget.location = location
         return widget
 
-    def _validate_widget_fields(self, widget):
-        widget_class = widget.__class__
-        values = {k: v for k, v in widget.values.items() if not v is undefined}
 
-        validate = RecordVal([
-            RecordField(f.name, f.validate, f.default)
-            for f in widget_class.fields.values()
-            if f.configurable
-        ])
-        validate(values)
+@contextlib.contextmanager
+def patched_loader(loader, context):
+    patched = loader.validating.im_func is ValidatingLoader_validating
+    if not patched:
+        loader.__slots_context = context
+        loader.validating = types.MethodType(ValidatingLoader_validating, loader)
+    yield
+    if not patched:
+        del loader.__slots_context
+        del loader.validating
 
-    def _build_widget(self, value):
-        # explicit widget instantiation
-        if isinstance(value, WidgetDesc):
-            with location_info_guard(value):
-                widget_classes = Widget.map_all()
-                if not value.name in widget_classes:
-                    raise Error("Unknown widget found:", "<%s>" % value.name)
-                widget_class = widget_classes[value.name]
-                fields = value.fields.items()
-        elif value == None:
-            return NullWidget()
-        # group widget, it's important to reuse validator so we can project
-        # self.widget_class on each item
-        elif isinstance(value, list):
-            return GroupWidget(children=[self(v) for v in value])
-        # implicit widget instantiation using self.widget_class as widget class
-        elif isinstance(value, dict) and self.widget_class is not None:
-            widget_class = self.widget_class
-            fields = [(k, v) for k, v in value.items()]
-        else:
-            with location_info_guard(value):
-                raise Error("Expected a widget but got:", "%r" % value)
 
-        fields_with_no_defaults = [
-            f.name for f in widget_class.fields.values()
-            if not f.has_default and f.configurable]
+orig_ValidatingLoader_validating = ValidatingLoader.validating
 
-        values = {}
 
-        with guard("While constructing widget", "<%s>" % widget_class.name):
+def ValidatingLoader_validating(self, validate):
+    if validate is not None:
+        validate = SlotResolveVal(validate, self.__slots_context)
+    return orig_ValidatingLoader_validating(self, validate)
 
-            for n, v in fields:
-                n = strip_location(n)
-                if n is None:
-                    if len(fields_with_no_defaults) == 1:
-                        n = fields_with_no_defaults[0]
-                    else:
-                        error = Error(
-                            "Shorthand notation is not available for widgets",
-                            "with more than a single mandatory field")
-                        error.wrap("While parsing:", locate(v))
-                        raise error
-                with location_info_guard(v):
-                    if n not in widget_class.fields:
-                        raise Error("Got unexpected field:", n)
-                    field = widget_class.fields[n]
-                    if not field.configurable:
-                        raise Error("Got unexpected field:", n)
-                    field_value = field.validate(strip_location(v, recursive=True))
-                values[n] = field_value
 
-            missing_mandatory_fields = [
-                f.name for f in widget_class.fields.values()
-                if f.name not in values and not f.has_default]
+class SlotResolveVal(Validate):
 
-            if missing_mandatory_fields:
-                with location_info_guard(value):
-                    raise Error(
-                        "Missing mandatory fields:",
-                        ", ".join(missing_mandatory_fields))
+    slot_val = RecordVal(
+        ('name', StrVal()),
+        ('default', DeferredVal()),
+    )
 
-            for field in widget_class.fields.values():
-                if not field.name in values and field.has_default:
-                    values[field.name] = field.default
-
-            context = get_context()
-
-            if 'id' in widget_class.fields and not values.get('id'):
-                values['id'] = context.generate_widget_id(widget_class)
-
-            return widget_class(**values)
+    def __init__(self, validate, context):
+        self.validate = validate
+        self.context = context
 
     def __call__(self, value):
-        if isinstance(value, Widget):
-            self._validate_widget(value)
-            self._validate_widget_fields(value)
-            return value
-        widget = self._build_widget(value)
-        with location_info_guard(value), guard("While constructing widget:", "<%s>" % widget.name):
-            self._validate_widget(widget)
-        return widget
+        return self.validate(value)
 
+    def _construct(self, loader, node):
+        if self.validate is not None:
+            return self.validate.construct(loader, node)
+        else:
+            return loader.construct_object(node, deep=True)
 
-def validate(obj):
-    """ Validate widget object model and create and a widget instance."""
-    return _validator(obj)
+    def construct(self, loader, node):
+        if isinstance(node, yaml.MappingNode) and node.tag == '!slot':
+            node = yaml.MappingNode(u'tag:yaml.org,2002:map', node.value,
+                                    start_mark=node.start_mark,
+                                    end_mark=node.end_mark,
+                                    flow_style=node.flow_style)
+            slot = self.slot_val.construct(loader, node)
+            if slot.name in self.context:
+                return self._construct(loader, self.context[slot.name].node)
+            else:
+                return self._construct(loader, slot.default.node)
+        return self._construct(loader, node)
 
 
 _validator = WidgetVal()
 Widget._validate.set(_validator)
+Widget._validate_values = _validator.validate_values

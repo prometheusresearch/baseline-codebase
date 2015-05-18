@@ -28,4 +28,4 @@ class Page(Action):
         """)
 
     def context(self):
-        return [], []
+        return {}, {}

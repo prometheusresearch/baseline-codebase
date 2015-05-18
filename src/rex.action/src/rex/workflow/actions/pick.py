@@ -67,4 +67,4 @@ class Pick(Action):
                 mask=self.mask)
 
     def context(self):
-        return self.inputs, [self.entity_name]
+        return self.inputs, {self.entity: self.entity}

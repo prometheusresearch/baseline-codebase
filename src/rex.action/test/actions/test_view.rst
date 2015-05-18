@@ -39,7 +39,7 @@ In case fields are not specified, they are generated from port::
                StringFormField(value_key=['adopted_father'], label='Adopted Father')])
 
   >>> view.context()
-  (['individual'], [])
+  ({'individual': 'individual'}, {})
 
   >>> view.port
   Port('''

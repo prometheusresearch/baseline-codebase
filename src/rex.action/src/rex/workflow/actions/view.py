@@ -55,6 +55,6 @@ class View(Action):
         return self.port(req)
 
     def context(self):
-        inputs = [self.entity]
-        outputs = []
+        inputs = {self.entity: self.entity}
+        outputs = {}
         return inputs, outputs

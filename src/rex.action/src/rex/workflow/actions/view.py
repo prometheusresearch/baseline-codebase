@@ -50,7 +50,7 @@ class View(Action):
         else:
             return formfield.to_port(self.entity, self.fields)
 
-    @responder(url_factory=PortURL)
+    @responder(url_type=PortURL)
     def data(self, req):
         return self.port(req)
 

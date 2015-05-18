@@ -8,5 +8,6 @@
 """
 
 from .view import View
-from .create import Create
+from .make import Make
 from .page import Page
+from .pick import Pick

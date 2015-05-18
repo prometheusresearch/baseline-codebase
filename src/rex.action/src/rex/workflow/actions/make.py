@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.actions.create
-    ===========================
+    rex.workflow.actions.make
+    =========================
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -16,14 +16,14 @@ from rex.widget import formfield
 
 from ..action import Action
 
-__all__ = ('Create',)
+__all__ = ('Make',)
 
 
-class Create(Action):
-    """ Create an entity."""
+class Make(Action):
+    """ Make an entity."""
 
-    name = 'create'
-    js_type = 'rex-workflow/lib/Actions/Create'
+    name = 'make'
+    js_type = 'rex-workflow/lib/Actions/Make'
 
     entity = Field(
         StrVal(),
@@ -44,7 +44,7 @@ class Create(Action):
         """)
 
     def __init__(self, **values):
-        super(Create, self).__init__(**values)
+        super(Make, self).__init__(**values)
         if self.fields is None:
             fieldset = formfield.from_port(self.port)
             self.values['fields'] = fieldset.fields
@@ -56,7 +56,7 @@ class Create(Action):
         else:
             return formfield.to_port(self.entity, self.fields)
 
-    @responder(url_factory=PortURL)
+    @responder(url_type=PortURL)
     def data(self, req):
         return self.port(req)
 

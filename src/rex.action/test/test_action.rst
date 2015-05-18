@@ -66,6 +66,14 @@ Constructing from Python values::
   Error: unknown action type specified:
         xmy
 
+Action is validated by ``ActionVal`` as is::
+
+  >>> validate(validate({
+  ...   'type': 'my',
+  ...   'id': 'id',
+  ... }))
+  MyAction(icon=None, id='id', title=None)
+
 Subclass constraints
 --------------------
 

@@ -62,6 +62,6 @@ class Make(Action):
 
     def context(self):
         inputs = [v[1:] for v in self.value.values() if v.startswith('$')]
-        outputs = [self.entity.entity]
+        outputs = [self.entity]
         return inputs, outputs
 

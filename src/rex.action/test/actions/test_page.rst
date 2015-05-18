@@ -32,6 +32,9 @@ In case fields are not specified, they are generated from port::
        title=None,
        text=RST(src=u'<p>Welcome to Rex Workflow!</p>', links={}))
 
+  >>> page.context()
+  ([], [])
+
   >>> print render_widget(page, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8

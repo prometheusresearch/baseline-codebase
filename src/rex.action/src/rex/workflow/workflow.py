@@ -18,7 +18,9 @@ from rex.core import Error, Validate, RecordVal, StrVal, MapVal, AnyVal
 from rex.core import Extension, cached
 from rex.urlmap import Map
 from rex.web import authorize
-from rex.widget import Widget, render_widget
+from rex.widget import Widget, Field, render_widget
+
+from .action_tree import ActionTreeVal
 
 __all__ = ('Workflow', 'WorkflowVal')
 
@@ -42,6 +44,12 @@ class Workflow(Widget):
     @classmethod
     def validate(cls, value):
         return WorkflowVal(workflow_cls=cls)(value)
+
+    actions = Field(
+        ActionTreeVal(),
+        doc="""
+        Workflow configuration.
+        """)
 
 
 class WorkflowVal(Validate):

@@ -45,12 +45,6 @@ class Workflow(Widget):
     def validate(cls, value):
         return WorkflowVal(workflow_cls=cls)(value)
 
-    actions = Field(
-        ActionTreeVal(),
-        doc="""
-        Workflow configuration.
-        """)
-
 
 class WorkflowVal(Validate):
     """ Validator for workflows."""

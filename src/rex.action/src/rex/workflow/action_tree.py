@@ -63,21 +63,10 @@ def _typecheck_step(context, inputs):
         w = context.get(k, NotImplemented)
         if w is NotImplemented:
             raise Error('expected context to have key', k)
-        if isinstance(w, (list, tuple)) and isinstance(v, (list, tuple)):
-            if not (set(w) & set(v)):
-                raise Error('TODO')
-        elif isinstance(w, (list, tuple)):
-            if not any(v == wi for wi in w):
-                raise Error('TODO')
-        elif isinstance(v, (list, tuple)):
-            if not any(w == vi for vi in v):
-                raise Error('TODO')
-        else:
-            if v != w:
-                error = Error('expected:', 'key "%s" of type "%s"' % (k, v))
-                error.wrap('But got:', 'key "%s" of type "%s"' % (k, w))
-                raise error
-
+        if v != w:
+            error = Error('expected:', 'key "%s" of type "%s"' % (k, v))
+            error.wrap('But got:', 'key "%s" of type "%s"' % (k, w))
+            raise error
 
 
 def _context_update(context, outputs):

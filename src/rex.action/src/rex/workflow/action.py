@@ -10,6 +10,8 @@
 
 """
 
+from collections import namedtuple
+
 from rex.core import Error, Validate, autoreload, get_packages, cached
 from rex.core import MaybeVal, StrVal, SeqVal, MapVal, AnyVal
 
@@ -27,8 +29,7 @@ class ActionMeta(Widget.__metaclass__):
         return cls
 
 
-def _action_sig(name):
-    return 'Action(%s)' % name
+_action_sig = namedtuple('Action', ['name'])
 
 
 class Action(Widget):

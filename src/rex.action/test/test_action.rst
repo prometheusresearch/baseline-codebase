@@ -27,8 +27,8 @@ Test rex.workflow.action
    __main__.AnotherAction]
 
   >>> sorted(Action.mapped().items()) # doctest: +NORMALIZE_WHITESPACE
-  [('Action(another)', __main__.AnotherAction),
-   ('Action(my)', __main__.MyAction)]
+  [(Action(name='another'), __main__.AnotherAction),
+   (Action(name='my'), __main__.MyAction)]
 
 Constructing from Python values::
 
@@ -55,7 +55,7 @@ Constructing from Python values::
   Error: Missing mandatory field:
       id
   Of widget:
-      Action(my)
+      Action(name='my')
 
   >>> validate({
   ...   'type': 'xmy',

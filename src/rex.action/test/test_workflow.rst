@@ -18,7 +18,7 @@ Test rex.workflow.workflow
   [__main__.MyWorkflow]
 
   >>> Workflow.mapped()
-  {'Workflow(my)': __main__.MyWorkflow}
+  {Workflow(name='my'): __main__.MyWorkflow}
 
 Constructing from Python values::
 

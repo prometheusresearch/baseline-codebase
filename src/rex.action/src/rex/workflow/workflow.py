@@ -10,6 +10,8 @@
 
 """
 
+from collections import namedtuple
+
 from webob.exc import HTTPUnauthorized
 
 from rex.core import Error, Validate, RecordVal, StrVal, MapVal, AnyVal
@@ -30,8 +32,7 @@ class WorkflowMeta(Widget.__metaclass__):
         return cls
 
 
-def _workflow_sig(name):
-    return 'Workflow(%s)' % name
+_workflow_sig = namedtuple('Workflow', ['name'])
 
 
 class Workflow(Widget):

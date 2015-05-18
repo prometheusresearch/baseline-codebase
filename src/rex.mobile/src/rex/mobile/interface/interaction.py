@@ -119,6 +119,34 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
+    def get_for_task(cls, task, channel, user=None):
+        """
+        Returns the Interaction to use for the specified combination of Task
+        and Channel.
+
+        :param task: the Task the Interaction needs to operate on
+        :type task: Task
+        :param channel: the Channel the Interaction must be configured for
+        :type channel: Channel
+        :param user: the User who should have access to the desired Interaction
+        :type user: User
+        :raises:
+            DataStoreError if there was an error reading from the datastore
+        :rtype: Interaction
+        """
+
+        interactions = cls.find(
+            channel=channel,
+            instrument_version=task.instrument_version,
+            user=user,
+            limit=1,
+        )
+        if interactions:
+            return interactions[0]
+
+        return None
+
+    @classmethod
     def find(cls, offset=0, limit=None, user=None, **search_criteria):
         """
         Returns Interactions that match the specified criteria.

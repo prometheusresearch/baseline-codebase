@@ -12,7 +12,8 @@
     "reactify": "^0.17.1",
     "sinon": "^1.11.1",
     "zuul": "^3.0.0",
-    "zuul-builder-webpack": "^1.1.0"
+    "zuul-builder-webpack": "^1.1.0",
+    "webtest": "prometheusresearch/webtest"
   },
   "scripts": {
     "test": "make test"

@@ -18,6 +18,9 @@ tests:
 - coverage-check: 95.0
 - coverage-report: ./build/coverage
 
+- sh: ./node_modules/.bin/webtest
+  cd: static/js
+
 - sh: rex dropdb --config=./demo/rex.yaml
   ignore: true
 - sh: pip uninstall -q -y rex.widget_demo

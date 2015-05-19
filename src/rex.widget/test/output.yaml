@@ -4,6 +4,17 @@
 ---
 suite: rex.widget
 tests:
+- sh: ./node_modules/.bin/webtest
+  stdout: |
+    # starting
+    TAP version 13
+    ok 1 - selecting subvalues : propagates complex schemas
+    ok 2 - error propagation : propagates errors through objects
+    ok 3 - error propagation : propagates no errors if no errors are present
+    ok 4 - error propagation : propagates errors in array items
+    ok 5 - error propagation : propagates errors in array items
+    1..5
+    # 5 specs, 0 failures, 0 skipped, 0 disabled
 - sh: pip install -q -e ./demo
   stdout: ''
 - sh: rex dropdb --config=./demo/rex.yaml

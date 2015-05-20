@@ -45,16 +45,18 @@ class View(Action):
 
     @cached_property
     def port(self):
+        entity_type = self.input[self.entity]
         if self.fields is None:
             return Port(self.entity)
         else:
-            return formfield.to_port(self.entity, self.fields)
+            return formfield.to_port(entity_type, self.fields)
 
     @responder(url_type=PortURL)
     def data(self, req):
         return self.port(req)
 
     def context(self):
-        inputs = {self.entity: self.entity}
-        outputs = {}
-        return inputs, outputs
+        input, output = super(View, self).context()
+        if not input:
+            input = {self.entity: self.entity}
+        return input, output

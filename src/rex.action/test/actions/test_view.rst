@@ -27,6 +27,8 @@ In case fields are not specified, they are generated from port::
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
   View(icon=None,
+       input={'individual': 'individual'},
+       output={},
        id='view-individual',
        title=None,
        entity='individual',
@@ -52,7 +54,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["rex-workflow/lib/Actions/View",["^ ","title",null,"icon",null,"id","view-individual","fields",[...],"entity","individual","data",["~#port",["http://localhost/?__to__=data"]]]]]
+  ["~#widget",["rex-workflow/lib/Actions/View",["^ ","title",null,"fields",[...],"entity","individual","output",["^ "],"input",["^ ","individual","individual"],"id","view-individual","icon",null,"data",["~#port",["http://localhost/?__to__=data"]]]]]
 
   >>> print render_widget(view, Request.blank('/?__to__=data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -79,9 +81,41 @@ You can also specify fields and see port generated from them::
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
   View(icon=None,
+       input={'individual': 'individual'},
+       output={},
        id='view-individual',
        title=None,
        entity='individual',
+       fields=[StringFormField(value_key=['id']),
+               StringFormField(value_key=['code'])])
+
+  >>> view.port
+  Port('''
+  entity: individual
+  select: [code]
+  ''')
+
+You can specify view action for entities which have custom labels within the
+context::
+
+  >>> view = Action.validate("""
+  ... type: view
+  ... id: view-mother
+  ... entity: mother
+  ... input:
+  ...   mother: individual
+  ... fields:
+  ... - value_key: id
+  ... - value_key: code
+  ... """)
+
+  >>> view # doctest: +NORMALIZE_WHITESPACE
+  View(icon=None,
+       input={'mother': 'individual'},
+       output={},
+       id='view-mother',
+       title=None,
+       entity='mother',
        fields=[StringFormField(value_key=['id']),
                StringFormField(value_key=['code'])])
 

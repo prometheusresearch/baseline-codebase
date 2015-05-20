@@ -26,6 +26,3 @@ class Page(Action):
         doc="""
         Text in ReStructuredText format to display.
         """)
-
-    def context(self):
-        return {}, {}

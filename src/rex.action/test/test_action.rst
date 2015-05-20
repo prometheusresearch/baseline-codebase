@@ -38,7 +38,7 @@ Constructing from Python values::
   ...   'type': 'my',
   ...   'id': 'id',
   ... })
-  MyAction(icon=None, id='id', title=None)
+  MyAction(icon=None, input={}, output={}, id='id', title=None)
 
   >>> validate({
   ...   'id': 'id'
@@ -72,7 +72,7 @@ Action is validated by ``ActionVal`` as is::
   ...   'type': 'my',
   ...   'id': 'id',
   ... }))
-  MyAction(icon=None, id='id', title=None)
+  MyAction(icon=None, input={}, output={}, id='id', title=None)
 
 Subclass constraints
 --------------------
@@ -85,7 +85,7 @@ Subclass constraints
   ...   'type': 'another',
   ...   'id': 'id',
   ... })
-  AnotherAction(icon=None, id='id', title=None)
+  AnotherAction(icon=None, input={}, output={}, id='id', title=None)
 
   >>> validate_another({
   ...   'type': 'my',
@@ -106,7 +106,7 @@ Constructing from YAML
   ... type: my
   ... id: id
   ... """)
-  MyAction(icon=None, id='id', title=None)
+  MyAction(icon=None, input={}, output={}, id='id', title=None)
 
   >>> rex.off()
 
@@ -124,7 +124,7 @@ Loading actions
   >>> with Rex(sandbox):
   ...   actions = load_actions()
   >>> actions
-  [MyAction(icon=None, id='my-action', title=None)]
+  [MyAction(icon=None, input={}, output={}, id='my-action', title=None)]
 
 ::
 

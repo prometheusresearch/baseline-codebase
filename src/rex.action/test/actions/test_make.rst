@@ -27,6 +27,8 @@ In case fields are not specified, they are generated from port::
 
   >>> make # doctest: +NORMALIZE_WHITESPACE
   Make(icon=None,
+       input={},
+       output={'individual': 'individual'},
        id='make-individual',
        title=None,
        entity='individual',
@@ -53,7 +55,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["rex-workflow/lib/Actions/Make",["^ ","title",null,"fields",[...],"value",["^ "],"entity","individual","id","make-individual","icon",null,"data",["~#port",["http://localhost/?__to__=data"]]]]]
+  ["~#widget",["rex-workflow/lib/Actions/Make",["^ ","title",null,"fields",[...],"value",["^ "],"entity","individual","output",["^ ","individual","individual"],"input",["^ "],"id","make-individual","icon",null,"data",["~#port",["http://localhost/?__to__=data"]]]]]
 
   >>> print render_widget(make, Request.blank('/?__to__=data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -80,6 +82,8 @@ You can also specify fields and see port generated from them::
 
   >>> make # doctest: +NORMALIZE_WHITESPACE
   Make(icon=None,
+       input={},
+       output={'individual': 'individual'},
        id='make-individual',
        title=None,
        entity='individual',

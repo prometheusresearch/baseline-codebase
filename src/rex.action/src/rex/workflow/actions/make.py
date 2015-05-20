@@ -61,7 +61,10 @@ class Make(Action):
         return self.port(req)
 
     def context(self):
-        inputs = {v[1:]: v[1:] for v in self.value.values() if v.startswith('$')}
-        outputs = {self.entity: self.entity}
-        return inputs, outputs
+        input, output = super(Make, self).context()
+        if not input:
+            input = {v[1:]: v[1:] for v in self.value.values() if v.startswith('$')}
+        if not output:
+            output = {self.entity: self.entity}
+        return input, output
 

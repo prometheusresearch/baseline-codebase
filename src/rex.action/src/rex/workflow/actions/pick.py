@@ -11,7 +11,8 @@ import re
 from cached_property import cached_property
 
 from rex.core import StrVal, OneOfVal, SeqVal, BoolVal, MaybeVal
-from rex.widget import Field, ColumnVal, FormFieldVal, formfield
+from rex.port import Port
+from rex.widget import Field, ColumnVal, FormFieldVal, formfield, responder, PortURL
 
 from ..action import Action
 
@@ -56,9 +57,15 @@ class Pick(Action):
         Mask.
         """)
 
+    def __init__(self, **values):
+        super(Pick, self).__init__(**values)
+        if self.columns is None:
+            fieldset = formfield.from_port(self.port)
+            self.values['columns'] = fieldset.fields
+
     @cached_property
     def port(self):
-        if self.fields is None:
+        if self.columns is None:
             return Port(self.entity)
         else:
             return formfield.to_port(
@@ -66,5 +73,12 @@ class Pick(Action):
                 filters=self.filters,
                 mask=self.mask)
 
+    @responder(url_type=PortURL)
+    def data(self, req):
+        return self.port(req)
+
     def context(self):
-        return self.inputs, {self.entity: self.entity}
+        input, output = super(Pick, self).context()
+        if not output:
+            output = {self.entity: self.entity}
+        return input, output

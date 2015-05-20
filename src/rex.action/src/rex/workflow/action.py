@@ -55,11 +55,26 @@ class Action(Widget):
         doc="""
         """)
 
+    input = Field(
+        MapVal(StrVal(), StrVal()), default={},
+        doc="""
+        """)
+
+    output = Field(
+        MapVal(StrVal(), StrVal()), default={},
+        doc="""
+        """)
+
+    def __init__(self, **values):
+        super(Action, self).__init__(**values)
+        input, output = self.context()
+        self.values['input'] = input
+        self.values['output'] = output
+
     def context(self):
         """ Compute context specification for an action.
         """
-        raise NotImplementedError('%s.context() is not implemented' % \
-                                  self.__class__.__name__)
+        return self.input, self.output
 
     @classmethod
     def validate(cls, value):

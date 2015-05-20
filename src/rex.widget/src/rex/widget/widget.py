@@ -8,7 +8,7 @@
 """
 
 from webob.exc import HTTPBadRequest
-from collections import OrderedDict, namedtuple
+from collections import Mapping, OrderedDict, namedtuple
 
 from rex.core import ProxyVal, SeqVal
 from rex.core import Extension, get_packages
@@ -208,5 +208,8 @@ def select_widget(widget, path):
         if isinstance(widget, GroupWidget):
             widget = widget.children[p]
         else:
-            widget = getattr(widget, p)
+            if isinstance(widget, Mapping):
+                widget = widget[p]
+            else:
+                widget = getattr(widget, p)
     return widget

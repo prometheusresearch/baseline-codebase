@@ -11,7 +11,7 @@ import inspect
 from functools import partial
 from webob.exc import HTTPBadRequest
 
-from rex.core import AnyVal
+from rex.core import AnyVal, Error
 
 from .transitionable import Transitionable
 from .url import URL
@@ -81,7 +81,10 @@ class Field(FieldBase):
             name=None):
         self.validate = validate
         if default is not NotImplemented:
-            default = validate(default)
+            try:
+                default = validate(default)
+            except Error as e:
+                raise ValueError(e)
         self.default = default
         super(Field, self).__init__(name=name, doc=doc)
 

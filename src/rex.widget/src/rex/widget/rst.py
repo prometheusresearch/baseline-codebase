@@ -25,7 +25,7 @@ class RST(TransitionableRecord):
     fields = ('src', 'links')
 
     __transit_tag__ = 's'
-    
+
     _find_links = re.compile(r'__\$(\d+)__')
 
     def __transit_format__(self, req):
@@ -84,5 +84,6 @@ class RSTVal(Validate):
         value = self._validate(value)
         _writer = docutils.writers.html4css1.Writer()
         _writer.translator_class = _HTMLTranslator
-        src = docutils.core.publish_parts(value, writer=_writer)['body'].strip()
+        parts = docutils.core.publish_parts(value, writer=_writer)
+        src = (parts['html_title'] + parts['body']).strip()
         return RST(src=src, links=_writer.visitor.links)

@@ -25,6 +25,13 @@ class ActionTree(TransitionableRecord):
     def __transit_format__(self):
         return {'tree': self.tree, 'actions': self.actions}
 
+    def __call__(self, req, path=()):
+        return {
+            'tree': self.tree,
+            'actions': {k: v(req, path=path + ('actions', k))
+                        for k, v in self.actions.items()}
+        }
+
 
 class ActionTreeVal(Validate):
 

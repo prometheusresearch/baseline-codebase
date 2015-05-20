@@ -3,13 +3,65 @@
  */
 'use strict';
 
-var React                       = require('react/addons');
-var {cloneWithProps}            = React.addons;
-var RexWidget                   = require('rex-widget');
-var {VBox, HBox}                = RexWidget.Layout;
-var {boxShadow, border}         = RexWidget.StyleUtils;
-var Breadcrumb                  = require('./Breadcrumb');
-var ServicePane                 = require('./ServicePane');
+var React               = require('react/addons');
+var {cloneWithProps}    = React.addons;
+var RexWidget           = require('rex-widget');
+var {VBox, HBox}        = RexWidget.Layout;
+var {boxShadow, border} = RexWidget.StyleUtils;
+var Breadcrumb          = require('./Breadcrumb');
+var ServicePane         = require('./ServicePane');
+var Actions             = require('./Actions');
+
+var ActionButtonStyle = {
+  self: {
+    padding: 10,
+    color: '#888',
+    fontWeight: 'bold',
+    textAlign: 'right',
+    cursor: 'pointer',
+    fontSize: '90%'
+  },
+  icon: {
+    top: 2,
+    marginLeft: 7,
+    marginRight: 7
+  },
+  onActive: {
+    self: {
+      background: 'linear-gradient(to right, #eaeaea 0%,#ffffff 100%)',
+      color: '#000'
+    }
+  },
+  onHover: {
+    self: {
+      background: 'linear-gradient(to right, #eaeaea 0%,#f1f1f1 100%)',
+    }
+  }
+};
+
+var ActionButton = React.createClass({
+
+  render() {
+    var {action, active, hover, ...props} = this.props;
+    var style = {
+      ...ActionButtonStyle.self,
+      ...(hover && ActionButtonStyle.onHover.self),
+      ...(active && ActionButtonStyle.onActive.self),
+      flexDirection: 'row-reverse'
+    };
+    return (
+      <HBox {...props} style={style} alignItems="right" onClick={this.onClick}>
+        {Actions.getTitle(action)}
+      </HBox>
+    );
+  },
+
+  onClick() {
+    this.props.onClick(this.props.actionId);
+  }
+});
+
+ActionButton = RexWidget.Hoverable(ActionButton);
 
 var WorkfowItemStyle = {
   self: {
@@ -24,6 +76,9 @@ var WorkfowItemStyle = {
     bottom: 0,
     right: 0
   },
+  alternative: {
+    width: 200
+  },
   onThemed: {
     self: {
       background: '#ffffff',
@@ -35,17 +90,44 @@ var WorkfowItemStyle = {
   }
 };
 
-
 var WorkfowItem = React.createClass({
 
   render() {
-    var {children, active, onActivate, style, noTheme} = this.props;
+    var {children, active, style, actions, actionTree, actionId, noTheme} = this.props;
     return (
-      <VBox style={{...WorkfowItemStyle.self, ...(!noTheme && WorkfowItemStyle.onThemed.self), ...style}}>
-        {children}
-        {!active && <VBox style={{...WorkfowItemStyle.shim, ...(!noTheme && WorkfowItemStyle.onThemed.shim)}} onClick={onActivate} />}
-      </VBox>
+      <HBox>
+        {actionTree.length > 0 &&
+          <VBox style={WorkfowItemStyle.alternative}>
+            {actionTree.map(id => {
+              var action = actions[id];
+              return (
+                <ActionButton
+                  active={id === actionId}
+                  action={action}
+                  actionId={id}
+                  onClick={this.onReplace}
+                  />
+              );
+            })}
+          </VBox>}
+        <VBox style={{...WorkfowItemStyle.self, ...(!noTheme && WorkfowItemStyle.onThemed.self), ...style}}>
+          {children}
+          {!active &&
+            <VBox
+              style={{...WorkfowItemStyle.shim, ...(!noTheme && WorkfowItemStyle.onThemed.shim)}}
+              onClick={this.onActivate}
+              />}
+        </VBox>
+      </HBox>
     );
+  },
+
+  onActivate() {
+    this.props.onActivate(this.props.actionId);
+  },
+
+  onReplace(id) {
+    this.props.onReplace(this.props.actionId, id);
   }
 });
 
@@ -133,20 +215,25 @@ var Workflow = React.createClass({
     }
 
     var actions = this._actions();
-    var {translateX, visibleIds, actionsTree} = this.state;
+    var {translateX, visibleIds, actionTree} = this.state;
 
-    console.log('RENDER', actionsTree, this.state.context);
+    console.log('RENDER', actionTree, this.state.context);
 
+    var prevActionsTree = this.props.actions.tree;
     var actions = this._actions().map((a, idx) => {
       var action = this._actionByID(a.id);
-      return (
+      var item = (
         <WorkfowItem
           ref={a.id}
           key={a.id}
           noTheme={a.id === '__service__'}
           style={WorkflowStyle.item}
           active={visibleIds.indexOf(a.id) !== -1}
-          onActivate={this.onActivate.bind(null, a.id)}>
+          actions={this.props.actions.actions}
+          actionId={a.id}
+          actionTree={a.id === '__service__' ? [] : Object.keys(prevActionsTree || {})}
+          onReplace={this.onReplace}
+          onActivate={this.onActivate}>
           {cloneWithProps(action, {
             ref: a.id,
             context: a.context,
@@ -155,14 +242,17 @@ var Workflow = React.createClass({
           })}
         </WorkfowItem>
       );
+      prevActionsTree = a.actionTree;
+      return item;
     });
+
     var breadcrumb = this._actions()
       .map(a => {
         var action = this._actionByID(a.id);
         return {
           id: a.id,
           icon: action.props.icon,
-          title: action.props.title
+          title: Actions.getTitle(action)
         };
       });
     return (
@@ -184,10 +274,9 @@ var Workflow = React.createClass({
   },
 
   getInitialState() {
-    console.log(this.props);
     var scrollTo = Object.keys(this.props.actions.tree)[0];
     var context = {};
-    var actionsTree = this.props.actions.tree[scrollTo];
+    var actionTree = this.props.actions.tree[scrollTo];
     return {
       size: null,
       scrollTo,
@@ -195,9 +284,9 @@ var Workflow = React.createClass({
       actions: [{
         id: scrollTo,
         context,
-        actionsTree
+        actionTree
       }],
-      actionsTree
+      actionTree
     };
   },
 
@@ -209,14 +298,6 @@ var Workflow = React.createClass({
         size: {width, height},
         ...this._getCanvasState(this._actions(), this.state.scrollTo, {width, height})
       });
-    }
-  },
-
-  componentDidUpdate() {
-    if (this.state.actions.length > 0) {
-      var active = this.state.actions[this.state.actions.length - 1].id;
-      var renderer = this.refs[active].renderService;
-      this.refs.__service__.renderInto(renderer);
     }
   },
 
@@ -233,10 +314,9 @@ var Workflow = React.createClass({
           actions={this.props.actions.actions}
           onOpenAction={this.onOpen}
           openedActions={this.state.actions.map(a => a.id)}
-          nextActions={Object.keys(this.state.actionsTree || {})}
+          nextActions={Object.keys(this.state.actionTree || {})}
           />
       );
-      console.log(servicePane.props);
       return servicePane;
     } else {
       return this.props.actions.actions[id];
@@ -249,15 +329,40 @@ var Workflow = React.createClass({
     actions.push({
       id: '__service__',
       context: this.state.context,
-      actionsTree: this.props.actions.tree
+      actionTree: this.props.actions.tree
     });
     return actions;
+  },
+
+  onReplace(id, nextId) {
+    var a = this._findActionByID(id);
+    var nextActions = [];
+    for (var idx = 0; idx < this.state.actions.length; idx++) {
+      var b = this.state.actions[idx];
+      if (b.id === '__service__') {
+        continue;
+      }
+      if (idx < a.idx) {
+        nextActions.push(b);
+      } else {
+        break;
+      }
+    }
+    var context = a.prev ? a.prev.context : {};
+    var actionTree = (a.prev ? a.prev.actionTree : this.props.actions.tree)[nextId];
+    nextActions = nextActions.concat({id: nextId, context, actionTree});
+    this.setState({
+      actions: nextActions,
+      actionTree,
+      scrollTo: nextId,
+      ...this._getCanvasState(this._actions(nextActions), nextId)
+    });
   },
 
   onContext(id, context) {
     var actions = this._actions();
     var a = this._findActionByID(id);
-    var actionsTree;
+    var actionTree;
     if (a.idx > -1) {
       var nextActions = [];
       for (var idx = 0; idx < actions.length; idx++) {
@@ -268,7 +373,7 @@ var Workflow = React.createClass({
         if (idx < a.idx) {
           nextActions.push(b);
         } else if (idx === a.idx) {
-          actionsTree = b.actionsTree;
+          actionTree = b.actionTree;
           nextActions.push({...b, context});
         } else {
           break;
@@ -276,7 +381,7 @@ var Workflow = React.createClass({
       }
       this.setState({
         context,
-        actionsTree,
+        actionTree,
         actions: nextActions,
         ...this._getCanvasState(this._actions(nextActions), this.state.scrollTo)
       });
@@ -285,12 +390,12 @@ var Workflow = React.createClass({
 
   onOpen(id) {
     console.log('OPEN');
-    var {context, actionsTree} = this.state;
-    actionsTree = actionsTree[id];
-    var actions = this.state.actions.concat({id, context, actionsTree});
+    var {context, actionTree} = this.state;
+    actionTree = actionTree[id];
+    var actions = this.state.actions.concat({id, context, actionTree});
     this.setState({
       actions,
-      actionsTree,
+      actionTree,
       scrollTo: id,
         ...this._getCanvasState(this._actions(actions), id)
     });
@@ -337,7 +442,7 @@ var Workflow = React.createClass({
       this.setState({
         scrollTo: a.prev.id,
         context: a.prev.context,
-        actionsTree: a.prev.actionsTree,
+        actionTree: a.prev.actionTree,
         actions: nextActions,
         ...this._getCanvasState(this._actions(nextActions), a.prev.id)
       });

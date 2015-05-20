@@ -2,4 +2,7 @@
 db: pgsql:workflow_demo
 htsql_extensions:
     rex_deploy:
-
+access:
+    rex.widget: anybody
+    rex.workflow_demo: anybody
+    rex.workflow: anybody

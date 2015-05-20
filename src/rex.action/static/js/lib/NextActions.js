@@ -8,6 +8,7 @@ var RexWidget       = require('rex-widget');
 var {VBox, HBox}    = RexWidget.Layout;
 var getNextActions  = require('./getNextActions');
 var ServiceSection  = require('./ServiceSection');
+var Actions         = require('./Actions');
 
 var NextActionsStyle = {
   button: {
@@ -53,7 +54,7 @@ var ActionButton = React.createClass({
         quiet
         icon={action.props.icon}
         onClick={this.props.onClick.bind(null, id)}>
-        {action.props.title}
+        {Actions.getTitle(action)}
       </RexWidget.Button>
     )
   }

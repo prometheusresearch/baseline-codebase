@@ -1,66 +1,30 @@
-
-- id: home
-  type: page
-  title: Enrollment Admin
+- type: page
+  id: home
+  title: Rex Workflow Demo
   icon: home
   text: |
-    This is a subset of functionality of Rex Study Enrollment Admin implemented
-    in terms of Rex Workflow configurable UI.
+    Welcome to Rex Workflow Demo application.
 
-    To the right you can see two next possible actions, namely *"List studies"*
-    and *"List individuals"*.
+- type: page
+  id: about
+  title: About
+  text: |
+    About page
 
-- id: list-individuals
-  type: list
+- type: page
+  id: help
+  title: Help
+  text: |
+    Help page
+
+- type: pick
+  id: pick-individual
   entity: individual
 
-- id: list-individuals-to-enroll
-  type: list
-  title: List individuals to enroll
-  entity: individual
-  columns:
-  - code
-  - identity.givenname
-  - identity.surname
-  - sex
-  requirements:
-  - exists(study_recruitment.study=$study)
-
-- id: view-individual
-  type: view
-  entity: individual
-
-- id: list-studies
-  type: list
-  title: List studies to enroll
-  entity: study
-  columns:
-  - code
-  - title
-  - start_date
-  - closed
-  - key: lab
-    expression: lab.title
-    name: Lab
-
-- id: view-study
-  type: view
+- type: pick
+  id: pick-study
   entity: study
 
-- id: create-study-enrollment
-  type: create
-  title: Enroll
-  entity: study_enrollment
-  fields:
-  - key: enrollment_date
-    type: date
-    name: Enrollment date
-  - key: consent_form_scan
-    name: Consent Form Scan
-    type: file
-    storage: rex.file:/
-    download: rex.study.enrollment_admin:/data/consent
-  value:
-    study: $study
-    individual: $individual
-
+- type: view
+  id: view-individual
+  entity: individual

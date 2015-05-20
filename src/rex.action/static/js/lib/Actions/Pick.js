@@ -22,35 +22,38 @@ var PickStyle = {
 };
 
 var Pick = React.createClass({
+  mixins: [RexWidget.DataSpecificationMixin],
 
   propTypes: {
     context: React.PropTypes.object,
     onContext: React.PropTypes.func
   },
 
+  dataSpecs: {
+    data: DS.collection()
+  },
+
   render() {
-    var port = new RexWidget.Port(this.props.data.path);
-    var bindings = this._compileBindings();
-    var dataSpec = new RexWidget.DataSpecification.Collection(port, bindings);
-    dataSpec = dataSpec.bindToContext(this);
+    var {entity, onClose} = this.props;
+    var title = this.constructor.getTitle(this.props);
     return (
       <VBox style={{...PickStyle.self, width: this.props.width}}>
         <HBox style={PickStyle.header}>
           <VBox style={PickStyle.title}>
             <h4>
-              {this.props.title}
+              {title}
             </h4>
           </VBox>
           <RexWidget.Button
             quiet
             icon="remove"
-            onClick={this.props.onClose}
+            onClick={onClose}
             />
         </HBox>
         <RexWidget.DataTable
           sortable={this.props.sortable}
           resizableColumns={this.props.resizableColumns}
-          dataSpec={dataSpec}
+          dataSpec={this.dataSpecs.data}
           columns={this.props.columns}
           selectable
           selected={this.state.selected}
@@ -60,25 +63,9 @@ var Pick = React.createClass({
     );
   },
 
-  renderService(actions) {
-    if (this.state.selected === null || !this.props.fields) {
-      return actions;
-    } else {
-      var data = new RexWidget.DataSet(this.state.data, false, null);
-      return [
-        <ServiceSection title={`Selected ${this.props.data.entity}`}>
-          <RexWidget.Info
-            data={data}
-            fields={this.props.fields.map(f => ({valueKey: f.key, label: f.name}))}
-            />
-        </ServiceSection>,
-        actions
-      ];
-    }
-  },
-
   getDefaultProps() {
     return {
+      icon: 'list',
       width: 600
     };
   },
@@ -90,23 +77,17 @@ var Pick = React.createClass({
     };
   },
 
-  _compileBindings() {
-    var bindings = this.props.data.bindings;
-    if (!bindings) {
-      return {};
-    }
-    var nextBindings = {};
-    for (var k in bindings) {
-      nextBindings[k] = DS.prop(`context.${bindings[k]}`, {required: true})
-    }
-    return nextBindings;
-  },
-
   onSelected(selected, data) {
     this.setState({selected, data});
     var nextContext = {...this.props.context};
-    nextContext[this.props.data.entity] = selected;
+    nextContext[this.props.entity] = selected;
     this.props.onContext(nextContext);
+  },
+
+  statics: {
+    getTitle(props) {
+      return props.title || `Pick ${props.entity}`;
+    }
   }
 });
 

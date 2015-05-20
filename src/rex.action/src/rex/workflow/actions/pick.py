@@ -12,7 +12,8 @@ from cached_property import cached_property
 
 from rex.core import StrVal, OneOfVal, SeqVal, BoolVal, MaybeVal
 from rex.port import Port
-from rex.widget import Field, ColumnVal, FormFieldVal, formfield, responder, PortURL
+from rex.widget import Field, ColumnVal, FormFieldVal, responder, PortURL
+from rex.widget import dataspec, formfield
 
 from ..action import Action
 
@@ -73,7 +74,11 @@ class Pick(Action):
                 filters=self.filters,
                 mask=self.mask)
 
-    @responder(url_type=PortURL)
+    def _construct_data_spec(self, port_url):
+        # TODO: compile mask binding here
+        return dataspec.CollectionSpec(port_url, {})
+
+    @responder(wrap=_construct_data_spec, url_type=PortURL)
     def data(self, req):
         return self.port(req)
 

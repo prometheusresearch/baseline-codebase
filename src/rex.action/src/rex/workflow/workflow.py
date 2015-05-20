@@ -20,8 +20,6 @@ from rex.urlmap import Map
 from rex.web import authorize
 from rex.widget import Widget, Field, render_widget
 
-from .action_tree import ActionTreeVal
-
 __all__ = ('Workflow', 'WorkflowVal')
 
 
@@ -52,7 +50,7 @@ class WorkflowVal(Validate):
     _validate_pre = MapVal(StrVal(), AnyVal())
     _validate_type = StrVal()
 
-    def __init__(self, default_workflow_type='panels'):
+    def __init__(self, default_workflow_type='paneled'):
         self.default_workflow_type = default_workflow_type
 
     def __call__(self, value):
@@ -65,7 +63,8 @@ class WorkflowVal(Validate):
             raise Error('unknown workflow type specified:', workflow_type)
         workflow_cls = Workflow.mapped()[workflow_sig]
         value = {k: v for (k, v) in value.items() if k != 'type'}
-        return workflow_cls(**value)
+        workflow = workflow_cls(**value)
+        return workflow
 
 
 class MapWorkflow(Map):

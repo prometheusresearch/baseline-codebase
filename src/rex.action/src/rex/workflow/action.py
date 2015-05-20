@@ -14,8 +14,7 @@ from collections import namedtuple
 
 from rex.core import Error, Validate, autoreload, get_packages, cached
 from rex.core import MaybeVal, StrVal, SeqVal, MapVal, AnyVal
-
-from rex.widget import Widget, Field
+from rex.widget import Widget, Field, MaybeUndefinedVal, undefined
 
 __all__ = ('Action', 'ActionVal', 'load_actions')
 
@@ -46,23 +45,27 @@ class Action(Widget):
         """)
 
     title = Field(
-        MaybeVal(StrVal()), default=None,
+        MaybeUndefinedVal(StrVal()), default=undefined,
         doc="""
+        Action title.
         """)
 
     icon = Field(
-        MaybeVal(StrVal()), default=None,
+        MaybeUndefinedVal(StrVal()), default=undefined,
         doc="""
+        Action icon.
         """)
 
     input = Field(
         MapVal(StrVal(), StrVal()), default={},
         doc="""
+        Requirements on context.
         """)
 
     output = Field(
         MapVal(StrVal(), StrVal()), default={},
         doc="""
+        Specification on context output.
         """)
 
     def __init__(self, **values):

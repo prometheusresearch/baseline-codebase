@@ -27,7 +27,7 @@ setup(
         'docutils               >= 0.12,  < 0.13',
         'simplejson             >= 3.0,   < 4',
         'jsonpublish            >= 0.2.1, < 0.3',
-        'transit                == 0.8.250',
+        'transit-python         == 0.8.250',
         'cached-property        >= 1,     < 2',
         'docutils               >= 0.12,  < 0.13',
     ],

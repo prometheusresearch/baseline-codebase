@@ -18,10 +18,11 @@ class Pointer(object):
     widget hierarchy.
     """
 
-    def __init__(self, widget, path=(), url_type=URL):
+    def __init__(self, widget, path=(), url_type=URL, wrap=None):
         self.widget = widget
         self.path = path
         self.url_type = url_type
+        self.wrap = wrap
 
     def __repr__(self):
         return '<%s to %s of %s>' % (
@@ -34,4 +35,8 @@ class Pointer(object):
 
     def __call__(self, req, path=()):
         path = KeyPathVal.to_string(path[:-1] + self.path)
-        return self.url_type(req.path_url, params={'__to__': path})
+        url = self.url_type(req.path_url, params={'__to__': path})
+        if self.wrap:
+            return self.wrap(self.widget, url)
+        else:
+            return url

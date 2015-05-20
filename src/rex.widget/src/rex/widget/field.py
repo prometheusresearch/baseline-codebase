@@ -157,12 +157,13 @@ class Responder(object):
 
 class ResponderField(FieldBase):
 
-    def __init__(self, respond, url_type=URL, name=None, doc=None):
+    def __init__(self, respond, url_type=URL, wrap=None, name=None, doc=None):
         super(ResponderField, self).__init__(
             name=name or respond.__name__,
             doc=doc or respond.__doc__)
         self.respond = respond
         self.url_type = url_type
+        self.wrap = wrap
 
     def __clone__(self, **params):
         next_params = {
@@ -175,19 +176,20 @@ class ResponderField(FieldBase):
         return self.__class__(**next_params)
 
     def __call__(self, widget):
-        pointer = Pointer(widget, url_type=self.url_type, path=(self.name,))
+        pointer = Pointer(widget, url_type=self.url_type, wrap=self.wrap, path=(self.name,))
         respond = partial(self.respond, widget)
         return Responder(pointer, respond)
 
 
 def responder(*args, **kwargs):
     url_type = kwargs.pop('url_type', URL)
+    wrap = kwargs.pop('wrap', None)
     if len(args) == 0:
         def decorate(respond):
-            return ResponderField(respond, url_type=url_type)
+            return ResponderField(respond, url_type=url_type, wrap=wrap)
         return decorate
     elif len(args) == 1:
-        return ResponderField(args[0], url_type=url_type)
+        return ResponderField(args[0], url_type=url_type, wrap=wrap)
     else:
         TypeError('TypeError: responder() takes exactly 1 arguments (%d given)' % len(args))
 

@@ -4,12 +4,12 @@
 'use strict';
 
 var React               = require('react');
-var RexWidget           = require('rex-widget/lib/modern');
+var RexWidget           = require('rex-widget');
 var ServiceSection      = require('../ServiceSection');
 var {VBox, HBox}        = RexWidget.Layout;
 var {Forms}             = RexWidget;
 
-var CreateStyle = {
+var MakeStyle = {
   self: {
     flex: 1,
   },
@@ -41,7 +41,7 @@ function buildValue(spec, context) {
   return value;
 }
 
-var Create = React.createClass({
+var Make = React.createClass({
 
   propTypes: {
     context: React.PropTypes.object,
@@ -55,9 +55,9 @@ var Create = React.createClass({
     var value = {};
     value[entity.entity] = [buildValue(this.props.value, this.props.context)];
     return (
-      <VBox style={CreateStyle.self}>
-        <HBox style={CreateStyle.header}>
-          <VBox style={CreateStyle.title}>
+      <VBox style={MakeStyle.self}>
+        <HBox style={MakeStyle.header}>
+          <VBox style={MakeStyle.title}>
             <h4>
               {this.props.title}
             </h4>
@@ -68,7 +68,7 @@ var Create = React.createClass({
             onClick={this.props.onClose}
             />
         </HBox>
-        <VBox style={CreateStyle.content}>
+        <VBox style={MakeStyle.content}>
           <Forms.Form
             insert
             ref="form"
@@ -148,5 +148,5 @@ var Create = React.createClass({
   }
 });
 
-module.exports = Create;
+module.exports = Make;
 

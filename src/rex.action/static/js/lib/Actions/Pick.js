@@ -4,12 +4,12 @@
 'use strict';
 
 var React               = require('react');
-var RexWidget           = require('rex-widget/lib/modern');
+var RexWidget           = require('rex-widget');
 var DS                  = RexWidget.DataSpecification;
 var {VBox, HBox}        = RexWidget.Layout;
 var ServiceSection      = require('../ServiceSection');
 
-var ListStyle = {
+var PickStyle = {
   self: {
     flex: 1
   },
@@ -21,7 +21,7 @@ var ListStyle = {
   }
 };
 
-var List = React.createClass({
+var Pick = React.createClass({
 
   propTypes: {
     context: React.PropTypes.object,
@@ -34,9 +34,9 @@ var List = React.createClass({
     var dataSpec = new RexWidget.DataSpecification.Collection(port, bindings);
     dataSpec = dataSpec.bindToContext(this);
     return (
-      <VBox style={{...ListStyle.self, width: this.props.width}}>
-        <HBox style={ListStyle.header}>
-          <VBox style={ListStyle.title}>
+      <VBox style={{...PickStyle.self, width: this.props.width}}>
+        <HBox style={PickStyle.header}>
+          <VBox style={PickStyle.title}>
             <h4>
               {this.props.title}
             </h4>
@@ -110,4 +110,4 @@ var List = React.createClass({
   }
 });
 
-module.exports = List;
+module.exports = Pick;

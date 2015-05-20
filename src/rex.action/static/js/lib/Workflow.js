@@ -5,8 +5,7 @@
 
 var React                       = require('react/addons');
 var {cloneWithProps}            = React.addons;
-var constructComponent          = require('rex-widget/lib/Application').constructComponent;
-var RexWidget                   = require('rex-widget/lib/modern');
+var RexWidget                   = require('rex-widget');
 var {VBox, HBox}                = RexWidget.Layout;
 var {boxShadow, border}         = RexWidget.StyleUtils;
 var Breadcrumb                  = require('./Breadcrumb');

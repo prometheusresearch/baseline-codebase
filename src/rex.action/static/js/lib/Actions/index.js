@@ -4,10 +4,10 @@
 'use strict';
 
 var Page = require('./Page');
-var List = require('./List');
+var Pick = require('./Pick');
 var View = require('./View');
-var Create = require('./Create');
+var Make = require('./Make');
 
 module.exports = {
-  Create, List, View, Page 
+  Make, Pick, View, Page 
 };

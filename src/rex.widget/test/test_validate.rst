@@ -34,7 +34,7 @@ Validating widgets
   Error: Found unknown widget:
       Widget
   While parsing:
-      "<byte string>", line 2
+      "<...>", line 2
 
   >>> parse("""
   ... !<Example>
@@ -45,7 +45,7 @@ Validating widgets
   Error: Got unexpected field:
       xtitle
   While parsing:
-      "<byte string>", line 3
+      "<...>", line 3
 
   >>> parse("""
   ... !<Example>
@@ -67,7 +67,7 @@ Validating widgets
   Got:
       1
   While parsing:
-      "<byte string>", line 3
+      "<...>", line 3
   While validating field:
       title
   Of widget:
@@ -126,7 +126,7 @@ Slots
   Got:
       1
   While parsing:
-      "<byte string>", line 5
+      "<...>", line 5
   While validating field:
       title
   Of widget:
@@ -151,7 +151,7 @@ Slots
   Got:
       1
   While parsing:
-      "<byte string>", line 1
+      "<...>", line 1
   While validating field:
       title
   Of widget:
@@ -209,7 +209,7 @@ Default values are validated in that case::
   Got:
       1
   While parsing:
-      "<byte string>", line 6
+      "<...>", line 6
   While validating field:
       params
   Of widget:
@@ -241,7 +241,7 @@ Slot value overrides are validated as well::
   Got:
       1
   While parsing:
-      "<byte string>", line 1
+      "<...>", line 1
   While validating field:
       params
   Of widget:
@@ -262,7 +262,7 @@ Specify widget class
   Instead got widget of type:
       <Another>
   While parsing:
-      "<byte string>", line 2
+      "<...>", line 2
 
   >>> WidgetVal(widget_class=Example).parse("""
   ... !<Another>
@@ -274,7 +274,7 @@ Specify widget class
   Instead got widget of type:
       <Another>
   While parsing:
-      "<byte string>", line 2
+      "<...>", line 2
 
   >>> WidgetVal(widget_class=Example).parse("""
   ... title: Title
@@ -308,7 +308,7 @@ Failures
   Got:
       1
   While parsing:
-      "<byte string>", line 1
+      "<...>", line 1
 
   >>> parse("'a'") # doctest: +ELLIPSIS
   Traceback (most recent call last):
@@ -317,7 +317,7 @@ Failures
   Got:
       a
   While parsing:
-      "<byte string>", line 1
+      "<...>", line 1
 
   >>> parse("{}") # doctest: +ELLIPSIS
   Traceback (most recent call last):
@@ -326,7 +326,7 @@ Failures
   Got:
       a mapping
   While parsing:
-      "<byte string>", line 1
+      "<...>", line 1
 
   >>> rex.cache.clear()
 
@@ -345,7 +345,7 @@ Failures
   Got:
       a b
   While parsing:
-      "<byte string>", line 2
+      "<...>", line 2
 
 Shortcut forms
 --------------

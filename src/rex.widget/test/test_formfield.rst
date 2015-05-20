@@ -52,7 +52,7 @@ Defining a new built-in type
   Error: Missing mandatory field:
       prop
   While parsing:
-      "<byte string>", line 2
+      "<...>", line 2
 
   >>> v.parse("""
   ... type: xmy
@@ -65,7 +65,7 @@ Defining a new built-in type
   Got:
       'xmy'
   While parsing:
-      "<byte string>", line 2
+      "<...>", line 2
 
   >>> rex.off()
 

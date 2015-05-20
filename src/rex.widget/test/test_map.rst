@@ -31,40 +31,14 @@ Test URL mapping bindings
   Content-Type: text/html; charset=UTF-8
   ...
   <BLANKLINE>
-  <!DOCTYPE html>
   <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  <BLANKLINE>
-    <link rel="stylesheet" href="http://localhost/widget-demo/bundle/bundle.css">
-  <BLANKLINE>
+  ...
   </head>
   <body>
-    <div id="__main__"></div>
-    <script>
-  <BLANKLINE>
-      var __PUBLIC_PATH__ = "http://localhost/widget-demo/bundle/";
-  <BLANKLINE>
-      var __MOUNT_POINTS__ = ...
-      var __MOUNT_PREFIX__ = "";
-      var __REX_WIDGET_MOUNT_PREFIX__ = "http://localhost/widget";
-    </script>
-  <BLANKLINE>
-    <script src="http://localhost/widget-demo/bundle/bundle.js"></script>
-  <BLANKLINE>
-    <script>
-      if (window.RexWidget === undefined) {
-        throw new Error('include rex-widget bower package in your application');
-      }
-      var __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify(["~#widget",["rex-widget/Screen",["^ ","title","OK"]]]));
-      RexWidget.render(
-        __REX_WIDGET__,
-        document.getElementById('__main__')
-      );
-    </script>
+  ...
   </body>
+  </html>
 
   >>> print Request.blank('/page', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK

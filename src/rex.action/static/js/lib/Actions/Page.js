@@ -29,13 +29,14 @@ var Page = React.createClass({
     var {width, title, text} = this.props;
     return (
       <VBox style={{...PageStyle.self, width}}>
-        <HBox style={PageStyle.header}>
-          <VBox style={PageStyle.title}>
-            <h4>
-              {title}
-            </h4>
-          </VBox>
-        </HBox>
+        {title &&
+          <HBox style={PageStyle.header}>
+            <VBox style={PageStyle.title}>
+              <h4>
+                {title}
+              </h4>
+            </VBox>
+          </HBox>}
         <VBox style={PageStyle.content}>
           <div dangerouslySetInnerHTML={{__html: text}} />
         </VBox>

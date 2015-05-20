@@ -184,9 +184,10 @@ var Workflow = React.createClass({
   },
 
   getInitialState() {
-    var scrollTo = Object.keys(this.props.actionsTree)[0];
+    console.log(this.props);
+    var scrollTo = Object.keys(this.props.actions.tree)[0];
     var context = {};
-    var actionsTree = this.props.actionsTree[scrollTo];
+    var actionsTree = this.props.actions.tree[scrollTo];
     return {
       size: null,
       scrollTo,
@@ -226,17 +227,19 @@ var Workflow = React.createClass({
 
   _actionByID(id) {
     if (id === '__service__') {
-      return (
+      var servicePane = (
         <ServicePane
           context={this.state.context}
-          actions={this.props.actions}
+          actions={this.props.actions.actions}
           onOpenAction={this.onOpen}
           openedActions={this.state.actions.map(a => a.id)}
           nextActions={Object.keys(this.state.actionsTree || {})}
           />
       );
+      console.log(servicePane.props);
+      return servicePane;
     } else {
-      return constructComponent(this.props.actions[id]);
+      return this.props.actions.actions[id];
     }
   },
 
@@ -246,7 +249,7 @@ var Workflow = React.createClass({
     actions.push({
       id: '__service__',
       context: this.state.context,
-      actionsTree: this.props.actionsTree
+      actionsTree: this.props.actions.tree
     });
     return actions;
   },

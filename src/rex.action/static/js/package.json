@@ -1,0 +1,8 @@
+{
+  "name": "rex-workflow",
+  "version": "0.1.0",
+  "dependencies": {
+    "webtest": "prometheusresearch/webtest",
+    "jsx-loader": "git+https://github.com/andreypopp/jsx-loader.git#442c510e0a"
+  }
+}

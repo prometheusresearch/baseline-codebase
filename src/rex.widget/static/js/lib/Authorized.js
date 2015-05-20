@@ -80,7 +80,14 @@ var Authorized = React.createClass({
 
 });
 
-var PERMISSIONS_API_ENDPOINT = `${__REX_WIDGET_MOUNT_PREFIX__}/authorized`;
+
+var PERMISSIONS_API_ENDPOINT;
+if (typeof __REX_WIDGET_MOUNT_PREFIX__ !== 'undefined') {
+  PERMISSIONS_API_ENDPOINT = `${__REX_WIDGET_MOUNT_PREFIX__}/authorized`;
+} else {
+  PERMISSIONS_API_ENDPOINT = '/authorized';
+}
+
 
 // Map<String, Boolean | Promise<Boolean>>
 var _access = {};

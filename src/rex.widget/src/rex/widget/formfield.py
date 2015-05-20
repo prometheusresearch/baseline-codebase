@@ -149,22 +149,26 @@ def _from_domain(domain, field_val, value_key='__root__', label='Root'):
         })
 
 
-def to_port(entity, fields):
+def to_port(entity, fields, filters=None, mask=None):
     """ Generate port from fieldset."""
     fields = _nest(fields)
-    return Port(_to_port_query(entity, fields))
+    return Port(_to_port_query(entity, fields, filters=filters, mask=mask))
 
 
 _grow_val = GrowVal()
 _form_field_val = FormFieldVal()
 
 
-def _to_port_query(entity, fields):
+def _to_port_query(entity, fields, filters=None, mask=None):
     grow = {
         'entity': entity,
         'select': [],
         'with': [],
     }
+    if filters is not None:
+        grow['filters'] = filters
+    if mask is not None:
+        grow['mask'] = mask
     for field in fields:
         assert len(field.value_key) == 1
         key = field.value_key[0]

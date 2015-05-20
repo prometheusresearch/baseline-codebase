@@ -4,12 +4,59 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    #__preloader__ {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: #eaeaea;
+    }
+    #__preloader__img__ {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      top: calc(50% - 25px);
+      left: calc(50% - 25px);
+    }
+  </style>
   {% if bundle.css %}
-  <link rel="stylesheet" href="{{ bundle.css|url }}">
+  <link id="__stylesheet__" media="not-applicable" rel="stylesheet" href="{{ bundle.css|url }}">
   {% endif %}
 </head>
 <body>
   <div id="__main__"></div>
+  <div id="__preloader__">
+    <img id="__preloader__img__" width="50" height="50"
+      src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="105" height="105"
+      viewBox="0 0 105 105" fill="#fff"><circle cx="12.5" cy="12.5"
+      r="12.5"><animate attributeName="fill-opacity" begin="0s" dur="1s"
+      values="1;.2;1" calcMode="linear" repeatCount="indefinite"/></circle><circle
+      cx="12.5" cy="52.5" r="12.5" fill-opacity=".5"><animate
+      attributeName="fill-opacity" begin="100ms" dur="1s" values="1;.2;1"
+      calcMode="linear" repeatCount="indefinite"/></circle><circle cx="52.5"
+      cy="12.5" r="12.5"><animate attributeName="fill-opacity" begin="300ms"
+      dur="1s" values="1;.2;1" calcMode="linear"
+      repeatCount="indefinite"/></circle><circle cx="52.5" cy="52.5"
+      r="12.5"><animate attributeName="fill-opacity" begin="600ms" dur="1s"
+      values="1;.2;1" calcMode="linear" repeatCount="indefinite"/></circle><circle
+      cx="92.5" cy="12.5" r="12.5"><animate attributeName="fill-opacity"
+      begin="800ms" dur="1s" values="1;.2;1" calcMode="linear"
+      repeatCount="indefinite"/></circle><circle cx="92.5" cy="52.5"
+      r="12.5"><animate attributeName="fill-opacity" begin="400ms" dur="1s"
+      values="1;.2;1" calcMode="linear" repeatCount="indefinite"/></circle><circle
+      cx="12.5" cy="92.5" r="12.5"><animate attributeName="fill-opacity"
+      begin="700ms" dur="1s" values="1;.2;1" calcMode="linear"
+      repeatCount="indefinite"/></circle><circle cx="52.5" cy="92.5"
+      r="12.5"><animate attributeName="fill-opacity" begin="500ms" dur="1s"
+      values="1;.2;1" calcMode="linear" repeatCount="indefinite"/></circle><circle
+      cx="92.5" cy="92.5" r="12.5"><animate attributeName="fill-opacity"
+      begin="200ms" dur="1s" values="1;.2;1" calcMode="linear"
+      repeatCount="indefinite"/></circle></svg>'>
+  </div>
   <script>
     {% if bundle.root %}
     var __PUBLIC_PATH__ = "{{ bundle.root|url }}";
@@ -17,18 +64,31 @@
     var __MOUNT_POINTS__ = {{ REQUEST.environ['rex.mount'] }};
     var __MOUNT_PREFIX__ = "{{ REQUEST.script_name }}";
     var __REX_WIDGET_MOUNT_PREFIX__ = "{{ REQUEST.environ['rex.mount']['rex.widget'] }}";
+    var __REX_WIDGET__;
   </script>
   {% if bundle.js %}
   <script src="{{ bundle.js|url }}"></script>
   {% endif %}
   <script>
-    if (window.RexWidget === undefined) {
-      throw new Error('include rex-widget bower package in your application');
-    }
-    var __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify({{ payload }}));
-    RexWidget.render(
-      __REX_WIDGET__,
-      document.getElementById('__main__')
-    );
+    (function() {
+      var __main__ = document.getElementById('__main__');
+      var __preloader__ = document.getElementById('__preloader__');
+      var __stylesheet__ = document.getElementById('__stylesheet__');
+
+      if (window.RexWidget === undefined) {
+        throw new Error('include rex-widget bower package in your application');
+      }
+
+      __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify({{ payload }}));
+      __stylesheet__.media = 'all';
+
+      RexWidget.render(
+        __REX_WIDGET__,
+        __main__,
+        function() {
+          document.body.removeChild(__preloader__);
+        }
+      );
+    })();
   </script>
 </body>

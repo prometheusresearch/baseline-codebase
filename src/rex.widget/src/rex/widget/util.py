@@ -60,6 +60,9 @@ class MaybeUndefinedVal(Validate):
             return value
         return self.validate(value)
 
+    def construct(self, loader, node):
+        return self.validate.construct(loader, node)
+
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.validate)
 

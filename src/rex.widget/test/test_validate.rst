@@ -4,7 +4,7 @@ Validating widgets
 ::
 
   >>> from rex.core import Rex, StrVal,SeqVal
-  >>> from rex.widget import Widget, Field, WidgetVal
+  >>> from rex.widget import Widget, Field, WidgetVal, MaybeUndefinedVal, undefined
   >>> from rex.widget.validate import DeferredVal
 
   >>> def parse(value, widget_class=None, context=None):
@@ -246,6 +246,136 @@ Slot value overrides are validated as well::
       params
   Of widget:
       DeepSlots
+
+Slots within widget values::
+
+  >>> rex.cache.clear()
+
+  >>> class ExamplePanel(Widget):
+  ...   name = 'ExamplePanel'
+  ...   children = Field(WidgetVal())
+
+  >>> parse("""
+  ... !<ExamplePanel>
+  ... children: !<Example>
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """)
+  ExamplePanel(children=Example(title='Title', desc='Desc'))
+
+  >>> parse("""
+  ... !<ExamplePanel>
+  ... children: !<Example>
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """, context={'title': 'Override!'})
+  ExamplePanel(children=Example(title='Override!', desc='Desc'))
+
+  >>> parse("""
+  ... !<ExamplePanel>
+  ... children: !<DeepSlots>
+  ...   params:
+  ...     a: !slot
+  ...       name: title
+  ...       default: Title
+  ... """)
+  ExamplePanel(children=DeepSlots(params={'a': 'Title'}))
+
+  >>> parse("""
+  ... !<ExamplePanel>
+  ... children: !<DeepSlots>
+  ...   params:
+  ...     a: !slot
+  ...       name: title
+  ...       default: Title
+  ... """, context={'title': 'Override'})
+  ExamplePanel(children=DeepSlots(params={'a': 'Override'}))
+
+  >>> rex.cache.clear()
+
+  >>> class ExamplePanelWithExample(Widget):
+  ...   name = 'ExamplePanelWithExample'
+  ...   children = Field(WidgetVal(widget_class=Example))
+
+  >>> parse("""
+  ... !<ExamplePanelWithExample>
+  ... children: !<Example>
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """)
+  ExamplePanelWithExample(children=Example(title='Title', desc='Desc'))
+
+  >>> parse("""
+  ... !<ExamplePanelWithExample>
+  ... children: !<Example>
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """, context={'title': 'Override'})
+  ExamplePanelWithExample(children=Example(title='Override', desc='Desc'))
+
+  >>> parse("""
+  ... !<ExamplePanelWithExample>
+  ... children:
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """)
+  ExamplePanelWithExample(children=Example(title='Title', desc='Desc'))
+
+  >>> parse("""
+  ... !<ExamplePanelWithExample>
+  ... children:
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """, context={'title': 'Override'})
+  ExamplePanelWithExample(children=Example(title='Override', desc='Desc'))
+
+  >>> rex.cache.clear()
+
+  >>> class ExamplePanelWithMaybeUndefinedExample(Widget):
+  ...   name = 'ExamplePanelWithMaybeUndefinedExample'
+  ...   children = Field(MaybeUndefinedVal(WidgetVal(widget_class=Example)), default=undefined)
+
+  >>> parse("""
+  ... !<ExamplePanelWithMaybeUndefinedExample>
+  ... children: !<Example>
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """)
+  ExamplePanelWithMaybeUndefinedExample(children=Example(title='Title', desc='Desc'))
+
+  >>> parse("""
+  ... !<ExamplePanelWithMaybeUndefinedExample>
+  ... children: !<Example>
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """, context={'title': 'Override'})
+  ExamplePanelWithMaybeUndefinedExample(children=Example(title='Override', desc='Desc'))
+
+  >>> parse("""
+  ... !<ExamplePanelWithMaybeUndefinedExample>
+  ... children:
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """)
+  ExamplePanelWithMaybeUndefinedExample(children=Example(title='Title', desc='Desc'))
+
+  >>> parse("""
+  ... !<ExamplePanelWithMaybeUndefinedExample>
+  ... children:
+  ...   title: !slot
+  ...     name: title
+  ...     default: Title
+  ... """, context={'title': 'Override'})
+  ExamplePanelWithMaybeUndefinedExample(children=Example(title='Override', desc='Desc'))
 
 Specify widget class
 --------------------

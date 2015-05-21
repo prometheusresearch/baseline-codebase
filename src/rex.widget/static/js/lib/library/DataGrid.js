@@ -10,10 +10,10 @@ var DataTable           = require('../DataTable');
 var DataGrid = React.createClass({
 
   render() {
-    var {data, columns, withSearchFilter, ...props} = this.props;
+    var {data, columns, withSearchFilter, searchPlaceholder, ...props} = this.props;
     if (withSearchFilter) {
       return (
-        <DataTableWithSearch dataSpec={data}>
+        <DataTableWithSearch dataSpec={data} searchPlaceholder={searchPlaceholder}>
           <DataTable
             {...props}
             columns={columns}

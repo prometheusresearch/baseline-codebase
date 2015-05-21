@@ -34,16 +34,16 @@ class URL(TransitionableRecord):
     def __init__(self, route, params=None):
         super(URL, self).__init__(route=route, params=params)
 
-    def __transit_format__(self, req):
-        route = url_for(req, self.route)
-        if self.params:
-            route = route + '?' + urlencode(self.params)
+    def __transit_format__(self, req): # pylint: disable=arguments-differ
+        route = url_for(req, self.route) # pylint: disable=no-member
+        if self.params: # pylint: disable=no-member
+            route = route + '?' + urlencode(self.params) # pylint: disable=no-member
         return (route,)
 
 
 class PortURL(URL):
     """ URL for ports.
-    
+
     Works like :class:`URL` but values of such type will be deserialized into
     ``Port`` class instances in JavaScript runtime.
     """
@@ -53,7 +53,7 @@ class PortURL(URL):
 
 class QueryURL(URL):
     """ URL for HTSQL query.
-    
+
     Works like :class:`URL` but values of such type will be deserialized into
     ``Query`` class instances in JavaScript runtime.
     """

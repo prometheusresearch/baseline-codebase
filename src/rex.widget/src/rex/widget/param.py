@@ -20,7 +20,7 @@ __all__ = ('ParamVal', 'Param')
 Param = namedtuple('Param', ['value', 'context_ref', 'required'])
 
 @as_transitionable(Param, tag='map')
-def _encode_Param(param):
+def _encode_Param(param): # pylint: disable=invalid-name
     return PropsContainer(param._asdict())
 
 
@@ -34,7 +34,7 @@ class ParamVal(Validate):
     )
 
     _validate = OneOfVal(_validate_shortcut, _validate_full)
-    
+
     def __call__(self, value):
         if isinstance(value, Param):
             return value

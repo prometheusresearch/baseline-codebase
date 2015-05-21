@@ -33,8 +33,8 @@ class WriteHandler(BaseWriteHandler):
         if key in self.store:
             return self.store[key]
         else:
-            for t in key.mro():
-                value = t in self.store and self.store[t]
+            for cls in key.mro():
+                value = cls in self.store and self.store[cls]
                 if value:
                     return value
             raise KeyError("No handler found for: " + str(key))
@@ -111,7 +111,8 @@ class _TransitionableMeta(type):
     def __new__(mcs, name, bases, attrs):
         cls = type.__new__(mcs, name, bases, attrs)
         if '__transit_format__' in attrs:
-            tag = attrs.get('__transit_tag__', '%s.%s' % (attrs['__module__'], name))
+            tag = attrs.get('__transit_tag__',
+                            '%s.%s' % (attrs['__module__'], name))
         elif hasattr(cls, '__transit_tag__'):
             tag = cls.__transit_tag__
         else:
@@ -120,7 +121,8 @@ class _TransitionableMeta(type):
         if len(argspec.args) == 1:
             handler = _Handler(tag, cls.__transit_format__.im_func)
         else:
-            handler = _RequestContextHandler(tag, cls.__transit_format__.im_func)
+            handler = _RequestContextHandler(tag,
+                                             cls.__transit_format__.im_func)
         _handlers[cls] = handler
         return cls
 
@@ -131,8 +133,9 @@ class Transitionable(object):
     __metaclass__ = _TransitionableMeta
 
     def __transit_format__(self):
-        raise NotImplementedError('%s.__transit_format__() is not implemented' % \
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            '%s.__transit_format__() is not implemented' % \
+            self.__class__.__name__)
 
     def __str__(self):
         return super(Transitionable, self).__str__()
@@ -159,7 +162,7 @@ class TransitionableRecord(Transitionable):
     __metaclass__ = _TransitionableRecordMeta
 
     def __transit_format__(self):
-        return [getattr(self, field) for field in self._fields]
+        return [getattr(self, field) for field in self._fields] # pylint: disable=no-member
 
 
 def as_transitionable(obj_type, tag=None):

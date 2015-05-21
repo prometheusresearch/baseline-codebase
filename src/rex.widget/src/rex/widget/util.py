@@ -72,7 +72,7 @@ class MaybeUndefinedVal(Validate):
 
 class PropsContainer(MutableMapping):
     """ Widget description props container.
-    
+
     This is thin wrapper for dict which automatically camel cases all keys to
     match JavaScript coding convention.
     """
@@ -91,7 +91,7 @@ class PropsContainer(MutableMapping):
 
     def __delattr__(self, name):
         del self[name]
-        
+
     def __getitem__(self, name):
         return self._storage[to_camelcase(name)]
 
@@ -128,5 +128,5 @@ def to_camelcase(value):
 
 
 @as_transitionable(PropsContainer, tag='map')
-def _format_PropsContainer(value):
+def _format_PropsContainer(value): # pylint: disable=invalid-name
     return value._storage

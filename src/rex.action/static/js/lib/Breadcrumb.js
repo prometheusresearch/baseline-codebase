@@ -40,8 +40,8 @@ var Breadcrumb = React.createClass({
 
 var BreadcrumbItemStyle = {
   self: {
-    paddingLeft: 15,
-    paddingRight: 15,
+    paddingLeft: 13,
+    paddingRight: 13,
     height: '100%',
     alignItems: 'center',
     fontSize: '90%',

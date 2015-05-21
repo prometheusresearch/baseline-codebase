@@ -11,57 +11,7 @@ var {boxShadow, border} = RexWidget.StyleUtils;
 var Breadcrumb          = require('./Breadcrumb');
 var ServicePane         = require('./ServicePane');
 var Actions             = require('./Actions');
-
-var ActionButtonStyle = {
-  self: {
-    padding: 10,
-    color: '#888',
-    fontWeight: 'bold',
-    textAlign: 'right',
-    cursor: 'pointer',
-    fontSize: '90%'
-  },
-  icon: {
-    top: 2,
-    marginLeft: 7,
-    marginRight: 7
-  },
-  onActive: {
-    self: {
-      background: 'linear-gradient(to right, #eaeaea 0%,#ffffff 100%)',
-      color: '#000'
-    }
-  },
-  onHover: {
-    self: {
-      background: 'linear-gradient(to right, #eaeaea 0%,#f1f1f1 100%)',
-    }
-  }
-};
-
-var ActionButton = React.createClass({
-
-  render() {
-    var {action, active, hover, ...props} = this.props;
-    var style = {
-      ...ActionButtonStyle.self,
-      ...(hover && ActionButtonStyle.onHover.self),
-      ...(active && ActionButtonStyle.onActive.self),
-      flexDirection: 'row-reverse'
-    };
-    return (
-      <HBox {...props} style={style} alignItems="right" onClick={this.onClick}>
-        {Actions.getTitle(action)}
-      </HBox>
-    );
-  },
-
-  onClick() {
-    this.props.onClick(this.props.actionId);
-  }
-});
-
-ActionButton = RexWidget.Hoverable(ActionButton);
+var ActionButton        = require('./ActionButton');
 
 var WorkfowItemStyle = {
   self: {
@@ -76,8 +26,9 @@ var WorkfowItemStyle = {
     bottom: 0,
     right: 0
   },
-  alternative: {
-    width: 200
+  sidebar: {
+    top: 50,
+    width: 150
   },
   onThemed: {
     self: {
@@ -97,11 +48,13 @@ var WorkfowItem = React.createClass({
     return (
       <HBox>
         {actionTree.length > 0 &&
-          <VBox style={WorkfowItemStyle.alternative}>
+          <VBox style={WorkfowItemStyle.sidebar}>
             {actionTree.map(id => {
               var action = actions[id];
               return (
                 <ActionButton
+                  align="right"
+                  key={id}
                   active={id === actionId}
                   action={action}
                   actionId={id}
@@ -141,7 +94,7 @@ var WorkflowStyle = {
 
   breadcrumb: {
     width: '100%',
-    height: 40,
+    height: 38,
     boxShadow: boxShadow(0, 3, 6, 2, '#e2e2e2'),
     borderTop: border(1, 'solid', '#eaeaea')
   },
@@ -227,7 +180,7 @@ var Workflow = React.createClass({
           ref={a.id}
           key={a.id}
           noTheme={a.id === '__service__'}
-          style={WorkflowStyle.item}
+          style={{...WorkflowStyle.item, zIndex: a.id === '__service__' ? 999 : 1000}}
           active={visibleIds.indexOf(a.id) !== -1}
           actions={this.props.actions.actions}
           actionId={a.id}

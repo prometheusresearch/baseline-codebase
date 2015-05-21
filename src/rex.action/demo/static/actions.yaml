@@ -1,6 +1,6 @@
 - type: page
   id: home
-  title: Rex Workflow Demo
+  title: Home
   icon: home
   text: |
     Welcome to Rex Workflow Demo application.

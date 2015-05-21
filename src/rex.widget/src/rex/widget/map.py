@@ -13,7 +13,7 @@ from rex.urlmap import Map
 from rex.core import Error, StrVal, MapVal
 from rex.web import authorize
 
-from .validate import WidgetVal, DeferredVal, Deferred
+from .validate import WidgetVal, DeferredVal
 from .render import render
 
 __all__ = ('MapWidget', 'WidgetRenderer')

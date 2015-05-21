@@ -7,10 +7,8 @@
 
 """
 
-from collections import namedtuple
-
 from rex.core import Validate, StrVal, RecordVal, MapVal, AnyVal, OneOfVal
-from rex.web import url_for, route
+from rex.web import route
 
 from .url import PortURL, QueryURL, URL
 from .transitionable import TransitionableRecord

@@ -10,10 +10,10 @@
 from collections import namedtuple
 
 from webob import Response
-from webob.exc import HTTPUnauthorized, HTTPBadRequest
+from webob.exc import HTTPBadRequest
 
-from rex.core import Error, get_packages
-from rex.web import authorize, render_to_response
+from rex.core import get_packages
+from rex.web import render_to_response
 
 from .widget import select_widget
 from .keypath import KeyPathVal
@@ -65,7 +65,7 @@ def render(widget, request, template='rex.widget:/templates/index.html'):
                 Panel(children=[]),
                 ])
             return render_widget(widget, req)
-    
+
     :param widget: Widget instance to render
     :type widget: :class:`rex.widget.Widget`
 
@@ -80,7 +80,8 @@ def render(widget, request, template='rex.widget:/templates/index.html'):
         widget_path = validate_widget_path(widget_path)
         widget = select_widget(widget, widget_path)
         if not hasattr(widget, 'respond'):
-            raise HTTPBadRequest('unable to locate responder via __to__ pointer')
+            raise HTTPBadRequest(
+                'unable to locate responder via __to__ pointer')
         return widget.respond(request)
     else:
         accept = request.accept.best_match(['text/html', 'application/json'])

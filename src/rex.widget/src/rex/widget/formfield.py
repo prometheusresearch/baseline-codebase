@@ -9,7 +9,7 @@
 
 from htsql.core import domain as domains
 
-from rex.core import Extension, Validate, Error, cached
+from rex.core import Extension, Validate
 from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal
 from rex.core import AnyVal, StrVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
@@ -19,14 +19,14 @@ from .transitionable import as_transitionable
 from .dataspec import CollectionSpecVal
 from .keypath import KeyPathVal
 
-__all__ = ('FormField', 'FormFieldWidget', 'FormFieldVal',
+__all__ = ('FormField', 'FormFieldVal',
            'validate', 'from_port', 'to_port')
 
 
 class FormFieldTypeVal(Validate):
 
     def __call__(self, value):
-        form_field_types = FormField.mapped()
+        form_field_types = FormField.mapped() # pylint: disable=no-member
         validate = ChoiceVal(*form_field_types)
         value = validate(value)
         return form_field_types[value]
@@ -111,13 +111,13 @@ class FormField(Extension):
 
 
 @as_transitionable(FormField, tag='map')
-def _encode_FormField(field):
+def _encode_FormField(field): # pylint: disable=invalid-name
     return field()
 
 
 def from_port(port, field_val=FormFieldVal()):
     """ Generate fieldset for a port definition."""
-    meta = port.describe().meta 
+    meta = port.describe().meta
     # traverse to <domain> of { <entity tag>: [ <domain> ] }
     domain = meta.domain.fields[0].domain.item_domain
     return _from_domain(domain, field_val)

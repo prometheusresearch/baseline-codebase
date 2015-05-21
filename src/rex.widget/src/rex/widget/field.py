@@ -9,11 +9,9 @@
 
 import inspect
 from functools import partial
-from webob.exc import HTTPBadRequest
 
 from rex.core import AnyVal, Error
 
-from .transitionable import Transitionable
 from .url import URL
 from .pointer import Pointer
 
@@ -78,7 +76,7 @@ class Field(FieldBase):
     """
 
     def __init__(self, validate=AnyVal(), default=NotImplemented, doc=None,
-            name=None):
+                 name=None):
         self.validate = validate
         if default is not NotImplemented:
             try:

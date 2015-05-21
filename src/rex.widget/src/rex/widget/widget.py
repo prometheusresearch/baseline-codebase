@@ -8,18 +8,16 @@
 """
 
 from webob.exc import HTTPBadRequest
-from collections import Mapping, OrderedDict, namedtuple
+from collections import Mapping, OrderedDict
 
 from rex.core import ProxyVal, SeqVal
-from rex.core import Extension, get_packages
-from rex.urlmap import Map
-from rex.web import Route, PathMap, get_routes
+from rex.core import Extension
 
 from .transitionable import TransitionableRecord
 from .field import FieldBase, Field
 from .util import PropsContainer
 
-__all__ = ('Widget', 'GroupWidget', 'NullWidget', 'select_widget', 'Pointer')
+__all__ = ('Widget', 'GroupWidget', 'NullWidget', 'select_widget')
 
 
 class WidgetSpec(TransitionableRecord):
@@ -29,12 +27,12 @@ class WidgetSpec(TransitionableRecord):
     fields = ('js_type', 'values')
 
     def __transit_format__(self):
-        return self.js_type, PropsContainer(self.values)
+        return self.js_type, PropsContainer(self.values) # pylint: disable=no-member
 
 
-class WidgetMeta(Extension.__metaclass__):
+class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
 
-    def __new__(mcs, name, bases, members):
+    def __new__(mcs, name, bases, members): # pylint: disable=bad-classmethod-argument
         fields = [(n, field.__clone__(name=n) if field.name is None else field)
                   for n, field in members.items()
                   if isinstance(field, FieldBase)]
@@ -44,8 +42,8 @@ class WidgetMeta(Extension.__metaclass__):
         cls._fields = OrderedDict()
         if not (name == 'Widget' and members['__module__'] == __name__):
             cls._fields.update([f for base in bases
-                                 if issubclass(base, Widget)
-                                 for f in base._fields.items()])
+                                if issubclass(base, Widget)
+                                for f in base._fields.items()])
         cls._fields.update(fields)
         return cls
 
@@ -103,6 +101,7 @@ class Widget(Extension):
 
     _validate = ProxyVal()
     _validate_values = ProxyVal()
+    _fields = OrderedDict()
 
     @classmethod
     def parse(cls, value):
@@ -114,7 +113,7 @@ class Widget(Extension):
 
     @classmethod
     def validated(cls, **values):
-        global _prevent_validation
+        global _prevent_validation # pylint: disable=global-statement
         _prevent_validation = True
         try:
             return cls(**values)

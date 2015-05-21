@@ -11,11 +11,10 @@ from __future__ import absolute_import
 
 import types
 import contextlib
-import json
 import yaml
 
 from rex.core import ValidatingLoader, Error, Location, guard
-from rex.core import Validate, AnyVal, StrVal, RecordVal, RecordField
+from rex.core import Validate, StrVal, RecordVal, RecordField
 
 from .widget import Widget, GroupWidget, NullWidget
 from .field import Field
@@ -46,7 +45,7 @@ class DeferredVal(Validate):
 
 class WidgetVal(Validate):
     """ Validator for widget values.
-    
+
     Can be used as a field value validator for widgets which want to have other
     widgets as their values::
 
@@ -76,11 +75,15 @@ class WidgetVal(Validate):
             if data is None:
                 return NullWidget()
             elif isinstance(data, list):
-                return GroupWidget.validated(children=[self(item) for item in data])
+                return GroupWidget.validated(
+                    children=[self(item) for item in data])
             elif isinstance(data, Widget):
-                if self.widget_class and not isinstance(data, self.widget_class):
-                    error = Error("Expected a widget of type:", self.widget_class.__name__)
-                    error = error.wrap("But got widget of type:", data.__class__.__name__)
+                if self.widget_class and \
+                   not isinstance(data, self.widget_class):
+                    error = Error("Expected a widget of type:",
+                                  self.widget_class.__name__)
+                    error = error.wrap("But got widget of type:",
+                                       data.__class__.__name__)
                     raise error
                 widget_class = data.__class__
                 data = data.values
@@ -120,8 +123,8 @@ class WidgetVal(Validate):
         with patched_loader(loader, self.context):
             return self._construct(loader, node)
 
-    def _construct(self, loader, node):
-        widget_classes = Widget.mapped()
+    def _construct(self, loader, node): # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+        widget_classes = Widget.mapped() # pylint: disable=no-member
         location = Location.from_node(node)
         name = None
         pairs = []
@@ -138,8 +141,9 @@ class WidgetVal(Validate):
                     pairs = [(None, value)]
         elif isinstance(node, yaml.SequenceNode):
             if node.tag == u'tag:yaml.org,2002:seq':
-                return GroupWidget.validated(children=[self.construct(loader, item)
-                                                       for item in node.value])
+                return GroupWidget.validated(
+                    children=[self.construct(loader, item)
+                              for item in node.value])
             if node.tag.isalnum():
                 name = node.tag
                 value = yaml.SequenceNode(
@@ -157,9 +161,9 @@ class WidgetVal(Validate):
             widget_class = self.widget_class
         elif not name:
             error = Error("Expected a widget")
-            error.wrap("Got:", node.value
-                            if isinstance(node, yaml.ScalarNode)
-                            else "a %s" % node.id)
+            error.wrap("Got:", node.value \
+                               if isinstance(node, yaml.ScalarNode) \
+                               else "a %s" % node.id)
             error.wrap("While parsing:", location)
             raise error
         else:
@@ -167,16 +171,20 @@ class WidgetVal(Validate):
             error.wrap("While parsing:", location)
             raise error
         if self.widget_class is not None:
-            if not (widget_class is self.widget_class or issubclass(widget_class, self.widget_class)):
-                error = Error("Expected widget of type:", "<%s>" % self.widget_class.__name__)
-                error.wrap("Instead got widget of type:", "<%s>" % widget_class.__name__)
+            if not (widget_class is self.widget_class
+                    or issubclass(widget_class, self.widget_class)):
+                error = Error("Expected widget of type:", "<%s>" % \
+                              self.widget_class.__name__)
+                error.wrap("Instead got widget of type:", "<%s>" % \
+                           widget_class.__name__)
                 error.wrap("While parsing:", location)
                 raise error
         record_fields = [RecordField(f.name, f.validate, f.default)
                          for f in widget_class._fields.values()
                          if isinstance(f, Field)]
         field_by_name = {f.name: f for f in record_fields}
-        fields_with_no_defaults = [f for f in record_fields if not f.has_default]
+        fields_with_no_defaults = [f for f in record_fields
+                                   if not f.has_default]
         values = {}
         for key_node, value_node in pairs:
             if key_node is None:
@@ -185,8 +193,8 @@ class WidgetVal(Validate):
                     key_node = node
                 else:
                     error = Error("Expected a mapping")
-                    error.wrap("Got:", node.value
-                                       if isinstance(node, yaml.ScalarNode)
+                    error.wrap("Got:", node.value \
+                                       if isinstance(node, yaml.ScalarNode) \
                                        else "a %s" % node.id)
                     error.wrap("While parsing:", location)
                     raise error
@@ -223,7 +231,8 @@ def patched_loader(loader, context):
     patched = loader.validating.im_func is ValidatingLoader_validating
     if not patched:
         loader.__slots_context = context
-        loader.validating = types.MethodType(ValidatingLoader_validating, loader)
+        loader.validating = types.MethodType(
+            ValidatingLoader_validating, loader)
     yield
     if not patched:
         del loader.__slots_context
@@ -233,7 +242,7 @@ def patched_loader(loader, context):
 orig_ValidatingLoader_validating = ValidatingLoader.validating
 
 
-def ValidatingLoader_validating(self, validate):
+def ValidatingLoader_validating(self, validate): # pylint: disable=invalid-name
     if validate is not None:
         validate = SlotResolveVal(validate, self.__slots_context)
     return orig_ValidatingLoader_validating(self, validate)

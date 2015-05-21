@@ -29,3 +29,14 @@ from .util import undefined, MaybeUndefinedVal
 import rex.widget.library
 import rex.widget.map
 import rex.widget.commands
+
+from .formfield import (
+    StringFormField,
+    BoolFormField,
+    DateFormField,
+    EnumFormField,
+    EntityFormField,
+    CalcFormField,
+    CompositeFormField,
+    Fieldset,
+    List)

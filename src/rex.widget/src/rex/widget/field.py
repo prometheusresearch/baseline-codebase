@@ -10,8 +10,9 @@
 import inspect
 from functools import partial
 
-from rex.core import AnyVal, Error
+from rex.core import AnyVal, Error, MaybeVal
 
+from .util import MaybeUndefinedVal, undefined
 from .url import URL
 from .pointer import Pointer
 
@@ -77,6 +78,10 @@ class Field(FieldBase):
 
     def __init__(self, validate=AnyVal(), default=NotImplemented, doc=None,
                  name=None):
+        if default is None and not isinstance(validate, MaybeVal):
+            validate = MaybeVal(validate)
+        elif default is undefined and not isinstance(validate, MaybeUndefinedVal):
+            validate = MaybeUndefinedVal(validate)
         self.validate = validate
         if default is not NotImplemented:
             try:

@@ -244,7 +244,7 @@ class EnumFormField(FormField):
 
     fields = (
         ('label', StrVal(), None),
-        ('values', SeqVal(_value_val)),
+        ('options', SeqVal(_value_val)),
     )
 
 

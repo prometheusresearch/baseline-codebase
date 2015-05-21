@@ -177,6 +177,7 @@ class ResponderField(FieldBase):
             'url_type': self.url_type,
             'doc': self.doc,
             'name': self.name,
+            'wrap': self.wrap,
         }
         next_params.update(params)
         return self.__class__(**next_params)

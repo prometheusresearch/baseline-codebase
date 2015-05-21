@@ -165,7 +165,7 @@ class ResponderField(FieldBase):
 
     def __init__(self, respond, url_type=URL, wrap=None, name=None, doc=None):
         super(ResponderField, self).__init__(
-            name=name or respond.__name__,
+            name=name,
             doc=doc or respond.__doc__)
         self.respond = respond
         self.url_type = url_type

@@ -72,14 +72,16 @@ class WidgetVal(Validate):
         self.context = context or {}
 
     def __call__(self, data):
-        widget_classes = Widget.mapped()
-
-        with guard("Got:", repr(data)):
+        with guard("While validating:", repr(data)):
             if data is None:
                 return NullWidget()
             elif isinstance(data, list):
                 return GroupWidget.validated(children=[self(item) for item in data])
             elif isinstance(data, Widget):
+                if self.widget_class and not isinstance(data, self.widget_class):
+                    error = Error("Expected a widget of type:", self.widget_class.__name__)
+                    error = error.wrap("But got widget of type:", data.__class__.__name__)
+                    raise error
                 widget_class = data.__class__
                 data = data.values
                 data = self.validate_values(widget_class, data)

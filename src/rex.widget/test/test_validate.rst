@@ -347,8 +347,8 @@ Failures
   While parsing:
       "<...>", line 2
 
-Shortcut forms
---------------
+Parsing shortcut forms
+----------------------
 
 ::
 
@@ -371,5 +371,81 @@ Shortcut forms
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   WidgetWithSeq(seq=['a', 'b', 'c'])
 
-  >>> rex.off()
+Validation
+----------
 
+::
+
+  >>> v = WidgetVal()
+
+  >>> v(None)
+  NullWidget()
+
+  >>> v([])
+  GroupWidget(children=[])
+
+  >>> v([None])
+  GroupWidget(children=[NullWidget()])
+
+  >>> v(Example(title='Title'))
+  Example(title='Title', desc='Desc')
+
+  >>> v([Example(title='Title')])
+  GroupWidget(children=[Example(title='Title', desc='Desc')])
+
+  >>> v('string') # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a widget
+  While validating:
+      'string'
+
+  >>> v(Example.validated(title=42)) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a string
+  Got:
+      42
+  While validating field:
+      title
+  Of widget:
+      Example
+  While validating:
+      Example(title=42, desc='Desc')
+
+  >>> v = WidgetVal(widget_class=Example)
+
+  >>> v(Another()) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a widget of type:
+      Example
+  But got widget of type:
+      Another
+  While validating:
+      Another()
+
+  >>> v([Another()]) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a widget of type:
+      Example
+  But got widget of type:
+      Another
+  While validating:
+      Another()
+  While validating:
+      [Another()]
+
+  >>> v(Example(title='Title'))
+  Example(title='Title', desc='Desc')
+
+  >>> v([Example(title='Title')])
+  GroupWidget(children=[Example(title='Title', desc='Desc')])
+
+Cleanup
+-------
+
+::
+
+  >>> rex.off()

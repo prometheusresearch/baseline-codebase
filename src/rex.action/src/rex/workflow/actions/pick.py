@@ -75,7 +75,6 @@ class Pick(Action):
                 mask=self.mask)
 
     def _construct_data_spec(self, port_url):
-        print "XXXX"
         # TODO: compile mask binding here
         return dataspec.CollectionSpec(port_url, {})
 

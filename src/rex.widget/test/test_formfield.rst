@@ -609,6 +609,7 @@ Built-in types
    ('enum', rex.widget.formfield.EnumFormField),
    ('fieldset', rex.widget.formfield.Fieldset),
    ('file', rex.widget.formfield.FileFormField),
+   ('integer', rex.widget.formfield.IntegerFormField),
    ('list', rex.widget.formfield.List),
    ('string', rex.widget.formfield.StringFormField)]
 

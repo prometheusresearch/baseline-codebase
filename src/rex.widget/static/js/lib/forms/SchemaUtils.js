@@ -38,7 +38,7 @@ function _fieldToSchema(field) {
       };
     case 'bool':
       return {
-        type: 'bool',
+        type: 'boolean',
         format: Validation.bool,
         isRequired: !!field.required
       };
@@ -58,6 +58,12 @@ function _fieldToSchema(field) {
       return {
         type: 'string',
         format: Validation.entity,
+        isRequired: !!field.required
+      };
+    case 'integer':
+      return {
+        type: 'number',
+        format: Validation.number,
         isRequired: !!field.required
       };
     case 'string':

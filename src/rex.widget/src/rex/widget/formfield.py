@@ -7,7 +7,7 @@
 
 """
 
-from htsql.core import domain as domains
+from htsql.core import domain
 
 from rex.core import Extension, Validate
 from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal
@@ -126,6 +126,7 @@ def from_port(port, field_val=FormFieldVal()):
 def _is_required(column):
     return not column.is_nullable and not column.has_default
 
+
 def _from_arm(arm, field_val, value_key='__root__', label='Root'):
     if arm.kind in ('facet entity', 'trunk entity', 'branch entity', 'root'):
         fields = [_from_arm(v, field_val, value_key=k, label=k)
@@ -137,7 +138,14 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
             'fields': fields,
         })
     elif arm.kind == 'column':
+        if isinstance(arm.domain, domain.IntegerDomain):
+            field_type = 'integer'
+        elif isinstance(arm.domain, domain.BooleanDomain):
+            field_type = 'bool'
+        else:
+            field_type = 'string'
         return field_val({
+            'type': field_type,
             'value_key': value_key,
             'label': label,
             'required': _is_required(arm.column),
@@ -218,6 +226,15 @@ class StringFormField(FormField):
     fields = (
         ('label', MaybeVal(StrVal()), None),
         ('pattern', MaybeVal(StrVal()), None),
+        ('error', MaybeVal(StrVal()), None),
+    )
+
+
+class IntegerFormField(FormField):
+
+    type = 'integer'
+    fields = (
+        ('label', MaybeVal(StrVal()), None),
         ('error', MaybeVal(StrVal()), None),
     )
 

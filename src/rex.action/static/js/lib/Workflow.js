@@ -13,6 +13,7 @@ var Breadcrumb          = require('./Breadcrumb');
 var ServicePane         = require('./ServicePane');
 var Actions             = require('./Actions');
 var ActionButton        = require('./ActionButton');
+var WithDOMSize         = require('./WithDOMSize');
 
 var SERVICE_PANE_ID = '__service__';
 
@@ -127,7 +128,7 @@ class WorkflowState {
 
 var WorkfowItemStyle = {
   self: {
-    minWidth: 480
+    minWidth: 300
   },
   shim: {
     cursor: 'pointer',
@@ -231,7 +232,7 @@ var WorkflowStyle = {
 
 function getPanelWidth(panel) {
   var element = panel.element;
-  var width = Actions.getWidth(element) || 480;
+  var width = Actions.getWidth(element) || WorkfowItemStyle.self.minWidth;
   if (Object.keys(panel.prev.actionTree).length > 1) {
     width = width + WorkfowItemStyle.sidebar.width;
   }
@@ -280,47 +281,6 @@ function computeCanvasMetrics(workflow, size, getActionByID) {
     visiblePanels
   };
 }
-
-function WithDOMSize(Component) {
-  return React.createClass({
-
-    displayName: `WithDOMSize(${Component.displayName || Component.name})`,
-
-    render() {
-      return (
-        <Component
-          {...this.props}
-          DOMSize={this.state.DOMSize}
-          />
-      );
-    },
-
-    getInitialState() {
-      return {DOMSize: null};
-    },
-
-    componentDidMount() {
-      if (this.state.DOMSize === null) {
-        this.computeSize();
-      }
-      window.addEventListener('resize', this.computeSize);
-    },
-
-    componentWillUnmount() {
-      window.removeEventListener('resize', this.computeSize);
-    },
-
-    onWindowResize() {
-      this.computeSize();
-    },
-
-    computeSize() {
-      var node = this.getDOMNode();
-      var {width, height} = node.getBoundingClientRect();
-      this.setState({DOMSize: {width, height}});
-    }
-  });
-};
 
 var Workflow = React.createClass({
 

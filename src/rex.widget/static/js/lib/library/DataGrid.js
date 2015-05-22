@@ -15,6 +15,9 @@ var DataGrid = React.createClass({
       return (
         <DataTableWithSearch dataSpec={data} searchPlaceholder={searchPlaceholder}>
           <DataTable
+            sortable
+            resizableColumns
+            selectable
             {...props}
             columns={columns}
             />

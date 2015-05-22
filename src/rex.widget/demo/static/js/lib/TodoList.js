@@ -93,6 +93,8 @@ var TodoList = RexWidget.createWidgetClass({
         <VBox size={6}>
           <RexWidget.DataTable
             selectable
+            sortable
+            resizableColumns
             selected={this.state.selected.value}
             onSelected={this.state.selected.update}
             dataSpec={this.dataSpecs.list}

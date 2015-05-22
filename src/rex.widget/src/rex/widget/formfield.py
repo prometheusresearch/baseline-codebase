@@ -119,36 +119,35 @@ def _encode_FormField(field): # pylint: disable=invalid-name
 
 def from_port(port, field_val=FormFieldVal()):
     """ Generate fieldset for a port definition."""
-    meta = port.describe().meta
-    # traverse to <domain> of { <entity tag>: [ <domain> ] }
-    domain = meta.domain.fields[0].domain.item_domain
-    return _from_domain(domain, field_val)
+    trunk_arm = port.tree.arms.values()[0]
+    return _from_arm(port.tree, field_val).fields[0].fields
 
 
-def _from_domain(domain, field_val, value_key='__root__', label='Root'):
-    if isinstance(domain, domains.RecordDomain):
-        fields = [_from_domain(f.domain, field_val, value_key=f.tag, label=f.header)
-                  for f in domain.fields]
+def _from_arm(arm, field_val, value_key='__root__', label='Root'):
+    if arm.kind in ('facet entity', 'trunk entity', 'branch entity', 'root'):
+        fields = [_from_arm(v, field_val, value_key=k, label=k)
+                  for k, v in arm.items()]
         return field_val({
-            'type': 'fieldset',
+            'type': 'fieldset' if not arm.is_plural else 'list',
             'value_key': value_key,
             'label': label,
             'fields': fields,
+            #'required': not arm.column.is_nullable and not arm.column.has_default,
         })
-    elif isinstance(domain, domains.ListDomain):
-        fields = [_from_domain(f.domain, field_val, value_key=f.tag, label=f.header)
-                  for f in domain.item_fields]
+    elif arm.kind == 'column':
         return field_val({
-            'type': 'list',
             'value_key': value_key,
             'label': label,
-            'fields': fields,
+            #'required': not arm.column.is_nullable and not arm.column.has_default,
+        })
+    elif arm.kind == 'link':
+        return field_val({
+            'value_key': value_key,
+            'label': label,
+            #'required': not arm.column.is_nullable and not arm.column.has_default,
         })
     else:
-        return field_val({
-            'value_key': value_key,
-            'label': label,
-        })
+        raise NotImplementedError('found an unknown arm kind: %s' % arm.kind)
 
 
 def to_port(entity, fields, filters=None, mask=None):

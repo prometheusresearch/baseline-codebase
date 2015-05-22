@@ -177,22 +177,18 @@ Generating a fieldset from port definition
   >>> rex.on()
 
   >>> from_port(Port("individual")) # doctest: +NORMALIZE_WHITESPACE
-  Fieldset(value_key=['__root__'], label='Root',
-           fields=[StringFormField(value_key=['id'], label='id'),
-                   StringFormField(value_key=['code'], label='Code'),
-                   StringFormField(value_key=['sex'], label='Sex'),
-                   StringFormField(value_key=['mother'], label='Mother'),
-                   StringFormField(value_key=['father'], label='Father'),
-                   StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
-                   StringFormField(value_key=['adopted_father'], label='Adopted Father')])
+  [StringFormField(value_key=['code'], label='code'),
+    StringFormField(value_key=['sex'], label='sex'),
+    StringFormField(value_key=['mother'], label='mother'),
+    StringFormField(value_key=['father'], label='father'),
+    StringFormField(value_key=['adopted_mother'], label='adopted_mother'),
+    StringFormField(value_key=['adopted_father'], label='adopted_father')]
 
   >>> from_port(Port("""
   ... entity: individual
   ... select: [id, code]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  Fieldset(value_key=['__root__'], label='Root',
-           fields=[StringFormField(value_key=['id'], label='id'),
-                   StringFormField(value_key=['code'], label='Code')])
+  [StringFormField(value_key=['code'], label='code')]
 
   >>> from_port(Port("""
   ... entity: individual
@@ -201,12 +197,9 @@ Generating a fieldset from port definition
   ... - entity: identity
   ...   select: [id, givenname]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  Fieldset(value_key=['__root__'], label='Root',
-           fields=[StringFormField(value_key=['id'], label='id'),
-                   StringFormField(value_key=['code'], label='Code'),
-                   Fieldset(value_key=['identity'], label='Identity',
-                            fields=[StringFormField(value_key=['id'], label='id'),
-                                    StringFormField(value_key=['givenname'], label='Given Name')])])
+  [StringFormField(value_key=['code'], label='code'),
+   Fieldset(value_key=['identity'], label='identity',
+            fields=[StringFormField(value_key=['givenname'], label='givenname')])]
 
   >>> rex.off()
 

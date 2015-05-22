@@ -33,7 +33,7 @@ var MakeStyle = {
     padding: 5
   },
   submitButton: {
-    width: '40%'
+    width: '25%'
   }
 };
 
@@ -105,42 +105,17 @@ var Make = React.createClass({
             size="small"
             onClick={this.onSubmit}
             align="center">
-            {title}
+            Submit
           </RexWidget.Button>
         </VBox>
       </VBox>
     );
   },
 
-  renderService(actions) {
-    var style = {marginBottom: 10, width: '30%'};
-    return [
-      <ServiceSection title="Form">
-        <RexWidget.Button
-          style={style}
-          success
-          icon={this.props.icon}
-          onClick={this.onSubmit}
-          align="left">
-          {this.props.title}
-        </RexWidget.Button>
-        <RexWidget.Button
-          style={style}
-          quiet
-          icon="remove"
-          onClick={this.props.onClose}
-          align="left">
-          Cancel
-        </RexWidget.Button>
-      </ServiceSection>,
-      actions
-    ];
-  },
-
   getDefaultProps() {
     return {
       width: 400,
-      icon: 'plus'
+      icon: 'ok'
     };
   },
 

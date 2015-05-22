@@ -14,6 +14,7 @@ from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal
 from rex.core import AnyVal, StrVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
 
+from .url import URLVal
 from .util import PropsContainer
 from .transitionable import as_transitionable
 from .dataspec import CollectionSpecVal
@@ -230,6 +231,16 @@ class DateFormField(FormField):
     type = 'date'
     fields = (
         ('label', StrVal(), None),
+    )
+
+
+class FileFormField(FormField):
+
+    type = 'file'
+    fields = (
+        ('label', StrVal(), None),
+        ('download', URLVal()),
+        ('storage', URLVal(), 'rex.file:/'),
     )
 
 

@@ -15,6 +15,7 @@ var CheckboxField     = require('./CheckboxField');
 var SelectField       = require('./SelectField');
 var AutocompleteField = require('./AutocompleteField');
 var RepeatingFieldset = require('./RepeatingFieldset');
+var FileUploadField   = require('./FileUploadField')
 var SchemaUtils       = require('./SchemaUtils');
 
 /**
@@ -108,6 +109,16 @@ var ConfigurableForm = React.createClass({
             key={valueKey}
             label={field.label}
             selectFormValue={valueKey}
+            />
+        );
+      case 'file':
+        return (
+          <FileUploadField
+            key={valueKey}
+            label={field.label}
+            selectFormValue={valueKey}
+            storage={field.storage}
+            download={field.download}
             />
         );
       case 'enum':

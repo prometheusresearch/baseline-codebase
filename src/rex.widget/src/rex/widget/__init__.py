@@ -34,6 +34,7 @@ from .formfield import (
     StringFormField,
     BoolFormField,
     DateFormField,
+    FileFormField,
     EnumFormField,
     EntityFormField,
     CalcFormField,

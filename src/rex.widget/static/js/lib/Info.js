@@ -54,7 +54,7 @@ var Info = React.createClass({
       case 'file':
         return (
           <FileDownload
-            download={field.params.download}
+            download={field.download}
             ownerRecordID={data.id}
             file={value}
             />

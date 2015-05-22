@@ -68,6 +68,24 @@ class WorkflowState {
     return this.construct(this._panels, id);
   }
 
+  moveFocusLeft() {
+    var idx = this.indexOf(this.focus);
+    if (idx > 0) {
+      return this.updateFocus(this.panels[idx - 1].id);
+    } else {
+      return this;
+    }
+  }
+
+  moveFocusRight() {
+    var idx = this.indexOf(this.focus);
+    if (idx < this.panels.length - 1) {
+      return this.updateFocus(this.panels[idx + 1].id);
+    } else {
+      return this;
+    }
+  }
+
   updateContext(id, contextUpdate) {
     var nextPossibleAction = this._panels[this.indexOf(id) + 1];
     var state = this;
@@ -269,7 +287,9 @@ function getPanelWidth(panel) {
 }
 
 function computeCanvasMetrics(workflow, size, getActionByID) {
+  console.log('---------');
   var widthToDistribute;
+  var seenWidth = 0;
   var scrollToIdx;
   var translateX = 0;
   var visiblePanels = [];
@@ -281,6 +301,7 @@ function computeCanvasMetrics(workflow, size, getActionByID) {
       widthToDistribute = size.width;
     }
     if (widthToDistribute !== undefined) {
+      console.log('>>>', panel.id, widthToDistribute, panelWidth);
       widthToDistribute = widthToDistribute - panelWidth;
       if (widthToDistribute >= -10) {
         visiblePanels.push(panel.id);
@@ -293,13 +314,7 @@ function computeCanvasMetrics(workflow, size, getActionByID) {
     for (var i = scrollToIdx - 1; i >= 0; i--) {
       var panel = workflow.panels[i];
       var panelWidth = getPanelWidth(panel);
-
       translateX = translateX + panelWidth + WorkflowStyle.item.marginRight;
-
-      widthToDistribute = widthToDistribute - panelWidth;
-      if (widthToDistribute >= -10) {
-        visiblePanels.unshift(panel.id);
-      }
     }
   }
 
@@ -314,6 +329,7 @@ function computeCanvasMetrics(workflow, size, getActionByID) {
 var Workflow = React.createClass({
 
   render() {
+    console.log(this.state);
     if (this.props.DOMSize === null) {
       return <VBox style={WorkflowStyle.self} />;
     }
@@ -348,7 +364,7 @@ var Workflow = React.createClass({
     }));
 
     return (
-      <VBox style={WorkflowStyle.self}>
+      <VBox style={WorkflowStyle.self} onKeyDown={this.onKeyDown} tabIndex={-1}>
         <VBox ref="items" style={WorkflowStyle.items}>
           <HBox ref="itemsCanvas" style={{...WorkflowStyle.itemsCanvas, transform: `translate3d(-${translateX}px, 0, 0)`}}>
             {panels}
@@ -373,7 +389,17 @@ var Workflow = React.createClass({
     };
   },
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.DOMSize !== this.props.DOMSize) {
+      var nextState = this.computeCanvasMetrics(this.state.workflow, nextProps.DOMSize);
+      this.setState(nextState);
+    }
+  },
+
   onWorkflowUpdate(workflow) {
+    if (workflow === this.state.workflow) {
+      return;
+    }
     var nextState = {
       workflow,
       ...this.computeCanvasMetrics(workflow)
@@ -381,16 +407,25 @@ var Workflow = React.createClass({
     this.setState(nextState);
   },
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.DOMSize !== this.props.DOMSize) {
-      this.setState(this.computeCanvasMetrics(this.state.workflow, nextProps.DOMSize));
-    }
-  },
-
   computeCanvasMetrics(workflow, size) {
     workflow = workflow || this.state.workflow;
     size = size || this.props.DOMSize;
     return computeCanvasMetrics(workflow, size);
+  },
+
+  onKeyDown(e) {
+    switch (e.key) {
+      case 'ArrowLeft':
+        this.state.workflow
+          .moveFocusLeft()
+          .update();
+        break;
+      case 'ArrowRight':
+        this.state.workflow
+          .moveFocusRight()
+          .update();
+        break;
+    }
   },
 
   onReplace(id, replaceId) {

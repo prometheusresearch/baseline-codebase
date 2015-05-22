@@ -40,8 +40,7 @@ class View(Action):
     def __init__(self, **values):
         super(View, self).__init__(**values)
         if self.fields is None:
-            fieldset = formfield.from_port(self.port)
-            self.values['fields'] = fieldset.fields
+            self.values['fields'] = formfield.from_port(self.port)
 
     @cached_property
     def port(self):

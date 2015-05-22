@@ -61,8 +61,7 @@ class Pick(Action):
     def __init__(self, **values):
         super(Pick, self).__init__(**values)
         if self.columns is None:
-            fieldset = formfield.from_port(self.port)
-            self.values['columns'] = fieldset.fields
+            self.values['columns'] = formfield.from_port(self.port)
 
     @cached_property
     def port(self):

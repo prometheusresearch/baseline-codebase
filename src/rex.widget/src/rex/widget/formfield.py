@@ -11,11 +11,11 @@ from htsql.core import domain as domains
 
 from rex.core import Extension, Validate
 from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal
-from rex.core import AnyVal, StrVal, BoolVal, MaybeVal
+from rex.core import AnyVal, StrVal, IntVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
 
 from .url import URLVal
-from .util import PropsContainer
+from .util import PropsContainer, undefined, MaybeUndefinedVal
 from .transitionable import as_transitionable
 from .dataspec import CollectionSpecVal
 from .keypath import KeyPathVal
@@ -79,6 +79,7 @@ class FormField(Extension):
     _default_fields = (
         ('value_key', KeyPathVal()),
         ('required', BoolVal(), False),
+        ('width', MaybeUndefinedVal(OneOfVal(StrVal(), IntVal())), undefined),
         ('read_only', BoolVal(), False),
     )
 
@@ -113,7 +114,7 @@ class FormField(Extension):
 
 @as_transitionable(FormField, tag='map')
 def _encode_FormField(field): # pylint: disable=invalid-name
-    return field()
+    return {k: v for k, v in field().items() if v is not undefined}
 
 
 def from_port(port, field_val=FormFieldVal()):

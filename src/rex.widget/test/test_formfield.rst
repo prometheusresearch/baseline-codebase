@@ -41,7 +41,19 @@ Defining a new built-in type
   MyFormField(value_key=['a'], prop='Prop')
 
   >>> encode(f, None)
-  u'["^ ","readOnly",false,"valueKey",["a"],"required",false,"type","my","prop","Prop"]'
+  u'["^ ","valueKey",["a"],"readOnly",false,"required",false,"type","my","prop","Prop"]'
+
+Set width::
+
+  >>> v.parse("""
+  ... type: my
+  ... value_key: a
+  ... width: 10
+  ... prop: prop
+  ... """)
+  MyFormField(value_key=['a'], width=10, prop='prop')
+
+Errors::
 
   >>> v.parse("""
   ... type: my
@@ -95,7 +107,7 @@ Defining a new alias form field type
   MyFormFieldAlias(value_key=['a'], xprop='Prop')
 
   >>> encode(f, None)
-  u'["^ ","readOnly",false,"valueKey",["a"],"required",false,"type","my","prop","Prop"]'
+  u'["^ ","valueKey",["a"],"readOnly",false,"required",false,"type","my","prop","Prop"]'
 
   >>> rex.off()
 
@@ -571,6 +583,7 @@ Built-in types
    ('entity', rex.widget.formfield.EntityFormField),
    ('enum', rex.widget.formfield.EnumFormField),
    ('fieldset', rex.widget.formfield.Fieldset),
+   ('file', rex.widget.formfield.FileFormField),
    ('list', rex.widget.formfield.List),
    ('string', rex.widget.formfield.StringFormField)]
 

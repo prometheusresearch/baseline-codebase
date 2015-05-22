@@ -380,7 +380,7 @@ var Workflow = React.createClass({
 
   onFocus(id) {
     var {workflow, visiblePanels} = this.state;
-    var {panel, prevPanel, nextPanel, idx} = workflow.find(id);
+    var {panel, idx} = workflow.find(id);
 
     var {focusPanel, prevFocusPanel, nextFocusPanel, focusIdx} = workflow.find(id);
     if (panel.isService) {

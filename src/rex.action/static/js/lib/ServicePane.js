@@ -12,7 +12,6 @@ var ActionButton    = require('./ActionButton');
 
 var ServicePaneStyle = {
   self: {
-    left: -15
   },
   header: {
     height: 25,
@@ -45,7 +44,7 @@ var ServicePane = React.createClass({
       )
 
     return (
-      <VBox style={{...ServicePaneStyle.self, width: this.props.width}}>
+      <VBox style={{...ServicePaneStyle.self, width: this.props.width, ...this.props.style}}>
         {actionButtons.length > 0 && 
           <VBox style={ServicePaneStyle.nextActions}>
             <h6 style={ServicePaneStyle.header}>Next Actions</h6>

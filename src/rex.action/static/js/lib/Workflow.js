@@ -38,7 +38,7 @@ class WorkflowState {
       isService: true,
       context: this.context,
       actionTree: this.actionTree,
-      element: <ServicePane />,
+      element: <ServicePane style={{left: -15}} />,
       prev: this.last
     });
   }

@@ -133,6 +133,38 @@ Shortcuts
 
   >>> rex.off()
 
+Form field types
+----------------
+
+::
+
+  >>> rex = Rex('rex.widget_demo')
+  >>> rex.on()
+
+  >>> v = FormFieldVal()
+
+EnumFormField::
+
+  >>> f = v.parse("""
+  ... type: enum
+  ... value_key: sex
+  ... options:
+  ... - value: male
+  ...   label: Male
+  ... - value: female
+  ...   label: Female
+  ... """)
+
+  >>> f # doctest: +NORMALIZE_WHITESPACE
+  EnumFormField(value_key=['sex'],
+                options=[Record(value='male', label='Male'),
+                         Record(value='female', label='Female')])
+
+  >>> encode(f, None)
+  u'["^ ","valueKey",["sex"],"required",false,"label",null,"readOnly",false,"type","enum","options",[["^ ","value","male","^2","Male"],["^ ","^6","female","^2","Female"]]]'
+
+  >>> rex.off()
+
 Generating a fieldset from port definition
 ------------------------------------------
 

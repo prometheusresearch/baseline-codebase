@@ -260,6 +260,11 @@ class EnumFormField(FormField):
     )
 
 
+@as_transitionable(EnumFormField._value_val.record_type, tag='map')
+def _encode_EnumFormField_value(value): # pylint: disable=invalid-name
+    return value._asdict()
+
+
 class EntityFormField(FormField):
 
     type = 'entity'

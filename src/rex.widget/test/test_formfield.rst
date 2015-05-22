@@ -5,9 +5,9 @@ Init
 ----
 ::
 
-  >>> from rex.core import LatentRex as Rex, StrVal
+  >>> from rex.core import LatentRex as Rex, StrVal, SeqVal
 
-  >>> from rex.widget import encode
+  >>> from rex.widget import encode, formfield
 
 
 Defining a new built-in type
@@ -198,6 +198,40 @@ Generating a fieldset from port definition
   ...   select: [id, givenname]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
+   Fieldset(value_key=['identity'], label='Identity',
+            fields=[StringFormField(value_key=['givenname'], label='Givenname')])]
+
+  >>> rex.off()
+
+Enrich field from port
+----------------------
+
+::
+
+  >>> from rex.widget.formfield import enrich
+
+  >>> rex = Rex('rex.widget_demo')
+  >>> rex.on()
+
+  >>> v = SeqVal(FormFieldVal())
+
+  >>> def test_enrich(entity, yaml):
+  ...   fields = v.parse(yaml)
+  ...   port = formfield.to_port(entity, fields)
+  ...   return enrich(fields, port)
+
+  >>> test_enrich('individual', """
+  ... - code
+  ... - sex
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], label='Code'),
+   StringFormField(value_key=['sex'], label='Sex')]
+
+  >>> test_enrich('individual', """
+  ... - code
+  ... - identity.givenname
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], label='Code'),
    Fieldset(value_key=['identity'], label='Identity',
             fields=[StringFormField(value_key=['givenname'], label='Givenname')])]
 

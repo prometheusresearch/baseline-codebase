@@ -23,7 +23,7 @@ from .dataspec import CollectionSpecVal
 from .keypath import KeyPathVal
 
 __all__ = ('FormField', 'FormFieldVal',
-           'validate', 'from_port', 'to_port')
+           'validate', 'enrich', 'from_port', 'to_port')
 
 
 class FormFieldTypeVal(Validate):
@@ -119,25 +119,34 @@ def _encode_FormField(field): # pylint: disable=invalid-name
     return {k: v for k, v in field().items() if v is not undefined}
 
 
+def enrich(fields, port):
+    fields = _nest(fields)
+    fields = List(fields=fields, value_key='__root__')
+    update = List(fields=from_port(port), value_key='__root__')
+    return _enrich(fields, update).fields
+
+
+def _enrich(field, update):
+    if field.label is None:
+        field = field.__clone__(label=update.label)
+
+    if isinstance(field, (Fieldset, List)):
+        # FIXME: too sketchy!
+        assert isinstance(update, (Fieldset, List))
+        update_by_name = {f.value_key[0]: f for f in update.fields}
+        fields = [_enrich(f, update_by_name[f.value_key[0]])
+                  for f in field.fields]
+        field = field.__clone__(fields=fields)
+
+    if isinstance(field, StringFormField) and not isinstance(update, StringFormField):
+        field = update.__class__(**field.values)
+    return field
+
+
 def from_port(port, field_val=FormFieldVal()):
     """ Generate fieldset for a port definition."""
     trunk_arm = port.tree.arms.values()[0]
     return _from_arm(port.tree, field_val).fields[0].fields
-
-
-CAPTURE_UNDERSCORE_RE = re.compile(r'(?:^|_)([a-zA-Z])')
-
-
-def _guess_label(key):
-    if key == 'id':
-        return 'ID'
-    return (CAPTURE_UNDERSCORE_RE
-            .sub(lambda m: ' ' + m.group(1).upper(), key)
-            .strip())
-
-
-def _is_required(column):
-    return not column.is_nullable and not column.has_default
 
 
 def _from_arm(arm, field_val, value_key='__root__', label='Root'):
@@ -173,6 +182,21 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
         })
     else:
         raise NotImplementedError('found an unknown arm kind: %s' % arm.kind)
+
+
+def _is_required(column):
+    return not column.is_nullable and not column.has_default
+
+
+CAPTURE_UNDERSCORE_RE = re.compile(r'(?:^|_)([a-zA-Z])')
+
+
+def _guess_label(key):
+    if key == 'id':
+        return 'ID'
+    return (CAPTURE_UNDERSCORE_RE
+            .sub(lambda m: ' ' + m.group(1).upper(), key)
+            .strip())
 
 
 def to_port(entity, fields, filters=None, mask=None):
@@ -343,6 +367,6 @@ class List(CompositeFormField):
     type = 'list'
 
     fields = (
-        ('label', StrVal()),
+        ('label', MaybeVal(StrVal()), None),
         ('fields', SeqVal(validate)),
     )

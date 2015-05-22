@@ -29,37 +29,29 @@ var ServicePaneStyle = {
 var ServicePane = React.createClass({
 
   render() {
-    var nextActions = this.renderNextActions();
-    return (
-      <VBox style={{...ServicePaneStyle.self, width: this.props.width}}>
-        {nextActions && 
-          <VBox style={ServicePaneStyle.nextActions}>
-            <h6 style={ServicePaneStyle.header}>Next Actions</h6>
-            {nextActions}
-          </VBox>}
-      </VBox>
-    );
-  },
-
-  renderNextActions() {
-    var {context, actions, openedActions} = this.props;
-    var emptyContext = Object.keys(context).length === 0;
-    var nextActions = getNextActions(context, actions)
-      .filter(action => this.props.nextActions.indexOf(action.id) > -1)
+    var {workflow} = this.props;
+    var nextActions = Object.keys(workflow.actionTree);
+    var openedActions = workflow.panels.map(p => p.id);
+    var actionButtons = getNextActions(workflow.context, workflow.actions)
+      .filter(action => nextActions.indexOf(action.id) > -1)
       .filter(action => openedActions.indexOf(action.id) === -1)
       .map(action => 
         <ActionButton
           key={action.id}
           action={action.action}
           actionId={action.id}
-          onClick={this.props.onOpenAction}
+          onClick={this.onOpen}
           />
       )
-    if (nextActions.length === 0) {
-      return null;
-    }
+
     return (
-      {nextActions}
+      <VBox style={{...ServicePaneStyle.self, width: this.props.width}}>
+        {actionButtons.length > 0 && 
+          <VBox style={ServicePaneStyle.nextActions}>
+            <h6 style={ServicePaneStyle.header}>Next Actions</h6>
+            {actionButtons}
+          </VBox>}
+      </VBox>
     );
   },
 
@@ -69,6 +61,12 @@ var ServicePane = React.createClass({
       title: null,
       width: 150
     };
+  },
+
+  onOpen(id) {
+    this.props.workflow
+      .openAfterLast(id)
+      .update();
   }
 });
 

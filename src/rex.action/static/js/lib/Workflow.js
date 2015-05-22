@@ -6,12 +6,124 @@
 var React               = require('react/addons');
 var {cloneWithProps}    = React.addons;
 var RexWidget           = require('rex-widget');
+var invariant           = require('rex-widget/lib/invariant');
 var {VBox, HBox}        = RexWidget.Layout;
 var {boxShadow, border} = RexWidget.StyleUtils;
 var Breadcrumb          = require('./Breadcrumb');
 var ServicePane         = require('./ServicePane');
 var Actions             = require('./Actions');
 var ActionButton        = require('./ActionButton');
+
+var SERVICE_PANE_ID = '__service__';
+
+class WorkflowState {
+
+  constructor(onUpdate, actions, panels, focus) {
+    this._onUpdate = onUpdate;
+    this._actions = actions;
+    this._panels = panels || [];
+    this.focus = focus || null;
+
+    // derived state
+    this.last = this._panels.length > 0 ?
+      this._panels[this._panels.length - 1] :
+      {actionTree: this._actions.tree, context: {}};
+    this.context = this.last ? this.last.context : {};
+    this.actions = this._actions.actions;
+    this.actionTree = this.last ? this.last.actionTree : this._actions.tree;
+
+    this.panels = this._panels.concat({
+      id: SERVICE_PANE_ID,
+      isService: true,
+      context: this.context,
+      actionTree: this.actionTree,
+      element: <ServicePane />,
+      prev: this.last
+    });
+  }
+
+  openAfterLast(id, contextUpdate) {
+    invariant(this.actionTree[id] !== undefined);
+    var actionTree = this.actionTree[id] || {};
+    var element = this._actions.actions[id];
+    var context = {...this.context, ...contextUpdate};
+    var panels = this._panels.concat({
+      id, actionTree, context, element,
+      title: Actions.getTitle(element),
+      icon: Actions.getIcon(element),
+      prev: this.last
+    });
+    return this.construct(panels, id);
+  }
+
+  updateFocus(id) {
+    return this.construct(this._panels, id);
+  }
+
+  close(id) {
+    var idx = this.indexOf(id);
+    if (idx === -1) {
+      return this;
+    }
+    var panels = this._panels.slice(0, idx);
+    var focus = panels.length > 0 ? panels[panels.length - 1].id : null;
+    return this.construct(panels, focus);
+  }
+
+  replaceFrom(id, replaceId) {
+    var state = this;
+    state = state.close(id);
+    state = state.openAfterLast(replaceId);
+    return state;
+  }
+
+  indexOf(id) {
+    for (var i = 0; i < this.panels.length; i++) {
+      if (this.panels[i].id === id) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  find(id) {
+    var idx = this.indexOf(id);
+    if (idx === -1) {
+      return {
+        idx,
+        prev: null,
+        panel: null,
+        next: null
+      };
+    } else {
+      return {
+        idx,
+        prev: this.panels[idx - 1],
+        panel: this.panels[idx],
+        next: this.panels[idx + 1]
+      };
+    }
+  }
+
+  update(func) {
+    var state = this;
+    if (func) {
+      state = func(this);
+    }
+    this._onUpdate(state);
+  }
+
+  construct(panels, focus) {
+    return new WorkflowState(this._onUpdate, this._actions, panels, focus);
+  }
+
+  static construct(onUpdate, actions) {
+    var state = new this(onUpdate, actions);
+    var first = Object.keys(actions.tree)[0];
+    invariant(first !== undefined);
+    return state.openAfterLast(first);
+  }
+}
 
 var WorkfowItemStyle = {
   self: {
@@ -41,15 +153,15 @@ var WorkfowItemStyle = {
   }
 };
 
-var WorkfowItem = React.createClass({
+var WorkflowItem = React.createClass({
 
   render() {
-    var {children, active, style, actions, actionTree, actionId, noTheme} = this.props;
+    var {children, active, style, actions, siblingActions, actionId, noTheme} = this.props;
     return (
       <HBox>
-        {actionTree.length > 0 &&
+        {siblingActions.length > 1 &&
           <VBox style={WorkfowItemStyle.sidebar}>
-            {actionTree.map(id => {
+            {siblingActions.map(id => {
               var action = actions[id];
               return (
                 <ActionButton
@@ -68,15 +180,15 @@ var WorkfowItem = React.createClass({
           {!active &&
             <VBox
               style={{...WorkfowItemStyle.shim, ...(!noTheme && WorkfowItemStyle.onThemed.shim)}}
-              onClick={this.onActivate}
+              onClick={this.onFocus}
               />}
         </VBox>
       </HBox>
     );
   },
 
-  onActivate() {
-    this.props.onActivate(this.props.actionId);
+  onFocus() {
+    this.props.onFocus(this.props.actionId);
   },
 
   onReplace(id) {
@@ -117,22 +229,31 @@ var WorkflowStyle = {
   }
 };
 
-function computeCanvas(actions, focus, size, getActionByID) {
+function getPanelWidth(panel) {
+  var element = panel.element;
+  var width = Actions.getWidth(element) || 480;
+  if (Object.keys(panel.prev.actionTree).length > 1) {
+    width = width + WorkfowItemStyle.sidebar.width;
+  }
+  return width;
+}
+
+function computeCanvasMetrics(workflow, size, getActionByID) {
   var widthToDistribute;
   var scrollToIdx;
   var translateX = 0;
-  var visibleIds = [];
-  for (var i = 0; i < actions.length; i++) {
-    var id = actions[i].id;
-    var action = getActionByID(id);
-    if (id === focus) {
+  var visiblePanels = [];
+  for (var i = 0; i < workflow.panels.length; i++) {
+    var panel = workflow.panels[i];
+    var panelWidth = getPanelWidth(panel);
+    if (panel.id === workflow.focus) {
       scrollToIdx = i;
       widthToDistribute = size.width;
     }
     if (widthToDistribute !== undefined) {
-      widthToDistribute = widthToDistribute - (action.props.width || 480);
-      if (widthToDistribute >= 0) {
-        visibleIds.push(id);
+      widthToDistribute = widthToDistribute - panelWidth;
+      if (widthToDistribute >= -10) {
+        visiblePanels.push(panel.id);
       } else {
         break;
       }
@@ -140,14 +261,14 @@ function computeCanvas(actions, focus, size, getActionByID) {
   }
   if (scrollToIdx > 0) {
     for (var i = scrollToIdx - 1; i >= 0; i--) {
-      var id = actions[i].id;
-      var action = getActionByID(id);
+      var panel = workflow.panels[i];
+      var panelWidth = getPanelWidth(panel);
 
-      translateX = translateX + (action.props.width || 480) + WorkflowStyle.item.marginRight;
+      translateX = translateX + panelWidth + WorkflowStyle.item.marginRight;
 
-      widthToDistribute = widthToDistribute - (action.props.width || 480);
-      if (widthToDistribute >= 0) {
-        visibleIds.unshift(id);
+      widthToDistribute = widthToDistribute - panelWidth;
+      if (widthToDistribute >= -10) {
+        visiblePanels.unshift(panel.id);
       }
     }
   }
@@ -156,70 +277,99 @@ function computeCanvas(actions, focus, size, getActionByID) {
 
   return {
     translateX,
-    visibleIds
+    visiblePanels
   };
 }
+
+function WithDOMSize(Component) {
+  return React.createClass({
+
+    displayName: `WithDOMSize(${Component.displayName || Component.name})`,
+
+    render() {
+      return (
+        <Component
+          {...this.props}
+          DOMSize={this.state.DOMSize}
+          />
+      );
+    },
+
+    getInitialState() {
+      return {DOMSize: null};
+    },
+
+    componentDidMount() {
+      if (this.state.DOMSize === null) {
+        this.computeSize();
+      }
+      window.addEventListener('resize', this.computeSize);
+    },
+
+    componentWillUnmount() {
+      window.removeEventListener('resize', this.computeSize);
+    },
+
+    onWindowResize() {
+      this.computeSize();
+    },
+
+    computeSize() {
+      var node = this.getDOMNode();
+      var {width, height} = node.getBoundingClientRect();
+      this.setState({DOMSize: {width, height}});
+    }
+  });
+};
 
 var Workflow = React.createClass({
 
   render() {
-    if (this.state.size === null) {
+    if (this.props.DOMSize === null) {
       return <VBox style={WorkflowStyle.self} />;
     }
 
-    var actions = this._actions();
-    var {translateX, visibleIds, actionTree} = this.state;
-
-    console.log('RENDER', actionTree, this.state.context);
-
-    var prevActionsTree = this.props.actions.tree;
-    var actions = this._actions().map((a, idx) => {
-      var action = this._actionByID(a.id);
-      var item = (
-        <WorkfowItem
-          ref={a.id}
-          key={a.id}
-          noTheme={a.id === '__service__'}
-          style={{...WorkflowStyle.item, zIndex: a.id === '__service__' ? 999 : 1000}}
-          active={visibleIds.indexOf(a.id) !== -1}
+    var {translateX, visiblePanels, actionTree} = this.state;
+    var panels = this.state.workflow.panels.map(p =>
+        <WorkflowItem
+          ref={p.id}
+          key={p.id}
+          actionId={p.id}
           actions={this.props.actions.actions}
-          actionId={a.id}
-          actionTree={a.id === '__service__' ? [] : Object.keys(prevActionsTree || {})}
+          siblingActions={p.isService ? [] : Object.keys(p.prev.actionTree)}
+          active={visiblePanels.indexOf(p.id) !== -1}
+          noTheme={p.isService}
+          style={{...WorkflowStyle.item, zIndex: p.isService ? 999 : 1000}}
           onReplace={this.onReplace}
-          onActivate={this.onActivate}>
-          {cloneWithProps(action, {
-            ref: a.id,
-            context: a.context,
-            onContext: this.onContext.bind(null, a.id),
-            onClose: this.onClose.bind(null, a.id)
+          onFocus={this.onFocus}>
+          {cloneWithProps(p.element, {
+            ref: p.id,
+            context: p.context,
+            workflow: this.state.workflow,
+            onContext: this.onContext.bind(null, p.id),
+            onClose: this.onClose.bind(null, p.id)
           })}
-        </WorkfowItem>
-      );
-      prevActionsTree = a.actionTree;
-      return item;
-    });
+        </WorkflowItem>
+    );
 
-    var breadcrumb = this._actions()
-      .map(a => {
-        var action = this._actionByID(a.id);
-        return {
-          id: a.id,
-          icon: action.props.icon,
-          title: Actions.getTitle(action)
-        };
-      });
+    var breadcrumb = this.state.workflow.panels.map(p => ({
+      id: p.id,
+      icon: p.element.props.icon,
+      title: Actions.getTitle(p.element)
+    }));
+
     return (
       <VBox style={WorkflowStyle.self}>
         <VBox ref="items" style={WorkflowStyle.items}>
           <HBox ref="itemsCanvas" style={{...WorkflowStyle.itemsCanvas, transform: `translate3d(-${translateX}px, 0, 0)`}}>
-            {actions}
+            {panels}
           </HBox>
         </VBox>
         <VBox style={WorkflowStyle.breadcrumb}>
           <Breadcrumb
-            active={visibleIds}
+            active={visiblePanels}
             items={breadcrumb}
-            onClick={this.onActivate}
+            onClick={this.onFocus}
             />
         </VBox>
       </VBox>
@@ -227,191 +377,79 @@ var Workflow = React.createClass({
   },
 
   getInitialState() {
-    var scrollTo = Object.keys(this.props.actions.tree)[0];
-    var context = {};
-    var actionTree = this.props.actions.tree[scrollTo];
     return {
-      size: null,
-      scrollTo,
-      context,
-      actions: [{
-        id: scrollTo,
-        context,
-        actionTree
-      }],
-      actionTree
+      workflow: WorkflowState.construct(this.onWorkflowUpdate, this.props.actions),
+      visiblePanels: [],
+      translateX: 0
     };
   },
 
-  componentDidMount() {
-    if (this.state.size === null) {
-      var node = this.getDOMNode();
-      var {width, height} = node.getBoundingClientRect();
-      this.setState({
-        size: {width, height},
-        ...this._getCanvasState(this._actions(), this.state.scrollTo, {width, height})
-      });
+  onWorkflowUpdate(workflow) {
+    var nextState = {
+      workflow,
+      ...this.computeCanvasMetrics(workflow)
+    };
+    this.setState(nextState);
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.DOMSize !== this.props.DOMSize) {
+      this.setState(this.computeCanvasMetrics(this.state.workflow, nextProps.DOMSize));
     }
   },
 
-  _getCanvasState(actions, focus, size) {
-    size = size || this.state.size;
-    return computeCanvas(actions, focus, size, this._actionByID);
+  computeCanvasMetrics(workflow, size) {
+    workflow = workflow || this.state.workflow;
+    size = size || this.props.DOMSize;
+    return computeCanvasMetrics(workflow, size);
   },
 
-  _actionByID(id) {
-    if (id === '__service__') {
-      var servicePane = (
-        <ServicePane
-          context={this.state.context}
-          actions={this.props.actions.actions}
-          onOpenAction={this.onOpen}
-          openedActions={this.state.actions.map(a => a.id)}
-          nextActions={Object.keys(this.state.actionTree || {})}
-          />
-      );
-      return servicePane;
-    } else {
-      return this.props.actions.actions[id];
-    }
-  },
-
-  _actions(actions) {
-    actions = actions || this.state.actions;
-    actions = actions.slice(0);
-    actions.push({
-      id: '__service__',
-      context: this.state.context,
-      actionTree: this.props.actions.tree
-    });
-    return actions;
-  },
-
-  onReplace(id, nextId) {
-    var a = this._findActionByID(id);
-    var nextActions = [];
-    for (var idx = 0; idx < this.state.actions.length; idx++) {
-      var b = this.state.actions[idx];
-      if (b.id === '__service__') {
-        continue;
-      }
-      if (idx < a.idx) {
-        nextActions.push(b);
-      } else {
-        break;
-      }
-    }
-    var context = a.prev ? a.prev.context : {};
-    var actionTree = (a.prev ? a.prev.actionTree : this.props.actions.tree)[nextId];
-    nextActions = nextActions.concat({id: nextId, context, actionTree});
-    this.setState({
-      actions: nextActions,
-      actionTree,
-      scrollTo: nextId,
-      ...this._getCanvasState(this._actions(nextActions), nextId)
-    });
+  onReplace(id, replaceId) {
+    this.state.workflow
+      .close(id)
+      .openAfterLast(replaceId)
+      .update();
   },
 
   onContext(id, context) {
-    var actions = this._actions();
-    var a = this._findActionByID(id);
-    var actionTree;
-    if (a.idx > -1) {
-      var nextActions = [];
-      for (var idx = 0; idx < actions.length; idx++) {
-        var b = actions[idx];
-        if (b.id === '__service__') {
-          continue;
-        }
-        if (idx < a.idx) {
-          nextActions.push(b);
-        } else if (idx === a.idx) {
-          actionTree = b.actionTree;
-          nextActions.push({...b, context});
-        } else {
-          break;
-        }
-      }
-      this.setState({
-        context,
-        actionTree,
-        actions: nextActions,
-        ...this._getCanvasState(this._actions(nextActions), this.state.scrollTo)
-      });
-    }
+    this.state.workflow
+      .close(id)
+      .openAfterLast(id, context)
+      .update();
   },
 
-  onOpen(id) {
-    console.log('OPEN');
-    var {context, actionTree} = this.state;
-    actionTree = actionTree[id];
-    var actions = this.state.actions.concat({id, context, actionTree});
-    this.setState({
-      actions,
-      actionTree,
-      scrollTo: id,
-        ...this._getCanvasState(this._actions(actions), id)
-    });
-  },
+  onFocus(id) {
+    var {workflow, visiblePanels} = this.state;
+    var {panel, prevPanel, nextPanel, idx} = workflow.find(id);
 
-  onActivate(id) {
-    if (id === '__service__') {
-      id = this.state.actions[this.state.actions.length - 1].id;
+    var {focusPanel, prevFocusPanel, nextFocusPanel, focusIdx} = workflow.find(id);
+    if (panel.isService) {
+      panel = panel.prev;
     }
-    var left = this._findActionByID(this.state.visibleIds[0]);
-    var right = this._findActionByID(this.state.visibleIds[this.state.visibleIds.length - 1]);
-    var active = this._findActionByID(this.state.scrollTo);
-    var nextActive = this._findActionByID(id);
-    if (nextActive.idx > -1) {
-      if (active.idx < nextActive.idx && Math.abs(right.idx - nextActive.idx) === 1) {
-        id = active.next.id;
-      } else if (active.idx > nextActive.idx && Math.abs(left.idx - nextActive.idx) === 1) {
-        id = active.prev.id;
+
+    var leftIdx = workflow.indexOf(visiblePanels[0]);
+    var rightIdx = workflow.indexOf(visiblePanels[visiblePanels.length - 1]);
+
+    if (idx > -1) {
+      if (focusIdx < idx && Math.abs(rightIdx - idx) === 1) {
+        id = nextFocusPanel.id;
+      } else if (focusIdx > idx && Math.abs(leftIdx - idx) === 1) {
+        id = prevFocusPanel.id;
       }
-      this.setState({
-        scrollTo: id,
-        ...this._getCanvasState(this._actions(), id)
-      });
+      workflow
+        .updateFocus(id)
+        .update();
     }
   },
 
   onClose(id) {
-    console.log('CLOSE', id);
-    var actions = this._actions();
-    var a = this._findActionByID(id);
-    if (a.idx > -1) {
-      var nextActions = [];
-      for (var idx = 0; idx < actions.length; idx++) {
-        var b = actions[idx];
-        if (b.id === '__service__') {
-          continue;
-        }
-        if (idx < a.idx) {
-          nextActions.push(b);
-        } else {
-          break;
-        }
-      }
-      this.setState({
-        scrollTo: a.prev.id,
-        context: a.prev.context,
-        actionTree: a.prev.actionTree,
-        actions: nextActions,
-        ...this._getCanvasState(this._actions(nextActions), a.prev.id)
-      });
-    }
-  },
-
-  _findActionByID(id) {
-    var actions = this._actions();
-    for (var i = 0; i < actions.length; i++) {
-      var action = actions[i];
-      if (action.id === id) {
-        return {idx: i, action, prev: actions[i - 1], next: actions[i + 1]};
-      }
-    }
-    return {idx: -1, action: null};
+    this.state.workflow
+      .close(id)
+      .update();
   }
+
 });
+
+Workflow = WithDOMSize(Workflow);
 
 module.exports = Workflow;

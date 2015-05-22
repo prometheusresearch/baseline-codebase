@@ -1,3 +1,5 @@
+# page
+
 - type: page
   id: home
   title: Home
@@ -17,9 +19,7 @@
   text: |
     Help page
 
-- type: pick
-  id: pick-individual
-  entity: individual
+# study
 
 - type: pick
   id: pick-study
@@ -28,10 +28,6 @@
   - id
   - code
 
-- type: edit
-  id: edit-study
-  entity: study
-
 - type: view
   id: view-study
   entity: study
@@ -39,6 +35,20 @@
 - type: make
   id: make-study
   entity: study
+
+- type: edit
+  id: edit-study
+  entity: study
+
+# individual
+
+- type: pick
+  id: pick-individual
+  entity: individual
+
+- type: make
+  id: make-individual
+  entity: individual
 
 - type: view
   id: view-individual

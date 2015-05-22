@@ -7,7 +7,6 @@ paths:
         home:
           make-study:
           pick-study:
-            make-study:
             view-study:
             edit-study:
           pick-individual:

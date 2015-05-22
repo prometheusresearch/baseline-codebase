@@ -8,12 +8,19 @@ var DataSpecificationMixin  = require('../DataSpecificationMixin');
 var DataSpecification       = require('../DataSpecification');
 var Field                   = require('./Field');
 
+var CheckboxStyle = {
+  self: {
+    marginTop: 9
+  }
+};
+
 var Checkbox = React.createClass({
 
   render() {
     return (
       <input
         type="checkbox"
+        style={CheckboxStyle.self}
         checked={this.props.value}
         onChange={this.onChange} 
         />

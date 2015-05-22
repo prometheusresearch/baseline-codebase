@@ -55,8 +55,6 @@ var Edit = React.createClass({
 
   render() {
     var {fields, entity} = this.props;
-    var port = new RexWidget.Port(entity.path);
-    var spec = new RexWidget.DataSpecification.Entity(port);
     var title = this.constructor.getTitle(this.props);
     return (
       <VBox style={{...EditStyle.self, width: this.props.width}}>
@@ -77,12 +75,12 @@ var Edit = React.createClass({
             {this.data.data.loaded ?
               <Forms.ConfigurableForm
                 ref="form"
-                submitTo={spec}
+                submitTo={this.dataSpecs.data}
                 submitButton={null}
                 value={this.data.data.data}
                 entity={entity}
                 fields={fields}
-                /> : 
+                /> :
               <RexWidget.Preloader />}
           </VBox>
         </VBox>

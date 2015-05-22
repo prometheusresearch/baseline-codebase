@@ -16,6 +16,12 @@ var FieldStyle = {
     color: 'red',
     marginLeft: 3
   },
+  label: {
+    color: '#666',
+    fontSize: '90%',
+    textAlign: 'right',
+    padding: '7px 7px'
+  },
   errors: {
     marginTop: 3,
     color: 'red',
@@ -41,7 +47,7 @@ var Field = React.createClass({
         <HBox>
           {label &&
             <VBox size={labelSize} centerVertically>
-              <label>
+              <label style={FieldStyle.label}>
                 {label}
                 {schema && schema.isRequired ?
                   <span style={FieldStyle.requiredTag}>*</span> :
@@ -65,8 +71,8 @@ var Field = React.createClass({
     return {
       serialize: (value) => (value),
       deserialize: (value) => (value),
-      labelSize: 1,
-      inputSize: 3
+      labelSize: 2,
+      inputSize: 5
     };
   },
 

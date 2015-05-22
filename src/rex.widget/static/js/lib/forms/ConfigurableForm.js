@@ -69,6 +69,7 @@ var ConfigurableForm = React.createClass({
     return (
       <Form
         {...props}
+        ref="form"
         schema={this._schema}
         value={formValue}
         onSubmitComplete={this.onSubmitComplete}>
@@ -183,6 +184,10 @@ var ConfigurableForm = React.createClass({
       props.schema :
       SchemaUtils.generateSchemaFromFields(props.fields);
     return portSchema(props.entity, schema);
+  },
+
+  submit() {
+    return this.refs.form.submit();
   },
 
   onSubmitComplete(data) {

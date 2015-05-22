@@ -10,4 +10,4 @@
 from .action import Action, ActionVal
 from .workflow import Workflow, WorkflowVal
 from .paneled_workflow import PaneledWorkflow
-from .actions import View, Make, Page, Pick
+from .actions import View, Make, Page, Pick, Edit

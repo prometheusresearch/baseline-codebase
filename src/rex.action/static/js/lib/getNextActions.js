@@ -26,3 +26,4 @@ function actionAllowedInContext(context, action) {
 }
 
 module.exports = getNextActions;
+module.exports.actionAllowedInContext = actionAllowedInContext;

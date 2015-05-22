@@ -56,12 +56,14 @@ var ActionButton = React.createClass({
       ...(active && (alignLeft ? ActionButtonStyle.onActive.selfLeft : ActionButtonStyle.onActive.selfRight)),
       flexDirection: alignLeft ? 'row' : 'row-reverse'
     };
+    var icon = Actions.getIcon(action);
     return (
       <HBox {...props} style={style} alignItems="right" onClick={this.onClick}>
-        <RexWidget.Icon
-          name={action.props.icon}
-          style={ActionButtonStyle.icon}
-          />
+        {icon &&
+          <RexWidget.Icon
+            name={icon}
+            style={ActionButtonStyle.icon}
+            />}
         {Actions.getTitle(action)}
       </HBox>
     );

@@ -13,8 +13,10 @@ function getTitle(element) {
     return element.type.getTitle(element.props);
   } else if (element.props.title) {
     return element.props.title;
-  } else {
+  } else if (element.type.getDefaultProps) {
     return element.type.getDefaultProps().title;
+  } else {
+    return '';
   }
 }
 
@@ -23,8 +25,10 @@ function getIcon(element) {
     return element.type.getIcon(element.props);
   } else if (element.props.icon) {
     return element.props.icon;
-  } else {
+  } else if (element.type.getDefaultProps) {
     return element.type.getDefaultProps().icon;
+  } else {
+    return null;
   }
 }
 
@@ -33,8 +37,10 @@ function getWidth(element) {
     return element.type.getWidth(element.props);
   } else if (element.props.width) {
     return element.props.width;
-  } else {
+  } else if (element.type.getDefaultProps) {
     return element.type.getDefaultProps().width;
+  } else {
+    return 480;
   }
 }
 

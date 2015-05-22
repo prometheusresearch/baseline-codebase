@@ -3,17 +3,18 @@
  */
 'use strict';
 
-var React               = require('react/addons');
-var {cloneWithProps}    = React.addons;
-var RexWidget           = require('rex-widget');
-var invariant           = require('rex-widget/lib/invariant');
-var {VBox, HBox}        = RexWidget.Layout;
-var {boxShadow, border} = RexWidget.StyleUtils;
-var Breadcrumb          = require('./Breadcrumb');
-var ServicePane         = require('./ServicePane');
-var Actions             = require('./Actions');
-var ActionButton        = require('./ActionButton');
-var WithDOMSize         = require('./WithDOMSize');
+var React                     = require('react/addons');
+var {cloneWithProps}          = React.addons;
+var RexWidget                 = require('rex-widget');
+var invariant                 = require('rex-widget/lib/invariant');
+var {VBox, HBox}              = RexWidget.Layout;
+var {boxShadow, border}       = RexWidget.StyleUtils;
+var Breadcrumb                = require('./Breadcrumb');
+var ServicePane               = require('./ServicePane');
+var Actions                   = require('./Actions');
+var ActionButton              = require('./ActionButton');
+var WithDOMSize               = require('./WithDOMSize');
+var {actionAllowedInContext}  = require('./getNextActions');
 
 var SERVICE_PANE_ID = '__service__';
 
@@ -57,8 +58,36 @@ class WorkflowState {
     return this.construct(panels, id);
   }
 
+  isTransitionAllowed(id) {
+    var action = this.actions[id];
+    invariant(action !== undefined);
+    return actionAllowedInContext(this.context, action);
+  }
+
   updateFocus(id) {
     return this.construct(this._panels, id);
+  }
+
+  updateContext(id, contextUpdate) {
+    var nextPossibleAction = this._panels[this.indexOf(id) + 1];
+    var state = this;
+    state = state.close(id)
+    state = state.openAfterLast(id, contextUpdate);
+
+    if (nextPossibleAction && state.isTransitionAllowed(nextPossibleAction.id)) {
+      state = state.openAfterLast(nextPossibleAction.id);
+    } else {
+      var possibleActions = Object.keys(state.actionTree);
+      for (var i = 0; i < possibleActions.length; i++) {
+        if (state.isTransitionAllowed(possibleActions[i])) {
+          state = state.openAfterLast(possibleActions[i]);
+          break;
+        }
+      }
+    }
+
+    state = state.updateFocus(id);
+    return state;
   }
 
   close(id) {
@@ -373,8 +402,7 @@ var Workflow = React.createClass({
 
   onContext(id, context) {
     this.state.workflow
-      .close(id)
-      .openAfterLast(id, context)
+      .updateContext(id, context)
       .update();
   },
 

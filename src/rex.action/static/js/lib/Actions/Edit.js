@@ -5,11 +5,12 @@
 
 var React               = require('react');
 var RexWidget           = require('rex-widget');
+var DS                  = RexWidget.DataSpecification;
 var ServiceSection      = require('../ServiceSection');
 var {VBox, HBox}        = RexWidget.Layout;
 var {Forms}             = RexWidget;
 
-var MakeStyle = {
+var EditStyle = {
   self: {
     flex: 1,
   },
@@ -25,40 +26,31 @@ var MakeStyle = {
   }
 };
 
-function buildValue(spec, context) {
-  var value = {};
-  for (var key in spec) {
-    var item = spec[key];
-    if (item[0] === '$') {
-      value[key] = context[key];
-    } else {
-      value[key] = item;
-    }
-    if (typeof value[key] === 'object') {
-      value[key] = buildValue(value[key], context);
-    }
-  }
-  return value;
-}
-
-var Make = React.createClass({
+var Edit = React.createClass({
+  mixins: [RexWidget.DataSpecificationMixin],
 
   propTypes: {
     context: React.PropTypes.object,
     onContext: React.PropTypes.func
   },
 
+  dataSpecs: {
+    data: DS.entity()
+  },
+
+  fetchDataSpecs: {
+    data: true
+  },
+
   render() {
     var {fields, entity} = this.props;
     var port = new RexWidget.Port(entity.path);
     var spec = new RexWidget.DataSpecification.Entity(port);
-    var value = {};
-    value[entity.entity] = [buildValue(this.props.value, this.props.context)];
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={MakeStyle.self}>
-        <HBox style={MakeStyle.header}>
-          <VBox style={MakeStyle.title}>
+      <VBox style={{...EditStyle.self, width: this.props.width}}>
+        <HBox style={EditStyle.header}>
+          <VBox style={EditStyle.title}>
             <h4>
               {title}
             </h4>
@@ -69,16 +61,17 @@ var Make = React.createClass({
             onClick={this.props.onClose}
             />
         </HBox>
-        <VBox style={MakeStyle.content}>
-          <Forms.ConfigurableForm
-            insert
-            ref="form"
-            entity={entity}
-            fields={fields}
-            submitTo={spec}
-            submitButton={null}
-            value={value}
-            />
+        <VBox style={EditStyle.content}>
+          {this.data.data.loaded ?
+            <Forms.ConfigurableForm
+              ref="form"
+              submitTo={spec}
+              submitButton={null}
+              value={this.data.data.data}
+              entity={entity}
+              fields={fields}
+              /> : 
+            <RexWidget.Preloader />}
         </VBox>
       </VBox>
     );
@@ -112,7 +105,7 @@ var Make = React.createClass({
   getDefaultProps() {
     return {
       width: 400,
-      icon: 'plus'
+      icon: 'pencil'
     };
   },
 
@@ -124,10 +117,11 @@ var Make = React.createClass({
 
   statics: {
     getTitle(props) {
-      return props.title || `Make ${props.entity}`;
+      return props.title || `Edit ${props.entity}`;
     }
   }
 });
 
-module.exports = Make;
+module.exports = Edit;
+
 

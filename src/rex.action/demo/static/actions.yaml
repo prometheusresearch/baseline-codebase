@@ -24,6 +24,21 @@
 - type: pick
   id: pick-study
   entity: study
+  columns:
+  - id
+  - code
+
+- type: edit
+  id: edit-study
+  entity: study
+
+- type: view
+  id: view-study
+  entity: study
+
+- type: make
+  id: make-study
+  entity: study
 
 - type: view
   id: view-individual

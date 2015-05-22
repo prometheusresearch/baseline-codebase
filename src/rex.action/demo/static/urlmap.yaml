@@ -5,7 +5,11 @@ paths:
     workflow:
       actions:
         home:
+          make-study:
           pick-study:
+            make-study:
+            view-study:
+            edit-study:
           pick-individual:
             view-individual:
         about:

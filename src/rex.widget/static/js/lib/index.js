@@ -30,6 +30,7 @@ module.exports = {
   Query: require('./Query'),
   Forms: require('./forms'),
   Link: require('./Link'),
+  LinkButton: require('./library/LinkButton'),
   Authorized: require('./Authorized'),
   Info: require('./Info'),
   Tab: require('./Tab'),

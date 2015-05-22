@@ -42,7 +42,7 @@ var SelectField = React.createClass({
     return (
       <Field {...props} data={undefined}>
         <Select
-          options={options}
+          options={(options || []).map(v => ({id: v.value, title: v.label}))}
           noEmptyValue={noEmptyValue}
           data={data}
           />

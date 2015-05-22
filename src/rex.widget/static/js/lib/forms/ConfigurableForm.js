@@ -128,7 +128,7 @@ var ConfigurableForm = React.createClass({
             key={valueKey}
             label={field.label}
             selectFormValue={valueKey}
-            options={field.values.map(v => ({id: v.value, title: v.label}))}
+            options={field.values}
             />
         );
       case 'entity':

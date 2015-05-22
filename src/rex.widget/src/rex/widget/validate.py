@@ -253,6 +253,7 @@ class SlotResolveVal(Validate):
     slot_val = RecordVal(
         ('name', StrVal()),
         ('default', DeferredVal()),
+        ('doc', StrVal(), None),
     )
 
     def __init__(self, validate, context):

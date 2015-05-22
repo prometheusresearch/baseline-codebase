@@ -123,6 +123,9 @@ def from_port(port, field_val=FormFieldVal()):
     return _from_arm(port.tree, field_val).fields[0].fields
 
 
+def _is_required(column):
+    return not column.is_nullable and not column.has_default
+
 def _from_arm(arm, field_val, value_key='__root__', label='Root'):
     if arm.kind in ('facet entity', 'trunk entity', 'branch entity', 'root'):
         fields = [_from_arm(v, field_val, value_key=k, label=k)
@@ -132,19 +135,20 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
             'value_key': value_key,
             'label': label,
             'fields': fields,
-            #'required': not arm.column.is_nullable and not arm.column.has_default,
         })
     elif arm.kind == 'column':
         return field_val({
             'value_key': value_key,
             'label': label,
-            #'required': not arm.column.is_nullable and not arm.column.has_default,
+            'required': _is_required(arm.column),
         })
     elif arm.kind == 'link':
         return field_val({
             'value_key': value_key,
             'label': label,
-            #'required': not arm.column.is_nullable and not arm.column.has_default,
+            'required': any(_is_required(c)
+                            for j in arm.arc.joins
+                            for c in j.origin_columns)
         })
     else:
         raise NotImplementedError('found an unknown arm kind: %s' % arm.kind)

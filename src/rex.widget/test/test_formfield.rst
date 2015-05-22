@@ -177,8 +177,8 @@ Generating a fieldset from port definition
   >>> rex.on()
 
   >>> from_port(Port("individual")) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label='code'),
-    StringFormField(value_key=['sex'], label='sex'),
+  [StringFormField(value_key=['code'], required=True, label='code'),
+    StringFormField(value_key=['sex'], required=True, label='sex'),
     StringFormField(value_key=['mother'], label='mother'),
     StringFormField(value_key=['father'], label='father'),
     StringFormField(value_key=['adopted_mother'], label='adopted_mother'),
@@ -188,7 +188,7 @@ Generating a fieldset from port definition
   ... entity: individual
   ... select: [id, code]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label='code')]
+  [StringFormField(value_key=['code'], required=True, label='code')]
 
   >>> from_port(Port("""
   ... entity: individual
@@ -197,7 +197,7 @@ Generating a fieldset from port definition
   ... - entity: identity
   ...   select: [id, givenname]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label='code'),
+  [StringFormField(value_key=['code'], required=True, label='code'),
    Fieldset(value_key=['identity'], label='identity',
             fields=[StringFormField(value_key=['givenname'], label='givenname')])]
 

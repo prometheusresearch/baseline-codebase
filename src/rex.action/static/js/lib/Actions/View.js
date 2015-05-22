@@ -39,7 +39,7 @@ var View = React.createClass({
     var {fields, entity, context, onClose} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={ViewStyle.self}>
+      <VBox style={{...ViewStyle.self, width: this.props.width}}>
         <HBox style={ViewStyle.header}>
           <VBox style={ViewStyle.title}>
             <h4>{title}</h4>
@@ -62,7 +62,8 @@ var View = React.createClass({
 
   getDefaultProps() {
     return {
-      icon: 'eye-open'
+      icon: 'eye-open',
+      width: 400
     };
   },
 

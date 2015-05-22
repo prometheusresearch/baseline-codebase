@@ -6,7 +6,9 @@
 var React               = require('react');
 var RexWidget           = require('rex-widget');
 var ServiceSection      = require('../ServiceSection');
+var {boxShadow}         = RexWidget.StyleUtils;
 var {VBox, HBox}        = RexWidget.Layout;
+var DS                  = RexWidget.DataSpecification;
 var {Forms}             = RexWidget;
 
 var MakeStyle = {
@@ -16,12 +18,22 @@ var MakeStyle = {
   title: {
     flex: 1
   },
+  container: {
+    overflow: 'auto'
+  },
   header: {
     padding: 10
   },
   content: {
     flex: 1,
     padding: 10
+  },
+  buttons: {
+    boxShadow: boxShadow(0, 0, 2, 0, '#cccccc'),
+    padding: 5
+  },
+  submitButton: {
+    width: '40%'
   }
 };
 
@@ -42,6 +54,11 @@ function buildValue(spec, context) {
 }
 
 var Make = React.createClass({
+  mixins: [RexWidget.DataSpecificationMixin],
+
+  dataSpecs: {
+    data: DS.entity()
+  },
 
   propTypes: {
     context: React.PropTypes.object,
@@ -50,35 +67,46 @@ var Make = React.createClass({
 
   render() {
     var {fields, entity} = this.props;
-    var port = new RexWidget.Port(entity.path);
-    var spec = new RexWidget.DataSpecification.Entity(port);
     var value = {};
     value[entity.entity] = [buildValue(this.props.value, this.props.context)];
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={MakeStyle.self}>
-        <HBox style={MakeStyle.header}>
-          <VBox style={MakeStyle.title}>
-            <h4>
-              {title}
-            </h4>
+      <VBox style={{...MakeStyle.self, width: this.props.width}}>
+        <VBox style={MakeStyle.container} size={1}>
+          <HBox style={MakeStyle.header}>
+            <VBox style={MakeStyle.title}>
+              <h4>
+                {title}
+              </h4>
+            </VBox>
+            <RexWidget.Button
+              quiet
+              icon="remove"
+              onClick={this.props.onClose}
+              />
+          </HBox>
+          <VBox style={MakeStyle.content}>
+            <Forms.ConfigurableForm
+              insert
+              ref="form"
+              entity={entity}
+              fields={fields}
+              submitTo={this.dataSpecs.data}
+              submitButton={null}
+              value={value}
+              />
           </VBox>
+        </VBox>
+        <VBox style={MakeStyle.buttons}>
           <RexWidget.Button
-            quiet
-            icon="remove"
-            onClick={this.props.onClose}
-            />
-        </HBox>
-        <VBox style={MakeStyle.content}>
-          <Forms.ConfigurableForm
-            insert
-            ref="form"
-            entity={entity}
-            fields={fields}
-            submitTo={spec}
-            submitButton={null}
-            value={value}
-            />
+            style={MakeStyle.submitButton}
+            success
+            icon={this.props.icon}
+            size="small"
+            onClick={this.onSubmit}
+            align="center">
+            {title}
+          </RexWidget.Button>
         </VBox>
       </VBox>
     );

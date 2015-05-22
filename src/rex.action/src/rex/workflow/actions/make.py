@@ -12,7 +12,7 @@ from cached_property import cached_property
 from rex.core import MaybeVal, SeqVal, StrVal, MapVal
 from rex.port import Port
 from rex.widget import Field, FormFieldVal, responder, PortURL
-from rex.widget import formfield
+from rex.widget import formfield, dataspec
 
 from ..action import Action
 
@@ -56,7 +56,10 @@ class Make(Action):
         else:
             return formfield.to_port(self.entity, self.fields)
 
-    @responder(url_type=PortURL)
+    def _construct_data_spec(self, port_url):
+        return dataspec.EntitySpec(port_url, {})
+
+    @responder(wrap=_construct_data_spec, url_type=PortURL)
     def data(self, req):
         return self.port(req)
 

@@ -25,8 +25,12 @@
   id: pick-study
   entity: study
   columns:
-  - id
-  - code
+  - value_key: id
+    label: ID
+  - value_key: title
+    label: Title
+  - value_key: description
+    label: Description
 
 - type: view
   id: view-study

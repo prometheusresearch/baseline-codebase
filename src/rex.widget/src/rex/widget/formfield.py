@@ -7,6 +7,8 @@
 
 """
 
+import re
+
 from htsql.core import domain
 
 from rex.core import Extension, Validate
@@ -123,13 +125,24 @@ def from_port(port, field_val=FormFieldVal()):
     return _from_arm(port.tree, field_val).fields[0].fields
 
 
+CAPTURE_UNDERSCORE_RE = re.compile(r'(?:^|_)([a-zA-Z])')
+
+
+def _guess_label(key):
+    if key == 'id':
+        return 'ID'
+    return (CAPTURE_UNDERSCORE_RE
+            .sub(lambda m: ' ' + m.group(1).upper(), key)
+            .strip())
+
+
 def _is_required(column):
     return not column.is_nullable and not column.has_default
 
 
 def _from_arm(arm, field_val, value_key='__root__', label='Root'):
     if arm.kind in ('facet entity', 'trunk entity', 'branch entity', 'root'):
-        fields = [_from_arm(v, field_val, value_key=k, label=k)
+        fields = [_from_arm(v, field_val, value_key=k, label=_guess_label(k))
                   for k, v in arm.items()]
         return field_val({
             'type': 'fieldset' if not arm.is_plural else 'list',

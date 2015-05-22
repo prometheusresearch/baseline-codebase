@@ -24,7 +24,7 @@ __all__ = ('DataGrid',)
 class DataGrid(Widget):
 
     name = 'DataGrid'
-    js_type = 'rex-widget/lib/modern/library/DataGrid'
+    js_type = 'rex-widget/lib/library/DataGrid'
 
     columns = Field(SeqVal(ColumnVal()))
     data = Field(MaybeUndefinedVal(CollectionSpecVal()), default=undefined)
@@ -35,7 +35,7 @@ class DataGrid(Widget):
 class Info(Widget):
 
     name = 'Info'
-    js_type = 'rex-widget/lib/modern/Info'
+    js_type = 'rex-widget/lib/Info'
 
     data = Field(MaybeUndefinedVal(EntitySpecVal()), default=undefined)
     fields = Field(SeqVal(FormFieldVal()))
@@ -57,7 +57,7 @@ class Link(Widget):
     """
 
     name = 'Link'
-    js_type = 'rex-widget/lib/modern/library/Link'
+    js_type = 'rex-widget/lib/library/Link'
 
     href = Field(URLVal())
     text = Field(StrVal())
@@ -67,7 +67,7 @@ class Link(Widget):
 class LinkButton(Widget):
 
     name = 'LinkButton'
-    js_type = 'rex-widget/lib/modern/library/LinkButton'
+    js_type = 'rex-widget/lib/library/LinkButton'
 
     href = Field(URLVal())
     icon = Field(StrVal(), default='link')
@@ -83,4 +83,4 @@ class LinkButton(Widget):
 class EntityForm(Widget):
 
     name = 'EntityForm'
-    js_type = 'rex-widget/lib/modern/forms/EntityForm'
+    js_type = 'rex-widget/lib/forms/EntityForm'

@@ -25,12 +25,9 @@
   id: pick-study
   entity: study
   columns:
-  - value_key: id
-    label: ID
-  - value_key: title
-    label: Title
-  - value_key: description
-    label: Description
+  - code
+  - title
+  - description
 
 - type: view
   id: view-study
@@ -39,6 +36,11 @@
 - type: make
   id: make-study
   entity: study
+  fields:
+  - code
+  - lab
+  - title
+  - closed
 
 - type: edit
   id: edit-study

@@ -47,6 +47,8 @@ class Make(Action):
         super(Make, self).__init__(**values)
         if self.fields is None:
             self.values['fields'] = formfield.from_port(self.port)
+        else:
+            self.values['fields'] = formfield.enrich(self.fields, self.port)
 
     @cached_property
     def port(self):

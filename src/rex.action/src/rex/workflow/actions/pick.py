@@ -62,6 +62,8 @@ class Pick(Action):
         super(Pick, self).__init__(**values)
         if self.columns is None:
             self.values['columns'] = formfield.from_port(self.port)
+        else:
+            self.values['columns'] = formfield.enrich(self.columns, self.port)
 
     @cached_property
     def port(self):

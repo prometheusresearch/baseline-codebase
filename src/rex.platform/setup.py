@@ -31,7 +31,7 @@ setup(
         'rex.deploy==2.3.2',
         'rex.expression==1.5.0',
         'rex.forms==0.29.2',
-        'rex.i18n==0.4.1',
+        'rex.i18n==0.4.2',
         'rex.instrument==0.15.0',
         'rex.port==1.0.4',
         'rex.restful==0.4.0',

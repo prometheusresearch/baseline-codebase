@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.form_previewer',
-    version='0.3.1',
+    version='0.4.0',
     description='RexAcquire Form Previewer Applet',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -26,7 +26,7 @@ setup(
         'rex.setup>=2,<3',
     ],
     install_requires=[
-        'rex.applet>=0.3,<2',
+        'rex.applet>=0.3,<3',
         'rex.core>=1.9,<2',
         'rex.web>=2,<4',
         'rex.i18n>=0.4,<0.5',

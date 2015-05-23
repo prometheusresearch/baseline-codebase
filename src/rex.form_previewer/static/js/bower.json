@@ -1,6 +1,6 @@
 {
     "name": "rex-form-previewer",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "private": true,
     "description": "JavaScript and CSS for the Form Previewer application",
     "authors": [

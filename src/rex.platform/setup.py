@@ -23,7 +23,7 @@ setup(
         'HTSQL==2.3.3.20150130',
         'HTSQL-PGSQL==2.3.3.20150130',
         'COGS==0.4.0',
-        'rex.applet==1.0.1',
+        'rex.applet==2.0.0',
         'rex.setup==2.3.0',
         'rex.core==1.11.0',
         'rex.ctl==2.0.0',
@@ -37,7 +37,7 @@ setup(
         'rex.restful==0.4.0',
         'rex.urlmap==2.6.1',
         'rex.web==3.4.0',
-        'rex.widget==0.2.21',
+        'rex.widget==1.0.0',
     ],
 )
 

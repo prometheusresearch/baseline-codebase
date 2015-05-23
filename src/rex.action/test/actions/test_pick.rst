@@ -26,14 +26,13 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> pick # doctest: +NORMALIZE_WHITESPACE
-  Pick(icon=None,
+  Pick(icon=undefined,
        input={},
        output={'individual': 'individual'},
        id='pick-individual',
-       title=None,
-       columns=[StringFormField(value_key=['id'], label='id'),
-                StringFormField(value_key=['code'], label='Code'),
-                StringFormField(value_key=['sex'], label='Sex'),
+       title=undefined,
+       columns=[StringFormField(value_key=['code'], required=True, label='Code'),
+                StringFormField(value_key=['sex'], required=True, label='Sex'),
                 StringFormField(value_key=['mother'], label='Mother'),
                 StringFormField(value_key=['father'], label='Father'),
                 StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
@@ -56,7 +55,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["rex-workflow/lib/Actions/Pick",["^ ","title",null,"mask",null,"entity","individual","filters",[],"output",["^ ","individual","individual"],"input",["^ "],"id","pick-individual","columns",[...],"icon",null,"data",["~#port",["http://localhost/?__to__=data"]]]]]
+  ["~#widget",["rex-workflow/lib/Actions/Pick",...]]
 
   >>> print render_widget(pick, Request.blank('/?__to__=data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK

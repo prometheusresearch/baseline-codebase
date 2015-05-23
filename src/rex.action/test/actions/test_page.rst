@@ -27,11 +27,11 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> page # doctest: +NORMALIZE_WHITESPACE
-  Page(icon=None,
+  Page(icon=undefined,
        input={},
        output={},
        id='home',
-       title=None,
+       title=undefined,
        text=RST(src=u'<p>Welcome to Rex Workflow!</p>', links={}))
 
   >>> page.context()
@@ -42,7 +42,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["rex-workflow/lib/Actions/Page",["^ ","title",null,"text","<p>Welcome to Rex Workflow!</p>","output",["^ "],"input",["^ "],"id","home","icon",null]]]
+  ["~#widget",["rex-workflow/lib/Actions/Page",...]]
 
 Cleanup
 -------

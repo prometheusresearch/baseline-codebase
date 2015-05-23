@@ -34,7 +34,7 @@ Constructing from Python values::
   Traceback (most recent call last):
   ...
   Error: unknown workflow type specified:
-      panels
+      paneled
 
   >>> validate({
   ...   'type': 'xmy',

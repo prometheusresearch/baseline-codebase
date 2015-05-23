@@ -34,7 +34,7 @@ _action_sig = namedtuple('Action', ['name'])
 class Action(Widget):
     """ Base class for actions.
 
-    Action is a reusable piece of UI which can be composed with other actions to
+    Action is a reusable piece of UI which can be composed with other actions
     into a workflow.
 
     To define a new action type one should subclass :class:`Action` and provide

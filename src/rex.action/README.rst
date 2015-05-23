@@ -13,8 +13,8 @@
 Overview
 ========
 
-This package defines an abstract interfaces for actions and workflows and
-provides an implementation of such interfaces in terms of Rex Widget.
+This package provides a mechanism to define user interfaces in terms of reusable
+actions and workflows.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -29,3 +29,53 @@ R43MH099826.
 
 Configuration
 =============
+
+Rex Workflow introduces concepts of actions and workflows.
+
+Action is a reusable piece of UI which can be composed with other actions into a
+workflow. Workflow is a way to compose together a set of actions to provide
+users to perform some meaningful activity.
+
+Actions are defined within the ``static/actions.yaml`` file in a package::
+
+    - type: page
+      id: home
+      title: Home
+      icon: home
+      text: |
+        Welcome to Rex Workflow Demo application.
+
+    - type: pick
+      id: pick-study
+      entity: study
+      columns:
+      - code
+      - title
+      - description
+
+    - type: make
+      id: make-study
+      entity: study
+      fields:
+      - code
+      - lab
+      - title
+      - closed
+
+    - type: view
+      id: view-study
+      entity: study
+
+A set of built-in actions such as ``page``, ``view``, ``pick``, ``make``,
+``edit`` and ``drop`` are provided by Rex Workflow.
+
+Workflows are defined in URL mapping (``static/urlmap.yaml``)::
+
+    paths:
+      /:
+        workflow:
+          actions:
+            home:
+              make-study:
+              pick-study:
+                view-study:

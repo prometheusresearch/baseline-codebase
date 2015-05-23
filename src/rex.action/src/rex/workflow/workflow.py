@@ -63,9 +63,11 @@ class Workflow(Widget):
 
         paths:
           /make-study:
-            actions:
-            - pick-lab
-            - make-study
+            workflow:
+              type: wizard
+              actions:
+              - pick-lab
+              - make-study
 
     """
 

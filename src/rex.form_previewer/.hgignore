@@ -5,3 +5,8 @@ bower_components
 node_modules
 static/www/bundle
 
+.*.sw?
+*.orig
+*.pyc
+*.pyo
+*.egg-info

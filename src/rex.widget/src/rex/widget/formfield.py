@@ -8,6 +8,7 @@
 """
 
 import re
+from collections import OrderedDict
 
 from htsql.core import domain
 
@@ -130,6 +131,9 @@ def _enrich(field, update):
     if field.label is None:
         field = field.__clone__(label=update.label)
 
+    if not field.required and update.required:
+        field = field.__clone__(required=update.required)
+
     if isinstance(field, (Fieldset, List)):
         # FIXME: too sketchy!
         assert isinstance(update, (Fieldset, List))
@@ -139,7 +143,11 @@ def _enrich(field, update):
         field = field.__clone__(fields=fields)
 
     if isinstance(field, StringFormField) and not isinstance(update, StringFormField):
-        field = update.__class__(**field.values)
+        field = update.__class__(
+            value_key=field.value_key,
+            label=field.label,
+            read_only=field.read_only,
+            required=field.required)
     return field
 
 

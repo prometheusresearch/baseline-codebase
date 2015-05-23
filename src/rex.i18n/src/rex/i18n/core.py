@@ -439,7 +439,8 @@ try:
 except ImportError:  # pragma: no cover
     pass
 else:
-    from rex.widget.json_encoder import register_adapter
+    from rex.widget import as_transitionable
     from speaklater import _LazyString
-    register_adapter(_LazyString, unicode)
-
+    @as_transitionable(_LazyString, tag='s')
+    def _format_LazyString(v):
+        return unicode(v)

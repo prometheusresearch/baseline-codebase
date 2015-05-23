@@ -32,9 +32,37 @@ _action_sig = namedtuple('Action', ['name'])
 
 
 class Action(Widget):
-    """ Action is a reusable piece of UI.
+    """ Base class for actions.
 
-    Actions are consumed within a workflow.
+    Action is a reusable piece of UI which can be composed with other actions to
+    into a workflow.
+
+    To define a new action type one should subclass :class:`Action` and provide
+    action type name, JavaScript module which contains implementation and a
+    configuration interface::
+
+        from rex.core import StrVal
+        from rex.widget import Field
+        from rex.workflow import Action
+
+        class PickDate(Action):
+
+            name = 'pick-date'
+            js_type = 'my-package/lib/pick-date'
+
+            entity = Field(
+                StrVal(),
+                doc='''
+                Name of the entity to show, should contain a ``date`` column of
+                type ``datetime``.
+                ''')
+
+    Then actions of this type could be declared in (``actions.yaml``)::
+
+        - type: pick-date
+          id: pick-appointment
+          entity: appointment
+
     """
 
     __metaclass__ = ActionMeta
@@ -42,6 +70,10 @@ class Action(Widget):
     id = Field(
         StrVal(),
         doc="""
+        Action identifier.
+
+        It is used to refer to actions from within workflows. Action identifier
+        should be unique across an entire application.
         """)
 
     title = Field(
@@ -59,7 +91,21 @@ class Action(Widget):
     input = Field(
         MapVal(StrVal(), StrVal()), default={},
         doc="""
-        Requirements on context.
+        Context requirements.
+
+        It specifies a set of keys and their types which should be present in
+        context for an action to be available.
+
+        For example::
+
+            - id: make-family
+              type: ...
+              inputs:
+                mother: individual
+                father: individual
+
+        Specifies that action ``make-family`` is only available when context has
+        keys ``mother`` and ``father`` of type ``individual``.
         """)
 
     output = Field(
@@ -76,6 +122,12 @@ class Action(Widget):
 
     def context(self):
         """ Compute context specification for an action.
+
+        Should return a pair of context inputs and conext outputs.
+
+        By default it just returns values of ``input`` and ``output`` fields but
+        subclasses could override this to provide automatically inferred context
+        specification.
         """
         return self.input, self.output
 

@@ -25,7 +25,14 @@ class Pick(Action):
 
     This is a generic action which displays a list of records in database as a
     configurable datatable. Each item in the list can be selected by clicking on
-    it, in that case the brief info is shown in service panel.
+    it.
+
+    Example action declaration (``actions.yaml``)::
+
+        - type: pick
+          id: pick-individual
+          entity: individual
+
     """
 
     name = 'pick'
@@ -35,7 +42,7 @@ class Pick(Action):
     entity = Field(
         StrVal(),
         doc="""
-        Name of the table in database from which to show records in the list.
+        Name of a table in database.
         """)
 
     columns = Field(

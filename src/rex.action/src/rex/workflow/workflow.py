@@ -36,6 +36,38 @@ _workflow_sig = namedtuple('Workflow', ['name'])
 
 
 class Workflow(Widget):
+    """ Base class for workflows.
+
+    Workflow is a mechanism to compose actions together to provide a way for
+    users to perform some task.
+    
+    To define a new workflow type one should subclass :class:`Workflow` and
+    provide workflow name, JavaScript module which contains implementation and a
+    configuration interface::
+
+        from rex.widget import Field
+        from rex.workflow import Workflow, ActionVal
+
+        class WizardWorkflow(Workflow):
+
+            name = 'wizard'
+            js_type = 'my-package/lib/WizardWorkflow'
+
+            actions = SeqVal(
+                ActionVal(),
+                doc='''
+                A sequence of actions within the wizard workflow.
+                ''')
+
+    Then one can configure workflows of this type via URL mapping::
+
+        paths:
+          /make-study:
+            actions:
+            - pick-lab
+            - make-study
+
+    """
 
     __metaclass__ = WorkflowMeta
 

@@ -20,7 +20,33 @@ __all__ = ('View',)
 
 
 class View(Action):
-    """ View information about specified entity."""
+    """ View information about specified entity.
+
+    Example action declaration (``actions.yaml``)::
+
+        - type: view
+          id: view-individual
+          entity: individual
+
+    The set of fields will be inferred automatically for a given ``entity``.
+
+    To configure a specified set of fields use ``fields`` parameter::
+
+        - type: view
+          id: view-individual
+          entity: individual
+          fields:
+          - code
+          - identity.sex
+          - identity.givenname
+            label: First Name
+          - identity.surname
+            label: Last Name
+
+    Fields can be declared as a key path within the record, see ``code`` and
+    ``identity.sex`` fields above (in this case label and other info will be
+    inferred from schema) or completely with label and other parameters.
+    """
 
     name = 'view'
     js_type = 'rex-workflow/lib/Actions/View'
@@ -28,13 +54,16 @@ class View(Action):
     entity = Field(
         StrVal(),
         doc="""
+        Name of a table in database.
         """)
 
     fields = Field(
         MaybeVal(SeqVal(FormFieldVal())), default=None,
         doc="""
-        A list of fields to show. If not specified then it will be generated
-        automatically based on the data schema.
+        A list of fields to show.
+
+        If not specified then it will be generated automatically based on the
+        data schema.
         """)
 
     def __init__(self, **values):

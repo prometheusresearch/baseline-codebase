@@ -16,7 +16,23 @@ __all__ = ('Page',)
 
 
 class Page(Action):
-    """ Display a title and a text."""
+    """ Page action displays arbitrary title and text.
+
+    It can be used for example to compose help pages.
+
+    Example action declaration (``actions.yaml``)::
+
+        - type: page
+          id: help
+          title: Help
+          text: |
+            This is a help page.
+
+            To enroll individuals into studies, please proceed to `Study
+            Enrollment`_ applet.
+
+            .. _`Study Enrollment`: rex.study.study_enrollment:/
+    """
 
     name = 'page'
     js_type = 'rex-workflow/lib/Actions/Page'
@@ -24,5 +40,8 @@ class Page(Action):
     text = Field(
         RSTVal(), default="Welcome to Rex Workflow!",
         doc="""
-        Text in ReStructuredText format to display.
+        Text in ReStructuredText format to use as page body.
+
+        To refer to screens in the application one can use ``pkg:/path``
+        references which will be resolved to actual URLs.
         """)

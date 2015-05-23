@@ -20,7 +20,35 @@ __all__ = ('Make',)
 
 
 class Make(Action):
-    """ Make an entity."""
+    """ Make an entity.
+
+    This is an action which renders a form to create a new entity.
+
+    Example action declaration (``actions.yaml``)::
+
+        - type: make
+          id: make-individual
+          entity: individual
+
+    The set of fields will be inferred automatically for a given ``entity``.
+
+    To configure a specified set of fields use ``fields`` parameter::
+
+        - type: make
+          id: make-individual
+          entity: individual
+          fields:
+          - code
+          - identity.sex
+          - identity.givenname
+            label: First Name
+          - identity.surname
+            label: Last Name
+
+    Fields can be declared as a key path within the record, see ``code`` and
+    ``identity.sex`` fields above (in this case label and other info will be
+    inferred from schema) or completely with label and other parameters.
+    """
 
     name = 'make'
     js_type = 'rex-workflow/lib/Actions/Make'
@@ -28,19 +56,29 @@ class Make(Action):
     entity = Field(
         StrVal(),
         doc="""
+        Name of a table in database.
         """)
 
     fields = Field(
         MaybeVal(SeqVal(FormFieldVal())), default=None,
         doc="""
-        A list of fields to show. If not specified then it will be generated
-        automatically based on the data schema.
+        A list of fields to show.
+
+        If not specified then it will be generated automatically based on the
+        data schema.
         """)
 
     value = Field(
         MapVal(StrVal(), StrVal()), default={},
         doc="""
         An initial value.
+
+        It could reference data from the current context via ``$name``
+        references::
+
+            study: $study
+            individual: $individual
+
         """)
 
     def __init__(self, **values):

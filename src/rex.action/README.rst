@@ -10,7 +10,6 @@
 .. role:: attr(literal)
 .. role:: func(literal)
 
-
 Overview
 ========
 
@@ -27,3 +26,6 @@ Mental Health of the National Institutes of Health under Award Number
 R43MH099826.
 
 .. |R| unicode:: 0xAE .. registered trademark sign
+
+Configuration
+=============

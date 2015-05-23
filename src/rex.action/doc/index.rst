@@ -19,14 +19,6 @@ API reference
    reference
 
 
-Examples
-========
-
-.. toctree::
-
-   test/index
-
-
 Release notes
 =============
 

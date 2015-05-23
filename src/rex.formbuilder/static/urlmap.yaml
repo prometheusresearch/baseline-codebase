@@ -1,21 +1,21 @@
-paths:
-  /:
-    widget: !<I18NPage>
-      id: instrument_menu
-      title: FormBuilder - Select an Instrument
-      params:
-        uid: menu/uid
-      children:
-        - !<InstrumentMenu>
-          id: menu
+paths: {}
+#  /:
+#    widget: !<I18NPage>
+#      id: instrument_menu
+#      title: FormBuilder - Select an Instrument
+#      params:
+#        uid: menu/uid
+#      children:
+#        - !<InstrumentMenu>
+#          id: menu
 
-  /edit:
-    widget: !<I18NPage>
-      id: draft_set_editor
-      title: FormBuilder - Editor
-      params:
-        uid: editor/uid
-      children:
-        - !<DraftSetEditor>
-          id: editor
+#  /edit:
+#    widget: !<I18NPage>
+#      id: draft_set_editor
+#      title: FormBuilder - Editor
+#      params:
+#        uid: editor/uid
+#      children:
+#        - !<DraftSetEditor>
+#          id: editor
 

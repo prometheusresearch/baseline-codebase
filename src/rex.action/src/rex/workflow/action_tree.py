@@ -39,7 +39,8 @@ class ActionTree(TransitionableRecord):
 
 class ActionLevelVal(Validate):
 
-    _validate_level = MapVal(StrVal(), DeferredVal())
+    _construct_level = MapVal(DeferredVal(), DeferredVal()).construct
+    _str_val = StrVal()
 
     def __init__(self, actions, context=None):
         self.actions = actions
@@ -77,8 +78,9 @@ class ActionLevelVal(Validate):
 
     def construct(self, loader, node):
         level = {}
-        for k, v in self._validate_level.construct(loader, node).items():
-            with guard("While parsing:", Location.from_node(v.node)):
+        for k, v in self._construct_level(loader, node).items():
+            with guard("While parsing:", Location.from_node(k.node)):
+                k = k.construct(self._str_val)
                 _inputs, outputs = self.typecheck(k)
             if isinstance(v.node, yaml.MappingNode):
                 v = v.construct(self.next_level_val(outputs))

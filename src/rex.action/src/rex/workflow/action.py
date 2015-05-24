@@ -14,7 +14,7 @@ from collections import namedtuple
 
 from rex.core import Error, Validate, autoreload, get_packages, cached
 from rex.core import MaybeVal, StrVal, SeqVal, MapVal, AnyVal
-from rex.widget import Widget, Field, MaybeUndefinedVal, undefined
+from rex.widget import Widget, WidgetVal, Field, MaybeUndefinedVal, undefined
 
 __all__ = ('Action', 'ActionVal', 'load_actions')
 

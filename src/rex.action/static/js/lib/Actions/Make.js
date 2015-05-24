@@ -68,7 +68,7 @@ var Make = React.createClass({
   render() {
     var {fields, entity} = this.props;
     var value = {};
-    value[entity.entity] = [buildValue(this.props.value, this.props.context)];
+    value[entity.type] = [buildValue(this.props.value, this.props.context)];
     var title = this.constructor.getTitle(this.props);
     return (
       <VBox style={{...MakeStyle.self, width: this.props.width}}>
@@ -89,7 +89,7 @@ var Make = React.createClass({
             <Forms.ConfigurableForm
               insert
               ref="form"
-              entity={entity}
+              entity={entity.type}
               fields={fields}
               submitTo={this.dataSpecs.data}
               submitButton={null}
@@ -127,7 +127,7 @@ var Make = React.createClass({
 
   statics: {
     getTitle(props) {
-      return props.title || `Make ${props.entity}`;
+      return props.title || `Make ${props.entity.name}`;
     }
   }
 });

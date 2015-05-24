@@ -69,7 +69,7 @@ var View = React.createClass({
 
   statics: {
     getTitle(props) {
-      return props.title || `View ${props.entity}`;
+      return props.title || `View ${props.entity.name}`;
     }
   }
 });

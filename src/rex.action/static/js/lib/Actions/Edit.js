@@ -78,7 +78,7 @@ var Edit = React.createClass({
                 submitTo={this.dataSpecs.data}
                 submitButton={null}
                 value={this.data.data.data}
-                entity={entity}
+                entity={entity.type}
                 fields={fields}
                 /> :
               <RexWidget.Preloader />}
@@ -114,7 +114,7 @@ var Edit = React.createClass({
 
   statics: {
     getTitle(props) {
-      return props.title || `Edit ${props.entity}`;
+      return props.title || `Edit ${props.entity.name}`;
     }
   }
 });

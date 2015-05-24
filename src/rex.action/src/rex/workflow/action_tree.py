@@ -40,7 +40,7 @@ class ActionTree(TransitionableRecord):
 def format_context(context):
     if not context:
         return '<empty context>'
-    return ''.join('%s: %s' % (k, v) for k, v in sorted(context.items()))
+    return ''.join('%s: %s (%s)' % (k, v[0], v[1]) for k, v in sorted(context.items()))
 
 
 class ActionLevelVal(Validate):
@@ -52,10 +52,11 @@ class ActionLevelVal(Validate):
         self.actions = actions
         self.context = context or {}
 
-    def next_level_val(self, context_update):
+    def next_level_val(self, action_id, context_update):
         next_context = {}
         next_context.update(self.context)
-        next_context.update(context_update)
+        next_context.update({k: (v, action_id)
+                            for k, v in context_update.items()})
         return ActionLevelVal(self.actions, context=next_context)
 
     def typecheck(self, action_id):
@@ -66,13 +67,18 @@ class ActionLevelVal(Validate):
         for label, typ in inputs.items():
             other_typ = self.context.get(label, NotImplemented)
             if other_typ is NotImplemented:
-                error = Error('Expected context to have key', label)
-                error.wrap('In context:', format_context(self.context))
+                error = Error(
+                    'Action "%s" cannot be used here:' % action_id,
+                    'Context is missing "%s: %s"' % (label, typ))
+                error.wrap('Context:', format_context(self.context))
                 raise error
+            other_typ = other_typ[0]
             if typ != other_typ:
-                error = Error('Expected:', 'key "%s" of type "%s"' % (label, typ))
-                error.wrap('But got:', 'key "%s" of type "%s"' % (label, other_typ))
-                error.wrap('In context:', format_context(self.context))
+                error = Error(
+                    'Action "%s" cannot be used here:' % action_id,
+                    'Context has "%s: %s" but expected to have "%s: %s"' % (
+                        label, typ, label, other_typ))
+                error.wrap('Context:', format_context(self.context))
                 raise error
         return inputs, outputs
 
@@ -81,7 +87,7 @@ class ActionLevelVal(Validate):
         for k, v in value.items():
             _inputs, outputs = self.typecheck(k)
             if isinstance(v, Mapping):
-                v = self.next_level_val(outputs)(v)
+                v = self.next_level_val(k, outputs)(v)
             level[k] = v
         return level
 
@@ -92,7 +98,7 @@ class ActionLevelVal(Validate):
                 k = k.construct(self._str_val)
                 _inputs, outputs = self.typecheck(k)
             if isinstance(v.node, yaml.MappingNode):
-                v = v.construct(self.next_level_val(outputs))
+                v = v.construct(self.next_level_val(k, outputs))
             else:
                 v = v.construct()
             level[k] = v

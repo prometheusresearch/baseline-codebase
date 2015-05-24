@@ -56,9 +56,9 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
       <empty context>
   While parsing:
       "<byte string>", line 2
@@ -68,9 +68,9 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
       <empty context>
 
   >>> parse("""
@@ -79,9 +79,9 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
       <empty context>
   While parsing:
       "<byte string>", line 3
@@ -92,9 +92,9 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
       <empty context>
 
   >>> parse("""
@@ -133,9 +133,9 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
       <empty context>
   While parsing:
       "<byte string>", line 3
@@ -146,9 +146,9 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
       <empty context>
 
   >>> parse("""
@@ -175,10 +175,10 @@ Keys and types are different, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
-      study: study
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      study: study (pick-study)
   While parsing:
       "<byte string>", line 3
 
@@ -188,10 +188,10 @@ Keys and types are different, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
-      study: study
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      study: study (pick-study)
 
 Keys aren't same as types, fail::
 
@@ -201,10 +201,10 @@ Keys aren't same as types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
-      mother: individual
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      mother: individual (pick-mother)
   While parsing:
       "<byte string>", line 3
 
@@ -214,10 +214,10 @@ Keys aren't same as types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      individual
-  In context:
-      mother: individual
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      mother: individual (pick-mother)
 
 Keys aren't same as types, still match::
 
@@ -245,10 +245,10 @@ Same type, different key, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      mother
-  In context:
-      individual: individual
+  Error: Action "view-mother" cannot be used here:
+      Context is missing "mother: individual"
+  Context:
+      individual: individual (pick-individual)
   While parsing:
       "<byte string>", line 3
 
@@ -258,10 +258,10 @@ Same type, different key, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected context to have key
-      mother
-  In context:
-      individual: individual
+  Error: Action "view-mother" cannot be used here:
+      Context is missing "mother: individual"
+  Context:
+      individual: individual (pick-individual)
 
 Same key, different types, fail::
 
@@ -271,12 +271,10 @@ Same key, different types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected:
-      key "mother" of type "study"
-  But got:
-      key "mother" of type "individual"
-  In context:
-      mother: individual
+  Error: Action "view-mother-study" cannot be used here:
+      Context has "mother: study" but expected to have "mother: individual"
+  Context:
+      mother: individual (pick-mother)
   While parsing:
       "<byte string>", line 3
 
@@ -286,9 +284,7 @@ Same key, different types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected:
-      key "mother" of type "study"
-  But got:
-      key "mother" of type "individual"
-  In context:
-      mother: individual
+  Error: Action "view-mother-study" cannot be used here:
+      Context has "mother: study" but expected to have "mother: individual"
+  Context:
+      mother: individual (pick-mother)

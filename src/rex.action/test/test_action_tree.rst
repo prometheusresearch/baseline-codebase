@@ -3,6 +3,8 @@ Action tree
 
 ::
 
+  >>> from rex.core import AnyVal
+
   >>> class Action(object):
   ...
   ...   def __init__(self, id, inputs={}, outputs={}):
@@ -28,15 +30,28 @@ Action tree
   ...   Action('home', inputs={}, outputs={}),
   ... ])
 
+  >>> def parse(yaml):
+  ...   return v.parse(yaml)
+
+  >>> def validate(yaml):
+  ...   obj = AnyVal().parse(yaml)
+  ...   return v(obj)
+
 ::
 
-  >>> v.parse("""
+  >>> parse("""
   ... pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   ActionTree(tree={'pick-individual': None},
              actions={'pick-individual': <Action pick-individual>})
 
-  >>> v.parse("""
+  >>> validate("""
+  ... pick-individual:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree={'pick-individual': None},
+             actions={'pick-individual': <Action pick-individual>})
+
+  >>> parse("""
   ... view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
@@ -46,7 +61,15 @@ Action tree
   While parsing:
       "<byte string>", line 2
 
-  >>> v.parse("""
+  >>> validate("""
+  ... view-individual:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: expected context to have key
+      individual
+
+  >>> parse("""
   ... pick-individual:
   ... view-individual:
   ... """) # doctest: +ELLIPSIS
@@ -55,16 +78,32 @@ Action tree
   Error: expected context to have key
       individual
   While parsing:
-      "<byte string>", line 2
+      "<byte string>", line 3
 
-  >>> v.parse("""
+  >>> validate("""
+  ... pick-individual:
+  ... view-individual:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: expected context to have key
+      individual
+
+  >>> parse("""
   ... pick-individual:
   ...   pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   ActionTree(tree={'pick-individual': {'pick-individual': None}},
              actions={'pick-individual': <Action pick-individual>})
 
-  >>> v.parse("""
+  >>> validate("""
+  ... pick-individual:
+  ...   pick-individual:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree={'pick-individual': {'pick-individual': None}},
+             actions={'pick-individual': <Action pick-individual>})
+
+  >>> parse("""
   ... pick-individual:
   ...   view-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
@@ -72,7 +111,15 @@ Action tree
              actions={'pick-individual': <Action pick-individual>,
                       'view-individual': <Action view-individual>})
 
-  >>> v.parse("""
+  >>> validate("""
+  ... pick-individual:
+  ...   view-individual:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree={'pick-individual': {'view-individual': None}},
+             actions={'pick-individual': <Action pick-individual>,
+                      'view-individual': <Action view-individual>})
+
+  >>> parse("""
   ... home:
   ...   view-individual:
   ... """) # doctest: +ELLIPSIS
@@ -81,9 +128,26 @@ Action tree
   Error: expected context to have key
       individual
   While parsing:
-      "<byte string>", line 2
+      "<byte string>", line 3
 
-  >>> v.parse("""
+  >>> validate("""
+  ... home:
+  ...   view-individual:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: expected context to have key
+      individual
+
+  >>> parse("""
+  ... pick-individual:
+  ...   home:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree={'pick-individual': {'home': None}},
+             actions={'home': <Action home>,
+                      'pick-individual': <Action pick-individual>})
+
+  >>> validate("""
   ... pick-individual:
   ...   home:
   ... """) # doctest: +NORMALIZE_WHITESPACE
@@ -93,7 +157,7 @@ Action tree
 
 Keys and types are different, fail::
 
-  >>> v.parse("""
+  >>> parse("""
   ... pick-study:
   ...   view-individual:
   ... """) # doctest: +ELLIPSIS
@@ -102,11 +166,20 @@ Keys and types are different, fail::
   Error: expected context to have key
       individual
   While parsing:
-      "<byte string>", line 2
+      "<byte string>", line 3
+
+  >>> validate("""
+  ... pick-study:
+  ...   view-individual:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: expected context to have key
+      individual
 
 Keys aren't same as types, fail::
 
-  >>> v.parse("""
+  >>> parse("""
   ... pick-mother:
   ...   view-individual:
   ... """) # doctest: +ELLIPSIS
@@ -115,11 +188,28 @@ Keys aren't same as types, fail::
   Error: expected context to have key
       individual
   While parsing:
-      "<byte string>", line 2
+      "<byte string>", line 3
+
+  >>> validate("""
+  ... pick-mother:
+  ...   view-individual:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: expected context to have key
+      individual
 
 Keys aren't same as types, still match::
 
-  >>> v.parse("""
+  >>> parse("""
+  ... pick-mother:
+  ...   view-mother:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree={'pick-mother': {'view-mother': None}},
+             actions={'view-mother': <Action view-mother>,
+                      'pick-mother': <Action pick-mother>})
+
+  >>> validate("""
   ... pick-mother:
   ...   view-mother:
   ... """) # doctest: +NORMALIZE_WHITESPACE
@@ -129,7 +219,7 @@ Keys aren't same as types, still match::
 
 Same type, different key, fail::
 
-  >>> v.parse("""
+  >>> parse("""
   ... pick-individual:
   ...   view-mother:
   ... """) # doctest: +ELLIPSIS
@@ -138,11 +228,20 @@ Same type, different key, fail::
   Error: expected context to have key
       mother
   While parsing:
-      "<byte string>", line 2
+      "<byte string>", line 3
+
+  >>> validate("""
+  ... pick-individual:
+  ...   view-mother:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: expected context to have key
+      mother
 
 Same key, different types, fail::
 
-  >>> v.parse("""
+  >>> parse("""
   ... pick-mother:
   ...   view-mother-study:
   ... """) # doctest: +ELLIPSIS
@@ -153,4 +252,15 @@ Same key, different types, fail::
   But got:
       key "mother" of type "individual"
   While parsing:
-      "<byte string>", line 2
+      "<byte string>", line 3
+
+  >>> validate("""
+  ... pick-mother:
+  ...   view-mother-study:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: expected:
+      key "mother" of type "study"
+  But got:
+      key "mother" of type "individual"

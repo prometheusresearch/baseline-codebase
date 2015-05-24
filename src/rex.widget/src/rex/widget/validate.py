@@ -14,7 +14,7 @@ import contextlib
 import yaml
 
 from rex.core import ValidatingLoader, Error, Location, guard
-from rex.core import Validate, StrVal, RecordVal, RecordField
+from rex.core import Validate, StrVal, RecordVal, RecordField, AnyVal
 
 from .widget import Widget, GroupWidget, NullWidget
 from .field import Field
@@ -30,7 +30,7 @@ class Deferred(object):
         self.loader = loader
         self.node = node
 
-    def construct(self, validate):
+    def construct(self, validate=AnyVal()):
         return validate.construct(self.loader, self.node)
 
 

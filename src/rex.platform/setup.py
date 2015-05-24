@@ -38,6 +38,7 @@ setup(
         'rex.urlmap==2.6.1',
         'rex.web==3.4.0',
         'rex.widget==1.0.0',
+        'rex.workflow==0.1.0',
     ],
 )
 

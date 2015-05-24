@@ -8,7 +8,7 @@
 """
 
 import yaml
-from collections import Mapping
+from collections import Mapping, OrderedDict
 
 from rex.core import Validate, Error, Location, guard
 from rex.core import MapVal, StrVal, ProxyVal, MaybeVal
@@ -83,7 +83,7 @@ class ActionLevelVal(Validate):
         return inputs, outputs
 
     def __call__(self, value):
-        level = {}
+        level = OrderedDict()
         for k, v in value.items():
             _inputs, outputs = self.typecheck(k)
             if isinstance(v, Mapping):
@@ -92,7 +92,7 @@ class ActionLevelVal(Validate):
         return level
 
     def construct(self, loader, node):
-        level = {}
+        level = OrderedDict()
         for k, v in self._construct_level(loader, node).items():
             with guard("While parsing:", Location.from_node(k.node)):
                 k = k.construct(self._str_val)

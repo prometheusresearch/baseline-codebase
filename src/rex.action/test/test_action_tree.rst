@@ -42,13 +42,13 @@ Action tree
   >>> parse("""
   ... pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-individual': None},
+  ActionTree(tree=OrderedDict([('pick-individual', None)]),
              actions={'pick-individual': <Action pick-individual>})
 
   >>> validate("""
   ... pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-individual': None},
+  ActionTree(tree=OrderedDict([('pick-individual', None)]),
              actions={'pick-individual': <Action pick-individual>})
 
   >>> parse("""
@@ -101,21 +101,21 @@ Action tree
   ... pick-individual:
   ...   pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-individual': {'pick-individual': None}},
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]),
              actions={'pick-individual': <Action pick-individual>})
 
   >>> validate("""
   ... pick-individual:
   ...   pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-individual': {'pick-individual': None}},
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]),
              actions={'pick-individual': <Action pick-individual>})
 
   >>> parse("""
   ... pick-individual:
   ...   view-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-individual': {'view-individual': None}},
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]),
              actions={'pick-individual': <Action pick-individual>,
                       'view-individual': <Action view-individual>})
 
@@ -123,7 +123,7 @@ Action tree
   ... pick-individual:
   ...   view-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-individual': {'view-individual': None}},
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]),
              actions={'pick-individual': <Action pick-individual>,
                       'view-individual': <Action view-individual>})
 
@@ -155,7 +155,7 @@ Action tree
   ... pick-individual:
   ...   home:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-individual': {'home': None}},
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('home', None)]))]),
              actions={'home': <Action home>,
                       'pick-individual': <Action pick-individual>})
 
@@ -163,7 +163,7 @@ Action tree
   ... pick-individual:
   ...   home:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-individual': {'home': None}},
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('home', None)]))]),
              actions={'home': <Action home>,
                       'pick-individual': <Action pick-individual>})
 
@@ -225,7 +225,7 @@ Keys aren't same as types, still match::
   ... pick-mother:
   ...   view-mother:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-mother': {'view-mother': None}},
+  ActionTree(tree=OrderedDict([('pick-mother', OrderedDict([('view-mother', None)]))]),
              actions={'view-mother': <Action view-mother>,
                       'pick-mother': <Action pick-mother>})
 
@@ -233,9 +233,8 @@ Keys aren't same as types, still match::
   ... pick-mother:
   ...   view-mother:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree={'pick-mother': {'view-mother': None}},
-             actions={'view-mother': <Action view-mother>,
-                      'pick-mother': <Action pick-mother>})
+  ActionTree(tree=OrderedDict([('pick-mother', OrderedDict([('view-mother', None)]))]),
+             actions={'view-mother': <Action view-mother>, 'pick-mother': <Action pick-mother>})
 
 Same type, different key, fail::
 

@@ -37,6 +37,12 @@ class ActionTree(TransitionableRecord):
         }
 
 
+def format_context(context):
+    if not context:
+        return '<empty context>'
+    return ''.join('%s: %s' % (k, v) for k, v in sorted(context.items()))
+
+
 class ActionLevelVal(Validate):
 
     _construct_level = MapVal(DeferredVal(), DeferredVal()).construct
@@ -60,10 +66,13 @@ class ActionLevelVal(Validate):
         for label, typ in inputs.items():
             other_typ = self.context.get(label, NotImplemented)
             if other_typ is NotImplemented:
-                raise Error('expected context to have key', label)
+                error = Error('Expected context to have key', label)
+                error.wrap('In context:', format_context(self.context))
+                raise error
             if typ != other_typ:
-                error = Error('expected:', 'key "%s" of type "%s"' % (label, typ))
+                error = Error('Expected:', 'key "%s" of type "%s"' % (label, typ))
                 error.wrap('But got:', 'key "%s" of type "%s"' % (label, other_typ))
+                error.wrap('In context:', format_context(self.context))
                 raise error
         return inputs, outputs
 

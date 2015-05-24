@@ -56,8 +56,10 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      <empty context>
   While parsing:
       "<byte string>", line 2
 
@@ -66,8 +68,10 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      <empty context>
 
   >>> parse("""
   ... pick-individual:
@@ -75,8 +79,10 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      <empty context>
   While parsing:
       "<byte string>", line 3
 
@@ -86,8 +92,10 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      <empty context>
 
   >>> parse("""
   ... pick-individual:
@@ -125,8 +133,10 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      <empty context>
   While parsing:
       "<byte string>", line 3
 
@@ -136,8 +146,10 @@ Action tree
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      <empty context>
 
   >>> parse("""
   ... pick-individual:
@@ -163,8 +175,10 @@ Keys and types are different, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      study: study
   While parsing:
       "<byte string>", line 3
 
@@ -174,8 +188,10 @@ Keys and types are different, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      study: study
 
 Keys aren't same as types, fail::
 
@@ -185,8 +201,10 @@ Keys aren't same as types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      mother: individual
   While parsing:
       "<byte string>", line 3
 
@@ -196,8 +214,10 @@ Keys aren't same as types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       individual
+  In context:
+      mother: individual
 
 Keys aren't same as types, still match::
 
@@ -225,8 +245,10 @@ Same type, different key, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       mother
+  In context:
+      individual: individual
   While parsing:
       "<byte string>", line 3
 
@@ -236,8 +258,10 @@ Same type, different key, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected context to have key
+  Error: Expected context to have key
       mother
+  In context:
+      individual: individual
 
 Same key, different types, fail::
 
@@ -247,10 +271,12 @@ Same key, different types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected:
+  Error: Expected:
       key "mother" of type "study"
   But got:
       key "mother" of type "individual"
+  In context:
+      mother: individual
   While parsing:
       "<byte string>", line 3
 
@@ -260,7 +286,9 @@ Same key, different types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: expected:
+  Error: Expected:
       key "mother" of type "study"
   But got:
       key "mother" of type "individual"
+  In context:
+      mother: individual

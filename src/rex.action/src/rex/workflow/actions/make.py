@@ -15,6 +15,7 @@ from rex.widget import Field, FormFieldVal, responder, PortURL
 from rex.widget import formfield, dataspec
 
 from ..action import Action
+from ..validate import EntityDeclarationVal
 
 __all__ = ('Make',)
 
@@ -54,7 +55,7 @@ class Make(Action):
     js_type = 'rex-workflow/lib/Actions/Make'
 
     entity = Field(
-        StrVal(),
+        EntityDeclarationVal(),
         doc="""
         Name of a table in database.
         """)
@@ -91,9 +92,9 @@ class Make(Action):
     @cached_property
     def port(self):
         if self.fields is None:
-            return Port(self.entity)
+            return Port(self.entity.type)
         else:
-            return formfield.to_port(self.entity, self.fields)
+            return formfield.to_port(self.entity.type, self.fields)
 
     def _construct_data_spec(self, port_url):
         return dataspec.EntitySpec(port_url, {})
@@ -103,10 +104,7 @@ class Make(Action):
         return self.port(req)
 
     def context(self):
-        input, output = super(Make, self).context()
-        if not input:
-            input = {v[1:]: v[1:] for v in self.value.values() if v.startswith('$')}
-        if not output:
-            output = {self.entity: self.entity}
+        input = {v[1:]: v[1:] for v in self.value.values() if v.startswith('$')}
+        output = {self.entity.name: self.entity.type}
         return input, output
 

@@ -45,3 +45,6 @@ class Page(Action):
         To refer to screens in the application one can use ``pkg:/path``
         references which will be resolved to actual URLs.
         """)
+
+    def context(self):
+        return {}, {}

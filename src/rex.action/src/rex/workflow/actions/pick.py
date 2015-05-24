@@ -16,6 +16,7 @@ from rex.widget import Field, ColumnVal, FormFieldVal, responder, PortURL
 from rex.widget import dataspec, formfield
 
 from ..action import Action
+from ..validate import EntityDeclarationVal
 
 __all__ = ('Pick',)
 
@@ -40,7 +41,7 @@ class Pick(Action):
 
 
     entity = Field(
-        StrVal(),
+        EntityDeclarationVal(),
         doc="""
         Name of a table in database.
         """)
@@ -75,10 +76,10 @@ class Pick(Action):
     @cached_property
     def port(self):
         if self.columns is None:
-            return Port(self.entity)
+            return Port(self.entity.type)
         else:
             return formfield.to_port(
-                self.entity, self.columns,
+                self.entity.type, self.columns,
                 filters=self.filters,
                 mask=self.mask)
 
@@ -91,7 +92,5 @@ class Pick(Action):
         return self.port(req)
 
     def context(self):
-        input, output = super(Pick, self).context()
-        if not output:
-            output = {self.entity: self.entity}
-        return input, output
+        output = {self.entity.name: self.entity.type}
+        return self.input, output

@@ -31,7 +31,7 @@ In case fields are not specified, they are generated from port::
          output={},
          id='view-individual',
          title=undefined,
-         entity='individual',
+         entity=EntityDeclaration(name='individual', type='individual'),
          fields=[StringFormField(value_key=['code'], required=True, label='Code'),
                  StringFormField(value_key=['sex'], required=True, label='Sex'),
                  StringFormField(value_key=['mother'], label='Mother'),
@@ -83,7 +83,7 @@ You can also specify fields and see port generated from them::
        output={},
        id='view-individual',
        title=undefined,
-       entity='individual',
+       entity=EntityDeclaration(name='individual', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 
   >>> view.port
@@ -98,9 +98,7 @@ context::
   >>> view = Action.validate("""
   ... type: view
   ... id: view-mother
-  ... entity: mother
-  ... input:
-  ...   mother: individual
+  ... entity: {mother: individual}
   ... fields:
   ... - value_key: code
   ... """)
@@ -111,7 +109,7 @@ context::
        output={},
        id='view-mother',
        title=undefined,
-       entity='mother',
+       entity=EntityDeclaration(name='mother', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 
   >>> view.port

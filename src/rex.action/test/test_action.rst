@@ -10,17 +10,18 @@ Test rex.workflow.action
   >>> from rex.workflow.action import Action, ActionVal, load_actions
 
   >>> class MyAction(Action):
+  ...
   ...   name = 'my'
-
-  >>> from rex.widget import Widget
-  >>> class W(Widget):
-  ...   name = 'x'
+  ...
+  ...   def context(self):
+  ...     return {}, {}
 
   >>> class AnotherAction(Action):
+  ...
   ...   name = 'another'
-  ...   fields = (
-  ...     ('id', StrVal()),
-  ...   )
+  ...
+  ...   def context(self):
+  ...     return {}, {}
 
   >>> Action.all() # doctest: +NORMALIZE_WHITESPACE
   [__main__.MyAction,

@@ -38,7 +38,7 @@ In case fields are not specified, they are generated from port::
                 StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
                 StringFormField(value_key=['adopted_father'], label='Adopted Father')],
        filters=[],
-       entity='individual',
+       entity=EntityDeclaration(name='individual', type='individual'),
        mask=None)
 
   >>> pick.context()

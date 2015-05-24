@@ -129,7 +129,7 @@ class Action(Widget):
         subclasses could override this to provide automatically inferred context
         specification.
         """
-        return self.input, self.output
+        raise NotImplementedError('%s.context()' % self.__class__.__name__)
 
     @classmethod
     def validate(cls, value):

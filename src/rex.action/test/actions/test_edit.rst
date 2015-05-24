@@ -31,7 +31,7 @@ In case fields are not specified, they are generated from port::
        output={'individual': 'individual'},
        id='edit-individual',
        title=undefined,
-       entity='individual',
+       entity=EntityDeclaration(name='individual', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
                StringFormField(value_key=['sex'], required=True, label='Sex'),
                StringFormField(value_key=['mother'], label='Mother'),
@@ -83,7 +83,7 @@ You can also specify fields and see port generated from them::
        output={'individual': 'individual'},
        id='edit-individual',
        title=undefined,
-       entity='individual',
+       entity=EntityDeclaration(name='individual', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 
   >>> edit.port

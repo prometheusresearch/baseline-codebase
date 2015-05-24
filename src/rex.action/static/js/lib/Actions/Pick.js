@@ -80,13 +80,13 @@ var Pick = React.createClass({
   onSelected(selected, data) {
     this.setState({selected, data});
     var nextContext = {...this.props.context};
-    nextContext[this.props.entity] = selected;
+    nextContext[this.props.entity.name] = selected;
     this.props.onContext(nextContext);
   },
 
   statics: {
     getTitle(props) {
-      return props.title || `Pick ${props.entity}`;
+      return props.title || `Pick ${props.entity.name}`;
     }
   }
 });

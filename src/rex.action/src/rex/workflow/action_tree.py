@@ -46,8 +46,10 @@ class ActionLevelVal(Validate):
         self.context = context or {}
 
     def next_level_val(self, context_update):
-        context = _context_update(self.context, context_update)
-        return ActionLevelVal(self.actions, context=context)
+        next_context = {}
+        next_context.update(self.context)
+        next_context.update(context_update)
+        return ActionLevelVal(self.actions, context=next_context)
 
     def typecheck(self, action_id):
         if not action_id in self.actions:
@@ -96,59 +98,28 @@ class ActionTreeVal(Validate):
         actions = self._actions if self._actions else load_actions()
         return {a.id: a for a in actions}
 
-    def construct(self, loader, node):
+    def _construct(self, tree_factory):
         actions = self.actions
         validate = ActionLevelVal(actions)
-        tree = validate.construct(loader, node)
-        used_actions = _used_keys(tree)
-        actions = {k: v for k, v in actions.items() if k in used_actions}
-        return ActionTree(tree=tree, actions=actions)
+        tree = tree_factory(validate)
+        keys = tree_keys(tree)
+        return ActionTree(
+            tree=tree,
+            actions={k: v for k, v in actions.items() if k in keys})
+
+    def construct(self, loader, node):
+        return self._construct(lambda v: v.construct(loader, node))
 
     def __call__(self, tree):
         if isinstance(tree, ActionTree):
             return tree
-        actions = self.actions
-        validate = ActionLevelVal(actions)
-        tree = validate(tree)
-        used_actions = _used_keys(tree)
-        actions = {k: v for k, v in actions.items() if k in used_actions}
-        return ActionTree(tree=tree, actions=actions)
+        return self._construct(lambda v: v(tree))
 
 
-def _typecheck(actions, tree, context=None):
-    context = context or {}
+def tree_keys(tree):
+    keys = set()
     for k, v in tree.items():
-        if not k in actions:
-            raise Error('unknown action found:', k)
-        action = actions[k]
-        inputs, outputs = action.context()
-        _typecheck_step(context, inputs)
+        keys.add(k)
         if isinstance(v, Mapping):
-            _typecheck(actions, v, context=_context_update(context, outputs))
-
-
-def _typecheck_step(context, inputs):
-    for k, v in inputs.items():
-        w = context.get(k, NotImplemented)
-        if w is NotImplemented:
-            raise Error('expected context to have key', k)
-        if v != w:
-            error = Error('expected:', 'key "%s" of type "%s"' % (k, v))
-            error.wrap('But got:', 'key "%s" of type "%s"' % (k, w))
-            raise error
-
-
-def _context_update(context, outputs):
-    next_context = {}
-    next_context.update(context)
-    next_context.update(outputs)
-    return next_context
-
-
-def _used_keys(tree):
-    used = set()
-    for k, v in tree.items():
-        used.add(k)
-        if isinstance(v, Mapping):
-            used = used | _used_keys(v)
-    return used
+            keys = keys | tree_keys(v)
+    return keys

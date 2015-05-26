@@ -12,13 +12,14 @@
 
 from collections import namedtuple
 
+import yaml
 from webob.exc import HTTPUnauthorized
 
 from rex.core import Error, Validate, RecordVal, StrVal, MapVal, AnyVal
-from rex.core import Extension, cached
+from rex.core import Extension, cached, Location, guard
 from rex.urlmap import Map
 from rex.web import authorize
-from rex.widget import Widget, Field, render_widget
+from rex.widget import Widget, WidgetVal, Field, render_widget
 
 __all__ = ('Workflow', 'WorkflowVal')
 
@@ -78,6 +79,23 @@ class Workflow(Widget):
         return WorkflowVal(workflow_cls=cls)(value)
 
 
+YAML_STR_TAG = u'tag:yaml.org,2002:str'
+
+def pop_mapping_key(node, key):
+    assert isinstance(node, yaml.MappingNode)
+    value = []
+    for n, (k, v) in enumerate(node.value):
+        if isinstance(k, yaml.ScalarNode) and k.tag == YAML_STR_TAG and k.value == key:
+            node = yaml.MappingNode(
+                node.tag,
+                node.value[:n] + node.value[n + 1:],
+                start_mark=node.start_mark,
+                end_mark=node.end_mark,
+                flow_style=node.flow_style)
+            return v, node
+    return None, node
+
+
 class WorkflowVal(Validate):
     """ Validator for workflows."""
 
@@ -85,13 +103,35 @@ class WorkflowVal(Validate):
     _validate_type = StrVal()
 
     def __init__(self, default_workflow_type='paneled'):
-        self.default_workflow_type = default_workflow_type
+        self.workflow_sig = _workflow_sig(default_workflow_type)
+
+    def construct(self, loader, node):
+        if not isinstance(node, yaml.MappingNode):
+            value = super(WorkflowVal, self).construct(loader, node)
+            return self(value)
+
+        workflow_sig = None
+
+        type_node, node = pop_mapping_key(node, 'type')
+        if type_node:
+            with guard("While parsing:", Location.from_node(type_node)):
+                workflow_type = self._validate_type.construct(loader, type_node)
+                workflow_sig = _workflow_sig(workflow_type)
+                if workflow_sig not in Workflow.mapped():
+                    raise Error('unknown workflow type specified:', workflow_type)
+
+        workflow_sig = workflow_sig or self.workflow_sig
+        workflow_cls = Workflow.mapped()[workflow_sig]
+
+        validate = WidgetVal(widget_class=workflow_cls)
+        value = validate.construct(loader, node)
+        return value
 
     def __call__(self, value):
         if isinstance(value, Workflow):
             return value
         value = self._validate_pre(value)
-        workflow_type = value.get('type', self.default_workflow_type)
+        workflow_type = value.get('type', self.workflow_sig.name)
         workflow_sig = _workflow_sig(workflow_type)
         if workflow_sig not in Workflow.mapped():
             raise Error('unknown workflow type specified:', workflow_type)

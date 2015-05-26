@@ -11,7 +11,7 @@ import yaml
 from collections import Mapping, OrderedDict
 
 from rex.core import Validate, Error, Location, guard
-from rex.core import MapVal, StrVal, ProxyVal, MaybeVal
+from rex.core import OMapVal, StrVal, ProxyVal, MaybeVal
 from rex.widget import TransitionableRecord
 from rex.widget.validate import DeferredVal
 
@@ -45,7 +45,7 @@ def format_context(context):
 
 class ActionLevelVal(Validate):
 
-    _construct_level = MapVal(DeferredVal(), DeferredVal()).construct
+    _construct_level = OMapVal(DeferredVal(), DeferredVal()).construct
     _str_val = StrVal()
 
     def __init__(self, actions, context=None):
@@ -97,7 +97,7 @@ class ActionLevelVal(Validate):
             with guard("While parsing:", Location.from_node(k.node)):
                 k = k.construct(self._str_val)
                 _inputs, outputs = self.typecheck(k)
-            if isinstance(v.node, yaml.MappingNode):
+            if isinstance(v.node, yaml.SequenceNode):
                 v = v.construct(self.next_level_val(k, outputs))
             else:
                 v = v.construct()

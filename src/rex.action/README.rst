@@ -75,7 +75,7 @@ Workflows are defined in URL mapping (``static/urlmap.yaml``)::
       /:
         workflow:
           actions:
-            home:
-              make-study:
-              pick-study:
-                view-study:
+            - home:
+              - make-study:
+              - pick-study:
+                - view-study:

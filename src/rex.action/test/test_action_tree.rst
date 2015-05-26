@@ -3,7 +3,7 @@ Action tree
 
 ::
 
-  >>> from rex.core import AnyVal
+  >>> from rex.core import OMapVal, ProxyVal, StrVal, MaybeVal
 
   >>> class Action(object):
   ...
@@ -34,25 +34,28 @@ Action tree
   ...   return v.parse(yaml)
 
   >>> def validate(yaml):
-  ...   obj = AnyVal().parse(yaml)
+  ...   val = ProxyVal()
+  ...   val_item = OMapVal(StrVal(), val)
+  ...   val.set(MaybeVal(val_item))
+  ...   obj = val.parse(yaml)
   ...   return v(obj)
 
 ::
 
   >>> parse("""
-  ... pick-individual:
+  ... - pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   ActionTree(tree=OrderedDict([('pick-individual', None)]),
              actions={'pick-individual': <Action pick-individual>})
 
   >>> validate("""
-  ... pick-individual:
+  ... - pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   ActionTree(tree=OrderedDict([('pick-individual', None)]),
              actions={'pick-individual': <Action pick-individual>})
 
   >>> parse("""
-  ... view-individual:
+  ... - view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -64,7 +67,7 @@ Action tree
       "<byte string>", line 2
 
   >>> validate("""
-  ... view-individual:
+  ... - view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -74,62 +77,8 @@ Action tree
       <empty context>
 
   >>> parse("""
-  ... pick-individual:
-  ... view-individual:
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: Action "view-individual" cannot be used here:
-      Context is missing "individual: individual"
-  Context:
-      <empty context>
-  While parsing:
-      "<byte string>", line 3
-
-  >>> validate("""
-  ... pick-individual:
-  ... view-individual:
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: Action "view-individual" cannot be used here:
-      Context is missing "individual: individual"
-  Context:
-      <empty context>
-
-  >>> parse("""
-  ... pick-individual:
-  ...   pick-individual:
-  ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]),
-             actions={'pick-individual': <Action pick-individual>})
-
-  >>> validate("""
-  ... pick-individual:
-  ...   pick-individual:
-  ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]),
-             actions={'pick-individual': <Action pick-individual>})
-
-  >>> parse("""
-  ... pick-individual:
-  ...   view-individual:
-  ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]),
-             actions={'pick-individual': <Action pick-individual>,
-                      'view-individual': <Action view-individual>})
-
-  >>> validate("""
-  ... pick-individual:
-  ...   view-individual:
-  ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]),
-             actions={'pick-individual': <Action pick-individual>,
-                      'view-individual': <Action view-individual>})
-
-  >>> parse("""
-  ... home:
-  ...   view-individual:
+  ... - pick-individual:
+  ... - view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -141,8 +90,8 @@ Action tree
       "<byte string>", line 3
 
   >>> validate("""
-  ... home:
-  ...   view-individual:
+  ... - pick-individual:
+  ... - view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -152,16 +101,70 @@ Action tree
       <empty context>
 
   >>> parse("""
-  ... pick-individual:
-  ...   home:
+  ... - pick-individual:
+  ...   - pick-individual:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]),
+             actions={'pick-individual': <Action pick-individual>})
+
+  >>> validate("""
+  ... - pick-individual:
+  ...   - pick-individual:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]),
+             actions={'pick-individual': <Action pick-individual>})
+
+  >>> parse("""
+  ... - pick-individual:
+  ...   - view-individual:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]),
+             actions={'pick-individual': <Action pick-individual>,
+                      'view-individual': <Action view-individual>})
+
+  >>> validate("""
+  ... - pick-individual:
+  ...   - view-individual:
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]),
+             actions={'pick-individual': <Action pick-individual>,
+                      'view-individual': <Action view-individual>})
+
+  >>> parse("""
+  ... - home:
+  ...   - view-individual:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      <empty context>
+  While parsing:
+      "<byte string>", line 3
+
+  >>> validate("""
+  ... - home:
+  ...   - view-individual:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      <empty context>
+
+  >>> parse("""
+  ... - pick-individual:
+  ...   - home:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('home', None)]))]),
              actions={'home': <Action home>,
                       'pick-individual': <Action pick-individual>})
 
   >>> validate("""
-  ... pick-individual:
-  ...   home:
+  ... - pick-individual:
+  ...   - home:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('home', None)]))]),
              actions={'home': <Action home>,
@@ -170,8 +173,8 @@ Action tree
 Keys and types are different, fail::
 
   >>> parse("""
-  ... pick-study:
-  ...   view-individual:
+  ... - pick-study:
+  ...   - view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -183,8 +186,8 @@ Keys and types are different, fail::
       "<byte string>", line 3
 
   >>> validate("""
-  ... pick-study:
-  ...   view-individual:
+  ... - pick-study:
+  ...   - view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -196,8 +199,8 @@ Keys and types are different, fail::
 Keys aren't same as types, fail::
 
   >>> parse("""
-  ... pick-mother:
-  ...   view-individual:
+  ... - pick-mother:
+  ...   - view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -209,8 +212,8 @@ Keys aren't same as types, fail::
       "<byte string>", line 3
 
   >>> validate("""
-  ... pick-mother:
-  ...   view-individual:
+  ... - pick-mother:
+  ...   - view-individual:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -222,16 +225,16 @@ Keys aren't same as types, fail::
 Keys aren't same as types, still match::
 
   >>> parse("""
-  ... pick-mother:
-  ...   view-mother:
+  ... - pick-mother:
+  ...   - view-mother:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   ActionTree(tree=OrderedDict([('pick-mother', OrderedDict([('view-mother', None)]))]),
              actions={'view-mother': <Action view-mother>,
                       'pick-mother': <Action pick-mother>})
 
   >>> validate("""
-  ... pick-mother:
-  ...   view-mother:
+  ... - pick-mother:
+  ...   - view-mother:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   ActionTree(tree=OrderedDict([('pick-mother', OrderedDict([('view-mother', None)]))]),
              actions={'view-mother': <Action view-mother>, 'pick-mother': <Action pick-mother>})
@@ -239,8 +242,8 @@ Keys aren't same as types, still match::
 Same type, different key, fail::
 
   >>> parse("""
-  ... pick-individual:
-  ...   view-mother:
+  ... - pick-individual:
+  ...   - view-mother:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -252,8 +255,8 @@ Same type, different key, fail::
       "<byte string>", line 3
 
   >>> validate("""
-  ... pick-individual:
-  ...   view-mother:
+  ... - pick-individual:
+  ...   - view-mother:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -265,8 +268,8 @@ Same type, different key, fail::
 Same key, different types, fail::
 
   >>> parse("""
-  ... pick-mother:
-  ...   view-mother-study:
+  ... - pick-mother:
+  ...   - view-mother-study:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -278,8 +281,8 @@ Same key, different types, fail::
       "<byte string>", line 3
 
   >>> validate("""
-  ... pick-mother:
-  ...   view-mother-study:
+  ... - pick-mother:
+  ...   - view-mother-study:
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...

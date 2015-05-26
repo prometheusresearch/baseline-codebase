@@ -335,7 +335,6 @@ var Workflow = React.createClass({
     }
 
     var {translateX, visiblePanels, actionTree} = this.state;
-    console.log(visiblePanels, this.state.workflow);
     var panels = this.state.workflow.panels.map((p, i) =>
         <WorkflowItem
           ref={p.id}
@@ -423,7 +422,6 @@ var Workflow = React.createClass({
 
       while (true) {
         var metrics = this.computeCanvasMetrics(workflow);
-        console.log(moveRight ? 'right' : 'left', targetFocus, currentFocus, metrics.visiblePanels);
         if (metrics.visiblePanels.indexOf(targetFocus) !== -1) {
           this.setState({workflow, ...metrics});
           break;

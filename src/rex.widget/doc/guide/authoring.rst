@@ -11,7 +11,7 @@ application purposes.
 Widgets are defined by both Python and JavaScript code.
 
 Let us implement ``<MyHeader>``, a widget which renders into ``<h1>``, ``<h2>``,
-... elements depending on its ``level`` property.  
+... elements depending on its ``level`` property.
 
 In JavaScript, widget is represented as a regular React_ component but created
 with ``RexWidget.createWidgetClass`` helper. The source file should be a valid

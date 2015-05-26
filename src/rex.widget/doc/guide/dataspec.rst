@@ -51,7 +51,7 @@ corresponding application.  That way each data spec has a corresponding prop
 with the same name.
 
 When the widget is rendered, data will be fetched for each key in
-``fetchDataSpecs`` whose value is ``true``. 
+``fetchDataSpecs`` whose value is ``true``.
 
 Why not fetch data for each data spec defined in ``dataSpecs``?  In some cases
 we want to just define a data spec but pass it further down the tree to enrich
@@ -111,15 +111,15 @@ To do that we need to define our data spec in the following way::
 
   })
 
-Now if we pass a ``lab`` prop to the ``<Users lab="some-lab" ... />`` widget 
-it will fetch data with the param ``?user:lab=some-lab``. 
-Now it is a part of a contract for port authors 
+Now if we pass a ``lab`` prop to the ``<Users lab="some-lab" ... />`` widget
+it will fetch data with the param ``?user:lab=some-lab``.
+Now it is a part of a contract for port authors
 to define the ``:lab`` filter and do some calculations based on it.
 
-Each time the ``lab`` prop is changed, the ``<Users />`` widget will 
+Each time the ``lab`` prop is changed, the ``<Users />`` widget will
 re-fetch the dataset.
 
-In the same way we can bind port params to a component's state by using 
+In the same way we can bind port params to a component's state by using
 the ``state`` binder::
 
   var Users = RexWidget.createWidgetClass({
@@ -142,7 +142,7 @@ Required params in data specs
 -----------------------------
 
 Sometimes you don't want to fetch data from ports unless some params are
-defined. Rex Widget allows you to mark such params with the 
+defined. Rex Widget allows you to mark such params with the
 ``{required: true}`` option::
 
   var Users = RexWidget.createWidgetClass({
@@ -157,19 +157,19 @@ defined. Rex Widget allows you to mark such params with the
 
   })
 
-Now if we don't pass ``lab`` prop to our widget ``<Users />``, 
+Now if we don't pass ``lab`` prop to our widget ``<Users />``,
 then the ``users`` dataset won't be fetched.
 
 Fetching entities
 -----------------
 
-So far we have shown how to fetch collections of entities 
-but sometimes it is required to fetch a single entity. 
-For example as a result of a click on a datatable's row 
+So far we have shown how to fetch collections of entities
+but sometimes it is required to fetch a single entity.
+For example as a result of a click on a datatable's row
 we want to fetch detailed information for the selected entity.
 
-To fetch a single entity use the ``entity`` data specification constructor 
-which behaves similar to ``collection`` but handles responses from ports 
+To fetch a single entity use the ``entity`` data specification constructor
+which behaves similar to ``collection`` but handles responses from ports
 which contain just a single object::
 
   var UserInfo = RexWidget.createWidgetClass({
@@ -213,7 +213,7 @@ To bind to the YAML API you need to use ``EntitySpecVal`` instead of
 Data specs and state cells
 --------------------------
 
-Data specifications play well with the state cells feature of Rex Widget. 
+Data specifications play well with the state cells feature of Rex Widget.
 You can bind to them as you would bind to ordinary values::
 
   var Users = RexWidget.createWidgetClass({

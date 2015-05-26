@@ -20,7 +20,7 @@ Data specification validators API
 
 .. autoclass:: rex.widget.EntitySpecVal
 .. autoclass:: rex.widget.CollectionSpecVal
- 
+
 URL validators API
 ------------------
 

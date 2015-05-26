@@ -7,21 +7,21 @@
 Rationale
 =========
 
-Real use-cases of using Rex Widget have proved that the functionality and
+Real use-cases of using Rex Widget have proven that the functionality and
 configurability of widgets is not enough for creating rich and functional
-screens. For screens whose fields require logic to smooth the user 
-experience, the yaml configuration is insufficient. 
+screens. For screens whose fields require logic to smooth the user
+experience, the yaml configuration is insufficient.
 
 Another issue with enhancing the yaml configuration is that number of
-configuration parameters can grow very quickly and then making changes can 
+configuration parameters can grow very quickly and then making changes can
 be cumbersome.
 
-The flexibility of the `urlmap.yaml`-defined screens is still low and 
+The flexibility of the `urlmap.yaml`-defined screens is still low and
 adding even a small feature to it may become quite a difficult task.
 
-The solution is to let the developer create screens with as much 
-flexibility and functionality as needed.  Rex Widget will provide the widget 
-library, automated data loading, and improved state management, while the 
+The solution is to let the developer create screens with as much
+flexibility and functionality as needed.  Rex Widget will provide the widget
+library, automated data loading, and improved state management, while the
 Javascript components can have the full power of the `React.js` framework.
 
 
@@ -69,20 +69,18 @@ And the JavaScript part:
 
     });
 
-As you may see, the Python part is just the same us usual, while the 
-JavaScript part has some differences.  The first one is how you import 
-RexWidget.  Make sure to import from *'rex-widget/lib/modern'*. 
-The other difference is how you create the widget class.  To get all 
+As you may see, the Python part is just the same us usual, while the
+JavaScript part is a bit different. To get all
 the helper mixins use `RexWidget.createWidgetClass` instead of
-`React.createClass`. 
+`React.createClass`.
 
-`RexWidget.createWidgetClass` takes all the same arguments as 
-`React.createClass`.  Each instance is basically a common `React` component 
-with all its methods and requirements; you can use all of the `React` 
+`RexWidget.createWidgetClass` takes all the same arguments as
+`React.createClass`.  Each instance is basically a common `React` component
+with all its methods and requirements; you can use all of the `React`
 capabilities and restrictions inside of it.
 
-Once the complex widget is defined, you can use it in the `urlmap.yaml` just 
-as you usually do.  Here is a real-world example of using 
+Once the complex widget is defined, you can use it in the `urlmap.yaml` just
+as you usually do.  Here is a real-world example of using
 `EnrollmentAdminPage`:
 
 .. code-block:: yaml
@@ -143,9 +141,9 @@ as you usually do.  Here is a real-world example of using
 Database operations
 ===================
 
-Let's see how you can work with the database.  All database opeartions are 
+Let's see how you can work with the database.  All database opeartions are
 done using ports.  It is wise to define the ports as configuration
-parameters.  Here is how we modify the Python description of the widget to 
+parameters.  Here is how we modify the Python description of the widget to
 do it:
 
 .. code-block:: python
@@ -186,8 +184,8 @@ do it:
             Dataset for studies individual is enrolled in.
             """)
 
-To connect a field to a port use either `EntitySpecVal` or 
-`CollectionSpecVal`.  Use the former only in cases when you know that 
+To connect a field to a port use either `EntitySpecVal` or
+`CollectionSpecVal`.  Use the former only in cases when you know that
 exactly one entity will be returned, i.e. you query some database
 record/entity by its primary key.  The latter should be used in all other
 cases, i.e. you query the list of records which may have zero or more items.
@@ -225,8 +223,8 @@ complex and defines the relationships between all the queries:
       ...
     });
 
-So, there is the `dataSpecs` widget attribute which corresponds to the 
-previously defined widget propeties.  This is the description of the data 
+So, there is the `dataSpecs` widget attribute which corresponds to the
+previously defined widget propeties.  This is the description of the data
 properties and how they are dependent on a page state. So the first one says:
 
 .. code-block:: javascript
@@ -251,12 +249,12 @@ individuals) and `searchIndividual` (which is not required and can be null).
 
 Values of those variables should be passed to the port url as
 `individual:studyval` and `individual:search` filters respectively when
-obtaining the data.  We'll consider the page state variables in the next 
-section, for now just think of them as usual `React` state variables which 
+obtaining the data.  We'll consider the page state variables in the next
+section, for now just think of them as usual `React` state variables which
 you can access with `this.state.selectedStudy` or similar call.
 
-You have complete control of how and when the data is fetched.  The data is 
-fetched after the widget is rendered and 
+You have complete control of how and when the data is fetched.  The data is
+fetched after the widget is rendered and
 `this.fetchDataSpecs.\<data spec name\>` is `true`.  Specifically, our top-most 
 example widget fetches three of five data specs initially:
 
@@ -280,6 +278,7 @@ Here is an example of how to access the data:
   /**
    * Select first study from the list.
    */
+
   selectFirstStudy() {
     if (this.data.studyList.data && this.data.studyList.data[0]) {
       this.state.selectedStudy.update(this.data.studyList.data[0].id);

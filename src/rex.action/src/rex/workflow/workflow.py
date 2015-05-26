@@ -33,7 +33,10 @@ class WorkflowMeta(Widget.__metaclass__):
         return cls
 
 
-_workflow_sig = namedtuple('Workflow', ['name'])
+class _workflow_sig(namedtuple('Workflow', ['name'])):
+
+    def __hash__(self):
+        return hash((self.__class__.__name__, self.name))
 
 
 class Workflow(Widget):

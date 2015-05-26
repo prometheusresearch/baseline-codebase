@@ -28,7 +28,10 @@ class ActionMeta(Widget.__metaclass__):
         return cls
 
 
-_action_sig = namedtuple('Action', ['name'])
+class _action_sig(namedtuple('Action', ['name'])):
+
+    def __hash__(self):
+        return hash((self.__class__.__name__, self.name))
 
 
 class Action(Widget):

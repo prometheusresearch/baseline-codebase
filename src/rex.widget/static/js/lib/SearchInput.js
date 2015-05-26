@@ -97,7 +97,7 @@ var SearchInput = React.createClass({
   mixins: [TimeoutMixin],
 
   render() {
-    var {value, placeholder, disabled, focus, ...props} = this.props;
+    var {value, placeholder, disabled, focus, style, ...props} = this.props;
     if (this.state.value !== undefined) {
       value = this.state.value;
     }
@@ -105,10 +105,10 @@ var SearchInput = React.createClass({
       value = '';
     }
     return (
-      <VBox {...props} onChange={undefined}>
+      <VBox {...props} style={style.self} onChange={undefined}>
         <Input
           type="search"
-          style={SearchInputStyle.input}
+          style={{...SearchInputStyle.input, ...style.input}}
           styleOnFocus={SearchInputStyle.onFocus.input}
           value={value}
           placeholder={placeholder}
@@ -128,7 +128,8 @@ var SearchInput = React.createClass({
   getDefaultProps() {
     return {
       onChange: emptyFunction,
-      placeholder: 'Search...'
+      placeholder: 'Search...',
+      style: {}
     };
   },
 

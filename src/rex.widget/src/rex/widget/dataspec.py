@@ -1,7 +1,7 @@
 """
 
-    rex.widget.modern.dataspec
-    ==========================
+    rex.widget.dataspec
+    ===================
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -15,7 +15,7 @@ from .transitionable import TransitionableRecord
 
 __all__ = (
     'CollectionSpecVal', 'EntitySpecVal', 'CollectionSpec', 'EntitySpec',
-    'PropBinding')
+    'PropBinding', 'StateBinding')
 
 
 class DataSpec(TransitionableRecord):
@@ -52,6 +52,11 @@ class Binding(TransitionableRecord):
 class PropBinding(Binding):
 
     __transit_tag__ = 'propbinding'
+
+
+class StateBinding(Binding):
+
+    __transit_tag__ = 'statebinding'
 
 
 class DataSpecVal(Validate):

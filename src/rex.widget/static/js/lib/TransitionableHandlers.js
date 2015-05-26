@@ -3,12 +3,12 @@
  */
 'use strict';
 
-var React                       = require('react');
-var Transitionable              = require('./Transitionable');
-var Port                        = require('./Port');
-var Query                       = require('./Query');
-var resolveURL                  = require('./resolveURL');
-var {Collection, Entity, prop}  = require('./DataSpecification');
+var React                             = require('react');
+var Transitionable                    = require('./Transitionable');
+var Port                              = require('./Port');
+var Query                             = require('./Query');
+var resolveURL                        = require('./resolveURL');
+var {Collection, Entity, prop, state} = require('./DataSpecification');
 
 Transitionable.register('undefined', function decode_widget() {
   return undefined;
@@ -41,4 +41,8 @@ Transitionable.register('entity', function decode_query(payload) {
 
 Transitionable.register('propbinding', function decode_query(payload) {
   return prop(payload[0]);
+});
+
+Transitionable.register('statebinding', function decode_query(payload) {
+  return state(payload[0]);
 });

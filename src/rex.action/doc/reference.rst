@@ -1,63 +1,63 @@
-******************************
-  REX.WORKFLOW API Reference
-******************************
+****************************
+  REX.WIZARD API Reference
+****************************
 
 .. contents:: Table of Contents
 
 Actions
 =======
 
-Rex Workflow provides a base class for defining new actions and a set of generic
+Rex Wizard provides a base class for defining new actions and a set of generic
 reusable actions for CRUD.
 
 Action
 ------
 
-.. autoclass:: rex.workflow.action.Action
+.. autoclass:: rex.wizard.action.Action
 
 Page
 ----
 
-.. autoclass:: rex.workflow.actions.page.Page
+.. autoclass:: rex.wizard.actions.page.Page
    :show-inheritance:
 
 Pick
 ----
 
-.. autoclass:: rex.workflow.actions.pick.Pick
+.. autoclass:: rex.wizard.actions.pick.Pick
    :show-inheritance:
 
 View
 ----
 
-.. autoclass:: rex.workflow.actions.view.View
+.. autoclass:: rex.wizard.actions.view.View
    :show-inheritance:
 
 Make
 ----
 
-.. autoclass:: rex.workflow.actions.make.Make
+.. autoclass:: rex.wizard.actions.make.Make
    :show-inheritance:
 
 Edit
 ----
 
-.. autoclass:: rex.workflow.actions.edit.Edit
+.. autoclass:: rex.wizard.actions.edit.Edit
    :show-inheritance:
 
-Workflows
-=========
+Wizards
+=======
 
-Rex Workflow provides a base class for defining new workflows and a default
+Rex Wizard provides a base class for defining new wizards and a default
 implementation.
 
-Workflow
---------
+Wizard
+------
 
-.. autoclass:: rex.workflow.workflow.Workflow
+.. autoclass:: rex.wizard.wizard.Wizard
 
-PaneledWorkflow
----------------
+PaneledWizard
+-------------
 
-.. autoclass:: rex.workflow.paneled_workflow.PaneledWorkflow
+.. autoclass:: rex.wizard.paneled_wizard.PaneledWizard
    :show-inheritance:

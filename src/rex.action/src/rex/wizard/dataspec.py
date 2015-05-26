@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.dataspec
-    =====================
+    rex.wizard.dataspec
+    ===================
 
     :copyright: 2015, Prometheus Research, LLC
 

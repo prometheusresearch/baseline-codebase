@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.action_tree
-    ========================
+    rex.wizard.action_tree
+    ======================
 
     :copyright: 2015, Prometheus Research, LLC
 

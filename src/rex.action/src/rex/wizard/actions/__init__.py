@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.actions
-    ====================
+    rex.wizard.actions
+    ==================
 
     :copyright: 2015, Prometheus Research, LLC
 

@@ -19,7 +19,7 @@ var {actionAllowedInContext}  = require('./getNextActions');
 
 var SERVICE_PANE_ID = '__service__';
 
-class WorkflowState {
+class WizardState {
 
   constructor(onUpdate, actions, size, panels, focus) {
     this._onUpdate = onUpdate;
@@ -165,7 +165,7 @@ class WorkflowState {
   }
 
   construct(panels, focus) {
-    return new WorkflowState(this._onUpdate, this._actions, this._size, panels, focus);
+    return new WizardState(this._onUpdate, this._actions, this._size, panels, focus);
   }
 
   static construct(onUpdate, actions, size) {
@@ -204,7 +204,7 @@ var WorkfowItemStyle = {
   }
 };
 
-var WorkflowItem = React.createClass({
+var WizardItem = React.createClass({
 
   render() {
     var {children, active, style, actions, siblingActions, actionId, noTheme} = this.props;
@@ -247,7 +247,7 @@ var WorkflowItem = React.createClass({
   }
 });
 
-var WorkflowStyle = {
+var WizardStyle = {
 
   self: {
     width: '100%',
@@ -289,16 +289,16 @@ function getPanelWidth(panel) {
   return width;
 }
 
-function computeCanvasMetrics(workflow, size, getActionByID) {
+function computeCanvasMetrics(wizard, size, getActionByID) {
   var widthToDistribute;
   var seenWidth = 0;
   var scrollToIdx;
   var translateX = 0;
   var visiblePanels = [];
-  for (var i = 0; i < workflow.panels.length; i++) {
-    var panel = workflow.panels[i];
+  for (var i = 0; i < wizard.panels.length; i++) {
+    var panel = wizard.panels[i];
     var panelWidth = getPanelWidth(panel);
-    if (i === workflow.focus) {
+    if (i === wizard.focus) {
       scrollToIdx = i;
       widthToDistribute = size.width;
     }
@@ -313,13 +313,13 @@ function computeCanvasMetrics(workflow, size, getActionByID) {
   }
   if (scrollToIdx > 0) {
     for (var i = scrollToIdx - 1; i >= 0; i--) {
-      var panel = workflow.panels[i];
+      var panel = wizard.panels[i];
       var panelWidth = getPanelWidth(panel);
-      translateX = translateX + panelWidth + WorkflowStyle.item.marginRight;
+      translateX = translateX + panelWidth + WizardStyle.item.marginRight;
     }
   }
 
-  translateX = Math.max(0, translateX - WorkflowStyle.item.marginRight * 4);
+  translateX = Math.max(0, translateX - WizardStyle.item.marginRight * 4);
 
   return {
     translateX,
@@ -327,16 +327,16 @@ function computeCanvasMetrics(workflow, size, getActionByID) {
   };
 }
 
-var Workflow = React.createClass({
+var Wizard = React.createClass({
 
   render() {
     if (this.props.DOMSize === null) {
-      return <VBox style={WorkflowStyle.self} />;
+      return <VBox style={WizardStyle.self} />;
     }
 
     var {translateX, visiblePanels, actionTree} = this.state;
-    var panels = this.state.workflow.panels.map((p, i) =>
-        <WorkflowItem
+    var panels = this.state.wizard.panels.map((p, i) =>
+        <WizardItem
           ref={p.id}
           key={p.id}
           actionId={p.id}
@@ -344,35 +344,35 @@ var Workflow = React.createClass({
           siblingActions={p.isService ? [] : Object.keys(p.prev.actionTree)}
           active={visiblePanels.indexOf(i) !== -1}
           noTheme={p.isService}
-          style={{...WorkflowStyle.item, zIndex: p.isService ? 999 : 1000}}
+          style={{...WizardStyle.item, zIndex: p.isService ? 999 : 1000}}
           onReplace={this.onReplace}
           onFocus={this.onFocus}>
           {cloneWithProps(p.element, {
             ref: p.id,
             context: p.context,
-            workflow: this.state.workflow,
+            wizard: this.state.wizard,
             onContext: this.onContext.bind(null, p.id),
             onClose: this.onClose.bind(null, p.id)
           })}
-        </WorkflowItem>
+        </WizardItem>
     );
 
-    var breadcrumb = this.state.workflow.panels.map(p => ({
+    var breadcrumb = this.state.wizard.panels.map(p => ({
       id: p.id,
       icon: p.element.props.icon,
       title: Actions.getTitle(p.element)
     }));
 
     return (
-      <VBox style={WorkflowStyle.self} onKeyDown={this.onKeyDown} tabIndex={-1}>
-        <VBox ref="items" style={WorkflowStyle.items}>
-          <HBox ref="itemsCanvas" style={{...WorkflowStyle.itemsCanvas, transform: `translate3d(-${translateX}px, 0, 0)`}}>
+      <VBox style={WizardStyle.self} onKeyDown={this.onKeyDown} tabIndex={-1}>
+        <VBox ref="items" style={WizardStyle.items}>
+          <HBox ref="itemsCanvas" style={{...WizardStyle.itemsCanvas, transform: `translate3d(-${translateX}px, 0, 0)`}}>
             {panels}
           </HBox>
         </VBox>
-        <VBox style={WorkflowStyle.breadcrumb}>
+        <VBox style={WizardStyle.breadcrumb}>
           <Breadcrumb
-            active={visiblePanels.map(i => this.state.workflow.panels[i].id)}
+            active={visiblePanels.map(i => this.state.wizard.panels[i].id)}
             items={breadcrumb}
             onClick={this.onFocus}
             />
@@ -383,7 +383,7 @@ var Workflow = React.createClass({
 
   getInitialState() {
     return {
-      workflow: null,
+      wizard: null,
       visiblePanels: [],
       translateX: 0
     };
@@ -392,65 +392,65 @@ var Workflow = React.createClass({
   componentWillReceiveProps(nextProps) {
     if (nextProps.DOMSize !== this.props.DOMSize) {
       var size = nextProps.DOMSize;
-      var workflow = this.state.workflow;
-      if (workflow === null) {
-        workflow = WorkflowState.construct(this.onWorkflowUpdate, this.props.actions, size);
+      var wizard = this.state.wizard;
+      if (wizard === null) {
+        wizard = WizardState.construct(this.onWizardUpdate, this.props.actions, size);
       }
       var nextState = {
-        ...this.computeCanvasMetrics(workflow, size),
-        workflow
+        ...this.computeCanvasMetrics(wizard, size),
+        wizard
       };
       this.setState(nextState);
     }
   },
 
-  onWorkflowUpdate(workflow) {
-    if (workflow === this.state.workflow) {
+  onWizardUpdate(wizard) {
+    if (wizard === this.state.wizard) {
       return;
     }
 
-    var onlyFocusUpdate = workflow._panels === this.state.workflow._panels;
+    var onlyFocusUpdate = wizard._panels === this.state.wizard._panels;
     if (onlyFocusUpdate) {
-      var metrics = this.computeCanvasMetrics(workflow);
-      this.setState({workflow, ...metrics});
+      var metrics = this.computeCanvasMetrics(wizard);
+      this.setState({wizard, ...metrics});
     } else {
-      var currentFocus = this.state.workflow.focus;
-      var targetFocus = workflow.focus;
+      var currentFocus = this.state.wizard.focus;
+      var targetFocus = wizard.focus;
       var moveRight = targetFocus > currentFocus;
 
-      workflow = workflow.updateFocus(currentFocus);
+      wizard = wizard.updateFocus(currentFocus);
 
       while (true) {
-        var metrics = this.computeCanvasMetrics(workflow);
+        var metrics = this.computeCanvasMetrics(wizard);
         if (metrics.visiblePanels.indexOf(targetFocus) !== -1) {
-          this.setState({workflow, ...metrics});
+          this.setState({wizard, ...metrics});
           break;
         } else {
           if (moveRight) {
-            workflow = workflow.moveFocusRight();
+            wizard = wizard.moveFocusRight();
           } else {
-            workflow = workflow.moveFocusLeft();
+            wizard = wizard.moveFocusLeft();
           }
         }
       }
     }
   },
 
-  computeCanvasMetrics(workflow, size) {
-    workflow = workflow || this.state.workflow;
+  computeCanvasMetrics(wizard, size) {
+    wizard = wizard || this.state.wizard;
     size = size || this.props.DOMSize;
-    return computeCanvasMetrics(workflow, size);
+    return computeCanvasMetrics(wizard, size);
   },
 
   onKeyDown(e) {
     switch (e.key) {
       case 'ArrowLeft':
-        this.state.workflow
+        this.state.wizard
           .moveFocusLeft()
           .update();
         break;
       case 'ArrowRight':
-        this.state.workflow
+        this.state.wizard
           .moveFocusRight()
           .update();
         break;
@@ -458,55 +458,55 @@ var Workflow = React.createClass({
   },
 
   onReplace(id, replaceId) {
-    this.state.workflow
+    this.state.wizard
       .close(id)
       .openAfterLast(replaceId)
       .update();
   },
 
   onContext(id, context) {
-    this.state.workflow
+    this.state.wizard
       .updateContext(id, context)
       .update();
   },
 
   onFocus(id) {
-    var {panel, idx} = this.state.workflow.find(id);
+    var {panel, idx} = this.state.wizard.find(id);
 
     if (panel.isService) {
       idx = idx - 1;
     }
 
-    var workflow = this.state.workflow;
-    var focus = workflow.focus;
+    var wizard = this.state.wizard;
+    var focus = wizard.focus;
 
     var left = this.state.visiblePanels[0];
     var right = this.state.visiblePanels[this.state.visiblePanels.length - 1];
 
     var x = 10
     while (x--) {
-      var metrics = this.computeCanvasMetrics(workflow);
+      var metrics = this.computeCanvasMetrics(wizard);
       if (metrics.visiblePanels.indexOf(idx) !== -1) {
         break;
       } else if (focus < idx) {
-        workflow = workflow.moveFocusRight();
+        wizard = wizard.moveFocusRight();
       } else if (focus > idx) {
-        workflow = workflow.moveFocusLeft();
+        wizard = wizard.moveFocusLeft();
       }
     }
     this.setState({
-      workflow, ...metrics
+      wizard, ...metrics
     });
   },
 
   onClose(id) {
-    this.state.workflow
+    this.state.wizard
       .close(id)
       .update();
   }
 
 });
 
-Workflow = WithDOMSize(Workflow);
+Wizard = WithDOMSize(Wizard);
 
-module.exports = Workflow;
+module.exports = Wizard;

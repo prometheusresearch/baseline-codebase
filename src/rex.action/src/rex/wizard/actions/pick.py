@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.actions.pick
-    =========================
+    rex.wizard.actions.pick
+    =======================
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -39,7 +39,7 @@ class Pick(Action):
     """
 
     name = 'pick'
-    js_type = 'rex-workflow/lib/Actions/Pick'
+    js_type = 'rex-wizard/lib/Actions/Pick'
 
 
     entity = Field(

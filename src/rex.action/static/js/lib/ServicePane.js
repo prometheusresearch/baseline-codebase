@@ -28,10 +28,10 @@ var ServicePaneStyle = {
 var ServicePane = React.createClass({
 
   render() {
-    var {workflow} = this.props;
-    var nextActions = Object.keys(workflow.actionTree);
-    var openedActions = workflow.panels.map(p => p.id);
-    var actionButtons = getNextActions(workflow.context, nextActions, workflow.actions)
+    var {wizard} = this.props;
+    var nextActions = Object.keys(wizard.actionTree);
+    var openedActions = wizard.panels.map(p => p.id);
+    var actionButtons = getNextActions(wizard.context, nextActions, wizard.actions)
       .filter(action => nextActions.indexOf(action.id) > -1)
       .filter(action => openedActions.indexOf(action.id) === -1)
       .map(action => 
@@ -63,7 +63,7 @@ var ServicePane = React.createClass({
   },
 
   onOpen(id) {
-    this.props.workflow
+    this.props.wizard
       .openAfterLast(id)
       .update();
   }

@@ -3,12 +3,12 @@
  */
 'use strict';
 
-var Workflow = require('./Workflow');
+var Wizard = require('./Wizard');
 var Actions = require('./Actions');
 
 require('./TransitionableHandlers');
 
 module.exports = {
-  Workflow,
+  Wizard,
   Actions
 };

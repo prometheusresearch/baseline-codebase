@@ -1,5 +1,5 @@
 {
-  "name": "rex-workflow",
+  "name": "rex-wizard",
   "version": "0.1.0",
   "dependencies": {
     "webtest": "prometheusresearch/webtest",

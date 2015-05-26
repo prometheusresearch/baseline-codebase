@@ -18,7 +18,7 @@ Action tree
   ...   def __repr__(self):
   ...     return '<Action %s>' % self.id
 
-  >>> from rex.workflow.action_tree import ActionTreeVal
+  >>> from rex.wizard.action_tree import ActionTreeVal
 
   >>> v = ActionTreeVal([
   ...   Action('pick-individual', inputs={}, outputs={'individual': 'individual'}),

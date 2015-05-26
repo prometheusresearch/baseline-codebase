@@ -1,5 +1,5 @@
 {
-  "name": "rex-workflow-demo",
+  "name": "rex-wizard-demo",
   "version": "0.1.0",
   "main": "./lib/index.js",
   "rex": {
@@ -7,6 +7,6 @@
     "style": "style/index.less"
   },
   "dependencies": {
-    "rex-workflow": "*"
+    "rex-wizard": "*"
   }
 }

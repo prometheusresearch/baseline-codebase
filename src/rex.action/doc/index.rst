@@ -1,6 +1,6 @@
-******************************
-  REX.WORKFLOW Documentation
-******************************
+****************************
+  REX.WIZARD Documentation
+****************************
 
 
 Programming guide

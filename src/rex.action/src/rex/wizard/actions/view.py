@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.actions.view
-    =========================
+    rex.wizard.actions.view
+    =======================
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -50,7 +50,7 @@ class View(Action):
     """
 
     name = 'view'
-    js_type = 'rex-workflow/lib/Actions/View'
+    js_type = 'rex-wizard/lib/Actions/View'
 
     entity = Field(
         EntityDeclarationVal(),

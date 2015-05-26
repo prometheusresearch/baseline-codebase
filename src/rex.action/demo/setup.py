@@ -1,20 +1,20 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='rex.workflow_demo',
+    name='rex.wizard_demo',
     version = "0.1.0",
-    description="Demo package for testing rex.workflow",
+    description="Demo package for testing rex.wizard",
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.workflow'
+        'rex.wizard'
     ],
-    rex_init='rex.workflow_demo',
+    rex_init='rex.wizard_demo',
     rex_static='static',
     rex_bundle={
         './www/bundle': [
-            'webpack:rex-workflow-demo'
+            'webpack:rex-wizard-demo'
         ]
     },
 )

@@ -1,10 +1,10 @@
 """
 
-    rex.workflow.workflow
-    =====================
+    rex.wizard.wizard
+    =================
 
-    This module provides :class:`Workflow` class which is used to describe
-    workflows within an application.
+    This module provides :class:`Wizard` class which is used to describe
+    wizards within an application.
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -21,53 +21,53 @@ from rex.urlmap import Map
 from rex.web import authorize
 from rex.widget import Widget, WidgetVal, Field, render_widget
 
-__all__ = ('Workflow', 'WorkflowVal')
+__all__ = ('Wizard', 'WizardVal')
 
 
-class WorkflowMeta(Widget.__metaclass__):
+class WizardMeta(Widget.__metaclass__):
 
     def __new__(mcs, name, bases, attrs):
         if 'name' in attrs:
-            attrs['name'] = _workflow_sig(attrs['name'])
+            attrs['name'] = _wizard_sig(attrs['name'])
         cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
         return cls
 
 
-class _workflow_sig(namedtuple('Workflow', ['name'])):
+class _wizard_sig(namedtuple('Wizard', ['name'])):
 
     def __hash__(self):
         return hash((self.__class__.__name__, self.name))
 
 
-class Workflow(Widget):
-    """ Base class for workflows.
+class Wizard(Widget):
+    """ Base class for wizards.
 
-    Workflow is a mechanism to compose actions together to provide a way for
+    Wizard is a mechanism to compose actions together to provide a way for
     users to perform some task.
     
-    To define a new workflow type one should subclass :class:`Workflow` and
-    provide workflow name, JavaScript module which contains implementation and a
+    To define a new wizard type one should subclass :class:`Wizard` and
+    provide wizard name, JavaScript module which contains implementation and a
     configuration interface::
 
         from rex.widget import Field
-        from rex.workflow import Workflow, ActionVal
+        from rex.wizard import Wizard, ActionVal
 
-        class WizardWorkflow(Workflow):
+        class WizardWizard(Wizard):
 
             name = 'wizard'
-            js_type = 'my-package/lib/WizardWorkflow'
+            js_type = 'my-package/lib/WizardWizard'
 
             actions = SeqVal(
                 ActionVal(),
                 doc='''
-                A sequence of actions within the wizard workflow.
+                A sequence of actions within the wizard wizard.
                 ''')
 
-    Then one can configure workflows of this type via URL mapping::
+    Then one can configure wizards of this type via URL mapping::
 
         paths:
           /make-study:
-            workflow:
+            wizard:
               type: wizard
               actions:
               - pick-lab
@@ -75,11 +75,11 @@ class Workflow(Widget):
 
     """
 
-    __metaclass__ = WorkflowMeta
+    __metaclass__ = WizardMeta
 
     @classmethod
     def validate(cls, value):
-        return WorkflowVal(workflow_cls=cls)(value)
+        return WizardVal(wizard_cls=cls)(value)
 
 
 YAML_STR_TAG = u'tag:yaml.org,2002:str'
@@ -99,79 +99,79 @@ def pop_mapping_key(node, key):
     return None, node
 
 
-class WorkflowVal(Validate):
-    """ Validator for workflows."""
+class WizardVal(Validate):
+    """ Validator for wizards."""
 
     _validate_pre = MapVal(StrVal(), AnyVal())
     _validate_type = StrVal()
 
-    def __init__(self, default_workflow_type='paneled'):
-        self.workflow_sig = _workflow_sig(default_workflow_type)
+    def __init__(self, default_wizard_type='paneled'):
+        self.wizard_sig = _wizard_sig(default_wizard_type)
 
     def construct(self, loader, node):
         if not isinstance(node, yaml.MappingNode):
-            value = super(WorkflowVal, self).construct(loader, node)
+            value = super(WizardVal, self).construct(loader, node)
             return self(value)
 
-        workflow_sig = None
+        wizard_sig = None
 
         type_node, node = pop_mapping_key(node, 'type')
         if type_node:
             with guard("While parsing:", Location.from_node(type_node)):
-                workflow_type = self._validate_type.construct(loader, type_node)
-                workflow_sig = _workflow_sig(workflow_type)
-                if workflow_sig not in Workflow.mapped():
-                    raise Error('unknown workflow type specified:', workflow_type)
+                wizard_type = self._validate_type.construct(loader, type_node)
+                wizard_sig = _wizard_sig(wizard_type)
+                if wizard_sig not in Wizard.mapped():
+                    raise Error('unknown wizard type specified:', wizard_type)
 
-        workflow_sig = workflow_sig or self.workflow_sig
-        workflow_cls = Workflow.mapped()[workflow_sig]
+        wizard_sig = wizard_sig or self.wizard_sig
+        wizard_cls = Wizard.mapped()[wizard_sig]
 
-        validate = WidgetVal(widget_class=workflow_cls)
+        validate = WidgetVal(widget_class=wizard_cls)
         value = validate.construct(loader, node)
         return value
 
     def __call__(self, value):
-        if isinstance(value, Workflow):
+        if isinstance(value, Wizard):
             return value
         value = self._validate_pre(value)
-        workflow_type = value.get('type', self.workflow_sig.name)
-        workflow_sig = _workflow_sig(workflow_type)
-        if workflow_sig not in Workflow.mapped():
-            raise Error('unknown workflow type specified:', workflow_type)
-        workflow_cls = Workflow.mapped()[workflow_sig]
+        wizard_type = value.get('type', self.wizard_sig.name)
+        wizard_sig = _wizard_sig(wizard_type)
+        if wizard_sig not in Wizard.mapped():
+            raise Error('unknown wizard type specified:', wizard_type)
+        wizard_cls = Wizard.mapped()[wizard_sig]
         value = {k: v for (k, v) in value.items() if k != 'type'}
-        workflow = workflow_cls(**value)
-        return workflow
+        wizard = wizard_cls(**value)
+        return wizard
 
 
-class MapWorkflow(Map):
-    """ URL Mapping bindings to workflow."""
+class MapWizard(Map):
+    """ URL Mapping bindings to wizard."""
 
     fields = [
-        ('workflow', WorkflowVal()),
+        ('wizard', WizardVal()),
         ('access', StrVal(), None),
     ]
 
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
-        return WorkflowRenderer(spec.workflow, access)
+        return WizardRenderer(spec.wizard, access)
 
     def override(self, spec, override_spec):
-        if override_spec.workflow is not None:
-            spec = spec.__clone__(workflow=override_spec.workflow)
+        if override_spec.wizard is not None:
+            spec = spec.__clone__(wizard=override_spec.wizard)
         if override_spec.access is not None:
             spec = spec.__clone__(access=override_spec.access)
         return spec
 
 
-class WorkflowRenderer(object):
-    """ Renderer for workflow."""
+class WizardRenderer(object):
+    """ Renderer for wizard."""
 
-    def __init__(self, workflow, access):
-        self.workflow = workflow
+    def __init__(self, wizard, access):
+        self.wizard = wizard
         self.access = access
 
     def __call__(self, req):
         if not authorize(req, self.access):
             raise HTTPUnauthorized()
-        return render_widget(self.workflow, req)
+        return render_widget(self.wizard, req)

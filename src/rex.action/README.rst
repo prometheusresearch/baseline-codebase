@@ -1,6 +1,6 @@
-**********************************
-  REX.WORKFLOW Programming Guide
-**********************************
+********************************
+  REX.WIZARD Programming Guide
+********************************
 
 .. contents:: Table of Contents
 .. role:: mod(literal)
@@ -14,7 +14,7 @@ Overview
 ========
 
 This package provides a mechanism to define user interfaces in terms of reusable
-actions and workflows.
+actions and wizards.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -30,10 +30,10 @@ R43MH099826.
 Configuration
 =============
 
-Rex Workflow introduces concepts of actions and workflows.
+Rex Wizard introduces concepts of actions and wizards.
 
 Action is a reusable piece of UI which can be composed with other actions into a
-workflow. Workflow is a way to compose together a set of actions to provide
+wizard. Wizard is a way to compose together a set of actions to provide
 users to perform some meaningful activity.
 
 Actions are defined within the ``static/actions.yaml`` file in a package::
@@ -43,7 +43,7 @@ Actions are defined within the ``static/actions.yaml`` file in a package::
       title: Home
       icon: home
       text: |
-        Welcome to Rex Workflow Demo application.
+        Welcome to Rex Wizard Demo application.
 
     - type: pick
       id: pick-study
@@ -67,13 +67,13 @@ Actions are defined within the ``static/actions.yaml`` file in a package::
       entity: study
 
 A set of built-in actions such as ``page``, ``view``, ``pick``, ``make``,
-``edit`` and ``drop`` are provided by Rex Workflow.
+``edit`` and ``drop`` are provided by Rex Wizard.
 
-Workflows are defined in URL mapping (``static/urlmap.yaml``)::
+Wizards are defined in URL mapping (``static/urlmap.yaml``)::
 
     paths:
       /:
-        workflow:
+        wizard:
           actions:
             - home:
               - make-study:

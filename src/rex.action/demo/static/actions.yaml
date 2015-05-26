@@ -5,7 +5,7 @@
   title: Home
   icon: home
   text: |
-    Welcome to Rex Workflow Demo application.
+    Welcome to Rex Wizard Demo application.
 
 - type: page
   id: about

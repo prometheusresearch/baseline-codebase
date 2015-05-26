@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.paneled_workflow
-    =============================
+    rex.wizard.paneled_wizard
+    =========================
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -9,20 +9,20 @@
 
 from rex.widget import Field
 
-from .workflow import Workflow
+from .wizard import Wizard
 from .action_tree import ActionTreeVal
 
-__all__ = ('PaneledWorkflow',)
+__all__ = ('PaneledWizard',)
 
 
-class PaneledWorkflow(Workflow):
-    """ Workflow which renders actions as panels side-by-side.
+class PaneledWizard(Wizard):
+    """ Wizard which renders actions as panels side-by-side.
 
-    Example workflow declaration as URL mapping entry::
+    Example wizard declaration as URL mapping entry::
 
         paths:
           /study-enrollment:
-            workflow:
+            wizard:
               actions:
                 home:
                   pick-individual:
@@ -32,12 +32,12 @@ class PaneledWorkflow(Workflow):
                     
     The only required parameter is ``actions`` which specify a tree of actions.
     Tree of actions represents a set of possible transitions within the
-    workflow. The initial step is the root and each leave represents an
-    alternative final step in the workflow.
+    wizard. The initial step is the root and each leave represents an
+    alternative final step in the wizard.
     """
 
     name = 'paneled'
-    js_type = 'rex-workflow/lib/Workflow'
+    js_type = 'rex-wizard/lib/Wizard'
 
     actions = Field(
         ActionTreeVal(),

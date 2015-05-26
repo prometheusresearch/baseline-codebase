@@ -1,5 +1,5 @@
-Test rex.workflow.workflow
-==========================
+Test rex.wizard.wizard
+======================
 
 ::
 
@@ -9,31 +9,31 @@ Test rex.workflow.workflow
   >>> rex = Rex('-')
   >>> rex.on()
 
-  >>> from rex.workflow.workflow import Workflow, WorkflowVal
+  >>> from rex.wizard.wizard import Wizard, WizardVal
 
-  >>> class MyWorkflow(Workflow):
+  >>> class MyWizard(Wizard):
   ...   name = 'my'
 
-  >>> Workflow.all()
-  [__main__.MyWorkflow]
+  >>> Wizard.all()
+  [__main__.MyWizard]
 
-  >>> Workflow.mapped()
-  {Workflow(name='my'): __main__.MyWorkflow}
+  >>> Wizard.mapped()
+  {Wizard(name='my'): __main__.MyWizard}
 
 Constructing from Python values::
 
-  >>> validate = WorkflowVal()
+  >>> validate = WizardVal()
 
   >>> validate({
   ...   'type': 'my',
   ... })
-  MyWorkflow()
+  MyWizard()
 
   >>> validate({
   ... }) # doctest: +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  Error: unknown workflow type specified:
+  Error: unknown wizard type specified:
       paneled
 
   >>> validate({
@@ -41,7 +41,7 @@ Constructing from Python values::
   ... }) # doctest: +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  Error: unknown workflow type specified:
+  Error: unknown wizard type specified:
         xmy
 
 Constructing from YAML::
@@ -49,26 +49,26 @@ Constructing from YAML::
   >>> validate.parse("""
   ... type: my
   ... """)
-  MyWorkflow()
+  MyWizard()
 
   >>> rex.off()
 
-Test workflow bindings to URLMap
---------------------------------
+Test wizard bindings to URLMap
+------------------------------
 
 ::
 
   >>> sandbox = SandboxPackage()
   >>> sandbox.rewrite('/urlmap.yaml', """
   ... paths:
-  ...   /workflow:
+  ...   /wizard:
   ...     access: anybody
-  ...     workflow:
+  ...     wizard:
   ...       type: my
   ... """)
-  >>> rex = LatentRex(sandbox, 'rex.workflow_demo')
+  >>> rex = LatentRex(sandbox, 'rex.wizard_demo')
 
-  >>> req = Request.blank('/workflow', accept='application/json')
+  >>> req = Request.blank('/wizard', accept='application/json')
   >>> print req.get_response(rex) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
@@ -79,22 +79,22 @@ Test workflow bindings to URLMap
 
   >>> sandbox.rewrite('/urlmap.yaml', """
   ... paths:
-  ...   /workflow:
+  ...   /wizard:
   ...     access: anybody
-  ...     workflow:
+  ...     wizard:
   ...       type: xmy
   ... """)
-  >>> rex = Rex(sandbox, 'rex.workflow_demo') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> rex = Rex(sandbox, 'rex.wizard_demo') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: unknown workflow type specified:
+  Error: unknown wizard type specified:
       xmy
   While parsing:
       "...", line 6
   While validating field:
-      workflow
+      wizard
   While validating field:
       paths
   While initializing RexDB application:
       SandboxPackage()
-      rex.workflow_demo
+      rex.wizard_demo

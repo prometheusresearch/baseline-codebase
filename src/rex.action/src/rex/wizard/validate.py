@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.validate
-    =====================
+    rex.wizard.validate
+    ===================
 
     :copyright: 2015, Prometheus Research, LLC
 

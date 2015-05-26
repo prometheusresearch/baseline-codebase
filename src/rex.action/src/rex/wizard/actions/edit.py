@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.actions.make
-    =========================
+    rex.wizard.actions.edit
+    =======================
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -17,26 +17,25 @@ from rex.widget import formfield, dataspec
 from ..action import Action
 from ..validate import EntityDeclarationVal
 
-__all__ = ('Make',)
+__all__ = ('Edit',)
 
 
-class Make(Action):
-    """ Make an entity.
-
-    This is an action which renders a form to create a new entity.
-
+class Edit(Action):
+    """ Edit an entity.
+    
+    
     Example action declaration (``actions.yaml``)::
 
-        - type: make
-          id: make-individual
+        - type: edit
+          id: edit-individual
           entity: individual
 
     The set of fields will be inferred automatically for a given ``entity``.
 
     To configure a specified set of fields use ``fields`` parameter::
 
-        - type: make
-          id: make-individual
+        - type: edit
+          id: edit-individual
           entity: individual
           fields:
           - code
@@ -51,8 +50,8 @@ class Make(Action):
     inferred from schema) or completely with label and other parameters.
     """
 
-    name = 'make'
-    js_type = 'rex-workflow/lib/Actions/Make'
+    name = 'edit'
+    js_type = 'rex-wizard/lib/Actions/Edit'
 
     entity = Field(
         EntityDeclarationVal(),
@@ -64,26 +63,13 @@ class Make(Action):
         MaybeVal(SeqVal(FormFieldVal())), default=None,
         doc="""
         A list of fields to show.
-
+        
         If not specified then it will be generated automatically based on the
         data schema.
         """)
 
-    value = Field(
-        MapVal(StrVal(), StrVal()), default={},
-        doc="""
-        An initial value.
-
-        It could reference data from the current context via ``$name``
-        references::
-
-            study: $study
-            individual: $individual
-
-        """)
-
     def __init__(self, **values):
-        super(Make, self).__init__(**values)
+        super(Edit, self).__init__(**values)
         if self.fields is None:
             self.values['fields'] = formfield.from_port(self.port)
         else:
@@ -97,14 +83,15 @@ class Make(Action):
             return formfield.to_port(self.entity.type, self.fields)
 
     def _construct_data_spec(self, port_url):
-        return dataspec.EntitySpec(port_url, {})
+        params = {'*': dataspec.PropBinding('context.%s' % self.entity.name)}
+        return dataspec.EntitySpec(port_url, params)
 
     @responder(wrap=_construct_data_spec, url_type=PortURL)
     def data(self, req):
         return self.port(req)
 
     def context(self):
-        input = {v[1:]: v[1:] for v in self.value.values() if v.startswith('$')}
-        output = {self.entity.name: self.entity.type}
+        input = output = {self.entity.name: self.entity.type}
         return input, output
+
 

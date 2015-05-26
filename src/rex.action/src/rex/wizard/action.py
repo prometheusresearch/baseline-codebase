@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.action
-    ===================
+    rex.wizard.action
+    =================
 
     This module provides :class:`Action` class which is used to describe actions
     within an application.
@@ -38,7 +38,7 @@ class Action(Widget):
     """ Base class for actions.
 
     Action is a reusable piece of UI which can be composed with other actions
-    into a workflow.
+    into a wizard.
 
     To define a new action type one should subclass :class:`Action` and provide
     action type name, JavaScript module which contains implementation and a
@@ -46,7 +46,7 @@ class Action(Widget):
 
         from rex.core import StrVal
         from rex.widget import Field
-        from rex.workflow import Action
+        from rex.wizard import Action
 
         class PickDate(Action):
 
@@ -75,7 +75,7 @@ class Action(Widget):
         doc="""
         Action identifier.
 
-        It is used to refer to actions from within workflows. Action identifier
+        It is used to refer to actions from within wizards. Action identifier
         should be unique across an entire application.
         """)
 

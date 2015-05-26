@@ -1,5 +1,5 @@
-Test rex.workflow.action
-========================
+Test rex.wizard.action
+======================
 
 ::
 
@@ -7,7 +7,7 @@ Test rex.workflow.action
   >>> rex = Rex('-')
   >>> rex.on()
 
-  >>> from rex.workflow.action import Action, ActionVal, load_actions
+  >>> from rex.wizard.action import Action, ActionVal, load_actions
 
   >>> class MyAction(Action):
   ...

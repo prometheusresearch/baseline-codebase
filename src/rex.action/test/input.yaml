@@ -2,7 +2,7 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-title: REX.WORKFLOW
+title: REX.WIZARD
 tests:
 
 - coverage: setup.cfg

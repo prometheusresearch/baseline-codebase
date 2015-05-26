@@ -1,6 +1,6 @@
-***************************
-  REX.WORKFLOW Change Log
-***************************
+*************************
+  REX.WIZARD Change Log
+*************************
 
 .. contents:: Table of Contents
 

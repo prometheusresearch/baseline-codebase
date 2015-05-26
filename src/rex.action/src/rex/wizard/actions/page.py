@@ -1,7 +1,7 @@
 """
 
-    rex.workflow.actions.page
-    =========================
+    rex.wizard.actions.page
+    =======================
 
     :copyright: 2015, Prometheus Research, LLC
 
@@ -35,10 +35,10 @@ class Page(Action):
     """
 
     name = 'page'
-    js_type = 'rex-workflow/lib/Actions/Page'
+    js_type = 'rex-wizard/lib/Actions/Page'
 
     text = Field(
-        RSTVal(), default="Welcome to Rex Workflow!",
+        RSTVal(), default="Welcome to Rex Wizard!",
         doc="""
         Text in ReStructuredText format to use as page body.
 

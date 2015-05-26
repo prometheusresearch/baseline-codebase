@@ -28,8 +28,6 @@ In case fields are not specified, they are generated from port::
 
   >>> page # doctest: +NORMALIZE_WHITESPACE
   Page(icon=undefined,
-       input={},
-       output={},
        id='home',
        title=undefined,
        text=RST(src=u'<p>Welcome to Rex Workflow!</p>', links={}))

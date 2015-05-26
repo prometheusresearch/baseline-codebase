@@ -27,8 +27,6 @@ In case fields are not specified, they are generated from port::
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
   Edit(icon=undefined,
-       input={'individual': 'individual'},
-       output={'individual': 'individual'},
        id='edit-individual',
        title=undefined,
        entity=EntityDeclaration(name='individual', type='individual'),
@@ -79,8 +77,6 @@ You can also specify fields and see port generated from them::
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
   Edit(icon=undefined,
-       input={'individual': 'individual'},
-       output={'individual': 'individual'},
        id='edit-individual',
        title=undefined,
        entity=EntityDeclaration(name='individual', type='individual'),

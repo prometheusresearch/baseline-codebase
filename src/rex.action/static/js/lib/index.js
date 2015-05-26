@@ -6,6 +6,8 @@
 var Workflow = require('./Workflow');
 var Actions = require('./Actions');
 
+require('./TransitionableHandlers');
+
 module.exports = {
   Workflow,
   Actions

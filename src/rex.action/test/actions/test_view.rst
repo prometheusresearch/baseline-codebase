@@ -27,8 +27,6 @@ In case fields are not specified, they are generated from port::
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
     View(icon=undefined,
-         input={'individual': 'individual'},
-         output={},
          id='view-individual',
          title=undefined,
          entity=EntityDeclaration(name='individual', type='individual'),
@@ -79,8 +77,6 @@ You can also specify fields and see port generated from them::
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
   View(icon=undefined,
-       input={'individual': 'individual'},
-       output={},
        id='view-individual',
        title=undefined,
        entity=EntityDeclaration(name='individual', type='individual'),
@@ -105,8 +101,6 @@ context::
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
   View(icon=undefined,
-       input={'mother': 'individual'},
-       output={},
        id='view-mother',
        title=undefined,
        entity=EntityDeclaration(name='mother', type='individual'),

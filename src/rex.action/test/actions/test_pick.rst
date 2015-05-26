@@ -25,21 +25,13 @@ In case fields are not specified, they are generated from port::
   ... entity: individual
   ... """)
 
-  >>> pick # doctest: +NORMALIZE_WHITESPACE
-  Pick(icon=undefined,
-       input={},
-       output={'individual': 'individual'},
-       id='pick-individual',
-       title=undefined,
-       columns=[StringFormField(value_key=['code'], required=True, label='Code'),
-                StringFormField(value_key=['sex'], required=True, label='Sex'),
-                StringFormField(value_key=['mother'], label='Mother'),
-                StringFormField(value_key=['father'], label='Father'),
-                StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
-                StringFormField(value_key=['adopted_father'], label='Adopted Father')],
-       entity=EntityDeclaration(name='individual', type='individual'),
-       search=None,
-       mask=None)
+  >>> pick.columns # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], required=True, label='Code'),
+   StringFormField(value_key=['sex'], required=True, label='Sex'),
+   StringFormField(value_key=['mother'], label='Mother'),
+   StringFormField(value_key=['father'], label='Father'),
+   StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
+   StringFormField(value_key=['adopted_father'], label='Adopted Father')]
 
   >>> pick.context()
   ({}, {'individual': 'individual'})
@@ -90,6 +82,46 @@ var to this filter::
   >>> pick.data(Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
   CollectionSpec(route=PortURL(route='http://localhost/', params={'__to__': 'data'}),
                  params={'*:__search__': StateBinding(name='search')})
+
+If we provide ``mask`` HTSQL expression it is compiled into port's mask::
+
+
+  >>> pick = Action.validate("""
+  ... type: pick
+  ... id: pick-male
+  ... entity: individual
+  ... mask: sex = 'male'
+  ... """)
+
+  >>> pick.port
+  Port('''
+  entity: individual
+  mask: sex='male'
+  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  ''')
+
+If we provide ``input`` fields with context requirements then ``mask`` can refer
+to those input variables::
+
+  >>> pick = Action.validate("""
+  ... type: pick
+  ... id: pick-study-enrollment
+  ... entity: study_enrollment
+  ... mask: individual = $individual
+  ... input:
+  ... - individual: individual
+  ... """)
+
+  >>> pick.port # doctest: +NORMALIZE_WHITESPACE
+  Port('''
+  entity: study_enrollment
+  filters: ['__mask__($individual) := individual=$individual']
+  select: [study, individual, code, enrollment_date, participant_group, consent_form_scan, measure]
+  ''')
+
+  >>> pick.data(Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
+  CollectionSpec(route=PortURL(route='http://localhost/', params={'__to__': 'data'}),
+                 params={'*:__mask__': ContextBinding(keys=['individual'])})
 
 Cleanup
 -------

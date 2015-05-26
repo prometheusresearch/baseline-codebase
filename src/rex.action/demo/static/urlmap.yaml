@@ -12,5 +12,7 @@ paths:
             - edit-study:
           - pick-individual:
             - view-individual:
+            - pick-study-enrollment:
+          - pick-male:
         - help:
         - about:

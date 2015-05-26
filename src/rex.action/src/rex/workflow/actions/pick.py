@@ -9,14 +9,16 @@
 
 import re
 from cached_property import cached_property
+from collections import OrderedDict
 
-from rex.core import StrVal, OneOfVal, SeqVal, BoolVal, MaybeVal
+from rex.core import StrVal, OneOfVal, SeqVal, BoolVal, MaybeVal, OMapVal
 from rex.port import Port
 from rex.widget import Field, ColumnVal, FormFieldVal, responder, PortURL
 from rex.widget import dataspec, formfield
 
 from ..action import Action
 from ..validate import EntityDeclarationVal
+from ..dataspec import ContextBinding
 
 __all__ = ('Pick',)
 
@@ -61,10 +63,33 @@ class Pick(Action):
         """)
 
     mask = Field(
-        MaybeVal(StrVal()), default=None,
+        StrVal(), default=None,
         doc="""
-        Mask.
+        HTSQL expression which is used to filter out records.
+
+        It can reference context variables declared in the ``input`` field.
         """)
+
+    input = Field(
+        OMapVal(StrVal(), StrVal()), default=OrderedDict(),
+        doc="""
+        Context requirements.
+
+        It specifies a set of keys and their types which should be present in
+        context for an action to be available.
+
+        For example::
+
+            - id: pick-individual
+              type: ...
+              input:
+              - mother: individual
+              - father: individual
+
+        Specifies that action ``pick-individual`` is only available when context
+        has keys ``mother`` and ``father`` of type ``individual``.
+        """)
+
 
     def __init__(self, **values):
         super(Pick, self).__init__(**values)
@@ -76,24 +101,40 @@ class Pick(Action):
     @cached_property
     def port(self):
         filters = []
+        mask = None
+
         if self.search:
             filters.append('__search__($search) := %s' % self.search)
+
+        if self.mask:
+            if self.input:
+                mask_args = ', '.join('$%s' % k for k in self.input.keys())
+                filters.append('__mask__(%s) := %s' % (mask_args, self.mask))
+            else:
+                mask = self.mask
+
         if self.columns is None:
-            port = Port({
+            grow_val = {
                 'entity': self.entity.type,
                 'filters': filters,
-            })
+            }
+            if mask:
+                grow_val['mask'] = mask
+            port = Port(grow_val)
         else:
             port = formfield.to_port(
-                self.entity.type, self.columns,
+                self.entity.type,
+                self.columns,
                 filters=filters,
-                mask=self.mask)
+                mask=mask)
         return port
 
     def _construct_data_spec(self, port_url):
         bindings = {}
         if self.search:
             bindings['*:__search__'] = dataspec.StateBinding('search')
+        if self.mask and self.input:
+            bindings['*:__mask__'] = ContextBinding(self.input.keys())
         return dataspec.CollectionSpec(port_url, bindings)
 
     @responder(wrap=_construct_data_spec, url_type=PortURL)
@@ -102,4 +143,4 @@ class Pick(Action):
 
     def context(self):
         output = {self.entity.name: self.entity.type}
-        return self.input, output
+        return dict(self.input), output

@@ -13,7 +13,7 @@
 from collections import namedtuple
 
 from rex.core import Error, Validate, autoreload, get_packages, cached
-from rex.core import MaybeVal, StrVal, SeqVal, MapVal, AnyVal
+from rex.core import MaybeVal, StrVal, SeqVal, MapVal, OMapVal, AnyVal
 from rex.widget import Widget, WidgetVal, Field, MaybeUndefinedVal, undefined
 
 __all__ = ('Action', 'ActionVal', 'load_actions')
@@ -91,37 +91,10 @@ class Action(Widget):
         Action icon.
         """)
 
-    input = Field(
-        MapVal(StrVal(), StrVal()), default={},
-        doc="""
-        Context requirements.
-
-        It specifies a set of keys and their types which should be present in
-        context for an action to be available.
-
-        For example::
-
-            - id: make-family
-              type: ...
-              inputs:
-                mother: individual
-                father: individual
-
-        Specifies that action ``make-family`` is only available when context has
-        keys ``mother`` and ``father`` of type ``individual``.
-        """)
-
-    output = Field(
-        MapVal(StrVal(), StrVal()), default={},
-        doc="""
-        Specification on context output.
-        """)
-
     def __init__(self, **values):
         super(Action, self).__init__(**values)
         input, output = self.context()
-        self.values['input'] = input
-        self.values['output'] = output
+        self.values['context_spec'] = {'input': input, 'output': output}
 
     def context(self):
         """ Compute context specification for an action.

@@ -57,6 +57,19 @@
   id: pick-individual
   entity: individual
 
+- type: pick
+  id: pick-male
+  entity: individual
+  title: Pick male
+  mask: sex = 'male'
+
+- type: pick
+  id: pick-study-enrollment
+  entity: study_enrollment
+  mask: individual = $individual
+  input:
+  - individual: individual
+
 - type: make
   id: make-individual
   entity: individual

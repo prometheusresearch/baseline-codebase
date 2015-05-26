@@ -27,8 +27,6 @@ In case fields are not specified, they are generated from port::
 
   >>> make # doctest: +NORMALIZE_WHITESPACE
   Make(icon=undefined,
-       input={},
-       output={'individual': 'individual'},
        id='make-individual',
        title=undefined,
        entity=EntityDeclaration(name='individual', type='individual'),
@@ -80,8 +78,6 @@ You can also specify fields and see port generated from them::
 
   >>> make # doctest: +NORMALIZE_WHITESPACE
   Make(icon=undefined,
-       input={},
-       output={'individual': 'individual'},
        id='make-individual',
        title=undefined,
        entity=EntityDeclaration(name='individual', type='individual'),

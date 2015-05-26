@@ -1,5 +1,6 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @preventMunge
  */
 'use strict';
 
@@ -20,11 +21,12 @@ var SERVICE_PANE_ID = '__service__';
 
 class WorkflowState {
 
-  constructor(onUpdate, actions, panels, focus) {
+  constructor(onUpdate, actions, size, panels, focus) {
     this._onUpdate = onUpdate;
     this._actions = actions;
+    this.size = size;
     this._panels = panels || [];
-    this.focus = focus || null;
+    this.focus = focus;
 
     // derived state
     this.last = this._panels.length > 0 ?
@@ -55,7 +57,7 @@ class WorkflowState {
       icon: Actions.getIcon(element),
       prev: this.last
     });
-    return this.construct(panels, id);
+    return this.construct(panels, panels.length - 1);
   }
 
   isTransitionAllowed(id) {
@@ -64,23 +66,21 @@ class WorkflowState {
     return actionAllowedInContext(this.context, action);
   }
 
-  updateFocus(id) {
-    return this.construct(this._panels, id);
+  updateFocus(focus) {
+    return this.construct(this._panels, focus);
   }
 
   moveFocusLeft() {
-    var idx = this.indexOf(this.focus);
-    if (idx > 0) {
-      return this.updateFocus(this.panels[idx - 1].id);
+    if (this.focus > 0) {
+      return this.updateFocus(this.focus - 1);
     } else {
       return this;
     }
   }
 
   moveFocusRight() {
-    var idx = this.indexOf(this.focus);
-    if (idx < this.panels.length - 1) {
-      return this.updateFocus(this.panels[idx + 1].id);
+    if (this.focus < this.panels.length - 1) {
+      return this.updateFocus(this.focus + 1);
     } else {
       return this;
     }
@@ -91,20 +91,23 @@ class WorkflowState {
     var state = this;
     state = state.close(id)
     state = state.openAfterLast(id, contextUpdate);
-
+    var nextFocus = state.panels.length - 2;
     if (nextPossibleAction && state.isTransitionAllowed(nextPossibleAction.id)) {
       state = state.openAfterLast(nextPossibleAction.id);
+      nextFocus = state.panels.length - 2;
     } else {
       var possibleActions = Object.keys(state.actionTree);
       for (var i = 0; i < possibleActions.length; i++) {
-        if (state.isTransitionAllowed(possibleActions[i])) {
-          state = state.openAfterLast(possibleActions[i]);
+        var possibleAction = possibleActions[i];
+        if (state.isTransitionAllowed(possibleAction)) {
+          state = state.openAfterLast(possibleAction);
+          nextFocus = state.panels.length - 2;
           break;
         }
       }
     }
 
-    state = state.updateFocus(id);
+    state = state.updateFocus(nextFocus);
     return state;
   }
 
@@ -114,7 +117,7 @@ class WorkflowState {
       return this;
     }
     var panels = this._panels.slice(0, idx);
-    var focus = panels.length > 0 ? panels[panels.length - 1].id : null;
+    var focus = panels.length > 0 ? panels.length - 1 : null;
     return this.construct(panels, focus);
   }
 
@@ -162,11 +165,11 @@ class WorkflowState {
   }
 
   construct(panels, focus) {
-    return new WorkflowState(this._onUpdate, this._actions, panels, focus);
+    return new WorkflowState(this._onUpdate, this._actions, this._size, panels, focus);
   }
 
-  static construct(onUpdate, actions) {
-    var state = new this(onUpdate, actions);
+  static construct(onUpdate, actions, size) {
+    var state = new this(onUpdate, actions, size);
     var first = Object.keys(actions.tree)[0];
     invariant(first !== undefined);
     return state.openAfterLast(first);
@@ -287,7 +290,6 @@ function getPanelWidth(panel) {
 }
 
 function computeCanvasMetrics(workflow, size, getActionByID) {
-  console.log('---------');
   var widthToDistribute;
   var seenWidth = 0;
   var scrollToIdx;
@@ -296,15 +298,14 @@ function computeCanvasMetrics(workflow, size, getActionByID) {
   for (var i = 0; i < workflow.panels.length; i++) {
     var panel = workflow.panels[i];
     var panelWidth = getPanelWidth(panel);
-    if (panel.id === workflow.focus) {
+    if (i === workflow.focus) {
       scrollToIdx = i;
       widthToDistribute = size.width;
     }
     if (widthToDistribute !== undefined) {
-      console.log('>>>', panel.id, widthToDistribute, panelWidth);
       widthToDistribute = widthToDistribute - panelWidth;
       if (widthToDistribute >= -10) {
-        visiblePanels.push(panel.id);
+        visiblePanels.push(i);
       } else {
         break;
       }
@@ -329,20 +330,20 @@ function computeCanvasMetrics(workflow, size, getActionByID) {
 var Workflow = React.createClass({
 
   render() {
-    console.log(this.state);
     if (this.props.DOMSize === null) {
       return <VBox style={WorkflowStyle.self} />;
     }
 
     var {translateX, visiblePanels, actionTree} = this.state;
-    var panels = this.state.workflow.panels.map(p =>
+    console.log(visiblePanels, this.state.workflow);
+    var panels = this.state.workflow.panels.map((p, i) =>
         <WorkflowItem
           ref={p.id}
           key={p.id}
           actionId={p.id}
           actions={this.props.actions.actions}
           siblingActions={p.isService ? [] : Object.keys(p.prev.actionTree)}
-          active={visiblePanels.indexOf(p.id) !== -1}
+          active={visiblePanels.indexOf(i) !== -1}
           noTheme={p.isService}
           style={{...WorkflowStyle.item, zIndex: p.isService ? 999 : 1000}}
           onReplace={this.onReplace}
@@ -372,7 +373,7 @@ var Workflow = React.createClass({
         </VBox>
         <VBox style={WorkflowStyle.breadcrumb}>
           <Breadcrumb
-            active={visiblePanels}
+            active={visiblePanels.map(i => this.state.workflow.panels[i].id)}
             items={breadcrumb}
             onClick={this.onFocus}
             />
@@ -383,7 +384,7 @@ var Workflow = React.createClass({
 
   getInitialState() {
     return {
-      workflow: WorkflowState.construct(this.onWorkflowUpdate, this.props.actions),
+      workflow: null,
       visiblePanels: [],
       translateX: 0
     };
@@ -391,7 +392,15 @@ var Workflow = React.createClass({
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.DOMSize !== this.props.DOMSize) {
-      var nextState = this.computeCanvasMetrics(this.state.workflow, nextProps.DOMSize);
+      var size = nextProps.DOMSize;
+      var workflow = this.state.workflow;
+      if (workflow === null) {
+        workflow = WorkflowState.construct(this.onWorkflowUpdate, this.props.actions, size);
+      }
+      var nextState = {
+        ...this.computeCanvasMetrics(workflow, size),
+        workflow
+      };
       this.setState(nextState);
     }
   },
@@ -400,11 +409,33 @@ var Workflow = React.createClass({
     if (workflow === this.state.workflow) {
       return;
     }
-    var nextState = {
-      workflow,
-      ...this.computeCanvasMetrics(workflow)
-    };
-    this.setState(nextState);
+
+    var onlyFocusUpdate = workflow._panels === this.state.workflow._panels;
+    if (onlyFocusUpdate) {
+      var metrics = this.computeCanvasMetrics(workflow);
+      this.setState({workflow, ...metrics});
+    } else {
+      var currentFocus = this.state.workflow.focus;
+      var targetFocus = workflow.focus;
+      var moveRight = targetFocus > currentFocus;
+
+      workflow = workflow.updateFocus(currentFocus);
+
+      while (true) {
+        var metrics = this.computeCanvasMetrics(workflow);
+        console.log(moveRight ? 'right' : 'left', targetFocus, currentFocus, metrics.visiblePanels);
+        if (metrics.visiblePanels.indexOf(targetFocus) !== -1) {
+          this.setState({workflow, ...metrics});
+          break;
+        } else {
+          if (moveRight) {
+            workflow = workflow.moveFocusRight();
+          } else {
+            workflow = workflow.moveFocusLeft();
+          }
+        }
+      }
+    }
   },
 
   computeCanvasMetrics(workflow, size) {
@@ -442,27 +473,32 @@ var Workflow = React.createClass({
   },
 
   onFocus(id) {
-    var {workflow, visiblePanels} = this.state;
-    var {panel, idx} = workflow.find(id);
+    var {panel, idx} = this.state.workflow.find(id);
 
-    var {focusPanel, prevFocusPanel, nextFocusPanel, focusIdx} = workflow.find(id);
     if (panel.isService) {
-      panel = panel.prev;
+      idx = idx - 1;
     }
 
-    var leftIdx = workflow.indexOf(visiblePanels[0]);
-    var rightIdx = workflow.indexOf(visiblePanels[visiblePanels.length - 1]);
+    var workflow = this.state.workflow;
+    var focus = workflow.focus;
 
-    if (idx > -1) {
-      if (focusIdx < idx && Math.abs(rightIdx - idx) === 1) {
-        id = nextFocusPanel.id;
-      } else if (focusIdx > idx && Math.abs(leftIdx - idx) === 1) {
-        id = prevFocusPanel.id;
+    var left = this.state.visiblePanels[0];
+    var right = this.state.visiblePanels[this.state.visiblePanels.length - 1];
+
+    var x = 10
+    while (x--) {
+      var metrics = this.computeCanvasMetrics(workflow);
+      if (metrics.visiblePanels.indexOf(idx) !== -1) {
+        break;
+      } else if (focus < idx) {
+        workflow = workflow.moveFocusRight();
+      } else if (focus > idx) {
+        workflow = workflow.moveFocusLeft();
       }
-      workflow
-        .updateFocus(id)
-        .update();
     }
+    this.setState({
+      workflow, ...metrics
+    });
   },
 
   onClose(id) {

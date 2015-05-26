@@ -3,9 +3,10 @@
  */
 'use strict';
 
-function getNextActions(context, actions) {
+function getNextActions(context, actionIds, actions) {
   var nextActions = [];
-  for (var id in actions) {
+  for (var i = 0; i < actionIds.length; i++) {
+    var id = actionIds[i];
     var action = actions[id];
     if (actionAllowedInContext(context, action)) {
       var rank = Object.keys(context).length === Object.keys(action.props.input).length ? 1 : 0.5;

@@ -31,7 +31,7 @@ var ServicePane = React.createClass({
     var {workflow} = this.props;
     var nextActions = Object.keys(workflow.actionTree);
     var openedActions = workflow.panels.map(p => p.id);
-    var actionButtons = getNextActions(workflow.context, workflow.actions)
+    var actionButtons = getNextActions(workflow.context, nextActions, workflow.actions)
       .filter(action => nextActions.indexOf(action.id) > -1)
       .filter(action => openedActions.indexOf(action.id) === -1)
       .map(action => 
@@ -41,7 +41,7 @@ var ServicePane = React.createClass({
           actionId={action.id}
           onClick={this.onOpen}
           />
-      )
+      );
 
     return (
       <VBox style={{...ServicePaneStyle.self, width: this.props.width, ...this.props.style}}>

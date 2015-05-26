@@ -54,10 +54,10 @@ class Pick(Action):
         If it's not provided then it will be inferred from database schema.
         """)
 
-    filters = Field(
-        SeqVal(StrVal()), default=[],
+    search = Field(
+        StrVal(), default=None,
         doc="""
-        Requirements.
+        HTSQL expression which is used to search for a term.
         """)
 
     mask = Field(
@@ -75,17 +75,26 @@ class Pick(Action):
 
     @cached_property
     def port(self):
+        filters = []
+        if self.search:
+            filters.append('__search__($search) := %s' % self.search)
         if self.columns is None:
-            return Port(self.entity.type)
+            port = Port({
+                'entity': self.entity.type,
+                'filters': filters,
+            })
         else:
-            return formfield.to_port(
+            port = formfield.to_port(
                 self.entity.type, self.columns,
-                filters=self.filters,
+                filters=filters,
                 mask=self.mask)
+        return port
 
     def _construct_data_spec(self, port_url):
-        # TODO: compile mask binding here
-        return dataspec.CollectionSpec(port_url, {})
+        bindings = {}
+        if self.search:
+            bindings['*:__search__'] = dataspec.StateBinding('search')
+        return dataspec.CollectionSpec(port_url, bindings)
 
     @responder(wrap=_construct_data_spec, url_type=PortURL)
     def data(self, req):

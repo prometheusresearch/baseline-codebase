@@ -18,11 +18,15 @@ var PickStyle = {
   },
   title: {
     flex: 1
+  },
+  search: {
+    borderRadius: 0,
+    border: 'none'
   }
 };
 
 var Pick = React.createClass({
-  mixins: [RexWidget.DataSpecificationMixin],
+  mixins: [RexWidget.DataSpecificationMixin, RexWidget.Cell.Mixin],
 
   propTypes: {
     context: React.PropTypes.object,
@@ -50,6 +54,13 @@ var Pick = React.createClass({
             onClick={onClose}
             />
         </HBox>
+        {this.props.search &&
+          <RexWidget.SearchInput
+            style={{input: PickStyle.search}}
+            value={this.state.search.value}
+            onChange={this.state.search.update}
+            throttleOnChange={500}
+            />}
         <RexWidget.DataTable
           sortable={this.props.sortable}
           resizableColumns={this.props.resizableColumns}
@@ -73,7 +84,8 @@ var Pick = React.createClass({
   getInitialState() {
     return {
       selected: null,
-      data: null
+      data: null,
+      search: RexWidget.cell(null)
     };
   },
 

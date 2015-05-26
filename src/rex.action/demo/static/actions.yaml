@@ -24,6 +24,7 @@
 - type: pick
   id: pick-study
   entity: study
+  search: title~$search
   columns:
   - code
   - title

@@ -37,8 +37,8 @@ In case fields are not specified, they are generated from port::
                 StringFormField(value_key=['father'], label='Father'),
                 StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
                 StringFormField(value_key=['adopted_father'], label='Adopted Father')],
-       filters=[],
        entity=EntityDeclaration(name='individual', type='individual'),
+       search=None,
        mask=None)
 
   >>> pick.context()
@@ -68,6 +68,28 @@ In case fields are not specified, they are generated from port::
     "individual": [...]
   }
   <BLANKLINE>
+
+If we provide ``search`` HTSQL expression then we have port generated with
+corresponding filtera and ``data`` data spec automatically bind ``search`` state
+var to this filter::
+
+  >>> pick = Action.validate("""
+  ... type: pick
+  ... id: pick-individual-search
+  ... entity: individual
+  ... search: identity.givename~$search
+  ... """)
+
+  >>> pick.port
+  Port('''
+  entity: individual
+  filters: ['__search__($search) := identity.givename~$search']
+  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  ''')
+
+  >>> pick.data(Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
+  CollectionSpec(route=PortURL(route='http://localhost/', params={'__to__': 'data'}),
+                 params={'*:__search__': StateBinding(name='search')})
 
 Cleanup
 -------

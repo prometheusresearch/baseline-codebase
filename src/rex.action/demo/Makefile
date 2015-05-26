@@ -1,7 +1,7 @@
 .PHONY: deploy serve
 
 APP = rex.workflow_demo
-OPTIONS =
+OPTIONS = --debug
 
 deploy:
 	rex deploy $(OPTIONS) $(APP)

@@ -34,6 +34,10 @@
   entity: study
 
 - type: make
+  id: make-individual
+  entity: individual
+
+- type: make
   id: make-study
   entity: study
   fields:

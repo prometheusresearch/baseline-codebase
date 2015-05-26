@@ -4,12 +4,13 @@ paths:
     access: anybody
     workflow:
       actions:
-        home:
-          make-study:
-          pick-study:
-            view-study:
-            edit-study:
-          pick-individual:
-            view-individual:
-        about:
-        help:
+        - home:
+          - make-individual:
+          - make-study:
+          - pick-study:
+            - view-study:
+            - edit-study:
+          - pick-individual:
+            - view-individual:
+        - help:
+        - about:

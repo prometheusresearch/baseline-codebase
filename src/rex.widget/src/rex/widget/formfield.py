@@ -245,8 +245,8 @@ def _to_port_query(entity, fields, filters=None, mask=None):
         key = field.value_key[0]
         if isinstance(field, (List, Fieldset)):
             grow['with'].append(_to_port_query(key, field.fields))
-        elif isinstance(field, CalcFormField):
-            grow['with'].append('%s := %s' % (key, field.expr))
+        elif isinstance(field, CalculatedFormField):
+            grow['with'].append('%s := %s' % (key, field.expression))
         else:
             grow['select'].append(field.value_key[0])
     return _grow_val(grow)
@@ -388,12 +388,12 @@ class EntityFormField(FormField):
         return values
 
 
-class CalcFormField(FormField):
+class CalculatedFormField(FormField):
 
-    type = 'calc'
+    type = 'calculation'
 
     fields = (
-        ('expr', StrVal()),
+        ('expression', StrVal()),
         ('label', MaybeVal(StrVal()), None),
     )
 

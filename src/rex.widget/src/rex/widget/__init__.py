@@ -37,7 +37,7 @@ from .formfield import (
     FileFormField,
     EnumFormField,
     EntityFormField,
-    CalcFormField,
+    CalculatedFormField,
     CompositeFormField,
     Fieldset,
     List)

@@ -494,9 +494,9 @@ Generating ports from fields::
 
   >>> test_fields('individual', """
   ... - value_key: code
-  ... - type: calc
+  ... - type: calculation
   ...   value_key: mother_code
-  ...   expr: mother.code
+  ...   expression: mother.code
   ... """)
   Port('''
   entity: individual
@@ -509,9 +509,9 @@ Generating ports from fields::
   >>> test_fields('individual', """
   ... - value_key: code
   ... - value_key: identity.givenname
-  ... - type: calc
+  ... - type: calculation
   ...   value_key: identity.just_null
-  ...   expr: null()
+  ...   expression: null()
   ... """)
   Port('''
   entity: individual
@@ -526,9 +526,9 @@ Generating ports from fields::
 
   >>> test_fields('individual', """
   ... - value_key: code
-  ... - type: calc
+  ... - type: calculation
   ...   value_key: identity.just_null
-  ...   expr: null()
+  ...   expression: null()
   ... - value_key: identity.givenname
   ... """)
   Port('''
@@ -544,9 +544,9 @@ Generating ports from fields::
 
   >>> test_fields('individual', """
   ... - value_key: code
-  ... - type: calc
+  ... - type: calculation
   ...   value_key: identity.just_null
-  ...   expr: null()
+  ...   expression: null()
   ... - type: fieldset
   ...   value_key: identity
   ...   fields:
@@ -716,7 +716,7 @@ Built-in types
 
   >>> sorted(FormField.mapped().items()) # doctest: +NORMALIZE_WHITESPACE
   [('bool', rex.widget.formfield.BoolFormField),
-   ('calc', rex.widget.formfield.CalcFormField),
+   ('calculation', rex.widget.formfield.CalculatedFormField),
    ('date', rex.widget.formfield.DateFormField),
    ('entity', rex.widget.formfield.EntityFormField),
    ('enum', rex.widget.formfield.EnumFormField),

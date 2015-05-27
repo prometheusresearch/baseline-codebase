@@ -14,7 +14,7 @@ Overview
 ========
 
 This package provides a mechanism to define user interfaces by composing
-reusable actions together.
+generic reusable actions together.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is

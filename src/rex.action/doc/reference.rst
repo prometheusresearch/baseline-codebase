@@ -1,5 +1,5 @@
 ****************************
-  REX.WIZARD API Reference
+  Rex Wizard API Reference
 ****************************
 
 .. contents:: Table of Contents

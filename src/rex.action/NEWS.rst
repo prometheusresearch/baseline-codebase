@@ -1,5 +1,5 @@
 *************************
-  REX.WIZARD Change Log
+  Rex Wizard Change Log
 *************************
 
 .. contents:: Table of Contents

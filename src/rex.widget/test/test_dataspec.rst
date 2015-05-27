@@ -54,6 +54,8 @@ Data specifications
   Content-Type: application/json; charset=UTF-8
   ...
   <BLANKLINE>
-  ["~#widget",["Test",["^ ","command",["~#entity",[["~#query",["http://localhost/command"]],["^ "]]],"collection",["~#collection",[["~#port",["http://localhost/port"]],["^ "]]],"entity",["^2",[["^3",["http://localhost/query"]],["^ "]]]]]]
+  ["~#widget", ["Test", {"command": ["~#entity", [["~#query", ["http://localhost/command"]], {}]],
+                         "collection": ["~#collection", [["~#port", ["http://localhost/port"]], {}]],
+                         "entity": ["^2", [["^3", ["http://localhost/query"]], {}]]}]]
 
   >>> rex.off()

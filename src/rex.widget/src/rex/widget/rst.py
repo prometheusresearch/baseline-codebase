@@ -24,7 +24,7 @@ class RST(TransitionableRecord):
 
     fields = ('src', 'links')
 
-    __transit_tag__ = 's'
+    __transit_tag__ = '---'
 
     _find_links = re.compile(r'__\$(\d+)__')
 

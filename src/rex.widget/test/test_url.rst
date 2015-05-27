@@ -46,7 +46,7 @@ resolved variant of the URL::
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#url",["http://localhost/"]]
+  ["~#url", ["http://localhost/"]]
 
   >>> rex.off()
 
@@ -79,7 +79,7 @@ ports::
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#port",["http://localhost/"]]
+  ["~#port", ["http://localhost/"]]
 
   >>> rex.off()
 
@@ -112,6 +112,6 @@ values::
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#query",["http://localhost/"]]
+  ["~#query", ["http://localhost/"]]
 
   >>> rex.off()

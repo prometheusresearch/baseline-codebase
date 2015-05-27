@@ -45,6 +45,6 @@ RSTVal()
   ... """)
 
   >>> encode(rst, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
-  u'["~#\'","<p>Hello, <em>world</em>! <a class=\\"reference external\\" href=\\"http://www.python.org/\\">Python</a></p>"]'
+  u'"<p>Hello, <em>world</em>! <a class=\\"reference external\\" href=\\"http://www.python.org/\\">Python</a></p>"'
 
   >>> rex.off()

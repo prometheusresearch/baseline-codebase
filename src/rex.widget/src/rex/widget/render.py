@@ -15,9 +15,8 @@ from webob.exc import HTTPBadRequest
 from rex.core import get_packages
 from rex.web import render_to_response
 
-from .widget import select_widget
 from .keypath import KeyPathVal
-from .transitionable import encode
+from .transitionable import encode, select
 
 __all__ = ('render',)
 
@@ -78,14 +77,14 @@ def render(widget, request, template='rex.widget:/templates/index.html'):
     if '__to__' in request.GET:
         widget_path = request.GET.pop('__to__')
         widget_path = validate_widget_path(widget_path)
-        widget = select_widget(widget, widget_path)
+        widget = select(widget, request, widget_path)
         if not hasattr(widget, 'respond'):
             raise HTTPBadRequest(
                 'unable to locate responder via __to__ pointer')
         return widget.respond(request)
     else:
         accept = request.accept.best_match(['text/html', 'application/json'])
-        payload = encode(widget(request), request)
+        payload = encode(widget, request)
         if accept == 'application/json':
             return Response(payload, content_type='application/json')
         else:

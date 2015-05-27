@@ -80,8 +80,8 @@ Widget
   'Ok'
 
   >>> req = Request.blank('/')
-  >>> encode(w(req), req)
-  u'["~#widget",["rex-widget/MyWidget",["^ ","desc","no desc","title","Ok","computed","computed!"]]]'
+  >>> encode(w, req)
+  u'["~#widget", ["rex-widget/MyWidget", {"desc": "no desc", "title": "Ok", "computed": "computed!"}]]'
 
   >>> w.__clone__(title='notok')
   MyWidget(desc='no desc', title='notok')
@@ -113,8 +113,8 @@ Null widget
   NullWidget()
 
   >>> req = Request.blank('/')
-  >>> encode(w(req), req)
-  u'["~#\'",null]'
+  >>> encode(w, req)
+  u'["~#\'", null]'
 
 Group widget
 ------------
@@ -127,7 +127,7 @@ Group widget
   GroupWidget(children=[NullWidget()])
 
   >>> req = Request.blank('/')
-  >>> encode(w(req), req)
+  >>> encode(w, req)
   u'[null]'
 
 Nested widget hierarchy
@@ -148,8 +148,10 @@ Nested widget hierarchy
   ComplexWidget(children=MyWidget(desc='no desc', title='title'))
 
   >>> req = Request.blank('/')
-  >>> encode(w(req), req)
-  u'["~#widget",["ComplexWidget",["^ ","children",["^0",["rex-widget/MyWidget",["^ ","title","title","desc","no desc","computed","computed!"]]]]]]'
+  >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
+  u'["~#widget", ["ComplexWidget",
+                  {"children": ["^0", ["rex-widget/MyWidget",
+                                       {"title": "title", "desc": "no desc", "computed": "computed!"}]]}]]'
 
   >>> w = ComplexWidget(children=[MyWidget(title='title')])
 
@@ -157,8 +159,10 @@ Nested widget hierarchy
   ComplexWidget(children=GroupWidget(children=[MyWidget(desc='no desc', title='title')]))
 
   >>> req = Request.blank('/')
-  >>> encode(w(req), req)
-  u'["~#widget",["ComplexWidget",["^ ","children",[["^0",["rex-widget/MyWidget",["^ ","title","title","desc","no desc","computed","computed!"]]]]]]]'
+  >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
+  u'["~#widget", ["ComplexWidget",
+                  {"children": [["^0", ["rex-widget/MyWidget",
+                                        {"title": "title", "desc": "no desc", "computed": "computed!"}]]]}]]'
 
 Widget composition
 ------------------
@@ -180,35 +184,9 @@ Widget composition
   MyWidgetComposition(title='ok')
 
   >>> req = Request.blank('/')
-  >>> encode(w(req), req)
-  u'["~#widget",["rex-widget/MyWidget",["^ ","desc","no desc","title","ok!","computed","computed!"]]]'
-
-Select subwidgets
------------------
-
-::
-
-  >>> from rex.widget.widget import select_widget
-
-  >>> w = ComplexWidget(children=MyWidget(title='title'))
-
-  >>> select_widget(w, [])
-  ComplexWidget(children=MyWidget(desc='no desc', title='title'))
-
-  >>> select_widget(w, ['children'])
-  MyWidget(desc='no desc', title='title')
-
-  >>> w = ComplexWidget(children=[MyWidget(title='title')])
-
-  >>> select_widget(w, [])
-  ComplexWidget(children=GroupWidget(children=[MyWidget(desc='no desc', title='title')]))
-
-  >>> select_widget(w, ['children'])
-  GroupWidget(children=[MyWidget(desc='no desc', title='title')])
-
-  >>> select_widget(w, ['children', 0])
-  MyWidget(desc='no desc', title='title')
-
+  >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
+  u'["~#widget", ["rex-widget/MyWidget",
+                  {"desc": "no desc", "title": "ok!", "computed": "computed!"}]]'
 
 Widget pointer
 --------------
@@ -230,12 +208,13 @@ Widget pointer
 
   >>> w = WidgetWithPointer()
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["WidgetWithPointer",["^ ","pointer",["~#url",["http://localhost/?__to__="]]]]]
+  ["~#widget", ["WidgetWithPointer",
+                {"pointer": ["~#url", ["http://localhost/?__to__="]]}]]
 
   >>> print render_widget(w, Request.blank('/?__to__=', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -246,14 +225,16 @@ Widget pointer
 
   >>> w = ComplexWidget(children=WidgetWithPointer())
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["ComplexWidget",["^ ","children",["^0",["WidgetWithPointer",["^ ","pointer",["~#url",["http://localhost/?__to__=children"]]]]]]]]
+  ["~#widget", ["ComplexWidget",
+                {"children": ["^0", ["WidgetWithPointer",
+                                     {"pointer": ["~#url", ["http://localhost/?__to__=1.children"]]}]]}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=children', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(w, Request.blank('/?__to__=1.children', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -262,14 +243,16 @@ Widget pointer
 
   >>> w = ComplexWidget(children=[WidgetWithPointer()])
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["ComplexWidget",["^ ","children",[["^0",["WidgetWithPointer",["^ ","pointer",["~#url",["http://localhost/?__to__=children.0"]]]]]]]]]
+  ["~#widget", ["ComplexWidget", 
+                {"children": [["^0", ["WidgetWithPointer",
+                                      {"pointer": ["~#url", ["http://localhost/?__to__=1.children.0"]]}]]]}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=children.0', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(w, Request.blank('/?__to__=1.children.0', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -298,14 +281,15 @@ Responder field
   >>> w
   WidgetWithResponder(title='Hi')
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["WidgetWithResponder",["^ ","title","Hi","data",["~#url",["http://localhost/?__to__=data"]]]]]
+  ["~#widget", ["WidgetWithResponder",
+                {"title": "Hi", "data": ["~#url", ["http://localhost/?__to__=1.data"]]}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(w, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -331,12 +315,13 @@ Responder field
   >>> w
   WidgetWithPortResponder(title='Hi')
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["WidgetWithPortResponder",["^ ","title","Hi","data",["~#port",["http://localhost/?__to__=data"]]]]]
+  ["~#widget", ["WidgetWithPortResponder",
+                {"title": "Hi", "data": ["~#port", ["http://localhost/?__to__=1.data"]]}]]
 
 
 Cleanup

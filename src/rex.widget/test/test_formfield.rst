@@ -40,8 +40,12 @@ Defining a new built-in type
   >>> f
   MyFormField(value_key=['a'], prop='Prop')
 
-  >>> encode(f, None)
-  u'["^ ","valueKey",["a"],"readOnly",false,"required",false,"type","my","prop","Prop"]'
+  >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
+  u'{"valueKey": ["a"],
+     "readOnly": false,
+     "required": false,
+     "type": "my",
+     "prop": "Prop"}'
 
 Set width::
 
@@ -106,8 +110,12 @@ Defining a new alias form field type
   >>> f
   MyFormFieldAlias(value_key=['a'], xprop='Prop')
 
-  >>> encode(f, None)
-  u'["^ ","valueKey",["a"],"readOnly",false,"required",false,"type","my","prop","Prop"]'
+  >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
+  u'{"valueKey": ["a"],
+     "readOnly": false,
+     "required": false,
+     "type": "my",
+     "prop": "Prop"}'
 
   >>> rex.off()
 
@@ -160,8 +168,14 @@ EnumFormField::
                 options=[Record(value='male', label='Male'),
                          Record(value='female', label='Female')])
 
-  >>> encode(f, None)
-  u'["^ ","valueKey",["sex"],"required",false,"label",null,"readOnly",false,"type","enum","options",[["^ ","value","male","^2","Male"],["^ ","^6","female","^2","Female"]]]'
+  >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
+  u'{"valueKey": ["sex"],
+     "required": false,
+     "label": null,
+     "readOnly": false,
+     "type": "enum",
+     "options": [{"value": "male", "^2": "Male"},
+                 {"^6": "female", "^2": "Female"}]}'
 
   >>> rex.off()
 

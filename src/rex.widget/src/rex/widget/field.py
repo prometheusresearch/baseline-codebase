@@ -15,6 +15,7 @@ from rex.core import AnyVal, Error, MaybeVal
 from .util import MaybeUndefinedVal, undefined
 from .url import URL
 from .pointer import Pointer
+from .transitionable import Transitionable
 
 __all__ = ('FieldBase', 'Field', 'computed_field', 'responder')
 
@@ -130,9 +131,21 @@ class ComputedField(FieldBase):
 
     def __call__(self, widget):
         if self._needs_request:
-            return partial(self._compute, widget)
+            return ComputedValue(self.computator, widget)
         else:
             return self.computator(widget)
+
+
+class ComputedValue(Transitionable):
+
+    __transit_tag__ = '---'
+
+    def __init__(self, computator, widget):
+        self.computator = computator
+        self.widget = widget
+
+    def __transit_format__(self, req, path=()):
+        return self.computator(self.widget, req)
 
 
 def computed_field(computator):
@@ -151,14 +164,16 @@ def computed_field(computator):
     return ComputedField(computator)
 
 
-class Responder(object):
+class Responder(Transitionable):
+
+    __transit_tag__ = '---'
 
     def __init__(self, pointer, respond):
         self.pointer = pointer
         self.respond = respond
 
-    def __call__(self, req, path=()):
-        return self.pointer(req, path=path)
+    def __transit_format__(self, req, path=()):
+        return self.pointer
 
 
 class ResponderField(FieldBase):
@@ -183,7 +198,7 @@ class ResponderField(FieldBase):
         return self.__class__(**next_params)
 
     def __call__(self, widget):
-        pointer = Pointer(widget, url_type=self.url_type, wrap=self.wrap, path=(self.name,))
+        pointer = Pointer(widget, url_type=self.url_type, wrap=self.wrap, path=[self.name])
         respond = partial(self.respond, widget)
         return Responder(pointer, respond)
 

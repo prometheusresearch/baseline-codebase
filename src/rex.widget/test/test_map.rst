@@ -45,7 +45,7 @@ Test URL mapping bindings
   Content-Type: application/json; charset=UTF-8
   ...
   <BLANKLINE>
-  ["~#widget",["rex-widget/Screen",["^ ","title","OK"]]]
+  ["~#widget", ["rex-widget/Screen", {"title": "OK"}]]
 
 It authorizes requests::
 
@@ -96,7 +96,7 @@ Overrides
   Content-Type: application/json; charset=UTF-8
   ...
   <BLANKLINE>
-  ["~#widget",["rex-widget/Screen",["^ ","title","Page title"]]]
+  ["~#widget", ["rex-widget/Screen", {"title": "Page title"}]]
 
   >>> rex.off()
 
@@ -131,7 +131,7 @@ Overrides
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["rex-widget/Screen",["^ ","title","overriden"]]]
+  ["~#widget", ["rex-widget/Screen", {"title": "overriden"}]]
 
 Override entire widget::
 
@@ -164,7 +164,7 @@ Override entire widget::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["rex-widget/Screen",["^ ","title","New page title"]]]
+  ["~#widget", ["rex-widget/Screen", {"title": "New page title"}]]
 
 Override access::
 

@@ -13,21 +13,11 @@ from collections import Mapping, OrderedDict
 from rex.core import ProxyVal, SeqVal
 from rex.core import Extension
 
-from .transitionable import TransitionableRecord
+from .transitionable import as_transitionable
 from .field import FieldBase, Field
 from .util import PropsContainer
 
-__all__ = ('Widget', 'GroupWidget', 'NullWidget', 'select_widget')
-
-
-class WidgetSpec(TransitionableRecord):
-
-    __transit_tag__ = 'widget'
-
-    fields = ('js_type', 'values')
-
-    def __transit_format__(self):
-        return self.js_type, PropsContainer(self.values) # pylint: disable=no-member
+__all__ = ('Widget', 'GroupWidget', 'NullWidget',)
 
 
 class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
@@ -145,19 +135,18 @@ class Widget(Extension):
                 if isinstance(field, Field)]
         return "%s(%s)" % (self.__class__.__name__, ', '.join(args))
 
-    def __call__(self, req, path=()):
-        values = OrderedDict()
-        values.update(self.values)
-        for name, field in self._fields.items():
-            value = field(self)
-            values[name] = field(self)
-        for name, value in values.items():
-            if callable(value):
-                values[name] = value(req, path=path + (name,))
-        return WidgetSpec(self.js_type, values)
-
     def respond(self, req):
         raise HTTPBadRequest('widget cannot respond to a request')
+
+
+@as_transitionable(Widget, tag='widget')
+def _format_Widget(widget, req, path=()):
+    values = OrderedDict()
+    values.update(widget.values)
+    for name, field in widget._fields.items():
+        value = field(widget)
+        values[name] = field(widget)
+    return widget.js_type, PropsContainer(values)
 
 
 class WidgetComposition(Widget):
@@ -172,43 +161,31 @@ class WidgetComposition(Widget):
         raise NotImplementedError('%s.render() is not implemented' % \
                                   self.__class__.__name__)
 
-    def __call__(self, req, path=()):
-        return self.underlying(req, path=path)
+@as_transitionable(WidgetComposition, tag='---')
+def _format_Widget(widget, req, path=()):
+    return widget.underlying
 
 
 class GroupWidget(Widget):
 
     children = Field(SeqVal(Widget._validate))
 
-    def __call__(self, req, path=()):
-        return [w(req, path=path + (idx,))
-                for (idx, w) in enumerate(self.children)]
+
+@as_transitionable(GroupWidget, tag='array')
+def _format_GroupWidget(widget, req, path=()):
+    return widget.children
 
 
 class NullWidget(Widget):
 
-    singleton = None
+    _singleton = None
 
     def __new__(cls):
-        if cls.singleton is None:
-            cls.singleton = Widget.__new__(cls)
-        return cls.singleton
-
-    def __init__(self):
-        super(NullWidget, self).__init__()
-
-    def __call__(self, req, path=()):
-        return None
+        if cls._singleton is None:
+            cls._singleton = Widget.__new__(cls)
+        return cls._singleton
 
 
-def select_widget(widget, path):
-    """ Select a subwidget from a ``widget`` hierarchy by ``path``."""
-    for p in path:
-        if isinstance(widget, GroupWidget):
-            widget = widget.children[p]
-        else:
-            if isinstance(widget, Mapping):
-                widget = widget[p]
-            else:
-                widget = getattr(widget, p)
-    return widget
+@as_transitionable(NullWidget, tag='_')
+def _format_NullWidget(widget, req, path=()):
+    return None

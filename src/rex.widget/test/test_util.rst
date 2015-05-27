@@ -27,8 +27,10 @@ PropsContainer
   >>> props
   <PropsContainer {'DefaultValue': 3, 'defaultValue': 1, 'someValue': 2}>
 
-  >>> encode(props, None)
-  u'["^ ","defaultValue",1,"someValue",2,"DefaultValue",3]'
+  >>> encode(props, None) # doctest: +NORMALIZE_WHITESPACE
+  u'{"defaultValue": 1,
+     "someValue": 2,
+     "DefaultValue": 3}'
 
   >>> sorted(props)
   ['DefaultValue', 'defaultValue', 'someValue']
@@ -92,7 +94,7 @@ undefined
   >>> from rex.widget import encode
 
   >>> encode(undefined, None)
-  u'["~#undefined",[]]'
+  u'["~#undefined", []]'
 
 MaybeUndefinedVal
 -----------------

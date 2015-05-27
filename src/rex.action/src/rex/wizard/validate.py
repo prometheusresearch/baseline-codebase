@@ -19,7 +19,7 @@ class EntityDeclaration(TransitionableRecord):
 
     __transit_tag__ = 'map'
 
-    def __transit_format__(self):
+    def __transit_format__(self, req, path):
         return self._asdict()
 
 

@@ -26,15 +26,8 @@ class ActionTree(TransitionableRecord):
 
     __transit_tag__ = 'map'
 
-    def __transit_format__(self):
+    def __transit_format__(self, req, path):
         return {'tree': self.tree, 'actions': self.actions}
-
-    def __call__(self, req, path=()):
-        return {
-            'tree': self.tree,
-            'actions': {k: v(req, path=path + ('actions', k))
-                        for k, v in self.actions.items()}
-        }
 
 
 def format_context(context):

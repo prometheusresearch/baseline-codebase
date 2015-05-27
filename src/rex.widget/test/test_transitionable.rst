@@ -210,6 +210,18 @@ Accessing current request object in format function
   >>> transitionable.encode(header, req)
   u'["~#request-header", "application/json"]'
 
+:class:`rex.core.Record` is transitionable by default
+-----------------------------------------------------
+
+::
+
+  >>> from rex.core import Record
+
+  >>> Point = Record.make('Point', ['x', 'y'])
+
+  >>> transitionable.encode(Point(10, 20), None)
+  u'{"x": 10, "y": 20}'
+
 Failures
 --------
 

@@ -258,3 +258,8 @@ def as_transitionable(obj_type, tag=NOOP_TAG):
         register_transitionable(obj_type, rep, tag=tag)
         return rep
     return _register
+
+
+@as_transitionable(Record, tag='map')
+def _format_Record(value, req, path):
+    return value._asdict()

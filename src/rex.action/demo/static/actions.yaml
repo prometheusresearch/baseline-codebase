@@ -37,6 +37,21 @@
 - type: make
   id: make-individual
   entity: individual
+  fields:
+  - code
+  - sex
+  - value_key: mother
+    type: entity
+    data:
+      entity: individual
+      title: identity.givenname + ' ' + identity.surname
+      mask: sex = 'female'
+  - value_key: father
+    type: entity
+    data:
+      entity: individual
+      title: identity.givenname + ' ' + identity.surname
+      mask: sex = 'male'
 
 - type: make
   id: make-study
@@ -69,10 +84,6 @@
   mask: individual = $individual
   input:
   - individual: individual
-
-- type: make
-  id: make-individual
-  entity: individual
 
 - type: view
   id: view-individual

@@ -7,8 +7,7 @@
 
 """
 
-from webob.exc import HTTPBadRequest
-from collections import Mapping, OrderedDict
+from collections import OrderedDict
 
 from rex.core import ProxyVal, SeqVal
 from rex.core import Extension
@@ -119,7 +118,7 @@ class Widget(Extension):
         return cls.name
 
     def __init__(self, **values):
-        global _prevent_validation
+        global _prevent_validation # pylint: disable=global-statement
         if not _prevent_validation:
             values = self._validate_values(self.__class__, values)
         else:
@@ -140,11 +139,10 @@ class Widget(Extension):
 
 
 @as_transitionable(Widget, tag='widget')
-def _format_Widget(widget, req, path):
+def _format_Widget(widget, req, path): # pylint: disable=invalid-name
     values = OrderedDict()
     values.update(widget.values)
     for name, field in widget._fields.items():
-        value = field(widget)
         values[name] = field(widget)
     return widget.js_type, PropsContainer(values)
 
@@ -162,7 +160,7 @@ class WidgetComposition(Widget):
                                   self.__class__.__name__)
 
 @as_transitionable(WidgetComposition)
-def _format_Widget(widget, req, path):
+def _format_WidgetComposition(widget, req, path): # pylint: disable=invalid-name
     return widget.underlying
 
 
@@ -172,7 +170,7 @@ class GroupWidget(Widget):
 
 
 @as_transitionable(GroupWidget, tag='array')
-def _format_GroupWidget(widget, req, path):
+def _format_GroupWidget(widget, req, path): # pylint: disable=invalid-name
     return widget.children
 
 
@@ -187,5 +185,5 @@ class NullWidget(Widget):
 
 
 @as_transitionable(NullWidget, tag='_')
-def _format_NullWidget(widget, req, path):
+def _format_NullWidget(widget, req, path): # pylint: disable=invalid-name
     return None

@@ -28,6 +28,9 @@ __all__ = (
     'encode')
 
 
+NOOP_TAG = '---'
+
+
 class JsonMarshaler(BaseJsonMarshaler):
 
     class _PathContext(object):
@@ -117,7 +120,7 @@ class JsonMarshaler(BaseJsonMarshaler):
 
 marshal_dispatch = base_marshal_dispatch.copy()
 marshal_dispatch['array'] = JsonMarshaler.emit_array
-marshal_dispatch['---'] = lambda self, rep, as_map_key, cache: JsonMarshaler.marshal(self, rep, as_map_key, cache)
+marshal_dispatch[NOOP_TAG] = lambda self, rep, as_map_key, cache: JsonMarshaler.marshal(self, rep, as_map_key, cache)
 
 
 class Writer(BaseWriter):
@@ -211,9 +214,7 @@ class _RequestContextHandler(_Handler):
             return self._rep(value, req)
 
 
-def register_transitionable(obj_type, rep, tag=None):
-    if tag is None:
-        tag = '%s.%s' % (obj_type.__module__, obj_type.__name__)
+def register_transitionable(obj_type, rep, tag=NOOP_TAG):
     argspec = inspect.getargspec(rep)
     has_kw = argspec.defaults and len(argspec.defaults) == 1
     if len(argspec.args) == 1 or len(argspec.args) == 2 and has_kw:
@@ -242,13 +243,7 @@ class _TransitionableMeta(type):
 
     def __new__(mcs, name, bases, attrs):
         cls = type.__new__(mcs, name, bases, attrs)
-        if '__transit_format__' in attrs:
-            tag = attrs.get('__transit_tag__',
-                            '%s.%s' % (attrs['__module__'], name))
-        elif hasattr(cls, '__transit_tag__'):
-            tag = cls.__transit_tag__
-        else:
-            return cls
+        tag = getattr(cls, '__transit_tag__', NOOP_TAG)
         register_transitionable(cls, cls.__transit_format__.im_func, tag=tag)
         return cls
 
@@ -291,7 +286,7 @@ class TransitionableRecord(Transitionable):
         return [getattr(self, field) for field in self._fields] # pylint: disable=no-member
 
 
-def as_transitionable(obj_type, tag=None):
+def as_transitionable(obj_type, tag=NOOP_TAG):
     """ Decorator to attach transit format externally to an object type."""
     def _register(rep):
         register_transitionable(obj_type, rep, tag=tag)

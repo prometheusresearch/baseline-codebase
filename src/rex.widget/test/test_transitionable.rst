@@ -37,7 +37,7 @@ Define transitionable value types
   ...   __transit_format__ = URL.__transit_format__
 
   >>> transitionable.encode(URLSubclassCustomRepr('rex.widget:/doc'), None)
-  u'["~#__main__.URLSubclassCustomRepr", ["rex.widget:/doc", null]]'
+  u'["~#URL", ["rex.widget:/doc", null]]'
 
   >>> class URLSubclassCustomRepr(URL):
   ...   __transit_tag__ = 'URLC'

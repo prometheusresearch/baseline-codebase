@@ -19,8 +19,6 @@ class Pointer(Transitionable):
     widget hierarchy.
     """
 
-    __transit_tag__ = '---' 
-
     def __init__(self, widget, path=None, url_type=URL, wrap=None):
         self.widget = widget
         self.path = path or []

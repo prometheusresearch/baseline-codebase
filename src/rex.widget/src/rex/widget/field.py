@@ -138,8 +138,6 @@ class ComputedField(FieldBase):
 
 class ComputedValue(Transitionable):
 
-    __transit_tag__ = '---'
-
     def __init__(self, computator, widget):
         self.computator = computator
         self.widget = widget
@@ -165,8 +163,6 @@ def computed_field(computator):
 
 
 class Responder(Transitionable):
-
-    __transit_tag__ = '---'
 
     def __init__(self, pointer, respond):
         self.pointer = pointer

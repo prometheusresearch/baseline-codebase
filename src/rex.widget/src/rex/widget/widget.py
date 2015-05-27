@@ -161,7 +161,7 @@ class WidgetComposition(Widget):
         raise NotImplementedError('%s.render() is not implemented' % \
                                   self.__class__.__name__)
 
-@as_transitionable(WidgetComposition, tag='---')
+@as_transitionable(WidgetComposition)
 def _format_Widget(widget, req, path=()):
     return widget.underlying
 

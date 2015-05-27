@@ -227,7 +227,11 @@ Generating a fieldset from port definition
 
   >>> from_port(Port("individual")) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
-   StringFormField(value_key=['sex'], required=True, label='Sex'),
+   EnumFormField(value_key=['sex'], label='Sex',
+                 options=[Record(value='not-known', label='not-known'),
+                          Record(value='male', label='male'),
+                          Record(value='female', label='female'),
+                          Record(value='not-applicable', label='not-applicable')]),
    StringFormField(value_key=['mother'], label='Mother'),
    StringFormField(value_key=['father'], label='Father'),
    StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
@@ -274,7 +278,11 @@ Enrich field from port
   ... - sex
   ... """) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
-   StringFormField(value_key=['sex'], required=True, label='Sex')]
+   EnumFormField(value_key=['sex'], label='Sex',
+                 options=[Record(value='not-known', label='not-known'),
+                          Record(value='male', label='male'),
+                          Record(value='female', label='female'),
+                          Record(value='not-applicable', label='not-applicable')])]
 
   >>> test_enrich('individual', """
   ... - code

@@ -129,7 +129,7 @@ var ConfigurableForm = React.createClass({
             key={valueKey}
             label={field.label}
             selectFormValue={valueKey}
-            options={field.values}
+            options={field.options || field.values}
             />
         );
       case 'entity':

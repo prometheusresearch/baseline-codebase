@@ -145,11 +145,12 @@ def _enrich(field, update):
         field = field.__clone__(fields=fields)
 
     if isinstance(field, StringFormField) and not isinstance(update, StringFormField):
-        field = update.__class__(
-            value_key=field.value_key,
-            label=field.label,
-            read_only=field.read_only,
-            required=field.required)
+        keys = [f[0] for f in FormField._default_fields + field.__class__.fields]
+        update_keys = [f[0] for f in FormField._default_fields + update.__class__.fields]
+        values = {}
+        values.update({k: getattr(update, k) for k in update_keys})
+        values.update({k: getattr(field, k) for k in keys if k in update_keys})
+        field = update.__class__(**values)
     return field
 
 
@@ -170,12 +171,22 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
             'fields': fields,
         })
     elif arm.kind == 'column':
+        if isinstance(arm.domain, domain.EnumDomain):
+            options = [{'value': l, 'label': l} for l in arm.domain.labels]
+            return field_val({
+                'type': 'enum',
+                'value_key': value_key,
+                'label': label,
+                'options': options,
+            })
+        
         if isinstance(arm.domain, domain.IntegerDomain):
             field_type = 'integer'
         elif isinstance(arm.domain, domain.BooleanDomain):
             field_type = 'bool'
         else:
             field_type = 'string'
+
         return field_val({
             'type': field_type,
             'value_key': value_key,

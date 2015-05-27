@@ -1,8 +1,0 @@
-{
-  "name": "rex-wizard-demo",
-  "version": "0.1.0",
-  "main": "./lib/index.js",
-  "devDependencies": {
-    "jsx-loader": "git+https://github.com/andreypopp/jsx-loader.git#442c510e0a"
-  }
-}

@@ -347,9 +347,9 @@ Generating port from fieldset
   ... - value_key: a.b.c
   ... """) # doctest: +NORMALIZE_WHITESPACE
   [Fieldset(value_key=['a'],
-            fields=[Fieldset(value_key=['b'],
-                             fields=[StringFormField(value_key=['c'])]),
-                    StringFormField(value_key=['d'])])]
+            fields=[StringFormField(value_key=['d']),
+                    Fieldset(value_key=['b'],
+                             fields=[StringFormField(value_key=['c'])])])]
 
   >>> test("""
   ... - value_key: a
@@ -359,8 +359,8 @@ Generating port from fieldset
   ... - value_key: a.b
   ... """) # doctest: +NORMALIZE_WHITESPACE
   [Fieldset(value_key=['a'],
-            fields=[StringFormField(value_key=['b']),
-                    StringFormField(value_key=['c'])])]
+            fields=[StringFormField(value_key=['c']),
+                    StringFormField(value_key=['b'])])]
 
   >>> test("""
   ... - value_key: a.b

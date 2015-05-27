@@ -253,7 +253,7 @@ def _to_port_query(entity, fields, filters=None, mask=None):
 
 
 def _nest(fields):
-    fields_by_key = {}
+    fields_by_key = OrderedDict()
     for field in fields:
         key = field.value_key[0]
         if len(field.value_key) > 1:
@@ -274,7 +274,6 @@ def _nest(fields):
                 fields_by_key[key] = field.__clone__()
     fields = [f.__clone__(fields=_nest(f.fields)) if isinstance(f, Fieldset) else f
               for f in fields_by_key.values()]
-    fields = sorted(fields, key=lambda f: tuple(f.value_key))
     return fields
 
 

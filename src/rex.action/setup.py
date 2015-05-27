@@ -28,6 +28,11 @@ setup(
     ],
     rex_init='rex.wizard',
     rex_static='static',
+    rex_bundle={
+        './www/bundle': [
+            'webpack:rex-wizard'
+        ]
+    }
 )
 
 

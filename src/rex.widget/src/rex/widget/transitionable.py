@@ -10,13 +10,11 @@
 
 """
 
-import inspect
-import threading
-import contextlib
 from StringIO import StringIO
 
 from rex.core import Record
 
+from transit.constants import ESC
 from transit.writer import Writer as BaseWriter
 from transit.writer import JsonMarshaler as BaseJsonMarshaler
 from transit.writer import marshal_dispatch as base_marshal_dispatch
@@ -45,8 +43,10 @@ class JsonMarshaler(BaseJsonMarshaler):
         def __exit__(self, exc_type, exc_val, exc_tb):
             self.marshaler.path.pop()
 
-    def __init__(self, io, opts={}):
+    def __init__(self, io, request, opts=None):
+        opts = opts or {}
         super(JsonMarshaler, self).__init__(io, opts=opts)
+        self.request = request
         self.handlers = _handlers
         self.path = []
 
@@ -58,7 +58,7 @@ class JsonMarshaler(BaseJsonMarshaler):
         if as_map_key:
             rep = handler.string_rep(obj)
         elif isinstance(handler, _Handler):
-            rep = handler.rep(obj, self.path[:])
+            rep = handler.rep(obj, self.request, self.path[:])
         else:
             rep = handler.rep(obj)
 
@@ -72,7 +72,7 @@ class JsonMarshaler(BaseJsonMarshaler):
             if isinstance(rep, basestring):
                 self.emit_string(ESC, tag, rep, as_map_key, cache)
             elif as_map_key or self.opts["prefer_strings"]:
-                if isinstance(string_rep, basestring):
+                if isinstance(rep, basestring):
                     self.emit_string(ESC, tag, rep, as_map_key, cache)
                 else:
                     raise AssertionError("Cannot be encoded as string: " + str({"tag": tag,
@@ -125,8 +125,8 @@ marshal_dispatch[NOOP_TAG] = lambda self, rep, as_map_key, cache: JsonMarshaler.
 
 class Writer(BaseWriter):
 
-    def __init__(self, io):
-        self.marshaler = JsonMarshaler(io, opts={'cache_enabled': True})
+    def __init__(self, io, request):
+        self.marshaler = JsonMarshaler(io, request, opts={'cache_enabled': True})
 
 
 class WriteHandler(BaseWriteHandler):
@@ -143,13 +143,11 @@ class WriteHandler(BaseWriteHandler):
             raise KeyError("No handler found for: " + str(key))
 
 
-_data = threading.local()
 _handlers = WriteHandler()
 
 
 def select(obj, req, path):
-    with _request(req):
-        return _select(obj, req, path, [])
+    return _select(obj, req, path, [])
 
 def _select(obj, req, path, _path):
     """ Select a subwidget from a ``widget`` hierarchy by ``path``."""
@@ -159,7 +157,7 @@ def _select(obj, req, path, _path):
     handler = _handlers[obj]
     tag = handler.tag(obj)
     if isinstance(handler, _Handler):
-        rep = handler.rep(obj, _path[:])
+        rep = handler.rep(obj, req, _path[:])
     else:
         rep = handler.rep(obj)
     if tag == 'map':
@@ -172,25 +170,12 @@ def _select(obj, req, path, _path):
         return _select(rep, req, path, _path)
 
 
-@contextlib.contextmanager
-def _request(req):
-    _data.request = req
-    try:
-        yield
-    finally:
-        del _data.request
-
-
 class _Handler(object):
 
     def __init__(self, tag, rep):
         self._tag = tag
-        self._rep = rep
+        self.rep = rep
         self.string_rep = rep
-
-    def rep(self, value, path):
-        req = _data.request
-        return self._rep(value, req, path)
 
     def tag(self, _):
         return self._tag
@@ -215,9 +200,8 @@ def encode(obj, request):
     :param request: WSGI request
     """
     io = StringIO()
-    writer = Writer(io)
-    with _request(request):
-        writer.write(obj)
+    writer = Writer(io, request)
+    writer.write(obj)
     return io.getvalue()
 
 

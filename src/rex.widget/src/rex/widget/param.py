@@ -20,7 +20,7 @@ __all__ = ('ParamVal', 'Param')
 Param = namedtuple('Param', ['value', 'context_ref', 'required'])
 
 @as_transitionable(Param, tag='map')
-def _encode_Param(param): # pylint: disable=invalid-name
+def _encode_Param(param, req, path): # pylint: disable=invalid-name
     return PropsContainer(param._asdict())
 
 

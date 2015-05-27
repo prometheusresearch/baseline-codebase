@@ -116,7 +116,7 @@ class FormField(Extension):
 
 
 @as_transitionable(FormField, tag='map')
-def _encode_FormField(field): # pylint: disable=invalid-name
+def _encode_FormField(field, req, path): # pylint: disable=invalid-name
     return {k: v for k, v in field().items() if v is not undefined}
 
 
@@ -326,7 +326,7 @@ class EnumFormField(FormField):
 
 
 @as_transitionable(EnumFormField._value_val.record_type, tag='map')
-def _encode_EnumFormField_value(value): # pylint: disable=invalid-name
+def _encode_EnumFormField_value(value, req, path): # pylint: disable=invalid-name
     return value._asdict()
 
 

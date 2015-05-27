@@ -18,7 +18,7 @@ Define transitionable value types
   ...
   ...   __transit_tag__ = 'URL'
   ...
-  ...   def __transit_format__(self):
+  ...   def __transit_format__(self, req, path):
   ...     return self.route, self.params
 
   >>> transitionable.encode(URL('rex.widget:/doc'), None)
@@ -57,7 +57,7 @@ Make predefined types transitionable
   ...     self.route = route
   ...     self.params = params
 
-  >>> def format_QuerySpec(value):
+  >>> def format_QuerySpec(value, req, path):
   ...   return value.route, value.params
 
   >>> transitionable.register_transitionable(
@@ -90,7 +90,7 @@ Make predefined types transitionable via as_transitionable decorator
   ...     self.params = params
 
   >>> @transitionable.as_transitionable(PortSpec, tag='PortSpec')
-  ... def format_PortSpec(value):
+  ... def format_PortSpec(value, req, path):
   ...   return value.route, value.params
 
   >>> transitionable.encode(PortSpec('rex.widget:/data'), None)
@@ -149,7 +149,7 @@ Path propagation
 
   >>> class PortResponder(transitionable.Transitionable):
   ...   __transit_tag__ = 'port_responder'
-  ...   def __transit_format__(self, req, path=()):
+  ...   def __transit_format__(self, req, path):
   ...     return {'my-path': path}
 
   >>> transitionable.encode(PortResponder(), None)
@@ -202,7 +202,7 @@ Accessing current request object in format function
   ...   def __init__(self, name):
   ...     self.name = name
   ...
-  ...   def __transit_format__(self, req):
+  ...   def __transit_format__(self, req, path):
   ...     return req.headers[self.name]
 
   >>> header = RequestHeader('Accept')

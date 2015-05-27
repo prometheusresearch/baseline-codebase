@@ -26,7 +26,7 @@ class RST(TransitionableRecord):
 
     _find_links = re.compile(r'__\$(\d+)__')
 
-    def __transit_format__(self, req):
+    def __transit_format__(self, req, path):
         return self._find_links.sub(lambda m: url_for(req, self.links[m.group()]), self.src)
 
 

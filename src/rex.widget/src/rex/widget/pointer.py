@@ -34,7 +34,7 @@ class Pointer(Transitionable):
     __str__ = __repr__
     __unicode__ = __repr__
 
-    def __transit_format__(self, req, path=()):
+    def __transit_format__(self, req, path):
         path = path[:-2]
         if self.path:
             path.append(1)

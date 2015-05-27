@@ -40,7 +40,7 @@ class Undefined(Transitionable):
     def __repr__(self):
         return 'undefined'
 
-    def __transit_format__(self):
+    def __transit_format__(self, req, path):
         return []
 
     __str__ = __repr__
@@ -128,5 +128,5 @@ def to_camelcase(value):
 
 
 @as_transitionable(PropsContainer, tag='map')
-def _format_PropsContainer(value): # pylint: disable=invalid-name
+def _format_PropsContainer(value, req, path): # pylint: disable=invalid-name
     return value._storage

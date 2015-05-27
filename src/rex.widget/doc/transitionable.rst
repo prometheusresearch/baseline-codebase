@@ -54,7 +54,7 @@ representation of an object::
     ...     def __init__(self, route):
     ...         self.route = route
     ...
-    ...     def __transit_format__(self):
+    ...     def __transit_format__(self, req, path):
     ...         return self.route
 
 We can encode ``Port`` objects as usual with ``encode`` function::
@@ -121,7 +121,7 @@ Now we need to provide a tag and a representation for ``Port`` type with the
 help of ``as_transitionable`` decorator::
 
     >>> @as_transitionable(Port)
-    ... def _format_Port(value):
+    ... def _format_Port(value, req, path):
     ...     return value.route
 
 Now we can encode ``Port`` just as it was defined transitionable from the
@@ -129,28 +129,3 @@ start::
 
     >>> encode(Port('/port'), Request.blank('/'))
     u'["~#__main__.Port","/port"]'
-
-Accessing current request object in format functions
-----------------------------------------------------
-
-It is possible to have access to ``request`` object when generating serialized
-representation for a value.
-
-This can be useful, for example, when you need to resolve some URL against
-request object with the help of ``url_for`` function which takes request as its
-first argument::
-
-    >>> from rex.web import url_for
-
-To get the current request you need to define an additional ``request`` argument
-to format function::
-
-    >>> class Port(Transitionable):
-    ...
-    ...     def __init__(self, route):
-    ...         self.route = route
-    ...
-    ...     def __transit_format__(self, req):
-    ...         return url_for(req, self.route)
-
-The same works for functions decorated with ``as_transitionable`` decorator.

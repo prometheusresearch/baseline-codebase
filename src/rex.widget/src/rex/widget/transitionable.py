@@ -183,17 +183,14 @@ def _request(req):
 
 class _Handler(object):
 
-    def __init__(self, tag, rep, need_path=False):
+    def __init__(self, tag, rep):
         self._tag = tag
         self._rep = rep
         self.string_rep = rep
-        self.need_path = need_path
 
     def rep(self, value, path):
-        if self.need_path:
-            return self._rep(value, path=path)
-        else:
-            return self._rep(value)
+        req = _data.request
+        return self._rep(value, req, path)
 
     def tag(self, _):
         return self._tag
@@ -204,23 +201,8 @@ class _Handler(object):
             self.__class__.__name__)
 
 
-class _RequestContextHandler(_Handler):
-
-    def rep(self, value, path):
-        req = _data.request
-        if self.need_path:
-            return self._rep(value, req, path=path)
-        else:
-            return self._rep(value, req)
-
-
 def register_transitionable(obj_type, rep, tag=NOOP_TAG):
-    argspec = inspect.getargspec(rep)
-    has_kw = argspec.defaults and len(argspec.defaults) == 1
-    if len(argspec.args) == 1 or len(argspec.args) == 2 and has_kw:
-        handler = _Handler(tag, rep, need_path=has_kw)
-    elif len(argspec.args) == 2 and not has_kw or len(argspec.args) == 3 and has_kw:
-        handler = _RequestContextHandler(tag, rep, need_path=has_kw)
+    handler = _Handler(tag, rep)
     _handlers[obj_type] = handler
     return handler
 
@@ -253,9 +235,9 @@ class Transitionable(object):
 
     __metaclass__ = _TransitionableMeta
 
-    def __transit_format__(self):
+    def __transit_format__(self, req, path):
         raise NotImplementedError(
-            '%s.__transit_format__() is not implemented' % \
+            '%s.__transit_format__(req, path) is not implemented' % \
             self.__class__.__name__)
 
     def __str__(self):
@@ -282,7 +264,7 @@ class TransitionableRecord(Transitionable):
 
     __metaclass__ = _TransitionableRecordMeta
 
-    def __transit_format__(self):
+    def __transit_format__(self, req, path):
         return [getattr(self, field) for field in self._fields] # pylint: disable=no-member
 
 

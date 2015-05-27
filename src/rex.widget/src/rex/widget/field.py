@@ -142,7 +142,7 @@ class ComputedValue(Transitionable):
         self.computator = computator
         self.widget = widget
 
-    def __transit_format__(self, req, path=()):
+    def __transit_format__(self, req, path):
         return self.computator(self.widget, req)
 
 
@@ -168,7 +168,7 @@ class Responder(Transitionable):
         self.pointer = pointer
         self.respond = respond
 
-    def __transit_format__(self, req, path=()):
+    def __transit_format__(self, req, path):
         return self.pointer
 
 

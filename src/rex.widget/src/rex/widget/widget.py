@@ -140,7 +140,7 @@ class Widget(Extension):
 
 
 @as_transitionable(Widget, tag='widget')
-def _format_Widget(widget, req, path=()):
+def _format_Widget(widget, req, path):
     values = OrderedDict()
     values.update(widget.values)
     for name, field in widget._fields.items():
@@ -162,7 +162,7 @@ class WidgetComposition(Widget):
                                   self.__class__.__name__)
 
 @as_transitionable(WidgetComposition)
-def _format_Widget(widget, req, path=()):
+def _format_Widget(widget, req, path):
     return widget.underlying
 
 
@@ -172,7 +172,7 @@ class GroupWidget(Widget):
 
 
 @as_transitionable(GroupWidget, tag='array')
-def _format_GroupWidget(widget, req, path=()):
+def _format_GroupWidget(widget, req, path):
     return widget.children
 
 
@@ -187,5 +187,5 @@ class NullWidget(Widget):
 
 
 @as_transitionable(NullWidget, tag='_')
-def _format_NullWidget(widget, req, path=()):
+def _format_NullWidget(widget, req, path):
     return None

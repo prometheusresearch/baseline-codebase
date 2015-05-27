@@ -42,14 +42,26 @@ In case fields are not specified, they are generated from port::
   select: [code, sex, mother, father, adopted_mother, adopted_father]
   ''')
 
-  >>> print render_widget(pick, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> req = Request.blank('/', accept='application/json')
+  >>> print render_widget(pick, req) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["rex-wizard/lib/Actions/Pick",...]]
+  ["~#widget", ["rex-wizard/lib/Actions/Pick",
+                {"contextSpec": {"input": {}, "output": {"individual": "individual"}},
+                 "search": null,
+                 "title": ["~#undefined", []],
+                 "mask": null,
+                 "entity": {"name": "individual", "type": "individual"},
+                 "^2": {},
+                 "id": "pick-individual",
+                 "columns": [...],
+                 "icon": ["^7", []],
+                 "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]], {}]]}]]
 
-  >>> print render_widget(pick, Request.blank('/?__to__=data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> req = Request.blank('/?__to__=1.data', accept='application/json')
+  >>> print render_widget(pick, req) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -72,6 +84,25 @@ var to this filter::
   ... search: identity.givename~$search
   ... """)
 
+  >>> req = Request.blank('/', accept='application/json')
+  >>> print render_widget(pick, req) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget", ["rex-wizard/lib/Actions/Pick",
+                {"contextSpec": {"input": {}, "output": {"individual": "individual"}},
+                 "search": "identity.givename~$search",
+                 "title": ["~#undefined", []],
+                 "mask": null,
+                 "entity": {"name": "individual", "type": "individual"},
+                 "^2": {},
+                 "id": "pick-individual-search",
+                 "columns": [...],
+                 "icon": ["^7", []],
+                 "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]],
+                                           {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
+
   >>> pick.port
   Port('''
   entity: individual
@@ -79,9 +110,20 @@ var to this filter::
   select: [code, sex, mother, father, adopted_mother, adopted_father]
   ''')
 
-  >>> pick.data(Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
-  CollectionSpec(route=PortURL(route='http://localhost/', params={'__to__': 'data'}),
-                 params={'*:__search__': StateBinding(name='search')})
+  >>> req = Request.blank('/?__to__=1.data', accept='application/json')
+  >>> print render_widget(pick, req) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  200 OK
+  Content-Type: application/javascript
+  Content-Disposition: inline; filename="_.js"
+  Vary: Accept
+  Content-Length: ...
+  <BLANKLINE>
+  {
+    "individual": [
+      ...
+    ]
+  }
+  <BLANKLINE>
 
 If we provide ``mask`` HTSQL expression it is compiled into port's mask::
 
@@ -112,6 +154,26 @@ to those input variables::
   ... - individual: individual
   ... """)
 
+  >>> req = Request.blank('/', accept='application/json')
+  >>> print render_widget(pick, req) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: 1336
+  <BLANKLINE>
+  ["~#widget", ["rex-wizard/lib/Actions/Pick",
+                {"contextSpec": {"input": {"individual": "individual"},
+                 "output": {"study_enrollment": "study_enrollment"}},
+                 "search": null,
+                 "title": ["~#undefined", []],
+                 "mask": "individual = $individual",
+                 "entity": {"name": "study_enrollment", "type": "study_enrollment"},
+                 "^2": {"^3": "individual"},
+                 "id": "pick-study-enrollment",
+                 "columns": [...],
+                 "icon": ["^8", []],
+                 "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]],
+                                           {"*:__mask__": ["~#contextbinding", [["individual"]]]}]]}]]
+
   >>> pick.port # doctest: +NORMALIZE_WHITESPACE
   Port('''
   entity: study_enrollment
@@ -119,9 +181,20 @@ to those input variables::
   select: [study, individual, code, enrollment_date, participant_group, consent_form_scan, measure]
   ''')
 
-  >>> pick.data(Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
-  CollectionSpec(route=PortURL(route='http://localhost/', params={'__to__': 'data'}),
-                 params={'*:__mask__': ContextBinding(keys=['individual'])})
+  >>> req = Request.blank('/?__to__=1.data', accept='application/json')
+  >>> print render_widget(pick, req) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  200 OK
+  Content-Type: application/javascript
+  Content-Disposition: inline; filename="_.js"
+  Vary: Accept
+  Content-Length: ...
+  <BLANKLINE>
+  {
+    "study_enrollment": [
+      ...
+    ]
+  }
+  <BLANKLINE>
 
 Cleanup
 -------

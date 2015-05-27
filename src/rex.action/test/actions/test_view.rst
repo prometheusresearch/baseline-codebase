@@ -46,14 +46,16 @@ In case fields are not specified, they are generated from port::
   select: [code, sex, mother, father, adopted_mother, adopted_father]
   ''')
 
-  >>> print render_widget(view, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(view, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget",["rex-wizard/lib/Actions/View",...]]
+  ["~#widget", ["rex-wizard/lib/Actions/View",
+                {..., "data": ["~#entity", [["~#port", ["http://localhost/?__to__=1.data"]],
+                               {"*": ["~#propbinding", ["context.individual"]]}]]}]]
 
-  >>> print render_widget(view, Request.blank('/?__to__=data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(view, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"

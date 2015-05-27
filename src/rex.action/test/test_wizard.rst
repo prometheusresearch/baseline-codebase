@@ -73,7 +73,7 @@ Test wizard bindings to URLMap
   200 OK
   Content-Type: application/json; charset=UTF-8
   ...
-  ["~#widget",[null,["^ "]]]
+  ["~#widget", [null, {}]]
 
 ::
 

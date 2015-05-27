@@ -31,7 +31,11 @@ In case fields are not specified, they are generated from port::
        title=undefined,
        entity=EntityDeclaration(name='individual', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
-               StringFormField(value_key=['sex'], required=True, label='Sex'),
+               EnumFormField(value_key=['sex'], label='Sex',
+                             options=[Record(value='not-known', label='not-known'),
+                                      Record(value='male', label='male'),
+                                      Record(value='female', label='female'),
+                                      Record(value='not-applicable', label='not-applicable')]),
                StringFormField(value_key=['mother'], label='Mother'),
                StringFormField(value_key=['father'], label='Father'),
                StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
@@ -60,7 +64,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
   Vary: Accept
-  Content-Length: 1716
+  Content-Length: ...
   <BLANKLINE>
   {
     "individual": [...]

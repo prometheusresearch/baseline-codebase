@@ -7,10 +7,10 @@ tests:
 
 - coverage: setup.cfg
 
-- sh: pip install -q -e ./demo
-- sh: rex dropdb --config=./demo/rex.yaml
-  ignore: true
-- sh: rex deploy --config=./demo/rex.yaml
+#- sh: pip install -q -e ./demo
+#- sh: rex dropdb --config=./demo/rex.yaml
+#  ignore: true
+#- sh: rex deploy --config=./demo/rex.yaml
 
 - doctest: README.rst
 - doctest: test/test_*.rst
@@ -18,13 +18,13 @@ tests:
 - coverage-check: 95.0
 - coverage-report: ./build/coverage
 
-- sh: npm install .
-  cd: static/js
-  ignore: true
-- sh: ./node_modules/.bin/webtest
-  cd: static/js
-  ignore: true
-
-- sh: rex dropdb --config=./demo/rex.yaml
-  ignore: true
-- sh: pip uninstall -q -y rex.widget_demo
+#- sh: npm install .
+#  cd: static/js
+#  ignore: true
+#- sh: ./node_modules/.bin/webtest
+#  cd: static/js
+#  ignore: true
+#
+#- sh: rex dropdb --config=./demo/rex.yaml
+#  ignore: true
+#- sh: pip uninstall -q -y rex.widget_demo

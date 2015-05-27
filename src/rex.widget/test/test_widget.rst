@@ -5,7 +5,7 @@ Widget
 
   >>> from webob import Request, Response
 
-  >>> from rex.core import Rex, StrVal
+  >>> from rex.core import Rex, StrVal, IntVal
 
   >>> from rex.widget import Widget, WidgetVal, encode, render_widget
   >>> from rex.widget import Field, computed_field, WidgetVal
@@ -171,6 +171,8 @@ Widget composition
 
   >>> from rex.widget import WidgetComposition
 
+  >>> rex.cache.clear()
+
   >>> class MyWidgetComposition(WidgetComposition):
   ...
   ...   title = Field(StrVal())
@@ -183,10 +185,52 @@ Widget composition
   >>> w
   MyWidgetComposition(title='ok')
 
+  >>> w = MyWidgetComposition.parse("""
+  ... !<MyWidgetComposition>
+  ... title: ok
+  ... """)
+
+  >>> w
+  MyWidgetComposition(title='ok')
+
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
-  u'["~#widget", ["rex-widget/MyWidget",
-                  {"desc": "no desc", "title": "ok!", "computed": "computed!"}]]'
+  u'["~#widget", ["rex-widget/MyWidget", {"desc": "no desc", "title": "ok!", "computed": "computed!"}]]'
+
+  >>> rex.cache.clear()
+
+  >>> class MyWidgetCompositionError(WidgetComposition):
+  ...
+  ...   title = Field(IntVal())
+  ...
+  ...   def render(self):
+  ...     return MyWidget(title=self.title)
+
+
+  >>> MyWidgetCompositionError(title=42) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a string
+  Got:
+      42
+  While validating field:
+      title
+  Of widget:
+      MyWidget
+
+  >>> MyWidgetCompositionError.parse("""
+  ... !<MyWidgetCompositionError>
+  ... title: 42
+  ... """)
+  Traceback (most recent call last):
+  ...
+  Error: Expected a string
+  Got:
+      42
+  While validating field:
+      title
+  Of widget:
+      MyWidget
 
 Widget pointer
 --------------

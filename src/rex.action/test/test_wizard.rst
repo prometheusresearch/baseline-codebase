@@ -61,14 +61,14 @@ Test wizard bindings to URLMap
   >>> sandbox = SandboxPackage()
   >>> sandbox.rewrite('/urlmap.yaml', """
   ... paths:
-  ...   /wizard:
+  ...   /w:
   ...     access: anybody
   ...     wizard:
   ...       type: my
   ... """)
   >>> rex = LatentRex(sandbox, 'rex.wizard_demo')
 
-  >>> req = Request.blank('/wizard', accept='application/json')
+  >>> req = Request.blank('/w', accept='application/json')
   >>> print req.get_response(rex) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8

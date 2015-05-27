@@ -442,5 +442,5 @@ else:
     from rex.widget import as_transitionable
     from speaklater import _LazyString
     @as_transitionable(_LazyString, tag='s')
-    def _format_LazyString(v):
+    def _format_LazyString(v, req, path):
         return unicode(v)

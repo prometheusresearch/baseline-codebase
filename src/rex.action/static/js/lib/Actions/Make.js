@@ -5,6 +5,7 @@
 
 var React               = require('react');
 var RexWidget           = require('rex-widget');
+var emptyFunction       = require('rex-widget/lib/emptyFunction');
 var ServiceSection      = require('../ServiceSection');
 var {boxShadow}         = RexWidget.StyleUtils;
 var {VBox, HBox}        = RexWidget.Layout;
@@ -88,11 +89,13 @@ var Make = React.createClass({
           <VBox style={MakeStyle.content}>
             <Forms.ConfigurableForm
               insert
+              key={this.state.key}
               ref="form"
               entity={entity.type}
               fields={fields}
               submitTo={this.dataSpecs.data}
               submitButton={null}
+              onSubmitComplete={this.onSubmitComplete}
               value={value}
               />
           </VBox>
@@ -112,10 +115,15 @@ var Make = React.createClass({
     );
   },
 
+  getInitialState() {
+    return {key: 1};
+  },
+
   getDefaultProps() {
     return {
       width: 400,
-      icon: 'ok'
+      icon: 'ok',
+      onSubmitComplete: emptyFunction,
     };
   },
 
@@ -123,6 +131,12 @@ var Make = React.createClass({
     e.preventDefault();
     e.stopPropagation();
     this.refs.form.submit();
+  },
+
+  onSubmitComplete(data) {
+    this.props.onSubmitComplete(data);
+    var key = this.state.key + 1;
+    this.setState({key});
   },
 
   statics: {

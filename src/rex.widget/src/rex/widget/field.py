@@ -117,9 +117,6 @@ class ComputedField(FieldBase):
         self._needs_request = len(argspec.args) > 1
         self.computator = computator
 
-    def _compute(self, widget, req, path=()):
-        return self.computator(widget, req)
-
     def __clone__(self, **params):
         next_params = {
             'computator': self.computator,

@@ -336,9 +336,9 @@ Port generation::
 
 Generating ports from fields::
 
-  >>> def test_fields(entity, fields):
+  >>> def test_fields(entity, fields, **kw):
   ...   fields = SeqVal(FormFieldVal()).parse(fields)
-  ...   return to_port(entity, fields)
+  ...   return to_port(entity, fields, **kw)
 
   >>> test_fields('todo', """
   ... - value_key: description
@@ -518,6 +518,28 @@ Generating ports from fields::
     with:
     - calculation: just_null
       expression: null()
+  ''')
+
+Masks::
+
+  >>> test_fields('individual', """
+  ... - value_key: code
+  ... """, mask="sex = 'male'")
+  Port('''
+  entity: individual
+  mask: sex='male'
+  select: [code]
+  ''')
+
+Filters::
+
+  >>> test_fields('individual', """
+  ... - value_key: code
+  ... """, filters=["sex($sex) := sex = $sex"])
+  Port('''
+  entity: individual
+  filters: ['sex($sex) := sex=$sex']
+  select: [code]
   ''')
 
 Generating ports from columns::

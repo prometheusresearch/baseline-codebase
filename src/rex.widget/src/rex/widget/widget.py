@@ -138,9 +138,6 @@ class Widget(Extension):
                 if isinstance(field, Field)]
         return "%s(%s)" % (self.__class__.__name__, ', '.join(args))
 
-    def respond(self, req):
-        raise HTTPBadRequest('widget cannot respond to a request')
-
 
 @as_transitionable(Widget, tag='widget')
 def _format_Widget(widget, req, path):

@@ -62,6 +62,15 @@ Automatically adjust validator if default is set to ``undefined``::
   >>> Field(StrVal(), default=undefined).validate('Hi')
   'Hi'
 
+Field validates its default value::
+
+  >>> Field(StrVal(), default=1) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  ValueError: Expected a string
+  Got:
+      1
+
 Define a new widget field implementation::
 
   >>> class CustomField(FieldBase):

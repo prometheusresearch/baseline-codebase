@@ -5,6 +5,8 @@ Init
 ----
 ::
 
+  >>> from webob import Request
+
   >>> from rex.core import LatentRex as Rex, StrVal, SeqVal
 
   >>> from rex.widget import encode, formfield
@@ -176,6 +178,39 @@ EnumFormField::
      "type": "enum",
      "options": [{"value": "male", "^2": "Male"},
                  {"^6": "female", "^2": "Female"}]}'
+
+EntityFormField::
+
+  >>> f = v.parse("""
+  ... type: entity
+  ... value_key: individual
+  ... data:
+  ...   entity: individual
+  ...   title: identity.givenname
+  ... """)
+
+  >>> f # doctest: +NORMALIZE_WHITESPACE
+  EntityFormField(value_key=['individual'],
+                  data=Record(entity='individual',
+                              title='identity.givenname',
+                              mask=None))
+
+  >>> f.port
+  Port('''
+  entity: individual
+  select: []
+  with:
+  - calculation: title
+    expression: identity.givenname
+  ''')
+
+  >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
+  u'{"valueKey": ["individual"],
+     "data": ["~#collection", [["~#port", ["http://localhost/?__to__="]], {}]],
+     "required": false,
+     "label": null,
+     "readOnly": false,
+     "type": "entity"}'
 
   >>> rex.off()
 

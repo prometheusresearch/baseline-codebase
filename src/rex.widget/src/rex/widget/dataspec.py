@@ -23,7 +23,7 @@ class DataSpec(TransitionableRecord):
     fields = ('route', 'params')
 
     def __transit_format__(self, req, path):
-        if not isinstance(self.route, URL):
+        if isinstance(self.route, basestring):
             handler = route(self.route)
             if hasattr(handler, 'port'):
                 return PortURL(self.route), self.params

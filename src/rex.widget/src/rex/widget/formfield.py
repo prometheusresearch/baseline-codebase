@@ -10,6 +10,7 @@
 import re
 from collections import OrderedDict
 
+from cached_property import cached_property
 from htsql.core import domain
 
 from rex.core import Extension, Validate
@@ -17,10 +18,11 @@ from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal
 from rex.core import AnyVal, StrVal, IntVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
 
-from .url import URLVal
+from .url import URLVal, PortURL
 from .util import PropsContainer, undefined, MaybeUndefinedVal
 from .transitionable import as_transitionable
-from .dataspec import CollectionSpecVal
+from .pointer import Pointer
+from .dataspec import CollectionSpecVal, CollectionSpec
 from .keypath import KeyPathVal
 
 __all__ = ('FormField', 'FormFieldVal',
@@ -330,14 +332,50 @@ def _encode_EnumFormField_value(value, req, path): # pylint: disable=invalid-nam
     return value._asdict()
 
 
+class EntitySuggestionSpecVal(Validate):
+
+    _validate = RecordVal(
+        ('entity', StrVal()),
+        ('title', StrVal()),
+        ('mask', StrVal(), None),
+    )
+
+    def __call__(self, value):
+        value = self._validate(value)
+        return value
+
+
 class EntityFormField(FormField):
 
     type = 'entity'
 
     fields = (
         ('label', MaybeVal(StrVal()), None),
-        ('data', CollectionSpecVal()),
+        ('data', OneOfVal(EntitySuggestionSpecVal(), CollectionSpecVal())),
     )
+
+    @cached_property
+    def port(self):
+        port = {
+            'entity': self.data.entity,
+            'select': ['id'],
+            'with': [{
+                'calculation': 'title',
+                'expression': self.data.title  
+            }],
+        }
+        if self.data.mask:
+            port['mask'] = self.data.mask
+        return Port(port)
+
+    def respond(self, req):
+        return self.port(req)
+
+    def __call__(self):
+        values = super(EntityFormField, self).__call__()
+        if isinstance(values.data, EntitySuggestionSpecVal._validate.record_type):
+            values.data = CollectionSpec(Pointer(self, url_type=PortURL), {})
+        return values
 
 
 class CalcFormField(FormField):

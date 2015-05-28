@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.actions.make
+    rex.action.actions.make
     =======================
 
     :copyright: 2015, Prometheus Research, LLC
@@ -52,7 +52,7 @@ class Make(Action):
     """
 
     name = 'make'
-    js_type = 'rex-wizard/lib/Actions/Make'
+    js_type = 'rex-action/lib/Actions/Make'
 
     entity = Field(
         EntityDeclarationVal(),

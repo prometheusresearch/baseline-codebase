@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='rex.wizard_demo',
+    name='rex.action_demo',
     version = "0.1.0",
-    description="Demo package for testing rex.wizard",
+    description="Demo package for testing rex.action",
     install_requires=[
-        'rex.wizard',
+        'rex.action',
         'rex.deploy',
     ],
     rex_static='static'

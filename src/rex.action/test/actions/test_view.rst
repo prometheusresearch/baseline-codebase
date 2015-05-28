@@ -7,14 +7,14 @@ View action
 
   >>> from rex.core import Rex
   >>> from rex.widget import render_widget
-  >>> from rex.wizard import Action
+  >>> from rex.action import Action
 
 Init
 ----
 
 ::
 
-  >>> rex = Rex('-', 'rex.wizard_demo')
+  >>> rex = Rex('-', 'rex.action_demo')
   >>> rex.on()
 
 In case fields are not specified, they are generated from port::
@@ -57,7 +57,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-wizard/lib/Actions/View",
+  ["~#widget", ["rex-action/lib/Actions/View",
                 {..., "data": ["~#entity", [["~#port", ["http://localhost/?__to__=1.data"]],
                                {"*": ["~#contextbinding", [["individual"], true]]}]]}]]
 

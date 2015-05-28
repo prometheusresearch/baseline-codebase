@@ -1,8 +1,8 @@
 
-db: pgsql:wizard_demo
+db: pgsql:action_demo
 htsql_extensions:
     rex_deploy:
 access:
     rex.widget: anybody
-    rex.wizard_demo: anybody
-    rex.wizard: anybody
+    rex.action_demo: anybody
+    rex.action: anybody

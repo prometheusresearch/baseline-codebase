@@ -1,4 +1,4 @@
-Test rex.wizard.wizard
+Test rex.action.wizard
 ======================
 
 ::
@@ -9,7 +9,7 @@ Test rex.wizard.wizard
   >>> rex = Rex('-')
   >>> rex.on()
 
-  >>> from rex.wizard.wizard import Wizard, WizardVal
+  >>> from rex.action.wizard import Wizard, WizardVal
 
   >>> class MyWizard(Wizard):
   ...   name = 'my'
@@ -66,7 +66,7 @@ Test wizard bindings to URLMap
   ...     wizard:
   ...       type: my
   ... """)
-  >>> rex = LatentRex(sandbox, 'rex.wizard_demo')
+  >>> rex = LatentRex(sandbox, 'rex.action_demo')
 
   >>> req = Request.blank('/w', accept='application/json')
   >>> print req.get_response(rex) # doctest: +ELLIPSIS
@@ -84,7 +84,7 @@ Test wizard bindings to URLMap
   ...     wizard:
   ...       type: xmy
   ... """)
-  >>> rex = Rex(sandbox, 'rex.wizard_demo') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> rex = Rex(sandbox, 'rex.action_demo') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
   Error: unknown wizard type specified:
@@ -97,4 +97,4 @@ Test wizard bindings to URLMap
       paths
   While initializing RexDB application:
       SandboxPackage()
-      rex.wizard_demo
+      rex.action_demo

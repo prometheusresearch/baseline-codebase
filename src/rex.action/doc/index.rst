@@ -1,5 +1,5 @@
 ****************************
-  REX.WIZARD Documentation
+  REX.ACTION Documentation
 ****************************
 
 

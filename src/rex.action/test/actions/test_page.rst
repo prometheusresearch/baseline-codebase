@@ -7,14 +7,14 @@ Page action
 
   >>> from rex.core import Rex
   >>> from rex.widget import render_widget
-  >>> from rex.wizard import Action
+  >>> from rex.action import Action
 
 Init
 ----
 
 ::
 
-  >>> rex = Rex('-', 'rex.wizard_demo')
+  >>> rex = Rex('-', 'rex.action_demo')
   >>> rex.on()
 
 In case fields are not specified, they are generated from port::
@@ -23,7 +23,7 @@ In case fields are not specified, they are generated from port::
   ... type: page
   ... id: home
   ... text: |
-  ...   Welcome to Rex Wizard!
+  ...   Welcome to Rex Action!
   ... """)
 
   >>> page # doctest: +NORMALIZE_WHITESPACE
@@ -31,7 +31,7 @@ In case fields are not specified, they are generated from port::
        width=undefined,
        id='home',
        title=undefined,
-       text=RST(src=u'<p>Welcome to Rex Wizard!</p>', links={}))
+       text=RST(src=u'<p>Welcome to Rex Action!</p>', links={}))
 
   >>> page.context()
   ({}, {})
@@ -41,7 +41,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-wizard/lib/Actions/Page", ...]]
+  ["~#widget", ["rex-action/lib/Actions/Page", ...]]
 
 Cleanup
 -------

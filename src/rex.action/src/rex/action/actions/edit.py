@@ -1,17 +1,17 @@
 """
 
-    rex.wizard.actions.view
+    rex.action.actions.edit
     =======================
 
     :copyright: 2015, Prometheus Research, LLC
 
 """
 
-from collections import OrderedDict
-
 from cached_property import cached_property
 
-from rex.core import MaybeVal, SeqVal, StrVal, OMapVal
+from collections import OrderedDict
+
+from rex.core import MaybeVal, SeqVal, StrVal, MapVal, OMapVal
 from rex.port import Port
 from rex.widget import Field, FormFieldVal, responder, PortURL
 from rex.widget import formfield, dataspec
@@ -20,24 +20,25 @@ from ..action import Action
 from ..dataspec import ContextBinding
 from ..validate import EntityDeclarationVal
 
-__all__ = ('View',)
+__all__ = ('Edit',)
 
 
-class View(Action):
-    """ View information about specified entity.
+class Edit(Action):
+    """ Edit an entity.
+
 
     Example action declaration (``action.yaml``)::
 
-        - type: view
-          id: view-individual
+        - type: edit
+          id: edit-individual
           entity: individual
 
     The set of fields will be inferred automatically for a given ``entity``.
 
     To configure a specified set of fields use ``fields`` parameter::
 
-        - type: view
-          id: view-individual
+        - type: edit
+          id: edit-individual
           entity: individual
           fields:
           - code
@@ -52,8 +53,8 @@ class View(Action):
     inferred from schema) or completely with label and other parameters.
     """
 
-    name = 'view'
-    js_type = 'rex-wizard/lib/Actions/View'
+    name = 'edit'
+    js_type = 'rex-action/lib/Actions/Edit'
 
     entity = Field(
         EntityDeclarationVal(),
@@ -74,7 +75,7 @@ class View(Action):
         OMapVal(StrVal(), StrVal()), default=OrderedDict())
 
     def __init__(self, **values):
-        super(View, self).__init__(**values)
+        super(Edit, self).__init__(**values)
         if self.fields is None:
             self.values['fields'] = formfield.from_port(self.port)
         else:
@@ -98,5 +99,7 @@ class View(Action):
 
     def context(self):
         input = self.input or {self.entity.name: self.entity.type}
-        output = {}
+        output = {self.entity.name: self.entity.type}
         return input, output
+
+

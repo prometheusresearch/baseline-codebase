@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.actions
+    rex.action.actions
     ==================
 
     :copyright: 2015, Prometheus Research, LLC

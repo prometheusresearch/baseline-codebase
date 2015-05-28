@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.actions.pick
+    rex.action.actions.pick
     =======================
 
     :copyright: 2015, Prometheus Research, LLC
@@ -39,7 +39,7 @@ class Pick(Action):
     """
 
     name = 'pick'
-    js_type = 'rex-wizard/lib/Actions/Pick'
+    js_type = 'rex-action/lib/Actions/Pick'
 
 
     entity = Field(

@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.validate
+    rex.action.validate
     ===================
 
     :copyright: 2015, Prometheus Research, LLC

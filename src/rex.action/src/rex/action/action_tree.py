@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.action_tree
+    rex.action.action_tree
     ======================
 
     :copyright: 2015, Prometheus Research, LLC

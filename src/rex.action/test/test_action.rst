@@ -1,4 +1,4 @@
-Test rex.wizard.action
+Test rex.action.action
 ======================
 
 ::
@@ -7,7 +7,7 @@ Test rex.wizard.action
   >>> rex = Rex('-')
   >>> rex.on()
 
-  >>> from rex.wizard.action import Action, ActionVal, load_actions
+  >>> from rex.action.action import Action, ActionVal, load_actions
 
   >>> class MyAction(Action):
   ...

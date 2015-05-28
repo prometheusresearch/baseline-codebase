@@ -1,6 +1,6 @@
 .PHONY: deploy serve
 
-APP = rex.wizard_demo
+APP = rex.action_demo
 OPTIONS = --debug
 
 deploy:

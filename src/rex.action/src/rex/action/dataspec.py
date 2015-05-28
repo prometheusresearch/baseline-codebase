@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.dataspec
+    rex.action.dataspec
     ===================
 
     :copyright: 2015, Prometheus Research, LLC

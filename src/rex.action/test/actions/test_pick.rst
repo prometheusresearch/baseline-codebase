@@ -7,14 +7,14 @@ Pick action
 
   >>> from rex.core import Rex
   >>> from rex.widget import render_widget
-  >>> from rex.wizard import Action
+  >>> from rex.action import Action
 
 Init
 ----
 
 ::
 
-  >>> rex = Rex('-', 'rex.wizard_demo')
+  >>> rex = Rex('-', 'rex.action_demo')
   >>> rex.on()
 
 In case fields are not specified, they are generated from port::
@@ -52,7 +52,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-wizard/lib/Actions/Pick",
+  ["~#widget", ["rex-action/lib/Actions/Pick",
                 {...
                  "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]], {}]]}]]
 
@@ -86,7 +86,7 @@ var to this filter::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-wizard/lib/Actions/Pick",
+  ["~#widget", ["rex-action/lib/Actions/Pick",
                 {...
                  "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]],
                                            {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
@@ -148,7 +148,7 @@ to those input variables::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-wizard/lib/Actions/Pick",
+  ["~#widget", ["rex-action/lib/Actions/Pick",
                 {...
                  "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]],
                                            {"*:__mask__": ["~#contextbinding", [["individual"], false]]}]]}]]

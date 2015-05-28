@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.action
+    rex.action.action
     =================
 
     This module provides :class:`Action` class which is used to describe actions
@@ -46,7 +46,7 @@ class Action(Widget):
 
         from rex.core import StrVal
         from rex.widget import Field
-        from rex.wizard import Action
+        from rex.action import Action
 
         class PickDate(Action):
 

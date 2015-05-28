@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.wizard
+    rex.action.wizard
     =================
 
     This module provides :class:`Wizard` class which is used to describe
@@ -50,7 +50,7 @@ class Wizard(Widget):
     configuration interface::
 
         from rex.widget import Field
-        from rex.wizard import Wizard, ActionVal
+        from rex.action import Wizard, ActionVal
 
         class WizardWizard(Wizard):
 

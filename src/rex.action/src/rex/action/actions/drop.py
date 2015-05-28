@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.actions.drop
+    rex.action.actions.drop
     =======================
 
     :copyright: 2015, Prometheus Research, LLC
@@ -24,7 +24,7 @@ class Drop(Action):
     """
 
     name = 'drop'
-    js_type = 'rex-wizard/lib/Actions/Drop'
+    js_type = 'rex-action/lib/Actions/Drop'
 
     entity = Field(
         EntityDeclarationVal(),

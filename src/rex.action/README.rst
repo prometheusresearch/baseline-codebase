@@ -1,5 +1,5 @@
 ********************************
-  Rex Wizard Programming Guide
+  Rex Action Programming Guide
 ********************************
 
 .. contents:: Table of Contents
@@ -30,14 +30,14 @@ R43MH099826.
 Configuration
 =============
 
-Rex Wizard introduces a new concept — UI actions.
+Rex Action introduces a new concept — UI actions.
 
 Action is a reusable piece of UI which can be composed with other actions
 together to form a specific workflow. Actions can only be performed in some
 context.
 
 Context represents a UI state of an application, in other words it represents a
-position of a user in an application. Rex Wizard models context as a set of
+position of a user in an application. Rex Action models context as a set of
 key-value pairs where keys are arbitrary labels and values are types for those
 labels.
 
@@ -76,7 +76,7 @@ To configure actions, one should create ``static/action.yaml`` file in a package
       title: Home
       icon: home
       text: |
-        Welcome to Rex Wizard Demo application.
+        Welcome to Rex Action Demo application.
 
     - type: pick
       id: pick-study
@@ -100,7 +100,7 @@ To configure actions, one should create ``static/action.yaml`` file in a package
       entity: study
 
 A set of built-in actions such as ``page``, ``view``, ``pick``, ``make``,
-``edit`` and ``drop`` are provided by Rex Wizard.
+``edit`` and ``drop`` are provided by Rex Action.
 
 To compose a set of actions together one should define a ``wizard`` as entry in
 URL mapping (``static/urlmap.yaml``)::

@@ -1,6 +1,6 @@
 """
 
-    rex.wizard.paneled_wizard
+    rex.action.paneled_wizard
     =========================
 
     :copyright: 2015, Prometheus Research, LLC
@@ -29,7 +29,7 @@ class PaneledWizard(Wizard):
                     pick-study:
                       make-study-enrollment
                   make-individual:
-                    
+
     The only required parameter is ``actions`` which specify a tree of actions.
     Tree of actions represents a set of possible transitions within the
     wizard. The initial step is the root and each leave represents an
@@ -37,7 +37,7 @@ class PaneledWizard(Wizard):
     """
 
     name = 'paneled'
-    js_type = 'rex-wizard/lib/Wizard'
+    js_type = 'rex-action/lib/Wizard'
 
     actions = Field(
         ActionTreeVal(),

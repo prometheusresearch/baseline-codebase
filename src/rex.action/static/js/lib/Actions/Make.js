@@ -68,8 +68,7 @@ var Make = React.createClass({
 
   render() {
     var {fields, entity} = this.props;
-    var value = {};
-    value[entity.type] = [buildValue(this.props.value, this.props.context)];
+    var value = buildValue(this.props.value, this.props.context);
     var title = this.constructor.getTitle(this.props);
     return (
       <VBox style={{...MakeStyle.self, width: this.props.width}}>

@@ -1,0 +1,16 @@
+#
+# Copyright (c) 2015, Prometheus Research, LLC
+#
+
+title: REX.LOGGING
+tests:
+  - coverage: setup.cfg
+
+  - sh: pip install --quiet --editable ./demo
+
+  - doctest: README.rst
+  - doctest: test/test_*.rst
+
+  - coverage-check: 90.0
+  - coverage-report: ./build/coverage
+

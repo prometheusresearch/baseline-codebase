@@ -1,0 +1,19 @@
+logging_formatters:
+  brief:
+    format: '%(message)s'
+  basic:
+    format: '%(levelname)s:%(name)s:%(message)s'
+  detailed:
+    format: '%(asctime)s|%(process)s|%(threadName)s|%(name)s|%(levelname)s|%(message)s'
+
+logging_handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: basic
+    stream: ext://sys.stdout
+
+logging_root:
+  level: INFO
+  handlers:
+    - console
+

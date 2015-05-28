@@ -1,0 +1,13 @@
+logging_root:
+  level: DEBUG
+
+logging_handlers:
+  console_error:
+    class: logging.StreamHandler
+    formatter: detailed
+    stream: ext://sys.stderr
+
+logging_formatters:
+  detailed:
+    format: '%(name)s:%(message)s'
+

@@ -1,0 +1,70 @@
+************
+Logging Core
+************
+
+
+get_logger
+==========
+
+The ``get_logger()`` function will return a logger for the given name or object::
+
+    >>> from rex.logging import get_logger
+
+    >>> get_logger('foobar').name
+    'foobar'
+
+    >>> class Foo(object):
+    ...     def blah(self):
+    ...         pass
+    >>> get_logger(Foo).name
+    'Foo'
+    >>> foo = Foo()
+    >>> get_logger(foo).name
+    'Foo'
+    >>> get_logger(Foo) == get_logger(foo)
+    True
+    >>> get_logger(Foo.blah).name
+    'Foo.blah'
+    >>> get_logger(foo.blah).name
+    'Foo.blah'
+
+    >>> class OldStyleFoo():
+    ...     def blah(self):
+    ...         pass
+    >>> get_logger(OldStyleFoo).name
+    'OldStyleFoo'
+    >>> old_foo = OldStyleFoo()
+    >>> get_logger(old_foo).name
+    'OldStyleFoo'
+    >>> get_logger(OldStyleFoo) == get_logger(old_foo)
+    True
+    >>> get_logger(OldStyleFoo.blah).name
+    'OldStyleFoo.blah'
+    >>> get_logger(old_foo.blah).name
+    'OldStyleFoo.blah'
+
+    >>> def bar():
+    ...     pass
+    >>> get_logger(bar).name
+    'bar'
+
+
+get_logging_config
+==================
+
+The ``get_logging_config()`` function will return a dictionary that can be used
+to initialize the Python Logging framework::
+
+    >>> from rex.logging import get_logging_config
+    >>> from rex.core import Rex
+
+    >>> rex = Rex('rex.logging')
+    >>> with rex:
+    ...     get_logging_config()
+    {'loggers': {}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'incremental': False, 'formatters': {'detailed': {'format': '%(asctime)s|%(process)s|%(threadName)s|%(name)s|%(levelname)s|%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
+
+    >>> rex = Rex('rex.logging_demo')
+    >>> with rex:
+    ...     get_logging_config()
+    {'loggers': {}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console_error': {'formatter': 'detailed', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stderr'}, 'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'handlers': ['console'], 'level': 'DEBUG'}, 'incremental': False, 'formatters': {'detailed': {'format': '%(name)s:%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
+

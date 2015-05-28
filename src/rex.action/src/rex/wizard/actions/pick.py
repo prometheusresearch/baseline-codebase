@@ -134,7 +134,7 @@ class Pick(Action):
         if self.search:
             bindings['*:__search__'] = dataspec.StateBinding('search')
         if self.mask and self.input:
-            bindings['*:__mask__'] = ContextBinding(self.input.keys())
+            bindings['*:__mask__'] = ContextBinding(self.input.keys(), is_join=False)
         return dataspec.CollectionSpec(port_url, bindings)
 
     @responder(wrap=_construct_data_spec, url_type=PortURL)

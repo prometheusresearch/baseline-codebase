@@ -71,6 +71,9 @@
 - type: pick
   id: pick-individual
   entity: individual
+  columns:
+  - identity.givenname
+  - identity.surname
 
 - type: pick
   id: pick-male
@@ -88,3 +91,6 @@
 - type: view
   id: view-individual
   entity: individual
+  fields:
+  - identity.givenname
+  - identity.surname

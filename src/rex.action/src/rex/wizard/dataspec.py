@@ -13,7 +13,7 @@ __all__ = ('ContextBinding',)
 
 
 class ContextBinding(TransitionableRecord):
-    
-    fields = ('keys',)
+
+    fields = ('keys', 'is_join')
 
     __transit_tag__ = 'contextbinding'

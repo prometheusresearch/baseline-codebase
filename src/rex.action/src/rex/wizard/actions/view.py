@@ -7,14 +7,17 @@
 
 """
 
+from collections import OrderedDict
+
 from cached_property import cached_property
 
-from rex.core import MaybeVal, SeqVal, StrVal
+from rex.core import MaybeVal, SeqVal, StrVal, OMapVal
 from rex.port import Port
 from rex.widget import Field, FormFieldVal, responder, PortURL
 from rex.widget import formfield, dataspec
 
 from ..action import Action
+from ..dataspec import ContextBinding
 from ..validate import EntityDeclarationVal
 
 __all__ = ('View',)
@@ -67,6 +70,9 @@ class View(Action):
         data schema.
         """)
 
+    input = Field(
+        OMapVal(StrVal(), StrVal()), default=OrderedDict())
+
     def __init__(self, **values):
         super(View, self).__init__(**values)
         if self.fields is None:
@@ -82,7 +88,8 @@ class View(Action):
             return formfield.to_port(self.entity.type, self.fields)
 
     def _construct_data_spec(self, port_url):
-        params = {'*': dataspec.PropBinding('context.%s' % self.entity.name)}
+        keys = self.input.keys() or [self.entity.name]
+        params = {'*': ContextBinding(keys, is_join=True)}
         return dataspec.EntitySpec(port_url, params)
 
     @responder(wrap=_construct_data_spec, url_type=PortURL)
@@ -90,6 +97,6 @@ class View(Action):
         return self.port(req)
 
     def context(self):
-        input = {self.entity.name: self.entity.type}
+        input = self.input or {self.entity.name: self.entity.type}
         output = {}
         return input, output

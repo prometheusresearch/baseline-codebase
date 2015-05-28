@@ -411,6 +411,7 @@ var Wizard = React.createClass({
       return;
     }
 
+    console.log('CONTEXT', wizard.context);
     var onlyFocusUpdate = wizard._panels === this.state.wizard._panels;
     if (onlyFocusUpdate) {
       var metrics = this.computeCanvasMetrics(wizard);

@@ -7,5 +7,5 @@ var Transitionable    = require('rex-widget/lib/Transitionable');
 var {ContextBinding}  = require('./DataSpecification');
 
 Transitionable.register('contextbinding', function decode_query(payload) {
-  return new ContextBinding(payload[0]);
+  return new ContextBinding(payload[0], payload[1]);
 });

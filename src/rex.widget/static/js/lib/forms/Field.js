@@ -20,7 +20,8 @@ var FieldStyle = {
     color: '#666',
     fontSize: '90%',
     textAlign: 'right',
-    padding: '7px 7px'
+    padding: '7px 7px',
+    margin: 0
   },
   errors: {
     marginTop: 3,

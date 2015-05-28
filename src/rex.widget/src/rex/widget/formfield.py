@@ -201,6 +201,13 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
                             for j in arm.arc.joins
                             for c in j.origin_columns)
         })
+    elif arm.kind == 'calculation':
+        return field_val({
+            'type': 'calculation',
+            'value_key': value_key,
+            'label': label,
+            'expression': str(arm.arc),
+        })
     else:
         raise NotImplementedError('found an unknown arm kind: %s' % arm.kind)
 

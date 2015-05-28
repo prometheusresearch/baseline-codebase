@@ -149,6 +149,14 @@ var ConfigurableForm = React.createClass({
             selectFormValue={valueKey}
             />
         );
+      case 'calculation':
+        return (
+          <ReadOnlyField
+            key={valueKey}
+            label={field.label}
+            selectFormValue={valueKey}
+            />
+        );
       case 'fieldset':
         return (
           <Fieldset label={field.label} selectFormValue={valueKey} key={valueKey}>

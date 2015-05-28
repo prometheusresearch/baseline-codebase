@@ -20,7 +20,7 @@ var FieldStyle = {
     color: '#666',
     fontSize: '90%',
     textAlign: 'right',
-    padding: '7px 7px',
+    padding: '10px 7px',
     margin: 0
   },
   errors: {
@@ -47,7 +47,7 @@ var Field = React.createClass({
       <VBox {...props} onBlur={this.onBlur} style={FieldStyle.self}>
         <HBox>
           {label &&
-            <VBox size={labelSize} centerVertically>
+            <VBox size={labelSize}>
               <label style={FieldStyle.label}>
                 {label}
                 {schema && schema.isRequired ?

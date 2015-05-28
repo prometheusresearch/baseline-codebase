@@ -7,27 +7,7 @@ var React           = require('react');
 var {VBox}          = require('./Layout');
 var Preloader       = require('./Preloader');
 var FileDownload    = require('./FileDownload');
-
-var InfoFieldStyle = {
-  label: {
-    fontWeight: 'bold',
-    color: '#888888',
-    marginRight: 5
-  }
-};
-
-var InfoField = React.createClass({
-
-  render() {
-    var {label, children} = this.props;
-    return (
-      <div>
-        {label && <span style={InfoFieldStyle.label}>{label}: </span>}
-        {children}
-      </div>
-    );
-  }
-});
+var ReadOnlyField   = require('./forms/ReadOnlyField');
 
 var Info = React.createClass({
 
@@ -42,9 +22,12 @@ var Info = React.createClass({
     return (
       <VBox {...props}>
         {fields.map(field =>
-          <InfoField key={field.valueKey} label={field.label}>
-            {this.renderField(field, getByKeyPath(data.data, field.valueKey), data.data)}
-          </InfoField>)}
+          <ReadOnlyField
+            key={field.valueKey}
+            label={field.label}
+            formValue={{value: this.renderField(field, getByKeyPath(data.data, field.valueKey), data.data)}}
+            style={{self: {marginTop: 5, marginBottom: 5}}}
+            />)}
       </VBox>
     );
   },

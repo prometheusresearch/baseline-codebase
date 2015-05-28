@@ -16,7 +16,7 @@ var ReadOnlyFieldStyle = {
   label: {
     textAlign: 'right',
     color: '#666',
-    padding: '7px 7px',
+    padding: '2px 7px',
     margin: 0
   }
 };
@@ -53,8 +53,11 @@ var ReadOnlyField = React.createClass({
 function renderValue(value) {
   if (value == null) {
     return value;
+  } else if (value.type && value.props) {
+    return value;
+  } else {
+    return String(value);
   }
-  return String(value);
 }
 
 module.exports = ReadOnlyField;

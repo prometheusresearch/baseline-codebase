@@ -164,7 +164,7 @@ def _select(obj, req, path, _path):
         return _select(rep[x], req, xs, _path + [x])
     elif tag == 'array':
         return _select(rep[x], req, xs, _path + [x])
-    elif tag in marshal_dispatch:
+    elif tag in marshal_dispatch and not tag == NOOP_TAG:
         return _select(rep, req, xs, _path)
     else:
         return _select(rep, req, path, _path)

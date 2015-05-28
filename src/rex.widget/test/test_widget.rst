@@ -367,6 +367,38 @@ Responder field
   ["~#widget", ["WidgetWithPortResponder",
                 {"title": "Hi", "data": ["~#port", ["http://localhost/?__to__=1.data"]]}]]
 
+  >>> print render_widget(w, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  200 OK
+  Content-Type: text/html; charset=UTF-8
+  Content-Length: 15
+  <BLANKLINE>
+  my title is: Hi
+
+  >>> class CompositionWithResponder(WidgetComposition):
+  ...   name = 'CompositionWithResponder'
+  ...   js_type = 'CompositionWithResponder'
+  ...
+  ...   title = WidgetWithPortResponder.title.__clone__()
+  ...
+  ...   def render(self):
+  ...     return WidgetWithPortResponder(title=self.title)
+
+  >>> w = CompositionWithResponder(title='ok')
+
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget", ["WidgetWithPortResponder",
+                {"title": "ok", "data": ["~#port", ["http://localhost/?__to__=1.data"]]}]]
+
+  >>> print render_widget(w, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  200 OK
+  Content-Type: text/html; charset=UTF-8
+  Content-Length: 15
+  <BLANKLINE>
+  my title is: ok
 
 Cleanup
 -------

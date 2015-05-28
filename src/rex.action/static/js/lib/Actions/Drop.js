@@ -104,7 +104,13 @@ var Drop = React.createClass({
     var id = this.props.context[this.props.entity.name];
     var entity = {};
     entity[this.props.entity.type] = {id};
-    this.props.data.delete(entity).then(() => this.props.onClose());
+    this.props.data.delete(entity).then(() => {
+      RexWidget.forceRefreshData();
+      var contextUpdate = {};
+      contextUpdate[this.props.entity.name] = undefined;
+      this.props.onContext(contextUpdate);
+      this.props.onClose()
+    });
   },
 
   countdown() {

@@ -25,7 +25,7 @@ class Make(Action):
 
     This is an action which renders a form to create a new entity.
 
-    Example action declaration (``actions.yaml``)::
+    Example action declaration (``action.yaml``)::
 
         - type: make
           id: make-individual

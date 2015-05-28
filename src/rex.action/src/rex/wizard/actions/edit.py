@@ -24,7 +24,7 @@ class Edit(Action):
     """ Edit an entity.
     
     
-    Example action declaration (``actions.yaml``)::
+    Example action declaration (``action.yaml``)::
 
         - type: edit
           id: edit-individual

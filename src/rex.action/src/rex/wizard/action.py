@@ -60,7 +60,7 @@ class Action(Widget):
                 type ``datetime``.
                 ''')
 
-    Then actions of this type could be declared in (``actions.yaml``)::
+    Then actions of this type could be declared in (``action.yaml``)::
 
         - type: pick-date
           id: pick-appointment
@@ -141,7 +141,7 @@ class ActionVal(Validate):
         return action_cls(**value)
 
 
-def load_actions(filename='actions.yaml'):
+def load_actions(filename='action.yaml'):
     """ Load all defined actions within the currently active app."""
     return _load_actions(filename)
 

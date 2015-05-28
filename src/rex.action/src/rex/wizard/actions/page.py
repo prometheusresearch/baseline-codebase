@@ -20,7 +20,7 @@ class Page(Action):
 
     It can be used for example to compose help pages.
 
-    Example action declaration (``actions.yaml``)::
+    Example action declaration (``action.yaml``)::
 
         - type: page
           id: help

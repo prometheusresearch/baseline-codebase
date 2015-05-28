@@ -23,7 +23,7 @@ __all__ = ('View',)
 class View(Action):
     """ View information about specified entity.
 
-    Example action declaration (``actions.yaml``)::
+    Example action declaration (``action.yaml``)::
 
         - type: view
           id: view-individual

@@ -30,7 +30,7 @@ class Pick(Action):
     configurable datatable. Each item in the list can be selected by clicking on
     it.
 
-    Example action declaration (``actions.yaml``)::
+    Example action declaration (``action.yaml``)::
 
         - type: pick
           id: pick-individual

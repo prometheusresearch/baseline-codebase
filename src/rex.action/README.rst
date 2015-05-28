@@ -69,7 +69,7 @@ Examples of contexts for actions are:
 Actions can update context by adding/deleting keys. For example ``make`` action
 could update context will newly created individual.
 
-To configure actions, one should create ``static/actions.yaml`` file in a package::
+To configure actions, one should create ``static/action.yaml`` file in a package::
 
     - type: page
       id: home
@@ -198,7 +198,7 @@ We see that:
 
   * Value of ``format`` is passed to component through props.
 
-Now we finally can define an action in ``static/actions.yaml``::
+Now we finally can define an action in ``static/action.yaml``::
 
   - type: show-weather
     id: show-weather

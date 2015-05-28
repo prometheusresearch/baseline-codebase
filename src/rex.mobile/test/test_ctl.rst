@@ -80,7 +80,7 @@ Or if it doesn't satisfy the Instrument you specify::
 
     >>> ctl('mobile-validate ./test/interactions/simplest.json --instrument=./test/interactions/instruments/test-instrument-1.2.json', expect=1)
     FATAL ERROR: The following problems were encountered when validating this Interaction:
-    instrument: Interaction does not reference the specified version
+    instrument: Incorrect Instrument version referenced
     <BLANKLINE>
 
 

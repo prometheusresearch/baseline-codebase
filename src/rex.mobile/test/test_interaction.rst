@@ -103,7 +103,7 @@ or a dict equivalent::
     >>> interaction.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite NEW word?'}, 'fieldId': 'q_fake'}}]}
 
     >>> interaction.configuration_json
-    '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite NEW word?", "fr": "Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?"}}}]}'
+    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite NEW word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}'
     >>> interaction.configuration_yaml
     "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\nsteps:\n- type: question\n  options:\n    fieldId: q_fake\n    text: {en: 'What is your favorite NEW word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
 

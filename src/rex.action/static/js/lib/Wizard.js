@@ -176,7 +176,7 @@ class WizardState {
   }
 }
 
-var WorkfowItemStyle = {
+var WizardItemStyle = {
   self: {
     minWidth: 300
   },
@@ -211,7 +211,7 @@ var WizardItem = React.createClass({
     return (
       <HBox>
         {siblingActions.length > 1 &&
-          <VBox style={WorkfowItemStyle.sidebar}>
+          <VBox style={WizardItemStyle.sidebar}>
             {siblingActions.map(id => {
               var action = actions[id];
               return (
@@ -226,11 +226,11 @@ var WizardItem = React.createClass({
               );
             })}
           </VBox>}
-        <VBox style={{...WorkfowItemStyle.self, ...(!noTheme && WorkfowItemStyle.onThemed.self), ...style}}>
+        <VBox style={{...WizardItemStyle.self, ...(!noTheme && WizardItemStyle.onThemed.self), ...style}}>
           {children}
           {!active &&
             <VBox
-              style={{...WorkfowItemStyle.shim, ...(!noTheme && WorkfowItemStyle.onThemed.shim)}}
+              style={{...WizardItemStyle.shim, ...(!noTheme && WizardItemStyle.onThemed.shim)}}
               onClick={this.onFocus}
               />}
         </VBox>
@@ -247,44 +247,11 @@ var WizardItem = React.createClass({
   }
 });
 
-var WizardStyle = {
-
-  self: {
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden'
-  },
-
-  breadcrumb: {
-    width: '100%',
-    height: 38,
-    boxShadow: boxShadow(0, 3, 6, 2, '#e2e2e2'),
-    borderTop: border(1, 'solid', '#eaeaea')
-  },
-
-  item: {
-    marginRight: 15
-  },
-
-  items: {
-    overflow: 'hidden',
-    width: '100%',
-    flex: 1,
-
-    background: '#eaeaea'
-  },
-
-  itemsCanvas: {
-    flex: 1,
-    transition: 'transform 0.5s'
-  }
-};
-
 function getPanelWidth(panel) {
   var element = panel.element;
-  var width = Actions.getWidth(element) || WorkfowItemStyle.self.minWidth;
+  var width = Actions.getWidth(element) || WizardItemStyle.self.minWidth;
   if (Object.keys(panel.prev.actionTree).length > 1) {
-    width = width + WorkfowItemStyle.sidebar.width;
+    width = width + WizardItemStyle.sidebar.width;
   }
   return width;
 }
@@ -326,6 +293,41 @@ function computeCanvasMetrics(wizard, size, getActionByID) {
     visiblePanels
   };
 }
+
+var WizardStyle = {
+
+  self: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden'
+  },
+
+  breadcrumb: {
+    width: '100%',
+    height: 38,
+    boxShadow: boxShadow(0, 3, 6, 2, '#e2e2e2'),
+    borderTop: border(1, 'solid', '#eaeaea')
+  },
+
+  item: {
+    marginRight: 15
+  },
+
+  items: {
+    overflow: 'hidden',
+    width: '100%',
+    flex: 1,
+
+    background: '#eaeaea'
+  },
+
+  itemsCanvas: {
+    flex: 1,
+    transition: 'transform 0.5s'
+  }
+};
+
 
 var Wizard = React.createClass({
 

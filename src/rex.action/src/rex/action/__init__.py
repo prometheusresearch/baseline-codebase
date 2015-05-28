@@ -8,6 +8,5 @@
 """
 
 from .action import Action, ActionVal
-from .wizard import Wizard, WizardVal
-from .paneled_wizard import PaneledWizard
+from .wizard import Wizard
 from .actions import View, Make, Page, Pick, Edit

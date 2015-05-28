@@ -102,12 +102,12 @@ To configure actions, one should create ``static/action.yaml`` file in a package
 A set of built-in actions such as ``page``, ``view``, ``pick``, ``make``,
 ``edit`` and ``drop`` are provided by Rex Action.
 
-To compose a set of actions together one should define a ``wizard`` as entry in
-URL mapping (``static/urlmap.yaml``)::
+To compose a set of actions together one can use :class:`rex.action.Wizard`
+widget which is provide by Rex Action (``static/urlmap.yaml``)::
 
     paths:
       /:
-        wizard:
+        widget: !<Wizard>
           actions:
             - home:
               - pick-study:
@@ -124,7 +124,7 @@ no ``study: study`` is available in context::
 
     paths:
       /:
-        wizard:
+        widget: !<Wizard>
           actions:
             - home:
               - view-study:
@@ -212,7 +212,7 @@ And use it in a wizard in ``static/urlmap.yaml``::
 
   paths:
     /:
-      wizard:
+      widget: !<Wizard>
         actions:
           - pick-location:
             - show-weather

@@ -45,19 +45,7 @@ Edit
 .. autoclass:: rex.action.actions.edit.Edit
    :show-inheritance:
 
-Wizards
-=======
-
-Rex Action provides a base class for defining new wizards and a default
-implementation.
-
 Wizard
-------
+======
 
 .. autoclass:: rex.action.wizard.Wizard
-
-PaneledWizard
--------------
-
-.. autoclass:: rex.action.paneled_wizard.PaneledWizard
-   :show-inheritance:

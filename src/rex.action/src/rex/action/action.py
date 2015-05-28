@@ -12,6 +12,8 @@
 
 from collections import namedtuple
 
+import yaml
+
 from rex.core import Error, Validate, autoreload, get_packages, cached
 from rex.core import MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, AnyVal
 from rex.widget import Widget, WidgetVal, Field, undefined
@@ -145,6 +147,23 @@ class ActionVal(Validate):
             raise Error('action must be an instance of:', self.action_cls)
         value = {k: v for (k, v) in value.items() if k != 'type'}
         return action_cls(**value)
+
+
+YAML_STR_TAG = u'tag:yaml.org,2002:str'
+
+def pop_mapping_key(node, key):
+    assert isinstance(node, yaml.MappingNode)
+    value = []
+    for n, (k, v) in enumerate(node.value):
+        if isinstance(k, yaml.ScalarNode) and k.tag == YAML_STR_TAG and k.value == key:
+            node = yaml.MappingNode(
+                node.tag,
+                node.value[:n] + node.value[n + 1:],
+                start_mark=node.start_mark,
+                end_mark=node.end_mark,
+                flow_style=node.flow_style)
+            return v, node
+    return None, node
 
 
 def load_actions(filename='action.yaml'):

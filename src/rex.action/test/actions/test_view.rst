@@ -26,20 +26,22 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
-    View(icon=undefined,
-         id='view-individual',
-         title=undefined,
-         entity=EntityDeclaration(name='individual', type='individual'),
-         fields=[StringFormField(value_key=['code'], required=True, label='Code'),
-                 EnumFormField(value_key=['sex'], label='Sex',
-                               options=[Record(value='not-known', label='not-known'),
-                                        Record(value='male', label='male'),
-                                        Record(value='female', label='female'),
-                                        Record(value='not-applicable', label='not-applicable')]),
-                 StringFormField(value_key=['mother'], label='Mother'),
-                 StringFormField(value_key=['father'], label='Father'),
-                 StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
-                 StringFormField(value_key=['adopted_father'], label='Adopted Father')])
+  View(icon=undefined,
+       width=undefined,
+       id='view-individual',
+       title=undefined,
+       input=OrderedDict(),
+       entity=EntityDeclaration(name='individual', type='individual'),
+       fields=[StringFormField(value_key=['code'], required=True, label='Code'),
+               EnumFormField(value_key=['sex'], label='Sex',
+                             options=[Record(value='not-known', label='not-known'),
+                                      Record(value='male', label='male'),
+                                      Record(value='female', label='female'),
+                                      Record(value='not-applicable', label='not-applicable')]),
+               StringFormField(value_key=['mother'], label='Mother'),
+               StringFormField(value_key=['father'], label='Father'),
+               StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
+               StringFormField(value_key=['adopted_father'], label='Adopted Father')])
 
   >>> view.context()
   ({'individual': 'individual'}, {})
@@ -57,7 +59,7 @@ In case fields are not specified, they are generated from port::
   <BLANKLINE>
   ["~#widget", ["rex-wizard/lib/Actions/View",
                 {..., "data": ["~#entity", [["~#port", ["http://localhost/?__to__=1.data"]],
-                               {"*": ["~#propbinding", ["context.individual"]]}]]}]]
+                               {"*": ["~#contextbinding", [["individual"], true]]}]]}]]
 
   >>> print render_widget(view, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -83,8 +85,10 @@ You can also specify fields and see port generated from them::
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
   View(icon=undefined,
+       width=undefined,
        id='view-individual',
        title=undefined,
+       input=OrderedDict(),
        entity=EntityDeclaration(name='individual', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 
@@ -107,8 +111,10 @@ context::
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
   View(icon=undefined,
+       width=undefined,
        id='view-mother',
        title=undefined,
+       input=OrderedDict(),
        entity=EntityDeclaration(name='mother', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 

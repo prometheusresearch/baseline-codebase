@@ -27,8 +27,10 @@ In case fields are not specified, they are generated from port::
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
   Edit(icon=undefined,
+       width=undefined,
        id='edit-individual',
        title=undefined,
+       input=OrderedDict(),
        entity=EntityDeclaration(name='individual', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
                EnumFormField(value_key=['sex'], label='Sex',
@@ -57,7 +59,7 @@ In case fields are not specified, they are generated from port::
   <BLANKLINE>
   ["~#widget", ["rex-wizard/lib/Actions/Edit",
                 {..., "data": ["~#entity", [["~#port", ["http://localhost/?__to__=1.data"]],
-                                            {"*": ["~#propbinding", ["context.individual"]]}]]}]]
+                                            {"*": ["~#contextbinding", [["individual"], true]]}]]}]]
 
   >>> print render_widget(edit, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -83,8 +85,10 @@ You can also specify fields and see port generated from them::
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
   Edit(icon=undefined,
+       width=undefined,
        id='edit-individual',
        title=undefined,
+       input=OrderedDict(),
        entity=EntityDeclaration(name='individual', type='individual'),
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 

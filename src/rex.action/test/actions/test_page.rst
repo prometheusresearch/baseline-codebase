@@ -28,6 +28,7 @@ In case fields are not specified, they are generated from port::
 
   >>> page # doctest: +NORMALIZE_WHITESPACE
   Page(icon=undefined,
+       width=undefined,
        id='home',
        title=undefined,
        text=RST(src=u'<p>Welcome to Rex Wizard!</p>', links={}))

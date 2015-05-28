@@ -53,15 +53,7 @@ In case fields are not specified, they are generated from port::
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-wizard/lib/Actions/Pick",
-                {"contextSpec": {"input": {}, "output": {"individual": "individual"}},
-                 "search": null,
-                 "title": ["~#undefined", []],
-                 "mask": null,
-                 "entity": {"name": "individual", "type": "individual"},
-                 "^2": {},
-                 "id": "pick-individual",
-                 "columns": [...],
-                 "icon": ["^7", []],
+                {...
                  "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]], {}]]}]]
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
@@ -95,15 +87,7 @@ var to this filter::
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-wizard/lib/Actions/Pick",
-                {"contextSpec": {"input": {}, "output": {"individual": "individual"}},
-                 "search": "identity.givename~$search",
-                 "title": ["~#undefined", []],
-                 "mask": null,
-                 "entity": {"name": "individual", "type": "individual"},
-                 "^2": {},
-                 "id": "pick-individual-search",
-                 "columns": [...],
-                 "icon": ["^7", []],
+                {...
                  "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]],
                                            {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
 
@@ -162,21 +146,12 @@ to those input variables::
   >>> print render_widget(pick, req) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
-  Content-Length: 1336
+  Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-wizard/lib/Actions/Pick",
-                {"contextSpec": {"input": {"individual": "individual"},
-                 "output": {"study_enrollment": "study_enrollment"}},
-                 "search": null,
-                 "title": ["~#undefined", []],
-                 "mask": "individual = $individual",
-                 "entity": {"name": "study_enrollment", "type": "study_enrollment"},
-                 "^2": {"^3": "individual"},
-                 "id": "pick-study-enrollment",
-                 "columns": [...],
-                 "icon": ["^8", []],
+                {...
                  "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]],
-                                           {"*:__mask__": ["~#contextbinding", [["individual"]]]}]]}]]
+                                           {"*:__mask__": ["~#contextbinding", [["individual"], false]]}]]}]]
 
   >>> pick.port # doctest: +NORMALIZE_WHITESPACE
   Port('''

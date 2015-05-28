@@ -366,7 +366,7 @@ var Wizard = React.createClass({
     }));
 
     return (
-      <VBox style={WizardStyle.self} onKeyDown={this.onKeyDown} tabIndex={-1}>
+      <VBox style={WizardStyle.self} tabIndex={-1}>
         <VBox ref="items" style={WizardStyle.items}>
           <HBox ref="itemsCanvas" style={{...WizardStyle.itemsCanvas, transform: `translate3d(-${translateX}px, 0, 0)`}}>
             {panels}
@@ -442,21 +442,6 @@ var Wizard = React.createClass({
     wizard = wizard || this.state.wizard;
     size = size || this.props.DOMSize;
     return computeCanvasMetrics(wizard, size);
-  },
-
-  onKeyDown(e) {
-    switch (e.key) {
-      case 'ArrowLeft':
-        this.state.wizard
-          .moveFocusLeft()
-          .update();
-        break;
-      case 'ArrowRight':
-        this.state.wizard
-          .moveFocusRight()
-          .update();
-        break;
-    }
   },
 
   onReplace(id, replaceId) {

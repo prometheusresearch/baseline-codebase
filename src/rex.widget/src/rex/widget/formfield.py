@@ -123,35 +123,36 @@ def _encode_FormField(field, req, path): # pylint: disable=invalid-name
 
 
 def enrich(fields, port):
-    fields = _nest(fields)
     fields = List(fields=fields, value_key='__root__')
-    update = List(fields=from_port(port), value_key='__root__')
-    return _enrich(fields, update).fields
+    update_by_keypath = {}
 
+    def _build_update_by_keypath(field, keypath):
+        keypath = tuple(keypath)
+        update_by_keypath[keypath] = field
+        return field
 
-def _enrich(field, update):
-    if field.label is None:
-        field = field.__clone__(label=update.label)
+    _map(List(fields=from_port(port), value_key='__root__'), _build_update_by_keypath)
 
-    if not field.required and update.required:
-        field = field.__clone__(required=update.required)
+    def _update_field(field, keypath):
+        update = update_by_keypath.get(tuple(keypath))
+        if not update:
+            return field
+        if field.label is None:
+            field = field.__clone__(label=update.label)
+        if not field.required and update.required:
+            field = field.__clone__(required=update.required)
+        if isinstance(field, StringFormField) and not isinstance(update, StringFormField):
+            keys = [f[0] for f in FormField._default_fields + field.__class__.fields]
+            update_keys = [f[0] for f in FormField._default_fields + update.__class__.fields]
+            values = {}
+            values.update({k: getattr(update, k) for k in update_keys})
+            values.update({k: getattr(field, k) for k in keys if k in update_keys})
+            field = update.__class__(**values)
+        return field
 
-    if isinstance(field, (Fieldset, List)):
-        # FIXME: too sketchy!
-        assert isinstance(update, (Fieldset, List))
-        update_by_name = {f.value_key[0]: f for f in update.fields}
-        fields = [_enrich(f, update_by_name[f.value_key[0]])
-                  for f in field.fields]
-        field = field.__clone__(fields=fields)
+    fields = _map(fields, _update_field)
 
-    if isinstance(field, StringFormField) and not isinstance(update, StringFormField):
-        keys = [f[0] for f in FormField._default_fields + field.__class__.fields]
-        update_keys = [f[0] for f in FormField._default_fields + update.__class__.fields]
-        values = {}
-        values.update({k: getattr(update, k) for k in update_keys})
-        values.update({k: getattr(field, k) for k in keys if k in update_keys})
-        field = update.__class__(**values)
-    return field
+    return fields.fields
 
 
 def from_port(port, field_val=FormFieldVal()):
@@ -282,6 +283,20 @@ def _nest(fields):
     fields = [f.__clone__(fields=_nest(f.fields)) if isinstance(f, Fieldset) else f
               for f in fields_by_key.values()]
     return fields
+
+
+def _map(field, func, keypath=None):
+    keypath = keypath or []
+    field = func(field, keypath + field.value_key)
+    if isinstance(field, Fieldset):
+        field = field.__clone__(
+            fields=[_map(f, func, keypath + field.value_key)
+                    for f in field.fields])
+    elif isinstance(field, List):
+        field = field.__clone__(
+            fields=[_map(f, func, keypath + field.value_key + ['*'])
+                    for f in field.fields])
+    return field
 
 
 class StringFormField(FormField):

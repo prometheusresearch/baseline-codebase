@@ -289,8 +289,7 @@ Enrich field from port
   ... - identity.givenname
   ... """) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
-   Fieldset(value_key=['identity'], label='Identity',
-            fields=[StringFormField(value_key=['givenname'], label='Givenname')])]
+   StringFormField(value_key=['identity', 'givenname'], label='Givenname')]
 
   >>> rex.off()
 

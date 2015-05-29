@@ -1,0 +1,7 @@
+db: pgsql:asynctask_demo
+
+asynctask_transport: pgsql:asynctask_demo
+
+asynctask_workers:
+  foo: demo_foo_worker
+

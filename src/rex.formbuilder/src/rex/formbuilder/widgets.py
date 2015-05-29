@@ -101,30 +101,7 @@ class DraftSetEditorWidget(Widget):
         ]
 
 
-
-# TODO Move these someplace better
-
-#class I18NPage(Widget):
-#    """
-#    Represents a top-level Page Widget that will automatically initialize the
-#    rex.i18n framework.
-#    """
-#
-#    name = 'I18NPage'
-#    js_type = 'rex-formbuilder/lib/widget/I18NPage'
-#
-#    i18n_base_url = Field(URLVal(),
-#        default='rex.i18n:/',
-#        doc='The base URL of the I18N server-side APIs. You should not ever'
-#        ' need to set or change this.',
-#    )
-#
-#    @computed_field
-#    def locale(self, request):
-#        # pylint: disable=unused-argument
-#        return str(get_locale())
-
-
+# TODO Move this someplace better; either in rex.applet or rex.i18n
 class I18NAppletPage(AppletPage):
     """
     Represents a top-level AppletPage Widget that will automatically initialize

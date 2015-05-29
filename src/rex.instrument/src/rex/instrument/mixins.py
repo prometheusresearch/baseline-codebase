@@ -23,7 +23,7 @@ class Comparable(object):
     """
 
     def __eq__(self, other):
-        return type(self) == type(other) \
+        return isinstance(other, type(self)) \
             and self.uid == other.uid
 
     def __ne__(self, other):
@@ -95,8 +95,7 @@ class Dictable(object):
 
         extra_properties = extra_properties or []
         target_properties = set(
-            list(self.dict_properties)
-            + list(extra_properties)
+            list(self.dict_properties) + list(extra_properties)
         )
 
         ret = {

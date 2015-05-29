@@ -6,17 +6,16 @@
 from copy import deepcopy
 from datetime import datetime
 
-import jsonschema
-
+from prismh.core import validate_instrument, \
+    ValidationError as PrismhValidationError
+from prismh.core.validation.instrument import TYPES_ALL, \
+    get_full_type_definition
 from rex.core import Extension, AnyVal
 
 from .instrument import Instrument
 from ..errors import ValidationError
 from ..mixins import Comparable, Displayable, Dictable
 from ..output import dump_instrument_yaml, dump_instrument_json
-from ..schema import INSTRUMENT_SCHEMA, INSTRUMENT_BASE_TYPES, \
-    INSTRUMENT_FIELD_CONSTRAINTS, INSTRUMENT_REQUIRED_CONSTRAINTS, \
-    INSTRUMENT_COMPLEX_TYPES
 from ..util import to_unicode, memoized_property, get_implementation
 
 
@@ -38,128 +37,6 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
     )
 
     @classmethod
-    def _validate_unique_ids(cls, root, seen=None, key='record'):
-        # This method makes sure all unique IDs in the definition are actually
-        # unique.
-
-        seen = seen or set()
-
-        for field in root[key]:
-            if field['id'] in seen:
-                raise ValidationError(
-                    'ID "%(id)s" is defined multiple times.' % {
-                        'id': field['id'],
-                    }
-                )
-            else:
-                seen.add(field['id'])
-
-            if 'type' in field and isinstance(field['type'], dict):
-                if 'record' in field['type']:
-                    cls._validate_unique_ids(field['type'], seen=seen)
-
-                if 'columns' in field['type']:
-                    cls._validate_unique_ids(
-                        field['type'],
-                        key='columns',
-                        seen=seen,
-                    )
-                if 'rows' in field['type']:
-                    cls._validate_unique_ids(
-                        field['type'],
-                        key='rows',
-                        seen=seen,
-                    )
-
-                if 'columns' in field['type'] and 'rows' in field['type']:
-                    combined = [
-                        '%s_%s' % (row['id'], col['id'])
-                        for row in field['type']['rows']
-                        for col in field['type']['columns']
-                    ]
-                    clashed = seen & set(combined)
-                    if clashed:
-                        raise ValidationError(
-                            'There are generated matrix IDs that already exist'
-                            ' as individal identifiers: %s' % (
-                                ', '.join(clashed),
-                            )
-                        )
-
-    @classmethod
-    def _validate_type(cls, type_def, known_types=None, embedded=False):
-        # This method will validate the structure of a type definition object.
-
-        known_types = known_types or {}
-
-        if isinstance(type_def, basestring):
-            if type_def not in known_types.keys():
-                raise ValidationError(
-                    '"%s" is not a known field type.' % (
-                        type_def,
-                    )
-                )
-            return
-
-        try:
-            base_type = known_types[type_def['base']]
-        except KeyError:
-            raise ValidationError(
-                '"%(base)s" does not exist as a type to inherit from.' % {
-                    'base': type_def['base'],
-                }
-            )
-
-        if embedded and base_type in INSTRUMENT_COMPLEX_TYPES:
-            raise ValidationError(
-                'Complex type "%(type)s" cannot be used within another'
-                ' complex type.' % {
-                    'type': base_type,
-                }
-            )
-
-        constraints = set(type_def.keys())
-        constraints.discard('base')
-        extra = constraints - \
-            INSTRUMENT_FIELD_CONSTRAINTS.get(base_type, set())
-        if extra:
-            raise ValidationError(
-                '"%(type)s" Fields cannot have constraints:'
-                ' %(options)s' % {
-                    'type': base_type,
-                    'options': ', '.join(extra),
-                }
-            )
-        missing = INSTRUMENT_REQUIRED_CONSTRAINTS.get(base_type, set()) \
-            - constraints
-        if missing:
-            raise ValidationError(
-                '"%(type)s" Field missing required options:'
-                ' %(options)s' % {
-                    'type': base_type,
-                    'options': ', '.join(missing),
-                }
-            )
-
-        # Make sure any types defined in the depths of a recordList or matrix
-        # are also valid.
-        for field_def in type_def.get('record', []):
-            cls._validate_type(field_def['type'], known_types, embedded=True)
-        for col_def in type_def.get('columns', []):
-            cls._validate_type(col_def['type'], known_types, embedded=True)
-
-    @classmethod
-    def _validate_field(cls, field_def, known_types):
-        if field_def.get('required', False) \
-                and field_def.get('annotation', 'none') != 'none':
-            raise ValidationError(
-                'A field cannot both be required and allow annotations.'
-            )
-
-        # Make sure the types defined inline on fields are well-defined.
-        cls._validate_type(field_def['type'], known_types)
-
-    @classmethod
     def get_definition_type_catalog(cls, definition):
         """
         This method creates and returns a dictionary that maps all defined
@@ -171,7 +48,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         :rtype: dict
         """
 
-        base_types = sorted(INSTRUMENT_BASE_TYPES)
+        base_types = sorted(TYPES_ALL)
         known_types = dict(zip(base_types, base_types))
 
         known_types.update(dict([
@@ -179,9 +56,9 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
             for tid, type_def in definition.get('types', {}).items()
         ]))
 
-        while set(known_types.values()) - INSTRUMENT_BASE_TYPES:
+        while set(known_types.values()) - set(TYPES_ALL):
             for tid, base in known_types.items():
-                if base not in INSTRUMENT_BASE_TYPES:
+                if base not in TYPES_ALL:
                     try:
                         known_types[tid] = known_types[base]
                     except KeyError:
@@ -193,6 +70,40 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
                         )
 
         return known_types
+
+    @classmethod
+    def get_full_type_definition(cls, definition, type_def):
+        """
+        Returns a fully-defined type definition given a name or partial type
+        definition.
+
+        :param definition:
+            the Instrument definition to retrieve the type definition from
+        :type definition: dict or JSON/YAML string
+        :param type_def:
+        :type type_def: str or dict
+        :rtype: dict
+        :raises:
+            * ValueError if the specified type_def is not defined, or the
+              definition is invalid
+            * TypeError if the specified type_def is not a string or dict, or
+                the definition is invalid
+        """
+
+        # Make sure we're working with a dict.
+        if isinstance(definition, basestring):
+            try:
+                definition = AnyVal().parse(definition)
+            except ValueError as exc:
+                raise ValueError(
+                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                )
+        if not isinstance(definition, dict):
+            raise TypeError(
+                'Instrument Definitions must be mapped objects.'
+            )
+
+        return get_full_type_definition(definition, type_def)
 
     @classmethod
     def validate_definition(cls, definition):
@@ -220,38 +131,19 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
                 'Instrument Definitions must be mapped objects.'
             )
 
-        # Make sure it validates against the schema.
         try:
-            jsonschema.validate(
-                definition,
-                INSTRUMENT_SCHEMA,
-                format_checker=jsonschema.FormatChecker(),
-            )
-        except jsonschema.ValidationError as ex:
-            raise ValidationError(ex.message)
-
-        # Make sure all IDs are unique.
-        cls._validate_unique_ids(definition)
-
-        # Build a catalog of types available for use in this definition.
-        known_types = cls.get_definition_type_catalog(definition)
-
-        # Make sure the types are well-defined.
-        for type_name, type_def in definition.get('types', {}).items():
-            if known_types.get(type_name) in INSTRUMENT_COMPLEX_TYPES:
-                raise ValidationError(
-                    'The "%(custom)s" custom type cannot be based on complex'
-                    ' type "%(base)s".' % {
-                        'custom': type_name,
-                        'base': known_types[type_name],
-                    }
-                )
-            else:
-                cls._validate_type(type_def, known_types)
-
-        # Make sure the fields are well-defined.
-        for field_def in definition['record']:
-            cls._validate_field(field_def, known_types)
+            validate_instrument(definition)
+        except PrismhValidationError as exc:
+            msg = [
+                'The following problems were encountered when validating this'
+                ' Instrument:',
+            ]
+            for key, details in exc.asdict().items():
+                msg.append('%s: %s' % (
+                    key or '<root>',
+                    details,
+                ))
+            raise ValidationError('\n'.join(msg))
 
     @classmethod
     def get_by_uid(cls, uid, user=None):

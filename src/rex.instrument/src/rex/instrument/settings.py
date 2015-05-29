@@ -3,14 +3,16 @@
 #
 
 
-from rex.core import Setting, RecordVal, StrVal, BoolVal
+from rex.core import Setting, RecordVal, StrVal, BoolVal, IntVal
 
-from .interface import *
+from .interface import User, Subject, Instrument, InstrumentVersion, \
+    Assessment, DraftInstrumentVersion, Channel, Task, Entry
 
 
 __all__ = (
     'InstrumentImplementationSetting',
-    'InstrumentValidateOnStartupSetting'
+    'InstrumentValidateOnStartupSetting',
+    'InstrumentDefaultRequiredEntriesSetting',
 )
 
 
@@ -32,6 +34,9 @@ class InstrumentImplementationSetting(Setting):
       * instrumentversion
       * assessment
       * draftinstrumentversion
+      * channel
+      * task
+      * entry
     """
 
     ALLOWED_INTERFACES = (
@@ -41,6 +46,9 @@ class InstrumentImplementationSetting(Setting):
         InstrumentVersion,
         Assessment,
         DraftInstrumentVersion,
+        Channel,
+        Task,
+        Entry,
     )
 
     name = 'instrument_implementation'
@@ -87,4 +95,17 @@ class InstrumentValidateOnStartupSetting(Setting):
     name = 'instrument_validate_on_startup'
     validate = BoolVal()
     default = True
+
+
+class InstrumentDefaultRequiredEntriesSetting(Setting):
+    """
+    The default number of Entries to require for each Task if not explicitly
+    defined by the Task.
+
+    Defaults to: 1
+    """
+
+    name = 'instrument_default_required_entries'
+    default = 1
+    validate = IntVal(min_bound=1)
 

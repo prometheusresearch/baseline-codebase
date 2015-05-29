@@ -5,6 +5,27 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.16.0 (2015-xx-xx)
+===================
+
+* THIS RELEASE CONTAINS BACKWARDS-INCOMPATIBLE CHANGES. SEE UPGRADING.rst FOR
+  DETAILS.
+* Moved the Channel, Task, Entry, TaskCompletionProcessor, and
+  ParameterSupplier interface classes from ``rex.forms`` to this package.
+* Added a STATUS_FAILED status to Tasks.
+* Added a ``presentation_type`` property to Channels.
+* The Channel.find() method now allows searches based on ``presentation_type``.
+* Added a ``mobile_tn`` property to Subjects.
+* Added the setting ``instrument_default_required_entries`` to replace the
+  corresponding setting that is no longer provided by ``rex.forms``.
+* Removed the ``get_form()`` method from Tasks.
+* Now using the ``prismh.core`` library for all configuration validation and
+  output logic.
+* Added ``get_full_type_definition()`` to InstrumentVersion.
+* Added the ability to pass Instrument definitions directly to
+  Assessment.generate_empty_data().
+
+
 0.15.0 (2015-05-05)
 ===================
 

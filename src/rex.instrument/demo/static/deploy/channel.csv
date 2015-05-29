@@ -1,0 +1,6 @@
+uid,title,presentation_type
+entry,RexEntry,form
+survey,RexSurvey,form
+fake,FakeChannel,form
+mobile,RexMobile,sms
+fakesms,FakeSmsChannel,sms

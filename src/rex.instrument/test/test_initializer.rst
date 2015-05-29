@@ -25,7 +25,8 @@ instances in the system and ensure that they contain valid definitions::
     >>> rex.reset()
     Traceback (most recent call last):
         ...
-    Error: InstrumentVersion "broken1" contains an invalid definition: u'id' is a required property
+    Error: InstrumentVersion "broken1" contains an invalid definition: The following problems were encountered when validating this Instrument:
+    <root>: Unrecognized keys in mapping: "{'foo': 'bar'}"
     While initializing RexDB application:
         __main__
         rex.instrument_demo

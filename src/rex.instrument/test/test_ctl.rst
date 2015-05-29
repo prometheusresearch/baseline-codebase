@@ -39,15 +39,16 @@ It requires a single argument which is the path to the file::
     "./test/instruments/simplest.json" contains a valid Common Instrument Definition.
     <BLANKLINE>
 
-    >>> ctl('instrument-validate ./test/instruments_yaml/simplest.yaml')
-    "./test/instruments_yaml/simplest.yaml" contains a valid Common Instrument Definition.
+    >>> ctl('instrument-validate ./test/instruments/simplest.yaml')
+    "./test/instruments/simplest.yaml" contains a valid Common Instrument Definition.
     <BLANKLINE>
 
 
 It fails if the structure violates the specification in any way::
 
     >>> ctl('instrument-validate ./test/instruments/missing_title.json', expect=1)
-    FATAL ERROR: u'title' is a required property
+    FATAL ERROR: The following problems were encountered when validating this Instrument:
+    title: Required
     <BLANKLINE>
 
 
@@ -90,7 +91,7 @@ It requires a single argument which is the path to the file::
     >>> ctl('instrument-format ./test/instruments/simplest.json')
     {"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}
 
-    >>> ctl('instrument-format ./test/instruments_yaml/simplest.yaml')
+    >>> ctl('instrument-format ./test/instruments/simplest.yaml')
     {"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}
 
 
@@ -103,7 +104,7 @@ It accepts options that dictate the various properties of the output format::
     record:
     - {id: q_fake, type: text}
 
-    >>> ctl('instrument-format ./test/instruments_yaml/simplest.yaml --format=YAML')
+    >>> ctl('instrument-format ./test/instruments/simplest.yaml --format=YAML')
     id: urn:test-instrument
     version: '1.1'
     title: The InstrumentVersion Title
@@ -131,108 +132,12 @@ It accepts options that dictate the various properties of the output format::
     - id: q_fake
       type: text
 
-    >>> ctl('instrument-format ./test/instruments/types.json --format=YAML --pretty')
-    id: urn:test-instrument
-    version: '1.1'
-    title: The InstrumentVersion Title
-    types:
-      myCustomType:
-        base: text
-        pattern: '[a-z]+'
-      my_Custom_Type_with_Underscores:
-        base: text
-    record:
-    - id: q_fake
-      type: text
-    - id: q_blah
-      type: myCustomType
-
-    >>> ctl('instrument-format ./test/instruments/matrix.json --format=YAML --pretty')
-    id: urn:test-instrument
-    version: '1.1'
-    title: The InstrumentVersion Title
-    record:
-    - id: q_fake
-      type:
-        base: matrix
-        columns:
-        - id: blah
-          type: text
-          required: true
-        - id: foobar
-          type:
-            base: integer
-            range:
-              min: 10
-        rows:
-        - id: somerow
-          required: true
-
-    >>> ctl('instrument-format ./test/instruments/recordlist.json --format=YAML --pretty')
-    id: urn:test-instrument
-    version: '1.1'
-    title: The InstrumentVersion Title
-    record:
-    - id: q_fake
-      type:
-        base: recordList
-        record:
-        - id: quest1
-          type: text
-        - id: quest2
-          type: integer
-
-    >>> ctl('instrument-format ./test/instruments_yaml/enumerations.yaml --format=YAML --pretty')
-    id: urn:test-instrument:enumeration
-    version: '1.1'
-    title: Enumeration Test
-    record:
-    - id: q_enum
-      type:
-        base: enumeration
-        enumerations:
-          blue: {}
-          green: null
-          red: null
-    - id: q_enumset
-      type:
-        base: enumerationSet
-        length:
-          max: 2
-        enumerations:
-          circle: null
-          octogon: {}
-          square: null
-          triangle: {}
-
-    >>> ctl('instrument-format ./test/instruments/description_unicode.json --format=YAML --pretty')
-    id: urn:test-instrument
-    version: '1.1'
-    title: The InstrumentVersion Title
-    description: مرحبا
-    record:
-    - id: q_fake
-      type: text
-
-    >>> ctl('instrument-format ./test/instruments/description_unicode.json --format=JSON --pretty')
-    {
-      "id": "urn:test-instrument",
-      "version": "1.1",
-      "title": "The InstrumentVersion Title",
-      "description": "مرحبا",
-      "record": [
-        {
-          "id": "q_fake",
-          "type": "text"
-        }
-      ]
-    }
-
 
 It fails if the input structure violates the specification in any way::
 
     >>> ctl('instrument-format ./test/instruments/missing_title.json', expect=1)
-    FATAL ERROR: u'title' is a required property
+    FATAL ERROR: The following problems were encountered when validating this Instrument:
+    title: Required
     <BLANKLINE>
 
 
@@ -393,7 +298,7 @@ the file containing the JSON::
     Using Instrument: Complex Instrument
     Created version: 3
 
-    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments_yaml/simplest.yaml')
+    >>> ctl('instrument-store --project=rex.instrument_demo complex ./test/instruments/simplest.yaml')
     Using Instrument: Complex Instrument
     Created version: 3
 

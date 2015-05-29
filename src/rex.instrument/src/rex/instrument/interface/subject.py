@@ -20,6 +20,10 @@ class Subject(Extension, Comparable, Displayable, Dictable):
     an Instrument is gathering data points about.
     """
 
+    dict_properties = (
+        'mobile_tn',
+    )
+
     @classmethod
     def get_by_uid(cls, uid, user=None):
         """
@@ -69,8 +73,9 @@ class Subject(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def __init__(self, uid):
+    def __init__(self, uid, mobile_tn=None):
         self._uid = to_unicode(uid)
+        self._mobile_tn = to_unicode(mobile_tn)
 
     @property
     def uid(self):
@@ -82,4 +87,15 @@ class Subject(Extension, Comparable, Displayable, Dictable):
         """
 
         return self._uid
+
+    @property
+    def mobile_tn(self):
+        """
+        The Mobile Telephone Number that corresponds to this Subject.
+        Read only.
+
+        :rtype: unicode
+        """
+
+        return self._mobile_tn
 

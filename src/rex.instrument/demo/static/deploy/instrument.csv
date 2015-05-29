@@ -2,3 +2,4 @@ uid,code,title,status
 simple,simple,Simple Instrument,active
 complex,complex,Complex Instrument,active
 disabled,disabled,Disabled Instrument,disabled
+texter,texter,SMS Instrument,active

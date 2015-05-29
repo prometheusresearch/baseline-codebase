@@ -3,15 +3,12 @@
 #
 
 
-import json
-import re
-
 from copy import deepcopy
 from datetime import datetime, date
 
-import jsonschema
-
-from rex.core import Extension
+from prismh.core import validate_assessment, \
+    ValidationError as PrismhValidationError
+from rex.core import Extension, AnyVal
 
 from .instrumentversion import InstrumentVersion
 from .subject import Subject
@@ -19,7 +16,7 @@ from ..errors import ValidationError, InstrumentError
 from ..meta import get_assessment_meta, set_assessment_meta, \
     set_assessment_application
 from ..mixins import Comparable, Displayable, Dictable
-from ..schema import ASSESSMENT_SCHEMA
+from ..output import dump_assessment_json
 from ..util import to_unicode, memoized_property, get_implementation, \
     get_current_datetime
 
@@ -27,40 +24,6 @@ from ..util import to_unicode, memoized_property, get_implementation, \
 __all__ = (
     'Assessment',
 )
-
-
-RE_DATE = re.compile(
-    r'^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])$'
-)
-RE_TIME = re.compile(
-    r'^(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$'
-)
-RE_DATETIME = re.compile(
-    r'^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:[0-2][0-9]|3[0-1])'
-    'T(?:[0-1][0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])$'
-)
-
-
-SIMPLE_TYPE_CHECKS = {
-    'float': lambda x: isinstance(x, (int, long, float)),
-
-    'integer': lambda x: isinstance(x, (int, long))
-               or (isinstance(x, float) and x.is_integer()),  # noqa
-
-    'text': lambda x: isinstance(x, basestring),
-
-    'enumeration': lambda x: isinstance(x, basestring),
-
-    'enumerationSet': lambda x: isinstance(x, list),
-
-    'boolean': lambda x: isinstance(x, bool),
-
-    'date': RE_DATE.match,
-
-    'time': RE_TIME.match,
-
-    'dateTime': RE_DATETIME.match,
-}
 
 
 class Assessment(Extension, Comparable, Displayable, Dictable):
@@ -107,207 +70,46 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         # Make sure we're working with a dict.
         if isinstance(data, basestring):
             try:
-                data = json.loads(data)
+                data = AnyVal().parse(data)
             except ValueError as exc:
                 raise ValidationError(
-                    'Invalid JSON provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % unicode(exc)
                 )
         if not isinstance(data, dict):
             raise ValidationError(
                 'Assessment Documents must be mapped objects.'
             )
 
-        # Make sure it validates against the base schema.
-        try:
-            jsonschema.validate(
-                data,
-                ASSESSMENT_SCHEMA,
-                format_checker=jsonschema.FormatChecker(),
-            )
-        except jsonschema.ValidationError as ex:
-            raise ValidationError(ex.message)
-
         if instrument_definition:
-            cls._check_instrument_adherence(data, instrument_definition)
-
-    @classmethod
-    def _check_instrument_adherence(cls, assessment, instrument_definition):
-        if isinstance(instrument_definition, basestring):
-            try:
-                instrument_definition = json.loads(instrument_definition)
-            except ValueError as exc:
-                raise ValidationError(
-                    'Invalid Instrument JSON provided: %s' % unicode(exc)
-                )
-        if not isinstance(instrument_definition, dict):
-            raise ValidationError(
-                'Instrument Definitions must be mapped objects.'
-            )
-
-        # Make sure the instrument ID lines up
-        if assessment['instrument']['id'] != instrument_definition['id'] or \
-                assessment['instrument']['version'] != \
-                instrument_definition['version']:
-            raise ValidationError(
-                'This Assessment is not associated with the specified'
-                ' Instrument Definition'
-            )
-
-        cls._check_assessment_record(
-            assessment['values'],
-            instrument_definition['record'],
-            known_types=InstrumentVersion.get_definition_type_catalog(
-                instrument_definition
-            ),
-        )
-
-    @classmethod
-    def _check_assessment_record(
-            cls,
-            assessment,
-            instrument_version,
-            known_types):
-        afields = set(assessment.keys())
-        ifields = set([field['id'] for field in instrument_version])
-
-        # Make sure we have all the fields.
-        missing = ifields - afields
-        if missing:
-            raise ValidationError(
-                'Assessment is missing values for: %s' % (
-                    ', '.join(missing),
-                )
-            )
-
-        # Make sure we don't have any extra fields.
-        extra = afields - ifields
-        if extra:
-            raise ValidationError(
-                'Assessment contains unexpected values: %s' % (
-                    ', '.join(extra),
-                )
-            )
-
-        for field in instrument_version:
-            cls._check_assessment_field(
-                assessment[field['id']],
-                field,
-                known_types,
-            )
-
-    @classmethod
-    def _check_assessment_field(cls, assessment, field, known_types):
-        value = assessment.get('value', None)
-        explanation = assessment.get('explanation', None)
-        annotation = assessment.get('annotation', None)
-
-        has_value = (value != '') \
-            and (value is not None) \
-            and (value != []) \
-            and (value != {})
-
-        # Make sure we have a value if required.
-        if field.get('required', False) and not has_value:
-            raise ValidationError(
-                'A value for field "%s" is required' % (
-                    field['id'],
-                )
-            )
-
-        # Make sure we have an explanation when desired.
-        opt = field.get('explanation', 'none')
-        if opt == 'none' and explanation is not None:
-            raise ValidationError(
-                'An explanation for field "%s" is not allowed' % (
-                    field['id'],
-                )
-            )
-        elif opt == 'required' and not explanation:
-            raise ValidationError(
-                'An explanation is required for field "%s"' % (
-                    field['id'],
-                )
-            )
-
-        # Make sure we have an annotation when desired.
-        opt = field.get('annotation', 'none')
-        if opt == 'none' and annotation is not None:
-            raise ValidationError(
-                'An annotation for field "%s" is not allowed' % (
-                    field['id'],
-                )
-            )
-        elif opt == 'required' and not has_value and not annotation:
-            raise ValidationError(
-                'An annotation is required for field "%s"' % (
-                    field['id'],
-                )
-            )
-        elif opt == 'optional' and has_value and annotation:
-            raise ValidationError(
-                'An annotation for field "%s" is not required because it'
-                ' has a value' % (
-                    field['id'],
-                )
-            )
-
-        # Make sure the value data type is correct.
-        cls._check_field_type(
-            assessment,
-            field,
-            known_types,
-        )
-
-    @classmethod
-    def _check_field_type(cls, assessment, field, known_types):
-        value = assessment.get('value', None)
-
-        if value is None:
-            return
-
-        if isinstance(field['type'], basestring):
-            field_type = known_types[field['type']]
-        else:
-            field_type = known_types[field['type']['base']]
-
-        # TODO: check type constraints
-
-        type_checker = SIMPLE_TYPE_CHECKS.get(field_type, None)
-        if type_checker and type_checker(value):
-            return
-
-        if field_type == 'recordList' and isinstance(value, list):
-            for val in value:
-                cls._check_assessment_record(
-                    val,
-                    field['type']['record'],
-                    known_types,
-                )
-            return
-
-        if field_type == 'matrix' and isinstance(value, dict):
-            for row in field['type']['rows']:
-                columns = value.get(row['id'], None)
-                if not columns:
+            if isinstance(instrument_definition, basestring):
+                try:
+                    instrument_definition = AnyVal().parse(
+                        instrument_definition
+                    )
+                except ValueError as exc:
                     raise ValidationError(
-                        'Row "%s" missing in matrix "%s"' % (
-                            row['id'],
-                            field['id'],
+                        'Invalid Instrument JSON/YAML provided: %s' % (
+                            unicode(exc),
                         )
                     )
-                cls._check_assessment_record(
-                    columns,
-                    field['type']['columns'],
-                    known_types,
+            if not isinstance(instrument_definition, dict):
+                raise ValidationError(
+                    'Instrument Definitions must be mapped objects.'
                 )
-            return
 
-        raise ValidationError(
-            'The value for "%s" is not the correct type (%s)' % (
-                field['id'],
-                field_type,
-            )
-        )
+        try:
+            validate_assessment(data, instrument=instrument_definition)
+        except PrismhValidationError as exc:
+            msg = [
+                'The following problems were encountered when validating this'
+                ' Assessment:',
+            ]
+            for key, details in exc.asdict().items():
+                msg.append('%s: %s' % (
+                    key or '<root>',
+                    details,
+                ))
+            raise ValidationError('\n'.join(msg))
 
     @staticmethod
     def generate_empty_data(instrument_version):
@@ -316,13 +118,28 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         structure of the specified InstrumentVersion, but contains no
         responses.
 
-        :param instrument_version: the InstrumentVersion to model the data on
-        :type instrument_version: InstrumentVersion
+        :param instrument_version:
+            the Instrument deffinition to model the data on
+        :type instrument_version: InstrumentVersion, dict, or JSON/YAML string
         :returns:
         :rtype: dict
         """
 
-        definition = instrument_version.definition
+        if isinstance(instrument_version, InstrumentVersion):
+            definition = instrument_version.definition
+        elif isinstance(instrument_version, dict):
+            definition = instrument_version
+        else:
+            try:
+                definition = AnyVal().parse(definition)
+            except ValueError as exc:
+                raise ValueError(
+                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                )
+        if not isinstance(definition, dict):
+            raise TypeError(
+                'Instrument Definitions must be mapped objects.'
+            )
 
         data = {
             'instrument': {
@@ -459,7 +276,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             self._instrument_version = instrument_version
 
         if isinstance(data, basestring):
-            self._data = json.loads(data)
+            self._data = AnyVal().parse(data)
         else:
             self._data = deepcopy(data)
 
@@ -588,12 +405,12 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         """
 
         if self._data:
-            return json.dumps(self._data, ensure_ascii=False)
+            return dump_assessment_json(self._data)
         return None
 
     @data_json.setter
     def data_json(self, value):
-        self.data = json.loads(value)
+        self.data = AnyVal().parse(value)
 
     def validate(self, instrument_definition=None):
         """

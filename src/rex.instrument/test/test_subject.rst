@@ -18,9 +18,9 @@ string-rendering methods::
     "Subject(u'fake123')"
 
     >>> subject.as_dict()
-    {'uid': u'fake123'}
+    {'uid': u'fake123', 'mobile_tn': None}
     >>> subject.as_json()
-    u'{"uid": "fake123"}'
+    u'{"uid": "fake123", "mobile_tn": null}'
 
 
 Subjects can be checked for equality. Note that equality is only defined as

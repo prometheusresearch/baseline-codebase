@@ -9,6 +9,8 @@
   with:
     - column: uid
       type: text
+    - column: mobile_tn
+      type: text
     - identity: [uid]
     - data: ./deploy/subject.csv
 
@@ -77,4 +79,62 @@
     - column: definition
       type: text
     - data: ./deploy/draftinstrumentversion.csv
+
+- table: channel
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - column: title
+      type: text
+    - column: presentation_type
+      type: [form, sms]
+    - data: ./deploy/channel.csv
+
+- table: task
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - link: subject
+    - link: instrument
+    - link: assessment
+      required: false
+    - link: facilitator
+      to: user
+      required: false
+    - column: priority
+      type: integer
+    - column: status
+      type: [not-started, started, complete, skipped]
+    - column: num_required_entries
+      type: integer
+    - data: ./deploy/task.csv
+
+- table: entry
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - link: assessment
+    - column: entry_type
+      type: [preliminary, reconciled, revision]
+    - column: data
+      type: text
+    - column: ordinal
+      type: integer
+    - column: status
+      type: [in-progress, complete]
+    - column: created_by
+      type: text
+    - column: date_created
+      type: datetime
+    - column: modified_by
+      type: text
+    - column: date_modified
+      type: datetime
+    - column: memo
+      type: text
+      required: false
+    - data: ./deploy/entry.csv
 

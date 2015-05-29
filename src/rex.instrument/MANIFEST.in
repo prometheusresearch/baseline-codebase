@@ -1,3 +1,2 @@
 include README.rst LICENSE.rst NEWS.rst
-include src/rex/instrument/schemas/*.json
 

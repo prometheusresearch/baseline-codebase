@@ -5,6 +5,9 @@ instrument_implementation:
   instrumentversion: rex.instrument_demo.DemoInstrumentVersion
   assessment: rex.instrument_demo.DemoAssessment
   draftinstrumentversion: rex.instrument_demo.DemoDraftInstrumentVersion
+  channel: rex.instrument_demo.DemoChannel
+  task: rex.instrument_demo.DemoTask
+  entry: rex.instrument_demo.DemoEntry
 
 db: pgsql:instrument_demo
 

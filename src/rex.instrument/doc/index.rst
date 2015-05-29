@@ -19,21 +19,20 @@ API Reference
    reference
 
 
+Upgrade Guide
+=============
+
+.. toctree::
+
+   upgrading
+
+
 Examples/Tests
 ==============
 
 .. toctree::
 
    ../test/index
-
-
-Specifications
-==============
-
-.. toctree::
-
-    common_instrument_definition
-    common_assessment_document
 
 
 Release Notes

@@ -10,6 +10,11 @@ REX.INSTRUMENT Examples/Tests
    test_instrumentversion
    test_assessment
    test_draftinstrumentversion
+   test_channel
+   test_task
+   test_entry
+   test_parametersupplier
+   test_taskcompletionprocessor
    test_cache
    test_settings
    test_ctl

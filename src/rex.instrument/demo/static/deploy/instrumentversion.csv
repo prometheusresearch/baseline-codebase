@@ -3,3 +3,4 @@ simple1,simple,1,someone,"2015-01-01","{""id"": ""urn:test-instrument"",""versio
 complex1,complex,1,someone,"2015-01-02","{""id"": ""urn:another-test-instrument"",""version"": ""1.1"",""title"": ""The Other Instrument"",""record"": [{""id"": ""q_foo"",""type"": ""text""}, {""id"": ""q_bar"",""type"": ""integer""}]}"
 complex2,complex,2,someone,"2015-01-03","{""id"": ""urn:another-test-instrument"",""version"": ""1.2"",""title"": ""The Other Instrument"",""record"": [{""id"": ""q_foo"",""type"": ""text""}, {""id"": ""q_bar"",""type"": ""integer""}, {""id"": ""q_baz"",""type"": ""boolean""}]}"
 disabled1,disabled,1,someone,"2014-12-12","{""id"": ""urn:test-instrument"",""version"": ""1.1"",""title"": ""The InstrumentVersion Title"",""record"": [{""id"": ""q_fake"",""type"": ""text""}]}"
+texter1,texter,1,someone,"2014-12-12","{""id"": ""urn:texter"",""version"": ""1.1"",""title"": ""The SMS Instrument"",""record"": [{""id"": ""q_fake"",""type"": ""text""}]}"

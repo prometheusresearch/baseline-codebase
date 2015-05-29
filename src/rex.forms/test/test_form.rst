@@ -123,7 +123,7 @@ or a dict equivalent::
     >>> form.configuration = {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'defaultLocalization': u'en', u'pages': [{u'elements': [{u'type': u'question', u'options': {u'text': {u'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', u'en': u'What is your favorite word?'}, u'fieldId': u'q_fake'}}], u'id': u'page1'}], u'title': {u'fr': u'Ma grande forme', u'en': u'A Different Title'}}
 
     >>> form.configuration_json
-    '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "A Different Title", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?"}}}]}]}'
+    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "A Different Title", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}]}'
     >>> form.configuration_yaml
     "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: A Different Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
 

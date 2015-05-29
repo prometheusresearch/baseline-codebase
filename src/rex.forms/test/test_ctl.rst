@@ -78,7 +78,7 @@ Or if it doesn't satisfy the Instrument you specify::
 
     >>> ctl('forms-validate ./test/forms/simplest.json --instrument=./test/forms/instruments/test-instrument-1.2.json', expect=1)
     FATAL ERROR: The following problems were encountered when validating this Form:
-    instrument: Form does not reference the specified version
+    instrument: Incorrect Instrument version referenced
     <BLANKLINE>
 
 

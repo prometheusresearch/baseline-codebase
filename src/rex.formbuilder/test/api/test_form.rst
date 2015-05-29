@@ -17,8 +17,8 @@ Set up the environment::
     >>> rex.on()
     >>> CONFIGURATION = {
     ...     'instrument': {
-    ...         'id': 'urn:some-instrument',
-    ...         'version': '1.0',
+    ...         'id': 'urn:test-instrument',
+    ...         'version': '1.1',
     ...     },
     ...     'defaultLocalization': 'en',
     ...     'pages': [
@@ -61,7 +61,7 @@ The ``/form`` URI will accept POSTs for creating new instances::
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "uid": "fake_form_1", "channel": {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}}
+    {"instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "What is your favorite foo?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "uid": "fake_form_1", "channel": {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}}
 
     >>> req = Request.blank('/api/form', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
@@ -117,7 +117,7 @@ The ``/form/{uid}`` URI will accept PUTs to update a Form::
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "configuration": {"instrument": {"version": "1.0", "id": "urn:some-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "New question text"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "uid": "simple1entry", "channel": {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}}
+    {"instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "New question text"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "uid": "simple1entry", "channel": {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}}
 
 
 The ``/form/{uid}`` URI will not accept POSTs or DELETEs::
@@ -158,7 +158,7 @@ a Form Configuration::
 
     >>> req = Request.blank('/api/form/validate', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> req.body = json.dumps({'form': CONFIGURATION, 'instrument_definition': {'id': 'urn:some-instrument', 'version': '1.0', 'title': 'Some Fake Instrument', 'record': [{'id': 'q_fake', 'type': 'text'}]}})
+    >>> req.body = json.dumps({'form': CONFIGURATION, 'instrument_definition': {'id': 'urn:test-instrument', 'version': '1.1', 'title': 'Some Fake Instrument', 'record': [{'id': 'q_fake', 'type': 'text'}]}})
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
@@ -193,7 +193,7 @@ a Form Configuration::
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"status": "ERROR", "error": "u'pages' is a required property"}
+    {"status": "ERROR", "error": "The following problems were encountered when validating this Form:\npages: Required"}
 
 
 The ``/form/validate`` URI will not accept GETSs, PUTs or DELETEs::

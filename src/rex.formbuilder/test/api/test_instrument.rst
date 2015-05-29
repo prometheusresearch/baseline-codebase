@@ -24,7 +24,7 @@ The ``/instrument`` URI will accept GETs for listing::
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    [{"status": "active", "code": "complex", "uid": "complex", "title": "Complex Instrument"}, {"status": "disabled", "code": "disabled", "uid": "disabled", "title": "Disabled Instrument"}, {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}]
+    [{"status": "active", "code": "complex", "uid": "complex", "title": "Complex Instrument"}, {"status": "disabled", "code": "disabled", "uid": "disabled", "title": "Disabled Instrument"}, {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, {"status": "active", "code": "texter", "uid": "texter", "title": "SMS Instrument"}]
 
 
 The ``/instrument`` URI will accept POSTs for creating new instances::
@@ -169,7 +169,7 @@ an Instrument Definition::
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"status": "ERROR", "error": "u'record' is a required property"}
+    {"status": "ERROR", "error": "The following problems were encountered when validating this Instrument:\nrecord: Required"}
 
 
 The ``/instrument/validate`` URI will not accept GETSs, PUTs or DELETEs::

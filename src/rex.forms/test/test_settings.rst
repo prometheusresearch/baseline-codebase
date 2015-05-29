@@ -15,7 +15,7 @@ abstract interface classes, which, of course, are mostly useless::
     >>> test = Rex('__main__', 'rex.forms')
     >>> test.on()
     >>> get_settings().forms_implementation
-    Record(channel=rex.forms.interface.channel.Channel, form=rex.forms.interface.form.Form, task=rex.forms.interface.task.Task, entry=rex.forms.interface.entry.Entry, draftform=rex.forms.interface.draftform.DraftForm)
+    Record(form=rex.forms.interface.form.Form, draftform=rex.forms.interface.draftform.DraftForm)
 
 
 Typically an app would have these implementations specified in its
@@ -24,13 +24,13 @@ Typically an app would have these implementations specified in its
     >>> test = Rex('__main__', 'rex.forms_demo')
     >>> test.on()
     >>> get_settings().forms_implementation
-    Record(channel=rex.forms_demo.DemoChannel, form=rex.forms_demo.DemoForm, task=rex.forms_demo.DemoTask, entry=rex.forms_demo.DemoEntry, draftform=rex.forms_demo.DemoDraftForm)
+    Record(form=rex.forms_demo.DemoForm, draftform=rex.forms_demo.DemoDraftForm)
 
 
 The setting can be specified by multiple apps and will be merged::
 
-    >>> test = Rex('__main__', 'rex.forms_demo', forms_implementation={'channel': 'rex.forms_demo.OtherDemoChannel'})
+    >>> test = Rex('__main__', 'rex.forms_demo', forms_implementation={'form': 'rex.forms_demo.OtherDemoForm'})
     >>> test.on()
     >>> get_settings().forms_implementation
-    Record(channel=rex.forms_demo.OtherDemoChannel, form=rex.forms_demo.DemoForm, task=rex.forms_demo.DemoTask, entry=rex.forms_demo.DemoEntry, draftform=rex.forms_demo.DemoDraftForm)
+    Record(form=rex.forms_demo.OtherDemoForm, draftform=rex.forms_demo.DemoDraftForm)
 

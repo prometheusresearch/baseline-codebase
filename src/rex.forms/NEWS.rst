@@ -5,6 +5,19 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+0.30.0 (2015-xx-xx)
+===================
+
+- THIS RELEASE CONTAINS BACKWARDS-INCOMPATIBLE CHANGES. SEE UPGRADING.rst FOR
+  DETAILS.
+- Moved the Channel, Task, Entry, TaskCompletionProcessor, and
+  ParameterSupplier interface classes to the ``rex.instrument`` package.
+- Removed the ``forms_default_required_entries`` setting.
+- Now using the ``prismh.core`` library for all configuration validation and
+  output logic.
+- Added a get_for_task() method to Form.
+
+
 0.29.2 (2015-xx-xx)
 ===================
 

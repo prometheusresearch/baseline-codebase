@@ -1,8 +1,5 @@
 forms_implementation:
-  channel: rex.forms_demo.DemoChannel
   form: rex.forms_demo.DemoForm
-  task: rex.forms_demo.DemoTask
-  entry: rex.forms_demo.DemoEntry
   draftform: rex.forms_demo.DemoDraftForm
 
 db: pgsql:forms_demo

@@ -5,11 +5,11 @@
 
 import sys
 
+from prismh.core.validation.instrument import TYPES_ALL
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
 from rex.instrument.ctl import \
     open_and_validate as open_and_validate_instrument
-from rex.instrument.schema import INSTRUMENT_BASE_TYPES
 from rex.instrument.util import get_implementation
 
 from .errors import ValidationError
@@ -232,11 +232,15 @@ class FormsRetrieveTask(RexTask, FormOutputter):
                     self.instrument_uid,
                 ))
 
-            channel_impl = get_implementation('channel', package_name='forms')
+            channel_impl = get_implementation('channel')
             channel = channel_impl.get_by_uid(self.channel_uid)
             if not channel:
                 raise Error('Channel "%s" does not exist.' % (
                     self.channel_uid,
+                ))
+            if channel.presentation_type != channel_impl.PRESENTATION_TYPE_FORM:
+                raise Error('Channel "%s" is not a web form channel.' % (
+                    channel.uid,
                 ))
 
             form_impl = get_implementation('form', package_name='forms')
@@ -319,11 +323,15 @@ class FormsStoreTask(RexTask):
                 instrument_definition=instrument_version.definition,
             )
 
-            channel_impl = get_implementation('channel', package_name='forms')
+            channel_impl = get_implementation('channel')
             channel = channel_impl.get_by_uid(self.channel_uid)
             if not channel:
                 raise Error('Channel "%s" does not exist.' % (
                     self.channel_uid,
+                ))
+            if channel.presentation_type != channel_impl.PRESENTATION_TYPE_FORM:
+                raise Error('Channel "%s" is not a web form channel.' % (
+                    channel.uid,
                 ))
             print 'Using Channel: %s' % channel
 
@@ -463,7 +471,7 @@ class InstrumentFormSkeleton(Task, FormOutputter):
         elif field_type in types:
             return types[field_type]
 
-        elif field_type in INSTRUMENT_BASE_TYPES:
+        elif field_type in TYPES_ALL:
             return {
                 'rootType': field_type,
             }

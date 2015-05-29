@@ -6,12 +6,11 @@
 from copy import deepcopy
 
 from rex.core import Extension, AnyVal
-from rex.instrument.interface import DraftInstrumentVersion
+from rex.instrument.interface import DraftInstrumentVersion, Channel
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
 
-from .channel import Channel
 from ..output import dump_form_yaml, dump_form_json
 
 
@@ -170,7 +169,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._channel, basestring):
-            channel_impl = get_implementation('channel', package_name='forms')
+            channel_impl = get_implementation('channel')
             return channel_impl.get_by_uid(self._channel)
         else:
             return self._channel

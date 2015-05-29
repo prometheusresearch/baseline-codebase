@@ -5,12 +5,11 @@
 
 from rex.core import Setting, RecordVal, StrVal, IntVal, BoolVal
 
-from .interface import Channel, Form, Task, Entry, DraftForm
+from .interface import Form, DraftForm
 
 
 __all__ = (
     'FormsImplementationSetting',
-    'FormsDefaultRequiredEntriesSetting',
     'FormsValidateOnStartupSetting',
     'FormsLocalResourcePrefixSetting',
 )
@@ -23,22 +22,15 @@ class FormsImplementationSetting(Setting):
     Example::
 
         forms_implementation:
-            channel: rex.forms_study.implementation.Channel
             form: other.application.Form
 
     The available interface keys are:
-      * channel
       * form
-      * task
-      * entry
       * draftform
     """
 
     ALLOWED_INTERFACES = (
-        Channel,
         Form,
-        Task,
-        Entry,
         DraftForm,
     )
 
@@ -70,19 +62,6 @@ class FormsImplementationSetting(Setting):
                 setattr(value, name, interface.top())
 
         return value
-
-
-class FormsDefaultRequiredEntriesSetting(Setting):
-    """
-    The default number of Entries to require for each Task if not explicitly
-    defined by the Task.
-
-    Defaults to: 1
-    """
-
-    name = 'forms_default_required_entries'
-    default = 1
-    validate = IntVal(min_bound=1)
 
 
 class FormsValidateOnStartupSetting(Setting):

@@ -41,8 +41,8 @@ It requires a single argument which is the path to the file::
     "./test/forms/simplest.json" contains a valid Web Form Configuration.
     <BLANKLINE>
 
-    >>> ctl('forms-validate ./test/forms_yaml/simplest.yaml')
-    "./test/forms_yaml/simplest.yaml" contains a valid Web Form Configuration.
+    >>> ctl('forms-validate ./test/forms/simplest.yaml')
+    "./test/forms/simplest.yaml" contains a valid Web Form Configuration.
     <BLANKLINE>
 
 
@@ -53,30 +53,32 @@ Instrument Definition, to ensure that the Form satisfies the Instrument::
     "./test/forms/simplest.json" contains a valid Web Form Configuration.
     <BLANKLINE>
 
-    >>> ctl('forms-validate ./test/forms_yaml/simplest.yaml --instrument=./test/forms_yaml/instruments/test-instrument-1.1.yaml')
-    "./test/forms_yaml/simplest.yaml" contains a valid Web Form Configuration.
+    >>> ctl('forms-validate ./test/forms/simplest.yaml --instrument=./test/forms/instruments/test-instrument-1.1.yaml')
+    "./test/forms/simplest.yaml" contains a valid Web Form Configuration.
     <BLANKLINE>
 
-    >>> ctl('forms-validate ./test/forms/simplest.json --instrument=./test/forms_yaml/instruments/test-instrument-1.1.yaml')
+    >>> ctl('forms-validate ./test/forms/simplest.json --instrument=./test/forms/instruments/test-instrument-1.1.yaml')
     "./test/forms/simplest.json" contains a valid Web Form Configuration.
     <BLANKLINE>
 
-    >>> ctl('forms-validate ./test/forms_yaml/simplest.yaml --instrument=./test/forms/instruments/test-instrument-1.1.json')
-    "./test/forms_yaml/simplest.yaml" contains a valid Web Form Configuration.
+    >>> ctl('forms-validate ./test/forms/simplest.yaml --instrument=./test/forms/instruments/test-instrument-1.1.json')
+    "./test/forms/simplest.yaml" contains a valid Web Form Configuration.
     <BLANKLINE>
 
 
 It fails if the JSON structure violates the specification in any way::
 
     >>> ctl('forms-validate ./test/forms/missing_pages.json', expect=1)
-    FATAL ERROR: u'pages' is a required property
+    FATAL ERROR: The following problems were encountered when validating this Form:
+    pages: Required
     <BLANKLINE>
 
 
 Or if it doesn't satisfy the Instrument you specify::
 
     >>> ctl('forms-validate ./test/forms/simplest.json --instrument=./test/forms/instruments/test-instrument-1.2.json', expect=1)
-    FATAL ERROR: There are fields which have not be used: q_foobar
+    FATAL ERROR: The following problems were encountered when validating this Form:
+    instrument: Form does not reference the specified version
     <BLANKLINE>
 
 
@@ -123,7 +125,7 @@ It requires a single argument which is the path to the file::
     >>> ctl('forms-format ./test/forms/simplest.json')
     {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "How do you feel today?"}}}]}]}
 
-    >>> ctl('forms-format ./test/forms_yaml/simplest.yaml')
+    >>> ctl('forms-format ./test/forms/simplest.yaml')
     {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "How do you feel today?"}}}]}]}
 
 
@@ -140,7 +142,7 @@ It accepts options that dictate the various properties of the output format::
           fieldId: q_fake
           text: {en: 'How do you feel today?'}
 
-    >>> ctl('forms-format ./test/forms_yaml/simplest.yaml --format=YAML')
+    >>> ctl('forms-format ./test/forms/simplest.yaml --format=YAML')
     instrument: {id: 'urn:test-instrument', version: '1.1'}
     defaultLocalization: en
     pages:
@@ -189,162 +191,6 @@ It accepts options that dictate the various properties of the output format::
           fieldId: q_fake
           text:
             en: How do you feel today?
-
-
-    >>> ctl('forms-format ./test/forms/enumeration.json --format=YAML --pretty')
-    instrument:
-      id: urn:test-instrument-enum
-      version: '1.1'
-    defaultLocalization: en
-    pages:
-    - id: page1
-      elements:
-      - type: question
-        options:
-          fieldId: q_fake
-          text:
-            en: How do you feel today?
-          enumerations:
-          - id: good
-            text:
-              en: Good
-          - id: bad
-            text:
-              en: Bad
-          - id: '1'
-            text:
-              en: OK
-          - id: a
-            text:
-              en: Super
-
-
-    >>> ctl('forms-format ./test/forms/audio.json --format=YAML --pretty')
-    instrument:
-      id: urn:test-instrument
-      version: '1.1'
-    defaultLocalization: en
-    pages:
-    - id: page1
-      elements:
-      - type: question
-        options:
-          fieldId: q_fake
-          text:
-            en: How do you feel today?
-          audio:
-            en:
-            - http://example.com/howfeel.mp3
-            - http://example.com/howfeel.wav
-            fr:
-            - http://example.com/howfeel-fr.mp3
-
-
-    >>> ctl('forms-format ./test/forms/widget.json --format=YAML --pretty')
-    instrument:
-      id: urn:test-instrument
-      version: '1.1'
-    defaultLocalization: en
-    pages:
-    - id: page1
-      elements:
-      - type: question
-        options:
-          fieldId: q_fake
-          text:
-            en: How do you feel today?
-          widget:
-            type: textArea
-            options:
-              height: large
-              width: small
-
-
-    >>> ctl('forms-format ./test/forms/event.json --format=YAML --pretty')
-    instrument:
-      id: urn:test-instrument
-      version: '1.1'
-    defaultLocalization: en
-    pages:
-    - id: page1
-      elements:
-      - type: question
-        options:
-          fieldId: q_fake
-          text:
-            en: How do you feel today?
-          events:
-          - trigger: q_fake=='bad'
-            action: fail
-            options:
-              text:
-                en: You cannot feel bad.
-
-
-    >>> ctl('forms-format ./test/forms/unprompted.json --format=YAML --pretty')
-    instrument:
-      id: urn:test-instrument
-      version: '1.2'
-    defaultLocalization: en
-    pages:
-    - id: page1
-      elements:
-      - type: question
-        options:
-          fieldId: q_fake
-          text:
-            en: How do you feel today?
-    unprompted:
-      q_foobar:
-        action: calculate
-        options:
-          calculation: '42'
-
-    >>> ctl('forms-format ./test/forms/title_unicode.json --format=YAML --pretty')
-    instrument:
-      id: urn:test-instrument
-      version: '1.1'
-    defaultLocalization: en
-    title:
-      ar: مرحبا
-      en: Hello
-    pages:
-    - id: page1
-      elements:
-      - type: question
-        options:
-          fieldId: q_fake
-          text:
-            en: How do you feel today?
-
-    >>> ctl('forms-format ./test/forms/title_unicode.json --format=JSON --pretty')
-    {
-      "instrument": {
-        "id": "urn:test-instrument",
-        "version": "1.1"
-      },
-      "defaultLocalization": "en",
-      "title": {
-        "ar": "مرحبا",
-        "en": "Hello"
-      },
-      "pages": [
-        {
-          "id": "page1",
-          "elements": [
-            {
-              "type": "question",
-              "options": {
-                "fieldId": "q_fake",
-                "text": {
-                  "en": "How do you feel today?"
-                }
-              }
-            }
-          ]
-        }
-      ]
-    }
 
 
 forms-retrieve
@@ -488,6 +334,13 @@ Or if the channel doesn't exist::
     <BLANKLINE>
 
 
+Or if the channel is not a form-based channel::
+
+    >>> ctl('forms-retrieve --project=rex.forms_demo complex mobile', expect=1)
+    FATAL ERROR: Channel "mobile" is not a web form channel.
+    <BLANKLINE>
+
+
 Or if the combination of instrument and channel doesn't exist::
 
     >>> ctl('forms-retrieve --project=rex.forms_demo complex entry', expect=1)
@@ -560,7 +413,7 @@ and the path to the file containing the JSON::
     ### SAVED FORM simple1survey
     Updated existing Form
 
-    >>> ctl('forms-store --project=rex.forms_demo simple survey ./test/forms_yaml/simplest.yaml')
+    >>> ctl('forms-store --project=rex.forms_demo simple survey ./test/forms/simplest.yaml')
     Using Instrument: Simple Instrument
     Instrument Version: 1
     Using Channel: RexSurvey
@@ -581,6 +434,15 @@ Or if the channel doesn't exist::
     Using Instrument: Simple Instrument
     Instrument Version: 1
     FATAL ERROR: Channel "doesntexist" does not exist.
+    <BLANKLINE>
+
+
+Or if the channel is not a form-based channel::
+
+    >>> ctl('forms-store --project=rex.forms_demo simple mobile ./test/forms/simplest.json', expect=1)
+    Using Instrument: Simple Instrument
+    Instrument Version: 1
+    FATAL ERROR: Channel "mobile" is not a web form channel.
     <BLANKLINE>
 
 
@@ -631,7 +493,7 @@ It requires one argument, path to the instrument file in json or yaml format::
     >>> ctl('instrument-formskeleton ./test/forms/instruments/test-instrument-1.1.json')
     {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "The InstrumentVersion Title"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "q_fake"}}}]}]}
 
-    >>> ctl('instrument-formskeleton ./test/forms/instruments_yaml/simplest.yaml')
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/simplest.yaml')
     {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "The InstrumentVersion Title"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "q_fake"}}}]}]}
 
 
@@ -677,7 +539,7 @@ It accepts options that dictate the various properties of the output format::
           fieldId: q_fake
           text: {en: q_fake}
 
-    >>> ctl('instrument-formskeleton ./test/forms/instruments_yaml/simplest.yaml --format=YAML')
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/simplest.yaml --format=YAML')
     instrument: {id: 'urn:test-instrument', version: '1.1'}
     defaultLocalization: en
     title: {en: The InstrumentVersion Title}

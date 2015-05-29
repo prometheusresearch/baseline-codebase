@@ -26,7 +26,8 @@ instances in the system and ensure that they contain valid configurations::
     >>> rex.reset()
     Traceback (most recent call last):
         ...
-    Error: Form "broken1entry" contains an invalid configuration: u'instrument' is a required property
+    Error: Form "broken1entry" contains an invalid configuration: The following problems were encountered when validating this Form:
+    <root>: Unrecognized keys in mapping: "{'foo': 'bar'}"
     While initializing RexDB application:
         __main__
         rex.forms_demo

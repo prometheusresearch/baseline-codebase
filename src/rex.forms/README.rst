@@ -37,26 +37,10 @@ the core functionality of a web-based EDC Form applicaiton on the RexDB
 platform. For more details on any particular class, please read the API
 reference documentation.
 
-Channel
-    This class represents an Electronic Data Capture application for which a
-    Form can be configured.
-
 Form
     This class represents an augmentation of an InstrumentVersion (from
     ``rex.instrument``) that defines the presentation and behavior of the
     data capture interface on the web.
-
-Task
-    This class represents a requirement or check-list item for a Subject (from
-    ``rex.instrument``) that tells the system to prompt the User to complete
-    the specified Form.
-
-Entry
-    This class represents a preliminary or historical version of an Assessment
-    (from ``rex.instrument``) that is used in a multiple-data-entry application
-    to capture the separate instances of the data prior to reconcilation, or is
-    used to record the previous revisions of an Assessment if it is modified
-    after completion.
 
 DraftForm
     This class represents a version of a Form that is in the process of being
@@ -86,21 +70,11 @@ Settings
 
     This setting allows the following keys:
 
-    * channel
     * form
-    * task
-    * entry
     * draftform
 
     When a key is not specified, ``rex.forms`` will use the ``top()``-most
     implementation that exists in the application instance.
-
-``forms_default_required_entries``
-    This setting controls internal workflow logic which requires that Tasks
-    have at least some minimal number of Preliminary Entries completed before
-    they can be reconciled/completed. This setting defaults to ``1`` and is
-    only referenced if the Task implementation does not specify a value for its
-    ``num_required_entries`` property.
 
 ``forms_validate_on_startup``
     This setting governs whether or not the system will automatically validate

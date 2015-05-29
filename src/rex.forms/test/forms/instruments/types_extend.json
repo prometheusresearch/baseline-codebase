@@ -3,12 +3,12 @@
     "version": "1.1",
     "title": "The InstrumentVersion Title",
     "types": {
-        "myCustomType": {
+        "my_custom_type": {
             "base": "text",
             "pattern": "[a-z]+"
         },
-        "myOtherCustomType": {
-            "base": "myCustomType",
+        "my_other_custom_type": {
+            "base": "my_custom_type",
             "length": {
                 "min": 5
             }
@@ -17,11 +17,11 @@
     "record": [
         {
             "id": "q_blah",
-            "type": "myCustomType"
+            "type": "my_custom_type"
         },
         {
             "id": "q_happy",
-            "type": "myOtherCustomType"
+            "type": "my_other_custom_type"
         }
     ]
 }

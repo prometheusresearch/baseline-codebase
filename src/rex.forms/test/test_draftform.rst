@@ -14,7 +14,7 @@ Set up the environment::
 The semi-abstract base DraftForm class only implements a simple constructor
 and string-rendering methods::
 
-    >>> from rex.instrument.interface import Instrument, DraftInstrumentVersion
+    >>> from rex.instrument.interface import Instrument, DraftInstrumentVersion, Channel
     >>> from datetime import datetime
     >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
@@ -29,8 +29,8 @@ and string-rendering methods::
     ...     ]
     ... }
     >>> div = DraftInstrumentVersion('notreal456', instrument, 'jay', datetime(2014, 5, 22), definition=INSTRUMENT)
-    >>> from rex.forms.interface import Channel, DraftForm
-    >>> channel = Channel('chan135', 'My EDC Application')
+    >>> from rex.forms.interface import DraftForm
+    >>> channel = Channel('chan135', 'My EDC Application', Channel.PRESENTATION_TYPE_FORM)
     >>> FORM = {
     ...     'instrument': {
     ...         'id': 'urn:test-instrument',
@@ -67,7 +67,7 @@ and string-rendering methods::
     >>> str(df)
     'Our Test Form'
     >>> repr(df)
-    "DraftForm(u'foo789', Channel(u'chan135', u'My EDC Application'), DraftInstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title')))"
+    "DraftForm(u'foo789', Channel(u'chan135', u'My EDC Application', u'form'), DraftInstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title')))"
 
     >>> from copy import deepcopy
     >>> FORM_NOTITLE = deepcopy(FORM)
@@ -81,9 +81,9 @@ and string-rendering methods::
     u'The InstrumentVersion Title'
 
     >>> df.as_dict()
-    {'draft_instrument_version': {'parent_instrument_version': None, 'modified_by': u'jay', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'jay', 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'title': u'My EDC Application'}}
+    {'draft_instrument_version': {'parent_instrument_version': None, 'modified_by': u'jay', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'jay', 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'presentation_type': u'form', 'title': u'My EDC Application'}}
     >>> df.as_json()
-    u'{"draft_instrument_version": {"parent_instrument_version": null, "modified_by": "jay", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "jay", "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application"}}'
+    u'{"draft_instrument_version": {"parent_instrument_version": null, "modified_by": "jay", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "jay", "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "presentation_type": "form", "title": "My EDC Application"}}'
 
 
 The Channels and DraftInstrumentVersions passed to the constructor must
@@ -100,7 +100,7 @@ actually be instances of those classes or strings containing UIDs::
 
     >>> df = DraftForm('foo789', 'survey', 'draftiv1', FORM)
     >>> df.channel
-    DemoChannel(u'survey', u'RexSurvey')
+    DemoChannel(u'survey', u'RexSurvey', u'form')
     >>> df.draft_instrument_version
     DemoDraftInstrumentVersion(u'draftiv1', DemoInstrument(u'simple', u'Simple Instrument'))
 
@@ -110,7 +110,7 @@ actually be instances of those classes or strings containing UIDs::
     {'version': '1.1', 'id': 'urn:test-instrument'}
     >>> form = df.publish(iv)
     >>> form
-    DemoForm(u'fake_form_1', DemoChannel(u'survey', u'RexSurvey'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoForm(u'fake_form_1', DemoChannel(u'survey', u'RexSurvey', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
     >>> form.configuration['instrument']
     {'version': '1.3', 'id': 'urn:test-instrument'}
 

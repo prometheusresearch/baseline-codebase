@@ -1,7 +1,0 @@
-uid,subject,instrument,assessment,facilitator,priority,status,num_required_entries
-task1,subject1,simple,assessment1,,1,complete,1
-task2,subject1,simple,assessment2,,1,not-started,2
-task3,subject1,simple,,,1,not-started,2
-task4,subject1,simple,assessment5,,5,not-started,2
-task5,subject1,disabled,assessment6,,1,not-started,2
-task6,subject1,disabled,assessment7,,1,not-started,2

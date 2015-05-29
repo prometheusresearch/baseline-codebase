@@ -19,6 +19,14 @@ API Reference
    reference
 
 
+Upgrade Guide
+=============
+
+.. toctree::
+
+   upgrading
+
+
 Examples/Tests
 ==============
 

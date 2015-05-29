@@ -14,7 +14,7 @@ Set up the environment::
 The semi-abstract base Form class only implements a simple constructor
 and string-rendering methods::
 
-    >>> from rex.instrument.interface import Instrument, InstrumentVersion
+    >>> from rex.instrument.interface import Instrument, InstrumentVersion, Channel
     >>> from datetime import datetime
     >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
@@ -29,8 +29,8 @@ and string-rendering methods::
     ...     ]
     ... }
     >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
-    >>> from rex.forms.interface import Channel, Form
-    >>> channel = Channel('chan135', 'My EDC Application')
+    >>> from rex.forms.interface import Form
+    >>> channel = Channel('chan135', 'My EDC Application', Channel.PRESENTATION_TYPE_FORM)
     >>> FORM = {
     ...     'instrument': {
     ...         'id': 'urn:test-instrument',
@@ -67,7 +67,7 @@ and string-rendering methods::
     >>> str(form)
     'Our Test Form'
     >>> repr(form)
-    "Form(u'foo789', Channel(u'chan135', u'My EDC Application'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
+    "Form(u'foo789', Channel(u'chan135', u'My EDC Application', u'form'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
 
     >>> from copy import deepcopy
     >>> FORM_NOTITLE = deepcopy(FORM)
@@ -81,9 +81,9 @@ and string-rendering methods::
     u'The InstrumentVersion Title'
 
     >>> form.as_dict()
-    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'title': u'My EDC Application'}}
+    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'presentation_type': u'form', 'title': u'My EDC Application'}}
     >>> form.as_json()
-    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application"}}'
+    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "presentation_type": "form", "title": "My EDC Application"}}'
 
 
 The Channels and InstrumentVersions passed to the constructor must actually be
@@ -100,7 +100,7 @@ instances of those classes or strings containing UIDs::
 
     >>> form = Form('foo789', 'survey', 'simple1', FORM)
     >>> form.channel
-    DemoChannel(u'survey', u'RexSurvey')
+    DemoChannel(u'survey', u'RexSurvey', u'form')
     >>> form.instrument_version
     DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
 

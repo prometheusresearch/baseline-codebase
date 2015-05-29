@@ -6,18 +6,16 @@
 from collections import Counter
 from copy import deepcopy
 
-import jsonschema
-
+from prismh.core import validate_form, \
+    ValidationError as PrismhValidationError
 from rex.core import Extension, AnyVal
-from rex.instrument.interface import InstrumentVersion
+from rex.instrument.interface import InstrumentVersion, Channel
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
 
-from .channel import Channel
 from ..errors import ValidationError
 from ..output import dump_form_yaml, dump_form_json
-from ..schema import FORM_SCHEMA, FORM_ELEMENT_OPTIONS, FORM_ELEMENT_REQUIRED
 
 
 __all__ = (
@@ -34,114 +32,6 @@ class Form(Extension, Comparable, Displayable, Dictable):
         'channel',
         'instrument_version',
     )
-
-    @classmethod
-    def _validate_instrument_specifics(cls, configuration, instrument):
-        all_fields = set([field['id'] for field in instrument['record']])
-        unprompted = set(configuration.get('unprompted', {}).keys())
-        on_pages = set()
-        for page in configuration['pages']:
-            for element in page['elements']:
-                if element['type'] == 'question':
-                    fid = element['options']['fieldId']
-                    if fid in on_pages:
-                        raise ValidationError(
-                            'Field "%s" is used by multiple questions' % (
-                                fid,
-                            )
-                        )
-                    else:
-                        on_pages.add(fid)
-        on_pages = set(on_pages)
-
-        missing = all_fields - (unprompted | on_pages)
-        if missing:
-            raise ValidationError(
-                'There are fields which have not be used: %s' % (
-                    ', '.join(missing),
-                )
-            )
-
-        extra = (unprompted | on_pages) - all_fields
-        if extra:
-            raise ValidationError(
-                'There are fields that are not in the Instrument: %s' % (
-                    ', '.join(extra),
-                )
-            )
-
-        # TODO ensure enumerationIDs are legit
-        # TODO ensure records and matrices have all subfields addressed
-
-    @classmethod
-    def _validate_pages(cls, configuration):
-        all_page_ids = [page['id'] for page in configuration['pages']]
-        repeated_page_ids = [
-            pid
-            for pid, cnt in Counter(all_page_ids).items()
-            if cnt > 1
-        ]
-        if repeated_page_ids:
-            raise ValidationError(
-                'Page identifiers are used multiple times: %s' % (
-                    ', '.join(repeated_page_ids),
-                )
-            )
-
-    @classmethod
-    def _validate_localizations(cls, configuration):
-        def ensure_localization(obj, key, label):
-            if key not in obj:
-                return
-
-            if configuration['defaultLocalization'] not in obj[key]:
-                raise ValidationError(
-                    '%(label)s %(key)s missing localization for %(lang)s' % {
-                        'label': label,
-                        'key': key,
-                        'lang': configuration['defaultLocalization'],
-                    }
-                )
-
-        ensure_localization(configuration, 'title', 'Form')
-
-        for page in configuration['pages']:
-            for element in page['elements']:
-                options = element.get('options', {})
-                ensure_localization(options, 'text', 'Element')
-                ensure_localization(options, 'help', 'Element')
-                ensure_localization(options, 'error', 'Element')
-                ensure_localization(options, 'audio', 'Element')
-                ensure_localization(options, 'source', 'Element')
-
-                for enumeration in options.get('enumerations', []):
-                    ensure_localization(enumeration, 'text', 'Enumeration')
-                    ensure_localization(enumeration, 'help', 'Enumeration')
-                    ensure_localization(enumeration, 'audio', 'Enumeration')
-
-    @classmethod
-    def _validate_element_options(cls, configuration):
-        for page in configuration['pages']:
-            for element in page['elements']:
-                options = set(element.get('options', {}).keys())
-                extra = options - FORM_ELEMENT_OPTIONS[element['type']]
-                if extra:
-                    raise ValidationError(
-                        '"%(type)s" Element cannot have options:'
-                        ' %(options)s' % {
-                            'type': element['type'],
-                            'options': ', '.join(extra),
-                        }
-                    )
-                missing = FORM_ELEMENT_REQUIRED[element['type']] - options
-                if missing:
-                    raise ValidationError(
-                        '"%(type)s" Element missing required options:'
-                        ' %(options)s' % {
-                            'type': element['type'],
-                            'options': ', '.join(missing),
-                        }
-                    )
 
     @classmethod
     def validate_configuration(cls, configuration, instrument_definition=None):
@@ -172,22 +62,6 @@ class Form(Extension, Comparable, Displayable, Dictable):
                 'Form Configurations must be mapped objects.'
             )
 
-        # Make sure it validates against the schema.
-        try:
-            jsonschema.validate(configuration, FORM_SCHEMA)
-        except jsonschema.ValidationError as ex:
-            raise ValidationError(ex.message)
-
-        # Make sure page IDs are unique.
-        cls._validate_pages(configuration)
-
-        # Make sure everything has the defaultLocalization.
-        cls._validate_localizations(configuration)
-
-        # Make sure elements have appropriate options.
-        cls._validate_element_options(configuration)
-
-        # If we have an Instrument definition to validate against, do so.
         if instrument_definition:
             if isinstance(instrument_definition, basestring):
                 try:
@@ -202,10 +76,20 @@ class Form(Extension, Comparable, Displayable, Dictable):
                 raise ValidationError(
                     'Instrument Definitions must be mapped objects.'
                 )
-            cls._validate_instrument_specifics(
-                configuration,
-                instrument_definition,
-            )
+
+        try:
+            validate_form(configuration, instrument=instrument_definition)
+        except PrismhValidationError as exc:
+            msg = [
+                'The following problems were encountered when validating this'
+                ' Form:',
+            ]
+            for key, details in exc.asdict().items():
+                msg.append('%s: %s' % (
+                    key or '<root>',
+                    details,
+                ))
+            raise ValidationError('\n'.join(msg))
 
     @classmethod
     def get_by_uid(cls, uid, user=None):
@@ -226,6 +110,34 @@ class Form(Extension, Comparable, Displayable, Dictable):
         """
 
         raise NotImplementedError()
+
+    @classmethod
+    def get_for_task(cls, task, channel, user=None):
+        """
+        Returns the Form to use for the specified combination of Task and
+        Channel.
+
+        :param task: the Task the Form needs to operate on
+        :type task: Task
+        :param channel: the Channel the Form must be configured for
+        :type channel: Channel
+        :param user: the User who should have access to the desired Form
+        :type user: User
+        :raises:
+            DataStoreError if there was an error reading from the datastore
+        :rtype: Form
+        """
+
+        forms = cls.find(
+            channel=channel,
+            instrument_version=task.instrument_version,
+            user=user,
+            limit=1,
+        )
+        if forms:
+            return forms[0]
+
+        return None
 
     @classmethod
     def find(cls, offset=0, limit=None, user=None, **search_criteria):
@@ -265,8 +177,7 @@ class Form(Extension, Comparable, Displayable, Dictable):
 
         Must be implemented by concrete classes.
 
-        :param channel:
-            the Channel the Form will belong to
+        :param channel: the Channel the Form will belong to
         :type channel: Channel
         :param instrument_version:
             the InstrumentVersion the Form is an implementation of
@@ -321,7 +232,7 @@ class Form(Extension, Comparable, Displayable, Dictable):
         """
 
         if isinstance(self._channel, basestring):
-            channel_impl = get_implementation('channel', package_name='forms')
+            channel_impl = get_implementation('channel')
             return channel_impl.get_by_uid(self._channel)
         else:
             return self._channel

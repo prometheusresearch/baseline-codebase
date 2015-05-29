@@ -13,18 +13,14 @@ from webob.exc import HTTPNotFound
 from rex.core import StrVal, BoolVal
 from rex.db import get_db
 from rex.web import Command, Parameter, render_to_response
-from rex.forms.interface import Channel, Form, Task, Entry, DraftForm, \
-    TaskCompletionProcessor
+from rex.forms.interface import *
 
 from rex.instrument_demo import *
 
 
 __all__ = (
-    'DemoChannel',
-    'OtherDemoChannel',
     'DemoForm',
-    'DemoTask',
-    'DemoEntry',
+    'OtherDemoForm',
     'DemoDraftForm',
 )
 
@@ -132,47 +128,6 @@ def safe_uid(clazz, value):
         return value
 
 
-class DemoChannel(Channel):
-    @classmethod
-    def get_by_uid(cls, uid, user=None):
-        db = get_db()
-        with db:
-            data = db.produce('/channel?id()=$uid', uid=uid)
-        if not data:
-            return None
-        return cls(data[0].uid, data[0].title)
-
-    @classmethod
-    def find(cls, offset=0, limit=None, user=None, **search_criteria):
-        db = get_db()
-        with db:
-            data = db.produce('/channel.sort(uid)')
-        return [
-            cls(d.uid, d.title)
-            for d in data
-        ]
-
-    def get_instruments(
-            self,
-            offset=0,
-            limit=100,
-            user=None,
-            **search_criteria):
-        db = get_db()
-        with db:
-            data = db.produce(
-                '/instrument{uid}.filter(exists(instrumentversion.form.channel=$channel))',
-                channel=self.uid,
-            )
-        return [
-            DemoInstrument.get_by_uid(d.uid)
-            for d in data
-        ]
-
-class OtherDemoChannel(DemoChannel):
-    pass
-
-
 class DemoForm(Form):
     @classmethod
     def get_by_uid(cls, uid, user=None):
@@ -223,165 +178,8 @@ class DemoForm(Form):
         print '### SAVED FORM ' + self.uid
 
 
-class DemoTask(Task):
-    @classmethod
-    def get_by_uid(cls, uid, user=None):
-        db = get_db()
-        with db:
-            data = db.produce('/task?id()=$uid', uid=uid)
-        if not data:
-            return None
-        return cls(
-            data[0].uid,
-            DemoSubject.get_by_uid(data[0].subject),
-            DemoInstrument.get_by_uid(data[0].instrument),
-            data[0].priority,
-            assessment=DemoAssessment.get_by_uid(data[0].assessment) if data[0].assessment else None,
-            status=data[0].status,
-            num_required_entries=data[0].num_required_entries,
-            facilitator=DemoUser.get_by_uid(data[0].facilitator) if data[0].facilitator else None,
-        )
-
-    @classmethod
-    def find(cls, offset=0, limit=None, user=None, **search_criteria):
-        db = get_db()
-        with db:
-            params = {
-                'status': search_criteria.get('status'),
-                'assessment': safe_uid(DemoAssessment, search_criteria.get('assessment')),
-                'subject': safe_uid(DemoSubject, search_criteria.get('subject')),
-                'channel': safe_uid(DemoChannel, search_criteria.get('channel')),
-            }
-            data = db.produce(
-                '/task.sort(uid).guard($status, filter(status=$status)).guard($assessment, filter(assessment=$assessment)).guard($subject, filter(subject=$subject)).guard($channel, filter(exists(instrument.instrumentversion.form.filter(channel=$channel))))',
-                **params
-            )
-        return [
-           cls(
-                d.uid,
-                DemoSubject.get_by_uid(d.subject),
-                DemoInstrument.get_by_uid(d.instrument),
-                d.priority,
-                assessment=DemoAssessment.get_by_uid(d.assessment) if d.assessment else None,
-                status=d.status,
-                num_required_entries=d.num_required_entries,
-                facilitator=DemoUser.get_by_uid(d.facilitator) if d.facilitator else None,
-            ) 
-            for d in data
-        ]
-
-    @classmethod
-    def create(
-            cls,
-            subject,
-            instrument,
-            priority=None,
-            status=None,
-            num_required_entries=None,
-            facilitator=None):
-        return cls(
-            'fake_task_1',
-            subject,
-            instrument,
-            priority=priority,
-            status=status,
-            num_required_entries=num_required_entries,
-            facilitator=faciliator,
-        )
-
-    def get_form(self, channel):
-        if self.instrument_version:
-            forms = DemoForm.find(
-                channel=channel.uid,
-                instrument_version=self.instrument_version.uid,
-                limit=1,
-            )
-            if forms:
-                return forms[0]
-        return None
-
-    def save(self):
-        print '### SAVED TASK ' + self.uid
-
-
-class DemoEntry(Entry):
-    @classmethod
-    def get_by_uid(cls, uid, user=None):
-        db = get_db()
-        with db:
-            data = db.produce('/entry?id()=$uid', uid=uid)
-        if not data:
-            return None
-        return cls(
-            data[0].uid,
-            DemoAssessment.get_by_uid(data[0].assessment),
-            data[0].entry_type,
-            data[0].data,
-            data[0].created_by,
-            data[0].date_created,
-            data[0].ordinal,
-            modified_by=data[0].modified_by,
-            date_modified=data[0].date_modified,
-            status=data[0].status,
-            memo=data[0].memo,
-        )
-
-    @classmethod
-    def find(cls, offset=0, limit=None, user=None, **search_criteria):
-        db = get_db()
-        with db:
-            params = {
-                'assessment': safe_uid(DemoAssessment, search_criteria.get('assessment')),
-                'type': search_criteria.get('type'),
-                'status': search_criteria.get('status'),
-                'ordinal': search_criteria.get('ordinal'),
-            }
-            data = db.produce(
-                '/entry.sort(uid).guard($assessment, filter(assessment=$assessment)).guard($type, filter(entry_type=$type)).guard($status, filter(status=$status)).guard($ordinal, filter(ordinal=$ordinal))',
-                **params
-            )
-        return [
-           cls(
-                d.uid,
-                DemoAssessment.get_by_uid(d.assessment),
-                d.entry_type,
-                d.data,
-                d.created_by,
-                d.date_created,
-                d.ordinal,
-                modified_by=d.modified_by,
-                date_modified=d.date_modified,
-                status=d.status,
-                memo=d.memo,
-            ) 
-            for d in data
-        ]
-
-    @classmethod
-    def create(
-            cls,
-            assessment,
-            entry_type,
-            created_by,
-            date_created=None,
-            data=None,
-            status=None,
-            memo=None,
-            ordinal=None):
-        return cls(
-            'fake_entry_1',
-            assessment,
-            entry_type,
-            data or {},
-            created_by,
-            date_created or datetime(2014, 5, 22),
-            ordinal or 1,
-            status=status,
-            memo=memo,
-        )
-
-    def save(self):
-        print '### SAVED ENTRY ' + self.uid
+class OtherDemoForm(DemoForm):
+    pass
 
 
 class DemoDraftForm(DraftForm):

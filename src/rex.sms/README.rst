@@ -83,12 +83,16 @@ out. To change this, you alter the value of the ``sms_provider`` setting. The
     The system prints the recipient and message to standard out. No message is
     actually sent.
 
-``twilioapi``
+``logging``
+    The system prints the recipient and message using the ``rex.logging``
+    framework. No message is actually sent.
+
+``twilio``
     The system sends the message to the recipient via the `Twilio`_ APIs.
 
     .. _`Twilio`: https://www.twilio.com/
 
-    When using the ``twilioapi`` provider, you must also configure the
+    When using the ``twilio`` provider, you must also configure the
     following settings:
 
     ``sms_twilio_account_sid``

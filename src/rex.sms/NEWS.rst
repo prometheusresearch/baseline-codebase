@@ -5,10 +5,12 @@ REX.SMS Change Log
 .. contents:: Table of Contents
 
 
-0.2.1 (2015-xx-xx)
+0.3.0 (2015-xx-xx)
 ==================
 
-* 
+* Added a ``logging`` provider that sends messages through the rex.logging
+  framework, rather than actually sending the SMS message.
+* Upgraded Twilio client library.
 
 
 0.2.0 (2015-03-26)

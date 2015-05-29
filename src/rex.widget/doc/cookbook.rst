@@ -2,8 +2,6 @@
   Cookbook
 ************
 
-.. contents:: Table of Contents
-
 This page contains various how-to guides on the most common topics. It tries to
 refer to relevant parts of the documentation to solve practical tasks arising
 while using Rex Widget framework.

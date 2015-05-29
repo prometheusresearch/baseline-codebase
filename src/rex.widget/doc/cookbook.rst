@@ -116,7 +116,7 @@ For example to create **my_slot**::
 Finally, in your yaml file which invokes the widget 
 you supply the data for the slot.  
 The data will be validated and must match the validator you declared
-in the python field for the slot:
+in the python field for the slot::
 
     my_slot: data for my slot (not necessarily a string as shown here)
      

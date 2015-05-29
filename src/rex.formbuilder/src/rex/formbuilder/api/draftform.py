@@ -7,6 +7,7 @@ from webob.exc import HTTPNotFound, HTTPBadRequest
 
 from rex.core import get_settings, StrVal
 from rex.forms import FormError
+from rex.instrument.util import get_implementation
 from rex.restful import SimpleResource, RestfulLocation
 from rex.web import Parameter
 
@@ -54,12 +55,11 @@ class DraftFormResource(SimpleResource, BaseResource):
             create_args=[
                 (
                     'channel',
-                    get_settings().forms_implementation.channel,
+                    get_implementation('channel'),
                 ),
                 (
                     'draft_instrument_version',
-                    get_settings()
-                    .instrument_implementation.draftinstrumentversion,
+                    get_implementation('draftinstrumentversion'),
                 ),
             ],
             create_kwargs=[

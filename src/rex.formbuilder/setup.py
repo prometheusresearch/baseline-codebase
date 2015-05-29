@@ -29,7 +29,8 @@ setup(
     install_requires=[
         'rex.core>=1.10,<2',
         'rex.web>=3.2,<4',
-        'rex.forms>=0.28.1,<0.30',
+        'rex.instrument>=0.16,<0.17',
+        'rex.forms>=0.30,<0.31',
         'rex.restful>=0.4,<0.5',
         'rex.applet>=0.2,<3',
         'rex.widget>=1,<2',

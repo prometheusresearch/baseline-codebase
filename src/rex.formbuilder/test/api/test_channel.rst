@@ -23,7 +23,7 @@ The ``/api/channel`` URI will accept GETs for listing::
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    [{"uid": "entry", "title": "RexEntry"}, {"uid": "fake", "title": "FakeChannel"}, {"uid": "survey", "title": "RexSurvey"}]
+    [{"uid": "entry", "presentation_type": "form", "title": "RexEntry"}, {"uid": "fake", "presentation_type": "form", "title": "FakeChannel"}, {"uid": "survey", "presentation_type": "form", "title": "RexSurvey"}]
 
 
 The ``/api/channel`` URI will not accept POSTs, PUTs, or DELETEs::
@@ -53,7 +53,7 @@ Channel::
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
     <BLANKLINE>
-    {"uid": "entry", "title": "RexEntry"}
+    {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}
 
     >>> req = Request.blank('/api/channel/doesntexist', remote_user='user1')
     >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS

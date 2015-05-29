@@ -3,6 +3,8 @@
 #
 
 
+from webob.exc import HTTPNotFound
+
 from rex.core import StrVal
 from rex.restful import SimpleResource
 from rex.web import Parameter
@@ -30,11 +32,18 @@ class ChannelResource(SimpleResource, BaseResource):
     )
 
     interface_name = 'channel'
-    interface_package = 'forms'
 
     def list(self, request, **kwargs):
-        return self.do_list(request, list_criteria=['title'], **kwargs)
+        kwargs['presentation_type'] = 'form'
+        return self.do_list(
+            request,
+            list_criteria=['title', 'presentation_type'],
+            **kwargs
+        )
 
     def retrieve(self, request, uid, **kwargs):
-        return self.do_retrieve(request, uid)
+        channel = self.do_retrieve(request, uid)
+        if channel['presentation_type'] != 'form':
+            raise HTTPNotFound()
+        return channel
 

@@ -50,10 +50,12 @@ class InstrumentMenuWidget(Widget):
     @computed_field
     def channels(self, request):
         # pylint: disable=unused-argument
-        channel_impl = get_implementation('channel', 'forms')
+        channel_impl = get_implementation('channel')
         return [
             channel.uid
-            for channel in channel_impl.find()
+            for channel in channel_impl.find(
+                presentation_type=channel_impl.PRESENTATION_TYPE_FORM,
+            )
         ]
 
 
@@ -90,10 +92,12 @@ class DraftSetEditorWidget(Widget):
     @computed_field
     def channels(self, request):
         # pylint: disable=unused-argument
-        channel_impl = get_implementation('channel', 'forms')
+        channel_impl = get_implementation('channel')
         return [
             channel.uid
-            for channel in channel_impl.find()
+            for channel in channel_impl.find(
+                presentation_type=channel_impl.PRESENTATION_TYPE_FORM,
+            )
         ]
 
 

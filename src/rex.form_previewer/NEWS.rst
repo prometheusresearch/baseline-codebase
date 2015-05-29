@@ -5,6 +5,12 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.4.0 (2015-xx-xx)
+==================
+
+* Minor updates due to refactoring of rex.instrument/rex.forms APIs.
+
+
 0.3.1 (2015-05-06)
 ==================
 

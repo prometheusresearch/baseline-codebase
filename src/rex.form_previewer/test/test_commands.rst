@@ -33,7 +33,7 @@ The main Form View command responds with the following context variables::
     entry: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How does the Subject feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     survey: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How do you feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     INITIAL_CHANNEL: survey
-    CHANNELS: [{'uid': u'survey', 'title': u'RexSurvey'}, {'uid': u'entry', 'title': u'RexEntry'}]
+    CHANNELS: [{'uid': u'survey', 'presentation_type': u'form', 'title': u'RexSurvey'}, {'uid': u'entry', 'presentation_type': u'form', 'title': u'RexEntry'}]
 
     >>> req = Request.blank('/preview?form_id=draftform2', remote_user='user1')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -51,7 +51,7 @@ The main Form View command responds with the following context variables::
     entry: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How does the Subject feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     survey: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How do you feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     INITIAL_CHANNEL: entry
-    CHANNELS: [{'uid': u'survey', 'title': u'RexSurvey'}, {'uid': u'entry', 'title': u'RexEntry'}]
+    CHANNELS: [{'uid': u'survey', 'presentation_type': u'form', 'title': u'RexSurvey'}, {'uid': u'entry', 'presentation_type': u'form', 'title': u'RexEntry'}]
 
     >>> req = Request.blank('/preview?instrument_id=draftiv1', remote_user='user1')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -69,7 +69,7 @@ The main Form View command responds with the following context variables::
     entry: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How does the Subject feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     survey: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How do you feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     INITIAL_CHANNEL: survey
-    CHANNELS: [{'uid': u'survey', 'title': u'RexSurvey'}, {'uid': u'entry', 'title': u'RexEntry'}]
+    CHANNELS: [{'uid': u'survey', 'presentation_type': u'form', 'title': u'RexSurvey'}, {'uid': u'entry', 'presentation_type': u'form', 'title': u'RexEntry'}]
 
     >>> req = Request.blank('/preview?form_id=simple1entry&category=published', remote_user='user1')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -87,7 +87,7 @@ The main Form View command responds with the following context variables::
     entry: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How does the subject feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     survey: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How do you feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     INITIAL_CHANNEL: entry
-    CHANNELS: [{'uid': u'entry', 'title': u'RexEntry'}, {'uid': u'survey', 'title': u'RexSurvey'}]
+    CHANNELS: [{'uid': u'entry', 'presentation_type': u'form', 'title': u'RexEntry'}, {'uid': u'survey', 'presentation_type': u'form', 'title': u'RexSurvey'}]
 
     >>> req = Request.blank('/preview?instrument_id=simple1&category=published', remote_user='user1')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -105,7 +105,7 @@ The main Form View command responds with the following context variables::
     entry: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How does the subject feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     survey: {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'en': 'How do you feel today?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
     INITIAL_CHANNEL: entry
-    CHANNELS: [{'uid': u'entry', 'title': u'RexEntry'}, {'uid': u'survey', 'title': u'RexSurvey'}]
+    CHANNELS: [{'uid': u'entry', 'presentation_type': u'form', 'title': u'RexEntry'}, {'uid': u'survey', 'presentation_type': u'form', 'title': u'RexSurvey'}]
 
 
 If you specify a DraftForm UID that doesn't exist, you get an error::

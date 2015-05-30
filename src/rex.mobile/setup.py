@@ -38,6 +38,5 @@ setup(
         'prismh.core>=0.1,<0.2',
     ],
     rex_init='rex.mobile',
-    rex_static='static'
 )
 

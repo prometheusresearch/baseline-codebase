@@ -101,6 +101,14 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
         else:
             if instrument_definition:
                 for field in instrument_definition['record']:
+                    explanation = field.get('explanation', 'none')
+                    annotation = field.get('annotation', 'none')
+                    if explanation == 'required' or annotation == 'required':
+                        raise ValidationError(
+                            'Fields that require explanations or annotations'
+                            ' are not currently supported.'
+                        )
+
                     type_def = InstrumentVersion.get_full_type_definition(
                         instrument_definition,
                         field['type'],

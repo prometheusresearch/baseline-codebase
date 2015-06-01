@@ -175,6 +175,20 @@ well-formed::
         ...
     ValidationError: Fields of type enumerationSet are not currently supported.
 
+    >>> BAD_INSTRUMENT = deepcopy(INSTRUMENT)
+    >>> BAD_INSTRUMENT['record'][0]['explanation'] = 'required'
+    >>> Interaction.validate_configuration(INTERACTION, instrument_definition=BAD_INSTRUMENT)
+    Traceback (most recent call last):
+        ...
+    ValidationError: Fields that require explanations or annotations are not currently supported.
+
+    >>> del BAD_INSTRUMENT['record'][0]['explanation']
+    >>> BAD_INSTRUMENT['record'][0]['annotation'] = 'required'
+    >>> Interaction.validate_configuration(INTERACTION, instrument_definition=BAD_INSTRUMENT)
+    Traceback (most recent call last):
+        ...
+    ValidationError: Fields that require explanations or annotations are not currently supported.
+
 
 Interactions can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::

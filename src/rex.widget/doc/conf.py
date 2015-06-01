@@ -2,11 +2,14 @@
 # Copyright (c) 2015, Prometheus Research, LLC
 #
 
-import sphinx_rtd_theme
 import docutils_react_docgen
+import os
+import sphinx_rtd_theme
 
-docutils_react_docgen.SETTINGS['react_docgen'] = \
-        './static/js/node_modules/react-docgen/bin/react-docgen.js'
+docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
+        os.path.dirname(__file__), 
+        '..',
+        'static/js/node_modules/react-docgen/bin/react-docgen.js')
  
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"
@@ -19,4 +22,3 @@ master_doc = 'index'
 default_role = 'obj'
 autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
-

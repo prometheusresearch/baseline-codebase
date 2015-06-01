@@ -5,6 +5,9 @@
 import sphinx_rtd_theme
 import docutils_react_docgen
 
+docutils_react_docgen.SETTINGS['react_docgen'] = \
+        './static/js/node_modules/react-docgen/bin/react-docgen.js'
+ 
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"
 html_theme = 'sphinx_rtd_theme'

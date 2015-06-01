@@ -2,8 +2,6 @@
   Change Log
 **************
 
-.. contents:: Table of Contents
-
 1.0.0
 =====
 

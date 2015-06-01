@@ -195,6 +195,9 @@ class PostgresAsyncTransport(AsyncTransport):
     def _get_lock_id(self, name):
         if name not in self._lock_id_cache:
             hashed = hashlib.sha1(name).hexdigest()
-            self._lock_id_cache[name] = int(hashed[:8], 16)
+            int_hash = int(hashed[:8], 16)
+            if int_hash >= (1 << 31):
+                int_hash -= 1 << 32;
+            self._lock_id_cache[name] = int_hash
         return self._lock_id_cache[name]
 

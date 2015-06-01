@@ -77,7 +77,7 @@ class FormField(Extension):
         return cls.type is not NotImplemented
 
     def __init__(self, **values):
-        self.values = self.validator(values)._asdict()
+        self.values = self.validate(values)
         for k, v in self.values.items():
             setattr(self, k, v)
 
@@ -86,9 +86,19 @@ class FormField(Extension):
         ('required', BoolVal(), False),
         ('width', MaybeUndefinedVal(OneOfVal(StrVal(), IntVal())), undefined),
         ('read_only', BoolVal(), False),
+        ('label', MaybeVal(StrVal()), None),
+        ('hint', MaybeVal(StrVal()), None),
     )
 
-    @property
+    def validate(self, values):
+        values = dict(values)
+        for f in self.validator.fields.values():
+            if not f.name in values and f.has_default:
+                values[f.name] = f.default
+        values = self.validator(values)._asdict()
+        return values
+
+    @cached_property
     def validator(self):
         fields = self._default_fields + self.__class__.fields
         return RecordVal(*fields)
@@ -303,7 +313,6 @@ class StringFormField(FormField):
 
     type = 'string'
     fields = (
-        ('label', MaybeVal(StrVal()), None),
         ('pattern', MaybeVal(StrVal()), None),
         ('error', MaybeVal(StrVal()), None),
     )
@@ -313,7 +322,6 @@ class IntegerFormField(FormField):
 
     type = 'integer'
     fields = (
-        ('label', MaybeVal(StrVal()), None),
         ('error', MaybeVal(StrVal()), None),
     )
 
@@ -321,24 +329,19 @@ class IntegerFormField(FormField):
 class BoolFormField(FormField):
 
     type = 'bool'
-    fields = (
-        ('label', StrVal(), None),
-    )
+    fields = ()
 
 
 class DateFormField(FormField):
 
     type = 'date'
-    fields = (
-        ('label', StrVal(), None),
-    )
+    fields = ()
 
 
 class FileFormField(FormField):
 
     type = 'file'
     fields = (
-        ('label', StrVal(), None),
         ('download', URLVal()),
         ('storage', URLVal(), 'rex.file:/'),
     )
@@ -354,7 +357,6 @@ class EnumFormField(FormField):
     )
 
     fields = (
-        ('label', StrVal(), None),
         ('options', SeqVal(_value_val)),
     )
 
@@ -382,7 +384,6 @@ class EntityFormField(FormField):
     type = 'entity'
 
     fields = (
-        ('label', MaybeVal(StrVal()), None),
         ('data', OneOfVal(EntitySuggestionSpecVal(), CollectionSpecVal())),
     )
 
@@ -416,7 +417,6 @@ class CalculatedFormField(FormField):
 
     fields = (
         ('expression', StrVal()),
-        ('label', MaybeVal(StrVal()), None),
     )
 
 
@@ -435,7 +435,6 @@ class Fieldset(CompositeFormField):
     type = 'fieldset'
 
     fields = (
-        ('label', MaybeVal(StrVal()), None),
         ('fields', SeqVal(validate)),
     )
 
@@ -445,6 +444,5 @@ class List(CompositeFormField):
     type = 'list'
 
     fields = (
-        ('label', MaybeVal(StrVal()), None),
         ('fields', SeqVal(validate)),
     )

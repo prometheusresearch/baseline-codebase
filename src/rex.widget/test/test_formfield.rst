@@ -44,10 +44,12 @@ Defining a new built-in type
 
   >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["a"],
-     "readOnly": false,
+     "hint": null,
      "required": false,
-     "type": "my",
-     "prop": "Prop"}'
+     "prop": "Prop",
+     "readOnly": false,
+     "label": null,
+     "type": "my"}'
 
 Set width::
 
@@ -114,10 +116,12 @@ Defining a new alias form field type
 
   >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["a"],
-     "readOnly": false,
+     "hint": null,
      "required": false,
-     "type": "my",
-     "prop": "Prop"}'
+     "prop": "Prop",
+     "readOnly": false,
+     "label": null,
+     "type": "my"}'
 
   >>> rex.off()
 
@@ -172,12 +176,13 @@ EnumFormField::
 
   >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["sex"],
+     "hint": null,
      "required": false,
      "label": null,
      "readOnly": false,
      "type": "enum",
-     "options": [{"value": "male", "^2": "Male"},
-                 {"^6": "female", "^2": "Female"}]}'
+     "options": [{"value": "male", "^3": "Male"},
+                 {"^7": "female", "^3": "Female"}]}'
 
 EntityFormField::
 
@@ -206,11 +211,12 @@ EntityFormField::
 
   >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["individual"],
-     "data": ["~#collection", [["~#port", ["http://localhost/?__to__="]], {}]],
+     "hint": null,
+     "type": "entity",
      "required": false,
      "label": null,
      "readOnly": false,
-     "type": "entity"}'
+     "data": ["~#collection", [["~#port", ["http://localhost/?__to__="]], {}]]}'
 
   >>> rex.off()
 

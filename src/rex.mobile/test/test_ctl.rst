@@ -10,8 +10,8 @@ Set up the environment::
     >>> from rex.ctl import ctl
 
 
-forms-validate
-==============
+mobile-validate
+===============
 
 The ``mobile-validate`` command will validate the structure of a JSON file
 against the Web Form Configuration specification::
@@ -185,7 +185,7 @@ It accepts options that dictate the various properties of the output format::
 
 
 mobile-retrieve
-==============
+===============
 
 The ``mobile-retrieve`` command will retrieve the SMS Interaction Configuration
 JSON from a Form in the project data store::

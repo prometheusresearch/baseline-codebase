@@ -31,6 +31,7 @@ class MobileImplementationSetting(Setting):
         Interaction,
     )
 
+    #:
     name = 'mobile_implementation'
 
     def default(self):
@@ -72,6 +73,7 @@ class MobileValidateOnStartupSetting(Setting):
         mobile_validate_on_startup: false
     """
 
+    #:
     name = 'mobile_validate_on_startup'
     validate = BoolVal()
     default = True

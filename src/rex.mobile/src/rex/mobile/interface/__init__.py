@@ -5,3 +5,8 @@
 
 from .interaction import *
 
+
+__all__ = (
+    'Interaction',
+)
+

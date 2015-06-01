@@ -8,7 +8,7 @@ from datetime import datetime, date
 
 from prismh.core import validate_assessment, \
     ValidationError as PrismhValidationError
-from rex.core import Extension, AnyVal
+from rex.core import Extension, AnyVal, Error
 
 from .instrumentversion import InstrumentVersion
 from .subject import Subject
@@ -71,7 +71,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         if isinstance(data, basestring):
             try:
                 data = AnyVal().parse(data)
-            except ValueError as exc:
+            except Error as exc:
                 raise ValidationError(
                     'Invalid JSON/YAML provided: %s' % unicode(exc)
                 )
@@ -86,7 +86,7 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
                     instrument_definition = AnyVal().parse(
                         instrument_definition
                     )
-                except ValueError as exc:
+                except Error as exc:
                     raise ValidationError(
                         'Invalid Instrument JSON/YAML provided: %s' % (
                             unicode(exc),
@@ -131,8 +131,8 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             definition = instrument_version
         else:
             try:
-                definition = AnyVal().parse(definition)
-            except ValueError as exc:
+                definition = AnyVal().parse(instrument_version)
+            except Error as exc:
                 raise ValueError(
                     'Invalid JSON/YAML provided: %s' % unicode(exc)
                 )

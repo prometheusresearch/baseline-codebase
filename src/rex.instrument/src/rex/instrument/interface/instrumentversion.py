@@ -10,7 +10,7 @@ from prismh.core import validate_instrument, \
     ValidationError as PrismhValidationError
 from prismh.core.validation.instrument import TYPES_ALL, \
     get_full_type_definition
-from rex.core import Extension, AnyVal
+from rex.core import Extension, AnyVal, Error
 
 from .instrument import Instrument
 from ..errors import ValidationError
@@ -44,9 +44,21 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         :param definition:
             the Instrument definition to create the catalog from
-        :type defintition: dict
+        :type definition: dict or JSON/YAML string
         :rtype: dict
         """
+        # Make sure we're working with a dict.
+        if isinstance(definition, basestring):
+            try:
+                definition = AnyVal().parse(definition)
+            except Error as exc:
+                raise ValueError(
+                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                )
+        if not isinstance(definition, dict):
+            raise TypeError(
+                'Instrument Definitions must be mapped objects.'
+            )
 
         base_types = sorted(TYPES_ALL)
         known_types = dict(zip(base_types, base_types))
@@ -75,7 +87,10 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
     def get_full_type_definition(cls, definition, type_def):
         """
         Returns a fully-defined type definition given a name or partial type
-        definition.
+        definition. It will trace the entire inheritance path and return all
+        aspects of the definition, including an addition key named ``base``
+        which indiciates the base Instrument Definition type of the entire
+        chain.
 
         :param definition:
             the Instrument definition to retrieve the type definition from
@@ -94,7 +109,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         if isinstance(definition, basestring):
             try:
                 definition = AnyVal().parse(definition)
-            except ValueError as exc:
+            except Error as exc:
                 raise ValueError(
                     'Invalid JSON/YAML provided: %s' % unicode(exc)
                 )
@@ -122,7 +137,7 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
         if isinstance(definition, basestring):
             try:
                 definition = AnyVal().parse(definition)
-            except ValueError as exc:
+            except Error as exc:
                 raise ValidationError(
                     'Invalid JSON/YAML provided: %s' % unicode(exc)
                 )

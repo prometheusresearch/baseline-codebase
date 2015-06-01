@@ -5,6 +5,8 @@ Assessment
 
 Set up the environment::
 
+    >>> import json
+    >>> from copy import deepcopy
     >>> from rex.core import Rex
     >>> from datetime import datetime
     >>> rex = Rex('__main__', 'rex.instrument_demo')
@@ -185,7 +187,51 @@ properties on the Assessment Document::
     u'coolapp/2.0 helper/?'
 
 
-There's a static method on Assessment named `generate_empty_data()` that will
+There's a static method on Assessment named ``validate_data()`` that will
+check the given structure against the PRISMH specifications for Assessment
+Documents. It will raise an exception if the data is not well-formed::
+
+    >>> ASSESSMENT_JSON = json.dumps(ASSESSMENT)
+    >>> INSTRUMENT_JSON = json.dumps(INSTRUMENT)
+    >>> Assessment.validate_data(ASSESSMENT)
+    >>> Assessment.validate_data(ASSESSMENT, instrument_definition=INSTRUMENT)
+    >>> Assessment.validate_data(ASSESSMENT_JSON)
+    >>> Assessment.validate_data(ASSESSMENT_JSON, instrument_definition=INSTRUMENT)
+    >>> Assessment.validate_data(ASSESSMENT, instrument_definition=INSTRUMENT_JSON)
+    >>> Assessment.validate_data(ASSESSMENT_JSON, instrument_definition=INSTRUMENT_JSON)
+
+    >>> BAD_ASSESSMENT = deepcopy(ASSESSMENT)
+    >>> del BAD_ASSESSMENT['values']
+    >>> Assessment.validate_data(BAD_ASSESSMENT)
+    Traceback (most recent call last):
+        ...
+    ValidationError: The following problems were encountered when validating this Assessment:
+    values: Required
+
+    >>> Assessment.validate_data('foo')
+    Traceback (most recent call last):
+        ...
+    ValidationError: Assessment Documents must be mapped objects.
+
+    >>> Assessment.validate_data('{foo')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+        ...
+
+    >>> Assessment.validate_data(ASSESSMENT, instrument_definition='foo')
+    Traceback (most recent call last):
+        ...
+    ValidationError: Instrument Definitions must be mapped objects.
+
+    >>> Assessment.validate_data(ASSESSMENT, instrument_definition='{foo')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValidationError: Invalid Instrument JSON/YAML provided: Failed to parse a YAML document:
+        ...
+
+
+There's a static method on Assessment named ``generate_empty_data()`` that will
 create an Assessment Document that contains no response data, but is in the
 structure expected for the specified InstrumentVersion::
 
@@ -193,7 +239,25 @@ structure expected for the specified InstrumentVersion::
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': None}}}
     >>> Assessment.validate_data(Assessment.generate_empty_data(iv))
 
-    >>> from copy import deepcopy
+    >>> Assessment.generate_empty_data(INSTRUMENT)
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': None}}}
+    >>> Assessment.validate_data(Assessment.generate_empty_data(INSTRUMENT))
+
+    >>> Assessment.generate_empty_data(INSTRUMENT_JSON)
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': None}}}
+    >>> Assessment.validate_data(Assessment.generate_empty_data(INSTRUMENT_JSON))
+
+    >>> Assessment.generate_empty_data('foo')
+    Traceback (most recent call last):
+        ...
+    TypeError: Instrument Definitions must be mapped objects.
+
+    >>> Assessment.generate_empty_data('{foo')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+        ...
+
     >>> MATRIX_INSTRUMENT = deepcopy(INSTRUMENT)
     >>> MATRIX_INSTRUMENT['record'].append({
     ...     'id': 'q_matrix',

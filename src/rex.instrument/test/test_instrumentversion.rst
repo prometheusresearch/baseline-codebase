@@ -5,6 +5,8 @@ InstrumentVersion
 
 Set up the environment::
 
+    >>> import json
+    >>> from copy import deepcopy
     >>> from rex.core import Rex
     >>> from datetime import datetime
     >>> rex = Rex('__main__', 'rex.instrument_demo')
@@ -112,6 +114,77 @@ both readable and writable::
     >>> iv.published_by = 'jay'
     >>> iv.published_by
     u'jay'
+
+
+There's a static method on InstrumentVersion named ``validate_definition()``
+that will check the given structure against the PRISMH specifications for
+Instrument Definitions. It will raise an exception if the definition is not
+well-formed::
+
+    >>> INSTRUMENT_JSON = json.dumps(INSTRUMENT)
+    >>> InstrumentVersion.validate_definition(INSTRUMENT)
+    >>> InstrumentVersion.validate_definition(INSTRUMENT_JSON)
+
+    >>> BAD_INSTRUMENT = deepcopy(INSTRUMENT)
+    >>> del BAD_INSTRUMENT['title']
+    >>> InstrumentVersion.validate_definition(BAD_INSTRUMENT)
+    Traceback (most recent call last):
+        ...
+    ValidationError: The following problems were encountered when validating this Instrument:
+    title: Required
+
+    >>> InstrumentVersion.validate_definition('foo')
+    Traceback (most recent call last):
+        ...
+    ValidationError: Instrument Definitions must be mapped objects.
+
+    >>> InstrumentVersion.validate_definition('{foo')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+        ...
+
+
+There's a static method on InstrumentVersion named
+``get_definition_type_catalog()`` that will return a dictionary that maps all
+type names to their base Instrument Definition types::
+
+    >>> InstrumentVersion.get_definition_type_catalog(INSTRUMENT)
+    {'matrix': 'matrix', 'enumerationSet': 'enumerationSet', 'float': 'float', 'enumeration': 'enumeration', 'dateTime': 'dateTime', 'recordList': 'recordList', 'boolean': 'boolean', 'time': 'time', 'text': 'text', 'date': 'date', 'integer': 'integer'}
+    >>> InstrumentVersion.get_definition_type_catalog(INSTRUMENT_JSON)
+    {'matrix': 'matrix', 'enumerationSet': 'enumerationSet', 'float': 'float', 'enumeration': 'enumeration', 'dateTime': 'dateTime', 'recordList': 'recordList', 'boolean': 'boolean', 'time': 'time', 'text': 'text', 'date': 'date', 'integer': 'integer'}
+
+    >>> InstrumentVersion.get_definition_type_catalog('foo')
+    Traceback (most recent call last):
+        ...
+    TypeError: Instrument Definitions must be mapped objects.
+
+    >>> InstrumentVersion.get_definition_type_catalog('{foo')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+        ...
+
+
+There's a static method on InstrumentVersion named
+``get_full_type_definition()`` that will return a dictionary containing the
+full type definition for the given name or partial type definition::
+
+    >>> InstrumentVersion.get_full_type_definition(INSTRUMENT, 'text')
+    {'base': 'text'}
+    >>> InstrumentVersion.get_full_type_definition(INSTRUMENT_JSON, 'text')
+    {'base': 'text'}
+
+    >>> InstrumentVersion.get_full_type_definition('foo', 'text')
+    Traceback (most recent call last):
+        ...
+    TypeError: Instrument Definitions must be mapped objects.
+
+    >>> InstrumentVersion.get_full_type_definition('{foo', 'text')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+        ...
 
 
 InstrumentVersions can be checked for equality. Note that equality is only

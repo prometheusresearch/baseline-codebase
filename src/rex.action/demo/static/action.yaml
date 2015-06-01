@@ -38,10 +38,12 @@
   id: make-individual
   entity: individual
   fields:
-  - code
+  - value_key: code
+    hint: Enter code as a human readable identifier for individual
   - sex
   - value_key: mother
     type: entity
+    hint: Some hint over here
     data:
       entity: individual
       title: identity.givenname + ' ' + identity.surname

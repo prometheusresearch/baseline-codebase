@@ -48,12 +48,12 @@
       entity: individual
       title: identity.givenname + ' ' + identity.surname
       mask: sex = 'female'
-  - value_key: father
-    type: entity
-    data:
-      entity: individual
-      title: identity.givenname + ' ' + identity.surname
-      mask: sex = 'male'
+# - value_key: father
+#   type: entity
+#   data:
+#     entity: individual
+#     title: identity.givenname + ' ' + identity.surname
+#     mask: sex = 'male'
 
 - type: make
   id: make-study

@@ -32,10 +32,14 @@ In case fields are not specified, they are generated from port::
                          Record(value='male', label='male'),
                          Record(value='female', label='female'),
                          Record(value='not-applicable', label='not-applicable')]),
-   StringFormField(value_key=['mother'], label='Mother'),
-   StringFormField(value_key=['father'], label='Father'),
-   StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
-   StringFormField(value_key=['adopted_father'], label='Adopted Father')]
+   EntityFormField(value_key=['mother'], label='Mother',
+                   data=Record(entity='individual', title='id()', mask=None)),
+   EntityFormField(value_key=['father'], label='Father',
+                   data=Record(entity='individual', title='id()', mask=None)),
+   EntityFormField(value_key=['adopted_mother'], label='Adopted Mother',
+                   data=Record(entity='individual', title='id()', mask=None)),
+   EntityFormField(value_key=['adopted_father'], label='Adopted Father',
+                   data=Record(entity='individual', title='id()', mask=None))]
 
   >>> pick.context()
   ({}, {'individual': 'individual'})
@@ -54,7 +58,7 @@ In case fields are not specified, they are generated from port::
   <BLANKLINE>
   ["~#widget", ["rex-action/lib/Actions/Pick",
                 {...
-                 "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]], {}]]}]]
+                 "^G": ["^H", [["^I", ["http://localhost/?__to__=1.data"]], {}]]}]]
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
   >>> print render_widget(pick, req) # doctest: +ELLIPSIS
@@ -88,8 +92,8 @@ var to this filter::
   <BLANKLINE>
   ["~#widget", ["rex-action/lib/Actions/Pick",
                 {...
-                 "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]],
-                                           {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
+                 "^G": ["^H", [["^I", ["http://localhost/?__to__=1.data"]],
+                               {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
 
   >>> pick.port
   Port('''
@@ -150,8 +154,8 @@ to those input variables::
   <BLANKLINE>
   ["~#widget", ["rex-action/lib/Actions/Pick",
                 {...
-                 "data": ["~#collection", [["~#port", ["http://localhost/?__to__=1.data"]],
-                                           {"*:__mask__": ["~#contextbinding", [["individual"], false]]}]]}]]
+                 "^D": ["^E", [["^F", ["http://localhost/?__to__=1.data"]],
+                               {"*:__mask__": ["~#contextbinding", [["individual"], false]]}]]}]]
 
   >>> pick.port # doctest: +NORMALIZE_WHITESPACE
   Port('''

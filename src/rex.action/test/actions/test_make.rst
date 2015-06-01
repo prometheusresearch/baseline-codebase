@@ -38,10 +38,14 @@ In case fields are not specified, they are generated from port::
                                       Record(value='male', label='male'),
                                       Record(value='female', label='female'),
                                       Record(value='not-applicable', label='not-applicable')]),
-               StringFormField(value_key=['mother'], label='Mother'),
-               StringFormField(value_key=['father'], label='Father'),
-               StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
-               StringFormField(value_key=['adopted_father'], label='Adopted Father')])
+               EntityFormField(value_key=['mother'], label='Mother',
+                               data=Record(entity='individual', title='id()', mask=None)),
+               EntityFormField(value_key=['father'], label='Father',
+                               data=Record(entity='individual', title='id()', mask=None)),
+               EntityFormField(value_key=['adopted_mother'], label='Adopted Mother',
+                               data=Record(entity='individual', title='id()', mask=None)),
+               EntityFormField(value_key=['adopted_father'], label='Adopted Father',
+                               data=Record(entity='individual', title='id()', mask=None))])
 
   >>> make.context()
   ({}, {'individual': 'individual'})
@@ -58,8 +62,8 @@ In case fields are not specified, they are generated from port::
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-action/lib/Actions/Make",
-               {..., "data": ["~#entity", [["~#port", ["http://localhost/?__to__=1.data"]],
-                                           {}]]}]]
+               {..., "^B": ["~#entity", [["^D", ["http://localhost/?__to__=1.data"]],
+                                         {}]]}]]
 
   >>> print render_widget(make, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK

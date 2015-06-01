@@ -88,7 +88,7 @@ var Make = React.createClass({
           <VBox style={MakeStyle.content}>
             <Forms.ConfigurableForm
               insert
-              key={this.state.key}
+              key={this.getKey()}
               ref="form"
               entity={entity.type}
               fields={fields}
@@ -124,6 +124,14 @@ var Make = React.createClass({
       icon: 'ok',
       onSubmitComplete: emptyFunction,
     };
+  },
+
+  getKey() {
+    var contextKey = Object
+      .keys(this.props.contextSpec.input)
+      .map(k => this.props.context[k])
+      .join('__');
+    return `${contextKey}__${this.state.key}`;
   },
 
   onSubmit(e) {

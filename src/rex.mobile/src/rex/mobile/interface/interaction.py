@@ -8,7 +8,7 @@ from copy import deepcopy
 from prismh.core import validate_interaction, \
     ValidationError as PrismhValidationError
 
-from rex.core import Extension, AnyVal
+from rex.core import Extension, AnyVal, Error
 from rex.instrument.interface import InstrumentVersion, Channel
 from rex.instrument.mixins import Comparable, Displayable, Dictable
 from rex.instrument.util import to_unicode, memoized_property, \
@@ -56,9 +56,9 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
         if isinstance(configuration, basestring):
             try:
                 configuration = AnyVal().parse(configuration)
-            except ValueError as exc:
+            except Error as exc:
                 raise ValidationError(
-                    'Invalid JSON provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % unicode(exc)
                 )
         if not isinstance(configuration, dict):
             raise ValidationError(
@@ -71,9 +71,11 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
                     instrument_definition = AnyVal().parse(
                         instrument_definition
                     )
-                except ValueError as exc:
+                except Error as exc:
                     raise ValidationError(
-                        'Invalid Instrument JSON provided: %s' % unicode(exc)
+                        'Invalid Instrument JSON/YAML provided: %s' % (
+                            unicode(exc),
+                        )
                     )
             if not isinstance(instrument_definition, dict):
                 raise ValidationError(
@@ -96,6 +98,18 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
                     details,
                 ))
             raise ValidationError('\n'.join(msg))
+        else:
+            if instrument_definition:
+                for field in instrument_definition['record']:
+                    type_def = InstrumentVersion.get_full_type_definition(
+                        instrument_definition,
+                        field['type'],
+                    )
+                    if type_def['base'] == 'enumerationSet':
+                        raise ValidationError(
+                            'Fields of type enumerationSet are not currently'
+                            ' supported.'
+                        )
 
 
     @classmethod

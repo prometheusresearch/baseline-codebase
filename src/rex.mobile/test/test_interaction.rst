@@ -5,6 +5,8 @@ Interaction
 
 Set up the environment::
 
+    >>> import json
+    >>> from copy import deepcopy
     >>> from rex.core import Rex
     >>> from datetime import datetime
     >>> rex = Rex('__main__', 'rex.mobile_demo')
@@ -114,6 +116,64 @@ or a dict equivalent::
     >>> interaction.configuration_yaml ="instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\nsteps:\n- type: question\n  options:\n    fieldId: q_fake\n    text: {en: 'What is your favorite SORTOFNEW word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}" 
     >>> interaction.configuration
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite SORTOFNEW word?'}, 'fieldId': 'q_fake'}}]}
+
+
+There is a static method on Interaction named ``validated_configuration()``
+that will validate the specified configuration against the PRISMH
+specifications. It will raise an exception if the configuration is not
+well-formed::
+
+    >>> INSTRUMENT_JSON = json.dumps(INSTRUMENT)
+    >>> INTERACTION_JSON = json.dumps(INTERACTION)
+    >>> Interaction.validate_configuration(INTERACTION)
+    >>> Interaction.validate_configuration(INTERACTION_JSON)
+    >>> Interaction.validate_configuration(INTERACTION, instrument_definition=INSTRUMENT)
+    >>> Interaction.validate_configuration(INTERACTION, instrument_definition=INSTRUMENT_JSON)
+    >>> Interaction.validate_configuration(INTERACTION_JSON, instrument_definition=INSTRUMENT)
+    >>> Interaction.validate_configuration(INTERACTION_JSON, instrument_definition=INSTRUMENT_JSON)
+
+    >>> BAD_INTERACTION = deepcopy(INTERACTION)
+    >>> del BAD_INTERACTION['steps']
+    >>> Interaction.validate_configuration(BAD_INTERACTION)
+    Traceback (most recent call last):
+        ...
+    ValidationError: The following problems were encountered when validating this Interaction:
+    steps: Required
+
+    >>> Interaction.validate_configuration('foo')
+    Traceback (most recent call last):
+        ...
+    ValidationError: Interaction Configurations must be mapped objects.
+
+    >>> Interaction.validate_configuration('{foo')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+        ...
+
+    >>> Interaction.validate_configuration(INTERACTION, instrument_definition='foo')
+    Traceback (most recent call last):
+        ...
+    ValidationError: Instrument Definitions must be mapped objects.
+
+    >>> Interaction.validate_configuration(INTERACTION, instrument_definition='{foo')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValidationError: Invalid Instrument JSON/YAML provided: Failed to parse a YAML document:
+        ...
+
+    >>> BAD_INSTRUMENT = deepcopy(INSTRUMENT)
+    >>> BAD_INSTRUMENT['record'][0]['type'] = {
+    ...     'base': 'enumerationSet',
+    ...     'enumerations': {
+    ...         'foo': {},
+    ...         'bar': {},
+    ...     },
+    ... }
+    >>> Interaction.validate_configuration(INTERACTION, instrument_definition=BAD_INSTRUMENT)
+    Traceback (most recent call last):
+        ...
+    ValidationError: Fields of type enumerationSet are not currently supported.
 
 
 Interactions can be checked for equality. Note that equality is only defined as

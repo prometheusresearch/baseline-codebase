@@ -20,20 +20,26 @@ var FieldStyle = {
     color: '#666',
     fontSize: '90%',
     textAlign: 'right',
-    padding: '10px 7px',
+    padding: '0px 7px',
+    paddingTop: '10px',
     margin: 0
+  },
+  hint: {
+    fontSize: '75%',
+    padding: '0px 7px',
+    textAlign: 'right'
   },
   errors: {
     marginTop: 3,
     color: 'red',
-    fontSize: '90%'
+    fontSize: '80%'
   }
 };
 
 var Field = React.createClass({
 
   render() {
-    var {label, children, onChange, labelSize, inputSize, 
+    var {label, hint, children, onChange, labelSize, inputSize, 
       serialize, ...props} = this.props;
     var {dirty} = this.state;
     var {value, errors, params, schema} = this.props.formValue;
@@ -54,6 +60,10 @@ var Field = React.createClass({
                   <span style={FieldStyle.requiredTag}>*</span> :
                   null}
               </label>
+              {hint &&
+                <div style={FieldStyle.hint}>
+                  {hint}
+                </div>}
             </VBox>}
           <VBox size={inputSize}>
             {children}

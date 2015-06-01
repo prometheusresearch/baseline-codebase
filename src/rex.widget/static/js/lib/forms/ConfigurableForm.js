@@ -92,6 +92,7 @@ var ConfigurableForm = React.createClass({
         <ReadOnlyField
           key={valueKey}
           label={field.label}
+          hint={field.hint}
           selectFormValue={valueKey}
           />
       );
@@ -102,6 +103,7 @@ var ConfigurableForm = React.createClass({
           <DatepickerField
             key={valueKey}
             label={field.label}
+            hint={field.hint}
             selectFormValue={valueKey}
             />
         );
@@ -110,6 +112,7 @@ var ConfigurableForm = React.createClass({
           <CheckboxField
             key={valueKey}
             label={field.label}
+            hint={field.hint}
             selectFormValue={valueKey}
             />
         );
@@ -118,6 +121,7 @@ var ConfigurableForm = React.createClass({
           <FileUploadField
             key={valueKey}
             label={field.label}
+            hint={field.hint}
             selectFormValue={valueKey}
             storage={field.storage}
             download={field.download}
@@ -128,6 +132,7 @@ var ConfigurableForm = React.createClass({
           <SelectField
             key={valueKey}
             label={field.label}
+            hint={field.hint}
             selectFormValue={valueKey}
             options={field.options || field.values}
             />
@@ -137,6 +142,7 @@ var ConfigurableForm = React.createClass({
           <AutocompleteField
             key={valueKey}
             label={field.label}
+            hint={field.hint}
             selectFormValue={valueKey}
             dataSpec={field.data}
             />
@@ -146,6 +152,7 @@ var ConfigurableForm = React.createClass({
           <IntegerField
             key={valueKey}
             label={field.label}
+            hint={field.hint}
             selectFormValue={valueKey}
             />
         );
@@ -154,18 +161,27 @@ var ConfigurableForm = React.createClass({
           <ReadOnlyField
             key={valueKey}
             label={field.label}
+            hint={field.hint}
             selectFormValue={valueKey}
             />
         );
       case 'fieldset':
         return (
-          <Fieldset label={field.label} selectFormValue={valueKey} key={valueKey}>
+          <Fieldset
+            key={valueKey}
+            label={field.label}
+            hint={field.hint}
+            selectFormValue={valueKey}>
             {this.renderFields(field.fields, true)}
           </Fieldset>
         );
       case 'list':
         return (
-          <RepeatingFieldset label={field.label} selectFormValue={valueKey} key={valueKey}>
+          <RepeatingFieldset
+            key={valueKey}
+            label={field.label}
+            hint={field.hint}
+            selectFormValue={valueKey}>
             {this.renderFields(field.fields, true)}
           </RepeatingFieldset>
         );
@@ -174,6 +190,7 @@ var ConfigurableForm = React.createClass({
           <Field
             key={valueKey}
             label={field.label}
+            hint={field.hint}
             selectFormValue={valueKey}
             />
         );

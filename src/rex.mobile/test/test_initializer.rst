@@ -36,14 +36,11 @@ instances in the system and ensure that they contain valid configurations::
 
     >>> prod = db.produce("""/merge(interaction:={'broken1mobile' :as uid, 'entry' :as channel, 'broken1' :as instrumentversion, '{hello' :as configuration})""")
 
-    >>> rex.reset()
+    >>> rex.reset()  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     Error: Failed to parse a YAML document:
-        while parsing a flow mapping
-          in "<unicode string>", line 1, column 1
-        did not find expected ',' or '}'
-          in "<unicode string>", line 2, column 1
+        ...
     While validating system Interactions.
     While initializing RexDB application:
         __main__

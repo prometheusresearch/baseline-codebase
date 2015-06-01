@@ -6,17 +6,9 @@
 var React             = require('react');
 var forceRefreshData  = require('../DataSpecificationMixin').forceRefreshData;
 var emptyFunction     = require('../emptyFunction');
-var Fieldset          = require('../_forms/Fieldset');
 var Form              = require('./Form');
-var ReadOnlyField     = require('./ReadOnlyField');
-var Field             = require('./Field');
-var IntegerField      = require('./IntegerField');
-var DatepickerField   = require('./DatepickerField');
-var CheckboxField     = require('./CheckboxField');
-var SelectField       = require('./SelectField');
-var AutocompleteField = require('./AutocompleteField');
-var RepeatingFieldset = require('./RepeatingFieldset');
-var FileUploadField   = require('./FileUploadField')
+var Fieldset          = require('../_forms/Fieldset');
+var ConfigurableField = require('./ConfigurableField');
 var SchemaUtils       = require('./SchemaUtils');
 
 /**
@@ -63,10 +55,22 @@ var ConfigurableForm = React.createClass({
   },
 
   render() {
-    var {fields, entity, schema, value, ...props} = this.props;
+    var {fields, children, entity, schema, value, ...props} = this.props;
     var formValue = entity ?
       portValue(entity, value || {}) :
       {};
+    if (children !== undefined && fields !== undefined) {
+      console.warn('<RexWidget.ConfigurableForm />: both "fields" and "children" props passed.');
+    }
+    if (children === undefined) {
+      children = fields.map(field =>
+        <ConfigurableField
+          selectFormValue={field.valueKey}
+          key={field.valueKey}
+          field={field}
+          />
+      );
+    }
     return (
       <Form
         {...props}
@@ -74,127 +78,11 @@ var ConfigurableForm = React.createClass({
         schema={this._schema}
         value={formValue}
         onSubmitComplete={this.onSubmitComplete}>
-        {this.renderFields(fields)}
+        <Fieldset selectFormValue={[this.props.entity, 0]}>
+          {children}
+        </Fieldset>
       </Form>
     );
-  },
-
-  renderFields(fields, noPrefix) {
-    return fields.map(field => this.renderField(field, noPrefix));
-  },
-
-  renderField(field, noPrefix) {
-    var valueKey = noPrefix ?
-      field.valueKey :
-      prefixValueKey(field.valueKey, [this.props.entity, 0]);
-    if (field.readOnly) {
-      return (
-        <ReadOnlyField
-          key={valueKey}
-          label={field.label}
-          hint={field.hint}
-          selectFormValue={valueKey}
-          />
-      );
-    }
-    switch (field.type) {
-      case 'date':
-        return (
-          <DatepickerField
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}
-            />
-        );
-      case 'bool':
-        return (
-          <CheckboxField
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}
-            />
-        );
-      case 'file':
-        return (
-          <FileUploadField
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}
-            storage={field.storage}
-            download={field.download}
-            />
-        );
-      case 'enum':
-        return (
-          <SelectField
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}
-            options={field.options || field.values}
-            />
-        );
-      case 'entity':
-        return (
-          <AutocompleteField
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}
-            dataSpec={field.data}
-            />
-        );
-      case 'integer':
-        return (
-          <IntegerField
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}
-            />
-        );
-      case 'calculation':
-        return (
-          <ReadOnlyField
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}
-            />
-        );
-      case 'fieldset':
-        return (
-          <Fieldset
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}>
-            {this.renderFields(field.fields, true)}
-          </Fieldset>
-        );
-      case 'list':
-        return (
-          <RepeatingFieldset
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}>
-            {this.renderFields(field.fields, true)}
-          </RepeatingFieldset>
-        );
-      default:
-        return (
-          <Field
-            key={valueKey}
-            label={field.label}
-            hint={field.hint}
-            selectFormValue={valueKey}
-            />
-        );
-    }
   },
 
   getDefaultProps() {

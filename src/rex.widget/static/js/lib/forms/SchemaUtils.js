@@ -32,7 +32,7 @@ function _fieldToSchema(field) {
       };
     case 'date':
       return {
-        type: 'date',
+        type: 'string',
         format: Validation.date,
         isRequired: !!field.required
       };

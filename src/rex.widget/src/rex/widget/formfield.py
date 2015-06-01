@@ -206,8 +206,13 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
         })
     elif arm.kind == 'link':
         return field_val({
+            'type': 'entity',
             'value_key': value_key,
             'label': label,
+            'data': EntitySuggestionSpecVal()({
+                'entity': arm.arc.target.table.name,
+                'title': 'id()',
+            }),
             'required': any(_is_required(c)
                             for j in arm.arc.joins
                             for c in j.origin_columns)

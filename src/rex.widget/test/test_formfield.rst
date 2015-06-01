@@ -238,10 +238,14 @@ Generating a fieldset from port definition
                           Record(value='male', label='male'),
                           Record(value='female', label='female'),
                           Record(value='not-applicable', label='not-applicable')]),
-   StringFormField(value_key=['mother'], label='Mother'),
-   StringFormField(value_key=['father'], label='Father'),
-   StringFormField(value_key=['adopted_mother'], label='Adopted Mother'),
-   StringFormField(value_key=['adopted_father'], label='Adopted Father')]
+   EntityFormField(value_key=['mother'], label='Mother',
+                   data=Record(entity='individual', title='id()', mask=None)),
+   EntityFormField(value_key=['father'], label='Father',
+                   data=Record(entity='individual', title='id()', mask=None)),
+   EntityFormField(value_key=['adopted_mother'], label='Adopted Mother',
+                   data=Record(entity='individual', title='id()', mask=None)),
+   EntityFormField(value_key=['adopted_father'], label='Adopted Father',
+                   data=Record(entity='individual', title='id()', mask=None))]
 
   >>> from_port(Port("""
   ... entity: individual

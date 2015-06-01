@@ -594,6 +594,9 @@ class Task(Extension, Comparable, Displayable, Dictable):
             raise InstrumentError(
                 'No Entries were found to create a solution from'
             )
+        elif len(entries) == 1:
+            # Only one Entry, there's nothing to solve.
+            return entries[0].data
 
         return solve_discrepancies(
             self.instrument_version,

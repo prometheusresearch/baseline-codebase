@@ -240,7 +240,7 @@ equivalent to the one Entry's data::
     >>> task.get_discrepancies(entries=[entry1])
     {}
     >>> task.solve_discrepancies({}, entries=[entry1])
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': 'my answer'}, 'q_foo': {'value': 45}, 'q_blah': {'value': ['red', 'green']}}}
 
 One entry with a different value should be spotted and solved appropriately::
 

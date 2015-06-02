@@ -7,6 +7,7 @@
 
 """
 
+import types
 import re
 from collections import OrderedDict
 
@@ -67,6 +68,7 @@ class FormField(Extension):
 
     type = NotImplemented
     fields = ()
+    widget = NotImplemented
 
     @classmethod
     def signature(cls):
@@ -128,8 +130,15 @@ class FormField(Extension):
 
 
 @as_transitionable(FormField, tag='map')
-def _encode_FormField(field, req, path): # pylint: disable=invalid-name
-    return {k: v for k, v in field().items() if v is not undefined}
+def _format_FormField(field, req, path): # pylint: disable=invalid-name
+    values = {k: v for k, v in field().items() if v is not undefined}
+    if not 'widget' in values and field.widget is not NotImplemented:
+        if isinstance(field.widget, types.MethodType):
+            widget = field.widget()
+        else:
+            widget = field.widget
+        values['widget'] = widget
+    return values
 
 
 def enrich(fields, port):
@@ -190,7 +199,7 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
                 'label': label,
                 'options': options,
             })
-        
+
         if isinstance(arm.domain, domain.IntegerDomain):
             field_type = 'integer'
         elif isinstance(arm.domain, domain.BooleanDomain):
@@ -323,6 +332,15 @@ class StringFormField(FormField):
     )
 
 
+class NoteFormField(StringFormField):
+
+    type = 'note'
+
+    def widget(self):
+        from .library import TextareaField
+        return TextareaField()
+
+
 class IntegerFormField(FormField):
 
     type = 'integer'
@@ -367,7 +385,7 @@ class EnumFormField(FormField):
 
 
 @as_transitionable(EnumFormField._value_val.record_type, tag='map')
-def _encode_EnumFormField_value(value, req, path): # pylint: disable=invalid-name
+def _format_EnumFormField_value(value, req, path): # pylint: disable=invalid-name
     return value._asdict()
 
 
@@ -399,7 +417,7 @@ class EntityFormField(FormField):
             'select': ['id'],
             'with': [{
                 'calculation': 'title',
-                'expression': self.data.title  
+                'expression': self.data.title
             }],
         }
         if self.data.mask:

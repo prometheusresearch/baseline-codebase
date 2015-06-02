@@ -3,7 +3,8 @@
  */
 'use strict';
 
-var React             = require('react');
+var React             = require('react/addons');
+var {cloneWithProps}  = React.addons;
 var Fieldset          = require('../_forms/Fieldset');
 var ReadOnlyField     = require('./ReadOnlyField');
 var Field             = require('./Field');
@@ -29,6 +30,15 @@ var ConfigurableField = React.createClass({
           formValue={formValue}
           />
       );
+    }
+    if (field.widget) {
+      return cloneWithProps(field.widget, {
+        key: field.valueKey,
+        label: field.label,
+        hint: field.hint,
+        selectFormValue: field.valueKey,
+        formValue: formValue
+      });
     }
     switch (field.type) {
       case 'date':

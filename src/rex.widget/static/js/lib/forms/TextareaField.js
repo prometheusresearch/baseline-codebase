@@ -10,7 +10,6 @@ var TextareaFieldStyle = {
   input: {
     display: 'block',
     width: '100%',
-    height: '34px',
     padding: '6px 12px',
     fontSize: '14px',
     lineHeight: 1.42857143,

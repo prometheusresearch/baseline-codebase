@@ -218,6 +218,27 @@ EntityFormField::
      "readOnly": false,
      "data": ["~#collection", [["~#port", ["http://localhost/?__to__="]], {}]]}'
 
+NoteFormField::
+
+  >>> f = v.parse("""
+  ... type: note
+  ... value_key: individual
+  ... """)
+
+  >>> f
+  NoteFormField(value_key=['individual'])
+
+  >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
+  u'{"valueKey": ["individual"],
+     "widget": ["~#widget", ["rex-widget/lib/forms/TextareaField", {}]],
+     "hint": null,
+     "pattern": null,
+     "required": false,
+     "label": null,
+     "readOnly": false,
+     "error": null,
+     "type": "note"}'
+
   >>> rex.off()
 
 Generating a fieldset from port definition
@@ -733,6 +754,7 @@ Built-in types
    ('file', rex.widget.formfield.FileFormField),
    ('integer', rex.widget.formfield.IntegerFormField),
    ('list', rex.widget.formfield.List),
+   ('note', rex.widget.formfield.NoteFormField),
    ('string', rex.widget.formfield.StringFormField)]
 
   >>> rex.off()

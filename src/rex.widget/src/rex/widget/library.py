@@ -84,3 +84,9 @@ class EntityForm(Widget):
 
     name = 'EntityForm'
     js_type = 'rex-widget/lib/forms/EntityForm'
+
+
+class TextareaField(Widget):
+
+    name = 'TextareaField'
+    js_type = 'rex-widget/lib/forms/TextareaField'

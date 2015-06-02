@@ -25,6 +25,7 @@ from .transitionable import as_transitionable
 from .pointer import Pointer
 from .dataspec import CollectionSpecVal, CollectionSpec
 from .keypath import KeyPathVal
+from .validate import WidgetVal
 
 __all__ = ('FormField', 'FormFieldVal',
            'validate', 'enrich', 'from_port', 'to_port')
@@ -68,7 +69,7 @@ class FormField(Extension):
 
     type = NotImplemented
     fields = ()
-    widget = NotImplemented
+    widget = None
 
     @classmethod
     def signature(cls):
@@ -80,6 +81,11 @@ class FormField(Extension):
 
     def __init__(self, **values):
         self.values = self.validate(values)
+        if not self.values.get('widget') and self.widget is not None:
+            if isinstance(self.widget, types.MethodType):
+                self.values['widget'] = self.widget()
+            else:
+                self.values['widget'] = self.widget
         for k, v in self.values.items():
             setattr(self, k, v)
 
@@ -90,6 +96,7 @@ class FormField(Extension):
         ('read_only', BoolVal(), False),
         ('label', MaybeVal(StrVal()), None),
         ('hint', MaybeVal(StrVal()), None),
+        ('widget', MaybeVal(WidgetVal()), None),
     )
 
     def validate(self, values):
@@ -131,14 +138,10 @@ class FormField(Extension):
 
 @as_transitionable(FormField, tag='map')
 def _format_FormField(field, req, path): # pylint: disable=invalid-name
-    values = {k: v for k, v in field().items() if v is not undefined}
-    if not 'widget' in values and field.widget is not NotImplemented:
-        if isinstance(field.widget, types.MethodType):
-            widget = field.widget()
-        else:
-            widget = field.widget
-        values['widget'] = widget
-    return values
+    values = field()
+    if isinstance(values, FormField):
+        values = _format_FormField(values, req, path)
+    return {k: v for k, v in values.items() if v is not undefined}
 
 
 def enrich(fields, port):

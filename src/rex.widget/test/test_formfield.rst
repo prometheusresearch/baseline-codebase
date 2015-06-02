@@ -44,11 +44,12 @@ Defining a new built-in type
 
   >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["a"],
+     "widget": null,
      "hint": null,
      "required": false,
-     "prop": "Prop",
-     "readOnly": false,
      "label": null,
+     "readOnly": false,
+     "prop": "Prop",
      "type": "my"}'
 
 Set width::
@@ -102,8 +103,7 @@ Defining a new alias form field type
   ...     ('xprop', StrVal()),
   ...   )
   ...   def __call__(self):
-  ...     underlying = MyFormField(value_key=self.value_key, prop=self.xprop)
-  ...     return underlying()
+  ...     return MyFormField(value_key=self.value_key, prop=self.xprop)
 
   >>> f = v.parse("""
   ... type: xmy
@@ -116,11 +116,12 @@ Defining a new alias form field type
 
   >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["a"],
+     "widget": null,
      "hint": null,
      "required": false,
-     "prop": "Prop",
-     "readOnly": false,
      "label": null,
+     "readOnly": false,
+     "prop": "Prop",
      "type": "my"}'
 
   >>> rex.off()
@@ -176,13 +177,14 @@ EnumFormField::
 
   >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["sex"],
+     "widget": null,
      "hint": null,
      "required": false,
      "label": null,
      "readOnly": false,
      "type": "enum",
-     "options": [{"value": "male", "^3": "Male"},
-                 {"^7": "female", "^3": "Female"}]}'
+     "options": [{"value": "male", "^4": "Male"},
+                 {"^8": "female", "^4": "Female"}]}'
 
 EntityFormField::
 
@@ -211,6 +213,7 @@ EntityFormField::
 
   >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["individual"],
+     "widget": null,
      "hint": null,
      "type": "entity",
      "required": false,
@@ -226,7 +229,7 @@ NoteFormField::
   ... """)
 
   >>> f
-  NoteFormField(value_key=['individual'])
+  NoteFormField(value_key=['individual'], widget=TextareaField())
 
   >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["individual"],

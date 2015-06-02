@@ -21,13 +21,12 @@ To do that we need to subclass :class:`rex.widget.FormField` and override its
         type = 'sex'
     
         def __call__(self):
-            enum = EnumFormField(options=[
+            return EnumFormField(options=[
                 {'value': 'male', 'label': 'Male'},
                 {'value': 'female', 'label': 'Female'},
                 {'value': 'not-known', 'label': 'Not Known'},
                 {'value': 'not-applicable', 'label': 'Not Applicable'}
             ], **self.values)
-            return enum()
 
 Override JavaScript component
 -----------------------------
@@ -61,8 +60,7 @@ Then we can define a new form field type and set ``widget`` attribute to
       widget = TextareaField()
 
       def __call__(self):
-          field = StringFormField(**self.values)
-          return field()
+          return StringFormField(**self.values)
 
 If we want to configure widget based on form field configuration we can define a
 ``widget(self)`` method instead::

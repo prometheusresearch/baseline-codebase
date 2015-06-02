@@ -8,8 +8,7 @@ import sphinx_rtd_theme
 
 docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
         os.path.dirname(__file__), 
-        '..',
-        'static/js/node_modules/react-docgen/bin/react-docgen.js')
+        'react-docgen.js')
  
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"

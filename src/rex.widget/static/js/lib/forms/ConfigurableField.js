@@ -18,8 +18,8 @@ var FileUploadField   = require('./FileUploadField')
 var ConfigurableField = React.createClass({
 
   render() {
-    var {field, formValue, ...props} = this.props;
-    if (field.readOnly) {
+    var {field, formValue, readOnly, ...props} = this.props;
+    if (readOnly || field.readOnly) {
       return (
         <ReadOnlyField
           key={field.valueKey}

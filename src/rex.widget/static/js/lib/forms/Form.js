@@ -81,9 +81,10 @@ var Form = React.createClass({
         <BaseForm {...props} value={value}>
           {children}
         </BaseForm>
-        <VBox style={FormStyle.controls}>
-          {submitButton}
-        </VBox>
+        {submitButton &&
+          <VBox style={FormStyle.controls}>
+            {submitButton}
+          </VBox>}
       </VBox>
     );
   },

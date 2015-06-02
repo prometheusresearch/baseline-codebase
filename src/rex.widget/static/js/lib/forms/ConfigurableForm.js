@@ -4,6 +4,7 @@
 'use strict';
 
 var React             = require('react');
+var Button            = require('../Button');
 var forceRefreshData  = require('../DataSpecificationMixin').forceRefreshData;
 var emptyFunction     = require('../emptyFunction');
 var Form              = require('./Form');
@@ -55,7 +56,7 @@ var ConfigurableForm = React.createClass({
   },
 
   render() {
-    var {fields, children, entity, schema, value, ...props} = this.props;
+    var {fields, children, entity, schema, value, readOnly, ...props} = this.props;
     var formValue = entity ?
       portValue(entity, value || {}) :
       {};
@@ -68,6 +69,7 @@ var ConfigurableForm = React.createClass({
           selectFormValue={field.valueKey}
           key={field.valueKey}
           field={field}
+          readOnly={readOnly}
           />
       );
     }
@@ -77,6 +79,7 @@ var ConfigurableForm = React.createClass({
         ref="form"
         schema={this._schema}
         value={formValue}
+        submitButton={!readOnly && <Button success>Submit</Button>}
         onSubmitComplete={this.onSubmitComplete}>
         <Fieldset selectFormValue={[this.props.entity, 0]}>
           {children}

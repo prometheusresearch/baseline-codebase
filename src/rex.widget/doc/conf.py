@@ -11,6 +11,9 @@ docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
         '..',
         'static/js/node_modules/react-docgen/bin/react-docgen.js')
  
+# is nodejs installed on ci? let's find out
+docutils_react_docgen.SETTINGS['react_docgen'] = 'nodejs'
+
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"
 html_theme = 'sphinx_rtd_theme'

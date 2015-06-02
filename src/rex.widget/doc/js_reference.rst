@@ -2,5 +2,5 @@
   JavaScript API Reference
 ****************************
 
-.. reactdocgen:: js/lib
+.. reactdocgen:: temporary-just-a-test js/lib
     :src: https://bitbucket.org/rexdb/rex.widget-provisional/src/tip

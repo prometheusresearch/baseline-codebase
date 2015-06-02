@@ -11,7 +11,7 @@ docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
         '..',
         'static/js/node_modules/react-docgen/bin/react-docgen.js')
  
-docutils_react_docgen.SETTINGS['react_docgen'] = 'cat'
+docutils_react_docgen.SETTINGS['react_docgen'] = 'find'
 
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"

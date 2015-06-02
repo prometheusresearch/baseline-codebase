@@ -127,6 +127,8 @@ var DataTable = React.createClass({
     return {
       rowHeight: 35,
       headerHeight: 35,
+      resizableColumns: true,
+      sortable: true,
       onDataSort: emptyFunction,
       onSelect: emptyFunction,
       onDeselect: emptyFunction

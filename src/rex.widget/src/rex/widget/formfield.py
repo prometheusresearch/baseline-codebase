@@ -255,10 +255,19 @@ def _guess_label(key):
             .strip())
 
 
-def to_port(entity, fields, filters=None, mask=None):
-    """ Generate port from fieldset."""
+def to_port(entity, fields, filters=None, mask=None, db=None):
+    """ Generate port from fieldset.
+    
+    :param entity: Name of the entity
+    :param fields: A list of form fields
+    :keyword filters: A list of port filters
+    :keyword mask: Port mask
+    :keyword db: Rex DB instance to use
+    """
     fields = _nest(fields)
-    return Port(_to_port_query(entity, fields, filters=filters, mask=mask))
+    return Port(
+        _to_port_query(entity, fields, filters=filters, mask=mask),
+        db=db)
 
 
 _grow_val = GrowVal()

@@ -102,12 +102,15 @@ class implementations in the currently-executing application::
     >>> get_implementation('instrument')
     rex.instrument_demo.DemoInstrument
 
-    >>> get_implementation('doesntexist') is None
-    True
+    >>> get_implementation('doesntexist')
+    Traceback (most recent call last):
+        ...
+    NotImplementedError: "No implementation of "doesntexist" exists in "instrument"
 
-    >>> get_implementation('instrument', package_name='doesntexist') is None
-    True
-
+    >>> get_implementation('instrument', package_name='doesntexist')
+    Traceback (most recent call last):
+        ...
+    NotImplementedError: "No implementation of "instrument" exists in "doesntexist"
 
     >>> rex.off()
 

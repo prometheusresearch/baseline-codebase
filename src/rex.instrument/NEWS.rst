@@ -24,6 +24,8 @@ REX.INSTRUMENT Change Log
 * Added ``get_full_type_definition()`` to InstrumentVersion.
 * Added the ability to pass Instrument definitions directly to
   Assessment.generate_empty_data().
+* The ``get_implementation()`` function now throws a NotImplementedError
+  instead of returning ``None`` when an implementation could not be found.
 
 
 0.15.0 (2015-05-05)

@@ -199,9 +199,16 @@ def get_implementation(class_name, package_name='instrument'):
     )
 
     if setting:
-        return getattr(setting, class_name.lower(), None)
+        impl = getattr(setting, class_name.lower(), None)
+        if impl:
+            return impl
 
-    return None
+    raise NotImplementedError(
+        '"No implementation of "%s" exists in "%s"' % (
+            class_name,
+            package_name,
+        )
+    )
 
 
 def get_current_datetime():

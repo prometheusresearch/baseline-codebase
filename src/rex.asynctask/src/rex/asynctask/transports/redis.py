@@ -16,22 +16,28 @@ __all__ = (
 
 class RedisAsyncTransport(AsyncTransport):
     """
+    An implementation of AsyncTransport that uses list keys in a Redis database
+    to store tasks while they're in a queue.
 
     Transport URI Examples:
-        redis://hostname
-        redis://hostname:port
-        redis:///tmp/redis.sock
 
-    Options:
+    * redis://hostname
+    * redis://hostname:port
+    * redis://hostname?option=value
+    * redis:///tmp/redis.sock
+
+    Available Options:
+
         db
             The database number to connect to. If not specified, defaults to
-            0.
+            ``0``.
 
         key_prefix
             The string to prepend to the keys used in the database. If not
-            defaults to 'asynctask'.
+            defaults to ``asynctask``.
     """
 
+    #:
     name = 'redis'
 
     def initialize(self):

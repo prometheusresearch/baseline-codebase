@@ -79,18 +79,26 @@ WHERE
 
 class PostgresAsyncTransport(AsyncTransport):
     """
+    An implementation of AsyncTransport that uses a table in a Postgres
+    database to store tasks while they're in a queue.
 
     Transport URI Examples:
-        <Any valid HTSQL connection URIs for the pgsql engine>
 
-    Options:
+    * pgsql:database
+    * pgsql://hostname/database
+    * pgsql://user:password@hostname:port/database?option=value
+    * Any valid HTSQL connection URIs for the pgsql engine are allowed
+
+    Available Options:
+
         master_lock_id
             The integer to use as the base of the mutex locks used within the
             database. You really should never need to touch this. If not
-            specified, defaults to 1234567890.
+            specified, defaults to ``1234567890``.
 
     """
 
+    #:
     name = 'pgsql'
 
     def __init__(self, uri_parts):
@@ -197,7 +205,7 @@ class PostgresAsyncTransport(AsyncTransport):
             hashed = hashlib.sha1(name).hexdigest()
             int_hash = int(hashed[:8], 16)
             if int_hash >= (1 << 31):
-                int_hash -= 1 << 32;
+                int_hash -= 1 << 32
             self._lock_id_cache[name] = int_hash
         return self._lock_id_cache[name]
 

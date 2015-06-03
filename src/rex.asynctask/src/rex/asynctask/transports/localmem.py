@@ -17,9 +17,18 @@ __all__ = (
 
 class LocalMemoryAsyncTransport(AsyncTransport):
     """
-    tbd
+    An implementation of AsyncTransport that uses in-memory data structures to
+    store tasks while they're in a queue. Because this transport uses local
+    process memory for persistance, it's only useful if both the producing and
+    consuming sides of the queue are running within the same application
+    process (e.g., threads).
+
+    Transport URI Examples:
+
+    * localmem://
     """
 
+    #:
     name = 'localmem'
 
     def initialize(self):

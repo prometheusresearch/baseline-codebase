@@ -18,7 +18,8 @@ __all__ = (
 
 class AsyncTaskTransportSetting(Setting):
     """
-    tbd
+    Specifies the URI of the default transport to use within this application
+    for asynchronous tasks.
     """
 
     name = 'asynctask_transport'

@@ -17,6 +17,17 @@ __all__ = (
 
 @cached
 def get_transport(uri=None):
+    """
+    Retrieves a connection to the transport that controls the queuing and
+    dequeuing of tasks.
+
+    :param uri:
+        the transport URI to retrieve the connection to; if not specified,
+        defaults to the value of the ``asynctask_transport`` setting
+    :type uri: str
+    :rtype: AsyncTransport
+    """
+
     uri = uri or get_settings().asynctask_transport
 
     parts = urlparse(uri)

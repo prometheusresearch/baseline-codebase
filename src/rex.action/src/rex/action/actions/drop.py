@@ -14,7 +14,7 @@ from rex.port import Port
 from rex.widget import Field, RSTVal, PortURL, responder, undefined
 
 from ..action import Action
-from ..validate import EntityDeclarationVal
+from ..validate import EntityDeclarationVal, RexDBVal
 
 __all__ = ('Drop',)
 
@@ -30,6 +30,12 @@ class Drop(Action):
         EntityDeclarationVal(),
         doc="""
         Name of a table in database.
+        """)
+
+    db = Field(
+        RexDBVal(), default=None,
+        doc="""
+        Database to use.
         """)
 
     message = Field(
@@ -50,7 +56,7 @@ class Drop(Action):
 
     @cached_property
     def port(self):
-        return Port(self.entity.type)
+        return Port(self.entity.type, db=self.db)
 
     def context(self):
         input = {self.entity.name: self.entity.type}

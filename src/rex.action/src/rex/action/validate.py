@@ -7,10 +7,11 @@
 
 """
 
+from rex.db import get_db
 from rex.core import Validate, Error, StrVal, MapVal, OneOfVal
 from rex.widget import TransitionableRecord
 
-__all__ = ('EntityDeclarationVal',)
+__all__ = ('EntityDeclarationVal', 'RexDBVal')
 
 
 class EntityDeclaration(TransitionableRecord):
@@ -39,3 +40,12 @@ class EntityDeclarationVal(Validate):
         return EntityDeclaration(name=name, type=type)
 
 
+class RexDBVal(Validate):
+    """ Validator to reference a Rex DB instance.
+    """
+
+    _validate = StrVal()
+
+    def __call__(self, value):
+        value = self._validate(value)
+        return get_db(value)

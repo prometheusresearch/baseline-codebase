@@ -17,7 +17,7 @@ from rex.widget import Field, ColumnVal, FormFieldVal, responder, PortURL
 from rex.widget import dataspec, formfield
 
 from ..action import Action
-from ..validate import EntityDeclarationVal
+from ..validate import EntityDeclarationVal, RexDBVal
 from ..dataspec import ContextBinding
 
 __all__ = ('Pick',)
@@ -46,6 +46,12 @@ class Pick(Action):
         EntityDeclarationVal(),
         doc="""
         Name of a table in database.
+        """)
+
+    db = Field(
+        RexDBVal(), default=None,
+        doc="""
+        Database to use.
         """)
 
     columns = Field(
@@ -120,13 +126,14 @@ class Pick(Action):
             }
             if mask:
                 grow_val['mask'] = mask
-            port = Port(grow_val)
+            port = Port(grow_val, db=self.db)
         else:
             port = formfield.to_port(
                 self.entity.type,
                 self.columns,
                 filters=filters,
-                mask=mask)
+                mask=mask,
+                db=self.db)
         return port
 
     def _construct_data_spec(self, port_url):

@@ -18,7 +18,7 @@ from rex.widget import formfield, dataspec
 
 from ..action import Action
 from ..dataspec import ContextBinding
-from ..validate import EntityDeclarationVal
+from ..validate import EntityDeclarationVal, RexDBVal
 
 __all__ = ('View',)
 
@@ -61,6 +61,12 @@ class View(Action):
         Name of a table in database.
         """)
 
+    db = Field(
+        RexDBVal(), default=None,
+        doc="""
+        Database to use.
+        """)
+
     fields = Field(
         MaybeVal(SeqVal(FormFieldVal())), default=None,
         doc="""
@@ -83,9 +89,9 @@ class View(Action):
     @cached_property
     def port(self):
         if self.fields is None:
-            return Port(self.entity.type)
+            return Port(self.entity.type, db=self.db)
         else:
-            return formfield.to_port(self.entity.type, self.fields)
+            return formfield.to_port(self.entity.type, self.fields, db=self.db)
 
     def _construct_data_spec(self, port_url):
         keys = self.input.keys() or [self.entity.name]

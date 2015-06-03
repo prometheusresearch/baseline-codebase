@@ -5,7 +5,7 @@
 
 from rex.applet import AppletPage
 from rex.core import StrVal, SeqVal
-from rex.i18n import get_locale
+from rex.i18n import get_locale_identifier
 from rex.instrument.util import get_implementation
 from rex.widget import Widget, Field, URLVal, computed_field
 
@@ -120,5 +120,5 @@ class I18NAppletPage(AppletPage):
     @computed_field
     def locale(self, request):
         # pylint: disable=unused-argument
-        return str(get_locale())
+        return get_locale_identifier()
 

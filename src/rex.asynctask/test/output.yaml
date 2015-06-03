@@ -4,6 +4,8 @@
 ---
 suite: rex.asynctask
 tests:
+- py: import-multiprocessing
+  stdout: ''
 - sh: pip install --quiet --editable ./demo
   stdout: ''
 - sh: rex dropdb --quiet rex.asynctask_demo

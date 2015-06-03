@@ -28,12 +28,14 @@ class AsyncTaskWorkerTask(RexTask):
     will continually watch the queues and process tasks as they come across.
     """
 
+    # pylint: disable=attribute-defined-outside-init
+
     name = 'asynctask-workers'
 
     def __init__(self, *args, **kwargs):
         super(AsyncTaskWorkerTask, self).__init__(*args, **kwargs)
-        self._workers = []
-        self._connections = []
+        self._workers = {}
+        self._connections = {}
         self._dying = False
 
     def __call__(self):
@@ -46,41 +48,58 @@ class AsyncTaskWorkerTask(RexTask):
                 return
 
             for queue_name, worker_name in worker_config.items():
-                worker = AsyncTaskWorker.mapped()[worker_name]()
+                self.build_worker(queue_name, worker_name)
 
-                parent_conn, child_conn = Pipe()
-                self._connections.append(parent_conn)
+            def on_term(signum, frame):  # pylint: disable=unused-argument
+                self._dying = True
+                self.cleanup()
+            signal.signal(signal.SIGTERM, on_term)
+            signal.signal(signal.SIGINT, on_term)
 
-                process = Process(target=worker, args=(child_conn, queue_name))
-                self._workers.append(process)
+            check_interval = \
+                get_settings().asynctask_workers_check_child_interval / 1000.0
+            while not self._dying:
+                try:
+                    for queue_name, process in self._workers.items():
+                        if not process.is_alive():
+                            self.logger.error(
+                                'Worker for queue %s died; restarting...' % (
+                                    queue_name,
+                                )
+                            )
+                            self.build_worker(
+                                queue_name,
+                                worker_config[queue_name],
+                            )
 
-                self.logger.info(
-                    'Launching %s to work on queue %s',
-                    worker_name,
-                    queue_name,
-                )
-                process.start()
-
-        def on_term(signum, frame):  # pylint: disable=unused-argument
-            self._dying = True
-            self.cleanup()
-        signal.signal(signal.SIGTERM, on_term)
-        signal.signal(signal.SIGINT, on_term)
-
-        while not self._dying:
-            try:
-                # TODO check to see if kids are still alive, if not, restart
-                time.sleep(250)
-            except KeyboardInterrupt:  # pylint: disable=pointless-except
-                pass
+                    time.sleep(check_interval)
+                except KeyboardInterrupt:  # pylint: disable=pointless-except
+                    pass
 
         self.logger.info('Complete')
 
+    def build_worker(self, queue_name, worker_name):
+        worker = AsyncTaskWorker.mapped()[worker_name]()
+
+        parent_conn, child_conn = Pipe()
+        self._connections[queue_name] = parent_conn
+
+        process = Process(target=worker, args=(child_conn, queue_name))
+        self._workers[queue_name] = process
+
+        self.logger.info(
+            'Launching %s to work on queue %s',
+            worker_name,
+            queue_name,
+        )
+        process.start()
+
     def cleanup(self):
         self.logger.debug('Termination received; shutting down children')
-        for conn in self._connections:
+        for conn in self._connections.values():
             conn.send('QUIT')
-        for worker in self._workers:
-            if worker.is_alive():
-                worker.join()
+        for process in self._workers.values():
+            if process.is_alive():
+                process.join()
+        self.logger.debug('Children dead')
 

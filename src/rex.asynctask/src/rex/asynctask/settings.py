@@ -12,6 +12,7 @@ __all__ = (
     'AsyncTaskTransportSetting',
     'AsyncTaskWorkersSetting',
     'AsyncWorkersPollIntervalSetting',
+    'AsyncWorkersCheckChildrenIntervalSetting',
 )
 
 
@@ -26,9 +27,12 @@ class AsyncTaskTransportSetting(Setting):
 
 class AsyncTaskWorkersSetting(Setting):
     """
-    tbd
+    A mapping that dictates the operation of the ``asynctask-workers`` rex.ctl
+    task. This maps queue names to the names of implementations of
+    ``AsyncTaskWorker``.
     """
 
+    #:
     name = 'asynctask_workers'
     default = {}
 
@@ -42,10 +46,28 @@ class AsyncTaskWorkersSetting(Setting):
 
 class AsyncWorkersPollIntervalSetting(Setting):
     """
-    tbd
+    Indicates how many milliseconds an ``AsyncTaskWorker`` process must sleep
+    beween attempts to retrive tasks from its queue.
+
+    If not specified, defaults to ``500``.
     """
 
+    #:
     name = 'asynctask_workers_poll_interval'
     validate = IntVal(min_bound=1)
     default = 500
+
+
+class AsyncWorkersCheckChildrenIntervalSetting(Setting):
+    """
+    Indicates how many milliseconds the ``asynctask-workers`` rex.ctl task will
+    wait between child process health checks.
+
+    If not specified, defaults to ``1000``.
+    """
+
+    #:
+    name = 'asynctask_workers_check_child_interval'
+    validate = IntVal(min_bound=1)
+    default = 1000
 

@@ -3,6 +3,8 @@
 #
 
 
+from datetime import datetime
+
 from rex.core import Extension, get_settings
 
 from .assessment import Assessment
@@ -60,6 +62,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         'status',
         'num_required_entries',
         'facilitator',
+        'due_date',
     )
 
     @classmethod
@@ -94,6 +97,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         * instrument (UID or instance; exact matches)
         * assessment (UID or instance; exact matches)
         * status (exact matches; can accept a list of statuses to match)
+        * due_by (datetime; returns null due_dates or those earlier than param)
 
         Must be implemented by concrete classes.
 
@@ -123,7 +127,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             priority=None,
             status=None,
             num_required_entries=None,
-            facilitator=None):
+            facilitator=None,
+            due_date=None):
         """
         Creates a Task in the datastore and returns the corresponding Task
         instance.
@@ -146,6 +151,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :param facilitator:
             the User that facilitated this Task
         :type facilitator: User
+        :param due_date: the date/time this Task is expected to be completed by
+        :type due_date: datetime
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Task
@@ -162,7 +169,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             assessment=None,
             status=None,
             num_required_entries=None,
-            facilitator=None):
+            facilitator=None,
+            due_date=None):
         self._uid = to_unicode(uid)
 
         if not isinstance(subject, (Subject, basestring)):
@@ -193,6 +201,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
         self._num_required_entries = num_required_entries or None
 
         self.facilitator = facilitator
+        self.due_date = due_date
 
     @property
     def uid(self):
@@ -285,6 +294,29 @@ class Task(Extension, Comparable, Displayable, Dictable):
         # pylint: disable=W0201
         self._facilitator = value
         forget_memoized_property(self, 'facilitator')
+
+    @property
+    def due_date(self):
+        """
+        The date/time this Task is expected to be completed.
+
+        :rtype: datetime
+        """
+
+        # pylint: disable=E0202
+        return self._due_date
+
+    @due_date.setter
+    def due_date(self, value):
+        if not isinstance(value, datetime) and value is not None:
+            raise ValueError(
+                '"%s" is not a valid Due Date' % (
+                    value,
+                )
+            )
+
+        # pylint: disable=W0201
+        self._due_date = value
 
     @property
     def status(self):

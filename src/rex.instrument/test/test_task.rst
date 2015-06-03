@@ -61,9 +61,9 @@ and string-rendering methods::
     Instrument(u'fake123', u'My Instrument Title')
 
     >>> task.as_dict()
-    {'status': u'not-started', 'uid': u'bar999', 'facilitator': None, 'priority': 100, 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'num_required_entries': 1, 'subject': {'uid': u'fake123', 'mobile_tn': None}}
+    {'status': u'not-started', 'due_date': None, 'uid': u'bar999', 'facilitator': None, 'priority': 100, 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'num_required_entries': 1, 'subject': {'uid': u'fake123', 'mobile_tn': None}}
     >>> task.as_json()
-    u'{"status": "not-started", "uid": "bar999", "facilitator": null, "priority": 100, "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "num_required_entries": 1, "subject": {"uid": "fake123", "mobile_tn": null}}'
+    u'{"status": "not-started", "due_date": null, "uid": "bar999", "facilitator": null, "priority": 100, "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "num_required_entries": 1, "subject": {"uid": "fake123", "mobile_tn": null}}'
 
 
 The Subjects, Instruments, and Assessments passed to the constructor must
@@ -120,8 +120,8 @@ Tasks have a proeprty to set or retrieve the Assessment they're associated with:
     ValueError: "42" is not a valid Assessment
 
 
-Tasks have a ``status`` and ``facilitator`` property which is readable and
-writable::
+Tasks have ``status``, ``facilitator``, and ``due_date`` properties which are
+readable and writable::
 
     >>> task = Task('bar999', subject, instrument, 100)
     >>> task.status
@@ -158,6 +158,18 @@ writable::
       ...
     ValueError: "123" is not a valid Facilitator
 
+    >>> task.due_date is None
+    True
+    >>> task.due_date = datetime(2015, 5, 22, 12, 34, 56)
+    >>> task.due_date
+    datetime.datetime(2015, 5, 22, 12, 34, 56)
+    >>> task.due_date = None
+    >>> task.due_date is None
+    True
+    >>> task.due_date = 'now'
+    Traceback (most recent call last):
+        ...
+    ValueError: "now" is not a valid Due Date
 
 
 Tasks have a num_required_entries property which is readable only::

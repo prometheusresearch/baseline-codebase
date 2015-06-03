@@ -26,6 +26,7 @@ REX.INSTRUMENT Change Log
   Assessment.generate_empty_data().
 * The ``get_implementation()`` function now throws a NotImplementedError
   instead of returning ``None`` when an implementation could not be found.
+* Added ``due_date`` property to Task.
 
 
 0.15.0 (2015-05-05)

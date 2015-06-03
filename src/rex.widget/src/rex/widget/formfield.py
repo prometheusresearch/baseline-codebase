@@ -40,33 +40,6 @@ class FormFieldTypeVal(Validate):
         return form_field_types[value]
 
 
-class PositionVal(Validate):
-
-    _validate_record = RecordVal(
-        ('row', IntVal()),
-        ('column', IntVal()))
-
-    _validate = OneOfVal(StrVal(), _validate_record)
-
-    _validate_re = re.compile('^([a-z])([0-9]+)$', re.IGNORECASE).match
-
-    _row_ord = ord('A') - 1
-
-    def __call__(self, value):
-        value = self._validate(value)
-        if isinstance(value, basestring):
-            value = self._validate_re(value)
-            if not value:
-                raise Error('position should be in form of <letter><number>, '
-                            'examples: "A1", "B2", "D12')
-            row, column = value.groups()
-            row = row.upper()
-            row = ord(row) - self._row_ord
-            column = int(column, 10)
-            return self._validate_record({'row': row, 'column': column})
-        return value
-
-
 class FormFieldVal(Validate):
     """ Validator for form field specifications.
     """
@@ -124,7 +97,6 @@ class FormField(Extension):
         ('label', MaybeVal(StrVal()), None),
         ('hint', MaybeVal(StrVal()), None),
         ('widget', MaybeVal(WidgetVal()), None),
-        ('position', MaybeVal(PositionVal()), None),
     )
 
     def validate(self, values):

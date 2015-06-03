@@ -22,7 +22,7 @@ class AsyncTaskWorker(Extension):
     and coordinated by the ``asynctask-workers`` rex.ctl task in this package.
     """
 
-    #:
+    #: The name of the worker as referred to in the asynctask_workers setting.
     name = None
 
     @classmethod

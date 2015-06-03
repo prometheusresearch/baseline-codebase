@@ -76,15 +76,12 @@ an exception, it won't cause the entire worker to die::
     >>> transport.submit_task('foo', {'error': False})
     >>> time.sleep(1)
 
-    >>> print worker_ctl.stop()
+    >>> print worker_ctl.stop()  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_error_worker to work on queue foo
     INFO:ErrorWorker:Starting; queue=foo
     ERROR:ErrorWorker:An unhandled exception occurred while processing the payload
     Traceback (most recent call last):
-      File "/Users/jasonsimeone/dev/study0529-mobile/src/rex.asynctask/src/rex/asynctask/worker.py", line 56, in __call__
-        self.process(payload)
-      File "/Users/jasonsimeone/dev/study0529-mobile/src/rex.asynctask/demo/src/rex/asynctask_demo.py", line 30, in process
-        raise Exception('Oops!')
+    ...
     Exception: Oops!
     ERROR processed: {u'error': False}
     INFO:ErrorWorker:Terminating

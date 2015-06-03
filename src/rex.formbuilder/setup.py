@@ -34,7 +34,7 @@ setup(
         'rex.restful>=0.4,<0.5',
         'rex.applet>=0.2,<3',
         'rex.widget>=1,<2',
-        'rex.i18n>=0.4,<0.5',
+        'rex.i18n>=0.4.2,<0.5',
         'rex.form_previewer>=0.2,<0.5',
     ],
     rex_init='rex.formbuilder',

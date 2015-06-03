@@ -6,6 +6,7 @@
 module.exports = {
   Form: require('./Form'),
   EntityForm: require('./EntityForm'),
+  ConfigurableEntityForm: require('./ConfigurableEntityForm'),
   ConfigurableForm: require('./ConfigurableForm'),
   ConfigurableField: require('./ConfigurableField'),
   Input: require('./Input'),

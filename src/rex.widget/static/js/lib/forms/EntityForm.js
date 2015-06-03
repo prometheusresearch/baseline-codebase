@@ -4,11 +4,10 @@
 'use strict';
 
 var React             = require('react/addons');
-var {PropTypes}       = React;
-var {cloneWithProps}  = React.addons;
 var emptyFunction     = require('../emptyFunction');
+var forceRefreshData  = require('../DataSpecificationMixin').forceRefreshData;
 var Form              = require('./Form');
-var Fieldset          = require('../_forms/Fieldset');
+var Fieldset          = require('./Fieldset');
 
 /**
  * Form which operates on a single entity within the port response.
@@ -16,32 +15,35 @@ var Fieldset          = require('../_forms/Fieldset');
 var EntityForm = React.createClass({
 
   propTypes: {
+    ...Form.PropTypes,
 
     /**
-     * Name of the entity as defined in port.
+     * Name of the entity.
      */
-    entity: PropTypes.string.isRequired,
+    entity: React.PropTypes.string.isRequired,
 
     /**
-     * Data schema.
+     * Form schema.
      */
-    schema: PropTypes.object.isRequired,
+    schema: React.PropTypes.object.isRequired,
 
     /**
-     * Data specification of where to submit form to.
+     * Initial form value.
      */
-    submitTo: PropTypes.object.isRequired
+    value: React.PropTypes.object
   },
 
   render() {
-    var {entity, schema, value, children, ...props} = this.props;
-    value = valueForEntity(entity, value);
+    var {children, entity, schema, value, ...props} = this.props;
+    var formValue = makeEntityValue(entity, value);
+    var formSchema = makeEntitySchema(entity, schema);
     return (
       <Form
         {...props}
         ref="form"
-        schema={this.__schema}
-        value={value}>
+        schema={formSchema}
+        value={formValue}
+        onSubmitComplete={this.onSubmitComplete}>
         <Fieldset selectFormValue={[entity, 0]}>
           {children}
         </Fieldset>
@@ -50,43 +52,39 @@ var EntityForm = React.createClass({
   },
 
   getDefaultProps() {
-    return {value: {}};
+    return {
+      onSubmitComplete: emptyFunction,
+      value: {}
+    };
   },
 
-  componentWillMount() {
-    this.__schema = schemaForEntity(this.props.entity, this.props.schema);
-  },
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.schema !== this.props.schema) {
-      this.__schema = schemaForEntity(this.props.entity, nextProps.schema);
-    }
+  onSubmitComplete(data) {
+    forceRefreshData();
+    this.props.onSubmitComplete(data);
   },
 
   submit() {
-    this.refs.form.submit();
+    return this.refs.form.submit();
   }
 });
 
-function schemaForEntity(entity, schema) {
-  var entitySchema = {
+function makeEntitySchema(entity, schema) {
+  var portSchema = {
     type: 'object',
     properties: {},
     required: [entity]
   };
-  entitySchema.properties[entity] = {
+  portSchema.properties[entity] = {
     type: 'array',
-    items: schema,
-    minItems: 1,
-    maxItems: 1
+    items: schema
   };
-  return entitySchema;
+  return portSchema;
 }
 
-function valueForEntity(entity, value) {
-  var entityValue = {};
-  entityValue[entity] = [value];
-  return entityValue;
+function makeEntityValue(entity, value) {
+  var portValue = {};
+  portValue[entity] = [value];
+  return portValue;
 }
 
 module.exports = EntityForm;

@@ -118,6 +118,14 @@ or a dict equivalent::
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite SORTOFNEW word?'}, 'fieldId': 'q_fake'}}]}
 
 
+The configuration can also be retrieved as a Web Form Configuration equivalent,
+which is useful for when you want to display Instruments that have Interaction
+configurations, but not Form configurations::
+
+    >>> interaction.form_configuration
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite SORTOFNEW word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
+
+
 There is a static method on Interaction named ``validated_configuration()``
 that will validate the specified configuration against the PRISMH
 specifications. It will raise an exception if the configuration is not

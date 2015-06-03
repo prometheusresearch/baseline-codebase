@@ -324,6 +324,25 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
     def configuration_yaml(self, value):
         self.configuration = AnyVal().parse(value)
 
+    @property
+    def form_configuration(self):
+        """
+        The Web Form Configuration equivalent of this SMS Interaction
+        Configuration.
+
+        :rtype: dict
+        """
+
+        form = {}
+        form['instrument'] = deepcopy(self.configuration['instrument'])
+        form['defaultLocalization'] = self.configuration['defaultLocalization']
+        form['pages'] = []
+        form['pages'].append({
+            'id': 'page1',
+            'elements': deepcopy(self.configuration['steps'])
+        })
+        return form
+
     def validate(self, instrument_definition=None):
         """
         Validates that this Interaction is a legal SMS Interaction

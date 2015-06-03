@@ -13,6 +13,10 @@ docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
  
 docutils_react_docgen.SETTINGS['react_docgen'] = 'find'
 
+docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
+        os.path.dirname(__file__), 
+        'upb-react-docgen.py')
+
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"
 html_theme = 'sphinx_rtd_theme'

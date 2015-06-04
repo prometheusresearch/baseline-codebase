@@ -9,7 +9,7 @@ Init
 
   >>> from rex.core import LatentRex as Rex, StrVal, SeqVal
 
-  >>> from rex.widget import encode, formfield
+  >>> from rex.widget import encode, formfield, FormFieldsetVal
 
 
 Defining a new built-in type
@@ -300,7 +300,7 @@ Enrich field from port
   >>> rex = Rex('rex.widget_demo')
   >>> rex.on()
 
-  >>> v = SeqVal(FormFieldVal())
+  >>> v = FormFieldsetVal()
 
   >>> def test_enrich(entity, yaml):
   ...   fields = v.parse(yaml)
@@ -332,14 +332,13 @@ Generating port from fieldset
 
 ::
 
-  >>> from rex.core import SeqVal
   >>> from rex.widget.formfield import _nest
 
   >>> rex = Rex('-', 'rex.widget_demo')
   >>> rex.on()
 
   >>> def test(yaml):
-  ...   return _nest(SeqVal(FormFieldVal()).parse(yaml))
+  ...   return _nest(FormFieldsetVal().parse(yaml))
 
   >>> test("""
   ... - value_key: a
@@ -413,7 +412,7 @@ Port generation::
 Generating ports from fields::
 
   >>> def test_fields(entity, fields, **kw):
-  ...   fields = SeqVal(FormFieldVal()).parse(fields)
+  ...   fields = FormFieldsetVal().parse(fields)
   ...   return to_port(entity, fields, **kw)
 
   >>> test_fields('todo', """

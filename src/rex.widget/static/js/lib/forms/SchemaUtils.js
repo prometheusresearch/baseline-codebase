@@ -11,11 +11,28 @@ function generateSchemaFromFields(fields) {
     properties: {},
     required: []
   };
+  fields = _removeLayout(fields);
   for (var i = 0; i < fields.length; i++) {
     var field = fields[i];
     _growSchema(schema, _toKeyPath(field.valueKey), _fieldToSchema(field));
   }
   return schema;
+}
+
+function _removeLayout(fields) {
+  var noLayout = [];
+  for (var i = 0; i < fields.length; i++) {
+    var field = fields[i];
+    if (field.type && field.props) {
+      noLayout = noLayout.concat(_removeLayout(field.props.fields));
+    } else {
+      if (field.type === 'fieldset' || field.type === 'list') {
+        field = {...field, fields: _removeLayout(field.fields)};
+      }
+      noLayout.push(field);
+    }
+  }
+  return noLayout;
 }
 
 function _fieldToSchema(field) {

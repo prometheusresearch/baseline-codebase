@@ -4,9 +4,10 @@
 'use strict';
 
 var React             = require('react');
-var ConfigurableField = require('./ConfigurableField');
 var SchemaUtils       = require('./SchemaUtils');
 var EntityForm        = require('./EntityForm');
+var FormColumn        = require('./FormColumn');
+var FormRow           = require('./FormRow');
 
 /**
  * Form which has fieldset configurable through URL mapping.
@@ -21,28 +22,33 @@ var ConfigurableEntityForm = React.createClass({
      */
     fields: React.PropTypes.array.isRequired,
 
-    readOnly: React.PropTypes.bool
+    readOnly: React.PropTypes.bool,
+
+    layout: React.PropTypes.string
   },
 
   render() {
-    var {fields, readOnly, submitButton, ...props} = this.props;
-    var children = fields.map(field =>
-      <ConfigurableField
-        selectFormValue={field.valueKey}
-        key={field.valueKey}
-        field={field}
-        readOnly={readOnly}
-        />
-    );
+    var {fields, readOnly, layout, submitButton, ...props} = this.props;
+    var Layout = layout === 'row' ? FormRow : FormColumn;
     return (
       <EntityForm
         {...props}
         ref="form"
         schema={this._schema}
         submitButton={readOnly ? null : submitButton}>
-        {children}
+        <FormColumn
+          selectFormValue
+          fields={fields}
+          fieldProps={{readOnly}}
+          />
       </EntityForm>
     );
+  },
+
+  getDefaultProps() {
+    return {
+      layout: 'column'
+    };
   },
 
   componentWillMount() {

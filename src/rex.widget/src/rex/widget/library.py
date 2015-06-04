@@ -10,6 +10,7 @@
 from rex.core import StrVal, BoolVal, SeqVal, MapVal
 
 from .widget import Widget
+from .validate import WidgetVal
 from .field import Field
 from .util import undefined, MaybeUndefinedVal
 from .column import ColumnVal

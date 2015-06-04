@@ -5,6 +5,7 @@
 
 var React             = require('react/addons');
 var {cloneWithProps}  = React.addons;
+var {VBox}            = require('../Layout');
 var Fieldset          = require('../_forms/Fieldset');
 var ReadOnlyField     = require('./ReadOnlyField');
 var Field             = require('./Field');
@@ -19,7 +20,16 @@ var FileUploadField   = require('./FileUploadField')
 var ConfigurableField = React.createClass({
 
   render() {
-    var {field, formValue, readOnly, ...props} = this.props;
+    var {size} = this.props;
+    return (
+      <VBox size={size}>
+        {this.renderField()}
+      </VBox>
+    );
+  },
+
+  renderField() {
+    var {field, formValue, readOnly} = this.props;
     if (readOnly || field.readOnly) {
       return (
         <ReadOnlyField
@@ -148,6 +158,12 @@ var ConfigurableField = React.createClass({
             />
         );
     }
+  },
+
+  getDefaultProps() {
+    return {
+      size: 1
+    };
   }
 });
 

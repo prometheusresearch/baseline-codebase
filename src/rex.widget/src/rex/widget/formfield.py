@@ -15,10 +15,12 @@ from cached_property import cached_property
 from htsql.core import domain
 
 from rex.core import Extension, Validate, Error
-from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal
+from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal, ProxyVal
 from rex.core import AnyVal, StrVal, IntVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
 
+from .widget import Widget
+from .field import Field
 from .url import URLVal, PortURL
 from .util import PropsContainer, undefined, MaybeUndefinedVal
 from .transitionable import as_transitionable
@@ -27,11 +29,50 @@ from .dataspec import CollectionSpecVal, CollectionSpec
 from .keypath import KeyPathVal
 from .validate import WidgetVal
 
-__all__ = ('FormField', 'FormFieldVal',
+__all__ = ('FormField', 'FormFieldVal', 'FormFieldsetVal',
            'validate', 'enrich', 'from_port', 'to_port')
 
 
+#: Form item validator
+form_layout_item_val = ProxyVal()
+
+
+class FormLayoutItem(Widget):
+    """ Base class for form layout primitives."""
+
+    fields = Field(
+        form_layout_item_val,
+        doc="""
+        Form items.
+        """)
+
+    size = Field(
+        IntVal(), default=undefined,
+        doc="""
+        Size.
+        """)
+
+    select_form_value = Field(
+        BoolVal(), default=True)
+
+
+class FormRow(FormLayoutItem):
+    """ Form row.
+    """
+
+    js_type = 'rex-widget/lib/forms/FormRow'
+
+
+class FormColumn(FormLayoutItem):
+    """ Form column.
+    """
+
+    js_type = 'rex-widget/lib/forms/FormColumn'
+
+
 class FormFieldTypeVal(Validate):
+    """ Validator for form field type.
+    """
 
     def __call__(self, value):
         form_field_types = FormField.mapped() # pylint: disable=no-member
@@ -60,6 +101,42 @@ class FormFieldVal(Validate):
         field_type = value.pop('type', self.default_type)
         field_type = self._validate_type(field_type)
         return field_type(**value)
+
+
+class FormFieldItemVal(Validate):
+    """ Validator for form field item.
+    """
+
+    _validate_row = RecordVal(('row', form_layout_item_val))
+    _validate_column = RecordVal(('column', form_layout_item_val))
+
+    _validate = OneOfVal(
+        _validate_row,
+        _validate_column,
+        WidgetVal(widget_class=FormLayoutItem),
+        FormFieldVal(),
+    )
+
+    def __call__(self, value):
+        value = self._validate(value)
+        if isinstance(value, self._validate_row.record_type):
+            value = FormRow.validated(fields=value.row)
+        elif isinstance(value, self._validate_column.record_type):
+            value = FormColumn.validated(fields=value.column)
+        return value
+
+
+class FormFieldsetVal(Validate):
+    """ Validator for form field set.
+    """
+
+    _validate = SeqVal(FormFieldItemVal())
+
+    def __call__(self, value):
+        return self._validate(value)
+
+
+form_layout_item_val.set(FormFieldsetVal())
 
 
 validate = FormFieldVal()
@@ -136,12 +213,14 @@ class FormField(Extension):
         return '%s(%s)' % (self.__class__.__name__, ', '.join(args))
 
 
-@as_transitionable(FormField, tag='map')
+@as_transitionable(FormField)
 def _format_FormField(field, req, path): # pylint: disable=invalid-name
     values = field()
     if isinstance(values, FormField):
-        values = _format_FormField(values, req, path)
-    return {k: v for k, v in values.items() if v is not undefined}
+        return _format_FormField(values, req, path)
+    else:
+        values = {k: v for k, v in values.items() if v is not undefined}
+        return values
 
 
 def enrich(fields, port):
@@ -257,13 +336,14 @@ def _guess_label(key):
 
 def to_port(entity, fields, filters=None, mask=None, db=None):
     """ Generate port from fieldset.
-    
+
     :param entity: Name of the entity
     :param fields: A list of form fields
     :keyword filters: A list of port filters
     :keyword mask: Port mask
     :keyword db: Rex DB instance to use
     """
+    fields = _remove_layout(fields)
     fields = _nest(fields)
     return Port(
         _to_port_query(entity, fields, filters=filters, mask=mask),
@@ -296,6 +376,16 @@ def _to_port_query(entity, fields, filters=None, mask=None):
     return _grow_val(grow)
 
 
+def _remove_layout(fields):
+    no_layout = []
+    for f in fields:
+        if isinstance(f, FormLayoutItem):
+            no_layout = no_layout + _remove_layout(f.fields)
+        else:
+            no_layout.append(f)
+    return no_layout
+
+
 def _nest(fields):
     fields_by_key = OrderedDict()
     for field in fields:
@@ -323,6 +413,9 @@ def _nest(fields):
 
 def _map(field, func, keypath=None):
     keypath = keypath or []
+    if isinstance(field, FormLayoutItem):
+        return field.__validated_clone__(
+            fields=[_map(f, func, keypath) for f in field.fields])
     field = func(field, keypath + field.value_key)
     if isinstance(field, Fieldset):
         field = field.__clone__(
@@ -470,7 +563,7 @@ class Fieldset(CompositeFormField):
     type = 'fieldset'
 
     fields = (
-        ('fields', SeqVal(validate)),
+        ('fields', FormFieldsetVal()),
     )
 
 
@@ -479,5 +572,5 @@ class List(CompositeFormField):
     type = 'list'
 
     fields = (
-        ('fields', SeqVal(validate)),
+        ('fields', FormFieldsetVal()),
     )

@@ -131,6 +131,12 @@ class Widget(Extension):
         next_values.update(values)
         return self.__class__(**next_values)
 
+    def __validated_clone__(self, **values):
+        next_values = {}
+        next_values.update(self.values)
+        next_values.update(values)
+        return self.__class__.validated(**next_values)
+
     def __repr__(self):
         args = ['%s=%r' % (name, getattr(self, name))
                 for name, field in self._fields.items()

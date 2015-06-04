@@ -19,7 +19,7 @@ from .transitionable import Transitionable, TransitionableRecord
 from .dataspec import EntitySpecVal, CollectionSpecVal
 from .column import ColumnVal
 from .keypath import KeyPathVal
-from .formfield import FormField, FormFieldVal
+from .formfield import FormField, FormFieldVal, FormFieldsetVal
 from .url import URL, PortURL, QueryURL, URLVal
 from .param import ParamVal
 from .rst import RSTVal

@@ -739,6 +739,96 @@ Cleanup::
 
   >>> rex.off()
 
+FormFieldsetVal
+---------------
+
+::
+
+  >>> from rex.widget.formfield import FormFieldsetVal
+
+  >>> rex = Rex('rex.widget_demo')
+  >>> rex.on()
+
+  >>> parse = FormFieldsetVal().parse
+
+  >>> parse("""
+  ... - type: string
+  ...   value_key: code
+  ... """)
+  [StringFormField(value_key=['code'])]
+
+  >>> fs = parse("""
+  ... - row:
+  ...   - type: string
+  ...     value_key: code
+  ... """)
+
+  >>> fs # doctest: +NORMALIZE_WHITESPACE
+  [FormRow(size=undefined,
+           fields=[StringFormField(value_key=['code'])],
+           select_form_value=True)]
+
+  >>> to_port('individual', fs)
+  Port('''
+  entity: individual
+  select: [code]
+  ''')
+
+  >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
+  [FormRow(size=undefined,
+           fields=[StringFormField(value_key=['code'], required=True, label='Code')],
+           select_form_value=True)]
+
+  >>> fs = parse("""
+  ... - column:
+  ...   - type: string
+  ...     value_key: code
+  ... """)
+
+  >>> fs # doctest: +NORMALIZE_WHITESPACE
+  [FormColumn(size=undefined,
+              fields=[StringFormField(value_key=['code'])],
+              select_form_value=True)]
+
+  >>> to_port('individual', fs)
+  Port('''
+  entity: individual
+  select: [code]
+  ''')
+
+  >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
+  [FormColumn(size=undefined,
+              fields=[StringFormField(value_key=['code'], required=True, label='Code')],
+              select_form_value=True)]
+
+  >>> fs = parse("""
+  ... - column:
+  ...   - row:
+  ...     - type: string
+  ...       value_key: code
+  ... """)
+
+  >> fs
+  [FormColumn(children=[FormRow(children=[StringFormField(value_key=['code'])])])]
+
+  >>> to_port('individual', fs)
+  Port('''
+  entity: individual
+  select: [code]
+  ''')
+
+  >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
+  [FormColumn(size=undefined,
+              fields=[FormRow(size=undefined,
+                              fields=[StringFormField(value_key=['code'],
+                                      required=True,
+                                      label='Code')],
+                              select_form_value=True)],
+              select_form_value=True)]
+
+
+  >>> rex.off()
+
 Built-in types
 --------------
 

@@ -288,6 +288,16 @@ Generating a fieldset from port definition
    Fieldset(value_key=['identity'], label='Identity',
             fields=[StringFormField(value_key=['givenname'], label='Givenname')])]
 
+  >>> from_port(Port("""
+  ... entity: individual
+  ... select: [id, code]
+  ... with:
+  ... - calculation: example
+  ...   expression: code + code
+  ... """)) # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], required=True, label='Code'),
+   CalculatedFormField(value_key=['example'], label='Example', expression='code+code')]
+
   >>> rex.off()
 
 Enrich field from port

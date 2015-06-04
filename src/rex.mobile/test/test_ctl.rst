@@ -446,3 +446,196 @@ Or if the version doesn't exist::
     FATAL ERROR: The desired version of "simple" does not exist.
     <BLANKLINE>
 
+
+instrument-mobileskeleton
+=========================
+
+The ``instrument-mobileskeleton`` command will generate a basic SMS Interaction
+Configuration from an Instrument Definintion::
+
+    >>> ctl('help instrument-mobileskeleton')
+    INSTRUMENT-MOBILESKELETON - generate a basic SMS Interaction Configuration from an Instrument
+    Usage: rex instrument-mobileskeleton <definition>
+    <BLANKLINE>
+    Definintion
+    <BLANKLINE>
+    The only argument to this task is the filename of the Instrument.
+    <BLANKLINE>
+    Options:
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
+      --pretty                 : if specified, the outputted configuration will be formatted with newlines and indentation
+      --localization=LOCALE    : the locale to use as the default localization; if not specified, defaults to "en"
+    <BLANKLINE>
+
+
+It requires one argument, path to the instrument file in JSON or YAML format::
+
+    >>> ctl('instrument-mobileskeleton', expect=1)
+    FATAL ERROR: too few arguments for task instrument-mobileskeleton: missing <definition>
+    <BLANKLINE>
+
+    >>> ctl('instrument-mobileskeleton ./test/interactions/instruments/test-instrument-1.1.json')
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "q_fake"}}}]}
+
+    >>> ctl('instrument-mobileskeleton ./test/interactions/instruments/test-instrument-1.1.yaml')
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "q_fake"}}}]}
+
+
+It accepts options that dictate the various properties of the output format::
+
+    >>> ctl('instrument-mobileskeleton ./test/interactions/instruments/test-instrument-1.1.json --pretty')
+    {
+      "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.1"
+      },
+      "defaultLocalization": "en",
+      "steps": [
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake",
+            "text": {
+              "en": "q_fake"
+            }
+          }
+        }
+      ]
+    }
+
+    >>> ctl('instrument-mobileskeleton ./test/interactions/instruments/test-instrument-1.1.json --format=yaml')
+    instrument: {id: 'urn:test-instrument', version: '1.1'}
+    defaultLocalization: en
+    steps:
+    - type: question
+      options:
+        fieldId: q_fake
+        text: {en: q_fake}
+
+    >>> ctl('instrument-mobileskeleton ./test/interactions/instruments/test-instrument-1.1.json --format=yaml --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    steps:
+    - type: question
+      options:
+        fieldId: q_fake
+        text:
+          en: q_fake
+
+    >>> ctl('instrument-mobileskeleton ./test/interactions/instruments/enumerations.json --format=yaml --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    steps:
+    - type: question
+      options:
+        fieldId: q_fake
+        text:
+          en: q_fake
+    - type: question
+      options:
+        fieldId: q_enumerated
+        text:
+          en: q_enumerated
+        enumerations:
+        - id: foo
+          text:
+            en: foo
+        - id: bar
+          text:
+            en: The Bar
+
+
+mobile-form-convert
+===================
+
+The ``mobile-form-convert`` command will generate a basic Web Form
+Configuration from an SMS Interaction Configuration::
+
+    >>> ctl('help mobile-form-convert')
+    MOBILE-FORM-CONVERT - convert an SMS Interaction Configuration to a Web Form Configuration
+    Usage: rex mobile-form-convert <configuration>
+    <BLANKLINE>
+    The mobile-form-convert task will take an input SMS Interaction
+    Configuration file and convert it to an equivalent Web Form
+    Configuration.
+    <BLANKLINE>
+    The configuration is the path to the file containing the SMS
+    Interaction Configuration to format.
+    <BLANKLINE>
+    Options:
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
+      --pretty                 : if specified, the outputted configuration will be formatted with newlines and indentation
+    <BLANKLINE>
+
+
+It requires one argument, path to the configuration file in JSON or YAML format::
+
+    >>> ctl('mobile-form-convert', expect=1)
+    FATAL ERROR: too few arguments for task mobile-form-convert: missing <configuration>
+    <BLANKLINE>
+
+    >>> ctl('mobile-form-convert ./test/interactions/simplest.json')
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "Fake question"}}}]}]}
+
+    >>> ctl('mobile-form-convert ./test/interactions/simplest.yaml')
+    {"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "Fake question"}}}]}]}
+
+
+It accepts options that dictate the various properties of the output format::
+
+    >>> ctl('mobile-form-convert ./test/interactions/simplest.json --pretty')
+    {
+      "instrument": {
+        "id": "urn:test-instrument",
+        "version": "1.1"
+      },
+      "defaultLocalization": "en",
+      "pages": [
+        {
+          "id": "page1",
+          "elements": [
+            {
+              "type": "question",
+              "options": {
+                "fieldId": "q_fake",
+                "text": {
+                  "en": "Fake question"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+    >>> ctl('mobile-form-convert ./test/interactions/simplest.json --format=yaml')
+    instrument: {id: 'urn:test-instrument', version: '1.1'}
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text: {en: Fake question}
+
+    >>> ctl('mobile-form-convert ./test/interactions/simplest.json --format=yaml --pretty')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_fake
+          text:
+            en: Fake question
+

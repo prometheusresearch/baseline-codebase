@@ -23,7 +23,8 @@ setup(
         'rex.deploy',
         'rex.mobile',
         'rex.instrument',
-        'rex.instrument_demo'
+        'rex.instrument_demo',
+        'rex.forms',
     ],
     rex_init='rex.mobile_demo',
     rex_static='static',

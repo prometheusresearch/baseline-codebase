@@ -136,3 +136,29 @@ to format.
 
     rex mobile-format <configuration>
 
+
+instrument-mobileskeleton
+-------------------------
+
+This tool will generate a basic Interaction configuration based on an existing
+Instrument definition. The ``definition`` argument is the path to the file
+containing the Instrument definition.
+
+::
+
+    rex instrument-mobileskeleton <definition>
+
+
+mobile-form-convert
+-------------------
+
+This tool will generate a base Web Form Configuration based on an existing
+Interaction configuration. The ``configuration`` argument is the path to the
+file containing the SMS Interaction Configuration. (Note: This tool will only
+be availabel if the ``rex.forms`` package is also installed in the same
+application instance)
+
+::
+
+    rex mobile-form-convert <configuration>
+

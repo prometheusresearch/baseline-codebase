@@ -17,8 +17,6 @@ from rex.instrument.util import to_unicode, memoized_property, \
 from ..errors import ValidationError
 from ..output import dump_interaction_yaml, dump_interaction_json
 
-from copy import deepcopy
-
 
 __all__ = (
     'Interaction',
@@ -119,6 +117,38 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
                             ' supported.'
                         )
 
+    @classmethod
+    def convert_configuration_to_form(cls, configuration):
+        """
+        Creates a Web Form Configuration equivalent of the specified SMS
+        Interaction Configuration.
+
+        :param configuration: the Interaction configuration to convert
+        :type configuration: string or dict
+        :rtype: dict
+        """
+
+        if isinstance(configuration, basestring):
+            try:
+                configuration = AnyVal().parse(configuration)
+            except Error as exc:
+                raise ValidationError(
+                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                )
+        if not isinstance(configuration, dict):
+            raise ValidationError(
+                'Interaction Configurations must be mapped objects.'
+            )
+
+        form = {}
+        form['instrument'] = deepcopy(configuration['instrument'])
+        form['defaultLocalization'] = configuration['defaultLocalization']
+        form['pages'] = []
+        form['pages'].append({
+            'id': 'page1',
+            'elements': deepcopy(configuration['steps'])
+        })
+        return form
 
     @classmethod
     def get_by_uid(cls, uid, user=None):
@@ -332,16 +362,7 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
 
         :rtype: dict
         """
-
-        form = {}
-        form['instrument'] = deepcopy(self.configuration['instrument'])
-        form['defaultLocalization'] = self.configuration['defaultLocalization']
-        form['pages'] = []
-        form['pages'].append({
-            'id': 'page1',
-            'elements': deepcopy(self.configuration['steps'])
-        })
-        return form
+        return self.__class__.convert_configuration_to_form(self.configuration)
 
     def validate(self, instrument_definition=None):
         """

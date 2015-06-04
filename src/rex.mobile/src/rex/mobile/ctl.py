@@ -7,6 +7,9 @@ import sys
 
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
+from rex.instrument import InstrumentVersion
+from rex.instrument.ctl import \
+    open_and_validate as open_and_validate_instrument
 from rex.instrument.util import get_implementation
 
 from .errors import ValidationError
@@ -19,6 +22,7 @@ __all__ = (
     'MobileFormatTask',
     'MobileRetrieveTask',
     'MobileStoreTask',
+    'InstrumentMobileSkeleton',
 )
 
 
@@ -352,4 +356,129 @@ class MobileStoreTask(RexTask):
                     configuration,
                 )
                 print 'Created new Interaction'
+
+
+class InstrumentMobileSkeleton(Task, InteractionOutputter):
+    """
+    generate a basic SMS Interaction Configuration from an Instrument
+    Definintion
+
+    The only argument to this task is the filename of the Instrument.
+    """
+
+    name = 'instrument-mobileskeleton'
+
+    class arguments(object):  # noqa
+        definition = argument(str)
+
+    class options(object):  # noqa
+        localization = option(
+            None,
+            str,
+            default='en',
+            value_name='LOCALE',
+            hint='the locale to use as the default localization; if not'
+            ' specified, defaults to "en"',
+        )
+
+    def __call__(self):
+        instrument = open_and_validate_instrument(self.definition)
+
+        configuration = self.make_interaction(instrument)
+        try:
+            # Double check what we produced to make sure it's valid.
+            Interaction.validate_configuration(configuration, instrument)
+        except ValidationError as exc:  # pragma: no cover
+            raise Error(
+                'Unable to validate interaction configuration: %s' % (exc,)
+            )
+
+        self.do_output(configuration)
+
+    def _text(self, text):
+        return {
+            self.localization: text,
+        }
+
+    def make_interaction(self, instrument):
+        interaction = {}
+
+        interaction['instrument'] = {
+            'id': instrument['id'],
+            'version': instrument['version'],
+        }
+
+        interaction['defaultLocalization'] = self.localization
+
+        interaction['steps'] = []
+
+        for field in instrument['record']:
+            interaction['steps'].append({
+                'type': 'question',
+                'options': self.make_question_options(field, instrument),
+            })
+
+        return interaction
+
+    def make_question_options(self, field, instrument):
+        opts = {
+            'fieldId': field['id'],
+            'text': self._text(field.get('description', field['id'])),
+        }
+
+        type_def = InstrumentVersion.get_full_type_definition(
+            instrument,
+            field['type'],
+        )
+
+        if 'enumerations' in type_def:
+            opts['enumerations'] = [
+                {
+                    'id': key,
+                    'text': self._text(
+                        defn.get('description', key) if defn else key
+                    )
+                }
+                for key, defn in type_def['enumerations'].items()
+            ]
+
+        return opts
+
+
+try:
+    from rex.forms import Form
+    from rex.forms.ctl import FormOutputter
+except ImportError:
+    pass
+else:
+    class MobileFormConvertTask(Task, FormOutputter):
+        """
+        convert an SMS Interaction Configuration to a Web Form Configuration
+
+        The mobile-form-convert task will take an input SMS Interaction
+        Configuration file and convert it to an equivalent Web Form
+        Configuration.
+
+        The configuration is the path to the file containing the SMS
+        Interaction Configuration to format.
+        """
+
+        name = 'mobile-form-convert'
+
+        class arguments(object):  # noqa
+            configuration = argument(str)
+
+        def __call__(self):
+            configuration = open_and_validate(self.configuration)
+
+            form = Interaction.convert_configuration_to_form(configuration)
+            try:
+                # Double check what we produced to make sure it's valid.
+                Form.validate_configuration(form)
+            except ValidationError as exc:  # pragma: no cover
+                raise Error(
+                    'Unable to validate form configuration: %s' % exc.message
+                )
+
+            self.do_output(form)
 

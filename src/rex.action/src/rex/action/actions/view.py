@@ -13,7 +13,7 @@ from cached_property import cached_property
 
 from rex.core import MaybeVal, SeqVal, StrVal, OMapVal
 from rex.port import Port
-from rex.widget import Field, FormFieldVal, responder, PortURL
+from rex.widget import Field, FormFieldsetVal, responder, PortURL
 from rex.widget import formfield, dataspec
 
 from ..action import Action
@@ -69,7 +69,7 @@ class View(Action):
         """)
 
     fields = Field(
-        MaybeVal(SeqVal(FormFieldVal())), default=None,
+        MaybeVal(FormFieldsetVal()), default=None,
         doc="""
         A list of fields to show.
 

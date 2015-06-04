@@ -51,10 +51,14 @@ var View = React.createClass({
             />
         </HBox>
         <VBox style={ViewStyle.content}>
-          <RexWidget.Info
-            data={this.data.data}
-            fields={fields}
-            />
+          <RexWidget.ShowPreloader data={this.data.data}>
+            <RexWidget.Forms.ConfigurableEntityForm
+              readOnly
+              entity={entity.type}
+              value={this.data.data.data}
+              fields={fields}
+              />
+          </RexWidget.ShowPreloader>
         </VBox>
       </VBox>
     );

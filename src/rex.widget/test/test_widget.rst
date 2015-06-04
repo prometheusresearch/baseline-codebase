@@ -102,6 +102,31 @@ Widget
   ... """)
   MyWidget(desc='no desc', title='OK')
 
+Widget with non-transitionable field
+------------------------------------
+
+::
+  
+  >>> rex.cache.clear()
+
+  >>> class WidgetWithNonTransitionableField(Widget):
+  ...
+  ...   name = 'WidgetWithNonTransitionableField'
+  ...   js_type = 'rex-widget/WidgetWithNonTransitionableField'
+  ...
+  ...   title = Field(StrVal())
+  ...
+  ...   db = Field(StrVal(), transitionable=False)
+
+  >>> w = WidgetWithNonTransitionableField(title='Title', db='db!')
+
+  >>> w
+  WidgetWithNonTransitionableField(db='db!', title='Title')
+
+  >>> req = Request.blank('/')
+  >>> encode(w, req)
+  u'["~#widget", ["rex-widget/WidgetWithNonTransitionableField", {"title": "Title"}]]'
+
 Null widget
 -----------
 

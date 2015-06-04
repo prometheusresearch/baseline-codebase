@@ -149,7 +149,10 @@ def _format_Widget(widget, req, path): # pylint: disable=invalid-name
     values = OrderedDict()
     values.update(widget.values)
     for name, field in widget._fields.items():
-        values[name] = field(widget)
+        if field.transitionable:
+            values[name] = field(widget)
+        elif name in values:
+            del values[name]
     return widget.js_type, PropsContainer(values)
 
 

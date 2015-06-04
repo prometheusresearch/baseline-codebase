@@ -55,16 +55,16 @@ class RexServer(SocketServer.ThreadingMixIn,
                 object):
     # HTTP server that spawns a thread for each request.
 
-    # Preset REMOTE_USER value.
-    remote_user = None
+    # Preset WSGI `environ` dictionary.
+    environ = {}
     # Whether to dump HTTP logs.
     quiet = None
 
     @classmethod
-    def make(cls, remote_user, quiet):
+    def make(cls, environ, quiet):
         # Builds a subclass with the given class parameters.
         context = {
-            'remote_user': remote_user,
+            'environ': environ,
             'quiet': quiet,
         }
         return type(cls.__name__, (cls,), context)
@@ -86,8 +86,7 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler, object):
     def get_environ(self):
         # Sets REMOTE_USER.
         environ = super(RexRequestHandler, self).get_environ()
-        if self.server.remote_user:
-            environ['REMOTE_USER'] = self.server.remote_user
+        environ.update(self.server.environ)
         return environ
 
     def log_message(self, format, *args):
@@ -104,7 +103,7 @@ class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler, object):
             return
 
         # Extract the remote user.
-        remote_user = self.server.remote_user or '-'
+        remote_user = self.server.environ.get('REMOTE_USER') or '-'
 
         # Highlight query strings and error codes.
         query, status, size = args
@@ -316,6 +315,11 @@ class ServeTask(RexWatchTask):
                 None, str, default=None,
                 value_name="USER",
                 hint="preset user credentials")
+        environ = option(
+                None, StrVal(r'[0-9A-Za-z_-]+(=.*)?'),
+                default=[], plural=True,
+                value_name="PARAM=VALUE",
+                hint="set a WSGI environment variable")
         quiet = option(
                 'q', bool,
                 hint="suppress HTTP logs")
@@ -327,9 +331,18 @@ class ServeTask(RexWatchTask):
         if not self.quiet:
             log("Serving `{}` on `{}:{}`",
                 app.requirements[0], host, port)
+        environ = {}
+        if self.remote_user:
+            environ['REMOTE_USER'] = self.remote_user
+        for value in self.environ:
+            if '=' in value:
+                key, value = value.split('=', 1)
+            else:
+                key, value = value, True
+            environ[key] = value
         httpd = wsgiref.simple_server.make_server(
                 host, port, app,
-                RexServer.make(self.remote_user, self.quiet),
+                RexServer.make(environ, self.quiet),
                 RexRequestHandler)
         httpd.serve_forever()
 

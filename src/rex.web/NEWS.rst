@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.5.0 (2015-XX-XX)
+==================
+
+* Added option ``--environ``.
+
+
 3.4.0 (2015-04-23)
 ==================
 

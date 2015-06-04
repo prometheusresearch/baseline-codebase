@@ -97,6 +97,19 @@ Use option ``--remote-user`` to set user credentials for all HTTP queries::
     Serving rex.web_demo on 127.0.0.1:8080
     localhost - Alice [...] "GET / HTTP/1.0" 200 55
 
+You can also use option ``--environ`` to set a value of any WSGI environment
+variable::
+
+    >>> serve_ctl = Ctl("serve rex.web_demo --environ REMOTE_USER=Bob")
+
+    >>> print get('/')              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    <!DOCTYPE html>
+    <title>Welcome to REX.WEB_DEMO!</title>
+
+    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    Serving rex.web_demo on 127.0.0.1:8080
+    localhost - Bob [...] "GET / HTTP/1.0" 200 55
+
 Use option ``--watch`` to automatically rebuild generated files; option
 ``--quiet`` to suppress the output::
 

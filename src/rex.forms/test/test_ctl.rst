@@ -480,7 +480,7 @@ Configuration from an Instrument Definintion::
       --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
       --pretty                 : if specified, the outputted configuration will be formatted with newlines and indentation
-      --localization=LOCALE    : preset input file localization.
+      --localization=LOCALE    : the locale to use as the default localization; if not specified, defaults to "en"
     <BLANKLINE>
 
 

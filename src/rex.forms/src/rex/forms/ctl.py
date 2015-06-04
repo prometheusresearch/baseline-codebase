@@ -8,6 +8,7 @@ import sys
 from prismh.core.validation.instrument import TYPES_ALL
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
+from rex.instrument import InstrumentVersion
 from rex.instrument.ctl import \
     open_and_validate as open_and_validate_instrument
 from rex.instrument.util import get_implementation
@@ -371,8 +372,9 @@ class InstrumentFormSkeleton(Task, FormOutputter):
             None,
             str,
             default='en',
-            value_name="LOCALE",
-            hint='preset input file localization.',
+            value_name='LOCALE',
+            hint='the locale to use as the default localization; if not'
+            ' specified, defaults to "en"',
         )
 
     def __call__(self):
@@ -415,25 +417,25 @@ class InstrumentFormSkeleton(Task, FormOutputter):
         for field in instrument['record']:
             page['elements'].append({
                 'type': 'question',
-                'options': self.make_question_options(
-                    field,
-                    instrument.get('types', {}),
-                ),
+                'options': self.make_question_options(field, instrument),
             })
 
         form['pages'] = [page]
 
         return form
 
-    def make_question_options(self, field, types):
+    def make_question_options(self, field, instrument):
         opts = {
             'fieldId': field['id'],
             'text': self._text(field.get('description', field['id'])),
         }
 
-        field_type = self.get_field_type(field['type'], types)
+        type_def = InstrumentVersion.get_full_type_definition(
+            instrument,
+            field['type'],
+        )
 
-        if 'enumerations' in field_type:
+        if 'enumerations' in type_def:
             opts['enumerations'] = [
                 {
                     'id': key,
@@ -441,38 +443,24 @@ class InstrumentFormSkeleton(Task, FormOutputter):
                         defn.get('description', key) if defn else key
                     )
                 }
-                for key, defn in field_type['enumerations'].items()
+                for key, defn in type_def['enumerations'].items()
             ]
 
-        if 'rows' in field_type:
+        if 'rows' in type_def:
             opts['rows'] = [
                 {
                     'id': row['id'],
                     'text': self._text(row.get('description', row['id']))
                 }
-                for row in field_type['rows']
+                for row in type_def['rows']
             ]
 
         for name in ('record', 'columns'):
-            if name in field_type:
+            if name in type_def:
                 opts['questions'] = [
-                    self.make_question_options(subfield, types)
-                    for subfield in field_type[name]
+                    self.make_question_options(subfield, instrument)
+                    for subfield in type_def[name]
                 ]
 
         return opts
-
-    def get_field_type(self, field_type, types):
-        if isinstance(field_type, dict):
-            ft = dict(self.get_field_type(field_type['base'], types))
-            ft.update(field_type)
-            return ft
-
-        elif field_type in types:
-            return types[field_type]
-
-        elif field_type in TYPES_ALL:
-            return {
-                'rootType': field_type,
-            }
 

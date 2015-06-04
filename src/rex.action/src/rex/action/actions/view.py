@@ -63,6 +63,7 @@ class View(Action):
 
     db = Field(
         RexDBVal(), default=None,
+        transitionable=False,
         doc="""
         Database to use.
         """)

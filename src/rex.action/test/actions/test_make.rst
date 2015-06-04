@@ -32,6 +32,7 @@ In case fields are not specified, they are generated from port::
        title=undefined,
        entity=EntityDeclaration(name='individual', type='individual'),
        value={},
+       db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
                EnumFormField(value_key=['sex'], label='Sex',
                              options=[Record(value='not-known', label='not-known'),
@@ -61,9 +62,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/Make",
-               {..., "^B": ["~#entity", [["^D", ["http://localhost/?__to__=1.data"]],
-                                         {}]]}]]
+  ["~#widget", ["rex-action/lib/Actions/Make", ...]]
 
   >>> print render_widget(make, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -94,6 +93,7 @@ You can also specify fields and see port generated from them::
        title=undefined,
        entity=EntityDeclaration(name='individual', type='individual'),
        value={},
+       db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 
   >>> make.port

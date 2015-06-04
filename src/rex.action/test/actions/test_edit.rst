@@ -32,6 +32,7 @@ In case fields are not specified, they are generated from port::
        title=undefined,
        input=OrderedDict(),
        entity=EntityDeclaration(name='individual', type='individual'),
+       db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
                EnumFormField(value_key=['sex'], label='Sex',
                              options=[Record(value='not-known', label='not-known'),
@@ -62,8 +63,7 @@ In case fields are not specified, they are generated from port::
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-action/lib/Actions/Edit",
-                {..., "^B": ["~#entity", [["^D", ["http://localhost/?__to__=1.data"]],
-                                            {"*": ["~#contextbinding", [["individual"], true]]}]]}]]
+                {..., {"*": ["~#contextbinding", [["individual"], true]]}]]}]]
 
   >>> print render_widget(edit, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -94,6 +94,7 @@ You can also specify fields and see port generated from them::
        title=undefined,
        input=OrderedDict(),
        entity=EntityDeclaration(name='individual', type='individual'),
+       db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 
   >>> edit.port

@@ -57,8 +57,7 @@ In case fields are not specified, they are generated from port::
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-action/lib/Actions/Pick",
-                {...
-                 "^G": ["^H", [["^I", ["http://localhost/?__to__=1.data"]], {}]]}]]
+                {...  ["http://localhost/?__to__=1.data"]], {}]]}]]
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
   >>> print render_widget(pick, req) # doctest: +ELLIPSIS
@@ -91,9 +90,7 @@ var to this filter::
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-action/lib/Actions/Pick",
-                {...
-                 "^G": ["^H", [["^I", ["http://localhost/?__to__=1.data"]],
-                               {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
+                {... {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
 
   >>> pick.port
   Port('''
@@ -153,9 +150,7 @@ to those input variables::
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-action/lib/Actions/Pick",
-                {...
-                 "^D": ["^E", [["^F", ["http://localhost/?__to__=1.data"]],
-                               {"*:__mask__": ["~#contextbinding", [["individual"], false]]}]]}]]
+                {...  {"*:__mask__": ["~#contextbinding", [["individual"], false]]}]]}]]
 
   >>> pick.port # doctest: +NORMALIZE_WHITESPACE
   Port('''

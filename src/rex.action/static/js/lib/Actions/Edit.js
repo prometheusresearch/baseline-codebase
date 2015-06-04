@@ -73,7 +73,7 @@ var Edit = React.createClass({
           </HBox>
           <VBox style={EditStyle.content}>
             {this.data.data.loaded ?
-              <Forms.ConfigurableForm
+              <Forms.ConfigurableEntityForm
                 ref="form"
                 submitTo={this.dataSpecs.data}
                 submitButton={null}

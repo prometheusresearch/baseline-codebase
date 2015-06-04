@@ -86,7 +86,7 @@ var Make = React.createClass({
               />
           </HBox>
           <VBox style={MakeStyle.content}>
-            <Forms.ConfigurableForm
+            <Forms.ConfigurableEntityForm
               insert
               key={this.getKey()}
               ref="form"

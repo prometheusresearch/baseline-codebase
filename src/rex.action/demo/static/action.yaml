@@ -38,22 +38,16 @@
   id: make-individual
   entity: individual
   fields:
-  - value_key: code
-    hint: Enter code as a human readable identifier for individual
-  - sex
-  - value_key: mother
-    type: entity
-    hint: Some hint over here
-    data:
-      entity: individual
-      title: identity.givenname + ' ' + identity.surname
-      mask: sex = 'female'
-# - value_key: father
-#   type: entity
-#   data:
-#     entity: individual
-#     title: identity.givenname + ' ' + identity.surname
-#     mask: sex = 'male'
+  - column:
+    - code
+    - sex
+  - row:
+    - column:
+      - mother
+      - father
+    - column:
+      - adopted_mother
+      - adopted_father
 
 - type: make
   id: make-study
@@ -61,7 +55,8 @@
   fields:
   - code
   - lab
-  - title
+  - type: note
+    value_key: title
   - closed
 
 - type: edit

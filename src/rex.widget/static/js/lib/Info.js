@@ -3,11 +3,12 @@
  */
 'use strict';
 
-var React           = require('react');
-var {VBox}          = require('./Layout');
-var Preloader       = require('./Preloader');
-var FileDownload    = require('./FileDownload');
-var ReadOnlyField   = require('./forms/ReadOnlyField');
+var React               = require('react');
+var {VBox}              = require('./Layout');
+var Preloader           = require('./Preloader');
+var FileDownload        = require('./FileDownload');
+var ReadOnlyField       = require('./forms/ReadOnlyField');
+var DeprecatedComponent = require('./DeprecatedComponent');
 
 var Info = React.createClass({
 
@@ -68,4 +69,6 @@ function getByKeyPath(obj, keyPath) {
   return obj;
 }
 
-module.exports = Info;
+module.exports = DeprecatedComponent(
+  'Use <RexWidget.Forms.ConfigurableEntityForm readOnly /> instead',
+  'RexWidget.Info')(Info);

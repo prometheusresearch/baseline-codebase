@@ -9,7 +9,7 @@
 
 from rex.core import StrVal, SeqVal
 from rex.widget import (
-    Widget, Field,
+    Widget, WidgetVal, Field,
     EntitySpecVal, CollectionSpecVal,
     FormFieldVal, ColumnVal)
 
@@ -59,4 +59,22 @@ class App(Widget):
         SeqVal(FormFieldVal()),
         doc="""
         A set of fields to show in todo info.
+        """)
+
+
+class DemoPage(Widget):
+
+    name = 'DemoPage'
+    js_type = 'rex-widget-demo/lib/DemoPage'
+
+    title = Field(
+        StrVal(),
+        doc="""
+        Page's title.
+        """)
+
+    children = Field(
+        WidgetVal(),
+        doc="""
+        Page's children widgets.
         """)

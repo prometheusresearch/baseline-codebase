@@ -158,13 +158,14 @@ class FormField(Extension):
 
     def __init__(self, **values):
         self.values = self.validate(values)
+        for k, v in self.values.items():
+            if not k == 'widget':
+                setattr(self, k, v)
         if not self.values.get('widget') and self.widget is not None:
             if isinstance(self.widget, types.MethodType):
                 self.values['widget'] = self.widget()
             else:
                 self.values['widget'] = self.widget
-        for k, v in self.values.items():
-            setattr(self, k, v)
 
     _default_fields = (
         ('value_key', KeyPathVal()),
@@ -286,6 +287,10 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
             field_type = 'integer'
         elif isinstance(arm.domain, domain.BooleanDomain):
             field_type = 'bool'
+        elif isinstance(arm.domain, domain.DateDomain):
+            field_type = 'date'
+        elif isinstance(arm.domain, domain.DateTimeDomain):
+            field_type = 'datetime'
         else:
             field_type = 'string'
 
@@ -463,7 +468,28 @@ class BoolFormField(FormField):
 class DateFormField(FormField):
 
     type = 'date'
-    fields = ()
+
+    fields = (
+        ('format', StrVal(), 'YYYY-MM-DD'),
+    )
+
+    def widget(self):
+        from .library import DateField
+        return DateField(format=self.format)
+
+
+class DatetimeFormField(FormField):
+
+    type = 'datetime'
+
+    fields = (
+        ('format', StrVal(), 'YYYY-MM-DD HH:mm:ss'),
+    )
+
+    def widget(self):
+        from .library import DatetimeField
+        return DatetimeField(format=self.format)
+
 
 
 class FileFormField(FormField):

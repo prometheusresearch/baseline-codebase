@@ -3,6 +3,7 @@
  */
 'use strict';
 
+var moment    = require('moment');
 var invariant = require('../invariant');
 
 function generateSchemaFromFields(fields) {
@@ -51,6 +52,14 @@ function _fieldToSchema(field) {
       return {
         type: 'string',
         format: Validation.date,
+        datetimeFormat: field.format,
+        isRequired: !!field.required
+      };
+    case 'datetime':
+      return {
+        type: 'string',
+        format: Validation.datetime,
+        datetimeFormat: field.format,
         isRequired: !!field.required
       };
     case 'bool':
@@ -160,12 +169,31 @@ function _toKeyPath(keyPath) {
   }
 }
 
+var DATETIME_ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss";
+var DATE_ISO_FORMAT = "YYYY-MM-DD";
+
 var Validation = {
   string(value, node) {
     if (node.formatPattern) {
       if (new RegExp(node.formatPattern).exec(value) === null) {
         return node.formatError || 'does not match the pattern';
       }
+    }
+    return true;
+  },
+
+  datetime(value, node) {
+    var date = moment(value, DATETIME_ISO_FORMAT, true);
+    if (!date.isValid()) {
+      return `should be in ${node.datetimeFormat} format`;
+    }
+    return true;
+  },
+
+  date(value, node) {
+    var date = moment(value, DATE_ISO_FORMAT, true);
+    if (!date.isValid()) {
+      return `should be in ${node.datetimeFormat} format`;
     }
     return true;
   }

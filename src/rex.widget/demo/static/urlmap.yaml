@@ -8,3 +8,61 @@ paths:
     access: authenticated
     port:
       entity: todo
+
+  /forms/datetime:
+    widget: !<DemoPage>
+      title: Form with Datetime field
+      children:
+      - !<Text> |
+        Form with no initial value.
+
+      - !<Form>
+        entity: t_datetime
+        insert: true
+        fields:
+        - type: datetime
+          required: true
+          value_key: timestamp
+          label: Timestamp
+      - !<Text> |
+        Form with an initial value.
+
+      - !<Form>
+        entity: t_datetime
+        insert: true
+        value:
+          timestamp: "1987-05-08T21:12:21"
+        fields:
+        - type: datetime
+          required: true
+          value_key: timestamp
+          label: Timestamp
+
+  /forms/date:
+    widget: !<DemoPage>
+      title: Form with Date field
+      children:
+      - !<Text> |
+        Form with no initial value.
+
+      - !<Form>
+        entity: t_date
+        insert: true
+        fields:
+        - type: date
+          required: true
+          value_key: date
+          label: Date
+      - !<Text> |
+        Form with an initial value.
+
+      - !<Form>
+        entity: t_date
+        insert: true
+        value:
+          date: "1987-05-08"
+        fields:
+        - type: date
+          required: true
+          value_key: date
+          label: Date

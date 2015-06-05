@@ -15,6 +15,7 @@ module.exports = {
   Fieldset: require('../_forms/Fieldset'),
   RepeatingFieldset: require('./RepeatingFieldset'),
   DatepickerField: require('./DatepickerField'),
+  DatetimeField: require('./DatetimeField'),
   SelectField: require('./SelectField'),
   CheckboxField: require('./CheckboxField'),
   AutocompleteField: require('./AutocompleteField'),

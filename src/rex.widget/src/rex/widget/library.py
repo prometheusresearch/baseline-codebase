@@ -7,7 +7,7 @@
 
 """
 
-from rex.core import StrVal, BoolVal, SeqVal, MapVal
+from rex.core import StrVal, BoolVal, SeqVal, MapVal, AnyVal
 
 from .widget import Widget
 from .validate import WidgetVal
@@ -16,10 +16,23 @@ from .util import undefined, MaybeUndefinedVal
 from .column import ColumnVal
 from .param import ParamVal
 from .url import URLVal
-from .formfield import FormFieldVal
+from .formfield import FormFieldVal, FormFieldsetVal
 from .dataspec import EntitySpecVal, CollectionSpecVal
+from .rst import RSTVal
 
 __all__ = ('DataGrid',)
+
+
+class Text(Widget):
+
+    name = 'Text'
+    js_type = 'rex-widget/lib/library/Text'
+
+    text = Field(
+        RSTVal(),
+        doc="""
+        Text in ReStructuredText format.
+        """)
 
 
 class DataGrid(Widget):
@@ -81,13 +94,64 @@ class LinkButton(Widget):
     params = Field(MapVal(StrVal(), ParamVal()), default={})
 
 
-class EntityForm(Widget):
+class Form(Widget):
+    """ Form widget."""
 
-    name = 'EntityForm'
-    js_type = 'rex-widget/lib/forms/EntityForm'
+    name = 'Form'
+    js_type = 'rex-widget/lib/forms/ConfigurableEntityForm'
+
+    entity = Field(
+        StrVal(),
+        doc="""
+        Entity name.
+        """)
+
+    insert = Field(
+        BoolVal(), default=False,
+        doc="""
+        If this should work as insert form.
+        """)
+
+    value = Field(
+        AnyVal(), default=undefined,
+        doc="""
+        Initial form value.
+        """)
+
+    fields = Field(
+        FormFieldsetVal(),
+        doc="""
+        Fields specification.
+        """)
 
 
 class TextareaField(Widget):
 
     name = 'TextareaField'
     js_type = 'rex-widget/lib/forms/TextareaField'
+
+
+class DatetimeField(Widget):
+
+    name = 'DatetimeField'
+    js_type = 'rex-widget/lib/forms/DatetimeField'
+
+    format = Field(
+        StrVal(), default='YYYY-MM-DD HH:MM:SS',
+        doc="""
+        Datetime format string (affect rendering only, value still be formatted
+        as an ISO formatted string).
+        """)
+
+
+class DateField(Widget):
+
+    name = 'DateField'
+    js_type = 'rex-widget/lib/forms/DateField'
+
+    format = Field(
+        StrVal(), default='YYYY-MM-DD',
+        doc="""
+        Date format string (affect rendering only, value still be formatted
+        as an ISO formatted string).
+        """)

@@ -94,7 +94,9 @@ var Field = React.createClass({
   },
 
   onBlur() {
-    this.setState({dirty: true});
+    if (!this.state.dirty) {
+      this.setState({dirty: true});
+    }
   },
 
   onChange(onChange, e) {

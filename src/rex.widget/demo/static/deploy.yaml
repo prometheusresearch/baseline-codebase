@@ -89,3 +89,57 @@
   - column: zipcode
     type: text
     required: false
+
+#
+# Edge cases
+#
+
+- sql: |
+    CREATE TABLE t_boolean (
+        "code"          VARCHAR(32) PRIMARY KEY,
+        "bool"          BOOLEAN
+    );
+    INSERT INTO t_boolean ("code", "bool") VALUES
+        ('1-true', TRUE),
+        ('2-false', FALSE),
+        ('3-null', NULL);
+  unless: |
+    SELECT TRUE FROM pg_catalog.pg_tables
+    WHERE tablename= 't_boolean' AND schemaname = 'public';
+
+- sql: |
+    CREATE TABLE t_datetime (
+        "code"          VARCHAR(32) PRIMARY KEY,
+        "timestamp"     TIMESTAMP,
+        "timestamp_0"   TIMESTAMP(0),
+        "timestamptz"   TIMESTAMP WITH TIME ZONE,
+        "timestamptz_0" TIMESTAMP(0) WITH TIME ZONE
+    );
+
+    INSERT INTO t_datetime ("code", "timestamp", "timestamp_0", "timestamptz", "timestamptz_0") VALUES
+        ('1-regular', '2010-04-15 20:13:04.5', '2010-04-15 20:13:04', '2010-04-15 20:13:04.5 EDT', '2010-04-15 20:13:04 EDT'),
+        ('2-min', '4714-12-31 00:00:00.0 BC', '4714-12-31 00:00:00 BC', '4714-11-24 00:00:00.0 BC UTC', '4714-11-24 00:00:00 BC UTC'),
+        ('3-max', '294277-01-09 04:00:54.7', '294277-01-09 04:00:54', '294277-01-09 04:00:54.7 UTC', '294277-01-09 04:00:54 UTC'),
+        ('4-pinf', 'infinity', 'infinity', 'infinity', 'infinity'),
+        ('5-ninf', '-infinity', '-infinity', '-infinity', '-infinity'),
+        ('6-null', NULL, NULL, NULL, NULL);
+  unless:
+    SELECT TRUE FROM pg_catalog.pg_tables
+    WHERE tablename= 't_datetime' AND schemaname = 'public';
+
+- sql: |
+    CREATE TABLE t_date (
+        "code"          VARCHAR(32) PRIMARY KEY,
+        "date"          DATE
+    );
+
+    INSERT INTO t_date ("code", "date") VALUES
+        ('1-regular', '2010-04-15'),
+        ('2-min', '4714-11-24 BC'),
+        ('3-max', '5874897-12-31'),
+        ('4-pinf', 'infinity'),
+        ('5-ninf', '-infinity'),
+        ('6-null', NULL);
+  unless:
+    SELECT TRUE FROM pg_catalog.pg_tables
+    WHERE tablename= 't_date' AND schemaname = 'public';

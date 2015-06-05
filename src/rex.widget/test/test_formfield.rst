@@ -298,6 +298,30 @@ Generating a fieldset from port definition
   [StringFormField(value_key=['code'], required=True, label='Code'),
    CalculatedFormField(value_key=['example'], label='Example', expression='code+code')]
 
+DatetimeFormField
+`````````````````
+
+::
+
+  >>> from_port(Port('t_datetime')) # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], required=True, label='Code'),
+   DatetimeFormField(value_key=['timestamp'], label='Timestamp'),
+   DatetimeFormField(value_key=['timestamp_0'], label='Timestamp_0'),
+   DatetimeFormField(value_key=['timestamptz'], label='Timestamptz'),
+   DatetimeFormField(value_key=['timestamptz_0'], label='Timestamptz_0')]
+
+DateFormField
+`````````````
+
+::
+
+  >>> from_port(Port('t_date')) # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], required=True, label='Code'),
+   DateFormField(value_key=['date'], label='Date')]
+
+Cleanup
+```````
+
   >>> rex.off()
 
 Enrich field from port
@@ -850,6 +874,7 @@ Built-in types
   [('bool', rex.widget.formfield.BoolFormField),
    ('calculation', rex.widget.formfield.CalculatedFormField),
    ('date', rex.widget.formfield.DateFormField),
+   ('datetime', rex.widget.formfield.DatetimeFormField),
    ('entity', rex.widget.formfield.EntityFormField),
    ('enum', rex.widget.formfield.EnumFormField),
    ('fieldset', rex.widget.formfield.Fieldset),

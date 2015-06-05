@@ -12,7 +12,7 @@
   "styleEntry": "./style/index.less",
   "dependencies": {
     "rex-expression": "*",
-    "react-bootstrap-datetimepicker": "prometheusresearch/react-bootstrap-datetimepicker#1a37bc761ac72b4493ad04e8ebd71f0d6eacfc55",
+    "react-bootstrap-datetimepicker": "prometheusresearch/react-bootstrap-datetimepicker#05a37447c9f6f9850573ecfc38c3cbebb97d2644",
     "bootstrap-datepicker": "^1.3.0",
     "object-assign": "^1.0.0",
     "react": "http://registry.npmjs.org/react/-/react-0.12.2.tgz#*",

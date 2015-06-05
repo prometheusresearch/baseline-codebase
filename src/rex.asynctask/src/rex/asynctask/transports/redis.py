@@ -4,7 +4,9 @@
 
 from __future__ import absolute_import
 
-from redis import StrictRedis
+from redis import StrictRedis, RedisError
+
+from rex.core import Error
 
 from .base import AsyncTransport
 
@@ -53,7 +55,15 @@ class RedisAsyncTransport(AsyncTransport):
                 params['port'] = int(parts[1])
             else:
                 params['host'] = parts[0]
-        self._redis = StrictRedis(**params)
+
+        try:
+            self._redis = StrictRedis(**params)
+            self._redis.ping()
+        except RedisError as exc:
+            raise Error(
+                'Failed to connect to the Redis server:',
+                exc,
+            )
 
         self.key_prefix = self.options.get(
             'key_prefix',

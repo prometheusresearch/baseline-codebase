@@ -5,11 +5,9 @@ PostgresAsyncTransport
 
 Set up the environment::
 
+    >>> from rex.asynctask import get_transport
     >>> from rex.core import Rex
     >>> rex = Rex('rex.asynctask_demo')
-    >>> rex.on()
-    >>> from rex.asynctask import get_transport
-    >>> transport = get_transport('pgsql:asynctask_demo')
 
 
 Basic Operations
@@ -17,6 +15,9 @@ Basic Operations
 
 The basic operations of submitting and retrieving tasks should work as
 expected::
+
+    >>> rex.on()
+    >>> transport = get_transport('pgsql:asynctask_demo')
 
     >>> transport.submit_task('foo', {'foo': 1})
     >>> transport.submit_task('foo', {'foo': 2})
@@ -51,7 +52,21 @@ expected::
         ...
     ValueError: "BADNAME" is not a properly-formatted queue name
 
+    >>> rex.off()
 
+
+Connection Errors
+=================
+
+It will immediately raise an error when you specify a database that cannot be
+connected to::
+
+    >>> rex.on()
+    >>> transport = get_transport('pgsql:database_that_doesnt_exist')
+    Traceback (most recent call last):
+        ...
+    Error: Failed to connect to the Postgres server:
+        FATAL:  database "database_that_doesnt_exist" does not exist
 
     >>> rex.off()
 

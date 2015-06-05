@@ -123,10 +123,10 @@ class PostgresAsyncTransport(AsyncTransport):
             self._connection = psycopg2.connect(**parameters)
             self._connection.set_client_encoding('UTF8')
             self._connection.autocommit = True
-        except psycopg2.Error, error:
+        except psycopg2.Error as exc:
             raise Error(
-                'Failed to connect to the database server:',
-                error,
+                'Failed to connect to the Postgres server:',
+                exc,
             )
 
         self.master_lock_id = int(self.options.get(

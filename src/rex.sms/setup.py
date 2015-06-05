@@ -22,9 +22,6 @@ setup(
     packages=find_packages('src'),
     include_package_data=True,
     namespace_packages=['rex'],
-    setup_requires=[
-        'rex.setup>=1,<3',
-    ],
     install_requires=[
         'rex.core>=1.9,<2',
         'rex.web>=1,<4',

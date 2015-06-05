@@ -30,9 +30,6 @@ setup(
             'jsx = rex.i18n.extractors:extract_jsx',
         ],
     },
-    setup_requires=[
-        'rex.setup>=1.1,<3',
-    ],
     install_requires=[
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',

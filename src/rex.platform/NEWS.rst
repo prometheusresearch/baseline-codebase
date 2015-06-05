@@ -10,6 +10,9 @@
 
 * rex.instrument==0.16.0
 * rex.forms==0.30.0
+* rex.web==3.5.0
+* rex.expression==1.5.1
+* rex.restful==0.4.1
 
 
 4.4.0 (2015-05-08)

@@ -8,7 +8,7 @@ require('react-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css');
 var moment              = require('moment');
 var React               = require('react/addons');
 var Field               = require('./Field');
-var BaseDateTimePicker  = require('react-bootstrap-datetimepicker/src/DateTimeField.jsx');
+var BaseDateTimePicker  = require('react-bootstrap-datetimepicker/src/DateTimeField');
 
 var ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 

@@ -6,10 +6,11 @@
 var $ = window.jQuery = require('jquery');
 require('bootstrap-datepicker/js/bootstrap-datepicker');
 
-var React  = require('react/addons');
-var cx     = React.addons.classSet;
-var Button = require('../Button');
-var Field  = require('./Field');
+var React               = require('react/addons');
+var cx                  = React.addons.classSet;
+var Button              = require('../Button');
+var Field               = require('./Field');
+var DeprecatedComponent = require('./DeprecatedComponent');
 
 function padl(v, n) {
   v = String(v);
@@ -135,4 +136,8 @@ var DatepickerField = React.createClass({
 
 });
 
-module.exports = DatepickerField;
+var deprecate = DeprecatedComponent(
+    'Use <RexWidget.Forms.DateField /> instead',
+    'RexWidget.Forms.DatepickerField');
+
+module.exports = deprecate(DatepickerField);

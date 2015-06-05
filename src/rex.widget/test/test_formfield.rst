@@ -9,7 +9,7 @@ Init
 
   >>> from rex.core import LatentRex as Rex, StrVal, SeqVal
 
-  >>> from rex.widget import encode, formfield, FormFieldsetVal
+  >>> from rex.widget import encode, formfield, FormFieldsetVal, StringFormField
 
 
 Defining a new built-in type
@@ -305,10 +305,10 @@ DatetimeFormField
 
   >>> from_port(Port('t_datetime')) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
-   DatetimeFormField(value_key=['timestamp'], label='Timestamp'),
-   DatetimeFormField(value_key=['timestamp_0'], label='Timestamp_0'),
-   DatetimeFormField(value_key=['timestamptz'], label='Timestamptz'),
-   DatetimeFormField(value_key=['timestamptz_0'], label='Timestamptz_0')]
+   DatetimeFormField(value_key=['timestamp'], label='Timestamp', widget=DatetimeField(format='YYYY-MM-DD HH:mm:ss')),
+   DatetimeFormField(value_key=['timestamp_0'], label='Timestamp_0', widget=DatetimeField(format='YYYY-MM-DD HH:mm:ss')),
+   DatetimeFormField(value_key=['timestamptz'], label='Timestamptz', widget=DatetimeField(format='YYYY-MM-DD HH:mm:ss')),
+   DatetimeFormField(value_key=['timestamptz_0'], label='Timestamptz_0', widget=DatetimeField(format='YYYY-MM-DD HH:mm:ss'))]
 
 DateFormField
 `````````````
@@ -317,7 +317,7 @@ DateFormField
 
   >>> from_port(Port('t_date')) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
-   DateFormField(value_key=['date'], label='Date')]
+   DateFormField(value_key=['date'], label='Date', widget=DateField(format='YYYY-MM-DD'))]
 
 Cleanup
 ```````
@@ -772,10 +772,10 @@ Cleanup::
 
   >>> rex.off()
 
-FormFieldsetVal
----------------
+FormFieldsetVal with layout
+---------------------------
 
-::
+Working with YAML API::
 
   >>> from rex.widget.formfield import FormFieldsetVal
 
@@ -859,6 +859,28 @@ FormFieldsetVal
                               select_form_value=True)],
               select_form_value=True)]
 
+Working with Python API::
+
+  >>> validate = FormFieldsetVal()
+
+  >>> validate([
+  ... {'row': [
+  ...   StringFormField(value_key='code'),
+  ...   StringFormField(value_key='id')
+  ... ]},
+  ... {'row': [
+  ...   StringFormField(value_key='code'),
+  ...   StringFormField(value_key='id')
+  ... ]},
+  ... ]) # doctest: +NORMALIZE_WHITESPACE
+  [FormRow(size=undefined,
+           fields=[StringFormField(value_key=['code']),
+                   StringFormField(value_key=['id'])], select_form_value=True),
+   FormRow(size=undefined,
+           fields=[StringFormField(value_key=['code']),
+                   StringFormField(value_key=['id'])], select_form_value=True)]
+
+Cleanup::
 
   >>> rex.off()
 

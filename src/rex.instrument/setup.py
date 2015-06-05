@@ -27,9 +27,6 @@ setup(
             'instrument = rex.instrument.ctl',
         ],
     },
-    setup_requires=[
-        'rex.setup>=1,<3',
-    ],
     install_requires=[
         'rex.core>=1.4,<2',
         'rex.ctl>=2,<3',

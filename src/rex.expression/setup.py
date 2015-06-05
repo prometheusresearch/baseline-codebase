@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rex.expression',
-    version='1.5.0',
+    version='1.5.1',
     description='JavaScript library to parse HTSQL-like expressions',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
@@ -16,9 +16,6 @@ setup(
     license='AGPLv3',
     url='https://bitbucket.org/rexdb/rex.expression-provisional',
     include_package_data=True,
-    setup_requires=[
-        'rex.setup >=2.0, <3'
-    ],
     install_requires=[
         'rex.web>0.9,<4',
     ],

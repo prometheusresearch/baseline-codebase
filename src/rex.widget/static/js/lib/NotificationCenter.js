@@ -26,7 +26,6 @@ var NotificationStyle = {
   },
   icon: {
     marginRight: '10px',
-    justifyContent: 'center',
     textAlign: 'center'
   },
   success: {
@@ -61,7 +60,7 @@ var Notification = React.createClass({
   },
 
   render() {
-    var {text, icon, kind, style, ...props} = this.props;
+    var {children, text, icon, kind, style, ...props} = this.props;
     style = {
       ...NotificationStyle.self,
       ...(typeof kind === 'string' ? NotificationStyle[kind] : kind),
@@ -75,7 +74,7 @@ var Notification = React.createClass({
               <Icon name={icon} />
             </Box>}
           <Box size={10}>
-            {text}
+            {children || text}
           </Box>
         </HBox>
       </div>

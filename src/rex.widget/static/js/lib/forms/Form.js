@@ -121,6 +121,7 @@ var Form = React.createClass({
           kind="danger"
           text="There was an error while submitting data to server"
           icon="remove"
+          ttl={Infinity}
           />
       )
     };
@@ -188,11 +189,66 @@ var Form = React.createClass({
     this.props.onSubmitComplete()
   },
 
-  onSubmitError() {
+  onSubmitError(err) {
     this.setState({submitInProgress: false});
     NotificationCenter.removeNotification(this._progressNotification);
-    NotificationCenter.showNotification(this.props.errorNotification);
+    var errorNotification = cloneWithProps(this.props.errorNotification, {
+      children: (
+        <div>
+          <p>Error submitting data on server:</p>
+          <ErrorRenderer error={err} />
+        </div>
+      )
+    });
+    NotificationCenter.showNotification(errorNotification);
     this.props.onSubmitError()
+  }
+});
+
+var ErrorRendererStyle = {
+  stack: {
+    whiteSpace: 'pre',
+    fontFamily: 'monospace',
+    overflow: 'auto'
+  },
+  controls: {
+    textAlign: 'right'
+  }
+};
+
+var ErrorRenderer = React.createClass({
+
+  render() {
+    var {error, ...props} = this.props;
+    var {showDetails} = this.state;
+    return (
+      <div {...props}>
+        <div>
+          {error.message ? error.message : error.toString()}
+        </div>
+        {error.stack && !showDetails &&
+          <div style={ErrorRendererStyle.controls}>
+            <Button danger size="small" quiet onClick={this.onClick}>
+              Show details
+            </Button>
+          </div>}
+        {error.stack && showDetails &&
+          <div style={ErrorRendererStyle.stack}>
+            {error.stack}
+          </div>}
+      </div>
+    );
+  },
+
+  onClick(e) {
+    e.stopPropagation();
+    this.setState({showDetails: true});
+  },
+
+  getInitialState() {
+    return {
+      showDetails: false
+    };
   }
 });
 

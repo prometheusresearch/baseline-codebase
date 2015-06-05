@@ -5,17 +5,24 @@
 import docutils_react_docgen
 import os
 import sphinx_rtd_theme
+import subprocess
 
-docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
-        os.path.dirname(__file__), 
-        '..',
-        'static/js/node_modules/react-docgen/bin/react-docgen.js')
- 
-docutils_react_docgen.SETTINGS['react_docgen'] = 'find'
+def _setup():
+    dirname = os.path.abspath(os.path.dirname(__file__))
+    if subprocess.call(['which', 'node']) == 0 :
+        # python setup.py build_sphinx
+        docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
+                dirname,
+                '..',
+                'static/js/node_modules/react-docgen/bin/react-docgen.js')
+    else:
+        # ci doc build - no node, or node_modules.
+        docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
+                dirname, 
+                'upb-react-docgen.py')
+        docutils_react_docgen.SETTINGS['project_base'] = dirname
 
-docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
-        os.path.dirname(__file__), 
-        'upb-react-docgen.py')
+_setup()
 
 project = 'rex.widget'
 html_title = "REX.WIDGET Documentation"

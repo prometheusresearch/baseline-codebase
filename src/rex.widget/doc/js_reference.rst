@@ -2,5 +2,7 @@
   JavaScript API Reference
 ****************************
 
-.. reactdocgen:: / -name react-docgen-stdout.txt  -exec cat {} ;
+.. contents:: Table of Contents
+
+.. reactdocgen:: static/js/lib
     :src: https://bitbucket.org/rexdb/rex.widget-provisional/src/tip

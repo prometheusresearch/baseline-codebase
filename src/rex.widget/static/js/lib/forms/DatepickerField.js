@@ -9,8 +9,8 @@ require('bootstrap-datepicker/js/bootstrap-datepicker');
 var React               = require('react/addons');
 var cx                  = React.addons.classSet;
 var Button              = require('../Button');
+var DeprecatedComponent = require('../DeprecatedComponent');
 var Field               = require('./Field');
-var DeprecatedComponent = require('./DeprecatedComponent');
 
 function padl(v, n) {
   v = String(v);

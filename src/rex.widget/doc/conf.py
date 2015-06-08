@@ -15,6 +15,7 @@ def _setup():
                 dirname,
                 '..',
                 'static/js/node_modules/react-docgen/bin/react-docgen.js')
+        assert os.access(docutils_react_docgen.SETTINGS['react_docgen'], os.F_OK), 'react-docgen.js not found'
     else:
         # ci doc build - no node, or node_modules.
         docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(

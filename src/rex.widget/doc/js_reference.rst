@@ -2,6 +2,9 @@
   JavaScript API Reference
 ****************************
 
+CommonJS Modules
+****************
+
 .. contents:: Table of Contents
 
 .. reactdocgen:: static/js/lib

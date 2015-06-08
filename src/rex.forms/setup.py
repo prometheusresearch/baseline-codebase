@@ -34,7 +34,7 @@ setup(
         'rex.instrument>=0.16,<0.17',
         'rex.expression>=1.3,<2',
         'rex.i18n>=0.3,<0.5',
-        'prismh.core>=0.1,<0.2',
+        'prismh.core>=0.2,<0.3',
     ],
     rex_init='rex.forms',
     rex_static='static'

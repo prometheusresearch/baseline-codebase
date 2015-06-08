@@ -10,7 +10,7 @@ var React               = require('react/addons');
 var Field               = require('./Field');
 var BaseDateTimePicker  = require('react-bootstrap-datetimepicker/src/DateTimeField');
 
-var ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss";
+var ISO_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
 var DateTimePicker = React.createClass({
 

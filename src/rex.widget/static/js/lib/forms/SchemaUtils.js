@@ -169,7 +169,7 @@ function _toKeyPath(keyPath) {
   }
 }
 
-var DATETIME_ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss";
+var DATETIME_ISO_FORMAT = "YYYY-MM-DD HH:mm:ss";
 var DATE_ISO_FORMAT = "YYYY-MM-DD";
 
 var Validation = {

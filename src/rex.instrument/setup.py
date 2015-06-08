@@ -30,7 +30,7 @@ setup(
     install_requires=[
         'rex.core>=1.4,<2',
         'rex.ctl>=2,<3',
-        'prismh.core>=0.1,<0.2',
+        'prismh.core>=0.2,<0.3',
         'pytz>=0a',
     ],
     rex_init='rex.instrument',

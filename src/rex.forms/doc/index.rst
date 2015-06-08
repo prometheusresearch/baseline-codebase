@@ -35,14 +35,6 @@ Examples/Tests
    ../test/index
 
 
-Specifications
-==============
-
-.. toctree::
-
-    web_form_configuration
-
-
 Expressions
 ===========
 

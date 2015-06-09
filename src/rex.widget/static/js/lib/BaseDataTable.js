@@ -6,10 +6,12 @@
 var React                   = require('react');
 window.React                = React;
 var {Column, Table}         = require('../vendor/fixed-data-table');
+var ZyngaScroller           = require('../vendor/Scroller');
 var {Box, LayoutAwareMixin} = require('./Layout');
 var Icon                    = require('./Icon');
 var emptyFunction           = require('./emptyFunction');
 var PersistentStateMixin    = require('./PersistentStateMixin');
+var TouchableArea           = require('./TouchableArea');
 
 var DataTableStyle = {
   sortIcon: {
@@ -21,6 +23,11 @@ var DataTableStyle = {
     fontSize: 10
   }
 };
+
+var isTouchDevice = (
+  'ontouchstart' in document.documentElement ||
+  'onmsgesturechange' in window
+);
 
 /**
  * DataTable component.
@@ -102,9 +109,18 @@ var DataTable = React.createClass({
       return <Box size={1} className={className} style={style} />;
     } else {
       return (
-        <Box size={1} className={className} style={style}>
+        <TouchableArea scroller={isTouchDevice ? this.scroller : undefined}
+          element={Box}
+          size={1}
+          className={className}
+          style={style}>
           <Table
             {...props}
+            onContentHeightChange={isTouchDevice ? this._onContentHeightChange : undefined}
+            scrollTop={isTouchDevice ? this.state.top : undefined}
+            scrollLeft={isTouchDevice ? this.state.left: undefined}
+            overflowX={isTouchDevice ? 'hidden' : 'auto'}
+            overflowY={isTouchDevice ? 'hidden' : 'auto'}
             ref="table"
             onRowClick={selectable && this._onRowClick}
             height={height}
@@ -118,7 +134,7 @@ var DataTable = React.createClass({
             rowsCount={data.data.length}>
             {columns}
           </Table>
-        </Box>
+        </TouchableArea>
       );
     }
   },
@@ -138,12 +154,37 @@ var DataTable = React.createClass({
   getInitialState() {
     return {
       width: null,
-      height: null
+      height: null,
+      left: 0,
+      top: 0
     };
   },
 
   getInitialPersistentState() {
     return {columnsWidths: {}};
+  },
+
+  componentWillMount() {
+    if (isTouchDevice) {
+      this.scroller = new ZyngaScroller(this._handleScroll);
+    }
+  },
+
+  _handleScroll(left, top) {
+    if (isTouchDevice) {
+      this.setState({left, top});
+    }
+  },
+
+  _onContentDimensionsChange(contentHeight, contentWidth) {
+    if (isTouchDevice) {
+      this.scroller.setDimensions(
+        this.state.width,
+        this.state.height,
+        contentWidth,
+        contentHeight
+      );
+    }
   },
 
   componentDidUpdate(prevProps) {

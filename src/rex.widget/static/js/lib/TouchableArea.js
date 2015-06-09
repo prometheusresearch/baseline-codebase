@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React = require('React');
+var React = require('react');
 
 var isTouchDevice = (
   'ontouchstart' in document.documentElement ||

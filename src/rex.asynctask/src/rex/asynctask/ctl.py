@@ -3,6 +3,7 @@
 #
 
 
+import os
 import signal
 import time
 
@@ -37,6 +38,7 @@ class AsyncTaskWorkerTask(RexTask):
         self._workers = {}
         self._connections = {}
         self._dying = False
+        self._master_pid = os.getpid()
 
     def __call__(self):
         with self.make():
@@ -51,8 +53,9 @@ class AsyncTaskWorkerTask(RexTask):
                 self.build_worker(queue_name, worker_name)
 
             def on_term(signum, frame):  # pylint: disable=unused-argument
-                self._dying = True
-                self.cleanup()
+                if self._master_pid == os.getpid():
+                    self._dying = True
+                    self.cleanup()
             signal.signal(signal.SIGTERM, on_term)
             signal.signal(signal.SIGINT, on_term)
 

@@ -116,7 +116,7 @@ var DataTable = React.createClass({
           style={style}>
           <Table
             {...props}
-            onContentHeightChange={isTouchDevice ? this._onContentHeightChange : undefined}
+            onContentHeightChange={isTouchDevice ? this._onContentDimensionsChange : undefined}
             scrollTop={isTouchDevice ? this.state.top : undefined}
             scrollLeft={isTouchDevice ? this.state.left: undefined}
             overflowX={isTouchDevice ? 'hidden' : 'auto'}

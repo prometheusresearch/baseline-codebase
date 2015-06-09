@@ -7,8 +7,9 @@ require('react-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css');
 
 var moment              = require('moment');
 var React               = require('react/addons');
-var Field               = require('./Field');
 var BaseDateTimePicker  = require('react-bootstrap-datetimepicker/src/DateTimeField');
+var Field               = require('./Field');
+var ReadOnlyField       = require('./ReadOnlyField');
 
 var ISO_FORMAT = "YYYY-MM-DD";
 
@@ -31,12 +32,24 @@ var DatePicker = React.createClass({
 var DateField = React.createClass({
 
   render() {
-    var {format, ...props} = this.props;
-    return (
-      <Field {...props}>
-        <DatePicker format={format} />
-      </Field>
-    );
+    var {format, formValue, readOnly, ...props} = this.props;
+    if (readOnly) {
+      var value = formValue.value;
+      if (value) {
+        value = moment(formValue.value, ISO_FORMAT, true).format(format);
+      }
+      return (
+        <ReadOnlyField {...props} formValue={formValue}>
+          {value}
+        </ReadOnlyField>
+      );
+    } else {
+      return (
+        <Field {...props} formValue={formValue}>
+          <DatePicker format={format} />
+        </Field>
+      );
+    }
   },
 
   getDefaultProps() {

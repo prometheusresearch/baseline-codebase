@@ -6,6 +6,7 @@
 var React             = require('react/addons');
 var {cloneWithProps}  = React.addons;
 var {VBox}            = require('../Layout');
+var isReactElement    = require('../isReactElement');
 var Fieldset          = require('../_forms/Fieldset');
 var ReadOnlyField     = require('./ReadOnlyField');
 var Field             = require('./Field');
@@ -30,7 +31,33 @@ var ConfigurableField = React.createClass({
 
   renderField() {
     var {field, formValue, readOnly} = this.props;
-    if (readOnly || field.readOnly) {
+    readOnly = field.readOnly || readOnly;
+    if (isReactElement(field.widget)) {
+      return cloneWithProps(field.widget, {
+        key: field.valueKey,
+        label: field.label,
+        hint: field.hint,
+        selectFormValue: field.valueKey,
+        formValue: formValue,
+        readOnly: readOnly
+      });
+    } else if (!readOnly && field.widget && isReactElement(field.widget.edit)) {
+      return cloneWithProps(field.widget.edit, {
+        key: field.valueKey,
+        label: field.label,
+        hint: field.hint,
+        selectFormValue: field.valueKey,
+        formValue: formValue
+      });
+    } else if (readOnly && field.widget && isReactElement(field.widget.show)) {
+      return cloneWithProps(field.widget.show, {
+        key: field.valueKey,
+        label: field.label,
+        hint: field.hint,
+        selectFormValue: field.valueKey,
+        formValue: formValue
+      });
+    } else if (readOnly) {
       return (
         <ReadOnlyField
           key={field.valueKey}
@@ -40,15 +67,6 @@ var ConfigurableField = React.createClass({
           formValue={formValue}
           />
       );
-    }
-    if (field.widget) {
-      return cloneWithProps(field.widget, {
-        key: field.valueKey,
-        label: field.label,
-        hint: field.hint,
-        selectFormValue: field.valueKey,
-        formValue: formValue
-      });
     }
     switch (field.type) {
       case 'date':

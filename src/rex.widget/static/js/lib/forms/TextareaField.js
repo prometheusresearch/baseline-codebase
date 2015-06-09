@@ -3,8 +3,9 @@
  */
 'use strict';
 
-var React = require('react/addons');
-var Field = require('./Field');
+var React         = require('react/addons');
+var Field         = require('./Field');
+var ReadOnlyField = require('./ReadOnlyField');
 
 var TextareaFieldStyle = {
   input: {
@@ -26,11 +27,16 @@ var TextareaFieldStyle = {
 var TextareaField = React.createClass({
 
   render() {
-    return (
-      <Field {...this.props}>
-        <textarea style={TextareaFieldStyle.input} />
-      </Field>
-    );
+    var {readOnly, ...props} = this.props;
+    if (readOnly) {
+      return <ReadOnlyField {...props} />;
+    } else {
+      return (
+        <Field {...this.props}>
+          <textarea style={TextareaFieldStyle.input} />
+        </Field>
+      );
+    }
   }
 });
 

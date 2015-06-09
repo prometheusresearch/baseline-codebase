@@ -142,6 +142,25 @@ form_layout_item_val.set(FormFieldsetVal())
 validate = FormFieldVal()
 
 
+class FormWidgetSpecVal(Validate):
+
+    _validate_spec = RecordVal(
+        ('edit', WidgetVal(), undefined),
+        ('show', WidgetVal(), undefined),
+    )
+
+    _validate = OneOfVal(
+        WidgetVal(),
+        _validate_spec,
+    )
+
+    def __call__(self, value):
+        return self._validate(value)
+
+
+FormWidgetSpec = FormWidgetSpecVal._validate_spec.record_type
+
+
 class FormField(Extension):
 
     type = NotImplemented
@@ -174,7 +193,7 @@ class FormField(Extension):
         ('read_only', BoolVal(), False),
         ('label', MaybeVal(StrVal()), None),
         ('hint', MaybeVal(StrVal()), None),
-        ('widget', MaybeVal(WidgetVal()), None),
+        ('widget', MaybeVal(FormWidgetSpecVal()), None),
     )
 
     def validate(self, values):

@@ -24,8 +24,10 @@ var ReadOnlyFieldStyle = {
 var ReadOnlyField = React.createClass({
 
   render() {
-    var {label, style, renderValue, labelSize, inputSize} = this.props;
-    var {value} = this.props.formValue;
+    var {label, style, renderValue, formValue, children, labelSize, inputSize} = this.props;
+    if (!children) {
+      children = renderValue(formValue.value);
+    }
     return (
       <HBox style={{...ReadOnlyFieldStyle.self, ...(style && style.self)}}>
         {label && 
@@ -35,7 +37,7 @@ var ReadOnlyField = React.createClass({
             </label>
           </VBox>}
         <VBox size={inputSize} centerVertically>
-          {renderValue(value)}
+          {children}
         </VBox>
       </HBox>
     );

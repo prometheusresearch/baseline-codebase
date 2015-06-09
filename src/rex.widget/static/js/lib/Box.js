@@ -4,6 +4,7 @@
 'use strict';
 
 var React           = require('react/addons');
+var autoprefixStyle = require('./autoprefixStyle');
 var PropTypes       = React.PropTypes;
 var cx              = React.addons.classSet;
 var cloneWithProps  = React.addons.cloneWithProps;
@@ -100,7 +101,7 @@ var Box = React.createClass({
           cloneWithProps(child, {margin: childrenMargin}));
     }
     return (
-      <Component {...props} style={style}>
+      <Component {...props} style={autoprefixStyle(style)}>
         {children}
       </Component>
     );

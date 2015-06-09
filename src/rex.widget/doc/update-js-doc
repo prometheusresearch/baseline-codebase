@@ -1,7 +1,0 @@
-fatal() {
-    echo ===== FATAL ===== $*
-    exit 1
-    }
-
-test -f setup.py || fatal no setup.py found
-./static/js/node_modules/react-docgen/bin/react-docgen.js static/js/lib >doc/react-docgen-stdout.txt

@@ -8,20 +8,14 @@ import sphinx_rtd_theme
 import subprocess
 
 def _setup():
-    dirname = os.path.abspath(os.path.dirname(__file__))
-    if subprocess.call(['which', 'node']) == 0 :
-        # python setup.py build_sphinx
-        docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
-                dirname,
-                '..',
-                'static/js/node_modules/react-docgen/bin/react-docgen.js')
-        assert os.access(docutils_react_docgen.SETTINGS['react_docgen'], os.F_OK), 'react-docgen.js not found'
-    else:
-        # ci doc build - no node, or node_modules.
-        docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
-                dirname, 
-                'upb-react-docgen.py')
-        docutils_react_docgen.SETTINGS['project_base'] = dirname
+    project_base = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    docutils_react_docgen.SETTINGS['project_base'] = project_base
+    docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
+            project_base,
+            'static/js/node_modules/.bin/react-docgen')
+    assert os.access(
+            docutils_react_docgen.SETTINGS['react_docgen'], 
+            os.F_OK), 'react-docgen not found'
 
 _setup()
 

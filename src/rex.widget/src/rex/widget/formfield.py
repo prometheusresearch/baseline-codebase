@@ -294,7 +294,8 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
         })
     elif arm.kind == 'column':
         if isinstance(arm.domain, domain.EnumDomain):
-            options = [{'value': l, 'label': l} for l in arm.domain.labels]
+            options = [{'value': l, 'label': _guess_label(l)}
+                       for l in arm.domain.labels]
             return field_val({
                 'type': 'enum',
                 'value_key': value_key,
@@ -347,7 +348,7 @@ def _is_required(column):
     return not column.is_nullable and not column.has_default
 
 
-CAPTURE_UNDERSCORE_RE = re.compile(r'(?:^|_)([a-zA-Z])')
+CAPTURE_UNDERSCORE_RE = re.compile(r'(?:^|_|\-)([a-zA-Z])')
 
 
 def _guess_label(key):

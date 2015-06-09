@@ -258,10 +258,10 @@ Generating a fieldset from port definition
   >>> from_port(Port("individual")) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
    EnumFormField(value_key=['sex'], label='Sex',
-                 options=[Record(value='not-known', label='not-known'),
-                          Record(value='male', label='male'),
-                          Record(value='female', label='female'),
-                          Record(value='not-applicable', label='not-applicable')]),
+                 options=[Record(value='not-known', label='Not Known'),
+                          Record(value='male', label='Male'),
+                          Record(value='female', label='Female'),
+                          Record(value='not-applicable', label='Not Applicable')]),
    EntityFormField(value_key=['mother'], label='Mother',
                    data=Record(entity='individual', title='id()', mask=None)),
    EntityFormField(value_key=['father'], label='Father',
@@ -347,10 +347,10 @@ Enrich field from port
   ... """) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
    EnumFormField(value_key=['sex'], label='Sex',
-                 options=[Record(value='not-known', label='not-known'),
-                          Record(value='male', label='male'),
-                          Record(value='female', label='female'),
-                          Record(value='not-applicable', label='not-applicable')])]
+                 options=[Record(value='not-known', label='Not Known'),
+                          Record(value='male', label='Male'),
+                          Record(value='female', label='Female'),
+                          Record(value='not-applicable', label='Not Applicable')])]
 
   >>> test_enrich('individual', """
   ... - code

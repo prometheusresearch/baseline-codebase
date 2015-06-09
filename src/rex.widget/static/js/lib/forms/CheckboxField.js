@@ -4,9 +4,8 @@
 'use strict';
 
 var React                   = require('react/addons');
-var DataSpecificationMixin  = require('../DataSpecificationMixin');
-var DataSpecification       = require('../DataSpecification');
 var Field                   = require('./Field');
+var ReadOnlyField           = require('./ReadOnlyField');
 
 var CheckboxStyle = {
   self: {
@@ -35,11 +34,20 @@ var Checkbox = React.createClass({
 var CheckboxField = React.createClass({
 
   render() {
-    return (
-      <Field {...this.props} data={undefined}>
-        <Checkbox />
-      </Field>
-    );
+    var {readOnly, formValue, ...props} = this.props;
+    if (readOnly) {
+      return (
+        <ReadOnlyField {...props} formValue={formValue}>
+          {formValue.value ? 'Yes' : 'No'}
+        </ReadOnlyField>
+      );
+    } else {
+      return (
+        <Field {...props} formValue={formValue} data={undefined}>
+          <Checkbox />
+        </Field>
+      );
+    }
   }
 });
 

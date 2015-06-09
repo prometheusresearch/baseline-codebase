@@ -19,7 +19,7 @@ var RepeatingFieldset = require('./RepeatingFieldset');
 var FileUploadField   = require('./FileUploadField')
 
 
-var FIELDS_WITH_READONLY_MODE = ['entity'];
+var FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum'];
 
 
 var ConfigurableField = React.createClass({
@@ -91,6 +91,7 @@ var ConfigurableField = React.createClass({
             hint={field.hint}
             selectFormValue={field.valueKey}
             formValue={formValue}
+            readOnly={readOnly}
             />
         );
       case 'file':
@@ -114,6 +115,7 @@ var ConfigurableField = React.createClass({
             selectFormValue={field.valueKey}
             formValue={formValue}
             options={field.options || field.values}
+            readOnly={readOnly}
             />
         );
       case 'entity':

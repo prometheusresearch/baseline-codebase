@@ -25,7 +25,7 @@ var ReadOnlyField = React.createClass({
 
   render() {
     var {label, style, renderValue, formValue, children, labelSize, inputSize} = this.props;
-    if (!children) {
+    if (children === undefined) {
       children = renderValue(formValue.value);
     }
     return (

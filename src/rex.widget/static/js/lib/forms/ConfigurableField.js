@@ -18,6 +18,10 @@ var AutocompleteField = require('./AutocompleteField');
 var RepeatingFieldset = require('./RepeatingFieldset');
 var FileUploadField   = require('./FileUploadField')
 
+
+var FIELDS_WITH_READONLY_MODE = ['entity'];
+
+
 var ConfigurableField = React.createClass({
 
   render() {
@@ -57,7 +61,7 @@ var ConfigurableField = React.createClass({
         selectFormValue: field.valueKey,
         formValue: formValue
       });
-    } else if (readOnly) {
+    } else if (readOnly && FIELDS_WITH_READONLY_MODE.indexOf(field.type) === -1) {
       return (
         <ReadOnlyField
           key={field.valueKey}
@@ -121,6 +125,7 @@ var ConfigurableField = React.createClass({
             selectFormValue={field.valueKey}
             formValue={formValue}
             dataSpec={field.data}
+            readOnly={readOnly}
             />
         );
       case 'integer':

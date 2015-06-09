@@ -8,11 +8,13 @@
 """
 
 from collections import namedtuple
+from json import dumps
 
 from webob import Response
 from webob.exc import HTTPBadRequest
 
 from rex.core import get_packages
+from rex.db import get_db
 from rex.web import render_to_response
 
 from .keypath import KeyPathVal
@@ -88,6 +90,9 @@ def render(widget, request, template='rex.widget:/templates/index.html'):
         if accept == 'application/json':
             return Response(payload, content_type='application/json')
         else:
+            user = get_db().produce('$USER').data
             return render_to_response(
                 template, request,
-                bundle=find_bundle(), payload=payload)
+                user=dumps(dumps(user)),
+                bundle=find_bundle(),
+                payload=payload)

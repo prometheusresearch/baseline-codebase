@@ -12,7 +12,7 @@
   "styleEntry": "./style/index.less",
   "dependencies": {
     "rex-expression": "*",
-    "react-bootstrap-datetimepicker": "prometheusresearch/react-bootstrap-datetimepicker#93697ec7b834ab0ff6c1d9118563957163d21acb",
+    "react-bootstrap-datetimepicker": "prometheusresearch/react-bootstrap-datetimepicker#95ea2c1f74986f05dc3a0ae3fc06176118e42158",
     "bootstrap-datepicker": "^1.3.0",
     "object-assign": "^1.0.0",
     "react": "http://registry.npmjs.org/react/-/react-0.12.2.tgz#*",
@@ -32,7 +32,7 @@
     "generate-object-property": "http://registry.npmjs.org/generate-object-property/-/generate-object-property-1.1.0.tgz",
     "xtend": "http://registry.npmjs.org/xtend/-/xtend-4.0.0.tgz",
     "is-property": "http://registry.npmjs.org/is-property/-/is-property-1.0.2.tgz",
-    "is-my-json-valid": "prometheusresearch/is-my-json-valid#95c5bca89dcb71bd19ae9fb420e61e70fd9ec095",
+    "is-my-json-valid": "prometheusresearch/is-my-json-valid#9bf8f4b9c40f35c1ed71ce13808b123bc126cc77",
     "transit-js": "^0.8.795"
   },
   "moduleType": [

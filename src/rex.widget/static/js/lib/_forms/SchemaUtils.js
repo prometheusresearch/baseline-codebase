@@ -12,7 +12,9 @@ function validator(schema, options) {
     undefinedAsObject: true,
     nullAsObject: true,
     undefinedAsArray: true,
-    nullAsArray: true
+    nullAsUndefined: true,
+    nullAsArray: true,
+    nullAsBottomType: true
   };
   return _validator(schema, options);
 }

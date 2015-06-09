@@ -66,7 +66,7 @@ function _fieldToSchema(field) {
       return {
         type: 'boolean',
         format: Validation.bool,
-        isRequired: !!field.required
+        isRequired: false
       };
     case 'file':
       return {

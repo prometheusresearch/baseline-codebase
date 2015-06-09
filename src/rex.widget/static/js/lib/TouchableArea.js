@@ -3,12 +3,8 @@
  */
 'use strict';
 
-var React = require('react');
-
-var isTouchDevice = (
-  'ontouchstart' in document.documentElement ||
-  'onmsgesturechange' in window
-);
+var React         = require('react');
+var isTouchDevice = require('./Environment').isTouchDevice;
 
 var TouchableArea = React.createClass({
   getDefaultProps() {

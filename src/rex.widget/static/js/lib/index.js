@@ -3,6 +3,14 @@
  */
 'use strict';
 
+
+var React       = require('react');
+var Environment = require('./Environment');
+
+if (Environment.isTouchDevice) {
+  React.initializeTouchEvents(true);
+}
+
 require('./TransitionableHandlers');
 
 module.exports = {

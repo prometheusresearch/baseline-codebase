@@ -12,6 +12,7 @@ var Icon                    = require('./Icon');
 var emptyFunction           = require('./emptyFunction');
 var PersistentStateMixin    = require('./PersistentStateMixin');
 var TouchableArea           = require('./TouchableArea');
+var isTouchDevice           = require('./Environment').isTouchDevice;
 
 var DataTableStyle = {
   sortIcon: {
@@ -23,11 +24,6 @@ var DataTableStyle = {
     fontSize: 10
   }
 };
-
-var isTouchDevice = (
-  'ontouchstart' in document.documentElement ||
-  'onmsgesturechange' in window
-);
 
 /**
  * DataTable component.

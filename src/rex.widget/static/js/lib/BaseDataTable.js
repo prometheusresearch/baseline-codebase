@@ -6,7 +6,7 @@
 var React                   = require('react');
 window.React                = React;
 var {Column, Table}         = require('../vendor/fixed-data-table');
-var ZyngaScroller           = require('../vendor/Scroller');
+var ZyngaScroller           = require('./Scroller');
 var {Box, LayoutAwareMixin} = require('./Layout');
 var Icon                    = require('./Icon');
 var emptyFunction           = require('./emptyFunction');

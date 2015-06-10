@@ -108,3 +108,6 @@
   - identity.givenname
   - identity.surname
   - sex
+
+- type: pick-date
+  id: pick-date

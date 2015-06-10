@@ -13,3 +13,4 @@ from .page import Page
 from .pick import Pick
 from .edit import Edit
 from .drop import Drop
+from .pick_date import PickDate

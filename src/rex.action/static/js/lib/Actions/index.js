@@ -3,10 +3,12 @@
  */
 'use strict';
 
-var Page = require('./Page');
-var Pick = require('./Pick');
-var View = require('./View');
-var Make = require('./Make');
+var Page      = require('./Page');
+var Pick      = require('./Pick');
+var View      = require('./View');
+var Make      = require('./Make');
+var Drop      = require('./Drop');
+var PickDate  = require('./PickDate');
 
 function getTitle(element) {
   if (element.type.getTitle) {
@@ -45,6 +47,6 @@ function getWidth(element) {
 }
 
 module.exports = {
-  Make, Pick, View, Page,
+  Make, Pick, View, Page, Drop, PickDate,
   getTitle, getIcon, getWidth
 };

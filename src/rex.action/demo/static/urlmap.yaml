@@ -4,6 +4,7 @@ paths:
     access: anybody
     widget: !<Wizard>
       actions:
+        - pick-date:
         - home:
           - make-individual:
             - view-individual:

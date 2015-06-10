@@ -35,10 +35,10 @@ In case fields are not specified, they are generated from port::
        db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
                EnumFormField(value_key=['sex'], label='Sex',
-                             options=[Record(value='not-known', label='not-known'),
-                                      Record(value='male', label='male'),
-                                      Record(value='female', label='female'),
-                                      Record(value='not-applicable', label='not-applicable')]),
+                             options=[Record(value='not-known', label='Not Known'),
+                                      Record(value='male', label='Male'),
+                                      Record(value='female', label='Female'),
+                                      Record(value='not-applicable', label='Not Applicable')]),
                EntityFormField(value_key=['mother'], label='Mother',
                                data=Record(entity='individual', title='id()', mask=None)),
                EntityFormField(value_key=['father'], label='Father',
@@ -101,6 +101,31 @@ You can also specify fields and see port generated from them::
   entity: individual
   select: [code]
   ''')
+
+Value also used to generate port::
+
+  >>> make = Action.validate("""
+  ... type: make
+  ... id: make-individual
+  ... entity: individual
+  ... value:
+  ...   code: code
+  ...   sex: female
+  ...   identity:
+  ...     givenname: Andrey
+  ... fields:
+  ... - value_key: code
+  ... """)
+
+  >>> make.port
+  Port('''
+  entity: individual
+  select: [code, sex]
+  with:
+  - entity: identity
+    select: [givenname]
+  ''')
+
 
 Cleanup
 -------

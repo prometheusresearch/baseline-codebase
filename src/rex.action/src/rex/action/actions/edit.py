@@ -100,7 +100,8 @@ class Edit(Action):
         if self.fields is None:
             return Port(self.entity.type, db=self.db)
         else:
-            return formfield.to_port(self.entity.type, self.fields, db=self.db)
+            value_fields = _value_to_fieldset(self.value).fields
+            return formfield.to_port(self.entity.type, value_fields + self.fields, db=self.db)
 
     def _construct_data_spec(self, port_url):
         keys = self.input.keys() or [self.entity.name]
@@ -117,3 +118,11 @@ class Edit(Action):
         return input, output
 
 
+def _value_to_fieldset(value, _key=None):
+    _key = _key or ['__root__']
+    if isinstance(value, dict):
+        return formfield.Fieldset(
+            value_key=_key,
+            fields=[_value_to_fieldset(v, _key=[k]) for k, v in value.items()])
+    else:
+        return formfield.StringFormField(value_key=_key)

@@ -93,13 +93,14 @@ var Edit = React.createClass({
   },
 
   renderForm() {
-    var {entity, fields, value} = this.props;
-    value = mergeDeepInto(this.data.data.data, value);
+    var {entity, fields, value, context} = this.props;
+    value = mergeDeepInto(this.data.data.data, buildValue(value, context));
     return (
       <Forms.ConfigurableEntityForm
         ref="form"
         submitTo={this.dataSpecs.data}
         submitButton={null}
+        initialValue={this.data.data.data}
         value={value}
         entity={entity.type}
         fields={fields}
@@ -139,6 +140,22 @@ function mergeDeepInto(a, b) {
     }
   }
   return a;
+}
+
+function buildValue(spec, context) {
+  var value = {};
+  for (var key in spec) {
+    var item = spec[key];
+    if (item[0] === '$') {
+      value[key] = context[item.substr(1)];
+    } else {
+      value[key] = item;
+    }
+    if (typeof value[key] === 'object') {
+      value[key] = buildValue(value[key], context);
+    }
+  }
+  return value;
 }
 
 module.exports = Edit;

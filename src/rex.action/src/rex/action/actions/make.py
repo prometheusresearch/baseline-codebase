@@ -9,7 +9,7 @@
 
 from cached_property import cached_property
 
-from rex.core import MaybeVal, SeqVal, StrVal, MapVal
+from rex.core import MaybeVal, SeqVal, StrVal, MapVal, AnyVal
 from rex.port import Port
 from rex.widget import Field, FormFieldsetVal, responder, PortURL
 from rex.widget import formfield, dataspec
@@ -77,7 +77,7 @@ class Make(Action):
         """)
 
     value = Field(
-        MapVal(StrVal(), StrVal()), default={},
+        MapVal(StrVal(), AnyVal()), default={},
         doc="""
         An initial value.
 
@@ -114,4 +114,3 @@ class Make(Action):
         input = {v[1:]: v[1:] for v in self.value.values() if v.startswith('$')}
         output = {self.entity.name: self.entity.type}
         return input, output
-

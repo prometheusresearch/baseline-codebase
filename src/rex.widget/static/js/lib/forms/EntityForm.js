@@ -60,7 +60,7 @@ var EntityForm = React.createClass({
 
   onSubmitComplete(data) {
     forceRefreshData();
-    this.props.onSubmitComplete(data);
+    this.props.onSubmitComplete(data[this.props.entity][0]);
   },
 
   submit() {

@@ -184,11 +184,11 @@ var Form = React.createClass({
     this.submit();
   },
 
-  onSubmitComplete() {
+  onSubmitComplete(data) {
     this.setState({submitInProgress: false});
     NotificationCenter.removeNotification(this._progressNotification);
     NotificationCenter.showNotification(this.props.completeNotification);
-    this.props.onSubmitComplete()
+    this.props.onSubmitComplete(data)
   },
 
   onSubmitError(err) {

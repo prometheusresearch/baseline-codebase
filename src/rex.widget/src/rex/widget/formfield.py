@@ -308,6 +308,8 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
 
         if isinstance(arm.domain, domain.IntegerDomain):
             field_type = 'integer'
+        elif isinstance(arm.domain, domain.FloatDomain):
+            field_type = 'number'
         elif isinstance(arm.domain, domain.BooleanDomain):
             field_type = 'bool'
         elif isinstance(arm.domain, domain.DateDomain):
@@ -477,6 +479,14 @@ class NoteFormField(StringFormField):
 class IntegerFormField(FormField):
 
     type = 'integer'
+    fields = (
+        ('error', MaybeVal(StrVal()), None),
+    )
+
+
+class NumberFormField(FormField):
+
+    type = 'number'
     fields = (
         ('error', MaybeVal(StrVal()), None),
     )

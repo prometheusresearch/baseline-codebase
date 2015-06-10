@@ -161,3 +161,41 @@ paths:
           value_key: editable_required_null
           label: Editable required (null)
           required: true
+
+  /forms/integer:
+    widget: !<DemoPage>
+      title: Form with Integer field
+      children: !<Form>
+        entity: no
+        insert: true
+        value:
+          integer: 123
+          float: 123.45
+          string: "wow"
+        fields:
+        - type: integer
+          value_key: integer
+        - type: integer
+          value_key: float
+        - type: integer
+          required: true
+          value_key: string
+
+  /forms/number:
+    widget: !<DemoPage>
+      title: Form with Number field
+      children: !<Form>
+        entity: no
+        insert: true
+        value:
+          integer: 123
+          float: 123.45
+          string: "wow"
+        fields:
+        - type: number
+          value_key: integer
+        - type: number
+          value_key: float
+        - type: number
+          required: true
+          value_key: string

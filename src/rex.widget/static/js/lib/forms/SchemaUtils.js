@@ -88,6 +88,12 @@ function _fieldToSchema(field) {
       };
     case 'integer':
       return {
+        type: 'integer',
+        format: Validation.integer,
+        isRequired: !!field.required
+      };
+    case 'number':
+      return {
         type: 'number',
         format: Validation.number,
         isRequired: !!field.required

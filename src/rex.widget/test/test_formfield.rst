@@ -904,6 +904,7 @@ Built-in types
    ('integer', rex.widget.formfield.IntegerFormField),
    ('list', rex.widget.formfield.List),
    ('note', rex.widget.formfield.NoteFormField),
+   ('number', rex.widget.formfield.NumberFormField),
    ('string', rex.widget.formfield.StringFormField)]
 
   >>> rex.off()

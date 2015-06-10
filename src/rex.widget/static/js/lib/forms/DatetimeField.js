@@ -12,11 +12,21 @@ var Field               = require('./Field');
 var ReadOnlyField       = require('./ReadOnlyField');
 
 var ISO_FORMAT = "YYYY-MM-DD HH:mm:ss";
+var ISO_FORMAT_NO_TIME = "YYYY-MM-DD";
 
 var DateTimePicker = React.createClass({
 
   render() {
     var {value, format, ...props} = this.props;
+    if (value) {
+      var date = moment(value, ISO_FORMAT, true);
+      if (!date.isValid()) {
+        date = moment(value, ISO_FORMAT_NO_TIME, true);
+        if (date.isValid()) {
+            value = date.format(ISO_FORMAT);
+        }
+      }
+    }
     return (
       <BaseDateTimePicker
         format={ISO_FORMAT}
@@ -35,7 +45,11 @@ var DatetimeField = React.createClass({
     if (readOnly) {
       var value = formValue.value;
       if (value) {
-        value = moment(formValue.value, ISO_FORMAT, true).format(format);
+        var date = moment(formValue.value, ISO_FORMAT, true)
+        if (!date.isValid()) {
+          date = moment(formValue.value, ISO_FORMAT_NO_TIME, true);
+        }
+        value = date.format(format);
       }
       return (
         <ReadOnlyField {...props} formValue={formValue}>

@@ -39,6 +39,19 @@ paths:
           label: Timestamp
 
       - !<Text> |
+        Form with an initial value of date
+      - !<Form>
+        entity: t_datetime
+        insert: true
+        value:
+          timestamp: "1987-05-08"
+        fields:
+        - type: datetime
+          required: true
+          value_key: timestamp
+          label: Timestamp
+
+      - !<Text> |
         Form with read only field
       - !<Form>
         entity: t_datetime

@@ -191,9 +191,15 @@ var Validation = {
   datetime(value, node) {
     var date = moment(value, DATETIME_ISO_FORMAT, true);
     if (!date.isValid()) {
-      return `should be in ${node.datetimeFormat} format`;
+      date = moment(value, DATE_ISO_FORMAT, true);
+      if (date.isValid()) {
+        return true;
+      } else {
+        return `should be in ${node.datetimeFormat} format`;
+      }
+    } else {
+      return true;
     }
-    return true;
   },
 
   date(value, node) {

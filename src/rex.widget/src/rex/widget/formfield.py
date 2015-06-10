@@ -597,10 +597,14 @@ class CalculatedFormField(FormField):
 class CompositeFormField(FormField):
 
     def __merge__(self, other):
+        allowed_keys = set(f[0] for f in self.__class__._default_fields + self.__class__.fields)
         next_values = {}
         next_values.update(self.values)
         next_values.update(other.values)
-        next_values['fields'] = self.fields + other.fields
+        if isinstance(other, CompositeFormField):
+            next_values['fields'] = list(self.fields) + list(other.fields)
+        next_values = {k: v for k, v in next_values.items()
+                            if k in allowed_keys}
         return self.__class__(**next_values)
 
 

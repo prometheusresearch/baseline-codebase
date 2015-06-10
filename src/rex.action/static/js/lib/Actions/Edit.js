@@ -54,7 +54,7 @@ var Edit = React.createClass({
   },
 
   render() {
-    var {onClose, width} = this.props;
+    var {onClose, width, submitButton} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
       <VBox style={{...EditStyle.self, width}}>
@@ -85,7 +85,7 @@ var Edit = React.createClass({
             size="small"
             onClick={this.onSubmit}
             align="center">
-            Submit
+            {submitButton}
           </RexWidget.Button>
         </VBox>
       </VBox>
@@ -111,7 +111,8 @@ var Edit = React.createClass({
   getDefaultProps() {
     return {
       width: 400,
-      icon: 'pencil'
+      icon: 'pencil',
+      submitButton: 'Submit'
     };
   },
 

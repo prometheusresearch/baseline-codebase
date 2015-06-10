@@ -11,7 +11,7 @@ from cached_property import cached_property
 
 from rex.core import MaybeVal, SeqVal, StrVal, MapVal, AnyVal
 from rex.port import Port
-from rex.widget import Field, FormFieldsetVal, responder, PortURL
+from rex.widget import Field, FormFieldsetVal, responder, PortURL, undefined
 from rex.widget import formfield, dataspec
 
 from ..action import Action
@@ -87,6 +87,12 @@ class Make(Action):
             study: $study
             individual: $individual
 
+        """)
+
+    submit_button = Field(
+        StrVal(), default=undefined,
+        doc="""
+        Text for submit button.
         """)
 
     def __init__(self, **values):

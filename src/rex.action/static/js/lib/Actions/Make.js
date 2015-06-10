@@ -67,7 +67,7 @@ var Make = React.createClass({
   },
 
   render() {
-    var {fields, entity} = this.props;
+    var {fields, entity, submitButton} = this.props;
     var value = buildValue(this.props.value, this.props.context);
     var title = this.constructor.getTitle(this.props);
     return (
@@ -107,7 +107,7 @@ var Make = React.createClass({
             size="small"
             onClick={this.onSubmit}
             align="center">
-            Submit
+            {submitButton}
           </RexWidget.Button>
         </VBox>
       </VBox>
@@ -123,6 +123,7 @@ var Make = React.createClass({
       width: 400,
       icon: 'ok',
       onSubmitComplete: emptyFunction,
+      submitButton: 'Submit'
     };
   },
 

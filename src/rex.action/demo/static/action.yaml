@@ -47,6 +47,7 @@
 - type: make
   id: make-individual
   entity: individual
+  submit_button: Make
   fields:
   - column:
     - code

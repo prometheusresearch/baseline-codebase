@@ -13,7 +13,7 @@ from collections import OrderedDict
 
 from rex.core import MaybeVal, SeqVal, StrVal, AnyVal, MapVal, OMapVal
 from rex.port import Port
-from rex.widget import Field, FormFieldsetVal, responder, PortURL
+from rex.widget import Field, FormFieldsetVal, responder, PortURL, undefined
 from rex.widget import formfield, dataspec
 
 from ..action import Action
@@ -83,6 +83,12 @@ class Edit(Action):
         doc="""
         Initial form value which will be merged with entity fetched from
         database.
+        """)
+
+    submit_button = Field(
+        StrVal(), default=undefined,
+        doc="""
+        Text for submit button.
         """)
 
     input = Field(

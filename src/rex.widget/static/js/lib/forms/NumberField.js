@@ -13,8 +13,6 @@ var NumberInput = React.createClass({
     return (
       <Input
         {...this.props}
-        type="number"
-        step="any"
         onChange={this.onChange}
         />
     );

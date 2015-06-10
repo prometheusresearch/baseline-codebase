@@ -7,13 +7,14 @@ var React = require('react/addons');
 var Field = require('./Field');
 var Input = require('./Input');
 
-var IntegerInput = React.createClass({
+var NumberInput = React.createClass({
 
   render() {
     return (
       <Input
         {...this.props}
         type="number"
+        step="any"
         onChange={this.onChange}
         />
     );
@@ -21,21 +22,22 @@ var IntegerInput = React.createClass({
 
   onChange(e) {
     var value = e.target.value;
-    value = parseInt(value, 10);
+    value = parseFloat(value, 10);
     this.props.onChange(value);
   }
 
 });
 
-var IntegerField = React.createClass({
+var NumberField = React.createClass({
 
   render() {
     return (
       <Field {...this.props}>
-        <IntegerInput />
+        <NumberInput />
       </Field>
     );
   }
 });
 
-module.exports = IntegerField;
+module.exports = NumberField;
+

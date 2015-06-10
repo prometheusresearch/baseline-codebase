@@ -11,6 +11,7 @@ var Fieldset          = require('../_forms/Fieldset');
 var ReadOnlyField     = require('./ReadOnlyField');
 var Field             = require('./Field');
 var IntegerField      = require('./IntegerField');
+var NumberField       = require('./NumberField');
 var DatepickerField   = require('./DatepickerField');
 var CheckboxField     = require('./CheckboxField');
 var SelectField       = require('./SelectField');
@@ -133,6 +134,16 @@ var ConfigurableField = React.createClass({
       case 'integer':
         return (
           <IntegerField
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            selectFormValue={field.valueKey}
+            formValue={formValue}
+            />
+        );
+      case 'number':
+        return (
+          <NumberField
             key={field.valueKey}
             label={field.label}
             hint={field.hint}

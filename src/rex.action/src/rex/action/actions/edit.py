@@ -11,7 +11,7 @@ from cached_property import cached_property
 
 from collections import OrderedDict
 
-from rex.core import MaybeVal, SeqVal, StrVal, MapVal, OMapVal
+from rex.core import MaybeVal, SeqVal, StrVal, AnyVal, MapVal, OMapVal
 from rex.port import Port
 from rex.widget import Field, FormFieldsetVal, responder, PortURL
 from rex.widget import formfield, dataspec
@@ -76,6 +76,13 @@ class Edit(Action):
 
         If not specified then it will be generated automatically based on the
         data schema.
+        """)
+
+    value = Field(
+        MapVal(StrVal(), AnyVal()), default={},
+        doc="""
+        Initial form value which will be merged with entity fetched from
+        database.
         """)
 
     input = Field(

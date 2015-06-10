@@ -54,10 +54,10 @@ var Edit = React.createClass({
   },
 
   render() {
-    var {fields, entity} = this.props;
+    var {onClose, width} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...EditStyle.self, width: this.props.width}}>
+      <VBox style={{...EditStyle.self, width}}>
         <VBox style={EditStyle.container} size={1}>
           <HBox style={EditStyle.header}>
             <VBox style={EditStyle.title}>
@@ -68,19 +68,12 @@ var Edit = React.createClass({
             <RexWidget.Button
               quiet
               icon="remove"
-              onClick={this.props.onClose}
+              onClick={onClose}
               />
           </HBox>
           <VBox style={EditStyle.content}>
             {this.data.data.loaded ?
-              <Forms.ConfigurableEntityForm
-                ref="form"
-                submitTo={this.dataSpecs.data}
-                submitButton={null}
-                value={this.data.data.data}
-                entity={entity.type}
-                fields={fields}
-                /> :
+              this.renderForm() :
               <RexWidget.Preloader />}
           </VBox>
         </VBox>
@@ -96,6 +89,21 @@ var Edit = React.createClass({
           </RexWidget.Button>
         </VBox>
       </VBox>
+    );
+  },
+
+  renderForm() {
+    var {entity, fields, value} = this.props;
+    value = mergeDeepInto(this.data.data.data, value);
+    return (
+      <Forms.ConfigurableEntityForm
+        ref="form"
+        submitTo={this.dataSpecs.data}
+        submitButton={null}
+        value={value}
+        entity={entity.type}
+        fields={fields}
+        />
     );
   },
 
@@ -119,6 +127,18 @@ var Edit = React.createClass({
   }
 });
 
+function mergeDeepInto(a, b) {
+  a = {...a};
+  for (var k in b) {
+    if (b.hasOwnProperty(k)) {
+      if (typeof b[k] === 'object') {
+        a[k] = mergeDeepInto(a[k], b[k]);
+      } else {
+        a[k] = b[k];
+      }
+    }
+  }
+  return a;
+}
+
 module.exports = Edit;
-
-

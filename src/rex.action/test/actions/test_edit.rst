@@ -118,6 +118,7 @@ Value also used to generate port::
   ...     givenname: Andrey
   ... fields:
   ... - value_key: code
+  ... - value_key: identity
   ... """)
 
   >>> make.port

@@ -337,10 +337,20 @@ var Wizard = React.createClass({
     }
 
     var {translateX, visiblePanels, actionTree} = this.state;
-    var panels = this.state.wizard.panels.map((p, i) =>
+    var panels = this.state.wizard.panels.map((p, i) => {
+      var key;
+      if (p.isService) {
+        key = '';
+      } else {
+        key = Object
+                .keys(p.element.props.contextSpec.input)
+                .map(k => p.context[k])
+                .join('__');
+      }
+      return (
         <WizardItem
           ref={p.id}
-          key={p.id}
+          key={p.id + '__' + key}
           actionId={p.id}
           actions={this.props.actions.actions}
           siblingActions={p.isService ? [] : Object.keys(p.prev.actionTree)}
@@ -357,7 +367,8 @@ var Wizard = React.createClass({
             onClose: this.onClose.bind(null, p.id)
           })}
         </WizardItem>
-    );
+      );
+    });
 
     var breadcrumb = this.state.wizard.panels.map(p => ({
       id: p.id,

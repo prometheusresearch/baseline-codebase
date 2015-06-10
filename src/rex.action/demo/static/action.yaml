@@ -104,6 +104,7 @@
   id: view-individual
   entity: individual
   fields:
+  - code
   - identity.givenname
   - identity.surname
   - sex

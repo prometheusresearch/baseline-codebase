@@ -111,6 +111,8 @@ class Make(Action):
         return self.port(req)
 
     def context(self):
-        input = {v[1:]: v[1:] for v in self.value.values() if v.startswith('$')}
+        input = {v[1:]: v[1:]
+                 for v in self.value.values()
+                 if isinstance(v, basestring) and v.startswith('$')}
         output = {self.entity.name: self.entity.type}
         return input, output

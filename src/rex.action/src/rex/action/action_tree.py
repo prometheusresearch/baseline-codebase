@@ -58,6 +58,8 @@ class ActionLevelVal(Validate):
         inputs, outputs = self.actions[action_id].context()
         # typecheck current level
         for label, typ in inputs.items():
+            if label == 'USER':
+                continue
             other_typ = self.context.get(label, NotImplemented)
             if other_typ is NotImplemented:
                 error = Error(

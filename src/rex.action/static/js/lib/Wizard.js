@@ -351,7 +351,7 @@ var Wizard = React.createClass({
           onFocus={this.onFocus}>
           {cloneWithProps(p.element, {
             ref: p.id,
-            context: {...p.context, USER: __REX_USER__},
+            context: {...p.context, USER: "'" + __REX_USER__ + "'"},
             wizard: this.state.wizard,
             onContext: this.onContext.bind(null, p.id),
             onClose: this.onClose.bind(null, p.id)

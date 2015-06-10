@@ -43,7 +43,7 @@ function buildValue(spec, context) {
   for (var key in spec) {
     var item = spec[key];
     if (item[0] === '$') {
-      value[key] = context[key];
+      value[key] = context[item.substr(1)];
     } else {
       value[key] = item;
     }

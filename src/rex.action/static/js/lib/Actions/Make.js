@@ -143,8 +143,13 @@ var Make = React.createClass({
 
   onSubmitComplete(data) {
     this.props.onSubmitComplete(data);
+
     var key = this.state.key + 1;
     this.setState({key});
+
+    var nextContext = {...this.props.context};
+    nextContext[this.props.entity.name] = data.id;
+    this.props.onContext(nextContext);
   },
 
   statics: {

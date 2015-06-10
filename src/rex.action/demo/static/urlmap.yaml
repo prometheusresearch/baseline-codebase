@@ -6,6 +6,7 @@ paths:
       actions:
         - home:
           - make-individual:
+            - view-individual:
           - make-study:
           - pick-study:
             - view-study:

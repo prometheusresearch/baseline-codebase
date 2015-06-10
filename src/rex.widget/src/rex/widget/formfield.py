@@ -216,9 +216,12 @@ class FormField(Extension):
         return self.__class__(**next_values)
 
     def __merge__(self, other):
+        allowed_keys = set(f[0] for f in self.__class__._default_fields + self.__class__.fields)
         next_values = {}
         next_values.update(self.values)
         next_values.update(other.values)
+        next_values = {k: v for k, v in next_values.items()
+                            if k in allowed_keys}
         return self.__class__(**next_values)
 
     def __call__(self):

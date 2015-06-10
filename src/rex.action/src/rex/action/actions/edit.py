@@ -101,6 +101,7 @@ class Edit(Action):
             return Port(self.entity.type, db=self.db)
         else:
             value_fields = _value_to_fieldset(self.value).fields
+            value_fields = formfield.enrich(value_fields, Port(self.entity.type, db=self.db))
             return formfield.to_port(self.entity.type, value_fields + self.fields, db=self.db)
 
     def _construct_data_spec(self, port_url):

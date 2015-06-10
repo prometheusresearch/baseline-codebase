@@ -62,6 +62,7 @@ var Pick = React.createClass({
             throttleOnChange={500}
             />}
         <RexWidget.DataTable
+          dataSort={makeSortKey(this.props.sort)}
           sortable={this.props.sortable}
           resizableColumns={this.props.resizableColumns}
           dataSpec={this.dataSpecs.data}
@@ -102,5 +103,12 @@ var Pick = React.createClass({
     }
   }
 });
+
+function makeSortKey(sort) {
+  if (!sort) {
+    return;
+  }
+  return sort.asc ? sort.field : `-${sort.field}`;
+}
 
 module.exports = Pick;

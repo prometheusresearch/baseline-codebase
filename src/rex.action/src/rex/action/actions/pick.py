@@ -11,9 +11,9 @@ import re
 from cached_property import cached_property
 from collections import OrderedDict
 
-from rex.core import StrVal, OneOfVal, SeqVal, BoolVal, MaybeVal, OMapVal
+from rex.core import StrVal, OneOfVal, SeqVal, BoolVal, MaybeVal, OMapVal, BoolVal, RecordVal
 from rex.port import Port
-from rex.widget import Field, ColumnVal, FormFieldVal, responder, PortURL
+from rex.widget import Field, ColumnVal, FormFieldVal, responder, PortURL, undefined
 from rex.widget import dataspec, formfield
 
 from ..action import Action
@@ -75,6 +75,12 @@ class Pick(Action):
         HTSQL expression which is used to filter out records.
 
         It can reference context variables declared in the ``input`` field.
+        """)
+
+    sort = Field(
+        RecordVal(('field', StrVal()), ('asc', BoolVal(), True)), default=undefined,
+        doc="""
+        Column for sorting
         """)
 
     input = Field(
@@ -143,6 +149,8 @@ class Pick(Action):
             bindings['*:__search__'] = dataspec.StateBinding('search')
         if self.mask and self.input:
             bindings['*:__mask__'] = ContextBinding(self.input.keys(), is_join=False)
+        if self.sort:
+            bindings['*.%s:sort' % self.sort.field] = 'asc' if self.sort.asc else 'desc'
         return dataspec.CollectionSpec(port_url, bindings)
 
     @responder(wrap=_construct_data_spec, url_type=PortURL)

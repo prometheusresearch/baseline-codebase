@@ -25,6 +25,8 @@
   id: pick-study
   entity: study
   search: title~$search
+  sort:
+    field: title
   columns:
   - code
   - title

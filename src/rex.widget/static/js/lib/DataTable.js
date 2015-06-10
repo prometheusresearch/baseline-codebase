@@ -134,7 +134,7 @@ var DataTable = React.createClass({
         <BaseDataTable
           {...this.props}
           hasMore={hasMore}
-          dataSort={sort && `${sort.direction === 'desc' ? '-' : '+'}${sort.column}`}
+          dataSort={sort ? `${sort.direction === 'desc' ? '-' : '+'}${sort.column}` : this.props.dataSort}
           onDataSort={this.onDataSort}
           dataPagination={pagination}
           onDataPagination={this.onDataPagination}

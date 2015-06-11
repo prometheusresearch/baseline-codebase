@@ -113,6 +113,7 @@ var PickDate = React.createClass({
   renderDay(props) {
     var key = props.value.format('YYYY-MM-DD');
     var annotated = this.__annotateMonthQueryIndex[key];
+    var title = typeof annotated === 'string' ? annotated : undefined;
     var style = {};
     if (annotated) {
       style = {...style, ...PickDateStyle.onAnnotated.cell};
@@ -122,7 +123,7 @@ var PickDate = React.createClass({
     }
     var className = `day ${props.showToday && props.today ? 'today' : ''}`;
     return (
-      <td key={props.key} className={className} onClick={props.onClick} style={style}>
+      <td key={props.key} title={title} className={className} onClick={props.onClick} style={style}>
         {props.value.date()}
       </td>
     );
@@ -131,6 +132,7 @@ var PickDate = React.createClass({
   renderMonth(props) {
     var key = `${props.year}-${props.month +1}`;
     var annotated = this.__annotateYearQueryIndex[key];
+    var title = typeof annotated === 'string' ? annotated : undefined;
     var style = {};
     if (annotated) {
       style = {...style, ...PickDateStyle.onAnnotated.cell};
@@ -139,7 +141,7 @@ var PickDate = React.createClass({
       style = {...style, ...PickDateStyle.onActive.cell};
     }
     return (
-      <span key={props.key} className="month" onClick={props.onClick} style={style}>
+      <span key={props.key} title={title} className="month" onClick={props.onClick} style={style}>
         {props.value}
       </span>
     );

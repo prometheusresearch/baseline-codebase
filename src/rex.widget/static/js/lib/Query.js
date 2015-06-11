@@ -26,11 +26,11 @@ class Query {
   }
 
   produceCollection(params) {
-    return this.produce()
+    return this.produce(params)
   }
 
   produceEntity(params) {
-    return this.produce()
+    return this.produce(params)
   }
 }
 

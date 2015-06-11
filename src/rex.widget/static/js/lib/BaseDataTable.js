@@ -109,7 +109,7 @@ var DataTable = React.createClass({
           element={Box}
           size={1}
           className={className}
-          style={style}>
+          style={{...style, cursor: 'pointer'}}>
           <Table
             {...props}
             onContentHeightChange={isTouchDevice ? this._onContentDimensionsChange : undefined}

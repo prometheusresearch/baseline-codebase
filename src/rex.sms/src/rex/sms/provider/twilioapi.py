@@ -3,8 +3,11 @@
 #
 
 
-from rex.core import get_settings, Error, Setting, StrVal
+import time
+
+from rex.core import get_settings, Error, Setting, StrVal, IntVal
 from twilio.rest import TwilioRestClient
+from twilio.rest.exceptions import TwilioRestException
 
 from .base import SmsProvider
 
@@ -59,11 +62,27 @@ class TwilioSmsProvider(SmsProvider):
         if redirect:
             recipient = redirect
 
-        message = self.client.messages.create(
-            to=recipient,
-            from_=self.from_number,
-            body=message,
-        )
+        attempts = 0
+        retry_delay = get_settings().sms_twilio_retry_delay / 1000.0
+
+        while True:
+            try:
+                attempts += 1
+                message = self.client.messages.create(
+                    to=recipient,
+                    from_=self.from_number,
+                    body=message,
+                )
+                return
+
+            except TwilioRestException as exc:
+                if exc.status >= 500:
+                    if attempts < get_settings().sms_twilio_max_attempts:
+                        time.sleep(retry_delay)
+                    else:
+                        raise
+                else:
+                    raise
 
 
 class SmsTwilioAccountSidSetting(Setting):
@@ -95,8 +114,34 @@ class SmsTwilioTimeoutSetting(Setting):
     """
 
     name = 'sms_twilio_timeout'
-    validate = StrVal()
+    validate = IntVal()
     default = 5
+
+
+class SmsTwilioMaxAttemptsSetting(Setting):
+    """
+    The number of times the system should attempt to invoke the Twilio API if
+    it encounters errors from the Twilio server.
+
+    Defaults to: 3
+    """
+
+    name = 'sms_twilio_max_attempts'
+    validate = IntVal()
+    default = 3
+
+
+class SmsTwilioRetryDelaySetting(Setting):
+    """
+    The number of milliseconds the use as a delay between failed Twilio API
+    attempts.
+
+    Defaults to: 1000
+    """
+
+    name = 'sms_twilio_retry_delay'
+    validate = IntVal()
+    default = 1000
 
 
 class SmsTwilioFromNumber(Setting):

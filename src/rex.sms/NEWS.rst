@@ -11,6 +11,8 @@ REX.SMS Change Log
 * Added a ``logging`` provider that sends messages through the rex.logging
   framework, rather than actually sending the SMS message.
 * Upgraded Twilio client library.
+* Added some automatic retrying to the Twilio provider, in case of server
+  errors.
 
 
 0.2.0 (2015-03-26)

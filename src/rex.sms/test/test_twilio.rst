@@ -8,11 +8,11 @@ their recipients::
 
     >>> from rex.sms import send_sms, get_sms_provider
     >>> from rex.core import Rex
+    >>> from mock import MagicMock
 
     >>> rex = Rex('rex.sms', sms_provider='twilio', sms_twilio_account_sid='abc123', sms_twilio_token='def456', sms_twilio_from_number='8002223333')
     >>> rex.on()
 
-    >>> from mock import MagicMock
     >>> mockTwilio = MagicMock()
     >>> get_sms_provider().client = mockTwilio
 
@@ -25,12 +25,49 @@ their recipients::
     >>> rex = Rex('rex.sms', sms_provider='twilio', sms_twilio_account_sid='abc123', sms_twilio_token='def456', sms_twilio_from_number='8002223333', sms_force_recipient='2035559999')
     >>> rex.on()
 
-    >>> from mock import MagicMock
     >>> mockTwilio = MagicMock()
     >>> get_sms_provider().client = mockTwilio
 
     >>> send_sms('2035551234', 'hello world')
     >>> mockTwilio.messages.create.assert_called_once_with(body='hello world', to='+12035559999', from_='8002223333')
+
+    >>> rex.off()
+
+
+If the call to Twilio results in a 500-series error code, we'll retry a few
+times before raising the exception::
+
+    >>> rex = Rex('rex.sms', sms_provider='twilio', sms_twilio_account_sid='abc123', sms_twilio_token='def456', sms_twilio_from_number='8002223333')
+    >>> rex.on()
+
+    >>> from twilio.rest.exceptions import TwilioRestException
+    >>> def twilio_fail(*args, **kwargs):
+    ...     raise TwilioRestException(500, 'http://fake')
+    >>> mockTwilio = MagicMock()
+    >>> mockTwilio.messages.create.side_effect = twilio_fail
+    >>> get_sms_provider().client = mockTwilio
+
+    >>> send_sms('2035551234', 'hello world')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TwilioRestException: ...
+
+    >>> mockTwilio.messages.create.call_count
+    3
+
+    >>> def twilio_fail(*args, **kwargs):
+    ...     raise TwilioRestException(401, 'http://fake')
+    >>> mockTwilio = MagicMock()
+    >>> mockTwilio.messages.create.side_effect = twilio_fail
+    >>> get_sms_provider().client = mockTwilio
+
+    >>> send_sms('2035551234', 'hello world')  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    TwilioRestException: ...
+
+    >>> mockTwilio.messages.create.call_count
+    1
 
     >>> rex.off()
 

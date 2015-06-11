@@ -108,6 +108,9 @@ class Query(object):
 
     `path_or_query`
         An HTSQL query or a path to a ``.htsql`` file.
+    `db`
+        A name or an instance of HTSQL database. If not provided then the
+        default HTSQL database will be used.
     """
 
     # Pattern to recognize a path to a `.htsql` file.
@@ -118,8 +121,9 @@ class Query(object):
                               MapVal(StrVal(), MaybeVal(StrVal())),
                               {})])
 
-    def __init__(self, path_or_query):
+    def __init__(self, path_or_query, db=None):
         self.path_or_query = path_or_query
+        self.db = db
         # If the input is a path to `.htsql` file, parse the file.
         if self.path_re.match(self.path_or_query):
             packages = get_packages()
@@ -130,6 +134,15 @@ class Query(object):
         else:
             self.query = path_or_query
             self.parameters = None
+
+    def get_db(self):
+        """ Get configured HTSQL database instance."""
+        db = self.db
+        if db is None:
+            db = get_db()
+        elif isinstance(db, basestring):
+            db = get_db(db)
+        return db
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.path_or_query)
@@ -149,7 +162,7 @@ class Query(object):
         except Error, error:
             return req.get_response(error)
         # Execute the query and render the output.
-        with get_db():
+        with self.get_db():
             try:
                 product = produce(self.query, parameters)
                 format = accept(req.environ)
@@ -170,7 +183,7 @@ class Query(object):
             Dictionaries with query parameters.
         """
         parameters = self._merge(environment, **arguments)
-        with get_db():
+        with self.get_db():
             return produce(self.query, parameters)
 
     def format(self, content_type, environment=None, **arguments):
@@ -189,7 +202,7 @@ class Query(object):
         # Merge default and input parameters.
         parameters = self._merge(environment, **arguments)
         # Execute the query and render the output.
-        with get_db():
+        with self.get_db():
             product = produce(self.query, parameters)
             return "".join(emit(content_type, product))
 

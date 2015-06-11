@@ -432,4 +432,61 @@ formatter::
     }
     <BLANKLINE>
 
+``Query`` object can be used to query data from a specific gateway::
 
+    >>> gateway = Rex('rex.db_demo', './test/data/gateway/',
+    ...               db='sqlite:./sandbox/db_demo.sqlite')
+
+We can refer to gateway by its name::
+
+    >>> with gateway:
+    ...     print Query('count(instructor)', db='gateway').produce()
+    123
+
+    >>> req = Request.blank('/', accept='application/json')
+    >>> with gateway:
+    ...     print Query('count(instructor)', db='gateway')(req) # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: application/javascript
+    Content-Disposition: inline; filename="count(instructor).js"
+    Vary: Accept
+    Content-Length: ...
+    <BLANKLINE>
+    {
+      "0": 123
+    }
+    <BLANKLINE>
+
+    >>> with gateway:
+    ...     print Query('count(instructor)', db='gateway').format('json')
+    {
+      "0": 123
+    }
+    <BLANKLINE>
+
+Or pass a HTSQL instance itself::
+
+    >>> with gateway:
+    ...     print Query('count(instructor)', db=get_db('gateway')).produce()
+    123
+
+    >>> req = Request.blank('/', accept='application/json')
+    >>> with gateway:
+    ...     print Query('count(instructor)', db=get_db('gateway'))(req) # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: application/javascript
+    Content-Disposition: inline; filename="count(instructor).js"
+    Vary: Accept
+    Content-Length: ...
+    <BLANKLINE>
+    {
+      "0": 123
+    }
+    <BLANKLINE>
+
+    >>> with gateway:
+    ...     print Query('count(instructor)', db=get_db('gateway')).format('json')
+    {
+      "0": 123
+    }
+    <BLANKLINE>

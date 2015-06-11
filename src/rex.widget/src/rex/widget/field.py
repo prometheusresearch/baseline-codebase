@@ -195,7 +195,11 @@ class ResponderField(FieldBase):
         return self.__class__(**next_params)
 
     def __call__(self, widget):
-        pointer = Pointer(widget, url_type=self.url_type, wrap=self.wrap, path=[self.name])
+        pointer = Pointer(
+            widget,
+            url_type=self.url_type,
+            wrap=self.wrap,
+            to_field=True)
         respond = partial(self.respond, widget)
         return Responder(pointer, respond)
 

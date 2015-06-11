@@ -19,11 +19,11 @@ class Pointer(Transitionable):
     widget hierarchy.
     """
 
-    def __init__(self, widget, path=None, url_type=URL, wrap=None):
+    def __init__(self, widget, url_type=URL, wrap=None, to_field=False):
         self.widget = widget
-        self.path = path or []
         self.url_type = url_type
         self.wrap = wrap
+        self.to_field = to_field
 
     def __repr__(self):
         return '<%s to %s of %s>' % (
@@ -35,10 +35,8 @@ class Pointer(Transitionable):
     __unicode__ = __repr__
 
     def __transit_format__(self, req, path):
-        path = path[:-2]
-        if self.path:
-            path.append(1)
-            path = path + self.path
+        if not self.to_field:
+            path = path[:-2]
         path = KeyPathVal.to_string(path)
         url = self.url_type(req.path_url, params={'__to__': path})
         if self.wrap:

@@ -132,3 +132,7 @@ class JSONGetSig(BinarySig):
     pass
 
 
+class JSONGetJSONSig(BinarySig):
+    pass
+
+

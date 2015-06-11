@@ -205,9 +205,15 @@ untyped JSON literals::
       "2": {}
     }
 
-You can extract values from a JSON object using ``json_get()`` function::
+You can extract values from a JSON object using ``json_get()`` and
+``json_get_json()`` functions::
 
-    >>> q = Query(''' boolean(json_get(json('{"victory": true}'), 'victory')) ''')
+    >>> q = Query('''
+    ...     json('{"result": {"victory": true}}')
+    ...     :json_get_json('result')
+    ...     :json_get('victory')
+    ...     :boolean
+    ... ''')
     >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
     {
       "0": true

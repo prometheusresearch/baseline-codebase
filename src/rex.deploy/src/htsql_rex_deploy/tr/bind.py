@@ -20,7 +20,7 @@ from .signature import (REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
         FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
-        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig)
+        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig)
 
 
 class SelectEntity(SelectRecord):
@@ -52,6 +52,14 @@ class BindJSONGet(BindMonoFunction):
     signature = JSONGetSig
     domains = [JSONDomain(), TextDomain()]
     codomain = TextDomain()
+
+
+class BindJSONGetJSON(BindMonoFunction):
+
+    call('json_get_json')
+    signature = JSONGetJSONSig
+    domains = [JSONDomain(), TextDomain()]
+    codomain = JSONDomain()
 
 
 class BindREMatches(BindMonoFunction):

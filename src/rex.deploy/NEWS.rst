@@ -11,6 +11,7 @@
 * Added a workaround for PostgreSQL dropping constraint comments.
 * Allow deleted fields in ``with`` clause.
 * Fixed incompatibility with ``tweak.override`` HTSQL plugin.
+* Added ``json_get_json()`` function.
 
 
 2.3.1 (2015-04-07)

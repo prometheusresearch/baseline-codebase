@@ -12,7 +12,7 @@ from .signature import (REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
         FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
-        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig)
+        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig)
 
 
 class DumpToJSON(DumpToDomain):
@@ -27,6 +27,12 @@ class DumpJSONGet(DumpFunction):
 
     adapt(JSONGetSig)
     template = "({lop} ->> {rop})"
+
+
+class DumpJSONGetJSON(DumpFunction):
+
+    adapt(JSONGetJSONSig)
+    template = "({lop} -> {rop})"
 
 
 class DumpREMatches(DumpFunction):

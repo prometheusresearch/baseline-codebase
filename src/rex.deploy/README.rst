@@ -1278,6 +1278,8 @@ PostgreSQL functions:
     Converts a text value to JSON.
 ``json_get(obj, name)``
     Extracts field ``name`` from a JSON object as a text value.
+``json_get_json(obj, name)``
+    Extracts field ``name`` from a JSON object as a JSON object.
 ``re_matches(text, pat)``
     Checks if ``text`` matches the regular expression ``pat``.
 ``ft_matches(text, key)``

@@ -113,3 +113,18 @@
 
 - type: pick-date
   id: pick-date
+  annotate_month: |
+    /identity?
+      year(birthdate)=$year&
+      month(birthdate)=$month
+    ^(date(birthdate) :as date){
+      date,
+      count(identity) :as value
+    }
+  annotate_year: |
+    /identity?
+      year(birthdate)=$year
+    ^(text(year(birthdate)) + '-' + text(month(birthdate)) :as date){
+      date,
+      count(identity) :as value
+    }

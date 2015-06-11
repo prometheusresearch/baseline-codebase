@@ -37,14 +37,43 @@ var PickDateStyle = {
   datepickerPickerTable: {
     width: '100%',
     height: '100%'
+  },
+  onActive: {
+    cell: {
+      backgroundColor: '#3071a9',
+      color: '#fff'
+    }
+  },
+  onAnnotated: {
+    cell: {
+      backgroundColor: 'rgb(255, 221, 221)'
+    }
   }
 };
 
 var PickDate = React.createClass({
+  mixins: [RexWidget.DataSpecificationMixin],
+
+  dataSpecs: {
+    annotateMonthQuery: RexWidget.DataSpecification.collection({
+      year: RexWidget.DataSpecification.computed((_, state) => state.viewDate.year()),
+      month: RexWidget.DataSpecification.computed((_, state) => state.viewDate.month() + 1)
+    }),
+    annotateYearQuery: RexWidget.DataSpecification.collection({
+      year: RexWidget.DataSpecification.computed((_, state) => state.viewDate.year())
+    })
+  },
+
+  fetchDataSpecs: {
+    annotateMonthQuery: true,
+    annotateYearQuery: true
+  },
 
   render() {
     var {onClose} = this.props;
     var title = this.constructor.getTitle(this.props);
+    this.__annotateMonthQueryIndex = buildIndex(this.data.annotateMonthQuery.data);
+    this.__annotateYearQueryIndex = buildIndex(this.data.annotateYearQuery.data);
     return (
       <VBox style={{...PickDateStyle.self, width: this.props.width}}>
         <HBox style={PickDateStyle.header}>
@@ -60,6 +89,8 @@ var PickDate = React.createClass({
         <VBox style={PickDateStyle.content}>
           <Datepicker
             style={{...PickDateStyle.datepicker, height: this.props.width}}
+            renderDay={this.renderDay}
+            renderMonth={this.renderMonth}
             pickerStyle={PickDateStyle.datepickerPicker}
             pickerTableStyle={PickDateStyle.datepickerPickerTable}
             viewDate={this.state.viewDate}
@@ -79,6 +110,41 @@ var PickDate = React.createClass({
     );
   },
 
+  renderDay(props) {
+    var key = props.value.format('YYYY-MM-DD');
+    var annotated = this.__annotateMonthQueryIndex[key];
+    var style = {};
+    if (annotated) {
+      style = {...style, ...PickDateStyle.onAnnotated.cell};
+    }
+    if (props.active) {
+      style = {...style, ...PickDateStyle.onActive.cell};
+    }
+    var className = `day ${props.showToday && props.today ? 'today' : ''}`;
+    return (
+      <td key={props.key} className={className} onClick={props.onClick} style={style}>
+        {props.value.date()}
+      </td>
+    );
+  },
+
+  renderMonth(props) {
+    var key = `${props.year}-${props.month +1}`;
+    var annotated = this.__annotateYearQueryIndex[key];
+    var style = {};
+    if (annotated) {
+      style = {...style, ...PickDateStyle.onAnnotated.cell};
+    }
+    if (props.active) {
+      style = {...style, ...PickDateStyle.onActive.cell};
+    }
+    return (
+      <span key={props.key} className="month" onClick={props.onClick} style={style}>
+        {props.value}
+      </span>
+    );
+  },
+
   getDefaultProps() {
     return {
       icon: 'calendar',
@@ -89,7 +155,7 @@ var PickDate = React.createClass({
   getInitialState() {
     return {
       viewDate: moment(),
-      selectedDate: moment()
+      selectedDate: moment('0000-00-00')
     };
   },
 
@@ -168,5 +234,24 @@ var PickDate = React.createClass({
     }
   }
 });
+
+function buildIndex(data) {
+  if (data && data.hasOwnProperty('__index')) {
+    return data.__index;
+  }
+  if (!data) {
+    return {};
+  }
+  var key = Object.keys(data)[0];
+  var rows = data[key];
+  var index = {};
+
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    index[row.date] = row.value;
+  }
+  data.__index = index;
+  return index;
+}
 
 module.exports = PickDate;

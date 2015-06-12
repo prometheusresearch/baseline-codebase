@@ -5,10 +5,11 @@
 .. contents:: Table of Contents
 
 
-3.3.0 (2015-XX-XX)
+3.3.0 (2015-06-12)
 ==================
 
 * Added ``rex sqlshell`` command.
+* ``Query`` now supports gateways.
 
 
 3.2.0 (2015-04-23)

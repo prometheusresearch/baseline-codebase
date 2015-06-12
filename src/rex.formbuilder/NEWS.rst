@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.2.0 (2015-xx-xx)
+5.2.0 (2015-06-12)
 ==================
 
 * Minor updates due to refactoring of rex.instrument/rex.forms APIs and the

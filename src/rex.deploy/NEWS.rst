@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.3.2 (2015-XX-XX)
+2.3.2 (2015-06-12)
 ==================
 
 * Added a workaround for PostgreSQL dropping constraint comments.

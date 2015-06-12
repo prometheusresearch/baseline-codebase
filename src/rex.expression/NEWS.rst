@@ -5,7 +5,7 @@ REX.EXRESSION Change Log
 .. contents:: Table of Contents
 
 
-1.5.1 (2015-xx-xx)
+1.5.1 (2015-06-12)
 ==================
 
 - Removed explicit setup dependency on ``rex.setup``.

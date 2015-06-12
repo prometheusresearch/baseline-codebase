@@ -5,7 +5,7 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
-0.4.2 (2015-xx-xx)
+0.4.2 (2015-06-12)
 ==================
 
 * Numerous fixes to better support regional language variations (e.g., "en" vs

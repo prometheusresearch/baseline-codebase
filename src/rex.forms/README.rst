@@ -12,10 +12,12 @@ This package is responsible for three areas of functionality:
 
 * Defining a basic set of class interfaces for building applications that
   make use of web-based Electronic Data Capture (EDC) Forms functionality.
-* Providing the functionality to validate and construct Web Form
-  Configuration structures.
+* Extending the implementation of the `PRISMH`_ specification and model in the
+  RexDB platform.
 * Providing a JavaScript library for rendering and orchestrating the Forms
   defined by this package within a web page.
+
+.. _`PRISMH`: https://prismh-specification.readthedocs.org
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -46,16 +48,6 @@ DraftForm
     This class represents a version of a Form that is in the process of being
     created. It is not available for use by the system to collect data until it
     is published.
-
-
-Format Validation
-=================
-
-This package also provides the means to validate the JSON-encoded Web Form
-Configuration structures that are used as part of a web-based EDC application.
-
-To validate that a form configuration complies with the Web Form Configuration
-specification, you can use the ``Form.validate_configuration()`` method.
 
 
 Settings

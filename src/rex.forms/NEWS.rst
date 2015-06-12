@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.30.0 (2015-xx-xx)
+0.30.0 (2015-06-12)
 ===================
 
 - THIS RELEASE CONTAINS BACKWARDS-INCOMPATIBLE CHANGES. SEE UPGRADING.rst FOR
@@ -16,11 +16,6 @@ REX.FORMS Change Log
 - Now using the ``prismh.core`` library for all configuration validation and
   output logic.
 - Added a get_for_task() method to Form.
-
-
-0.29.2 (2015-xx-xx)
-===================
-
 - Fixed some issues with the audio player JavaScript component that would cause
   errors when it was unmounted before expected.
 

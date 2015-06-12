@@ -328,6 +328,48 @@ Widget pointer
   <BLANKLINE>
   ok
 
+Pointer to field::
+
+  >>> class WidgetWithFieldPointer(Widget):
+  ...   name = 'WidgetWithFieldPointer'
+  ...   js_type = 'WidgetWithFieldPointer'
+  ...
+  ...   @computed_field
+  ...   def pointer(self):
+  ...     return Pointer(self, to_field=True)
+
+  >>> w = WidgetWithFieldPointer()
+
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: 104
+  <BLANKLINE>
+  ["~#widget", ["WidgetWithFieldPointer", {"pointer": ["~#url", ["http://localhost/?__to__=1.pointer"]]}]]
+
+Pointer with wrapper::
+
+  >>> class WidgetWithWrappedPointer(Widget):
+  ...   name = 'WidgetWithWrappedPointer'
+  ...   js_type = 'WidgetWithWrappedPointer'
+  ...
+  ...   @computed_field
+  ...   def pointer(self):
+  ...     return Pointer(self, to_field=True, wrap=self.wrap)
+  ...
+  ...   def wrap(self, widget, url):
+  ...     return [url]
+
+  >>> w = WidgetWithWrappedPointer()
+
+  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: 108
+  <BLANKLINE>
+  ["~#widget", ["WidgetWithWrappedPointer", {"pointer": [["~#url", ["http://localhost/?__to__=1.pointer"]]]}]]
+
+
 Responder field
 ---------------
 

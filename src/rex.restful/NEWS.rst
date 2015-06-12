@@ -5,7 +5,7 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
-0.4.1 (2015-xx-xx)
+0.4.1 (2015-06-12)
 ==================
 
 * Removed explicit setup dependency on ``rex.setup``.

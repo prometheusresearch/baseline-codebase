@@ -1,0 +1,65 @@
+View action
+===========
+
+::
+
+  >>> from webob import Request
+
+  >>> from rex.core import Rex
+  >>> from rex.widget import render_widget
+  >>> from rex.action import Action
+
+Init
+----
+
+::
+
+  >>> rex = Rex('-', 'rex.action_demo')
+  >>> rex.on()
+
+In case fields are not specified, they are generated from port::
+
+  >>> drop= Action.validate("""
+  ... type: drop
+  ... id: drop-individual
+  ... entity: individual
+  ... """)
+
+  >>> drop # doctest: +NORMALIZE_WHITESPACE
+  Drop(icon=undefined,
+       width=undefined,
+       id='drop-individual',
+       title=undefined,
+       message=RST(src=u'<p>You are about to drop an entity</p>', links={}),
+       entity=EntityDeclaration(name='individual', type='individual'),
+       confirm_delay=undefined,
+       db=None)
+
+  >>> drop.context()
+  ({'individual': 'individual'}, {})
+
+  >>> drop.port
+  Port('''
+  entity: individual
+  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  ''')
+
+  >>> print render_widget(drop, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+
+  >>> print render_widget(drop, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/javascript
+  Content-Disposition: inline; filename="_.js"
+  Vary: Accept
+  Content-Length: ...
+
+Cleanup
+-------
+
+::
+
+  >>> rex.off()

@@ -47,7 +47,7 @@ We put action definitions in ``static/action.yaml``::
     id: view-individual
     entity: individual
 
-And we configure wizard through ``static/urlmap.yaml`` using ``<Wizard>``
+And we configure wizard in the ``static/urlmap.yaml`` through ``<Wizard>``
 widget::
 
   paths:

@@ -14,7 +14,7 @@ Overview
 ========
 
 This package provides a mechanism to define user interfaces by composing
-generic reusable actions together.
+generic reusable actions together to form wizards.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -30,111 +30,117 @@ R43MH099826.
 Configuration
 =============
 
-Rex Action introduces a new concept — UI actions.
+Interfaces built with Rex Action are *wizards*. Each step of wizard is
+represented with an *action*. As user advances the wizard they modify wizard's
+*context* (a set of currently selected entities) using actions.
 
-Action is a reusable piece of UI which can be composed with other actions
-together to form a specific workflow. Actions can only be performed in some
-context.
+For example, we can define actions ``pick-individual`` and ``view-individual``
+to form a simplest "select and view" wizard.
 
-Context represents a UI state of an application, in other words it represents a
-position of a user in an application. Rex Action models context as a set of
-key-value pairs where keys are arbitrary labels and values are types for those
-labels.
+We put action definitions in ``static/action.yaml``::
 
-Examples of contexts for actions are:
+  - type: pick
+    id: pick-individual
+    entity: individual
 
-  * An action which edits an individual in a database should have
-    context::
+  - type: view
+    id: view-individual
+    entity: individual
 
-      {
-        individual: individual,
-        ...
-      }
+And we configure wizard through ``static/urlmap.yaml`` using ``<Wizard>``
+widget::
 
-    where ``individual`` represents an individual this action renders an edit
-    form for. Symbol ``...`` tells us that context could contain other pairs.
+  paths:
+    /wizard/individual:
+      widget: !<Wizard>
+        actions:
+          - pick-individual:
+            - view-individual:
 
-  * An action which enrolls an individual into a study should have
-    context::
+The ``actions`` field of a ``<Wizard>`` is used to compose actions together to
+define wizard's steps.
 
-      {
-        individual: individual,
-        study: study,
-        ...
-      }
+The fact that ``view-individual`` "sits inside" ``pick-individual`` means that
+step corresponding to the former follows the step corresponding to the latter.
 
-    where ``individual`` represents an individual and ``study`` represents a
-    study.
+This is reasonable because ``view-individual`` requires an individual entity to
+be in context before it can show it.
 
-Actions can update context by adding/deleting keys. For example ``make`` action
-could update context will newly created individual.
+Thus every action has its requirements on wizard's context it can operate with.
+If it's used in a wrong place Rex Action will raise an error with a descriptive
+message. For example if we switch ``pick-individual`` and ``view-individual``::
 
-To configure actions, one should create ``static/action.yaml`` file in a package::
+  paths:
+    /wizard/individual/incorrect:
+      widget: !<Wizard>
+        actions:
+          - view-individual:
+            - pick-individual:
 
-    - type: page
-      id: home
-      title: Home
-      icon: home
-      text: |
-        Welcome to Rex Action Demo application.
+The app won't start and the following error appears::
 
-    - type: pick
-      id: pick-study
-      entity: study
-      columns:
-      - code
-      - title
-      - description
-
-    - type: make
-      id: make-study
-      entity: study
-      fields:
-      - code
-      - lab
-      - title
-      - closed
-
-    - type: view
-      id: view-study
-      entity: study
-
-A set of built-in actions such as ``page``, ``view``, ``pick``, ``make``,
-``edit`` and ``drop`` are provided by Rex Action.
-
-To compose a set of actions together one can use :class:`rex.action.Wizard`
-widget which is provide by Rex Action (``static/urlmap.yaml``)::
-
-    paths:
-      /:
-        widget: !<Wizard>
-          actions:
-            - home:
-              - pick-study:
-                - view-study:
-              - make-study:
-
-The root actions (``home`` in the example above) starts with an empty context
-``{}``. Then user navigates to ``pick-study`` and selects a row from the list
-the context updates with ``study: study`` and so ``view-study`` action becomes
-the next possible action.
-
-If one tries to configure ``view-study`` action by setting it in the place where
-no ``study: study`` is available in context::
-
-    paths:
-      /:
-        widget: !<Wizard>
-          actions:
-            - home:
-              - view-study:
-
-The following error arises::
-
-  Error: Action "view-study" cannot be used here:
-      Context is missing "study: study"
+  rex.core.error.Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
   Context:
       <empty context>
+  While parsing:
+      "myapp/static/urlmap.yaml", line 7
+
+It says ``individual: individual`` item is missing from context (which is empty)
+where in the previous configuration example it was provided by
+``pick-individual``.
+
+Why ``individual: individual``? This is an atomic piece of context, a pair of a
+label and a type of an entity: ``<label>: <type>``.
+
+Type is a name of the table in database from which entity is queried and label
+is used to disambiguate between multiple entities of the same type. For example
+the wizard which creates a family may have context consist of multiple
+individuals: ``individual: individual``, ``mother: individual`` and ``father:
+individual``.
+
+To specify what label should action "put" into context or "require" from context
+we can use ``<label>: <type>`` syntax directly in ``static/action.yaml``
+configuration::
+
+  - type: pick
+    id: pick-mother
+    entity:
+      mother: individual
+
+  - type: view
+    id: view-mother
+    entity:
+      mother: individual
+
+Note through that actions which work on entities of the same type but having
+different labels can't be composed together. For example the following wizard
+configuration::
+
+  paths:
+    /wizard/individual/incorrect:
+      widget: !<Wizard>
+        actions:
+          - pick-individual:
+            - view-mother:
+
+Will yield the following error::
+
+  rex.core.error.Error: Action "view-mother" cannot be used here:
+      Context is missing "mother: individual"
+  Context:
+      individual: individual (pick-individual)
+  While parsing:
+      "myapp/static/urlmap.yaml", line 8
+
+Which says that there isn't ``mother: individual`` in the context which consist
+of ``individual: individual`` provided by ``pick-individual`` action.
+
+Apart from ``pick`` and ``view`` action types shown in the examples, there are
+other built-in actions types: ``make``, ``edit``, ``drop`` and ``pick-date``.
+
+Developers can extend Rex Action by defining they own action types which are
+tailored to specific application needs.
 
 Creating custom action types
 ============================

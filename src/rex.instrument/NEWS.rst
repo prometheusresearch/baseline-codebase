@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-0.16.0 (2015-xx-xx)
+0.16.0 (2015-06-12)
 ===================
 
 * THIS RELEASE CONTAINS BACKWARDS-INCOMPATIBLE CHANGES. SEE UPGRADING.rst FOR

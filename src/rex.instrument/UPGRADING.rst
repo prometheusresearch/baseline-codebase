@@ -33,7 +33,7 @@ address those changes in your implementation.
 * Tasks no longer have a ``get_form()`` method. To retrive a Form for a given
   Task, you can instead do::
   
-    Forms.get_for_task(task, channel)
+    Form.get_for_task(task, channel)
 
 * Identifier strings in the Instrument Definitions can no longer contain
   underscore characters. Also, custom type names are now classifed as

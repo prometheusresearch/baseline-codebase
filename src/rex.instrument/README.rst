@@ -11,10 +11,12 @@ Overview
 This package is responsible for two areas of functionality:
 
 * Defining a basic set of class interfaces for building applications that
-  make use of Electronic Data Capture (EDC) functionality such as Instruments
-  and Assessments.
-* Providing the functionality to validate and construct Common Instrument
-  Definition and Common Assessment Document structures.
+  make use of Electronic Data Capture (EDC) functionality such as Instruments,
+  Assessments, and Tasks.
+* Providing the base implementation of the `PRISMH`_ specifications and model in
+  the RexDB platform.
+
+.. _`PRISMH`: https://prismh-specification.readthedocs.org
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -77,20 +79,6 @@ Entry
     that is used in a multiple-data-entry application to capture the separate
     instances of the data prior to reconcilation, or is used to record the
     previous revisions of an Assessment if it is modified after completion.
-
-
-Format Validation
-=================
-
-This package also provides the means to validate the JSON-encoded Common
-Instrument Definition and Common Assessment Document structures that are used
-as part of the EDC applications.
-
-To validate that an instrument definition complies with the Common Instrument
-Definition standard, you can use the 
-``InstrumentVersion.validate_definition()`` method. To validate that assessment
-data complies with the Common Assessment Document standard, you can use the
-``Assessment.validate_data()`` method.
 
 
 Settings

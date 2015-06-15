@@ -7,3 +7,5 @@
    authoring
    dataspec
    state
+   formfield
+   ../transitionable

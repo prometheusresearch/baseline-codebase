@@ -10,3 +10,4 @@ dist
 www/bundle/*
 node_modules
 bower_components
+*.v.*

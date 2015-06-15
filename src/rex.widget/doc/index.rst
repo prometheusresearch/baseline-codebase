@@ -22,6 +22,7 @@ R43MH099826.
 
    overview
    guide/index
+   migration_guide
    cookbook
    py_reference
    js_reference

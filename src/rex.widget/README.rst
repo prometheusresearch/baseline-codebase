@@ -1,8 +1,9 @@
 Configuration Guide
 ===================
 
-Rex Widget adds a new type of URL mapping handler which can be used to define
-application screens by composing predefined widgets::
+Rex Widget provides a URL mapping handler named `widget`. 
+With this handler you map a path to an 
+application screen composed of predefined widgets::
 
   paths:
     /screen:
@@ -13,40 +14,47 @@ application screens by composing predefined widgets::
         - !<DataTable>
           data: package:/data
 
-Visiting ``/screen`` URL will in a browser will show rendered screen.
+With this declaration, visiting ``/screen`` in your browser will 
+render the ApplicationPage widget.
+
+The ApplicationPage will be rendered with the title **Hello, world!**, 
+and the data will be fetched from the **package:/data** port.
 
 Overrides
 ---------
 
 The ``access`` and ``widget`` parameters of a handler are overridable as
-documented in the Rex URLMap documentation.
+documented in `rex.urlmap`_.
 
-For example one can override access configuration for a screen::
+For example one can override the access setting to the above ApplicationPage::
 
   paths:
     /screen: !override
       access: authenticated
 
-or override an entire widget hierarchy::
+You can override an entire widget hierarchy::
 
   paths:
     /screen: !override
       widget: !<ApplicationPageWithCustomizations>
 
-But overriding an entire widget hierarchy isn't practical in cases when you want
-to alter configuration of just few parameters. Rex Widget provides more granular
-override mechanism.
+Now when you visit /screen, the ApplicationPageWithCustomizations
+widget will be rendered instead.
+
+But overriding an entire widget hierarchy isn't practical 
+when you only want to alter a few parameters. 
+Rex Widget provides a more granular
+override mechanism called "slots".
 
 Granular overrides via slots
 ----------------------------
 
-Rex Widget provides another override mechanism which allows to supply override
-values deep inside the widget hierarchy without requiring to re-define an entire
-hierarchy.
+With slots you can override values deep inside a widget's hierarchy 
+without re-defining the entire hierarchy.
 
-Not every parameter could be overridden but only those marked as *slots* within
-the original URL mapping entry. Each slot has a name and a default value. The
-special syntax ``!slot`` is used to define slots::
+Any field marked as a **slot** in the original URL mapping entry
+may be overridden.  Each slot has a name and a default value. 
+The special syntax ``!slot`` is used to define slots::
 
   paths:
     /screen:
@@ -61,11 +69,18 @@ special syntax ``!slot`` is used to define slots::
             name: data
             default: package:/data
 
-The configuration snippet above defines two slots ``page_title`` and ``data``
-which can be overridden via ``slots`` key in an override entry::
+The configuration snippet above defines two slots 
+named ``page_title`` and ``data``
+which can be overridden via the ``slots`` key in an override entry::
 
   paths:
 
     /screen: !override
       slots:
         page_title: Overridden title
+
+Now when you visit /screen, the ApplicationPage will render 
+with the title **Overridden title**.
+
+.. _rex.urlmap:  ../rex.urlmap/index.html
+

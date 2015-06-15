@@ -1,0 +1,9 @@
+- table: assessment
+  with:
+  - data:
+    - uid: assessment8
+      subject: [subject1]
+      instrumentversion: [calculation2]
+      status: completed
+      evaluation_date: 2015-06-10
+      data: !include/str complex_assessment.json

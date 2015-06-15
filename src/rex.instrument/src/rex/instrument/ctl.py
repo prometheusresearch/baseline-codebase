@@ -250,9 +250,9 @@ class InstrumentStoreTask(RexTask):
     def __call__(self):
         with self.make():
             definition = open_and_validate(self.definition)
-
             instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
+
             if not instrument:
                 print 'An Instrument by "%s" does not exist; creating it.' % (
                     self.instrument_uid,

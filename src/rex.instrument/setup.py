@@ -25,6 +25,7 @@ setup(
     entry_points={
         'rex.ctl': [
             'instrument = rex.instrument.ctl',
+            'calculationset = rex.instrument.calculationsetctl'
         ],
     },
     install_requires=[

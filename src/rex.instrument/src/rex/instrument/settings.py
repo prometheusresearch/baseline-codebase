@@ -3,16 +3,18 @@
 #
 
 
-from rex.core import Setting, RecordVal, StrVal, BoolVal, IntVal
+from rex.core import Setting, RecordVal, StrVal, BoolVal, IntVal, SeqVal
 
 from .interface import User, Subject, Instrument, InstrumentVersion, \
-    Assessment, DraftInstrumentVersion, Channel, Task, Entry
+    Assessment, DraftInstrumentVersion, Channel, Task, Entry, \
+    CalculationSet, ResultSet, CalculationScopeAddon
 
 
 __all__ = (
     'InstrumentImplementationSetting',
     'InstrumentValidateOnStartupSetting',
     'InstrumentDefaultRequiredEntriesSetting',
+    'InstrumentCalculationMethodDefaultModuleListSetting'
 )
 
 
@@ -37,6 +39,8 @@ class InstrumentImplementationSetting(Setting):
       * channel
       * task
       * entry
+      * calculationset
+      * resultset
     """
 
     ALLOWED_INTERFACES = (
@@ -49,6 +53,8 @@ class InstrumentImplementationSetting(Setting):
         Channel,
         Task,
         Entry,
+        CalculationSet,
+        ResultSet
     )
 
     name = 'instrument_implementation'
@@ -108,4 +114,19 @@ class InstrumentDefaultRequiredEntriesSetting(Setting):
     name = 'instrument_default_required_entries'
     default = 1
     validate = IntVal(min_bound=1)
+
+
+class InstrumentCalculationMethodDefaultModuleListSetting(Setting):
+    """
+    A list of modules imported to execute in Python expression calculations. If
+    not specified, defaults to ``['re', 'math', 'cmath', 'datetime']``.
+
+    Example::
+
+        instrument_calculationmethod_default_module_list: ['math']
+    """
+
+    name = 'instrument_calculationmethod_default_module_list'
+    validate = SeqVal(StrVal)
+    default = ['re', 'math', 'cmath', 'datetime']
 

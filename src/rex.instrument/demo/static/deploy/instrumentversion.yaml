@@ -1,0 +1,10 @@
+- table: instrumentversion
+  with:
+  - data:
+    - uid: calculation2
+      instrument: [calculation-complex]
+      version: 1
+      published_by: someone
+      date_published: '2015-06-10'
+      definition: !include/str complex_instrument.json
+      calculation_json: !include complex_calculationset.json

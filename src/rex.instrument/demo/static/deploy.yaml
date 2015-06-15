@@ -41,7 +41,12 @@
       type: datetime
     - column: definition
       type: text
+    - column: calculation_json
+      type: json
+      required: false
     - data: ./deploy/instrumentversion.csv
+
+- include: ./deploy/instrumentversion.yaml
 
 - table: assessment
   with:
@@ -57,7 +62,12 @@
       required: false
     - column: status
       type: [in-progress, completed]
+    - column: calculation
+      type: json
+      required: false
     - data: ./deploy/assessment.csv
+
+- include: ./deploy/assessment.yaml
 
 - table: draftinstrumentversion
   with:
@@ -137,4 +147,6 @@
       type: text
       required: false
     - data: ./deploy/entry.csv
+
+- include: ./deploy/entry.yaml
 

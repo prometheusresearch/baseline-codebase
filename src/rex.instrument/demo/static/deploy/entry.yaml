@@ -1,0 +1,14 @@
+- table: entry
+  with:
+    - data:
+      - uid: entry10
+        assessment: [assessment8]
+        entry_type: preliminary
+        status: complete
+        ordinal: 1
+        created_by: someone
+        date_created: 2015-01-01 12:34:56
+        modified_by: someone
+        date_modified: 2015-01-01 12:34:56
+        data: !include/str complex_assessment.json
+

@@ -678,6 +678,20 @@ class Task(Extension, Comparable, Displayable, Dictable):
         self.assessment.complete(user)
         self.assessment.save()
 
+        calculationset_impl = get_implementation('calculationset')
+        calculationset = calculationset_impl.find(
+            instrument_version=self.assessment.instrument_version,
+            limit=1,
+        )
+        if calculationset:
+            results = calculationset[0].execute(
+                assessment=entry.assessment
+            )
+            self.assessment.set_meta('calculations', results)
+            self.assessment.save()
+            resultset_impl = get_implementation('resultset')
+            resultset_impl.create(self.assessment, results)
+
         self.status = Task.STATUS_COMPLETE
         self.save()
 

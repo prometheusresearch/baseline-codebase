@@ -9,7 +9,6 @@ Set up the environment::
 
     >>> from rex.ctl import ctl
 
-
 instrument-validate
 ===================
 
@@ -323,4 +322,561 @@ created for you::
     An Instrument by "doesntexist" does not exist; creating it.
     Using Instrument: doesntexist
     Created version: 1
+
+calculationset-validate
+=======================
+
+The ``calculationset-validate`` command will validate the structure of a file
+against the Common CalculationSet Definition::
+
+    >>> ctl('help calculationset-validate')    # doctest: +ELLIPSIS
+    CALCULATIONSET-VALIDATE - validate a Common CalculationSet Definition
+    Usage: rex calculationset-validate <definition>
+    ...
+    The calculationset-validate task will validate the structure and content of the
+    Common CalculationSet Definition in a file and report back if
+    any errors are found.
+    ...
+    The definition is the path to the file containing the Common CalculationSet
+    Definition to validate.
+    ...
+    Options:
+      --instrument=FILE        : the file containing the associated Instrument Definition; if not specified, then the CalculationSet will only be checked for schema violations
+    ...
+
+It requires a single argument which is the path to the file::
+
+    >>> ctl('calculationset-validate', expect=1)    # doctest: +ELLIPSIS
+    FATAL ERROR: too few arguments for task calculationset-validate: missing <definition>
+    ...
+
+    >>> ctl('calculationset-validate ./test/calculationsets/simplest.json')    # doctest: +ELLIPSIS
+    "./test/calculationsets/simplest.json" contains a valid Common CalculationSet Definition.
+    ...
+
+    >>> ctl('calculationset-validate ./test/calculationsets/simplest.yaml')    # doctest: +ELLIPSIS
+    "./test/calculationsets/simplest.yaml" contains a valid Common CalculationSet Definition.
+    ...
+
+It fails if the structure violates the specification in any way::
+
+    >>> ctl('calculationset-validate ./test/calculationsets/missed-instrument.json')    # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The following problems were encountered when validating this CalculationSet:
+        instrument: Required
+    ...
+    From:
+        rex calculationset-validate ./test/calculationsets/missed-instrument.json
+
+    >>> ctl('calculationset-validate ./test/calculationsets/missed-calculations.json')    # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The following problems were encountered when validating this CalculationSet:
+        calculations: Required
+    ...
+    From:
+        rex calculationset-validate ./test/calculationsets/missed-calculations.json
+
+    >>> ctl('calculationset-validate ./test/calculationsets/no-calculation-id.json')    # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The following problems were encountered when validating this CalculationSet:
+        calculations.0.id: Required
+    ...
+    From:
+        rex calculationset-validate ./test/calculationsets/no-calculation-id.json
+
+    >>> ctl('calculationset-validate ./test/calculationsets/bad-calculation-method.json')    # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The following problems were encountered when validating this CalculationSet:
+        calculations.0.method: "mymethod" is not one of python, htsql
+    ...
+    From:
+        rex calculationset-validate ./test/calculationsets/bad-calculation-method.json
+
+    >>> ctl('calculationset-validate ./test/calculationsets/bad-calculation-type.json')    # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The following problems were encountered when validating this CalculationSet:
+        calculations.0.type: "badtype" is not one of text, integer, float, boolean, enumeration, enumerationSet, date, time, dateTime
+    ...
+    From:
+        rex calculationset-validate ./test/calculationsets/bad-calculation-type.json
+
+    >>> ctl('calculationset-validate ./test/calculationsets/bad-options-given-expression-and-callable.json')    # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The following problems were encountered when validating this CalculationSet:
+        calculations.0: Exactly one option of "exression" or "callable" must be specified
+    ...
+    From:
+        rex calculationset-validate ./test/calculationsets/bad-options-given-expression-and-callable.json
+
+It can validate structure against given instrument::
+
+    >>> ctl('calculationset-validate ./test/calculationsets/simplest.json --instrument ./test/instruments/calculation.json')    # doctest: +ELLIPSIS
+    "./test/calculationsets/simplest.json" contains a valid Common CalculationSet Definition.
+    ...
+
+It fails if definition contains bad instrument version::
+
+    >>> ctl('calculationset-validate ./test/calculationsets/bad-instrument-version.json --instrument ./test/instruments/calculation.json')    # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The following problems were encountered when validating this CalculationSet:
+        instrument: Incorrect Instrument version referenced
+    ...
+    From:
+        rex calculationset-validate ./test/calculationsets/bad-instrument-version.json --instrument ./test/instruments/calculation.json
+
+Or if calculation or instrument file doesn't actually exist::
+
+    >>> ctl('calculationset-validate /tmp/does/not/actually/exist.json')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: Could not open "/tmp/does/not/actually/exist.json": [Errno 2] No such file or directory: '/tmp/does/not/actually/exist.json'
+    ...
+    From:
+        rex calculationset-validate /tmp/does/not/actually/exist.json
+
+    >>> ctl('calculationset-validate ./test/calculationsets/simplest.json --instrument /tmp/does/not/actually/exist.json')    # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: Could not open "/tmp/does/not/actually/exist.json": [Errno 2] No such file or directory: '/tmp/does/not/actually/exist.json'
+    ...
+    From:
+        rex calculationset-validate ./test/calculationsets/simplest.json --instrument /tmp/does/not/actually/exist.json
+
+calculationset-format
+=====================
+
+The ``calculationset-format`` command will format the specified definition in the
+way specified::
+
+    >>> ctl('help calculationset-format')   # doctest: +ELLIPSIS
+    CALCULATIONSET-FORMAT - render a Common CalculationSet Definition into various formats
+    Usage: rex calculationset-format [<project>] <definition>
+    ...
+    The calculationset-format task will take an input Common CalculationSet Definition
+    file and output it as either JSON or YAML.
+    ...
+    The definition is the path to the file containing the Common CalculationSet
+    Definition to format.
+    ...
+    Options:
+      --require=PACKAGE        : include an additional parameter
+      --set=PARAM=VALUE        : set a configuration parameter
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the definition in; can be either JSON or YAML; if not specified, defaults to JSON
+      --pretty                 : if specified, the outputted definition will be formatted with newlines and indentation
+    ...
+
+It requires a single argument which is the path to the file::
+
+    >>> ctl('calculationset-format')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: too few arguments for task calculationset-format: missing <definition>
+    ...
+    From:
+        rex calculationset-format
+
+    >>> ctl('calculationset-format ./test/calculationsets/simplest.json')   # doctest: +ELLIPSIS
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "mymodule.mycalc"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "/{if($offset_20150601<2, -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)}"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if offset_20150601<2 else 100) + (calc1+calc2))>=0"}}]}
+
+    >>> ctl('calculationset-format ./test/calculationsets/simplest.yaml')   # doctest: +ELLIPSIS
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "mymodule.mycalc"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "/{switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)}"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "(calc1+calc2)>=0"}}]}
+
+
+It accepts options that dictate the various properties of the output format::
+
+    >>> ctl('calculationset-format ./test/calculationsets/simplest.json --format=YAML')   # doctest: +ELLIPSIS
+    instrument: {id: 'urn:test-calculation', version: '1.1'}
+    calculations:
+    - id: calc1
+      type: integer
+      method: python
+      options: {callable: mymodule.mycalc}
+    - id: calc2
+      type: integer
+      method: htsql
+      options: {expression: '/{if($offset_20150601<2, -100, 100) + switch($age, ''age18-29'',
+          29, ''age30-49'', 49, ''age50-64'', 64, ''age65-and-over'', 120, 0)}'}
+    - id: calc3
+      type: boolean
+      method: python
+      options: {expression: ((-100 if offset_20150601<2 else 100) + (calc1+calc2))>=0}
+
+    >>> ctl('calculationset-format ./test/calculationsets/simplest.yaml --format=JSON')   # doctest: +ELLIPSIS
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "mymodule.mycalc"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "/{switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)}"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "(calc1+calc2)>=0"}}]}
+
+    >>> ctl('calculationset-format ./test/calculationsets/simplest.json --format=JSON --pretty')   # doctest: +ELLIPSIS
+    {
+      "instrument": {
+        "id": "urn:test-calculation",
+        "version": "1.1"
+      },
+      "calculations": [
+        {
+          "id": "calc1",
+          "type": "integer",
+          "method": "python",
+          "options": {
+            "callable": "mymodule.mycalc"
+          }
+        },
+        {
+          "id": "calc2",
+          "type": "integer",
+          "method": "htsql",
+          "options": {
+            "expression": "/{if($offset_20150601<2, -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)}"
+          }
+        },
+        {
+          "id": "calc3",
+          "type": "boolean",
+          "method": "python",
+          "options": {
+            "expression": "((-100 if offset_20150601<2 else 100) + (calc1+calc2))>=0"
+          }
+        }
+      ]
+    }
+
+    >>> ctl('calculationset-format ./test/calculationsets/simplest.json --format=YAML --pretty')   # doctest: +ELLIPSIS
+    instrument:
+      id: urn:test-calculation
+      version: '1.1'
+    calculations:
+    - id: calc1
+      type: integer
+      method: python
+      options:
+        callable: mymodule.mycalc
+    - id: calc2
+      type: integer
+      method: htsql
+      options:
+        expression: /{if($offset_20150601<2, -100, 100) + switch($age, 'age18-29', 29,
+          'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)}
+    - id: calc3
+      type: boolean
+      method: python
+      options:
+        expression: ((-100 if offset_20150601<2 else 100) + (calc1+calc2))>=0
+
+It fails if the input structure violates the specification in any way::
+
+    >>> ctl('calculationset-format ./test/calculationsets/bad-calculation-method.json')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The following problems were encountered when validating this CalculationSet:
+        calculations.0.method: "mymethod" is not one of python, htsql
+    ...
+    From:
+        rex calculationset-format ./test/calculationsets/bad-calculation-method.json
+
+Or if the file doesn't actually exist::
+
+    >>> ctl('calculationset-format /tmp/does/not/actually/exist.json')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: Could not open "/tmp/does/not/actually/exist.json": [Errno 2] No such file or directory: '/tmp/does/not/actually/exist.json'
+    ...
+    From:
+        rex calculationset-format /tmp/does/not/actually/exist.json
+
+calculationset-retrieve
+=======================
+
+The ``calculationset-retrieve`` command will retrieve the Common Instrument
+Definition JSON from an InstrumentVersion in the project data store::
+
+    >>> ctl('help calculationset-retrieve')   # doctest: +ELLIPSIS
+    CALCULATIONSET-RETRIEVE - retrieves an CalculationSet from the datastore
+    Usage: rex calculationset-retrieve [<project>] <instrument-uid>
+    ...
+    The calculation-retrieve task will retrieve an CalculationSet from a
+    project's data store and return the Common CalculationSet Definition.
+    ...
+    The instrument-uid argument is the UID of the desired Instrument in
+    the data store.
+    ...
+    Options:
+      --require=PACKAGE        : include an additional parameter
+      --set=PARAM=VALUE        : set a configuration parameter
+      --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
+      --format=FORMAT          : the format to output the definition in; can be either JSON or YAML; if not specified, defaults to JSON
+      --pretty                 : if specified, the outputted definition will be formatted with newlines and indentation
+      --version=VERSION        : the version of the Instrument to retrieve; if not specified, defaults to the latest version
+    ...
+
+It requires a single argument which is the UID of the Instrument to retrieve::
+
+    >>> ctl('calculationset-retrieve')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: too few arguments for task calculationset-retrieve: missing <instrument-uid>
+    ...
+    From:
+        rex calculationset-retrieve
+
+    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation')
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.instrument_demo.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
+
+    >>> ctl('calculationset-retrieve --project=rex.instrument_demo simple')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: No CalculationSet exists for Instrument "simple", Version 1
+    ...
+    From:
+        rex calculationset-retrieve --project=rex.instrument_demo simple
+
+It takes a ``version`` option to specify which InstrumentVersion of the
+Instrument to retrieve::
+
+    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --version=1')
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.instrument_demo.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
+
+It can also print the JSON in a prettier way::
+
+    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --pretty')
+    {
+      "instrument": {
+        "id": "urn:test-calculation",
+        "version": "1.1"
+      },
+      "calculations": [
+        {
+          "id": "calc1",
+          "type": "integer",
+          "method": "python",
+          "options": {
+            "callable": "rex.instrument_demo.my_calculation1"
+          }
+        },
+        {
+          "id": "calc2",
+          "type": "integer",
+          "method": "htsql",
+          "options": {
+            "expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"
+          }
+        },
+        {
+          "id": "calc3",
+          "type": "boolean",
+          "method": "python",
+          "options": {
+            "expression": "((-100 if subject_status='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"
+          }
+        }
+      ]
+    }
+
+It can also print the definition in YAML format::
+
+    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --pretty --format=YAML')
+    instrument:
+      id: urn:test-calculation
+      version: '1.1'
+    calculations:
+    - id: calc1
+      type: integer
+      method: python
+      options:
+        callable: rex.instrument_demo.my_calculation1
+    - id: calc2
+      type: integer
+      method: htsql
+      options:
+        expression: if($subject_status='completed', -100, 100) + switch($age, 'age18-29',
+          29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)
+    - id: calc3
+      type: boolean
+      method: python
+      options:
+        expression: ((-100 if subject_status='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0
+
+It fails if the instrument doesn't exist::
+
+    >>> ctl('calculationset-retrieve --project=rex.instrument_demo doesntexist')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: Instrument "doesntexist" does not exist.
+    ...
+    From:
+        rex calculationset-retrieve --project=rex.instrument_demo doesntexist
+
+Or if the version doesn't exist::
+
+    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --version=2')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: The desired version of "calculation" does not exist.
+    ...
+    From:
+        rex calculationset-retrieve --project=rex.instrument_demo calculation --version=2
+
+Or if you specify a bogus format::
+
+    >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --pretty --format=XML')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: invalid value for option --format: Invalid format type "XML" specified
+    ...
+    From:
+        rex calculationset-retrieve --project=rex.instrument_demo calculation --pretty --format=XML
+
+calculationset-store
+====================
+
+The ``calculationset-store`` command will load a Common Instrument Definition JSON
+to an InstrumentVersion in the project data store::
+
+    >>> ctl('help calculationset-store')   # doctest: +ELLIPSIS
+    CALCULATIONSET-STORE - stores an CalculationSet in the data store
+    Usage: rex calculationset-store [<project>] <instrument-uid> <definition>
+    ...
+    The calculationset-store task will write a Common CalculationSet Definition file to
+    an CalculationSet in the project's data store.
+    ...
+    The instrument-uid argument is the UID of the desired Instrument to use in
+    the data store. If the UID does not already exist the task fails.
+    ...
+    The definition is the path to the file containing the Common
+    CalculationSet Definition to use.
+    ...
+    Options:
+      --require=PACKAGE        : include an additional parameter
+      --set=PARAM=VALUE        : set a configuration parameter
+      --version=VERSION        : the version of Instrument to store the CalculationSet in; if not specified, one will be calculated
+    ...
+
+It requires two arguments which are the UID of the Instrument and the path to
+the file containing the CalculationSet JSON or YAML::
+
+    >>> ctl('calculationset-store')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: too few arguments for task calculationset-store: missing <instrument-uid> <definition>
+    ...
+    From:
+        rex calculationset-store
+
+    >>> ctl('calculationset-store simple')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: too few arguments for task calculationset-store: missing <definition>
+    ...
+    From:
+        rex calculationset-store simple
+
+    >>> ctl('calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.json')   # doctest: +ELLIPSIS
+    Using Instrument: Calculation Instrument
+    Instrument Version: 1
+    ### SAVED CALCULATIONSET calculation1
+    Updated existing CalculationSet
+
+    >>> ctl('calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.yaml')   # doctest: +ELLIPSIS
+    Using Instrument: Calculation Instrument
+    Instrument Version: 1
+    ### SAVED CALCULATIONSET calculation1
+    Updated existing CalculationSet
+
+It takes a ``version`` option to specify which InstrumentVersion of the
+Instrument to store the CalculationSet JSON as::
+
+    >>> ctl('calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.json --version=1')   # doctest: +ELLIPSIS
+    Using Instrument: Calculation Instrument
+    Instrument Version: 1
+    ### SAVED CALCULATIONSET calculation1
+    Updated existing CalculationSet
+
+It fails if instrument doesnot exist::
+
+    >>> ctl('calculationset-store --project=rex.instrument_demo doesntexist ./test/calculationsets/simplest.json')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: Instrument "doesntexist" does not exist.
+    ...
+    From:
+        rex calculationset-store --project=rex.instrument_demo doesntexist ./test/calculationsets/simplest.json
+
+It fails if instrument version doesnot exist::
+
+    >>> ctl('calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.json --version 2')   # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        Using Instrument: Calculation Instrument
+        FATAL ERROR: The desired version of "calculation" does not exist.
+    ...
+    From:
+        rex calculationset-store --project=rex.instrument_demo calculation ./test/calculationsets/simplest.json --version 2
 

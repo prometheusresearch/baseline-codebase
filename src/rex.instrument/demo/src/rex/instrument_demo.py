@@ -9,6 +9,12 @@ from rex.db import get_db
 
 from rex.instrument.interface import *
 
+from modules.mymodule1 import my_calculation as my_calculation1
+from modules.mymodule2 import my_calculation as my_calculation2
+from modules.bad_not_callable_module import my_calculation as my_calculation3
+from modules.unexpected_parameters import my_calculation as my_calculation4
+from modules.complex_calculation import complex_object_calc, complex_function_calc
+
 
 __all__ = (
     'DemoUser',
@@ -21,6 +27,9 @@ __all__ = (
     'DemoChannel',
     'DemoTask',
     'DemoEntry',
+    'DemoSubjectSatusScopeAddon',
+    'DemoCalculationSet',
+    'DemoResultSet'
 )
 
 
@@ -510,4 +519,143 @@ class DemoEntry(Entry):
 
     def save(self):
         print '### SAVED ENTRY ' + self.uid
+
+
+class DemoSubjectSatusScopeAddon(CalculationScopeAddon):
+    name = 'subject_status'
+    allowed_methods = [
+        'python',
+        'htsql',
+    ]
+
+    @classmethod
+    def get_scope_value(cls, assessment):
+        db = get_db()
+        data = db.produce(
+            '/assessment{status}.filter(id()=$uid)',
+            uid=assessment.uid,
+        )
+        if not data:
+            return None
+        return data[0].status
+
+
+class DemoCalculationSet(CalculationSet):
+    @classmethod
+    def get_by_uid(cls, uid, user=None):
+        db = get_db()
+        with db:
+            data = db.produce('''
+                /instrumentversion
+                    ?id()=$uid
+                    {
+                        id:=id(),
+                        instrument_version:=id(),
+                        definition:=calculation_json
+                    }
+                ''', uid=uid)
+        if not data:
+            return None
+        return cls(
+            data[0].uid,
+            DemoInstrumentVersion.get_by_uid(data[0].instrument_version),
+            data[0].definition
+        )
+
+    @classmethod
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
+        db = get_db()
+        with db:
+            params = {
+                'instrument_version': safe_uid(DemoInstrumentVersion, search_criteria.get('instrument_version')),
+            }
+            data = db.produce(
+                '''/instrumentversion
+                    {
+                        uid:=id(),
+                        instrument_version:=id(),
+                        definition:=calculation_json
+                    }
+                    .guard($instrument_version, filter(id()=$instrument_version))
+                    .filter(!is_null(calculation_json))
+                ''',
+                **params
+            )
+        return [
+            cls(
+                d.uid,
+                DemoInstrumentVersion.get_by_uid(d.instrument_version),
+                d.definition
+            )
+            for d in data
+        ]
+
+    @classmethod
+    def create(cls, instrument_verion, definition):
+        return cls(
+            instrument_version,
+            definition,
+        )
+
+    def save(self):
+        print '### SAVED CALCULATIONSET ' + self.uid
+
+
+class DemoResultSet(ResultSet):
+    @classmethod
+    def get_by_uid(cls, uid, user=None):
+        db = get_db()
+        with db:
+            data = db.produce('''
+                /assessment
+                    ?id()=$uid
+                    {
+                        id:=id(),
+                        assessment:=id(),
+                        results:=calculation
+                    }
+                ''', uid=uid)
+        if not data:
+            return None
+        return cls(
+            data[0].uid,
+            DemoAssessment.get_by_uid(data[0].assessment),
+            data[0].results
+        )
+
+    @classmethod
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
+        db = get_db()
+        with db:
+            params = {
+                'assessment': search_criteria.get('assessment'),
+            }
+            data = db.produce(
+                '''/assessment
+                    {
+                        uid:=id(),
+                        assessment:=id(),
+                        results:=calculation
+                    }
+                    .guard($assessment, filter(id()=$assessment))
+                ''',
+                **params
+            )
+        return [
+            cls(
+                d.uid,
+                DemoAssessment.get_by_uid(d.assessment),
+                d.results
+            )
+            for d in data
+        ]
+
+    @classmethod
+    def create(cls, assessment, results):
+        print '### CREATED RECORDSET ' + assessment.uid, results
+        return cls(
+            assessment.uid,
+            assessment,
+            results
+        )
 

@@ -1,0 +1,103 @@
+ {
+     'id': 'urn:calculation-complex',
+     'version': '1.1',
+     'title': 'The InstrumentVersion Title',
+     'record': [
+         {
+             'id': 'q_integer',
+             'type': 'integer'
+         },
+         {
+             'id': 'q_float',
+             'type': 'float'
+         },
+         {
+             'id': 'q_text',
+             'type': 'text'
+         },
+         {
+             'id': 'q_boolean',
+             'type': 'boolean'
+         },
+         {
+             'id': 'q_date',
+             'type': 'date'
+         },
+         {
+             'id': 'q_time',
+             'type': 'time'
+         },
+         {
+             'id': 'q_enumeration',
+             'type': {
+                         'base': 'enumeration',
+                         'enumerations':{
+                             'myenum': {
+                                 'description': 'MyEnum!'
+                             },
+                             'other': {
+                                 'description': 'Other!'
+                             },
+                         }
+             }
+         },
+         {
+             'id': 'q_enumerationset',
+             'type': {
+                         'base': 'enumerationSet',
+                         'enumerations':{
+                             'white': {
+                                 'description': 'White'
+                             },
+                             'black': {
+                                 'description': 'Black'
+                             },
+                             'red': {
+                                 'description': 'Red'
+                             },
+                         }
+             }
+         },
+         {
+             'id': 'q_recordlist',
+             'type': {
+                 'base': 'recordList',
+                 'record': [
+                     {
+                         'id': 'hello',
+                         'type': 'text'
+                     },
+                     {
+                         'id': 'goodbye',
+                         'type': 'text'
+                     }
+                 ]
+             }
+         },
+         {
+             'id': 'q_matrix',
+             'type': {
+                 'base': 'matrix',
+                 'columns': [
+                     {
+                         'id': 'column1',
+                         'type': 'integer'
+                     },
+                     {
+                         'id': 'column2',
+                         'type': 'text'
+                     }
+                 ],
+                 'rows': [
+                     {
+                         'id': 'row1'
+                     },
+                     {
+                         'id': 'row2'
+                     }
+                 ]
+             }
+         }
+     ]
+ }
+

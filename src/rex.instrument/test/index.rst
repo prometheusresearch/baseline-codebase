@@ -8,6 +8,8 @@ REX.INSTRUMENT Examples/Tests
    test_user
    test_instrument
    test_instrumentversion
+   test_calculationset
+   test_resultset
    test_assessment
    test_draftinstrumentversion
    test_channel

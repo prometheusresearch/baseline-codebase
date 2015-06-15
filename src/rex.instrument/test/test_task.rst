@@ -474,6 +474,24 @@ by using the ``reconcile()`` method::
         ...
     InstrumentError: This Task does not allow an additional Preliminary Entry.
 
+    >>> task = DemoTask.get_by_uid('task7')
+    >>> task.assessment.status = Assessment.STATUS_IN_PROGRESS
+    >>> task.reconcile(user)
+    ### SAVED ENTRY fake_entry_1
+    ### SAVED ASSESSMENT assessment8
+    ### SAVED ASSESSMENT assessment8
+    ### CREATED RECORDSET assessment8 {u'calc1': u'yo, goodbye, 1', u'calc2': u'yo, goodbye, 1', u'calc3': 2.23, u'calc4': True, u'calc5': True, u'calc6': u'42, Not Red, White, completed, myenum'}
+    ### SAVED TASK task7
+    >>> task.assessment.status == Assessment.STATUS_COMPLETE
+    True
+    >>> task.status == Task.STATUS_COMPLETE
+    True
+    >>> task.is_done
+    True
+    >>> task.can_enter_data
+    False
+    >>> task.can_reconcile
+    False
 
 Tasks can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::

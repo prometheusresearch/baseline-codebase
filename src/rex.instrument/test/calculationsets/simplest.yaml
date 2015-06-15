@@ -1,0 +1,20 @@
+instrument:
+  id: urn:test-calculation
+  version: '1.1'
+calculations:
+- id: calc1
+  type: integer
+  method: python
+  options:
+    callable: mymodule.mycalc
+- id: calc2
+  type: integer
+  method: htsql
+  options:
+    expression: /{switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over',
+      120, 0)}
+- id: calc3
+  type: boolean
+  method: python
+  options:
+    expression: (calc1+calc2)>=0

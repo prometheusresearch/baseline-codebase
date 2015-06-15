@@ -3,3 +3,5 @@ simple,simple,Simple Instrument,active
 complex,complex,Complex Instrument,active
 disabled,disabled,Disabled Instrument,disabled
 texter,texter,SMS Instrument,active
+calculation,calculation,Calculation Instrument,active
+calculation-complex,calculation,Calculation Instrument,active

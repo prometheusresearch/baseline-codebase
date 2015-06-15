@@ -5,6 +5,19 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+0.17.0 (2015-xx-xx)
+===================
+
+* Added support for the PRISMH Calculation Set specifications.
+
+  * Added CalculationSet and ResultSet interface classes.
+  * Added CalculationMethod and CalculationScopeAddon extension points.
+  * Added a series of calculationset-* rex.ctl tasks to manage Calculation Set
+    Definitions.
+  * Updated Task.reconcile() to execute calculations on the Assessment if any
+    are configured.
+
+
 0.16.0 (2015-06-12)
 ===================
 

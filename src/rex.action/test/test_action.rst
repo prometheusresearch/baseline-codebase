@@ -109,6 +109,22 @@ Constructing from YAML
   ... """)
   MyAction(icon=undefined, width=undefined, id='id', title=undefined)
 
+  >>> validate.parse("""
+  ... type: my
+  ... id: 1
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a string
+  Got:
+      1
+  While parsing:
+      "<byte string>", line 3
+  While validating field:
+      id
+  Of widget:
+      Action(name='my')
+
   >>> rex.off()
 
 
@@ -125,7 +141,7 @@ Loading actions
   >>> with Rex(sandbox):
   ...   actions = load_actions()
   >>> actions
-  [MyAction(icon=undefined, width=undefined, id='my-action', title=undefined)]
+  OrderedDict([('my-action', MyAction(icon=undefined, width=undefined, id='my-action', title=undefined))])
 
 ::
 
@@ -140,4 +156,4 @@ Loading actions
   Error: unknown action type specified:
       xmy
   While parsing:
-      "...", line 2
+      "...", line 3

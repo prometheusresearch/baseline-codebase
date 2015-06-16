@@ -7,6 +7,6 @@
 
 """
 
-from .action import Action, ActionVal
+from .action import Action, ActionVal, load_actions
 from .wizard import Wizard
 from .actions import View, Make, Page, Pick, Edit

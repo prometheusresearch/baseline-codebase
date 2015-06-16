@@ -107,8 +107,7 @@ class ActionTreeVal(Validate):
 
     @property
     def actions(self):
-        actions = self._actions if self._actions else load_actions()
-        return {a.id: a for a in actions}
+        return self._actions if self._actions else load_actions()
 
     def _construct(self, tree_factory):
         actions = self.actions

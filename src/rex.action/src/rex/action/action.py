@@ -10,11 +10,13 @@
 
 """
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
 import yaml
 
-from rex.core import Error, Validate, autoreload, get_packages, cached
+from rex.core import (
+    Location, Error, Validate, autoreload, get_packages,
+    cached, guard)
 from rex.core import MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, AnyVal
 from rex.widget import Widget, WidgetVal, Field, undefined
 
@@ -117,7 +119,7 @@ class Action(Widget):
 
     @classmethod
     def validate(cls, value):
-        validate = ActionVal(action_cls=cls)
+        validate = ActionVal(action_class=cls)
         if isinstance(value, basestring) or hasattr(value, 'read'):
             return validate.parse(value)
         else:
@@ -128,25 +130,50 @@ class ActionVal(Validate):
     """ Validator for actions."""
 
     _validate_pre = MapVal(StrVal(), AnyVal())
+    _validate_type = StrVal()
 
-    def __init__(self, action_cls=Action):
-        self.action_cls = action_cls
+    def __init__(self, action_class=Action):
+        self.action_class = action_class
+
+    def construct(self, loader, node):
+        if not isinstance(node, yaml.MappingNode):
+            value = super(ActionVal, self).construct(loader, node)
+            return self(value)
+
+        with guard("While parsing:", Location.from_node(node)):
+            type_node, node = pop_mapping_key(node, 'type')
+            if not type_node:
+                print node, type_node
+                return
+                raise Error('no action "type" specified')
+
+        with guard("While parsing:", Location.from_node(type_node)):
+            action_type = self._validate_type.construct(loader, type_node)
+            action_sig = _action_sig(action_type)
+            if action_sig not in Action.mapped():
+                raise Error('unknown action type specified:', action_type)
+
+        action_class = Action.mapped()[action_sig]
+
+        construct = WidgetVal(widget_class=action_class).construct
+        return construct(loader, node)
 
     def __call__(self, value):
-        if isinstance(value, self.action_cls):
+        if isinstance(value, self.action_class):
             return value
         value = self._validate_pre(value)
-        action_type = value.pop('type', None)
-        if action_type is None:
+        action_type = value.pop('type', NotImplemented)
+        if action_type is NotImplemented:
             raise Error('no action "type" specified')
+        action_type = self._validate_type(action_type)
         action_sig = _action_sig(action_type)
         if action_sig not in Action.mapped():
             raise Error('unknown action type specified:', action_type)
-        action_cls = Action.mapped()[action_sig]
-        if not issubclass(action_cls, self.action_cls):
-            raise Error('action must be an instance of:', self.action_cls)
+        action_class = Action.mapped()[action_sig]
+        if not issubclass(action_class, self.action_class):
+            raise Error('action must be an instance of:', self.action_class)
         value = {k: v for (k, v) in value.items() if k != 'type'}
-        return action_cls(**value)
+        return action_class(**value)
 
 
 YAML_STR_TAG = u'tag:yaml.org,2002:str'
@@ -168,7 +195,7 @@ def pop_mapping_key(node, key):
 
 def load_actions(filename='action.yaml'):
     """ Load all defined actions within the currently active app."""
-    return _load_actions(filename)
+    return OrderedDict((a.id, a) for a in _load_actions(filename))
 
 
 def _load_actions(filename):

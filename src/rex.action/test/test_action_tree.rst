@@ -20,15 +20,15 @@ Action tree
 
   >>> from rex.action.action_tree import ActionTreeVal
 
-  >>> v = ActionTreeVal([
-  ...   Action('pick-individual', inputs={}, outputs={'individual': 'individual'}),
-  ...   Action('pick-mother', inputs={}, outputs={'mother': 'individual'}),
-  ...   Action('pick-study', inputs={}, outputs={'study': 'study'}),
-  ...   Action('view-individual', inputs={'individual': 'individual'}, outputs={}),
-  ...   Action('view-mother', inputs={'mother': 'individual'}, outputs={}),
-  ...   Action('view-mother-study', inputs={'mother': 'study'}, outputs={}),
-  ...   Action('home', inputs={}, outputs={}),
-  ... ])
+  >>> v = ActionTreeVal({
+  ...   'pick-individual': Action('pick-individual', inputs={}, outputs={'individual': 'individual'}),
+  ...   'pick-mother': Action('pick-mother', inputs={}, outputs={'mother': 'individual'}),
+  ...   'pick-study': Action('pick-study', inputs={}, outputs={'study': 'study'}),
+  ...   'view-individual': Action('view-individual', inputs={'individual': 'individual'}, outputs={}),
+  ...   'view-mother': Action('view-mother', inputs={'mother': 'individual'}, outputs={}),
+  ...   'view-mother-study': Action('view-mother-study', inputs={'mother': 'study'}, outputs={}),
+  ...   'home': Action('home', inputs={}, outputs={}),
+  ... })
 
   >>> def parse(yaml):
   ...   return v.parse(yaml)

@@ -5,6 +5,12 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.4.1 (2015-xx-xx)
+==================
+
+* Updated instrument dependency.
+
+
 0.4.0 (2015-06-12)
 ==================
 

@@ -427,7 +427,7 @@ It fails if the structure violates the specification in any way::
         expected 0; got 1
     With output:
         FATAL ERROR: The following problems were encountered when validating this CalculationSet:
-        calculations.0: Exactly one option of "exression" or "callable" must be specified
+        calculations.0: Exactly one option of "expression" or "callable" must be specified
     ...
     From:
         rex calculationset-validate ./test/calculationsets/bad-options-given-expression-and-callable.json

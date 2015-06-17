@@ -14,6 +14,8 @@ import pprint
 import code
 import textwrap
 import pkg_resources
+import readline
+import rlcompleter
 import yaml
 
 
@@ -358,13 +360,17 @@ class PyShellTask(RexTask):
 
     def __call__(self):
         app = self.make(initialize=False, ensure='rex.core')
-        name = app.requirements[0].split('.')[-1]
+        name = app.requirements[0].split('.')[-1].replace('-', '_')
         namespace = {name: app}
         with app:
             try:
                 from IPython.terminal.embed import InteractiveShellEmbed
             except ImportError:
                 banner = self.PYTHON_BANNER.format(name=name, app=app)
+                readline.set_completer(
+                    rlcompleter.Completer(namespace).complete
+                )
+                readline.parse_and_bind('tab: complete')
                 code.interact(banner, local=namespace)
             else:
                 banner = self.IPYTHON_BANNER.format(name=name, app=app)

@@ -32,7 +32,7 @@ setup(
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',
         'rex.instrument>=0.16,<0.18',
-        'prismh.core>=0.2,<0.3',
+        'prismh.core>=0.2,<0.4',
     ],
     rex_init='rex.mobile',
 )

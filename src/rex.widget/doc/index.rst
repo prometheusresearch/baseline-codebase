@@ -2,6 +2,17 @@
   Rex Widget Documentation
 ****************************
 
+Version |VERSION|, revision |REVISION|, |TIMESTAMP|
+
+.. shell:: python setup.py --version
+           VERSION
+
+.. shell:: hg parent --template {rev}
+           REVISION
+
+.. shell:: date "+built on %a %d %b %Y at %X %Z"
+           TIMESTAMP
+
 .. role:: mod(literal)
 
 Rex Widget provides a widget toolkit for the RexDB platform. It allows analysts

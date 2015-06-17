@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+2.4.0 (XXXX-XX-XX)
+==================
+
+* Do not install bower components for packages with no webpack generator
+  defined.
 
 2.3.1 (2015-06-01)
 ==================

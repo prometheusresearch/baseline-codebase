@@ -35,6 +35,14 @@ def write_bundle(cmd, basename, filename):
     cmd.write_or_delete_file("rex_bundle", filename, bundle)
 
 
+def read_bundle(dist):
+    # Reads bundle mapping for a distribution
+    if not dist.has_metadata("rex_bundle.txt"):
+        return None
+    data = dist.get_metadata("rex_bundle.txt")
+    return json.loads(data)
+
+
 class bundle(setuptools.Command):
     # Build generated files.
 

@@ -10,6 +10,7 @@ import setuptools, setuptools.command.install, setuptools.command.develop, \
         setuptools.command.sdist, setuptools.archive_util
 import pkg_resources
 from .commonjs import install_package as install_commonjs_package
+from .bundle import read_bundle
 
 
 def check_static(dist, attr, value):
@@ -136,8 +137,14 @@ class develop_static(setuptools.Command):
         filename = os.path.abspath(self.rex_static)
         self.execute(os.symlink, (filename, target),
                 "Linking %s to %s" % (filename, target))
-        # Install CommonJS package
-        install_commonjs_package(self._make_dummy_dist())
+        # Optionally install CommonJS package (if webpack generator is active
+        # for the distribution)
+        dist = self._make_dummy_dist()
+        bundle = read_bundle(dist)
+        if bundle and any(gen.startswith('webpack:')
+                          for item in bundle.values()
+                          for gen in item):
+            install_commonjs_package(dist)
         # Build generated files.
         self.run_command('bundle')
 

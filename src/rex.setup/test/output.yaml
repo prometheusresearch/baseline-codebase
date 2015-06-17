@@ -383,6 +383,11 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q ./src/pkg
     stdout: ''
+  - sh: ls ./share/rex/pkg/js
+    stdout: |
+      bower.json
+      bower_components
+      lib
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
       bundle.js
@@ -403,12 +408,35 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q ./src/pkg
     stdout: ''
+  - sh: ls ./share/rex/pkg/js
+    stdout: |
+      bower.json
+      bower_components
+      lib
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
       bundle.js
       bundle.js.map
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: ''
+- suite: js_react_no_bundle
+  tests:
+  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
+    stdout: ''
+  - sh: ./bin/pip install -q -e ..
+    stdout: ''
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_no_bundle ./src/pkg'
+    stdout: ''
+  - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
+      -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
+      node_modules -o -name bower_components ')' -exec rm -rf '{}' ';'
+    stdout: ''
+  - sh: ./bin/pip install -q ./src/pkg
+    stdout: ''
+  - sh: ls ./share/rex/pkg/js
+    stdout: |
+      bower.json
+      lib
 - suite: js_style_entry
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox

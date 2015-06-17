@@ -82,5 +82,5 @@ which can be overridden via the ``slots`` key in an override entry::
 Now when you visit /screen, the ApplicationPage will render 
 with the title **Overridden title**.
 
-.. _rex.urlmap:  ../rex.urlmap/index.html
+.. _rex.urlmap:  ../../rex.urlmap/latest/index.html
 

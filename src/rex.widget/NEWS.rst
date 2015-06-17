@@ -2,15 +2,15 @@
   Change Log
 **************
 
-1.0.1
-=====
+1.0.1 (2015-06-17)
+==================
 
 * Assume react-docgen is in the path and installed.
 
 * Update documentation to explain 1.0.0
  
-1.0.0
-=====
+1.0.0 (2015-06-12)
+==================
 
 * (breaking) Removed application state handling, ``StateField`` and
   ``Widget.define_state`` removed as well. Use ``@computed_field`` instead to

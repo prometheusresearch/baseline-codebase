@@ -2,6 +2,13 @@
   Change Log
 **************
 
+1.0.1
+=====
+
+* Assume react-docgen is in the path and installed.
+
+* Update documentation to explain 1.0.0
+ 
 1.0.0
 =====
 

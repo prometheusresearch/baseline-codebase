@@ -29,8 +29,8 @@ tests:
     Done.
 - sh: npm install .
   stdout: |
-    npm WARN package.json rex-widget@1.0.0 No repository field.
-    npm WARN package.json rex-widget@1.0.0 No README data
+    npm WARN package.json rex-widget@1.0.1 No repository field.
+    npm WARN package.json rex-widget@1.0.1 No README data
     npm WARN prefer global npm@2.9.1 should be installed with -g
 - sh: rex dropdb --config=./demo/rex.yaml
   stdout: |

@@ -15,7 +15,7 @@ widget.yaml
 -------------
 
 As previously stated, `widget.yaml` is not supported anymore. In 0.2.19-based
-application it served 2 main purposes: defining slots for further overriding
+applications it served 2 main purposes: defining slots for further overriding
 and providing reasonable defaults improving re-usability of widgets.
 
 The first use-case became easier. Before you had to do
@@ -60,9 +60,9 @@ urlmap_override.yaml::
 Note, that you don't have to know which widget is used to define the certain
 URL, you only need to know slots you want to override.
 
-The second use case is bit more complex. Imagine, you have a widget with
+The second use case is a bit more complex. Imagine, you have a widget with
 several fields, but in reality when using it you plan to change only a subset
-of them, others may remain constants in all your use-cases. Before you would
+of them, others may remain constant in all your use-cases. Before you would
 do:
 
 widget.yaml::
@@ -92,8 +92,8 @@ Now, this can be done from the Python code by subclassing the
     def render(self):
         return BaseWidget(
             heading='The heading remains constant',
-            help_text=help_text,
-            data=data
+            help_text=self.help_text,
+            data=self.data
         )
 
 Note, that `MyWidget` doesn't have its own JavaScript implementation part and

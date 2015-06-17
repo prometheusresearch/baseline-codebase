@@ -42,12 +42,12 @@
                             {
                                 "action": "calculate",
                                 "trigger": "if(q_age<18,'Moscow',null())",
-                                "target": "q_city"
+                                "targets": ["q_city"]
                             },
                             {
                                 "action": "calculate",
                                 "trigger": "if(q_age<18,'Russia',null())",
-                                "target": "q_country"
+                                "targets": ["q_country"]
                             }
                         ]
                     }

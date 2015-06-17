@@ -7,7 +7,6 @@
 var RexExpression     = require('rex-expression');
 var traverseQuestions = require('./traverseQuestions');
 
-
 /**
  * Execution context encapsulates information about events define in form
  * descripton and allows to execute actions agains events.
@@ -18,6 +17,7 @@ class EventExecutionContext {
     this.context = context;
     this.targetCatalog = targetCatalog;
     this.form = form;
+    this._cache = {};
   }
 
   forEachField(func, context) {
@@ -31,12 +31,14 @@ class EventExecutionContext {
 
   evaluate(expression, resolver) {
     try {
-      var result = RexExpression.evaluate(
-        expression,
-        resolver
-      );
-      return result;
-    } catch (exc) {
+      if (typeof expression === 'string') {
+        if (this._cache[expression] === undefined) {
+          this._cache[expression] = RexExpression.parse(expression);
+        }
+        expression = this._cache[expression];
+      }
+      return expression.evaluate(resolver);
+    } catch(exc) {
       if (console && console.error) {
         console.error(exc.toString() + ' (' + expression + ')');
       }

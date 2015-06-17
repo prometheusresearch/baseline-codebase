@@ -34,7 +34,7 @@
                             {
                                 "action": "hide",
                                 "trigger": "q_age<18",
-                                "target": "page2"
+                                "targets": ["page2"]
                             }
                         ]
                     }

@@ -34,12 +34,12 @@
                             {
                                 "action": "hide",
                                 "trigger": "q_age<18",
-                                "target": "q_city"
+                                "targets": ["q_city"]
                             },
                             {
                                 "action": "hide",
                                 "trigger": "q_age<18",
-                                "target": "q_country"
+                                "targets": ["q_country"]
                             }
                         ]
                     }

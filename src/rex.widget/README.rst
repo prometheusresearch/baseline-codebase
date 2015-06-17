@@ -1,86 +1,47 @@
-Configuration Guide
-===================
+****************************
+  Rex Widget Documentation
+****************************
 
-Rex Widget provides a URL mapping handler named `widget`. 
-With this handler you map a path to an 
-application screen composed of predefined widgets::
+Version |VERSION|, revision |REVISION|, |TIMESTAMP|
 
-  paths:
-    /screen:
-      access: anybody
-      widget: !<ApplicationPage>
-        title: Hello, world!
-        children:
-        - !<DataTable>
-          data: package:/data
+.. shell:: python setup.py --version
+           VERSION
 
-With this declaration, visiting ``/screen`` in your browser will 
-render the ApplicationPage widget.
+.. shell:: hg parent --template {rev}
+           REVISION
 
-The ApplicationPage will be rendered with the title **Hello, world!**, 
-and the data will be fetched from the **package:/data** port.
+.. shell:: date "+built on %a %d %b %Y at %X %Z"
+           TIMESTAMP
 
-Overrides
----------
+.. role:: mod(literal)
 
-The ``access`` and ``widget`` parameters of a handler are overridable as
-documented in `rex.urlmap`_.
+Rex Widget provides a widget toolkit for the RexDB platform. It allows analysts
+to configure application screens composed of reusable widgets.
 
-For example one can override the access setting to the above ApplicationPage::
+This package is a part of the RexDB |R| platform for medical research data
+management.  RexDB is free software created by Prometheus Research, LLC and is
+released under the AGPLv3 license with a commensurate attribution clause.  For
+more information, please visit http://rexdb.org/.
 
-  paths:
-    /screen: !override
-      access: authenticated
+The development of this product was supported by the National Institute of
+Mental Health of the National Institutes of Health under Award Number
+R43MH099826.
 
-You can override an entire widget hierarchy::
+.. |R| unicode:: 0xAE .. registered trademark sign
 
-  paths:
-    /screen: !override
-      widget: !<ApplicationPageWithCustomizations>
+.. toctree::
 
-Now when you visit /screen, the ApplicationPageWithCustomizations
-widget will be rendered instead.
+   overview
+   guide/index
+   migration_guide
+   cookbook
+   py_reference
+   js_reference
+   changes
+   license
 
-But overriding an entire widget hierarchy isn't practical 
-when you only want to alter a few parameters. 
-Rex Widget provides a more granular
-override mechanism called "slots".
+Indices and tables
+==================
 
-Granular overrides via slots
-----------------------------
-
-With slots you can override values deep inside a widget's hierarchy 
-without re-defining the entire hierarchy.
-
-Any field marked as a **slot** in the original URL mapping entry
-may be overridden.  Each slot has a name and a default value. 
-The special syntax ``!slot`` is used to define slots::
-
-  paths:
-    /screen:
-      access: anybody
-      widget: !<ApplicationPage>
-        title: !slot
-          name: page_title
-          default: Hello, world!
-        children:
-        - !<DataTable>
-          data: !slot
-            name: data
-            default: package:/data
-
-The configuration snippet above defines two slots 
-named ``page_title`` and ``data``
-which can be overridden via the ``slots`` key in an override entry::
-
-  paths:
-
-    /screen: !override
-      slots:
-        page_title: Overridden title
-
-Now when you visit /screen, the ApplicationPage will render 
-with the title **Overridden title**.
-
-.. _rex.urlmap:  ../../rex.urlmap/latest/index.html
-
+* :ref:`genindex`
+* :ref:`search`

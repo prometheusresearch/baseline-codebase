@@ -9,6 +9,8 @@ REX.FORMS Change Log
 ===================
 
 - Updated instrument dependency.
+- Added some caching to event handling in the JS framework, so Forms with large
+  or many expressions should be a bit more performant now.
 
 
 0.30.0 (2015-06-12)

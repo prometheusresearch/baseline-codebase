@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+2.0.2 (2015-XX-XX)
+==================
+
+* ``rex pyshell`` enchancements: fixed the name of the application variable;
+  added tab completion to native Python shell.
+
+
 2.0.1 (2015-04-23)
 ==================
 

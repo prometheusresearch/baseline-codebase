@@ -10,12 +10,6 @@ import subprocess
 def _setup():
     project_base = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     docutils_react_docgen.SETTINGS['project_base'] = project_base
-    docutils_react_docgen.SETTINGS['react_docgen'] = os.path.join(
-            project_base,
-            'static/js/node_modules/.bin/react-docgen')
-    assert os.access(
-            docutils_react_docgen.SETTINGS['react_docgen'], 
-            os.F_OK), 'react-docgen not found'
 
 _setup()
 

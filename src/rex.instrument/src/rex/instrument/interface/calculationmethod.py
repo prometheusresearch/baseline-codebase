@@ -6,6 +6,7 @@
 from datetime import datetime
 from importlib import import_module
 
+from htsql.core.domain import Record as HtsqlRecord
 from prismh.core.validation.instrument import get_full_type_definition
 from rex.core import get_settings, Extension
 from rex.db import get_db
@@ -328,7 +329,13 @@ class HtsqlCalculationMethod(CalculationMethod):
         db = get_db()
         try:
             product = db.produce(options['expression'], **parameters)
-            return product.data
+            if isinstance(product.data, HtsqlRecord):
+                return product.data[0]
+            elif isinstance(product.data, list) \
+                    and isinstance(product.data[0], HtsqlRecord):
+                return product.data[0][0]
+            else:
+                return product.data
         except Exception, exc:
             raise InstrumentError("Unexpected htsql %(htsql)s: %(exc)s"
                                   % {'htsql': options['expression'],

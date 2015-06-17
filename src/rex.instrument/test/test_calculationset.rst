@@ -681,6 +681,44 @@ execute(..) fails if expression contains value that cannot be run correctly::
     ...
     InstrumentError: Unable to calculate expression unicode(1+1: unexpected EOF while parsing (<string>, line 1)
 
+execute HTSQL expressions of varying forms::
+
+    >>> CALCULATIONSET = {
+    ...     'instrument': {
+    ...         'id': 'urn:test-instrument',
+    ...         'version': '1.1'
+    ...     },
+    ...     'calculations': [
+    ...         {
+    ...           'id': 'calc1',
+    ...           'type': 'integer',
+    ...           'method': 'htsql',
+    ...           'options': {
+    ...             'expression': '2 * 2'
+    ...           }
+    ...         },
+    ...         {
+    ...           'id': 'calc2',
+    ...           'type': 'integer',
+    ...           'method': 'htsql',
+    ...           'options': {
+    ...             'expression': '{3 * 3}'
+    ...           }
+    ...         },
+    ...         {
+    ...           'id': 'calc3',
+    ...           'type': 'integer',
+    ...           'method': 'htsql',
+    ...           'options': {
+    ...             'expression': '/{4 * 4}'
+    ...           }
+    ...         }
+    ...     ]
+    ... }
+    >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    {'calc1': 4, 'calc2': 9, 'calc3': 16}
+
 There is calculation callable option, that can be used as follows::
 
     >>> CALCULATIONSET = {

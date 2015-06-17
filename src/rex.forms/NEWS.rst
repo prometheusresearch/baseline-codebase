@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-0.30.1 (2015-xx-xx)
+0.30.1 (2015-06-17)
 ===================
 
 - Updated instrument dependency.

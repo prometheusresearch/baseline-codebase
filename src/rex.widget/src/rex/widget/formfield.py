@@ -13,11 +13,14 @@ from collections import OrderedDict
 
 from cached_property import cached_property
 from htsql.core import domain
+from htsql.core.model import HomeNode, TableArc
+from htsql.core.classify import classify
 
 from rex.core import Extension, Validate, Error
 from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal, ProxyVal
 from rex.core import AnyVal, StrVal, IntVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
+from rex.db import get_db
 
 from .widget import Widget
 from .field import Field
@@ -246,7 +249,7 @@ def _format_FormField(field, req, path): # pylint: disable=invalid-name
         return values
 
 
-def enrich(fields, port):
+def enrich(fields, port, db=None):
     fields = List(fields=fields, value_key='__root__')
     update_by_keypath = {}
 
@@ -255,7 +258,7 @@ def enrich(fields, port):
         update_by_keypath[keypath] = field
         return field
 
-    _map(List(fields=from_port(port), value_key='__root__'), _build_update_by_keypath)
+    _map(List(fields=from_port(port, db=db), value_key='__root__'), _build_update_by_keypath)
 
     def _update_field(field, keypath):
         update = update_by_keypath.get(tuple(keypath))
@@ -279,15 +282,16 @@ def enrich(fields, port):
     return fields.fields
 
 
-def from_port(port, field_val=FormFieldVal()):
+def from_port(port, db=None, field_val=FormFieldVal()):
     """ Generate fieldset for a port definition."""
     trunk_arm = port.tree.arms.values()[0]
-    return _from_arm(port.tree, field_val).fields[0].fields
+    db = db or get_db()
+    return _from_arm(port.tree, db, field_val).fields[0].fields
 
 
-def _from_arm(arm, field_val, value_key='__root__', label='Root'):
+def _from_arm(arm, db, field_val, value_key='__root__', label='Root'):
     if arm.kind in ('facet entity', 'trunk entity', 'branch entity', 'root'):
-        fields = [_from_arm(v, field_val, value_key=k, label=_guess_label(k))
+        fields = [_from_arm(v, db, field_val, value_key=k, label=_guess_label(k))
                   for k, v in arm.items()]
         return field_val({
             'type': 'fieldset' if not arm.is_plural else 'list',
@@ -326,18 +330,19 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
             'required': _is_required(arm.column),
         })
     elif arm.kind == 'link':
-        return field_val({
-            'type': 'entity',
-            'value_key': value_key,
-            'label': label,
-            'data': EntitySuggestionSpecVal()({
-                'entity': arm.arc.target.table.name,
-                'title': 'id()',
-            }),
-            'required': any(_is_required(c)
-                            for j in arm.arc.joins
-                            for c in j.origin_columns)
-        })
+        with db:
+            return field_val({
+                'type': 'entity',
+                'value_key': value_key,
+                'label': label,
+                'data': EntitySuggestionSpecVal()({
+                    'entity': _get_table_name(arm.arc.target),
+                    'title': _get_title_column(arm.arc.target),
+                }),
+                'required': any(_is_required(c)
+                                for j in arm.arc.joins
+                                for c in j.origin_columns)
+            })
     elif arm.kind == 'calculation':
         return field_val({
             'type': 'calculation',
@@ -347,6 +352,22 @@ def _from_arm(arm, field_val, value_key='__root__', label='Root'):
         })
     else:
         raise NotImplementedError('found an unknown arm kind: %s' % arm.kind)
+
+
+def _get_table_name(table_node):
+    for label in classify(HomeNode()):
+        if label.arc.target == table_node:
+            return label.name
+    assert False, 'Unknown table node: %s' % table_node
+
+
+
+def _get_title_column(table_node, columns_to_try=('__title__', 'title')):
+    for column in columns_to_try:
+        for label in classify(table_node):
+            if label.name == column:
+                return column
+    return 'id()'
 
 
 def _is_required(column):

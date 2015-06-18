@@ -11,7 +11,6 @@ var {VBox, HBox}              = RexWidget.Layout;
 var {boxShadow, border}       = RexWidget.StyleUtils;
 var Breadcrumb                = require('./Breadcrumb');
 var Actions                   = require('./Actions');
-var ActionButton              = require('./ActionButton');
 var WithDOMSize               = require('./WithDOMSize');
 var WizardState               = require('./WizardState')
 var WizardItem                = require('./WizardItem');

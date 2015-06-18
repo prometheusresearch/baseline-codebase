@@ -1,18 +1,20 @@
 Form fields
 ===========
 
-Rex Widget uses :class:`rex.widget.FormField` data structure for configurable
+Rex Widget uses the :class:`rex.widget.FormField` data structure for configurable
 form fields and datatable columns.
 
 Define form field aliases
 -------------------------
 
-Sometimes it is useful to define new form field type as a preconfigured alias
-for an existent field type. For example we might want to have ``sex`` field type
-which is a preconfigured ``enum`` with ``male`` and ``female`` values.
+Sometimes it is useful to define a new form field type as a preconfigured alias
+for an existing field type. 
+
+For example we'll create a `sex` field type
+which is a preconfigured `enum` with `male` and `female` values.
 
 To do that we need to subclass :class:`rex.widget.FormField` and override its
-``__call__(self)`` method and ``type`` class attribute::
+`__call__(self)` method and `type` class attribute::
 
     from rex.widget import FormField
 
@@ -31,26 +33,27 @@ To do that we need to subclass :class:`rex.widget.FormField` and override its
 Override JavaScript component
 -----------------------------
 
-It can be useful to create a new type which overrides JavaScript component used
+It can be useful to create a new type which overrides the JavaScript component used
 for rendering a field.
 
-For example we might want a ``note`` field type which is exactly like ``string``
-field type but renders as ``<textarea />`` instead of plain ``<input type="text"
-/>``.
+For example we might want a `note` field type which is exactly like 
+the `string`
+field type but renders as a `<textarea />` 
+instead of a plain `<input type="text"/>`.
 
-First we need to define :class:`rex.widget.Widget` which represents JavaScript
-component::
+In Python, we need to create a subclass of :class:`rex.widget.Widget` 
+which represents our JavaScript component::
 
     from rex.core import IntVal
     from rex.widget import Widget, Field
 
     class TextareaField(Widget):
-        js_type = 'package/TextareaField'
 
+        js_type = 'package/TextareaField'
         rows = Field(IntVal(), default=4)
 
-Then we can define a new form field type and set ``widget`` attribute to
-:class:`TextareaField` instance::
+Then we can define a new form field type and set its `widget` attribute to
+an instance of :class:`TextareaField`::
 
   from rex.widget import FormField, StringFormField
 
@@ -62,19 +65,19 @@ Then we can define a new form field type and set ``widget`` attribute to
       def __call__(self):
           return StringFormField(**self.values)
 
-If we want to configure widget based on form field configuration we can define a
-``widget(self)`` method instead::
+If we want to configure the widget based on the form field configuration we can define a
+`widget(self)` method instead::
 
   class NoteFormField(FormField):
 
       type = 'note'
 
       fields = (
-          ('rows', IntVal()),
-      )
+              ('rows', IntVal()),
+              )
 
       def widget(self):
-        return TextareaField(rows=self.rows)
+          return TextareaField(rows=self.rows)
 
       def __call__(self):
           values = {k: v for k, v in self.values.items() if k != 'rows'}

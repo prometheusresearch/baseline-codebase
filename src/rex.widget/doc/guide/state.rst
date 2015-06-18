@@ -3,7 +3,7 @@ State cells
 
 State cells is a simple state tracking mechanism provided by Rex Widget.
 
-It allows one to bind parts of the state browser's querystring 
+It allows one to bind parts of the state to the browser's querystring 
 so that changes in
 the state can influence the browser's location and history, and vice-versa.
 
@@ -24,7 +24,7 @@ The API is simple, instead of returning an ordinary value from the
     },
 
     render() {
-      var selectedValue = this.state.selected.value
+      var selectedValue = this.state.selected.value;
       return (
         <RexWidget.Select
           value={this.state.selected.value}
@@ -70,11 +70,4 @@ now can be used to travel back in time through different ``selected`` values.
 
 Another use case for this is to pass parameters to a widget from another page
 through a link which can be declared with params for specific state cells.
-
-
-----------------------------------------------------
-
-This is a test of fonts.  *Italic text*, **bold text**, 
-`single back tick text`, and ``double back tick text``.  
-How does it look?
 

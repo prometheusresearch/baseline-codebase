@@ -249,7 +249,7 @@ def _format_FormField(field, req, path): # pylint: disable=invalid-name
         return values
 
 
-def enrich(fields, port, db=None):
+def enrich(fields, port):
     fields = List(fields=fields, value_key='__root__')
     update_by_keypath = {}
 
@@ -258,7 +258,7 @@ def enrich(fields, port, db=None):
         update_by_keypath[keypath] = field
         return field
 
-    _map(List(fields=from_port(port, db=db), value_key='__root__'), _build_update_by_keypath)
+    _map(List(fields=from_port(port), value_key='__root__'), _build_update_by_keypath)
 
     def _update_field(field, keypath):
         update = update_by_keypath.get(tuple(keypath))
@@ -282,11 +282,10 @@ def enrich(fields, port, db=None):
     return fields.fields
 
 
-def from_port(port, db=None, field_val=FormFieldVal()):
+def from_port(port, field_val=FormFieldVal()):
     """ Generate fieldset for a port definition."""
     trunk_arm = port.tree.arms.values()[0]
-    db = db or get_db()
-    return _from_arm(port.tree, db, field_val).fields[0].fields
+    return _from_arm(port.tree, port.db, field_val).fields[0].fields
 
 
 def _from_arm(arm, db, field_val, value_key='__root__', label='Root'):

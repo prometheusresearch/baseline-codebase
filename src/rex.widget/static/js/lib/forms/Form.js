@@ -49,9 +49,16 @@ var Form = React.createClass({
      * Callback which fires on form submit.
      *
      * This callback can alter form value before submitting it to server by
-     * returning a new value.
+     * returning a new value. Value will be revalidated.
      */
     onSubmit: React.PropTypes.func,
+
+    /**
+     * Callback which can be used to transform value before submitting it on
+     * server. Value won't be revalidated.
+     */
+    transformValueOnSubmit: React.PropTypes.func,
+
     /**
      * Callback which fires after form submit is complete.
      */
@@ -101,6 +108,7 @@ var Form = React.createClass({
       onSubmit: emptyFunction.thatReturnsArgument,
       onSubmitComplete: emptyFunction,
       onSubmitError: emptyFunction,
+      transformValueOnSubmit: emptyFunction.thatReturnsArgument,
       progressNotification: (
         <NotificationCenter.Notification
           kind="info"
@@ -160,16 +168,17 @@ var Form = React.createClass({
     }
     this._progressNotification = NotificationCenter.showNotification(this.props.progressNotification);
     this.setState({submitInProgress: true});
+    var valueToSubmit = this.props.transformValueOnSubmit(nextValue.value);
     if (submitTo.port instanceof Port) {
       if (this.props.insert) {
-        submitTo.port.insert(nextValue.value).then(this.onSubmitComplete, this.onSubmitError);
+        submitTo.port.insert(valueToSubmit).then(this.onSubmitComplete, this.onSubmitError);
       } else {
         submitTo.port
-          .replace(this.props.initialValue || this.props.value, nextValue.value)
+          .replace(this.props.initialValue || this.props.value, valueToSubmit)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     } else if (submitTo.port instanceof Query) {
-      submitTo.port.produce(nextValue.value).then(this.onSubmitComplete, this.onSubmitError);
+      submitTo.port.produce(valueToSubmit).then(this.onSubmitComplete, this.onSubmitError);
     }
   },
 

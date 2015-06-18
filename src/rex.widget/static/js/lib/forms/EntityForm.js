@@ -6,6 +6,7 @@
 var React             = require('react/addons');
 var emptyFunction     = require('../emptyFunction');
 var forceRefreshData  = require('../DataSpecificationMixin').forceRefreshData;
+var Query             = require('../Query');
 var Form              = require('./Form');
 var Fieldset          = require('./Fieldset');
 
@@ -43,6 +44,7 @@ var EntityForm = React.createClass({
         ref="form"
         schema={formSchema}
         value={formValue}
+        transformValueOnSubmit={this.transformValueOnSubmit}
         onSubmitComplete={this.onSubmitComplete}>
         <Fieldset selectFormValue={[entity, 0]}>
           {children}
@@ -56,6 +58,16 @@ var EntityForm = React.createClass({
       onSubmitComplete: emptyFunction,
       value: {}
     };
+  },
+
+  transformValueOnSubmit(value) {
+    if (this.props.transformValueOnSubmit) {
+      return this.props.transformValueOnSubmit(value);
+    } else if (this.props.submitTo.port instanceof Query) {
+      return value[this.props.entity][0];
+    } else {
+      return value;
+    }
   },
 
   onSubmitComplete(data) {

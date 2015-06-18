@@ -19,6 +19,10 @@ var StyleUtils = {
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   },
 
+  rgb(r, g, b) {
+    return `rgb(${r}, ${g}, ${b})`;
+  },
+
   border(width, style, color) {
     return `${width}px ${style} ${color}`;
   },
@@ -28,6 +32,16 @@ var StyleUtils = {
       .map(p => isString(p) ? p : `${p.color} ${p.value}`)
       .join(', ');
     return `linear-gradient(${direction}, ${colorStops})`;
+  },
+
+  position: {
+    absolute: 'absolute',
+    relative: 'relative',
+    fixed: 'fixed'
+  },
+
+  cursor: {
+    pointer: 'pointer'
   }
 };
 

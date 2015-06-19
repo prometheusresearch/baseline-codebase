@@ -12,8 +12,7 @@ var TimeoutMixin = {
   },
 
   componentWillUnmount() {
-    this._timeouts.forEach(this.clearTimeout);
-    this._timeouts = null;
+    this.clearTimeout();
   },
 
   setTimeout(func, ms) {
@@ -26,10 +25,15 @@ var TimeoutMixin = {
   },
 
   clearTimeout(timeoutID) {
-    clearTimeout(timeoutID);
-    var idx = this._timeouts.indexOf(timeoutID);
-    if (idx > -1) {
-      this._timeouts.splice(idx, 1);
+    if (timeoutID === undefined) {
+      this._timeouts.forEach(function(timeoutID) { clearTimeout(timeoutID); });
+      this._timeouts = [];
+    } else {
+      clearTimeout(timeoutID);
+      var idx = this._timeouts.indexOf(timeoutID);
+      if (idx > -1) {
+        this._timeouts.splice(idx, 1);
+      }
     }
   }
 

@@ -41,6 +41,11 @@ class WizardState {
     this.canvasMetrics = canvasMetrics || computeCanvasMetrics(this);
   }
 
+  isVisible(id) {
+    var {idx} = this.find(id);
+    return this.canvasMetrics.visiblePanels.indexOf(idx) > -1;
+  }
+
   openAfterLast(id, contextUpdate) {
     invariant(this.actionTree[id] !== undefined);
     var actionTree = this.actionTree[id] || {};
@@ -52,7 +57,7 @@ class WizardState {
       icon: Actions.getIcon(element),
       prev: this.last
     });
-    return this.construct(panels).ensurePanelVisible(id);
+    return this.construct(panels).ensureVisible(id);
   }
 
   isTransitionAllowed(id) {
@@ -64,14 +69,11 @@ class WizardState {
   /**
    * Put focus on a panel by an ID.
    */
-  ensurePanelVisible(id) {
+  ensureVisible(id) {
     var wizard = this;
     var {panel, idx: targetFocus} = this.find(id);
     if (targetFocus === -1) {
       return wizard;
-    }
-    if (panel.isService) {
-      targetFocus = targetFocus - 1;
     }
     while (true) {
       if (wizard.canvasMetrics.visiblePanels.indexOf(targetFocus) > -1) {
@@ -107,11 +109,11 @@ class WizardState {
     state = state
       .close(id)
       .openAfterLast(id, contextUpdate)
-      .ensurePanelVisible(id);
+      .ensureVisible(id);
     if (nextPossibleAction && state.isTransitionAllowed(nextPossibleAction.id)) {
       state = state
         .openAfterLast(nextPossibleAction.id)
-        .ensurePanelVisible(nextPossibleAction.id);
+        .ensureVisible(nextPossibleAction.id);
     } else {
       var possibleActions = Object.keys(state.actionTree);
       for (var i = 0; i < possibleActions.length; i++) {
@@ -119,7 +121,7 @@ class WizardState {
         if (state.isTransitionAllowed(possibleAction)) {
           state = state
             .openAfterLast(possibleAction)
-            .ensurePanelVisible(possibleAction);
+            .ensureVisible(possibleAction);
           break;
         }
       }

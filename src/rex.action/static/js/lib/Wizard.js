@@ -107,7 +107,7 @@ var Wizard = React.createClass({
       <Breadcrumb
         active={active}
         items={items}
-        onClick={this.onFocus}
+        onClick={this.onBreadcrumbClick}
         />
     );
   },
@@ -149,13 +149,29 @@ var Wizard = React.createClass({
 
   onFocus(id) {
     this.state.wizard.update(wizard => wizard
-      .ensurePanelVisible(id));
+      .ensureVisible(id));
+  },
+
+  onBreadcrumbClick(id) {
+    this.state.wizard.update(wizard => {
+      if (wizard.isVisible(id)) {
+        var idx = wizard.indexOf(id);
+        if (idx < wizard.focus) {
+          wizard = wizard.moveFocusLeft();
+        } else if (idx > wizard.focus) {
+          wizard = wizard.moveFocusRight();
+        }
+      } else {
+        wizard = wizard.ensureVisible(id);
+      }
+      return wizard;
+    });
   },
 
   onClose(id) {
     this.state.wizard.update(wizard => {
       wizard = wizard.close(id);
-      wizard = wizard.ensurePanelVisible(wizard.last.id);
+      wizard = wizard.ensureVisible(wizard.last.id);
       return wizard;
     });
   }

@@ -3,6 +3,8 @@
  */
 'use strict';
 
+var {batchedUpdates} = require('react/addons').addons;
+
 var TimeoutMixin = {
 
   componentWillMount() {
@@ -17,7 +19,7 @@ var TimeoutMixin = {
   setTimeout(func, ms) {
     var timeoutID = setTimeout(() => {
       this.clearTimeout(timeoutID);
-      func();
+      batchedUpdates(func);
     }, ms);
     this._timeouts.push(timeoutID);
     return timeoutID;

@@ -9,7 +9,7 @@ var DS                  = RexWidget.DataSpecification;
 var {VBox, HBox}        = RexWidget.Layout;
 var ServiceSection      = require('../ServiceSection');
 
-var PickStyle = {
+var Style = {
   self: {
     flex: 1
   },
@@ -41,9 +41,9 @@ var Pick = React.createClass({
     var {entity, onClose} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...PickStyle.self, width: this.props.width}}>
-        <HBox style={PickStyle.header}>
-          <VBox style={PickStyle.title}>
+      <VBox style={{...Style.self, width: this.props.width}}>
+        <HBox style={Style.header}>
+          <VBox style={Style.title}>
             <h4>
               {title}
             </h4>
@@ -57,7 +57,7 @@ var Pick = React.createClass({
         </HBox>
         {this.props.search &&
           <RexWidget.SearchInput
-            style={{input: PickStyle.search}}
+            style={{input: Style.search}}
             value={this.state.search.value}
             onChange={this.state.search.update}
             throttleOnChange={500}

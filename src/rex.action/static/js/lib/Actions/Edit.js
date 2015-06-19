@@ -11,7 +11,7 @@ var ServiceSection      = require('../ServiceSection');
 var {VBox, HBox}        = RexWidget.Layout;
 var {Forms}             = RexWidget;
 
-var EditStyle = {
+var Style = {
   self: {
     flex: 1,
   },
@@ -57,10 +57,10 @@ var Edit = React.createClass({
     var {onClose, width, submitButton} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...EditStyle.self, width}}>
-        <VBox style={EditStyle.container} size={1}>
-          <HBox style={EditStyle.header}>
-            <VBox style={EditStyle.title}>
+      <VBox style={{...Style.self, width}}>
+        <VBox style={Style.container} size={1}>
+          <HBox style={Style.header}>
+            <VBox style={Style.title}>
               <h4>
                 {title}
               </h4>
@@ -72,15 +72,15 @@ var Edit = React.createClass({
                 onClick={onClose}
                 />}
           </HBox>
-          <VBox style={EditStyle.content}>
+          <VBox style={Style.content}>
             {this.data.data.loaded ?
               this.renderForm() :
               <RexWidget.Preloader />}
           </VBox>
         </VBox>
-        <VBox style={EditStyle.buttons}>
+        <VBox style={Style.buttons}>
           <RexWidget.Button
-            style={EditStyle.submitButton}
+            style={Style.submitButton}
             success
             icon="ok"
             size="small"

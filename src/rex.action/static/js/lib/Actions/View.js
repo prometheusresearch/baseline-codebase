@@ -8,7 +8,7 @@ var RexWidget           = require('rex-widget');
 var {VBox, HBox}        = RexWidget.Layout;
 var DS                  = RexWidget.DataSpecification;
 
-var ViewStyle = {
+var Style = {
   self: {
     flex: 1,
   },
@@ -39,9 +39,9 @@ var View = React.createClass({
     var {fields, entity, context, onClose} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...ViewStyle.self, width: this.props.width}}>
-        <HBox style={ViewStyle.header}>
-          <VBox style={ViewStyle.title}>
+      <VBox style={{...Style.self, width: this.props.width}}>
+        <HBox style={Style.header}>
+          <VBox style={Style.title}>
             <h4>{title}</h4>
           </VBox>
           {onClose &&
@@ -51,7 +51,7 @@ var View = React.createClass({
               onClick={onClose}
               />}
         </HBox>
-        <VBox style={ViewStyle.content}>
+        <VBox style={Style.content}>
           <RexWidget.ShowPreloader data={this.data.data}>
             <RexWidget.Forms.ConfigurableEntityForm
               readOnly

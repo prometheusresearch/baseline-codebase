@@ -12,7 +12,7 @@ var {VBox, HBox}        = RexWidget.Layout;
 var DS                  = RexWidget.DataSpecification;
 var {Forms}             = RexWidget;
 
-var MakeStyle = {
+var Style = {
   self: {
     flex: 1,
   },
@@ -71,10 +71,10 @@ var Make = React.createClass({
     var value = buildValue(this.props.value, this.props.context);
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...MakeStyle.self, width: this.props.width}}>
-        <VBox style={MakeStyle.container} size={1}>
-          <HBox style={MakeStyle.header}>
-            <VBox style={MakeStyle.title}>
+      <VBox style={{...Style.self, width: this.props.width}}>
+        <VBox style={Style.container} size={1}>
+          <HBox style={Style.header}>
+            <VBox style={Style.title}>
               <h4>
                 {title}
               </h4>
@@ -86,7 +86,7 @@ var Make = React.createClass({
                 onClick={onClose}
                 />}
           </HBox>
-          <VBox style={MakeStyle.content}>
+          <VBox style={Style.content}>
             <Forms.ConfigurableEntityForm
               insert
               key={this.getKey()}
@@ -100,9 +100,9 @@ var Make = React.createClass({
               />
           </VBox>
         </VBox>
-        <VBox style={MakeStyle.buttons}>
+        <VBox style={Style.buttons}>
           <RexWidget.Button
-            style={MakeStyle.submitButton}
+            style={Style.submitButton}
             success
             icon={this.props.icon}
             size="small"

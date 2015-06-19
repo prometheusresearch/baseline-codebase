@@ -7,7 +7,7 @@ var React                       = require('react/addons');
 var RexWidget                   = require('rex-widget');
 var {VBox, HBox}                = RexWidget.Layout;
 
-var PageStyle = {
+var Style = {
   self: {
     flex: 1,
   },
@@ -28,10 +28,10 @@ var Page = React.createClass({
   render() {
     var {width, title, text, onClose} = this.props;
     return (
-      <VBox style={{...PageStyle.self, width}}>
+      <VBox style={{...Style.self, width}}>
         {title &&
-          <HBox style={PageStyle.header}>
-            <VBox style={PageStyle.title}>
+          <HBox style={Style.header}>
+            <VBox style={Style.title}>
               <h4>
                 {title}
               </h4>
@@ -43,7 +43,7 @@ var Page = React.createClass({
                 onClick={onClose}
                 />}
           </HBox>}
-        <VBox style={PageStyle.content}>
+        <VBox style={Style.content}>
           <div dangerouslySetInnerHTML={{__html: text}} />
         </VBox>
       </VBox>

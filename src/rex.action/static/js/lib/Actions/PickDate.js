@@ -10,7 +10,7 @@ var {VBox, HBox}        = RexWidget.Layout;
 var moment              = require('moment');
 var Datepicker          = require('react-bootstrap-datetimepicker/src/DateTimePickerDate');
 
-var PickDateStyle = {
+var Style = {
   self: {
     flex: 1,
   },
@@ -75,9 +75,9 @@ var PickDate = React.createClass({
     this.__annotateMonthQueryIndex = buildIndex(this.data.annotateMonthQuery.data);
     this.__annotateYearQueryIndex = buildIndex(this.data.annotateYearQuery.data);
     return (
-      <VBox style={{...PickDateStyle.self, width: this.props.width}}>
-        <HBox style={PickDateStyle.header}>
-          <VBox style={PickDateStyle.title}>
+      <VBox style={{...Style.self, width: this.props.width}}>
+        <HBox style={Style.header}>
+          <VBox style={Style.title}>
             <h4>{title}</h4>
           </VBox>
           {onClose &&
@@ -87,13 +87,13 @@ var PickDate = React.createClass({
               onClick={onClose}
               />}
         </HBox>
-        <VBox style={PickDateStyle.content}>
+        <VBox style={Style.content}>
           <Datepicker
-            style={{...PickDateStyle.datepicker, height: this.props.width}}
+            style={{...Style.datepicker, height: this.props.width}}
             renderDay={this.renderDay}
             renderMonth={this.renderMonth}
-            pickerStyle={PickDateStyle.datepickerPicker}
-            pickerTableStyle={PickDateStyle.datepickerPickerTable}
+            pickerStyle={Style.datepickerPicker}
+            pickerTableStyle={Style.datepickerPickerTable}
             viewDate={this.state.viewDate}
             selectedDate={this.state.selectedDate}
             setViewMonth={this.setViewMonth}
@@ -117,10 +117,10 @@ var PickDate = React.createClass({
     var title = typeof annotated === 'string' ? annotated : undefined;
     var style = {};
     if (annotated) {
-      style = {...style, ...PickDateStyle.onAnnotated.cell};
+      style = {...style, ...Style.onAnnotated.cell};
     }
     if (props.active) {
-      style = {...style, ...PickDateStyle.onActive.cell};
+      style = {...style, ...Style.onActive.cell};
     }
     var className = `day ${props.showToday && props.today ? 'today' : ''}`;
     return (
@@ -136,10 +136,10 @@ var PickDate = React.createClass({
     var title = typeof annotated === 'string' ? annotated : undefined;
     var style = {};
     if (annotated) {
-      style = {...style, ...PickDateStyle.onAnnotated.cell};
+      style = {...style, ...Style.onAnnotated.cell};
     }
     if (props.active) {
-      style = {...style, ...PickDateStyle.onActive.cell};
+      style = {...style, ...Style.onActive.cell};
     }
     return (
       <span key={props.key} title={title} className="month" onClick={props.onClick} style={style}>

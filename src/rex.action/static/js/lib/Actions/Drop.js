@@ -7,7 +7,7 @@ var React                       = require('react/addons');
 var RexWidget                   = require('rex-widget');
 var {VBox, HBox}                = RexWidget.Layout;
 
-var DropStyle = {
+var Style = {
   self: {
     flex: 1,
     background: 'rgba(255, 226, 226, 0.4)',
@@ -39,10 +39,10 @@ var Drop = React.createClass({
     var {confirmDelay} = this.state;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...DropStyle.self, width}}>
+      <VBox style={{...Style.self, width}}>
         {title &&
-          <HBox style={DropStyle.header}>
-            <VBox style={DropStyle.title}>
+          <HBox style={Style.header}>
+            <VBox style={Style.title}>
               <h4>
                 {title}
               </h4>
@@ -54,8 +54,8 @@ var Drop = React.createClass({
                 onClick={onClose}
                 />}
           </HBox>}
-        <VBox style={DropStyle.content} centerVertically centerHorizontally>
-          <VBox style={DropStyle.message}>
+        <VBox style={Style.content} centerVertically centerHorizontally>
+          <VBox style={Style.message}>
             <div dangerouslySetInnerHTML={{__html: message}} />
           </VBox>
           <RexWidget.Button
@@ -65,7 +65,7 @@ var Drop = React.createClass({
             icon="remove">
             Drop
           </RexWidget.Button>
-          <VBox style={DropStyle.messageBottom}>
+          <VBox style={Style.messageBottom}>
             {confirmDelay > 0 ?
               <p>
                 Wait {confirmDelay} seconds

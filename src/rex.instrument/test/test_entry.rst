@@ -181,7 +181,7 @@ properties on the Assessment Document::
     True
     >>> entry.set_meta('foo', 'bar')
     >>> entry.get_meta('foo')
-    u'bar'
+    'bar'
 
     >>> entry.get_meta('application') is None
     True

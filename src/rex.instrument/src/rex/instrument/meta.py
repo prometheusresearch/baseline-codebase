@@ -47,7 +47,7 @@ def set_assessment_meta(data, name, value):
 
     if 'meta' not in data:
         data['meta'] = {}
-    data['meta'][name] = to_unicode(value)
+    data['meta'][name] = value
 
 
 def set_assessment_application(data, name, version=None):

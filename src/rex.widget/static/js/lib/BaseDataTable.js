@@ -13,6 +13,7 @@ var emptyFunction           = require('./emptyFunction');
 var PersistentStateMixin    = require('./PersistentStateMixin');
 var TouchableArea           = require('./TouchableArea');
 var isTouchDevice           = require('./Environment').isTouchDevice;
+var SingleTimeoutMixin      = require('./SingleTimeoutMixin');
 
 var DataTableStyle = {
   sortIcon: {
@@ -29,7 +30,7 @@ var DataTableStyle = {
  * DataTable component.
  */
 var DataTable = React.createClass({
-  mixins: [LayoutAwareMixin, PersistentStateMixin],
+  mixins: [SingleTimeoutMixin, LayoutAwareMixin, PersistentStateMixin],
 
   propTypes: {
 
@@ -184,7 +185,7 @@ var DataTable = React.createClass({
   },
 
   componentDidUpdate(prevProps) {
-    setTimeout(() => this._checkNeedPagination(), 0);
+    this.setTimeout(() => this._checkNeedPagination(), 0);
     if (prevProps.selected != null && this.props.selected == null) {
       setTimeout(() => {
         this.props.onDeselect();
@@ -194,7 +195,7 @@ var DataTable = React.createClass({
 
   componentDidMount() {
     this._recomputeGeometry();
-    setTimeout(() => this._checkNeedPagination(), 0);
+    this.setTimeout(() => this._checkNeedPagination(), 0);
   },
 
   onLayoutChange() {

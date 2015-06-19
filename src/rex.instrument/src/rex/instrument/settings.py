@@ -90,8 +90,8 @@ class InstrumentImplementationSetting(Setting):
 class InstrumentValidateOnStartupSetting(Setting):
     """
     A boolean indicating whether or not the system should automatically
-    validate all InstrumentVersion definitions in the system when the server
-    starts up. If not specified, defaults to ``True``.
+    validate all InstrumentVersion and CalculationSet definitions in the system
+    when the server starts up. If not specified, defaults to ``True``.
 
     Example::
 

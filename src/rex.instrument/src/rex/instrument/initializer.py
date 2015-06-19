@@ -6,7 +6,7 @@
 from rex.core import Initialize, Error, get_settings
 
 from .errors import ValidationError
-from .interface import InstrumentVersion
+from .interface import InstrumentVersion, CalculationSet
 from .util import get_implementation
 
 
@@ -17,7 +17,7 @@ __all__ = (
 
 class InstrumentInitialize(Initialize):
     @classmethod
-    def signature(cls):
+    def signature(cls):  # pragma: no cover
         return 'instrument'
 
     def __call__(self):
@@ -25,25 +25,42 @@ class InstrumentInitialize(Initialize):
             return
 
         iv_impl = get_implementation('instrumentversion')
-        if iv_impl == InstrumentVersion:
-            # We don't have an implementation, don't bother.
-            return
-
-        try:
-            ivs = iv_impl.find()
-        except Error as exc:
-            exc.wrap('While validating system InstrumentVersions.')
-            raise
-
-        for version in ivs:
+        if iv_impl != InstrumentVersion:
             try:
-                version.validate()
-            except ValidationError as exc:
-                raise Error(
-                    'InstrumentVersion "%s" contains an invalid'
-                    ' definition: %s' % (
-                        version.uid,
-                        exc.message,
+                ivs = iv_impl.find()
+            except Error as exc:
+                exc.wrap('While validating system InstrumentVersions.')
+                raise
+
+            for version in ivs:
+                try:
+                    version.validate()
+                except ValidationError as exc:
+                    raise Error(
+                        'InstrumentVersion "%s" contains an invalid'
+                        ' definition: %s' % (
+                            version.uid,
+                            exc.message,
+                        )
                     )
-                )
+
+        calc_impl = get_implementation('calculationset')
+        if calc_impl != CalculationSet:
+            try:
+                calculations = calc_impl.find()
+            except Error as exc:
+                exc.wrap('While validating system CalculationSets.')
+                raise
+
+            for calc in calculations:
+                try:
+                    calc.validate()
+                except ValidationError as exc:
+                    raise Error(
+                        'CalculationSet "%s" contains an invalid'
+                        ' definition: %s' % (
+                            calc.uid,
+                            exc.message,
+                        )
+                    )
 

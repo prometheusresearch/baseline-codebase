@@ -118,8 +118,8 @@ Settings
 
 ``instrument_vaildate_on_startup``
     This setting governs whether or not the system will automatically validate
-    all InstrumentVersion definitions found in the datastore upon server
-    startup. If not specified, it defaults to ``True``.
+    all InstrumentVersion and CalculationSet definitions found in the datastore
+    upon server startup. If not specified, it defaults to ``True``.
 
 ``instrument_default_required_entries``
     This setting controls internal workflow logic which requires that Tasks

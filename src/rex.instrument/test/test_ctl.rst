@@ -664,7 +664,7 @@ It requires a single argument which is the UID of the Instrument to retrieve::
         rex calculationset-retrieve
 
     >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation')
-    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.instrument_demo.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.instrument_demo.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status=='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
 
     >>> ctl('calculationset-retrieve --project=rex.instrument_demo simple')   # doctest: +ELLIPSIS
     Traceback (most recent call last):
@@ -681,7 +681,7 @@ It takes a ``version`` option to specify which InstrumentVersion of the
 Instrument to retrieve::
 
     >>> ctl('calculationset-retrieve --project=rex.instrument_demo calculation --version=1')
-    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.instrument_demo.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
+    {"instrument": {"id": "urn:test-calculation", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"callable": "rex.instrument_demo.my_calculation1"}}, {"id": "calc2", "type": "integer", "method": "htsql", "options": {"expression": "if($subject_status='completed', -100, 100) + switch($age, 'age18-29', 29, 'age30-49', 49, 'age50-64', 64, 'age65-and-over', 120, 0)"}}, {"id": "calc3", "type": "boolean", "method": "python", "options": {"expression": "((-100 if subject_status=='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"}}]}
 
 It can also print the JSON in a prettier way::
 
@@ -713,7 +713,7 @@ It can also print the JSON in a prettier way::
           "type": "boolean",
           "method": "python",
           "options": {
-            "expression": "((-100 if subject_status='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"
+            "expression": "((-100 if subject_status=='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0"
           }
         }
       ]
@@ -741,7 +741,7 @@ It can also print the definition in YAML format::
       type: boolean
       method: python
       options:
-        expression: ((-100 if subject_status='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0
+        expression: ((-100 if subject_status=='completed' else 100) + (calculations['calc1']+calculations['calc2']))>=0
 
 It fails if the instrument doesn't exist::
 

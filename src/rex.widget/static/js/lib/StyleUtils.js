@@ -16,15 +16,28 @@ var StyleUtils = {
   },
 
   rgba(r, g, b, a) {
+    if (b === undefined && a === undefined) {
+      a = g;
+      g = r;
+      b = r;
+    }
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   },
 
   rgb(r, g, b) {
+    if (g === undefined && b === undefined) {
+      g = r;
+      b = r;
+    }
     return `rgb(${r}, ${g}, ${b})`;
   },
 
   border(width, style, color) {
     return `${width}px ${style} ${color}`;
+  },
+
+  borderStyle: {
+    solid: 'solid'
   },
 
   linearGradient(direction, ...colorStops) {

@@ -8,74 +8,29 @@ var React                     = require('react/addons');
 var {cloneWithProps}          = React.addons;
 var RexWidget                 = require('rex-widget');
 var {VBox, HBox}              = RexWidget.Layout;
-var {boxShadow, border}       = RexWidget.StyleUtils;
+var {boxShadow, border,
+     translate3d, rgb, borderStyle,
+     overflow, transform}     = RexWidget.StyleUtils;
 var Breadcrumb                = require('./Breadcrumb');
 var Actions                   = require('./Actions');
 var WithDOMSize               = require('./WithDOMSize');
 var WizardState               = require('./WizardState')
-var WizardItem                = require('./WizardItem');
+var WizardPanel               = require('./WizardPanel');
 
-function getPanelWidth(panel) {
-  var element = panel.element;
-  var width = Actions.getWidth(element) || WizardItem.Style.self.minWidth;
-  if (Object.keys(panel.prev.actionTree).length > 1) {
-    width = width + WizardItem.Style.sidebar.width;
-  }
-  return width;
-}
-
-function computeCanvasMetrics(wizard, size, getActionByID) {
-  var widthToDistribute;
-  var seenWidth = 0;
-  var scrollToIdx;
-  var translateX = 0;
-  var visiblePanels = [];
-  for (var i = 0; i < wizard.panels.length; i++) {
-    var panel = wizard.panels[i];
-    var panelWidth = getPanelWidth(panel);
-    if (i === wizard.focus) {
-      scrollToIdx = i;
-      widthToDistribute = size.width;
-    }
-    if (widthToDistribute !== undefined) {
-      widthToDistribute = widthToDistribute - panelWidth;
-      if (widthToDistribute >= -10) {
-        visiblePanels.push(i);
-      } else {
-        break;
-      }
-    }
-  }
-  if (scrollToIdx > 0) {
-    for (var i = scrollToIdx - 1; i >= 0; i--) {
-      var panel = wizard.panels[i];
-      var panelWidth = getPanelWidth(panel);
-      translateX = translateX + panelWidth + WizardStyle.item.marginRight;
-    }
-  }
-
-  translateX = Math.max(0, translateX - WizardStyle.item.marginRight * 4);
-
-  return {
-    translateX,
-    visiblePanels
-  };
-}
-
-var WizardStyle = {
+var Style = {
 
   self: {
     flex: 1,
     width: '100%',
     height: '100%',
-    overflow: 'hidden'
+    overflow: overflow.hidden
   },
 
   breadcrumb: {
     width: '100%',
     height: 38,
-    boxShadow: boxShadow(0, 3, 6, 2, '#e2e2e2'),
-    borderTop: border(1, 'solid', '#eaeaea')
+    boxShadow: boxShadow(0, 3, 6, 2, rgb(226)),
+    borderTop: border(1, borderStyle.solid, rgb(234))
   },
 
   item: {
@@ -83,196 +38,134 @@ var WizardStyle = {
   },
 
   items: {
-    overflow: 'hidden',
+    overflow: overflow.hidden,
     width: '100%',
     flex: 1,
-
-    background: '#eaeaea'
+    background: rgb(234)
   },
 
   itemsCanvas: {
     flex: 1,
-    transition: 'transform 0.5s'
+    transition: transform(0.5)
   }
 };
-
 
 var Wizard = React.createClass({
 
   render() {
     if (this.props.DOMSize === null) {
-      return <VBox style={WizardStyle.self} />;
-    }
-
-    var {translateX, visiblePanels, actionTree} = this.state;
-    var panels = this.state.wizard.panels.map((p, i) => {
-      var key;
-      if (p.isService) {
-        key = '';
-      } else {
-        key = Object
-                .keys(p.element.props.contextSpec.input)
-                .map(k => p.context[k])
-                .join('__');
-      }
+      return <VBox style={Style.self} />;
+    } else {
+      var translateX = -this.state.wizard.canvasMetrics.translateX;
       return (
-        <WizardItem
-          ref={p.id}
-          key={p.id + '__' + key}
-          actionId={p.id}
-          actions={this.props.actions.actions}
-          siblingActions={p.isService ? [] : Object.keys(p.prev.actionTree)}
-          active={visiblePanels.indexOf(i) !== -1}
-          noTheme={p.isService}
-          style={{...WizardStyle.item, zIndex: p.isService ? 999 : 1000}}
-          onReplace={this.onReplace}
-          onFocus={this.onFocus}>
-          {cloneWithProps(p.element, {
-            ref: p.id,
-            context: {...p.context, USER: "'" + __REX_USER__ + "'"},
-            wizard: this.state.wizard,
-            onContext: this.onContext.bind(null, p.id),
-            onClose: this.onClose.bind(null, p.id)
-          })}
-        </WizardItem>
+        <VBox style={Style.self}>
+          <VBox style={Style.items}>
+            <HBox style={{...Style.itemsCanvas, transform: translate3d(translateX, 0, 0)}}>
+              {this.renderPanels()}
+            </HBox>
+          </VBox>
+          <VBox style={Style.breadcrumb}>
+            {this.renderBreadcrumb()}
+          </VBox>
+        </VBox>
       );
-    });
+    }
+  },
 
-    var breadcrumb = this.state.wizard.panels.map(p => ({
-      id: p.id,
-      icon: p.element.props.icon,
-      title: Actions.getTitle(p.element)
+  renderPanels() {
+    var {wizard} = this.state;
+    return wizard.panels.map((panel, idx) => (
+      <WizardPanel
+        key={panel.id + '__' + (panel.isService ? 'SERVICE' : getPanelKey(panel))}
+        actionId={panel.id}
+        actions={this.props.actions.actions}
+        siblingActions={panel.isService ? [] : Object.keys(panel.prev.actionTree)}
+        active={wizard.canvasMetrics.visiblePanels.indexOf(idx) !== -1}
+        noTheme={panel.isService}
+        style={{...Style.item, zIndex: panel.isService ? 999 : 1000}}
+        onReplace={this.onReplace}
+        onFocus={this.onFocus}>
+        {cloneWithProps(panel.element, {
+          context: {...panel.context, USER: "'" + __REX_USER__ + "'"},
+          wizard: wizard,
+          onContext: this.onContext.bind(null, panel.id),
+          onClose: this.onClose.bind(null, panel.id)
+        })}
+      </WizardPanel>
+    ));
+  },
+
+  renderBreadcrumb() {
+    var {wizard} = this.state;
+    var items = wizard.panels.map(panel => ({
+      id: panel.id,
+      icon: Actions.getIcon(panel.element),
+      title: Actions.getTitle(panel.element)
     }));
-
+    var active = wizard.canvasMetrics.visiblePanels.map(i => wizard.panels[i].id);
     return (
-      <VBox style={WizardStyle.self} tabIndex={-1}>
-        <VBox ref="items" style={WizardStyle.items}>
-          <HBox ref="itemsCanvas" style={{...WizardStyle.itemsCanvas, transform: `translate3d(-${translateX}px, 0, 0)`}}>
-            {panels}
-          </HBox>
-        </VBox>
-        <VBox style={WizardStyle.breadcrumb}>
-          <Breadcrumb
-            active={visiblePanels.map(i => this.state.wizard.panels[i].id)}
-            items={breadcrumb}
-            onClick={this.onFocus}
-            />
-        </VBox>
-      </VBox>
+      <Breadcrumb
+        active={active}
+        items={items}
+        onClick={this.onFocus}
+        />
     );
   },
 
   getInitialState() {
     return {
-      wizard: null,
-      visiblePanels: [],
-      translateX: 0
+      wizard: null
     };
   },
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.DOMSize !== this.props.DOMSize) {
-      var size = nextProps.DOMSize;
+  componentWillReceiveProps({DOMSize}) {
+    if (DOMSize !== this.props.DOMSize) {
       var wizard = this.state.wizard;
       if (wizard === null) {
-        wizard = WizardState.construct(this.onWizardUpdate, this.props.actions, size);
+        wizard = WizardState.construct(this._onWizardUpdate, this.props.actions, DOMSize);
+      } else {
+        wizard = wizard.resize(DOMSize);
       }
-      var nextState = {
-        ...this.computeCanvasMetrics(wizard, size),
-        wizard
-      };
-      this.setState(nextState);
+      this.setState({wizard});
     }
   },
 
-  onWizardUpdate(wizard) {
-    if (wizard === this.state.wizard) {
-      return;
+  _onWizardUpdate(wizard) {
+    if (wizard !== this.state.wizard) {
+      this.setState({wizard});
     }
-
-    console.log('CONTEXT', wizard.context);
-    var onlyFocusUpdate = wizard._panels === this.state.wizard._panels;
-    if (onlyFocusUpdate) {
-      var metrics = this.computeCanvasMetrics(wizard);
-      this.setState({wizard, ...metrics});
-    } else {
-      var currentFocus = this.state.wizard.focus;
-      var targetFocus = wizard.focus;
-      var moveRight = targetFocus > currentFocus;
-
-      wizard = wizard.updateFocus(currentFocus);
-
-      while (true) {
-        var metrics = this.computeCanvasMetrics(wizard);
-        if (metrics.visiblePanels.indexOf(targetFocus) !== -1) {
-          this.setState({wizard, ...metrics});
-          break;
-        } else {
-          if (moveRight) {
-            wizard = wizard.moveFocusRight();
-          } else {
-            wizard = wizard.moveFocusLeft();
-          }
-        }
-      }
-    }
-  },
-
-  computeCanvasMetrics(wizard, size) {
-    wizard = wizard || this.state.wizard;
-    size = size || this.props.DOMSize;
-    return computeCanvasMetrics(wizard, size);
   },
 
   onReplace(id, replaceId) {
-    this.state.wizard
+    this.state.wizard.update(wizard => wizard
       .close(id)
-      .openAfterLast(replaceId)
-      .update();
+      .openAfterLast(replaceId));
   },
 
   onContext(id, context) {
-    this.state.wizard
-      .updateContext(id, context)
-      .update();
+    this.state.wizard.update(wizard => wizard
+      .updateContext(id, context));
   },
 
   onFocus(id) {
-    var {panel, idx} = this.state.wizard.find(id);
-
-    if (panel.isService) {
-      idx = idx - 1;
-    }
-
-    var wizard = this.state.wizard;
-    var focus = wizard.focus;
-
-    var left = this.state.visiblePanels[0];
-    var right = this.state.visiblePanels[this.state.visiblePanels.length - 1];
-
-    var x = 10
-    while (x--) {
-      var metrics = this.computeCanvasMetrics(wizard);
-      if (metrics.visiblePanels.indexOf(idx) !== -1) {
-        break;
-      } else if (focus < idx) {
-        wizard = wizard.moveFocusRight();
-      } else if (focus > idx) {
-        wizard = wizard.moveFocusLeft();
-      }
-    }
-    this.setState({
-      wizard, ...metrics
-    });
+    this.state.wizard.update(wizard => wizard
+      .ensurePanelVisible(id));
   },
 
   onClose(id) {
-    this.state.wizard
-      .close(id)
-      .update();
+    this.state.wizard.update(wizard => {
+      wizard = wizard.close(id);
+      wizard = wizard.ensurePanelVisible(wizard.last.id);
+      return wizard;
+    });
   }
 
 });
+
+function getPanelKey(panel) {
+  var inputKeys = Object.keys(panel.element.props.contextSpec.input);
+  return inputKeys.map(k => panel.context[k]).join('__');
+}
 
 Wizard = WithDOMSize(Wizard);
 

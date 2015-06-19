@@ -40,7 +40,7 @@ var Style = {
   }
 };
 
-var WizardItem = React.createClass({
+var WizardPanel = React.createClass({
 
   render() {
     var {children, active, style, noTheme} = this.props;
@@ -89,5 +89,5 @@ var WizardItem = React.createClass({
   }
 });
 
-module.exports = WizardItem;
+module.exports = WizardPanel;
 module.exports.Style = Style;

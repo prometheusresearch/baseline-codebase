@@ -144,8 +144,12 @@ var SearchInput = React.createClass({
   },
 
   componentWillReceiveProps(nextProps) {
-    if (this._timeout !== null && nextProps.value !== this.state.value) {
-      this._clearTimeout();
+    if (this.state.value !== undefined && nextProps.value !== this.state.value) {
+      if (this._timeout === null) {
+        this.setState({value: undefined});
+      } else {
+        this.clearTimeout();
+      }
     }
   },
 
@@ -164,8 +168,8 @@ var SearchInput = React.createClass({
       this.clearTimeout(this._timeout);
       this.setState({value});
       this._timeout = this.setTimeout(() => {
-        this._clearTimeout();
         this.props.onChange(value);
+        this._clearTimeout();
       }, this.props.throttleOnChange);
     } else {
       this.props.onChange(value);

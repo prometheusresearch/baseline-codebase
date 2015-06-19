@@ -89,7 +89,7 @@ var Wizard = React.createClass({
           context: {...panel.context, USER: "'" + __REX_USER__ + "'"},
           wizard: wizard,
           onContext: this.onContext.bind(null, panel.id),
-          onClose: this.onClose.bind(null, panel.id)
+          onClose: idx > 0 ? this.onClose.bind(null, panel.id) : undefined
         })}
       </WizardPanel>
     ));

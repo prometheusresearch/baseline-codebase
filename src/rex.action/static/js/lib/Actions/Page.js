@@ -26,7 +26,7 @@ var PageStyle = {
 var Page = React.createClass({
 
   render() {
-    var {width, title, text} = this.props;
+    var {width, title, text, onClose} = this.props;
     return (
       <VBox style={{...PageStyle.self, width}}>
         {title &&
@@ -36,6 +36,12 @@ var Page = React.createClass({
                 {title}
               </h4>
             </VBox>
+            {onClose &&
+              <RexWidget.Button
+                quiet
+                icon="remove"
+                onClick={onClose}
+                />}
           </HBox>}
         <VBox style={PageStyle.content}>
           <div dangerouslySetInnerHTML={{__html: text}} />

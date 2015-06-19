@@ -34,7 +34,7 @@ class WizardState {
       isService: true,
       context: this.context,
       actionTree: this.actionTree,
-      element: <ServicePane style={{left: -15}} />,
+      element: <ServicePane style={{left: this._panels.length > 0 ? -15 : 0}} />,
       prev: this.last
     });
 
@@ -65,13 +65,13 @@ class WizardState {
    * Put focus on a panel by an ID.
    */
   ensurePanelVisible(id) {
-    var {panel, idx: targetFocus} = this.find(id);
-    if (panel.isService) {
-      targetFocus = targetFocus - 1;
-    }
     var wizard = this;
+    var {panel, idx: targetFocus} = this.find(id);
     if (targetFocus === -1) {
       return wizard;
+    }
+    if (panel.isService) {
+      targetFocus = targetFocus - 1;
     }
     while (true) {
       if (wizard.canvasMetrics.visiblePanels.indexOf(targetFocus) > -1) {

@@ -48,11 +48,12 @@ var Pick = React.createClass({
               {title}
             </h4>
           </VBox>
-          <RexWidget.Button
-            quiet
-            icon="remove"
-            onClick={onClose}
-            />
+          {onClose
+            && <RexWidget.Button
+              quiet
+              icon="remove"
+              onClick={onClose}
+              />}
         </HBox>
         {this.props.search &&
           <RexWidget.SearchInput

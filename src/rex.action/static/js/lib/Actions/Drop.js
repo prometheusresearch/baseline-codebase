@@ -35,7 +35,7 @@ var DropStyle = {
 var Drop = React.createClass({
 
   render() {
-    var {width, message, entity} = this.props;
+    var {width, message, entity, onClose} = this.props;
     var {confirmDelay} = this.state;
     var title = this.constructor.getTitle(this.props);
     return (
@@ -47,11 +47,12 @@ var Drop = React.createClass({
                 {title}
               </h4>
             </VBox>
-            <RexWidget.Button
-              quiet
-              icon="remove"
-              onClick={this.props.onClose}
-              />
+            {onClose &&
+              <RexWidget.Button
+                quiet
+                icon="remove"
+                onClick={onClose}
+                />}
           </HBox>}
         <VBox style={DropStyle.content} centerVertically centerHorizontally>
           <VBox style={DropStyle.message}>

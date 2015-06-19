@@ -65,11 +65,12 @@ var Edit = React.createClass({
                 {title}
               </h4>
             </VBox>
-            <RexWidget.Button
-              quiet
-              icon="remove"
-              onClick={onClose}
-              />
+            {onClose &&
+              <RexWidget.Button
+                quiet
+                icon="remove"
+                onClick={onClose}
+                />}
           </HBox>
           <VBox style={EditStyle.content}>
             {this.data.data.loaded ?

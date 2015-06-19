@@ -80,11 +80,12 @@ var PickDate = React.createClass({
           <VBox style={PickDateStyle.title}>
             <h4>{title}</h4>
           </VBox>
-          <RexWidget.Button
-            quiet
-            icon="remove"
-            onClick={onClose}
-            />
+          {onClose &&
+            <RexWidget.Button
+              quiet
+              icon="remove"
+              onClick={onClose}
+              />}
         </HBox>
         <VBox style={PickDateStyle.content}>
           <Datepicker

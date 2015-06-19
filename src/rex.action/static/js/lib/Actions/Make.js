@@ -67,7 +67,7 @@ var Make = React.createClass({
   },
 
   render() {
-    var {fields, entity, submitButton} = this.props;
+    var {fields, entity, submitButton, onClose} = this.props;
     var value = buildValue(this.props.value, this.props.context);
     var title = this.constructor.getTitle(this.props);
     return (
@@ -79,11 +79,12 @@ var Make = React.createClass({
                 {title}
               </h4>
             </VBox>
-            <RexWidget.Button
-              quiet
-              icon="remove"
-              onClick={this.props.onClose}
-              />
+            {onClose &&
+              <RexWidget.Button
+                quiet
+                icon="remove"
+                onClick={onClose}
+                />}
           </HBox>
           <VBox style={MakeStyle.content}>
             <Forms.ConfigurableEntityForm

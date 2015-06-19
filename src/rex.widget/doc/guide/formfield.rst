@@ -30,6 +30,23 @@ To do that we need to subclass :class:`rex.widget.FormField` and override its
                 {'value': 'not-applicable', 'label': 'Not Applicable'}
             ], **self.values)
 
+
+Now in YAML, when declaring the fields to use on a form you can use:: 
+
+     type: sex
+     value_key: sex
+
+Instead of::
+
+     type: enum
+     value_key: sex
+     options:
+     - value: male
+       label: Male
+     - value: female
+       label: Female
+
+
 Override JavaScript component
 -----------------------------
 

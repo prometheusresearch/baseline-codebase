@@ -14,7 +14,7 @@ application screen composed of predefined widgets::
         - !<DataTable>
           data: package:/data
 
-With this declaration, visiting ``/screen`` in your browser will 
+With this declaration, visiting `/screen` in your browser will 
 render the ApplicationPage widget.
 
 The ApplicationPage will be rendered with the title **Hello, world!**, 
@@ -23,7 +23,7 @@ and the data will be fetched from the **package:/data** port.
 Overrides
 ---------
 
-The ``access`` and ``widget`` parameters of a handler are overridable as
+The `access` and `widget` parameters of a handler are overridable as
 documented in `rex.urlmap`_.
 
 For example one can override the access setting to the above ApplicationPage::
@@ -54,7 +54,7 @@ without re-defining the entire hierarchy.
 
 Any field marked as a **slot** in the original URL mapping entry
 may be overridden.  Each slot has a name and a default value. 
-The special syntax ``!slot`` is used to define slots::
+The special syntax `\!slot` is used to define slots::
 
   paths:
     /screen:
@@ -70,8 +70,8 @@ The special syntax ``!slot`` is used to define slots::
             default: package:/data
 
 The configuration snippet above defines two slots 
-named ``page_title`` and ``data``
-which can be overridden via the ``slots`` key in an override entry::
+named `page_title` and `data`
+which can be overridden via the `slots` key in an override entry::
 
   paths:
 

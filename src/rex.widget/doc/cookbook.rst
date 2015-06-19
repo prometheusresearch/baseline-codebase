@@ -17,20 +17,20 @@ If widget uses state cells with params::
     }
   }
 
-Then state cell can be initialized from ``?name=...`` URL parameter. That means
-that by generating a link with ``?name=...`` parameter you can set the value of
-``this.state.name.value`` to this parameter value. You can use ``Link`` widget
+Then state cell can be initialized from `?name=...` URL parameter. That means
+that by generating a link with `?name=...` parameter you can set the value of
+`this.state.name.value` to this parameter value. You can use `Link` widget
 for that::
 
   <RexWidget.Link href="/page" params={{name: 'somename'}} />
 
-Now component with the state cell above will have ``'somename'`` as a value of
-``this.state.name.value``.
+Now component with the state cell above will have `'somename'` as a value of
+`this.state.name.value`.
 
 Pass params to a widget in an iframe
 ------------------------------------
 
-See the guide above. You need to generate ``src`` attribute of an iframe with
+See the guide above. You need to generate `src` attribute of an iframe with
 parameters corresponding to state cells in widgets on the target page.
 
 

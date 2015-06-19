@@ -11,7 +11,7 @@ Basic usage example
 -------------------
 
 The API is simple, instead of returning an ordinary value from the
-``getInitialState()`` callback of a widget, return a cell::
+`getInitialState()` callback of a widget, return a cell::
 
   var RexWidget = require('rex-widget');
 
@@ -34,15 +34,15 @@ The API is simple, instead of returning an ordinary value from the
     }
   });
 
-As you can see the ``value`` property of the cell represents the current cell
-value, the ``null`` in this example is the initial state.
+As you can see the `value` property of the cell represents the current cell
+value, the `null` in this example is the initial state.
 
-To change the value we need to call the ``update(nextValue)`` method of the
+To change the value we need to call the `update(nextValue)` method of the
 cell::
 
   this.state.selected.update(nextSelected)
 
-Which is equivalent to ``this.setState({selected: nextSelected})`` if we weren't
+Which is equivalent to `this.setState({selected: nextSelected})` if we weren't
 using cells but a plain value for representing the selected state.
 
 Another advantage of using cells for managing the UI state is that cells are
@@ -61,12 +61,12 @@ a URL parameter::
     };
   }
 
-Now the initial state cell value will be read from the ``?user=...`` parameter. 
+Now the initial state cell value will be read from the `?user=...` parameter. 
 And on updates to the cell's state the parameter will also be updated.
 
 That makes the browser history mechanism work with state cells. 
 The browser's back button
-now can be used to travel back in time through different ``selected`` values.
+now can be used to travel back in time through different `selected` values.
 
 Another use case for this is to pass parameters to a widget from another page
 through a link which can be declared with params for specific state cells.

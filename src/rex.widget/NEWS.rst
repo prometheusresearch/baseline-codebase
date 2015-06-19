@@ -12,14 +12,14 @@
 1.0.0 (2015-06-12)
 ==================
 
-* (breaking) Removed application state handling, ``StateField`` and
-  ``Widget.define_state`` removed as well. Use ``@computed_field`` instead to
+* (breaking) Removed application state handling, `StateField` and
+  `Widget.define_state` removed as well. Use `@computed_field` instead to
   provide computed data to widgets.
 
 * (breaking) Removed widget templates.
 
 * (new feature) Slots are allowed with then URL mapping entries for widget.
-  Their values can be supplied via ``slots`` key in entry override.
+  Their values can be supplied via `slots` key in entry override.
 
 * Multiple bug fixes and numerous features.
 

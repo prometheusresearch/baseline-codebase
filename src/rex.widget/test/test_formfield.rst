@@ -359,6 +359,48 @@ Enrich field from port
   [StringFormField(value_key=['code'], required=True, label='Code'),
    StringFormField(value_key=['identity', 'givenname'], label='Givenname')]
 
+  >>> fields = test_enrich('individual', """
+  ... - code
+  ... - mother
+  ... """)
+
+  >>> fields # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], required=True, label='Code'),
+   EntityFormField(value_key=['mother'], label='Mother', data=Record(entity='individual', title='id()', mask=None))]
+
+  >>> fields[1].port
+  Port('''
+  entity: individual
+  select: []
+  with:
+  - calculation: title
+    expression: id()
+  ''')
+
+  >>> fields = test_enrich('table_with_link_to_table_with_title', """
+  ... - table_with_title
+  ... """)
+  
+  >>> fields # doctest: +NORMALIZE_WHITESPACE
+  [EntityFormField(value_key=['table_with_title'],
+                   required=True,
+                   label='Table With Title',
+                   data=Record(entity='table_with_title',
+                               title='title',
+                               mask=None))]
+
+  >>> fields[0].port
+  Port('''
+  entity: table_with_title
+  select: [id]
+  with:
+  - calculation: title
+    expression: title
+  ''')
+
+  >>> fields[0].port.produce()
+  <Product {()}>
+
   >>> rex.off()
 
 Generating port from fieldset

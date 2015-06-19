@@ -90,6 +90,21 @@
     type: text
     required: false
 
+- table: table_with_title
+  with:
+  - column: title
+    type: text
+  - column: id
+    type: integer
+  - identity: [id: offset]
+
+- table: table_with_link_to_table_with_title
+  with:
+  - column: id
+    type: integer
+  - link: table_with_title
+  - identity: [id: offset]
+
 #
 # Edge cases
 #

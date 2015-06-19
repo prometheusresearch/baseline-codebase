@@ -34,6 +34,14 @@ var StyleUtils = {
     return `linear-gradient(${direction}, ${colorStops})`;
   },
 
+  transform(duration) {
+    return `transform ${duration}s`;
+  },
+
+  translate3d(x, y, z) {
+    return `translate3d(${x}px, ${y}px, ${z}px)`;
+  },
+
   position: {
     absolute: 'absolute',
     relative: 'relative',
@@ -42,6 +50,12 @@ var StyleUtils = {
 
   cursor: {
     pointer: 'pointer'
+  },
+
+  overflow: {
+    auto: 'auto',
+    hidden: 'hidden',
+    scroll: 'scroll'
   }
 };
 

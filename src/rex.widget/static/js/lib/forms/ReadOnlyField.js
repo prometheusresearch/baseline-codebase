@@ -7,10 +7,10 @@ var React         = require('react');
 var {VBox, HBox}  = require('../Layout');
 var emptyFunction = require('../emptyFunction');
 
-var ReadOnlyFieldStyle = {
+var Style = {
   self: {
-    marginBottom: 7,
-    marginTop: 8,
+    marginBottom: 2,
+    marginTop: 2,
     fontSize: '90%'
   },
   label: {
@@ -29,10 +29,10 @@ var ReadOnlyField = React.createClass({
       children = renderValue(formValue.value);
     }
     return (
-      <HBox style={{...ReadOnlyFieldStyle.self, ...(style && style.self)}}>
-        {label && 
+      <HBox style={{...Style.self, ...(style && style.self)}}>
+        {label &&
           <VBox size={labelSize} centerVertically>
-            <label style={{...ReadOnlyFieldStyle.label, ...(style && style.label)}}>
+            <label style={{...Style.label, ...(style && style.label)}}>
               {label}
             </label>
           </VBox>}

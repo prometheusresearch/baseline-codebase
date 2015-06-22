@@ -4,10 +4,14 @@
  */
 'use strict';
 
-var DIV = document.createElement('div');
+var ELEMENT = document.createElement('div');
 
-var flexboxNative = 'flex' in DIV.style;
-var flexboxWebkit = !flexboxNative && 'WebkitFlex' in DIV.style;
+var flexNative = 'flex' in ELEMENT.style;
+var flexWebkit = !flexNative && 'WebkitFlex' in ELEMENT.style;
+
+var boxShadowNative = 'boxShadow' in ELEMENT.style;
+var boxShadowWebkit = !boxShadowNative && 'WebkitBoxShadow' in ELEMENT.style;
+var boxShadowMoz = !boxShadowNative && 'MozBoxShadow' in ELEMENT.style;
 
 function autoprefixStyle(style) {
   if (style.hasOwnProperty('userSelect')) {
@@ -23,9 +27,11 @@ function autoprefixStyle(style) {
   }
 
   if (style.hasOwnProperty('boxShadow')) {
-    style.WebkitBoxShadow = style.boxShadow;
-    style.MozBoxShadow = style.boxShadow;
-    style.msBoxSelect = style.boxShadow;
+    if (boxShadowWebkit) {
+      style.WebkitBoxShadow = style.boxShadow;
+    } else if (boxShadowMoz) {
+      style.MozBoxShadow = style.boxShadow;
+    }
   }
 
   if (style.hasOwnProperty('fontSmoothing')) {
@@ -33,39 +39,39 @@ function autoprefixStyle(style) {
     style.MozOsxFontSmoothing = style.fontSmoothing === 'antialiased' ? 'grayscale' : undefined;
   }
   
-  if (style.hasOwnProperty('flex') && flexboxWebkit) {
+  if (style.hasOwnProperty('flex') && flexWebkit) {
     style.WebkitFlex = style.flex;
   }
 
-  if (style.hasOwnProperty('flexDirection') && flexboxWebkit) {
+  if (style.hasOwnProperty('flexDirection') && flexWebkit) {
     style.WebkitFlexDirection = style.flexDirection;
   }
 
-  if (style.hasOwnProperty('flexWrap') && flexboxWebkit) {
+  if (style.hasOwnProperty('flexWrap') && flexWebkit) {
     style.WebkitFlexWrap = style.flexWrap;
   }
 
-  if (style.hasOwnProperty('alignItems') && flexboxWebkit) {
+  if (style.hasOwnProperty('alignItems') && flexWebkit) {
     style.WebkitAlignItems = style.alignItems;
   }
 
-  if (style.hasOwnProperty('flexGrow') && flexboxWebkit) {
+  if (style.hasOwnProperty('flexGrow') && flexWebkit) {
     style.WebkitFlexGrow = style.flexGrow;
   }
 
-  if (style.hasOwnProperty('flexShrink') && flexboxWebkit) {
+  if (style.hasOwnProperty('flexShrink') && flexWebkit) {
     style.WebkitFlexShrink = style.flexShrink;
   }
 
-  if (style.hasOwnProperty('order') && flexboxWebkit) {
+  if (style.hasOwnProperty('order') && flexWebkit) {
     style.WebkitOrder = style.order;
   }
 
-  if (style.hasOwnProperty('justifyContent') && flexboxWebkit) {
+  if (style.hasOwnProperty('justifyContent') && flexWebkit) {
     style.WebkitJustifyContent = style.justifyContent;
   }
 
-  if (style.display === 'flex' && flexboxWebkit) {
+  if (style.display === 'flex' && flexWebkit) {
     style.display = style.display + ';display:-webkit-flex;';
   }
 

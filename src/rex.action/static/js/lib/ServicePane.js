@@ -10,7 +10,7 @@ var {border}        = RexWidget.StyleUtils;
 var getNextActions  = require('./getNextActions');
 var ActionButton    = require('./ActionButton');
 
-var ServicePaneStyle = {
+var Style = {
   self: {
   },
   header: {
@@ -44,10 +44,10 @@ var ServicePane = React.createClass({
           />
       );
     return (
-      <VBox style={{...ServicePaneStyle.self, width: this.props.width, ...this.props.style}}>
+      <VBox style={{...Style.self, width: this.props.width, ...this.props.style}}>
         {actionButtons.length > 0 &&
-          <VBox style={ServicePaneStyle.nextActions}>
-            <h6 style={ServicePaneStyle.header}>Next Actions</h6>
+          <VBox style={Style.nextActions}>
+            <h6 style={Style.header}>Next Actions</h6>
             {actionButtons}
           </VBox>}
       </VBox>

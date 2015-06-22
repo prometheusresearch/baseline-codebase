@@ -9,14 +9,8 @@ var DS                  = RexWidget.DataSpecification;
 var {VBox, HBox}        = RexWidget.Layout;
 
 var Style = {
-  self: {
-    flex: 1
-  },
   header: {
     padding: 10
-  },
-  title: {
-    flex: 1
   },
   search: {
     borderRadius: 0,
@@ -40,9 +34,9 @@ var Pick = React.createClass({
     var {entity, onClose} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...Style.self, width: this.props.width}}>
+      <VBox size={1} style={{...Style.self, width: this.props.width}}>
         <HBox style={Style.header}>
-          <VBox style={Style.title}>
+          <VBox size={1} style={Style.title}>
             <h4>
               {title}
             </h4>

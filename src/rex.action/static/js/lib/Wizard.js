@@ -20,7 +20,6 @@ var WizardPanel               = require('./WizardPanel');
 var Style = {
 
   self: {
-    flex: 1,
     width: '100%',
     height: '100%',
     overflow: overflow.hidden
@@ -40,12 +39,10 @@ var Style = {
   items: {
     overflow: overflow.hidden,
     width: '100%',
-    flex: 1,
     background: rgb(234)
   },
 
   itemsCanvas: {
-    flex: 1,
     transition: transform(0.5)
   }
 };
@@ -58,9 +55,9 @@ var Wizard = React.createClass({
     } else {
       var translateX = -this.state.wizard.canvasMetrics.translateX;
       return (
-        <VBox style={Style.self}>
-          <VBox style={Style.items}>
-            <HBox style={{...Style.itemsCanvas, transform: translate3d(translateX, 0, 0)}}>
+        <VBox size={1} style={Style.self}>
+          <VBox size={1} style={Style.items}>
+            <HBox size={1} style={{...Style.itemsCanvas, transform: translate3d(translateX, 0, 0)}}>
               {this.renderPanels()}
             </HBox>
           </VBox>

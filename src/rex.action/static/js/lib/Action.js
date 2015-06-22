@@ -11,18 +11,11 @@ var {overflow, boxShadow, rgb}  = RexWidget.StyleUtils;
 var Theme                       = require('./Theme');
 
 var Style = {
-  self: {
-    flex: 1,
-  },
-  title: {
-    flex: 1
-  },
   header: {
     boxShadow: Theme.shadow.light,
     padding: 10
   },
   content: {
-    flex: 1,
     padding: 10,
     overflow: overflow.auto
   },
@@ -71,10 +64,10 @@ var Action = React.createClass({
     var {children, title, onClose, width} = this.props;
     var footer = this.props.renderFooter();
     return (
-      <VBox style={{...Style.self, width}}>
+      <VBox style={{width}} size={1}>
         <HBox style={Style.header}>
           {title &&
-            <VBox style={Style.title}>
+            <VBox size={1}>
               <h4>{title}</h4>
             </VBox>}
           {onClose &&
@@ -84,7 +77,7 @@ var Action = React.createClass({
               onClick={onClose}
               />}
         </HBox>
-        <VBox style={Style.content}>
+        <VBox size={1} style={Style.content}>
           {children}
         </VBox>
         {footer &&

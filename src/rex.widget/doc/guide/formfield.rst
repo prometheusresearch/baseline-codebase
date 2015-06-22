@@ -1,14 +1,104 @@
 Form fields
 ===========
 
-Rex Widget uses the :class:`rex.widget.FormField` data structure for configurable
-form fields and datatable columns.
+Rex Widget features configurable and exensible form mechanism via
+``<ConfigurableEntityForm />`` React component and a set of configuration
+validators to specify fieldsets from URL mapping.
+
+Configuring form fields
+-----------------------
+
+To define a widget which uses ``<ConfigurableEntityForm />`` you need to
+use :class:`FormFieldsetVal` validator for form fields::
+
+    from rex.widget import Widget, Field, FormFieldsetVal
+
+    class IndividualForm(Widget):
+
+        name = 'IndividualForm'
+        js_type = 'my-package/IndividualForm'
+
+        fields = Field(
+            FormFieldsetVal(),
+            doc="""
+            Form fields.
+            """)
+
+Then corresponding ``my-package/IndividualForm`` React component should pass
+``this.props.fields`` to ``<ConfigurableEntityForm />``::
+
+    var React = require('react')
+    var RexWidget = require('rex-widget')
+
+    var IndividualForm = React.createClass({
+
+      render() {
+        return (
+          <div>
+            <h1>IndividualForm</h1>
+            <RexWidget.ConfigurableEntityForm
+              fields={this.props.fields}
+              />
+          </div>
+        )
+      }
+    })
+
+Then configure ``<IndividualForm>`` via URL mapping configuration::
+
+    !<IndividualForm>
+    fields:
+    - type: string
+      value_key: name
+    - type: entity
+      value_key: mother
+      data:
+        entity: individual
+        title: identity.givenname + ' ' + identity.surname
+
+Configuring entity form fields
+------------------------------
+
+Most of the time your form submit data through Rex Port and work with a
+predefined database entities (rather than using arbitrary HTSQL queries).
+
+Rex Widget can take advantage of this and infer form field types and other
+information right from the Rex Port definition. To instruct Rex Widget to do so
+you need to use :class:`EntityFieldsetVal` validator::
+
+    from rex.widget import Widget, Field, EntityFieldsetVal
+
+    class IndividualForm(Widget):
+
+        name = 'IndividualForm'
+        js_type = 'my-package/IndividualForm'
+
+        fields = Field(
+            EntityFieldsetVal(entity='individual'),
+            doc="""
+            Form fields.
+            """)
+
+The React component stays the same but in YAML configuration you can just define
+fields as ``value_key: ...`` sequence::
+
+    !<IndividualForm>
+    fields:
+    - value_key: name
+    - value_key: mother
+
+You can even supply it a sequence of string which will be treated as ``value_key`` values::
+
+    !<IndividualForm>
+    fields:
+    - name
+    - mother
 
 Define form field aliases
 -------------------------
 
 Sometimes it is useful to define a new form field type as a preconfigured alias
-for an existing field type. 
+for an existing field type.
 
 For example we'll create a `sex` field type
 which is a preconfigured `enum` with `male` and `female` values.

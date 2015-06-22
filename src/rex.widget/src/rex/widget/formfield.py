@@ -138,8 +138,37 @@ class FormFieldsetVal(Validate):
     def __call__(self, value):
         return self._validate(value)
 
-
 form_layout_item_val.set(FormFieldsetVal())
+
+
+class EntityFieldsetVal(Validate):
+    """ Validator for form field set for a specified entity.
+
+    If optional parameter ``entity`` is supplied in while defining a validator
+    then it expects the same value as :class:`FormFieldsetVal` (a list of of
+    fields). Otherwise you need to specify ``entity`` in YAML configuration,
+    fields then are specified as ``fields`` key.
+    """
+
+    _validate_fieldset = FormFieldsetVal()
+    _validate = RecordVal(
+        ('entity', StrVal()),
+        ('fields', _validate_fieldset),
+    )
+
+    def __init__(self, entity=None):
+        self.entity = entity
+
+    def __call__(self, value):
+        if self.entity is not None:
+            entity = self.entity
+            fields = self._validate_fieldset(value)
+        else:
+            value = self._validate(value)
+            entity = value.entity
+            fields = value.fields
+        fields = enrich(fields, Port(entity))
+        return fields
 
 
 validate = FormFieldVal()

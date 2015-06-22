@@ -922,6 +922,50 @@ Working with Python API::
            fields=[StringFormField(value_key=['code']),
                    StringFormField(value_key=['id'])], select_form_value=True)]
 
+EntityFieldsetVal()
+-------------------
+
+:class:`EntityFieldsetVal` validator is used when you need to specify that the
+fieldset relates to a tabke in database (an entity). It then performs db
+reflection to enrich form fieldset metadat (automatically infer field types and
+so on)::
+
+    >>> from rex.widget.formfield import EntityFieldsetVal
+
+We can specify entity in when defining a validator::
+
+    >>> parse = EntityFieldsetVal('individual').parse
+
+    >>> EntityFieldsetVal('individual').parse("""
+    ... - sex
+    ... - identity.givenname
+    ... - mother
+    ... """) # doctest: +NORMALIZE_WHITESPACE
+    [EnumFormField(value_key=['sex'], label='Sex',
+                   options=[Record(value='not-known', label='Not Known'),
+                            Record(value='male', label='Male'),
+                            Record(value='female', label='Female'),
+                            Record(value='not-applicable', label='Not Applicable')]),
+     StringFormField(value_key=['identity', 'givenname']),
+     EntityFormField(value_key=['mother'], label='Mother', data=Record(entity='individual', title='id()', mask=None))]
+
+Alternatively we can supply entity name in YAML::
+
+    >>> EntityFieldsetVal().parse("""
+    ... entity: individual
+    ... fields:
+    ... - sex
+    ... - identity.givenname
+    ... - mother
+    ... """) # doctest: +NORMALIZE_WHITESPACE
+    [EnumFormField(value_key=['sex'], label='Sex',
+                   options=[Record(value='not-known', label='Not Known'),
+                            Record(value='male', label='Male'),
+                            Record(value='female', label='Female'),
+                            Record(value='not-applicable', label='Not Applicable')]),
+     StringFormField(value_key=['identity', 'givenname']),
+     EntityFormField(value_key=['mother'], label='Mother', data=Record(entity='individual', title='id()', mask=None))]
+
 Cleanup::
 
   >>> rex.off()

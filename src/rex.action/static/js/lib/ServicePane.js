@@ -34,18 +34,18 @@ var ServicePane = React.createClass({
     var actionButtons = getNextActions(wizard.context, nextActions, wizard.actions)
       .filter(action => nextActions.indexOf(action.id) > -1)
       .filter(action => openedActions.indexOf(action.id) === -1)
-      .map(action => 
+      .map(action =>
         <ActionButton
+          align="left"
           key={action.id}
           action={action.action}
           actionId={action.id}
           onClick={this.onOpen}
           />
       );
-
     return (
       <VBox style={{...ServicePaneStyle.self, width: this.props.width, ...this.props.style}}>
-        {actionButtons.length > 0 && 
+        {actionButtons.length > 0 &&
           <VBox style={ServicePaneStyle.nextActions}>
             <h6 style={ServicePaneStyle.header}>Next Actions</h6>
             {actionButtons}

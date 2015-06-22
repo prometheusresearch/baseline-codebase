@@ -7,7 +7,6 @@ var React               = require('react');
 var RexWidget           = require('rex-widget');
 var DS                  = RexWidget.DataSpecification;
 var {VBox, HBox}        = RexWidget.Layout;
-var ServiceSection      = require('../ServiceSection');
 
 var Style = {
   self: {

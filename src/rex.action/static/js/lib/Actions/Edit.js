@@ -7,31 +7,11 @@ var React               = require('react');
 var RexWidget           = require('rex-widget');
 var {boxShadow}         = RexWidget.StyleUtils;
 var DS                  = RexWidget.DataSpecification;
-var ServiceSection      = require('../ServiceSection');
+var Action              = require('../Action');
 var {VBox, HBox}        = RexWidget.Layout;
 var {Forms}             = RexWidget;
 
 var Style = {
-  self: {
-    flex: 1,
-  },
-  title: {
-    flex: 1
-  },
-  container: {
-    overflow: 'auto'
-  },
-  header: {
-    padding: 10
-  },
-  content: {
-    flex: 1,
-    padding: 10
-  },
-  buttons: {
-    boxShadow: boxShadow(0, 0, 2, 0, '#cccccc'),
-    padding: 5
-  },
   submitButton: {
     width: '25%'
   }
@@ -54,42 +34,29 @@ var Edit = React.createClass({
   },
 
   render() {
-    var {onClose, width, submitButton} = this.props;
+    var {onClose, width} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...Style.self, width}}>
-        <VBox style={Style.container} size={1}>
-          <HBox style={Style.header}>
-            <VBox style={Style.title}>
-              <h4>
-                {title}
-              </h4>
-            </VBox>
-            {onClose &&
-              <RexWidget.Button
-                quiet
-                icon="remove"
-                onClick={onClose}
-                />}
-          </HBox>
-          <VBox style={Style.content}>
-            {this.data.data.loaded ?
-              this.renderForm() :
-              <RexWidget.Preloader />}
-          </VBox>
-        </VBox>
-        <VBox style={Style.buttons}>
-          <RexWidget.Button
-            style={Style.submitButton}
-            success
-            icon="ok"
-            size="small"
-            onClick={this.onSubmit}
-            align="center">
-            {submitButton}
-          </RexWidget.Button>
-        </VBox>
-      </VBox>
+      <Action width={width} onClose={onClose} title={title} renderFooter={this.renderFooter}>
+        {this.data.data.loaded ?
+          this.renderForm() :
+          <RexWidget.Preloader />}
+      </Action>
+    );
+  },
+
+  renderFooter() {
+    var {submitButton} = this.props;
+    return (
+      <RexWidget.Button
+        style={Style.submitButton}
+        success
+        icon="ok"
+        size="small"
+        onClick={this.onSubmit}
+        align="center">
+        {submitButton}
+      </RexWidget.Button>
     );
   },
 

@@ -6,24 +6,12 @@
 var React               = require('react');
 var RexWidget           = require('rex-widget');
 var {VBox, HBox}        = RexWidget.Layout;
+var Action              = require('../Action');
 
 var moment              = require('moment');
 var Datepicker          = require('react-bootstrap-datetimepicker/src/DateTimePickerDate');
 
 var Style = {
-  self: {
-    flex: 1,
-  },
-  title: {
-    flex: 1
-  },
-  header: {
-    padding: 10
-  },
-  content: {
-    flex: 1,
-    padding: 10
-  },
   datepicker: {
     position: 'absolute',
     top: 0,
@@ -70,44 +58,31 @@ var PickDate = React.createClass({
   },
 
   render() {
-    var {onClose} = this.props;
+    var {onClose, width} = this.props;
     var title = this.constructor.getTitle(this.props);
     this.__annotateMonthQueryIndex = buildIndex(this.data.annotateMonthQuery.data);
     this.__annotateYearQueryIndex = buildIndex(this.data.annotateYearQuery.data);
     return (
-      <VBox style={{...Style.self, width: this.props.width}}>
-        <HBox style={Style.header}>
-          <VBox style={Style.title}>
-            <h4>{title}</h4>
-          </VBox>
-          {onClose &&
-            <RexWidget.Button
-              quiet
-              icon="remove"
-              onClick={onClose}
-              />}
-        </HBox>
-        <VBox style={Style.content}>
-          <Datepicker
-            style={{...Style.datepicker, height: this.props.width}}
-            renderDay={this.renderDay}
-            renderMonth={this.renderMonth}
-            pickerStyle={Style.datepickerPicker}
-            pickerTableStyle={Style.datepickerPickerTable}
-            viewDate={this.state.viewDate}
-            selectedDate={this.state.selectedDate}
-            setViewMonth={this.setViewMonth}
-            setViewYear={this.setViewYear}
-            addMonth={this.addMonth}
-            addYear={this.addYear}
-            addDecade={this.addDecade}
-            subtractMonth={this.subtractMonth}
-            subtractYear={this.subtractYear}
-            subtractDecade={this.subtractDecade}
-            setSelectedDate={this.setSelectedDate}
-            />
-        </VBox>
-      </VBox>
+      <Action title={title} onClose={onClose} width={width}>
+        <Datepicker
+          style={{...Style.datepicker, height: this.props.width}}
+          renderDay={this.renderDay}
+          renderMonth={this.renderMonth}
+          pickerStyle={Style.datepickerPicker}
+          pickerTableStyle={Style.datepickerPickerTable}
+          viewDate={this.state.viewDate}
+          selectedDate={this.state.selectedDate}
+          setViewMonth={this.setViewMonth}
+          setViewYear={this.setViewYear}
+          addMonth={this.addMonth}
+          addYear={this.addYear}
+          addDecade={this.addDecade}
+          subtractMonth={this.subtractMonth}
+          subtractYear={this.subtractYear}
+          subtractDecade={this.subtractDecade}
+          setSelectedDate={this.setSelectedDate}
+          />
+      </Action>
     );
   },
 

@@ -3,26 +3,12 @@
  */
 'use strict';
 
-var React               = require('react');
-var RexWidget           = require('rex-widget');
-var {VBox, HBox}        = RexWidget.Layout;
-var DS                  = RexWidget.DataSpecification;
-
-var Style = {
-  self: {
-    flex: 1,
-  },
-  title: {
-    flex: 1
-  },
-  header: {
-    padding: 10
-  },
-  content: {
-    flex: 1,
-    padding: 10
-  }
-};
+var React                       = require('react');
+var RexWidget                   = require('rex-widget');
+var {VBox, HBox}                = RexWidget.Layout;
+var DS                          = RexWidget.DataSpecification;
+var {overflow, boxShadow, rgb}  = RexWidget.StyleUtils;
+var Action                      = require('../Action');
 
 var View = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin],
@@ -36,32 +22,19 @@ var View = React.createClass({
   },
 
   render() {
-    var {fields, entity, context, onClose} = this.props;
+    var {fields, entity, context, onClose, width} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <VBox style={{...Style.self, width: this.props.width}}>
-        <HBox style={Style.header}>
-          <VBox style={Style.title}>
-            <h4>{title}</h4>
-          </VBox>
-          {onClose &&
-            <RexWidget.Button
-              quiet
-              icon="remove"
-              onClick={onClose}
-              />}
-        </HBox>
-        <VBox style={Style.content}>
-          <RexWidget.ShowPreloader data={this.data.data}>
-            <RexWidget.Forms.ConfigurableEntityForm
-              readOnly
-              entity={entity.type}
-              value={this.data.data.data}
-              fields={fields}
-              />
-          </RexWidget.ShowPreloader>
-        </VBox>
-      </VBox>
+      <Action title={title} onClose={onClose} width={width}>
+        <RexWidget.ShowPreloader data={this.data.data}>
+          <RexWidget.Forms.ConfigurableEntityForm
+            readOnly
+            entity={entity.type}
+            value={this.data.data.data}
+            fields={fields}
+            />
+        </RexWidget.ShowPreloader>
+      </Action>
     );
   },
 
@@ -80,4 +53,3 @@ var View = React.createClass({
 });
 
 module.exports = View;
-

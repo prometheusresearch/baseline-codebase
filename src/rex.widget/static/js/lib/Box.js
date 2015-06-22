@@ -45,6 +45,10 @@ function makeBoxStyle(props) {
   }
   if (size !== undefined) {
     style.flex = size;
+    style.flexGrow = size;
+    style.flexBasis = '0%';
+    style.minWidth = '0px';
+    style.minHeight = '0px';
   }
   if (margin !== undefined) {
     style.margin = margin;

@@ -132,5 +132,12 @@ def _value_to_fieldset(value, _key=None):
         return formfield.Fieldset(
             value_key=_key,
             fields=[_value_to_fieldset(v, _key=[k]) for k, v in value.items()])
+    elif isinstance(value, list):
+        merged = {}
+        for item in value:
+            merged.update(item)
+        return formfield.List(
+            value_key=_key,
+            fields=[_value_to_fieldset(v, _key=[k]) for k, v in merged.items()])
     else:
         return formfield.StringFormField(value_key=_key)

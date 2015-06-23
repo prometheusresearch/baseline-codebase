@@ -3,8 +3,9 @@
  */
 'use strict';
 
-var React = require('react/addons');
-var qs    = require('./qs');
+var React       = require('react/addons');
+var qs          = require('./qs');
+var resolveURL  = require('./resolveURL');
 
 var Link = React.createClass({
 
@@ -16,7 +17,7 @@ var Link = React.createClass({
   render() {
     var {href, children, params, ...props} = this.props;
     if (params) {
-      href = href + '?' + qs.stringify(params);
+      href = resolveURL(href) + '?' + qs.stringify(params);
     }
     return (
       <a {...props} href={href}>{children}</a>

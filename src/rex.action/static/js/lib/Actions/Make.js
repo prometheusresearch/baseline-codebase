@@ -112,19 +112,34 @@ var Make = React.createClass({
 });
 
 function buildValue(spec, context) {
-  var value = {};
-  for (var key in spec) {
-    var item = spec[key];
-    if (item[0] === '$') {
-      value[key] = context[item.substr(1)];
-    } else {
-      value[key] = item;
+  var value;
+  if (Array.isArray(spec)) {
+    value = [];
+    for (var i = 0; i < spec.length; i++) {
+      var item = buildValue(spec[i], context);
+      if (!isEmptyValue(item)) {
+        value.push(item);
+      }
     }
-    if (typeof value[key] === 'object') {
-      value[key] = buildValue(value[key], context);
+  } else {
+    value = {};
+    for (var key in spec) {
+      var item = spec[key];
+      if (item[0] === '$') {
+        value[key] = context[item.substr(1)];
+      } else {
+        value[key] = item;
+      }
+      if (typeof value[key] === 'object') {
+        value[key] = buildValue(value[key], context);
+      }
     }
   }
   return value;
+}
+
+function isEmptyValue(obj) {
+  return Object.keys(obj).filter(k => obj[k] != undefined).length === 0;
 }
 
 module.exports = Make;

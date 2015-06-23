@@ -16,6 +16,7 @@ var Actions                   = require('./Actions');
 var WithDOMSize               = require('./WithDOMSize');
 var WizardState               = require('./WizardState')
 var WizardPanel               = require('./WizardPanel');
+var WizardHistory             = require('./WizardHistory');
 
 var Style = {
 
@@ -115,20 +116,40 @@ var Wizard = React.createClass({
     };
   },
 
+  componentWillMount() {
+    this._wizardHistory = new WizardHistory(
+      this._constructFromQueryString,
+      () => this.state.wizard,
+      (wizard) => this.setState({wizard})
+    );
+    this._wizardHistory.start();
+  },
+
+  componentWillUnmount() {
+    this._wizardHistory.stop();
+    this._wizardHistory = null;
+  },
+
   componentWillReceiveProps({DOMSize}) {
     if (DOMSize !== this.props.DOMSize) {
       var wizard = this.state.wizard;
       if (wizard === null) {
-        wizard = WizardState.construct(this._onWizardUpdate, this.props.actions, DOMSize);
+        wizard = WizardState.fromQueryString(this._wizardHistory.queryString, this._onWizardUpdate, this.props.actions, DOMSize);
       } else {
         wizard = wizard.resize(DOMSize);
       }
+      this._wizardHistory.wizardChanged(wizard);
       this.setState({wizard});
     }
   },
 
+  _constructFromQueryString(qs) {
+    return WizardState.fromQueryString(qs, this._onWizardUpdate, this.props.actions, this.props.DOMSize);
+  },
+
   _onWizardUpdate(wizard) {
     if (wizard !== this.state.wizard) {
+      this._wizardHistory.wizardChanged(wizard);
       this.setState({wizard});
     }
   },

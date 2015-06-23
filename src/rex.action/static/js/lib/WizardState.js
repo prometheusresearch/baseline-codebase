@@ -5,6 +5,7 @@
 'use strict';
 
 var invariant                 = require('rex-widget/lib/invariant');
+var qs                        = require('rex-widget/lib/qs');
 var {actionAllowedInContext}  = require('./getNextActions');
 var Actions                   = require('./Actions');
 var ServicePane               = require('./ServicePane');
@@ -105,28 +106,28 @@ class WizardState {
 
   updateContext(id, contextUpdate) {
     var nextPossibleAction = this._panels[this.indexOf(id) + 1];
-    var state = this;
-    state = state
+    var wizard = this;
+    wizard = wizard
       .close(id)
       .openAfterLast(id, contextUpdate)
       .ensureVisible(id);
-    if (nextPossibleAction && state.isTransitionAllowed(nextPossibleAction.id)) {
-      state = state
+    if (nextPossibleAction && wizard.isTransitionAllowed(nextPossibleAction.id)) {
+      wizard = wizard
         .openAfterLast(nextPossibleAction.id)
         .ensureVisible(nextPossibleAction.id);
     } else {
-      var possibleActions = Object.keys(state.actionTree);
+      var possibleActions = Object.keys(wizard.actionTree);
       for (var i = 0; i < possibleActions.length; i++) {
         var possibleAction = possibleActions[i];
-        if (state.isTransitionAllowed(possibleAction)) {
-          state = state
+        if (wizard.isTransitionAllowed(possibleAction)) {
+          wizard = wizard
             .openAfterLast(possibleAction)
             .ensureVisible(possibleAction);
           break;
         }
       }
     }
-    return state;
+    return wizard;
   }
 
   close(id) {
@@ -186,11 +187,62 @@ class WizardState {
   }
 
   static construct(onUpdate, actions, size) {
-    var state = new this(onUpdate, actions, size);
+    var wizard = new this(onUpdate, actions, size);
     var first = Object.keys(actions.tree)[0];
     invariant(first !== undefined);
-    return state.openAfterLast(first);
+    return wizard.openAfterLast(first);
   }
+
+  toQueryString() {
+    var context = {};
+    var contextAgg = {};
+    this._panels.forEach(panel => {
+      var panelContext = {};
+      for (var k in panel.context) {
+        if (k === 'USER') {
+          continue;
+        }
+        if (contextAgg[k] !== undefined && contextAgg[k] === panel.context[k]) {
+          continue;
+        }
+        panelContext[k] = panel.context[k];
+        contextAgg[k] = panel.context[k];
+      }
+      context[panel.id] = panelContext;
+    });
+    return qs.stringify({
+      action: this._panels.map(panel => panel.id).join('/'),
+      context: context
+    });
+  }
+
+  static fromQueryString(string, onUpdate, actions, size) {
+    var data = qs.parse(string);
+    var context = data.context || {};
+    var ids = data.action || '';
+    ids = ids.split('/').filter(Boolean);
+
+    if (ids.length === 0) {
+      return this.construct(onUpdate, actions, size);
+    } else {
+      var wizard = new this(onUpdate, actions, size);
+      for (var i = 0; i < ids.length; i++) {
+        var id = ids[i];
+        wizard = wizard.openAfterLast(id, {...context[id], USER: "'" + __REX_USER__ + "'"});
+      }
+      return wizard;
+    }
+  }
+}
+
+function filterPanelContextToSerialize(context) {
+  var result = {};
+  for (var k in context) {
+    if (k !== 'USER') {
+      result[k] = context[k];
+    }
+  }
+  return result;
 }
 
 /**

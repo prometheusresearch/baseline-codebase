@@ -180,7 +180,7 @@ var ConfigurableField = React.createClass({
             hint={field.hint}
             formValue={formValue}
             selectFormValue={field.valueKey}>
-            {field.fields.map(f => <ConfigurableField field={f} />)}
+            {field.fields.map(f => <ConfigurableField field={f} selectFormValue={f.valueKey} />)}
           </RepeatingFieldset>
         );
       default:

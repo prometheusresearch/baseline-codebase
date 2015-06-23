@@ -20,7 +20,6 @@ var ExpandStyle = {
 
 var ModalStyle = {
   self: {
-    flex: 1,
     height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     overflow: 'hidden'
@@ -74,6 +73,7 @@ var Modal = React.createClass({
           onClick={this.onClose}
           centerHorizontally
           centerVertically
+          size={1}
           style={ModalStyle.self}>
           <VBox
             style={{

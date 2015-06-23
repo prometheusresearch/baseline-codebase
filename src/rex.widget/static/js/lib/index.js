@@ -50,7 +50,8 @@ module.exports = {
   cloneElement: require('./cloneElement'),
   emptyFunction: require('./emptyFunction'),
   Transitionable: require('./Transitionable'),
-  render: require('./render')
+  render: require('./render'),
+  QueryString: require('./qs')
 };
 
 window.RexWidget = module.exports;

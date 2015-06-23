@@ -71,7 +71,7 @@ var PickDate = React.createClass({
           pickerStyle={Style.datepickerPicker}
           pickerTableStyle={Style.datepickerPickerTable}
           viewDate={this.state.viewDate}
-          selectedDate={this.state.selectedDate}
+          selectedDate={this.getSelectedDate()}
           setViewMonth={this.setViewMonth}
           setViewYear={this.setViewYear}
           addMonth={this.addMonth}
@@ -132,9 +132,16 @@ var PickDate = React.createClass({
 
   getInitialState() {
     return {
-      viewDate: moment(),
-      selectedDate: moment('0000-00-00')
+      viewDate: moment()
     };
+  },
+
+  getSelectedDate() {
+    if (this.props.context.date) {
+      return moment(this.props.context.date);
+    } else {
+      return moment('0000-00-00');
+    }
   },
 
   setViewMonth(month) {
@@ -192,14 +199,14 @@ var PickDate = React.createClass({
       if(target.className.indexOf("new") >= 0) month = this.state.viewDate.month() + 1;
       else if(target.className.indexOf("old") >= 0) month = this.state.viewDate.month() - 1;
       else month = this.state.viewDate.month();
+      var selectedDate = this.getSelectedDate();
       var date = this.state.viewDate
         .clone()
         .month(month)
         .date(parseInt(e.target.innerHTML))
-        .hour(this.state.selectedDate.hours())
-        .minute(this.state.selectedDate.minutes());
+        .hour(selectedDate.hours())
+        .minute(selectedDate.minutes());
       this.setState({
-        selectedDate: date.clone(),
         viewDate: date.clone()
       });
       this.props.onContext({date: date.format('YYYY-MM-DD')});

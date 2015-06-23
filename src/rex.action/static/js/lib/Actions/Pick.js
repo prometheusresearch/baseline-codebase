@@ -62,7 +62,7 @@ var Pick = React.createClass({
           dataSpec={this.dataSpecs.data}
           columns={this.props.columns}
           selectable
-          selected={this.state.selected}
+          selected={this.props.context[this.props.entity.name]}
           onSelected={this.onSelected}
           />
       </VBox>
@@ -78,14 +78,11 @@ var Pick = React.createClass({
 
   getInitialState() {
     return {
-      selected: null,
-      data: null,
       search: RexWidget.cell(null)
     };
   },
 
   onSelected(selected, data) {
-    this.setState({selected, data});
     var nextContext = {...this.props.context};
     nextContext[this.props.entity.name] = selected;
     this.props.onContext(nextContext);

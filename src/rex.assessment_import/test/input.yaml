@@ -1,0 +1,28 @@
+#
+# Copyright (c) 2015, Prometheus Research, LLC
+#
+
+title: REX.ASSESSMENT_IMPORT
+tests:
+  - rmdir: ./build/coverage
+  - mkdir: ./build/coverage
+  - rmdir: ./build/sandbox
+  - mkdir: ./build/sandbox
+  - mkdir: ./build/sandbox/output
+  
+  - coverage: setup.cfg
+    auto-data: true
+
+#  - coverage: setup.cfg
+
+  - sh: pip install --quiet --editable ./demo
+
+  - sh: rex dropdb --quiet rex.assessment_import_demo
+  - sh: rex deploy --quiet rex.assessment_import_demo
+
+  - doctest: README.rst
+  - doctest: test/test_*.rst
+
+  - coverage-check: 90.0
+  - coverage-report: ./build/coverage
+

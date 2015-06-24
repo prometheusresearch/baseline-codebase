@@ -1,0 +1,8 @@
+mount:
+  rex.assessment_import: /
+
+access:
+  rex.assessment_import: authenticated
+
+db: pgsql:assessment_import_demo
+

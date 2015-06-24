@@ -10,11 +10,10 @@ from .util import parse_instrument, make_template
 
 class AssessmentExportTemplateTask(RexTask):
     """
-    retrieves an InstrumentVersion from the datastore
+    exports an InstrumentVersion from the datastore
 
-    The assessment-export-template task will retrieve an InstrumentVersion from a
-    project's data store and return the intrument template as a list of csv
-    files.
+    The assessment-export-template task will export an InstrumentVersion from a
+    project's data store and save generated output as a bunch of csv files.
 
     The instrument-uid argument is the UID of the desired Instrument in
     the data store.
@@ -39,7 +38,8 @@ class AssessmentExportTemplateTask(RexTask):
             str,
             default=None,
             value_name='OUTPUT_PAT',
-            hint='the direcory to write to; if not specified, current directory is used',
+            hint='the direcory to generated csv files write to;'
+            ' if not specified, current directory is used',
         )
 
 

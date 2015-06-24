@@ -37,7 +37,7 @@ class AssessmentExportTemplateTask(RexTask):
             None,
             str,
             default=None,
-            value_name='OUTPUT_PAT',
+            value_name='OUTPUT_PATH',
             hint='the direcory to generated csv files write to;'
             ' if not specified, current directory is used',
         )

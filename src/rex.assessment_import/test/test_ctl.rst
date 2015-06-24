@@ -30,7 +30,7 @@ to CSV files::
       --require=PACKAGE        : include an additional parameter
       --set=PARAM=VALUE        : set a configuration parameter
       --version=VERSION        : the version of the Instrument to retrieve; if not specified, defaults to the latest version
-      --output=OUTPUT_PAT      : the direcory to generated csv files write to; if not specified, current directory is used
+      --output=OUTPUT_PATH     : the direcory to generated csv files write to; if not specified, current directory is used
     <BLANKLINE>
 
 It requires a single argument which is the UID of the Instrument to export::
@@ -45,5 +45,5 @@ It fails if given instrument UID doesnot exist::
     FATAL ERROR: Instrument "doesnotexist" does not exist.
     <BLANKLINE>
 
-    >>> ctl('assessment-export-template --project=rex.assessment_import_demo simple')
+    >>> ctl('assessment-export-template --project=rex.assessment_import_demo simple --output ./build/sandbox')
 

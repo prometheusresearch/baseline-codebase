@@ -8,18 +8,18 @@ from rex.instrument.util import get_implementation
 from .util import parse_instrument, make_template
 
 
-class AssessmentExportTemplateTask(RexTask):
+class AssessmentTemplateExportTask(RexTask):
     """
     exports an InstrumentVersion from the datastore
 
-    The assessment-export-template task will export an InstrumentVersion from a
+    The assessment-template-export task will export an InstrumentVersion from a
     project's data store and save generated output as a bunch of csv files.
 
     The instrument-uid argument is the UID of the desired Instrument in
     the data store.
     """
 
-    name = 'assessment-export-template'
+    name = 'assessment-template-export'
 
     class arguments(object):  # noqa
         instrument_uid = argument(str)

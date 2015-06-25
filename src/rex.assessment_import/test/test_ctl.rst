@@ -9,18 +9,18 @@ Set up the environment::
 
     >>> from rex.ctl import ctl
 
-assessment-export-template
+assessment-template-export
 ==========================
 
-The ``assessment-export-template`` command will export the Common Instrument
+The ``assessment-template-export`` command will export the Common Instrument
 Definition JSON from an InstrumentVersion in the project data store
 to CSV files::
 
-    >>> ctl('help assessment-export-template')
-    ASSESSMENT-EXPORT-TEMPLATE - exports an InstrumentVersion from the datastore
-    Usage: rex assessment-export-template [<project>] <instrument-uid>
+    >>> ctl('help assessment-template-export')
+    ASSESSMENT-TEMPLATE-EXPORT - exports an InstrumentVersion from the datastore
+    Usage: rex assessment-template-export [<project>] <instrument-uid>
     <BLANKLINE>
-    The assessment-export-template task will export an InstrumentVersion from a
+    The assessment-template-export task will export an InstrumentVersion from a
     project's data store and save generated output as a bunch of csv files.
     <BLANKLINE>
     The instrument-uid argument is the UID of the desired Instrument in
@@ -35,15 +35,15 @@ to CSV files::
 
 It requires a single argument which is the UID of the Instrument to export::
 
-    >>> ctl('assessment-export-template', expect=1)
-    FATAL ERROR: too few arguments for task assessment-export-template: missing <instrument-uid>
+    >>> ctl('assessment-template-export', expect=1)
+    FATAL ERROR: too few arguments for task assessment-template-export: missing <instrument-uid>
     <BLANKLINE>
 
 It fails if given instrument UID doesnot exist::
 
-    >>> ctl('assessment-export-template --project=rex.assessment_import_demo doesnotexist', expect=1)
+    >>> ctl('assessment-template-export --project=rex.assessment_import_demo doesnotexist', expect=1)
     FATAL ERROR: Instrument "doesnotexist" does not exist.
     <BLANKLINE>
 
-    >>> ctl('assessment-export-template --project=rex.assessment_import_demo simple --output ./build/sandbox')
+    >>> ctl('assessment-template-export --project=rex.assessment_import_demo simple --output ./build/sandbox')
 

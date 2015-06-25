@@ -76,7 +76,8 @@ class AssessmentTemplateExportTask(RexTask):
         if not os.access(path, os.W_OK):
             raise Error('Directory "%s" is forbidden for writing' % path)
         instrument = parse_instrument(structure)
-        output = make_template(instrument, instrument.id)
+        output = {instrument.id: OrderedDict()}
+        output = make_template(instrument.fields, instrument.id, output=output)
         for objname, template in output.items():
             filepath = os.path.join(path, '%s.csv' % objname)
             csvdata = [template.keys(), template.values()]

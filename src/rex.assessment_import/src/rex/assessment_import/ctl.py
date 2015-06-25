@@ -2,7 +2,7 @@ import os
 import csv
 from collections import OrderedDict
 
-from rex.core import Error
+from rex.core import Error, get_settings
 from rex.ctl import RexTask, argument, option
 from rex.instrument.util import get_implementation
 from .util import parse_instrument, make_template
@@ -63,6 +63,8 @@ class AssessmentTemplateExportTask(RexTask):
             self.do_output(instrument_version.definition)
 
     def do_output(self, structure):
+        constant_columns = get_settings().assessment_template_default_columns \
+                           or OrderedDict()
         path = os.getcwd()
         if self.output:
             path = os.path.abspath(self.output)
@@ -79,6 +81,8 @@ class AssessmentTemplateExportTask(RexTask):
         output = {instrument.id: OrderedDict()}
         output = make_template(instrument.fields, instrument.id, output=output)
         for objname, template in output.items():
+            if constant_columns:
+                template = OrderedDict(constant_columns.items()+template.items())
             filepath = os.path.join(path, '%s.csv' % objname)
             csvdata = [template.keys(), template.values()]
             with open(filepath, 'w') as csvfile:

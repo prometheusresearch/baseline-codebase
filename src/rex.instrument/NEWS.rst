@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-0.17.0 (2015-xx-xx)
+0.17.0 (2015-06-26)
 ===================
 
 * Added support for the PRISMH Calculation Set specifications.

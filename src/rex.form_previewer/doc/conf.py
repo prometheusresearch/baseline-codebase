@@ -11,3 +11,7 @@ default_role = 'obj'
 autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
 
+latex_documents = [
+    (master_doc, 'rexform_previewer.tex', u'rex.form\\_previewer', u'', 'manual'),
+]
+

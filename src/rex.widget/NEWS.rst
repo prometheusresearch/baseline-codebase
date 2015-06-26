@@ -2,13 +2,15 @@
   Change Log
 **************
 
-1.0.1 (2015-06-17)
+1.0.1 (2015-06-26)
 ==================
+
+* Multiple bug fixes.
 
 * Assume react-docgen is in the path and installed.
 
-* Update documentation to explain 1.0.0
- 
+* Update documentation to explain 1.0.0.
+
 1.0.0 (2015-06-12)
 ==================
 

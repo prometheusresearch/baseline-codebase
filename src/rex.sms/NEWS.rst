@@ -5,7 +5,7 @@ REX.SMS Change Log
 .. contents:: Table of Contents
 
 
-0.3.0 (2015-xx-xx)
+0.3.0 (2015-06-26)
 ==================
 
 * Added a ``logging`` provider that sends messages through the rex.logging

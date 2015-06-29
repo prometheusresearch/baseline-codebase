@@ -10,7 +10,7 @@ from prismh.core import validate_form, \
     ValidationError as PrismhValidationError
 from rex.core import Extension, AnyVal
 from rex.instrument.interface import InstrumentVersion, Channel
-from rex.instrument.mixins import Comparable, Displayable, Dictable
+from rex.instrument.mixins import *
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
 
@@ -23,7 +23,12 @@ __all__ = (
 )
 
 
-class Form(Extension, Comparable, Displayable, Dictable):
+class Form(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents a Form Configuration for a Channel of an InstrumentVersion.
     """
@@ -170,7 +175,12 @@ class Form(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, channel, instrument_version, configuration):
+    def create(
+            cls,
+            channel,
+            instrument_version,
+            configuration,
+            implementation_context=None):
         """
         Creates a Form in the datastore and returns a corresponding
         Form instance.
@@ -184,6 +194,11 @@ class Form(Extension, Comparable, Displayable, Dictable):
         :type instrument_version: InstrumentVersion
         :param configuration: the JSON Web Form Configuration for the Form
         :type configuration: dict or JSON string
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the Form in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Form
@@ -315,12 +330,17 @@ class Form(Extension, Comparable, Displayable, Dictable):
             instrument_definition=instrument_definition,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the Form into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the Form in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """

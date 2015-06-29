@@ -7,7 +7,7 @@ from copy import deepcopy
 
 from rex.core import Extension, AnyVal
 from rex.instrument.interface import DraftInstrumentVersion, Channel
-from rex.instrument.mixins import Comparable, Displayable, Dictable
+from rex.instrument.mixins import *
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
 
@@ -19,7 +19,12 @@ __all__ = (
 )
 
 
-class DraftForm(Extension, Comparable, Displayable, Dictable):
+class DraftForm(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents a Form Configuration that has not yet been published for use in
     the system.
@@ -104,7 +109,12 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, channel, draft_instrument_version, configuration=None):
+    def create(
+            cls,
+            channel,
+            draft_instrument_version,
+            configuration=None,
+            implementation_context=None):
         """
         Creates a DraftForm in the datastore and returns a corresponding
         DraftForm instance.
@@ -119,6 +129,11 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
         :type draft_instrument_version: DraftInstrumentVersion
         :param configuration: the Web Form Configuration for the Form
         :type configuration: dict or JSON/YAML string
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the DraftForm in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: DraftForm
@@ -256,12 +271,17 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
             instrument_definition=instrument_definition,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the DraftForm into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the DraftForm in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """
@@ -284,13 +304,18 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def publish(self, instrument_version):
+    def publish(self, instrument_version, form_implementation_context=None):
         """
         Publishes this draft as the Form for the specified instrument_version.
 
         :param instrument_version:
             the InstrumentVersion to associate the Form with
         :type instrument_version: InstrumentVersion
+        :param form_implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the published Form in the data store; if not specified, defaults to
+            None
+        :type form_implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :returns: the Form that results from the publishing
@@ -306,6 +331,7 @@ class DraftForm(Extension, Comparable, Displayable, Dictable):
             self.channel,
             instrument_version,
             self.configuration,
+            implementation_context=form_implementation_context,
         )
 
         return form

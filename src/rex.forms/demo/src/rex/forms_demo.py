@@ -166,7 +166,7 @@ class DemoForm(Form):
         ]
 
     @classmethod
-    def create(cls, channel, instrument_version, configuration):
+    def create(cls, channel, instrument_version, configuration, implementation_context=None):
         return cls(
             'fake_form_1',
             channel,
@@ -174,7 +174,7 @@ class DemoForm(Form):
             configuration,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED FORM ' + self.uid
 
 
@@ -219,7 +219,7 @@ class DemoDraftForm(DraftForm):
         ]
 
     @classmethod
-    def create(cls, channel, draft_instrument_version, configuration=None):
+    def create(cls, channel, draft_instrument_version, configuration=None, implementation_context=None):
         return cls(
             'fake_draftform_1',
             channel,
@@ -227,7 +227,7 @@ class DemoDraftForm(DraftForm):
             configuration,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED DRAFTFORM ' + self.uid
 
     def delete(self):

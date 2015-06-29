@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.forms',
-    version='0.30.2',
+    version='0.31.0',
     description='Class interfaces and framework for using Instrument-based'
     ' Web Forms',
     long_description=open('README.rst', 'r').read(),
@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',
-        'rex.instrument>=0.16,<0.18',
+        'rex.instrument>=0.18,<0.19',
         'rex.expression>=1.3,<2',
         'rex.i18n>=0.3,<0.5',
         'prismh.core>=0.2,<0.4',

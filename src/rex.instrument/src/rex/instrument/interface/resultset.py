@@ -7,7 +7,7 @@ from copy import deepcopy
 
 from rex.core import Extension, AnyVal
 
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..util import memoized_property, get_implementation, to_unicode
 from . import Assessment
 
@@ -17,7 +17,12 @@ __all__ = (
 )
 
 
-class ResultSet(Extension, Comparable, Displayable, Dictable):
+class ResultSet(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents the results of a CalculationSet object for an Assessment.
     """
@@ -78,7 +83,7 @@ class ResultSet(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, assessment, results):
+    def create(cls, assessment, results, implementation_context=None):
         """
         Creates a ResultSet in the datastore and returns a corresponding
         ResultSet instance.
@@ -90,6 +95,11 @@ class ResultSet(Extension, Comparable, Displayable, Dictable):
         :type assessment: Assessment
         :param results: the Results of executing assessment calculations
         :type results: dict or JSON/YAML-encoded string
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the ResultSet in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: ResultSet

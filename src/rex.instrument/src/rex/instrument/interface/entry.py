@@ -14,7 +14,7 @@ from . import Assessment
 from ..errors import InstrumentError
 from ..meta import get_assessment_meta, set_assessment_meta, \
     set_assessment_application
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..util import to_unicode, memoized_property, get_implementation, \
     get_current_datetime
 
@@ -25,7 +25,12 @@ __all__ = (
 
 
 # pylint: disable=R0902,R0904
-class Entry(Extension, Comparable, Displayable, Dictable):
+class Entry(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents an initial data capture entry for an Assessment.
     """
@@ -167,7 +172,8 @@ class Entry(Extension, Comparable, Displayable, Dictable):
             data=None,
             status=None,
             memo=None,
-            ordinal=None):
+            ordinal=None,
+            implementation_context=None):
         """
         Creates an Entry in the datastore and returns the corresponding Entry
         instance.
@@ -200,6 +206,11 @@ class Entry(Extension, Comparable, Displayable, Dictable):
             the number to use as the ordinal position in the scope of all
             Entries for an Assessment; if not specified, one will be generated
         :type ordinal: int
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the Entry in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Entry
@@ -531,12 +542,17 @@ class Entry(Extension, Comparable, Displayable, Dictable):
         self.modified_by = user.login
         self.date_modified = get_current_datetime()
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the Entry into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the Entry in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """

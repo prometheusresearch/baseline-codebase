@@ -5,7 +5,7 @@
 
 from rex.core import Extension
 
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..util import to_unicode, get_implementation
 
 
@@ -14,7 +14,12 @@ __all__ = (
 )
 
 
-class Instrument(Extension, Comparable, Displayable, Dictable):
+class Instrument(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents a general, unversioned Instrument.
     """
@@ -88,7 +93,7 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, code, title, status=None):
+    def create(cls, code, title, status=None, implementation_context=None):
         """
         Creates an Instrument in the datastore and returns a corresponding
         Instrument instance.
@@ -105,6 +110,11 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
             the status to assign the new Instrument. if not specified,
             ``STATUS_ACTIVE`` is used
         :type status: string
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the Instrument in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Instrument
@@ -207,12 +217,17 @@ class Instrument(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the Instrument into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the Intrument in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """

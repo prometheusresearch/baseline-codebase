@@ -3,6 +3,8 @@
 #
 
 
+from copy import deepcopy
+
 from .util import to_str, to_json
 
 
@@ -10,6 +12,7 @@ __all__ = (
     'Comparable',
     'Displayable',
     'Dictable',
+    'ImplementationContextable',
 )
 
 
@@ -122,4 +125,79 @@ class Dictable(object):
         """
 
         return to_json(self.as_dict(extra_properties=extra_properties))
+
+
+class ImplementationContextable(object):
+    """
+    Provides the base functionality that allow Interface objects to support
+    implementation-specific context variables.
+    """
+
+    #: A constant/enumeration representing the ``create`` action with respect
+    #: to implementation context variables.
+    CONTEXT_ACTION_CREATE = 'create'
+
+    #: A constant/enumeration representing the ``save`` action with respect
+    #: to implementation context variables.
+    CONTEXT_ACTION_SAVE = 'save'
+
+    ALL_CONTEXT_ACTIONS = (
+        CONTEXT_ACTION_CREATE,
+        CONTEXT_ACTION_SAVE,
+    )
+
+    @classmethod
+    def get_implementation_context(cls, action):
+        """
+        Returns information about the implementation-specific context variables
+        that can (or must) be provided as part of the specified action.
+
+        Supported actions:
+
+        * ``create``: Indicates which variables apply to the create() method
+        * ``save``: Indicates which variables apply to the save() method
+
+        :param action: the action to retrieve the variable information for
+        :type action: str; one of ``create`` or ``save``
+        :rtype: dict
+        """
+
+        return {}  # pragma: no cover
+
+    @classmethod
+    def validate_implementation_context(cls, action, context):
+        """
+        Validates the given context payload against the specifications defined
+        by ``get_implementation_context()``.
+
+        :param action: the action this context is for
+        :type action: str
+        :returns:
+            a dictionary containing the validated implementation context
+            variables
+        """
+
+        spec = cls.get_implementation_context(action)
+        validated = {}
+        context = deepcopy(context or {})
+
+        for name, cfg in spec.items():
+            if name not in context:
+                if cfg['required']:
+                    raise ValueError(
+                        'Missing required implementation context "%s"' % (
+                            name,
+                        )
+                    )
+                continue
+            validated[name] = cfg['validator'](context.pop(name))
+
+        if context:
+            raise ValueError(
+                'Unknown implementation context provided: %s' % (
+                    ', '.join(context.keys()),
+                )
+            )
+
+        return validated
 

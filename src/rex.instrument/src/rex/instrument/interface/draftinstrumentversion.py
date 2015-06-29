@@ -9,7 +9,7 @@ from rex.core import Extension, AnyVal
 
 from .instrument import Instrument
 from .instrumentversion import InstrumentVersion
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..output import dump_instrument_yaml, dump_instrument_json
 from ..util import to_unicode, memoized_property, get_implementation, \
     get_current_datetime
@@ -21,7 +21,12 @@ __all__ = (
 
 
 # pylint: disable=R0902
-class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
+class DraftInstrumentVersion(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents a single version of an Instrument that has not yet been
     published for use in the system.
@@ -114,7 +119,8 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
             created_by,
             definition=None,
             parent_instrument_version=None,
-            date_created=None):
+            date_created=None,
+            implementation_context=None):
         """
         Creates a DraftInstrumentVersion in the datastore and returns the
         corresponding DraftInstrumentVersion instance.
@@ -137,6 +143,14 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
             the date this DraftInstrumentVersion was created; if not specified,
             defaults to datetime.utcnow()
         :type date_created: datetime
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the DraftInstrumentVersion in the data store; if not specified,
+            defaults to None
+        :type implementation_context: dict
+        :raises:
+            DataStoreError if there was an error writing to the datastore
+        :rtype: DraftInstrumentVersion
         """
 
         raise NotImplementedError()
@@ -346,12 +360,17 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         return self.__class__.validate_definition(self.definition)
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the DraftInstrumentVersion into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the DraftInstrumentVersion in the data store; if not specified,
+            defaults to None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """
@@ -374,13 +393,18 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
-    def publish(self, user):
+    def publish(self, user, instrumentversion_implementation_context=None):
         """
         Publishes this draft as the newest InstrumentVersion for the associated
         Instrument.
 
         :param user: the user publishing the draft
         :type user: User
+        :param instrumentversion_implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the published InstrumentVersion in the data store; if not
+            specified, defaults to None
+        :type instrumentversion_implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :returns: the InstrumentVersion that results from the publishing
@@ -399,6 +423,7 @@ class DraftInstrumentVersion(Extension, Comparable, Displayable, Dictable):
             self.instrument,
             self.definition,
             user.login,
+            implementation_context=instrumentversion_implementation_context,
         )
 
         return instrument_version

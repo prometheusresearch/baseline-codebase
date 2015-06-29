@@ -14,7 +14,7 @@ from rex.core import Extension, AnyVal, Error
 
 from .instrument import Instrument
 from ..errors import ValidationError
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..output import dump_instrument_yaml, dump_instrument_json
 from ..util import to_unicode, memoized_property, get_implementation
 
@@ -24,7 +24,12 @@ __all__ = (
 )
 
 
-class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
+class InstrumentVersion(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents a single version of an Instrument.
     """
@@ -220,7 +225,8 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
             definition,
             published_by,
             version=None,
-            date_published=None):
+            date_published=None,
+            implementation_context=None):
         """
         Creates an InstrumentVersion in the datastore and returns a
         corresponding InstrumentVersion instance.
@@ -241,6 +247,11 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
             the date the version was published for use; if not specified,
             defaults to datetime.utcnow()
         :type date_published: datetime
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the InstrumentVersion in the data store; if not specified, defaults
+            to None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: InstrumentVersion
@@ -398,12 +409,17 @@ class InstrumentVersion(Extension, Comparable, Displayable, Dictable):
 
         return self.__class__.validate_definition(self.definition)
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the InstrumentVersion into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the InstrumentVersion in the data store; if not specified, defaults
+            to None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """

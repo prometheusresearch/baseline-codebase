@@ -126,7 +126,7 @@ class DemoInstrument(Instrument):
         ]
 
     @classmethod
-    def create(cls, uid, title, status=None):
+    def create(cls, uid, title, status=None, implementation_context=None):
         return cls(uid, uid, title, status=status)
 
     @property
@@ -141,7 +141,7 @@ class DemoInstrument(Instrument):
             return self.get_version(data[0])
         return None
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED INSTRUMENT ' + self.uid
 
 
@@ -187,7 +187,7 @@ class DemoInstrumentVersion(InstrumentVersion):
         ]
 
     @classmethod
-    def create(cls, instrument, definition, published_by, version=None, date_published=None):
+    def create(cls, instrument, definition, published_by, version=None, date_published=None, implementation_context=None):
         if not version:
             latest = instrument.latest_version
             version = latest.version + 1 if latest else 1
@@ -200,7 +200,7 @@ class DemoInstrumentVersion(InstrumentVersion):
             date_published or datetime(2014, 5, 22),
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED INSTRUMENTVERSION ' + self.uid
 
 
@@ -239,7 +239,7 @@ class DemoAssessment(Assessment):
         ]
 
     @classmethod
-    def create(cls, subject, instrument_version, data=None):
+    def create(cls, subject, instrument_version, data=None, implementation_context=None):
         return cls(
             'fake_assessment_1',
             subject,
@@ -247,7 +247,7 @@ class DemoAssessment(Assessment):
             data,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED ASSESSMENT ' + self.uid
 
 
@@ -296,7 +296,8 @@ class DemoDraftInstrumentVersion(DraftInstrumentVersion):
             created_by,
             definition=None,
             parent_instrument_version=None,
-            date_created=None):
+            date_created=None,
+            implementation_context=None):
         return cls(
             'draftiv1',
             instrument,
@@ -310,7 +311,7 @@ class DemoDraftInstrumentVersion(DraftInstrumentVersion):
         self.modified_by = user.login
         self.date_modified = datetime(2014, 5, 22, 12, 34, 56)
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED DRAFTINSTRUMENTVERSION ' + self.uid
 
     def delete(self):
@@ -426,7 +427,8 @@ class DemoTask(Task):
             priority=None,
             status=None,
             num_required_entries=None,
-            facilitator=None):
+            facilitator=None,
+            implementation_context=None):
         return cls(
             'fake_task_1',
             subject,
@@ -437,7 +439,7 @@ class DemoTask(Task):
             facilitator=faciliator,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED TASK ' + self.uid
 
 
@@ -504,7 +506,8 @@ class DemoEntry(Entry):
             data=None,
             status=None,
             memo=None,
-            ordinal=None):
+            ordinal=None,
+            implementation_context=None):
         return cls(
             'fake_entry_1',
             assessment,
@@ -517,7 +520,7 @@ class DemoEntry(Entry):
             memo=memo,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED ENTRY ' + self.uid
 
 
@@ -591,13 +594,13 @@ class DemoCalculationSet(CalculationSet):
         ]
 
     @classmethod
-    def create(cls, instrument_verion, definition):
+    def create(cls, instrument_verion, definition, implementation_context=None):
         return cls(
             instrument_version,
             definition,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         print '### SAVED CALCULATIONSET ' + self.uid
 
 
@@ -651,7 +654,7 @@ class DemoResultSet(ResultSet):
         ]
 
     @classmethod
-    def create(cls, assessment, results):
+    def create(cls, assessment, results, implementation_context=None):
         print '### CREATED RECORDSET ' + assessment.uid, results
         return cls(
             assessment.uid,

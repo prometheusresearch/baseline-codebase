@@ -15,7 +15,7 @@ from .subject import Subject
 from ..errors import ValidationError, InstrumentError
 from ..meta import get_assessment_meta, set_assessment_meta, \
     set_assessment_application
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..output import dump_assessment_json
 from ..util import to_unicode, memoized_property, get_implementation, \
     get_current_datetime
@@ -26,7 +26,12 @@ __all__ = (
 )
 
 
-class Assessment(Extension, Comparable, Displayable, Dictable):
+class Assessment(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents a response to an Instrument by a Subject.
     """
@@ -228,7 +233,8 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
             subject,
             instrument_version,
             data=None,
-            evaluation_date=None):
+            evaluation_date=None,
+            implementation_context=None):
         """
         Creates an Assessment in the datastore and returns a
         corresponding Assessment instance.
@@ -244,6 +250,11 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
         :type data: dict or JSON string
         :param evaluation_date: the date the data was originally collected
         :type evaluation_date: date
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the Assessment in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Assessment
@@ -506,12 +517,17 @@ class Assessment(Extension, Comparable, Displayable, Dictable):
                 ' state.',
             )
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the Assessment into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the Assessment in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """

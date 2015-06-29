@@ -16,7 +16,7 @@ from .instrumentversion import InstrumentVersion
 from .calculationscope import CalculationScopeAddon
 from .calculationmethod import CalculationMethod
 from ..errors import ValidationError, InstrumentError
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..output import dump_calculationset_yaml, dump_calculationset_json
 from ..util import memoized_property, get_implementation, to_unicode
 
@@ -80,7 +80,12 @@ def coerce_instrument_type(result, instrument_type):
     return result
 
 
-class CalculationSet(Extension, Comparable, Displayable, Dictable):
+class CalculationSet(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents a calculation set object.
     """
@@ -201,7 +206,11 @@ class CalculationSet(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, instrument_version, definition):
+    def create(
+            cls,
+            instrument_version,
+            definition,
+            implementation_context=None):
         """
         Creates a CalculationSet in the datastore and returns a corresponding
         CalculationSet instance.
@@ -213,6 +222,11 @@ class CalculationSet(Extension, Comparable, Displayable, Dictable):
         :type instrument_version: InstrumentVersion
         :param definition: the Common Instrument Definition for the version
         :type definition: dict or JSON/YAML-encoded string
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the CalculationSet in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: CalculationSet
@@ -327,12 +341,17 @@ class CalculationSet(Extension, Comparable, Displayable, Dictable):
             instrument_definition=instrument_definition,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the CalculationSet into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the CalculatioNSet in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """

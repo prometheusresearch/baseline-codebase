@@ -15,7 +15,7 @@ from .subject import Subject
 from .user import User
 from ..discrepancies import find_discrepancies, solve_discrepancies
 from ..errors import InstrumentError
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..util import to_unicode, memoized_property, get_implementation, \
     forget_memoized_property
 
@@ -25,7 +25,12 @@ __all__ = (
 )
 
 
-class Task(Extension, Comparable, Displayable, Dictable):
+class Task(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents a requirement that a particular Instrument be completed for a
     Subject.
@@ -128,7 +133,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             status=None,
             num_required_entries=None,
             facilitator=None,
-            due_date=None):
+            due_date=None,
+            implementation_context=None):
         """
         Creates a Task in the datastore and returns the corresponding Task
         instance.
@@ -153,6 +159,11 @@ class Task(Extension, Comparable, Displayable, Dictable):
         :type facilitator: User
         :param due_date: the date/time this Task is expected to be completed by
         :type due_date: datetime
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the Task in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Task
@@ -442,7 +453,8 @@ class Task(Extension, Comparable, Displayable, Dictable):
             user,
             entry_type=None,
             override_workflow=False,
-            ordinal=None):
+            ordinal=None,
+            entry_implementation_context=None):
         """
         Creates a new Entry for the Assessment associated with this Task.
 
@@ -462,6 +474,10 @@ class Task(Extension, Comparable, Displayable, Dictable):
             the number to use as the ordinal position in the scope of all
             Entries for an Assessment; if not specified, one will be generated
         :type ordinal: int
+        :param entry_implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the Entry in the data store; if not specified, defaults to None
+        :type entry_implementation_context: dict
         :rtype: Entry
         :raises:
             DataStoreError if there was an error writing to the datastore
@@ -484,6 +500,7 @@ class Task(Extension, Comparable, Displayable, Dictable):
             entry_type,
             user.login,
             ordinal=ordinal,
+            implementation_context=entry_implementation_context,
         )
 
         return entry
@@ -697,12 +714,17 @@ class Task(Extension, Comparable, Displayable, Dictable):
 
         TaskCompletionProcessor.execute_processors(self, user)
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the Task into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the Task in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """

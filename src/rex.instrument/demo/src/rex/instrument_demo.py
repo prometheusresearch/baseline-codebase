@@ -239,12 +239,13 @@ class DemoAssessment(Assessment):
         ]
 
     @classmethod
-    def create(cls, subject, instrument_version, data=None, implementation_context=None):
+    def create(cls, subject, instrument_version, data=None, evaluation_date=None, implementation_context=None):
         return cls(
             'fake_assessment_1',
             subject,
             instrument_version,
             data,
+            evaluation_date=evaluation_date,
         )
 
     def save(self, implementation_context=None):

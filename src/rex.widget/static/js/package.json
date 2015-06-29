@@ -1,6 +1,6 @@
 {
   "name": "rex-widget",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Rex Widget JavaScript library",
   "main": "lib/index.js",
   "devDependencies": {

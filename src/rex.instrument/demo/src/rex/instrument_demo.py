@@ -595,8 +595,9 @@ class DemoCalculationSet(CalculationSet):
         ]
 
     @classmethod
-    def create(cls, instrument_verion, definition, implementation_context=None):
+    def create(cls, instrument_version, definition, implementation_context=None):
         return cls(
+            'fake_calculationset_1',
             instrument_version,
             definition,
         )

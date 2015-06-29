@@ -50,14 +50,14 @@ blah::
     >>> SomeInterface.validate_implementation_context(SomeInterface.CONTEXT_ACTION_CREATE, test)
     Traceback (most recent call last):
         ...
-    ValueError: Unknown implementation context provided: baz
+    Error: Unknown implementation context provided: baz
 
     >>> del test['baz']
     >>> del test['foo']
     >>> SomeInterface.validate_implementation_context(SomeInterface.CONTEXT_ACTION_CREATE, test)
     Traceback (most recent call last):
         ...
-    ValueError: Missing required implementation context "foo"
+    Error: Missing required implementation context "foo"
 
     >>> test = None
     >>> SomeInterface.validate_implementation_context(SomeInterface.CONTEXT_ACTION_SAVE, test)
@@ -74,4 +74,6 @@ blah::
     Error: Expected a string
     Got:
         123
+    While checking:
+        foo
 

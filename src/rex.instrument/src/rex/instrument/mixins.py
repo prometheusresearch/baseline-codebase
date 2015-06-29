@@ -5,6 +5,8 @@
 
 from copy import deepcopy
 
+from rex.core import Error, guard
+
 from .util import to_str, to_json
 
 
@@ -184,16 +186,17 @@ class ImplementationContextable(object):
         for name, cfg in spec.items():
             if name not in context:
                 if cfg['required']:
-                    raise ValueError(
+                    raise Error(
                         'Missing required implementation context "%s"' % (
                             name,
                         )
                     )
                 continue
-            validated[name] = cfg['validator'](context.pop(name))
+            with guard('While checking:', name):
+                validated[name] = cfg['validator'](context.pop(name))
 
         if context:
-            raise ValueError(
+            raise Error(
                 'Unknown implementation context provided: %s' % (
                     ', '.join(context.keys()),
                 )

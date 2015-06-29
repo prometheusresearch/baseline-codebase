@@ -9,6 +9,8 @@
 
 * Fix building with npm 1.3.x.
 
+* Update docs
+
 0.2.0 (2015-06-26)
 ==================
 

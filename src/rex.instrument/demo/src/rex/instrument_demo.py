@@ -94,6 +94,16 @@ class DemoSubject(Subject):
             for d in data
         ]
 
+    @classmethod
+    def create(cls, mobile_tn=None, implementation_context=None):
+        return cls(
+            'fake_subject_1',
+            mobile_tn=mobile_tn,
+        )
+
+    def save(cls, implementation_context=None):
+        print '### SAVED SUBJECT ' + self.uid
+
 
 class DemoInstrument(Instrument):
     @classmethod

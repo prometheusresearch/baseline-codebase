@@ -5,7 +5,7 @@
 
 from rex.core import Extension
 
-from ..mixins import Comparable, Displayable, Dictable
+from ..mixins import *
 from ..util import to_unicode
 
 
@@ -14,7 +14,12 @@ __all__ = (
 )
 
 
-class Subject(Extension, Comparable, Displayable, Dictable):
+class Subject(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents the Subject of an Instrument; the person, place, or thing that
     an Instrument is gathering data points about.
@@ -73,6 +78,30 @@ class Subject(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
+    @classmethod
+    def create(cls, mobile_tn=None, implementation_context=None):
+        """
+        Creates a Subject in the datastore and returns a corresponding
+        Subject instance.
+
+        Must be implemented by concrete classes.
+
+        :param mobile_tn:
+            the Mobile Telephone Number of the Subject; if not specified,
+            defaults to None
+        :type mobile_tn: string
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the Instrument in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
+        :raises:
+            DataStoreError if there was an error writing to the datastore
+        :rtype: Instrument
+        """
+
+        raise NotImplementedError()
+
     def __init__(self, uid, mobile_tn=None):
         self._uid = to_unicode(uid)
         self._mobile_tn = to_unicode(mobile_tn)
@@ -92,10 +121,30 @@ class Subject(Extension, Comparable, Displayable, Dictable):
     def mobile_tn(self):
         """
         The Mobile Telephone Number that corresponds to this Subject.
-        Read only.
 
         :rtype: unicode
         """
 
         return self._mobile_tn
+
+    @mobile_tn.setter
+    def mobile_tn(self, value):
+        self._mobile_tn = value
+
+    def save(self, implementation_context=None):
+        """
+        Persists the Subject into the datastore.
+
+        Must be implemented by concrete classes.
+
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the Subject in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
+        :raises:
+            DataStoreError if there was an error writing to the datastore
+        """
+
+        raise NotImplementedError()
 

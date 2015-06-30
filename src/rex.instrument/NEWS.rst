@@ -15,6 +15,8 @@ REX.INSTRUMENT Change Log
 * Interface classes that accept the ``implementation_context`` argument also
   have a ``get_implementation_context()`` method that describes the extra
   variables that are allowed.
+* Added ``create()`` and ``save()`` methods to the Subject class, and added the
+  ability to update the ``mobile_tn``.
 
 
 0.17.0 (2015-06-26)

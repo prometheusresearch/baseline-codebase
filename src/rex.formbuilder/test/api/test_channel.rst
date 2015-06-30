@@ -8,9 +8,8 @@ Channel APIs
 Set up the environment::
 
     >>> from webob import Request
-    >>> from rex.core import Rex
-    >>> import rex.formbuilder
     >>> from rex.formbuilder_demo import strip_cookies
+    >>> from rex.core import Rex
     >>> rex = Rex('rex.formbuilder_demo')
     >>> rex.on()
 

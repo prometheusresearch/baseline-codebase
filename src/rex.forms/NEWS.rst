@@ -16,6 +16,8 @@ REX.FORMS Change Log
   variables that are allowed.
 - Fixed issue where values such as "1.0" could not be entered into float
   fields.
+- The ``forms-store`` task now accepts a ``--context`` option in order to
+  provide implementation context parameters.
 
 
 0.30.2 (2015-06-26)

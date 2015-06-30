@@ -10,7 +10,7 @@ from prismh.core import validate_interaction, \
 
 from rex.core import Extension, AnyVal, Error
 from rex.instrument.interface import InstrumentVersion, Channel
-from rex.instrument.mixins import Comparable, Displayable, Dictable
+from rex.instrument.mixins import *
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
 
@@ -23,7 +23,12 @@ __all__ = (
 )
 
 
-class Interaction(Extension, Comparable, Displayable, Dictable):
+class Interaction(
+        Extension,
+        Comparable,
+        Displayable,
+        Dictable,
+        ImplementationContextable):
     """
     Represents an SMS Interaction Configuration for a Channel of an
     InstrumentVersion.
@@ -229,7 +234,12 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, channel, instrument_version, configuration):
+    def create(
+            cls,
+            channel,
+            instrument_version,
+            configuration,
+            implementation_context=None):
         """
         Creates a Interaction in the datastore and returns a corresponding
         Interaction instance.
@@ -244,6 +254,11 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
         :param configuration:
             the JSON SMS Interation Configuration for the Interaction
         :type configuration: dict or JSON string
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to create
+            the Interaction in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Interaction
@@ -386,12 +401,17 @@ class Interaction(Extension, Comparable, Displayable, Dictable):
             instrument_definition=instrument_definition,
         )
 
-    def save(self):
+    def save(self, implementation_context=None):
         """
         Persists the Interaction into the datastore.
 
         Must be implemented by concrete classes.
 
+        :param implementation_context:
+            the extra, implementation-specific variables necessary to persist
+            the Interaction in the data store; if not specified, defaults to
+            None
+        :type implementation_context: dict
         :raises:
             DataStoreError if there was an error writing to the datastore
         """

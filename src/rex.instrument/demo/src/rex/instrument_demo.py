@@ -5,6 +5,7 @@
 
 from datetime import datetime
 
+from rex.core import IntVal
 from rex.db import get_db
 
 from rex.instrument.interface import *
@@ -197,10 +198,29 @@ class DemoInstrumentVersion(InstrumentVersion):
         ]
 
     @classmethod
+    def get_implementation_context(cls, action):
+        if action == cls.CONTEXT_ACTION_CREATE:
+            return {
+                'extra_param': {
+                    'required': False,
+                    'validator': IntVal(),
+                }
+            }
+        return Instrument.get_implementation_context(action)
+
+    @classmethod
     def create(cls, instrument, definition, published_by, version=None, date_published=None, implementation_context=None):
         if not version:
             latest = instrument.latest_version
             version = latest.version + 1 if latest else 1
+
+        context = cls.validate_implementation_context(
+            'create',
+            implementation_context,
+        )
+        if context:
+            print '### INSTRUMENTVERSION CREATE CONTEXT: %r' % context
+
         return cls(
             'fake_instrument_version_1',
             instrument,
@@ -605,7 +625,25 @@ class DemoCalculationSet(CalculationSet):
         ]
 
     @classmethod
+    def get_implementation_context(cls, action):
+        if action == cls.CONTEXT_ACTION_CREATE:
+            return {
+                'extra_param': {
+                    'required': False,
+                    'validator': IntVal(),
+                }
+            }
+        return Instrument.get_implementation_context(action)
+
+    @classmethod
     def create(cls, instrument_version, definition, implementation_context=None):
+        context = cls.validate_implementation_context(
+            'create',
+            implementation_context,
+        )
+        if context:
+            print '### CALCULATIONSET CREATE CONTEXT: %r' % context
+
         return cls(
             'fake_calculationset_1',
             instrument_version,

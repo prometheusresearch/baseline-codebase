@@ -11,7 +11,8 @@ from .errors import ValidationError
 from .interface import CalculationSet
 from .output import dump_calculationset_json, dump_calculationset_yaml
 from .util import get_implementation
-from .ctl import open_and_validate as open_and_validate_instrument
+from .ctl import open_and_validate as open_and_validate_instrument, \
+    ImplementationContextReceiver
 
 
 __all__ = (
@@ -178,7 +179,7 @@ class CalculationSetFormatTask(RexTask, CalculationSetOutputter):
         self.do_output(definition)
 
 
-class CalculationSetStoreTask(RexTask):
+class CalculationSetStoreTask(RexTask, ImplementationContextReceiver):
     """
     stores an CalculationSet in the data store
 
@@ -247,6 +248,10 @@ class CalculationSetStoreTask(RexTask):
                 calculationset = calculationset_impl.create(
                     instrument_version,
                     definition,
+                    implementation_context=self.get_context(
+                        calculationset_impl,
+                        calculationset_impl.CONTEXT_ACTION_CREATE,
+                    ),
                 )
                 print 'Created new CalculationSet'
 

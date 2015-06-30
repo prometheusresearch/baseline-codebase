@@ -9,6 +9,7 @@ from getpass import getuser
 
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
+from rex.ctl.common import pair
 
 from .errors import ValidationError
 from .interface import InstrumentVersion
@@ -199,7 +200,29 @@ class InstrumentRetrieveTask(RexTask, InstrumentOutputter):
             self.do_output(instrument_version.definition)
 
 
-class InstrumentStoreTask(RexTask):
+class ImplementationContextReceiver(object):
+    class options(object):  # noqa
+        context = option(
+            None,
+            pair,
+            default=(),
+            plural=True,
+            value_name='PARAM=VALUE',
+            hint='the additional parameters to pass to the RexAcquire API'
+            ' implementations to create/save objects to the data store',
+        )
+
+    def get_context(self, impl, action):
+        context = {}
+        received = dict(self.context)
+        spec = impl.get_implementation_context(action)
+        for name, cfg in spec.items():
+            if name in received:
+                context[name] = received[name]
+        return context
+
+
+class InstrumentStoreTask(RexTask, ImplementationContextReceiver):
     """
     stores an InstrumentVersion in the data store
 
@@ -260,6 +283,10 @@ class InstrumentStoreTask(RexTask):
                 instrument = instrument_impl.create(
                     self.instrument_uid,
                     self.title or self.instrument_uid,
+                    implementation_context=self.get_context(
+                        instrument_impl,
+                        instrument_impl.CONTEXT_ACTION_CREATE,
+                    ),
                 )
             print 'Using Instrument: %s' % instrument
 
@@ -280,6 +307,10 @@ class InstrumentStoreTask(RexTask):
                         definition,
                         self.published_by,
                         version=self.version,
+                        implementation_context=self.get_context(
+                            instrumentversion_impl,
+                            instrumentversion_impl.CONTEXT_ACTION_CREATE,
+                        ),
                     )
                     print 'Created version: %s' % instrument_version.version
             else:
@@ -287,6 +318,10 @@ class InstrumentStoreTask(RexTask):
                     instrument,
                     definition,
                     self.published_by,
+                    implementation_context=self.get_context(
+                        instrumentversion_impl,
+                        instrumentversion_impl.CONTEXT_ACTION_CREATE,
+                    ),
                 )
                 print 'Created version: %s' % instrument_version.version
 

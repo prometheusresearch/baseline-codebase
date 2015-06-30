@@ -17,6 +17,8 @@ REX.INSTRUMENT Change Log
   variables that are allowed.
 * Added ``create()`` and ``save()`` methods to the Subject class, and added the
   ability to update the ``mobile_tn``.
+* The ``instrument-store`` and ``calculationset-store`` tasks now accept a
+  ``--context`` option in order to provide implementation context parameters.
 
 
 0.17.0 (2015-06-26)

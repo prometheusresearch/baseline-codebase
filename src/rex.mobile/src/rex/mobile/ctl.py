@@ -9,7 +9,8 @@ from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
 from rex.instrument import InstrumentVersion
 from rex.instrument.ctl import \
-    open_and_validate as open_and_validate_instrument
+    open_and_validate as open_and_validate_instrument, \
+    ImplementationContextReceiver
 from rex.instrument.util import get_implementation
 
 from .errors import ValidationError
@@ -265,7 +266,7 @@ class MobileRetrieveTask(RexTask, InteractionOutputter):
             self.do_output(interaction.configuration)
 
 
-class MobileStoreTask(RexTask):
+class MobileStoreTask(RexTask, ImplementationContextReceiver):
     """
     stores an Interaction in the data store
 
@@ -354,6 +355,10 @@ class MobileStoreTask(RexTask):
                     channel,
                     instrument_version,
                     configuration,
+                    implementation_context=self.get_context(
+                        inter_impl,
+                        inter_impl.CONTEXT_ACTION_CREATE,
+                    ),
                 )
                 print 'Created new Interaction'
 

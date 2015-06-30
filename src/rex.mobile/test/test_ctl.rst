@@ -370,6 +370,7 @@ a Form in the project data store::
     Options:
       --require=PACKAGE        : include an additional parameter
       --set=PARAM=VALUE        : set a configuration parameter
+      --context=PARAM=VALUE    : the additional parameters to pass to the RexAcquire API implementations to create/save objects to the data store
       --version=VERSION        : the version of the Instrument to associate the Interaction with; if not specified, then the latest version will be used
     <BLANKLINE>
 

@@ -60,7 +60,7 @@ class DemoInteraction(Interaction):
         ]
 
     @classmethod
-    def create(cls, channel, instrument_version, configuration):
+    def create(cls, channel, instrument_version, configuration, implementation_context=None):
         return cls(
             'fake_interaction_1',
             channel,

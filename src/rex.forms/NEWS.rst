@@ -14,6 +14,8 @@ REX.FORMS Change Log
 - Interface classes that accept the ``implementation_context`` argument also
   have a ``get_implementation_context()`` method that describes the extra
   variables that are allowed.
+- Fixed issue where values such as "1.0" could not be entered into float
+  fields.
 
 
 0.30.2 (2015-06-26)

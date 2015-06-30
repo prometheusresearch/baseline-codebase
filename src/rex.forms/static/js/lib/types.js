@@ -51,8 +51,8 @@ var numberFloat = {
       value = value.toString();
     }
 
-    var parsed = parseFloat(value);
-    if (!isNaN(parsed) && isFinite(parsed) && (parsed.toString() === value)) {
+    var parsed = Number(value);
+    if (!isNaN(parsed) && isFinite(parsed)) {
       return parsed;
     }
 

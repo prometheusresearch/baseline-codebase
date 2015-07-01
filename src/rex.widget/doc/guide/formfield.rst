@@ -36,7 +36,7 @@ Then corresponding ``my-package/IndividualForm`` React component should pass
         return (
           <div>
             <h1>IndividualForm</h1>
-            <RexWidget.ConfigurableEntityForm
+            <RexWidget.Forms.ConfigurableEntityForm
               fields={this.props.fields}
               />
           </div>

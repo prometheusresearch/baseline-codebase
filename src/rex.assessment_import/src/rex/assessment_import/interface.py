@@ -51,19 +51,18 @@ class Instrument(FieldObjectAbstract):
 
     @classmethod
     def create(cls, instrument_version, default_tpl_fields):
-        id = instrument_version.uid
-        definition = instrument_version.definition
-        instrument = Instrument(id, definition)
-        for field_definition in definition['record']:
-            field = instrument.add_field(definition, field_definition)
+        instrument = Instrument(instrument_version)
+        for field_definition in instrument_version.definition['record']:
+            field = instrument.add_field(instrument_version.definition,
+                                         field_definition)
         instrument.add_template(instrument.id, instrument.fields,
                                 default_tpl_fields)
         return instrument
 
-    def __init__(self, id, definition):
-        self.id = id
-        self.title = definition.get('title')
-        self.definition = definition
+    def __init__(self, instrument_version):
+        self.id = instrument_version.uid
+        self.title = instrument_version.definition.get('title')
+        self.instrument_version = instrument_version
         self.fields = OrderedDict()
         self.templates = OrderedDict()
 
@@ -106,7 +105,6 @@ class Instrument(FieldObjectAbstract):
             if field.base_type != 'recordList':
                 template.add_field_output(field)
         self.templates[obj_tpl_name] = template
-
 
 
 class Field(FieldObjectAbstract):
@@ -174,103 +172,76 @@ class ObjectTemplate(object):
 class Assessment(object):
 
     @classmethod
-    def save(cls, instrument, obj_tpl_name, data, parameters):
-        template = instrument.templates.get(obj_tpl_name)
-        if not template:
-            return None
-        assessment, context = cls.validate(data, template, parameters)
-        if not assessment:
-            assessment = cls.create(instrument.id, data, context)
+    def save(cls, instrument, data, import_context):
+        root_record = data.get(instrument.id)[0]
+        context = {}
+        for context_type in ('subject', 'assessment'):
+            validated_context = cls.validate_context(context_type,
+                                                     root_record,
+                                                     import_context)
+            context[context_type] = validated_context
+        data = cls.make_assessment_data(instrument, data)
+        subject = root_record.get('subject')
+        date = root_record.get('date')
+        assessment = cls.create(subject, instrument.instrument_version,
+                                date, data, context)
         return assessment
 
     @classmethod
-    def validate(cls, data, template, parameters):
-        obj_type = 'Instrument' if not template.parent_name_list else 'Field'
-        assessment_id = data.get('assessment_id')
-        required = ['subject', 'date']
-        if 'assessment_id' not in data:
-            raise Error("Expected field `assessment_id` not found"
-                " in the assessment  data. Please, check the data given for"
-                " %(obj_type)s `%(obj_name)s` of template `%(tpl_obj_name)s`."
-                % {'obj_type': obj_type,
-                   'obj_name': template.obj.id,
-                   'tpl_obj_name': template.obj_tpl_name}
-            )
-        for field_name in required:
-            if field_name not in data:
-                raise Error("Expected field `%(field_name)s` not found"
-                    " in the Assessment %(assessment_id)s data."
-                    % {'field_name': field_name,
-                       'assessment_id': ("`%s`" % assessment_id)
-                                         if assessment_id else ''
-                      }
-                )
-        for field_name in template.output:
-            if field_name not in data:
-                raise Error("Field '%(tpl_field_name)s' is expected"
-                    " for %(obj_type)s '%(obj_id)s' not found in"
-                    " the Assessment `%(assessment_id)s` data."
-                    % {'tpl_field_name': field_name,
-                       'obj_type': obj_type,
-                       'obj_id': template.obj.id,
-                       'assessment_id': assessment_id
-                       }
-                )
-        context = OrderedDict()
-        assessment_impl = get_implementation('assessment')
-        assessment = assessment_impl.get_by_uid(assessment_id)
-        if assessment:
-            return assessment, context
-        context_action = assessment_impl.CONTEXT_ACTION_CREATE
-        try:
-            context_impl = assessment_impl \
-                .get_implementation_context(context_action)
-        except Exception, exc:
-            raise Error("Unable to get_implementation_context of an Assessment"
-                " object.", exc)
+    def validate_context(cls, context_type, record, context):
+        validated = {}
+        impl = get_implementation(context_type)
+        context_action = impl.CONTEXT_ACTION_CREATE
+        context_impl = impl.get_implementation_context(context_action)
         for param_name in context_impl:
             parameter = context_impl[param_name]
-            param_value = data.get(param_name)
+            param_value = record.get(param_name)
             if param_value is None:
-                param_value = parameters.get(param_name)
+                param_value = context.get(param_name)
             if parameter['required'] and ((param_value or None) is None):
-                raise Error("Unnable to create Assessment"
-                    " `%(assessment_id)s`" % {'assessment_id': assessment_id},
-                    "Undefined required parameter `%(param_name)s`."
-                    % {'param_name': param_name}
-                    )
+                raise Error("Required `%(context_type)s` context parameter"
+                            " `%(param_name)s` is not defined."
+                            % {'context_type': context_type.title(),
+                               'param_name': param_name
+                            }
+                )
             validate = parameter['validator']
             try:
                 validate(param_value)
             except Exception, exc:
-                raise Error("Unnable to create Assessment `%(assessment_id)s`"
-                    " parameter `%(param_name)s` got unexpected"
-                    " value `%(param_value)s`."
-                    % {'assessment_id': assessment_id,
+                raise Error("`%(context_type)s` context parameter"
+                    " `%(param_name)s` got unexpected value `%(param_value)s`."
+                    % {'context_type': context_type.title(),
                        'param_name': param_name,
-                       'param_value': param_value},
-                    exc
+                       'param_value': param_value
+                    }, exc
                 )
-            context[param_name] = param_value
-        return assessment, context
+            validated[param_name] = param_value
+        return validated
 
     @classmethod
-    def create(cls, instrument_version, data, context):
-        assessment_impl = get_implementation('assessment')
+    def make_assessment_data(cls, instrument, data):
+        return None
+
+    @classmethod
+    def make_field_value(cls):
+        pass
+
+    @classmethod
+    def create(cls, subject_id, instrument_version, date, data, context):
         subject_impl = get_implementation('subject')
-        subject_id = data.get('subject')
-        subject = subject_impl.get_by_uid(subject_id)
+        subject = None
+        if subject_id:
+            subject = subject_impl.get_by_uid(subject_id)
         if not subject:
-            subject = subject_impl.create(subject_id)
-        else:
-            print 'subject', subject
-        evaluation_date = data.get('date')
-        assessment_id = data.get('assessment_id')
-        print 'create', assessment_id
-        assessment = assessment_impl.create(
-                                        subject,
-                                        instrument_version,
-                                        evaluation_date=evaluation_date,
-                                        implementation_context=context)
-        print assessment
+            subject = subject_impl.create(subject_id,
+                                    implementation_context=context['subject'])
+        assessment_impl = get_implementation('assessment')
+        assessment = assessment_impl.create(subject=subject,
+                                instrument_version=instrument_version,
+                                data=data,
+                                evaluation_date=date,
+                                implementation_context=context['assessment'])
         return assessment
+
+

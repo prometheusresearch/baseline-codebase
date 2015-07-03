@@ -2,17 +2,17 @@ from collections import OrderedDict
 from rex.core import Setting, OMapVal, StrVal, AnyVal
 
 
-class AssessmentTemplateDefaultFieldsSetting(Setting):
+class AssessmentImportTemplateDefaults(Setting):
     """
     An ordered map, where key is an assessment template field name,
     value is a description.
 
     Example::
 
-        assessment_template_default_fields: {'subject': 'Please provide the subject id here'}
+        assessment_import_template_defaults: {'subject': 'Please provide the subject id here'}
     """
 
-    name = 'assessment_template_default_fields'
+    name = 'assessment_import_template_defaults'
     validate = OMapVal(StrVal, StrVal)
     default = OrderedDict((
                 ('subject', 'Please provide the subject id here'),
@@ -21,16 +21,16 @@ class AssessmentTemplateDefaultFieldsSetting(Setting):
              ))
 
 
-class AssessmentAdditionalDataSetting(Setting):
+class AssessmentImportContextSetting(Setting):
     """
     An ordered map to define data common for all imported assessments.
 
     Example::
 
-        assessment_additional_data: {'study': 'foo'}
+        assessment_import_context: {'study': 'foo', 'sex': 'female'}
     """
 
-    name = 'assessment_additional_data'
+    name = 'assessment_import_context'
     validate = OMapVal(StrVal, AnyVal)
     default = OrderedDict()
 

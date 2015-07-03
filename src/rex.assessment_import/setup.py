@@ -11,10 +11,6 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
-    setup_requires=[
-        'rex.setup >=1.0, <2',
-        'rex.setup',    
-    ],
     install_requires=[
        'rex.instrument', 
     ],

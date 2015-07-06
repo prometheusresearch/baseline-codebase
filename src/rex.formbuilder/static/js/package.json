@@ -1,6 +1,13 @@
 {
   "name": "rex-formbuilder",
   "version": "5.2.2",
+  "description": "JavaScript functionality for the rex.formbuilder application",
+  "author": "Prometheus Research, LLC",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/rexdb/rex.formbuilder"
+  },
   "main": "lib/index.js",
   "rex": {
     "bundleAll": true,

@@ -19,7 +19,7 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.setup >=1.0, <3',  # For use by `rex.core` descendants.
+        'rex.setup >=1.0, <4',  # For use by `rex.core` descendants.
         'pyyaml',
     ],
     rex_init='rex.core',

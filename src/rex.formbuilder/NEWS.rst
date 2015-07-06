@@ -9,6 +9,7 @@ REX.FORMBUILDER Change Log
 ==================
 
 * Updated instrument and forms dependencies.
+* Added compatibility with ``rex.setup`` v3.
 
 
 5.2.1 (2015-06-26)

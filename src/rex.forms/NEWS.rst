@@ -18,6 +18,7 @@ REX.FORMS Change Log
   fields.
 - The ``forms-store`` task now accepts a ``--context`` option in order to
   provide implementation context parameters.
+- Added compatibility with ``rex.setup`` v3.
 
 
 0.30.2 (2015-06-26)

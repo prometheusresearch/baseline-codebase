@@ -154,7 +154,7 @@ class AssessmentImportTask(RexTask):
                     filepath = os.path.join(path, filename)
                     if os.path.isfile(filepath):
                         obj_id = filename.rsplit('.', 1)[0]
-                        if obj_id in instrument.templates:
+                        if obj_id in instrument.template:
                             filepaths[obj_id] = filepath
             if not filepaths:
                 raise Error("csv files appropriate for import not found.")
@@ -202,7 +202,7 @@ class AssessmentImportTask(RexTask):
                         % {'obj_tpl_id': instrument_id},
                         "not found expected field `assessment_id`."
             )
-        assessment[instrument_id] = [assessment_root_record]
+        assessment[instrument_id] = assessment_root_record
         for (rec_obj_id, record_list_filepath) in record_list_files.items():
             with open(record_list_filepath, 'rU') as record_list_file:
                 try:

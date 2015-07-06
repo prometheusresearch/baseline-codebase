@@ -1,6 +1,9 @@
+import json
+import re
+import datetime
+
 from collections import OrderedDict
 from copy import deepcopy
-import json
 
 from rex.core import Error
 from rex.instrument import InstrumentVersion
@@ -67,6 +70,11 @@ class Instrument(FieldObjectAbstract):
                                            default_tpl_fields,
                                            templates)
         instrument.template.update(templates)
+        assessment_impl = get_implementation('assessment')
+        assessment_data = assessment_impl.generate_empty_data(instrument
+                                                            .instrument_version
+                                                            .definition)
+        instrument.blank_assessment = assessment_data
         return instrument
 
     def __init__(self, instrument_version):
@@ -75,6 +83,7 @@ class Instrument(FieldObjectAbstract):
         self.instrument_version = instrument_version
         self.fields = OrderedDict()
         self.template = OrderedDict()
+        self.blank_assessment = OrderedDict()
 
 
 class Field(FieldObjectAbstract):
@@ -88,7 +97,7 @@ class Field(FieldObjectAbstract):
         self.rows = []
         self.columns = []
         self.enumerations = OrderedDict()
-        self.template_names = OrderedDict()
+        self.obj_tpl_id = None
 
     def add_row(self, id):
         self.rows.append(id)
@@ -101,12 +110,13 @@ class Field(FieldObjectAbstract):
 
     def add_template(self, obj_tpl_id, default_tpl_fields, templates,
                      required=None):
+        self.obj_tpl_id = obj_tpl_id
         tpl_output = templates.get(obj_tpl_id)
         if not tpl_output:
             tpl_output = blank_tpl_output
         if self.base_type == 'recordList':
             rec_obj_id = obj_tpl_id + '.' + self.id
-            self.template_names[rec_obj_id] = obj_tpl_id
+            self.obj_tpl_id = rec_obj_id
             rec_tpl_output = self.blank_tpl_output(default_tpl_fields)
             templates[rec_obj_id] = rec_tpl_output
             for (_, record_field) in self.fields.items():
@@ -115,7 +125,6 @@ class Field(FieldObjectAbstract):
                                                       templates)
         elif self.base_type == 'matrix':
             for (_, matrix_field) in self.fields.items():
-                self.template_names[self.id] = obj_tpl_id
                 templates = matrix_field.add_template(obj_tpl_id,
                                                       default_tpl_fields,
                                                       templates)
@@ -123,7 +132,6 @@ class Field(FieldObjectAbstract):
             type = ['TRUE.FALSE']
             for id in self.enumerations:
                 enum_name = self.id + '_' + id
-                self.template_names[enum_name] = obj_tpl_id
                 tpl_output[enum_name] = self.template_description(type=type)
         elif self.base_type == 'enumeration':
             type = self.enumerations.keys()
@@ -146,19 +154,19 @@ class Assessment(object):
 
     @classmethod
     def save(cls, instrument, data, import_context):
-        root_record = data.get(instrument.id)[0]
+        root_record = data.get(instrument.id)
         context = {}
         for context_type in ('subject', 'assessment'):
             validated_context = cls.validate_context(context_type,
                                                      root_record,
                                                      import_context)
             context[context_type] = validated_context
-        data = cls.make_assessment_data(instrument, data)
-        return None
+        assessment_data = instrument.blank_assessment
+        assessment_data['values'] = cls.add_assessment_values(instrument, data)
         subject = root_record.get('subject')
         date = root_record.get('date')
         assessment = cls.create(subject, instrument.instrument_version,
-                                date, data, context)
+                                date, assessment_data, context)
         return assessment
 
     @classmethod
@@ -194,23 +202,6 @@ class Assessment(object):
         return validated
 
     @classmethod
-    def make_assessment_data(cls, instrument, data):
-        record = data.get(instrument.id)
-        if not record:
-            return None
-        assessment = cls.make_record_value(instrument, record)
-        return None
-
-    @classmethod
-    def make_record_value(cls, record, data):
-        for field_id, field in record.fields.items():
-            pass
-
-    @classmethod
-    def make_field_value(cls):
-        pass
-
-    @classmethod
     def create(cls, subject_id, instrument_version, date, data, context):
         subject_impl = get_implementation('subject')
         subject = None
@@ -227,4 +218,145 @@ class Assessment(object):
                                 implementation_context=context['assessment'])
         return assessment
 
+    @classmethod
+    def add_assessment_values(cls, instrument, data):
+        values = OrderedDict()
+        for field_id, field in instrument.fields.items():
+            value = cls.add_field_value(field, data)
+            values[field.id] = {'value': value}
+        return values
 
+    @classmethod
+    def add_field_value(cls, field, data):
+        if field.base_type == 'recordList':
+            value = []
+            record_data = data.get(field.obj_tpl_id, [])
+            for row_data in record_data:
+                row_value = OrderedDict()
+                data[field.obj_tpl_id] = row_data
+                for _, record_field in field.fields.items():
+                    record_field_value = cls.add_field_value(record_field,
+                                                             data)
+                    row_value[record_field.id] = {'value': record_field_value}
+                value.append(row_value)
+        elif field.base_type == 'matrix':
+            value = OrderedDict()
+            for row_id in field.rows:
+                columns = OrderedDict()
+                for column_id in field.columns:
+                    matrix_field_id = row_id + '_' + column_id
+                    matrix_field = field.fields[matrix_field_id]
+                    matrix_field_value = cls.add_field_value(matrix_field,
+                                                             data)
+                    columns[column_id] = {'value': matrix_field_value}
+                value[row_id] = columns
+        elif field.base_type == 'enumerationSet':
+            value = []
+            for id in field.enumerations:
+                enum_id = field.id + '_' + id
+                enum_value = data.get(field.obj_tpl_id, {}).get(enum_id)
+                if not enum_value:
+                    continue
+                if str(enum_value).lower() == 'true':
+                    value.append(id)
+                elif str(enum_value).lower() not in ('true', 'false'):
+                    raise Error("Unable to define a value of field %(field)s."
+                                % {'field': field.id},
+                    "Got unexpected value %(value)s of enumerationSet field"
+                    " %(field)s, one of [TRUE, FALSE] is expected."
+                )
+            if field.required and not value:
+                raise Error("Unable to define a value of field %(field)s."
+                    % {'field': field.id}, "Got no value for required field."
+                )
+        else:
+            value = data.get(field.obj_tpl_id, {}).get(field.id)
+            try:
+                value = cls.validate_value(field, value)
+            except Exception, exc:
+                raise Error("Unable to define a value of field %(field)s."
+                    % {'field': field.id}, exc
+                )
+        return value
+
+    @classmethod
+    def validate_value(cls, field, value):
+        if isinstance(value, basestring):
+            value = value.strip()
+        if value in (None, ''):
+            if field.required:
+                raise Error("Got null for required field.")
+            return None
+        if field.base_type == 'integer':
+            if not re.match(r'^\d+', str(value)):
+                raise Error(" Got unexpected value %(value)s for"
+                            " %(base_type)s type."
+                            % {'value': value, 'base_type': field.base_type}
+                )
+            return int(value)
+        if field.base_type == 'float':
+            if not re.match(r'^-?\d+\.(\d+)', str(value)):
+                raise Error(" Got unexpected value %(value)s of"
+                            " %(base_type)s type."
+                            % {'value': value, 'base_type': field.base_type}
+                )
+            return float(value)
+        if field.base_type == 'boolean':
+            if str(value).lower() in ('true', '1'):
+                return True
+            elif str(value).lower() in ('false', '0'):
+                return False
+            else:
+                raise Error(" Got unexpected value %(value)s of"
+                            " %(base_type)s type."
+                            % {'value': value, 'base_type': field.base_type}
+                )
+        if field.base_type == 'date':
+            if isinstance(value, (datetime.datetime, datetime.date)):
+                return value.strftime('%Y-%m-%d')
+            if not (
+                isinstance(value, basestring)
+                and re.match(r'^\d\d\d\d-\d\d-\d\d$', value)
+            ):
+                raise Error(" Got unexpected value %(value)s of"
+                            " %(base_type)s type, YYYY-MM-DD is expected."
+                            % {'value': value, 'base_type': field.base_type}
+                )
+        if field.base_type == 'time':
+            if isinstance(value, (datetime.datetime, datetime.time)):
+                return value.strftime('%H:%M:%S')
+            if not (
+                isinstance(value, basestring)
+                and re.match(r'^\d\d:\d\d:\d\d$', value)
+            ):
+                raise Error(" Got unexpected value %(value)s of"
+                            " %(base_type)s type, HH:MM:SS is expected."
+                            % {'value': value, 'base_type': field.base_type}
+                )
+        if field.base_type == 'dateTime':
+            if isinstance(value, datetime.datetime):
+                return value.strftime('%Y-%m-%dT%H:%M:%S')
+            if not (
+                isinstance(value, basestring)
+                and re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$', value)
+            ):
+                raise Error("Got unexpected value %(value)s of"
+                        " %(base_type)s type, YYYY-MM-DDTHH:MM:SS is expected."
+                        % {'value': value, 'base_type': field.base_type}
+                )
+        if field.base_type == 'enumeration':
+            if unicode(value) not in field.enumerations:
+                raise Error("Got unexpected value %(value)s of"
+                    " %(base_type)s type, one of %(enumeration)s is expected."
+                    % {'value': value, 'base_type': field.base_type,
+                       'enumeration': [id for id in field.enumerations]
+                    }
+                )
+            return unicode(value)
+        if field.base_type == 'text':
+            return unicode(value)
+        else:
+            raise Error("Got a value %(value)s of unknown %(base_type)s type."
+                        % {'value': value, 'base_type': field.base_type}
+            )
+        return value

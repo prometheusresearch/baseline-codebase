@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React   = require('react/addons');
+var React   = require('react');
 var Modal   = require('./Modal');
 var Button  = require('./Button');
 var Layout  = require('./Layout');

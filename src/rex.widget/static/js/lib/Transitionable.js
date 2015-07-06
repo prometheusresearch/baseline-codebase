@@ -3,15 +3,13 @@
  */
 'use strict';
 
-require('transit-js');
-
-var transit = window.transit;
+var transit = require('transit-js');
 
 var _readerConfig = {
   handlers: {},
   arrayBuilder: {
     init: function(node) {
-      return []; 
+      return [];
     },
     add: function(ret, val, node) {
       ret.push(val);

@@ -1,5 +1,6 @@
 'use strict';
 
+var React        = require('react');
 var RexWidget    = require('rex-widget');
 var {Forms}      = RexWidget;
 var {HBox, VBox} = RexWidget.Layout;

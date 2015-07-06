@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React               = require('react/addons');
+var React               = require('react');
 var {File, StoredFile}  = require('./File');
 var Layout              = require('./Layout');
 

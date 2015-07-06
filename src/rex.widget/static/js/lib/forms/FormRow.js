@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React             = require('react/addons');
+var React             = require('react');
 var {VBox, HBox}      = require('../Layout');
 var renderFormItem    = require('./renderFormItem');
 

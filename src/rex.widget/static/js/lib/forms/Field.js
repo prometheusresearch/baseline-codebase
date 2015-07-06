@@ -3,8 +3,7 @@
  */
 'use strict';
 
-var React           = require('react/addons');
-var cloneWithProps  = React.addons.cloneWithProps;
+var React           = require('react');
 var {HBox, VBox}    = require('../Layout');
 var Input           = require('./Input');
 
@@ -29,7 +28,7 @@ var FieldStyle = {
     padding: '0px 7px',
     textAlign: 'right'
   },
-  errors: {
+  errorList: {
     marginTop: 3,
     color: 'red',
     fontSize: '80%'
@@ -42,9 +41,9 @@ var Field = React.createClass({
     var {label, hint, children, onChange, labelSize, inputSize, 
       serialize, ...props} = this.props;
     var {dirty} = this.state;
-    var {value, errors, params, schema} = this.props.formValue;
+    var {value, errorList, params, schema} = this.props.formValue;
     var showErrors = dirty || params.forceShowErrors;
-    children = cloneWithProps(
+    children = React.cloneElement(
       children ?  React.Children.only(children) : <Input />, {
         value: serialize(value),
         onChange: this.onChange.bind(null, onChange)
@@ -67,9 +66,9 @@ var Field = React.createClass({
             </VBox>}
           <VBox size={inputSize}>
             {children}
-            {showErrors && errors.length > 0 &&
-              <VBox style={FieldStyle.errors}>
-                {errors.map((error, idx) =>
+            {showErrors && errorList.length > 0 &&
+              <VBox style={FieldStyle.errorList}>
+                {errorList.map((error, idx) =>
                   <VBox key={idx}>{error.message}</VBox>)}
               </VBox>}
           </VBox>
@@ -115,7 +114,7 @@ var Field = React.createClass({
     if (onChange) {
       onChange(value);
     }
-    this.props.formValue.set(value);
+    this.props.formValue.update(value);
   }
 
 });

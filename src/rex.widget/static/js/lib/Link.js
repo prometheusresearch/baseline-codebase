@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React       = require('react/addons');
+var React       = require('react');
 var qs          = require('./qs');
 var resolveURL  = require('./resolveURL');
 
@@ -39,7 +39,7 @@ function interpolateLinkParams(link, name, value) {
       nextParams[n] = params[n];
     }
   }
-  return React.addons.cloneWithProps(link, {href, params: nextParams});
+  return React.cloneElement(link, {href, params: nextParams});
 }
 
 module.exports = Link;

@@ -3,10 +3,11 @@
  */
 'use strict';
 
-var React     = require('react/addons');
-var Emitter   = require('emitter');
-var invariant = require('./invariant');
-var qs        = require('./qs');
+var React             = require('react');
+var {batchedUpdates}  = require('react/addons').addons;
+var Emitter           = require('component-emitter');
+var invariant         = require('./invariant');
+var qs                = require('./qs');
 
 var EVENT_NAME = 'change';
 
@@ -56,7 +57,7 @@ class CellHistory {
 
   _onPopState() {
     var params = getQueryParams();
-    React.addons.batchedUpdates(() => {
+    batchedUpdates(() => {
       this.ignoringChanges(() => {
         Object.keys(params).forEach(param => {
           if (this._paramToCell[param]) {
@@ -100,6 +101,7 @@ var _history = new CellHistory();
 class Cell extends Emitter {
 
   constructor(value, options, prev) {
+    super();
     this.value = value;
     this.options = options || {};
     this.update = this.update.bind(this);

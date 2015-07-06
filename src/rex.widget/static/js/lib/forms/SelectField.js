@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React                   = require('react/addons');
+var React                   = require('react');
 var DataSpecificationMixin  = require('../DataSpecificationMixin');
 var DataSpecification       = require('../DataSpecification');
 var BaseSelect              = require('../Select');

@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var React               = require('react/addons');
-var cx                  = React.addons.classSet;
+var React               = require('react');
+var cx                  = require('classnames');
 var Promise             = require('../Promise');
 var {Box, HBox}         = require('../Layout');
 var Button              = require('../Button');

@@ -1,5 +1,7 @@
 'use strict';
 
+
+var React                         = require('react');
 var RexWidget                     = require('rex-widget');
 var {collection, entity, state}   = RexWidget.DataSpecification;
 var {HBox, VBox}                  = RexWidget.Layout;

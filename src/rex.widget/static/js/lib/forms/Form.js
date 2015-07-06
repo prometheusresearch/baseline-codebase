@@ -3,11 +3,10 @@
  */
 'use strict';
 
-var React               = require('react/addons');
-var cloneWithProps      = React.addons.cloneWithProps;
+var React               = require('react');
+var {Value}             = require('react-forms');
+var Fieldset            = require('./Fieldset');
 var emptyFunction       = require('../emptyFunction');
-var BaseForm            = require('../_forms/Form');
-var Value               = require('../_forms/Value');
 var Button              = require('../Button');
 var {VBox, HBox}        = require('../Layout');
 var Port                = require('../Port');
@@ -81,13 +80,13 @@ var Form = React.createClass({
       if (submitButtonTitle) {
         submitButtonProps.children = submitButtonTitle;
       }
-      submitButton = cloneWithProps(submitButton, submitButtonProps);
+      submitButton = React.cloneElement(submitButton, submitButtonProps);
     }
     return (
       <VBox>
-        <BaseForm {...props} value={value}>
+        <Fieldset {...props} formValue={value}>
           {children}
-        </BaseForm>
+        </Fieldset>
         {submitButton &&
           <VBox style={FormStyle.controls}>
             <div>
@@ -145,7 +144,7 @@ var Form = React.createClass({
   componentDidUpdate() {
     var value = this.props.onUpdate(this.state.value.value);
     if (value !== this.state.value.value) {
-      this.setState({value: this.state.value.set(value, true)});
+      this.setState({value: this.state.value.update(value, true)});
     }
   },
 
@@ -159,7 +158,7 @@ var Form = React.createClass({
   submit() {
     var {value} = this.state;
     var {submitTo, onSubmit, onSubmitComplete, onSubmitError} = this.props;
-    var nextValue = value.set(
+    var nextValue = value.update(
       onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
       true);
     if (nextValue.allErrors) {
@@ -183,7 +182,7 @@ var Form = React.createClass({
   },
 
   onChange(value) {
-    value = value.set(this.props.onChange(value.value, this.state.value.value), true);
+    value = value.update(this.props.onChange(value.value, this.state.value.value), true);
     this.setState({value});
   },
 
@@ -203,7 +202,7 @@ var Form = React.createClass({
   onSubmitError(err) {
     this.setState({submitInProgress: false});
     NotificationCenter.removeNotification(this._progressNotification);
-    var errorNotification = cloneWithProps(this.props.errorNotification, {
+    var errorNotification = React.cloneElement(this.props.errorNotification, {
       children: (
         <div>
           <p>Error submitting data on server:</p>

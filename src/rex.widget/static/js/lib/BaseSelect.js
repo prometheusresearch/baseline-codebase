@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var React = require('react/addons');
-var cx    = React.addons.classSet;
+var React = require('react');
+var cx    = require('classnames');
 
 // we use this to mark empty value, otherwise DOM will use option's title as
 // value

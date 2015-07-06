@@ -1,15 +1,28 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React = require('react/addons');
-var Field = require('./Field');
-var Input = require('./Input');
+import React from 'react';
+import Field from './Field';
+import Input from './Input';
 
-var NUMBER_RE = /^\-?[0-9]+(\.[0-9]*)?$/;
+const NUMBER_RE = /^\-?[0-9]+(\.[0-9]*)?$/;
 
-var NumberInput = React.createClass({
+function tryParseFloat(value) {
+  let parsed = parseFloat(value, 10);
+  if (isNaN(parsed) || !NUMBER_RE.exec(value)) {
+    return value;
+  } else {
+    return parsed;
+  }
+}
+
+class NumberInput extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {value: props.value};
+  }
 
   render() {
     return (
@@ -19,44 +32,32 @@ var NumberInput = React.createClass({
         onChange={this.onChange}
         />
     );
-  },
-
-  getInitialState() {
-    return {
-      value: this.props.value
-    };
-  },
+  }
 
   componentWillReceiveProps(nextProps) {
-    var value = this._renderedComponent._pendingState ?
-      this._renderedComponent._pendingState.value :
-      this.state.value;
+    let {value} = this.state;
     if (nextProps.value === undefined) {
       this.setState({value: ''});
-    } else if (nextProps.value !== parseFloat(value, 10)) {
+    } else if (nextProps.value !== tryParseFloat(value)) {
       this.setState({value: String(nextProps.value)});
-    }
-  },
-
-  onChange(e) {
-    var prevValue = this.props.value;
-    var value = e.target.value;
-    this.setState({value});
-    if (value === '') {
-      this.props.onChange(undefined);
-    } else {
-      var parsed = parseFloat(value, 10);
-      if (isNaN(parsed) || !NUMBER_RE.exec(value)) {
-        this.props.onChange(value);
-      } else {
-        this.props.onChange(parsed);
-      }
     }
   }
 
-});
+  onChange = (e) => {
+    let value = e.target.value;
+    this.setState({value}, () => {
+      if (value === '') {
+        this.props.onChange(undefined);
+      } else {
+        value = tryParseFloat(value);
+        this.props.onChange(value);
+      }
+    });
+  }
 
-var NumberField = React.createClass({
+}
+
+export default class NumberField extends React.Component {
 
   render() {
     return (
@@ -65,7 +66,4 @@ var NumberField = React.createClass({
       </Field>
     );
   }
-});
-
-module.exports = NumberField;
-
+}

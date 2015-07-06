@@ -3,6 +3,7 @@
  */
 'use strict';
 
+var React                           = require('react');
 var ConfigurableEntityForm          = require('./ConfigurableEntityForm');
 var {makeDeprecatedComponentMixin}  = require('../DeprecatedComponent');
 

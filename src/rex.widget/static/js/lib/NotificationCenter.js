@@ -3,8 +3,7 @@
  */
 'use strict';
 
-var React             = require('react/addons');
-var cloneWithProps    = React.addons.cloneWithProps;
+var React             = require('react');
 var {boxShadow, rgba} = require('./StyleUtils');
 var Icon              = require('./Icon');
 var {Box, HBox}       = require('./Layout');
@@ -97,7 +96,7 @@ var NotificationLayer = React.createClass({
 
   render() {
     var notifications = this.state.notifications.map(notification =>
-      cloneWithProps(notification, {
+      React.cloneElement(notification, {
         key: notification.props.id,
         onClick: this.removeNotification.bind(null, notification.props.id)
       }));
@@ -131,7 +130,7 @@ var NotificationLayer = React.createClass({
     _notificationID += 1;
     var id = _notificationID;
     var notifications = this.state.notifications.slice(0);
-    notifications.push(cloneWithProps(notification, {id}));
+    notifications.push(React.cloneElement(notification, {id}));
     this.setState({notifications}, () => {
       if (notification.props.ttl !== Infinity) {
         this._scheduleRemove(id, notification.props.ttl);

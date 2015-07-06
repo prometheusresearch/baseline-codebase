@@ -3,10 +3,10 @@
  */
 'use strict';
 
-var React         = require('react/addons');
-var {VBox, HBox}  = require('../Layout');
-var Button        = require('../Button');
-var Fieldset      = require('../_forms/Fieldset');
+var React        = require('react');
+var {VBox, HBox} = require('../Layout');
+var Button       = require('../Button');
+var Fieldset     = require('./Fieldset');
 
 var RepeatingFieldsetStyle = {
   errors: {

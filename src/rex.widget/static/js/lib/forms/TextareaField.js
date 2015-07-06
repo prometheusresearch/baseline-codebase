@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React         = require('react/addons');
+var React         = require('react');
 var Field         = require('./Field');
 var ReadOnlyField = require('./ReadOnlyField');
 

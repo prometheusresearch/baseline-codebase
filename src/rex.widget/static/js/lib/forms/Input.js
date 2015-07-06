@@ -3,10 +3,10 @@
  */
 'use strict';
 
-var React           = require('react/addons');
-var cloneWithProps  = React.addons.cloneWithProps;
-var {HBox, VBox}    = require('../Layout');
-var Focusable       = require('../Focusable');
+var React               = require('react');
+var {HBox, VBox}        = require('../Layout');
+var Focusable           = require('../Focusable');
+var {Input: BaseInput}  = require('react-forms');
 
 var InputStyle = {
   self: {
@@ -32,7 +32,7 @@ var Input = React.createClass({
     var {style, focus, ...props} = this.props;
     style = {...InputStyle.self, ...style};
     return (
-      <input
+      <BaseInput
         {...props}
         ref="input"
         style={style}

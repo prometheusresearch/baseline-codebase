@@ -3,8 +3,7 @@
  */
 'use strict';
 
-var React                           = require('react/addons');
-var {cloneWithProps}                = React.addons;
+var React = require('react');
 
 function cloneElement(element, props, defaultProps) {
   if (Array.isArray(element)) {
@@ -19,7 +18,7 @@ function cloneElement(element, props, defaultProps) {
         }
       }
     }
-    return cloneWithProps(element, props);
+    return React.cloneElement(element, props);
   } else {
     return element;
   }

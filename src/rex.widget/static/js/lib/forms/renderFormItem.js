@@ -3,12 +3,12 @@
  */
 'use strict';
 
+var React             = require('react');
 var ConfigurableField = require('./ConfigurableField');
-var {cloneWithProps}  = React.addons;
 
 function renderFormItem(formValue, item, props, syntheticKey) {
   if (item.type && item.props) {
-    return cloneWithProps(item, {formValue, fieldProps: props, key: syntheticKey});
+    return React.cloneElement(item, {formValue, fieldProps: props, key: syntheticKey});
   } else {
     return (
       <ConfigurableField

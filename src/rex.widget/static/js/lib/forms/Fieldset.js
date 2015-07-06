@@ -3,6 +3,6 @@
  */
 'use strict';
 
-var Fieldset  = require('../_forms/Fieldset');
+var {LegacyFieldset: Fieldset}  = require('react-forms');
 
 module.exports = Fieldset;

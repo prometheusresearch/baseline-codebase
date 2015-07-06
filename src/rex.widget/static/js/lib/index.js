@@ -5,6 +5,7 @@
 
 
 var React       = require('react');
+var classNames  = require('classnames');
 var Environment = require('./Environment');
 
 if (Environment.isTouchDevice) {
@@ -14,6 +15,7 @@ if (Environment.isTouchDevice) {
 require('./TransitionableHandlers');
 
 module.exports = {
+  classNames: classNames,
   DataSet: require('./DataSet'),
   DataSpecification: require('./DataSpecification'),
   DataSpecificationMixin: require('./DataSpecificationMixin'),

@@ -6,7 +6,7 @@
 require('react-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css');
 
 var moment              = require('moment');
-var React               = require('react/addons');
+var React               = require('react');
 var BaseDateTimePicker  = require('react-bootstrap-datetimepicker/src/DateTimeField');
 var Field               = require('./Field');
 var ReadOnlyField       = require('./ReadOnlyField');

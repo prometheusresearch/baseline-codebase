@@ -9,6 +9,7 @@ var Promise = require('./Promise');
 class PortMock extends Port {
 
   constructor(responses) {
+    super();
     this.responses = responses || [];
     this.produceCalls = [];
     this.replaceCalls = [];

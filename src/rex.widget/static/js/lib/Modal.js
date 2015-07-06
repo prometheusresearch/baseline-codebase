@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var React                 = require('react/addons');
-var cx                    = React.addons.classSet;
+var React                 = require('react');
+var cx                    = require('classnames');
 var LayeredComponentMixin = require('./LayeredComponentMixin');
 var {VBox}                = require('./Layout');
 var Cell                  = require('./Cell');

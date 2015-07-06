@@ -3,8 +3,7 @@
  */
 'use strict';
 
-var React                   = require('react/addons');
-var {cloneWithProps}        = React.addons;
+var React                   = require('react');
 var {collection, state}     = require('./DataSpecification');
 var DataSpecificationMixin  = require('./DataSpecificationMixin');
 var Layout                  = require('./Layout');
@@ -27,7 +26,7 @@ var DataTableWithSearch = React.createClass({
 
   render() {
     var {searchPlaceholder, children, ...props} = this.props;
-    children = cloneWithProps(children, {
+    children = React.cloneElement(children, {
       ...props,
       dataSpec: this.dataSpecs.dataSpec
     });

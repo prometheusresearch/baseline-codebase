@@ -3,11 +3,10 @@
  */
 'use strict';
 
-var React           = require('react/addons');
+var React           = require('react');
 var autoprefixStyle = require('./autoprefixStyle');
+var cx              = require('classnames');
 var PropTypes       = React.PropTypes;
-var cx              = React.addons.classSet;
-var cloneWithProps  = React.addons.cloneWithProps;
 
 var defaultStyle = {
   boxSizing: 'border-box',
@@ -102,7 +101,7 @@ var Box = React.createClass({
       children = React.Children.map(children, (child, idx) =>
         idx === 0 || !child ?
           child :
-          cloneWithProps(child, {margin: childrenMargin}));
+          React.cloneElement(child, {margin: childrenMargin}));
     }
     return (
       <Component {...props} style={autoprefixStyle(style)}>

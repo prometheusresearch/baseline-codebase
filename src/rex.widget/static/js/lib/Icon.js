@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var React = require('react/addons');
-var cx    = React.addons.classSet;
+var React = require('react');
+var cx    = require('classnames');
 
 var Icon = React.createClass({
 

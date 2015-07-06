@@ -4,7 +4,6 @@
 'use strict';
 
 var React                   = require('react');
-window.React                = React;
 var {Column, Table}         = require('../vendor/fixed-data-table');
 var ZyngaScroller           = require('./Scroller');
 var {Box, LayoutAwareMixin} = require('./Layout');
@@ -13,6 +12,7 @@ var emptyFunction           = require('./emptyFunction');
 var PersistentStateMixin    = require('./PersistentStateMixin');
 var TouchableArea           = require('./TouchableArea');
 var isTouchDevice           = require('./Environment').isTouchDevice;
+var getByKeyPath            = require('./getByKeyPath');
 var SingleTimeoutMixin      = require('./SingleTimeoutMixin');
 
 var DataTableStyle = {
@@ -56,11 +56,6 @@ var DataTable = React.createClass({
     data: React.PropTypes.object.isRequired,
 
     /**
-     * If DataTable should allow selecting its rows.
-     */
-    selectable: React.PropTypes.bool,
-
-    /**
      * Callback which is executed when selected row changes, it is provided with
      * row id and row itself as its arguments.
      */
@@ -77,34 +72,13 @@ var DataTable = React.createClass({
   },
 
   render() {
-    var {data, columns, selectable, resizableColumns, className, style, ...props} = this.props;
     var {width, height} = this.state;
-    columns = columns.map(column => {
-      var computedWidth = this.state.columnsWidths[column.valueKey.join('.')];
-      var width = computedWidth !== undefined ? computedWidth : column.width;
-      var flexGrow = width !== undefined ? 0 : 1;
-      var isResizable = column.resizable !== undefined ?
-        column.resizable :
-        resizableColumns;
-      return (
-        <Column
-          headerRenderer={this._headerRenderer}
-          cellDataGetter={this._cellDataGetter}
-          cellRenderer={this._cellRenderer}
-          key={column.valueKey}
-          fixed={column.fixed}
-          dataKey={column.valueKey}
-          label={column.label}
-          width={width || 0}
-          flexGrow={flexGrow}
-          isResizable={isResizable}
-          columnData={column}
-          />
-      );
-    });
+    var {style, className, ...props} = this.props;
     if (width === null || height === null) {
       return <Box size={1} className={className} style={style} />;
     } else {
+      var {data, columns: columnsSpec, resizableColumns, ...props} = props;
+      var columns = columnsSpec.map(this.renderColumn);
       return (
         <TouchableArea scroller={isTouchDevice ? this.scroller : undefined}
           element={Box}
@@ -118,20 +92,84 @@ var DataTable = React.createClass({
             scrollLeft={isTouchDevice ? this.state.left: undefined}
             overflowX={isTouchDevice ? 'hidden' : 'auto'}
             overflowY={isTouchDevice ? 'hidden' : 'auto'}
-            ref="table"
-            onRowClick={selectable && this._onRowClick}
             height={height}
             width={width}
             rowGetter={this._rowGetter}
             rowClassNameGetter={this._rowClassNameGetter}
-            headerDataGetter={this._headerDataGetter}
+            isColumnResizing={false}
+            onRowClick={this._onRowClick}
             onScrollEnd={this._checkNeedPagination}
             onColumnResizeEndCallback={this._onColumnResizeEndCallback}
-            isColumnResizing={false}
             rowsCount={data.data.length}>
             {columns}
           </Table>
         </TouchableArea>
+      );
+    }
+  },
+
+  renderColumn(column) {
+    var computedWidth = this.state.columnsWidths[column.valueKey.join('.')];
+    var width = computedWidth !== undefined ? computedWidth : column.width;
+    var flexGrow = width !== undefined ? 0 : 1;
+    var isResizable = column.resizable !== undefined ?
+      column.resizable :
+      this.props.resizableColumns;
+    return (
+      <Column
+        headerRenderer={this.renderHeader}
+        cellRenderer={this.renderCell}
+        cellDataGetter={this._cellDataGetter}
+        key={column.valueKey}
+        fixed={column.fixed}
+        dataKey={column.valueKey}
+        label={column.label}
+        width={width || 0}
+        flexGrow={flexGrow}
+        isResizable={isResizable}
+        columnData={column}
+        />
+    );
+  },
+
+  renderCell(cellData, cellDataKey, rowData, rowIndex, columnData, width) {
+    var onCellClick = this.props.onCellClick && this.props.onCellClick.bind(null, cellDataKey, cellData, rowData);
+    return (
+      <span title={cellData} onClick={onCellClick}>
+        {renderToString(cellData)}
+      </span>
+    );
+  },
+
+  renderHeader(label, cellDataKey, columnData, rowData, width) {
+    var sortable = columnData.sortable;
+    if (sortable === undefined) {
+      sortable = this.props.sortable;
+    }
+    var {dataSort} = this.props;
+    if (!sortable) {
+      return (
+        <div>
+          {label}
+        </div>
+      );
+    } else {
+      cellDataKey = cellDataKey.join('.');
+      var icon = <Icon name="sort" style={DataTableStyle.sortIcon} />;
+      var isDesc = true;
+      if (dataSort && (cellDataKey === dataSort || cellDataKey === dataSort.slice(1))) {
+        if (dataSort[0] === '-') {
+          isDesc = true;
+          icon = <Icon name="sort-by-attributes-alt" style={DataTableStyle.sortIconActive} />;
+        } else {
+          isDesc = false;
+          icon = <Icon name="sort-by-attributes" style={DataTableStyle.sortIconActive} />;
+        }
+      }
+      return (
+        <div onClick={this.props.onDataSort.bind(null, (isDesc ? '+' : '-') + cellDataKey)}>
+          {label} {icon}
+        </div>
       );
     }
   },
@@ -143,8 +181,7 @@ var DataTable = React.createClass({
       resizableColumns: true,
       sortable: true,
       onDataSort: emptyFunction,
-      onSelect: emptyFunction,
-      onDeselect: emptyFunction
+      onSelected: emptyFunction
     };
   },
 
@@ -186,11 +223,6 @@ var DataTable = React.createClass({
 
   componentDidUpdate(prevProps) {
     this.setTimeout(() => this._checkNeedPagination(), 0);
-    if (prevProps.selected != null && this.props.selected == null) {
-      setTimeout(() => {
-        this.props.onDeselect();
-      }, 0);
-    }
   },
 
   componentDidMount() {
@@ -207,43 +239,6 @@ var DataTable = React.createClass({
     var columnsWidths = {...this.state.columnsWidths};
     columnsWidths[dataKey] = newWidth;
     this.setPersistentState({columnsWidths});
-  },
-
-  _headerDataGetter(cellDataKey) {
-    return {sort: this.props.dataSort};
-  },
-
-  _headerRenderer(cellData, cellDataKey, rowData, columnData) {
-    var sortable = rowData.sortable;
-    if (sortable === undefined) {
-      sortable = this.props.sortable;
-    }
-    var {dataSort} = this.props;
-    if (!sortable) {
-      return (
-        <div>
-          {String(cellData)}
-        </div>
-      );
-    } else {
-      cellDataKey = cellDataKey.join('.');
-      var icon = <Icon name="sort" style={DataTableStyle.sortIcon} />;
-      var isDesc = true;
-      if (dataSort && (cellDataKey === dataSort || cellDataKey === dataSort.slice(1))) {
-        if (dataSort[0] === '-') {
-          isDesc = true;
-          icon = <Icon name="sort-by-attributes-alt" style={DataTableStyle.sortIconActive} />;
-        } else {
-          isDesc = false;
-          icon = <Icon name="sort-by-attributes" style={DataTableStyle.sortIconActive} />;
-        }
-      }
-      return (
-        <div onClick={this.props.onDataSort.bind(null, (isDesc ? '+' : '-') + cellDataKey)}>
-          {cellData} {icon}
-        </div>
-      );
-    }
   },
 
   _checkNeedPagination() {
@@ -264,11 +259,6 @@ var DataTable = React.createClass({
     this.setState({height, width});
   },
 
-  _cellRenderer(cellData, cellDataKey, rowData, rowIndex, columnData, width) {
-    var onCellClick = this.props.onCellClick && this.props.onCellClick.bind(null, cellDataKey, cellData, rowData);
-    return <span title={cellData} onClick={onCellClick}>{renderToString(cellData)}</span>;
-  },
-
   _cellDataGetter(key, row) {
     return getByKeyPath(row, key);
   },
@@ -281,39 +271,27 @@ var DataTable = React.createClass({
   },
 
   _rowClassNameGetter(rowIndex) {
-    var {selectable, selected} = this.props;
+    var {selected} = this.props;
     var row = this._rowGetter(rowIndex);
-    if (selectable && row && row.id == selected) {
+    if (row && row.id == selected) {
       return 'DataTable__row--selected';
     }
   },
 
   _onRowClick(e, rowIndex, row) {
-    var {selectable, selected, onSelected, onSelect} = this.props;
-    if (selectable && row.id != selected) {
+    var {selected, onSelected} = this.props;
+    if (row.id != selected) {
       onSelected(row.id, row);
-    }
-    if (onSelect) {
-      onSelect();
     }
   }
 });
 
-function getByKeyPath(row, keyPath) {
-  if (!Array.isArray(keyPath)) {
-    keyPath = [keyPath];
-  }
-  for (var i = 0, len = keyPath.length; i < len; i++) {
-    if (row == null) {
-      return row;
-    }
-    row = row[keyPath[i]];
-  }
-  return row;
-}
-
+/**
+ * Render null and undefined as empty string but get toString from any other
+ * object.
+ */
 function renderToString(value) {
-  return value === null || value === undefined ?  '' : String(value);
+  return value == null ?  '' : String(value);
 }
 
 module.exports = DataTable;

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React       = require('react/addons');
+var React       = require('react');
 var Hoverable   = require('./Hoverable');
 var Icon        = require('./Icon');
 var {Box, HBox} = require('./Layout');

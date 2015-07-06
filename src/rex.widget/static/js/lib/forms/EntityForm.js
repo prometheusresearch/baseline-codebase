@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React             = require('react/addons');
+var React             = require('react');
 var emptyFunction     = require('../emptyFunction');
 var forceRefreshData  = require('../DataSpecificationMixin').forceRefreshData;
 var Query             = require('../Query');

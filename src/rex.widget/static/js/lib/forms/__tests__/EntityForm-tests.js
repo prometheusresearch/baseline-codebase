@@ -3,13 +3,13 @@
  */
 'use strict';
 
-var React             = require('react/addons');
-var {TestUtils}       = React.addons;
+var React             = require('react');
+var {TestUtils}       = require('react/addons').addons;
 var PortMock          = require('../../PortMock');
 var DataSpecification = require('../../DataSpecification');
+var Fieldset          = require('../Fieldset');
 var EntityForm        = require('../EntityForm');
 var Field             = require('../Field');
-var Fieldset          = require('../../_forms/Fieldset');
 var Input             = require('../Input');
 
 function findInputs(form) {

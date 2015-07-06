@@ -6,8 +6,8 @@
 var $ = window.jQuery = require('jquery');
 require('bootstrap-datepicker/js/bootstrap-datepicker');
 
-var React               = require('react/addons');
-var cx                  = React.addons.classSet;
+var React               = require('react');
+var cx                  = require('classnames');
 var Button              = require('../Button');
 var DeprecatedComponent = require('../DeprecatedComponent');
 var Field               = require('./Field');

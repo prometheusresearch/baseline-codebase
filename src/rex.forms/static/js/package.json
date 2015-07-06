@@ -1,16 +1,26 @@
 {
   "name": "rex-forms",
   "version": "0.31.0",
-  "description": "JavaScript functionality for the rex.forms framework",
-  "author": "Prometheus Research, LLC",
-  "license": "AGPLv3",
-  "repository": {
-    "type": "hg",
-    "url": "https://bitbucket.org/prometheus/rex.forms"
-  },
   "main": "lib/index.js",
+  "rex": {
+    "loaders": [
+      {
+        "test": "**/*.js",
+        "loader": "jsx-loader?harmony"
+      }
+    ]
+  },
+  "peerDependencies": {
+    "react": "^0.10.0",
+    "bootstrap": "^3.0.0"
+  },
+  "dependencies": {
+    "jscreole": "prometheusresearch/jscreole#inline-markup",
+    "react-forms": "0.5.7",
+    "component-emitter": "1.1.2",
+    "jsx-loader": "0.11.0"
+  },
   "devDependencies": {
-    "eslint-jsx": "git+https://github.com/andreypopp/eslint#jsx",
     "mocha-loader": "^0.6.4"
   }
 }

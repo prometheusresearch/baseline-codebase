@@ -5,7 +5,7 @@
 
 var RexI18N   = require('rex-i18n');
 var React     = require('react');
-var emitter   = require('emitter');
+var emitter   = require('component-emitter');
 var Form      = require('./form').Form;
 var utils     = require('./utils');
 var merge     = utils.merge;

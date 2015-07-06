@@ -80,13 +80,14 @@ class AssessmentTemplateExportTask(RexTask):
             get_settings().assessment_import_template_defaults
         instrument = Instrument.create(instrument_version,
                                        default_template_fields)
-        for (obj_id, template) in instrument.templates.items():
+        for (obj_id, template) in instrument.template.items():
+            print obj_id, template
             filepath = os.path.join(path, '%s.csv' % obj_id)
             with open(filepath, 'w') as csvfile:
                 writer = csv.DictWriter(csvfile,
-                            fieldnames=template.output.keys())
+                            fieldnames=template.keys())
                 writer.writeheader()
-                writer.writerow(template.output)
+                writer.writerow(template)
 
 
 class AssessmentImportTask(RexTask):

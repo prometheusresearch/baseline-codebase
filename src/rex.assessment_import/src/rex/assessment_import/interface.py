@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from copy import deepcopy
+import json
 
 from rex.core import Error
 from rex.instrument import InstrumentVersion
@@ -7,7 +8,6 @@ from rex.instrument.util import get_implementation
 
 
 class FieldObjectAbstract(object):
-
 
     def add_field(self, instrument_definition, field_definition):
         field = self.get_field(instrument_definition, field_definition)
@@ -46,17 +46,27 @@ class FieldObjectAbstract(object):
                 field.add_enumeration(code, description)
         return field
 
+    def blank_tpl_output(self, default_fields):
+        output = OrderedDict()
+        for (field_id, description) in default_fields.items():
+            output[field_id] = description
+        return output
+
 
 class Instrument(FieldObjectAbstract):
 
     @classmethod
     def create(cls, instrument_version, default_tpl_fields):
         instrument = Instrument(instrument_version)
+        templates = OrderedDict()
+        templates[instrument.id] = instrument.blank_tpl_output(default_tpl_fields)
         for field_definition in instrument_version.definition['record']:
             field = instrument.add_field(instrument_version.definition,
                                          field_definition)
-        instrument.add_template(instrument.id, instrument.fields,
-                                default_tpl_fields)
+            templates = field.add_template(instrument.id,
+                                           default_tpl_fields,
+                                           templates)
+        instrument.template.update(templates)
         return instrument
 
     def __init__(self, instrument_version):
@@ -64,47 +74,7 @@ class Instrument(FieldObjectAbstract):
         self.title = instrument_version.definition.get('title')
         self.instrument_version = instrument_version
         self.fields = OrderedDict()
-        self.templates = OrderedDict()
-
-    def add_template(self, obj_tpl_name, fields, default_tpl_fields):
-        template = self.templates.get(obj_tpl_name)
-        if not template:
-            template = ObjectTemplate(obj_tpl_name, self, [],
-                                      default_tpl_fields)
-        parent_name_list = template.parent_name_list
-        for field_id, field in fields.items():
-            data = OrderedDict()
-            data['name'] = field_id
-            data['type'] = [field.base_type]
-            data['required'] = '(required)' if field.required else ''
-            data['description'] = field.description or ''
-            if field.base_type == 'enumeration':
-                data['type'] = field.enumerations.keys()
-                field.add_template(**data)
-            elif field.base_type == 'enumerationSet':
-                data['type'] = ['TRUE.FALSE']
-                for id in field.enumerations:
-                    data['name'] = enum_tpl_name = field.id + '_' + id
-                    field.add_template(**data)
-            elif field.base_type == 'recordList':
-                rec_tpl_name  = obj_tpl_name + '.' + field.id
-                rec_parent_name_list = parent_name_list + [field.id]
-                rec_obj_template = ObjectTemplate(rec_tpl_name,
-                                                  field,
-                                                  rec_parent_name_list,
-                                                  default_tpl_fields)
-                self.templates[rec_tpl_name] = rec_obj_template
-                self.add_template(rec_tpl_name, field.fields,
-                                  default_tpl_fields)
-            elif field.base_type == 'matrix':
-                self.templates[obj_tpl_name] = template
-                self.add_template(obj_tpl_name, field.fields,
-                                  default_tpl_fields)
-            else:
-                field.add_template(**data)
-            if field.base_type != 'recordList':
-                template.add_field_output(field)
-        self.templates[obj_tpl_name] = template
+        self.template = OrderedDict()
 
 
 class Field(FieldObjectAbstract):
@@ -118,7 +88,7 @@ class Field(FieldObjectAbstract):
         self.rows = []
         self.columns = []
         self.enumerations = OrderedDict()
-        self.templates = OrderedDict()
+        self.template_names = OrderedDict()
 
     def add_row(self, id):
         self.rows.append(id)
@@ -129,44 +99,47 @@ class Field(FieldObjectAbstract):
     def add_enumeration(self, enumeration_id, description):
         self.enumerations[enumeration_id] = description
 
-    def add_template(self, name, type, required, description):
-        self.templates[name] = \
-            template = FieldTemplate(name, type, required, description)
-        return template
+    def add_template(self, obj_tpl_id, default_tpl_fields, templates,
+                     required=None):
+        tpl_output = templates.get(obj_tpl_id)
+        if not tpl_output:
+            tpl_output = blank_tpl_output
+        if self.base_type == 'recordList':
+            rec_obj_id = obj_tpl_id + '.' + self.id
+            self.template_names[rec_obj_id] = obj_tpl_id
+            rec_tpl_output = self.blank_tpl_output(default_tpl_fields)
+            templates[rec_obj_id] = rec_tpl_output
+            for (_, record_field) in self.fields.items():
+                templates = record_field.add_template(rec_obj_id,
+                                                      default_tpl_fields,
+                                                      templates)
+        elif self.base_type == 'matrix':
+            for (_, matrix_field) in self.fields.items():
+                self.template_names[self.id] = obj_tpl_id
+                templates = matrix_field.add_template(obj_tpl_id,
+                                                      default_tpl_fields,
+                                                      templates)
+        elif self.base_type == 'enumerationSet':
+            type = ['TRUE.FALSE']
+            for id in self.enumerations:
+                enum_name = self.id + '_' + id
+                self.template_names[enum_name] = obj_tpl_id
+                tpl_output[enum_name] = self.template_description(type=type)
+        elif self.base_type == 'enumeration':
+            type = self.enumerations.keys()
+            tpl_output[self.id] = self.template_description(type=type)
+        else:
+            tpl_output[self.id] = self.template_description()
+        templates[obj_tpl_id] = tpl_output
+        return templates
 
-
-class FieldTemplate(object):
-
-    def __init__(self, name, type, required, description):
-        self.name = name
-        self.type = type
-        self.required = required
-        self.description = description or ''
-        formatted_string = '%(description)s\n%(type)s\n%(required)s' \
-                           % {'description': description,
-                              'type': type,
-                              'required': required}
-        self.formatted_string = formatted_string.strip()
-
-
-class ObjectTemplate(object):
-
-    def __init__(self, obj_tpl_name, obj, parent_name_list=[],
-                 default_fields=OrderedDict()):
-        self.obj_tpl_name = obj_tpl_name
-        self.obj = obj
-        self.output = self.blank_output(default_fields)
-        self.parent_name_list = parent_name_list
-
-    def blank_output(self, default_fields):
-        output = OrderedDict()
-        for (field_id, description) in default_fields.items():
-            output[field_id] = description
-        return output
-
-    def add_field_output(self, field):
-        for name, template in field.templates.items():
-            self.output[name] = template.formatted_string
+    def template_description(self, description=None, type=None, required=None):
+        description = description or self.description or ''
+        type = json.dumps((type or [self.base_type]))
+        required = self.required if required is None else required
+        required = '(required)' if required else ''
+        template_string = '\n'.join([description, type, required]).strip()
+        return template_string
 
 
 class Assessment(object):
@@ -181,6 +154,7 @@ class Assessment(object):
                                                      import_context)
             context[context_type] = validated_context
         data = cls.make_assessment_data(instrument, data)
+        return None
         subject = root_record.get('subject')
         date = root_record.get('date')
         assessment = cls.create(subject, instrument.instrument_version,
@@ -221,7 +195,16 @@ class Assessment(object):
 
     @classmethod
     def make_assessment_data(cls, instrument, data):
+        record = data.get(instrument.id)
+        if not record:
+            return None
+        assessment = cls.make_record_value(instrument, record)
         return None
+
+    @classmethod
+    def make_record_value(cls, record, data):
+        for field_id, field in record.fields.items():
+            pass
 
     @classmethod
     def make_field_value(cls):

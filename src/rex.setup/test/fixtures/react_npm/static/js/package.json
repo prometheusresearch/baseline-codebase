@@ -2,7 +2,7 @@
   "name": "pkg",
   "version": "0.0.0",
   "main": "./lib/index.js",
-  "dependencies": {
+  "peerDependencies": {
     "react": "0.12.0"
   }
 }

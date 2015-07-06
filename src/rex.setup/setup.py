@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.setup',
-    version = "2.4.0",
+    version = "3.0.0",
     description="Distutils extension for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -29,6 +29,8 @@ setup(
         'distutils.commands': [
             'install_static = rex.setup:install_static',
             'develop_static = rex.setup:develop_static',
+            'install_commonjs = rex.setup:install_commonjs',
+            'develop_commonjs = rex.setup:develop_commonjs',
             'develop_namespace = rex.setup:develop_namespace',
             'bundle = rex.setup:bundle',
         ],

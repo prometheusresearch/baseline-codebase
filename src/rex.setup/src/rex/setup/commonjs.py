@@ -12,7 +12,46 @@ import tempfile
 import json
 import email
 import distutils.log, distutils.errors
+import setuptools
 import pkg_resources
+
+
+class install_commonjs(setuptools.Command):
+
+    description = "install commonjs package"
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def _make_dummy_dist(self):
+        ei_cmd = self.get_finalized_command('egg_info')
+        if not os.path.exists(ei_cmd.egg_info):
+            self.run_command('egg_info')
+        return pkg_resources.Distribution(
+                ei_cmd.egg_base,
+                pkg_resources.PathMetadata(
+                    ei_cmd.egg_base, ei_cmd.egg_info),
+                ei_cmd.egg_name, ei_cmd.egg_version)
+
+    def run(self):
+        dist = self._make_dummy_dist()
+        install_package(dist, execute=self.execute)
+
+
+class develop_commonjs(install_commonjs):
+
+    description = "install commonjs package in development mode"
+
+
+def dummy_execute(func, args, message=None):
+    if message:
+        distutils.log.info(message)
+    return func(*args)
 
 
 def find_executable(executables, title=None):
@@ -75,9 +114,7 @@ def setup_commonjs():
     env = get_commonjs_environment()
     if env:
         node_path = os.path.join(sys.prefix, 'bin', 'node')
-        npm_path = os.path.join(sys.prefix, 'bin', 'npm')
-        for (path, real_path) in [(node_path, real_node_path),
-                                  (npm_path, real_npm_path)]:
+        for (path, real_path) in [(node_path, real_node_path)]:
             if os.path.exists(path):
                 continue
             distutils.log.info("creating %s shim" % path)
@@ -106,11 +143,11 @@ def exe(cmd, args,
     if env:
         _env.update(env)
     if not quiet:
-        distutils.log.info("executing %s" % " ".join(args))
+        distutils.log.info("Executing %s" % " ".join(args))
     proc = subprocess.Popen(args,
             env=_env, cwd=cwd,
             stdin=subprocess.PIPE,
-            stderr=subprocess.STDOUT if not daemon else None,
+            stderr=subprocess.PIPE if not daemon else None,
             stdout=subprocess.PIPE if not daemon else None)
     if daemon:
         return proc
@@ -118,45 +155,46 @@ def exe(cmd, args,
     if proc.wait() != 0:
         if out:
             distutils.log.info(out)
+        if err:
+            distutils.log.info(err)
         raise distutils.errors.DistutilsSetupError(
                 "failed to execute %s" % " ".join(args))
-    return out
+    return out, err
 
 
 def node(args, cwd=None, daemon=False, env=None, quiet=False):
     # Executes `node args...`.
-    return exe('node', args, cwd=cwd, daemon=daemon, env=env, quiet=quiet)
+    result = exe('node', args, cwd=cwd, daemon=daemon, env=env, quiet=quiet)
+    if daemon:
+        return result
+    else:
+        out, err = result
+        return out
 
 
 def npm(args, cwd=None, env=None, quiet=False):
     # Executes `npm args...`.
-    args = ['--loglevel', 'error', '--color', 'false'] + args
-    return exe('npm', args, cwd=cwd, env=env, quiet=quiet)
-
-
-def bower(args, cwd=None, env=None, quiet=False):
-    # Executes `bower args...`.
-    base_args = [
-        find_executable('bower'),
-        '--allow-root',
-        '--config.interactive=false',
-        '--config.storage.cache=%s' % cwd,
-        '--config.tmp=%s' % cwd,
-    ]
-    return node(base_args + args, cwd, env=env, quiet=quiet)
-
-
-def static_filename(req):
-    dist = get_distribution(req)
-    if dist is None:
+    args = ['--loglevel', 'warn', '--color', 'false'] + args
+    out, err = exe('npm', args, cwd=cwd, env=env, quiet=quiet)
+    if out:
+        distutils.log.info(out)
+    # Check if npm emitted warning such as EPEERINVALID, we consider these to be
+    # errors
+    if any(line.startswith('npm WARN E') for line in err.split('\n')):
+        if err:
+            distutils.log.info(err)
         raise distutils.errors.DistutilsSetupError(
-            "failed to find a Python package with embedded JS package: %s" % req)
+                "failed to execute npm %s" % " ".join(args))
+
+
+def static_filename(dist):
+    dist = to_dist(dist)
     # Skip packages without CommonJS components.
     if not dist.has_metadata('rex_static.txt'):
         return
     static = dist.get_metadata('rex_static.txt')
     if not os.path.exists(static):
-        # rex_static.txt is broken when a req is installed via wheel dist format
+        # rex_static.txt is broken when a dist is installed via wheel dist format
         # so # maybe we can find static dir it in the standard location?
         static = os.path.join(
                 sys.prefix, 'share/rex', os.path.basename(static))
@@ -165,7 +203,7 @@ def static_filename(req):
     return static
 
 
-def package_filename(req, *filename):
+def package_filename(dist, *filename):
     """ Return the absolute path to the JS package embedded in the Python
     package.
 
@@ -175,13 +213,14 @@ def package_filename(req, *filename):
     If Python package doesn't have JS package embedded then ``None`` will be
     returned.
 
-    :param req: Name of the Python package
+    :param dist: Package distribution
+    :type dist: pkg_resources.Distribution
     :keyword filename: Optional filename inside the JS package
     """
-    static = static_filename(req)
+    static = static_filename(dist)
     if static is None:
         return
-    if not os.path.exists(os.path.join(static, 'js', 'bower.json')):
+    if not os.path.exists(os.path.join(static, 'js', 'package.json')):
         return
     js_filename = os.path.abspath(os.path.join(static, 'js'))
     if filename is not None:
@@ -191,134 +230,234 @@ def package_filename(req, *filename):
     return js_filename
 
 
-def bower_package_metadata(req):
-    """ Return contents of ``bower.json`` metadata for a JS package.
+def package_metadata(dist):
+    """ Return contents of ``package.json`` metadata for a JS package.
 
-    Returns ``None`` if JS package is not a bower component.
+    Returns ``None`` if we package is not a commonjs package.
 
-    :param req: Name of the Python package
-    :type req: str
+    :param dist: Package distribution
+    :type dist: pkg_resources.Distribution
     :return: Component metdata
     :rtype: dict
     """
-    filename = package_filename(req, 'bower.json')
+    filename = package_filename(dist, 'package.json')
     if not filename:
-        return
+        return None, None
     with open(filename, 'r') as stream:
         try:
             meta = json.load(stream)
             if not isinstance(meta, dict):
                 raise ValueError("an object expected")
+            if not 'rex' in meta:
+                meta['rex'] = {}
         except ValueError, exc:
             raise distutils.errors.DistutilsSetupError(
                     "ill-formed JSON in %s: %s" % (filename, exc))
         else:
-            return (filename, meta)
+            return filename, meta
 
 
-def validate_bower_package_metadata(req, expected_name, expected_version):
-    """ Validate bower package metadata against ``expected_name`` and
+def validate_package_metadata(filename, meta, expected_name, expected_version):
+    """ Validate package metadata against ``expected_name`` and
     ``expected_version``.
     """
-    filename, meta = bower_package_metadata(req)
     if meta.get('name') != expected_name:
         raise distutils.errors.DistutilsSetupError(
-                "unexpected meta name in %s: expected %s; got %s"
+                "unexpected JS package name in %s: expected %s; got %s"
                 % (filename, expected_name, meta.get('name')))
     if meta.get('version') != expected_version:
         raise distutils.errors.DistutilsSetupError(
-                "unexpected meta version in %s: expected %s; got %s"
+                "unexpected JS package version in %s: expected %s; got %s"
                 % (filename, expected_version, meta.get('version')))
     if meta.get('dependencies') and not isinstance(meta['dependencies'], dict):
         raise distutils.errors.DistutilsSetupError(
                 "\"dependencies\" key should be a JSON object in %s"
                 % filename)
+    if meta.get('peerDependencies') and not isinstance(meta['peerDependencies'], dict):
+        raise distutils.errors.DistutilsSetupError(
+                "\"peerDependencies\" key should be a JSON object in %s"
+                % filename)
+    if meta.get('devDependencies') and not isinstance(meta['devDependencies'], dict):
+        raise distutils.errors.DistutilsSetupError(
+                "\"devDependencies\" key should be a JSON object in %s"
+                % filename)
+    if meta.get('rex'):
+        if not isinstance(meta['rex'], dict):
+            raise distutils.errors.DistutilsSetupError(
+                    "\"rex\" key should be a JSON object in %s"
+                    % filename)
+        if meta['rex'].get('dependencies') and not isinstance(meta['rex']['dependencies'], dict):
+            raise distutils.errors.DistutilsSetupError(
+                    "\"rex.dependencies\" key should be a JSON object in %s"
+                    % filename)
 
 
-def ensure_rex_setup_commonjs_installed():
-    """ Make sure `rex-setup` NPM package that comes with rex.setup is installed.
+def bootstrap():
+    """ Bootstrap CommonJS environment.
+
+    This includes installing/updating npm version within the environment,
+    installing bunlder with other utilities.
     """
     path = node(['-p',
                  'try { require.resolve("rex-setup") } catch (e) {""}'],
                  quiet=True)
     if not path.strip():
         cwd = pkg_resources.resource_filename('rex.setup', 'commonjs')
-        npm(['install', '--global'], cwd=cwd)
-
-
-def install_package(req, skip_if_installed=False):
-    if package_filename(req, 'bower.json'):
-        install_bower_component(req, skip_if_installed=skip_if_installed)
-    if package_filename(req, 'package.json'):
-        install_npm_package(req, skip_if_installed=skip_if_installed)
-
-
-def install_npm_package(req, skip_if_installed=False):
-    distutils.log.info("installing npm package for: %s" % req)
-    cwd = package_filename(req)
-    npm(['install'], cwd=cwd)
-
-
-def install_bower_component(req, dest=None, skip_if_installed=False):
-    dist = get_distribution(req)
-    src = package_filename(req)
-    if src is None:
-        return
-    root_install = dest is None
-    # We install into temp directory because:
-    # 1. We want to have components in `static/js/bower_components` but executing
-    #    bower in `static/js` while we install components from python deps triggers
-    #    installation of the package itself (`static/js/bower.json`)
-    # 2. We can maintain bower_components in a consistent state regarding
-    #    failures between multiple `bower install` calls
-    if root_install:
-        if skip_if_installed and \
-                os.path.exists(os.path.join(src, 'bower_components')):
-            return
-        dest = os.path.join(src, '.rex-setup')
-        if os.path.exists(dest):
-            shutil.rmtree(dest)
-        os.mkdir(dest)
-    ensure_rex_setup_commonjs_installed()
-    component_name = dist.key.replace('.', '-')
-    validate_bower_package_metadata(req, component_name, dist.version)
-    _bower_json, meta = bower_package_metadata(req)
-    # Install Bower dependencies that are packaged in Python distributions.
-    dependencies = set(meta.get('dependencies', {}))
-    for dep_req in dist.requires():
-        dep_component_name = dep_req.key.replace('.', '-')
-        if dep_component_name not in dependencies:
-            continue
-        # Check if the dependency is already installed.
-        if os.path.exists(os.path.join(dest, 'bower_components', dep_component_name)):
-            continue
-        install_bower_component(dep_req, dest)
-    distutils.log.info("installing bower component for: %s" % req)
-    # Install component into dest/bower_components
-    bower(['install', src], cwd=dest)
-    # Check if Python package was installed in dev mode and link bower component
-    # source instead of installing it. (a simpler alternative to `bower link`)
-    is_dev_install = os.path.islink(static_filename(req))
-    if is_dev_install:
-        installed_path = os.path.join(dest, 'bower_components', component_name)
-        _rmtree_or_unlink(installed_path)
-        os.symlink(src, installed_path)
-    # Move bower_components from temp dir to src/bower_components
-    if root_install:
-        dest_bower_components = os.path.join(src, 'bower_components')
-        _rmtree_or_unlink(dest_bower_components)
-        shutil.move(
-            os.path.join(dest, 'bower_components'),
-            dest_bower_components)
-        shutil.rmtree(dest)
-
-
-def _rmtree_or_unlink(directory):
-    if os.path.exists(directory):
-        if os.path.islink(directory):
-            os.unlink(directory)
+        meta_filename = pkg_resources.resource_filename('rex.setup', 'commonjs/package.json')
+        with open(meta_filename, 'r') as f:
+            meta = json.load(f)
+        # bootstrap
+        npm_path = find_executable('npm', 'NPM')
+        out, err = exe(npm_path, ['--version'])
+        npm_version = out.strip()
+        if npm_version[0] not in ('3', '2'):
+            npm(['install', '--global', 'npm@2.x.x'])
+        npm(['install', '--global', 'npm@3.0.0'])
+        # we install peer deps ourselves with the new npm
+        if meta.get('peerDependencies'):
+            peer_deps = ['%s@%s' % (k, v)
+                         for k, v in
+                         meta['peerDependencies'].items()]
         else:
-            shutil.rmtree(directory)
+            peer_deps = []
+        # install itself
+        npm(['install', '--global'] + peer_deps + ['.'], cwd=cwd)
+
+
+class Sandbox(object):
+
+    def __init__(self, directory, meta, execute=dummy_execute):
+        self.directory = os.path.join(directory, '.rex-setup')
+        self.meta = meta
+        self.execute = execute
+
+    def __enter__(self):
+        self.execute(self.create, (), 'Creating package sandbox at %s' % self.directory)
+        return self.directory
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.execute(self.remove, (), 'Removing package sandbox at %s' % self.directory)
+
+    def create(self):
+        rm(self.directory)
+        os.mkdir(self.directory)
+        with open(os.path.join(self.directory, 'package.json'), 'w') as f:
+            f.write(json.dumps(self.meta))
+
+    def remove(self):
+        rm(self.directory)
+
+
+def install_package(dist, skip_if_installed=False, execute=dummy_execute):
+    if not isinstance(dist, pkg_resources.Distribution):
+        req = dist
+        if not isinstance(req, pkg_resources.Requirement):
+            req = pkg_resources.Requirement.parse(req)
+        dist = get_distribution(req)
+    req = to_requirement(dist)
+    dest  = package_filename(dist)
+    if not dest:
+        return
+    if skip_if_installed and os.path.exists(os.path.join(dest, 'node_modules')):
+        return
+
+
+    execute(bootstrap, (), 'Bootstrapping CommonJS environment')
+    python_dependencies = collect_dependencies(dist)
+
+    _, meta = package_metadata(dist)
+
+    dependencies = {}
+    dependencies.update(meta.get('dependencies', {}))
+    dependencies.update(meta.get('peerDependencies', {}))
+    dependencies.update({jsname: jspath for (_, jsname, jspath) in python_dependencies})
+
+    sandbox_meta = {
+        'name': meta.get('name', 'rex-setup-synthetic-package'),
+        'version': meta.get('version', '1.0.0'),
+        'dependencies': dependencies,
+        'devDependencies': meta.get('devDependencies', {})
+    }
+
+    with Sandbox(dest, sandbox_meta, execute=execute) as sandbox:
+        execute(npm, (['install', '--production', '.'], sandbox), 'Executing npm install --production')
+        for pyname, jsname, jspath in python_dependencies:
+            is_dev_install = os.path.islink(static_filename(pyname))
+            if is_dev_install:
+                for path in ('lib', 'style', 'package.json'):
+                    installed_path = os.path.join(sandbox, 'node_modules', jsname, path)
+                    src_path = os.path.join(jspath, path)
+                    if os.path.exists(src_path):
+                        execute(replace_with_link, (installed_path, src_path),
+                                'Linking %s/%s' % (jsname, path))
+
+        dest_node_modules = os.path.join(dest, 'node_modules')
+        sandbox_node_modules = os.path.join(sandbox, 'node_modules')
+        execute(rm, (dest_node_modules,), 'Removing %s' % dest_node_modules)
+        execute(shutil.move, (sandbox_node_modules, dest_node_modules), 'Moving %s to %s' % (sandbox_node_modules, dest_node_modules))
+
+
+def collect_dependencies(dist):
+    result = []
+    seen = {}
+    for req, pyname, jsname, jspath in _collect_dependencies(dist):
+        if not jsname in seen:
+            result.append((pyname, jsname, jspath))
+        seen.setdefault(jsname, set()).add(to_requirement(dist).key)
+    for jsname, from_reqs in seen.items():
+        distutils.log.info('Requirement %s (via %s)', jsname, ', '.join(str(r) for r in list(from_reqs)))
+    return result
+
+
+def to_requirement(req):
+    if isinstance(req, pkg_resources.Requirement):
+        return req
+    elif isinstance(req, pkg_resources.Distribution):
+        return req.as_requirement()
+    else:
+        return pkg_resources.Requirement.parse(req)
+
+
+def to_dist(dist):
+    if not isinstance(dist, pkg_resources.Distribution):
+        dist = get_distribution(dist)
+    if dist is None:
+        raise distutils.errors.DistutilsSetupError(
+            "failed to find a Python package with embedded JS package: %s" % dist)
+    return dist
+
+
+def _collect_dependencies(dist):
+    dist = to_dist(dist)
+    req = to_requirement(dist)
+    filename, meta = package_metadata(dist)
+    validate_package_metadata(filename, meta, to_js_name(req.key), dist.version)
+    if meta:
+        mask = meta['rex'].get('dependencies')
+        for pyname in dist.requires():
+            jsname = to_js_name(pyname)
+            if mask is not None and mask.get(jsname) is False:
+                continue
+            if not package_filename(pyname, 'package.json'):
+                continue
+            for _subdeps in _collect_dependencies(pyname):
+                yield _subdeps
+            yield req, pyname, jsname, package_filename(pyname)
+
+
+def replace_with_link(src, dest):
+    rm(src)
+    os.symlink(dest, src)
+
+
+def rm(path):
+    if os.path.exists(path):
+        if os.path.islink(path):
+            os.unlink(path)
+        elif os.path.isdir(path):
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
 
 
 def get_distribution(req):
@@ -331,32 +470,9 @@ def get_distribution(req):
         return pkg_resources.get_distribution(req)
     except pkg_resources.DistributionNotFound:
         pass
-    # Try to find the package in the pip build directory.
-    try:
-        import pip
-    except ImportError:
-        return
-    build_prefix = pip.locations.build_prefix
-    package_path = os.path.join(build_prefix, req.key)
-    pkg_info_path = os.path.join(package_path, 'PKG-INFO')
-    if not os.path.exists(pkg_info_path):
-        return
-    pkg_info = email.message_from_file(open(pkg_info_path))
-    name = pkg_info.get('name', '-')
-    version = pkg_info.get('version')
-    egg_info_path = os.path.join(package_path,
-                                 'pip-egg-info/%s.egg-info' % name)
-    if not os.path.exists(egg_info_path):
-        return
-    static_path = os.path.join(package_path, 'static')
-    if os.path.exists(static_path):
-        rex_static_path = os.path.join(egg_info_path, 'rex_static.txt')
-        with open(rex_static_path, 'w') as stream:
-            stream.write(static_path)
-    dist = pkg_resources.Distribution(
-            package_path,
-            pkg_resources.PathMetadata(package_path, egg_info_path),
-            name, version)
-    return dist
 
 
+def to_js_name(req):
+    if isinstance(req, pkg_resources.Requirement):
+        req = req.key
+    return req.replace('.', '-').replace('_', '-')

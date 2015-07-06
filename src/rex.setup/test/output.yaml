@@ -12,6 +12,11 @@ tests:
     stdout: ''
   - sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
     stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
+    stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
       node_modules -o -name bower_components ')' -exec rm -rf '{}' ';'
@@ -65,9 +70,13 @@ tests:
       jquery
   - sh: ls ./share/rex/rex.setup_demo/js
     stdout: |
-      bower.json
-      bower_components
       lib
+      node_modules
+      package.json
+  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
+    stdout: |
+      bootstrap
+      jquery
   - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     stdout: |
       bootstrap
@@ -80,6 +89,11 @@ tests:
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
+    stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
     stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
@@ -111,9 +125,13 @@ tests:
       jquery
   - sh: ls ./share/rex/rex.setup_demo/js
     stdout: |
-      bower.json
-      bower_components
       lib
+      node_modules
+      package.json
+  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
+    stdout: |
+      bootstrap
+      jquery
   - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     stdout: |
       bootstrap
@@ -126,6 +144,11 @@ tests:
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
+    stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
     stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
@@ -168,8 +191,8 @@ tests:
       www
 
       ./rex.setup_demo-2.4.0/static/js:
-      bower.json
       lib
+      package.json
 
       ./rex.setup_demo-2.4.0/static/js/lib:
       index.js
@@ -206,15 +229,12 @@ tests:
       bootstrap.min.js
 
       ./rex.setup_demo-2.4.0/static/www/bundle:
+      448c34a56d699c29117adc64c43affeb.woff2
+      89889688147bd7575d6327160d64e760.svg
       bundle.css
       bundle.css.map
       bundle.js
       bundle.js.map
-      font
-
-      ./rex.setup_demo-2.4.0/static/www/bundle/font:
-      448c34a56d699c29117adc64c43affeb.woff2
-      89889688147bd7575d6327160d64e760.svg
       e18bbf611f2a2e43afc071aa2f4e1512.ttf
       f4769f9bdb7466be65088239c12046d1.eot
       fa2772327f55d8198301fdb8bcfc8158.woff
@@ -286,6 +306,11 @@ tests:
     stdout: ''
   - sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
     stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
+    stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
       node_modules -o -name bower_components ')' -exec rm -rf '{}' ';'
@@ -318,9 +343,13 @@ tests:
       jquery
   - sh: ls ./share/rex/rex.setup_demo/js
     stdout: |
-      bower.json
-      bower_components
       lib
+      node_modules
+      package.json
+  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
+    stdout: |
+      bootstrap
+      jquery
   - sh: ls ./share/rex/rex.setup_demo/js/bower_components
     stdout: |
       bootstrap
@@ -333,6 +362,11 @@ tests:
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic ./src/pkg'
+    stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
     stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
@@ -354,6 +388,11 @@ tests:
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_bundle_all ./src/pkg'
+    stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
     stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
@@ -402,6 +441,11 @@ tests:
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_npm ./src/pkg'
     stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
+    stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
       node_modules -o -name bower_components ')' -exec rm -rf '{}' ';'
@@ -410,9 +454,9 @@ tests:
     stdout: ''
   - sh: ls ./share/rex/pkg/js
     stdout: |
-      bower.json
-      bower_components
       lib
+      node_modules
+      package.json
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
       bundle.js
@@ -427,6 +471,11 @@ tests:
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_no_bundle ./src/pkg'
     stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
+    stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
       node_modules -o -name bower_components ')' -exec rm -rf '{}' ';'
@@ -435,8 +484,8 @@ tests:
     stdout: ''
   - sh: ls ./share/rex/pkg/js
     stdout: |
-      bower.json
       lib
+      package.json
 - suite: js_style_entry
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox
@@ -444,6 +493,11 @@ tests:
   - sh: ./bin/pip install -q -e ..
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_entry ./src/pkg'
+    stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
     stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
@@ -461,7 +515,7 @@ tests:
     stdout: |
       PASSED!
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
-    stdout: 'body{color:red}
+    stdout: 'body{color:#f00}
 
       /*# sourceMappingURL=bundle.css.map*/'
 - suite: js_style_implicit
@@ -472,6 +526,11 @@ tests:
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_implicit ./src/pkg'
     stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
+    stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
       node_modules -o -name bower_components ')' -exec rm -rf '{}' ';'
@@ -488,7 +547,7 @@ tests:
     stdout: |
       PASSED!
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
-    stdout: 'body{color:red}
+    stdout: 'body{color:#f00}
 
       /*# sourceMappingURL=bundle.css.map*/'
 - suite: js_rex_style
@@ -499,6 +558,11 @@ tests:
     stdout: ''
   - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_style ./src/pkg'
     stdout: ''
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
+    stdout: ''
   - sh: find sandbox '(' -wholename '*/static/www/jquery' -o -wholename '*/static/www/bootstrap'
       -o -wholename '*/static/www/doc' -o -wholename '*/static/www/bundle' -o -name
       node_modules -o -name bower_components ')' -exec rm -rf '{}' ';'
@@ -515,6 +579,6 @@ tests:
     stdout: |
       PASSED!
   - sh: cat ./share/rex/pkg/www/bundle/bundle.css
-    stdout: 'body{color:red}
+    stdout: 'body{color:#f00}
 
       /*# sourceMappingURL=bundle.css.map*/'

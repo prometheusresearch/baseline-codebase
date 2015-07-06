@@ -19,8 +19,6 @@ def webpack_config(package):
         return ['--config', config]
     else:
         component_path = commonjs.package_filename(package)
-        # let webpack get entry via "main" key in bower.json
-        entry = [component_path]
         # resolve webpack.config.js installed as a part of rex-setup package
         config = commonjs.node([
             '-p',
@@ -29,26 +27,32 @@ def webpack_config(package):
         return [
             '--config', config,
             '--context', component_path
-        ] + entry
+        ]
 
 
 def webpack(module, target):
+    commonjs.bootstrap()
     cwd = commonjs.package_filename(module)
     return commonjs.node([
         commonjs.find_executable('webpack'),
         '--bail',
         '--optimize-minimize',
         '--devtool', 'source-map',
+        '--display-origins',
+        '--display-reasons',
         '--output-path', target
     ] + webpack_config(module), cwd=cwd)
 
 
 def webpack_watch(module, target):
     env = {'REX_SETUP_DEV': '1'}
+    commonjs.bootstrap()
     cwd = commonjs.package_filename(module)
     return commonjs.node([
         commonjs.find_executable('webpack'),
-        '--devtool', 'eval',
+        '--devtool', 'cheap-module-eval-source-map',
+        '--display-origins',
+        '--display-reasons',
         '--output-path', target,
         '--hide-modules',
         '--watch'
@@ -64,7 +68,6 @@ class GenerateWebpack(Generate):
         # If the package is being installed from a repository
         # with `python setup.py install`, our CommonJS packages
         # has not been installed yet.
-        commonjs.install_package(self.dist, skip_if_installed=True)
         # Build the bundle.
         webpack(self.dist, self.target)
 

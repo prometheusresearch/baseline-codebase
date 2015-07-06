@@ -5,6 +5,7 @@ var path                 = require('path');
 var webpack              = require('webpack');
 var ExtractTextPlugin    = require('extract-text-webpack-plugin');
 var IntrospectablePlugin = require('rex-setup/introspection/plugin');
+var PackageLoadersPlugin = require('webpack-package-loaders-plugin');
 
 var introspectionLoader  = require.resolve('./introspection/loader');
 
@@ -12,10 +13,10 @@ var DEV           = !!process.env.REX_SETUP_DEV;
 var BUNDLE_PREFIX = process.env.REX_SETUP_BUNDLE_PREFIX || '/bundle/';
 
 var cwd = process.cwd();
-var packageDirectory = path.join(cwd, 'bower_components');
+var packageDirectory = path.join(cwd, 'node_modules');
 
 function getPackageMetadata(directory) {
-  var packageMetadataFilename = path.join(directory, 'bower.json');
+  var packageMetadataFilename = path.join(directory, 'package.json');
   if (!fs.existsSync(packageMetadataFilename)) {
     return null;
   }
@@ -23,15 +24,26 @@ function getPackageMetadata(directory) {
   return JSON.parse(src);
 }
 
-function getListOfDependencies(packageMetadata) {
+function getListOfDependencies(packageMetadata, seen) {
+  seen = seen || {};
   if (!packageMetadata || !packageMetadata.dependencies) {
     return [];
   }
-  var dependencies = Object.keys(packageMetadata.dependencies)
-    .map(packagePath)
+  var mask = packageMetadata.rex && packageMetadata.rex.dependencies || null;
+  var dependencies = fs.readdirSync(packageDirectory)
+    .map(function(dir) { return path.join(packageDirectory, dir); })
     .map(getPackageMetadata)
-    .filter(Boolean);
-  return unique(dependencies.concat(concat(dependencies.map(getListOfDependencies))));
+    .filter(Boolean)
+    .filter(function(pkg) { return !seen[pkg.name] && !!pkg.rex; });
+  if (mask) {
+    dependencies = dependencies.filter(function(pkg) {
+      return !!mask[pkg.name];
+    });
+  }
+  dependencies.forEach(function(pkg) {
+    seen[pkg.name] = pkg;
+  });
+  return unique(dependencies.concat(concat(dependencies.map(function(pkg) { return getListOfDependencies(pkg, seen); }))));
 }
 
 /**
@@ -55,9 +67,8 @@ function configureWebpack(config) {
   var pkg = getPackageMetadata(cwd);
   var deps = getListOfDependencies(pkg);
 
-  
   // add style entry either via rex.style key in package metadata or implicitly
-  if (pkg.rex && pkg.rex.style) {
+  if (pkg && pkg.rex && pkg.rex.style) {
     addEntry(config, path.join(cwd, pkg.rex.style));
   } else if (pkg.styleEntry) {
     addEntry(config, path.join(cwd, pkg.styleEntry));
@@ -82,36 +93,9 @@ function configureWebpack(config) {
     addEntry(config, cwd);
   }
 
-  addEntry(config, require.resolve('./polyfills/object-assign'));
+  addEntry(config, require.resolve('core-js/modules/es6.object.assign'));
 
-  set(config, 'watchDelay', 200);
-
-  // set aliases for Node built-ins
-  setResolveAliases(config, {
-    'util': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/util.js'),
-    'console': require.resolve('webpack/node_modules/node-libs-browser/node_modules/console-browserify'),
-    'date-now': require.resolve('webpack/node_modules/node-libs-browser/node_modules/console-browserify/node_modules/date-now'),
-    'inherits': require.resolve('webpack/node_modules/node-libs-browser/node_modules/util/node_modules/inherits/inherits_browser.js'),
-    'is-array': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/is-array'),
-    'ieee754': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/ieee754'),
-    'base64-js': require.resolve('webpack/node_modules/node-libs-browser/node_modules/buffer/node_modules/base64-js'),
-    'object-assign': require.resolve('object-assign')
-  });
-
-  // set aliases for either bower or npm distribution of React
-  if (fs.existsSync(packagePath('react/react-with-addons.js'))) {
-    // because we want to bundle React once for addons and non-addons requires
-    setResolveAliases(config, {
-      'react/addons': packagePath('react/react-with-addons.js'),
-      'react': packagePath('react/react-with-addons.js')
-    });
-  } else {
-    // just to be consistent with bower version
-    setResolveAliases(config, {
-      'react/addons': packagePath('react/addons.js'),
-      'react': packagePath('react/addons.js')
-    });
-  }
+  set(config, 'watchOptions.aggregateTimeout', 200);
 
   setResolveAliasesFromPackages(config, [pkg].concat(deps));
 
@@ -119,45 +103,37 @@ function configureWebpack(config) {
   set(config, 'output.filename', 'bundle.js');
   unshift(config, 'module.loaders', [
     {
-      test: /\.js$/,
-      loader: 'jsx-loader?harmony=true&es5=true&stripTypes=true'
+      test: /\.less$/,
+      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?-minimize!less-loader')
     },
-    { test: /\.less$/,
-      loaders: [
-        ExtractTextPlugin.loader(),
-        'css-loader',
-        'less-loader'
-      ]
-    },
-    { test: /\.css$/,
-      loaders: [
-        ExtractTextPlugin.loader(),
-        'css-loader'
-      ]
+    {
+      test: /\.css$/,
+      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?-minimize')
     },
     { test: /\.png$/, loader: 'url-loader?prefix=img/&limit=5000' },
 		{ test: /\.jpg$/, loader: 'url-loader?prefix=img/&limit=5000' },
 		{ test: /\.gif$/, loader: 'url-loader?prefix=img/&limit=5000' },
-		{ test: /\.eot$/, loader: 'file-loader?prefix=font/' },
-		{ test: /\.ttf$/, loader: 'file-loader?prefix=font/' },
-		{ test: /\.svg$/, loader: 'file-loader?prefix=font/' },
-		{ test: /\.woff$/, loader: 'url-loader?prefix=font/&limit=5000' },
-		{ test: /\.woff2$/, loader: 'url-loader?prefix=font/&limit=5000' }
+		{ test: /\.eot(\?[a-z0-9]+)?$/, loader: 'file-loader?prefix=font/' },
+		{ test: /\.ttf(\?[a-z0-9]+)?$/, loader: 'file-loader?prefix=font/' },
+		{ test: /\.svg(\?[a-z0-9]+)?$/, loader: 'file-loader?prefix=font/' },
+		{ test: /\.woff(\?[a-z0-9]+)?$/, loader: 'url-loader?prefix=font/&limit=5000' },
+		{ test: /\.woff2(\?[a-z0-9]+)?$/, loader: 'url-loader?prefix=font/&limit=5000' }
   ]);
 
   unshift(config, 'resolveLoader.root', process.env.NODE_PATH);
   unshift(config, 'resolveLoader.root', path.join(process.cwd(), 'node_modules'));
 
-  unshift(config, 'resolve.root', packageDirectory);
-  set(config, 'resolve.modulesDirectories', []);
+  unshift(config, 'resolve.fallback', packageDirectory);
   unshift(config, 'resolve.extensions', ['', '.js']);
 
   unshift(config, 'plugins' ,[
+    new DeactivateResultSymlinkPlugin(),
+    new PackageLoadersPlugin({
+      packageMeta: ['package.json'],
+      loadersKeyPath: ['rex', 'loaders'],
+      injectLoaders: injectDefaultLoaders
+    }),
     new ExtractTextPlugin('bundle.css'),
-    new webpack.ResolverPlugin([
-      new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin(
-        'bower.json', ['main'])
-    ], ['normal']),
     new webpack.DefinePlugin({
       // used to guard code to run only in development
       __DEV__: DEV,
@@ -172,6 +148,37 @@ function configureWebpack(config) {
   ]);
 
   return config;
+}
+
+function DeactivateResultSymlinkPlugin() {
+}
+
+DeactivateResultSymlinkPlugin.prototype.apply = function(compiler) {
+  var apply = compiler.resolvers.normal.apply.bind(compiler.resolvers.normal);
+  compiler.resolvers.normal.apply = function() {
+    var plugins = [];
+    for (var i = 0; i < arguments.length; i++) {
+      var plugin = arguments[i];
+      if (plugin && plugin.constructor && plugin.constructor.name === 'ResultSymlinkPlugin') {
+        continue;
+      }
+      plugins.push(plugin);
+    }
+    return apply.apply(null, plugins);
+  };
+}
+
+function injectDefaultLoaders(packageMeta, packageDirname, filename) {
+  if (packageMeta.rex !== undefined && packageMeta.rex.loaders === undefined) {
+    return [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader?stage=0'
+      }
+    ];
+  } else {
+    return [];
+  }
 }
 
 function setResolveAliasesFromPackages(config, packages) {

@@ -1,8 +1,0 @@
-{
-  "name": "pkg",
-  "version": "0.0.0",
-  "main": "./lib/index.js",
-  "dependencies": {
-    "react": "http://registry.npmjs.org/react/-/react-0.12.0.tgz"
-  }
-}

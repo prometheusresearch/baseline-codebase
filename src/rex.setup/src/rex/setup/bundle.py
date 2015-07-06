@@ -10,6 +10,7 @@ import distutils.errors, distutils.dir_util
 import setuptools, setuptools.command.install, setuptools.command.develop, \
         setuptools.command.sdist
 import pkg_resources
+from . import commonjs
 
 
 def check_bundle(dist, attr, value):
@@ -33,14 +34,6 @@ def write_bundle(cmd, basename, filename):
         bundle = json.dumps(bundle, indent=2)
         bundle = "".join(line.rstrip()+"\n" for line in bundle.splitlines())
     cmd.write_or_delete_file("rex_bundle", filename, bundle)
-
-
-def read_bundle(dist):
-    # Reads bundle mapping for a distribution
-    if not dist.has_metadata("rex_bundle.txt"):
-        return None
-    data = dist.get_metadata("rex_bundle.txt")
-    return json.loads(data)
 
 
 class bundle(setuptools.Command):
@@ -129,8 +122,9 @@ class bundle(setuptools.Command):
                 # may not be installed yet.
                 if dist is None:
                     # Make sure `*.egg-info` is built.
-                    self.run_command('egg_info')
                     ei_cmd = self.get_finalized_command('egg_info')
+                    if not os.path.exists(ei_cmd.egg_info):
+                        self.run_command('egg_info')
                     dist = pkg_resources.Distribution(
                             ei_cmd.egg_base,
                             pkg_resources.PathMetadata(
@@ -157,6 +151,12 @@ class bundle(setuptools.Command):
                             stream.write(self.rex_static)
                     else:
                         rex_static_txt = None
+                    # Optionally install CommonJS package (if webpack generator is active
+                    # for the distribution)
+                    if self.rex_bundle and any(gen.startswith('webpack:')
+                                            for item in self.rex_bundle.values()
+                                            for gen in item):
+                        commonjs.install_package(dist, skip_if_installed=True)
                 # Populate the directory from a set of URLs.
                 for url in self.rex_bundle[base]:
                     # Find and invoke an appropriate generator.

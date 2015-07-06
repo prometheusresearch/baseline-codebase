@@ -20,10 +20,10 @@ tests:
     sh: sh -c 'mkdir ./sandbox/src; cp -a ./demo ./sandbox/src/rex.setup_demo'
   - &cleanup
     sh: find sandbox '('
-        -wholename '*/static/www/jquery' -o
-        -wholename '*/static/www/bootstrap' -o
-        -wholename '*/static/www/doc' -o
-        -wholename '*/static/www/bundle' -o
+        -wholename 'rex.setup_demo/static/www/jquery' -o
+        -wholename 'rex.setup_demo/static/www/bootstrap' -o
+        -wholename 'rex.setup_demo/static/www/doc' -o
+        -wholename 'static/www/bundle' -o
         -name node_modules -o
         -name bower_components ')'
         -exec rm -rf '{}' ';'
@@ -50,7 +50,7 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo/js
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
+  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
     environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.
@@ -84,7 +84,7 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo/js
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
+  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
     environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.
@@ -140,7 +140,7 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo/js
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js/bower_components
+  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
     environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.
@@ -172,26 +172,6 @@ tests:
     cd: sandbox
   - *cleanup
   - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/www/bundle
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
-    cd: sandbox
-  - rmdir: sandbox
-
-- title: Package with "react" from bower
-  suite: js_react_bower
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_bower ./src/pkg'
-    cd: sandbox
-  - *cleanup
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/js
-    environ: { LC_ALL: C }
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }

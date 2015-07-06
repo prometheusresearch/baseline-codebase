@@ -67,7 +67,7 @@ class Time extends Question {
   }
 
   clone(exact, configurationScope) {
-    var newElm = supers.clone(exact, configurationScope);
+    var newElm = super.clone(exact, configurationScope);
     newElm.range = deepCopy(this.range);
     return newElm;
   }

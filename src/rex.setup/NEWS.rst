@@ -4,18 +4,21 @@
 
 .. contents:: Table of Contents
 
+
 3.0.0 (XXXX-XX-XX)
 ==================
 
-* JS packages are now managed with npm v3
+* JS packages are now managed with npm v3.
 
-* Use core-js set of polyfills (only Object.assign currently)
+* Use core-js set of polyfills (only Object.assign currently).
+
 
 2.4.0 (2015-06-26)
 ==================
 
 * Do not install bower components for packages with no webpack generator
   defined.
+
 
 2.3.1 (2015-06-01)
 ==================

@@ -23,7 +23,7 @@ class DropDownMenu extends Enumeration {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var field = context.getCurrentSerializationField(instrument);
     objectPath.set(field, 'type.base', 'enumeration');

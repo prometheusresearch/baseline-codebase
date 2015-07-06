@@ -57,7 +57,7 @@ class PageStart extends ContentElement {
   }
 
   clone(exact, configurationScope) {
-    var newElm = super(exact, configurationScope);
+    var newElm = super.clone(exact, configurationScope);
     newElm.id = this.id;
 
     if (!exact) {

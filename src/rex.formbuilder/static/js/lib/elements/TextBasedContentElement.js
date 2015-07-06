@@ -38,13 +38,13 @@ class TextBasedContentElement extends ContentElement {
   }
 
   clone(exact, configurationScope) {
-    var newElm = super(exact, configurationScope);
+    var newElm = super.clone(exact, configurationScope);
     newElm.text = deepCopy(this.text);
     return newElm;
   }
 
   parse(element) {
-    super(element);
+    super.parse(element);
     this.text = element.options.text;
   }
 
@@ -52,7 +52,7 @@ class TextBasedContentElement extends ContentElement {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var elm = context.getCurrentSerializationElement(form);
     objectPath.set(elm, 'options.text', this.text);

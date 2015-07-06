@@ -38,7 +38,7 @@ class Numeric extends Question {
   }
 
   parse(element, instrument, field) {
-    super(element, instrument, field);
+    super.parse(element, instrument, field);
     this.range = objectPath.get(field, 'type.range', {});
   }
 
@@ -46,7 +46,7 @@ class Numeric extends Question {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var field = context.getCurrentSerializationField(instrument);
     if (!isEmpty(this.range)) {
@@ -63,7 +63,7 @@ class Numeric extends Question {
   }
 
   clone(exact, configurationScope) {
-    var newElm = super(exact, configurationScope);
+    var newElm = super.clone(exact, configurationScope);
     newElm.range = deepCopy(this.range);
     return newElm;
   }

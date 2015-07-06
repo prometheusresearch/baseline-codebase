@@ -47,7 +47,7 @@ class FieldID extends ReactForms.schema.ScalarNode {
   }
 
   validate(value, childrenValidation) {
-    var error = super(value, childrenValidation);
+    var error = super.validate(value, childrenValidation);
     if (error) {
       return error;
     }

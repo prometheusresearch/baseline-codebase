@@ -50,7 +50,7 @@ class Text extends Question {
   }
 
   parse(element, instrument, field) {
-    super(element, instrument, field);
+    super.parse(element, instrument, field);
     this.length = objectPath.get(field, 'type.length', {});
     this.pattern = objectPath.get(field, 'type.pattern', null);
   }
@@ -59,7 +59,7 @@ class Text extends Question {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var field = context.getCurrentSerializationField(instrument);
     if (!isEmpty(this.length) || this.pattern) {
@@ -81,7 +81,7 @@ class Text extends Question {
   }
 
   clone(exact, configurationScope) {
-    var newElm = super(exact, configurationScope);
+    var newElm = super.clone(exact, configurationScope);
     newElm.length = deepCopy(this.length);
     newElm.pattern = this.pattern;
     return newElm;

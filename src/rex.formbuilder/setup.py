@@ -35,11 +35,6 @@ setup(
         'rex.form_previewer>=0.2,<0.5',
     ],
     rex_init='rex.formbuilder',
-    rex_static='static',
-    rex_bundle={
-        './www/bundle': [
-            'webpack:',
-        ],
-    },
+    rex_static='static'
 )
 

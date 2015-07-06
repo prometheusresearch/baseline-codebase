@@ -42,7 +42,7 @@ class Time extends Question {
   }
 
   parse(element, instrument, field) {
-    super(element, instrument, field);
+    super.parse(element, instrument, field);
     this.range = objectPath.get(field, 'type.range', {});
   }
 
@@ -50,7 +50,7 @@ class Time extends Question {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var field = context.getCurrentSerializationField(instrument);
     if (!isEmpty(this.range)) {
@@ -67,7 +67,7 @@ class Time extends Question {
   }
 
   clone(exact, configurationScope) {
-    var newElm = super(exact, configurationScope);
+    var newElm = supers.clone(exact, configurationScope);
     newElm.range = deepCopy(this.range);
     return newElm;
   }

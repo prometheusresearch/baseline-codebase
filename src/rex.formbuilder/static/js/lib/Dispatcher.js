@@ -19,7 +19,7 @@ class Dispatcher extends flux.Dispatcher {
       action.id,
       action
     );*/
-    return super(action);
+    return super.dispatch(action);
   }
 }
 

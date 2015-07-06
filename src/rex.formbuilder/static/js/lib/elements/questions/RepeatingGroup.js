@@ -48,7 +48,7 @@ class RepeatingGroup extends RecordList {
   }
 
   parse(element, instrument, field) {
-    super(element, instrument, field);
+    super.parse(element, instrument, field);
 
     this.addLabel = objectPath.get(
       element,
@@ -66,7 +66,7 @@ class RepeatingGroup extends RecordList {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var elm = context.getCurrentSerializationElement(form);
     if ((!isEmpty(this.addLabel)) || (!isEmpty(this.removeLabel))) {
@@ -90,7 +90,7 @@ class RepeatingGroup extends RecordList {
   }
 
   clone(exact, configurationScope) {
-    var newElm = super(exact, configurationScope);
+    var newElm = super.clone(exact, configurationScope);
     newElm.addLabel = deepCopy(this.addLabel);
     newElm.removeLabel = deepCopy(this.removeLabel);
     return newElm;

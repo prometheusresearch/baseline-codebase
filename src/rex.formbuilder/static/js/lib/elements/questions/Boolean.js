@@ -23,7 +23,7 @@ class BooleanQuestion extends Question {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var field = context.getCurrentSerializationField(instrument);
     field.type = 'boolean';

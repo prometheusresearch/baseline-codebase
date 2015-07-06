@@ -6,7 +6,7 @@
 
 var assign = require('object-assign');
 var deepCopy = require('deep-copy');
-var EventEmitter = require('emitter');
+var EventEmitter = require('component-emitter');
 
 var {Ajax} = require('../util');
 var Dispatcher = require('../Dispatcher');

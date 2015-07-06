@@ -34,7 +34,7 @@ class RangedProperty extends ReactForms.schema.MappingNode {
   }
 
   validate(value, childrenValidation) {
-    var error = super(value, childrenValidation);
+    var error = super.validate(value, childrenValidation);
     if (error) {
       return error;
     }

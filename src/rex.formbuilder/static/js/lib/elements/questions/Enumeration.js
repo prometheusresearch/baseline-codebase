@@ -46,13 +46,13 @@ class Enumeration extends Question {
   }
 
   clone(exact, configurationScope) {
-    var newElm = super(exact, configurationScope);
+    var newElm = super.clone(exact, configurationScope);
     newElm.enumerations = deepCopy(this.enumerations);
     return newElm;
   }
 
   parse(element, instrument, field) {
-    super(element, instrument, field);
+    super.parse(element, instrument, field);
 
     var enumerations = objectPath.get(element, 'options.enumerations', []);
     enumerations = enumerations.map((enumeration) => {
@@ -89,7 +89,7 @@ class Enumeration extends Question {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var field = context.getCurrentSerializationField(instrument);
     objectPath.set(field, 'type.enumerations', {});

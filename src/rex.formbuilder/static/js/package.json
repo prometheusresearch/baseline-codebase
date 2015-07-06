@@ -1,14 +1,29 @@
 {
   "name": "rex-formbuilder",
   "version": "5.2.2",
-  "description": "JavaScript functionality for the rex.formbuilder application",
-  "author": "Prometheus Research, LLC",
-  "license": "AGPL-3.0",
-  "repository": {
-    "type": "hg",
-    "url": "https://bitbucket.org/rexdb/rex.formbuilder"
-  },
   "main": "lib/index.js",
+  "rex": {
+    "bundleAll": true,
+    "dependencies": {
+      "rex-forms": false,
+      "rex-form-previewer": false
+    }
+  },
+  "peerDependencies": {
+    "react": "^0.13.0"
+  },
+  "dependencies": {
+    "flux": "^2.0.1",
+    "object-assign": "^1.0.0",
+    "object-path": "~0.8.1",
+    "component-emitter": "1.1.2",
+    "deep-equal": "0.0.0",
+    "deep-copy": "*",
+    "n-deep-merge": "*",
+    "qwest": "1.5.11",
+    "react-dnd": "prometheusresearch/react-dnd#npm_react_hack",
+    "react-forms": "prometheusresearch/react-forms#master"
+  },
   "devDependencies": {
     "webpack": "1.4.x",
     "istanbul-instrumenter-loader": "~0.1.2",

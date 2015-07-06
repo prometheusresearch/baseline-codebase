@@ -20,7 +20,7 @@ class Float extends Numeric {
   }
 
   serialize(instrument, form, context) {
-    return super(instrument, form, context, 'float');
+    return super.serialize(instrument, form, context, 'float');
   }
 }
 

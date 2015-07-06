@@ -23,7 +23,7 @@ class LongText extends Text {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var elm = context.getCurrentSerializationElement(form);
     objectPath.set(elm, 'options.widget.type', 'textArea');

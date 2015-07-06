@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015, Prometheus Research, LLC
  */
@@ -5,7 +6,7 @@
 'use strict';
 
 var assign = require('object-assign');
-var EventEmitter = require('emitter');
+var EventEmitter = require('component-emitter');
 
 var Dispatcher = require('../Dispatcher');
 var constants = require('../constants');

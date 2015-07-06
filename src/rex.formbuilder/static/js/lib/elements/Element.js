@@ -100,6 +100,7 @@ class Element extends SerializationContext {
   }
 
   constructor() {
+    super();
     this.tags = [];
     this.EID = ELEMENT_COUNTER++;
   }

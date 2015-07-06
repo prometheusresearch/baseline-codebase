@@ -20,7 +20,7 @@ class Integer extends Numeric {
   }
 
   serialize(instrument, form, context) {
-    return super(instrument, form, context, 'integer');
+    return super.serialize(instrument, form, context, 'integer');
   }
 }
 

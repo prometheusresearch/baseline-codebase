@@ -126,7 +126,7 @@ class Question extends Element {
   }
 
   parse(element, instrument, field) {
-    super(element, instrument);
+    super.parse(element, instrument);
     this.id = element.options.fieldId;
     this.text = element.options.text;
     this.help = objectPath.get(element, 'options.help', {});
@@ -158,7 +158,7 @@ class Question extends Element {
     context = context || this;
 
     /*eslint no-redeclare:0 */
-    var {instrument, form} = super(instrument, form, context);
+    var {instrument, form} = super.serialize(instrument, form, context);
 
     var field = {
       id: this.id
@@ -189,7 +189,7 @@ class Question extends Element {
   }
 
   clone(exact, configurationScope) {
-    var newElm = super(exact, configurationScope);
+    var newElm = super.clone(exact, configurationScope);
     newElm.id = this.id;
 
     if (!exact) {

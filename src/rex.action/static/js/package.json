@@ -1,7 +1,4 @@
 {
   "name": "rex-action",
   "version": "0.2.2",
-  "dependencies": {
-    "jsx-loader": "git+https://github.com/andreypopp/jsx-loader.git#442c510e0a"
-  }
 }

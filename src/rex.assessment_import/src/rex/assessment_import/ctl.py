@@ -30,7 +30,7 @@ class AssessmentTemplateExportTask(RexTask):
             str,
             default=None,
             value_name='VERSION',
-            hint='the version of the Instrument to retrieve; if not specified,'
+            hint='the version of the Instrument to export template; if not specified,'
             ' defaults to the latest version',
         )
 
@@ -81,7 +81,6 @@ class AssessmentTemplateExportTask(RexTask):
         instrument = Instrument.create(instrument_version,
                                        default_template_fields)
         for (obj_id, template) in instrument.template.items():
-            print obj_id, template
             filepath = os.path.join(path, '%s.csv' % obj_id)
             with open(filepath, 'w') as csvfile:
                 writer = csv.DictWriter(csvfile,
@@ -92,6 +91,11 @@ class AssessmentTemplateExportTask(RexTask):
 
 class AssessmentImportTask(RexTask):
     """
+    imports Assessment data given as a bunch of csv files to the datastore.
+
+    The instrument-uid argument is the UID of the desired Instrument in
+    the data store.
+
     """
 
     name = 'assessment-import'
@@ -105,8 +109,8 @@ class AssessmentImportTask(RexTask):
             str,
             default=None,
             value_name='VERSION',
-            hint='the version of the Instrument to retrieve; if not specified,'
-            ' defaults to the latest version',
+            hint='the version of the Instrument to generate assessments for;'
+            ' if not specified, defaults to the latest version',
         )
         input = option(
             None,

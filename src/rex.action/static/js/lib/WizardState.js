@@ -4,6 +4,7 @@
  */
 'use strict';
 
+var React                     = require('react');
 var invariant                 = require('rex-widget/lib/invariant');
 var qs                        = require('rex-widget/lib/qs');
 var {actionAllowedInContext}  = require('./getNextActions');

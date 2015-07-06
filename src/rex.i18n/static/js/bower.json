@@ -16,7 +16,7 @@
     "jed": "1.0.2",
     "jstimezonedetect": "^1.0.5",
     "globalize": "https://github.com/jayclassless/globalize.git#webpack_compatibility",
-    "es6-promise-polyfill": "^1.0.0",
+    "bluebird": "http://registry.npmjs.org/bluebird/-/bluebird-2.9.13.tgz#*",
     "deepmerge": "^0.2.9"
   },
   "ignore": [

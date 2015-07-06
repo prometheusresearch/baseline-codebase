@@ -2,7 +2,7 @@
 
 
 var Jed = require('jed');
-var Promise = require('es6-promise-polyfill').Promise;
+var Promise = require('bluebird');
 
 var util = require('./util');
 

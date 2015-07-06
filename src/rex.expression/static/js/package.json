@@ -1,0 +1,5 @@
+{
+  "name": "rex-expression",
+  "version": "1.5.1",
+  "main": "lib/index.js"
+}

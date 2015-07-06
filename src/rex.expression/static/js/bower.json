@@ -5,7 +5,7 @@
     "Prometheus Research, LLC"
   ],
   "description": "rex.expression javascript library",
-  "main": "index.js",
+  "main": "lib/index.js",
   "moduleType": [
     "globals",
     "node"

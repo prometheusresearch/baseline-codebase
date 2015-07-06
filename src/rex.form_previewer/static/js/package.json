@@ -1,6 +1,13 @@
 {
   "name": "rex-form-previewer",
   "version": "0.4.2",
+  "description": "JavaScript and CSS for the Form Previewer application",
+  "author": "Prometheus Research, LLC",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/rexdb/rex.form_previewer"
+  },
   "main": "lib/index.js",
   "rex": {
     "loaders": [

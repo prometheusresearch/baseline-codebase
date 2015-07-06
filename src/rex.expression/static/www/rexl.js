@@ -1,1 +1,1 @@
-../js/index.js
+../js/lib/index.js

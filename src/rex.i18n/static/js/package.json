@@ -1,6 +1,6 @@
 {
   "name": "rex-i18n",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "main": "lib/index.js",
   "dependencies": {
     "jed": "1.0.2",

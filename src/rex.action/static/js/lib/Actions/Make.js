@@ -3,26 +3,23 @@
  */
 'use strict';
 
-var React               = require('react');
-var RexWidget           = require('rex-widget');
-var emptyFunction       = require('rex-widget/lib/emptyFunction');
-var Action              = require('../Action');
-var {boxShadow}         = RexWidget.StyleUtils;
-var {VBox, HBox}        = RexWidget.Layout;
-var DS                  = RexWidget.DataSpecification;
-var {Forms}             = RexWidget;
+import React          from 'react';
+import RexWidget      from 'rex-widget';
+import emptyFunction  from 'rex-widget/lib/emptyFunction';
+import Action         from '../Action';
+import buildValue     from '../buildValueFromContext';
 
-var Style = {
+let Style = {
   submitButton: {
     width: '25%'
   }
 };
 
-var Make = React.createClass({
+let Make = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin],
 
   dataSpecs: {
-    data: DS.entity()
+    data: RexWidget.DataSpecification.entity()
   },
 
   propTypes: {
@@ -36,7 +33,7 @@ var Make = React.createClass({
     var title = this.constructor.getTitle(this.props);
     return (
       <Action title={title} width={width} onClose={onClose} renderFooter={this.renderFooter}>
-        <Forms.ConfigurableEntityForm
+        <RexWidget.Forms.ConfigurableEntityForm
           insert
           key={this.getKey()}
           ref="form"
@@ -111,36 +108,4 @@ var Make = React.createClass({
   }
 });
 
-function buildValue(spec, context) {
-  var value;
-  if (Array.isArray(spec)) {
-    value = [];
-    for (var i = 0; i < spec.length; i++) {
-      var item = buildValue(spec[i], context);
-      if (!isEmptyValue(item)) {
-        value.push(item);
-      }
-    }
-  } else {
-    value = {};
-    for (var key in spec) {
-      var item = spec[key];
-      if (item[0] === '$') {
-        value[key] = context[item.substr(1)];
-      } else {
-        value[key] = item;
-      }
-      if (typeof value[key] === 'object') {
-        value[key] = buildValue(value[key], context);
-      }
-    }
-  }
-  return value;
-}
-
-function isEmptyValue(obj) {
-  return Object.keys(obj).filter(k => obj[k] != undefined).length === 0;
-}
-
-module.exports = Make;
-
+export default Make;

@@ -7,9 +7,11 @@
 
 """
 
+from collections import OrderedDict
+
 from cached_property import cached_property
 
-from rex.core import MaybeVal, SeqVal, StrVal, MapVal, AnyVal
+from rex.core import MaybeVal, SeqVal, StrVal, MapVal, AnyVal, OMapVal
 from rex.port import Port
 from rex.widget import Field, FormFieldsetVal, responder, PortURL, undefined
 from rex.widget import formfield, dataspec
@@ -95,6 +97,9 @@ class Make(Action):
         Text for submit button.
         """)
 
+    input = Field(
+        OMapVal(StrVal(), StrVal()), default=OrderedDict())
+
     def __init__(self, **values):
         super(Make, self).__init__(**values)
         if self.fields is None:
@@ -119,9 +124,7 @@ class Make(Action):
         return self.port(req)
 
     def context(self):
-        input = {v[1:]: v[1:]
-                 for v in self.value.values()
-                 if isinstance(v, basestring) and v.startswith('$')}
+        input = self.input or {}
         output = {self.entity.name: self.entity.type}
         return input, output
 

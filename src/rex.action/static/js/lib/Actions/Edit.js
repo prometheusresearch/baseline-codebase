@@ -3,21 +3,18 @@
  */
 'use strict';
 
-var React               = require('react');
-var RexWidget           = require('rex-widget');
-var {boxShadow}         = RexWidget.StyleUtils;
-var DS                  = RexWidget.DataSpecification;
-var Action              = require('../Action');
-var {VBox, HBox}        = RexWidget.Layout;
-var {Forms}             = RexWidget;
+import React          from 'react';
+import RexWidget      from 'rex-widget';
+import Action         from '../Action';
+import buildValue     from '../buildValueFromContext';
 
-var Style = {
+let Style = {
   submitButton: {
     width: '25%'
   }
 };
 
-var Edit = React.createClass({
+let Edit = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin],
 
   propTypes: {
@@ -26,7 +23,7 @@ var Edit = React.createClass({
   },
 
   dataSpecs: {
-    data: DS.entity()
+    data: RexWidget.DataSpecification.entity()
   },
 
   fetchDataSpecs: {
@@ -64,7 +61,7 @@ var Edit = React.createClass({
     var {entity, fields, value, context} = this.props;
     value = mergeDeepInto(this.data.data.data, buildValue(value, context));
     return (
-      <Forms.ConfigurableEntityForm
+      <RexWidget.Forms.ConfigurableEntityForm
         ref="form"
         submitTo={this.dataSpecs.data}
         submitButton={null}
@@ -97,6 +94,8 @@ var Edit = React.createClass({
   }
 });
 
+export default Edit;
+
 function mergeDeepInto(a, b) {
   a = {...a};
   for (var k in b) {
@@ -110,21 +109,3 @@ function mergeDeepInto(a, b) {
   }
   return a;
 }
-
-function buildValue(spec, context) {
-  var value = {};
-  for (var key in spec) {
-    var item = spec[key];
-    if (item[0] === '$') {
-      value[key] = context[item.substr(1)];
-    } else {
-      value[key] = item;
-    }
-    if (typeof value[key] === 'object') {
-      value[key] = buildValue(value[key], context);
-    }
-  }
-  return value;
-}
-
-module.exports = Edit;

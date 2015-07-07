@@ -26,10 +26,7 @@ function getPackageMetadata(directory) {
 
 function getListOfDependencies(packageMetadata, seen) {
   seen = seen || {};
-  if (!packageMetadata || !packageMetadata.dependencies) {
-    return [];
-  }
-  var mask = packageMetadata.rex && packageMetadata.rex.dependencies || null;
+  var mask = packageMetadata && packageMetadata.rex && packageMetadata.rex.dependencies || null;
   var dependencies = fs.readdirSync(packageDirectory)
     .map(function(dir) { return path.join(packageDirectory, dir); })
     .map(getPackageMetadata)
@@ -88,9 +85,9 @@ function configureWebpack(config) {
 
   // add package entry point
   if (pkg.rex && pkg.rex.bundleAll) {
-    addEntry(config, 'rex-setup/introspection/loader?all!' + cwd);
+    addEntry(config, 'rex-setup/introspection/loader?all!./');
   } else {
-    addEntry(config, cwd);
+    addEntry(config, './');
   }
 
   addEntry(config, require.resolve('core-js/modules/es6.object.assign'));

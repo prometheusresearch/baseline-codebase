@@ -30,24 +30,16 @@ function readMetadata(fs, directory, filename, cb) {
 }
 
 function findPackageMetadata(fs, directory, cb) {
-  readMetadata(fs, directory, 'bower.json', function(err, metadata) {
+  readMetadata(fs, directory, 'package.json', function(err, metadata) {
     if (err) {
       cb(err);
     } else if (metadata === null) {
-      readMetadata(fs, directory, 'package.json', function(err, metadata) {
-        if (err) {
-          cb(err);
-        } else if (metadata === null) {
-          var nextDirectory = path.join(directory, '..');
-          if (nextDirectory === directory) {
-            cb(null, null, null);
-          } else {
-            findPackageMetadata(fs, nextDirectory, cb);
-          }
-        } else {
-          cb(null, metadata, directory);
-        }
-      });
+      var nextDirectory = path.join(directory, '..');
+      if (nextDirectory === directory) {
+        cb(null, null, null);
+      } else {
+        findPackageMetadata(fs, nextDirectory, cb);
+      }
     } else {
       cb(null, metadata, directory);
     }

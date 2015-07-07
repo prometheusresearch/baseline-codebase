@@ -269,11 +269,19 @@ class InitializeAttach(Initialize):
         settings = get_settings()
         attach_dir = settings.attach_dir
         if attach_dir is None:
-            raise Error("Attachment storage is not specified")
+            raise Error(
+                "Attachment storage (%s) is not specified" \
+                % AttachDirSetting.name)
         if not os.path.isdir(attach_dir):
-            raise Error("Attachment storage does not exist:", attach_dir)
+            raise Error(
+                "Attachment storage (%s) does not exist:" \
+                % AttachDirSetting.name,
+                attach_dir)
         if not os.access(attach_dir, os.R_OK|os.W_OK|os.X_OK):
-            raise Error("Attachment storage is not accessible:", attach_dir)
+            raise Error(
+                "Attachment storage (%s) is not accessible:" \
+                % AttachDirSetting.name,
+                attach_dir)
 
 
 class HandleAttachLocation(HandleLocation):

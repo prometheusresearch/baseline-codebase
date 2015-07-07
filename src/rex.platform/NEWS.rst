@@ -10,6 +10,8 @@
 
 * rex.instrument=0.18.0
 * rex.forms==0.31.0
+* rex.setup==3.0.0
+* rex.action==0.3.0
 
 
 4.6.1 (2015-06-29)

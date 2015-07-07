@@ -43,13 +43,13 @@ should be writable::
     >>> Rex('rex.attach_demo')                                      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Attachment storage is not specified
+    Error: Attachment storage (attach_dir) is not specified
     ...
 
     >>> Rex('rex.attach_demo', attach_dir="./sandbox/missing")      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Attachment storage does not exist:
+    Error: Attachment storage (attach_dir) does not exist:
         ./sandbox/missing
     ...
 

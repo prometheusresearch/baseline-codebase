@@ -65,9 +65,9 @@ var RepeatingFieldset = React.createClass({
         <VBox>
           {fieldsets}
         </VBox>
-        {formValue.errors.length > 0 &&
+        {formValue.errorList.length > 0 &&
           <VBox style={RepeatingFieldsetStyle.errors}>
-            {formValue.errors.map((error, idx) =>
+            {formValue.errorList.map((error, idx) =>
               <VBox key={idx}>{error.message}</VBox>)}
           </VBox>}
         <VBox>

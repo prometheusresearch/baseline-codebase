@@ -465,9 +465,9 @@ describe('SchemaUtils', function() {
           format: Validation.string
         });
         v('x');
-        expect(v.errors).toEqual(null);
+        expect(v.errorList).toEqual(null);
         v(42);
-        expect(v.errors).toEqual([{field: 'data', message: 'is the wrong type'}]);
+        expect(v.errorList).toEqual([{field: 'data', message: 'is the wrong type'}]);
       });
 
       it('with pattern', function() {
@@ -477,9 +477,9 @@ describe('SchemaUtils', function() {
           formatPattern: '[0-9]+'
         });
         v('x');
-        expect(v.errors).toEqual([{ field : 'data', message : 'does not match the pattern' }]);
+        expect(v.errorList).toEqual([{ field : 'data', message : 'does not match the pattern' }]);
         v('42');
-        expect(v.errors).toEqual(null);
+        expect(v.errorList).toEqual(null);
       });
 
       it('with pattern and error message', function() {
@@ -490,9 +490,9 @@ describe('SchemaUtils', function() {
           formatError: 'should be a number'
         });
         v('x');
-        expect(v.errors).toEqual([{ field : 'data', message : 'should be a number' }]);
+        expect(v.errorList).toEqual([{ field : 'data', message : 'should be a number' }]);
         v('42');
-        expect(v.errors).toEqual(null);
+        expect(v.errorList).toEqual(null);
       });
 
     });

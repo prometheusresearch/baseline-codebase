@@ -1,15 +1,10 @@
 {
   "name": "rex-widget-demo",
   "version": "1.0.3",
-  "description": "TodoMVC in RexDB",
   "main": "./lib/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "rex": {
   },
-  "author": "",
-  "license": "AGPLv3",
-  "devDependencies": {
-    "jsx-loader": "git+https://github.com/andreypopp/jsx-loader.git#442c510e0a",
-    "codemirror": "^4.12.0"
+  "dependencies": {
+    "react": "^0.13.2"
   }
 }

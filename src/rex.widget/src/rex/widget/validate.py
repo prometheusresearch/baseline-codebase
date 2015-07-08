@@ -22,25 +22,43 @@ from .field import Field
 __all__ = ('WidgetVal', 'Deferred', 'DeferredVal')
 
 
-class Deferred(object):
+class DeferredConstruction(object):
 
-    __slots__ = ('loader', 'node')
+    __slots__ = ('loader', 'node', 'validate')
 
-    def __init__(self, loader, node):
+    def __init__(self, loader, node, validate):
         self.loader = loader
         self.node = node
+        self.validate = validate
 
-    def construct(self, validate=AnyVal()):
+    def resolve(self, validate=None):
+        validate = validate or self.validate or AnyVal()
         return validate.construct(self.loader, self.node)
+
+
+class DeferredValidation(object):
+
+    __slots__ = ('value', 'validate')
+
+    def __init__(self, value, validate):
+        self.value = value
+        self.validate = validate
+
+    def resolve(self, validate=None):
+        validate = validate or self.validate or AnyVal()
+        return validate(self.value)
 
 
 class DeferredVal(Validate):
 
+    def __init__(self, validate=None):
+        self.validate = validate
+
     def __call__(self, value):
-        return value
+        return DeferredValidation(value, self.validate)
 
     def construct(self, loader, node):
-        return Deferred(loader, node)
+        return DeferredConstruction(loader, node, self.validate)
 
 
 class WidgetVal(Validate):

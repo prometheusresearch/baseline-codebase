@@ -180,7 +180,7 @@ because, in comparison to other package managers, npm allows the same package
 appear twice with different incompatible versions. For example different parts
 of an app can rely on different incompatible ``react-forms`` package versions
 and still function correctly. This is not possible with ``React`` or ``jQuery``
-and this is why we force it to be peer dependencies.
+and this is why we force them to be peer dependencies.
 
 Both types of dependencies could be referenced from JavaScript code using
 CommonJS_ ``require()`` function.  For example, to use jQuery, you may write::

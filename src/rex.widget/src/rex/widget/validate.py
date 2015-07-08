@@ -55,6 +55,8 @@ class DeferredVal(Validate):
         self.validate = validate
 
     def __call__(self, value):
+        if isinstance(value, (DeferredConstruction, DeferredValidation)):
+            return value
         return DeferredValidation(value, self.validate)
 
     def construct(self, loader, node):

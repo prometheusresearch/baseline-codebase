@@ -1,24 +1,35 @@
+#
+# Copyright (c) 2015, Prometheus Research, LLC
+#
+
+
 from setuptools import setup, find_packages
+
 
 setup(
     name='rex.about',
-    version='0.0.4',
-    description='Licensing and dependent works declaration',
+    version='0.1.0',
+    description='A RexDB applet for displaying application versions and'
+    ' licensing information',
     long_description=open('README.rst', 'r').read(),
-    maintainer='Prometheus Research, LLC',
+    author='Prometheus Research, LLC',
+    author_email='contact@prometheusresearch.com',
     license='AGPLv3',
-    url='http://bitbucket.org/prometheus/rex.about-provisional',
+    classifiers=[
+        'Programming Language :: Python :: 2.7',
+    ],
+    url='http://bitbucket.org/rexdb/rex.about-provisional',
     package_dir={'':'src'},
     packages=find_packages('src'),
-    namespace_packages=['rex'],
     include_package_data=True,
-    setup_requires=[
-        'rex.setup>=1.0.2, <2',
-    ],
+    namespace_packages=['rex'],
     install_requires=[
-        'rex.urlmap >= 1.0.1, <3',
-        'rex.ui >=1.0.12, <2',
+        'rex.applet>=2,<3',
+        'rex.web>=2,<4',
+        'rex.urlmap>=2,<3',
+        'rex.widget>=1,<2',
     ],
     rex_init='rex.about',
     rex_static='static',
 )
+

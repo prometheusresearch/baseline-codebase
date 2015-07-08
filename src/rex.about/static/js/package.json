@@ -1,0 +1,16 @@
+{
+  "name": "rex-about",
+  "version": "0.1.0",
+  "description": "JavaScript functionality for the rex.about applet",
+  "author": "Prometheus Research, LLC",
+  "license": "AGPL-3.0",
+  "main": "./lib/index.js",
+  "rex": {
+    "style": "./style/index.less",
+    "bundleAll": true
+  },
+  "peerDependencies": {
+    "react": "^0.13.0"
+  }
+}
+

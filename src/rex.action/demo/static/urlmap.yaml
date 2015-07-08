@@ -3,7 +3,7 @@ paths:
   /:
     access: anybody
     widget: !<Wizard>
-      actions:
+      path:
         - pick-date:
         - pick-study:
         - home:
@@ -19,3 +19,133 @@ paths:
           - pick-male:
         - help:
         - about:
+
+      actions:
+        home:
+          type: page
+          title: Home
+          icon: home
+          text: |
+            Welcome to Rex Wizard Demo application.
+
+        about:
+          type: page
+          title: About
+          text: |
+            About page
+
+        help:
+          type: page
+          title: Help
+          text: |
+            Help page
+
+        # study
+
+        pick-study:
+          type: pick
+          entity: study
+          search: title~$search
+          sort:
+            field: title
+          columns:
+          - code
+          - title
+          - description
+
+        view-study:
+          type: view
+          entity: study
+          fields:
+          - code
+          - type: entity
+            value_key: lab
+            data:
+              entity: lab
+              title: title
+          - title
+          - user
+          - closed
+
+        make-individual:
+          type: make
+          entity: individual
+          submit_button: Make
+          fields:
+          - column:
+            - code
+            - sex
+          - row:
+            - column:
+              - mother
+              - father
+            - column:
+              - adopted_mother
+              - adopted_father
+
+        make-study:
+          type: make
+          entity: study
+          fields:
+          - code
+          - lab
+          - type: note
+            value_key: title
+          - closed
+
+        edit-study:
+          type: edit
+          entity: study
+          fields:
+          - value_key: code
+          value:
+            title: HOHOHO
+
+        # individual
+
+        pick-individual:
+          type: pick
+          entity: individual
+          columns:
+          - identity.givenname
+          - identity.surname
+
+        pick-male:
+          type: pick
+          entity: individual
+          title: Pick male
+          mask: sex = 'male'
+
+        pick-study-enrollment:
+          type: pick
+          entity: study_enrollment
+          mask: individual = $individual
+          input:
+          - individual: individual
+
+        view-individual:
+          type: view
+          entity: individual
+          fields:
+          - code
+          - identity.givenname
+          - identity.surname
+          - sex
+
+        pick-date:
+          type: pick-date
+          annotate_month: |
+            /identity?
+              year(birthdate)=$year&
+              month(birthdate)=$month
+            ^(date(birthdate) :as date){
+              date,
+              count(identity) :as value
+            }
+          annotate_year: |
+            /identity?
+              year(birthdate)=$year
+            ^(text(year(birthdate)) + '-' + text(month(birthdate)) :as date){
+              date,
+              count(identity) :as value
+            }

@@ -28,7 +28,7 @@ Action tree
   ...   'view-mother': Action('view-mother', inputs={'mother': 'individual'}, outputs={}),
   ...   'view-mother-study': Action('view-mother-study', inputs={'mother': 'study'}, outputs={}),
   ...   'home': Action('home', inputs={}, outputs={}),
-  ... })
+  ... }, error_if_extra_actions=False)
 
   >>> def parse(yaml):
   ...   return v.parse(yaml)
@@ -45,14 +45,12 @@ Action tree
   >>> parse("""
   ... - pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', None)]),
-             actions={'pick-individual': <Action pick-individual>})
+  ActionTree(tree=OrderedDict([('pick-individual', None)]))
 
   >>> validate("""
   ... - pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', None)]),
-             actions={'pick-individual': <Action pick-individual>})
+  ActionTree(tree=OrderedDict([('pick-individual', None)]))
 
   >>> parse("""
   ... - view-individual:
@@ -63,6 +61,8 @@ Action tree
       Context is missing "individual: individual"
   Context:
       <empty context>
+  While parsing:
+      "<byte string>", line 2
   While parsing:
       "<byte string>", line 2
 
@@ -88,6 +88,8 @@ Action tree
       <empty context>
   While parsing:
       "<byte string>", line 3
+  While parsing:
+      "<byte string>", line 2
 
   >>> validate("""
   ... - pick-individual:
@@ -104,31 +106,25 @@ Action tree
   ... - pick-individual:
   ...   - pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]),
-             actions={'pick-individual': <Action pick-individual>})
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]))
 
   >>> validate("""
   ... - pick-individual:
   ...   - pick-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]),
-             actions={'pick-individual': <Action pick-individual>})
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('pick-individual', None)]))]))
 
   >>> parse("""
   ... - pick-individual:
   ...   - view-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]),
-             actions={'pick-individual': <Action pick-individual>,
-                      'view-individual': <Action view-individual>})
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]))
 
   >>> validate("""
   ... - pick-individual:
   ...   - view-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]),
-             actions={'pick-individual': <Action pick-individual>,
-                      'view-individual': <Action view-individual>})
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('view-individual', None)]))]))
 
   >>> parse("""
   ... - home:
@@ -142,6 +138,8 @@ Action tree
       <empty context>
   While parsing:
       "<byte string>", line 3
+  While parsing:
+      "<byte string>", line 2
 
   >>> validate("""
   ... - home:
@@ -158,17 +156,13 @@ Action tree
   ... - pick-individual:
   ...   - home:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('home', None)]))]),
-             actions={'home': <Action home>,
-                      'pick-individual': <Action pick-individual>})
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('home', None)]))]))
 
   >>> validate("""
   ... - pick-individual:
   ...   - home:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('home', None)]))]),
-             actions={'home': <Action home>,
-                      'pick-individual': <Action pick-individual>})
+  ActionTree(tree=OrderedDict([('pick-individual', OrderedDict([('home', None)]))]))
 
 Keys and types are different, fail::
 
@@ -184,6 +178,8 @@ Keys and types are different, fail::
       study: study (pick-study)
   While parsing:
       "<byte string>", line 3
+  While parsing:
+      "<byte string>", line 2
 
   >>> validate("""
   ... - pick-study:
@@ -210,6 +206,8 @@ Keys aren't same as types, fail::
       mother: individual (pick-mother)
   While parsing:
       "<byte string>", line 3
+  While parsing:
+      "<byte string>", line 2
 
   >>> validate("""
   ... - pick-mother:
@@ -228,16 +226,13 @@ Keys aren't same as types, still match::
   ... - pick-mother:
   ...   - view-mother:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-mother', OrderedDict([('view-mother', None)]))]),
-             actions={'view-mother': <Action view-mother>,
-                      'pick-mother': <Action pick-mother>})
+  ActionTree(tree=OrderedDict([('pick-mother', OrderedDict([('view-mother', None)]))]))
 
   >>> validate("""
   ... - pick-mother:
   ...   - view-mother:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  ActionTree(tree=OrderedDict([('pick-mother', OrderedDict([('view-mother', None)]))]),
-             actions={'view-mother': <Action view-mother>, 'pick-mother': <Action pick-mother>})
+  ActionTree(tree=OrderedDict([('pick-mother', OrderedDict([('view-mother', None)]))]))
 
 Same type, different key, fail::
 
@@ -253,6 +248,8 @@ Same type, different key, fail::
       individual: individual (pick-individual)
   While parsing:
       "<byte string>", line 3
+  While parsing:
+      "<byte string>", line 2
 
   >>> validate("""
   ... - pick-individual:
@@ -279,6 +276,8 @@ Same key, different types, fail::
       mother: individual (pick-mother)
   While parsing:
       "<byte string>", line 3
+  While parsing:
+      "<byte string>", line 2
 
   >>> validate("""
   ... - pick-mother:

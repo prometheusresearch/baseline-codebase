@@ -37,7 +37,7 @@ represented with an *action*. As user advances the wizard they modify wizard's
 For example, we can define actions ``pick-individual`` and ``view-individual``
 to form a simplest "select and view" wizard.
 
-We put action definitions in ``static/action.yaml``::
+Action definitions looks like::
 
   - type: pick
     id: pick-individual
@@ -47,18 +47,31 @@ We put action definitions in ``static/action.yaml``::
     id: view-individual
     entity: individual
 
-And we configure wizard in the ``static/urlmap.yaml`` through ``<Wizard>``
-widget::
+Then we would want to specify how user can progress from one action to another.
+We specify that by defining a wizard *path*::
+
+  - pick-individual:
+    - view-individual:
+
+To make a wizard we put together actions and path in package's
+``static/urlmap.yaml`` through ``<Wizard>`` widget::
 
   paths:
     /wizard/individual:
       widget: !<Wizard>
-        actions:
-          - pick-individual:
-            - view-individual:
 
-The ``actions`` field of a ``<Wizard>`` is used to compose actions together to
-define wizard's steps.
+        path:
+        - pick-individual:
+          - view-individual:
+
+        actions:
+          pick-individual:
+            type: pick
+            entity: individual
+
+          view-individual:
+            type: view
+            entity: individual
 
 The fact that ``view-individual`` "sits inside" ``pick-individual`` means that
 step corresponding to the former follows the step corresponding to the latter.
@@ -73,9 +86,10 @@ message. For example if we switch ``pick-individual`` and ``view-individual``::
   paths:
     /wizard/individual/incorrect:
       widget: !<Wizard>
-        actions:
-          - view-individual:
-            - pick-individual:
+        path:
+        - view-individual:
+          - pick-individual:
+        actions: ...
 
 The app won't start and the following error appears::
 
@@ -100,18 +114,13 @@ individuals: ``individual: individual``, ``mother: individual`` and ``father:
 individual``.
 
 To specify what label should action "put" into context or "require" from context
-we can use ``<label>: <type>`` syntax directly in ``static/action.yaml``
-configuration::
+we can use ``<label>: <type>`` syntax directly in action configuration::
 
-  - type: pick
-    id: pick-mother
-    entity:
-      mother: individual
-
-  - type: view
-    id: view-mother
-    entity:
-      mother: individual
+  actions:
+    pick-mother:
+      type: pick
+      entity:
+        mother: individual
 
 Note through that actions which work on entities of the same type but having
 different labels can't be composed together. For example the following wizard
@@ -120,9 +129,17 @@ configuration::
   paths:
     /wizard/individual/incorrect:
       widget: !<Wizard>
+        path:
+        - pick-individual:
+          - view-mother:
         actions:
-          - pick-individual:
-            - view-mother:
+          pick-individual:
+            type: pick
+            entity: individual
+          view-mother:
+            type: view
+            entity:
+              mother: individual
 
 Will yield the following error::
 
@@ -204,21 +221,19 @@ We see that:
 
   * Value of ``format`` is passed to component through props.
 
-Now we finally can define an action in ``static/action.yaml``::
-
-  - type: show-weather
-    id: show-weather
-    format: celsius
-
-  - type: pick
-    id: pick-location
-    entity: location
-
-And use it in a wizard in ``static/urlmap.yaml``::
+Now we finally can define a wizard with our new action types::
 
   paths:
     /:
       widget: !<Wizard>
+        path:
+        - pick-location:
+          - show-weather
         actions:
-          - pick-location:
-            - show-weather
+          show-weather:
+            type: show-weather
+            format: celsius
+          pick-location:
+            type: pick
+            entity: location
+

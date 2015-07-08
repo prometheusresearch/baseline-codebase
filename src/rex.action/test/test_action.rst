@@ -7,7 +7,7 @@ Test rex.action.action
   >>> rex = Rex('-')
   >>> rex.on()
 
-  >>> from rex.action.action import Action, ActionVal, load_actions
+  >>> from rex.action.action import Action, ActionVal
 
   >>> class MyAction(Action):
   ...
@@ -80,7 +80,7 @@ Subclass constraints
 
 ::
 
-  >>> validate_another = ActionVal(AnotherAction)
+  >>> validate_another = ActionVal(action_class=AnotherAction)
 
   >>> validate_another({
   ...   'type': 'another',
@@ -96,6 +96,44 @@ Subclass constraints
   ...
   Error: action must be an instance of:
       __main__.AnotherAction
+
+
+Validating/constructing actions with predefined id
+--------------------------------------------------
+
+::
+
+  >>> validate_with_id = ActionVal(id='someid')
+
+  >>> validate_with_id({
+  ...   'type': 'my'
+  ... })
+  MyAction(icon=undefined, width=undefined, id='someid', title=undefined)
+
+  >>> validate_with_id({
+  ...   'id': 'id',
+  ...   'type': 'my'
+  ... }) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: action "id" is cannot be specified
+
+  >>> validate_with_id.parse("""
+  ... type: my
+  ... """)
+  MyAction(icon=undefined, width=undefined, id='someid', title=undefined)
+
+  >>> validate_with_id.parse("""
+  ... id: id
+  ... type: my
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: action "id" is cannot be specified
+  While parsing:
+      "<byte string>", line 2
+  While parsing:
+      "<byte string>", line 2
 
 
 Constructing from YAML
@@ -126,34 +164,3 @@ Constructing from YAML
       Action(name='my')
 
   >>> rex.off()
-
-
-Loading actions
----------------
-
-::
-
-  >>> sandbox = SandboxPackage()
-  >>> sandbox.rewrite('/action.yaml', """
-  ... - id: my-action
-  ...   type: my
-  ... """)
-  >>> with Rex(sandbox):
-  ...   actions = load_actions()
-  >>> actions
-  OrderedDict([('my-action', MyAction(icon=undefined, width=undefined, id='my-action', title=undefined))])
-
-::
-
-  >>> sandbox.rewrite('/action.yaml', """
-  ... - id: my-action
-  ...   type: xmy
-  ... """)
-  >>> with Rex(sandbox):
-  ...   load_actions() # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: unknown action type specified:
-      xmy
-  While parsing:
-      "...", line 3

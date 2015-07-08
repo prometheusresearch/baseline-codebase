@@ -76,7 +76,7 @@ var Wizard = React.createClass({
       <WizardPanel
         key={panel.id + '__' + (panel.isService ? 'SERVICE' : getPanelKey(panel))}
         actionId={panel.id}
-        actions={this.props.actions.actions}
+        actions={this.props.actions}
         siblingActions={panel.isService ? [] : Object.keys(panel.prev.actionTree)}
         active={wizard.canvasMetrics.visiblePanels.indexOf(idx) !== -1}
         noTheme={panel.isService}
@@ -134,7 +134,11 @@ var Wizard = React.createClass({
     if (DOMSize !== this.props.DOMSize) {
       var wizard = this.state.wizard;
       if (wizard === null) {
-        wizard = WizardState.fromQueryString(this._wizardHistory.queryString, this._onWizardUpdate, this.props.actions, DOMSize);
+        wizard = WizardState.fromQueryString(
+            this._wizardHistory.queryString,
+            this._onWizardUpdate,
+            {actions: this.props.actions, tree: this.props.path},
+            DOMSize);
       } else {
         wizard = wizard.resize(DOMSize);
       }
@@ -144,7 +148,11 @@ var Wizard = React.createClass({
   },
 
   _constructFromQueryString(qs) {
-    return WizardState.fromQueryString(qs, this._onWizardUpdate, this.props.actions, this.props.DOMSize);
+    return WizardState.fromQueryString(
+        qs,
+        this._onWizardUpdate,
+        {actions: this.props.actions, tree: this.props.path},
+        this.props.DOMSize);
   },
 
   _onWizardUpdate(wizard) {

@@ -11,7 +11,9 @@
 """
 
 from rex.widget import Widget, Field
+from rex.widget.validate import DeferredVal
 from .action_tree import ActionTreeVal
+from .action import ActionMapVal
 
 __all__ = ('Wizard',)
 
@@ -24,12 +26,19 @@ class Wizard(Widget):
         paths:
           /study-enrollment:
             widget: !<Wizard>
+
+              path:
+              - home:
+                - pick-individual:
+                  - pick-study:
+                    - make-study-enrollment
+                - make-individual:
+
               actions:
-                home:
-                  pick-individual:
-                    pick-study:
-                      make-study-enrollment
-                  make-individual:
+                home: ...
+                pick-individual: ...
+                make-study-enrollment: ...
+                make-individual: ...
 
     The only required parameter is ``actions`` which specify a tree of actions.
     Tree of actions represents a set of possible transitions.
@@ -41,8 +50,20 @@ class Wizard(Widget):
     name = 'Wizard'
     js_type = 'rex-action/lib/Wizard'
 
-    actions = Field(
-        ActionTreeVal(),
+    path = Field(
+        DeferredVal(),
         doc="""
-        A tree of actions.
+        Wizard path specified as a tree of possible transitions between actions.
         """)
+
+    actions = Field(
+        ActionMapVal(),
+        doc="""
+        Wizard actions.
+        """)
+
+    def __init__(self, **values):
+        super(Wizard, self).__init__(**values)
+        validate_path = ActionTreeVal(self.actions)
+        path = self.path.resolve(validate_path)
+        self.values['path'] = path

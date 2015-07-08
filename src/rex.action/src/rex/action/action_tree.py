@@ -15,19 +15,17 @@ from rex.core import OMapVal, StrVal, ProxyVal, MaybeVal
 from rex.widget import TransitionableRecord
 from rex.widget.validate import DeferredVal
 
-from .action import load_actions
-
 __all__ = ('ActionTreeVal',)
 
 
 class ActionTree(TransitionableRecord):
 
-    fields = ('tree', 'actions')
+    fields = ('tree',)
 
     __transit_tag__ = 'map'
 
     def __transit_format__(self, req, path):
-        return {'tree': self.tree, 'actions': self.actions}
+        return self.tree
 
 
 def format_context(context):
@@ -90,36 +88,36 @@ class ActionLevelVal(Validate):
         level = OrderedDict()
         for k, v in self._construct_level(loader, node).items():
             with guard("While parsing:", Location.from_node(k.node)):
-                k = k.construct(self._str_val)
+                k = k.resolve(self._str_val)
                 _inputs, outputs = self.typecheck(k)
             if isinstance(v.node, yaml.SequenceNode):
-                v = v.construct(self.next_level_val(k, outputs))
+                v = v.resolve(self.next_level_val(k, outputs))
             else:
-                v = v.construct()
+                v = v.resolve()
             level[k] = v
         return level
 
 
 class ActionTreeVal(Validate):
 
-    def __init__(self, _actions=None):
-        self._actions = _actions
-
-    @property
-    def actions(self):
-        return self._actions if self._actions else load_actions()
+    def __init__(self, actions, error_if_extra_actions=True):
+        self.actions = actions
+        self.error_if_extra_actions = error_if_extra_actions
 
     def _construct(self, tree_factory):
         actions = self.actions
         validate = ActionLevelVal(actions)
         tree = tree_factory(validate)
-        keys = tree_keys(tree)
-        return ActionTree(
-            tree=tree,
-            actions={k: v for k, v in actions.items() if k in keys})
+        if self.error_if_extra_actions:
+            extra_actions = set(self.actions) - tree_keys(tree)
+            if extra_actions:
+                raise Error('Actions are defined but not used in wizard',
+                            ', '.join(sorted(extra_actions)))
+        return ActionTree(tree=tree)
 
     def construct(self, loader, node):
-        return self._construct(lambda v: v.construct(loader, node))
+        with guard('While parsing:', Location.from_node(node)):
+            return self._construct(lambda v: v.construct(loader, node))
 
     def __call__(self, tree):
         if isinstance(tree, ActionTree):

@@ -169,8 +169,8 @@ Here we declare the entry point of the component ``static/js/lib/index.js`` via
 In ``package.json``, you can list two types of dependencies:
 
 * Peer dependencies (under ``peerDependencies`` key) which are used to specify
-  dependencies on packages which introduce global state, such as ``React``,
-  ``jQuery`` or ``Bootstrap``.
+  dependencies on packages which rely on global mutable state, such as
+  ``React``, ``jQuery`` or ``Bootstrap``.
 
 * Regular dependencies (under ``dependencies`` key) which are used for all other
   packages which do not rely on global state.
@@ -204,6 +204,36 @@ command::
 
     $ sudo apt-get install nodejs npm
 
+Rex specific npm package metadata
+---------------------------------
+
+Package metadata which is used exclusively by Rex Platform can be specified under
+``rex`` in ``package.json``::
+
+    {
+      "rex": {
+        ...
+      }
+    }
+
+There are the following metadata allowed:
+
+* ``style`` (``string``) — allows to specify a stylesheet entry point for a package bundle,
+  it is processed by LESS.
+
+* ``bundleAll`` (``boolean``) — instructs bundler to bundle all the modules for a package if
+  package is in the dependency tree for a bundle. This is used by Rex Widget to
+  ensure that all React components which are mentioned in an app configuration
+  are present in the app bundle. If your package has React components which are
+  bound to Rex Widget then you need to set ``bundleAll: true``.
+
+* ``loaders`` (``Array<WebpackLoaderConfig>``) — an array of Webpack loader
+  configurations which will be applied by bundler to a current package only.
+
+* ``dependencies`` (``Object<string, boolean>``) — a dependency mask which can
+  be used to exclude JS packages embedded in Python packages from bundle. This
+  can be useful to split application bundle into chunks which work with
+  incompatible versions of some packages.
 
 Generated files
 ===============

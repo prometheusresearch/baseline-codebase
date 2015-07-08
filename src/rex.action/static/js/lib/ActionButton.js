@@ -1,15 +1,15 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React               = require('react/addons');
-var RexWidget           = require('rex-widget');
-var {linearGradient}    = RexWidget.StyleUtils;
-var {VBox, HBox}        = RexWidget.Layout;
-var Actions             = require('./Actions');
+import React, {PropTypes} from 'react';
+import RexWidget          from 'rex-widget';
+import Actions            from './Actions';
 
-var Style = {
+let {linearGradient}    = RexWidget.StyleUtils;
+let {HBox}              = RexWidget.Layout;
+
+let Style = {
   self: {
     padding: 10,
     color: '#888',
@@ -50,19 +50,31 @@ var Style = {
   }
 };
 
-var ActionButton = React.createClass({
+@RexWidget.Hoverable
+export default class ActionButton extends React.Component {
+
+  static propTypes = {
+    action: PropTypes.element,
+    active: PropTypes.bool,
+    align: PropTypes.oneOf(['left', 'right'])
+  };
+
+  static defaultProps = {
+    align: 'left'
+  };
 
   render() {
-    var {action, active, hover, align, ...props} = this.props;
-    var alignLeft = align === 'left';
-    var style = {
+    let {action, active, hover, align, style: extraStyle, ...props} = this.props;
+    let alignLeft = align === 'left';
+    let style = {
       ...Style.self,
       ...(alignLeft ? Style.selfLeft : Style.selfRight),
       ...(hover && (alignLeft ? Style.onHover.selfLeft : Style.onHover.selfRight)),
       ...(active && (alignLeft ? Style.onActive.selfLeft : Style.onActive.selfRight)),
-      flexDirection: alignLeft ? 'row' : 'row-reverse'
+      flexDirection: alignLeft ? 'row' : 'row-reverse',
+      ...extraStyle
     };
-    var icon = Actions.getIcon(action);
+    let icon = Actions.getIcon(action);
     return (
       <HBox {...props} style={style} alignItems="right" onClick={this.onClick}>
         {icon &&
@@ -73,17 +85,9 @@ var ActionButton = React.createClass({
         {Actions.getTitle(action)}
       </HBox>
     );
-  },
-
-  onClick() {
-    this.props.onClick(this.props.actionId);
-  },
-
-  getDefaultProps() {
-    return {align: 'left'};
   }
-});
 
-ActionButton = RexWidget.Hoverable(ActionButton);
-
-module.exports = ActionButton;
+  onClick = (e) => {
+    this.props.onClick(this.props.action.props.id);
+  }
+}

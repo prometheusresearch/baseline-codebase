@@ -66,13 +66,11 @@ var WizardPanel = React.createClass({
         {siblingActions.map(id => {
           var action = actions[id];
           return (
-            <ActionButton
-              align="right"
+            <SidebarItem
               key={id}
               active={id === actionId}
               action={action}
-              actionId={id}
-              onClick={this.onReplace}
+              onReplace={this.onReplace}
               />
           );
         })}
@@ -88,6 +86,25 @@ var WizardPanel = React.createClass({
     this.props.onReplace(this.props.actionId, id);
   }
 });
+
+class SidebarItem extends React.Component {
+
+  render() {
+    let {onReplace, action, active} = this.props;
+    return (
+      <VBox>
+        <ActionButton
+          align="right"
+          active={active}
+          action={action}
+          onClick={onReplace}
+          />
+        {active && action.type.canRenderSidebar &&
+          <VBox id={`${action.props.id}__sidebar`} />}
+      </VBox>
+    );
+  }
+}
 
 module.exports = WizardPanel;
 module.exports.Style = Style;

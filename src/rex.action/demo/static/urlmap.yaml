@@ -5,7 +5,7 @@ paths:
     widget: !<Wizard>
       path:
         - pick-date:
-        - pick-study:
+        - pick-or-make-study:
         - home:
           - make-individual:
             - view-individual:
@@ -21,6 +21,33 @@ paths:
         - about:
 
       actions:
+
+        pick-or-make-study:
+          type: alternative
+          title: Pick study
+          actions:
+          - id: pick-study
+            title: Pick existing study
+            type: pick
+            entity: study
+            search: title~$search
+            sort:
+              field: title
+            columns:
+            - code
+            - title
+            - description
+          - id: make-study
+            title: Make a new study
+            type: make
+            entity: study
+            fields:
+            - code
+            - lab
+            - type: note
+              value_key: title
+            - closed
+
         home:
           type: page
           title: Home

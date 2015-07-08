@@ -256,6 +256,8 @@ Widget composition
       title
   Of widget:
       MyWidget
+  While parsing:
+      "<byte string>", line 2
 
 Widget pointer
 --------------

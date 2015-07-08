@@ -241,9 +241,10 @@ class WidgetVal(Validate):
                 else:
                     raise Error("Missing mandatory field:", field.name) \
                             .wrap("Of widget:", widget_class.name)
-        widget = widget_class.validated(**values)
-        widget.location = location
-        return widget
+        with guard('While parsing:', Location.from_node(node)):
+            widget = widget_class.validated(**values)
+            widget.location = location
+            return widget
 
 
 @contextlib.contextmanager

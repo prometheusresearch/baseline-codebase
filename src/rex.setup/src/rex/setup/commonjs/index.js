@@ -91,6 +91,7 @@ function configureWebpack(config) {
   }
 
   addEntry(config, require.resolve('core-js/modules/es6.object.assign'));
+  addEntry(config, require.resolve('core-js/modules/es6.promise'));
 
   set(config, 'watchOptions.aggregateTimeout', 200);
 

@@ -3,7 +3,7 @@
 var fs              = require('fs');
 var path            = require('path');
 var qs              = require('querystring');
-var readdir         = require('recursive-readdir');
+var readdir         = require('../readdir');
 
 function readMetadata(fs, directory, filename, cb) {
   filename = path.join(directory, filename);
@@ -80,14 +80,13 @@ module.exports = function introspectionLoader(source) {
 
       if (query.all !== undefined) {
         var dirname = path.dirname(this.resourcePath);
-        // XXX: doesn't use cached filesystem instance :(
-        readdir(dirname, function(err, files) {
+        readdir(this._compiler.inputFileSystem, dirname, function(err, files) {
           if (err) {
             cb(err);
           } else {
             var deps = ';';
             files.forEach(function(file) {
-              if (file === this.resourcePath || /__tests__/.exec(file)) {
+              if (file === this.resourcePath || /__tests__/.exec(file) || !/\.js$/.exec(file)) {
                 return;
               }
 
@@ -101,7 +100,7 @@ module.exports = function introspectionLoader(source) {
                 introspectables[file] = name;
               }
             }.bind(this));
-            cb(null, source + deps);
+            cb(null, source + ';function __rexSetupRequires() {' + deps + '}');
           }
         }.bind(this));
       } else {

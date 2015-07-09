@@ -17,8 +17,5 @@
     "core-js": "0.9.18",
     "node-libs-browser": "0.5.x",
     "less": "1.5.x"
-  },
-  "dependencies": {
-    "recursive-readdir": "1.1.x"
   }
 }

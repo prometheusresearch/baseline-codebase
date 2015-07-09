@@ -12,6 +12,9 @@
 
 * Use core-js set of polyfills (only Object.assign currently).
 
+* Performance fixes to introspection bundler plugin.
+
+* Fix introspection plugin not to require non-JS files.
 
 2.4.0 (2015-06-26)
 ==================

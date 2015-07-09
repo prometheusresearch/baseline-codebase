@@ -1,5 +1,6 @@
 import os
 import csv
+import codecs
 from collections import OrderedDict
 
 from rex.core import Error, get_settings
@@ -77,7 +78,7 @@ class AssessmentTemplateExportTask(RexTask):
         if not os.access(path, os.W_OK):
             raise Error('Directory "%s" is forbidden for writing' % path)
         default_template_fields = \
-            get_settings().assessment_import_template_defaults
+            get_settings().assessment_template_defaults
         instrument = Instrument.create(instrument_version,
                                        default_template_fields)
         for (obj_id, template) in instrument.template.items():
@@ -86,7 +87,13 @@ class AssessmentTemplateExportTask(RexTask):
                 writer = csv.DictWriter(csvfile,
                             fieldnames=template.keys())
                 writer.writeheader()
-                writer.writerow(template)
+                writer.writerow(
+                    OrderedDict(
+                        [(name, props['description'])
+                            for (name, props) in template.items()
+                        ]
+                    )
+                )
 
 
 class AssessmentImportTask(RexTask):
@@ -124,7 +131,7 @@ class AssessmentImportTask(RexTask):
     def __call__(self):
         with self.make():
             default_template_fields = \
-                get_settings().assessment_import_template_defaults
+                get_settings().assessment_template_defaults
             instrument_impl = get_implementation('instrument')
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
             if not instrument:
@@ -157,11 +164,14 @@ class AssessmentImportTask(RexTask):
                 for filename in os.listdir(path):
                     filepath = os.path.join(path, filename)
                     if os.path.isfile(filepath):
-                        obj_id = filename.rsplit('.', 1)[0]
+                        filename = filename.rsplit('.', 1)
+                        if len(filename) != 2 or filename[1] != 'csv':
+                            continue
+                        obj_id = filename[0]
                         if obj_id in instrument.template:
                             filepaths[obj_id] = filepath
             if not filepaths:
-                raise Error("csv files appropriate for import not found.")
+                raise Error("Not found any csv file appropriate to import.")
             self.import_assessments(instrument, filepaths)
 
     def import_assessments(self, instrument, import_obj_files):
@@ -170,56 +180,72 @@ class AssessmentImportTask(RexTask):
                 " %(root_tpl_id)s not found."
                 % {'root_tpl_id': instrument.id}
             )
-        root_data_filepath = import_obj_files.pop(instrument.id)
-        assessment_context = \
-                get_settings().assessment_import_context
-        with open(root_data_filepath, 'rU') as root_assessment_file:
+        root_assessment_filepath = import_obj_files.pop(instrument.id)
+        with open(root_assessment_filepath, 'rU') as root_assessment_file:
             try:
                 reader = csv.DictReader(root_assessment_file)
             except Exception, exc:
                 raise Error("Unexpected assessment file %(filepath)s."
-                            % {'filepath': root_data_filepath}, exc
+                            % {'filepath': root_assessment_filepath}, exc
                 )
+            i = 1
             for row in reader:
                 assessment_id = row.get('assessment_id')
+                if not assessment_id:
+                    warn("Unexpected import data, `assessment_id` not found"
+                         " trougth the row #`%(i)s` of the %(filepath)s."
+                         % {'i': i, 'filepath': root_assessment_filepath}
+                    )
+                    continue
                 log("Starting assessment `%(id)s` import..."
                     % {'id': assessment_id})
+                i += 1
                 try:
-                    assessment_data = self.make_assessment_data(instrument.id,
-                                                            row,
-                                                            import_obj_files)
-                    assessment = Assessment.save(instrument,
-                                                 assessment_data,
-                                                 assessment_context)
+                    assessment_data = self.make_assessment_data(assessment_id,
+                                                             import_obj_files)
+                    assessment_data[instrument.id] = row
+                    assessment = Assessment.create(instrument,
+                                                   assessment_data
+                                            )
                 except Exception, exc:
                     warn(str(exc))
                 else:
                     log("Import finished, assessment `%(id)s` generated."
                         % {'id': assessment.uid})
 
-    def make_assessment_data(self, instrument_id, assessment_root_record,
-                             record_list_files):
+    def make_assessment_data(self, assessment_id, record_list_files):
         assessment = OrderedDict()
-        assessment_id = assessment_root_record.get('assessment_id')
-        if not assessment_id:
-            raise Error("Unexpected import file `%(obj_tpl_id)s.csv`"
-                        % {'obj_tpl_id': instrument_id},
-                        "not found expected field `assessment_id`."
-            )
-        assessment[instrument_id] = assessment_root_record
         for (rec_obj_id, record_list_filepath) in record_list_files.items():
             with open(record_list_filepath, 'rU') as record_list_file:
                 try:
                     reader = csv.DictReader(record_list_file)
                 except Exception, exc:
-                    raise Error("Unexpected assessment file %(filepath)s."
-                                % {'filepath': record_list_filepath}, exc
+                    raise Error("Got unexpected csv file `%(filepath)s`."
+                        % {'filepath': record_list_filepath}, exc
+                    )
+                if 'assessment_id' not in reader.fieldnames:
+                    raise Error("Not found `assessment_id` trough"
+                        " `%(filepath)s`."
+                        % {'filepath': record_list_filepath}
                     )
                 record_list_data = []
+                i = 1
+                bad_num = []
                 for row in reader:
-                    if row.get('assessment_id') != assessment_id:
+                    record_assessment_id = row.get('assessment_id')
+                    i += 1
+                    if not record_assessment_id:
+                        bad_num.append(str(i))
+                    if record_assessment_id != assessment_id:
                         continue
                     record_list_data.append(row)
                 assessment[rec_obj_id] = record_list_data
+                if bad_num:
+                    warn("File `%(filepath)s` contains bad formatted row"
+                        " numbers # (`%(bad_num)s`,), `assessment_id` is required."
+                         % {'filepath': record_list_filepath,
+                            'bad_num': ', '.join(bad_num)
+                         }
+                    )
         return assessment
 

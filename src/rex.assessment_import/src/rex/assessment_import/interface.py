@@ -49,12 +49,6 @@ class FieldObjectAbstract(object):
                 field.add_enumeration(code, description)
         return field
 
-    def blank_tpl_output(self, default_fields):
-        output = OrderedDict()
-        for (field_id, description) in default_fields.items():
-            output[field_id] = description
-        return output
-
 
 class Instrument(FieldObjectAbstract):
 
@@ -62,7 +56,8 @@ class Instrument(FieldObjectAbstract):
     def create(cls, instrument_version, default_tpl_fields):
         instrument = Instrument(instrument_version)
         templates = OrderedDict()
-        templates[instrument.id] = instrument.blank_tpl_output(default_tpl_fields)
+        templates[instrument.id] = instrument\
+                                     .get_root_template(default_tpl_fields)
         for field_definition in instrument_version.definition['record']:
             field = instrument.add_field(instrument_version.definition,
                                          field_definition)
@@ -76,6 +71,19 @@ class Instrument(FieldObjectAbstract):
                                                             .definition)
         instrument.blank_assessment = assessment_data
         return instrument
+
+    def get_root_template(self, default_tpl_fields):
+        context_template = OrderedDict()
+        context_template.update(default_tpl_fields)
+        impl = get_implementation('assessment')
+        context_action = impl.CONTEXT_ACTION_CREATE
+        context_impl = impl.get_implementation_context(context_action)
+        for param_name in context_impl:
+            parameter = context_impl[param_name]
+            context_template[param_name] = {'required': parameter['required'],
+                                            'description': ''
+                                           }
+        return context_template
 
     def __init__(self, instrument_version):
         self.id = instrument_version.uid
@@ -108,36 +116,43 @@ class Field(FieldObjectAbstract):
     def add_enumeration(self, enumeration_id, description):
         self.enumerations[enumeration_id] = description
 
-    def add_template(self, obj_tpl_id, default_tpl_fields, templates,
-                     required=None):
+    def add_template(self, obj_tpl_id, blank, templates):
         self.obj_tpl_id = obj_tpl_id
         tpl_output = templates.get(obj_tpl_id)
         if not tpl_output:
-            tpl_output = blank_tpl_output
+            tpl_output = deepcopy(blank)
         if self.base_type == 'recordList':
             rec_obj_id = obj_tpl_id + '.' + self.id
             self.obj_tpl_id = rec_obj_id
-            rec_tpl_output = self.blank_tpl_output(default_tpl_fields)
-            templates[rec_obj_id] = rec_tpl_output
+            templates[rec_obj_id] = deepcopy(blank)
             for (_, record_field) in self.fields.items():
                 templates = record_field.add_template(rec_obj_id,
-                                                      default_tpl_fields,
+                                                      blank,
                                                       templates)
         elif self.base_type == 'matrix':
             for (_, matrix_field) in self.fields.items():
                 templates = matrix_field.add_template(obj_tpl_id,
-                                                      default_tpl_fields,
+                                                      blank,
                                                       templates)
         elif self.base_type == 'enumerationSet':
             type = ['TRUE.FALSE']
             for id in self.enumerations:
                 enum_name = self.id + '_' + id
-                tpl_output[enum_name] = self.template_description(type=type)
+                tpl_output[enum_name] = {
+                    'description': self.template_description(type=type),
+                    'required': self.required
+                }
         elif self.base_type == 'enumeration':
             type = self.enumerations.keys()
-            tpl_output[self.id] = self.template_description(type=type)
+            tpl_output[self.id] = {
+                'description': self.template_description(type=type),
+                'required': self.required
+            }
         else:
-            tpl_output[self.id] = self.template_description()
+            tpl_output[self.id] = {
+                'description': self.template_description(),
+                'required': self.required
+            }
         templates[obj_tpl_id] = tpl_output
         return templates
 
@@ -152,91 +167,117 @@ class Field(FieldObjectAbstract):
 
 class Assessment(object):
 
-    @classmethod
-    def save(cls, instrument, data, import_context):
-        root_record = data.get(instrument.id)
-        context = {}
-        for context_type in ('subject', 'assessment'):
-            validated_context = cls.validate_context(context_type,
-                                                     root_record,
-                                                     import_context)
-            context[context_type] = validated_context
-        assessment_data = instrument.blank_assessment
-        assessment_data['values'] = cls.add_assessment_values(instrument, data)
-        subject = root_record.get('subject')
-        date = root_record.get('date')
-        assessment = cls.create(subject, instrument.instrument_version,
-                                date, assessment_data, context)
-        return assessment
+
+    def __init__(self, instrument):
+        self.instrument = instrument
+        self.data = instrument.blank_assessment
 
     @classmethod
-    def validate_context(cls, context_type, record, context):
-        validated = {}
-        impl = get_implementation(context_type)
+    def create(cls, instrument, import_data):
+        assessment = Assessment(instrument)
+        row = import_data.get(instrument.id)
+        assessment.validate_with_template(instrument.id, row)
+        subject = assessment.get_subject(row)
+        assessment_context = assessment.get_context(row)
+        evaluation_date = assessment.get_date(row)
+        assessment.add_values(instrument, import_data)
+        assessment_impl = get_implementation('assessment')
+        assessment = assessment_impl.create(
+                                subject=subject,
+                                instrument_version=instrument.instrument_version,
+                                data=assessment.data,
+                                evaluation_date=evaluation_date,
+                                implementation_context=assessment_context
+                    )
+        return assessment
+
+    def validate_with_template(self, tpl_obj_id, data):
+        template = self.instrument.template.get(tpl_obj_id)
+        notfound = []
+        data_fields = deepcopy(data)
+        for name in template:
+            if name in data:
+                data_fields.pop(name)
+            else:
+                notfound.append(name)
+        if data_fields:
+            raise Error("Assessment data related to the `%(tpl_id)s`"
+                " template contains unknown field names `%(names)s`."
+                % {'names': data_fields.keys(), 'tpl_id': tpl_obj_id}
+            )
+        if notfound:
+            raise Error("Assessment data related to the `%(tpl_id)s` does not"
+                " contain fields `%(names)s` expected by the template."
+                % {'names': notfound, 'tpl_id': tpl_obj_id}
+            )
+
+    def get_subject(self, data):
+        subject_id = data.get('subject')
+        if not subject_id:
+            raise Error("`subject` is expected.")
+        subject_impl = get_implementation('subject')
+        subject = subject_impl.get_by_uid(subject_id)
+        if not subject:
+            raise Error("Subject `%(subject_id)s` not found in the data storage."
+                        % {'subject_id': subject_id}
+            )
+        return subject
+
+    def get_context(self, row):
+        context = {}
+        impl = get_implementation('assessment')
         context_action = impl.CONTEXT_ACTION_CREATE
         context_impl = impl.get_implementation_context(context_action)
         for param_name in context_impl:
             parameter = context_impl[param_name]
-            param_value = record.get(param_name)
-            if param_value is None:
-                param_value = context.get(param_name)
-            if parameter['required'] and ((param_value or None) is None):
-                raise Error("Required `%(context_type)s` context parameter"
-                            " `%(param_name)s` is not defined."
-                            % {'context_type': context_type.title(),
-                               'param_name': param_name
-                            }
+            param_value = row.get(param_name)
+            if parameter['required'] and param_value in ('', None):
+                raise Error("Parameter `%(param_name)s` required for Assessment"
+                            " creation is undefined trough the import data."
+                            % {'param_name': param_name}
                 )
             validate = parameter['validator']
             try:
                 validate(param_value)
             except Exception, exc:
-                raise Error("`%(context_type)s` context parameter"
+                raise Error("Assessment parameter"
                     " `%(param_name)s` got unexpected value `%(param_value)s`."
-                    % {'context_type': context_type.title(),
-                       'param_name': param_name,
+                    % {'param_name': param_name,
                        'param_value': param_value
                     }, exc
                 )
-            validated[param_name] = param_value
-        return validated
+            context[param_name] = param_value
+        return context
 
-    @classmethod
-    def create(cls, subject_id, instrument_version, date, data, context):
-        subject_impl = get_implementation('subject')
-        subject = None
-        if subject_id:
-            subject = subject_impl.get_by_uid(subject_id)
-        if not subject:
-            subject = subject_impl.create(subject_id,
-                                    implementation_context=context['subject'])
-        assessment_impl = get_implementation('assessment')
-        assessment = assessment_impl.create(subject=subject,
-                                instrument_version=instrument_version,
-                                data=data,
-                                evaluation_date=date,
-                                implementation_context=context['assessment'])
-        return assessment
+    def get_date(self, row):
+        evaluation_date = row.get('date')
+        if not evaluation_date:
+            evaluation_date = datetime.datetime.today().strftime('%Y-%m-%d')
+        try:
+            evaluation_date = self.validate_value(evaluation_date, 'date')
+        except Exception, exc:
+            raise Error("Got unexpected value `%(value)s` of the assessment"
+                    " `date`" % {'value': evaluation_date}, exc)
+        return evaluation_date
 
-    @classmethod
-    def add_assessment_values(cls, instrument, data):
+    def add_values(self, instrument, data):
         values = OrderedDict()
         for field_id, field in instrument.fields.items():
-            value = cls.add_field_value(field, data)
+            value = self.add_field_value(field, data)
             values[field.id] = {'value': value}
-        return values
+        self.data['values'] = values
 
-    @classmethod
-    def add_field_value(cls, field, data):
+    def add_field_value(self, field, data):
         if field.base_type == 'recordList':
             value = []
             record_data = data.get(field.obj_tpl_id, [])
             for row_data in record_data:
+                self.validate_with_template(field.obj_tpl_id, row_data)
                 row_value = OrderedDict()
                 data[field.obj_tpl_id] = row_data
                 for _, record_field in field.fields.items():
-                    record_field_value = cls.add_field_value(record_field,
-                                                             data)
+                    record_field_value = self.add_field_value(record_field,
+                                                              data)
                     row_value[record_field.id] = {'value': record_field_value}
                 value.append(row_value)
         elif field.base_type == 'matrix':
@@ -246,7 +287,7 @@ class Assessment(object):
                 for column_id in field.columns:
                     matrix_field_id = row_id + '_' + column_id
                     matrix_field = field.fields[matrix_field_id]
-                    matrix_field_value = cls.add_field_value(matrix_field,
+                    matrix_field_value = self.add_field_value(matrix_field,
                                                              data)
                     columns[column_id] = {'value': matrix_field_value}
                 value[row_id] = columns
@@ -272,36 +313,38 @@ class Assessment(object):
         else:
             value = data.get(field.obj_tpl_id, {}).get(field.id)
             try:
-                value = cls.validate_value(field, value)
+                value = self.validate_value(value=value,
+                                            base_type=field.base_type,
+                                            required=field.required,
+                                            enumerations=field.enumerations)
             except Exception, exc:
                 raise Error("Unable to define a value of field %(field)s."
                     % {'field': field.id}, exc
                 )
         return value
 
-    @classmethod
-    def validate_value(cls, field, value):
+    def validate_value(self, value, base_type, required=False, enumerations=[]):
         if isinstance(value, basestring):
             value = value.strip()
         if value in (None, ''):
-            if field.required:
+            if required:
                 raise Error("Got null for required field.")
             return None
-        if field.base_type == 'integer':
+        if base_type == 'integer':
             if not re.match(r'^\d+', str(value)):
                 raise Error(" Got unexpected value %(value)s for"
                             " %(base_type)s type."
                             % {'value': value, 'base_type': field.base_type}
                 )
             return int(value)
-        if field.base_type == 'float':
+        if base_type == 'float':
             if not re.match(r'^-?\d+\.(\d+)', str(value)):
                 raise Error(" Got unexpected value %(value)s of"
                             " %(base_type)s type."
-                            % {'value': value, 'base_type': field.base_type}
+                            % {'value': value, 'base_type': base_type}
                 )
             return float(value)
-        if field.base_type == 'boolean':
+        if base_type == 'boolean':
             if str(value).lower() in ('true', '1'):
                 return True
             elif str(value).lower() in ('false', '0'):
@@ -309,54 +352,51 @@ class Assessment(object):
             else:
                 raise Error(" Got unexpected value %(value)s of"
                             " %(base_type)s type."
-                            % {'value': value, 'base_type': field.base_type}
+                            % {'value': value, 'base_type': base_type}
                 )
-        if field.base_type == 'date':
+        if base_type == 'date':
             if isinstance(value, (datetime.datetime, datetime.date)):
                 return value.strftime('%Y-%m-%d')
-            if not (
-                isinstance(value, basestring)
-                and re.match(r'^\d\d\d\d-\d\d-\d\d$', value)
-            ):
-                raise Error(" Got unexpected value %(value)s of"
-                            " %(base_type)s type, YYYY-MM-DD is expected."
-                            % {'value': value, 'base_type': field.base_type}
-                )
-        if field.base_type == 'time':
+            if isinstance(value, basestring) \
+            and re.match(r'^\d\d\d\d-\d\d-\d\d$', value):
+                return value
+            raise Error(" Got unexpected value %(value)s of"
+                        " %(base_type)s type, YYYY-MM-DD is expected."
+                        % {'value': value, 'base_type': base_type}
+            )
+        if base_type == 'time':
             if isinstance(value, (datetime.datetime, datetime.time)):
                 return value.strftime('%H:%M:%S')
-            if not (
-                isinstance(value, basestring)
-                and re.match(r'^\d\d:\d\d:\d\d$', value)
-            ):
-                raise Error(" Got unexpected value %(value)s of"
+            if isinstance(value, basestring) \
+            and re.match(r'^\d\d:\d\d:\d\d$', value):
+                return value
+            raise Error(" Got unexpected value %(value)s of"
                             " %(base_type)s type, HH:MM:SS is expected."
-                            % {'value': value, 'base_type': field.base_type}
-                )
-        if field.base_type == 'dateTime':
+                            % {'value': value, 'base_type': base_type}
+            )
+        if base_type == 'dateTime':
             if isinstance(value, datetime.datetime):
                 return value.strftime('%Y-%m-%dT%H:%M:%S')
-            if not (
-                isinstance(value, basestring)
-                and re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$', value)
-            ):
-                raise Error("Got unexpected value %(value)s of"
+            if isinstance(value, basestring) \
+            and re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$', value):
+                return value
+            raise Error("Got unexpected value %(value)s of"
                         " %(base_type)s type, YYYY-MM-DDTHH:MM:SS is expected."
-                        % {'value': value, 'base_type': field.base_type}
-                )
-        if field.base_type == 'enumeration':
-            if unicode(value) not in field.enumerations:
+                        % {'value': value, 'base_type': base_type}
+            )
+        if base_type == 'enumeration':
+            if unicode(value) not in enumerations:
                 raise Error("Got unexpected value %(value)s of"
                     " %(base_type)s type, one of %(enumeration)s is expected."
-                    % {'value': value, 'base_type': field.base_type,
-                       'enumeration': [id for id in field.enumerations]
+                    % {'value': value, 'base_type': base_type,
+                       'enumeration': [id for id in enumerations]
                     }
                 )
             return unicode(value)
-        if field.base_type == 'text':
+        if base_type == 'text':
             return unicode(value)
         else:
             raise Error("Got a value %(value)s of unknown %(base_type)s type."
-                        % {'value': value, 'base_type': field.base_type}
+                        % {'value': value, 'base_type': base_type}
             )
         return value

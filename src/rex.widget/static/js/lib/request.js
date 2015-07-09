@@ -4,7 +4,6 @@
 'use strict';
 
 var superagent = require('superagent/superagent');
-var Promise    = require('bluebird');
 var resolveURL = require('./resolveURL');
 var isString   = require('./isString');
 
@@ -35,7 +34,6 @@ class Request extends superagent.Request {
           resolve(response);
         }
       }));
-    promise = promise.cancellable();
     return promise;
   }
 

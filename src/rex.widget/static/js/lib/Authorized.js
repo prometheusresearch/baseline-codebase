@@ -4,7 +4,6 @@
 'use strict';
 
 var React = require('react');
-var Promise = require('./Promise');
 var request = require('./request');
 
 /**
@@ -94,12 +93,11 @@ var _access = {};
 
 function hasAccessTo(access) {
   var result = checkAccessTo(access);
-  if (result.isFulfilled()) {
-    return result.value();
-  } else if (result.isRejected()) {
-    throw result.reason();
-  } else {
+  // still a promise, wait
+  if (result && typeof result.then === 'function') {
     return null;
+  } else {
+    return result;
   }
 }
 
@@ -109,7 +107,10 @@ function checkAccessTo(access) {
     result = _access[access] = request('GET', PERMISSIONS_API_ENDPOINT)
       .query({access})
       .promise()
-      .then(response => response.body.authorized);
+      .then(response => {
+        var {authorized} = response.body;
+        _access[access] = authorized;
+      });
   }
   return result;
 }

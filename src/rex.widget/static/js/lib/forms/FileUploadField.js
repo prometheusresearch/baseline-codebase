@@ -5,7 +5,6 @@
 
 var React               = require('react');
 var cx                  = require('classnames');
-var Promise             = require('../Promise');
 var {Box, HBox}         = require('../Layout');
 var Button              = require('../Button');
 var {File, StoredFile}  = require('../File');

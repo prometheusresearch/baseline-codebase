@@ -6,7 +6,6 @@
 var Immutable         = require('immutable');
 var invariant         = require('./invariant');
 var Port              = require('./Port');
-var Promise           = require('./Promise');
 var DataSpecification = require('./DataSpecification');
 var DataSet           = require('./DataSet');
 
@@ -134,9 +133,6 @@ var DataSpecificationMixin = {
       var params = spec.produceParams();
       var prevParams = this._dataParams[key];
       if (force || !Immutable.is(prevParams, params)) {
-        if (spec.options.strategy === DataSpecification.CANCEL_ON_UPDATE && this._dataTasks[key]) {
-          this._dataTasks[key].cancel();
-        }
         this._dataParams[key] = params
         if (params === null) {
           this.data[key] = DataSet.EMPTY_DATASET;
@@ -153,7 +149,6 @@ var DataSpecificationMixin = {
             this._dataTasks[key] = _fetch(spec, params);
           }
           this._dataTasks[key] = this._dataTasks[key]
-            .catch(Promise.CancellationError, this._onFetchCancel.bind(null, key))
             .catch(this._onFetchError.bind(null, key, params, prevParams))
             .then(this._onFetchComplete.bind(null, key, params, prevParams));
         }
@@ -161,19 +156,19 @@ var DataSpecificationMixin = {
     }
   },
 
-  _onFetchCancel(key) {
-    return null;
-  },
-
   _onFetchComplete(key, params, prevParams, result) {
-    if (this.isMounted()) {
-      if (this.onData) {
-        this.onData(result, key, params, prevParams);
-      } else {
-        this.data[key] = new DataSet(result, false, null);
-      }
-      this.forceUpdate();
+    if (!this.isMounted()) {
+      return;
     }
+    if (!Immutable.is(params, this._dataParams[key])) {
+      return;
+    }
+    if (this.onData) {
+      this.onData(result, key, params, prevParams);
+    } else {
+      this.data[key] = new DataSet(result, false, null);
+    }
+    this.forceUpdate();
   },
 
   _onFetchError(key, params, prevParams, error) {

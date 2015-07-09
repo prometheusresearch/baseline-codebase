@@ -4,7 +4,6 @@
 'use strict';
 
 var Port    = require('./Port');
-var Promise = require('./Promise');
 
 class PortMock extends Port {
 

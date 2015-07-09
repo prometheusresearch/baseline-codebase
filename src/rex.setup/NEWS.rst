@@ -16,6 +16,8 @@
 
 * Fix introspection plugin not to require non-JS files.
 
+* Add ES6 Promise polyfill
+
 2.4.0 (2015-06-26)
 ==================
 

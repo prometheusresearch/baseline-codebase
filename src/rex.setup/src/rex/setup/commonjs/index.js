@@ -34,7 +34,7 @@ function getListOfDependencies(packageMetadata, seen) {
     .filter(function(pkg) { return !seen[pkg.name] && !!pkg.rex; });
   if (mask) {
     dependencies = dependencies.filter(function(pkg) {
-      return !!mask[pkg.name];
+      return mask[pkg.name] !== false;
     });
   }
   dependencies.forEach(function(pkg) {

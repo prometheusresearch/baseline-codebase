@@ -407,7 +407,6 @@ tests:
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
-      HI
 - suite: js_react_bower
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox

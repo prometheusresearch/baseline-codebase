@@ -4,7 +4,7 @@
 'use strict';
 
 var React                   = require('react');
-var {Column, Table}         = require('../vendor/fixed-data-table');
+var {Column, Table}         = require('fixed-data-table');
 var ZyngaScroller           = require('./Scroller');
 var {Box, LayoutAwareMixin} = require('./Layout');
 var Icon                    = require('./Icon');

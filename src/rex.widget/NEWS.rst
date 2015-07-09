@@ -2,6 +2,15 @@
   Change Log
 **************
 
+1.0.3 (2015-07-XX)
+==================
+
+* Convert JS package to be npm package (due to Rex Setup changes)
+
+* Move forms code to be in React Forms
+
+* Remove vendored copy of Fixed Data Table
+
 1.0.2 (2015-06-29)
 ==================
 

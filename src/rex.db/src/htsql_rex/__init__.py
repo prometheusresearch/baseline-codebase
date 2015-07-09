@@ -355,13 +355,13 @@ class CloakChain(Lookup):
         parent_masks = conceal(parent_node)
         recipes = []
         for mask in conceal(node):
-            if any([link]+mask.path == parent_mask.path and
-                   mask.syntax == parent_mask.syntax
-                   for parent_mask in parent_masks):
+            if any([[link]+mask.path == parent_mask.path and
+                    mask.syntax == parent_mask.syntax
+                    for parent_mask in parent_masks]):
                 continue
-            if any(mask.path == [reverse_link]+parent_mask.path and
-                   mask.syntax == parent_mask.syntax
-                   for parent_mask in parent_masks):
+            if any([mask.path == [reverse_link]+parent_mask.path and
+                    mask.syntax == parent_mask.syntax
+                    for parent_mask in parent_masks]):
                 continue
             chain = []
             for arc in mask.path:
@@ -413,7 +413,8 @@ class MaskedBindByTable(BindByFreeTable):
                                self.recipe.table,
                                self.syntax)
         for recipe in cloak(binding):
-            binding = self.state.use(recipe, self.syntax, scope=binding)
+            with context.env(masks=None):
+                binding = self.state.use(recipe, self.syntax, scope=binding)
         return binding
 
 
@@ -429,7 +430,8 @@ class MaskedBindByChain(BindByAttachedTable):
         binding = self.state.scope
         binding = ChainBinding(binding, self.recipe.joins, self.syntax)
         for recipe in cloak(binding):
-            binding = self.state.use(recipe, self.syntax, scope=binding)
+            with context.env(masks=None):
+                binding = self.state.use(recipe, self.syntax, scope=binding)
         return binding
 
 

@@ -65,7 +65,8 @@ class ApplicationEnvironmentCommand(Command):
         }
 
         rex = get_rex()
-        env = Environment()
+        this_application_name = rex.requirements[0].replace('_', '-')
+
         rex_mask = re.compile(get_settings().about_rex_package_mask)
         if get_settings().about_exclude_package_mask:
             exclude_mask = re.compile(
@@ -74,6 +75,7 @@ class ApplicationEnvironmentCommand(Command):
         else:
             exclude_mask = None
 
+        env = Environment()
         for pkg in sorted(env):
             if (exclude_mask and exclude_mask.match(pkg)) \
                     or pkg == 'python':  # Don't list Python itself
@@ -86,7 +88,7 @@ class ApplicationEnvironmentCommand(Command):
             else:
                 response['other_packages'].append(info)
 
-            if info['name'] == rex.requirements[0]:
+            if info['name'] == this_application_name:
                 response['application_package'] = info
 
         return Response(

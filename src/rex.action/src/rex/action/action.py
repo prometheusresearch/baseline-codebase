@@ -20,6 +20,7 @@ from rex.core import (
 from rex.core import MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, AnyVal
 from rex.widget import Widget, WidgetVal, Field, undefined
 from rex.widget.validate import DeferredVal
+from rex.widget.util import add_mapping_key, pop_mapping_key
 
 __all__ = ('Action', 'ActionVal', 'ActionMapVal')
 
@@ -204,37 +205,3 @@ class ActionMapVal(Validate):
         mapping = self._validate_pre(value)
         return {k: v.resolve(validate=ActionVal(id=k))
                 for k, v in mapping.items()}
-
-
-YAML_STR_TAG = u'tag:yaml.org,2002:str'
-
-
-def pop_mapping_key(node, key):
-    assert isinstance(node, yaml.MappingNode)
-    value = []
-    for n, (k, v) in enumerate(node.value):
-        if isinstance(k, yaml.ScalarNode) and k.tag == YAML_STR_TAG and k.value == key:
-            node = yaml.MappingNode(
-                node.tag,
-                node.value[:n] + node.value[n + 1:],
-                start_mark=node.start_mark,
-                end_mark=node.end_mark,
-                flow_style=node.flow_style)
-            return v, node
-    return None, node
-
-
-def add_mapping_key(node, key, value):
-    assert isinstance(node, yaml.MappingNode)
-    key_node = yaml.ScalarNode(YAML_STR_TAG, key,
-                               start_mark=node.start_mark,
-                               end_mark=node.end_mark)
-    value_node = yaml.ScalarNode(YAML_STR_TAG, value,
-                                 start_mark=node.start_mark,
-                                 end_mark=node.end_mark)
-    return yaml.MappingNode(
-        node.tag,
-        node.value + [(key_node, value_node)],
-        start_mark=node.start_mark,
-        end_mark=node.end_mark,
-        flow_style=node.flow_style)

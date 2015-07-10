@@ -135,12 +135,8 @@ var DataTable = React.createClass({
 
   renderCell(cellData, cellDataKey, rowData, rowIndex, columnData, width) {
     var onCellClick = this.props.onCellClick && this.props.onCellClick.bind(null, cellDataKey, cellData, rowData);
-    if (columnData.widget) {
-      if (isReactElement(columnData.widget)) {
-        return React.cloneElement(columnData.widget, {cellData, onCellClick});
-      } else {
-        return React.cloneElement(columnData.widget.column, {cellData, onCellClick});
-      }
+    if (columnData.widget && columnData.widget.column) {
+      return React.cloneElement(columnData.widget.column, {cellData, onCellClick});
     } else {
       return (
         <span title={cellData} onClick={onCellClick}>

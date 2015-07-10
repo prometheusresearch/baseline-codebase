@@ -172,7 +172,10 @@ var Autocomplete = React.createClass({
       clearTimeout(this._searchTimer);
     }
     this._searchTimer = setTimeout(() => {
-      this._requestOptions(value).nodeify(cb)
+      this._requestOptions(value).then(
+        result => cb(null, result),
+        err => cb(err)
+      );
     }, 300);
   }
 

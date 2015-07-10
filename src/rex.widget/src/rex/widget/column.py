@@ -22,3 +22,6 @@ class ColumnVal(Validate):
 
     def __call__(self, value):
         return self._validate(value)
+
+    def construct(self, loader, node):
+        return self._validate.construct(loader, node)

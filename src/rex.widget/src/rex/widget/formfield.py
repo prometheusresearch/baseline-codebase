@@ -11,13 +11,15 @@ import types
 import re
 from collections import OrderedDict
 
+import yaml
 from cached_property import cached_property
+
 from htsql.core import domain
 from htsql.core.model import HomeNode, TableArc
 from htsql.core.classify import classify
 
-from rex.core import Extension, Validate, Error
-from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal, ProxyVal
+from rex.core import Extension, Validate, Error, guard, Location
+from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal, UnionVal, ProxyVal, OnField
 from rex.core import AnyVal, StrVal, IntVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
 from rex.db import get_db
@@ -25,7 +27,7 @@ from rex.db import get_db
 from .widget import Widget
 from .field import Field
 from .url import URLVal, PortURL
-from .util import PropsContainer, undefined, MaybeUndefinedVal
+from .util import PropsContainer, undefined, MaybeUndefinedVal, pop_mapping_key
 from .transitionable import as_transitionable
 from .pointer import Pointer
 from .dataspec import CollectionSpecVal, CollectionSpec
@@ -59,6 +61,39 @@ class FormLayoutItem(Widget):
         BoolVal(), default=True)
 
 
+class FormLayoutItemVal(Validate):
+
+    cls = NotImplemented
+    factory = NotImplemented
+    _match = NotImplemented
+    _validate = NotImplemented
+
+    def __call__(self, value):
+        if isinstance(value, self.cls):
+            return value
+        value = self._validate(value)
+        return self.factory(value)
+
+    def construct(self, loader, node):
+        value = self._validate.construct(loader, node)
+        return self.factory(value)
+
+    def match(self, value):
+        if isinstance(value, self.cls):
+            return True
+        if isinstance(value, yaml.MappingNode):
+            if len(value.value) != 1:
+                return False
+        elif isinstance(value, dict):
+            if len(value) != 1:
+                return False
+        return self._match(value)
+
+    @property
+    def variant(self):
+        return self.match, self
+
+
 class FormRow(FormLayoutItem):
     """ Form row.
     """
@@ -66,11 +101,31 @@ class FormRow(FormLayoutItem):
     js_type = 'rex-widget/lib/forms/FormRow'
 
 
+class FormRowVal(FormLayoutItemVal):
+
+    _validate = RecordVal(('row', form_layout_item_val))
+    _match = OnField('row')
+    cls = FormRow
+
+    def factory(self, values):
+        return FormRow(fields=values.row)
+
+
 class FormColumn(FormLayoutItem):
     """ Form column.
     """
 
     js_type = 'rex-widget/lib/forms/FormColumn'
+
+
+class FormColumnVal(FormLayoutItemVal):
+
+    _validate = RecordVal(('column', form_layout_item_val))
+    _match = OnField('column')
+    cls = FormColumn
+
+    def factory(self, values):
+        return FormColumn(fields=values.column)
 
 
 class FormFieldTypeVal(Validate):
@@ -105,28 +160,44 @@ class FormFieldVal(Validate):
         field_type = self._validate_type(field_type)
         return field_type(**value)
 
+    def construct(self, loader, node):
+        with guard('While parsing:', Location.from_node(node)):
+            if isinstance(node, (yaml.ScalarNode, yaml.SequenceNode)):
+                value = super(FormFieldVal, self).construct(loader, node)
+                return self(value)
+            elif isinstance(node, yaml.MappingNode):
+                type_node, node = pop_mapping_key(node, 'type')
+                if type_node:
+                    if not isinstance(type_node, yaml.ScalarNode):
+                        raise Error('type should be a string')
+                    field_type = self._validate_type(type_node.value)
+                else:
+                    field_type = self._validate_type(self.default_type)
+                validator = field_type.validator()
+                values = validator.construct(loader, node)._asdict()
+                return field_type.validated(**values)
+            else:
+                raise Error('unknown yaml node type:', type(yaml))
+
 
 class FormFieldItemVal(Validate):
     """ Validator for form field item.
     """
 
-    _validate_row = RecordVal(('row', form_layout_item_val))
-    _validate_column = RecordVal(('column', form_layout_item_val))
+    _validate_row = FormRowVal()
+    _validate_column = FormColumnVal()
 
-    _validate = OneOfVal(
-        _validate_row,
-        _validate_column,
-        WidgetVal(widget_class=FormLayoutItem),
+    _validate = UnionVal(
+        _validate_row.variant,
+        _validate_column.variant,
         FormFieldVal(),
     )
 
     def __call__(self, value):
-        value = self._validate(value)
-        if isinstance(value, self._validate_row.record_type):
-            value = FormRow.validated(fields=value.row)
-        elif isinstance(value, self._validate_column.record_type):
-            value = FormColumn.validated(fields=value.column)
-        return value
+        return self._validate(value)
+
+    def construct(self, loader, node):
+        return self._validate.construct(loader, node)
 
 
 class FormFieldsetVal(Validate):
@@ -137,6 +208,9 @@ class FormFieldsetVal(Validate):
 
     def __call__(self, value):
         return self._validate(value)
+
+    def construct(self, loader, node):
+        return self._validate.construct(loader, node)
 
 form_layout_item_val.set(FormFieldsetVal())
 
@@ -170,6 +244,16 @@ class EntityFieldsetVal(Validate):
         fields = enrich(fields, Port(entity))
         return fields
 
+    def construct(self, loader, node):
+        if self.entity is not None:
+            entity = self.entity
+            fields = self._validate_fieldset.construct(loader, node)
+        else:
+            value = self._validate.construct(loader, node)
+            entity = value.entity
+            fields = value.fields
+        fields = enrich(fields, Port(entity))
+        return fields
 
 validate = FormFieldVal()
 
@@ -179,9 +263,10 @@ class FormWidgetSpecVal(Validate):
     _validate_spec = RecordVal(
         ('edit', WidgetVal(), undefined),
         ('show', WidgetVal(), undefined),
+        ('column', WidgetVal(), undefined),
     )
 
-    _validate = OneOfVal(
+    _validate = UnionVal(
         WidgetVal(),
         _validate_spec,
     )
@@ -189,8 +274,14 @@ class FormWidgetSpecVal(Validate):
     def __call__(self, value):
         return self._validate(value)
 
+    def construct(self, loader, node):
+        return self._validate.construct(loader, node)
+
 
 FormWidgetSpec = FormWidgetSpecVal._validate_spec.record_type
+
+
+_prevent_validation = False
 
 
 class FormField(Extension):
@@ -207,8 +298,27 @@ class FormField(Extension):
     def enabled(cls):
         return cls.type is not NotImplemented
 
+    @classmethod
+    def validator(cls):
+        fields = cls._default_fields + cls.fields
+        return RecordVal(*fields)
+
+    @classmethod
+    def validated(cls, **values):
+        global _prevent_validation # pylint: disable=global-statement
+        _prevent_validation = True
+        try:
+            return cls(**values)
+        finally:
+            _prevent_validation = False
+
     def __init__(self, **values):
-        self.values = self.validate(values)
+        global _prevent_validation # pylint: disable=global-statement
+        if not _prevent_validation:
+            values = self.validate(values)
+        else:
+            _prevent_validation = False
+        self.values = values
         for k, v in self.values.items():
             if not k == 'widget':
                 setattr(self, k, v)
@@ -229,17 +339,13 @@ class FormField(Extension):
     )
 
     def validate(self, values):
+        validator = self.validator()
         values = dict(values)
-        for f in self.validator.fields.values():
+        for f in validator.fields.values():
             if not f.name in values and f.has_default:
                 values[f.name] = f.default
-        values = self.validator(values)._asdict()
+        values = validator(values)._asdict()
         return values
-
-    @cached_property
-    def validator(self):
-        fields = self._default_fields + self.__class__.fields
-        return RecordVal(*fields)
 
     def __clone__(self, **values):
         next_values = {}
@@ -264,7 +370,7 @@ class FormField(Extension):
     def __repr__(self):
         args = ['%s=%r' % (k, v)
                 for k, v in self.values.items()
-                if self.validator.fields[k].default != v]
+                if self.validator().fields[k].default != v]
         return '%s(%s)' % (self.__class__.__name__, ', '.join(args))
 
 
@@ -301,8 +407,8 @@ def enrich(fields, port):
             keys = [f[0] for f in FormField._default_fields + field.__class__.fields]
             update_keys = [f[0] for f in FormField._default_fields + update.__class__.fields]
             values = {}
-            values.update({k: getattr(update, k) for k in update_keys})
-            values.update({k: getattr(field, k) for k in keys if k in update_keys})
+            values.update({k: update.values[k] for k in update_keys})
+            values.update({k: field.values[k] for k in keys if k in update_keys})
             field = update.__class__(**values)
         return field
 

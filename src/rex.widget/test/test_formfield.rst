@@ -60,7 +60,7 @@ Set width::
   ... width: 10
   ... prop: prop
   ... """)
-  MyFormField(value_key=['a'], width=10, prop='prop')
+  MyFormField(width=10, value_key=['a'], prop='prop')
 
 Errors::
 
@@ -84,7 +84,7 @@ Errors::
   Error: Expected one of:
       my
   Got:
-      'xmy'
+      u'xmy'
   While parsing:
       "<...>", line 2
 
@@ -158,6 +158,21 @@ Form field types
 
   >>> v = FormFieldVal()
 
+StringFormField::
+
+  >>> v.parse("""
+  ... type: string
+  ... value_key: ok
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  StringFormField(value_key=['ok'])
+
+  >>> v.parse("""
+  ... type: string
+  ... value_key: ok
+  ... widget: !<TextareaField>
+  ... """)
+  StringFormField(widget=TextareaField(), value_key=['ok'])
+
 EnumFormField::
 
   >>> f = v.parse("""
@@ -229,7 +244,7 @@ NoteFormField::
   ... """)
 
   >>> f
-  NoteFormField(value_key=['individual'], widget=TextareaField())
+  NoteFormField(widget=TextareaField(), value_key=['individual'])
 
   >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["individual"],
@@ -832,6 +847,13 @@ Working with YAML API::
   ... """)
   [StringFormField(value_key=['code'])]
 
+  >>> parse("""
+  ... - type: string
+  ...   value_key: code
+  ...   widget: !<TextareaField>
+  ... """)
+  [StringFormField(widget=TextareaField(), value_key=['code'])]
+
   >>> fs = parse("""
   ... - row:
   ...   - type: string
@@ -948,6 +970,18 @@ We can specify entity in when defining a validator::
                             Record(value='not-applicable', label='Not Applicable')]),
      StringFormField(value_key=['identity', 'givenname']),
      EntityFormField(value_key=['mother'], label='Mother', data=Record(entity='individual', title='id()', mask=None))]
+
+    >>> parse("""
+    ... - value_key: sex
+    ...   widget: !<TextareaField>
+    ... """) # doctest: +NORMALIZE_WHITESPACE
+    [EnumFormField(value_key=['sex'],
+                   label='Sex',
+                   widget=TextareaField(), 
+                   options=[Record(value='not-known', label='Not Known'),
+                            Record(value='male', label='Male'),
+                            Record(value='female', label='Female'),
+                            Record(value='not-applicable', label='Not Applicable')])]
 
 Alternatively we can supply entity name in YAML::
 

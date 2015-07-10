@@ -14,6 +14,7 @@ var TouchableArea           = require('./TouchableArea');
 var isTouchDevice           = require('./Environment').isTouchDevice;
 var getByKeyPath            = require('./getByKeyPath');
 var SingleTimeoutMixin      = require('./SingleTimeoutMixin');
+var isReactElement          = require('./isReactElement');
 
 var DataTableStyle = {
   sortIcon: {
@@ -134,11 +135,19 @@ var DataTable = React.createClass({
 
   renderCell(cellData, cellDataKey, rowData, rowIndex, columnData, width) {
     var onCellClick = this.props.onCellClick && this.props.onCellClick.bind(null, cellDataKey, cellData, rowData);
-    return (
-      <span title={cellData} onClick={onCellClick}>
-        {renderToString(cellData)}
-      </span>
-    );
+    if (columnData.widget) {
+      if (isReactElement(columnData.widget)) {
+        return React.cloneElement(columnData.widget, {cellData, onCellClick});
+      } else {
+        return React.cloneElement(columnData.widget.column, {cellData, onCellClick});
+      }
+    } else {
+      return (
+        <span title={cellData} onClick={onCellClick}>
+          {renderToString(cellData)}
+        </span>
+      );
+    }
   },
 
   renderHeader(label, cellDataKey, columnData, rowData, width) {

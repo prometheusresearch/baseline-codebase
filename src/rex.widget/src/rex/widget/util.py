@@ -7,8 +7,11 @@
 
 """
 
+
 import re
 from collections import MutableMapping, OrderedDict
+
+import yaml
 
 from rex.core import Validate, AnyVal
 
@@ -130,3 +133,37 @@ def to_camelcase(value):
 @as_transitionable(PropsContainer, tag='map')
 def _format_PropsContainer(value, req, path): # pylint: disable=invalid-name
     return value._storage
+
+
+YAML_STR_TAG = u'tag:yaml.org,2002:str'
+
+
+def pop_mapping_key(node, key):
+    assert isinstance(node, yaml.MappingNode)
+    value = []
+    for n, (k, v) in enumerate(node.value):
+        if isinstance(k, yaml.ScalarNode) and k.tag == YAML_STR_TAG and k.value == key:
+            node = yaml.MappingNode(
+                node.tag,
+                node.value[:n] + node.value[n + 1:],
+                start_mark=node.start_mark,
+                end_mark=node.end_mark,
+                flow_style=node.flow_style)
+            return v, node
+    return None, node
+
+
+def add_mapping_key(node, key, value):
+    assert isinstance(node, yaml.MappingNode)
+    key_node = yaml.ScalarNode(YAML_STR_TAG, key,
+                               start_mark=node.start_mark,
+                               end_mark=node.end_mark)
+    value_node = yaml.ScalarNode(YAML_STR_TAG, value,
+                                 start_mark=node.start_mark,
+                                 end_mark=node.end_mark)
+    return yaml.MappingNode(
+        node.tag,
+        node.value + [(key_node, value_node)],
+        start_mark=node.start_mark,
+        end_mark=node.end_mark,
+        flow_style=node.flow_style)

@@ -23,22 +23,23 @@ var RepeatingFieldset = React.createClass({
 
   getDefaultProps() {
     return {
+      baseIndex: 0,
       addButtonText: 'Add',
     };
   },
 
   render() {
     var {
-      children, formValue, label,
+      baseIndex, children, formValue, label,
       addButtonText, removeButtonText, ...props
     } = this.props;
     var minItems = formValue.schema.minItems || 0;
-    var items = formValue.value || [];
+    var items = (formValue.value || []).slice(baseIndex);
     if (items.length < minItems) {
       items = items.concat(arrayFromLength(minItems - items.length));
     }
     var fieldsets = items.map((item, idx) =>
-      <Fieldset formValue={formValue.select(idx)} key={idx}>
+      <Fieldset formValue={formValue.select(idx + baseIndex)} key={idx + baseIndex}>
         <HBox>
           <VBox style={{marginRight: 10}}>
             <Button
@@ -47,7 +48,7 @@ var RepeatingFieldset = React.createClass({
               icon="remove"
               style={{visibility: items.length > minItems ? undefined : 'hidden'}}
               text={removeButtonText}
-              onClick={this.removeItem.bind(null, idx)}
+              onClick={this.removeItem.bind(null, idx + baseIndex)}
               />
           </VBox>
           <VBox size={1}>

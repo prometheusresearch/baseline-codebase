@@ -15,6 +15,9 @@ var BUNDLE_PREFIX = process.env.REX_SETUP_BUNDLE_PREFIX || '/bundle/';
 var cwd = process.cwd();
 var packageDirectory = path.join(cwd, 'node_modules');
 
+/**
+ * Read package metdata or return null if no found.
+ */
 function getPackageMetadata(directory) {
   var packageMetadataFilename = path.join(directory, 'package.json');
   if (!fs.existsSync(packageMetadataFilename)) {
@@ -24,23 +27,22 @@ function getPackageMetadata(directory) {
   return JSON.parse(src);
 }
 
+/**
+ * Collect a list of dependencies.
+ */
 function getListOfDependencies(packageMetadata, seen) {
   seen = seen || {};
-  var mask = packageMetadata && packageMetadata.rex && packageMetadata.rex.dependencies || null;
   var dependencies = fs.readdirSync(packageDirectory)
     .map(function(dir) { return path.join(packageDirectory, dir); })
     .map(getPackageMetadata)
-    .filter(Boolean)
-    .filter(function(pkg) { return !seen[pkg.name] && !!pkg.rex; });
-  if (mask) {
-    dependencies = dependencies.filter(function(pkg) {
-      return mask[pkg.name] !== false;
-    });
-  }
+    .filter(function(pkg) { return pkg && !seen[pkg.name] && !!pkg.rex; });
   dependencies.forEach(function(pkg) {
     seen[pkg.name] = pkg;
   });
-  return unique(dependencies.concat(concat(dependencies.map(function(pkg) { return getListOfDependencies(pkg, seen); }))));
+  var subDependencies = concat(dependencies.map(function(pkg) {
+    return getListOfDependencies(pkg, seen);
+  }));
+  return unique(dependencies.concat(subDependencies));
 }
 
 /**

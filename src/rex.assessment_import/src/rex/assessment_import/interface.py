@@ -206,8 +206,8 @@ class Assessment(object):
                 % {'names': data_fields.keys(), 'tpl_id': tpl_obj_id}
             )
         if notfound:
-            raise Error("Assessment data related to the `%(tpl_id)s` does not"
-                " contain fields `%(names)s` expected by the template."
+            raise Error("Assessment data related to the `%(tpl_id)s` template"
+                " does not contain expected fields `%(names)s`."
                 % {'names': notfound, 'tpl_id': tpl_obj_id}
             )
 
@@ -252,12 +252,16 @@ class Assessment(object):
     def get_date(self, row):
         evaluation_date = row.get('date')
         if not evaluation_date:
-            evaluation_date = datetime.datetime.today().strftime('%Y-%m-%d')
-        try:
-            evaluation_date = self.validate_value(evaluation_date, 'date')
-        except Exception, exc:
-            raise Error("Got unexpected value `%(value)s` of the assessment"
-                    " `date`" % {'value': evaluation_date}, exc)
+            evaluation_date = datetime.datetime.today()
+        else:
+            try:
+                evaluation_date = self.validate_value(evaluation_date, 'date')
+                evaluation_date = datetime.datetime.strptime(evaluation_date,
+                                                             '%Y-%m-%d'
+                                                    )
+            except Exception, exc:
+                raise Error("Got unexpected value `%(value)s` of the assessment"
+                        " `date`" % {'value': evaluation_date}, exc)
         return evaluation_date
 
     def add_values(self, instrument, data):

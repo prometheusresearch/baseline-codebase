@@ -47,6 +47,10 @@ It fails if given instrument UID doesnot exist::
 
     >>> ctl('assessment-template-export --project=rex.assessment_import_demo simple --output ./build/sandbox')
 
+    >>> template = open("./build/sandbox/simple1.csv").readlines()
+    >>> print template
+    ['subject,date,assessment_id,q_fake\r\n', 'Please provide the subject id here,Please provide a date (YYYY-MM-DD),Please provide a unique id for this assessement,"[""text""]"\r\n']
+
 assessment-import
 =================
 
@@ -75,3 +79,11 @@ the bunch of csv files as Assessment objects to the datastore::
     FATAL ERROR: Instrument "doesnotexist" does not exist.
     <BLANKLINE>
 
+    >>> ctl('assessment-import --project=rex.assessment_import_demo simple', expect=1)
+    FATAL ERROR: Not found any csv file appropriate to import.
+    <BLANKLINE>
+
+    >>> open('./build/sandbox/simple1.csv', 'w').write('subject,assessment_id,date,q_fake\nsubject1,1,,')
+    >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/')
+    Starting assessment 1 import...
+    Import finished, assessment fake_assessment_1 generated.

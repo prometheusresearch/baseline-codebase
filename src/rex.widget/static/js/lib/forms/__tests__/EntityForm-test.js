@@ -12,6 +12,8 @@ var EntityForm        = require('../EntityForm');
 var Field             = require('../Field');
 var Input             = require('../Input');
 
+console.log(Object.keys(require('react/addons').addons));
+
 function findInputs(form) {
   var inputs = {};
   TestUtils.scryRenderedComponentsWithType(form, Input).forEach(input => {

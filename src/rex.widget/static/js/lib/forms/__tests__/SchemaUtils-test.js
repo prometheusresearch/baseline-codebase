@@ -4,7 +4,7 @@
 'use strict';
 
 var SchemaUtils = require('../SchemaUtils');
-var {validator} = require('../../_forms/SchemaUtils');
+var {createValidator: validator} = require('react-forms').Schema;
 var Validation  = SchemaUtils.Validation;
 
 describe('SchemaUtils', function() {
@@ -465,9 +465,9 @@ describe('SchemaUtils', function() {
           format: Validation.string
         });
         v('x');
-        expect(v.errorList).toEqual(null);
+        expect(v.errors).toEqual(null);
         v(42);
-        expect(v.errorList).toEqual([{field: 'data', message: 'is the wrong type'}]);
+        expect(v.errors).toEqual([{field: 'data', message: 'is the wrong type'}]);
       });
 
       it('with pattern', function() {
@@ -477,9 +477,9 @@ describe('SchemaUtils', function() {
           formatPattern: '[0-9]+'
         });
         v('x');
-        expect(v.errorList).toEqual([{ field : 'data', message : 'does not match the pattern' }]);
+        expect(v.errors).toEqual([{ field : 'data', message : 'does not match the pattern' }]);
         v('42');
-        expect(v.errorList).toEqual(null);
+        expect(v.errors).toEqual(null);
       });
 
       it('with pattern and error message', function() {
@@ -490,9 +490,9 @@ describe('SchemaUtils', function() {
           formatError: 'should be a number'
         });
         v('x');
-        expect(v.errorList).toEqual([{ field : 'data', message : 'should be a number' }]);
+        expect(v.errors).toEqual([{ field : 'data', message : 'should be a number' }]);
         v('42');
-        expect(v.errorList).toEqual(null);
+        expect(v.errors).toEqual(null);
       });
 
     });

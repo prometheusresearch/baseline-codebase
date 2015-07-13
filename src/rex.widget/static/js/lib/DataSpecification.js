@@ -4,7 +4,7 @@
 'use strict';
 
 var Immutable = require('immutable');
-var invariant = require('rex-widget/lib/invariant');
+var invariant = require('./invariant');
 var valueOf   = require('./valueOf');
 
 var CANCEL_ON_UPDATE = 'CANCEL_ON_UPDATE';

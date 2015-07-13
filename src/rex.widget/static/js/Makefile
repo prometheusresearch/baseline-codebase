@@ -1,7 +1,7 @@
 BIN   = ./node_modules/.bin
 
 test:
-	@$(BIN)/webtest
+	@REX_SETUP_DEV=yes $(BIN)/webtest
 
 ci:
-	@$(BIN)/webtest --watch
+	@REX_SETUP_DEV=yes $(BIN)/webtest --watch

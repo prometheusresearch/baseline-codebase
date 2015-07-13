@@ -6,7 +6,9 @@ import React, {PropTypes} from 'react';
 import RexWidget          from 'rex-widget';
 import Actions            from './Actions';
 
-let {linearGradient, rgba, rgb} = RexWidget.StyleUtils;
+let {
+  linearGradient, rgba, rgb, border, borderStyle
+} = RexWidget.StyleUtils;
 let {HBox}                      = RexWidget.Layout;
 
 let BGSTOPS = {
@@ -42,6 +44,7 @@ let Style = {
       color: rgb(0)
     },
     selfRight: {
+      borderRight: border(5, borderStyle.solid, rgba(0, 0.1)),
       background: linearGradient('to right', BGSTOPS.A, BGSTOPS.B),
       color: rgb(0)
     }

@@ -6,13 +6,19 @@ import React, {PropTypes} from 'react';
 import RexWidget          from 'rex-widget';
 import Actions            from './Actions';
 
-let {linearGradient}    = RexWidget.StyleUtils;
-let {HBox}              = RexWidget.Layout;
+let {linearGradient, rgba, rgb} = RexWidget.StyleUtils;
+let {HBox}                      = RexWidget.Layout;
+
+let BGSTOPS = {
+  A: rgba(234, 0.1),
+  B: rgba(255, 0.6),
+  C: rgba(241, 0.6)
+};
 
 let Style = {
   self: {
     padding: 10,
-    color: '#888',
+    color: rgb(154),
     fontWeight: 'bold',
     cursor: 'pointer',
     fontSize: '90%'
@@ -32,20 +38,20 @@ let Style = {
   },
   onActive: {
     selfLeft: {
-      background: linearGradient('to left', '#eaeaea', '#ffffff'),
-      color: '#000'
+      background: linearGradient('to left', BGSTOPS.A, BGSTOPS.B),
+      color: rgb(0)
     },
     selfRight: {
-      background: linearGradient('to right', '#eaeaea', '#ffffff'),
-      color: '#000'
+      background: linearGradient('to right', BGSTOPS.A, BGSTOPS.B),
+      color: rgb(0)
     }
   },
   onHover: {
     selfLeft: {
-      background: linearGradient('to left', '#eaeaea', '#f1f1f1'),
+      background: linearGradient('to left', BGSTOPS.A, BGSTOPS.C),
     },
     selfRight: {
-      background: linearGradient('to right', '#eaeaea', '#f1f1f1'),
+      background: linearGradient('to right', BGSTOPS.A, BGSTOPS.C),
     }
   }
 };

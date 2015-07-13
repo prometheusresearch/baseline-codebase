@@ -9,13 +9,17 @@ import ActionButton    from '../ActionButton';
 import SidebarRenderer from '../SidebarRenderer';
 
 let {VBox} = RexWidget.Layout;
-let {linearGradient, border, borderStyle, rgb} = RexWidget.StyleUtils;
+let {linearGradient, border, borderStyle, rgb, insetBoxShadow} = RexWidget.StyleUtils;
 
 let Style = {
 
+  sidebar: {
+    background: rgb(210),
+    boxShadow: insetBoxShadow(0, 1, 3, 0, rgb(186))
+  },
+
   sidebarButton: {
-    fontSize: '80%',
-    background: linearGradient('to right', '#eaeaea', '#ffffff')
+    fontSize: '80%'
   }
 };
 
@@ -54,7 +58,7 @@ export default class Alternative extends React.Component {
         />
     );
     return (
-      <VBox>
+      <VBox style={Style.sidebar}>
         {buttons}
       </VBox>
     );

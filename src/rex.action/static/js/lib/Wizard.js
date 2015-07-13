@@ -1,24 +1,25 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
- * @preventMunge
  */
-'use strict';
 
-var React                     = require('react/addons');
-var {cloneWithProps}          = React.addons;
-var RexWidget                 = require('rex-widget');
-var {VBox, HBox}              = RexWidget.Layout;
-var {boxShadow, border,
-     translate3d, rgb, borderStyle,
-     overflow, transform}     = RexWidget.StyleUtils;
-var Breadcrumb                = require('./Breadcrumb');
-var Actions                   = require('./Actions');
-var WithDOMSize               = require('./WithDOMSize');
-var WizardState               = require('./WizardState')
-var WizardPanel               = require('./WizardPanel');
-var WizardHistory             = require('./WizardHistory');
+import React, {PropTypes} from 'react';
+import RexWidget          from 'rex-widget';
+import Breadcrumb         from './Breadcrumb';
+import Actions            from './Actions';
+import WithDOMSize        from './WithDOMSize';
+import WizardState        from './WizardState';
+import WizardPanel        from './WizardPanel';
+import WizardHistory      from './WizardHistory';
 
-var Style = {
+let {VBox, HBox} = RexWidget.Layout;
+
+let {
+  boxShadow, border,
+  translate3d, rgb, borderStyle,
+  overflow, transform
+} = RexWidget.StyleUtils;
+
+let Style = {
 
   self: {
     width: '100%',
@@ -48,7 +49,46 @@ var Style = {
   }
 };
 
-var Wizard = React.createClass({
+@WithDOMSize
+export default class Wizard extends React.Component {
+
+  static propTypes = {
+    /**
+     * A tree of possible wizard transitions.
+     */
+    path: PropTypes.object.isRequired,
+
+    /**
+     * A mapping from id to a React element which represents an action.
+     */
+    actions: PropTypes.object.isRequired,
+
+    /**
+     * Initial context, it is set to {} (empty context if it's not supplied).
+     */
+    initialContext: PropTypes.object,
+
+    /**
+     * Boolean flag which disables history for wizard if set to true.
+     */
+    disableHistory: PropTypes.bool
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      wizard: null
+    };
+    this._wizardHistory = null;
+    this._wizardHistory = new WizardHistory(
+      this._wizardConstruct,
+      this._wizardRetrieve,
+      this._wizardUpdate
+    );
+    if (!props.disableHistory) {
+      this._wizardHistory.start();
+    }
+  }
 
   render() {
     if (this.props.DOMSize === null) {
@@ -68,7 +108,7 @@ var Wizard = React.createClass({
         </VBox>
       );
     }
-  },
+  }
 
   renderPanels() {
     var {wizard} = this.state;
@@ -83,7 +123,7 @@ var Wizard = React.createClass({
         style={{...Style.item, zIndex: panel.isService ? 999 : 1000}}
         onReplace={this.onReplace}
         onFocus={this.onFocus}>
-        {cloneWithProps(panel.element, {
+        {React.cloneElement(panel.element, {
           context: {...panel.context, USER: "'" + __REX_USER__ + "'"},
           wizard: wizard,
           onContext: this.onContext.bind(null, panel.id),
@@ -91,7 +131,7 @@ var Wizard = React.createClass({
         })}
       </WizardPanel>
     ));
-  },
+  }
 
   renderBreadcrumb() {
     var {wizard} = this.state;
@@ -108,77 +148,80 @@ var Wizard = React.createClass({
         onClick={this.onBreadcrumbClick}
         />
     );
-  },
-
-  getInitialState() {
-    return {
-      wizard: null
-    };
-  },
-
-  componentWillMount() {
-    this._wizardHistory = new WizardHistory(
-      this._constructFromQueryString,
-      () => this.state.wizard,
-      (wizard) => this.setState({wizard})
-    );
-    this._wizardHistory.start();
-  },
+  }
 
   componentWillUnmount() {
     this._wizardHistory.stop();
     this._wizardHistory = null;
-  },
+  }
 
   componentWillReceiveProps({DOMSize}) {
     if (DOMSize !== this.props.DOMSize) {
       var wizard = this.state.wizard;
       if (wizard === null) {
-        wizard = WizardState.fromQueryString(
+        if (this._wizardHistory.started) {
+          wizard = WizardState.fromQueryString(
             this._wizardHistory.queryString,
             this._onWizardUpdate,
             {actions: this.props.actions, tree: this.props.path},
-            DOMSize);
+            DOMSize,
+            this.props.initialContext
+          );
+        } else {
+          wizard = WizardState.construct(
+            this._onWizardUpdate,
+            {actions: this.props.actions, tree: this.props.path},
+            DOMSize,
+            this.props.initialContext
+          );
+        }
       } else {
         wizard = wizard.resize(DOMSize);
       }
-      this._wizardHistory.wizardChanged(wizard);
-      this.setState({wizard});
+      this._onWizardUpdate(wizard);
     }
-  },
+  }
 
-  _constructFromQueryString(qs) {
+  _wizardConstruct = (qs) => {
     return WizardState.fromQueryString(
         qs,
         this._onWizardUpdate,
         {actions: this.props.actions, tree: this.props.path},
         this.props.DOMSize);
-  },
+  }
 
-  _onWizardUpdate(wizard) {
+  _wizardRetrieve = () => {
+    return this.state.wizard;
+  }
+
+  _wizardUpdate = (wizard) => {
+    this.setState({wizard});
+  }
+
+  _onWizardUpdate = (wizard) => {
     if (wizard !== this.state.wizard) {
       this._wizardHistory.wizardChanged(wizard);
       this.setState({wizard});
     }
-  },
+  }
 
-  onReplace(id, replaceId) {
+  onReplace = (id, replaceId) => {
     this.state.wizard.update(wizard => wizard
       .close(id)
       .openAfterLast(replaceId));
-  },
+  }
 
-  onContext(id, context) {
+  onContext = (id, context) => {
     this.state.wizard.update(wizard => wizard
       .updateContext(id, context));
-  },
+  }
 
-  onFocus(id) {
+  onFocus = (id) => {
     this.state.wizard.update(wizard => wizard
       .ensureVisible(id));
-  },
+  }
 
-  onBreadcrumbClick(id) {
+  onBreadcrumbClick = (id) => {
     this.state.wizard.update(wizard => {
       if (wizard.isVisible(id)) {
         var idx = wizard.indexOf(id);
@@ -192,9 +235,9 @@ var Wizard = React.createClass({
       }
       return wizard;
     });
-  },
+  }
 
-  onClose(id) {
+  onClose = (id) => {
     this.state.wizard.update(wizard => {
       wizard = wizard.close(id);
       wizard = wizard.ensureVisible(wizard.last.id);
@@ -202,13 +245,9 @@ var Wizard = React.createClass({
     });
   }
 
-});
+}
 
 function getPanelKey(panel) {
   var inputKeys = Object.keys(panel.element.props.contextSpec.input);
   return inputKeys.map(k => panel.context[k]).join('__');
 }
-
-Wizard = WithDOMSize(Wizard);
-
-module.exports = Wizard;

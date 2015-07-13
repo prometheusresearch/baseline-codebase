@@ -11,9 +11,13 @@ class WizardHistory {
     this._construct = construct;
     this._get = get;
     this._onChange = onChange;
+    this.started = false;
   }
 
   wizardChanged(wizard) {
+    if (!this.started) {
+      return;
+    }
     // TODO: expose equality for wizard state
     var currentWizard = this._get();
     if (currentWizard && currentWizard._panels === wizard._panels) {
@@ -33,11 +37,17 @@ class WizardHistory {
   }
 
   start() {
-    window.addEventListener('popstate', this._read);
+    if (!this.started) {
+      window.addEventListener('popstate', this._read);
+      this.started = true;
+    }
   }
 
   stop() {
-    window.removeEventListener('popstate', this._read);
+    if (this.started) {
+      window.removeEventListener('popstate', this._read);
+      this.started = false;
+    }
   }
 };
 

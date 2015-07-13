@@ -187,13 +187,6 @@ class WizardState {
     return new WizardState(this._onUpdate, this._actions, this.size, panels, focus, canvasMetrics);
   }
 
-  static construct(onUpdate, actions, size) {
-    var wizard = new this(onUpdate, actions, size);
-    var first = Object.keys(actions.tree)[0];
-    invariant(first !== undefined);
-    return wizard.openAfterLast(first);
-  }
-
   toQueryString() {
     var context = {};
     var contextAgg = {};
@@ -217,14 +210,21 @@ class WizardState {
     });
   }
 
-  static fromQueryString(string, onUpdate, actions, size) {
+  static construct(onUpdate, actions, size, initialContext) {
+    var wizard = new this(onUpdate, actions, size);
+    var first = Object.keys(actions.tree)[0];
+    invariant(first !== undefined);
+    return wizard.openAfterLast(first, initialContext);
+  }
+
+  static fromQueryString(string, onUpdate, actions, size, initialContext) {
     var data = qs.parse(string);
     var context = data.context || {};
     var ids = data.action || '';
     ids = ids.split('/').filter(Boolean);
 
     if (ids.length === 0) {
-      return this.construct(onUpdate, actions, size);
+      return this.construct(onUpdate, actions, size, {...initialContext, ...context});
     } else {
       var wizard = new this(onUpdate, actions, size);
       for (var i = 0; i < ids.length; i++) {

@@ -56,6 +56,22 @@ Wizard
          actions={'second': AnotherAction(icon=undefined, width=undefined, id='second', title=undefined),
                   'first': MyAction(icon=undefined, width=undefined, id='first', title=undefined)})
 
+
+::
+
+  >>> Wizard.parse("""
+  ... path:
+  ... - first:
+  ... actions:
+  ...   first:
+  ...     type: wmy
+  ...   second:
+  ...     type: wanother
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  Wizard(path=ActionTree(tree=OrderedDict([('first', None)])),
+         actions={'second': AnotherAction(icon=undefined, width=undefined, id='second', title=undefined),
+                  'first': MyAction(icon=undefined, width=undefined, id='first', title=undefined)})
+
 ::
 
   >>> rex.off()

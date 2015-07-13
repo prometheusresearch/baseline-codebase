@@ -7,8 +7,10 @@
 
 """
 
-import yaml
+import sys
 from collections import Mapping, OrderedDict
+
+import yaml
 
 from rex.core import Validate, Error, Location, guard
 from rex.core import OMapVal, StrVal, ProxyVal, MaybeVal
@@ -104,20 +106,25 @@ class ActionTreeVal(Validate):
         self.actions = actions
         self.error_if_extra_actions = error_if_extra_actions
 
-    def _construct(self, tree_factory):
+    def _construct(self, tree_factory, node=None):
         actions = self.actions
         validate = ActionLevelVal(actions)
         tree = tree_factory(validate)
         if self.error_if_extra_actions:
             extra_actions = set(self.actions) - tree_keys(tree)
             if extra_actions:
-                raise Error('Actions are defined but not used in wizard',
-                            ', '.join(sorted(extra_actions)))
+                warn = Error('Actions are defined but not used in wizard:',
+                             ', '.join(sorted(extra_actions)))
+                if node:
+                    warn.wrap('While parsing:', Location.from_node(node))
+                print >> sys.stderr, 'Warning:', warn
+
         return ActionTree(tree=tree)
 
     def construct(self, loader, node):
         with guard('While parsing:', Location.from_node(node)):
-            return self._construct(lambda v: v.construct(loader, node))
+            return self._construct(lambda v: v.construct(loader, node),
+                node=node)
 
     def __call__(self, tree):
         if isinstance(tree, ActionTree):

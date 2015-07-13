@@ -32,6 +32,6 @@
   },
   "devDependencies": {
     "react": "^0.13.0",
-    "webtest": "@prometheusresearch/webtest"
+    "@prometheusresearch/webtest": "^0.1.4"
   }
 }

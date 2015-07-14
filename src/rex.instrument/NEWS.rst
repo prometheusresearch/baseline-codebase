@@ -19,6 +19,8 @@ REX.INSTRUMENT Change Log
   ability to update the ``mobile_tn``.
 * The ``instrument-store`` and ``calculationset-store`` tasks now accept a
   ``--context`` option in order to provide implementation context parameters.
+* Added a ``global_calculation_scope`` context manager to aid in writing tests
+  for Python-callable calculations that rely on CalculationScopeAddons.
 
 
 0.17.0 (2015-06-26)

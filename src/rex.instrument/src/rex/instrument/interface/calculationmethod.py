@@ -12,6 +12,7 @@ from rex.core import get_settings, Extension
 from rex.db import get_db
 
 from ..errors import InstrumentError
+from ..util import global_scope
 
 
 __all__ = (
@@ -232,20 +233,12 @@ class PythonCalculationMethod(CalculationMethod):
                     " %(name)s is not callable."
                     % {'callable': callable_opt, 'name': callable_obj_name})
 
-        used_additional_scope = []
-        for name, value in scope_additions.items():
-            if name not in __builtins__:
-                __builtins__[name] = value
-                used_additional_scope.append(name)
-        try:
-            result = callable_obj(assessment, previous_results)
-        except Exception, exc:
-            raise InstrumentError("Execution of %(callable)s failed: %(exc)s"
-                                  % {'callable': callable_opt, 'exc': exc})
-        finally:
-            for name in used_additional_scope:
-                if name in __builtins__:
-                    del __builtins__[name]
+        with global_scope(scope_additions):
+            try:
+                result = callable_obj(assessment, previous_results)
+            except Exception, exc:
+                raise InstrumentError("Execution of %(callable)s failed: %(exc)s"
+                                      % {'callable': callable_opt, 'exc': exc})
 
         return result
 

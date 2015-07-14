@@ -8,6 +8,7 @@ import codecs
 import pkg_resources
 import pytz
 
+from contextlib import contextmanager
 from datetime import date, time, datetime
 from decimal import Decimal
 from functools import wraps
@@ -26,6 +27,7 @@ __all__ = (
     'get_implementation',
     'get_current_datetime',
     'get_current_time',
+    'global_scope',
 )
 
 
@@ -233,4 +235,30 @@ def get_current_time():
 
     now = datetime.utcnow().time()
     return now.replace(tzinfo=pytz.utc)
+
+
+@contextmanager
+def global_scope(scope_additions=None):
+    """
+    A context manager that will temporarily inject variables into the global
+    Python scope.
+
+    :param scope_additions:
+        the variables to inject into the global Python scope
+    :type scope_additions: dict
+    """
+
+    scope_additions = scope_additions or {}
+
+    used_additional_scope = []
+    for name, value in scope_additions.items():
+        if name not in __builtins__:
+            __builtins__[name] = value
+            used_additional_scope.append(name)
+    try:
+        yield
+    finally:
+        for name in used_additional_scope:
+            if name in __builtins__:
+                del __builtins__[name]
 

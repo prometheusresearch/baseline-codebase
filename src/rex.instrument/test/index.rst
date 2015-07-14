@@ -17,6 +17,7 @@ REX.INSTRUMENT Examples/Tests
    test_entry
    test_parametersupplier
    test_taskcompletionprocessor
+   test_calculationscope
    test_cache
    test_settings
    test_ctl

@@ -3,11 +3,16 @@
 #
 
 
+from contextlib import contextmanager
+
 from rex.core import Extension
+
+from ..util import global_scope
 
 
 __all__ = (
     'CalculationScopeAddon',
+    'global_calculation_scope',
 )
 
 
@@ -74,4 +79,23 @@ class CalculationScopeAddon(Extension):
         """
 
         raise NotImplementedError()
+
+
+@contextmanager
+def global_calculation_scope(assessment):
+    """
+    A context manager that will Initialize all defined CalculationScopeAddons
+    and inject those variables into the global Python scope.
+
+    :param assessment: the Assessment to create the calculation scope for
+    :type assessment: Assessment
+    """
+
+    scope_additions = CalculationScopeAddon.get_addon_scope(
+        method='python',
+        assessment=assessment,
+    )
+
+    with global_scope(scope_additions):
+        yield
 

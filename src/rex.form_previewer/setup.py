@@ -24,6 +24,7 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.applet>=0.3,<3',
+        'rex.setup>=3.0,<4',
         'rex.core>=1.9,<2',
         'rex.web>=2,<4',
         'rex.i18n>=0.4,<0.5',

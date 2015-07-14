@@ -40,13 +40,10 @@ class ApplicationEnvironmentCommand(Command):
             return info
 
         try:
-            pkg_info = distribution.get_metadata('PKG-INFO')
+            pkg_info = distribution.get_metadata(distribution.PKG_INFO)
         except IOError:
-            try:
-                pkg_info = distribution.get_metadata('METADATA')
-            except IOError:
-                pkg_info = None
-        if pkg_info:
+            pass
+        else:
             pkg_info = message_from_string(pkg_info)
             if 'License' in pkg_info and pkg_info['License'] != 'UNKNOWN':
                 info['license'] = pkg_info['License']

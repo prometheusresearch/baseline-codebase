@@ -427,9 +427,18 @@ def to_dist(dist):
     return dist
 
 
+MIGRATION_DOCS = "https://doc.rexdb.us/rex.setup/3.0.0/guide.html#migrating-from-bower-json-to-package-json"
+
+
 def _collect_dependencies(dist):
     dist = to_dist(dist)
     req = to_requirement(dist)
+    if package_filename(dist, 'bower.json'):
+        raise distutils.errors.DistutilsSetupError(
+            "Package %s has static/js/bower.json metadata which should be "
+            "replaced with package.json metadata starting with Rex Setup 3.0. "
+            "See %s for upgrade instructions." % (
+                dist, MIGRATION_DOCS))
     filename, meta = package_metadata(dist)
     validate_package_metadata(filename, meta, to_js_name(req.key), dist.version)
     if meta:

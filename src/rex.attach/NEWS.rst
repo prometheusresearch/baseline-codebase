@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.0.4 (2015-07-14)
+==================
+
+* Clarified error message.
+
+
 2.0.3 (2015-03-11)
 ==================
 

@@ -235,6 +235,70 @@ There are the following metadata allowed:
   can be useful to split application bundle into chunks which work with
   incompatible versions of some packages.
 
+Migrating from bower.json to package.json
+-----------------------------------------
+
+Previously Rex Setup (< 3.0.0) used bower to manage JS dependencies. Bower uses
+``bower.json`` file to describe a package. Now with transition to npm all
+packages which were previously maintaining ``bower.json`` should replace it with
+``package.json`` which is used by npm.
+
+This change is pretty simple. Given the following ``bower.json`` metadata::
+
+    {
+      "name": "rex-study",
+      "version": "4.7.0",
+      "main": "./lib/index.js",
+      "rex": {
+        "bundleAll": true
+      },
+      "dependencies": {
+        "react": "^0.12.2",
+        "react-bootstrap": "^0.21.0",
+        "rex-applet": "*",
+        "rex-action": "*",
+        "rex-study-main": "*",
+        "rex-study-lab-admin": "*",
+        "rex-study-site-admin": "*",
+        "rex-study-study-configurer": "*",
+        "rex-study-enrollment-admin": "*",
+        "rex-study-recruitment-admin": "*"
+      },
+    }
+
+The corresponding ``package.json`` metadata would look similar::
+
+    {
+      "name": "rex-study",
+      "version": "4.7.0",
+      "main": "./lib/index.js",
+      "rex": {
+        "bundleAll": true
+      },
+      "peerDependencies": {
+        "react": "^0.12.2"
+      },
+      "dependencies": {
+        "react-bootstrap": "^0.21.0"
+      }
+    }
+
+Metadata keys ``name``, ``version``, ``main`` and ``rex`` are just copied as-is.
+
+Dependency declaration needs more attention:
+
+* We don't need dependencies on JS packages embedded in Python packages to be
+  specified anymore. This information will be gathered from ``setup.py`` file
+  with Python package metadata.
+
+* Packages which rely on global mutable state should be listed as *peer*
+  dependencies. Common examples of such packages are Bootstrap, React, jQuery,
+  Moment.js. See section above for more info about peer dependencies.
+
+All other keys (such as ``author``, ``description``) can be copied as-is to
+``package.json``. They are not used by npm and usually should be avoided as they
+mostly duplicate information from ``setup.py``.
+
 Generated files
 ===============
 
@@ -341,7 +405,7 @@ bundling npm packages:
 
 * It generates ``bundle.js``.
 * It generates ``bundle.css`` if the component has ``rex.style`` attribute in
-  ``bower.json`` pointing to a Less_ stylesheet.
+  ``package.json`` pointing to a Less_ stylesheet.
 * It uses ``babel-loader`` to transform ES2015_/JSX_ syntax into standard ES5
   JavaScript (JSX is a syntax extension to JavaScript used to develop React_
   applications).

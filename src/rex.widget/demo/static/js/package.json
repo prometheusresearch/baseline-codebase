@@ -3,6 +3,7 @@
   "version": "1.0.3",
   "main": "./lib/index.js",
   "rex": {
+    "bundleAll": true
   },
   "dependencies": {
     "react": "^0.13.2"

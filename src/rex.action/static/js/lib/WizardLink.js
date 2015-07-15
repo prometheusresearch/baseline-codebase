@@ -1,22 +1,20 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React     = require('react/addons');
-var RexWidget = require('rex-widget');
+import React      from 'react';
+import RexWidget  from 'rex-widget';
 
-var WizardLink = React.createClass({
+export default class WizardLink extends React.Component {
 
   render() {
-    var {action, context, params, ...props} = this.props;
+    let {action, context, initialContext, params, ...props} = this.props;
     params = {
       ...params,
       action: action.join('/'),
-      context: context
+      context,
+      initialContext
     };
     return <RexWidget.Link {...props} params={params} />;
   }
-});
-
-module.exports = WizardLink;
+}

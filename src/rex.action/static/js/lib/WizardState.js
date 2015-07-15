@@ -207,7 +207,8 @@ class WizardState {
     });
     return qs.stringify({
       action: this._panels.map(panel => panel.id).join('/'),
-      context: context
+      context: context,
+      initialContext: this._initialContext
     });
   }
 
@@ -220,12 +221,13 @@ class WizardState {
 
   static fromQueryString(string, onUpdate, initialContext, actions, size) {
     var data = qs.parse(string);
+    initialContext = data.initialContext || initialContext;
     var context = data.context || {};
     var ids = data.action || '';
     ids = ids.split('/').filter(Boolean);
 
     if (ids.length === 0) {
-      return this.construct(onUpdate, initialContext, actions, size, context);
+      return this.construct(onUpdate, initialContext, actions, size);
     } else {
       var wizard = new this(onUpdate, initialContext, actions, size);
       for (var i = 0; i < ids.length; i++) {

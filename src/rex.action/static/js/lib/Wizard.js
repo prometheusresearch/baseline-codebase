@@ -163,16 +163,16 @@ export default class Wizard extends React.Component {
           wizard = WizardState.fromQueryString(
             this._wizardHistory.queryString,
             this._onWizardUpdate,
+            this.props.initialContext,
             {actions: this.props.actions, tree: this.props.path},
-            DOMSize,
-            this.props.initialContext
+            DOMSize
           );
         } else {
           wizard = WizardState.construct(
             this._onWizardUpdate,
+            this.props.initialContext,
             {actions: this.props.actions, tree: this.props.path},
-            DOMSize,
-            this.props.initialContext
+            DOMSize
           );
         }
       } else {
@@ -186,6 +186,7 @@ export default class Wizard extends React.Component {
     return WizardState.fromQueryString(
         qs,
         this._onWizardUpdate,
+        this.props.initialContext,
         {actions: this.props.actions, tree: this.props.path},
         this.props.DOMSize);
   }

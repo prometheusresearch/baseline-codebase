@@ -16,8 +16,9 @@ var SERVICE_PANE_ID = '__service__';
 
 class WizardState {
 
-  constructor(onUpdate, actions, size, panels, focus, canvasMetrics) {
+  constructor(onUpdate, initialContext, actions, size, panels, focus, canvasMetrics) {
     this._onUpdate = onUpdate;
+    this._initialContext = initialContext;
     this._actions = actions;
     this.size = size;
     this._panels = panels || [];
@@ -26,8 +27,8 @@ class WizardState {
     // derived state
     this.last = this._panels.length > 0 ?
       this._panels[this._panels.length - 1] :
-      {id: null, actionTree: this._actions.tree, context: {}};
-    this.context = this.last ? this.last.context : {};
+      {id: null, actionTree: this._actions.tree, context: this._initialContext};
+    this.context = this.last.context;
     this.actions = this._actions.actions;
     this.actionTree = this.last ? this.last.actionTree : this._actions.tree;
 
@@ -177,14 +178,14 @@ class WizardState {
   }
 
   resize(size) {
-    return new WizardState(this._onUpdate, this._actions, size, this._panels, this.focus);
+    return new WizardState(this._onUpdate, this._initialContext, this._actions, size, this._panels, this.focus);
   }
 
   construct(panels, focus, canvasMetrics) {
     if (focus === undefined) {
       focus = this.focus;
     }
-    return new WizardState(this._onUpdate, this._actions, this.size, panels, focus, canvasMetrics);
+    return new WizardState(this._onUpdate, this._initialContext, this._actions, this.size, panels, focus, canvasMetrics);
   }
 
   toQueryString() {
@@ -210,23 +211,23 @@ class WizardState {
     });
   }
 
-  static construct(onUpdate, actions, size, initialContext) {
-    var wizard = new this(onUpdate, actions, size);
+  static construct(onUpdate, initialContext, actions, size) {
+    var wizard = new this(onUpdate, initialContext, actions, size);
     var first = Object.keys(actions.tree)[0];
     invariant(first !== undefined);
-    return wizard.openAfterLast(first, initialContext);
+    return wizard.openAfterLast(first);
   }
 
-  static fromQueryString(string, onUpdate, actions, size, initialContext) {
+  static fromQueryString(string, onUpdate, initialContext, actions, size) {
     var data = qs.parse(string);
     var context = data.context || {};
     var ids = data.action || '';
     ids = ids.split('/').filter(Boolean);
 
     if (ids.length === 0) {
-      return this.construct(onUpdate, actions, size, {...initialContext, ...context});
+      return this.construct(onUpdate, initialContext, actions, size, context);
     } else {
-      var wizard = new this(onUpdate, actions, size);
+      var wizard = new this(onUpdate, initialContext, actions, size);
       for (var i = 0; i < ids.length; i++) {
         var id = ids[i];
         wizard = wizard.openAfterLast(id, {...context[id], USER: "'" + __REX_USER__ + "'"});

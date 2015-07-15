@@ -17,7 +17,19 @@ from rex.core import OMapVal, StrVal, ProxyVal, MaybeVal
 from rex.widget import TransitionableRecord
 from rex.widget.validate import DeferredVal
 
-__all__ = ('ActionTreeVal',)
+__all__ = ('ActionTreeVal', 'anytype')
+
+
+class AnyType(object):
+
+    def __repr__(self):
+        return '<anytype>'
+
+    __str__ = __repr__
+    __unicode__ = __repr__
+
+
+anytype = AnyType()
 
 
 class ActionTree(TransitionableRecord):
@@ -33,7 +45,7 @@ class ActionTree(TransitionableRecord):
 def format_context(context):
     if not context:
         return '<empty context>'
-    return ''.join('%s: %s (%s)' % (k, v[0], v[1]) for k, v in sorted(context.items()))
+    return ''.join('%s: %s%s' % (k, v[0], ' (%s)' % v[1] if v[1] else '') for k, v in sorted(context.items()))
 
 
 class ActionLevelVal(Validate):
@@ -68,11 +80,11 @@ class ActionLevelVal(Validate):
                 error.wrap('Context:', format_context(self.context))
                 raise error
             other_typ = other_typ[0]
-            if typ != other_typ:
+            if typ != other_typ and not typ is anytype and not other_typ is anytype:
                 error = Error(
                     'Action "%s" cannot be used here:' % action_id,
                     'Context has "%s: %s" but expected to have "%s: %s"' % (
-                        label, typ, label, other_typ))
+                        label, other_typ, label, typ))
                 error.wrap('Context:', format_context(self.context))
                 raise error
         return inputs, outputs

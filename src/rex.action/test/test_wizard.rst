@@ -118,13 +118,13 @@ Wizard
   ... path:
   ... - first:
   ... initial_context:
-  ...   x: x
+  ...   x: value
   ... actions:
   ...   first:
   ...     type: require-x
   ... """) # doctest: +NORMALIZE_WHITESPACE
   Wizard(path=ActionTree(tree=OrderedDict([('first', None)])),
-         initial_context={'x': 'x'},
+         initial_context={'x': 'value'},
          actions={'first': RequireX(icon=undefined, width=undefined, id='first', title=undefined)})
 
 ::

@@ -271,7 +271,7 @@ Same key, different types, fail::
   Traceback (most recent call last):
   ...
   Error: Action "view-mother-study" cannot be used here:
-      Context has "mother: study" but expected to have "mother: individual"
+      Context has "mother: individual" but expected to have "mother: study"
   Context:
       mother: individual (pick-mother)
   While parsing:
@@ -286,6 +286,6 @@ Same key, different types, fail::
   Traceback (most recent call last):
   ...
   Error: Action "view-mother-study" cannot be used here:
-      Context has "mother: study" but expected to have "mother: individual"
+      Context has "mother: individual" but expected to have "mother: study"
   Context:
       mother: individual (pick-mother)

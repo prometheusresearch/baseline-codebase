@@ -14,7 +14,7 @@ from rex.core import AnyVal, StrVal, MapVal
 from rex.widget import Widget, Field
 from rex.widget.validate import DeferredVal
 
-from .action_tree import ActionTreeVal
+from .action_tree import ActionTreeVal, anytype
 from .action import ActionMapVal
 
 __all__ = ('Wizard',)
@@ -72,6 +72,9 @@ class Wizard(Widget):
 
     def __init__(self, **values):
         super(Wizard, self).__init__(**values)
-        validate_path = ActionTreeVal(self.actions, context=self.initial_context)
+        initial_context_type = None
+        if self.initial_context:
+            initial_context_type = {k: (anytype, None) for k in self.initial_context}
+        validate_path = ActionTreeVal(self.actions, context=initial_context_type)
         path = self.path.resolve(validate_path)
         self.values['path'] = path

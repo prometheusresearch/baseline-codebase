@@ -6,6 +6,8 @@ paths:
       path:
         - pick-date:
         - pick-or-make-study:
+          - view-study:
+          - edit-study:
         - home:
           - make-individual:
             - view-individual:

@@ -71,11 +71,16 @@ var Autocomplete = React.createClass({
           styleResultList={style && style.resultList}
           onChange={this.onChange}
           />
-        {value && !required &&
+        {value && !required ?
           <IconButton
             name="remove"
             style={{self: AutocompleteStyle.icon}}
             onClick={this._clear}
+            /> :
+          <IconButton
+            name="triangle-bottom"
+            style={{self: AutocompleteStyle.icon}}
+            onClick={this._open}
             />}
       </VBox>
     );
@@ -129,6 +134,10 @@ var Autocomplete = React.createClass({
   _clear() {
     this.setState({valueTitle: null});
     this.props.onChange(null);
+  },
+
+  _open() {
+    this.refs.underlying.showResults('');
   },
 
   _requestValue() {

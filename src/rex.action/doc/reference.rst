@@ -45,6 +45,12 @@ Edit
 .. autoclass:: rex.action.actions.edit.Edit
    :show-inheritance:
 
+Alternative
+-----------
+
+.. autoclass:: rex.action.actions.alternative.Alternative
+   :show-inheritance:
+
 Wizard
 ======
 

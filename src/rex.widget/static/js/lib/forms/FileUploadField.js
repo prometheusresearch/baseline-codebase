@@ -8,9 +8,11 @@ var cx                  = require('classnames');
 var {Box, HBox}         = require('../Layout');
 var Button              = require('../Button');
 var {File, StoredFile}  = require('../File');
+var resolveURL          = require('../resolveURL');
 var Field               = require('./Field');
 
 function uploadFile(url, file, onProgress) {
+  url = resolveURL(url);
   return new Promise(function(resolve, reject) {
     var data = new FormData();
     data.append('file', file);

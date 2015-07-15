@@ -102,13 +102,14 @@ class ActionLevelVal(Validate):
 
 class ActionTreeVal(Validate):
 
-    def __init__(self, actions, error_if_extra_actions=True):
+    def __init__(self, actions, context=None, error_if_extra_actions=True):
         self.actions = actions
+        self.context = context
         self.error_if_extra_actions = error_if_extra_actions
 
     def _construct(self, tree_factory, node=None):
         actions = self.actions
-        validate = ActionLevelVal(actions)
+        validate = ActionLevelVal(actions, context=self.context)
         tree = tree_factory(validate)
         if self.error_if_extra_actions:
             extra_actions = set(self.actions) - tree_keys(tree)

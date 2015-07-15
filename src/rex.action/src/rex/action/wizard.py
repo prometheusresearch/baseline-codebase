@@ -10,8 +10,10 @@
 
 """
 
+from rex.core import AnyVal, StrVal, MapVal
 from rex.widget import Widget, Field
 from rex.widget.validate import DeferredVal
+
 from .action_tree import ActionTreeVal
 from .action import ActionMapVal
 
@@ -62,8 +64,14 @@ class Wizard(Widget):
         Wizard actions.
         """)
 
+    initial_context = Field(
+        MapVal(StrVal(), AnyVal()), default=None,
+        doc="""
+        Initial context.
+        """)
+
     def __init__(self, **values):
         super(Wizard, self).__init__(**values)
-        validate_path = ActionTreeVal(self.actions)
+        validate_path = ActionTreeVal(self.actions, context=self.initial_context)
         path = self.path.resolve(validate_path)
         self.values['path'] = path

@@ -75,7 +75,7 @@ var Form = React.createClass({
       var submitButtonProps = {
         type: 'button',
         onClick: this.onSubmit,
-        disabled: value.params.forceShowErrors && value.allErrors || submitInProgress
+        disabled: value.params.forceShowErrors && value.completeErrorList.length > 0 || submitInProgress
       };
       if (submitButtonTitle) {
         submitButtonProps.children = submitButtonTitle;
@@ -161,8 +161,9 @@ var Form = React.createClass({
     var nextValue = value.update(
       onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
       true);
-    if (nextValue.allErrors) {
-      this.setState({value: value.setParams({forceShowErrors: true})});
+    if (nextValue.completeErrorList.length > 0) {
+      this.setState({value: Value(value.schema, value.value, value.onChange, {forceShowErrors: true}, value.completeErrorList)});
+
       return;
     }
     this._progressNotification = NotificationCenter.showNotification(this.props.progressNotification);

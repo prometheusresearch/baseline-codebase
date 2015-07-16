@@ -262,7 +262,7 @@ class Assessment(object):
             except Exception, exc:
                 raise Error("Got unexpected value `%(value)s` of the assessment"
                         " `date`" % {'value': evaluation_date}, exc)
-        return evaluation_date
+        return evaluation_date.date()
 
     def add_values(self, instrument, data):
         values = OrderedDict()

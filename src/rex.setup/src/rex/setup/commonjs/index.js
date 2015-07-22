@@ -145,10 +145,41 @@ function configureWebpack(config) {
       'process.env': {NODE_ENV: JSON.stringify(DEV ? 'development' : 'production')}
     }),
     new IntrospectablePlugin(),
+    new LogProgressPlugin(pkg.name)
   ]);
 
   return config;
 }
+
+function LogProgressPlugin(packageName) {
+  this.packageName = packageName;
+  this._notifyOnCompile = true;
+}
+
+LogProgressPlugin.prototype._log = function(message) {
+  console.log('webpack(' + this.packageName + '):', message);
+};
+
+LogProgressPlugin.prototype._onDone = function() {
+  this._log('compilation finished');
+}
+
+LogProgressPlugin.prototype._onCompile = function() {
+  if (this._notifyOnCompile) {
+    this._notifyOnCompile = false;
+    this._log('compilation started');
+  }
+}
+
+LogProgressPlugin.prototype._onInvalid = function() {
+  this._log('bundled invalidated, recompiling...');
+}
+
+LogProgressPlugin.prototype.apply = function(compiler) {
+  compiler.plugin('compile', this._onCompile.bind(this));
+  compiler.plugin('invalid', this._onInvalid.bind(this));
+  compiler.plugin('done', this._onDone.bind(this));
+};
 
 function DeactivateResultSymlinkPlugin() {
 }

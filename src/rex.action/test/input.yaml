@@ -2,7 +2,7 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-title: REX.WIZARD
+title: REX.ACTION
 tests:
 
 - coverage: setup.cfg

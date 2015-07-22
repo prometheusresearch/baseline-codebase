@@ -1,5 +1,5 @@
 *************************
-  Rex Wizard Change Log
+  Rex Action Change Log
 *************************
 
 .. contents:: Table of Contents

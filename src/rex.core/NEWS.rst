@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.11.2 (2015-XX-XX)
+1.11.2 (2015-07-23)
 ===================
 
 * Compatibility with rex.setup 3.

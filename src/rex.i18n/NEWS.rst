@@ -5,6 +5,12 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.4.3 (2015-06-23)
+==================
+
+* Added compatibility with ``rex.setup`` v3.
+
+
 0.4.2 (2015-06-12)
 ==================
 

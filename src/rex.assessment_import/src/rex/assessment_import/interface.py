@@ -284,6 +284,8 @@ class Assessment(object):
                                                               data)
                     row_value[record_field.id] = {'value': record_field_value}
                 value.append(row_value)
+            if not value:
+                value = None
         elif field.base_type == 'matrix':
             value = OrderedDict()
             for row_id in field.rows:

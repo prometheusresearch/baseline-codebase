@@ -5,14 +5,21 @@
 .. contents:: Table of Contents
 
 
+
 4.7.0 (2015-xx-xx)
 ==================
 
-* rex.instrument=0.18.0
-* rex.forms==0.31.0
-* rex.setup==3.0.0
-* rex.action==0.3.0
 * HTSQL==2.3.3.20150713
+* HTSQL-PGSQL==2.3.3.20150713
+* rex.applet==2.1.0
+* rex.setup==3.0.0
+* rex.core==1.11.2
+* rex.expression==1.5.2
+* rex.forms==0.31.0
+* rex.i18n==0.4.3
+* rex.instrument==0.18.0
+* rex.widget==1.0.3
+* rex.action==0.3.0
 
 
 4.6.1 (2015-06-29)

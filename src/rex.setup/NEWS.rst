@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.0.0 (XXXX-XX-XX)
+3.0.0 (2015-07-23)
 ==================
 
 * JS packages are now managed with npm v3.
@@ -16,7 +16,8 @@
 
 * Fix introspection plugin not to require non-JS files.
 
-* Add ES6 Promise polyfill
+* Add ES6 Promise polyfill.
+
 
 2.4.0 (2015-06-26)
 ==================

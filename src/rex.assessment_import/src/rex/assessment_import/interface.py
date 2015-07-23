@@ -284,8 +284,6 @@ class Assessment(object):
                                                               data)
                     row_value[record_field.id] = {'value': record_field_value}
                 value.append(row_value)
-            if not value:
-                value = None
         elif field.base_type == 'matrix':
             value = OrderedDict()
             for row_id in field.rows:
@@ -327,6 +325,8 @@ class Assessment(object):
                 raise Error("Unable to define a value of field %(field)s."
                     % {'field': field.id}, exc
                 )
+        if value in ({}, []):
+            value = None
         return value
 
     def validate_value(self, value, base_type, required=False, enumerations=[]):

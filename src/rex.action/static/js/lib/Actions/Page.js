@@ -1,29 +1,24 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React        = require('react/addons');
-var Action       = require('../Action');
+import React  from 'react/addons';
+import Action from '../Action';
 
-var Page = React.createClass({
+export default class Page extends React.Component {
+
+  static defaultProps = {
+    width: 480,
+    title: 'Page',
+    icon: 'file'
+  }
 
   render() {
-    var {width, title, text, onClose} = this.props;
+    let {width, title, text, onClose} = this.props;
     return (
       <Action title={title} onClose={onClose} width={width}>
         <div dangerouslySetInnerHTML={{__html: text}} />
       </Action>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      width: 480,
-      title: 'Page',
-      icon: 'file'
-    };
   }
-});
-
-module.exports = Page;
+}

@@ -1,17 +1,21 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var Page = require('../Page');
+import React      from 'react';
+import TestUtils  from 'react/lib/ReactTestUtils';
+import Page       from '../Page';
+import Action     from '../../Action';
 
 describe('Page', function() {
 
-  it('works', function() {
-    expect(1 + 1).toBe(2);
-  });
-
-  it('works 2', function() {
-    expect(1 + 1).toBe(2);
+  it('renders an action with text', function() {
+    let renderer = TestUtils.createRenderer();
+    renderer.render(<Page text="HELLO" />);
+    let element = renderer.getRenderOutput();
+    expect(element.type).toBe(Action);
+    let markup = element.props.children;
+    expect(markup.type).toBe('div');
+    expect(markup.props.dangerouslySetInnerHTML).toEqual({__html: 'HELLO'});
   });
 });

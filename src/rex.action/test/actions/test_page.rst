@@ -19,7 +19,7 @@ Init
 
 In case fields are not specified, they are generated from port::
 
-  >>> page = Action.validate("""
+  >>> page = Action.parse("""
   ... type: page
   ... id: home
   ... text: |

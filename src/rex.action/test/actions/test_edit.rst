@@ -19,7 +19,7 @@ Init
 
 In case fields are not specified, they are generated from port::
 
-  >>> edit = Action.validate("""
+  >>> edit = Action.parse("""
   ... type: edit
   ... id: edit-individual
   ... entity: individual
@@ -81,7 +81,7 @@ In case fields are not specified, they are generated from port::
 
 You can also specify fields and see port generated from them::
 
-  >>> edit = Action.validate("""
+  >>> edit = Action.parse("""
   ... type: edit
   ... id: edit-individual
   ... entity: individual
@@ -109,7 +109,7 @@ You can also specify fields and see port generated from them::
 
 Value also used to generate port::
 
-  >>> make = Action.validate("""
+  >>> make = Action.parse("""
   ... type: edit
   ... id: edit-individual
   ... entity: individual

@@ -163,4 +163,36 @@ Constructing from YAML
   Of widget:
       Action(name='my')
 
+  >>> validate.parse("""
+  ... type: unknown
+  ... id: 1
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: unknown action type specified:
+      unknown
+  While parsing:
+      "<byte string>", line 2
+  While parsing:
+      "<byte string>", line 2
+
+  >>> validate.parse("""
+  ... id: 1
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: no action "type" specified
+  While parsing:
+      "<byte string>", line 2
+
+  >>> validate.parse("1") # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a mapping
+  Got:
+      1
+  While parsing:
+      "<byte string>", line 1
+
   >>> rex.off()
+

@@ -19,7 +19,7 @@ Init
 
 In case fields are not specified, they are generated from port::
 
-  >>> view = Action.validate("""
+  >>> view = Action.parse("""
   ... type: view
   ... id: view-individual
   ... entity: individual
@@ -79,7 +79,7 @@ In case fields are not specified, they are generated from port::
 
 You can also specify fields and see port generated from them::
 
-  >>> view = Action.validate("""
+  >>> view = Action.parse("""
   ... type: view
   ... id: view-individual
   ... entity: individual
@@ -106,7 +106,7 @@ You can also specify fields and see port generated from them::
 You can specify view action for entities which have custom labels within the
 context::
 
-  >>> view = Action.validate("""
+  >>> view = Action.parse("""
   ... type: view
   ... id: view-mother
   ... entity: {mother: individual}

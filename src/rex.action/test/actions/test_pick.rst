@@ -19,7 +19,7 @@ Init
 
 In case fields are not specified, they are generated from port::
 
-  >>> pick = Action.validate("""
+  >>> pick = Action.parse("""
   ... type: pick
   ... id: pick-individual
   ... entity: individual
@@ -76,7 +76,7 @@ If we provide ``search`` HTSQL expression then we have port generated with
 corresponding filtera and ``data`` data spec automatically bind ``search`` state
 var to this filter::
 
-  >>> pick = Action.validate("""
+  >>> pick = Action.parse("""
   ... type: pick
   ... id: pick-individual-search
   ... entity: individual
@@ -108,16 +108,14 @@ var to this filter::
   Content-Length: ...
   <BLANKLINE>
   {
-    "individual": [
-      ...
-    ]
+    "individual": []
   }
   <BLANKLINE>
 
 If we provide ``mask`` HTSQL expression it is compiled into port's mask::
 
 
-  >>> pick = Action.validate("""
+  >>> pick = Action.parse("""
   ... type: pick
   ... id: pick-male
   ... entity: individual
@@ -134,7 +132,7 @@ If we provide ``mask`` HTSQL expression it is compiled into port's mask::
 If we provide ``input`` fields with context requirements then ``mask`` can refer
 to those input variables::
 
-  >>> pick = Action.validate("""
+  >>> pick = Action.parse("""
   ... type: pick
   ... id: pick-study-enrollment
   ... entity: study_enrollment
@@ -156,7 +154,7 @@ to those input variables::
   Port('''
   entity: study_enrollment
   filters: ['__mask__($individual) := individual=$individual']
-  select: [study, individual, code, enrollment_date, participant_group, consent_form_scan, measure]
+  select: [study, individual, code, enrollment_date, participant_group]
   ''')
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
@@ -168,9 +166,7 @@ to those input variables::
   Content-Length: ...
   <BLANKLINE>
   {
-    "study_enrollment": [
-      ...
-    ]
+    "study_enrollment": []
   }
   <BLANKLINE>
 

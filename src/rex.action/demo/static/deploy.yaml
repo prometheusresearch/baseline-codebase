@@ -1,0 +1,128 @@
+- table: individual
+  with:
+  - column: code
+    type: text
+  - identity: [code: random]
+  - column: sex
+    type: [not-known, male, female, not-applicable]
+    default: not-known
+  - link: mother
+    to: individual
+    required: false
+  - link: father
+    to: individual
+    required: false
+  - link: adopted_mother
+    to: individual
+    required: false
+  - link: adopted_father
+    to: individual
+    required: false
+
+- table: identity
+  with:
+  - link: individual
+  - identity: [individual]
+  - column: fullname
+    type: text
+    required: false
+  - column: givenname
+    type: text
+    required: false
+    title: Given Name
+  - column: middle
+    type: text
+    required: false
+  - column: preferred_name
+    type: text
+    title: Preferred Name
+    required: false
+  - column: middle_name
+    type: text
+    title: Middle Name
+    required: false
+  - column: surname
+    type: text
+    required: false
+  - column: birthdate
+    type: date
+    required: false
+    title: Date of Birth
+  - column: notes
+    type: text
+    required: false
+  - column: deathdate
+    type: date
+    required: false
+  - column: deceased
+    type: boolean
+    required: false
+
+
+- table: user
+  with:
+  - column: remote_user
+    type: text
+  - identity: [remote_user]
+  - column: site_admin
+    type: boolean
+    required: true
+    default: false
+
+- table: lab
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+
+- table: study
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - link: lab
+  - column: title
+    type: text
+  - column: irb_number
+    type: text 
+    required: false
+  - column: start_date
+    type: date 
+    required: false
+  - link: user 
+    required: false
+  - column: description
+    type: text 
+    required: false
+  - column: overall_target_enrollment
+    type: integer 
+    required: false
+  - column: closed
+    type: boolean
+    default: false
+
+- table: participant_group
+  with:
+  - link: study
+  - column: code
+    type: text
+  - identity: [study, code]
+  - column: target_enrollment
+    type: integer
+    required: false
+
+- table: study_enrollment
+  with:
+  - link: study
+  - link: individual
+  - column: code
+    type: text
+  - identity: [study, individual, code: offset]
+  - column: enrollment_date
+    type: date
+    required: false
+  - link: participant_group
+    required: false
+

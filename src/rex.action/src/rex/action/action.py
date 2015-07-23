@@ -120,7 +120,7 @@ class Action(Widget):
         raise NotImplementedError('%s.context()' % self.__class__.__name__)
 
     @classmethod
-    def validate(cls, value):
+    def parse(cls, value):
         validate = ActionVal(action_class=cls)
         if isinstance(value, basestring) or hasattr(value, 'read'):
             return validate.parse(value)

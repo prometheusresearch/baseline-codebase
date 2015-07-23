@@ -19,7 +19,7 @@ Init
 
 In case fields are not specified, they are generated from port::
 
-  >>> drop= Action.validate("""
+  >>> drop= Action.parse("""
   ... type: drop
   ... id: drop-individual
   ... entity: individual

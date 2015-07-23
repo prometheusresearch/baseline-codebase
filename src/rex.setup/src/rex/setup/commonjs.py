@@ -20,6 +20,8 @@ class install_commonjs(setuptools.Command):
 
     description = "install commonjs package"
 
+    npm_install_production = True
+
     user_options = []
 
     def initialize_options(self):
@@ -40,12 +42,17 @@ class install_commonjs(setuptools.Command):
 
     def run(self):
         dist = self._make_dummy_dist()
-        install_package(dist, execute=self.execute)
+        install_package(
+                dist,
+                execute=self.execute,
+                npm_install_production=self.npm_install_production)
 
 
 class develop_commonjs(install_commonjs):
 
     description = "install commonjs package in development mode"
+
+    npm_install_production = False
 
 
 def dummy_execute(func, args, message=None):
@@ -348,7 +355,8 @@ class Sandbox(object):
         rm(self.directory)
 
 
-def install_package(dist, skip_if_installed=False, execute=dummy_execute):
+def install_package(dist, skip_if_installed=False, execute=dummy_execute,
+        npm_install_production=True):
     if not isinstance(dist, pkg_resources.Distribution):
         req = dist
         if not isinstance(req, pkg_resources.Requirement):
@@ -380,7 +388,14 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute):
     }
 
     with Sandbox(dest, sandbox_meta, execute=execute) as sandbox:
-        execute(npm, (['install', '--production', '.'], sandbox), 'Executing npm install --production')
+        if npm_install_production:
+            execute(npm,
+                    (['install', '--production', '.'], sandbox),
+                    'Executing npm install --production')
+        else:
+            execute(npm,
+                    (['install', '.'], sandbox),
+                    'Executing npm install')
         for pyname, jsname, jspath in python_dependencies:
             is_dev_install = os.path.islink(static_filename(pyname))
             if is_dev_install:

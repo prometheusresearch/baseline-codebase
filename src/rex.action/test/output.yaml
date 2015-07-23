@@ -15,6 +15,193 @@ tests:
     Deploying application database to pgsql:///action_demo.
     Nothing to deploy.
     Done.
+- sh: python setup.py develop_commonjs
+  stdout: "running develop_commonjs\nBootstrapping CommonJS environment\nRequirement
+    rex-widget (via rex.action)\nRequirement rex-expression (via rex.action)\nCreating
+    package sandbox at /Users/andreypopp/Workspace/prometheus/study/share/rex/rex.action/js/.rex-setup\nExecuting
+    npm install\nExecuting npm --loglevel warn --color false install .\n\n> utf-8-validate@1.1.0
+    install /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup/node_modules/utf-8-validate\n>
+    node-gyp rebuild\n\n  CXX(target) Release/obj.target/validation/src/validation.o\n
+    \ SOLINK_MODULE(target) Release/validation.node\n\n> bufferutil@1.1.0 install
+    /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup/node_modules/bufferutil\n>
+    node-gyp rebuild\n\n  CXX(target) Release/obj.target/bufferutil/src/bufferutil.o\n
+    \ SOLINK_MODULE(target) Release/bufferutil.node\n\n> weak@0.4.1 install /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup/node_modules/weak\n>
+    node-gyp rebuild\n\n  CXX(target) Release/obj.target/weakref/src/weakref.o\n  SOLINK_MODULE(target)
+    Release/weakref.node\n\n> fsevents@0.3.6 install /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup/node_modules/fsevents\n>
+    node-gyp rebuild\n\n  SOLINK_MODULE(target) Release/.node\n  CXX(target) Release/obj.target/fse/fsevents.o\n
+    \ SOLINK_MODULE(target) Release/fse.node\n\n> bufferutil@1.1.0 install /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup/node_modules/bufferutil\n>
+    node-gyp rebuild\n\n  CXX(target) Release/obj.target/bufferutil/src/bufferutil.o\n
+    \ SOLINK_MODULE(target) Release/bufferutil.node\n\n> fsevents@0.3.6 install /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup/node_modules/fsevents\n>
+    node-gyp rebuild\n\n  SOLINK_MODULE(target) Release/.node\n  CXX(target) Release/obj.target/fse/fsevents.o\n
+    \ SOLINK_MODULE(target) Release/fse.node\n\n> utf-8-validate@1.1.0 install /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup/node_modules/utf-8-validate\n>
+    node-gyp rebuild\n\n  CXX(target) Release/obj.target/validation/src/validation.o\n
+    \ SOLINK_MODULE(target) Release/validation.node\n\n> weak@0.4.1 install /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup/node_modules/weak\n>
+    node-gyp rebuild\n\n  CXX(target) Release/obj.target/weakref/src/weakref.o\n  SOLINK_MODULE(target)
+    Release/weakref.node\nrex-action@0.3.0 /Users/andreypopp/Workspace/prometheus/study/src/rex.action/static/js/.rex-setup\n+--
+    @prometheusresearch/webtest@0.1.4 \n| +-- autobind-decorator@1.2.0 \n| +-- babel@5.6.23
+    \n| | +-- babel-core@5.8.3 \n| | | +-- babylon@5.8.3 \n| | | `-- debug@2.2.0 \n|
+    | |   `-- ms@0.7.1 \n| | +-- chokidar@1.0.5 \n| | | +-- anymatch@1.3.0 \n| | |
+    | `-- micromatch@2.1.6 \n| | | |   +-- arr-diff@1.0.1 \n| | | |   | `-- array-slice@0.2.3
+    \n| | | |   +-- braces@1.8.0 \n| | | |   | +-- expand-range@1.8.1 \n| | | |   |
+    | `-- fill-range@2.2.2 \n| | | |   | |   +-- is-number@1.1.2 \n| | | |   | |   +--
+    isobject@1.0.2 \n| | | |   | |   +-- randomatic@1.1.0 \n| | | |   | |   `-- repeat-string@1.5.2
+    \n| | | |   | +-- preserve@0.2.0 \n| | | |   | `-- repeat-element@1.1.2 \n| |
+    | |   +-- debug@2.2.0 \n| | | |   | `-- ms@0.7.1 \n| | | |   +-- expand-brackets@0.1.2
+    \n| | | |   +-- filename-regex@2.0.0 \n| | | |   +-- kind-of@1.1.0 \n| | | |   +--
+    object.omit@0.2.1 \n| | | |   | +-- for-own@0.1.3 \n| | | |   | | `-- for-in@0.1.4
+    \n| | | |   | `-- isobject@0.2.0 \n| | | |   +-- parse-glob@3.0.2 \n| | | |   |
+    +-- glob-base@0.2.0 \n| | | |   | +-- is-dotfile@1.0.1 \n| | | |   | `-- is-extglob@1.0.0
+    \n| | | |   `-- regex-cache@0.4.2 \n| | | |     +-- is-equal-shallow@0.1.3 \n|
+    | | |     `-- is-primitive@2.0.0 \n| | | +-- arrify@1.0.0 \n| | | +-- async-each@0.1.6
+    \n| | | +-- fsevents@0.3.6 \n| | | | `-- nan@1.8.4 \n| | | +-- glob-parent@1.2.0
+    \n| | | +-- is-binary-path@1.0.1 \n| | | | `-- binary-extensions@1.3.1 \n| | |
+    +-- is-glob@1.1.3 \n| | | `-- readdirp@1.4.0 \n| | |   +-- graceful-fs@4.1.2 \n|
+    | |   +-- minimatch@0.2.14 \n| | |   | +-- lru-cache@2.6.5 \n| | |   | `-- sigmund@1.0.1
+    \n| | |   `-- readable-stream@1.0.33 \n| | +-- commander@2.8.1 \n| | | `-- graceful-readlink@1.0.1
+    \n| | +-- convert-source-map@1.1.1 \n| | +-- fs-readdir-recursive@0.1.2 \n| |
+    +-- lodash@3.10.0 \n| | +-- output-file-sync@1.1.1 \n| | +-- path-exists@1.0.0
+    \n| | +-- path-is-absolute@1.0.0 \n| | +-- slash@1.0.0 \n| | `-- source-map@0.4.4
+    \n| +-- babel-core@5.6.20 \n| | +-- acorn-jsx@1.0.3 \n| | | `-- acorn@1.2.2 \n|
+    | +-- babel-plugin-constant-folding@1.0.1 \n| | +-- babel-plugin-dead-code-elimination@1.0.2
+    \n| | +-- babel-plugin-eval@1.0.1 \n| | +-- babel-plugin-inline-environment-variables@1.0.1
+    \n| | +-- babel-plugin-jscript@1.0.3 \n| | +-- babel-plugin-member-expression-literals@1.0.1
+    \n| | +-- babel-plugin-property-literals@1.0.1 \n| | +-- babel-plugin-proto-to-assign@1.0.3
+    \n| | +-- babel-plugin-react-constant-elements@1.0.3 \n| | +-- babel-plugin-react-display-name@1.0.3
+    \n| | +-- babel-plugin-remove-console@1.0.1 \n| | +-- babel-plugin-remove-debugger@1.0.1
+    \n| | +-- babel-plugin-runtime@1.0.7 \n| | +-- babel-plugin-undeclared-variables-check@1.0.2
+    \n| | | `-- leven@1.0.2 \n| | +-- babel-plugin-undefined-to-void@1.1.6 \n| | +--
+    chalk@1.1.0 \n| | | +-- ansi-styles@2.1.0 \n| | | +-- escape-string-regexp@1.0.3
+    \n| | | +-- has-ansi@2.0.0 \n| | | | `-- ansi-regex@2.0.0 \n| | | +-- strip-ansi@3.0.0
+    \n| | | `-- supports-color@2.0.0 \n| | +-- core-js@0.9.18 \n| | +-- debug@2.2.0
+    \n| | | `-- ms@0.7.1 \n| | +-- detect-indent@3.0.1 \n| | | +-- get-stdin@4.0.1
+    \n| | | `-- minimist@1.1.2 \n| | +-- estraverse@4.1.0 \n| | +-- esutils@2.0.2
+    \n| | +-- globals@6.4.1 \n| | +-- home-or-tmp@1.0.0 \n| | | +-- os-tmpdir@1.0.1
+    \n| | | `-- user-home@1.1.1 \n| | +-- is-integer@1.0.4 \n| | | +-- is-finite@1.0.1
+    \n| | | | `-- number-is-nan@1.0.0 \n| | | `-- is-nan@1.1.0 \n| | |   `-- define-properties@1.1.1
+    \n| | |     +-- foreach@2.0.5 \n| | |     `-- object-keys@1.0.7 \n| | +-- js-tokens@1.0.1
+    \n| | +-- line-numbers@0.2.0 \n| | | `-- left-pad@0.0.3 \n| | +-- minimatch@2.0.10
+    \n| | | `-- brace-expansion@1.1.0 \n| | |   +-- balanced-match@0.2.0 \n| | |   `--
+    concat-map@0.0.1 \n| | +-- private@0.1.6 \n| | +-- regenerator@0.8.34 \n| | |
+    +-- commoner@0.10.3 \n| | | | +-- commander@2.5.1 \n| | | | +-- glob@4.2.2 \n|
+    | | | | `-- minimatch@1.0.0 \n| | | | +-- iconv-lite@0.4.11 \n| | | | +-- install@0.1.8
+    \n| | | | `-- q@1.1.2 \n| | | +-- defs@1.1.0 \n| | | | +-- alter@0.2.0 \n| | |
+    | | `-- stable@0.1.5 \n| | | | +-- ast-traverse@0.1.1 \n| | | | +-- breakable@1.0.0
+    \n| | | | +-- esprima-fb@8001.1001.0-dev-harmony-fb \n| | | | +-- simple-fmt@0.1.0
+    \n| | | | +-- simple-is@0.2.0 \n| | | | +-- stringmap@0.2.2 \n| | | | +-- stringset@0.2.1
+    \n| | | | +-- tryor@0.1.2 \n| | | | `-- yargs@1.3.3 \n| | | +-- esprima-fb@13001.1.0-dev-harmony-fb
+    \n| | | `-- recast@0.10.18 \n| | |   +-- ast-types@0.8.2 \n| | |   +-- esprima-fb@14001.1.0-dev-harmony-fb
+    \n| | |   `-- source-map@0.4.4 \n| | +-- regexpu@1.2.0 \n| | | +-- regenerate@1.2.1
+    \n| | | +-- regjsgen@0.2.0 \n| | | `-- regjsparser@0.1.4 \n| | |   `-- jsesc@0.5.0
+    \n| | +-- repeating@1.1.3 \n| | +-- resolve@1.1.6 \n| | +-- shebang-regex@1.0.0
+    \n| | +-- source-map@0.4.4 \n| | +-- source-map-support@0.2.10 \n| | | `-- source-map@0.1.32
+    \n| | +-- strip-json-comments@1.0.2 \n| | +-- to-fast-properties@1.0.1 \n| | `--
+    trim-right@1.0.1 \n| +-- babel-loader@5.3.2 \n| | +-- loader-utils@0.2.11 \n|
+    | | +-- big.js@3.1.3 \n| | | `-- json5@0.4.0 \n| | `-- object-assign@3.0.0 \n|
+    +-- babel-runtime@5.6.20 \n| +-- bluebird@2.9.34 \n| +-- css-loader@0.12.1 \n|
+    | +-- clean-css@3.3.6 \n| | | `-- source-map@0.4.4 \n| | +-- fastparse@1.1.1 \n|
+    | `-- source-list-map@0.1.5 \n| +-- debug@2.2.0 \n| | `-- ms@0.7.1 \n| +-- express@4.13.1
+    \n| | +-- accepts@1.2.11 \n| | | +-- mime-types@2.1.3 \n| | | | `-- mime-db@1.15.0
+    \n| | | `-- negotiator@0.5.3 \n| | +-- array-flatten@1.1.0 \n| | +-- content-disposition@0.5.0
+    \n| | +-- content-type@1.0.1 \n| | +-- cookie@0.1.3 \n| | +-- cookie-signature@1.0.6
+    \n| | +-- debug@2.2.0 \n| | | `-- ms@0.7.1 \n| | +-- depd@1.0.1 \n| | +-- escape-html@1.0.2
+    \n| | +-- etag@1.7.0 \n| | +-- finalhandler@0.4.0 \n| | | +-- debug@2.2.0 \n|
+    | | | `-- ms@0.7.1 \n| | | `-- unpipe@1.0.0 \n| | +-- fresh@0.3.0 \n| | +-- merge-descriptors@1.0.0
+    \n| | +-- methods@1.1.1 \n| | +-- on-finished@2.3.0 \n| | | `-- ee-first@1.1.1
+    \n| | +-- parseurl@1.3.0 \n| | +-- path-to-regexp@0.1.6 \n| | +-- proxy-addr@1.0.8
+    \n| | | +-- forwarded@0.1.0 \n| | | `-- ipaddr.js@1.0.1 \n| | +-- qs@4.0.0 \n|
+    | +-- range-parser@1.0.2 \n| | +-- send@0.13.0 \n| | | +-- debug@2.2.0 \n| | |
+    +-- destroy@1.0.3 \n| | | +-- http-errors@1.3.1 \n| | | +-- mime@1.3.4 \n| | |
+    +-- ms@0.7.1 \n| | | `-- statuses@1.2.1 \n| | +-- serve-static@1.10.0 \n| | +--
+    type-is@1.6.5 \n| | | `-- media-typer@0.3.0 \n| | +-- utils-merge@1.0.0 \n| |
+    `-- vary@1.0.1 \n| +-- glob@5.0.14 \n| | +-- inflight@1.0.4 \n| | | `-- wrappy@1.0.1
+    \n| | +-- inherits@2.0.1 \n| | `-- once@1.3.2 \n| +-- imports-loader@0.6.4 \n|
+    | `-- source-map@0.1.31 \n| +-- jasmine-core@2.3.4 \n| +-- nomnom@1.8.1 \n| |
+    +-- chalk@0.4.0 \n| | | +-- ansi-styles@1.0.0 \n| | | +-- has-color@0.1.7 \n|
+    | | `-- strip-ansi@0.1.1 \n| | `-- underscore@1.6.0 \n| +-- phantom@0.7.2 \n|
+    | +-- dnode@1.2.1 \n| | | +-- dnode-protocol@0.2.2 \n| | | +-- jsonify@0.0.0 \n|
+    | | `-- weak@0.4.1 \n| | |   `-- bindings@1.2.1 \n| | +-- shoe@0.0.15 \n| | |
+    `-- sockjs@0.3.7 \n| | |   +-- faye-websocket@0.4.4 \n| | |   `-- node-uuid@1.3.3
+    \n| | +-- traverse@0.6.6 \n| | `-- win-spawn@2.0.0 \n| +-- script-loader@0.6.1
+    \n| | `-- raw-loader@0.5.1 \n| +-- source-map@0.4.4 \n| | `-- amdefine@1.0.0 \n|
+    +-- stack-mapper@0.2.2 \n| | +-- array-map@0.0.0 \n| | +-- foreach-shim@0.1.1
+    \n| | +-- isarray@0.0.1 \n| | `-- source-map-cjs@0.1.32 \n| +-- style-loader@0.12.3
+    \n| +-- tap-parser@1.1.6 \n| | +-- events-to-array@1.0.2 \n| | +-- js-yaml@3.3.1
+    \n| | | +-- argparse@1.0.2 \n| | | | `-- sprintf-js@1.0.3 \n| | | `-- esprima@2.2.0
+    \n| | `-- readable-stream@1.1.13 \n| |   `-- core-util-is@1.0.1 \n| +-- webpack-dev-middleware@1.2.0
+    \n| | `-- mime@1.3.4 \n| `-- webpack-dev-server@1.10.1 \n|   +-- connect-history-api-fallback@1.1.0
+    \n|   +-- http-proxy@1.11.1 \n|   | +-- eventemitter3@1.1.1 \n|   | `-- requires-port@0.0.1
+    \n|   +-- serve-index@1.7.1 \n|   | +-- batch@0.5.2 \n|   | `-- debug@2.2.0 \n|
+    \  |   `-- ms@0.7.1 \n|   +-- socket.io@1.3.6 \n|   | +-- debug@2.1.0 \n|   |
+    +-- engine.io@1.5.2 \n|   | | +-- base64id@0.1.0 \n|   | | +-- debug@1.0.3 \n|
+    \  | | +-- engine.io-parser@1.2.1 \n|   | | | +-- after@0.8.1 \n|   | | | +--
+    arraybuffer.slice@0.0.6 \n|   | | | +-- base64-arraybuffer@0.1.2 \n|   | | | +--
+    blob@0.0.2 \n|   | | | +-- has-binary@0.1.5 \n|   | | | `-- utf8@2.0.0 \n|   |
+    | `-- ws@0.7.2 \n|   | |   +-- bufferutil@1.1.0 \n|   | |   +-- options@0.0.6
+    \n|   | |   +-- ultron@1.0.2 \n|   | |   `-- utf-8-validate@1.1.0 \n|   | +--
+    has-binary-data@0.1.3 \n|   | +-- socket.io-adapter@0.3.1 \n|   | | +-- debug@1.0.2
+    \n|   | | +-- object-keys@1.0.1 \n|   | | `-- socket.io-parser@2.2.2 \n|   | |
+    \  `-- debug@0.7.4 \n|   | `-- socket.io-parser@2.2.4 \n|   |   +-- benchmark@1.0.0
+    \n|   |   +-- debug@0.7.4 \n|   |   `-- json3@3.2.6 \n|   +-- socket.io-client@1.3.6
+    \n|   | +-- backo2@1.0.2 \n|   | +-- component-bind@1.0.0 \n|   | +-- debug@0.7.4
+    \n|   | +-- engine.io-client@1.5.2 \n|   | | +-- component-inherit@0.0.3 \n|   |
+    | +-- has-cors@1.0.3 \n|   | | | `-- global@2.0.1 \n|   | | +-- parsejson@0.0.1
+    \n|   | | +-- parseqs@0.0.2 \n|   | | +-- parseuri@0.0.4 \n|   | | `-- xmlhttprequest@1.5.0
+    \n|   | +-- has-binary@0.1.6 \n|   | +-- indexof@0.0.1 \n|   | +-- object-component@0.0.3
+    \n|   | +-- parseuri@0.0.2 \n|   | | `-- better-assert@1.0.2 \n|   | |   `-- callsite@1.0.0
+    \n|   | `-- to-array@0.1.3 \n|   +-- stream-cache@0.0.2 \n|   +-- strip-ansi@2.0.1
+    \n|   | `-- ansi-regex@1.1.1 \n|   `-- supports-color@1.3.1 \n+-- react@0.13.3
+    \n| `-- envify@3.4.0 \n|   +-- jstransform@10.1.0 \n|   | +-- base62@0.1.1 \n|
+    \  | `-- esprima-fb@13001.1001.0-dev-harmony-fb \n|   `-- through@2.3.8 \n+--
+    rex-expression@1.5.2 \n+-- rex-widget@1.0.3 \n| +-- bootstrap@3.3.5 \n| +-- bootstrap-datepicker@1.4.0
+    \n| | `-- jquery@2.1.4 \n| +-- classnames@2.1.3 \n| +-- component-emitter@1.1.2
+    \n| +-- dot-qs@0.2.0 \n| +-- fixed-data-table@0.4.1 \n| +-- flat@1.2.1 \n| +--
+    immutable@3.7.4 \n| +-- object-assign@1.0.0 \n| +-- react-bootstrap-datetimepicker@0.0.17
+    \ (git://github.com/prometheusresearch/react-bootstrap-datetimepicker.git#cc9a636c9d0ad2dd8ed6f7af82e6e9289723cbd9)\n|
+    | +-- moment@2.10.3 \n| | `-- react-bootstrap@0.16.1 \n| +-- react-forms@2.0.0
+    \ (git://github.com/prometheusresearch/react-forms.git#25997167507b1a44e6f5c10d9b707017e27b50f2)\n|
+    | +-- generate-function@2.0.0 \n| | +-- generate-object-property@1.2.0 \n| | |
+    `-- is-property@1.0.2 \n| | +-- jsonpointer@1.1.0 \n| | +-- memoize-decorator@1.0.2
+    \n| | `-- xtend@4.0.0 \n| +-- react-selectbox@1.0.0  (git://github.com/prometheusresearch/react-selectbox.git#0ca618cf93129eba8530e06f4a179a81a1980b5c)\n|
+    +-- superagent@0.18.2 \n| | +-- cookiejar@2.0.1 \n| | +-- debug@1.0.4 \n| | |
+    `-- ms@0.6.2 \n| | +-- extend@1.2.1 \n| | +-- form-data@0.1.3 \n| | | `-- combined-stream@0.0.7
+    \n| | |   `-- delayed-stream@0.0.5 \n| | +-- formidable@1.0.14 \n| | +-- methods@1.0.1
+    \n| | +-- mime@1.2.11 \n| | +-- qs@0.6.6 \n| | +-- readable-stream@1.0.27-1 \n|
+    | `-- reduce-component@1.0.1 \n| `-- transit-js@0.8.807 \n`-- webpack@1.10.3 \n
+    \ +-- async@1.4.0 \n  +-- clone@1.0.2 \n  +-- enhanced-resolve@0.8.6 \n  | `--
+    graceful-fs@3.0.8 \n  +-- esprima@1.2.5 \n  +-- interpret@0.6.5 \n  +-- memory-fs@0.2.0
+    \n  +-- mkdirp@0.5.1 \n  | `-- minimist@0.0.8 \n  +-- node-libs-browser@0.5.2
+    \n  | +-- assert@1.3.0 \n  | +-- browserify-zlib@0.1.4 \n  | | `-- pako@0.2.7
+    \n  | +-- buffer@3.3.1 \n  | | +-- base64-js@0.0.8 \n  | | +-- ieee754@1.1.6 \n
+    \ | | `-- is-array@1.0.1 \n  | +-- console-browserify@1.1.0 \n  | | `-- date-now@0.1.4
+    \n  | +-- constants-browserify@0.0.1 \n  | +-- crypto-browserify@3.2.8 \n  | |
+    +-- pbkdf2-compat@2.0.1 \n  | | +-- ripemd160@0.2.0 \n  | | `-- sha.js@2.2.6 \n
+    \ | +-- domain-browser@1.1.4 \n  | +-- events@1.0.2 \n  | +-- http-browserify@1.7.0
+    \n  | | `-- Base64@0.2.1 \n  | +-- https-browserify@0.0.0 \n  | +-- os-browserify@0.1.2
+    \n  | +-- path-browserify@0.0.0 \n  | +-- process@0.11.1 \n  | +-- punycode@1.3.2
+    \n  | +-- querystring-es3@0.2.1 \n  | +-- readable-stream@1.1.13 \n  | +-- stream-browserify@1.0.0
+    \n  | +-- string_decoder@0.10.31 \n  | +-- timers-browserify@1.4.1 \n  | +-- tty-browserify@0.0.0
+    \n  | +-- url@0.10.3 \n  | | `-- querystring@0.2.0 \n  | +-- util@0.10.3 \n  |
+    `-- vm-browserify@0.0.4 \n  +-- optimist@0.6.1 \n  | +-- minimist@0.0.10 \n  |
+    `-- wordwrap@0.0.3 \n  +-- supports-color@3.1.0 \n  | `-- has-flag@1.0.0 \n  +--
+    tapable@0.1.9 \n  +-- uglify-js@2.4.24 \n  | +-- async@0.2.10 \n  | +-- source-map@0.1.34
+    \n  | +-- uglify-to-browserify@1.0.2 \n  | `-- yargs@3.5.4 \n  |   +-- camelcase@1.1.0
+    \n  |   +-- decamelize@1.0.0 \n  |   +-- window-size@0.1.0 \n  |   `-- wordwrap@0.0.2
+    \n  +-- watchpack@0.2.8 \n  | `-- async@0.9.2 \n  `-- webpack-core@0.6.6 \n    `--
+    source-map@0.4.4 \n\n\nLinking rex-expression/lib\nLinking rex-expression/package.json\nLinking
+    rex-widget/lib\nLinking rex-widget/style\nLinking rex-widget/package.json\nRemoving
+    /Users/andreypopp/Workspace/prometheus/study/share/rex/rex.action/js/node_modules\nMoving
+    /Users/andreypopp/Workspace/prometheus/study/share/rex/rex.action/js/.rex-setup/node_modules
+    to /Users/andreypopp/Workspace/prometheus/study/share/rex/rex.action/js/node_modules\nRemoving
+    package sandbox at /Users/andreypopp/Workspace/prometheus/study/share/rex/rex.action/js/.rex-setup\n"
+- sh: ./node_modules/.bin/webtest
+  stdout: |
+    webpack(rex-action): compilation started
+    webpack(rex-action): compilation finished
+    # starting
+    TAP version 13
+    ok 1 - Page : renders an action with text
+    1..1
+    # 1 spec, 0 failures, 0 skipped, 0 disabled
 - sh: rex dropdb rex.action_demo
   stdout: |
     Dropping database pgsql:///action_demo.

@@ -18,6 +18,12 @@ tests:
 - doctest: test/test_*.rst
 - doctest: test/actions/test_*.rst
 
+- sh: python setup.py develop_commonjs
+  ignore: true
+- sh: ./node_modules/.bin/webtest
+  cd: ./static/js
+  ignore: true
+
 - sh: rex dropdb rex.action_demo
   ignore: true
 - sh: pip uninstall -q -y rex.action_demo

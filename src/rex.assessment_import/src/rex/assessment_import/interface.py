@@ -190,6 +190,7 @@ class Assessment(object):
                                 implementation_context=assessment_context
                     )
         assessment.complete('import-tool')
+        assessment.save()
         return assessment
 
     def validate_with_template(self, tpl_obj_id, data):

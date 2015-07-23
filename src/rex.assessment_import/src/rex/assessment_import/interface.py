@@ -189,6 +189,7 @@ class Assessment(object):
                                 evaluation_date=evaluation_date,
                                 implementation_context=assessment_context
                     )
+        assessment.complete('import-tool')
         return assessment
 
     def validate_with_template(self, tpl_obj_id, data):

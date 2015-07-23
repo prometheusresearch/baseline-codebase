@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-0.3.0 (2015-07-XX)
+0.3.0 (2015-07-23)
 ==================
 
 * Remove global action registry (action.yaml). Now all actions are defined

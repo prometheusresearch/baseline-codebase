@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-0.18.0 (2015-xx-xx)
+0.18.0 (2015-06-23)
 ===================
 
 * Added ability to pass implementation-specific parameters to the ``create()``

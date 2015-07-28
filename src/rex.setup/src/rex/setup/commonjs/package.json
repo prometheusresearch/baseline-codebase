@@ -1,6 +1,6 @@
 {
   "name": "rex-setup",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "main": "./index.js",
   "peerDependencies": {
     "webpack": "1.9.x",
@@ -10,12 +10,14 @@
     "less-loader": "0.7.x",
     "url-loader": "0.5.x",
     "imports-loader": "0.6.x",
+    "exports-loader": "0.6.x",
     "file-loader": "0.8.x",
     "source-map-loader": "0.1.x",
     "extract-text-webpack-plugin": "0.8.x",
     "webpack-package-loaders-plugin": "2.1.x",
     "core-js": "0.9.18",
     "node-libs-browser": "0.5.x",
+    "whatwg-fetch": "0.9.x",
     "less": "1.5.x"
   }
 }

@@ -4,6 +4,14 @@
 
 .. contents:: Table of Contents
 
+3.1.0 (2015-xx-xx)
+==================
+
+* Add WHATWG Fetch polyfill to js environment.
+
+* Add support for CSS modules (via .module.css file extension).
+
+* Add exports webpack loader to dependencies.
 
 3.0.0 (2015-07-23)
 ==================

@@ -104,19 +104,27 @@ function configureWebpack(config) {
   unshift(config, 'module.loaders', [
     {
       test: /\.less$/,
-      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?-minimize!less-loader')
+      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?-minimize!less')
     },
     {
       test: /\.css$/,
+      exclude: /\.module\.css$/,
       loader: ExtractTextPlugin.extract('style-loader', 'css-loader?-minimize')
     },
+
+    {
+      test: /\.module\.css$/,
+      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize')
+    },
+
     { test: /\.png$/, loader: 'url-loader?prefix=img/&limit=5000' },
 		{ test: /\.jpg$/, loader: 'url-loader?prefix=img/&limit=5000' },
 		{ test: /\.gif$/, loader: 'url-loader?prefix=img/&limit=5000' },
-		{ test: /\.eot(\?[a-z0-9]+)?$/, loader: 'file-loader?prefix=font/' },
-		{ test: /\.ttf(\?[a-z0-9]+)?$/, loader: 'file-loader?prefix=font/' },
-		{ test: /\.svg(\?[a-z0-9]+)?$/, loader: 'file-loader?prefix=font/' },
-		{ test: /\.woff(\?[a-z0-9]+)?$/, loader: 'url-loader?prefix=font/&limit=5000' },
+
+		{ test: /\.eot(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
+		{ test: /\.ttf(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
+		{ test: /\.svg(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
+		{ test: /\.woff(\?[a-z0-9]+)?$/,  loader: 'url-loader?prefix=font/&limit=5000' },
 		{ test: /\.woff2(\?[a-z0-9]+)?$/, loader: 'url-loader?prefix=font/&limit=5000' }
   ]);
 
@@ -134,6 +142,9 @@ function configureWebpack(config) {
       injectLoaders: injectDefaultLoaders
     }),
     new ExtractTextPlugin('bundle.css'),
+    new webpack.ProvidePlugin({
+      fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch'
+    }),
     new webpack.DefinePlugin({
       // used to guard code to run only in development
       __DEV__: DEV,

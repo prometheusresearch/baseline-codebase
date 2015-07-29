@@ -4,17 +4,21 @@
 
 import yaml
 import json
+import sys
 import os.path
 
 from datetime import datetime
+from imp import load_source
 
 from webob.exc import HTTPNotFound
 
-from rex.core import StrVal, BoolVal
+from rex.core import StrVal, BoolVal, OMapVal
 from rex.db import get_db
 from rex.web import Command, Parameter, render_to_response
 from rex.forms.interface import *
 
+from rex.instrument.util import get_implementation
+from rex.instrument.interface.calculationmethod import PythonCalculationMethod
 from rex.instrument_demo import *
 
 
@@ -57,6 +61,40 @@ class BaseCommand(Command):
             return title
         return title.get('en')
 
+    def calculate_assessment(self, name, assessment_definition):
+        calculationset_definition = self.get_data(name, 'calculationset')
+        if not calculationset_definition:
+            return assessment_definition
+        path = self.package().abspath(os.path.join('examples', name))
+        python_file = os.path.join(path, 'calculationset.py')
+        if os.path.exists(python_file):
+            module = load_source(name, python_file)
+            globals()[name] = module
+        instrument_impl = get_implementation('instrument')
+        instrument = instrument_impl.create(uid=name, title=name.title())
+
+        instrument_definition = self.get_data(name, 'instrument')
+        instrumentversion_impl = get_implementation('instrumentversion')
+        instrumentversion = instrumentversion_impl.create(
+                                            instrument=instrument,
+                                            definition=instrument_definition,
+                                            published_by='demo'
+                            )
+        calculationset_impl = get_implementation('calculationset')
+        calculationset = calculationset_impl.create(
+                                    instrument_version=instrumentversion,
+                                    definition=calculationset_definition
+                         )
+        subject_impl = get_implementation('subject')
+        subject = subject_impl.create()
+        assessment_impl = get_implementation('assessment')
+        assessment = assessment_impl.create(subject, instrumentversion,
+                                            data=assessment_definition)
+        assessment.status = 'completed'
+        result = calculationset.execute(assessment)
+        assessment.set_meta('calculations', result)
+        return assessment.data
+
 
 class Examples(BaseCommand):
     access = 'anybody'
@@ -97,9 +135,12 @@ class Example(BaseCommand):
         Parameter('name', StrVal()),
         Parameter('overview', BoolVal(), default=False),
         Parameter('read_only', BoolVal(), default=False),
+        Parameter('assessment', OMapVal(), default=None)
     ]
 
-    def render(self, req, name=None, overview=False, read_only=False):
+    def render(self, req, name=None, overview=False,
+                        read_only=False, assessment=None
+        ):
         if not name:
             raise HTTPNotFound()
         instrument = self.get_instrument_json(name)
@@ -109,16 +150,18 @@ class Example(BaseCommand):
         if form is None:
             raise HTTPNotFound("Form file not found")
         form_title = self.get_form_title(name)
+        if assessment:
+            assessment = self.calculate_assessment(name, assessment)
+            print assessment
         return render_to_response(
             'rex.forms_demo:/templates/example.html', req,
             title='Rex Forms Demo: %s' % form_title,
-            overview=overview, read_only=read_only,
-            form=form, instrument=instrument)
-
-
-
-
-
+            name=name,
+            overview=overview,
+            read_only=read_only,
+            form=form,
+            instrument=instrument,
+            assessment=assessment)
 
 
 def safe_uid(clazz, value):
@@ -232,4 +275,5 @@ class DemoDraftForm(DraftForm):
 
     def delete(self):
         print '### DELETED DRAFTFORM ' + self.uid
+
 

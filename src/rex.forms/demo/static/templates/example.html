@@ -4,6 +4,7 @@
   <div id="assessment"></div>
 {% endblock %}
 {% block script %}
+
   var FORM = {{form}};
   var INSTRUMENT = {{instrument}};
 
@@ -12,7 +13,8 @@
     form: FORM,
     instrument: INSTRUMENT,
     showOverview: {% if overview %}true{% else %}false{% endif %},
-    readOnly: {% if read_only %}true{% else %}false{% endif %}
+    readOnly: {% if read_only %}true{% else %}false{% endif %},
+    taskSaveUrl: '/examples/{{ name }}'
   });
 
   var Assessment = React.createClass({
@@ -40,6 +42,22 @@
   });
   form.on('complete', function(assessment) {
     console.log('complete');
+
+    var payload = {
+      assessment: JSON.stringify(assessment),
+      overview: form.showOverview,
+      read_only: form.readOnly
+    };
+
+    var promise = $.ajax({
+      url: form.taskSaveUrl,
+      type: 'POST',
+      data: payload,
+      dataType: 'json'
+    });
+
+    return promise;
+
   });
 
   renderAssessment(form.getAssessment());

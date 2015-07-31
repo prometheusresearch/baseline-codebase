@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.3.1 (2015-XX-XX)
+3.3.1 (2015-07-31)
 ==================
 
 * Improved performance of masking.

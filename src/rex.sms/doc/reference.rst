@@ -40,6 +40,9 @@ Providers
 .. automodule:: rex.sms.provider.stdout
    :show-inheritance:
 
+.. automodule:: rex.sms.provider.logging
+   :show-inheritance:
+
 .. automodule:: rex.sms.provider.twilioapi
    :show-inheritance:
 

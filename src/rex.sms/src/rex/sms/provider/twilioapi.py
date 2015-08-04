@@ -38,11 +38,13 @@ class TwilioSmsProvider(SmsProvider):
     name = 'twilio'
 
     def __init__(self):
+        # pylint: disable=super-on-old-class
         super(TwilioSmsProvider, self).__init__()
         self.client = None
         self.from_number = None
 
     def initialize(self):
+        # pylint: disable=super-on-old-class
         super(TwilioSmsProvider, self).__init__()
 
         account = setting_or_die('sms_twilio_account_sid')

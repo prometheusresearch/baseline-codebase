@@ -18,6 +18,8 @@ pylint:
     - missing-docstring
     - abstract-class-not-used
     - abstract-class-little-used
+    - no-init
+    - import-error
   enable:
     - fixme
 

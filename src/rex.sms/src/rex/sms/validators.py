@@ -20,6 +20,7 @@ class TelephoneNumberVal(StrVal):
     """
 
     def __call__(self, data):
+        # pylint: disable=super-on-old-class
         data = super(TelephoneNumberVal, self).__call__(data)
         data = data.strip()
 

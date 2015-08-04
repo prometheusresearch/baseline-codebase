@@ -3,8 +3,6 @@
 #
 
 
-import sys
-
 from rex.core import get_settings
 from rex.logging import get_logger
 

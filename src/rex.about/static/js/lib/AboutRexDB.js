@@ -8,7 +8,7 @@ var React = require('react/addons');
 
 var RexWidget = require('rex-widget');
 var {Tab, Tabs} = RexWidget;
-var request = require('rex-widget/lib/request');
+var {fetch} = require('rex-widget/lib/fetch');
 
 var PackageList = require('./PackageList');
 
@@ -22,11 +22,8 @@ var AboutRexDB = RexWidget.createWidgetClass({
   },
 
   componentWillMount: function () {
-    request('GET', this.props.environmentData).promise().then((res) => {
-      this.setState({
-        environment: res.body
-      });
-    });
+    fetch(this.props.environmentData)
+      .then(res => this.setState({environment: res.body}));
   },
 
   getLicense: function() {

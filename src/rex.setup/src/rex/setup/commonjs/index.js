@@ -143,7 +143,7 @@ function configureWebpack(config) {
     }),
     new ExtractTextPlugin('bundle.css'),
     new webpack.ProvidePlugin({
-      fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch'
+      fetch: 'imports-loader?this=>global!exports-loader?global.fetch!' + require.resolve('whatwg-fetch')
     }),
     new webpack.DefinePlugin({
       // used to guard code to run only in development

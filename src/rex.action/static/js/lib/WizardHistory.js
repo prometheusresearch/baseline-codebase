@@ -1,10 +1,8 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
- * @preventMunge
  */
-'use strict';
 
-class WizardHistory {
+export default class WizardHistory {
 
   constructor(construct, get, onChange) {
     this._read = this._read.bind(this);
@@ -19,16 +17,16 @@ class WizardHistory {
       return;
     }
     // TODO: expose equality for wizard state
-    var currentWizard = this._get();
+    let currentWizard = this._get();
     if (currentWizard && currentWizard._panels === wizard._panels) {
       return;
     }
-    var qs = wizard.toQueryString();
+    let qs = wizard.toQueryString();
     window.history.pushState({}, document.title, window.location.pathname + '?' + qs);
   }
 
   _read() {
-    var wizard = this._construct(this.queryString);
+    let wizard = this._construct(this.queryString);
     this._onChange(wizard);
   }
 
@@ -49,6 +47,4 @@ class WizardHistory {
       this.started = false;
     }
   }
-};
-
-module.exports = WizardHistory;
+}

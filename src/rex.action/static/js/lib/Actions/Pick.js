@@ -31,8 +31,9 @@ var Pick = React.createClass({
   },
 
   render() {
-    var {entity, onClose} = this.props;
+    var {entity, onClose, context} = this.props;
     var title = this.constructor.getTitle(this.props);
+    let selected = context[entity.name] ? context[entity.name].id : undefined;
     return (
       <VBox size={1} style={{...Style.self, width: this.props.width}}>
         <HBox style={Style.header}>
@@ -60,9 +61,9 @@ var Pick = React.createClass({
           sortable={this.props.sortable}
           resizableColumns={this.props.resizableColumns}
           dataSpec={this.dataSpecs.data}
-          columns={this.props.columns}
+          columns={this.props.fields}
           selectable
-          selected={this.props.context[this.props.entity.name]}
+          selected={selected}
           onSelected={this.onSelected}
           />
       </VBox>
@@ -83,9 +84,11 @@ var Pick = React.createClass({
   },
 
   onSelected(selected, data) {
-    var nextContext = {...this.props.context};
-    nextContext[this.props.entity.name] = selected;
-    this.props.onContext(nextContext);
+    let {onContext, context, entity} = this.props;
+    onContext({
+      ...context,
+      [entity.name]: data
+    });
   },
 
   statics: {

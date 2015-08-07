@@ -17,19 +17,9 @@ from rex.core import OMapVal, StrVal, ProxyVal, MaybeVal
 from rex.widget import TransitionableRecord
 from rex.widget.validate import DeferredVal
 
-__all__ = ('ActionTreeVal', 'anytype')
+from .typing import Type, anytype, ValueType, EntityType, RecordType, RowType
 
-
-class AnyType(object):
-
-    def __repr__(self):
-        return '<anytype>'
-
-    __str__ = __repr__
-    __unicode__ = __repr__
-
-
-anytype = AnyType()
+__all__ = ('ActionTreeVal',)
 
 
 class ActionTree(TransitionableRecord):
@@ -43,9 +33,71 @@ class ActionTree(TransitionableRecord):
 
 
 def format_context(context):
-    if not context:
+    if not context.rows:
         return '<empty context>'
-    return ''.join('%s: %s%s' % (k, v[0], ' (%s)' % v[1] if v[1] else '') for k, v in sorted(context.items()))
+    return ''.join('%s: %s' % (k, v.type.key) for k, v in sorted(context.rows.items()))
+
+
+def type_name(kind):
+    return kind.type_name if hasattr(kind, 'type_name') and kind.type_name is not NotImplemented else repr(kind)
+
+def assert_is_type(maybe_type):
+    assert isinstance(maybe_type, Type), 'Expected a type, got: %s' % maybe_type
+
+def unify(type_a, type_b, action_id, label=None):
+    assert_is_type(type_a)
+    assert_is_type(type_b)
+    if type_a is anytype or type_b is anytype:
+        return
+    kind_a = type(type_a)
+    kind_b = type(type_b)
+    if kind_a != kind_b:
+        error = Error('Unification error:', 'type kinds do not match')
+        error.wrap('One type is %s:' % type_name(kind_a), type_a)
+        error.wrap('Another type is %s:' % type_name(kind_b), type_b)
+        raise error
+    elif kind_a is RowType:
+        raise Error('Row types are only valid within a record types')
+    elif kind_a is RecordType:
+        for label, typ in type_a.rows.items():
+            if label == 'USER':
+                continue
+            other_typ = type_b.rows.get(label, NotImplemented)
+            if other_typ is NotImplemented:
+                raise Error(
+                    'Action "%s" cannot be used here:' % action_id,
+                    'Context is missing "%s"' % typ)
+            unify(typ.type, other_typ.type, action_id, label=label)
+    elif kind_a is ValueType:
+        if type_a.name != type_b.name:
+            raise Error(
+                'Action "%s" cannot be used here:' % action_id,
+                'Context has "%s: %s" but expected to have "%s: %s"' % (
+                    label, type_b, label, type_a))
+    elif kind_a is EntityType:
+        if type_a.name != type_b.name:
+            raise Error(
+                'Action "%s" cannot be used here:' % action_id,
+                'Context has "%s: %s" but expected to have "%s: %s"' % (
+                    label, type_b, label, type_a))
+        elif type_a.state is None or type_b.state is None:
+            return
+        elif type_a.state != type_b.state:
+            raise Error(
+                'Action "%s" cannot be used here:' % action_id,
+                'Context has "%s: %s" but expected to have "%s: %s"' % (
+                    label, type_b, label, type_a))
+    elif kind_a is OpaqueEntityType:
+        if type_a.name != type_b.name:
+            raise Error(
+                'Action "%s" cannot be used here:' % action_id,
+                'Context has "%s: %s" but expected to have "%s: %s"' % (
+                    label, type_b, label, type_a))
+    else:
+        error = Error('Unification error:', 'unknown kinds')
+        error.wrap('One type of kind %s' % kind_a, type_a)
+        error.wrap('Another type of kind %s' % kind_b, type_b)
+        raise error
 
 
 class ActionLevelVal(Validate):
@@ -53,48 +105,38 @@ class ActionLevelVal(Validate):
     _construct_level = OMapVal(DeferredVal(), DeferredVal()).construct
     _str_val = StrVal()
 
-    def __init__(self, actions, context=None):
+    def __init__(self, actions, path=None, context=None):
         self.actions = actions
-        self.context = context or {}
+        self.path = path or []
+        self.context = context or RecordType.empty()
+        assert_is_type(self.context)
 
     def next_level_val(self, action_id, context_update):
-        next_context = {}
-        next_context.update(self.context)
-        next_context.update({k: (v, action_id)
-                            for k, v in context_update.items()})
-        return ActionLevelVal(self.actions, context=next_context)
+        next_context = RecordType.empty()
+        next_context.rows.update(self.context.rows)
+        next_context.rows.update({k: v for k, v in context_update.rows.items()})
+        return ActionLevelVal(self.actions, path=[action_id], context=next_context)
 
     def typecheck(self, action_id):
         if not action_id in self.actions:
             raise Error('unknown action found:', action_id)
-        inputs, outputs = self.actions[action_id].context()
-        # typecheck current level
-        for label, typ in inputs.items():
-            if label == 'USER':
-                continue
-            other_typ = self.context.get(label, NotImplemented)
-            if other_typ is NotImplemented:
-                error = Error(
-                    'Action "%s" cannot be used here:' % action_id,
-                    'Context is missing "%s: %s"' % (label, typ))
-                error.wrap('Context:', format_context(self.context))
-                raise error
-            other_typ = other_typ[0]
-            if typ != other_typ and not typ is anytype and not other_typ is anytype:
-                error = Error(
-                    'Action "%s" cannot be used here:' % action_id,
-                    'Context has "%s: %s" but expected to have "%s: %s"' % (
-                        label, other_typ, label, typ))
-                error.wrap('Context:', format_context(self.context))
-                raise error
-        return inputs, outputs
+        input, output = self.actions[action_id].context_types
+        assert_is_type(input)
+        assert_is_type(output)
+        try:
+            unify(input, self.context, action_id)
+        except Error as error:
+            error.wrap('Context:', format_context(self.context))
+            error.wrap('While type checking action at path:', ' -> '.join(self.path + [action_id]))
+            raise error
+        return input, output
 
     def __call__(self, value):
         level = OrderedDict()
         for k, v in value.items():
-            _inputs, outputs = self.typecheck(k)
+            _input, output = self.typecheck(k)
             if isinstance(v, Mapping):
-                v = self.next_level_val(k, outputs)(v)
+                v = self.next_level_val(k, output)(v)
             level[k] = v
         return level
 
@@ -103,9 +145,9 @@ class ActionLevelVal(Validate):
         for k, v in self._construct_level(loader, node).items():
             with guard("While parsing:", Location.from_node(k.node)):
                 k = k.resolve(self._str_val)
-                _inputs, outputs = self.typecheck(k)
+                _input, output = self.typecheck(k)
             if isinstance(v.node, yaml.SequenceNode):
-                v = v.resolve(self.next_level_val(k, outputs))
+                v = v.resolve(self.next_level_val(k, output))
             else:
                 v = v.resolve()
             level[k] = v

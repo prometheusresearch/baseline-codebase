@@ -19,12 +19,13 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'inflect',
-        'docutils',
+        'werkzeug               >= 0.10.4, < 0.11',
+        'inflect                >= 0.2.5,  < 0.3',
+        'docutils               >= 0.12,   < 0.13',
 
-        'rex.core',
-        'rex.widget',
-        'rex.urlmap',
+        'rex.setup              >= 3.1,    < 4',
+        'rex.core               >= 1.6,    < 2',
+        'rex.widget             >= 1,      < 2',
     ],
     rex_init='rex.action',
     rex_static='static',

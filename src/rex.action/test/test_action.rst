@@ -7,21 +7,25 @@ Test rex.action.action
   >>> rex = Rex('-')
   >>> rex.on()
 
+  >>> from rex.action.typing import Domain
   >>> from rex.action.action import Action, ActionVal
+
+  >>> dom = Domain()
+  >>> dom.on()
 
   >>> class MyAction(Action):
   ...
   ...   name = 'my'
   ...
   ...   def context(self):
-  ...     return {}, {}
+  ...     return self.domain.record(), self.domain.record()
 
   >>> class AnotherAction(Action):
   ...
   ...   name = 'another'
   ...
   ...   def context(self):
-  ...     return {}, {}
+  ...     return self.domain.record(), self.domain.record()
 
   >>> Action.all() # doctest: +NORMALIZE_WHITESPACE
   [__main__.MyAction,
@@ -194,5 +198,6 @@ Constructing from YAML
   While parsing:
       "<byte string>", line 1
 
+  >>> dom.off()
   >>> rex.off()
 

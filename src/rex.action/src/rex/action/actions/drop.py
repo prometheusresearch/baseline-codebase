@@ -14,7 +14,8 @@ from rex.port import Port
 from rex.widget import Field, RSTVal, PortURL, responder, undefined
 
 from ..action import Action
-from ..validate import EntityDeclarationVal, RexDBVal
+from ..validate import RexDBVal
+from ..typing import RowTypeVal, annotate_port
 
 __all__ = ('Drop',)
 
@@ -27,7 +28,7 @@ class Drop(Action):
     js_type = 'rex-action/lib/Actions/Drop'
 
     entity = Field(
-        EntityDeclarationVal(),
+        RowTypeVal(),
         doc="""
         Name of a table in database.
         """)
@@ -57,9 +58,8 @@ class Drop(Action):
 
     @cached_property
     def port(self):
-        return Port(self.entity.type, db=self.db)
+        port = Port(self.entity.type.name, db=self.db)
+        return annotate_port(self.domain, port)
 
     def context(self):
-        input = {self.entity.name: self.entity.type}
-        output = {}
-        return input, output
+        return self.domain.record(self.entity), self.domain.record()

@@ -47,4 +47,4 @@ class Page(Action):
         """)
 
     def context(self):
-        return {}, {}
+        return self.domain.record(), self.domain.record()

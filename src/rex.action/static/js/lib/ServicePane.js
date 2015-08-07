@@ -1,72 +1,47 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React           = require('react/addons');
-var RexWidget       = require('rex-widget');
-var {VBox, HBox}    = RexWidget.Layout;
-var {border}        = RexWidget.StyleUtils;
-var getNextActions  = require('./getNextActions');
-var ActionButton    = require('./ActionButton');
+import React           from 'react';
+import {VBox, HBox}    from 'rex-widget/lib/Layout';
+import ActionButton    from './ActionButton';
+import Style           from './ServicePane.module.css';
 
-var Style = {
-  self: {
-  },
-  header: {
-    height: 25,
-    margin: 0,
-    padding: '5px 10px',
-    color: '#999',
-    borderBottom:  border(1, 'solid', '#ccc')
-  },
-  nextActions: {
-    top: 25
-  }
-};
+export default class ServicePane extends React.Component {
 
-var ServicePane = React.createClass({
+  static defaultProps = {
+    icon: 'chevron-right',
+    title: null,
+    width: 150
+  };
 
   render() {
-    var {wizard} = this.props;
-    var nextActions = Object.keys(wizard.actionTree);
-    var openedActions = wizard.panels.map(p => p.id);
-    var actionButtons = getNextActions(wizard.context, nextActions, wizard.actions)
-      .filter(action => nextActions.indexOf(action.id) > -1)
-      .filter(action => openedActions.indexOf(action.id) === -1)
+    let {wizard, width, style} = this.props;
+    let actionButtons = wizard
+      .allowedNextTransitions()
       .map(action =>
         <ActionButton
           align="left"
-          key={action.id}
-          action={action.action}
-          actionId={action.id}
+          key={action.props.id}
+          action={action}
+          actionId={action.props.id}
           onClick={this.onOpen}
           />
       );
     return (
-      <VBox style={{...Style.self, width: this.props.width, ...this.props.style}}>
+      <VBox className={Style.self} style={{width, ...style}}>
         {actionButtons.length > 0 &&
-          <VBox style={Style.nextActions}>
-            <h6 style={Style.header}>Next Actions</h6>
+          <VBox className={Style.nextActions}>
+            <h6 className={Style.header}>Next Actions</h6>
             {actionButtons}
           </VBox>}
       </VBox>
     );
-  },
+  }
 
-  getDefaultProps() {
-    return {
-      icon: 'chevron-right',
-      title: null,
-      width: 150
-    };
-  },
-
-  onOpen(id) {
+  onOpen = (id) => {
     this.props.wizard
       .openAfterLast(id)
       .update();
   }
-});
-
-module.exports = ServicePane;
+}

@@ -4,6 +4,15 @@
 
 .. contents:: Table of Contents
 
+0.4.0 (2015-XX-XX)
+==================
+
+* Add entity states feature. Now you can define restrictions on entity types
+  using HTSQL expressions.
+
+* Deprecate "columns" field of "pick" action in favour of "fields" to be
+  consistent with other built-in actions.
+
 0.3.0 (2015-07-23)
 ==================
 

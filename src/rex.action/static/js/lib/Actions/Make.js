@@ -37,7 +37,7 @@ let Make = React.createClass({
           insert
           key={this.getKey()}
           ref="form"
-          entity={entity.type}
+          entity={entity.type.name}
           fields={fields}
           submitTo={this.dataSpecs.data}
           submitButton={null}
@@ -78,7 +78,7 @@ let Make = React.createClass({
 
   getKey() {
     var contextKey = Object
-      .keys(this.props.contextSpec.input)
+      .keys(this.props.contextTypes.input)
       .map(k => this.props.context[k])
       .join('__');
     return `${contextKey}__${this.state.key}`;
@@ -97,7 +97,7 @@ let Make = React.createClass({
     this.setState({key});
 
     var nextContext = {...this.props.context};
-    nextContext[this.props.entity.name] = data.id;
+    nextContext[this.props.entity.name] = data;
     this.props.onContext(nextContext);
   },
 

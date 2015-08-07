@@ -17,8 +17,9 @@ from rex.widget import Field, ColumnVal, FormFieldVal, responder, PortURL, undef
 from rex.widget import dataspec, formfield
 
 from ..action import Action
-from ..validate import EntityDeclarationVal, RexDBVal
+from ..validate import RexDBVal
 from ..dataspec import ContextBinding
+from ..typing import RowTypeVal, RecordTypeVal, RecordType, annotate_port
 
 __all__ = ('Pick',)
 
@@ -43,7 +44,7 @@ class Pick(Action):
 
 
     entity = Field(
-        EntityDeclarationVal(),
+        RowTypeVal(),
         doc="""
         Name of a table in database.
         """)
@@ -57,8 +58,13 @@ class Pick(Action):
 
     columns = Field(
         MaybeVal(SeqVal(ColumnVal())), default=None,
+        transitionable=False,
+        deprecated='Use "fields" instead')
+
+    fields = Field(
+        MaybeVal(SeqVal(ColumnVal())), default=None,
         doc="""
-        A set of column specifications to be shown.
+        A set of fields to be shown as columns.
 
         If it's not provided then it will be inferred from database schema.
         """)
@@ -84,7 +90,7 @@ class Pick(Action):
         """)
 
     input = Field(
-        OMapVal(StrVal(), StrVal()), default=OrderedDict(),
+        RecordTypeVal(), default=RecordType.empty(),
         doc="""
         Context requirements.
 
@@ -106,49 +112,50 @@ class Pick(Action):
 
     def __init__(self, **values):
         super(Pick, self).__init__(**values)
-        if self.columns is None:
-            self.values['columns'] = formfield.from_port(self.port)
+        if self.fields is None and self.columns is not None:
+            self.values['fields'] = self.columns
+        if self.fields is None:
+            self.values['fields'] = formfield.from_port(self.port)
         else:
-            self.values['columns'] = formfield.enrich(self.columns, self.port)
+            self.values['fields'] = formfield.enrich(self.fields, self.port)
 
     @cached_property
     def port(self):
         filters = []
-        mask = None
 
         if self.search:
             filters.append('__search__($search) := %s' % self.search)
 
         if self.mask:
-            if self.input:
-                mask_args = ', '.join('$%s' % k for k in self.input.keys())
-                filters.append('__mask__(%s) := %s' % (mask_args, self.mask))
-            else:
-                mask = self.mask
+            mask_args = ', '.join('$%s' % k for k in self.input.rows.keys())
+            filters.append('__mask__(%s) := %s' % (mask_args or '$_', self.mask))
 
-        if self.columns is None:
+        if self.entity.type.state:
+            filters.append('__state__($_) := %s' % self.entity.type.state.expression)
+
+        if self.fields is None:
             grow_val = {
-                'entity': self.entity.type,
+                'entity': self.entity.type.name,
                 'filters': filters,
             }
-            if mask:
-                grow_val['mask'] = mask
             port = Port(grow_val, db=self.db)
         else:
             port = formfield.to_port(
-                self.entity.type,
-                self.columns,
+                self.entity.type.name,
+                self.fields,
                 filters=filters,
-                mask=mask,
                 db=self.db)
-        return port
+
+        return annotate_port(self.domain, port)
 
     def _construct_data_spec(self, port_url):
         bindings = {}
         if self.search:
             bindings['*:__search__'] = dataspec.StateBinding('search')
-        if self.mask and self.input:
-            bindings['*:__mask__'] = ContextBinding(self.input.keys(), is_join=False)
+        if self.mask:
+            bindings['*:__mask__'] = ContextBinding(self.input.rows.keys(), is_join=False)
+        if self.entity.type.state:
+            bindings['*:__state__'] = '_'
         if self.sort:
             bindings['*.%s:sort' % self.sort.field] = 'asc' if self.sort.asc else 'desc'
         return dataspec.CollectionSpec(port_url, bindings)
@@ -158,5 +165,4 @@ class Pick(Action):
         return self.port(req)
 
     def context(self):
-        output = {self.entity.name: self.entity.type}
-        return dict(self.input), output
+        return self.input, RecordType([self.entity])

@@ -13,6 +13,7 @@
 from collections import namedtuple, OrderedDict
 
 import yaml
+from cached_property import cached_property
 
 from rex.core import (
     Location, Error, Validate, autoreload, get_packages,
@@ -21,6 +22,8 @@ from rex.core import MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, AnyVal
 from rex.widget import Widget, WidgetVal, Field, undefined
 from rex.widget.validate import DeferredVal
 from rex.widget.util import add_mapping_key, pop_mapping_key
+
+from .typing import Domain, Type
 
 __all__ = ('Action', 'ActionVal', 'ActionMapVal')
 
@@ -104,9 +107,19 @@ class Action(Widget):
         """)
 
     def __init__(self, **values):
+        self.domain = Domain.current()
         super(Action, self).__init__(**values)
+        input, output = self.context_types
+        self.values['context_types'] = {'input': input, 'output': output}
+
+    @cached_property
+    def context_types(self):
         input, output = self.context()
-        self.values['context_spec'] = {'input': input, 'output': output}
+        if not isinstance(input, Type):
+            raise Error('Action "%s" of type "%s" does specified incorrect input type:' % (self.id, self.name.name), input)
+        if not isinstance(output, Type):
+            raise Error('Action "%s" of type "%s" does specified incorrect output type:' % (self.id, self.name.name), output)
+        return input, output
 
     def context(self):
         """ Compute context specification for an action.

@@ -33,8 +33,13 @@ In case fields are not specified, they are generated from port::
        title=undefined,
        text=RST(src=u'<p>Welcome to Rex Action!</p>', links={}))
 
-  >>> page.context()
-  ({}, {})
+  >>> input, output = page.context_types
+
+  >>> input
+  RecordType(rows={}, open=True)
+
+  >>> output
+  RecordType(rows={}, open=True)
 
   >>> print render_widget(page, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
   200 OK

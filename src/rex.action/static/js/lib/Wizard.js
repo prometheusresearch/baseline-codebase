@@ -117,7 +117,7 @@ export default class Wizard extends React.Component {
         key={panel.id + '__' + (panel.isService ? 'SERVICE' : getPanelKey(panel))}
         actionId={panel.id}
         actions={this.props.actions}
-        siblingActions={panel.isService ? [] : Object.keys(panel.prev.actionTree)}
+        siblingActions={wizard.allowedSiblingTransitions(panel)}
         active={wizard.canvasMetrics.visiblePanels.indexOf(idx) !== -1}
         noTheme={panel.isService}
         style={{...Style.item, zIndex: panel.isService ? 999 : 1000}}
@@ -183,12 +183,13 @@ export default class Wizard extends React.Component {
   }
 
   _wizardConstruct = (qs) => {
-    return WizardState.fromQueryString(
+    let wizard = WizardState.fromQueryString(
         qs,
         this._onWizardUpdate,
         this.props.initialContext,
         {actions: this.props.actions, tree: this.props.path},
         this.props.DOMSize);
+    return wizard;
   }
 
   _wizardRetrieve = () => {
@@ -218,7 +219,8 @@ export default class Wizard extends React.Component {
   }
 
   onFocus = (id) => {
-    this.state.wizard.update(wizard => wizard
+    this.state.wizard
+      .update(wizard => wizard
       .ensureVisible(id));
   }
 
@@ -245,10 +247,9 @@ export default class Wizard extends React.Component {
       return wizard;
     });
   }
-
 }
 
 function getPanelKey(panel) {
-  var inputKeys = Object.keys(panel.element.props.contextSpec.input);
+  var inputKeys = Object.keys(panel.element.props.contextTypes.input);
   return inputKeys.map(k => panel.context[k]).join('__');
 }

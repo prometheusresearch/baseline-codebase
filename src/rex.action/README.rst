@@ -159,6 +159,80 @@ other built-in actions types: ``make``, ``edit``, ``drop`` and ``pick-date``.
 Developers can extend Rex Action by defining they own action types which are
 tailored to specific application needs.
 
+Entity types and states
+-----------------------
+
+Sometimes it is needed to put additional restrictions on data actions operate
+with.
+
+For example you may want to restrict the scope of some actions to allow only a
+certain subset of entities from a database.
+
+There's a mechanism for that called *entity states*.
+
+When you define a wizard, simply add a ``states`` declaration in the form of::
+
+  widget: !<Wizard>
+
+    states:
+      <entity name>:
+        <state name>:
+          title: <state title>
+          expression: <HTSQL expression which evaluates to boolean flag>
+
+For example::
+
+  widget: !<Wizard>
+
+    states:
+      todo:
+        active:
+          title: Active items
+          expression: !completed
+        completed:
+          title: Completed items
+          expression: completed
+
+
+Now you can define the following actions which mention corresponding states::
+
+    actions:
+
+      pick-todo:
+        type: pick
+        entity: todo
+
+      view-todo:
+        type: view
+        entity: todo
+
+      complete-todo:
+        type: edit
+        entity: todo[active]
+        value:
+          completed: true
+
+    path:
+    - pick-todo:
+      - view-todo:
+      - complete-todo:
+
+Note the ``todo[active]`` entity type of ``complete-todo`` action. It says that
+action can only be executed on todo which is in state ``active`` (defined above
+via the HTSQL expression).
+
+On other hand, ``pick-todo`` allows both ``active`` and ``completed`` todo items
+to be picked. But you can define ``pick`` actions which can be restricted by
+states::
+
+    actions:
+      pick-active-todo:
+        type: pick
+        entity: todo[active]
+
+That way ``pick-active-todo`` action guarantees that only todo which are in
+``active`` state can be picked.
+
 Creating custom action types
 ============================
 
@@ -236,4 +310,3 @@ Now we finally can define a wizard with our new action types::
           pick-location:
             type: pick
             entity: location
-

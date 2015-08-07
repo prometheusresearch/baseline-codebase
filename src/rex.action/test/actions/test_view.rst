@@ -30,8 +30,8 @@ In case fields are not specified, they are generated from port::
        width=undefined,
        id='view-individual',
        title=undefined,
-       input=OrderedDict(),
-       entity=EntityDeclaration(name='individual', type='individual'),
+       input=RecordType(rows={}, open=True),
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
                EnumFormField(value_key=['sex'], label='Sex',
@@ -48,8 +48,15 @@ In case fields are not specified, they are generated from port::
                EntityFormField(value_key=['adopted_father'], label='Adopted Father',
                                data=Record(entity='individual', title='id()', mask=None))])
 
-  >>> view.context()
-  ({'individual': 'individual'}, {})
+  >>> input, output = view.context_types
+
+  >>> input # doctest: +NORMALIZE_WHITESPACE
+  RecordType(rows={'individual': RowType(name='individual',
+                                         type=EntityType(name='individual', state=None))},
+             open=True)
+
+  >>> output
+  RecordType(rows={}, open=True)
 
   >>> view.port
   Port('''
@@ -92,8 +99,8 @@ You can also specify fields and see port generated from them::
        width=undefined,
        id='view-individual',
        title=undefined,
-       input=OrderedDict(),
-       entity=EntityDeclaration(name='individual', type='individual'),
+       input=RecordType(rows={}, open=True),
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 
@@ -119,8 +126,8 @@ context::
        width=undefined,
        id='view-mother',
        title=undefined,
-       input=OrderedDict(),
-       entity=EntityDeclaration(name='mother', type='individual'),
+       input=RecordType(rows={}, open=True),
+       entity=RowType(name='mother', type=EntityType(name='individual', state=None)),
        db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
 

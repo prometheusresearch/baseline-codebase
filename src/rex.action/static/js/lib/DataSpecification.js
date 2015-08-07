@@ -1,11 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var DataSpecification = require('rex-widget/lib/DataSpecification');
+import DataSpecification from 'rex-widget/lib/DataSpecification';
 
-class ContextBinding extends DataSpecification.Binding {
+export class ContextBinding extends DataSpecification.Binding {
 
   constructor(keys, isJoin, options) {
     super(options);
@@ -15,7 +14,13 @@ class ContextBinding extends DataSpecification.Binding {
 
   bindToContext(context, key) {
     var bind = {};
-    var value = this.keys.map(key => context.props.context[key]);
+    var value = this.keys.map(key => {
+      let value = context.props.context[key];
+      if (typeof value === 'object' && value['meta:type']) {
+        value = value.id;
+      }
+      return value;
+    });
     if (this.isJoin) {
       value = value.join('.');
     }
@@ -23,5 +28,3 @@ class ContextBinding extends DataSpecification.Binding {
     return bind;
   }
 }
-
-module.exports = {ContextBinding};

@@ -18,7 +18,8 @@ from rex.widget import formfield, dataspec
 
 from ..action import Action
 from ..dataspec import ContextBinding
-from ..validate import EntityDeclarationVal, RexDBVal
+from ..typing import RowTypeVal, RecordTypeVal, RecordType, annotate_port
+from ..validate import RexDBVal
 
 __all__ = ('Edit',)
 
@@ -57,7 +58,7 @@ class Edit(Action):
     js_type = 'rex-action/lib/Actions/Edit'
 
     entity = Field(
-        EntityDeclarationVal(),
+        RowTypeVal(),
         doc="""
         Name of a table in database.
         """)
@@ -92,7 +93,7 @@ class Edit(Action):
         """)
 
     input = Field(
-        OMapVal(StrVal(), StrVal()), default=OrderedDict())
+        RecordTypeVal(), default=RecordType.empty())
 
     def __init__(self, **values):
         super(Edit, self).__init__(**values)
@@ -104,14 +105,15 @@ class Edit(Action):
     @cached_property
     def port(self):
         if self.fields is None:
-            return Port(self.entity.type, db=self.db)
+            port = Port(self.entity.type.name, db=self.db)
         else:
             value_fields = _value_to_fieldset(self.value).fields
-            value_fields = formfield.enrich(value_fields, Port(self.entity.type, db=self.db))
-            return formfield.to_port(self.entity.type, value_fields + self.fields, db=self.db)
+            value_fields = formfield.enrich(value_fields, Port(self.entity.type.name, db=self.db))
+            port = formfield.to_port(self.entity.type.name, value_fields + self.fields, db=self.db)
+        return annotate_port(self.domain, port)
 
     def _construct_data_spec(self, port_url):
-        keys = self.input.keys() or [self.entity.name]
+        keys = self.input.rows.keys() or [self.entity.name]
         params = {'*': ContextBinding(keys, is_join=True)}
         return dataspec.EntitySpec(port_url, params)
 
@@ -120,9 +122,8 @@ class Edit(Action):
         return self.port(req)
 
     def context(self):
-        input = self.input or {self.entity.name: self.entity.type}
-        output = {self.entity.name: self.entity.type}
-        return input, output
+        input = self.input if self.input.rows else RecordType([self.entity])
+        return input, RecordType([self.entity])
 
 
 def _value_to_fieldset(value, _key=None):

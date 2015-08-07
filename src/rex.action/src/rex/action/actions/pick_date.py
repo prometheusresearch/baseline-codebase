@@ -16,6 +16,7 @@ from rex.widget import dataspec
 
 from ..action import Action
 from ..validate import QueryVal
+from ..typing import ValueType
 
 
 __all__ = ('PickDate',)
@@ -53,6 +54,4 @@ class PickDate(Action):
         return self.annotate_year(req)
 
     def context(self):
-        input = {}
-        output = {'date': 'date'}
-        return input, output
+        return self.domain.record(), self.domain.record(date='date')

@@ -30,9 +30,9 @@ In case fields are not specified, they are generated from port::
        width=undefined,
        id='make-individual',
        title=undefined,
-       input=OrderedDict(),
+       input=RecordType(rows={}, open=True),
        submit_button=undefined,
-       entity=EntityDeclaration(name='individual', type='individual'),
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        value={},
        db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
@@ -50,13 +50,21 @@ In case fields are not specified, they are generated from port::
                EntityFormField(value_key=['adopted_father'], label='Adopted Father',
                                data=Record(entity='individual', title='id()', mask=None))])
 
-  >>> make.context()
-  ({}, {'individual': 'individual'})
+  >>> input, output = make.context_types
+
+  >>> input
+  RecordType(rows={}, open=True)
+
+  >>> output
+  RecordType(rows={'individual': RowType(name='individual', type=EntityType(name='individual', state=None))}, open=True)
 
   >>> make.port
   Port('''
   entity: individual
   select: [code, sex, mother, father, adopted_mother, adopted_father]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
   >>> print render_widget(make, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
@@ -93,9 +101,9 @@ You can also specify fields and see port generated from them::
        width=undefined,
        id='make-individual',
        title=undefined,
-       input=OrderedDict(),
+       input=RecordType(rows={}, open=True),
        submit_button=undefined,
-       entity=EntityDeclaration(name='individual', type='individual'),
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        value={},
        db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code')])
@@ -104,6 +112,9 @@ You can also specify fields and see port generated from them::
   Port('''
   entity: individual
   select: [code]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
 Value also used to generate port::
@@ -128,6 +139,11 @@ Value also used to generate port::
   with:
   - entity: identity
     select: [givenname]
+    with:
+    - calculation: meta:type
+      expression: '''identity'''
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
 

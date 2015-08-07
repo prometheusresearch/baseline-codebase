@@ -67,7 +67,7 @@ let Edit = React.createClass({
         submitButton={null}
         initialValue={this.data.data.data}
         value={value}
-        entity={entity.type}
+        entity={entity.type.name}
         fields={fields}
         />
     );

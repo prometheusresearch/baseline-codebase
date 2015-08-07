@@ -1,0 +1,11 @@
+.header {
+  height: 25px;
+  margin: 0px;
+  padding: 5px 10px;
+  color: #999;
+  border-bottom: 1px solid #ccc;
+}
+
+.nextActions {
+  top: 25px;
+}

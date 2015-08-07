@@ -41,13 +41,21 @@ In case fields are not specified, they are generated from port::
    EntityFormField(value_key=['adopted_father'], label='Adopted Father',
                    data=Record(entity='individual', title='id()', mask=None))]
 
-  >>> pick.context()
-  ({}, {'individual': 'individual'})
+  >>> input, output = pick.context_types
+
+  >>> input
+  RecordType(rows={}, open=True)
+
+  >>> output
+  RecordType(rows={'individual': RowType(name='individual', type=EntityType(name='individual', state=None))}, open=True)
 
   >>> pick.port
   Port('''
   entity: individual
   select: [code, sex, mother, father, adopted_mother, adopted_father]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
   >>> req = Request.blank('/', accept='application/json')
@@ -97,6 +105,9 @@ var to this filter::
   entity: individual
   filters: ['__search__($search) := identity.givename~$search']
   select: [code, sex, mother, father, adopted_mother, adopted_father]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
@@ -112,7 +123,7 @@ var to this filter::
   }
   <BLANKLINE>
 
-If we provide ``mask`` HTSQL expression it is compiled into port's mask::
+If we provide ``mask`` HTSQL expression it is compiled into port's filter::
 
 
   >>> pick = Action.parse("""
@@ -125,8 +136,11 @@ If we provide ``mask`` HTSQL expression it is compiled into port's mask::
   >>> pick.port
   Port('''
   entity: individual
-  mask: sex='male'
+  filters: ['__mask__($_) := sex=''male''']
   select: [code, sex, mother, father, adopted_mother, adopted_father]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
 If we provide ``input`` fields with context requirements then ``mask`` can refer
@@ -155,6 +169,9 @@ to those input variables::
   entity: study_enrollment
   filters: ['__mask__($individual) := individual=$individual']
   select: [study, individual, code, enrollment_date, participant_group]
+  with:
+  - calculation: meta:type
+    expression: '''study_enrollment'''
   ''')
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
@@ -169,6 +186,33 @@ to those input variables::
     "study_enrollment": []
   }
   <BLANKLINE>
+
+We can specify an entity indexed by state, then pick will use state's filter as
+a mask::
+
+  >>> from rex.action.typing import Domain, EntityType, EntityTypeState
+  >>> dom = Domain(entity_types=[
+  ...   EntityType(name='individual', state=EntityTypeState(name='editable', expression='true()')),
+  ... ])
+
+  >>> with dom:
+  ...   action = Action.parse('''
+  ... type: pick
+  ... id: pick-individual
+  ... entity: individual[editable]
+  ... ''')
+
+  >>> action.port
+  Port('''
+  entity: individual
+  filters: ['__state__($_) := true()']
+  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
+  - calculation: meta:state:editable
+    expression: true()
+  ''')
 
 Cleanup
 -------

@@ -31,17 +31,25 @@ In case fields are not specified, they are generated from port::
        id='drop-individual',
        title=undefined,
        message=RST(src=u'<p>You are about to drop an entity</p>', links={}),
-       entity=EntityDeclaration(name='individual', type='individual'),
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        confirm_delay=undefined,
        db=None)
 
-  >>> drop.context()
-  ({'individual': 'individual'}, {})
+  >>> input, output = drop.context_types
+
+  >>> input
+  RecordType(rows={'individual': RowType(name='individual', type=EntityType(name='individual', state=None))}, open=True)
+
+  >>> output
+  RecordType(rows={}, open=True)
 
   >>> drop.port
   Port('''
   entity: individual
   select: [code, sex, mother, father, adopted_mother, adopted_father]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
   >>> print render_widget(drop, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE

@@ -32,22 +32,13 @@ In case fields are not specified, they are generated from port::
            annotate_month=None,
            annotate_year=None)
 
-  >>> pick_date.context()
-  ({}, {'date': 'date'})
+  >>> input, output = pick_date.context_types
 
-  >>> print render_widget(pick_date, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-  200 OK
-  Content-Type: application/json; charset=UTF-8
-  Content-Length: 266
-  <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/PickDate",
-                {"contextSpec": {"input": {}, "output": {"date": "date"}},
-                 "title": ["~#undefined", []],
-                 "width": ["^6", []],
-                 "id": "pick-date",
-                 "icon": ["^6", []],
-                 "annotateYearQuery": ["^6", []],
-                 "annotateMonthQuery": ["^6", []]}]]
+  >>> input
+  RecordType(rows={}, open=True)
+  
+  >>> output
+  RecordType(rows={'date': RowType(name='date', type=ValueType(name='date'))}, open=True)
 
 Cleanup
 -------

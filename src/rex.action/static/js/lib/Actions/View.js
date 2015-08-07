@@ -10,6 +10,20 @@ var DS                          = RexWidget.DataSpecification;
 var {overflow, boxShadow, rgb}  = RexWidget.StyleUtils;
 var Action                      = require('../Action');
 
+function isLoaded(entity) {
+  if (entity == null) {
+    return false;
+  }
+  for (let key in entity) {
+    if (entity.hasOwnProperty(key)) {
+      if (!(key === 'id' || key.indexOf('meta:') === 0)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 var View = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin],
 
@@ -22,18 +36,28 @@ var View = React.createClass({
   },
 
   render() {
-    var {fields, entity, context, onClose, width} = this.props;
-    var title = this.constructor.getTitle(this.props);
+    let {fields, entity, context, onClose, width} = this.props;
+    let title = this.constructor.getTitle(this.props);
+    let data;
+    let dataFromContext;
+    if (this.data.data.data) {
+      data = this.data.data.data;
+      dataFromContext = false;
+    } else {
+      data = context[entity.type.name];
+      dataFromContext = true;
+    }
     return (
       <Action title={title} onClose={onClose} width={width}>
-        <RexWidget.ShowPreloader data={this.data.data}>
+        {isLoaded(data) ?
           <RexWidget.Forms.ConfigurableEntityForm
+            key={`${data.id}__${dataFromContext ? '1' : '0'}`}
             readOnly
-            entity={entity.type}
-            value={this.data.data.data}
+            entity={entity.type.name}
+            value={data}
             fields={fields}
-            />
-        </RexWidget.ShowPreloader>
+            /> :
+            <RexWidget.Preloader />}
       </Action>
     );
   },
@@ -47,7 +71,7 @@ var View = React.createClass({
 
   statics: {
     getTitle(props) {
-      return props.title || `View ${props.entity.name}`;
+      return props.title || `View ${props.entity.type.name}`;
     }
   }
 });

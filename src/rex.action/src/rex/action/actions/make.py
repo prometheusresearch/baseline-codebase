@@ -17,7 +17,8 @@ from rex.widget import Field, FormFieldsetVal, responder, PortURL, undefined
 from rex.widget import formfield, dataspec
 
 from ..action import Action
-from ..validate import EntityDeclarationVal, RexDBVal
+from ..typing import RowTypeVal, RecordTypeVal, RecordType, annotate_port
+from ..validate import RexDBVal
 
 __all__ = ('Make',)
 
@@ -57,7 +58,7 @@ class Make(Action):
     js_type = 'rex-action/lib/Actions/Make'
 
     entity = Field(
-        EntityDeclarationVal(),
+        RowTypeVal(),
         doc="""
         Name of a table in database.
         """)
@@ -98,7 +99,7 @@ class Make(Action):
         """)
 
     input = Field(
-        OMapVal(StrVal(), StrVal()), default=OrderedDict())
+        RecordTypeVal(), default=RecordType.empty())
 
     def __init__(self, **values):
         super(Make, self).__init__(**values)
@@ -110,11 +111,12 @@ class Make(Action):
     @cached_property
     def port(self):
         if self.fields is None:
-            return Port(self.entity.type, db=self.db)
+            port = Port(self.entity.type.name, db=self.db)
         else:
             value_fields = _value_to_fieldset(self.value).fields
-            value_fields = formfield.enrich(value_fields, Port(self.entity.type, db=self.db))
-            return formfield.to_port(self.entity.type, value_fields + self.fields, db=self.db)
+            value_fields = formfield.enrich(value_fields, Port(self.entity.type.name, db=self.db))
+            port = formfield.to_port(self.entity.type.name, value_fields + self.fields, db=self.db)
+        return annotate_port(self.domain, port)
 
     def _construct_data_spec(self, port_url):
         return dataspec.EntitySpec(port_url, {})
@@ -124,9 +126,7 @@ class Make(Action):
         return self.port(req)
 
     def context(self):
-        input = self.input or {}
-        output = {self.entity.name: self.entity.type}
-        return input, output
+        return self.input, self.domain.record(self.entity)
 
 
 def _value_to_fieldset(value, _key=None):

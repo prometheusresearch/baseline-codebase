@@ -18,7 +18,8 @@ from rex.widget import formfield, dataspec
 
 from ..action import Action
 from ..dataspec import ContextBinding
-from ..validate import EntityDeclarationVal, RexDBVal
+from ..validate import RexDBVal
+from ..typing import RowTypeVal, RecordTypeVal, RecordType
 
 __all__ = ('View',)
 
@@ -56,7 +57,7 @@ class View(Action):
     js_type = 'rex-action/lib/Actions/View'
 
     entity = Field(
-        EntityDeclarationVal(),
+        RowTypeVal(),
         doc="""
         Name of a table in database.
         """)
@@ -78,7 +79,7 @@ class View(Action):
         """)
 
     input = Field(
-        OMapVal(StrVal(), StrVal()), default=OrderedDict())
+        RecordTypeVal(), default=RecordType.empty())
 
     def __init__(self, **values):
         super(View, self).__init__(**values)
@@ -90,12 +91,12 @@ class View(Action):
     @cached_property
     def port(self):
         if self.fields is None:
-            return Port(self.entity.type, db=self.db)
+            return Port(self.entity.type.name, db=self.db)
         else:
-            return formfield.to_port(self.entity.type, self.fields, db=self.db)
+            return formfield.to_port(self.entity.type.name, self.fields, db=self.db)
 
     def _construct_data_spec(self, port_url):
-        keys = self.input.keys() or [self.entity.name]
+        keys = self.input.rows.keys() or [self.entity.name]
         params = {'*': ContextBinding(keys, is_join=True)}
         return dataspec.EntitySpec(port_url, params)
 
@@ -104,6 +105,5 @@ class View(Action):
         return self.port(req)
 
     def context(self):
-        input = self.input or {self.entity.name: self.entity.type}
-        output = {}
-        return input, output
+        input = self.input if self.input.rows else self.domain.record(self.entity)
+        return input, self.domain.record()

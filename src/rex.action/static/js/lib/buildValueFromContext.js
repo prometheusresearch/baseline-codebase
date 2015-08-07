@@ -2,6 +2,8 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import getByKeyPath from 'rex-widget/lib/getByKeyPath';
+
 export default function buildValueFromContext(spec, context) {
   let value;
   if (Array.isArray(spec)) {
@@ -18,7 +20,11 @@ export default function buildValueFromContext(spec, context) {
       if (spec.hasOwnProperty(key)) {
         let item = spec[key];
         if (item[0] === '$') {
-          value[key] = context[item.substr(1)];
+          let itemValue = getByKeyPath(context, item.substr(1));
+          if (typeof itemValue === 'object' && itemValue['meta:type']) {
+            itemValue = itemValue.id;
+          }
+          value[key] = itemValue;
         } else {
           value[key] = item;
           if (typeof value[key] === 'object') {

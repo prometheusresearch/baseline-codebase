@@ -7,7 +7,6 @@
 var React                     = require('react');
 var invariant                 = require('rex-widget/lib/invariant');
 var qs                        = require('rex-widget/lib/qs');
-var {actionAllowedInContext}  = require('./getNextActions');
 var Actions                   = require('./Actions');
 var ServicePane               = require('./ServicePane');
 var WizardPanel               = require('./WizardPanel');
@@ -49,6 +48,33 @@ class WizardState {
     return this.canvasMetrics.visiblePanels.indexOf(idx) > -1;
   }
 
+  allowedSiblingTransitions(panel = this.last) {
+    let transitions = [];
+    if (panel.isService) {
+      return transitions;
+    }
+    for (let id in panel.prev.actionTree) {
+      if (panel.prev.actionTree.hasOwnProperty(id)) {
+        let action = this.actions[id];
+        if (action.props.contextTypes.input.match(panel.prev.context)) {
+          transitions.push(id);
+        }
+      }
+    }
+    return transitions;
+  }
+
+  allowedNextTransitions(panel = this.last) {
+    let transitions = Object.keys(panel.actionTree);
+    let actionTransitions = this.panels.map(p => p.id);
+    return transitions
+      .filter(id =>
+        this.isTransitionAllowed(id, panel.context) &&
+        transitions.indexOf(id) > -1 &&
+        actionTransitions.indexOf(id) === -1)
+      .map(id => this.actions[id]);
+  }
+
   openAfterLast(id, contextUpdate) {
     invariant(this.actionTree[id] !== undefined);
     var actionTree = this.actionTree[id] || {};
@@ -63,10 +89,10 @@ class WizardState {
     return this.construct(panels).ensureVisible(id);
   }
 
-  isTransitionAllowed(id) {
+  isTransitionAllowed(id, context = this.context) {
     var action = this.actions[id];
     invariant(action !== undefined);
-    return actionAllowedInContext(this.context, action);
+    return action.props.contextTypes.input.match(context);
   }
 
   /**
@@ -197,11 +223,15 @@ class WizardState {
         if (k === 'USER') {
           continue;
         }
-        if (contextAgg[k] !== undefined && contextAgg[k] === panel.context[k]) {
+        let v = panel.context[k];
+        if (typeof v === 'object' && v['meta:type']) {
+          v = serializeEntity(v);
+        }
+        if (contextAgg[k] !== undefined && contextAgg[k] === v) {
           continue;
         }
-        panelContext[k] = panel.context[k];
-        contextAgg[k] = panel.context[k];
+        panelContext[k] = v;
+        contextAgg[k] = v;
       }
       context[panel.id] = panelContext;
     });
@@ -225,18 +255,72 @@ class WizardState {
     var context = data.context || {};
     var ids = data.action || '';
     ids = ids.split('/').filter(Boolean);
-
     if (ids.length === 0) {
       return this.construct(onUpdate, initialContext, actions, size);
     } else {
       var wizard = new this(onUpdate, initialContext, actions, size);
       for (var i = 0; i < ids.length; i++) {
         var id = ids[i];
-        wizard = wizard.openAfterLast(id, {...context[id], USER: "'" + __REX_USER__ + "'"});
+        wizard = wizard.openAfterLast(id, {...parseContext(context[id]), USER: "'" + __REX_USER__ + "'"});
       }
       return wizard;
     }
   }
+}
+
+const STATE_PREFIX = 'meta:state:';
+const PARSE_ENTITY_RE = /~([a-zA-Z_]+)\/([^!]+)(![a-zA-Z_,]+)?/;
+
+function parseEntity(str) { 
+  let m = PARSE_ENTITY_RE.exec(str);
+  if (!m) {
+    return str;
+  }
+  let [_, type, id, state] = m;
+  let entity = {
+    'id': id,
+    'meta:type': type,
+  };
+  if (state) {
+    state = state.substring(1).split(',');
+    for (let i = 0; i < state.length; i++) {
+      entity[`meta:state:${state[i]}`] = true;
+    }
+  }
+  return entity;
+}
+
+function serializeEntity(entity) {
+  let state = [];
+  let type = entity['meta:type'];
+  for (let key in entity) {
+    if (entity.hasOwnProperty(key) && key.indexOf(STATE_PREFIX) === 0 && entity[key]) {
+      state.push(key.substring(STATE_PREFIX.length));
+    }
+  }
+  let data = `~${type}/${entity.id}`;
+  if (state.length > 0) {
+    data = `${data}!${state.join(',')}`;
+  }
+  return data;
+}
+
+function parseContext(context) {
+  if (!context) {
+    return context;
+  }
+  let parsedContext = {};
+  for (let key in context) {
+    if (!context.hasOwnProperty(key)) {
+      continue;
+    }
+    let value = context[key];
+    if (value[0] === '~') {
+      value = parseEntity(value);
+    }
+    parsedContext[key] = value;
+  }
+  return parsedContext;
 }
 
 function filterPanelContextToSerialize(context) {

@@ -25,7 +25,7 @@ setup(
         'COGS==0.4.0',
         'rex.action==0.4.0',
         'rex.applet==2.2.0',
-        'rex.setup==3.0.0',
+        'rex.setup==3.1.0',
         'rex.core==1.11.2',
         'rex.ctl==2.0.0',
         'rex.db==3.3.1',

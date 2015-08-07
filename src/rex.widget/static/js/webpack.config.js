@@ -6,7 +6,7 @@ module.exports = RexSetup.configureWebpack({
     entry: [
       require.resolve('core-js/modules/es6.object.assign'),
       require.resolve('core-js/modules/es6.promise'),
-      './lib/forms/__tests__/*-test.js'
+      './lib/__tests__/*-test.js'
     ]
   }
 });

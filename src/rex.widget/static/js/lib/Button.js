@@ -1,76 +1,83 @@
 /**
- * @jsx React.DOM
+ * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React                 = require('react');
-var cx                    = require('classnames');
-var Icon                  = require('./Icon');
-var emptyFunction         = require('./emptyFunction');
-var qs                    = require('./qs');
+import React, {PropTypes} from 'react';
+import cx                 from 'classnames';
+import Icon               from './Icon';
+import emptyFunction      from './emptyFunction';
+import resolveURL         from './resolveURL';
+import qs                 from './qs';
+import Style              from './Button.module.css';
 
-var Button = React.createClass({
+export default class Button extends React.Component {
 
-  propTypes: {
-    onClick: React.PropTypes.func,
-    link: React.PropTypes.bool,
-    success: React.PropTypes.bool,
-    danger: React.PropTypes.bool,
-    icon: React.PropTypes.string
-  },
+  static propTypes = {
+    link: PropTypes.bool,
+    success: PropTypes.bool,
+    danger: PropTypes.bool,
+    quiet: PropTypes.bool,
+    size: PropTypes.oneOf(['small', 'extra-small']),
+    align: PropTypes.oneOf(['left', 'right']),
+    className: PropTypes.string,
+    style: PropTypes.object,
+    icon: PropTypes.string,
+    iconRight: PropTypes.string,
+    href: PropTypes.string,
+    params: PropTypes.object
+  };
+
+  static defaultProps = {
+    type: 'button'
+  };
 
   render() {
-    var {
-      link, success, danger, quiet, size, className, style, disabled, align,
-      placeholder, id, icon, iconRight, text, children, href, params, ...props
+    let {
+      link, success, danger, quiet, size, align,
+      className, style,
+      icon, iconRight,
+      text, children,
+      href, params,
+      ...props
     } = this.props;
+
     if (href && params) {
       href = href + '?' + qs.stringify(params);
     }
-    var classNames = cx({
-      'btn': true,
-      'rw-Button': true,
-      'rw-Button--default': !link && !success,
-      'rw-Button--success': success,
-      'rw-Button--danger': danger,
-      'rw-Button--link': link,
-      'rw-Button--quiet': quiet,
-      'rw-Button--small': size === 'small',
-      'rw-Button--extraSmall': size === 'extra-small'
+
+    className = cx(className, {
+      [Style.self]: true,
+      [Style.isDefault]: !link && !success && !danger && !quiet,
+      [Style.isSuccess]: success,
+      [Style.isDanger]: danger,
+      [Style.isLink]: link,
+      [Style.isQuiet]: quiet,
+      [Style.isSmall]: size === 'small',
+      [Style.isExtraSmall]: size === 'extra-small'
     });
-    var Component = href ? 'a' : 'button';
+
+    if (align) {
+      style = {...style, textAlign: align};
+    }
+
+    children = children || text || null;
+
+    let Component = href ? 'a' : 'button';
+
     return (
-      <Component
-        {...props}
-        href={href}
-        style={{...style, textAlign: align ? align : undefined}}
-        //title={children || text}
-        disabled={disabled}
-        className={cx(classNames, className)}
-        placeholder={placeholder}
-        id={id}>
+      <Component {...props} href={href} style={style} className={className}>
         {icon &&
           <Icon
             name={icon}
-            style={{marginRight: children || text || iconRight ? 10 : 0}}
+            style={{marginRight: children || iconRight ? 10 : 0}}
             />}
-        {children ? children : text ? text : null}
+        {children}
         {iconRight &&
           <Icon
             name={iconRight}
-            style={{marginLeft: children || text ? 10 : 0}}
+            style={{marginLeft: children ? 10 : 0}}
             />}
       </Component>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      onClick: emptyFunction,
-      type: 'button'
-    };
   }
-
-});
-
-module.exports = Button;
+}

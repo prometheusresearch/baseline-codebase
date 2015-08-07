@@ -62,7 +62,7 @@ var EntityTitle = React.createClass({
     if (data) {
       return <div>{data[0][titleAttribute]}</div>;
     } else {
-      return <Preloader />;
+      return null;
     }
   },
 

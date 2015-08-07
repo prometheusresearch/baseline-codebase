@@ -1,23 +1,20 @@
 /**
- * @jsx React.DOM
+ * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React = require('react');
-var cx    = require('classnames');
+import React, {PropTypes} from 'react';
+import cx                 from 'classnames';
 
-var Icon = React.createClass({
+export default class Icon extends React.Component {
 
-  propTypes: {
-    name: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string
-  },
+  static propTypes = {
+    name: PropTypes.string.isRequired,
+    className: PropTypes.string
+  };
 
   render() {
-    var {className, name, ...props} = this.props;
+    let {className, name, ...props} = this.props;
     className = cx('glyphicon', `glyphicon-${name}`, className);
     return <i {...props} aria-hidden={true} className={className} />;
   }
-});
-
-module.exports = Icon;
+}

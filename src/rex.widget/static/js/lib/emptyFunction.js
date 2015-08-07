@@ -1,7 +1,6 @@
 /**
- * @jsx React.DOM
+ * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
 function emptyFunction() {
 

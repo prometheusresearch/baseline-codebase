@@ -1,30 +1,16 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React           = require('react');
-var autoprefixStyle = require('./autoprefixStyle');
-var cx              = require('classnames');
-var PropTypes       = React.PropTypes;
-
-var defaultStyle = {
-  boxSizing: 'border-box',
-  position: 'relative',
-
-  margin: 0,
-  padding: 0,
-
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'stretch',
-  flexShrink: 0
-};
+import React, {PropTypes} from 'react';
+import cx                 from 'classnames';
+import autoprefix         from './autoprefixStyle';
+import Style              from './Box.module.css';
 
 /**
  * Make <Box /> style from props.
  */
-function makeBoxStyle(props) {
+export function makeBoxStyle(props) {
   props = props || {};
   var {
     direction, size, margin, padding,
@@ -32,7 +18,7 @@ function makeBoxStyle(props) {
     centerHorizontally, centerVertically,
     scrollable, backgroundColor
   } = props;
-  var style = {...style, ...defaultStyle};
+  var style = {...style};
   if (direction === 'horizontal') {
     style.flexDirection = 'row';
   }
@@ -45,9 +31,6 @@ function makeBoxStyle(props) {
   if (size !== undefined) {
     style.flex = size;
     style.flexGrow = size;
-    style.flexBasis = '0%';
-    style.minWidth = '0px';
-    style.minHeight = '0px';
   }
   if (margin !== undefined) {
     style.margin = margin;
@@ -76,20 +59,54 @@ function makeBoxStyle(props) {
   return style;
 }
 
-var Box = React.createClass({
+const ALIGNED = {
+  RIGHT: 'right',
+  LEFT: 'left',
+};
+
+const DIRECTION = {
+  HORIZONTAL: 'horizontal',
+  VERTICAL: 'vertical',
+};
+
+export default class Box extends React.Component {
+
+  static propTypes = {
+    Component: PropTypes.oneOfType([PropTypes.string, PropTypes.component]),
+    direction: PropTypes.oneOf([DIRECTION.HORIZONTAL, DIRECTION.VERTICAL]),
+    size: PropTypes.number,
+    padding: PropTypes.number,
+    height: PropTypes.number,
+    aligned: PropTypes.oneOf([ALIGNED.LEFT, ALIGNED.RIGHT]),
+    centerHorizontally: PropTypes.bool,
+    centerVertically: PropTypes.bool,
+    scrollable: PropTypes.bool,
+    childrenMargin: PropTypes.number,
+    backgroundColor: PropTypes.string
+  };
+
+  static defaultProps = {
+    Component: 'div',
+    direction: DIRECTION.VERTICAL,
+  };
 
   render() {
-    var {
+    let {
       direction, size, margin, padding, width, height, aligned,
       centerHorizontally, centerVertically, scrollable,
-      children, childrenMargin, style: extraStyle,
+      children, childrenMargin,
+      style: extraStyle, className: extraClassName,
       backgroundColor, Component, ...props
     } = this.props;
-    var style = makeBoxStyle({
+    let style = makeBoxStyle({
       direction, size, margin, padding, aligned,
       width, height,
       centerHorizontally, centerVertically,
       scrollable, backgroundColor
+    });
+    let className = cx(extraClassName, {
+      [Style.VBox]: direction === DIRECTION.VERTICAL,
+      [Style.HBox]: direction === DIRECTION.HORIZONTAL,
     });
     if (extraStyle !== undefined) {
       style = {...style, ...extraStyle};
@@ -104,16 +121,9 @@ var Box = React.createClass({
           React.cloneElement(child, {margin: childrenMargin}));
     }
     return (
-      <Component {...props} style={autoprefixStyle(style)}>
+      <Component {...props} className={className} style={autoprefix(style)}>
         {children}
       </Component>
     );
-  },
-
-  getDefaultProps() {
-    return {Component: 'div'};
   }
-});
-
-module.exports = Box;
-module.exports.makeBoxStyle = makeBoxStyle;
+}

@@ -1,20 +1,22 @@
 /**
- * @jsx React.DOM
+ * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React            = require('react');
-var loadingIndicator = require('../img/loading-indicator.gif');
+import React                from 'react';
+import loadingIndicatorImg  from '../img/loading-indicator.gif';
+import Style                from './LoadingIndicator.module.css';
 
-var LoadingIndicator = React.createClass({
+export default class LoadingIndicator extends React.Component {
 
-  render: function() {
+  render() {
     return (
-      <div {...this.props} className="rw-LoadingIndicator">
-        <img src={__PUBLIC_PATH__ + loadingIndicator} />
+      <div className={Style.self}>
+        <img src={__PUBLIC_PATH__ + loadingIndicatorImg} />
       </div>
     );
   }
-});
 
-module.exports = LoadingIndicator;
+  shouldComponentUpdate() {
+    return false;
+  }
+}

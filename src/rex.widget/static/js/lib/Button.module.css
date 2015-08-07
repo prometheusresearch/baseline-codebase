@@ -1,0 +1,143 @@
+.self {
+  display: inline-block;
+  margin-bottom: 0;
+  font-weight: normal;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.428571429;
+  border-radius: 2px;
+  user-select: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.self:focus,
+.self:active {
+  outline: thin dotted;
+  outline: 1px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+.isDefault {
+  color: #333333;
+  background-color: #ffffff;
+  border-color: #cccccc;
+}
+
+.isDefault:hover {
+  color: #333333;
+  background-color: #e6e6e6;
+  border-color: #adadad;
+}
+
+.isDefault:focus {
+  color: #333333;
+  background-color: #e6e6e6;
+  border-color: #8c8c8c;
+}
+
+.isDefault:active {
+  color: #333333;
+  background-color: #d4d4d4;
+  border-color: #8c8c8c;
+  background-image: none;
+}
+
+.isSuccess {
+  color: #ffffff;
+  background-color: #5cb85c;
+  border-color: #4cae4c;
+}
+
+.isSuccess:hover {
+  color: #ffffff;
+  background-color: #449d44;
+  border-color: #398439;
+}
+
+.isSuccess:focus {
+  color: #ffffff;
+  background-color: #449d44;
+  border-color: #398439;
+}
+
+.isSuccess:active {
+  color: #ffffff;
+  background-color: #398439;
+  border-color: #255625;
+}
+
+.isDanger {
+  color: #ffffff;
+  background-color: #d9534f;
+  border-color: #d43f3a;
+}
+
+.isDanger:hover {
+  color: #ffffff;
+  background-color: #c9302c;
+  border-color: #ac2925;
+}
+
+.isDanger:focus {
+  color: #ffffff;
+  background-color: #c9302c;
+  border-color: #761c19;
+}
+
+.isDanger:active {
+  color: #ffffff;
+  background-color: #ac2925;
+  border-color: #761c19;
+}
+
+.isLink {
+  border-color: transparent;
+  background-color: transparent;
+  box-shadow: none;
+  color: #428bca;
+  font-weight: normal;
+  border-radius: 0;
+}
+
+.isLink:hover {
+  color: #2a6496;
+  text-decoration: underline;
+}
+
+.isQuiet {
+  background: transparent;
+  color: #888;
+  border: 1px solid transparent;
+}
+
+.isQuiet:hover {
+  color: #333333;
+  background-color: #e6e6e6;
+}
+
+.isQuiet:active {
+  color: #333333;
+  background-color: #d4d4d4;
+}
+
+.isSmall {
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 2px;
+}
+
+.isExtraSmall {
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 2px;
+}

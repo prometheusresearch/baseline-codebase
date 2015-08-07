@@ -80,7 +80,7 @@ class Field(FieldBase):
     """
 
     def __init__(self, validate=AnyVal(), default=NotImplemented, doc=None,
-                 name=None, transitionable=True):
+                 name=None, transitionable=True, deprecated=None):
         if default is None and not isinstance(validate, MaybeVal):
             validate = MaybeVal(validate)
         elif default is undefined and not isinstance(validate, MaybeUndefinedVal):
@@ -93,6 +93,7 @@ class Field(FieldBase):
                 raise ValueError(e)
         self.default = default
         self.transitionable = transitionable
+        self.deprecated = deprecated
         super(Field, self).__init__(name=name, doc=doc)
 
     def __clone__(self, **params):
@@ -101,6 +102,7 @@ class Field(FieldBase):
             'default': self.default,
             'doc': self.doc,
             'transitionable': self.transitionable,
+            'deprecated': self.deprecated,
             'name': self.name,
         }
         next_params.update(params)

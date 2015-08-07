@@ -1,29 +1,26 @@
 /**
- * @jsx React.DOM
+ * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React            = require('react');
-var cx               = require('classnames');
-var LoadingIndicator = require('./LoadingIndicator');
+import React            from 'react';
+import cx               from 'classnames';
+import LoadingIndicator from './LoadingIndicator';
+import Style            from './Preloader.module.css';
 
-var Preloader = React.createClass({
+export default class Preloader extends React.Component {
+
+  static defaultProps = {
+    caption: null
+  };
 
   render() {
+    let {caption, className} = this.props;
     return (
-      <div className={cx("rw-Preloader", this.props.className)}>
+      <div className={cx(Style.self, className)}>
         <LoadingIndicator />
-        {this.props.caption &&
-          <div className="rw-Preloader__caption">
-            {this.props.caption}
-          </div>}
+        {caption && <div className={Style.caption}>{caption}</div>}
       </div>
     );
-  },
-
-  getDefaultProps() {
-    return {caption: null};
   }
-});
 
-module.exports = Preloader;
+}

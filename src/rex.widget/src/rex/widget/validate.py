@@ -9,6 +9,7 @@
 
 from __future__ import absolute_import
 
+import sys
 import types
 import contextlib
 import yaml
@@ -113,10 +114,10 @@ class WidgetVal(Validate):
                 raise Error("Expected a widget")
 
     def validate_values(self, widget_class, data):
-        record_fields = [RecordField(f.name, f.validate, f.default)
+        record_fields = [(RecordField(f.name, f.validate, f.default), f)
                          for f in widget_class._fields.values()
                          if isinstance(f, Field)]
-        field_by_name = {f.name: f for f in record_fields}
+        field_by_name = {f.name: (v, f) for v, f in record_fields}
         values = {}
         with guard("Of widget:", widget_class.name):
             for name in sorted(data):
@@ -124,17 +125,19 @@ class WidgetVal(Validate):
                 name = name.replace('-', '_').replace(' ', '_')
                 if name not in field_by_name:
                     raise Error("Got unexpected field:", name)
-                attribute = field_by_name[name].attribute
-                values[attribute] = value
+                validate, field = field_by_name[name]
+                if field.deprecated:
+                    print_deprecation_warning(widget_class, field)
+                values[validate.attribute] = value
 
-            for field in record_fields:
-                attribute = field.attribute
+            for validate, field in record_fields:
+                attribute = validate.attribute
                 if attribute in values:
-                    validate = field.validate
+                    validate = validate.validate
                     with guard("While validating field:", field.name):
                         values[attribute] = validate(values[attribute])
-                elif field.has_default:
-                    values[attribute] = field.default
+                elif validate.has_default:
+                    values[attribute] = validate.default
                 else:
                     raise Error("Missing mandatory field:", field.name)
         return values
@@ -199,11 +202,11 @@ class WidgetVal(Validate):
                            widget_class.__name__)
                 error.wrap("While parsing:", location)
                 raise error
-        record_fields = [RecordField(f.name, f.validate, f.default)
+        record_fields = [(RecordField(f.name, f.validate, f.default), f)
                          for f in widget_class._fields.values()
                          if isinstance(f, Field)]
-        field_by_name = {f.name: f for f in record_fields}
-        fields_with_no_defaults = [f for f in record_fields
+        field_by_name = {f.name: (v, f) for v, f in record_fields}
+        fields_with_no_defaults = [f for f, _ in record_fields
                                    if not f.has_default]
         values = {}
         for key_node, value_node in pairs:
@@ -227,24 +230,35 @@ class WidgetVal(Validate):
                     raise Error("Got unexpected field:", name)
                 if name in values:
                     raise Error("Got duplicate field:", name)
-            field = field_by_name[name]
+            validate, field = field_by_name[name]
+            if field.deprecated:
+                print_deprecation_warning(widget_class, field, node=key_node)
             with guard("Of widget:", widget_class.name), \
                  guard("While validating field:", name), \
-                 loader.validating(field.validate):
+                 loader.validating(validate.validate):
                 value = loader.construct_object(value_node, deep=True)
-            values[field.attribute] = value
-        for field in record_fields:
-            attribute = field.attribute
+            values[validate.attribute] = value
+        for validate, field in record_fields:
+            attribute = validate.attribute
             if attribute not in values:
-                if field.has_default:
-                    values[attribute] = field.default
+                if validate.has_default:
+                    values[attribute] = validate.default
                 else:
-                    raise Error("Missing mandatory field:", field.name) \
+                    raise Error("Missing mandatory field:", validate.name) \
                             .wrap("Of widget:", widget_class.name)
         with guard('While parsing:', Location.from_node(node)):
             widget = widget_class.validated(**values)
             widget.location = location
             return widget
+
+
+def print_deprecation_warning(widget_class, field, node=None):
+    warning = Error(
+        'Field "%s" of widget %s is deprecated:' % (field.name, widget_class.name),
+        field.deprecated)
+    if node:
+        warning.wrap('Used at:', Location.from_node(node))
+    print >> sys.stderr, str(warning)
 
 
 @contextlib.contextmanager

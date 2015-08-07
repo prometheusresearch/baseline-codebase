@@ -1,6 +1,6 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-module.exports = require('./Box');
+import Box from './Box';
+export default Box;

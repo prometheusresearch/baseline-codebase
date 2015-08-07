@@ -1,16 +1,12 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React  = require('react');
-var Box    = require('./Box');
+import Box from './Box';
 
-var HBox = React.createClass({
-
-  render() {
-    return <Box {...this.props} direction="horizontal" />;
-  }
-});
-
-module.exports = HBox;
+export default class HBox extends Box {
+  static defaultProps = {
+    ...Box.defaultProps,
+    direction: 'horizontal'
+  };
+}

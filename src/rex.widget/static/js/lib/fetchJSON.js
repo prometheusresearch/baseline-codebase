@@ -15,6 +15,7 @@ export default function fetchJSON(url, params = null) {
     url = `${url}?${stringify(params)}`;
   }
   let options = {
+    credentials: 'same-origin',
     headers: {
       'Accept': 'application/json'
     }

@@ -6,11 +6,13 @@
 var Wizard      = require('./Wizard');
 var Actions     = require('./Actions');
 var WizardLink  = require('./WizardLink');
+var Action      = require('./Action');
 
 require('./TransitionableHandlers');
 
 module.exports = {
   Wizard,
   WizardLink,
-  Actions
+  Actions,
+  Action
 };

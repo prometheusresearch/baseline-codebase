@@ -1,33 +1,18 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React                       = require('react');
-var RexWidget                   = require('rex-widget');
-var emptyFunction               = RexWidget.emptyFunction;
-var {VBox, HBox}                = RexWidget.Layout;
-var {overflow, boxShadow, rgb}  = RexWidget.StyleUtils;
-var Theme                       = require('./Theme');
+import React         from 'react';
+import {Themeable}   from 'rethemeable';
+import RexWidget     from 'rex-widget';
+import emptyFunction from 'rex-widget/lib/emptyFunction';
+import {VBox, HBox}  from 'rex-widget/lib/Layout';
+import Style         from './Action.module.css';
 
-var Style = {
-  header: {
-    boxShadow: Theme.shadow.light,
-    padding: 10
-  },
-  content: {
-    padding: 10,
-    overflow: overflow.auto
-  },
-  footer: {
-    boxShadow: Theme.shadow.light,
-    padding: 5
-  }
-};
+@Themeable
+export default class Action extends React.Component {
 
-var Action = React.createClass({
-
-  propTypes: {
+  static propTypes = {
     /**
      * Action title.
      */
@@ -52,20 +37,20 @@ var Action = React.createClass({
      * Render callback for footer.
      */
     renderFooter: React.PropTypes.func,
-  },
+  };
 
-  getDefaultProps() {
-    return {
-      renderFooter: emptyFunction.thatReturnsNull
-    };
-  },
+  static defaultTheme = Style;
+
+  static defaultProps = {
+    renderFooter: emptyFunction.thatReturnsNull
+  };
 
   render() {
-    var {children, title, onClose, width} = this.props;
+    var {children, title, onClose, width, className} = this.props;
     var footer = this.props.renderFooter();
     return (
-      <VBox style={{width}} size={1}>
-        <HBox style={Style.header}>
+      <VBox style={{width}} size={1} className={this.theme.self}>
+        <HBox className={this.theme.header}>
           {title &&
             <VBox size={1}>
               <h4>{title}</h4>
@@ -77,18 +62,14 @@ var Action = React.createClass({
               onClick={onClose}
               />}
         </HBox>
-        <VBox size={1} style={Style.content}>
+        <VBox size={1} className={this.theme.content}>
           {children}
         </VBox>
         {footer &&
-          <VBox style={Style.footer}>
+          <VBox className={this.theme.footer}>
             {footer}
           </VBox>}
       </VBox>
     );
   }
-});
-
-module.exports = Action;
-
-
+}

@@ -6,6 +6,9 @@
     "bundleAll": true,
     "style": "./style/index.less"
   },
+  "dependencies": {
+    "rethemeable": "^2.0.0"
+  },
   "peerDependencies": {
     "react": "^0.13.0"
   },

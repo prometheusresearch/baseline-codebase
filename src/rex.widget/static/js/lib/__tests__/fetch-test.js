@@ -3,9 +3,9 @@
  */
 
 import 'core-js/modules/es6.promise';
-import fetchJSON from '../fetchJSON';
+import {fetch} from '../fetch';
 
-describe('fetchJSON', function() {
+describe('fetch', function() {
 
   let origFetch = window.fetch;
 
@@ -29,7 +29,7 @@ describe('fetchJSON', function() {
       status: 200,
       json() { return 'ok'; }
     });
-    fetchJSON('/path')
+    fetch('/path')
       .then(function(data) {
         expect(data).toBe('ok');
         done();

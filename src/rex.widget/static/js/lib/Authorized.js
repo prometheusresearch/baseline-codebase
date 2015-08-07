@@ -1,19 +1,18 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React = require('react');
-var request = require('./request');
+import React   from 'react';
+import {fetch} from './fetch';
 
 /**
  * Component which renders its children only if authorization check succeeds.
  * Authorization check is performed against the URL passed in as ``access``
  * prop.
  */
-var Authorized = React.createClass({
+export default class Authorized extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
      * An URL in pkg:/path format to check if current user has access to.
      */
@@ -28,42 +27,41 @@ var Authorized = React.createClass({
      * Elements to render in case authorization check fails.
      */
     fallback: React.PropTypes.element
-  },
+  };
+
+  static defaultProps = {
+    access: null,
+    fallback: null
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = this._stateFromProps(this.props);
+  }
 
   render() {
-    var {children, fallback} = this.props;
-    var {access} = this.state;
+    let {children, fallback} = this.props;
+    let {access} = this.state;
     if (!access) {
       return fallback;
     } else {
       return React.Children.only(children);
     }
-  },
-
-  getDefaultProps() {
-    return {
-      access: null,
-      fallback: null
-    }
-  },
-
-  getInitialState() {
-    return this._stateFromProps(this.props);
-  },
+  }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.access !== nextProps.access) {
       this.setState(this._stateFromProps(nextProps));
     }
-  },
+  }
 
   componentDidMount() {
     this._checkAccess();
-  },
+  }
 
   componentDidUpdate() {
     this._checkAccess();
-  },
+  }
 
   _checkAccess() {
     if (this.state.access === null) {
@@ -71,16 +69,15 @@ var Authorized = React.createClass({
         this.setState(this._stateFromProps(this.props));
       });
     }
-  },
+  }
 
   _stateFromProps(props) {
     return {access: hasAccessTo(props.access)};
   }
 
-});
+}
 
-
-var PERMISSIONS_API_ENDPOINT;
+let PERMISSIONS_API_ENDPOINT;
 if (typeof __REX_WIDGET_MOUNT_PREFIX__ !== 'undefined') {
   PERMISSIONS_API_ENDPOINT = `${__REX_WIDGET_MOUNT_PREFIX__}/authorized`;
 } else {
@@ -89,10 +86,10 @@ if (typeof __REX_WIDGET_MOUNT_PREFIX__ !== 'undefined') {
 
 
 // Map<String, Boolean | Promise<Boolean>>
-var _access = {};
+let _access = {};
 
 function hasAccessTo(access) {
-  var result = checkAccessTo(access);
+  let result = checkAccessTo(access);
   // still a promise, wait
   if (result && typeof result.then === 'function') {
     return null;
@@ -102,17 +99,13 @@ function hasAccessTo(access) {
 }
 
 function checkAccessTo(access) {
-  var result = _access[access];
+  let result = _access[access];
   if (result === undefined) {
-    result = _access[access] = request('GET', PERMISSIONS_API_ENDPOINT)
-      .query({access})
-      .promise()
+    result = _access[access] = fetch(PERMISSIONS_API_ENDPOINT, {access})
       .then(response => {
-        var {authorized} = response.body;
+        let {authorized} = response;
         _access[access] = authorized;
       });
   }
   return result;
 }
-
-module.exports = Authorized;

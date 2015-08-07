@@ -25,7 +25,7 @@
     "dot-qs": "0.2.0",
     "flat": "1.2.1",
     "bootstrap": "3.3.5",
-    "superagent": "0.18.2",
+    "qs": "^4.0.0",
     "component-emitter": "1.1.2",
     "react-selectbox": "prometheusresearch/react-selectbox#0ca618c",
     "transit-js": "^0.8.795"

@@ -3,26 +3,17 @@
  *
  * @copyright 2015, Prometheus Research LLC
  */
-'use strict';
 
-var request   = require('./request');
+import {fetch} from './fetch';
 
-class Query {
+export default class Query {
 
   constructor(path) {
     this.path = path;
   }
 
-  handleResponse(response) {
-    return JSON.parse(response.text);
-  }
-
   produce(params) {
-    return request('GET', this.path)
-      .query(params)
-      .set('Accept', 'application/json')
-      .promise()
-      .then(this.handleResponse);
+    return fetch(this.path, params);
   }
 
   produceCollection(params) {
@@ -33,5 +24,3 @@ class Query {
     return this.produce(params)
   }
 }
-
-module.exports = Query;

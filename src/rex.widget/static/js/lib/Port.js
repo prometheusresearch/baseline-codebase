@@ -3,10 +3,9 @@
  *
  * @copyright 2015, Prometheus Research LLC
  */
-'use strict';
 
-var request   = require('./request');
-var invariant = require('./invariant');
+import {fetch, post}  from './fetch';
+import invariant      from './invariant';
 
 /**
  * An object which represent a port.
@@ -14,42 +13,21 @@ var invariant = require('./invariant');
  * All communication with a port goes through XHR using ES6 Promise based
  * interface.
  */
-class Port {
+export default class Port {
 
   constructor(path) {
     this.path = path;
-    this.handleResponse = this.handleResponse.bind(this);
-  }
-
-  /**
-   * Construct a request object with given parameters and options.
-   *
-   * Subclasses can override this method to provide custom configuration for
-   * request object.
-   */
-  request(method, params, options) {
-    var query = _prepareQuery(params, options);
-    return request(method, this.path).query(query);
-  }
-
-  /**
-   * Process HTTP response. The result will be used as a result
-   * of a port method calls.
-   *
-   * Subclasses can override this method to provide custom processing for
-   * response object.
-   */
-  handleResponse(response) {
-    return JSON.parse(response.text);
   }
 
   /**
    * Produce dataset from a port.
    */
-  produce(params, options) {
-    return this.request('GET', params, options)
-      .promise()
-      .then(this.handleResponse);
+  produce(params, options = {}) {
+    let query = {
+      ...params,
+      ':FORMAT': options.format || Port.formats.json
+    };
+    return fetch(this.path, query);
   }
 
   produceCollection(params, options) {
@@ -81,13 +59,15 @@ class Port {
   /**
    * Replace an entity through a port.
    */
-  replace(prevEntity, entity, params, options) {
-    return this.request('POST')
-      .type('form')
-      .send({'old': JSON.stringify(prevEntity)})
-      .send({'new': JSON.stringify(entity)})
-      .promise()
-      .then(this.handleResponse);
+  replace(prevEntity, entity, params, options = {}) {
+    let query = {
+      ...params,
+      ':FORMAT': options.format || Port.formats.json
+    };
+    let data = new FormData();
+    data.append('old', JSON.stringify(prevEntity));
+    data.append('new', JSON.stringify(entity));
+    return post(this.path, query, data);
   }
 
   /**
@@ -116,24 +96,11 @@ class Port {
   update(entity, params, options) {
     return this.replace({id: entity.id}, entity, params, options);
   }
-}
 
-Port.FORMAT = {
-  JSON: 'application/json',
-  HTML: 'text/html',
-  RAW: 'x-htsql/raw',
-  CSV: 'x-htsql/csv'
-};
-
-/**
- * Prepare query from parameters and options.
- */
-function _prepareQuery(params, options) {
-  options = options || {};
-  return {
-    ...params,
-    ':FORMAT': options.format || Port.FORMAT.JSON
+  static formats = {
+    json: 'application/json',
+    html: 'text/html',
+    raw: 'x-htsql/raw',
+    csv: 'x-htsql/csv'
   };
 }
-
-module.exports = Port;

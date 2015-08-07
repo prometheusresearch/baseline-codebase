@@ -10,7 +10,7 @@ const PACKAGE_ROUTE_RE = /^([a-zA-Z0-9_\.\-]+):(.+)$/;
 /**
  * Resolve URL specification of shape package:/path to an absolute URL.
  */
-export default function resolveURL(url, params) {
+export default function resolveURL(url) {
   if (!ABSOLUTE_URL_RE.exec(url) && typeof __MOUNT_POINTS__ !== 'undefined') {
     url = url.replace(PACKAGE_ROUTE_RE, resolvePackageMountPoint);
   }

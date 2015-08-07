@@ -1,43 +1,36 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React                       = require('react/addons');
-var RexWidget                   = require('rex-widget');
-var {VBox, HBox}                = RexWidget.Layout;
+import React         from 'react';
+import RexWidget     from 'rex-widget';
+import  {VBox, HBox} from 'rex-widget/lib/Layout';
+import Style         from './Drop.module.css';
 
-var Style = {
-  self: {
-    background: 'rgba(255, 226, 226, 0.4)',
-    color: 'rgb(68, 22, 22)'
-  },
-  header: {
-    padding: 10
-  },
-  content: {
-    padding: 10
-  },
-  messageBottom: {
-    marginTop: 10,
-    fontSize: '90%'
-  },
-  message: {
-    fontSize: '90%'
+export default class Drop extends React.Component {
+
+  static defaultProps = {
+    width: 400,
+    icon: 'remove',
+    confirmDelay: 3
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      confirmDelay: this.props.confirmDelay
+    };
   }
-};
-
-var Drop = React.createClass({
 
   render() {
-    var {width, message, entity, onClose} = this.props;
-    var {confirmDelay} = this.state;
-    var title = this.constructor.getTitle(this.props);
+    let {width, message, entity, onClose} = this.props;
+    let {confirmDelay} = this.state;
+    let title = this.constructor.getTitle(this.props);
     return (
-      <VBox size={1} style={{...Style.self, width}}>
+      <VBox size={1} className={Style.self} style={{width}}>
         {title &&
-          <HBox style={Style.header}>
-            <VBox size={1} style={Style.title}>
+          <HBox className={Style.header}>
+            <VBox size={1} className={Style.title}>
               <h4>
                 {title}
               </h4>
@@ -49,8 +42,8 @@ var Drop = React.createClass({
                 onClick={onClose}
                 />}
           </HBox>}
-        <VBox size={1} centerVertically centerHorizontally style={Style.content}>
-          <VBox style={Style.message}>
+        <VBox size={1} centerVertically centerHorizontally className={Style.content}>
+          <VBox className={Style.message}>
             <div dangerouslySetInnerHTML={{__html: message}} />
           </VBox>
           <RexWidget.Button
@@ -72,57 +65,35 @@ var Drop = React.createClass({
         </VBox>
       </VBox>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      width: 400,
-      icon: 'remove',
-      confirmDelay: 3
-    };
-  },
-
-  getInitialState() {
-    return {
-      confirmDelay: this.props.confirmDelay
-    };
-  },
+  }
 
   componentDidMount() {
     this._countdown = setInterval(this.countdown, 1000);
-  },
+  }
 
   componentWillUnmount() {
     clearTimeout(this._countdown);
-  },
+  }
 
-  drop() {
-    var id = this.props.context[this.props.entity.name];
-    var entity = {};
-    entity[this.props.entity.type] = {id};
-    this.props.data.delete(entity).then(() => {
+  drop = () => {
+    let {entity, context, onContext, onClose} = this.props;
+    let id = context[entity.name].id;
+    this.props.data.delete({[entity.type.name]: {id}}).then(() => {
       RexWidget.forceRefreshData();
-      var contextUpdate = {};
-      contextUpdate[this.props.entity.name] = undefined;
-      this.props.onContext(contextUpdate);
+      this.props.onContext({[entity.name]: undefined});
       this.props.onClose()
     });
-  },
+  }
 
-  countdown() {
-    var confirmDelay = this.state.confirmDelay - 1;
+  countdown = () => {
+    let confirmDelay = this.state.confirmDelay - 1;
     if (confirmDelay === 0) {
       clearTimeout(this._countdown);
     }
     this.setState({confirmDelay});
-  },
-
-  statics: {
-    getTitle(props) {
-      return props.title || `Drop ${props.entity.name}`;
-    }
   }
-});
 
-module.exports = Drop;
-
+  static getTitle(props) {
+    return props.title || `Drop ${props.entity.name}`;
+  }
+}

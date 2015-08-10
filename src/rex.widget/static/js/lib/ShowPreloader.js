@@ -1,22 +1,46 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React     = require('react');
-var Preloader = require('./Preloader');
-var DataSet   = require('./DataSet');
-var {VBox}    = require('./Layout');
+import React, {PropTypes} from 'react';
+import Preloader          from './Preloader';
+import DataSet            from './DataSet';
+import {VBox}             from './Layout';
 
-var ShowPreloader = React.createClass({
+/**
+ * Show preloader when one or more datasets passed as props are not yet loaded.
+ *
+ * For example::
+ *
+ *    <ShowPreloader data={dataSet}>
+ *      <children components ... />
+ *    </ShowPreloader>
+ *
+ * won't render its children before ``data`` is loaded.
+ *
+ * @public
+ */
+export default class ShowPreloader extends React.Component {
+
+  static propTypes = {
+
+    /**
+     * Show preloader when not data is fetched.
+     */
+    showPreloaderWhenNoData: PropTypes.bool
+  };
+
+  static defaultProps = {
+    showPreloaderWhenNoData: false
+  };
 
   render() {
-    var {children, showPreloaderWhenNoData, ...props} = this.props;
-    var datasets = Object
+    let {children, showPreloaderWhenNoData, ...props} = this.props;
+    let datasets = Object
       .keys(props)
       .map(key => props[key])
       .filter(prop => (prop instanceof DataSet));
-    var showPreloader = (
+    let showPreloader = (
       datasets.some(d => d.loading) ||
       showPreloaderWhenNoData && datasets.some(d => d.data === null)
     );
@@ -29,11 +53,5 @@ var ShowPreloader = React.createClass({
         return children;
       }
     }
-  },
-
-  getDefaultProps() {
-    return {showPreloaderWhenNoData: false};
   }
-});
-
-module.exports = ShowPreloader;
+}

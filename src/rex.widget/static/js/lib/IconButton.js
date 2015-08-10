@@ -1,38 +1,47 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React     = require('react');
-var Icon      = require('./Icon');
-var Hoverable = require('./Hoverable');
+import React, {PropTypes} from 'react';
+import {Themeable}        from 'rethemeable';
+import Icon               from './Icon';
+import Style              from './IconButton.module.css';
 
-var IconButtonStyle = {
-  self: {
-    opacity: '0.2',
-    cursor: 'pointer'
-  },
-  onHover: {
-    self: {
-      opacity: '1'
-    }
-  }
-};
+@Themeable
+/**
+ * Icon components which behaves like a button.
+ *
+ * @public
+ */
+export default class IconButton extends React.Component {
 
-var IconButton = React.createClass({
+  static propTypes = {
+
+    /**
+     * Name of the icon to render.
+     *
+     * See http://getbootstrap.com/components/#glyphicons-glyphs for all
+     * available icons.
+     */
+    name: PropTypes.string.isRequired,
+
+    /**
+     * Callback which is executed on click.
+     */
+    onClick: PropTypes.func.isRequired
+  };
+
+  static defaultTheme = Style;
 
   render() {
-    var {hover, style, ...props} = this.props;
-    style = {
-      ...IconButtonStyle.self,
-      ...(style && style.self),
-      ...(hover && IconButtonStyle.onHover.self),
-      ...(hover && style && style.onHover && style.onHover.self)
-    };
-    return <Icon {...props} style={style} />;
+    let {className, ...props} = this.props;
+    return (
+      <Icon
+        {...props}
+        role="button"
+        aria-hidden={false}
+        className={this.theme.self}
+        />
+    );
   }
-});
-
-IconButton = Hoverable(IconButton);
-
-module.exports = IconButton;
+}

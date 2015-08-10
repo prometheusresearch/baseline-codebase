@@ -1,40 +1,56 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React   = require('react');
-var qs      = require('./qs');
-var Layout  = require('./Layout');
+import React, {PropTypes} from 'react';
+import cx                 from 'classnames';
+import qs                 from './qs';
+import Style              from './IFrame.module.css';
 
-var IFrameStyle = {
-  self: {
-    position: 'absolute',
-    top: 0, bottom: 0, left: 0, right: 0,
-    border: 0
-  }
-};
+/**
+ * Render an iframe.
+ *
+ * @public
+ */
+export default class IFrame extends React.Component {
 
-var IFrame = React.createClass({
+  static propTypes = {
+
+    /**
+     * URL to use for <iframe /> element.
+     */
+    src: PropTypes.string.isRequired,
+
+    /**
+     * URL parameters (added to ``src`` prop).
+     */
+    params: PropTypes.object,
+
+    /**
+     * Extra CSS class name.
+     */
+    className: PropTypes.string
+  };
+
+  static defaultProps = {
+    border: '0',
+    frameBorder: '0',
+    height: '100%',
+    width: '100%'
+  };
 
   render() {
-    var {src, params, ...props} = this.props;
+    let {src, params, className, ...props} = this.props;
     if (params) {
       src = src + '?' + qs.stringify(params);
     }
     return (
       <iframe
-        height="100%"
-        width="100%"
-        border="0"
-        frameBorder="0"
         {...props}
         src={src}
-        style={IFrameStyle.self}
+        className={cx(Style.self, className)}
         />
     );
   }
 
-});
-
-module.exports = IFrame;
+}

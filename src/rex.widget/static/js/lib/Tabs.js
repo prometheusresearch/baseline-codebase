@@ -7,6 +7,9 @@ var React       = require('react');
 var cx          = require('classnames');
 var {Box, HBox} = require('./Layout');
 
+/**
+ * @deprecated
+ */
 var Tabs = React.createClass({
 
   render() {

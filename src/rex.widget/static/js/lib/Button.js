@@ -10,6 +10,11 @@ import resolveURL         from './resolveURL';
 import qs                 from './qs';
 import Style              from './Button.module.css';
 
+/**
+ * Button.
+ *
+ * @public
+ */
 export default class Button extends React.Component {
 
   static propTypes = {

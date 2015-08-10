@@ -1,30 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React       = require('react');
-var qs          = require('./qs');
-var resolveURL  = require('./resolveURL');
-
-var Link = React.createClass({
-
-  propTypes: {
-    href: React.PropTypes.string.isRequired,
-    params: React.PropTypes.object
-  },
-
-  render() {
-    var {href, children, params, ...props} = this.props;
-    if (params) {
-      href = resolveURL(href) + '?' + qs.stringify(params);
-    }
-    return (
-      <a {...props} href={href}>{children}</a>
-    );
-  }
-
-});
+import React      from 'react';
+import qs         from './qs';
+import resolveURL from './resolveURL';
 
 function interpolateLinkParams(link, name, value) {
   if (!link) {
@@ -42,5 +22,36 @@ function interpolateLinkParams(link, name, value) {
   return React.cloneElement(link, {href, params: nextParams});
 }
 
-module.exports = Link;
-module.exports.interpolateLinkParams = interpolateLinkParams;
+/**
+ * Link.
+ *
+ * @public
+ */
+export default class Link extends React.Component {
+
+  static propTypes = {
+
+    /**
+     * Link URL.
+     *
+     * This could be specified as Rex resource specification (pkg:/path).
+     */
+    href: React.PropTypes.string.isRequired,
+
+    /**
+     * URL parameters (added to ``href``).
+     */
+    params: React.PropTypes.object
+  };
+
+  render() {
+    let {href, children, params, ...props} = this.props;
+    href = resolveURL(href);
+    if (params) {
+      href = href + '?' + qs.stringify(params);
+    }
+    return <a {...props} href={href}>{children}</a>;
+  }
+
+  static interpolateLinkParams = interpolateLinkParams;
+}

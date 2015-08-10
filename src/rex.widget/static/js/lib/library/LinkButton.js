@@ -7,6 +7,10 @@ var React           = require('react');
 var Button          = require('../Button');
 var populateParams  = require('./populateParams');
 
+/**
+ * @public
+ * @deprecated
+ */
 var LinkButton = React.createClass({
 
   render() {

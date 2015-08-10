@@ -1,0 +1,8 @@
+.self {
+  opacity: 0.2;
+  cursor: pointer;
+}
+
+.self:hover {
+  opacity: 1;
+}

@@ -17,6 +17,9 @@ var DataTableWithSearchStyle = {
   }
 };
 
+/**
+ * @public
+ */
 var DataTableWithSearch = React.createClass({
   mixins: [DataSpecificationMixin, Cell.Mixin],
 

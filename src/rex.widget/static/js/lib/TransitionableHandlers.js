@@ -1,14 +1,13 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React                             = require('react');
-var Transitionable                    = require('./Transitionable');
-var Port                              = require('./Port');
-var Query                             = require('./Query');
-var resolveURL                        = require('./resolveURL');
-var {Collection, Entity, prop, state} = require('./DataSpecification');
+import React                             from 'react';
+import Transitionable                    from './Transitionable';
+import Port                              from './Port';
+import Query                             from './Query';
+import resolveURL                        from './resolveURL';
+import {Collection, Entity, prop, state} from './DataSpecification';
 
 Transitionable.register('undefined', function decode_widget() {
   return undefined;

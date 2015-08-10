@@ -67,6 +67,8 @@ function isPagination(params, prevParams) {
 
 /**
  * DataTable component.
+ *
+ * @public
  */
 var DataTable = React.createClass({
   mixins: [DataSpecificationMixin],

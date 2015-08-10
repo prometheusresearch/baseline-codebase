@@ -3,27 +3,21 @@
  */
 'use strict';
 
-var React                   = require('react');
-var Selectbox               = require('react-selectbox');
-var IconButton              = require('./IconButton');
-var DataSpecificationMixin  = require('./DataSpecificationMixin');
-var DS                      = require('./DataSpecification');
-var {VBox}                  = require('./Layout');
-
-var AutocompleteStyle = {
-  icon: {
-    position: 'absolute',
-    top: 10,
-    right: 10
-  }
-};
+import React                  from 'react';
+import Selectbox              from 'react-selectbox';
+import IconButton             from './IconButton';
+import DS                     from './DataSpecification';
+import {VBox}                 from './Layout';
+import Style                  from './Autocomplete.module.css';
 
 /**
  * Autocomplete component.
+ *
+ * @public
  */
-var Autocomplete = React.createClass({
+export default class Autocomplete extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
      * Value.
      */
@@ -54,11 +48,23 @@ var Autocomplete = React.createClass({
      * Attribute used as a value of a record.
      */
     valueAttribute: React.PropTypes.string,
-  },
+  };
+
+  static defaultProps = {
+    titleAttribute: 'title',
+    valueAttribute: 'id'
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      valueTitle: null
+    };
+  }
 
   render() {
-    var {value, onChange, required, style} = this.props;
-    var {valueTitle} = this.state;
+    let {value, onChange, required, style} = this.props;
+    let {valueTitle} = this.state;
     if (value === null) {
       valueTitle = null;
     }
@@ -74,54 +80,53 @@ var Autocomplete = React.createClass({
         {value && !required ?
           <IconButton
             name="remove"
-            style={{self: AutocompleteStyle.icon}}
+            className={Style.icon}
             onClick={this._clear}
             /> :
           <IconButton
             name="triangle-bottom"
-            style={{self: AutocompleteStyle.icon}}
+            className={Style.icon}
             onClick={this._open}
             />}
       </VBox>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      titleAttribute: 'title',
-      valueAttribute: 'id'
-    };
-  },
-
-  getInitialState() {
-    return {
-      valueTitle: null
-    };
-  },
+  }
 
   componentWillMount() {
     this._searchTimer = null;
-  },
+  }
 
   componentDidMount() {
     this._requestValue();
-  },
+  }
 
   componentDidUpdate() {
     this._requestValue();
-  },
+  }
 
   componentWillReceiveProps({value}) {
     if (value !== this.props.value) {
       this.setState({valueTitle: null});
     }
-  },
+  }
 
   componentWillUnmount() {
     this._searchTimer = null;
-  },
+  }
 
-  onChange(value) {
+  _requestValue() {
+    let {value, dataSpec} = this.props;
+    let {valueTitle} = this.state;
+    if (value && valueTitle === null) {
+      let params = dataSpec.produceParams().toJS();
+      params['*'] = value;
+      dataSpec.port
+        .produceEntity(params)
+        .then(this._onRequestValueComplete);
+    }
+  }
+
+  onChange = (value) => {
     if (value) {
       this.props.onChange(value.id);
       this.setState({valueTitle: value.title});
@@ -129,37 +134,25 @@ var Autocomplete = React.createClass({
       this.props.onChange(undefined);
       this.setState({valueTitle: null});
     }
-  },
+  }
 
-  _clear() {
+  _clear = () => {
     this.setState({valueTitle: null});
     this.props.onChange(null);
-  },
+  }
 
-  _open() {
+  _open = () => {
     this.refs.underlying.showResults('');
-  },
+  }
 
-  _requestValue() {
-    var {value, dataSpec} = this.props;
-    var {valueTitle} = this.state;
-    if (value && valueTitle === null) {
-      var params = dataSpec.produceParams().toJS();
-      params['*'] = value;
-      dataSpec.port
-        .produceEntity(params)
-        .then(this._onRequestValueComplete);
-    }
-  },
-
-  _onRequestValueComplete(result) {
-    var valueTitle = result[this.props.titleAttribute];
+  _onRequestValueComplete = (result) => {
+    let valueTitle = result[this.props.titleAttribute];
     this.setState({valueTitle});
-  },
+  }
 
-  _requestOptions(value) {
-    var {titleAttribute, dataSpec} = this.props;
-    var params = dataSpec.produceParams().toJS();
+  _requestOptions = (value) => {
+    let {titleAttribute, dataSpec} = this.props;
+    let params = dataSpec.produceParams().toJS();
     params['*:top'] = 50;
     if (value) {
       params[`*.${titleAttribute}:contains`] = value;
@@ -167,16 +160,16 @@ var Autocomplete = React.createClass({
     return dataSpec.port
       .produceCollection(params)
       .then(this._onRequestOptionsComplete);
-  },
+  }
 
-  _onRequestOptionsComplete(options) {
+  _onRequestOptionsComplete = (options) => {
     return options.map(option => ({
       id: option[this.props.valueAttribute],
       title: option[this.props.titleAttribute]
     }));
-  },
+  }
 
-  _search(_options, value, cb) {
+  _search = (_options, value, cb) => {
     if (this._searchTimer !== null) {
       clearTimeout(this._searchTimer);
     }
@@ -188,6 +181,4 @@ var Autocomplete = React.createClass({
     }, 300);
   }
 
-});
-
-module.exports = Autocomplete;
+}

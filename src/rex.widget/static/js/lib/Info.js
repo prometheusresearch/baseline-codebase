@@ -10,6 +10,10 @@ var FileDownload        = require('./FileDownload');
 var ReadOnlyField       = require('./forms/ReadOnlyField');
 var DeprecatedComponent = require('./DeprecatedComponent');
 
+/**
+ * @public
+ * @deprecated
+ */
 var Info = React.createClass({
 
   render() {

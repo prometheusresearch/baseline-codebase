@@ -3,57 +3,55 @@
  */
 'use strict';
 
+import React       from 'react';
+import classNames  from 'classnames';
+import Environment from './Environment';
 
-var React       = require('react');
-var classNames  = require('classnames');
-var Environment = require('./Environment');
 
 if (Environment.isTouchDevice) {
   React.initializeTouchEvents(true);
 }
 
-require('./TransitionableHandlers');
+import './TransitionableHandlers';
 
-module.exports = {
+module.exports = window.RexWidget = {
+  Authorized: require('./Authorized'),
+  Autocomplete: require('./Autocomplete'),
+  Button: require('./Button'),
+  Cell: require('./Cell'),
+  cell: require('./Cell').cell,
   classNames: classNames,
+  cloneElement: require('./cloneElement'),
+  createWidgetClass: require('./createWidgetClass'),
   DataSet: require('./DataSet'),
   DataSpecification: require('./DataSpecification'),
   DataSpecificationMixin: require('./DataSpecificationMixin'),
-  forceRefreshData: require('./DataSpecificationMixin').forceRefreshData,
   DataTable: require('./DataTable'),
   DataTableWithSearch: require('./DataTableWithSearch'),
-  createWidgetClass: require('./createWidgetClass'),
-  Layout: require('./Layout'),
+  emptyFunction: require('./emptyFunction'),
+  forceRefreshData: require('./DataSpecificationMixin').forceRefreshData,
+  Forms: require('./forms'),
   Hoverable: require('./Hoverable'),
-  Autocomplete: require('./Autocomplete'),
-  Preloader: require('./Preloader'),
-  ShowPreloader: require('./ShowPreloader'),
-  Select: require('./Select'),
-  Modal: require('./Modal'),
-  ModalButton: require('./ModalButton'),
-  IFrame: require('./IFrame'),
-  Button: require('./Button'),
   Icon: require('./Icon'),
   IconButton: require('./IconButton'),
-  SearchInput: require('./SearchInput'),
-  Port: require('./Port'),
-  Query: require('./Query'),
-  Forms: require('./forms'),
+  IFrame: require('./IFrame'),
+  Info: require('./Info'),
+  Layout: require('./Layout'),
   Link: require('./Link'),
   LinkButton: require('./library/LinkButton'),
-  Authorized: require('./Authorized'),
-  Info: require('./Info'),
+  Modal: require('./Modal'),
+  ModalButton: require('./ModalButton'),
+  NotificationCenter: require('./NotificationCenter'),
+  Port: require('./Port'),
+  Preloader: require('./Preloader'),
+  Query: require('./Query'),
+  QueryString: require('./qs'),
+  render: require('./render'),
+  SearchInput: require('./SearchInput'),
+  Select: require('./Select'),
+  ShowPreloader: require('./ShowPreloader'),
+  StyleUtils: require('./StyleUtils'),
   Tab: require('./Tab'),
   Tabs: require('./Tabs'),
-  NotificationCenter: require('./NotificationCenter'),
-  StyleUtils: require('./StyleUtils'),
-  Cell: require('./Cell'),
-  cell: require('./Cell').cell,
-  cloneElement: require('./cloneElement'),
-  emptyFunction: require('./emptyFunction'),
   Transitionable: require('./Transitionable'),
-  render: require('./render'),
-  QueryString: require('./qs')
 };
-
-window.RexWidget = module.exports;

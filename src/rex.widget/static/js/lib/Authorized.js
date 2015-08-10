@@ -9,6 +9,8 @@ import {fetch} from './fetch';
  * Component which renders its children only if authorization check succeeds.
  * Authorization check is performed against the URL passed in as ``access``
  * prop.
+ *
+ * @public
  */
 export default class Authorized extends React.Component {
 

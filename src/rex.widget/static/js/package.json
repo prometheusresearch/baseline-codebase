@@ -15,24 +15,25 @@
     ]
   },
   "dependencies": {
-    "immutable": "^3.7.4",
-    "fixed-data-table": "^0.4.0",
-    "classnames": "^2.1.2",
-    "react-bootstrap-datetimepicker": "prometheusresearch/react-bootstrap-datetimepicker#cc9a636",
-    "bootstrap-datepicker": "^1.3.0",
-    "object-assign": "^1.0.0",
-    "react-forms": "prometheusresearch/react-forms#next",
-    "dot-qs": "0.2.0",
-    "flat": "1.2.1",
     "bootstrap": "3.3.5",
-    "qs": "^4.0.0",
+    "bootstrap-datepicker": "^1.3.0",
+    "classnames": "^2.1.2",
     "component-emitter": "1.1.2",
+    "dot-qs": "0.2.0",
+    "fixed-data-table": "^0.4.0",
+    "flat": "1.2.1",
+    "immutable": "^3.7.4",
+    "object-assign": "^1.0.0",
+    "qs": "^4.0.0",
+    "react-bootstrap-datetimepicker": "prometheusresearch/react-bootstrap-datetimepicker#cc9a636",
+    "react-forms": "prometheusresearch/react-forms#next",
     "react-selectbox": "prometheusresearch/react-selectbox#0ca618c",
+    "rethemeable": "^2.0.1",
     "transit-js": "^0.8.795"
   },
   "devDependencies": {
-    "react": "^0.13.0",
     "@prometheusresearch/webtest": "^0.1.4",
+    "react": "^0.13.0",
     "webpack": "*"
   }
 }

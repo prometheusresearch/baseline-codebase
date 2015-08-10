@@ -2,15 +2,32 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React            from 'react';
-import cx               from 'classnames';
-import LoadingIndicator from './LoadingIndicator';
-import Style            from './Preloader.module.css';
+import React, {PropTypes} from 'react';
+import cx                 from 'classnames';
+import LoadingIndicator   from './LoadingIndicator';
+import Style              from './Preloader.module.css';
 
+/**
+ * Preloader.
+ *
+ * Render loading indicator with an optional caption.
+ *
+ * @public
+ */
 export default class Preloader extends React.Component {
 
-  static defaultProps = {
-    caption: null
+  static propTypes = {
+
+    /**
+     * Caption.
+     */
+    caption: PropTypes.string,
+
+    /**
+     * Extra CSS class name.
+     */
+    className: PropTypes.string
+
   };
 
   render() {

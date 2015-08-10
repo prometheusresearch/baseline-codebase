@@ -17,6 +17,17 @@ export default function resolveURL(url) {
   return url;
 }
 
+let _originalMountPoints = {};
+
+export function mockMountPoints(mountPoints) {
+  _originalMountPoints = window.__MOUNT_POINTS__;
+  window.__MOUNT_POINTS__ = mountPoints;
+}
+
+export function unmockMountPoints() {
+  window.__MOUNT_POINTS__ = _originalMountPoints;
+}
+
 function resolvePackageMountPoint(_, pkg, path) {
   let mountPoint = __MOUNT_POINTS__[pkg];
   invariant(

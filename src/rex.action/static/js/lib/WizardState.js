@@ -10,6 +10,7 @@ var qs                        = require('rex-widget/lib/qs');
 var Actions                   = require('./Actions');
 var ServicePane               = require('./ServicePane');
 var WizardPanel               = require('./WizardPanel');
+var isEntity                  = require('./isEntity');
 
 var SERVICE_PANE_ID = '__service__';
 
@@ -224,7 +225,7 @@ class WizardState {
           continue;
         }
         let v = panel.context[k];
-        if (typeof v === 'object' && v['meta:type']) {
+        if (isEntity(v)) {
           v = serializeEntity(v);
         }
         if (contextAgg[k] !== undefined && contextAgg[k] === v) {

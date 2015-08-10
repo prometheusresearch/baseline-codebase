@@ -237,10 +237,11 @@ Creating custom action types
 ============================
 
 Action types can be defined by developers to suit application needs. To define a
-new action type one should subclass :class:`rex.wizard.Action` class::
+new action type one should subclass :class:`rex.action.Action` class::
 
   from rex.core import IntVal
-  from rex.wizard import Action
+  from rex.action import Action
+  from rex.action.typing import EntityType
   from rex.widget import Field
 
   class ShowWeather(Action):
@@ -256,8 +257,8 @@ new action type one should subclass :class:`rex.wizard.Action` class::
           """)
 
       def context(self):
-          input = {'location': 'location'}
-          output = {}
+          input =  self.domain.record(location=EntityType('location'))
+          output = self.domain.record()
           return input, output
 
 There are few things to note:
@@ -269,7 +270,7 @@ There are few things to note:
 
   * Method ``context()`` returns a pair of input/output specifications on
     context. We define that action needs to have ``location: location``
-    (location of type location) on the context to show the weather forecast and
+    (location of type location) in the context to show the weather forecast and
     it doesn't update context (``output`` is empty).
 
 Now we can define JavaScript implementation in ``package/lib/ShowWeather``

@@ -227,6 +227,8 @@ class WizardState {
         let v = panel.context[k];
         if (isEntity(v)) {
           v = serializeEntity(v);
+        } else if (v && typeof v.toQueryString === 'function') {
+          v = v.toQueryString();
         }
         if (contextAgg[k] !== undefined && contextAgg[k] === v) {
           continue;

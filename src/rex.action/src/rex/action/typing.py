@@ -136,7 +136,7 @@ class TypeVal(Validate):
 
 class OpaqueTypeVal(Validate):
 
-    _validate = StrVal(pattern='[a-zA-Z\-_]+')
+    _validate = StrVal(pattern='[a-zA-Z_][a-zA-Z_\-0-9]*')
 
     def __call__(self, value):
         value = self._validate(value)

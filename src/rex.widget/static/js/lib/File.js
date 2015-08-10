@@ -1,45 +1,16 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React       = require('react');
-var Hoverable   = require('./Hoverable');
-var Icon        = require('./Icon');
-var {Box, HBox} = require('./Layout');
+import React       from 'react';
+import Hoverable   from './Hoverable';
+import Icon        from './Icon';
+import {Box, HBox} from './Layout';
+import ProgressBar from './ProgressBar';
+import Style       from './File.module.css';
 
-var Progress = React.createClass({
-
-  style: {
-    height: 2,
-    background: 'rgb(142, 142, 226)'
-  },
-
-  render() {
-    var {progress, style, ...props} = this.props;
-    progress = progress || 0;
-    var style = {
-      ...this.style,
-      ...style,
-      width: `${progress * 100}%`
-    };
-    return <Box {...props} style={style} />;
-  }
-});
-
-var File = React.createClass({
-
-  style: {
-    fontSize: '90%',
-    cursor: 'pointer',
-    top: 2
-  },
-
-  styleIcon: {
-    marginRight: 5,
-    marginLeft: 5,
-    top: -2
-  },
+@Hoverable
+export default class File extends React.Component {
 
   render() {
     var {hover, file, icon, required, children, onRemove, progress, ...props} = this.props;
@@ -47,9 +18,9 @@ var File = React.createClass({
       <Box {...props}>
         <HBox
           size={1}
-          style={this.style}
+          className={Style.self}
           onClick={!required && !progress && onRemove}>
-          <Box centerVertically style={this.styleIcon}>
+          <Box centerVertically className={Style.icon}>
             {icon ?
               <Icon name={icon} /> :
               progress ?
@@ -64,38 +35,8 @@ var File = React.createClass({
               'Remove file'}
           </Box>
         </HBox>
-        <Progress progress={progress} />
+        <ProgressBar progress={progress} />
       </Box>
     );
   }
-});
-
-File = Hoverable(File);
-
-var StoredFile = React.createClass({
-
-  render() {
-    var {download, file, ownerRecordID, ...props} = this.props;
-    return (
-      <File icon="download" required {...props} file={file}>
-        <a href={`${download}?${ownerRecordID}`}>
-          {filename(file)}
-        </a>
-      </File>
-    );
-  }
-});
-
-
-function filename(file) {
-  var result = unquote(file.name);
-  return result.replace(/.*\/([^\/]+)$/i, '$1');
 }
-
-function unquote(str) {
-  return str.replace(/^'/, '').replace(/'$/, '');
-}
-
-module.exports = File;
-module.exports.File = File;
-module.exports.StoredFile = StoredFile;

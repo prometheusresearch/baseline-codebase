@@ -3,13 +3,14 @@
  */
 'use strict';
 
-var React               = require('react');
-var cx                  = require('classnames');
-var {Box, HBox}         = require('../Layout');
-var Button              = require('../Button');
-var {File, StoredFile}  = require('../File');
-var resolveURL          = require('../resolveURL');
-var Field               = require('./Field');
+import React       from 'react';
+import cx          from 'classnames';
+import {Box, HBox} from '../Layout';
+import Button      from '../Button';
+import File        from '../File';
+import StoredFile  from '../StoredFile';
+import resolveURL  from '../resolveURL';
+import Field       from './Field';
 
 function uploadFile(url, file, onProgress) {
   url = resolveURL(url);
@@ -177,4 +178,4 @@ var FileUploadField = React.createClass({
   }
 });
 
-module.exports = FileUploadField;
+export default FileUploadField;

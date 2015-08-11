@@ -4,6 +4,7 @@
   "main": "./index.js",
   "peerDependencies": {
     "webpack": "1.9.x",
+    "styling": "^0.2.0",
     "babel-loader": "5.1.x",
     "css-loader": "0.15.x",
     "style-loader": "0.12.x",

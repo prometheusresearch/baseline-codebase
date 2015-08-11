@@ -12,6 +12,12 @@ const OPTIONS = {
   }
 };
 
+/**
+ * Fetch resource.
+ *
+ * @param {String} url
+ * @param {Object} query
+ */
 export function fetch(url, query = null) {
   url = prepareURL(url, query);
   return window.fetch(url, OPTIONS)

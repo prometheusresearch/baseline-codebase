@@ -5,7 +5,6 @@
 
 var Immutable         = require('immutable');
 var invariant         = require('./invariant');
-var Port              = require('./Port');
 var DataSpecification = require('./DataSpecification');
 var DataSet           = require('./DataSet');
 

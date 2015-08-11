@@ -11,6 +11,8 @@
 
 * Add support for CSS modules (via .module.css file extension).
 
+* Add support for JS styles (via .styling.js file extension).
+
 * Add exports webpack loader to dependencies.
 
 3.0.0 (2015-07-23)

@@ -116,6 +116,10 @@ function configureWebpack(config) {
       test: /\.module\.css$/,
       loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize&localIdentName=[path][name]---[local]---[hash:base64:5]')
     },
+    {
+      test: /\.style\.js$/,
+      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize&localIdentName=[path][name]---[local]---[hash:base64:5]!styling!babel?stage=0')
+    },
 
     { test: /\.png$/, loader: 'url-loader?prefix=img/&limit=5000' },
 		{ test: /\.jpg$/, loader: 'url-loader?prefix=img/&limit=5000' },

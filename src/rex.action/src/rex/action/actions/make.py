@@ -140,6 +140,9 @@ class Make(Action):
     def data_query(self, req):
         if self.query:
             query = Query(self.query, self.db)
+            query.parameters = {}
+            for f in self.fields:
+                query.parameters[f.value_key[0]] = None
             return query(req)
         raise HTTPBadRequest('query is not allowed in this configuration')
 

@@ -39,6 +39,11 @@ paths:
         make-lab:
           type: make
           entity: lab
+          query:
+            insert(lab := {
+              code := $code,
+              title := $title
+            })
 
         pick-or-make-study:
           type: alternative

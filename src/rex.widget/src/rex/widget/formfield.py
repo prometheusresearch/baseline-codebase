@@ -267,7 +267,7 @@ class FormWidgetSpecVal(Validate):
     )
 
     _validate = UnionVal(
-        WidgetVal(),
+        WidgetVal().variant,
         _validate_spec,
     )
 

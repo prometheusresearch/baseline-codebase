@@ -251,6 +251,17 @@ class WidgetVal(Validate):
             widget.location = location
             return widget
 
+    def match(self, value):
+        return (
+            isinstance(value, Widget) or
+            isinstance(value, yaml.Node) and
+            value.tag.isalnum()
+        )
+
+    @property
+    def variant(self):
+        return self.match, self
+
 
 def print_deprecation_warning(widget_class, field, node=None):
     warning = Error(

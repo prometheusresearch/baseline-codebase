@@ -25,7 +25,7 @@ In case fields are not specified, they are generated from port::
   ... entity: individual
   ... """)
 
-  >>> pick.columns # doctest: +NORMALIZE_WHITESPACE
+  >>> pick.fields # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
    EnumFormField(value_key=['sex'], label='Sex',
                  options=[Record(value='not-known', label='Not Known'),

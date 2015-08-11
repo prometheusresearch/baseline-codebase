@@ -60,7 +60,7 @@ Parsing types::
   Traceback (most recent call last):
   ...
   Error: Expected a string matching:
-      /[a-zA-Z\-_]+/
+      /[a-zA-Z_][a-zA-Z_\-0-9]*/
   Got:
       'individual[unknown]'
 

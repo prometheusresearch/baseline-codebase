@@ -13,6 +13,8 @@
 * Deprecate "columns" field of "pick" action in favour of "fields" to be
   consistent with other built-in actions.
 
+* ``make`` action now can persist entity using a custom HTSQL query
+
 0.3.0 (2015-07-23)
 ==================
 

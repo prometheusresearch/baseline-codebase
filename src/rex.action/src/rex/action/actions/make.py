@@ -10,15 +10,17 @@
 from collections import OrderedDict
 
 from cached_property import cached_property
+from webob.exc import HTTPBadRequest
 
+from rex.db import Query
 from rex.core import MaybeVal, SeqVal, StrVal, MapVal, AnyVal, OMapVal
 from rex.port import Port
-from rex.widget import Field, FormFieldsetVal, responder, PortURL, undefined
+from rex.widget import Field, FormFieldsetVal, responder, PortURL, QueryURL, undefined
 from rex.widget import formfield, dataspec
 
 from ..action import Action
 from ..typing import RowTypeVal, RecordTypeVal, RecordType, annotate_port
-from ..validate import RexDBVal
+from ..validate import RexDBVal, SyntaxVal
 
 __all__ = ('Make',)
 
@@ -98,6 +100,12 @@ class Make(Action):
         Text for submit button.
         """)
 
+    query = Field(
+        SyntaxVal(), default=None, transitionable=False,
+        doc="""
+        Optional query which is used to persist data in database.
+        """)
+
     input = Field(
         RecordTypeVal(), default=RecordType.empty())
 
@@ -107,6 +115,7 @@ class Make(Action):
             self.values['fields'] = formfield.from_port(self.port)
         else:
             self.values['fields'] = formfield.enrich(self.fields, self.port)
+        self.values['use_query'] = self.query is not None
 
     @cached_property
     def port(self):
@@ -118,12 +127,21 @@ class Make(Action):
             port = formfield.to_port(self.entity.type.name, value_fields + self.fields, db=self.db)
         return annotate_port(self.domain, port)
 
-    def _construct_data_spec(self, port_url):
-        return dataspec.EntitySpec(port_url, {})
+    def _construct_data_spec(self, url):
+        return dataspec.EntitySpec(url, {})
 
     @responder(wrap=_construct_data_spec, url_type=PortURL)
     def data(self, req):
-        return self.port(req)
+        if not self.query:
+            return self.port(req)
+        raise HTTPBadRequest('port is not allowed in this configuration')
+
+    @responder(wrap=_construct_data_spec, url_type=QueryURL)
+    def data_query(self, req):
+        if self.query:
+            query = Query(self.query, self.db)
+            return query(req)
+        raise HTTPBadRequest('query is not allowed in this configuration')
 
     def context(self):
         return self.input, self.domain.record(self.entity)

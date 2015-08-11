@@ -9,6 +9,7 @@ paths:
           - view-study:
           - edit-study:
         - make-lab:
+        - pick-lab:
         - home:
           - make-individual:
             - view-individual:
@@ -30,6 +31,10 @@ paths:
             expression: code = 'study'
 
       actions:
+
+        pick-lab:
+          type: pick
+          entity: lab
 
         make-lab:
           type: make

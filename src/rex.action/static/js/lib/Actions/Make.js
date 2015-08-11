@@ -19,7 +19,8 @@ let Make = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin],
 
   dataSpecs: {
-    data: RexWidget.DataSpecification.entity()
+    data: RexWidget.DataSpecification.entity(),
+    dataQuery: RexWidget.DataSpecification.entity()
   },
 
   propTypes: {
@@ -28,7 +29,7 @@ let Make = React.createClass({
   },
 
   render() {
-    var {fields, entity, submitButton, onClose, width} = this.props;
+    var {useQuery, fields, entity, submitButton, onClose, width} = this.props;
     var value = buildValue(this.props.value, this.props.context);
     var title = this.constructor.getTitle(this.props);
     return (
@@ -39,7 +40,7 @@ let Make = React.createClass({
           ref="form"
           entity={entity.type.name}
           fields={fields}
-          submitTo={this.dataSpecs.data}
+          submitTo={useQuery ? this.dataSpecs.dataQuery : this.dataSpecs.data}
           submitButton={null}
           onSubmitComplete={this.onSubmitComplete}
           value={value}

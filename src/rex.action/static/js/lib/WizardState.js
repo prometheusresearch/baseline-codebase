@@ -108,10 +108,12 @@ class WizardState {
     while (true) {
       if (wizard.canvasMetrics.visiblePanels.indexOf(targetFocus) > -1) {
         break;
-      } else if (wizard.focus < targetFocus) {
+      } else if (wizard.focus < targetFocus && wizard.focus < wizard.panels.length - 1) {
         wizard = wizard.moveFocusRight();
-      } else if (wizard.focus > targetFocus) {
+      } else if (wizard.focus > targetFocus && wizard.focus > 0) {
         wizard = wizard.moveFocusLeft();
+      } else {
+        break;
       }
     }
     return wizard;

@@ -143,6 +143,8 @@ class Make(Action):
             query.parameters = {}
             for f in self.fields:
                 query.parameters[f.value_key[0]] = None
+            for k in self.value:
+                query.parameters[k] = None
             return query(req)
         raise HTTPBadRequest('query is not allowed in this configuration')
 

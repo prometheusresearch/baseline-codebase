@@ -23,7 +23,7 @@ var AboutRexDB = RexWidget.createWidgetClass({
 
   componentWillMount: function () {
     fetch(this.props.environmentData)
-      .then(res => this.setState({environment: res.body}));
+      .then(res => this.setState({environment: res}));
   },
 
   getLicense: function() {

@@ -1,6 +1,7 @@
 'use strict';
 
 var fs                   = require('fs');
+var styling              = require('styling');
 var path                 = require('path');
 var webpack              = require('webpack');
 var ExtractTextPlugin    = require('extract-text-webpack-plugin');
@@ -118,7 +119,7 @@ function configureWebpack(config) {
     },
     {
       test: /\.style\.js$/,
-      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize&localIdentName=[path][name]---[local]---[hash:base64:5]!styling!babel?stage=0')
+      loader: styling(ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize&localIdentName=[path][name]---[local]---[hash:base64:5]'), 'babel?stage=0')
     },
 
     { test: /\.png$/, loader: 'url-loader?prefix=img/&limit=5000' },

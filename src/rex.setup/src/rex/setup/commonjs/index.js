@@ -93,6 +93,8 @@ function configureWebpack(config) {
     addEntry(config, './');
   }
 
+  addEntry(config, require.resolve('core-js/modules/es6.array.find'));
+  addEntry(config, require.resolve('core-js/modules/es6.array.find-index'));
   addEntry(config, require.resolve('core-js/modules/es6.object.assign'));
   addEntry(config, require.resolve('core-js/modules/es6.promise'));
 

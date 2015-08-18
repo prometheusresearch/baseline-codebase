@@ -4,6 +4,7 @@
 
 import React, {PropTypes} from 'react';
 import Style              from './ProgressBar.module.css';
+import {Box}              from './Layout';
 
 export default class ProgressBar extends React.Component {
 

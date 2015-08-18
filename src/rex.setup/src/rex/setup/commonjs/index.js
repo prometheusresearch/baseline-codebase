@@ -102,6 +102,12 @@ function configureWebpack(config) {
 
   setResolveAliasesFromPackages(config, [pkg].concat(deps));
 
+  set(config, 'stats.children', false);
+  set(config, 'stats.assets', false);
+  set(config, 'stats.hash', false);
+  set(config, 'stats.version', false);
+  set(config, 'stats.timings', false);
+
   set(config, 'output.path', process.cwd());
   set(config, 'output.filename', 'bundle.js');
   unshift(config, 'module.loaders', [
@@ -178,8 +184,9 @@ LogProgressPlugin.prototype._log = function(message) {
   console.log('webpack(' + this.packageName + '):', message);
 };
 
-LogProgressPlugin.prototype._onDone = function() {
-  this._log('compilation finished');
+LogProgressPlugin.prototype._onDone = function(stats) {
+  var time = stats.endTime - stats.startTime;
+  this._log('compilation finished (' + time + 'ms)');
 }
 
 LogProgressPlugin.prototype._onCompile = function() {

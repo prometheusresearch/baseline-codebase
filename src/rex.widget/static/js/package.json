@@ -29,6 +29,7 @@
     "react-forms": "prometheusresearch/react-forms#next",
     "react-selectbox": "prometheusresearch/react-selectbox#0ca618c",
     "rethemeable": "^2.0.1",
+    "styling": "^0.4.0",
     "transit-js": "^0.8.795"
   },
   "devDependencies": {

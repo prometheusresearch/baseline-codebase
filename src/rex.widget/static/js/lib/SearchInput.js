@@ -1,103 +1,19 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React                           = require('react');
-var {VBox}                          = require('./Layout');
-var emptyFunction                   = require('./emptyFunction');
-var {border, insetBoxShadow, rgba}  = require('./StyleUtils');
-var Focusable                       = require('./Focusable');
-var Hoverable                       = require('./Hoverable');
-var Icon                            = require('./Icon');
-var TimeoutMixin                    = require('./TimeoutMixin');
-
-var SearchInputStyle = {
-  input: {
-    display: 'block',
-    width: '100%',
-    height: 34,
-    padding: '6px 12px',
-    fontSize: 14,
-    lineHeight: 1.42857143,
-    color: '#555',
-    backgroundColor: '#fff',
-    backgroundImage: 'none',
-    border: border(1, 'solid', '#ccc'),
-    borderRadius: 4,
-    boxShadow: insetBoxShadow(0, 1, 1, 0, rgba(0, 0, 0, 0.075))
-  },
-  icon: {
-    position: 'absolute',
-    top: 11,
-    right: 8
-  },
-  onFocus: {
-    input: {
-      borderColor: '#66afe9',
-      outline: 0,
-      boxShadow: insetBoxShadow(0, 1, 1, 0, rgba(0, 0, 0, 0.075))
-    }
-  }
-};
-
-var IconButtonStyle = {
-  self: {
-    fontSize: '9pt',
-    cursor: 'pointer',
-    color: '#ddd'
-  },
-  onHover: {
-    self: {
-      color: '#333'
-    }
-  }
-};
-
-var IconButton = React.createClass({
-
-  render() {
-    var {style, hover, ...props} = this.props;
-    style = {
-      ...IconButtonStyle.self,
-      ...style,
-      ...(hover ? IconButtonStyle.onHover.self : null)
-    };
-    return (
-      <Icon
-        {...props}
-        style={style}
-        />
-    );
-  }
-});
-
-IconButton = Hoverable(IconButton);
-
-var Input = React.createClass({
-
-  render() {
-    var {style, styleOnFocus, focus, ...props} = this.props;
-    style = {
-      ...style,
-      ...(focus ? styleOnFocus : null)
-    };
-    return (
-      <input
-        {...props}
-        style={style}
-        />
-    );
-  }
-});
-
-Input = Focusable(Input);
+import React          from 'react';
+import {VBox}         from './Layout';
+import emptyFunction  from './emptyFunction';
+import TimeoutMixin   from './TimeoutMixin';
+import IconButton     from './IconButton';
+import Style          from './SearchInput.style';
 
 var SearchInput = React.createClass({
   mixins: [TimeoutMixin],
 
   render() {
-    var {value, placeholder, disabled, focus, style, ...props} = this.props;
+    var {value, placeholder, disabled, style, ...props} = this.props;
     if (this.state.value !== undefined) {
       value = this.state.value;
     }
@@ -106,10 +22,9 @@ var SearchInput = React.createClass({
     }
     return (
       <VBox {...props} style={style.self} onChange={undefined}>
-        <Input
+        <input
           type="search"
-          style={{...SearchInputStyle.input, ...style.input}}
-          styleOnFocus={SearchInputStyle.onFocus.input}
+          className={Style.input}
           value={value}
           placeholder={placeholder}
           disabled={disabled}
@@ -117,7 +32,7 @@ var SearchInput = React.createClass({
           />
         {value !== '' &&
           <IconButton
-            style={SearchInputStyle.icon}
+            className={Style.icon}
             name="remove"
             onClick={this._remove}
             />}

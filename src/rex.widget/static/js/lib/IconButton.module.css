@@ -1,4 +1,6 @@
 .self {
+  width: 1em;
+  height: 1em;
   opacity: 0.2;
   cursor: pointer;
 }

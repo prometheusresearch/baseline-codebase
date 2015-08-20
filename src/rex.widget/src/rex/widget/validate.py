@@ -23,7 +23,22 @@ from .field import Field
 __all__ = ('WidgetVal', 'Deferred', 'DeferredVal')
 
 
-class DeferredConstruction(object):
+class Deferred(object):
+    """ Object which defers either validation or construction."""
+
+    def resolve(self, validate=None):
+        """ Resolve deferred value.
+
+        If ``validate`` is passed then it is used instead of validator supplied
+        at construction time.
+        """
+        raise NotImplementedError(
+                '%s.resolve(validate=None) is not implemented' % \
+                self.__class__.__name__)
+
+
+class DeferredConstruction(Deferred):
+    """ Deferred construction."""
 
     __slots__ = ('loader', 'node', 'validate')
 
@@ -37,7 +52,8 @@ class DeferredConstruction(object):
         return validate.construct(self.loader, self.node)
 
 
-class DeferredValidation(object):
+class DeferredValidation(Deferred):
+    """ Deferred validation."""
 
     __slots__ = ('value', 'validate')
 
@@ -51,6 +67,7 @@ class DeferredValidation(object):
 
 
 class DeferredVal(Validate):
+    """ Validator which produces deferred values."""
 
     def __init__(self, validate=None):
         self.validate = validate

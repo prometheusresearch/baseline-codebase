@@ -9,6 +9,8 @@ REX.RESTFUL Change Log
 ==================
 
 * Major release!
+* Added automatic logging of request and response information (disabled by
+  default).
 
 
 0.4.1 (2015-06-12)

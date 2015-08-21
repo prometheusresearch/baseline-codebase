@@ -1,0 +1,6 @@
+logging_loggers:
+  rex.restful.wire.request:
+    level: WARN
+  rex.restful.wire.response:
+    level: WARN
+

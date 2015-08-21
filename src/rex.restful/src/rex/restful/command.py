@@ -7,6 +7,7 @@ from webob import Response
 from webob.exc import HTTPMethodNotAllowed, HTTPException, HTTPBadRequest
 
 from rex.core import StrVal, Error, AnyVal
+from rex.logging import get_logger
 from rex.web import Command, Parameter
 
 from .serializer import Serializer
@@ -201,6 +202,11 @@ class RestfulLocation(Command):
                     Parameter('format', StrVal(), None),
                 )
 
+    def __init__(self, *args, **kwargs):
+        super(RestfulLocation, self).__init__(*args, **kwargs)
+        self._request_logger = get_logger('rex.restful.wire.request')
+        self._response_logger = get_logger('rex.restful.wire.response')
+
     def get_response_serializer(self, request):
         for mime_type in request.accept:
             serializer = Serializer.get_for_mime_type(mime_type)
@@ -267,6 +273,7 @@ class RestfulLocation(Command):
 
     def __call__(self, request, **kwargs):
         self.authorize(request)
+        self._log_request(request)
 
         implementation, status = self._get_method_handler(request)
 
@@ -304,7 +311,30 @@ class RestfulLocation(Command):
                 content_type=serializer.mime_type,
             )
 
+        self._log_response(response)
         return response
+
+    def _log_request(self, request):
+        self._request_logger.debug(u'%s %s' % (
+            request.method,
+            request.path_qs,
+        ))
+        for name, value in request.headers.items():
+            self._request_logger.debug(u'%s: %s' % (
+                name,
+                value,
+            ))
+        if request.body:
+            self._request_logger.info(request.body)
+
+    def _log_response(self, response):
+        for name, value in response.headers.items():
+            self._response_logger.debug(u'%s: %s' % (
+                name,
+                value,
+            ))
+        if response.body:
+            self._response_logger.info(response.body)
 
     def _get_method_handler(self, request):
         method = request.method.upper()

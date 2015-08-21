@@ -237,6 +237,12 @@ Calling a method that is not implemented on the resource will result in a HTTP
 Payload Validation
 ==================
 
+Set up the environment::
+
+    >>> rex.off()
+    >>> rex = Rex('rex.restful_demo')
+    >>> rex.on()
+
 When POST or PUT requests are sent to the resource, the incoming payload is
 processed through the validators designated by the ``create_payload_validator``
 and ``update_payload_validator`` properties::
@@ -301,6 +307,12 @@ and ``update_payload_validator`` properties::
 Errors
 ======
 
+Set up the environment::
+
+    >>> rex.off()
+    >>> rex = Rex('rex.restful_demo')
+    >>> rex.on()
+
 HTTP Exceptions raised by the methods will be encoded in the same manner as a
 normal response::
 
@@ -329,4 +341,44 @@ Sending an unexpected querystring parameter will result in an HTTP 400::
     Content-Length: ...
     <BLANKLINE>
     {"error": "Received unexpected parameter:\n    hello"}
+
+
+Logging
+=======
+
+Set up the environment::
+
+    >>> rex.off()
+    >>> rex = Rex('rex.restful_demo', logging_loggers={'rex.restful.wire.request': {'level': 'DEBUG'}, 'rex.restful.wire.response': {'level': 'DEBUG'}})
+    >>> rex.on()
+
+When the ``rex.restful.wire.request`` and ``rex.restful.wire.response`` loggers
+are configured to either ``INFO`` or ``DEBUG``, the framework will log out the
+request and response headers and body for easier debugging::
+
+    >>> req = Request.blank('/foo/42?format=yaml', method='PUT')
+    >>> req.body = '{"happy": true, "bar": "baz"}'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    DEBUG:rex.restful.wire.request:PUT /foo/42?format=yaml
+    DEBUG:rex.restful.wire.request:Content-Type: application/json
+    DEBUG:rex.restful.wire.request:Host: localhost:80
+    DEBUG:rex.restful.wire.request:Content-Length: 29
+    INFO:rex.restful.wire.request:{"happy": true, "bar": "baz"}
+    ### UPDATING FOO 42
+    ###   PAYLOAD: {u'bar': u'baz', u'happy': True}
+    DEBUG:rex.restful.wire.response:Content-Type: application/x-yaml
+    DEBUG:rex.restful.wire.response:Content-Length: 12
+    INFO:rex.restful.wire.response:{foo: '42'}
+    <BLANKLINE>
+    202 Accepted
+    Content-Type: application/x-yaml
+    Content-Length: 12
+    <BLANKLINE>
+    {foo: '42'}
+    <BLANKLINE>
+
+
+
+    >>> rex.off()
 

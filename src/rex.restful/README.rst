@@ -210,3 +210,23 @@ suppport::
     Content-Length: 0
     Allow: OPTIONS, DELETE, GET
 
+
+Logging
+=======
+
+The `SimpleResource`_ method handlers will automatically log out the headers
+and bodies of both the incoming requests and outgoing responses to the
+``rex.restful.wire.request`` and ``rex.restful.wire.response`` loggers,
+respectively. By default, this logging is disabled. If you want to receive
+this logging, then you must configure those loggers to have a level of ``INFO``
+to get the bodies, or ``DEBUG`` to get the bodies and headers.
+
+For example, to see everything logged, add the following to your
+``settings.yaml``::
+
+    logging_loggers:
+      rex.restful.wire.request:
+        level: DEBUG
+      rex.restful.wire.response:
+        level: DEBUG
+

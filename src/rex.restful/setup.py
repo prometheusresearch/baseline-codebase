@@ -25,9 +25,11 @@ setup(
     install_requires=[
         'rex.core>=1.9,<2',
         'rex.web>=2,<4',
+        'rex.logging>=1,<2',
         'pyyaml',
         'python-dateutil',
     ],
     rex_init='rex.restful',
+    rex_static='static',
 )
 

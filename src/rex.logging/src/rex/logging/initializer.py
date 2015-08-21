@@ -18,10 +18,10 @@ __all__ = (
 
 class LoggingInitialize(Initialize):
     def __call__(self):
-        logging.config.dictConfig(get_logging_config())
-
         # Just in case we're reinitializing an app within a single Python
         # process, let's force the logging framework to ditch its cached
         # loggers.
         logging.Logger.manager.loggerDict = {}
+
+        logging.config.dictConfig(get_logging_config())
 

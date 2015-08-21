@@ -9,6 +9,7 @@ REX.LOGGING Change Log
 ==================
 
 * Major release!
+* Fixed an issue where logger configurations were being erased.
 
 
 0.1.0 (2015-06-19)

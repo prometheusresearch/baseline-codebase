@@ -3,7 +3,6 @@
 #
 
 
-from rex.core import get_settings
 from rex.logging import get_logger
 
 from .base import SmsProvider
@@ -23,13 +22,11 @@ class LoggingSmsProvider(SmsProvider):
     #: The name of this implementation used by the ``sms_provider`` setting.
     name = 'logging'
 
-    def __call__(self, recipient, message):
-        redirect = get_settings().sms_force_recipient  # pylint: disable=E1101
-
-        if redirect:
+    def __call__(self, recipient, message, original_recipient=None):
+        if original_recipient:
             destination = '%s (%s)' % (
-                redirect,
                 recipient,
+                original_recipient,
             )
         else:
             destination = recipient

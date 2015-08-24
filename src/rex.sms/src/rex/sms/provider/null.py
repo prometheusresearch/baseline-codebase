@@ -20,7 +20,7 @@ class NullSmsProvider(SmsProvider):
     #: The name of this implementation used by the ``sms_provider`` setting.
     name = 'null'
 
-    def __call__(self, recipient, message):
+    def __call__(self, recipient, message, original_recipient=None):
         # No-Op
         pass
 

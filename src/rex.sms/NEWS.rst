@@ -9,6 +9,10 @@ REX.SMS Change Log
 ==================
 
 * Major release!
+* SmsProvider extensions no longer have to deal with logic around the
+  ``sms_force_recipient`` setting. The TN to send the message to will always be
+  sent in the ``recipient`` argument, and the original (un-forced) recipient
+  will be sent in the ``original_recipient`` argument.
 
 
 0.3.0 (2015-06-26)

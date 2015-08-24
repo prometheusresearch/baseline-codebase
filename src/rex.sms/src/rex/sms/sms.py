@@ -30,7 +30,18 @@ def send_sms(recipient, message):
 
     recipient = TelephoneNumberVal()(recipient)
     provider = get_sms_provider()
-    provider(recipient, message)
+
+    if get_settings().sms_force_recipient:
+        provider(
+            get_settings().sms_force_recipient,
+            message,
+            original_recipient=recipient,
+        )
+    else:
+        provider(
+            recipient,
+            message,
+        )
 
 
 def compose(package_path, **context):

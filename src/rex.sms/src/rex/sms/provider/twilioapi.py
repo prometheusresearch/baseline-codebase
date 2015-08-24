@@ -59,11 +59,7 @@ class TwilioSmsProvider(SmsProvider):
 
         self.from_number = setting_or_die('sms_twilio_from_number')
 
-    def __call__(self, recipient, message):
-        redirect = get_settings().sms_force_recipient  # pylint: disable=E1101
-        if redirect:
-            recipient = redirect
-
+    def __call__(self, recipient, message, original_recipient=None):
         attempts = 0
         retry_delay = get_settings().sms_twilio_retry_delay / 1000.0
 

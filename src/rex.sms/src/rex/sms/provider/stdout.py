@@ -5,8 +5,6 @@
 
 import sys
 
-from rex.core import get_settings
-
 from .base import SmsProvider
 
 
@@ -24,15 +22,13 @@ class StdoutSmsProvider(SmsProvider):
     #: The name of this implementation used by the ``sms_provider`` setting.
     name = 'stdout'
 
-    def __call__(self, recipient, message):
-        redirect = get_settings().sms_force_recipient  # pylint: disable=E1101
-
+    def __call__(self, recipient, message, original_recipient=None):
         sys.stdout.write(u'=== SMS MESSAGE SENT ===\n')
         sys.stdout.write(u'SENT TO: ')
-        if redirect:
+        if original_recipient:
             sys.stdout.write(u'%s (%s)\n' % (
-                redirect,
                 recipient,
+                original_recipient,
             ))
         else:
             sys.stdout.write(u'%s\n' % recipient)

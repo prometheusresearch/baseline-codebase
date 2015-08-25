@@ -121,6 +121,7 @@ class Pick(Action):
 
     @cached_property
     def port(self):
+        mask = None
         filters = []
 
         if self.search:
@@ -128,7 +129,10 @@ class Pick(Action):
 
         if self.mask:
             mask_args = ', '.join('$%s' % k for k in self.input.rows.keys())
-            filters.append('__mask__(%s) := %s' % (mask_args or '$_', self.mask))
+            if mask_args:
+                filters.append('__mask__(%s) := %s' % (mask_args, self.mask))
+            else:
+                mask = self.mask
 
         if self.entity.type.state:
             filters.append('__state__($_) := %s' % self.entity.type.state.expression)
@@ -138,12 +142,15 @@ class Pick(Action):
                 'entity': self.entity.type.name,
                 'filters': filters,
             }
+            if mask:
+                grow_val['mask'] = mask
             port = Port(grow_val, db=self.db)
         else:
             port = formfield.to_port(
                 self.entity.type.name,
                 self.fields,
                 filters=filters,
+                mask=mask,
                 db=self.db)
 
         return annotate_port(self.domain, port)

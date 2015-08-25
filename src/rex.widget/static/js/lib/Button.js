@@ -46,8 +46,11 @@ export default class Button extends React.Component {
       ...props
     } = this.props;
 
-    if (href && params) {
-      href = href + '?' + qs.stringify(params);
+    if (href) {
+      href = resolveURL(href);
+      if (params) {
+        href = href + '?' + qs.stringify(params);
+      }
     }
 
     className = cx(className, {

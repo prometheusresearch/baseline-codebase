@@ -25,6 +25,10 @@
   outline-offset: -2px;
 }
 
+.self:hover {
+  text-decoration: none;
+}
+
 .isDefault {
   color: #333333;
   background-color: #ffffff;

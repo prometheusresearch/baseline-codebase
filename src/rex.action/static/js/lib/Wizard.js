@@ -10,6 +10,7 @@ import WithDOMSize        from './WithDOMSize';
 import WizardState        from './WizardState';
 import WizardPanel        from './WizardPanel';
 import WizardHistory      from './WizardHistory';
+import isEntity           from './isEntity';
 
 let {VBox, HBox} = RexWidget.Layout;
 
@@ -250,6 +251,10 @@ export default class Wizard extends React.Component {
 }
 
 function getPanelKey(panel) {
-  var inputKeys = Object.keys(panel.element.props.contextTypes.input);
-  return inputKeys.map(k => panel.context[k]).join('__');
+  var inputKeys = Object.keys(panel.element.props.contextTypes.input.rows);
+  var panelKey = inputKeys.map(k => {
+    let v = panel.context[k];
+    return isEntity(v) ? v.id : v;
+  });
+  return panelKey.join('__');
 }

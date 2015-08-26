@@ -102,25 +102,26 @@ class PostgresAsyncTransport(AsyncTransport):
     name = 'pgsql'
 
     def __init__(self, uri_parts):
-        self.uri = urlunparse(uri_parts)
         self._lock_id_cache = {}
+
+        parsed = DB.parse(urlunparse(uri_parts))
+        self._connection_parameters = {
+            'database': parsed.database
+        }
+        if parsed.host is not None:  # pragma: no cover
+            self._connection_parameters['host'] = parsed.host
+        if parsed.port is not None:  # pragma: no cover
+            self._connection_parameters['port'] = parsed.port
+        if parsed.username is not None:  # pragma: no cover
+            self._connection_parameters['user'] = parsed.username
+        if parsed.password is not None:  # pragma: no cover
+            self._connection_parameters['password'] = parsed.password
+
         super(PostgresAsyncTransport, self).__init__(uri_parts)
 
     def initialize(self):
-        parsed = DB.parse(self.uri)
-        parameters = {
-            'database': parsed.database
-        }
-        if parsed.host is not None:
-            parameters['host'] = parsed.host
-        if parsed.port is not None:
-            parameters['port'] = parsed.port
-        if parsed.username is not None:
-            parameters['user'] = parsed.username
-        if parsed.password is not None:
-            parameters['password'] = parsed.password
         try:
-            self._connection = psycopg2.connect(**parameters)
+            self._connection = psycopg2.connect(**self._connection_parameters)
             self._connection.set_client_encoding('UTF8')
             self._connection.autocommit = True
         except psycopg2.Error as exc:
@@ -208,4 +209,11 @@ class PostgresAsyncTransport(AsyncTransport):
                 int_hash -= 1 << 32
             self._lock_id_cache[name] = int_hash
         return self._lock_id_cache[name]
+
+    def __repr__(self):
+        return '%s(%s/%s)' % (
+            self.__class__.__name__,
+            self._connection_parameters.get('host', 'localhost'),
+            self._connection_parameters['database'],
+        )
 

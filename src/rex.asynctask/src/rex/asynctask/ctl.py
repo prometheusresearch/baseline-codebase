@@ -76,7 +76,7 @@ class AsyncTaskWorkerTask(RexTask):
                             )
 
                     time.sleep(check_interval)
-                except KeyboardInterrupt:  # pylint: disable=pointless-except
+                except KeyboardInterrupt:  # pragma: no cover
                     pass
 
         self.logger.info('Complete')

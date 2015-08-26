@@ -66,7 +66,7 @@ class AsyncTaskWorker(Extension):
                 # No task to process, let's sleep a bit.
                 try:
                     time.sleep(sleep_duration)
-                except KeyboardInterrupt:  # pylint: disable=pointless-except
+                except KeyboardInterrupt:  # pragma: no cover
                     pass
 
         self.logger.info('Terminating')

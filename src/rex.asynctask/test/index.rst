@@ -7,5 +7,6 @@ REX.ASYNCTASK Examples/Tests
    test_ctl
    test_localmem
    test_pgsql
-   test_redis
+   redis/test_redis
+   test_core
 

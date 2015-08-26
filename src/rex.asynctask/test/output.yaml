@@ -12,3 +12,5 @@ tests:
   stdout: ''
 - sh: rex deploy --quiet rex.asynctask_demo
   stdout: ''
+- py: from-redis-import-strictredis-rediserror
+  stdout: ''

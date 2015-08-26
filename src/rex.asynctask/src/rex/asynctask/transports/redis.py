@@ -83,3 +83,9 @@ class RedisAsyncTransport(AsyncTransport):
         payload = self.decode_payload(self._redis.lpop(queue_name))
         return payload
 
+    def __repr__(self):
+        return '%s(%s)' % (
+            self.__class__.__name__,
+            self.path or self.location,
+        )
+

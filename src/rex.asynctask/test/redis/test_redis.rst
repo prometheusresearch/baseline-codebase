@@ -18,6 +18,8 @@ expected::
 
     >>> rex.on()
     >>> transport = get_transport('redis://localhost')
+    >>> transport
+    RedisAsyncTransport(localhost)
 
     >>> transport.submit_task('foo', {'foo': 1})
     >>> transport.submit_task('foo', {'foo': 2})

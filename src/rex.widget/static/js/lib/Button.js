@@ -3,19 +3,23 @@
  */
 
 import React, {PropTypes} from 'react';
+import {Themeable}        from 'rethemeable';
 import cx                 from 'classnames';
 import Icon               from './Icon';
 import emptyFunction      from './emptyFunction';
 import resolveURL         from './resolveURL';
 import qs                 from './qs';
-import Style              from './Button.module.css';
+import Style              from './Button.style';
 
 /**
  * Button.
  *
  * @public
  */
+@Themeable
 export default class Button extends React.Component {
+
+  static defaultTheme = Style;
 
   static propTypes = {
     link: PropTypes.bool,
@@ -54,14 +58,16 @@ export default class Button extends React.Component {
     }
 
     className = cx(className, {
-      [Style.self]: true,
-      [Style.isDefault]: !link && !success && !danger && !quiet,
-      [Style.isSuccess]: success,
-      [Style.isDanger]: danger,
-      [Style.isLink]: link,
-      [Style.isQuiet]: quiet,
-      [Style.isSmall]: size === 'small',
-      [Style.isExtraSmall]: size === 'extra-small'
+      [this.theme.self]: true,
+
+      [this.theme.onDefault]: !link && !success && !danger && !quiet,
+      [this.theme.onSuccess]: success,
+      [this.theme.onDanger]: danger,
+      [this.theme.onLink]: link,
+      [this.theme.onQuiet]: quiet,
+
+      [this.theme.onSmall]: size === 'small',
+      [this.theme.onExtraSmall]: size === 'extra-small'
     });
 
     if (align) {

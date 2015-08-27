@@ -111,7 +111,10 @@ function _fieldToSchema(field) {
 }
 
 function _mergeObjectSchema(a, b) {
-  invariant(a.type === 'object' && b.type === 'object');
+  invariant(
+    a.type === 'object' && b.type === 'object',
+    'Both schemas should be object schemas'
+  );
   return {
     ...a, ...b,
     properties: {...a.properties, ...b.properties},
@@ -155,7 +158,10 @@ function _growSchema(schema, keyPath, grow) {
   }
   var key = keyPath.shift();
   if (schema) {
-    invariant(schema.type === 'object');
+    invariant(
+      schema.type === 'object',
+      'Schema should be an object schema'
+    );
   } else {
     schema = {type: 'object', properties: {}, required: []};
   }

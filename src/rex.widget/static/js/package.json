@@ -23,6 +23,7 @@
     "fixed-data-table": "^0.4.0",
     "flat": "1.2.1",
     "immutable": "^3.7.4",
+    "invariant": "^2.1.0",
     "object-assign": "^1.0.0",
     "qs": "^4.0.0",
     "react-bootstrap-datetimepicker": "prometheusresearch/react-bootstrap-datetimepicker#cc9a636",

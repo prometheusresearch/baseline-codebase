@@ -77,7 +77,10 @@ class WizardState {
   }
 
   openAfterLast(id, contextUpdate) {
-    invariant(this.actionTree[id] !== undefined);
+    invariant(
+      this.actionTree[id] !== undefined,
+      'Unknown action: %s', id
+    );
     var actionTree = this.actionTree[id] || {};
     var element = this._actions.actions[id];
     var context = {...this.context, ...contextUpdate};
@@ -92,7 +95,10 @@ class WizardState {
 
   isTransitionAllowed(id, context = this.context) {
     var action = this.actions[id];
-    invariant(action !== undefined);
+    invariant(
+      action !== undefined,
+      'Unknown action: %s', id
+    );
     return action.props.contextTypes.input.match(context);
   }
 
@@ -250,7 +256,10 @@ class WizardState {
   static construct(onUpdate, initialContext, actions, size) {
     var wizard = new this(onUpdate, initialContext, actions, size);
     var first = Object.keys(actions.tree)[0];
-    invariant(first !== undefined);
+    invariant(
+      first !== undefined,
+      'Invalid action config: missing first action'
+    );
     return wizard.openAfterLast(first);
   }
 

@@ -68,7 +68,7 @@ export let onDefault = styling({
 export let onSuccess = styling({
   color: '#ffffff',
   backgroundColor: '#5cb85c',
-  borderColor: '1px solid #4cae4c',
+  border: '1px solid #4cae4c',
 
   hover: {
     color: '#ffffff',
@@ -92,7 +92,7 @@ export let onSuccess = styling({
 export let onDanger = styling({
   color: '#ffffff',
   backgroundColor: '#d9534f',
-  borderColor: '1px solid #d43f3a',
+  border: '1px solid #d43f3a',
 
   hover: {
     color: '#ffffff',

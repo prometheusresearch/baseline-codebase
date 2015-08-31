@@ -27,7 +27,7 @@ export default class Button extends React.Component {
     danger: PropTypes.bool,
     quiet: PropTypes.bool,
     size: PropTypes.oneOf(['small', 'extra-small']),
-    align: PropTypes.oneOf(['left', 'right']),
+    align: PropTypes.oneOf(['left', 'right', 'center']),
     className: PropTypes.string,
     style: PropTypes.object,
     icon: PropTypes.string,

@@ -132,9 +132,7 @@ class Make(Action):
 
     @responder(wrap=_construct_data_spec, url_type=PortURL)
     def data(self, req):
-        if not self.query:
-            return self.port(req)
-        raise HTTPBadRequest('port is not allowed in this configuration')
+        return self.port(req)
 
     @responder(wrap=_construct_data_spec, url_type=QueryURL)
     def data_query(self, req):

@@ -92,13 +92,25 @@ let Make = React.createClass({
   },
 
   onSubmitComplete(data) {
+    if (this.props.useQuery) {
+      let params = this.dataSpecs.data.produceParams();
+      params['*'] = data.id;
+      this.dataSpecs.data.port.produceEntity(params).then(data => this._onSubmitComplete(data));
+    } else {
+      this._onSubmitComplete(data);
+    }
+  },
+
+  _onSubmitComplete(data) {
     this.props.onSubmitComplete(data);
 
     var key = this.state.key + 1;
     this.setState({key});
 
-    var nextContext = {...this.props.context};
-    nextContext[this.props.entity.name] = data;
+    var nextContext = {
+      ...this.props.context,
+      [this.props.entity.name]: data
+    };
     this.props.onContext(nextContext);
   },
 

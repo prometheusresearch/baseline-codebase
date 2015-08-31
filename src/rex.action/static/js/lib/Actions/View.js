@@ -38,20 +38,12 @@ var View = React.createClass({
   render() {
     let {fields, entity, context, onClose, width} = this.props;
     let title = this.constructor.getTitle(this.props);
-    let data;
-    let dataFromContext;
-    if (this.data.data.data) {
-      data = this.data.data.data;
-      dataFromContext = false;
-    } else {
-      data = context[entity.type.name];
-      dataFromContext = true;
-    }
+    let data = this.data.data.data;
     return (
       <Action title={title} onClose={onClose} width={width}>
         {isLoaded(data) ?
           <RexWidget.Forms.ConfigurableEntityForm
-            key={`${data.id}__${dataFromContext ? '1' : '0'}`}
+            key={data.id}
             readOnly
             entity={entity.type.name}
             value={data}

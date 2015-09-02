@@ -8,7 +8,7 @@
 """
 
 from rex.core import Validate, StrVal, RecordVal, MapVal, AnyVal, OneOfVal
-from rex.web import route
+from rex.web import route as resolve_handler
 
 from .url import PortURL, QueryURL, URL
 from .transitionable import TransitionableRecord
@@ -24,11 +24,15 @@ class DataSpec(TransitionableRecord):
 
     def __transit_format__(self, req, path):
         if isinstance(self.route, basestring):
-            handler = route(self.route)
+            route = self.route
+            if self.route.startswith('/'):
+                package = req.environ['rex.package']
+                route = '%s:%s' % (package, route)
+            handler = resolve_handler(route)
             if hasattr(handler, 'port'):
-                return PortURL(self.route), self.params
+                return PortURL(route), self.params
             else:
-                return QueryURL(self.route), self.params
+                return QueryURL(route), self.params
         return self.route, self.params
 
 

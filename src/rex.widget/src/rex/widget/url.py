@@ -35,7 +35,11 @@ class URL(TransitionableRecord):
         super(URL, self).__init__(route=route, params=params)
 
     def __transit_format__(self, req, path): # pylint: disable=arguments-differ
-        route = url_for(req, self.route) # pylint: disable=no-member
+        route = self.route
+        if route.startswith('/'):
+            package = req.environ['rex.package']
+            route = '%s:%s' % (package, route)
+        route = url_for(req, route) # pylint: disable=no-member
         if self.params: # pylint: disable=no-member
             route = route + '?' + urlencode(self.params) # pylint: disable=no-member
         return (route,)

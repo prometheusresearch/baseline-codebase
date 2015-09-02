@@ -97,7 +97,7 @@ The same mechanism works for URL for HTSQL queries::
 ``QueryURL`` values have different JSON representation than ``PortURL`` and ``URL``
 values::
 
-  >>> class RenderPort(Command):
+  >>> class RenderQuery(Command):
   ...   path = '/query'
   ...   access = 'anybody'
   ...

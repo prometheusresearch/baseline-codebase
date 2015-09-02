@@ -59,3 +59,35 @@ Data specifications
                          "entity": ["^2", [["^3", ["http://localhost/query"]], {}]]}]]
 
   >>> rex.off()
+
+::
+
+  >>> sandbox = SandboxPackage(name='main')
+  >>> secondary = SandboxPackage(name='secondary')
+  >>> secondary.rewrite('/urlmap.yaml', """
+  ... paths:
+  ...   /port:
+  ...     port: 
+  ...       entity: todo
+  ...   /query:
+  ...     query: 
+  ...       /todo
+  ...   /:
+  ...     access: anybody
+  ...     widget: !<Test>
+  ...       collection: /port
+  ...       entity: /query
+  ...       command: /command
+  ... """)
+
+  >>> rex = Rex(sandbox, secondary, 'rex.widget_demo')
+  >>> rex.on()
+
+  >>> print Request.blank('/secondary/', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget", ["Test", {"command": ["~#entity", [["~#query", ["http://localhost/secondary/command"]], {}]],
+                         "collection": ["~#collection", [["~#port", ["http://localhost/secondary/port"]], {}]],
+                         "entity": ["^2", [["^3", ["http://localhost/secondary/query"]], {}]]}]]

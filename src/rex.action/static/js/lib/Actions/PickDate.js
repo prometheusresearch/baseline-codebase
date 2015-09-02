@@ -9,7 +9,9 @@ var {VBox, HBox}        = RexWidget.Layout;
 var Action              = require('../Action');
 
 var moment              = require('moment');
-var Datepicker          = require('react-bootstrap-datetimepicker/src/DateTimePickerDate');
+var Datepicker          = require('react-bootstrap-datetimepicker/src/DatePicker');
+var Day                 = require('react-bootstrap-datetimepicker/src/Day');
+var Month               = require('react-bootstrap-datetimepicker/src/Month');
 
 var Style = {
   datepicker: {
@@ -68,58 +70,42 @@ var PickDate = React.createClass({
           style={{...Style.datepicker, height: this.props.width}}
           renderDay={this.renderDay}
           renderMonth={this.renderMonth}
+          onSelectedDate={this.onSelectedDate}
           pickerStyle={Style.datepickerPicker}
           pickerTableStyle={Style.datepickerPickerTable}
           viewDate={this.state.viewDate}
+          onViewDate={this.onViewDate}
           selectedDate={this.getSelectedDate()}
-          setViewMonth={this.setViewMonth}
-          setViewYear={this.setViewYear}
-          addMonth={this.addMonth}
-          addYear={this.addYear}
-          addDecade={this.addDecade}
-          subtractMonth={this.subtractMonth}
-          subtractYear={this.subtractYear}
-          subtractDecade={this.subtractDecade}
-          setSelectedDate={this.setSelectedDate}
           />
       </Action>
     );
   },
 
   renderDay(props) {
-    var key = props.value.format('YYYY-MM-DD');
+    let {date} = props;
+    var key = date.format('YYYY-MM-DD');
     var annotated = this.__annotateMonthQueryIndex[key];
     var title = typeof annotated === 'string' ? annotated : undefined;
-    var style = {};
-    if (annotated) {
-      style = {...style, ...Style.onAnnotated.cell};
-    }
-    if (props.active) {
-      style = {...style, ...Style.onActive.cell};
-    }
-    var className = `day ${props.showToday && props.today ? 'today' : ''}`;
     return (
-      <td key={props.key} title={title} className={className} onClick={props.onClick} style={style}>
-        {props.value.date()}
-      </td>
+      <Day
+        {...props}
+        title={title}
+        backgroundColor={annotated ? "rgb(255, 221, 221)" : undefined}
+        />
     );
   },
 
   renderMonth(props) {
-    var key = `${props.year}-${props.month +1}`;
+    var key = `${props.year}-${props.month + 1}`;
     var annotated = this.__annotateYearQueryIndex[key];
     var title = typeof annotated === 'string' ? annotated : undefined;
-    var style = {};
-    if (annotated) {
-      style = {...style, ...Style.onAnnotated.cell};
-    }
-    if (props.active) {
-      style = {...style, ...Style.onActive.cell};
-    }
     return (
-      <span key={props.key} title={title} className="month" onClick={props.onClick} style={style}>
-        {props.value}
-      </span>
+      <Month
+        {...props}
+        size={{width: '33%'}}
+        title={title}
+        backgroundColor={annotated ? "rgb(255, 221, 221)" : undefined}
+        />
     );
   },
 
@@ -144,73 +130,13 @@ var PickDate = React.createClass({
     }
   },
 
-  setViewMonth(month) {
-    return this.setState({
-      viewDate: this.state.viewDate.clone().month(month)
-    });
+  onViewDate(viewDate) {
+    this.setState({viewDate});
   },
 
-  setViewYear(year) {
-    return this.setState({
-      viewDate: this.state.viewDate.clone().year(year)
-    });
-  },
 
-  addMonth() {
-    return this.setState({
-      viewDate: this.state.viewDate.add(1, "months")
-    });
-  },
-
-  addYear() {
-    return this.setState({
-      viewDate: this.state.viewDate.add(1, "years")
-    });
-  },
-
-  addDecade() {
-    return this.setState({
-      viewDate: this.state.viewDate.add(10, "years")
-    });
-  },
-
-  subtractMonth() {
-    return this.setState({
-      viewDate: this.state.viewDate.subtract(1, "months")
-    });
-  },
-
-  subtractYear() {
-    return this.setState({
-      viewDate: this.state.viewDate.subtract(1, "years")
-    });
-  },
-
-  subtractDecade() {
-    return this.setState({
-      viewDate: this.state.viewDate.subtract(10, "years")
-    });
-  },
-
-  setSelectedDate(e) {
-    var target = e.target;
-    if (target.className && !target.className.match(/disabled/g)) {
-      var month;
-      if(target.className.indexOf("new") >= 0) month = this.state.viewDate.month() + 1;
-      else if(target.className.indexOf("old") >= 0) month = this.state.viewDate.month() - 1;
-      else month = this.state.viewDate.month();
-      var selectedDate = this.getSelectedDate();
-      var date = this.state.viewDate
-        .clone()
-        .month(month)
-        .date(parseInt(e.target.innerHTML))
-        .hour(selectedDate.hours())
-        .minute(selectedDate.minutes());
-      this.setState({
-        viewDate: date.clone()
-      });
-      this.props.onContext({date: date.format('YYYY-MM-DD')});
-    }
+  onSelectedDate(selectedDate) {
+    this.props.onContext({date: selectedDate.format('YYYY-MM-DD')});
   },
 
   statics: {

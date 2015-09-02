@@ -14,6 +14,7 @@ module.exports = {
   TextareaField: require('./TextareaField'),
   Fieldset: require('./Fieldset'),
   Value: require('react-forms').Value,
+  ErrorList: require('react-forms').ErrorList,
   RepeatingFieldset: require('./RepeatingFieldset'),
   DatepickerField: require('./DatepickerField'),
   DatetimeField: require('./DatetimeField'),

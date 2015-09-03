@@ -5,11 +5,14 @@
 .. contents:: Table of Contents
 
 
-4.8.0 (2015-xx-xx)
+4.8.0 (2015-09-03)
 ==================
 
+* rex.setup==3.1.0
 * rex.applet==2.2.0
 * rex.db==3.3.1
+* rex.widget==1.1.0
+* rex.action==0.4.0
 * HTSQL==2.3.3.20150901
 
 

@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-0.4.0 (2015-XX-XX)
+0.4.0 (2015-09-03)
 ==================
 
 * Add entity states feature. Now you can define restrictions on entity types

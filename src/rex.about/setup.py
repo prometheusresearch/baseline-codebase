@@ -27,7 +27,7 @@ setup(
         'rex.applet>=2,<3',
         'rex.web>=2,<4',
         'rex.urlmap>=2,<3',
-        'rex.widget>=1,<2',
+        'rex.widget>=1.1,<2',
     ],
     rex_init='rex.about',
     rex_static='static',

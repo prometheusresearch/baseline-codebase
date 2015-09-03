@@ -5,7 +5,7 @@ REX.ABOUT Change Log
 .. contents:: Table of Contents
 
 
-0.1.1 (2015-xx-xx)
+0.1.1 (2015-09-03)
 ==================
 
 * Minor internal updates due to API changes in ``rex.widget``.

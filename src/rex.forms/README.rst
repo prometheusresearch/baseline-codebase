@@ -78,6 +78,11 @@ Settings
     all resources referenced by Form configurations (e.g., Audio files) that
     start with a ``/``. If not specified, it defaults to ``None``.
 
+``forms_presentation_adaptors``
+    This setting is a mapping of channel IDs to lists of PresentationAdaptor
+    names. It allows you to specify which PresentationAdaptors to apply to the
+    Channels in the system. If not specified, it contains no mappings.
+
 
 JavaScript Components
 =====================

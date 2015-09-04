@@ -5,7 +5,6 @@
 
 import sys
 
-from prismh.core.validation.instrument import TYPES_ALL
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option
 from rex.instrument import InstrumentVersion
@@ -26,9 +25,6 @@ __all__ = (
     'FormsStoreTask',
     'InstrumentFormSkeleton',
 )
-
-
-# pylint: disable=E1101,C0103
 
 
 def open_and_validate(
@@ -240,7 +236,8 @@ class FormsRetrieveTask(RexTask, FormOutputter):
                 raise Error('Channel "%s" does not exist.' % (
                     self.channel_uid,
                 ))
-            if channel.presentation_type != channel_impl.PRESENTATION_TYPE_FORM:
+            if channel.presentation_type != \
+                    channel_impl.PRESENTATION_TYPE_FORM:
                 raise Error('Channel "%s" is not a web form channel.' % (
                     channel.uid,
                 ))
@@ -331,7 +328,8 @@ class FormsStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('Channel "%s" does not exist.' % (
                     self.channel_uid,
                 ))
-            if channel.presentation_type != channel_impl.PRESENTATION_TYPE_FORM:
+            if channel.presentation_type != \
+                    channel_impl.PRESENTATION_TYPE_FORM:
                 raise Error('Channel "%s" is not a web form channel.' % (
                     channel.uid,
                 ))

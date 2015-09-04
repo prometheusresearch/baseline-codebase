@@ -277,3 +277,12 @@ class DemoDraftForm(DraftForm):
         print '### DELETED DRAFTFORM ' + self.uid
 
 
+
+class DemoPresentationAdaptor(PresentationAdaptor):
+    name = 'demo'
+
+    @classmethod
+    def adapt(self, instrument, configuration):
+        configuration['title']['en'] = 'AN ADAPTED TITLE'
+        return configuration
+

@@ -8,6 +8,7 @@ var React                 = require('react');
 var EventExecutionContext = require('../EventExecutionContext');
 var _                     = require('../localization')._;
 var Resolver              = require('../expressions').Resolver;
+var utils                 = require('../utils');
 
 
 var FormEventsContextMixin = {
@@ -167,7 +168,14 @@ var FormEventsContextMixin = {
     var fullID = targetID;
 
     if (value.path[0] !== targetID) {
-      fullID = value.path[0] + '.' + targetID;
+      // This is a hacky way to get the fully qualified name of a subfield.
+      if (utils.isNumber(value.path[2])) {
+        // Looks like a recordList subfield.
+        fullID = value.path[0] + '.' + targetID;
+      } else {
+        // Looks like a matrix subfield.
+        fullID = value.path[0] + '.' + value.path[2] + '.' + targetID;
+      }
     }
 
     return fullID;

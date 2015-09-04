@@ -14,7 +14,7 @@ Set up the environment::
 The semi-abstract base Form class only implements a simple constructor
 and string-rendering methods::
 
-    >>> from rex.instrument.interface import Instrument, InstrumentVersion, Channel
+    >>> from rex.instrument.interface import Instrument, InstrumentVersion, Channel, Task
     >>> from datetime import datetime
     >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
@@ -136,6 +136,44 @@ or a dict equivalent::
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Some New Title'}}
 
 
+There is also a set of properties for retrieving the adapted version of the
+configuration. (Adapted meaning processed by the configured
+PresentationAdaptor implementations)::
+
+    >>> form.adapted_configuration
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'AN ADAPTED TITLE'}}
+
+    >>> form.adapted_configuration_json
+    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "AN ADAPTED TITLE", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}]}'
+
+    >>> form.adapted_configuration_yaml
+    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: AN ADAPTED TITLE, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
+
+
+There is a static method named ``get_for_task`` which will retrieve a Form
+given a Task and Channel::
+
+    >>> channel = Channel.get_implementation().get_by_uid('entry')
+    >>> task = Task.get_implementation().get_by_uid('task1')
+
+    >>> Form.get_implementation().get_for_task('task1', 'entry')
+    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+
+    >>> Form.get_implementation().get_for_task(task, 'entry')
+    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+
+    >>> Form.get_implementation().get_for_task('task1', channel)
+    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+
+    >>> Form.get_implementation().get_for_task(task, channel)
+    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+
+    >>> Form.get_implementation().get_for_task('task5', 'entry') is None
+    True
+
+    >>> Form.get_implementation().get_for_task('doesntexist', 'entry') is None
+    True
+
 Forms can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::
 
@@ -173,4 +211,8 @@ being the same class with the same UID::
     True
     >>> form3 >= form1
     True
+
+
+
+    >>> rex.off()
 

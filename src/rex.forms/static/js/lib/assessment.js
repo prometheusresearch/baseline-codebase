@@ -89,6 +89,23 @@ function makeAssessmentRecord(value, types, record, valueOverlay) {
         });
       }
 
+    } else if (fieldType.rootType === 'matrix') {
+      // If this is a matrix, make sure each cell is represented.
+      values[recordId] = makeAssessmentValue(value[recordId]);
+      values[recordId].value = values[recordId].value || {};
+
+      fieldType.rows.forEach((row) => {
+        if (!values[recordId].value[row.id]) {
+          values[recordId].value[row.id] = {};
+        }
+
+        fieldType.columns.forEach((column) => {
+          values[recordId].value[row.id][column.id] = makeAssessmentValue(
+            values[recordId].value[row.id][column.id]
+          );
+        });
+      });
+
     } else {
       // Otherwise, just clean up the value.
       values[recordId] = makeAssessmentValue(value[recordId]);

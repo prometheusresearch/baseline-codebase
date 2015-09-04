@@ -5,6 +5,29 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+1.0.0 (2015-xx-xx)
+==================
+
+- Finally, a major release!
+- Added support for the ``orientation`` options on checkGroup/radioGroup
+  widgets.
+- Added support for the ``autoHotkeys`` and ``hotkeys`` options on the
+  checkGroup/radioGroup widgets.
+- Deprecated the entryCheckGroup/entryRadioGroup widgets. The names will still
+  be recognized, but the checkGroup/radioGroup widgets will be used instead.
+- Fixed some issues with the display of matrix columns and question text.
+- Added a PresentationAdaptor extension and ``forms_presentation_adaptors``
+  setting that allow you to apply automatic transformations to Form
+  Configurations on a per-channel basis.
+- Updated prismh.core dependency.
+- Added a ``get_implementation()`` method to all Interface classes as a
+  convenience wrapper around the same function in the utils module.
+- The Form.get_for_task() method now accepts Task instances and Task UIDs.
+- Fixed an issue preventing matrix subfields from being event targets.
+- Fixed issue with disabled matrix subfields being excluded from the resulting
+  Assessment.
+
+
 0.31.0 (2015-06-23)
 ===================
 

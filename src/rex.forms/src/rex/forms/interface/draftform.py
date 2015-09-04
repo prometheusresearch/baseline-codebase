@@ -7,10 +7,12 @@ from copy import deepcopy
 
 from rex.core import Extension, AnyVal
 from rex.instrument.interface import DraftInstrumentVersion, Channel
-from rex.instrument.mixins import *
+from rex.instrument.mixins import Comparable, Displayable, Dictable, \
+    ImplementationContextable
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
 
+from .presentation_adaptor import PresentationAdaptor
 from ..output import dump_form_yaml, dump_form_json
 
 
@@ -141,6 +143,17 @@ class DraftForm(
 
         raise NotImplementedError()
 
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('draftform', package_name='forms')
+
     def __init__(self, uid, channel, draft_instrument_version, configuration):
         self._uid = to_unicode(uid)
 
@@ -250,6 +263,48 @@ class DraftForm(
     def configuration_yaml(self, value):
         self.configuration = AnyVal().parse(value)
 
+    @property
+    def adapted_configuration(self):
+        """
+        The Web Form Configuration of this DraftForm, as modified by the
+        PresentationAdaptors configured for the Channel associated with this
+        DraftForm. Read only.
+
+        :rtype: dict
+        """
+
+        if self.configuration:
+            return PresentationAdaptor.adapt_form(
+                self.channel,
+                self.draft_instrument_version.definition,
+                self.configuration,
+            )
+        return None
+
+    @property
+    def adapted_configuration_json(self):
+        """
+        The Web Form Configuration of this DraftForm, as modified by the
+        PresentationAdaptors configured for the Channel associated with this
+        DraftForm. Read only.
+
+        :rtype: JSON-encoded string
+        """
+
+        return dump_form_json(self.adapted_configuration)
+
+    @property
+    def adapted_configuration_yaml(self):
+        """
+        The Web Form Configuration of this DraftForm, as modified by the
+        PresentationAdaptors configured for the Channel associated with this
+        DraftForm. Read only.
+
+        :rtype: YAML-encoded string
+        """
+
+        return dump_form_yaml(self.adapted_configuration)
+
     def validate(self, instrument_definition=None):
         """
         Validates that this DraftForm is a legal Web Form Configuration.
@@ -336,7 +391,6 @@ class DraftForm(
 
         return form
 
-    # pylint: disable=W0221
     def get_display_name(self, locale=None):
         """
         Returns a unicode string that represents this DraftForm, suitable for

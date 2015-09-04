@@ -3,17 +3,18 @@
 #
 
 
-from collections import Counter
 from copy import deepcopy
 
 from prismh.core import validate_form, \
     ValidationError as PrismhValidationError
 from rex.core import Extension, AnyVal
-from rex.instrument.interface import InstrumentVersion, Channel
-from rex.instrument.mixins import *
+from rex.instrument import InstrumentVersion, Channel, Task
+from rex.instrument.mixins import Comparable, Displayable, Dictable, \
+    ImplementationContextable
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
 
+from .presentation_adaptor import PresentationAdaptor
 from ..errors import ValidationError
 from ..output import dump_form_yaml, dump_form_json
 
@@ -122,16 +123,24 @@ class Form(
         Returns the Form to use for the specified combination of Task and
         Channel.
 
-        :param task: the Task the Form needs to operate on
-        :type task: Task
-        :param channel: the Channel the Form must be configured for
-        :type channel: Channel
+        :param task:
+            the Task or UID of a Task that the Form needs to operate on
+        :type task: Task/str
+        :param channel:
+            the Channel or UID of a Channel that the Form must be configured
+            for
+        :type channel: Channel/str
         :param user: the User who should have access to the desired Form
         :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: Form
         """
+
+        if not isinstance(task, Task):
+            task = Task.get_implementation().get_by_uid(task)
+            if not task:
+                 return None
 
         forms = cls.find(
             channel=channel,
@@ -205,6 +214,17 @@ class Form(
         """
 
         raise NotImplementedError()
+
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('form', package_name='forms')
 
     def __init__(self, uid, channel, instrument_version, configuration):
         self._uid = to_unicode(uid)
@@ -309,6 +329,46 @@ class Form(
     def configuration_yaml(self, value):
         self.configuration = AnyVal().parse(value)
 
+    @property
+    def adapted_configuration(self):
+        """
+        The Web Form Configuration of this Form, as modified by the
+        PresentationAdaptors configured for the Channel associated with this
+        Form. Read only.
+
+        :rtype: dict
+        """
+
+        return PresentationAdaptor.adapt_form(
+            self.channel,
+            self.instrument_version.definition,
+            self.configuration,
+        )
+
+    @property
+    def adapted_configuration_json(self):
+        """
+        The Web Form Configuration of this Form, as modified by the
+        PresentationAdaptors configured for the Channel associated with this
+        Form. Read only.
+
+        :rtype: JSON-encoded string
+        """
+
+        return dump_form_json(self.adapted_configuration)
+
+    @property
+    def adapted_configuration_yaml(self):
+        """
+        The Web Form Configuration of this Form, as modified by the
+        PresentationAdaptors configured for the Channel associated with this
+        Form. Read only.
+
+        :rtype: YAML-encoded string
+        """
+
+        return dump_form_yaml(self.adapted_configuration)
+
     def validate(self, instrument_definition=None):
         """
         Validates that this Form is a legal Web Form Configuration.
@@ -347,7 +407,6 @@ class Form(
 
         raise NotImplementedError()
 
-    # pylint: disable=W0221
     def get_display_name(self, locale=None):
         """
         Returns a unicode string that represents this Form, suitable for use

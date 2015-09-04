@@ -1,6 +1,6 @@
 {
   "name": "rex-forms",
-  "version": "0.31.0",
+  "version": "1.0.0",
   "main": "lib/index.js",
   "rex": {
     "loaders": [

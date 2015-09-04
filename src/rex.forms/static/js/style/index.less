@@ -348,6 +348,11 @@
   font-style: italic;
 }
 
+.rex-forms-radioGroup__input,
+.rex-forms-checkGroup__input {
+  display: inline-block;
+}
+
 .rex-forms-radioGroup__hotkey,
 .rex-forms-checkGroup__hotkey {
   margin-right: 8px;
@@ -365,6 +370,62 @@
 
     &::after {
       content: ' ]';
+    }
+  }
+}
+
+.rex-forms-radioGroup {
+  &.rex-forms-radioGroup--horizontal {
+    .rex-forms-radioGroup__container {
+      display: flex;
+    }
+
+    .rex-forms-radioGroup__option {
+      flex-grow: 1;
+      margin-left: 0;
+      margin-right: 0;
+
+      label {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .rex-forms-radioGroup__input {
+        cursor: pointer;
+
+        input {
+          margin-left: 0;
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+.rex-forms-checkGroup {
+  &.rex-forms-checkGroup--horizontal {
+    display: flex;
+
+    .rex-forms-checkGroup__option {
+      flex-grow: 1;
+      margin-left: 0;
+      margin-right: 0;
+
+      label {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .rex-forms-checkGroup__input {
+        cursor: pointer;
+
+        input {
+          margin-left: 0;
+          margin-right: 0;
+        }
+      }
     }
   }
 }
@@ -417,6 +478,10 @@
 .rex-forms-matrix {
   display: table;
   width: 100%;
+
+  & > div:first-child {
+    display: table-caption;
+  }
 }
 
 .rex-forms-matrixRow,
@@ -449,6 +514,12 @@
 .rex-forms-matrixHeaderRow__cell {
   display: table-cell;
   vertical-align: top;
+
+  .rex-forms-matrixRow__choices1 & { width: 85%; }
+  .rex-forms-matrixRow__choices2 & { width: 43%; }
+  .rex-forms-matrixRow__choices3 & { width: 28%; }
+  .rex-forms-matrixRow__choices4 & { width: 21%; }
+  .rex-forms-matrixRow__choices5 & { width: 17%; }
 }
 
 .rex-forms-matrixRow__label {

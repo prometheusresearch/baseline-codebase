@@ -3,15 +3,17 @@
 #
 
 
-from rex.core import Setting, RecordVal, StrVal, IntVal, BoolVal
+from rex.core import Setting, RecordVal, StrVal, BoolVal, MapVal, SeqVal, \
+    ChoiceVal
 
-from .interface import Form, DraftForm
+from .interface import Form, DraftForm, PresentationAdaptor
 
 
 __all__ = (
     'FormsImplementationSetting',
     'FormsValidateOnStartupSetting',
     'FormsLocalResourcePrefixSetting',
+    'FormsPresentationAdaptorsSetting',
 )
 
 
@@ -34,6 +36,7 @@ class FormsImplementationSetting(Setting):
         DraftForm,
     )
 
+    #:
     name = 'forms_implementation'
 
     def default(self):
@@ -75,6 +78,7 @@ class FormsValidateOnStartupSetting(Setting):
         forms_validate_on_startup: false
     """
 
+    #:
     name = 'forms_validate_on_startup'
     validate = BoolVal()
     default = True
@@ -94,4 +98,29 @@ class FormsLocalResourcePrefixSetting(Setting):
     name = 'forms_local_resource_prefix'
     validate = StrVal()
     default = None
+
+
+class FormsPresentationAdaptorsSetting(Setting):
+    """
+    A mapping that maps Channel UIDs to a list of PresentationAdaptors to
+    use on the Form configuration before displaying to the user.
+
+    Example::
+
+        forms_presentation_adaptors:
+            entry:
+                - some-adaptor
+                - another-adaptor
+            survey:
+                - foo-adaptor
+    """
+
+    #:
+    name = 'forms_presentation_adaptors'
+    default = {}
+
+    def validate(self, data):  # pylint: disable=no-self-use
+        adaptors = PresentationAdaptor.mapped().keys()
+        validator = MapVal(StrVal(), SeqVal(ChoiceVal(adaptors)))
+        return validator(data)
 

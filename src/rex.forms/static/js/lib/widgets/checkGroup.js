@@ -4,17 +4,18 @@
 'use strict';
 
 var React                  = require('react');
-var EnumerationWidgetMixin = require('./EnumerationWidgetMixin');
+var cx                     = React.addons.classSet;
+var HotkeyEnumerationWidgetMixin = require('./HotkeyEnumerationWidgetMixin');
 var ItemLabel              = require('./ItemLabel');
 var ensureInView           = require('../utils').ensureInView;
 
 var checkGroup = React.createClass({
-  mixins: [EnumerationWidgetMixin],
-
-  className: 'rex-forms-checkGroup',
+  mixins: [
+    HotkeyEnumerationWidgetMixin
+  ],
 
   onChangeCheck: function(e) {
-    var nextValue = this.getValue().slice(0);
+    var nextValue = (this.getValue() || []).slice(0);
 
     if (e.target.checked) {
       nextValue.push(e.target.value);
@@ -32,6 +33,26 @@ var checkGroup = React.createClass({
     ensureInView(this.getDOMNode());
   },
 
+  onHotkey: function (enumeration) {
+    var nextValue = (this.getValue() || []).slice(0);
+
+    var idx = nextValue.indexOf(enumeration.id);
+    if (idx === -1) {
+      nextValue.push(enumeration.id);
+    } else {
+      nextValue.splice(idx, 1);
+    }
+
+    this.onChange(nextValue);
+  },
+
+  onKeyDown: function(e) {
+    if (e.key === 'Tab') {
+      e.stopPropagation();
+      this.next();
+    }
+  },
+
   /**
    * Render enumeration descriptor
    *
@@ -40,18 +61,27 @@ var checkGroup = React.createClass({
   renderEnumeration: function(enumeration) {
     var value = this.getValue();
     var checked = value && value.indexOf(enumeration.id) >= 0;
+    var hotkey = String.fromCharCode(this.hotkeyForEnumeration(enumeration));
     return (
       <div className="rex-forms-checkGroup__option" key={enumeration.id}>
         <label>
-          <input
-            checked={checked}
-            disabled={this.props.disabled}
-            type="checkbox"
-            name={this.getInputName()}
-            onChange={this.onChangeCheck}
-            value={enumeration.id}
-            onFocus={this.onFocusCheck}
-            />
+          <div className="rex-forms-checkGroup__input">
+            <input
+              checked={checked}
+              disabled={this.props.disabled}
+              type="checkbox"
+              name={this.getInputName()}
+              onChange={this.onChangeCheck}
+              value={enumeration.id}
+              onFocus={this.onFocusCheck}
+              />
+          </div>
+          {this.hotkeysEnabled() &&
+            <ItemLabel
+              label={hotkey}
+              className="rex-forms-checkGroup__hotkey"
+              />
+          }
           <ItemLabel
             className="rex-forms-checkGroup__optionLabel"
             label={enumeration.text}
@@ -64,8 +94,17 @@ var checkGroup = React.createClass({
   },
 
   renderInput: function() {
+    var classes = cx({
+      'rex-forms-checkGroup': true,
+      'rex-forms-checkGroup--horizontal': this.getWidgetOptions().orientation === 'horizontal'
+    });
+
     return (
-      <div>
+      <div
+        tabIndex={0}
+        onKeyPress={this.onKeyPress}
+        onKeyDown={this.onKeyDown}
+        className={classes}>
         {this.getEnumerations().map(this.renderEnumeration)}
       </div>
     );

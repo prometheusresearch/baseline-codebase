@@ -20,12 +20,8 @@ var readOnlyAnnotation   = require('./readOnlyAnnotation');
 var readOnlyExplanation  = require('./readOnlyExplanation');
 var readOnlyRecordList   = require('./readOnlyRecordList');
 var readOnlyMatrix       = require('./readOnlyMatrix');
-var entry                = require('./entry');
 
 var defaultWidgetMap = {
-  entryRadioGroup: entry.radioGroup,
-  entryCheckGroup: entry.checkGroup,
-
   explanation,
   annotation,
 
@@ -34,7 +30,9 @@ var defaultWidgetMap = {
   textArea,
 
   radioGroup,
+  entryRadioGroup: radioGroup,
   checkGroup,
+  entryCheckGroup: checkGroup,
   dropDown,
 
   datePicker: inputDateTime,

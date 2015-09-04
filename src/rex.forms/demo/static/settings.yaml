@@ -2,6 +2,10 @@ forms_implementation:
   form: rex.forms_demo.DemoForm
   draftform: rex.forms_demo.DemoDraftForm
 
+forms_presentation_adaptors:
+  chan135:
+    - demo
+
 db: pgsql:forms_demo
 
 htsql_extensions:

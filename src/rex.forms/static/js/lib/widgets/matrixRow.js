@@ -22,15 +22,17 @@ var matrixRow = React.createClass({
   ],
 
   render: function() {
-    var className = cx({
+    var classes = {
       'rex-forms-matrixRow': true,
       'rex-forms-matrixRow__required': this.value().schema.props.required
-    });
+    };
+    classes['rex-forms-matrixRow__choices' + this.props.questions.length] = true;
+    classes = cx(classes)
 
     return (
-      <div className={className}>
+      <div className={classes}>
         <ItemLabel
-          className="rex-forms-matrixRow__cell rex-forms-matrixRow__label"
+          className="rex-forms-matrixRow__label"
           label={this.props.row.text}
           help={this.props.row.help}
           audio={this.props.row.audio}
@@ -44,7 +46,6 @@ var matrixRow = React.createClass({
   renderCells: function() {
     // prevent circular import
     var Question = require('../elements').Question;
-    var style = {width: `${100 / (this.props.questions.length + 1)}%`};
 
     var events = this.formEvents();
     var localValue = this.value();
@@ -55,7 +56,7 @@ var matrixRow = React.createClass({
       var hidden = events.isHidden(question.fieldId, localValue);
 
       return (
-        <div key={idx} style={style} className="rex-forms-matrixRow__cell">
+        <div key={idx} className="rex-forms-matrixRow__cell">
           <Question
             readOnly={this.props.readOnly}
             ref={question.fieldId}

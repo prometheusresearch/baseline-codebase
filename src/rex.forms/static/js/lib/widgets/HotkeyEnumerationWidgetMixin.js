@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var EnumerationWidgetMixin = require('../EnumerationWidgetMixin');
+var EnumerationWidgetMixin = require('./EnumerationWidgetMixin');
 
 
 var ALLOWED_HOTKEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
@@ -28,36 +28,39 @@ var HotkeyEnumerationWidgetMixin = {
   },
 
   establishHotkeys: function (props) {
-    var config = this.getWidgetOptions(props).hotkeys || {};
+    var widgetConfig = this.getWidgetOptions(props);
+    var config = widgetConfig.hotkeys || {};
     var enumerations = this.getEnumerations(true);
     var hotkeys = {};
 
-    var defaults = ALLOWED_HOTKEYS.slice().filter((defaultHotkey) => {
-      // Remove from the list of defaults any hotkeys that have been
-      // configured for use on a specific enumeration.
-      var keys = Object.keys(config);
-      for (var i = 0; i < keys.length; i++) {
-        if (String(config[keys[i]]) === defaultHotkey) {
-          return false;
+    if (widgetConfig.autoHotkeys || (Object.keys(config).length > 0)) {
+      var defaults = ALLOWED_HOTKEYS.slice().filter((defaultHotkey) => {
+        // Remove from the list of defaults any hotkeys that have been
+        // configured for use on a specific enumeration.
+        var keys = Object.keys(config);
+        for (var i = 0; i < keys.length; i++) {
+          if (String(config[keys[i]]) === defaultHotkey) {
+            return false;
+          }
         }
-      }
-      return true;
-    });
+        return true;
+      });
 
-    enumerations.forEach((enumeration) => {
-      var hotkey;
+      enumerations.forEach((enumeration) => {
+        var hotkey;
 
-      if (config[enumeration.id] !== undefined) {
-        hotkey = String(config[enumeration.id]);
-        if (ALLOWED_HOTKEYS.indexOf(hotkey) < 0) {
+        if (config[enumeration.id] !== undefined) {
+          hotkey = String(config[enumeration.id]);
+          if (ALLOWED_HOTKEYS.indexOf(hotkey) < 0) {
+            hotkey = defaults.shift();
+          }
+        } else {
           hotkey = defaults.shift();
         }
-      } else {
-        hotkey = defaults.shift();
-      }
 
-      hotkeys[enumeration.id] = hotkey ? hotkey.charCodeAt(0) : undefined;
-    });
+        hotkeys[enumeration.id] = hotkey ? hotkey.charCodeAt(0) : undefined;
+      });
+    }
 
     this.setState({
       hotkeys: hotkeys
@@ -65,7 +68,8 @@ var HotkeyEnumerationWidgetMixin = {
   },
 
   hotkeysEnabled: function () {
-    return Object.keys(this.state.hotkeys).length <= 10;
+    var numHotkeys = Object.keys(this.state.hotkeys).length;
+    return ((numHotkeys > 0) && (numHotkeys <= 10));
   },
 
   hotkeyForEnumeration: function (enumeration) {

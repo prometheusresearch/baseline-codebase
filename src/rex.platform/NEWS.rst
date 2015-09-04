@@ -5,6 +5,17 @@
 .. contents:: Table of Contents
 
 
+4.9.0 (2015-xx-xx)
+==================
+
+* rex.ctl==2.0.2
+* rex.instrument==1.0.0
+* rex.forms==1.0.0
+* rex.logging==1.0.0
+* rex.restful==1.0.0
+* rex.urlmap==2.6.2
+
+
 4.8.0 (2015-09-03)
 ==================
 

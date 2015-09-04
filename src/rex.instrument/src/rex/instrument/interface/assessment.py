@@ -262,6 +262,17 @@ class Assessment(
 
         raise NotImplementedError()
 
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('assessment')
+
     def __init__(
             self,
             uid,
@@ -354,7 +365,7 @@ class Assessment(
                     value,
                 )
             )
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._evaluation_date = value
 
     @property
@@ -375,7 +386,7 @@ class Assessment(
                     value,
                 )
             )
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._status = value
 
     @property
@@ -494,7 +505,6 @@ class Assessment(
             version=version,
         )
 
-    # pylint: disable=W0613
     def complete(self, user):
         """
         Marks the Assessment as complete and performs a validation of the
@@ -505,6 +515,8 @@ class Assessment(
         :raises:
             ValidationError if the document failed its validation
         """
+
+        # pylint: disable=unused-argument
 
         if self.status != Assessment.STATUS_COMPLETE:
             self.status = Assessment.STATUS_COMPLETE

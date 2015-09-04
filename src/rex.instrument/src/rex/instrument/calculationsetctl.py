@@ -5,22 +5,22 @@
 import sys
 
 from rex.core import Error, AnyVal
-from rex.ctl import Task, RexTask, argument, option, fail
+from rex.ctl import Task, RexTask, argument, option
 
 from .errors import ValidationError
 from .interface import CalculationSet
 from .output import dump_calculationset_json, dump_calculationset_yaml
 from .util import get_implementation
-from .ctl import open_and_validate as open_and_validate_instrument, \
-    ImplementationContextReceiver
+from .ctl import ImplementationContextReceiver
 
 
 __all__ = (
     'CalculationSetValidateTask',
     'CalculationSetFormatTask',
-    'CalculationetRetrieveTask'
+    'CalculationSetRetrieveTask',
     'CalculationSetStoreTask',
 )
+
 
 def open_and_validate(
         filename,
@@ -51,7 +51,7 @@ def open_and_validate(
         CalculationSet.validate_definition(
             definition,
             instrument_definition=instrument_definition,
-            )
+        )
     except ValidationError as exc:
         raise Error(exc.message)
 
@@ -62,8 +62,8 @@ class CalculationSetValidateTask(Task):
     """
     validate a Common CalculationSet Definition
 
-    The calculationset-validate task will validate the structure and content of the
-    Common CalculationSet Definition in a file and report back if
+    The calculationset-validate task will validate the structure and content of
+    the Common CalculationSet Definition in a file and report back if
     any errors are found.
 
     The definition is the path to the file containing the Common CalculationSet
@@ -162,8 +162,8 @@ class CalculationSetFormatTask(RexTask, CalculationSetOutputter):
     """
     render a Common CalculationSet Definition into various formats
 
-    The calculationset-format task will take an input Common CalculationSet Definition
-    file and output it as either JSON or YAML.
+    The calculationset-format task will take an input Common CalculationSet
+    Definition file and output it as either JSON or YAML.
 
     The definition is the path to the file containing the Common CalculationSet
     Definition to format.
@@ -183,8 +183,8 @@ class CalculationSetStoreTask(RexTask, ImplementationContextReceiver):
     """
     stores an CalculationSet in the data store
 
-    The calculationset-store task will write a Common CalculationSet Definition file to
-    an CalculationSet in the project's data store.
+    The calculationset-store task will write a Common CalculationSet Definition
+    file to an CalculationSet in the project's data store.
 
     The instrument-uid argument is the UID of the desired Instrument to use in
     the data store. If the UID does not already exist the task fails.
@@ -256,7 +256,7 @@ class CalculationSetStoreTask(RexTask, ImplementationContextReceiver):
                 print 'Created new CalculationSet'
 
 
-class CalculationetRetrieveTask(RexTask, CalculationSetOutputter):
+class CalculationSetRetrieveTask(RexTask, CalculationSetOutputter):
     """
     retrieves an CalculationSet from the datastore
 

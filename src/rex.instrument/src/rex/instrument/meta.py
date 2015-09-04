@@ -3,7 +3,7 @@
 #
 
 
-from .util import to_unicode, package_version
+from .util import package_version
 
 
 __all__ = (

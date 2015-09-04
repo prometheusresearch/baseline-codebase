@@ -7,7 +7,7 @@ from rex.core import Setting, RecordVal, StrVal, BoolVal, IntVal, SeqVal
 
 from .interface import User, Subject, Instrument, InstrumentVersion, \
     Assessment, DraftInstrumentVersion, Channel, Task, Entry, \
-    CalculationSet, ResultSet, CalculationScopeAddon
+    CalculationSet, ResultSet, DraftCalculationSet
 
 
 __all__ = (
@@ -41,6 +41,7 @@ class InstrumentImplementationSetting(Setting):
       * entry
       * calculationset
       * resultset
+      * draftcalculationset
     """
 
     ALLOWED_INTERFACES = (
@@ -54,7 +55,8 @@ class InstrumentImplementationSetting(Setting):
         Task,
         Entry,
         CalculationSet,
-        ResultSet
+        ResultSet,
+        DraftCalculationSet,
     )
 
     name = 'instrument_implementation'

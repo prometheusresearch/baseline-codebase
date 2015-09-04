@@ -18,9 +18,6 @@ __all__ = (
 )
 
 
-# pylint: disable=E1101
-
-
 class Comparable(object):
     """
     Provides all of the rich comparison methods that allow Interface objects
@@ -163,6 +160,8 @@ class ImplementationContextable(object):
         :type action: str; one of ``create`` or ``save``
         :rtype: dict
         """
+
+        # pylint: disable=unused-argument
 
         return {}  # pragma: no cover
 

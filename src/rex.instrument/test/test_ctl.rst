@@ -353,8 +353,8 @@ against the Common CalculationSet Definition::
     CALCULATIONSET-VALIDATE - validate a Common CalculationSet Definition
     Usage: rex calculationset-validate <definition>
     <BLANKLINE>
-    The calculationset-validate task will validate the structure and content of the
-    Common CalculationSet Definition in a file and report back if
+    The calculationset-validate task will validate the structure and content of
+    the Common CalculationSet Definition in a file and report back if
     any errors are found.
     <BLANKLINE>
     The definition is the path to the file containing the Common CalculationSet
@@ -444,8 +444,8 @@ way specified::
     CALCULATIONSET-FORMAT - render a Common CalculationSet Definition into various formats
     Usage: rex calculationset-format [<project>] <definition>
     <BLANKLINE>
-    The calculationset-format task will take an input Common CalculationSet Definition
-    file and output it as either JSON or YAML.
+    The calculationset-format task will take an input Common CalculationSet
+    Definition file and output it as either JSON or YAML.
     <BLANKLINE>
     The definition is the path to the file containing the Common CalculationSet
     Definition to format.
@@ -696,8 +696,8 @@ to an InstrumentVersion in the project data store::
     CALCULATIONSET-STORE - stores an CalculationSet in the data store
     Usage: rex calculationset-store [<project>] <instrument-uid> <definition>
     <BLANKLINE>
-    The calculationset-store task will write a Common CalculationSet Definition file to
-    an CalculationSet in the project's data store.
+    The calculationset-store task will write a Common CalculationSet Definition
+    file to an CalculationSet in the project's data store.
     <BLANKLINE>
     The instrument-uid argument is the UID of the desired Instrument to use in
     the data store. If the UID does not already exist the task fails.

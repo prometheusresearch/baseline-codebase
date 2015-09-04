@@ -90,6 +90,17 @@ class User(Extension, Comparable, Displayable, Dictable):
 
         raise NotImplementedError()
 
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('user')
+
     def __init__(self, uid, login):
         self._uid = to_unicode(uid)
         self._login = to_unicode(login)

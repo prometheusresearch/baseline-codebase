@@ -6,7 +6,7 @@
 from rex.core import Extension
 
 from ..mixins import Comparable, Displayable, Dictable
-from ..util import to_unicode
+from ..util import to_unicode, get_implementation
 
 
 __all__ = (
@@ -81,6 +81,17 @@ class Channel(Extension, Comparable, Displayable, Dictable):
         """
 
         raise NotImplementedError()
+
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('channel')
 
     def __init__(self, uid, title, presentation_type):
         self._uid = to_unicode(uid)

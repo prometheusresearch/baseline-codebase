@@ -26,8 +26,7 @@ class InterfaceCache(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.off()
 
-    # pylint: disable=C0103
-    def on(self):
+    def on(self):  # pylint: disable=invalid-name
         """
         Allows you to activate the cache context without the use of ``with``.
 
@@ -50,13 +49,13 @@ class InterfaceCache(object):
         if _LOCAL.acquire_orm_cache_depth == 0:
             self._reset_cache()
 
-    # pylint: disable=R0201
     def _reset_cache(self):
+        # pylint: disable=no-self-use
         _LOCAL.acquire_orm_cache = defaultdict(dict)
 
-    # pylint: disable=R0201
     @property
     def _cache(self):
+        # pylint: disable=no-self-use
         return _LOCAL.acquire_orm_cache
 
     def get(self, bucket, key):

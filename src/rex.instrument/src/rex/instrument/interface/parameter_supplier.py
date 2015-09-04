@@ -67,8 +67,8 @@ class ParameterSupplier(Extension):
 
     def get_parameters(self, task):
         """
-        Retrieves parameters that should be given to the Task's Form/Interaction
-        upon initialization.
+        Retrieves parameters that should be given to the Task's
+        Form/Interaction upon initialization.
 
         Must be implemented by concrete classes.
 

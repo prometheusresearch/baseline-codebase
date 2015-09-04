@@ -88,6 +88,9 @@
       type: datetime
     - column: definition
       type: text
+    - column: calculation_json
+      type: json
+      required: false
     - data: ./deploy/draftinstrumentversion.csv
 
 - table: channel

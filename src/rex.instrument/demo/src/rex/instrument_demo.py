@@ -712,3 +712,52 @@ class DemoResultSet(ResultSet):
             results
         )
 
+
+class DemoDraftCalculationSet(DraftCalculationSet):
+    @classmethod
+    def get_by_uid(cls, uid, user=None):
+        db = get_db()
+        with db:
+            data = db.produce('/draftinstrumentversion?id()=$uid&!is_null(calculation_json)', uid=uid)
+        if not data:
+            return None
+        return cls(
+            data[0].uid,
+            DemoDraftInstrumentVersion.get_by_uid(data[0].uid),
+            data[0].calculation_json,
+        )
+
+    @classmethod
+    def find(cls, offset=0, limit=None, user=None, **search_criteria):
+        db = get_db()
+        with db:
+            params = {
+                'draftinstrumentversion': safe_uid(DemoDraftInstrumentVersion, search_criteria.get('draft_instrument_version')),
+            }
+            data = db.produce(
+                '/draftinstrumentversion.sort(uid).guard($draftinstrumentversion, filter(uid=$draftinstrumentversion)).filter(!is_null(calculation_json))',
+                **params
+            )
+        return [
+           cls(
+                d.uid,
+                DemoDraftInstrumentVersion.get_by_uid(d.uid),
+                d.calculation_json,
+            )
+            for d in data
+        ]
+
+    @classmethod
+    def create(cls, draft_instrument_version, definition=None, implementation_context=None):
+        return cls(
+            'fake_draftcalculationset_1',
+            draft_instrument_version,
+            definition,
+        )
+
+    def save(self, implementation_context=None):
+        print '### SAVED DRAFTCALCULATIONSET ' + self.uid
+
+    def delete(self):
+        print '### DELETED DRAFTCALCULATIONSET ' + self.uid
+

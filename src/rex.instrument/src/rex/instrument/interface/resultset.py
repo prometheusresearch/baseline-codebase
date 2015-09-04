@@ -107,6 +107,17 @@ class ResultSet(
 
         raise NotImplementedError()
 
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('resultset')
+
     def __init__(
             self,
             uid,

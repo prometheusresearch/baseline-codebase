@@ -6,7 +6,7 @@
 from rex.core import Extension
 
 from ..mixins import *
-from ..util import to_unicode
+from ..util import to_unicode, get_implementation
 
 
 __all__ = (
@@ -101,6 +101,17 @@ class Subject(
         """
 
         raise NotImplementedError()
+
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('subject')
 
     def __init__(self, uid, mobile_tn=None):
         self._uid = to_unicode(uid)

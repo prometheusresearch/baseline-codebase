@@ -65,10 +65,10 @@ and string-rendering methods::
     "CalculationSet(u'fake123', InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
 
     >>> calculationset.as_dict()
-    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'sirius', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2015, 6, 9, 0, 0)}, 'uid': u'fake123', 'calculations': None}
+    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'sirius', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2015, 6, 9, 0, 0)}, 'uid': u'fake123'}
     
     >>> calculationset.as_json()
-    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "sirius", "version": 1, "uid": "notreal456", "date_published": "2015-06-09T00:00:00"}, "uid": "fake123", "calculations": null}'
+    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "sirius", "version": 1, "uid": "notreal456", "date_published": "2015-06-09T00:00:00"}, "uid": "fake123"}'
 
 
 The InstrumentVersions passed to the constructor must actually be

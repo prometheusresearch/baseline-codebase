@@ -17,6 +17,7 @@ from .calculationscope import *
 from .calculationset import *
 from .resultset import *
 from .calculationmethod import *
+from .draftcalculationset import *
 
 
 __all__ = (
@@ -35,5 +36,6 @@ __all__ = (
     'ResultSet',
     'CalculationScopeAddon',
     'CalculationMethod',
+    'DraftCalculationSet',
 )
 

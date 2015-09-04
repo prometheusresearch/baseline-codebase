@@ -259,6 +259,17 @@ class InstrumentVersion(
 
         raise NotImplementedError()
 
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('instrumentversion')
+
     def __init__(
             self,
             uid,
@@ -373,7 +384,7 @@ class InstrumentVersion(
 
     @published_by.setter
     def published_by(self, value):
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._published_by = to_unicode(value)
 
     @property
@@ -395,7 +406,7 @@ class InstrumentVersion(
                 )
             )
 
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._date_published = value
 
     def validate(self):

@@ -25,9 +25,6 @@ __all__ = (
 )
 
 
-# pylint: disable=E1101,C0103
-
-
 def open_and_validate(filename):
     try:
         definition = open(filename, 'r').read()
@@ -216,7 +213,7 @@ class ImplementationContextReceiver(object):
         context = {}
         received = dict(self.context)
         spec = impl.get_implementation_context(action)
-        for name, cfg in spec.items():
+        for name, _ in spec.items():
             if name in received:
                 context[name] = received[name]
         return context

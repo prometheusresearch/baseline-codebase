@@ -135,16 +135,15 @@ def _get_record_discrepancies(field, entries):
             return records[record_index][name]['value']
         return None
 
-    # pylint: disable=W0640
     for record_index in range(num_records):
         for subfield in field['type']['record']:
             subfield_discrepancies = _get_simple_discrepancies(
                 subfield,
                 entries,
-                accessor=lambda entry, name: accessor(
+                accessor=lambda entry, name, idx=record_index: accessor(
                     entry,
                     name,
-                    record_index,
+                    idx,
                 ),
             )
             if subfield_discrepancies:
@@ -163,13 +162,17 @@ def _get_matrix_discrepancies(field, entries):
         rows = entry.data['values'][field['id']]['value']
         return rows[row_id][name]['value'] if rows else None
 
-    # pylint: disable=W0640
     for row in field['type']['rows']:
         for column in field['type']['columns']:
+            # pylint: disable=cell-var-from-loop
             cell_discrepancies = _get_simple_discrepancies(
                 column,
                 entries,
-                accessor=lambda entry, name: accessor(entry, name, row['id']),
+                accessor=lambda entry, name, idx=row['id']: accessor(
+                    entry,
+                    name,
+                    idx,
+                ),
             )
             if cell_discrepancies:
                 if row['id'] not in discrepancies:
@@ -342,7 +345,6 @@ def _solve_record_discrepancy(field, entries, reconciled_discrepancy):
             return records[record_index][name]
         return {}
 
-    # pylint: disable=W0640
     for record_index in range(num_records):
         record_solution = {}
         sub_rec_disc = reconciled_discrepancy.get(str(record_index), {})
@@ -351,10 +353,10 @@ def _solve_record_discrepancy(field, entries, reconciled_discrepancy):
                 subfield,
                 entries,
                 sub_rec_disc.get(subfield['id']),
-                accessor=lambda entry, name: accessor(
+                accessor=lambda entry, name, idx=record_index: accessor(
                     entry,
                     name,
-                    record_index,
+                    idx,
                 ),
                 has_override=(subfield['id'] in sub_rec_disc),
             )
@@ -373,16 +375,20 @@ def _solve_matrix_discrepancy(field, entries, reconciled_discrepancy):
         rows = entry.data['values'][field['id']]['value']
         return rows[row_id][name] if rows else {}
 
-    # pylint: disable=W0640
     for row in field['type']['rows']:
         row_solution = {}
         sub_rec_disc = reconciled_discrepancy.get(row['id'], {})
         for column in field['type']['columns']:
+            # pylint: disable=cell-var-from-loop
             solved = _solve_simple_discrepancy(
                 column,
                 entries,
                 sub_rec_disc.get(column['id']),
-                accessor=lambda entry, name: accessor(entry, name, row['id']),
+                accessor=lambda entry, name, idx=row['id']: accessor(
+                    entry,
+                    name,
+                    idx,
+                ),
                 has_override=(column['id'] in sub_rec_disc),
             )
             if solved is not None:

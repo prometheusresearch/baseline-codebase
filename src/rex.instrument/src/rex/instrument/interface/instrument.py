@@ -122,6 +122,17 @@ class Instrument(
 
         raise NotImplementedError()
 
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('instrument')
+
     def __init__(self, uid, code, title, status=None):
         self._uid = to_unicode(uid)
         self._code = to_unicode(code)
@@ -162,7 +173,7 @@ class Instrument(
 
     @title.setter
     def title(self, value):
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._title = to_unicode(value)
 
     @property
@@ -183,7 +194,7 @@ class Instrument(
                     value,
                 )
             )
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._status = value
 
     def get_version(self, version):

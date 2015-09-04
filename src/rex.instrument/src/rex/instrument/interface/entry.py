@@ -24,7 +24,6 @@ __all__ = (
 )
 
 
-# pylint: disable=R0902,R0904
 class Entry(
         Extension,
         Comparable,
@@ -218,7 +217,18 @@ class Entry(
 
         raise NotImplementedError()
 
-    # pylint: disable=R0913
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('entry')
+
+    # pylint: disable=too-many-arguments
     def __init__(
             self,
             uid,
@@ -322,7 +332,7 @@ class Entry(
 
     @modified_by.setter
     def modified_by(self, value):
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._modified_by = to_unicode(value)
 
     @property
@@ -344,7 +354,7 @@ class Entry(
                 )
             )
 
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._date_modified = value
 
     @property
@@ -366,7 +376,7 @@ class Entry(
                 )
             )
 
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._status = value
 
     @property
@@ -433,7 +443,7 @@ class Entry(
 
     @memo.setter
     def memo(self, value):
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._memo = to_unicode(value)
 
     def validate(self, instrument_definition=None):

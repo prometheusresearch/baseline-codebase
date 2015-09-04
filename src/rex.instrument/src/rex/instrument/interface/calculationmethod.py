@@ -207,38 +207,57 @@ class PythonCalculationMethod(CalculationMethod):
             assessment,
             previous_results,
             scope_additions):
+        # pylint: disable=no-self-use
+
         if '.' not in callable_opt:
-            raise InstrumentError("Unexpected callable %(callable)s:"
-                                  " module name is expected."
-                                  % {'callable': callable_opt})
+            raise InstrumentError(
+                'Unexpected callable %(callable)s: module name is'
+                ' expected.' % {
+                    'callable': callable_opt,
+                }
+            )
         callable_module_path, callable_obj_name = \
-                                    callable_opt.rsplit('.', 1)
+            callable_opt.rsplit('.', 1)
         try:
             callable_module = import_module(callable_module_path)
         except ImportError, exc:
-            raise InstrumentError("Unexpected callable %(callable)s:"
-                    " unable to import module %(module)s: %(exc)s."
-                    % {'callable': callable_opt,
-                       'module': callable_module_path,
-                       'exc': exc
-                      })
+            raise InstrumentError(
+                'Unexpected callable %(callable)s: unable to import module'
+                ' %(module)s: %(exc)s.' % {
+                    'callable': callable_opt,
+                    'module': callable_module_path,
+                    'exc': exc,
+                }
+            )
         try:
             callable_obj = getattr(callable_module, callable_obj_name)
         except AttributeError, exc:
-            raise InstrumentError("Unexpected callable %(callable)s: "
-                        "suitable callable object not found: %(exc)s"
-                        % {'callable': callable_opt, 'exc': exc})
+            raise InstrumentError(
+                'Unexpected callable %(callable)s: suitable callable object'
+                ' not found: %(exc)s' % {
+                    'callable': callable_opt,
+                    'exc': exc,
+                }
+            )
         if not callable(callable_obj):
-            raise InstrumentError("Unexpected callable option %(callable)s:"
-                    " %(name)s is not callable."
-                    % {'callable': callable_opt, 'name': callable_obj_name})
+            raise InstrumentError(
+                'Unexpected callable option %(callable)s: %(name)s is not'
+                ' callable.' % {
+                    'callable': callable_opt,
+                    'name': callable_obj_name,
+                }
+            )
 
         with global_scope(scope_additions):
             try:
                 result = callable_obj(assessment, previous_results)
             except Exception, exc:
-                raise InstrumentError("Execution of %(callable)s failed: %(exc)s"
-                                      % {'callable': callable_opt, 'exc': exc})
+                raise InstrumentError(
+                    'Execution of %(callable)s failed: %(exc)s' % {
+                        'callable': callable_opt,
+                        'exc': exc,
+                    }
+                )
 
         return result
 
@@ -248,6 +267,8 @@ class PythonCalculationMethod(CalculationMethod):
             assessment,
             previous_results,
             scope_additions):
+        # pylint: disable=no-self-use
+
         method_locals = scope_additions
         method_locals['assessment'] = assessment
         method_locals['calculations'] = previous_results
@@ -259,17 +280,23 @@ class PythonCalculationMethod(CalculationMethod):
                 module = import_module(module_name)
                 method_locals[module_name] = module
             except ImportError, exc:
-                raise InstrumentError("Got unexpected module %(module)s"
-                    " from setting"
-                    " 'instrument_calculationmethod_default_module_list'"
-                    % {'module': module_name})
+                raise InstrumentError(
+                    'Got unexpected module %(module)s from setting'
+                    " 'instrument_calculationmethod_default_module_list'" % {
+                        'module': module_name,
+                    }
+                )
 
         try:
+            # pylint: disable=eval-used
             return eval(expression_opt, {}, method_locals)
         except Exception, exc:
             raise InstrumentError(
-                "Unable to calculate expression %(expr)s: %(exc)s"
-                % {'expr': expression_opt, 'exc': exc})
+                'Unable to calculate expression %(expr)s: %(exc)s' % {
+                    'expr': expression_opt,
+                    'exc': exc,
+                }
+            )
 
 
 class HtsqlCalculationMethod(CalculationMethod):

@@ -171,6 +171,17 @@ class Task(
 
         raise NotImplementedError()
 
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('task')
+
     def __init__(
             self,
             uid,
@@ -273,19 +284,16 @@ class Task(
         """
 
         if not self._num_required_entries:
-            # pylint: disable=E1101
             return get_settings().instrument_default_required_entries
         return self._num_required_entries
 
     @memoized_property
-    def facilitator(self):
+    def facilitator(self):  # pylint: disable=method-hidden
         """
         The User that facilitated this Task.
 
         :rtype: User
         """
-
-        # pylint: disable=E0202
 
         if isinstance(self._facilitator, basestring):
             user_impl = get_implementation('user')
@@ -302,7 +310,7 @@ class Task(
                 )
             )
 
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._facilitator = value
         forget_memoized_property(self, 'facilitator')
 
@@ -314,7 +322,6 @@ class Task(
         :rtype: datetime
         """
 
-        # pylint: disable=E0202
         return self._due_date
 
     @due_date.setter
@@ -326,7 +333,7 @@ class Task(
                 )
             )
 
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._due_date = value
 
     @property
@@ -347,7 +354,7 @@ class Task(
                     value,
                 )
             )
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._status = value
 
     @property
@@ -426,7 +433,6 @@ class Task(
                 )
             )
 
-        # pylint: disable=W0201
         self._assessment = value
         forget_memoized_property(self, 'assessment')
 

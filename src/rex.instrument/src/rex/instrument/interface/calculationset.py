@@ -29,32 +29,37 @@ __all__ = (
 def coerce_instrument_type(result, instrument_type):
     if result is None:
         return result
+
     if instrument_type == 'date':
         if isinstance(result, (datetime.datetime, datetime.date)):
             result = result.strftime('%Y-%m-%d')
-        elif not (isinstance(result, basestring)
-                  and re.match(r'^\d\d\d\d-\d\d-\d\d$', result)):
+        elif not isinstance(result, basestring) \
+                or not re.match(r'^\d\d\d\d-\d\d-\d\d$', result):
             raise ValidationError(
                 "Calculated unexpected result, date or dateTime is expected.")
+
     elif instrument_type == 'time':
         if isinstance(result, (datetime.datetime, datetime.time)):
             result = result.strftime('%H:%M:%S')
-        elif not (isinstance(result, basestring)
-                  and re.match(r'^\d\d:\d\d:\d\d$', result)):
+        elif not isinstance(result, basestring) \
+                or not re.match(r'^\d\d:\d\d:\d\d$', result):
             raise ValidationError(
                 "Calculated unexpected result, time is expected.")
+
     elif instrument_type == 'dateTime':
         if isinstance(result, datetime.datetime):
             result = result.strftime('%Y-%m-%dT%H:%M:%S')
-        elif not (isinstance(result, basestring)
-                  and re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$', result)):
+        elif not isinstance(result, basestring) \
+                or not re.match(r'^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$', result):
             raise ValidationError(
                 "Calculated unexpected result, dateTime is expected.")
+
     elif instrument_type == 'integer':
         if isinstance(result, basestring) and not result.isdigit():
             raise ValidationError(
                 "Calculated unexpected result, integer is expected.")
         result = int(result)
+
     elif instrument_type == 'float':
         if isinstance(result, basestring):
             try:
@@ -62,21 +67,31 @@ def coerce_instrument_type(result, instrument_type):
             except ValueError:
                 raise ValidationError(
                     "Calculated unexpected result, float is expected.")
+
     elif instrument_type in ('text', 'enumeration'):
         result = unicode(result)
+
     elif instrument_type == 'boolean':
         if isinstance(result, int):
-            if result == 0: return False
-            elif result == 1: return True
+            if result == 0:
+                return False
+            elif result == 1:
+                return True
             else:
                 raise ValidationError(
-                    "Calculated unexpected result. Boolean is expected.")
+                    "Calculated unexpected result. Boolean is expected."
+                )
+
         elif isinstance(result, basestring):
-            if result.lower() == 'false': return False
-            elif result.lower() == 'true': return True
+            if result.lower() == 'false':
+                return False
+            elif result.lower() == 'true':
+                return True
             else:
                 raise ValidationError(
-                    "Calculated unexpected result. Boolean is expected.")
+                    "Calculated unexpected result. Boolean is expected."
+                )
+
     return result
 
 
@@ -92,19 +107,19 @@ class CalculationSet(
 
     dict_properties = (
         'instrument_version',
-        'calculations',
     )
 
     @classmethod
     def validate_definition(cls, definition, instrument_definition=None):
         """
-        Validates that the specified definition is a legal Common CalculationSet
-        Definition.
+        Validates that the specified definition is a legal Common
+        CalculationSet Definition.
 
         :param definition: the CalculationSet definition to validate
         :type definition: dict or JSON/YAML string
         :param instrument_definition:
-            the Common Instrument Definition that the Form should be validated
+            the Common Instrument Definition that the definition should be
+            validated
             against
         :type instrument_definition: dict or JSON string
         :raises:
@@ -142,7 +157,10 @@ class CalculationSet(
                 )
 
         try:
-            validate_calculationset(definition, instrument=instrument_definition)
+            validate_calculationset(
+                definition,
+                instrument=instrument_definition,
+            )
         except PrismhValidationError as exc:
             msg = [
                 'The following problems were encountered when validating this'
@@ -188,13 +206,14 @@ class CalculationSet(
         Must be implemented by concrete classes.
 
         :param offset:
-            the offset in the list of CalculationSet to start the return set from
-            (useful for pagination purposes); if not specified, defaults to 0
+            the offset in the list of CalculationSet to start the return set
+            from (useful for pagination purposes); if not specified, defaults
+            to 0
         :type offset: int
         :param limit:
-            the maximum number of CalculationSet to return (useful for pagination
-            purposes); if not specified, defaults to ``None``, which means no
-            limit
+            the maximum number of CalculationSet to return (useful for
+            pagination purposes); if not specified, defaults to ``None``, which
+            means no limit
         :type limit: int
         :param user: the User who should have access to the desired Form
         :type user: User
@@ -233,6 +252,17 @@ class CalculationSet(
         """
 
         raise NotImplementedError()
+
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('calculationset')
 
     def __init__(
             self,

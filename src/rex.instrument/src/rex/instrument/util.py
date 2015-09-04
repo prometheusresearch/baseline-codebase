@@ -102,8 +102,7 @@ class RexJSONEncoder(json.JSONEncoder):
     * decimal.Decimal
     """
 
-    # pylint: disable=E0202
-    def default(self, obj):
+    def default(self, obj):  # pylint: disable=method-hidden
         if isinstance(obj, (date, time, datetime)):
             return obj.isoformat()
 
@@ -177,6 +176,7 @@ def forget_memoized_property(instance, name):
         delattr(instance, name)
 
 
+@cached
 def get_implementation(class_name, package_name='instrument'):
     """
     A convenience function for retrieving interface class implementations from

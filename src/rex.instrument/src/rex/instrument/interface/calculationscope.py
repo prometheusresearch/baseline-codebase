@@ -39,7 +39,8 @@ class CalculationScopeAddon(Extension):
     @classmethod
     def sanitize(cls):
         if cls.__name__ != 'CalculationScopeAddon':
-            assert cls.get_scope_value != CalculationScopeAddon.get_scope_value, \
+            assert \
+                cls.get_scope_value != CalculationScopeAddon.get_scope_value, \
                 'abstract method %s.get_scope_value()' % cls
 
     @classmethod

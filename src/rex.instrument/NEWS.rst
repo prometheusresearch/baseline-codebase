@@ -5,6 +5,17 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+1.0.0 (2015-xx-xx)
+==================
+
+* Finally, a major release!
+* Updated prismh.core dependency.
+* Added an interface class for DraftCalculationSet.
+* Removed erroneous ``calculations`` key from CalculationSet.as_dict().
+* Added a ``get_implementation()`` method to all Interface classes as a
+  convenience wrapper around the same function in the utils module.
+
+
 0.18.0 (2015-06-23)
 ===================
 

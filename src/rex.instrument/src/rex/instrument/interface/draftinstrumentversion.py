@@ -20,7 +20,6 @@ __all__ = (
 )
 
 
-# pylint: disable=R0902
 class DraftInstrumentVersion(
         Extension,
         Comparable,
@@ -154,6 +153,17 @@ class DraftInstrumentVersion(
         """
 
         raise NotImplementedError()
+
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('draftinstrumentversion')
 
     def __init__(
             self,
@@ -312,7 +322,7 @@ class DraftInstrumentVersion(
 
     @modified_by.setter
     def modified_by(self, value):
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._modified_by = to_unicode(value)
 
     @property
@@ -334,7 +344,7 @@ class DraftInstrumentVersion(
                 )
             )
 
-        # pylint: disable=W0201
+        # pylint: disable=attribute-defined-outside-init
         self._date_modified = value
 
     def modify(self, user):
@@ -409,6 +419,8 @@ class DraftInstrumentVersion(
             DataStoreError if there was an error writing to the datastore
         :returns: the InstrumentVersion that results from the publishing
         """
+
+        # pylint: disable=invalid-name
 
         latest = self.instrument.latest_version
         if latest:

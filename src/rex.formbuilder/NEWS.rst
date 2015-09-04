@@ -5,6 +5,35 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.3.0 (2015-xx-xx)
+==================
+
+* Updated instrument and forms dependencies.
+* Added a "back" button to configuration error modals.
+* The Published Revision list is now most-recent-first.
+* Rearranged the DraftSetEditor action buttons to follow a the typical
+  workflow.
+* The Element Property Editor modals now display the type of Element being
+  edited.
+* The Draft Revision list now has a button to initiate editing of the draft,
+  rather than clicking anywhere on the listing.
+* Fixed some issues around drag-selecting text in the Property Editors.
+* Fixed issues around displaying Elements in the DraftSetEditor that have
+  really long text labels.
+* Added support for defining hotkeys for enumeration questions.
+* Added support for the orientation display property of enumeration questions.
+* Added initial support for defining Events.
+* Added support for configuring the explanation/annotation field properties.
+* Added support for the widget size properties of text and numeric questions.
+* Added support for Audio elements and audio properties of questions and
+  enumerations.
+* Fixed field identifier validation to adhere to PRISMH spec.
+* Added support for configuring CalculationSet definitions as part of
+  DraftSets.
+* Improved loading time of the draft editor.
+* Added ability to configure Question Grids (aka, matrix fields).
+
+
 5.2.2 (2015-06-23)
 ==================
 

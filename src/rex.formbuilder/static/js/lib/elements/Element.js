@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var classSet = React.addons.classSet;
+var classNames = require('classnames');
 
 var SerializationContext = require('../SerializationContext');
 var {ParsingError} = require('../errors');
@@ -63,7 +63,7 @@ class Element extends SerializationContext {
           {
             name: 'tags',
             label: _('Tags'),
-            schema: properties.FieldIDList
+            schema: properties.TagList
           }
         ]
       }
@@ -89,7 +89,7 @@ class Element extends SerializationContext {
     if (this.getTypeID()) {
       classes['rfb-toolbox-component-' + this.getTypeID()] = true;
     }
-    classes = classSet(classes);
+    classes = classNames(classes);
 
     return (
       <div className={classes}>
@@ -112,12 +112,20 @@ class Element extends SerializationContext {
 
   getWorkspaceComponent() {
     return (
-      <div className='rfb-workspace-element-details'>
-        <div className='rfb-workspace-element-content'>
+      <div className='rfb-workspace-item-details'>
+        <div className='rfb-workspace-item-content'>
           <p>{this.constructor.getName()}</p>
         </div>
       </div>
     );
+  }
+
+  getEventTargets() {
+    return this.tags;
+  }
+
+  getTags() {
+    return this.tags;
   }
 
   checkValidity() {

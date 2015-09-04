@@ -6,29 +6,31 @@
 
 var React = require('react');
 
-var ElementGroup = require('./ElementGroup');
-var {ELEMENT_TYPES} = require('../elements');
+var Toolbox = require('./Toolbox');
+var ElementTool = require('./ElementTool');
+var {ELEMENT_TYPES, Element} = require('../elements');
+var _ = require('../i18n').gettext;
 
 
 var ElementToolbox = React.createClass({
-  buildGroups: function () {
-    return Object.keys(ELEMENT_TYPES).map((type, idx) => {
-      return (
-        <ElementGroup
-          key={idx}
-          type={ELEMENT_TYPES[type]}
-          />
-      );
-    });
-  },
-
   render: function () {
-    var groups = this.buildGroups();
+    var groups = [
+      {
+        id: ELEMENT_TYPES.TYPE_QUESTION,
+        label: _('Questions')
+      },
+      {
+        id: ELEMENT_TYPES.TYPE_CONTENT,
+        label: _('Page Content')
+      }
+    ];
 
     return (
-      <div className="rfb-element-toolbox">
-        {groups}
-      </div>
+      <Toolbox
+        groups={groups}
+        tools={Element.getRegisteredElements()}
+        toolComponent={ElementTool}
+        />
     );
   }
 });

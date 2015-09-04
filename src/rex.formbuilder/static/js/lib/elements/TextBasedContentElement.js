@@ -65,11 +65,11 @@ class TextBasedContentElement extends ContentElement {
 
   getWorkspaceComponent() {
     return (
-      <div className='rfb-workspace-element-details'>
-        <div className='rfb-workspace-element-icon'>
+      <div className='rfb-workspace-item-details'>
+        <div className='rfb-workspace-item-icon'>
           <span className='rfb-icon' />
         </div>
-        <div className='rfb-workspace-element-content'>
+        <div className='rfb-workspace-item-content'>
           <span>{this.text[getCurrentLocale()]}</span>
         </div>
       </div>

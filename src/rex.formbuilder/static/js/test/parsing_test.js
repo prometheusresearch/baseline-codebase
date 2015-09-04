@@ -484,7 +484,7 @@ describe('Individual Elements', function () {
   describe('CheckBoxGroup', function () {
     var INSTRUMENT = require('./definitions/parse-checkboxgroup-instrument.json');
     var FORM = require('./definitions/parse-checkboxgroup-form.json');
-    var LENGTH = 5;
+    var LENGTH = 9;
 
     var parser, cfg;
 
@@ -499,6 +499,7 @@ describe('Individual Elements', function () {
 
       expect(elm).to.be.instanceof(elements.Questions.CheckBoxGroup);
       expect(elm.id).to.equal('q_fake');
+      expect(elm.autoHotkeys).to.be.false;
       expect(elm.text).to.deep.equal({
         'en': 'Question Text'
       });
@@ -506,15 +507,19 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         },
         {
           'id': 'bar',
           'text': {
-            'en': 'bar',
+            'en': 'bar'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);
@@ -526,6 +531,7 @@ describe('Individual Elements', function () {
 
       expect(elm).to.be.instanceof(elements.Questions.CheckBoxGroup);
       expect(elm.id).to.equal('q_fake2');
+      expect(elm.autoHotkeys).to.be.false;
       expect(elm.text).to.deep.equal({
         'en': 'Question2 Text'
       });
@@ -533,15 +539,19 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         },
         {
           'id': 'bar',
           'text': {
-            'en': 'bar',
+            'en': 'bar'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);
@@ -553,6 +563,7 @@ describe('Individual Elements', function () {
 
       expect(elm).to.be.instanceof(elements.Questions.CheckBoxGroup);
       expect(elm.id).to.equal('q_fake3');
+      expect(elm.autoHotkeys).to.be.false;
       expect(elm.length).to.deep.equal({
         'min': 1
       });
@@ -563,15 +574,19 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         },
         {
           'id': 'bar',
           'text': {
-            'en': 'bar',
+            'en': 'bar'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);
@@ -583,6 +598,7 @@ describe('Individual Elements', function () {
 
       expect(elm).to.be.instanceof(elements.Questions.CheckBoxGroup);
       expect(elm.id).to.equal('q_fake4');
+      expect(elm.autoHotkeys).to.be.false;
       expect(elm.text).to.deep.equal({
         'en': 'Question4 Text'
       });
@@ -590,8 +606,10 @@ describe('Individual Elements', function () {
         {
           'id': 'bar',
           'text': {
-            'en': 'Bar?',
+            'en': 'Bar?'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {
             'en': 'This is help.'
           }
@@ -599,8 +617,142 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        }
+      ]);
+    });
+
+    it('parses hotkey config', function () {
+      expect(cfg.elements).to.have.length(LENGTH);
+      var elm = cfg.elements[5];
+
+      expect(elm).to.be.instanceof(elements.Questions.CheckBoxGroup);
+      expect(elm.id).to.equal('q_fake5');
+      expect(elm.autoHotkeys).to.be.false;
+      expect(elm.text).to.deep.equal({
+        'en': 'Question5 Text'
+      });
+      expect(elm.enumerations).to.deep.equal([
+        {
+          'id': 'foo',
+          'text': {
+            'en': 'foo'
+          },
+          'hotkey': '2',
+          'audio': {},
+          'help': {}
+        },
+        {
+          'id': 'bar',
+          'text': {
+            'en': 'bar'
+          },
+          'hotkey': '9',
+          'audio': {},
+          'help': {}
+        }
+      ]);
+    });
+
+    it('parses audio config', function () {
+      expect(cfg.elements).to.have.length(LENGTH);
+      var elm = cfg.elements[6];
+
+      expect(elm).to.be.instanceof(elements.Questions.CheckBoxGroup);
+      expect(elm.id).to.equal('q_fake6');
+      expect(elm.autoHotkeys).to.be.false;
+      expect(elm.text).to.deep.equal({
+        'en': 'Question6 Text'
+      });
+      expect(elm.enumerations).to.deep.equal([
+        {
+          'id': 'bar',
+          'text': {
+            'en': 'Bar?'
+          },
+          'hotkey': '',
+          'audio': {
+            'en': [
+              'http://example.com/foo.mp3'
+            ]
+          },
+          'help': {}
+        },
+        {
+          'id': 'foo',
+          'text': {
+            'en': 'foo'
+          },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        }
+      ]);
+    });
+
+    it('identifies alternate widgeted variety', function () {
+      expect(cfg.elements).to.have.length(LENGTH);
+      var elm = cfg.elements[7];
+
+      expect(elm).to.be.instanceof(elements.Questions.CheckBoxGroup);
+      expect(elm.id).to.equal('q_fake7');
+      expect(elm.autoHotkeys).to.be.true;
+      expect(elm.text).to.deep.equal({
+        'en': 'Question7 Text'
+      });
+      expect(elm.enumerations).to.deep.equal([
+        {
+          'id': 'foo',
+          'text': {
+            'en': 'foo'
+          },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        },
+        {
+          'id': 'bar',
+          'text': {
+            'en': 'bar'
+          },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        }
+      ]);
+    });
+
+    it('parsed autoHotkey config', function () {
+      expect(cfg.elements).to.have.length(LENGTH);
+      var elm = cfg.elements[8];
+
+      expect(elm).to.be.instanceof(elements.Questions.CheckBoxGroup);
+      expect(elm.id).to.equal('q_fake8');
+      expect(elm.autoHotkeys).to.be.true;
+      expect(elm.text).to.deep.equal({
+        'en': 'Question8 Text'
+      });
+      expect(elm.enumerations).to.deep.equal([
+        {
+          'id': 'foo',
+          'text': {
+            'en': 'foo'
+          },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        },
+        {
+          'id': 'bar',
+          'text': {
+            'en': 'bar'
+          },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);
@@ -611,7 +763,7 @@ describe('Individual Elements', function () {
   describe('RadioButtonGroup', function () {
     var INSTRUMENT = require('./definitions/parse-radiobuttongroup-instrument.json');
     var FORM = require('./definitions/parse-radiobuttongroup-form.json');
-    var LENGTH = 4;
+    var LENGTH = 8;
 
     var parser, cfg;
 
@@ -633,15 +785,19 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         },
         {
           'id': 'bar',
           'text': {
-            'en': 'bar',
+            'en': 'bar'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);
@@ -660,15 +816,19 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         },
         {
           'id': 'bar',
           'text': {
-            'en': 'bar',
+            'en': 'bar'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);
@@ -687,8 +847,10 @@ describe('Individual Elements', function () {
         {
           'id': 'bar',
           'text': {
-            'en': 'Bar?',
+            'en': 'Bar?'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {
             'en': 'This is help.'
           }
@@ -696,8 +858,142 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        }
+      ]);
+    });
+
+    it('parses hotkey config', function () {
+      expect(cfg.elements).to.have.length(LENGTH);
+      var elm = cfg.elements[4];
+
+      expect(elm).to.be.instanceof(elements.Questions.RadioButtonGroup);
+      expect(elm.id).to.equal('q_fake4');
+      expect(elm.autoHotkeys).to.be.false;
+      expect(elm.text).to.deep.equal({
+        'en': 'Question4 Text'
+      });
+      expect(elm.enumerations).to.deep.equal([
+        {
+          'id': 'foo',
+          'text': {
+            'en': 'foo'
+          },
+          'hotkey': '2',
+          'audio': {},
+          'help': {}
+        },
+        {
+          'id': 'bar',
+          'text': {
+            'en': 'bar'
+          },
+          'hotkey': '9',
+          'audio': {},
+          'help': {}
+        }
+      ]);
+    });
+
+    it('parses audio config', function () {
+      expect(cfg.elements).to.have.length(LENGTH);
+      var elm = cfg.elements[5];
+
+      expect(elm).to.be.instanceof(elements.Questions.RadioButtonGroup);
+      expect(elm.id).to.equal('q_fake5');
+      expect(elm.autoHotkeys).to.be.false;
+      expect(elm.text).to.deep.equal({
+        'en': 'Question5 Text'
+      });
+      expect(elm.enumerations).to.deep.equal([
+        {
+          'id': 'bar',
+          'text': {
+            'en': 'Bar?'
+          },
+          'hotkey': '',
+          'audio': {
+            'en': [
+              'http://example.com/foo.mp3'
+            ]
+          },
+          'help': {}
+        },
+        {
+          'id': 'foo',
+          'text': {
+            'en': 'foo'
+          },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        }
+      ]);
+    });
+
+    it('identifies alternate widgeted variety', function () {
+      expect(cfg.elements).to.have.length(LENGTH);
+      var elm = cfg.elements[6];
+
+      expect(elm).to.be.instanceof(elements.Questions.RadioButtonGroup);
+      expect(elm.id).to.equal('q_fake6');
+      expect(elm.autoHotkeys).to.be.true;
+      expect(elm.text).to.deep.equal({
+        'en': 'Question6 Text'
+      });
+      expect(elm.enumerations).to.deep.equal([
+        {
+          'id': 'foo',
+          'text': {
+            'en': 'foo'
+          },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        },
+        {
+          'id': 'bar',
+          'text': {
+            'en': 'bar'
+          },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        }
+      ]);
+    });
+
+    it('parsed autoHotkey config', function () {
+      expect(cfg.elements).to.have.length(LENGTH);
+      var elm = cfg.elements[7];
+
+      expect(elm).to.be.instanceof(elements.Questions.RadioButtonGroup);
+      expect(elm.id).to.equal('q_fake7');
+      expect(elm.autoHotkeys).to.be.true;
+      expect(elm.text).to.deep.equal({
+        'en': 'Question7 Text'
+      });
+      expect(elm.enumerations).to.deep.equal([
+        {
+          'id': 'foo',
+          'text': {
+            'en': 'foo'
+          },
+          'hotkey': '',
+          'audio': {},
+          'help': {}
+        },
+        {
+          'id': 'bar',
+          'text': {
+            'en': 'bar'
+          },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);
@@ -730,15 +1026,19 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         },
         {
           'id': 'bar',
           'text': {
-            'en': 'bar',
+            'en': 'bar'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);
@@ -757,8 +1057,10 @@ describe('Individual Elements', function () {
         {
           'id': 'bar',
           'text': {
-            'en': 'Bar?',
+            'en': 'Bar?'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {
             'en': 'This is help.'
           }
@@ -766,8 +1068,10 @@ describe('Individual Elements', function () {
         {
           'id': 'foo',
           'text': {
-            'en': 'foo',
+            'en': 'foo'
           },
+          'hotkey': '',
+          'audio': {},
           'help': {}
         }
       ]);

@@ -17,6 +17,7 @@ var DateQuestion = require('./Date');
 var Time = require('./Time');
 var DateTime = require('./DateTime');
 var RepeatingGroup = require('./RepeatingGroup');
+var QuestionGrid = require('./QuestionGrid');
 
 
 module.exports = {
@@ -32,6 +33,7 @@ module.exports = {
   Date: DateQuestion,
   Time,
   DateTime,
-  RepeatingGroup
+  RepeatingGroup,
+  QuestionGrid
 };
 

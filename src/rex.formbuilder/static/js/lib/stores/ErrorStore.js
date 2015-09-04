@@ -5,7 +5,6 @@
 
 'use strict';
 
-var assign = require('object-assign');
 var EventEmitter = require('component-emitter');
 
 var Dispatcher = require('../Dispatcher');
@@ -19,15 +18,15 @@ var _errors = [];
 
 /*eslint no-use-before-define:0 */
 
-function report(error, exception) {
-  var err = {error, exception};
+function report(error, exception, additional) {
+  var err = {error, exception, additional};
   _errors.push(err);
-  console.error(error, exception);
+  console.error(error, additional, exception);
   ErrorStore.emitReport(err);
 }
 
 
-var ErrorStore = assign({}, EventEmitter.prototype, {
+var ErrorStore = Object.assign({}, EventEmitter.prototype, {
   getLatest: function () {
     return _errors[_errors.length - 1];
   },
@@ -49,7 +48,7 @@ var ErrorStore = assign({}, EventEmitter.prototype, {
   dispatchToken: Dispatcher.register(function (action) {
     switch (action.actionType) {
       case constants.ACTION_ERROR_REPORT:
-        report(action.error, action.exception);
+        report(action.error, action.exception, action.additional);
         break;
     }
   })

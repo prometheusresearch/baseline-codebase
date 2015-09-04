@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var classSet = React.addons.classSet;
+var classNames = require('classnames');
 
 
 var Toaster = React.createClass({
@@ -27,7 +27,7 @@ var Toaster = React.createClass({
 
   buildToasts: function () {
     return this.props.toasts.map((toast, idx) => {
-      var classes = classSet({
+      var classes = classNames({
         'rfb-toast': true,
         'rfb-toast__error': toast.type === Toaster.TYPE_ERROR,
         'rfb-toast__info': toast.type === Toaster.TYPE_INFO,
@@ -41,7 +41,11 @@ var Toaster = React.createClass({
           className={classes}>
           <div className='rfb-toast-message'>
             {toast.message}
-          </div>
+            {toast.additional &&
+              <div className='rfb-toast-additional'>
+                {toast.additional}
+              </div>}
+            </div>
           <div
             onClick={toast.onDismiss}
             className='rfb-toast-control'>

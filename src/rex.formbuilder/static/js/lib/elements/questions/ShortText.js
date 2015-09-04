@@ -18,6 +18,18 @@ class ShortText extends Text {
   static getTypeID() {
     return 'question-short-text';
   }
+
+  serialize(instrument, form, context) {
+    context = context || this;
+
+    /*eslint no-redeclare:0 */
+    var {instrument, form} = super.serialize(instrument, form, context);
+    var elm = context.getCurrentSerializationElement(form);
+
+    if (objectPath.get(elm, 'options.widget', undefined) !== undefined) {
+      objectPath.set(elm, 'options.widget.type', 'inputText');
+    }
+  }
 }
 
 

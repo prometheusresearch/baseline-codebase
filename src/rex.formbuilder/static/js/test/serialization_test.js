@@ -861,6 +861,207 @@ describe('individual elements', function () {
         }
       });
     });
+
+    it('can serialize the audio prop', function () {
+      elm.enumerations[0].audio = {'en': ['http://example.com/foo.mp3']};
+      cfg.elements.push(elm);
+      var {instrument, form} = cfg.serialize();
+
+      expect(instrument.record).to.have.length(1);
+      expect(instrument.record[0]).to.deep.equal({
+        'id': 'foo',
+        'type': {
+          'base': 'enumerationSet',
+          'enumerations': {
+            'baz': {}
+          }
+        }
+      });
+
+      expect(form.pages).to.have.length(1);
+      var page = form.pages[0];
+      expect(page).to.have.all.keys(['id', 'elements']);
+      expect(page).to.have.property('id', 'page1');
+
+      expect(page.elements).to.have.length(1);
+      expect(page.elements[0]).to.deep.equal({
+        'type': 'question',
+        'options': {
+          'fieldId': 'foo',
+          'text': {
+            'en': 'My Question'
+          },
+          'enumerations': [
+            {
+              'id': 'baz',
+              'text': {
+                'en': 'Enumeration Text'
+              },
+              'help': {
+                'en': 'Enumeration Help'
+              },
+              'audio': {
+                'en': [
+                  'http://example.com/foo.mp3'
+                ]
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    it('can serialize the autoHotkeys prop', function () {
+      elm.autoHotkeys = true;
+      cfg.elements.push(elm);
+      var {instrument, form} = cfg.serialize();
+
+      expect(instrument.record).to.have.length(1);
+      expect(instrument.record[0]).to.deep.equal({
+        'id': 'foo',
+        'type': {
+          'base': 'enumerationSet',
+          'enumerations': {
+            'baz': {}
+          }
+        }
+      });
+
+      expect(form.pages).to.have.length(1);
+      var page = form.pages[0];
+      expect(page).to.have.all.keys(['id', 'elements']);
+      expect(page).to.have.property('id', 'page1');
+
+      expect(page.elements).to.have.length(1);
+      expect(page.elements[0]).to.deep.equal({
+        'type': 'question',
+        'options': {
+          'fieldId': 'foo',
+          'text': {
+            'en': 'My Question'
+          },
+          'enumerations': [
+            {
+              'id': 'baz',
+              'text': {
+                'en': 'Enumeration Text'
+              },
+              'help': {
+                'en': 'Enumeration Help'
+              }
+            }
+          ],
+          'widget': {
+            'type': 'checkGroup',
+            'options': {
+              'autoHotkeys': true
+            }
+          }
+        }
+      });
+    });
+
+    it('can serialize the hotkeys', function () {
+      elm.enumerations[0].hotkey = '3';
+      cfg.elements.push(elm);
+      var {instrument, form} = cfg.serialize();
+
+      expect(instrument.record).to.have.length(1);
+      expect(instrument.record[0]).to.deep.equal({
+        'id': 'foo',
+        'type': {
+          'base': 'enumerationSet',
+          'enumerations': {
+            'baz': {}
+          }
+        }
+      });
+
+      expect(form.pages).to.have.length(1);
+      var page = form.pages[0];
+      expect(page).to.have.all.keys(['id', 'elements']);
+      expect(page).to.have.property('id', 'page1');
+
+      expect(page.elements).to.have.length(1);
+      expect(page.elements[0]).to.deep.equal({
+        'type': 'question',
+        'options': {
+          'fieldId': 'foo',
+          'text': {
+            'en': 'My Question'
+          },
+          'enumerations': [
+            {
+              'id': 'baz',
+              'text': {
+                'en': 'Enumeration Text'
+              },
+              'help': {
+                'en': 'Enumeration Help'
+              }
+            }
+          ],
+          'widget': {
+            'type': 'checkGroup',
+            'options': {
+              'hotkeys': {
+                'baz': '3'
+              }
+            }
+          }
+        }
+      });
+    });
+
+    it('can serialize the orientation prop', function () {
+      elm.horizontal = true;
+      cfg.elements.push(elm);
+      var {instrument, form} = cfg.serialize();
+
+      expect(instrument.record).to.have.length(1);
+      expect(instrument.record[0]).to.deep.equal({
+        'id': 'foo',
+        'type': {
+          'base': 'enumerationSet',
+          'enumerations': {
+            'baz': {}
+          }
+        }
+      });
+
+      expect(form.pages).to.have.length(1);
+      var page = form.pages[0];
+      expect(page).to.have.all.keys(['id', 'elements']);
+      expect(page).to.have.property('id', 'page1');
+
+      expect(page.elements).to.have.length(1);
+      expect(page.elements[0]).to.deep.equal({
+        'type': 'question',
+        'options': {
+          'fieldId': 'foo',
+          'text': {
+            'en': 'My Question'
+          },
+          'enumerations': [
+            {
+              'id': 'baz',
+              'text': {
+                'en': 'Enumeration Text'
+              },
+              'help': {
+                'en': 'Enumeration Help'
+              }
+            }
+          ],
+          'widget': {
+            'type': 'checkGroup',
+            'options': {
+              'orientation': 'horizontal'
+            }
+          }
+        }
+      });
+    });
   });
 
 
@@ -985,6 +1186,207 @@ describe('individual elements', function () {
               }
             }
           ]
+        }
+      });
+    });
+
+    it('can serialize the audio prop', function () {
+      elm.enumerations[0].audio = {'en': ['http://example.com/foo.mp3']};
+      cfg.elements.push(elm);
+      var {instrument, form} = cfg.serialize();
+
+      expect(instrument.record).to.have.length(1);
+      expect(instrument.record[0]).to.deep.equal({
+        'id': 'foo',
+        'type': {
+          'base': 'enumeration',
+          'enumerations': {
+            'baz': {}
+          }
+        }
+      });
+
+      expect(form.pages).to.have.length(1);
+      var page = form.pages[0];
+      expect(page).to.have.all.keys(['id', 'elements']);
+      expect(page).to.have.property('id', 'page1');
+
+      expect(page.elements).to.have.length(1);
+      expect(page.elements[0]).to.deep.equal({
+        'type': 'question',
+        'options': {
+          'fieldId': 'foo',
+          'text': {
+            'en': 'My Question'
+          },
+          'enumerations': [
+            {
+              'id': 'baz',
+              'text': {
+                'en': 'Enumeration Text'
+              },
+              'help': {
+                'en': 'Enumeration Help'
+              },
+              'audio': {
+                'en': [
+                  'http://example.com/foo.mp3'
+                ]
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    it('can serialize the autoHotkeys prop', function () {
+      elm.autoHotkeys = true;
+      cfg.elements.push(elm);
+      var {instrument, form} = cfg.serialize();
+
+      expect(instrument.record).to.have.length(1);
+      expect(instrument.record[0]).to.deep.equal({
+        'id': 'foo',
+        'type': {
+          'base': 'enumeration',
+          'enumerations': {
+            'baz': {}
+          }
+        }
+      });
+
+      expect(form.pages).to.have.length(1);
+      var page = form.pages[0];
+      expect(page).to.have.all.keys(['id', 'elements']);
+      expect(page).to.have.property('id', 'page1');
+
+      expect(page.elements).to.have.length(1);
+      expect(page.elements[0]).to.deep.equal({
+        'type': 'question',
+        'options': {
+          'fieldId': 'foo',
+          'text': {
+            'en': 'My Question'
+          },
+          'enumerations': [
+            {
+              'id': 'baz',
+              'text': {
+                'en': 'Enumeration Text'
+              },
+              'help': {
+                'en': 'Enumeration Help'
+              }
+            }
+          ],
+          'widget': {
+            'type': 'radioGroup',
+            'options': {
+              'autoHotkeys': true
+            }
+          }
+        }
+      });
+    });
+
+    it('can serialize the hotkeys', function () {
+      elm.enumerations[0].hotkey = '3';
+      cfg.elements.push(elm);
+      var {instrument, form} = cfg.serialize();
+
+      expect(instrument.record).to.have.length(1);
+      expect(instrument.record[0]).to.deep.equal({
+        'id': 'foo',
+        'type': {
+          'base': 'enumeration',
+          'enumerations': {
+            'baz': {}
+          }
+        }
+      });
+
+      expect(form.pages).to.have.length(1);
+      var page = form.pages[0];
+      expect(page).to.have.all.keys(['id', 'elements']);
+      expect(page).to.have.property('id', 'page1');
+
+      expect(page.elements).to.have.length(1);
+      expect(page.elements[0]).to.deep.equal({
+        'type': 'question',
+        'options': {
+          'fieldId': 'foo',
+          'text': {
+            'en': 'My Question'
+          },
+          'enumerations': [
+            {
+              'id': 'baz',
+              'text': {
+                'en': 'Enumeration Text'
+              },
+              'help': {
+                'en': 'Enumeration Help'
+              }
+            }
+          ],
+          'widget': {
+            'type': 'radioGroup',
+            'options': {
+              'hotkeys': {
+                'baz': '3'
+              }
+            }
+          }
+        }
+      });
+    });
+
+    it('can serialize the orientation prop', function () {
+      elm.horizontal = true;
+      cfg.elements.push(elm);
+      var {instrument, form} = cfg.serialize();
+
+      expect(instrument.record).to.have.length(1);
+      expect(instrument.record[0]).to.deep.equal({
+        'id': 'foo',
+        'type': {
+          'base': 'enumeration',
+          'enumerations': {
+            'baz': {}
+          }
+        }
+      });
+
+      expect(form.pages).to.have.length(1);
+      var page = form.pages[0];
+      expect(page).to.have.all.keys(['id', 'elements']);
+      expect(page).to.have.property('id', 'page1');
+
+      expect(page.elements).to.have.length(1);
+      expect(page.elements[0]).to.deep.equal({
+        'type': 'question',
+        'options': {
+          'fieldId': 'foo',
+          'text': {
+            'en': 'My Question'
+          },
+          'enumerations': [
+            {
+              'id': 'baz',
+              'text': {
+                'en': 'Enumeration Text'
+              },
+              'help': {
+                'en': 'Enumeration Help'
+              }
+            }
+          ],
+          'widget': {
+            'type': 'radioGroup',
+            'options': {
+              'orientation': 'horizontal'
+            }
+          }
         }
       });
     });

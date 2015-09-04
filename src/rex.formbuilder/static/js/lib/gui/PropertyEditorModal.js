@@ -51,6 +51,7 @@ var PropertyEditorModalInner = React.createClass({
   renderModalContent: function () {
     return (
       <div>
+        <h3>{this.props.element.constructor.getName()}</h3>
         <PropertyEditor
           ref='editor'
           element={this.props.element}

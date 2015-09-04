@@ -10,14 +10,10 @@ var WorkspaceElement = require('./WorkspaceElement');
 var {DraftSetStore} = require('../stores');
 
 
-var Workspace = React.createClass({
-  propTypes: {
-    onElementsChanged: React.PropTypes.func
-  },
-
+var ElementWorkspace = React.createClass({
   getInitialState: function () {
     return {
-      elements: []
+      elements: DraftSetStore.getActiveElements()
     };
   },
 
@@ -59,5 +55,5 @@ var Workspace = React.createClass({
 });
 
 
-module.exports = Workspace;
+module.exports = ElementWorkspace;
 

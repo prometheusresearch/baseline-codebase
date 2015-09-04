@@ -4,8 +4,6 @@
 
 'use strict';
 
-var React = require('react');
-
 var TextBasedContentElement = require('./TextBasedContentElement');
 var _ = require('../i18n').gettext;
 

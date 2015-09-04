@@ -4,14 +4,12 @@
 
 'use strict';
 
-var React = require('react');
 var objectPath = require('object-path');
 var deepCopy = require('deep-copy');
 
 var Question = require('./Question');
 var properties = require('../../properties');
-var errors = require('../../errors');
-var {isEmpty} = require('../../util');
+var {isEmptyLocalization} = require('../../util');
 var {gettext, getCurrentLocale} = require('../../i18n');
 var _ = gettext;
 
@@ -37,16 +35,25 @@ class Enumeration extends Question {
         required: true
       }
     );
+    cfg.properties.advanced.unshift(
+      {
+        name: 'autoHotkeys',
+        label: _('Automatically Assign Hotkeys (unless any are predefined)'),
+        schema: properties.Bool
+      }
+    );
     return cfg;
   }
 
   constructor() {
     super();
+    this.autoHotkeys = false;
     this.enumerations = [];
   }
 
   clone(exact, configurationScope) {
     var newElm = super.clone(exact, configurationScope);
+    newElm.autoHotkeys = this.autoHotkeys;
     newElm.enumerations = deepCopy(this.enumerations);
     return newElm;
   }
@@ -54,18 +61,21 @@ class Enumeration extends Question {
   parse(element, instrument, field) {
     super.parse(element, instrument, field);
 
-    var enumerations = objectPath.get(element, 'options.enumerations', []);
-    enumerations = enumerations.map((enumeration) => {
-      if (!isEmpty(enumeration.audio)) {
-        throw new errors.UnsupportedConfigurationError(
-          _('Audio properties are not currently supported.')
-        );
-      }
+    this.autoHotkeys = objectPath.get(
+      element,
+      'options.widget.options.autoHotkeys',
+      false
+    );
 
+    var enumerations = objectPath.get(element, 'options.enumerations', []);
+    var hotkeys = objectPath.get(element, 'options.widget.options.hotkeys', {});
+    enumerations = enumerations.map((enumeration) => {
       return {
         id: enumeration.id,
         text: enumeration.text,
-        help: enumeration.help || {}
+        hotkey: hotkeys[enumeration.id] || '',
+        help: enumeration.help || {},
+        audio: enumeration.audio || {}
       };
     });
 
@@ -77,7 +87,9 @@ class Enumeration extends Question {
         enumerations.push({
           id: eid,
           text: text,
-          help: {}
+          hotkey: hotkeys[eid] || '',
+          help: {},
+          audio: {}
         });
       }
     });
@@ -95,8 +107,9 @@ class Enumeration extends Question {
     objectPath.set(field, 'type.enumerations', {});
 
     var elm = context.getCurrentSerializationElement(form);
-    objectPath.set(elm, 'options.enumerations', []);
 
+    var hotkeys = {};
+    objectPath.set(elm, 'options.enumerations', []);
     this.enumerations.forEach((enumeration) => {
       field.type.enumerations[enumeration.id] = {};
 
@@ -104,11 +117,30 @@ class Enumeration extends Question {
         id: enumeration.id,
         text: enumeration.text
       };
-      if (!isEmpty(enumeration.help)) {
+      if (!isEmptyLocalization(enumeration.help)) {
         descr.help = enumeration.help;
       }
+      if (!isEmptyLocalization(enumeration.audio)) {
+        descr.audio = enumeration.audio;
+      }
       elm.options.enumerations.push(descr);
+
+      if (enumeration.hotkey) {
+        hotkeys[enumeration.id] = enumeration.hotkey;
+      }
     });
+
+    if (this.autoHotkeys) {
+      objectPath.set(
+        elm,
+        'options.widget.options.autoHotkeys',
+        this.autoHotkeys
+      );
+    }
+
+    if (Object.keys(hotkeys).length > 0) {
+      objectPath.set(elm, 'options.widget.options.hotkeys', hotkeys);
+    }
 
     return {
       instrument,

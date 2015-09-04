@@ -11,12 +11,14 @@ var Configuration = require('./Configuration');
 var InstrumentTypeCatalog = require('./InstrumentTypeCatalog');
 var {ParsingError, UnsupportedConfigurationError} = require('./errors');
 var {Element, PageStart} = require('./elements');
+var {Calculation} = require('./calculations');
+var {isEmpty} = require('./util');
 var i18n = require('./i18n');
 var _ = i18n.gettext;
 
 
 class DefinitionParser {
-  constructor(instrument, form, locale) {
+  constructor(instrument, form, calculations, locale) {
     // Make sure we got definitions.
     if (!instrument || !form) {
       throw new ParsingError(
@@ -65,19 +67,12 @@ class DefinitionParser {
     rebaseTypes(this.instrument.record, new InstrumentTypeCatalog(instrument));
 
     this.form = form;
+    this.calculations = calculations;
 
     this.locale = locale || i18n.getRex().config.locale;
   }
 
   getConfiguration() {
-    if (this.form.unprompted
-          && (Object.getOwnPropertyNames(this.form.unprompted).length > 0)
-        ) {
-      throw new UnsupportedConfigurationError(
-        _('Unprompted fields are not currently supported.')
-      );
-    }
-
     var configuration = new Configuration();
     configuration.title = this._getString(this.form.title)
         || this.instrument.title;
@@ -85,6 +80,7 @@ class DefinitionParser {
     configuration.version = this.instrument.version;
     configuration.locale = this.locale;
     configuration.elements = [];
+    configuration.calculations = [];
 
     this.form.pages.forEach((page) => {
       var elm = new PageStart();
@@ -98,8 +94,12 @@ class DefinitionParser {
         } catch (exc) {
           if (exc instanceof ParsingError) {
             throw new UnsupportedConfigurationError(_(
-              'Element #%(index)s is not currently supported.',
-              {index}
+              'Element #%(index)s on page "%(page)s" is not currently'
+              + ' supported.',
+              {
+                index: index + 1,
+                page: page.id
+              }
             ));
           } else {
             throw exc;
@@ -107,6 +107,27 @@ class DefinitionParser {
         }
       });
     });
+
+    if (!isEmpty(this.calculations)) {
+      this.calculations.calculations.forEach((calculation, index) => {
+        var calc = null;
+        try {
+          calc = Calculation.parse(calculation);
+          configuration.calculations.push(calc);
+        } catch (exc) {
+          if (exc instanceof ParsingError) {
+            throw new UnsupportedConfigurationError(_(
+              'Calculation #%(index)s is not currently supported.',
+              {
+                index: index + 1
+              }
+            ));
+          } else {
+            throw exc;
+          }
+        }
+      });
+    }
 
     return configuration;
   }

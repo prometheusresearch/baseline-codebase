@@ -4,11 +4,10 @@
 
 'use strict';
 
-var path = require('path');
-var webpackConfig = require('./webpack.config');
+var webpackConfig = require('rex-setup').configureWebpack({});
+//var webpackConfig = require('./webpack.config');
 
 
-webpackConfig.resolve.root.push(path.join(__dirname, 'node_modules'));
 webpackConfig.devtool = 'inline-source-map';
 webpackConfig.module.loaders.push({
   test: /\.json$/,
@@ -18,13 +17,22 @@ webpackConfig.module.postLoaders = webpackConfig.module.loaders.postLoaders
     || [];
 webpackConfig.module.postLoaders.push({
   test: /\.js$/,
-  exclude: /(test|node_modules|bower_components)\//,
+  exclude: /(test|node_modules)\//,
   loader: 'istanbul-instrumenter'
 });
 
 
 module.exports = function (config) {
   config.set({
+    plugins: [
+      require('karma-webpack'),
+      require('karma-coverage'),
+      require('karma-sourcemap-loader'),
+      require('karma-mocha'),
+      require('karma-phantomjs-launcher'),
+      require('karma-phantomjs-shim')
+    ],
+
     frameworks: [
       'mocha',
       'phantomjs-shim'
@@ -59,6 +67,7 @@ module.exports = function (config) {
     coverageReporter: {
       reporters: [
         { type: 'html' },
+        //{ type: 'text' },
         { type: 'text-summary' }
       ]
     }

@@ -9,11 +9,12 @@ var constants = require('../constants');
 
 
 var ErrorActions = {
-  report: function (error, exception) {
+  report: function (error, exception, additional) {
     Dispatcher.dispatch({
       actionType: constants.ACTION_ERROR_REPORT,
       error: error,
-      exception: exception
+      exception: exception,
+      additional: additional
     });
   }
 };

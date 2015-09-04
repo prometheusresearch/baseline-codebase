@@ -11,46 +11,50 @@ var {DraftSetActions} = require('../actions');
 var DraggableTypes = require('./DraggableTypes');
 
 
-var ElementType = React.createClass({
+var CalculationTool = React.createClass({
   mixins: [
     DragDropMixin
   ],
 
   propTypes: {
-    element: React.PropTypes.func.isRequired
+    tool: React.PropTypes.func.isRequired
   },
 
   getInitialState: function () {
     return {
-      pendingElement: null
+      pendingCalculation: null
     };
   },
 
   statics: {
     configureDragDrop: function (register) {
-      register(DraggableTypes.ELEMENT_TYPE, {
+      register(DraggableTypes.CALCULATION_TYPE, {
         dragSource: {
           beginDrag: function (component) {
-            var elm = new component.props.element();
-            component.setState({pendingElement: elm});
+            var calc = new component.props.tool();
+            component.setState({pendingCalculation: calc});
             return {
               item: {
-                element: elm
+                calculation: calc
               }
             };
           },
 
         endDrag: function (component, effect) {
             if (!effect) {
-              DraftSetActions.deleteElement(component.state.pendingElement);
+              DraftSetActions.deleteCalculation(
+                component.state.pendingCalculation
+              );
             } else {
-              var cfg = component.state.pendingElement.constructor
+              var cfg = component.state.pendingCalculation.constructor
                 .getPropertyConfiguration();
               if (cfg.properties[cfg.defaultCategory].length > 0) {
-                DraftSetActions.editElement(component.state.pendingElement);
+                DraftSetActions.editCalculation(
+                  component.state.pendingCalculation
+                );
               }
             }
-            component.setState({pendingElement: null});
+            component.setState({pendingCalculation: null});
           }
         }
       });
@@ -59,26 +63,26 @@ var ElementType = React.createClass({
 
   onClick: function () {
     /*eslint new-cap:0 */
-    var elm = new this.props.element();
-    DraftSetActions.addElement(elm);
-    var cfg = this.props.element.getPropertyConfiguration();
+    var calc = new this.props.tool();
+    DraftSetActions.addCalculation(calc);
+    var cfg = this.props.tool.getPropertyConfiguration();
     if (cfg.properties[cfg.defaultCategory].length > 0) {
-      DraftSetActions.editElement(elm);
+      DraftSetActions.editCalculation(calc);
     }
   },
 
   render: function () {
     return (
       <div
-        {...this.dragSourceFor(DraggableTypes.ELEMENT_TYPE)}
+        {...this.dragSourceFor(DraggableTypes.CALCULATION_TYPE)}
         onClick={this.onClick}
-        className="rfb-element-type">
-        {this.props.element.getToolboxComponent()}
+        className="rfb-tool">
+        {this.props.tool.getToolboxComponent()}
       </div>
     );
   }
 });
 
 
-module.exports = ElementType;
+module.exports = CalculationTool;
 

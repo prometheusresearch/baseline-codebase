@@ -7,7 +7,7 @@ from webob.exc import HTTPNotFound, HTTPBadRequest
 
 from rex.core import get_settings, StrVal, IntVal
 from rex.web import Parameter, authenticate
-from rex.instrument.util import get_implementation
+from rex.instrument import User
 
 
 __all__ = (
@@ -20,8 +20,7 @@ __all__ = (
 
 def get_instrument_user(request):
     login = authenticate(request)
-    user_impl = get_implementation('user')
-    return user_impl.get_by_login(login)
+    return User.get_implementation().get_by_login(login)
 
 
 class ConstantArg(object):

@@ -7,6 +7,8 @@
 
 module.exports = {
   WORKSPACE_ELEMENT: 'wse',
-  ELEMENT_TYPE: 'et'
+  WORKSPACE_CALCULATION: 'wsc',
+  ELEMENT_TYPE: 'et',
+  CALCULATION_TYPE: 'ct'
 };
 

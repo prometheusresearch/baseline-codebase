@@ -4,7 +4,6 @@
 
 'use strict';
 
-var React = require('react');
 var objectPath = require('object-path');
 var deepCopy = require('deep-copy');
 

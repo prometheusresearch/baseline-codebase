@@ -4,15 +4,13 @@
 
 'use strict';
 
-var React = require('react');
 var objectPath = require('object-path');
 var deepCopy = require('deep-copy');
 
 var RecordList = require('./RecordList');
 var properties = require('../../properties');
 var {isEmpty} = require('../../util');
-var {gettext, getCurrentLocale} = require('../../i18n');
-var _ = gettext;
+var _ = require('../../i18n').gettext;
 
 
 class RepeatingGroup extends RecordList {

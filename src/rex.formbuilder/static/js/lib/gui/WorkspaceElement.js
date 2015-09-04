@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var {classSet} = React.addons;
+var classNames = require('classnames');
 var {DragDropMixin} = require('react-dnd');
 
 var ConfirmationModal = require('./ConfirmationModal');
@@ -13,6 +13,11 @@ var {DraftSetActions} = require('../actions');
 var DraggableTypes = require('./DraggableTypes');
 var PropertyEditorModal = require('./PropertyEditorModal');
 var _ = require('../i18n').gettext;
+
+
+// An ugly global so we know when a WorkspaceElement is editing properties,
+// no matter where in the tree it's happening.
+var CURRENTLY_EDITING = false;
 
 
 var WorkspaceElement = React.createClass({
@@ -124,6 +129,10 @@ var WorkspaceElement = React.createClass({
       || this.props.element.forceEdit
       || false;
 
+    if (needsEdit) {
+      CURRENTLY_EDITING = true;
+    }
+
     return {
       editing: needsEdit,
       deleting: false,
@@ -135,6 +144,8 @@ var WorkspaceElement = React.createClass({
     if (nextProps.element.needsEdit || nextProps.element.forceEdit) {
       this.setState({
         editing: true
+      }, () => {
+        CURRENTLY_EDITING = true;
       });
     }
   },
@@ -143,18 +154,24 @@ var WorkspaceElement = React.createClass({
     if (!this.state.editing) {
       this.setState({
         editing: true
+      }, () => {
+        CURRENTLY_EDITING = true;
       });
     }
   },
 
   canMove: function () {
-    return this.props.canMove && !this.state.editing && !this.state.deleting;
+    return this.props.canMove
+      && !this.state.editing
+      && !this.state.deleting
+      && !CURRENTLY_EDITING;
   },
 
   onCompleteEditing: function (element) {
     this.setState({
       editing: false
     }, () => {
+      CURRENTLY_EDITING = false;
       DraftSetActions.updateElement(element);
     });
   },
@@ -166,7 +183,7 @@ var WorkspaceElement = React.createClass({
       this.setState({
         editing: false
       }, () => {
-        this.refs.modal.reset();
+        CURRENTLY_EDITING = false;
       });
     }
   },
@@ -199,7 +216,7 @@ var WorkspaceElement = React.createClass({
     isDragging |= this.state.isDragging;
 
     var classes = {
-      'rfb-workspace-element': true,
+      'rfb-workspace-item': true,
       'rfb-dragging': isDragging,
       'rfb-movable': this.props.canMove
     };
@@ -207,7 +224,7 @@ var WorkspaceElement = React.createClass({
     if (typeId) {
       classes['rfb-workspace-element-' + typeId] = true;
     }
-    classes = classSet(classes);
+    classes = classNames(classes);
 
     return (
       <div
@@ -218,7 +235,7 @@ var WorkspaceElement = React.createClass({
         )}
         className={classes}>
         {this.props.element.getWorkspaceComponent()}
-        <div className='rfb-workspace-element-tools'>
+        <div className='rfb-workspace-item-tools'>
           <button
             className='rfb-button rfb-icon-button'
             onClick={this.onEdit}>
@@ -241,13 +258,15 @@ var WorkspaceElement = React.createClass({
             <p>{_('Are you sure you want to delete this Element?')}</p>
           </ConfirmationModal>
         </div>
-        <PropertyEditorModal
-          ref='modal'
-          element={this.props.element}
-          visible={this.state.editing}
-          onComplete={this.onCompleteEditing}
-          onCancel={this.onCancelEditing}
-          />
+        {this.state.editing &&
+          <PropertyEditorModal
+            ref='modal'
+            element={this.props.element}
+            visible={this.state.editing}
+            onComplete={this.onCompleteEditing}
+            onCancel={this.onCancelEditing}
+            />
+        }
       </div>
     );
   }

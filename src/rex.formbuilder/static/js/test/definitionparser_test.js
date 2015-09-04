@@ -67,7 +67,7 @@ describe('DefinitionParser', function () {
       ).to.equal('The Form Title');
 
       expect(
-        (new DefinitionParser(INSTRUMENT, FORM2, 'fr')).getConfiguration().title
+        (new DefinitionParser(INSTRUMENT, FORM2, null, 'fr')).getConfiguration().title
       ).to.equal('The Form Title');
     });
 
@@ -78,33 +78,14 @@ describe('DefinitionParser', function () {
     });
 
     it('sets the locale', function () {
-      var configuration = (new DefinitionParser(INSTRUMENT, FORM, 'fr')).getConfiguration();
+      var configuration = (new DefinitionParser(INSTRUMENT, FORM, null, 'fr')).getConfiguration();
       expect(configuration.locale).to.equal('fr');
-    });
-
-    it('does not support unprompted fields', function () {
-      var FORM2 = deepCopy(FORM);
-
-      FORM2.unprompted = {};
-      var parser = new DefinitionParser(INSTRUMENT, FORM2);
-      expect(
-        function () { parser.getConfiguration(); }
-      ).to.not.throw(errors.UnsupportedConfigurationError);
-
-      FORM2.unprompted.foo = {};
-      parser = new DefinitionParser(INSTRUMENT, FORM2);
-      expect(
-        function () { parser.getConfiguration(); }
-      ).to.throw(errors.UnsupportedConfigurationError, /unprompted/i);
     });
 
     it('fails on unsupported elements', function () {
       var FORM2 = deepCopy(FORM);
       FORM2.pages[0].elements.push({
-        type: 'audio',
-        source: {
-          en: ['/foo/bar']
-        }
+        type: 'fakeElement'
       });
 
       var parser = new DefinitionParser(INSTRUMENT, FORM2);

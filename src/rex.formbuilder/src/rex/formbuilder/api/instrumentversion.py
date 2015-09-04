@@ -5,13 +5,14 @@
 
 from webob.exc import HTTPNotFound
 
-from rex.core import get_settings, StrVal
-from rex.instrument.util import get_implementation
+from rex.core import StrVal
+from rex.instrument import Instrument
 from rex.restful import SimpleResource, RestfulLocation, DateTimeVal
 from rex.web import Parameter
 
 from .base import BaseResource, get_instrument_user, ConstantArg, FakeRequest
 from .draftform import DraftFormResource
+from .draftcalculationset import DraftCalculationSetResource
 from .draftinstrumentversion import DraftInstrumentVersionResource
 
 
@@ -60,7 +61,7 @@ class InstrumentVersionResource(SimpleResource, BaseResource):
             create_args=[
                 (
                     'instrument',
-                    get_implementation('instrument'),
+                    Instrument.get_implementation(),
                 ),
                 'definition',
                 'published_by',
@@ -97,6 +98,8 @@ class InstrumentVersionDraftResource(RestfulLocation):
     )
 
     def create(self, request, uid, **kwargs):
+        # pylint: disable=no-self-use,protected-access
+
         user = get_instrument_user(request)
 
         instrument_version = user.get_object_by_uid(uid, 'instrumentversion')
@@ -121,6 +124,21 @@ class InstrumentVersionDraftResource(RestfulLocation):
             _SimpleResource__base_handler()
         div = handler.create(fake_request)
 
+        dcs = None
+        calcs = user.find_objects(
+            'calculationset',
+            instrument_version=instrument_version,
+        )
+        if calcs:
+            fake_request_payload = {
+                'draft_instrument_version': div['uid'],
+                'definition': calcs[0].definition,
+            }
+            fake_request = FakeRequest(fake_request_payload, user)
+            handler = DraftCalculationSetResource. \
+                _SimpleResource__base_handler()
+            dcs = handler.create(fake_request)
+
         draft_forms = {}
         handler = DraftFormResource._SimpleResource__base_handler()
         for form in forms:
@@ -135,5 +153,6 @@ class InstrumentVersionDraftResource(RestfulLocation):
         return {
             'instrument_version': div,
             'forms': draft_forms,
+            'calculations_set': dcs,
         }
 

@@ -41,9 +41,10 @@ module.exports = function (grunt) {
           ],
 
           rules: {
-            'no-unused-expressions': false,
-            'no-new': false,
-            'max-len': [1, 132, 2]
+            'no-unused-expressions': 0,
+            'no-new': 0,
+            'max-len': [1, 132, 2],
+            'no-unused-vars': 0
           }
         }
       }

@@ -73,23 +73,29 @@ var DraftSetTile = React.createClass({
   render: function () {
     return (
       <tr className='rfb-draftset-tile'>
-        <td onClick={this.props.onClick}>
+        <td>
           {formatDateTime(this.props.draft.date_created)}
         </td>
-        <td onClick={this.props.onClick}>
+        <td>
           {this.props.draft.created_by}
         </td>
-        <td onClick={this.props.onClick}>
+        <td>
           {formatDateTime(this.props.draft.date_modified)}
         </td>
-        <td onClick={this.props.onClick}>
+        <td>
           {this.props.draft.modified_by}
         </td>
-        <td onClick={this.props.onClick}>
+        <td>
           {this.props.draft.parent_instrument_version &&
             this.props.draft.parent_instrument_version.uid}
         </td>
         <td className='rfb-tile-actions'>
+          <button
+            className='rfb-button rfb-icon-button'
+            title={_('Edit this Draft')}
+            onClick={this.props.onClick}>
+            <span className='rfb-icon icon-edit' />
+          </button>
           <button
             className='rfb-button rfb-icon-button'
             title={_('Preview this Draft')}

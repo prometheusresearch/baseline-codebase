@@ -4,7 +4,6 @@
 
 'use strict';
 
-var React = require('react');
 var objectPath = require('object-path');
 var deepCopy = require('deep-copy');
 
@@ -38,6 +37,11 @@ class Text extends Question {
         name: 'pattern',
         label: _('Pattern Constraint'),
         schema: properties.Regex
+      },
+      {
+        name: 'width',
+        label: _('Field Width'),
+        schema: properties.WidgetSize
       }
     );
     return cfg;
@@ -47,12 +51,18 @@ class Text extends Question {
     super();
     this.length = {};
     this.pattern = null;
+    this.width = 'medium';
   }
 
   parse(element, instrument, field) {
     super.parse(element, instrument, field);
     this.length = objectPath.get(field, 'type.length', {});
     this.pattern = objectPath.get(field, 'type.pattern', null);
+    this.width = objectPath.get(
+      element,
+      'options.widget.options.width',
+      'medium'
+    );
   }
 
   serialize(instrument, form, context) {
@@ -74,6 +84,11 @@ class Text extends Question {
       field.type = 'text';
     }
 
+    if (this.width !== 'medium') {
+      var elm = context.getCurrentSerializationElement(form);
+      objectPath.set(elm, 'options.widget.options.width', this.width);
+    }
+
     return {
       instrument,
       form
@@ -84,6 +99,7 @@ class Text extends Question {
     var newElm = super.clone(exact, configurationScope);
     newElm.length = deepCopy(this.length);
     newElm.pattern = this.pattern;
+    newElm.width = this.width;
     return newElm;
   }
 }

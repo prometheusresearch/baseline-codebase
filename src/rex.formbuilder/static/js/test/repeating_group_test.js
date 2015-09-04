@@ -14,10 +14,6 @@ var Configuration = require('../lib/Configuration');
 var DefinitionParser = require('../lib/DefinitionParser');
 
 
-var INSTRUMENT = require('./definitions/1-instrument.json');
-var FORM = require('./definitions/1-form.json');
-
-
 describe('RepeatingGroup', function () {
   describe('parsing', function () {
     var INSTRUMENT = require('./definitions/parse-repeatinggroup-instrument.json');

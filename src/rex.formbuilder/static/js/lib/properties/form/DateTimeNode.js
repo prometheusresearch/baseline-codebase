@@ -6,12 +6,10 @@
 
 var ReactForms = require('react-forms');
 
+var {RE_DATETIME} = require('../../constants');
 var DateNode = require('./DateNode');
 var TimeNode = require('./TimeNode');
 var _ = require('../../i18n').gettext;
-
-
-var RE_DATETIME = /^([0-9]{4}-[0-9]{2}-[0-9]{2})[ T]?((?:(?:[0-1]?[0-9])|(?:[2][0-3])):(?:[0-5][0-9])(?::(?:[0-5][0-9]))?)?$/;
 
 
 class DateTimeNode extends ReactForms.schema.ScalarNode {

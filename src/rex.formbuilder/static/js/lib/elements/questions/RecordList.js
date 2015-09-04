@@ -8,7 +8,9 @@ var React = require('react');
 var objectPath = require('object-path');
 var deepCopy = require('deep-copy');
 
-var SerializationContext = require('../../SerializationContext');
+var SubFieldSerializationContext = require(
+  '../../SubFieldSerializationContext'
+);
 var Question = require('./Question');
 var properties = require('../../properties');
 var errors = require('../../errors');
@@ -16,18 +18,6 @@ var {isEmpty} = require('../../util');
 var SubFieldContainer = require('../../gui/SubFieldContainer');
 var {gettext, getCurrentLocale} = require('../../i18n');
 var _ = gettext;
-
-
-class SubFieldSerializationContext extends SerializationContext {
-  getCurrentSerializationElementContainer(elementOptions) {
-    return elementOptions.questions;
-  }
-
-  fixLastSubFieldElement(elementOptions) {
-    var elements = this.getCurrentSerializationElementContainer(elementOptions);
-    elements[elements.length - 1] = elements[elements.length - 1].options;
-  }
-}
 
 
 class RecordList extends Question {
@@ -73,10 +63,10 @@ class RecordList extends Question {
 
     this.length = objectPath.get(field, 'type.length', {});
 
-    element.options.questions.forEach((element, index) => {
+    element.options.questions.forEach((elm, index) => {
       try {
         this.questions.push(
-          Question.parseQuestion(element, field.type.record)
+          Question.parseQuestion(elm, field.type.record)
         );
       } catch (exc) {
         if (exc instanceof errors.ParsingError) {
@@ -94,11 +84,11 @@ class RecordList extends Question {
   getWorkspaceComponent() {
     return (
       <div>
-        <div className='rfb-workspace-element-details'>
-          <div className='rfb-workspace-element-icon'>
+        <div className='rfb-workspace-item-details'>
+          <div className='rfb-workspace-item-icon'>
             <span className='rfb-icon' />
           </div>
-          <div className='rfb-workspace-element-content'>
+          <div className='rfb-workspace-item-content'>
             <span>{this.text[getCurrentLocale()]}</span>
           </div>
         </div>
@@ -107,6 +97,14 @@ class RecordList extends Question {
           />
       </div>
     );
+  }
+
+  getEventTargets() {
+    var subfields = this.questions.map((question) => {
+      return this.id + '.' + question.id;
+    });
+
+    return super.getEventTargets().concat(subfields);
   }
 
   checkValidity() {

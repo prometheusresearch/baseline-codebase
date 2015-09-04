@@ -4,11 +4,10 @@
 
 'use strict';
 
-var assign = require('object-assign');
 var deepCopy = require('deep-copy');
 var EventEmitter = require('component-emitter');
 
-var {Ajax} = require('../util');
+var {Ajax, isEmpty} = require('../util');
 var Dispatcher = require('../Dispatcher');
 var constants = require('../constants');
 var SettingStore = require('./SettingStore');
@@ -45,9 +44,14 @@ function draftToConfiguration() {
   if ((draftSet.instrument_version.definition !== null)
       && (forms.length > 0)) {
     try {
+      var calcs = null;
+      if (draftSet.calculation_set !== null) {
+        calcs = draftSet.calculation_set.definition;
+      }
       var parser = new DefinitionParser(
         draftSet.instrument_version.definition,
-        forms
+        forms,
+        calcs
       );
       configuration = parser.getConfiguration();
     } catch (exc) {
@@ -74,12 +78,25 @@ function configurationToDraft() {
   var config = _activeConfiguration;
   var draftSet = _activeDraftSet;
 
-  var {instrument, form} = config.serialize();
+  var {instrument, form, calculations} = config.serialize();
 
   draftSet.instrument_version.definition = instrument;
+
   Object.keys(draftSet.forms).forEach((channel) => {
     draftSet.forms[channel].configuration = form;
   });
+
+  if (!isEmpty(calculations)) {
+    /*eslint camelcase:0 */
+    if (isEmpty(draftSet.calculation_set)) {
+      draftSet.calculation_set = {
+        definition: null
+      };
+    }
+    draftSet.calculation_set.definition = calculations;
+  } else {
+    draftSet.calculation_set = null;
+  }
 }
 
 
@@ -241,6 +258,100 @@ function deleteElement(element) {
 }
 
 
+function findCalculation(calculation) {
+  for (var i = 0; i < _activeConfiguration.calculations.length; i++) {
+    if (_activeConfiguration.calculations[i].CID === calculation.CID) {
+      return {
+        container: _activeConfiguration.calculations,
+        index: i
+      };
+    }
+  }
+}
+
+
+function putCalculation(calculation, afterCalculation) {
+  var calc = findCalculation(calculation);
+  var afterCalc = afterCalculation ? findCalculation(afterCalculation) : null;
+
+  if (calc) {
+    calc.container.splice(calc.index, 1);
+  }
+  if (!afterCalc) {
+    _activeConfiguration.calculations.push(calculation);
+  } else {
+    afterCalc.container.splice(afterCalc.index, 0, calculation);
+  }
+
+  _isModified = true;
+  configurationToDraft();
+  DraftSetStore.emitChange();
+}
+
+
+function addCalculation(calculation) {
+  var calculations = _activeConfiguration.calculations.slice();
+  calculations.push(calculation);
+
+  _activeConfiguration.calculations = calculations;
+  _isModified = true;
+  configurationToDraft();
+  DraftSetStore.emitChange();
+}
+
+
+function editCalculation(calculation) {
+  calculation.needsEdit = true;
+  DraftSetStore.emitChange();
+}
+
+
+function cloneCalculation(calculation) {
+  var result = findCalculation(calculation);
+  var clone = calculation.clone(false, result.container);
+  result.container.splice(result.index + 1, 0, clone);
+
+  _isModified = true;
+  configurationToDraft();
+  DraftSetStore.emitChange();
+}
+
+
+function updateCalculation(calculation) {
+  var result = findCalculation(calculation);
+  result.container[result.index] = calculation;
+
+  delete calculation.needsEdit;
+  delete calculation.forceEdit;
+
+  _isModified = true;
+  configurationToDraft();
+  DraftSetStore.emitChange();
+}
+
+
+function deleteCalculation(calculation) {
+  var calculations = _activeConfiguration.calculations.slice();
+
+  var calcIndex = -1;
+  for (var i = 0; i < calculations.length; i++) {
+    if (calculations[i].CID === calculation.CID) {
+      calcIndex = i;
+      break;
+    }
+  }
+
+  if (calcIndex > -1) {
+    calculations.splice(calcIndex, 1);
+    _activeConfiguration.calculations = calculations;
+
+    _isModified = true;
+    configurationToDraft();
+    DraftSetStore.emitChange();
+  }
+}
+
+
 function publishActive() {
   var ajax = new Ajax.Ajax({
     baseUrl: SettingStore.get('apiBaseUrl')
@@ -288,17 +399,51 @@ function saveActive() {
     DraftSetStore.emitChange();
     DraftSetStore.emitSave();
   }).catch((err) => {
-    ErrorActions.report(
-      _('Could not save Draft %(id)s', {
-        id: _activeDraftSet.instrument_version.uid
-      }),
-      err
-    );
+    err.response.json().then((data) => {
+      ErrorActions.report(
+        _('Could not save Draft %(id)s', {
+          id: _activeDraftSet.instrument_version.uid
+        }),
+        err,
+        data.error
+      );
+    }).catch(() => {
+      ErrorActions.report(
+        _('Could not save Draft %(id)s', {
+          id: _activeDraftSet.instrument_version.uid
+        }),
+        err
+      );
+    });
   });
 }
 
 
-var DraftSetStore = assign({}, EventEmitter.prototype, {
+function getEventTargets() {
+  var targets = [];
+  _activeConfiguration.elements.forEach((element) => {
+    targets = targets.concat(element.getEventTargets());
+  });
+
+  return targets.filter((target, idx) => {
+    return (target && (targets.indexOf(target) === idx));
+  });
+}
+
+
+function getTags() {
+  var tags = [];
+  _activeConfiguration.elements.forEach((element) => {
+    tags = tags.concat(element.getTags());
+  });
+
+  return tags.filter((tag, idx) => {
+    return (tags && (tags.indexOf(tag) === idx));
+  });
+}
+
+
+var DraftSetStore = Object.assign({}, EventEmitter.prototype, {
   getActive: function () {
     return _activeDraftSet;
   },
@@ -311,8 +456,24 @@ var DraftSetStore = assign({}, EventEmitter.prototype, {
     return _activeConfiguration ? _activeConfiguration.elements : [];
   },
 
+  getActiveCalculations: function () {
+    return _activeConfiguration ? _activeConfiguration.calculations : [];
+  },
+
   findElement: function (element) {
     return findElement(element);
+  },
+
+  findCalculation: function (calculation) {
+    return findCalculation(calculation);
+  },
+
+  getEventTargets: function () {
+    return getEventTargets();
+  },
+
+  getTags: function () {
+    return getTags();
   },
 
   activeIsModified: function () {
@@ -395,6 +556,30 @@ var DraftSetStore = assign({}, EventEmitter.prototype, {
 
       case constants.ACTION_DRAFTSET_CHECKNEWHOME:
         checkNewHome(action.element);
+        break;
+
+      case constants.ACTION_DRAFTSET_ADDCALCULATION:
+        addCalculation(action.calculation);
+        break;
+
+      case constants.ACTION_DRAFTSET_EDITCALCULATION:
+        editCalculation(action.calculation);
+        break;
+
+      case constants.ACTION_DRAFTSET_CLONECALCULATION:
+        cloneCalculation(action.calculation);
+        break;
+
+      case constants.ACTION_DRAFTSET_UPDATECALCULATION:
+        updateCalculation(action.calculation);
+        break;
+
+      case constants.ACTION_DRAFTSET_DELETECALCULATION:
+        deleteCalculation(action.calculation);
+        break;
+
+      case constants.ACTION_DRAFTSET_PUTCALCULATION:
+        putCalculation(action.calculation, action.afterCalculation);
         break;
 
       case constants.ACTION_DRAFTSET_PUBLISH:

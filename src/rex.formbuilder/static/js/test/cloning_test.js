@@ -56,12 +56,14 @@ function checkQuestion(clone, original, exact) {
 
 
 function makeElement(elementType) {
+  /*eslint new-cap: 0 */
   var elm = new elementType();
   elm.tags.push('foo');
   return elm;
 }
 
 function makeQuestion(questionType) {
+  /*eslint new-cap: 0 */
   var elm = new questionType();
   elm.id = 'foo';
   elm.text = { 'en': 'Hello World' };

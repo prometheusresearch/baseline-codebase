@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var classSet = React.addons.classSet;
+var classNames = require('classnames');
 
 
 var ModalMixin = {
@@ -53,12 +53,12 @@ var ModalMixin = {
   },
 
   render: function () {
-    var classes = classSet({
+    var classes = classNames({
       'rfb-modal': true,
       'rfb-modal__active': this.props.visible
     });
     if (this.props.className) {
-      classes = classSet(classes, this.props.className);
+      classes = classNames(classes, this.props.className);
     }
 
     var content = this.renderModalContent();

@@ -45,6 +45,46 @@
           "bar": {}
         }
       }
+    },
+    {
+      "id": "q_fake5",
+      "type": {
+        "base": "enumerationSet",
+        "enumerations": {
+          "foo": {},
+          "bar": {}
+        }
+      }
+    },
+    {
+      "id": "q_fake6",
+      "type": {
+        "base": "enumerationSet",
+        "enumerations": {
+          "foo": {},
+          "bar": {}
+        }
+      }
+    },
+    {
+      "id": "q_fake7",
+      "type": {
+        "base": "enumerationSet",
+        "enumerations": {
+          "foo": {},
+          "bar": {}
+        }
+      }
+    },
+    {
+      "id": "q_fake8",
+      "type": {
+        "base": "enumerationSet",
+        "enumerations": {
+          "foo": {},
+          "bar": {}
+        }
+      }
     }
   ]
 }

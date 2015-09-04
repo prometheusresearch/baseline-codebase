@@ -4,7 +4,6 @@
 
 'use strict';
 
-var React = require('react');
 var objectPath = require('object-path');
 var deepCopy = require('deep-copy');
 
@@ -23,6 +22,11 @@ class Numeric extends Question {
         minLabel: _('Minimum Value'),
         maxLabel: _('Maximum Value'),
         schema: properties.NumericRange
+      },
+      {
+        name: 'width',
+        label: _('Field Width'),
+        schema: properties.WidgetSize
       }
     );
     return cfg;
@@ -35,11 +39,17 @@ class Numeric extends Question {
   constructor() {
     super();
     this.range = {};
+    this.width = 'medium';
   }
 
   parse(element, instrument, field) {
     super.parse(element, instrument, field);
     this.range = objectPath.get(field, 'type.range', {});
+    this.width = objectPath.get(
+      element,
+      'options.widget.options.width',
+      'medium'
+    );
   }
 
   serialize(instrument, form, context, baseType) {
@@ -56,6 +66,12 @@ class Numeric extends Question {
       field.type = baseType;
     }
 
+    if (this.width !== 'medium') {
+      var elm = context.getCurrentSerializationElement(form);
+      objectPath.set(elm, 'options.widget.type', 'inputNumber');
+      objectPath.set(elm, 'options.widget.options.width', this.width);
+    }
+
     return {
       instrument,
       form
@@ -65,6 +81,7 @@ class Numeric extends Question {
   clone(exact, configurationScope) {
     var newElm = super.clone(exact, configurationScope);
     newElm.range = deepCopy(this.range);
+    newElm.width = this.width;
     return newElm;
   }
 }

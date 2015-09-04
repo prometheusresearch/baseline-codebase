@@ -5,7 +5,6 @@
 'use strict';
 
 var FieldID = require('./FieldID');
-var FieldIDList = require('./FieldIDList');
 var Bool = require('./Bool');
 var Regex = require('./Regex');
 var LocalizedText = require('./LocalizedText');
@@ -15,11 +14,22 @@ var NumericRange = require('./NumericRange');
 var DateRange = require('./DateRange');
 var TimeRange = require('./TimeRange');
 var DateTimeRange = require('./DateTimeRange');
+var Event = require('./Event');
+var EventList = require('./EventList');
+var Expression = require('./Expression');
+var RequiredOptional = require('./RequiredOptional');
+var WidgetSize = require('./WidgetSize');
+var AudioSource = require('./AudioSource');
+var SimpleDataType = require('./SimpleDataType');
+var SimpleText = require('./SimpleText');
+var Row = require('./Row');
+var RowList = require('./RowList');
+var EventEnumerationList = require('./EventEnumerationList');
+var TagList = require('./TagList');
 
 
 module.exports = {
   FieldID,
-  FieldIDList,
   Bool,
   Regex,
   LocalizedText,
@@ -28,6 +38,18 @@ module.exports = {
   NumericRange,
   DateRange,
   TimeRange,
-  DateTimeRange
+  DateTimeRange,
+  Event,
+  EventList,
+  Expression,
+  RequiredOptional,
+  WidgetSize,
+  AudioSource,
+  SimpleDataType,
+  SimpleText,
+  Row,
+  RowList,
+  EventEnumerationList,
+  TagList
 };
 

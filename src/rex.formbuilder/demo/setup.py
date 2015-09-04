@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder_demo',
-    version='5.2.2',
+    version='5.3.0',
     description='Demo package for testing rex.formbuilder',
     package_dir={'': 'src'},
     packages=find_packages('src'),

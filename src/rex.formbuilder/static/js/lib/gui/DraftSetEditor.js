@@ -5,20 +5,27 @@
 'use strict';
 
 var React = require('react');
+var classNames = require('classnames');
 
 var ConfirmationModal = require('./ConfirmationModal');
 var TotalFailureModal = require('./TotalFailureModal');
 var {format} = require('../util');
 var ElementToolbox = require('./ElementToolbox');
-var Workspace = require('./Workspace');
+var ElementWorkspace = require('./ElementWorkspace');
+var CalculationToolbox = require('./CalculationToolbox');
+var CalculationWorkspace = require('./CalculationWorkspace');
 var MenuHeader = require('./MenuHeader');
 var EditTitleModal = require('./EditTitleModal');
 var ToasterMixin = require('./ToasterMixin');
-var {DraftSetActions, SettingActions} = require('../actions');
+var {DraftSetActions, SettingActions, ErrorActions} = require('../actions');
 var {DraftSetStore} = require('../stores');
 var {ConfigurationError} = require('../errors');
 var i18n = require('../i18n');
 var _ = i18n.gettext;
+
+
+var MODE_CALCULATIONS = 'CALC';
+var MODE_FORM = 'FORM';
 
 
 var DraftSetEditor = React.createClass({
@@ -36,6 +43,7 @@ var DraftSetEditor = React.createClass({
 
   getInitialState: function () {
     return {
+      editMode: MODE_FORM,
       configuration: null,
       instrumentVersion: null,
       editingTitle: false,
@@ -89,14 +97,16 @@ var DraftSetEditor = React.createClass({
 
     var valid = true;
     var validityError = null;
-    try {
-      cfg.checkValidity();
-    } catch (exc) {
-      if (exc instanceof ConfigurationError) {
-        valid = false;
-        validityError = exc.message;
-      } else {
-        throw exc;
+    if (cfg) {
+      try {
+        cfg.checkValidity();
+      } catch (exc) {
+        if (exc instanceof ConfigurationError) {
+          valid = false;
+          validityError = exc.message;
+        } else {
+          throw exc;
+        }
       }
     }
 
@@ -122,8 +132,28 @@ var DraftSetEditor = React.createClass({
     );
   },
 
+  onModeSwitch: function () {
+    if (this.state.editMode === MODE_FORM) {
+      this.setState({
+        editMode: MODE_CALCULATIONS
+      });
+    } else {
+      this.setState({
+        editMode: MODE_FORM
+      });
+    }
+  },
+
   onSave: function () {
-    DraftSetActions.saveActive();
+    if (this.state.modified && this.state.valid) {
+      DraftSetActions.saveActive();
+    } else if (!this.state.valid) {
+      ErrorActions.report(
+        _('Cannot save this Draft in its current state'),
+        null,
+        this.state.validityError
+      );
+    }
   },
 
   onPreview: function () {
@@ -134,13 +164,6 @@ var DraftSetEditor = React.createClass({
         category: 'draft'
       }
     ));
-  },
-
-  onElementsChanged: function (elements) {
-    this.state.configuration.elements = elements;
-    this.setState({
-      configuration: this.state.configuration
-    });
   },
 
   onChangeTitle: function () {
@@ -186,6 +209,40 @@ var DraftSetEditor = React.createClass({
   },
 
   render: function () {
+    var workspace, toggleTitle, toggleLabel;
+    var toggleClasses = {'rfb-icon': true};
+    if (this.state.editMode === MODE_FORM) {
+      toggleTitle = _('Switch to the Calculations Editor');
+      toggleLabel = _('Edit Calculations');
+      toggleClasses = classNames(toggleClasses, 'icon-mode-calculations');
+
+      workspace = (
+        <div className="rfb-draftset-container">
+          <ElementToolbox
+            />
+          <ElementWorkspace
+            />
+        </div>
+      );
+    } else if (this.state.editMode === MODE_CALCULATIONS) {
+      toggleTitle = _('Switch to the Form Editor');
+      toggleLabel = _('Edit Form');
+      toggleClasses = classNames(toggleClasses, 'icon-mode-form');
+
+      workspace = (
+        <div className="rfb-draftset-container">
+          <CalculationToolbox
+            />
+          <CalculationWorkspace
+            />
+        </div>
+      );
+    }
+
+    var saveButtonClasses = classNames('rfb-button', {
+      'rfb-button__disabled': !this.state.modified || !this.state.valid
+    });
+
     return (
       <div className="rfb-draftset-editor">
         <MenuHeader
@@ -201,8 +258,14 @@ var DraftSetEditor = React.createClass({
             </button>
           }
           <button
-            disabled={!this.state.modified || !this.state.valid}
             className='rfb-button'
+            title={toggleTitle}
+            onClick={this.onModeSwitch}>
+            <span className={toggleClasses} />
+            {toggleLabel}
+          </button>
+          <button
+            className={saveButtonClasses}
             title={
               this.state.validityError
               || _('Save the current state of this Draft to the database')
@@ -211,6 +274,16 @@ var DraftSetEditor = React.createClass({
             <span className='rfb-icon icon-save' />
             {_('Save')}
           </button>
+          {this.props.formPreviewerUrlTemplate &&
+            <button
+              disabled={this.state.modified || !this.state.valid}
+              className='rfb-button'
+              title={_('Explore a rendered, interactive view of this Draft')}
+              onClick={this.onPreview}>
+              <span className='rfb-icon icon-view' />
+              {_('Preview Form')}
+            </button>
+          }
           <button
             disabled={this.state.modified || !this.state.valid}
             className='rfb-button'
@@ -231,16 +304,6 @@ var DraftSetEditor = React.createClass({
               + ' Draft?'
             )}</p>
           </ConfirmationModal>
-          {this.props.formPreviewerUrlTemplate &&
-            <button
-              disabled={this.state.modified || !this.state.valid}
-              className='rfb-button'
-              title={_('Explore a rendered, interactive view of this Draft')}
-              onClick={this.onPreview}>
-              <span className='rfb-icon icon-view' />
-              {_('Preview Form')}
-            </button>
-          }
         </MenuHeader>
         <EditTitleModal
           ref='modalTitle'
@@ -254,16 +317,15 @@ var DraftSetEditor = React.createClass({
             <TotalFailureModal visible={true}>
               <h4>This Draft Cannot Be Managed Using FormBuilder</h4>
               <p>{this.state.configFailure}</p>
+              <button
+                className="rfb-button"
+                onClick={this.onReturn}>
+                {_('Go Back')}
+              </button>
             </TotalFailureModal>
           </div>
           :
-          <div className="rfb-draftset-container">
-            <ElementToolbox
-              />
-            <Workspace
-              onElementsChanged={this.onElementsChanged}
-              />
-          </div>
+          workspace
         }
         {this.renderToaster()}
       </div>

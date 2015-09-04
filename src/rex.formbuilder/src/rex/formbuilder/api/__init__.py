@@ -5,6 +5,7 @@
 
 from .channel import *
 from .draftinstrumentversion import *
+from .draftcalculationset import *
 from .draftform import *
 from .draftset import *
 from .form import *

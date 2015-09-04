@@ -21,7 +21,7 @@ var ToasterMixin = {
 
   getDefaultProps: function () {
     return {
-      toastTimeout: 5000
+      toastTimeout: 7000
     };
   },
 
@@ -45,7 +45,8 @@ var ToasterMixin = {
   _onErrorReport: function (error) {
     var toast = {
       type: Toaster.TYPE_ERROR,
-      message: error.error
+      message: error.error,
+      additional: error.additional
     };
     this.showToast(toast);
   },
@@ -53,7 +54,8 @@ var ToasterMixin = {
   _onSuccessReport: function (success) {
     var toast = {
       type: Toaster.TYPE_SUCCESS,
-      message: success.message
+      message: success.message,
+      additional: success.additional
     };
     this.showToast(toast);
   },

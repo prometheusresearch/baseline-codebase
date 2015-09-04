@@ -4,8 +4,6 @@
 
 'use strict';
 
-var React = require('react');
-
 var ContentElement = require('./ContentElement');
 var _ = require('../i18n').gettext;
 

@@ -5,7 +5,12 @@
 'use strict';
 
 var React = require('react');
-var {Label, defaultValue, PropTypes: FormPropTypes} = require('react-forms');
+var {
+  Label,
+  defaultValue,
+  Message,
+  PropTypes: FormPropTypes
+} = require('react-forms');
 
 var EnumerationFieldset = require('./EnumerationFieldset');
 var _ = require('../../i18n').gettext;
@@ -32,6 +37,7 @@ var RepeatingEnumeration = React.createClass({
 
   render: function () {
     var {label, hint, value} = this.props;
+    var {validation, externalValidation} = value;
     var enumerations = this.buildEnumerations();
 
     return (
@@ -42,18 +48,16 @@ var RepeatingEnumeration = React.createClass({
           hint={hint || value.node.props.get('hint')}
           />
         <table>
-          <thead>
-            <tr>
-              <th>{_('ID')}</th>
-              <th>{_('Label')}</th>
-              <th>{_('Help Text (optional)')}</th>
-              <th></th>
-            </tr>
-          </thead>
           <tbody>
             {enumerations}
           </tbody>
         </table>
+        {validation.isFailure &&
+          <Message>{validation.error}</Message>
+        }
+        {externalValidation.isFailure &&
+          <Message>{externalValidation.error}</Message>
+        }
         <button
           onClick={this.onAdd}
           className='rf-RepeatingFieldset__add'>

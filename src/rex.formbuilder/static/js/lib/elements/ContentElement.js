@@ -22,11 +22,11 @@ class ContentElement extends Element {
 
   getWorkspaceComponent() {
     return (
-      <div className='rfb-workspace-element-details'>
-        <div className='rfb-workspace-element-icon'>
+      <div className='rfb-workspace-item-details'>
+        <div className='rfb-workspace-item-icon'>
           <span className='rfb-icon' />
         </div>
-        <div className='rfb-workspace-element-description'>
+        <div className='rfb-workspace-item-description'>
           {this.constructor.getName()}
         </div>
       </div>

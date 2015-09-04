@@ -5,9 +5,9 @@
 
 from webob.exc import HTTPBadRequest
 
-from rex.core import get_settings, StrVal
-from rex.forms import ValidationError
-from rex.instrument.util import get_implementation
+from rex.core import StrVal
+from rex.forms import ValidationError, Form
+from rex.instrument import Channel, InstrumentVersion
 from rex.restful import SimpleResource, RestfulLocation
 from rex.web import Parameter
 
@@ -55,11 +55,11 @@ class FormResource(SimpleResource, BaseResource):
             create_args=[
                 (
                     'channel',
-                    get_implementation('channel'),
+                    Channel.get_implementation(),
                 ),
                 (
                     'instrument_version',
-                    get_implementation('instrumentversion'),
+                    InstrumentVersion.get_implementation(),
                 ),
                 'configuration',
             ],
@@ -113,9 +113,8 @@ class FormValidationResource(RestfulLocation):
         else:
             instrument_definition = None
 
-        form_impl = get_implementation('form', 'forms')
         try:
-            form_impl.validate_configuration(
+            Form.get_implementation().validate_configuration(
                 request.payload['form'],
                 instrument_definition=instrument_definition,
             )

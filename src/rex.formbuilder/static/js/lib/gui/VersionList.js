@@ -27,7 +27,7 @@ var VersionList = React.createClass({
     var versions = InstrumentVersionStore.getAll().slice();
 
     versions.sort(function (a, b) {
-      return a.version - b.version;
+      return b.version - a.version;
     });
 
     return versions;

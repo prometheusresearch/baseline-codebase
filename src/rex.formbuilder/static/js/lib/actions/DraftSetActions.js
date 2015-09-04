@@ -84,6 +84,49 @@ var DraftSetActions = {
     Dispatcher.dispatch({
       actionType: constants.ACTION_DRAFTSET_SAVE
     });
+  },
+
+  putCalculation: function (calculation, afterCalculation) {
+    Dispatcher.dispatch({
+      actionType: constants.ACTION_DRAFTSET_PUTCALCULATION,
+      calculation: calculation,
+      afterCalculation: afterCalculation
+    });
+  },
+
+  addCalculation: function (calculation) {
+    Dispatcher.dispatch({
+      actionType: constants.ACTION_DRAFTSET_ADDCALCULATION,
+      calculation: calculation
+    });
+  },
+
+  editCalculation: function (calculation) {
+    Dispatcher.dispatch({
+      actionType: constants.ACTION_DRAFTSET_EDITCALCULATION,
+      calculation: calculation
+    });
+  },
+
+  cloneCalculation: function (calculation) {
+    Dispatcher.dispatch({
+      actionType: constants.ACTION_DRAFTSET_CLONECALCULATION,
+      calculation: calculation
+    });
+  },
+
+  updateCalculation: function (calculation) {
+    Dispatcher.dispatch({
+      actionType: constants.ACTION_DRAFTSET_UPDATECALCULATION,
+      calculation: calculation
+    });
+  },
+
+  deleteCalculation: function (calculation) {
+    Dispatcher.dispatch({
+      actionType: constants.ACTION_DRAFTSET_DELETECALCULATION,
+      calculation: calculation
+    });
   }
 };
 

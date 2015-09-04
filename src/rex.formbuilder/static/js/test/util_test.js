@@ -86,5 +86,47 @@ describe('util', function () {
       });
     });
   });
+
+  describe('isEmptyLocalization', function () {
+    it('should be true for null/undefined', function () {
+      expect(util.isEmptyLocalization(null)).to.be.true;
+      expect(util.isEmptyLocalization(undefined)).to.be.true;
+    });
+
+    it('should be true for empty string', function () {
+      expect(util.isEmptyLocalization('')).to.be.true;
+    });
+
+    it('should be true for array with 0 elements', function () {
+      expect(util.isEmptyLocalization([])).to.be.true;
+    });
+
+    it('should be true for an object with no properties', function () {
+      expect(util.isEmptyLocalization({})).to.be.true;
+    });
+
+    it('should be true for an object with keys that have empty values', function () {
+      expect(util.isEmptyLocalization({en: ''})).to.be.true;
+      expect(util.isEmptyLocalization({en: null})).to.be.true;
+      expect(util.isEmptyLocalization({en: null, fr: ''})).to.be.true;
+    });
+
+    it('should be false for anything else', function () {
+      var tests = [
+        1,
+        0,
+        'foo',
+        {foo: 1},
+        ['foo'],
+        new Date(),
+        true,
+        false
+      ];
+
+      tests.forEach((test) => {
+        expect(util.isEmptyLocalization(test), test.toString()).to.be.false;
+      });
+    });
+  });
 });
 

@@ -12,6 +12,7 @@ var Header = require('./Header');
 var Divider = require('./Divider');
 var Questions = require('./questions');
 var PageStart = require('./PageStart');
+var Audio = require('./Audio');
 var ELEMENT_TYPES = require('./types');
 
 
@@ -22,6 +23,7 @@ module.exports = {
   Header,
   Divider,
   Questions,
-  PageStart
+  PageStart,
+  Audio
 };
 

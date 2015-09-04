@@ -6,15 +6,28 @@
 
 var React = require('react');
 var merge = require('n-deep-merge');
-var qwest = require('qwest');
+var dotQs = require('dot-qs');
 
 
 var DEFAULT_OPTIONS = {
-  baseUrl: '',
-  responseType: 'json',
-  cache: true,
-  attempts: 1
+  baseUrl: ''
 };
+
+
+function checkStatus(response) {
+  if ((response.status >= 200) && (response.status < 300)) {
+    return response;
+  } else {
+    var error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
+}
+
+
+function parseJSON(response) {
+  return response.json();
+}
 
 
 class Ajax {
@@ -25,47 +38,79 @@ class Ajax {
   }
 
   get(url, data) {
-    return qwest.get(
-      this.baseUrl + url,
-      data,
-      this.options
-    );
+    url = this.baseUrl + url;
+    if (data) {
+      url = url + '?' + dotQs.stringify(data);
+    }
+
+    return fetch(
+        url,
+        {
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json'
+          }
+        }
+      )
+      .then(checkStatus)
+      .then(parseJSON)
+    ;
   }
 
   post(url, data) {
-    var options = merge({}, this.options, {
-      dataType: 'json'
-    });
-
-    return qwest.post(
-      this.baseUrl + url,
-      data,
-      options
-    );
+    //console.debug('POST', url, data);
+    return fetch(
+        this.baseUrl + url,
+        {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        }
+      )
+      .then(checkStatus)
+      .then(parseJSON)
+    ;
   }
 
   put(url, data) {
-    var options = merge({}, this.options, {
-      dataType: 'json'
-    });
-
-    return qwest.put(
-      this.baseUrl + url,
-      data,
-      options
-    );
+    //console.debug('PUT', url, data);
+    return fetch(
+        this.baseUrl + url,
+        {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        }
+      )
+      .then(checkStatus)
+      .then(parseJSON)
+    ;
   }
 
-  delete(url, data) {
-    var options = merge({}, this.options, {
-      responseType: 'text'
-    });
-
-    return qwest.delete(
-      this.baseUrl + url,
-      data,
-      options
-    );
+  delete(url) {
+    return fetch(
+        this.baseUrl + url,
+        {
+          method: 'DELETE',
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json'
+          }
+        }
+      )
+      .then(checkStatus)
+      .then(function () {
+        return null;
+      })
+    ;
   }
 }
 

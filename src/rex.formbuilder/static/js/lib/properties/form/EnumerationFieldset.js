@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var classSet = React.addons.classSet;
+var classNames = require('classnames');
 var ReactForms = require('react-forms');
 
 
@@ -13,20 +13,6 @@ var EnumerationFieldset = React.createClass({
   propTypes: {
     value: ReactForms.PropTypes.Value,
     onRemove: React.PropTypes.func
-  },
-
-  buildFields: function () {
-    return this.props.value.map((value, key) => {
-      return (
-        <td
-          className={'rfb-enumeration-field rfb-enumeration-field-' + key}
-          key={key}>
-          <ReactForms.Element
-            value={value}
-            />
-        </td>
-      );
-    });
   },
 
   render: function () {
@@ -43,12 +29,32 @@ var EnumerationFieldset = React.createClass({
     if (className) {
       classes[className] = true;
     }
-    classes = classSet(classes);
+    classes = classNames(classes);
 
     return (
       <tr>
-        {this.buildFields()}
-        <td>
+        <td className="rfb-table-field-short">
+          <ReactForms.Element
+            value={value.get('id')}
+            />
+          <ReactForms.Element
+            value={value.get('hotkey')}
+            />
+        </td>
+        <td className="rfb-table-field-long">
+          <ReactForms.Element
+            value={value.get('text')}
+            />
+          <ReactForms.Element
+            value={value.get('help')}
+            />
+        </td>
+        <td className="rfb-table-field-long">
+          <ReactForms.Element
+            value={value.get('audio')}
+            />
+        </td>
+        <td className="rfb-table-field-short">
           <button
             onClick={this.props.onRemove}
             className='rf-RepeatingFieldset__remove'>

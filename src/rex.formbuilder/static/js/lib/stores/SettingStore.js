@@ -4,7 +4,6 @@
 
 'use strict';
 
-var assign = require('object-assign');
 var EventEmitter = require('component-emitter');
 
 var Dispatcher = require('../Dispatcher');
@@ -24,7 +23,7 @@ function initialize(settings) {
 }
 
 
-var SettingStore = assign({}, EventEmitter.prototype, {
+var SettingStore = Object.assign({}, EventEmitter.prototype, {
   get: function (name, defaultValue) {
     return _settings[name] === undefined ? defaultValue : _settings[name];
   },

@@ -4,7 +4,6 @@
 
 'use strict';
 
-var assign = require('object-assign');
 var EventEmitter = require('component-emitter');
 
 var {Ajax} = require('../util');
@@ -72,7 +71,7 @@ function clone(version) {
 }
 
 
-var InstrumentVersionStore = assign({}, EventEmitter.prototype, {
+var InstrumentVersionStore = Object.assign({}, EventEmitter.prototype, {
   get: function (uid) {
     return this.getAll().filter(i => i.uid === uid)[0];
   },

@@ -33,12 +33,21 @@ class EnumerationList extends ReactForms.schema.ListNode {
     }
 
     var ids = [];
-    for (var i = 0; i < value.size; i++) {
+    var hotkeys = [];
+    for (var i = 0; i < value.count(); i++) {
       var id = value.get(i).get('id');
       if (ids.indexOf(id) > -1) {
         return new Error(_('Every enumeration must have a unique identifier.'));
       }
       ids.push(id);
+
+      var hotkey = value.get(i).get('hotkey');
+      if (hotkey) {
+        if (hotkeys.indexOf(hotkey) > -1) {
+          return new Error(_('Hotkeys must be unique.'));
+        }
+        hotkeys.push(hotkey);
+      }
     }
   }
 }

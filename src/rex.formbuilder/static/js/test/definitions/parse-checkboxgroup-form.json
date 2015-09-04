@@ -57,6 +57,73 @@
               }
             ]
           }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake5",
+            "text": {
+              "en": "Question5 Text"
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "hotkeys": {
+                  "foo": "2",
+                  "bar": "9"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake6",
+            "text": {
+              "en": "Question6 Text"
+            },
+            "enumerations": [
+              {
+                "id": "bar",
+                "text": {
+                  "en": "Bar?"
+                },
+                "audio": {
+                  "en": [
+                    "http://example.com/foo.mp3"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake7",
+            "text": {
+              "en": "Question7 Text"
+            },
+            "widget": {
+              "type": "entryCheckGroup"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q_fake8",
+            "text": {
+              "en": "Question8 Text"
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "autoHotkeys": true
+              }
+            }
+          }
         }
       ]
     }

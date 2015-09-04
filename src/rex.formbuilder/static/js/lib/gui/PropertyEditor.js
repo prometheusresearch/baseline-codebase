@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var {classSet} = React.addons;
+var classNames = require('classnames');
 var ReactForms = require('react-forms');
 var deepMerge = require('n-deep-merge');
 
@@ -145,7 +145,7 @@ var PropertyEditor = React.createClass({
 
   renderTabs: function (config) {
     var tabs = this.state.tabs.map((category) => {
-      var classes = classSet({
+      var classes = classNames({
         'rfb-tab': true,
         'rfb-tab__active': (this.state.tab === category)
       });
@@ -172,7 +172,7 @@ var PropertyEditor = React.createClass({
 
   renderTabContent: function (config) {
     return this.state.tabs.map((category) => {
-      var classes = classSet({
+      var classes = classNames({
         'rfb-tab-content': true,
         'rfb-tab-content__active': (this.state.tab === category)
       });

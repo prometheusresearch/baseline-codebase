@@ -7,12 +7,10 @@
 var ReactForms = require('react-forms');
 var {Map, OrderedMap} = require('immutable');
 
+var {RE_ENUMERATION_ID, RE_HOTKEY} = require('../constants');
+var AudioSource = require('./AudioSource');
 var LocalizedText = require('./LocalizedText');
 var _ = require('../i18n').gettext;
-
-
-var RE_IDENTIFIER =
-  /^(?:[a-z0-9]{1,2}|[a-z0-9](?:[a-z0-9]|[_-](?![_-]))+[a-z0-9])$/;
 
 
 class Enumeration extends ReactForms.schema.MappingNode {
@@ -23,9 +21,10 @@ class Enumeration extends ReactForms.schema.MappingNode {
 
     var children = {
       id: ReactForms.schema.Scalar({
+        label: _('ID'),
         required: true,
         validate: function (node, value) {
-          if (!RE_IDENTIFIER.test(value)) {
+          if (!RE_ENUMERATION_ID.test(value)) {
             return new Error(
               _('Not a valid format for an enumeration identifier.')
             );
@@ -34,10 +33,29 @@ class Enumeration extends ReactForms.schema.MappingNode {
       }),
 
       text: LocalizedText.create({
+        label: _('Label'),
         required: true
       }),
 
+      hotkey: ReactForms.schema.Scalar({
+        label: _('Hotkey'),
+        required: false,
+        validate: function (node, value) {
+          if (!RE_HOTKEY.test(value)) {
+            return new Error(
+              _('Hotkeys can only be single numeric digits.')
+            );
+          }
+        }
+      }),
+
       help: LocalizedText.create({
+        label: _('Help Text'),
+        required: false
+      }),
+
+      audio: AudioSource.create({
+        label: _('Audio File URLs'),
         required: false
       })
     };

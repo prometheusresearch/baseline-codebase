@@ -6,6 +6,7 @@
 
 var elements = require('./elements');
 var {ConfigurationError} = require('./errors');
+var {isEmpty} = require('./util');
 var _ = require('./i18n').gettext;
 
 
@@ -19,6 +20,8 @@ class Configuration {
     var page = new elements.PageStart();
     page.id = 'page1';
     this.elements = [page];
+
+    this.calculations = [];
   }
 
   serialize() {
@@ -45,9 +48,25 @@ class Configuration {
       element.serialize(instrument, form);
     });
 
+    var calculations = null;
+    if (!isEmpty(this.calculations)) {
+      calculations = {
+        instrument: {
+          id: this.id,
+          version: this.version
+        },
+        calculations: []
+      };
+
+      this.calculations.forEach((calculation) => {
+        calculation.serialize(calculations);
+      });
+    }
+
     return {
       instrument,
-      form
+      form,
+      calculations
     };
   }
 
@@ -99,6 +118,12 @@ class Configuration {
       throw new ConfigurationError(
         _('Every Page must contain at least one Element.')
       );
+    }
+
+    if (!isEmpty(this.calculations)) {
+      this.calculations.forEach((calculation) => {
+        calculation.checkValidity();
+      });
     }
 
     return true;

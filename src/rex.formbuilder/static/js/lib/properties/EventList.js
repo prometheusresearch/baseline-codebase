@@ -7,13 +7,15 @@
 var ReactForms = require('react-forms');
 var {Map} = require('immutable');
 
-var FieldID = require('./FieldID');
+var Event = require('./Event');
+var RepeatingEventFieldset = require('./form/RepeatingEvent');
 
 
-class FieldIDList extends ReactForms.schema.ListNode {
+class EventList extends ReactForms.schema.ListNode {
   static create(props) {
     props = props || {};
-    props.children = FieldID.create();
+    props.children = Event.create();
+    props.component = RepeatingEventFieldset;
 
     /*eslint new-cap:0 */
     return new this(Map(props));
@@ -21,5 +23,5 @@ class FieldIDList extends ReactForms.schema.ListNode {
 }
 
 
-module.exports = FieldIDList;
+module.exports = EventList;
 

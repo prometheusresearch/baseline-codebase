@@ -4,7 +4,6 @@
 
 'use strict';
 
-var assign = require('object-assign');
 var EventEmitter = require('component-emitter');
 
 var Dispatcher = require('../Dispatcher');
@@ -25,7 +24,7 @@ function report(message) {
 }
 
 
-var SuccessStore = assign({}, EventEmitter.prototype, {
+var SuccessStore = Object.assign({}, EventEmitter.prototype, {
   getLatest: function () {
     return _successes[_successes.length - 1];
   },

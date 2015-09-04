@@ -7,11 +7,13 @@
 var Ajax = require('./Ajax');
 var format = require('./format');
 var isEmpty = require('./isEmpty');
+var isEmptyLocalization = require('./isEmptyLocalization');
 
 
 module.exports = {
   Ajax,
   format,
-  isEmpty
+  isEmpty,
+  isEmptyLocalization
 };
 

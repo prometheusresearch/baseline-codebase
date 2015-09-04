@@ -26,6 +26,11 @@ class CheckBoxGroup extends Enumeration {
     var cfg = Enumeration.getPropertyConfiguration();
     cfg.properties.advanced.unshift(
       {
+        name: 'horizontal',
+        label: _('Display Choices Horizontally'),
+        schema: properties.Bool
+      },
+      {
         name: 'length',
         minLabel: _('Minimum # of Choices'),
         maxLabel: _('Maximum # of Choices'),
@@ -38,17 +43,30 @@ class CheckBoxGroup extends Enumeration {
   constructor() {
     super();
     this.length = {};
+    this.horizontal = false;
   }
 
   clone(exact, configurationScope) {
     var newElm = super.clone(exact, configurationScope);
     newElm.length = deepCopy(this.length);
+    newElm.horizontal = this.horizontal;
     return newElm;
   }
 
   parse(element, instrument, field) {
     super.parse(element, instrument, field);
     this.length = objectPath.get(field, 'type.length', {});
+    this.horizontal = objectPath.get(
+      element,
+      'options.widget.options.orientation',
+      'vertical'
+    ) === 'horizontal';
+
+    if (!this.autoHotkeys) {
+      // Backwards compat; Use of entryCheckGroup basically assumed autoHotkeys
+      var widget = objectPath.get(element, 'options.widget.type');
+      this.autoHotkeys = (widget === 'entryCheckGroup');
+    }
   }
 
   serialize(instrument, form, context) {
@@ -64,6 +82,19 @@ class CheckBoxGroup extends Enumeration {
       objectPath.set(field, 'type.length', this.length);
     }
 
+    var elm = context.getCurrentSerializationElement(form);
+    if (
+        this.horizontal
+        || (
+          objectPath.get(elm, 'options.widget.options', undefined) !== undefined
+        )) {
+      objectPath.set(elm, 'options.widget.type', 'checkGroup');
+    }
+    if (this.horizontal) {
+      var elm = context.getCurrentSerializationElement(form);
+      objectPath.set(elm, 'options.widget.options.orientation', 'horizontal');
+    }
+
     return {
       instrument,
       form
@@ -77,7 +108,10 @@ Enumeration.registerElement(
   function (element, instrument, field) {
     if (field.type.rootType === 'enumerationSet') {
       var widget = objectPath.get(element, 'options.widget.type');
-      if (!widget || (widget === 'checkGroup')) {
+      if (
+          !widget
+          || (widget === 'checkGroup')
+          || (widget === 'entryCheckGroup')) {
         var elm = new CheckBoxGroup();
         elm.parse(element, instrument, field);
         return elm;
@@ -88,5 +122,4 @@ Enumeration.registerElement(
 
 
 module.exports = CheckBoxGroup;
-
 

@@ -6,10 +6,8 @@
 
 var ReactForms = require('react-forms');
 
+var {RE_DATE} = require('../../constants');
 var _ = require('../../i18n').gettext;
-
-
-var RE_DATE = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 
 
 class DateNode extends ReactForms.schema.DateNode {

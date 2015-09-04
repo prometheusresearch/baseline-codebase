@@ -14,6 +14,7 @@ from rex.web import Parameter
 
 from .base import BaseResource, get_instrument_user, FakeRequest
 from .draftform import DraftFormResource
+from .draftcalculationset import DraftCalculationSetResource
 from .draftinstrumentversion import DraftInstrumentVersionResource
 
 
@@ -43,6 +44,17 @@ def get_draft_forms(user, draft_instrument_version):
     )
 
 
+def get_draft_calculationset(user, draft_instrument_version):
+    calcs = user.find_objects(
+        'draftcalculationset',
+        draft_instrument_version=draft_instrument_version,
+        limit=1,
+    )
+    if calcs:
+        return calcs[0]
+    return None
+
+
 class DraftSetResource(SimpleResource, BaseResource):
     base_path = '/api/draftset'
     path = '/api/draftset/{draftinstrumentversion_uid}'
@@ -55,17 +67,32 @@ class DraftSetResource(SimpleResource, BaseResource):
     }
 
     def create(self, request, **kwargs):
-        # pylint: disable=no-self-use
+        # pylint: disable=no-self-use,protected-access
+
+        user = get_instrument_user(request)
 
         try:
+            # Create the draft instrument version
             handler = DraftInstrumentVersionResource. \
                 _SimpleResource__base_handler()
-            user = get_instrument_user(request)
             payload = request.payload
             instrument_version = payload.get('instrument_version', {})
             fake_request = FakeRequest(instrument_version, user)
             div = handler.create(fake_request)
 
+            # Create the draft calculation set
+            calc = None
+            if payload.get('calculation_set', None):
+                handler = DraftCalculationSetResource. \
+                    _SimpleResource__base_handler()
+                fake_request_payload = {
+                    'draft_instrument_version': div['uid'],
+                    'definition': payload['calculation_set'],
+                }
+                fake_request = FakeRequest(fake_request_payload, user)
+                calc = handler.create(fake_request)
+
+            # Create the draft forms
             handler = DraftFormResource._SimpleResource__base_handler()
             forms = {}
             for channel_uid, form in payload.get('forms', {}).items():
@@ -81,9 +108,10 @@ class DraftSetResource(SimpleResource, BaseResource):
         return {
             'instrument_version': div,
             'forms': forms,
+            'calculation_set': calc,
         }
 
-    def make_forms_dict(self, forms):
+    def make_forms_dict(self, forms):  # pylint: disable=no-self-use
         result = {}
         for form in forms:
             result[form.channel.uid] = form.as_dict(
@@ -98,14 +126,16 @@ class DraftSetResource(SimpleResource, BaseResource):
             draftinstrumentversion_uid,
         )
         draft_forms = get_draft_forms(user, div)
+        dcs = get_draft_calculationset(user, div)
         result = {
             'instrument_version': div.as_dict(extra_properties=['definition']),
             'forms': self.make_forms_dict(draft_forms),
+            'calculation_set': dcs.as_dict(extra_properties=['definition']) if dcs else None,
         }
         return result
 
     def update(self, request, draftinstrumentversion_uid, **kwargs):
-        # pylint: disable=no-self-use
+        # pylint: disable=no-self-use,protected-access
 
         user = get_instrument_user(request)
         div = get_draft_instrument_version(
@@ -113,6 +143,7 @@ class DraftSetResource(SimpleResource, BaseResource):
             draftinstrumentversion_uid,
         )
         draft_forms = get_draft_forms(user, div)
+        dcs = get_draft_calculationset(user, div)
 
         presented_forms = set([
             draft_form.channel.uid
@@ -121,6 +152,7 @@ class DraftSetResource(SimpleResource, BaseResource):
         payload = request.payload
         output_forms = {}
         try:
+            # Update the instrument version
             handler = DraftInstrumentVersionResource()
             fake_request = FakeRequest(payload['instrument_version'], user)
             output_div = handler.update(
@@ -128,6 +160,34 @@ class DraftSetResource(SimpleResource, BaseResource):
                 draftinstrumentversion_uid,
             )
 
+            # Update the calculations
+            if payload.get('calculation_set', None):
+                if dcs:
+                    handler = DraftCalculationSetResource()
+                    fake_request = FakeRequest({
+                        'definition': payload['calculation_set'] \
+                            .get('definition'),
+                    }, user)
+                    output_calc = handler.update(
+                        fake_request,
+                        draftinstrumentversion_uid,
+                    )
+                else:
+                    handler = DraftCalculationSetResource. \
+                        _SimpleResource__base_handler()
+                    fake_request = FakeRequest({
+                        'definition': payload['calculation_set'] \
+                            .get('definition'),
+                        'draft_instrument_version': draftinstrumentversion_uid,
+                    }, user)
+                    output_calc = handler.create(fake_request)
+
+            else:
+                if dcs:
+                    dcs.delete()
+                output_calc = None
+
+            # Update the forms
             submitted_forms = set(payload.get('forms', {}).keys())
             handler = DraftFormResource()
             for draft_form in draft_forms:
@@ -160,6 +220,7 @@ class DraftSetResource(SimpleResource, BaseResource):
         result = {
             'instrument_version': output_div,
             'forms': output_forms,
+            'calculation_set': output_calc,
         }
         return result
 
@@ -172,9 +233,12 @@ class DraftSetResource(SimpleResource, BaseResource):
             draftinstrumentversion_uid,
         )
         draft_forms = get_draft_forms(user, div)
+        dcs = get_draft_calculationset(user, div)
 
         for draft_form in draft_forms:
             draft_form.delete()
+        if dcs:
+            dcs.delete()
         div.delete()
 
 
@@ -193,9 +257,12 @@ class DraftSetPublishResource(RestfulLocation):
             draftinstrumentversion_uid,
         )
         draft_forms = get_draft_forms(user, div)
+        dcs = get_draft_calculationset(user, div)
 
         try:
             div.validate()
+            if dcs:
+                dcs.validate()
             for draft_form in draft_forms:
                 draft_form.validate()
         except (InstrumentValidationError, FormValidationError) as exc:
@@ -208,6 +275,14 @@ class DraftSetPublishResource(RestfulLocation):
                 'status': 'ERROR',
                 'error': unicode(exc),
             }
+
+        if dcs:
+            try:
+                calc = dcs.publish(instrument_version)
+            except InstrumentError as exc:
+                raise HTTPBadRequest(unicode(exc))
+        else:
+            calc = None
 
         forms = {}
         for draft_form in draft_forms:
@@ -222,12 +297,16 @@ class DraftSetPublishResource(RestfulLocation):
                     'status': 'ERROR',
                     'error': unicode(exc),
                 }
+
         result = {
             'status': 'SUCCESS',
             'instrument_version': instrument_version.as_dict(
                 extra_properties=['definition'],
             ),
             'forms': forms,
+            'calculation_set': calc.as_dict(
+                extra_properties=['definition'],
+            ),
         }
         return result
 
@@ -239,7 +318,7 @@ class DraftSetCloneResource(RestfulLocation):
     )
 
     def create(self, request, draftinstrumentversion_uid, **kwargs):
-        # pylint: disable=no-self-use
+        # pylint: disable=no-self-use,protected-access
 
         user = get_instrument_user(request)
         div = get_draft_instrument_version(
@@ -247,6 +326,7 @@ class DraftSetCloneResource(RestfulLocation):
             draftinstrumentversion_uid,
         )
         forms = get_draft_forms(user, div)
+        dcs = get_draft_calculationset(user, div)
 
         # Clone the DraftInstrumentVersion
         handler = DraftInstrumentVersionResource. \
@@ -260,6 +340,18 @@ class DraftSetCloneResource(RestfulLocation):
                 div.parent_instrument_version.uid
         fake_request = FakeRequest(payload, user)
         new_div = handler.create(fake_request)
+
+        # Clone the DraftCalculationSet
+        new_calc = None
+        if dcs:
+            handler = DraftCalculationSetResource. \
+                _SimpleResource__base_handler()
+            payload = {
+                'draft_instrument_version': new_div['uid'],
+                'definition': dcs.definition,
+            }
+            fake_request = FakeRequest(payload, user)
+            new_calc = handler.create(fake_request)
 
         # Clone the associated Forms.
         handler = DraftFormResource._SimpleResource__base_handler()
@@ -276,6 +368,7 @@ class DraftSetCloneResource(RestfulLocation):
         return {
             'instrument_version': new_div,
             'forms': new_forms,
+            'calculation_set': new_calc,
         }
 
 
@@ -283,13 +376,14 @@ class DraftSetSkeletonResource(RestfulLocation, BaseResource):
     path = '/api/draftset/skeleton'
 
     def create(self, request, **kwargs):
-        # pylint: disable=no-self-use
+        # pylint: disable=no-self-use,protected-access
 
         try:
             user = get_instrument_user(request)
 
             # TODO parent_instrument_version
 
+            # Create the DraftInstrument
             fake_request_payload = {
                 'instrument': request.payload['instrument'],
             }
@@ -298,6 +392,7 @@ class DraftSetSkeletonResource(RestfulLocation, BaseResource):
                 _SimpleResource__base_handler()
             div = handler.create(fake_request)
 
+            # Create the DraftForms
             forms = {}
             handler = DraftFormResource._SimpleResource__base_handler()
             for channel_uid in request.payload.get('channels', []):
@@ -309,8 +404,10 @@ class DraftSetSkeletonResource(RestfulLocation, BaseResource):
                 forms[channel_uid] = handler.create(fake_request)
         except (Error, InstrumentValidationError, FormValidationError) as exc:
             raise HTTPBadRequest(unicode(exc))
+
         return {
             'instrument_version': div,
             'forms': forms,
+            'calculation_set': None,
         }
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder',
-    version='5.2.2',
+    version='5.3.0',
     description='A tool for creating and managing the Instruments and Forms in'
     ' a RexDB application.',
     long_description=open('README.rst', 'r').read(),
@@ -26,13 +26,14 @@ setup(
     install_requires=[
         'rex.core>=1.10,<2',
         'rex.web>=3.2,<4',
-        'rex.instrument>=0.17,<0.19',
-        'rex.forms>=0.30,<0.32',
-        'rex.restful>=0.4,<0.5',
+        'rex.instrument>=1,<2',
+        'rex.expression>=1.5,<2',
+        'rex.forms>=1,<2',
+        'rex.restful>=1,<2',
         'rex.applet>=0.2,<3',
         'rex.widget>=1,<2',
         'rex.i18n>=0.4.2,<0.5',
-        'rex.form_previewer>=0.2,<0.5',
+        'rex.form_previewer>=0.2,<0.6',
     ],
     rex_init='rex.formbuilder',
     rex_static='static'

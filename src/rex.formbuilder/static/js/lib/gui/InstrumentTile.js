@@ -4,8 +4,8 @@
 
 'use strict';
 
-var React = require('react/addons');
-var classSet = React.addons.classSet;
+var React = require('react');
+var classNames = require('classnames');
 
 
 var InstrumentTile = React.createClass({
@@ -14,7 +14,7 @@ var InstrumentTile = React.createClass({
   },
 
   render: function () {
-    var classes = classSet({
+    var classes = classNames({
       'rfb-instrument-tile': true,
       'disabled': this.props.instrument.status === 'disabled'
     });

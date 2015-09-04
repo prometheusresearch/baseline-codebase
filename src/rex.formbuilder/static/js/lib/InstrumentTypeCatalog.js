@@ -7,29 +7,9 @@
 var merge = require('n-deep-merge');
 
 var {ParsingError} = require('./errors');
+var {INSTRUMENT_BASE_TYPES} = require('./InstrumentTypes');
 var _ = require('./i18n').gettext;
 
-
-var SIMPLE_INSTRUMENT_BASE_TYPES = [
-  'float',
-  'integer',
-  'text',
-  'enumeration',
-  'enumerationSet',
-  'boolean',
-  'date',
-  'time',
-  'dateTime'
-];
-
-var COMPLEX_INSTRUMENT_BASE_TYPES = [
-  'recordList',
-  'matrix'
-];
-
-var INSTRUMENT_BASE_TYPES = SIMPLE_INSTRUMENT_BASE_TYPES.concat(
-  COMPLEX_INSTRUMENT_BASE_TYPES
-);
 
 
 class InstrumentTypeCatalog {

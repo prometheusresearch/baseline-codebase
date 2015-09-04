@@ -6,7 +6,7 @@
 
 
 var React = require('react');
-var classSet = React.addons.classSet;
+var classNames = require('classnames');
 var ReactForms = require('react-forms');
 var {Message, Label, Element} = ReactForms;
 
@@ -33,7 +33,7 @@ var Fieldset = React.createClass({
     if (className) {
       classes[className] = true;
     }
-    classes = classSet(classes);
+    classes = classNames(classes, value.node.props.get('className'));
 
     return (
       <div {...props} className={classes}>
@@ -44,9 +44,9 @@ var Fieldset = React.createClass({
             hint={hint || value.node.props.get('hint')}
             />}
         {value.map((value, key) => <Element key={key} value={value} />)}
-        {validation.isFailure && 
+        {validation.isFailure && isDirty &&
           <Message>{validation.error}</Message>}
-        {externalValidation.isFailure &&
+        {externalValidation.isFailure && isDirty &&
           <Message>{externalValidation.error}</Message>}
       </div>
     );

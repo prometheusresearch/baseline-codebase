@@ -4,11 +4,28 @@
 
 'use strict';
 
-var React = require('react');
-
 var ContentElement = require('./ContentElement');
 var properties = require('../properties');
 var _ = require('../i18n').gettext;
+
+
+function validateIdUniqueness(node, value) {
+  var {DraftSetStore} = require('../stores');
+  var existing = DraftSetStore.findElement(node.ELEMENT);
+
+  var matches = existing.container.filter((element) => {
+    /*eslint no-use-before-define:0 */
+    return (element instanceof PageStart)
+        && (element.id === value)
+        && (element.EID !== node.ELEMENT.EID);
+  });
+
+  if (matches.length > 0) {
+    return new Error(_(
+      'This identifier is already in use.'
+    ));
+  }
+}
 
 
 class PageStart extends ContentElement {
@@ -24,7 +41,7 @@ class PageStart extends ContentElement {
         schema: properties.FieldID,
         label: _('Page ID'),
         required: true,
-        uniqueAcrossElementType: PageStart
+        validate: validateIdUniqueness
       }
     );
     cfg.properties.advanced = cfg.properties.advanced.filter((prop) => {
@@ -42,7 +59,13 @@ class PageStart extends ContentElement {
     this.id = null;
   }
 
+  getEventTargets() {
+    return super.getEventTargets().concat([this.id]);
+  }
+
   serialize(instrument, form, context) {
+    /*eslint no-unused-vars:0 */
+
     var page = {
       id: this.id,
       elements: []

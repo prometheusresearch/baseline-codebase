@@ -16,7 +16,7 @@ Set up the environment::
 The semi-abstract base Interaction class only implements a simple constructor
 and string-rendering methods::
 
-    >>> from rex.instrument.interface import Instrument, InstrumentVersion, Channel
+    >>> from rex.instrument.interface import Instrument, InstrumentVersion, Channel, Task
     >>> from datetime import datetime
     >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> INSTRUMENT = {
@@ -198,6 +198,31 @@ well-formed::
     ValidationError: Fields that require explanations or annotations are not currently supported.
 
 
+There is a static method named ``get_for_task`` which will retrieve an
+Interaction given a Task and Channel::
+
+    >>> channel = Channel.get_implementation().get_by_uid('mobile')
+    >>> task = Task.get_implementation().get_by_uid('task1')
+
+    >>> Interaction.get_implementation().get_for_task('task1', 'mobile')
+    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+
+    >>> Interaction.get_implementation().get_for_task(task, 'mobile')
+    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+
+    >>> Interaction.get_implementation().get_for_task('task1', channel)
+    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+
+    >>> Interaction.get_implementation().get_for_task(task, channel)
+    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+
+    >>> Interaction.get_implementation().get_for_task('task5', 'mobile') is None
+    True
+
+    >>> Interaction.get_implementation().get_for_task('doesntexist', 'mobile') is None
+    True
+
+
 Interactions can be checked for equality. Note that equality is only defined as
 being the same class with the same UID::
 
@@ -235,4 +260,8 @@ being the same class with the same UID::
     True
     >>> interaction3 >= interaction1
     True
+
+
+
+    >>> rex.off()
 

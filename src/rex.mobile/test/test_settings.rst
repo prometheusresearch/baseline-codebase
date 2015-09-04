@@ -12,10 +12,14 @@ The default contents of the mobile_implementation record will point to the
 abstract interface classes, which, of course, are mostly useless::
 
     >>> from rex.core import Rex, get_settings
+    >>> from rex.mobile.interface import *
+
     >>> test = Rex('__main__', 'rex.mobile')
     >>> test.on()
     >>> get_settings().mobile_implementation
     Record(interaction=rex.mobile.interface.interaction.Interaction)
+    >>> Interaction.get_implementation()
+    rex.mobile.interface.interaction.Interaction
     >>> test.off()
 
 
@@ -26,6 +30,8 @@ Typically an app would have these implementations specified in its
     >>> test.on()
     >>> get_settings().mobile_implementation
     Record(interaction=rex.mobile_demo.DemoInteraction)
+    >>> Interaction.get_implementation()
+    rex.mobile_demo.DemoInteraction
     >>> test.off()
 
 
@@ -35,5 +41,7 @@ The setting can be specified by multiple apps and will be merged::
     >>> test.on()
     >>> get_settings().mobile_implementation
     Record(interaction=rex.mobile_demo.OtherDemoInteraction)
+    >>> Interaction.get_implementation()
+    rex.mobile_demo.OtherDemoInteraction
     >>> test.off()
 

@@ -5,6 +5,15 @@ REX.MOBILE Change Log
 .. contents:: Table of Contents
 
 
+0.3.0 (2015-xx-xx)
+==================
+
+* Updated prismh.core and rex.instrument dependencies.
+* Added a ``get_implementation()`` method to all Interface classes as a
+  convenience wrappper around the same function in the utils module.
+* The Interaction.get_for_task() method now accepts Task instances and UIDs.
+
+
 0.2.0 (2015-06-23)
 ==================
 

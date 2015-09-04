@@ -9,7 +9,7 @@ from prismh.core import validate_interaction, \
     ValidationError as PrismhValidationError
 
 from rex.core import Extension, AnyVal, Error
-from rex.instrument.interface import InstrumentVersion, Channel
+from rex.instrument import InstrumentVersion, Channel, Task
 from rex.instrument.mixins import *
 from rex.instrument.util import to_unicode, memoized_property, \
     get_implementation
@@ -181,16 +181,24 @@ class Interaction(
         Returns the Interaction to use for the specified combination of Task
         and Channel.
 
-        :param task: the Task the Interaction needs to operate on
-        :type task: Task
-        :param channel: the Channel the Interaction must be configured for
-        :type channel: Channel
+        :param task:
+            the Task or UID of a Task that the Interaction needs to operate on
+        :type task: Task/str
+        :param channel:
+            the Channel or UID of a Channel that the Interaction must be
+            configured for
+        :type channel: Channel/str
         :param user: the User who should have access to the desired Interaction
         :type user: User
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: Interaction
         """
+
+        if not isinstance(task, Task):
+            task = Task.get_implementation().get_by_uid(task)
+            if not task:
+                 return None
 
         interactions = cls.find(
             channel=channel,
@@ -265,6 +273,17 @@ class Interaction(
         """
 
         raise NotImplementedError()
+
+    @classmethod
+    def get_implementation(cls):
+        """
+        Returns the concrete implementation of this class that is activated in
+        the currently running application.
+
+        :rtype: type
+        """
+
+        return get_implementation('interaction', package_name='mobile')
 
     def __init__(self, uid, channel, instrument_version, configuration):
         self._uid = to_unicode(uid)

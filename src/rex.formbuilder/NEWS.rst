@@ -32,6 +32,8 @@ REX.FORMBUILDER Change Log
   DraftSets.
 * Improved loading time of the draft editor.
 * Added ability to configure Question Grids (aka, matrix fields).
+* Fixed issue where the list of instruments/drafts/revisions was capped at 100
+  items.
 
 
 5.2.2 (2015-06-23)

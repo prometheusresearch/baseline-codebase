@@ -41,7 +41,7 @@ class BaseResource(object):
     base_parameters = (
         Parameter('uid', StrVal(), None),
         Parameter('offset', IntVal(0), 0),
-        Parameter('limit', IntVal(1), 100),
+        Parameter('limit', IntVal(1), None),
     )
 
     parameters = (

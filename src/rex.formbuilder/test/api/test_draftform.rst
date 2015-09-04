@@ -12,7 +12,6 @@ Set up the environment::
     >>> from webob import Request
     >>> from rex.core import Rex
     >>> import rex.formbuilder
-    >>> from rex.formbuilder_demo import strip_cookies
     >>> rex = Rex('rex.formbuilder_demo')
     >>> rex.on()
     >>> CONFIGURATION = {
@@ -43,7 +42,7 @@ Set up the environment::
 The ``/api/draftform`` URI will accept GETs for listing::
 
     >>> req = Request.blank('/api/draftform', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -56,7 +55,7 @@ The ``/draft`` URI will accept POSTs for creating new instances::
     >>> req = Request.blank('/api/draftform', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps({'channel': 'entry', 'draft_instrument_version': 'draftiv1', 'configuration': CONFIGURATION})
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -66,7 +65,7 @@ The ``/draft`` URI will accept POSTs for creating new instances::
     >>> req = Request.blank('/api/draftform', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps({'channel': 'entry', 'draft_instrument_version': 'draftiv1'})
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -77,12 +76,12 @@ The ``/draft`` URI will accept POSTs for creating new instances::
 The ``/draftform`` URI will not accept PUTs or DELETEs::
 
     >>> req = Request.blank('/api/draftform', method='PUT', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/draftform', method='DELETE', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -91,7 +90,7 @@ The ``/draftform/{uid}`` URI will accept GETs to retrieve an individual
 DraftForm::
 
     >>> req = Request.blank('/api/draftform/draftform1', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -99,7 +98,7 @@ DraftForm::
     {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "draftform1", "channel": {"uid": "survey", "presentation_type": "form", "title": "RexSurvey"}}
 
     >>> req = Request.blank('/api/draftform/doesntexist', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -111,7 +110,7 @@ The ``/draftform/{uid}`` URI will accept PUTs to update a DraftForm::
     >>> new_config = deepcopy(CONFIGURATION)
     >>> new_config['pages'][0]['elements'][0]['options']['text']['en'] = 'New question text'
     >>> req.body = json.dumps({'configuration': new_config})
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     ### SAVED DRAFTFORM draftform1
     202 Accepted
     Content-Type: application/json; charset=UTF-8
@@ -124,7 +123,7 @@ The ``/draftform/{uid}`` URI will accept DELETEs to delete a
 DraftForm::
 
     >>> req = Request.blank('/api/draftform/draftform1', method='DELETE', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     ### DELETED DRAFTFORM draftform1
     204 No Content
     Content-Type: application/json; charset=UTF-8
@@ -135,7 +134,7 @@ DraftForm::
 The ``/draftform/{uid}`` URI will not accept POSTs::
 
     >>> req = Request.blank('/api/draftform/draftform1', method='POST', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -146,7 +145,7 @@ the publishing process on a DraftForm::
     >>> req = Request.blank('/api/draftform/draftform1/publish', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps({'instrument_version': 'simple1'})
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -156,7 +155,7 @@ the publishing process on a DraftForm::
     >>> req = Request.blank('/api/draftform/draftform1/publish', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps({'instrument_version': 'doesntexist'})
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -164,7 +163,7 @@ the publishing process on a DraftForm::
     {"error": "doesntexist is not the UID of a valid InstrumentVersion"}
 
     >>> req = Request.blank('/api/draftform/draftform1/publish', method='POST', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -172,7 +171,7 @@ the publishing process on a DraftForm::
     {"error": "No InstrumentVersion specified to publish against."}
 
     >>> req = Request.blank('/api/draftform/doesntexist/publish', method='POST', remote_user='user1')
-    >>> print strip_cookies(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...

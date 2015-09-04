@@ -5,6 +5,12 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.4.4 (2014-xx-xx)
+==================
+
+* Updated tools for JavaScript string extraction.
+
+
 0.4.3 (2015-06-23)
 ==================
 

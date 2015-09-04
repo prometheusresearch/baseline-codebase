@@ -2,7 +2,6 @@
 
 
 var Jed = require('jed');
-var Promise = require('bluebird');
 
 var util = require('./util');
 

@@ -7,7 +7,7 @@ REX.CTL Commands
 
 Set up the environment::
 
-    >>> from rex.ctl import ctl
+    >>> from rex.ctl import ctl, Ctl
 
 
 i18n-extract
@@ -117,9 +117,10 @@ different strings found in the POT files::
 
 It takes one optional argument specifying the root path of the project::
 
-    >>> ctl('i18n-update ./test/sandbox')
-    updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' based on './test/sandbox/static/i18n/backend.pot'
+    >>> output = Ctl('i18n-update ./test/sandbox').wait()
+    >>> print '\n'.join([o for o in sorted(output.split('\n')) if o])
     updating catalog './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po' based on './test/sandbox/static/i18n/frontend.pot'
+    updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' based on './test/sandbox/static/i18n/backend.pot'
     updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' based on './test/sandbox/static/i18n/frontend.pot'
 
 
@@ -157,9 +158,10 @@ files used by the runtime application::
 
 It takes one optional argument specifying the root path of the project::
 
-    >>> ctl('i18n-compile ./test/sandbox')
-    compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo'
+    >>> output = Ctl('i18n-compile ./test/sandbox').wait()
+    >>> print '\n'.join([o for o in sorted(output.split('\n')) if o])
     compiling catalog './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po' to './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.mo'
+    compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo'
     compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo'
 
 

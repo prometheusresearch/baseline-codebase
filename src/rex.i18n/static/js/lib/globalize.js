@@ -2,7 +2,6 @@
 
 
 var Globalize = require('globalize');
-var Promise = require('bluebird');
 
 var util = require('./util');
 

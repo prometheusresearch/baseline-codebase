@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.i18n',
-    version='0.4.3',
+    version='0.4.4',
     description='An Internationalization framework for rex.web applications.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -37,8 +37,8 @@ setup(
         'babel>=1,<2',
         'speaklater>=1.3,<2',
         'pytz>=0a',
-        'pyexecjs==1.0.4',
-        'pyreact>=0.4,<0.5',
+        'pyexecjs==1.1.0',
+        'pyreact==0.5.2',
     ],
     rex_init='rex.i18n',
     rex_static='static',

@@ -1,7 +1,6 @@
 'use strict';
 
 var deepmerge = require('deepmerge');
-var Promise = require('bluebird');
 
 
 var ASYNC_DEFAULTS = {

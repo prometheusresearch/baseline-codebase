@@ -2,7 +2,6 @@
 
 
 var jstz = require('jstimezonedetect').jstz;
-var Promise = require('bluebird');
 var deepmerge = require('deepmerge');
 
 var JedWrapper = require('./jed');

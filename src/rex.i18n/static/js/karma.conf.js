@@ -1,30 +1,56 @@
-var rexSetup = require('rex-setup');
+/*
+ * Copyright (c) 2014, Prometheus Research, LLC
+ */
+
+'use strict';
+
+var webpackConfig = require('rex-setup').configureWebpack({});
+//var webpackConfig = require('./webpack.config');
 
 
 module.exports = function (config) {
   'use strict';
 
   config.set({
-    basePath: '',
+    plugins: [
+      require('karma-webpack'),
+      require('karma-jasmine'),
+      require('karma-jasmine-ajax'),
+      require('karma-sourcemap-loader'),
+      require('karma-phantomjs-launcher'),
+      require('karma-phantomjs-shim')
+    ],
+
     frameworks: [
-      'jasmine'
+      'jasmine-ajax',
+      'jasmine',
+      'phantomjs-shim'
     ],
+
     files: [
-      'test/**/*.js'
+      'test/index.js'
     ],
-    exclude: [
-    ],
+
     preprocessors: {
-      'test/**/*_spec.js': ['webpack']
+      'test/index.js': [
+        'webpack',
+        'sourcemap'
+      ]
     },
-    webpack: rexSetup.configureWebpack({}),
-    reporters: ['progress'],
-    port: 9876,
-    colors: true,
-    logLevel: config.LOG_INFO,
-    autoWatch: true,
-    browsers: ['PhantomJS'],
-    singleRun: false
+
+    webpack: webpackConfig,
+    /*webpackMiddleware: {
+      noInfo: true,
+      quiet: true
+    },*/
+
+    browsers: [
+      'PhantomJS'
+    ],
+
+    reporters: [
+      'progress'
+    ]
   });
 };
 

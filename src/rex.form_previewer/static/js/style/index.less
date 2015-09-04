@@ -57,9 +57,35 @@
         }
     }
 
+    .calculation-results {
+        margin: 1em;
+
+        table {
+            margin-left: 2em;
+
+            td, th {
+                padding: 5px 10px 5px 0;
+
+                &.calculation-name {
+                    font-weight: bold;
+
+                    &::after {
+                        content: ':';
+                    }
+                }
+            }
+        }
+    }
+
     .returner {
         text-align: center;
         margin-top: 2em;
     }
+}
+
+
+.spinner-container {
+    height: 3em;
+    position: relative;
 }
 

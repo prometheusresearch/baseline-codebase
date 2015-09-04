@@ -3,20 +3,43 @@
 #
 
 
-from webob.exc import HTTPNotFound
+import json
+
+from datetime import datetime
+
+from webob import Response
+from webob.exc import HTTPNotFound, HTTPBadRequest
 
 from rex.core import StrVal, ChoiceVal, get_settings
-from rex.instrument.util import get_implementation
+from rex.instrument import DraftInstrumentVersion, InstrumentError, User, \
+    CalculationSet, DraftCalculationSet, InstrumentVersion, Assessment, \
+    Subject
+from rex.instrument.util import to_json
 from rex.web import Command, Parameter, render_to_response, authenticate
 
 
 __all__ = (
     'ViewFormCommand',
     'RootViewFormCommand',
+    'CompleteFormCommand',
 )
 
 
-# pylint: disable=W0223
+def get_instrument_user(request):
+    """
+    Retrieves the User that is associated with the specified request.
+
+    :param request: the web request to identify the User of
+    :type request: Request
+    :rtype: User
+    """
+
+    login = authenticate(request)
+    if login:
+        user = User.get_implementation().get_by_login(login)
+    else:
+        user = None
+    return user
 
 
 class BaseCommand(Command):
@@ -25,26 +48,7 @@ class BaseCommand(Command):
     across a number of Commands that make up the Form Previewer.
     """
 
-    # pylint: disable=no-self-use
-
-    def get_instrument_user(self, request):
-        """
-        Retrieves the User that is associated with the specified request.
-
-        :param request: the web request to identify the User of
-        :type request: Request
-        :rtype: User
-        """
-
-        login = authenticate(request)
-        if login:
-            user_impl = get_implementation('user')
-            user = user_impl.get_by_login(login)
-        else:
-            user = None
-        return user
-
-    def get_common_context(self, request):
+    def get_common_context(self, request):  # pylint: disable=no-self-use
         """
         Generates a dictionary filled with the context variables that are used
         across all Commands. This dictionary consists of:
@@ -59,7 +63,7 @@ class BaseCommand(Command):
 
         context = {}
 
-        user = self.get_instrument_user(request)
+        user = get_instrument_user(request)
         context['user'] = user
 
         return context
@@ -80,7 +84,6 @@ class BaseCommand(Command):
             name = self.__class__.__name__.lower()
             if name.endswith('command'):
                 name = name[:-7]
-        # pylint: disable=E1101
         config = get_settings().form_previewer_templates
         if name in config:
             return config[name]
@@ -117,9 +120,9 @@ class BaseViewFormCommand(BaseCommand):
         Parameter('category', ChoiceVal('draft', 'published'), 'draft'),
     )
 
-    # pylint: disable=no-self-use
-
     def get_draft(self, user, form_id, instrument_id):
+        # pylint: disable=no-self-use
+
         form = instrument = None
         if form_id:
             form = user.get_object_by_uid(
@@ -156,6 +159,8 @@ class BaseViewFormCommand(BaseCommand):
         return (instrument, form, all_forms)
 
     def get_published(self, user, form_id, instrument_id):
+        # pylint: disable=no-self-use
+
         form = instrument = None
         if form_id:
             form = user.get_object_by_uid(
@@ -191,29 +196,39 @@ class BaseViewFormCommand(BaseCommand):
 
         return (instrument, form, all_forms)
 
-    # pylint: disable=arguments-differ
-    def render(self, request, form_id, instrument_id, return_url, category):
-        context = self.get_common_context(request)
-
-        context['return_url'] = return_url
-        context['category'] = category
-
+    def get_config(self, category, instrument_id, form_id, user):
         if category == 'draft':
             instrument, form, all_forms = self.get_draft(
-                context['user'],
+                user,
                 form_id,
                 instrument_id,
             )
         elif category == 'published':
             instrument, form, all_forms = self.get_published(
-                context['user'],
+                user,
                 form_id,
                 instrument_id,
             )
 
+        return instrument, form, all_forms
+
+    def render(self, request, form_id, instrument_id, return_url, category):
+        context = self.get_common_context(request)
+        context['return_url'] = return_url
+        context['category'] = category
+        context['instrument_id'] = instrument_id
+        context['category'] = category
+
+        instrument, form, all_forms = self.get_config(
+            category,
+            instrument_id,
+            form_id,
+            context['user'],
+        )
+
         context['instrument_version'] = instrument
         context['forms'] = dict(
-            [(f.channel.uid, f.configuration) for f in all_forms]
+            [(f.channel.uid, f.adapted_configuration) for f in all_forms]
         )
         context['channels'] = [f.channel.as_dict() for f in all_forms]
         context['initial_channel'] = form.channel.uid
@@ -227,4 +242,103 @@ class ViewFormCommand(BaseViewFormCommand):
 
 class RootViewFormCommand(BaseViewFormCommand):
     path = '/'
+
+
+class CompleteFormCommand(BaseViewFormCommand):
+    """
+    Emulates the completion of a entry, executing the CalculationSet, if any is
+    configured.
+    """
+
+    path = '/complete'
+    parameters = (
+        Parameter('data', StrVal()),
+        Parameter('instrument_id', StrVal(), None),
+        Parameter('category', ChoiceVal('draft', 'published'), 'draft'),
+    )
+
+    def render(self, request, data, instrument_id, category):
+        user = get_instrument_user(request)
+
+        try:
+            data = json.loads(data)
+        except ValueError as exc:
+            raise HTTPBadRequest(exc.message)
+
+        instrument_version, form, all_forms = self.get_config(
+            category,
+            instrument_id,
+            None,
+            user,
+        )
+
+        calculationset = None
+        calculationset_impl = CalculationSet.get_implementation()
+        if isinstance(instrument_version, DraftInstrumentVersion):
+            calc = DraftCalculationSet.get_implementation().find(
+                draft_instrument_version=instrument_version,
+                limit=1,
+            )
+
+            instrument_version = InstrumentVersion.get_implementation()(
+                'fake',
+                instrument_version.instrument,
+                instrument_version.definition,
+                1,
+                'fake',
+                datetime.now(),
+            )
+
+            if calc:
+                calculationset = calculationset_impl(
+                    'fake',
+                    instrument_version,
+                    calc[0].definition,
+                )
+        else:
+            calcs = calculationset_impl.find(
+                instrument_version=instrument_version.uid,
+                limit=1
+            )
+            if calcs:
+                calculationset = calcs[0]
+
+        assessment_impl = Assessment.get_implementation()
+        try:
+            assessment_impl.validate_data(
+                data,
+                instrument_definition=instrument_version.definition,
+            )
+        except InstrumentError as exc:
+            raise HTTPBadRequest(exc.message)
+
+        subject = Subject.get_implementation()('fake')
+        assessment = assessment_impl(
+            'fake',
+            subject,
+            instrument_version,
+            data,
+            status=assessment_impl.STATUS_COMPLETE,
+        )
+
+        response = {
+            'status': 'SUCCESS',
+        }
+        if calculationset:
+            try:
+                results = calculationset.execute(assessment=assessment)
+            except InstrumentError as exc:
+                response = {
+                    'status': 'ERROR',
+                    'message': unicode(exc),
+                }
+            else:
+                response['results'] = results
+
+        return Response(
+            to_json(response),
+            headerlist=[
+                ('Content-type', 'application/json'),
+            ],
+        )
 

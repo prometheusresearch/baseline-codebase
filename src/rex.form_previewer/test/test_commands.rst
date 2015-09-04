@@ -164,3 +164,113 @@ associated DraftForms, you get an error::
     404 Not Found
     ...
 
+
+
+Complete Form
+=============
+
+There is a Complete Form command that emulates the completion of form data
+entry::
+
+    >>> import json
+    >>> ASSESSMENT = {
+    ...     'instrument': {
+    ...         'id': 'urn:test-instrument',
+    ...         'version': '1.1',
+    ...     },
+    ...     'values': {
+    ...         'q_fake': {
+    ...             'value': 'foo',
+    ...         },
+    ...     },
+    ... }
+    >>> req = Request.blank('/complete', remote_user='user1', method='POST')
+    >>> req.POST['instrument_id'] = 'draftiv1'
+    >>> req.POST['category'] = 'draft'
+    >>> req.POST['data'] = json.dumps(ASSESSMENT)
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    200 OK
+    Content-type: application/json
+    Content-Length: ...
+    Set-Cookie: ...
+    <BLANKLINE>
+    {"status": "SUCCESS", "results": {"uppercased": "FOO"}}
+
+    >>> ASSESSMENT2 = {
+    ...     'instrument': {
+    ...         'id': 'urn:another-test-instrument',
+    ...         'version': '1.2',
+    ...     },
+    ...     'values': {
+    ...         'q_foo': {
+    ...             'value': 'foo',
+    ...         },
+    ...         'q_bar': {
+    ...             'value': 2,
+    ...         },
+    ...         'q_baz': {
+    ...             'value': True,
+    ...         },
+    ...     },
+    ... }
+    >>> req = Request.blank('/complete', remote_user='user1', method='POST')
+    >>> req.POST['instrument_id'] = 'complex2'
+    >>> req.POST['category'] = 'published'
+    >>> req.POST['data'] = json.dumps(ASSESSMENT2)
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    200 OK
+    Content-type: application/json
+    Content-Length: ...
+    Set-Cookie: ...
+    <BLANKLINE>
+    {"status": "SUCCESS", "results": {"calc1": 6}}
+
+    >>> ASSESSMENT2['instrument']['version'] = '1.1'
+    >>> del ASSESSMENT2['values']['q_baz']
+    >>> req = Request.blank('/complete', remote_user='user1', method='POST')
+    >>> req.POST['instrument_id'] = 'complex1'
+    >>> req.POST['category'] = 'published'
+    >>> req.POST['data'] = json.dumps(ASSESSMENT2)
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    200 OK
+    Content-type: application/json
+    Content-Length: ...
+    Set-Cookie: ...
+    <BLANKLINE>
+    {"status": "SUCCESS"}
+
+If the calculations cause an exception, that message is returned to the
+client::
+
+    >>> ASSESSMENT['values']['q_fake']['value'] = None
+    >>> req = Request.blank('/complete', remote_user='user1', method='POST')
+    >>> req.POST['instrument_id'] = 'draftiv1'
+    >>> req.POST['category'] = 'draft'
+    >>> req.POST['data'] = json.dumps(ASSESSMENT)
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    200 OK
+    Content-type: application/json
+    Content-Length: ...
+    Set-Cookie: ...
+    <BLANKLINE>
+    {"status": "ERROR", "message": "Unable to calculate expression assessment['q_fake'].upper(): 'NoneType' object has no attribute 'upper'"}
+
+It complains if you give it a bad Assessment::
+
+    >>> del ASSESSMENT2['values']
+    >>> req = Request.blank('/complete', remote_user='user1', method='POST')
+    >>> req.POST['instrument_id'] = 'complex1'
+    >>> req.POST['category'] = 'published'
+    >>> req.POST['data'] = json.dumps(ASSESSMENT2)
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    400 Bad Request
+    ...
+
+    >>> req = Request.blank('/complete', remote_user='user1', method='POST')
+    >>> req.POST['instrument_id'] = 'complex1'
+    >>> req.POST['category'] = 'published'
+    >>> req.POST['data'] = '{hello'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    400 Bad Request
+    ...
+

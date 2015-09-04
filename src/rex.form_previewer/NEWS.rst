@@ -5,6 +5,16 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.5.0 (2015-xx-xx)
+==================
+
+* Updated instrument and forms dependencies.
+* Now using the adapted Form Configuration(s) for display rather than the base.
+* If the Instrument associated with the Form being previewed has Calculations
+  associated with it, the results of those calculations are now displayed to
+  the user when they "complete" the form.
+
+
 0.4.2 (2015-06-23)
 ==================
 

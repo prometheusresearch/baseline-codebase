@@ -6,11 +6,14 @@
 
 'use strict';
 
+var $ = require('jquery');
 var React = require('react/addons');
 
 var Form = require('rex-forms').Form;
 var LocaleChooser = require('./LocaleChooser');
 var ChannelChooser = require('./ChannelChooser');
+var CalculationResults = require('./CalculationResults');
+var Spinny = require('./Spinny');
 var localization = require('./localization');
 var _ = localization.gettext;
 
@@ -24,6 +27,9 @@ var FormPreviewer = React.createClass({
     channels: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     initialChannel: React.PropTypes.string.isRequired,
     returnUrl: React.PropTypes.string,
+    completeUrl: React.PropTypes.string.isRequired,
+    instrumentId: React.PropTypes.string.isRequired,
+    category: React.PropTypes.string.isRequired,
     localResourcePrefix: React.PropTypes.string
   },
 
@@ -37,7 +43,9 @@ var FormPreviewer = React.createClass({
   getInitialState: function () {
     return {
       locale: this.props.locale,
-      currentForm: this.props.forms[this.props.initialChannel]
+      currentForm: this.props.forms[this.props.initialChannel],
+      lastResults: null,
+      processing: false
     };
   },
 
@@ -62,7 +70,8 @@ var FormPreviewer = React.createClass({
 
   onChannelChange: function (channel) {
     this.setState({
-      currentForm: this.props.forms[channel]
+      currentForm: this.props.forms[channel],
+      lastResults: null
     });
   },
 
@@ -71,13 +80,50 @@ var FormPreviewer = React.createClass({
     window.top.location = this.props.returnUrl;
   },
 
-  onComplete: function () {
-    alert(_('This is only a preview of the Form, you can\'t actually submit any data here.'));
+  onComplete: function (assessment) {
+    var payload = {
+      data: JSON.stringify(assessment),
+      instrument_id: this.props.instrumentId,
+      category: this.props.category
+    };
+
+    this.setState({
+      processing: true,
+      lastResults: null
+    });
+
+    $.ajax({
+      url: this.props.completeUrl,
+      type: 'POST',
+      data: payload,
+      dataType: 'json'
+    }).then(
+      (data) => {
+        if (data.status === 'SUCCESS') {
+          this.setState({
+            processing: false,
+            lastResults: data.results
+          });
+        } else {
+          alert(_('Calculations Failed:') + '\n\n' + data.message);
+          this.setState({
+            processing: false
+          });
+        }
+      },
+      () => {
+        alert(_('There was an error when trying to complete the Form. Please try again later.'));
+        this.setState({
+          processing: false
+        });
+      }
+    );
   },
 
   render: function () {
     var hasMultipleForms = Object.keys(this.props.forms).length > 1;
     var hasMultipleLocales = this.props.availableLocales.length > 1;
+    var hasResults = this.state.lastResults ? true : false;
 
     return (
       <div className="form-previewer">
@@ -100,11 +146,21 @@ var FormPreviewer = React.createClass({
         <Form
           instrument={this.props.instrument}
           form={this.state.currentForm}
+          readOnly={hasResults}
+          showOverview={hasResults}
           showOverviewOnCompletion={true}
           locale={this.state.locale}
           onComplete={this.onComplete}
           localResourcePrefix={this.props.localResourcePrefix}
           />
+        {this.state.processing &&
+          <Spinny />
+        }
+        {hasResults &&
+          <CalculationResults
+            results={this.state.lastResults}
+            />
+        }
         {this.props.returnUrl &&
           <div className="returner">
             <button

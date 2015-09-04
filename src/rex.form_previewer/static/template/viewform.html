@@ -6,6 +6,8 @@
 
 <script type="text/javascript">
     var INSTRUMENT = {{ instrument_version.definition|json }};
+    var INSTRUMENT_ID = {{ instrument_version.uid|json }};
+    var CATEGORY = {{ category|json }};
     var FORMS = {{ forms|json }};
     var LOCALE = '{{ CURRENT_LOCALE }}';
     var AVAILABLE_LOCALES = {{ SUPPORTED_LOCALES|list|json }};
@@ -13,6 +15,7 @@
     var INITIAL_CHANNEL = {{ initial_channel|json }};
     var RETURN_URL = {{ return_url|json }};
     var RESOURCE_PREFIX = {{ SETTINGS.forms_local_resource_prefix|json }};
+    var COMPLETE_URL = '{{ MOUNT['rex.form_previewer'] }}/complete';
 
     $(function () {
         Rex.FormPreviewer.renderForm({
@@ -24,6 +27,9 @@
             channels: CHANNELS,
             initialChannel: INITIAL_CHANNEL,
             returnUrl: RETURN_URL,
+            completeUrl: COMPLETE_URL,
+            instrumentId: INSTRUMENT_ID,
+            category: CATEGORY,
             localResourcePrefix: RESOURCE_PREFIX
         });
     });

@@ -1,6 +1,6 @@
 {
   "name": "rex-form-previewer",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "JavaScript and CSS for the Form Previewer application",
   "author": "Prometheus Research, LLC",
   "license": "AGPL-3.0",
@@ -18,12 +18,13 @@
     }
   },
   "peerDependencies": {
-    "jquery": "^2.0.0",
-    "bootstrap": "^3.1.0",
+    "jquery": "^2",
+    "bootstrap": "^3.1",
     "react": "^0.10.0",
     "envify": "~1.2.0"
   },
   "dependencies": {
+    "spin.js": "2.0.1",
     "jsx-loader": "0.11.0"
   }
 }

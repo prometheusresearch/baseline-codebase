@@ -10,6 +10,7 @@
 
 * rex.ctl==2.0.2
 * rex.instrument==1.0.0
+* rex.i18n==0.4.4
 * rex.forms==1.0.0
 * rex.logging==1.0.0
 * rex.restful==1.0.0

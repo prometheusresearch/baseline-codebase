@@ -4,7 +4,8 @@
 'use strict';
 
 var React               = require('react');
-var {File, StoredFile}  = require('./File');
+var File                = require('./File');
+var StoredFile          = require('./StoredFile');
 var Layout              = require('./Layout');
 
 var FileDownloadStyle =  {

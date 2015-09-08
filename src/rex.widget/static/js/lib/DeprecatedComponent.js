@@ -1,12 +1,11 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
 var React = require('react');
 
 function makeDeprecatedComponentMixin(message, componentName) {
-  var warned = false;
+  let warned = false;
   return {
     componentWillMount() {
       if (!warned) {
@@ -19,8 +18,9 @@ function makeDeprecatedComponentMixin(message, componentName) {
 
 function DeprecatedComponent(message, componentName) {
   return function DeprecatedComponentDecorator(Component) {
+    let displayName = componentName || Component.displayName || Component.name;
     return React.createClass({
-      displayName: `DeprecatedComponent(${componentName || Component.displayName})`,
+      displayName: `DeprecatedComponent(${displayName})`,
       mixins: [makeDeprecatedComponentMixin(message, componentName)],
 
       render() {

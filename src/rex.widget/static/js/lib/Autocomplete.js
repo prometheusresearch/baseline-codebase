@@ -1,10 +1,9 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
 import React                  from 'react';
-import Selectbox              from 'react-selectbox';
+import AutocompleteBase       from '@prometheusresearch/react-autocomplete/lib/themed/Bootstrap';
 import IconButton             from './IconButton';
 import DS                     from './DataSpecification';
 import {VBox}                 from './Layout';
@@ -63,18 +62,17 @@ export default class Autocomplete extends React.Component {
   }
 
   render() {
-    let {value, onChange, required, style} = this.props;
+    let {value, onChange, required} = this.props;
     let {valueTitle} = this.state;
     if (value === null) {
       valueTitle = null;
     }
     return (
       <VBox>
-        <Selectbox
+        <AutocompleteBase
           ref="underlying"
           value={{id: value, title: valueTitle}}
           search={this._search}
-          styleResultList={style && style.resultList}
           onChange={this.onChange}
           />
         {value && !required ?

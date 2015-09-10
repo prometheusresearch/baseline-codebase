@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.port',
-    version = "1.0.4",
+    version = "1.1.0",
     description="Database querying and CRUD operations",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

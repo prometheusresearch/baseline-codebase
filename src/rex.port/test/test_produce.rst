@@ -655,4 +655,19 @@ Exactly one argument is expected::
     While applying constraint:
         :USER
 
+A port may configure and use parameters other than ``$USER``::
+
+    >>> parameterized_port = Port("""
+    ... - parameter: $SEX
+    ...   default: male
+    ... - entity: individual
+    ...   mask: sex=$SEX
+    ... """)
+
+    >>> parameterized_port.produce()                # doctest: +ELLIPSIS
+    <Product {({[1001], '1001', 'male', null, null}, {[1003], '1003', 'male', [1000], [1001]}, ...)}>
+
+    >>> parameterized_port.produce(SEX='female')    # doctest: +ELLIPSIS
+    <Product {({[1000], '1000', 'female', null, null}, {[1002], '1002', 'female', [1000], [1001]}, ...)}>
+
 

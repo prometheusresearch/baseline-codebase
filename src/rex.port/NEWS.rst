@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.1.0 (2015-XX-XX)
+==================
+
+* Added support for configuring global parameters.
+
+
 1.0.4 (2015-03-11)
 ==================
 

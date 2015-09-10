@@ -4,7 +4,7 @@
 
 
 from htsql.core.util import to_name, maybe, listof, tupleof
-from htsql.core.domain import IdentityDomain
+from htsql.core.domain import Value, IdentityDomain
 from htsql.core.entity import (TableEntity, ColumnEntity, DirectJoin,
         ReverseJoin)
 from htsql.core.model import (HomeNode, Arc, TableArc, ChainArc, ColumnArc,
@@ -12,6 +12,7 @@ from htsql.core.model import (HomeNode, Arc, TableArc, ChainArc, ColumnArc,
 from htsql.core.classify import classify, localize
 from htsql.core.syn.syntax import Syntax
 import collections
+import decimal
 import yaml
 
 
@@ -20,13 +21,17 @@ class ArmDumper(yaml.Dumper):
     def represent_unicode(self, data):
         return self.represent_scalar(u'tag:yaml.org,2002:str', data)
 
+    def represent_decimal(self, data):
+        return self.represent_scalar(u'tag:yaml.org,2002:float', unicode(data))
+
     def represent_ordered_dict(self, data):
         return self.represent_mapping(u'tag:yaml.org,2002:map', data.items(),
                                       flow_style=False)
 
-
 ArmDumper.add_representer(unicode,
                           ArmDumper.represent_unicode)
+ArmDumper.add_representer(decimal.Decimal,
+                          ArmDumper.represent_decimal)
 ArmDumper.add_representer(collections.OrderedDict,
                           ArmDumper.represent_ordered_dict)
 
@@ -125,6 +130,14 @@ class RootArm(Arm):
     def to_yaml(self, name=None):
         assert name is None
         sequence = []
+        for name, value in sorted(self.parameters.items()):
+            mapping = collections.OrderedDict()
+            mapping['parameter'] = name
+            if isinstance(value, Value):
+                value = value.data
+            if value is not None:
+                mapping['default'] = value
+            sequence.append(mapping)
         for name, arm in self.arms.items():
             sequence.append(arm.to_yaml(name))
         if len(sequence) == 0:

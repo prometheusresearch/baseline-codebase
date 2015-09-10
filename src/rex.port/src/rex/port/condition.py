@@ -185,7 +185,7 @@ class ReferenceCondition(object):
     def apply(cls, arm, state, constraint, binding, scope):
         with guard("While applying constraint:", constraint):
             operator = constraint.operator
-            if not (operator in arm.parameters or
+            if not (to_name(operator) in arm.parameters or
                     operator in reserved_parameters):
                 raise Error("Got unknown parameter:", operator)
             arguments = embed(constraint.arguments)

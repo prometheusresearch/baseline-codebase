@@ -226,6 +226,81 @@ One could define custom filters on entities::
               'birthrange($l, $h) := identity.birthdate>=$l&identity.birthdate<=$h']
     select: [code, sex, mother, father]
 
+A port may configure free parameters::
+
+    >>> individuals_by_sex = Port("""
+    ... - $sex := 'male'
+    ... - individual?sex=$sex
+    ... """)
+    >>> print individuals_by_sex
+    - parameter: sex
+      default: male
+    - entity: individual
+      mask: sex=$sex
+      select: [code, sex, mother, father]
+
+There are many ways a free parameter can be specified::
+
+    >>> Port(""" $sex """)
+    Port('''
+    parameter: sex
+    ''')
+
+    >>> Port(""" $sex := 'male' """)
+    Port('''
+    parameter: sex
+    default: male
+    ''')
+
+    >>> Port("""
+    ... parameter: sex
+    ... """)
+    Port('''
+    parameter: sex
+    ''')
+
+    >>> Port("""
+    ... parameter: sex
+    ... default: male
+    ... """)
+    Port('''
+    parameter: sex
+    default: male
+    ''')
+
+    >>> Port("""
+    ... parameter: $sex := 'male'
+    ... """)
+    Port('''
+    parameter: sex
+    default: male
+    ''')
+
+    >>> Port("""
+    ... - $integer := 1
+    ... - $decimal := 10.2
+    ... - $float := 1e-1
+    ... - $text := 'text'
+    ... - $true := true
+    ... - $false := false
+    ... - $null := null
+    ... """)
+    Port('''
+    - parameter: decimal
+      default: 10.2
+    - parameter: 'false'
+      default: false
+    - parameter: float
+      default: 0.1
+    - parameter: integer
+      default: 1
+    - parameter: 'null'
+    - parameter: text
+      default: text
+    - parameter: 'true'
+      default: true
+    ''')
+
 
 Errors while parsing YAML
 =========================
@@ -349,7 +424,7 @@ Calculated expressions in shorthand form must have the form
     Traceback (most recent call last):
       ...
     Error: Expected an HTSQL expression of the form:
-        <name> OR <name>. ... .<name> OR <name> := <expr>
+        <name> OR <name>. ... .<name> OR <name> := <expr> OR $<name> OR $<name> := <val>
     Got:
         num_individual():=count(individual)
     While parsing:
@@ -361,7 +436,7 @@ Calculated expressions in shorthand form must have the form
     Traceback (most recent call last):
       ...
     Error: Expected an HTSQL expression of the form:
-        <name> OR <name>. ... .<name> OR <name> := <expr>
+        <name> OR <name>. ... .<name> OR <name> := <expr> OR $<name> OR $<name> := <val>
     Got:
         $num_individual:=count(individual)
     While parsing:
@@ -422,6 +497,76 @@ Field ``at`` must be a valid path::
         root()
     While processing field:
         at
+    While parsing:
+        "<byte string>", line 2
+
+Parameters must use references and literal values::
+
+    >>> Port("""
+    ... parameter: sex() := 'male'
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR $<name> OR $<name> := <val>
+    Got:
+        sex():='male'
+    While processing field:
+        parameter
+    While parsing:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... parameter: sex := count(individual?sex='male')
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR $<name> OR $<name> := <val>
+    Got:
+        sex:=count(individual?sex='male')
+    While processing field:
+        parameter
+    While parsing:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... parameter: sex
+    ... default: [1, 'one']
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got invalid default value:
+        invalid integer literal: expected an integer in a decimal format; got 'one'
+    While processing field:
+        default
+    While parsing:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... parameter: individual.sex := 'male'
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected an HTSQL expression of the form:
+        <name> OR $<name> OR $<name> := <val>
+    Got:
+        individual.sex:='male'
+    While processing field:
+        parameter
+    While parsing:
+        "<byte string>", line 2
+
+    >>> Port("""
+    ... parameter: $sex := 'male'
+    ... default: 'female'
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got default value specified twice:
+        $sex:='male'
+    And:
+        female
     While parsing:
         "<byte string>", line 2
 
@@ -523,5 +668,31 @@ Calculations must be valid HTSQL expressions::
                                 ^^^^^^
     While applying:
         "<byte string>", line 1
+
+Parameters cannot be applied to non-root nodes::
+
+    >>> Port("""
+    ... entity: individual
+    ... with:
+    ... - parameter: sex
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Unable to add parameter to a non-root arm
+    While applying:
+        "<byte string>", line 4
+
+Parameter names must be unique::
+
+    >>> Port("""
+    ... - $sex
+    ... - $sex
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Got duplicate parameter:
+        sex
+    While applying:
+        "<byte string>", line 3
 
 

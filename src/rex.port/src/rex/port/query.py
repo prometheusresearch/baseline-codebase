@@ -45,7 +45,7 @@ class Port(object):
 
     def __repr__(self):
         args = []
-        if self.tree:
+        if self.tree or self.tree.parameters:
             args.append("'''\n%s\n'''" % self)
         if self.db is not get_db():
             args.append("db=%r" % self.db)

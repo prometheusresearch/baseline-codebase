@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import (Validate, UStrVal, ProxyVal, SeqVal, OneOrSeqVal,
+from rex.core import (Validate, AnyVal, UStrVal, ProxyVal, SeqVal, OneOrSeqVal,
         RecordVal, UnionVal, OnScalar, OnField, Location, set_location, locate,
         Error, guard)
 from rex.db import get_db
@@ -13,10 +13,14 @@ from htsql.core.error import Error as HTSQLError
 from htsql.core.model import (HomeNode, TableNode, TableArc, ChainArc,
         ColumnArc)
 from htsql.core.classify import classify
-from htsql.core.domain import UntypedDomain
+from htsql.core.domain import (Value, UntypedDomain, IntegerDomain,
+        FloatDomain, DecimalDomain, BooleanDomain)
 from htsql.core.syn.syntax import (Syntax, VoidSyntax, IdentifierSyntax,
-        AssignSyntax, FilterSyntax, ComposeSyntax, ReferenceSyntax)
+        ReferenceSyntax, AssignSyntax, FilterSyntax, ComposeSyntax,
+        ReferenceSyntax, IntegerSyntax, DecimalSyntax, FloatSyntax,
+        StringSyntax)
 from htsql.core.syn.parse import parse
+from htsql.core.cmd.embed import Embed
 from htsql.core.tr.bind import BindingState
 from htsql.core.tr.binding import (RootBinding, LiteralRecipe,
         DefineReferenceBinding)
@@ -101,6 +105,61 @@ def as_calculation(syntax):
     return (name, path, expression)
 
 
+def as_reference(syntax):
+    # Parses:
+    #   <name> OR $<name>
+    if isinstance(syntax, ReferenceSyntax):
+        syntax = syntax.identifier
+    if not isinstance(syntax, IdentifierSyntax):
+        return None
+    return syntax.name
+
+
+def as_value(syntax):
+    # Parses a literal value.
+    if isinstance(syntax, IntegerSyntax):
+        value = syntax.value
+        domain = IntegerDomain()
+    elif isinstance(syntax, DecimalSyntax):
+        value = syntax.value
+        domain = DecimalDomain()
+    elif isinstance(syntax, FloatSyntax):
+        value = syntax.value
+        domain = FloatDomain()
+    elif isinstance(syntax, StringSyntax):
+        value = syntax.text
+        domain = UntypedDomain()
+    elif isinstance(syntax, IdentifierSyntax) and syntax.name == u'null':
+        value = None
+        domain = UntypedDomain()
+    elif isinstance(syntax, IdentifierSyntax) and syntax.name == u'true':
+        value = True
+        domain = UntypedDomain()
+    elif isinstance(syntax, IdentifierSyntax) and syntax.name == u'false':
+        value = False
+        domain = UntypedDomain()
+    else:
+        return None
+    return Value(domain, value)
+
+
+def as_parameter(syntax):
+    # Parses:
+    #   <name> := <value> OR $<name> := <value>
+    if not isinstance(syntax, AssignSyntax):
+        return None
+    value = as_value(syntax.rarm)
+    if value is None:
+        return None
+    syntax = syntax.larm
+    if syntax.rarms is not None:
+        return None
+    if len(syntax.larms) != 1:
+        return None
+    name = as_reference(syntax.larms[0])
+    return (name, value)
+
+
 class OnSyntax(OnScalar):
     # Tests if the input is scalar, accepts `Syntax` instances.
 
@@ -158,12 +217,20 @@ class GrowVal(Validate):
     calculation_record_type = validate_calculation.record_type
     calculation_variant = (OnField('calculation'), validate_calculation)
 
+    # Validator for parameter definition.
+    validate_parameter = RecordVal(
+            ('parameter', SyntaxVal),
+            ('default', AnyVal, None))
+    parameter_record_type = validate_parameter.record_type
+    parameter_variant = (OnField('parameter'), validate_parameter)
+
     # Validator for a scalar HTSQL expression.
     validate_scalar = SyntaxVal()
     scalar_variant = (OnSyntax, validate_scalar)
 
     validate.set(OneOrSeqVal(UnionVal(
-            entity_variant, calculation_variant, scalar_variant)))
+            entity_variant, calculation_variant, parameter_variant,
+            scalar_variant)))
 
     def __call__(self, data):
         return self.validate(data)
@@ -206,8 +273,21 @@ class Grow(object):
                 grow = GrowCalculation(name, path, expression)
                 set_location(grow, spec)
                 return grow
+            # Or a parameter builder.
+            name_value = as_parameter(spec)
+            if name_value is not None:
+                name, value = name_value
+                grow = GrowParameter(name, value)
+                set_location(grow, spec)
+                return grow
+            name = as_reference(spec)
+            if name is not None:
+                grow = GrowParameter(name)
+                set_location(grow, spec)
+                return grow
             raise Error("Expected an HTSQL expression of the form:",
-                        "<name> OR <name>. ... .<name> OR <name> := <expr>") \
+                        "<name> OR <name>. ... .<name> OR <name> := <expr>"
+                        " OR $<name> OR $<name> := <val>") \
                   .wrap("Got:", spec) \
                   .wrap("While parsing:", locate(spec) or spec)
 
@@ -303,6 +383,36 @@ class Grow(object):
                               .wrap("While processing field:", 'at')
                     path = at_path+path
             grow = GrowCalculation(name, path, expression)
+            set_location(grow, spec)
+            return grow
+
+        elif isinstance(spec, GrowVal.parameter_record_type):
+            # Builder for parameter definition.
+            with guard("While parsing:", locate(spec) or spec):
+                # Process `parameter: <name>` or
+                # `parameter: $<name>` or `parameter: $<name> := <val>`.
+                name = as_reference(spec.parameter)
+                name_value = as_parameter(spec.parameter)
+                if name is not None:
+                    value = Value(UntypedDomain(), None)
+                    if spec.default is not None:
+                        try:
+                            value = Embed.__invoke__(spec.default)
+                        except (TypeError, ValueError), exc:
+                            raise Error("Got invalid default value:", exc) \
+                                  .wrap("While processing field:", 'default')
+                elif name_value is not None:
+                    name, value = name_value
+                    if spec.default is not None:
+                        raise Error("Got default value"
+                                    " specified twice:", spec.parameter) \
+                              .wrap("And:", spec.default)
+                else:
+                    raise Error("Expected an HTSQL expression of the form:",
+                                "<name> OR $<name> OR $<name> := <val>") \
+                          .wrap("Got:", spec.parameter) \
+                          .wrap("While processing field:", 'parameter')
+            grow = GrowParameter(name, value)
             set_location(grow, spec)
             return grow
 
@@ -475,5 +585,31 @@ class GrowCalculation(Grow):
         for arm, name in reversed(zip(chain, self.path)):
             parent = arm.grow(arms=[(name, parent)])
         return parent
+
+
+class GrowParameter(Grow):
+    # Add a parameter.
+
+    def __init__(self, name, default=None):
+        # The name of the parameter.
+        self.name = name
+        # Default value.
+        if default is None:
+            default = Value(UntypedDomain(), default)
+        self.default = default
+
+    def __call__(self, parent):
+        try:
+            # We expect a root node.
+            if not isinstance(parent, RootArm):
+                raise Error("Unable to add parameter to a non-root arm")
+            if self.name in parent.parameters:
+                raise Error("Got duplicate parameter:", self.name)
+        except Error, error:
+            location = locate(self)
+            if location is not None:
+                error.wrap("While applying:", location)
+            raise
+        return parent.grow(parameters={self.name: self.default})
 
 

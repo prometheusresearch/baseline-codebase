@@ -1,33 +1,37 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React = require('react');
-var Field = require('./Field');
-var Input = require('./Input');
+import autobind     from 'autobind-decorator';
+import React        from 'react';
+import tryParseInt  from '../tryParseInt';
+import Field        from './Field';
+import Input        from './Input';
 
-var IntegerInput = React.createClass({
+class IntegerInput extends React.Component {
 
   render() {
     return (
       <Input
         {...this.props}
-        type="number"
         onChange={this.onChange}
         />
     );
-  },
-
-  onChange(e) {
-    var value = e.target.value;
-    value = parseInt(value, 10);
-    this.props.onChange(value);
   }
 
-});
+  @autobind
+  onChange(value) {
+    if (value === '') {
+      this.props.onChange(undefined);
+    } else {
+      value = tryParseInt(value);
+      this.props.onChange(value);
+    }
+  }
 
-var IntegerField = React.createClass({
+}
+
+export default class IntegerField extends React.Component {
 
   render() {
     return (
@@ -36,6 +40,4 @@ var IntegerField = React.createClass({
       </Field>
     );
   }
-});
-
-module.exports = IntegerField;
+}

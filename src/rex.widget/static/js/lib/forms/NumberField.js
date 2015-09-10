@@ -2,20 +2,11 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React from 'react';
-import Field from './Field';
-import Input from './Input';
-
-const NUMBER_RE = /^\-?[0-9]+(\.[0-9]*)?$/;
-
-function tryParseFloat(value) {
-  let parsed = parseFloat(value, 10);
-  if (isNaN(parsed) || !NUMBER_RE.exec(value)) {
-    return value;
-  } else {
-    return parsed;
-  }
-}
+import autobind       from 'autobind-decorator';
+import React          from 'react';
+import Field          from './Field';
+import Input          from './Input';
+import tryParseFloat  from '../tryParseFloat';
 
 class NumberInput extends React.Component {
 
@@ -43,8 +34,8 @@ class NumberInput extends React.Component {
     }
   }
 
-  onChange = (e) => {
-    let value = e.target.value;
+  @autobind
+  onChange(value) {
     this.setState({value}, () => {
       if (value === '') {
         this.props.onChange(undefined);

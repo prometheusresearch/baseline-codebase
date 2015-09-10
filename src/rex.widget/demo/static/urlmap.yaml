@@ -194,6 +194,20 @@ paths:
           required: true
           value_key: string
 
+  /forms/autocomplete:
+    widget: !<DemoPage>
+      title: Form with Autocomplete
+      children: !<Form>
+        entity: no
+        insert: true
+        fields:
+        - type: entity
+          required: true
+          value_key: todo
+          data:
+            entity: todo
+            title: description
+
   /forms/number:
     widget: !<DemoPage>
       title: Form with Number field

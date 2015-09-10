@@ -16,6 +16,10 @@ import setuptools
 import pkg_resources
 
 
+# npm version used for CommonJS environment
+NPM_VERSION = '3.3.2'
+
+
 class install_commonjs(setuptools.Command):
 
     description = "install commonjs package"
@@ -319,7 +323,7 @@ def bootstrap():
         npm_version = out.strip()
         if npm_version[0] not in ('3', '2'):
             npm(['install', '--global', 'npm@2.x.x'])
-        npm(['install', '--global', 'npm@3.0.0'])
+        npm(['install', '--global', 'npm@' + NPM_VERSION])
         # we install peer deps ourselves with the new npm
         if meta.get('peerDependencies'):
             peer_deps = ['%s@%s' % (k, v)

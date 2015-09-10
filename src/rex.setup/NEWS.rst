@@ -7,7 +7,9 @@
 3.1.0 (XXXX-XX-XX)
 ==================
 
-* Bump webpack version.
+* Bump webpack version. Allows to use ``WatchIgnorePlugin``.
+
+* Bump npm version.
 
 3.1.0 (2015-09-03)
 ==================

@@ -45,6 +45,7 @@ var Field = React.createClass({
     var showErrors = dirty || params.forceShowErrors;
     children = React.cloneElement(
       children ?  React.Children.only(children) : <Input />, {
+        error: showErrors && errorList.length > 0,
         value: serialize(value),
         onChange: this.onChange.bind(null, onChange)
       });

@@ -191,7 +191,7 @@ def npm(args, cwd=None, env=None, quiet=False):
         distutils.log.info(out)
     # Check if npm emitted warning such as EPEERINVALID, we consider these to be
     # errors
-    if any(line.startswith('npm WARN E') for line in err.split('\n')):
+    if any(line.startswith('npm WARN EPEERINVALID') for line in err.split('\n')):
         if err:
             distutils.log.info(err)
         raise distutils.errors.DistutilsSetupError(

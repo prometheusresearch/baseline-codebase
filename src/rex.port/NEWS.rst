@@ -9,6 +9,7 @@
 ==================
 
 * Added support for configuring global parameters.
+* Allow calculated fields in ``select`` clause.
 
 
 1.0.4 (2015-03-11)

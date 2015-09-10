@@ -131,6 +131,19 @@ Alternatively, you can choose which columns to omit::
     entity: study
     select: [title, closed]
 
+You may also include calculated fields defined through ``tweak.override``::
+
+    >>> identity_select_port = Port("""
+    ... entity: identity
+    ... select: [givenname, surname, name]
+    ... """)
+    >>> print identity_select_port
+    entity: identity
+    select: [givenname, surname]
+    with:
+    - calculation: name
+      expression: (givenname+' '+surname)
+
 To indicate a subset of the table, use ``mask`` attribute::
 
     >>> study_mask_port = Port("""

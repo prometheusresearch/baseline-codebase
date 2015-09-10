@@ -2,4 +2,7 @@
 db: pgsql:port_demo
 htsql_extensions:
     rex_deploy:
+    tweak.override:
+        field-labels:
+            identity.name: (givenname+' '+surname)
 

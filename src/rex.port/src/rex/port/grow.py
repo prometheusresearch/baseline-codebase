@@ -11,7 +11,7 @@ from .arm import (RootArm, TableArm, TrunkArm, BranchArm, FacetArm, ColumnArm,
         LinkArm, SyntaxArm, Filter, Mask)
 from htsql.core.error import Error as HTSQLError
 from htsql.core.model import (HomeNode, TableNode, TableArc, ChainArc,
-        ColumnArc)
+        ColumnArc, SyntaxArc)
 from htsql.core.classify import classify
 from htsql.core.domain import (Value, UntypedDomain, IntegerDomain,
         FloatDomain, DecimalDomain, BooleanDomain)
@@ -487,8 +487,10 @@ class GrowEntity(Grow):
                 raise Error("Got unknown entity:", self.name)
             # Find columns and links.
             arms = []
+            calculations = []
             for label in classify(arm_arc.target):
-                if not any(fnmatch.fnmatchcase(label.name, pattern)
+                if not any(fnmatch.fnmatchcase(label.name, pattern) and
+                           (pattern != u'*' or label.is_public)
                            for pattern in self.select_patterns):
                     continue
                 if any(fnmatch.fnmatchcase(label.name, pattern)
@@ -505,6 +507,9 @@ class GrowEntity(Grow):
                         arc.joins[0].is_direct):
                     [join] = arc.joins
                     arms.append((label.name, LinkArm(join)))
+                elif isinstance(arc, SyntaxArc) and arc.parameters is None:
+                    calculation = GrowCalculation(label.name, (), arc.syntax)
+                    calculations.append(calculation)
             # Entity mask.
             mask = Mask(self.mask) if self.mask is not None else None
             # Conditional filters.
@@ -521,7 +526,7 @@ class GrowEntity(Grow):
                 error.wrap("While applying:", location)
             raise
         # Apply nested builders.
-        for grow in self.related:
+        for grow in self.related + calculations:
             arm = grow(arm)
         # Rebuild the chain of parents.
         parent = parent.grow(arms=[(self.name, arm)])

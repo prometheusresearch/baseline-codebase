@@ -10,11 +10,8 @@ var {Map, OrderedMap} = require('immutable');
 var AudioSource = require('./AudioSource');
 var Bool = require('./Bool');
 var LocalizedText = require('./LocalizedText');
+var {RE_ROW_ID} = require('../constants');
 var _ = require('../i18n').gettext;
-
-
-var RE_IDENTIFIER =
-  /^(?:[a-z0-9]{1,2}|[a-z0-9](?:[a-z0-9]|[_-](?![_-]))+[a-z0-9])$/;
 
 
 class Row extends ReactForms.schema.MappingNode {
@@ -28,7 +25,7 @@ class Row extends ReactForms.schema.MappingNode {
         label: _('ID'),
         required: true,
         validate: function (node, value) {
-          if (!RE_IDENTIFIER.test(value)) {
+          if (!RE_ROW_ID.test(value)) {
             return new Error(
               _('Not a valid format for a row identifier.')
             );

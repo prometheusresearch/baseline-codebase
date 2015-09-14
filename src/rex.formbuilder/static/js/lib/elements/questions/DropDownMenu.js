@@ -7,6 +7,7 @@
 var objectPath = require('object-path');
 
 var Enumeration = require('./Enumeration');
+var properties = require('../../properties');
 var _ = require('../../i18n').gettext;
 
 
@@ -17,6 +18,29 @@ class DropDownMenu extends Enumeration {
 
   static getTypeID() {
     return 'question-dropdown';
+  }
+
+  static getPropertyConfiguration() {
+    var cfg = Enumeration.getPropertyConfiguration();
+
+    cfg.properties.basic = cfg.properties.basic.map((prop) => {
+      if (prop.name == 'enumerations') {
+        return {
+          name: 'enumerations',
+          schema: properties.EnumerationList,
+          label: _('Choices'),
+          required: true,
+          simpleEnumerations: true
+        };
+      }
+      return prop;
+    });
+
+    cfg.properties.advanced = cfg.properties.advanced.filter((prop) => {
+      return prop.name !== 'autoHotkeys';
+    });
+
+    return cfg;
   }
 
   serialize(instrument, form, context) {

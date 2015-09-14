@@ -35,9 +35,11 @@ class Enumeration extends ReactForms.schema.MappingNode {
       text: LocalizedText.create({
         label: _('Label'),
         required: true
-      }),
+      })
+    };
 
-      hotkey: ReactForms.schema.Scalar({
+    if (!props.simple) {
+      children.hotkey = ReactForms.schema.Scalar({
         label: _('Hotkey'),
         required: false,
         validate: function (node, value) {
@@ -47,18 +49,19 @@ class Enumeration extends ReactForms.schema.MappingNode {
             );
           }
         }
-      }),
+      });
 
-      help: LocalizedText.create({
+      children.help = LocalizedText.create({
         label: _('Help Text'),
         required: false
-      }),
+      });
 
-      audio: AudioSource.create({
+      children.audio = AudioSource.create({
         label: _('Audio File URLs'),
         required: false
-      })
-    };
+      });
+    }
+
     props.children = OrderedMap(children);
 
     delete props.label;

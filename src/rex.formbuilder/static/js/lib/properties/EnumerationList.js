@@ -15,7 +15,9 @@ var _ = require('../i18n').gettext;
 class EnumerationList extends ReactForms.schema.ListNode {
   static create(props) {
     props = props || {};
-    props.children = Enumeration.create();
+    props.children = Enumeration.create({
+      simple: props.simpleEnumerations || false
+    });
     props.component = RepeatingEnumerationFieldset;
 
     /*eslint new-cap:0 */

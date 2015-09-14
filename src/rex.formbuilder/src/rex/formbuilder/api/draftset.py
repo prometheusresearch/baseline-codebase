@@ -306,7 +306,7 @@ class DraftSetPublishResource(RestfulLocation):
             'forms': forms,
             'calculation_set': calc.as_dict(
                 extra_properties=['definition'],
-            ),
+            ) if calc else None,
         }
         return result
 

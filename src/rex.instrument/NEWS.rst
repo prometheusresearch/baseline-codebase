@@ -14,6 +14,8 @@ REX.INSTRUMENT Change Log
 * Removed erroneous ``calculations`` key from CalculationSet.as_dict().
 * Added a ``get_implementation()`` method to all Interface classes as a
   convenience wrapper around the same function in the utils module.
+* Added ``presentation_type`` and ``only_presentation_type`` to the possible
+  search critiera to the ``find()`` method on the Instrument class.
 
 
 0.18.0 (2015-06-23)

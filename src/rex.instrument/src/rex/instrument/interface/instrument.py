@@ -71,6 +71,8 @@ class Instrument(
         * title (partial matches)
         * code (partial matches)
         * status (exact matches)
+        * presentation_type (has at least one configuration for the specified type)
+        * only_presentation_type (only has configurations for the specified type)
 
         Must be implemented by concrete classes.
 

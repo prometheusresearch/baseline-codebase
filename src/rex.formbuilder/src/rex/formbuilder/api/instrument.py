@@ -39,9 +39,11 @@ class InstrumentResource(SimpleResource, BaseResource):
     interface_name = 'instrument'
 
     def list(self, request, **kwargs):
+        kwargs['only_presentation_type'] = 'form'
         return self.do_list(
             request,
-            list_criteria=['title', 'status'],
+            list_criteria=['title', 'status', 'only_presentation_type'],
+            raw_objects=True,
             **kwargs
         )
 

@@ -37,7 +37,7 @@ var ElementWorkspace = React.createClass({
         <WorkspaceElement
           key={element.EID}
           element={element}
-          canMove={idx !== 0}
+          fixed={idx === 0}
           />
       );
     });

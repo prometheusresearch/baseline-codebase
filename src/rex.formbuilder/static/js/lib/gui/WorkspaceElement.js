@@ -27,13 +27,13 @@ var WorkspaceElement = React.createClass({
 
   propTypes: {
     element: React.PropTypes.object.isRequired,
-    canMove: React.PropTypes.bool,
+    fixed: React.PropTypes.bool,
     isSubField: React.PropTypes.bool
   },
 
   getDefaultProps: function () {
     return {
-      canMove: true,
+      fixed: false,
       isSubField: false
     };
   },
@@ -161,7 +161,7 @@ var WorkspaceElement = React.createClass({
   },
 
   canMove: function () {
-    return this.props.canMove
+    return !this.props.fixed
       && !this.state.editing
       && !this.state.deleting
       && !CURRENTLY_EDITING;
@@ -218,7 +218,7 @@ var WorkspaceElement = React.createClass({
     var classes = {
       'rfb-workspace-item': true,
       'rfb-dragging': isDragging,
-      'rfb-movable': this.props.canMove
+      'rfb-movable': this.canMove()
     };
     var typeId = this.props.element.constructor.getTypeID();
     if (typeId) {
@@ -238,16 +238,20 @@ var WorkspaceElement = React.createClass({
         <div className='rfb-workspace-item-tools'>
           <button
             className='rfb-button rfb-icon-button'
+            title={_('Edit this Element\'s Properties')}
             onClick={this.onEdit}>
             <span className='rfb-icon icon-edit' />
           </button>
           <button
             className='rfb-button rfb-icon-button'
+            title={_('Clone this Element')}
             onClick={this.onClone}>
             <span className='rfb-icon icon-clone' />
           </button>
           <button
             className='rfb-button rfb-icon-button'
+            disabled={this.props.fixed}
+            title={this.props.fixed ? _('You Cannot Delete this Element') : _('Delete this Element')}
             onClick={this.onDelete}>
             <span className='rfb-icon icon-delete' />
           </button>

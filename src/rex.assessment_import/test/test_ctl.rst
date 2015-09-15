@@ -86,4 +86,5 @@ the bunch of csv files as Assessment objects to the datastore::
     >>> open('./build/sandbox/simple1.csv', 'w').write('subject,assessment_id,date,q_fake\nsubject1,1,,')
     >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/')
     Starting assessment 1 import...
+    ### SAVED ASSESSMENT fake_assessment_1
     Import finished, assessment fake_assessment_1 generated.

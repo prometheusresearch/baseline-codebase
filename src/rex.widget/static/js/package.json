@@ -29,7 +29,7 @@
     "object-assign": "^1.0.0",
     "qs": "^4.0.0",
     "react-bootstrap-datetimepicker": "prometheusresearch/react-bootstrap-datetimepicker#9371bf",
-    "react-forms": "prometheusresearch/react-forms#4e6896d",
+    "react-forms": "prometheusresearch/react-forms#a5efe69",
     "rethemeable": "^2.0.1",
     "styling": "^0.4.0",
     "transit-js": "^0.8.795"

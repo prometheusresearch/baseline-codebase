@@ -20,6 +20,7 @@ var InstrumentMenu = React.createClass({
 
   propTypes: {
     apiBaseUrl: React.PropTypes.string.isRequired,
+    instrumentMenuUrlTemplate: React.PropTypes.string,
     draftSetEditorUrlTemplate: React.PropTypes.string.isRequired,
     formPreviewerUrlTemplate: React.PropTypes.string.isRequired,
     uid: React.PropTypes.string,
@@ -65,7 +66,11 @@ var InstrumentMenu = React.createClass({
   },
 
   onReturn: function () {
-    InstrumentActions.deactivate();
+    if (this.props.instrumentMenuUrlTemplate) {
+      window.top.location.href = this.props.instrumentMenuUrlTemplate;
+    } else {
+      InstrumentActions.deactivate();
+    }
   },
 
   render: function () {

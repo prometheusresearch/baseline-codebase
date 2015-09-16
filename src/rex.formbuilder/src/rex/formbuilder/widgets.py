@@ -34,6 +34,13 @@ class InstrumentMenuWidget(Widget):
         ' ever need to set or change this.',
     )
 
+    instrument_menu_url_template = Field(
+        URLVal(),
+        default=None,
+        doc='The URL to the screen that contains the InstrumentMenu (or a'
+        'substitute).',
+    )
+
     draft_set_editor_url_template = Field(
         URLVal(),
         default='rex.formbuilder:/edit?uid=${uid}',

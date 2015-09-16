@@ -257,6 +257,10 @@ class Question extends Element {
           }
         }
 
+        if (isEmpty(event.targets)) {
+          delete event.targets;
+        }
+
         return event;
       });
       objectPath.set(

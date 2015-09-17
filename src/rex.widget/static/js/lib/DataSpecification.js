@@ -54,17 +54,21 @@ class DataSpecification {
   }
 
   merge(other) {
-    invariant(
-      this.constructor === other.constructor,
-      'DataSpecification.merge(): can only merge same type specifications'
-    );
-    invariant(
-      this.port === other.port || other.port === null || this.port === null,
-      'DataSpecification.merge(): can only merge specifications with the same port'
-    );
-    var spec = {...this.spec, ...other.spec};
-    var options = {...this.options, ...other.options};
-    return new this.constructor(this.port || other.port, spec, options);
+    if (other.constructor === Object) {
+      return new this.constructor(this.port, {...this.spec, ...other}, this.options);
+    } else {
+      invariant(
+        this.constructor === other.constructor,
+        'DataSpecification.merge(): can only merge same type specifications'
+      );
+      invariant(
+        this.port === other.port || other.port === null || this.port === null,
+        'DataSpecification.merge(): can only merge specifications with the same port'
+      );
+      var spec = {...this.spec, ...other.spec};
+      var options = {...this.options, ...other.options};
+      return new this.constructor(this.port || other.port, spec, options);
+    }
   }
 }
 

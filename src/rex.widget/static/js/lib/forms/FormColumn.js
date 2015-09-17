@@ -1,28 +1,47 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React             = require('react');
-var {VBox, HBox}      = require('../Layout');
-var renderFormItem    = require('./renderFormItem');
+import  React, {PropTypes}  from 'react';
+import  {VBox, HBox}        from '../Layout';
+import  renderFormItem      from './renderFormItem';
 
-var FormColumn = React.createClass({
+export default class FormColumn extends React.Component {
+
+  static propTypes = {
+    /**
+     * An array of field specifications to render.
+     */
+    fields: PropTypes.array,
+
+    /**
+     * Form value.
+     */
+    formValue: PropTypes.object,
+
+    /**
+     * A bag of props which should be passed to fields.
+     */
+    fieldProps: PropTypes.object,
+
+    /**
+     * Size of the row (bassed to underlying <HBox /> component).
+     */
+    size: PropTypes.number,
+  };
+
+  static defaultProps = {
+    size: 1
+  };
 
   render() {
-    var {fields, size, formValue, fieldProps} = this.props;
+    let {fields, size, formValue, fieldProps} = this.props;
+    let items = fields.map((field, idx) =>
+      renderFormItem(formValue, field, fieldProps, idx))
     return (
       <VBox size={size}>
-        {fields.map((field, idx) => renderFormItem(formValue, field, fieldProps, idx))}
+        {items}
       </VBox>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      size: 1
-    };
   }
-});
-
-module.exports = FormColumn;
+}

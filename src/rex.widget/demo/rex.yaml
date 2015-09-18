@@ -1,3 +1,4 @@
 project: rex.widget_demo
+debug: true
 parameters:
   db: pgsql:widget_demo

@@ -33,6 +33,7 @@ setup(
         'rex.ctl>=2,<3',
         'rex.logging>=1,<2',
         'redis>=2.10,<2.11',
+        'HTSQL>=2.3.3,<3',
         'psycopg2',
     ],
     rex_init='rex.asynctask',

@@ -10,6 +10,7 @@ var DraftSetList = require('./DraftSetList');
 var MenuHeader = require('./MenuHeader');
 var VersionList = require('./VersionList');
 var _ = require('../i18n').gettext;
+var {InstrumentVersionStore} = require('../stores');
 var {format} = require('../util');
 
 
@@ -20,6 +21,29 @@ var DraftSetSelector = React.createClass({
     onReturn: React.PropTypes.func,
     draftSetEditorUrlTemplate: React.PropTypes.string.isRequired,
     formPreviewerUrlTemplate: React.PropTypes.string.isRequired
+  },
+
+  getInitialState: function () {
+    return {
+      hasPublishedVersions: false
+    };
+  },
+
+  componentDidMount: function () {
+    InstrumentVersionStore.addChangeListener(this._onInstrumentVersionsChange);
+  },
+
+  componentWillUnmount: function () {
+    InstrumentVersionStore.removeChangeListener(
+      this._onInstrumentVersionsChange
+    );
+  },
+
+  _onInstrumentVersionsChange: function () {
+    var versions = InstrumentVersionStore.getAll();
+    this.setState({
+      hasPublishedVersions: versions && versions.length > 0
+    });
   },
 
   onSelected: function (draft) {
@@ -49,6 +73,7 @@ var DraftSetSelector = React.createClass({
         <DraftSetList
           onDraftSelected={this.onSelected}
           onPreviewSelected={this.onPreview}
+          allowNewDrafts={!this.state.hasPublishedVersions}
           />
         <VersionList
           onPreviewSelected={this.onPreview}

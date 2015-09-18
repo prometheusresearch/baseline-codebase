@@ -34,6 +34,8 @@ REX.FORMBUILDER Change Log
 * Added ability to configure Question Grids (aka, matrix fields).
 * Fixed issue where the list of instruments/drafts/revisions was capped at 100
   items.
+* The "Create New Draft" button is now hidden if there are published revisions
+  exist for the Instrument.
 
 
 5.2.2 (2015-06-23)

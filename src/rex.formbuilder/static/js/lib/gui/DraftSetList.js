@@ -16,12 +16,14 @@ var {DraftInstrumentVersionStore} = require('../stores');
 var DraftSetList = React.createClass({
   propTypes: {
     onDraftSelected: React.PropTypes.func,
-    onPreviewSelected: React.PropTypes.func
+    onPreviewSelected: React.PropTypes.func,
+    allowNewDrafts: React.PropTypes.bool
   },
 
   getDefaultProps: function () {
     return {
-      onDraftSelected: function () {}
+      onDraftSelected: function () {},
+      allowNewDrafts: false
     };
   },
 
@@ -103,12 +105,14 @@ var DraftSetList = React.createClass({
       <div className="rfb-draftset-list">
         <MenuHeader
           title={_('Drafts')}>
-          <button
-            className="rfb-button"
-            onClick={this.onNewDraft}>
-            <span className='rfb-icon icon-new' />
-            {_('Create New Draft')}
-          </button>
+          {this.props.allowNewDrafts &&
+            <button
+              className="rfb-button"
+              onClick={this.onNewDraft}>
+              <span className='rfb-icon icon-new' />
+              {_('Create New Draft')}
+            </button>
+          }
         </MenuHeader>
         <table>
           <thead>

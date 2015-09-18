@@ -1,0 +1,122 @@
+- table: all_column_types
+  with:
+    - column: integer_field
+      type: integer
+    - identity:
+      - integer_field: offset
+    - column: boolean_field
+      type: boolean
+    - column: decimal_field
+      type: decimal
+    - column: float_field
+      type: float
+    - column: text_field
+      type: text
+    - column: date_field
+      type: date
+    - column: time_field
+      type: time
+    - column: datetime_field
+      type: datetime
+    - column: json_field
+      type: json
+    - column: enum_field
+      type:
+        - foo
+        - bar
+        - baz
+
+- table: required_tests
+  with:
+    - column: code
+      type: integer
+    - identity:
+      - code: offset
+    - column: is_required
+      type: text
+      required: true
+    - column: not_required
+      type: text
+      required: false
+    - column: is_required_with_default
+      type: text
+      required: true
+      default: foo
+    - column: not_required_with_default
+      type: text
+      required: false
+      default: foo
+
+- table: unique_tests
+  with:
+    - column: code
+      type: integer
+    - identity:
+      - code: offset
+    - column: is_unique
+      type: text
+      unique: true
+    - column: not_unique
+      type: text
+      unique: false
+
+- table: trunk
+  with:
+    - column: code
+      type: integer
+    - identity:
+      - code: offset
+    - column: a_field
+      type: text
+
+- table: branch
+  with:
+    - link: trunk
+    - column: code
+      type: integer
+    - identity:
+      - trunk
+      - code: offset
+    - column: some_field
+      type: boolean
+
+- table: facet
+  with:
+    - link: trunk
+    - identity:
+      - trunk
+    - column: another_field
+      type: float
+
+- table: another_trunk
+  with:
+    - column: code
+      type: integer
+    - identity:
+      - code: offset
+    - column: some_data
+      type: text
+
+- table: cross
+  with:
+    - link: trunk
+    - link: another_trunk
+    - identity:
+      - trunk
+      - another_trunk
+    - column: a_number
+      type: float
+
+- table: ternary
+  with:
+    - link: trunk
+    - link: another_trunk
+    - column: code
+      type: integer
+    - identity:
+      - trunk
+      - another_trunk
+      - code: offset
+    - column: a_number
+      type: float
+

@@ -229,7 +229,7 @@ EntityFormField::
                               title='identity.givenname',
                               mask=None))
 
-  >>> f.port
+  >>> f.query_port
   Port('''
   entity: individual
   select: []
@@ -395,7 +395,7 @@ Enrich field from port
   [StringFormField(value_key=['code'], required=True, label='Code'),
    EntityFormField(value_key=['mother'], label='Mother', data=Record(entity='individual', title='id()', mask=None))]
 
-  >>> fields[1].port
+  >>> fields[1].query_port
   Port('''
   entity: individual
   select: []
@@ -416,7 +416,7 @@ Enrich field from port
                                title='title',
                                mask=None))]
 
-  >>> fields[0].port
+  >>> fields[0].query_port
   Port('''
   entity: table_with_title
   select: [id]
@@ -425,7 +425,7 @@ Enrich field from port
     expression: title
   ''')
 
-  >>> fields[0].port.produce()
+  >>> fields[0].query_port.produce()
   <Product {()}>
 
   >>> rex.off()

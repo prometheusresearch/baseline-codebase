@@ -50,6 +50,9 @@ class FieldBase(object):
         else:
             return self(widget)
 
+    def __set__(self, widget, value):
+        widget.values[self.name] = value
+
     def __call__(self, widget):
         raise NotImplementedError('%s.__call__(widget) is not implemented' % \
                                   self.__class__.__name__)

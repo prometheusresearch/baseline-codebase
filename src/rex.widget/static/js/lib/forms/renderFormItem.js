@@ -1,14 +1,18 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React             = require('react');
-var ConfigurableField = require('./ConfigurableField');
+import React              from 'react';
+import ConfigurableField  from './ConfigurableField';
+import isReactElement     from '../isReactElement';
 
-function renderFormItem(formValue, item, props, syntheticKey) {
-  if (item.type && item.props) {
-    return React.cloneElement(item, {formValue, fieldProps: props, key: syntheticKey});
+export default function renderFormItem(formValue, item, props, syntheticKey) {
+  if (isReactElement(item)) {
+    return React.cloneElement(item, {
+      formValue,
+      fieldProps: props,
+      key: syntheticKey
+    });
   } else {
     return (
       <ConfigurableField
@@ -20,5 +24,3 @@ function renderFormItem(formValue, item, props, syntheticKey) {
     );
   }
 }
-
-module.exports = renderFormItem;

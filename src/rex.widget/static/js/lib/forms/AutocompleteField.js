@@ -80,7 +80,9 @@ export default class AutocompleteField extends React.Component {
     } else {
       let root = formValue._root;
       let titleDataSpec = dataSpec.merge(this._populateParameters());
-      let queryDataSpec = titleDataSpec.merge({'query': true});
+      let queryDataSpec = dataSpec.port.path.indexOf('__to__') > -1 ?
+        titleDataSpec.merge({'query': true}) :
+        titleDataSpec;
       return (
         <Field {...props} data={undefined} formValue={formValue}>
           <Autocomplete

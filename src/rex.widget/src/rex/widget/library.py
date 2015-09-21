@@ -155,3 +155,15 @@ class DateField(Widget):
         Date format string (affect rendering only, value still be formatted
         as an ISO formatted string).
         """)
+
+    min_date = Field(
+        StrVal(), default=None,
+        doc="""
+        The earliest date that may be set
+        """)
+
+    max_date = Field(
+        StrVal(), default=None,
+        doc="""
+        The latest date that may be set
+        """)

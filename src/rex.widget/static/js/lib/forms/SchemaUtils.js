@@ -36,6 +36,20 @@ function _removeLayout(fields) {
   return noLayout;
 }
 
+function _dateConstraint(value) {
+  if (!value)
+    return undefined;
+  switch(value) {
+  case 'today':
+    return moment(); // .startOf('day');
+  case 'tomorrow':
+    return moment().add(1, 'day');
+  case 'yesterday':
+    return moment().subtract(1, 'day');
+  };
+  return moment(value, DATE_ISO_FORMAT, true);
+}
+
 function _fieldToSchema(field) {
   switch (field.type) {
     case 'fieldset':
@@ -53,6 +67,8 @@ function _fieldToSchema(field) {
         type: 'string',
         format: Validation.date,
         datetimeFormat: field.format,
+        minDate: _dateConstraint(field.minDate),
+        maxDate: _dateConstraint(field.maxDate),
         isRequired: !!field.required
       };
     case 'datetime':
@@ -212,6 +228,12 @@ var Validation = {
     var date = moment(value, DATE_ISO_FORMAT, true);
     if (!date.isValid()) {
       return `should be in ${node.datetimeFormat} format`;
+    }
+    if (node.maxDate && date.isAfter(node.maxDate)) {
+      return `should not be after ${node.maxDate.format(node.datetimeFormat)}`;
+    }
+    if (node.minDate && date.isBefore(node.minDate)) {
+      return `should not be before ${node.minDate.format(node.datetimeFormat)}`;
     }
     return true;
   }

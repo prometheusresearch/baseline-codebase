@@ -14,12 +14,14 @@ const ISO_FORMAT = "YYYY-MM-DD";
 class DatePicker extends React.Component {
 
   render() {
-    let {value, format, ...props} = this.props;
+    let {value, format, minDate, maxDate, ...props} = this.props;
     return (
       <BaseDateTimePicker
         mode="date"
         format={ISO_FORMAT}
         inputFormat={format}
+        minDate={minDate}
+        maxDate={maxDate}
         dateTime={value}
         onChange={this.props.onChange}
         />
@@ -34,7 +36,8 @@ export default class DateField extends React.Component {
   }
 
   render() {
-    let {format, formValue, readOnly, ...props} = this.props;
+    let {format, formValue, readOnly, minDate, maxDate,
+      ...props} = this.props;
     if (readOnly) {
       let value = formValue.value;
       if (value) {
@@ -46,9 +49,19 @@ export default class DateField extends React.Component {
         </ReadOnlyField>
       );
     } else {
+      if (minDate) {
+        minDate = moment(minDate, ISO_FORMAT, true);
+      }
+      if (maxDate) {
+        maxDate = moment(maxDate, ISO_FORMAT, true);
+      }
       return (
         <Field {...props} formValue={formValue}>
-          <DatePicker format={format} />
+          <DatePicker
+            minDate={minDate}
+            maxDate={maxDate}
+            format={format}
+            />
         </Field>
       );
     }

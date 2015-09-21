@@ -682,11 +682,15 @@ class DateFormField(FormField):
 
     fields = (
         ('format', StrVal(), 'YYYY-MM-DD'),
+        ('min_date', MaybeVal(StrVal()), None),
+        ('max_date', MaybeVal(StrVal()), None),
     )
 
     def widget(self):
         from .library import DateField
-        return DateField(format=self.format)
+        return DateField(format=self.format,
+                         min_date=self.min_date,
+                         max_date=self.max_date)
 
 
 class DatetimeFormField(FormField):

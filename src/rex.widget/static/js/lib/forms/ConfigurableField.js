@@ -12,6 +12,7 @@ var Field             = require('./Field');
 var IntegerField      = require('./IntegerField');
 var NumberField       = require('./NumberField');
 var DatepickerField   = require('./DatepickerField');
+var DateField         = require('./DateField');
 var CheckboxField     = require('./CheckboxField');
 var SelectField       = require('./SelectField');
 var AutocompleteField = require('./AutocompleteField');
@@ -75,12 +76,14 @@ var ConfigurableField = React.createClass({
     switch (field.type) {
       case 'date':
         return (
-          <DatepickerField
+          <DateField
             key={field.valueKey}
             label={field.label}
             hint={field.hint}
             selectFormValue={field.valueKey}
             formValue={formValue}
+            minDate={field.minDate}
+            maxDate={field.maxDate}
             />
         );
       case 'bool':

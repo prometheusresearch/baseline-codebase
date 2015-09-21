@@ -79,7 +79,12 @@ var Form = React.createClass({
      *
      * Callback which fires if form submit results in an error.
      */
-    onSubmitError: React.PropTypes.func
+    onSubmitError: React.PropTypes.func,
+
+    /**
+     * @private
+     */
+    context: React.PropTypes.object,
   },
 
   render() {
@@ -151,7 +156,12 @@ var Form = React.createClass({
   getInitialState() {
     return {
       submitInProgress: false,
-      value: Value(this.props.schema, this.props.value, this.onChange)
+      value: Value(
+        this.props.schema,
+        this.props.value,
+        this.onChange,
+        {context: this.props.context}
+      )
     };
   },
 
@@ -163,8 +173,23 @@ var Form = React.createClass({
   },
 
   componentWillReceiveProps(nextProps) {
+    var value = this.state.value;
     if (nextProps.schema !== this.props.schema) {
-      var value = Value(nextProps.schema, this.state.value.value, this.onChange, this.state.value.params);
+      value = Value(
+        nextProps.schema,
+        value.value,
+        this.onChange,
+        value.params
+      );
+      this.setState({value});
+    }
+    if (nextProps.context !== this.props.context) {
+      value = Value(
+        value.schema,
+        value.value,
+        this.onChange,
+        {...value.params, context: nextProps.context}
+      );
       this.setState({value});
     }
   },

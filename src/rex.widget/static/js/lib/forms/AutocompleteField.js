@@ -62,7 +62,7 @@ export default class AutocompleteField extends React.Component {
 
   render() {
     var {
-      dataSpec, readOnly, formValue, parameters,
+      dataSpec, readOnly, formValue,
       valueAttribute, titleAttribute, style,
       ...props
     } = this.props;
@@ -98,12 +98,16 @@ export default class AutocompleteField extends React.Component {
   }
 
   _populateParameters() {
-    let {parameters, formValue} = this.props;
-    let rootFormValue = formValue._root;
+    let context = this.props.formValue.params.context;
     let populatedParameters = {};
-    for (let key in parameters) {
-      if (parameters.hasOwnProperty(key)) {
-        populatedParameters[':' + key] = rootFormValue.select(parameters[key]).value;
+    for (let key in context) {
+      if (context.hasOwnProperty(key)) {
+        let value = context[key];
+        if (value['meta:type'] !== undefined) {
+          populatedParameters[':' + key] = value.id;
+        } else {
+          populatedParameters[':' + key] = value;
+        }
       }
     }
     return populatedParameters;

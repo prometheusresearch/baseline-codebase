@@ -344,7 +344,7 @@ DateFormField
 
   >>> from_port(Port('t_date')) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label='Code'),
-   DateFormField(value_key=['date'], label='Date', widget=DateField(format='YYYY-MM-DD'))]
+   DateFormField(value_key=['date'], label='Date', widget=DateField(max_date=None, min_date=None, format='YYYY-MM-DD'))]
 
 Cleanup
 ```````

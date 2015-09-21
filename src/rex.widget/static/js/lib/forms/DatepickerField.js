@@ -116,6 +116,12 @@ var Datepicker = React.createClass({
   }
 });
 
+/**
+ * Renders a <Field> with a <Datepicker> widget.
+ *
+ * @deprecated
+ * @public
+ */
 var DatepickerField = React.createClass({
 
   render() {

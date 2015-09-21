@@ -19,7 +19,7 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'docutils-react-docgen  >= 0.3.0, < 1.0',
+        'docutils-react-docgen  >= 1.1.0, < 2.0.0',
         'docutils-shell         >= 0.0.2, < 1.0',
         'rex.expression         >= 1.3,   < 2',
         'rex.setup              >= 3.1,   < 4',

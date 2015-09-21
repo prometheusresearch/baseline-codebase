@@ -31,7 +31,27 @@ var Checkbox = React.createClass({
   }
 });
 
+/**
+ * Renders a <Field> with an <input> of type="checkbox" or
+ * if ``readOnly`` is true then renders a <ReadOnlyField>.
+ *
+ * @public
+ */
 var CheckboxField = React.createClass({
+
+  propTypes: {
+    /**
+     * When ``true``, a <ReadOnlyField> is displayed;
+     * otherwise an <input type="checkbox" ... /> widget is displayed.
+     */
+    readOnly: React.PropTypes.bool,
+
+    /**
+     * A form value object whose **value** property contains 
+     * the initial value of the checkbox.
+     */
+    formValue: React.PropTypes.object
+  },
 
   render() {
     var {readOnly, formValue, ...props} = this.props;

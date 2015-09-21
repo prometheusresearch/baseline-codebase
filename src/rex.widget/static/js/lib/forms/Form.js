@@ -19,15 +19,21 @@ var FormStyle = {
   }
 };
 
+/**
+ * Form component.
+ *
+ * @public
+ */
 var Form = React.createClass({
 
   propTypes: {
     /**
-     * Data specification to submit form value to.
+     * An instance of ``class DataSpecification``.
+     * The data specification to submit the form value to.
      */
     submitTo: React.PropTypes.object,
     /**
-     * Form schema in json schema format.
+     * The form schema in json schema format.
      */
     schema: React.PropTypes.object,
     /**
@@ -45,6 +51,8 @@ var Form = React.createClass({
     submitButtonTitle: React.PropTypes.string,
 
     /**
+     * func
+     *
      * Callback which fires on form submit.
      *
      * This callback can alter form value before submitting it to server by
@@ -53,16 +61,22 @@ var Form = React.createClass({
     onSubmit: React.PropTypes.func,
 
     /**
+     * func
+     *
      * Callback which can be used to transform value before submitting it on
      * server. Value won't be revalidated.
      */
     transformValueOnSubmit: React.PropTypes.func,
 
     /**
+     * func
+     *
      * Callback which fires after form submit is complete.
      */
     onSubmitComplete: React.PropTypes.func,
     /**
+     * func
+     *
      * Callback which fires if form submit results in an error.
      */
     onSubmitError: React.PropTypes.func

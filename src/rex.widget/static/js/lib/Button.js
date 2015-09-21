@@ -11,28 +11,88 @@ import resolveURL         from './resolveURL';
 import qs                 from './qs';
 import Style              from './Button.style';
 
+@Themeable
 /**
- * Button.
+ * May be rendered as an <a> or a <button>.
+ *
+ * May consist of an Icon, children or text, another Icon (rightIcon).
  *
  * @public
  */
-@Themeable
 export default class Button extends React.Component {
 
   static defaultTheme = Style;
 
   static propTypes = {
+    /**
+     * When true include class rw-Button--link.
+     * If both **link** and **success** are false, 
+     * class rw-Button--default is included. 
+     */
     link: PropTypes.bool,
-    success: PropTypes.bool,
-    danger: PropTypes.bool,
-    quiet: PropTypes.bool,
-    size: PropTypes.oneOf(['small', 'extra-small']),
+
+    /**
+     * When true include class rw-Button--success. 
+     * If both **link** and **success** are false, 
+     * class rw-Button--default is included. 
+     */
+    success: React.PropTypes.bool,
+
+    /**
+     * When true include class rw-Button--danger. 
+     */
+    danger: React.PropTypes.bool,
+
+    /**
+     * When true include class rw-Button--quiet. 
+     */
+    quiet: React.PropTypes.bool,
+
+    /**
+     * One of "small", "extra-small".
+     */
+     size: PropTypes.oneOf(['small', 'extra-small']),
+
+    /**
+     * The textAlign attribute for the style attribute. 
+     * One of "left", "right", "center".
+     */
     align: PropTypes.oneOf(['left', 'right', 'center']),
+
+    /**
+     * The name of a (css) class to include.
+     */
     className: PropTypes.string,
+
+    /**
+     * The (css) style attribute for this component.
+     * Note that the textAlign attribute of 
+     * the style attribute is set by **align**.
+     */
     style: PropTypes.object,
+    
+    /**
+     * The name of the icon to use.
+     */
     icon: PropTypes.string,
+
+    /**
+     * The name of the icon displayed to the right of **icon**.
+     */
     iconRight: PropTypes.string,
+
+    /**
+     * The href attribute (URL) for this anchor.
+     * When href is given, the component is rendered as <a>
+     * otherwise it is rendered as <button>.
+     */
     href: PropTypes.string,
+
+    /**
+     * Contains the parameters for the URL.
+     * The object is completely flattened into a string which is 
+     * the URL query string.  
+     */
     params: PropTypes.object
   };
 

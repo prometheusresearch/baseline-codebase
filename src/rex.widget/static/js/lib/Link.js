@@ -23,7 +23,7 @@ function interpolateLinkParams(link, name, value) {
 }
 
 /**
- * Link.
+ * Renders an anchor <a>
  *
  * @public
  */
@@ -39,7 +39,14 @@ export default class Link extends React.Component {
     href: React.PropTypes.string.isRequired,
 
     /**
-     * URL parameters (added to ``href``).
+     * the children to display inside the anchor.
+     */
+    children: React.PropTypes.element,
+
+    /**
+     * (optional) querystring parameters.
+     * If provided, this object will be "flattened" into a string
+     * which is prepended with '?' and then appended to the href url.
      */
     params: React.PropTypes.object
   };

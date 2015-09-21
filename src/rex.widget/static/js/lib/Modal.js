@@ -50,9 +50,80 @@ var ModalStyle = {
   }
 };
 
+/**
+ * Modal component.
+ *
+ * Renders a pop-up with a title and a button which closes the pop-up.
+ *
+ * @public
+ */
 var Modal = React.createClass({
   mixins: [LayeredComponentMixin],
 
+  propTypes: {
+    /**
+     * The modal is only rendered when **open** is not falsy, 
+     * and not equal to 'false'.
+     */
+    open: React.PropTypes.any,
+    
+    /**
+     * The children to appear inside the modal. 
+     */
+    children: React.PropTypes.element,
+    
+    /**
+     * Display title (and button) only when true.
+     */
+    showTitle: React.PropTypes.bool,
+    
+    /**
+     * The title of the modal.
+     */
+    title: React.PropTypes.string,
+    
+    /**
+     * When true the height for the modal's children is set to '100%'.
+     * otherwise it is set to undefined. 
+     */
+    forceHeight: React.PropTypes.bool,
+
+    /**
+     * The css style width of the modal.  
+     */
+    width: React.PropTypes.string,
+    
+    /**
+     * The css style minimum width of the modal. 
+     */
+    minWidth: React.PropTypes.string,
+    
+    /**
+     * string css style maximum width of the modal. 
+     */
+    maxWidth: React.PropTypes.string,
+    
+    /**
+     * The css style height of the modal. 
+     */
+    height: React.PropTypes.string,
+    
+    /**
+     * The css style minimum height of the modal.
+     */
+    minHeight: React.PropTypes.string,
+    
+    /**
+     * The css style maximum height of the modal.
+     */
+    maxHeight: React.PropTypes.string,
+
+    /**
+     * This function is called when the modal button is clicked.
+     */
+    onClose: React.PropTypes.func
+  },
+  
   render() {
     return null;
   },

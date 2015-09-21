@@ -11,7 +11,7 @@ import Style              from './IconButton.module.css';
 
 @Themeable
 /**
- * Icon components which behaves like a button.
+ * Icon component which behaves like a button.
  *
  * @public
  */

@@ -1,85 +1,11 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React             = require('react');
-var {boxShadow, rgba} = require('./StyleUtils');
-var Icon              = require('./Icon');
-var {Box, HBox}       = require('./Layout');
+import React          from 'react';
+import Notification   from './Notification';
 
 var _notificationID = 0;
-
-var NotificationStyle = {
-  self: {
-    fontSize: '90%',
-    padding: '15px',
-    marginBottom: '20px',
-    border: '1px solid transparent',
-    borderRadius: '2px',
-    boxShadow: boxShadow(0, 6, 12, 0, rgba(0, 0, 0, 0.05)),
-
-    color: '#888',
-    backgroundColor: '#eee',
-    borderColor: '#eaeaea'
-  },
-  icon: {
-    marginRight: '10px',
-    textAlign: 'center'
-  },
-  success: {
-    color: '#3c763d',
-    backgroundColor: '#dff0d8',
-    borderColor: '#d6e9c6'
-  },
-  danger: {
-    color: '#a94442',
-    backgroundColor: '#f2dede',
-    borderColor: '#ebccd1'
-  },
-  info: {
-    color: '#31708f',
-    backgroundColor: '#d9edf7',
-    borderColor: '#bce8f1'
-  },
-  warning: {
-    color: '#8a6d3b',
-    backgroundColor: '#fcf8e3',
-    borderColor: '#faebcc'
-  }
-};
-
-var Notification = React.createClass({
-
-  propTypes: {
-    text: React.PropTypes.string,
-    icon: React.PropTypes.string,
-    kind: React.PropTypes.string,
-    ttl: React.PropTypes.number
-  },
-
-  render() {
-    var {children, text, icon, kind, style, ...props} = this.props;
-    style = {
-      ...NotificationStyle.self,
-      ...(typeof kind === 'string' ? NotificationStyle[kind] : kind),
-      ...style
-    };
-    return (
-      <div {...props} style={style} id={undefined}>
-        <HBox>
-          {icon &&
-            <Box style={NotificationStyle.icon} size={1}>
-              <Icon name={icon} />
-            </Box>}
-          <Box size={10}>
-            {children || text}
-          </Box>
-        </HBox>
-      </div>
-    );
-  }
-});
 
 var NotificationLayerStyle = {
   self: {
@@ -183,7 +109,7 @@ function _initializeLayer() {
   return _layer;
 }
 
-function showNotification(notification) {
+export function showNotification(notification) {
   if (!notification.props && !notification.type) {
     notification = <Notification {...notification} />;
   }
@@ -192,13 +118,9 @@ function showNotification(notification) {
   return notificationId;
 }
 
-function removeNotification(notificationId) {
+export function removeNotification(notificationId) {
   var layer = _initializeLayer();
   layer.removeNotification(notificationId);
 }
 
-module.exports = {
-  showNotification,
-  removeNotification,
-  Notification
-};
+export {Notification};

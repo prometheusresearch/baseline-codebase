@@ -1,16 +1,64 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
+'use strict';
 
-import React                   from 'react';
-import Autocomplete            from '../Autocomplete'
-import Preloader               from '../Preloader';
-import DataSpecificationMixin  from '../DataSpecificationMixin';
-import {collection, prop}      from '../DataSpecification';
-import Field                   from './Field';
-import ReadOnlyField           from './ReadOnlyField';
+var React                   = require('react');
+var Autocomplete            = require('../Autocomplete');
+var Preloader               = require('../Preloader');
+var DataSpecificationMixin  = require('../DataSpecificationMixin');
+var {collection, prop}      = require('../DataSpecification');
+var Field                   = require('./Field');
+var ReadOnlyField           = require('./ReadOnlyField');
 
+/**
+ *  AutocompleteField component.
+ *
+ * Renders a <Field> with an <Autocomplete> widget or
+ * if ``readOnly`` is true a <ReadOnlyField> with an <EntityTitle>
+ * is rendered.
+ *
+ * @public
+ */
 export default class AutocompleteField extends React.Component {
+
+  static propTypes = {
+
+    /**
+     * The **dataSpec** is an instance of ``class DataSpecification``.
+     * It describes which database entity to query.
+     */
+    dataSpec: React.PropTypes.object,
+
+    /**
+     * When ``true``, the title of the entity (from dataSpec) 
+     * is feteched and displayed; 
+     * otherwise the <Autocomplete> widget is displayed. 
+     */
+    readOnly: React.PropTypes.bool,
+
+    /**
+     * The initial value of the field.  
+     * The **formValue** is passed to <Field>.
+     */
+    formValue: React.PropTypes.object,
+
+    /**
+     * The database field name which holds the value to be auto-completed.
+     */
+    valueAttribute: React.PropTypes.string,
+
+    /**
+     * The database field name which holds the title.
+     */
+    titleAttribute: React.PropTypes.string,
+
+    /**
+     * Has **resultList** property which contains a css attribute object
+     * used to style the <Autocomplete> widget.
+     */
+    style: React.PropTypes.object
+  };
 
   render() {
     var {

@@ -6,7 +6,7 @@ import React, {PropTypes} from 'react';
 import cx                 from 'classnames';
 
 /**
- * Icon.
+ * Dispays an icon widget.
  *
  * @public
  */

@@ -8,6 +8,14 @@ var ConfigurableEntityForm          = require('./ConfigurableEntityForm');
 var {makeDeprecatedComponentMixin}  = require('../DeprecatedComponent');
 
 
+/**
+ *  ConfigurableForm component.
+ *
+ * Use <RexWidget.Forms.ConfigurableEntityForm /> instead.
+ *
+ * @deprecated
+ * @public
+ */
 var ConfigurableForm = React.createClass({
   mixins: [
     makeDeprecatedComponentMixin(

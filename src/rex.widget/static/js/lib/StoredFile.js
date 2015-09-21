@@ -5,8 +5,30 @@
 import React, {PropTypes} from 'react';
 import File               from './File';
 
+/**
+ * Renders a <File> widget with an anchor <a> whose ``href``
+ * downloads the file.
+ */
 export default class StoredFile extends React.Component {
 
+  propTypes = {
+    /**
+     * The file object to download.  
+     * The 'name' attribute contains the filename.
+     */
+    file: React.PropTypes.object,
+
+    /**
+     * The application's url for file downloads.
+     */
+    download: React.PropTypes.string,
+
+    /**
+     * The ownerRecordID of the file to download.
+     */
+    ownerRecordID: React.PropTypes.string
+  };
+  
   render() {
     let {download, file, ownerRecordID, ...props} = this.props;
     return (

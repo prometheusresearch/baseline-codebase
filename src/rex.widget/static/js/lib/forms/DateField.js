@@ -29,8 +29,32 @@ class DatePicker extends React.Component {
   }
 }
 
+/**
+ * Renders a <Field> with a react-bootstrap-datetimepicker/src/DateTimeField
+ * 
+ * @public
+ */
 export default class DateField extends React.Component {
 
+  static propTypes = {
+    /**
+     * **format** describes how the date is displayed.
+     * It is a `moment.js <http://momentjs.com/docs/>`_ format string.
+     * 
+     */
+    format: React.PropTypes.string,
+
+    /**
+     * Inital value.
+     */
+    formValue: React.PropTypes.object,
+
+    /**
+     * When ``true``, a <ReadOnlyField> is rendered instead.
+     */
+    readOnly: React.PropTypes.bool
+  }
+  
   static defaultProps = {
     format: 'YYYY-MM-DD'
   }

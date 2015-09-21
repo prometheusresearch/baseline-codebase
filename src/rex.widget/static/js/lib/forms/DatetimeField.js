@@ -38,7 +38,33 @@ var DateTimePicker = React.createClass({
   }
 });
 
+/**
+ * DatetimeField component.
+ *
+ * Renders a <Field> with a react-bootstrap DateTimeField.
+ *
+ * @public
+ */
 var DatetimeField = React.createClass({
+
+  propTypes: {
+    /**
+     * **format** describes how the date is displayed.
+     * It is a `moment.js <http://momentjs.com/docs/>`_ format string.
+     * 
+     */
+    format: React.PropTypes.string,
+
+    /**
+     * Inital value.
+     */
+    formValue: React.PropTypes.object,
+
+    /**
+     * When ``true``, a <ReadOnlyField> is rendered instead.
+     */
+    readOnly: React.PropTypes.bool
+  },
 
   render() {
     var {format, formValue, readOnly, ...props} = this.props;

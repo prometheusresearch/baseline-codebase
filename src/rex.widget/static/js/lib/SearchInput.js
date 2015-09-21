@@ -9,9 +9,54 @@ import TimeoutMixin   from './TimeoutMixin';
 import IconButton     from './IconButton';
 import Style          from './SearchInput.style';
 
+/**
+ * SearchInput component.
+ *
+ * Renders a <VBox> with an <Input> and a "remove" <IconButton>.
+ *
+ * @public
+ */
 var SearchInput = React.createClass({
   mixins: [TimeoutMixin],
 
+  propTypes: {
+    /**
+     * The initial value of <input>
+     */
+    value: React.PropTypes.any,
+
+    /**
+     * The text of a short hint that describes 
+     * the value the user should input.
+     */
+    placeholder: React.PropTypes.string,
+
+    /**
+     * When true, the <input> is disabled (unusable and un-clickable).
+     */
+    disabled: React.PropTypes.bool,
+
+    /**
+     * Additional style settings. 
+     * This object must have the following properties
+     *
+     * :self: an object containing the (css) style for the outer <VBox>.
+     * :input: an object containing the (css) style for the <Input>.
+     */
+    style: React.PropTypes.object,
+
+    /**
+     * This function is called with the current value of the input
+     * whenever the input has changed.
+     */
+    onChange: React.PropTypes.func,
+
+    /**
+     * The number of milliseconds to wait before calling **onChange**
+     */
+    throttleOnChange: React.PropTypes.number,
+  },
+  
   render() {
     var {value, placeholder, disabled, style, ...props} = this.props;
     if (this.state.value !== undefined) {

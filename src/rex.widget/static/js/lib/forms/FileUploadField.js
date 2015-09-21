@@ -153,7 +153,46 @@ var FileUploadInput = React.createClass({
   }
 });
 
+/**
+ * FileUploadField component.
+ *
+ * @ask-andrey
+ *
+ * @public
+ */
 var FileUploadField = React.createClass({
+
+  propTypes: {
+    /**
+     * css class name used to render the field.
+     */
+    className: React.PropTypes.string,
+    
+    /**
+     * The URL to upload the file to.
+     */
+    storage: React.PropTypes.string,
+    
+    /**
+     * @ask-andrey
+     */
+    download: React.PropTypes.string,
+    
+    /**
+     * @ask-andrey
+     */
+    required: React.PropTypes.bool,
+    
+    /**
+     * @ask-andrey
+     */
+    value: React.PropTypes.object,
+    
+    /**
+     * @ask-andrey
+     */
+    formValue: React.PropTypes.object
+  },
 
   render() {
     var {className, storage, download, required, value, ...props} = this.props;

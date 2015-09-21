@@ -8,26 +8,22 @@ import LoadingIndicator   from './LoadingIndicator';
 import Style              from './Preloader.module.css';
 
 /**
- * Preloader.
- *
- * Render loading indicator with an optional caption.
+ * Renders a <div> with a <LoadingIndicator> and a caption.
  *
  * @public
  */
 export default class Preloader extends React.Component {
 
   static propTypes = {
+    /**
+     * The text of the caption.
+     */
+    caption: React.PropTypes.string,
 
     /**
-     * Caption.
+     * The name of the css class to include for the <div>.
      */
-    caption: PropTypes.string,
-
-    /**
-     * Extra CSS class name.
-     */
-    className: PropTypes.string
-
+    className: React.PropTypes.string 
   };
 
   render() {

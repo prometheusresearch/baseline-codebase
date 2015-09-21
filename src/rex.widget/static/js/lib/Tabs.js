@@ -9,6 +9,7 @@ var {Box, HBox} = require('./Layout');
 
 /**
  * @deprecated
+ * @public
  */
 var Tabs = React.createClass({
 

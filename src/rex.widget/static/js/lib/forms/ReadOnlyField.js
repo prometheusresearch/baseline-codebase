@@ -21,7 +21,66 @@ var Style = {
   }
 };
 
+/**
+ * Renders a read-only field as an <HBox> 
+ * with a <VBox> containing the ``label``,
+ * and another <VBox> containing the value.
+ * The value is ``children`` unless ``children === undefined`` 
+ * in which case ``formValue.value`` is used. 
+ *
+ * @public
+ */
 var ReadOnlyField = React.createClass({
+
+  propTypes: {
+    /**
+     * The field label.
+     */
+    label: React.PropTypes.string,
+    
+    /**
+     * css style object.
+     */
+    style: React.PropTypes.object,
+
+    /**
+     * func
+     *
+     * This function is used to convert formValue.value to 
+     * something renderable.  
+     *
+     * The default function returns the input unchanged
+     * when it is null or an element, 
+     * otherwise the input is converted to a String.
+     * 
+     */
+    renderValue: React.PropTypes.func,
+    
+    /**
+     * The initial value of the field.
+     * @ask-andrey to please explain the properties of this object.  
+     */
+    formValue: React.PropTypes.object,
+
+    /**
+     * The input element to use.
+     */
+    children: React.PropTypes.element,
+    
+    /**
+     * Unitless number representing the amount of space the 
+     * <VBox> with the <label> uses
+     * relative to all its sibling widgets.
+     */
+    labelSize: React.PropTypes.number,
+    
+    /**
+     * Unitless number representing the amount of space the 
+     * <VBox> with the value uses
+     * relative to all its sibling widgets.
+     */
+    inputSize: React.PropTypes.number
+  },
 
   render() {
     var {label, style, renderValue, formValue, children, labelSize, inputSize} = this.props;

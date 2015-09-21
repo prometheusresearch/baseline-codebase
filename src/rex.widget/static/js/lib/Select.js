@@ -7,7 +7,7 @@ import BaseSelect         from './BaseSelect';
 import {VBox}             from './Layout';
 
 /**
- * Select component.
+ * Renders a <VBox> with a <BaseSelect>.
  *
  * @public
  */
@@ -15,26 +15,35 @@ export default class Select extends React.Component {
 
   static propTypes = {
     /**
-     * Options.
-     *
-     * An array of objects with ``id`` and ``title`` attributes which is used as
-     * options for a select.
+     * The list of items to appear in the drop-down before the data.
+     * Each object in the list must have an ``id`` and a ``title``.
      */
     options: PropTypes.array.isRequired,
 
     /**
-     * Dataset to use.
+     * Set to false, if you want an empty value in the drop-down list.
+     */
+    noEmptyValue: React.PropTypes.bool,
+
+    /**
+     * The title of the empty value.
+     */
+    titleForEmpty: React.PropTypes.string,
+
+    /**
+     * This object must have a **data** property which contains 
+     * the list of items to appear in the drop-down after the options.
      *
-     * This compliments options and allows to pass dataset fetch from server
-     * which will be treated as a set of available options.
+     * Each element in the list must have an ``id`` and a ``title``.
      *
-     * It should provide a colleciton of objects with ``id`` and ``title``
-     * attributes.
+     * A dataset fetched from the server can be used here.
      */
     data: PropTypes.object,
 
     /**
-     * Callback which fires when value changes.
+     * This function will be called when the user selects an item.
+     * It is called with 2 arguments: id and value.  
+     * Both id and value will be set to the id of the item the user selected. 
      */
     onChange: PropTypes.func,
 

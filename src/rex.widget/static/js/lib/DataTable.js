@@ -66,7 +66,9 @@ function isPagination(params, prevParams) {
 }
 
 /**
- * DataTable component.
+ * Renders a table with data from a dataSpec.
+ *
+ * One record per row.  Each row has the same columns.
  *
  * @public
  */
@@ -93,6 +95,7 @@ var DataTable = React.createClass({
 
     /**
      * Data specification which is used to fetch data for datatable.
+     * See static/js/lib/DataSpecification.js
      */
     dataSpec: React.PropTypes.object.isRequired,
 
@@ -102,8 +105,8 @@ var DataTable = React.createClass({
     selectable: React.PropTypes.bool,
 
     /**
-     * Callback which is executed when selected row changes, it is provided with
-     * row id and row itself as its arguments.
+     * Callback which is executed when selected row changes, 
+     * it is provided with row id and row itself as its arguments.
      */
     onSelected: React.PropTypes.func,
 

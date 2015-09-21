@@ -6,9 +6,9 @@ import React   from 'react';
 import {fetch} from './fetch';
 
 /**
- * Component which renders its children only if authorization check succeeds.
- * Authorization check is performed against the URL passed in as ``access``
- * prop.
+ * Component which renders either **children** or **fallback** elements
+ * as the authorization check either succeeds or fails.
+ * The authorization check is performed against the **access** URL.
  *
  * @public
  */
@@ -16,17 +16,18 @@ export default class Authorized extends React.Component {
 
   static propTypes = {
     /**
-     * An URL in pkg:/path format to check if current user has access to.
+     * The URL in pkg:/path format which checks if the current user 
+     * has access.
      */
     access: React.PropTypes.string.isRequired,
 
     /**
-     * Elements to render in case authorization check succeeds.
+     * Elements to render in case the authorization check succeeds.
      */
     children: React.PropTypes.element,
 
     /**
-     * Elements to render in case authorization check fails.
+     * Elements to render in case the authorization check fails.
      */
     fallback: React.PropTypes.element
   };

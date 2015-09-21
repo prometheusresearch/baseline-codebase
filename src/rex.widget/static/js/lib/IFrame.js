@@ -17,14 +17,35 @@ export default class IFrame extends React.Component {
   static propTypes = {
 
     /**
-     * URL to use for <iframe /> element.
+     * URL to use for the <iframe /> element.
      */
     src: PropTypes.string.isRequired,
 
     /**
-     * URL parameters (added to ``src`` prop).
+     * Encodes the URL query string parameters 
+     * (flattened and appended to the ``src`` property after '?').
      */
     params: PropTypes.object,
+
+    /**
+     * css border.
+     */
+    border: PropTypes.string,
+
+    /**
+     * css frameborder.
+     */
+    frameBorder: PropTypes.string,
+
+    /**
+     * css height.
+     */
+    height: PropTypes.string,
+
+    /**
+     * css width.
+     */
+    width: PropTypes.string,
 
     /**
      * Extra CSS class name.

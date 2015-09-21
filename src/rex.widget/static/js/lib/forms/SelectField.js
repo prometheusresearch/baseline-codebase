@@ -27,6 +27,12 @@ var Select = React.createClass({
   }
 });
 
+/**
+ * Renders a <Field> with a <Select>
+ * or a <ReadOnlyField> if ``readOnly`` is true.
+ *
+ * @public
+ */
 var SelectField = React.createClass({
   mixins: [DataSpecificationMixin],
 
@@ -38,6 +44,31 @@ var SelectField = React.createClass({
     dataSpec: true
   },
 
+  propTypes: {
+
+    /**
+     * Set to false, if you want an empty value in the drop-down list.
+     */
+    noEmptyValue: React.PropTypes.bool,     
+
+    /**
+     * The initial value of the field.
+     * @ask-andrey to please explain the properties of this object.  
+     */
+    formValue: React.PropTypes.object,
+
+    /**
+     * Set to true to render a <ReadOnlyField>.
+     */
+    readOnly: React.PropTypes.bool,     
+
+    /**
+     * The list of items to appear in the drop-down before the data.
+     * Each element in the list must have an id and a title.
+     */
+    options: React.PropTypes.array
+  },
+  
   render() {
     var {noEmptyValue, formValue, readOnly, options, ...props} = this.props;
     var {dataSpec: data} = this.data;

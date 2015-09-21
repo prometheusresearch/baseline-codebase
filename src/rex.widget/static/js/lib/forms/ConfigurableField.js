@@ -22,8 +22,52 @@ var FileUploadField   = require('./FileUploadField')
 
 var FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum'];
 
-
+/**
+ * ConfigurableField component.
+ *
+ * The field object is rendered according to its **type**.
+ * field.type must be one of:
+ *
+ * - 'date'
+ * - 'bool'
+ * - 'file'
+ * - 'enum'
+ * - 'entity'
+ * - 'integer'
+ * - 'number'
+ * - 'calculation'
+ * - 'fieldset'
+ * - 'list'
+ *
+ * @public
+ */
 var ConfigurableField = React.createClass({
+
+  propTypes: {
+
+    /**
+     * Where is the field object described?  @ask-andrey
+     */
+    field: React.PropTypes.object,
+
+    /**
+     * Where is the formValue object described?  @ask-andrey
+     *
+     * The initial value of the field. 
+     */
+    formValue: React.PropTypes.object,
+
+    /**
+     * When ``true``, a <ReadOnlyField> is displayed;
+     */
+    readOnly: React.PropTypes.bool,
+
+    /**
+     * Unitless number representing the amount of space this widget uses
+     * relative to all its sibling widgets.
+     */
+    size: React.PropTypes.number
+  },
 
   render() {
     var {size} = this.props;

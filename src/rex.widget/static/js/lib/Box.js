@@ -69,19 +69,70 @@ const DIRECTION = {
   VERTICAL: 'vertical',
 };
 
+/**
+ * Basic rectangular widget.
+ *
+ * @public
+ */
 export default class Box extends React.Component {
 
   static propTypes = {
+    /**
+     * The html component which contains the children.  
+     */
     Component: PropTypes.oneOfType([PropTypes.string, PropTypes.component]),
+
+    /**
+     * string one of ``'horizontal'``, ``'vertical'``.
+     *
+     * Selects the layout of the children within this widget.
+     */
     direction: PropTypes.oneOf([DIRECTION.HORIZONTAL, DIRECTION.VERTICAL]),
+
+    /**
+     * Unitless number representing the amount of space this widget uses
+     * relative to all its sibling widgets.
+     */
     size: PropTypes.number,
-    padding: PropTypes.number,
-    height: PropTypes.number,
+    
+    /**
+     * The css padding.
+     */
+    padding: PropTypes.string, //number,
+    
+    /**
+     * The css height
+     */
+    height: PropTypes.string, //number,
+
+    /**
+     * The css alignment.  one of ``'left'``, ``'right'``.
+     */
     aligned: PropTypes.oneOf([ALIGNED.LEFT, ALIGNED.RIGHT]),
+    
+    /**
+     * When ``true``, request horizontal centering.
+     */
     centerHorizontally: PropTypes.bool,
+    
+    /**
+     * When ``true``, request vertical centering.
+     */
     centerVertically: PropTypes.bool,
+
+    /**
+     * When ``true``, allow scrolling.
+     */
     scrollable: PropTypes.bool,
-    childrenMargin: PropTypes.number,
+
+    /**
+     * margin for the children.
+     */
+    childrenMargin: PropTypes.string, //number,
+    
+    /**
+     * The css background color
+     */
     backgroundColor: PropTypes.string
   };
 

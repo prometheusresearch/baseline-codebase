@@ -7,8 +7,28 @@ import Stylesheet           from '@prometheusresearch/react-stylesheet';
 import {Input as BaseInput} from 'react-forms';
 
 @Stylesheet
+/**
+ * Input component.
+ *
+ * Renders react-forms.  @ask-andrey
+ *
+ * @public
+ */
 export default class Input extends React.Component {
 
+  static propTypes = {
+
+    /**
+     * @ask-andrey
+     */
+    error: React.PropTypes.any,
+
+    /**
+     * @ask-andrey
+     */
+    type: React.PropTypes.string
+  };
+  
   static defaultProps = {
     type: 'text'
   };

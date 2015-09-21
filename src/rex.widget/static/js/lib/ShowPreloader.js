@@ -25,7 +25,7 @@ export default class ShowPreloader extends React.Component {
   static propTypes = {
 
     /**
-     * Show preloader when not data is fetched.
+     * Show preloader when no data is fetched.
      */
     showPreloaderWhenNoData: PropTypes.bool
   };

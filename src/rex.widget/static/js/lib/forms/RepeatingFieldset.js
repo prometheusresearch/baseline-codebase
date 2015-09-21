@@ -19,6 +19,13 @@ var RepeatingFieldsetStyle = {
   }
 };
 
+/**
+ * RepeatingFieldset component.
+ *
+ * @ask-andrey
+ *
+ * @public
+ */
 var RepeatingFieldset = React.createClass({
 
   getDefaultProps() {
@@ -26,6 +33,32 @@ var RepeatingFieldset = React.createClass({
       baseIndex: 0,
       addButtonText: 'Add',
     };
+  },
+
+  propTypes: {
+    /**
+     * The starting index for the data array in formValue
+     */
+    baseIndex: React.PropTypes.number,
+    /**
+     * The data to display. 
+     */
+    formValue: React.PropTypes.object,
+    
+    /**
+     * The label.
+     */
+    label: React.PropTypes.string,
+    
+    /**
+     * The text of the Add Button.
+     */
+    addButtonText: React.PropTypes.string,
+    
+    /**
+     * The text of the Remove Button.
+     */
+    removeButtonText: React.PropTypes.string
   },
 
   render() {

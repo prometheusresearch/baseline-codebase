@@ -18,6 +18,9 @@ var DataTableWithSearchStyle = {
 };
 
 /**
+ * Displays a <SearchInput> widget and children
+ * inside a <VBox>.
+ *
  * @public
  */
 var DataTableWithSearch = React.createClass({
@@ -26,6 +29,21 @@ var DataTableWithSearch = React.createClass({
   dataSpecs: {
     dataSpec: collection({'*:search': state('search')})
   },
+
+  propTypes: {
+
+    /**
+     * Placeholder for search. 
+     * The placeholder is a short hint which appears in the field
+     * before the user types into the field.
+     */
+    searchPlaceholder: React.PropTypes.string,
+
+    /**
+     * children elements to render.
+     */
+    children: React.PropTypes.element
+    },
 
   render() {
     var {searchPlaceholder, children, ...props} = this.props;

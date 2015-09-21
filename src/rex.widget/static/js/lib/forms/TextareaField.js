@@ -24,7 +24,20 @@ var TextareaFieldStyle = {
   }
 }
 
+/**
+ * Renders a <Field> with a <textarea>.
+ *
+ * @public
+ */
 var TextareaField = React.createClass({
+
+  propTypes: {
+    /**
+     * When ``true``, <ReadOnlyField> is rendered.
+     * otherwise <Field> <textarea/> </Field> is. 
+     */
+    readOnly: React.PropTypes.bool
+  },
 
   render() {
     var {readOnly, ...props} = this.props;

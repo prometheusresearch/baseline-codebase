@@ -11,6 +11,8 @@ var FormRow           = require('./FormRow');
 
 /**
  * Form which has fieldset configurable through URL mapping.
+ *
+ * @public
  */
 var ConfigurableEntityForm = React.createClass({
 
@@ -22,9 +24,22 @@ var ConfigurableEntityForm = React.createClass({
      */
     fields: React.PropTypes.array.isRequired,
 
+    /**
+     * When ``true``, no submit button is rendered.
+     */
     readOnly: React.PropTypes.bool,
 
-    layout: React.PropTypes.string
+    /**
+     * When **layout** === ``'row'``, 
+     * the form fields are arranged horizontally;
+     * otherwise vertically.
+     */
+    layout: React.PropTypes.string,
+
+    /**
+     * The submit button element to use.
+     */
+    submitButton: React.PropTypes.element
   },
 
   render() {

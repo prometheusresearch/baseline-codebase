@@ -15,8 +15,29 @@ var FileDownloadStyle =  {
   }
 };
 
+/**
+ * Use this widget to retrieve a stored file.
+ */
 var FileDownload = React.createClass({
 
+  propTypes: {
+    /**
+     * The file object to download.  
+     * The 'name' attribute contains the filename.
+     */
+    file: React.PropTypes.object,
+
+    /**
+     * The application's url for file downloads.
+     */
+    download: React.PropTypes.string,
+
+    /**
+     * The ownerRecordID of the file to download.
+     */
+    ownerRecordID: React.PropTypes.string
+  },
+  
   render() {
     var {file, download, ownerRecordID, ...props} = this.props;
     return (

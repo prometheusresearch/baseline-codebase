@@ -3,4 +3,18 @@
  */
 
 import Box from './Box';
-export default Box;
+
+/**
+ * Vertical box component.
+ * 
+ * Renders a <Box> with direction="vertical".
+ * Takes the same parameters as <Box>.
+ *
+ * @public
+ */
+export default class VBox extends Box {
+  static defaultProps = {
+    ...Box.defaultProps,
+    direction: 'vertical'
+  };
+}

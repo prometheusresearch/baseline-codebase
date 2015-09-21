@@ -35,7 +35,70 @@ var FieldStyle = {
   }
 };
 
+/**
+ * Field component.
+ *
+ * Base field component with <label>, <input>, hints, and error messages.
+ *
+ * @public
+ */
 var Field = React.createClass({
+
+  propTypes: {
+    /**
+     * The field label.
+     */
+    label: React.PropTypes.string,
+    
+    /**
+     * The text to appear when the mouse hovers over the field.
+     */
+    hint: React.PropTypes.string,
+    
+    /**
+     * The input element to use.
+     */
+    children: React.PropTypes.element,
+    
+    /**
+     * func
+     *
+     * The callback which fires when the field is changed.
+     */
+    onChange: React.PropTypes.func,
+    
+    /**
+     * Unitless number representing the amount of space the <label> uses
+     * relative to all its sibling widgets.
+     */
+    labelSize: React.PropTypes.number,
+    
+    /**
+     * Unitless number representing the amount of space the <input> uses
+     * relative to all its sibling widgets.
+     */
+    inputSize: React.PropTypes.number,
+
+    /**
+     * func
+     *
+     * serialize the field value.
+     */
+    serialize: React.PropTypes.func,
+
+    /**
+     * func
+     *
+     * deserialize the field value.
+     */
+    deserialize: React.PropTypes.func,
+
+    /**
+     * The initial value of the field.
+     * @ask-andrey to please explain the properties of this object.  
+     */
+    formValue: React.PropTypes.object 
+  },
 
   render() {
     var {label, hint, children, onChange, labelSize, inputSize, 

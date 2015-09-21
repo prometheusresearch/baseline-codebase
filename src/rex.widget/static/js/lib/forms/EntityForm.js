@@ -12,6 +12,8 @@ var Fieldset          = require('./Fieldset');
 
 /**
  * Form which operates on a single entity within the port response.
+ *
+ * @public
  */
 var EntityForm = React.createClass({
 
@@ -24,14 +26,21 @@ var EntityForm = React.createClass({
     entity: React.PropTypes.string.isRequired,
 
     /**
-     * Form schema.
+     * Form schema.  @ask-andrey
      */
     schema: React.PropTypes.object.isRequired,
 
     /**
-     * Initial form value.
+     * Initial form value.   @ask-andrey
      */
-    value: React.PropTypes.object
+    value: React.PropTypes.object,
+
+    /**
+     * func
+     *
+     * Callback which fires after form submit is complete.
+     */
+    onSubmitComplete: React.PropTypes.func
   },
 
   render() {

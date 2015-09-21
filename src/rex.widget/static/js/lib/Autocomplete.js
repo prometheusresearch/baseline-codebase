@@ -2,6 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import autobind               from 'autobind-decorator';
 import React                  from 'react';
 import AutocompleteBase       from '@prometheusresearch/react-autocomplete/lib/themed/Bootstrap';
 import IconButton             from './IconButton';
@@ -113,18 +114,19 @@ export default class Autocomplete extends React.Component {
   }
 
   _requestValue() {
-    let {value, dataSpec} = this.props;
+    let {value, titleDataSpec = this.props.dataSpec} = this.props;
     let {valueTitle} = this.state;
     if (value && valueTitle === null) {
-      let params = dataSpec.produceParams().toJS();
+      let params = titleDataSpec.produceParams().toJS();
       params['*'] = value;
-      dataSpec.port
+      titleDataSpec.port
         .produceEntity(params)
         .then(this._onRequestValueComplete);
     }
   }
 
-  onChange = (value) => {
+  @autobind
+  onChange(value) {
     if (value) {
       this.props.onChange(value.id);
       this.setState({valueTitle: value.title});
@@ -134,21 +136,25 @@ export default class Autocomplete extends React.Component {
     }
   }
 
-  _clear = () => {
+  @autobind
+  _clear() {
     this.setState({valueTitle: null});
     this.props.onChange(null);
   }
 
-  _open = () => {
+  @autobind
+  _open() {
     this.refs.underlying.showResults('');
   }
-
-  _onRequestValueComplete = (result) => {
+ 
+  @autobind
+  _onRequestValueComplete(result) {
     let valueTitle = result[this.props.titleAttribute];
     this.setState({valueTitle});
   }
 
-  _requestOptions = (value) => {
+  @autobind
+  _requestOptions(value) {
     let {titleAttribute, dataSpec} = this.props;
     let params = dataSpec.produceParams().toJS();
     params['*:top'] = 50;
@@ -160,14 +166,16 @@ export default class Autocomplete extends React.Component {
       .then(this._onRequestOptionsComplete);
   }
 
-  _onRequestOptionsComplete = (options) => {
+  @autobind
+  _onRequestOptionsComplete(options) {
     return options.map(option => ({
       id: option[this.props.valueAttribute],
       title: option[this.props.titleAttribute]
     }));
   }
 
-  _search = (_options, value, cb) => {
+  @autobind
+  _search(_options, value, cb) {
     if (this._searchTimer !== null) {
       clearTimeout(this._searchTimer);
     }

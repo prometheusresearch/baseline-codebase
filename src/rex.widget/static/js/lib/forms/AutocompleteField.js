@@ -1,21 +1,20 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React                   = require('react');
-var Autocomplete            = require('../Autocomplete');
-var Preloader               = require('../Preloader');
-var DataSpecificationMixin  = require('../DataSpecificationMixin');
-var {collection, prop}      = require('../DataSpecification');
-var Field                   = require('./Field');
-var ReadOnlyField           = require('./ReadOnlyField');
+import React                   from 'react';
+import Autocomplete            from '../Autocomplete'
+import Preloader               from '../Preloader';
+import DataSpecificationMixin  from '../DataSpecificationMixin';
+import {collection, prop}      from '../DataSpecification';
+import Field                   from './Field';
+import ReadOnlyField           from './ReadOnlyField';
 
-var AutocompleteField = React.createClass({
+export default class AutocompleteField extends React.Component {
 
   render() {
     var {
-      dataSpec, readOnly, formValue,
+      dataSpec, readOnly, formValue, parameters,
       valueAttribute, titleAttribute, style,
       ...props
     } = this.props;
@@ -31,11 +30,15 @@ var AutocompleteField = React.createClass({
         </ReadOnlyField>
       );
     } else {
+      let root = formValue._root;
+      let titleDataSpec = dataSpec.merge(this._populateParameters());
+      let queryDataSpec = titleDataSpec.merge({'query': true});
       return (
         <Field {...props} data={undefined} formValue={formValue}>
           <Autocomplete
             style={{resultList: style && style.resultList}}
-            dataSpec={dataSpec}
+            dataSpec={queryDataSpec}
+            titleDataSpec={titleDataSpec}
             valueAttribute={valueAttribute}
             titleAttribute={titleAttribute}
             />
@@ -43,7 +46,19 @@ var AutocompleteField = React.createClass({
       );
     }
   }
-});
+
+  _populateParameters() {
+    let {parameters, formValue} = this.props;
+    let rootFormValue = formValue._root;
+    let populatedParameters = {};
+    for (let key in parameters) {
+      if (parameters.hasOwnProperty(key)) {
+        populatedParameters[':' + key] = rootFormValue.select(parameters[key]).value;
+      }
+    }
+    return populatedParameters;
+  }
+}
 
 var EntityTitle = React.createClass({
   mixins: [DataSpecificationMixin],
@@ -72,6 +87,3 @@ var EntityTitle = React.createClass({
     };
   }
 });
-
-module.exports = AutocompleteField;
-

@@ -3,17 +3,19 @@
 #
 
 
-from tablib import Dataset
+from tablib import Dataset, detect, formats, InvalidDimensions
+
+from rex.core import Error
 
 
 __all__ = (
     'FILE_FORMATS',
     'FILE_FORMAT_CSV',
-    'FILE_FORMAT_ODS',
     'FILE_FORMAT_TSV',
     'FILE_FORMAT_XLS',
     'FILE_FORMAT_XLSX',
     'make_template',
+    'get_dataset',
 )
 
 
@@ -27,28 +29,24 @@ COLUMN_TYPE_DESCRIPTORS = {
     'time': lambda desc: 'Time (HH:MM:SS)',
     'datetime': lambda desc: 'Date&Time (YYYY-MM-DD HH:MM:SS)',
     'enum': lambda desc: 'One of: %s' % (', '.join(desc['enumerations']),),
+    'link': lambda desc: 'An Identifier from the %s table' % (desc['target'],)
 }
 
 
 def make_column_description(column):
     parts = []
 
+    if column['identity']:
+        parts.append('Primary Key')
     if column['required']:
-        parts.append('Required')
-
+        if column['default']:
+            parts.append('Required (Has Default)')
+        else:
+            parts.append('Required')
+    elif column['default']:
+        parts.append('Has Default Value')
     if column['unique']:
-        for constraint in column['unique']:
-            if len(constraint) == 1:
-                parts.append('Unique')
-            else:
-                other_fields = list(constraint)
-                if column['name'] in other_fields:
-                    other_fields.remove(column['name'])
-                parts.append(
-                    'Unique with: %s' % (
-                        ', '.join(other_fields),
-                    )
-                )
+        parts.append('Unique')
 
     if column['type']['name'] in COLUMN_TYPE_DESCRIPTORS:
         parts.append(
@@ -85,9 +83,6 @@ FILE_FORMAT_CSV = 'CSV'
 #: Tab-separated file format
 FILE_FORMAT_TSV = 'TSV'
 
-#: OpenDocument Spreadsheet format
-FILE_FORMAT_ODS = 'ODS'
-
 #: Legacy Excel format
 FILE_FORMAT_XLS = 'XLS'
 
@@ -98,7 +93,6 @@ FILE_FORMAT_XLSX = 'XLSX'
 FILE_FORMATS = (
     FILE_FORMAT_CSV,
     FILE_FORMAT_TSV,
-    FILE_FORMAT_ODS,
     FILE_FORMAT_XLS,
     FILE_FORMAT_XLSX,
 )
@@ -123,8 +117,6 @@ def make_template(description, file_format):
 
     if file_format == FILE_FORMAT_CSV:
         return data.csv
-    elif file_format == FILE_FORMAT_ODS:
-        return data.ods
     elif file_format == FILE_FORMAT_TSV:
         return data.tsv
     elif file_format == FILE_FORMAT_XLS:
@@ -137,4 +129,46 @@ def make_template(description, file_format):
                 file_format,
             )
         )
+
+
+FILE_FORMAT_IMPLEMENTATIONS = {
+    FILE_FORMAT_CSV: formats.csv,
+    FILE_FORMAT_TSV: formats.tsv,
+    FILE_FORMAT_XLS: formats.xls,
+    FILE_FORMAT_XLSX: formats.xlsx,
+}
+
+
+def get_dataset(stream, file_format=None):
+    """
+    Parses a stream into a Dataset.
+
+    :param stream: the File-like object that contains the data
+    :type stream: file
+    :param file_format:
+        the format of the data in the stream; if None, or not specified, this
+        function will attempt to automatically detect the format
+    :type file_format: string
+    :rtype: Dataset
+    """
+
+    raw_data = stream.read()
+
+    if not file_format:
+        format_impl, _ = detect(raw_data)
+    else:
+        format_impl = FILE_FORMAT_IMPLEMENTATIONS.get(file_format)
+    if not format_impl:
+        raise Error('Could not identify the file format of the data stream')
+
+    data = Dataset()
+    try:
+        format_impl.import_set(data, raw_data)
+    except InvalidDimensions:
+        raise Error(
+            'Row #%s as an incorrect number of columns' % (
+                len(data) + 1,
+            )
+        )
+    return data
 

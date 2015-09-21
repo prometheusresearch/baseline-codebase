@@ -5,8 +5,7 @@
 
 from rex.db import get_db
 
-from htsql.core.model import HomeNode, ColumnArc, ChainArc
-from htsql.core.classify import classify
+from rex.deploy import get_cluster, model
 
 
 __all__ = (
@@ -14,40 +13,28 @@ __all__ = (
 )
 
 
-def get_table_node(table_name):
-    with get_db():
-        for label in classify(HomeNode()):
-            if label.name == table_name:
-                return label.target
-    return None
-
-
-def get_column_description(label, column):
+def get_column_description(field):
     description = {
-        'name': label.name,
-        'type': {
-            'name': unicode(column.domain.__class__),
-        },
-        'required': not (column.has_default or column.is_nullable),
-        'unique': [
-            [
-                col.name
-                for col in index.origin_columns
-            ]
-            for index in column.unique_keys
-        ],
+        'name': field.label,
+        'type': {},
+        'identity': False,
+        'required': field.is_required,
+        'default': None,
+        'unique': field.is_unique,
     }
 
-    if hasattr(column.domain, 'labels'):
-        description['type']['enumerations'] = column.domain.labels
-
-    return description
-
-
-def get_link_description(label, column):
-    description = get_column_description(label, column)
-
-    # TODO: drill down and get a format or name for the field type
+    if field.is_column:
+        if isinstance(field.type, list):
+            description['type']['name'] = 'enum'
+            description['type']['enumerations'] = field.type
+        elif isinstance(field.type, basestring):
+            description['type']['name'] = field.type
+        else:  # pragma: no cover
+            description['type']['name'] = 'UNKNOWN TYPE'
+        description['default'] = field.default
+    elif field.is_link:
+        description['type']['name'] = 'link'
+        description['type']['target'] = field.target_table.label
 
     return description
 
@@ -62,32 +49,30 @@ def get_table_description(table_name):
     :rtype: dict
     """
 
-    table_node = get_table_node(table_name)
-    if not table_node:
+    cluster = get_cluster()
+    driver = cluster.drive()
+    schema = model(driver)
+    table = schema.table(table_name)
+    if not table:
         return None
 
     description = {
-        'name': table_node.table.name,
+        'name': table.label,
         'columns': [],
     }
 
     with get_db():
-        for label in classify(table_node):
-            if isinstance(label.arc, ColumnArc):
-                description['columns'].append(get_column_description(
-                    label,
-                    label.arc.column,
-                ))
+        for field in table.fields():
+            description['columns'].append(get_column_description(field))
 
-            elif isinstance(label.arc, ChainArc):
-                if label.arc.is_reverse:
-                    continue
-                description['columns'].append(get_link_description(
-                    label,
-                    table_node.table.columns[
-                        label.arc.joins[0].origin_columns[0].name
-                    ],
-                ))
+    identity = table.identity()
+    if identity is not None:
+        for field, generator in zip(identity.fields, identity.generators):
+            for column in description['columns']:
+                if column['name'] == field.label:
+                    column['identity'] = True
+                    if generator:
+                        column['default'] = 'generated: %s' % (generator,)
 
     return description
 

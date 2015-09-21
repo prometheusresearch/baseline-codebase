@@ -35,6 +35,16 @@ class IntrospectDeploy(IntrospectPGSQL):
         schema = catalog.add_schema(schema_image.name)
 
         for table_image in schema_image:
+            columns_with_generators = set()
+            if table_image.primary_key is not None:
+                from rex.deploy import uncomment
+                table_meta = uncomment(table_image.primary_key)
+                columns_with_generators = set([
+                        column_image
+                        for column_image, generator
+                            in zip(table_image.primary_key,
+                                   table_meta.generators or [])
+                        if generator is not None])
             table = schema.add_table(table_image.name)
             for column_image in table_image:
                 name = column_image.name
@@ -75,6 +85,10 @@ class IntrospectDeploy(IntrospectPGSQL):
                         domain = OpaqueDomain()
                 is_nullable = (not column_image.is_not_null)
                 has_default = False
+                if column_image.default is not None:
+                    has_default = True
+                if column_image in columns_with_generators:
+                    has_default = True
                 table.add_column(name, domain, is_nullable, has_default)
 
         for table_image in schema_image:

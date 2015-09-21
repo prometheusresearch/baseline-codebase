@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.3.3 (2015-XX-XX)
+==================
+
+* Populate ``column.has_default`` for HTSQL catalog.
+
+
 2.3.2 (2015-06-12)
 ==================
 

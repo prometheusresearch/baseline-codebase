@@ -33,6 +33,7 @@ from .pointer import Pointer
 from .dataspec import CollectionSpecVal, CollectionSpec
 from .keypath import KeyPathVal
 from .validate import WidgetVal
+from .port_support import PortSupport
 
 __all__ = ('FormField', 'FormFieldVal', 'FormFieldsetVal',
            'validate', 'enrich', 'from_port', 'to_port')
@@ -313,6 +314,7 @@ class FormField(Extension):
             _prevent_validation = False
 
     def __init__(self, **values):
+        super(FormField, self).__init__()
         global _prevent_validation # pylint: disable=global-statement
         if not _prevent_validation:
             values = self.validate(values)
@@ -384,7 +386,11 @@ def _format_FormField(field, req, path): # pylint: disable=invalid-name
         return values
 
 
-def enrich(fields, port):
+def enrich(fields, port, db=None):
+    if fields is None:
+        return reflect(port, db=db)
+    if not isinstance(port, Port):
+        port = Port(port, db=db)
     fields = List(fields=fields, value_key='__root__')
     update_by_keypath = {}
 
@@ -415,6 +421,22 @@ def enrich(fields, port):
     fields = _map(fields, _update_field)
 
     return fields.fields
+
+
+def reflect(port, db=None):
+    """ Reflect fields for a specified `entity` from database `db`.
+
+    :param entity: Entity name to reflect fields from a database.
+    :type entity: str
+    :param db: Database name or database instance
+    :type db: str | rex.db.Database
+
+    :returns: A reflected fieldset
+    :rtype: Fieldset
+    """
+    if not isinstance(port, Port):
+        port = Port(port, db=db)
+    return from_port(port)
 
 
 def from_port(port, field_val=FormFieldVal()):
@@ -722,7 +744,7 @@ class EntitySuggestionSpecVal(Validate):
         return value
 
 
-class EntityFormField(FormField):
+class EntityFormField(FormField, PortSupport):
 
     type = 'entity'
 
@@ -731,7 +753,27 @@ class EntityFormField(FormField):
     )
 
     @cached_property
-    def port(self):
+    def query_port(self):
+        return self._create_port(masked=True)
+
+    @cached_property
+    def title_port(self):
+        return self._create_port(masked=False)
+
+    def respond(self, req):
+        query = req.GET.pop('query', False)
+        if query:
+            return self.query_port(req)
+        else:
+            return self.title_port(req)
+
+    def __call__(self):
+        values = super(EntityFormField, self).__call__()
+        if isinstance(values.data, EntitySuggestionSpecVal._validate.record_type):
+            values.data = CollectionSpec(Pointer(self, url_type=PortURL), {})
+        return values
+
+    def _create_port(self, masked=True):
         port = {
             'entity': self.data.entity,
             'select': ['id'],
@@ -740,18 +782,9 @@ class EntityFormField(FormField):
                 'expression': self.data.title
             }],
         }
-        if self.data.mask:
+        if masked and self.data.mask:
             port['mask'] = self.data.mask
-        return Port(port)
-
-    def respond(self, req):
-        return self.port(req)
-
-    def __call__(self):
-        values = super(EntityFormField, self).__call__()
-        if isinstance(values.data, EntitySuggestionSpecVal._validate.record_type):
-            values.data = CollectionSpec(Pointer(self, url_type=PortURL), {})
-        return values
+        return self.create_port(port)
 
 
 class CalculatedFormField(FormField):

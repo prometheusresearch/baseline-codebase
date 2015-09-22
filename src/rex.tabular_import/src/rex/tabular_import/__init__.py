@@ -4,6 +4,8 @@
 
 
 from .ctl import *
+from .error import *
 from .introspect import *
+from .load import *
 from .marshal import *
 

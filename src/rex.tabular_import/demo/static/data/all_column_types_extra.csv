@@ -1,0 +1,2 @@
+integer_field,boolean_field,decimal_field,float_field,text_field,date_field,time_field,datetime_field,json_field,enum_field,foo_bar
+1,true,1.2,1.234,foobar,1980-05-22,12:34:56,1980-05-22 12:34:56,"{""foo"": 1}",baz,hello

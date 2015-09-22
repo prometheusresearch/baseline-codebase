@@ -1,0 +1,12 @@
+integer_field,boolean_field,decimal_field,float_field,text_field,date_field,time_field,datetime_field,json_field,enum_field
+,true,1.2,1.234,foobar,1980-05-22,12:34:56,1980-05-22 12:34:56,"{""foo"": 1}",baz
+,true,1.2,1.234,foobar,1980-05-22,12:34:56,1980-05-22 12:34:56,"{""foo"": 1}",blah
+,true,1.2,1.234,foobar,1980-05-22,12:34:56,1980-05-22 12:34:56,"{",baz
+,true,1.2,1.234,foobar,1980-05-22,12:34:56,1980-05-22 noon,"{""foo"": 1}",baz
+,true,1.2,1.234,foobar,1980-05-22,noon,1980-05-22 12:34:56,"{""foo"": 1}",baz
+,true,1.2,1.234,foobar,May the Twenty-Second,12:34:56,1980-05-22 12:34:56,"{""foo"": 1}",baz
+,true,1.2,float,foobar,1980-05-22,12:34:56,1980-05-22 12:34:56,"{""foo"": 1}",baz
+,true,decimal,1.234,foobar,1980-05-22,12:34:56,1980-05-22 12:34:56,"{""foo"": 1}",baz
+,happy,1.2,1.234,foobar,1980-05-22,12:34:56,1980-05-22 12:34:56,"{""foo"": 1}",baz
+integer,true,1.2,1.234,foobar,1980-05-22,12:34:56,1980-05-22 12:34:56,"{""foo"": 1}",baz
+

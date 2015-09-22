@@ -3,9 +3,9 @@
 #
 
 
-from tablib import Dataset, detect, formats, InvalidDimensions
+from tablib import Dataset, formats, InvalidDimensions
 
-from rex.core import Error
+from .error import TabularImportError
 
 
 __all__ = (
@@ -13,7 +13,6 @@ __all__ = (
     'FILE_FORMAT_CSV',
     'FILE_FORMAT_TSV',
     'FILE_FORMAT_XLS',
-    'FILE_FORMAT_XLSX',
     'make_template',
     'get_dataset',
 )
@@ -86,15 +85,11 @@ FILE_FORMAT_TSV = 'TSV'
 #: Legacy Excel format
 FILE_FORMAT_XLS = 'XLS'
 
-#: Excel 2007+ format
-FILE_FORMAT_XLSX = 'XLSX'
-
 #: All supported file format codes
 FILE_FORMATS = (
     FILE_FORMAT_CSV,
     FILE_FORMAT_TSV,
     FILE_FORMAT_XLS,
-    FILE_FORMAT_XLSX,
 )
 
 
@@ -116,13 +111,11 @@ def make_template(description, file_format):
     data = make_table_description_dataset(description)
 
     if file_format == FILE_FORMAT_CSV:
-        return data.csv
+        return data.csv.strip().replace('\r\n', '\n')
     elif file_format == FILE_FORMAT_TSV:
-        return data.tsv
+        return data.tsv.strip().replace('\r\n', '\n')
     elif file_format == FILE_FORMAT_XLS:
         return data.xls
-    elif file_format == FILE_FORMAT_XLSX:
-        return data.xlsx
     else:
         raise ValueError(
             '"%s" is not a supported template file format' % (
@@ -135,40 +128,44 @@ FILE_FORMAT_IMPLEMENTATIONS = {
     FILE_FORMAT_CSV: formats.csv,
     FILE_FORMAT_TSV: formats.tsv,
     FILE_FORMAT_XLS: formats.xls,
-    FILE_FORMAT_XLSX: formats.xlsx,
 }
 
 
-def get_dataset(stream, file_format=None):
+def get_dataset(file_content, file_format):
     """
-    Parses a stream into a Dataset.
+    Parses a file's content into a Dataset.
 
-    :param stream: the File-like object that contains the data
-    :type stream: file
+    :param file_content: the content of the file that contains the data
+    :type file_content: str
     :param file_format:
-        the format of the data in the stream; if None, or not specified, this
-        function will attempt to automatically detect the format
-    :type file_format: string
+        the format of the data; see ``FILE_FORMATS`` for possible values
+    :type file_format: str
     :rtype: Dataset
     """
 
-    raw_data = stream.read()
-
-    if not file_format:
-        format_impl, _ = detect(raw_data)
-    else:
-        format_impl = FILE_FORMAT_IMPLEMENTATIONS.get(file_format)
+    format_impl = FILE_FORMAT_IMPLEMENTATIONS.get(file_format)
     if not format_impl:
-        raise Error('Could not identify the file format of the data stream')
+        raise ValueError(
+            '"%s" is not a supported file format' % (
+                file_format,
+            )
+        )
+
+    if file_format in (FILE_FORMAT_CSV, FILE_FORMAT_TSV):
+        # Strip blank lines at the end so we don't have to deal with
+        # empty records.
+        file_content = file_content.rstrip('\r\n')
 
     data = Dataset()
     try:
-        format_impl.import_set(data, raw_data)
+        format_impl.import_set(data, file_content)
     except InvalidDimensions:
-        raise Error(
-            'Row #%s as an incorrect number of columns' % (
-                len(data) + 1,
-            )
+        error = TabularImportError()
+        error.add_row_error(
+            None,
+            len(data) + 1,
+            'Incorrect number of columns',
         )
+        raise error
     return data
 

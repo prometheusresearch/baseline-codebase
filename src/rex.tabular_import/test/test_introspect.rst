@@ -272,3 +272,21 @@ It can describe various relational data structures::
                   'unique': False}],
      'name': u'ternary'}
 
+It describe tables without identities::
+
+    >>> with rex:
+    ...     pprint(get_table_description('no_identity'))
+    {'columns': [{'default': None,
+                  'identity': False,
+                  'name': u'code',
+                  'required': True,
+                  'type': {'name': u'integer'},
+                  'unique': False},
+                 {'default': None,
+                  'identity': False,
+                  'name': u'a_field',
+                  'required': True,
+                  'type': {'name': u'text'},
+                  'unique': False}],
+     'name': u'no_identity'}
+

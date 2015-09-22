@@ -2,10 +2,9 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import 'react-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css';
 import  moment              from 'moment';
 import  React               from 'react';
-import  BaseDateTimePicker  from 'react-bootstrap-datetimepicker/src/DateTimeField';
+import  BaseDateTimePicker  from '@prometheusresearch/react-datetimepicker';
 import  Field               from './Field';
 import  ReadOnlyField       from './ReadOnlyField';
 

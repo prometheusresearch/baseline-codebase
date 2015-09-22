@@ -1,25 +1,22 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-require('react-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css');
+import moment             from 'moment';
+import React              from 'react';
+import BaseDateTimePicker from '@prometheusresearch/react-datetimepicker';
+import Field              from './Field';
+import ReadOnlyField      from './ReadOnlyField';
 
-var moment              = require('moment');
-var React               = require('react');
-var BaseDateTimePicker  = require('react-bootstrap-datetimepicker/src/DateTimeField');
-var Field               = require('./Field');
-var ReadOnlyField       = require('./ReadOnlyField');
+const ISO_FORMAT = "YYYY-MM-DD HH:mm:ss";
+const ISO_FORMAT_NO_TIME = "YYYY-MM-DD";
 
-var ISO_FORMAT = "YYYY-MM-DD HH:mm:ss";
-var ISO_FORMAT_NO_TIME = "YYYY-MM-DD";
-
-var DateTimePicker = React.createClass({
+class DateTimePicker extends React.Component {
 
   render() {
-    var {value, format, ...props} = this.props;
+    let {value, format, ...props} = this.props;
     if (value) {
-      var date = moment(value, ISO_FORMAT, true);
+      let date = moment(value, ISO_FORMAT, true);
       if (!date.isValid()) {
         date = moment(value, ISO_FORMAT_NO_TIME, true);
         if (date.isValid()) {
@@ -36,7 +33,7 @@ var DateTimePicker = React.createClass({
         />
     );
   }
-});
+}
 
 /**
  * DatetimeField component.
@@ -45,9 +42,13 @@ var DateTimePicker = React.createClass({
  *
  * @public
  */
-var DatetimeField = React.createClass({
+export default class DatetimeField extends React.Component {
 
-  propTypes: {
+  static defaultProps = {
+    format: 'YYYY-MM-DD HH:mm:ss'
+  };
+
+  static propTypes = {
     /**
      * **format** describes how the date is displayed.
      * It is a `moment.js <http://momentjs.com/docs/>`_ format string.
@@ -64,14 +65,14 @@ var DatetimeField = React.createClass({
      * When ``true``, a <ReadOnlyField> is rendered instead.
      */
     readOnly: React.PropTypes.bool
-  },
+  };
 
   render() {
-    var {format, formValue, readOnly, ...props} = this.props;
+    let {format, formValue, readOnly, ...props} = this.props;
     if (readOnly) {
-      var value = formValue.value;
+      let value = formValue.value;
       if (value) {
-        var date = moment(formValue.value, ISO_FORMAT, true)
+        let date = moment(formValue.value, ISO_FORMAT, true);
         if (!date.isValid()) {
           date = moment(formValue.value, ISO_FORMAT_NO_TIME, true);
         }
@@ -89,14 +90,5 @@ var DatetimeField = React.createClass({
         </Field>
       );
     }
-  },
-
-  getDefaultProps() {
-    return {
-      format: 'YYYY-MM-DD HH:mm:ss'
-    };
   }
-});
-
-module.exports = DatetimeField;
-
+}

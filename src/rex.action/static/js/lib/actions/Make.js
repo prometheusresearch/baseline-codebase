@@ -9,6 +9,7 @@ import emptyFunction        from 'rex-widget/lib/emptyFunction';
 import {command, Types}     from '../ActionCommand';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
+import * as ContextUtils    from '../ContextUtils';
 
 let Style = {
   submitButton: {
@@ -30,13 +31,21 @@ let Make = React.createClass({
   },
 
   render() {
-    var {useQuery, fields, entity, submitButton, onClose, width} = this.props;
-    var value = ObjectTemplate.render(this.props.value, this.props.context);
+    var {
+      useQuery, fields, entity,
+      submitButton, onClose, width, context, contextTypes
+    } = this.props;
+    var value = ObjectTemplate.render(this.props.value, context);
     var title = this.constructor.getTitle(this.props);
     return (
-      <Action title={title} width={width} onClose={onClose} renderFooter={this.renderFooter}>
+      <Action
+        title={title}
+        width={width}
+        onClose={onClose}
+        renderFooter={this.renderFooter}>
         <RexWidget.Forms.ConfigurableEntityForm
           insert
+          context={ContextUtils.getMaskedContext(context, contextTypes.input)}
           key={this.getKey()}
           ref="form"
           entity={entity.type.name}

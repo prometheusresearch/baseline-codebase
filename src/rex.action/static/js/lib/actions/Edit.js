@@ -7,6 +7,7 @@ import React                from 'react';
 import RexWidget            from 'rex-widget';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
+import * as ContextUtils    from '../ContextUtils';
 import {getEntityTitle}     from '../Entity';
 import Title                from './Title';
 
@@ -60,11 +61,12 @@ let Edit = React.createClass({
   },
 
   renderForm() {
-    var {entity, fields, value, context} = this.props;
+    var {entity, fields, value, context, contextTypes} = this.props;
     value = mergeDeepInto(this.data.data.data, ObjectTemplate.render(value, context));
     return (
       <RexWidget.Forms.ConfigurableEntityForm
         ref="form"
+        context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={this.dataSpecs.data}
         submitButton={null}
         initialValue={this.data.data.data}

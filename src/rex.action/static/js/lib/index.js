@@ -1,20 +1,40 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var Wizard        = require('./Wizard');
-var Actions       = require('./Actions');
-var WizardLink    = require('./WizardLink');
-var Action        = require('./Action');
-var createEntity  = require('./createEntity');
+import WizardLink                   from './WizardLink';
+import Action                       from './Action';
+import {createEntity, isEntity}     from './Entity';
 
-require('./TransitionableHandlers');
+import {command, Types as ArgTypes} from './ActionCommand';
 
-module.exports = {
-  createEntity,
-  Wizard,
+import Actions                      from './actions';
+import SideBySideWizard             from './side-by-side';
+
+import Wizard                       from './Wizard';
+
+import './TransitionableHandlers';
+
+export {
   WizardLink,
+  Action,
+  createEntity,
+  isEntity,
   Actions,
-  Action
+  SideBySideWizard,
+  Wizard,
+  command,
+  ArgTypes,
+};
+
+export default {
+  WizardLink,
+  Action,
+  createEntity,
+  isEntity,
+  Actions,
+  SideBySideWizard,
+  Wizard,
+  command,
+  ArgTypes,
 };

@@ -10,11 +10,12 @@ var {VBox, HBox}        = RexWidget.Layout;
 var BreadcrumbStyle = {
   self: {
     borderTop: '1px solid #d2d2d2',
+    borderBottom: '1px solid #d2d2d2',
     height: '100%',
     background: '#fafafa'
   },
   item: {
-    top: 1
+    top: 0
   },
 };
 

@@ -49,7 +49,7 @@ export default class Action extends React.Component {
     var {children, title, onClose, width, className} = this.props;
     var footer = this.props.renderFooter();
     return (
-      <VBox style={{width}} size={1} className={this.theme.self}>
+      <VBox size={1} className={this.theme.self}>
         <HBox className={this.theme.header}>
           {title &&
             <VBox size={1}>

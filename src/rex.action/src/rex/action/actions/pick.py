@@ -7,24 +7,19 @@
 
 """
 
-import re
-from cached_property import cached_property
-from collections import OrderedDict
-
-from rex.core import StrVal, OneOfVal, SeqVal, BoolVal, MaybeVal, OMapVal, BoolVal, RecordVal
+from rex.core import StrVal, SeqVal, MaybeVal, BoolVal, RecordVal
 from rex.port import Port
-from rex.widget import Field, ColumnVal, FormFieldVal, responder, PortURL, undefined
-from rex.widget import dataspec, formfield
+from rex.widget import Field, ColumnVal, undefined
+from rex.widget import dataspec
 
-from ..action import Action
-from ..validate import RexDBVal
 from ..dataspec import ContextBinding
-from ..typing import RowTypeVal, RecordTypeVal, RecordType, annotate_port
+from ..typing import RecordTypeVal, RecordType
+from .entity_action import EntityAction
 
 __all__ = ('Pick',)
 
 
-class Pick(Action):
+class Pick(EntityAction):
     """ Show a list of records in database.
 
     This is a generic action which displays a list of records in database as a
@@ -40,34 +35,13 @@ class Pick(Action):
     """
 
     name = 'pick'
-    js_type = 'rex-action/lib/Actions/Pick'
-
-
-    entity = Field(
-        RowTypeVal(),
-        doc="""
-        Name of a table in database.
-        """)
-
-    db = Field(
-        RexDBVal(), default=None,
-        transitionable=False,
-        doc="""
-        Database to use.
-        """)
+    js_type = 'rex-action/lib/actions/Pick'
+    dataspec_factory = dataspec.CollectionSpec
 
     columns = Field(
         MaybeVal(SeqVal(ColumnVal())), default=None,
         transitionable=False,
         deprecated='Use "fields" instead')
-
-    fields = Field(
-        MaybeVal(SeqVal(ColumnVal())), default=None,
-        doc="""
-        A set of fields to be shown as columns.
-
-        If it's not provided then it will be inferred from database schema.
-        """)
 
     search = Field(
         StrVal(), default=None,
@@ -113,15 +87,9 @@ class Pick(Action):
     def __init__(self, **values):
         super(Pick, self).__init__(**values)
         if self.fields is None and self.columns is not None:
-            self.values['fields'] = self.columns
-        if self.fields is None:
-            self.values['fields'] = formfield.from_port(self.port)
-        else:
-            self.values['fields'] = formfield.enrich(self.fields, self.port)
+            self.fields = self.reflect_fields(self.columns)
 
-    @cached_property
-    def port(self):
-        mask = None
+    def create_port(self):
         filters = []
 
         if self.search:
@@ -129,33 +97,14 @@ class Pick(Action):
 
         if self.mask:
             mask_args = ', '.join('$%s' % k for k in self.input.rows.keys())
-            if mask_args:
-                filters.append('__mask__(%s) := %s' % (mask_args, self.mask))
-            else:
-                mask = self.mask
+            filters.append('__mask__(%s) := %s' % (mask_args or '$_', self.mask))
 
         if self.entity.type.state:
             filters.append('__state__($_) := %s' % self.entity.type.state.expression)
 
-        if self.fields is None:
-            grow_val = {
-                'entity': self.entity.type.name,
-                'filters': filters,
-            }
-            if mask:
-                grow_val['mask'] = mask
-            port = Port(grow_val, db=self.db)
-        else:
-            port = formfield.to_port(
-                self.entity.type.name,
-                self.fields,
-                filters=filters,
-                mask=mask,
-                db=self.db)
+        return super(Pick, self).create_port(filters=filters)
 
-        return annotate_port(self.domain, port)
-
-    def _construct_data_spec(self, port_url):
+    def bind_port(self):
         bindings = {}
         if self.search:
             bindings['*:__search__'] = dataspec.StateBinding('search')
@@ -165,11 +114,7 @@ class Pick(Action):
             bindings['*:__state__'] = '_'
         if self.sort:
             bindings['*.%s:sort' % self.sort.field] = 'asc' if self.sort.asc else 'desc'
-        return dataspec.CollectionSpec(port_url, bindings)
-
-    @responder(wrap=_construct_data_spec, url_type=PortURL)
-    def data(self, req):
-        return self.port(req)
+        return bindings
 
     def context(self):
         return self.input, RecordType([self.entity])

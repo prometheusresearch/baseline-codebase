@@ -25,7 +25,7 @@ __all__ = ('PickDate',)
 class PickDate(Action):
 
     name = 'pick-date'
-    js_type = 'rex-action/lib/Actions/PickDate'
+    js_type = 'rex-action/lib/actions/PickDate'
 
     annotate_month = Field(
         QueryVal(), default=None, transitionable=False,

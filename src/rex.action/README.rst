@@ -276,18 +276,20 @@ There are few things to note:
 Now we can define JavaScript implementation in ``package/lib/ShowWeather``
 CommonJS module as React component::
 
-  var React = require('react')
+  import React extends 'react'
 
-  var ShowWeather = React.createClass({
+  export default class ShowWeather extends React.Component {
 
     render() {
-      var location = this.props.context.location
-      var format = this.props.format
+      let location = this.props.context.location
+      let format = this.props.format
       reutrn <WeatherForecast location={location} format={format} />
     }
-  })
 
-  module.exports = ShowWeather
+    static renderTitle(props, context) {
+      return `Weather at ${context.location}`
+    }
+  }
 
 We see that:
 
@@ -295,6 +297,9 @@ We see that:
     can safely get ``location`` out of there as we specify it as a requirement.
 
   * Value of ``format`` is passed to component through props.
+
+  * Static method ``renderTitle`` is used to render title of the action (in
+    breadcrumbs and other navigation mechanisms).
 
 Now we finally can define a wizard with our new action types::
 
@@ -311,3 +316,15 @@ Now we finally can define a wizard with our new action types::
           pick-location:
             type: pick
             entity: location
+
+Site wide configuration
+=======================
+
+Some of the parameters can be configured site wide via ``settings.yaml``.
+
+The only configuration parameter allowed is breadcrumb position of side-by-side
+wizard::
+
+    rex_action:
+      side_by_side:
+        breadcrumb: bottom

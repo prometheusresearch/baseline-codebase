@@ -74,6 +74,9 @@ export class RecordType extends Type {
   match(value) {
     for (let key in this.rows) {
       if (this.rows.hasOwnProperty(key)) {
+        if (this.rows[key].type === anytype) {
+          return true;
+        }
         if (value[key] == null) {
           return false;
         }

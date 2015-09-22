@@ -10,11 +10,12 @@
 
 """
 
-from rex.core import Validate, Error, AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal
+from rex.core import Validate, Error, get_settings
+from rex.core import AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal, ChoiceVal
 from rex.widget import Widget, Field
-from rex.widget.validate import DeferredVal
+from rex.widget.validate import DeferredVal, Deferred
 
-from .action_tree import ActionTreeVal
+from .path import PathVal
 from .typing import anytype, Domain, RecordType, RowType, EntityTypeState, EntityType
 from .action import ActionMapVal
 
@@ -52,7 +53,7 @@ class _DomainVal(Validate):
 
 
 
-class Wizard(Widget):
+class WizardBase(Widget):
     """ Widget which renders actions as panels side-by-side.
 
     Example declaration as URL mapping entry::
@@ -81,9 +82,6 @@ class Wizard(Widget):
     step.
     """
 
-    name = 'Wizard'
-    js_type = 'rex-action/lib/Wizard'
-
     path = Field(
         DeferredVal(),
         doc="""
@@ -110,12 +108,43 @@ class Wizard(Widget):
         """)
 
     def __init__(self, **values):
-        super(Wizard, self).__init__(**values)
-        with self.states or Domain.current():
-            self.values['actions'] = self.values['actions'].resolve()
-        initial_context_type = None
-        if self.initial_context:
-            initial_context_type = RecordType([RowType(k, anytype) for k in self.initial_context])
-        validate_path = ActionTreeVal(self.actions, context=initial_context_type)
-        path = self.path.resolve(validate_path)
-        self.values['path'] = path
+        super(WizardBase, self).__init__(**values)
+        if isinstance(self.actions, Deferred):
+            with self.states or Domain.current():
+                actions = self.actions.resolve()
+                self.values['actions'] = actions
+        if isinstance(self.path, Deferred):
+            if self.initial_context:
+                initial_context_type = RecordType([RowType(k, anytype) for k in self.initial_context])
+            else:
+                initial_context_type = RecordType([])
+            validate_path = PathVal(self.actions, context_type=initial_context_type)
+            path = self.path.resolve(validate_path)
+            self.values['path'] = path
+
+
+class SideBySideWizard(WizardBase):
+
+    name = 'SideBySideWizard'
+    js_type = 'rex-action/lib/side-by-side/Wizard'
+
+    breadcrumb = Field(
+        ChoiceVal('bottom', 'top', 'none'),
+        default=None)
+
+    def __init__(self, **values):
+        super(SideBySideWizard, self).__init__(**values)
+        if self.breadcrumb is None:
+            settings = get_settings()
+            self.values['breadcrumb'] = settings.rex_action.side_by_side.breadcrumb
+
+
+class Wizard(SideBySideWizard):
+
+    name = 'Wizard'
+
+
+class SinglePageWizard(WizardBase):
+
+    name = 'SinglePageWizard'
+    js_type = 'rex-action/lib/single-page/Wizard'

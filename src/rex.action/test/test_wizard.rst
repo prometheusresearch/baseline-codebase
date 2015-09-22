@@ -54,27 +54,11 @@ Wizard
   ...   second:
   ...     type: wanother
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  Wizard(path=ActionTree(tree=OrderedDict([('first', OrderedDict([('second', None)]))])),
+  Wizard(path=Start(then=[Execute(action='first', then=[Execute(action='second', then=[])])]),
          initial_context=None,
          states=None,
          actions={'second': AnotherAction(icon=undefined, width=undefined, id='second', title=undefined),
                   'first': MyAction(icon=undefined, width=undefined, id='first', title=undefined)})
-
-::
-
-  >>> from collections import OrderedDict
-
-  >>> Wizard(
-  ... path=OrderedDict([('first', OrderedDict([('second', None)]))]),
-  ... actions={'second': AnotherAction(id='second'),
-  ...          'first': MyAction(id='first')}
-  ... ) # doctest: +NORMALIZE_WHITESPACE
-  Wizard(path=ActionTree(tree=OrderedDict([('first', OrderedDict([('second', None)]))])),
-         initial_context=None,
-         states=None,
-         actions={'second': AnotherAction(icon=undefined, width=undefined, id='second', title=undefined),
-                  'first': MyAction(icon=undefined, width=undefined, id='first', title=undefined)})
-
 
 ::
 
@@ -87,7 +71,7 @@ Wizard
   ...   second:
   ...     type: wanother
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  Wizard(path=ActionTree(tree=OrderedDict([('first', None)])),
+  Wizard(path=Start(then=[Execute(action='first', then=[])]),
          initial_context=None,
          states=None,
          actions={'second': AnotherAction(icon=undefined, width=undefined, id='second', title=undefined),
@@ -108,14 +92,15 @@ Wizard
   >>> encode(w, None) # doctest: +NORMALIZE_WHITESPACE
   u'["~#widget",
     ["rex-action/lib/Wizard",
-      {"path": {"first": null},
-       "actions": {"^2": ["^0", [null, {"width": ["~#undefined", []],
-                                        "contextTypes": {"input": ["~#type:record", [{}, true]],
-                                                         "output": ["^8", [{}, true]]},
-                                        "icon": ["^5", []],
-                                        "id": "first",
-                                        "title": ["^5", []]}]]},
-       "initialContext": null}]]'
+      {"path": ["~#rex:action:start", [[["~#rex:action:execute", ["first", []]]]]],
+      "actions":
+        {"first": ["^0", [null, {"width": ["~#undefined", []],
+                                 "contextTypes": {"input": ["~#type:record", [{}, true]],
+                                                  "output": ["^:", [{}, true]]},
+                                 "icon": ["^7", []],
+                                 "id": "first",
+                                 "title": ["^7", []]}]]},
+      "initialContext": null}]]'
 
 ::
 
@@ -128,7 +113,7 @@ Wizard
   ...   first:
   ...     type: require-x
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  Wizard(path=ActionTree(tree=OrderedDict([('first', None)])),
+  Wizard(path=Start(then=[Execute(action='first', then=[])]),
          initial_context={'x': 'value'},
          states=None,
          actions={'first': RequireX(icon=undefined, width=undefined, id='first', title=undefined)})

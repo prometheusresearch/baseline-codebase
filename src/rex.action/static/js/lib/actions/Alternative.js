@@ -2,10 +2,11 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import autobind        from 'autobind-decorator';
 import React           from 'react';
 import RexWidget       from 'rex-widget';
 import Action          from '../Action';
-import ActionButton    from '../ActionButton';
+import ActionButton    from '../side-by-side/ActionButton';
 import SidebarRenderer from '../SidebarRenderer';
 
 let {VBox} = RexWidget.Layout;
@@ -42,7 +43,8 @@ export default class Alternative extends React.Component {
     let action = actions[this.state.index];
     return React.cloneElement(action, {
       ...props,
-      onContext: this.onContext
+      onContext: this.onContext,
+      onCommand: this.onCommand,
     });
   }
 
@@ -64,13 +66,20 @@ export default class Alternative extends React.Component {
     );
   }
 
-  onContext = (context) => {
+  @autobind
+  onCommand(commandName, ...args) {
+    this.setState({index: 0});
+    this.props.onCommand(commandName, ...args);
+  }
+
+  @autobind
+  onContext(context) {
     this.setState({index: 0});
     this.props.onContext(context);
   }
 
   static getIcon(props) {
-    let Actions = require('../Actions');
+    let Actions = require('../actions');
     return Actions.getIcon(props.actions[0]);
   }
 }

@@ -3,11 +3,12 @@
  */
 'use strict';
 
-import React          from 'react';
-import RexWidget      from 'rex-widget';
-import emptyFunction  from 'rex-widget/lib/emptyFunction';
-import Action         from '../Action';
-import buildValue     from '../buildValueFromContext';
+import React                from 'react';
+import RexWidget            from 'rex-widget';
+import emptyFunction        from 'rex-widget/lib/emptyFunction';
+import {command, Types}     from '../ActionCommand';
+import Action               from '../Action';
+import * as ObjectTemplate  from '../ObjectTemplate';
 
 let Style = {
   submitButton: {
@@ -25,12 +26,12 @@ let Make = React.createClass({
 
   propTypes: {
     context: React.PropTypes.object,
-    onContext: React.PropTypes.func
+    onCommand: React.PropTypes.func,
   },
 
   render() {
     var {useQuery, fields, entity, submitButton, onClose, width} = this.props;
-    var value = buildValue(this.props.value, this.props.context);
+    var value = ObjectTemplate.render(this.props.value, this.props.context);
     var title = this.constructor.getTitle(this.props);
     return (
       <Action title={title} width={width} onClose={onClose} renderFooter={this.renderFooter}>
@@ -71,7 +72,7 @@ let Make = React.createClass({
   getDefaultProps() {
     return {
       width: 400,
-      icon: 'ok',
+      icon: 'plus',
       onSubmitComplete: emptyFunction,
       submitButton: 'Submit'
     };
@@ -103,20 +104,22 @@ let Make = React.createClass({
 
   _onSubmitComplete(data) {
     this.props.onSubmitComplete(data);
-
     var key = this.state.key + 1;
     this.setState({key});
-
-    var nextContext = {
-      ...this.props.context,
-      [this.props.entity.name]: data
-    };
-    this.props.onContext(nextContext);
+    this.props.onCommand('default', data);
   },
 
   statics: {
     getTitle(props) {
       return props.title || `Make ${props.entity.name}`;
+    },
+
+    commands: {
+
+      @command(Types.ConfigurableEntity())
+      default(props, context, entity) {
+        return {...context, [props.entity.name]: entity};
+      }
     }
   }
 });

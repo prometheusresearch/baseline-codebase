@@ -25,7 +25,7 @@ class Drop(Action):
     """
 
     name = 'drop'
-    js_type = 'rex-action/lib/Actions/Drop'
+    js_type = 'rex-action/lib/actions/Drop'
 
     entity = Field(
         RowTypeVal(),

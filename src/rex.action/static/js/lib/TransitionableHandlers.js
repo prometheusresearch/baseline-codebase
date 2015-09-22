@@ -5,6 +5,7 @@
 import Transitionable   from 'rex-widget/lib/Transitionable';
 import {ContextBinding} from './DataSpecification';
 import * as Typing      from './Typing';
+import * as Instruction from './Instruction';
 
 Transitionable.register('contextbinding', function decode_query(payload) {
   return new ContextBinding(payload[0], payload[1]);
@@ -28,4 +29,16 @@ Transitionable.register('type:row', function decode_type_row(payload) {
 
 Transitionable.register('type:record', function decode_type_record(payload) {
   return new Typing.RecordType(payload[0], payload[1]);
+});
+
+Transitionable.register('rex:action:start', function decode_type_record(payload) {
+  return new Instruction.Start(payload[0]);
+});
+
+Transitionable.register('rex:action:execute', function decode_type_record(payload) {
+  return new Instruction.Execute(payload[0], payload[1]);
+});
+
+Transitionable.register('rex:action:repeat', function decode_type_record(payload) {
+  return new Instruction.Repeat(payload[0], payload[1]);
 });

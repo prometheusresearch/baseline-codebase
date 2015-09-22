@@ -18,7 +18,7 @@ __all__ = ('Alternative',)
 class Alternative(Action):
 
     name = 'alternative'
-    js_type = 'rex-action/lib/Actions/Alternative'
+    js_type = 'rex-action/lib/actions/Alternative'
 
     actions = Field(
         SeqVal(ActionVal()),

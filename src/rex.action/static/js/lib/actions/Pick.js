@@ -1,14 +1,17 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React               = require('react');
-var RexWidget           = require('rex-widget');
-var DS                  = RexWidget.DataSpecification;
-var {VBox, HBox}        = RexWidget.Layout;
+import React                from 'react';
+import Stylesheet           from '@prometheusresearch/react-stylesheet';
+import RexWidget            from 'rex-widget';
+import {VBox, HBox}         from 'rex-widget/lib/Layout';
+import {command, Types}     from '../ActionCommand';
+import {getEntityTitle}     from '../Entity';
+import Title                from './Title';
 
-var Style = {
+
+let Style = {
   header: {
     padding: 10
   },
@@ -18,24 +21,24 @@ var Style = {
   }
 };
 
-var Pick = React.createClass({
+let Pick = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin, RexWidget.Cell.Mixin],
 
   propTypes: {
     context: React.PropTypes.object,
-    onContext: React.PropTypes.func
+    onCommand: React.PropTypes.func,
   },
 
   dataSpecs: {
-    data: DS.collection()
+    data: RexWidget.DataSpecification.collection()
   },
 
   render() {
-    var {entity, onClose, context} = this.props;
-    var title = this.constructor.getTitle(this.props);
+    let {entity, onClose, context} = this.props;
+    let title = this.constructor.getTitle(this.props);
     let selected = context[entity.name] ? context[entity.name].id : undefined;
     return (
-      <VBox size={1} style={{...Style.self, width: this.props.width}}>
+      <VBox size={1} style={Style.self}>
         <HBox style={Style.header}>
           <VBox size={1} style={Style.title}>
             <h4>
@@ -83,17 +86,26 @@ var Pick = React.createClass({
     };
   },
 
-  onSelected(selected, data) {
-    let {onContext, context, entity} = this.props;
-    onContext({
-      ...context,
-      [entity.name]: data
-    });
+  onSelected(entityId, entity) {
+    this.props.onCommand('default', entity);
   },
 
   statics: {
+
+    renderTitle({entity, title = `Pick ${entity.name}`}, context) {
+      return <Title title={title} entity={entity} context={context} />;
+    },
+
     getTitle(props) {
       return props.title || `Pick ${props.entity.name}`;
+    },
+
+    commands: {
+
+      @command(Types.ConfigurableEntity())
+      default(props, context, entity) {
+        return {...context, [props.entity.name]: entity};
+      }
     }
   }
 });
@@ -105,4 +117,4 @@ function makeSortKey(sort) {
   return sort.asc ? sort.field : `-${sort.field}`;
 }
 
-module.exports = Pick;
+export default Pick;

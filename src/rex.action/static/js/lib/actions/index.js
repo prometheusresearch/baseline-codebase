@@ -3,14 +3,23 @@
  */
 'use strict';
 
-var Page      = require('./Page');
-var Pick      = require('./Pick');
-var View      = require('./View');
-var Make      = require('./Make');
-var Drop      = require('./Drop');
-var PickDate  = require('./PickDate');
+export Page     from './Page';
+export Pick     from './Pick';
+export View     from './View';
+export Make     from './Make';
+export Drop     from './Drop';
+export PickDate from './PickDate';
 
-function getTitle(element) {
+export function renderTitle(position) {
+  let {type, props} = position.element;
+  if (type.renderTitle) {
+    return type.renderTitle(props, position.context);
+  } else {
+    return getTitle(position.element);
+  }
+}
+
+export function getTitle(element) {
   if (element.type.getTitle) {
     return element.type.getTitle(element.props);
   } else if (element.props.title) {
@@ -22,7 +31,7 @@ function getTitle(element) {
   }
 }
 
-function getIcon(element) {
+export function getIcon(element) {
   if (element.type.getIcon) {
     return element.type.getIcon(element.props);
   } else if (element.props.icon) {
@@ -34,7 +43,7 @@ function getIcon(element) {
   }
 }
 
-function getWidth(element) {
+export function getWidth(element) {
   if (element.type.getWidth) {
     return element.type.getWidth(element.props);
   } else if (element.props.width) {
@@ -45,8 +54,3 @@ function getWidth(element) {
     return 480;
   }
 }
-
-module.exports = {
-  Make, Pick, View, Page, Drop, PickDate,
-  getTitle, getIcon, getWidth
-};

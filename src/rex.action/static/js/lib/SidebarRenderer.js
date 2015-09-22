@@ -2,8 +2,8 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import invariant from 'invariant';
 import React     from 'react';
-import invariant from 'rex-widget/lib/invariant';
 
 export default function SidebarRenderer(Component) {
   return class extends Component {

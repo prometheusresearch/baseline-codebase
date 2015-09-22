@@ -1,11 +1,13 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015, Prometheus Research, LL);
  */
 
-import React         from 'react';
-import RexWidget     from 'rex-widget';
-import  {VBox, HBox} from 'rex-widget/lib/Layout';
-import Style         from './Drop.module.css';
+import React            from 'react';
+import RexWidget        from 'rex-widget';
+import  {VBox, HBox}    from 'rex-widget/lib/Layout';
+import Style            from './Drop.module.css';
+import {command, Types} from '../ActionCommand';
+import {getEntityTitle} from '../Entity';
 
 export default class Drop extends React.Component {
 
@@ -76,11 +78,11 @@ export default class Drop extends React.Component {
   }
 
   drop = () => {
-    let {entity, context, onContext, onClose} = this.props;
+    let {entity, context, onCommand, onClose} = this.props;
     let id = context[entity.name].id;
     this.props.data.delete({[entity.type.name]: {id}}).then(() => {
       RexWidget.forceRefreshData();
-      this.props.onContext({[entity.name]: undefined});
+      this.props.onCommand('default');
       this.props.onClose()
     });
   }
@@ -93,7 +95,22 @@ export default class Drop extends React.Component {
     this.setState({confirmDelay});
   }
 
+  static renderTitle({entity, title = `Drop ${entity.name}`}, context) {
+    return entity.name in context ?
+      `${title}: ${getEntityTitle(context[entity.name])}` :
+      title;
+  }
+
   static getTitle(props) {
     return props.title || `Drop ${props.entity.name}`;
+  }
+
+  static commands = {
+
+    @command()
+    default(props, context) {
+      return {...context, [props.entity.name]: undefined};
+    }
+
   }
 }

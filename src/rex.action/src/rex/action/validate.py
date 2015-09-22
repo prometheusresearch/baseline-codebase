@@ -13,7 +13,7 @@ from htsql.core.error import Error as HTSQLError
 from htsql.core.syn.syntax import Syntax
 from htsql.core.syn.parse import parse
 
-from rex.db import get_db, Query
+from rex.db import get_db, Query, RexHTSQL
 from rex.core import Validate, Error, Location
 from rex.core import UStrVal, StrVal, MapVal, OneOfVal, RecordVal
 from rex.widget import TransitionableRecord
@@ -30,6 +30,8 @@ class RexDBVal(Validate):
     _validate = StrVal()
 
     def __call__(self, value):
+        if isinstance(value, RexHTSQL):
+            return value
         value = self._validate(value)
         return get_db(value)
 

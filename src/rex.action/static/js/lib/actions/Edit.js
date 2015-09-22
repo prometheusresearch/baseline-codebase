@@ -3,10 +3,12 @@
  */
 'use strict';
 
-import React          from 'react';
-import RexWidget      from 'rex-widget';
-import Action         from '../Action';
-import buildValue     from '../buildValueFromContext';
+import React                from 'react';
+import RexWidget            from 'rex-widget';
+import Action               from '../Action';
+import * as ObjectTemplate  from '../ObjectTemplate';
+import {getEntityTitle}     from '../Entity';
+import Title                from './Title';
 
 let Style = {
   submitButton: {
@@ -19,7 +21,7 @@ let Edit = React.createClass({
 
   propTypes: {
     context: React.PropTypes.object,
-    onContext: React.PropTypes.func
+    onCommand: React.PropTypes.func,
   },
 
   dataSpecs: {
@@ -59,7 +61,7 @@ let Edit = React.createClass({
 
   renderForm() {
     var {entity, fields, value, context} = this.props;
-    value = mergeDeepInto(this.data.data.data, buildValue(value, context));
+    value = mergeDeepInto(this.data.data.data, ObjectTemplate.render(value, context));
     return (
       <RexWidget.Forms.ConfigurableEntityForm
         ref="form"
@@ -88,6 +90,11 @@ let Edit = React.createClass({
   },
 
   statics: {
+
+    renderTitle({entity, title = `Edit ${entity.name}`}, context) {
+      return <Title title={title} entity={entity} context={context} />;
+    },
+
     getTitle(props) {
       return props.title || `Edit ${props.entity.name}`;
     }

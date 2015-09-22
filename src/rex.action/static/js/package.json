@@ -7,13 +7,23 @@
     "style": "./style/index.less"
   },
   "dependencies": {
-    "rethemeable": "^2.0.0"
+    "@prometheusresearch/react-box": "^0.1.0",
+    "@prometheusresearch/react-datetimepicker": "^0.1.0",
+    "@prometheusresearch/react-stylesheet": "^0.2.0",
+    "autobind-decorator": "^1.2.0",
+    "escape-regexp": "0.0.1",
+    "history": "^1.8.0",
+    "invariant": "^2.1.1",
+    "lodash": "^3.10.1",
+    "memoize-decorator": "^1.0.2",
+    "rethemeable": "^2.0.0",
+    "styling": "^0.4.0"
   },
   "peerDependencies": {
     "react": "^0.13.0"
   },
   "devDependencies": {
-    "webpack": "^1.10.0",
-    "@prometheusresearch/webtest": "^0.1.0"
+    "@prometheusresearch/webtest": "^0.1.4",
+    "webpack": "^1.10.0"
   }
 }

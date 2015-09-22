@@ -6,3 +6,6 @@ access:
     rex.widget: anybody
     rex.action_demo: anybody
     rex.action: anybody
+rex_action:
+  side_by_side:
+    breadcrumb: bottom

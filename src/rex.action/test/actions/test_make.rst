@@ -25,31 +25,18 @@ In case fields are not specified, they are generated from port::
   ... entity: individual
   ... """)
 
-  >>> make # doctest: +NORMALIZE_WHITESPACE
+  >>> make # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Make(icon=undefined,
-       width=undefined,
-       id='make-individual',
-       title=undefined,
-       query=None,
-       input=RecordType(rows={}, open=True),
-       submit_button=undefined,
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       value={},
-       db=None,
-       fields=[StringFormField(value_key=['code'], required=True, label='Code'),
-               EnumFormField(value_key=['sex'], label='Sex',
-                             options=[Record(value='not-known', label='Not Known'),
-                                      Record(value='male', label='Male'),
-                                      Record(value='female', label='Female'),
-                                      Record(value='not-applicable', label='Not Applicable')]),
-               EntityFormField(value_key=['mother'], label='Mother',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['father'], label='Father',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['adopted_mother'], label='Adopted Mother',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['adopted_father'], label='Adopted Father',
-                               data=Record(entity='individual', title='id()', mask=None))])
+       width=undefined, 
+       id='make-individual', 
+       title=undefined, 
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)), 
+       db=None, 
+       fields=[...], 
+       query=None, 
+       value={}, 
+       input=RecordType(rows={}, open=True), 
+       submit_button=undefined)
 
   >>> input, output = make.context_types
 
@@ -73,7 +60,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/Make", ...]]
+  ["~#widget", ["rex-action/lib/actions/Make", ...]]
 
   >>> print render_widget(make, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -100,15 +87,15 @@ You can also specify fields and see port generated from them::
   >>> make # doctest: +NORMALIZE_WHITESPACE
   Make(icon=undefined,
        width=undefined,
-       id='make-individual',
-       title=undefined,
-       query=None,
-       input=RecordType(rows={}, open=True),
-       submit_button=undefined,
+       id='make-individual', 
+       title=undefined, 
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       value={},
-       db=None,
-       fields=[StringFormField(value_key=['code'], required=True, label='Code')])
+       db=None, 
+       fields=[StringFormField(value_key=['code'], required=True, label='Code')], 
+       query=None, 
+       value={}, 
+       input=RecordType(rows={}, open=True), 
+       submit_button=undefined)
 
   >>> make.port
   Port('''
@@ -148,6 +135,27 @@ Value also used to generate port::
     expression: '''individual'''
   ''')
 
+Port propagates its input parameters so ports of fieldset::
+
+  >>> make = Action.parse("""
+  ... type: make
+  ... id: make-individual
+  ... entity: individual
+  ... input:
+  ... - mother: individual
+  ... fields:
+  ... - value_key: mother
+  ... """)
+  
+  >>> make.fields[0].query_port
+  Port('''
+  - parameter: mother
+  - entity: individual
+    select: []
+    with:
+    - calculation: title
+      expression: id()
+  ''')
 
 Cleanup
 -------

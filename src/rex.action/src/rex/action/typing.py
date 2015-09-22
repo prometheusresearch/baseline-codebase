@@ -27,7 +27,16 @@ __all__ = (
     'EntityType',
     'ValueType',
     'TypeVal',
-    'unify', 'UnificationError')
+
+    'unify',
+    'UnificationError',
+    'KindError',
+    'KindsDoNotMatch',
+    'UnknownKind',
+    'InvalidRowTypeUsage',
+    'RecordTypeMissingKey',
+    'RowTypeMismatch',
+    )
 
 
 class Type(TransitionableRecord):
@@ -189,7 +198,7 @@ class RecordType(Type):
 
     @property
     def key(self):
-        rows = [row.key for row in sorted(self.rows)]
+        rows = [row.key for _, row in sorted(self.rows.items())]
         if self.open:
             rows.append('  ...other keys')
         return '{\n' + '\n'.join(rows) + '\n}'
@@ -348,52 +357,101 @@ def grow_state_info(tree, path, state):
     return tree
 
 
-class UnificationError(Error):
+class UnificationError(Exception):
+    """ Base class for type unification errors."""
+    
 
-    def __init__(self, type_a, type_b, payload=None):
-        super(UnificationError, self).__init__('Cannot unify two types', payload)
-        self.wrap('Type:', type_a)
-        self.wrap('With type:', type_b)
+class KindError(UnificationError):
+    """ Kind error.
+
+    This arises when we try to unify topologically inconsistent types, for
+    example row type and entity type.
+    """
+
+class KindsDoNotMatch(KindError):
+    """ Type kinds do not match."""
+
+    def __init__(self, kind_a, type_a, kind_b, type_b):
+        self.kind_a = kind_a
+        self.type_a = type_a
+        self.kind_b = kind_b
+        self.type_b = type_b
+
+
+class UnknownKind(KindError):
+    """ One or more kinds are unknown and can't be typechecked."""
+
+    def __init__(self, kind_a, type_a, kind_b, type_b):
+        self.kind_a = kind_a
+        self.type_a = type_a
+        self.kind_b = kind_b
+        self.type_b = type_b
+
+
+class InvalidRowTypeUsage(KindError):
+    """ Row type is used without the wrapping record type."""
+
+
+class RecordTypeMissingKey(UnificationError):
+    """ Record type is missing a key of type ``row_type``."""
+
+    def __init__(self, type):
+        self.type = type
+
+
+class RowTypeMismatch(UnificationError):
+    """ Row type mismatch."""
+
+    def __init__(self, type_a, type_b):
         self.type_a = type_a
         self.type_b = type_b
 
 
-def unify(type_a, type_b):
+def unify(type_a, type_b, label=None):
+    assert_is_type(type_a)
+    assert_is_type(type_b)
     if type_a is anytype or type_b is anytype:
         return
     kind_a = type(type_a)
     kind_b = type(type_b)
     if kind_a != kind_b:
-        error = UnificationError(type_a, type_b, 'kinds do not match')
-        raise error
+        raise KindsDoNotMatch(kind_a, type_a, kind_b, type_b)
+    elif kind_a is RowType:
+        raise InvalidRowTypeUsage()
     elif kind_a is RecordType:
-        for label, row_type_a in type_a.rows.items():
+        for label, typ in type_a.rows.items():
             if label == 'USER':
                 continue
-            row_type_b = type_b.fields.get(label, NotImplemented)
-            if row_type_b is NotImplemented:
-                raise UnificationError(type_a, type_b, 'Type is missing "%s: %s"' % (label, row_type_a))
-            unify(row_type_a, row_type_b)
-        for label, row_type_b in type_b.rows.items():
-            if label == 'USER':
-                continue
-            row_type_a = type_a.fields.get(label, NotImplemented)
-            if row_type_a is NotImplemented:
-                raise UnificationError(type_a, type_b, 'Type is missing "%s: %s"' % (label, row_type_b))
-            unify(row_type_a, row_type_b)
+            other_typ = type_b.rows.get(label, NotImplemented)
+            if other_typ is NotImplemented:
+                raise RecordTypeMissingKey(typ)
+            unify(typ.type, other_typ.type, label=label)
     elif kind_a is ValueType:
-        if type_a.domain != type_b.domain:
-            raise UnificationError(type_a, type_b, 'value types do not match')
+        if type_a.name != type_b.name:
+            raise RowTypeMismatch(
+                RowType(label, type_a),
+                RowType(label, type_b))
     elif kind_a is EntityType:
         if type_a.name != type_b.name:
-            raise UnificationError(type_a, type_b, 'entity types do not match')
+            raise RowTypeMismatch(
+                RowType(label, type_a),
+                RowType(label, type_b))
         elif type_a.state is None or type_b.state is None:
             return
         elif type_a.state != type_b.state:
-            error = UnificationError(type_a, type_b, 'Entity types do not match')
-            error.wrap('Type:', type_a)
-            error.wrap('With type:', type_b)
-            raise error
-
+            raise RowTypeMismatch(
+                RowType(label, type_a),
+                RowType(label, type_b))
+    elif kind_a is OpaqueEntityType:
+        if type_a.name != type_b.name:
+            raise RowTypeMismatch(
+                RowType(label, type_a),
+                RowType(label, type_b))
     else:
-        raise UnificationError(type_a, type_b, 'unknown kind')
+        raise UnknownKind(kind_a, type_a, kind_b, type_b)
+
+
+def assert_is_type(maybe_type, kind=Type):
+    assert isinstance(maybe_type, kind), \
+        'Expected a %s, got: %s' % (maybe_type, kind.__name__)
+    return maybe_type

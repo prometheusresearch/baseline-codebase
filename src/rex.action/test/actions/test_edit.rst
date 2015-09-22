@@ -26,14 +26,12 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
+
   Edit(icon=undefined,
        width=undefined,
        id='edit-individual',
        title=undefined,
-       input=RecordType(rows={}, open=True),
-       submit_button=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       value={},
        db=None,
        fields=[StringFormField(value_key=['code'], required=True, label='Code'),
                EnumFormField(value_key=['sex'], label='Sex',
@@ -48,7 +46,11 @@ In case fields are not specified, they are generated from port::
                EntityFormField(value_key=['adopted_mother'], label='Adopted Mother',
                                data=Record(entity='individual', title='id()', mask=None)),
                EntityFormField(value_key=['adopted_father'], label='Adopted Father',
-                               data=Record(entity='individual', title='id()', mask=None))])
+                               data=Record(entity='individual', title='id()', mask=None))],
+       query=None,
+       value={},
+       input=RecordType(rows={}, open=True),
+       submit_button=undefined)
 
   >>> input, output = edit.context_types
 
@@ -66,14 +68,6 @@ In case fields are not specified, they are generated from port::
   - calculation: meta:type
     expression: '''individual'''
   ''')
-
-  >>> print render_widget(edit, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-  200 OK
-  Content-Type: application/json; charset=UTF-8
-  Content-Length: ...
-  <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/Edit",
-                {..., {"*": ["~#contextbinding", [["individual"], true]]}]]}]]
 
   >>> print render_widget(edit, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
@@ -98,16 +92,17 @@ You can also specify fields and see port generated from them::
   ... """)
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
-  Edit(icon=undefined,
+  Edit(icon=undefined, 
        width=undefined,
        id='edit-individual',
        title=undefined,
-       input=RecordType(rows={}, open=True),
-       submit_button=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       value={},
        db=None,
-       fields=[StringFormField(value_key=['code'], required=True, label='Code')])
+       fields=[StringFormField(value_key=['code'], required=True, label='Code')],
+       query=None,
+       value={},
+       input=RecordType(rows={}, open=True),
+       submit_button=undefined)
 
   >>> edit.port
   Port('''
@@ -118,20 +113,18 @@ You can also specify fields and see port generated from them::
     expression: '''individual'''
   ''')
 
-Value also used to generate port::
+Edit's initial value is also used to generate port::
 
   >>> make = Action.parse("""
   ... type: edit
   ... id: edit-individual
   ... entity: individual
   ... value:
-  ...   code: code
   ...   sex: female
   ...   identity:
   ...     givenname: Andrey
   ... fields:
   ... - value_key: code
-  ... - value_key: identity
   ... """)
 
   >>> make.port

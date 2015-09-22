@@ -7,6 +7,7 @@ var React               = require('react');
 var RexWidget           = require('rex-widget');
 var {VBox, HBox}        = RexWidget.Layout;
 var Action              = require('../Action');
+var {command, Types}    = require('../ActionCommand');
 
 var moment              = require('moment');
 var Datepicker          = require('react-bootstrap-datetimepicker/src/DatePicker');
@@ -83,7 +84,7 @@ var PickDate = React.createClass({
 
   renderDay(props) {
     let {date} = props;
-    var key = date.format('YYYY-MM-DD');
+    var key = props.value.format('YYYY-MM-DD');
     var annotated = this.__annotateMonthQueryIndex[key];
     var title = typeof annotated === 'string' ? annotated : undefined;
     return (
@@ -96,7 +97,7 @@ var PickDate = React.createClass({
   },
 
   renderMonth(props) {
-    var key = `${props.year}-${props.month + 1}`;
+    var key = `${props.year}-${props.month +1}`;
     var annotated = this.__annotateYearQueryIndex[key];
     var title = typeof annotated === 'string' ? annotated : undefined;
     return (
@@ -130,18 +131,26 @@ var PickDate = React.createClass({
     }
   },
 
+
   onViewDate(viewDate) {
     this.setState({viewDate});
   },
 
-
   onSelectedDate(selectedDate) {
-    this.props.onContext({date: selectedDate.format('YYYY-MM-DD')});
+    this.props.onCommand('default', selectedDate.format('YYYY-MM-DD'));
   },
 
   statics: {
     getTitle(props) {
       return props.title || 'Pick date';
+    },
+
+    commands: {
+
+      @command(Types.Value())
+      default(props, context, date) {
+        return {...context, date};
+      }
     }
   }
 });

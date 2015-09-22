@@ -107,18 +107,32 @@ class Action(Widget):
         """)
 
     def __init__(self, **values):
-        self.domain = Domain.current()
+        self.domain = values.pop('__domain', None) or Domain.current()
         super(Action, self).__init__(**values)
         input, output = self.context_types
         self.values['context_types'] = {'input': input, 'output': output}
+
+    def __clone__(self, **values):
+        next_values = {}
+        next_values.update({
+            k: v
+            for k, v in self.values.items()
+            if k == '__domain' or k in self._fields})
+        next_values.update(values)
+        next_values.update({'__domain': self.domain})
+        return self.__class__(**next_values)
 
     @cached_property
     def context_types(self):
         input, output = self.context()
         if not isinstance(input, Type):
-            raise Error('Action "%s" of type "%s" does specified incorrect input type:' % (self.id, self.name.name), input)
+            raise Error(
+                'Action "%s" of type "%s" does specified incorrect input type:'\
+                % (self.id, self.name.name), input)
         if not isinstance(output, Type):
-            raise Error('Action "%s" of type "%s" does specified incorrect output type:' % (self.id, self.name.name), output)
+            raise Error(
+                'Action "%s" of type "%s" does specified incorrect output type:'\
+                % (self.id, self.name.name), output)
         return input, output
 
     def context(self):

@@ -7,24 +7,18 @@
 
 """
 
-from cached_property import cached_property
-
-from collections import OrderedDict
-
-from rex.core import MaybeVal, SeqVal, StrVal, AnyVal, MapVal, OMapVal
+from rex.core import StrVal
 from rex.port import Port
-from rex.widget import Field, FormFieldsetVal, responder, PortURL, undefined
-from rex.widget import formfield, dataspec
+from rex.widget import Field, undefined
 
-from ..action import Action
 from ..dataspec import ContextBinding
-from ..typing import RowTypeVal, RecordTypeVal, RecordType, annotate_port
-from ..validate import RexDBVal
+from ..typing import RecordTypeVal, RecordType
+from .form_action import FormAction
 
 __all__ = ('Edit',)
 
 
-class Edit(Action):
+class Edit(FormAction):
     """ Edit an entity.
 
 
@@ -55,36 +49,7 @@ class Edit(Action):
     """
 
     name = 'edit'
-    js_type = 'rex-action/lib/Actions/Edit'
-
-    entity = Field(
-        RowTypeVal(),
-        doc="""
-        Name of a table in database.
-        """)
-
-    db = Field(
-        RexDBVal(), default=None,
-        transitionable=False,
-        doc="""
-        Database to use.
-        """)
-
-    fields = Field(
-        MaybeVal(FormFieldsetVal()), default=None,
-        doc="""
-        A list of fields to show.
-
-        If not specified then it will be generated automatically based on the
-        data schema.
-        """)
-
-    value = Field(
-        MapVal(StrVal(), AnyVal()), default={},
-        doc="""
-        Initial form value which will be merged with entity fetched from
-        database.
-        """)
+    js_type = 'rex-action/lib/actions/Edit'
 
     submit_button = Field(
         StrVal(), default=undefined,
@@ -95,42 +60,10 @@ class Edit(Action):
     input = Field(
         RecordTypeVal(), default=RecordType.empty())
 
-    def __init__(self, **values):
-        super(Edit, self).__init__(**values)
-        if self.fields is None:
-            self.values['fields'] = formfield.from_port(self.port)
-        else:
-            self.values['fields'] = formfield.enrich(self.fields, self.port)
-
-    @cached_property
-    def port(self):
-        if self.fields is None:
-            port = Port(self.entity.type.name, db=self.db)
-        else:
-            value_fields = _value_to_fieldset(self.value).fields
-            value_fields = formfield.enrich(value_fields, Port(self.entity.type.name, db=self.db))
-            port = formfield.to_port(self.entity.type.name, value_fields + self.fields, db=self.db)
-        return annotate_port(self.domain, port)
-
-    def _construct_data_spec(self, port_url):
+    def bind_port(self):
         keys = self.input.rows.keys() or [self.entity.name]
-        params = {'*': ContextBinding(keys, is_join=True)}
-        return dataspec.EntitySpec(port_url, params)
-
-    @responder(wrap=_construct_data_spec, url_type=PortURL)
-    def data(self, req):
-        return self.port(req)
+        return {'*': ContextBinding(keys, is_join=True)}
 
     def context(self):
         input = self.input if self.input.rows else RecordType([self.entity])
         return input, RecordType([self.entity])
-
-
-def _value_to_fieldset(value, _key=None):
-    _key = _key or ['__root__']
-    if isinstance(value, dict):
-        return formfield.Fieldset(
-            value_key=_key,
-            fields=[_value_to_fieldset(v, _key=[k]) for k, v in value.items()])
-    else:
-        return formfield.StringFormField(value_key=_key)

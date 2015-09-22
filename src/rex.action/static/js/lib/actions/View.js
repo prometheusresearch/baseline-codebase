@@ -9,6 +9,8 @@ var {VBox, HBox}                = RexWidget.Layout;
 var DS                          = RexWidget.DataSpecification;
 var {overflow, boxShadow, rgb}  = RexWidget.StyleUtils;
 var Action                      = require('../Action');
+var {getEntityTitle}            = require('../Entity');
+var Title                       = require('./Title');
 
 function isLoaded(entity) {
   if (entity == null) {
@@ -38,7 +40,7 @@ var View = React.createClass({
   render() {
     let {fields, entity, context, onClose, width} = this.props;
     let title = this.constructor.getTitle(this.props);
-    let data = this.data.data.data;
+    let {data} = this.data.data;
     return (
       <Action title={title} onClose={onClose} width={width}>
         {isLoaded(data) ?
@@ -62,6 +64,11 @@ var View = React.createClass({
   },
 
   statics: {
+
+    renderTitle({entity, title = `View ${entity.name}`}, context) {
+      return <Title title={title} entity={entity} context={context} />;
+    },
+
     getTitle(props) {
       return props.title || `View ${props.entity.type.name}`;
     }

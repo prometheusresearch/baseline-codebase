@@ -12,7 +12,7 @@
     "@prometheusresearch/react-stylesheet": "^0.2.0",
     "autobind-decorator": "^1.2.0",
     "escape-regexp": "0.0.1",
-    "history": "^1.8.0",
+    "history": "^1.9.1",
     "invariant": "^2.1.1",
     "lodash": "^3.10.1",
     "memoize-decorator": "^1.0.2",

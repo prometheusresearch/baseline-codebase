@@ -5,7 +5,7 @@
 import React                from 'react';
 import Stylesheet           from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}         from 'rex-widget/lib/Layout';
-import {getEntityTitle}     from '../Entity';
+import * as Entity          from '../Entity';
 
 @Stylesheet
 export default class Title extends React.Component {
@@ -25,7 +25,10 @@ export default class Title extends React.Component {
     let {entity, context, title} = this.props;
     let {Primary, Secondary} = this.stylesheet;
     if (entity.name in context) {
-      let entityTitle = getEntityTitle(context[entity.name]);
+      let entityTitle = Entity.getEntityTitle(context[entity.name]);
+      if (entityTitle === null) {
+        entityTitle = context[entity.name].id;
+      }
       return (
         <VBox>
           <Primary>{title}</Primary>

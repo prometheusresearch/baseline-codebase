@@ -22,7 +22,24 @@ def import_tabular_data(
         file_format,
         use_defaults=False):
     """
-    tbd
+    Imports a set of records from a flat file into a table.
+
+    :param table_name: the name of the table to import the records into
+    :type table_name: str
+    :param file_content: the content of the file that contains the records
+    :type file_content: str
+    :param file_format:
+        the file format the file that contains the records; see
+        ``FILE_FORMATS`` for possible values
+    :type file_format: str
+    :param use_defaults:
+        indicates whether or not the default values defined for non-primary key
+        fields should be used when NULL values are received; if not specified,
+        defaults to False
+    :type use_defaults: bool
+    :returns: the number of records that were imported into the table
+    :raises:
+        TabularImportError if there was a problem trying to import the records
     """
 
     # Get table info

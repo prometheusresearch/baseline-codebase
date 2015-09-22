@@ -13,10 +13,17 @@ __all__ = (
 
 
 class TabularImportError(Error):
+    """
+    An exception indicating a failure to import records into a table.
+    """
+
     HTSQL_IGNORED_PARAGRAPHS = (
         'While processing',
         'While inserting a record',
     )
+
+    #: A list of dictionaries describing the per-row errors that occurred.
+    row_errors = []
 
     def __init__(self, message=None, payload=None):
         super(TabularImportError, self).__init__(

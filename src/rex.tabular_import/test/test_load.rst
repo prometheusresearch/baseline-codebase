@@ -21,6 +21,9 @@ Set up the environment::
     ...     db.produce('/%s{id()}/:delete' % table)
 
 
+import_tabular_data
+===================
+
 The import_tabular_data() function will load a data file into the specified
 table::
 

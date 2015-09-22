@@ -10,9 +10,9 @@ var Action              = require('../Action');
 var {command, Types}    = require('../ActionCommand');
 
 var moment              = require('moment');
-var Datepicker          = require('@prometheusresearch/react-datetimepicker/src/DatePicker');
-var Day                 = require('@prometheusresearch/react-datetimepicker/src/Day');
-var Month               = require('@prometheusresearch/react-datetimepicker/src/Month');
+var Datepicker          = require('@prometheusresearch/react-datetimepicker/lib/DatePicker');
+var Day                 = require('@prometheusresearch/react-datetimepicker/lib/Day');
+var Month               = require('@prometheusresearch/react-datetimepicker/lib/Month');
 
 var Style = {
   datepicker: {

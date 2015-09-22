@@ -2,10 +2,10 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes}     from 'react';
-import RexWidget              from 'rex-widget';
-import {VBox}                 from 'rex-widget/lib/Layout';
-import {renderTitle, getIcon} from '../actions';
+import React, {PropTypes}               from 'react';
+import RexWidget                        from 'rex-widget';
+import {VBox}                           from 'rex-widget/lib/Layout';
+import {renderTitle, getIcon, getTitle} from '../actions';
 
 let {
   linearGradient, rgba, rgb, border, borderStyle
@@ -74,7 +74,7 @@ export default class ActionButton extends React.Component {
   };
 
   render() {
-    let {position, active, hover, align, style: extraStyle, ...props} = this.props;
+    let {position, showContext, active, hover, align, style: extraStyle, ...props} = this.props;
     let alignLeft = align === 'left';
     let style = {
       ...Style.self,
@@ -84,6 +84,9 @@ export default class ActionButton extends React.Component {
       flexDirection: alignLeft ? 'row' : 'row-reverse',
       ...extraStyle
     };
+    let title = showContext ?
+      renderTitle(position) :
+      getTitle(position.element);
     let icon = getIcon(position.element);
     return (
       <HBox {...props} style={style} alignItems="right" onClick={this.onClick}>
@@ -93,7 +96,7 @@ export default class ActionButton extends React.Component {
             style={Style.icon}
             />}
         <VBox size={1}>
-          {renderTitle(position)}
+          {title}
         </VBox>
       </HBox>
     );

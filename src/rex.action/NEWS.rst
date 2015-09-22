@@ -4,6 +4,15 @@
 
 .. contents:: Table of Contents
 
+0.5.0 (2015-XX-XX)
+==================
+
+* New "single-page" layout for wizards.
+
+* New API for context modification.
+
+* Internal refactoring
+
 0.4.0 (2015-09-03)
 ==================
 

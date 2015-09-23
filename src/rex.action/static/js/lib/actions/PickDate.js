@@ -10,7 +10,7 @@ var Action              = require('../Action');
 var {command, Types}    = require('../ActionCommand');
 
 var moment              = require('moment');
-var Datepicker          = require('@prometheusresearch/react-datetimepicker/lib/DatePicker');
+var DatePicker          = require('@prometheusresearch/react-datetimepicker/lib/DatePicker');
 var Day                 = require('@prometheusresearch/react-datetimepicker/lib/Day');
 var Month               = require('@prometheusresearch/react-datetimepicker/lib/Month');
 
@@ -67,7 +67,7 @@ var PickDate = React.createClass({
     this.__annotateYearQueryIndex = buildIndex(this.data.annotateYearQuery.data);
     return (
       <Action title={title} onClose={onClose} width={width}>
-        <Datepicker
+        <DatePicker
           style={{...Style.datepicker, height: this.props.width}}
           renderDay={this.renderDay}
           renderMonth={this.renderMonth}

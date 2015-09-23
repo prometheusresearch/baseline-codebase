@@ -45,6 +45,7 @@ function renderObject(template, context) {
       }
     }
   }
+  return rendered;
 }
 
 function renderArray(template, context) {

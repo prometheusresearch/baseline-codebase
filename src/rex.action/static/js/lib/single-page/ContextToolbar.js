@@ -30,7 +30,9 @@ export default class ContextToolbar extends React.Component {
           borderTop: '1px solid #f1f1f1',
         },
         hover: {
+          textDecoration: 'none',
           background: '#f1f1f1',
+          color: '#444',
         }
       }
     }

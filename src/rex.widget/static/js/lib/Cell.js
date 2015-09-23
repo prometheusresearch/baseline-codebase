@@ -34,7 +34,7 @@ class CellHistory {
   registerCell(param, cell, prevCell) {
     invariant(
       this._paramToCell[param] === prevCell,
-      'cell with param %s already exists'
+      'cell with param %s already exists', param
     );
     this._paramToCell[param] = cell;
   }

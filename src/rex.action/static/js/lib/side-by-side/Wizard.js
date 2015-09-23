@@ -170,6 +170,9 @@ export default class Wizard extends Component {
   }
 
   _pushExecutionToPath(execution) {
+    if (this.props.disableHistory) {
+      return;
+    }
     let path = ExecutionPath.toPath(execution);
     if (this._pushedPath !== path) {
       this._pushedPath = path;

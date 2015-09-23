@@ -3,14 +3,16 @@
  */
 'use strict';
 
-import React       from 'react';
-import cx          from 'classnames';
-import {Box, HBox} from '../Layout';
-import Button      from '../Button';
-import File        from '../File';
-import StoredFile  from '../StoredFile';
-import resolveURL  from '../resolveURL';
-import Field       from './Field';
+import React          from 'react';
+import cx             from 'classnames';
+import {Box, HBox}    from '../Layout';
+import Button         from '../Button';
+import File           from '../File';
+import StoredFile     from '../StoredFile';
+import resolveURL     from '../resolveURL';
+import FileDownload   from '../FileDownload';
+import Field          from './Field';
+import ReadOnlyField  from './ReadOnlyField';
 
 function uploadFile(url, file, onProgress) {
   url = resolveURL(url);
@@ -154,67 +156,77 @@ var FileUploadInput = React.createClass({
 });
 
 /**
- * FileUploadField component.
- *
- * @ask-andrey
+ * Form field which handle uploading files.
  *
  * @public
  */
-var FileUploadField = React.createClass({
+export default class FileUploadField extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
-     * css class name used to render the field.
+     * CSS class name used to render the field.
      */
     className: React.PropTypes.string,
     
     /**
      * The URL to upload the file to.
+     *
+     * See rex.file docs for details.
      */
     storage: React.PropTypes.string,
     
     /**
-     * @ask-andrey
+     * The URL which is used to download files from storage.
+     *
+     * See rex.file docs for details.
      */
     download: React.PropTypes.string,
     
     /**
-     * @ask-andrey
-     */
-    required: React.PropTypes.bool,
-    
-    /**
-     * @ask-andrey
-     */
-    value: React.PropTypes.object,
-    
-    /**
-     * @ask-andrey
+     * Form value.
      */
     formValue: React.PropTypes.object
-  },
+  }
 
   render() {
-    var {className, storage, download, required, value, ...props} = this.props;
-    var input = (
-      <FileUploadInput
-        ownerRecordID={this._getOwnerRecordID()}
-        storage={storage}
-        download={download}
-        required={required}
-        />
-    );
-    return (
-      <Field {...props} className={cx('rw-FileUploadField', className)}>
-        {input}
-      </Field>
-    );
-  },
+    let {
+      className, storage, download, readOnly,
+      formValue, ...props
+    } = this.props;
+    if (!readOnly) {
+      let required = formValue.schema && formValue.schema.required;
+      let input = (
+        <FileUploadInput
+          ownerRecordID={this._getOwnerRecordID()}
+          storage={storage}
+          download={download}
+          required={required}
+          />
+      );
+      return (
+        <Field
+          {...props}
+          formValue={formValue}
+          className={cx('rw-FileUploadField', className)}>
+          {input}
+        </Field>
+      );
+    } else {
+      console.log(formValue.value);
+      return (
+        <ReadOnlyField {...props} formValue={formValue}>
+          <FileDownload
+            file={formValue.value}
+            ownerRecordID={this._getOwnerRecordID()}
+            download={download}
+            />
+        </ReadOnlyField>
+      );
+    }
+  }
 
   _getOwnerRecordID() {
     var record = this.props.formValue.parent.value;
     return record ? record.id : undefined;
   }
-});
-
-export default FileUploadField;
+}

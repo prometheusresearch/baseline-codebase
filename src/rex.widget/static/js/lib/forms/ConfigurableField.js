@@ -20,7 +20,7 @@ var RepeatingFieldset = require('./RepeatingFieldset');
 var FileUploadField   = require('./FileUploadField')
 
 
-var FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum'];
+var FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum', 'file'];
 
 /**
  * ConfigurableField component.
@@ -151,6 +151,7 @@ var ConfigurableField = React.createClass({
             formValue={formValue}
             storage={field.storage}
             download={field.download}
+            readOnly={readOnly}
             />
         );
       case 'enum':

@@ -80,7 +80,7 @@ class EntityAction(Action):
     def bind_port(self):
         return {}
 
-    def create_port(self, fields=None, filters=None):
+    def create_port(self, fields=None, filters=None, mask=None):
         """ Create a port for action.
 
         The result of this method is cached as ``self.port`` property.
@@ -99,6 +99,7 @@ class EntityAction(Action):
         port = formfield.to_port(
             self.entity.type.name, fields,
             filters=filters,
+            mask=mask,
             db=self.db)
         return annotate_port(self.domain, port)
 

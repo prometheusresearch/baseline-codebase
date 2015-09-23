@@ -91,24 +91,28 @@ class Pick(EntityAction):
 
     def create_port(self):
         filters = []
+        mask = None
 
         if self.search:
             filters.append('__search__($search) := %s' % self.search)
 
         if self.mask:
-            mask_args = ', '.join('$%s' % k for k in self.input.rows.keys())
-            filters.append('__mask__(%s) := %s' % (mask_args or '$_', self.mask))
+            if self.input.rows:
+                mask_args = ', '.join('$%s' % k for k in self.input.rows.keys())
+                filters.append('__mask__(%s) := %s' % (mask_args, self.mask))
+            else:
+                mask = self.mask
 
         if self.entity.type.state:
             filters.append('__state__($_) := %s' % self.entity.type.state.expression)
 
-        return super(Pick, self).create_port(filters=filters)
+        return super(Pick, self).create_port(filters=filters, mask=mask)
 
     def bind_port(self):
         bindings = {}
         if self.search:
             bindings['*:__search__'] = dataspec.StateBinding('search')
-        if self.mask:
+        if self.mask and self.input.rows:
             bindings['*:__mask__'] = ContextBinding(self.input.rows.keys(), is_join=False)
         if self.entity.type.state:
             bindings['*:__state__'] = '_'

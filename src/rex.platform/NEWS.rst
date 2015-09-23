@@ -8,13 +8,17 @@
 4.9.0 (2015-xx-xx)
 ==================
 
+* rex.action==0.5.0
 * rex.ctl==2.0.2
+* rex.deploy==2.3.3
 * rex.instrument==1.0.0
 * rex.i18n==0.4.4
 * rex.forms==1.0.0
 * rex.logging==1.0.0
 * rex.restful==1.0.0
+* rex.setup==3.1.1
 * rex.urlmap==2.6.2
+* rex.widget==1.2.0
 
 
 4.8.0 (2015-09-03)

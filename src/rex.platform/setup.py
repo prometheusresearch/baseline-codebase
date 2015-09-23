@@ -29,7 +29,7 @@ setup(
         'rex.core==1.11.2',
         'rex.ctl==2.0.2',
         'rex.db==3.3.1',
-        'rex.deploy==2.3.2',
+        'rex.deploy==2.3.3',
         'rex.expression==1.5.2',
         'rex.forms==1.0.0',
         'rex.i18n==0.4.4',

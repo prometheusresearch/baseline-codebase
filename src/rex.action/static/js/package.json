@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@prometheusresearch/react-box": "^0.1.0",
-    "@prometheusresearch/react-datetimepicker": "^0.1.0",
+    "@prometheusresearch/react-datetimepicker": "^0.1.1",
     "@prometheusresearch/react-stylesheet": "^0.2.0",
     "autobind-decorator": "^1.2.0",
     "escape-regexp": "0.0.1",

@@ -31,6 +31,7 @@ setup(
         'transit-python         == 0.8.250',
         'cached-property        >= 1,     < 2',
         'docutils               >= 0.12,  < 0.13',
+        'werkzeug               >= 0.10.4, < 0.11',
     ],
     rex_init='rex.widget',
     rex_static='static',

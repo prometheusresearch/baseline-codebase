@@ -98,8 +98,6 @@ class Model(Extension):
         # Alters the entity state.
         old = self.state()
         new = old.__clone__(**kwds)
-        if old == new:
-            return
         # Notify the dependent entities.
         dependents = self.dependents()
         signal = Signal(before=True, modify=True)
@@ -204,6 +202,16 @@ class ModelSchema(object):
         if candidates:
             [ModelClass] = candidates
             return ModelClass(self, image)
+
+    def tables(self):
+        tables = []
+        for table_image in self.image.tables:
+            if u'id' not in table_image:
+                continue
+            table = self(table_image)
+            if table:
+                tables.append(table)
+        return tables
 
     def table(self, label):
         return TableModel.find(self, label)

@@ -9,6 +9,7 @@
 ==================
 
 * Populate ``column.has_default`` for HTSQL catalog.
+* Fixed missing schema updates when configuration does not change.
 
 
 2.3.2 (2015-06-12)

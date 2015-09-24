@@ -1075,6 +1075,13 @@ class IdentityModel(Model):
             source = self._generate(self.table.image, self.generators)
             if source:
                 self.procedure_image.alter_source(source)
+        # If a generated column changed its type, drop the generator.
+        if (signal.after_modify and master in self.fields and
+                master.is_column and old.type != new.type):
+            index = self.fields.index(master)
+            if self.generators[index] is not None:
+                self.modify(generators=None)
+
         # After the constraint is delete, clear the trigger and the procedure.
         if signal.after_erase:
             if self.trigger_image:

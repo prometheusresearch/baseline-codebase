@@ -2,8 +2,9 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind       from 'autobind-decorator';
-import createHistory  from 'history/lib/createHashHistory';
+import autobind         from 'autobind-decorator';
+import {createLocation} from 'history';
+import createHistory    from 'history/lib/createHashHistory';
 
 export default function HistoryAware(Component) {
 
@@ -14,12 +15,16 @@ export default function HistoryAware(Component) {
     constructor(props) {
       super(props);
 
-      this._history = createHistory();
+      this._history = null;
       this._stopListening = null;
 
       this.state = {
-        location: null
+        location: props.disableHistory ? createLocation('/') : null
       };
+
+      if (!props.disableHistory) {
+        this._history = createHistory();
+      }
     }
 
     render() {
@@ -33,15 +38,19 @@ export default function HistoryAware(Component) {
     }
 
     componentDidMount() {
-      this._stopListening = this._history.listen(this._onLocation);
+      if (!this.props.disableHistory) {
+        this._stopListening = this._history.listen(this._onLocation);
+      }
     }
 
     componentWillUnmount() {
-      if (this._stopListening) {
-        this._stopListening();
+      if (!this.props.disableHistory) {
+        if (this._stopListening) {
+          this._stopListening();
+        }
+        this._history = null;
+        this._stopListening = null;
       }
-      this._history = null;
-      this._stopListening = null;
     }
 
     @autobind

@@ -63,14 +63,25 @@ export default class Wizard extends Component {
   constructor(props) {
     super(props);
     this._pushedPath = null;
+    let execution = null;
+    let metrics = {
+      size: null,
+      focus: null,
+      translateX: 0,
+      visiblePosition: []
+    };
+    if (props.disableHistory) {
+      execution = ExecutionPath.fromPath(
+        props.location.pathname,
+        props.actions,
+        props.path,
+        props.initialContext // initialContext can't be changed
+      );
+      metrics = {...metrics, focus: execution.trace[1].keyPath};
+    }
     this.state = {
-      execution: null,
-      metrics: {
-        size: null,
-        focus: null,
-        translateX: 0,
-        visiblePosition: []
-      }
+      execution,
+      metrics
     };
   }
 
@@ -204,7 +215,7 @@ export default class Wizard extends Component {
     if (state.execution.position.keyPath !== position.keyPath) {
       let nextActionIdx = state.execution.indexOf(position.keyPath) + 1;
       let nextAction = state.execution.trace[nextActionIdx].keyPath;
-      state = this.close(nextAction)(state);
+      state = this._close(nextAction)(state);
     }
     let execution = Execution.executeCommandAtCurrentPosition(
         state.execution,
@@ -228,6 +239,7 @@ export default class Wizard extends Component {
     state = {...state, execution};
     state = this.updateMetrics()(state);
     state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
+    this._pushExecutionToPath(state.execution);
     return state;
   }
 
@@ -263,11 +275,19 @@ export default class Wizard extends Component {
     return {...state, metrics};
   }
 
+  @Component.command
+  close(state, action) {
+    state = this._close(action)(state);
+    this._pushExecutionToPath(state.execution);
+    return state;
+  }
+
+
   /**
    * Close panel with the given action.
    */
   @Component.command
-  close(state, action) {
+  _close(state, action) {
     let execution = Execution.close(state.execution, action);
     state = {...state, execution};
     state = this.focus(execution.position.keyPath)(state);

@@ -7,6 +7,7 @@ import invariant          from 'invariant';
 import * as Instruction   from './Instruction';
 import * as Typing        from './Typing';
 import * as ActionCommand from './ActionCommand';
+import * as Entity        from './Entity';
 
 export const DEFAULT_INITIAL_CONTEXT = {
   USER: __REX_USER__ === null ? null : "'" + __REX_USER__ + "'"
@@ -81,8 +82,9 @@ export class Position {
   @memoize
   get key() {
     return Object
-      .keys(this.contextTypes.input)
+      .keys(this.contextTypes.input.rows)
       .map(k => this.context[k])
+      .map(v => Entity.isEntity(v) ? v.id : v)
       .join('__') + '__' + this.action + '__' + this.index;
   }
 

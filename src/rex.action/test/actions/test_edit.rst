@@ -25,28 +25,14 @@ In case fields are not specified, they are generated from port::
   ... entity: individual
   ... """)
 
-  >>> edit # doctest: +NORMALIZE_WHITESPACE
-
+  >>> edit # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Edit(icon=undefined,
        width=undefined,
        id='edit-individual',
        title=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        db=None,
-       fields=[StringFormField(value_key=['code'], required=True, label='Code'),
-               EnumFormField(value_key=['sex'], label='Sex',
-                             options=[Record(value='not-known', label='Not Known'),
-                                      Record(value='male', label='Male'),
-                                      Record(value='female', label='Female'),
-                                      Record(value='not-applicable', label='Not Applicable')]),
-               EntityFormField(value_key=['mother'], label='Mother',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['father'], label='Father',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['adopted_mother'], label='Adopted Mother',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['adopted_father'], label='Adopted Father',
-                               data=Record(entity='individual', title='id()', mask=None))],
+       fields=[...],
        query=None,
        value={},
        input=RecordType(rows={}, open=True),
@@ -92,13 +78,12 @@ You can also specify fields and see port generated from them::
   ... """)
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
-  Edit(icon=undefined, 
+  Edit(icon=undefined,
        width=undefined,
        id='edit-individual',
        title=undefined,
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       db=None,
-       fields=[StringFormField(value_key=['code'], required=True, label='Code')],
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),       db=None,
+       fields=[StringFormField(value_key=['code'], label='Code')],
        query=None,
        value={},
        input=RecordType(rows={}, open=True),

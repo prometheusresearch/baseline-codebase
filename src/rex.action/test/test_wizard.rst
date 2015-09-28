@@ -9,6 +9,7 @@ Wizard
 
 ::
 
+  >>> from rex.action import setting
   >>> from rex.action.action import Action
   >>> from rex.action.typing import EntityType
 
@@ -58,7 +59,8 @@ Wizard
          initial_context=None,
          states=None,
          actions={'second': AnotherAction(icon=undefined, width=undefined, id='second', title=undefined),
-                  'first': MyAction(icon=undefined, width=undefined, id='first', title=undefined)})
+                  'first': MyAction(icon=undefined, width=undefined, id='first', title=undefined)},
+         breadcrumb=None)
 
 ::
 
@@ -75,7 +77,8 @@ Wizard
          initial_context=None,
          states=None,
          actions={'second': AnotherAction(icon=undefined, width=undefined, id='second', title=undefined),
-                  'first': MyAction(icon=undefined, width=undefined, id='first', title=undefined)})
+                  'first': MyAction(icon=undefined, width=undefined, id='first', title=undefined)},
+         breadcrumb=None)
 
 
 ::
@@ -89,18 +92,8 @@ Wizard
   ... """)
 
   >>> from rex.widget import encode
-  >>> encode(w, None) # doctest: +NORMALIZE_WHITESPACE
-  u'["~#widget",
-    ["rex-action/lib/Wizard",
-      {"path": ["~#rex:action:start", [[["~#rex:action:execute", ["first", []]]]]],
-      "actions":
-        {"first": ["^0", [null, {"width": ["~#undefined", []],
-                                 "contextTypes": {"input": ["~#type:record", [{}, true]],
-                                                  "output": ["^:", [{}, true]]},
-                                 "icon": ["^7", []],
-                                 "id": "first",
-                                 "title": ["^7", []]}]]},
-      "initialContext": null}]]'
+  >>> encode(w, None) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  u'["~#widget", ["rex-action/lib/side-by-side/Wizard", ...]]'
 
 ::
 
@@ -116,7 +109,8 @@ Wizard
   Wizard(path=Start(then=[Execute(action='first', then=[])]),
          initial_context={'x': 'value'},
          states=None,
-         actions={'first': RequireX(icon=undefined, width=undefined, id='first', title=undefined)})
+         actions={'first': RequireX(icon=undefined, width=undefined, id='first', title=undefined)},
+         breadcrumb=None)
 
 ::
 

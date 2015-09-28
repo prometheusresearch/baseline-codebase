@@ -25,28 +25,15 @@ In case fields are not specified, they are generated from port::
   ... entity: individual
   ... """)
 
-  >>> view # doctest: +NORMALIZE_WHITESPACE
+  >>> view # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   View(icon=undefined,
-       width=undefined,
-       id='view-individual',
-       title=undefined,
-       input=RecordType(rows={}, open=True),
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       db=None,
-       fields=[StringFormField(value_key=['code'], required=True, label='Code'),
-               EnumFormField(value_key=['sex'], label='Sex',
-                             options=[Record(value='not-known', label='Not Known'),
-                                      Record(value='male', label='Male'),
-                                      Record(value='female', label='Female'),
-                                      Record(value='not-applicable', label='Not Applicable')]),
-               EntityFormField(value_key=['mother'], label='Mother',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['father'], label='Father',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['adopted_mother'], label='Adopted Mother',
-                               data=Record(entity='individual', title='id()', mask=None)),
-               EntityFormField(value_key=['adopted_father'], label='Adopted Father',
-                               data=Record(entity='individual', title='id()', mask=None))])
+        width=undefined,
+        id='view-individual',
+        title=undefined,
+        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
+        db=None,
+        fields=[...],
+        input=RecordType(rows={}, open=True))
 
   >>> input, output = view.context_types
 
@@ -62,6 +49,9 @@ In case fields are not specified, they are generated from port::
   Port('''
   entity: individual
   select: [code, sex, mother, father, adopted_mother, adopted_father]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
   >>> print render_widget(view, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
@@ -69,7 +59,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/View",
+  ["~#widget", ["rex-action/lib/actions/View",
                 {..., {"*": ["~#contextbinding", [["individual"], true]]}]]}]]
 
   >>> print render_widget(view, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
@@ -99,15 +89,18 @@ You can also specify fields and see port generated from them::
        width=undefined,
        id='view-individual',
        title=undefined,
-       input=RecordType(rows={}, open=True),
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        db=None,
-       fields=[StringFormField(value_key=['code'], required=True, label='Code')])
+       fields=[StringFormField(value_key=['code'], label='Code')],
+       input=RecordType(rows={}, open=True))
 
   >>> view.port
   Port('''
   entity: individual
   select: [code]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
 You can specify view action for entities which have custom labels within the
@@ -126,15 +119,18 @@ context::
        width=undefined,
        id='view-mother',
        title=undefined,
-       input=RecordType(rows={}, open=True),
-       entity=RowType(name='mother', type=EntityType(name='individual', state=None)),
+       entity=RowType(name='mother', type=EntityType(name='individual', state=None)), 
        db=None,
-       fields=[StringFormField(value_key=['code'], required=True, label='Code')])
+       fields=[StringFormField(value_key=['code'], label='Code')],
+       input=RecordType(rows={}, open=True))
 
   >>> view.port
   Port('''
   entity: individual
   select: [code]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
   ''')
 
 Cleanup

@@ -87,14 +87,14 @@ You can also specify fields and see port generated from them::
   >>> make # doctest: +NORMALIZE_WHITESPACE
   Make(icon=undefined,
        width=undefined,
-       id='make-individual', 
-       title=undefined, 
+       id='make-individual',
+       title=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       db=None, 
-       fields=[StringFormField(value_key=['code'], required=True, label='Code')], 
-       query=None, 
+       db=None,
+       fields=[StringFormField(value_key=['code'], label='Code')],
+       query=None,
        value={}, 
-       input=RecordType(rows={}, open=True), 
+       input=RecordType(rows={}, open=True),
        submit_button=undefined)
 
   >>> make.port

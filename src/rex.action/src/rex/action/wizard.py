@@ -136,7 +136,8 @@ class SideBySideWizard(WizardBase):
         super(SideBySideWizard, self).__init__(**values)
         if self.breadcrumb is None:
             settings = get_settings()
-            self.values['breadcrumb'] = settings.rex_action.side_by_side.breadcrumb
+            if hasattr(settings, 'rex_action'):
+                self.values['breadcrumb'] = settings.rex_action.side_by_side.breadcrumb
 
 
 class Wizard(SideBySideWizard):

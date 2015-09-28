@@ -46,7 +46,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/Page", ...]]
+  ["~#widget", ["rex-action/lib/actions/Page", ...]]
 
 Cleanup
 -------

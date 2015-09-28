@@ -25,21 +25,13 @@ In case fields are not specified, they are generated from port::
   ... entity: individual
   ... """)
 
-  >>> pick.fields # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label='Code'),
-   EnumFormField(value_key=['sex'], label='Sex',
-                 options=[Record(value='not-known', label='Not Known'),
-                         Record(value='male', label='Male'),
-                         Record(value='female', label='Female'),
-                         Record(value='not-applicable', label='Not Applicable')]),
-   EntityFormField(value_key=['mother'], label='Mother',
-                   data=Record(entity='individual', title='id()', mask=None)),
-   EntityFormField(value_key=['father'], label='Father',
-                   data=Record(entity='individual', title='id()', mask=None)),
-   EntityFormField(value_key=['adopted_mother'], label='Adopted Mother',
-                   data=Record(entity='individual', title='id()', mask=None)),
-   EntityFormField(value_key=['adopted_father'], label='Adopted Father',
-                   data=Record(entity='individual', title='id()', mask=None))]
+  >>> pick.fields # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  [StringFormField(value_key=['code'], label='Code'),
+   EnumFormField(value_key=['sex'], label='Sex', options=[...]),
+   EntityFormField(value_key=['mother'], ...),
+   EntityFormField(value_key=['father'], ...),
+   EntityFormField(value_key=['adopted_mother'], ...),
+   EntityFormField(value_key=['adopted_father'], ...)]
 
   >>> input, output = pick.context_types
 
@@ -64,7 +56,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/Pick",
+  ["~#widget", ["rex-action/lib/actions/Pick",
                 {...  ["http://localhost/?__to__=1.data"]], {}]]}]]
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
@@ -97,7 +89,7 @@ var to this filter::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/Pick",
+  ["~#widget", ["rex-action/lib/actions/Pick",
                 {... {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
 
   >>> pick.port
@@ -119,7 +111,7 @@ var to this filter::
   Content-Length: ...
   <BLANKLINE>
   {
-    "individual": []
+    "individual": [...]
   }
   <BLANKLINE>
 
@@ -136,7 +128,7 @@ If we provide ``mask`` HTSQL expression it is compiled into port's filter::
   >>> pick.port
   Port('''
   entity: individual
-  filters: ['__mask__($_) := sex=''male''']
+  mask: sex='male'
   select: [code, sex, mother, father, adopted_mother, adopted_father]
   with:
   - calculation: meta:type
@@ -161,7 +153,7 @@ to those input variables::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/Actions/Pick",
+  ["~#widget", ["rex-action/lib/actions/Pick",
                 {...  {"*:__mask__": ["~#contextbinding", [["individual"], false]]}]]}]]
 
   >>> pick.port # doctest: +NORMALIZE_WHITESPACE

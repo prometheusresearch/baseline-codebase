@@ -47,6 +47,11 @@ class Pick(EntityAction):
         StrVal(), default=None,
         doc="""
         HTSQL expression which is used to search for a term.
+
+        For full text search ``ft_query_matches`` HTSQL function could be used::
+
+            search: ft_query_matches(full_name,$search)
+
         """)
 
     mask = Field(

@@ -46,7 +46,11 @@ class FormAction(EntityAction):
 
     def __init__(self, **values):
         super(FormAction, self).__init__(**values)
-        self.values['use_query'] = self.query is not None
+        # XXX: This is hack to ensure we are b/c with actions which are
+        #      subclasses of Edit, Make and so on. Remove it when we fix those
+        #      usage sites.
+        if 'use_query' not in self.values:
+            self.values['use_query'] = self.query is not None
 
     @cached_property
     def _complete_fields(self):

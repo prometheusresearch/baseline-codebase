@@ -283,7 +283,7 @@ Generating a fieldset from port definition
   >>> rex.on()
 
   >>> from_port(Port("individual")) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label='Code'),
+  [StringFormField(value_key=['code'], label='Code'),
    EnumFormField(value_key=['sex'], label='Sex',
                  options=[Record(value='not-known', label='Not Known'),
                           Record(value='male', label='Male'),
@@ -302,7 +302,7 @@ Generating a fieldset from port definition
   ... entity: individual
   ... select: [id, code]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label='Code')]
+  [StringFormField(value_key=['code'], label='Code')]
 
   >>> from_port(Port("""
   ... entity: individual
@@ -311,8 +311,9 @@ Generating a fieldset from port definition
   ... - entity: identity
   ...   select: [id, givenname]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label='Code'),
-   Fieldset(value_key=['identity'], label='Identity',
+  [StringFormField(value_key=['code'], label='Code'),
+   Fieldset(value_key=['identity'],
+            label='Identity',
             fields=[StringFormField(value_key=['givenname'], label='Givenname')])]
 
   >>> from_port(Port("""
@@ -322,7 +323,7 @@ Generating a fieldset from port definition
   ... - calculation: example
   ...   expression: code + code
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label='Code'),
+  [StringFormField(value_key=['code'], label='Code'),
    CalculatedFormField(value_key=['example'], label='Example', expression='code+code')]
 
 DatetimeFormField
@@ -372,7 +373,7 @@ Enrich field from port
   ... - code
   ... - sex
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label='Code'),
+  [StringFormField(value_key=['code'], label='Code'),
    EnumFormField(value_key=['sex'], label='Sex',
                  options=[Record(value='not-known', label='Not Known'),
                           Record(value='male', label='Male'),
@@ -383,7 +384,7 @@ Enrich field from port
   ... - code
   ... - identity.givenname
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label='Code'),
+  [StringFormField(value_key=['code'], label='Code'),
    StringFormField(value_key=['identity', 'givenname'], label='Givenname')]
 
   >>> fields = test_enrich('individual', """
@@ -392,7 +393,7 @@ Enrich field from port
   ... """)
 
   >>> fields # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label='Code'),
+  [StringFormField(value_key=['code'], label='Code'),
    EntityFormField(value_key=['mother'], label='Mother', data=Record(entity='individual', title='id()', mask=None))]
 
   >>> fields[1].query_port
@@ -885,7 +886,7 @@ Working with YAML API::
 
   >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
   [FormRow(size=undefined,
-           fields=[StringFormField(value_key=['code'], required=True, label='Code')],
+           fields=[StringFormField(value_key=['code'], label='Code')],
            select_form_value=True)]
 
   >>> fs = parse("""
@@ -907,7 +908,7 @@ Working with YAML API::
 
   >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
   [FormColumn(size=undefined,
-              fields=[StringFormField(value_key=['code'], required=True, label='Code')],
+              fields=[StringFormField(value_key=['code'], label='Code')],
               select_form_value=True)]
 
   >>> fs = parse("""
@@ -930,7 +931,6 @@ Working with YAML API::
   [FormColumn(size=undefined,
               fields=[FormRow(size=undefined,
                               fields=[StringFormField(value_key=['code'],
-                                      required=True,
                                       label='Code')],
                               select_form_value=True)],
               select_form_value=True)]

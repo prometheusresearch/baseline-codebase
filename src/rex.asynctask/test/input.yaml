@@ -11,29 +11,29 @@ tests:
 
   # Monkeypatching multiprocessing to work with coverage.py
   # Adapted from: https://bitbucket.org/ned/coveragepy/src/f84263e515c2eecc6500c91eafd8aca62c96720f/coverage/monkey.py
-  - py: |
-      import multiprocessing
-      import multiprocessing.process
-      import sys
-      if sys.version_info >= (3, 4):
-          klass = multiprocessing.process.BaseProcess
-      else:
-          klass = multiprocessing.Process
-      original_bootstrap = klass._bootstrap
-      class ProcessWithCoverage(klass):
-          def _bootstrap(self):
-              from coverage import coverage
-              cov = coverage(data_suffix=True, auto_data=True, config_file='setup.cfg')
-              cov.start()
-              try:
-                  return original_bootstrap(self)
-              finally:
-                  cov.stop()
-                  cov.save()
-      if sys.version_info >= (3, 4):
-          klass._bootstrap = ProcessWithCoverage._bootstrap
-      else:
-          multiprocessing.Process = ProcessWithCoverage
+  #  - py: |
+  #      import multiprocessing
+  #      import multiprocessing.process
+  #      import sys
+  #      if sys.version_info >= (3, 4):
+  #          klass = multiprocessing.process.BaseProcess
+  #      else:
+  #          klass = multiprocessing.Process
+  #      original_bootstrap = klass._bootstrap
+  #      class ProcessWithCoverage(klass):
+  #          def _bootstrap(self):
+  #              from coverage import coverage
+  #              cov = coverage(data_suffix=True, auto_data=True, config_file='setup.cfg')
+  #              cov.start()
+  #              try:
+  #                  return original_bootstrap(self)
+  #              finally:
+  #                  cov.stop()
+  #                  cov.save()
+  #      if sys.version_info >= (3, 4):
+  #          klass._bootstrap = ProcessWithCoverage._bootstrap
+  #      else:
+  #          multiprocessing.Process = ProcessWithCoverage
   # End Monkeypatching
 
   - sh: pip install --quiet --editable ./demo

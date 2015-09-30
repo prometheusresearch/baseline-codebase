@@ -5,7 +5,7 @@ REX.MOBILE Change Log
 .. contents:: Table of Contents
 
 
-0.3.0 (2015-xx-xx)
+0.3.0 (2015-09-30)
 ==================
 
 * Updated prismh.core and rex.instrument dependencies.

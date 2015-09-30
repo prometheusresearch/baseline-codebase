@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.1.1 (XXXX-XX-XX)
+3.1.1 (2015-09-30)
 ==================
 
 * Bump webpack version. Allows to use ``WatchIgnorePlugin``.

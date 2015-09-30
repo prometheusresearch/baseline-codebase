@@ -2,10 +2,26 @@
   Change Log
 **************
 
+1.2.0 (2015-09-30)
+==================
+
+* Form field ``file`` now has read only mode.
+
+* Min/max validators for datepicker.
+
+* Fixes to datetimepicker and datepicker.
+
+* Fixes to autocomplete widget.
+
+1.1.1 (2015-09-03)
+==================
+
+* Various bug fixes.
 
 1.1.0 (2015-09-03)
 ==================
 
+* New styles for buttons.
 
 1.0.3 (2015-07-23)
 ==================

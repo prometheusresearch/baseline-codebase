@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.0.2 (2015-XX-XX)
+2.0.2 (2015-09-30)
 ==================
 
 * ``rex pyshell`` enchancements: fixed the name of the application variable;

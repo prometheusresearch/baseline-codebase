@@ -115,7 +115,7 @@ class RexTask(Task):
             A package name.  We verify that the application contains
             the specified package.  If unset, assume the package in
             which the task is defined.  To disable the check, set
-            `require` to ``False``.
+            `ensure` to ``False``.
         """
         # Form the list of requirements.
         requirements = []

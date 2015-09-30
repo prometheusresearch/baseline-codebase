@@ -4,14 +4,18 @@
 
 .. contents:: Table of Contents
 
-0.5.0 (2015-XX-XX)
+0.5.0 (2015-09-30)
 ==================
 
-* New "single-page" layout for wizards.
+* New "single-page" layout for wizards (experimental).
 
 * New API for context modification.
 
-* Internal refactoring
+* Configurable breadcrumb for side by side wizard.
+
+* Form fields of type ``entity`` now can refernce context in its mask.
+
+* Internal refactoring.
 
 0.4.0 (2015-09-03)
 ==================

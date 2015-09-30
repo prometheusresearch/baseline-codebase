@@ -410,7 +410,6 @@ For example, to limit the list of ``individual`` to ``proband`` from the
       {[1011], '1011', 'male', [1009], [1010]},
       ...)}
 
-
 The same port could be defined using shortcut notation::
 
     >>> print Port("individual?exists(participation.protocol[fos.proband])")
@@ -475,6 +474,28 @@ You can also define a calculated field for an entity::
     {({[asdl], 'Autism Spectrum Disorder Lab', 0},
       {[fos], 'Family Obesity Study', 97},
       ...)}
+
+A port may contain free parameters::
+
+    >>> individuals_by_sex_port = Port("""
+    ... - $sex := 'male'
+    ... - individual?sex=$sex
+    ... """)
+
+    >>> print individuals_by_sex_port
+    - parameter: sex
+      default: male
+    - entity: individual
+      mask: sex=$sex
+      select: [code, sex, mother, father]
+
+    >>> print individuals_by_sex_port.produce()                 # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[1001], '1001', 'male', null, null},
+      {[1003], '1003', 'male', [1000], [1001]}, ...)}
+
+    >>> print individuals_by_sex_port.produce(sex='female')     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    {({[1000], '1000', 'female', null, null},
+      {[1002], '1002', 'female', [1000], [1001]}, ...)}
 
 
 Query Interface

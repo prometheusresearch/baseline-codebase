@@ -5,8 +5,8 @@
 
 from copy import deepcopy
 
-from prismh.core import validate_form, \
-    ValidationError as PrismhValidationError
+from rios.core import validate_form, \
+    ValidationError as RiosValidationError
 from rex.core import Extension, AnyVal
 from rex.instrument import InstrumentVersion, Channel, Task
 from rex.instrument.mixins import Comparable, Displayable, Dictable, \
@@ -85,7 +85,7 @@ class Form(
 
         try:
             validate_form(configuration, instrument=instrument_definition)
-        except PrismhValidationError as exc:
+        except RiosValidationError as exc:
             msg = [
                 'The following problems were encountered when validating this'
                 ' Form:',

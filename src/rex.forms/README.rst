@@ -12,12 +12,12 @@ This package is responsible for three areas of functionality:
 
 * Defining a basic set of class interfaces for building applications that
   make use of web-based Electronic Data Capture (EDC) Forms functionality.
-* Extending the implementation of the `PRISMH`_ specification and model in the
+* Extending the implementation of the `RIOS`_ specification and model in the
   RexDB platform.
 * Providing a JavaScript library for rendering and orchestrating the Forms
   defined by this package within a web page.
 
-.. _`PRISMH`: https://prismh-specification.readthedocs.org
+.. _`RIOS`: https://rios.readthedocs.org
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is

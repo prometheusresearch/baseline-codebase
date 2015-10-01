@@ -5,6 +5,13 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+1.1.0 (2015-xx-xx)
+==================
+
+* Updated all references of PRISMH to RIOS (including changing the dependency
+  to rios.core).
+
+
 1.0.0 (2015-09-30)
 ==================
 

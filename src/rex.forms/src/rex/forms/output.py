@@ -3,7 +3,7 @@
 #
 
 
-from prismh.core import get_form_yaml, get_form_json
+from rios.core import get_form_yaml, get_form_json
 
 
 __all__ = (

@@ -2,11 +2,11 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React   from 'react';
-import Modal   from './Modal';
-import Button  from './Button';
-import Layout  from './Layout';
-import Cell    from './Cell';
+import React        from 'react';
+import Modal        from './Modal';
+import Button       from './Button';
+import * as Layout  from './Layout';
+import Cell         from './Cell';
 
 /**
  * Renders a <VBox> with a <Button> and a <Modal>.

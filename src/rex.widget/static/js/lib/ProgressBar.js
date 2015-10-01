@@ -3,12 +3,14 @@
  */
 
 import React, {PropTypes} from 'react';
-import Style              from './ProgressBar.module.css';
+import Stylesheet         from '@prometheusresearch/react-stylesheet';
 import {Box}              from './Layout';
+import {rgb}              from './StyleUtils';
 
 /**
- * Renders a <Box> with a progress indicator.
+ * Progress bar component.
  */
+@Stylesheet
 export default class ProgressBar extends React.Component {
 
   static propTypes = {
@@ -19,7 +21,7 @@ export default class ProgressBar extends React.Component {
     progress: PropTypes.number,
 
     /**
-     * CSS style
+     * CSS style.
      */
     style: PropTypes.object,
   };
@@ -28,12 +30,20 @@ export default class ProgressBar extends React.Component {
     progress: 0
   };
 
+  static stylesheet = {
+    Root: {
+      Component: Box,
+      height: 2,
+      background: rgb(142, 142, 226),
+    }
+  };
+
   render() {
     let {progress = 0, style, ...props} = this.props;
+    let {Root} = this.stylesheet;
     return (
-      <Box
+      <Root
         {...props}
-        className={Style.self}
         style={{...style, width: `${progress * 100}%`}}
         />
     );

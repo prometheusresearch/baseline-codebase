@@ -60,7 +60,7 @@ Set width::
   ... width: 10
   ... prop: prop
   ... """)
-  MyFormField(width=10, value_key=['a'], prop='prop')
+  MyFormField(value_key=['a'], width=10, prop='prop')
 
 Errors::
 
@@ -171,7 +171,7 @@ StringFormField::
   ... value_key: ok
   ... widget: !<TextareaField>
   ... """)
-  StringFormField(widget=TextareaField(), value_key=['ok'])
+  StringFormField(value_key=['ok'], widget=TextareaField())
 
 
   >>> v.parse("""
@@ -180,10 +180,8 @@ StringFormField::
   ... widget:
   ...   column: !<TextareaField>
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  StringFormField(widget=Record(edit=undefined,
-                                show=undefined,
-                                column=TextareaField()),
-                  value_key=['ok'])
+  StringFormField(value_key=['ok'],
+                  widget=Record(edit=undefined, show=undefined, column=TextareaField()))
 
 EnumFormField::
 
@@ -256,7 +254,7 @@ NoteFormField::
   ... """)
 
   >>> f
-  NoteFormField(widget=TextareaField(), value_key=['individual'])
+  NoteFormField(value_key=['individual'], widget=TextareaField())
 
   >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
   u'{"valueKey": ["individual"],
@@ -313,7 +311,7 @@ Generating a fieldset from port definition
   ... """)) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], label='Code'),
    Fieldset(value_key=['identity'],
-            label='Identity',
+            label=u'Identity',
             fields=[StringFormField(value_key=['givenname'], label='Givenname')])]
 
   >>> from_port(Port("""
@@ -865,7 +863,7 @@ Working with YAML API::
   ...   value_key: code
   ...   widget: !<TextareaField>
   ... """)
-  [StringFormField(widget=TextareaField(), value_key=['code'])]
+  [StringFormField(value_key=['code'], widget=TextareaField())]
 
   >>> fs = parse("""
   ... - row:

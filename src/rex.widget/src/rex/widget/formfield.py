@@ -42,6 +42,7 @@ __all__ = ('FormField', 'FormFieldVal', 'FormFieldsetVal',
 #: Form item validator
 form_layout_item_val = ProxyVal()
 
+key_path_val = KeyPathVal()
 
 class FormLayoutItem(Widget):
     """ Base class for form layout primitives."""
@@ -355,6 +356,12 @@ class FormField(Extension):
         next_values.update(values)
         return self.__class__(**next_values)
 
+    def __validated_clone__(self, **values):
+        next_values = {}
+        next_values.update(self.values)
+        next_values.update(values)
+        return self.__class__.validated(**next_values)
+
     def __merge__(self, other):
         allowed_keys = set(f[0] for f in self.__class__._default_fields + self.__class__.fields)
         next_values = {}
@@ -370,9 +377,10 @@ class FormField(Extension):
         return PropsContainer(values)
 
     def __repr__(self):
-        args = ['%s=%r' % (k, v)
-                for k, v in self.values.items()
-                if self.validator().fields[k].default != v]
+        fields = self.validator().fields.values()
+        args = ['%s=%r' % (f.name, self.values.get(f.name))
+                for f in fields
+                if f.default != self.values.get(f.name)]
         return '%s(%s)' % (self.__class__.__name__, ', '.join(args))
 
 
@@ -406,9 +414,9 @@ def enrich(fields, port, db=None):
         if not update:
             return field
         if field.label is None:
-            field = field.__clone__(label=update.label)
+            field = field.__validated_clone__(label=update.label)
         if not field.required and update.required:
-            field = field.__clone__(required=update.required)
+            field = field.__validated_clone__(required=update.required)
         if isinstance(field, StringFormField) and not isinstance(update, StringFormField):
             keys = [f[0] for f in FormField._default_fields + field.__class__.fields]
             update_keys = [f[0] for f in FormField._default_fields + update.__class__.fields]
@@ -450,12 +458,24 @@ def _from_arm(arm, db, field_val, value_key='__root__', label='Root'):
         fields = [_from_arm(v, db, field_val, value_key=k, label=_guess_label(k))
                   for k, v in arm.items()
                   if not k.startswith('meta:')]
-        return field_val({
-            'type': 'fieldset' if not arm.is_plural else 'list',
-            'value_key': value_key,
-            'label': label,
-            'fields': fields,
-        })
+        if arm.is_plural:
+            return List.validated(
+                value_key=key_path_val(value_key),
+                label=label,
+                fields=fields,
+                width=undefined,
+                read_only=False,
+                required=False,
+            )
+        else:
+            return Fieldset.validated(
+                value_key=key_path_val(value_key),
+                label=label,
+                fields=fields,
+                width=undefined,
+                read_only=False,
+                required=False,
+            )
     elif arm.kind == 'column':
         if isinstance(arm.domain, domain.EnumDomain):
             options = [{'value': l, 'label': _guess_label(l)}
@@ -599,9 +619,9 @@ def _nest(fields):
     for field in fields:
         key = field.value_key[0]
         if len(field.value_key) > 1:
-            field = field.__clone__(value_key=field.value_key[1:])
+            field = field.__validated_clone__(value_key=field.value_key[1:])
             if key in fields_by_key:
-                fields_by_key[key] = fields_by_key[key].__clone__(
+                fields_by_key[key] = fields_by_key[key].__validated_clone__(
                     fields=fields_by_key[key].fields + [field])
             else:
                 fields_by_key[key] = _form_field_val({
@@ -613,8 +633,8 @@ def _nest(fields):
             if key in fields_by_key:
                 fields_by_key[key] = fields_by_key[key].__merge__(field)
             else:
-                fields_by_key[key] = field.__clone__()
-    fields = [f.__clone__(fields=_nest(f.fields)) if isinstance(f, Fieldset) else f
+                fields_by_key[key] = field.__validated_clone__()
+    fields = [f.__validated_clone__(fields=_nest(f.fields)) if isinstance(f, Fieldset) else f
               for f in fields_by_key.values()]
     return fields
 
@@ -626,11 +646,11 @@ def _map(field, func, keypath=None):
             fields=[_map(f, func, keypath) for f in field.fields])
     field = func(field, keypath + field.value_key)
     if isinstance(field, Fieldset):
-        field = field.__clone__(
+        field = field.__validated_clone__(
             fields=[_map(f, func, keypath + field.value_key)
                     for f in field.fields])
     elif isinstance(field, List):
-        field = field.__clone__(
+        field = field.__validated_clone__(
             fields=[_map(f, func, keypath + field.value_key + ['*'])
                     for f in field.fields])
     return field

@@ -312,6 +312,7 @@ class Question extends Element {
     newElm.events = deepCopy(this.events);
     newElm.explanation = this.explanation;
     newElm.annotation = this.annotation;
+    newElm.audio = deepCopy(this.audio);
     return newElm;
   }
 }

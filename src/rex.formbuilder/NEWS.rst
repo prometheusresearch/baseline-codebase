@@ -5,6 +5,14 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.4.0 (2015-xx-xx)
+==================
+
+* Clicking outside modal dialogs no longer cancels them.
+* Fixed issue where audio help file config wasn't being cloned.
+
+
+
 5.3.0 (2015-09-30)
 ==================
 

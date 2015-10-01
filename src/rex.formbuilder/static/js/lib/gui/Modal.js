@@ -44,14 +44,6 @@ var ModalMixin = {
     }
   },
 
-  handleOverlayClick: function (event) {
-    if (this.props.canCancel
-        && (event.target === this.refs.overlay.getDOMNode())) {
-      event.preventDefault();
-      this.props.onCancel();
-    }
-  },
-
   render: function () {
     var classes = classNames({
       'rfb-modal': true,
@@ -65,9 +57,7 @@ var ModalMixin = {
 
     return (
       <div
-        className={classes}
-        ref='overlay'
-        onClick={this.handleOverlayClick}>
+        className={classes}>
         <div
           className='rfb-modal-content'>
           {content}

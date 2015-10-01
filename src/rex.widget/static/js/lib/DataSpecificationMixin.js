@@ -55,7 +55,7 @@ function _bindDataSpecs(component, props, state) {
   let dataSpecs = _getDataSpecs(component);
   let boundDataSpecs = {};
   for (let specName in dataSpecs) {
-    if (!dataSpec.hasOwnProperty(specName)) {
+    if (!dataSpecs.hasOwnProperty(specName)) {
       continue;
     }
     let dataSpec = dataSpecs[specName];

@@ -124,11 +124,11 @@ let DataTable = React.createClass({
 
   render() {
     let {width, height} = this.state;
-    let {style, className, ...props} = this.props;
+    let {style, className} = this.props;
     if (width === null || height === null) {
       return <Box size={1} className={className} style={style} />;
     } else {
-      let {data, columns: columnsSpec, resizableColumns, ...props} = props;
+      let {data, columns: columnsSpec, resizableColumns, ...props} = this.props;
       let columns = columnsSpec.map(this.renderColumn);
       return (
         <TouchableArea scroller={isTouchDevice ? this.scroller : undefined}

@@ -2,10 +2,10 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import Transitionable   from 'rex-widget/lib/Transitionable';
-import {ContextBinding} from './DataSpecification';
-import * as Typing      from './Typing';
-import * as Instruction from './Instruction';
+import * as Transitionable  from 'rex-widget/lib/Transitionable';
+import {ContextBinding}     from './DataSpecification';
+import * as Typing          from './Typing';
+import * as Instruction     from './Instruction';
 
 Transitionable.register('contextbinding', function decode_query(payload) {
   return new ContextBinding(payload[0], payload[1]);

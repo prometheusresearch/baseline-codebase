@@ -2,16 +2,18 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes} from 'react';
-import cx                 from 'classnames';
-import LoadingIndicator   from './LoadingIndicator';
-import Style              from './Preloader.module.css';
+import React, {PropTypes}               from 'react';
+import cx                               from 'classnames';
+import Stylesheet                       from '@prometheusresearch/react-stylesheet';
+import {padding, fontWeight, textAlign} from './StyleUtils';
+import LoadingIndicator                 from './LoadingIndicator';
 
 /**
- * Renders a <div> with a <LoadingIndicator> and a caption.
+ * Preloader component with loading indicator and optional caption.
  *
  * @public
  */
+@Stylesheet
 export default class Preloader extends React.Component {
 
   static propTypes = {
@@ -26,13 +28,29 @@ export default class Preloader extends React.Component {
     className: PropTypes.string
   };
 
+  static stylesheet = {
+    Root: {
+      width: '100%',
+      height: '100%',
+      color: '#aaa',
+      fontWeight: fontWeight.bold,
+      textAlign: textAlign.center,
+      padding: padding(6, 12),
+    },
+    Caption: {
+      padding: padding(6, 12),
+    },
+    LoadingIndicator,
+  };
+
   render() {
-    let {caption, className} = this.props;
+    let {caption, ...props} = this.props;
+    let {Root, Caption, LoadingIndicator} = this.stylesheet;
     return (
-      <div className={cx(Style.self, className)}>
+      <Root {...props}>
         <LoadingIndicator />
-        {caption && <div className={Style.caption}>{caption}</div>}
-      </div>
+        {caption && <Caption>{caption}</Caption>}
+      </Root>
     );
   }
 

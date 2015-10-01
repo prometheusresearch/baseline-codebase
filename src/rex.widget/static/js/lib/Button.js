@@ -225,13 +225,9 @@ export default class Button extends React.Component {
         border: Style.border(1, Style.borderStyle.solid, Style.color.transparent),
 
         hover: {
-          color: '#333333',
-          backgroundColor: '#e6e6e6',
         },
 
         active: {
-          color: '#333333',
-          backgroundColor: '#d4d4d4',
         },
       },
 
@@ -284,7 +280,7 @@ export default class Button extends React.Component {
           success, danger, link, quiet,
           small: size === 'small',
           extraSmall: size === 'extraSmall',
-          default: !link && !danger && !quiet && !success,
+          default: !link && !danger && !success,
         }}
         href={href}
         style={style}

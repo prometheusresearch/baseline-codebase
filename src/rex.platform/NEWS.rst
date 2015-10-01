@@ -9,6 +9,7 @@
 ===================
 
 * HTSQL==2.3.3.20150930
+* rex.action==0.6.0
 * rex.instrument==1.1.0
 * rex.forms==1.1.0
 * rex.widget==1.3.0

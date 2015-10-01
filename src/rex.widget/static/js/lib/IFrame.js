@@ -22,7 +22,7 @@ export default class IFrame extends React.Component {
     src: PropTypes.string.isRequired,
 
     /**
-     * Encodes the URL query string parameters 
+     * Encodes the URL query string parameters
      * (flattened and appended to the ``src`` property after '?').
      */
     params: PropTypes.object,

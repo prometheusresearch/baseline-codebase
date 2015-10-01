@@ -10,9 +10,9 @@ function interpolateLinkParams(link, name, value) {
   if (!link) {
     return link;
   }
-  var {params, href} = link.props;
-  var nextParams = {};
-  for (var n in params) {
+  let {params, href} = link.props;
+  let nextParams = {};
+  for (let n in params) {
     if (params[n] === `$${name}`) {
       nextParams[n] = value;
     } else {

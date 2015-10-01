@@ -1,51 +1,54 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var transit = require('transit-js');
+import transit from 'transit-js';
 
-var _readerConfig = {
+let _readerConfig = {
+
   handlers: {},
+
   arrayBuilder: {
-    init: function(node) {
+    init() {
       return [];
     },
-    add: function(ret, val, node) {
+    add(ret, val) {
       ret.push(val);
       return ret;
     },
-    finalize: function(ret, node) {
+    finalize(ret) {
       return ret;
     },
-    fromArray: function(arr, node) {
+    fromArray(arr) {
       return arr;
     }
   },
+
   mapBuilder: {
-    init: function(node) {
+    init() {
       return {};
     },
-    add: function(ret, key, val, node) {
+    add(ret, key, val) {
       ret[key] = val;
       return ret;
     },
-    finalize: function(ret, node) {
+    finalize(ret) {
       return ret;
     }
   }
 };
 
-function decode(string) {
-  var reader = transit.reader('json', _readerConfig);
+/**
+ * Decode transit payload into object model.
+ */
+export function decode(string) {
+  let reader = transit.reader('json', _readerConfig);
   return reader.read(string);
 }
 
-function register(tag, handler) {
+/**
+ * Register decode handler for a tag.
+ */
+export function register(tag, handler) {
   _readerConfig.handlers[tag] = handler;
 }
-
-module.exports = {
-  decode: decode,
-  register: register
-};

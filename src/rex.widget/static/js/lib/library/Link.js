@@ -3,48 +3,39 @@
  */
 'use strict';
 
-var React           = require('react');
-var BaseLink        = require('../Link');
-var populateParams  = require('./populateParams');
+import React, {PropTypes} from 'react';
+import BaseLink           from '../Link';
+import populateParams     from './populateParams';
 
 /**
  * Renders a <BaseLink> from ../Link - even though it does not exist.
  * please explain
  */
-var Link = React.createClass({
+export default class Link extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
-     * object
-     *
-     * please explain
-     */
-    params: React.PropTypes.object,
-    
-    /**
-     * string
-     *
      * The link text.
      */
-    text: React.PropTypes.string,
-    
+    text: PropTypes.string,
+
     /**
-     * object
-     *
-     * please explain
+     * Link query string parameters.
      */
-    context: React.PropTypes.object
-  },
+    params: PropTypes.object,
+
+    /**
+     * This object is used for parameter substitution of link params.
+     */
+    context: PropTypes.object
+  }
 
   render() {
-    var {params, text, context, ...props} = this.props;
+    let {params, text, context, ...props} = this.props;
     params = populateParams(params || {}, context);
     if (params === null) {
       return null;
     }
-    return <BaseLink {...props} params={params}>{text}</BaseLink>
+    return <BaseLink {...props} params={params}>{text}</BaseLink>;
   }
-});
-
-
-module.exports = Link;
+}

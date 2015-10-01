@@ -3,12 +3,12 @@
  */
 'use strict';
 
-var invariant = require('./invariant');
+import invariant from 'invariant';
 
-var PersistentStateMixin = {
+export default {
 
   getInitialState() {
-    var state = _loads(this._getPersistentStateKey());
+    let state = _loads(this._getPersistentStateKey());
     if (state === null) {
       if (typeof this.getInitialPersistentState === 'function') {
         state = this.getInitialPersistentState();
@@ -47,8 +47,8 @@ var PersistentStateMixin = {
 };
 
 function _filterState(state, keys) {
-  var nextState = {};
-  for (var key in state) {
+  let nextState = {};
+  for (let key in state) {
     if (state.hasOwnProperty(key) && keys[key] !== undefined) {
       nextState[key] = state[key];
     }
@@ -67,5 +67,3 @@ function _loads(key) {
     return null;
   }
 }
-
-module.exports = PersistentStateMixin;

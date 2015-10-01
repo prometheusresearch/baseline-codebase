@@ -3,8 +3,8 @@
  */
 'use strict';
 
-var React         = require('react');
-var emptyFunction = require('./emptyFunction');
+let React         = require('react');
+let emptyFunction = require('./emptyFunction');
 
 module.exports = function Focusable(Component) {
 

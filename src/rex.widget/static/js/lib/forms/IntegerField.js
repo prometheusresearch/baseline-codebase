@@ -22,10 +22,10 @@ class IntegerInput extends React.Component {
   @autobind
   onChange(value) {
     if (value === '') {
-      this.props.onChange(undefined);
+      this.props.onChange(undefined); // eslint-disable-line react/prop-types
     } else {
       value = tryParseInt(value);
-      this.props.onChange(value);
+      this.props.onChange(value); // eslint-disable-line react/prop-types
     }
   }
 

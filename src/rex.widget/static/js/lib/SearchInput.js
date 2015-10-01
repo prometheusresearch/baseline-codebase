@@ -16,7 +16,7 @@ import Style          from './SearchInput.style';
  *
  * @public
  */
-var SearchInput = React.createClass({
+let SearchInput = React.createClass({
   mixins: [TimeoutMixin],
 
   propTypes: {
@@ -26,7 +26,7 @@ var SearchInput = React.createClass({
     value: React.PropTypes.any,
 
     /**
-     * The text of a short hint that describes 
+     * The text of a short hint that describes
      * the value the user should input.
      */
     placeholder: React.PropTypes.string,
@@ -37,7 +37,7 @@ var SearchInput = React.createClass({
     disabled: React.PropTypes.bool,
 
     /**
-     * Additional style settings. 
+     * Additional style settings.
      * This object must have the following properties
      *
      * :self: an object containing the (css) style for the outer <VBox>.
@@ -56,9 +56,9 @@ var SearchInput = React.createClass({
      */
     throttleOnChange: React.PropTypes.number,
   },
-  
+
   render() {
-    var {value, placeholder, disabled, style, ...props} = this.props;
+    let {value, placeholder, disabled, style, ...props} = this.props;
     if (this.state.value !== undefined) {
       value = this.state.value;
     }
@@ -120,7 +120,7 @@ var SearchInput = React.createClass({
   },
 
   _onChange(e) {
-    var value = e.target.value;
+    let value = e.target.value;
     if (value === '') {
       value = null;
     }

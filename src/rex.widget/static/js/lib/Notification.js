@@ -47,7 +47,7 @@ let NotificationStyle = {
 };
 
 /**
- * Renders children xor text, using the NotificationStyle. 
+ * Renders children xor text, using the NotificationStyle.
  * This content is optionally preceeded by an icon.
  * The notification is removed after **ttl** seconds.
  *
@@ -72,9 +72,9 @@ export default class Notification extends React.Component {
     icon: React.PropTypes.string,
 
     /**
-     * Selects the css style.  
+     * Selects the css style.
      * The string is the name of a set of css settings.
-     * Otherwise the object is used.  
+     * Otherwise the object is used.
      * Naturally it must have only valid css attributes.
      */
     kind: React.PropTypes.oneOfType([
@@ -103,7 +103,7 @@ export default class Notification extends React.Component {
   };
 
   render() {
-    var {children, text, icon, kind, style, ...props} = this.props;
+    let {children, text, icon, kind, style, ...props} = this.props;
     style = {
       ...NotificationStyle.self,
       ...(typeof kind === 'string' ? NotificationStyle[kind] : kind),

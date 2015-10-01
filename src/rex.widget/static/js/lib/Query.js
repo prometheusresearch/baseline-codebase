@@ -17,10 +17,10 @@ export default class Query {
   }
 
   produceCollection(params) {
-    return this.produce(params)
+    return this.produce(params);
   }
 
   produceEntity(params) {
-    return this.produce(params)
+    return this.produce(params);
   }
 }

@@ -1,11 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var Port    = require('./Port');
+import Port    from './Port';
 
-class PortMock extends Port {
+export default class PortMock extends Port {
 
   constructor(responses) {
     super();
@@ -14,19 +13,19 @@ class PortMock extends Port {
     this.replaceCalls = [];
   }
 
-  produce(params, options) {
+  produce(params) {
     this.produceCalls.push({params});
     return this._mockedRequest();
   }
 
-  replace(prevEntity, entity, params, options) {
+  replace(prevEntity, entity, params) {
     this.replaceCalls.push({prevEntity, entity, params});
     return this._mockedRequest();
   }
 
   _mockedRequest() {
     return new Promise((resolve, reject) => {
-      var response = this.responses.shift();
+      let response = this.responses.shift();
       if (response instanceof Error) {
         reject(response);
       } else {
@@ -35,5 +34,3 @@ class PortMock extends Port {
     });
   }
 }
-
-module.exports = PortMock;

@@ -6,7 +6,7 @@ import Box from './Box';
 
 /**
  * Vertical box component.
- * 
+ *
  * Renders a <Box> with direction="vertical".
  * Takes the same parameters as <Box>.
  *

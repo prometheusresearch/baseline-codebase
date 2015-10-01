@@ -6,7 +6,6 @@ import autobind               from 'autobind-decorator';
 import React                  from 'react';
 import AutocompleteBase       from '@prometheusresearch/react-autocomplete/lib/themed/Bootstrap';
 import IconButton             from './IconButton';
-import DS                     from './DataSpecification';
 import {VBox}                 from './Layout';
 import Style                  from './Autocomplete.module.css';
 
@@ -38,6 +37,13 @@ export default class Autocomplete extends React.Component {
     dataSpec: React.PropTypes.object,
 
     /**
+     * Data specification from which to fetch title for the selected value.
+     *
+     * If not provided then `dataSpec` is used.
+     */
+    titleDataSpec: React.PropTypes.object,
+
+    /**
      * Attribute used as a title of a record.
      *
      * Also used to specify a filter.
@@ -63,7 +69,7 @@ export default class Autocomplete extends React.Component {
   }
 
   render() {
-    let {value, onChange, required} = this.props;
+    let {value} = this.props;
     let {valueTitle} = this.state;
     if (value === null) {
       valueTitle = null;
@@ -76,7 +82,7 @@ export default class Autocomplete extends React.Component {
           search={this._search}
           onChange={this.onChange}
           />
-        {value && !required ?
+        {value ?
           <IconButton
             name="remove"
             className={Style.icon}
@@ -146,7 +152,7 @@ export default class Autocomplete extends React.Component {
   _open() {
     this.refs.underlying.showResults('');
   }
- 
+
   @autobind
   _onRequestValueComplete(result) {
     let valueTitle = result[this.props.titleAttribute];

@@ -1,12 +1,11 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var invariant           = require('./invariant');
-var notifyLayoutChange  = require('./notifyLayoutChange');
+import invariant           from 'invariant';
+import notifyLayoutChange  from './notifyLayoutChange';
 
-var LayoutAwareMixin = {
+export default {
 
   componentWillMount() {
     invariant(
@@ -27,5 +26,3 @@ var LayoutAwareMixin = {
   }
 
 };
-
-module.exports = LayoutAwareMixin;

@@ -12,13 +12,13 @@ import Style              from './Box.module.css';
  */
 export function makeBoxStyle(props) {
   props = props || {};
-  var {
+  let {
     direction, size, margin, padding,
     width, height, aligned,
     centerHorizontally, centerVertically,
     scrollable, backgroundColor
   } = props;
-  var style = {...style};
+  let style = {...style};
   if (direction === 'horizontal') {
     style.flexDirection = 'row';
   }

@@ -31,7 +31,7 @@ export default class Select extends React.Component {
     titleForEmpty: React.PropTypes.string,
 
     /**
-     * This object must have a **data** property which contains 
+     * This object must have a **data** property which contains
      * the list of items to appear in the drop-down after the options.
      *
      * Each element in the list must have an ``id`` and a ``title``.
@@ -42,8 +42,8 @@ export default class Select extends React.Component {
 
     /**
      * This function will be called when the user selects an item.
-     * It is called with 2 arguments: id and value.  
-     * Both id and value will be set to the id of the item the user selected. 
+     * It is called with 2 arguments: id and value.
+     * Both id and value will be set to the id of the item the user selected.
      */
     onChange: PropTypes.func,
 
@@ -54,9 +54,9 @@ export default class Select extends React.Component {
      */
     value: PropTypes.object
   };
-  
+
   render() {
-    var {noEmptyValue, data, value, options, onChange,
+    let {noEmptyValue, data, value, options, onChange,
       titleForEmpty, ...props} = this.props;
     return (
       <VBox {...props}>
@@ -81,8 +81,8 @@ export default class Select extends React.Component {
   }
 
   _checkForAutovalue() {
-    var {value, noEmptyValue, options, onChange} = this.props;
-    if (value == null && noEmptyValue && options && options.length > 0) {
+    let {value, noEmptyValue, options, onChange} = this.props;
+    if (value == null && noEmptyValue && options && options.length > 0) { // eslint-disable-line eqeqeq, max-len
       onChange(options[0].id);
     }
   }

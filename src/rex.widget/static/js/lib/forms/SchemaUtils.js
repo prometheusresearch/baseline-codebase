@@ -1,29 +1,28 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var moment    = require('moment');
-var invariant = require('../invariant');
+import moment    from 'moment';
+import invariant from 'invariant';
 
-function generateSchemaFromFields(fields) {
-  var schema = {
+export function generateSchemaFromFields(fields) {
+  let schema = {
     type: 'object',
     properties: {},
     required: []
   };
   fields = _removeLayout(fields);
-  for (var i = 0; i < fields.length; i++) {
-    var field = fields[i];
+  for (let i = 0; i < fields.length; i++) {
+    let field = fields[i];
     _growSchema(schema, _toKeyPath(field.valueKey), _fieldToSchema(field));
   }
   return schema;
 }
 
 function _removeLayout(fields) {
-  var noLayout = [];
-  for (var i = 0; i < fields.length; i++) {
-    var field = fields[i];
+  let noLayout = [];
+  for (let i = 0; i < fields.length; i++) {
+    let field = fields[i];
     if (field.type && field.props) {
       noLayout = noLayout.concat(_removeLayout(field.props.fields));
     } else {
@@ -37,8 +36,9 @@ function _removeLayout(fields) {
 }
 
 function _dateConstraint(value) {
-  if (!value)
+  if (!value) {
     return undefined;
+  }
   switch(value) {
   case 'today':
     return moment(); // .startOf('day');
@@ -46,83 +46,84 @@ function _dateConstraint(value) {
     return moment().add(1, 'day');
   case 'yesterday':
     return moment().subtract(1, 'day');
-  };
-  return moment(value, DATE_ISO_FORMAT, true);
+  default:
+    return moment(value, DATE_ISO_FORMAT, true);
+  }
 }
 
 function _fieldToSchema(field) {
   switch (field.type) {
-    case 'fieldset':
-      var schema = generateSchemaFromFields(field.fields);
-      schema.isRequired = !!field.required;
-      return schema;
-    case 'list':
-      return {
-        type: 'array',
-        items: generateSchemaFromFields(field.fields),
-        isRequired: !!field.required
-      };
-    case 'date':
-      return {
-        type: 'string',
-        format: Validation.date,
-        datetimeFormat: field.format,
-        minDate: _dateConstraint(field.minDate),
-        maxDate: _dateConstraint(field.maxDate),
-        isRequired: !!field.required
-      };
-    case 'datetime':
-      return {
-        type: 'string',
-        format: Validation.datetime,
-        datetimeFormat: field.format,
-        isRequired: !!field.required
-      };
-    case 'bool':
-      return {
-        type: 'boolean',
-        format: Validation.bool,
-        isRequired: false
-      };
-    case 'file':
-      return {
-        type: 'string',
-        format: Validation.file,
-        isRequired: !!field.required
-      };
-    case 'enum':
-      return {
-        type: 'string',
-        format: Validation.enum,
-        isRequired: !!field.required
-      };
-    case 'entity':
-      return {
-        type: 'string',
-        format: Validation.entity,
-        isRequired: !!field.required
-      };
-    case 'integer':
-      return {
-        type: 'integer',
-        format: Validation.integer,
-        isRequired: !!field.required
-      };
-    case 'number':
-      return {
-        type: 'number',
-        format: Validation.number,
-        isRequired: !!field.required
-      };
-    case 'string':
-    default:
-      return {
-        type: 'string',
-        format: Validation.string,
-        formatPattern: field.pattern,
-        formatError: field.error,
-        isRequired: !!field.required
-      };
+  case 'fieldset':
+    let schema = generateSchemaFromFields(field.fields);
+    schema.isRequired = !!field.required;
+    return schema;
+  case 'list':
+    return {
+      type: 'array',
+      items: generateSchemaFromFields(field.fields),
+      isRequired: !!field.required
+    };
+  case 'date':
+    return {
+      type: 'string',
+      format: Validation.date,
+      datetimeFormat: field.format,
+      minDate: _dateConstraint(field.minDate),
+      maxDate: _dateConstraint(field.maxDate),
+      isRequired: !!field.required
+    };
+  case 'datetime':
+    return {
+      type: 'string',
+      format: Validation.datetime,
+      datetimeFormat: field.format,
+      isRequired: !!field.required
+    };
+  case 'bool':
+    return {
+      type: 'boolean',
+      format: Validation.bool,
+      isRequired: false
+    };
+  case 'file':
+    return {
+      type: 'string',
+      format: Validation.file,
+      isRequired: !!field.required
+    };
+  case 'enum':
+    return {
+      type: 'string',
+      format: Validation.enum,
+      isRequired: !!field.required
+    };
+  case 'entity':
+    return {
+      type: 'string',
+      format: Validation.entity,
+      isRequired: !!field.required
+    };
+  case 'integer':
+    return {
+      type: 'integer',
+      format: Validation.integer,
+      isRequired: !!field.required
+    };
+  case 'number':
+    return {
+      type: 'number',
+      format: Validation.number,
+      isRequired: !!field.required
+    };
+  case 'string':
+  default:
+    return {
+      type: 'string',
+      format: Validation.string,
+      formatPattern: field.pattern,
+      formatError: field.error,
+      isRequired: !!field.required
+    };
   }
 }
 
@@ -150,11 +151,11 @@ function _mergeScalarSchema(a, b) {
 }
 
 function _mergeRequired(a, b) {
-  var merged = [];
-  for (var i = 0; i < a.length; i++) {
+  let merged = [];
+  for (let i = 0; i < a.length; i++) {
     merged.push(a[i]);
   }
-  for (var i = 0; i < b.length; i++) {
+  for (let i = 0; i < b.length; i++) {
     if (merged.indexOf(b[i]) === -1) {
       merged.push(b[i]);
     }
@@ -172,7 +173,7 @@ function _growSchema(schema, keyPath, grow) {
       return _mergeScalarSchema(schema, grow);
     }
   }
-  var key = keyPath.shift();
+  let key = keyPath.shift();
   if (schema) {
     invariant(
       schema.type === 'object',
@@ -197,10 +198,10 @@ function _toKeyPath(keyPath) {
   }
 }
 
-var DATETIME_ISO_FORMAT = "YYYY-MM-DD HH:mm:ss";
-var DATE_ISO_FORMAT = "YYYY-MM-DD";
+let DATETIME_ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+let DATE_ISO_FORMAT = 'YYYY-MM-DD';
 
-var Validation = {
+export let Validation = {
   string(value, node) {
     if (node.formatPattern) {
       if (new RegExp(node.formatPattern).exec(value) === null) {
@@ -211,7 +212,7 @@ var Validation = {
   },
 
   datetime(value, node) {
-    var date = moment(value, DATETIME_ISO_FORMAT, true);
+    let date = moment(value, DATETIME_ISO_FORMAT, true);
     if (!date.isValid()) {
       date = moment(value, DATE_ISO_FORMAT, true);
       if (date.isValid()) {
@@ -225,7 +226,7 @@ var Validation = {
   },
 
   date(value, node) {
-    var date = moment(value, DATE_ISO_FORMAT, true);
+    let date = moment(value, DATE_ISO_FORMAT, true);
     if (!date.isValid()) {
       return `should be in ${node.datetimeFormat} format`;
     }
@@ -238,10 +239,3 @@ var Validation = {
     return true;
   }
 };
-
-var SchemaUtils = {
-  generateSchemaFromFields,
-  Validation
-};
-
-module.exports = SchemaUtils;

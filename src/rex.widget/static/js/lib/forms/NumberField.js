@@ -38,10 +38,10 @@ class NumberInput extends React.Component {
   onChange(value) {
     this.setState({value}, () => {
       if (value === '') {
-        this.props.onChange(undefined);
+        this.props.onChange(undefined); // eslint-disable-line react/prop-types
       } else {
         value = tryParseFloat(value);
-        this.props.onChange(value);
+        this.props.onChange(value); // eslint-disable-line react/prop-types
       }
     });
   }

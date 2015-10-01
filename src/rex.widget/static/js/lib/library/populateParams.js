@@ -4,10 +4,13 @@
 'use strict';
 
 function populateParams(params, context) {
-  var nextParams = {};
-  for (var key in params) {
-    var param = params[key];
-    var value;
+  let nextParams = {};
+  for (let key in params) {
+    if (!params.hasOwnProperty(key)) {
+      continue;
+    }
+    let param = params[key];
+    let value;
     if (param.contextRef) {
       value = getByKeyPath(context, param.contextRef);
     } else {
@@ -22,7 +25,7 @@ function populateParams(params, context) {
 }
 
 function getByKeyPath(obj, keyPath) {
-  for (var i = 0; i < keyPath.length; i++) {
+  for (let i = 0; i < keyPath.length; i++) {
     if (!obj) {
       return obj;
     }

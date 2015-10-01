@@ -1,34 +1,36 @@
 /**
  * @copyright 2014, Prometheus Research, LLC
  */
-'use strict';
 
-var React = require('react');
-var cx    = require('classnames');
-var {Box} = require('./Layout');
+import React, {PropTypes} from 'react';
+import cx                 from 'classnames';
+import {VBox}             from './Layout';
 
 /**
  * @deprecated
  * @public
  */
-var Tab = React.createClass({
+export default class Tab extends React.Component {
+
+  static propTypes = {
+    disabled: PropTypes.bool,
+    children: PropTypes.node,
+    className: PropTypes.string,
+  };
+
+  static defaultProps = {
+    size: 1,
+  };
 
   render() {
-    var {tabs, size, className, children, ...props} = this.props;
+    let  {className, children, ...props} = this.props;
     return (
-      <Box {...props}
-        size={size}
+      <VBox {...props}
         title={undefined}
         id={undefined}
         className={cx('rw-Tab', className)}>
         {children}
-      </Box>
+      </VBox>
     );
-  },
-
-  getDefaultProps() {
-    return {size: 1};
   }
-});
-
-module.exports = Tab;
+}

@@ -3,9 +3,9 @@
  */
 'use strict';
 
-var TimeoutMixin = require('./TimeoutMixin');
+import TimeoutMixin from './TimeoutMixin';
 
-var SingleTimeoutMixin = {
+export default {
   ...TimeoutMixin,
 
   setTimeout(func, ms) {
@@ -13,5 +13,3 @@ var SingleTimeoutMixin = {
     return TimeoutMixin.setTimeout.call(this, func, ms);
   }
 };
-
-module.exports = SingleTimeoutMixin;

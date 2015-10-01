@@ -17,16 +17,16 @@ import ReadOnlyField  from './ReadOnlyField';
 function uploadFile(url, file, onProgress) {
   url = resolveURL(url);
   return new Promise(function(resolve, reject) {
-    var data = new FormData();
+    let data = new FormData();
     data.append('file', file);
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.open('POST', url, true);
     xhr.onload = resolve;
     xhr.onerror = reject;
     if (onProgress) {
       xhr.upload.onprogress = function(e) {
         if (e.lengthComputable) {
-          var progress = e.loaded / e.total;
+          let progress = e.loaded / e.total;
           onProgress(progress);
         }
       };
@@ -39,16 +39,7 @@ function uploadFile(url, file, onProgress) {
   });
 }
 
-function unquote(str) {
-  return str.replace(/^'/, '').replace(/'$/, '');
-}
-
-function filename(file) {
-  var result = unquote(file.name);
-  return result.replace(/.*\/([^\/]+)$/i, '$1');
-}
-
-var FileUploadInput = React.createClass({
+let FileUploadInput = React.createClass({
 
   styleInput: {
     display: 'none'
@@ -65,10 +56,10 @@ var FileUploadInput = React.createClass({
   },
 
   render() {
-    var {value, required, download, ownerRecordID, ...props} = this.props;
-    var {file, progress, error} = this.state;
+    let {value, required, download, ownerRecordID, ...props} = this.props;
+    let {file, progress, error} = this.state;
     // the case when we need to render a file stored in storage
-    var renderStoredFile = !file && value;
+    let renderStoredFile = !file && value;
     if (renderStoredFile) {
       file = {name: value};
     }
@@ -120,8 +111,8 @@ var FileUploadInput = React.createClass({
   },
 
   onChange(e) {
-    var files = e.target.files;
-    var file = files[0];
+    let files = e.target.files;
+    let file = files[0];
     this.setState({
       file,
       error: null
@@ -167,21 +158,21 @@ export default class FileUploadField extends React.Component {
      * CSS class name used to render the field.
      */
     className: React.PropTypes.string,
-    
+
     /**
      * The URL to upload the file to.
      *
      * See rex.file docs for details.
      */
     storage: React.PropTypes.string,
-    
+
     /**
      * The URL which is used to download files from storage.
      *
      * See rex.file docs for details.
      */
     download: React.PropTypes.string,
-    
+
     /**
      * Form value.
      */
@@ -226,7 +217,7 @@ export default class FileUploadField extends React.Component {
   }
 
   _getOwnerRecordID() {
-    var record = this.props.formValue.parent.value;
+    let record = this.props.formValue.parent.value;
     return record ? record.id : undefined;
   }
 }

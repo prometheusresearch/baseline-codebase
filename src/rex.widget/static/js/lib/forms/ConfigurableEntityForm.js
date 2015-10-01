@@ -3,20 +3,20 @@
  */
 'use strict';
 
-var React             = require('react');
-var SchemaUtils       = require('./SchemaUtils');
-var EntityForm        = require('./EntityForm');
-var FormColumn        = require('./FormColumn');
-var FormRow           = require('./FormRow');
+import autobind         from 'autobind-decorator';
+import React            from 'react';
+import * as SchemaUtils from './SchemaUtils';
+import EntityForm       from './EntityForm';
+import FormColumn       from './FormColumn';
 
 /**
  * Form which has fieldset configurable through URL mapping.
  *
  * @public
  */
-var ConfigurableEntityForm = React.createClass({
+export default class ConfigurableEntityForm extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     ...EntityForm.PropTypes,
 
     /**
@@ -40,11 +40,14 @@ var ConfigurableEntityForm = React.createClass({
      * The submit button element to use.
      */
     submitButton: React.PropTypes.element
-  },
+  };
+
+  static defaultProps = {
+    layout: 'column',
+  };
 
   render() {
-    var {fields, readOnly, layout, submitButton, ...props} = this.props;
-    var Layout = layout === 'row' ? FormRow : FormColumn;
+    let {fields, readOnly, layout, submitButton, ...props} = this.props;
     return (
       <EntityForm
         {...props}
@@ -58,27 +61,20 @@ var ConfigurableEntityForm = React.createClass({
           />
       </EntityForm>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      layout: 'column'
-    };
-  },
+  }
 
   componentWillMount() {
     this._schema = SchemaUtils.generateSchemaFromFields(this.props.fields);
-  },
+  }
 
   componentWillReceiveProps({fields, schema}) {
     if (schema !== this.props.schema || fields !== this.props.fields) {
       this._schema = SchemaUtils.generateSchemaFromFields(fields);
     }
-  },
+  }
 
+  @autobind
   submit() {
     return this.refs.form.submit();
   }
-});
-
-module.exports = ConfigurableEntityForm;
+}

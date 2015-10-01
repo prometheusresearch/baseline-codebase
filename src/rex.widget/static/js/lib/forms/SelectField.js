@@ -1,19 +1,22 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React                   = require('react');
-var DataSpecificationMixin  = require('../DataSpecificationMixin');
-var DataSpecification       = require('../DataSpecification');
-var BaseSelect              = require('../Select');
-var Preloader               = require('../Preloader');
-var Field                   = require('./Field');
-var ReadOnlyField           = require('./ReadOnlyField');
+import React                   from 'react';
+import DataSpecificationMixin  from '../DataSpecificationMixin';
+import DataSpecification       from '../DataSpecification';
+import BaseSelect              from '../Select';
+import Preloader               from '../Preloader';
+import Field                   from './Field';
+import ReadOnlyField           from './ReadOnlyField';
 
-var {collection}            = DataSpecification;
+let {collection} = DataSpecification;
 
-var Select = React.createClass({
+let Select = React.createClass({
+
+  propTypes: {
+    onChange: React.PropTypes.func,
+  },
 
   render() {
     return <BaseSelect {...this.props} onChange={this.onChange} />;
@@ -33,7 +36,7 @@ var Select = React.createClass({
  *
  * @public
  */
-var SelectField = React.createClass({
+let SelectField = React.createClass({
   mixins: [DataSpecificationMixin],
 
   dataSpecs: {
@@ -49,18 +52,25 @@ var SelectField = React.createClass({
     /**
      * Set to false, if you want an empty value in the drop-down list.
      */
-    noEmptyValue: React.PropTypes.bool,     
+    noEmptyValue: React.PropTypes.bool,
 
     /**
-     * The initial value of the field.
-     * @ask-andrey to please explain the properties of this object.  
+     * Form value.
+     *
+     * It has the following properties:
+     *
+     * - ``value`` represents the current value at the field
+     * - ``errorList`` represents the list of validation errors
+     * - ``schema`` schema node at field (if present)
+     *
+     * See React Forms docs for more info.
      */
     formValue: React.PropTypes.object,
 
     /**
      * Set to true to render a <ReadOnlyField>.
      */
-    readOnly: React.PropTypes.bool,     
+    readOnly: React.PropTypes.bool,
 
     /**
      * The list of items to appear in the drop-down before the data.
@@ -68,12 +78,12 @@ var SelectField = React.createClass({
      */
     options: React.PropTypes.array
   },
-  
+
   render() {
-    var {noEmptyValue, formValue, readOnly, options, ...props} = this.props;
-    var {dataSpec: data} = this.data;
+    let {noEmptyValue, formValue, readOnly, options, ...props} = this.props;
+    let {dataSpec: data} = this.data;
     if (readOnly) {
-      var value;
+      let value;
       if (formValue.value) {
         if (options) {
           value = findByValue(options, formValue.value);
@@ -107,11 +117,11 @@ function findByValue(options, value) {
   if (!options) {
     return null;
   }
-  for (var i = 0; i < options.length; i++) {
+  for (let i = 0; i < options.length; i++) {
     if (options[i].value === value) {
       return options[i].label;
     }
   }
 }
 
-module.exports = SelectField;
+export default SelectField;

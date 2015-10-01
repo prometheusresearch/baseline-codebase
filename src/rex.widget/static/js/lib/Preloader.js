@@ -18,12 +18,12 @@ export default class Preloader extends React.Component {
     /**
      * The text of the caption.
      */
-    caption: React.PropTypes.string,
+    caption: PropTypes.string,
 
     /**
      * The name of the css class to include for the <div>.
      */
-    className: React.PropTypes.string 
+    className: PropTypes.string
   };
 
   render() {

@@ -1,54 +1,35 @@
 /**
  * @copyright 2015, Facebook, Inc. All rights reserved.
  */
-'use strict';
 
-var React         = require('react');
-var isTouchDevice = require('./Environment').isTouchDevice;
+import autobind           from 'autobind-decorator';
+import React, {PropTypes} from 'react';
+import {isTouchDevice}    from './Environment';
 
-var TouchableArea = React.createClass({
-  getDefaultProps() {
-    return {
-      touchable: true,
-      element: 'div'
-    };
-  },
+export default class TouchableArea extends React.Component {
 
-  handleTouchStart(e) {
-    if (!this.props.scroller || !this.props.touchable) {
-      return;
-    }
+  static propTypes = {
+    scroller: PropTypes.object,
+    touchable: PropTypes.bool,
+    element: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+    children: PropTypes.node,
+  };
 
-    this.props.scroller.doTouchStart(e.touches, e.timeStamp);
-  },
-
-  handleTouchMove(e) {
-    if (!this.props.scroller || !this.props.touchable) {
-      return;
-    }
-
-    this.props.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-    e.preventDefault();
-  },
-
-  handleTouchEnd(e) {
-    if (!this.props.scroller || !this.props.touchable) {
-      return;
-    }
-
-    this.props.scroller.doTouchEnd(e.timeStamp);
-  },
+  static defaultProps = {
+    touchable: true,
+    element: 'div',
+  };
 
   render() {
-    var {element: Element, children, ...props} = this.props;
+    let {element: Element, children, ...props} = this.props;
     if (isTouchDevice) {
       return (
         <Element
           {...props}
-          onTouchStart={this.handleTouchStart}
-          onTouchMove={this.handleTouchMove}
-          onTouchEnd={this.handleTouchEnd}
-          onTouchCancel={this.handleTouchEnd}>
+          onTouchStart={this._onTouchStart}
+          onTouchMove={this._onTouchMove}
+          onTouchEnd={this._onTouchEnd}
+          onTouchCancel={this._onTouchEnd}>
           {children}
         </Element>
       );
@@ -60,6 +41,33 @@ var TouchableArea = React.createClass({
       );
     }
   }
-});
 
-module.exports = TouchableArea;
+  @autobind
+  _onTouchStart(e) {
+    if (!this.props.scroller || !this.props.touchable) {
+      return;
+    }
+
+    this.props.scroller.doTouchStart(e.touches, e.timeStamp);
+  }
+
+  @autobind
+  _onTouchMove(e) {
+    if (!this.props.scroller || !this.props.touchable) {
+      return;
+    }
+
+    this.props.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+    e.preventDefault();
+  }
+
+  @autobind
+  _onTouchEnd(e) {
+    if (!this.props.scroller || !this.props.touchable) {
+      return;
+    }
+
+    this.props.scroller.doTouchEnd(e.timeStamp);
+  }
+
+}

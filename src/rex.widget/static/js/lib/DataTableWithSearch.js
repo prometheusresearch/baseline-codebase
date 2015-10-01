@@ -3,15 +3,15 @@
  */
 'use strict';
 
-var React                   = require('react');
-var {collection, state}     = require('./DataSpecification');
-var DataSpecificationMixin  = require('./DataSpecificationMixin');
-var Layout                  = require('./Layout');
-var SearchInput             = require('./SearchInput');
-var Cell                    = require('./Cell');
-var DataTable               = require('./DataTable');
+let React                   = require('react');
+let {collection, state}     = require('./DataSpecification');
+let DataSpecificationMixin  = require('./DataSpecificationMixin');
+let Layout                  = require('./Layout');
+let SearchInput             = require('./SearchInput');
+let Cell                    = require('./Cell');
+let DataTable               = require('./DataTable');
 
-var DataTableWithSearchStyle = {
+let DataTableWithSearchStyle = {
   searchBar: {
     marginBottom: 10
   }
@@ -23,7 +23,7 @@ var DataTableWithSearchStyle = {
  *
  * @public
  */
-var DataTableWithSearch = React.createClass({
+let DataTableWithSearch = React.createClass({
   mixins: [DataSpecificationMixin, Cell.Mixin],
 
   dataSpecs: {
@@ -46,7 +46,7 @@ var DataTableWithSearch = React.createClass({
     },
 
   render() {
-    var {searchPlaceholder, children, ...props} = this.props;
+    let {searchPlaceholder, children, ...props} = this.props;
     children = React.cloneElement(children, {
       ...props,
       dataSpec: this.dataSpecs.dataSpec

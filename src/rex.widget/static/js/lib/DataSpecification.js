@@ -3,14 +3,14 @@
  */
 'use strict';
 
-var Immutable = require('immutable');
-var invariant = require('./invariant');
-var valueOf   = require('./valueOf');
+let Immutable = require('immutable');
+let invariant = require('./invariant');
+let valueOf   = require('./valueOf');
 
-var CANCEL_ON_UPDATE = 'CANCEL_ON_UPDATE';
-var QUEUE_ON_UPDATE = 'QUEUE_ON_UPDATE';
+let CANCEL_ON_UPDATE = 'CANCEL_ON_UPDATE';
+let QUEUE_ON_UPDATE = 'QUEUE_ON_UPDATE';
 
-var DEFAULT_OPTIONS = {
+let DEFAULT_OPTIONS = {
   strategy: CANCEL_ON_UPDATE
 };
 
@@ -23,9 +23,12 @@ class DataSpecification {
   }
 
   bindToContext(context) {
-    var params = {};
-    for (var key in this.spec) {
-      var spec = this.spec[key];
+    let params = {};
+    for (let key in this.spec) {
+      if (!this.spec.hasOwnProperty(key)) {
+        continue;
+      }
+      let spec = this.spec[key];
       if (spec instanceof Binding) {
         params = {...params, ...spec.bindToContext(context, key)};
       } else {
@@ -36,15 +39,18 @@ class DataSpecification {
   }
 
   produceParams() {
-    var params = {};
-    for (var k in this.spec) {
-      var v = this.spec[k];
+    let params = {};
+    for (let k in this.spec) {
+      if (!this.spec.hasOwnProperty(k)) {
+        continue;
+      }
+      let v = this.spec[k];
       invariant(
         !(v instanceof Binding),
         'trying to produce params from unbound data specification'
       );
-      var required = v && v.options && v.options.required;
-      var value = valueOf(v);
+      let required = v && v.options && v.options.required;
+      let value = valueOf(v);
       if (required && value == null) {
         return null;
       }
@@ -65,8 +71,8 @@ class DataSpecification {
         this.port === other.port || other.port === null || this.port === null,
         'DataSpecification.merge(): can only merge specifications with the same port'
       );
-      var spec = {...this.spec, ...other.spec};
-      var options = {...this.options, ...other.options};
+      let spec = {...this.spec, ...other.spec};
+      let options = {...this.options, ...other.options};
       return new this.constructor(this.port || other.port, spec, options);
     }
   }
@@ -95,7 +101,7 @@ class ComputedBinding extends Binding {
   }
 
   bindToContext(context, key) {
-    var bind = {};
+    let bind = {};
     bind[key] = new Value(this.func(context.props, context.state), this.options);
     return bind;
   }
@@ -105,7 +111,7 @@ function getByKeyPath(obj, keyPath) {
   if (!Array.isArray(keyPath)) {
     keyPath = keyPath.split('.').filter(Boolean);
   }
-  for (var i = 0; i < keyPath.length; i++) {
+  for (let i = 0; i < keyPath.length; i++) {
     if (!obj) {
       return obj;
     }
@@ -123,7 +129,7 @@ class StateBinding extends Binding {
   }
 
   bindToContext(context, key) {
-    var bind = {};
+    let bind = {};
     bind[key] = new Value(getByKeyPath(context.state, this.keyPath), this.options);
     return bind;
   }
@@ -137,7 +143,7 @@ class PropBinding extends Binding {
   }
 
   bindToContext(context, key) {
-    var bind = {};
+    let bind = {};
     bind[key] = new Value(getByKeyPath(context.props, this.keyPath), this.options);
     return bind;
   }

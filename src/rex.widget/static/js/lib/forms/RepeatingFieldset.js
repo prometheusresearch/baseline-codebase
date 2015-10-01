@@ -1,14 +1,14 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React        = require('react');
-var {VBox, HBox} = require('../Layout');
-var Button       = require('../Button');
-var Fieldset     = require('./Fieldset');
+import autobind           from 'autobind-decorator';
+import React, {PropTypes} from 'react';
+import {VBox, HBox}       from '../Layout';
+import Button             from '../Button';
+import Fieldset           from './Fieldset';
 
-var RepeatingFieldsetStyle = {
+let RepeatingFieldsetStyle = {
   errors: {
     marginTop: 3,
     color: 'red',
@@ -22,56 +22,64 @@ var RepeatingFieldsetStyle = {
 /**
  * RepeatingFieldset component.
  *
- * @ask-andrey
+ * This component renders a fieldset multiple times for each item in an array.
  *
  * @public
  */
-var RepeatingFieldset = React.createClass({
+export default class RepeatingFieldset extends React.Component {
 
-  getDefaultProps() {
-    return {
-      baseIndex: 0,
-      addButtonText: 'Add',
-    };
-  },
-
-  propTypes: {
+  static propTypes = {
     /**
      * The starting index for the data array in formValue
      */
-    baseIndex: React.PropTypes.number,
+    baseIndex: PropTypes.number,
     /**
-     * The data to display. 
+     * The data to display.
      */
-    formValue: React.PropTypes.object,
-    
+    formValue: PropTypes.object,
+
     /**
      * The label.
      */
-    label: React.PropTypes.string,
-    
+    label: PropTypes.string,
+
     /**
      * The text of the Add Button.
      */
-    addButtonText: React.PropTypes.string,
-    
+    addButtonText: PropTypes.string,
+
     /**
      * The text of the Remove Button.
      */
-    removeButtonText: React.PropTypes.string
-  },
+    removeButtonText: PropTypes.string,
+
+    /**
+     * Children
+     */
+    children: PropTypes.node,
+
+    /**
+     * Default value for a new item.
+     */
+    defaultValue: PropTypes.any
+  };
+
+  static defaultProps = {
+    baseIndex: 0,
+    addButtonText: 'Add',
+  };
 
   render() {
-    var {
+    let {
       baseIndex, children, formValue, label,
       addButtonText, removeButtonText, ...props
     } = this.props;
-    var minItems = formValue.schema.minItems || 0;
-    var items = (formValue.value || []).slice(baseIndex);
+    let minItems = formValue.schema.minItems || 0;
+    let items = (formValue.value || []).slice(baseIndex);
     if (items.length < minItems) {
       items = items.concat(arrayFromLength(minItems - items.length));
     }
-    var fieldsets = items.map((item, idx) =>
+    let fieldsets = items.map((item, idx) =>
       <Fieldset formValue={formValue.select(idx + baseIndex)} key={idx + baseIndex}>
         <HBox>
           <VBox style={{marginRight: 10}}>
@@ -111,34 +119,36 @@ var RepeatingFieldset = React.createClass({
         </VBox>
       </VBox>
     );
-  },
+  }
 
+  @autobind
   addItem() {
-    var {formValue} = this.props;
-    var value = formValue.value ?
+    let {formValue} = this.props;
+    let value = formValue.value ?
       formValue.value.slice(0) :
       [];
-    var defaultValue = this.props.defaultValue;
+    let defaultValue = this.props.defaultValue;
     if (defaultValue === undefined) {
       defaultValue = formValue.schema.defaultItem;
     }
     value.push(defaultValue);
     formValue.set(value);
-  },
+  }
 
+  @autobind
   removeItem(idx) {
-    var {formValue} = this.props;
-    var value = formValue.value ?
+    let {formValue} = this.props;
+    let value = formValue.value ?
       formValue.value.slice(0) :
       [];
     value.splice(idx, 1);
     formValue.set(value);
   }
-});
+}
 
 function arrayFromLength(length) {
-  var result = [];
-  for (var i = 0; i < length; i++) {
+  let result = [];
+  for (let i = 0; i < length; i++) {
     result.push(undefined);
   }
   return result;

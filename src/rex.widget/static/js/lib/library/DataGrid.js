@@ -1,16 +1,15 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React               = require('react');
-var DataTableWithSearch = require('../DataTableWithSearch');
-var DataTable           = require('../DataTable');
+import React               from 'react';
+import DataTableWithSearch from '../DataTableWithSearch';
+import DataTable           from '../DataTable';
 
 /**
  * Renders a <DataTableWithSearch> with a <DataTable>
  */
-var DataGrid = React.createClass({
+let DataGrid = React.createClass({
 
   propTypes: {
     /**
@@ -44,11 +43,11 @@ var DataGrid = React.createClass({
      * When ``false``, only the <DataTable> is rendered.
      */
     withSearchFilter: React.PropTypes.bool,
-    
+
     /**
      * string
      *
-     * Placeholder for search. 
+     * Placeholder for search.
      * The placeholder is a short hint which appears in the field
      * before the user types into the field.
      */
@@ -56,7 +55,7 @@ var DataGrid = React.createClass({
   },
 
   render() {
-    var {data, columns, withSearchFilter, searchPlaceholder, ...props} = this.props;
+    let {data, columns, withSearchFilter, searchPlaceholder, ...props} = this.props;
     if (withSearchFilter) {
       return (
         <DataTableWithSearch dataSpec={data} searchPlaceholder={searchPlaceholder}>

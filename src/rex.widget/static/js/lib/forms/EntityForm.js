@@ -3,19 +3,19 @@
  */
 'use strict';
 
-var React             = require('react');
-var emptyFunction     = require('../emptyFunction');
-var forceRefreshData  = require('../DataSpecificationMixin').forceRefreshData;
-var Query             = require('../Query');
-var Form              = require('./Form');
-var Fieldset          = require('./Fieldset');
+let React             = require('react');
+let emptyFunction     = require('../emptyFunction');
+let forceRefreshData  = require('../DataSpecificationMixin').forceRefreshData;
+let Query             = require('../Query');
+let Form              = require('./Form');
+let Fieldset          = require('./Fieldset');
 
 /**
  * Form which operates on a single entity within the port response.
  *
  * @public
  */
-var EntityForm = React.createClass({
+let EntityForm = React.createClass({
 
   propTypes: {
     ...Form.PropTypes,
@@ -26,12 +26,12 @@ var EntityForm = React.createClass({
     entity: React.PropTypes.string.isRequired,
 
     /**
-     * Form schema.  @ask-andrey
+     * Form schema in JSON Schema format.
      */
     schema: React.PropTypes.object.isRequired,
 
     /**
-     * Initial form value.   @ask-andrey
+     * Initial form value.
      */
     value: React.PropTypes.object,
 
@@ -44,9 +44,9 @@ var EntityForm = React.createClass({
   },
 
   render() {
-    var {children, entity, schema, value, ...props} = this.props;
-    var formValue = makeEntityValue(entity, value);
-    var formSchema = makeEntitySchema(entity, schema);
+    let {children, entity, schema, value, ...props} = this.props;
+    let formValue = makeEntityValue(entity, value);
+    let formSchema = makeEntitySchema(entity, schema);
     return (
       <Form
         {...props}
@@ -94,7 +94,7 @@ var EntityForm = React.createClass({
 });
 
 function makeEntitySchema(entity, schema) {
-  var portSchema = {
+  let portSchema = {
     type: 'object',
     properties: {},
     required: [entity]
@@ -107,7 +107,7 @@ function makeEntitySchema(entity, schema) {
 }
 
 function makeEntityValue(entity, value) {
-  var portValue = {};
+  let portValue = {};
   portValue[entity] = [value];
   return portValue;
 }

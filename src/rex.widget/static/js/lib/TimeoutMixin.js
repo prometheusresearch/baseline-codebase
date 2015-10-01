@@ -1,11 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var {batchedUpdates} = require('react/addons').addons;
+import {batchedUpdates} from 'react/addons';
 
-var TimeoutMixin = {
+export default {
 
   componentWillMount() {
     this._timeouts = [];
@@ -16,7 +15,7 @@ var TimeoutMixin = {
   },
 
   setTimeout(func, ms) {
-    var timeoutID = setTimeout(() => {
+    let  timeoutID = setTimeout(() => {
       this.clearTimeout(timeoutID);
       batchedUpdates(func);
     }, ms);
@@ -26,11 +25,13 @@ var TimeoutMixin = {
 
   clearTimeout(timeoutID) {
     if (timeoutID === undefined) {
-      this._timeouts.forEach(function(timeoutID) { clearTimeout(timeoutID); });
+      this._timeouts.forEach(function(timeoutID) {
+        clearTimeout(timeoutID);
+      });
       this._timeouts = [];
     } else {
       clearTimeout(timeoutID);
-      var idx = this._timeouts.indexOf(timeoutID);
+      let idx = this._timeouts.indexOf(timeoutID);
       if (idx > -1) {
         this._timeouts.splice(idx, 1);
       }
@@ -38,5 +39,3 @@ var TimeoutMixin = {
   }
 
 };
-
-module.exports = TimeoutMixin;

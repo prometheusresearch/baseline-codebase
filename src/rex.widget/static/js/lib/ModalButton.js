@@ -1,13 +1,12 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React   = require('react');
-var Modal   = require('./Modal');
-var Button  = require('./Button');
-var Layout  = require('./Layout');
-var Cell    = require('./Cell');
+import React   from 'react';
+import Modal   from './Modal';
+import Button  from './Button';
+import Layout  from './Layout';
+import Cell    from './Cell';
 
 /**
  * Renders a <VBox> with a <Button> and a <Modal>.
@@ -15,22 +14,22 @@ var Cell    = require('./Cell');
  *
  * @public
  */
-var ModalButton = React.createClass({
+let ModalButton = React.createClass({
   mixins: [Cell.Mixin],
 
   propTypes: {
     /**
-     * When true include class rw-Button--quiet. 
+     * When true include class rw-Button--quiet.
      */
     buttonQuiet: React.PropTypes.bool,
 
     /**
-     * When true include class rw-Button--success. 
+     * When true include class rw-Button--success.
      */
     buttonSuccess: React.PropTypes.bool,
 
     /**
-     * When true include class rw-Button--danger. 
+     * When true include class rw-Button--danger.
      */
     buttonDanger: React.PropTypes.bool,
 
@@ -45,65 +44,65 @@ var ModalButton = React.createClass({
     buttonSize: React.PropTypes.string,
 
     /**
-     * The textAlign attribute for the style attribute. 
+     * The textAlign attribute for the style attribute.
      */
     buttonAlign: React.PropTypes.string,
 
     /**
-     * The text to appear on the button. 
+     * The text to appear on the button.
      */
     buttonText: React.PropTypes.string,
-    
+
 
     /**
      * When true the height for the modal's children is set to '100%'.
-     * otherwise it is set to undefined. 
+     * otherwise it is set to undefined.
      */
     modalForceHeight: React.PropTypes.bool,
-    
+
     /**
-     * The css style width of the modal.  
+     * The css style width of the modal.
      */
     modalWidth: React.PropTypes.string,
-    
+
     /**
-     * The css style minimum width of the modal. 
+     * The css style minimum width of the modal.
      */
     modalMinWidth: React.PropTypes.string,
-    
+
     /**
-     * string css style maximum width of the modal. 
+     * string css style maximum width of the modal.
      *
      * The css style maximum width of the modal.
      */
     modalMaxWidth: React.PropTypes.string,
-    
+
     /**
-     * The css style height of the modal. 
+     * The css style height of the modal.
      */
     modalHeight: React.PropTypes.string,
-    
+
     /**
      * The css style minimum height of the modal.
      */
     modalMinHeight: React.PropTypes.string,
-    
+
     /**
      * The css style maximum height of the modal.
      */
     modalMaxHeight: React.PropTypes.string,
-    
+
     /**
      * The title of the modal.
      */
     modalTitle: React.PropTypes.string,
-    
+
     /**
-     * The children to appear inside the modal. 
+     * The children to appear inside the modal.
      */
     children: React.PropTypes.element
   },
-  
+
   render() {
     return (
       <Layout.VBox>

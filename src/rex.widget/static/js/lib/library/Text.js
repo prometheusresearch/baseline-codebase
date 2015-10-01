@@ -1,11 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React = require('react');
+import React from 'react';
 
-var TextStyle = {
+let TextStyle = {
   self: {
     margin: '15px 0'
   }
@@ -14,7 +13,7 @@ var TextStyle = {
 /**
  * Renders a <div> with the given text and style.
  */
-var Text = React.createClass({
+let Text = React.createClass({
 
   propTypes: {
     /**
@@ -23,7 +22,7 @@ var Text = React.createClass({
      * The text to display.
      */
     text: React.PropTypes.string,
-    
+
     /**
      * object
      *
@@ -31,9 +30,9 @@ var Text = React.createClass({
      */
     style: React.PropTypes.object
   },
-  
+
   render() {
-    var {text, style, ...props} = this.props;
+    let {text, style, ...props} = this.props;
     return (
       <div
         {...props}
@@ -44,4 +43,4 @@ var Text = React.createClass({
   }
 });
 
-module.exports = Text;
+export default Text;

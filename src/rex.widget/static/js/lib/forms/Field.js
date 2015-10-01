@@ -3,11 +3,11 @@
  */
 'use strict';
 
-var React           = require('react');
-var {HBox, VBox}    = require('../Layout');
-var Input           = require('./Input');
+let React           = require('react');
+let {HBox, VBox}    = require('../Layout');
+let Input           = require('./Input');
 
-var FieldStyle = {
+let FieldStyle = {
   self: {
     marginBottom: 5
   },
@@ -42,37 +42,37 @@ var FieldStyle = {
  *
  * @public
  */
-var Field = React.createClass({
+let Field = React.createClass({
 
   propTypes: {
     /**
      * The field label.
      */
     label: React.PropTypes.string,
-    
+
     /**
      * The text to appear when the mouse hovers over the field.
      */
     hint: React.PropTypes.string,
-    
+
     /**
      * The input element to use.
      */
     children: React.PropTypes.element,
-    
+
     /**
      * func
      *
      * The callback which fires when the field is changed.
      */
     onChange: React.PropTypes.func,
-    
+
     /**
      * Unitless number representing the amount of space the <label> uses
      * relative to all its sibling widgets.
      */
     labelSize: React.PropTypes.number,
-    
+
     /**
      * Unitless number representing the amount of space the <input> uses
      * relative to all its sibling widgets.
@@ -94,18 +94,25 @@ var Field = React.createClass({
     deserialize: React.PropTypes.func,
 
     /**
-     * The initial value of the field.
-     * @ask-andrey to please explain the properties of this object.  
+     * Form value.
+     *
+     * It has the following properties:
+     *
+     * - ``value`` represents the current value at the field
+     * - ``errorList`` represents the list of validation errors
+     * - ``schema`` schema node at field (if present)
+     *
+     * See React Forms docs for more info.
      */
-    formValue: React.PropTypes.object 
+    formValue: React.PropTypes.object
   },
 
   render() {
-    var {label, hint, children, onChange, labelSize, inputSize, 
+    let {label, hint, children, onChange, labelSize, inputSize,
       serialize, ...props} = this.props;
-    var {dirty} = this.state;
-    var {value, errorList, params, schema} = this.props.formValue;
-    var showErrors = dirty || params.forceShowErrors;
+    let {dirty} = this.state;
+    let {value, errorList, params, schema} = this.props.formValue;
+    let showErrors = dirty || params.forceShowErrors;
     children = React.cloneElement(
       children ?  React.Children.only(children) : <Input />, {
         error: showErrors && errorList.length > 0,
@@ -163,7 +170,7 @@ var Field = React.createClass({
   },
 
   onChange(onChange, e) {
-    var value;
+    let value;
     if (e && e.target && e.target.value !== undefined) {
       e.stopPropagation();
       value = e.target.value;

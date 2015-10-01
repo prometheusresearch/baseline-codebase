@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React = require('react');
+let React = require('react');
 
 function cloneElement(element, props, defaultProps) {
   if (Array.isArray(element)) {
@@ -12,8 +12,8 @@ function cloneElement(element, props, defaultProps) {
   if (element) {
     if (defaultProps) {
       props = {...props};
-      for (var name in defaultProps) {
-        if (element.props[name] === undefined) {
+      for (let name in defaultProps) {
+        if (element.props[name] === undefined) { // eslint-disable-line max-depth
           props[name] = defaultProps[name];
         }
       }

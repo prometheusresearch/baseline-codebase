@@ -16,7 +16,7 @@ export default class Authorized extends React.Component {
 
   static propTypes = {
     /**
-     * The URL in pkg:/path format which checks if the current user 
+     * The URL in pkg:/path format which checks if the current user
      * has access.
      */
     access: React.PropTypes.string.isRequired,

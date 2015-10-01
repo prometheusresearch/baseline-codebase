@@ -1,11 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React = require('react');
+import React from 'react';
 
-var LayeredComponentMixin = {
+export default {
 
   componentDidMount() {
     this._layer = document.createElement('div');
@@ -40,5 +39,3 @@ var LayeredComponentMixin = {
     React.unmountComponentAtNode(this._layer);
   }
 };
-
-module.exports = LayeredComponentMixin;

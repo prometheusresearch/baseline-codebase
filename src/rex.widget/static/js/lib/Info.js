@@ -1,23 +1,27 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React               = require('react');
-var {VBox}              = require('./Layout');
-var Preloader           = require('./Preloader');
-var FileDownload        = require('./FileDownload');
-var ReadOnlyField       = require('./forms/ReadOnlyField');
-var DeprecatedComponent = require('./DeprecatedComponent');
+let React               = require('react');
+let {VBox}              = require('./Layout');
+let Preloader           = require('./Preloader');
+let FileDownload        = require('./FileDownload');
+let ReadOnlyField       = require('./forms/ReadOnlyField');
+let DeprecatedComponent = require('./DeprecatedComponent');
 
 /**
  * @public
  * @deprecated
  */
-var Info = React.createClass({
+let Info = React.createClass({
+
+  propTypes: {
+    fields: React.PropTypes.array,
+    data: React.PropTypes.object,
+  },
 
   render() {
-    var {fields, data, ...props} = this.props;
+    let {fields, data, ...props} = this.props;
     if (data.loading) {
       return <Preloader />;
     }
@@ -26,29 +30,37 @@ var Info = React.createClass({
     }
     return (
       <VBox {...props}>
-        {fields.map(field =>
-          <ReadOnlyField
-            key={field.valueKey}
-            label={field.label}
-            formValue={{value: this.renderField(field, getByKeyPath(data.data, field.valueKey), data.data)}}
-            style={{self: {marginTop: 5, marginBottom: 5}}}
-            />)}
+        {fields.map(field => {
+          let value = this.renderField(
+            field,
+            getByKeyPath(data.data, field.valueKey),
+            data.data
+          );
+          return (
+            <ReadOnlyField
+              key={field.valueKey}
+              label={field.label}
+              formValue={{value}}
+              style={{self: {marginTop: 5, marginBottom: 5}}}
+              />
+          );
+        })}
       </VBox>
     );
   },
 
   renderField(field, value, data) {
     switch (field.type) {
-      case 'file':
-        return (
-          <FileDownload
-            download={field.download}
-            ownerRecordID={data.id}
-            file={value}
-            />
-        );
-      default:
-        return <span>{renderValue(value)}</span>
+    case 'file':
+      return (
+        <FileDownload
+          download={field.download}
+          ownerRecordID={data.id}
+          file={value}
+          />
+      );
+    default:
+      return <span>{renderValue(value)}</span>;
     }
   }
 });
@@ -64,7 +76,7 @@ function getByKeyPath(obj, keyPath) {
   if (!Array.isArray(keyPath)) {
     keyPath = [keyPath];
   }
-  for (var i = 0; i < keyPath.length; i++) {
+  for (let i = 0; i < keyPath.length; i++) {
     if (obj == null) {
       return obj;
     }

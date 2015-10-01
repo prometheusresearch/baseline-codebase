@@ -13,22 +13,22 @@ export default class StoredFile extends React.Component {
 
   propTypes = {
     /**
-     * The file object to download.  
+     * The file object to download.
      * The 'name' attribute contains the filename.
      */
-    file: React.PropTypes.object,
+    file: PropTypes.object,
 
     /**
      * The application's url for file downloads.
      */
-    download: React.PropTypes.string,
+    download: PropTypes.string,
 
     /**
      * The ownerRecordID of the file to download.
      */
-    ownerRecordID: React.PropTypes.string
+    ownerRecordID: PropTypes.string
   };
-  
+
   render() {
     let {download, file, ownerRecordID, ...props} = this.props;
     return (

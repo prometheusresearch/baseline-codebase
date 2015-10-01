@@ -3,7 +3,6 @@
  */
 
 import React  from 'react';
-import Button from './Button';
 import Style  from './ButtonGroup.style';
 
 const leftButtonTheme = {self: Style.leftButton};

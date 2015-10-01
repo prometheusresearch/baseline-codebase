@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-var React = require('react');
+let React = require('react');
 
 function makeDeprecatedComponentMixin(message, componentName) {
   let warned = false;
@@ -10,7 +10,7 @@ function makeDeprecatedComponentMixin(message, componentName) {
     componentWillMount() {
       if (!warned) {
         warned = true;
-        console.warn(`Component <${componentName || this.type.displayName} /> is deprecated: ${message}`);
+        console.warn(`Component <${componentName || this.type.displayName} /> is deprecated: ${message}`); // eslint-disable-line max-len
       }
     }
   };

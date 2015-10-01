@@ -36,7 +36,7 @@ export function post(url, query = null, data = null) {
 function filterQuery(query) {
   let nextQuery = {};
   for (let key in query) {
-    if (query.hasOwnProperty(key) && query[key] != null && query[key] != '') {
+    if (query.hasOwnProperty(key) && query[key] != null && query[key] !== '') {
       nextQuery[key] = query[key];
     }
   }
@@ -46,7 +46,7 @@ function filterQuery(query) {
 function prepareURL(url, query = null) {
   url = resolveURL(url);
   query = filterQuery(query);
-  if (query, Object.keys(query).length > 0) {
+  if (query && Object.keys(query).length > 0) {
     if (url.indexOf('?') === -1) {
       url = `${url}?${stringify(query, {indices: false})}`;
     } else {

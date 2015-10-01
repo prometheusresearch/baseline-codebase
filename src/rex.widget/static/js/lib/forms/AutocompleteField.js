@@ -3,13 +3,12 @@
  */
 'use strict';
 
-var React                   = require('react');
-var Autocomplete            = require('../Autocomplete');
-var Preloader               = require('../Preloader');
-var DataSpecificationMixin  = require('../DataSpecificationMixin');
-var {collection, prop}      = require('../DataSpecification');
-var Field                   = require('./Field');
-var ReadOnlyField           = require('./ReadOnlyField');
+let React                   = require('react');
+let Autocomplete            = require('../Autocomplete');
+let DataSpecificationMixin  = require('../DataSpecificationMixin');
+let {collection, prop}      = require('../DataSpecification');
+let Field                   = require('./Field');
+let ReadOnlyField           = require('./ReadOnlyField');
 
 /**
  *  AutocompleteField component.
@@ -61,7 +60,7 @@ export default class AutocompleteField extends React.Component {
   };
 
   render() {
-    var {
+    let {
       dataSpec, readOnly, formValue,
       valueAttribute, titleAttribute, style,
       ...props
@@ -78,7 +77,6 @@ export default class AutocompleteField extends React.Component {
         </ReadOnlyField>
       );
     } else {
-      let root = formValue._root;
       let titleDataSpec = dataSpec.merge(this._populateParameters());
       let queryDataSpec = dataSpec.port.path.indexOf('__to__') > -1 ?
         titleDataSpec.merge({'query': true}) :
@@ -114,7 +112,7 @@ export default class AutocompleteField extends React.Component {
   }
 }
 
-var EntityTitle = React.createClass({
+let EntityTitle = React.createClass({
   mixins: [DataSpecificationMixin],
 
   dataSpecs: {
@@ -126,8 +124,8 @@ var EntityTitle = React.createClass({
   },
 
   render() {
-    var {titleAttribute} = this.props;
-    var {data} = this.data.dataSpec;
+    let {titleAttribute} = this.props;
+    let {data} = this.data.dataSpec;
     if (data) {
       return <div>{data[0][titleAttribute]}</div>;
     } else {

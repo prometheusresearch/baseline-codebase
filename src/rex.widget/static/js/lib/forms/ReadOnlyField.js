@@ -1,13 +1,11 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React         = require('react');
-var {VBox, HBox}  = require('../Layout');
-var emptyFunction = require('../emptyFunction');
+import React, {PropTypes} from 'react';
+import {VBox, HBox}       from '../Layout';
 
-var Style = {
+let Style = {
   self: {
     marginBottom: 2,
     marginTop: 2,
@@ -22,68 +20,84 @@ var Style = {
 };
 
 /**
- * Renders a read-only field as an <HBox> 
+ * Renders a read-only field as an <HBox>
  * with a <VBox> containing the ``label``,
  * and another <VBox> containing the value.
- * The value is ``children`` unless ``children === undefined`` 
- * in which case ``formValue.value`` is used. 
+ * The value is ``children`` unless ``children === undefined``
+ * in which case ``formValue.value`` is used.
  *
  * @public
  */
-var ReadOnlyField = React.createClass({
+export default class ReadOnlyField extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
      * The field label.
      */
-    label: React.PropTypes.string,
-    
+    label: PropTypes.string,
+
     /**
      * css style object.
      */
-    style: React.PropTypes.object,
+    style: PropTypes.object,
 
     /**
      * func
      *
-     * This function is used to convert formValue.value to 
-     * something renderable.  
+     * This function is used to convert formValue.value to
+     * something renderable.
      *
      * The default function returns the input unchanged
-     * when it is null or an element, 
+     * when it is null or an element,
      * otherwise the input is converted to a String.
-     * 
+     *
      */
-    renderValue: React.PropTypes.func,
-    
+    renderValue: PropTypes.func,
+
     /**
-     * The initial value of the field.
-     * @ask-andrey to please explain the properties of this object.  
+     * Form value.
+     *
+     * It has the following properties:
+     *
+     * - ``value`` represents the current value at the field
+     * - ``errorList`` represents the list of validation errors
+     * - ``schema`` schema node at field (if present)
+     *
+     * See React Forms docs for more info.
      */
-    formValue: React.PropTypes.object,
+    formValue: PropTypes.object,
 
     /**
      * The input element to use.
      */
-    children: React.PropTypes.element,
-    
+    children: PropTypes.element,
+
     /**
-     * Unitless number representing the amount of space the 
+     * Unitless number representing the amount of space the
      * <VBox> with the <label> uses
      * relative to all its sibling widgets.
      */
-    labelSize: React.PropTypes.number,
-    
+    labelSize: PropTypes.number,
+
     /**
-     * Unitless number representing the amount of space the 
+     * Unitless number representing the amount of space the
      * <VBox> with the value uses
      * relative to all its sibling widgets.
      */
-    inputSize: React.PropTypes.number
-  },
+    inputSize: PropTypes.number
+  };
+
+  static defaultProps = {
+    renderValue: renderValue,
+    labelSize: 2,
+    inputSize: 5
+  };
 
   render() {
-    var {label, style, renderValue, formValue, children, labelSize, inputSize} = this.props;
+    let {
+      label, style, renderValue,
+      formValue, children, labelSize, inputSize
+    } = this.props;
     if (children === undefined) {
       children = renderValue(formValue.value);
     }
@@ -100,16 +114,9 @@ var ReadOnlyField = React.createClass({
         </VBox>
       </HBox>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      renderValue: renderValue,
-      labelSize: 2,
-      inputSize: 5
-    };
   }
-});
+
+}
 
 function renderValue(value) {
   if (value == null) {
@@ -120,5 +127,3 @@ function renderValue(value) {
     return String(value);
   }
 }
-
-module.exports = ReadOnlyField;

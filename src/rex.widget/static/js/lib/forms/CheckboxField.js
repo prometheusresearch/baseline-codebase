@@ -3,17 +3,17 @@
  */
 'use strict';
 
-var React                   = require('react');
-var Field                   = require('./Field');
-var ReadOnlyField           = require('./ReadOnlyField');
+let React                   = require('react');
+let Field                   = require('./Field');
+let ReadOnlyField           = require('./ReadOnlyField');
 
-var CheckboxStyle = {
+let CheckboxStyle = {
   self: {
     marginTop: 9
   }
 };
 
-var Checkbox = React.createClass({
+let Checkbox = React.createClass({
 
   render() {
     return (
@@ -37,7 +37,7 @@ var Checkbox = React.createClass({
  *
  * @public
  */
-var CheckboxField = React.createClass({
+let CheckboxField = React.createClass({
 
   propTypes: {
     /**
@@ -54,7 +54,7 @@ var CheckboxField = React.createClass({
   },
 
   render() {
-    var {readOnly, formValue, ...props} = this.props;
+    let {readOnly, formValue, ...props} = this.props;
     if (readOnly) {
       return (
         <ReadOnlyField {...props} formValue={formValue}>

@@ -1,12 +1,11 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React         = require('react');
-var emptyFunction = require('./emptyFunction');
+import React         from 'react';
+import emptyFunction from './emptyFunction';
 
-module.exports = function Hoverable(Component) {
+export default function Hoverable(Component) {
 
   return React.createClass({
     displayName: `${Component.displayName}Hoverable`,
@@ -35,12 +34,12 @@ module.exports = function Hoverable(Component) {
 
     onMouseEnter(e) {
       this.setState({hover: true});
-      this.props.onMouseEnter(e);
+      this.props.onMouseEnter(e); // eslint-disable-line react/prop-types
     },
 
     onMouseLeave(e) {
       this.setState({hover: false});
-      this.props.onMouseLeave(e);
+      this.props.onMouseLeave(e); // eslint-disable-line react/prop-types
     }
   });
-};
+}

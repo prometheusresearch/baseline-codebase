@@ -3,7 +3,7 @@
  */
 
 import  React, {PropTypes}  from 'react';
-import  {VBox, HBox}        from '../Layout';
+import  {VBox}              from '../Layout';
 import  renderFormItem      from './renderFormItem';
 
 export default class FormColumn extends React.Component {
@@ -37,7 +37,7 @@ export default class FormColumn extends React.Component {
   render() {
     let {fields, size, formValue, fieldProps} = this.props;
     let items = fields.map((field, idx) =>
-      renderFormItem(formValue, field, fieldProps, idx))
+      renderFormItem(formValue, field, fieldProps, idx));
     return (
       <VBox size={size}>
         {items}

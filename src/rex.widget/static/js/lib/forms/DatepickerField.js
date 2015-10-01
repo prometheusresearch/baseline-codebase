@@ -3,14 +3,14 @@
  */
 'use strict';
 
-var $ = window.jQuery = require('jquery');
+let $ = window.jQuery = require('jquery');
 require('bootstrap-datepicker/js/bootstrap-datepicker');
 
-var React               = require('react');
-var cx                  = require('classnames');
-var Button              = require('../Button');
-var DeprecatedComponent = require('../DeprecatedComponent');
-var Field               = require('./Field');
+let React               = require('react');
+let cx                  = require('classnames');
+let Button              = require('../Button');
+let DeprecatedComponent = require('../DeprecatedComponent');
+let Field               = require('./Field');
 
 function padl(v, n) {
   v = String(v);
@@ -20,7 +20,7 @@ function padl(v, n) {
   return v;
 }
 
-function formatDate(date, format) {
+function formatDate(date) {
   if (!(date instanceof Date)) {
     return date;
   }
@@ -32,16 +32,16 @@ function isValidDate(value) {
   return /^\d\d\d\d-\d\d-\d\d$/.exec(value) !== null;
 }
 
-var DatepickerStyle = {
+let DatepickerStyle = {
   input: {
     height: 34
   }
 };
 
-var Datepicker = React.createClass({
+let Datepicker = React.createClass({
 
   render() {
-    var {className, value, format, ...props} = this.props;
+    let {className, value, format, ...props} = this.props;
     className = cx('rw-Datepicker', className);
     if (value instanceof Date) {
       value = formatDate(value, format);
@@ -64,7 +64,7 @@ var Datepicker = React.createClass({
   },
 
   componentDidMount() {
-    var {autoclose, startView, startDate, endDate, format} = this.props;
+    let {autoclose, startView, startDate, endDate, format} = this.props;
     this.__ignoreOnChange = false;
     this._callDatepicker({autoclose, startView, startDate, endDate, format})
       .on('changeDate', this._onDateChange)
@@ -87,7 +87,7 @@ var Datepicker = React.createClass({
   },
 
   _callDatepicker(a, b, c, d, e) {
-    var node = this.refs.datepicker.getDOMNode();
+    let node = this.refs.datepicker.getDOMNode();
     return $(node).datepicker(a, b, c, d, e);
   },
 
@@ -97,7 +97,7 @@ var Datepicker = React.createClass({
   },
 
   _onDateChange(e) {
-    var value = this._inputValue();
+    let value = this._inputValue();
     if (isValidDate(value)) {
       this._onChange(e.date ? formatDate(e.date) : null);
     }
@@ -122,10 +122,10 @@ var Datepicker = React.createClass({
  * @deprecated
  * @public
  */
-var DatepickerField = React.createClass({
+let DatepickerField = React.createClass({
 
   render() {
-    var {startView, startDate, endDate, className, ...props} = this.props;
+    let {startView, startDate, endDate, className, ...props} = this.props;
     return (
       <Field {...props} className={cx('rw-DatepickerField', className)}>
         <Datepicker
@@ -142,7 +142,7 @@ var DatepickerField = React.createClass({
 
 });
 
-var deprecate = DeprecatedComponent(
+let deprecate = DeprecatedComponent(
     'Use <RexWidget.Forms.DateField /> instead',
     'RexWidget.Forms.DatepickerField');
 

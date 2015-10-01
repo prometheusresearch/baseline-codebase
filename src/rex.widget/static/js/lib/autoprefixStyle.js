@@ -4,14 +4,14 @@
  */
 'use strict';
 
-var ELEMENT = document.createElement('div');
+let ELEMENT = document.createElement('div');
 
-var flexNative = 'flex' in ELEMENT.style;
-var flexWebkit = !flexNative && 'WebkitFlex' in ELEMENT.style;
+let flexNative = 'flex' in ELEMENT.style;
+let flexWebkit = !flexNative && 'WebkitFlex' in ELEMENT.style;
 
-var boxShadowNative = 'boxShadow' in ELEMENT.style;
-var boxShadowWebkit = !boxShadowNative && 'WebkitBoxShadow' in ELEMENT.style;
-var boxShadowMoz = !boxShadowNative && 'MozBoxShadow' in ELEMENT.style;
+let boxShadowNative = 'boxShadow' in ELEMENT.style;
+let boxShadowWebkit = !boxShadowNative && 'WebkitBoxShadow' in ELEMENT.style;
+let boxShadowMoz = !boxShadowNative && 'MozBoxShadow' in ELEMENT.style;
 
 function autoprefixStyle(style) {
   if (style.hasOwnProperty('userSelect')) {

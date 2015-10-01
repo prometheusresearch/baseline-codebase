@@ -3,16 +3,16 @@
  */
 'use strict';
 
-var React                   = require('react');
-var Immutable               = require('immutable');
-var Preloader               = require('./Preloader');
-var BaseDataTable           = require('./BaseDataTable');
-var DataSet                 = require('./DataSet');
-var DataSpecificationMixin  = require('./DataSpecificationMixin');
-var DataSpecification       = require('./DataSpecification');
+let React                   = require('react');
+let Immutable               = require('immutable');
+let Preloader               = require('./Preloader');
+let BaseDataTable           = require('./BaseDataTable');
+let DataSet                 = require('./DataSet');
+let DataSpecificationMixin  = require('./DataSpecificationMixin');
+let DataSpecification       = require('./DataSpecification');
 
-var SKIP_PARAM = '*:skip';
-var TOP_PARAM = '*:top';
+let SKIP_PARAM = '*:skip';
+let TOP_PARAM = '*:top';
 
 class SortBinding extends DataSpecification.Binding {
 
@@ -22,8 +22,8 @@ class SortBinding extends DataSpecification.Binding {
   }
 
   bindToContext(context, key) {
-    var {value} = this.binding.bindToContext(context, key)[key];
-    var bind = {};
+    let {value} = this.binding.bindToContext(context, key)[key];
+    let bind = {};
     if (value) {
       bind[`*.${value.column}:sort`] = new DataSpecification.Value(value.direction, this.options);
     }
@@ -39,8 +39,8 @@ class PaginationBinding extends DataSpecification.Binding {
   }
 
   bindToContext(context, key) {
-    var {value} = this.binding.bindToContext(context, key)[key];
-    var bind = {};
+    let {value} = this.binding.bindToContext(context, key)[key];
+    let bind = {};
     if (value) {
       bind[TOP_PARAM] = new DataSpecification.Value(value.top, this.options);
       bind[SKIP_PARAM] = new DataSpecification.Value(value.skip, this.options);
@@ -50,7 +50,7 @@ class PaginationBinding extends DataSpecification.Binding {
 }
 
 function diffParams(a, b) {
-  var diff = [];
+  let diff = [];
   a.forEach((v, k) => {
     if (!Immutable.is(v, b.get(k))) {
       diff.push(k);
@@ -61,7 +61,7 @@ function diffParams(a, b) {
 
 function isPagination(params, prevParams) {
   prevParams = prevParams || Immutable.Map();
-  var diff = diffParams(params, prevParams);
+  let diff = diffParams(params, prevParams);
   return diff.length === 1 && diff[0] === SKIP_PARAM;
 }
 
@@ -72,7 +72,7 @@ function isPagination(params, prevParams) {
  *
  * @public
  */
-var DataTable = React.createClass({
+let DataTable = React.createClass({
   mixins: [DataSpecificationMixin],
 
   propTypes: {
@@ -130,8 +130,8 @@ var DataTable = React.createClass({
   },
 
   render() {
-    var {dataSpec: data} = this.data;
-    var {sort, pagination, hasMore} = this.state;
+    let {dataSpec: data} = this.data;
+    let {sort, pagination, hasMore} = this.state;
     if (data.data === null || data.loading && pagination.skip === 0) {
       return <Preloader />;
     } else {
@@ -139,7 +139,10 @@ var DataTable = React.createClass({
         <BaseDataTable
           {...this.props}
           hasMore={hasMore}
-          dataSort={sort ? `${sort.direction === 'desc' ? '-' : '+'}${sort.column}` : this.props.dataSort}
+          dataSort={
+            sort ?
+              `${sort.direction === 'desc' ? '-' : '+'}${sort.column}` :
+              this.props.dataSort}
           onDataSort={this.onDataSort}
           dataPagination={pagination}
           onDataPagination={this.onDataPagination}
@@ -180,7 +183,7 @@ var DataTable = React.createClass({
   onDataFetch(key, params, prevParams) {
     if (key === 'dataSpec' && isPagination(params, prevParams)) {
       // keep dataset but update loading flag
-      var prevData = this.data[key];
+      let prevData = this.data[key];
       this.data[key] = new DataSet(prevData.data, true, prevData.error);
     } else {
       this.data[key] = new DataSet([], true, null);
@@ -195,7 +198,7 @@ var DataTable = React.createClass({
     }
     if (key === 'dataSpec' && data && isPagination(params, prevParams)) {
       // append dataset to the already loaded dataset
-      var prevData = this.data[key].data || [];
+      let prevData = this.data[key].data || [];
       this.data[key] = new DataSet(prevData.concat(data), false, null);
     } else {
       this.data[key] = new DataSet(data, false, null);
@@ -203,8 +206,8 @@ var DataTable = React.createClass({
   },
 
   onDataSort(sortDirection) {
-    var direction = sortDirection[0] === '-' ? 'desc' : 'asc';
-    var column = sortDirection.slice(1);
+    let direction = sortDirection[0] === '-' ? 'desc' : 'asc';
+    let column = sortDirection.slice(1);
     this.setState({
       ...this.getInitialPaginationState(),
       sort: {direction, column}

@@ -1,26 +1,43 @@
 /**
  * @copyright 2014, Prometheus Research, LLC
  */
-'use strict';
 
-var React       = require('react');
-var cx          = require('classnames');
-var {Box, HBox} = require('./Layout');
+import autobind           from 'autobind-decorator';
+import React, {PropTypes} from 'react';
+import cx                 from 'classnames';
+import {Box, HBox}        from './Layout';
 
 /**
  * @deprecated
  * @public
  */
-var Tabs = React.createClass({
+export default class Tabs extends React.Component {
+
+  static propTypes = {
+    tabs: PropTypes.node,
+    children: PropTypes.node,
+    size: PropTypes.number,
+    className: PropTypes.string,
+    active: PropTypes.string,
+    onActive: PropTypes.func,
+    buttonsStyle: PropTypes.object,
+    buttonsPosition: PropTypes.oneOf(['left', 'right', 'top', 'bottom']),
+  };
+
+  static defaultProps = {
+    size: 1,
+    buttonsPosition: 'top',
+    buttonsStyle: 'tabs'
+  };
 
   render() {
-    var {
+    let  {
       tabs, children, size, className, active,
       buttonsStyle, buttonsPosition, ...props
     } = this.props;
     tabs = tabs || children;
     active = active || tabs[0].props.id;
-    var buttons = tabs.map(tab =>
+    let buttons = tabs.map(tab =>
       <li
         key={tab.props.id}
         role="presentation"
@@ -35,44 +52,35 @@ var Tabs = React.createClass({
         </a>
       </li>
     );
-    var tab = tabs.filter(tab => tab.props.id === active)[0];
+    let tab = tabs.filter(tab => tab.props.id === active)[0];
     className = cx('rw-Tabs', className);
-    var tabs = (
+    let tabsElement = (
       <Box className={`rw-Tabs--${buttonsPosition}Position`} key="tabs">
         <ul className={`rw-Tabs__buttons nav nav-${buttonsStyle}`}>
           {buttons}
         </ul>
       </Box>
     );
-    var content = (
+    let content = (
       <Box className="rw-Tabs__children tab-content" key="content" scrollable size={1}>
         {tab}
       </Box>
     );
-    var Wrapper = buttonsPosition === 'left' || buttonsPosition === 'right' ?
+    let Wrapper = buttonsPosition === 'left' || buttonsPosition === 'right' ?
       HBox : Box;
     return (
       <Wrapper {...props} size={size} className={className}>
-        {buttonsPosition === 'top'    && [tabs, content]}
-        {buttonsPosition === 'right'  && [content, tabs]}
-        {buttonsPosition === 'bottom' && [content, tabs]}
-        {buttonsPosition === 'left'   && [tabs, content]}
+        {buttonsPosition === 'top'    && [tabsElement, content]}
+        {buttonsPosition === 'right'  && [content, tabsElement]}
+        {buttonsPosition === 'bottom' && [content, tabsElement]}
+        {buttonsPosition === 'left'   && [tabsElement, content]}
       </Wrapper>
     );
-  },
+  }
 
-  getDefaultProps() {
-    return {
-      size: 1,
-      buttonsPosition: 'top',
-      buttonsStyle: 'tabs'
-    };
-  },
-
+  @autobind
   onClick(id, e) {
     e.preventDefault();
     this.props.onActive(id);
   }
-});
-
-module.exports = Tabs;
+}

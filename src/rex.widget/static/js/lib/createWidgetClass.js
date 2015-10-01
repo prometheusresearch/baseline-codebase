@@ -3,12 +3,12 @@
  */
 'use strict';
 
-var React                   = require('react');
-var DataSpecificationMixin  = require('./DataSpecificationMixin');
-var Cell                    = require('./Cell');
+let React                   = require('react');
+let DataSpecificationMixin  = require('./DataSpecificationMixin');
+let Cell                    = require('./Cell');
 
 function createWidgetClass(spec) {
-  var mixins = spec.mixins || [];
+  let mixins = spec.mixins || [];
   mixins.push(Cell.Mixin);
   if (spec.dataSpecs) {
     mixins.push(DataSpecificationMixin);
@@ -19,7 +19,7 @@ function createWidgetClass(spec) {
 
     updateStateFor(key) {
       return (value) => {
-        var update = {};
+        let update = {};
         update[key] = value;
         this.setState(update);
       }
@@ -27,7 +27,7 @@ function createWidgetClass(spec) {
 
     toggleStateFor(key) {
       return () => {
-        var update = {};
+        let update = {};
         update[key] = !this.state[key];
         this.setState(update);
       }

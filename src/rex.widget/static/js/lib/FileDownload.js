@@ -3,12 +3,11 @@
  */
 'use strict';
 
-var React               = require('react');
-var File                = require('./File');
-var StoredFile          = require('./StoredFile');
-var Layout              = require('./Layout');
+let React               = require('react');
+let StoredFile          = require('./StoredFile');
+let Layout              = require('./Layout');
 
-var FileDownloadStyle =  {
+let FileDownloadStyle =  {
   placeholder: {
     fontSize: '90%',
     color: '#AAAAAA'
@@ -18,7 +17,7 @@ var FileDownloadStyle =  {
 /**
  * Use this widget to retrieve a stored file.
  */
-var FileDownload = React.createClass({
+let FileDownload = React.createClass({
 
   propTypes: {
     /**
@@ -39,7 +38,7 @@ var FileDownload = React.createClass({
   },
   
   render() {
-    var {file, download, ownerRecordID, ...props} = this.props;
+    let {file, download, ownerRecordID, ...props} = this.props;
     return (
       <Layout.HBox {...props} onChange={undefined} storage={undefined}>
         {file ?

@@ -27,7 +27,12 @@ export default class ShowPreloader extends React.Component {
     /**
      * Show preloader when no data is fetched.
      */
-    showPreloaderWhenNoData: PropTypes.bool
+    showPreloaderWhenNoData: PropTypes.bool,
+
+    /**
+     * Children to render if case data is loaded.
+     */
+    children: PropTypes.node,
   };
 
   static defaultProps = {
@@ -45,13 +50,11 @@ export default class ShowPreloader extends React.Component {
       showPreloaderWhenNoData && datasets.some(d => d.data === null)
     );
     if (showPreloader) {
-      return <Preloader />
+      return <Preloader />;
+    } else if (React.Children.count(children) > 1) {
+      return <VBox>{children}</VBox>;
     } else {
-      if (React.Children.count(children) > 1) {
-        return <VBox>{children}</VBox>;
-      } else {
-        return children;
-      }
+      return children;
     }
   }
 }

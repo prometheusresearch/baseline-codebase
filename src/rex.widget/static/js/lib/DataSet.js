@@ -28,9 +28,9 @@ class DataSet {
     if (id == null || this.data == null) {
       return null;
     }
-    for (var i = 0, len = this.data.length; i < len; i++) {
-      var item = this.data[i];
-      if (item.id == id) {
+    for (let i = 0, len = this.data.length; i < len; i++) {
+      let item = this.data[i];
+      if (item.id == id) { // eslint-disable-line eqeqeq
         return item;
       }
     }

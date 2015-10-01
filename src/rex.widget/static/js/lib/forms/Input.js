@@ -8,9 +8,7 @@ import {Input as BaseInput} from 'react-forms';
 
 @Stylesheet
 /**
- * Input component.
- *
- * Renders react-forms.  @ask-andrey
+ * Text input component.
  *
  * @public
  */
@@ -19,16 +17,16 @@ export default class Input extends React.Component {
   static propTypes = {
 
     /**
-     * @ask-andrey
+     * Render in error state.
      */
     error: React.PropTypes.any,
 
     /**
-     * @ask-andrey
+     * Input's DOM type.
      */
     type: React.PropTypes.string
   };
-  
+
   static defaultProps = {
     type: 'text'
   };

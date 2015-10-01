@@ -1,11 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React           = require('react');
-var Button          = require('../Button');
-var populateParams  = require('./populateParams');
+import React, {PropTypes} from 'react';
+import Button             from '../Button';
+import populateParams     from './populateParams';
 
 /**
  * Renders a <Button>
@@ -16,36 +15,40 @@ var populateParams  = require('./populateParams');
  * @public
  * @deprecated
  */
-var LinkButton = React.createClass({
+export default class LinkButton extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
      * href attribute contains the url to link to.
      */
-    href: React.PropTypes.string.isRequired,
+    href: PropTypes.string.isRequired,
 
     /**
-     * This object is populated from the context
-     * and represents the query string which 
-     * will be appended to the href url.
+     * This object is populated from the context and represents the query string
+     * which will be appended to the href url.
      *
      * See static/js/lib/library/populateParams.js
      */
-    params: React.PropTypes.object,
+    params: PropTypes.object,
 
     /**
-     * This object represents the context.  @ask-andrey.
+     * This object is used for parameter substitution of link params.
      */
-    context: React.PropTypes.object,
+    context: PropTypes.object,
 
     /**
      * The text of the link.
      */
-    text: React.PropTypes.string
-  },
+    text: PropTypes.string
+  };
+
+  static defaultProps = {
+    quiet: true,
+    align: 'left'
+  };
 
   render() {
-    var {href, params, context, text, ...props} = this.props;
+    let {href, params, context, text, ...props} = this.props;
     params = populateParams(params || {}, context);
     return (
       <Button
@@ -55,14 +58,5 @@ var LinkButton = React.createClass({
         {text}
       </Button>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      quiet: true,
-      align: 'left'
-    };
   }
-});
-
-module.exports = LinkButton;
+}

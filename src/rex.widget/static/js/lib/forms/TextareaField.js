@@ -1,13 +1,12 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React         = require('react');
-var Field         = require('./Field');
-var ReadOnlyField = require('./ReadOnlyField');
+import React         from 'react';
+import Field         from './Field';
+import ReadOnlyField from './ReadOnlyField';
 
-var TextareaFieldStyle = {
+let TextareaFieldStyle = {
   input: {
     display: 'block',
     width: '100%',
@@ -22,25 +21,25 @@ var TextareaFieldStyle = {
     boxShadow: 'inset 0 1px 1px rgba(0,0,0,.075)',
     transition: 'border-color ease-in-out .15s,box-shadow ease-in-out .15s'
   }
-}
+};
 
 /**
  * Renders a <Field> with a <textarea>.
  *
  * @public
  */
-var TextareaField = React.createClass({
+export default class TextareaField extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
      * When ``true``, <ReadOnlyField> is rendered.
-     * otherwise <Field> <textarea/> </Field> is. 
+     * otherwise <Field> <textarea/> </Field> is.
      */
-    readOnly: React.PropTypes.bool
-  },
+    readOnly: React.PropTypes.bool,
+  };
 
   render() {
-    var {readOnly, ...props} = this.props;
+    let {readOnly, ...props} = this.props;
     if (readOnly) {
       return <ReadOnlyField {...props} />;
     } else {
@@ -51,6 +50,4 @@ var TextareaField = React.createClass({
       );
     }
   }
-});
-
-module.exports = TextareaField;
+}

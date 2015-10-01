@@ -74,7 +74,10 @@ export default class File extends React.Component {
   };
 
   render() {
-    var {hover, file, icon, required, children, onRemove, progress, ...props} = this.props;
+    let {
+      hover, file, icon, required, children,
+      onRemove, progress, ...props
+    } = this.props;
     return (
       <Box {...props}>
         <HBox

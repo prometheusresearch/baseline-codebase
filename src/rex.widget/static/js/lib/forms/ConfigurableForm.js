@@ -3,9 +3,9 @@
  */
 'use strict';
 
-var React                           = require('react');
-var ConfigurableEntityForm          = require('./ConfigurableEntityForm');
-var {makeDeprecatedComponentMixin}  = require('../DeprecatedComponent');
+let React                           = require('react');
+let ConfigurableEntityForm          = require('./ConfigurableEntityForm');
+let {makeDeprecatedComponentMixin}  = require('../DeprecatedComponent');
 
 
 /**
@@ -16,7 +16,7 @@ var {makeDeprecatedComponentMixin}  = require('../DeprecatedComponent');
  * @deprecated
  * @public
  */
-var ConfigurableForm = React.createClass({
+let ConfigurableForm = React.createClass({
   mixins: [
     makeDeprecatedComponentMixin(
       'Use <RexWidget.Forms.ConfigurableEntityForm /> instead',

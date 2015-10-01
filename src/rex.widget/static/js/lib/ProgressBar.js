@@ -16,7 +16,12 @@ export default class ProgressBar extends React.Component {
      * Number in range from 0 to 1 which represents the current value of
      * progress (0 means nothing and 1 means completed).
      */
-    progress: PropTypes.number
+    progress: PropTypes.number,
+
+    /**
+     * CSS style
+     */
+    style: PropTypes.object,
   };
 
   static defaultProps = {

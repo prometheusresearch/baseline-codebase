@@ -3,7 +3,6 @@
  */
 
 import React, {PropTypes} from 'react';
-import cx                 from 'classnames';
 import {Themeable}        from 'rethemeable';
 import {VBox}             from './Layout';
 import Icon               from './Icon';

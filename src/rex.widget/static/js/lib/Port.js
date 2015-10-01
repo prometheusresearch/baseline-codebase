@@ -33,7 +33,7 @@ export default class Port {
   produceCollection(params, options) {
     return this.produce(params, options)
       .then(result => {
-        var keys = Object.keys(result);
+        let keys = Object.keys(result);
         invariant(
           keys.length === 1,
           'Port.produceCollection() can only query ports which return a single dataset'
@@ -46,7 +46,7 @@ export default class Port {
   produceEntity(params, options) {
     return this.produce(params, options)
       .then(result => {
-        var keys = Object.keys(result);
+        let keys = Object.keys(result);
         invariant(
           keys.length === 1,
           'Port.produceEntity() can only query ports which return a single dataset'

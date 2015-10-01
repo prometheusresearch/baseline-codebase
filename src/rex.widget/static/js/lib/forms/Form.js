@@ -1,19 +1,18 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React               = require('react');
-var {Value}             = require('react-forms');
-var Fieldset            = require('./Fieldset');
-var emptyFunction       = require('../emptyFunction');
-var Button              = require('../Button');
-var {VBox, HBox}        = require('../Layout');
-var Port                = require('../Port');
-var Query               = require('../Query');
-var NotificationCenter  = require('../NotificationCenter');
+import React, {PropTypes} from 'react';
+import {Value}            from 'react-forms';
+import Fieldset           from './Fieldset';
+import emptyFunction      from '../emptyFunction';
+import Button             from '../Button';
+import {VBox}             from '../Layout';
+import Port               from '../Port';
+import Query              from '../Query';
+import NotificationCenter from '../NotificationCenter';
 
-var FormStyle = {
+let FormStyle = {
   controls: {
     marginTop: 10
   }
@@ -24,31 +23,48 @@ var FormStyle = {
  *
  * @public
  */
-var Form = React.createClass({
+let Form = React.createClass({
 
   propTypes: {
+
+    /**
+     * If form should operate in "insert" mode (for creating new entities).
+     */
+    insert: PropTypes.bool,
+
+    /**
+     * Initial form value
+     */
+    initialValue: PropTypes.any,
+
+    /**
+     * Callback which is called on every change to form which results in a valid
+     * value.
+     */
+    onChange: PropTypes.func,
+
     /**
      * An instance of ``class DataSpecification``.
      * The data specification to submit the form value to.
      */
-    submitTo: React.PropTypes.object,
+    submitTo: PropTypes.object,
     /**
      * The form schema in json schema format.
      */
-    schema: React.PropTypes.object,
+    schema: PropTypes.object,
     /**
      * Initial form value.
      */
-    value: React.PropTypes.object,
+    value: PropTypes.object,
 
     /**
      * Submit button element.
      */
-    submitButton: React.PropTypes.element,
+    submitButton: PropTypes.element,
     /**
      * Submit button title.
      */
-    submitButtonTitle: React.PropTypes.string,
+    submitButtonTitle: PropTypes.string,
 
     /**
      * func
@@ -58,7 +74,7 @@ var Form = React.createClass({
      * This callback can alter form value before submitting it to server by
      * returning a new value. Value will be revalidated.
      */
-    onSubmit: React.PropTypes.func,
+    onSubmit: PropTypes.func,
 
     /**
      * func
@@ -66,35 +82,64 @@ var Form = React.createClass({
      * Callback which can be used to transform value before submitting it on
      * server. Value won't be revalidated.
      */
-    transformValueOnSubmit: React.PropTypes.func,
+    transformValueOnSubmit: PropTypes.func,
 
     /**
      * func
      *
      * Callback which fires after form submit is complete.
      */
-    onSubmitComplete: React.PropTypes.func,
+    onSubmitComplete: PropTypes.func,
     /**
      * func
      *
      * Callback which fires if form submit results in an error.
      */
-    onSubmitError: React.PropTypes.func,
+    onSubmitError: PropTypes.func,
 
     /**
      * @private
      */
-    context: React.PropTypes.object,
+    context: PropTypes.object,
+
+    /**
+     * Error notification
+     */
+    errorNotification: PropTypes.node,
+
+    /**
+     * Progress notification
+     */
+    progressNotification: PropTypes.node,
+
+    /**
+     * Complete notification
+     */
+    completeNotification: PropTypes.node,
+
+    /**
+     * Form children
+     */
+    children: PropTypes.node,
+
+    /**
+     * Callback is called on each update.
+     */
+    onUpdate: PropTypes.func,
   },
 
   render() {
-    var {children, schema, submitButton, submitButtonTitle, ...props} = this.props;
-    var {value, submitInProgress} = this.state;
+    let {children, schema, submitButton, submitButtonTitle, ...props} = this.props;
+    let {value, submitInProgress} = this.state;
     if (submitButton) {
-      var submitButtonProps = {
+      let submitButtonProps = {
         type: 'button',
         onClick: this.onSubmit,
-        disabled: value.params.forceShowErrors && value.completeErrorList.length > 0 || submitInProgress
+        disabled: (
+          value.params.forceShowErrors
+          && value.completeErrorList.length > 0
+          || submitInProgress
+        )
       };
       if (submitButtonTitle) {
         submitButtonProps.children = submitButtonTitle;
@@ -166,14 +211,16 @@ var Form = React.createClass({
   },
 
   componentDidUpdate() {
-    var value = this.props.onUpdate(this.state.value.value);
+    let value = this.props.onUpdate(this.state.value.value);
     if (value !== this.state.value.value) {
-      this.setState({value: this.state.value.update(value, true)});
+      this.setState({ // eslint-disable-line react/no-did-update-set-state
+        value: this.state.value.update(value, true)
+      });
     }
   },
 
   componentWillReceiveProps(nextProps) {
-    var value = this.state.value;
+    let value = this.state.value;
     if (nextProps.schema !== this.props.schema) {
       value = Value(
         nextProps.schema,
@@ -195,29 +242,41 @@ var Form = React.createClass({
   },
 
   submit() {
-    var {value} = this.state;
-    var {submitTo, onSubmit, onSubmitComplete, onSubmitError} = this.props;
-    var nextValue = value.update(
+    let {value} = this.state;
+    let {submitTo, onSubmit} = this.props;
+    let nextValue = value.update(
       onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
       true);
     if (nextValue.completeErrorList.length > 0) {
-      this.setState({value: Value(value.schema, value.value, value.onChange, {forceShowErrors: true}, value.completeErrorList)});
+      this.setState({
+        value: Value(
+          value.schema,
+          value.value,
+          value.onChange,
+          {forceShowErrors: true},
+          value.completeErrorList)
+      });
 
       return;
     }
-    this._progressNotification = NotificationCenter.showNotification(this.props.progressNotification);
+    this._progressNotification = NotificationCenter.showNotification(
+      this.props.progressNotification);
     this.setState({submitInProgress: true});
-    var valueToSubmit = this.props.transformValueOnSubmit(nextValue.value);
+    let valueToSubmit = this.props.transformValueOnSubmit(nextValue.value);
     if (submitTo.port instanceof Port) {
       if (this.props.insert) {
-        submitTo.port.insert(valueToSubmit).then(this.onSubmitComplete, this.onSubmitError);
+        submitTo.port
+          .insert(valueToSubmit)
+          .then(this.onSubmitComplete, this.onSubmitError);
       } else {
         submitTo.port
           .replace(this.props.initialValue || this.props.value, valueToSubmit)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     } else if (submitTo.port instanceof Query) {
-      submitTo.port.produce(valueToSubmit).then(this.onSubmitComplete, this.onSubmitError);
+      submitTo.port
+        .produce(valueToSubmit)
+        .then(this.onSubmitComplete, this.onSubmitError);
     }
   },
 
@@ -236,13 +295,13 @@ var Form = React.createClass({
     this.setState({submitInProgress: false});
     NotificationCenter.removeNotification(this._progressNotification);
     NotificationCenter.showNotification(this.props.completeNotification);
-    this.props.onSubmitComplete(data)
+    this.props.onSubmitComplete(data);
   },
 
   onSubmitError(err) {
     this.setState({submitInProgress: false});
     NotificationCenter.removeNotification(this._progressNotification);
-    var errorNotification = React.cloneElement(this.props.errorNotification, {
+    let errorNotification = React.cloneElement(this.props.errorNotification, {
       children: (
         <div>
           <p>Error submitting data on server:</p>
@@ -251,11 +310,11 @@ var Form = React.createClass({
       )
     });
     NotificationCenter.showNotification(errorNotification);
-    this.props.onSubmitError()
+    this.props.onSubmitError();
   }
 });
 
-var ErrorRendererStyle = {
+let ErrorRendererStyle = {
   stack: {
     whiteSpace: 'pre',
     fontFamily: 'monospace',
@@ -266,11 +325,15 @@ var ErrorRendererStyle = {
   }
 };
 
-var ErrorRenderer = React.createClass({
+let ErrorRenderer = React.createClass({
+
+  propTypes: {
+    error: PropTypes.node,
+  },
 
   render() {
-    var {error, ...props} = this.props;
-    var {showDetails} = this.state;
+    let {error, ...props} = this.props;
+    let {showDetails} = this.state;
     return (
       <div {...props}>
         <div>

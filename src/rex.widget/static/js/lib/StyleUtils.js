@@ -1,9 +1,8 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var isString = require('./isString');
+import isString from './isString';
 
 function boxShadow(offsetX, offsetY, blurRadius, spreadRadius, color) {
   return `${offsetX}px ${offsetY}px ${blurRadius}px ${spreadRadius}px ${color}`;
@@ -34,7 +33,7 @@ function border(width, style, color) {
   return `${width}px ${style} ${color}`;
 }
 
-var borderStyle = {
+let borderStyle = {
   solid: 'solid'
 };
 
@@ -53,17 +52,17 @@ function translate3d(x, y, z) {
   return `translate3d(${x}px, ${y}px, ${z}px)`;
 }
 
-var position = {
+let position = {
   absolute: 'absolute',
   relative: 'relative',
   fixed: 'fixed'
 };
 
-var cursor = {
+let cursor = {
   pointer: 'pointer'
 };
 
-var overflow = {
+let overflow = {
   auto: 'auto',
   hidden: 'hidden',
   scroll: 'scroll'

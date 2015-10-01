@@ -3,13 +3,12 @@
  */
 'use strict';
 
-var React             = require('react');
-var {batchedUpdates}  = require('react/addons').addons;
-var Emitter           = require('component-emitter');
-var invariant         = require('./invariant');
-var qs                = require('./qs');
+let {batchedUpdates}  = require('react/addons').addons;
+let Emitter           = require('component-emitter');
+let invariant         = require('./invariant');
+let qs                = require('./qs');
 
-var EVENT_NAME = 'change';
+let EVENT_NAME = 'change';
 
 class CellHistory {
 
@@ -50,13 +49,13 @@ class CellHistory {
   }
 
   _updateLocation() {
-    var nextLocation = updateQueryString(this._pendingUpdates);
+    let nextLocation = updateQueryString(this._pendingUpdates);
     history.pushState({}, '', nextLocation);
     this._pendingUpdates = {};
   }
 
   _onPopState() {
-    var params = getQueryParams();
+    let params = getQueryParams();
     batchedUpdates(() => {
       this.ignoringChanges(() => {
         Object.keys(params).forEach(param => {
@@ -70,7 +69,7 @@ class CellHistory {
 }
 
 function getQueryParams() {
-  var params = {};
+  let params = {};
   if (location.search.length > 0) {
     params = qs.parse(location.search.slice(1));
   }
@@ -78,11 +77,11 @@ function getQueryParams() {
 }
 
 function updateQueryString(update) {
-  var params = getQueryParams();
+  let params = getQueryParams();
   if (location.search.length > 0) {
     params = qs.parse(location.search.slice(1));
   }
-  for (var k in update) {
+  for (let k in update) {
     if (update[k] == null) {
       delete params[k];
     } else {
@@ -96,7 +95,7 @@ function updateQueryString(update) {
   }
 }
 
-var _history = new CellHistory();
+let _history = new CellHistory();
 
 class Cell extends Emitter {
 
@@ -118,7 +117,7 @@ class Cell extends Emitter {
   }
 
   update(nextValue) {
-    var nextCell = new this.constructor(nextValue, this.options, this);
+    let nextCell = new this.constructor(nextValue, this.options, this);
     if (this.options.param) {
       _history.notifyChange(this.options.param, nextCell);
     }
@@ -130,7 +129,7 @@ class Cell extends Emitter {
   }
 
   toggle() {
-    var nextValue = !this.value;
+    let nextValue = !this.value;
     this.update(nextValue);
   }
 
@@ -143,11 +142,14 @@ class Cell extends Emitter {
   }
 }
 
-var Mixin = {
+let Mixin = {
 
   componentWillMount() {
-    for (var key in this.state) {
-      var cell = this.state[key];
+    for (let key in this.state) {
+      if (!this.state.hasOwnProperty(key)) {
+        continue;
+      }
+      let cell = this.state[key];
       if (cell instanceof Cell) {
         cell.addChangeListener(this._onCellChange);
       }
@@ -155,8 +157,11 @@ var Mixin = {
   },
 
   componentWillUpdate(_nextProps, nextState) {
-    for (var key in nextState) {
-      var cell = nextState[key];
+    for (let key in nextState) {
+      if (!nextState.hasOwnProperty(key)) {
+        continue;
+      }
+      let cell = nextState[key];
       if ((cell instanceof Cell) && (this.state[key] !== cell)) {
         this.state[key].removeChangeListener(this._onCellChange);
         cell.addChangeListener(this._onCellChange);
@@ -165,8 +170,11 @@ var Mixin = {
   },
 
   componentWillUnmount() {
-    for (var key in this.state) {
-      var cell = this.state[key];
+    for (let key in this.state) {
+      if (!this.state.hasOwnProperty(key)) {
+        continue;
+      }
+      let cell = this.state[key];
       if (cell instanceof Cell) {
         cell.removeChangeListener(this._onCellChange);
       }
@@ -174,12 +182,15 @@ var Mixin = {
   },
 
   _onCellChange(nextCell, prevCell) {
-    for (var key in this.state) {
-      var cell = this.state[key];
+    for (let key in this.state) {
+      if (!this.state.hasOwnProperty(key)) {
+        continue;
+      }
+      let cell = this.state[key];
       if ((cell instanceof Cell) && prevCell === cell) {
         prevCell.removeChangeListener(this._onCellChange);
         nextCell.addChangeListener(this._onCellChange);
-        var update = {};
+        let update = {};
         update[key] = nextCell;
         this.setState(update);
       }
@@ -199,7 +210,7 @@ function isCell(maybeCell) {
  */
 function cell(value, options) {
   if (options && options.param) {
-    var params = getQueryParams();
+    let params = getQueryParams();
     if (Object.keys(params).indexOf(options.param) > -1) {
       value = params[options.param];
     }

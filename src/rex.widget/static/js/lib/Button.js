@@ -6,7 +6,6 @@ import React, {PropTypes} from 'react';
 import {Themeable}        from 'rethemeable';
 import cx                 from 'classnames';
 import Icon               from './Icon';
-import emptyFunction      from './emptyFunction';
 import resolveURL         from './resolveURL';
 import qs                 from './qs';
 import Style              from './Button.style';

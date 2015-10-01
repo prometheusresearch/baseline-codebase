@@ -39,4 +39,4 @@ export default function WithDOMSize(Component) {
       this.setState({DOMSize: {width, height}});
     }
   };
-};
+}

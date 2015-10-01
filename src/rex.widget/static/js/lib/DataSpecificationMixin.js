@@ -3,33 +3,25 @@
  */
 'use strict';
 
-var Immutable         = require('immutable');
-var invariant         = require('./invariant');
-var DataSpecification = require('./DataSpecification');
-var DataSet           = require('./DataSet');
+let Immutable         = require('immutable');
+let invariant         = require('./invariant');
+let DataSpecification = require('./DataSpecification');
+let DataSet           = require('./DataSet');
 
-var _dataComponentsRegistry = [];
+let _dataComponentsRegistry = [];
 
 function _registerDataComponent(component) {
-  var idx = _dataComponentsRegistry.indexOf(component);
+  let idx = _dataComponentsRegistry.indexOf(component);
   if (idx === -1) {
     _dataComponentsRegistry.push(component);
   }
 }
 
 function _unregisterDataComponent(component) {
-  var idx = _dataComponentsRegistry.indexOf(component);
+  let idx = _dataComponentsRegistry.indexOf(component);
   if (idx > -1) {
     _dataComponentsRegistry.splice(idx, 1);
   }
-}
-
-function _makeEmptyData(dataSpecs) {
-  var data = {};
-  for (var key in dataSpecs) {
-    data[key] = new DataSet(null, true);
-  }
-  return data;
 }
 
 function _fetch(spec, params) {
@@ -60,11 +52,14 @@ function forceRefreshData() {
 }
 
 function _bindDataSpecs(component, props, state) {
-  var dataSpecs = _getDataSpecs(component);
-  var boundDataSpecs = {};
-  for (var specName in dataSpecs) {
-    var dataSpec = dataSpecs[specName];
-    var prevDataSpec = props[specName];
+  let dataSpecs = _getDataSpecs(component);
+  let boundDataSpecs = {};
+  for (let specName in dataSpecs) {
+    if (!dataSpec.hasOwnProperty(specName)) {
+      continue;
+    }
+    let dataSpec = dataSpecs[specName];
+    let prevDataSpec = props[specName];
     if (prevDataSpec) {
       invariant(
         (prevDataSpec instanceof DataSpecification.DataSpecification),
@@ -85,7 +80,7 @@ function _getDataSpecs(component) {
   }
 }
 
-var DataSpecificationMixin = {
+let DataSpecificationMixin = {
 
   componentWillMount() {
     invariant(
@@ -119,31 +114,33 @@ var DataSpecificationMixin = {
     if (!this.fetchDataSpecs) {
       return;
     }
-    var tasks = {};
-    for (var key in this.dataSpecs) {
+    for (let key in this.dataSpecs) {
+      if (!this.dataSpecs.hasOwnProperty(key)) {
+        continue;
+      }
       if (!this.fetchDataSpecs[key]) {
         continue;
       }
-      var spec = this.dataSpecs[key];
+      let spec = this.dataSpecs[key];
       if (!spec.port) {
         this.data[key] = DataSet.EMPTY_DATASET;
         continue;
       }
-      var params = spec.produceParams();
-      var prevParams = this._dataParams[key];
+      let params = spec.produceParams();
+      let prevParams = this._dataParams[key];
       if (force || !Immutable.is(prevParams, params)) {
         this._dataParams[key] = params
         if (params === null) {
           this.data[key] = DataSet.EMPTY_DATASET;
           this._dataTasks[key] = null;
         } else {
-          if (this.onDataFetch) {
+          if (this.onDataFetch) { // eslint-disable-line max-depth
             this.onDataFetch(key, params, prevParams);
           } else {
             this.data[key] = DataSet.EMPTY_UPDATING_DATASET;
           }
-          if (spec.options.strategy === DataSpecification.QUEUE_ON_UPDATE && this._dataTasks[key]) {
-            this._dataTasks[key] = this._dataTasks[key].then(() => _fetch(spec, params));
+          if (spec.options.strategy === DataSpecification.QUEUE_ON_UPDATE && this._dataTasks[key]) { // eslint-disable-line max-depth, max-len
+            this._dataTasks[key] = this._dataTasks[key].then(_fetch.bind(null, spec, params));
           } else {
             this._dataTasks[key] = _fetch(spec, params);
           }

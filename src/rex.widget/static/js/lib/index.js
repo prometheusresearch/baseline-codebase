@@ -3,12 +3,12 @@
  */
 'use strict';
 
-import React       from 'react';
-import classNames  from 'classnames';
-import Environment from './Environment';
+import React            from 'react';
+import classNames       from 'classnames';
+import {isTouchDevice}  from './Environment';
 
 
-if (Environment.isTouchDevice) {
+if (isTouchDevice) {
   React.initializeTouchEvents(true);
 }
 

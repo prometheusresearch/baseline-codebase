@@ -3,14 +3,13 @@
  */
 'use strict';
 
-var React                 = require('react');
-var cx                    = require('classnames');
-var LayeredComponentMixin = require('./LayeredComponentMixin');
-var {VBox}                = require('./Layout');
-var Cell                  = require('./Cell');
-var valueOf               = require('./valueOf');
+import React, {PropTypes}    from 'react';
+import LayeredComponentMixin from './LayeredComponentMixin';
+import {VBox}                from './Layout';
+import Cell                  from './Cell';
+import valueOf               from './valueOf';
 
-var ExpandStyle = {
+let ExpandStyle = {
   top: 0,
   bottom: 0,
   left: 0,
@@ -18,7 +17,7 @@ var ExpandStyle = {
   position: 'fixed'
 };
 
-var ModalStyle = {
+let ModalStyle = {
   self: {
     height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -57,79 +56,84 @@ var ModalStyle = {
  *
  * @public
  */
-var Modal = React.createClass({
+let Modal = React.createClass({
   mixins: [LayeredComponentMixin],
 
   propTypes: {
     /**
-     * The modal is only rendered when **open** is not falsy, 
+     * The modal is only rendered when **open** is not falsy,
      * and not equal to 'false'.
      */
-    open: React.PropTypes.any,
-    
+    open: PropTypes.any,
+
     /**
-     * The children to appear inside the modal. 
+     * The children to appear inside the modal.
      */
-    children: React.PropTypes.element,
-    
+    children: PropTypes.element,
+
     /**
      * Display title (and button) only when true.
      */
-    showTitle: React.PropTypes.bool,
-    
+    showTitle: PropTypes.bool,
+
     /**
      * The title of the modal.
      */
-    title: React.PropTypes.string,
-    
-    /**
-     * When true the height for the modal's children is set to '100%'.
-     * otherwise it is set to undefined. 
-     */
-    forceHeight: React.PropTypes.bool,
+    title: PropTypes.string,
 
     /**
-     * The css style width of the modal.  
+     * When true the height for the modal's children is set to '100%'.
+     * otherwise it is set to undefined.
      */
-    width: React.PropTypes.string,
-    
+    forceHeight: PropTypes.bool,
+
     /**
-     * The css style minimum width of the modal. 
+     * The css style width of the modal.
      */
-    minWidth: React.PropTypes.string,
-    
+    width: PropTypes.string,
+
     /**
-     * string css style maximum width of the modal. 
+     * The css style minimum width of the modal.
      */
-    maxWidth: React.PropTypes.string,
-    
+    minWidth: PropTypes.string,
+
     /**
-     * The css style height of the modal. 
+     * string css style maximum width of the modal.
      */
-    height: React.PropTypes.string,
-    
+    maxWidth: PropTypes.string,
+
+    /**
+     * The css style height of the modal.
+     */
+    height: PropTypes.string,
+
     /**
      * The css style minimum height of the modal.
      */
-    minHeight: React.PropTypes.string,
-    
+    minHeight: PropTypes.string,
+
     /**
      * The css style maximum height of the modal.
      */
-    maxHeight: React.PropTypes.string,
+    maxHeight: PropTypes.string,
 
     /**
      * This function is called when the modal button is clicked.
      */
-    onClose: React.PropTypes.func
+    onClose: PropTypes.func,
+
+    /**
+     * CSS class name.
+     */
+    className: PropTypes.string,
   },
-  
+
   render() {
     return null;
   },
 
   renderLayer() {
-    var {
+    let {
       open, children, showTitle, title, className,
       width, height, minWidth, minHeight, maxWidth, maxHeight,
       ...props
@@ -182,7 +186,7 @@ var Modal = React.createClass({
 
   componentWillMount() {
     if (Cell.isCell(this.props.open) && this.props.onClose) {
-      console.warning(
+      console.warning( // eslint-disable-line no-console, space-in-parens
         '<Modal /> component received both onClose prop while open prop passed a cell,' +
         ' onClose prop is ignored in this case as <Modal /> state can be controlled via a cell'
       );
@@ -210,4 +214,4 @@ function stopPropagation(e) {
   }
 }
 
-module.exports = Modal;
+export default Modal;

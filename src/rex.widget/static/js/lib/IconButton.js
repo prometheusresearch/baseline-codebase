@@ -3,17 +3,17 @@
  */
 
 import React, {PropTypes} from 'react';
-import {Themeable}        from 'rethemeable';
+import Stylesheet         from '@prometheusresearch/react-stylesheet';
 import {VBox}             from './Layout';
 import Icon               from './Icon';
-import Style              from './IconButton.module.css';
+import Style              from './StyleUtils';
 
-@Themeable
 /**
  * Icon component which behaves like a button.
  *
  * @public
  */
+@Stylesheet
 export default class IconButton extends React.Component {
 
   static propTypes = {
@@ -32,18 +32,29 @@ export default class IconButton extends React.Component {
     onClick: PropTypes.func.isRequired
   };
 
-  static defaultTheme = Style;
+  static stylesheet = {
+    Root: {
+      width: '1em',
+      height: '1em',
+      opacity: 0.2,
+      cursor: Style.cursor.pointer,
+      hover: {
+        opacity: 1,
+      }
+    },
+  };
 
   render() {
     let {name, ...props} = this.props;
+    let {Root} = this.stylesheet;
     return (
-      <VBox {...props} role="button">
+      <Root {...props} role="button">
         <Icon
           name={name}
           aria-hidden={false}
           className={this.theme.self}
           />
-      </VBox>
+      </Root>
     );
   }
 }

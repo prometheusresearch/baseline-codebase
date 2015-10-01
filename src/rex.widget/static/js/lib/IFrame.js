@@ -6,7 +6,7 @@ import React, {PropTypes} from 'react';
 import Stylesheet         from '@prometheusresearch/react-stylesheet';
 import cx                 from 'classnames';
 import * as qs            from './qs';
-import Style              from './IFrame.module.css';
+import Style              from './StyleUtils';
 
 /**
  * Render an iframe.

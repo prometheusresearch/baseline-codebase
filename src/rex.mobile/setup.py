@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.mobile',
-    version='0.3.0',
+    version='0.4.0',
     description='Class interfaces and framework for using Instrument-based'
     ' SMS Interactions',
     long_description=open('README.rst', 'r').read(),
@@ -32,7 +32,7 @@ setup(
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',
         'rex.instrument>=1,<2',
-        'prismh.core>=0.2,<0.5',
+        'rios.core>=0.5,<0.6',
     ],
     rex_init='rex.mobile',
 )

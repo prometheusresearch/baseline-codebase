@@ -13,8 +13,10 @@ This package is responsible for two areas of functionality:
 * Defining a basic set of class interfaces for building applications that make
   use of sms-based Electronic Data Capture (EDC) Interactions
   functionality.
-* Providing the functionality to validate and construct SMS Interaction
-  Configuration structures.
+* Extending the implementation of the `RIOS`_ specification and model in the
+  RexDB platform.
+
+.. _`RIOS`: https://rios.readthedocs.org
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is

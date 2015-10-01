@@ -127,7 +127,7 @@ configurations, but not Form configurations::
 
 
 There is a static method on Interaction named ``validated_configuration()``
-that will validate the specified configuration against the PRISMH
+that will validate the specified configuration against the RIOS
 specifications. It will raise an exception if the configuration is not
 well-formed::
 

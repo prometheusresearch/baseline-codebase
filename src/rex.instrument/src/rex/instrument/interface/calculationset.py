@@ -7,8 +7,8 @@ import datetime
 import re
 
 from copy import deepcopy
-from prismh.core import validate_calculationset, \
-    ValidationError as PrismhValidationError
+from rios.core import validate_calculationset, \
+    ValidationError as RiosValidationError
 
 from rex.core import Extension, AnyVal, Error
 
@@ -161,7 +161,7 @@ class CalculationSet(
                 definition,
                 instrument=instrument_definition,
             )
-        except PrismhValidationError as exc:
+        except RiosValidationError as exc:
             msg = [
                 'The following problems were encountered when validating this'
                 ' CalculationSet:',

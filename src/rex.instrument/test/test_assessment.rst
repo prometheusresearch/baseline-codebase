@@ -188,7 +188,7 @@ properties on the Assessment Document::
 
 
 There's a static method on Assessment named ``validate_data()`` that will
-check the given structure against the PRISMH specifications for Assessment
+check the given structure against the RIOS specifications for Assessment
 Documents. It will raise an exception if the data is not well-formed::
 
     >>> ASSESSMENT_JSON = json.dumps(ASSESSMENT)

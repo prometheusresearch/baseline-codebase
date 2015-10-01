@@ -3,7 +3,7 @@
 #
 
 
-from prismh.core import get_instrument_yaml, get_instrument_json, \
+from rios.core import get_instrument_yaml, get_instrument_json, \
     get_assessment_yaml, get_assessment_json, \
     get_calculationset_yaml, get_calculationset_json
 

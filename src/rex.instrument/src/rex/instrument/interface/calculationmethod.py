@@ -7,7 +7,7 @@ from datetime import datetime
 from importlib import import_module
 
 from htsql.core.domain import Record as HtsqlRecord
-from prismh.core.validation.instrument import get_full_type_definition
+from rios.core.validation.instrument import get_full_type_definition
 from rex.core import get_settings, Extension
 from rex.db import get_db
 

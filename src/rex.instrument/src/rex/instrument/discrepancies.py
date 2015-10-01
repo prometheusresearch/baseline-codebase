@@ -3,7 +3,7 @@
 #
 
 
-from prismh.core.validation.instrument import TYPES_SIMPLE
+from rios.core.validation.instrument import TYPES_SIMPLE
 
 from .interface import InstrumentVersion
 

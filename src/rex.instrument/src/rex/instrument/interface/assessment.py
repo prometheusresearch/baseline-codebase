@@ -6,8 +6,8 @@
 from copy import deepcopy
 from datetime import datetime, date
 
-from prismh.core import validate_assessment, \
-    ValidationError as PrismhValidationError
+from rios.core import validate_assessment, \
+    ValidationError as RiosValidationError
 from rex.core import Extension, AnyVal, Error
 
 from .instrumentversion import InstrumentVersion
@@ -104,7 +104,7 @@ class Assessment(
 
         try:
             validate_assessment(data, instrument=instrument_definition)
-        except PrismhValidationError as exc:
+        except RiosValidationError as exc:
             msg = [
                 'The following problems were encountered when validating this'
                 ' Assessment:',

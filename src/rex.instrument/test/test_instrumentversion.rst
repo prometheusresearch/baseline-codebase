@@ -117,7 +117,7 @@ both readable and writable::
 
 
 There's a static method on InstrumentVersion named ``validate_definition()``
-that will check the given structure against the PRISMH specifications for
+that will check the given structure against the RIOS specifications for
 Instrument Definitions. It will raise an exception if the definition is not
 well-formed::
 

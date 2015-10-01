@@ -13,10 +13,10 @@ This package is responsible for two areas of functionality:
 * Defining a basic set of class interfaces for building applications that
   make use of Electronic Data Capture (EDC) functionality such as Instruments,
   Assessments, and Tasks.
-* Providing the base implementation of the `PRISMH`_ specifications and model in
+* Providing the base implementation of the `RIOS`_ specifications and model in
   the RexDB platform.
 
-.. _`PRISMH`: https://prismh-specification.readthedocs.org
+.. _`RIOS`: https://rios.readthedocs.org
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -137,7 +137,7 @@ Settings
 ``instrument_calculationmethod_default_module_list``
     This setting is a list that controls which Python standard modules are
     automatically imported and made available to Python calculation
-    expressions. This setting defaults to a PRISMH-compliant list of: ``re``,
+    expressions. This setting defaults to a RIOS-compliant list of: ``re``,
     ``math``, ``cmath``, and ``datetime``.
 
 

@@ -114,7 +114,7 @@ a dict equivalent::
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'id': 'calc1', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
 
 There's a static method on CalculationSet named ``validate_definition()``
-that will check the given CalculatioSet definistion against the PRISMH
+that will check the given CalculatioSet definistion against the RIOS
 specifications for InstrumentVersion Definitions. It will raise an exception
 if the CalculationSet or InstrumentVersion definition is not well-formed::
 

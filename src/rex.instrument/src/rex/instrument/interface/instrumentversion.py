@@ -6,9 +6,9 @@
 from copy import deepcopy
 from datetime import datetime
 
-from prismh.core import validate_instrument, \
-    ValidationError as PrismhValidationError
-from prismh.core.validation.instrument import TYPES_ALL, \
+from rios.core import validate_instrument, \
+    ValidationError as RiosValidationError
+from rios.core.validation.instrument import TYPES_ALL, \
     get_full_type_definition
 from rex.core import Extension, AnyVal, Error
 
@@ -153,7 +153,7 @@ class InstrumentVersion(
 
         try:
             validate_instrument(definition)
-        except PrismhValidationError as exc:
+        except RiosValidationError as exc:
             msg = [
                 'The following problems were encountered when validating this'
                 ' Instrument:',

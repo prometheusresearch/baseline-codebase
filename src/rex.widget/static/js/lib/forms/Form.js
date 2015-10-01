@@ -2,15 +2,15 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes} from 'react';
-import {Value}            from 'react-forms';
-import Fieldset           from './Fieldset';
-import emptyFunction      from '../emptyFunction';
-import Button             from '../Button';
-import {VBox}             from '../Layout';
-import Port               from '../Port';
-import Query              from '../Query';
-import NotificationCenter from '../NotificationCenter';
+import React, {PropTypes}       from 'react';
+import {Value}                  from 'react-forms';
+import Fieldset                 from './Fieldset';
+import emptyFunction            from '../emptyFunction';
+import Button                   from '../Button';
+import {VBox}                   from '../Layout';
+import Port                     from '../Port';
+import Query                    from '../Query';
+import * as NotificationCenter  from '../NotificationCenter';
 
 let FormStyle = {
   controls: {

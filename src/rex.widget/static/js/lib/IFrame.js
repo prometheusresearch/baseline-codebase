@@ -64,6 +64,7 @@ export default class IFrame extends React.Component {
 
   static stylesheet = {
     Root: {
+      Component: 'iframe',
       position: Style.position.absolute,
       top: 0,
       bottom: 0,

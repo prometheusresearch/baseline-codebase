@@ -3,7 +3,7 @@
  */
 
 import React      from 'react';
-import qs         from './qs';
+import * as qs    from './qs';
 import resolveURL from './resolveURL';
 
 function interpolateLinkParams(link, name, value) {

@@ -3,8 +3,9 @@
  */
 
 import React                from 'react';
+import Stylesheet           from '@prometheusresearch/react-stylesheet';
 import loadingIndicatorImg  from '../img/loading-indicator.gif';
-import Style                from './LoadingIndicator.module.css';
+import {textAlign}          from './StyleUtils';
 
 /**
  * Loading indicator component.
@@ -16,13 +17,22 @@ import Style                from './LoadingIndicator.module.css';
  *
  * A widget can choose to render this widget while its data is loading.
  */
+@Stylesheet
 export default class LoadingIndicator extends React.Component {
 
+  static stylesheet = {
+    Root: {
+      width: '100%',
+      textAlign: textAlign.center,
+    }
+  };
+
   render() {
+    let {Root} = this.stylesheet;
     return (
-      <div className={Style.self}>
+      <Root>
         <img src={__PUBLIC_PATH__ + loadingIndicatorImg} />
-      </div>
+      </Root>
     );
   }
 

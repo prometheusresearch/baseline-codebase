@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import {batchedUpdates} from 'react/addons';
+import ReactUpdates from 'react/lib/ReactUpdates';
 
 export default {
 
@@ -17,7 +17,7 @@ export default {
   setTimeout(func, ms) {
     let  timeoutID = setTimeout(() => {
       this.clearTimeout(timeoutID);
-      batchedUpdates(func);
+      ReactUpdates.batchedUpdates(func);
     }, ms);
     this._timeouts.push(timeoutID);
     return timeoutID;

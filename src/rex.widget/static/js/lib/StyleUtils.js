@@ -2,7 +2,8 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import isString from './isString';
+import keyMirror  from 'keymirror';
+import isString   from './isString';
 
 function boxShadow(offsetX, offsetY, blurRadius, spreadRadius, color) {
   return `${offsetX}px ${offsetY}px ${blurRadius}px ${spreadRadius}px ${color}`;
@@ -33,9 +34,9 @@ function border(width, style, color) {
   return `${width}px ${style} ${color}`;
 }
 
-let borderStyle = {
-  solid: 'solid'
-};
+let borderStyle = keyMirror({
+  solid: true
+});
 
 function linearGradient(direction, ...colorStops) {
   colorStops = colorStops
@@ -52,23 +53,106 @@ function translate3d(x, y, z) {
   return `translate3d(${x}px, ${y}px, ${z}px)`;
 }
 
-let position = {
-  absolute: 'absolute',
-  relative: 'relative',
-  fixed: 'fixed'
+function sizeSeq(...args) {
+  return args
+    .map(arg => isString(arg) ? arg : `${arg}px`)
+    .join(' ');
+}
+
+let padding = sizeSeq;
+let margin = sizeSeq;
+
+let position = keyMirror({
+  absolute: true,
+  relative: true,
+  fixed: true,
+});
+
+let display = {
+  block: 'block',
+  inlineBlock: 'inline-block',
+  flex: 'flex',
+  inlineFlex: 'inline-flex',
+  inline: 'inline',
+
 };
 
-let cursor = {
-  pointer: 'pointer'
-};
+let cursor = keyMirror({
+  pointer: true,
+});
 
-let overflow = {
-  auto: 'auto',
-  hidden: 'hidden',
-  scroll: 'scroll'
-};
+let overflow = keyMirror({
+  auto: true,
+  hidden: true,
+  scroll: true,
+});
+
+let textAlign = keyMirror({
+  center: true,
+  left: true,
+  right: true,
+});
+
+let verticalAlign = keyMirror({
+  middle: true,
+  baseline: true,
+  sub: true,
+  super: true,
+  top: true,
+  bottom: true,
+});
+
+let fontWeight = keyMirror({
+  bold: true,
+  normal: true,
+});
+
+let touchAction = keyMirror({
+  manipulation: true,
+});
+
+let none = 'none';
+
+let whiteSpace = keyMirror({
+  nowrap: true
+});
+
+let textDecoration = keyMirror({
+  none: 'none',
+  underline: true,
+});
+
+let textOverflow = keyMirror({
+  ellipsis: true,
+});
+
+let color = keyMirror({
+  transparent: true,
+});
 
 module.exports = {
-  overflow, cursor, position, translate3d, transform, linearGradient, borderStyle,
-  border, rgb, rgba, insetBoxShadow, boxShadow
+  border,
+  borderStyle,
+  overflow,
+  cursor,
+  color,
+  position,
+  translate3d,
+  transform,
+  linearGradient,
+  rgb,
+  rgba,
+  insetBoxShadow,
+  boxShadow,
+  textAlign,
+  fontWeight,
+  padding,
+  margin,
+  display,
+  verticalAlign,
+  none,
+  touchAction,
+  whiteSpace,
+  textOverflow,
+  textDecoration,
 };

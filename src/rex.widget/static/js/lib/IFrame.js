@@ -4,7 +4,7 @@
 
 import React, {PropTypes} from 'react';
 import cx                 from 'classnames';
-import qs                 from './qs';
+import * as qs            from './qs';
 import Style              from './IFrame.module.css';
 
 /**

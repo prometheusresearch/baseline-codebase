@@ -20,8 +20,6 @@ REX.FORMS Change Log
   widgets.
 - Added support for the ``autoHotkeys`` and ``hotkeys`` options on the
   checkGroup/radioGroup widgets.
-- Deprecated the entryCheckGroup/entryRadioGroup widgets. The names will still
-  be recognized, but the checkGroup/radioGroup widgets will be used instead.
 - Fixed some issues with the display of matrix columns and question text.
 - Added a PresentationAdaptor extension and ``forms_presentation_adaptors``
   setting that allow you to apply automatic transformations to Form
@@ -33,6 +31,13 @@ REX.FORMS Change Log
 - Fixed an issue preventing matrix subfields from being event targets.
 - Fixed issue with disabled matrix subfields being excluded from the resulting
   Assessment.
+
+Deprecations
+------------
+The ``entryCheckGroup`` and ``entryRadioGroup`` widgets have been deprecated.
+To achieve the same behavior, you can use the normal ``checkGroup`` and
+``radioGroup`` widgets and specify either the ``autoHotkeys`` or ``hotkeys``
+options.
 
 
 0.31.0 (2015-06-23)
@@ -68,8 +73,6 @@ REX.FORMS Change Log
 0.30.0 (2015-06-12)
 ===================
 
-- THIS RELEASE CONTAINS BACKWARDS-INCOMPATIBLE CHANGES. SEE UPGRADING.rst FOR
-  DETAILS.
 - Moved the Channel, Task, Entry, TaskCompletionProcessor, and
   ParameterSupplier interface classes to the ``rex.instrument`` package.
 - Removed the ``forms_default_required_entries`` setting.
@@ -78,6 +81,29 @@ REX.FORMS Change Log
 - Added a get_for_task() method to Form.
 - Fixed some issues with the audio player JavaScript component that would cause
   errors when it was unmounted before expected.
+
+Upgrade Notes
+-------------
+
+The Channel, Task, and Entry interface classes were moved to the
+``rex.instrument`` package. This means:
+
+  * You'll need to update any import statements that refer to these classes.
+  * When using the ``get_implementation()`` function, you no longer have to
+    specify ``forms`` as the package argument for these classes.
+  * Any place you used the ``forms_implementation`` setting in reference to
+    these classes, you'll need to update it to ``instrument_implementation``.
+
+The TaskCompletionProcessor and ParameterSupplier extensions were moved to
+the ``rex.instrument`` package. Be sure to update any related import
+statements.
+
+The setting ``forms_default_required_entries`` no longer exists. It is now
+handled by the ``instrument_default_required_entries`` setting provided by
+the ``rex.instrument`` package.
+
+Identifier strings referenced in the Form Configurations can no longer
+contain underscore characters.
 
 
 0.29.1 (2015-05-06)

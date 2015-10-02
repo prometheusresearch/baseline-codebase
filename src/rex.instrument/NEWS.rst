@@ -59,8 +59,6 @@ REX.INSTRUMENT Change Log
 0.16.0 (2015-06-12)
 ===================
 
-* THIS RELEASE CONTAINS BACKWARDS-INCOMPATIBLE CHANGES. SEE UPGRADING.rst FOR
-  DETAILS.
 * Moved the Channel, Task, Entry, TaskCompletionProcessor, and
   ParameterSupplier interface classes from ``rex.forms`` to this package.
 * Added a STATUS_FAILED status to Tasks.
@@ -78,6 +76,35 @@ REX.INSTRUMENT Change Log
 * The ``get_implementation()`` function now throws a NotImplementedError
   instead of returning ``None`` when an implementation could not be found.
 * Added ``due_date`` property to Task.
+
+Upgrade Notes
+-------------
+
+The Channel, Task, and Entry interface classes were moved from the
+``rex.forms`` package to this package.  This means:
+
+  * You'll need to update any import statements that refer to these classes.
+  * When using the ``get_implementation()`` function, you no longer have to
+    specify ``forms`` as the package argument for these classes.
+  * Any place you used the ``forms_implementation`` setting in reference to
+    these classes, you'll need to update it to ``instrument_implementation``.
+
+The TaskCompletionProcessor and ParameterSupplier extensions were moved from
+the ``rex.forms`` package to this package. Be sure to update any related
+import statements.
+
+Channels must be classifed according to the type of configurations they use
+to present Instruments to users. The two supported types are ``form`` and
+``sms``.
+
+Tasks no longer have a ``get_form()`` method. To retrive a Form for a given
+Task, you can instead do::
+
+    Form.get_for_task(task, channel)
+
+Identifier strings in the Instrument Definitions can no longer contain
+underscore characters. Also, custom type names are now classifed as
+Identifier strings.
 
 
 0.15.0 (2015-05-05)

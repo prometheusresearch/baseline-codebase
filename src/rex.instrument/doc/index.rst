@@ -7,6 +7,7 @@ Programming Guide
 =================
 
 .. toctree::
+   :maxdepth: 2
 
    guide
 
@@ -19,18 +20,11 @@ API Reference
    reference
 
 
-Upgrade Guide
-=============
-
-.. toctree::
-
-   upgrading
-
-
 Examples/Tests
 ==============
 
 .. toctree::
+   :maxdepth: 2
 
    ../test/index
 
@@ -39,6 +33,7 @@ Release Notes
 =============
 
 .. toctree::
+   :maxdepth: 2
 
    changes
 

@@ -103,7 +103,7 @@ let Make = React.createClass({
 
   onSubmitComplete(data) {
     if (this.props.useQuery) {
-      let params = this.dataSpecs.data.produceParams();
+      let params = this.dataSpecs.data.produceParams().toJS();
       params['*'] = data.id;
       this.dataSpecs.data.port.produceEntity(params).then(data => this._onSubmitComplete(data));
     } else {

@@ -117,6 +117,7 @@ class BaseAssessmentImport(BaseLogging):
         self.import_assessments(instrument, filepaths, tolerant)
 
     def import_assessments(self, instrument, import_obj_files, tolerant=True):
+        imported_assessments = []
         if instrument.id not in import_obj_files:
             raise Error("csv file sufficient to the root template"
                 " %(root_tpl_id)s not found."
@@ -131,7 +132,7 @@ class BaseAssessmentImport(BaseLogging):
                             % {'filepath': root_assessment_filepath}, exc
                 )
             i = 1
-            imported = False
+            imported = True
             for row in reader:
                 assessment_id = row.get('assessment_id')
                 if not assessment_id:
@@ -152,16 +153,22 @@ class BaseAssessmentImport(BaseLogging):
                     assessment = Assessment.create(instrument,
                                                    assessment_data
                                             )
-                    imported = True
+                    imported_assessments.append(assessment)
                 except Exception, exc:
-                    if tolerant:
-                        self.warn(str(exc))
-                    else:
-                        raise exc
+                    imported = False
+                    self.warn(str(exc))
+                    if not tolerant:
+                        self.warn("Import failed.")
+                        self.rollback_imported_assessments(imported_assessments)
+                        raise Error("Nothing was imported")
                 else:
                     self.log("Import finished, assessment `%(id)s` generated."
                         % {'id': assessment.uid})
+            if not imported_assessments:
+                raise Error("Nothing was imported")
             if not imported:
+                self.warn("Import failed.")
+                self.rollback_imported_assessments(imported_assessments)
                 raise Error("Nothing was imported")
 
     def make_assessment_data(self, assessment_id, record_list_files):
@@ -199,3 +206,9 @@ class BaseAssessmentImport(BaseLogging):
                          }
                     )
         return assessment
+
+    def rollback_imported_assessments(self, assessments):
+        for assessment in assessments:
+            self.warn("Rollback assessment `%(assessment_uid)s`."
+                      % {'assessment_uid': assessment.uid})
+            assessment.delete()

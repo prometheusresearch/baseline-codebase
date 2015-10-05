@@ -98,4 +98,4 @@ class AssessmentImportTask(CtlLogging, BaseAssessmentImport, RexTask):
 
     def __call__(self):
         with self.make():
-            self.start(self.instrument_uid, self.version, self.input)
+            self.start(self.instrument_uid, self.version, self.input, tolerant=True)

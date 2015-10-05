@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+0.3.0
+=====
+
+* Updated assessment-import to commit all or nothing if record import failed.
+
 0.2.0 (2015-09-30)
 ==================
 

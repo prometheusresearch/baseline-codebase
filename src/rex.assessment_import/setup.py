@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.assessment_import',
-    version='0.2.0',
+    version='0.3.0',
     description='Assessment Import Tools',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

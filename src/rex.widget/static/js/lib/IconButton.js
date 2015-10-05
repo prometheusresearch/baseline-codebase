@@ -52,7 +52,6 @@ export default class IconButton extends React.Component {
         <Icon
           name={name}
           aria-hidden={false}
-          className={this.theme.self}
           />
       </Root>
     );

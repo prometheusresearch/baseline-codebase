@@ -46,8 +46,8 @@ export default class Action extends React.Component {
   };
 
   render() {
-    var {children, title, onClose, width, className} = this.props;
-    var footer = this.props.renderFooter();
+    let {children, title, onClose} = this.props;
+    let footer = this.props.renderFooter();
     return (
       <VBox size={1} className={this.theme.self}>
         <HBox className={this.theme.header}>

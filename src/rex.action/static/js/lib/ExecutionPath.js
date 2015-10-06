@@ -59,7 +59,6 @@ export function fromPath(path, actions, instruction, initialContext) {
  * Serialize ``execution`` object to string suitable to be used as path.
  */
 export function toPath(execution) {
-  let startPosition = execution.trace[0];
   return '/' + StringUtils.joinWithSlash(execution.trace.slice(1).map(_positionToPath));
 }
 

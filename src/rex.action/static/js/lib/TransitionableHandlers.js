@@ -11,7 +11,7 @@ Transitionable.register('contextbinding', function decode_query(payload) {
   return new ContextBinding(payload[0], payload[1]);
 });
 
-Transitionable.register('type:any', function decode_type_any(payload) {
+Transitionable.register('type:any', function decode_type_any() {
   return Typing.anytype;
 });
 

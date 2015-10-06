@@ -2,6 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import React            from 'react';
 import autobind         from 'autobind-decorator';
 import {createLocation} from 'history';
 import createHistory    from 'history/lib/createHashHistory';
@@ -11,6 +12,8 @@ export default function HistoryAware(Component) {
   let displayName = Component.displayName || Component.name;
 
   return class extends React.Component {
+
+    static displayName = displayName;
 
     constructor(props) {
       super(props);

@@ -13,8 +13,8 @@ export class ContextBinding extends DataSpecification.Binding {
   }
 
   bindToContext(context, key) {
-    var bind = {};
-    var value = this.keys.map(key => {
+    let bind = {};
+    let value = this.keys.map(key => {
       let value = context.props.context[key];
       if (typeof value === 'object' && value['meta:type']) {
         value = value.id;

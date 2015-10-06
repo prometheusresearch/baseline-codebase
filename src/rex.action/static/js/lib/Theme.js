@@ -1,17 +1,13 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var RexWidget                   = require('rex-widget');
-var {overflow, boxShadow, rgb}  = RexWidget.StyleUtils;
+import {boxShadow, rgb} from 'rex-widget/lib/StyleUtils';
 
-var color = {
+export let color = {
   shadowLight: rgb(204, 204, 204)
 };
 
-var shadow = {
+export let shadow = {
   light: boxShadow(0, 0, 1, 0, color.shadowLight)
 };
-
-module.exports = {color, shadow};

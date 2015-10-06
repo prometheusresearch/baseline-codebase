@@ -2,9 +2,10 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import React                            from 'react';
 import autobind                         from 'autobind-decorator';
 import ReactStylesheet                  from '@prometheusresearch/react-stylesheet';
-import {HBox, VBox}                     from '@prometheusresearch/react-box';
+import {HBox}                           from '@prometheusresearch/react-box';
 import Icon                             from 'rex-widget/lib/Icon';
 import {getIcon, renderTitle, getTitle} from './actions';
 

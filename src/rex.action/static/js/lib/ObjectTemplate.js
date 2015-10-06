@@ -23,25 +23,25 @@ export function render(template, context) {
       typeof template
     );
   }
-  return rendered;
 }
 
 function renderObject(template, context) {
   let rendered = {};
   for (let key in template) {
-    if (template.hasOwnProperty(key)) {
-      let item = template[key];
-      if (item[0] === '$') {
-        let value = getByKeyPath(context, item.substr(1));
-        if (isEntity(value)) {
-          value = value.id;
-        }
-        rendered[key] = value;
-      } else {
-        rendered[key] = item;
-        if (isPlainObject(rendered[key])) {
-          rendered[key] = render(rendered[key], context);
-        }
+    if (!template.hasOwnProperty(key)) {
+      continue;
+    }
+    let item = template[key];
+    if (item[0] === '$') {
+      let value = getByKeyPath(context, item.substr(1));
+      if (isEntity(value)) {
+        value = value.id;
+      }
+      rendered[key] = value;
+    } else {
+      rendered[key] = item;
+      if (isPlainObject(rendered[key])) {
+        rendered[key] = render(rendered[key], context);
       }
     }
   }
@@ -62,7 +62,7 @@ function renderArray(template, context) {
 function isEmptyValue(obj) {
   let keys = Object.keys(obj);
   for (let i = 0; i < keys.length; i++) {
-    if (obj[keys[i]] != undefined) {
+    if (obj[keys[i]] != null) {
       return false;
     }
   }

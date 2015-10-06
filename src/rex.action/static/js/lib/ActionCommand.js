@@ -48,17 +48,17 @@ export class ActionCommand {
 class ArgumentType {
 
   @notImplemented
-  parse(actionElement, value) {
+  parse(_actionElement, _value) {
 
   }
 
   @notImplemented
-  stringify(actionElement, value) {
+  stringify(_actionElement, _value) {
 
   }
 
   @notImplemented
-  check(actionElement, value) {
+  check(_actionElement, _value) {
 
   }
 }

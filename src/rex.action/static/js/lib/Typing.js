@@ -4,14 +4,14 @@
 
 export class Type {
 
-  match(value) {
+  match() {
     throw new Error('not implemented');
   }
 }
 
 class AnyType extends Type {
 
-  match(value) {
+  match() {
     return true;
   }
 }
@@ -25,7 +25,7 @@ export class ValueType extends Type {
     this.name = name;
   }
 
-  match(value) {
+  match() {
     return true;
   }
 }

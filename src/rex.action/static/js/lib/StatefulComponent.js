@@ -2,8 +2,8 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind           from 'autobind-decorator';
-import React, {PropTypes} from 'react';
+import autobind from 'autobind-decorator';
+import React    from 'react';
 
 export default class StatefulComponent extends React.Component {
 

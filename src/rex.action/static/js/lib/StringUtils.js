@@ -9,7 +9,7 @@ export function makeEscape(character) {
 
   function escape(string) {
     return string.replace(re, '\\$&');
-  };
+  }
 
   return escape;
 }
@@ -35,7 +35,7 @@ export function makeSplitBy(character) {
       array.push('');
       string = string.substring(1);
     }
-    while (match = splitRe.exec(string)) {
+    while (match = splitRe.exec(string)) { // eslint-disable-line no-cond-assign
       array.push(string.substring(0, match.index + 1));
       string = string.substring(match.index + 2);
     }

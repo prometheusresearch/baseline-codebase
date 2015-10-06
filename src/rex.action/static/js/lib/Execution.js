@@ -5,7 +5,6 @@
 import memoize            from 'memoize-decorator';
 import invariant          from 'invariant';
 import * as Instruction   from './Instruction';
-import * as Typing        from './Typing';
 import * as ActionCommand from './ActionCommand';
 import * as Entity        from './Entity';
 
@@ -18,7 +17,7 @@ export const DEFAULT_INITIAL_CONTEXT = {
  */
 export class Position {
 
-  constructor(actions, context, instruction, parent, index = null, command = null) {
+  constructor(actions, context, instruction, parent, index = null, command = null) { // eslint-disable-line max-params,max-len
     this.actions = actions;
     this.context = context;
     this.instruction = instruction;
@@ -32,16 +31,38 @@ export class Position {
   }
 
   withContext(context) {
-    return new Position(this.actions, context, this.instruction, this.parent, this.index, this.command);
+    return new Position(
+      this.actions,
+      context,
+      this.instruction,
+      this.parent,
+      this.index,
+      this.command
+    );
   }
 
   thenWithContext(context) {
     if (this.parent && this.instruction.then.length === 0) {
       let thenExit = this.parent.thenWithContext(context);
-      let thenLoop = [Position.fromInstruction(this.actions, context, this.parent.instruction.repeat, this.parent, this.index + 1)];
+      let thenLoop = [
+        Position.fromInstruction(
+          this.actions,
+          context,
+          this.parent.instruction.repeat,
+          this.parent,
+          this.index + 1
+        )
+      ];
       return thenLoop.concat(thenExit);
     } else {
-      return this.instruction.then.map(inst => Position.fromInstruction(this.actions, context, inst, this.parent, this.index));
+      return this.instruction.then.map(inst =>
+        Position.fromInstruction(
+          this.actions,
+          context,
+          inst,
+          this.parent,
+          this.index
+        ));
     }
   }
 
@@ -154,11 +175,6 @@ function setTrace(execution, trace) {
   return execution;
 }
 
-const INITIAL_CONTEXT_TYPES = {
-  input: new Typing.RecordType(),
-  output: new Typing.RecordType()
-};
-
 /**
  * Start wizard.
  */
@@ -183,7 +199,6 @@ export function start(actions, instruction, initialContext) {
  * context.
  */
 export function advance(execution, action = null, contextUpdate = {}) {
-  let context = {...execution.position.context, ...contextUpdate};
   let currentPosition = execution.position.updateContext(contextUpdate);
   let trace = execution.trace.slice(0, execution.trace.length - 1);
   trace.push(currentPosition);
@@ -258,7 +273,6 @@ export function close(execution, action) {
  * Replace ``action`` action with ``nextAction`` action.
  */
 export function replace(execution, action, nextAction, tryAdvance = true) {
-  let context = execution.trace[execution.indexOf(action)].context;
   execution = close(execution, action);
   execution = advance(execution, nextAction);
   if (tryAdvance) {

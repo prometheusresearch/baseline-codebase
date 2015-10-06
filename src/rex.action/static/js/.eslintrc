@@ -9,6 +9,7 @@
   "globals": {
     "__require__": true,
     "__REX_WIDGET_MOUNT_PREFIX__": true,
+    "__REX_USER__": true,
     "__PUBLIC_PATH__": true,
     "__MOUNT_POINTS__": true
   },
@@ -93,7 +94,8 @@
     "no-shadow-restricted-names": 2,  // Disallow shadowing of names such as arguments
     "no-undef": 2,                    // Disallow use of undeclared variables unless mentioned in a /*global */ block
     "no-undef-init": 2,               // Disallow use of undefined when initializing variables
-    "no-unused-vars": 2,              // Disallow declaration of variables that are not used in the code
+    "no-unused-vars": [2, {"args": "after-used", "varsIgnorePattern": "^_",
+    "argsIgnorePattern": "^_"}],
     "no-use-before-define": 0,
 
     "indent": [1, 2],                 // This option sets a specific tab width for your code (off by default)

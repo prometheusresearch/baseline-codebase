@@ -1,13 +1,12 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React               = require('react/addons');
-var RexWidget           = require('rex-widget');
-var {VBox, HBox}        = RexWidget.Layout;
+import React      from 'react/addons';
+import RexWidget  from 'rex-widget';
+import {HBox}     from 'rex-widget/lib/Layout';
 
-var BreadcrumbStyle = {
+let BreadcrumbStyle = {
   self: {
     borderTop: '1px solid #d2d2d2',
     borderBottom: '1px solid #d2d2d2',
@@ -19,10 +18,10 @@ var BreadcrumbStyle = {
   },
 };
 
-var Breadcrumb = React.createClass({
+export default class Breadcrumb extends React.Component {
 
   render() {
-    var items = this.props.items.map((item, idx) =>
+    let items = this.props.items.map((item, idx) =>
       <BreadcrumbItem
         key={idx}
         active={this.props.active.indexOf(item.id) !== -1}
@@ -37,9 +36,9 @@ var Breadcrumb = React.createClass({
       </HBox>
     );
   }
-});
+}
 
-var BreadcrumbItemStyle = {
+let BreadcrumbItemStyle = {
   self: {
     paddingLeft: 13,
     paddingRight: 13,
@@ -70,11 +69,16 @@ var BreadcrumbItemStyle = {
   }
 };
 
-var BreadcrumbItem = React.createClass({
+@RexWidget.Hoverable
+class BreadcrumbItem extends React.Component {
+
+  static defaultProps = {
+    style: {self: undefined}
+  };
 
   render() {
-    var {item, onClick, hover, style, active, ...props} = this.props;
-    var styleSelf = {
+    let {item, onClick, hover, style, active, ...props} = this.props;
+    let styleSelf = {
       ...BreadcrumbItemStyle.self,
       ...style.self,
       ...(hover && BreadcrumbItemStyle.onHover.self),
@@ -90,15 +94,5 @@ var BreadcrumbItem = React.createClass({
         {item.title}
       </HBox>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      style: {self: undefined}
-    };
   }
-});
-
-BreadcrumbItem = RexWidget.Hoverable(BreadcrumbItem);
-
-module.exports = Breadcrumb;
+}

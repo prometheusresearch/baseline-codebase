@@ -8,9 +8,9 @@ import React, {PropTypes} from 'react';
 import RexWidget          from 'rex-widget';
 import {VBox, HBox}       from 'rex-widget/lib/Layout';
 import {translate3d}      from 'rex-widget/lib/StyleUtils';
+import WithDOMSize        from 'rex-widget/lib/WithDOMSize';
 
 import {getWidth}         from '../actions';
-import WithDOMSize        from '../WithDOMSize';
 import * as ActionCommand from '../ActionCommand';
 import * as Execution     from '../Execution';
 import * as ExecutionPath from '../ExecutionPath';
@@ -22,8 +22,6 @@ import ActionPanel        from './ActionPanel';
 import ServicePanel       from './ServicePanel';
 import WizardBreadcrumb   from './WizardBreadcrumb';
 import Style              from './Wizard.style';
-
-window.React = React;
 
 @WithDOMSize
 @HistoryAware

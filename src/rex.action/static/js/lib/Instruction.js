@@ -2,8 +2,6 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import invariant from 'invariant';
-
 class Instruction {
 
   constructor(then) {

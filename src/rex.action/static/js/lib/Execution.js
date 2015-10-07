@@ -4,16 +4,19 @@
 
 import invariant          from 'invariant';
 import Position           from './Position';
+import {quote}            from './StringUtils';
 import * as Instruction   from './Instruction';
 import * as ActionCommand from './ActionCommand';
 import * as Entity        from './Entity';
 
 export const DEFAULT_INITIAL_CONTEXT = {
-  USER: __REX_USER__ === null ? null : "'" + __REX_USER__ + "'"
+  USER: __REX_USER__ === null ?
+    null :
+    quote(__REX_USER__)
 };
 
 /**
- * Wizard execution state.
+ * Execution state.
  */
 export class Execution {
 
@@ -36,6 +39,65 @@ export class Execution {
       }
     }
     return -1;
+  }
+
+  /**
+   * Perform an entity update.
+   */
+  updateEntity(prevEntity, nextEntity) {
+    let nextTrace = [];
+    let position = this.trace[0];
+
+    for (let i = 0; i < this.trace.length; i++) {
+      let position = this.trace[i];
+      let nextContext = updateEntityInContext(
+        position.context,
+        prevEntity,
+        nextEntity
+      );
+      let nextPosition = position.withContext(nextContext);
+      if (!nextPosition.isAllowed) {
+        break;
+      }
+      if (nextPosition.command !== null) {
+        let args = nextPosition.command.args.map(arg =>
+          updateEntity(arg, prevEntity, nextEntity));
+        nextPosition = nextPosition.reexecuteCurrentCommand(...args);
+      }
+      nextTrace.push(nextPosition);
+    }
+    let nextExecution = new this.constructor(this.actions, nextTrace);
+    nextExecution = advance(nextExecution);
+    return nextExecution;
+  }
+}
+
+/**
+ * Produce a new context with the `prevEntity` replaced with the `nextEntity`.
+ */
+function updateEntityInContext(context, prevEntity, nextEntity) {
+  let nextContext = {};
+  for (let key in context) {
+    if (!context.hasOwnProperty(key) || !context[key]) {
+      continue;
+    }
+    let nextItem = updateEntity(context[key], prevEntity, nextEntity);
+    if (nextItem != null) {
+      nextContext[key] = nextItem;
+    }
+  }
+  return nextContext;
+}
+
+function updateEntity(obj, prevEntity, nextEntity) {
+  if (
+    Entity.isEntity(obj) &&
+    Entity.getEntityType(obj) === Entity.getEntityType(prevEntity) &&
+    obj.id === prevEntity.id
+  ) {
+    return nextEntity;
+  } else {
+    return obj;
   }
 }
 

@@ -56,6 +56,9 @@ export function makeJoinWith(character) {
   return joinWith;
 }
 
+export function quote(str) {
+  reutrn `'${str}'`;
+}
 
 export let joinWithComma = makeJoinWith(',');
 export let splitByComma = makeSplitBy(',');

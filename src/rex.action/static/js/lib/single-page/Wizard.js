@@ -5,6 +5,7 @@
 import autobind           from 'autobind-decorator';
 import ReactStylesheet    from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}       from '@prometheusresearch/react-box';
+import emptyFunction      from 'empty/function';
 import React              from 'react';
 import * as Execution     from '../Execution';
 import ActionButton       from './ActionButton';
@@ -35,6 +36,9 @@ export default class Wizard extends React.Component {
     let action = React.cloneElement(execution.position.element, {
       context: execution.position.context,
       onCommand: this._onCommand.bind(null, execution.position),
+      onContext: this._onContext.bind(null, execution.position),
+      onClose: emptyFunction,
+      onEntityUpdate: this._onEntityUpdate,
     });
     let {ActionPanel} = this.stylesheet;
     return (
@@ -89,7 +93,7 @@ export default class Wizard extends React.Component {
   @autobind
   _onCommand(position, commandName, ...args) {
     this.setState(state => {
-      let execution = state.execution;
+      let {execution} = state;
       // if position from which command originates differs from the current
       // execution position then close all further action panels.
       if (state.execution.position.keyPath !== position.keyPath) {
@@ -104,4 +108,20 @@ export default class Wizard extends React.Component {
       return {...state, execution};
     });
   }
+
+  @autobind
+  _onContext(position, context) {
+    let commandName = ActionCommand.onContextCommand.name;
+    return this._onCommand(position, commandName, context)
+  }
+
+  @autobind
+  _onEntityUpdate(prevEntity, nextEntity) {
+    this.setState(state => {
+      let {execution} = state;
+      execution = execution.updateEntity(prevEntity, nextEntity);
+      return {...state, execution};
+    });
+  }
+
 }

@@ -106,6 +106,7 @@ export default class Wizard extends Component {
                   className={Style.item}
                   style={{zIndex: 1000}}
                   onReplace={this.scheduleCommand(this.replace, pos.keyPath)}
+                  onEntityUpdate={this.scheduleCommand(this.entityUpdate)}
                   onCommand={this.scheduleCommand(this.executeActionCommand)}
                   onContext={this.scheduleCommand(this.onContext)}
                   onClose={idx > 0 ?
@@ -228,7 +229,22 @@ export default class Wizard extends Component {
 
   @Component.command
   onContext(state, position, context) {
-    return this.executeActionCommand(position, ActionCommand.onContextCommand.name, context)(state);
+    return this.executeActionCommand(
+      position,
+      ActionCommand.onContextCommand.name,
+      context
+    )(state);
+  }
+
+  @Component.command
+  entityUpdate(state, prevEntity, nextEntity) {
+    let {execution} = state;
+    execution = execution.updateEntity(prevEntity, nextEntity);
+    state = {...state, execution};
+    state = this.updateMetrics(state.execution.position.keyPath)(state);
+    state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
+    this._pushExecutionToPath(state.execution);
+    return state;
   }
 
   @Component.command

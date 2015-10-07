@@ -2,10 +2,11 @@ paths:
 
   /:
     access: anybody
-    widget: !<SinglePageWizard>
+    widget: !<SideBySideWizard>
       path:
       - pick-lab:
         - view-lab:
+        - drop-lab:
       - repeat:
           help:
           - home:
@@ -22,6 +23,7 @@ paths:
         - make-study:
         - pick-study:
           - view-study:
+          - drop-study:
           - edit-study:
         - pick-individual:
           - view-individual:
@@ -33,7 +35,7 @@ paths:
         study:
           editable:
             title: Editable
-            expression: code = 'studyg'
+            expression: code = 'asaed'
 
       actions:
 
@@ -43,6 +45,10 @@ paths:
 
         view-lab:
           type: view
+          entity: lab
+
+        drop-lab:
+          type: drop
           entity: lab
 
         make-lab:
@@ -126,6 +132,10 @@ paths:
           - user
           - closed
 
+        drop-study:
+          type: drop
+          entity: study
+
         make-individual:
           type: make
           entity: individual
@@ -157,7 +167,6 @@ paths:
           entity: study[editable]
           fields:
           - value_key: code
-            read_only: true
           - value_key: title
           value:
             title: HOHOHO
@@ -244,7 +253,7 @@ paths:
         study:
           editable:
             title: Editable
-            expression: code = 'studyg'
+            expression: code = 'asaedited'
 
       actions:
 

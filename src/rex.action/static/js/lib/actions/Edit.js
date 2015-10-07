@@ -37,7 +37,11 @@ let Edit = React.createClass({
     var {onClose, width} = this.props;
     var title = this.constructor.getTitle(this.props);
     return (
-      <Action width={width} onClose={onClose} title={title} renderFooter={this.renderFooter}>
+      <Action
+        width={width}
+        onClose={onClose}
+        title={title}
+        renderFooter={this.renderFooter}>
         {this.data.data.loaded ?
           this.renderForm() :
           <RexWidget.Preloader />}
@@ -53,7 +57,7 @@ let Edit = React.createClass({
         success
         icon="ok"
         size="small"
-        onClick={this.onSubmit}
+        onClick={this._onSubmit}
         align="center">
         {submitButton}
       </RexWidget.Button>
@@ -62,13 +66,17 @@ let Edit = React.createClass({
 
   renderForm() {
     var {entity, fields, value, context, contextTypes} = this.props;
-    value = mergeDeepInto(this.data.data.data, ObjectTemplate.render(value, context));
+    value = mergeDeepInto(
+      this.data.data.data,
+      ObjectTemplate.render(value, context)
+    );
     return (
       <RexWidget.Forms.ConfigurableEntityForm
         ref="form"
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={this.dataSpecs.data}
         submitButton={null}
+        onSubmitComplete={this._onSubmitComplete.bind(null, context[entity.name])}
         initialValue={this.data.data.data}
         value={value}
         entity={entity.type.name}
@@ -85,10 +93,14 @@ let Edit = React.createClass({
     };
   },
 
-  onSubmit(e) {
+  _onSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
     this.refs.form.submit();
+  },
+
+  _onSubmitComplete(prevEntity, nextEntity) {
+    this.props.onEntityUpdate(prevEntity, nextEntity);
   },
 
   statics: {
@@ -100,6 +112,7 @@ let Edit = React.createClass({
     getTitle(props) {
       return props.title || `Edit ${props.entity.name}`;
     }
+
   }
 });
 

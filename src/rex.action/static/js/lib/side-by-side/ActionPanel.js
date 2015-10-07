@@ -36,6 +36,7 @@ export default class ActionPanel extends React.Component {
       execution,
       onContext: this._onContext,
       onCommand: this._onCommand,
+      onEntityUpdate: this.props.onEntityUpdate,
       onClose
     });
     return (
@@ -59,4 +60,5 @@ export default class ActionPanel extends React.Component {
   _onCommand(commandName, ...args) {
     this.props.onCommand(this.props.position, commandName, ...args);
   }
+
 }

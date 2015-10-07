@@ -5,6 +5,7 @@
 import invariant          from 'invariant';
 import {Start}            from './Instruction';
 import * as Execution     from './Execution';
+import Position           from './Position';
 import * as StringUtils   from './StringUtils';
 import * as ActionCommand from './ActionCommand';
 
@@ -25,7 +26,7 @@ export function fromPath(path, actions, instruction, initialContext) {
     Start.is(instruction),
     'Can only start wizard from a "Start" instruction'
   );
-  let position = new Execution.Position(actions, {}, instruction, null, null);
+  let position = new Position(actions, {}, instruction, null, null);
   let execution = new Execution.Execution(actions, [position]);
 
   segments.forEach(segment => {

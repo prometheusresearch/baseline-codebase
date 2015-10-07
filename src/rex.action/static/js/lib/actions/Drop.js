@@ -29,7 +29,7 @@ export default class Drop extends React.Component {
     let {confirmDelay} = this.state;
     let title = this.constructor.getTitle(this.props);
     return (
-      <VBox size={1} className={Style.self} style={{width}}>
+      <VBox size={1} className={Style.self}>
         {title &&
           <HBox className={Style.header}>
             <VBox size={1} className={Style.title}>
@@ -78,12 +78,11 @@ export default class Drop extends React.Component {
   }
 
   drop = () => {
-    let {entity, context, onCommand, onClose} = this.props;
-    let id = context[entity.name].id;
-    this.props.data.delete({[entity.type.name]: {id}}).then(() => {
+    let {entity: {name, type}, context, onCommand, onClose} = this.props;
+    let entity = context[name];
+    this.props.data.delete({[type.name]: {id: entity.id}}).then(() => {
       RexWidget.forceRefreshData();
-      this.props.onCommand('default');
-      this.props.onClose()
+      this.props.onEntityUpdate(entity, null);
     });
   }
 
@@ -103,14 +102,5 @@ export default class Drop extends React.Component {
 
   static getTitle(props) {
     return props.title || `Drop ${props.entity.name}`;
-  }
-
-  static commands = {
-
-    @command()
-    default(props, context) {
-      return {...context, [props.entity.name]: undefined};
-    }
-
   }
 }

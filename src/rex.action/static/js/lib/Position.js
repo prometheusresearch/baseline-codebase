@@ -25,6 +25,11 @@ export default class Position {
     this.command = command;
   }
 
+  reexecuteCurrentCommand(...args) {
+    let {commandName} = this.command;
+    return this.executeCommand(commandName, ...args);
+  }
+
   updateContext(contextUpdate) {
     return this.withContext({...this.context, ...contextUpdate});
   }
@@ -129,7 +134,11 @@ export default class Position {
 
   @memoize
   get isAllowed() {
-    return this.contextTypes.input.match(this.context);
+    if (Instruction.Start.is(this.instruction)) {
+      return true;
+    } else {
+      return this.contextTypes.input.match(this.context);
+    }
   }
 
   static fromInstruction(actions, context, instruction, parent, index = null) {

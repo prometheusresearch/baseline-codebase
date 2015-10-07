@@ -57,7 +57,7 @@ export function makeJoinWith(character) {
 }
 
 export function quote(str) {
-  reutrn `'${str}'`;
+  return `'${str}'`;
 }
 
 export let joinWithComma = makeJoinWith(',');

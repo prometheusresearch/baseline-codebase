@@ -283,7 +283,7 @@ CommonJS module as React component::
     render() {
       let location = this.props.context.location
       let format = this.props.format
-      reutrn <WeatherForecast location={location} format={format} />
+      return <WeatherForecast location={location} format={format} />
     }
 
     static renderTitle(props, context) {
